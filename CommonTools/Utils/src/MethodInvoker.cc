@@ -191,7 +191,7 @@ invoker(const edm::TypeWithDict& type) const
 {
   //std::cout << "LazyInvoker for " << name_ << " called on type " <<
   //  type.qualifiedName() << std::endl;
-  SingleInvokerPtr& invoker = invokers_[edm::TypeID(type.id())];
+  SingleInvokerPtr& invoker = invokers_[edm::TypeID(type.typeInfo())];
   if (!invoker) {
     //std::cout << "  Making new invoker for " << name_ << " on type " <<
     //  type.qualifiedName() << std::endl;

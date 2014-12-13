@@ -238,7 +238,7 @@ namespace edm {
       } else if(!desc.present() && !desc.produced()) {
         // else if the branch containing the product has been previously dropped,
         // output nothing
-      } else if(desc.unwrappedType().typeInfo() == typeid(ThinnedAssociation)) {
+      } else if(desc.unwrappedType() == typeid(ThinnedAssociation)) {
         associationDescriptions.push_back(&desc);
       } else if(productSelector_.selected(desc)) {
         keepThisBranch(desc, trueBranchIDToKeptBranchDesc, keptProductsInEvent);

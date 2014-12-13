@@ -40,6 +40,8 @@ class TypeWithDict {
   friend class TypeBases;
   friend class TypeDataMembers;
   friend class TypeFunctionMembers;
+  friend bool operator==(TypeWithDict const&, std::type_info const&);
+  typedef enum{} dummyEnum;
 private:
   std::type_info const* ti_;
   TType* type_;
@@ -62,7 +64,6 @@ public:
   explicit TypeWithDict(TType* type, long property = 0L);
   explicit operator bool() const;
   std::type_info const& typeInfo() const;
-  std::type_info const& id() const;
   TClass* getClass() const;
   TEnum* getEnum() const;
   TDataType* getDataType() const;
@@ -127,6 +128,20 @@ bool operator==(TypeWithDict const& a, TypeWithDict const& b);
 
 inline bool operator!=(TypeWithDict const& a, TypeWithDict const& b) {
   return !(a == b);
+}
+
+bool operator==(TypeWithDict const& a, std::type_info const& b);
+
+inline bool operator!=(TypeWithDict const& a, std::type_info const& b) {
+  return !(a == b);
+}
+
+inline bool operator==(std::type_info const& a, TypeWithDict const& b) {
+  return b == a;
+}
+
+inline bool operator!=(std::type_info const& a, TypeWithDict const& b) {
+  return !(b == a);
 }
 
 std::ostream& operator<<(std::ostream& os, TypeWithDict const& id);

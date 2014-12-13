@@ -88,9 +88,9 @@ namespace edm {
     TEnum* theEnum = TEnum::GetEnum(name.c_str(), TEnum::kAutoload);
     if(theEnum) {
       return TypeWithDict(theEnum, name, property);
-    } 
+    }
 
-    TDataType* theDataType = gROOT->GetType(name.c_str()); 
+    TDataType* theDataType = gROOT->GetType(name.c_str());
     if(theDataType) {
       switch(theDataType->GetType()) {
       case kUInt_t:
@@ -229,7 +229,7 @@ namespace edm {
   }
 
   TypeWithDict::TypeWithDict(TEnum* enm, std::string const& name, long property /*= 0L*/) :
-    ti_(&typeid(int)),
+    ti_(&typeid(TypeWithDict::dummyEnum)),
     type_(nullptr),
     class_(nullptr),
     enum_(enm),
@@ -283,7 +283,7 @@ namespace edm {
       return false;
     }
     if (class_ != nullptr || dataType_ != nullptr || enum_ != nullptr) {
-      return true; 
+      return true;
     }
     assert(type_ != nullptr);
     return gInterpreter->Type_Bool(type_);
@@ -291,15 +291,11 @@ namespace edm {
 
   std::type_info const&
   TypeWithDict::typeInfo() const {
-    if(isEnum() && *ti_ == typeid(int)) {
-      TType* ttype = gInterpreter->Type_Factory(name());
-      return *gInterpreter->Type_TypeInfo(ttype);
+    bool haveGoodInfo = isClass() || isFundamental() || (isEnum() && *ti_ != typeid(dummyEnum));
+    if(!haveGoodInfo) {
+      // No accurate type_info
+      assert(qualifiedName().c_str() == nullptr);
     }
-    return *ti_;
-  }
-
-  std::type_info const&
-  TypeWithDict::id() const {
     return *ti_;
   }
 
@@ -426,8 +422,11 @@ namespace edm {
 
   std::string
   TypeWithDict::name() const {
-    if(enum_ != nullptr && *ti_ == typeid(int)) {
-      return enum_->GetQualifiedName();
+    if(isEnum()) {
+      if(enum_->GetClass()) {
+         return std::string(enum_->GetClass()->GetName()) + "::" + enum_->GetName();
+      }
+      return enum_->GetName();
     }
     return TypeID(*ti_).className();
   }
@@ -451,7 +450,7 @@ namespace edm {
 
   std::string
   TypeWithDict::friendlyClassName() const {
-    return friendlyname::friendlyName(name()); 
+    return friendlyname::friendlyName(name());
   }
 
   size_t
@@ -585,7 +584,7 @@ namespace edm {
     }
     if(enum_ != nullptr) {
       return *this;
-    } 
+    }
     return TypeWithDict(*ti_);
   }
 
@@ -789,7 +788,7 @@ namespace edm {
   hasDictionary(std::type_info const& ti) {
     if (ti.name()[1] == '\0') {
       // returns true for built in types (single character mangled names)
-      return true; 
+      return true;
     }
     return (TClassTable::GetDict(ti) != nullptr);
   }
@@ -797,6 +796,16 @@ namespace edm {
   bool
   operator==(TypeWithDict const& a, TypeWithDict const& b) {
     return a.name() == b.name();
+  }
+
+  bool
+  operator==(TypeWithDict const& a, std::type_info const& b) {
+    bool haveGoodInfo = a.isClass() || a.isFundamental() || (a.isEnum() && *a.ti_ != typeid(TypeWithDict::dummyEnum));
+    if(!haveGoodInfo) {
+      // No accurate type_info
+      return a.name() == TypeID(b).className();
+    }
+    return *a.ti_ == b;
   }
 
   std::ostream&

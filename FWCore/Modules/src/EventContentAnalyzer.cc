@@ -176,11 +176,11 @@ namespace edm {
        ObjectWithDict sizeObj;
        try {
           size_t temp; //used to hold the memory for the return value
+          FunctionWithDict sizeFunc = iObject.typeOf().functionMemberByName("size");
+          assert(sizeFunc.returnType() == typeid(size_t));
           sizeObj = ObjectWithDict(TypeWithDict(typeid(size_t)), &temp);
-          iObject.typeOf().functionMemberByName("size").invoke(iObject, &sizeObj);
-          assert(iObject.typeOf().functionMemberByName("size").returnType().typeInfo() == typeid(size_t));
+          sizeFunc.invoke(iObject, &sizeObj);
           //std::cout << "size of type '" << sizeObj.name() << "' " << sizeObj.typeName() << std::endl;
-          assert(sizeObj.typeOf().typeInfo() == typeid(size_t));
           size_t size = *reinterpret_cast<size_t*>(sizeObj.address());
           FunctionWithDict atMember;
           try {
