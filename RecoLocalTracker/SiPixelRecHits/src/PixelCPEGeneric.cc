@@ -522,6 +522,7 @@ generic_position_formula( int size,                //!< Size of this projection.
 
  #ifdef EDM_ML_DEBUG
   //--- Debugging output
+  /*   This part is commented because some variables used here are not defined !!
   if (theVerboseLevel > 20) {
     if ( theDetParam.thePart == GeomDetEnumerators::PixelBarrel || theDetParam.thePart == GeomDetEnumerators::P1PXB ) {
       cout << "\t >>> We are in the Barrel." ;
@@ -554,6 +555,7 @@ generic_position_formula( int size,                //!< Size of this projection.
       cout << "\n\t >>> Used angle information." ;
     cout << endl;
   }
+  */
 #endif
 
   return hit_pos;
