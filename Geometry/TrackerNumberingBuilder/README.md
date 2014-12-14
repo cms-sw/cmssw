@@ -169,3 +169,21 @@ The phase 2 detector DetId schema is identical to the one of the phase 1 detecto
 | _not used_ | 0 | 0x3 | 2 | | |
 
 The configuration names for this detid schema are `trackerNumbering2023Geometry_cfi` for `TrackerGeometricDetESModule` and `trackerTopology2023Constants_cfi` for `TrackerTopology`
+
+### Subdetector `GeometricDet` Enumerators
+
+The link between the subdetectors described in the geometry and the `DetId::subDetId()` is created by the `GeometricDet::GDEnumType` enumerators. Each subdetector name in the Tracker DDD is associated to a `GeometricDet::GDEnumType` enumerator which has to be of the form n*100+m where m is between 1 and 6 and it will correspond to the `DetId::subDetId()` value. The present link table is:
+
+| Tk DDD name | `GeometricDet::GDEnumType` | `DetId::subDetId()` |
+|-------------|------------------------|---------------------|
+| PixelBarrel | `PixelBarrel`=1 | 1=`PixelSubdetector::PixelBarrel` |
+| PixelEndcapSubDet | `PixelEndCap`=2 | 1=`PixelSubdetector::PixelEndcap` |
+| TIB | `TIB`=3 | 3=`StripSubdetector::TIB` |
+| TID | `TID`=4 | 4=`StripSubdetector::TID` |
+| TOB | `TOB`=5 | 5=`StripSubdetector::TOB` |
+| TEC | `TEC`=6 | 6=`StripSubdetector::TEC` |
+| PixelPhase1Barrel | `PixelPhase1Barrel`=101 | 1=`PixelSubdetector::PixelBarrel` |
+| PixelPhase1EndcapSubDet | `PixelPhase1EndCap`=102 | 2=`PixelSubdetector::PixelEndcap` |
+| PixelPhase2EndcapSubDet | `PixelPhase2EndCap`=202 | 2=`PixelSubdetector::PixelEndcap` |
+| Phase2OTBarrel | `OTPhase2Barrel`=205 | 5=`StripSubdetector::TOB` |
+| Phase2OTEndcap | `OTPhase2EndCap`=204 | 4=`StripSubdetector::TID` |
