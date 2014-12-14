@@ -12,7 +12,7 @@ The predefined DetId schemas available in this package are:
 
 In the table below the DetId levels which are in normal font represents _real_ hierarchy levels which are present 
 also in the `GeometricDet` tree which is build in parallel to the DetId assignment. Those levels which are in _italic_ font are _fake_ levels and are not known by the GeometricDet tree.
-When the name of the `TrackerTopology` method is written in _italic_, it means that its name does not reflect the actual attribute of the DetId which is returned. This is because, so far, the names of the methods are hardcoded and reflect the present Tracker detector.
+When the name of the `TrackerTopology` method is written in _italic_, it means that its name does not reflect the actual attribute of the DetId which is returned. This is because, so far, the names of the methods are hardcoded and reflect the present Tracker detector. In addition two generic methods, `TrackerTopology::layer(id)` and `TrackerTopology::side(id)` can be used to determine the layer/disk number and the side of the endcap subdetectors.
 
 ### Run 1 Detector DetId schema
 The Run 1 detector DetId schema profits of all the six available subdetectors (from 1 to 6) and it is defined as follows
@@ -119,33 +119,53 @@ corresponds to the Pixel Barrel and Forward detector. Therefore only them will b
 
 Subdetectors 3 to 6 are as for the Run 1 detector since the SiStrip Tracker is the same in phase1.
 
-The configuration names for this detid schema are `trackerNumberingSLHCGeometry_cfi` for `TrackerGeometricDetESModule` and `trackerTopologySLHCConstants_cfi` for `TrackerTopology`
+The configuration names for this detid schema are `trackerNumbering2017Geometry_cfi` for `TrackerGeometricDetESModule` and `trackerTopology2017Constants_cfi` for `TrackerTopology`
 
 ### Phase 2 Upgrade Detector DetId schema
-The phase 2 detector DetId schema is formally identical to the one of the phase 1 detector but only subdetectors 1 and 2
-are used. Furthermore the meaning of some levels is different if they apply to the inner pixel detector or to the 
-phase 2 OT detector 
+The phase 2 detector DetId schema is identical to the one of the phase 1 detector for the inner pixel detector while for the outer tracker subdetector 5, for the barrel, and subdetector 4, for the endcap, are used. In some cases the name of the `TrackerTopology` methods is not so meaningful.
+ 
+* Subdetector 1: (`DetId::subDetId() == PixelSubdetector::PixelBarrel`): Phase1 Pixel Barrel
 
-* Subdetector 1: Barrel (inner pixel + outer tracker) (`GeometricDet::PixelBarrel`)
+| Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
+|------|-----------|-----------|-----|----|-----|
+| _not used_ | 24 | 0x1 | 1 | | |
+| Layer | 20 | 0xF | 4 | pxbLayer(id) or layer(id) | increasing r |
+| Ladder | 12 | 0xFF | 8 | pxbLadder(id) | increasing phi |
+| Module | 2 | 0x3FF | 10 | pxbModule(id) | increasing z |
+| _not used_ | 0 | 0x3 | 2 | | |
 
-| Name | start bit | hex mask | bit size | Notes |
-|------|-----------|-----------|-----|----|
-| _not used_ | 24 | 0x1 | 1 | |
-| Layer | 20 | 0xF | 4 | increasing r |
-| Ladder | 12 | 0xFF | 8 | increasing phi |
-| Module | 2 | 0x3FF | 10 | increasing z. In the outer tracker modules in the same pt module are sorted by increasing r |
-| _not used_ | 0 | 0x3 | 2 | |
+* Subdetector 2: (`DetId::subDetId() == PixelSubdetector::PixelEndcap`): Phase2 Pixel Forward
 
-* Subdetector 2: Forward (inner pixel + outer tracker) (`GeometricDet::PixelPhase2EndCap`)
+| Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
+|------|-----------|-----------|----|-----|-----|
+| subdetector part | 23 | 0x3 | 2 | pxfSide(id) or side(id) | 1=FPIX- 2=FPIX+ |
+| _not used_ | 22 | 0x1 | 1 | | |
+| Disk | 18 | 0xF | 4 | pxfDisk(id) or layer(id) | increasing abs(z) |
+| _Blade_ | 12 | 0x3F | 6 | pxfBlade(id) | increasing phi and r: first inner ring blades and the outer ring blades |
+| Panel | 10 | 0x3 | 2 | pxbPanel(id) | 1=forward 2=backward |
+| Module | 2 | 0xFF | 8 | _pxbModule(id)_ | always = 1 |
+| _not used_ | 0 | 0x3 | 2 | | |
 
-| Name | start bit | hex mask | bit size | Notes |
-|------|-----------|-----------|----|-----|
-| subdetector part | 23 | 0x3 | 2 | 1=FPIX- 2=FPIX+ |
-| _not used_ | 22 | 0x1 | 1 | |
-| Disk | 18 | 0xF | 4 | inner pixel before outer tracker, then increasing abs(z) |
-| _Blade_ | 12 | 0x3F | 6 | inner pixel: increasing phi and r: first inner ring blades and the outer ring blades; outer tracker: "blade" is used for the ring (increasing r) |
-| Panel | 10 | 0x3 | 2 | inner pixel: 1=forward 2=backward; outer tracker: always = 1 |
-| Module | 2 | 0xFF | 8 | inner pixel: always = 1; outer tracker: increasing phi and modules in the same pt module are sorted by increasing abs(z) |
-| _not used_ | 0 | 0x3 | 2 | |
+* Subdetector 5  (`DetId::subDetId() == StripSubdetector::TOB`): Phase2 Outer Tracker Barrel
 
-The configuration names for this detid schema are `trackerNumberingSLHCGeometry_cfi` for `TrackerGeometricDetESModule` and `trackerTopologySLHCConstants_cfi` for `TrackerTopology`
+| Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
+|------|-----------|-----------|-----|----|-----|
+| _not used_ | 24 | 0x1 | 1 | | |
+| Layer | 20 | 0xF | 4 | tobLayer(id) or layer(id) | increasing r |
+| Ladder | 12 | 0xFF | 8 | tobRod(id) | increasing phi |
+| Module | 2 | 0x3FF | 10 | tobModule(id) | increasing z and in the same pt module modules are sorted by increasing r |
+| _not used_ | 0 | 0x3 | 2 | | |
+
+* Subdetector 4  (`DetId::subDetId() == StripSubdetector::TID`): Phase2 Outer Tracker Endcap
+
+| Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
+|------|-----------|-----------|----|-----|----|
+| subdetector part | 23 | 0x3 | 2 | tidSide(id) or side(id) | 1=-ve 2=+ve |
+| _not used_ | 22 | 0x1 | 1 | | |
+| Disk | 18 | 0xF | 4 | tidDisk(id) or side(id) | increasing abs(z) |
+| _Ring_ | 12 | 0x3F | 6 | tidRing(id) | increasing r |
+| Panel | 10 | 0x3 | 2 | _tidOrder(id)_ | always = 1 |
+| Module | 2 | 0xFF | 8 | tidModule(id) | increasing phi and modules in the same pt module are sorted by increasing abs(z) |
+| _not used_ | 0 | 0x3 | 2 | | |
+
+The configuration names for this detid schema are `trackerNumbering2023Geometry_cfi` for `TrackerGeometricDetESModule` and `trackerTopology2023Constants_cfi` for `TrackerTopology`
