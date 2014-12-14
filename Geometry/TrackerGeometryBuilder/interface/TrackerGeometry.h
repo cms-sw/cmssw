@@ -43,6 +43,7 @@ public:
 
   const GeomDetEnumerators::SubDetector geomDetSubDetector(int subdet) const;
   unsigned int numberOfLayers(int subdet) const;
+  bool isThere(GeomDetEnumerators::SubDetector subdet) const;
 
   void addType(GeomDetType* p);
   void addDetUnit(GeomDetUnit* p);

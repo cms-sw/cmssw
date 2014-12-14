@@ -192,6 +192,14 @@ TrackerGeometry::numberOfLayers(int subdet) const {
   }
 }
 
+bool
+TrackerGeometry::isThere(GeomDetEnumerators::SubDetector subdet) const {
+  for(unsigned int i=1;i<7;++i) {
+    if(subdet == geomDetSubDetector(i)) return true;
+  }
+  return false;
+}
+
 const TrackerGeometry::DetTypeContainer&  
 TrackerGeometry::detTypes()   const 
 {
