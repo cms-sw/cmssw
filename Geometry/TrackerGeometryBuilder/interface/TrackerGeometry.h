@@ -55,6 +55,7 @@ public:
 
   const GeomDetEnumerators::SubDetector geomDetSubDetector(int subdet) const;
   unsigned int numberOfLayers(int subdet) const;
+  bool isThere(GeomDetEnumerators::SubDetector subdet) const;
 
   unsigned int offsetDU(SubDetector sid) const { return theOffsetDU[sid];}
   unsigned int endsetDU(SubDetector sid) const { return theEndsetDU[sid];}
