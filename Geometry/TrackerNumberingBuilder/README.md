@@ -177,7 +177,7 @@ The link between the subdetectors described in the geometry and the `DetId::subD
 | Tk DDD name | `GeometricDet::GDEnumType` | `DetId::subDetId()` |
 |-------------|------------------------|---------------------|
 | PixelBarrel | `PixelBarrel`=1 | 1=`PixelSubdetector::PixelBarrel` |
-| PixelEndcapSubDet | `PixelEndCap`=2 | 1=`PixelSubdetector::PixelEndcap` |
+| PixelEndcapSubDet | `PixelEndCap`=2 | 2=`PixelSubdetector::PixelEndcap` |
 | TIB | `TIB`=3 | 3=`StripSubdetector::TIB` |
 | TID | `TID`=4 | 4=`StripSubdetector::TID` |
 | TOB | `TOB`=5 | 5=`StripSubdetector::TOB` |
