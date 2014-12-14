@@ -2,6 +2,11 @@ import ROOT
 def AddPhysObj(x):
 	x.physObj = x
 	return x
+def AddPhysObjAndCallInit(x):
+	x.physObj = x
+	x._physObjInit()
+	return x
+
 
 def decorate(orig,deco):
    for b in deco.__bases__ :

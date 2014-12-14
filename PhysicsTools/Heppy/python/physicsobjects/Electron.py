@@ -3,4 +3,4 @@ from classes.Electron import Electron
 import ROOT
 import FastObjects
 FastObjects.decorate(ROOT.pat.Electron,Electron)
-Electron=FastObjects.AddPhysObj
+Electron=FastObjects.AddPhysObjAndCallInit
