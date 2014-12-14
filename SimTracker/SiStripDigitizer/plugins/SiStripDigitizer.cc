@@ -45,8 +45,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-
 //Data Base infromations
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
@@ -108,8 +106,8 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
       unsigned int detId = (*it).detUnitId();
       if(detIds.insert(detId).second) {
         // The insert succeeded, so this detector element has not yet been processed.
-	unsigned int isub = DetId(detId).subdetId();
-        if((isub == StripSubdetector::TIB) || (isub == StripSubdetector::TID) || (isub == StripSubdetector::TOB) || (isub == StripSubdetector::TEC)) {
+	assert(detectorUnits[detId]);
+	if(detectorUnits[detId]->type().isTrackerStrip()) { // this test can be removed and replaced by stripdet!=0
 	  auto stripdet = detectorUnits[detId];
 	  //access to magnetic field in global coordinates
 	  GlobalVector bfield = pSetup->inTesla(stripdet->surface().position());
@@ -199,12 +197,7 @@ void SiStripDigitizer::initializeEvent(edm::Event const& iEvent, edm::EventSetup
   }
   for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); ++iu) {
     unsigned int detId = (*iu)->geographicalId().rawId();
-    DetId idet=DetId(detId);
-    unsigned int isub=idet.subdetId();
-    if((isub == StripSubdetector::TIB) ||
-       (isub == StripSubdetector::TID) ||
-       (isub == StripSubdetector::TOB) ||
-       (isub == StripSubdetector::TEC)) {
+    if((*iu)->type().isTrackerStrip()) {
       auto stripdet = dynamic_cast<StripGeomDetUnit const*>((*iu));
       assert(stripdet != 0);
       if(changes) { // Replace with ESWatcher
