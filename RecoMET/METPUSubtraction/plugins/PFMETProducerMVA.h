@@ -73,6 +73,11 @@ namespace reco
     void produce(edm::Event&, const edm::EventSetup&);
 
     // auxiliary functions
+    std::vector<reco::PUSubMETCandInfo> computeLeptonInfo(const std::vector<edm::EDGetTokenT<reco::CandidateView > >& srcLeptons_,
+							  const reco::CandidateView& pfCandidates,
+							  const reco::Vertex* hardScatterVertex, 
+							  int& lId, bool& lHasPhotons, edm::Event & iEvent);
+
     std::vector<reco::PUSubMETCandInfo> computeJetInfo(const reco::PFJetCollection&, const edm::Handle<reco::PFJetCollection>&,
 							  const edm::ValueMap<float>&, const reco::VertexCollection&, 
 							  const reco::Vertex*, const JetCorrector &iCorr,
