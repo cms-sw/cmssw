@@ -1,26 +1,16 @@
-import operator 
-import itertools
-import copy
-from math import *
 import ROOT
 from ROOT.heppy import TriggerBitChecker
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
-from PhysicsTools.HeppyCore.framework.event import Event
-from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
         
 class TriggerBitFilter( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(TriggerBitFilter,self).__init__(cfg_ana,cfg_comp,looperName)
-        if hasattr(self.cfg_ana,"processName"):
-                self.processName = self.cfg_ana.processName
-        else :
-                self.processName = 'HLT'
+        self.processName = getattr(self.cfg_ana,"processName","HLT")
         triggers = cfg_comp.triggers
         self.autoAccept = True if len(triggers) == 0 else False
         vetoTriggers = cfg_comp.vetoTriggers if hasattr(cfg_comp, 'vetoTriggers') else []
-        import ROOT
         trigVec = ROOT.vector(ROOT.string)()
         for t in triggers: trigVec.push_back(t)
         self.mainFilter = TriggerBitChecker(trigVec)
