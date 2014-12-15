@@ -69,19 +69,17 @@ class PhotonAnalyzer( Analyzer ):
 
             gamma.idCutBased = idWP(gamma, "PhotonCutBasedID%s")
 
-            keepThisPhoton = True
-            if (self.cfg_ana.gammaID=="PhotonCutBasedIDLoose_CSA14") :
-              if abs(gamma.eta())<1.479 :
-                if gamma.sigmaIetaIeta() > 0.012 : keepThisPhoton = False
-                if gamma.hOVERe() > 0.0559       : keepThisPhoton = False
-              else :
-                if gamma.sigmaIetaIeta() > 0.035 : keepThisPhoton = False
-                if gamma.hOVERe() > 0.049        : keepThisPhoton = False
-              gamma.idCutBased = keepThisPhoton
-              # we're keeing sigmaietaieta sidebands, but the id is false for them:
 
-              if abs(gamma.eta())< 1.479 and gamma.sigmaIetaIeta()>0.010  : gamma.idCutBased = False
-              if abs(gamma.eta())>=1.479 and gamma.sigmaIetaIeta()>0.0321 : gamma.idCutBased = False
+            keepThisPhoton = True
+            if self.cfg_ana.gammaID=="PhotonCutBasedIDLoose_CSA14" :
+                keepThisPhoton = gamma.photonIDCSA14("PhotonCutBasedIDLoose_CSA14")
+                gamma.idCutBased = keepThisPhoton
+                # we're keeing sigmaietaieta sidebands, but the id is false for them:
+                
+                if abs(gamma.eta())< 1.479 and gamma.sigmaIetaIeta()>0.010 : 
+                    gamma.idCutBased = False
+                if abs(gamma.eta())>=1.479 and gamma.sigmaIetaIeta()>0.0321 : 
+                    gamma.idCutBased = False
             else:
               keepThisPhoton = gamma.photonID(self.cfg_ana.gammaID)
 

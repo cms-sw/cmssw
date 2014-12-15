@@ -25,4 +25,15 @@ class Photon(PhysicsObject ):
     def photonIso(self):
         return self.physObj.photonIso()
 
+    def photonIDCSA14(self, name):
+        keepThisPhoton = True
+        if name == "PhotonCutBasedIDLoose_CSA14":
+            if abs(self.physObj.eta())<1.479 :
+                if self.physObj.sigmaIetaIeta() > 0.012 : keepThisPhoton = False
+                if self.hOVERe() > 0.0559       : keepThisPhoton = False
+            else :
+                if self.physObj.sigmaIetaIeta() > 0.035 : keepThisPhoton = False
+                if self.hOVERe() > 0.049        : keepThisPhoton = False
+        return keepThisPhoton
+                
     pass
