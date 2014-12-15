@@ -19,6 +19,7 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
   mOutputFile                    (iConfig.getUntrackedParameter<std::string>("OutputFile","")),
   JetType                        (iConfig.getUntrackedParameter<std::string>("JetType")),
   UEAlgo                         (iConfig.getUntrackedParameter<std::string>("UEAlgo")),
+  Background                     (iConfig.getParameter<edm::InputTag>       ("Background")),
   mRecoJetPtThreshold            (iConfig.getParameter<double>              ("recoJetPtThreshold")),
   mMatchGenPtThreshold           (iConfig.getParameter<double>              ("matchGenPtThreshold")),
   mGenEnergyFractionThreshold    (iConfig.getParameter<double>              ("genEnergyFractionThreshold")),
@@ -45,11 +46,18 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
     if(std::string("Pu")==UEAlgo) basicJetsToken_    = consumes<reco::BasicJetCollection>(mInputCollection);
     if(std::string("Vs")==UEAlgo) pfJetsToken_    = consumes<reco::PFJetCollection>(mInputCollection);
   }
+
   genJetsToken_ = consumes<reco::GenJetCollection>(edm::InputTag(mInputGenCollection));
   evtToken_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
-  pfCandToken_ = consumes<reco::PFCandidate>(mInputPFCandCollection);
-  // VoronoiToken_ = consumes<edm::ValueMap<reco::VoronoiBackground> 
+  pfCandToken_ = consumes<reco::PFCandidateCollection>(mInputPFCandCollection);
+  //backgrounds_ = consumes<reco::VoronoiBackground>(Background);
+  backgrounds_ = consumes<edm::ValueMap<reco::VoronoiBackground>>(Background);
   
+  // we need to get this 
+  // edm::ValueMap<reco::VoronoiBackground>    "voronoiBackgroundCalo"     ""                "DQMIO"   
+  // edm::ValueMap<reco::VoronoiBackground>    "voronoiBackgroundPF"       ""                "DQMIO"   
+  
+  // VoronoiToken_ = consumes<edm::ValueMap<reco::VoronoBackground> 
   
   // need to initialize the PF cand histograms : which are also event variables 
   mNPFpart = 0;
@@ -294,7 +302,7 @@ void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
     // particle flow variables histograms 
     mNPFpart         = ibooker.book1D("NPFpart","",1000,0,10000);
     mPFPt            = ibooker.book1D("PFPt","",100,0,1000);
-    mPFEta           = ibooket.book1D("PFEta","",120,-6,6);
+    mPFEta           = ibooker.book1D("PFEta","",120,-6,6);
     mPFPhi           = ibooker.book1D("PFPhi","",70,-3.5,3.5);
     mPFVsPt          = ibooker.book1D("PFVsPt","",100,0,1000);
     mPFVsPtInitial   = ibooker.book1D("PFVsPtInitial","",100,0,1000);
@@ -573,16 +581,75 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
   edm::Handle<PFJetCollection>    pfJets;
   edm::Handle<BasicJetCollection> basicJets;
 
+  // Get the Particle flow candidates and the Voronoi variables 
+  edm::Handle<reco::PFCandidateCollection> pfCandidates;
+  edm::Handle<reco::CandidateView> candidates_;
+
+  //const reco::PFCandidateCollection *pfCandidateColl = pfcandidates.product();
+  edm::Handle<edm::ValueMap<VoronoiBackground>> VsBackgrounds;
+  
   // for example
   // edm::Handle<PFCandidate /*name of actual handle*/> pfcand;
   // mEvent.getByToken(PFCandToken_,pfcand);
-
+  
   if (isCaloJet) mEvent.getByToken(caloJetsToken_, caloJets);
   if (isJPTJet)  mEvent.getByToken(jptJetsToken_, jptJets);
   if (isPFJet) {  
     if(std::string("Pu")==UEAlgo) mEvent.getByToken(basicJetsToken_, basicJets);
     if(std::string("Vs")==UEAlgo) mEvent.getByToken(pfJetsToken_, pfJets);
   }
+
+  mEvent.getByToken(pfCandToken_, pfCandidates);
+  mEvent.getByToken(pfCandToken_, candidates_);
+  mEvent.getByToken(backgrounds_, VsBackgrounds);
+
+  const reco::PFCandidateCollection *pfCandidateColl = pfCandidates.product();
+
+  Float_t vsPt=0;
+  Float_t vsPtInitial = 0;
+  Float_t vsArea = 0;
+  Int_t NPFpart = 0;
+  Float_t pfPt = 0;
+  Float_t pfEta = 0;
+  Float_t pfPhi = 0;
+  Float_t SumPt = 0;
+
+  for(unsigned icand=0;icand<pfCandidateColl->size(); icand++){
+
+    const reco::PFCandidate pfCandidate = pfCandidateColl->at(icand);
+    reco::CandidateViewRef ref(candidates_,icand);
+
+    if(std::string("Vs")==UEAlgo) {
+
+      const reco::VoronoiBackground& voronoi = (*VsBackgrounds)[ref];
+      vsPt = voronoi.pt();
+      vsPtInitial = voronoi.pt_subtracted();
+      vsArea = voronoi.area();
+
+      std::cout<<"vsPt = "<<vsPt<<"; vsPtInitial = "<<vsPtInitial<<"; vsArea = "<<vsArea<<std::endl;
+    }
+
+    NPFpart++;
+    pfPt = pfCandidate.pt();
+    pfEta = pfCandidate.eta();
+    pfPhi = pfCandidate.phi();
+    
+    SumPt = SumPt + pfPt;
+
+    mPFPt->Fill(pfPt);
+    mPFEta->Fill(pfEta);
+    mPFPhi->Fill(pfPhi);
+    mPFVsPt->Fill(vsPt);
+    mPFVsPtInitial->Fill(vsPtInitial);
+    //mPFVsPtEqualized
+    mPFArea->Fill(vsArea);
+    
+  }
+  
+  mNPFpart->Fill(NPFpart);
+  mSumpt->Fill(SumPt);
+
+  std::cout<<"finished loading the pfcandidates"<<std::endl;
 
   if (isCaloJet)
     {
