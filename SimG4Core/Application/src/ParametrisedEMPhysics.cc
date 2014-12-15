@@ -114,8 +114,18 @@ void ParametrisedEMPhysics::ConstructProcess() {
       }
     }
   }
-  // Russian Roulette part 
+  // bremsstrahlung threshold
   G4EmProcessOptions opt;
+  G4int verb = theParSet.getUntrackedParameter<int>("Verbosity",0);
+  opt.SetVerbose(verb - 1);
+
+  G4double bremth = theParSet.getParameter<double>("G4BremsstrahlungThreshold")*GeV; 
+  edm::LogInfo("SimG4CoreApplication") 
+    << "ParametrisedEMPhysics::ConstructProcess: bremsstrahlung threshold Eth= "
+    << bremth/GeV << " GeV"; 
+  opt.SetBremsstrahlungTh(bremth);
+  //  (m_pPhysics.getParameter<double>("G4BremsstrahlungThreshold")*GeV);
+  // Russian Roulette part 
   const G4int NREG = 6; 
   const G4String rname[NREG] = {"EcalRegion", "HcalRegion", "MuonIron",
 				"PreshowerRegion","CastorRegion",

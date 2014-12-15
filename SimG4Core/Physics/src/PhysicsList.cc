@@ -15,10 +15,12 @@ PhysicsList::PhysicsList(G4LogicalVolumeToDDLogicalPartMap & map,
 }
  
 PhysicsList::~PhysicsList() {
+  /*
   if (m_Verbosity > 1)
     LogDebug("Physics") << " G4BremsstrahlungThreshold was " 
 			<< G4LossTableManager::Instance()->BremsstrahlungTh()/GeV 
 			<< " GeV ";
+  */
   if (prodCuts!=0) delete prodCuts;
 }
 
@@ -27,15 +29,16 @@ void PhysicsList::SetCuts() {
   SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue")*cm);
   SetCutsWithDefault();
 
-  G4LossTableManager::Instance()->SetBremsstrahlungTh
-    (m_pPhysics.getParameter<double>("G4BremsstrahlungThreshold")*GeV);
+  // VI potentially unsafe to set bremsstrahlung threashold here
+  //G4LossTableManager::Instance()->SetBremsstrahlungTh
+  //  (m_pPhysics.getParameter<double>("G4BremsstrahlungThreshold")*GeV);
 
   if ( m_pPhysics.getParameter<bool>("CutsPerRegion") ) {
     prodCuts->update();
   }
 
   if ( m_Verbosity > 1) {
-    G4LossTableManager::Instance()->SetVerbose(m_Verbosity-1);
+    //G4LossTableManager::Instance()->SetVerbose(m_Verbosity-1);
     G4VUserPhysicsList::DumpCutValuesTable();
   }
 
