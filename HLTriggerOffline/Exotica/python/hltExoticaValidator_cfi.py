@@ -35,8 +35,8 @@ from HLTriggerOffline.Exotica.analyses.hltExoticaMonojetBackup_cff     import Mo
 from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedDimuonDijet_cff import DisplacedDimuonDijetPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaEleMu_cff             import EleMuPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaHTDisplacedJets_cff   import HTDisplacedJetsPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaPhotonMET             import PhotonMETPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaSingleMuon            import SingleMuonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaPhotonMET_cff         import PhotonMETPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaSingleMuon_cff        import SingleMuonPSet
 
 hltExoticaValidator = cms.EDAnalyzer(
 
