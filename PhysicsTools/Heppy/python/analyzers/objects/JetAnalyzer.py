@@ -1,9 +1,8 @@
-import random
+import math
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Jet
-from PhysicsTools.HeppyCore.utils.deltar import * 
-from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
+from PhysicsTools.HeppyCore.utils.deltar import deltaR2,  matchObjectCollection, matchObjectCollection2, bestMatch
 from PhysicsTools.Heppy.physicsutils.JetReCalibrator import JetReCalibrator
 import PhysicsTools.HeppyCore.framework.config as cfg
 
@@ -26,8 +25,8 @@ class JetAnalyzer( Analyzer ):
     """Taken from RootTools.JetAnalyzer, simplified, modified, added corrections    """
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(JetAnalyzer,self).__init__(cfg_ana, cfg_comp, looperName)
-        mcGT   = cfg_ana.mcGT   if hasattr(cfg_ana,'mcGT') else "START53_V27"
-        dataGT = cfg_ana.dataGT if hasattr(cfg_ana,'dataGT') else "FT_53_V21_AN5"
+        mcGT   = cfg_ana.mcGT   if hasattr(cfg_ana,'mcGT')   else "PHYS14_25_V1"
+        dataGT = cfg_ana.dataGT if hasattr(cfg_ana,'dataGT') else "GR_70_V2_AN1"
         self.shiftJEC = self.cfg_ana.shiftJEC if hasattr(self.cfg_ana, 'shiftJEC') else 0
         self.doJEC = self.cfg_ana.recalibrateJets or (self.shiftJEC != 0)
         if self.doJEC:
@@ -39,11 +38,12 @@ class JetAnalyzer( Analyzer ):
         self.jetLepDR = self.cfg_ana.jetLepDR  if hasattr(self.cfg_ana, 'jetLepDR') else 0.5
         self.lepPtMin = self.cfg_ana.minLepPt  if hasattr(self.cfg_ana, 'minLepPt') else -1
         self.jetGammaDR = self.cfg_ana.jetGammaDR  if hasattr(self.cfg_ana, 'jetGammaDR') else 0.4
-        self.qglcalc = QGLikelihoodCalculator("/afs/cern.ch/user/t/tomc/public/QG_pdfs_13TeV_2014-10-12/pdfQG_AK4chs_antib_NoQC_13TeV.root")
+        if(self.cfg_ana.doQG):
+            self.qglcalc = QGLikelihoodCalculator("/afs/cern.ch/user/t/tomc/public/QG_pdfs_13TeV_2014-10-12/pdfQG_AK4chs_antib_NoQC_13TeV.root")
 
     def declareHandles(self):
         super(JetAnalyzer, self).declareHandles()
-        self.handles['jets']     = AutoHandle( self.cfg_ana.jetCol, 'std::vector<pat::Jet>' )
+        self.handles['jets']   = AutoHandle( self.cfg_ana.jetCol, 'std::vector<pat::Jet>' )
         self.handles['genJet'] = AutoHandle( 'slimmedGenJets', 'vector<reco::GenJet>' )
         self.shiftJER = self.cfg_ana.shiftJER if hasattr(self.cfg_ana, 'shiftJER') else 0
         self.handles['rho'] = AutoHandle( ('fixedGridRhoFastjetAll','',''), 'double' )
@@ -64,6 +64,13 @@ class JetAnalyzer( Analyzer ):
             #print "\nCalibrating jets %s for lumi %d, event %d" % (self.cfg_ana.jetCol, event.lumi, event.eventId)
             self.jetReCalibrator.correctAll(allJets, rho, delta=self.shiftJEC, metShift=event.deltaMetFromJEC)
         event.allJetsUsedForMET = allJets
+
+        event.deltaMetFromJetSmearing = [0, 0]
+        if self.cfg_comp.isMC:
+            event.genJets = [ x for x in self.handles['genJet'].product() ]
+            self.matchJets(event, allJets)
+            if getattr(self.cfg_ana, 'smearJets', False):
+                self.smearJets(event, allJets)
        
         ## Apply jet selection
         event.jets = []
@@ -108,27 +115,30 @@ class JetAnalyzer( Analyzer ):
         event.gamma_cleanJetsFwd = [j for j in event.gamma_cleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
         ###
 
-        event.deltaMetFromJetSmearing = [0, 0]
 
-        if not self.cfg_comp.isMC: 
-            return True
+        ## Associate jets to leptons
+        leptons = event.inclusiveLeptons if hasattr(event, 'inclusiveLeptons') else event.selectedLeptons
+        jlpairs = matchObjectCollection( leptons, allJets, self.jetLepDR**2)
+        for lep in leptons:
+            jet = jlpairs[lep]
+            if jet is None:
+                lep.jet = lep
+            else:
+                lep.jet = jet
 
-        event.genJets = [ x for x in self.handles['genJet'].product() ]
-        cleanGenJets = cleanNearestJetOnly(event.genJets, event.selectedLeptons, 0.5)
+        if self.cfg_comp.isMC:
+            event.cleanGenJets = cleanNearestJetOnly(event.genJets, event.selectedLeptons, 0.5)
+            
+            #event.nGenJets25 = 0
+            #event.nGenJets25Cen = 0
+            #event.nGenJets25Fwd = 0
+            #for j in event.cleanGenJets:
+            #    event.nGenJets25 += 1
+            #    if abs(j.eta()) <= 2.4: event.nGenJets25Cen += 1
+            #    else:                   event.nGenJets25Fwd += 1
+                    
+            self.jetFlavour(event)
         
-        #event.nGenJets25 = 0
-        #event.nGenJets25Cen = 0
-        #event.nGenJets25Fwd = 0
-        #for j in cleanGenJets:
-        #    event.nGenJets25 += 1
-        #    if abs(j.eta()) <= 2.4: event.nGenJets25Cen += 1
-        #    else:                   event.nGenJets25Fwd += 1
-                
-        self.matchJets(event)
-        self.jetFlavour(event)
-        
-        if not hasattr(self.cfg_ana, 'smearJets') or self.cfg_ana.smearJets:
-            self.smearJets(event)
     
         return True
 
@@ -252,27 +262,27 @@ class JetAnalyzer( Analyzer ):
         event.heaviestQCDFlavour = 5 if len(event.bqObjects) else (4 if len(event.cqObjects) else 1);
  
 
-    def matchJets(self, event):
-        match = matchObjectCollection2(event.cleanJetsAll,
+    def matchJets(self, event, jets):
+        match = matchObjectCollection2(jets,
                                        event.genbquarks + event.genwzquarks,
                                        deltaRMax = 0.3)
-        for jet in event.cleanJetsAll:
+        for jet in jets:
             gen = match[jet]
             jet.mcParton    = gen
             jet.mcMatchId   = (gen.sourceId     if gen != None else 0)
             jet.mcMatchFlav = (abs(gen.pdgId()) if gen != None else 0)
 
-        match = matchObjectCollection2(event.cleanJetsAll,
+        match = matchObjectCollection2(jets,
                                        event.genJets,
                                        deltaRMax = 0.3)
-        for jet in event.cleanJetsAll:
+        for jet in jets:
             jet.mcJet = match[jet]
 
 
  
-    def smearJets(self, event):
+    def smearJets(self, event, jets):
         # https://twiki.cern.ch/twiki/bin/viewauth/CMS/TWikiTopRefSyst#Jet_energy_resolution
-       for jet in event.cleanJetsAll:
+       for jet in jets:
             gen = jet.mcJet 
             if gen != None:
                genpt, jetpt, aeta = gen.pt(), jet.pt(), abs(jet.eta())
