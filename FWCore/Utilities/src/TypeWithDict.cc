@@ -31,6 +31,7 @@
 
 #include <cxxabi.h>
 
+//#include <iostream>
 namespace edm {
    static
    void throwTypeException(std::string const& function, std::string const& typeName) {
@@ -134,6 +135,7 @@ namespace edm {
       return TypeWithDict(typeid(void), property);
     }
 
+    // std::cerr << "DEBUG BY NAME: " << name << std::endl;
     TType* type = gInterpreter->Type_Factory(name);
     if (!gInterpreter->Type_IsValid(type)) {
       typeMap.insert(std::make_pair(name, TypeWithDict()));
@@ -144,7 +146,7 @@ namespace edm {
   }
 
   TypeWithDict::TypeWithDict() :
-    ti_(&typeid(void)),
+    ti_(&typeid(TypeWithDict::invalidType)),
     type_(nullptr),
     class_(nullptr),
     enum_(nullptr),
@@ -213,6 +215,12 @@ namespace edm {
       return;
     }
 
+    if(ti == typeid(void)) {
+      return;
+    }
+
+    // std::cerr << "DEBUG BY TI: " << name() << std::endl;
+
     type_ = gInterpreter->Type_Factory(ti);
     if (!gInterpreter->Type_IsValid(type_)) {
       throwTypeException("TypeWithDict(TType*, property): ", name());
@@ -229,7 +237,7 @@ namespace edm {
   }
 
   TypeWithDict::TypeWithDict(TEnum* enm, std::string const& name, long property /*= 0L*/) :
-    ti_(&typeid(TypeWithDict::dummyEnum)),
+    ti_(&typeid(TypeWithDict::dummyType)),
     type_(nullptr),
     class_(nullptr),
     enum_(enm),
@@ -242,7 +250,7 @@ namespace edm {
   }
 
   TypeWithDict::TypeWithDict(TType* ttype, long property /*= 0L*/) :
-    ti_(&typeid(void)),
+    ti_(&typeid(invalidType)),
     type_(ttype),
     class_(nullptr),
     enum_(nullptr),
@@ -268,18 +276,30 @@ namespace edm {
       property_ |= (long) kIsReference;
     }
     dataType_ = TDataType::GetDataType(TDataType::GetType(*ti_));
+    // if(dataType_ != nullptr) {
+    //  std::cerr << "DEBUG BY TTYPE FUNDAMENTAL: " << name() << std::endl;
+    //}
     if (!gInterpreter->Type_IsFundamental(ttype) &&
+        !gInterpreter->Type_IsArray(ttype) &&
+        !gInterpreter->Type_IsPointer(ttype) &&
         !gInterpreter->Type_IsEnum(ttype)) {
       // Must be a class, struct, or union.
       class_ = TClass::GetClass(*ti_);
+      // if(class_ != nullptr) {
+      //  std::cerr << "DEBUG BY TTYPE CLASS: " << name() << std::endl;
+      //  return;
+      // } 
     }
     if (gInterpreter->Type_IsEnum(ttype)) {
       enum_ = TEnum::GetEnum(*ti_, TEnum::kAutoload);
+      // if(enum_ != nullptr) {
+      //  std::cerr << "DEBUG BY TTYPE ENUM: " << name() << std::endl;
+      // }
     }
   }
 
   TypeWithDict::operator bool() const {
-    if (*ti_ == typeid(void)) {
+    if (*ti_ == typeid(invalidType)) {
       return false;
     }
     if (class_ != nullptr || dataType_ != nullptr || enum_ != nullptr) {
@@ -291,8 +311,7 @@ namespace edm {
 
   std::type_info const&
   TypeWithDict::typeInfo() const {
-    bool haveGoodInfo = isClass() || isFundamental() || (isEnum() && *ti_ != typeid(dummyEnum));
-    if(!haveGoodInfo) {
+    if(*ti_ == typeid(dummyType)) {
       // No accurate type_info
       assert(qualifiedName().c_str() == nullptr);
     }
@@ -374,7 +393,7 @@ namespace edm {
 
   bool
   TypeWithDict::isTypedef() const {
-    if (class_ != nullptr || dataType_ != nullptr || enum_ != nullptr || *ti_ == typeid(void)) {
+    if (class_ != nullptr || dataType_ != nullptr || enum_ != nullptr || *ti_ == typeid(void) || *ti_ == typeid(invalidType)) {
       return false;
     }
     assert(type_ != nullptr);
@@ -579,7 +598,7 @@ namespace edm {
 
   TypeWithDict
   TypeWithDict::finalType() const {
-    if (*ti_ == typeid(void)) {
+    if (*ti_ == typeid(invalidType)) {
       return TypeWithDict();
     }
     if(enum_ != nullptr) {
@@ -590,7 +609,7 @@ namespace edm {
 
   TypeWithDict
   TypeWithDict::toType() const {
-    if (*ti_ == typeid(void)) {
+    if (*ti_ == typeid(invalidType)) {
       return TypeWithDict();
     }
     if(isReference()) {
@@ -800,8 +819,7 @@ namespace edm {
 
   bool
   operator==(TypeWithDict const& a, std::type_info const& b) {
-    bool haveGoodInfo = a.isClass() || a.isFundamental() || (a.isEnum() && *a.ti_ != typeid(TypeWithDict::dummyEnum));
-    if(!haveGoodInfo) {
+    if(*a.ti_ == typeid(TypeWithDict::dummyType)) {
       // No accurate type_info
       return a.name() == TypeID(b).className();
     }

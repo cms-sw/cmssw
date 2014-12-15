@@ -41,7 +41,8 @@ class TypeWithDict {
   friend class TypeDataMembers;
   friend class TypeFunctionMembers;
   friend bool operator==(TypeWithDict const&, std::type_info const&);
-  typedef enum{} dummyEnum;
+  typedef enum{} dummyType; // Tag for valid type, but no type_info information
+  typedef dummyType** invalidType; // Tag for invalid type
 private:
   std::type_info const* ti_;
   TType* type_;
