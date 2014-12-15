@@ -91,45 +91,9 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
   // (excluded from sum over PFCandidates when computing hadronic recoil)
   int  lId         = 0;
   bool lHasPhotons = false;
-  std::vector<reco::PUSubMETCandInfo> leptonInfo;
-  for ( std::vector<edm::EDGetTokenT<reco::CandidateView > >::const_iterator srcLeptons_i = srcLeptons_.begin();
-	srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i ) {
-    edm::Handle<reco::CandidateView> leptons;
-    evt.getByToken(*srcLeptons_i, leptons);
-    for ( reco::CandidateView::const_iterator lepton1 = leptons->begin();
-	  lepton1 != leptons->end(); ++lepton1 ) {
-      bool pMatch = false;
-      for ( std::vector<edm::EDGetTokenT<reco::CandidateView> >::const_iterator srcLeptons_j = srcLeptons_.begin();
-	    srcLeptons_j != srcLeptons_.end(); ++srcLeptons_j ) {
-	edm::Handle<reco::CandidateView> leptons2;
-	evt.getByToken(*srcLeptons_j, leptons2);
-	for ( reco::CandidateView::const_iterator lepton2 = leptons2->begin();
-	      lepton2 != leptons2->end(); ++lepton2 ) {
-	  if(&(*lepton1) == &(*lepton2)) { continue; }
-	  if(deltaR2(lepton1->p4(),lepton2->p4()) < dR2Max) { pMatch = true; }
-	  if(pMatch &&     !istau(&(*lepton1)) &&  istau(&(*lepton2))) { pMatch = false; }
-	  if(pMatch &&    ( (istau(&(*lepton1)) && istau(&(*lepton2))) || (!istau(&(*lepton1)) && !istau(&(*lepton2)))) 
-	     &&     lepton1->pt() > lepton2->pt()) { pMatch = false; }
-	  if(pMatch && lepton1->pt() == lepton2->pt()) {
-	    pMatch = false;
-	    for(unsigned int i0 = 0; i0 < leptonInfo.size(); i0++) {
-	      if(std::abs(lepton1->pt() - leptonInfo[i0].p4_.pt()) < dPtMatch) { pMatch = true; break; }
-	    }
-	  }
-	  if(pMatch) break;
-	}
-	if(pMatch) break;
-      }
-      if(pMatch) continue;
-      reco::PUSubMETCandInfo pLeptonInfo;
-      pLeptonInfo.p4_          = lepton1->p4();
-      pLeptonInfo.chargedEnFrac_ = chargedEnFrac(&(*lepton1),*pfCandidates_view,hardScatterVertex);
-      leptonInfo.push_back(pLeptonInfo); 
-      if(lepton1->isPhoton()) { lHasPhotons = true; }
-    }
-    lId++;
-  }
- 
+  std::vector<reco::PUSubMETCandInfo> leptonInfo = computeLeptonInfo(srcLeptons_,*pfCandidates_view,hardScatterVertex, lId, lHasPhotons,
+								     evt);
+
   // initialize MVA MET algorithm
   // (this will load the BDTs, stored as GBRForrest objects;
   //  either in input ROOT files or in SQL-lite files/the Conditions Database) 
@@ -171,6 +135,56 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
   pfMEtCollection->push_back(pfMEt);
   evt.put(pfMEtCollection);
 }
+
+std::vector<reco::PUSubMETCandInfo>
+PFMETProducerMVA::computeLeptonInfo(const std::vector<edm::EDGetTokenT<reco::CandidateView > >& srcLeptons_,
+				    const reco::CandidateView& pfCandidates_view,
+				    const reco::Vertex* hardScatterVertex,
+				    int& lId, bool& lHasPhotons, edm::Event& evt ) {
+
+  std::vector<reco::PUSubMETCandInfo> leptonInfo;
+
+  for ( std::vector<edm::EDGetTokenT<reco::CandidateView > >::const_iterator srcLeptons_i = srcLeptons_.begin();
+	srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i ) {
+    edm::Handle<reco::CandidateView> leptons;
+    evt.getByToken(*srcLeptons_i, leptons);
+    for ( reco::CandidateView::const_iterator lepton1 = leptons->begin();
+	  lepton1 != leptons->end(); ++lepton1 ) {
+      bool pMatch = false;
+      for ( std::vector<edm::EDGetTokenT<reco::CandidateView> >::const_iterator srcLeptons_j = srcLeptons_.begin();
+	    srcLeptons_j != srcLeptons_.end(); ++srcLeptons_j ) {
+	edm::Handle<reco::CandidateView> leptons2;
+	evt.getByToken(*srcLeptons_j, leptons2);
+	for ( reco::CandidateView::const_iterator lepton2 = leptons2->begin();
+	      lepton2 != leptons2->end(); ++lepton2 ) {
+	  if(&(*lepton1) == &(*lepton2)) { continue; }
+	  if(deltaR2(lepton1->p4(),lepton2->p4()) < dR2Max) { pMatch = true; }
+	  if(pMatch &&     !istau(&(*lepton1)) &&  istau(&(*lepton2))) { pMatch = false; }
+	  if(pMatch &&    ( (istau(&(*lepton1)) && istau(&(*lepton2))) || (!istau(&(*lepton1)) && !istau(&(*lepton2)))) 
+	     &&     lepton1->pt() > lepton2->pt()) { pMatch = false; }
+	  if(pMatch && lepton1->pt() == lepton2->pt()) {
+	    pMatch = false;
+	    for(unsigned int i0 = 0; i0 < leptonInfo.size(); i0++) {
+	      if(std::abs(lepton1->pt() - leptonInfo[i0].p4_.pt()) < dPtMatch) { pMatch = true; break; }
+	    }
+	  }
+	  if(pMatch) break;
+	}
+	if(pMatch) break;
+      }
+      if(pMatch) continue;
+      reco::PUSubMETCandInfo pLeptonInfo;
+      pLeptonInfo.p4_          = lepton1->p4();
+      pLeptonInfo.chargedEnFrac_ = chargedEnFrac(&(*lepton1),pfCandidates_view,hardScatterVertex);
+      leptonInfo.push_back(pLeptonInfo); 
+      if(lepton1->isPhoton()) { lHasPhotons = true; }
+    }
+    lId++;
+  }
+ 
+  return leptonInfo;
+}
+
 
 std::vector<reco::PUSubMETCandInfo> 
 PFMETProducerMVA::computeJetInfo(const reco::PFJetCollection& uncorrJets, 
