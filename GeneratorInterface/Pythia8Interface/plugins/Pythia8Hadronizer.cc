@@ -10,6 +10,7 @@
 
 #include "Pythia8/Pythia.h"
 #include "Pythia8Plugins/HepMC2.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/HepMCA2.h"
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
@@ -128,6 +129,7 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     int nFSRveto;
 
     int NHooks;
+
 };
 
 const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = { edm::SharedResourceNames::kPythia8 };
@@ -553,8 +555,12 @@ bool Pythia8Hadronizer::residualDecay()
 
   int NPartsBeforeDecays = pythiaEvent->size();
   int NPartsAfterDecays = event().get()->particles_size();
-  int NewBarcode = NPartsAfterDecays;
 
+  if(NPartsAfterDecays == NPartsBeforeDecays) return true;
+
+  HepMC::Pythia8ToHepMCA toHepMCA;
+  bool result = true;
+ 
   for ( int ipart=NPartsAfterDecays; ipart>NPartsBeforeDecays; ipart-- )
   {
 
@@ -582,40 +588,12 @@ bool Pythia8Hadronizer::residualDecay()
 
       part->set_status(2);
 
-      Particle& py8daughter = fDecayer->event[nentries]; // the 1st daughter
-      HepMC::GenVertex* DecVtx = new HepMC::GenVertex( HepMC::FourVector(py8daughter.xProd(),
-                                                       py8daughter.yProd(),
-                                                       py8daughter.zProd(),
-                                                       py8daughter.tProd()) );
-
-      DecVtx->add_particle_in( part ); // this will cleanup end_vertex if exists, replace with the new one
-                                       // I presume (vtx) barcode will be given automatically
-
-      HepMC::FourVector pmom( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );
-
-      HepMC::GenParticle* daughter =
-                        new HepMC::GenParticle( pmom, py8daughter.id(), 1 );
-
-      NewBarcode++;
-      daughter->suggest_barcode( NewBarcode );
-      DecVtx->add_particle_out( daughter );
-
-      for ( int ipart1=nentries+1; ipart1<nentries1; ipart1++ )
-      {
-        py8daughter = fDecayer->event[ipart1];
-        HepMC::FourVector pmomN( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );
-        HepMC::GenParticle* daughterN =
-                        new HepMC::GenParticle( pmomN, py8daughter.id(), 1 );
-        NewBarcode++;
-        daughterN->suggest_barcode( NewBarcode );
-        DecVtx->add_particle_out( daughterN );
-      }
-
-      event().get()->add_vertex( DecVtx );
+      result = toHepMCA.append_event( fDecayer->event, event().get(), part);
 
     }
- }
- return true;
+  }
+
+  return result;
 
 }
 
