@@ -134,7 +134,7 @@ def getHighMultVPSet():
             mainDQMDirname = cms.untracked.string(fsqdirname),
             singleObjectsPreselection = cms.string("1==1"),
             singleObjectDrawables =  cms.VPSet(
-                cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(50), min = cms.double(0.4), max = cms.double(10)),
+                cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(200), min = cms.double(0.0), max = cms.double(10)),
                 cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5)),
                 cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
             ),
@@ -148,9 +148,11 @@ def getHighMultVPSet():
         hltPixelTracksEta16to18 = hltPixelTracks.clone()
         hltPixelTracksEta16to18.singleObjectsPreselection='abs(eta) > 1.6 && abs(eta) < 1.8'
         hltPixelTracksEta16to18.dqmhistolabel  = cms.string("hltPixelTracksEta16to18")
+        for i in hltPixelTracksEta16to18.singleObjectDrawables:
+            if i.name == "eta":
+                hltPixelTracksEta16to18.singleObjectDrawables.remove(i)
+
         ret.append(hltPixelTracksEta16to18)
-
-
 
         # FIXME: what variables it makes sense to plot in case of ETT seeds?
         l1 =  cms.PSet(
@@ -312,7 +314,7 @@ def getPTAveVPSet():
                 partialFilterName  = cms.string("hltDiPFJetAve"),
                 dqmhistolabel  = cms.string("recoPFJetsTopology"),
                 mainDQMDirname = cms.untracked.string(fsqdirname),
-                singleObjectsPreselection = cms.string("pt > + "+str(recoThr) +" && abs(eta)<1.4 || abs(eta) > 2.7 "),
+                singleObjectsPreselection = cms.string("pt > "+str(recoThr) +" && abs(eta)<1.4 || abs(eta) > 2.7 "),
                 singleObjectDrawables =  cms.VPSet(),
                 combinedObjectSelection =  cms.string("abs(at(0).eta())< 1.3 && abs(at(1).eta()) > 2.8 && abs(deltaPhi(at(0).phi, at(1).phi)) > 2.5"),
                 combinedObjectSortCriteria = cms.string("(at(0).pt+at(1).pt)/2"),
@@ -354,7 +356,7 @@ def getPTAveVPSet():
                 partialFilterName  = cms.string("hltDiPFJetAve"),
                 dqmhistolabel  = cms.string("recoPFJetsCnt"),
                 mainDQMDirname = cms.untracked.string(fsqdirname),
-                singleObjectsPreselection = cms.string("pt > + "+str(recoThr) +" && abs(eta)<1.4 || abs(eta) > 2.7 "),
+                singleObjectsPreselection = cms.string("pt >  "+str(recoThr) +" && abs(eta)<1.4 || abs(eta) > 2.7 "),
                 singleObjectDrawables =  cms.VPSet(),
                 combinedObjectSelection =  cms.string("1==1"),
                 combinedObjectSortCriteria = cms.string('size()'),
