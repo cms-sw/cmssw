@@ -552,7 +552,7 @@ void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
 
   if(theNoiseInElectrons>0.){
     if(pixdet->type().isTrackerPixel() && pixdet->type().isBarrel()){ // Barrel modules
-      int lay = tTopo->pxbLayer(detID);
+      int lay = tTopo->layer(detID);
       if(addThresholdSmearing) {
 	if((pixdet->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel || pixdet->subDetector()==GeomDetEnumerators::SubDetector::P1PXB)  && lay==1) {
 	  thePixelThresholdInE = smearedThreshold_BPix_L1_->fire(); // gaussian smearing
@@ -1350,7 +1350,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   // setup the chip indices conversion
   if    (pixdet->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel ||
 	 pixdet->subDetector()==GeomDetEnumerators::SubDetector::P1PXB){// barrel layers
-    int layerIndex=tTopo->pxbLayer(detID);
+    int layerIndex=tTopo->layer(detID);
     pixelEfficiency  = eff.thePixelEfficiency[layerIndex-1];
     columnEfficiency = eff.thePixelColEfficiency[layerIndex-1];
     chipEfficiency   = eff.thePixelChipEfficiency[layerIndex-1];
@@ -1363,13 +1363,13 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   } else if(pixdet->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap ||
 	    pixdet->subDetector()==GeomDetEnumerators::SubDetector::P1PXEC ||
 	    pixdet->subDetector()==GeomDetEnumerators::SubDetector::P2PXEC){                // forward disks
-    unsigned int diskIndex=tTopo->pxfDisk(detID)+eff.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix
+    unsigned int diskIndex=tTopo->layer(detID)+eff.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix
     //if (eff.FPixIndex>diskIndex-1){throw cms::Exception("Configuration") <<"SiPixelDigitizer is using the wrong efficiency value. index = "
-    //                                                                       <<diskIndex-1<<" , MinIndex = "<<eff.FPixIndex<<" ... "<<tTopo->pxfDisk(detID);}
+    //                                                                       <<diskIndex-1<<" , MinIndex = "<<eff.FPixIndex<<" ... "<<tTopo->layer(detID);}
     pixelEfficiency  = eff.thePixelEfficiency[diskIndex-1];
     columnEfficiency = eff.thePixelColEfficiency[diskIndex-1];
     chipEfficiency   = eff.thePixelChipEfficiency[diskIndex-1];
-    //std::cout <<"Using FPix columnEfficiency = "<<columnEfficiency<<" for Disk = "<< tTopo->pxfDisk(detID)<<"\n";
+    //std::cout <<"Using FPix columnEfficiency = "<<columnEfficiency<<" for Disk = "<< tTopo->layer(detID)<<"\n";
     // Sometimes the forward pixels have wrong size,
     // this crashes the index conversion, so exit, but only check if it is not an upgrade geometry
     if (NumberOfBarrelLayers==3){
@@ -1478,7 +1478,7 @@ float SiPixelDigitizerAlgorithm::pixel_aging(const PixelAging& aging,
   // setup the chip indices conversion
   if    (pixdet->subDetector() ==  GeomDetEnumerators::SubDetector::PixelBarrel ||
 	 pixdet->subDetector() ==  GeomDetEnumerators::SubDetector::P1PXB){// barrel layers
-    int layerIndex=tTopo->pxbLayer(detID);
+    int layerIndex=tTopo->layer(detID);
  
      pseudoRadDamage  = aging.thePixelPseudoRadDamage[layerIndex-1];
 
@@ -1488,7 +1488,7 @@ float SiPixelDigitizerAlgorithm::pixel_aging(const PixelAging& aging,
   } else if (pixdet->subDetector() == GeomDetEnumerators::SubDetector::PixelEndcap ||
 	     pixdet->subDetector() == GeomDetEnumerators::SubDetector::P1PXEC ||
 	     pixdet->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC) {                // forward disks
-    unsigned int diskIndex=tTopo->pxfDisk(detID)+aging.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix
+    unsigned int diskIndex=tTopo->layer(detID)+aging.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix
 
     pseudoRadDamage  = aging.thePixelPseudoRadDamage[diskIndex-1];
 
