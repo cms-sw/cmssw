@@ -48,6 +48,9 @@
 #include "HLTrigger/JetMET/interface/HLTDiJetEtaTopologyFilter.h"
 #include "HLTrigger/JetMET/src/HLTDiJetEtaTopologyFilter.cc"
 //
+#include "HLTrigger/JetMET/interface/HLTJetEtaTopologyFilter.h"
+#include "HLTrigger/JetMET/src/HLTJetEtaTopologyFilter.cc"
+//
 #include "HLTrigger/JetMET/interface/HLTJetSortedVBFFilter.h"
 #include "HLTrigger/JetMET/src/HLTJetSortedVBFFilter.cc"
 //
@@ -105,6 +108,8 @@ typedef HLTDiJetAveEtaFilter<  PFJet> HLTDiPFJetAveEtaFilter;
 typedef HLTDiJetEtaTopologyFilter<CaloJet> HLTDiCaloJetEtaTopologyFilter;
 typedef HLTDiJetEtaTopologyFilter<  PFJet> HLTDiPFJetEtaTopologyFilter;
 
+typedef HLTJetEtaTopologyFilter<CaloJet> HLTCaloJetEtaTopologyFilter;
+typedef HLTJetEtaTopologyFilter<  PFJet> HLTPFJetEtaTopologyFilter;
 
 typedef HLTJetSortedVBFFilter<CaloJet> HLTCaloJetSortedVBFFilter;
 typedef HLTJetSortedVBFFilter<  PFJet> HLTPFJetSortedVBFFilter;
@@ -214,6 +219,9 @@ DEFINE_FWK_MODULE(HLTDiPFJetAveEtaFilter);
 
 DEFINE_FWK_MODULE(HLTDiCaloJetEtaTopologyFilter);
 DEFINE_FWK_MODULE(HLTDiPFJetEtaTopologyFilter);
+
+DEFINE_FWK_MODULE(HLTCaloJetEtaTopologyFilter);
+DEFINE_FWK_MODULE(HLTPFJetEtaTopologyFilter);
 
 DEFINE_FWK_MODULE(HLTCaloJetL1MatchProducer);
 DEFINE_FWK_MODULE(HLTPFJetL1MatchProducer);
