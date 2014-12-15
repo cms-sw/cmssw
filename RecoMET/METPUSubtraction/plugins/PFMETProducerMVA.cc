@@ -85,7 +85,7 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
   // take vertex with highest sum(trackPt) as the vertex of the "hard scatter" interaction
   // (= first entry in vertex collection)
   const reco::Vertex* hardScatterVertex = ( vertices->size() >= 1 ) ?
-    &(vertices->front()) : mnullptr;
+    &(vertices->front()) : nullptr;
   
   // get leptons
   // (excluded from sum over PFCandidates when computing hadronic recoil)

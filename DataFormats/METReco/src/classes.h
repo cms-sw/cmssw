@@ -34,8 +34,6 @@
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
 #include "DataFormats/METReco/interface/SigInputObj.h"
-#include "DataFormats/METReco/interface/MVAMEtData.h"
-#include "DataFormats/METReco/interface/MVAMEtDataFwd.h"
 #include "DataFormats/METReco/interface/AnomalousECALVariables.h"
 #include "DataFormats/METReco/interface/BoundaryInformation.h"
 
