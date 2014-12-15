@@ -85,7 +85,6 @@ template <class jetClass> void QGTagger<jetClass>::produce(edm::Event& iEvent, c
     else 		pt = jet->pt();
     calcVariables(&*jet, mult, ptD, axis2, vertexCollection);
     float qgValue = qgLikelihood->computeQGLikelihood(QGLParamsColl, pt, jet->eta(), *rho, {(float) mult, ptD, -std::log(axis2)});
-    std::cout << axis2 << "\t" << mult << "\t" << ptD << std::endl;
 
     qgProduct->push_back(qgValue);
     if(produceSyst){
