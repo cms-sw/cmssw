@@ -25,7 +25,7 @@ class TriggerBitAnalyzer( Analyzer ):
                 outname="%s_%s"%(self.outprefix,T)
                 if not hasattr(setup ,"globalVariables") :
                         setup.globalVariables = []
-                setup.globalVariables.append( NTupleVariable(outname, lambda ev : getattr(ev,outname), help="OR of %s"%TL) )
+                setup.globalVariables.append( NTupleVariable(outname, eval("lambda ev: ev.%s" % outname), help="OR of %s"%TL) )
                 self.triggerBitCheckers.append( (T, TriggerBitChecker(trigVec)) )
 
     def process(self, event):
