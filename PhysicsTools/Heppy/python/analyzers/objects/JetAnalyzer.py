@@ -2,7 +2,7 @@ import math
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Jet
-from PhysicsTools.HeppyCore.utils.deltar import deltaR2,  matchObjectCollection, matchObjectCollection2, bestMatch
+from PhysicsTools.HeppyCore.utils.deltar import deltaR2, deltaPhi, matchObjectCollection, matchObjectCollection2, bestMatch
 from PhysicsTools.Heppy.physicsutils.JetReCalibrator import JetReCalibrator
 import PhysicsTools.HeppyCore.framework.config as cfg
 
@@ -65,7 +65,6 @@ class JetAnalyzer( Analyzer ):
             self.jetReCalibrator.correctAll(allJets, rho, delta=self.shiftJEC, metShift=event.deltaMetFromJEC)
         event.allJetsUsedForMET = allJets
 
-        event.deltaMetFromJetSmearing = [0, 0]
         if self.cfg_comp.isMC:
             event.genJets = [ x for x in self.handles['genJet'].product() ]
             self.matchJets(event, allJets)
@@ -97,7 +96,7 @@ class JetAnalyzer( Analyzer ):
         ## Clean Jets from leptons
         leptons = []
         if hasattr(event, 'selectedLeptons'):
-            [ l for l in event.selectedLeptons if l.pt() > self.lepPtMin ]
+            leptons = [ l for l in event.selectedLeptons if l.pt() > self.lepPtMin ]
         if self.cfg_ana.cleanJetsFromTaus and hasattr(event, 'selectedTaus'):
             leptons = leptons[:] + event.selectedTaus
         if self.cfg_ana.cleanJetsFromIsoTracks and hasattr(event, 'selectedIsoCleanTrack'):
@@ -127,6 +126,11 @@ class JetAnalyzer( Analyzer ):
                 lep.jet = jet
 
         if self.cfg_comp.isMC:
+            event.deltaMetFromJetSmearing = [0, 0]
+            for j in event.cleanJetsAll:
+                if hasattr(j, 'deltaMetFromJetSmearing'):
+                    event.deltaMetFromJetSmearing[0] += j.deltaMetFromJetSmearing[0]
+                    event.deltaMetFromJetSmearing[1] += j.deltaMetFromJetSmearing[1]
             event.cleanGenJets = cleanNearestJetOnly(event.genJets, event.selectedLeptons, 0.5)
             
             #event.nGenJets25 = 0
@@ -294,13 +298,11 @@ class JetAnalyzer( Analyzer ):
                elif aeta > 0.5: factor = 1.057 + self.shiftJER*math.hypot(0.012,0.056)
                ptscale = max(0.0, (jetpt + (factor-1)*(jetpt-genpt))/jetpt)
                #print "get with pt %.1f (gen pt %.1f, ptscale = %.3f)" % (jetpt,genpt,ptscale)
-               event.deltaMetFromJetSmearing[0] -= (ptscale-1)*jet.rawFactor()*jet.px()
-               event.deltaMetFromJetSmearing[1] -= (ptscale-1)*jet.rawFactor()*jet.py()
+               jet.deltaMetFromJetSmearing = [ -(ptscale-1)*jet.rawFactor()*jet.px(), -(ptscale-1)*jet.rawFactor()*jet.py() ]
                if ptscale != 0:
                   jet.setP4(jet.p4()*ptscale)
                # leave the uncorrected unchanged for sync
-               #jet._rawFactor = jet.rawFactor()/ptscale if ptscale != 0 else 0
-               #jet.rawFactor = types.MethodType(lambda self : self._rawFactor, jet, jet.__class__)
+               jet._rawFactorMultiplier *= (1.0/ptscale) if ptscale != 0 else 1
             #else: print "jet with pt %.1d, eta %.2f is unmatched" % (jet.pt(), jet.eta())
 
 

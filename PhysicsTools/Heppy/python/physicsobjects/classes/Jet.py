@@ -31,6 +31,13 @@ _btagWPs = {
 }
 
 class Jet(PhysicsObject):   
+    def __init__(self, *args, **kwargs):
+        super(Jet, self).__init__(*args, **kwargs)
+        self._physObjInit()
+
+    def _physObjInit(self):
+        self._rawFactorMultiplier = 1.0
+
     def jetID(self,name=""):
         if not self.isPFJet():
             raise RuntimeError, "jetID implemented only for PF Jets"
@@ -78,7 +85,9 @@ class Jet(PhysicsObject):
             return puMva>cut
         
     def rawFactor(self):
-        return self.jecFactor('Uncorrected')
+        return self.jecFactor('Uncorrected') * self._rawFactorMultiplier
+    def setRawFactor(self, factor):
+        self._rawFactorMultiplier = factor/self.jecFactor('Uncorrected')
 
     def btag(self,name):
         return self.bDiscriminator(name) 
