@@ -13,6 +13,8 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -27,17 +29,21 @@
  * Authors: andrea.carlo.marini@cern.ch, tom.cornelis@cern.ch, cms-qg-workinggroup@cern.ch
  */
 QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
-  jets_token(		consumes<reco::PFJetCollection>(	iConfig.getParameter<edm::InputTag>("srcJets"))),
+  jetsInputTag( 						iConfig.getParameter<edm::InputTag>("srcJets")),
   jetCorrector_token(	consumes<reco::JetCorrector>(		iConfig.getParameter<edm::InputTag>("jec"))),
   vertex_token(		consumes<reco::VertexCollection>(	iConfig.getParameter<edm::InputTag>("srcVertexCollection"))),
   rho_token(		consumes<double>(			iConfig.getParameter<edm::InputTag>("srcRho"))),
   jetCorrector_inputTag(					iConfig.getParameter<edm::InputTag>("jec")),
   jetsLabel(							iConfig.getParameter<std::string>("jetsLabel")),
   systLabel(							iConfig.getParameter<std::string>("systematicsLabel")),
-  useQC(							iConfig.getParameter<bool>("useQualityCuts"))
+  useQC(							iConfig.getParameter<bool>("useQualityCuts")),
+  usePatJets(							iConfig.getParameter<bool>("usePatJets"))
 {
   useJetCorr = !jetCorrector_inputTag.label().empty();
   produceSyst = (systLabel != "");
+
+  patJets_token		=	consumes<pat::JetCollection>(			edm::InputTag(jetsInputTag));
+  jets_token		=	consumes<reco::PFJetCollection>(		edm::InputTag(jetsInputTag));
 
   produces<edm::ValueMap<float>>("qgLikelihood");
   produces<edm::ValueMap<float>>("axis2Likelihood");
@@ -54,15 +60,26 @@ QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
 
 /// Produce qgLikelihood using {mult, ptD, -log(axis2)}
 void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
-  std::vector<float>* qgProduct = new std::vector<float>;
-  std::vector<float>* axis2Product = new std::vector<float>;
-  std::vector<int>* multProduct = new std::vector<int>;
-  std::vector<float>* ptDProduct = new std::vector<float>;
-  std::vector<float>* smearedQuarkProduct = new std::vector<float>;
-  std::vector<float>* smearedGluonProduct = new std::vector<float>;
-  std::vector<float>* smearedAllProduct = new std::vector<float>;
+  if(usePatJets){
+    edm::Handle<pat::JetCollection> patJets;
+    iEvent.getByToken(patJets_token, patJets);
+    produceForJetCollection(iEvent, iSetup, patJets);
+  } else {
+    edm::Handle<reco::PFJetCollection> pfJets;
+    iEvent.getByToken(jets_token, pfJets);
+    produceForJetCollection(iEvent, iSetup, pfJets);
+  }
+}
 
-  edm::Handle<reco::PFJetCollection> pfJets;					iEvent.getByToken(jets_token, pfJets);
+template <class jetCollection> void QGTagger::produceForJetCollection(edm::Event& iEvent, const edm::EventSetup& iSetup, const jetCollection& jets){
+  std::vector<float>* qgProduct 		= new std::vector<float>;
+  std::vector<float>* axis2Product 		= new std::vector<float>;
+  std::vector<int>* multProduct 		= new std::vector<int>;
+  std::vector<float>* ptDProduct 		= new std::vector<float>;
+  std::vector<float>* smearedQuarkProduct 	= new std::vector<float>;
+  std::vector<float>* smearedGluonProduct 	= new std::vector<float>;
+  std::vector<float>* smearedAllProduct 	= new std::vector<float>;
+
   edm::Handle<reco::JetCorrector> jetCorr;			if(useJetCorr)	iEvent.getByToken(jetCorrector_token, jetCorr);
   edm::Handle<reco::VertexCollection> vertexCollection;				iEvent.getByToken(vertex_token, vertexCollection);
   edm::Handle<double> rho;							iEvent.getByToken(rho_token, rho);
@@ -77,38 +94,38 @@ void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
     systrcdhandle.get(systLabel, QGLSystColl);
   }
 
-  for(auto pfJet = pfJets->begin(); pfJet != pfJets->end(); ++pfJet){
-    if(useJetCorr) pt = pfJet->pt()*jetCorr->correction(*pfJet);
-    else pt = pfJet->pt();
-    calcVariables(&*pfJet, vertexCollection);
-    float qgValue = qgLikelihood->computeQGLikelihood(QGLParamsColl, pt, pfJet->eta(), *rho, {(float)mult, ptD, -std::log(axis2)});
+  for(auto jet = jets->begin(); jet != jets->end(); ++jet){
+    if(useJetCorr) pt = jet->pt()*jetCorr->correction(*jet);
+    else pt = jet->pt();
+    calcVariables(&*jet, vertexCollection);
+    float qgValue = qgLikelihood->computeQGLikelihood(QGLParamsColl, pt, jet->eta(), *rho, {(float)mult, ptD, -std::log(axis2)});
     qgProduct->push_back(qgValue);
     if(produceSyst){
-      smearedQuarkProduct->push_back(qgLikelihood->systematicSmearing(QGLSystColl, pt, pfJet->eta(), *rho, qgValue, 0));
-      smearedGluonProduct->push_back(qgLikelihood->systematicSmearing(QGLSystColl, pt, pfJet->eta(), *rho, qgValue, 1));
-      smearedAllProduct->push_back(qgLikelihood->systematicSmearing(QGLSystColl, pt, pfJet->eta(), *rho, qgValue, 2));
+      smearedQuarkProduct->push_back(qgLikelihood->systematicSmearing(QGLSystColl, pt, jet->eta(), *rho, qgValue, 0));
+      smearedGluonProduct->push_back(qgLikelihood->systematicSmearing(QGLSystColl, pt, jet->eta(), *rho, qgValue, 1));
+      smearedAllProduct->push_back(qgLikelihood->systematicSmearing(QGLSystColl, pt, jet->eta(), *rho, qgValue, 2));
     }
     axis2Product->push_back(axis2);
     multProduct->push_back(mult);
     ptDProduct->push_back(ptD);
   }
 
-  putInEvent("qgLikelihood", pfJets, qgProduct, iEvent);
-  putInEvent("axis2Likelihood", pfJets, axis2Product, iEvent);
-  putInEvent("multLikelihood", pfJets, multProduct, iEvent);
-  putInEvent("ptDLikelihood", pfJets, ptDProduct, iEvent);
+  putInEvent("qgLikelihood", jets, qgProduct, iEvent);
+  putInEvent("axis2Likelihood", jets, axis2Product, iEvent);
+  putInEvent("multLikelihood", jets, multProduct, iEvent);
+  putInEvent("ptDLikelihood", jets, ptDProduct, iEvent);
   if(produceSyst){
-    putInEvent("qgLikelihoodSmearedQuark", pfJets, smearedQuarkProduct, iEvent);
-    putInEvent("qgLikelihoodSmearedGluon", pfJets, smearedGluonProduct, iEvent);
-    putInEvent("qgLikelihoodSmearedAll", pfJets, smearedAllProduct, iEvent);
+    putInEvent("qgLikelihoodSmearedQuark", jets, smearedQuarkProduct, iEvent);
+    putInEvent("qgLikelihoodSmearedGluon", jets, smearedGluonProduct, iEvent);
+    putInEvent("qgLikelihoodSmearedAll", jets, smearedAllProduct, iEvent);
   }
 }
 
 /// Function to put product into event
-template <typename T> void QGTagger::putInEvent(std::string name, edm::Handle<reco::PFJetCollection> pfJets, std::vector<T>* product, edm::Event& iEvent){
+template <class jetCollection, typename T> void QGTagger::putInEvent(std::string name, const jetCollection& jets, std::vector<T>* product, edm::Event& iEvent){
   std::auto_ptr<edm::ValueMap<T>> out(new edm::ValueMap<T>());
   typename edm::ValueMap<T>::Filler filler(*out);
-  filler.insert(pfJets, product->begin(), product->end());
+  filler.insert(jets, product->begin(), product->end());
   filler.fill();
   iEvent.put(out, name);
   delete product;
@@ -117,35 +134,48 @@ template <typename T> void QGTagger::putInEvent(std::string name, edm::Handle<re
 
 /// Calculation of axis2, mult and ptD
 template <class jetClass> void QGTagger::calcVariables(const jetClass *jet, edm::Handle<reco::VertexCollection> vC){
-  reco::VertexCollection::const_iterator vtxLead = vC->begin();
-
   float sum_weight = 0., sum_deta = 0., sum_dphi = 0., sum_deta2 = 0., sum_dphi2 = 0., sum_detadphi = 0., sum_pt = 0.;
   mult = 0;
 
   //Loop over the jet constituents
-  for(auto part : jet->getPFConstituents()){
-    if(!part.isNonnull()) continue;
-
-    reco::TrackRef itrk = part->trackRef();
-    if(itrk.isNonnull()){												//Track exists --> charged particle
-      reco::VertexCollection::const_iterator vtxClose = vC->begin();							//Search for closest vertex to track
-      for(auto vtx = vC->begin(); vtx != vC->end(); ++vtx){
-        if(fabs(itrk->dz(vtx->position())) < fabs(itrk->dz(vtxClose->position()))) vtxClose = vtx;
+  for(auto daughter = jet->begin(); daughter < jet->end(); ++daughter){
+    auto part = dynamic_cast<const pat::PackedCandidate*> (&*daughter);
+    if(part){														//packed candidate situation
+      if(part->charge()){
+        if(!(part->fromPV() > 1 && part->trackHighPurity())) continue;
+        if(useQC){
+          if((part->dz()*part->dz())/(part->dzError()*part->dzError()) > 25.) continue;
+          if((part->dxy()*part->dxy())/(part->dxyError()*part->dxyError()) > 25.) ++mult;
+        } else ++mult;
+      } else {
+        if(part->pt() < 1.0) continue;
+        ++mult;
       }
-      if(vtxClose != vtxLead) continue;
-      if(!itrk->quality(reco::TrackBase::qualityByName("highPurity"))) continue;
+    } else {
+      auto part = dynamic_cast<const reco::PFCandidate*> (&*daughter);
+      if(!part) continue;
 
-      if(useQC){													//If useQC, require dz and d0 cuts
-        float dz = itrk->dz(vtxClose->position());
-        float d0 = itrk->dxy(vtxClose->position());
-        float dz_sigma_square = pow(itrk->dzError(),2) + pow(vtxClose->zError(),2);
-        float d0_sigma_square = pow(itrk->d0Error(),2) + pow(vtxClose->xError(),2) + pow(vtxClose->yError(),2);
-        if(dz*dz/dz_sigma_square > 25.) continue;
-        if(d0*d0/d0_sigma_square < 25.) ++mult;
-      } else ++mult;
-    } else {														//No track --> neutral particle
-      if(part->pt() < 1.0) continue;											//Only use neutrals with pt > 1 GeV
-      ++mult;
+      reco::TrackRef itrk = part->trackRef();
+      if(itrk.isNonnull()){												//Track exists --> charged particle
+        auto vtxLead  = vC->begin();
+        auto vtxClose = vC->begin();											//Search for closest vertex to track
+        for(auto vtx = vC->begin(); vtx != vC->end(); ++vtx){
+          if(fabs(itrk->dz(vtx->position())) < fabs(itrk->dz(vtxClose->position()))) vtxClose = vtx;
+        }
+        if(!(vtxClose == vtxLead && itrk->quality(reco::TrackBase::qualityByName("highPurity")))) continue;
+
+        if(useQC){													//If useQC, require dz and d0 cuts
+          float dz = itrk->dz(vtxClose->position());
+          float d0 = itrk->dxy(vtxClose->position());
+          float dz_sigma_square = pow(itrk->dzError(),2) + pow(vtxClose->zError(),2);
+          float d0_sigma_square = pow(itrk->d0Error(),2) + pow(vtxClose->xError(),2) + pow(vtxClose->yError(),2);
+          if(dz*dz/dz_sigma_square > 25.) continue;
+          if(d0*d0/d0_sigma_square < 25.) ++mult;
+        } else ++mult;
+      } else {														//No track --> neutral particle
+        if(part->pt() < 1.0) continue;											//Only use neutrals with pt > 1 GeV
+        ++mult;
+      }
     }
 
     float deta = part->eta() - jet->eta();
@@ -191,6 +221,7 @@ void QGTagger::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
   desc.add<std::string>("jetsLabel");
   desc.add<std::string>("systematicsLabel");
   desc.add<bool>("useQualityCuts");
+  desc.add<bool>("usePatJets");
   descriptions.add("QGTagger", desc);
 }
 
