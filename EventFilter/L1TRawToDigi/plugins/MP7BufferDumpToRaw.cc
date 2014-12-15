@@ -224,9 +224,11 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
     if (size==0) continue;
 
     std::vector<uint32_t> data;
-    for (unsigned iFrame=rxIndex_; iFrame<size; ++iFrame) {
+    for (unsigned iFrame=rxIndex_; iFrame<rxIndex_ + size; ++iFrame) {
       if (!packetisedData_) {
-	data.push_back( rxFileReader_.get(iBoard).link(link).at(iFrame) );
+        auto word = rxFileReader_.get(iBoard).link(link).at(iFrame);
+        if (word >> 32)
+          data.push_back(word);
       }
     }
     
@@ -245,10 +247,12 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
 
     if (size==0) continue;
 
-    std::vector<uint32_t> data(size);
-    for (unsigned iFrame=txIndex_; iFrame<size; ++iFrame) {
+    std::vector<uint32_t> data;
+    for (unsigned iFrame=txIndex_; iFrame<txIndex_ + size; ++iFrame) {
       if (!packetisedData_) {
-	data.push_back( txFileReader_.get(iBoard).link(link).at(iFrame) );
+        auto word = txFileReader_.get(iBoard).link(link).at(iFrame);
+        if (word >> 32)
+          data.push_back(word);
       }
     }
     

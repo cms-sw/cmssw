@@ -19,7 +19,7 @@ stage1Raw = cms.EDProducer(
     eventType        = cms.untracked.int32(238),
     fwVersion        = cms.untracked.int32(255),
     lenSlinkHeader   = cms.untracked.int32(16),  # length in 8 bit words !
-    lenSlinkTrailer  = cms.untracked.int32(8),
+    lenSlinkTrailer  = cms.untracked.int32(16),
 
     # these parameters specify the amount of data from each link to be
     # recorded in the FEDRawData object
