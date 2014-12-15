@@ -199,7 +199,7 @@ photonTypeSusy = NTupleObjectType("gamma", baseObjectTypes = [ particleType ], v
 jetType = NTupleObjectType("jet",  baseObjectTypes = [ fourVectorType ], variables = [
     NTupleVariable("btagCSV",   lambda x : x.btag('combinedInclusiveSecondaryVertexV2BJetTags'), help="CSV discriminator"),
     NTupleVariable("rawPt",     lambda x : x.pt() * x.rawFactor(), help="p_{T} before JEC"),
-    NTupleVariable("mcPt",      lambda x : x.mcJet.pt() if hasattr(x,"mcJet") else 0., mcOnly=True, help="p_{T} of associated gen jet"),
+    NTupleVariable("mcPt",      lambda x : x.mcJet.pt() if getattr(x,"mcJet",None) else 0., mcOnly=True, help="p_{T} of associated gen jet"),
     NTupleVariable("mcFlavour", lambda x : x.partonFlavour(), int,     mcOnly=True, help="parton flavour (physics definition, i.e. including b's from shower)"),
     #NTupleVariable("quarkGluonID", lambda x : x.QG,  mcOnly=False),
 ])
