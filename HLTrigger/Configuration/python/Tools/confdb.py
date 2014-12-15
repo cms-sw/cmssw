@@ -237,9 +237,6 @@ cmsswVersion = os.environ['CMSSW_VERSION']
 #    %(process)shltDt4DSegments.debug = cms.untracked.bool( False )
 #"""
 
-    # if requested, override the L1 self from the GlobalTag (Xml)
-    self.overrideL1MenuXml()
-
     # if running on MC, adapt the configuration accordingly
     self.fixForMC()
 
@@ -292,6 +289,9 @@ process = customisePostLS1(process)
 
       # if requested or necessary, override the GlobalTag and connection strings (incl. L1!)
       self.overrideGlobalTag()
+
+      # if requested, override the L1 self from the GlobalTag (Xml)
+      self.overrideL1MenuXml()
 
       # if requested, add snippet to run on new L1 skim
       self.switchToNewL1Skim()
