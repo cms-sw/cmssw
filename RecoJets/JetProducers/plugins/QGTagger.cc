@@ -29,19 +29,16 @@
  * Authors: andrea.carlo.marini@cern.ch, tom.cornelis@cern.ch, cms-qg-workinggroup@cern.ch
  */
 template <class jetClass> QGTagger<jetClass>::QGTagger(const edm::ParameterSet& iConfig) :
-  jets_token( 		consumes<jetCollection>(		iConfig.getParameter<edm::InputTag>("srcJets"))),
-  jetCorrector_token(	consumes<reco::JetCorrector>(		iConfig.getParameter<edm::InputTag>("jec"))),
-  vertex_token(		consumes<reco::VertexCollection>(	iConfig.getParameter<edm::InputTag>("srcVertexCollection"))),
-  rho_token(		consumes<double>(			iConfig.getParameter<edm::InputTag>("srcRho"))),
-  jetCorrector_inputTag(					iConfig.getParameter<edm::InputTag>("jec")),
+  jetsToken( 		consumes<jetCollection>(		iConfig.getParameter<edm::InputTag>("srcJets"))),
+  jetCorrectorToken(	consumes<reco::JetCorrector>(		iConfig.getParameter<edm::InputTag>("jec"))),
+  vertexToken(		consumes<reco::VertexCollection>(	iConfig.getParameter<edm::InputTag>("srcVertexCollection"))),
+  rhoToken(		consumes<double>(			iConfig.getParameter<edm::InputTag>("srcRho"))),
   jetsLabel(							iConfig.getParameter<std::string>("jetsLabel")),
   systLabel(							iConfig.getParameter<std::string>("systematicsLabel")),
   useQC(							iConfig.getParameter<bool>("useQualityCuts")),
-  usePatJets(							iConfig.getParameter<bool>("usePatJets"))
+  useJetCorr(							!iConfig.getParameter<edm::InputTag>("jec").label().empty()),
+  produceSyst(							systLabel != "")
 {
-  useJetCorr = !jetCorrector_inputTag.label().empty();
-  produceSyst = (systLabel != "");
-
   produces<edm::ValueMap<float>>("qgLikelihood");
   produces<edm::ValueMap<float>>("axis2Likelihood");
   produces<edm::ValueMap<int>>("multLikelihood");
@@ -51,15 +48,12 @@ template <class jetClass> QGTagger<jetClass>::QGTagger(const edm::ParameterSet& 
     produces<edm::ValueMap<float>>("qgLikelihoodSmearedGluon");
     produces<edm::ValueMap<float>>("qgLikelihoodSmearedAll");
   }
-  qgLikelihood 	= new QGLikelihoodCalculator();
+  qgLikelihood = new QGLikelihoodCalculator();
 }
 
 
 /// Produce qgLikelihood using {mult, ptD, -log(axis2)}
 template <class jetClass> void QGTagger<jetClass>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
-  edm::Handle<jetCollection> jets;
-  iEvent.getByToken(jets_token, jets);
-
   std::vector<float>* qgProduct 		= new std::vector<float>;
   std::vector<float>* axis2Product 		= new std::vector<float>;
   std::vector<int>*   multProduct 		= new std::vector<int>;
@@ -68,9 +62,10 @@ template <class jetClass> void QGTagger<jetClass>::produce(edm::Event& iEvent, c
   std::vector<float>* smearedGluonProduct 	= new std::vector<float>;
   std::vector<float>* smearedAllProduct 	= new std::vector<float>;
 
-  edm::Handle<reco::JetCorrector> jetCorr;			if(useJetCorr)	iEvent.getByToken(jetCorrector_token, jetCorr);
-  edm::Handle<reco::VertexCollection> vertexCollection;				iEvent.getByToken(vertex_token, vertexCollection);
-  edm::Handle<double> rho;							iEvent.getByToken(rho_token, rho);
+  edm::Handle<jetCollection> jets;					iEvent.getByToken(jetsToken, 		jets);
+  edm::Handle<reco::JetCorrector> jetCorr;		if(useJetCorr)	iEvent.getByToken(jetCorrectorToken, 	jetCorr);
+  edm::Handle<reco::VertexCollection> vertexCollection;			iEvent.getByToken(vertexToken, 		vertexCollection);
+  edm::Handle<double> rho;						iEvent.getByToken(rhoToken, 		rho);
 
   edm::ESHandle<QGLikelihoodObject> QGLParamsColl;
   QGLikelihoodRcd const & rcdhandle = iSetup.get<QGLikelihoodRcd>();
@@ -83,36 +78,39 @@ template <class jetClass> void QGTagger<jetClass>::produce(edm::Event& iEvent, c
   }
 
   for(auto jet = jets->begin(); jet != jets->end(); ++jet){
-    if(useJetCorr) pt = jet->pt()*jetCorr->correction(*jet);
-    else pt = jet->pt();
-    calcVariables(&*jet, vertexCollection);
-    float qgValue = qgLikelihood->computeQGLikelihood(QGLParamsColl, pt, jet->eta(), *rho, {(float)mult, ptD, -std::log(axis2)});
+    float pt, ptD, axis2;
+    int mult;
+
+    if(useJetCorr) 	pt = jet->pt()*jetCorr->correction(*jet);
+    else 		pt = jet->pt();
+    calcVariables(&*jet, mult, ptD, axis2, vertexCollection);
+    float qgValue = qgLikelihood->computeQGLikelihood(QGLParamsColl, pt, jet->eta(), *rho, {(float) mult, ptD, -std::log(axis2)});
+    std::cout << axis2 << "\t" << mult << "\t" << ptD << std::endl;
+
     qgProduct->push_back(qgValue);
     if(produceSyst){
       smearedQuarkProduct->push_back(qgLikelihood->systematicSmearing(QGLSystColl, pt, jet->eta(), *rho, qgValue, 0));
       smearedGluonProduct->push_back(qgLikelihood->systematicSmearing(QGLSystColl, pt, jet->eta(), *rho, qgValue, 1));
-      smearedAllProduct->push_back(qgLikelihood->systematicSmearing(QGLSystColl, pt, jet->eta(), *rho, qgValue, 2));
+      smearedAllProduct->push_back(qgLikelihood->systematicSmearing(  QGLSystColl, pt, jet->eta(), *rho, qgValue, 2));
     }
     axis2Product->push_back(axis2);
     multProduct->push_back(mult);
     ptDProduct->push_back(ptD);
   }
 
-  putInEvent("qgLikelihood", jets, qgProduct, iEvent);
+  putInEvent("qgLikelihood", 	jets, qgProduct,    iEvent);
   putInEvent("axis2Likelihood", jets, axis2Product, iEvent);
-  putInEvent("multLikelihood", jets, multProduct, iEvent);
-  putInEvent("ptDLikelihood", jets, ptDProduct, iEvent);
+  putInEvent("multLikelihood", 	jets, multProduct,  iEvent);
+  putInEvent("ptDLikelihood", 	jets, ptDProduct,   iEvent);
   if(produceSyst){
     putInEvent("qgLikelihoodSmearedQuark", jets, smearedQuarkProduct, iEvent);
     putInEvent("qgLikelihoodSmearedGluon", jets, smearedGluonProduct, iEvent);
-    putInEvent("qgLikelihoodSmearedAll", jets, smearedAllProduct, iEvent);
+    putInEvent("qgLikelihoodSmearedAll",   jets, smearedAllProduct,   iEvent);
   }
 }
 
 /// Function to put product into event
-template <class jetClass>
-template <typename T>
-void QGTagger<jetClass>::putInEvent(std::string name, const edm::Handle<jetCollection>& jets, std::vector<T>* product, edm::Event& iEvent){
+template <class jetClass> template <typename T> void QGTagger<jetClass>::putInEvent(std::string name, const edm::Handle<jetCollection>& jets, std::vector<T>* product, edm::Event& iEvent){
   std::auto_ptr<edm::ValueMap<T>> out(new edm::ValueMap<T>());
   typename edm::ValueMap<T>::Filler filler(*out);
   filler.insert(jets, product->begin(), product->end());
@@ -123,7 +121,7 @@ void QGTagger<jetClass>::putInEvent(std::string name, const edm::Handle<jetColle
 
 
 /// Calculation of axis2, mult and ptD
-template <class jetClass> void QGTagger<jetClass>::calcVariables(const jetClass *jet, edm::Handle<reco::VertexCollection> vC){
+template <class jetClass> void QGTagger<jetClass>::calcVariables(const jetClass *jet, int& mult, float& ptD, float& axis2, edm::Handle<reco::VertexCollection>& vC){
   float sum_weight = 0., sum_deta = 0., sum_dphi = 0., sum_deta2 = 0., sum_dphi2 = 0., sum_detadphi = 0., sum_pt = 0.;
   mult = 0;
 
@@ -135,7 +133,7 @@ template <class jetClass> void QGTagger<jetClass>::calcVariables(const jetClass 
         if(!(part->fromPV() > 1 && part->trackHighPurity())) continue;
         if(useQC){
           if((part->dz()*part->dz())/(part->dzError()*part->dzError()) > 25.) continue;
-          if((part->dxy()*part->dxy())/(part->dxyError()*part->dxyError()) > 25.) ++mult;
+          if((part->dxy()*part->dxy())/(part->dxyError()*part->dxyError()) < 25.) ++mult;
         } else ++mult;
       } else {
         if(part->pt() < 1.0) continue;
@@ -168,9 +166,9 @@ template <class jetClass> void QGTagger<jetClass>::calcVariables(const jetClass 
       }
     }
 
-    float deta = part->eta() - jet->eta();
-    float dphi = reco::deltaPhi(part->phi(), jet->phi());
-    float partPt = part->pt();
+    float deta = daughter->eta() - jet->eta();
+    float dphi = reco::deltaPhi(daughter->phi(), jet->phi());
+    float partPt = daughter->pt();
     float weight = partPt*partPt;
 
     sum_weight += weight;
@@ -205,19 +203,25 @@ template <class jetClass> void QGTagger<jetClass>::calcVariables(const jetClass 
 template <class jetClass> void QGTagger<jetClass>::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("srcJets");
-  desc.add<edm::InputTag>("jec");
   desc.add<edm::InputTag>("srcRho");
-  desc.add<edm::InputTag>("srcVertexCollection");
   desc.add<std::string>("jetsLabel");
-  desc.add<std::string>("systematicsLabel");
+  desc.add<std::string>("systematicsLabel", "");
   desc.add<bool>("useQualityCuts");
-  desc.add<bool>("usePatJets");
-  descriptions.add("QGTagger", desc);
+  if(typeid(jetClass) == typeid(reco::PFJet)){
+    desc.add<edm::InputTag>("jec", edm::InputTag())->setComment("Jet correction service: only applied when non-empty");
+    desc.add<edm::InputTag>("srcVertexCollection");
+    descriptions.add("QGTaggerPFJets",  desc);
+  } else if(typeid(jetClass) == typeid(pat::Jet)){
+    desc.add<edm::InputTag>("jec", edm::InputTag())->setComment("Always empty for QGTaggerPatJets module");
+    desc.add<edm::InputTag>("srcVertexCollection")->setComment("Ignored for miniAOD, possible to keep empty");
+    descriptions.add("QGTaggerPatJets", desc);
+  }
 }
+
 
 //define this as a plug-in
 typedef QGTagger<reco::PFJet> QGTaggerPFJets;
 DEFINE_FWK_MODULE(QGTaggerPFJets);
 
 typedef QGTagger<pat::Jet> QGTaggerPatJets;
-DEFINE_FWK_MODULE(QGTaggerPFJets);
+DEFINE_FWK_MODULE(QGTaggerPatJets);
