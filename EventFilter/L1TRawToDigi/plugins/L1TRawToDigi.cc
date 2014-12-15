@@ -56,7 +56,7 @@ namespace l1t {
 
          // ----------member data ---------------------------
          edm::EDGetTokenT<FEDRawDataCollection> fedData_;
-         int fedId_;
+         std::vector<int> fedIds_;
          int fwId_;
 
          std::auto_ptr<PackingSetup> prov_;
@@ -80,11 +80,19 @@ std::ostream & operator<<(std::ostream& o, const l1t::BlockHeader& h) {
 
 namespace l1t {
    L1TRawToDigi::L1TRawToDigi(const edm::ParameterSet& config) :
-      fedId_(config.getParameter<int>("FedId")),
       fwId_(config.getUntrackedParameter<int>("FWId", -1)),
       ctp7_mode_(config.getUntrackedParameter<bool>("CTP7", false))
    {
       fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
+
+      if (config.exists("FedId") and config.exists("FedIds")) {
+         throw edm::Exception(edm::errors::Configuration, "PSet")
+            << "Cannot have FedId and FedIds as parameter at the same time";
+      } else if (config.exists("FedId")) {
+         fedIds_ = {config.getParameter<int>("FedId")};
+      } else {
+         fedIds_ = config.getParameter<std::vector<int>>("FedIds");
+      }
 
       prov_ = PackingSetupFactory::get()->make(config.getParameter<std::string>("Setup"));
       prov_->registerProducts(*this);
@@ -123,88 +131,90 @@ namespace l1t {
          return;
       }
 
-      const FEDRawData& l1tRcd = feds->FEDData(fedId_);
+      for (const auto& fedId: fedIds_) {
+         const FEDRawData& l1tRcd = feds->FEDData(fedId);
 
-      LogDebug("L1T") << "Found FEDRawDataCollection with ID " << fedId_ << " and size " << l1tRcd.size();
+         LogDebug("L1T") << "Found FEDRawDataCollection with ID " << fedId << " and size " << l1tRcd.size();
 
-      if ((int) l1tRcd.size() < slinkHeaderSize_ + slinkTrailerSize_ + amc13HeaderSize_ + amc13TrailerSize_ + amcHeaderSize_ + amcTrailerSize_) {
-	//LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
-	//   << l1tRcd.size() << ") for ID " << fedId_ << ". Returning empty collections!";
-         return;
-      }
-
-      const unsigned char *data = l1tRcd.data();
-      FEDHeader header(data);
-
-      if (header.check()) {
-         LogDebug("L1T") << "Found SLink header:"
-            << " Trigger type " << header.triggerType()
-            << " L1 event ID " << header.lvl1ID()
-            << " BX Number " << header.bxID()
-            << " FED source " << header.sourceID()
-            << " FED version " << header.version();
-      } else {
-         LogWarning("L1T") << "Did not find a SLink header!";
-      }
-
-      FEDTrailer trailer(data + (l1tRcd.size() - slinkTrailerSize_));
-
-      if (trailer.check()) {
-         LogDebug("L1T") << "Found SLink trailer:"
-            << " Length " << trailer.lenght()
-            << " CRC " << trailer.crc()
-            << " Status " << trailer.evtStatus()
-            << " Throttling bits " << trailer.ttsBits();
-      } else {
-         LogWarning("L1T") << "Did not find a SLink trailer!";
-      }
-
-      amc13::Packet packet;
-      if (!packet.parse(
-               (const uint64_t*) (data + slinkHeaderSize_),
-               (l1tRcd.size() - slinkHeaderSize_ - slinkTrailerSize_) / 8)) {
-         LogError("L1T")
-            << "Could not extract AMC13 Packet.";
-         return;
-      }
-
-      for (auto& amc: packet.payload()) {
-         auto payload64 = amc.data();
-         const uint32_t * start = (const uint32_t*) payload64.get();
-         const uint32_t * end = start + (amc.size() * 2);
-
-         std::auto_ptr<Payload> payload;
-         if (ctp7_mode_) {
-            LogDebug("L1T") << "Using CTP7 mode";
-            payload.reset(new CTP7Payload(start, end));
-         } else {
-            LogDebug("L1T") << "Using MP7 mode";
-            payload.reset(new MP7Payload(start, end));
+         if ((int) l1tRcd.size() < slinkHeaderSize_ + slinkTrailerSize_ + amc13HeaderSize_ + amc13TrailerSize_ + amcHeaderSize_ + amcTrailerSize_) {
+            //LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
+            //   << l1tRcd.size() << ") for ID " << fedId_ << ". Returning empty collections!";
+            return;
          }
-         unsigned fw = payload->getFirmwareId();
 
-         // Let parameterset value override FW version
-         if (fwId_ > 0)
-            fw = fwId_;
+         const unsigned char *data = l1tRcd.data();
+         FEDHeader header(data);
 
-         unsigned board = amc.header().getBoardID();
+         if (header.check()) {
+            LogDebug("L1T") << "Found SLink header:"
+               << " Trigger type " << header.triggerType()
+               << " L1 event ID " << header.lvl1ID()
+               << " BX Number " << header.bxID()
+               << " FED source " << header.sourceID()
+               << " FED version " << header.version();
+         } else {
+            LogWarning("L1T") << "Did not find a SLink header!";
+         }
 
-         auto unpackers = prov_->getUnpackers(fedId_, board, fw);
+         FEDTrailer trailer(data + (l1tRcd.size() - slinkTrailerSize_));
 
-         // getBlock() returns a non-null auto_ptr on success
-         std::auto_ptr<Block> block;
-         while ((block = payload->getBlock()).get()) {
-            auto unpacker = unpackers.find(block->header().getID());
-            if (unpacker == unpackers.end()) {
-               LogDebug("L1T") << "Cannot find an unpacker for block ID "
-                  << block->header().getID() << ", FED ID " << fedId_ << ", and FW ID "
-                  << fw << "!";
-               // TODO Handle error
-            } else if (!unpacker->second->unpack(*block, coll.get())) {
-               LogDebug("L1T") << "Error unpacking data for block ID "
-                  << block->header().getID() << ", FED ID " << fedId_ << ", and FW ID "
-                  << fw << "!";
-               // TODO Handle error
+         if (trailer.check()) {
+            LogDebug("L1T") << "Found SLink trailer:"
+               << " Length " << trailer.lenght()
+               << " CRC " << trailer.crc()
+               << " Status " << trailer.evtStatus()
+               << " Throttling bits " << trailer.ttsBits();
+         } else {
+            LogWarning("L1T") << "Did not find a SLink trailer!";
+         }
+
+         amc13::Packet packet;
+         if (!packet.parse(
+                  (const uint64_t*) (data + slinkHeaderSize_),
+                  (l1tRcd.size() - slinkHeaderSize_ - slinkTrailerSize_) / 8)) {
+            LogError("L1T")
+               << "Could not extract AMC13 Packet.";
+            return;
+         }
+
+         for (auto& amc: packet.payload()) {
+            auto payload64 = amc.data();
+            const uint32_t * start = (const uint32_t*) payload64.get();
+            const uint32_t * end = start + (amc.size() * 2);
+
+            std::auto_ptr<Payload> payload;
+            if (ctp7_mode_) {
+               LogDebug("L1T") << "Using CTP7 mode";
+               payload.reset(new CTP7Payload(start, end));
+            } else {
+               LogDebug("L1T") << "Using MP7 mode";
+               payload.reset(new MP7Payload(start, end));
+            }
+            unsigned fw = payload->getFirmwareId();
+
+            // Let parameterset value override FW version
+            if (fwId_ > 0)
+               fw = fwId_;
+
+            unsigned board = amc.header().getBoardID();
+
+            auto unpackers = prov_->getUnpackers(fedId, board, fw);
+
+            // getBlock() returns a non-null auto_ptr on success
+            std::auto_ptr<Block> block;
+            while ((block = payload->getBlock()).get()) {
+               auto unpacker = unpackers.find(block->header().getID());
+               if (unpacker == unpackers.end()) {
+                  LogDebug("L1T") << "Cannot find an unpacker for block ID "
+                     << block->header().getID() << ", FED ID " << fedId << ", and FW ID "
+                     << fw << "!";
+                  // TODO Handle error
+               } else if (!unpacker->second->unpack(*block, coll.get())) {
+                  LogDebug("L1T") << "Error unpacking data for block ID "
+                     << block->header().getID() << ", FED ID " << fedId << ", and FW ID "
+                     << fw << "!";
+                  // TODO Handle error
+               }
             }
          }
       }
