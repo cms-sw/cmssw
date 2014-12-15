@@ -11,30 +11,39 @@ float QGLikelihoodCalculator::computeQGLikelihood(edm::ESHandle<QGLikelihoodObje
   float Q=1., G=1.;
   for(unsigned int varIndex = 0; varIndex < vars.size(); ++varIndex){
 
-    auto qgEntry = findEntry(QGLParamsColl->data, eta, pt, rho, 0, varIndex); 
-    if(!qgEntry) return -1; 
-    float Qi = qgEntry->histogram.binContent(qgEntry->histogram.findBin(vars[varIndex]));
-    float mQ = qgEntry->mean;
+    auto quarkEntry = findEntry(QGLParamsColl->data, eta, pt, rho, 0, varIndex);
+    auto gluonEntry = findEntry(QGLParamsColl->data, eta, pt, rho, 1, varIndex);
+    if(!quarkEntry || !gluonEntry) return -2;
 
-    qgEntry = findEntry(QGLParamsColl->data, eta, pt, rho, 1, varIndex); 
-    if(!qgEntry) return -1;
-    float Gi = qgEntry->histogram.binContent(qgEntry->histogram.findBin(vars[varIndex]));
-    float mG = qgEntry->mean;
+    int binQ = quarkEntry->histogram.findBin(vars[varIndex]);
+    float Qi = quarkEntry->histogram.binContent(binQ);
+    float Qw = quarkEntry->histogram.binRange(binQ).width();
 
-    float epsilon=0;
-    float delta=0.000001;
-    if(Qi <= epsilon && Gi <= epsilon){
-      if(mQ>mG){
-	if(vars[varIndex] > mQ){ Qi = 1-delta; Gi = delta;}
-	else if(vars[varIndex] < mG){ Qi = delta; Gi = 1-delta;}
+    int binG = gluonEntry->histogram.findBin(vars[varIndex]);
+    float Gi = gluonEntry->histogram.binContent(binG);
+    float Gw = gluonEntry->histogram.binRange(binG).width();
+
+    if(Qi <= 0 || Gi <= 0){	// If one of the two pdf's is empty for this value, look if we have some content in the neighbouring bins
+      int q = 1, g = 1;
+      while(Qi <= 0 && binQ-q > 0 && binQ+q <= quarkEntry->histogram.numberOfBins()){
+        Qi += quarkEntry->histogram.binContent(binQ+q)       + quarkEntry->histogram.binContent(binQ-q);
+        Qw += quarkEntry->histogram.binRange(binQ+q).width() + quarkEntry->histogram.binRange(binQ-q).width();
+        ++q;
       }
-      else if(mQ<mG){
-	if(vars[varIndex]<mQ) { Qi = 1-delta; Gi = delta;}
-	else if(vars[varIndex]>mG){Qi = delta;Gi = 1-delta;}
+      while(Gi <= 0 && binG-g > 0 && binG+g <= gluonEntry->histogram.numberOfBins()){
+        Gi += gluonEntry->histogram.binContent(binG+g)       + gluonEntry->histogram.binContent(binG-g);
+        Gw += gluonEntry->histogram.binRange(binG+g).width() + gluonEntry->histogram.binRange(binG-g).width();
+        ++g;
       }
-    } 
-    Q*=Qi;
-    G*=Gi;	
+      if(Qi <= 0 && Gi <= 0){	// If both are still completely zero, assign extreme value based on position of means
+        if(vars[varIndex] < quarkEntry->mean) 	if(quarkEntry->mean > gluonEntry->mean){ Qi = 0.999; Gi = 0.001;} else { Qi = 0.001; Gi = 0.999;}
+        else					if(quarkEntry->mean < gluonEntry->mean){ Qi = 0.001; Gi = 0.999;} else { Qi = 0.999; Gi = 0.001;}
+      }
+    }
+
+ 
+    Q *= std::pow(Qi/Qw, quarkEntry->weight);
+    G *= std::pow(Gi/Gw, gluonEntry->weight);
   }
 
   if(Q==0) return 0;
