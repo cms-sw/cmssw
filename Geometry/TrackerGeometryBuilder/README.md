@@ -28,10 +28,13 @@ enumerators and the returned values of the above methods are summarized in the t
 | `OTPhase2Barrel` | `P2OTB` | `TOB` | `true` | `false` | `true` | `false` |
 | `OTPhase2EndCap` | `P2OTEC` | `TID` | `true` | `false` | `false` | `true` |
 
+### `TrackerGeometry` useful methods
+
 Since the `GeomDet` are not always available, two help methods are available: `TrackerGeometry::geomDetSubDetector(int i)` 
 which returns the value of the `GeomDetEnumerators::SubDetector` enumerator which correspond to the `DetId` subdetector `i`,
 and `TrackerGeometry::numberOfLayers(int i)` which returns the number of layers of the `DetId` subdetector `i`. The values
-of these methods for the three scenarios available so far are described in the tables below:
+of these methods for the three scenarios available so far are described in the tables below. In addition the method 
+`TrackerGeometry::isThere(GeomDetEnumerators::SubDetector subdet)` can be used to test if the geometry contains the subdetector subdet.
 
 * Present detector
 
