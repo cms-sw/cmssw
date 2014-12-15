@@ -187,7 +187,7 @@ private:
   
   // coning afterburner
   bool _useAfterburner;
-  double _coneAngle, _maxConeDepth;
+  double _minConeAngle, _maxConeAngle, _maxConeDepth;
   unsigned _minECALLayerToCone;
 
 
@@ -275,7 +275,8 @@ HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf,
   _tracksToken = sumes.consumes<reco::TrackCollection>( tkConf.getParameter<edm::InputTag>("inputTracks") );
   // coning afterburner
   _useAfterburner = tkConf.getParameter<bool>("useAfterburner");
-  _coneAngle = tkConf.getParameter<double>("coneAngle");
+  _minConeAngle = tkConf.getParameter<double>("minConeAngle");
+  _maxConeAngle = tkConf.getParameter<double>("maxConeAngle");
   _maxConeDepth = tkConf.getParameter<double>("maxConeDepth");
   _minECALLayerToCone = tkConf.getParameter<unsigned>("minECALLayerToCone");
   
