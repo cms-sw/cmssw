@@ -172,6 +172,7 @@ private:
 
   // for track assisted clustering
   const bool _useTrackAssistedClustering;
+ 
   edm::ESHandle<MagneticField> _bField;
   edm::ESHandle<TrackerGeometry> _tkGeom;
   
@@ -186,6 +187,7 @@ private:
   std::unique_ptr<PropagatorWithMaterial> _mat_prop;
   
   // coning afterburner
+  double _maxClusterAngleToTrack;
   bool _useAfterburner;
   double _minConeAngle, _maxConeAngle, _maxConeDepth;
   unsigned _minECALLayerToCone;
@@ -273,6 +275,8 @@ HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf,
     conf.getParameterSet("trackAssistedClustering");
   // consumes information
   _tracksToken = sumes.consumes<reco::TrackCollection>( tkConf.getParameter<edm::InputTag>("inputTracks") );
+  // max allowed angle of cluster to track
+  _maxClusterAngleToTrack = tkConf.getParameter<double>("maxClusterAngleToTrack");
   // coning afterburner
   _useAfterburner = tkConf.getParameter<bool>("useAfterburner");
   _minConeAngle = tkConf.getParameter<double>("minConeAngle");
@@ -764,7 +768,7 @@ runConingAfterburner(const edm::Handle<reco::PFRecHitCollection>& handle,
   }
   std::cout << "index of max angle: " << max_angle_index << std::endl;
   std::cout << "maximum angle to cone vertex: " << max_hit_angle << std::endl;
-  std::cout << "cone angle from python: " << _coneAngle << std::endl;
+  std::cout << "cone angle from python: " << _minConeAngle << std::endl;
   max_hit_angle = std::min(std::abs(max_hit_angle),1.0); // restrict to one radian
   if( max_hit_angle <= 1.0 ) { // less than 1 radian, get rid of crazy
     // if we have a good angle, create the KD tree bounding region using
