@@ -28,8 +28,8 @@
  * If the input jets are uncorrected, the jecService should be provided, so jet are corrected on the fly before the algorithm is applied
  * Authors: andrea.carlo.marini@cern.ch, tom.cornelis@cern.ch, cms-qg-workinggroup@cern.ch
  */
-QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
-  jetsInputTag( 						iConfig.getParameter<edm::InputTag>("srcJets")),
+template <class jetClass> QGTagger<jetClass>::QGTagger(const edm::ParameterSet& iConfig) :
+  jets_token( 		consumes<jetCollection>(		iConfig.getParameter<edm::InputTag>("srcJets"))),
   jetCorrector_token(	consumes<reco::JetCorrector>(		iConfig.getParameter<edm::InputTag>("jec"))),
   vertex_token(		consumes<reco::VertexCollection>(	iConfig.getParameter<edm::InputTag>("srcVertexCollection"))),
   rho_token(		consumes<double>(			iConfig.getParameter<edm::InputTag>("srcRho"))),
@@ -41,9 +41,6 @@ QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
 {
   useJetCorr = !jetCorrector_inputTag.label().empty();
   produceSyst = (systLabel != "");
-
-  patJets_token		=	consumes<pat::JetCollection>(			edm::InputTag(jetsInputTag));
-  jets_token		=	consumes<reco::PFJetCollection>(		edm::InputTag(jetsInputTag));
 
   produces<edm::ValueMap<float>>("qgLikelihood");
   produces<edm::ValueMap<float>>("axis2Likelihood");
@@ -59,22 +56,13 @@ QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
 
 
 /// Produce qgLikelihood using {mult, ptD, -log(axis2)}
-void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
-  if(usePatJets){
-    edm::Handle<pat::JetCollection> patJets;
-    iEvent.getByToken(patJets_token, patJets);
-    produceForJetCollection(iEvent, iSetup, patJets);
-  } else {
-    edm::Handle<reco::PFJetCollection> pfJets;
-    iEvent.getByToken(jets_token, pfJets);
-    produceForJetCollection(iEvent, iSetup, pfJets);
-  }
-}
+template <class jetClass> void QGTagger<jetClass>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+  edm::Handle<jetCollection> jets;
+  iEvent.getByToken(jets_token, jets);
 
-template <class jetCollection> void QGTagger::produceForJetCollection(edm::Event& iEvent, const edm::EventSetup& iSetup, const jetCollection& jets){
   std::vector<float>* qgProduct 		= new std::vector<float>;
   std::vector<float>* axis2Product 		= new std::vector<float>;
-  std::vector<int>* multProduct 		= new std::vector<int>;
+  std::vector<int>*   multProduct 		= new std::vector<int>;
   std::vector<float>* ptDProduct 		= new std::vector<float>;
   std::vector<float>* smearedQuarkProduct 	= new std::vector<float>;
   std::vector<float>* smearedGluonProduct 	= new std::vector<float>;
@@ -122,7 +110,9 @@ template <class jetCollection> void QGTagger::produceForJetCollection(edm::Event
 }
 
 /// Function to put product into event
-template <class jetCollection, typename T> void QGTagger::putInEvent(std::string name, const jetCollection& jets, std::vector<T>* product, edm::Event& iEvent){
+template <class jetClass>
+template <typename T>
+void QGTagger<jetClass>::putInEvent(std::string name, const edm::Handle<jetCollection>& jets, std::vector<T>* product, edm::Event& iEvent){
   std::auto_ptr<edm::ValueMap<T>> out(new edm::ValueMap<T>());
   typename edm::ValueMap<T>::Filler filler(*out);
   filler.insert(jets, product->begin(), product->end());
@@ -133,7 +123,7 @@ template <class jetCollection, typename T> void QGTagger::putInEvent(std::string
 
 
 /// Calculation of axis2, mult and ptD
-template <class jetClass> void QGTagger::calcVariables(const jetClass *jet, edm::Handle<reco::VertexCollection> vC){
+template <class jetClass> void QGTagger<jetClass>::calcVariables(const jetClass *jet, edm::Handle<reco::VertexCollection> vC){
   float sum_weight = 0., sum_deta = 0., sum_dphi = 0., sum_deta2 = 0., sum_dphi2 = 0., sum_detadphi = 0., sum_pt = 0.;
   mult = 0;
 
@@ -212,7 +202,7 @@ template <class jetClass> void QGTagger::calcVariables(const jetClass *jet, edm:
 
 
 /// Descriptions method
-void QGTagger::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
+template <class jetClass> void QGTagger<jetClass>::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("srcJets");
   desc.add<edm::InputTag>("jec");
@@ -226,4 +216,8 @@ void QGTagger::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(QGTagger);
+typedef QGTagger<reco::PFJet> QGTaggerPFJets;
+DEFINE_FWK_MODULE(QGTaggerPFJets);
+
+typedef QGTagger<pat::Jet> QGTaggerPatJets;
+DEFINE_FWK_MODULE(QGTaggerPFJets);

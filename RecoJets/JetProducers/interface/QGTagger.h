@@ -11,23 +11,20 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-class QGTagger : public edm::EDProducer{
+template <class jetClass> class QGTagger : public edm::EDProducer{
    public:
       explicit QGTagger(const edm::ParameterSet&);
       ~QGTagger(){};
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
+      typedef std::vector<jetClass> jetCollection;
+
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      template <class jetCollection> void produceForJetCollection(edm::Event& iEvent, const edm::EventSetup& iSetup, const jetCollection& jets);
-      template <class jetClass> void calcVariables(const jetClass *jet, edm::Handle<reco::VertexCollection> vC);
-      template <class jetCollection, typename T> void putInEvent(std::string, const jetCollection&, std::vector<T>*, edm::Event&);
+      void calcVariables(const jetClass *jet, edm::Handle<reco::VertexCollection> vC);
+      template <typename T> void putInEvent(std::string, const edm::Handle<jetCollection>&, std::vector<T>*, edm::Event&);
 
-
-      // member data
-      edm::InputTag jetsInputTag;
-      edm::EDGetTokenT<reco::PFJetCollection> jets_token;
-      edm::EDGetTokenT<pat::JetCollection> patJets_token;
+      edm::EDGetTokenT<jetCollection> jets_token;
       edm::EDGetTokenT<reco::JetCorrector> jetCorrector_token;
       edm::EDGetTokenT<reco::VertexCollection> vertex_token;
       edm::EDGetTokenT<double> rho_token;
