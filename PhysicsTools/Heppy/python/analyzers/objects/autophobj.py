@@ -237,16 +237,20 @@ metType = NTupleObjectType("met", baseObjectTypes = [ fourVectorType ], variable
 genParticleType = NTupleObjectType("genParticle", baseObjectTypes = [ particleType ], mcOnly=True, variables = [
     NTupleVariable("charge",   lambda x : x.threeCharge()/3.0, float),
     NTupleVariable("status",   lambda x : x.status(),int),
-
-])
-genParticleWithSourceType = NTupleObjectType("genParticleWithSource", baseObjectTypes = [ genParticleType ], mcOnly=True, variables = [
-    NTupleVariable("sourceId", lambda x : x.sourceId, int, help="origin of the particle: 6=t, 25=h, 23/24=W/Z")
 ])
 genParticleWithMotherId = NTupleObjectType("genParticleWithMotherId", baseObjectTypes = [ genParticleType ], mcOnly=True, variables = [
-    #NTupleVariable("motherId", lambda x : x.motherId, int, help="pdgId of the mother of the particle")
     NTupleVariable("motherId", lambda x : x.mother(0).pdgId() if x.mother(0) else 0, int, help="pdgId of the mother of the particle"),
-    NTupleVariable("grandmaId", lambda x : x.mother(0).mother(0).pdgId() if x.mother(0) and x.mother(0).mother(0) else 0, int, help="pdgId of the grandmother of the particle")
+    NTupleVariable("grandmotherId", lambda x : x.mother(0).mother(0).pdgId() if x.mother(0) and x.mother(0).mother(0) else 0, int, help="pdgId of the grandmother of the particle")
 ])
+genParticleWithAncestryType = NTupleObjectType("genParticleWithAncestry", baseObjectTypes = [ genParticleType ], mcOnly=True, variables = [
+    NTupleVariable("motherId", lambda x : x.motherId, int, help="pdgId of the mother of the particle"),
+    NTupleVariable("grandmotherId", lambda x : x.grandmotherId, int, help="pdgId of the grandmother of the particle"),
+    NTupleVariable("sourceId", lambda x : x.sourceId, int, help="origin of the particle (heaviest ancestor): 6=t, 25=h, 23/24=W/Z"),
+])
+genParticleWithLinksType = NTupleObjectType("genParticleWithLinks", baseObjectTypes = [ genParticleWithAncestryType ], mcOnly=True, variables = [
+    NTupleVariable("motherIndex", lambda x : x.motherIndex, int, help="index of the mother in the generatorSummary")
+])
+
 
 ##------------------------------------------  
 ## SECONDARY VERTEX CANDIDATE
