@@ -78,6 +78,13 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   std::string     mOutputFile;
   std::string     JetType;
   std::string     UEAlgo;
+  edm::InputTag   Background;
+  double          mRecoJetPtThreshold;
+  double          mMatchGenPtThreshold;
+  double          mGenEnergyFractionThreshold;
+  double          mReverseEnergyFractionThreshold;
+  double          mRThreshold;
+  std::string     JetCorrectionService;
 
   //Tokens
   edm::EDGetTokenT<std::vector<reco::Vertex> > pvToken_;
@@ -88,8 +95,9 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::JPTJetCollection> jptJetsToken_;
   edm::EDGetTokenT<reco::GenJetCollection> genJetsToken_;
   edm::EDGetTokenT<edm::HepMCProduct> evtToken_;
-  edm::EDGetTokenT<reco::PFCandidate> pfCandToken_; 
-
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandToken_; 
+  //edm::EDGetTokenT<reco::VoronoiMap> backgrounds_;
+  edm::EDGetTokenT<edm::ValueMap<reco::VoronoiBackground>> backgrounds_;
   
   //Include Particle flow variables 
   MonitorElement *mNPFpart;
@@ -257,17 +265,11 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   MonitorElement* neutralMultiplicity;
 
   // Parameters
-  double          mRecoJetPtThreshold;
-  double          mMatchGenPtThreshold;
-  double          mGenEnergyFractionThreshold;
-  double          mReverseEnergyFractionThreshold;
-  double          mRThreshold;
+
   bool            isCaloJet;
   bool            isJPTJet;
   bool            isPFJet;
-  
-
-  std::string     JetCorrectionService;
+ 
 };
 
 #endif
