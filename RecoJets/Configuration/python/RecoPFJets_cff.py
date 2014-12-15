@@ -15,6 +15,7 @@ from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import fixedGridRhoFa
 from RecoJets.JetProducers.caTopTaggers_cff import *
 
 sisCone7PFJets = sisCone5PFJets.clone( rParam = 0.7 )
+ak4PFJets = ak5PFJets.clone( rParam = 0.4 )
 ak7PFJets = ak5PFJets.clone( rParam = 0.7 )
 ak8PFJets = ak5PFJets.clone( rParam = 0.8 )
 gk7PFJets = gk5PFJets.clone( rParam = 0.7 )
@@ -67,6 +68,8 @@ ak8PFJetsCHSConstituents = cms.EDFilter("PFJetConstituentSelector",
 ak5PFJetsCHS = ak5PFJets.clone(
     src = cms.InputTag("pfNoPileUpJME")
     )
+
+ak4PFJetsCHS = ak5PFJetsCHS.clone( rParam = 0.4 )
 
 ak5PFJetsCHSPruned = ak5PFJetsPruned.clone(
     src = cms.InputTag("pfNoPileUpJME")
@@ -152,7 +155,8 @@ recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+
                            cmsTopTagPFJetsCHS+
                            hepTopTagPFJetsCHS+
                            ca15PFJetsCHSMassDropFiltered+
-                           ca15PFJetsCHSFiltered
+                           ca15PFJetsCHSFiltered+
+                           ak4PFJets+ak4PFJetsCHS
     )
 
 recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
@@ -183,5 +187,6 @@ recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
                            cmsTopTagPFJetsCHS+
                            hepTopTagPFJetsCHS+
                            ca15PFJetsCHSMassDropFiltered+
-                           ca15PFJetsCHSFiltered
+                           ca15PFJetsCHSFiltered+
+                           ak4PFJets+ak4PFJetsCHS
     )

@@ -11,6 +11,7 @@ from RecoHI.HiJetAlgos.HiGenJets_cff import *
 
 
 sisCone8GenJets = sisCone5GenJets.clone( rParam = 0.8 )
+ak4GenJets      = ak5GenJets.clone( rParam = 0.4 )
 ak8GenJets      = ak5GenJets.clone( rParam = 0.8 )
 gk8GenJets      = gk5GenJets.clone( rParam = 0.8 )
 kt6GenJets      = kt4GenJets.clone( rParam = 0.6 )
@@ -42,10 +43,10 @@ ca4GenJetsNoMuNoNu = ca4GenJets.clone( src = cms.InputTag("genParticlesForJetsNo
 ca6GenJetsNoMuNoNu = ca6GenJets.clone( src = cms.InputTag("genParticlesForJetsNoMuNoNu") )
 
 recoGenJets   =cms.Sequence(kt4GenJets+kt6GenJets+iterativeCone5GenJets+
-                            ak5GenJets+ak8GenJets)
+                            ak4GenJets+ak5GenJets+ak8GenJets)
 
 recoAllGenJets=cms.Sequence(kt4GenJets+kt6GenJets+
-                            ak5GenJets+ak8GenJets)
+                             ak4GenJets+ak5GenJets+ak8GenJets)
 
 recoAllGenJetsNoNu=cms.Sequence(kt4GenJetsNoNu+kt6GenJetsNoNu+
                                 ak5GenJetsNoNu+ak8GenJetsNoNu)
