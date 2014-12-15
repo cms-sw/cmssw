@@ -85,7 +85,7 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
   // take vertex with highest sum(trackPt) as the vertex of the "hard scatter" interaction
   // (= first entry in vertex collection)
   const reco::Vertex* hardScatterVertex = ( vertices->size() >= 1 ) ?
-    &(vertices->front()) : 0;
+    &(vertices->front()) : mnullptr;
   
   // get leptons
   // (excluded from sum over PFCandidates when computing hadronic recoil)
@@ -306,7 +306,7 @@ double PFMETProducerMVA::chargedEnFrac(const reco::Candidate *iCand,
   double lPtTot = 0; double lPtCharged = 0;
   const reco::PFTau *lPFTau = 0; 
   lPFTau = dynamic_cast<const reco::PFTau*>(iCand);
-  if(lPFTau != 0) { 
+  if(lPFTau != nullptr) { 
     for (UInt_t i0 = 0; i0 < lPFTau->signalPFCands().size(); i0++) { 
       lPtTot += (lPFTau->signalPFCands())[i0]->pt(); 
       if((lPFTau->signalPFCands())[i0]->charge() == 0) continue;
