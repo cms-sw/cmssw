@@ -18,6 +18,7 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -55,7 +56,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   };
 
 public:
-  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, 
+  PixelCPEBase(edm::ParameterSet const& conf, const TrackerTopology& ttopo, const MagneticField * mag = 0, 
 	       const SiPixelLorentzAngle * lorentzAngle = 0, const SiPixelCPEGenericErrorParm * genErrorParm = 0, 
 	       const SiPixelTemplateDBObject * templateDBobject = 0);
   
@@ -259,6 +260,8 @@ public:
   //--- Global quantities
 //   mutable float theTanLorentzAnglePerTesla;   // tan(Lorentz angle)/Tesla
   int     theVerboseLevel;                    // algorithm's verbosity
+
+  const TrackerTopology & ttopo_;  // Tracker Topology
 
   mutable const MagneticField * magfield_;          // magnetic field
   

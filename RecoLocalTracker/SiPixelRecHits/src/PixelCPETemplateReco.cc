@@ -43,10 +43,10 @@ const int cluster_matrix_size_y = 21;
 //  Constructor.  All detUnit-dependent quantities will be initialized later,
 //  in setTheDet().  Here we only load the templates into the template store templ_ .
 //-----------------------------------------------------------------------------
-PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf, 
+PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf, const TrackerTopology& ttopo,
 					   const MagneticField * mag, const SiPixelLorentzAngle * lorentzAngle, 
 					   const SiPixelTemplateDBObject * templateDBobject) 
-  : PixelCPEBase(conf, mag, lorentzAngle, 0, templateDBobject)
+  : PixelCPEBase(conf, ttopo, mag, lorentzAngle, 0, templateDBobject)
 {
   //cout << endl;
   //cout << "Constructing PixelCPETemplateReco::PixelCPETemplateReco(...)................................................." << endl;

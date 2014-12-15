@@ -42,13 +42,13 @@ const float degsPerRad = 57.29578;
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
-PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle, 
+PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const TrackerTopology& ttopo, const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle, 
 			   const SiPixelCPEGenericErrorParm * genErrorParm, const SiPixelTemplateDBObject * templateDBobject)
   : theDet(nullptr), theTopol(nullptr), theRecTopol(nullptr), theParam(nullptr), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
     probabilityX_(0.0), probabilityY_(0.0),
     probabilityQ_(0.0), qBin_(0),
     isOnEdge_(false), hasBadPixels_(false),
-    spansTwoROCs_(false), hasFilledProb_(false),
+    spansTwoROCs_(false), hasFilledProb_(false),ttopo_(ttopo),
     loc_trk_pred_(0.0, 0.0, 0.0, 0.0)
 {
   //--- Lorentz angle tangent per Tesla

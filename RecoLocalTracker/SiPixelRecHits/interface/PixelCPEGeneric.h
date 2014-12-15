@@ -55,7 +55,7 @@ class PixelCPEGeneric : public PixelCPEBase
 {
  public:
   // PixelCPEGeneric( const DetUnit& det );
-  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const SiPixelLorentzAngle *, const SiPixelCPEGenericErrorParm *, const SiPixelTemplateDBObject *);
+  PixelCPEGeneric(edm::ParameterSet const& conf, const TrackerTopology&, const MagneticField *, const SiPixelLorentzAngle *, const SiPixelCPEGenericErrorParm *, const SiPixelTemplateDBObject *);
   ~PixelCPEGeneric() {;}
 
   LocalPoint localPosition (const SiPixelCluster& cluster, const GeomDetUnit & det) const; 

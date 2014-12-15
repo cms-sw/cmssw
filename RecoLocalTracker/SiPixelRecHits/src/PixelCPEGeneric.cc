@@ -5,7 +5,6 @@
 
 // this is needed to get errors from templates
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 
@@ -23,9 +22,9 @@ const double HALF_PI = 1.57079632679489656;
 //-----------------------------------------------------------------------------
 //!  The constructor.
 //-----------------------------------------------------------------------------
-PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
+PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, const TrackerTopology& ttopo,
 	const MagneticField * mag, const SiPixelLorentzAngle * lorentzAngle, const SiPixelCPEGenericErrorParm * genErrorParm, const SiPixelTemplateDBObject * templateDBobject) 
-  : PixelCPEBase(conf, mag, lorentzAngle, genErrorParm, templateDBobject)
+  : PixelCPEBase(conf, ttopo, mag, lorentzAngle, genErrorParm, templateDBobject)
 {
   
   if (theVerboseLevel > 0) 
@@ -611,7 +610,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
       if ( thePart == GeomDetEnumerators::PixelBarrel || thePart == GeomDetEnumerators::P1PXB ) 
 	{
 	  DetId id = (det.geographicalId());
-	  int layer=PXBDetId(id).layer();
+	  int layer=ttopo_.layer(id);
 	  if ( layer==1 ) {
 	    if ( !edgex )
 	      {

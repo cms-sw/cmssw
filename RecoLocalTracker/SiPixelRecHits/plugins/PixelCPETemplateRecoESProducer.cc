@@ -4,6 +4,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -35,13 +36,16 @@ PixelCPETemplateRecoESProducer::produce(const TkPixelCPERecord & iRecord){
   edm::ESHandle<TrackerGeometry> pDD;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
 
+  edm::ESHandle<TrackerTopology> hTT;
+  iRecord.getRecord<TrackerDigiGeometryRecord>().getRecord<IdealGeometryRecord>().get(hTT);
+
 	edm::ESHandle<SiPixelLorentzAngle> lorentzAngle;
 	iRecord.getRecord<SiPixelLorentzAngleRcd>().get(lorentzAngle);
 	
 	ESHandle<SiPixelTemplateDBObject> templateDBobject;
 	iRecord.getRecord<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
 
-  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPETemplateReco(pset_,magfield.product(),lorentzAngle.product(),templateDBobject.product() ));
+	cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPETemplateReco(pset_,*hTT.product(),magfield.product(),lorentzAngle.product(),templateDBobject.product() ));
   return cpe_;
 }
 
