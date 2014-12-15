@@ -299,8 +299,8 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	// loop over constituents, accumulate sums and find leading candidates
 	const pat::Jet * patjet = dynamic_cast<const pat::Jet *>(jet);
 	const reco::PFJet * pfjet = dynamic_cast<const reco::PFJet *>(jet);
-	assert( patjet != 0 || pfjet != 0 );
-	if( patjet != 0 && jec == 0. ) { // if this is a pat jet and no jec has been passed take the jec from the object
+	assert( patjet != nullptr || pfjet != nullptr );
+	if( patjet != nullptr && jec == 0. ) { // if this is a pat jet and no jec has been passed take the jec from the object
 	  jec = patjet->pt()/patjet->correctedJet(0).pt();
 	}
 	if( jec <= 0. ) {
