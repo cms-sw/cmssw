@@ -158,7 +158,7 @@ _HGCEE_ElectronEnergy = cms.PSet(
 
 particleFlowClusterHGCEE = cms.EDProducer(
     "PFClusterProducer",
-    recHitsSource = cms.InputTag("particleFlowRecHitHGCAll"),
+    recHitsSource = cms.InputTag("particleFlowRecHitHGCEE"),
     recHitCleaners = cms.VPSet(),
     seedFinder = _localmaxseeds_HGCEE,
     initialClusteringStep = _fromScratchHGCClusterizer_HGCEE,
