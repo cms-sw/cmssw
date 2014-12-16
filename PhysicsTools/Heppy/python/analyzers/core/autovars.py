@@ -31,20 +31,32 @@ class NTupleObjectType:
         self.baseObjectTypes = baseObjectTypes
         self.mcOnly = mcOnly
         self.variables = variables
+    def ownVars(self,isMC):
+        """Return only my vars, not including the ones from the bases"""
+        return [ v for v in self.variables if (isMC or not var.mcOnly) ]
     def allVars(self,isMC):
+        """Return all vars, including the base ones. Duplicate bases are not added twice"""
         ret = []; names = {}
         if not isMC and self.mcOnly: return []
-        for base in self.baseObjectTypes:
+        for base in self.allBases():
             if not isMC and base.mcOnly: continue
-            for var in base.allVars(isMC):
+            for var in base.ownVars(isMC):
                 if var.name in names: raise RuntimeError, "Duplicate definition of variable %s from %s and %s" % (var.name, base.name, names[var.name])
                 names[var.name] = base.name
                 ret.append(var)
-        for var in self.variables:
-            if not isMC and var.mcOnly: continue
+        for var in self.ownVars(isMC):
             if var.name in names: raise RuntimeError, "Duplicate definition of variable %s from %s and %s" % (var.name, self.name, names[var.name])
             names[var.name] = self.name
             ret.append(var)
+        return ret
+    def allBases(self):
+        ret = []
+        for b in self.baseObjectTypes:
+            if b not in ret: 
+                ret.append(b)
+            for b2 in b.allBases():
+                if b2 not in ret:
+                    ret.append(b2)
         return ret
     def removeVariable(self,name):
         self.variables = [ v for v in self.variables if v.name != name]
