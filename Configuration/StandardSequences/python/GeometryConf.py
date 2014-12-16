@@ -62,8 +62,9 @@ GeometryConf={
     'HCal'        : 'Configuration.Geometry.GeometrySimHCAL_cff,Configuration.Geometry.GeometryRecoHCAL_cff',
     'IdealAPD1'   : 'Configuration/StandardSequences/GeometryIdealAPD1_cff,Configuration/StandardSequences/GeometryIdeal_cff',
     'SLHC'        : 'Configuration.Geometry.GeometrySLHCSimIdeal_cff,Configuration.Geometry.GeometrySLHCReco_cff',
-    'Design'      : 'Design,DesignReco'
-    }
+    'Design'      : 'Design,DesignReco',
+    'Extended2023SHCalNoTaperNoExtPix'    : 'Extended2023SHCalNoTaperNoExtPix,Extended2023SHCalNoTaperNoExtPixReco',
+     }
 
 FastSimGeometryConf={
     'MC'                        : 'FastSimulation/Configuration/Geometries_MC_cff',
