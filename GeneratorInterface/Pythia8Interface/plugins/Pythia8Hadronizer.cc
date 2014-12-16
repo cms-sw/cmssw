@@ -307,31 +307,22 @@ Pythia8Hadronizer::~Pythia8Hadronizer()
 bool Pythia8Hadronizer::initializeForInternalPartons()
 {
   
-  bool status = true;
+  bool status = false, status1 = false;
   
   if ( fInitialState == PP ) // default
   {
-    //fMasterGen->init(2212, 2212, comEnergy);
     fMasterGen->settings.mode("Beams:idA", 2212);
     fMasterGen->settings.mode("Beams:idB", 2212);
-    fMasterGen->settings.parm("Beams:eCM", comEnergy);
-    status &= fMasterGen->init();
   }
   else if ( fInitialState == PPbar )
   {
-    //fMasterGen->init(2212, -2212, comEnergy);
     fMasterGen->settings.mode("Beams:idA", 2212);
     fMasterGen->settings.mode("Beams:idB", -2212);
-    fMasterGen->settings.parm("Beams:eCM", comEnergy);
-    status &= fMasterGen->init();
   }
   else if ( fInitialState == ElectronPositron )
   {
-    //fMasterGen->init(11, -11, comEnergy);
     fMasterGen->settings.mode("Beams:idA", 11);
     fMasterGen->settings.mode("Beams:idB", -11);
-    fMasterGen->settings.parm("Beams:eCM", comEnergy);
-    status &= fMasterGen->init();
   }    
   else 
   {
@@ -340,7 +331,9 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
       <<" UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron \n";
   }
 
-  fMasterGen->settings.listChanged();
+  fMasterGen->settings.parm("Beams:eCM", comEnergy);
+  edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
+  status = fMasterGen->init();
 
   if ( pythiaPylistVerbosity > 10 )
   {
@@ -351,13 +344,12 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   }
 
   // init decayer
-  //fDecayer->readString("ProcessLevel:all = off"); // trick
-  //fDecayer->readString("ProcessLevel::resonanceDecays=on");
   fDecayer->settings.flag("ProcessLevel:all", false ); // trick
   fDecayer->settings.flag("ProcessLevel:resonanceDecays", true );
-  status &= fDecayer->init();
+  edm::LogInfo("Pythia8Interface") << "Initializing Decayer";
+  status1 = fDecayer->init();
 
-  return status;
+  return (status&&status1);
 }
 
 
@@ -366,7 +358,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
   edm::LogInfo("Pythia8Interface") << "Initializing for external partons";
 
-  bool status = true;
+  bool status = false, status1 = false;
   
   if((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) && !fEmissionVetoHook) {
 
@@ -415,10 +407,9 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     edm::LogInfo("Pythia8Interface") << "Initialize direct pythia8 reading from LHE file "
                                      << LHEInputFileName;
     edm::LogInfo("Pythia8Interface") << "Some LHE information can be not stored";
-    //fMasterGen->init(LHEInputFileName);
     fMasterGen->settings.mode("Beams:frameType", 4);
     fMasterGen->settings.word("Beams:LHEF", LHEInputFileName);
-    status &= fMasterGen->init();
+    status = fMasterGen->init();
 
   } else {
 
@@ -430,10 +421,10 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
        fJetMatchingHook->init ( lheRunInfo() );
     }
     
-    //fMasterGen->init(lhaUP.get());
     fMasterGen->settings.mode("Beams:frameType", 5);
     fMasterGen->setLHAupPtr(lhaUP.get());
-    status &= fMasterGen->init();
+    edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
+    status = fMasterGen->init();
   }
   
   if ( pythiaPylistVerbosity > 10 )
@@ -445,13 +436,12 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   }
 
   // init decayer
-  //fDecayer->readString("ProcessLevel:all = off"); // trick
-  //fDecayer->readString("ProcessLevel::resonanceDecays=on");
   fDecayer->settings.flag("ProcessLevel:all", false ); // trick
   fDecayer->settings.flag("ProcessLevel:resonanceDecays", true );
-  status &= fDecayer->init();
+  edm::LogInfo("Pythia8Interface") << "Initializing Decayer";
+  status1 = fDecayer->init();
 
-  return status;
+  return (status&&status1);
 }
 
 
