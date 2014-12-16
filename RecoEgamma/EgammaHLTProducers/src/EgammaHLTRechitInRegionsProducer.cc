@@ -194,7 +194,9 @@ void EgammaHLTRechitInRegionsProducer::produce(edm::Event& evt, const edm::Event
       }
     }
   }
+
   if (useUncalib_) {
+
     edm::Handle<EcalUncalibratedRecHitCollection> urhcH[3];
     for (unsigned int i=0; i<hitLabels.size(); i++) {
       std::auto_ptr<EcalUncalibratedRecHitCollection> uhits(new EcalUncalibratedRecHitCollection);
@@ -206,40 +208,40 @@ void EgammaHLTRechitInRegionsProducer::produce(edm::Event& evt, const edm::Event
       }
       const EcalUncalibratedRecHitCollection* uncalibRecHits = urhcH[i].product();
       
-      if (uncalibRecHits->size() == 0)
-	continue;
-      
-      if ((*uncalibRecHits)[0].id().subdetId() == EcalBarrel) {
-	geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-	topology.reset(new EcalBarrelTopology(geoHandle));
-      } else if ((*uncalibRecHits)[0].id().subdetId() == EcalEndcap) {
-	geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-	topology.reset(new EcalEndcapTopology(geoHandle));
-      } else if ((*uncalibRecHits)[0].id().subdetId() == EcalPreshower) {
-	geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-	topology.reset(new EcalPreshowerTopology (geoHandle));
-      } else throw(std::runtime_error("\n\nProducer encountered invalied ecalhitcollection type.\n\n"));
-      
-      if(regions.size() != 0) {
-	EcalUncalibratedRecHitCollection::const_iterator it;
+      if (uncalibRecHits->size() > 0) {
+	if ((*uncalibRecHits)[0].id().subdetId() == EcalBarrel) {
+	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+	  topology.reset(new EcalBarrelTopology(geoHandle));
+	} else if ((*uncalibRecHits)[0].id().subdetId() == EcalEndcap) {
+	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+	  topology.reset(new EcalEndcapTopology(geoHandle));
+	} else if ((*uncalibRecHits)[0].id().subdetId() == EcalPreshower) {
+	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+	  topology.reset(new EcalPreshowerTopology (geoHandle));
+	} else throw(std::runtime_error("\n\nProducer encountered invalied ecalhitcollection type.\n\n"));
 	
-	for (it = uncalibRecHits->begin(); it != uncalibRecHits->end(); it++){
-	  const CaloCellGeometry *this_cell = (*geometry_p).getGeometry(it->id());
-	  GlobalPoint position = this_cell->getPosition();
+	if(regions.size() != 0) {
+	  EcalUncalibratedRecHitCollection::const_iterator it;
 	  
-	  std::vector<EcalEtaPhiRegion>::const_iterator region;
-	  for (region=regions.begin(); region!=regions.end(); region++) {
-	    if (region->inRegion(position))
-	      uhits->push_back(*it);
+	  for (it = uncalibRecHits->begin(); it != uncalibRecHits->end(); it++){
+	    const CaloCellGeometry *this_cell = (*geometry_p).getGeometry(it->id());
+	    GlobalPoint position = this_cell->getPosition();
+	    
+	    std::vector<EcalEtaPhiRegion>::const_iterator region;
+	    for (region=regions.begin(); region!=regions.end(); region++) {
+	      if (region->inRegion(position))
+		uhits->push_back(*it);
+	    }
 	  }
 	}
       }
-
       evt.put(uhits, productLabels[i]);
+
     }
+
   } else {
+
     edm::Handle<EcalRecHitCollection> rhcH[3];
-    
     for (unsigned int i=0; i<hitLabels.size(); i++) {
       std::auto_ptr<EcalRecHitCollection> hits(new EcalRecHitCollection);
     
@@ -250,35 +252,34 @@ void EgammaHLTRechitInRegionsProducer::produce(edm::Event& evt, const edm::Event
       }
       const EcalRecHitCollection* recHits = rhcH[i].product();
       
-      if (recHits->size() == 0)
-	continue;
-      
-      if ((*recHits)[0].id().subdetId() == EcalBarrel) {
-	geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-	topology.reset(new EcalBarrelTopology(geoHandle));
-      } else if ((*recHits)[0].id().subdetId() == EcalEndcap) {
-	geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-	topology.reset(new EcalEndcapTopology(geoHandle));
-      } else if ((*recHits)[0].id().subdetId() == EcalPreshower) {
-	geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-	topology.reset(new EcalPreshowerTopology (geoHandle));
-      } else throw(std::runtime_error("\n\nProducer encountered invalied ecalhitcollection type.\n\n"));
-      
-      if(regions.size() != 0) {
-	EcalRecHitCollection::const_iterator it;	
-	for (it = recHits->begin(); it != recHits->end(); it++){
-	  const CaloCellGeometry *this_cell = (*geometry_p).getGeometry(it->id());
-	  GlobalPoint position = this_cell->getPosition();
-	  
-	  std::vector<EcalEtaPhiRegion>::const_iterator region;
-	  for (region=regions.begin(); region!=regions.end(); region++) {
-	    if (region->inRegion(position))
-	      hits->push_back(*it);
+      if (recHits->size() > 0) {
+	if ((*recHits)[0].id().subdetId() == EcalBarrel) {
+	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+	  topology.reset(new EcalBarrelTopology(geoHandle));
+	} else if ((*recHits)[0].id().subdetId() == EcalEndcap) {
+	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+	  topology.reset(new EcalEndcapTopology(geoHandle));
+	} else if ((*recHits)[0].id().subdetId() == EcalPreshower) {
+	  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+	  topology.reset(new EcalPreshowerTopology (geoHandle));
+	} else throw(std::runtime_error("\n\nProducer encountered invalied ecalhitcollection type.\n\n"));
+	
+	if(regions.size() != 0) {
+	  EcalRecHitCollection::const_iterator it;	
+	  for (it = recHits->begin(); it != recHits->end(); it++){
+	    const CaloCellGeometry *this_cell = (*geometry_p).getGeometry(it->id());
+	    GlobalPoint position = this_cell->getPosition();
+	    
+	    std::vector<EcalEtaPhiRegion>::const_iterator region;
+	    for (region=regions.begin(); region!=regions.end(); region++) {
+	      if (region->inRegion(position))
+		hits->push_back(*it);
+	    }
 	  }
 	}
       }
-
       evt.put(hits, productLabels[i]);
+
     }
   }
 }
