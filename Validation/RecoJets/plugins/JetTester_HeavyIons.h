@@ -96,6 +96,7 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::GenJetCollection> genJetsToken_;
   edm::EDGetTokenT<edm::HepMCProduct> evtToken_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandToken_; 
+  edm::EDGetTokenT<reco::CandidateView> pfCandViewToken_;
   //edm::EDGetTokenT<reco::VoronoiMap> backgrounds_;
   edm::EDGetTokenT<edm::ValueMap<reco::VoronoiBackground>> backgrounds_;
   
@@ -127,7 +128,7 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   MonitorElement* mJetArea;
   MonitorElement* mjetpileup;
 
-//  MonitorElement* mRho;
+  // MonitorElement* mRho;
 
   // Corrected jets
   MonitorElement* mCorrJetPt;
