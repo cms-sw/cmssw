@@ -29,9 +29,14 @@ def callBack( result ):
     pass
     print 'production done:', str(result)
 
-def runLoopAsync(comp, outDir, config, options):
-    loop = runLoop( comp, outDir, config, options)
-    return loop.name
+def runLoopAsync(comp, outDir, configName, options):
+    try:
+        loop = runLoop( comp, outDir, copy.copy(sys.modules[configName].config), options)
+        return loop.name
+    except Exception:
+        import traceback
+        print traceback.format_exc()
+        raise
 
 def runLoop( comp, outDir, config, options):
     fullName = '/'.join( [outDir, comp.name ] )
@@ -123,7 +128,7 @@ def main( options, args ):
         sys.exit(3)
 
     file = open( cfgFileName, 'r' )
-    cfg = imp.load_source( 'cfg', cfgFileName, file)
+    cfg = imp.load_source( 'PhysicsTools.HeppyCore.__cfg_to_run__', cfgFileName, file)
 
     selComps = [comp for comp in cfg.config.components if len(comp.files)>0]
     selComps = split(selComps)
@@ -141,7 +146,7 @@ def main( options, args ):
         import PhysicsTools.HeppyCore.framework.heppy as ML 
         for comp in selComps:
             print 'submitting', comp.name
-            pool.apply_async( ML.runLoopAsync, [comp, outDir, cfg.config, options],
+            pool.apply_async( ML.runLoopAsync, [comp, outDir, 'PhysicsTools.HeppyCore.__cfg_to_run__', options],
                               callback=ML.callBack)
         pool.close()
         pool.join()
