@@ -1,5 +1,6 @@
 import os
 import re
+import json
 import globalDictionaries
 import configTemplates
 from dataset import Dataset
@@ -43,6 +44,10 @@ class GenericValidation:
                         crb = os.environ['CMSSW_RELEASE_BASE'] \
                                   .replace(currentrelease, newrelease) \
                                   .replace(os.environ['SCRAM_ARCH'],sa)
+                        if "patch" in newrelease:
+                            crb = crb.replace("cms/cmssw/","cms/cmssw-patch/")
+                        else:
+                            crb = crb.replace("cms/cmssw-patch/","cms/cmssw/")
                         os.listdir(crb)
                         self.scramarch = sa
                         self.cmsswreleasebase = crb
@@ -55,6 +60,13 @@ class GenericValidation:
                 msg = ("Your CMSSW release %s does not exist or is not set up properly.\n"
                        "If you're sure it's there, run scram b and then try again." % self.cmssw)
                 raise AllInOneError(msg)
+
+        self.AutoAlternates = True
+        if config.has_option("alternateTemplates","AutoAlternates"):
+            try:
+                self.AutoAlternates = json.loads(config.get("alternateTemplates","AutoAlternates").lower())
+            except ValueError:
+                raise AllInOneError("AutoAlternates needs to be true or false, not %s" % config.get("alternateTemplates","AutoAlternates"))
 
         knownOpts = defaults.keys()+mandatories
         ignoreOpts = []
@@ -190,14 +202,20 @@ class GenericValidationData(GenericValidation):
         mandatories += addMandatories
         GenericValidation.__init__(self, valName, alignment, config, valType, defaults, mandatories)
 
+        tryPredefinedFirst = (not self.jobmode.split( ',' )[0] == "crab" and self.general["JSON"]    == ""
+                              and self.general["firstRun"] == ""         and self.general["lastRun"] == ""
+                              and self.general["begin"]    == ""         and self.general["end"]     == "")
         if self.general["dataset"] not in globalDictionaries.usedDatasets:
-            tryPredefinedFirst = (not self.jobmode.split( ',' )[0] == "crab" and self.general["JSON"]    == ""
-                                  and self.general["firstRun"] == ""         and self.general["lastRun"] == ""
-                                  and self.general["begin"]    == ""         and self.general["end"]     == "")
-            globalDictionaries.usedDatasets[self.general["dataset"]] = Dataset(
+            globalDictionaries.usedDatasets[self.general["dataset"]] = [None, None]
+        if globalDictionaries.usedDatasets[self.general["dataset"]][tryPredefinedFirst] is None:
+            dataset = Dataset(
                 self.general["dataset"], tryPredefinedFirst = tryPredefinedFirst,
                 cmssw = self.getRepMap()["CMSSW_BASE"], cmsswrelease = self.getRepMap()["CMSSW_RELEASE_BASE"] )
-        self.dataset = globalDictionaries.usedDatasets[self.general["dataset"]]
+            globalDictionaries.usedDatasets[self.general["dataset"]][tryPredefinedFirst] = dataset
+            if tryPredefinedFirst and not dataset.predefined():                              #No point finding the data twice in that case
+                globalDictionaries.usedDatasets[self.general["dataset"]][False] = dataset
+
+        self.dataset = globalDictionaries.usedDatasets[self.general["dataset"]][tryPredefinedFirst]
         self.general["magneticField"] = self.dataset.magneticField()
         self.general["defaultMagneticField"] = "38T"
         if self.general["magneticField"] == "unknown":

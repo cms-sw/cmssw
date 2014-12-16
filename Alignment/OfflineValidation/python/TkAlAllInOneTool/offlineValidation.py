@@ -7,7 +7,7 @@ from TkAlExceptions import AllInOneError
 
 
 class OfflineValidation(GenericValidationData):
-    def __init__(self, valName, alignment,config):
+    def __init__(self, valName, alignment, config, addDefaults = {}, addMandatories = []):
         defaults = {
             "DMRMethod":"median,rmsNorm",
             "DMRMinimum":"30",
@@ -18,6 +18,8 @@ class OfflineValidation(GenericValidationData):
             "SurfaceShapes":"none"
             }
         mandatories = [ "trackcollection" ]
+        defaults.update(addDefaults)
+        mandatories += addMandatories
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "offline", addDefaults=defaults,
                                        addMandatories=mandatories)
@@ -27,8 +29,32 @@ class OfflineValidation(GenericValidationData):
         cfgName = "%s.%s.%s_cfg.py"%( configBaseName, self.name,
                                       self.alignmentToValidate.name )
         repMap = self.getRepMap()
-          
-        cfgs = {cfgName:replaceByMap( configTemplates.offlineTemplate, repMap)}
+
+        templateToUse = configTemplates.offlineTemplate
+        if self.AutoAlternates:
+            if "Cosmics" in self.general["trackcollection"]:
+                Bfield = self.dataset.magneticFieldForRun()
+                if Bfield > 3.3 and Bfield < 4.3:                 #Should never be 4.3, but this covers strings, which always compare bigger than ints
+                    templateToUse = configTemplates.CosmicsOfflineValidation
+                    print ("B field for %s = %sT.  Using the template for cosmics at 3.8T.\n"
+                           "To override this behavior, specify AutoAlternates = false in the [alternateTemplates] section") % (self.dataset.name(), Bfield)
+                elif Bfield < 0.5:
+                    templateToUse = configTemplates.CosmicsAt0TOfflineValidation
+                    print ("B field for %s = %sT.  Using the template for cosmics at 0T.\n"
+                           "To override this behavior, specify AutoAlternates = false in the [alternateTemplates] section") % (self.dataset.name(), Bfield)
+                else:
+                    try:
+                        if "unknown " in Bfield:
+                            msg = Bfield.replace("unknown ","",1)
+                        elif "Bfield" is "unknown":
+                            msg = "Can't get the B field for %s." % self.dataset.name()
+                    except TypeError:
+                        msg = "B field for %s = %sT.  This is not that close to 0T or 3.8T." % (self.dataset.name(), Bfield)
+                    raise AllInOneError(msg + "\n"
+                                        "To use this data, turn off the automatic alternates using AutoAlternates = false\n"
+                                        "in the [alternateTemplates] section, and choose the alternate template yourself.")
+
+        cfgs = {cfgName:replaceByMap( templateToUse, repMap)}
         self.filesToCompare[
             GenericValidationData.defaultReferenceName ] = repMap["resultFile"]
         GenericValidationData.createConfiguration(self, cfgs, path)
@@ -97,13 +123,10 @@ class OfflineValidation(GenericValidationData):
 
 class OfflineValidationParallel(OfflineValidation):
     def __init__(self, valName, alignment,config):
-        OfflineValidation.__init__(self, valName, alignment, config)
         defaults = {
             "parallelJobs":"1"
             }
-        offline = config.getResultingSection( "offline:"+self.name, 
-                                              defaultDict = defaults )
-        self.general.update( offline )
+        OfflineValidation.__init__(self, valName, alignment, config, addDefaults = defaults)
         self.__NJobs = self.general["parallelJobs"]
         self.outputFiles = []
         for index in range(int(self.general["parallelJobs"])):
@@ -149,7 +172,29 @@ class OfflineValidationParallel(OfflineValidation):
             repMap.update({"outputFile": self.outputFiles[index]})
             repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
 
-            cfgs = {cfgName:replaceByMap(configTemplates.offlineParallelTemplate,
+            templateToUse = configTemplates.offlineParallelTemplate
+            if self.AutoAlternates:
+                if "Cosmics" in self.general["trackcollection"]:
+                    Bfield =  self.dataset.magneticFieldForRun()
+                    if Bfield > 3.3 and Bfield < 4.3:                 #Should never be 4.3, but this covers strings, which always compare bigger than ints
+                        templateToUse = configTemplates.CosmicsParallelOfflineValidation
+                        print "B field for %s = %sT.  Using the template for cosmics at 3.8T" % (self.dataset.name(), Bfield)
+                    elif Bfield < 0.5:
+                        templateToUse = configTemplates.CosmicsAt0TParallelOfflineValidation
+                        print "B field for %s = %sT.  Using the template for cosmics at 0T" % (self.dataset.name(), Bfield)
+                    else:
+                        try:
+                            if "unknown " in Bfield:
+                                msg = Bfield.replace("unknown ","",1)
+                            elif "Bfield" is "unknown":
+                                msg = "Can't get the B field for %s." % self.dataset.name()
+                        except TypeError:
+                            msg = "B field for %s = %sT.  This is not that close to 0T or 3.8T." % (self.dataset.name(), Bfield)
+                        raise AllInOneError(msg + "\n"
+                                            "To use this data, turn off the automatic alternates using AutoAlternates = false\n"
+                                            "in the [alternateTemplates] section, and choose the alternate template yourself.")
+
+            cfgs = {cfgName:replaceByMap(templateToUse,
                                          repMap)}
             self.filesToCompare[GenericValidationData.defaultReferenceName] = repMap["resultFile"] 
             GenericValidationData.createConfiguration(self, cfgs, path)

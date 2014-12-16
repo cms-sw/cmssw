@@ -416,6 +416,8 @@ def createParallelMergeScript( path, validations ):
 def loadTemplates( config ):
     if config.has_section("alternateTemplates"):
         for templateName in config.options("alternateTemplates"):
+            if templateName == "AutoAlternates":
+                continue
             newTemplateName = config.get("alternateTemplates", templateName )
             #print "replacing default %s template by %s"%( templateName, newTemplateName)
             configTemplates.alternateTemplate(templateName, newTemplateName)

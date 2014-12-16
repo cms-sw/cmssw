@@ -22,6 +22,8 @@ class Dataset:
         self.__alreadyStored = False
         self.__cmssw = cmssw
         self.__cmsswrelease = cmsswrelease
+        self.__firstusedrun = None
+        self.__lastusedrun = None
 
         # check, if dataset name matches CMS dataset naming scheme
         if re.match( r'/.+/.+/.+', self.__name ):
@@ -101,10 +103,14 @@ class Dataset:
                     "chosen is greater than the upper time/runrange limit "
                     "('end'/'lastRun').")
             raise AllInOneError( msg )
+        if self.predefined() and (jsonPath or begin or end or firstRun or lastRun):
+            msg = ( "The parameters 'JSON', 'begin', 'end', 'firstRun', and 'lastRun'"
+                    "only work for official datasets, not predefined _cff.py files" )
+            raise AllInOneError( msg )
         goodLumiSecStr = ""
         lumiStr = ""
         lumiSecExtend = ""
-        if firstRun or lastRun:
+        if firstRun or lastRun or jsonPath:
             goodLumiSecStr = ( "lumiSecs = cms.untracked."
                                "VLuminosityBlockRange()\n" )
             lumiStr = "                    lumisToProcess = lumiSecs,\n"
@@ -138,14 +144,12 @@ class Dataset:
                 lumiSecStr = [ "lumiSecs.extend( [\n'" + lumis + "'\n] )" \
                                for lumis in lumiSecStr ]
                 lumiSecExtend = "\n".join( lumiSecStr )
-        elif jsonPath:
-                goodLumiSecStr = ( "goodLumiSecs = LumiList.LumiList(filename"
-                                   "= '%(json)s').getCMSSWString().split(',')\n"
-                                   "lumiSecs = cms.untracked"
-                                   ".VLuminosityBlockRange()\n"
-                                   )
-                lumiStr = "                    lumisToProcess = lumiSecs,\n"
-                lumiSecExtend = "lumiSecs.extend(goodLumiSecs)\n"
+                self.__firstusedrun = splitLumiList[0][0].split(":")[0]
+                self.__lastusedrun = splitLumiList[-1][-1].split(":")[0]
+        else:
+            self.__firstusedrun = self.__findInJson(self.__getRunList()[0],"run_number")
+            self.__lastusedrun = self.__findInJson(self.__getRunList()[-1],"run_number")
+
         if crab:
             files = ""
         else:
@@ -154,6 +158,7 @@ class Dataset:
             fileStr = [ "readFiles.extend( [\n'" + files + "'\n] )" \
                         for files in fileStr ]
             files = "\n".join( fileStr )
+
         theMap = repMap
         theMap["files"] = files
         theMap["json"] = jsonPath
@@ -269,7 +274,7 @@ class Dataset:
                 datatype = f.readline().replace("\n", '')
                 Bfield = f.readline().replace("\n", '')
                 if "#magnetic field: " in Bfield:
-                    Bfield = Bfield.replace("#magnetic field: ", "")
+                    Bfield = Bfield.replace("#magnetic field: ", "").split(",")[0]
                     if Bfield in Bfieldlist or Bfield == "unknown":
                         return Bfield
                     else:
@@ -284,8 +289,8 @@ class Dataset:
         if self.__dataType == "data":
             return "AutoFromDBCurrent"
 
-        dasQuery_type = ( 'dataset dataset=%s'%( self.__name ) )             #try to find the magnetic field from DAS
-        data = self.__getData( dasQuery_type )                               #it seems to be there for the newer (7X) MC samples, except cosmics
+        dasQuery_B = ( 'dataset dataset=%s'%( self.__name ) )             #try to find the magnetic field from DAS
+        data = self.__getData( dasQuery_B )                               #it seems to be there for the newer (7X) MC samples, except cosmics
 
         try:
             Bfield = self.__findInJson(data, ["dataset", "mcm", "sequences", "magField"])
@@ -305,6 +310,52 @@ class Dataset:
                 return possibleB
 
         return "unknown"
+
+    def __getMagneticFieldForRun( self, run = -1, tolerance = 0.5 ):
+        """For MC, this returns the same as the previous function.
+           For data, it gets the magnetic field from the runs.  This is important for
+           deciding which template to use for offlinevalidation
+        """
+        if "T" in self.__magneticField:                       #for MC
+            Bfield = self.__magneticField.split("T")[0]
+            return float(Bfield) / 10.0                       #e.g. 38T and 38T_PostLS1 both return 3.8
+        if self.__predefined:
+            with open(self.__filename) as f:
+                f.readline()
+                f.readline()
+                f.readline()
+                Bfield = f.readline().replace("\n", '')
+                if "#magnetic field: " in Bfield and "," in Bfield:
+                    return float(Bfield.replace("#magnetic field: ", "").split(",")[1])
+
+        if run > 0:
+            dasQuery = ('run = %s'%run)                         #for data
+            data = self.__getData(dasQuery)
+            try:
+                return self.__findInJson(data, ["run","bfield"])
+            except KeyError:
+                return "unknown Can't get the magnetic field for run %s from DAS" % run
+
+        #run < 0 - find B field for the first and last runs, and make sure they're compatible
+        #  (to within tolerance)
+        #NOT FOOLPROOF!  The magnetic field might go up and then down, or vice versa
+        if self.__firstusedrun is None or self.__lastusedrun is None:
+            return "unknown Can't get the exact magnetic field for the dataset until data has been retrieved from DAS."
+        firstrunB = self.__getMagneticFieldForRun(self.__firstusedrun)
+        lastrunB = self.__getMagneticFieldForRun(self.__lastusedrun)
+        try:
+            if abs(firstrunB - lastrunB) <= tolerance:
+                return .5*(firstrunB + lastrunB)
+            print firstrunB, lastrunB, tolerance
+            return ("unknown The beginning and end of your run range for %s\n"
+                    "have different magnetic fields (%s, %s)!\n"
+                    "Try limiting the run range using firstRun, lastRun, begin, end, or JSON,\n"
+                    "or increasing the tolerance (in dataset.py) from %s.") % (self.__name, firstrunB, lastrunB, tolerance)
+        except TypeError:
+            if "unknown" in firstrunB:
+                return firstrunB
+            else:
+                return lastrunB
 
     def __getFileInfoList( self, dasLimit ):
         if self.__fileInfoList:
@@ -453,6 +504,9 @@ class Dataset:
     def magneticField( self ):
         return self.__magneticField
     
+    def magneticFieldForRun( self, run = -1 ):
+        return self.__getMagneticFieldForRun(run)
+
     def datasetSnippet( self, jsonPath = None, begin = None, end = None,
                         firstRun = None, lastRun = None, nEvents = None,
                         crab = False ):
@@ -504,10 +558,11 @@ class Dataset:
                    "nEvents": str( -1 ),
                    "importCms": "import FWCore.ParameterSet.Config as cms\n",
                    "header": "#Do not delete, put anything before, or (unless you know what you're doing) change these comments\n"
-                             "#%s\n"
-                             "#data type: %s\n"
-                             "#magnetic field: %s\n"
-                             %(self.__name, self.__dataType, self.__magneticField)
+                             "#%(name)s\n"
+                             "#data type: %(dataType)s\n"
+                             "#magnetic field: .oO[magneticField]Oo.\n"    #put in magnetic field later
+                             %{"name": self.__name,                        #need to create the snippet before getting the magnetic field
+                               "dataType": self.__dataType}                #so that we know the first and last runs
                    }
         dataset_cff = self.__createSnippet( jsonPath = jsonPath,
                                             begin = begin,
@@ -515,6 +570,10 @@ class Dataset:
                                             firstRun = firstRun,
                                             lastRun = lastRun,
                                             repMap = theMap)
+        magneticField = self.__magneticField
+        if magneticField == "AutoFromDBCurrent":
+            magneticField = "%s, %s" % (magneticField, str(self.__getMagneticFieldForRun()).replace("\n"," ")[0])
+        dataset_cff = dataset_cff.replace(".oO[magneticField]Oo.",magneticField)
         filePath = os.path.join( self.__cmssw, "src", packageName,
                                  "python", outName + "_cff.py" )
         if os.path.exists( filePath ):
