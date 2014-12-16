@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 # configuration to model pileup for initial physics phase
 from SimGeneral.MixingModule.mixObjects_cfi import theMixObjects
 from SimGeneral.MixingModule.mixPoolSource_cfi import *
-from SimGeneral.MixingModule.digitizers_cfi import *
 
 FileNames = cms.untracked.vstring(['/store/relval/CMSSW_7_2_0_pre7/RelValQCD_Pt_80_120_13/GEN-SIM/PRE_LS172_V11-v1/00000/16547ECB-9C4B-E411-A815-0025905964BC.root', '/store/relval/CMSSW_7_2_0_pre7/RelValQCD_Pt_80_120_13/GEN-SIM/PRE_LS172_V11-v1/00000/86C3C326-9F4B-E411-903D-0025905A48EC.root', '/store/relval/CMSSW_7_2_0_pre7/RelValQCD_Pt_80_120_13/GEN-SIM/PRE_LS172_V11-v1/00000/C48D8223-9F4B-E411-BC37-0026189438DC.root', '/store/relval/CMSSW_7_2_0_pre7/RelValQCD_Pt_80_120_13/GEN-SIM/PRE_LS172_V11-v1/00000/D070AB62-9D4B-E411-9766-002618FDA207.root'])
 
@@ -37,6 +36,6 @@ mix = cms.EDProducer("MixingModule",
         ),
 )
 
-mixGen = cms.Sequence("mix")
-mixVal = mixGen.clone(playback = cms.untracked.bool(True),LabelPlayback = cms.string('mixGen'))
+mixGen = cms.Sequence(mix)
+
 
