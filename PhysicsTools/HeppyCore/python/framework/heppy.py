@@ -35,6 +35,9 @@ def runLoopAsync(comp, outDir, configName, options):
         return loop.name
     except Exception:
         import traceback
+        print "ERROR processing component %s" % comp.name
+        print comp
+        print "STACK TRACE: "
         print traceback.format_exc()
         raise
 
