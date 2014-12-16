@@ -56,18 +56,18 @@ boost::shared_ptr<coral::Blob> PrimitiveContainerStreamingService::write( const 
   edm::FunctionWithDict beginMethod = type.functionMemberByName( "begin" );
   if ( ! beginMethod )
     throw std::runtime_error( "No begin method is defined for the container" );
-  edm::TypeWithDict iteratorType = beginMethod.typeOf(); //-ap??  .returnType();
+  edm::TypeWithDict iteratorType = beginMethod.finalReturnType();
   edm::FunctionWithDict dereferenceMethod = iteratorType.functionMemberByName( "operator*" );
   if ( ! dereferenceMethod )
     throw std::runtime_error( "Could not retrieve the dereference method of the container's iterator" );
-  size_t elementSize = dereferenceMethod.typeOf().size(); //-ap??  .returnType().size();
+  size_t elementSize = dereferenceMethod.finalReturnType().size();
 
   boost::shared_ptr<coral::Blob> blob( new coral::Blob( containerSize * elementSize ) );
   // allocate the blob
   void* startingAddress = blob->startingAddress();
 
   // Create an iterator
-  edm::TypeWithDict retType2 =  beginMethod.typeOf(); //-ap??  .returnType();
+  edm::TypeWithDict retType2 =  beginMethod.finalReturnType();
   char* retbuf2 = ::new char[retType2.size()];
   edm::ObjectWithDict iteratorObject(retType2, retbuf2);
   beginMethod.invoke( edm::ObjectWithDict( type, const_cast< void * > ( addressOfInputData ) ), &iteratorObject );
@@ -102,12 +102,12 @@ void PrimitiveContainerStreamingService::read( const coral::Blob& blobData,
   edm::FunctionWithDict beginMethod = type.functionMemberByName( "begin" );
   if ( ! beginMethod )
     throw std::runtime_error( "No begin method is defined for the container" );
-  edm::TypeWithDict iteratorType = beginMethod.typeOf(); //-ap?? .returnType();
+  edm::TypeWithDict iteratorType = beginMethod.finalReturnType();
   edm::FunctionWithDict dereferenceMethod = iteratorType.functionMemberByName( "operator*" );
   if ( ! dereferenceMethod )
     throw std::runtime_error( "Could not retrieve the dereference method of the container's iterator" );
 
-  size_t elementSize = dereferenceMethod.typeOf().size(); //-ap?? .returnType().size();
+  size_t elementSize = dereferenceMethod.finalReturnType().size();
 
   if( ! elementSize ) return;
 
@@ -138,7 +138,7 @@ void PrimitiveContainerStreamingService::read( const coral::Blob& blobData,
     std::vector< void* > args( 2 );
 
     // call container.end()
-    edm::TypeWithDict retType =  endMethod.typeOf(); //-ap?? .returnType();
+    edm::TypeWithDict retType =  endMethod.finalReturnType();
     char* retbuf = ::new char[retType.size()];
     edm::ObjectWithDict ret(retType, retbuf);
     endMethod.invoke(containerObject, &ret);
