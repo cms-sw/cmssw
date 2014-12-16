@@ -1,4 +1,3 @@
-from PhysicsTools.Heppy.analyzers.objects.GeneratorAnalyzer import GeneratorAnalyzer
 from PhysicsTools.Heppy.analyzers.objects.JetAnalyzer import JetAnalyzer
 from PhysicsTools.Heppy.analyzers.objects.LeptonAnalyzer import LeptonAnalyzer
 from PhysicsTools.Heppy.analyzers.objects.METAnalyzer import METAnalyzer
