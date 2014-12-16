@@ -267,7 +267,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   hcalCfgBarrel_.hOverEMethod = cfg.getParameter<int>("hOverEMethodBarrel") ; 
   if (hcalCfgBarrel_.hOverEMethod==3)
      { 
-        hcalCfgBarrel_.hgcalHFClusters = cfg.getParameter<edm::InputTag>("hgcalHFClusters") ;
+        hcalCfgBarrel_.hcalClusters = cfg.getParameter<edm::InputTag>("hcalBarrelClusters") ;
      }
   // endcap
   hcalCfgEndcap_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSize") ;
@@ -280,7 +280,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   hcalCfgEndcap_.hOverEMethod = cfg.getParameter<int>("hOverEMethodEndcap") ; 
   if (hcalCfgEndcap_.hOverEMethod==3)
      { 
-        hcalCfgEndcap_.hgcalHFClusters = cfg.getParameter<edm::InputTag>("hgcalHFClusters") ;
+        hcalCfgEndcap_.hcalClusters = cfg.getParameter<edm::InputTag>("hcalEndcapClusters") ;
      }
   hcalCfgPflow_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSizePflow") ;
   if (hcalCfgPflow_.hOverEConeSize>0)

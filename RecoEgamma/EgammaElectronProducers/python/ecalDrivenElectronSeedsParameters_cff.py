@@ -23,8 +23,8 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     # H/E
     applyHOverECut = cms.bool(True),
     #hOverEMethod = cms.int32(0),  # 0 = cone #1 = single tower #2 = towersBehindCluster (max is 4)
-    hOverEMethodBarrel = cms.int32(0),  # 0 = cone #1 = single tower #2 = towersBehindCluster (max is 4)
-    hOverEMethodEndcap = cms.int32(1),  # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = HGCal (max is 4)
+    hOverEMethodBarrel = cms.int32(3),  # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = clusters (max is 4)
+    hOverEMethodEndcap = cms.int32(3),  # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = clusters (max is 4)
     hOverEConeSize = cms.double(0.15),
     #maxHOverE = cms.double(0.1),
     maxHOverEBarrel = cms.double(0.15),
@@ -39,8 +39,9 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     # H/E towers
     hcalTowers = cms.InputTag("towerMaker"),
     hOverEPtMin = cms.double(0.),
-    # HGCal cluster
-    hgcalHFClusters = cms.InputTag("particleFlowClusterHGCHEF"),
+    # cluster sources
+    barrelHCALClusters = cms.InputTag('particleFlowClusterHCAL'),
+    endcapHCALClusters = cms.InputTag('particleFlowClusterHCAL'),
     
     # r/z windows
     nSigmasDeltaZ1 = cms.double(5.), ## in case beam spot is used for the matching

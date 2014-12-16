@@ -9,7 +9,7 @@
 using namespace reco ;
 
 ElectronHcalHelper::ElectronHcalHelper( const Configuration & cfg  )
-  : cfg_(cfg), caloGeomCacheId_(0), hbhe_(0), mhbhe_(0), hcalIso_(0), towersH_(0), towerIso1_(0), towerIso2_(0),hadTower_(0),hgcalHFCluster_(0)
+  : cfg_(cfg), caloGeomCacheId_(0), hbhe_(0), mhbhe_(0), hcalIso_(0), towersH_(0), towerIso1_(0), towerIso2_(0),hadTower_(0),hcalClusters_(0)
  {}
 
 void ElectronHcalHelper::checkSetup( const edm::EventSetup & es )
@@ -28,7 +28,7 @@ void ElectronHcalHelper::checkSetup( const edm::EventSetup & es )
     //    std::cout << "ElectronHcalHelper, mode " << cfg_.hOverEMethod << std::endl;
   }
   if(cfg_.hOverEMethod==3) {
-    hadTower_ = new EgammaHadTower(es,EgammaHadTower::HGCalHFCluster) ;
+    hadTower_ = new EgammaHadTower(es,EgammaHadTower::HCALCluster) ;
   }
 
    
@@ -51,11 +51,11 @@ void ElectronHcalHelper::readEvent( const edm::Event & evt )
 
   if (cfg_.hOverEMethod==3) 
    {
-     delete hgcalHFCluster_ ; hgcalHFCluster_ = 0 ;
-     hgcalHFCluster_ = new edm::Handle<reco::PFClusterCollection>() ;
-     if (!evt.getByLabel(cfg_.hgcalHFClusters,*hgcalHFCluster_))
-     { edm::LogError("ElectronHcalHelper::readEvent")<<"failed to get the HGCAL HF PF clusters "<<cfg_.hgcalHFClusters ; }
-     if(hgcalHFCluster_) hadTower_->setPFClusterCollection(hgcalHFCluster_->product()); 
+     delete hcalClusters_ ; hcalClusters_ = 0 ;
+     hcalClusters_ = new edm::Handle<reco::PFClusterCollection>() ;
+     if (!evt.getByLabel(cfg_.hcalClusters,*hcalClusters_))
+     { edm::LogError("ElectronHcalHelper::readEvent")<<"failed to get the HCAL PF clusters "<<cfg_.hcalClusters ; }
+     if(hcalClusters_) hadTower_->setHCALClusterCollection(hcalClusters_->product()); 
    }
   
   if (cfg_.useTowers)
@@ -161,8 +161,8 @@ double ElectronHcalHelper::hcalESumDepth2( const reco::SuperCluster & sc, const 
   return hcalESumDepth2BehindClusters(hcalTowersBehindClusters(sc));
 }
 
-double ElectronHcalHelper::hgcalHFBehindClusters( const reco::SuperCluster & sc ) {
-  return hadTower_->getHgcalHFE(sc, 0.,cfg_.hOverEConeSize);
+double ElectronHcalHelper::HCALClustersBehindSC( const reco::SuperCluster & sc ) {
+  return hadTower_->getHCALClusterEnergy(sc, 0.,cfg_.hOverEConeSize);
 }
 
 ElectronHcalHelper::~ElectronHcalHelper()

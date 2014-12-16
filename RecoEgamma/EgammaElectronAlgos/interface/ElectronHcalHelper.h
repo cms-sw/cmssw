@@ -44,8 +44,7 @@ class ElectronHcalHelper
       double hOverEHFMinE ;
 
       // specific parameters if use hgcal HF Clusters
-      edm::InputTag hgcalHFClusters ;
-
+      edm::InputTag hcalClusters ;
      } ;
 
     ElectronHcalHelper( const Configuration & ) ;
@@ -68,8 +67,10 @@ class ElectronHcalHelper
     double hcalESumDepth2BehindClusters( const std::vector<CaloTowerDetId> & towers ) ;
     
     // HGCal using HCAL clusters
-    double hgcalHFBehindClusters( const reco::SuperCluster & ) ;
-     
+    double HCALClustersBehindSC( const reco::SuperCluster & ) ;
+    
+    const Configuration& getConfig() const { return cfg_; }
+
   private:
 
     const Configuration cfg_ ;
@@ -90,7 +91,7 @@ class ElectronHcalHelper
     EgammaHadTower * hadTower_;
     
     //hgcal HF Clusters
-    edm::Handle<reco::PFClusterCollection> * hgcalHFCluster_ ;
+    edm::Handle<reco::PFClusterCollection> * hcalClusters_ ;
  
  } ;
 

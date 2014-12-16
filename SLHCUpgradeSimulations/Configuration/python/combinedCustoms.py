@@ -281,7 +281,7 @@ def cust_2023HGCal_common(process):
             process.particleFlowCluster += process.particleFlowSuperClusterHGCEE
             if hasattr(process,'ecalDrivenElectronSeeds'):
                 process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
-                process.ecalDrivenElectronSeeds.SeedConfiguration.hOverEMethodEndcap = cms.int32(3) 
+                process.ecalDrivenElectronSeeds.SeedConfiguration.endcapHCALClusters = cms.InputTag('particleFlowClusterHGCHEF')
                 process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEEndcaps = cms.double(0.2) 
                 process.ecalDrivenElectronSeeds.SeedConfiguration.z2MinB = cms.double(-0.15)
                 process.ecalDrivenElectronSeeds.SeedConfiguration.z2MaxB = cms.double(0.15)
