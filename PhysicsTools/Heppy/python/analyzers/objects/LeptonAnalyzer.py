@@ -10,6 +10,9 @@ from PhysicsTools.Heppy.physicsutils.MuScleFitCorrector   import MuScleFitCorr
 from PhysicsTools.Heppy.physicsutils.ElectronCalibrator import EmbeddedElectronCalibrator
 #from CMGTools.TTHAnalysis.electronCalibrator import ElectronCalibrator
 import PhysicsTools.HeppyCore.framework.config as cfg
+from PhysicsTools.HeppyCore.utils.deltar import * 
+from PhysicsTools.Heppy.physicsutils.genutils import *
+
 
 from ROOT import heppy
 cmgMuonCleanerBySegments = heppy.CMGMuonCleanerBySegmentsAlgo()
@@ -230,6 +233,56 @@ class LeptonAnalyzer( Analyzer ):
         
         return allelectrons 
 
+    def matchLeptons(self, event):
+        def plausible(rec,gen):
+            if abs(rec.pdgId()) == 11 and abs(gen.pdgId()) != 11:   return False
+            if abs(rec.pdgId()) == 13 and abs(gen.pdgId()) != 13:   return False
+            dr = deltaR(rec.eta(),rec.phi(),gen.eta(),gen.phi())
+            if dr < 0.3: return True
+            if rec.pt() < 10 and abs(rec.pdgId()) == 13 and gen.pdgId() != rec.pdgId(): return False
+            if dr < 0.7: return True
+            if min(rec.pt(),gen.pt())/max(rec.pt(),gen.pt()) < 0.3: return False
+            return True
+
+        leps = event.inclusiveLeptons if self.cfg_ana.match_inclusiveLeptons else event.selectedLeptons
+        match = matchObjectCollection3(leps, 
+                                       event.genleps + event.gentauleps, 
+                                       deltaRMax = 1.2, filter = plausible)
+        for lep in leps:
+            gen = match[lep]
+            lep.mcMatchId  = (gen.sourceId if gen != None else  0)
+            lep.mcMatchTau = (gen in event.gentauleps if gen else -99)
+
+    def isFromB(self,particle,bid=5, done={}):
+        for i in xrange( particle.numberOfMothers() ): 
+            mom  = particle.mother(i)
+            momid = abs(mom.pdgId())
+            if momid / 1000 == bid or momid / 100 == bid or momid == bid: 
+                return True
+            elif mom.status() == 2 and self.isFromB(mom, done=done):
+                return True
+        return False
+
+    def matchAnyLeptons(self, event): 
+        event.anyLeptons = [ x for x in event.genParticles if x.status() == 1 and abs(x.pdgId()) in [11,13] ]
+        leps = event.inclusiveLeptons if hasattr(event, 'inclusiveLeptons') else event.selectedLeptons
+        match = matchObjectCollection3(leps, event.anyLeptons, deltaRMax = 0.3, filter = lambda x,y : abs(x.pdgId()) == abs(y.pdgId()))
+        for lep in leps:
+            gen = match[lep]
+            lep.mcMatchAny_gp = gen
+            if gen:
+                if   self.isFromB(gen):       lep.mcMatchAny = 5 # B (inclusive of B->D)
+                elif self.isFromB(gen,bid=4): lep.mcMatchAny = 4 # Charm
+                else: lep.mcMatchAny = 1
+            else: 
+                lep.mcMatchAny = 0
+            # fix case where the matching with the only prompt leptons failed, but we still ended up with a prompt match
+            if gen != None and hasattr(lep,'mcMatchId') and lep.mcMatchId == 0:
+                if isPromptLepton(gen, False): lep.mcMatchId = 100
+            elif not hasattr(lep,'mcMatchId'):
+                lep.mcMatchId = 0
+            if not hasattr(lep,'mcMatchTau'): lep.mcMatchTau = 0
+
     def process(self, event):
         self.readCollections( event.input )
         self.counters.counter('events').inc('all events')
@@ -237,6 +290,10 @@ class LeptonAnalyzer( Analyzer ):
         #call the leptons functions
         self.makeLeptons(event)
 
+        if self.cfg_comp.isMC and self.cfg_ana.do_mc_match:
+            self.matchLeptons(event)
+            self.matchAnyLeptons(event)
+            
         return True
 
 #A default config
@@ -286,6 +343,9 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     ele_isoCorr = "rhoArea" ,
     ele_tightId = "MVA" ,
     # minimum deltaR between a loose electron and a loose muon (on overlaps, discard the electron)
-    min_dr_electron_muon = 0.02
+    min_dr_electron_muon = 0.02,
+    # do MC matching 
+    do_mc_match = True, # note: it will in any case try it only on MC, not on data
+    match_inclusiveLeptons = False, # match to all inclusive leptons
     )
 )
