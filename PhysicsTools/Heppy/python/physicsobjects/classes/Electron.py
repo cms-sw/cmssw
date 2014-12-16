@@ -29,6 +29,9 @@ class Electron( Lepton ):
         elif id == "POG_MVA_ID_Trig_full5x5":     return self.mvaIDTight(full5x5=True)
         elif id.startswith("POG_Cuts_ID_"): 
                 return self.cutBasedId(id.replace("POG_Cuts_ID_","POG_")) 
+        for ID in self.electronIDs():
+            if ID.first == id:
+                return ID.second
         raise RuntimeError, "Electron id '%s' not yet implemented in Electron.py" % id
 
     def cutBasedId(self, wp, showerShapes="auto"):
