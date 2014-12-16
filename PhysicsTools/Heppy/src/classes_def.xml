@@ -5,7 +5,6 @@
   <class name="heppy::FSRWeightAlgo"/>
   <class name="heppy::Davismt2" transient="true" />
   <class name="heppy::Hemisphere"/>
-  <class name="heppy::HemisphereViaKt"/>
   <class name="heppy::mt2w_bisect::mt2w"  transient="true" />
   <class name="heppy::MuScleFitCorrector" transient="true" />
   <class name="heppy::TriggerBitChecker" transient="true" />
