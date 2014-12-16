@@ -50,6 +50,7 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
   genJetsToken_ = consumes<reco::GenJetCollection>(edm::InputTag(mInputGenCollection));
   evtToken_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
   pfCandToken_ = consumes<reco::PFCandidateCollection>(mInputPFCandCollection);
+  pfCandViewToken_ = consumes<reco::CandidateView>(mInputPFCandCollection);
   //backgrounds_ = consumes<reco::VoronoiBackground>(Background);
   backgrounds_ = consumes<edm::ValueMap<reco::VoronoiBackground>>(Background);
   
@@ -60,6 +61,7 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
   // VoronoiToken_ = consumes<edm::ValueMap<reco::VoronoBackground> 
   
   // need to initialize the PF cand histograms : which are also event variables 
+
   mNPFpart = 0;
   mPFPt = 0;
   mPFEta = 0;
@@ -85,9 +87,9 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
   mEmTiming     = 0;
   mJetArea      = 0;
   mjetpileup    =0;
-
-//  mRho          = 0;
-
+  
+  //mRho          = 0;
+  
   // Corrected jets
   mCorrJetPt  = 0;
   mCorrJetEta = 0;
@@ -572,19 +574,19 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
   // Get the Jet collection
   //----------------------------------------------------------------------------
   math::XYZTLorentzVector p4tmp[2];
-
+  
   std::vector<Jet> recoJets;
   recoJets.clear();
-
+  
   edm::Handle<CaloJetCollection>  caloJets;
   edm::Handle<JPTJetCollection>   jptJets;
   edm::Handle<PFJetCollection>    pfJets;
   edm::Handle<BasicJetCollection> basicJets;
-
+  
   // Get the Particle flow candidates and the Voronoi variables 
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
   edm::Handle<reco::CandidateView> candidates_;
-
+  
   //const reco::PFCandidateCollection *pfCandidateColl = pfcandidates.product();
   edm::Handle<edm::ValueMap<VoronoiBackground>> VsBackgrounds;
   
@@ -598,13 +600,13 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
     if(std::string("Pu")==UEAlgo) mEvent.getByToken(basicJetsToken_, basicJets);
     if(std::string("Vs")==UEAlgo) mEvent.getByToken(pfJetsToken_, pfJets);
   }
-
+  
   mEvent.getByToken(pfCandToken_, pfCandidates);
-  mEvent.getByToken(pfCandToken_, candidates_);
   mEvent.getByToken(backgrounds_, VsBackgrounds);
-
+  mEvent.getByToken(pfCandViewToken_, candidates_);
+  
   const reco::PFCandidateCollection *pfCandidateColl = pfCandidates.product();
-
+  
   Float_t vsPt=0;
   Float_t vsPtInitial = 0;
   Float_t vsArea = 0;
@@ -613,29 +615,29 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
   Float_t pfEta = 0;
   Float_t pfPhi = 0;
   Float_t SumPt = 0;
-
+  
   for(unsigned icand=0;icand<pfCandidateColl->size(); icand++){
-
+    
     const reco::PFCandidate pfCandidate = pfCandidateColl->at(icand);
     reco::CandidateViewRef ref(candidates_,icand);
-
+    
     if(std::string("Vs")==UEAlgo) {
-
+      
       const reco::VoronoiBackground& voronoi = (*VsBackgrounds)[ref];
       vsPt = voronoi.pt();
       vsPtInitial = voronoi.pt_subtracted();
       vsArea = voronoi.area();
-
+      
       std::cout<<"vsPt = "<<vsPt<<"; vsPtInitial = "<<vsPtInitial<<"; vsArea = "<<vsArea<<std::endl;
     }
-
+    
     NPFpart++;
     pfPt = pfCandidate.pt();
     pfEta = pfCandidate.eta();
     pfPhi = pfCandidate.phi();
     
     SumPt = SumPt + pfPt;
-
+    
     mPFPt->Fill(pfPt);
     mPFEta->Fill(pfEta);
     mPFPhi->Fill(pfPhi);
@@ -648,21 +650,21 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
   
   mNPFpart->Fill(NPFpart);
   mSumpt->Fill(SumPt);
-
+  
   std::cout<<"finished loading the pfcandidates"<<std::endl;
-
+  
   if (isCaloJet)
     {
       //std::cout<<caloJets->size()<<endl;
       for (unsigned ijet=0; ijet<caloJets->size(); ijet++) recoJets.push_back((*caloJets)[ijet]);
     }
-
+  
   if (isJPTJet)
     {
       //std::cout<<jptJets->size()<<endl;
       for (unsigned ijet=0; ijet<jptJets->size(); ijet++) recoJets.push_back((*jptJets)[ijet]);
     }
-
+  
   if (isPFJet) {
     if(std::string("Pu")==UEAlgo){
       //std::cout<<basicJets->size()<<endl;
@@ -673,7 +675,7 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
       for (unsigned ijet=0; ijet<pfJets->size(); ijet++) recoJets.push_back((*pfJets)[ijet]);
     }
   }
-
+  
   /*
     std::cout<<mInputCollection.label()<<endl;
     std::cout<<"jet type = "<<JetType<<endl;
