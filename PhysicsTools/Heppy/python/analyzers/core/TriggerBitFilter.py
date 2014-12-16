@@ -1,5 +1,4 @@
 import ROOT
-from ROOT.heppy import TriggerBitChecker
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
@@ -13,11 +12,11 @@ class TriggerBitFilter( Analyzer ):
         vetoTriggers = cfg_comp.vetoTriggers if hasattr(cfg_comp, 'vetoTriggers') else []
         trigVec = ROOT.vector(ROOT.string)()
         for t in triggers: trigVec.push_back(t)
-        self.mainFilter = TriggerBitChecker(trigVec)
+        self.mainFilter = ROOT.heppy.TriggerBitChecker(trigVec)
         if len(vetoTriggers):
             vetoVec = ROOT.vector(ROOT.string)()
             for t in vetoTriggers: vetoVec.push_back(t)
-            self.vetoFilter = TriggerBitChecker(vetoVec)
+            self.vetoFilter = ROOT.heppy.TriggerBitChecker(vetoVec)
         else:
             self.vetoFilter = None 
         
