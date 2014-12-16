@@ -74,7 +74,9 @@ class PFRecoTauDiscriminationAgainstMuonMVA final : public PFTauDiscriminationPr
     mvaName_ = cfg.getParameter<std::string>("mvaName");
     loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
     if ( !loadMVAfromDB_ ) {
-      inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
+      if(cfg.exists("inputFileName")){
+	inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
+      }else throw cms::Exception("MVA input not defined") << "Requested to load tau MVA input from ROOT file but no file provided in cfg file";
     }
     mvaInput_ = new float[11];
     

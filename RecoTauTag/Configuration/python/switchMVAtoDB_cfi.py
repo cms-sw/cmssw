@@ -13,17 +13,22 @@ def switchMVAtoDB(process):
           process = switchMVAtoDB(process)
 
        The function takes no parameters. The names of the input root files are defined in 
-       RecoTauTag/Configuration/python/HPSPFTaus_cff.py (parameter inputFileName).
+       RecoTauTag/Configuration/python/switchMVAtoDB_cff.py (parameter inputFileName).
     '''
 #    process.load("RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi")
     massSearchReplaceParam(getattr(process,"produceAndDiscriminateHPSPFTaus"),"loadMVAfromDB", cms.bool(True), cms.bool(False))
     #muon discriminators
     process.hpsPFTauDiscriminationByMVArawMuonRejection.mvaName = cms.string("againstMuonMVA")
+    process.hpsPFTauDiscriminationByMVArawMuonRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationAgainstMuonMVA.root')
     massSearchReplaceParam(getattr(process,"produceAndDiscriminateHPSPFTaus"), "mvaOutput_normalization", cms.string("RecoTauTag_againstMuonMVAv1_mvaOutput_normalization"), cms.string("mvaOutput_normalization_opt2"))
     process.hpsPFTauDiscriminationByMVALooseMuonRejection.mapping[0].cut = cms.string("opt2eff99_5")
     process.hpsPFTauDiscriminationByMVAMediumMuonRejection.mapping[0].cut = cms.string("opt2eff99_0")
     process.hpsPFTauDiscriminationByMVATightMuonRejection.mapping[0].cut = cms.string("opt2eff98_0")
     
+    process.hpsPFTauDiscriminationByMVALooseMuonRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByMVAMuonRejection.root')
+    process.hpsPFTauDiscriminationByMVAMediumMuonRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByMVAMuonRejection.root')
+    process.hpsPFTauDiscriminationByMVATightMuonRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByMVAMuonRejection.root')
+
     #electron discriminators
     process.hpsPFTauDiscriminationByMVA5rawElectronRejection.mvaName_woGwoGSF_EC = cms.string('gbr_woGwoGSF_EC')
     process.hpsPFTauDiscriminationByMVA5rawElectronRejection.mvaName_woGwGSF_EC = cms.string('gbr_woGwGSF_EC')
@@ -43,6 +48,8 @@ def switchMVAtoDB(process):
     process.hpsPFTauDiscriminationByMVA5rawElectronRejection.mvaName_NoEleMatch_wGwoGSF_BL = cms.string('gbr_NoEleMatch_wGwoGSF_BL')
     process.hpsPFTauDiscriminationByMVA5rawElectronRejection.mvaName_NoEleMatch_wGwGSF_BL = cms.string('gbr_NoEleMatch_wGwGSF_BL')
 
+    process.hpsPFTauDiscriminationByMVA5rawElectronRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationAgainstElectronMVA5.root')
+
     process.hpsPFTauDiscriminationByMVA5VLooseElectronRejection.mapping[0].cut = cms.string("eff99cat0") 
     process.hpsPFTauDiscriminationByMVA5VLooseElectronRejection.mapping[1].cut = cms.string("eff99cat1")
     process.hpsPFTauDiscriminationByMVA5VLooseElectronRejection.mapping[2].cut = cms.string("eff99cat2")
@@ -60,6 +67,8 @@ def switchMVAtoDB(process):
     process.hpsPFTauDiscriminationByMVA5VLooseElectronRejection.mapping[14].cut = cms.string("eff99cat14")
     process.hpsPFTauDiscriminationByMVA5VLooseElectronRejection.mapping[15].cut = cms.string("eff99cat15")
 
+    process.hpsPFTauDiscriminationByMVA5VLooseElectronRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationAgainstElectronMVA5.root')
+
     process.hpsPFTauDiscriminationByMVA5LooseElectronRejection.mapping[0].cut = cms.string("eff96cat0")
     process.hpsPFTauDiscriminationByMVA5LooseElectronRejection.mapping[1].cut = cms.string("eff96cat1")
     process.hpsPFTauDiscriminationByMVA5LooseElectronRejection.mapping[2].cut = cms.string("eff96cat2")
@@ -76,6 +85,8 @@ def switchMVAtoDB(process):
     process.hpsPFTauDiscriminationByMVA5LooseElectronRejection.mapping[13].cut = cms.string("eff96cat13")
     process.hpsPFTauDiscriminationByMVA5LooseElectronRejection.mapping[14].cut = cms.string("eff96cat14")
     process.hpsPFTauDiscriminationByMVA5LooseElectronRejection.mapping[15].cut = cms.string("eff96cat15")
+    
+    process.hpsPFTauDiscriminationByMVA5LooseElectronRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationAgainstElectronMVA5.root')
 
     process.hpsPFTauDiscriminationByMVA5MediumElectronRejection.mapping[0].cut = cms.string("eff91cat0")
     process.hpsPFTauDiscriminationByMVA5MediumElectronRejection.mapping[1].cut = cms.string("eff91cat1")
@@ -94,6 +105,8 @@ def switchMVAtoDB(process):
     process.hpsPFTauDiscriminationByMVA5MediumElectronRejection.mapping[14].cut = cms.string("eff91cat14")
     process.hpsPFTauDiscriminationByMVA5MediumElectronRejection.mapping[15].cut = cms.string("eff91cat15")
 
+    process.hpsPFTauDiscriminationByMVA5MediumElectronRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationAgainstElectronMVA5.root')
+
     process.hpsPFTauDiscriminationByMVA5TightElectronRejection.mapping[0].cut = cms.string("eff85cat0")
     process.hpsPFTauDiscriminationByMVA5TightElectronRejection.mapping[1].cut = cms.string("eff85cat1")
     process.hpsPFTauDiscriminationByMVA5TightElectronRejection.mapping[2].cut = cms.string("eff85cat2")
@@ -110,6 +123,8 @@ def switchMVAtoDB(process):
     process.hpsPFTauDiscriminationByMVA5TightElectronRejection.mapping[13].cut = cms.string("eff85cat13")
     process.hpsPFTauDiscriminationByMVA5TightElectronRejection.mapping[14].cut = cms.string("eff85cat14")
     process.hpsPFTauDiscriminationByMVA5TightElectronRejection.mapping[15].cut = cms.string("eff85cat15")
+
+    process.hpsPFTauDiscriminationByMVA5TightElectronRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationAgainstElectronMVA5.root')
 
     process.hpsPFTauDiscriminationByMVA5VTightElectronRejection.mapping[0].cut = cms.string("eff79cat0")
     process.hpsPFTauDiscriminationByMVA5VTightElectronRejection.mapping[1].cut = cms.string("eff79cat1")
@@ -128,6 +143,8 @@ def switchMVAtoDB(process):
     process.hpsPFTauDiscriminationByMVA5VTightElectronRejection.mapping[14].cut = cms.string("eff79cat14")
     process.hpsPFTauDiscriminationByMVA5VTightElectronRejection.mapping[15].cut = cms.string("eff79cat15")
 
+    process.hpsPFTauDiscriminationByMVA5VTightElectronRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationAgainstElectronMVA5.root')
+
     #isolation
     process.hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw.mvaName = cms.string("tauIdMVAoldDMwoLT")
     massSearchReplaceParam(getattr(process,"produceAndDiscriminateHPSPFTaus"),"mvaOutput_normalization", cms.string("RecoTauTag_tauIdMVAoldDMwoLTv1_mvaOutput_normalization"), cms.string("mvaOutput_normalization_oldDMwoLT"))
@@ -138,6 +155,14 @@ def switchMVAtoDB(process):
     process.hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwoLT.mapping[0].cut = cms.string("oldDMwoLTEff50")
     process.hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwoLT.mapping[0].cut = cms.string("oldDMwoLTEff40")
 
+    process.hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationByIsolationMVA3_oldDMwoLT.root')
+    process.hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_oldDMwoLT.root')
+    process.hpsPFTauDiscriminationByLooseIsolationMVA3oldDMwoLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_oldDMwoLT.root')
+    process.hpsPFTauDiscriminationByMediumIsolationMVA3oldDMwoLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_oldDMwoLT.root')
+    process.hpsPFTauDiscriminationByTightIsolationMVA3oldDMwoLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_oldDMwoLT.root')
+    process.hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwoLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_oldDMwoLT.root')
+    process.hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwoLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_oldDMwoLT.root')
+
     process.hpsPFTauDiscriminationByIsolationMVA3oldDMwLTraw.mvaName = cms.string("tauIdMVAoldDMwLT")
     massSearchReplaceParam(getattr(process,"produceAndDiscriminateHPSPFTaus"),"mvaOutput_normalization", cms.string("RecoTauTag_tauIdMVAoldDMwLTv1_mvaOutput_normalization"), cms.string("mvaOutput_normalization_oldDMwLT"))
     process.hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwLT.mapping[0].cut = cms.string("oldDMwLTEff90")
@@ -146,6 +171,15 @@ def switchMVAtoDB(process):
     process.hpsPFTauDiscriminationByTightIsolationMVA3oldDMwLT.mapping[0].cut = cms.string("oldDMwLTEff60")
     process.hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwLT.mapping[0].cut = cms.string("oldDMwLTEff50")
     process.hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwLT.mapping[0].cut = cms.string("oldDMwLTEff40")
+
+    process.hpsPFTauDiscriminationByIsolationMVA3oldDMwLTraw.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationByIsolationMVA3_oldDMwLT.root')
+    process.hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_oldDMwLT.root')
+    process.hpsPFTauDiscriminationByLooseIsolationMVA3oldDMwLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_oldDMwLT.root')
+    process.hpsPFTauDiscriminationByMediumIsolationMVA3oldDMwLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_oldDMwLT.root')
+    process.hpsPFTauDiscriminationByTightIsolationMVA3oldDMwLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_oldDMwLT.root')
+    process.hpsPFTauDiscriminationByVTightIsolationMVA3oldDMwLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_oldDMwLT.root')
+    process.hpsPFTauDiscriminationByVVTightIsolationMVA3oldDMwLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_oldDMwLT.root')
+
     
     process.hpsPFTauDiscriminationByIsolationMVA3newDMwoLTraw.mvaName = cms.string("tauIdMVAnewDMwoLT")
     massSearchReplaceParam(getattr(process,"produceAndDiscriminateHPSPFTaus"),"mvaOutput_normalization", cms.string("RecoTauTag_tauIdMVAnewDMwoLTv1_mvaOutput_normalization"), cms.string("mvaOutput_normalization_newDMwoLT"))
@@ -156,6 +190,15 @@ def switchMVAtoDB(process):
     process.hpsPFTauDiscriminationByVTightIsolationMVA3newDMwoLT.mapping[0].cut = cms.string("newDMwoLTEff50")
     process.hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwoLT.mapping[0].cut = cms.string("newDMwoLTEff40")
 
+    process.hpsPFTauDiscriminationByIsolationMVA3newDMwoLTraw.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationByIsolationMVA3_newDMwoLT.root')
+    process.hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwoLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_newDMwoLT.root')
+    process.hpsPFTauDiscriminationByLooseIsolationMVA3newDMwoLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_newDMwoLT.root')
+    process.hpsPFTauDiscriminationByMediumIsolationMVA3newDMwoLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_newDMwoLT.root')
+    process.hpsPFTauDiscriminationByTightIsolationMVA3newDMwoLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_newDMwoLT.root')
+    process.hpsPFTauDiscriminationByVTightIsolationMVA3newDMwoLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_newDMwoLT.root')
+    process.hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwoLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_newDMwoLT.root')
+
+
     process.hpsPFTauDiscriminationByIsolationMVA3newDMwLTraw.mvaName = cms.string("tauIdMVAnewDMwLT")
     massSearchReplaceParam(getattr(process,"produceAndDiscriminateHPSPFTaus"),"mvaOutput_normalization", cms.string("RecoTauTag_tauIdMVAnewDMwLTv1_mvaOutput_normalization"), cms.string("mvaOutput_normalization_newDMwLT"))
     process.hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwLT.mapping[0].cut = cms.string("newDMwLTEff90")
@@ -164,6 +207,15 @@ def switchMVAtoDB(process):
     process.hpsPFTauDiscriminationByTightIsolationMVA3newDMwLT.mapping[0].cut = cms.string("newDMwLTEff60")
     process.hpsPFTauDiscriminationByVTightIsolationMVA3newDMwLT.mapping[0].cut = cms.string("newDMwLTEff50")
     process.hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwLT.mapping[0].cut = cms.string("newDMwLTEff40")
+
+    process.hpsPFTauDiscriminationByIsolationMVA3newDMwLTraw.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationByIsolationMVA3_newDMwLT.root')
+    process.hpsPFTauDiscriminationByVLooseIsolationMVA3newDMwLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_newDMwLT.root')
+    process.hpsPFTauDiscriminationByLooseIsolationMVA3newDMwLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_newDMwLT.root')
+    process.hpsPFTauDiscriminationByMediumIsolationMVA3newDMwLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_newDMwLT.root')
+    process.hpsPFTauDiscriminationByTightIsolationMVA3newDMwLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_newDMwLT.root')
+    process.hpsPFTauDiscriminationByVTightIsolationMVA3newDMwLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_newDMwLT.root')
+    process.hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwLT.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_newDMwLT.root')
+
 
 
     
