@@ -13,7 +13,7 @@ FileNames = cms.untracked.vstring(['/store/relval/CMSSW_7_2_0_pre7/RelValQCD_Pt_
 
 mix = cms.EDProducer("MixingModule",
     digitizers = cms.PSet(theDigitizers),
-    LabelPlayback = cms.string('mixGen'),
+    LabelPlayback = cms.string('mix'),
     maxBunch = cms.int32(0),
     minBunch = cms.int32(0), ## in terms of 25 nsec
 
