@@ -27,8 +27,7 @@
 template<typename T>
 HLTDiJetEtaTopologyFilter<T>::HLTDiJetEtaTopologyFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
     inputJetTag_ (iConfig.template getParameter< edm::InputTag > ("inputJetTag")),
-    minPtJet_    (iConfig.template getParameter<double> ("minPtJet")),
-    //minPtJet3_   (iConfig.template getParameter<double> ("minPtJet3")),
+    minPtAve_    (iConfig.template getParameter<double> ("minPtAve")),
     minDphi_     (iConfig.template getParameter<double> ("minDphi")),
     tagEtaMin_     (iConfig.template getParameter<double> ("minTagEta")),
     tagEtaMax_     (iConfig.template getParameter<double> ("maxTagEta")),
@@ -57,7 +56,10 @@ HLTDiJetEtaTopologyFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& d
     edm::ParameterSetDescription desc;
     makeHLTFilterDescription(desc);
     desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltIterativeCone5CaloJets"));
-    desc.add<double>("minPtJet",50.0);
+    desc.add<double>("minPtAve",0.0);
+    desc.add<double>("atLeastOneJetAbovePT",0.0)->setComment("At least one jet with pt above threshold");
+    desc.add<double>("minPtTag",50.0)->setComment("pt requirement on tag jet");
+    desc.add<double>("minPtProbe",50.0)->setComment("pt requirement on probe jet");
     //desc.add<double>("minPtJet3",99999.0);
     desc.add<double>("minDphi",-1.0);
     desc.add<double>("minTagEta", -1.);
@@ -97,7 +99,7 @@ HLTDiJetEtaTopologyFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetu
         typename TCollection::const_iterator iProbe ( objects->begin() );
         typename TCollection::const_iterator iEnd ( objects->end() );
         for (; iProbe!=iEnd; ++iProbe) {
-            if (iProbe->pt() < minPtJet_) continue;
+            if (iProbe->pt() < minPtProbe_) continue;
 
             // for easier trigger efficiency evaluation save all probe/tag 
             // objects passing the minPT/eta criteria (outer loop)
@@ -131,7 +133,10 @@ HLTDiJetEtaTopologyFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetu
             typename TCollection::const_iterator iTag ( objects->begin() );
             for (;iTag != iEnd; ++iTag){
                 if (iTag==iProbe) continue;
-                if (iTag->pt() < minPtJet_) continue;
+                if (iTag->pt() < minPtTag_) continue;
+                if (std::max(iTag->pt(), iProbe->pt())<atLeastOneJetAbovePT_  ) continue;
+
+
                 float eta2 = iTag->eta();
                 if (applyAbsToTag_) {
                         eta2 = abs(eta2);
@@ -146,7 +151,10 @@ HLTDiJetEtaTopologyFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetu
                         continue;
                 }
 
-
+                double ptAve = (iProbe->pt() + iTag->pt())/2;
+                if (ptAve<minPtAve_ ) {
+                    continue;
+                }
                 ++n;
             }
         }
