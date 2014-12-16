@@ -145,6 +145,7 @@ class EcalTimeMapDigitizer
   static const int    m_maxBunch=5;
   
   int m_timeLayerId;
+  bool isShashlik=0;
   
   const CaloSubdetectorGeometry* m_geometry ;
   

@@ -20,6 +20,7 @@
 #include "TH2D.h"
 
 #include <string>
+#include <fstream>
 #include <map>
 
 class G4LogicalVolume;
@@ -40,6 +41,8 @@ public:
 						   double birk2, double birk3);
 
 private:    
+
+  std::ofstream ofs;
 
   G4double                          fiberWt(G4int, G4ThreeVector);
   G4double                          fiberLoss(G4int, G4int); 

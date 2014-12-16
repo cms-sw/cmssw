@@ -56,6 +56,7 @@ EcalTimeMapDigitizer::EcalTimeMapDigitizer(EcalSubdetector myDet):
   else if (myDet==EcalShashlik){
       size=EKDetId::kSizeForDenseIndexing;
       detId=EKDetId::detIdFromDenseIndex( 0 ) ;
+      isShashlik=1;
   }    
   else 
     edm::LogError("TimeDigiError") << "[EcalTimeMapDigitizer]::ERROR::This subdetector " << myDet << " is not implemented";
@@ -270,7 +271,12 @@ EcalTimeMapDigitizer::timeOfFlight( const DetId& detId , int layer) const
   //not using the layer yet
    const CaloCellGeometry* cellGeometry ( m_geometry->getGeometry( detId ) ) ;
    assert( 0 != cellGeometry ) ;
-   GlobalPoint layerPos = (dynamic_cast<const TruncatedPyramid*>(cellGeometry))->getPosition( double(layer)+0.5 ); //depth in mm in the middle of the layer position
+   GlobalPoint layerPos;
+   if (!isShashlik)
+     layerPos = (dynamic_cast<const TruncatedPyramid*>(cellGeometry))->getPosition( double(layer)+0.5 ); //depth in mm in the middle of the layer position
+   else
+     layerPos = (dynamic_cast<const TruncatedPyramid*>(cellGeometry))->getPosition( double(layer)*0.4-0.075-0.25 ); 
+     //shashlik layers are 4mm in depth, 1.5mm LYSO plus 2.5mm absorber. Take depth in the middle of the sensitive volume
    return layerPos.mag()*cm/c_light ;
 }
 
