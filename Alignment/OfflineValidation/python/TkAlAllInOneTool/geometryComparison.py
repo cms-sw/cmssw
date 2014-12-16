@@ -28,14 +28,11 @@ class GeometryComparison(GenericValidation):
                                generated to create unique path names for the
                                individual validation instances.
         """
-        GenericValidation.__init__(self, valName, alignment, config)
+        mandatories = ["levels", "dbOutput"]
+        GenericValidation.__init__(self, valName, alignment, config, "compare", addMandatories = mandatories)
         if not randomWorkdirPart == None:
             self.randomWorkdirPart = randomWorkdirPart
         self.referenceAlignment = referenceAlignment
-        try:  # try to override 'jobmode' from [general] section
-            self.jobmode = config.get( "compare:"+self.name, "jobmode" )
-        except ConfigParser.NoOptionError:
-            pass
         referenceName = "IDEAL"
         if not self.referenceAlignment == "IDEAL":
             referenceName = self.referenceAlignment.name

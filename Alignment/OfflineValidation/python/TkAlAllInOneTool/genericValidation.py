@@ -8,7 +8,8 @@ from TkAlExceptions import AllInOneError
 
 class GenericValidation:
     defaultReferenceName = "DEFAULT"
-    def __init__(self, valName, alignment, config):
+    def __init__(self, valName, alignment, config, valType,
+                 addDefaults = {}, addMandatories=[]):
         import random
         self.name = valName
         self.alignmentToValidate = alignment
@@ -16,8 +17,28 @@ class GenericValidation:
         self.randomWorkdirPart = "%0i"%random.randint(1,10e9)
         self.configFiles = []
         self.filesToCompare = {}
-        self.jobmode = self.general["jobmode"]
         self.config = config
+
+        defaults = {"jobmode": self.general["jobmode"]}
+        defaults.update(addDefaults)
+        mandatories = []
+        mandatories += addMandatories
+        theUpdate = config.getResultingSection(valType+":"+self.name,
+                                               defaultDict = defaults,
+                                               demandPars = mandatories)
+        self.general.update(theUpdate)
+        self.jobmode = self.general["jobmode"]
+
+        knownOpts = defaults.keys()+mandatories
+        ignoreOpts = []
+        if self.jobmode.split(",")[0] == "crab" \
+                or self.__class__.__name__=="OfflineValidationParallel":
+            knownOpts.append("parallelJobs")
+        else:
+            ignoreOpts.append("parallelJobs")
+        config.checkInput(valType+":"+self.name,
+                          knownSimpleOptions = knownOpts,
+                          ignoreOptions = ignoreOpts)
 
     def getRepMap(self, alignment = None):
         if alignment == None:
@@ -127,12 +148,9 @@ class GenericValidationData(GenericValidation):
         - `addMandatories`: List which contains mandatory parameters for
                             individual validations in addition to the general
                             mandatory parameters
-                            (currently there are no general mandatories)
         """
 
-        GenericValidation.__init__(self, valName, alignment, config)
-        defaults = {"jobmode": self.jobmode,
-                    "runRange": "",
+        defaults = {"runRange": "",
                     "firstRun": "",
                     "lastRun": "",
                     "begin": "",
@@ -140,24 +158,9 @@ class GenericValidationData(GenericValidation):
                     "JSON": ""
                     }
         defaults.update(addDefaults)
-        mandatories = []
+        mandatories = [ "dataset", "maxevents" ]
         mandatories += addMandatories
-        theUpdate = config.getResultingSection(valType+":"+self.name,
-                                               defaultDict = defaults,
-                                               demandPars = mandatories)
-        self.general.update(theUpdate)
-        self.jobmode = self.general["jobmode"]
-
-        knownOpts = defaults.keys()+mandatories
-        ignoreOpts = []
-        if self.jobmode.split(",")[0] == "crab" \
-                or self.__class__.__name__=="OfflineValidationParallel":
-            knownOpts.append("parallelJobs")
-        else:
-            ignoreOpts.append("parallelJobs")
-        config.checkInput(valType+":"+self.name,
-                          knownSimpleOptions = knownOpts,
-                          ignoreOptions = ignoreOpts)
+        GenericValidation.__init__(self, valName, alignment, config, defaults, mandatories)
 
         if self.general["dataset"] not in globalDictionaries.usedDatasets:
             tryPredefinedFirst = (not self.jobmode.split( ',' )[0] == "crab" and self.general["JSON"]    == ""

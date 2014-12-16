@@ -9,9 +9,8 @@ from TkAlExceptions import AllInOneError
 
 class MonteCarloValidation(GenericValidationData):
     def __init__(self, valName, alignment, config):
-        mandatories = [ "dataset", "maxevents" ]
         GenericValidationData.__init__(self, valName, alignment, config,
-                                       "mcValidate", addMandatories=mandatories)
+                                       "mcValidate")
 
     def createConfiguration(self, path ):
         cfgName = "TkAlMcValidate.%s.%s_cfg.py"%(self.name,

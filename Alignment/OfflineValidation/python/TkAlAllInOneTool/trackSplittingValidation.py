@@ -7,7 +7,7 @@ from TkAlExceptions import AllInOneError
 
 class TrackSplittingValidation(GenericValidationData):
     def __init__(self, valName, alignment, config):
-        mandatories = ["trackcollection", "maxevents", "dataset"]
+        mandatories = ["trackcollection"]
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "split", addMandatories = mandatories)
 

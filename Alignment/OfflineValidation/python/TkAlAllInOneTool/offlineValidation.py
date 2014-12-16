@@ -17,7 +17,7 @@ class OfflineValidation(GenericValidationData):
             "OfflineTreeBaseDir":"TrackHitFilter",
             "SurfaceShapes":"none"
             }
-        mandatories = [ "dataset", "maxevents", "trackcollection" ]
+        mandatories = [ "trackcollection" ]
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "offline", addDefaults=defaults,
                                        addMandatories=mandatories)
@@ -99,8 +99,7 @@ class OfflineValidationParallel(OfflineValidation):
     def __init__(self, valName, alignment,config):
         OfflineValidation.__init__(self, valName, alignment, config)
         defaults = {
-            "parallelJobs":"1",
-            "jobmode":self.jobmode
+            "parallelJobs":"1"
             }
         offline = config.getResultingSection( "offline:"+self.name, 
                                               defaultDict = defaults )

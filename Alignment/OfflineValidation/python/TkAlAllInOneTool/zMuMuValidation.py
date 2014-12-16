@@ -12,8 +12,7 @@ class ZMuMuValidation(GenericValidationData):
             "zmumureference": ("/store/caf/user/emiglior/Alignment/TkAlDiMuonValidation/Reference/BiasCheck_DYToMuMu_Summer12_TkAlZMuMu_IDEAL.root"),
             "resonance": "Z"
             }
-        mandatories = ["dataset", "maxevents",
-                       "etamaxneg", "etaminneg", "etamaxpos", "etaminpos"]
+        mandatories = ["etamaxneg", "etaminneg", "etamaxpos", "etaminpos"]
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "zmumu", addDefaults=defaults,
                                        addMandatories=mandatories)
