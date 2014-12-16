@@ -1,5 +1,4 @@
 import ROOT
-from ROOT.heppy import TriggerBitChecker
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
@@ -26,7 +25,7 @@ class TriggerBitAnalyzer( Analyzer ):
                 if not hasattr(setup ,"globalVariables") :
                         setup.globalVariables = []
                 setup.globalVariables.append( NTupleVariable(outname, eval("lambda ev: ev.%s" % outname), help="OR of %s"%TL) )
-                self.triggerBitCheckers.append( (T, TriggerBitChecker(trigVec)) )
+                self.triggerBitCheckers.append( (T, ROOT.heppy.TriggerBitChecker(trigVec)) )
 
     def process(self, event):
         self.readCollections( event.input )
