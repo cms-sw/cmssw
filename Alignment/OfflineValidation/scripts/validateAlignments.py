@@ -229,6 +229,7 @@ def createOfflineJobsMergeScript(offlineValidationList, outFilePath):
 
 def createExtendedValidationScript(offlineValidationList, outFilePath, resultPlotFile):
     repMap = offlineValidationList[0].getRepMap() # bit ugly since some special features are filled
+    repMap[ "CMSSW_BASE" ] = os.environ['CMSSW_BASE']
     repMap[ "resultPlotFile" ] = resultPlotFile
     repMap[ "extendedInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
 
@@ -242,6 +243,7 @@ def createExtendedValidationScript(offlineValidationList, outFilePath, resultPlo
     
 def createTrackSplitPlotScript(trackSplittingValidationList, outFilePath):
     repMap = trackSplittingValidationList[0].getRepMap() # bit ugly since some special features are filled
+    repMap[ "CMSSW_BASE" ] = os.environ['CMSSW_BASE']
     repMap[ "trackSplitPlotInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
 
     for validation in trackSplittingValidationList:

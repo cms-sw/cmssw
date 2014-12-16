@@ -1,4 +1,5 @@
 import os
+import re
 import globalDictionaries
 import configTemplates
 from dataset import Dataset
@@ -19,7 +20,9 @@ class GenericValidation:
         self.filesToCompare = {}
         self.config = config
 
-        defaults = {"jobmode": self.general["jobmode"]}
+        defaults = {"jobmode": self.general["jobmode"],
+                    "cmssw":   os.environ['CMSSW_BASE']
+                   }
         defaults.update(addDefaults)
         mandatories = []
         mandatories += addMandatories
@@ -28,6 +31,30 @@ class GenericValidation:
                                                demandPars = mandatories)
         self.general.update(theUpdate)
         self.jobmode = self.general["jobmode"]
+        try:
+            self.cmssw = self.general["cmssw"]
+            currentrelease = os.path.basename(os.path.normpath(os.environ['CMSSW_BASE']))
+            newrelease = os.path.basename(os.path.normpath(self.cmssw))
+
+            self.scramarch = None
+            for sa in os.listdir(os.path.join(self.cmssw, "bin")):
+                if re.match("slc[0-9]+_amd[0-9]+_gcc[0-9]+",sa):
+                    try:
+                        crb = os.environ['CMSSW_RELEASE_BASE'] \
+                                  .replace(currentrelease, newrelease) \
+                                  .replace(os.environ['SCRAM_ARCH'],sa)
+                        os.listdir(crb)
+                        self.scramarch = sa
+                        self.cmsswreleasebase = crb
+                        break
+                    except OSError:
+                        pass
+            if self.scramarch is None:
+                raise OSError
+        except OSError:
+                msg = ("Your CMSSW release %s does not exist or is not set up properly.\n"
+                       "If you're sure it's there, run scram b and then try again." % self.cmssw)
+                raise AllInOneError(msg)
 
         knownOpts = defaults.keys()+mandatories
         ignoreOpts = []
@@ -53,8 +80,9 @@ class GenericValidation:
                 "CommandLineTemplate": ("#run configfile and post-proccess it\n"
                                         "cmsRun %(cfgFile)s\n"
                                         "%(postProcess)s "),
-                "CMSSW_BASE": os.environ['CMSSW_BASE'],
-                "SCRAM_ARCH": os.environ['SCRAM_ARCH'],
+                "CMSSW_BASE": self.cmssw,
+                "SCRAM_ARCH": self.scramarch,
+                "CMSSW_RELEASE_BASE": self.cmsswreleasebase,
                 "alignmentName": alignment.name,
                 "condLoad": alignment.getConditions()
                 })
@@ -160,14 +188,15 @@ class GenericValidationData(GenericValidation):
         defaults.update(addDefaults)
         mandatories = [ "dataset", "maxevents" ]
         mandatories += addMandatories
-        GenericValidation.__init__(self, valName, alignment, config, defaults, mandatories)
+        GenericValidation.__init__(self, valName, alignment, config, valType, defaults, mandatories)
 
         if self.general["dataset"] not in globalDictionaries.usedDatasets:
             tryPredefinedFirst = (not self.jobmode.split( ',' )[0] == "crab" and self.general["JSON"]    == ""
                                   and self.general["firstRun"] == ""         and self.general["lastRun"] == ""
                                   and self.general["begin"]    == ""         and self.general["end"]     == "")
             globalDictionaries.usedDatasets[self.general["dataset"]] = Dataset(
-                self.general["dataset"], tryPredefinedFirst = tryPredefinedFirst )
+                self.general["dataset"], tryPredefinedFirst = tryPredefinedFirst,
+                cmssw = self.getRepMap()["CMSSW_BASE"], cmsswrelease = self.getRepMap()["CMSSW_RELEASE_BASE"] )
         self.dataset = globalDictionaries.usedDatasets[self.general["dataset"]]
         self.general["magneticField"] = self.dataset.magneticField()
         self.general["defaultMagneticField"] = "38T"

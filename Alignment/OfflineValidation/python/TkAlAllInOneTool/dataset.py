@@ -12,7 +12,7 @@ from TkAlExceptions import AllInOneError
 
 
 class Dataset:
-    def __init__( self, datasetName, dasLimit = 0, tryPredefinedFirst = True ):
+    def __init__( self, datasetName, dasLimit = 0, tryPredefinedFirst = True, cmssw = os.environ["CMSSW_BASE"], cmsswrelease = os.environ["CMSSW_RELEASE_BASE"] ):
         self.__name = datasetName
 
         self.__dasLimit = dasLimit
@@ -20,6 +20,8 @@ class Dataset:
         self.__fileInfoList = None
         self.__runList = None
         self.__alreadyStored = False
+        self.__cmssw = cmssw
+        self.__cmsswrelease = cmsswrelease
 
         # check, if dataset name matches CMS dataset naming scheme
         if re.match( r'/.+/.+/.+', self.__name ):
@@ -29,13 +31,13 @@ class Dataset:
             self.__official = False
             fileName = self.__name + "_cff.py"
 
-        searchPath1 = os.path.join( os.environ["CMSSW_BASE"], "python",
+        searchPath1 = os.path.join( self.__cmssw, "python",
                                     "Alignment", "OfflineValidation",
                                     fileName )
-        searchPath2 = os.path.join( os.environ["CMSSW_BASE"], "src",
+        searchPath2 = os.path.join( self.__cmssw, "src",
                                     "Alignment", "OfflineValidation",
                                     "python", fileName )
-        searchPath3 = os.path.join( os.environ["CMSSW_RELEASE_BASE"],
+        searchPath3 = os.path.join( self.__cmsswrelease,
                                     "python", "Alignment",
                                     "OfflineValidation", fileName )
         if self.__official and not tryPredefinedFirst:
@@ -254,7 +256,7 @@ class Dataset:
             return "unknown"
 
     def __getMagneticField( self ):
-        Bfieldlocation = os.path.join( os.environ["CMSSW_RELEASE_BASE"], "python", "Configuration", "StandardSequences" )
+        Bfieldlocation = os.path.join( self.__cmsswrelease, "python", "Configuration", "StandardSequences" )
         Bfieldlist = [ f.replace("MagneticField_",'').replace("_cff.py",'') \
                            for f in os.listdir(Bfieldlocation) \
                                if f.startswith("MagneticField_") and f.endswith("_cff.py") and f != "MagneticField_cff.py" ]
@@ -491,11 +493,11 @@ class Dataset:
             outName = "Dataset" + self.__name.replace("/", "_")
         packageName = os.path.join( "Alignment", "OfflineValidation" )
         if not os.path.exists( os.path.join(
-            os.environ["CMSSW_BASE"], "src", packageName ) ):
+            self.__cmssw, "src", packageName ) ):
             msg = ("You try to store the predefined dataset'%s'.\n"
                    "For that you need to check out the package '%s' to your "
                    "private relase area in\n"%( outName, packageName )
-                   + os.environ["CMSSW_BASE"] )
+                   + self.__cmssw )
             raise AllInOneError( msg )
         theMap = { "process": "",
                    "tab": "",
@@ -513,7 +515,7 @@ class Dataset:
                                             firstRun = firstRun,
                                             lastRun = lastRun,
                                             repMap = theMap)
-        filePath = os.path.join( os.environ["CMSSW_BASE"], "src", packageName,
+        filePath = os.path.join( self.__cmssw, "src", packageName,
                                  "python", outName + "_cff.py" )
         if os.path.exists( filePath ):
             existMsg = "The predefined dataset '%s' already exists.\n"%( outName )
