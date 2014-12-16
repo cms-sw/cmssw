@@ -3,18 +3,21 @@ from PhysicsTools.Heppy.physicsutils.ElectronMVAID import ElectronMVAID_Trig, El
 import ROOT
 
 class Electron( Lepton ):
-    tightIdResult = None
-    associatedVertex = None
-    rho              = None
-    _mvaNonTrigV0  = {True:None, False:None}
-    _mvaTrigV0     = {True:None, False:None}
-    _mvaTrigNoIPV0 = {True:None, False:None}
 
     def __init__(self, *args, **kwargs):
         '''Initializing tightIdResult to None. The user is responsible
         for setting this attribute externally if he wants to use the tightId
         function.'''
         super(Electron, self).__init__(*args, **kwargs)
+        self._physObjInit()
+
+    def _physObjInit(self):
+        self.tightIdResult = None
+        self.associatedVertex = None
+        self.rho              = None
+        self._mvaNonTrigV0  = {True:None, False:None}
+        self._mvaTrigV0     = {True:None, False:None}
+        self._mvaTrigNoIPV0 = {True:None, False:None}
 
     def electronID( self, id, vertex=None, rho=None ):
         if id is None or id == "": return True
@@ -26,6 +29,9 @@ class Electron( Lepton ):
         elif id == "POG_MVA_ID_Trig_full5x5":     return self.mvaIDTight(full5x5=True)
         elif id.startswith("POG_Cuts_ID_"): 
                 return self.cutBasedId(id.replace("POG_Cuts_ID_","POG_")) 
+        for ID in self.electronIDs():
+            if ID.first == id:
+                return ID.second
         raise RuntimeError, "Electron id '%s' not yet implemented in Electron.py" % id
 
     def cutBasedId(self, wp, showerShapes="auto"):

@@ -2,6 +2,11 @@ import ROOT
 def AddPhysObj(x):
 	x.physObj = x
 	return x
+def AddPhysObjAndCallInit(x):
+	x.physObj = x
+	x._physObjInit()
+	return x
+
 
 def decorate(orig,deco):
    for b in deco.__bases__ :
@@ -9,7 +14,7 @@ def decorate(orig,deco):
    for m in deco.__dict__ :
         if m[0] != "_" or m[1] != "_" :
                 setattr(orig,m,deco.__dict__[m])
-                print m
+                #print m
 
 
 #$ef decorate(oldstyle):

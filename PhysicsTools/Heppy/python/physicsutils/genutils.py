@@ -62,4 +62,48 @@ def isPromptLepton(lepton, beforeFSR, includeMotherless=True, includeTauDecays=F
         return isNotHadronicId(mom.pdgId(), includeSMLeptons=False)
 
 
+def isNotFromHadronicShower(l):
+    for x in xrange(l.numberOfMothers()):
+        mom = l.mother(x)
+        if mom.status() > 2: return True
+        id = abs(mom.pdgId())
+        if id > 100: return False
+        if id <   6: return False
+        if id == 21: return False
+        if id in [11,13,15]: return isNotFromHadronicShower(mom)
+        if id >= 22 and id <= 39: return True
+    return True
+
+def realGenDaughters(gp,excludeRadiation=True):
+    """Get the daughters of a particle, going through radiative X -> X' + a
+       decays, either including or excluding the radiation among the daughters
+       e.g. for  
+                  X -> X' + a, X' -> b c 
+           realGenDaughters(X, excludeRadiation=True)  = { b, c }
+           realGenDaughters(X, excludeRadiation=False) = { a, b, c }"""
+    ret = []
+    for i in xrange(gp.numberOfDaughters()):
+        dau = gp.daughter(i)
+        if dau.pdgId() == gp.pdgId():
+            if excludeRadiation:
+                return realGenDaughters(dau)
+            else:
+                ret += realGenDaughters(dau)
+        else:
+            ret.append(dau)
+    return ret
+
+def realGenMothers(gp):
+    """Get the mothers of a particle X going through intermediate X -> X' chains.
+       e.g. if Y -> X, X -> X' realGenMothers(X') = Y"""
+    ret = []
+    for i in xrange(gp.numberOfMothers()):
+        mom = gp.mother(i)
+        if mom.pdgId() == gp.pdgId():
+            ret += realGenMothers(mom)
+        else:
+            ret.append(mom)
+    return ret
+
+
 

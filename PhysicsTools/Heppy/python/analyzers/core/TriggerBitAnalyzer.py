@@ -1,28 +1,15 @@
-import operator 
-import itertools
-import copy
-from math import *
 import ROOT
 from ROOT.heppy import TriggerBitChecker
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
-from PhysicsTools.HeppyCore.framework.event import Event
-from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
-from PhysicsTools.Heppy.analyzers.core.AutoFillTreeProducer  import *
+from PhysicsTools.Heppy.analyzers.core.AutoFillTreeProducer  import NTupleVariable
         
 class TriggerBitAnalyzer( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(TriggerBitAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
-        if hasattr(self.cfg_ana,"processName"):
-                self.processName = self.cfg_ana.processName
-        else :
-                self.processName = 'HLT'
-
-        if hasattr(self.cfg_ana,"outprefix"):
-                self.outprefix = self.cfg_ana.outprefix
-        else :
-                self.outprefix = self.processName
+        self.processName = getattr(self.cfg_ana,"processName","HLT")
+        self.outprefix   = getattr(self.cfg_ana,"outprefix",  self.processName)
 
     def declareHandles(self):
         super(TriggerBitAnalyzer, self).declareHandles()
@@ -38,7 +25,7 @@ class TriggerBitAnalyzer( Analyzer ):
                 outname="%s_%s"%(self.outprefix,T)
                 if not hasattr(setup ,"globalVariables") :
                         setup.globalVariables = []
-                setup.globalVariables.append( NTupleVariable(outname, lambda ev : getattr(ev,outname), help="OR of %s"%TL) )
+                setup.globalVariables.append( NTupleVariable(outname, eval("lambda ev: ev.%s" % outname), help="OR of %s"%TL) )
                 self.triggerBitCheckers.append( (T, TriggerBitChecker(trigVec)) )
 
     def process(self, event):
