@@ -5,7 +5,6 @@
 #include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.hh"
 #include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.hh"
 #include "SimG4Core/CustomPhysics/interface/Decay3Body.h"
-#include "SimG4Core/CustomPhysics/interface/FullModelReactionDynamics.hh"
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
 
