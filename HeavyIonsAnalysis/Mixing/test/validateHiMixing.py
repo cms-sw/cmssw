@@ -3,8 +3,11 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load('HeavyIonsAnalysis.Mixing.HiMix_cff')
-process.mix = process.mixVal.clone()
+process.load('SimGeneral.MixingModule.HiMixGEN_cff')
+process.mix.digitizers = cms.PSet()
+process.mix.LabelPlayback = 'mix'
+process.mix.playback = True
+
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
