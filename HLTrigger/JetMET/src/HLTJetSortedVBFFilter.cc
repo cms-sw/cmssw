@@ -160,7 +160,7 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
    		}
    		sorted.push_back(make_pair(jet->eta(),nJet));
    		nJet++;
-   		cout << "jetPt=" << jet->pt() << "\tjetEta=" << jet->eta() << "\tjetCSV=" << value << endl;
+//   		cout << "jetPt=" << jet->pt() << "\tjetEta=" << jet->eta() << "\tjetCSV=" << value << endl;
    	}
    	if(b1_idx>=sorted.size() || b1_idx<0) edm::LogError("OutOfRange")<< "b1 index out of range.";
    	sorted.erase(sorted.begin()+b1_idx); //remove the most b-tagged jet from "sorted"
@@ -178,7 +178,7 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
    	if(b1_idx<jets->size()) b1 = jets->at(b1_idx).p4(); else edm::LogWarning("Something wrong with b1");
    	if(b2_idx<jets->size()) b2 = jets->at(b2_idx).p4(); else edm::LogWarning("Something wrong with b2");
 
-   	cout<<"\tPathB: b1="<<b1.pt()<<" b2="<<b2.pt()<<" q1="<<q1.pt()<<" q2="<<q2.pt()<<endl; 
+//   	cout<<"\tPathB: b1="<<b1.pt()<<" b2="<<b2.pt()<<" q1="<<q1.pt()<<" q2="<<q2.pt()<<endl; 
    } else if(value_=="2BTagAndPt"){
      event.getByToken(m_theJetTagsToken,jetTags);
      vector<Jpair> sorted;
@@ -201,7 +201,7 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
    		}
    		sorted.push_back(make_pair(jet->eta(),nJet));
    		nJet++;
-   		cout << "jetPt=" << jet->pt() << "\tjetEta=" << jet->eta() << "\tjetCSV=" << value << endl;
+//   		cout << "jetPt=" << jet->pt() << "\tjetEta=" << jet->eta() << "\tjetCSV=" << value << endl;
    	}
    	sorted.erase(sorted.begin()+b1_idx); //remove b1 and b2 from sorted
    	sorted.erase(sorted.begin()+(b1_idx>b2_idx?b2_idx:b2_idx-1));
@@ -214,7 +214,7 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
    	if(b1_idx<jets->size()) b1 = jets->at(b1_idx).p4(); else edm::LogWarning("Something wrong with b1");
    	if(b2_idx<jets->size()) b2 = jets->at(b2_idx).p4(); else edm::LogWarning("Something wrong with b2");
 
-   	cout<<"\tPathA: b1="<<b1.pt()<<" b2="<<b2.pt()<<" q1="<<q1.pt()<<" q2="<<q2.pt()<<endl; 
+//   	cout<<"\tPathA: b1="<<b1.pt()<<" b2="<<b2.pt()<<" q1="<<q1.pt()<<" q2="<<q2.pt()<<endl; 
    }
    else {
      event.getByToken(m_theJetTagsToken,jetTags);
