@@ -2,7 +2,8 @@
   <class name="CaloRecHit" ClassVersion="10">
    <version ClassVersion="10" checksum="582597904"/>
   </class>
-  <class name="reco::CaloCluster" ClassVersion="11">
+  <class name="reco::CaloCluster" ClassVersion="12">
+   <version ClassVersion="12" checksum="2380347287"/>
    <version ClassVersion="10" checksum="3936140"/>
    <version ClassVersion="11" checksum="2938838489"/>
   </class>

@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="TrackCandidate" ClassVersion="11">
+  <class name="TrackCandidate" ClassVersion="12">
+   <version ClassVersion="12" checksum="2330668139"/>
    <version ClassVersion="11" checksum="3750078709"/>
    <version ClassVersion="10" checksum="1620910795"/>
   </class>

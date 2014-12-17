@@ -95,7 +95,8 @@
     <!-- <field name="values_" mapping="blob"/> -->
   </class>
 
-  <class name="Phase2TrackerModule" ClassVersion="10">
+  <class name="Phase2TrackerModule" ClassVersion="11">
+   <version ClassVersion="11" checksum="707066581"/>
     <version ClassVersion="10" checksum="2583259051"/>
   </class>
 

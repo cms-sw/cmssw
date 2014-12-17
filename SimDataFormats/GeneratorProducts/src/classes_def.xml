@@ -1,12 +1,12 @@
 <lcgdict>
 	<!-- HepMC externals -->
 
-	<class name="HepMC::GenEvent" ClassVersion="10">
+	<class name="HepMC::GenEvent" ClassVersion="11">
+  <version ClassVersion="11" checksum="2967452289"/>
   <version ClassVersion="10" checksum="2993730389"/>
  </class>
-	<class name="HepMC::GenVertex" ClassVersion="11">
+	<class name="HepMC::GenVertex" ClassVersion="10">
   <version ClassVersion="10" checksum="1541111972"/>
-  <version ClassVersion="11" checksum="9999999999"/>
  </class>
 	<class name="HepMC::GenParticle" ClassVersion="10">
   <version ClassVersion="10" checksum="3138667414"/>
@@ -16,12 +16,13 @@
     <class name="HepMC::GenCrossSection" ClassVersion="10">
      <version ClassVersion="10" checksum="920043842"/>
     </class>
-	<class name="HepMC::WeightContainer" ClassVersion="13">
+	<class name="HepMC::WeightContainer" ClassVersion="14">
+  <version ClassVersion="14" checksum="481001444"/>
   <version ClassVersion="10" checksum="2163093401"/>
   <version ClassVersion="11" checksum="376377869"/>
   <version ClassVersion="12" checksum="2537869863"/>
-  <version ClassVersion="13" checksum="9999999999"/>
-  </class>
+  <version ClassVersion="13" checksum="1293886956"/>
+ </class>
 	<class name="HepMC::FourVector" ClassVersion="10">
   <version ClassVersion="10" checksum="3279825169"/>
  </class>
@@ -145,9 +146,6 @@
 	<class name="std::vector&lt;GenLumiInfoProduct::ProcessInfo&gt;"/>
 	<class name="GenLumiInfoProduct::ProcessInfo" ClassVersion="10">
 	  <version ClassVersion="10" checksum="621228037"/>
-	</class>
-	<class name="std::vector<GenLumiInfoProduct::ProcessInfo>" ClassVersion="10">
-	  <version ClassVersion="10" checksum="999999999"/>
 	</class>
 	<class name="edm::Wrapper&lt;GenLumiInfoProduct&gt;"/>
 

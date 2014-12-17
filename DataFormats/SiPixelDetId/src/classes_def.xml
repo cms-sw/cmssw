@@ -1,8 +1,10 @@
 <lcgdict>
-  <class name="PXBDetId" ClassVersion="10">
+  <class name="PXBDetId" ClassVersion="11">
+   <version ClassVersion="11" checksum="1217531328"/>
    <version ClassVersion="10" checksum="64343362"/>
   </class>
-  <class name="PXFDetId" ClassVersion="10">
+  <class name="PXFDetId" ClassVersion="11">
+   <version ClassVersion="11" checksum="1218239916"/>
    <version ClassVersion="10" checksum="64579558"/>
   </class>
 </lcgdict>
