@@ -132,18 +132,18 @@ namespace FitterFuncs{
       for (i=0;i<nbins; ++i) {
         delta2 = (psFit_y[i]- pulse_shape_sum[i])*(psFit_y[i]- pulse_shape_sum[i])/psFit_erry2[i];
         chisq += delta2;
-        //Add the pedestal Constraint to chi2
-        if(pedestalConstraint_) {
-          chisq += invertpedSig2_*(pars.back() - pedMean_)*(pars.back()- pedMean_);
-        }
-        //Add the time Constraint to chi2
-        if(timeConstraint_) {
-          for(j=0; j< (pars.size()-1)/2; ++j ){
-             int time = (pars[j*2]+timeShift_)/(double)HcalConst::nsPerBX;
-             double time1 = -100.+time*HcalConst::nsPerBX;
-             chisq += inverttimeSig2_*(pars[j*2] - timeMean_ - time1)*(pars[j*2] - timeMean_ - time1);
-          }
-        }
+      }
+      //Add the pedestal Constraint to chi2
+      if(pedestalConstraint_) {
+	chisq += invertpedSig2_*(pars.back() - pedMean_)*(pars.back()- pedMean_);
+      }
+      //Add the time Constraint to chi2
+      if(timeConstraint_) {
+	for(j=0; j< (pars.size()-1)/2; ++j ){
+	  int time = (pars[j*2]+timeShift_)/(double)HcalConst::nsPerBX;
+	  double time1 = -100.+time*HcalConst::nsPerBX;
+	  chisq += inverttimeSig2_*(pars[j*2] - timeMean_ - time1)*(pars[j*2] - timeMean_ - time1);
+	}
       }
       return chisq;
    }
