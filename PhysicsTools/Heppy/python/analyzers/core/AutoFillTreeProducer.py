@@ -20,8 +20,6 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         if not getattr(self.cfg_ana, 'saveTLorentzVectors', False):
             fourVectorType.removeVariable("p4")
 
-        ## Declare how we store floats by default
-        self.tree.setDefaultFloatType("F"); # otherwise it's "D"
  
         self.collections = {}      
         self.globalObjects = {}
@@ -32,6 +30,11 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
                 self.globalObjects=cfg_ana.globalObjects
         if hasattr(cfg_ana,"globalVariables"):
                 self.globalVariables=cfg_ana.globalVariables
+
+    def beginLoop(self, setup) :
+        super(AutoFillTreeProducer, self).beginLoop(setup)
+        ## Declare how we store floats by default
+        self.tree.setDefaultFloatType("F"); # otherwise it's "D"
 
     def declareHandles(self):
         super(AutoFillTreeProducer, self).declareHandles()
