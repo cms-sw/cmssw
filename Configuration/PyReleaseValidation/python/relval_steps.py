@@ -1288,7 +1288,7 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCal':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCal4Eta':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023TTI':['GenSimHLBeamSpotFull','DigiTrkTrigFull'], ##no need to go beyond local reco
-                   'Extended2023Muon':['GenSimHLBeamSpotFull','DigiFull','RecoFullHGCAL'],
+                   'Extended2023Muon':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023Muon4Eta':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalV6Muon':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023CFCal4Eta':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
