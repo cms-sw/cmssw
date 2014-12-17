@@ -14,6 +14,8 @@
 
 #include "RecoParticleFlow/PFClusterProducer/interface/ECALRecHitResolutionProvider.h"
 
+#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
+
 class HGCLayerSpecificLogWeightedPositionCalc : public PFCPositionCalculatorBase {
  public:
   HGCLayerSpecificLogWeightedPositionCalc(const edm::ParameterSet& conf) :
@@ -97,7 +99,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
     if( refhit->detId() == cluster.seed() ) refseed = refhit;
     const double rh_fraction = rhf.fraction();
-    const double rh_rawenergy = refhit->energy()/_layer2mip[refhit->layer()];
+    const double rh_rawenergy = refhit->energy()/_layer2mip.find(refhit->layer())->first;
     const double rh_energy = rh_rawenergy * rh_fraction;   
     if( edm::isNotFinite(rh_energy) ) {
       throw cms::Exception("PFClusterAlgo")
@@ -161,12 +163,13 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
       if( pos == seedNeighbours->end() ) continue;
     }
     
-    const double rh_energy = refhit->energy() * ((float)rhf.fraction())/_layer2mip[refhit->layer()];
-    const double norm = 1.0;
+    const double rh_energy = refhit->energy() * ((float)rhf.fraction())/_layer2mip.find(refhit->layer())->first; // in mips
+    double norm = 1.0;
     if( refhit->layer() == PFLayer::HGC_ECAL ) {
+      HGCEEDetId temp( refhit->detId() );
       norm = ( rhf.fraction() < _minFractionInCalc ? 
 	       0.0 : 
-	       std::max(0.0,vdt::fast_log(rh_energy/_logWeightDenom)) );
+	       std::max(0.0,_w0PerLayer[temp.layer()-1]+vdt::fast_log(rh_energy/cl_energy) ) );
     } else {
       norm = ( rhf.fraction() < _minFractionInCalc ? 
 	       0.0 : 
