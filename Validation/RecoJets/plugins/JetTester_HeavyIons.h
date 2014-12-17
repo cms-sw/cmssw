@@ -116,6 +116,15 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   MonitorElement *mpsin;
   // MonitorElement *ueraw;  
 
+  // necessary plots for the vs validation which is the vn weighted SumpT for differnet eta bins, 
+  MonitorElement *mSumPFVsPt;
+  MonitorElement *mSumPFVsPtInitial;
+  MonitorElement *mSumPFPt;
+
+  MonitorElement *mSumPFVsPtInitial_eta;
+  MonitorElement *mSumPFVsPt_eta;
+  MonitorElement *mSumPFPt_eta;
+
   // Event variables
   MonitorElement* mNvtx;
 
@@ -139,6 +148,9 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
 
   static const Int_t fourierOrder_ = 5;
   static const Int_t etaBins_ = 15;
+
+  static const size_t nedge_pseudorapidity = etaBins_ + 1;
+
  
 };
 
