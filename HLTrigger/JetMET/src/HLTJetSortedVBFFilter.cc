@@ -39,6 +39,8 @@ HLTJetSortedVBFFilter<T>::HLTJetSortedVBFFilter(const edm::ParameterSet& iConfig
  ,ptsqq_       (iConfig.getParameter<double>       ("Ptsumqq"     ))
  ,ptsbb_       (iConfig.getParameter<double>       ("Ptsumbb"     ))
  ,seta_        (iConfig.getParameter<double>       ("Etaq1Etaq2"  ))
+ ,njets_       (iConfig.getParameter<int>          ("njets"       ))
+ ,csvloose_     (iConfig.getParameter<double>      ("CSVLoose"    ))
  ,value_       (iConfig.getParameter<std::string>  ("value"       ))
  ,triggerType_ (iConfig.getParameter<int>          ("triggerType" ))
 {
@@ -65,8 +67,10 @@ HLTJetSortedVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("Ptsumqq",0.);
   desc.add<double>("Ptsumbb",0.);
   desc.add<double>("Etaq1Etaq2",40.);
+  desc.add<double>("CSVLoose",0.4);
   desc.add<std::string>("value","second");
   desc.add<int>("triggerType",trigger::TriggerJet);
+  desc.add<int>("njets",4);
   descriptions.add(string("hlt")+string(typeid(HLTJetSortedVBFFilter<T>).name()),desc);
 }
 
@@ -104,7 +108,7 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
    typedef Ref<TCollection> TRef;
 
    bool accept(false);
-   const unsigned int nMax(4);
+   const unsigned int nMax(njets_);
 
    if (saveTags()) filterproduct.addCollectionTag(inputJets_);
 
@@ -143,10 +147,78 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
      b1 = jetRefs[2]->p4();
      b2 = jetRefs[1]->p4();
      q2 = jetRefs[0]->p4();
-   } else {
+   } else if(value_=="1BTagAndEta"){
      event.getByToken(m_theJetTagsToken,jetTags);
+     vector<Jpair> sorted;
 
+   	 unsigned int b1_idx=-1;
+   	 float csv_max=-999;
+   	 for (typename TCollection::const_iterator jet=jets->begin(); (jet!=jets->end()&& nJet<nMax); ++jet) {
+   		value = findCSV(jet, *jetTags);
+   		if(value>csv_max) {
+   			csv_max=value;
+   			b1_idx=nJet;
+   		}
+   		sorted.push_back(make_pair(jet->eta(),nJet));
+   		nJet++;
+   		cout << "jetPt=" << jet->pt() << "\tjetEta=" << jet->eta() << "\tjetCSV=" << value << endl;
+   	}
+   	sorted.erase(sorted.begin()+b1_idx);
+   	sort(sorted.begin(),sorted.end(),comparator);
 
+   	unsigned int q1_idx=sorted.front().second;
+   	unsigned int q2_idx=sorted.back().second;
+   	
+    unsigned int i=0;
+   	while( (i==q1_idx) || (i==q2_idx) || (i==b1_idx) ) i++;
+   	unsigned int b2_idx=i;
+
+   	q1 = jets->at(q1_idx).p4();
+   	q2 = jets->at(q2_idx).p4();
+   	if(b1_idx<jets->size()) b1 = jets->at(b1_idx).p4(); else edm::LogWarning("Something wrong with b1");
+   	if(b2_idx<jets->size()) b2 = jets->at(b2_idx).p4(); else edm::LogWarning("Something wrong with b2");
+
+   	cout<<"\tPathB: b1="<<b1.pt()<<" b2="<<b2.pt()<<" q1="<<q1.pt()<<" q2="<<q2.pt()<<endl; 
+   } else if(value_=="2BTagAndPt"){
+     event.getByToken(m_theJetTagsToken,jetTags);
+     vector<Jpair> sorted;
+
+   	 unsigned int b1_idx=-1;
+   	 unsigned int b2_idx=-1;
+   	 float csv1=-999;
+   	 float csv2=-999;
+   	 for (typename TCollection::const_iterator jet=jets->begin(); (jet!=jets->end()&& nJet<nMax); ++jet) {
+   		value = findCSV(jet, *jetTags);
+   		if(value>csv1) {
+   			csv2=csv1;
+   			b2_idx=b1_idx;
+   			csv1=value;
+   			b1_idx=nJet;
+   		} 
+   		else if(value>csv2){
+   			csv2=value;
+   			b2_idx=nJet;
+   		}
+   		sorted.push_back(make_pair(jet->eta(),nJet));
+   		nJet++;
+   		cout << "jetPt=" << jet->pt() << "\tjetEta=" << jet->eta() << "\tjetCSV=" << value << endl;
+   	}
+   	if(b1_idx>b2_idx) {sorted.erase(sorted.begin()+b1_idx); sorted.erase(sorted.begin()+b2_idx);}
+   	else {sorted.erase(sorted.begin()+b2_idx);sorted.erase(sorted.begin()+b1_idx); }
+//   	sort(sorted.begin(),sorted.end(),comparator);
+
+   	unsigned int q1_idx=sorted.at(0).second;
+   	unsigned int q2_idx=sorted.at(1).second;
+
+   	q1 = jets->at(q1_idx).p4();
+   	q2 = jets->at(q2_idx).p4();
+   	if(b1_idx<jets->size()) b1 = jets->at(b1_idx).p4(); else edm::LogWarning("Something wrong with b1");
+   	if(b2_idx<jets->size()) b2 = jets->at(b2_idx).p4(); else edm::LogWarning("Something wrong with b2");
+
+   	cout<<"\tPathA: b1="<<b1.pt()<<" b2="<<b2.pt()<<" q1="<<q1.pt()<<" q2="<<q2.pt()<<endl; 
+   }
+   else {
+     event.getByToken(m_theJetTagsToken,jetTags);
      if (jetTags->size()<nMax) return false;
      for (typename TCollection::const_iterator jet=jets->begin(); (jet!=jets->end()&& nJet<nMax); ++jet) {
 
