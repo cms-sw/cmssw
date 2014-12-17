@@ -23,8 +23,6 @@
 
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 
 class FWGEMDigiProxyBuilder : public FWProxyBuilderBase
 {
