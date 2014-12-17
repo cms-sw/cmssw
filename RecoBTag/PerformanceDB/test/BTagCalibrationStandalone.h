@@ -24,9 +24,9 @@ class BTagEntry
 {
 public:
   enum OperatingPoint {
-    OP_TIGHT=0,
+    OP_LOOSE=0,
     OP_MEDIUM=1,
-    OP_LOOSE=2,
+    OP_TIGHT=2,
     OP_RESHAPING=3,
   };
   enum JetFlavor {
