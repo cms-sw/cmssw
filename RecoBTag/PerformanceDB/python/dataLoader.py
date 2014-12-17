@@ -3,9 +3,15 @@ import ROOT
 ROOT.gSystem.Load('libCondFormatsBTagObjects')
 
 
+separate_by_op   = False
+separate_by_flav = False
+
+
 class DataLoader(object):
-    def __init__(self, csv_data, measurement_type):
+    def __init__(self, csv_data, measurement_type, operating_point, flavour):
         self.meas_type = measurement_type
+        self.op = operating_point
+        self.flav = flavour
 
         # list of entries
         ens = []
@@ -14,11 +20,19 @@ class DataLoader(object):
                 continue  # skip empty lines
             try:
                 e = ROOT.BTagEntry(l)
-                if e.params.measurementType == measurement_type:
+                if (e.params.measurementType == measurement_type
+                    and ((not separate_by_op)
+                            or e.params.operatingPoint == operating_point)
+                    and ((not separate_by_flav)
+                            or e.params.jetFlavor == flavour)
+                ):
                     ens.append(e)
             except TypeError:
                 raise RuntimeError("Error: can not interpret line: " + l)
         self.entries = ens
+
+        if not ens:
+            return
 
         self.ETA_MIN = -2.4
         self.ETA_MAX = 2.4
@@ -84,10 +98,10 @@ class DataLoader(object):
         self.discr_test_points = set(round(f, 5) for f in discr_test_points)
 
     def print_data(self):
-        print "\nFound operating points (need at least 0, 1, 2):"
+        print "\nFound operating points:"
         print self.ops
 
-        print "\nFound jet flavors (need 0, 1, 2):"
+        print "\nFound jet flavors:"
         print self.flavs
 
         print "\nFound sys types (need at least 'central', 'up', 'down'; " \
@@ -124,7 +138,30 @@ def get_data_csv(csv_data):
         for l in csv_data
         if len(l.split()) == 11
     )
-    return list(DataLoader(csv_data, mt) for mt in meas_types)
+
+    # grab operating points
+    ops = set(
+        int(l.split(',')[0])
+        for l in csv_data
+        if len(l.split()) == 11
+    ) if separate_by_op else ['all']
+
+    # grab flavors
+    flavs = set(
+        int(l.split(',')[3])
+        for l in csv_data
+        if len(l.split()) == 11
+    ) if separate_by_flav else ['all']
+
+    # make loaders and filter empty ones
+    lds = list(
+        DataLoader(csv_data, mt, op, fl)
+        for mt in meas_types
+        for op in ops
+        for fl in flavs
+    )
+    lds = filter(lambda d: d.entries, lds)
+    return lds
 
 
 def get_data(filename):
