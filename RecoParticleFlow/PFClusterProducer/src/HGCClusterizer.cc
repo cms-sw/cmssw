@@ -338,6 +338,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     }
   }
   _hit_kdtree.clear();
+  std::cout << "layer clusters made: " << clusters_per_layer.size() << std::endl;
   
   reco::PFClusterCollection z_linked_clusters;
   // use topo clusters to link in z

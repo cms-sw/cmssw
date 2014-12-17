@@ -87,7 +87,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
 
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
-    const double rh_energy = refhit->energy()/_layer2mip[refhit->layer()];
+    const double rh_energy = refhit->energy()/_layer2mip[(unsigned)refhit->layer()];
     cl_energy += rh_energy;
     if( rh_energy > max_e ) {
       max_e = rh_energy;
@@ -103,7 +103,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
     if( refhit->detId() == cluster.seed() ) refseed = refhit;
     const double rh_fraction = rhf.fraction();
     //const double rh_rawenergy = refhit->energy();
-    const double rh_energy = refhit->energy()*rh_fraction/_layer2mip[refhit->layer()];
+    const double rh_energy = refhit->energy()*rh_fraction/_layer2mip[(unsigned)refhit->layer()];
     if( edm::isNotFinite(rh_energy) ) {
       throw cms::Exception("PFClusterAlgo")
 	<<"rechit " << refhit->detId() << " has a NaN energy... " 
@@ -114,14 +114,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
     pcavars[2] = refhit->position().z();     
     int nhit = 0;
     if( use_log_weights ) {
-      if( refhit->layer() == PFLayer::HGC_ECAL ) { 
-	// per layer optimized weight when in the ECAL
-	HGCEEDetId temp( refhit->detId() );
-	nhit = int(_logWeightScale*(_w0PerLayer[temp.layer()-1]+
-				    std::log(rh_energy/cl_energy)));
-      } else { // old weighting
-	nhit = std::max(_logWeightScale*std::log(rh_energy/20.0),1.0);
-      }
+      nhit = std::max(_logWeightScale*std::log(rh_energy/20.0),1.0);
     } else { // use linear weights, most likely a hadron if in HCAL
       nhit = int( rh_energy );
     }

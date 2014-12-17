@@ -76,7 +76,7 @@ _positionCalcHGCEE_pca = cms.PSet(
     # ECAL specific
     # from layer 1 to 30, these w0s are for w_i/w_tot style log-weights
     w0PerLayer = optimized_w0s,
-    logWeightScaling = cms.double(250.0)
+    logWeightScale = cms.double(250.0)
     )
 
 weight_vec_ee_electrons = [0.080]
@@ -166,7 +166,9 @@ _fromScratchHGCClusterizer_HGCEE = cms.PSet(
         #cluster afterburner
         useAfterburner = cms.bool(True),
         minConeAngle = cms.double(0.298), # ~17 degrees
+        maxConeAngle = cms.double(1.0), # radians
         maxConeDepth = cms.double(60), #cm
+        maxClusterAngleToTrack = cms.double(0.010), # in radians
         minECALLayerToCone = cms.uint32(11), # ~9.5 radiation lengths
         ),
     
