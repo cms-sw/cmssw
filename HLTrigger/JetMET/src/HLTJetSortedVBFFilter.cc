@@ -45,6 +45,10 @@ HLTJetSortedVBFFilter<T>::HLTJetSortedVBFFilter(const edm::ParameterSet& iConfig
 {
   m_theJetsToken = consumes<std::vector<T>>(inputJets_);
   m_theJetTagsToken = consumes<reco::JetTagCollection>(inputJetTags_);
+  if(njets_<4) {
+  	edm::LogWarning("LowNJets")<< "njets="<<njets_<<" it must be >=4. Forced njets=4.";
+  	njets_=4;
+  }
 }
 
 
@@ -115,13 +119,13 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
    Handle<TCollection> jets;
    event.getByToken(m_theJetsToken,jets);
    Handle<JetTagCollection> jetTags;
+   if (jets->size()<4) return false;
 
    unsigned int nJet=0;
    double value(0.0);
 
    Particle::LorentzVector b1,b2,q1,q2;
    if (inputJetTags_.encode()=="") {
-     if (jets->size()<nMax) return false;
      for (typename TCollection::const_iterator jet=jets->begin(); (jet!=jets->end()&& nJet<nMax); ++jet) {
        if (value_=="Pt") {
 	 value=jet->pt();
@@ -214,7 +218,6 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
    }
    else {
      event.getByToken(m_theJetTagsToken,jetTags);
-     if (jetTags->size()<nMax) return false;
      for (typename TCollection::const_iterator jet=jets->begin(); (jet!=jets->end()&& nJet<nMax); ++jet) {
 
        if (value_=="second") {
