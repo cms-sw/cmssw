@@ -119,7 +119,7 @@ class WorkFlowRunner(Thread):
                 if lumiRangeFile: #DAS query can also restrict lumi range
                     cmd += ' --lumiToProcess '+lumiRangeFile
                     lumiRangeFile=None
-                if 'HARVESTING' in cmd and not '134' in str(self.wf.numId) and not '--filein' in cmd:
+                if 'HARVESTING' in cmd and not '--filein' in cmd:
                     cmd+=' --filein file:step%d_inDQM.root --fileout file:step%d.root '%(istep-1,istep)
                 else:
                     if istep!=1 and not '--filein' in cmd:
