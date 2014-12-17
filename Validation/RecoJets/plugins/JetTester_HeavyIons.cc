@@ -53,6 +53,7 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
   pfCandViewToken_ = consumes<reco::CandidateView>(mInputPFCandCollection);
   //backgrounds_ = consumes<reco::VoronoiBackground>(Background);
   backgrounds_ = consumes<edm::ValueMap<reco::VoronoiBackground>>(Background);
+  backgrounds_value_ = consumes<std::vector<float>>(Background);
   
   // we need to get this 
   // edm::ValueMap<reco::VoronoiBackground>    "voronoiBackgroundCalo"     ""                "DQMIO"   
@@ -71,6 +72,8 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
   mPFVsPtEqualized = 0;
   mPFArea = 0;
   mSumpt = 0;
+  mvn = 0;
+  mpsin = 0;
   
   // Events variables
   mNvtx           = 0;
@@ -127,6 +130,8 @@ void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
     mPFVsPtEqualized = ibooker.book1D("PFVsPtEqualized","",100,0,1000);
     mPFArea          = ibooker.book1D("PFArea","",100,0,4);
     mSumpt           = ibooker.book1D("SumpT","",1000,0,10000);
+    mvn              = ibooker.book1D("vn","",100,0,10);
+    mpsin            = ibooker.book1D("mpsin","",100,0,10);
 
     // Event variables
     mNvtx            = ibooker.book1D("Nvtx",           "number of vertices", 60, 0, 60);
@@ -223,6 +228,7 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
   
   //const reco::PFCandidateCollection *pfCandidateColl = pfcandidates.product();
   edm::Handle<edm::ValueMap<VoronoiBackground>> VsBackgrounds;
+  edm::Handle<std::vector<float>> vn_;
   
   // for example
   // edm::Handle<PFCandidate /*name of actual handle*/> pfcand;
@@ -236,8 +242,10 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
   }
   
   mEvent.getByToken(pfCandToken_, pfCandidates);
-  mEvent.getByToken(backgrounds_, VsBackgrounds);
   mEvent.getByToken(pfCandViewToken_, candidates_);
+
+  mEvent.getByToken(backgrounds_, VsBackgrounds);
+  mEvent.getByToken(backgrounds_value_, vn_);
   
   const reco::PFCandidateCollection *pfCandidateColl = pfCandidates.product();
   
@@ -248,7 +256,32 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
   Float_t pfPt = 0;
   Float_t pfEta = 0;
   Float_t pfPhi = 0;
-  Float_t SumPt = 0;
+  Float_t SumPt_value = 0;
+  Float_t vn_value[200];
+  Float_t psin_value[200];
+
+  Float_t vn[fourierOrder_][etaBins_];
+  Float_t psin[fourierOrder_][etaBins_];
+  Float_t sumpT[etaBins_];
+
+  UEParameters vnUE(vn_.product(),fourierOrder_,etaBins_);
+  const std::vector<float>& vue = vnUE.get_raw();
+  
+  for(int ieta = 0;ieta<etaBins_;++ieta){
+    sumpT[ieta] = vnUE.get_sum_pt(ieta);
+    for(int ifour = 0;ifour<fourierOrder_; ++ifour){
+      vn[ifour][ieta] = vnUE.get_vn(ifour,ieta);
+      vn_value[ifour * etaBins_ + ieta]= vnUE.get_vn(ifour,ieta);
+      mvn->Fill(vn_value[ifour * etaBins_ + ieta]);
+
+      psin[ifour][ieta] = vnUE.get_psin(ifour,ieta);
+      psin_value[ifour * etaBins_ + ieta] = vnUE.get_psin(ifour,ieta);
+      mpsin->Fill(psin_value[ifour * etaBins_ + ieta]);
+
+      if(0>1)std::cout<<vn[ifour][ieta]<<" "<<psin[ifour][ieta]<<" "<<sumpT[ieta]<<std::endl;
+
+    }
+  }
   
   for(unsigned icand=0;icand<pfCandidateColl->size(); icand++){
     
@@ -272,7 +305,7 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
 
     //std::cout<<pfPt<<" "<<pfEta<<" "<<pfPhi<<" "<<std::endl;
     
-    SumPt = SumPt + pfPt;
+    SumPt_value = SumPt_value + pfPt;
     
     mPFPt->Fill(pfPt);
     mPFEta->Fill(pfEta);
@@ -285,7 +318,7 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
   }
   
   mNPFpart->Fill(NPFpart);
-  mSumpt->Fill(SumPt);
+  mSumpt->Fill(SumPt_value);
   
   //std::cout<<"finished loading the pfcandidates"<<std::endl;
   

@@ -29,6 +29,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 // include the voronoi subtraction
 #include "DataFormats/HeavyIonEvent/interface/VoronoiBackground.h"
+#include "RecoHI/HiJetAlgos/interface/UEParameters.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -99,6 +100,7 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::CandidateView> pfCandViewToken_;
   //edm::EDGetTokenT<reco::VoronoiMap> backgrounds_;
   edm::EDGetTokenT<edm::ValueMap<reco::VoronoiBackground>> backgrounds_;
+  edm::EDGetTokenT<std::vector<float>> backgrounds_value_;
   
   //Include Particle flow variables 
   MonitorElement *mNPFpart;
@@ -110,7 +112,9 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   MonitorElement *mPFVsPtEqualized;
   MonitorElement *mPFArea;
   MonitorElement *mSumpt;
-  
+  MonitorElement *mvn;
+  MonitorElement *mpsin;
+  // MonitorElement *ueraw;  
 
   // Event variables
   MonitorElement* mNvtx;
@@ -132,6 +136,9 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   bool            isCaloJet;
   bool            isJPTJet;
   bool            isPFJet;
+
+  static const Int_t fourierOrder_ = 5;
+  static const Int_t etaBins_ = 15;
  
 };
 
