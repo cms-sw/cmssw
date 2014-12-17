@@ -59,7 +59,6 @@ class HLTJetSortedVBFFilter : public HLTFilter {
   double ptsbb_;
   double seta_;
   double njets_;
-  double csvloose_;
   std::string value_;
   int triggerType_;
 };
