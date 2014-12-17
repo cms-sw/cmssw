@@ -9,7 +9,7 @@ import logging
 import pprint
 from platform import platform 
 from event import Event
-
+import time
 
 class Setup(object):
     '''The Looper creates a Setup object to hold information relevant during 
@@ -145,10 +145,17 @@ class Looper(object):
                 # if iEv == nEvents:
                 #     break
                 if iEv%100 ==0:
-                    print 'event', iEv
+                    # print 'event', iEv
+                    if iEv == 100:
+                        print 'event', iEv
+                        self.start_time = time.time()
+                    elif iEv > 100:
+                        print 'event %d (%.1f ev/s)' % (iEv, (iEv-100)/float(time.time() - self.start_time))
+
                 self.process( iEv )
                 if iEv<self.nPrint:
                     print self.event
+
         except UserWarning:
             print 'Stopped loop following a UserWarning exception'
         for analyzer in self.analyzers:
