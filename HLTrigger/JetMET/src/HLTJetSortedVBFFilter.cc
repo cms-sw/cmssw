@@ -40,7 +40,6 @@ HLTJetSortedVBFFilter<T>::HLTJetSortedVBFFilter(const edm::ParameterSet& iConfig
  ,ptsbb_       (iConfig.getParameter<double>       ("Ptsumbb"     ))
  ,seta_        (iConfig.getParameter<double>       ("Etaq1Etaq2"  ))
  ,njets_       (iConfig.getParameter<int>          ("njets"       ))
- ,csvloose_     (iConfig.getParameter<double>      ("CSVLoose"    ))
  ,value_       (iConfig.getParameter<std::string>  ("value"       ))
  ,triggerType_ (iConfig.getParameter<int>          ("triggerType" ))
 {
@@ -67,7 +66,6 @@ HLTJetSortedVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("Ptsumqq",0.);
   desc.add<double>("Ptsumbb",0.);
   desc.add<double>("Etaq1Etaq2",40.);
-  desc.add<double>("CSVLoose",0.4);
   desc.add<std::string>("value","second");
   desc.add<int>("triggerType",trigger::TriggerJet);
   desc.add<int>("njets",4);
