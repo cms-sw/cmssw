@@ -1476,14 +1476,8 @@ class ConfigBuilder(object):
 
     def prepare_L1(self, sequence = None):
 	    """ Enrich the schedule with the L1 simulation step"""
-	    if not sequence:
-		    self.loadAndRemember(self.L1EMDefaultCFF)
-	    else:
-		    # let the L1 package decide for the scenarios available
-		    from L1Trigger.Configuration.ConfigBuilder import getConfigsForScenario
-		    listOfImports = getConfigsForScenario(sequence)
-		    for file in listOfImports:
-			    self.loadAndRemember(file)
+            assert(sequence == None)
+	    self.loadAndRemember(self.L1EMDefaultCFF)
 	    self.scheduleSequence('SimL1Emulator','L1simulation_step')
 	    return
 
