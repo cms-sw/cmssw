@@ -1,5 +1,3 @@
-#include "Basic2DGenericPFlowPositionCalc.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
