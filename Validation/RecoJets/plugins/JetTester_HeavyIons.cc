@@ -75,6 +75,13 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
   mvn = 0;
   mpsin = 0;
   
+  mSumPFVsPt = 0;
+  mSumPFVsPtInitial = 0;
+  mSumPFPt = 0;
+  mSumPFVsPtInitial_eta = 0;
+  mSumPFVsPt_eta = 0;
+  mSumPFPt_eta = 0;
+
   // Events variables
   mNvtx           = 0;
   
@@ -132,10 +139,15 @@ void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
     mSumpt           = ibooker.book1D("SumpT","",1000,0,10000);
     mvn              = ibooker.book1D("vn","",100,0,10);
     mpsin            = ibooker.book1D("mpsin","",100,0,10);
+    mSumPFVsPt       = ibooker.book1D("SumPFVsPt","",10000,-10000,10000);
+    mSumPFVsPtInitial= ibooker.book1D("SumPFVsPtInitial","",10000,-10000,10000);
+    mSumPFPt         = ibooker.book1D("SumPFPt","",10000,-10000,10000);
+    mSumPFVsPt_eta   = ibooker.book2D("SumPFVsPt_etaBins","",60,-6,+6,10000,-10000,10000);
+    mSumPFVsPtInitial_eta   = ibooker.book2D("SumPFVsPtInitial_etaBins","",60,-6,+6,10000,-10000,10000);
+    mSumPFPt_eta     = ibooker.book2D("SumPFPt_etaBins","",60,-6,+6,10000,-10000,10000);
 
     // Event variables
     mNvtx            = ibooker.book1D("Nvtx",           "number of vertices", 60, 0, 60);
-
     // Jet parameters
     mEta             = ibooker.book1D("Eta",          "Eta",          120,   -6,    6); 
     mPhi             = ibooker.book1D("Phi",          "Phi",           70, -3.5,  3.5); 
@@ -147,7 +159,6 @@ void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
     mJetArea         = ibooker.book1D("JetArea",      "JetArea",       100,   0, 4);
     mjetpileup       = ibooker.book1D("jetPileUp","jetPileUp",100,0,150);
     mNJets_40        = ibooker.book1D("NJets", "NJets 40<Pt",  50,    0,   50);
-    
     
     if (mOutputFile.empty ()) 
       LogInfo("OutputInfo") << " Histograms will NOT be saved";
@@ -264,6 +275,8 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
   Float_t psin[fourierOrder_][etaBins_];
   Float_t sumpT[etaBins_];
 
+  double edge_pseudorapidity[etaBins_ +1] = {-5.191, -2.650, -2.043, -1.740, -1.479, -1.131, -0.783, -0.522, 0.522, 0.783, 1.131, 1.479, 1.740, 2.043, 2.650, 5.191 };
+
   UEParameters vnUE(vn_.product(),fourierOrder_,etaBins_);
   const std::vector<float>& vue = vnUE.get_raw();
   
@@ -282,7 +295,49 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
 
     }
   }
-  
+
+  /*
+  //lets start making the necessary plots 
+  Float_t Vs_0_x_minus = sumpT[0]*vn[0][0]*TMath::Cos(0*psin[0][0]);
+  Float_t Vs_0_x_plus = sumpT[14]*vn[0][14]*TMath::Cos(0*psin[0][14]);
+  Float_t Vs_0_y_minus = sumpT[0]*vn[0][0]*TMath::Sin(0*psin[0][0]);
+  Float_t Vs_0_y_plus = sumpT[14]*vn[0][14]*TMath::Sin(0*psin[0][14]);
+  Float_t Vs_0_x = Vs_0_x_minus + Vs_0_x_plus;
+  Float_t Vs_0_y = Vs_0_y_minus + Vs_0_y_plus;
+
+  Float_t Vs_1_x_minus = sumpT[0]*vn[1][0]*TMath::Cos(1*psin[1][0]);
+  Float_t Vs_1_x_plus = sumpT[14]*vn[1][14]*TMath::Cos(1*psin[1][14]);
+  Float_t Vs_1_y_minus = sumpT[0]*vn[1][0]*TMath::Sin(1*psin[1][0]);
+  Float_t Vs_1_y_plus = sumpT[14]*vn[1][14]*TMath::Sin(1*psin[1][14]);
+  Float_t Vs_1_x = Vs_1_x_minus + Vs_0_x_plus;
+  Float_t Vs_1_y = Vs_1_y_minus + Vs_0_y_plus;
+
+  Float_t Vs_2_x_minus = sumpT[0]*vn[2][0]*TMath::Cos(2*psin[2][0]);
+  Float_t Vs_2_x_plus = sumpT[14]*vn[2][14]*TMath::Cos(2*psin[2][14]);
+  Float_t Vs_2_y_minus = sumpT[0]*vn[2][0]*TMath::Sin(2*psin[2][0]);
+  Float_t Vs_2_y_plus = sumpT[14]*vn[2][14]*TMath::Sin(2*psin[2][14]);
+  Float_t Vs_2_x = Vs_2_x_minus + Vs_2_x_plus;
+  Float_t Vs_2_y = Vs_2_y_minus + Vs_2_y_plus;
+
+  Float_t Vs_3_x_minus = sumpT[0]*vn[3][0]*TMath::Cos(3*psin[3][0]);
+  Float_t Vs_3_x_plus = sumpT[14]*vn[3][14]*TMath::Cos(3*psin[3][14]);
+  Float_t Vs_3_y_minus = sumpT[0]*vn[3][0]*TMath::Sin(3*psin[3][0]);
+  Float_t Vs_3_y_plus = sumpT[14]*vn[3][14]*TMath::Sin(3*psin[3][14]);
+  Float_t Vs_3_x = Vs_3_x_minus + Vs_3_x_plus;
+  Float_t Vs_3_y = Vs_3_y_minus + Vs_3_y_plus;
+
+  Float_t Vs_4_x_minus = sumpT[0]*vn[4][0]*TMath::Cos(4*psin[4][0]);
+  Float_t Vs_4_x_plus = sumpT[14]*vn[4][14]*TMath::Cos(4*psin[4][14]);
+  Float_t Vs_4_y_minus = sumpT[0]*vn[4][0]*TMath::Sin(4*psin[4][0]);
+  Float_t Vs_4_y_plus = sumpT[14]*vn[4][14]*TMath::Sin(4*psin[4][14]);
+  Float_t Vs_4_x = Vs_4_x_minus + Vs_4_x_plus;
+  Float_t Vs_4_y = Vs_4_y_minus + Vs_4_y_plus;  
+  */
+
+  Float_t SumPFVsPtInitial[etaBins_];
+  Float_t SumPFVsPt[etaBins_];
+  Float_t SumPFPt[etaBins_];
+
   for(unsigned icand=0;icand<pfCandidateColl->size(); icand++){
     
     const reco::PFCandidate pfCandidate = pfCandidateColl->at(icand);
@@ -304,6 +359,16 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
     pfPhi = pfCandidate.phi();
 
     //std::cout<<pfPt<<" "<<pfEta<<" "<<pfPhi<<" "<<std::endl;
+
+    for(size_t k = 0;k<nedge_pseudorapidity-1; k++){
+      if(pfEta >= edge_pseudorapidity[k] && pfEta < edge_pseudorapidity[k+1]){
+	SumPFVsPtInitial[k] = SumPFVsPtInitial[k] + vsPtInitial;
+	SumPFVsPt[k] = SumPFVsPt[k] + vsPt;
+	SumPFPt[k] = SumPFPt[k] + pfPt;
+      }// eta selection statement 
+      
+    }// eta bin loop
+    
     
     SumPt_value = SumPt_value + pfPt;
     
@@ -316,6 +381,18 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
     mPFArea->Fill(vsArea);
     
   }
+  
+  for(size_t  k = 0;k<nedge_pseudorapidity-1;k++){
+    
+    mSumPFVsPtInitial->Fill(SumPFVsPtInitial[k]);
+    mSumPFVsPt->Fill(SumPFVsPt[k]);
+    mSumPFPt->Fill(SumPFPt[k]);
+
+    mSumPFVsPtInitial_eta->Fill(edge_pseudorapidity[k],SumPFVsPtInitial[k]);
+    mSumPFVsPt_eta->Fill(edge_pseudorapidity[k],SumPFVsPt[k]);
+    mSumPFPt_eta->Fill(edge_pseudorapidity[k],SumPFPt[k]);
+    
+  }// eta bin loop  
   
   mNPFpart->Fill(NPFpart);
   mSumpt->Fill(SumPt_value);
