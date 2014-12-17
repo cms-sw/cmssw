@@ -37,7 +37,7 @@ SiStripDetInfoFileWriter::~SiStripDetInfoFileWriter(){
 
 
 
-void SiStripDetInfoFileWriter::beginRun(const edm::EventSetup& iSetup){
+void SiStripDetInfoFileWriter::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 
 
   outputFile_.open(filePath_.c_str());
