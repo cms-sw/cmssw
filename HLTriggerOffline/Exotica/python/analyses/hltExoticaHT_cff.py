@@ -11,7 +11,8 @@ HTPSet = cms.PSet(
         "HLT_PFHT650_v",
         "HLT_HT900_v",        # Run2
         "HLT_HT300_v",        # Run2
-        #"HLT_HT750_v"         # Run1 (frozenHLT)
+        "HLT_ECALHT800_v"     # Run2 7e33
+        #"HLT_HT750_v"        # Run1 (frozenHLT)
         ),
     recPFMHTLabel  = cms.InputTag("recoExoticaValidationHT"),
     recPFJetLabel  = cms.InputTag("ak4PFJets"),
