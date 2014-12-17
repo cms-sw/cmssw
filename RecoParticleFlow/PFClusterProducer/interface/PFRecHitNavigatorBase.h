@@ -62,10 +62,8 @@ class PFRecHitNavigatorBase {
 			  edm::RefProd<reco::PFRecHitCollection>& refProd,
 			  short eta, short phi,short depth) {
     auto found_hit = hitmap.find(id.rawId());
-    if( found_hit != hitmap.end() ) {
-      auto begin = hits->begin();
-      auto hit_pos = begin + found_hit->second;
-      hit.addNeighbour(eta,phi,depth,reco::PFRecHitRef(refProd,std::distance(begin,hit_pos)));
+    if( found_hit != hitmap.end() ) {      
+      hit.addNeighbour(eta,phi,depth,reco::PFRecHitRef(refProd,found_hit->second));
     }    
   }
 

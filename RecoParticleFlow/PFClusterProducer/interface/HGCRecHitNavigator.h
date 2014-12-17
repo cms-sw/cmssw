@@ -45,6 +45,22 @@ class HGCRecHitNavigator : public PFRecHitNavigatorBase {
     }     
   }
 
+  virtual void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,const DetIdToHitIdx& hitmap,edm::RefProd<reco::PFRecHitCollection>& refProd) override {
+    switch( hit.layer() ) {
+    case D1:
+      eeNav_->associateNeighbours(hit,hits,hitmap,refProd);
+      break;
+    case D2:
+      hefNav_->associateNeighbours(hit,hits,hitmap,refProd);
+      break;
+    case D3:
+      hebNav_->associateNeighbours(hit,hits,hitmap,refProd);
+      break;
+    default:
+      break;
+    }     
+  }
+
  protected:
       hgcee  *eeNav_;
       hgchef *hefNav_;
