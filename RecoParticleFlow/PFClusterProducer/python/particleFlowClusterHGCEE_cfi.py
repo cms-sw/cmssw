@@ -34,13 +34,36 @@ _localmaxseeds_HGCEE = cms.PSet(
     nNeighbours = cms.int32(8)
 )
 
+optimized_w0s = cms.vdouble(4.0,4.0,4.0,4.0,4.0,4.0,  #1-6 are all the same
+                            2.55,
+                            2.9,
+                            2.45,
+                            2.75,
+                            2.35,
+                            2.55,
+                            2.2,
+                            2.35,
+                            2.0,
+                            2.2,
+                            1.9,
+                            2.05,
+                            1.75,
+                            1.9,
+                            1.7,
+                            1.8,
+                            3.0,
+                            4.0,4.0,4.0,4.0,4.0,4.0,4.0)
+
 _positionCalcHGCEE_onelayer = cms.PSet(
-    algoName = cms.string("Basic2DGenericPFlowPositionCalc"),
+    algoName = cms.string("HGCLayerSpecificLogWeightedPositionCalc"),
     ##
     minFractionInCalc = cms.double(1e-9),
-    posCalcNCrystals = cms.int32(-1),
+    posCalcNCrystals = cms.int32(9), #use 3x3 around seed!
     logWeightDenominator = cms.double(1e-6*0.25*55.1), # use ADC value 0.25*MIP
-    minAllowedNormalization = cms.double(1e-9)
+    minAllowedNormalization = cms.double(1e-9),
+    # ECAL specific
+    # from layer 1 to 30, these w0s are for w_i/w_tot style log-weights
+    w0PerLayer = optimized_w0s
     )
 
 _positionCalcHGCEE_pca = cms.PSet(
@@ -52,25 +75,7 @@ _positionCalcHGCEE_pca = cms.PSet(
     minAllowedNormalization = cms.double(1e-9),
     # ECAL specific
     # from layer 1 to 30, these w0s are for w_i/w_tot style log-weights
-    w0PerLayer = cms.vdouble(4.0,4.0,4.0,4.0,4.0,4.0,  #1-6 are all the same
-                             2.55,
-                             2.9,
-                             2.45,
-                             2.75,
-                             2.35,
-                             2.55,
-                             2.2,
-                             2.35,
-                             2.0,
-                             2.2,
-                             1.9,
-                             2.05,
-                             1.75,
-                             1.9,
-                             1.7,
-                             1.8,
-                             3.0,
-                             4.0,4.0,4.0,4.0,4.0,4.0,4.0),
+    w0PerLayer = optimized_w0s,
     logWeightScaling = cms.double(250.0)
     )
 
