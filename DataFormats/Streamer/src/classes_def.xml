@@ -1,6 +1,7 @@
 
 <lcgdict>
- <class name="edm::StreamedProduct" ClassVersion="11">
+ <class name="edm::StreamedProduct" ClassVersion="12">
+  <version ClassVersion="12" checksum="855998814"/>
   <version ClassVersion="10" checksum="512531612"/>
   <version ClassVersion="11" checksum="1146084488"/>
  </class>
