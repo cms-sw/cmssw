@@ -74,6 +74,10 @@
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_RefMerge.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
+  <bin   file="TestIntegration.cpp" name="TestIntegrationRefAlias">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_RefAlias.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
   <bin   file="TestIntegration.cpp" name="TestIntegrationParameterSet">
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_ParameterSet.sh"/>
     <use   name="FWCore/Utilities"/>
@@ -168,7 +172,7 @@
     <use   name="FWCore/ParameterSet"/>
     <use   name="FWCore/Framework"/>
   </library>
-  <library   file="OtherThingAnalyzer.cc" name="TestOtherThingAnalyzer">
+  <library   file="OtherThingAnalyzer.cc,OtherThingRefComparer.cc" name="TestOtherThingAnalyzer">
     <flags   EDM_PLUGIN="1"/>
     <use   name="DataFormats/Common"/>
     <use   name="FWCore/Framework"/>
