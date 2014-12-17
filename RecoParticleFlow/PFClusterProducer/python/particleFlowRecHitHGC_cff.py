@@ -12,5 +12,4 @@ particleFlowRecHitHGCAll = cms.EDProducer(
 
 particleFlowRecHitHGC = cms.Sequence( particleFlowRecHitHGCEE  +
                                       particleFlowRecHitHGCHEF +
-                                      particleFlowRecHitHGCHEB +
-                                      particleFlowRecHitHGCAll )
+                                      particleFlowRecHitHGCHEB )
