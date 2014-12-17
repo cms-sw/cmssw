@@ -116,5 +116,5 @@ correctEnergyActual(reco::PFCluster& cluster) const {
   cluster.setEnergy(eCorr);
   cluster.setCorrectedEnergy(eCorr);
   
-  //std::cout << "cluster pt: " << cluster.energy()/std::cosh(cluster.position().eta()) << std::endl;
+  std::cout << "cluster pt: " << cluster.energy()/std::cosh(cluster.position().eta()) << std::endl;
 }

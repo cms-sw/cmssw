@@ -20,7 +20,8 @@ class HGCLayerSpecificLogWeightedPositionCalc : public PFCPositionCalculatorBase
     PFCPositionCalculatorBase(conf),    
     _posCalcNCrystals(conf.getParameter<int>("posCalcNCrystals")),
     _logWeightDenom(conf.getParameter<double>("logWeightDenominator")),
-    _minAllowedNorm(conf.getParameter<double>("minAllowedNormalization"))
+    _minAllowedNorm(conf.getParameter<double>("minAllowedNormalization")),
+    _w0PerLayer(conf.getParameter<std::vector<double> >("w0PerLayer"))
 
   {  
     _layer2mip[(unsigned)PFLayer::HGC_ECAL]  = 55.1*1e-6;
@@ -84,6 +85,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   double cl_energy = 0;  
   double cl_time = 0;  
   double cl_timeweight=0.0;
+  double nb_energy = 0.0;
   double max_e = 0.0;  
   PFLayer::Layer max_e_layer = PFLayer::NONE;
   reco::PFRecHitRef refseed;  
@@ -93,17 +95,50 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   //so the weight should be fraction*E^2
   //calculate a simplistic depth now. The log weighted will be done
   //in different stage  
+
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
     if( refhit->detId() == cluster.seed() ) refseed = refhit;
+  }
+
+  if( refseed.isNull() ) {
+    throw cms::Exception("ClusterWithNoSeed")
+      << "Cluster has no seed!" << std::endl;
+  }
+  
+  const reco::PFRecHitRefVector* seedNeighbours = NULL;
+  switch( _posCalcNCrystals ) {
+  case 5:
+    seedNeighbours = &refseed->neighbours4();
+    break;
+  case 9:
+    seedNeighbours = &refseed->neighbours8();
+    break;
+  default:
+    break;
+  }
+
+  for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
+    const reco::PFRecHitRef& refhit = rhf.recHitRef();
     const double rh_fraction = rhf.fraction();
-    const double rh_rawenergy = refhit->energy()/_layer2mip.find(refhit->layer())->first;
+    const double rh_rawenergy = refhit->energy()/_layer2mip.find((unsigned)refhit->layer())->second;
     const double rh_energy = rh_rawenergy * rh_fraction;   
     if( edm::isNotFinite(rh_energy) ) {
       throw cms::Exception("PFClusterAlgo")
 	<<"rechit " << refhit->detId() << " has a NaN energy... " 
 	<< "The input of the particle flow clustering seems to be corrupted.";
     }
+    
+    if( refhit != refseed && _posCalcNCrystals != -1 ) {
+      auto pos = std::find(seedNeighbours->begin(),seedNeighbours->end(),
+                           refhit);
+      if( pos != seedNeighbours->end() ) {
+	nb_energy += rh_energy;
+      }
+    } else if ( refhit == refseed ) {
+      nb_energy += rh_energy;
+    }
+
     cl_energy += rh_energy;
     // If time resolution is given, calculated weighted average
     if (_timeResolutionCalcBarrel && _timeResolutionCalcEndcap) {
@@ -133,21 +168,9 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   cluster.setTime(cl_time/cl_timeweight);
   cluster.setLayer(max_e_layer);
   // calculate the position
-
   double depth = 0.0;  
   double position_norm = 0.0;
   double x(0.0),y(0.0),z(0.0);
-  const reco::PFRecHitRefVector* seedNeighbours = NULL;
-  switch( _posCalcNCrystals ) {
-  case 5:
-    seedNeighbours = &refseed->neighbours4();
-    break;
-  case 9:
-    seedNeighbours = &refseed->neighbours8();
-    break;
-  default:
-    break;
-  }
 
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
@@ -161,17 +184,17 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
       if( pos == seedNeighbours->end() ) continue;
     }
     
-    const double rh_energy = refhit->energy() * ((float)rhf.fraction())/_layer2mip.find(refhit->layer())->first; // in mips
+    const double rh_energy = refhit->energy() * ((float)rhf.fraction())/_layer2mip.find((unsigned)refhit->layer())->second; // in mips
     double norm = 1.0;
     if( refhit->layer() == PFLayer::HGC_ECAL ) {
       HGCEEDetId temp( refhit->detId() );
       norm = ( rhf.fraction() < _minFractionInCalc ? 
 	       0.0 : 
-	       std::max(0.0,_w0PerLayer[temp.layer()-1]+vdt::fast_log(rh_energy/cl_energy) ) );
+	       std::max(0.0,_w0PerLayer[temp.layer()-1]+vdt::fast_log(rh_energy/nb_energy) ) );
     } else {
       norm = ( rhf.fraction() < _minFractionInCalc ? 
 	       0.0 : 
-	       std::max(0.0,vdt::fast_log(rh_energy/_logWeightDenom)) );
+	       std::max(0.0,vdt::fast_log(rh_energy)) );
     }
     const math::XYZPoint& rhpos_xyz = refhit->position();
     x += rhpos_xyz.X() * norm;
