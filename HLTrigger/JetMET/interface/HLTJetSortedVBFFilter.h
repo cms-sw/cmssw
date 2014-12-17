@@ -18,8 +18,8 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include<string>
-#include<vector>
+#include <string>
+#include <vector>
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/Handle.h"
 namespace edm {
@@ -35,6 +35,9 @@ class HLTJetSortedVBFFilter : public HLTFilter {
   typedef std::pair<double,unsigned int> Jpair;
   static bool comparator ( const Jpair& l, const Jpair& r) {
     return l.first < r.first;
+  }
+  static bool comparator_inv ( const Jpair& l, const Jpair& r) {
+    return l.first > r.first;
   }
 
   explicit HLTJetSortedVBFFilter(const edm::ParameterSet&);
@@ -55,6 +58,8 @@ class HLTJetSortedVBFFilter : public HLTFilter {
   double ptsqq_;
   double ptsbb_;
   double seta_;
+  double njets_;
+  double csvloose_;
   std::string value_;
   int triggerType_;
 };
