@@ -55,12 +55,15 @@ EcalDetailedTimeRecHitProducer::EcalDetailedTimeRecHitProducer(const edm::Parame
 {
    EBRecHitCollection_ = ps.getParameter<edm::InputTag>("EBRecHitCollection");
    EERecHitCollection_ = ps.getParameter<edm::InputTag>("EERecHitCollection");
+   EKRecHitCollection_ = ps.getParameter<edm::InputTag>("EKRecHitCollection");
 
    ebTimeDigiCollection_ = ps.getParameter<edm::InputTag>("EBTimeDigiCollection");
    eeTimeDigiCollection_ = ps.getParameter<edm::InputTag>("EETimeDigiCollection");
+   ekTimeDigiCollection_ = ps.getParameter<edm::InputTag>("EKTimeDigiCollection");
 
    EBDetailedTimeRecHitCollection_        = ps.getParameter<std::string>("EBDetailedTimeRecHitCollection");
    EEDetailedTimeRecHitCollection_        = ps.getParameter<std::string>("EEDetailedTimeRecHitCollection");
+   EKDetailedTimeRecHitCollection_        = ps.getParameter<std::string>("EKDetailedTimeRecHitCollection");
    
    correctForVertexZPosition_ = ps.getParameter<bool>("correctForVertexZPosition");
    useMCTruthVertex_ = ps.getParameter<bool>("useMCTruthVertex");
@@ -69,9 +72,11 @@ EcalDetailedTimeRecHitProducer::EcalDetailedTimeRecHitProducer(const edm::Parame
 
    ebTimeLayer_ = ps.getParameter<int>("EBTimeLayer");
    eeTimeLayer_ = ps.getParameter<int>("EETimeLayer");
+   ekTimeLayer_ = ps.getParameter<int>("EKTimeLayer");
 
    produces< EBRecHitCollection >(EBDetailedTimeRecHitCollection_);
    produces< EERecHitCollection >(EEDetailedTimeRecHitCollection_);
+   produces< EKRecHitCollection >(EKDetailedTimeRecHitCollection_);
 }
 
 EcalDetailedTimeRecHitProducer::~EcalDetailedTimeRecHitProducer() {
@@ -90,9 +95,11 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 
         Handle< EBRecHitCollection > pEBRecHits;
         Handle< EERecHitCollection > pEERecHits;
+        Handle< EKRecHitCollection > pEKRecHits;
 
         const EBRecHitCollection*  EBRecHits = 0;
         const EERecHitCollection*  EERecHits = 0; 
+        const EKRecHitCollection*  EKRecHits = 0; 
 
 	//        if ( EBRecHitCollection_.label() != "" && EBRecHitCollection_.instance() != "" ) {
         if ( EBRecHitCollection_.label() != "" ) {
@@ -120,11 +127,25 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
                 }
         }
 
+        if ( EKRecHitCollection_.label() != ""  ) {
+                evt.getByLabel( EKRecHitCollection_, pEKRecHits);
+                if ( pEKRecHits.isValid() ) {
+                        EKRecHits = pEKRecHits.product(); // get a ptr to the product
+#ifdef DEBUG
+                        LogDebug("EcalRecHitDebug") << "total # EK uncalibrated rechits to be re-calibrated: " << EKRecHits->size() << std::endl;
+#endif
+                } else {
+                        edm::LogError("EcalRecHitError") << "Error! can't get the product " << EKRecHitCollection_.label() ;
+                }
+        }
+
         Handle< EcalTimeDigiCollection > pEBTimeDigis;
         Handle< EcalTimeDigiCollection > pEETimeDigis;
+        Handle< EcalTimeDigiCollection > pEKTimeDigis;
 
         const EcalTimeDigiCollection* ebTimeDigis =0;
         const EcalTimeDigiCollection* eeTimeDigis =0;
+        const EcalTimeDigiCollection* ekTimeDigis =0;
 
         if ( ebTimeDigiCollection_.label() != "" && ebTimeDigiCollection_.instance() != "" ) {
                 evt.getByLabel( ebTimeDigiCollection_, pEBTimeDigis);
@@ -148,9 +169,22 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
                 }
         }
 
+        if ( ekTimeDigiCollection_.label() != "" && ekTimeDigiCollection_.instance() != "" ) {
+                evt.getByLabel( ekTimeDigiCollection_, pEKTimeDigis);
+                //evt.getByLabel( digiProducer_, pEKTimeDigis);
+                if ( pEKTimeDigis.isValid() ) {
+                        ekTimeDigis = pEKTimeDigis.product(); // get a ptr to the product
+//                        std::cout << "[EcalDetailedTimeRecHitInfo]"
+                        edm::LogInfo("EcalDetailedTimeRecHitInfo") << "total # ekTimeDigis: " << ekTimeDigis->size() << std::endl;
+                } else {
+                        edm::LogError("EcalDetailedTimeRecHitError") << "Error! can't get the product " << ekTimeDigiCollection_;
+                }
+        }
+
         // collection of rechits to put in the event
         std::auto_ptr< EBRecHitCollection > EBDetailedTimeRecHits( new EBRecHitCollection );
         std::auto_ptr< EERecHitCollection > EEDetailedTimeRecHits( new EERecHitCollection );
+        std::auto_ptr< EKRecHitCollection > EKDetailedTimeRecHits( new EKRecHitCollection );
 
 	GlobalPoint* vertex=0;
 
@@ -247,12 +281,46 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 		  EEDetailedTimeRecHits->push_back( aHit );
                 }
         }
+
+        if (EKRecHits && ekTimeDigis)
+        {
+                // loop over uncalibrated rechits to make calibrated ones
+                for(EKRecHitCollection::const_iterator it  = EKRecHits->begin();
+                                it != EKRecHits->end(); ++it) {
+			
+		  EcalRecHit aHit( *it );
+		  EcalTimeDigiCollection::const_iterator timeDigi=ekTimeDigis->find((*it).id());
+		  if (timeDigi!=ekTimeDigis->end())
+		    {
+		      if (timeDigi->sampleOfInterest()>=0)
+			{
+			  float myTime=(*timeDigi)[timeDigi->sampleOfInterest()];
+			  //Vertex corrected ToF
+			  if (vertex)
+			    {
+			      aHit.setTime(myTime+deltaTimeOfFlight(*vertex,(*it).id(),ekTimeLayer_));
+//			      std::cout << " uncorr time: " << myTime << "  corrected: " << myTime+deltaTimeOfFlight(*vertex,(*it).id(),ekTimeLayer_)
+//			                << "  old rechit: " << (*it).time() << std::endl;
+			    }
+			  else
+			    //Uncorrected ToF
+			    aHit.setTime(myTime);
+			}
+		    }
+		  EKDetailedTimeRecHits->push_back( aHit );
+                }
+        }
+
+
         // put the collection of recunstructed hits in the event   
         LogInfo("EcalDetailedTimeRecHitInfo") << "total # EB rechits: " << EBDetailedTimeRecHits->size();
         LogInfo("EcalDetailedTimeRecHitInfo") << "total # EE rechits: " << EEDetailedTimeRecHits->size();
+//        std::cout << "[EcalDetailedTimeRecHitInfo]" 
+        LogInfo("EcalDetailedTimeRecHitInfo") << "Storing total # EK rechits: " << EKDetailedTimeRecHits->size() << std::endl;
 
         evt.put( EBDetailedTimeRecHits, EBDetailedTimeRecHitCollection_ );
         evt.put( EEDetailedTimeRecHits, EEDetailedTimeRecHitCollection_ );
+        evt.put( EKDetailedTimeRecHits, EKDetailedTimeRecHitCollection_ );
 
 	if (vertex)
 	  delete vertex;

@@ -38,6 +38,7 @@ class  EcalDetailedTimeRecHitProducer : public edm::EDProducer {
 
                 edm::InputTag EBRecHitCollection_; // secondary name given to collection of EBrechits
                 edm::InputTag EERecHitCollection_; // secondary name given to collection of EErechits
+                edm::InputTag EKRecHitCollection_; // secondary name given to collection of EErechits
 
                 edm::InputTag recoVertex_; 
                 edm::InputTag simVertex_; 
@@ -46,12 +47,15 @@ class  EcalDetailedTimeRecHitProducer : public edm::EDProducer {
 
 		int ebTimeLayer_;
 		int eeTimeLayer_;
+		int ekTimeLayer_;
 
                 edm::InputTag ebTimeDigiCollection_; // secondary name given to collection of EB uncalib rechits
                 edm::InputTag eeTimeDigiCollection_; // secondary name given to collection of EE uncalib rechits
+                edm::InputTag ekTimeDigiCollection_; // secondary name given to collection of EK uncalib rechits
 
                 std::string EBDetailedTimeRecHitCollection_; // secondary name to be given to EB collection of hits
                 std::string EEDetailedTimeRecHitCollection_; // secondary name to be given to EE collection of hits
+                std::string EKDetailedTimeRecHitCollection_; // secondary name to be given to EK collection of hits
 
 };
 #endif

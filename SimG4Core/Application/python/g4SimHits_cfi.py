@@ -412,7 +412,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         ReadOutType     = cms.int32(0),
         AttCorrection   = cms.bool(False),
         AttLength       = cms.double(1000),
-        TimeSliceUnit   = cms.int32(1),
+        TimeSliceUnit   = cms.double(1),
         IgnoreTrackID   = cms.bool(False),
     ),
     PltSD = cms.PSet(
