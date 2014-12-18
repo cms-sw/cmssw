@@ -2,24 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PrintGeom")
 
+process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("SimG4Core.PrintGeomInfo.testTotemGeometryXML_cfi")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('FwkJob'),
-    fwkJobReports = cms.untracked.vstring('FrameworkJobReport'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    FrameworkJobReport = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
-    )
-)
+process.MessageLogger.destinations = cms.untracked.vstring("Totem.txt")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -47,12 +33,14 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
 process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(98765432)
+    generator = cms.PSet(
+         initialSeed = cms.untracked.uint32(123456789),
+         engineName = cms.untracked.string('HepJamesRandom')
     ),
-    sourceSeed = cms.untracked.uint32(123456789)
+    g4SimHits = cms.PSet(
+         initialSeed = cms.untracked.uint32(11),
+         engineName = cms.untracked.string('HepJamesRandom')
+    )
 )
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
