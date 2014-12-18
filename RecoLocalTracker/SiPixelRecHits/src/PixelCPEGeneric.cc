@@ -522,6 +522,7 @@ generic_position_formula( int size,                //!< Size of this projection.
 
  #ifdef EDM_ML_DEBUG
   //--- Debugging output
+#warning "Debug printouts in PixelCPEGeneric.cc has been commented because they cannot be compiled"
   /*   This part is commented because some variables used here are not defined !!
   if (theVerboseLevel > 20) {
     if ( theDetParam.thePart == GeomDetEnumerators::PixelBarrel || theDetParam.thePart == GeomDetEnumerators::P1PXB ) {
