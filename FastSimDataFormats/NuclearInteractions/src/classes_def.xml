@@ -12,14 +12,16 @@
   </class>
   <class name="std::vector<NUEvent::NUInteraction>"/>
 
-  <class name="FSimVertexType" ClassVersion="10">
+  <class name="FSimVertexType" ClassVersion="11">
+   <version ClassVersion="11" checksum="3374332624"/>
    <version ClassVersion="10" checksum="1253390925"/>
   </class>
   <class name="std::vector<FSimVertexType>"/>
   <class name="edm::Wrapper< std::vector<FSimVertexType> > "/>  
   <class name="edm::Ref< std::vector<FSimVertexType>, FSimVertexType, edm::refhelper::FindUsingAdvance< std::vector<FSimVertexType>, FSimVertexType> >"/>
 
-  <class name="FSimDisplacedVertex" ClassVersion="10">
+  <class name="FSimDisplacedVertex" ClassVersion="11">
+   <version ClassVersion="11" checksum="2164432722"/>
    <version ClassVersion="10" checksum="251560649"/>
   </class>
   <class name="std::vector<FSimDisplacedVertex>"/>

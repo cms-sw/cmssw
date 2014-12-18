@@ -2,10 +2,6 @@
 import string
 from optparse import OptionParser
 
-# Disable for ROOT6 for now
-import sys
-sys.exit(0)
-
 class XmlParser(object):
     """Parses a classes_def.xml file looking for class declarations that contain
     ClassVersion attributes. Once found looks for sub-elements named 'version'
@@ -195,6 +191,14 @@ for name,retValues in foundErrors.iteritems():
     classVersion = p.classes[name][XmlParser.classVersionIndex]
     classChecksum = retValues[1]
     rootClassVersion = retValues[2]
+    if code == errorRootDoesNotMatchClassDef:
+        foundRootDoesNotMatchError=True
+        print "error: for class '"+name+"' ROOT says the ClassVersion is "+str(rootClassVersion)+" but classes_def.xml says it is "+str(classVersion)+". Are you sure everything compiled correctly?"
+    elif code == errorMustUpdateClassVersion and not options.generate:
+        print "error: class '"+name+"' has a different checksum for ClassVersion "+str(classVersion)+". Increment ClassVersion to "+str(classVersion+1)+" and assign it to checksum "+str(classChecksum)
+    elif not options.generate:
+        print "error:class '"+name+"' needs to include the following as part of its 'class' declaration"
+        print '   <version ClassVersion="'+str(classVersion)+'" checksum="'+str(classChecksum)+'"/>'
 
 
 if options.generate and not foundRootDoesNotMatchError and not missingDict:

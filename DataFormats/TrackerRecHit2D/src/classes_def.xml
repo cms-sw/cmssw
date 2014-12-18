@@ -9,7 +9,8 @@
    <version ClassVersion="11" checksum="1613493049"/>
    <version ClassVersion="10" checksum="877294307"/>
   </class>
-  <class name="SiTrackerGSMatchedRecHit2D" ClassVersion="11">
+  <class name="SiTrackerGSMatchedRecHit2D" ClassVersion="12">
+   <version ClassVersion="12" checksum="2874379530"/>
    <version ClassVersion="11" checksum="1553184391"/>
    <version ClassVersion="10" checksum="3741285161"/>
   </class>
@@ -31,18 +32,20 @@
    <version ClassVersion="10" checksum="735211426"/>
   </class>
 
-  <class name="SiStripRecHit1D"  ClassVersion="12">
+  <class name="SiStripRecHit1D"  ClassVersion="13">
+   <version ClassVersion="13" checksum="1625079676"/>
     <field name="sigmaPitch_" transient="true"/>
-    <version ClassVersion="12" checksum="3158843011"/>
-    <version ClassVersion="11" checksum="1486832741"/>
-    <version ClassVersion="10" checksum="1325274892"/>
+   <version ClassVersion="12" checksum="3158843011"/>
+   <version ClassVersion="11" checksum="1486832741"/>
+   <version ClassVersion="10" checksum="1325274892"/>
   </class> 
 
-  <class name="SiStripRecHit2D"  ClassVersion="12">
+  <class name="SiStripRecHit2D"  ClassVersion="13">
+   <version ClassVersion="13" checksum="3495498287"/>
     <field name="sigmaPitch_" transient="true"/>
-    <version ClassVersion="12" checksum="2350660116"/>
-    <version ClassVersion="11" checksum="2157674799"/>
-    <version ClassVersion="10" checksum="4057204970"/>
+   <version ClassVersion="12" checksum="2350660116"/>
+   <version ClassVersion="11" checksum="2157674799"/>
+   <version ClassVersion="10" checksum="4057204970"/>
   </class>
 
 

@@ -60,8 +60,7 @@
   <class name="std::vector<reco::PFJet::Specific>"   />
   <class name="std::vector<reco::JPTJet::Specific>" />
 
-  <class name="reco::TrackExtrapolation"  ClassVersion="11">
-   <version ClassVersion="11" checksum="9999999999"/>
+  <class name="reco::TrackExtrapolation"  ClassVersion="10">
    <version ClassVersion="10" checksum="4193842732"/>
   </class>
   <class name="std::vector<reco::TrackExtrapolation>" />
@@ -145,7 +144,8 @@
   </class>
   <class name="std::pair<edm::RefToBase<reco::Jet>, reco::CATopJetProperties>"/>
  
-  <class name="reco::CATopJetTagInfo" ClassVersion="10">
+  <class name="reco::CATopJetTagInfo" ClassVersion="11">
+   <version ClassVersion="11" checksum="241737491"/>
    <version ClassVersion="10" checksum="3059833435"/>
   </class>
   <class name="reco::CATopJetTagInfoCollection"/>

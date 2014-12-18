@@ -18,12 +18,12 @@
     <!-- <field name="mothers_" transient="true"/> -->
   </class>
   <class name="reco::LeafCandidate"  ClassVersion="12">
+   <version ClassVersion="12" checksum="2221420207"/>
    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
    <field name="p4Polar_" transient="true" />
    <field name="p4Cartesian_" transient="true" />
    <field name="cachePolarFixed_" transient="true" />
    <field name="cacheCartesianFixed_" transient="true" />
-   <version ClassVersion="12" checksum="9999999999"/>
    <version ClassVersion="11" checksum="1947948955"/>
    <version ClassVersion="10" checksum="4128105563"/>
   </class>
@@ -37,8 +37,14 @@
    <version ClassVersion="11" checksum="1985736233"/>
    <version ClassVersion="10" checksum="2953566340"/>
   </class>
-  <class name="reco::VertexCompositeCandidate" ClassVersion="11">
-   <version ClassVersion="11" checksum="9999999999"/>
+  <class name="reco::VertexCompositePtrCandidate" ClassVersion="12">
+   <version ClassVersion="12" checksum="2781469517"/>
+   <version ClassVersion="11" checksum="2070976353"/>
+   <version ClassVersion="10" checksum="955269040"/>
+  </class>
+  <class name="reco::VertexCompositeCandidate" ClassVersion="12">
+   <version ClassVersion="12" checksum="2839752627"/>
+   <version ClassVersion="11" checksum="2801258535"/>
    <version ClassVersion="10" checksum="4177206274"/>
   </class>
   <class name="reco::CompositeRefCandidate"  ClassVersion="11">
@@ -84,7 +90,6 @@
   <class name="reco::CompositeCandidateRef" />
   <class name="reco::CompositeCandidateRefVector" />
   <class name="reco::VertexCompositeCandidateRefVector" />
-  <class name="reco::VertexCompositePtrCandidate" />
   <class name="reco::VertexCompositePtrCandidateRefVector" />
   <class name="reco::CandidateRefProd" />
 

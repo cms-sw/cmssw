@@ -1,20 +1,25 @@
 <lcgdict>
-  <class name="SiStripDetId" ClassVersion="10">
+  <class name="SiStripDetId" ClassVersion="11">
+   <version ClassVersion="11" checksum="1093375304"/>
    <version ClassVersion="10" checksum="1454613786"/>
   </class>
-  <class name="TIBDetId" ClassVersion="11">
+  <class name="TIBDetId" ClassVersion="12">
+   <version ClassVersion="12" checksum="3159571159"/>
    <version ClassVersion="11" checksum="3520809641"/>
    <version ClassVersion="10" checksum="2120387717"/>
   </class>
-  <class name="TIDDetId" ClassVersion="11">
+  <class name="TIDDetId" ClassVersion="12">
+   <version ClassVersion="12" checksum="3934412137"/>
    <version ClassVersion="11" checksum="683323"/>
    <version ClassVersion="10" checksum="2378668043"/>
   </class>
-  <class name="TOBDetId" ClassVersion="11">
+  <class name="TOBDetId" ClassVersion="12">
+   <version ClassVersion="12" checksum="1543205369"/>
    <version ClassVersion="11" checksum="1904443851"/>
    <version ClassVersion="10" checksum="149943355"/>
   </class>
-  <class name="TECDetId" ClassVersion="11">
+  <class name="TECDetId" ClassVersion="12">
+   <version ClassVersion="12" checksum="3192913076"/>
    <version ClassVersion="11" checksum="3554151558"/>
    <version ClassVersion="10" checksum="699845924"/>
   </class>

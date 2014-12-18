@@ -2,7 +2,8 @@
   <class name="L1CaloEmCand" ClassVersion="10">
    <version ClassVersion="10" checksum="2666522574"/>
   </class>
-  <class name="L1CaloRegionDetId" ClassVersion="10">
+  <class name="L1CaloRegionDetId" ClassVersion="11">
+   <version ClassVersion="11" checksum="3966998228"/>
    <version ClassVersion="10" checksum="2412488094"/>
   </class>
   <class name="L1CaloRegion" ClassVersion="10">

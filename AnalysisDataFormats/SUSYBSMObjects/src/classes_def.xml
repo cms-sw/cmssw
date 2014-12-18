@@ -22,7 +22,8 @@
    <class name="edm::Wrapper<susybsm::HSCPIsolation>"/>
    <class name="edm::Wrapper<susybsm::HSCPIsolationCollection>"/>
    <class name="edm::Wrapper<susybsm::HSCPIsolationValueMap>"/>
-   <class name="susybsm::HSCPCaloInfo" ClassVersion="11">
+   <class name="susybsm::HSCPCaloInfo" ClassVersion="12">
+    <version ClassVersion="12" checksum="2407040083"/>
     <version ClassVersion="11" checksum="1170741674"/>
    </class>
    <class name="susybsm::HSCPCaloInfoCollection"/>
