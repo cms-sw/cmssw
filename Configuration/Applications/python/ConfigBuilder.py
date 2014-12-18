@@ -7,6 +7,7 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
 import sys
 import re
+import collections
 
 class Options:
         pass
@@ -789,7 +790,7 @@ class ConfigBuilder(object):
 		for c in self._options.customisation_file_unsch:
 			custOpt.extend(c.split(","))
 
-	custMap={}
+	custMap=collections.OrderedDict()
 	for opt in custOpt:
 		if opt=='': continue
 		if opt.count('.')>1:
