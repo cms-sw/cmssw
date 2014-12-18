@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 from os.path import join
 

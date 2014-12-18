@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import itertools
 import unittest
 import sys
