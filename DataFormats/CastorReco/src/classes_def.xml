@@ -13,7 +13,8 @@
   <class name="edm::auto_ptr<edm::Ref<std::vector<reco::CastorCell>,reco::CastorCell,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorCell>,reco::CastorCell> > >"/>-->
 
 
-  <class name="reco::CastorTower" ClassVersion="11">
+  <class name="reco::CastorTower" ClassVersion="12">
+   <version ClassVersion="12" checksum="887582159"/>
    <version ClassVersion="11" checksum="2444453847"/>
    <version ClassVersion="10" checksum="3103051284"/>
   </class>

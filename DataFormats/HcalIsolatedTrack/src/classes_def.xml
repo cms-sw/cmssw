@@ -2,7 +2,8 @@
 
   <class name="edm::Wrapper<std::map <int,std::pair<double,double> > >"/> 
 
-  <class name="reco::IsolatedPixelTrackCandidate" ClassVersion="12">
+  <class name="reco::IsolatedPixelTrackCandidate" ClassVersion="13">
+   <version ClassVersion="13" checksum="2098110013"/>
    <version ClassVersion="12" checksum="2817631301"/>
    <version ClassVersion="10" checksum="3865088611"/>
    <version ClassVersion="11" checksum="264617237"/>
@@ -16,7 +17,8 @@
   <class name="edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> > >"/>
 
-  <class name="reco::EcalIsolatedParticleCandidate" ClassVersion="12">
+  <class name="reco::EcalIsolatedParticleCandidate" ClassVersion="13">
+   <version ClassVersion="13" checksum="929444430"/>
    <version ClassVersion="12" checksum="554168470"/>
    <version ClassVersion="10" checksum="4174683084"/>
    <version ClassVersion="11" checksum="928263435"/>
