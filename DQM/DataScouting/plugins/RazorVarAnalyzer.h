@@ -1,29 +1,19 @@
 #ifndef RazorVarAnalyzer_h
 #define RazorVarAnalyzer_h
 
-
 #include "DQM/DataScouting/interface/ScoutingAnalyzerBase.h"
 
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
-class RazorVarAnalyzer : public ScoutingAnalyzerBase
- {
-
+class RazorVarAnalyzer : public ScoutingAnalyzerBase {
   public:
-
     explicit RazorVarAnalyzer( const edm::ParameterSet &  ) ;
     virtual ~RazorVarAnalyzer() ;
-
+    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     virtual void analyze( const edm::Event & , const edm::EventSetup &  );
-    
-    virtual void endRun( edm::Run const &, edm::EventSetup const & ) ;
-
-    virtual void bookMEs();
-
   private: 
-
     edm::InputTag m_eleCollectionTag;    
     edm::InputTag m_jetCollectionTag;
     edm::InputTag m_muCollectionTag;
@@ -56,7 +46,5 @@ class RazorVarAnalyzer : public ScoutingAnalyzerBase
     edm::EDGetTokenT<std::vector<reco::RecoChargedCandidate> > m_muCollectionTagToken_;
     edm::EDGetTokenT<reco::ElectronCollection> m_eleCollectionTagToken_;
     edm::EDGetTokenT<std::vector<double> > m_razorVarCollectionTagToken_;
-
- } ;
-
+};
 #endif
