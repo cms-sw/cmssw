@@ -136,9 +136,10 @@ bool PythiaFilterGammaGamma::filter(edm::Event& iEvent, const edm::EventSetup& i
   std::vector<const GenParticle*> seeds, egamma, stable; 
   std::vector<const GenParticle*>::const_iterator itPart, itStable, itEn;
 
+  // Loop on hadrons
   for(HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p) {
 
-    if (
+    /*  if (
 	((*p)->status()==1&&(*p)->pdg_id() == 22) ||                   // gamma
         ((*p)->status()==1&&abs((*p)->pdg_id()) == 11) ||              // electron
         (*p)->pdg_id() == 111 ||                  // pi0
@@ -173,8 +174,82 @@ bool PythiaFilterGammaGamma::filter(edm::Event& iEvent, const edm::EventSetup& i
 	  
 	  if (!isUsed) seeds.push_back(*p);
 	}
-      }  
+	}  */
+
+ if (
+        (*p)->pdg_id() == 111 ||                  // pi0
+        abs((*p)->pdg_id()) == 221 ||             // eta
+        abs((*p)->pdg_id()) == 331 ||             // eta prime
+        abs((*p)->pdg_id()) == 113 ||             // rho0 
+        abs((*p)->pdg_id()) == 223)               // omega
+
+      {       
+	// check for eta and pT threshold for seed in gamma, el
+	if ((*p)->momentum().perp() > ptSeedThr &&
+	    fabs((*p)->momentum().eta()) < etaSeedThr) {
+       
+	  // check if found is daughter of one already taken
+	  bool isUsed = false;
+
+	  const GenParticle* mother = (*p)->production_vertex() ?
+	    *((*p)->production_vertex()->particles_in_const_begin()) : 0;
+	  const GenParticle* motherMother = (mother != 0  && mother->production_vertex()) ?
+	    *(mother->production_vertex()->particles_in_const_begin()) : 0;
+	  const GenParticle* motherMotherMother = (motherMother != 0 && motherMother->production_vertex()) ?
+	    *(motherMother->production_vertex()->particles_in_const_begin()) : 0;
+
+	  for(itPart = seeds.begin(); itPart != seeds.end(); itPart++) {
+	    
+	    if ((*itPart) == mother ||
+		(*itPart) == motherMother ||
+		(*itPart) == motherMotherMother) {
+	      isUsed = true;
+	      break;
+	    }
+	  }
+	  
+	  if (!isUsed) seeds.push_back(*p);
+	}
+	} 
   } 
+
+ // Loop on egamma
+  for(HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p) {
+
+    if (
+	((*p)->status()==1&&(*p)->pdg_id() == 22) ||                   // gamma
+        ((*p)->status()==1&&abs((*p)->pdg_id()) == 11))              // electron
+
+      {       
+	// check for eta and pT threshold for seed in gamma, el
+	if ((*p)->momentum().perp() > ptSeedThr &&
+	    fabs((*p)->momentum().eta()) < etaSeedThr) {
+       
+	  // check if found is daughter of one already taken
+	  bool isUsed = false;
+
+	  const GenParticle* mother = (*p)->production_vertex() ?
+	    *((*p)->production_vertex()->particles_in_const_begin()) : 0;
+	  const GenParticle* motherMother = (mother != 0  && mother->production_vertex()) ?
+	    *(mother->production_vertex()->particles_in_const_begin()) : 0;
+	  const GenParticle* motherMotherMother = (motherMother != 0 && motherMother->production_vertex()) ?
+	    *(motherMother->production_vertex()->particles_in_const_begin()) : 0;
+
+	  for(itPart = seeds.begin(); itPart != seeds.end(); itPart++) {
+	    
+	    if ((*itPart) == mother ||
+		(*itPart) == motherMother ||
+		(*itPart) == motherMotherMother) {
+	      isUsed = true;
+	      break;
+	    }
+	  }
+	  
+	  if (!isUsed) seeds.push_back(*p);
+	}
+	}
+  }   
+
    
   if (seeds.size() < 2) return accepted;
 
@@ -320,7 +395,8 @@ bool PythiaFilterGammaGamma::filter(edm::Event& iEvent, const edm::EventSetup& i
       minv = candidate[i] + candidate[j];
       if (minv.M() < invMassWide) continue;
         
-      minvNarrow = candidateNarrow[i] + candidateNarrow[j];
+      //            minvNarrow = candidateNarrow[i] + candidateNarrow[j];
+      minvNarrow = candidate[i] + candidate[j];
       if (minvNarrow.M() > invMassNarrow) continue;
 
       accepted = true;
