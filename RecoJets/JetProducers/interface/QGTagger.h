@@ -19,6 +19,7 @@ class QGTagger : public edm::EDProducer{
       virtual void produce(edm::Event&, const edm::EventSetup&);
       void calcVariables(const reco::Jet*, int&, float&, float&, edm::Handle<reco::VertexCollection>&);
       template <typename T> void putInEvent(std::string, const edm::Handle<edm::View<reco::Jet>>&, std::vector<T>*, edm::Event&);
+      bool isPackedCandidate(const reco::Candidate* candidate);
 
       edm::EDGetTokenT<edm::View<reco::Jet>> 	jetsToken;
       edm::EDGetTokenT<reco::JetCorrector> 	jetCorrectorToken;
@@ -26,6 +27,7 @@ class QGTagger : public edm::EDProducer{
       edm::EDGetTokenT<double> 			rhoToken;
       std::string 				jetsLabel, systLabel;
       const bool 				useQC, useJetCorr, produceSyst;
+      bool					weStillNeedToCheckJetCandidates, weAreUsingPackedCandidates;
       QGLikelihoodCalculator *			qgLikelihood;
 };
 

@@ -47,6 +47,7 @@ QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
     produces<edm::ValueMap<float>>("qgLikelihoodSmearedAll");
   }
   qgLikelihood = new QGLikelihoodCalculator();
+  weStillNeedToCheckJetCandidates = true;
 }
 
 
@@ -117,6 +118,18 @@ template <typename T> void QGTagger::putInEvent(std::string name, const edm::Han
 }
 
 
+/// Function to tell us if we are using packedCandidates, only test for first candidate
+bool QGTagger::isPackedCandidate(const reco::Candidate* candidate){
+  if(weStillNeedToCheckJetCandidates){
+    if(typeid(pat::PackedCandidate)==typeid(*candidate)) weAreUsingPackedCandidates = true;
+    else if(typeid(reco::PFCandidate)==typeid(*candidate)) weAreUsingPackedCandidates = false;
+    else throw cms::Exception("WrongJetCollection", "Jet constituents are not particle flow candidates");
+    weStillNeedToCheckJetCandidates = false;
+  }
+  return weAreUsingPackedCandidates;
+}
+
+
 /// Calculation of axis2, mult and ptD
 void QGTagger::calcVariables(const reco::Jet *jet, int& mult, float& ptD, float& axis2, edm::Handle<reco::VertexCollection>& vC){
   float sum_weight = 0., sum_deta = 0., sum_dphi = 0., sum_deta2 = 0., sum_dphi2 = 0., sum_detadphi = 0., sum_pt = 0.;
@@ -124,8 +137,9 @@ void QGTagger::calcVariables(const reco::Jet *jet, int& mult, float& ptD, float&
 
   //Loop over the jet constituents
   for(auto daughter = jet->begin(); daughter < jet->end(); ++daughter){
-    auto part = dynamic_cast<const pat::PackedCandidate*> (&*daughter);
-    if(part){														//packed candidate situation
+    if(isPackedCandidate(&*daughter)){											//packed candidate situation
+      auto part = static_cast<const pat::PackedCandidate*> (&*daughter);
+
       if(part->charge()){
         if(!(part->fromPV() > 1 && part->trackHighPurity())) continue;
         if(useQC){
@@ -137,8 +151,7 @@ void QGTagger::calcVariables(const reco::Jet *jet, int& mult, float& ptD, float&
         ++mult;
       }
     } else {
-      auto part = dynamic_cast<const reco::PFCandidate*> (&*daughter);
-      if(!part) continue;
+      auto part = static_cast<const reco::PFCandidate*> (&*daughter);
 
       reco::TrackRef itrk = part->trackRef();
       if(itrk.isNonnull()){												//Track exists --> charged particle
