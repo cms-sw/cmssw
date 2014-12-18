@@ -21,19 +21,19 @@ QGPoolDBESSource = cms.ESSource("PoolDBESSource",
       connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000'),
 )
 
-QGTagger = cms.EDProducer('QGTaggerPFJets',
+QGTagger = cms.EDProducer('QGTagger',
   srcRho 		= cms.InputTag('fixedGridRhoFastjetAll'),		
   srcVertexCollection	= cms.InputTag('offlinePrimaryVerticesWithBS'),
   useQualityCuts	= cms.bool(False)
 )
 
-QGTaggerPatJets = cms.EDProducer('QGTaggerPatJets',
+QGTaggerPatJets = cms.EDProducer('QGTagger',
   srcRho 		= cms.InputTag('fixedGridRhoFastjetAll'),		
   srcVertexCollection	= cms.InputTag('offlinePrimaryVerticesWithBS'),
   useQualityCuts	= cms.bool(False)
 )
 
-QGTaggerMiniAOD = cms.EDProducer('QGTaggerPatJets',
+QGTaggerMiniAOD = cms.EDProducer('QGTagger',
   srcRho 		= cms.InputTag('fixedGridRhoFastjetAll'),		
   srcVertexCollection	= cms.InputTag(''),
   useQualityCuts	= cms.bool(False)
