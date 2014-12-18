@@ -25,10 +25,14 @@ class JetAnalyzer( Analyzer ):
     """Taken from RootTools.JetAnalyzer, simplified, modified, added corrections    """
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(JetAnalyzer,self).__init__(cfg_ana, cfg_comp, looperName)
-        mcGT   = cfg_ana.mcGT   if hasattr(cfg_ana,'mcGT')   else "PHYS14_25_V1"
+        mcGT   = cfg_ana.mcGT   if hasattr(cfg_ana,'mcGT')   else "PHYS14_25_V2"
         dataGT = cfg_ana.dataGT if hasattr(cfg_ana,'dataGT') else "GR_70_V2_AN1"
         self.shiftJEC = self.cfg_ana.shiftJEC if hasattr(self.cfg_ana, 'shiftJEC') else 0
-        self.doJEC = self.cfg_ana.recalibrateJets or (self.shiftJEC != 0)
+        self.recalibrateJets = self.cfg_ana.recalibrateJets
+        if   self.recalibrateJets == "MC"  : self.recalibrateJets =     self.cfg_comp.isMC
+        elif self.recalibrateJets == "Data": self.recalibrateJets = not self.cfg_comp.isMC
+        elif self.recalibrateJets not in [True,False]: raise RuntimeError, "recalibrateJets must be any of { True, False, 'MC', 'Data' }, while it is %r " % self.recalibrateJets
+        self.doJEC = self.recalibrateJets or (self.shiftJEC != 0)
         if self.doJEC:
           if self.cfg_comp.isMC:
             self.jetReCalibrator = JetReCalibrator(mcGT,"AK4PFchs", False,cfg_ana.jecPath)
