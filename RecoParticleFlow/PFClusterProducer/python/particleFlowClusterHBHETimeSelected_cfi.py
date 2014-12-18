@@ -164,7 +164,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             maxEnergy = cms.double(1000000.0),
             endcap = cms.bool(True),
             minTime = cms.double(-25.),
-            maxTime = cms.double(25.)
+            maxTime = cms.double(35.)
         ),
         cms.PSet(
             depth=cms.double(2.0),
@@ -172,7 +172,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             maxEnergy = cms.double(1000000.0),
             endcap = cms.bool(True),
             minTime = cms.double(-25.),
-            maxTime = cms.double(25.)
+            maxTime = cms.double(35.)
         ),
         cms.PSet(
             depth=cms.double(3.0),
@@ -180,7 +180,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             maxEnergy = cms.double(1000000.0),
             endcap = cms.bool(True),
             minTime = cms.double(-25.),
-            maxTime = cms.double(25.)
+            maxTime = cms.double(35.)
         ),
         cms.PSet(
             depth=cms.double(4.0),
@@ -188,7 +188,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             maxEnergy = cms.double(1000000.0),
             endcap = cms.bool(True),
             minTime = cms.double(-25.),
-            maxTime = cms.double(25.)
+            maxTime = cms.double(35.)
         ),
         cms.PSet(
             depth=cms.double(5.0),
