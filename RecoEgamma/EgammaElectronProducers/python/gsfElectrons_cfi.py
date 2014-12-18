@@ -51,9 +51,10 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     #useHcalRecHits = cms.bool(False),
     hOverEConeSize = cms.double(0.15),
     hOverEPtMin = cms.double(0.),
-    hOverEMethodBarrel = cms.int32(1),  # 0 = cone #1 = single tower #2 = towersBehindCluster (max is 4) 
-    hOverEMethodEndcap = cms.int32(1),  # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = HGCal (max is 4)
-    hgcalHFClusters = cms.InputTag("particleFlowClusterHGCHEF"),                 
+    hOverEMethodBarrel = cms.int32(3),  # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = pfClusters (max is 4) 
+    hOverEMethodEndcap = cms.int32(3),  # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = pfClusters (max is 4)
+    hcalBarrelClusters = cms.InputTag("particleFlowClusterHCAL"),
+    hcalEndcapClusters = cms.InputTag("particleFlowClusterHCAL"),
     #hOverEMethodBarrel = cms.int32(0),                                                                      
     #hOverEMethodEndcap = cms.int32(0),                                                                      
     #maxHOverEDepth1Barrel = cms.double(0.1),
@@ -198,7 +199,9 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     hOverEPtMin = cms.double(0.),
     hOverEMethodBarrel = cms.int32(1),  # 0 = cone #1 = single tower #2 = towersBehindCluster (max is 4) 
     hOverEMethodEndcap = cms.int32(1),  # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = HGCal (max is 4)
-    hgcalHFClusters = cms.InputTag("particleFlowClusterHGCHEF"),                 
+    hcalBarrelClusters = cms.InputTag("particleFlowClusterHCAL"),
+    hcalEndcapClusters = cms.InputTag("particleFlowClusterHCAL"),
+                              
     #maxHOverEDepth1Barrel = cms.double(0.1),
     #maxHOverEDepth1Endcaps = cms.double(0.1),
     #maxHOverEDepth2 = cms.double(0.1),

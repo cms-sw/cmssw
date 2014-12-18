@@ -571,14 +571,18 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
   else
    {
     if (detector==EcalBarrel || detector==EcalShashlik) {
-    showerShape.hcalDepth1OverEcal = generalData_->hcalHelperBarrel->hcalESumDepth1(*theClus)/theClus->energy() ; 
-    showerShape.hcalDepth2OverEcal = generalData_->hcalHelperBarrel->hcalESumDepth2(*theClus)/theClus->energy() ;
-    showerShape.hcalTowersBehindClusters = generalData_->hcalHelperBarrel->hcalTowersBehindClusters(*theClus) ;
-    showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelperBarrel->hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
-    showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelperBarrel->hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
+      if( generalData_->hcalHelperBarrel->getConfig().hOverEMethod != 3 ) {
+	showerShape.hcalDepth1OverEcal = generalData_->hcalHelperBarrel->hcalESumDepth1(*theClus)/theClus->energy() ; 
+	showerShape.hcalDepth2OverEcal = generalData_->hcalHelperBarrel->hcalESumDepth2(*theClus)/theClus->energy() ;
+	showerShape.hcalTowersBehindClusters = generalData_->hcalHelperBarrel->hcalTowersBehindClusters(*theClus) ;
+	showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelperBarrel->hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
+	showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelperBarrel->hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
+      } else {
+	 showerShape.hcalDepth1OverEcal = generalData_->hcalHelperBarrel->HCALClustersBehindSC(*theClus)/theClus->energy() ; 
+      }
     }
     if (detector==HGCEE ) {
-    showerShape.hcalDepth1OverEcal = generalData_->hcalHelperEndcap->hgcalHFBehindClusters(*theClus)/theClus->energy() ; 
+    showerShape.hcalDepth1OverEcal = generalData_->hcalHelperEndcap->HCALClustersBehindSC(*theClus)/theClus->energy() ; 
     //showerShape.hcalDepth2OverEcal = generalData_->hcalHelperBarrel->hcalESumDepth2(*theClus)/theClus->energy() ;
     //showerShape.hcalTowersBehindClusters = generalData_->hcalHelperBarrel->hcalTowersBehindClusters(*theClus) ;
     //showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelperBarrel->hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;

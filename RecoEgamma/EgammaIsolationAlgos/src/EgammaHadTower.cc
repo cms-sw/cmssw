@@ -117,15 +117,15 @@ void EgammaHadTower::setTowerCollection(const CaloTowerCollection* towerCollecti
   towerCollection_ = towerCollection;
 }
 
-void EgammaHadTower::setPFClusterCollection(const std::vector<reco::PFCluster>* pfClusterCollection) {
-  pfClusterCollection_ = pfClusterCollection;
+void EgammaHadTower::setHCALClusterCollection(const std::vector<reco::PFCluster>* pfClusterCollection) {
+  hcalPFClusterCollection_ = pfClusterCollection;
 }
 
-double EgammaHadTower::getHgcalHFE(const reco::SuperCluster & sc, float EtMin, double hOverEConeSize) const {
+double EgammaHadTower::getHCALClusterEnergy(const reco::SuperCluster & sc, float EtMin, double hOverEConeSize) const {
   math::XYZVector vectorSC(sc.position().x(),sc.position().y(),sc.position().z());
   double totalEnergy = 0.;
-  std::vector<reco::PFCluster>::const_iterator trItr = pfClusterCollection_->begin();
-  std::vector<reco::PFCluster>::const_iterator trItrEnd = pfClusterCollection_->end();
+  std::vector<reco::PFCluster>::const_iterator trItr = hcalPFClusterCollection_->begin();
+  std::vector<reco::PFCluster>::const_iterator trItrEnd = hcalPFClusterCollection_->end();
   for( ;  trItr != trItrEnd ; ++trItr){
       math::XYZVector vectorHgcalHFECluster(trItr->position().x(),trItr->position().y(),trItr->position().z());
       double dR = ROOT::Math::VectorUtil::DeltaR(vectorSC,vectorHgcalHFECluster);
