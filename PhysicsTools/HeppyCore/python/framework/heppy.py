@@ -95,7 +95,16 @@ def split(comps):
     # import pdb; pdb.set_trace()
     splitComps = []
     for comp in comps:
-        if hasattr( comp, 'splitFactor') and comp.splitFactor>1:
+        if hasattr( comp, 'fineSplitFactor') and comp.fineSplitFactor>1:
+            subchunks = range(comp.fineSplitFactor)
+            for ichunk, chunk in enumerate([(f,i) for f in comp.files for i in subchunks]):
+                newComp = copy.deepcopy(comp)
+                newComp.files = [chunk[0]]
+                newComp.fineSplit = ( chunk[1], comp.fineSplitFactor )
+                newComp.name = '{name}_Chunk{index}'.format(name=newComp.name,
+                                                       index=ichunk)
+                splitComps.append( newComp )
+        elif hasattr( comp, 'splitFactor') and comp.splitFactor>1:
             chunkSize = len(comp.files) / comp.splitFactor
             if len(comp.files) % comp.splitFactor:
                 chunkSize += 1
