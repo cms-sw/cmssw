@@ -26,11 +26,27 @@ EcalClusterLazyToolsBase::EcalClusterLazyToolsBase( const edm::Event &ev, const 
 
   ebRHToken_ = token1;
   eeRHToken_ = token2;
+ 
+  getGeometry( es );
+  getTopology( es );
+  getEBRecHits( ev );
+  getEERecHits( ev );
+  getIntercalibConstants( es );
+  getADCToGeV ( es );
+  getLaserDbService ( es );
+}
+
+EcalClusterLazyToolsBase::EcalClusterLazyToolsBase( const edm::Event &ev, const edm::EventSetup &es, edm::EDGetTokenT<EcalRecHitCollection> token1, edm::EDGetTokenT<EcalRecHitCollection> token2, edm::EDGetTokenT<EcalRecHitCollection> token3) {
+
+  ebRHToken_ = token1;
+  eeRHToken_ = token2;
+  esRHToken_ = token3;
 
   getGeometry( es );
   getTopology( es );
   getEBRecHits( ev );
   getEERecHits( ev );
+  getESRecHits( ev );
   getIntercalibConstants( es );
   getADCToGeV ( es );
   getLaserDbService ( es );

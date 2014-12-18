@@ -32,7 +32,7 @@ public:
 
 private:
 
-  void beginRun(const edm::EventSetup& iSetup);
+  void beginRun(const edm::Run& , const edm::EventSetup& iSetup);
 
   void analyze(const edm::Event &, const edm::EventSetup &){};
 
