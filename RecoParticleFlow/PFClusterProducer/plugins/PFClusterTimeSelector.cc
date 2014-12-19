@@ -46,7 +46,7 @@ void PFClusterTimeSelector::produce(edm::Event& iEvent,
     const double depth = cluster.depth();    
     const PFLayer::Layer  layer = cluster.layer();    
     for (const auto& info : cutInfo_) {
-      if (energy<info.minE || energy>info.maxE)
+      if (energy<info.minE || energy>=info.maxE)
 	continue;
       if (depth<0.9*info.depth || depth>1.1*info.depth)
 	continue;
