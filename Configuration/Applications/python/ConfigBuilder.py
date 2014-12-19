@@ -789,10 +789,7 @@ class ConfigBuilder(object):
 		for c in self._options.customisation_file_unsch:
 			custOpt.extend(c.split(","))
 
-#	custMap={} make sure cmdline order of customisations is preserved:
-	import FWCore.ParameterSet.DictTypes as DictTypes
-	custMap=DictTypes.SortedKeysDict()
-#
+	custMap={}
 	for opt in custOpt:
 		if opt=='': continue
 		if opt.count('.')>1:
