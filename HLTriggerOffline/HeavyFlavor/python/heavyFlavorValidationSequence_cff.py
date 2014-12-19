@@ -67,6 +67,29 @@ hfvTnP11 = hfv1.clone(
     TriggerPathName = cms.untracked.string("HLT_Dimuon6_Jpsi_NoVertexing_v")
 )
 
+### Quarkonia 7E33
+hfvQ1 = hfv1.clone(
+    TriggerPathName = cms.untracked.string("HLT_Dimuon10_Jpsi_Barrel_v")
+)
+hfvQ2 = hfv1.clone(
+    TriggerPathName = cms.untracked.string("HLT_Dimuon16_Jpsi_v")
+)
+hfvQ3 = hfv1.clone(
+    TriggerPathName = cms.untracked.string("HLT_Dimuon8_PsiPrime_Barrel_v")
+)
+hfvQ4 = hfv1.clone(
+    TriggerPathName = cms.untracked.string("HLT_Dimuon8_Upsilon_Barrel_v")
+)
+hfvQ5 = hfv1.clone(
+    TriggerPathName = cms.untracked.string("HLT_Dimuon0_Phi_Barrel_v")
+)
+hfvQ6 = hfv1.clone(
+    TriggerPathName = cms.untracked.string("HLT_Mu16_TkMu0_dEta18_Onia_v")
+)
+hfvQ7 = hfv1.clone(
+    TriggerPathName = cms.untracked.string("HLT_Mu16_TkMu0_dEta18_Phi_v")
+)
+
 hfv6 = hfv1.clone(
     TriggerPathName = cms.untracked.string("HLT_Dimuon20_Jpsi_v"),
     MuonPtBins = cms.untracked.vdouble(7.5, 10., 12.5, 15., 17.5, 20., 22.5, 25., 27.5, 30.),
@@ -88,4 +111,5 @@ heavyFlavorValidationSequence = cms.Sequence(
   +hfvQuadmu1+hfvQuadmu2+hfvQuadmu3+hfvQuadmu4
   +hfvTnP1+hfvTnP2+hfvTnP3+hfvTnP4+hfvTnP5+hfvTnP6+hfvTnP7+hfvTnP8+hfvTnP9+hfvTnP10+hfvTnP11
   +hfv6+hfv7+hfv8+hfv9
+  +hfvQ1+hfvQ2+hfvQ3+hfvQ4+hfvQ5+hfvQ6+hfvQ7
 )
