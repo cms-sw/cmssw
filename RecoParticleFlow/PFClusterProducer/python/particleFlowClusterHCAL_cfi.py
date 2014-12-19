@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 particleFlowClusterHCAL = cms.EDProducer('PFMultiDepthClusterProducer',
-       clustersSource = cms.InputTag("particleFlowClusterHBHE"),
+       clustersSource = cms.InputTag("particleFlowClusterHBHETimeSelected"),
        pfClusterBuilder =cms.PSet(
            algoName = cms.string("PFMultiDepthClusterizer"),
            nSigmaEta = cms.double(2.),
