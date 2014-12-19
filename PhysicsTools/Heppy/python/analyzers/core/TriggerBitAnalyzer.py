@@ -36,6 +36,8 @@ class TriggerBitAnalyzer( Analyzer ):
                             outname="%s_BIT_%s"%(self.outprefix,TP)
                             if not hasattr(setup ,"globalVariables") :
                                 setup.globalVariables = []
+                            if outname[-1] == '*' :
+                                outname=outname[0:-1]
                             setup.globalVariables.append( NTupleVariable(outname, eval("lambda ev: ev.%s" % outname), help="Trigger bit  %s"%TP) )
                             self.triggerBitCheckersSingleBits.append( (TP, ROOT.heppy.TriggerBitChecker(trigVecBit)) )
 
@@ -55,6 +57,8 @@ class TriggerBitAnalyzer( Analyzer ):
         if self.unrollbits :
             for TP,TC in self.triggerBitCheckersSingleBits:
                outname="%s_BIT_%s"%(self.outprefix,TP)
+               if outname[-1] == '*' :
+                  outname=outname[0:-1]
                setattr(event,outname, TC.check(event.input.object(), triggerResults))
 
 
