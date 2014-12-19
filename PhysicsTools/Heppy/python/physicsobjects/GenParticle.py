@@ -1,28 +1,12 @@
 from PhysicsTools.Heppy.physicsobjects.PhysicsObject import *
 
-class GenParticle( PhysicsObject ):
-    def __str__(self):
-        base = super(GenParticle, self).__str__()
+#add __str__ to reco::GenParticle python wrapper
+import ROOT
+def printGenParticle(self):
+        base = basePrint(self)
         theStr = '{base}, status = {status:>2}'.format(base=base, status=self.status())
         return theStr
+setattr(ROOT.reco.GenParticle,"basePrint",Particle.__str__)
+setattr(ROOT.reco.GenParticle,"__str__",printGenParticle)
 
-
-class GenLepton( GenParticle ):
-    def sip3D(self):
-        '''Just to make generic code work on GenParticles'''
-        return 0
-    def relIso(self, dummy):
-        '''Just to make generic code work on GenParticles'''
-        return 0
-
-    def absIso(self, dummy):
-        '''Just to make generic code work on GenParticles'''
-        return 0
-
-    def absEffAreaIso(self,rho):
-        '''Just to make generic code work on GenParticles'''
-        return 0
-
-    def relEffAreaIso(self,rho):
-        '''Just to make generic code work on GenParticles'''
-        return 0
+from ROOT.reco import GenParticle
