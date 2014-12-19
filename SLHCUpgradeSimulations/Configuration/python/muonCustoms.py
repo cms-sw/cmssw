@@ -63,8 +63,10 @@ def customise_csc_cond_ungangedME11A_mc(process):
 def customise_csc_Indexing(process):
     """Settings for the upgrade raw vs offline condition channel translation
     """
-    process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
-    process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
+    if hasattr(process,"CSCIndexerESProducer"):
+        process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
+    if hasattr(process,"CSCChannelMapperESProducer"):
+        process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
     return process
 
 

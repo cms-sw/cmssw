@@ -98,7 +98,7 @@ foreach gtag ( MC DATA )
       set InputLHCRaw = $InputLHCRawGRun
       set Custom1 = $CustomRun2
       set Custom2 = " "
-      set L1REPACK = NONE
+      set L1REPACK = L1REPACK:GCTGT
     else if ( $table == Fake ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:Fake
@@ -110,7 +110,7 @@ foreach gtag ( MC DATA )
       set InputLHCRaw = $InputLHCRawGRun
       set Custom1 = $CustomRun1
       set Custom2 = " "
-      set L1REPACK = L1REPACK
+      set L1REPACK = L1REPACK:GT1
     else if ( $table == GRun ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:GRun
@@ -122,7 +122,7 @@ foreach gtag ( MC DATA )
       set InputLHCRaw = $InputLHCRawGRun
       set Custom1 = $CustomRun2
       set Custom2 = " "
-      set L1REPACK = NONE
+      set L1REPACK = L1REPACK:GCTGT
     else if ( $table == HIon ) then
       set XL1T = $XL1THI
       set XHLT = HLT:HIon
@@ -137,7 +137,7 @@ foreach gtag ( MC DATA )
       if ( $gtag == DATA ) then
 	set Custom2 = $CustomHIon
       endif
-      set L1REPACK = NONE
+      set L1REPACK = L1REPACK:GCTGT
     else if ( $table == PIon ) then
       set XL1T = $XL1TPI
       set XHLT = HLT:PIon
@@ -149,7 +149,7 @@ foreach gtag ( MC DATA )
       set InputLHCRaw = $InputLHCRawPIon
       set Custom1 = $CustomRun2
       set Custom2 = " "
-      set L1REPACK = NONE
+      set L1REPACK = L1REPACK:GCTGT
     else
       # unsupported
       continue
