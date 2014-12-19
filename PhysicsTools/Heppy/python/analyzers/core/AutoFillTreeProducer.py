@@ -50,6 +50,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         tr.var('lumi', int, storageType="i")
         tr.var('evt', int, storageType="i")
         tr.var('isData', int)
+        tr.var('xsec', float)
 
  #       self.triggerBitCheckers = []
  #       if hasattr(self.cfg_ana, 'triggerBits'):
@@ -108,6 +109,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         tr.fill('lumi',event.input.eventAuxiliary().id().luminosityBlock())
         tr.fill('evt', event.input.eventAuxiliary().id().event())    
         tr.fill('isData', 0 if isMC else 1)
+        tr.fill('xsec',self.cfg_comp.xSection)
 
 #       triggerResults = self.handles['TriggerResults'].product()
 #       for T,TC in self.triggerBitCheckers:

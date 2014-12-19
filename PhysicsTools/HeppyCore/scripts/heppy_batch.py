@@ -9,27 +9,7 @@ import pickle
 import math
 from PhysicsTools.HeppyCore.utils.batchmanager import BatchManager
 
-def chunks(l, n):
-    return [l[i:i+n] for i in range(0, len(l), n)]
-
-def split(comps):
-    # import pdb; pdb.set_trace()
-    splitComps = []
-    for comp in comps:
-        if hasattr( comp, 'splitFactor') and comp.splitFactor>1:
-            chunkSize = len(comp.files) / comp.splitFactor
-            if len(comp.files) % comp.splitFactor:
-                chunkSize += 1 
-            # print 'chunk size',chunkSize, len(comp.files), comp.splitFactor 
-            for ichunk, chunk in enumerate( chunks( comp.files, chunkSize)):
-                newComp = copy.deepcopy(comp)
-                newComp.files = chunk
-                newComp.name = '{name}_Chunk{index}'.format(name=newComp.name,
-                                                       index=ichunk)
-                splitComps.append( newComp )
-        else:
-            splitComps.append( comp )
-    return splitComps
+from PhysicsTools.HeppyCore.framework.heppy import split
 
 
 def batchScriptPISA( index, remoteDir=''):

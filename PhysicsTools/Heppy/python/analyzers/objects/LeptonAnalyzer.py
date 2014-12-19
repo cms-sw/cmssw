@@ -36,6 +36,8 @@ class LeptonAnalyzer( Analyzer ):
         self.electronEnergyCalibrator = EmbeddedElectronCalibrator()
 #        if hasattr(cfg_comp,'efficiency'):
 #            self.efficiency= EfficiencyCorrector(cfg_comp.efficiency)
+        self.eleEffectiveArea = getattr(cfg_ana, 'ele_effectiveAreas', "Phys14_25ns_v1")
+        self.muEffectiveArea  = getattr(cfg_ana, 'mu_effectiveAreas',  "Phys14_25ns_v1")
     #----------------------------------------
     # DECLARATION OF HANDLES OF LEPTONS STUFF   
     #----------------------------------------
@@ -115,7 +117,7 @@ class LeptonAnalyzer( Analyzer ):
                          ele.relIso03 <= self.cfg_ana.loose_electron_relIso and
                          ele.absIso03 < (self.cfg_ana.loose_electron_absIso if hasattr(self.cfg_ana,'loose_electron_absIso') else 9e99) and
                          ele.lostInner() <= self.cfg_ana.loose_electron_lostHits and
-                         ( True if (hasattr(self.cfg_ana,'notCleaningElectrons') and self.cfg_ana.notCleaningElectrons) else (bestMatch(ele, looseMuons)[1] > self.cfg_ana.min_dr_electron_muon) )):
+                         ( True if (hasattr(self.cfg_ana,'notCleaningElectrons') and self.cfg_ana.notCleaningElectrons) else (bestMatch(ele, looseMuons)[1] > (self.cfg_ana.min_dr_electron_muon**2)) )):
                     event.selectedLeptons.append(ele)
                     event.selectedElectrons.append(ele)
                     ele.looseIdSusy = True
@@ -157,14 +159,49 @@ class LeptonAnalyzer( Analyzer ):
                 if isgood[i]: newmu.append(mu)
             allmuons = newmu
 
+        # Attach EAs for isolation:
+        for mu in allmuons:
+          mu.rho = float(self.handles['rhoMu'].product()[0])
+          if self.muEffectiveArea == "Data2012":
+              if   aeta < 1.0  : mu.EffectiveArea03 = 0.382;
+              elif aeta < 1.47 : mu.EffectiveArea03 = 0.317;
+              elif aeta < 2.0  : mu.EffectiveArea03 = 0.242;
+              elif aeta < 2.2  : mu.EffectiveArea03 = 0.326;
+              elif aeta < 2.3  : mu.EffectiveArea03 = 0.462;
+              else             : mu.EffectiveArea03 = 0.372;
+              if   aeta < 1.0  : mu.EffectiveArea04 = 0.674;
+              elif aeta < 1.47 : mu.EffectiveArea04 = 0.565;
+              elif aeta < 2.0  : mu.EffectiveArea04 = 0.442;
+              elif aeta < 2.2  : mu.EffectiveArea04 = 0.515;
+              elif aeta < 2.3  : mu.EffectiveArea04 = 0.821;
+              else             : mu.EffectiveArea04 = 0.660;
+          elif self.muEffectiveArea == "Phys14_25ns_v1":
+              aeta = abs(mu.eta())
+              if   aeta < 0.800: mu.EffectiveArea03 = 0.0913
+              elif aeta < 1.300: mu.EffectiveArea03 = 0.0765
+              elif aeta < 2.000: mu.EffectiveArea03 = 0.0546
+              elif aeta < 2.200: mu.EffectiveArea03 = 0.0728
+              else:              mu.EffectiveArea03 = 0.1177
+              if   aeta < 0.800: mu.EffectiveArea04 = 0.1564
+              elif aeta < 1.300: mu.EffectiveArea04 = 0.1325
+              elif aeta < 2.000: mu.EffectiveArea04 = 0.0913
+              elif aeta < 2.200: mu.EffectiveArea04 = 0.1212
+              else:              mu.EffectiveArea04 = 0.2085
+          else: raise RuntimeError,  "Unsupported value for mu_effectiveAreas: can only use Data2012 (rho: ?) and Phys14_v1 (rho: fixedGridRhoFastjetAll)"
         # Attach the vertex to them, for dxy/dz calculation
         for mu in allmuons:
             mu.associatedVertex = event.goodVertices[0]
 
         # Compute relIso in 0.3 and 0.4 cones
         for mu in allmuons:
-            mu.absIso03 = (mu.pfIsolationR03().sumChargedHadronPt + max( mu.pfIsolationR03().sumNeutralHadronEt +  mu.pfIsolationR03().sumPhotonEt -  mu.pfIsolationR03().sumPUPt/2,0.0))
-            mu.absIso04 = (mu.pfIsolationR04().sumChargedHadronPt + max( mu.pfIsolationR04().sumNeutralHadronEt +  mu.pfIsolationR04().sumPhotonEt -  mu.pfIsolationR04().sumPUPt/2,0.0))
+            if self.cfg_ana.mu_isoCorr=="rhoArea" :
+                mu.absIso03 = (mu.pfIsolationR03().sumChargedHadronPt + max( mu.pfIsolationR03().sumNeutralHadronEt +  mu.pfIsolationR03().sumPhotonEt - mu.rho * mu.EffectiveArea03,0.0))
+                mu.absIso04 = (mu.pfIsolationR04().sumChargedHadronPt + max( mu.pfIsolationR04().sumNeutralHadronEt +  mu.pfIsolationR04().sumPhotonEt - mu.rho * mu.EffectiveArea04,0.0))
+            elif self.cfg_ana.mu_isoCorr=="deltaBeta" :
+                mu.absIso03 = (mu.pfIsolationR03().sumChargedHadronPt + max( mu.pfIsolationR03().sumNeutralHadronEt +  mu.pfIsolationR03().sumPhotonEt -  mu.pfIsolationR03().sumPUPt/2,0.0))
+                mu.absIso04 = (mu.pfIsolationR04().sumChargedHadronPt + max( mu.pfIsolationR04().sumNeutralHadronEt +  mu.pfIsolationR04().sumPhotonEt -  mu.pfIsolationR04().sumPUPt/2,0.0))
+            else :
+                raise RuntimeError, "Unsupported mu_isoCorr name '" + str(self.cfg_ana.mu_isoCorr) +  "'! For now only 'rhoArea' and 'deltaBeta' are supported."
             mu.relIso03 = mu.absIso03/mu.pt()
             mu.relIso04 = mu.absIso04/mu.pt()
  
@@ -190,14 +227,36 @@ class LeptonAnalyzer( Analyzer ):
         # fill EA for rho-corrected isolation
         for ele in allelectrons:
           ele.rho = float(self.handles['rhoEle'].product()[0])
-          SCEta = abs(ele.superCluster().eta())
-          if (abs(SCEta) >= 0.0   and abs(SCEta) < 1.0   ) : ele.EffectiveArea = 0.13 # 0.130;
-          if (abs(SCEta) >= 1.0   and abs(SCEta) < 1.479 ) : ele.EffectiveArea = 0.14 # 0.137;
-          if (abs(SCEta) >= 1.479 and abs(SCEta) < 2.0   ) : ele.EffectiveArea = 0.07 # 0.067;
-          if (abs(SCEta) >= 2.0   and abs(SCEta) < 2.2   ) : ele.EffectiveArea = 0.09 # 0.089;
-          if (abs(SCEta) >= 2.2   and abs(SCEta) < 2.3   ) : ele.EffectiveArea = 0.11 # 0.107;
-          if (abs(SCEta) >= 2.3   and abs(SCEta) < 2.4   ) : ele.EffectiveArea = 0.11 # 0.110;
-          if (abs(SCEta) >= 2.4)                           : ele.EffectiveArea = 0.14 # 0.138;
+          if self.eleEffectiveArea == "Data2012":
+              # https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaEARhoCorrection?rev=14
+              SCEta = abs(ele.superCluster().eta())
+              if   SCEta < 1.0  : ele.EffectiveArea03 = 0.13 # 0.130;
+              elif SCEta < 1.479: ele.EffectiveArea03 = 0.14 # 0.137;
+              elif SCEta < 2.0  : ele.EffectiveArea03 = 0.07 # 0.067;
+              elif SCEta < 2.2  : ele.EffectiveArea03 = 0.09 # 0.089;
+              elif SCEta < 2.3  : ele.EffectiveArea03 = 0.11 # 0.107;
+              elif SCEta < 2.4  : ele.EffectiveArea03 = 0.11 # 0.110;
+              else              : ele.EffectiveArea03 = 0.14 # 0.138;
+              if   SCEta < 1.0  : ele.EffectiveArea04 = 0.208;
+              elif SCEta < 1.479: ele.EffectiveArea04 = 0.209;
+              elif SCEta < 2.0  : ele.EffectiveArea04 = 0.115;
+              elif SCEta < 2.2  : ele.EffectiveArea04 = 0.143;
+              elif SCEta < 2.3  : ele.EffectiveArea04 = 0.183;
+              elif SCEta < 2.4  : ele.EffectiveArea04 = 0.194;
+              else              : ele.EffectiveArea04 = 0.261;
+          elif self.eleEffectiveArea == "Phys14_25ns_v1":
+              aeta = abs(ele.eta())
+              if   aeta < 0.800: ele.EffectiveArea03 = 0.1013
+              elif aeta < 1.300: ele.EffectiveArea03 = 0.0988
+              elif aeta < 2.000: ele.EffectiveArea03 = 0.0572
+              elif aeta < 2.200: ele.EffectiveArea03 = 0.0842
+              else:              ele.EffectiveArea03 = 0.1530
+              if   aeta < 0.800: ele.EffectiveArea04 = 0.1830 
+              elif aeta < 1.300: ele.EffectiveArea04 = 0.1734 
+              elif aeta < 2.000: ele.EffectiveArea04 = 0.1077 
+              elif aeta < 2.200: ele.EffectiveArea04 = 0.1565 
+              else:              ele.EffectiveArea04 = 0.2680 
+          else: raise RuntimeError,  "Unsupported value for ele_effectiveAreas: can only use Data2012 (rho: ?) and Phys14_v1 (rho: fixedGridRhoFastjetAll)"
 
         # Electron scale calibrations
         if self.cfg_ana.doElectronScaleCorrections:
@@ -211,11 +270,11 @@ class LeptonAnalyzer( Analyzer ):
         # Compute relIso with R=0.3 and R=0.4 cones
         for ele in allelectrons:
             if self.cfg_ana.ele_isoCorr=="rhoArea" :
-                 ele.absIso03 = (ele.chargedHadronIsoR(0.3) + max(ele.neutralHadronIsoR(0.3)+ele.photonIsoR(0.3)-ele.rho*ele.EffectiveArea,0))
-                 ele.absIso04 = (ele.chargedHadronIsoR(0.4) + max(ele.neutralHadronIsoR(0.4)+ele.photonIsoR(0.4)-ele.rho*ele.EffectiveArea,0))
+                 ele.absIso03 = (ele.chargedHadronIsoR(0.3) + max(ele.neutralHadronIsoR(0.3)+ele.photonIsoR(0.3)-ele.rho*ele.EffectiveArea03,0))
+                 ele.absIso04 = (ele.chargedHadronIsoR(0.4) + max(ele.neutralHadronIsoR(0.4)+ele.photonIsoR(0.4)-ele.rho*ele.EffectiveArea04,0))
             elif self.cfg_ana.ele_isoCorr=="deltaBeta" :
-                 ele.absIso03 = (ele.pfIsolationVariables().sumChargedHadronPt + max( ele.pfIsolationVariables().sumNeutralHadronEt + ele.pfIsolationVariables().sumPhotonEt - ele.pfIsolationVariables().sumPUPt/2,0.0))
-                 ele.absIso04 = 0.
+                 ele.absIso03 = (ele.chargedHadronIsoR(0.3) + max( ele.neutralHadronIsoR(0.3)+ele.photonIsoR(0.3) - ele.puChargedHadronIsoR(0.3)/2, 0.0))
+                 ele.absIso04 = (ele.chargedHadronIsoR(0.4) + max( ele.neutralHadronIsoR(0.4)+ele.photonIsoR(0.4) - ele.puChargedHadronIsoR(0.4)/2, 0.0))
             else :
                  raise RuntimeError, "Unsupported ele_isoCorr name '" + str(self.cfg_ana.ele_isoCorr) +  "'! For now only 'rhoArea' and 'deltaBeta' are supported."
             ele.relIso03 = ele.absIso03/ele.pt()
@@ -226,7 +285,7 @@ class LeptonAnalyzer( Analyzer ):
             if self.cfg_ana.ele_tightId=="MVA" :
                  ele.tightIdResult = ele.electronID("POG_MVA_ID_Trig_full5x5")
             elif self.cfg_ana.ele_tightId=="Cuts_2012" :
-                 ele.tightIdResult = -1 + 1*ele.electronID("POG_Cuts_ID_2012_Veto") + 1*ele.electronID("POG_Cuts_ID_2012_Loose") + 1*ele.electronID("POG_Cuts_ID_2012_Medium") + 1*ele.electronID("POG_Cuts_ID_2012_Tight")
+                 ele.tightIdResult = -1 + 1*ele.electronID("POG_Cuts_ID_2012_Veto_full5x5") + 1*ele.electronID("POG_Cuts_ID_2012_Loose_full5x5") + 1*ele.electronID("POG_Cuts_ID_2012_Medium_full5x5") + 1*ele.electronID("POG_Cuts_ID_2012_Tight_full5x5")
             else :
                  raise RuntimeError, "Unsupported ele_tightId name '" + str(self.cfg_ana.ele_tightId) +  "'! For now only 'MVA' and 'Cuts_2012' are supported."
 
@@ -339,9 +398,13 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     loose_electron_dz     = 0.2,
     loose_electron_relIso = 0.4,
     loose_electron_lostHits = 1.0,
+    # muon isolation correction method (can be "rhoArea" or "deltaBeta")
+    mu_isoCorr = "rhoArea" ,
+    mu_effectiveAreas = "Phys14_25ns_v1", #(can be 'Data2012' or 'Phys14_25ns_v1')
     # electron isolation correction method (can be "rhoArea" or "deltaBeta")
     ele_isoCorr = "rhoArea" ,
-    ele_tightId = "MVA" ,
+    el_effectiveAreas = "Phys14_25ns_v1" , #(can be 'Data2012' or 'Phys14_25ns_v1')
+    ele_tightId = "Cuts_2012" ,
     # minimum deltaR between a loose electron and a loose muon (on overlaps, discard the electron)
     min_dr_electron_muon = 0.02,
     # do MC matching 

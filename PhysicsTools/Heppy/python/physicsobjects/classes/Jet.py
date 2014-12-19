@@ -28,6 +28,9 @@ _btagWPs = {
     "CSVv2IVFL": ("combinedInclusiveSecondaryVertexV2BJetTags", 0.423),
     "CSVv2IVFM": ("combinedInclusiveSecondaryVertexV2BJetTags", 0.814),
     "CSVv2IVFT": ("combinedInclusiveSecondaryVertexV2BJetTags", 0.941),
+    "CMVAL": ("combinedMVABJetTags", 0.630), # for same b-jet efficiency of CSVv2IVFL on ttbar MC, jet pt > 30
+    "CMVAM": ("combinedMVABJetTags", 0.732), # for same b-jet efficiency of CSVv2IVFM on ttbar MC, jet pt > 30
+    "CMVAT": ("combinedMVABJetTags", 0.813), # for same b-jet efficiency of CSVv2IVFT on ttbar MC, jet pt > 30
 }
 
 class Jet(PhysicsObject):   
