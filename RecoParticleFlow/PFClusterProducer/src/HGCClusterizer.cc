@@ -356,7 +356,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     }
   }
   _hit_kdtree.clear();
-  std::cout << "layer clusters made: " << clusters_per_layer.size() << std::endl;
+  //std::cout << "layer clusters made: " << clusters_per_layer.size() << std::endl;
   
   reco::PFClusterCollection z_linked_clusters;
   // use topo clusters to link in z
@@ -365,15 +365,19 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   // run the em-pre ID on these EM-like clustering result
   // clusters that are EM like are not allowed to be super-clustered
   std::vector<bool> usable_clusters(z_linked_clusters.size(),true);
+  std::vector<bool> em_ID_clusters(z_linked_clusters.size(),false);
   for( unsigned i = 0 ; i < z_linked_clusters.size(); ++i ) {
     auto& cluster = z_linked_clusters[i];
     _emPreID->setShowerPosition(cluster.position());
     _emPreID->setShowerDirection(cluster.axis());
     _emEnergyCalibration->correctEnergy(cluster);
+    em_ID_clusters[i] = _emPreID->isEm(cluster);
     usable_clusters[i] = !_emPreID->isEm(cluster);
+    /*
     if( ! usable_clusters[i] ) { 
       std::cout << "cluster at " << i << " is EM-locked" << std::endl;
     }
+    */
     _emPreID->reset();
   }
 
@@ -387,7 +391,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   for( unsigned i = 0; i < z_linked_clusters.size(); ++i ) {
     if( i >= usable_clusters.size() ) {
       output.push_back(z_linked_clusters[i]);
-    } else if( usable_clusters[i] ) {
+    } else if( usable_clusters[i] || em_ID_clusters[i] ) {
       output.push_back(z_linked_clusters[i]);
     }
   }
@@ -784,11 +788,11 @@ runConingAfterburner(const edm::Handle<reco::PFRecHitCollection>& handle,
   cone_vertex_cartesian.SetXYZ(cone_vertex_polar.x(),
 			       cone_vertex_polar.y(),
 			       cone_vertex_polar.z());
-  std::cout << "input cluster barycenter: " << tk_linked_cluster.position() << std::endl;
-  std::cout << "got initial cone vertex position: " << cone_vertex_cartesian << std::endl;
+  //std::cout << "input cluster barycenter: " << tk_linked_cluster.position() << std::endl;
+  //std::cout << "got initial cone vertex position: " << cone_vertex_cartesian << std::endl;
   // see if the already built cluster exists within the cone as defined by default
   double max_hit_angle = 0.0;
-  unsigned max_angle_index = std::numeric_limits<unsigned>::max();
+  //unsigned max_angle_index = std::numeric_limits<unsigned>::max();
   for(unsigned i = 0; i < hits_input.size(); ++i ) {
     double angle = (cone_vertex_cartesian - hits[hits_input[i]].position()).theta();
     if( cone_vertex_cartesian.z() > 0.0f ) angle += M_PI;
@@ -796,12 +800,14 @@ runConingAfterburner(const edm::Handle<reco::PFRecHitCollection>& handle,
     while( angle < -M_PI ) angle += 2*M_PI;
     if( std::abs(angle) > std::abs(max_hit_angle) ) {
       max_hit_angle = angle;
-      max_angle_index = i;
+      //max_angle_index = i;
     }
   }
+  /*
   std::cout << "index of max angle: " << max_angle_index << std::endl;
   std::cout << "maximum angle to cone vertex: " << max_hit_angle << std::endl;
   std::cout << "cone angle from python: " << _minConeAngle << std::endl;
+  */
   max_hit_angle = std::min(std::abs(max_hit_angle),1.0); // restrict to one radian
   if( max_hit_angle <= 1.0 ) { // less than 1 radian, get rid of crazy
     // if we have a good angle, create the KD tree bounding region using
@@ -832,6 +838,6 @@ runConingAfterburner(const edm::Handle<reco::PFRecHitCollection>& handle,
 	++added_hits;
       }
     }
-    std::cout << "added: " << added_hits << " hits from coning" << std::endl;
+    //std::cout << "added: " << added_hits << " hits from coning" << std::endl;
   }
 }

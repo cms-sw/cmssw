@@ -55,10 +55,10 @@ optimized_w0s = cms.vdouble(4.0,4.0,4.0,4.0,4.0,4.0,  #1-6 are all the same
                             4.0,4.0,4.0,4.0,4.0,4.0,4.0)
 
 _positionCalcHGCEE_onelayer = cms.PSet(
-    algoName = cms.string("HGCLayerSpecificLogWeightedPositionCalc"),
+    algoName = cms.string("Basic2DGenericPFlowPositionCalc"),
     ##
     minFractionInCalc = cms.double(1e-9),
-    posCalcNCrystals = cms.int32(9), #use 3x3 around seed!
+    posCalcNCrystals = cms.int32(-1), 
     logWeightDenominator = cms.double(1e-6*0.25*55.1), # use ADC value 0.25*MIP
     minAllowedNormalization = cms.double(1e-9),
     # ECAL specific
