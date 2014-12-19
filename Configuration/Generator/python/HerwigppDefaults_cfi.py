@@ -80,6 +80,10 @@ herwigDefaultsBlock = cms.PSet(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 7000.0',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.0*GeV',
 	),
+        cm8TeV = cms.vstring(
+                'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 8000.0',
+                'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.0*GeV',
+        ),
 	cm10TeV = cms.vstring(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 10000.0',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.1*GeV',
