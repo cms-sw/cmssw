@@ -10,7 +10,7 @@ import pprint
 from platform import platform 
 from math import ceil
 from event import Event
-import time
+import timeit
 
 class Setup(object):
     '''The Looper creates a Setup object to hold information relevant during 
@@ -52,7 +52,7 @@ class Looper(object):
     def __init__( self, name,
                   config, 
                   nEvents=None,
-                  firstEvent=0, nPrint=0 ):
+                  firstEvent=0, nPrint=0, timeReport=False ):
         """Handles the processing of an event sample.
         An Analyzer is built for each Config.Analyzer present
         in sequence. The Looper can then be used to process an event,
@@ -79,6 +79,7 @@ class Looper(object):
         self.nEvents = nEvents
         self.firstEvent = firstEvent
         self.nPrint = int(nPrint)
+        self.timeReport = [ {'time':0.0,'events':0} for a in self.analyzers ] if timeReport else False
         tree_name = None
         if( hasattr(self.cfg_comp, 'tree_name') ):
             tree_name = self.cfg_comp.tree_name
@@ -158,10 +159,10 @@ class Looper(object):
                     # print 'event', iEv
                     if not hasattr(self,'start_time'):
                         print 'event', iEv
-                        self.start_time = time.time()
+                        self.start_time = timeit.default_timer()
                         self.start_time_event = iEv
                     else:
-                        print 'event %d (%.1f ev/s)' % (iEv, (iEv-self.start_time_event)/float(time.time() - self.start_time))
+                        print 'event %d (%.1f ev/s)' % (iEv, (iEv-self.start_time_event)/float(timeit.default_timer() - self.start_time))
 
                 self.process( iEv )
                 if iEv<self.nPrint:
@@ -186,10 +187,16 @@ class Looper(object):
         """
         self.event = Event(iEv, self.events[iEv], self.setup)
         self.iEvent = iEv
-        for analyzer in self.analyzers:
+        for i,analyzer in enumerate(self.analyzers):
             if not analyzer.beginLoopCalled:
                 analyzer.beginLoop()
-            if analyzer.process( self.event ) == False:
+            start = timeit.default_timer()
+            ret = analyzer.process( self.event )
+            if self.timeReport:
+                self.timeReport[i]['events'] += 1
+                if self.timeReport[i]['events'] > 0:
+                    self.timeReport[i]['time'] += timeit.default_timer() - start
+            if ret == False:
                 return (False, analyzer.name)
         return (True, analyzer.name)
 
@@ -201,6 +208,15 @@ class Looper(object):
         for analyzer in self.analyzers:
             analyzer.write(self.setup)
         self.setup.close() 
+
+        if self.timeReport:
+            allev = max([x['events'] for x in self.timeReport])
+            print "\n      ---- TimeReport (all times in ms; first evt is skipped) ---- "
+            print "%9s   %9s    %9s   %9s   %s" % ("processed","all evts","time/proc", " time/all", "analyer")
+            print "%9s   %9s    %9s   %9s   %s" % ("---------","--------","---------", "---------", "-------------")
+            for ana,rep in zip(self.analyzers,self.timeReport):
+                print "%9d   %9d   %10.2f  %10.2f   %s" % ( rep['events'], allev, 1000*rep['time']/(rep['events']-1) if rep['events']>1 else 0, 1000*rep['time']/(allev-1) if allev > 1 else 0, ana.name)
+            print ""
         pass
 
 

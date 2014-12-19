@@ -14,4 +14,5 @@ def printGenParticle(self):
         return theStr
 setattr(ROOT.reco.GenParticle,"__str__",printGenParticle)
 
-from ROOT.reco import GenParticle
+#from ROOT.reco import GenParticle   # sometimes doesn't work
+GenParticle = ROOT.reco.GenParticle  # this instead does

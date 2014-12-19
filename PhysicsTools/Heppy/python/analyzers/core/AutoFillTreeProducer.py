@@ -50,7 +50,6 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         tr.var('lumi', int, storageType="i")
         tr.var('evt', int, storageType="i")
         tr.var('isData', int)
-        tr.var('xsec', float)
 
  #       self.triggerBitCheckers = []
  #       if hasattr(self.cfg_ana, 'triggerBits'):
@@ -62,6 +61,8 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 #                self.triggerBitCheckers.append( (T, TriggerBitChecker(trigVec)) )
  
         if isMC:
+            ## cross section
+            tr.var('xsec', float)
             ## PU weights
             tr.var("puWeight")
             ## number of true interactions
@@ -109,13 +110,14 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         tr.fill('lumi',event.input.eventAuxiliary().id().luminosityBlock())
         tr.fill('evt', event.input.eventAuxiliary().id().event())    
         tr.fill('isData', 0 if isMC else 1)
-        tr.fill('xsec',self.cfg_comp.xSection)
 
 #       triggerResults = self.handles['TriggerResults'].product()
 #       for T,TC in self.triggerBitCheckers:
 #           tr.fill("HLT_"+T, TC.check(event.object(), triggerResults))
 
         if isMC:
+            ## xsection, if available
+            tr.fill('xsec', getattr(self.cfg_comp,'xSection',1.0))
             ## PU weights, check if a PU analyzer actually filled it
             if hasattr(event,"nPU"):
                     tr.fill("nTrueInt", event.nPU)
