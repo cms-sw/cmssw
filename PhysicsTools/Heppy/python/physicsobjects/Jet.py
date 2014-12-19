@@ -41,6 +41,8 @@ class Jet(PhysicsObject):
 
     def _physObjInit(self):
         self._rawFactorMultiplier = 1.0
+        self._leadingTrack = None
+        self._leadingTrackSearched = False
 
     def jetID(self,name=""):
         if not self.isPFJet():
@@ -100,7 +102,22 @@ class Jet(PhysicsObject):
         global _btagWPs
         (disc,val) = _btagWPs[name]
         return self.bDiscriminator(disc) > val
-        
+
+    def leadingTrack(self):
+        if self._leadingTrackSearched :
+            return self._leadingTrack
+        self._leadingTrackSearched = True
+        self._leadingTrack =  max( self.daughterPtrVector() , key = lambda x : x.pt() if  x.charge()!=0 else 0. )
+        if self._leadingTrack.charge()==0: #in case of "all neutral"
+            self._leadingTrack = None
+        return self._leadingTrack
+
+    def leadTrackPt(self):
+        lt=self.leadingTrack()
+        if lt :
+             return lt.pt()
+        else :
+             return 0. 
 
 class GenJet( PhysicsObject):
     pass
