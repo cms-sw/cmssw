@@ -3,6 +3,7 @@
 #include "G4ParticleTable.hh"
 #include "G4ProcessManager.hh"
 #include "G4NeutronInelasticCrossSection.hh"
+#include "G4SystemOfUnits.hh"
 
 CMSFTFPNeutronBuilder::
 CMSFTFPNeutronBuilder(G4bool quasiElastic) 

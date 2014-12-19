@@ -13,6 +13,8 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
     crossSection = cms.untracked.double(0.001843),
     maxEventsToPrint = cms.untracked.int32(0),
     PythiaParameters = cms.PSet(
+        pythia8CommonSettingsBlock,
+        pythia8CUEP8M1SettingsBlock,
         processParameters = cms.vstring( 'NewGaugeBoson:ffbar2Wprime = on', 
                                          '34:m0 = 2000.', 
                                          '34:onMode = off', 

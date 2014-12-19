@@ -10,6 +10,7 @@
 
 #include "Pythia8/Pythia.h"
 #include "Pythia8Plugins/HepMC2.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/HepMCA2.h"
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
@@ -128,6 +129,7 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     int nFSRveto;
 
     int NHooks;
+
 };
 
 const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = { edm::SharedResourceNames::kPythia8 };
@@ -305,31 +307,22 @@ Pythia8Hadronizer::~Pythia8Hadronizer()
 bool Pythia8Hadronizer::initializeForInternalPartons()
 {
   
-  bool status = true;
+  bool status = false, status1 = false;
   
   if ( fInitialState == PP ) // default
   {
-    //fMasterGen->init(2212, 2212, comEnergy);
     fMasterGen->settings.mode("Beams:idA", 2212);
     fMasterGen->settings.mode("Beams:idB", 2212);
-    fMasterGen->settings.parm("Beams:eCM", comEnergy);
-    status &= fMasterGen->init();
   }
   else if ( fInitialState == PPbar )
   {
-    //fMasterGen->init(2212, -2212, comEnergy);
     fMasterGen->settings.mode("Beams:idA", 2212);
     fMasterGen->settings.mode("Beams:idB", -2212);
-    fMasterGen->settings.parm("Beams:eCM", comEnergy);
-    status &= fMasterGen->init();
   }
   else if ( fInitialState == ElectronPositron )
   {
-    //fMasterGen->init(11, -11, comEnergy);
     fMasterGen->settings.mode("Beams:idA", 11);
     fMasterGen->settings.mode("Beams:idB", -11);
-    fMasterGen->settings.parm("Beams:eCM", comEnergy);
-    status &= fMasterGen->init();
   }    
   else 
   {
@@ -338,7 +331,9 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
       <<" UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron \n";
   }
 
-  fMasterGen->settings.listChanged();
+  fMasterGen->settings.parm("Beams:eCM", comEnergy);
+  edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
+  status = fMasterGen->init();
 
   if ( pythiaPylistVerbosity > 10 )
   {
@@ -349,13 +344,12 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   }
 
   // init decayer
-  //fDecayer->readString("ProcessLevel:all = off"); // trick
-  //fDecayer->readString("ProcessLevel::resonanceDecays=on");
   fDecayer->settings.flag("ProcessLevel:all", false ); // trick
   fDecayer->settings.flag("ProcessLevel:resonanceDecays", true );
-  status &= fDecayer->init();
+  edm::LogInfo("Pythia8Interface") << "Initializing Decayer";
+  status1 = fDecayer->init();
 
-  return status;
+  return (status&&status1);
 }
 
 
@@ -364,7 +358,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
   edm::LogInfo("Pythia8Interface") << "Initializing for external partons";
 
-  bool status = true;
+  bool status = false, status1 = false;
   
   if((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) && !fEmissionVetoHook) {
 
@@ -413,10 +407,9 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     edm::LogInfo("Pythia8Interface") << "Initialize direct pythia8 reading from LHE file "
                                      << LHEInputFileName;
     edm::LogInfo("Pythia8Interface") << "Some LHE information can be not stored";
-    //fMasterGen->init(LHEInputFileName);
     fMasterGen->settings.mode("Beams:frameType", 4);
     fMasterGen->settings.word("Beams:LHEF", LHEInputFileName);
-    status &= fMasterGen->init();
+    status = fMasterGen->init();
 
   } else {
 
@@ -428,10 +421,10 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
        fJetMatchingHook->init ( lheRunInfo() );
     }
     
-    //fMasterGen->init(lhaUP.get());
     fMasterGen->settings.mode("Beams:frameType", 5);
     fMasterGen->setLHAupPtr(lhaUP.get());
-    status &= fMasterGen->init();
+    edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
+    status = fMasterGen->init();
   }
   
   if ( pythiaPylistVerbosity > 10 )
@@ -443,13 +436,12 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   }
 
   // init decayer
-  //fDecayer->readString("ProcessLevel:all = off"); // trick
-  //fDecayer->readString("ProcessLevel::resonanceDecays=on");
   fDecayer->settings.flag("ProcessLevel:all", false ); // trick
   fDecayer->settings.flag("ProcessLevel:resonanceDecays", true );
-  status &= fDecayer->init();
+  edm::LogInfo("Pythia8Interface") << "Initializing Decayer";
+  status1 = fDecayer->init();
 
-  return status;
+  return (status&&status1);
 }
 
 
@@ -553,8 +545,12 @@ bool Pythia8Hadronizer::residualDecay()
 
   int NPartsBeforeDecays = pythiaEvent->size();
   int NPartsAfterDecays = event().get()->particles_size();
-  int NewBarcode = NPartsAfterDecays;
 
+  if(NPartsAfterDecays == NPartsBeforeDecays) return true;
+
+  HepMC::Pythia8ToHepMCA toHepMCA;
+  bool result = true;
+ 
   for ( int ipart=NPartsAfterDecays; ipart>NPartsBeforeDecays; ipart-- )
   {
 
@@ -582,40 +578,12 @@ bool Pythia8Hadronizer::residualDecay()
 
       part->set_status(2);
 
-      Particle& py8daughter = fDecayer->event[nentries]; // the 1st daughter
-      HepMC::GenVertex* DecVtx = new HepMC::GenVertex( HepMC::FourVector(py8daughter.xProd(),
-                                                       py8daughter.yProd(),
-                                                       py8daughter.zProd(),
-                                                       py8daughter.tProd()) );
-
-      DecVtx->add_particle_in( part ); // this will cleanup end_vertex if exists, replace with the new one
-                                       // I presume (vtx) barcode will be given automatically
-
-      HepMC::FourVector pmom( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );
-
-      HepMC::GenParticle* daughter =
-                        new HepMC::GenParticle( pmom, py8daughter.id(), 1 );
-
-      NewBarcode++;
-      daughter->suggest_barcode( NewBarcode );
-      DecVtx->add_particle_out( daughter );
-
-      for ( int ipart1=nentries+1; ipart1<nentries1; ipart1++ )
-      {
-        py8daughter = fDecayer->event[ipart1];
-        HepMC::FourVector pmomN( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );
-        HepMC::GenParticle* daughterN =
-                        new HepMC::GenParticle( pmomN, py8daughter.id(), 1 );
-        NewBarcode++;
-        daughterN->suggest_barcode( NewBarcode );
-        DecVtx->add_particle_out( daughterN );
-      }
-
-      event().get()->add_vertex( DecVtx );
+      result = toHepMCA.append_event( fDecayer->event, event().get(), part);
 
     }
- }
- return true;
+  }
+
+  return result;
 
 }
 

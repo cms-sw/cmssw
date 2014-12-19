@@ -40,6 +40,14 @@ bool Py8InterfaceBase::readSettings( int )
       if (!fMasterGen->readString(*line)) throw cms::Exception("PythiaError")
 			              << "Pythia 8 did not accept \""
 				      << *line << "\"." << std::endl;
+
+      if (line->find("ParticleDecays:") != std::string::npos) {
+
+        if (!fDecayer->readString(*line)) throw cms::Exception("PythiaError")
+                                      << "Pythia 8 Decayer did not accept \""
+                                      << *line << "\"." << std::endl;
+      }
+
    }
 
    return true;

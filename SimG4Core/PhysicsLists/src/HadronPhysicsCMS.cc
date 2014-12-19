@@ -9,6 +9,7 @@
 #include "G4MesonConstructor.hh"
 #include "G4BaryonConstructor.hh"
 #include "G4ShortLivedConstructor.hh"
+#include "G4SystemOfUnits.hh"
 
 HadronPhysicsCMS::HadronPhysicsCMS(const G4String& name, G4bool quasiElastic) :
   G4VPhysicsConstructor("hadron"), theNeutrons(0), theBertiniNeutron(0),

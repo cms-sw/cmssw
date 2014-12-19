@@ -57,7 +57,8 @@ GFlashEMShowerModel::IsApplicable(const G4ParticleDefinition& particleType)
 G4bool GFlashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack ) 
 {
   // Mininum energy cutoff to parameterize
-  if(fastTrack.GetPrimaryTrack()->GetKineticEnergy() < GeV) { return false; }
+  if(fastTrack.GetPrimaryTrack()->GetKineticEnergy() < Gflash::energyCutOff) 
+    { return false; }
   if(excludeDetectorRegion(fastTrack)) { return false; }
 
   // This will be changed accordingly when the way 
@@ -133,12 +134,15 @@ void GFlashEMShowerModel::makeHits(const G4FastTrack& fastTrack)
 
     // Put touchable for each hit so that touchable history 
     //     keeps track of each step.
-    theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(spotIter->getPosition(),G4ThreeVector(0,0,0),theGflashTouchableHandle, false);
+    theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(spotIter->getPosition(),
+								  G4ThreeVector(0,0,0),
+								  theGflashTouchableHandle, false);
     updateGflashStep(spotIter->getPosition(),spotIter->getTime());
 
     // If there is a watcher defined in a job and the flag is turned on
     if(theWatcherOn) {
-      SteppingAction* userSteppingAction = (SteppingAction*) G4EventManager::GetEventManager()->GetUserSteppingAction();
+      SteppingAction* userSteppingAction = 
+	(SteppingAction*) G4EventManager::GetEventManager()->GetUserSteppingAction();
       userSteppingAction->m_g4StepSignal(theGflashStep);
     }
 

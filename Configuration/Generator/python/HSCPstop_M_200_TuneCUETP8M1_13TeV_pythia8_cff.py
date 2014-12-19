@@ -21,21 +21,23 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          maxEventsToPrint = cms.untracked.int32(0),
                          SLHAFileForPythia8 = cms.string('%s' % SLHA_FILE), 
 			 PythiaParameters = cms.PSet(
-    processParameters = cms.vstring(
-			  'SUSY:all = off',
-			  'SUSY:gg2squarkantisquark  = on',
-			  'SUSY:qqbar2squarkantisquark= on',
-			  'RHadrons:allow  = on',
-			  'RHadrons:allowDecay = off',
-			  'RHadrons:setMasses = on',
-			  ),
-    parameterSets = cms.vstring('pythia8CommonSettings',
-                                'pythia8CUEP8M1Settings',
-                                'processParameters'
-                                )
-    
-    )
+        pythia8CommonSettingsBlock,
+        pythia8CUEP8M1SettingsBlock,
+        processParameters = cms.vstring(
+            'SUSY:all = off',
+            'SUSY:gg2squarkantisquark  = on',
+            'SUSY:qqbar2squarkantisquark= on',
+            'RHadrons:allow  = on',
+            'RHadrons:allowDecay = off',
+            'RHadrons:setMasses = on',
+            ),
+        parameterSets = cms.vstring('pythia8CommonSettings',
+                                    'pythia8CUEP8M1Settings',
+                                    'processParameters'
+                                    )        
+        )
                          )
+
 generator.hscpFlavor = cms.untracked.string(FLAVOR)
 generator.massPoint = cms.untracked.int32(MASS_POINT)
 generator.particleFile = cms.untracked.string(PARTICLE_FILE)
