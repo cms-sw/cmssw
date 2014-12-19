@@ -93,24 +93,22 @@ HepMC::FourVector* MixEvtVtxGenerator::getVertex( Event& evt){
   HepMC::GenVertex* genvtx = 0;
   const HepMC::GenEvent* inev = 0;
 
-  //cout<<" use CF "<<useCF_<<endl;
-  
   if(useCF_){
     Handle<CrossingFrame<HepMCProduct> > cf;
     evt.getByToken(cfLabel,cf);
     MixCollection<HepMCProduct> mix(cf.product());
-    cout<<"VtxSmeared -- mix.size : "<<mix.size()<<endl;
     if(mix.size() < 2){
-      cout<<"Less than 2 sub-events, mixing seems to have failed!"<<endl;
+       throw cms::Exception("MatchVtx")
+	  <<"Mixing has "<<mix.size()<<" sub-events, should have been at least 2"
+	  <<endl;
     }
     const HepMCProduct& bkg = mix.getObject(1);
     if(!(bkg.isVtxGenApplied())){
-      cout<<"Input background does not have smeared vertex!"<<endl;
+       throw cms::Exception("MatchVtx")<<"Input background does not have smeared vertex!"<<endl;
     }else{
       inev = bkg.GetEvent();
    } 
   }else{
-    //cout<<" hiLabel "<<hiLabel<<endl;
     Handle<HepMCProduct> input;
     evt.getByToken(signalLabel,input);
     inev = input->GetEvent();
@@ -118,11 +116,9 @@ HepMC::FourVector* MixEvtVtxGenerator::getVertex( Event& evt){
 
   genvtx = inev->signal_process_vertex();
   if(!genvtx){
-    //cout<<"No Signal Process Vertex!"<<endl;
     HepMC::GenEvent::particle_const_iterator pt=inev->particles_begin();
     HepMC::GenEvent::particle_const_iterator ptend=inev->particles_end();
     while(!genvtx || ( genvtx->particles_in_size() == 1 && pt != ptend ) ){
-      //if(!genvtx) cout<<"No Gen Vertex!"<<endl;
       if(pt == ptend) cout<<"End reached, No Gen Vertex!"<<endl;
       genvtx = (*pt)->production_vertex();
       ++pt;
@@ -137,9 +133,8 @@ HepMC::FourVector* MixEvtVtxGenerator::getVertex( Event& evt){
   
   if(!fVertex){
     fVertex = new HepMC::FourVector();
-    //cout<<" creating new vertex "<<endl;
   }
-  cout<<" setting vertex "<<" aX "<<aX<<" aY "<<aY<<" aZ "<<aZ<<" aT "<<aT<<endl;
+  LogInfo("MatchVtx")<<" setting vertex "<<" aX "<<aX<<" aY "<<aY<<" aZ "<<aZ<<" aT "<<aT<<endl;
   fVertex->set(aX,aY,aZ,aT);
   
 
@@ -159,21 +154,6 @@ HepMC::FourVector* MixEvtVtxGenerator::getRecVertex( Event& evt){
   aY = input->begin()->position().y() + vtxOffset[1];
   aZ = input->begin()->position().z() + vtxOffset[2];
 
-  /*
-  std::cout << "reco::Vertex = " << input->begin()->position().x()
-	    << ", " << input->begin()->position().y()
-	    << ", " << input->begin()->position().z()
-	    << std::endl;
-
-  std::cout << "offset = " << vtxOffset[0]
-	    << ", " << vtxOffset[1]
-	    << ", " << vtxOffset[2]
-	    << std::endl;
-
-  std::cout << "embedded GEN vertex = " << aX
-	    << ", " << aY << ", " << aZ << std::endl;
-
-  */
   if(!fVertex) fVertex = new HepMC::FourVector();
   fVertex->set(10.0*aX,10.0*aY,10.0*aZ,0.0); // HepMC positions in mm (RECO in cm)
   
