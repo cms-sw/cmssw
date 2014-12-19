@@ -1,3 +1,4 @@
+<use   name="DataFormats/DetId"/>
 <use   name="rootrflx"/>
 <export>
   <lib   name="1"/>
