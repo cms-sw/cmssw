@@ -60,6 +60,7 @@ HGCALShowerBasedEmIdentification::HGCALShowerBasedEmIdentification (bool withPil
   if (withPileup_) cutHoverem_ = 0.065;
   cutLengthCompatibility_ = 4.0;
   
+  /*
   std::cout << "*** HGCAL ShowerBased EmIdentification ***" << std::endl;
   std::cout << "- max transverse radius: " << rmax_ << std::endl;
   std::cout << "- hovere cone size: " << hovereConesize_ << std::endl;
@@ -67,6 +68,7 @@ HGCALShowerBasedEmIdentification::HGCALShowerBasedEmIdentification (bool withPil
   std::cout << "- cut hoverem: " << cutHoverem_ << std::endl;
   std::cout << "- cut start position: " << cutStartPosition_ << std::endl;
   std::cout << "- cut length compatibility (in sigmas): " << cutLengthCompatibility_ << std::endl;
+  */
   
 }
 
