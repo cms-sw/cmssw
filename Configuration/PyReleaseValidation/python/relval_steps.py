@@ -1271,7 +1271,7 @@ for ds in defaultDataSets:
 # step6 is fastsim
 # step7 is fastsim harvesting
 
-upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','HARVESTFullPU','DigiFullTrigger']
+upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFull','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','HARVESTFullPU','DigiFullTrigger']
 
 upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    '2019':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
@@ -1284,7 +1284,7 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023Muondev':['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFull','HARVESTFull'],
                    'BE5DForwardFast':['FastSim','HARVESTFast'],
                    'Extended2023':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023HGCalMuon':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023HGCalMuon':['GenSimHLBeamSpotFull','DigiFull','RecoFullHGCAL'],
                    'Extended2023SHCal':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCal4Eta':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023TTI':['GenSimHLBeamSpotFull','DigiTrkTrigFull'], ##no need to go beyond local reco
@@ -1298,7 +1298,7 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCal':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalMuon4Eta':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalV4' : ['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023HGCalMuonPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
+                   'Extended2023HGCalMuonPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL'],
                    'Extended2023SHCalNoTaperPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
                    }
 
@@ -1382,6 +1382,19 @@ for k in upgradeKeys:
 
     if k2 in PUDataSets:
         upgradeStepDict['RecoFullPU'][k]=merge([PUDataSets[k2],{'-s':'RAW2DIGI,L1Reco,RECO,DQM'},upgradeStepDict['RecoFull'][k]])
+
+    upgradeStepDict['RecoFullHGCAL'][k] = {'-s':'RAW2DIGI,L1Reco,RECO',
+                                      '--conditions':gt,
+                                      '--datatier':'GEN-SIM-RECO',
+                                      '-n':'10',
+                                      '--eventcontent':'RECOSIM',
+                                      '--magField' : '38T_PostLS1',
+                                      '--geometry' : geom
+                                      }
+    if cust!=None : upgradeStepDict['RecoFullHGCAL'][k]['--customise']=cust
+
+    if k2 in PUDataSets:
+        upgradeStepDict['RecoFullPUHGCAL'][k]=merge([PUDataSets[k2],{'-s':'RAW2DIGI,L1Reco,RECO'},upgradeStepDict['RecoFullHGCAL'][k]])
 
     upgradeStepDict['HARVESTFull'][k]={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                                     '--conditions':gt,
