@@ -33,7 +33,7 @@ class NTupleObjectType:
         self.variables = variables
     def ownVars(self,isMC):
         """Return only my vars, not including the ones from the bases"""
-        return [ v for v in self.variables if (isMC or not var.mcOnly) ]
+        return [ v for v in self.variables if (isMC or not v.mcOnly) ]
     def allVars(self,isMC):
         """Return all vars, including the base ones. Duplicate bases are not added twice"""
         ret = []; names = {}
