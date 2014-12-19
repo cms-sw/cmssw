@@ -4,7 +4,7 @@ import DQMOffline.Alignment.muonAlignment_cfi as _MuonAl
 
 from TrackingTools.MaterialEffects.Propagators_cff import *
 from TrackingTools.GeomPropagators.SmartPropagator_cff import *
-from DQM.HLTEvF.HLTMonBitSummary_cfi import hltMonBitSummary
+#from DQM.HLTEvF.HLTMonBitSummary_cfi import hltMonBitSummary
 
 #Below all DQM modules for MuonAlignment AlCaRecos are instantiated.
 
@@ -29,13 +29,15 @@ ALCARECOMuAlGlobalCosmicsInCollisionsTrackingDQM = _TrackMon.TrackMon.clone(
     )
 
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlGlobalCosmicsInCollisions_cff import ALCARECOMuAlGlobalCosmicsInCollisionsHLT
-ALCARECOMuAlGlobalCosmicsInCollisionsHLTDQM = hltMonBitSummary.clone(
-    directory = "AlCaReco/MuAlGlobalCosmicsInCollisions/HLTSummary",
-    histLabel = "MuAlGlobalCosmicsInCollisions",
-    HLTPaths = ["HLT_.*L1.*"],
-    eventSetupPathsKey =  ALCARECOMuAlGlobalCosmicsInCollisionsHLT.eventSetupPathsKey.value()
-)
-ALCARECOMuAlGlobalCosmicsInCollisionsDQM = cms.Sequence( ALCARECOMuAlGlobalCosmicsInCollisionsTrackingDQM + ALCARECOMuAlGlobalCosmicsInCollisionsHLTDQM)
+#ALCARECOMuAlGlobalCosmicsInCollisionsHLTDQM = hltMonBitSummary.clone(
+#    directory = "AlCaReco/MuAlGlobalCosmicsInCollisions/HLTSummary",
+#    histLabel = "MuAlGlobalCosmicsInCollisions",
+#    HLTPaths = ["HLT_.*L1.*"],
+#    eventSetupPathsKey =  ALCARECOMuAlGlobalCosmicsInCollisionsHLT.eventSetupPathsKey.value()
+#)
+#ALCARECOMuAlGlobalCosmicsInCollisionsDQM = cms.Sequence( ALCARECOMuAlGlobalCosmicsInCollisionsTrackingDQM + ALCARECOMuAlGlobalCosmicsInCollisionsHLTDQM)
+ALCARECOMuAlGlobalCosmicsInCollisionsDQM = cms.Sequence( ALCARECOMuAlGlobalCosmicsInCollisionsTrackingDQM)
+
 
 ##########################################################
 #MuAlGlobalCosmics
@@ -58,13 +60,14 @@ ALCARECOMuAlGlobalCosmicsTrackingDQM = _TrackMon.TrackMon.clone(
     )
 
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlGlobalCosmics_cff import ALCARECOMuAlGlobalCosmicsHLT
-ALCARECOMuAlGlobalCosmicsHLTDQM = hltMonBitSummary.clone(
-    directory = "AlCaReco/MuAlGlobalCosmics/HLTSummary",
-    histLabel = "MuAlGlobalCosmics",
-    HLTPaths = ["HLT_.*L1.*"],
-    eventSetupPathsKey =  ALCARECOMuAlGlobalCosmicsHLT.eventSetupPathsKey.value()
-)
-ALCARECOMuAlGlobalCosmicsDQM = cms.Sequence( ALCARECOMuAlGlobalCosmicsTrackingDQM + ALCARECOMuAlGlobalCosmicsHLTDQM)
+#ALCARECOMuAlGlobalCosmicsHLTDQM = hltMonBitSummary.clone(
+#    directory = "AlCaReco/MuAlGlobalCosmics/HLTSummary",
+#    histLabel = "MuAlGlobalCosmics",
+#    HLTPaths = ["HLT_.*L1.*"],
+#    eventSetupPathsKey =  ALCARECOMuAlGlobalCosmicsHLT.eventSetupPathsKey.value()
+#)
+#ALCARECOMuAlGlobalCosmicsDQM = cms.Sequence( ALCARECOMuAlGlobalCosmicsTrackingDQM + ALCARECOMuAlGlobalCosmicsHLTDQM)
+ALCARECOMuAlGlobalCosmicsDQM = cms.Sequence( ALCARECOMuAlGlobalCosmicsTrackingDQM)
 
 ##########################################################
 ################## MuAlBeamHalo ##########################
@@ -87,13 +90,15 @@ ALCARECOMuAlBeamHaloTrackingDQM = _TrackMon.TrackMon.clone(
     )
 
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHalo_cff import ALCARECOMuAlBeamHaloHLT
-ALCARECOMuAlBeamHaloHLTDQM = hltMonBitSummary.clone(
-    directory = "AlCaReco/MuAlBeamHalo/HLTSummary",
-    histLabel = "MuAlBeamHalo",
-    HLTPaths = ["HLT_.*Mu.*"],
-    eventSetupPathsKey =  ALCARECOMuAlBeamHaloHLT.eventSetupPathsKey.value()
-)
-ALCARECOMuAlBeamHaloDQM = cms.Sequence( ALCARECOMuAlBeamHaloTrackingDQM + ALCARECOMuAlBeamHaloHLTDQM)
+#ALCARECOMuAlBeamHaloHLTDQM = hltMonBitSummary.clone(
+#    directory = "AlCaReco/MuAlBeamHalo/HLTSummary",
+#    histLabel = "MuAlBeamHalo",
+#    HLTPaths = ["HLT_.*Mu.*"],
+#    eventSetupPathsKey =  ALCARECOMuAlBeamHaloHLT.eventSetupPathsKey.value()
+#)
+#ALCARECOMuAlBeamHaloDQM = cms.Sequence( ALCARECOMuAlBeamHaloTrackingDQM + ALCARECOMuAlBeamHaloHLTDQM)
+ALCARECOMuAlBeamHaloDQM = cms.Sequence( ALCARECOMuAlBeamHaloTrackingDQM)
+
 
 ##########################################################
 ################# MuAlBeamHaloOverlaps ###################
@@ -115,13 +120,14 @@ ALCARECOMuAlBeamHaloOverlapsTrackingDQM = _TrackMon.TrackMon.clone(
     TrackPtMax = 30
     )
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHaloOverlaps_cff import ALCARECOMuAlBeamHaloOverlapsHLT
-ALCARECOMuAlBeamHaloOverlapsHLTDQM = hltMonBitSummary.clone(
-    directory = "AlCaReco/MuAlBeamHaloOverlaps/HLTSummary",
-    histLabel = "MuAlBeamHaloOverlaps",
-    HLTPaths = ["HLT_.*L1.*"],
-    eventSetupPathsKey =  ALCARECOMuAlBeamHaloOverlapsHLT.eventSetupPathsKey.value()
-)
-ALCARECOMuAlBeamHaloOverlapsDQM = cms.Sequence( ALCARECOMuAlBeamHaloOverlapsTrackingDQM + ALCARECOMuAlBeamHaloOverlapsHLTDQM)
+#ALCARECOMuAlBeamHaloOverlapsHLTDQM = hltMonBitSummary.clone(
+#    directory = "AlCaReco/MuAlBeamHaloOverlaps/HLTSummary",
+#    histLabel = "MuAlBeamHaloOverlaps",
+#    HLTPaths = ["HLT_.*L1.*"],
+#    eventSetupPathsKey =  ALCARECOMuAlBeamHaloOverlapsHLT.eventSetupPathsKey.value()
+#)
+#ALCARECOMuAlBeamHaloOverlapsDQM = cms.Sequence( ALCARECOMuAlBeamHaloOverlapsTrackingDQM + ALCARECOMuAlBeamHaloOverlapsHLTDQM)
+ALCARECOMuAlBeamHaloOverlapsDQM = cms.Sequence( ALCARECOMuAlBeamHaloOverlapsTrackingDQM)
 
 
 ##########################################################
@@ -151,14 +157,15 @@ ALCARECOMuAlCalIsolatedMuMuAlDQM = _MuonAl.muonAlignment.clone(
     )
 
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlCalIsolatedMu_cff import ALCARECOMuAlCalIsolatedMuHLT
-ALCARECOMuAlCalIsolatedMuHLTDQM = hltMonBitSummary.clone(
-    directory = "AlCaReco/MuAlCalIsolatedMu/HLTSummary",
-    histLabel = "MuAlCalIsolatedMu",
-    HLTPaths = ["HLT_.*Mu.*"],
-    eventSetupPathsKey =  ALCARECOMuAlCalIsolatedMuHLT.eventSetupPathsKey.value()
-)
+#ALCARECOMuAlCalIsolatedMuHLTDQM = hltMonBitSummary.clone(
+#    directory = "AlCaReco/MuAlCalIsolatedMu/HLTSummary",
+#    histLabel = "MuAlCalIsolatedMu",
+#    HLTPaths = ["HLT_.*Mu.*"],
+#    eventSetupPathsKey =  ALCARECOMuAlCalIsolatedMuHLT.eventSetupPathsKey.value()
+#)
+#ALCARECOMuAlCalIsolatedMuDQM = cms.Sequence( ALCARECOMuAlCalIsolatedMuTrackingDQM + ALCARECOMuAlCalIsolatedMuMuAlDQM + ALCARECOMuAlCalIsolatedMuHLTDQM)
+ALCARECOMuAlCalIsolatedMuDQM = cms.Sequence( ALCARECOMuAlCalIsolatedMuTrackingDQM + ALCARECOMuAlCalIsolatedMuMuAlDQM)
 
-ALCARECOMuAlCalIsolatedMuDQM = cms.Sequence( ALCARECOMuAlCalIsolatedMuTrackingDQM + ALCARECOMuAlCalIsolatedMuMuAlDQM + ALCARECOMuAlCalIsolatedMuHLTDQM)
 
 ##########################################################
 #################### MuAlOverlaps ########################
@@ -181,14 +188,15 @@ ALCARECOMuAlOverlapsTrackingDQM = _TrackMon.TrackMon.clone(
     )
 
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlOverlaps_cff import ALCARECOMuAlOverlapsHLT
-ALCARECOMuAlOverlapsHLTDQM = hltMonBitSummary.clone(
-    directory = "AlCaReco/MuAlOverlaps/HLTSummary",
-    histLabel = "MuAlOverlaps",
-    HLTPaths = ["HLT_.*L1.*"],
-    eventSetupPathsKey =  ALCARECOMuAlOverlapsHLT.eventSetupPathsKey.value()
-)
+#ALCARECOMuAlOverlapsHLTDQM = hltMonBitSummary.clone(
+#    directory = "AlCaReco/MuAlOverlaps/HLTSummary",
+#    histLabel = "MuAlOverlaps",
+#    HLTPaths = ["HLT_.*L1.*"],
+#    eventSetupPathsKey =  ALCARECOMuAlOverlapsHLT.eventSetupPathsKey.value()
+#)
+#ALCARECOMuAlOverlapsDQM = cms.Sequence( ALCARECOMuAlOverlapsTrackingDQM + ALCARECOMuAlOverlapsHLTDQM)
+ALCARECOMuAlOverlapsDQM = cms.Sequence( ALCARECOMuAlOverlapsTrackingDQM)
 
-ALCARECOMuAlOverlapsDQM = cms.Sequence( ALCARECOMuAlOverlapsTrackingDQM + ALCARECOMuAlOverlapsHLTDQM)
 
 ##########################################################
 ############### MuAlZMuMu ################################
@@ -217,11 +225,12 @@ ALCARECOMuAlZMuMuMuAlDQM= _MuonAl.muonAlignment.clone(
     )
 
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlZMuMu_cff import ALCARECOMuAlZMuMuHLT
-ALCARECOMuAlZMuMuHLTDQM = hltMonBitSummary.clone(
-    directory = "AlCaReco/MuAlZMuMu/HLTSummary",
-    histLabel = "MuAlZMuMu",
-    HLTPaths = ["HLT_.*Mu.*"],
-    eventSetupPathsKey =  ALCARECOMuAlZMuMuHLT.eventSetupPathsKey.value()
-)
+#ALCARECOMuAlZMuMuHLTDQM = hltMonBitSummary.clone(
+#    directory = "AlCaReco/MuAlZMuMu/HLTSummary",
+#    histLabel = "MuAlZMuMu",
+#    HLTPaths = ["HLT_.*Mu.*"],
+#    eventSetupPathsKey =  ALCARECOMuAlZMuMuHLT.eventSetupPathsKey.value()
+#)
+#ALCARECOMuAlZMuMuDQM = cms.Sequence( ALCARECOMuAlZMuMuTrackingDQM + ALCARECOMuAlZMuMuMuAlDQM + ALCARECOMuAlZMuMuHLTDQM)
+ALCARECOMuAlZMuMuDQM = cms.Sequence( ALCARECOMuAlZMuMuTrackingDQM + ALCARECOMuAlZMuMuMuAlDQM)
 
-ALCARECOMuAlZMuMuDQM = cms.Sequence( ALCARECOMuAlZMuMuTrackingDQM + ALCARECOMuAlZMuMuMuAlDQM + ALCARECOMuAlZMuMuHLTDQM)
