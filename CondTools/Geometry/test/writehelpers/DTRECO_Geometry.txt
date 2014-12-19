@@ -1,12 +1,12 @@
 {
     "destinationDatabase": "oracle://cms_orcon_prod/CMS_COND_GEOMETRY_000", 
     "destinationTags": {
-        "TKExtra_Geometry_TagXX": {
+        "DTRECO_Geometry_TagXX": {
             "dependencies": {}, 
             "synchronizeTo": "offline"
         }
     }, 
-    "inputTag": "TKExtra_Geometry_TagXX", 
+    "inputTag": "DTRECO_Geometry_TagXX", 
     "since": null, 
-    "userText": "Geometry payload for Tracker Extra Reco TagXX"
+    "userText": "DT geometry payload config TagXX"
 }
