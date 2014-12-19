@@ -35,7 +35,7 @@ from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFCHSL1FastL2L3
 dqmAk4PFCHSL1FastL2L3ResidualCorrector = ak4PFCHSL1FastL2L3ResidualCorrector.clone()
 dqmAk4PFCHSL1FastL2L3ResidualCorrectorChain = cms.Sequence(
     #ak4PFCHSL1FastjetCorrector*ak4PFCHSL2RelativeCorrector*ak4PFCHSL3AbsoluteCorrector*ak4PFCHSResidualCorrector
-    dqmAk4PFL1FastL2L3ResidualCorrector
+    dqmAk4PFCHSL1FastL2L3ResidualCorrector
 )
 
 jetPreDQMSeq=cms.Sequence(ak4CaloL2RelativeCorrector*ak4CaloL3AbsoluteCorrector*ak4CaloResidualCorrector*

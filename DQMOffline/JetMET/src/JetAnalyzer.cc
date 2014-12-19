@@ -704,49 +704,49 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MuEn_highPt_EndCap" ,mMuEn_highPt_EndCap));
 
     //now get handle on OOT PU
-    mePhFrac_EmptyBunch          = ibooker.book1D("PhFrac_emptyBunch",        "PHFrac prev empty 2 bunches",         50, 0,    1);
-    mePhFrac_noEmptyBunch        = ibooker.book1D("PhFrac_noEmptyBunch",      "PHFrac prev filled 2 bunches",         50, 0,    1);
-    meNHFrac_EmptyBunch   = ibooker.book1D("NHFrac_emptyBunch",   "NHFrac prev empty 2 bunches",         50, 0,    1);
-    meNHFrac_noEmptyBunch = ibooker.book1D("NHFrac_noEmptyBunch", "NHFrac prev filled 2 bunches",         50, 0,    1);
-    meCHFrac_EmptyBunch   = ibooker.book1D("CHFrac_emptyBunch",   "CHFrac prev empty 2 bunches",         50, 0,    1);
-    meCHFrac_noEmptyBunch = ibooker.book1D("CHFrac_noEmptyBunch", "CHFrac prev filled 2 bunches",         50, 0,    1);
+    mePhFrac_EmptyBunch          = ibooker.book1D("PhFrac_BXm2BXm1Empty",        "PHFrac prev empty 2 bunches",         50, 0,    1);
+    mePhFrac_noEmptyBunch        = ibooker.book1D("PhFrac_BXm2BXm1Filled",      "PHFrac prev filled 2 bunches",         50, 0,    1);
+    meNHFrac_EmptyBunch   = ibooker.book1D("NHFrac_BXm2BXm1Empty",   "NHFrac prev empty 2 bunches",         50, 0,    1);
+    meNHFrac_noEmptyBunch = ibooker.book1D("NHFrac_BXm2BXm1Filled", "NHFrac prev filled 2 bunches",         50, 0,    1);
+    meCHFrac_EmptyBunch   = ibooker.book1D("CHFrac_BXm2BXm1Empty",   "CHFrac prev empty 2 bunches",         50, 0,    1);
+    meCHFrac_noEmptyBunch = ibooker.book1D("CHFrac_BXm2BXm1Filled", "CHFrac prev filled 2 bunches",         50, 0,    1);
     mePt_EmptyBunch                       = ibooker.book1D("Pt_EmptyBunch",   "pT prev empty 2 bunches", ptBin_, ptMin_, ptMax_);
-    mePt_noEmptyBunch                     = ibooker.book1D("Pt_noEmptyBunch", "pT prev filled 2 bunches", ptBin_, ptMin_, ptMax_);
+    mePt_noEmptyBunch                     = ibooker.book1D("Pt_BXm2BXm1Filled", "pT prev filled 2 bunches", ptBin_, ptMin_, ptMax_);
     meEta_EmptyBunch                     = ibooker.book1D("Eta_EmptyBunch",   "eta prev empty 2 bunches",  etaBin_, etaMin_, etaMax_);
-    meEta_noEmptyBunch                   = ibooker.book1D("Eta_noEmptyBunch", "eta prev filled 2 bunches", etaBin_, etaMin_, etaMax_);
+    meEta_noEmptyBunch                   = ibooker.book1D("Eta_BXm2BXm1Filled", "eta prev filled 2 bunches", etaBin_, etaMin_, etaMax_);
 
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFrac_emptyBunch"       ,mePhFrac_EmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFrac_noEmptyBunch"     ,mePhFrac_noEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFrac_emptyBunch"  ,meNHFrac_EmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFrac_noEmptyBunch"      ,meNHFrac_noEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_emptyBunch"  ,meCHFrac_EmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_noEmptyBunch"      ,meCHFrac_noEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Pt_emptyBunch"    ,mePt_EmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Pt_noEmptyBunch"  ,mePt_noEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Eta_emptyBunch"  ,meEta_EmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Eta_noEmptyBunch",meEta_noEmptyBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFrac_BXm2BXm1Empty"       ,mePhFrac_EmptyBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFrac_BXm2BXm1Filled"     ,mePhFrac_noEmptyBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFrac_BXm2BXm1Empty"  ,meNHFrac_EmptyBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFrac_BXm2BXm1Filled"      ,meNHFrac_noEmptyBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_BXm2BXm1Empty"  ,meCHFrac_EmptyBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_BXm2BXm1Filled"      ,meCHFrac_noEmptyBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Pt_BXm2BXm1Empty"    ,mePt_EmptyBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Pt_BXm2BXm1Filled"  ,mePt_noEmptyBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Eta_BXm2BXm1Empty"  ,meEta_EmptyBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Eta_BXm2BXm1Filled",meEta_noEmptyBunch));
 
-    mePhFrac_oneEmptyBunch          = ibooker.book1D("PhFrac_oneEmptyBunch",        "PHFrac prev empty bunch",         50, 0,    1);
-    mePhFrac_oneFullBunch        = ibooker.book1D("PhFrac_oneFullBunch",      "PHFrac prev filled bunch",         50, 0,    1);
-    meNHFrac_oneEmptyBunch   = ibooker.book1D("NHFrac_oneEmptyBunch",   "NHFrac prev empty bunch",         50, 0,    1);
-    meNHFrac_oneFullBunch = ibooker.book1D("NHFrac_oneFullBunch", "NHFrac prev filled bunch",         50, 0,    1);
-    meCHFrac_oneEmptyBunch   = ibooker.book1D("CHFrac_oneEmptyBunch",   "CHFrac prev empty bunch",         50, 0,    1);
-    meCHFrac_oneFullBunch = ibooker.book1D("CHFrac_oneFullBunch", "CHFrac prev filled bunch",         50, 0,    1);
-    mePt_oneEmptyBunch                       = ibooker.book1D("Pt_oneEmptyBunch",   "pT prev empty bunch", ptBin_, ptMin_, ptMax_);
-    mePt_oneFullBunch                     = ibooker.book1D("Pt_oneFullBunch", "pT prev filled bunch", ptBin_, ptMin_, ptMax_);
-    meEta_oneEmptyBunch                     = ibooker.book1D("Eta_oneEmptyBunch",   "eta prev empty bunch", etaBin_, etaMin_, etaMax_);
-    meEta_oneFullBunch                   = ibooker.book1D("Eta_oneFullBunch", "eta prev filled bunch", etaBin_, etaMin_, etaMax_);
+    mePhFrac_oneEmptyBunch          = ibooker.book1D("PhFrac_BXm1Empty",        "PHFrac prev empty bunch",         50, 0,    1);
+    mePhFrac_oneFullBunch        = ibooker.book1D("PhFrac_BXm1Filled",      "PHFrac prev filled bunch",         50, 0,    1);
+    meNHFrac_oneEmptyBunch   = ibooker.book1D("NHFrac_BXm1Empty",   "NHFrac prev empty bunch",         50, 0,    1);
+    meNHFrac_oneFullBunch = ibooker.book1D("NHFrac_BXm1Filled", "NHFrac prev filled bunch",         50, 0,    1);
+    meCHFrac_oneEmptyBunch   = ibooker.book1D("CHFrac_BXm1Empty",   "CHFrac prev empty bunch",         50, 0,    1);
+    meCHFrac_oneFullBunch = ibooker.book1D("CHFrac_BXm1Filled", "CHFrac prev filled bunch",         50, 0,    1);
+    mePt_oneEmptyBunch                       = ibooker.book1D("Pt_BXm1Empty",   "pT prev empty bunch", ptBin_, ptMin_, ptMax_);
+    mePt_oneFullBunch                     = ibooker.book1D("Pt_BXm1Filled", "pT prev filled bunch", ptBin_, ptMin_, ptMax_);
+    meEta_oneEmptyBunch                     = ibooker.book1D("Eta_BXm1Empty",   "eta prev empty bunch", etaBin_, etaMin_, etaMax_);
+    meEta_oneFullBunch                   = ibooker.book1D("Eta_BXm1Filled", "eta prev filled bunch", etaBin_, etaMin_, etaMax_);
 
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFrac_oneEmptyBunch"       ,mePhFrac_oneEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFrac_oneFullBunch"     ,mePhFrac_oneFullBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFrac_oneEmptyBunch"  ,meNHFrac_oneEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFrac_oneFullBunch"      ,meNHFrac_oneFullBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_oneEmptyBunch"  ,meCHFrac_oneEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_oneFullBunch"      ,meCHFrac_oneFullBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Pt_oneEmptyBunch"    ,mePt_oneEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Pt_oneFullBunch"  ,mePt_oneFullBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Eta_oneEmptyBunch"  ,meEta_oneEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Eta_oneFullBunch",meEta_oneFullBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFrac_BXm1Empty"       ,mePhFrac_oneEmptyBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFrac_BXm1Filled"     ,mePhFrac_oneFullBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFrac_BXm1Empty"  ,meNHFrac_oneEmptyBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFrac_BXm1Filled"      ,meNHFrac_oneFullBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_BXm1Empty"  ,meCHFrac_oneEmptyBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_BXm1Filled"      ,meCHFrac_oneFullBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Pt_BXm1Empty"    ,mePt_oneEmptyBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Pt_BXm1Filled"  ,mePt_oneFullBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Eta_BXm1Empty"  ,meEta_oneEmptyBunch));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Eta_BXm1Filled",meEta_oneFullBunch));
 
     //multiplicities
     mChMultiplicity_lowPt_EndCap    = ibooker.book1D("ChMultiplicity_lowPt_EndCap", "ChMultiplicity_lowPt_EndCap", 60,0,60);
@@ -1645,32 +1645,32 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	}
 	//OOT plots
 	if(techTriggerResultBx0 && techTriggerResultBxE && techTriggerResultBxF){
-	  mePhFrac_noEmptyBunch    = map_of_MEs[DirName+"/"+"PhFrac_noEmptyBunch"];     if (  mePhFrac_noEmptyBunch  && mePhFrac_noEmptyBunch ->getRootObject())  mePhFrac_noEmptyBunch  ->Fill((*pfJets)[ijet].photonEnergyFraction());
-	  meNHFrac_noEmptyBunch    = map_of_MEs[DirName+"/"+"NHFrac_noEmptyBunch"];     if (  meNHFrac_noEmptyBunch  && meNHFrac_noEmptyBunch ->getRootObject())  meNHFrac_noEmptyBunch  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	  meCHFrac_noEmptyBunch    = map_of_MEs[DirName+"/"+"CHFrac_noEmptyBunch"];     if (  meCHFrac_noEmptyBunch  && meCHFrac_noEmptyBunch ->getRootObject())  meCHFrac_noEmptyBunch  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	  mePt_noEmptyBunch    = map_of_MEs[DirName+"/"+"Pt_noEmptyBunch"];     if (  mePt_noEmptyBunch  && mePt_noEmptyBunch ->getRootObject())  mePt_noEmptyBunch  ->Fill((*pfJets)[ijet].pt());
-	  meEta_noEmptyBunch    = map_of_MEs[DirName+"/"+"Eta_noEmptyBunch"];     if (  meEta_noEmptyBunch  && meEta_noEmptyBunch ->getRootObject())  meEta_noEmptyBunch  ->Fill((*pfJets)[ijet].eta());
+	  mePhFrac_noEmptyBunch    = map_of_MEs[DirName+"/"+"PhFrac_BXm2BXm1Filled"];     if (  mePhFrac_noEmptyBunch  && mePhFrac_noEmptyBunch ->getRootObject())  mePhFrac_noEmptyBunch  ->Fill((*pfJets)[ijet].photonEnergyFraction());
+	  meNHFrac_noEmptyBunch    = map_of_MEs[DirName+"/"+"NHFrac_BXm2BXm1Filled"];     if (  meNHFrac_noEmptyBunch  && meNHFrac_noEmptyBunch ->getRootObject())  meNHFrac_noEmptyBunch  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	  meCHFrac_noEmptyBunch    = map_of_MEs[DirName+"/"+"CHFrac_BXm2BXm1Filled"];     if (  meCHFrac_noEmptyBunch  && meCHFrac_noEmptyBunch ->getRootObject())  meCHFrac_noEmptyBunch  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	  mePt_noEmptyBunch    = map_of_MEs[DirName+"/"+"Pt_BXm2BXm1Filled"];     if (  mePt_noEmptyBunch  && mePt_noEmptyBunch ->getRootObject())  mePt_noEmptyBunch  ->Fill((*pfJets)[ijet].pt());
+	  meEta_noEmptyBunch    = map_of_MEs[DirName+"/"+"Eta_BXm2BXm1Filled"];     if (  meEta_noEmptyBunch  && meEta_noEmptyBunch ->getRootObject())  meEta_noEmptyBunch  ->Fill((*pfJets)[ijet].eta());
 	}
 	if(techTriggerResultBx0 && techTriggerResultBxF){
-	  mePhFrac_oneFullBunch    = map_of_MEs[DirName+"/"+"PhFrac_oneFullBunch"];     if (  mePhFrac_oneFullBunch  && mePhFrac_oneFullBunch ->getRootObject())  mePhFrac_oneFullBunch  ->Fill((*pfJets)[ijet].photonEnergyFraction());
-	  meNHFrac_oneFullBunch    = map_of_MEs[DirName+"/"+"NHFrac_oneFullBunch"];     if (  meNHFrac_oneFullBunch  && meNHFrac_oneFullBunch ->getRootObject())  meNHFrac_oneFullBunch  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	  meCHFrac_oneFullBunch    = map_of_MEs[DirName+"/"+"CHFrac_oneFullBunch"];     if (  meCHFrac_oneFullBunch  && meCHFrac_oneFullBunch ->getRootObject())  meCHFrac_oneFullBunch  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	  mePt_oneFullBunch    = map_of_MEs[DirName+"/"+"Pt_oneFullBunch"];     if (  mePt_oneFullBunch  && mePt_oneFullBunch ->getRootObject())  mePt_oneFullBunch  ->Fill((*pfJets)[ijet].pt());
-	  meEta_oneFullBunch    = map_of_MEs[DirName+"/"+"Eta_oneFullBunch"];     if (  meEta_oneFullBunch  && meEta_oneFullBunch ->getRootObject())  meEta_oneFullBunch  ->Fill((*pfJets)[ijet].eta());
+	  mePhFrac_oneFullBunch    = map_of_MEs[DirName+"/"+"PhFrac_BXm1Filled"];     if (  mePhFrac_oneFullBunch  && mePhFrac_oneFullBunch ->getRootObject())  mePhFrac_oneFullBunch  ->Fill((*pfJets)[ijet].photonEnergyFraction());
+	  meNHFrac_oneFullBunch    = map_of_MEs[DirName+"/"+"NHFrac_BXm1Filled"];     if (  meNHFrac_oneFullBunch  && meNHFrac_oneFullBunch ->getRootObject())  meNHFrac_oneFullBunch  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	  meCHFrac_oneFullBunch    = map_of_MEs[DirName+"/"+"CHFrac_BXm1Filled"];     if (  meCHFrac_oneFullBunch  && meCHFrac_oneFullBunch ->getRootObject())  meCHFrac_oneFullBunch  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	  mePt_oneFullBunch    = map_of_MEs[DirName+"/"+"Pt_BXm1Filled"];     if (  mePt_oneFullBunch  && mePt_oneFullBunch ->getRootObject())  mePt_oneFullBunch  ->Fill((*pfJets)[ijet].pt());
+	  meEta_oneFullBunch    = map_of_MEs[DirName+"/"+"Eta_BXm1Filled"];     if (  meEta_oneFullBunch  && meEta_oneFullBunch ->getRootObject())  meEta_oneFullBunch  ->Fill((*pfJets)[ijet].eta());
 	}
 	if(techTriggerResultBx0 && !techTriggerResultBxE && !techTriggerResultBxF){
-	  mePhFrac_EmptyBunch    = map_of_MEs[DirName+"/"+"PhFrac_emptyBunch"];     if (  mePhFrac_EmptyBunch  && mePhFrac_EmptyBunch ->getRootObject())  mePhFrac_EmptyBunch  ->Fill((*pfJets)[ijet].photonEnergyFraction());
-	  meNHFrac_EmptyBunch    = map_of_MEs[DirName+"/"+"NHFrac_emptyBunch"];     if (  meNHFrac_EmptyBunch  && meNHFrac_EmptyBunch ->getRootObject())  meNHFrac_EmptyBunch  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	  meCHFrac_EmptyBunch    = map_of_MEs[DirName+"/"+"CHFrac_emptyBunch"];     if (  meCHFrac_EmptyBunch  && meCHFrac_EmptyBunch ->getRootObject())  meCHFrac_EmptyBunch  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	  mePt_EmptyBunch    = map_of_MEs[DirName+"/"+"Pt_emptyBunch"];     if (  mePt_EmptyBunch  && mePt_EmptyBunch ->getRootObject())  mePt_EmptyBunch  ->Fill((*pfJets)[ijet].pt());
-	  meEta_EmptyBunch    = map_of_MEs[DirName+"/"+"Eta_emptyBunch"];     if (  meEta_EmptyBunch  && meEta_EmptyBunch ->getRootObject())  meEta_EmptyBunch  ->Fill((*pfJets)[ijet].eta());
+	  mePhFrac_EmptyBunch    = map_of_MEs[DirName+"/"+"PhFrac_BXm2BXm1Empty"];     if (  mePhFrac_EmptyBunch  && mePhFrac_EmptyBunch ->getRootObject())  mePhFrac_EmptyBunch  ->Fill((*pfJets)[ijet].photonEnergyFraction());
+	  meNHFrac_EmptyBunch    = map_of_MEs[DirName+"/"+"NHFrac_BXm2BXm1Empty"];     if (  meNHFrac_EmptyBunch  && meNHFrac_EmptyBunch ->getRootObject())  meNHFrac_EmptyBunch  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	  meCHFrac_EmptyBunch    = map_of_MEs[DirName+"/"+"CHFrac_BXm2BXm1Empty"];     if (  meCHFrac_EmptyBunch  && meCHFrac_EmptyBunch ->getRootObject())  meCHFrac_EmptyBunch  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	  mePt_EmptyBunch    = map_of_MEs[DirName+"/"+"Pt_BXm2BXm1Empty"];     if (  mePt_EmptyBunch  && mePt_EmptyBunch ->getRootObject())  mePt_EmptyBunch  ->Fill((*pfJets)[ijet].pt());
+	  meEta_EmptyBunch    = map_of_MEs[DirName+"/"+"Eta_BXm2BXm1Empty"];     if (  meEta_EmptyBunch  && meEta_EmptyBunch ->getRootObject())  meEta_EmptyBunch  ->Fill((*pfJets)[ijet].eta());
 	}
 	if(techTriggerResultBx0 && !techTriggerResultBxF){
-	  mePhFrac_oneEmptyBunch    = map_of_MEs[DirName+"/"+"PhFrac_oneEmptyBunch"];     if (  mePhFrac_oneEmptyBunch  && mePhFrac_oneEmptyBunch ->getRootObject())  mePhFrac_oneEmptyBunch  ->Fill((*pfJets)[ijet].photonEnergyFraction());
-	  meNHFrac_oneEmptyBunch    = map_of_MEs[DirName+"/"+"NHFrac_oneEmptyBunch"];     if (  meNHFrac_oneEmptyBunch  && meNHFrac_oneEmptyBunch ->getRootObject())  meNHFrac_oneEmptyBunch  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	  meCHFrac_oneEmptyBunch    = map_of_MEs[DirName+"/"+"CHFrac_oneEmptyBunch"];     if (  meCHFrac_oneEmptyBunch  && meCHFrac_oneEmptyBunch ->getRootObject())  meCHFrac_oneEmptyBunch  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	  mePt_oneEmptyBunch    = map_of_MEs[DirName+"/"+"Pt_oneEmptyBunch"];     if (  mePt_oneEmptyBunch  && mePt_oneEmptyBunch ->getRootObject())  mePt_oneEmptyBunch  ->Fill((*pfJets)[ijet].pt());
-	  meEta_oneEmptyBunch    = map_of_MEs[DirName+"/"+"Eta_oneEmptyBunch"];     if (  meEta_oneEmptyBunch  && meEta_oneEmptyBunch ->getRootObject())  meEta_oneEmptyBunch  ->Fill((*pfJets)[ijet].eta());
+	  mePhFrac_oneEmptyBunch    = map_of_MEs[DirName+"/"+"PhFrac_BXm1Empty"];     if (  mePhFrac_oneEmptyBunch  && mePhFrac_oneEmptyBunch ->getRootObject())  mePhFrac_oneEmptyBunch  ->Fill((*pfJets)[ijet].photonEnergyFraction());
+	  meNHFrac_oneEmptyBunch    = map_of_MEs[DirName+"/"+"NHFrac_BXm1Empty"];     if (  meNHFrac_oneEmptyBunch  && meNHFrac_oneEmptyBunch ->getRootObject())  meNHFrac_oneEmptyBunch  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	  meCHFrac_oneEmptyBunch    = map_of_MEs[DirName+"/"+"CHFrac_BXm1Empty"];     if (  meCHFrac_oneEmptyBunch  && meCHFrac_oneEmptyBunch ->getRootObject())  meCHFrac_oneEmptyBunch  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	  mePt_oneEmptyBunch    = map_of_MEs[DirName+"/"+"Pt_BXm1Empty"];     if (  mePt_oneEmptyBunch  && mePt_oneEmptyBunch ->getRootObject())  mePt_oneEmptyBunch  ->Fill((*pfJets)[ijet].pt());
+	  meEta_oneEmptyBunch    = map_of_MEs[DirName+"/"+"Eta_BXm1Empty"];     if (  meEta_oneEmptyBunch  && meEta_oneEmptyBunch ->getRootObject())  meEta_oneEmptyBunch  ->Fill((*pfJets)[ijet].eta());
 	}
 	mChargedHadronEnergy = map_of_MEs[DirName+"/"+"ChargedHadronEnergy"]; if (mChargedHadronEnergy && mChargedHadronEnergy->getRootObject())  mChargedHadronEnergy->Fill ((*pfJets)[ijet].chargedHadronEnergy());
 	mNeutralHadronEnergy = map_of_MEs[DirName+"/"+"NeutralHadronEnergy"]; if (mNeutralHadronEnergy && mNeutralHadronEnergy->getRootObject())  mNeutralHadronEnergy->Fill ((*pfJets)[ijet].neutralHadronEnergy());

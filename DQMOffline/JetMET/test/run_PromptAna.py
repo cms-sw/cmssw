@@ -23,10 +23,10 @@ secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
        #for data
-       '/store/relval/CMSSW_7_3_0_pre3/JetHT/RECO/GR_R_73_V0A_RelVal_jet2012C-v1/00000/004D16D1-0175-E411-993C-02163E010CC2.root',
-       '/store/relval/CMSSW_7_3_0_pre3/JetHT/RECO/GR_R_73_V0A_RelVal_jet2012C-v1/00000/027904F3-2275-E411-B797-02163E010EC2.root',
-       '/store/relval/CMSSW_7_3_0_pre3/JetHT/RECO/GR_R_73_V0A_RelVal_jet2012C-v1/00000/0C735F30-1D75-E411-A838-02163E010DBE.root',
-       '/store/relval/CMSSW_7_3_0_pre3/JetHT/RECO/GR_R_73_V0A_RelVal_jet2012C-v1/00000/0E4DD1BD-FB74-E411-B2CD-003048FE6844.root'
+       '/store/relval/CMSSW_7_3_0_pre1/JetHT/RECO/PRE_R_72_V10A_RelVal_jet2012C-v1/00000/04F00191-E359-E411-91F8-0025905A610C.root',
+       '/store/relval/CMSSW_7_3_0_pre1/JetHT/RECO/PRE_R_72_V10A_RelVal_jet2012C-v1/00000/06F034BB-F259-E411-AFC2-00261894384F.root',
+       '/store/relval/CMSSW_7_3_0_pre1/JetHT/RECO/PRE_R_72_V10A_RelVal_jet2012C-v1/00000/0A051B54-EC59-E411-95E5-002618FDA259.root',
+       '/store/relval/CMSSW_7_3_0_pre1/JetHT/RECO/PRE_R_72_V10A_RelVal_jet2012C-v1/00000/0A1AF8FF-F859-E411-A40F-0025905A6110.root'
        #for cosmics
        #'/store/data/Commissioning2014/Cosmics/RECO/PromptReco-v4/000/228/734/00000/10C180A7-2866-E411-B6F9-02163E010F8C.root',
        #for MC
