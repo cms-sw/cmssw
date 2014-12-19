@@ -361,6 +361,9 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     _emPreID->setShowerPosition(cluster.position());
     _emPreID->setShowerDirection(cluster.axis());
     usable_clusters[i] = !_emPreID->isEm(cluster);
+    if( ! usable_clusters[i] ) { 
+      std::cout << "cluster at " << i << " is EM-locked" << std::endl;
+    }
     _emPreID->reset();
   }
 
