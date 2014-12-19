@@ -21,7 +21,9 @@ process.TFileService = cms.Service("TFileService",
                                    fileName=cms.string("histograms_workflowD.root"))
 
 process.load("GeneratorInterface.HiGenCommon.HeavyIon_cff")
-process.demo = cms.EDAnalyzer('HiMixValidation')
+process.demo = cms.EDAnalyzer('HiMixValidation',
+                              jetSrc = cms.untracked.InputTag('akPu3CaloJets')
+)
 
 process.p = cms.Path(process.mix*process.heavyIon*process.demo)
 

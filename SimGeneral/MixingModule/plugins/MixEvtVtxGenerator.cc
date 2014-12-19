@@ -99,6 +99,7 @@ HepMC::FourVector* MixEvtVtxGenerator::getVertex( Event& evt){
     Handle<CrossingFrame<HepMCProduct> > cf;
     evt.getByToken(cfLabel,cf);
     MixCollection<HepMCProduct> mix(cf.product());
+    cout<<"VtxSmeared -- mix.size : "<<mix.size()<<endl;
     if(mix.size() < 2){
       cout<<"Less than 2 sub-events, mixing seems to have failed!"<<endl;
     }

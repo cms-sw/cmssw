@@ -166,6 +166,8 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 {
    using namespace edm;
 
+   double mm = 0.1;
+
    edm::Handle<GenHIEvent> higen;
    iEvent.getByLabel(genHIsrc_,higen);
    double npart = higen->Npart();
@@ -283,7 +285,7 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    cout<<"x10"<<endl;
    double zcf[2]={-29,-29};
    if(mix.size() != 2){
-      cout<<"More or less than 2 sub-events, mixing seems to have failed!"<<endl;
+      cout<<"More or less than 2 sub-events, mixing seems to have failed! Size : "<<mix.size()<<endl;
    }else{
       for(int i = 0; i < 2; ++i){
 	 cout<<"i "<<i<<endl;
@@ -296,7 +298,7 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
          cout<<"c"<<endl;
 
 	 if(!genvtx){
-	    //cout<<"No Signal Process Vertex!"<<endl;
+	    cout<<"No Signal Process Vertex!"<<endl;
 	    HepMC::GenEvent::particle_const_iterator pt=inev->particles_begin();
 	    HepMC::GenEvent::particle_const_iterator ptend=inev->particles_end();
 	    while(!genvtx || ( genvtx->particles_in_size() == 1 && pt != ptend ) ){
@@ -305,10 +307,11 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	       genvtx = (*pt)->production_vertex();
 	       ++pt;
 	    }
-
+	    if(!genvtx) cout<<"No Gen Vertex!"<<endl;
 	 }
-	 zcf[i] = genvtx->position().z();
-         cout<<"d"<<endl;
+	 zcf[i] = genvtx->position().z()*mm;
+         cout<<"z : "<<zcf[i]<<endl;
+	 cout<<"---"<<endl;
       }
    }
 
