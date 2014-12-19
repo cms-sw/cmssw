@@ -23,6 +23,9 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+// EM pre-id
+#include "HGCALShowerBasedEmIdentification.h"
+
 #include "FWCore/Framework/interface/Event.h"
 
 #include<unordered_map>
@@ -192,6 +195,8 @@ private:
   double _minConeAngle, _maxConeAngle, _maxConeDepth;
   unsigned _minECALLayerToCone;
 
+  // EM pre-id
+  std::unique_ptr<HGCALShowerBasedEmIdentification> _emPreID;
 
   // helper functions for various steps in the clustering
   void build2DCluster(const edm::Handle<reco::PFRecHitCollection>&,
@@ -283,6 +288,10 @@ HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf,
   _maxConeAngle = tkConf.getParameter<double>("maxConeAngle");
   _maxConeDepth = tkConf.getParameter<double>("maxConeDepth");
   _minECALLayerToCone = tkConf.getParameter<unsigned>("minECALLayerToCone");
+
+  // em pre-id
+  _emPreID.reset( new HGCALShowerBasedEmIdentification(true) );
+  _emPreID->reset();
   
 }
 
@@ -344,8 +353,18 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   // use topo clusters to link in z
   linkClustersInLayer(clusters_per_layer,z_linked_clusters); 
 
-  // use tracking to clean up unclustered rechits
+  // run the em-pre ID on these EM-like clustering result
+  // clusters that are EM like are not allowed to be super-clustered
   std::vector<bool> usable_clusters(z_linked_clusters.size(),true);
+  for( unsigned i = 0 ; i < z_linked_clusters.size(); ++i ) {
+    const auto& cluster = z_linked_clusters[i];
+    _emPreID->setShowerPosition(cluster.position());
+    _emPreID->setShowerDirection(cluster.axis());
+    usable_clusters[i] = !_emPreID->isEm(cluster);
+    _emPreID->reset();
+  }
+
+  // use tracking to clean up unclustered rechits and link clusters  
   if( _useTrackAssistedClustering ) {
     trackAssistedClustering(input,rechits,rechitMask,usable_rechits,
 			    usable_clusters,z_linked_clusters);
