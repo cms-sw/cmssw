@@ -18,7 +18,7 @@ stage1Raw = cms.EDProducer(
     fedId            = cms.untracked.int32(1300),
     eventType        = cms.untracked.int32(238),
     fwVersion        = cms.untracked.int32(255),
-    lenSlinkHeader   = cms.untracked.int32(16),
+    lenSlinkHeader   = cms.untracked.int32(16),  # length in 8 bit words !
     lenSlinkTrailer  = cms.untracked.int32(16),
 
     # these parameters specify the amount of data from each link to be
