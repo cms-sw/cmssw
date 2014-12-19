@@ -25,6 +25,7 @@
 
 // EM pre-id
 #include "HGCALShowerBasedEmIdentification.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorBase.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -197,6 +198,7 @@ private:
 
   // EM pre-id
   std::unique_ptr<HGCALShowerBasedEmIdentification> _emPreID;
+  std::unique_ptr<PFClusterEnergyCorrectorBase> _emEnergyCalibration;
 
   // helper functions for various steps in the clustering
   void build2DCluster(const edm::Handle<reco::PFRecHitCollection>&,
@@ -292,6 +294,13 @@ HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf,
   // em pre-id
   _emPreID.reset( new HGCALShowerBasedEmIdentification(true) );
   _emPreID->reset();
+  const edm::ParameterSet& emEnergyConf = 
+    conf.getParameterSet("emEnergyCalibration");
+  const std::string& emName = 
+    emEnergyConf.getParameter<std::string>("algoName");
+  PFClusterEnergyCorrectorBase* emCalib =
+    PFClusterEnergyCorrectorFactory::get()->create(emName,emEnergyConf);
+  _emEnergyCalibration.reset(emCalib);
   
 }
 
@@ -357,9 +366,10 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   // clusters that are EM like are not allowed to be super-clustered
   std::vector<bool> usable_clusters(z_linked_clusters.size(),true);
   for( unsigned i = 0 ; i < z_linked_clusters.size(); ++i ) {
-    const auto& cluster = z_linked_clusters[i];
+    auto& cluster = z_linked_clusters[i];
     _emPreID->setShowerPosition(cluster.position());
     _emPreID->setShowerDirection(cluster.axis());
+    _emEnergyCalibration->correctEnergy(cluster);
     usable_clusters[i] = !_emPreID->isEm(cluster);
     if( ! usable_clusters[i] ) { 
       std::cout << "cluster at " << i << " is EM-locked" << std::endl;
