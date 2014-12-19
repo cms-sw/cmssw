@@ -134,6 +134,8 @@ addMixingScenario("AVE_20_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON
 addMixingScenario("AVE_25_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-12,3), 'N': 25})
 addMixingScenario("AVE_25_BX_50ns_m8",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-8,3), 'N': 25})
 addMixingScenario("AVE_25_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 25})
+addMixingScenario("AVE_30_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-12,3), 'N': 30})
+addMixingScenario("AVE_30_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 30})
 addMixingScenario("AVE_35_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-12,3), 'N': 35})
 addMixingScenario("AVE_35_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 35})
 addMixingScenario("AVE_40_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 40})
@@ -161,6 +163,8 @@ addMixingScenario("AVE_140_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSO
 addMixingScenario("flatPU_0_10",{'file': 'SimGeneral.MixingModule.mix_flat_0_10_cfi'})
 addMixingScenario("Flat_20_50",{'file': 'SimGeneral.MixingModule.mix_Flat_20_50_cfi'})
 addMixingScenario("Flat_20_50_50ns",{'file': 'SimGeneral.MixingModule.mix_Flat_20_50_50ns_cfi'})
+addMixingScenario("Flat_0_50_25ns",{'file': 'SimGeneral.MixingModule.mix_Flat_0_50_25ns_cfi'})
+addMixingScenario("Flat_0_50_50ns",{'file': 'SimGeneral.MixingModule.mix_Flat_0_50_50ns_cfi'})
 
 MixingDefaultKey = '2012_Summer_50ns_PoissonOOTPU'
 MixingFSDefaultKey = '2012_Summer_inTimeOnly'
