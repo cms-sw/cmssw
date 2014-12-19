@@ -167,14 +167,8 @@ namespace edmtest {
     }
 
     if(!thinnedWasDropped_ && !associationShouldBeDropped_) {
-      if(!thinnedIsAlias_) {
-        if(associationCollection->thinnedCollectionID() != thinnedCollection.id()) {
-          throw cms::Exception("TestFailure") << "analyze thinned ProductID is not correct";
-        }
-      } else {
-        if(associationCollection->thinnedCollectionID() == thinnedCollection.id()) {
-          throw cms::Exception("TestFailure") << "analyze thinned ProductID is not correct";
-        }
+      if(associationCollection->thinnedCollectionID() != thinnedCollection.id()) {
+        throw cms::Exception("TestFailure") << "analyze thinned ProductID is not correct";
       }
     }
 
