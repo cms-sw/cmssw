@@ -154,12 +154,12 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
       evt.getByToken(mixToken_,cf);
       cfhepmcprod = new MixCollection<HepMCProduct>(cf.product());
       npiles = cfhepmcprod->size();
-      cout<<"npiles : "<<npiles<<endl;
+      LogDebug("GenParticleProducer")<<"npiles : "<<npiles<<endl;
       for(unsigned int icf = 0; icf < npiles; ++icf){
-	cout<<"subSize : "<<cfhepmcprod->getObject(icf).GetEvent()->particles_size()<<endl;
+	 LogDebug("GenParticleProducer")<<"subSize : "<<cfhepmcprod->getObject(icf).GetEvent()->particles_size()<<endl;
 	 totalSize += cfhepmcprod->getObject(icf).GetEvent()->particles_size();
       }
-      cout<<"totalSize : "<<totalSize<<endl;
+      LogDebug("GenParticleProducer")<<"totalSize : "<<totalSize<<endl;
 
    }else if (doSubEvent_){
       for(size_t i = 0; i < npiles; ++i){
@@ -193,7 +193,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
   /// fill indices
   if(doSubEvent_ || useCF_){
      for(size_t ipile = 0; ipile < npiles; ++ipile){
-       cout<<"mixed object ipile : "<<ipile<<endl;
+	LogDebug("GenParticleProducer")<<"mixed object ipile : "<<ipile<<endl;
 	barcodes_.clear();
 	if(useCF_) mc = cfhepmcprod->getObject(ipile).GetEvent();
 	else mc = heps[ipile]->GetEvent();
@@ -203,7 +203,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	const HepMC::HeavyIon * hi = mc->heavy_ion();
 	if(hi && hi->Ncoll_hard() > 1) isHI = true;
 	size_t num_particles = mc->particles_size();
-	cout<<"num_particles : "<<num_particles<<endl;
+	LogDebug("GenParticleProducer")<<"num_particles : "<<num_particles<<endl;
 	fillIndices(mc, particles, *barCodeVector, offset);
 	// fill output collection and save association
 	for( size_t ipar = offset; ipar < offset + num_particles; ++ ipar ) {
@@ -215,7 +215,6 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	}
 
 	for( size_t d = offset; d < offset + num_particles; ++ d ) {
-	  //          cout<<"d : "<<d<<endl;
 	   const HepMC::GenParticle * part = particles[ d ];
 	   const GenVertex * productionVertex = part->production_vertex();
 	   int sub_id = 0;
@@ -231,9 +230,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	   }
 	   if(sub_id < 0) sub_id = 0;
 	   int new_id = sub_id + suboffset;
-	   //	   cout<<"new_id : "<<new_id<<endl;
 	   GenParticleRef dref( ref_, d );
-	   //	   subs.insert(dref,new_id);   // For SubEventMap
 	   cands[d].setCollisionId(new_id); // For new GenParticle
 	   LogDebug("VertexId")<<"SubEvent offset 3 : "<<suboffset;
 	}
