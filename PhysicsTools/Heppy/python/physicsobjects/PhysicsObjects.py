@@ -17,5 +17,5 @@ from PhysicsTools.Heppy.physicsobjects.Muon import Muon
 # COLIN need to import MVA ID recipe. 
 # from PhysicsTools.Heppy.physicsobjects.Electron import Electron
 from PhysicsTools.Heppy.physicsobjects.Tau import Tau, isTau
-from PhysicsTools.Heppy.physicsobjects.GenParticle import GenParticle,GenLepton
+from PhysicsTools.Heppy.physicsobjects.GenParticle import GenParticle 
 
