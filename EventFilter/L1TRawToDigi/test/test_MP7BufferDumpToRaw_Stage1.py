@@ -76,7 +76,7 @@ process.TFileService.fileName = cms.string('l1t.root')
 # raw data from MP card
 process.load('EventFilter.L1TRawToDigi.stage1MP7BufferRaw_cfi')
 process.stage1Raw.nFramesOffset    = cms.untracked.int32(0)
-process.stage1Raw.nFramesLatency   = cms.untracked.int32(0)
+process.stage1Raw.nFramesLatency   = cms.untracked.int32(96)
 process.stage1Raw.rxFile = cms.untracked.string("stage1_rx_summary.txt")
 process.stage1Raw.txFile = cms.untracked.string("stage1_tx_summary.txt")
 

@@ -130,8 +130,6 @@ private:
   MP7BufferDumpToRaw::MP7BufferDumpToRaw(const edm::ParameterSet& iConfig) :
     rxFileReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt")),
     txFileReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt")),
-    rxIndex_(0),
-    txIndex_(0),
     packetisedData_(iConfig.getUntrackedParameter<bool>("packetisedData", true)),
     nFramesPerEvent_(iConfig.getUntrackedParameter<int>("nFramesPerEvent", 6)),
     fedId_(iConfig.getUntrackedParameter<int>("fedId", 1)),
@@ -151,16 +149,11 @@ private:
   produces<FEDRawDataCollection>();
 
   // advance pointers for non packetised data
-  if (!packetisedData_) {
-    rxIndex_ += iConfig.getUntrackedParameter<int>("nFramesOffset", 0);
-    txIndex_ += rxIndex_;
-    txIndex_ += iConfig.getUntrackedParameter<int>("nFramesLatency", 0);
-  }
+  rxIndex_ = iConfig.getUntrackedParameter<int>("nFramesOffset", 0);
+  txIndex_ = rxIndex_ + iConfig.getUntrackedParameter<int>("nFramesLatency", 3);
 
-  LogDebug("L1T") << "FED ID : " << fedId_;
-  LogDebug("L1T") << "AMC ID : " << amcId_;
-  LogDebug("L1T") << "# Rx blocks : " << rxBlockLength_.size();
-  LogDebug("L1T") << "# Tx blocks " << txBlockLength_.size();
+  LogDebug("L1T") << "Rx index : " << rxIndex_;
+  LogDebug("L1T") << "Tx index : " << txIndex_;
 
 }
 
@@ -224,9 +217,11 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
     if (size==0) continue;
 
     std::vector<uint32_t> data;
-    for (unsigned iFrame=rxIndex_; iFrame<size; ++iFrame) {
+    for (unsigned iFrame=rxIndex_; iFrame<rxIndex_+size; ++iFrame) {
       if (!packetisedData_) {
-	data.push_back( rxFileReader_.get(iBoard).link(link).at(iFrame) );
+	uint64_t d = rxFileReader_.get(iBoard).link(link).at(iFrame);
+	//	LogDebug("L1T") << "Frame " << iFrame << " : " << std::hex << d;
+	if ((d & 0x100000000) > 0) data.push_back( d & 0xffffffff );
       }
     }
     
@@ -245,10 +240,12 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
 
     if (size==0) continue;
 
-    std::vector<uint32_t> data(size);
-    for (unsigned iFrame=txIndex_; iFrame<size; ++iFrame) {
+    std::vector<uint32_t> data;
+    for (unsigned iFrame=txIndex_; iFrame<txIndex_+size; ++iFrame) {
       if (!packetisedData_) {
-	data.push_back( txFileReader_.get(iBoard).link(link).at(iFrame) );
+	uint64_t d = txFileReader_.get(iBoard).link(link).at(iFrame);
+	//	LogDebug("L1T") << "Frame " << iFrame << " : " << std::hex << d;
+	if ((d & 0x100000000) > 0) data.push_back( d & 0xffffffff );
       }
     }
     
