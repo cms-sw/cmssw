@@ -26,8 +26,8 @@
    <version ClassVersion="11" checksum="2362875019"/>
    <version ClassVersion="10" checksum="3608243239"/>
   </class>
-  <class name="RPCCompDetId" ClassVersion="0">
-   <version ClassVersion="0" checksum="2407084845"/>
+  <class name="RPCCompDetId" ClassVersion="10">
+   <version ClassVersion="10" checksum="2407084845"/>
    <version ClassVersion="-1" checksum="2042478999"/>
   </class>
   <class name="DTBtiId" ClassVersion="10">
