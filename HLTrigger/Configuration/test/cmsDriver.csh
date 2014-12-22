@@ -154,15 +154,9 @@ foreach gtag ( MC DATA )
 
     if ( $gtag == DATA ) then
 
-    if ( $table == HIon ) then
-      set Custom3="HLTrigger/Configuration/CustomConfigs.MassReplaceInputTag"
-    else
-      set Custom3=""
-    endif
-
     echo
     echo "Creating L1RePack $name"
-    cmsDriver.py RelVal                --step=$L1REPACK                            --conditions=$GTAG --filein=$InputLHCRaw                        --custom_conditions=$XL1T --fileout=RelVal_L1RePack_$name.root      --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'      --eventcontent=RAW          --customise=HLTrigger/Configuration/CustomConfigs.L1T     --customise=$Custom1 --customise=$Custom2  --scenario=$SCEN --python_filename=RelVal_L1RePack_$name.py --customise=$Custom3 --customise=L1Trigger/Configuration/L1Trigger_custom.customiseResetPrescalesAndMasks
+    cmsDriver.py RelVal                --step=$L1REPACK                            --conditions=$GTAG --filein=$InputLHCRaw                        --custom_conditions=$XL1T --fileout=RelVal_L1RePack_$name.root      --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'      --eventcontent=RAW          --customise=HLTrigger/Configuration/CustomConfigs.L1T     --customise=$Custom1 --customise=$Custom2  --scenario=$SCEN --python_filename=RelVal_L1RePack_$name.py --customise=L1Trigger/Configuration/L1Trigger_custom.customiseResetPrescalesAndMasks
 
     else
 
