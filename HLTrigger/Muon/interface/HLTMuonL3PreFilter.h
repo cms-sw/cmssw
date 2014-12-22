@@ -17,6 +17,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -32,7 +34,6 @@ class HLTMuonL3PreFilter : public HLTFilter {
 
    private:
       bool triggeredByLevel2(const reco::TrackRef& track,std::vector<reco::RecoChargedCandidateRef>& vcands) const;
-
       edm::InputTag                    beamspotTag_ ;
       edm::EDGetTokenT<reco::BeamSpot> beamspotToken_ ;
       edm::InputTag                                          candTag_;   // input tag identifying product contains muons
@@ -49,15 +50,14 @@ class HLTMuonL3PreFilter : public HLTFilter {
       double min_Pt_;           // pt threshold in GeV
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
       double max_NormalizedChi2_; // cutoff in normalized chi2
-      double max_DXYBeamSpot_; // cutoff in dxy from the beamspot
-      double min_DXYBeamSpot_; // minimum cut on dxy from the beamspot
-  int min_NmuonHits_; // cutoff in minumum number of chi2 hits
-  double max_PtDifference_; // cutoff in maximum different between global track and tracker track
-  double min_TrackPt_; //cutoff in tracker track pt
-
-  bool devDebug_;
-
-
+      double max_DXYBeamSpot_;    // cutoff in dxy from the beamspot
+      double min_DXYBeamSpot_;    // minimum cut on dxy from the beamspot
+      int min_NmuonHits_;         // cutoff in minumum number of chi2 hits
+      double max_PtDifference_;   // cutoff in maximum different between global track and tracker track
+      double min_TrackPt_;        // cutoff in tracker track pt
+      bool devDebug_;
+      edm::InputTag theL3LinksLabel;
+      edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;
 };
 
 #endif //HLTMuonL3PreFilter_h

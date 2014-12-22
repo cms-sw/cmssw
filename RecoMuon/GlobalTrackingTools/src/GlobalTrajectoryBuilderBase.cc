@@ -11,8 +11,6 @@
  *   matching between the reconstructed tracks
  *   in the muon system and the tracker.
  *
- *
- *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
  *  \author A. Everett           Purdue University
@@ -20,62 +18,6 @@
  **/
 
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalTrajectoryBuilderBase.h"
-
-//---------------
-// C++ Headers --
-//---------------
-
-#include <iostream>
-#include <algorithm>
-
-//-------------------------------
-// Collaborating Class Headers --
-//-------------------------------
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-#include "TrackingTools/TrackFitters/interface/RecHitLessByDet.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
-
-#include "DataFormats/Math/interface/deltaR.h"
-
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
-#include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
-
-#include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
-#include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonRefitter.h"
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-
-#include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-
-#include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
-#include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
-
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 using namespace std;
 using namespace edm;
@@ -101,13 +43,14 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
 
   ParameterSet regionBuilderPSet = par.getParameter<ParameterSet>("MuonTrackingRegionBuilder");
 
-  theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet,theService,iC);
+  theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet,iC);
 
   // TrackRefitter parameters
   ParameterSet refitterParameters = par.getParameter<ParameterSet>("GlbRefitterParameters");
   theGlbRefitter = new GlobalMuonRefitter(refitterParameters, theService, iC);
 
   theMuonHitsOption = refitterParameters.getParameter<int>("MuonHitsOption");
+  theRefitFlag = refitterParameters.getParameter<bool>("RefitFlag");
 
   theTrackerRecHitBuilderName = par.getParameter<string>("TrackerRecHitBuilder");
   theMuonRecHitBuilderName = par.getParameter<string>("MuonRecHitBuilder");  
@@ -160,7 +103,7 @@ void GlobalTrajectoryBuilderBase::setEvent(const edm::Event& event) {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
   theService->eventSetup().get<IdealGeometryRecord>().get(tTopoHand);
-  tTopo_=tTopoHand.product();
+  theTopo = tTopoHand.product();
 
 }
 
@@ -184,7 +127,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
   // check order of muon measurements
   if ( (muonRecHits.size() > 1) &&
        ( muonRecHits.front()->globalPosition().mag() >
-	 muonRecHits.back()->globalPosition().mag() ) ) {
+	     muonRecHits.back()->globalPosition().mag() ) ) {
     LogTrace(theCategory)<< "   reverse order: ";
   }
 
@@ -192,71 +135,94 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
 
     // cut on tracks with low momenta
     LogTrace(theCategory)<< "   Track p and pT " << (*it)->trackerTrack()->p() << " " << (*it)->trackerTrack()->pt();
-    if(  (*it)->trackerTrack()->p() < thePCut || (*it)->trackerTrack()->pt() < thePtCut  ) continue;
+    if ( (*it)->trackerTrack()->p() < thePCut || (*it)->trackerTrack()->pt() < thePtCut ) continue;
 
-    ConstRecHitContainer trackerRecHits;
-    if ((*it)->trackerTrack().isNonnull()) {
-      trackerRecHits = getTransientRecHits(*(*it)->trackerTrack());
-    } else {
-      LogDebug(theCategory)<<"     NEED HITS FROM TRAJ";
-      //trackerRecHits = (*it)->trackerTrajectory()->recHits();
-    }
+//		If true we will run theGlbRefitter->refit from all hits
+        if (theRefitFlag){
+			ConstRecHitContainer trackerRecHits;
+			if ((*it)->trackerTrack().isNonnull()) {
+			  trackerRecHits = getTransientRecHits(*(*it)->trackerTrack());
+			} else {
+			  LogDebug(theCategory)<<"     NEED HITS FROM TRAJ";
+			  //trackerRecHits = (*it)->trackerTrajectory()->recHits();
+			}
 
-    // check for single TEC RecHits in trajectories in the overalp region
-    if ( fabs((*it)->trackerTrack()->eta()) > 0.95 && fabs((*it)->trackerTrack()->eta()) < 1.15 && (*it)->trackerTrack()->pt() < 60 ) {
-      if ( theTECxScale < 0 || theTECyScale < 0 )
-        trackerRecHits = selectTrackerHits(trackerRecHits);
-      else
-        fixTEC(trackerRecHits,theTECxScale,theTECyScale);
-    }
-		  
-    RefitDirection recHitDir = checkRecHitsOrdering(trackerRecHits);
-    if ( recHitDir == outToIn ) reverse(trackerRecHits.begin(),trackerRecHits.end());
+			// check for single TEC RecHits in trajectories in the overalp region
+			if ( fabs((*it)->trackerTrack()->eta()) > 0.95 && fabs((*it)->trackerTrack()->eta()) < 1.15 && (*it)->trackerTrack()->pt() < 60 ) {
+			  if ( theTECxScale < 0 || theTECyScale < 0 )
+				trackerRecHits = selectTrackerHits(trackerRecHits);
+			  else
+				fixTEC(trackerRecHits,theTECxScale,theTECyScale);
+			}
 
-    reco::TransientTrack tTT((*it)->trackerTrack(),&*theService->magneticField(),theService->trackingGeometry());
-    TrajectoryStateOnSurface innerTsos = tTT.innermostMeasurementState();
+			RefitDirection recHitDir = checkRecHitsOrdering(trackerRecHits);
+			if ( recHitDir == outToIn ) reverse(trackerRecHits.begin(),trackerRecHits.end());
 
-    edm::RefToBase<TrajectorySeed> tmpSeed;
-    if((*it)->trackerTrack()->seedRef().isAvailable()) tmpSeed = (*it)->trackerTrack()->seedRef();
+			reco::TransientTrack tTT((*it)->trackerTrack(),&*theService->magneticField(),theService->trackingGeometry());
+			TrajectoryStateOnSurface innerTsos = tTT.innermostMeasurementState();
 
-    if ( !innerTsos.isValid() ) {
-      LogTrace(theCategory) << "     inner Trajectory State is invalid. ";
-      continue;
-    }
-  
-    innerTsos.rescaleError(100.);
-                  
-    TC refitted0,refitted1;
-    MuonCandidate* finalTrajectory = 0;
-    Trajectory *tkTrajectory = 0;
+			edm::RefToBase<TrajectorySeed> tmpSeed;
+			if((*it)->trackerTrack()->seedRef().isAvailable()) tmpSeed = (*it)->trackerTrack()->seedRef();
 
-    // tracker only track
-    if ( ! ((*it)->trackerTrajectory() && (*it)->trackerTrajectory()->isValid()) ) { 
-      refitted0 = theTrackTransformer->transform((*it)->trackerTrack()) ;
-      if (!refitted0.empty()) tkTrajectory = new Trajectory(*(refitted0.begin())); 
-      else LogWarning(theCategory)<< "     Failed to load tracker track trajectory";
-    } else tkTrajectory = (*it)->trackerTrajectory();
-    if (tkTrajectory) tkTrajectory->setSeedRef(tmpSeed);
+			if ( !innerTsos.isValid() ) {
+			  LogTrace(theCategory) << "     inner Trajectory State is invalid. ";
+			  continue;
+			}
 
-    // full track with all muon hits using theGlbRefitter    
-    ConstRecHitContainer allRecHits = trackerRecHits;
-    allRecHits.insert(allRecHits.end(), muonRecHits.begin(),muonRecHits.end());
-    refitted1 = theGlbRefitter->refit( *(*it)->trackerTrack(), tTT, allRecHits,theMuonHitsOption, tTopo_);
-    LogTrace(theCategory)<<"     This track-sta refitted to " << refitted1.size() << " trajectories";
+			innerTsos.rescaleError(100.);
 
-    Trajectory *glbTrajectory1 = 0;
-    if (!refitted1.empty()) glbTrajectory1 = new Trajectory(*(refitted1.begin()));
-    else LogDebug(theCategory)<< "     Failed to load global track trajectory 1"; 
-    if (glbTrajectory1) glbTrajectory1->setSeedRef(tmpSeed);
-    
-    finalTrajectory = 0;
-    if(glbTrajectory1 && tkTrajectory) finalTrajectory = new MuonCandidate(glbTrajectory1, (*it)->muonTrack(), (*it)->trackerTrack(), 
-					tkTrajectory? new Trajectory(*tkTrajectory) : 0);
+			TC refitted0,refitted1;
+			MuonCandidate* finalTrajectory = 0;
+			Trajectory *tkTrajectory = 0;
 
-    if ( finalTrajectory ) 
-      refittedResult.push_back(finalTrajectory);
-     
-    if(tkTrajectory) delete tkTrajectory;
+			// tracker only track
+			if ( ! ((*it)->trackerTrajectory() && (*it)->trackerTrajectory()->isValid()) ) {
+			  refitted0 = theTrackTransformer->transform((*it)->trackerTrack()) ;
+			  if (!refitted0.empty()) tkTrajectory = new Trajectory(*(refitted0.begin()));
+			  else LogWarning(theCategory)<< "     Failed to load tracker track trajectory";
+			} else tkTrajectory = (*it)->trackerTrajectory();
+			if (tkTrajectory) tkTrajectory->setSeedRef(tmpSeed);
+	
+			// full track with all muon hits using theGlbRefitter
+			ConstRecHitContainer allRecHits = trackerRecHits;
+			allRecHits.insert(allRecHits.end(), muonRecHits.begin(),muonRecHits.end());
+			refitted1 = theGlbRefitter->refit( *(*it)->trackerTrack(), tTT, allRecHits,theMuonHitsOption, theTopo);
+			LogTrace(theCategory)<<"     This track-sta refitted to " << refitted1.size() << " trajectories";
+
+			Trajectory *glbTrajectory1 = 0;
+			if (!refitted1.empty()) glbTrajectory1 = new Trajectory(*(refitted1.begin()));
+			else LogDebug(theCategory)<< "     Failed to load global track trajectory 1";
+			if (glbTrajectory1) glbTrajectory1->setSeedRef(tmpSeed);
+
+			finalTrajectory = 0;
+			if(glbTrajectory1 && tkTrajectory) finalTrajectory = new MuonCandidate(glbTrajectory1, (*it)->muonTrack(), (*it)->trackerTrack(),
+							tkTrajectory? new Trajectory(*tkTrajectory) : 0);
+			if (finalTrajectory) refittedResult.push_back(finalTrajectory);
+			if(tkTrajectory) delete tkTrajectory;
+        }
+//		Otherwise we just use the tracker trajectory:
+        else {
+			MuonCandidate* finalTrajectory = 0;
+			edm::RefToBase<TrajectorySeed> tmpSeed;
+			if((*it)->trackerTrack()->seedRef().isAvailable()) tmpSeed = (*it)->trackerTrack()->seedRef();
+
+			TC refitted0;
+			Trajectory *tkTrajectory = 0;
+			if ( ! ((*it)->trackerTrajectory() && (*it)->trackerTrajectory()->isValid()) ) {
+				refitted0 = theTrackTransformer->transform((*it)->trackerTrack());
+				if (!refitted0.empty()){
+					 tkTrajectory = new Trajectory(*(refitted0.begin()));
+				}
+				else LogWarning(theCategory)<< "     Failed to load tracker track trajectory";
+			}
+			else tkTrajectory = (*it)->trackerTrajectory();
+			if (tkTrajectory) tkTrajectory->setSeedRef(tmpSeed);
+//			Creating MuonCandidate using only the tracker trajectory:
+			finalTrajectory = new MuonCandidate(new Trajectory(*tkTrajectory), (*it)->muonTrack(), (*it)->trackerTrack(),new Trajectory(*tkTrajectory));
+			if (finalTrajectory){
+				refittedResult.push_back(finalTrajectory);
+			}
+        }
   }
 
   // choose the best global fit for this Standalone Muon based on the track probability
@@ -395,6 +361,7 @@ void GlobalTrajectoryBuilderBase::printHits(const ConstRecHitContainer& hits) co
 
 }
 
+
 //
 // check order of RechIts on a trajectory
 //
@@ -421,6 +388,7 @@ GlobalTrajectoryBuilderBase::checkRecHitsOrdering(const TransientTrackingRecHit:
     LogError(theCategory) << "Impossible to determine the rechits order" << endl;
     return undetermined;
   }
+
 }
 
 
@@ -526,8 +494,7 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
 
   TrajectoryStateOnSurface currTsos = trajectoryStateTransform::innerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
 
-  auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product());
-  auto hitCloner = tkbuilder->cloner(); 
+  auto hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner(); 
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if((*hit)->isValid()) {
       DetId recoid = (*hit)->geographicalId();
@@ -541,8 +508,7 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
 	    continue; 
 	  }
 	  currTsos = predTsos;
-          auto h = (**hit).cloneForFit(*tkbuilder->geometry()->idToDet( (**hit).geographicalId() ) );
-	  result.emplace_back(hitCloner.makeShared(h,predTsos));
+	  result.emplace_back(hitCloner(**hit,predTsos));
 	}else{
 	  result.push_back((*hit)->cloneSH());
 	}
@@ -557,4 +523,5 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
   }
   
   return result;
+
 }
