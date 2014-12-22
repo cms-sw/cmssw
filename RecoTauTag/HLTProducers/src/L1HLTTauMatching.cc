@@ -51,7 +51,6 @@ void L1HLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm
   l1TriggeredTaus->getObjects( trigger::TriggerL1CenJet,jetCandRefVec);
 
   math::XYZPoint a(0.,0.,0.);
-  CaloJet::Specific f;
 		
   for( unsigned int iL1Tau=0; iL1Tau <tauCandRefVec.size();iL1Tau++)
     {  
@@ -103,4 +102,14 @@ void L1HLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm
 
   iEvent.put(tauL2jets);
   // iEvent.put(tauL2LC);
+}
+
+void L1HLTTauMatching::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
+{
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("L1TauTrigger",edm::InputTag("hltL1sDoubleIsoTau40er"))->setComment("Name of trigger filter");
+  desc.add<edm::InputTag>("JetSrc",edm::InputTag("hltSelectedPFTausTrackPt1MediumIsolationReg"))->setComment("Input collection of PFTaus");
+  desc.add<double>("EtMin",0.0)->setComment("Minimal pT of PFTau to match");
+  descriptions.setComment("This module produces collection of PFTaus matched to L1ExtraTaus/Jets passing a HLT filter (Only p4 and vertex of returned PFTaus are set).");
+  descriptions.add("L1HLTJetsMatching",desc);
 }

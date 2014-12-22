@@ -107,3 +107,23 @@ void L2TauPixelIsoTagProducer::produce(edm::StreamID sid, edm::Event& ev, const 
 
   ev.put(jetTagCollection);
 }
+
+void L2TauPixelIsoTagProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
+{
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("JetSrc",edm::InputTag("hltL2DiTauCaloJets"))->setComment("Jet source collection");
+  desc.add<edm::InputTag>("BeamSpotSrc",edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<edm::InputTag>("VertexSrc",edm::InputTag("hltPixelVertices"))->setComment("Collection of vertices where isolation tracks come from");
+  desc.add<int>("MaxNumberPV",1)->setComment("No. of considered vertices (not used yet)");
+  desc.add<double>("IsoConeMax",0.4)->setComment("Outer radius of isolation annulus");
+  desc.add<double>("IsoConeMin",0.2)->setComment("Inner radius of isolation annulus");
+  desc.add<double>("TrackMinPt",1.6)->setComment("Isolation track quality: min. pT");
+  desc.add<int>("TrackMinNHits",3)->setComment("Isolation track quality: min. no. of hits");
+  desc.add<double>("TrackMaxNChi2",100.0)->setComment("Isolation track quality: max. chi2/ndof");
+  desc.add<double>("TrackPVMaxDZ",0.1)->setComment("Isolation track quality: max. dz");;
+  desc.add<double>("TrackMaxDxy",0.2)->setComment("Isolation track quality: max. dxy");;
+  desc.add<edm::InputTag>("TrackSrc",edm::InputTag(""))->setComment("Not used yet");
+  descriptions.setComment("Produces isolation tag for caloJets/L2Taus");
+  descriptions.add("L2TauPixelIsoTagProducer",desc);
+
+}
