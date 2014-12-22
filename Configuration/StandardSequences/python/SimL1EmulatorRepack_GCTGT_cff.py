@@ -20,6 +20,9 @@ unpackCastorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.
 ##
 
 from L1Trigger.L1TCalorimeter.L1TCaloStage1_PPFromRaw_cff import *
+ecalDigis.InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess())
+hcalDigis.InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess())
+simHcalTriggerPrimitiveDigis.InputTagFEDRaw = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess())
 
 import L1Trigger.GlobalTrigger.gtDigis_cfi
 newGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone(
