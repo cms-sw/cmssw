@@ -5,23 +5,19 @@
 #include "ClassUtils.h"
 #include "MappingRules.h"
 // externals
-#include "Reflex/Base.h"
-#include "Reflex/Member.h"
+#include "FWCore/Utilities/interface/BaseWithDict.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
 
 namespace ora {
 
-  bool isLoosePersistencyDataMember( const Reflex::Member& dataMember ){
-    std::string persistencyType("");
-    Reflex::PropertyList memberProps = dataMember.Properties();
-    if( memberProps.HasProperty(ora::MappingRules::persistencyPropertyNameInDictionary())){
-       persistencyType = memberProps.PropertyAsString(ora::MappingRules::persistencyPropertyNameInDictionary());
-    }
+  bool isLoosePersistencyDataMember( const edm::MemberWithDict& dataMember ){
+    std::string persistencyType = ClassUtils::getDataMemberProperty( ora::MappingRules::persistencyPropertyNameInDictionary(), dataMember );
     return ora::MappingRules::isLooseOnWriting( persistencyType ) || ora::MappingRules::isLooseOnReading( persistencyType ) ;
   }
 
 }
 
-ora::ObjectStreamerBase::ObjectStreamerBase( const Reflex::Type& objectType,
+ora::ObjectStreamerBase::ObjectStreamerBase( const edm::TypeWithDict& objectType,
                                              MappingElement& mapping,
                                              ContainerSchema& contSchema ):
   m_streamerFactory( contSchema ),
@@ -32,40 +28,47 @@ ora::ObjectStreamerBase::ObjectStreamerBase( const Reflex::Type& objectType,
 ora::ObjectStreamerBase::~ObjectStreamerBase(){
 }
 
+
 void ora::ObjectStreamerBase::buildBaseDataMembers( DataElement& dataElement,
                                                     IRelationalData& relationalData,
-                                                    const Reflex::Type& objType,
+                                                    const edm::TypeWithDict& objType,
                                                     RelationalBuffer* operationBuffer ){
   
-  for ( unsigned int i=0;i<objType.BaseSize();i++){
-    Reflex::Base base = objType.BaseAt(i);
-    Reflex::Type baseType = ClassUtils::resolvedType( base.ToType() );
+  // Don't look for base classes of std:: stuff
+  if(objType.name().substr(0,5) == "std::") {
+    return;
+  } 
+  edm::TypeBases bases(objType);
+  for (auto const & b : bases) {
+    edm::BaseWithDict base(b);
+    edm::TypeWithDict baseType = ClassUtils::resolvedType( base.typeOf().toType() );
     buildBaseDataMembers( dataElement, relationalData, baseType, operationBuffer );
-    for ( unsigned int j=0;j<baseType.DataMemberSize();j++){
-      Reflex::Member dataMember = baseType.DataMemberAt(j);      
-      DataElement& dataMemberElement = dataElement.addChild( dataMember.Offset(), base.OffsetFP() );
+    edm::TypeDataMembers members(baseType);
+    for (auto const & member : members) {
+      edm::MemberWithDict dataMember(member);
+      DataElement& dataMemberElement = dataElement.addChild( dataMember.offset(), /*base.offsetFP()*/ base.offset() );
       // Ignore the transients and the statics (how to deal with non-const statics?)
-      if ( dataMember.IsTransient() || dataMember.IsStatic() ) continue;
+      if ( dataMember.isTransient() || dataMember.isStatic() ) continue;
       // Get the member type and resolve possible typedef chains
-      Reflex::Type dataMemberType = ClassUtils::resolvedType( dataMember.TypeOf() );
+      edm::TypeWithDict dataMemberType = ClassUtils::resolvedType( dataMember.typeOf() );
       if ( ! dataMemberType ) {
         throwException( "Missing dictionary information for data member \"" +
-                        dataMember.Name() + "\" of class \"" +
-                        baseType.Name(Reflex::SCOPED|Reflex::FINAL) + "\"",
+                        dataMember.name() + "\" of class \"" +
+                        baseType.cppName() + "\"",
                         "ObjectStreamerBase::buildBaseDataMembers" );
       }
       
       // check if the member is from a class in the inheritance tree
-      Reflex::Type declaringType = ClassUtils::resolvedType( dataMember.DeclaringType());
-      std::string scope = declaringType.Name(Reflex::SCOPED|Reflex::FINAL);
+      edm::TypeWithDict declaringType = ClassUtils::resolvedType( dataMember.declaringType());
+      std::string scope = declaringType.cppName();
       // Get the data member name
-      std::string dataMemberName = MappingRules::scopedVariableName( dataMember.Name(), scope );
+      std::string dataMemberName = MappingRules::scopedVariableName( dataMember.name(), scope );
       // Retrieve the relevant mapping element
       MappingElement::iterator iDataMemberMapping = m_mapping.find( dataMemberName );
       if ( iDataMemberMapping != m_mapping.end() ) {
         MappingElement& dataMemberMapping = iDataMemberMapping->second;
 	if( !ClassUtils::checkMappedType(dataMemberType,dataMemberMapping.variableType()) ){
-	  throwException( "Data member \""+dataMemberName +"\" type \"" + dataMemberType.Name(Reflex::SCOPED|Reflex::FINAL) +
+	  throwException( "Data member \""+dataMemberName +"\" type \"" + dataMemberType.cppName() +
 			  "\" does not match with the expected type in the mapping \""+dataMemberMapping.variableType()+"\".",
 			  "ObjectStreamerBase::buildBaseDataMembers" );
 	}
@@ -87,39 +90,39 @@ bool ora::ObjectStreamerBase::buildDataMembers( DataElement& dataElement,
                                                 RelationalBuffer* operationBuffer ){
   buildBaseDataMembers( dataElement, relationalData, m_objectType, operationBuffer );
     // Loop over the data members of the class.
-  for ( unsigned int i=0;i<m_objectType.DataMemberSize();i++){
+  edm::TypeDataMembers members(m_objectType);
+  for (auto const & member : members) {
+    edm::MemberWithDict dataMember(member);
+    DataElement& dataMemberElement = dataElement.addChild( dataMember.offset(), 0 );
 
-    Reflex::Member dataMember = m_objectType.DataMemberAt(i);
-    DataElement& dataMemberElement = dataElement.addChild( dataMember.Offset(), 0 );
-
-    Reflex::Type declaringType = ClassUtils::resolvedType( dataMember.DeclaringType());
+    edm::TypeWithDict declaringType = ClassUtils::resolvedType( dataMember.declaringType());
     if( declaringType != m_objectType ){
       continue;
     }
           
     // Ignore the transients and the statics (how to deal with non-const statics?)
-    if ( dataMember.IsTransient() || dataMember.IsStatic() ) continue;
+    if ( dataMember.isTransient() || dataMember.isStatic() ) continue;
 
     // Get the member type and resolve possible typedef chains
-    Reflex::Type dataMemberType = ClassUtils::resolvedType( dataMember.TypeOf() );
+    edm::TypeWithDict dataMemberType = ClassUtils::resolvedType( dataMember.typeOf() );
     if ( ! dataMemberType ) {
       throwException( "Missing dictionary information for data member \"" +
-                      dataMember.Name() + "\" of class \"" +
-                      m_objectType.Name(Reflex::SCOPED|Reflex::FINAL) + "\"",
+                      dataMember.name() + "\" of class \"" +
+                      m_objectType.cppName() + "\"",
                       "ObjectStreamerBase::buildDataMembers" );
     }
       
     // check if the member is from a class in the inheritance tree
     std::string scope("");
     // Get the data member name
-    std::string dataMemberName = MappingRules::scopedVariableName( dataMember.Name(), scope );
+    std::string dataMemberName = MappingRules::scopedVariableName( dataMember.name(), scope );
     
     // Retrieve the relevant mapping element
     MappingElement::iterator idataMemberMapping = m_mapping.find( dataMemberName );
     if ( idataMemberMapping != m_mapping.end() ) {
       MappingElement& dataMemberMapping = idataMemberMapping->second;
       if( !ClassUtils::checkMappedType(dataMemberType,dataMemberMapping.variableType())){
-        throwException( "Data member  \""+dataMemberName +"\" type \"" + dataMemberType.Name(Reflex::SCOPED|Reflex::FINAL) +
+        throwException( "Data member  \""+dataMemberName +"\" type \"" + dataMemberType.cppName() +
                         "\" does not match with the expected type in the mapping \""+dataMemberMapping.variableType()+"\".",
                         "ObjectStreamerBase::buildDataMembers" );
       }
@@ -135,7 +138,7 @@ bool ora::ObjectStreamerBase::buildDataMembers( DataElement& dataElement,
   return true;
 }
 
-ora::ObjectWriter::ObjectWriter( const Reflex::Type& objectType,
+ora::ObjectWriter::ObjectWriter( const edm::TypeWithDict& objectType,
                                  MappingElement& mapping,
                                  ContainerSchema& contSchema ):
   ObjectStreamerBase( objectType, mapping, contSchema ),
@@ -174,7 +177,7 @@ void ora::ObjectWriter::write( int oid,
 
 void ora::ObjectWriter::processDataMember( DataElement& dataMemberElement,
                                            IRelationalData& relationalData,
-                                           Reflex::Type& dataMemberType,
+                                           edm::TypeWithDict& dataMemberType,
                                            MappingElement& dataMemberMapping,
                                            RelationalBuffer* operationBuffer ){
   IRelationalWriter* dataMemberWriter = m_streamerFactory.newWriter( dataMemberType, dataMemberMapping );
@@ -183,7 +186,7 @@ void ora::ObjectWriter::processDataMember( DataElement& dataMemberElement,
 }
 
 
-ora::ObjectUpdater::ObjectUpdater( const Reflex::Type& objectType,
+ora::ObjectUpdater::ObjectUpdater( const edm::TypeWithDict& objectType,
                                    MappingElement& mapping,
                                    ContainerSchema& contSchema ):
   ObjectStreamerBase( objectType, mapping, contSchema ),
@@ -222,7 +225,7 @@ void ora::ObjectUpdater::update( int oid,
 
 void ora::ObjectUpdater::processDataMember( DataElement& dataMemberElement,
                                             IRelationalData& relationalData,
-                                            Reflex::Type& dataMemberType,
+                                            edm::TypeWithDict& dataMemberType,
                                             MappingElement& dataMemberMapping,
                                             RelationalBuffer* operationBuffer ){
   IRelationalUpdater* dataMemberUpdater = m_streamerFactory.newUpdater( dataMemberType, dataMemberMapping );
@@ -230,7 +233,7 @@ void ora::ObjectUpdater::processDataMember( DataElement& dataMemberElement,
   dataMemberUpdater->build( dataMemberElement, relationalData, *operationBuffer );
 }
 
-ora::ObjectReader::ObjectReader( const Reflex::Type& objectType,
+ora::ObjectReader::ObjectReader( const edm::TypeWithDict& objectType,
                                  MappingElement& mapping,
                                  ContainerSchema& contSchema ):
   ObjectStreamerBase( objectType, mapping, contSchema ),
@@ -281,7 +284,7 @@ void ora::ObjectReader::clear(){
 
 void ora::ObjectReader::processDataMember( DataElement& dataMemberElement,
                                            IRelationalData& relationalData,
-                                           Reflex::Type& dataMemberType,
+                                           edm::TypeWithDict& dataMemberType,
                                            MappingElement& dataMemberMapping,
                                            RelationalBuffer*){
   IRelationalReader* dataMemberReader = m_streamerFactory.newReader( dataMemberType, dataMemberMapping );
@@ -290,7 +293,7 @@ void ora::ObjectReader::processDataMember( DataElement& dataMemberElement,
 }
 
 
-ora::ObjectStreamer::ObjectStreamer( const Reflex::Type& objectType,
+ora::ObjectStreamer::ObjectStreamer( const edm::TypeWithDict& objectType,
                                      MappingElement& mapping,
                                      ContainerSchema& contSchema ):
   m_objectType( objectType ),

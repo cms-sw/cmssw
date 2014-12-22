@@ -4,7 +4,7 @@
 #include "MappingTree.h"
 #include "MappingRules.h"
 // externals
-#include "Reflex/Reflex.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 ora::MappingGenerator::MappingGenerator( coral::ISchema& schema ):
   m_schema( schema ),
@@ -14,9 +14,9 @@ ora::MappingGenerator::MappingGenerator( coral::ISchema& schema ):
 ora::MappingGenerator::~MappingGenerator(){}
 
 void ora::MappingGenerator::createNewMapping( const std::string& containerName,
-                                              const Reflex::Type& classDictionary,
+                                              const edm::TypeWithDict& classDictionary,
                                               MappingTree& destination ){
-  std::string className = classDictionary.Name(Reflex::SCOPED);
+  std::string className = classDictionary.cppName();
 
   size_t sz = RelationalMapping::sizeInColumns( classDictionary );
   if(sz > MappingRules::MaxColumnsPerTable){
@@ -44,7 +44,7 @@ void ora::MappingGenerator::createNewMapping( const std::string& containerName,
 }
 
 void ora::MappingGenerator::createNewMapping( const std::string& containerName,
-                                              const Reflex::Type& classDictionary,
+                                              const edm::TypeWithDict& classDictionary,
                                               const MappingTree& baseMapping,
                                               MappingTree& destination ){
   createNewMapping( containerName, classDictionary, destination );
@@ -55,10 +55,10 @@ void ora::MappingGenerator::createNewMapping( const std::string& containerName,
   destination.override( baseMapping );
 }
 
-void ora::MappingGenerator::createNewDependentMapping( const Reflex::Type& classDictionary,
+void ora::MappingGenerator::createNewDependentMapping( const edm::TypeWithDict& classDictionary,
                                                        const MappingTree& parentClassMapping,
                                                        MappingTree& destination ){
-  std::string className = classDictionary.Name(Reflex::SCOPED);
+  std::string className = classDictionary.cppName();
   
   size_t sz = RelationalMapping::sizeInColumns( classDictionary );
   if(sz > MappingRules::MaxColumnsPerTable){
@@ -93,7 +93,7 @@ void ora::MappingGenerator::createNewDependentMapping( const Reflex::Type& class
   processor->process( classElement,  className, nameForSchema, scope );
 }
 
-void ora::MappingGenerator::createNewDependentMapping( const Reflex::Type& classDictionary,
+void ora::MappingGenerator::createNewDependentMapping( const edm::TypeWithDict& classDictionary,
                                                        const MappingTree& parentClassMapping,
                                                        const MappingTree& dependentClassBaseMapping,
                                                        MappingTree& destination ){

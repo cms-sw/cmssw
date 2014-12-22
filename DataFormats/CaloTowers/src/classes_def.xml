@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="CaloTowerDetId" ClassVersion="10">
+  <class name="CaloTowerDetId" ClassVersion="11">
+   <version ClassVersion="11" checksum="4063982642"/>
    <version ClassVersion="10" checksum="2444816232"/>
   </class>
   <class name="CaloTower" ClassVersion="11">
@@ -11,11 +12,13 @@
   <class name="std::vector<CaloTower>"/>
   <class name="edm::Wrapper<std::vector<CaloTower> >"/>
   <class name="edm::SortedCollection<CaloTower,edm::StrictWeakOrdering<CaloTower> >"/>
+  <class name="edm::StrictWeakOrdering<CaloTower>"/>
   <class name="edm::Ref<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower > >"/>  
   <class name="edm::RefVector<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower > >"/> 
   <class name="edm::RefProd<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> > >"/> 
   <class name="edm::Wrapper<edm::SortedCollection<CaloTower,edm::StrictWeakOrdering<CaloTower> > >"/> 
   <class name="edm::FwdRef<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower > >"/>
+  <class name="edm::refhelper::FindUsingAdvance<edm::SortedCollection<CaloTower,edm::StrictWeakOrdering<CaloTower> >,CaloTower>" /> <!-- Root6 -->
   <class name="std::vector<edm::FwdRef<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower > > >"/>
   <class name="edm::Wrapper< std::vector<edm::FwdRef<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower > > > >"/>
 

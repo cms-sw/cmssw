@@ -149,6 +149,7 @@
 
   <class name="reco::PFTauTIPAssociation">
     <field name="transientVector_" transient="true"/>
+<!--     <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::PFTauTIPAssociationRef"/>
   <class name="reco::PFTauTIPAssociationRefProd"/>
@@ -159,6 +160,7 @@
 
   <class name="reco::PFTauVertexAssociation">
     <field name="transientVector_" transient="true"/>
+<!--     <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::PFTauVertexAssociationRef"/>
   <class name="reco::PFTauVertexAssociationRefProd"/>
@@ -169,6 +171,7 @@
 
   <class name="reco::PFTauVertexVAssociation">
     <field name="transientVector_" transient="true"/>
+<!--     <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::PFTauVertexVAssociationRef"/>
   <class name="reco::PFTauVertexVAssociationRefProd"/>
@@ -215,6 +218,7 @@
 
  <class name="reco::PFTau3ProngSumAssociation">
     <field name="transientVector_" transient="true"/>
+<!--     <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::PFTau3ProngSumAssociationRef"/>
   <class name="reco::PFTau3ProngSumAssociationRefProd"/>

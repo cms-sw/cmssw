@@ -27,7 +27,7 @@ namespace cond {
     typedef ora::QueryableVector<Item> Container;
     typedef Container::iterator iterator;
     typedef Container::const_iterator const_iterator;
-    typedef enum { Unknown=-1, Obsolete, Tag, TagInGT, ChildTag, ChildTagInGT } ScopeType;
+    enum ScopeType { Unknown=-1, Obsolete, Tag, TagInGT, ChildTag, ChildTagInGT };
 
     IOVSequence();
 

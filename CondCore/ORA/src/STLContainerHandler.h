@@ -5,17 +5,20 @@
 //
 #include <memory>
 // externals
-#include "Reflex/Reflex.h"
-#include "Reflex/Builder/CollectionProxy.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/FunctionWithDict.h"
+
+#include "TVirtualCollectionIterators.h"
+#include "TVirtualCollectionProxy.h"
 
 namespace ora {
 
   class STLContainerIteratorHandler : virtual public IArrayIteratorHandler {
     public:
       /// Constructor
-    STLContainerIteratorHandler( const Reflex::Environ<long>& collEnv,
-                                 Reflex::CollFuncTable& collProxy,
-                                 const Reflex::Type& iteratorReturnType );
+    STLContainerIteratorHandler( void* address,
+                                 TVirtualCollectionProxy& collProxy,
+                                 const edm::TypeWithDict& iteratorReturnType );
 
       /// Destructor
       ~STLContainerIteratorHandler();
@@ -27,29 +30,30 @@ namespace ora {
       void* object();
 
       /// Returns the return type of the iterator dereference method
-      Reflex::Type& returnType();
+      edm::TypeWithDict& returnType();
 
     private:
 
       /// The return type of the iterator dereference method
-      Reflex::Type m_returnType;
-      
-      /// Structure containing parameters of the collection instance  
-      Reflex::Environ<long> m_collEnv;
+      edm::TypeWithDict m_returnType;
 
       /// Proxy of the generic collection
-      Reflex::CollFuncTable& m_collProxy;
+      TVirtualCollectionProxy& m_collProxy;
 
       /// Current element object pointer
       void* m_currentElement;
+
+      // holds the iterator when the branch is of fType==4.
+      TGenericCollectionIterator *m_Iterators;
+
     };
 
- 
+
     class STLContainerHandler : virtual public IArrayHandler {
 
     public:
       /// Constructor
-      explicit STLContainerHandler( const Reflex::Type& dictionary );
+      explicit STLContainerHandler( const edm::TypeWithDict& dictionary );
 
       /// Destructor
       ~STLContainerHandler();
@@ -65,28 +69,25 @@ namespace ora {
 
       /// Clear the content of the container
       void clear( const void* address );
-      
+
       /// Returns the iterator return type
-      Reflex::Type& iteratorReturnType();
+      edm::TypeWithDict& iteratorReturnType();
 
       /// Returns the associativeness of the container
       bool isAssociative() const { return m_isAssociative; }
-      
+
     private:
       /// The dictionary information
-      Reflex::Type m_type;
+      edm::TypeWithDict m_type;
 
       /// The iterator return type
-      Reflex::Type m_iteratorReturnType;
+      edm::TypeWithDict m_iteratorReturnType;
 
       /// Flag indicating whether the container is associative
       bool m_isAssociative;
 
-      /// Structure containing parameters of the collection instance  
-      Reflex::Environ<long> m_collEnv;
-
       /// Proxy of the generic collection
-      std::auto_ptr<Reflex::CollFuncTable> m_collProxy;
+      TVirtualCollectionProxy* m_collProxy;
 
     };
 
@@ -95,7 +96,7 @@ namespace ora {
 
     public:
       /// Constructor
-      explicit SpecialSTLContainerHandler( const Reflex::Type& dictionary );
+      explicit SpecialSTLContainerHandler( const edm::TypeWithDict& dictionary );
 
       /// Destructor
       ~SpecialSTLContainerHandler();
@@ -113,7 +114,7 @@ namespace ora {
       void clear( const void* address );
 
       /// Returns the iterator return type
-      Reflex::Type& iteratorReturnType();
+      edm::TypeWithDict& iteratorReturnType();
 
     private:
       /// The handler of the unserlying container

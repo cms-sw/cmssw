@@ -144,7 +144,8 @@
   </class>
   <class name="std::pair<edm::RefToBase<reco::Jet>, reco::CATopJetProperties>"/>
  
-  <class name="reco::CATopJetTagInfo" ClassVersion="10">
+  <class name="reco::CATopJetTagInfo" ClassVersion="11">
+   <version ClassVersion="11" checksum="241737491"/>
    <version ClassVersion="10" checksum="3059833435"/>
   </class>
   <class name="reco::CATopJetTagInfoCollection"/>

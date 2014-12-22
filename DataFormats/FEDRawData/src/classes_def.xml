@@ -8,10 +8,12 @@
   <version ClassVersion="11" checksum="1398850430"/>
   <version ClassVersion="10" checksum="2136542618"/>
  </class>
- <class name="FEDHeader" ClassVersion="10">
+ <class name="FEDHeader" ClassVersion="11">
+  <version ClassVersion="11" checksum="3644215394"/>
   <version ClassVersion="10" checksum="611523769"/>
  </class>
- <class name="FEDTrailer" ClassVersion="10">
+ <class name="FEDTrailer" ClassVersion="11">
+  <version ClassVersion="11" checksum="2009823250"/>
   <version ClassVersion="10" checksum="120358665"/>
  </class>
  <class name="fedh_struct" ClassVersion="10">

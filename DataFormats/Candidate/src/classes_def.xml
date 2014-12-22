@@ -37,11 +37,13 @@
    <version ClassVersion="11" checksum="1985736233"/>
    <version ClassVersion="10" checksum="2953566340"/>
   </class>
-  <class name="reco::VertexCompositePtrCandidate" ClassVersion="11">
+  <class name="reco::VertexCompositePtrCandidate" ClassVersion="12">
+   <version ClassVersion="12" checksum="2781469517"/>
    <version ClassVersion="11" checksum="2070976353"/>
    <version ClassVersion="10" checksum="955269040"/>
   </class>
-  <class name="reco::VertexCompositeCandidate" ClassVersion="11">
+  <class name="reco::VertexCompositeCandidate" ClassVersion="12">
+   <version ClassVersion="12" checksum="2839752627"/>
    <version ClassVersion="11" checksum="2801258535"/>
    <version ClassVersion="10" checksum="4177206274"/>
   </class>

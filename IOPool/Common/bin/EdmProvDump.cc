@@ -18,7 +18,6 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "Cintex/Cintex.h"
 #include "TError.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -1217,9 +1216,6 @@ int main(int argc, char* argv[]) {
 
   //silence ROOT warnings about missing dictionaries
   gErrorIgnoreLevel = kError;
-
-  //make sure dictionaries can be used for reading
-  ROOT::Cintex::Cintex::Enable();
 
   ProvenanceDumper dumper(fileName, showDependencies, extendedAncestors, extendedDescendants,
                           excludeESModules, showAllModules, showTopLevelPSets, findMatch, dontPrintProducts, dumpPSetID);

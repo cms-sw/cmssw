@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="reco::Muon" ClassVersion="15">
+  <class name="reco::Muon" ClassVersion="16">
+   <version ClassVersion="16" checksum="2804328230"/>
    <version ClassVersion="15" checksum="4145317518"/>
    <version ClassVersion="11" checksum="199341143"/>
    <version ClassVersion="12" checksum="1157850969"/>
@@ -54,7 +55,8 @@
   <class name="std::vector<reco::MuonSegmentMatch>"/>
   <class name="std::vector<reco::MuonRPCHitMatch>"/>
 
-  <class name="reco::MuonIsolation" ClassVersion="10">
+  <class name="reco::MuonIsolation" ClassVersion="11">
+   <version ClassVersion="11" checksum="2078425999"/>
    <version ClassVersion="10" checksum="2078425999"/>
   </class>
   <class name="reco::MuonPFIsolation" ClassVersion="15">
@@ -64,6 +66,7 @@
   </class>
 
   <class name="reco::Muon::MuonTrackRefMap"/>
+  <class name="std::pair<MuonTrackType, reco::TrackRef> >" />
 
   <class name="reco::CaloMuon" ClassVersion="10">
    <version ClassVersion="10" checksum="3458815810"/>

@@ -50,37 +50,6 @@ namespace {
     } 
   }
 
-  bool isAlnumOrUnderscore(char c) {
-    return c == '_' || std::isalnum(c);
-  }
-
-  void
-  replaceDelimitedString(std::string& demangledName, std::string const& from, std::string const& to) {
-    // from must not be a substring of to.
-    std::string::size_type length = from.size(); 
-    std::string::size_type pos = 0;
-    while((pos = demangledName.find(from, pos)) != std::string::npos) {
-      // replace 'from', unless preceded or followed by a letter, digit, or unsderscore.
-      if(pos != 0 && isAlnumOrUnderscore(demangledName[pos - 1])) {
-        ++pos;
-      } else if(pos + length < demangledName.size() && isAlnumOrUnderscore(demangledName[pos + length])) {
-        ++pos;
-      } else {
-        demangledName.replace(pos, length, to); 
-      }
-    }
-  } 
-
-  void
-  replaceString(std::string& demangledName, std::string const& from, std::string const& to) {
-    // from must not be a substring of to.
-    std::string::size_type length = from.size(); 
-    std::string::size_type pos = 0;
-    while((pos = demangledName.find(from, pos)) != std::string::npos) {
-       demangledName.replace(pos, length, to); 
-    }
-  }
-
   void
   constBeforeIdentifier(std::string& demangledName) {
     std::string const toBeMoved(" const");
@@ -105,6 +74,16 @@ namespace {
 }
 
 namespace edm {
+  void
+  replaceString(std::string& demangledName, std::string const& from, std::string const& to) {
+    // from must not be a substring of to.
+    std::string::size_type length = from.size(); 
+    std::string::size_type pos = 0;
+    while((pos = demangledName.find(from, pos)) != std::string::npos) {
+       demangledName.replace(pos, length, to); 
+    }
+  }
+
   std::string
   typeDemangle(char const* mangledName) {
     int status = 0;
@@ -118,22 +97,26 @@ namespace edm {
     } 
     std::string demangledName(demangled);
     free(demangled);
-    // We must use the same conventions used by REFLEX.
+    // We must use the same conventions previously used by REFLEX.
     // The order of these is important.
     // No space after comma
     replaceString(demangledName, ", ", ",");
+    // No space before opening square bracket
+    replaceString(demangledName, " [", "[");
     // Strip default allocator
     std::string const allocator(",std::allocator<");
     removeParameter(demangledName, allocator);
     // Strip default comparator
     std::string const comparator(",std::less<");
     removeParameter(demangledName, comparator);
-    // Replace 'std::string' with 'std::basic_string<char>'.
-    replaceDelimitedString(demangledName, "std::string", "std::basic_string<char>");
     // Put const qualifier before identifier.
     constBeforeIdentifier(demangledName);
     // No two consecutive '>' 
     replaceString(demangledName, ">>", "> >");
+    // For ROOT 6 and beyond, replace 'unsigned long long' with 'ULong64_t'
+    replaceString(demangledName, "unsigned long long", "ULong64_t");
+    // For ROOT 6 and beyond, replace 'long long' with 'Long64_t'
+    replaceString(demangledName, "long long", "Long64_t");
     return demangledName;
   }
 }

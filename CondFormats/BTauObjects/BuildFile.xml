@@ -4,7 +4,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
 <use   name="boost"/>
-<use   name="rootrflx"/>
+
 <use   name="CondFormats/PhysicsToolsObjects"/>
 <export>
   <lib   name="1"/>

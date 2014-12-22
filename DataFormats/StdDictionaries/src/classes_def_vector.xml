@@ -4,14 +4,12 @@
  <class name="std::vector<char*>"/>
  <class name="std::vector<double>"/>
  <class name="std::vector<float>"/>
- <class name="std::vector<int>"/>
+// <class name="std::vector<int>"/>
  <class name="std::vector<long>"/>
  <class name="std::vector<long double>"/>
  <class name="std::vector<long long>"/>
  <class name="std::vector<short>"/>
- <class name="std::vector<std::basic_string<char> >"/>
- <class name="std::vector<std::basic_string<char> >::const_iterator"/>
- <class name="std::vector<std::basic_string<char> >::iterator"/>
+// <class name="std::vector<std::basic_string<char> >"/>
  <class name="std::vector<std::map<short,short> >"/>
  <class name="std::vector<std::pair<double,double> >"/>
  <class name="std::vector<std::pair<double,std::vector<double> > >"/>

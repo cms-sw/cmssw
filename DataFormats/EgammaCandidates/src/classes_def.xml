@@ -44,14 +44,16 @@
    <version ClassVersion="10" checksum="3308689624"/>
    <version ClassVersion="11" checksum="3649971983"/>
   </class>
-  <class name="reco::Photon::PflowIsolationVariables"  ClassVersion="12">
+  <class name="reco::Photon::PflowIsolationVariables"  ClassVersion="13">
+   <version ClassVersion="13" checksum="114160170"/>
    <version ClassVersion="11" checksum="3200292660"/>
    <version ClassVersion="12" checksum="114160170"/>
   </class>
   <class name="reco::Photon::PflowIDVariables"  ClassVersion="-1">
    <version ClassVersion="-1" checksum="2819734289"/>
   </class>
-  <class name="reco::Photon::EnergyCorrections"  ClassVersion="15">
+  <class name="reco::Photon::EnergyCorrections"  ClassVersion="16">
+   <version ClassVersion="16" checksum="1544393913"/>
    <version ClassVersion="15" checksum="2042715570"/>
   </class>
 
@@ -162,13 +164,15 @@
   <class name="reco::GsfElectron::ConversionRejection" ClassVersion="10">
    <version ClassVersion="10" checksum="190549577"/>
   </class>
-  <class name="reco::GsfElectron::Corrections" ClassVersion="11">
+  <class name="reco::GsfElectron::Corrections" ClassVersion="12">
+   <version ClassVersion="12" checksum="796270676"/>
    <version ClassVersion="11" checksum="4279379731"/>
   </class>
   <class name="reco::GsfElectron::ChargeInfo" ClassVersion="10">
    <version ClassVersion="10" checksum="1415326811"/>
   </class>
-  <class name="reco::GsfElectron::PflowIsolationVariables" ClassVersion="11">
+  <class name="reco::GsfElectron::PflowIsolationVariables" ClassVersion="12">
+   <version ClassVersion="12" checksum="2389048798"/>
    <version ClassVersion="11" checksum="2389048798"/>
    <version ClassVersion="10" checksum="4270399196"/>
   <ioread sourceClass="reco::GsfElectron::PflowIsolationVariables" version="[1-10]" source="float chargedHadronIso" targetClass="reco::GsfElectron::PflowIsolationVariables" target="sumChargedHadronPt">
@@ -214,7 +218,8 @@
   <class name="reco::GsfElectron::PixelMatchVariables" ClassVersion="2">
     <version ClassVersion="2" checksum="3522539867"/>
   </class>
-  <class name="reco::GsfElectron" ClassVersion="17">
+  <class name="reco::GsfElectron" ClassVersion="18">
+   <version ClassVersion="18" checksum="2612939104"/>
    <version ClassVersion="17" checksum="1861965703"/>
    <version ClassVersion="16" checksum="1022265405"/>
    <version ClassVersion="15" checksum="515498629"/>

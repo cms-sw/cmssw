@@ -4,12 +4,10 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "Cintex/Cintex.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 
 
 #include "TClass.h"
-#include "G__ci.h"
 
 #include <string>
 #include <set>
@@ -17,15 +15,20 @@
 #include <iostream>
 
 namespace edm {
+  void loadType(TypeID const& type) {
+    checkClassDictionaries(type, true);
+    if (!missingTypes().empty()) {
+      TypeSet missing = missingTypes();
+      missingTypes().clear();
+      for_all(missing, loadType);
+    }
+  }
+
   void loadCap(std::string const& name) {
     FDEBUG(1) << "Loading dictionary for " << name << "\n";
     edmplugin::PluginCapabilities::get()->load(dictionaryPlugInPrefix() + name);
-    checkDictionaries(name);
-    if (!missingTypes().empty()) {
-      StringSet missing = missingTypes();
-      missingTypes().clear();
-      for_all(missing, loadCap);
-    }
+    TClass* cl = TClass::GetClass(name.c_str());
+    loadType(TypeID(*cl->GetTypeInfo()));
   }
 
   void doBuildRealData(std::string const& name) {
@@ -49,8 +52,6 @@ namespace edm {
 	loadCap(std::string("std::vector<edm::BranchDescription>"));
 	loadCap(std::string("edm::SendJobHeader"));
     }
-    G__SetCatchException(0);
-    ROOT::Cintex::Cintex::Enable();
     done=true;
   }
 

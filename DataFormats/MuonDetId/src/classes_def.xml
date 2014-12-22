@@ -1,27 +1,33 @@
 <lcgdict>
-  <class name="DTChamberId" ClassVersion="10">
+  <class name="DTChamberId" ClassVersion="11">
+   <version ClassVersion="11" checksum="1427930561"/>
    <version ClassVersion="10" checksum="1566132205"/>
   </class>
-  <class name="DTSuperLayerId" ClassVersion="11">
+  <class name="DTSuperLayerId" ClassVersion="12">
+   <version ClassVersion="12" checksum="4252195609"/>
    <version ClassVersion="11" checksum="95429957"/>
    <version ClassVersion="10" checksum="2373077448"/>
   </class>
-  <class name="DTLayerId" ClassVersion="11">
+  <class name="DTLayerId" ClassVersion="12">
+   <version ClassVersion="12" checksum="2452289092"/>
    <version ClassVersion="11" checksum="2590490736"/>
    <version ClassVersion="10" checksum="3694998457"/>
   </class>
-  <class name="DTWireId" ClassVersion="11">
+  <class name="DTWireId" ClassVersion="12">
+   <version ClassVersion="12" checksum="3971842612"/>
    <version ClassVersion="11" checksum="4110044256"/>
     <version ClassVersion="10" checksum="506517840"/>
   </class>
-  <class name="CSCDetId" ClassVersion="10">
+  <class name="CSCDetId" ClassVersion="11">
+   <version ClassVersion="11" checksum="1194325071"/>
    <version ClassVersion="10" checksum="56607943"/>
   </class>
-  <class name="RPCDetId" ClassVersion="10">
+  <class name="RPCDetId" ClassVersion="11">
+   <version ClassVersion="11" checksum="2362875019"/>
    <version ClassVersion="10" checksum="3608243239"/>
   </class>
-  <class name="RPCCompDetId" ClassVersion="-1">
-   <version ClassVersion="-1" checksum="2042478999"/>
+  <class name="RPCCompDetId" ClassVersion="10">
+   <version ClassVersion="10" checksum="2407084845"/>
   </class>
   <class name="DTBtiId" ClassVersion="10">
    <version ClassVersion="10" checksum="3911181252"/>
@@ -32,10 +38,12 @@
   <class name="DTSectCollId" ClassVersion="10">
    <version ClassVersion="10" checksum="1624682691"/>
   </class>
-  <class name="GEMDetId" ClassVersion="10">
+  <class name="GEMDetId" ClassVersion="11">
+   <version ClassVersion="11" checksum="2300896813"/>
    <version ClassVersion="10" checksum="3587583837"/>
   </class>
-  <class name="ME0DetId" ClassVersion="10">
+  <class name="ME0DetId" ClassVersion="11">
+   <version ClassVersion="11" checksum="1292662416"/>
    <version ClassVersion="10" checksum="388194174"/>
   </class>
 </lcgdict>

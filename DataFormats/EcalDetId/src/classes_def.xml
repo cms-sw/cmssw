@@ -1,25 +1,31 @@
 <lcgdict>
-  <class name="EBDetId" ClassVersion="11">
+  <class name="EBDetId" ClassVersion="12">
+   <version ClassVersion="12" checksum="1079888109"/>
    <version ClassVersion="11" checksum="55396465"/>
    <version ClassVersion="10" checksum="18462289"/>
   </class>
-  <class name="EEDetId" ClassVersion="11">
+  <class name="EEDetId" ClassVersion="12">
+   <version ClassVersion="12" checksum="1080419550"/>
    <version ClassVersion="11" checksum="55927906"/>
    <version ClassVersion="10" checksum="18639436"/>
   </class>
-  <class name="ESDetId" ClassVersion="11">
+  <class name="ESDetId" ClassVersion="12">
+   <version ClassVersion="12" checksum="1082899608"/>
    <version ClassVersion="11" checksum="58407964"/>
    <version ClassVersion="10" checksum="19466122"/>
   </class>
-  <class name="EcalTrigTowerDetId" ClassVersion="11">
+  <class name="EcalTrigTowerDetId" ClassVersion="12">
+   <version ClassVersion="12" checksum="2621916454"/>
    <version ClassVersion="11" checksum="1597424810"/>
    <version ClassVersion="10" checksum="3395783268"/>
   </class>
-  <class name="EcalScDetId" ClassVersion="11">
+  <class name="EcalScDetId" ClassVersion="12">
+   <version ClassVersion="12" checksum="1825107257"/>
    <version ClassVersion="11" checksum="800615613"/>
    <version ClassVersion="10" checksum="1698524437"/>
   </class>
-  <class name="EcalPnDiodeDetId" ClassVersion="11">
+  <class name="EcalPnDiodeDetId" ClassVersion="12">
+   <version ClassVersion="12" checksum="2410043118"/>
    <version ClassVersion="11" checksum="1385551474"/>
    <version ClassVersion="10" checksum="461847292"/>
   </class>

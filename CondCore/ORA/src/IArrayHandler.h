@@ -3,8 +3,8 @@
 
 #include <cstddef>
 
-namespace Reflex {
-  class Type;
+namespace edm {
+  class TypeWithDict;
 }
 
 namespace ora {
@@ -21,7 +21,7 @@ namespace ora {
       virtual void* object() = 0;
 
       /// Returns the return type of the iterator dereference method
-      virtual Reflex::Type& returnType() = 0;
+      virtual edm::TypeWithDict& returnType() = 0;
     };
 
 
@@ -56,7 +56,7 @@ namespace ora {
       virtual void finalize( void* ){ }
 
       /// Returns the iterator return type
-      virtual Reflex::Type& iteratorReturnType() = 0;
+      virtual edm::TypeWithDict& iteratorReturnType() = 0;
     };
 
 }

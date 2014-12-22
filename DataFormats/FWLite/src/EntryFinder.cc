@@ -36,7 +36,7 @@ namespace fwlite {
     explicit FWLiteEventFinder(TBranch* auxBranch) : auxBranch_(auxBranch) {}
     virtual ~FWLiteEventFinder() {}
     virtual
-    edm::EventNumber_t getEventNumberOfEntry(long long entry) const override {
+    edm::EventNumber_t getEventNumberOfEntry(edm::IndexIntoFile::EntryNumber_t entry) const override {
       void* saveAddress = auxBranch_->GetAddress();
       edm::EventAuxiliary eventAux;
       edm::EventAuxiliary *pEvAux = &eventAux;

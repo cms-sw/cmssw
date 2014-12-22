@@ -62,9 +62,9 @@ private:
   ROOT::Math::SVector<double,nConstraint+4> val;
   ROOT::Math::SVector<double, 3+7*nTrk> finPar;
   ROOT::Math::SVector<double, nConstraint+4> lambda;
-  ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> > pCov = ROOT::Math::SMatrixNoInit(); 
-  ROOT::Math::SMatrix<double,7,7,ROOT::Math::MatRepSym<double,7> > nCovariance = ROOT::Math::SMatrixNoInit();
-  ROOT::Math::SMatrix<double,nConstraint+4,nConstraint+4,ROOT::Math::MatRepSym<double,nConstraint+4> > v_g_sym = ROOT::Math::SMatrixNoInit();   
+  ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> > pCov = ROOT::Math::SMatrixIdentity(); 
+  ROOT::Math::SMatrix<double,7,7,ROOT::Math::MatRepSym<double,7> > nCovariance = ROOT::Math::SMatrixIdentity();
+  ROOT::Math::SMatrix<double,nConstraint+4,nConstraint+4,ROOT::Math::MatRepSym<double,nConstraint+4> > v_g_sym = ROOT::Math::SMatrixIdentity();   
   
 };
 

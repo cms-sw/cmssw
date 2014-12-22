@@ -5,16 +5,20 @@
   <class name="L1GctInternEmCand" ClassVersion="10">
    <version ClassVersion="10" checksum="3816719986"/>
   </class>
-  <class name="L1GctInternJetData" ClassVersion="10">
+  <class name="L1GctInternJetData" ClassVersion="11">
+   <version ClassVersion="11" checksum="2229153073"/>
    <version ClassVersion="10" checksum="3106448375"/>
   </class>
-  <class name="L1GctInternEtSum" ClassVersion="10">
+  <class name="L1GctInternEtSum" ClassVersion="11">
+   <version ClassVersion="11" checksum="405572632"/>
    <version ClassVersion="10" checksum="1283596122"/>
   </class>
-  <class name="L1GctInternHtMiss" ClassVersion="10">
+  <class name="L1GctInternHtMiss" ClassVersion="11">
+   <version ClassVersion="11" checksum="1282537724"/>
    <version ClassVersion="10" checksum="2668056860"/>
   </class>
-  <class name="L1GctInternHFData" ClassVersion="10">
+  <class name="L1GctInternHFData" ClassVersion="11">
+   <version ClassVersion="11" checksum="1304507668"/>
    <version ClassVersion="10" checksum="1000233428"/>
   </class>
   <class name="L1GctFibreWord" ClassVersion="10">

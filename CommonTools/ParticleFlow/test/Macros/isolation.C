@@ -3,8 +3,6 @@
 
 gSystem->Load("libFWCoreFWLite.so");
 AutoLibraryLoader::enable();
-gSystem->Load("libCintex.so");
-ROOT::Cintex::Cintex::Enable();
 TFile f("testPFPAT.root");
 
 Events.Draw("recoIsolatedPFCandidates_pfPionsIsolation__PFPAT.obj.isolation_>>h2");

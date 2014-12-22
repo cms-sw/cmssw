@@ -1,10 +1,10 @@
 #include "CArrayHandler.h"
 #include "ClassUtils.h"
 // externals
-#include "Reflex/Object.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
 
 ora::CArrayIteratorHandler::CArrayIteratorHandler( const void* startAddress,
-                                                   const Reflex::Type& iteratorReturnType ):
+                                                   const edm::TypeWithDict& iteratorReturnType ):
   m_returnType(iteratorReturnType),
   m_currentElement(startAddress){
 
@@ -15,7 +15,7 @@ ora::CArrayIteratorHandler::~CArrayIteratorHandler(){}
 void
 ora::CArrayIteratorHandler::increment()
 {
-  m_currentElement = static_cast< const char* >( m_currentElement) + m_returnType.SizeOf();
+  m_currentElement = static_cast< const char* >( m_currentElement) + m_returnType.size();
 }
 
 void*
@@ -24,19 +24,19 @@ ora::CArrayIteratorHandler::object()
   return const_cast<void*>(m_currentElement);
 }
 
-Reflex::Type&
+edm::TypeWithDict&
 ora::CArrayIteratorHandler::returnType()
 {
   return m_returnType;
 }
 
-ora::CArrayHandler::CArrayHandler( const Reflex::Type& dictionary ):
+ora::CArrayHandler::CArrayHandler( const edm::TypeWithDict& dictionary ):
   m_type( dictionary ),
   m_elementType()
 {
 
   // find the iterator return type 
-  Reflex::Type elementType = m_type.ToType();
+  edm::TypeWithDict elementType = m_type.toType();
   m_elementType = ClassUtils::resolvedType( elementType );
   
 }
@@ -46,8 +46,8 @@ ora::CArrayHandler::~CArrayHandler(){
 
 size_t
 ora::CArrayHandler::size( const void* )
-{
-  return m_type.ArrayLength();
+{ 
+  return ClassUtils::arrayLength( m_type );
 }
 
 
@@ -68,7 +68,7 @@ ora::CArrayHandler::clear( const void* )
 {
 }
 
-Reflex::Type&
+edm::TypeWithDict&
 ora::CArrayHandler::iteratorReturnType()
 {
   return m_elementType;

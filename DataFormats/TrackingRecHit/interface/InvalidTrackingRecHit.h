@@ -17,7 +17,7 @@ public:
   virtual ~InvalidTrackingRecHit() {}
 
   virtual InvalidTrackingRecHit * clone() const GCC11_OVERRIDE {return new InvalidTrackingRecHit(*this);}
-#ifdef NO_DICT
+#ifndef __GCCXML__
   virtual RecHitPointer cloneSH() const { return RecHitPointer(clone());}
 #endif
 

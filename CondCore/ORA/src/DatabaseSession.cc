@@ -265,7 +265,7 @@ ora::Handle<ora::DatabaseContainer> ora::DatabaseSession::addContainer( const st
 
 
 ora::Handle<ora::DatabaseContainer> ora::DatabaseSession::createContainer( const std::string& containerName,
-                                                                           const Reflex::Type& type ){
+                                                                           const edm::TypeWithDict& type ){
   // create the container
   int newContId = m_contIdSequence->getNextId( true );
   Handle<DatabaseContainer> newCont ( new DatabaseContainer( newContId, containerName, type, *this ) );
@@ -326,7 +326,7 @@ bool ora::DatabaseSession::getItemId( const std::string& name, ora::OId& destina
 }
 
 boost::shared_ptr<void> ora::DatabaseSession::fetchTypedObjectByName( const std::string& name, 
-                                                                      const Reflex::Type& asType ){
+                                                                      const edm::TypeWithDict& asType ){
   boost::shared_ptr<void> ret = m_transactionCache->getNamedReference( name );
   if( !ret.get() ){
     std::pair<int,int> oid;

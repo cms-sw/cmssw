@@ -236,4 +236,6 @@
   <class name="L1CaloGeometry" class_version="L1CaloGeometry_V01">
     <field name="m_gctEtaBinBoundaries" mapping="blob" />
   </class>
+  <enum name="L1GtBoard" />
+  <enum name="L1GtPsbQuad" />
 </lcgdict>

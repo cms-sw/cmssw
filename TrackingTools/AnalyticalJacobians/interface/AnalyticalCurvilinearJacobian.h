@@ -21,7 +21,7 @@ class GlobalTrajectoryParameters;
 class AnalyticalCurvilinearJacobian  {
  public:
   /// default constructor (for tests)
-  AnalyticalCurvilinearJacobian() : theJacobian(ROOT::Math::SMatrixNoInit()) {}
+  AnalyticalCurvilinearJacobian() : theJacobian(ROOT::Math::SMatrixIdentity()) {}
 
   /// get Field at starting state (internally)
   AnalyticalCurvilinearJacobian(const GlobalTrajectoryParameters& globalParameters,

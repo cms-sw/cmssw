@@ -1,7 +1,8 @@
 <lcgdict>
   <class name="std::pair<LocalVector,LocalVector>"/>
   <class name="std::pair<LocalPoint,LocalPoint>"/>
-  <class name="reco::TrackingRecHitInfo" ClassVersion="10">
+  <class name="reco::TrackingRecHitInfo" ClassVersion="11">
+   <version ClassVersion="11" checksum="803167075"/>
    <version ClassVersion="10" checksum="2470257581"/>
   </class>
   <class name="reco::TrackingStateInfo "/>

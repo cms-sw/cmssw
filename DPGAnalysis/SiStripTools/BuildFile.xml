@@ -1,6 +1,6 @@
 <flags   GENREFLEX_ARGS="--"/>
 <use   name="root"/>
-<use   name="rootrflx"/>
+
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/ServiceRegistry"/>

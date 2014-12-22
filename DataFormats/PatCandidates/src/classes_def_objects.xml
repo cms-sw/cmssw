@@ -16,7 +16,8 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="26">
+  <class name="pat::Electron"  ClassVersion="27">
+   <version ClassVersion="27" checksum="2628480167"/>
    <field name="superClusterRelinked_" transient="true"/>
    <version ClassVersion="26" checksum="2045819644"/>
    <version ClassVersion="25" checksum="1488101799"/>
@@ -32,12 +33,15 @@
    <version ClassVersion="10" checksum="1662079993"/>
   </class>
   <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
-  <class name="edm::AtomicPtrCache<std::vector<reco::SuperCluster> >" />
+  <class name="edm::AtomicPtrCache<std::vector<reco::SuperCluster> >">
+   <field name="m_data" transient="true"/>
+  </class>
   <ioread sourceClass="pat::Electron" targetClass="pat::Electron" version="[1-]" source="" target="superClusterRelinked_">
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
 
-  <class name="pat::Muon"  ClassVersion="14">
+  <class name="pat::Muon"  ClassVersion="15">
+   <version ClassVersion="15" checksum="2088272079"/>
    <version ClassVersion="14" checksum="132269943"/>
    <version ClassVersion="13" checksum="2943499125"/>
    <version ClassVersion="12" checksum="462627330"/>
@@ -64,8 +68,12 @@
    <version ClassVersion="10" checksum="2244564938"/>
   </class>
   <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
-   <class name="edm::AtomicPtrCache<reco::TrackRefVector>"/>
-   <class name="edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> >" />
+   <class name="edm::AtomicPtrCache<reco::TrackRefVector>">
+     <field name="m_data" transient="true"/>
+  </class>
+   <class name="edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> >">
+     <field name="m_data" transient="true"/>
+  </class>
   <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationTracksTransientRefVector_">
   <![CDATA[isolationTracksTransientRefVector_.reset();]]>
   </ioread>
@@ -128,7 +136,8 @@
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
 
-  <class name="pat::Jet"  ClassVersion="13">
+  <class name="pat::Jet"  ClassVersion="14">
+   <version ClassVersion="14" checksum="766989023"/>
    <version ClassVersion="13" checksum="130552029"/>
    <field name="caloTowersTemp_" transient="true"/>
    <field name="pfCandidatesTemp_" transient="true"/>
@@ -162,7 +171,8 @@
    <version ClassVersion="11" checksum="3492108938"/>
    <version ClassVersion="10" checksum="417284221"/>
   </class>
-  <class name="pat::PFParticle"  ClassVersion="11">
+  <class name="pat::PFParticle"  ClassVersion="12">
+   <version ClassVersion="12" checksum="2881263841"/>
    <version ClassVersion="11" checksum="2923110109"/>
    <version ClassVersion="10" checksum="2240381542"/>
   </class>
@@ -178,7 +188,8 @@
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
 
-  <class name="pat::PackedCandidate" ClassVersion="16">
+  <class name="pat::PackedCandidate" ClassVersion="17">
+   <version ClassVersion="17" checksum="1633877368"/>
     <version ClassVersion="16" checksum="3261782486"/>
     <version ClassVersion="15" checksum="2118306102"/>
     <version ClassVersion="14" checksum="1075333340"/>

@@ -6,7 +6,7 @@
 <use   name="boost"/>
 <use   name="oracle"/>
 <use   name="DataFormats/Common"/>
-<use   name="rootrflx"/>
+
 <use   name="xerces-c"/>
 <use   name="zlib"/>
 <use   name="DataFormats/HcalDetId"/>

@@ -67,7 +67,7 @@ private:
   Vector theMean;
   double theWeight;
 
-  mutable Matrix theWeightMatrix = ROOT::Math::SMatrixNoInit();
+  mutable Matrix theWeightMatrix = ROOT::Math::SMatrixIdentity();
   mutable bool theHasWeightMatrix;
 
 // public:

@@ -8,8 +8,6 @@ def loadFWLite():
     gSystem.Load("libFWCoreFWLite")
     gROOT.ProcessLine('AutoLibraryLoader::enable();')
     gSystem.Load("libFWCoreFWLite")
-    gSystem.Load("libCintex")
-    gROOT.ProcessLine('ROOT::Cintex::Cintex::Enable();')
 
 
 
