@@ -206,3 +206,26 @@ VertexFromTrackProducer::produce(edm::StreamID iStreamId, edm::Event& iEvent, co
   iEvent.put(result);
   
 }
+
+void
+VertexFromTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
+{
+
+  edm::ParameterSetDescription desc;
+
+  desc.add<bool>("isRecoCandidate",false)->setComment("If isRecoCandidate=True \"trackLabel\" is used and assumed to be collection of candidates.\nOtherwise it is assumed that \"trackLabel\" is collection of tracks and is used when useTriggerFilterElectrons=False and useTriggerFilterMuons=False");
+  desc.add<edm::InputTag>("trackLabel",edm::InputTag("hltL3MuonCandidates"))->setComment("Collection of tracks or candidates");
+  desc.add<bool>("useTriggerFilterElectrons",false)->setComment("Use leading electron passing \"triggerFilterElectronsSrc\" filter to determine z vertex position");
+  desc.add<edm::InputTag>("triggerFilterElectronsSrc",edm::InputTag("hltEle20CaloIdVTCaloIsoTTrkIdTTrkIsoL1JetTrackIsoFilter"))->setComment("Name of electron filter");
+  desc.add<bool>("useTriggerFilterMuons",true)->setComment("Use leading muon passing \"triggerFilterMuonsSrc\" filter to determine z vertex position");
+  desc.add<edm::InputTag>("triggerFilterMuonsSrc",edm::InputTag("hltSingleMuIsoL3IsoFiltered15"))->setComment("Name of muon filter");
+  desc.add<bool>("useBeamSpot",true)->setComment("Use beam spot for x/y vertex position");
+  desc.add<edm::InputTag>("beamSpotLabel",edm::InputTag("hltOnlineBeamSpot"))->setComment("Beamspot collection");
+  desc.add<bool>("useVertex",true)->setComment("Use vertex for x/y vertex position (beam spot is used when PV does not exit)");
+  desc.add<edm::InputTag>("vertexLabel",edm::InputTag("hltPixelVertices"))->setComment("Vertex collection");
+
+  desc.addUntracked<bool>("verbose",false)->setComment("Switch on/off verbosity");
+  descriptions.setComment("This module produces vertex with z-coordinate determined with the highest-Pt lepton track and x/y-coordinates taken from BeamSpot/Vertex");
+  descriptions.add("hltVertexFromTrackProducer",desc);
+
+}

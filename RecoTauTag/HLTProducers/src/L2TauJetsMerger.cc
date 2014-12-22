@@ -75,3 +75,19 @@ void L2TauJetsMerger::produce(edm::StreamID iSId, edm::Event& iEvent, const edm:
   iEvent.put(tauL2jets);
 
 }
+
+void L2TauJetsMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
+{
+
+  edm::ParameterSetDescription desc;
+  std::vector<edm::InputTag> inputTags;  
+  inputTags.push_back( edm::InputTag("hltAkIsoTau1Regional") );
+  inputTags.push_back( edm::InputTag("hltAkIsoTau2Regional") );
+  inputTags.push_back( edm::InputTag("hltAkIsoTau3Regional") );
+  inputTags.push_back( edm::InputTag("hltAkIsoTau4Regional") );
+  desc.add< std::vector<edm::InputTag> >("JetSrc",inputTags)->setComment("CaloJet collections to merge");
+  desc.add<double>("EtMin",20.0)->setComment("Minimal ET of jet to merge");
+  descriptions.setComment("Merges CaloJet collections removing duplicates");
+  descriptions.add("L2TauJetsMerger",desc);
+
+}
