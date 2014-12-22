@@ -52,8 +52,7 @@ discriminationByIsolationMVA2raw = cms.EDProducer("PFRecoTauDiscriminationByIsol
     #  1) these is at least one track above threshold (0.5 GeV) in the signal cone
     #  2) a track OR a pi-zero in the signal cone has pT > 5 GeV
     Prediscriminants = requireLeadTrack,
-    loadMVAfromDB = cms.bool(False),
-    inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationByIsolationMVA3_newDMwLT.root'),
+    loadMVAfromDB = cms.bool(True),
     mvaName = cms.string("tauIdMVAnewDMwLT"),
     mvaOpt = cms.string("newDMwLT"),
 
@@ -70,8 +69,7 @@ discriminationByIsolationMVA2VLoose = recoTauDiscriminantCutMultiplexer.clone(
     Prediscriminants = requireLeadTrack,
     toMultiplex = cms.InputTag('discriminationByIsolationMVA2raw'),
     key = cms.InputTag('discriminationByIsolationMVA2raw:category'),
-    loadMVAfromDB = cms.bool(False),
-    inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_newDMwLT.root'),
+    loadMVAfromDB = cms.bool(True),
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
