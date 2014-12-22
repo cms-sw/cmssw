@@ -17,6 +17,8 @@
  */
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
@@ -32,10 +34,13 @@ class CaloTowerCreatorForTauHLT : public edm::global::EDProducer<> {
   CaloTowerCreatorForTauHLT( const edm::ParameterSet & );
   /// destructor
   ~CaloTowerCreatorForTauHLT();
+  /// 
+  static void fillDescriptions( edm::ConfigurationDescriptions& desc );
 
  private:
   /// process one event
   void produce( edm::StreamID sid, edm::Event& evt, const edm::EventSetup& stp ) const override;
+
   /// verbosity
   const int mVerbose;
   /// label of source collection
@@ -50,7 +55,6 @@ class CaloTowerCreatorForTauHLT : public edm::global::EDProducer<> {
   const double mEtThreshold;
   /// E threshold
   const double mEThreshold;
-
   //
   const int mTauId;
 

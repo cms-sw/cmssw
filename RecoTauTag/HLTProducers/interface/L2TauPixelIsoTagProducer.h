@@ -4,7 +4,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -29,6 +30,8 @@ public:
   ~L2TauPixelIsoTagProducer() {};
 
   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
 
