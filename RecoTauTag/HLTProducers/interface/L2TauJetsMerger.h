@@ -5,7 +5,8 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -21,6 +22,7 @@ class L2TauJetsMerger: public edm::global::EDProducer<> {
   explicit L2TauJetsMerger(const edm::ParameterSet&);
   ~L2TauJetsMerger();
   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
     
