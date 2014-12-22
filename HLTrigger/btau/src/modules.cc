@@ -59,6 +59,13 @@ typedef HLTJetTag<reco::  PFJet> HLTPFJetTag;
 DEFINE_FWK_MODULE(HLTCaloJetTag);
 DEFINE_FWK_MODULE(HLTPFJetTag);
 
+#include "HLTJetTagWithMatching.h"
+#include "HLTJetTagWithMatching.cc"
+typedef HLTJetTagWithMatching<reco::CaloJet> HLTCaloJetTagWithMatching;
+typedef HLTJetTagWithMatching<reco::  PFJet> HLTPFJetTagWithMatching;
+DEFINE_FWK_MODULE(HLTCaloJetTagWithMatching);
+DEFINE_FWK_MODULE(HLTPFJetTagWithMatching);
+
 #include "HLTCollectionProducer.h"
 typedef HLTCollectionProducer<reco::CaloJet> HLTCaloJetCollectionProducer;
 typedef HLTCollectionProducer<reco::PFJet>   HLTPFJetCollectionProducer;
