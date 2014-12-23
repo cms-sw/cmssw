@@ -1,5 +1,5 @@
-#ifndef Fireworks_Calo_FWCandTowerProxyBuilder_h
-#define Fireworks_Calo_FWCandTowerProxyBuilder_h
+#ifndef Fireworks_Calo_FWPFCandTowerProxyBuilder_h
+#define Fireworks_Calo_FWPFCandTowerProxyBuilder_h
 // -*- C++ -*-
 //
 // Package:     Calo
@@ -33,7 +33,7 @@ public:
    FWPFCandidateTowerProxyBuilder();
    virtual ~FWPFCandidateTowerProxyBuilder();
 
-   virtual double getEt(const CaloTower&) const {return 0;} //= 0;
+   virtual double getEt(const reco::PFCandidate&) const = 0;
 
 protected:
    virtual void fillCaloData();
@@ -65,8 +65,8 @@ public:
    // ---------- const member functions ---------------------
 
    virtual double getEt(const reco::PFCandidate& iTower) const {
-      //          return iTower.ecalEnergy()* TMath::Sin(iTower.theta());
-          return iTower.rawEcalEnergy()* TMath::Sin(iTower.theta());
+      printf("ECAL et\n");
+         return iTower.ecalEnergy()* TMath::Sin(iTower.theta());
    }
 
    REGISTER_PROXYBUILDER_METHODS();
@@ -90,8 +90,8 @@ public:
    // ---------- const member functions ---------------------
 
    virtual double getEt(const reco::PFCandidate& iTower) const {
-      //      return iTower.hcalEnergy() * TMath::Sin(iTower.theta());
-      return iTower.rawHcalEnergy() * TMath::Sin(iTower.theta());
+      printf("HCAL et\n");
+      return iTower.hcalEnergy() * TMath::Sin(iTower.theta());
    }
 
    REGISTER_PROXYBUILDER_METHODS();
