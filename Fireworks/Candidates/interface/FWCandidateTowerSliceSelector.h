@@ -9,6 +9,7 @@ public:
    FWCandidateTowerSliceSelector(TH2F* h, const FWEventItem* i);
    virtual ~FWCandidateTowerSliceSelector();
 
+ virtual bool aggregatePhiCells() const { return false; }
  protected:
    virtual void getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const;
 };

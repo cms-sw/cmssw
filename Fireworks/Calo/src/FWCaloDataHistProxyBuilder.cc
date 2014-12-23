@@ -12,7 +12,7 @@
 #include "TH2F.h"
 
 
-FWCaloDataHistProxyBuilder::FWCaloDataHistProxyBuilder(): m_hist(0)
+FWCaloDataHistProxyBuilder::FWCaloDataHistProxyBuilder(): m_hist(0), m_sliceSelector(0)
 {
 }
 FWCaloDataHistProxyBuilder::~FWCaloDataHistProxyBuilder()
@@ -91,8 +91,8 @@ FWCaloDataHistProxyBuilder::assertCaloDataSlice()
          //make sure it is accessible via the base class
          m_caloData->SetUserData(static_cast<FWFromEveSelectorBase*>(sel));
       }
-     
-      sel->addSliceSelector(m_sliceIndex, instantiateSliceSelector());
+      m_sliceSelector = instantiateSliceSelector();
+      sel->addSliceSelector(m_sliceIndex, m_sliceSelector);
      
       return true;
    }
@@ -102,49 +102,62 @@ FWCaloDataHistProxyBuilder::assertCaloDataSlice()
 
 void FWCaloDataHistProxyBuilder::addEntryToTEveCaloData(float eta, float phi, float Et, bool isSelected)
 {
-    using namespace TMath;
-    static float d = 2.5*Pi()/180;
-    //    printf("comapre %f, %f \n", fw3dlego::xbins[80],  fw3dlego::xbins[61] );
-    if (Abs(eta) > fw3dlego::xbins[80])
-    {
-        m_hist->Fill(eta,wrapPi(phi - 3*d), Et *0.25);
-        m_hist->Fill(eta,wrapPi(phi -   d), Et *0.25);
-        m_hist->Fill(eta,wrapPi(phi +   d), Et *0.25);
-        m_hist->Fill(eta,wrapPi(phi + 3*d), Et *0.25);
-    }
-    else if (Abs(eta) > fw3dlego::xbins[61])
-    {
-        m_hist->Fill(eta,wrapPi(phi - d), Et *0.5);
-        m_hist->Fill(eta,wrapPi(phi + d), Et *0.5);
-    }
-    else
-    {
-        m_hist->Fill(eta,phi, Et);
-    }
+   using namespace TMath;
+   static float d = 2.5*Pi()/180;
+   //    printf("comapre %f, %f \n", fw3dlego::xbins[80],  fw3dlego::xbins[61] );
 
 
-    TEveCaloData::vCellId_t& selected = m_caloData->GetCellsSelected();
-    if(isSelected) {
-        //NOTE: I tried calling TEveCalo::GetCellList but it always returned 0, probably because of threshold issues
-        // but looking at the TEveCaloHist::GetCellList code the CellId_t is just the histograms bin # and the slice
-        // printf("applyChangesToAllModels ...check selected \n");
+   if (m_sliceSelector->aggregatePhiCells()) {
+      if (Abs(eta) > fw3dlego::xbins[80])
+      {
+         m_hist->Fill(eta,wrapPi(phi - 3*d), Et *0.25);
+         m_hist->Fill(eta,wrapPi(phi -   d), Et *0.25);
+         m_hist->Fill(eta,wrapPi(phi +   d), Et *0.25);
+         m_hist->Fill(eta,wrapPi(phi + 3*d), Et *0.25);
+      }
+      else if (Abs(eta) > fw3dlego::xbins[61])
+      {
+         m_hist->Fill(eta,wrapPi(phi - d), Et *0.5);
+         m_hist->Fill(eta,wrapPi(phi + d), Et *0.5);
+      }
+      else
+      {
+         m_hist->Fill(eta,phi, Et);
+      }
+   }
+   else 
+   {
+      m_hist->Fill(eta,phi, Et);
+   }
+
+   TEveCaloData::vCellId_t& selected = m_caloData->GetCellsSelected();
+   if(isSelected) {
+      //NOTE: I tried calling TEveCalo::GetCellList but it always returned 0, probably because of threshold issues
+      // but looking at the TEveCaloHist::GetCellList code the CellId_t is just the histograms bin # and the slice
+      // printf("applyChangesToAllModels ...check selected \n");
 
 
-   if (Abs(eta) > fw3dlego::xbins[80])
-        {
+      if (m_sliceSelector->aggregatePhiCells()) {
+         if (Abs(eta) > fw3dlego::xbins[80])
+         {
             selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(eta, wrapPi(phi -3*d)),m_sliceIndex));
             selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(eta, wrapPi(phi -d))  ,m_sliceIndex));
             selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(eta, wrapPi(phi +d))  ,m_sliceIndex));
             selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(eta, wrapPi(phi +3*d)),m_sliceIndex));
-        }
-   if (Abs(eta) > fw3dlego::xbins[60])
-        {
+         }
+         if (Abs(eta) > fw3dlego::xbins[60])
+         {
             selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(eta, wrapPi(phi -d)), m_sliceIndex));
             selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(eta, wrapPi(phi +d)), m_sliceIndex));
-        }
-        else
-        {
+         }
+         else
+         {
             selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(eta,phi),m_sliceIndex));
-        }
-    }
+         }
+      }
+   else 
+   {
+      selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(eta,phi),m_sliceIndex));
+   }
+   }
 }

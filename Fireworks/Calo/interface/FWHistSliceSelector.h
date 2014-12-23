@@ -13,6 +13,8 @@ public:
    virtual void doSelect(const TEveCaloData::CellId_t&);
    virtual void doUnselect(const TEveCaloData::CellId_t&);
 
+   virtual bool aggregatePhiCells() const { return true; }
+
 protected: 
    virtual void getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const = 0;
    bool matchCell(const TEveCaloData::CellId_t& iCell, int idx) const;

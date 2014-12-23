@@ -65,8 +65,7 @@ public:
    // ---------- const member functions ---------------------
 
    virtual double getEt(const reco::PFCandidate& iTower) const {
-      printf("ECAL et\n");
-         return iTower.ecalEnergy()* TMath::Sin(iTower.theta());
+      return iTower.ecalEnergy()* TMath::Sin(iTower.theta());
    }
 
    REGISTER_PROXYBUILDER_METHODS();
@@ -90,7 +89,6 @@ public:
    // ---------- const member functions ---------------------
 
    virtual double getEt(const reco::PFCandidate& iTower) const {
-      printf("HCAL et\n");
       return iTower.hcalEnergy() * TMath::Sin(iTower.theta());
    }
 

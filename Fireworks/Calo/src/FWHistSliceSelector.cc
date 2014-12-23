@@ -20,46 +20,53 @@ FWHistSliceSelector::~FWHistSliceSelector()
 bool
 FWHistSliceSelector::matchCell(const TEveCaloData::CellId_t& iCell, int itemIdx) const
 {
-    float eta, phi;
-    getItemEntryEtaPhi(itemIdx, eta, phi);
+   float eta, phi;
+   getItemEntryEtaPhi(itemIdx, eta, phi);
 
-    int idx = m_hist->FindBin(eta, phi);
+   int idx = m_hist->FindBin(eta, phi);
    int nBinsX = m_hist->GetXaxis()->GetNbins() + 2;
 
    int etaBin, phiBin, w, newPhiBin;
    m_hist->GetBinXYZ(idx, etaBin, phiBin, w);
 
-   bool match= false;
-   if (TMath::Abs(eta) > 4.716)
-   {
-      newPhiBin =  ((phiBin + 1) / 4) * 4 - 1;
-      if (newPhiBin <= 0) newPhiBin = 71;
+   if (aggregatePhiCells()) {
+      bool match= false;
+      if (TMath::Abs(eta) > 4.716)
+      {
+         newPhiBin =  ((phiBin + 1) / 4) * 4 - 1;
+         if (newPhiBin <= 0) newPhiBin = 71;
 
-      idx = etaBin + newPhiBin*nBinsX;
-      match |= (idx == iCell.fTower);
+         idx = etaBin + newPhiBin*nBinsX;
+         match |= (idx == iCell.fTower);
 
-      idx += nBinsX;
-      match |= (idx == iCell.fTower);
+         idx += nBinsX;
+         match |= (idx == iCell.fTower);
 
-      idx += nBinsX;
-      if (newPhiBin == 71)
-         idx = etaBin + 1*nBinsX;
-      match |= (idx == iCell.fTower);
+         idx += nBinsX;
+         if (newPhiBin == 71)
+            idx = etaBin + 1*nBinsX;
+         match |= (idx == iCell.fTower);
 
-      idx += nBinsX;
-      match |= (idx == iCell.fTower);
-   } 
-   else if (TMath::Abs(eta) > 1.873)
-   {
-      newPhiBin =  ((phiBin  + 1) / 2) * 2 -1;
-      idx = etaBin + newPhiBin*nBinsX;
-      match = ( idx == iCell.fTower ||  idx + nBinsX == iCell.fTower);
+         idx += nBinsX;
+         match |= (idx == iCell.fTower);
+      } 
+      else if (TMath::Abs(eta) > 1.873)
+      {
+         newPhiBin =  ((phiBin  + 1) / 2) * 2 -1;
+         idx = etaBin + newPhiBin*nBinsX;
+         match = ( idx == iCell.fTower ||  idx + nBinsX == iCell.fTower);
+      }
+      else
+      {
+         match = ( idx == iCell.fTower);
+      }
+   
+      return match;
    }
-   else
+   else 
    {
-      match = ( idx == iCell.fTower);
+      return idx == iCell.fTower;
    }
-   return match;
 }
 
 void
