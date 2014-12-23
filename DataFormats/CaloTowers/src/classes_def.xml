@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="CaloTowerDetId" ClassVersion="10">
+  <class name="CaloTowerDetId" ClassVersion="11">
+   <version ClassVersion="11" checksum="4063982642"/>
    <version ClassVersion="10" checksum="2444816232"/>
   </class>
   <class name="CaloTower" ClassVersion="12">
