@@ -22,6 +22,7 @@ protected:
    void addEntryToTEveCaloData(float eta, float phi, float Et, bool isSelected);
 
    TH2F* m_hist;
+   FWHistSliceSelector* m_sliceSelector;
 };
 
 
