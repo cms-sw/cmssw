@@ -164,7 +164,7 @@ findMethod(const edm::TypeWithDict& t, /*class=in*/
     type = theType;
   }
   // strip const, volatile, c++ ref, ..
-  type = edm::TypeWithDict(type, 0L);
+  type = type.stripConstRef();;
   // Create our return value.
   pair<edm::FunctionWithDict, bool> mem;
   //FIXME: We must initialize mem.first!

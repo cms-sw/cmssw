@@ -52,7 +52,14 @@ namespace edm {
    }
 
   TypeWithDict
-  TypeWithDict::byName(std::string const& name, long property /*= 0L*/) {
+  TypeWithDict::byName(std::string const& name) {
+    // This is a public static function.
+    return TypeWithDict::byName(name, 0L);
+  }
+
+  TypeWithDict
+  TypeWithDict::byName(std::string const& name, long property) {
+    // This is a private static function.
     // Note: The property flag should include kIsConstant and
     //       kIsReference if needed since a typeid() expression
     //       ignores those properties, so we must store them
@@ -64,10 +71,14 @@ namespace edm {
     static std::string const constSuffix(" const");
     static size_t const constPrefixSize(constPrefix.size());
     static size_t const constSuffixSize(constSuffix.size());
+
+    // Handle references
     if(name.back() == '&') {
       property |= kIsReference;
       return byName(name.substr(0, name.size() - 1), property);
     }
+
+    // Handle const qualifier
     if(name.size() > constSuffixSize && name.back() != '*') {
       if(name.substr(0, constPrefixSize) == constPrefix) {
         property |= kIsConstant;
@@ -78,19 +89,30 @@ namespace edm {
         return byName(name.substr(0, name.size() - constSuffixSize), property);
       }
     }
+
     TypeMap::const_iterator it = typeMap.find(name);
     if (it != typeMap.end()) {
-      return TypeWithDict(it->second, property);
+      if(property == 0L) {
+        return it->second;
+      }
+      TypeWithDict twd = it->second;
+      twd.property_ = property;
+      return twd;
     }
+
+    // Handle classes
     TClass* theClass = TClass::GetClass(name.c_str());
     if (theClass != nullptr && theClass->GetTypeInfo() != nullptr) {
       return TypeWithDict(theClass, property);
     }
+
+    // Handle enums
     TEnum* theEnum = TEnum::GetEnum(name.c_str(), TEnum::kAutoload);
     if(theEnum) {
       return TypeWithDict(theEnum, name, property);
     }
 
+    // Handle built-ins
     TDataType* theDataType = gROOT->GetType(name.c_str());
     if(theDataType) {
       switch(theDataType->GetType()) {
@@ -163,22 +185,10 @@ namespace edm {
     property_(rhs.property_) {
   }
 
-  TypeWithDict::TypeWithDict(TypeWithDict const& type, long prop) :
-    ti_(type.ti_),
-    type_(type.type_),
-    class_(type.class_),
-    enum_(type.enum_),
-    dataType_(type.dataType_),
-    property_(type.property_) {
-    // Unconditionally modifies const and reference
-    // properties, and only those properties.
+  TypeWithDict&
+  TypeWithDict::stripConstRef() {
     property_ &= ~((long) kIsConstant | (long) kIsReference);
-    if (prop & kIsConstant) {
-      property_ |= kIsConstant;
-    }
-    if (prop & kIsReference) {
-      property_ |= kIsReference;
-    }
+    return *this;
   }
 
   TypeWithDict&
@@ -192,6 +202,9 @@ namespace edm {
       property_ = rhs.property_;
     }
     return *this;
+  }
+
+  TypeWithDict::TypeWithDict(std::type_info const& ti) : TypeWithDict(ti, 0L) {
   }
 
   TypeWithDict::TypeWithDict(std::type_info const& ti, long property /*= 0L*/) :
@@ -245,7 +258,10 @@ namespace edm {
     property_(property) {
   }
 
-  TypeWithDict::TypeWithDict(TMethodArg* arg, long property /*= 0L*/) :
+  TypeWithDict::TypeWithDict(TMethodArg* arg) : TypeWithDict(arg, 0L) {
+  }
+
+  TypeWithDict::TypeWithDict(TMethodArg* arg, long property) :
     TypeWithDict(byName(arg->GetTypeName(), arg->Property() | property)) {
   }
 
@@ -278,7 +294,7 @@ namespace edm {
     dataType_ = TDataType::GetDataType(TDataType::GetType(*ti_));
     // if(dataType_ != nullptr) {
     //  std::cerr << "DEBUG BY TTYPE FUNDAMENTAL: " << name() << std::endl;
-    //}
+    // }
     if (!gInterpreter->Type_IsFundamental(ttype) &&
         !gInterpreter->Type_IsArray(ttype) &&
         !gInterpreter->Type_IsPointer(ttype) &&
@@ -288,7 +304,7 @@ namespace edm {
       // if(class_ != nullptr) {
       //  std::cerr << "DEBUG BY TTYPE CLASS: " << name() << std::endl;
       //  return;
-      // } 
+      // }
     }
     if (gInterpreter->Type_IsEnum(ttype)) {
       enum_ = TEnum::GetEnum(*ti_, TEnum::kAutoload);
