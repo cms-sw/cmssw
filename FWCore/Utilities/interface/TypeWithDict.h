@@ -37,6 +37,9 @@ class TypeDataMembers;
 class TypeFunctionMembers;
 
 class TypeWithDict {
+  friend class BaseWithDict;
+  friend class FunctionWithDict;
+  friend class MemberWithDict;
   friend class TypeBases;
   friend class TypeDataMembers;
   friend class TypeFunctionMembers;
@@ -51,18 +54,23 @@ private:
   TDataType* dataType_;
   long property_;
 public:
-  static TypeWithDict byName(std::string const& name, long property = 0L);
+  static TypeWithDict byName(std::string const& name);
+private:
+  static TypeWithDict byName(std::string const& name, long property);
 public:
   TypeWithDict();
-  TypeWithDict& operator=(TypeWithDict const&);
   TypeWithDict(TypeWithDict const&);
-  // This copy constructor is for clearing const and reference.
-  explicit TypeWithDict(TypeWithDict const&, long property);
-  explicit TypeWithDict(std::type_info const&, long property = 0L);
+  explicit TypeWithDict(std::type_info const&);
+  explicit TypeWithDict(TMethodArg* arg);
+private:
+  explicit TypeWithDict(std::type_info const&, long property);
   explicit TypeWithDict(TClass* type, long property = 0L);
   explicit TypeWithDict(TEnum* type, std::string const& name, long property = 0L);
-  explicit TypeWithDict(TMethodArg* arg, long property = 0L);
-  explicit TypeWithDict(TType* type, long property = 0L);
+  explicit TypeWithDict(TMethodArg* arg, long property);
+  explicit TypeWithDict(TType* type, long property);
+public:
+  TypeWithDict& operator=(TypeWithDict const&);
+  TypeWithDict& stripConstRef();
   explicit operator bool() const;
   std::type_info const& typeInfo() const;
   TClass* getClass() const;
