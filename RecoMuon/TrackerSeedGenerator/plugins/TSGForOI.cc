@@ -289,7 +289,7 @@ void TSGForOI::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src",edm::InputTag("hltL2Muons","UpdatedAtVtx"));
   desc.add<int>("layersToTry",1);
-  desc.add<double>("fixedErrorRescaleFactorForHitless",5.0);
+  desc.add<double>("fixedErrorRescaleFactorForHitless",2.0);
   desc.add<int>("hitsToTry",1);
   desc.add<bool>("adjustErrorsDyanmicallyForHits",false);
   desc.add<bool>("adjustErrorsDyanmicallyForHitless",false);
@@ -301,7 +301,7 @@ void TSGForOI::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.addUntracked<bool>("debug",true);
   desc.add<double>("fixedErrorRescaleFactorForHits",2.0);
   desc.add<unsigned int>("maxSeeds",1);
-  descriptions.add("test",desc);
+  descriptions.add("TSGForOI",desc);
 }
 
 DEFINE_FWK_MODULE(TSGForOI);

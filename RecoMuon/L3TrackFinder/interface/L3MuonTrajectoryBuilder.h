@@ -10,36 +10,17 @@
  */
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
-#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalTrajectoryBuilderBase.h"
-
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-#include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
-
-#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-#include <iostream>
-#include <iomanip>
-#include <algorithm>
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 

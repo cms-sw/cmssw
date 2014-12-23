@@ -1,5 +1,13 @@
 #include "TSGFromL2Muon.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedCleaner.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
+
 TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
   : theConfig(cfg), theService(0), theRegionBuilder(0), theTkSeedGenerator(0), theSeedCleaner(0) {
   produces<L3MuonTrajectorySeedCollection>();

@@ -19,6 +19,62 @@
 
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalTrajectoryBuilderBase.h"
 
+//---------------
+// C++ Headers --
+//---------------
+
+#include <iostream>
+#include <algorithm>
+
+//-------------------------------
+// Collaborating Class Headers --
+//-------------------------------
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+#include "TrackingTools/TrackFitters/interface/RecHitLessByDet.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
+
+#include "DataFormats/Math/interface/deltaR.h"
+
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
+
+#include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
+#include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonRefitter.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+#include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+
+#include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
+#include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
+#include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+
 using namespace std;
 using namespace edm;
 

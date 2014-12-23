@@ -21,24 +21,16 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/Common/interface/Handle.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
-#include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 class MuonServiceProxy;
 class MeasurementTrackerEvent;
@@ -67,7 +59,7 @@ class MuonTrackingRegionBuilder : public TrackingRegionProducer {
     /// Pass the Event to the algo at each event
     virtual void setEvent(const edm::Event&);
 
-    /// Set the Fill Descriptions
+    /// Add Fill Desciptions
     static void fillDescriptions(edm::ParameterSetDescription& descriptions);
 
   private:

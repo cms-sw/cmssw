@@ -22,6 +22,32 @@
 
 #include "RecoMuon/L3TrackFinder/interface/L3MuonTrajectoryBuilder.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
+
+#include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
+
+#include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
+#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
+
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
+
+
 //----------------
 // Constructors --
 //----------------

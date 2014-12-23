@@ -9,6 +9,23 @@
 
 #include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
 
+//-------------------------------
+// Collaborating Class Headers --
+//-------------------------------
+
+#include "DataFormats/Common/interface/Handle.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+
 //
 // constructor
 //
