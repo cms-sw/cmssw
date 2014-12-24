@@ -10,7 +10,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             ),
 )
 
-qgDatabaseVersion = 'v1.1'
+qgDatabaseVersion = 'v1'
 
 process.load('CondCore.DBCommon.CondDBCommon_cfi')
 process.CondDBCommon.connect = 'sqlite_file:QGL_'+qgDatabaseVersion+'.db'
@@ -19,21 +19,11 @@ process.source = cms.Source('EmptySource')
 process.PoolDBOutputService = cms.Service('PoolDBOutputService',
    process.CondDBCommon,
    toPut = cms.VPSet(
-      cms.PSet(
-         record = cms.string('QGL_AK5PF'),
-         tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_AK5PF'),
-         label  = cms.string('QGL_AK5PF')
-      ),
-      cms.PSet(
-         record = cms.string('QGL_AK5PFchs'),
-         tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_AK5PFchs'),
-         label  = cms.string('QGL_AK5PFchs')
-      ),
-      cms.PSet(
-         record = cms.string('QGL_AK4PF'),
-         tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_AK4PF'),
-         label  = cms.string('QGL_AK4PF')
-      ),
+#      cms.PSet(
+#         record = cms.string('QGL_AK4PF'),
+#         tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_AK4PF'),
+#         label  = cms.string('QGL_AK4PF')
+#      ),
       cms.PSet(
          record = cms.string('QGL_AK4PFchs'),
          tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_AK4PFchs'),
@@ -54,23 +44,14 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
 )
 
 srcDirectory = 'temp/'
-process.dbWriterAK4PF = cms.EDAnalyzer('QGLikelihoodDBWriter',
-   src    = cms.string(srcDirectory + 'pdfQG_AK4_13TeV.root'),
-   payload= cms.string('QGL_AK4PF')
-) 
+#process.dbWriterAK4PF = cms.EDAnalyzer('QGLikelihoodDBWriter',
+#   src    = cms.string(srcDirectory + 'pdfQG_AK4_13TeV.root'),
+#   payload= cms.string('QGL_AK4PF')
+#) 
 process.dbWriterAK4PFchs = cms.EDAnalyzer('QGLikelihoodDBWriter',
-   src    = cms.string(srcDirectory + 'pdfQG_AK4chs_13TeV.root'),
+   src    = cms.string(srcDirectory + 'pdfQG_AK4chs_13TeV_smallEtaBinning_newTest.root'),
    payload= cms.string('QGL_AK4PFchs')
 ) 
-process.dbWriterAK5PF = cms.EDAnalyzer('QGLikelihoodDBWriter',
-   src    = cms.string(srcDirectory + 'pdfQG_AK5_13TeV.root'),
-   payload= cms.string('QGL_AK5PF')
-) 
-process.dbWriterAK5PFchs = cms.EDAnalyzer('QGLikelihoodDBWriter',
-   src    = cms.string(srcDirectory + 'pdfQG_AK5chs_13TeV.root'),
-   payload= cms.string('QGL_AK5PFchs')
-)
-
 # ONLY AFTER FIRST DATA:
 #process.dbWriterSystPythia = cms.EDAnalyzer('QGLikelihoodSystematicsDBWriter',
 #   src    = cms.string(srcDirectory + 'SystDatabase.txt'),
@@ -82,4 +63,4 @@ process.dbWriterAK5PFchs = cms.EDAnalyzer('QGLikelihoodDBWriter',
 #)
  
 
-process.p = cms.Path(process.dbWriterAK4PF*process.dbWriterAK5PF*process.dbWriterAK4PFchs*process.dbWriterAK5PFchs)
+process.p = cms.Path(process.dbWriterAK4PFchs)
