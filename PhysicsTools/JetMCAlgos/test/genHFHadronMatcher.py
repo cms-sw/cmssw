@@ -115,10 +115,37 @@ process.matchGenCHadron = matchGenCHadron.clone(
 )
 
 
+## configuring the testing analyzer that produces output tree
+process.genHFHadronMatcher = cms.EDAnalyzer("genHFHadronMatcher",
+    # phase space of jets to be stored
+    genJetPtMin = cms.double(20),
+    genJetAbsEtaMax = cms.double(2.4),
+    # input tags holding information about matching
+    genJets = cms.InputTag(genJetCollection),
+    genBHadJetIndex = cms.InputTag("matchGenBHadron", "genBHadJetIndex"),
+    genBHadFlavour = cms.InputTag("matchGenBHadron", "genBHadFlavour"),
+    genBHadFromTopWeakDecay = cms.InputTag("matchGenBHadron", "genBHadFromTopWeakDecay"),
+    genBHadPlusMothers = cms.InputTag("matchGenBHadron", "genBHadPlusMothers"),
+    genBHadPlusMothersIndices = cms.InputTag("matchGenBHadron", "genBHadPlusMothersIndices"),
+    genBHadIndex = cms.InputTag("matchGenBHadron", "genBHadIndex"),
+    genBHadLeptonHadronIndex = cms.InputTag("matchGenBHadron", "genBHadLeptonHadronIndex"),
+    genBHadLeptonViaTau = cms.InputTag("matchGenBHadron", "genBHadLeptonViaTau"),
+    genCHadJetIndex = cms.InputTag("matchGenCHadron", "genCHadJetIndex"),
+    genCHadFlavour = cms.InputTag("matchGenCHadron", "genCHadFlavour"),
+    genCHadFromTopWeakDecay = cms.InputTag("matchGenCHadron", "genCHadFromTopWeakDecay"),
+    genCHadBHadronId = cms.InputTag("matchGenCHadron", "genCHadBHadronId"),
+)
+
+## setting up output root file
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string("genHFHadronMatcher_trees.root")
+)
+
+
+
 ## defining only the final modules to run: dependencies will be run automatically [allowUnscheduled = True]
 process.p1 = cms.Path(
-    process.matchGenBHadron *
-    process.matchGenCHadron
+    process.genHFHadronMatcher
 )
 
 ## module to store raw output from the processed modules into the ROOT file
