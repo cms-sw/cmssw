@@ -135,9 +135,9 @@ std::tuple<int, float, float> QGTagger::calcVariables(const reco::Jet *jet, edm:
   int mult = 0;
 
   //Loop over the jet constituents
-  for(auto daughter = jet->begin(); daughter < jet->end(); ++daughter){
-    if(isPackedCandidate(&*daughter)){											//packed candidate situation
-      auto part = static_cast<const pat::PackedCandidate*> (&*daughter);
+  for(auto daughter : jet->getJetConstituentsQuick()){
+    if(isPackedCandidate(daughter)){											//packed candidate situation
+      auto part = static_cast<const pat::PackedCandidate*>(daughter);
 
       if(part->charge()){
         if(!(part->fromPV() > 1 && part->trackHighPurity())) continue;
@@ -150,7 +150,7 @@ std::tuple<int, float, float> QGTagger::calcVariables(const reco::Jet *jet, edm:
         ++mult;
       }
     } else {
-      auto part = static_cast<const reco::PFCandidate*> (&*daughter);
+      auto part = static_cast<const reco::PFCandidate*>(daughter);
 
       reco::TrackRef itrk = part->trackRef();
       if(itrk.isNonnull()){												//Track exists --> charged particle
