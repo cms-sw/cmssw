@@ -42,7 +42,7 @@ float QGLikelihoodCalculator::computeQGLikelihood(edm::ESHandle<QGLikelihoodObje
     }
 
  
-    Q *= std::pow(Qi/Qw, quarkEntry->weight);
+    Q *= std::pow(Qi/Qw, quarkEntry->weight);	// Both quarkEntry and gluonEntry have always the same weight
     G *= std::pow(Gi/Gw, gluonEntry->weight);
   }
 
