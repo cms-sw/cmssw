@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
@@ -22,6 +23,7 @@ class JetTagProducer : public edm::stream::EDProducer<> {
     public:
 	explicit JetTagProducer(const edm::ParameterSet&);
 	~JetTagProducer();
+	static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     private:
 	virtual void produce(edm::Event&, const edm::EventSetup&);
