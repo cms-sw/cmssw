@@ -114,6 +114,7 @@ genHFHadronMatcher::genHFHadronMatcher ( const edm::ParameterSet& config):
     genBHadLeptonHadronIndexTag_(config.getParameter<edm::InputTag>("genBHadLeptonHadronIndex")),
     genBHadLeptonViaTauTag_(config.getParameter<edm::InputTag>("genBHadLeptonViaTau")),
     genCHadJetIndexTag_(config.getParameter<edm::InputTag>("genCHadJetIndex")),
+    genCHadFlavourTag_(config.getParameter<edm::InputTag>("genCHadFlavour")),
     genCHadFromTopWeakDecayTag_(config.getParameter<edm::InputTag>("genCHadFromTopWeakDecay")),
     genCHadBHadronIdTag_(config.getParameter<edm::InputTag>("genCHadBHadronId"))
 {
