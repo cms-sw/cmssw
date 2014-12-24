@@ -27,12 +27,6 @@ QGTagger = cms.EDProducer('QGTagger',
   useQualityCuts	= cms.bool(False)
 )
 
-QGTaggerPatJets = cms.EDProducer('QGTagger',
-  srcRho 		= cms.InputTag('fixedGridRhoFastjetAll'),		
-  srcVertexCollection	= cms.InputTag('offlinePrimaryVerticesWithBS'),
-  useQualityCuts	= cms.bool(False)
-)
-
 QGTaggerMiniAOD = cms.EDProducer('QGTagger',
   srcRho 		= cms.InputTag('fixedGridRhoFastjetAll'),		
   srcVertexCollection	= cms.InputTag(''),
