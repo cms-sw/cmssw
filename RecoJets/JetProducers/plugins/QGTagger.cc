@@ -77,12 +77,11 @@ void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
   }
 
   for(auto jet = jets->begin(); jet != jets->end(); ++jet){
-    float pt, ptD, axis2;
-    int mult;
+    float pt = (useJetCorr ? jet->pt()*jetCorr->correction(*jet) : jet->pt());
 
-    if(useJetCorr) 	pt = jet->pt()*jetCorr->correction(*jet);
-    else 		pt = jet->pt();
-    calcVariables(&*jet, mult, ptD, axis2, vertexCollection);
+    float ptD, axis2; int mult;
+    std::tie(mult, ptD, axis2) = calcVariables(&*jet, vertexCollection);
+
     float qgValue = qgLikelihood->computeQGLikelihood(QGLParamsColl, pt, jet->eta(), *rho, {(float) mult, ptD, -std::log(axis2)});
 
     qgProduct->push_back(qgValue);
@@ -131,9 +130,9 @@ bool QGTagger::isPackedCandidate(const reco::Candidate* candidate){
 
 
 /// Calculation of axis2, mult and ptD
-void QGTagger::calcVariables(const reco::Jet *jet, int& mult, float& ptD, float& axis2, edm::Handle<reco::VertexCollection>& vC){
+std::tuple<int, float, float> QGTagger::calcVariables(const reco::Jet *jet, edm::Handle<reco::VertexCollection>& vC){
   float sum_weight = 0., sum_deta = 0., sum_dphi = 0., sum_deta2 = 0., sum_dphi2 = 0., sum_detadphi = 0., sum_pt = 0.;
-  mult = 0;
+  int mult = 0;
 
   //Loop over the jet constituents
   for(auto daughter = jet->begin(); daughter < jet->end(); ++daughter){
@@ -194,7 +193,6 @@ void QGTagger::calcVariables(const reco::Jet *jet, int& mult, float& ptD, float&
   float a = 0., b = 0., c = 0.;
   float ave_deta = 0., ave_dphi = 0., ave_deta2 = 0., ave_dphi2 = 0.;
   if(sum_weight > 0){
-    ptD = sqrt(sum_weight)/sum_pt;
     ave_deta = sum_deta/sum_weight;
     ave_dphi = sum_dphi/sum_weight;
     ave_deta2 = sum_deta2/sum_weight;
@@ -202,10 +200,11 @@ void QGTagger::calcVariables(const reco::Jet *jet, int& mult, float& ptD, float&
     a = ave_deta2 - ave_deta*ave_deta;                          
     b = ave_dphi2 - ave_dphi*ave_dphi;                          
     c = -(sum_detadphi/sum_weight - ave_deta*ave_dphi);                
-  } else ptD = 0;
+  }
   float delta = sqrt(fabs((a-b)*(a-b)+4*c*c));
-  if(a+b-delta > 0) axis2 = sqrt(0.5*(a+b-delta));
-  else axis2 = 0.;
+  float axis2 = (a+b-delta > 0 ?  sqrt(0.5*(a+b-delta)) : 0);
+  float ptD   = (sum_weight > 0 ? sqrt(sum_weight)/sum_pt : 0);
+  return std::make_tuple(mult, ptD, axis2);
 }
 
 

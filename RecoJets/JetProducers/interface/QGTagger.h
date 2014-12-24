@@ -1,5 +1,7 @@
 #ifndef JetProducers_QGTagger_h
 #define JetProducers_QGTagger_h
+#include <tuple>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
@@ -17,7 +19,7 @@ class QGTagger : public edm::EDProducer{
 
    private:
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      void calcVariables(const reco::Jet*, int&, float&, float&, edm::Handle<reco::VertexCollection>&);
+      std::tuple<int, float, float> calcVariables(const reco::Jet*, edm::Handle<reco::VertexCollection>&);
       template <typename T> void putInEvent(std::string, const edm::Handle<edm::View<reco::Jet>>&, std::vector<T>*, edm::Event&);
       bool isPackedCandidate(const reco::Candidate* candidate);
 
