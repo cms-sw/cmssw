@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-# v0: only for tests (old PDFs retrieved with rho kt6PFJets binning, at 8TeV)
-qgDatabaseVersion = 'v0-test'
+# See https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
+qgDatabaseVersion = 'v1'
 
 from CondCore.DBCommon.CondDBSetup_cfi import *
 QGPoolDBESSource = cms.ESSource("PoolDBESSource",
@@ -17,16 +17,6 @@ QGPoolDBESSource = cms.ESSource("PoolDBESSource",
             tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_AK4PF'),
             label  = cms.untracked.string('QGL_AK4PF')
         ),
-        cms.PSet(
-            record = cms.string('QGLikelihoodSystematicsRcd'),
-            tag    = cms.string('QGLikelihoodSystematicsObject_'+qgDatabaseVersion+'_Pythia'),
-            label  = cms.untracked.string('QGL_Syst_Pythia')
-        ),
-        cms.PSet(
-            record = cms.string('QGLikelihoodSystematicsRcd'),
-            tag    = cms.string('QGLikelihoodSystematicsObject_'+qgDatabaseVersion+'_Herwig++'),
-            label  = cms.untracked.string('QGL_Syst_Herwig++')
-        ),
       ),
       connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000'),
 )
@@ -34,7 +24,11 @@ QGPoolDBESSource = cms.ESSource("PoolDBESSource",
 QGTagger = cms.EDProducer('QGTagger',
   srcRho 		= cms.InputTag('fixedGridRhoFastjetAll'),		
   srcVertexCollection	= cms.InputTag('offlinePrimaryVerticesWithBS'),
-  jec			= cms.InputTag(''),
-  systematicsLabel	= cms.string(''),
+  useQualityCuts	= cms.bool(False)
+)
+
+QGTaggerMiniAOD = cms.EDProducer('QGTagger',
+  srcRho 		= cms.InputTag('fixedGridRhoFastjetAll'),		
+  srcVertexCollection	= cms.InputTag(''),
   useQualityCuts	= cms.bool(False)
 )
