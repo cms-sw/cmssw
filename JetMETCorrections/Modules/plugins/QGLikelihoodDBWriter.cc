@@ -147,7 +147,7 @@ void QGLikelihoodDBWriter::beginJob(){
     for(int j = 0; j < (int)gridOfBins["pt"].size() - 1; ++j){
       for(int k = 0; k < (int)gridOfBins["rho"].size() - 1; ++k){
         std::vector<float> weightsPerBin;
-        if(!getVectorFromFile(f, weightsPerBin, TString::Format("weights/Weights_eta_%d_pt%d_rho%d", i, j, k))){
+        if(!getVectorFromFile(f, weightsPerBin, TString::Format("weights/Weights_eta%d_pt%d_rho%d", i, j, k))){
           edm::LogError("NoWeights") << "Missing weights for bin eta" << i << "_pt" << j << "_rho" << k << "!" << std::endl;
           weightsPerBin = {1,1,1};
           return;
