@@ -23,8 +23,6 @@ from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 # Muons
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 
-from RecoLuminosity.LumiProducer.lumiProducer_cff import *
-
 #--------------------------------------------------------------------------
 # HIGH LEVEL RECO
 
@@ -32,13 +30,13 @@ from RecoHI.Configuration.Reconstruction_HI_cff import *
 from RecoHI.Configuration.Reconstruction_hiPF_cff import *
 from RecoLocalCalo.Castor.Castor_cff import *
 from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
-
+from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 #--------------------------------------------------------------------------
 
 caloReco = cms.Sequence(ecalLocalRecoSequence*hcalLocalRecoSequence)
 hbhereco = hbheprereco.clone()
 hcalLocalRecoSequence.replace(hbheprereco,hbhereco)
-muonReco = cms.Sequence(trackerlocalreco+MeasurementTrackerEvent+siPixelClusterShapeCache+muonlocalreco+lumiProducer)
+muonReco = cms.Sequence(trackerlocalreco+MeasurementTrackerEvent+siPixelClusterShapeCache+muonlocalreco)
 localReco = cms.Sequence(offlineBeamSpot*muonReco*caloReco*castorreco)
 
 #hbherecoMB = hbheprerecoMB.clone()
