@@ -17,14 +17,14 @@ pfGenParticlesForJets.ignoreParticleIDs.append(5)
 pfGenParticlesForJets.ignoreParticleIDs.append(21)
 pfGenParticlesForJets.excludeResonances = False
 
-pfIterativeCone5GenJets = iterativeCone5GenJets.clone()
-pfIterativeCone5GenJets.src = 'pfGenParticlesForJets'
+pfAk4GenJets = ak4GenJets.clone()
+pfAk4GenJets.src = 'pfGenParticlesForJets'
 
-pfJetFilter.InputTruthLabel = 'pfIterativeCone5GenJets'
+pfJetFilter.InputTruthLabel = 'pfAk4GenJets'
 #pfJetFilter.verbose = True
 
 pfFilter =cms.Sequence(
     pfGenParticlesForJets*
-    pfIterativeCone5GenJets*
+    pfAk4GenJets*
     pfJetFilter
 )

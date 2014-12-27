@@ -18,7 +18,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     hltresults = cms.InputTag("TriggerResults"),
 
 ### Reconstructed objects
-    genjets = cms.InputTag("iterativeCone5GenJets"),
+    genjets = cms.InputTag("ak4GenJets"),
     genmet = cms.InputTag("genMet"),
     recjets = cms.InputTag("hltIterativeCone5CaloJets"),
     recmet = cms.InputTag("hltMet"),

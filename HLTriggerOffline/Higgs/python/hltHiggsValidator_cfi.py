@@ -11,7 +11,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     genParticleLabel = cms.string("genParticles"),
     
     # -- The instance name of the reco::GenJets collection
-    genJetLabel = cms.string("ak5GenJets"),
+    genJetLabel = cms.string("ak4GenJets"),
 
     # -- The instance name of the reco::PFJetCollection collection
     recoHtJetLabel = cms.untracked.string("ak4PFJetsCHS"),
