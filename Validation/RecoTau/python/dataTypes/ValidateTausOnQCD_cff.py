@@ -9,7 +9,7 @@ import PhysicsTools.PatAlgos.tools.helpers as helpers
 
 kinematicSelectedTauValDenominatorQCD = cms.EDFilter(
    "GenJetSelector", #"GenJetSelector"
-   src = cms.InputTag('ak5GenJets'),
+   src = cms.InputTag('ak4GenJets'),
    cut = kinematicSelectedTauValDenominatorCut,#cms.string('pt > 5. && abs(eta) < 2.5'), #Defined: Validation.RecoTau.RecoTauValidation_cfi 
    filter = cms.bool(False)
 )
@@ -37,8 +37,7 @@ for newAttr in newProcAttributes:
 
 
 produceDenominatorQCD = cms.Sequence(
-    genParticlesForJets
-    *kinematicSelectedTauValDenominatorQCD
+    kinematicSelectedTauValDenominatorQCD
     )
 
 produceDenominator = cms.Sequence(produceDenominatorQCD)
