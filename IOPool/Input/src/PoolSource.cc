@@ -100,7 +100,7 @@ namespace edm {
         if(it->second.present()) {
           idsToReplace[it->second.branchType()].insert(it->second.branchID());
           if(it->second.branchType() == InEvent &&
-             it->second.unwrappedType().typeInfo() == typeid(ThinnedAssociation)) {
+             it->second.unwrappedType() == typeid(ThinnedAssociation)) {
             associationsFromSecondary.insert(it->second.branchID());
           }
           //now make sure this is marked as not dropped else the product will not be 'get'table from the Event
