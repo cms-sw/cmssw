@@ -73,7 +73,7 @@ process.jptJetBenchmarkGeneric.OutputFile = cms.untracked.string('JetBenchmarkGe
 
 process.p =cms.Path(
     process.genJetParticles+
-    process.iterativeCone5GenJets+
+    process.ak4GenJets+
     #process.iterativeCone5PFJets+
     process.pfJetBenchmarkGeneric+
     process.caloJetBenchmarkGeneric

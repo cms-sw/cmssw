@@ -29,7 +29,7 @@ electronMcFakeValidator = cms.EDAnalyzer("ElectronMcFakeValidator",
   InputFolderName = cms.string("EgammaV/ElectronMcFakeValidator"),
   OutputFolderName = cms.string("EgammaV/ElectronMcFakeValidator"),
     
-  matchingObjectCollection = cms.InputTag("iterativeCone5GenJets"),
+  matchingObjectCollection = cms.InputTag("ak4GenJets"),
   electronCollection = cms.InputTag("gedGsfElectrons"),
   electronCoreCollection = cms.InputTag("gedGsfElectronCores"),
   electronTrackCollection = cms.InputTag("electronGsfTracks"),
