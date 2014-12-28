@@ -101,6 +101,13 @@ def merge(dictlist,TELL=False):
         reducedlist.append(d)
         return merge(reducedlist,TELL)
 
+def remove(d,key,TELL=False):
+    import copy
+    e = copy.deepcopy(d)
+    if TELL: print "original dict, BEF: %s"%d
+    del e[key]
+    if TELL: print "copy-removed dict, AFT: %s"%e
+    return e
 
 # step1 gensim: for run1
 step1Defaults = {'--relval'      : None, # need to be explicitly set
@@ -1210,12 +1217,15 @@ stepMiniAODDefaults = { '-s'              : 'PAT',
                         '--customise'     : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                         '-n'              : '100'
                         }
-stepMiniAODData = merge([{'--conditions'   : 'auto:run1_data',
+stepMiniAODDataUP15 = merge([{'--conditions'   : 'auto:run1_data',
                           '--data'         : '',
                           '--datatier'     : 'MINIAOD',
                           '--eventcontent' : 'MINIAOD',
                           '--filein'       :'file:step3.root'
                           },stepMiniAODDefaults])
+
+stepMiniAODData = remove(stepMiniAODDataUP15,'--customise')
+
 stepMiniAODMC = merge([{'--conditions'   : 'auto:run2_mc',
                         '--mc'           : '',
                         '--datatier'     : 'MINIAODSIM',
