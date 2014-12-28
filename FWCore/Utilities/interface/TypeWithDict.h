@@ -10,6 +10,7 @@ persisted across invocations of the program.
 
 ----------------------------------------------------------------------*/
 #include "FWCore/Utilities/interface/IterWithDict.h"
+#include "FWCore/Utilities/interface/value_ptr.h"
 
 #include "TBaseClass.h"
 #include "TClass.h"
@@ -52,6 +53,7 @@ private:
   TClass* class_;
   TEnum* enum_;
   TDataType* dataType_;
+  value_ptr<std::vector<size_t> > arrayDimensions_;
   long property_;
 public:
   static TypeWithDict byName(std::string const& name);
