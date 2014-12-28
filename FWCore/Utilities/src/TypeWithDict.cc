@@ -182,6 +182,7 @@ namespace edm {
     class_(nullptr),
     enum_(nullptr),
     dataType_(nullptr),
+    arrayDimensions_(nullptr),
     property_(0L) {
   }
 
@@ -191,6 +192,7 @@ namespace edm {
     class_(rhs.class_),
     enum_(rhs.enum_),
     dataType_(rhs.dataType_),
+    arrayDimensions_(rhs.arrayDimensions_),
     property_(rhs.property_) {
   }
 
@@ -212,6 +214,7 @@ namespace edm {
       class_ = rhs.class_;
       enum_ = rhs.enum_;
       dataType_ = rhs.dataType_;
+      arrayDimensions_ = rhs.arrayDimensions_;
       property_ = rhs.property_;
     }
     return *this;
@@ -226,6 +229,7 @@ namespace edm {
     class_(TClass::GetClass(ti)),
     enum_(nullptr),
     dataType_(TDataType::GetDataType(TDataType::GetType(ti))),
+    arrayDimensions_(nullptr),
     property_(property) {
 
     if(class_ != nullptr) {
@@ -268,6 +272,7 @@ namespace edm {
     class_(cl),
     enum_(nullptr),
     dataType_(nullptr),
+    arrayDimensions_(nullptr),
     property_(property) {
   }
 
@@ -277,6 +282,7 @@ namespace edm {
     class_(nullptr),
     enum_(enm),
     dataType_(nullptr),
+    arrayDimensions_(nullptr),
     property_(property) {
   }
 
@@ -293,6 +299,7 @@ namespace edm {
     class_(nullptr),
     enum_(nullptr),
     dataType_(nullptr),
+    arrayDimensions_(nullptr),
     property_(property) {
 
     if (!ttype) {
