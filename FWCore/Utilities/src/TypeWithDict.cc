@@ -401,7 +401,7 @@ namespace edm {
     if (*ti_ == typeid(invalidType)) {
       return false;
     }
-    return (name().back() == ']');
+    return (type_ != nullptr && name().back() == ']');
   }
 
   bool
