@@ -17,6 +17,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
@@ -140,6 +142,7 @@ class IPProducer : public edm::stream::EDProducer<> {
 
       explicit IPProducer(const edm::ParameterSet&);
       ~IPProducer();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
@@ -457,5 +460,51 @@ template <class Container, class Base, class Helper> void IPProducer<Container,B
    m_calibrationCacheId2D=cacheId2D;
 }
 
+// Specialized templates used to fill 'descriptions'
+// ------------ method fills 'descriptions' with the allowed parameters for the module ------------
+template <>
+void IPProducer<reco::TrackRefVector, reco::JTATagInfo, IPProducerHelpers::FromJTA>::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<double>("maximumTransverseImpactParameter",0.2);
+  desc.add<int>("minimumNumberOfHits",8);
+  desc.add<double>("minimumTransverseMomentum",1.0);
+  desc.add<edm::InputTag>("primaryVertex",edm::InputTag("offlinePrimaryVertices"));
+  desc.add<double>("maximumLongitudinalImpactParameter",17.0);
+  desc.add<bool>("computeGhostTrack",true);
+  desc.add<double>("ghostTrackPriorDeltaR",0.03);
+  desc.add<edm::InputTag>("jetTracks",edm::InputTag("ak4JetTracksAssociatorAtVertexPF"));
+  desc.add<bool>("jetDirectionUsingGhostTrack",false);
+  desc.add<int>("minimumNumberOfPixelHits",2);
+  desc.add<bool>("jetDirectionUsingTracks",false);
+  desc.add<bool>("computeProbabilities",true);
+  desc.add<bool>("useTrackQuality",false);
+  desc.add<double>("maximumChiSquared",5.0);
+  descriptions.addDefault(desc);
+}
+
+template <>
+void IPProducer<std::vector<reco::CandidatePtr>,reco::JetTagInfo,  IPProducerHelpers::FromJetAndCands>::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<double>("maximumTransverseImpactParameter",0.2);
+  desc.add<int>("minimumNumberOfHits",8);
+  desc.add<double>("minimumTransverseMomentum",1.0);
+  desc.add<edm::InputTag>("primaryVertex",edm::InputTag("offlinePrimaryVertices"));
+  desc.add<double>("maximumLongitudinalImpactParameter",17.0);
+  desc.add<bool>("computeGhostTrack",true);
+  desc.add<double>("maxDeltaR",0.4);
+  desc.add<edm::InputTag>("candidates",edm::InputTag("particleFlow"));
+  desc.add<bool>("jetDirectionUsingGhostTrack",false);
+  desc.add<int>("minimumNumberOfPixelHits",2);
+  desc.add<bool>("jetDirectionUsingTracks",false);
+  desc.add<bool>("computeProbabilities",true);
+  desc.add<bool>("useTrackQuality",false);
+  desc.add<edm::InputTag>("jets",edm::InputTag("ak4PFJetsCHS"));
+  desc.add<double>("ghostTrackPriorDeltaR",0.03);
+  desc.add<double>("maximumChiSquared",5.0);
+  desc.addOptional<bool>("explicitJTA",false);
+  descriptions.addDefault(desc);
+}
 
 #endif
