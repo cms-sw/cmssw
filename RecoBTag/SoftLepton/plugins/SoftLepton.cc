@@ -20,6 +20,7 @@
 #include <cmath>
 
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // ROOT::Math vectors (aka math::XYZVector)
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -397,4 +398,21 @@ double SoftLepton::boostedPPar(const math::XYZVector& vector, const math::XYZVec
   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > jet( axis.r(), 0., 0., jet_mass );
   ROOT::Math::BoostX boost( -jet.Beta() );
   return boost(lepton).x();
+}
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module ------------
+void
+SoftLepton::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<unsigned int>("muonSelection",1);
+  desc.add<edm::InputTag>("leptons",edm::InputTag("muons"));
+  desc.add<edm::InputTag>("primaryVertex",edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("leptonCands",edm::InputTag(""));
+  desc.add<edm::InputTag>("leptonId",edm::InputTag(""));
+  desc.add<unsigned int>("refineJetAxis",0);
+  desc.add<edm::InputTag>("jets",edm::InputTag("ak4PFJetsCHS"));
+  desc.add<double>("leptonDeltaRCut",0.4);
+  desc.add<double>("leptonChi2Cut",9999.0);
+  descriptions.addDefault(desc);
 }
