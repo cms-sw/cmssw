@@ -14,6 +14,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/IfExistsDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -103,6 +106,7 @@ class TemplatedSecondaryVertexProducer : public edm::stream::EDProducer<> {
     public:
 	explicit TemplatedSecondaryVertexProducer(const edm::ParameterSet &params);
 	~TemplatedSecondaryVertexProducer();
+	static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 	typedef std::vector<TemplatedSecondaryVertexTagInfo<IPTI,VTX> > Product;
 	typedef TemplatedSecondaryVertex<VTX> SecondaryVertex;
 	typedef typename IPTI::input_container input_container;
@@ -1068,6 +1072,102 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::matchSubjets(const std::vector<
      else
        matchedIndices.push_back(subjetIndices);
    }
+}
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module ------------
+template<class IPTI,class VTX>
+void TemplatedSecondaryVertexProducer<IPTI,VTX>::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<double>("extSVDeltaRToJet",0.3);
+  desc.add<edm::InputTag>("beamSpotTag",edm::InputTag("offlineBeamSpot"));
+  {
+    edm::ParameterSetDescription vertexReco;
+    vertexReco.add<double>("primcut",1.8);
+    vertexReco.add<double>("seccut",6.0);
+    vertexReco.add<std::string>("finder","avr");
+    vertexReco.addOptionalNode( edm::ParameterDescription<double>("minweight",0.5, true) and
+                                edm::ParameterDescription<double>("weightthreshold",0.001, true) and
+                                edm::ParameterDescription<bool>("smoothing",false, true), true );
+    vertexReco.addOptionalNode( edm::ParameterDescription<double>("maxFitChi2",10.0, true) and
+                                edm::ParameterDescription<double>("mergeThreshold",3.0, true) and
+                                edm::ParameterDescription<std::string>("fitType","RefitGhostTrackWithVertices", true), true );
+    desc.add<edm::ParameterSetDescription>("vertexReco",vertexReco);
+  }
+  {
+    edm::ParameterSetDescription vertexSelection;
+    vertexSelection.add<std::string>("sortCriterium","dist3dError");
+    desc.add<edm::ParameterSetDescription>("vertexSelection",vertexSelection);
+  }
+  desc.add<std::string>("constraint","BeamSpot");
+  desc.add<edm::InputTag>("trackIPTagInfos",edm::InputTag("impactParameterTagInfos"));
+  {
+    edm::ParameterSetDescription vertexCuts;
+    vertexCuts.add<double>("distSig3dMax",99999.9);
+    vertexCuts.add<double>("fracPV",0.65);
+    vertexCuts.add<double>("distVal2dMax",2.5);
+    vertexCuts.add<bool>("useTrackWeights",true);
+    vertexCuts.add<double>("maxDeltaRToJetAxis",0.4);
+    {
+      edm::ParameterSetDescription v0Filter;
+      v0Filter.add<double>("k0sMassWindow",0.05);
+      vertexCuts.add<edm::ParameterSetDescription>("v0Filter",v0Filter);
+    }
+    vertexCuts.add<double>("distSig2dMin",3.0);
+    vertexCuts.add<unsigned int>("multiplicityMin",2);
+    vertexCuts.add<double>("distVal2dMin",0.01);
+    vertexCuts.add<double>("distSig2dMax",99999.9);
+    vertexCuts.add<double>("distVal3dMax",99999.9);
+    vertexCuts.add<double>("minimumTrackWeight",0.5);
+    vertexCuts.add<double>("distVal3dMin",-99999.9);
+    vertexCuts.add<double>("massMax",6.5);
+    vertexCuts.add<double>("distSig3dMin",-99999.9);
+    desc.add<edm::ParameterSetDescription>("vertexCuts",vertexCuts);
+  }
+  desc.add<bool>("useExternalSV",false);
+  desc.add<double>("minimumTrackWeight",0.5);
+  desc.add<bool>("usePVError",true);
+  {
+    edm::ParameterSetDescription trackSelection;
+    trackSelection.add<double>("b_pT",0.3684);
+    trackSelection.add<double>("max_pT",500);
+    trackSelection.add<bool>("useVariableJTA",false);
+    trackSelection.add<double>("maxDecayLen",99999.9);
+    trackSelection.add<double>("sip3dValMin",-99999.9);
+    trackSelection.add<double>("max_pT_dRcut",0.1);
+    trackSelection.add<double>("a_pT",0.005263);
+    trackSelection.add<unsigned int>("totalHitsMin",8);
+    trackSelection.add<double>("jetDeltaRMax",0.3);
+    trackSelection.add<double>("a_dR",-0.001053);
+    trackSelection.add<double>("maxDistToAxis",0.2);
+    trackSelection.add<double>("ptMin",1.0);
+    trackSelection.add<std::string>("qualityClass","any");
+    trackSelection.add<unsigned int>("pixelHitsMin",2);
+    trackSelection.add<double>("sip2dValMax",99999.9);
+    trackSelection.add<double>("max_pT_trackPTcut",3);
+    trackSelection.add<double>("sip2dValMin",-99999.9);
+    trackSelection.add<double>("normChi2Max",99999.9);
+    trackSelection.add<double>("sip3dValMax",99999.9);
+    trackSelection.add<double>("sip3dSigMin",-99999.9);
+    trackSelection.add<double>("min_pT",120);
+    trackSelection.add<double>("min_pT_dRcut",0.5);
+    trackSelection.add<double>("sip2dSigMax",99999.9);
+    trackSelection.add<double>("sip3dSigMax",99999.9);
+    trackSelection.add<double>("sip2dSigMin",-99999.9);
+    trackSelection.add<double>("b_dR",0.6263);
+    desc.add<edm::ParameterSetDescription>("trackSelection",trackSelection);
+  }
+  desc.add<std::string>("trackSort","sip3dSig");
+  desc.add<edm::InputTag>("extSVCollection",edm::InputTag("secondaryVertices"));
+  desc.addOptionalNode( edm::ParameterDescription<bool>("useSVClustering",false, true) and
+                        edm::ParameterDescription<std::string>("jetAlgorithm", true) and
+                        edm::ParameterDescription<double>("rParam", true), true );
+  desc.addOptional<bool>("useSVMomentum",false);
+  desc.addOptional<double>("ghostRescaling",1e-18);
+  desc.addOptional<double>("relPtTolerance",1e-03);
+  desc.addOptional<edm::InputTag>("fatJets");
+  desc.addOptional<edm::InputTag>("groomedFatJets");
+  descriptions.addDefault(desc);
 }
 
 //define this as a plug-in
