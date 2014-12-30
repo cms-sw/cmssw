@@ -49,7 +49,7 @@ namespace sistrip {
     }
   }
   
-  void SiStripExcludedFEDListProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  void ExcludedFEDListProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("ProductLabel",edm::InputTag("rawDataCollector"));
     descriptions.add("siStripExcludedFEDListProducer",desc);
