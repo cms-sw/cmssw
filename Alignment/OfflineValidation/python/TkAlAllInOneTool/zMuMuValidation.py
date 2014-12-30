@@ -21,10 +21,9 @@ class ZMuMuValidation(GenericValidationData):
         cfgName = "%s.%s.%s_cfg.py"%( configBaseName, self.name,
                                       self.alignmentToValidate.name )
         repMap = self.getRepMap()
-        cfgs = {cfgName:replaceByMap(configTemplates.ZMuMuValidationTemplate,
-                                     repMap)}
-        GenericValidationData.createConfiguration(self, cfgs, path)
-        
+        cfgs = {cfgName: configTemplates.ZMuMuValidationTemplate}
+        GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
+
     def createScript(self, path, scriptBaseName = "TkAlZMuMuValidation"):
         scriptName = "%s.%s.%s.sh"%(scriptBaseName, self.name,
                                     self.alignmentToValidate.name )
@@ -34,11 +33,9 @@ class ZMuMuValidation(GenericValidationData):
             repMap["CommandLine"]+= repMap["CommandLineTemplate"]%{"cfgFile":cfg,
                                                   "postProcess":""
                                                   }
-        scripts = {scriptName: replaceByMap(configTemplates.zMuMuScriptTemplate,
-                                            repMap ) }
-        return GenericValidationData.createScript(self, scripts, path)
+        scripts = {scriptName: configTemplates.zMuMuScriptTemplate}
+        return GenericValidationData.createScript(self, scripts, path, repMap = repMap)
 
-        
     def createCrabCfg(self, path, crabCfgBaseName = "TkAlZMuMuValidation"):
         return GenericValidationData.createCrabCfg(self, path, crabCfgBaseName)
 

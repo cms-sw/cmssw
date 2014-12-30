@@ -4,7 +4,7 @@ import json
 import globalDictionaries
 import configTemplates
 from dataset import Dataset
-from helperFunctions import replaceByMap
+from helperFunctions import replaceByMap, addIndex
 from TkAlExceptions import AllInOneError
 
 
@@ -21,8 +21,9 @@ class GenericValidation:
         self.filesToCompare = {}
         self.config = config
 
-        defaults = {"jobmode": self.general["jobmode"],
-                    "cmssw":   os.environ['CMSSW_BASE']
+        defaults = {"jobmode":      self.general["jobmode"],
+                    "cmssw":        os.environ['CMSSW_BASE'],
+                    "parallelJobs": "1"
                    }
         defaults.update(addDefaults)
         mandatories = []
@@ -32,6 +33,16 @@ class GenericValidation:
                                                demandPars = mandatories)
         self.general.update(theUpdate)
         self.jobmode = self.general["jobmode"]
+        self.NJobs = int(self.general["parallelJobs"])
+
+        # limit maximum number of parallel jobs to 40
+        # (each output file is approximately 20MB)
+        maximumNumberJobs = 40
+        if self.NJobs > maximumNumberJobs:
+            msg = ("Maximum allowed number of parallel jobs "
+                   +str(maximumNumberJobs)+" exceeded!!!")
+            raise AllInOneError(msg)
+
         try:
             self.cmssw = self.general["cmssw"]
             currentrelease = os.path.basename(os.path.normpath(os.environ['CMSSW_BASE']))
@@ -70,11 +81,6 @@ class GenericValidation:
 
         knownOpts = defaults.keys()+mandatories
         ignoreOpts = []
-        if self.jobmode.split(",")[0] == "crab" \
-                or self.__class__.__name__=="OfflineValidationParallel":
-            knownOpts.append("parallelJobs")
-        else:
-            ignoreOpts.append("parallelJobs")
         config.checkInput(valType+":"+self.name,
                           knownSimpleOptions = knownOpts,
                           ignoreOptions = ignoreOpts)
@@ -96,7 +102,7 @@ class GenericValidation:
                 "SCRAM_ARCH": self.scramarch,
                 "CMSSW_RELEASE_BASE": self.cmsswreleasebase,
                 "alignmentName": alignment.name,
-                "condLoad": alignment.getConditions()
+                "condLoad": alignment.getConditions(),
                 })
         return result
 
@@ -124,19 +130,32 @@ class GenericValidation:
                 raise AllInOneError(msg)
             return result[ requestId.split(".")[-1] ]
 
-    def createFiles( self, fileContents, path ):
+    def createFiles(self, fileContents, path, repMap = None, repMaps = None):
+        """repMap: single map for all files
+           repMaps: a dict, with the filenames as the keys"""
+        if repMap is not None and repMaps is not None:
+            raise AllInOneError("createFiles can only take repMap or repMaps (or neither), not both")
         result = []
         for fileName in fileContents:
-            filePath = os.path.join( path, fileName)
-            theFile = open( filePath, "w" )
-            theFile.write( fileContents[ fileName ] )
-            theFile.close()
-            result.append( filePath )
+            filePath = os.path.join(path, fileName)
+            result.append(filePath)
+
+            for (i, filePathi) in enumerate(addIndex(filePath, self.NJobs)):
+                theFile = open( filePathi, "w" )
+                fileContentsi = fileContents[ fileName ]
+                if repMaps is not None:
+                    repMap = repMaps[fileName]
+                if repMap is not None:
+                    repMap.update({"nIndex": str(i)})
+                    fileContentsi = replaceByMap(fileContentsi, repMap)
+                theFile.write( fileContentsi )
+                theFile.close()
+
         return result
 
-    def createConfiguration(self, fileContents, path, schedule= None):
+    def createConfiguration(self, fileContents, path, schedule = None, repMap = None, repMaps = None):
         self.configFiles = GenericValidation.createFiles(self, fileContents,
-                                                         path) 
+                                                         path, repMap = repMap, repMaps = repMaps)
         if not schedule == None:
             schedule = [os.path.join( path, cfgName) for cfgName in schedule]
             for cfgName in schedule:
@@ -152,14 +171,19 @@ class GenericValidation:
             self.configFiles = schedule
         return self.configFiles
 
-    def createScript(self, fileContents, path, downloadFiles=[] ):        
+    def createScript(self, fileContents, path, downloadFiles=[], repMap = None, repMaps = None):
         self.scriptFiles = GenericValidation.createFiles(self, fileContents,
-                                                         path)
+                                                         path, repMap = repMap, repMaps = repMaps)
         for script in self.scriptFiles:
-            os.chmod(script,0755)
+            for scriptwithindex in addIndex(script, self.NJobs):
+                os.chmod(scriptwithindex,0755)
         return self.scriptFiles
 
-    def createCrabCfg(self, fileContents, path ):        
+    def createCrabCfg(self, fileContents, path ):
+        if self.NJobs > 1:
+            msg =  ("jobmode 'crab' not supported for parallel validation."
+                    " Please set parallelJobs = 1.")
+            raise AllInOneError(msg)
         self.crabConfigFiles = GenericValidation.createFiles(self, fileContents,
                                                              path)
         return self.crabConfigFiles
@@ -202,6 +226,13 @@ class GenericValidationData(GenericValidation):
         mandatories += addMandatories
         GenericValidation.__init__(self, valName, alignment, config, valType, defaults, mandatories)
 
+        # if maxevents is not specified, cannot calculate number of events for
+        # each parallel job, and therefore running only a single job
+        if int( self.general["maxevents"] ) == -1 and self.NJobs > 1:
+            msg = ("Maximum number of events (maxevents) not specified: "
+                   "cannot use parallel jobs.")
+            raise AllInOneError(msg)
+
         tryPredefinedFirst = (not self.jobmode.split( ',' )[0] == "crab" and self.general["JSON"]    == ""
                               and self.general["firstRun"] == ""         and self.general["lastRun"] == ""
                               and self.general["begin"]    == ""         and self.general["end"]     == "")
@@ -227,7 +258,6 @@ class GenericValidationData(GenericValidation):
             try:
                 self.general["datasetDefinition"] = self.dataset.datasetSnippet(
                     jsonPath = self.general["JSON"],
-                    nEvents = self.general["maxevents"],
                     firstRun = self.general["firstRun"],
                     lastRun = self.general["lastRun"],
                     begin = self.general["begin"],
@@ -283,7 +313,6 @@ class GenericValidationData(GenericValidation):
             try:
                 self.general["datasetDefinition"] = self.dataset.datasetSnippet(
                     jsonPath = self.general["JSON"],
-                    nEvents = self.general["maxevents"],
                     firstRun = self.general["firstRun"],
                     lastRun = self.general["lastRun"],
                     begin = self.general["begin"],

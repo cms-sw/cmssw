@@ -15,11 +15,10 @@ class TrackSplittingValidation(GenericValidationData):
         cfgName = "TkAlTrackSplitting.%s.%s_cfg.py"%(self.name,
                                                      self.alignmentToValidate.name)
         repMap = self.getRepMap()
-        cfgs = {cfgName:replaceByMap(configTemplates.TrackSplittingTemplate,
-                                     repMap)}
+        cfgs = {cfgName: configTemplates.TrackSplittingTemplate}
         self.filesToCompare[GenericValidationData.defaultReferenceName] = \
             repMap["resultFile"]
-        GenericValidationData.createConfiguration(self, cfgs, path)
+        GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
 
     def createScript(self, path):
         scriptName = "TkAlTrackSplitting.%s.%s.sh"%(self.name,
@@ -30,9 +29,8 @@ class TrackSplittingValidation(GenericValidationData):
             repMap["CommandLine"]+= (repMap["CommandLineTemplate"]
                                      %{"cfgFile":cfg, "postProcess":""})
 
-        scripts = {scriptName: replaceByMap(configTemplates.scriptTemplate,
-                                            repMap)}
-        return GenericValidationData.createScript(self, scripts, path)
+        scripts = {scriptName: configTemplates.scriptTemplate}
+        return GenericValidationData.createScript(self, scripts, path, repMap = repMap)
 
     def createCrabCfg(self, path, crabCfgBaseName = "TkAlTrackSplitting"):
         return GenericValidationData.createCrabCfg(self, path, crabCfgBaseName)

@@ -71,15 +71,16 @@ class GeometryComparison(GenericValidation):
     def createConfiguration(self, path ):
         # self.__compares
         repMap = self.getRepMap()
-        cfgs = { "TkAlCompareToNTuple.%s.%s_cfg.py"%(
-            self.alignmentToValidate.name, self.randomWorkdirPart ):
-                replaceByMap( configTemplates.intoNTuplesTemplate, repMap)}
+        cfgFileName = "TkAlCompareToNTuple.%s.%s_cfg.py"%(
+            self.alignmentToValidate.name, self.randomWorkdirPart)
+        cfgs = {cfgFileName: configTemplates.intoNTuplesTemplate}
+        repMaps = {cfgFileName: repMap}
         if not self.referenceAlignment == "IDEAL":
             referenceRepMap = self.getRepMap( self.referenceAlignment )
             cfgFileName = "TkAlCompareToNTuple.%s.%s_cfg.py"%(
                 self.referenceAlignment.name, self.randomWorkdirPart )
-            cfgs[cfgFileName] = replaceByMap(configTemplates.intoNTuplesTemplate,
-                                             referenceRepMap)
+            cfgs[cfgFileName] = configTemplates.intoNTuplesTemplate
+            repMaps[cfgFileName] = referenceRepMap
 
         cfgSchedule = cfgs.keys()
         for common in self.__compares:
@@ -93,10 +94,11 @@ class GeometryComparison(GenericValidation):
                 repMap["dbOutputService"] = ""
             cfgName = replaceByMap(("TkAlCompareCommon.oO[common]Oo.."
                                     ".oO[name]Oo._cfg.py"),repMap)
-            cfgs[cfgName] = replaceByMap(configTemplates.compareTemplate, repMap)
+            cfgs[cfgName] = configTemplates.compareTemplate
+            repMaps[cfgName] = repMap
 
             cfgSchedule.append( cfgName )
-        GenericValidation.createConfiguration(self, cfgs, path, cfgSchedule)
+        GenericValidation.createConfiguration(self, cfgs, path, cfgSchedule, repMaps = repMaps)
 
     def createScript(self, path):
         repMap = self.getRepMap()

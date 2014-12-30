@@ -16,11 +16,10 @@ class MonteCarloValidation(GenericValidationData):
         cfgName = "TkAlMcValidate.%s.%s_cfg.py"%(self.name,
                                                  self.alignmentToValidate.name)
         repMap = self.getRepMap()
-        cfgs = {cfgName:replaceByMap(configTemplates.mcValidateTemplate,
-                                     repMap)}
+        cfgs = {cfgName: configTemplates.mcValidateTemplate}
         self.filesToCompare[GenericValidationData.defaultReferenceName] = \
             repMap["resultFile"]
-        GenericValidationData.createConfiguration(self, cfgs, path)
+        GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
 
     def createScript(self, path):
         scriptName = "TkAlMcValidate.%s.%s.sh"%(self.name,
@@ -31,9 +30,8 @@ class MonteCarloValidation(GenericValidationData):
             repMap["CommandLine"] += \
                 repMap["CommandLineTemplate"]%{"cfgFile":cfg, "postProcess":"" }
 
-        scripts = {scriptName: replaceByMap(configTemplates.scriptTemplate,
-                                            repMap)}
-        return GenericValidationData.createScript(self, scripts, path)
+        scripts = {scriptName: configTemplates.scriptTemplate}
+        return GenericValidationData.createScript(self, scripts, path, repMap = repMap)
 
     def createCrabCfg(self, path, crabCfgBaseName = "TkAlMcValidate"):
         return GenericValidationData.createCrabCfg(self, path,

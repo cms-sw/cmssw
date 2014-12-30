@@ -78,6 +78,36 @@ class Dataset:
         for i in xrange( 0, len( theList ), n ):
             yield theList[i:i+n]
 
+    __source_template= ("%(header)s"
+                        "%(importCms)s"
+                        "import FWCore.PythonUtilities.LumiList as LumiList\n\n"
+                        "%(goodLumiSecStr)s"
+                        "readFiles = cms.untracked.vstring()\n"
+                        "secFiles = cms.untracked.vstring()\n"
+                        "%(process)ssource = cms.Source(\"PoolSource\",\n"
+                        "%(lumiStr)s"
+                        "%(tab)s                    secondaryFileNames ="
+                        "secFiles,\n"
+                        "%(tab)s                    fileNames = readFiles\n"
+                        ")\n"
+                        "%(files)s\n"
+                        "%(lumiSecExtend)s\n"
+                        "%(process)smaxEvents = cms.untracked.PSet( "
+                        "input = cms.untracked.int32(%(nEvents)s) )\n"
+                        "%(skipEventsString)s\n")
+
+    __dummy_source_template = ("readFiles = cms.untracked.vstring()\n"
+                               "secFiles = cms.untracked.vstring()\n"
+                               "%(process)ssource = cms.Source(\"PoolSource\",\n"
+                               "%(tab)s                    secondaryFileNames ="
+                               "secFiles,\n"
+                               "%(tab)s                    fileNames = readFiles\n"
+                               ")\n"
+                               "readFiles.extend(['dummy_File.root'])\n"
+                               "%(process)smaxEvents = cms.untracked.PSet( "
+                               "input = cms.untracked.int32(%(nEvents)s) )\n"
+                               "%(skipEventsString)s\n")
+
     def __createSnippet( self, jsonPath = None, begin = None, end = None,
                          firstRun = None, lastRun = None, repMap = None,
                          crab = False ):
@@ -171,17 +201,6 @@ class Dataset:
             dataset_snippet = self.__source_template%( theMap )
         return dataset_snippet
 
-    __dummy_source_template = ("%(process)smaxEvents = cms.untracked.PSet( "
-                               "input = cms.untracked.int32(%(nEvents)s) )\n"
-                               "readFiles = cms.untracked.vstring()\n"
-                               "secFiles = cms.untracked.vstring()\n"
-                               "%(process)ssource = cms.Source(\"PoolSource\",\n"
-                               "%(tab)s                    secondaryFileNames ="
-                               "secFiles,\n"
-                               "%(tab)s                    fileNames = readFiles\n"
-                               ")\n"
-                               "readFiles.extend(['dummy_File.root'])\n")
-        
     def __find_lt( self, a, x ):
         'Find rightmost value less than x'
         i = bisect.bisect_left( a, x )
@@ -402,23 +421,6 @@ class Dataset:
         self.__runList = data
         return data
 
-    __source_template= ("%(header)s"
-                        "%(importCms)s"
-                        "import FWCore.PythonUtilities.LumiList as LumiList\n\n"
-                        "%(goodLumiSecStr)s"
-                        "%(process)smaxEvents = cms.untracked.PSet( "
-                        "input = cms.untracked.int32(%(nEvents)s) )\n"
-                        "readFiles = cms.untracked.vstring()\n"
-                        "secFiles = cms.untracked.vstring()\n"
-                        "%(process)ssource = cms.Source(\"PoolSource\",\n"
-                        "%(lumiStr)s"
-                        "%(tab)s                    secondaryFileNames ="
-                        "secFiles,\n"
-                        "%(tab)s                    fileNames = readFiles\n"
-                        ")\n"
-                        "%(files)s\n"
-                        "%(lumiSecExtend)s\n")
-
     def __datetime(self, stringForDas):
         if len(stringForDas) != 8:
             raise AllInOneError(stringForDas + " is not a valid date string.\n"
@@ -508,17 +510,18 @@ class Dataset:
         return self.__getMagneticFieldForRun(run)
 
     def datasetSnippet( self, jsonPath = None, begin = None, end = None,
-                        firstRun = None, lastRun = None, nEvents = None,
-                        crab = False ):
+                        firstRun = None, lastRun = None, crab = False ):
         if self.__predefined:
             return ("process.load(\"Alignment.OfflineValidation.%s_cff\")\n"
                     "process.maxEvents = cms.untracked.PSet(\n"
-                    "    input = cms.untracked.int32(%s)\n"
-                    ")"
-                    %( self.__name, nEvents ))
+                    "    input = cms.untracked.int32(.oO[nEvents]Oo.)\n"
+                    ")\n"
+                    "process.source.skipEvents=cms.untracked.uint32(.oO[nIndex]Oo.*.oO[nEvents]Oo./.oO[parallelJobs]Oo.)"
+                    %(self.__name))
         theMap = { "process": "process.",
                    "tab": " " * len( "process." ),
-                   "nEvents": str( nEvents ),
+                   "nEvents": ".oO[nEvents]Oo.",
+                   "skipEventsString": "process.source.skipEvents=cms.untracked.uint32(.oO[nIndex]Oo.*.oO[nEvents]Oo./.oO[parallelJobs]Oo.)\n",
                    "importCms": "",
                    "header": ""
                    }
@@ -556,6 +559,7 @@ class Dataset:
         theMap = { "process": "",
                    "tab": "",
                    "nEvents": str( -1 ),
+                   "skipEventsString": "",
                    "importCms": "import FWCore.ParameterSet.Config as cms\n",
                    "header": "#Do not delete, put anything before, or (unless you know what you're doing) change these comments\n"
                              "#%(name)s\n"
