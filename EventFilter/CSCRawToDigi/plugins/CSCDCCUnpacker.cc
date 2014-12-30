@@ -7,6 +7,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 //FEDRawData
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -145,6 +147,25 @@ CSCDCCUnpacker::~CSCDCCUnpacker()
   //fill destructor here
 }
 
+void CSCDCCUnpacker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("InputObjects",edm::InputTag("rawDataCollector"));
+  desc.add<bool>("UseExaminer",true);
+  desc.add<unsigned int>("ExaminerMask",535557110);
+  desc.add<bool>("UseSelectiveUnpacking",true);
+  desc.add<unsigned int>("ErrorMask",0);
+  desc.add<bool>("UnpackStatusDigis",false);
+  desc.add<bool>("UseFormatStatus",true);
+  desc.addUntracked<bool>("PrintEventNumber",false);
+  desc.addUntracked<bool>("runDQM",false);
+  desc.addUntracked<bool>("Debug",false);
+  desc.addUntracked<bool>("VisualFEDInspect",false);
+  desc.addUntracked<bool>("VisualFEDShort",false);
+  desc.addUntracked<bool>("FormatedEventDump",false);
+  desc.addUntracked<bool>("SuppressZeroLCT",true);
+  descriptions.add("muonCSCDCCUnpacker",desc);
+  descriptions.setComment(" This is the generic cfi file for CSC unpacking");
+}
 
 void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 {
