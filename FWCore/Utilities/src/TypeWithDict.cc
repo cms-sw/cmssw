@@ -166,6 +166,13 @@ namespace edm {
       return TypeWithDict(typeid(void), property);
     }
 
+    // For a reason not understood, TClass::GetClass sometimes cannot find std::type_info
+    // by name.  This simple workaround bypasses the problem.
+    // The problem really should be debugged.  (testORA12)
+    if(name == "std::type_info") {
+      return TypeWithDict(typeid(std::type_info), property);
+    }
+
     // std::cerr << "DEBUG BY NAME: " << name << std::endl;
     TType* type = gInterpreter->Type_Factory(name);
     if (!gInterpreter->Type_IsValid(type)) {
