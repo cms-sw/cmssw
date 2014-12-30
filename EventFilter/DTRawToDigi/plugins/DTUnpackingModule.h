@@ -26,6 +26,7 @@ class DTUnpackingModule: public edm::EDProducer {
   /// Call the Unpackers and create the digis 
   void produce(edm::Event & e, const edm::EventSetup& c);
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
 
