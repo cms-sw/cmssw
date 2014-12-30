@@ -91,12 +91,49 @@ namespace edm {
     if(name.back() == '*') {
       // pointer to pointer not supported
       assert(!(property & (long) kIsPointer));
+      // C-style array of pointers is not supported
+      assert(!(property & (long) kIsArray));
       property |= kIsPointer;
       if(property & (long) kIsConstant) {
         property &= ~((long) kIsConstant);
         property |= kIsConstPointer;
       }
       return byName(name.substr(0, name.size() - 1), property);
+    }
+
+    // Handle C-style arrays
+    if(name.back() == ']') {
+      // pointer to array not supported
+      assert(!(property & (long) kIsPointer));
+      // Protect against the remote possibility of '[' nested in a class type
+      size_t begin = name.find_last_of("<>:,()");
+      if(begin == std::string::npos) {
+        begin = 0;
+      } else {
+        ++begin;
+      }
+      size_t first = name.find('[', begin);
+      assert(first != std::string::npos);
+      assert(first != 0);
+      TypeWithDict ret = TypeWithDict::byName(name.substr(0, first), property);
+      ret.property_ |= kIsArray;
+      ret.arrayDimensions_ = value_ptr<std::vector<size_t> >(new std::vector<size_t>);
+      std::string const dimensions = name.substr(first);
+      char const* s = dimensions.c_str();
+      while(1) {
+        size_t x = 0;
+        int count = sscanf(s, "[%lu]", &x);
+        assert(count == 1);
+        ret.arrayDimensions_->push_back(x);
+        ++s;
+        while(*s != '\0' && *s != '[') {
+          ++s;
+        }
+        if(*s == '\0') {
+          break;
+        }
+      }
+      return ret;
     }
 
     TypeMap::const_iterator it = typeMap.find(name);
@@ -169,9 +206,11 @@ namespace edm {
     // std::cerr << "DEBUG BY NAME: " << name << std::endl;
     TType* type = gInterpreter->Type_Factory(name);
     if (!gInterpreter->Type_IsValid(type)) {
+    //std::cerr << "DEBUG BY NAME INVALID: " << name << std::endl;
       typeMap.insert(std::make_pair(name, TypeWithDict()));
       return TypeWithDict();
     }
+    // std::cerr << "DEBUG BY NAME VALID: " << name << std::endl;
     typeMap.insert(std::make_pair(name, TypeWithDict(type, 0L)));
     return TypeWithDict(type, property);
   }
@@ -236,9 +275,10 @@ namespace edm {
       return;
     }
 
-    // Handle pointers
+    // Handle pointers and arrays
     // Must be done before dataType_ is checked, because dataType_ will be filled for char*
-    if (TypeID(*ti_).className().back() == '*') {
+    char lastChar = TypeID(*ti_).className().back();
+    if (lastChar == '*' || lastChar == ']') {
       *this = TypeWithDict::byName(TypeID(*ti_).className());
       return;
     }
@@ -330,15 +370,15 @@ namespace edm {
         !gInterpreter->Type_IsEnum(ttype)) {
       // Must be a class, struct, or union.
       class_ = TClass::GetClass(*ti_);
-      // if(class_ != nullptr) {
-      //  std::cerr << "DEBUG BY TTYPE CLASS: " << name() << std::endl;
-      //  return;
-      // }
+      if(class_ != nullptr) {
+        //  std::cerr << "DEBUG BY TTYPE CLASS: " << name() << std::endl;
+        return;
+      }
     }
     if (gInterpreter->Type_IsEnum(ttype)) {
       enum_ = TEnum::GetEnum(*ti_, TEnum::kAutoload);
       // if(enum_ != nullptr) {
-      //  std::cerr << "DEBUG BY TTYPE ENUM: " << name() << std::endl;
+      //   std::cerr << "DEBUG BY TTYPE ENUM: " << name() << std::endl;
       // }
     }
   }
@@ -405,10 +445,7 @@ namespace edm {
 
   bool
   TypeWithDict::isArray() const {
-    if (*ti_ == typeid(invalidType)) {
-      return false;
-    }
-    return (type_ != nullptr && name().back() == ']');
+    return (property_ & (long) kIsArray);
   }
 
   bool
@@ -488,21 +525,30 @@ namespace edm {
     if (*ti_ == typeid(invalidType)) {
       return std::string();
     }
-    std::string suffix;
-    std::string prefix;
-    if(isPointer()) {
-      suffix += "*";
-      if(isConst()) {
-        prefix += "const ";
-      }
+    std::ostringstream out;
+    if(isPointer() && isConst()) {
+      out << "const ";
     }
     if(enum_ != nullptr) {
       if(enum_->GetClass()) {
-         return prefix + std::string(enum_->GetClass()->GetName()) + "::" + enum_->GetName() + suffix;
+         out << std::string(enum_->GetClass()->GetName());
+         out <<  "::";
       }
-      return prefix + enum_->GetName() + suffix;
+      out << enum_->GetName();
+    } else {
+      out << TypeID(*ti_).className();
     }
-    return prefix + TypeID(*ti_).className() + suffix;
+    if(isPointer()) {
+      out << '*';
+    }
+    if(isArray()) {
+      for(size_t i = 0; i < arrayDimension(); ++i) {
+        out << '[';
+        out << std::dec << maximumIndex(i);
+        out << ']';
+      }
+    }
+    return out.str();
   }
 
   std::string
@@ -525,38 +571,42 @@ namespace edm {
 
   size_t
   TypeWithDict::size() const {
+    size_t nBytes = 0;
     if(isPointer()) {
-      return sizeof(void*);
+      nBytes = sizeof(void*);
+    } else if(class_ != nullptr) {
+      nBytes = class_->GetClassSize();
+    } else if(dataType_ != nullptr) {
+      nBytes = dataType_->Size();
+    } else if(enum_ != nullptr) {
+      nBytes = sizeof(int);
     }
-    if(class_ != nullptr) {
-      return class_->GetClassSize();
+    if(isArray()) {
+      nBytes *= arrayLength();
     }
-    if(dataType_ != nullptr) {
-      return dataType_->Size();
-    }
-    if(enum_ != nullptr) {
-      return sizeof(int);
-    }
-    assert(type_ != nullptr);
-    return gInterpreter->Type_Size(type_);
+    return nBytes;
   }
 
   size_t
   TypeWithDict::arrayLength() const {
-    assert(type_ != nullptr);
-    return gInterpreter->Type_ArraySize(type_);
+    assert(isArray());
+    size_t theLength = 1;
+    for(size_t i = 0; i < arrayDimension(); ++i) {
+      theLength *= maximumIndex(i);
+    }
+    return theLength;
   }
 
   size_t
   TypeWithDict::arrayDimension() const {
-    assert(type_ != nullptr);
-    return gInterpreter->Type_ArrayDim(type_);
+    assert(isArray());
+    return arrayDimensions_->size();
   }
 
   size_t
   TypeWithDict::maximumIndex(size_t dim) const {
-    assert(type_ != nullptr);
-    return gInterpreter->Type_MaxIndex(type_, dim);
+    assert(isArray());
+    return (*arrayDimensions_)[dim];
   }
 
   size_t
@@ -683,16 +733,11 @@ namespace edm {
       return newType;
     }
     if(isArray()) {
-      assert(type_ != nullptr);
-      TType* ty = gInterpreter->Type_ToType(type_);
-      if (ty == nullptr) {
-        return *this;
-      }
-      std::type_info const* ti = gInterpreter->Type_TypeInfo(ty);
-      if (ti == nullptr) {
-        return *this;
-      }
-      return TypeWithDict(*ti);
+      TypeWithDict newType = *this;
+      newType.property_ &= ~((long) kIsArray);
+      value_ptr<std::vector<size_t> > emptyVec;
+      newType.arrayDimensions_ = emptyVec;
+      return newType;
     }
     return *this;
   }
