@@ -4,7 +4,7 @@ import json
 import globalDictionaries
 import configTemplates
 from dataset import Dataset
-from helperFunctions import replaceByMap, addIndex
+from helperFunctions import replaceByMap, addIndex, getCommandOutput2
 from TkAlExceptions import AllInOneError
 
 
@@ -43,34 +43,29 @@ class GenericValidation:
                    +str(maximumNumberJobs)+" exceeded!!!")
             raise AllInOneError(msg)
 
+        self.cmssw = self.general["cmssw"]
+        badcharacters = r"\'"
+        for character in badcharacters:
+            if character in self.cmssw:
+                raise AllInOneError("The bad characters " + badcharacters + " are not allowed in the cmssw\n"
+                                    "path name.  If you really have it in such a ridiculously named location,\n"
+                                    "try making a symbolic link somewhere with a decent name.")
         try:
-            self.cmssw = self.general["cmssw"]
-            currentrelease = os.path.basename(os.path.normpath(os.environ['CMSSW_BASE']))
-            newrelease = os.path.basename(os.path.normpath(self.cmssw))
-
-            self.scramarch = None
-            for sa in os.listdir(os.path.join(self.cmssw, "bin")):
-                if re.match("slc[0-9]+_amd[0-9]+_gcc[0-9]+",sa):
-                    try:
-                        crb = os.environ['CMSSW_RELEASE_BASE'] \
-                                  .replace(currentrelease, newrelease) \
-                                  .replace(os.environ['SCRAM_ARCH'],sa)
-                        if "patch" in newrelease:
-                            crb = crb.replace("cms/cmssw/","cms/cmssw-patch/")
-                        else:
-                            crb = crb.replace("cms/cmssw-patch/","cms/cmssw/")
-                        os.listdir(crb)
-                        self.scramarch = sa
-                        self.cmsswreleasebase = crb
-                        break
-                    except OSError:
-                        pass
-            if self.scramarch is None:
-                raise OSError
+            os.listdir(self.cmssw)
         except OSError:
-                msg = ("Your CMSSW release %s does not exist or is not set up properly.\n"
-                       "If you're sure it's there, run scram b and then try again." % self.cmssw)
-                raise AllInOneError(msg)
+            raise AllInOneError("Your cmssw release " + self.cmssw + ' does not exist')
+
+        if self.cmssw == os.environ["CMSSW_BASE"]:
+            self.scramarch = os.environ["SCRAM_ARCH"]
+            self.cmsswreleasebase = os.environ["CMSSW_RELEASE_BASE"]
+        else:
+            self.scramarch = None
+            self.cmsswreleasebase = None
+            command = ("cd '" + self.cmssw + "' && eval `scramv1 ru -sh 2> /dev/null`"
+                       ' && echo "$SCRAM_ARCH\n$CMSSW_RELEASE_BASE"')
+            commandoutput = getCommandOutput2(command).split('\n')
+            self.scramarch = commandoutput[0]
+            self.cmsswreleasebase = commandoutput[1]
 
         self.AutoAlternates = True
         if config.has_option("alternateTemplates","AutoAlternates"):
