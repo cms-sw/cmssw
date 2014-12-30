@@ -78,10 +78,8 @@ push(const string& name, const vector<AnyMethodArgument>& args,
       throw Exception(begin)
           << "member \"" << mem.first.name()
           << "\" return type is invalid:\n"
-          << "  member type: \""
-          <<  mem.first.typeOf().qualifiedName() << "\"\n"
           << "  return type: \""
-          << mem.first.returnType().qualifiedName() << "\"\n";
+          << mem.first.finalReturnType().qualifiedName() << "\"\n";
     }
     typeStack_.push_back(retType);
     // check for edm::Ref, edm::RefToBase, edm::Ptr

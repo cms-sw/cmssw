@@ -29,17 +29,7 @@ namespace edm {
 
   std::string
   FunctionWithDict::typeName() const {
-    return function_->GetReturnTypeName();
-  }
-
-  TypeWithDict
-  FunctionWithDict::typeOf() const {
-    return TypeWithDict::byName(function_->GetReturnTypeName());
-  }
-
-  TypeWithDict
-  FunctionWithDict::returnType() const {
-    return TypeWithDict::byName(function_->GetReturnTypeName());
+    return function_->GetReturnTypeNormalizedName();
   }
 
   TypeWithDict
