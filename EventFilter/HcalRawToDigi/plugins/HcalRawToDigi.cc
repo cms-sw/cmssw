@@ -63,14 +63,19 @@ HcalRawToDigi::~HcalRawToDigi() { }
 
 void HcalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<bool>("UnpackZDC",true);
+  desc.addUntracked<int>("HcalFirstFED",int(FEDNumbering::MINHCALFEDID));
+  desc.add<int>("firstSample",0);
+  desc.add<int>("lastSample",9);
   desc.add<bool>("FilterDataQuality",true);
-  desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
-  desc.addUntracked<bool>("ComplainEmptyData",false);
+  desc.addUntracked<std::vector<int>>("FEDs", std::vector<int>());
+  desc.addUntracked<bool>("UnpackZDC",true);
   desc.addUntracked<bool>("UnpackCalib",true);
   desc.addUntracked<bool>("UnpackTTP",true);
-  desc.add<int>("lastSample",9);
-  desc.add<int>("firstSample",0);
+  desc.addUntracked<bool>("silent",false);
+  desc.addUntracked<bool>("ComplainEmptyData",false);
+  desc.addUntracked<int>("UnpackerMode",0);
+  desc.addUntracked<int>("ExpectedOrbitMessageTime",-1);
+  desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
   descriptions.add("hcalDigis",desc);
 }
 
