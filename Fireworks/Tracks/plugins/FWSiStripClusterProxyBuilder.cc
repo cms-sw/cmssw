@@ -44,8 +44,6 @@ FWSiStripClusterProxyBuilder::clean()
 {
    // keep itemholders to restore configuration
 
-
-   printf("CLEAN \n");
    for (FWProxyBuilderBase::Product_it i = m_products.begin(); i != m_products.end(); ++i)
    {
       if ((*i)->m_elements)
