@@ -76,7 +76,7 @@ void HcalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<int>("UnpackerMode",0);
   desc.addUntracked<int>("ExpectedOrbitMessageTime",-1);
   desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
-  descriptions.add("hcalDigis",desc);
+  descriptions.add("hcalRawToDigi",desc);
 }
 
 
