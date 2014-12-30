@@ -76,6 +76,8 @@ FWCandidateTowerProxyBuilder::fillCaloData()
     }
 }
 
+
+/*
 double FWECalCandidateProxyBuilder::getEt(const reco::Candidate& iTower) const
 {
       int  i = abs(iTower.pdgId());
@@ -95,6 +97,8 @@ double FWHCalCandidateProxyBuilder::getEt(const reco::Candidate& iTower) const
       else 
          return 0;
 }
+*/
 
-REGISTER_FWPROXYBUILDER(FWECalCandidateProxyBuilder, pat::PackedCandidateCollection,"CandECal",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kAllLegoBits);
-REGISTER_FWPROXYBUILDER(FWHCalCandidateProxyBuilder, pat::PackedCandidateCollection,"CandHCal",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kAllLegoBits );
+//REGISTER_FWPROXYBUILDER(FWECalCandidateProxyBuilder, pat::PackedCandidateCollection,"CandECal",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kAllLegoBits);
+//REGISTER_FWPROXYBUILDER(FWHCalCandidateProxyBuilder, pat::PackedCandidateCollection,"CandHCal",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kAllLegoBits );
+REGISTER_FWPROXYBUILDER(FWCandidateTowerProxyBuilder, pat::PackedCandidateCollection,"PatCandCalo",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kAllLegoBits);

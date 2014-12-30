@@ -20,8 +20,9 @@ public:
    FWCandidateTowerProxyBuilder();
    virtual ~FWCandidateTowerProxyBuilder();
 
-   virtual double getEt(const reco::Candidate&) const = 0;
+   virtual double getEt(const reco::Candidate& cand) const { return cand.pt(); }
 
+   REGISTER_PROXYBUILDER_METHODS();
 protected:
    virtual void fillCaloData();
    virtual FWHistSliceSelector* instantiateSliceSelector();
@@ -37,7 +38,7 @@ private:
 
 
 
-
+/*
 //
 // Ecal
 //
@@ -81,5 +82,6 @@ private:
 
    const FWHCalCandidateProxyBuilder& operator=(const FWHCalCandidateProxyBuilder&); // stop default
 };
+*/
 
 #endif
