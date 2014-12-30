@@ -24,6 +24,8 @@
 
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerFactory.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps)
 {
@@ -267,6 +269,128 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
         evt.put( ebRecHits, ebRechitCollection_ );
         evt.put( eeRecHits, eeRechitCollection_ );
+}
+
+void EcalRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("recoverEEVFE",false);
+  desc.add<std::string>("EErechitCollection","EcalRecHitsEE");
+  desc.add<bool>("recoverEBIsolatedChannels",false);
+  desc.add<bool>("recoverEBVFE",false);
+  desc.add<bool>("laserCorrection",true);
+  desc.add<double>("EBLaserMIN",0.5);
+  desc.add<bool>("killDeadChannels",true);
+  {
+    std::vector<int> temp1;
+    temp1.reserve(3);
+    temp1.push_back(14);
+    temp1.push_back(78);
+    temp1.push_back(142);
+    desc.add<std::vector<int> >("dbStatusToBeExcludedEB",temp1);
+  }
+  desc.add<edm::InputTag>("EEuncalibRecHitCollection",edm::InputTag("ecalMultiFitUncalibRecHit","EcalUncalibRecHitsEE"));
+  {
+    std::vector<int> temp1;
+    temp1.reserve(3);
+    temp1.push_back(14);
+    temp1.push_back(78);
+    temp1.push_back(142);
+    desc.add<std::vector<int> >("dbStatusToBeExcludedEE",temp1);
+  }
+  desc.add<double>("EELaserMIN",0.5);
+  desc.add<edm::InputTag>("ebFEToBeRecovered",edm::InputTag("ecalDetIdToBeRecovered","ebFE"));
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("e6e2thresh",0.04);
+    psd0.add<double>("tightenCrack_e6e2_double",3);
+    psd0.add<double>("e4e1Threshold_endcap",0.3);
+    psd0.add<double>("tightenCrack_e4e1_single",3);
+    psd0.add<double>("tightenCrack_e1_double",2);
+    psd0.add<double>("cThreshold_barrel",4);
+    psd0.add<double>("e4e1Threshold_barrel",0.08);
+    psd0.add<double>("tightenCrack_e1_single",2);
+    psd0.add<double>("e4e1_b_barrel",-0.024);
+    psd0.add<double>("e4e1_a_barrel",0.04);
+    psd0.add<double>("ignoreOutOfTimeThresh",1000000000.0);
+    psd0.add<double>("cThreshold_endcap",15);
+    psd0.add<double>("e4e1_b_endcap",-0.0125);
+    psd0.add<double>("e4e1_a_endcap",0.02);
+    psd0.add<double>("cThreshold_double",10);
+    desc.add<edm::ParameterSetDescription>("cleaningConfig",psd0);
+  }
+  desc.add<double>("logWarningEtThreshold_EE_FE",50);
+  desc.add<edm::InputTag>("eeDetIdToBeRecovered",edm::InputTag("ecalDetIdToBeRecovered","eeDetId"));
+  desc.add<bool>("recoverEBFE",true);
+  desc.add<edm::InputTag>("eeFEToBeRecovered",edm::InputTag("ecalDetIdToBeRecovered","eeFE"));
+  desc.add<edm::InputTag>("ebDetIdToBeRecovered",edm::InputTag("ecalDetIdToBeRecovered","ebDetId"));
+  desc.add<double>("singleChannelRecoveryThreshold",8);
+  {
+    std::vector<std::string> temp1;
+    temp1.reserve(9);
+    temp1.push_back("kNoisy");
+    temp1.push_back("kNNoisy");
+    temp1.push_back("kFixedG6");
+    temp1.push_back("kFixedG1");
+    temp1.push_back("kFixedG0");
+    temp1.push_back("kNonRespondingIsolated");
+    temp1.push_back("kDeadVFE");
+    temp1.push_back("kDeadFE");
+    temp1.push_back("kNoDataNoTP");
+    desc.add<std::vector<std::string> >("ChannelStatusToBeExcluded",temp1);
+  }
+  desc.add<std::string>("EBrechitCollection","EcalRecHitsEB");
+  desc.add<edm::InputTag>("triggerPrimitiveDigiCollection",edm::InputTag("ecalDigis","EcalTriggerPrimitives"));
+  desc.add<bool>("recoverEEFE",true);
+  desc.add<std::string>("singleChannelRecoveryMethod","NeuralNetworks");
+  desc.add<double>("EBLaserMAX",3.0);
+  {
+    edm::ParameterSetDescription psd0;
+    {
+      std::vector<std::string> temp2;
+      temp2.reserve(4);
+      temp2.push_back("kOk");
+      temp2.push_back("kDAC");
+      temp2.push_back("kNoLaser");
+      temp2.push_back("kNoisy");
+      psd0.add<std::vector<std::string> >("kGood",temp2);
+    }
+    {
+      std::vector<std::string> temp2;
+      temp2.reserve(3);
+      temp2.push_back("kFixedG0");
+      temp2.push_back("kNonRespondingIsolated");
+      temp2.push_back("kDeadVFE");
+      psd0.add<std::vector<std::string> >("kNeighboursRecovered",temp2);
+    }
+    {
+      std::vector<std::string> temp2;
+      temp2.reserve(1);
+      temp2.push_back("kNoDataNoTP");
+      psd0.add<std::vector<std::string> >("kDead",temp2);
+    }
+    {
+      std::vector<std::string> temp2;
+      temp2.reserve(3);
+      temp2.push_back("kNNoisy");
+      temp2.push_back("kFixedG6");
+      temp2.push_back("kFixedG1");
+      psd0.add<std::vector<std::string> >("kNoisy",temp2);
+    }
+    {
+      std::vector<std::string> temp2;
+      temp2.reserve(1);
+      temp2.push_back("kDeadFE");
+      psd0.add<std::vector<std::string> >("kTowerRecovered",temp2);
+    }
+    desc.add<edm::ParameterSetDescription>("flagsMapDBReco",psd0);
+  }
+  desc.add<edm::InputTag>("EBuncalibRecHitCollection",edm::InputTag("ecalMultiFitUncalibRecHit","EcalUncalibRecHitsEB"));
+  desc.add<std::string>("algoRecover","EcalRecHitWorkerRecover");
+  desc.add<std::string>("algo","EcalRecHitWorkerSimple");
+  desc.add<double>("EELaserMAX",8.0);
+  desc.add<double>("logWarningEtThreshold_EB_FE",50);
+  desc.add<bool>("recoverEEIsolatedChannels",false);
+  descriptions.add("ecalRecHit",desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
