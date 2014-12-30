@@ -27,30 +27,26 @@
 #include <DataFormats/Math/interface/deltaR.h>
 
 template<typename T1>
-HLTEcalPFClusterIsolationProducer<T1>::HLTEcalPFClusterIsolationProducer(const edm::ParameterSet& config) {
+HLTEcalPFClusterIsolationProducer<T1>::HLTEcalPFClusterIsolationProducer(const edm::ParameterSet& config):
+  pfClusterProducer_  (consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducer"))),
+  rhoProducer_        (consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"))),
+  drMax_              (config.getParameter<double>("drMax")),
+  drVetoBarrel_       (config.getParameter<double>("drVetoBarrel")),
+  drVetoEndcap_       (config.getParameter<double>("drVetoEndcap")),
+  etaStripBarrel_     (config.getParameter<double>("etaStripBarrel")),
+  etaStripEndcap_     (config.getParameter<double>("etaStripEndcap")),
+  energyBarrel_       (config.getParameter<double>("energyBarrel")),
+  energyEndcap_       (config.getParameter<double>("energyEndcap")),
+  doRhoCorrection_    (config.getParameter<bool>("doRhoCorrection")),
+  rhoMax_             (config.getParameter<double>("rhoMax")),
+  rhoScale_           (config.getParameter<double>("rhoScale")),
+  effectiveAreaBarrel_(config.getParameter<double>("effectiveAreaBarrel")),
+  effectiveAreaEndcap_(config.getParameter<double>("effectiveAreaEndcap")) {
+
   std::string recoCandidateProducerName = "recoCandidateProducer";
   if ((typeid(HLTEcalPFClusterIsolationProducer<T1>) == typeid(HLTEcalPFClusterIsolationProducer<reco::RecoEcalCandidate>))) recoCandidateProducerName = "recoEcalCandidateProducer";
     
   recoCandidateProducer_ = consumes<T1Collection>(config.getParameter<edm::InputTag>(recoCandidateProducerName));
-  pfClusterProducer_         = consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducer"));
-
-  drMax_          = config.getParameter<double>("drMax");
-  drVetoBarrel_   = config.getParameter<double>("drVetoBarrel");
-  drVetoEndcap_   = config.getParameter<double>("drVetoEndcap");
-  etaStripBarrel_ = config.getParameter<double>("etaStripBarrel");
-  etaStripEndcap_ = config.getParameter<double>("etaStripEndcap");
-  energyBarrel_   = config.getParameter<double>("energyBarrel");
-  energyEndcap_   = config.getParameter<double>("energyEndcap");
-
-  doRhoCorrection_                = config.getParameter<bool>("doRhoCorrection");
-  if (doRhoCorrection_)
-    rhoProducer_                    = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"));
-  
-  rhoMax_                         = config.getParameter<double>("rhoMax"); 
-  rhoScale_                       = config.getParameter<double>("rhoScale"); 
-  effectiveAreaBarrel_            = config.getParameter<double>("effectiveAreaBarrel");
-  effectiveAreaEndcap_            = config.getParameter<double>("effectiveAreaEndcap");
-
   produces <T1IsolationMap>();
 
 }
@@ -114,7 +110,7 @@ bool HLTEcalPFClusterIsolationProducer<T1>::computedRVeto(T1Ref candRef, reco::P
 }
 
 template<typename T1>
-void HLTEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void HLTEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::Handle<double> rhoHandle;
   double rho = 0.0;

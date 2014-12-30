@@ -1,11 +1,7 @@
 // C/C++ headers
-#include <iostream>
 #include <vector>
-#include <memory>
 
 // Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -18,9 +14,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-//#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-//#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-//#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
@@ -42,39 +35,23 @@
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
 // EgammaCoreTools
-//#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 
 // Class header file
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTRechitInRegionsProducer.h"
 
-//#include "DataFormats/Math/interface/deltaR.h"
-
-
-EgammaHLTRechitInRegionsProducer::EgammaHLTRechitInRegionsProducer(const edm::ParameterSet& ps) {
-
-  useUncalib_    = ps.getParameter<bool>("useUncalib");
-  //hitproducer_   = ps.getParameter<edm::InputTag>("ecalhitproducer");
-
-  l1TagIsolated_ = ps.getParameter< edm::InputTag > ("l1TagIsolated");
-  l1TagNonIsolated_ = ps.getParameter< edm::InputTag > ("l1TagNonIsolated");
-  doIsolated_   = ps.getParameter<bool>("doIsolated");
-  
-  l1LowerThr_ = ps.getParameter<double> ("l1LowerThr");
-  l1UpperThr_ = ps.getParameter<double> ("l1UpperThr");
-  l1LowerThrIgnoreIsolation_ = ps.getParameter<double> ("l1LowerThrIgnoreIsolation");
-
-  regionEtaMargin_   = ps.getParameter<double>("regionEtaMargin");
-  regionPhiMargin_   = ps.getParameter<double>("regionPhiMargin");
-
-  //const std::vector<std::string> flagnames = ps.getParameter<std::vector<std::string> >("RecHitFlagToBeExcluded");
-  //const std::vector<int> flagsexcl = StringToEnumValue<EcalRecHit::Flags>(flagnames);
-  
-  //const std::vector<std::string> severitynames = ps.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded");
-  //const std::vector<int> severitiesexcl = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynames);
-
-  hitLabels     = ps.getParameter<std::vector<edm::InputTag>>("ecalhitLabels");
-  productLabels = ps.getParameter<std::vector<std::string>>("productLabels");
+EgammaHLTRechitInRegionsProducer::EgammaHLTRechitInRegionsProducer(const edm::ParameterSet& ps):
+  useUncalib_      (ps.getParameter<bool>("useUncalib")),
+  l1TagIsolated_   (ps.getParameter< edm::InputTag > ("l1TagIsolated")),
+  l1TagNonIsolated_(ps.getParameter< edm::InputTag > ("l1TagNonIsolated")),
+  doIsolated_      (ps.getParameter<bool>("doIsolated")),
+  l1LowerThr_      (ps.getParameter<double> ("l1LowerThr")),
+  l1UpperThr_      (ps.getParameter<double> ("l1UpperThr")),
+  l1LowerThrIgnoreIsolation_(ps.getParameter<double> ("l1LowerThrIgnoreIsolation")),
+  regionEtaMargin_(ps.getParameter<double>("regionEtaMargin")),
+  regionPhiMargin_(ps.getParameter<double>("regionPhiMargin")),
+  hitLabels       (ps.getParameter<std::vector<edm::InputTag>>("ecalhitLabels")),
+  productLabels(ps.getParameter<std::vector<std::string>>("productLabels")) {
 
   if (useUncalib_) {
     for (unsigned int i=0; i<hitLabels.size(); i++) { 
@@ -88,7 +65,6 @@ EgammaHLTRechitInRegionsProducer::EgammaHLTRechitInRegionsProducer(const edm::Pa
     }
   }
 }
-
 
 EgammaHLTRechitInRegionsProducer::~EgammaHLTRechitInRegionsProducer()
 {}
@@ -104,7 +80,6 @@ void EgammaHLTRechitInRegionsProducer::fillDescriptions(edm::ConfigurationDescri
   inputTags.push_back(edm::InputTag("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
   inputTags.push_back(edm::InputTag("hltESRegionalEgammaRecHit:EcalRecHitsES"));
   desc.add<std::vector<edm::InputTag>>("ecalhitLabels", inputTags);
-  //desc.add<edm::InputTag>("ecalhitproducer", edm::InputTag("ecalRecHit"));
   desc.add<edm::InputTag>("l1TagIsolated", edm::InputTag("l1extraParticles","Isolated"));
   desc.add<edm::InputTag>("l1TagNonIsolated", edm::InputTag("l1extraParticles","NonIsolated"));
   desc.add<bool>("useUncalib", true);
@@ -114,8 +89,6 @@ void EgammaHLTRechitInRegionsProducer::fillDescriptions(edm::ConfigurationDescri
   desc.add<double>("l1LowerThrIgnoreIsolation", 0.0);
   desc.add<double>("regionEtaMargin", 0.14);
   desc.add<double>("regionPhiMargin", 0.4);
-  //desc.add<std::vector<std::string> >("RecHitFlagToBeExcluded", std::vector<std::string>());
-  //desc.add<std::vector<std::string> >("RecHitSeverityToBeExcluded", std::vector<std::string>());
   descriptions.add(("hltEgammaHLTRechitInRegionsProducer"), desc);  
 }
 

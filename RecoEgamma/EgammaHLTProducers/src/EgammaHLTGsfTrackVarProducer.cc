@@ -30,14 +30,13 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterSet& config)
-{
-  recoEcalCandTag_         = consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
-  inputCollectionTag1_     = consumes<reco::ElectronCollection>(config.getParameter<edm::InputTag>("inputCollection"));
-  inputCollectionTag2_     = consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("inputCollection"));
-  beamSpotTag_             = consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("beamSpotProducer"));
-  upperTrackNrToRemoveCut_ = config.getParameter<int>("upperTrackNrToRemoveCut"); 
-  lowerTrackNrToRemoveCut_ = config.getParameter<int>("lowerTrackNrToRemoveCut");
+EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterSet& config):
+  recoEcalCandTag_         (consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
+  inputCollectionTag1_     (consumes<reco::ElectronCollection>(config.getParameter<edm::InputTag>("inputCollection"))),
+  inputCollectionTag2_     (consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("inputCollection"))),
+  beamSpotTag_             (consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("beamSpotProducer"))),
+  upperTrackNrToRemoveCut_ (config.getParameter<int>("upperTrackNrToRemoveCut")),
+  lowerTrackNrToRemoveCut_ (config.getParameter<int>("lowerTrackNrToRemoveCut")) {
  
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >( "Deta" ).setBranchAlias( "deta" );
