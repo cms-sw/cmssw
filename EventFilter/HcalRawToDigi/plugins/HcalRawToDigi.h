@@ -31,6 +31,7 @@ class HcalRawToDigi : public edm::EDProducer
 public:
   explicit HcalRawToDigi(const edm::ParameterSet& ps);
   virtual ~HcalRawToDigi();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 private:
   edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
