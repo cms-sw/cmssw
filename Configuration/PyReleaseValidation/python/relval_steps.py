@@ -1230,8 +1230,9 @@ upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
                   'SingleMuPt1000Extended_cfi',
                   'TenMuE_0_200_cfi',
                   'SinglePiE50HCAL_cfi',
-		  'QCDForPF_14TeV_cfi'
-		  ]
+		  'QCDForPF_14TeV_cfi',
+		  'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff',
+		  'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff'		  ]
 
 
 
@@ -1491,7 +1492,9 @@ howMuches={'FourMuPt_1_200_cfi':Kby(10,100),
            'MinBias_TuneZ2star_14TeV_pythia6_cff':Kby(9,100),
            'WM_14TeV_cfi':Kby(9,100),
            'ZMM_14TeV_cfi':Kby(18,100),
-	   'QCDForPF_14TeV_cfi':Kby(9,50)
+	   'QCDForPF_14TeV_cfi':Kby(9,50),
+	   'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff':Kby(9,100),
+	   'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff':Kby(9,100)
            }
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_cfi': 'FourMuPt1_200',
@@ -1556,7 +1559,9 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_cfi': 'FourMuPt1_200',
                             'MinBias_TuneZ2star_14TeV_pythia6_cff' : 'MinBias_TuneZ2star_14TeV',
                             'WM_14TeV_cfi' : 'WM_14TeV',
                             'ZMM_14TeV_cfi' : 'ZMM_14TeV',
-			    'QCDForPF_14TeV_cfi' : 'QCDForPF_14TeV'
+			    'QCDForPF_14TeV_cfi' : 'QCDForPF_14TeV',
+			    'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff' : 'DYToLL_M_50_TuneZ2star_14TeV',
+			    'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff' : 'DYtoTauTau_M_50_TuneD6T_14TeV'
                             }
 
 
