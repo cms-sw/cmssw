@@ -35,7 +35,7 @@ namespace edm {
 
   TypeWithDict
   MemberWithDict::declaringType() const {
-    return TypeWithDict(dataMember_->GetClass(), dataMember_->Property());
+    return TypeWithDict(dataMember_->GetClass());
   }
 
   bool
