@@ -39,6 +39,8 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -140,6 +142,17 @@ L1GlobalTriggerRawToDigi::~L1GlobalTriggerRawToDigi() {
     delete m_gtPsbWord;
 
 }
+
+void L1GlobalTriggerRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<int>("DaqGtFedId",FEDNumbering::MAXTriggerGTPFEDID);
+  desc.add<edm::InputTag>("DaqGtInputTag",edm::InputTag("l1GtPack"));
+  desc.add<int>("UnpackBxInEvent",-1);
+  desc.add<unsigned int>("ActiveBoardsMask",65535);
+  desc.addUntracked<int>("Verbosity",0);
+  descriptions.add("l1GlobalTriggerRawToDigi",desc);
+}
+
 
 // member functions
 
