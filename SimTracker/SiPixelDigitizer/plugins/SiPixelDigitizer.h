@@ -20,6 +20,7 @@
 
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 
 namespace edm {
   class ConsumesCollector;
@@ -61,8 +62,9 @@ namespace cms {
 
     virtual void StorePileupInformation( std::vector<int> &numInteractionList,
 					 std::vector<int> &bunchCrossingList,
-					 std::vector<float> &TrueInteractionList, int bunchSpacing){
-      PileupInfo_ = new PileupMixingContent(numInteractionList, bunchCrossingList, TrueInteractionList, bunchSpacing);
+					 std::vector<float> &TrueInteractionList, 
+					 std::vector<edm::EventID> &eventInfoList, int bunchSpacing){
+      PileupInfo_ = new PileupMixingContent(numInteractionList, bunchCrossingList, TrueInteractionList, eventInfoList, bunchSpacing);
     }
 
     virtual PileupMixingContent* getEventPileupInfo() { return PileupInfo_; }

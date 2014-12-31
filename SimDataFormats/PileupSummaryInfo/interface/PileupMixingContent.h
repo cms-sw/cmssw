@@ -19,6 +19,7 @@ Usage: purely descriptive
 #include <vector>
 #include <string>
 #include <iostream>
+#include "DataFormats/Provenance/interface/EventID.h"
 
 class PileupMixingContent {
 
@@ -29,7 +30,10 @@ class PileupMixingContent {
   PileupMixingContent( std::vector<int>& bunchCrossing,
 		       std::vector<int>& n_interactions, 
 		       std::vector<float>& True_interactions,
-		       int bunchSpacing): bunchSpacing_(bunchSpacing)
+		       std::vector<edm::EventID>& eventInfos,
+		       int bunchSpacing): 
+  eventInfos_(eventInfos),
+  bunchSpacing_(bunchSpacing)
  {
 
     bunchCrossing_.reserve(bunchCrossing.size());
@@ -63,12 +67,14 @@ class PileupMixingContent {
     bunchCrossing_.clear();
     n_interactions_.clear();
     n_TrueInteractions_.clear();
+    eventInfos_.clear();
   };
 
   const std::vector<int>& getMix_Ninteractions() const { return n_interactions_; }
   const std::vector<float>& getMix_TrueInteractions() const { return n_TrueInteractions_; }
   const std::vector<int>& getMix_bunchCrossing() const { return bunchCrossing_; }
   const int & getMix_bunchSpacing() const { return bunchSpacing_; }
+  const std::vector<edm::EventID> getMix_eventInfo() const {return eventInfos_;}
 
  private:
 
@@ -78,6 +84,7 @@ class PileupMixingContent {
   std::vector<int> bunchCrossing_;
   std::vector<int> n_interactions_;
   std::vector<float> n_TrueInteractions_;
+  std::vector<edm::EventID> eventInfos_;
   int bunchSpacing_;
 
 };

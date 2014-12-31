@@ -6,11 +6,10 @@
 // One for each bunch crossing.
 //
 //--------------------------------------------
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
@@ -64,6 +63,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
   std::vector<int> BunchCrossings;
   std::vector<int> Interactions_Xing;
   std::vector<float> TrueInteractions_Xing;
+  std::vector< std::vector<edm::EventID> > eventInfoList_Xing;
 
   int bunchSpacing;
 
@@ -74,14 +74,25 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
     const std::vector<int> bunchCrossing = MixInfo->getMix_bunchCrossing();
     const std::vector<int> interactions = MixInfo->getMix_Ninteractions();
     const std::vector<float> TrueInteractions = MixInfo->getMix_TrueInteractions();
+    const std::vector<edm::EventID> eventInfoList= MixInfo->getMix_eventInfo();
 
     bunchSpacing = MixInfo->getMix_bunchSpacing();
+    unsigned int totalIntPU=0;
 
     for(int ib=0; ib<(int)bunchCrossing.size(); ++ib){
       //      std::cout << " bcr, nint " << bunchCrossing[ib] << " " << interactions[ib] << std::endl;
       BunchCrossings.push_back(bunchCrossing[ib]);
       Interactions_Xing.push_back(interactions[ib]);
       TrueInteractions_Xing.push_back(TrueInteractions[ib]);
+
+      std::vector<edm::EventID> eventInfos;
+      eventInfos.reserve( interactions[ib] );
+      for ( int pu=0; pu< interactions[ib]; pu++) {
+	eventInfos.push_back(eventInfoList[totalIntPU+pu]);
+      }
+      totalIntPU+=(interactions[ib]);
+      eventInfoList_Xing.push_back(eventInfos);
+
     }
   }
   else{ // have to throw an exception..
@@ -192,10 +203,11 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
   std::vector<int>::iterator BXIter;
   std::vector<int>::iterator InteractionsIter = Interactions_Xing.begin();
   std::vector<float>::iterator TInteractionsIter = TrueInteractions_Xing.begin();
+  std::vector< std::vector<edm::EventID> >::iterator TEventInfoIter = eventInfoList_Xing.begin();
 
   // loop over the bunch crossings and interactions we have extracted 
 
-  for( BXIter = BunchCrossings.begin(); BXIter != BunchCrossings.end(); ++BXIter, ++InteractionsIter, ++TInteractionsIter) {
+  for( BXIter = BunchCrossings.begin(); BXIter != BunchCrossings.end(); ++BXIter, ++InteractionsIter, ++TInteractionsIter, ++TEventInfoIter) {
 
     //std::cout << "looking for BX: " << (*BXIter) << std::endl;
 
@@ -294,6 +306,8 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
     }
 
+
+
     PileupSummaryInfo	PSI_bunch = PileupSummaryInfo(
 						      (*InteractionsIter),
 						      zpositions,
@@ -301,6 +315,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 						      sumpT_highpT,
 						      ntrks_lowpT,
 						      ntrks_highpT,
+						      (*TEventInfoIter),
 						      (*BXIter),
 						      (*TInteractionsIter),
 						      bunchSpacing
@@ -316,6 +331,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
     // std::cout << "sumpT_lowpT " << sumpT_lowpT[iv] << std::endl;
     // std::cout << "ntrks_highpT " << ntrks_highpT[iv] << std::endl;
     // std::cout << "sumpT_highpT " << sumpT_highpT[iv] << std::endl;
+    //std::cout << iv << " " << PSI_bunch.getPU_EventID()[iv] << std::endl;
     //}
 
     PSIVector->push_back(PSI_bunch);
