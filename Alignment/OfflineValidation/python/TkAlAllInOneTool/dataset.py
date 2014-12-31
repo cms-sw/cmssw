@@ -401,9 +401,15 @@ class Dataset:
             raise AllInOneError( msg )
         fileInformationList = []
         for file in data:
-            fileName = self.__findInJson(file, "name")
-            fileCreationTime = self.__findInJson(file, "creation_time")
-            fileNEvents = self.__findInJson(file, "nevents")
+            fileName = 'unknown'
+            try:
+                fileName = self.__findInJson(file, "name")
+                fileCreationTime = self.__findInJson(file, "creation_time")
+                fileNEvents = self.__findInJson(file, "nevents")
+            except KeyError:
+                print ("DAS query gives bad output for file '%s'.  Skipping it.\n"
+                       "It may work if you try again later.") % fileName
+                fileNEvents = 0
             # select only non-empty files
             if fileNEvents == 0:
                 continue

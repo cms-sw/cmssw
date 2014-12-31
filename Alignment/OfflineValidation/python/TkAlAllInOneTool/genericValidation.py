@@ -231,17 +231,25 @@ class GenericValidationData(GenericValidation):
         tryPredefinedFirst = (not self.jobmode.split( ',' )[0] == "crab" and self.general["JSON"]    == ""
                               and self.general["firstRun"] == ""         and self.general["lastRun"] == ""
                               and self.general["begin"]    == ""         and self.general["end"]     == "")
+
         if self.general["dataset"] not in globalDictionaries.usedDatasets:
-            globalDictionaries.usedDatasets[self.general["dataset"]] = [None, None]
-        if globalDictionaries.usedDatasets[self.general["dataset"]][tryPredefinedFirst] is None:
+            globalDictionaries.usedDatasets[self.general["dataset"]] = {}
+
+        if self.cmssw not in globalDictionaries.usedDatasets[self.general["dataset"]]:
+            if globalDictionaries.usedDatasets[self.general["dataset"]] != {}:
+                print ("Warning: you use the same dataset '%s' in multiple cmssw releases.\n"
+                       "This is allowed, but make sure it's not a mistake") % self.general["dataset"]
+            globalDictionaries.usedDatasets[self.general["dataset"]][self.cmssw] = {False: None, True: None}
+
+        if globalDictionaries.usedDatasets[self.general["dataset"]][self.cmssw][tryPredefinedFirst] is None:
             dataset = Dataset(
                 self.general["dataset"], tryPredefinedFirst = tryPredefinedFirst,
-                cmssw = self.getRepMap()["CMSSW_BASE"], cmsswrelease = self.getRepMap()["CMSSW_RELEASE_BASE"] )
-            globalDictionaries.usedDatasets[self.general["dataset"]][tryPredefinedFirst] = dataset
+                cmssw = self.cmssw, cmsswrelease = self.cmsswreleasebase )
+            globalDictionaries.usedDatasets[self.general["dataset"]][self.cmssw][tryPredefinedFirst] = dataset
             if tryPredefinedFirst and not dataset.predefined():                              #No point finding the data twice in that case
-                globalDictionaries.usedDatasets[self.general["dataset"]][False] = dataset
+                globalDictionaries.usedDatasets[self.general["dataset"]][self.cmssw][False] = dataset
 
-        self.dataset = globalDictionaries.usedDatasets[self.general["dataset"]][tryPredefinedFirst]
+        self.dataset = globalDictionaries.usedDatasets[self.general["dataset"]][self.cmssw][tryPredefinedFirst]
         self.general["magneticField"] = self.dataset.magneticField()
         self.general["defaultMagneticField"] = "38T"
         if self.general["magneticField"] == "unknown":
