@@ -1,0 +1,37 @@
+HARVESTING:validationHarvesting+dqmHarvesting
+Traceback (most recent call last):
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/cms/cmssw/CMSSW_7_4_X_2014-12-28-0200/bin/slc6_amd64_gcc491/cmsDriver.py", line 43, in <module>
+    run()
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/cms/cmssw/CMSSW_7_4_X_2014-12-28-0200/bin/slc6_amd64_gcc491/cmsDriver.py", line 15, in run
+    configBuilder.prepare()
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/cms/cmssw-patch/CMSSW_7_4_X_2014-12-29-0200/python/Configuration/Applications/ConfigBuilder.py", line 2076, in prepare
+    self.loadAndRemember(self.EVTCONTDefaultCFF)  #load the event contents regardless
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/cms/cmssw-patch/CMSSW_7_4_X_2014-12-29-0200/python/Configuration/Applications/ConfigBuilder.py", line 289, in loadAndRemember
+    self.process.load(includeFile)
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/cms/cmssw-patch/CMSSW_7_4_X_2014-12-29-0200/python/FWCore/ParameterSet/Config.py", line 514, in load
+    module = __import__(moduleName)
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/cms/cmssw-patch/CMSSW_7_4_X_2014-12-29-0200/python/Configuration/EventContent/EventContent_cff.py", line 773, in <module>
+    from PhysicsTools.PatAlgos.slimming.slimming_cff import MicroEventContent,MicroEventContentMC
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/cms/cmssw-patch/CMSSW_7_4_X_2014-12-29-0200/python/PhysicsTools/PatAlgos/slimming/slimming_cff.py", line 3, in <module>
+    from PhysicsTools.PatAlgos.slimming.packedPFCandidates_cff import *
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/cms/cmssw-patch/CMSSW_7_4_X_2014-12-29-0200/python/PhysicsTools/PatAlgos/slimming/packedPFCandidates_cff.py", line 5, in <module>
+    from CommonTools.ParticleFlow.PFBRECO_cff import pfPileUpPFBRECO, pfNoPileUpPFBRECO
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/cms/cmssw-patch/CMSSW_7_4_X_2014-12-29-0200/python/CommonTools/ParticleFlow/PFBRECO_cff.py", line 28, in <module>
+    from CommonTools.ParticleFlow.ParticleSelectors.pfAllChargedHadrons_cfi import *
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/cms/cmssw-patch/CMSSW_7_4_X_2014-12-29-0200/python/CommonTools/ParticleFlow/ParticleSelectors/pfAllChargedHadrons_cfi.py", line 6, in <module>
+    makeClones = cms.bool(True)
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/cms/cmssw-patch/CMSSW_7_4_X_2014-12-29-0200/python/FWCore/ParameterSet/Modules.py", line 154, in __init__
+    super(EDFilter,self).__init__(type_,*arg,**kargs)
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/cms/cmssw-patch/CMSSW_7_4_X_2014-12-29-0200/python/FWCore/ParameterSet/Modules.py", line 122, in __init__
+    saveOrigin(self, 2)    
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/cms/cmssw-patch/CMSSW_7_4_X_2014-12-29-0200/python/FWCore/ParameterSet/Mixins.py", line 573, in saveOrigin
+    frame = inspect.getframeinfo(inspect.currentframe(level+1))
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/external/python/2.7.6-cms/lib/python2.7/inspect.py", line 1008, in getframeinfo
+    lines, lnum = findsource(frame)
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/external/python/2.7.6-cms/lib/python2.7/inspect.py", line 534, in findsource
+    lines = linecache.getlines(file, module.__dict__)
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/cms/cmssw-patch/CMSSW_7_4_X_2014-12-29-0200/external/slc6_amd64_gcc491/bin/../../../../../../external/python/2.7.6-cms/lib/python2.7/linecache.py", line 40, in getlines
+    return updatecache(filename, module_globals)
+  File "/afs/cern.ch/cms/sw/ReleaseCandidates/vol1/slc6_amd64_gcc491/cms/cmssw-patch/CMSSW_7_4_X_2014-12-29-0200/external/slc6_amd64_gcc491/bin/../../../../../../external/python/2.7.6-cms/lib/python2.7/linecache.py", line 80, in updatecache
+    stat = os.stat(fullname)
+KeyboardInterrupt
