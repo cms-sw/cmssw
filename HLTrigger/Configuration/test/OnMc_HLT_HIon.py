@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_3_0/HIon/V15 (CMSSW_7_3_0)
+# /dev/CMSSW_7_3_0/HIon/V16 (CMSSW_7_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/HIon/V15')
+  tableName = cms.string('/dev/CMSSW_7_3_0/HIon/V16')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -460,23 +460,11 @@ process.CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
     firstValid = cms.vuint32( 1 )
 )
 
-process.hltESPAK8CaloCorrection = cms.ESProducer( "JetCorrectionESChain",
-  correctors = cms.vstring( 'hltESPAK8CaloFastJetCorrectionESProducer',
-    'hltESPAK8CaloRelativeCorrectionESProducer',
-    'hltESPAK8CaloAbsoluteCorrectionESProducer' ),
-  appendToDataLabel = cms.string( "" )
-)
 process.hltESPAK8PFCorrection = cms.ESProducer( "JetCorrectionESChain",
   correctors = cms.vstring( 'hltESPAK8PFFastJetCorrectionESProducer',
     'hltESPAK8PFRelativeCorrectionESProducer',
     'hltESPAK8PFAbsoluteCorrectionESProducer' ),
   appendToDataLabel = cms.string( "" )
-)
-process.hltESPAK8CaloFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  srcRho = cms.InputTag( "hltFixedGridRhoFastjetAllCalo" ),
-  algorithm = cms.string( "AK8CaloHLT" ),
-  level = cms.string( "L1FastJet" )
 )
 process.hltESPAK8PFFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
@@ -488,16 +476,6 @@ process.hltESPAK8PFRelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectio
   appendToDataLabel = cms.string( "" ),
   algorithm = cms.string( "AK8PFHLT" ),
   level = cms.string( "L2Relative" )
-)
-process.hltESPAK8CaloRelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK8CaloHLT" ),
-  level = cms.string( "L2Relative" )
-)
-process.hltESPAK8CaloAbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK8CaloHLT" ),
-  level = cms.string( "L3Absolute" )
 )
 process.hltESPAK8PFAbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
