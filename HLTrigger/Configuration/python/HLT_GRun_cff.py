@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_3_0/GRun/V14 (CMSSW_7_3_0)
+# /dev/CMSSW_7_3_0/GRun/V15 (CMSSW_7_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/GRun/V14')
+  tableName = cms.string('/dev/CMSSW_7_3_0/GRun/V15')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -2277,11 +2277,11 @@ hltFixedGridRhoFastjetAllCalo = cms.EDProducer( "FixedGridRhoProducerFastjet",
 )
 hltAK8CaloJetsCorrected = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltAK8CaloJets" ),
-    correctors = cms.vstring( 'hltESPAK8CaloCorrection' )
+    correctors = cms.vstring( 'hltESPAK4CaloCorrection' )
 )
 hltAK8CaloJetsCorrectedIDPassed = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltAK8CaloJetsIDPassed" ),
-    correctors = cms.vstring( 'hltESPAK8CaloCorrection' )
+    correctors = cms.vstring( 'hltESPAK4CaloCorrection' )
 )
 hltAK8SingleCaloJet260 = cms.EDFilter( "HLT1CaloJet",
     saveTags = cms.bool( True ),
@@ -5780,7 +5780,7 @@ hltFixedGridRhoFastjetAll = cms.EDProducer( "FixedGridRhoProducerFastjet",
 )
 hltAK8PFJetsCorrected = cms.EDProducer( "PFJetCorrectionProducer",
     src = cms.InputTag( "hltAK8PFJets" ),
-    correctors = cms.vstring( 'hltESPAK8PFCorrection' )
+    correctors = cms.vstring( 'hltESPAK4PFCorrection' )
 )
 hltAK8PFJetsCorrectedMatchedToCaloJets260 = cms.EDProducer( "PFJetsMatchedToFilteredCaloJetsProducer",
     DeltaR = cms.double( 0.5 ),
