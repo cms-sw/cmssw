@@ -85,7 +85,7 @@ void DTUnpackingModule::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<bool>("useStandardFEDid",true);
   desc.addUntracked<int>("minFEDid",770);
   desc.addUntracked<int>("maxFEDid",779);
-  desc.add<bool>("fedbyType",false);  // unused...
+  desc.addOptional<bool>("fedbyType");  // never used, only kept here for back-compatibility
   {
     edm::ParameterSetDescription psd0;
     psd0.addUntracked<bool>("debug",false);

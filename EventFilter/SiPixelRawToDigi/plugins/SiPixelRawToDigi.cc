@@ -135,12 +135,16 @@ SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<edm::InputTag>("InputLabel",edm::InputTag("siPixelRawData"));
   {
     edm::ParameterSetDescription psd0;
+    psd0.addOptional<std::vector<edm::InputTag>>("inputs");
+    psd0.addOptional<std::vector<double>>("deltaPhi");
+    psd0.addOptional<std::vector<double>>("maxZ");
+    psd0.addOptional<edm::InputTag>("beamSpot");
     desc.add<edm::ParameterSetDescription>("Regions",psd0)->setComment("## Empty Regions PSet means complete unpacking");
   }
   desc.addUntracked<bool>("Timing",false);
   desc.add<bool>("UsePilotBlade",false)->setComment("##  Use pilot blades");
   desc.add<bool>("UsePhase1",false)->setComment("##  Use phase1");
-  desc.add<bool>("CheckPixelOrder",false);  // never used
+  desc.addOptional<bool>("CheckPixelOrder");  // never used, kept for back-compatibility
   descriptions.add("siPixelRawToDigi",desc);
 }
 
