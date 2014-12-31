@@ -361,6 +361,8 @@ HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v*				# JIRA: CMSHLT-165
 HLT_Mu15_IsoVVVL_PFHT600_v*					# JIRA: CMSHLT-165
 HLT_Mu15_PFHT300_v*						# JIRA: CMSHLT-165
 
+#HLT_ECALHT800_v*						# JIRA: CMSHLT-201 (for 7e33)
+
 #HLT_PixelTracks_Multiplicity60_v* 				# JIRA: CMSHLT-150 (for low PU runs)
 #HLT_PixelTracks_Multiplicity85_v* 				# JIRA: CMSHLT-150 (for low PU runs)
 #HLT_PixelTracks_Multiplicity110_v* 				# JIRA: CMSHLT-150 (for low PU runs)
