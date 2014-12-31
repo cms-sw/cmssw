@@ -32,8 +32,6 @@ public:
   explicit operator bool() const;
   std::string name() const;
   std::string typeName() const;
-  TypeWithDict typeOf() const;
-  TypeWithDict returnType() const;
   TypeWithDict finalReturnType() const;
   bool isConst() const;
   bool isConstructor() const;
