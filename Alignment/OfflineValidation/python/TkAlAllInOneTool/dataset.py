@@ -258,13 +258,13 @@ class Dataset:
     def __getDataType( self ):
         if self.__predefined:
             with open(self.__filename) as f:
-                f.readline()
-                f.readline()
-                datatype = f.readline().replace("\n",'')
-                if "#data type: " in datatype:
-                    return datatype.replace("#data type: ","")
-                else:
-                    return "unknown"
+                datatype = None
+                for line in f.readlines():
+                    if line.startswith("#data type: "):
+                        if datatype is not None:
+                            raise AllInOneError(self.__filename + " has multiple 'data type' lines.")
+                        datatype = line.replace("#data type: ", "").replace("\n","")
+                return "unknown"
 
         dasQuery_type = ( 'dataset dataset=%s | grep dataset.datatype,'
                           'dataset.name'%( self.__name ) )
@@ -288,19 +288,26 @@ class Dataset:
 
         if self.__predefined:
             with open(self.__filename) as f:
-                f.readline()
-                f.readline()
-                datatype = f.readline().replace("\n", '')
-                Bfield = f.readline().replace("\n", '')
-                if "#magnetic field: " in Bfield:
-                    Bfield = Bfield.replace("#magnetic field: ", "").split(",")[0]
+                datatype = None
+                Bfield = None
+                for line in f.readlines():
+                    if line.startswith("#data type: "):
+                        if datatype is not None:
+                            raise AllInOneError(self.__filename + " has multiple 'data type' lines.")
+                        datatype = line.replace("#data type: ", "").replace("\n","")
+                    if line.startswith("#magnetic field: "):
+                        if Bfield is not None:
+                            raise AllInOneError(self.__filename + " has multiple 'magnetic field' lines.")
+                        Bfield = line.replace("#magnetic field: ", "").replace("\n","")
+                if Bfield is not None:
+                    Bfield = Bfield.split(",")[0]
                     if Bfield in Bfieldlist or Bfield == "unknown":
                         return Bfield
                     else:
                         print "Your dataset has magnetic field '%s', which does not exist in your CMSSW version!" % Bfield
                         print "Using Bfield='unknown' - this will revert to the default"
                         return "unknown"
-                elif datatype == "#data type: data":
+                elif datatype == "data":
                     return "AutoFromDBCurrent"           #this should be in the "#magnetic field" line, but for safety in case it got messed up
                 else:
                     return "unknown"
@@ -340,12 +347,12 @@ class Dataset:
             return float(Bfield) / 10.0                       #e.g. 38T and 38T_PostLS1 both return 3.8
         if self.__predefined:
             with open(self.__filename) as f:
-                f.readline()
-                f.readline()
-                f.readline()
-                Bfield = f.readline().replace("\n", '')
-                if "#magnetic field: " in Bfield and "," in Bfield:
-                    return float(Bfield.replace("#magnetic field: ", "").split(",")[1])
+                Bfield = None
+                for line in f.readlines():
+                    if line.startswith("#magnetic field: ") and "," in line:
+                        if Bfield is not None:
+                            raise AllInOneError(self.__filename + " has multiple 'magnetic field' lines.")
+                        return float(line.replace("#magnetic field: ", "").split(",")[1])
 
         if run > 0:
             dasQuery = ('run = %s'%run)                         #for data
@@ -561,7 +568,7 @@ class Dataset:
                    "nEvents": str( -1 ),
                    "skipEventsString": "",
                    "importCms": "import FWCore.ParameterSet.Config as cms\n",
-                   "header": "#Do not delete, put anything before, or (unless you know what you're doing) change these comments\n"
+                   "header": "#Do not delete or (unless you know what you're doing) change these comments\n"
                              "#%(name)s\n"
                              "#data type: %(dataType)s\n"
                              "#magnetic field: .oO[magneticField]Oo.\n"    #put in magnetic field later
