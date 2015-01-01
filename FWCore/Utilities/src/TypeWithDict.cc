@@ -155,7 +155,7 @@ namespace edm {
     // Handle enums
     TEnum* theEnum = TEnum::GetEnum(name.c_str(), TEnum::kAutoload);
     if(theEnum) {
-      return TypeWithDict(theEnum, name, property);
+      return TypeWithDict(theEnum, property);
     }
 
     // Handle built-ins
@@ -313,7 +313,10 @@ namespace edm {
     }
   }
 
-  TypeWithDict::TypeWithDict(TClass* cl, long property /*= 0L*/) :
+  TypeWithDict::TypeWithDict(TClass *cl) : TypeWithDict(cl, 0L) {
+  }
+
+  TypeWithDict::TypeWithDict(TClass* cl, long property) :
     ti_(cl->GetTypeInfo()),
     type_(nullptr),
     class_(cl),
@@ -323,7 +326,10 @@ namespace edm {
     property_(property) {
   }
 
-  TypeWithDict::TypeWithDict(TEnum* enm, std::string const& name, long property /*= 0L*/) :
+  TypeWithDict::TypeWithDict(TEnum *enm) : TypeWithDict(enm, 0L) {
+  }
+
+  TypeWithDict::TypeWithDict(TEnum* enm, long property) :
     ti_(&typeid(TypeWithDict::dummyType)),
     type_(nullptr),
     class_(nullptr),
