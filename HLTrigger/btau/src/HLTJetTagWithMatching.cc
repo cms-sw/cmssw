@@ -7,6 +7,9 @@
  *
  */
 
+#include <vector>
+#include <string>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -17,12 +20,10 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 #include "HLTJetTagWithMatching.h"
 
-#include<vector>
-#include<string>
-#include<typeinfo>
 
 //
 // constructors and destructor
@@ -82,7 +83,7 @@ HLTJetTagWithMatching<T>::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<int>("MinJets",1);
   desc.add<int>("TriggerType",0);
   desc.add<double>("deltaR",0.1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetTagWithMatching<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTJetTagWithMatching<T>>(), desc);
 }
 
 //

@@ -1,27 +1,22 @@
-#include "HLTrigger/JetMET/interface/HLTJetCollectionsForBoostedLeptonPlusJets.h"
+#include <string>
+#include <vector>
+
+#include "TVector3.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/Math/interface/deltaR.h"
-//(1)
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "TVector3.h"
-#include <string>
-#include <vector>
-#include <typeinfo>
-//(1)
+#include "HLTrigger/JetMET/interface/HLTJetCollectionsForBoostedLeptonPlusJets.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 
 
@@ -57,7 +52,7 @@ HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::fillDescriptions(edm::Config
     desc.add<edm::InputTag> ("SourceJetTag", edm::InputTag("jetCollection"));
     //(2)
     desc.add<double> ("minDeltaR", 0.5);
-    descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollectionsForBoostedLeptonPlusJets<jetType>).name()),desc);
+    descriptions.add(defaultModuleLabel<HLTJetCollectionsForBoostedLeptonPlusJets<jetType>>(), desc);
 }
 
 //
