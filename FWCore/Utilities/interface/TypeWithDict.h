@@ -62,12 +62,14 @@ private:
 public:
   TypeWithDict();
   TypeWithDict(TypeWithDict const&);
+  explicit TypeWithDict(TClass* type);
+  explicit TypeWithDict(TEnum* type);
   explicit TypeWithDict(std::type_info const&);
   explicit TypeWithDict(TMethodArg* arg);
 private:
   explicit TypeWithDict(std::type_info const&, long property);
-  explicit TypeWithDict(TClass* type, long property = 0L);
-  explicit TypeWithDict(TEnum* type, std::string const& name, long property = 0L);
+  explicit TypeWithDict(TClass* type, long property);
+  explicit TypeWithDict(TEnum* type, long property);
   explicit TypeWithDict(TMethodArg* arg, long property);
   explicit TypeWithDict(TType* type, long property);
 public:
