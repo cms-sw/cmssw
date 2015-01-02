@@ -9,20 +9,18 @@
  *
  */
 
+#include <vector>
+#include <string>
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "HLTrigger/JetMET/interface/HLTJetSortedVBFFilter.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-#include<vector>
-#include<string>
-#include<typeinfo>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 using namespace std;
 //
@@ -67,7 +65,7 @@ HLTJetSortedVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("Etaq1Etaq2",40.);
   desc.add<std::string>("value","second");
   desc.add<int>("triggerType",trigger::TriggerJet);
-  descriptions.add(string("hlt")+string(typeid(HLTJetSortedVBFFilter<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTJetSortedVBFFilter<T>>(), desc);
 }
 
 template<typename T> float HLTJetSortedVBFFilter<T>::findCSV(const typename std::vector<T>::const_iterator & jet, const reco::JetTagCollection  & jetTags){

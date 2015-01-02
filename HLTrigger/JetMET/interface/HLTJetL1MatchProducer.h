@@ -16,8 +16,6 @@
 #include "DataFormats/JetReco/interface/TrackJetCollection.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 
-#include<typeinfo>
-
 template<typename T>
 class HLTJetL1MatchProducer : public edm::EDProducer {
  public:

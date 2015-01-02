@@ -7,6 +7,10 @@
  *
  */
 
+#include <algorithm>
+#include <memory>
+#include <typeinfo>
+
 #include "HLTrigger/HLTcore/interface/TriggerSummaryProducerAOD.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -39,11 +43,6 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-
-#include <algorithm>
-#include <memory>
-#include <typeinfo>
-
 
 //
 // constructors and destructor

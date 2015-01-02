@@ -13,6 +13,7 @@
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 
 
@@ -46,7 +47,7 @@ HLTJetCollectionsForLeptonPlusJets<jetType>::fillDescriptions(edm::Configuration
     desc.add<edm::InputTag> ("HltLeptonTag", edm::InputTag("triggerFilterObjectWithRefs"));
     desc.add<edm::InputTag> ("SourceJetTag", edm::InputTag("caloJetCollection"));
     desc.add<double> ("minDeltaR", 0.5);
-    descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollectionsForLeptonPlusJets<jetType>).name()),desc);
+    descriptions.add(defaultModuleLabel<HLTJetCollectionsForLeptonPlusJets<jetType>>(), desc);
 }
 
 //
