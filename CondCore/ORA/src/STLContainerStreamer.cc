@@ -103,7 +103,7 @@ bool ora::STLContainerWriter::build( DataElement& offset,
   MappingElement::iterator iMe = m_mappingElement.find( valueName );
   if ( iMe == m_mappingElement.end() ) {
     // Try again with the name of a possible typedef
-    std::string valueName2 = valueType.unscopedNameWithTypedef();
+    std::string valueName2 = valueType.unscopedName();
     iMe = m_mappingElement.find( valueName2 );
     if ( iMe == m_mappingElement.end() ) {
       throwException( "Item for \"" + valueName + "\" not found in the mapping element",
@@ -316,7 +316,7 @@ bool ora::STLContainerReader::build( DataElement& offset, IRelationalData& ){
   MappingElement::iterator iMe = m_mappingElement.find( valueName );
   if ( iMe == m_mappingElement.end() ) {
     // Try again with the name of a possible typedef
-    std::string valueName2 = valueType.unscopedNameWithTypedef();
+    std::string valueName2 = valueType.unscopedName();
     iMe = m_mappingElement.find( valueName2 );
     if ( iMe == m_mappingElement.end() ) {
       throwException( "Item for \"" + valueName + "\" not found in the mapping element",

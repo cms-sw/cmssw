@@ -25,8 +25,6 @@ persisted across invocations of the program.
 #include <typeinfo>
 #include <vector>
 
-class TType;
-
 namespace edm {
 
 class FunctionWithDict;
@@ -49,7 +47,6 @@ class TypeWithDict {
   typedef dummyType** invalidType; // Tag for invalid type
 private:
   std::type_info const* ti_;
-  TType* type_;
   TClass* class_;
   TEnum* enum_;
   TDataType* dataType_;
@@ -71,7 +68,6 @@ private:
   explicit TypeWithDict(TClass* type, long property);
   explicit TypeWithDict(TEnum* type, long property);
   explicit TypeWithDict(TMethodArg* arg, long property);
-  explicit TypeWithDict(TType* type, long property);
 public:
   TypeWithDict& operator=(TypeWithDict const&);
   TypeWithDict& stripConstRef();
@@ -95,7 +91,6 @@ public:
   std::string cppName() const;
   std::string unscopedName() const;
   std::string name() const;
-  std::string unscopedNameWithTypedef() const;
   std::string userClassName() const;
   std::string friendlyClassName() const;
   std::string templateName() const;

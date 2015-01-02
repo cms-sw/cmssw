@@ -14,14 +14,11 @@
 #include "TDataType.h"
 #include "TEnum.h"
 #include "TEnumConstant.h"
-#include "TInterpreter.h"
 #include "TMethodArg.h"
 #include "TRealData.h"
 #include "TROOT.h"
 
 #include "boost/thread/tss.hpp"
-
-#include "tbb/concurrent_unordered_map.h"
 
 #include <cassert>
 #include <cstdio>
@@ -61,8 +58,6 @@ namespace edm {
   TypeWithDict::byName(std::string const& name, long property) {
     // This is a private static function.
 
-    typedef tbb::concurrent_unordered_map<std::string, TypeWithDict> TypeMap;
-    static TypeMap typeMap;
     static std::string const constPrefix("const ");
     static std::string const constSuffix(" const");
     static size_t const constPrefixSize(constPrefix.size());
@@ -136,16 +131,6 @@ namespace edm {
       return ret;
     }
 
-    TypeMap::const_iterator it = typeMap.find(name);
-    if (it != typeMap.end()) {
-      if(property == 0L) {
-        return it->second;
-      }
-      TypeWithDict twd = it->second;
-      twd.property_ = property;
-      return twd;
-    }
-
     // Handle classes
     TClass* theClass = TClass::GetClass(name.c_str());
     if (theClass != nullptr && theClass->GetTypeInfo() != nullptr) {
@@ -211,20 +196,11 @@ namespace edm {
     }
 
     // std::cerr << "DEBUG BY NAME: " << name << std::endl;
-    TType* type = gInterpreter->Type_Factory(name);
-    if (!gInterpreter->Type_IsValid(type)) {
-    //std::cerr << "DEBUG BY NAME INVALID: " << name << std::endl;
-      typeMap.insert(std::make_pair(name, TypeWithDict()));
-      return TypeWithDict();
-    }
-    // std::cerr << "DEBUG BY NAME VALID: " << name << std::endl;
-    typeMap.insert(std::make_pair(name, TypeWithDict(type, 0L)));
-    return TypeWithDict(type, property);
+    return TypeWithDict();
   }
 
   TypeWithDict::TypeWithDict() :
     ti_(&typeid(TypeWithDict::invalidType)),
-    type_(nullptr),
     class_(nullptr),
     enum_(nullptr),
     dataType_(nullptr),
@@ -234,7 +210,6 @@ namespace edm {
 
   TypeWithDict::TypeWithDict(TypeWithDict const& rhs) :
     ti_(rhs.ti_),
-    type_(rhs.type_),
     class_(rhs.class_),
     enum_(rhs.enum_),
     dataType_(rhs.dataType_),
@@ -256,7 +231,6 @@ namespace edm {
   TypeWithDict::operator=(TypeWithDict const& rhs) {
     if (this != &rhs) {
       ti_ = rhs.ti_;
-      type_ = rhs.type_;
       class_ = rhs.class_;
       enum_ = rhs.enum_;
       dataType_ = rhs.dataType_;
@@ -271,7 +245,6 @@ namespace edm {
 
   TypeWithDict::TypeWithDict(std::type_info const& ti, long property /*= 0L*/) :
     ti_(&ti),
-    type_(nullptr),
     class_(TClass::GetClass(ti)),
     enum_(nullptr),
     dataType_(TDataType::GetDataType(TDataType::GetType(ti))),
@@ -307,10 +280,7 @@ namespace edm {
 
     // std::cerr << "DEBUG BY TI: " << name() << std::endl;
 
-    type_ = gInterpreter->Type_Factory(ti);
-    if (!gInterpreter->Type_IsValid(type_)) {
-      throwTypeException("TypeWithDict(TType*, property): ", name());
-    }
+     throwTypeException("TypeWithDict): ", name());
   }
 
   TypeWithDict::TypeWithDict(TClass *cl) : TypeWithDict(cl, 0L) {
@@ -318,7 +288,6 @@ namespace edm {
 
   TypeWithDict::TypeWithDict(TClass* cl, long property) :
     ti_(cl->GetTypeInfo()),
-    type_(nullptr),
     class_(cl),
     enum_(nullptr),
     dataType_(nullptr),
@@ -331,7 +300,6 @@ namespace edm {
 
   TypeWithDict::TypeWithDict(TEnum* enm, long property) :
     ti_(&typeid(TypeWithDict::dummyType)),
-    type_(nullptr),
     class_(nullptr),
     enum_(enm),
     dataType_(nullptr),
@@ -346,56 +314,6 @@ namespace edm {
     TypeWithDict(byName(arg->GetTypeName(), arg->Property() | property)) {
   }
 
-  TypeWithDict::TypeWithDict(TType* ttype, long property /*= 0L*/) :
-    ti_(&typeid(invalidType)),
-    type_(ttype),
-    class_(nullptr),
-    enum_(nullptr),
-    dataType_(nullptr),
-    arrayDimensions_(nullptr),
-    property_(property) {
-
-    if (!ttype) {
-      return;
-    }
-    {
-      bool valid = gInterpreter->Type_IsValid(ttype);
-      if (!valid) {
-        throwTypeException("TypeWithDict(TType*, property): ", name());
-      }
-      ti_ = gInterpreter->Type_TypeInfo(ttype);
-    }
-    if (gInterpreter->Type_IsConst(ttype)) {
-      // Note: This is not possible if created by typeid.
-      property_ |= (long) kIsConstant;
-    }
-    if (gInterpreter->Type_IsReference(ttype)) {
-      // Note: This is not possible if created by typeid.
-      property_ |= (long) kIsReference;
-    }
-    dataType_ = TDataType::GetDataType(TDataType::GetType(*ti_));
-    // if(dataType_ != nullptr) {
-    //  std::cerr << "DEBUG BY TTYPE FUNDAMENTAL: " << name() << std::endl;
-    // }
-    if (!gInterpreter->Type_IsFundamental(ttype) &&
-        !gInterpreter->Type_IsArray(ttype) &&
-        !gInterpreter->Type_IsPointer(ttype) &&
-        !gInterpreter->Type_IsEnum(ttype)) {
-      // Must be a class, struct, or union.
-      class_ = TClass::GetClass(*ti_);
-      if(class_ != nullptr) {
-        //  std::cerr << "DEBUG BY TTYPE CLASS: " << name() << std::endl;
-        return;
-      }
-    }
-    if (gInterpreter->Type_IsEnum(ttype)) {
-      enum_ = TEnum::GetEnum(*ti_, TEnum::kAutoload);
-      // if(enum_ != nullptr) {
-      //   std::cerr << "DEBUG BY TTYPE ENUM: " << name() << std::endl;
-      // }
-    }
-  }
-
   TypeWithDict::operator bool() const {
     if (*ti_ == typeid(invalidType)) {
       return false;
@@ -403,8 +321,7 @@ namespace edm {
     if (class_ != nullptr || dataType_ != nullptr || enum_ != nullptr) {
       return true;
     }
-    assert(type_ != nullptr);
-    return gInterpreter->Type_Bool(type_);
+    return false;
   }
 
   std::type_info const&
@@ -491,8 +408,7 @@ namespace edm {
     if (class_ != nullptr || dataType_ != nullptr || enum_ != nullptr || *ti_ == typeid(invalidType)) {
       return false;
     }
-    assert(type_ != nullptr);
-    return gInterpreter->Type_IsTypedef(type_);
+    return true;
   }
 
   bool
@@ -562,14 +478,6 @@ namespace edm {
       }
     }
     return out.str();
-  }
-
-  std::string
-  TypeWithDict::unscopedNameWithTypedef() const {
-    if (type_ == nullptr) {
-      return unscopedName();
-    }
-    return stripNamespace(gInterpreter->Type_QualifiedName(type_));
   }
 
   std::string
