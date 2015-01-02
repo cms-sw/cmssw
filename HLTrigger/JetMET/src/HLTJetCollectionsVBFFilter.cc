@@ -6,23 +6,16 @@
  */
 
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsVBFFilter.h"
-
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "DataFormats/Math/interface/deltaPhi.h"
-
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include<typeinfo>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 
 //
@@ -63,7 +56,7 @@ HLTJetCollectionsVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<double>("MaxAbsThirdJetEta",2.6);
   desc.add<unsigned int>("MinNJets",2);
   desc.add<int>("TriggerType",trigger::TriggerJet);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollectionsVBFFilter<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTJetCollectionsVBFFilter<T>>(), desc);
 }
 
 // ------------ method called to produce the data  ------------

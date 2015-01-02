@@ -6,11 +6,9 @@
  */
 
 #include "HLTrigger/JetMET/interface/HLTDiJetAveEtaFilter.h"
-
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,8 +16,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
-#include<typeinfo>
 
 //
 // constructors and destructor
@@ -64,7 +62,7 @@ HLTDiJetAveEtaFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descri
     desc.add<double>("minProbeEta", 2.7);
     desc.add<double>("maxProbeEta", 5.5);
     desc.add<int>("triggerType",trigger::TriggerJet);
-    descriptions.add(std::string("hlt")+std::string(typeid(HLTDiJetAveEtaFilter<T>).name()),desc);
+    descriptions.add(defaultModuleLabel<HLTDiJetAveEtaFilter<T>>(), desc);
 }
 
 // ------------ method called to produce the data  ------------
