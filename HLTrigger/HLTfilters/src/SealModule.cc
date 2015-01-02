@@ -33,7 +33,6 @@
 
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
-#include <typeinfo>
 
 using namespace reco;
 using namespace trigger;

@@ -15,6 +15,9 @@
 // Original Author:  Ian Tomalin
 //
 
+#include <string>
+#include <vector>
+
 // user include files
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -23,10 +26,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
-#include <typeinfo>
-#include <string>
-#include <vector>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 //
 // class declaration
@@ -70,7 +70,7 @@ HLTCollectionProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag> ("HLTObject", edm::InputTag("TriggerFilterObjectWithRefs"));
   std::vector<int> triggerTypes;
   desc.add<std::vector<int> > ("TriggerTypes",triggerTypes);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTCollectionProducer<T>).name()), desc);
+  descriptions.add(defaultModuleLabel<HLTCollectionProducer<T>>(), desc);
 }
 
 //
