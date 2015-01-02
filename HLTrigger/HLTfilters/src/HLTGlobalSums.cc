@@ -7,6 +7,8 @@
  *
  */
 
+#include <cmath>
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTfilters/interface/HLTGlobalSums.h"
 
@@ -17,7 +19,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include<cmath>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 //
 // constructors and destructor
@@ -79,7 +81,7 @@ HLTGlobalSums<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<double>("Min",-1e125);
   desc.add<double>("Max",+1e125);
   desc.add<int>("MinN",1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTGlobalSums<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTGlobalSums<T>>(), desc);
 }
 
 //

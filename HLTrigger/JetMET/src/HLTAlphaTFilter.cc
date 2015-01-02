@@ -12,7 +12,6 @@
  */
 
 #include <vector>
-#include <typeinfo>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -24,6 +23,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "HLTrigger/JetMET/interface/HLTAlphaTFilter.h"
 #include "HLTrigger/JetMET/interface/AlphaT.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > LorentzV  ;
 
@@ -88,7 +88,7 @@ void HLTAlphaTFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<int>("triggerType",trigger::TriggerJet);
   desc.add<bool>("dynamicAlphaT",true); //Set to reproduce old behaviour
   desc.add<bool>("setDHtZero",false); //Set to reproduce old behaviour
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTAlphaTFilter<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTAlphaTFilter<T>>(), desc);
 }
 
 

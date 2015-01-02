@@ -1,4 +1,5 @@
 #include "HLTrigger/Egamma/interface/HLTElectronPFMTFilter.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template <typename T> 
 HLTElectronPFMTFilter<T>::HLTElectronPFMTFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
@@ -35,7 +36,7 @@ void HLTElectronPFMTFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<double>("minMht",0.0);
   desc.add<double>("lowerMTCut",0.0);
   desc.add<double>("upperMTCut",9999.0);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTElectronPFMTFilter<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTElectronPFMTFilter<T>>(), desc);
 }
 
 template <typename T> 
