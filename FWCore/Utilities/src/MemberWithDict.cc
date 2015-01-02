@@ -26,15 +26,15 @@ namespace edm {
   MemberWithDict::typeOf() const {
     if(isArray()) {
       std::ostringstream name;
-      name << dataMember_->GetTypeName();
+      name << dataMember_->GetTrueTypeName();
       for(int i = 0; i < dataMember_->GetArrayDim(); ++i) {
         name << '[';
         name << dataMember_->GetMaxIndex(i);
         name << ']';
       }
-      return TypeWithDict::byName(name.str(), dataMember_->Property());
+      return TypeWithDict::byName(name.str());
     } 
-    return TypeWithDict::byName(dataMember_->GetTypeName(), dataMember_->Property());
+    return TypeWithDict::byName(dataMember_->GetTrueTypeName());
   }
 
   TypeWithDict
