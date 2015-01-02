@@ -15,6 +15,8 @@
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+//#include "MagneticField/Engine/interface/MagneticField.h"
+//#include "MagneticField/Records/interface/IdealMagneticField.h"
 
 #include "RecoVertex/KinematicFitPrimitives/interface/ParticleMass.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/MultiTrackKinematicConstraint.h"
@@ -25,6 +27,7 @@
 #include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
 #include "RecoVertex/KinematicFit/interface/KinematicParticleFitter.h"
 #include "RecoVertex/KinematicFit/interface/MassKinematicConstraint.h"
+
 
 #include <iostream>
 
@@ -53,14 +56,15 @@ KineExample::~KineExample() {
 void KineExample::beginRun(Run const& run, EventSetup const& setup){
   edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
   setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
-  associatorForParamAtPca = (TrackAssociatorByChi2 *) theAssociatorForParamAtPca.product();
+  associatorForParamAtPca = theAssociatorForParamAtPca.product() ;
 
-//   tree = new SimpleVertexTree("VertexFitter", associatorForParamAtPca);
+//   edm::ESHandle<MagneticField> magField;
+//   setup.get<IdealMagneticFieldRecord>().get(magField);
+//   tree.reset(new SimpleVertexTree("VertexFitter", magField.product()));
 }
 
 
 void KineExample::endJob() {
-//   delete tree;
 }
 
 //
@@ -214,7 +218,8 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //   const TrackingParticleCollection tPC = *(TPCollectionH.product());
 //       reco::RecoToSimCollection recSimColl=associatorForParamAtPca->associateRecoToSim(tks,
 // 									      TPCollectionH,
-// 									      &iEvent);
+// 									      &iEvent,
+//                                                                            &iSetup);
 //
 //       tree->fill(tv, &sv, &recSimColl);
 //     }
