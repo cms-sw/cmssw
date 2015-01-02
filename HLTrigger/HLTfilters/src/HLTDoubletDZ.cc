@@ -19,7 +19,8 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include<cmath>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+#include <cmath>
 
 //
 // constructors and destructor
@@ -121,7 +122,7 @@ HLTDoubletDZ<T1,T2>::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<double>("MaxDZ",0.2);
   desc.add<bool>("checkSC",false);
   desc.add<int>("MinN",1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTDoubletDZ<T1,T2>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTDoubletDZ<T1,T2>>(), desc);
 }
 
 template<>
@@ -142,7 +143,7 @@ HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoEcalCandidate>::fillDescriptions
   desc.add<double>("MaxDZ",0.2);
   desc.add<bool>("checkSC",false);
   desc.add<int>("MinN",1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoEcalCandidate>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoEcalCandidate>>(), desc);
 }
 
 template<>
@@ -163,7 +164,7 @@ HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoEcalCandidate>::fillDescripti
   desc.add<double>("MaxDZ",0.2);
   desc.add<bool>("checkSC",false);
   desc.add<int>("MinN",1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoEcalCandidate>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoEcalCandidate>>(), desc);
 }
 
 template<>
@@ -184,7 +185,7 @@ HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoChargedCandidate>::fillDescripti
   desc.add<double>("MaxDZ",0.2);
   desc.add<bool>("checkSC",false);
   desc.add<int>("MinN",1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoChargedCandidate>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoChargedCandidate>>(), desc);
 }
 
 template<typename T1, typename T2>
