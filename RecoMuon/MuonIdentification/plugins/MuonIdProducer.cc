@@ -439,8 +439,7 @@ bool MuonIdProducer::isGoodTrack( const reco::Track& track )
    }
 
    // Eta requirement
-   const double absEta = std::abs(track.eta());
-   if ( absEta > maxAbsEta_ ){
+   if ( fabs(track.eta()) > maxAbsEta_ ){
       LogTrace("MuonIdentification") << "Skipped track with large pseudo rapidity (Eta: " << track.eta() << " )";
       return false;
    }
@@ -451,7 +450,7 @@ bool MuonIdProducer::isGoodTrack( const reco::Track& track )
       bool isInRange = false;
       for ( auto x : muonHitsEta_ )
       {
-        if ( std::abs(x-absEta) < muonTrackDeltaEta_ )
+        if ( std::abs(x-track.eta()) < muonTrackDeltaEta_ )
         {
           isInRange = true;
           break;
