@@ -15,8 +15,8 @@
   <Constant name="rMaxHGCal3"  value="([rMaxHGCal2]+(([zHGCal3]-[zHGCal2])*[slope3]))"/>
   <Constant name="rMaxHGCal4"  value="2458.0*mm"/>
   <Constant name="zHGCal4"     value="4870.85*mm"/>
-  <Constant name="zHGCal44"    value="4100.00*mm"/>
-  <Constant name="zHGCal45"    value="4175.00*mm"/>
+  <Constant name="zHGCal44"    value="4109.85*mm"/>
+  <Constant name="zHGCal45"    value="[zHGCal3]"/>
   <Constant name="zMinEE"      value="[zHGCal1]"/>
   <Constant name="zMaxEE"      value="3488.85*mm"/>
   <Constant name="zMinHE"      value="[zMaxEE]"/>
