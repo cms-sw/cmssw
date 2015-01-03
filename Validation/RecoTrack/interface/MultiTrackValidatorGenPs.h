@@ -8,7 +8,6 @@
  */
 
 #include "Validation/RecoTrack/interface/MultiTrackValidator.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 #include "CommonTools/CandAlgos/interface/GenParticleCustomSelector.h"
 
 class MultiTrackValidatorGenPs : public MultiTrackValidator {
@@ -24,7 +23,6 @@ class MultiTrackValidatorGenPs : public MultiTrackValidator {
 
 private:
 
-  const TrackAssociatorByChi2* associatorByChi2;
   GenParticleCustomSelector gpSelector;				      
 
 };

@@ -19,23 +19,11 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 #include<map>
 
 //Note that the Association Map is filled with -ch2 and not chi2 because it is ordered using std::greater:
 //the track with the lowest association chi2 will be the first in the output map.
-
-namespace reco{
-  typedef edm::AssociationMap<edm::OneToManyWithQualityGeneric
-    <reco::GenParticleCollection, edm::View<reco::Track>, double> >
-    GenToRecoCollection;  
-  typedef edm::AssociationMap<edm::OneToManyWithQualityGeneric 
-    <edm::View<reco::Track>, reco::GenParticleCollection, double> >
-    RecoToGenCollection;    
-}
-
 
 class TrackAssociatorByChi2 : public TrackAssociatorBase {
 
@@ -99,49 +87,6 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
     return TrackAssociatorBase::associateSimToReco(tCH,tPCH,event,setup);
   }  
 
-  /// Association Sim To Reco with Collections (Gen Particle version)
-  reco::RecoToGenCollection associateRecoToGen(const edm::RefToBaseVector<reco::Track>&,
-					       const edm::RefVector<reco::GenParticleCollection>&,
-					       const edm::Event * event = 0,
-					       const edm::EventSetup * setup = 0 ) const ;
-  /// Association Sim To Reco with Collections (Gen Particle version)
-  reco::GenToRecoCollection associateGenToReco(const edm::RefToBaseVector<reco::Track>&,
-					       const edm::RefVector<reco::GenParticleCollection>&,
-					       const edm::Event * event = 0,
-					       const edm::EventSetup * setup = 0 ) const ;
-
-  /// compare reco to sim the handle of reco::Track and GenParticle collections
-  virtual reco::RecoToGenCollection associateRecoToGen(edm::Handle<edm::View<reco::Track> >& tCH, 
-						       edm::Handle<reco::GenParticleCollection>& tPCH, 
-						       const edm::Event * event = 0,
-                                                       const edm::EventSetup * setup = 0) const {
-    edm::RefToBaseVector<reco::Track> tc(tCH);
-    for (unsigned int j=0; j<tCH->size();j++)
-      tc.push_back(edm::RefToBase<reco::Track>(tCH,j));
-
-    edm::RefVector<reco::GenParticleCollection> tpc(tPCH.id());
-    for (unsigned int j=0; j<tPCH->size();j++)
-      tpc.push_back(edm::Ref<reco::GenParticleCollection>(tPCH,j));
-
-    return associateRecoToGen(tc,tpc,event,setup);
-  }
-  
-  /// compare reco to sim the handle of reco::Track and GenParticle collections
-  virtual reco::GenToRecoCollection associateGenToReco(edm::Handle<edm::View<reco::Track> >& tCH, 
-						       edm::Handle<reco::GenParticleCollection>& tPCH,
-						       const edm::Event * event = 0,
-                                                       const edm::EventSetup * setup = 0) const {
-    edm::RefToBaseVector<reco::Track> tc(tCH);
-    for (unsigned int j=0; j<tCH->size();j++)
-      tc.push_back(edm::RefToBase<reco::Track>(tCH,j));
-
-    edm::RefVector<reco::GenParticleCollection> tpc(tPCH.id());
-    for (unsigned int j=0; j<tPCH->size();j++)
-      tpc.push_back(edm::Ref<reco::GenParticleCollection>(tPCH,j));
-
-    return associateGenToReco(tc,tpc,event,setup);
-  }  
-
 
  private:
 
@@ -166,11 +111,11 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
 					      const reco::BeamSpot&) const;
 
   /// basic method where chi2 is computed
-  double getChi2(reco::TrackBase::ParameterVector& rParameters,
-		 reco::TrackBase::CovarianceMatrix& recoTrackCovMatrix,
-		 Basic3DVector<double>& momAtVtx,
-		 Basic3DVector<double>& vert,
-		 int& charge,
+  double getChi2(const reco::TrackBase::ParameterVector& rParameters,
+		 const reco::TrackBase::CovarianceMatrix& recoTrackCovMatrix,
+		 const Basic3DVector<double>& momAtVtx,
+		 const Basic3DVector<double>& vert,
+		 int charge,
 		 const reco::BeamSpot&) const;
 
   /// compare reco::TrackCollection and TrackingParticleCollection iterators: returns the chi2
