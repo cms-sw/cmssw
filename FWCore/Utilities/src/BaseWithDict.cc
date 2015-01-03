@@ -24,7 +24,7 @@ namespace edm {
 
   TypeWithDict
   BaseWithDict::typeOf() const {
-    return TypeWithDict(baseClass_->GetClassPointer(), baseClass_->Property());
+    return TypeWithDict(baseClass_->GetClassPointer());
   }
 
   size_t

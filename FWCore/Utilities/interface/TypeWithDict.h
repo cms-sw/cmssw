@@ -36,9 +36,6 @@ class TypeDataMembers;
 class TypeFunctionMembers;
 
 class TypeWithDict {
-  friend class BaseWithDict;
-  friend class FunctionWithDict;
-  friend class MemberWithDict;
   friend class TypeBases;
   friend class TypeDataMembers;
   friend class TypeFunctionMembers;
