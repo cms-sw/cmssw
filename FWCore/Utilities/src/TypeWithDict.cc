@@ -195,7 +195,16 @@ namespace edm {
       return TypeWithDict(typeid(std::type_info), property);
     }
 
-    // std::cerr << "DEBUG BY NAME: " << name << std::endl;
+    // For a reason not understood, TClass::GetClass sometimes cannot find std::vector<T>::value_type
+    // when T is a nested class.
+    if(stripNamespace(name) == "value_type") {
+      size_t begin = name.find('<');
+      size_t end = name.rfind('>');
+      if(begin != std::string::npos && end != std::string::npos && end > ++begin) {
+        return TypeWithDict::byName(name.substr(begin, end - begin), property);
+      }
+    }
+    //std::cerr << "DEBUG BY NAME: " << name << std::endl;
     return TypeWithDict();
   }
 
