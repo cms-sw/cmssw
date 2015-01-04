@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoBTag.ImpactParameter.variableJTA_cff import *
 
 # negativeTrackCounting3D2nd btag computer
-negativeTrackCounting3D2ndComputer = cms.ESProducer("NegativeTrackCountingESProducer",
+candidateNegativeTrackCounting3D2ndComputer = cms.ESProducer("CandidateNegativeTrackCountingESProducer",
     variableJTAPars,
     minimumImpactParameter = cms.double(-1),
     useSignedImpactParameterSig = cms.bool(True),
@@ -13,7 +13,7 @@ negativeTrackCounting3D2ndComputer = cms.ESProducer("NegativeTrackCountingESProd
     maximumDecayLength = cms.double(5.0),
     nthTrack = cms.int32(2),
     trackQualityClass = cms.string("any"),
-    useVariableJTA = cms.bool(False)  
+    useVariableJTA = cms.bool(False)
 )
 
 
