@@ -28,18 +28,34 @@ btagging = cms.Sequence(
         ghostTrackBJetTags
       ) +
 
+      # new candidate-based fwk, with PF inputs
+      # impact parameters and IP-only algorithms
+      pfImpactParameterTagInfos *
+      ( pfTrackCountingHighEffBJetTags +
+        pfTrackCountingHighPurBJetTags +
+        pfJetProbabilityBJetTags +
+        pfJetBProbabilityBJetTags +
+
+        # SV tag infos depending on IP tag infos, and SV (+IP) based algos
+        pfSecondaryVertexTagInfos *
+        ( pfSimpleSecondaryVertexHighEffBJetTags +
+          pfSimpleSecondaryVertexHighPurBJetTags +
+          pfCombinedSecondaryVertexBJetTags
+        )
+        + pfInclusiveSecondaryVertexFinderTagInfos *
+        pfCombinedInclusiveSecondaryVertexV2BJetTags
+
+      ) +
+
       # soft lepton tag infos and algos
       softPFMuonsTagInfos *
       softPFMuonBJetTags
       + softPFElectronsTagInfos *
       softPFElectronBJetTags
-    )
+    ) *
 
     # overall combined taggers
-    * combinedMVABJetTags
-
-    # new candidate model, with PF inputs	
-    + pfImpactParameterTagInfos *
-    pfSecondaryVertexTagInfos *
-    pfCombinedSecondaryVertexBJetTags
+    ( combinedMVABJetTags +
+      pfCombinedMVABJetTags
+    )
 )
