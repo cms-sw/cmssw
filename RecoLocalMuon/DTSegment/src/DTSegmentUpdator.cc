@@ -54,6 +54,9 @@ DTSegmentUpdator::DTSegmentUpdator(const ParameterSet& config) :
   string theAlgoName = config.getParameter<string>("recAlgo");
   theAlgo = DTRecHitAlgoFactory::get()->create(theAlgoName, 
                                                config.getParameter<ParameterSet>("recAlgoConfig"));
+  intime_cut=20.;
+  if (config.exists("intime_cut"))
+    intime_cut = config.getParameter<double>("intime_cut");
 
   if(debug)
     cout << "[DTSegmentUpdator] Constructor called" << endl;
@@ -122,16 +125,16 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg, bool allow3par)  const {
     if(seg->hasZed()) {
 
       // fit in-time Phi segments with the 2par fit and out-of-time segments with the 3par fit
-      if (fabs(seg->phiSegment()->t0())<40.) {
-        fit(seg->phiSegment(),allow3par,0);
-        fit(seg->zSegment(),allow3par,0);      
-      } else {
+      if (fabs(seg->phiSegment()->t0())<intime_cut) {
         fit(seg->phiSegment(),allow3par,1);
         fit(seg->zSegment(),allow3par,1);      
+      } else {
+        fit(seg->phiSegment(),allow3par,0);
+        fit(seg->zSegment(),allow3par,0);      
       }
 
-    } else fit(seg->phiSegment(),allow3par,1);
-  } else fit(seg->zSegment(),allow3par,1);
+    } else fit(seg->phiSegment(),allow3par,0);
+  } else fit(seg->zSegment(),allow3par,0);
  
   const DTChamber* theChamber = theGeom->chamber(seg->chamberId());
 
@@ -379,7 +382,7 @@ void DTSegmentUpdator::fit(const vector<float>& x,
   if (leftHits && rightHits && (leftHits+rightHits>3) && allow3par) {
     theFitter->fitNpar(3,x,y,lfit,dist,sigy,slope,intercept,cminf,vminf,chi2,debug);	
     double t0_corr=-cminf/0.00543;
-    if (fabs(t0_corr)<20. && block3par) {
+    if (fabs(t0_corr)<intime_cut && block3par) {
       theFitter->fit(x,y,x.size(),sigy,slope,intercept,chi2,covss,covii,covsi);
       cminf=0;
     }

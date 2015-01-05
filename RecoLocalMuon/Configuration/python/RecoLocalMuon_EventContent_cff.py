@@ -1,17 +1,5 @@
 # The following comments couldn't be translated into the new config version:
 
-# DT 
-
-# CSC
-
-# RPC
-
-# DT
-
-# CSC
-
-# RPC
-
 import FWCore.ParameterSet.Config as cms
 
 # Full Event content 
