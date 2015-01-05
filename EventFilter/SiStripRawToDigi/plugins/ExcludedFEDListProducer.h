@@ -30,6 +30,7 @@ namespace sistrip {
     /// default constructor
     ~ExcludedFEDListProducer();
     void beginRun( const edm::Run & run, const edm::EventSetup & es) override;
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     void produce( edm::Event& event, const edm::EventSetup& es ) override;
     
   private:

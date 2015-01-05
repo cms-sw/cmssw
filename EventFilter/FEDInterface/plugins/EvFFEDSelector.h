@@ -9,6 +9,9 @@
 #include <FWCore/Utilities/interface/InputTag.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 namespace evf {
 
@@ -19,6 +22,7 @@ namespace evf {
     ~EvFFEDSelector() { }
 
     void produce(edm::StreamID, edm::Event &, edm::EventSetup const &) const override final;
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     edm::EDGetTokenT<FEDRawDataCollection>  token_;
