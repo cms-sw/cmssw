@@ -149,18 +149,18 @@ CSCDCCUnpacker::~CSCDCCUnpacker()
 
 void CSCDCCUnpacker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("InputObjects",edm::InputTag("rawDataCollector"));
-  desc.add<bool>("UseExaminer",true);
-  desc.add<unsigned int>("ExaminerMask",535557110);
-  desc.add<bool>("UseSelectiveUnpacking",true);
-  desc.add<unsigned int>("ErrorMask",0);
-  desc.add<bool>("UnpackStatusDigis",false);
-  desc.add<bool>("UseFormatStatus",true);
+  desc.add<edm::InputTag>("InputObjects",edm::InputTag("rawDataCollector"))->setComment("# Define input to the unpacker");
+  desc.add<bool>("UseExaminer",true)->setComment("# Use CSC examiner to check for corrupt or semi-corrupt data & avoid unpacker crashes");
+  desc.add<unsigned int>("ExaminerMask",535557110)->setComment("# This mask is needed by the examiner");
+  desc.add<bool>("UseSelectiveUnpacking",true)->setComment("# Use Examiner to unpack good chambers and skip only bad ones");
+  desc.add<unsigned int>("ErrorMask",0)->setComment("# This mask simply reduces error reporting");
+  desc.add<bool>("UnpackStatusDigis",false)->setComment("# Unpack general status digis?");
+  desc.add<bool>("UseFormatStatus",true)->setComment("# Unpack FormatStatus digi?");
+  desc.addUntracked<bool>("Debug",false)->setComment("# Turn on lots of output");
   desc.addUntracked<bool>("PrintEventNumber",false);
   desc.addUntracked<bool>("runDQM",false);
-  desc.addUntracked<bool>("Debug",false);
-  desc.addUntracked<bool>("VisualFEDInspect",false);
-  desc.addUntracked<bool>("VisualFEDShort",false);
+  desc.addUntracked<bool>("VisualFEDInspect",false)->setComment("# Visualization of raw data in corrupted events");
+  desc.addUntracked<bool>("VisualFEDShort",false)->setComment("# Visualization of raw data in corrupted events");
   desc.addUntracked<bool>("FormatedEventDump",false);
   desc.addUntracked<bool>("SuppressZeroLCT",true);
   descriptions.add("muonCSCDCCUnpacker",desc);
