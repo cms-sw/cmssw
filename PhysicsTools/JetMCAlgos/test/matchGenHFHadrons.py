@@ -33,9 +33,9 @@ if options.runOnAOD:
     process.source = cms.Source("PoolSource",
         fileNames = cms.untracked.vstring(    
           ## add your favourite AOD files here (1000+ events in each file defined below)
-	  '/store/relval/CMSSW_7_2_0_pre7/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V12-v1/00000/1267B7ED-2F4E-E411-A0B9-0025905964A6.root',
+#	  '/store/relval/CMSSW_7_2_0_pre7/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V12-v1/00000/1267B7ED-2F4E-E411-A0B9-0025905964A6.root',
 	  ## other AOD samples
-#	  '/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/00120F7A-84F5-E311-9FBE-002618943910.root',
+	  '/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/00120F7A-84F5-E311-9FBE-002618943910.root',
 #	  '/store/mc/Spring14dr/TT_Tune4C_13TeV-pythia8-tauola/AODSIM/Flat20to50_POSTLS170_V5-v1/00000/023E1847-ADDC-E311-91A2-003048FFD754.root',
 #	  '/store/mc/Spring14dr/TTbarH_HToBB_M-125_13TeV_pythia6/AODSIM/PU20bx25_POSTLS170_V5-v1/00000/1CAB7E58-0BD0-E311-B688-00266CFFBC3C.root',
 #	  '/store/mc/Spring14dr/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU20bx25_POSTLS170_V5-v1/00000/0E3D08A9-C610-E411-A862-0025B3E0657E.root',
@@ -116,7 +116,7 @@ process.matchGenCHadron = matchGenCHadron.clone(
 
 
 ## configuring the testing analyzer that produces output tree
-process.genHFHadronMatcher = cms.EDAnalyzer("genHFHadronMatcher",
+process.matchGenHFHadrons = cms.EDAnalyzer("matchGenHFHadrons",
     # phase space of jets to be stored
     genJetPtMin = cms.double(20),
     genJetAbsEtaMax = cms.double(2.4),
@@ -138,19 +138,19 @@ process.genHFHadronMatcher = cms.EDAnalyzer("genHFHadronMatcher",
 
 ## setting up output root file
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("genHFHadronMatcher_trees.root")
+    fileName = cms.string("matchGenHFHadrons_trees.root")
 )
 
 
 
 ## defining only the final modules to run: dependencies will be run automatically [allowUnscheduled = True]
 process.p1 = cms.Path(
-    process.genHFHadronMatcher
+    process.matchGenHFHadrons
 )
 
 ## module to store raw output from the processed modules into the ROOT file
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('genHFHadronMatcher_out.root'),
+    fileName = cms.untracked.string('matchGenHFHadrons_out.root'),
     outputCommands = cms.untracked.vstring('drop *', 'keep *_matchGen*_*_*')
     )
 process.outpath = cms.EndPath(process.out)
