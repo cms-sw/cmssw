@@ -19,7 +19,7 @@ July 2009
 
     <SpecPar name="PixelBarrelSubDetPar">
       <PartSelector path="//PixelBarrel" />
-      <Parameter name="TkDDDStructure" value="PixelBarrel"/>
+      <Parameter name="TkDDDStructure" value="PixelPhase1Barrel"/>
     </SpecPar>
 
 

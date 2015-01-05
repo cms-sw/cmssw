@@ -5,7 +5,6 @@
 
 // this is needed to get errors from templates
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 
@@ -32,19 +31,21 @@ namespace {
 PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
 				 const MagneticField * mag,
                                  const TrackerGeometry& geom,
+				 const TrackerTopology& ttopo,
 				 const SiPixelLorentzAngle * lorentzAngle, 
 				 const SiPixelGenErrorDBObject * genErrorDBObject, 
 				 const SiPixelLorentzAngle * lorentzAngleWidth=0) 
-  : PixelCPEBase(conf, mag, geom, lorentzAngle, genErrorDBObject, 0,lorentzAngleWidth,0) {
+  : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, 0,lorentzAngleWidth,0) {
 #else
 PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
 				 const MagneticField * mag,
                                  const TrackerGeometry& geom,
+				 const TrackerTopology& ttopo,
 				 const SiPixelLorentzAngle * lorentzAngle, 
 				 const SiPixelGenErrorDBObject * genErrorDBObject, 
 				 const SiPixelTemplateDBObject * templateDBobject,
 				 const SiPixelLorentzAngle * lorentzAngleWidth=0) 
-  : PixelCPEBase(conf, mag, geom, lorentzAngle, genErrorDBObject, templateDBobject,lorentzAngleWidth,0) {
+  : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, templateDBobject,lorentzAngleWidth,0) {
 #endif
 
   if (theVerboseLevel > 0) 
@@ -521,11 +522,17 @@ generic_position_formula( int size,                //!< Size of this projection.
 
  #ifdef EDM_ML_DEBUG
   //--- Debugging output
+#warning "Debug printouts in PixelCPEGeneric.cc has been commented because they cannot be compiled"
+  /*   This part is commented because some variables used here are not defined !!
   if (theVerboseLevel > 20) {
-    if ( theDetParam.thePart == GeomDetEnumerators::PixelBarrel ) {
+    if ( theDetParam.thePart == GeomDetEnumerators::PixelBarrel || theDetParam.thePart == GeomDetEnumerators::P1PXB ) {
       cout << "\t >>> We are in the Barrel." ;
-    } else {
+    } else if ( theDetParam.thePart == GeomDetEnumerators::PixelEndcap || 
+		theDetParam.thePart == GeomDetEnumerators::P1PXEC ||
+		theDetParam.thePart == GeomDetEnumerators::P2PXEC ) {
       cout << "\t >>> We are in the Forward." ;
+    } else {
+      cout << "\t >>> We are in an unexpected subdet " << theDetParam.thePart;
     }
     cout 
       << "\n\t >>> cot(angle) = " << cot_angle << "  pitch = " << pitch << "  size = " << size
@@ -549,6 +556,7 @@ generic_position_formula( int size,                //!< Size of this projection.
       cout << "\n\t >>> Used angle information." ;
     cout << endl;
   }
+  */
 #endif
 
   return hit_pos;
@@ -687,10 +695,10 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
     cout << "Track angles are not known and we are processing cosmics." << endl; 
     //cout << "Default angle estimation which assumes track from PV (0,0,0) does not work." << endl;
       
-    if ( theDetParam.thePart == GeomDetEnumerators::PixelBarrel )  {
+    if ( theDetParam.thePart == GeomDetEnumerators::PixelBarrel || theDetParam.thePart == GeomDetEnumerators::P1PXB )  {
 
       DetId id = (theDetParam.theDet->geographicalId());
-      int layer=PXBDetId(id).layer();
+      int layer=ttopo_.layer(id);
       if ( layer==1 ) {
 	if ( !edgex ) {
 	  if ( sizex<=xerr_barrel_l1_.size() ) xerr=xerr_barrel_l1_[sizex-1];
@@ -713,7 +721,9 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
 	}
       }
 
-    } else { // EndCap
+    } else if ( theDetParam.thePart == GeomDetEnumerators::PixelEndcap || 
+		theDetParam.thePart == GeomDetEnumerators::P1PXEC  ||
+		theDetParam.thePart == GeomDetEnumerators::P2PXEC )  { // EndCap
 
       if ( !edgex ) {
 	if ( sizex<=xerr_endcap_.size() ) xerr=xerr_endcap_[sizex-1];

@@ -100,17 +100,13 @@ def customiseL1Menu(process):
         # the menu will be read from an XML file instead of the global tag - must copy the file in luminosityDirectory
         luminosityDirectory = "startup"
         useXmlFile = 'L1Menu_Collisions2015_25ns_v1_L1T_Scales_20101224_Imp0_0x102f.xml'
-
     else :
-        print '   Using default L1 trigger menu from Global Tag '
+        # use the default L1 trigger menu from the global tag
+        pass
 
     ####### end of user choices - do not change the following
 
     if l1MenuSource == 'xmlFile' :
-        print '   Retrieve L1 trigger menu only from XML file '
-        print '       ', useXmlFile
-        print '       '
-
         process.load('L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuXml_cfi')
         process.l1GtTriggerMenuXml.TriggerMenuLuminosity = luminosityDirectory
         process.l1GtTriggerMenuXml.DefXmlFile = useXmlFile
@@ -118,14 +114,8 @@ def customiseL1Menu(process):
         process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMenuConfig_cff')
         process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
 
-
-
     elif l1MenuSource == 'sqlFile' :
         if useSqlFile != '' :
-            print '   Retrieve L1 trigger menu only from SQLlite file '
-            print '       ', useSqlFile
-            print '       '
-
             from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
             process.l1conddb = cms.ESSource("PoolDBESSource",
                                     CondDBSetup,
@@ -139,10 +129,6 @@ def customiseL1Menu(process):
 
         else :
             print '   Error: no SQL file is given; please provide a valid SQL file for option sqlFile'
-
-    else :
-        print ''
-
 
     return process
 

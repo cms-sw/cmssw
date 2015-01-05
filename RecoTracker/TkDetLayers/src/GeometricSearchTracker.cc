@@ -1,4 +1,6 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
@@ -11,7 +13,8 @@ GeometricSearchTracker::GeometricSearchTracker(const vector<BarrelDetLayer const
 					       const vector<ForwardDetLayer const*>& negTec,
 					       const vector<ForwardDetLayer const*>& posPxlFwd,
 					       const vector<ForwardDetLayer const*>& posTid,
-					       const vector<ForwardDetLayer const*>& posTec):
+					       const vector<ForwardDetLayer const*>& posTec,
+					       const TrackerTopology *tTopo):
   thePixelBarrelLayers(pxlBar.begin(),pxlBar.end()),
   theTibLayers(tib.begin(),tib.end()),
   theTobLayers(tob.begin(),tob.end()),
@@ -20,7 +23,8 @@ GeometricSearchTracker::GeometricSearchTracker(const vector<BarrelDetLayer const
   theNegTecLayers(negTec.begin(),negTec.end()),
   thePosPixelForwardLayers(posPxlFwd.begin(),posPxlFwd.end()),
   thePosTidLayers(posTid.begin(),posTid.end()),
-  thePosTecLayers(posTec.begin(),posTec.end())
+  thePosTecLayers(posTec.begin(),posTec.end()),
+  theTrkTopo(tTopo)
 {
   theBarrelLayers.assign(thePixelBarrelLayers.begin(),thePixelBarrelLayers.end());
   theBarrelLayers.insert(theBarrelLayers.end(),theTibLayers.begin(),theTibLayers.end());
@@ -79,12 +83,6 @@ GeometricSearchTracker::~GeometricSearchTracker(){
 }
 
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
@@ -93,44 +91,38 @@ GeometricSearchTracker::idToLayer(const DetId& id) const
 {
   switch(id.subdetId()) {
   case StripSubdetector::TIB:
-    //edm::LogInfo(TkDetLayers) << "TIB layer n: " << TIBDetId(id).layer() ;
-    return theTibLayers[TIBDetId(id).layer()-1];
+    return theTibLayers[theTrkTopo->tibLayer(id)-1];
     break;
 
   case StripSubdetector::TOB:
-    //edm::LogInfo(TkDetLayers) << "TOB layer n: " << TOBDetId(id).layer() ;
-    return theTobLayers[TOBDetId(id).layer()-1];
+    return theTobLayers[theTrkTopo->tobLayer(id)-1];
     break;
 
   case StripSubdetector::TID:
-    //edm::LogInfo(TkDetLayers) << "TID wheel n: " << TIDDetId(id).wheel() ;
-    if(TIDDetId(id).side() ==1 ) {
-      return theNegTidLayers[TIDDetId(id).wheel()-1];
-    }else if( TIDDetId(id).side() == 2 ) {
-      return thePosTidLayers[TIDDetId(id).wheel()-1];
+    if(theTrkTopo->tidSide(id) ==1 ) {
+      return theNegTidLayers[theTrkTopo->tidWheel(id)-1];
+    }else if( theTrkTopo->tidSide(id) == 2 ) {
+      return thePosTidLayers[theTrkTopo->tidWheel(id)-1];
     }
     break;
 
   case StripSubdetector::TEC:
-    //edm::LogInfo(TkDetLayers) << "TEC wheel n: " << TECDetId(id).wheel() ;
-    if(TECDetId(id).side() ==1 ) {
-      return theNegTecLayers[TECDetId(id).wheel()-1];
-    }else if( TECDetId(id).side() == 2 ) {
-      return thePosTecLayers[TECDetId(id).wheel()-1];
+    if(theTrkTopo->tecSide(id) ==1 ) {
+      return theNegTecLayers[theTrkTopo->tecWheel(id)-1];
+    }else if( theTrkTopo->tecSide(id) == 2 ) {
+      return thePosTecLayers[theTrkTopo->tecWheel(id)-1];
     }
     break;
 
   case PixelSubdetector::PixelBarrel:
-    //edm::LogInfo(TkDetLayers) << "PixelBarrel layer n: " << PXBDetId(id).layer() ;
-    return thePixelBarrelLayers[PXBDetId(id).layer()-1];
+    return thePixelBarrelLayers[theTrkTopo->pxbLayer(id)-1];
     break;
 
   case PixelSubdetector::PixelEndcap:
-    //edm::LogInfo(TkDetLayers) << "PixelEndcap disk n: " << PXFDetId(id).disk() ;
-    if(PXFDetId(id).side() ==1 ) {
-      return theNegPixelForwardLayers[PXFDetId(id).disk()-1];
-    }else if( PXFDetId(id).side() == 2 ) {
-      return thePosPixelForwardLayers[PXFDetId(id).disk()-1];
+    if(theTrkTopo->pxfSide(id) ==1 ) {
+      return theNegPixelForwardLayers[theTrkTopo->pxfDisk(id)-1];
+    }else if( theTrkTopo->pxfSide(id)==2  ) {
+      return thePosPixelForwardLayers[theTrkTopo->pxfDisk(id)-1];
     }
     break;
 
