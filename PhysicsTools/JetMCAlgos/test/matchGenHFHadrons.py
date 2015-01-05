@@ -62,7 +62,7 @@ process.genJetFlavourPlusLeptonInfos.jetAlgorithm = cms.string("AntiKt")
 
 
 ## configuring the testing analyzer that produces output tree
-process.genHFHadronMatcher = cms.EDAnalyzer("genHFHadronMatcher",
+process.matchGenHFHadrons = cms.EDAnalyzer("matchGenHFHadrons",
     # phase space of jets to be stored
     genJetPtMin = cms.double(20),
     genJetAbsEtaMax = cms.double(2.4),
@@ -84,7 +84,7 @@ process.genHFHadronMatcher = cms.EDAnalyzer("genHFHadronMatcher",
 
 ## setting up output root file
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("genHFHadronMatcher_trees.root")
+    fileName = cms.string("matchGenHFHadrons_trees.root")
 )
 
 
@@ -93,12 +93,12 @@ process.p1 = cms.Path(
     process.genParticlesForJets *
     process.ak5GenJetsCustom *
     process.matchGenBCHadronSequence *
-    process.genHFHadronMatcher
+    process.matchGenHFHadrons
 )
 
 ## module to store raw output from the processed modules into the ROOT file
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('genHFHadronMatcher_out.root'),
+    fileName = cms.untracked.string('matchGenHFHadrons_out.root'),
     outputCommands = cms.untracked.vstring('drop *', 'keep *_matchGen*_*_*')
     )
 process.outpath = cms.EndPath(process.out)
