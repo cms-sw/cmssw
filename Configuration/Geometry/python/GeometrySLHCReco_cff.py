@@ -5,8 +5,8 @@ from SLHCUpgradeSimulations.Geometry.Phase1_cmsSimIdealGeometryXML_cfi import *
 
 # Reconstruction geometry services
 #  Tracking Geometry
-from Geometry.CommonDetUnit.globalTrackingSLHCGeometry_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerNumberingSLHCGeometry_cfi import *
+from Geometry.CommonDetUnit.globalTracking2023Geometry_cfi import *
+from Geometry.TrackerNumberingBuilder.trackerNumbering2023Geometry_cfi import *
 trackerSLHCGeometry.applyAlignment = cms.bool(False)
 #es_prefer_TrackerEP = cms.ESPrefer("TrackerGeometricDetESModule", "trackerNumberingGeometry")
 #es_prefer_Trackerdigi = cms.ESPrefer("TrackerDigiGeometryESModule","trackerSLHCGeometry")
@@ -35,7 +35,7 @@ from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 ##
 es_prefer_ZdcEP = cms.ESPrefer("ZdcHardcodeGeometryEP")
 es_prefer_HcalEP = cms.ESPrefer("HcalHardcodeGeometryEP")
-es_prefer_TrackerEP = cms.ESPrefer("TrackerGeometricDetESModule", "trackerNumberingSLHCGeometry")
+es_prefer_TrackerEP = cms.ESPrefer("TrackerGeometricDetESModule", "trackerNumbering2023Geometry")
 es_prefer_CaloTowerEP = cms.ESPrefer("CaloTowerHardcodeGeometryEP")
 es_prefer_EcalBarrelEP = cms.ESPrefer("EcalBarrelGeometryEP")
 es_prefer_EcalEndcapEP = cms.ESPrefer("EcalEndcapGeometryEP")
