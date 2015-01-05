@@ -30,7 +30,7 @@ process.ctfProducerCustomised = RecoTracker.TrackProducer.CTFFinalFitWithMateria
 process.ctfProducerCustomised.src = 'TrackerTrackHitFilter'
 process.ctfProducerCustomised.TTRHBuilder = 'WithAngleAndTemplate'
 process.ctfProducerCustomised.TrajectoryInEvent = False
-
+process.ctfProducerCustomised.NavigationSchool = ''
 
 # parameters for TrackSelector
 ###process.AlignmentTrackSelector.src = '<SKIM>'
