@@ -23,10 +23,10 @@
 #include <Math/VectorUtil.h>
 
 
-class genHFHadronMatcher : public edm::EDAnalyzer {
+class matchGenHFHadrons : public edm::EDAnalyzer {
     public: 
-        explicit genHFHadronMatcher(const edm::ParameterSet & );
-        ~genHFHadronMatcher() {};
+        explicit matchGenHFHadrons(const edm::ParameterSet & );
+        ~matchGenHFHadrons() {};
         
     private:
         virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
@@ -101,7 +101,7 @@ bool sort_pairs_second(const std::pair<int, double>& a, const std::pair<int, dou
     return a.second < b.second;
 }
 
-genHFHadronMatcher::genHFHadronMatcher ( const edm::ParameterSet& config):
+matchGenHFHadrons::matchGenHFHadrons ( const edm::ParameterSet& config):
     genJetPtMin_(config.getParameter<double>("genJetPtMin")),
     genJetAbsEtaMax_(config.getParameter<double>("genJetAbsEtaMax")),
     genJetsToken_(consumes<reco::GenJetCollection>(config.getParameter<edm::InputTag>("genJets"))),
@@ -122,7 +122,7 @@ genHFHadronMatcher::genHFHadronMatcher ( const edm::ParameterSet& config):
 }
 
 
-void genHFHadronMatcher::analyze(const edm::Event& event, const edm::EventSetup& setup)
+void matchGenHFHadrons::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
     this->clearEventVariables();
     
@@ -433,7 +433,7 @@ void genHFHadronMatcher::analyze(const edm::Event& event, const edm::EventSetup&
 }
 
 
-void genHFHadronMatcher::findAncestorParticles(const int startId, std::set<int>& resultIds, 
+void matchGenHFHadrons::findAncestorParticles(const int startId, std::set<int>& resultIds, 
                                                const std::vector<reco::GenParticle>& genParticles, const std::vector<std::vector<int> >& motherIndices, 
                                                const int endPdgId, const bool endPdgIdIsAbs, const int firstAnyLast)
 {
@@ -493,7 +493,7 @@ void genHFHadronMatcher::findAncestorParticles(const int startId, std::set<int>&
 }
 
 
-void genHFHadronMatcher::beginJob()
+void matchGenHFHadrons::beginJob()
 {
     edm::Service<TFileService> fileService;
     if(!fileService) throw edm::Exception(edm::errors::Configuration, "TFileService is not registered in cfg file");
@@ -533,7 +533,7 @@ void genHFHadronMatcher::beginJob()
 }
 
 
-void genHFHadronMatcher::clearEventVariables()
+void matchGenHFHadrons::clearEventVariables()
 {
     nJets_ = 0;
     
@@ -553,7 +553,7 @@ void genHFHadronMatcher::clearEventVariables()
 }
 
 
-void genHFHadronMatcher::clearBHadronVariables()
+void matchGenHFHadrons::clearBHadronVariables()
 {
     bHadron_flavour_ = 0;
     bHadron_nQuarksAll_ = 0;
@@ -574,4 +574,4 @@ void genHFHadronMatcher::clearBHadronVariables()
 
 
 
-DEFINE_FWK_MODULE( genHFHadronMatcher );
+DEFINE_FWK_MODULE( matchGenHFHadrons );
