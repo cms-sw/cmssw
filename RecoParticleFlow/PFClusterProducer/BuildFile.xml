@@ -7,6 +7,7 @@
 <use   name="DataFormats/HcalDetId"/>
 <use   name="Geometry/FCalGeometry"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="RecoEcal/EgammaClusterAlgos"/>
 <use   name="RecoParticleFlow/PFClusterTools"/>
 <use   name="TrackingTools/MaterialEffects"/>
 <use   name="vdt"/>

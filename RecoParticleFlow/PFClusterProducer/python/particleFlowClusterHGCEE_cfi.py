@@ -3,6 +3,13 @@ import FWCore.ParameterSet.Config as cms
 #### PF CLUSTER HGCEE ####
 
 #cleaning 
+_densityBasedCleaner = cms.PSet(
+    algoName = cms.string("PandoraIsolatedSpikeKiller"),
+    hit_search_radius = cms.double(6.0),
+    hit_search_length = cms.double(20.0),
+    weight_power = cms.double(2.0),
+    weight_cut = cms.double(0.75)
+    )
 
 #seeding
 _localmaxseeds_HGCEE = cms.PSet(
@@ -27,13 +34,36 @@ _localmaxseeds_HGCEE = cms.PSet(
     nNeighbours = cms.int32(8)
 )
 
+optimized_w0s = cms.vdouble(4.0,4.0,4.0,4.0,4.0,4.0,  #1-6 are all the same
+                            2.55,
+                            2.9,
+                            2.45,
+                            2.75,
+                            2.35,
+                            2.55,
+                            2.2,
+                            2.35,
+                            2.0,
+                            2.2,
+                            1.9,
+                            2.05,
+                            1.75,
+                            1.9,
+                            1.7,
+                            1.8,
+                            3.0,
+                            4.0,4.0,4.0,4.0,4.0,4.0,4.0)
+
 _positionCalcHGCEE_onelayer = cms.PSet(
     algoName = cms.string("Basic2DGenericPFlowPositionCalc"),
     ##
     minFractionInCalc = cms.double(1e-9),
-    posCalcNCrystals = cms.int32(-1),
+    posCalcNCrystals = cms.int32(-1), 
     logWeightDenominator = cms.double(1e-6*0.25*55.1), # use ADC value 0.25*MIP
-    minAllowedNormalization = cms.double(1e-9)
+    minAllowedNormalization = cms.double(1e-9),
+    # ECAL specific
+    # from layer 1 to 30, these w0s are for w_i/w_tot style log-weights
+    w0PerLayer = optimized_w0s
     )
 
 _positionCalcHGCEE_pca = cms.PSet(
@@ -42,7 +72,11 @@ _positionCalcHGCEE_pca = cms.PSet(
     minFractionInCalc = cms.double(1e-9),
     posCalcNCrystals = cms.int32(-1),
     logWeightDenominator = cms.double(1e-6*1.0*55.1), # use 1 MIP
-    minAllowedNormalization = cms.double(1e-9)
+    minAllowedNormalization = cms.double(1e-9),
+    # ECAL specific
+    # from layer 1 to 30, these w0s are for w_i/w_tot style log-weights
+    w0PerLayer = optimized_w0s,
+    logWeightScale = cms.double(250.0)
     )
 
 weight_vec_ee_electrons = [0.080]
@@ -75,8 +109,8 @@ _HGCEE_EMEnergyCalibrator = cms.PSet(
     MipValueInGeV_heb = cms.double(1498.4*1e-6),
     #EM energy calibrations
     weights_ee = cms.vdouble(weight_vec_ee_electrons),
-    weights_hef = cms.vdouble([0 for x in range(12)]),
-    weights_heb = cms.vdouble([0 for x in range(12)]),
+    weights_hef = cms.vdouble(weight_vec_hef),
+    weights_heb = cms.vdouble(weight_vec_heb),
     effMip_to_InverseGeV_a = cms.double(80.0837),
     effMip_to_InverseGeV_b = cms.double(-107.229),
     effMip_to_InverseGeV_c = cms.double(0.0472817),    
@@ -92,7 +126,8 @@ _HGCEE_HADEnergyCalibrator = cms.PSet(
     MipValueInGeV_heb = cms.double(1498.4*1e-6),    
     # hadron energy calibrations
     weights_ee = cms.vdouble(weight_vec_ee_hadrons),
-    weights_he = cms.vdouble(weight_vec_hef+weight_vec_heb),
+    weights_hef = cms.vdouble(weight_vec_hef),
+    weights_heb = cms.vdouble(weight_vec_heb),
     effMip_to_InverseGeV_a = cms.double(1.0),
     effMip_to_InverseGeV_b = cms.double(1e6),
     effMip_to_InverseGeV_c = cms.double(1e6)
@@ -119,15 +154,25 @@ _fromScratchHGCClusterizer_HGCEE = cms.PSet(
                                  HGC_HCAL = cms.vdouble(1.0) ),
     interactionLengths = cms.PSet( HGC_ECAL = cms.vdouble(1.0),
                                    HGC_HCAL = cms.vdouble(1.0) ), 
-    useTrackAssistedClustering = cms.bool(False),
+    useTrackAssistedClustering = cms.bool(True),
     trackAssistedClustering = cms.PSet( 
         inputTracks = cms.InputTag("generalTracks"),
         cleaningCriteriaPerIter = cms.vdouble(1.0),
         stoppingTolerance = cms.double(1.0), #Nsigma to stop cluster growth
-        stopAtFirstClusterEncountered = cms.bool(True),
+        stopAtFirstClusterEncountered = cms.bool(False),
         expectedHadronicResolution = cms.PSet( stochastic = cms.double(70.0),
                                                noise = cms.double(0.0),
-                                               constant = cms.double(1.0) ) ),
+                                               constant = cms.double(1.0) ), 
+        #cluster afterburner
+        useAfterburner = cms.bool(True),
+        minConeAngle = cms.double(0.298), # ~17 degrees
+        maxConeAngle = cms.double(1.0), # radians
+        maxConeDepth = cms.double(60), #cm
+        maxClusterAngleToTrack = cms.double(0.010), # in radians
+        minECALLayerToCone = cms.uint32(11), # ~9.5 radiation lengths
+        ),
+    
+    #energy calibrations
     emEnergyCalibration  = _HGCEE_EMEnergyCalibrator,
     hadEnergyCalibration = _HGCEE_HADEnergyCalibrator
     
@@ -159,11 +204,11 @@ _HGCEE_ElectronEnergy = cms.PSet(
 particleFlowClusterHGCEE = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHGCEE"),
-    recHitCleaners = cms.VPSet(),
+    recHitCleaners = cms.VPSet(_densityBasedCleaner),
     seedFinder = _localmaxseeds_HGCEE,
     initialClusteringStep = _fromScratchHGCClusterizer_HGCEE,
     pfClusterBuilder = cms.PSet( ), #_arborClusterizer_HGCEE,
     positionReCalc = cms.PSet( ), #_simplePosCalcHGCEE,
-    energyCorrector = _HGCEE_EMEnergyCalibrator#_HGCEE_ElectronEnergy
+    energyCorrector = _HGCEE_EMEnergyCalibrator
 )
 
