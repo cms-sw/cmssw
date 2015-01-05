@@ -9,6 +9,26 @@
 
 namespace l1t {
 
+  void calibrateAndRankJets(CaloParamsStage1 *params,
+			    const std::vector<l1t::Jet> * input,
+			    std::vector<l1t::Jet> *output){
+
+    for(std::vector<l1t::Jet>::const_iterator itJet = input->begin();
+	itJet != input->end(); ++itJet){
+      unsigned int pt = itJet->hwPt();
+      if(pt > ((1<<10) -1) )
+	pt = ((1<<10) -1);
+      unsigned int eta = itJet->hwEta();
+      unsigned int lutAddress = (eta<<10)+pt;
+
+      unsigned int rank = params->jetCalibrationLUT()->data(lutAddress);
+
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
+      l1t::Jet outJet(*&ldummy, rank, itJet->hwEta(), itJet->hwPhi(), itJet->hwQual());
+      output->push_back(outJet);
+    }
+  }
+
   void JetToGtEtaScales(CaloParamsStage1 *params,
 			const std::vector<l1t::Jet> * input,
 			std::vector<l1t::Jet> *output){

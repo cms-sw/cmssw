@@ -46,6 +46,7 @@ caloStage1Params.jetSeedThreshold      = cms.double(10.)
 caloStage1Params.jetNeighbourThreshold = cms.double(0.)
 caloStage1Params.jetCalibrationType    = cms.string("Stage1JEC")
 caloStage1Params.jetCalibrationParams  = jetSF_8TeV_data
+caloStage1Params.jetCalibrationLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/jetCalibrationLUT_stage1.txt")
 
 # sums
 caloStage1Params.etSumLsb                = cms.double(0.5)
