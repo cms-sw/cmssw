@@ -365,6 +365,7 @@ def cust_2023HGCalMuon(process):
         process.particleFlowCluster += process.particleFlowClusterHGC
         if hasattr(process,'particleFlowSuperClusterECAL'):
             process.particleFlowSuperClusterHGCEE = process.particleFlowSuperClusterECAL.clone()
+            process.particleFlowSuperClusterHGCEE.useHGCEmPreID = cms.bool(True)
             process.particleFlowSuperClusterHGCEE.PFClusters = cms.InputTag('particleFlowClusterHGCEE')
             process.particleFlowSuperClusterHGCEE.use_preshower = cms.bool(False)
             process.particleFlowSuperClusterHGCEE.PFSuperClusterCollectionEndcapWithPreshower = cms.string('')

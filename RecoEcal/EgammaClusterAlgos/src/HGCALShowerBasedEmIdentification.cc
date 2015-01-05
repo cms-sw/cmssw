@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterProducer/interface/HGCALShowerBasedEmIdentification.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/HGCALShowerBasedEmIdentification.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 

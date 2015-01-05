@@ -247,7 +247,7 @@ loadAndSortPFClusters(const edm::Event &iEvent) {
       hgcEmPreId_->reset();
       hgcEmPreId_->setShowerPosition(cluster->position());
       hgcEmPreId_->setShowerDirection(cluster->axis());      
-      if( !hgcEmPreId_->cutStartPosition(*cluster) ) continue;
+      if( !hgcEmPreId_->cutLengthCompatibility(*cluster) ) continue;
     }
         
     CalibratedClusterPtr calib_cluster(new CalibratedPFCluster(cluster));

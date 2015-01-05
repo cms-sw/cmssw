@@ -87,7 +87,10 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
 
     #this overrides both dphi cuts below if true!
     useDynamicDPhiWindow = cms.bool(True), 
-                                              
+                                
+    #use shower start cut?
+    useHGCEmPreID = cms.bool(False),
+              
     #PFClusters collection
     PFClusters = cms.InputTag("particleFlowClusterECAL"),
     ESAssociation = cms.InputTag("particleFlowClusterECAL"),
