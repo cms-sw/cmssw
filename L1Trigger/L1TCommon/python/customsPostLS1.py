@@ -30,6 +30,11 @@ def customiseSimL1EmulatorForPostLS1_nomenu(process):
         process.gctDigiToRaw.gctInputLabel = 'simCaloStage1LegacyFormatDigis'
 
     if hasattr(process, 'simGctDigis'):
+        for sequence in process.sequences:
+            #print "INFO:  checking sequence ", sequence
+            #print "BEFORE:  ", getattr(process,sequence)
+            getattr(process,sequence).replace(process.simGctDigis,process.L1TCaloStage1)
+            #print "AFTER:  ", getattr(process,sequence)
         for path in process.paths:
             #print "INFO:  checking path ", path
             #print "BEFORE:  ", getattr(process,path)
