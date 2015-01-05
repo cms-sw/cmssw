@@ -230,7 +230,7 @@ bool HGCALShowerBasedEmIdentification::cutSigmaetaeta(const reco::PFCluster& clu
 
 bool HGCALShowerBasedEmIdentification::cutStartPosition(const reco::PFCluster& clu)
 {
-  return (startPosition(clu).z()<cutStartPosition_);
+  return ( std::abs( startPosition(clu).z() ) < cutStartPosition_ );
 }
 
 bool HGCALShowerBasedEmIdentification::cutLengthCompatibility(const reco::PFCluster& clu)
