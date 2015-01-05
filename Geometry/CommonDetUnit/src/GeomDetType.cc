@@ -12,60 +12,60 @@ GeomDetType::~GeomDetType()
 
 bool GeomDetType::isBarrel() const
 {
-  return (theSubDet == PixelBarrel || theSubDet == TIB || theSubDet == TOB || isDT() || theSubDet == RPCBarrel);
+  return GeomDetEnumerators::isBarrel(theSubDet);
 }
 
 bool GeomDetType::isEndcap() const
 {
-  return (!isBarrel());
+  return GeomDetEnumerators::isEndcap(theSubDet);
 }
 
 
 bool GeomDetType::isTrackerStrip() const
 {
-  return (theSubDet == TIB || theSubDet == TOB || 
-	  theSubDet == TID || theSubDet == TEC);
+  return GeomDetEnumerators::isTrackerStrip(theSubDet);
 }
 
 bool GeomDetType::isTrackerPixel() const
 {
-  return (theSubDet == PixelBarrel || theSubDet == PixelEndcap); 
+  return GeomDetEnumerators::isTrackerPixel(theSubDet);
 }
 
 bool GeomDetType::isTracker() const
 {
-  return ( isTrackerStrip() || isTrackerPixel() );
+  return GeomDetEnumerators::isTracker(theSubDet);
 }
 
 
 bool GeomDetType::isDT() const
 {   
-  return (theSubDet == DT) ;
+  return GeomDetEnumerators::isDT(theSubDet);
 }
 
 bool GeomDetType::isCSC() const
 {   
-  return (theSubDet == CSC) ;
+  return GeomDetEnumerators::isCSC(theSubDet);
 }
 
 
 bool GeomDetType::isRPC() const
 {   
-  return (theSubDet == RPCBarrel || theSubDet == RPCEndcap) ;
+  return GeomDetEnumerators::isRPC(theSubDet);
 }
 
 bool GeomDetType::isGEM() const
 {   
-  return (theSubDet == GEM ) ;
+  return GeomDetEnumerators::isGEM(theSubDet);
 }
 
 bool GeomDetType::isME0() const
 {   
+  return GeomDetEnumerators::isME0(theSubDet);
   return (theSubDet == ME0 ) ;
 }
 
 
 bool GeomDetType::isMuon() const
 {
-  return (theSubDet == DT || theSubDet == CSC || isRPC() || theSubDet == GEM || theSubDet == ME0) ;
+  return GeomDetEnumerators::isMuon(theSubDet);
 }
