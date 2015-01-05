@@ -24,7 +24,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 // EM pre-id
-#include "HGCALShowerBasedEmIdentification.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/HGCALShowerBasedEmIdentification.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorBase.h"
 
 #include "FWCore/Framework/interface/Event.h"

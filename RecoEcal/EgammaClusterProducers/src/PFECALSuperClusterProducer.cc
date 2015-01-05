@@ -99,7 +99,7 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   //double threshPFClusterMustacheOutBarrel = iConfig.getParameter<double>("thresh_PFClusterMustacheOutBarrel");
   //double threshPFClusterMustacheOutEndcap = iConfig.getParameter<double>("thresh_PFClusterMustacheOutEndcap");
 
-  double doSatelliteClusterMerge = 
+  bool doSatelliteClusterMerge = 
     iConfig.getParameter<bool>("doSatelliteClusterMerge");
   double satelliteClusterSeedThreshold = 
     iConfig.getParameter<double>("satelliteClusterSeedThreshold");
@@ -155,6 +155,9 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   PFClusterAssociationEBEE_ = "PFClusterAssociationEBEE";
   PFClusterAssociationES_ = "PFClusterAssociationES";
   
+  bool useHGCID = iConfig.getParameter<bool>("useHGCEmPreID");
+  superClusterAlgo_.setUseHGCPreId(useHGCID);
+
   produces<reco::SuperClusterCollection>(PFSuperClusterCollectionBarrel_);  
   produces<reco::SuperClusterCollection>(PFSuperClusterCollectionEndcapWithPreshower_);
   produces<reco::CaloClusterCollection>(PFBasicClusterCollectionBarrel_);
