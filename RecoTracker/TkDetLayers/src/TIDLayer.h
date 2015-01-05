@@ -29,7 +29,7 @@ class TIDLayer GCC11_FINAL : public RingedForwardLayer {
 			       std::vector<DetGroup> & result) const __attribute__ ((hot));
 
   // DetLayer interface
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::TID;}
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::TID];}
 
 
  private:

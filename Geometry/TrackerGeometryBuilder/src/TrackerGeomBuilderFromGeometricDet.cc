@@ -12,6 +12,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <cfloat>
 #include <cassert>
@@ -24,10 +26,10 @@ namespace {
     for ( int i=1; i!=7; i++) {
       auto det = GeomDetEnumerators::tkDetEnum[i];
       off = tg.offsetDU(det);
-      end = tg.endsetDU(det); assert(end>off);
+      end = tg.endsetDU(det); assert(end>=off); // allow empty subdetectors. Needed for upgrade
       for (int j=off; j!=end; ++j) {
 	assert(tg.detUnits()[j]->geographicalId().subdetId()==i);
-	assert(tg.detUnits()[j]->subDetector()==det);
+	assert(GeomDetEnumerators::subDetGeom[tg.detUnits()[j]->subDetector()]==det);
 	assert(tg.detUnits()[j]->index()==j);
       }
     }
@@ -56,6 +58,21 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::Pa
   std::vector<const GeometricDet*> comp;
   gd->deepComponents(comp);
 
+  //define a vector which associate to the detid subdetector index -1 (from 0 to 5) the GeometridDet enumerator to be able to know which type of subdetector it is
+  
+  std::vector<GeometricDet::GDEnumType> gdsubdetmap(6,GeometricDet::unknown); // hardcoded "6" should not be a surprise... 
+  GeometricDet::ConstGeometricDetContainer subdetgd = gd->components();
+  
+  LogDebug("SubDetectorGeometricDetType") << "GeometriDet enumerator values of the subdetectors";
+  for(unsigned int i=0;i<subdetgd.size();++i) {
+    assert(subdetgd[i]->geographicalId().subdetId()>0 && subdetgd[i]->geographicalId().subdetId()<7);
+    gdsubdetmap[subdetgd[i]->geographicalId().subdetId()-1]= subdetgd[i]->type();
+    LogTrace("SubDetectorGeometricDetType") << "subdet " << i 
+					    << " type " << subdetgd[i]->type()
+					    << " detid " <<  subdetgd[i]->geographicalId()
+					    << " subdetid " <<  subdetgd[i]->geographicalId().subdetId();
+  }
+  
   std::vector<const GeometricDet*> dets[6];
   std::vector<const GeometricDet*> & pixB = dets[0]; pixB.reserve(comp.size());
   std::vector<const GeometricDet*> & pixF = dets[1]; pixF.reserve(comp.size());
@@ -67,19 +84,61 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::Pa
   for(u_int32_t i = 0;i<comp.size();i++)
     dets[comp[i]->geographicalID().subdetId()-1].push_back(comp[i]);
   
-  // this order is VERY IMPORTANT!!!!!
-  buildPixel(pixB,tracker,GeomDetEnumerators::SubDetector::PixelBarrel,
-	     upgradeGeometry,
-	     BIG_PIX_PER_ROC_X,
-	     BIG_PIX_PER_ROC_Y); //"PixelBarrel" 
-  buildPixel(pixF,tracker,GeomDetEnumerators::SubDetector::PixelEndcap,
-	     upgradeGeometry,
-	     BIG_PIX_PER_ROC_X,
-	     BIG_PIX_PER_ROC_Y); //"PixelEndcap" 
-  buildSilicon(tib,tracker,GeomDetEnumerators::SubDetector::TIB, "barrel");//"TIB"	
-  buildSilicon(tid,tracker,GeomDetEnumerators::SubDetector::TID, "endcap");//"TID" 
-  buildSilicon(tob,tracker,GeomDetEnumerators::SubDetector::TOB, "barrel");//"TOB"	
-  buildSilicon(tec,tracker,GeomDetEnumerators::SubDetector::TEC, "endcap");//"TEC"        
+  //loop on all the six elements of dets and firstly check if they are from pixel-like detector and call buildPixel, then loop again and check if they are strip and call buildSilicon. "unknown" can be filled either way but the vector of GeometricDet must be empty !!
+  // this order is VERY IMPORTANT!!!!! For the moment I (AndreaV) understand that some pieces of code rely on pixel-like being before strip-like 
+  
+  // now building the Pixel-like subdetectors
+  for(unsigned int i=0;i<6;++i) {
+    if(gdsubdetmap[i] == GeometricDet::PixelBarrel) 
+      buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::PixelBarrel,
+		 upgradeGeometry,
+		 BIG_PIX_PER_ROC_X,
+		 BIG_PIX_PER_ROC_Y); 
+    if(gdsubdetmap[i] == GeometricDet::PixelPhase1Barrel) 
+      buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P1PXB,
+		 upgradeGeometry,
+		 BIG_PIX_PER_ROC_X,
+		 BIG_PIX_PER_ROC_Y); 
+    if(gdsubdetmap[i] == GeometricDet::PixelEndCap)
+      buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::PixelEndcap,
+		 upgradeGeometry,
+		 BIG_PIX_PER_ROC_X,
+		 BIG_PIX_PER_ROC_Y); 
+    if(gdsubdetmap[i] == GeometricDet::PixelPhase1EndCap)
+      buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P1PXEC,
+		 upgradeGeometry,
+		 BIG_PIX_PER_ROC_X,
+		 BIG_PIX_PER_ROC_Y); 
+    if(gdsubdetmap[i] == GeometricDet::PixelPhase2EndCap)
+      buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P2PXEC,
+		 upgradeGeometry,
+		 BIG_PIX_PER_ROC_X,
+		 BIG_PIX_PER_ROC_Y); 
+    if(gdsubdetmap[i] == GeometricDet::OTPhase2Barrel) 
+      buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P2OTB,
+		 upgradeGeometry,
+		 BIG_PIX_PER_ROC_X,
+		 BIG_PIX_PER_ROC_Y); 
+    if(gdsubdetmap[i] == GeometricDet::OTPhase2EndCap) 
+      buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P2OTEC,
+		 upgradeGeometry,
+		 BIG_PIX_PER_ROC_X,
+		 BIG_PIX_PER_ROC_Y); 
+  }
+  //now building Strips
+  for(unsigned int i=0;i<6;++i) {
+    if(gdsubdetmap[i] == GeometricDet::TIB)   buildSilicon(dets[i],tracker,GeomDetEnumerators::SubDetector::TIB, "barrel");
+    if(gdsubdetmap[i] == GeometricDet::TID)   buildSilicon(dets[i],tracker,GeomDetEnumerators::SubDetector::TID, "endcap");
+    if(gdsubdetmap[i] == GeometricDet::TOB)   buildSilicon(dets[i],tracker,GeomDetEnumerators::SubDetector::TOB, "barrel");
+    if(gdsubdetmap[i] == GeometricDet::TEC)   buildSilicon(dets[i],tracker,GeomDetEnumerators::SubDetector::TEC, "endcap");
+  }  
+  // and finally the "empty" subdetectors (maybe it is not needed)
+  for(unsigned int i=0;i<6;++i) {
+    if(gdsubdetmap[i] == GeometricDet::unknown) {
+      if(dets[i].size()!=0) throw cms::Exception("NotEmptyUnknownSubDet") << "Subdetector " << i+1 << " is unknown but it is not empty: " << dets[i].size();
+      buildSilicon(dets[i],tracker,GeomDetEnumerators::tkDetEnum[i+1], "barrel"); // "barrel" is used but it is irrelevant
+    }
+  }
   buildGeomDet(tracker);//"GeomDet"
 
   verifyDUinTG(*tracker);
@@ -94,7 +153,13 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 						    int BIG_PIX_PER_ROC_X, // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
 						    int BIG_PIX_PER_ROC_Y) // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
 {
-  tracker->setOffsetDU(det);
+  LogDebug("BuildingGeomDetUnits") << " Pixel type. Size of vector: " << gdv.size() 
+				   << " GeomDetType subdetector: " << det 
+				   << " logical subdetector: " << GeomDetEnumerators::subDetGeom[det]
+				   << " big pix per ROC x: " << BIG_PIX_PER_ROC_X << " y: " << BIG_PIX_PER_ROC_Y
+				   << " is upgrade: " << upgradeGeometry;
+  
+  tracker->setOffsetDU(GeomDetEnumerators::subDetGeom[det]);
 
   for(u_int32_t i=0; i<gdv.size(); i++){
 
@@ -121,8 +186,7 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
     tracker->addDetUnit(temp);
     tracker->addDetUnitId(gdv[i]->geographicalID());
   }
-  tracker->setEndsetDU(det);
-
+  tracker->setEndsetDU(GeomDetEnumerators::subDetGeom[det]);
 }
 
 void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const GeometricDet*>  const & gdv, 
@@ -130,7 +194,12 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
 						      GeomDetType::SubDetector det,
 						      const std::string& part)
 { 
-  tracker->setOffsetDU(det);
+  LogDebug("BuildingGeomDetUnits") << " Strip type. Size of vector: " << gdv.size() 
+				   << " GeomDetType subdetector: " << det 
+				   << " logical subdetector: " << GeomDetEnumerators::subDetGeom[det]
+				   << " part " << part;
+  
+  tracker->setOffsetDU(GeomDetEnumerators::subDetGeom[det]);
 
   for(u_int32_t i=0;i<gdv.size();i++){
 
@@ -155,7 +224,7 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
     tracker->addDetUnit(temp);
     tracker->addDetUnitId(gdv[i]->geographicalID());
   }  
-  tracker->setEndsetDU(det);
+  tracker->setEndsetDU(GeomDetEnumerators::subDetGeom[det]);
 
 }
 

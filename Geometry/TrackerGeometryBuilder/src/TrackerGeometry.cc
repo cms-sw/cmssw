@@ -8,12 +8,43 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <algorithm>
 #include <iostream>
 #include <map>
 
-TrackerGeometry::TrackerGeometry(GeometricDet const* gd) :  theTrackerDet(gd){}
+TrackerGeometry::TrackerGeometry(GeometricDet const* gd) :  theTrackerDet(gd)
+{
+  for(unsigned int i=0;i<6;++i) {
+    theSubDetTypeMap[i] = GeomDetEnumerators::invalidDet;
+    theNumberOfLayers[i] = 0;
+  }
+  GeometricDet::ConstGeometricDetContainer subdetgd = gd->components();
+  
+  LogDebug("BuildingSubDetTypeMap") << "GeometriDet and GeomDetEnumerators enumerator values of the subdetectors";
+  for(unsigned int i=0;i<subdetgd.size();++i) {
+    assert(subdetgd[i]->geographicalId().subdetId()>0 && subdetgd[i]->geographicalId().subdetId()<7);
+    theSubDetTypeMap[subdetgd[i]->geographicalId().subdetId()-1]= geometricDetToGeomDet(subdetgd[i]->type());
+    theNumberOfLayers[subdetgd[i]->geographicalId().subdetId()-1]= subdetgd[i]->components().size();
+    LogTrace("BuildingSubDetTypeMap") << "subdet " << i 
+				      << " Geometric Det type " << subdetgd[i]->type()
+				      << " Geom Det type " << theSubDetTypeMap[subdetgd[i]->geographicalId().subdetId()-1]
+				      << " detid " <<  subdetgd[i]->geographicalId()
+				      << " subdetid " <<  subdetgd[i]->geographicalId().subdetId()
+				      << " number of layers " << subdetgd[i]->components().size();
+  }
+  LogDebug("SubDetTypeMapContent") << "Content of theSubDetTypeMap";
+  for(unsigned int i=1;i<7;++i) {
+    LogTrace("SubDetTypeMapContent") << " detid subdet "<< i << " Geom Det type " << geomDetSubDetector(i); 
+  }
+  LogDebug("NumberOfLayers") << "Content of theNumberOfLayers";
+  for(unsigned int i=1;i<7;++i) {
+    LogTrace("NumberOfLayers") << " detid subdet "<< i << " number of layers " << numberOfLayers(i); 
+  }
+  
+}
+
 
 TrackerGeometry::~TrackerGeometry() {
     for (auto d : theDets) delete const_cast<GeomDet*>(d);
@@ -153,6 +184,32 @@ TrackerGeometry::idToDet(DetId s)const
   return nullptr;
 }
 
+const GeomDetEnumerators::SubDetector 
+TrackerGeometry::geomDetSubDetector(int subdet) const {
+  if(subdet>=1 && subdet<=6) {
+    return theSubDetTypeMap[subdet-1];
+  } else {
+    throw cms::Exception("WrongTrackerSubDet") << "Subdetector " << subdet;
+  }
+}
+
+unsigned int
+TrackerGeometry::numberOfLayers(int subdet) const {
+  if(subdet>=1 && subdet<=6) {
+    return theNumberOfLayers[subdet-1];
+  } else {
+    throw cms::Exception("WrongTrackerSubDet") << "Subdetector " << subdet;
+  }
+}
+
+bool
+TrackerGeometry::isThere(GeomDetEnumerators::SubDetector subdet) const {
+  for(unsigned int i=1;i<7;++i) {
+    if(subdet == geomDetSubDetector(i)) return true;
+  }
+  return false;
+}
+
 const TrackerGeometry::DetTypeContainer&  
 TrackerGeometry::detTypes()   const 
 {
@@ -172,4 +229,19 @@ TrackerGeometry::detIds()   const
   return theDetIds;
 }
 
-
+const GeomDetEnumerators::SubDetector 
+TrackerGeometry::geometricDetToGeomDet(GeometricDet::GDEnumType gdenum) {
+  // provide a map between the GeometricDet enumerators and the GeomDet enumerators of the possible tracker subdetectors
+  if(gdenum == GeometricDet::GDEnumType::PixelBarrel ) return GeomDetEnumerators::SubDetector::PixelBarrel;
+  if(gdenum == GeometricDet::GDEnumType::PixelEndCap) return GeomDetEnumerators::SubDetector::PixelEndcap;
+  if(gdenum == GeometricDet::GDEnumType::TIB) return GeomDetEnumerators::SubDetector::TIB;
+  if(gdenum == GeometricDet::GDEnumType::TID) return GeomDetEnumerators::SubDetector::TID;
+  if(gdenum == GeometricDet::GDEnumType::TOB) return GeomDetEnumerators::SubDetector::TOB;
+  if(gdenum == GeometricDet::GDEnumType::TEC) return GeomDetEnumerators::SubDetector::TEC;
+  if(gdenum == GeometricDet::GDEnumType::PixelPhase1Barrel) return GeomDetEnumerators::SubDetector::P1PXB;
+  if(gdenum == GeometricDet::GDEnumType::PixelPhase1EndCap) return GeomDetEnumerators::SubDetector::P1PXEC;
+  if(gdenum == GeometricDet::GDEnumType::PixelPhase2EndCap) return GeomDetEnumerators::SubDetector::P2PXEC;
+  if(gdenum == GeometricDet::GDEnumType::OTPhase2Barrel) return GeomDetEnumerators::SubDetector::P2OTB;
+  if(gdenum == GeometricDet::GDEnumType::OTPhase2EndCap) return GeomDetEnumerators::SubDetector::P2OTEC;
+  return GeomDetEnumerators::SubDetector::invalidDet;
+}
