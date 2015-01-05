@@ -16,7 +16,7 @@
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h"
-#include <RecoParticleFlow/PFClusterProducer/interface/HGCALShowerBasedEmIdentification.h>
+#include "RecoEcal/EgammaClusterAlgos/interface/HGCALShowerBasedEmIdentification.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
