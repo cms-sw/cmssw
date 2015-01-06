@@ -60,6 +60,7 @@ CmsShowMainBase::CmsShowMainBase()
      m_navigatorPtr(0),
      m_metadataManagerPtr(0),
      m_contextPtr(0),
+     m_autoSaveAllViewsHeight(-1),
      m_autoLoadTimerRunning(kFALSE),
      m_forward(true),
      m_isPlaying(false),
@@ -213,9 +214,8 @@ CmsShowMainBase::draw()
    if (!m_autoSaveAllViewsFormat.empty())
    {
       m_guiManager->updateStatus("auto saving images ...");
-      m_guiManager->exportAllViews(m_autoSaveAllViewsFormat);
+      m_guiManager->exportAllViews(m_autoSaveAllViewsFormat, m_autoSaveAllViewsHeight);
    }
-
    m_guiManager->clearStatus();
 }
 
