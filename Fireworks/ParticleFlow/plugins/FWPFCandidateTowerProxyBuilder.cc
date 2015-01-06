@@ -87,7 +87,7 @@ FWPFCandidateTowerProxyBuilder::fillCaloData()
 }
 
 
-REGISTER_FWPROXYBUILDER(FWECalPFCandidateProxyBuilder, reco::PFCandidateCollection,"PFECal",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kAllLegoBits);
-REGISTER_FWPROXYBUILDER(FWHCalPFCandidateProxyBuilder, reco::PFCandidateCollection,"PFHCal",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kAllLegoBits );
+REGISTER_FWPROXYBUILDER(FWECalPFCandidateProxyBuilder, reco::PFCandidateCollection,"CaloTower",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kAllLegoBits);
+REGISTER_FWPROXYBUILDER(FWHCalPFCandidateProxyBuilder, reco::PFCandidateCollection,"CaloTower",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kAllLegoBits );
 
 
