@@ -84,3 +84,18 @@ void CaloTowerCreatorForTauHLT::produce( StreamID sid, Event& evt, const EventSe
   evt.put( cands );
   
 }
+
+void CaloTowerCreatorForTauHLT::fillDescriptions( edm::ConfigurationDescriptions & desc ) {
+
+  edm::ParameterSetDescription aDesc;
+  aDesc.add<edm::InputTag>("TauTrigger",edm::InputTag("l1extraParticles","Tau"))->setComment("L1ExtraJet collection for seeding");
+  aDesc.add<int>("TauId",0)->setComment("Item from L1ExtraJet collection used for seeding");
+  aDesc.add<edm::InputTag>("towers",edm::InputTag("towerMaker"))->setComment("Input tower collection");
+  aDesc.add<double>("UseTowersInCone",0.8)->setComment("Radius of cone around seed");
+  aDesc.add<double>("minimumE",0.8)->setComment("Minimum tower energy");
+  aDesc.add<double>("minimumEt",0.5)->setComment("Minimum tower ET");
+  aDesc.addUntracked<int>("verbose",0)->setComment("Verbosity level; 0=silent");
+  desc.setComment("Produce tower collection around L1ExtraJetParticle seed.");
+  desc.add("caloTowerMakerHLT",aDesc);
+
+}

@@ -14,6 +14,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/TrackJet.h"
@@ -26,6 +29,7 @@ class TauJetSelectorForHLTTrackSeeding : public edm::global::EDProducer<> {
 public:
   explicit TauJetSelectorForHLTTrackSeeding(const edm::ParameterSet&);
   ~TauJetSelectorForHLTTrackSeeding();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   virtual void beginJob() ;

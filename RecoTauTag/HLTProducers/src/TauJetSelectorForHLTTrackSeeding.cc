@@ -146,3 +146,23 @@ TauJetSelectorForHLTTrackSeeding::beginJob() {}
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 TauJetSelectorForHLTTrackSeeding::endJob() {}
+
+void
+TauJetSelectorForHLTTrackSeeding::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
+{
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputTrackJetTag",edm::InputTag("hltAntiKT5TrackJetsIter0"))->setComment("Oryginal TrackJet collection");
+  desc.add<edm::InputTag>("inputCaloJetTag",edm::InputTag("hltAntiKT5CaloJetsPFEt5"))->setComment("CaloJet collection");
+  desc.add<edm::InputTag>("inputTrackTag",edm::InputTag("hltPFlowTrackSelectionHighPurity"))->setComment("Track collection for track isolation");
+  desc.add<double>("ptMinCaloJet",5.0)->setComment("Min. pT of CaloJet");
+  desc.add<double>("etaMinCaloJet",-2.7)->setComment("Min. eta of CaloJet");
+  desc.add<double>("etaMaxCaloJet",+2.7)->setComment("Max. eta of CaloJet");
+  desc.add<double>("tauConeSize",0.2)->setComment("Radius of tau signal cone");
+  desc.add<double>("isolationConeSize",0.5)->setComment("Radius of isolation cone");
+  desc.add<double>("fractionMinCaloInTauCone",0.8)->setComment("Min. fraction of calo energy in tau signal cone");
+  desc.add<double>("fractionMaxChargedPUInCaloCone",0.2)->setComment("Max. fraction of PU charged energy Sum(Pt_trks)/Pt_jet in signal cone");
+  desc.add<double>("ptTrkMaxInCaloCone",1.0)->setComment("Max. sum of pT of tracks in isolation cone");
+  desc.add<int>("nTrkMaxInCaloCone",0)->setComment("Max. no. of tracks in isolation cone");
+  descriptions.setComment("This module produces a collection of TrackJets to seed iterative tracking.\nIt is done by enriching the input TrackJet collection with CaloJets passing isolation critera - tau candidates"); 
+  descriptions.add("tauJetSelectorForHLTTrackSeeding",desc);
+}
