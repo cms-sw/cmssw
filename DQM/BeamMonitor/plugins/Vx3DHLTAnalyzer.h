@@ -22,16 +22,11 @@
 // 
 
 
-// system include files
 #include <memory>
 
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -47,6 +42,11 @@
 #include <vector>
 
 
+using namespace std;
+using namespace reco;
+using namespace edm;
+
+
 // #################
 // # Fit variables #
 // #################
@@ -59,7 +59,7 @@ typedef struct
   double z;
   double Covariance[DIM][DIM];
 } VertexType;
-std::vector<VertexType> Vertices;
+vector<VertexType> Vertices;
 bool considerVxCovariance;
 unsigned int counterVx; // Counts the number of vertices taken into account for the fit
 double maxTransRadius;  // Max transverse radius in which the vertices must be [cm]
@@ -72,38 +72,36 @@ double pi;
 double VxErrCorr;       // Coefficient to compensate the under-estimation of the vertex errors
 
 
-class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
+class Vx3DHLTAnalyzer : public EDAnalyzer {
    public:
-      explicit Vx3DHLTAnalyzer(const edm::ParameterSet&);
+      explicit Vx3DHLTAnalyzer (const ParameterSet&);
       ~Vx3DHLTAnalyzer();
 
 
    private:
-      virtual void beginJob();
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual unsigned int HitCounter(const edm::Event& iEvent);
-      virtual std::string formatTime(const time_t& t);
-      virtual int MyFit(std::vector<double>* vals);
-      virtual void reset(std::string ResetType);
-      virtual void writeToFile(std::vector<double>* vals,
-			       edm::TimeValue_t BeginTimeOfFit,
-			       edm::TimeValue_t EndTimeOfFit,
-			       unsigned int BeginLumiOfFit,
-			       unsigned int EndLumiOfFit,
-			       int dataType);
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
-					const edm::EventSetup& iSetup);
-      virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
-				      const edm::EventSetup& iSetup);
-      virtual void endJob();
-      virtual void beginRun();
+      virtual void beginJob ();
+      virtual void analyze (const Event&, const EventSetup&);
+      virtual unsigned int HitCounter (const Event& iEvent);
+      virtual string formatTime (const time_t& t);
+      virtual int MyFit (vector<double>* vals);
+      virtual void reset (string ResetType);
+      virtual void writeToFile (vector<double>* vals,
+				TimeValue_t BeginTimeOfFit,
+				TimeValue_t EndTimeOfFit,
+				unsigned int BeginLumiOfFit,
+				unsigned int EndLumiOfFit,
+				int dataType);
+      virtual void beginLuminosityBlock (const LuminosityBlock& lumiBlock, const EventSetup& iSetup);
+      virtual void endLuminosityBlock (const LuminosityBlock& lumiBlock, const EventSetup& iSetup);
+      virtual void endJob ();
+      virtual void beginRun (const Run& iRun, const EventSetup& iSetup);
 
 
       // #######################
       // # cfg file parameters #
       // #######################
-      edm::EDGetTokenT<reco::VertexCollection> vertexCollection;
-      edm::EDGetTokenT<SiPixelRecHitCollection> pixelHitCollection;
+      EDGetTokenT<VertexCollection> vertexCollection;
+      EDGetTokenT<SiPixelRecHitCollection> pixelHitCollection;
       bool debugMode;
       unsigned int nLumiReset;
       bool dataFromFit;
@@ -114,7 +112,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       double yStep;
       double zRange;
       double zStep;
-      std::string fileName;
+      string fileName;
 
 
       // ##############
@@ -153,10 +151,10 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       // ######################
       // # Internal variables #
       // ######################
-      std::ofstream outputFile;
-      std::ofstream outputDebugFile;
-      edm::TimeValue_t beginTimeOfFit;
-      edm::TimeValue_t endTimeOfFit;
+      ofstream outputFile;
+      ofstream outputDebugFile;
+      TimeValue_t beginTimeOfFit;
+      TimeValue_t endTimeOfFit;
       unsigned int nBinsHistoricalPlot;
       unsigned int nBinsWholeHistory;
       unsigned int runNumber;
