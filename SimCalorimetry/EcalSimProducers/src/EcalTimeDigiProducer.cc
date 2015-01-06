@@ -40,12 +40,12 @@ EcalTimeDigiProducer::EcalTimeDigiProducer( const edm::ParameterSet& params, edm
    m_EndcapDigitizer = new EcalTimeMapDigitizer(EcalEndcap);
    m_ShashlikDigitizer = new EcalTimeMapDigitizer(EcalShashlik);
 
-//#ifdef ecal_time_debug
+#ifdef ecal_time_debug
    std::cout << "[EcalTimeDigiProducer]::Create EB " << m_EBdigiCollection;
    std::cout << " and EE " << m_EEdigiCollection;
    std::cout << " and EK " << m_EKdigiCollection;
    std::cout << " collections and digitizers" << std::endl;
-//#endif
+#endif
 
    m_BarrelDigitizer->setTimeLayerId(m_timeLayerEB);
    m_EndcapDigitizer->setTimeLayerId(m_timeLayerEE);
