@@ -68,7 +68,7 @@ namespace
 {
 void signal_handler_wrapper(int sid, siginfo_t* sinfo, void* sctx)
 {
-#elif defined(R__LINUX)
+#if defined(R__LINUX)
    std::cerr << "Program received signal ID = " <<  sid << std::endl;
    std::cerr << "Printing stack trace ... " << std::endl;
 
