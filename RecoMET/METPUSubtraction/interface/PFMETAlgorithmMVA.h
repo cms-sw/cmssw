@@ -19,7 +19,7 @@
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "RecoMET/METPUSubtraction/interface/mvaMEtUtilities.h"
+#include "RecoMET/METPUSubtraction/interface/MvaMEtUtilities.h"
 
 //#include <TMatrixD.h>
 #include <Math/SMatrix.h>
@@ -74,7 +74,7 @@ class PFMETAlgorithmMVA
   void evaluateCovU1();
   void evaluateCovU2();
 
-  mvaMEtUtilities utils_;
+  MvaMEtUtilities utils_;
     
   std::string mvaNameU_;
   std::string mvaNameDPhi_;

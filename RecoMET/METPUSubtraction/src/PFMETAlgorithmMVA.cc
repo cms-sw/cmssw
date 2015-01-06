@@ -128,13 +128,13 @@ void PFMETAlgorithmMVA::setInput(const std::vector<reco::PUSubMETCandInfo>& lept
   chargedSumLeptonPx_ = utils_.getLeptonsChSumMEX();
   chargedSumLeptonPy_ = utils_.getLeptonsChSumMEY();
 
-  std::vector<reco::PUSubMETCandInfo> jets_cleaned = utils_.getCleanedJets();
+  const std::vector<reco::PUSubMETCandInfo> jets_cleaned = utils_.getCleanedJets();
 
-  CommonMETData pfRecoil_data  = utils_.computeRecoil( mvaMEtUtilities::kPF );
-  CommonMETData chHSRecoil_data  = utils_.computeRecoil( mvaMEtUtilities::kChHS );
-  CommonMETData hsRecoil_data = utils_.computeRecoil( mvaMEtUtilities::kHS );
-  CommonMETData puRecoil_data = utils_.computeRecoil( mvaMEtUtilities::kPU );
-  CommonMETData hsMinusNeutralPUMEt_data = utils_.computeRecoil( mvaMEtUtilities::kHSMinusNeutralPU );
+  CommonMETData pfRecoil_data  = utils_.computeRecoil( MvaMEtUtilities::kPF );
+  CommonMETData chHSRecoil_data  = utils_.computeRecoil( MvaMEtUtilities::kChHS );
+  CommonMETData hsRecoil_data = utils_.computeRecoil( MvaMEtUtilities::kHS );
+  CommonMETData puRecoil_data = utils_.computeRecoil( MvaMEtUtilities::kPU );
+  CommonMETData hsMinusNeutralPUMEt_data = utils_.computeRecoil( MvaMEtUtilities::kHSMinusNeutralPU );
 
   reco::Candidate::LorentzVector jet1P4 = utils_.leadJetP4(jets_cleaned);
   reco::Candidate::LorentzVector jet2P4 = utils_.subleadJetP4(jets_cleaned);

@@ -32,7 +32,7 @@ namespace noPuUtils {
 
 // check if the pf candidate is associated with a vertex, 
 // return the type of association
-int isVertexAssociated(const reco::PFCandidate&, const PFCandToVertexAssMap&, const reco::VertexCollection&, double);
+int isVertexAssociated(const reco::PFCandidatePtr&, const PFCandToVertexAssMap&, const reco::VertexCollection&, double);
 
 // reverse the vertex-pfcandidate association map
 noPuUtils::reversedPFCandToVertexAssMap reversePFCandToVertexAssociation(const PFCandToVertexAssMap&);

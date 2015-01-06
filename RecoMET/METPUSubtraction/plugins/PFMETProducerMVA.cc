@@ -165,7 +165,7 @@ PFMETProducerMVA::computeLeptonInfo(const std::vector<edm::EDGetTokenT<reco::Can
 	  if(pMatch && lepton1->pt() == lepton2->pt()) {
 	    pMatch = false;
 	    for(unsigned int i0 = 0; i0 < leptonInfo.size(); i0++) {
-	      if(std::abs(lepton1->pt() - leptonInfo[i0].p4_.pt()) < dPtMatch) { pMatch = true; break; }
+	      if(std::abs(lepton1->pt() - leptonInfo[i0].p4().pt()) < dPtMatch) { pMatch = true; break; }
 	    }
 	  }
 	  if(pMatch) break;
@@ -174,8 +174,8 @@ PFMETProducerMVA::computeLeptonInfo(const std::vector<edm::EDGetTokenT<reco::Can
       }
       if(pMatch) continue;
       reco::PUSubMETCandInfo pLeptonInfo;
-      pLeptonInfo.p4_          = lepton1->p4();
-      pLeptonInfo.chargedEnFrac_ = chargedEnFrac(&(*lepton1),pfCandidates_view,hardScatterVertex);
+      pLeptonInfo.setP4( lepton1->p4() );
+      pLeptonInfo.setChargedEnFrac( chargedEnFrac(&(*lepton1),pfCandidates_view,hardScatterVertex) );
       leptonInfo.push_back(pLeptonInfo); 
       if(lepton1->isPhoton()) { lHasPhotons = true; }
     }
@@ -201,8 +201,9 @@ PFMETProducerMVA::computeJetInfo(const reco::PFJetCollection& uncorrJets,
 	uncorrJet != uncorrJets.end(); ++uncorrJet ) {
     // for ( reco::PFJetCollection::const_iterator corrJet = corrJets.begin();
     // 	  corrJet != corrJets.end(); ++corrJet ) {
-    for( size_t cjIdx=0;cjIdx<corrJets->size();cjIdx++) {
-      reco::PFJetRef corrJet( corrJets, cjIdx );
+    auto corrJet = corrJets->begin();
+    for( size_t cjIdx=0;cjIdx<corrJets->size();++cjIdx, ++corrJet) {
+      reco::PFJetRef corrJetRef( corrJets, cjIdx );
 
       // match corrected and uncorrected jets
       if ( uncorrJet->jetArea() != corrJet->jetArea() ) continue;
@@ -217,23 +218,23 @@ PFMETProducerMVA::computeJetInfo(const reco::PFJetCollection& uncorrJets,
       reco::PUSubMETCandInfo jetInfo;
       
       // PH: apply jet energy corrections for all Jets ignoring recommendations
-      jetInfo.p4_ = corrJet->p4();
+      jetInfo.setP4( corrJet->p4() );
       double lType1Corr = 0;
       if(useType1_) { //Compute the type 1 correction ===> This code is crap 
 	double pCorr = lCorrector->correction(*uncorrJet,iEvent,iSetup);
-	lType1Corr = (corrJet->pt()-pCorr*uncorrJet->pt());
+	lType1Corr = std::abs(corrJet->pt()-pCorr*uncorrJet->pt());
 	TLorentzVector pVec; pVec.SetPtEtaPhiM(lType1Corr,0,corrJet->phi(),0); 
 	reco::Candidate::LorentzVector pType1Corr; pType1Corr.SetCoordinates(pVec.Px(),pVec.Py(),pVec.Pz(),pVec.E());
 	//Filter to leptons
 	bool pOnLepton = false;
 	for(unsigned int i0 = 0; i0 < iLeptons.size(); i0++) {
-	  if(deltaR2(iLeptons[i0].p4_,corrJet->p4()) < dR2Max) {pOnLepton = true; break;}
+	  if(deltaR2(iLeptons[i0].p4(),corrJet->p4()) < dR2Max) {pOnLepton = true; break;}
 	}	
  	//Add it to PF Collection
 	if(corrJet->pt() > 10 && !pOnLepton) {
 	  reco::PUSubMETCandInfo pfCandidateInfo;
-	  pfCandidateInfo.p4_ = pType1Corr;
-	  pfCandidateInfo.dZ_ = -999;
+	  pfCandidateInfo.setP4( pType1Corr );
+	  pfCandidateInfo.setDZ( -999 );
 	  iCands.push_back(pfCandidateInfo);
 	}
 	//Scale
@@ -242,14 +243,21 @@ PFMETProducerMVA::computeJetInfo(const reco::PFJetCollection& uncorrJets,
       }
       
       // check that jet Pt used to compute MVA based jet id. is above threshold
-      if ( !(jetInfo.p4_.pt() > minCorrJetPt_) ) continue;
-      jetInfo.mva_ = jetIds[ corrJet ];
-      jetInfo.chargedEnFrac_ = (uncorrJet->chargedEmEnergy() + uncorrJet->chargedHadronEnergy() + uncorrJet->chargedMuEnergy() )/uncorrJet->energy();
-      if(useType1_) jetInfo.chargedEnFrac_ += lType1Corr*(1-jetInfo.chargedEnFrac_);
+      if ( !(jetInfo.p4().pt() > minCorrJetPt_) ) continue;
+
+    
+      jetInfo.setMvaVal( jetIds[ corrJetRef ] );
+      float chEnF = (uncorrJet->chargedEmEnergy() + uncorrJet->chargedHadronEnergy() + uncorrJet->chargedMuEnergy() )/uncorrJet->energy();
+      if(useType1_) chEnF += lType1Corr*(1-jetInfo.chargedEnFrac() );
+      jetInfo.setChargedEnFrac( chEnF ); 
       retVal.push_back(jetInfo);
       break;
     }
   }
+
+  //order jets per pt
+  std::sort( retVal.begin(), retVal.end() );
+
   return retVal;
 }
 
@@ -275,8 +283,8 @@ std::vector<reco::PUSubMETCandInfo> PFMETProducerMVA::computePFCandidateInfo(con
       }
     }
     reco::PUSubMETCandInfo pfCandidateInfo;
-    pfCandidateInfo.p4_ = pfCandidate->p4();
-    pfCandidateInfo.dZ_ = dZ;
+    pfCandidateInfo.setP4( pfCandidate->p4() );
+    pfCandidateInfo.setDZ( dZ );
     retVal.push_back(pfCandidateInfo);
   }
   return retVal;

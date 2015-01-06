@@ -24,9 +24,8 @@
   <class name="std::vector<metsig::SigInputObj>"/> 
   <class name="edm::Wrapper<std::vector<metsig::SigInputObj> >"/> 
 
-  <class name="reco::PUSubMETCandInfo" ClassVersion="11">
-    <version ClassVersion="10" checksum="2393759388"/>
-    <version ClassVersion="11" checksum="3750359744"/>
+  <class name="reco::PUSubMETCandInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="4117401603"/>
   </class>
   <class name="reco::PUSubMETCandInfoCollection" />
   <class name="edm::Wrapper<reco::PUSubMETCandInfoCollection>" />
