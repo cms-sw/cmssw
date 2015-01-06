@@ -6,6 +6,8 @@ class Matrix(dict):
         else:
             self.update({float(key):WF(float(key),value)})
 
+    def addOverride(self,key,override):
+        self[key].addOverride(override)
             
 #the class to collect all possible steps
 class Steps(dict):
@@ -22,7 +24,6 @@ class Steps(dict):
 
     def overwrite(self,keypair):
         value=self[keypair[1]]
-        print "overwritting step",keypair[0],"with",keypair[1],str(value)
         self.update({keypair[0]:value})
         
 class WF(list):
@@ -31,11 +32,15 @@ class WF(list):
         self.num=n
         #the actual steps of this WF
         self.steps=[]
-
+        self.overrides={}
+    def addOverride(self,overrides):
+        self.overrides=overrides
         
     def interpret(self,stepsDict):
         for s in self:
+            print 'steps',s,stepsDict[s]
             steps.append(stepsDict[s])
+
     
 InputInfoNDefault=2000000    
 class InputInfo(object):
