@@ -109,7 +109,7 @@ MethodInvoker::
 returnTypeName() const
 {
   if (isFunction_) {
-    return method_.finalReturnType().qualifiedName();
+    return method_.typeName();
   }
   return member_.typeOf().qualifiedName();
 }
