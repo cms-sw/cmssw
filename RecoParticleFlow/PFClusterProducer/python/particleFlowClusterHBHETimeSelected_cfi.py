@@ -1,4 +1,4 @@
-1;2802;0cimport FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms
 particleFlowClusterHBHETimeSelected = cms.EDProducer(
     "PFClusterTimeSelector",
     src = cms.InputTag('particleFlowClusterHBHE'),
