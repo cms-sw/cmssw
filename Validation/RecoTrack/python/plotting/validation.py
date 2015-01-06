@@ -28,13 +28,20 @@ _globalTags = {
     "CMSSW_7_2_0_pre8": {"default": "PRE_LS172_V15", "fullsim_50ns": "PRE_LS172_V16"},
     "CMSSW_7_2_0": {"default": "PRE_LS172_V15", "fullsim_50ns": "PRE_LS172_V16"},
     "CMSSW_7_2_0_PHYS14": {"default": "PHYS14_25_V1_Phys14"},
+    "CMSSW_7_2_2_patch1": {"default": "MCRUN2_72_V1", "fullsim_50ns": "MCRUN2_72_V0"},
+    "CMSSW_7_2_2_patch1_Fall14DR": {"default": "MCRUN2_72_V3_71XGENSIM"},
 #    "CMSSW_7_3_0_pre1": {"default": "PRE_LS172_V15", "fullsim_25ns": "PRE_LS172_V15_OldPU", "fullsim_50ns": "PRE_LS172_V16_OldPU"},
     "CMSSW_7_3_0_pre1": {"default": "PRE_LS172_V15", "fullsim_50ns": "PRE_LS172_V16"},
 #    "CMSSW_7_3_0_pre2": {"default": "MCRUN2_73_V1_OldPU", "fullsim_50ns": "MCRUN2_73_V0_OldPU"},
     "CMSSW_7_3_0_pre2": {"default": "MCRUN2_73_V1", "fullsim_50ns": "MCRUN2_73_V0"},
+    "CMSSW_7_3_0_pre3": {"default": "MCRUN2_73_V5", "fullsim_50ns": "MCRUN2_73_V4"},
+    "CMSSW_7_3_0": {"default": "MCRUN2_73_V7", "fullsim_50ns": "MCRUN2_73_V6"},
+    "CMSSW_7_3_0_71XGENSIM": {"default": "MCRUN2_73_V7_71XGENSIM"},
+    "CMSSW_7_4_0_pre1": {"default": "MCRUN2_73_V5", "fullsim_50ns": "MCRUN2_73_V4"},
+    "CMSSW_7_4_0_pre2": {"default": "MCRUN2_73_V7", "fullsim_50ns": "MCRUN2_73_V6"},
 }
 
-_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_Premix"]
+_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_Premix", "_Fall14DR", "_71XGENSIM"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
         if pf in release:
