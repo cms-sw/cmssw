@@ -199,6 +199,8 @@ private:
   // EM pre-id
   std::unique_ptr<HGCALShowerBasedEmIdentification> _emPreID;
   std::unique_ptr<PFClusterEnergyCorrectorBase> _emEnergyCalibration;
+  // had energy correction
+  std::unique_ptr<PFClusterEnergyCorrectorBase> _hadEnergyCalibration;
 
   // helper functions for various steps in the clustering
   void build2DCluster(const edm::Handle<reco::PFRecHitCollection>&,
@@ -302,6 +304,15 @@ HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf,
     PFClusterEnergyCorrectorFactory::get()->create(emName,emEnergyConf);
   _emEnergyCalibration.reset(emCalib);
   
+  // had energy calibration  
+  const edm::ParameterSet& hadEnergyConf = 
+    conf.getParameterSet("hadEnergyCalibration");
+  const std::string& hadName = 
+    hadEnergyConf.getParameter<std::string>("algoName");
+  PFClusterEnergyCorrectorBase* hadCalib =
+    PFClusterEnergyCorrectorFactory::get()->create(hadName,hadEnergyConf);
+  _hadEnergyCalibration.reset(hadCalib);
+  
 }
 
 void HGCClusterizer::
@@ -389,10 +400,13 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   
   // stuff usable clusters into the output list
   for( unsigned i = 0; i < z_linked_clusters.size(); ++i ) {
+    auto& cluster = z_linked_clusters[i];
     if( i >= usable_clusters.size() ) {
-      output.push_back(z_linked_clusters[i]);
+      if( !em_ID_clusters[i] ) _hadEnergyCalibration->correctEnergy(cluster);
+      output.push_back(cluster);
     } else if( usable_clusters[i] || em_ID_clusters[i] ) {
-      output.push_back(z_linked_clusters[i]);
+      if( !em_ID_clusters[i] ) _hadEnergyCalibration->correctEnergy(cluster);
+      output.push_back(cluster);
     }
   }
 }
@@ -699,7 +713,12 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 	    } else if ( !rechit_usable[best_index] ) { // rechit is in a cluster or masked
 	      auto cluster_match = _rechits_to_clusters.find(best_index);
 	      if( cluster_match != _rechits_to_clusters.end() ) {
-		if( cluster_usable[cluster_match->second] ) {
+		const GlobalVector& tkdir_orig = piStateAtSurface.globalDirection();
+		math::XYZVector tkdir(tkdir_orig.x(),tkdir_orig.y(),tkdir_orig.z());
+		const math::XYZVector& clusdir = output[cluster_match->second].axis();
+		// get angle between vectors...
+		double angle = std::abs(std::acos(tkdir.Dot(clusdir)/std::sqrt(tkdir.mag2()*clusdir.mag2())));	
+		if( cluster_usable[cluster_match->second] && angle < _maxClusterAngleToTrack ) {
 		  //const auto& pos = output[cluster_match->second].position();
 		  cluster_usable[cluster_match->second] = false;
 		  for( const auto& hAndF : output[cluster_match->second].recHitFractions() ) {
@@ -808,8 +827,8 @@ runConingAfterburner(const edm::Handle<reco::PFRecHitCollection>& handle,
   std::cout << "maximum angle to cone vertex: " << max_hit_angle << std::endl;
   std::cout << "cone angle from python: " << _minConeAngle << std::endl;
   */
-  max_hit_angle = std::min(std::abs(max_hit_angle),1.0); // restrict to one radian
-  if( max_hit_angle <= 1.0 ) { // less than 1 radian, get rid of crazy
+  max_hit_angle = std::min(std::abs(max_hit_angle),_maxConeAngle); // restrict to one radian
+  if( max_hit_angle <= _maxConeAngle ) { // less than 1 radian, get rid of crazy
     // if we have a good angle, create the KD tree bounding region using
     // the cone radius at max cone depth
     double radius = _maxConeDepth*std::tan(std::abs(max_hit_angle));

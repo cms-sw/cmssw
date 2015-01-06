@@ -95,12 +95,12 @@ weight_vec_heb          = [0.1215 for x in range(12)]
 #lambda based hadron weights
 weight_vec_ee_hadrons_lambda = [0.0100]
 weight_vec_ee_hadrons_lambda.extend([0.0360 for x in range(10)])
-weight_vec_ee_hadrons_lambda.extend([0.0420 for x in range(10)])
-weight_vec_ee_hadrons_lambda.extend([0.0550 for x in range(9)])
+weight_vec_ee_hadrons_lambda.extend([0.0320 for x in range(10)])
+weight_vec_ee_hadrons_lambda.extend([0.0560 for x in range(9)])
 
-weight_vec_hef_lambda = [0.3400]
-weight_vec_hef_lambda.extend([0.2500 for x in range(11)])
-weight_vec_heb_lambda = [0.2100 for x in range(12)]
+weight_vec_hef_lambda = [0.338]
+weight_vec_hef_lambda.extend([0.273 for x in range(11)])
+weight_vec_heb_lambda = [0.476 for x in range(12)]
 
 _HGCEE_EMEnergyCalibrator = cms.PSet(
     algoName = cms.string("HGCAllLayersEnergyCalibrator"),    
@@ -111,27 +111,35 @@ _HGCEE_EMEnergyCalibrator = cms.PSet(
     weights_ee = cms.vdouble(weight_vec_ee_electrons),
     weights_hef = cms.vdouble(weight_vec_hef),
     weights_heb = cms.vdouble(weight_vec_heb),
+    #EM calibration
     effMip_to_InverseGeV_a = cms.double(80.0837),
     effMip_to_InverseGeV_b = cms.double(-107.229),
     effMip_to_InverseGeV_c = cms.double(0.0472817),    
     effMip_to_InverseGeV_d = cms.double(-0.266294),    
     effMip_to_InverseGeV_e = cms.double(0.34684),
-    hgcOverburdenParamFile = cms.FileInPath('RecoParticleFlow/PFClusterProducer/data/HGCMaterialOverburden.root')
+    # hadron calibration
+    ee_had_emscale_slope = cms.double(0.2339),
+    ee_had_emscale_offset = cms.double(0.1778),
+    hef_had_emscale_slope = cms.double(0.1828),
+    hef_had_emscale_offset = cms.double(0.9601),
+    heb_had_emscale_slope = cms.double(0.2471),
+    heb_had_emscale_offset = cms.double(1.4563),
+    he_had_correction = cms.double(1.29208),
+    heb_had_correction = cms.double(1.0535),
+    pion_energy_slope = cms.double(1.0544),
+    pion_energy_offset = cms.double(1.7946),
+    had_residual = cms.vdouble(0.434875,-0.3441,0.0631),
+    #overburden / driver
+    hgcOverburdenParamFile = cms.FileInPath('RecoParticleFlow/PFClusterProducer/data/HGCMaterialOverburden.root'),
+    isEMCalibration = cms.bool(True)
 )
 
-_HGCEE_HADEnergyCalibrator = cms.PSet(
-    algoName = cms.string("HGCAllLayersEnergyCalibrator"),    
-    MipValueInGeV_ee = cms.double(55.1*1e-6),
-    MipValueInGeV_hef = cms.double(85.0*1e-6),
-    MipValueInGeV_heb = cms.double(1498.4*1e-6),    
-    # hadron energy calibrations
-    weights_ee = cms.vdouble(weight_vec_ee_hadrons),
-    weights_hef = cms.vdouble(weight_vec_hef),
-    weights_heb = cms.vdouble(weight_vec_heb),
-    effMip_to_InverseGeV_a = cms.double(1.0),
-    effMip_to_InverseGeV_b = cms.double(1e6),
-    effMip_to_InverseGeV_c = cms.double(1e6)
-)
+_HGCEE_HADEnergyCalibrator = _HGCEE_EMEnergyCalibrator.clone()
+_HGCEE_HADEnergyCalibrator.weights_ee = cms.vdouble(weight_vec_ee_hadrons_lambda)
+_HGCEE_HADEnergyCalibrator.weights_hef = cms.vdouble(weight_vec_hef_lambda)
+_HGCEE_HADEnergyCalibrator.weights_heb = cms.vdouble(weight_vec_heb_lambda)
+_HGCEE_HADEnergyCalibrator.isEMCalibration = cms.bool(False)
+
 #print _HGCEE_HADEnergyCalibrator.weights_ee, len(_HGCEE_HADEnergyCalibrator.weights_ee)
 #print _HGCEE_HADEnergyCalibrator.weights_he, len(_HGCEE_HADEnergyCalibrator.weights_he)
 
@@ -165,10 +173,10 @@ _fromScratchHGCClusterizer_HGCEE = cms.PSet(
                                                constant = cms.double(1.0) ), 
         #cluster afterburner
         useAfterburner = cms.bool(True),
-        minConeAngle = cms.double(0.298), # ~17 degrees
-        maxConeAngle = cms.double(1.0), # radians
+        minConeAngle = cms.double(0.1), # radians
+        maxConeAngle = cms.double(0.5), # radians
         maxConeDepth = cms.double(60), #cm
-        maxClusterAngleToTrack = cms.double(0.010), # in radians
+        maxClusterAngleToTrack = cms.double(0.10), # radians
         minECALLayerToCone = cms.uint32(11), # ~9.5 radiation lengths
         ),
     
@@ -209,6 +217,6 @@ particleFlowClusterHGCEE = cms.EDProducer(
     initialClusteringStep = _fromScratchHGCClusterizer_HGCEE,
     pfClusterBuilder = cms.PSet( ), #_arborClusterizer_HGCEE,
     positionReCalc = cms.PSet( ), #_simplePosCalcHGCEE,
-    energyCorrector = _HGCEE_EMEnergyCalibrator
+    energyCorrector = cms.PSet( ) #_HGCEE_EMEnergyCalibrator
 )
 
