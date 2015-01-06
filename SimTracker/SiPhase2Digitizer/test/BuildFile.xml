@@ -13,8 +13,20 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="DQMServices/Core"/>
+<use name="DataFormats/Common"/>
+<use name="FWCore/PluginManager"/>
+<use name="clhep"/>
+<use name="SimTracker/SiPhase2Digitizer"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
+<use name="DataFormats/ParticleFlowReco"/>
 <use name="classlib"/>
-<library   file="*.cc" name="SiPhase2DigiTest">
+<library   file="DigiValidation.cc" name="SiPhase2DigiTest">
+  <flags   EDM_PLUGIN="1"/>
+  <flags CXXFLAGS="-g3"/>
+</library>
+<library   file="hits.cc phase2clusters_validation.cc" name="SiPhase2ClustersValidation">
   <flags   EDM_PLUGIN="1"/>
   <flags CXXFLAGS="-g3"/>
 </library>
