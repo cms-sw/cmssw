@@ -23,7 +23,10 @@ getExternals()
             exit;
 	fi
 	echo "Copy gcc from  $ext/gcc/${gv}/ to ${gccd}"
-	cp -a $ext/gcc/${gv}/ ${gccd}/gcc
+        for i in bin etc lib lib64 libexec
+        do
+	   cp -a $ext/gcc/${gv}/ ${gccd}/gcc
+        done
         if [ `uname` = "Darwin" ]; then
            echo "Renaming gcc lib directory to lib64."
            mv ${gccd}/gcc/lib ${gccd}/gcc/lib64
@@ -99,6 +102,7 @@ getCmssw()
     do
 	cp -f $CMSSW_RELEASE_BASE/lib/$SCRAM_ARCH/*${i}* $tard/lib
 	grep $i  $CMSSW_RELEASE_BASE/lib/$SCRAM_ARCH/.edmplugincache  >> $cn
+	grep $i  $CMSSW_BASE/lib/$SCRAM_ARCH/.edmplugincache  >> $cn
 
     done;
     

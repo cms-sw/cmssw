@@ -873,15 +873,15 @@ FWGUIManager::exportImagesOfAllViews()
          if (name.find(ext) == name.npos)
             name += ext;
          // now add format trailing before the extension
-         name.insert(name.rfind('.'), "-%u_%u_%llu_%s");
-         exportAllViews(name);
+         name.insert(name.rfind('.'), "-%u_%u_%u_%s");
+         exportAllViews(name, -1);
       }
    }
    catch (std::runtime_error &e) { std::cout << e.what() << std::endl; }
 }
 
 void
-FWGUIManager::exportAllViews(const std::string& format)
+FWGUIManager::exportAllViews(const std::string& format, int height)
 {
    // Save all GL views.
    // Expects format to have "%u %u %llu %s" which are replaced with
@@ -929,7 +929,11 @@ FWGUIManager::exportAllViews(const std::string& format)
          TString file;
          file.Form(format.c_str(), event->id().run(), event->id().event(),
                    event->luminosityBlock(), view_name.Data());
-         (*j)->GetGLViewer()->SavePicture(file);
+
+         if (height == -1)
+            (*j)->GetGLViewer()->SavePicture(file);
+         else 
+            (*j)->GetGLViewer()->SavePictureHeight(file, height);
       }
    }
 }
