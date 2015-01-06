@@ -52,6 +52,7 @@ namespace edm {
 
     std::string const& currentFileName() const;
 
+    static void fillDescription(ParameterSetDescription& desc);
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
     using OutputModule::selectorConfig;
@@ -102,6 +103,9 @@ namespace edm {
     ///allow inheriting classes to override but still be able to call this method in the overridden version
     virtual bool shouldWeCloseFile() const override;
     virtual void write(EventPrincipal const& e, ModuleCallingContext const*) override;
+
+    virtual std::pair<std::string, std::string> physicalAndLogicalNameForNewFile();
+    virtual void doExtrasAfterCloseFile();
   private:
     virtual void openFile(FileBlock const& fb) override;
     virtual void respondToOpenInputFile(FileBlock const& fb) override;

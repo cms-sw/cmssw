@@ -269,12 +269,13 @@ namespace edm {
     writeThinnedAssociationsHelper();
     writeProductDependencies();
     finishEndFile();
+
+    doExtrasAfterCloseFile();
   }
 
   
   // At some later date, we may move functionality from finishEndFile() to here.
   void PoolOutputModule::startEndFile() { }
-
 
   void PoolOutputModule::writeFileFormatVersion() { rootOutputFile_->writeFileFormatVersion(); }
   void PoolOutputModule::writeFileIdentifier() { rootOutputFile_->writeFileIdentifier(); }
@@ -287,10 +288,12 @@ namespace edm {
   void PoolOutputModule::writeThinnedAssociationsHelper() { rootOutputFile_->writeThinnedAssociationsHelper(); }
   void PoolOutputModule::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
   void PoolOutputModule::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_.reset(); }
+  void PoolOutputModule::doExtrasAfterCloseFile() {}
   bool PoolOutputModule::isFileOpen() const { return rootOutputFile_.get() != 0; }
   bool PoolOutputModule::shouldWeCloseFile() const { return rootOutputFile_->shouldWeCloseFile(); }
 
-  void PoolOutputModule::reallyOpenFile() {
+  std::pair<std::string, std::string>
+  PoolOutputModule::physicalAndLogicalNameForNewFile() {
       if(inputFileCount_ == 0) {
         throw edm::Exception(errors::LogicError)
           << "Attempt to open output file before input file. "
@@ -318,14 +321,20 @@ namespace edm {
         }
       }
       ofilename << suffix;
-      rootOutputFile_.reset(new RootOutputFile(this, ofilename.str(), lfilename.str()));
       ++outputFileCount_;
+
+      return std::make_pair(ofilename.str(), lfilename.str());
+  }
+
+  void PoolOutputModule::reallyOpenFile() {
+    auto names = physicalAndLogicalNameForNewFile();
+    rootOutputFile_.reset( new RootOutputFile(this, names.first, names.second));
   }
 
   void
-  PoolOutputModule::fillDescriptions(ConfigurationDescriptions & descriptions) {
+  PoolOutputModule::fillDescription(ParameterSetDescription& desc) {
     std::string defaultString;
-    ParameterSetDescription desc;
+
     desc.setComment("Writes runs, lumis, and events into EDM/ROOT files.");
     desc.addUntracked<std::string>("fileName")
         ->setComment("Name of output file.");
@@ -372,7 +381,12 @@ namespace edm {
      ->setComment("PSet is only used by Data Operations and not by this module.");
 
     OutputModule::fillDescription(desc);
+  }
 
+  void
+  PoolOutputModule::fillDescriptions(ConfigurationDescriptions & descriptions) {
+    ParameterSetDescription desc;
+    PoolOutputModule::fillDescription(desc);
     descriptions.add("edmOutput", desc);
   }
 }

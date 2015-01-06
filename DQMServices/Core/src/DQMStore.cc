@@ -2541,6 +2541,11 @@ void DQMStore::savePB(const std::string &filename,
                                options);
   dqmstore_message.SerializeToZeroCopyStream(&gzip_stream);
 
+  // we need to flush it before we close the fd
+  gzip_stream.Close();
+  file_stream.Close();
+  ::close(filedescriptor);
+
   // Maybe make some noise.
   if (verbose_)
     std::cout << "DQMStore::savePB: successfully wrote " << nme
@@ -3071,6 +3076,7 @@ DQMStore::readFilePB(const std::string &filename,
     raiseDQMError("DQMStore", "Fatal parsing file '%s'", filename.c_str());
     return false;
   }
+  ::close(filedescriptor);
 
   for (int i = 0; i < dqmstore_message.histo_size(); i++) {
     std::string path;
