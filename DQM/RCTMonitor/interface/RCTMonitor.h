@@ -6,8 +6,8 @@
 //
 // Package:    RCTMonitor
 // Class:      RCTMonitor
-// 
-/**\class RCTMonitor 
+//
+/**\class RCTMonitor
 
  Description: DQM monitor for the Regional Calorimeter Trigger
 
@@ -35,7 +35,6 @@
 
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
-
 
 #include <TH1F.h>
 #include <TH1I.h>
@@ -69,25 +68,23 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 
-struct rct_location { unsigned crate,card,region; };
+struct rct_location {
+  unsigned crate, card, region;
+};
 
 class RCTMonitor : public edm::EDAnalyzer {
-
  public:
-
-  explicit RCTMonitor( const edm::ParameterSet& );
+  explicit RCTMonitor(const edm::ParameterSet&);
   ~RCTMonitor();
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob();
   virtual void endJob(void);
 
-  void BookRCT() ;
-  void FillRCT(const edm::Event&, const edm::EventSetup&) ;
-
+  void BookRCT();
+  void FillRCT(const edm::Event&, const edm::EventSetup&);
 
  private:
-
   // Don't use the default constructor
   RCTMonitor();
 
@@ -119,28 +116,52 @@ class RCTMonitor : public edm::EDAnalyzer {
   // Bins etc.
 
   // GCT and RCT
-  static const unsigned int ETABINS;    static const float ETAMIN;    static const float ETAMAX;
-  static const unsigned int PHIBINS;    static const float PHIMIN;    static const float PHIMAX;
-  static const unsigned int METPHIBINS; static const float METPHIMIN; static const float METPHIMAX;
-  static const unsigned int R6BINS;     static const float R6MIN;     static const float R6MAX;
-  static const unsigned int R10BINS;    static const float R10MIN;    static const float R10MAX;
-  static const unsigned int R12BINS;    static const float R12MIN;    static const float R12MAX;
+  static const unsigned int ETABINS;
+  static const float ETAMIN;
+  static const float ETAMAX;
+  static const unsigned int PHIBINS;
+  static const float PHIMIN;
+  static const float PHIMAX;
+  static const unsigned int METPHIBINS;
+  static const float METPHIMIN;
+  static const float METPHIMAX;
+  static const unsigned int R6BINS;
+  static const float R6MIN;
+  static const float R6MAX;
+  static const unsigned int R10BINS;
+  static const float R10MIN;
+  static const float R10MAX;
+  static const unsigned int R12BINS;
+  static const float R12MIN;
+  static const float R12MAX;
 
   // HCAL and ECAL TPs
-  static const unsigned int TPETABINS; static const float TPETAMIN; static const float TPETAMAX;
-  static const unsigned int TPPHIBINS; static const float TPPHIMIN; static const float TPPHIMAX;  
-  static const unsigned int RTPBINS;   static const float RTPMIN;   static const float RTPMAX;
+  static const unsigned int TPETABINS;
+  static const float TPETAMIN;
+  static const float TPETAMAX;
+  static const unsigned int TPPHIBINS;
+  static const float TPPHIMIN;
+  static const float TPPHIMAX;
+  static const unsigned int RTPBINS;
+  static const float RTPMIN;
+  static const float RTPMAX;
 
   // Physical bins 1 GeV to 1 TeV in steps of 1 GeV
-  static const unsigned int TEVBINS;    static const float TEVMIN;    static const float TEVMAX;
-  static const unsigned int L1EETABINS; static const float L1EETAMIN; static const float L1EETAMAX;
-  static const unsigned int L1EPHIBINS; static const float L1EPHIMIN; static const float L1EPHIMAX;  
+  static const unsigned int TEVBINS;
+  static const float TEVMIN;
+  static const float TEVMAX;
+  static const unsigned int L1EETABINS;
+  static const float L1EETAMIN;
+  static const float L1EETAMAX;
+  static const unsigned int L1EPHIBINS;
+  static const float L1EPHIMIN;
+  static const float L1EPHIMAX;
 
   // event counter
   int m_nevts;
 
   // back-end interface
-  DQMStore * m_dbe;
+  DQMStore* m_dbe;
 
   // Enable the daemon
   bool m_enableMonitorDaemon;
@@ -153,10 +174,8 @@ class RCTMonitor : public edm::EDAnalyzer {
   bool m_writeOutputFile;
   std::string m_outputFileName;
 
-
-  //define Token(-s)
+  // define Token(-s)
   edm::EDGetTokenT<L1CaloEmCollection> m_rctSourceToken_;
 };
 
-#endif 
-
+#endif
