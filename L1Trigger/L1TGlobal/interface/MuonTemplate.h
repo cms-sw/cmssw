@@ -62,10 +62,13 @@ public:
         bool enableMip;
         bool enableIso;
         bool requestIso;
-        unsigned int qualityRange;
+        unsigned int qualityLUT;
+        unsigned int isolationLUT;
         unsigned long long etaRange;
         unsigned int phiHigh;
         unsigned int phiLow;
+
+	int charge;
 
       unsigned int etaWindowLower;
       unsigned int etaWindowUpper;
