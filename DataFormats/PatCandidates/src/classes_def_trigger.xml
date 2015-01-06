@@ -1,7 +1,8 @@
 <lcgdict>
  <selection>
 
-  <class name="pat::TriggerObject"  ClassVersion="11">
+  <class name="pat::TriggerObject"  ClassVersion="12">
+   <version ClassVersion="12" checksum="2628734905"/>
    <version ClassVersion="11" checksum="2574350865"/>
    <version ClassVersion="10" checksum="2299474032"/>
   </class>
@@ -25,7 +26,8 @@
   <class name="std::map&lt;std::string, edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt; &gt;::const_iterator" />
   <class name="edm::Wrapper&lt;std::map&lt;std::string, edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt; &gt; &gt;" />
 
-  <class name="pat::TriggerObjectStandAlone"  ClassVersion="12">
+  <class name="pat::TriggerObjectStandAlone"  ClassVersion="13">
+   <version ClassVersion="13" checksum="54935316"/>
    <version ClassVersion="12" checksum="2923001116"/>
    <version ClassVersion="10" checksum="3478292234"/>
    <version ClassVersion="11" checksum="167266363"/>

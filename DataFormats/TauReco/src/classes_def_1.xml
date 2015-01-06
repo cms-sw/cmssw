@@ -83,7 +83,8 @@ for(auto const& ref : onfile.PFGammaCands_) {
 
 
   
-  <class name="reco::BaseTau" ClassVersion="11">
+  <class name="reco::BaseTau" ClassVersion="12">
+   <version ClassVersion="12" checksum="240869876"/>
    <version ClassVersion="10" checksum="3887454152"/>
    <version ClassVersion="11" checksum="3609212284"/>
   </class>
@@ -94,7 +95,8 @@ for(auto const& ref : onfile.PFGammaCands_) {
   <class name="edm::RefVector<std::vector<reco::BaseTau>,reco::BaseTau,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTau>,reco::BaseTau> >"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::BaseTau>,reco::BaseTau,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTau>,reco::BaseTau> > >" />
   
-  <class name="reco::CaloTau" ClassVersion="11">
+  <class name="reco::CaloTau" ClassVersion="12">
+   <version ClassVersion="12" checksum="106193771"/>
    <version ClassVersion="10" checksum="1329876375"/>
    <version ClassVersion="11" checksum="1065337651"/>
   </class>

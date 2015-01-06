@@ -12,6 +12,7 @@
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 
 namespace reco {
 
@@ -78,7 +79,7 @@ namespace reco {
     /// set mother product ID
     void resetMothers( const edm::ProductID & id ) { mom = mothers( id ); }
 
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(13)
 
   private:
     /// const iterator implementation
