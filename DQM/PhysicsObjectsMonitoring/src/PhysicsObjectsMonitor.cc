@@ -19,8 +19,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
-// Not needed for data monitoring! #include
-// "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
@@ -36,20 +34,15 @@ PhysicsObjectsMonitor::PhysicsObjectsMonitor(const ParameterSet& pset) {
       pset.getUntrackedParameter<string>("StandAloneTrackCollectionLabel");
   theSeedCollectionLabel =
       pset.getUntrackedParameter<string>("MuonSeedCollectionLabel");
-
-  theRootFileName = pset.getUntrackedParameter<string>("rootFileName");
-  saveRootFile = pset.getUntrackedParameter<bool>("produceRootFile");
-
   theDataType = pset.getUntrackedParameter<string>("DataType");
 
   if (theDataType != "RealData" && theDataType != "SimData")
     edm::LogInfo("PhysicsObjectsMonitor") << "Error in Data Type!!" << endl;
 
-  numberOfSimTracks = 0;
-  numberOfRecTracks = 0;
-
-  /// get hold of back-end interface
-  dbe = edm::Service<DQMStore>().operator->();
+  if (theDataType == "SimData") {
+    edm::LogInfo("PhysicsObjectsMonitor")
+        << "Sorry! Running this package on simulation is no longer supported! ";
+  }
 
   // set Token(-s)
   theSTAMuonToken_ = consumes<reco::TrackCollection>(
@@ -59,49 +52,35 @@ PhysicsObjectsMonitor::PhysicsObjectsMonitor(const ParameterSet& pset) {
 /// Destructor
 PhysicsObjectsMonitor::~PhysicsObjectsMonitor() {}
 
-void PhysicsObjectsMonitor::beginJob() {
-  dbe->setCurrentFolder("PhysicsObjects/MuonReconstruction");
+void PhysicsObjectsMonitor::bookHistograms(DQMStore::IBooker& iBooker,
+                                           edm::Run const&,
+                                           edm::EventSetup const&) {
+  iBooker.setCurrentFolder("PhysicsObjects/MuonReconstruction");
 
-  hPres = dbe->book1D("pTRes", "pT Resolution", 100, -2, 2);
-  h1_Pres = dbe->book1D("invPTRes", "1/pT Resolution", 100, -2, 2);
+  hPres = iBooker.book1D("pTRes", "pT Resolution", 100, -2, 2);
+  h1_Pres = iBooker.book1D("invPTRes", "1/pT Resolution", 100, -2, 2);
 
-  charge = dbe->book1D("charge", "track charge", 5, -2.5, 2.5);
-  ptot = dbe->book1D("ptot", "track momentum", 50, 0, 50);
-  pt = dbe->book1D("pt", "track pT", 100, 0, 50);
-  px = dbe->book1D("px ", "track px", 100, -50, 50);
-  py = dbe->book1D("py", "track py", 100, -50, 50);
-  pz = dbe->book1D("pz", "track pz", 100, -50, 50);
-  Nmuon = dbe->book1D("Nmuon", "Number of muon tracks", 11, -.5, 10.5);
-  Nrechits = dbe->book1D("Nrechits", "Number of RecHits/Segments on track", 21,
-                         -.5, 21.5);
-  NDThits = dbe->book1D("NDThits", "Number of DT Hits/Segments on track", 31,
-                        -.5, 31.5);
-  NCSChits = dbe->book1D("NCSChits", "Number of CSC Hits/Segments on track", 31,
-                         -.5, 31.5);
+  charge = iBooker.book1D("charge", "track charge", 5, -2.5, 2.5);
+  ptot = iBooker.book1D("ptot", "track momentum", 50, 0, 50);
+  pt = iBooker.book1D("pt", "track pT", 100, 0, 50);
+  px = iBooker.book1D("px ", "track px", 100, -50, 50);
+  py = iBooker.book1D("py", "track py", 100, -50, 50);
+  pz = iBooker.book1D("pz", "track pz", 100, -50, 50);
+  Nmuon = iBooker.book1D("Nmuon", "Number of muon tracks", 11, -.5, 10.5);
+  Nrechits = iBooker.book1D("Nrechits", "Number of RecHits/Segments on track",
+                            21, -.5, 21.5);
+  NDThits = iBooker.book1D("NDThits", "Number of DT Hits/Segments on track", 31,
+                           -.5, 31.5);
+  NCSChits = iBooker.book1D("NCSChits", "Number of CSC Hits/Segments on track",
+                            31, -.5, 31.5);
   NRPChits =
-      dbe->book1D("NRPChits", "Number of RPC hits on track", 11, -.5, 11.5);
+      iBooker.book1D("NRPChits", "Number of RPC hits on track", 11, -.5, 11.5);
 
-  DTvsCSC = dbe->book2D("DTvsCSC", "Number of DT vs CSC hits on track", 29, -.5,
-                        28.5, 29, -.5, 28.5);
+  DTvsCSC = iBooker.book2D("DTvsCSC", "Number of DT vs CSC hits on track", 29,
+                           -.5, 28.5, 29, -.5, 28.5);
   TH2F* root_ob = DTvsCSC->getTH2F();
   root_ob->SetXTitle("Number of DT hits");
   root_ob->SetYTitle("Number of CSC hits");
-}
-
-void PhysicsObjectsMonitor::endJob() {
-  if (theDataType == "SimData") {
-    //     edm::LogInfo ("PhysicsObjectsMonitor") << "Number of Sim tracks: " <<
-    //     numberOfSimTracks;
-    edm::LogInfo("PhysicsObjectsMonitor")
-        << "Sorry! Running this package on simulation is no longer supported! ";
-  }
-
-  edm::LogInfo("PhysicsObjectsMonitor")
-      << "Number of Reco tracks: " << numberOfRecTracks;
-
-  if (saveRootFile) dbe->save(theRootFileName);
-  dbe->setCurrentFolder("PhysicsObjects/MuonReconstruction");
-  dbe->removeContents();
 }
 
 void PhysicsObjectsMonitor::analyze(const Event& event,
@@ -119,29 +98,6 @@ void PhysicsObjectsMonitor::analyze(const Event& event,
 
   double recPt = 0.;
   double simPt = 0.;
-
-  // Get the SimTrack collection from the event
-  //  if(theDataType == "SimData"){
-  //  Handle<SimTrackContainer> simTracks;
-
-  //  numberOfRecTracks += staTracks->size();
-
-  //    SimTrackContainer::const_iterator simTrack;
-
-  //    edm::LogInfo ("PhysicsObjectsMonitor") <<"Simulated tracks: ";
-  //  for (simTrack = simTracks->begin(); simTrack != simTracks->end();
-  //  ++simTrack){
-  //    if (abs((*simTrack).type()) == 13) {
-  //      edm::LogInfo ("PhysicsObjectsMonitor") <<	"Sim pT:
-  //      "<<(*simTrack).momentum().perp()<<endl;
-  //	simPt=(*simTrack).momentum().perp();
-  //	edm::LogInfo ("PhysicsObjectsMonitor") <<"Sim Eta:
-  //"<<(*simTrack).momentum().eta()<<endl;
-  //	numberOfSimTracks++;
-  //   }
-  //  }
-  //  edm::LogInfo ("PhysicsObjectsMonitor") << "\n";
-  //}
 
   reco::TrackCollection::const_iterator staTrack;
 

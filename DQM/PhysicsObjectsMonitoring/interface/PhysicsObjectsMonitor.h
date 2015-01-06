@@ -11,9 +11,8 @@
  */
 
 // Base Class Headers
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 //#include "DataFormats/TrackReco/interface/Track.h"
@@ -29,23 +28,18 @@ class TFile;
 class TH1F;
 class TH2F;
 
-class PhysicsObjectsMonitor : public edm::EDAnalyzer {
+class PhysicsObjectsMonitor : public DQMEDAnalyzer {
  public:
   /// Constructor
   PhysicsObjectsMonitor(const edm::ParameterSet &pset);
   /// Destructor
   virtual ~PhysicsObjectsMonitor();
-
   // Operations
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
+                      edm::EventSetup const &) override;
   void analyze(const edm::Event &event, const edm::EventSetup &eventSetup);
 
-  virtual void beginJob();
-  virtual void endJob();
  private:
-  std::string theRootFileName;
-  bool saveRootFile;
-  DQMStore *dbe;
-
   std::string theSTAMuonLabel;
   std::string theSeedCollectionLabel;
 
@@ -68,10 +62,6 @@ class PhysicsObjectsMonitor : public edm::EDAnalyzer {
   MonitorElement *DTvsRPC;
   MonitorElement *CSCvsRPC;
   MonitorElement *NRPChits;
-
-  // Counters
-  int numberOfSimTracks;
-  int numberOfRecTracks;
 
   std::string theDataType;
 
