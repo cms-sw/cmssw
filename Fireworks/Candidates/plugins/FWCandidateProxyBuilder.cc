@@ -19,12 +19,24 @@
 #include "Fireworks/Candidates/interface/CandidateUtils.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
+
 
 class FWCandidateProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Candidate>  {
       
 public:
    FWCandidateProxyBuilder() {}
    virtual ~FWCandidateProxyBuilder() {}
+
+   virtual void setItem(const FWEventItem* iItem) override
+   {
+      FWProxyBuilderBase::setItem(iItem);
+      if (iItem)
+      {
+         iItem->getConfig()->assertParam("Draw backward extrapolation", false);
+      }
+   }
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -44,6 +56,21 @@ FWCandidateProxyBuilder::build(const reco::Candidate& iData, unsigned int iIndex
    
    trk->MakeTrack();
    setupAddElement(trk, &oItemHolder);
+
+   if ( item()->getConfig()->value<bool>("Draw backward extrapolation"))
+   {
+      TEveRecTrack t;
+      t.fBeta = 1.;
+      t.fV = TEveVector(iData.vx(),iData.vy(),iData.vz());
+      t.fP = TEveVector(-iData.p4().px(), -iData.p4().py(), -iData.p4().pz());
+      t.fSign = iData.charge();
+      TEveTrack* trk2= new TEveTrack(&t, context().getTrackPropagator());
+      trk2->SetLineStyle(7);
+      trk2->MakeTrack();
+      setupAddElement(trk2, &oItemHolder);
+
+   }
+
 }
 
 //

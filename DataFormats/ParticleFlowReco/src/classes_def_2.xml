@@ -28,15 +28,9 @@
   </class>
   <class name="std::vector<reco::PFRecHitFraction>"/>
 
-  <class name="reco::RecoPFClusterRefCandidateBase">
-    <field name="p4Polar_" transient="true"/>
-    <field name="p4Cartesian_" transient="true"/>
-    <field name="cachePolarFixed_" transient="true"/>
-    <field name="cacheCartesianFixed_" transient="true"/>
-  </class>
-
-  <class name="reco::RecoPFClusterRefCandidate"  ClassVersion="11">
-   <version ClassVersion="11" checksum="3413346722"/>
+  <class name="reco::RecoPFClusterRefCandidate"  ClassVersion="12">
+   <version ClassVersion="12" checksum="4214927259"/>
+   <version ClassVersion="11" checksum="3462309765"/>
    <version ClassVersion="10" checksum="3428152128"/>
   </class>
 

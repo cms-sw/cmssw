@@ -1,4 +1,4 @@
-
+ 
 import sys
 
 from Configuration.PyReleaseValidation.WorkFlow import WorkFlow
@@ -91,6 +91,14 @@ class MatrixReader(object):
             cmd += ' ' + k + ' ' + str(v)
         return cfg, input, cmd
     
+    def makeStep(self,step,overrides):
+        from Configuration.PyReleaseValidation.relval_steps import merge
+        if len(overrides.keys()) > 0:
+            copyStep=merge([overrides]+[step])
+            return copyStep
+        else:    
+            return step
+
     def readMatrix(self, fileNameIn, useInput=None, refRel=None, fromScratch=None):
         
         prefix = self.filesPrefMap[fileNameIn]
@@ -156,6 +164,7 @@ class MatrixReader(object):
             commands=[]
             wfName = wfInfo[0]
             stepList = wfInfo[1]
+            stepOverrides=wfInfo.overrides
             # if no explicit name given for the workflow, use the name of step1
             if wfName.strip() == '': wfName = stepList[0]
             # option to specialize the wf as the third item in the WF list
@@ -225,13 +234,12 @@ class MatrixReader(object):
                         stepList.insert(stepIndex,stepName)
                 """    
                 name += stepName
-
                 if addCom and (not addTo or addTo[stepIndex]==1):
                     from Configuration.PyReleaseValidation.relval_steps import merge
-                    copyStep=merge(addCom+[self.relvalModule.steps[stepName]])
+                    copyStep=merge(addCom+[self.makeStep(self.relvalModule.steps[stepName],stepOverrides)])
                     cfg, input, opts = self.makeCmd(copyStep)
                 else:
-                    cfg, input, opts = self.makeCmd(self.relvalModule.steps[stepName])
+                    cfg, input, opts = self.makeCmd(self.makeStep(self.relvalModule.steps[stepName],stepOverrides))
 
                 if input and cfg :
                     msg = "FATAL ERROR: found both cfg and input for workflow "+str(num)+' step '+stepName
