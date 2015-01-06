@@ -92,7 +92,7 @@ def _getRelValUrl(release):
 
 class Sample:
     """Represents a RelVal sample."""
-    def __init__(self, sample, midfix=None, putype=None,
+    def __init__(self, sample, append=None, midfix=None, putype=None,
                  fastsim=False, fastsimCorrespondingFullsimPileup=None,
                  version="v1", scenario=None):
         """Constructor.
@@ -101,13 +101,15 @@ class Sample:
         sample -- String for name of the sample
 
         Keyword arguments
-        midfix  -- String for a variable name within the DQM file names (e.g. "13", "UP15"; default None)
+        append  -- String for a variable name within the DWM file names, to be directly appended to sample name (e.g. "HS"; default None)
+        midfix  -- String for a variable name within the DQM file names, to be appended after underscore to "sample name+append" (e.g. "13", "UP15"; default None)
         putype  -- String for pileup type (e.g. "25ns"/"50ns" for FullSim, "AVE20" for FastSim; default None)
         fastsim -- Bool indicating the FastSim status (default False)
         fastsimCorrespondingFullSimPileup -- String indicating what is the FullSim pileup sample corresponding this FastSim sample. Must be set if fastsim=True and putype!=None (default None)
         version -- String for dataset/DQM file version (default "v1")
         """
         self._sample = sample
+        self._append = append
         self._midfix = midfix
         self._putype = putype
         self._fastsim = fastsim
@@ -192,8 +194,10 @@ class Sample:
         fastsim = ""
         midfix = ""
         scenario = ""
+        if self._append is not None:
+            midfix += self._append
         if self._midfix is not None:
-            midfix = "_"+self._midfix
+            midfix += "_"+self._midfix
         if self.hasPileup():
             if self._fastsim:
                 pileup = "PU_"

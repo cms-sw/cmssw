@@ -22,6 +22,7 @@ startupsamples= [
     Sample('RelValTTbar', midfix="13"),
     Sample('RelValQCD_Pt_3000_3500', midfix="13"),
     Sample('RelValQCD_Pt_600_800', midfix="13"),
+    Sample('RelValQCD_FlatPt_15_3000', append="HS", midfix="13"),
     Sample('RelValSingleElectronPt35', midfix="UP15"),
     Sample('RelValSingleElectronPt10', midfix="UP15"),
     Sample('RelValSingleMuPt10', midfix="UP15"),
@@ -52,10 +53,13 @@ upgradesamples = [
 
 fastsimstartupsamples = [
     Sample('RelValTTbar', midfix="13", fastsim=True)
+    Sample('RelValQCD_FlatPt_15_3000', midfix="13", fastsim=True),
+    Sample('RelValSingleMuPt10', midfix="UP15", fastsim=True),
+    Sample('RelValSingleMuPt100', midfix="UP15", fastsim=True)
 ]
 
 pileupfastsimstartupsamples = [
-    Sample('RelValTTbar', putype="AVE20", midfix="13", fastsim=True, fastsimCorrespondingFullsimPileup="50ns")
+#    Sample('RelValTTbar', putype="AVE20", midfix="13", fastsim=True, fastsimCorrespondingFullsimPileup="50ns")
 ]
 
 ### Track algorithm name and quality. Can be a list.
