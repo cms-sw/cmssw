@@ -11,11 +11,12 @@
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="SimGeneral/NoiseGenerators"/>
 <use   name="SimTracker/Common"/>
+<use   name="DataFormats/SiPixelDetId"/>
+<use   name="DataFormats/SiPixelCluster"/>
 <use   name="CalibTracker/SiPixelESProducers"/>
 <use   name="gsl"/>
 <use   name="clhep"/>
 <use   name="root"/>
-<use   name="rootflx"/>
-<library   file="*.cc" name="SimTrackerSiPhase2DigitizerPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>
+<export>
+  <lib name="1"/>
+</export>
