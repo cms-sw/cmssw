@@ -87,7 +87,7 @@ getCmssw()
 
     mkdir -p ${tard}/lib
     fwl="/tmp/fwlite_build_set.file"
-    $dwnCmd $fwl https://raw.githubusercontent.com/cms-sw/cmsdist/IB/CMSSW_7_0_X/stable/fwlite_build_set.file
+    $dwnCmd $fwl https://raw.githubusercontent.com/cms-sw/cmsdist/IB/$CMSSW_VERSION/stable/fwlite_build_set.file
     
     # remove package without libs
     perl -i -ne 'print unless /Fireworks\/Macros/' $fwl
@@ -105,7 +105,15 @@ getCmssw()
 	grep $i  $CMSSW_BASE/lib/$SCRAM_ARCH/.edmplugincache  >> $cn
 
     done;
-    
+
+    # workaround for missing fwlite package list
+    for i in CondFormatsSerialization GeometryCommonDetUnit
+    do
+	cp -f $CMSSW_RELEASE_BASE/lib/$SCRAM_ARCH/*${i}* $tard/lib
+	grep $i  $CMSSW_RELEASE_BASE/lib/$SCRAM_ARCH/.edmplugincache  >> $cn
+	grep $i  $CMSSW_BASE/lib/$SCRAM_ARCH/.edmplugincache  >> $cn
+    done
+
     echo "getting libs from $CMSSW_BASE/lib/$SCRAM_ARCH"
     cp -f $CMSSW_BASE/lib/$SCRAM_ARCH/* ${tard}/lib/
 
