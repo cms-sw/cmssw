@@ -141,6 +141,7 @@ popcon::EcalDAQHandler::EcalDAQHandler(const edm::ParameterSet & ps)
   m_location = ps.getParameter<std::string>("location"); 
   m_runtype  = ps.getParameter<std::string>("runtype"); 
   m_gentag   = ps.getParameter<std::string>("gentag"); 
+  m_debug    = ps.getParameter<bool>("debug");
 
   std::cout << m_sid << "/" << m_user << std::endl;
 
@@ -158,8 +159,7 @@ uint16_t popcon::EcalDAQHandler::OffDBStatus( uint16_t dbStatus , int pos ) {
 
 
 void popcon::EcalDAQHandler::getNewObjects() {
-  //  bool lot_of_printout=false; 
-  std::cout << "------- Ecal DAQ - > getNewObjects\n";
+  if(m_debug) std::cout << "------- Ecal DAQ - > getNewObjects\n";
 
   std::ostringstream ss; 
   ss<<"ECAL ";
@@ -173,66 +173,99 @@ void popcon::EcalDAQHandler::getNewObjects() {
   std::cout << " max_since : "  << max_since << std::endl;
 
 
-  Ref daq_db = lastPayload();
-  std::cout << "retrieved last payload "  << std::endl;
-
-  // we copy the last valid record to a temporary object peds
-  EcalDAQTowerStatus* daq_temp = new EcalDAQTowerStatus();
-
-  // barrel
   uint16_t oldEBStatus[72][17][2];
   uint16_t newEBStatus[72][17][2];
   uint16_t oldEEStatus[20][20][2];
   uint16_t newEEStatus[20][20][2];
-  int iz = -1;
-  for(int k = 0 ; k < 2; k++ ) {
-    if(k == 1) iz = 1;
-    for(int iphi = 1 ; iphi < 73; iphi++) {
-      for(int ieta = 1 ; ieta < 18; ieta++) {
-	if (EcalTrigTowerDetId::validDetId(iz,EcalBarrel,ieta,iphi )){
-	  EcalTrigTowerDetId ebid(iz,EcalBarrel,ieta,iphi);
 
-	  uint16_t dbStatus = 0;
-	  dbStatus =(daq_db->barrel( ebid.hashedIndex())).getStatusCode();
-	  oldEBStatus[iphi - 1][ieta -1][k] = dbStatus;
+  // we copy the last valid record to a temporary object peds
+  EcalDAQTowerStatus* daq_temp = new EcalDAQTowerStatus();
 
-	  EcalDAQTowerStatus::const_iterator it =daq_db->find(ebid.rawId());
-	  if ( it != daq_db->end() ) {
-	  } else {
-	    std::cout<<"*** error channel not found: eta/phi ="<< ieta << "/" << iphi << std::endl;
+  if(tagInfo().size) {
+    Ref daq_db = lastPayload();
+    if(m_debug) std::cout << "retrieved last payload "  << std::endl;
+
+    // barrel
+    int iz = -1;
+    for(int k = 0 ; k < 2; k++ ) {
+      if(k == 1) iz = 1;
+      for(int iphi = 1 ; iphi < 73; iphi++) {
+	for(int ieta = 1 ; ieta < 18; ieta++) {
+	  if (EcalTrigTowerDetId::validDetId(iz,EcalBarrel,ieta,iphi )){
+	    EcalTrigTowerDetId ebid(iz,EcalBarrel,ieta,iphi);
+
+	    uint16_t dbStatus = 0;
+	    dbStatus =(daq_db->barrel( ebid.hashedIndex())).getStatusCode();
+	    oldEBStatus[iphi - 1][ieta -1][k] = dbStatus;
+
+	    EcalDAQTowerStatus::const_iterator it =daq_db->find(ebid.rawId());
+	    if ( it != daq_db->end() ) {
+	    } else {
+	      std::cout<<"*** error channel not found: eta/phi ="<< ieta << "/" << iphi << std::endl;
+	    }
+	    daq_temp->setValue( ebid, dbStatus );
+	    if(m_debug && dbStatus != 0) std::cout << "barrel side " << k << " phi " << iphi << " eta " << ieta << " status " << dbStatus << std::endl;
 	  }
-	  daq_temp->setValue( ebid, dbStatus );
-	  if(dbStatus != 0) std::cout << "barrel side " << k << " phi " << iphi << " eta " << ieta << " status " << dbStatus << std::endl;
-	}
-      }  // end loop over ieta
-    }  // end loop over iphi
+	}  // end loop over ieta
+      }  // end loop over iphi
 
-  // endcap
-    for(int ix = 1 ; ix < 21; ix++) {
-      for(int iy = 1 ; iy < 21; iy++) {
-	if (EcalScDetId::validDetId(ix,iy,iz )){
-	  EcalScDetId eeid(ix,iy,iz);
+      // endcap
+      for(int ix = 1 ; ix < 21; ix++) {
+	for(int iy = 1 ; iy < 21; iy++) {
+	  if (EcalScDetId::validDetId(ix,iy,iz )){
+	    EcalScDetId eeid(ix,iy,iz);
 
-	  EcalDAQTowerStatus::const_iterator it =daq_db->find(eeid.rawId());
+	    EcalDAQTowerStatus::const_iterator it =daq_db->find(eeid.rawId());
 
-	  uint16_t dbStatus = 0;
-	  if ( it != daq_db->end() ) {
-	    dbStatus = it->getStatusCode();
-	  } 
-	  oldEEStatus[ix - 1][iy -1][k] = dbStatus;
-	  daq_temp->setValue( eeid, dbStatus );
-	  if(dbStatus != 0) std::cout << "endcap side " << k << " x " << ix << " y " << iy << " status " << dbStatus << std::endl;
-	}
-      }  // end loop over iy
-    }  // end loop over ix
-  }  // end loop over k (side)
+	    uint16_t dbStatus = 0;
+	    if ( it != daq_db->end() ) {
+	      dbStatus = it->getStatusCode();
+	    } 
+	    oldEEStatus[ix - 1][iy -1][k] = dbStatus;
+	    daq_temp->setValue( eeid, dbStatus );
+	    if(m_debug && dbStatus != 0) std::cout << "endcap side " << k << " x " << ix << " y " << iy << " status " << dbStatus << std::endl;
+	  }
+	}  // end loop over iy
+      }  // end loop over ix
+    }  // end loop over k (side)
+  }  // check if there is already a payload
+  else {
+    if(m_debug) std::cout << " No db found : set default values " << std::endl;
+    // barrel
+    int iz = -1;
+    for(int k = 0 ; k < 2; k++ ) {
+      if(k == 1) iz = 1;
+      for(int iphi = 1 ; iphi < 73; iphi++) {
+	for(int ieta = 1 ; ieta < 18; ieta++) {
+	  if (EcalTrigTowerDetId::validDetId(iz,EcalBarrel,ieta,iphi )){
+	    EcalTrigTowerDetId ebid(iz,EcalBarrel,ieta,iphi);
+
+	    uint16_t dbStatus = 0;
+	    oldEBStatus[iphi - 1][ieta -1][k] = dbStatus;
+	    daq_temp->setValue( ebid, dbStatus );
+	  } // valid Id
+	}  // end loop over ieta
+      }  // end loop over iphi
+      // endcap
+      for(int ix = 1 ; ix < 21; ix++) {
+	for(int iy = 1 ; iy < 21; iy++) {
+	  if (EcalScDetId::validDetId(ix,iy,iz )){
+	    EcalScDetId eeid(ix,iy,iz);
+	    uint16_t dbStatus = 0;
+	    oldEEStatus[ix - 1][iy -1][k] = dbStatus;
+	    daq_temp->setValue( eeid, dbStatus );
+	  } // valid Id
+	}  // end loop over iy
+      }   // end loop over ix
+    }    // end loop over k (side)
+  }     //  no payload set default values
 
   // now read the actual status from the online DB
 
 
-  std::cout << "Retrieving DAQ status from OMDS DB ... " << std::endl;
+  if(m_debug) std::cout << "Retrieving DAQ status from OMDS DB ... " << std::endl;
   econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
-  std::cout << "Connection done" << std::endl;
+  if(m_debug) std::cout << "Connection done" << std::endl;
 	
   if (!econn) {
     std::cout << " Problem with OMDS: connection parameters " << m_sid << "/" << m_user << "/" << m_pass << std::endl;
@@ -275,7 +308,6 @@ void popcon::EcalDAQHandler::getNewObjects() {
     //ofstream *daqFile;
     //daqFile = new ofstream(outfile,ios::out);
   
-    bool debug = false;
     //    for(int kr = 0; kr < num_runs; kr++){
     int krmax = std::min(num_runs, 1000);
     for(int kr = 0; kr < krmax; kr++){
@@ -284,8 +316,6 @@ void popcon::EcalDAQHandler::getNewObjects() {
       if(run_vec[kr].getRunTag().getGeneralTag() != "GLOBAL") continue;
       bool somediff = false;
       // initialize this run status to all OK
-      if(kr == 0) debug = true;
-      else debug = false;
       irun = (unsigned long) run_vec[kr].getRunNumber();
       for(int k = 0 ; k < 2; k++ ) {
 	for(int iphi = 0 ; iphi < 72; iphi++) {
@@ -324,7 +354,6 @@ void popcon::EcalDAQHandler::getNewObjects() {
 
 	
       if(fed_dat.size() != 54 ) {
-	// debug = true;
 	int SM[36] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 		      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	int Sect[2][9] = {{0, 0, 0, 0, 0, 0, 0, 0, 0},{0, 0, 0, 0, 0, 0, 0, 0, 0}};
@@ -441,7 +470,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	    continue;
 	  }
 	  if(fed_id > 627) side = +1;  // EB+
-	  if(debug) std::cout << " phi " << iphiEB[fed_id - 610][tt_id - 1] 
+	  if(m_debug) std::cout << " phi " << iphiEB[fed_id - 610][tt_id - 1] 
 	       << " eta " << ietaEB[fed_id - 610][tt_id - 1] 
 	       << " side " << side << std::endl;
 	  newEBStatus[iphiEB[fed_id - 610][tt_id - 1] - 1][ietaEB[fed_id - 610][tt_id - 1] - 1][side] = 1;
@@ -452,37 +481,37 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	    continue;
 	  }
 	  if(fed_id < 610) {  // EE-
-	    if(debug) std::cout << " x " << ixx[fed_id - 601][tt_id - 1][0]
+	    if(m_debug) std::cout << " x " << ixx[fed_id - 601][tt_id - 1][0]
 		 << " y " << iyy[fed_id - 601][tt_id - 1][0];
 	    newEEStatus[ixx[fed_id - 601][tt_id - 1][0] - 1][iyy[fed_id - 601][tt_id - 1][0] - 1][side] = 1;
 	    if(ixx[fed_id - 601][tt_id - 1][1] != 0) {  // partial SC
-	      if(debug) std::cout << " x2 " << ixx[fed_id - 601][tt_id - 1][1]
+	      if(m_debug) std::cout << " x2 " << ixx[fed_id - 601][tt_id - 1][1]
 		   << " y2 " << iyy[fed_id - 601][tt_id - 1][1];
 	      newEEStatus[ixx[fed_id - 601][tt_id - 1][1] - 1][iyy[fed_id - 601][tt_id - 1][1] - 1][side] = 1;
 	      if(ixx[fed_id - 601][tt_id - 1][2] != 0) {  // partial SC
-		if(debug) std::cout << " x3 " << ixx[fed_id - 601][tt_id - 1][2]
+		if(m_debug) std::cout << " x3 " << ixx[fed_id - 601][tt_id - 1][2]
 		     << " y3 " << iyy[fed_id - 601][tt_id - 1][2];
 		newEEStatus[ixx[fed_id - 601][tt_id - 1][2] - 1][iyy[fed_id - 601][tt_id - 1][2] - 1][side] = 1;
 	      }
 	    }
-	    if(debug) std::cout << " side " << side << std::endl;
+	    if(m_debug) std::cout << " side " << side << std::endl;
 	  }
 	  else {  // EE+
 	    side = +1;
-	    if(debug) std::cout << " x " << ixx[fed_id - 637][tt_id - 1][0]
+	    if(m_debug) std::cout << " x " << ixx[fed_id - 637][tt_id - 1][0]
 		 << " y " << iyy[fed_id - 637][tt_id - 1][0];
 	    newEEStatus[ixx[fed_id - 637][tt_id - 1][0] - 1][iyy[fed_id - 637][tt_id - 1][0] - 1][side] = 1;
 	    if(ixx[fed_id - 637][tt_id - 1][1] != 0) {  // partial SC
-	      if(debug) std::cout << " x2 " << ixx[fed_id - 637][tt_id - 1][1]
+	      if(m_debug) std::cout << " x2 " << ixx[fed_id - 637][tt_id - 1][1]
 		   << " y2 " << iyy[fed_id - 637][tt_id - 1][1];
 	      newEEStatus[ixx[fed_id - 637][tt_id - 1][1] - 1][iyy[fed_id - 637][tt_id - 1][1] - 1][side] = 1;
 	      if(ixx[fed_id - 637][tt_id - 1][2] != 0) {  // partial SC
-		if(debug) std::cout << " x3 " << ixx[fed_id - 637][tt_id - 1][2]
+		if(m_debug) std::cout << " x3 " << ixx[fed_id - 637][tt_id - 1][2]
 		     << " y3 " << iyy[fed_id - 637][tt_id - 1][2];
 		newEEStatus[ixx[fed_id - 637][tt_id - 1][2] - 1][iyy[fed_id - 637][tt_id - 1][2] - 1][side] = 1;
 	      }
 	    }
-	    if(debug) std::cout << " side " << side << std::endl;
+	    if(m_debug) std::cout << " side " << side << std::endl;
 	  }
 	}
 	else {
@@ -490,26 +519,26 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	  continue;
 	}
       } // end loop over iTT
-      if(debug) std::cout << std::endl;
+      if(m_debug) std::cout << std::endl;
       //*daqFile  << std::endl;
       for(int k = 0 ; k < 2; k++ ) {
 	int iz = -1;
 	if(k == 1) iz = 1;
-	if(debug) std::cout << " Side : " << k << " barrel " << std::endl;       // barrel
+	if(m_debug) std::cout << " Side : " << k << " barrel " << std::endl;       // barrel
 	for(int iphi = 0 ; iphi < 72; iphi++) {
 	  for(int ieta = 0 ; ieta < 17; ieta++) {
 	    if(newEBStatus[iphi][ieta][k] != oldEBStatus[iphi][ieta][k]) {
 	      somediff = true;
 	      EcalTrigTowerDetId ebid(iz, EcalBarrel, ieta + 1, iphi + 1);
 	      daq_temp->setValue( ebid, newEBStatus[iphi][ieta][k]);
-	      if(debug) std::cout << " change in EB side " << iz << " phi " << iphi +1 << " eta " << ieta + 1 << std::endl;
+	      if(m_debug) std::cout << " change in EB side " << iz << " phi " << iphi +1 << " eta " << ieta + 1 << std::endl;
 	    }  // new status
-	    if(debug) std::cout << newEBStatus[iphi][ieta][k] << " " ;
+	    if(m_debug) std::cout << newEBStatus[iphi][ieta][k] << " " ;
 	    oldEBStatus[iphi][ieta][k] = newEBStatus[iphi][ieta][k];
 	  }
-	  if(debug) std::cout << std::endl;
+	  if(m_debug) std::cout << std::endl;
 	}
-	if(debug) std::cout << " endcaps " << std::endl;                         // endcap
+	if(m_debug) std::cout << " endcaps " << std::endl;                         // endcap
 	for(int iy = 0 ; iy < 20; iy++) {
 	  for(int ix = 0 ; ix < 20; ix++) {
 	    if (EcalScDetId::validDetId(ix + 1, iy + 1, iz )){
@@ -517,16 +546,16 @@ void popcon::EcalDAQHandler::getNewObjects() {
 		somediff = true;
 		EcalScDetId eeid(ix + 1, iy + 1, iz);
 		daq_temp->setValue( eeid, newEEStatus[ix][iy][k]);
-		if(debug) std::cout << " change in EE side " << iz << " x " << ix +1 << " y " << iy + 1 << std::endl;
+		if(m_debug) std::cout << " change in EE side " << iz << " x " << ix +1 << " y " << iy + 1 << std::endl;
 	      }  // new status
-	      if(debug) std::cout << newEEStatus[ix][iy][k] << " " ;
+	      if(m_debug) std::cout << newEEStatus[ix][iy][k] << " " ;
 	      oldEEStatus[ix][iy][k] = newEEStatus[ix][iy][k];
 	    }  // valid SC
 	    else {
-	      if(debug) std::cout << ". ";
+	      if(m_debug) std::cout << ". ";
 	    }
 	  }
-	  if(debug) std::cout << std::endl;
+	  if(m_debug) std::cout << std::endl;
 	}
       }  // loop over side
 
@@ -579,7 +608,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
       } // some change found
       else {
 	
-	std::cout<< "Run DAQ record was the same as previous run " << std::endl;
+	std::cout<< "Run" << irun << " DAQ record was the same as previous run " << std::endl;
 	ss << "Run=" << irun << "_DAQunchanged_"<<std::endl; 
 	m_userTextLog = ss.str()+";";
 
@@ -592,5 +621,5 @@ void popcon::EcalDAQHandler::getNewObjects() {
   // disconnect from DB 
   delete econn;
   delete daq_temp;
-  std::cout << "Ecal - > end of getNewObjects -----------\n";
+  if(m_debug) std::cout << "Ecal - > end of getNewObjects -----------\n";
 }
