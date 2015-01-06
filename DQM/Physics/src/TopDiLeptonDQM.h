@@ -6,7 +6,6 @@
 #include <iostream>
 #include <fstream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -15,6 +14,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -35,24 +35,17 @@
 
 class TH1F;
 class TH2F;
-class TopDiLeptonDQM : public edm::EDAnalyzer {
 
+class TopDiLeptonDQM : public DQMEDAnalyzer {
  public:
   explicit TopDiLeptonDQM(const edm::ParameterSet&);
   ~TopDiLeptonDQM();
 
  protected:
-  void beginRun(const edm::Run&, const edm::EventSetup&);
-  void endRun(const edm::Run&, const edm::EventSetup&);
-
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
+                      edm::EventSetup const&) override;
  private:
-  void initialize();
-  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-
-  DQMStore* dbe_;
-  bool fileOutput_;
 
   std::string moduleName_;
   std::string outputFile_;

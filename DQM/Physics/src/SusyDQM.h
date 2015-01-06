@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -13,6 +12,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -49,26 +49,21 @@ class PtGreater {
 };
 
 template <typename Mu, typename Ele, typename Jet, typename Met>
-class SusyDQM : public edm::EDAnalyzer {
-
+class SusyDQM : public DQMEDAnalyzer {
  public:
   explicit SusyDQM(const edm::ParameterSet&);
   ~SusyDQM();
 
  protected:
-  void beginRun(const edm::Run&);
-  void endRun(const edm::Run&);
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
+                      edm::EventSetup const&) override;
 
  private:
-  void initialize();
-  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual bool goodSusyElectron(const Ele*);
   virtual bool goodSusyMuon(const Mu*);
-  virtual void endJob();
 
   edm::ParameterSet parameters_;
-  DQMStore* dbe_;
 
   std::string moduleName_;
 
@@ -140,10 +135,7 @@ class SusyDQM : public edm::EDAnalyzer {
 
 template <typename Mu, typename Ele, typename Jet, typename Met>
 SusyDQM<Mu, Ele, Jet, Met>::SusyDQM(const edm::ParameterSet& pset) {
-
   parameters_ = pset;
-  initialize();
-
   moduleName_ = pset.getUntrackedParameter<std::string>("moduleName");
 
   muons_ = consumes<std::vector<reco::Muon> >(
@@ -180,8 +172,6 @@ SusyDQM<Mu, Ele, Jet, Met>::SusyDQM(const edm::ParameterSet& pset) {
 
   RAL_met_cut_ = pset.getParameter<double>("RAL_met_cut");
 
-  dbe_ = edm::Service<DQMStore>().operator->();
-
   hRAL_N_muons_ = 0;
   hRAL_pt_muons_ = 0;
   hRAL_eta_muons_ = 0;
@@ -216,77 +206,72 @@ template <typename Mu, typename Ele, typename Jet, typename Met>
 SusyDQM<Mu, Ele, Jet, Met>::~SusyDQM() {}
 
 template <typename Mu, typename Ele, typename Jet, typename Met>
-void SusyDQM<Mu, Ele, Jet, Met>::initialize() {}
+void SusyDQM<Mu, Ele, Jet, Met>::bookHistograms(DQMStore::IBooker& iBooker,
+                                                edm::Run const&,
+                                                edm::EventSetup const&) {
+  iBooker.setCurrentFolder(moduleName_);
 
-template <typename Mu, typename Ele, typename Jet, typename Met>
-void SusyDQM<Mu, Ele, Jet, Met>::beginJob() {
-
-  dbe_->setCurrentFolder(moduleName_);
-
-  hRAL_N_muons_ = dbe_->book1D("RAL_N_muons", "RAL_N_muons", 10, 0., 10.);
-  hRAL_pt_muons_ = dbe_->book1D("RAL_pt_muons", "RAL_pt_muons", 50, 0., 300.);
+  hRAL_N_muons_ = iBooker.book1D("RAL_N_muons", "RAL_N_muons", 10, 0., 10.);
+  hRAL_pt_muons_ = iBooker.book1D("RAL_pt_muons", "RAL_pt_muons", 50, 0., 300.);
   hRAL_eta_muons_ =
-      dbe_->book1D("RAL_eta_muons", "RAL_eta_muons", 50, -2.5, 2.5);
-  hRAL_phi_muons_ = dbe_->book1D("RAL_phi_muons", "RAL_phi_muons", 50, -4., 4.);
-  hRAL_Iso_muons_ = dbe_->book1D("RAL_Iso_muons", "RAL_Iso_muons", 50, 0., 25.);
+      iBooker.book1D("RAL_eta_muons", "RAL_eta_muons", 50, -2.5, 2.5);
+  hRAL_phi_muons_ = iBooker.book1D("RAL_phi_muons", "RAL_phi_muons", 50, -4., 4.);
+  hRAL_Iso_muons_ = iBooker.book1D("RAL_Iso_muons", "RAL_Iso_muons", 50, 0., 25.);
 
-  hRAL_N_elecs_ = dbe_->book1D("RAL_N_elecs", "RAL_N_elecs", 10, 0., 10.);
-  hRAL_pt_elecs_ = dbe_->book1D("RAL_pt_elecs", "RAL_pt_elecs", 50, 0., 300.);
+  hRAL_N_elecs_ = iBooker.book1D("RAL_N_elecs", "RAL_N_elecs", 10, 0., 10.);
+  hRAL_pt_elecs_ = iBooker.book1D("RAL_pt_elecs", "RAL_pt_elecs", 50, 0., 300.);
   hRAL_eta_elecs_ =
-      dbe_->book1D("RAL_eta_elecs", "RAL_eta_elecs", 50, -2.5, 2.5);
-  hRAL_phi_elecs_ = dbe_->book1D("RAL_phi_elecs", "RAL_phi_elecs", 50, -4., 4.);
-  hRAL_Iso_elecs_ = dbe_->book1D("RAL_Iso_elecs", "RAL_Iso_elecs", 50, 0., 25.);
+      iBooker.book1D("RAL_eta_elecs", "RAL_eta_elecs", 50, -2.5, 2.5);
+  hRAL_phi_elecs_ = iBooker.book1D("RAL_phi_elecs", "RAL_phi_elecs", 50, -4., 4.);
+  hRAL_Iso_elecs_ = iBooker.book1D("RAL_Iso_elecs", "RAL_Iso_elecs", 50, 0., 25.);
 
   hRAL_Sum_pt_jets_ =
-      dbe_->book1D("RAL_Sum_pt_jets", "RAL_Sum_pt_jets", 50, 0., 2000.);
-  hRAL_Met_ = dbe_->book1D("RAL_Met", "RAL_Met", 50, 0., 1000.);
+      iBooker.book1D("RAL_Sum_pt_jets", "RAL_Sum_pt_jets", 50, 0., 2000.);
+  hRAL_Met_ = iBooker.book1D("RAL_Met", "RAL_Met", 50, 0., 1000.);
 
-  hRAL_dR_emu_ = dbe_->book1D("RAL_deltaR_emu", "RAL_deltaR_emu", 50, 0., 10.);
+  hRAL_dR_emu_ = iBooker.book1D("RAL_deltaR_emu", "RAL_deltaR_emu", 50, 0., 10.);
 
   hRAL_mass_OS_mumu_ =
-      dbe_->book1D("RAL_mass_OS_mumu", "RAL_mass_OS_mumu", 50, 0., 300.);
+      iBooker.book1D("RAL_mass_OS_mumu", "RAL_mass_OS_mumu", 50, 0., 300.);
   hRAL_mass_OS_ee_ =
-      dbe_->book1D("RAL_mass_OS_ee", "RAL_mass_OS_ee", 50, 0., 300.);
+      iBooker.book1D("RAL_mass_OS_ee", "RAL_mass_OS_ee", 50, 0., 300.);
   hRAL_mass_OS_emu_ =
-      dbe_->book1D("RAL_mass_OS_emu", "RAL_mass_OS_emu", 50, 0., 300.);
+      iBooker.book1D("RAL_mass_OS_emu", "RAL_mass_OS_emu", 50, 0., 300.);
   hRAL_mass_SS_mumu_ =
-      dbe_->book1D("RAL_mass_SS_mumu", "RAL_mass_SS_mumu", 50, 0., 300.);
+      iBooker.book1D("RAL_mass_SS_mumu", "RAL_mass_SS_mumu", 50, 0., 300.);
   hRAL_mass_SS_ee_ =
-      dbe_->book1D("RAL_mass_SS_ee", "RAL_mass_SS_ee", 50, 0., 300.);
+      iBooker.book1D("RAL_mass_SS_ee", "RAL_mass_SS_ee", 50, 0., 300.);
   hRAL_mass_SS_emu_ =
-      dbe_->book1D("RAL_mass_SS_emu", "RAL_mass_SS_emu", 50, 0., 300.);
+      iBooker.book1D("RAL_mass_SS_emu", "RAL_mass_SS_emu", 50, 0., 300.);
 
   hRAL_Muon_monitor_ =
-      dbe_->book2D("RAL_Single_Muon_Selection", "RAL_Single_Muon_Selection", 50,
+      iBooker.book2D("RAL_Single_Muon_Selection", "RAL_Single_Muon_Selection", 50,
                    0., 1000., 50, 0., 1000.);
-  hRAL_Electron_monitor_ = dbe_->book2D("RAL_Single_Electron_Selection",
+  hRAL_Electron_monitor_ = iBooker.book2D("RAL_Single_Electron_Selection",
                                         "RAL_Single_Electron_Selection", 50, 0.,
                                         1000., 50, 0., 1000.);
   hRAL_OSee_monitor_ =
-      dbe_->book2D("RAL_OS_Electron_Selection", "RAL_OS_Electron_Selection", 50,
+      iBooker.book2D("RAL_OS_Electron_Selection", "RAL_OS_Electron_Selection", 50,
                    0., 1000., 50, 0., 1000.);
-  hRAL_OSemu_monitor_ = dbe_->book2D("RAL_OS_ElectronMuon_Selection",
+  hRAL_OSemu_monitor_ = iBooker.book2D("RAL_OS_ElectronMuon_Selection",
                                      "RAL_OS_ElectronMuon_Selection", 50, 0.,
                                      1000., 50, 0., 1000.);
   hRAL_OSmumu_monitor_ =
-      dbe_->book2D("RAL_OS_Muon_Selection", "RAL_OS_Muon_Selection", 50, 0.,
+      iBooker.book2D("RAL_OS_Muon_Selection", "RAL_OS_Muon_Selection", 50, 0.,
                    1000., 50, 0., 1000.);
   hRAL_SSee_monitor_ =
-      dbe_->book2D("RAL_SS_Electron_Selection", "RAL_SS_Electron_Selection", 50,
+      iBooker.book2D("RAL_SS_Electron_Selection", "RAL_SS_Electron_Selection", 50,
                    0., 1000., 50, 0., 1000.);
-  hRAL_SSemu_monitor_ = dbe_->book2D("RAL_SS_ElectronMuon_Selection",
+  hRAL_SSemu_monitor_ = iBooker.book2D("RAL_SS_ElectronMuon_Selection",
                                      "RAL_SS_ElectronMuon_Selection", 50, 0.,
                                      1000., 50, 0., 1000.);
   hRAL_SSmumu_monitor_ =
-      dbe_->book2D("RAL_SS_Muon_Selection", "RAL_SS_Muon_Selection", 50, 0.,
+      iBooker.book2D("RAL_SS_Muon_Selection", "RAL_SS_Muon_Selection", 50, 0.,
                    1000., 50, 0., 1000.);
   hRAL_TriMuon_monitor_ =
-      dbe_->book2D("RAL_Tri_Muon_Selection", "RAL_Tri_Muon_Selection", 50, 0.,
+      iBooker.book2D("RAL_Tri_Muon_Selection", "RAL_Tri_Muon_Selection", 50, 0.,
                    1000., 50, 0., 1000.);
 }
-
-template <typename Mu, typename Ele, typename Jet, typename Met>
-void SusyDQM<Mu, Ele, Jet, Met>::beginRun(const edm::Run& run) {}
 
 template <typename Mu, typename Ele, typename Jet, typename Met>
 bool SusyDQM<Mu, Ele, Jet, Met>::goodSusyElectron(const Ele* ele) {
@@ -314,7 +299,6 @@ bool SusyDQM<Mu, Ele, Jet, Met>::goodSusyMuon(const Mu* mu) {
 template <typename Mu, typename Ele, typename Jet, typename Met>
 void SusyDQM<Mu, Ele, Jet, Met>::analyze(const edm::Event& evt,
                                          const edm::EventSetup& iSetup) {
-
   edm::Handle<std::vector<Mu> > muons;
   bool isFound = evt.getByToken(muons_, muons);
   if (!isFound) return;
@@ -490,19 +474,7 @@ void SusyDQM<Mu, Ele, Jet, Met>::analyze(const edm::Event& evt,
   }
 }
 
-template <typename Mu, typename Ele, typename Jet, typename Met>
-void SusyDQM<Mu, Ele, Jet, Met>::endRun(const edm::Run& run) {}
-
-template <typename Mu, typename Ele, typename Jet, typename Met>
-void SusyDQM<Mu, Ele, Jet, Met>::endJob() {}
-
 #endif
 
 typedef SusyDQM<reco::Muon, reco::GsfElectron, reco::CaloJet, reco::CaloMET>
     RecoSusyDQM;
-// typedef SusyDQM< pat::Muon, pat::Electron, pat::Jet, pat::MET > PatSusyDQM;
-
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:
