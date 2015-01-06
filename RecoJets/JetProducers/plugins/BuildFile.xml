@@ -10,6 +10,7 @@
   <use   name="Geometry/Records"/>
   <use   name="CommonTools/UtilAlgos"/>
   <use   name="CondFormats/JetMETObjects"/>
+  <use   name="PhysicsTools/UtilAlgos"/>
   <use   name="JetMETCorrections/Objects"/>
   <use   name="fastjet"/>
   <use   name="fastjet-contrib"/>
