@@ -861,8 +861,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 
   DTROChainCoding code;
   code.setDDU(ddu);
-
-  code.getDDUID();
+  if(code.getDDUID() < FEDIDmin || code.getDDUID() > FEDIDMax) return;
   
   hFEDEntry->Fill(code.getDDUID());
   
@@ -1236,8 +1235,8 @@ void DTDataIntegrityTask::beginJob() {
 
 
   // Loop over the DT FEDs
-  int FEDIDmin = FEDNumbering::MINDTFEDID;
-  int FEDIDMax = FEDNumbering::MAXDTFEDID;
+  FEDIDmin = FEDNumbering::MINDTFEDID;
+  FEDIDMax = FEDNumbering::MAXDTFEDID;
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
     << " FEDS: " << FEDIDmin  << " to " <<  FEDIDMax << " in the RO" << endl;
