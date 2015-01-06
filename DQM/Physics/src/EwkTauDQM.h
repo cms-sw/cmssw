@@ -13,33 +13,29 @@
  * \authors Letizia Lusito,
  *          Joshua Swanson,
  *          Christian Veelken
- *
- *
- *
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
 #include <Math/VectorUtil.h>
+
 class EwkElecTauHistManager;
 class EwkMuTauHistManager;
 
-class EwkTauDQM : public edm::EDAnalyzer {
+class EwkTauDQM : public DQMEDAnalyzer {
  public:
   EwkTauDQM(const edm::ParameterSet&);
   ~EwkTauDQM();
 
-  void beginJob();
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
+                      edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&);
-  void endJob();
+  void endRun(const edm::Run&, const edm::EventSetup&);
 
  private:
-  DQMStore* dqmStore_;
   std::string dqmDirectory_;
-  int dqmError_;
   int maxNumWarnings_;
 
   EwkElecTauHistManager* elecTauHistManager_;
@@ -73,9 +69,9 @@ class EwkTauDQM : public edm::EDAnalyzer {
 
 class EwkElecTauHistManager {
  public:
-  EwkElecTauHistManager(const edm::ParameterSet&, DQMStore*);
+  EwkElecTauHistManager(const edm::ParameterSet&);
 
-  void bookHistograms();
+  void bookHistograms(DQMStore::IBooker&);
   void fillHistograms(const edm::Event&, const edm::EventSetup&);
   void finalizeHistograms();
 
@@ -111,9 +107,6 @@ class EwkElecTauHistManager {
   double tauJetPtCut_;
 
   double visMassCut_;
-
-  //--- pointer to DQM histogram management service
-  DQMStore* dqmStore_;
 
   //--- name of DQM directory in which histograms for Z --> electron + tau-jet
   // channel get stored
@@ -224,9 +217,9 @@ class EwkElecTauHistManager {
 
 class EwkMuTauHistManager {
  public:
-  EwkMuTauHistManager(const edm::ParameterSet&, DQMStore*);
+  EwkMuTauHistManager(const edm::ParameterSet&);
 
-  void bookHistograms();
+  void bookHistograms(DQMStore::IBooker&);
   void fillHistograms(const edm::Event&, const edm::EventSetup&);
   void finalizeHistograms();
 
@@ -263,8 +256,6 @@ class EwkMuTauHistManager {
 
   double visMassCut_;
   double deltaRCut_;
-  //--- pointer to DQM histogram management service
-  DQMStore* dqmStore_;
 
   //--- name of DQM directory in which histograms for Z --> muon + tau-jet
   // channel get stored
@@ -375,11 +366,7 @@ class EwkMuTauHistManager {
 
 #include <string>
 
-enum {
-  kAbsoluteIso,
-  kRelativeIso,
-  kUndefinedIso
-};
+enum { kAbsoluteIso, kRelativeIso, kUndefinedIso };
 
 template <typename T>
 void readEventData(const edm::Event& evt, const edm::InputTag& src,
@@ -412,8 +399,3 @@ const reco::PFTau* getTheTauJet(const reco::PFTauCollection&, double, double,
 double getVertexD0(const reco::Vertex&, const reco::BeamSpot&);
 
 #endif
-
-/* Local Variables: */
-/* show-trailing-whitespace: t */
-/* truncate-lines: t */
-/* End: */
