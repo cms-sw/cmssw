@@ -5,7 +5,7 @@
   <SpecPar name="hcal">
     <PartSelector path="//HBS.*"/>
     <PartSelector path="//HTS.*"/>
-    <PartSelector path="//.*HES.*"/>
+    <PartSelector path="//.*HEScintillator.*"/>
     <PartSelector path="//HVQX"/>
     <PartSelector path="//VcalElecCathode"/>
     <PartSelector path="//FibreBundle.*"/>
