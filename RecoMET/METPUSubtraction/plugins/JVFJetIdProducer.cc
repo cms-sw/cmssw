@@ -75,6 +75,7 @@ namespace
 
 	if ( trackPt > minTrackPt ) {
 	  int jetConstituent_vtxAssociationType = isVertexAssociated( (*jetConstituent), pfCandToVertexAssociations, vertices, dZ);
+	    //isVertexAssociated_fast(pfCandidateRef, pfCandToVertexAssociations_reversed, *hardScatterVertex, dZcut_, numWarnings_, maxWarnings_);
 	  bool jetConstituent_isVtxAssociated = (jetConstituent_vtxAssociationType == noPuUtils::kChHSAssoc ); 
 	  double jetConstituentPt = (*jetConstituent)->pt();
 	  if ( jetConstituent_isVtxAssociated ) {

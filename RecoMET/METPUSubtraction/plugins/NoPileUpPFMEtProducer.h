@@ -16,7 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoMET/METPUSubtraction/interface/PFMEtSignInterfaceBase.h"
-#include "RecoMET/METPUSubtraction/interface/noPileUpMEtUtilities.h"
+#include "RecoMET/METPUSubtraction/interface/NoPileUpMEtUtilities.h"
 
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETFwd.h"
@@ -79,7 +79,7 @@ class NoPileUpPFMEtProducer : public edm::stream::EDProducer<>
 
   int verbosity_;
 
-  noPileUpMEtUtilities utils_;
+  NoPileUpMEtUtilities utils_;
 
 };
 

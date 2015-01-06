@@ -1,6 +1,7 @@
-#include "RecoMET/METPUSubtraction/interface/noPileUpMEtAuxFunctions.h"
+#include "RecoMET/METPUSubtraction/interface/NoPileUpMEtAuxFunctions.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 
 #include <math.h>
 
@@ -8,13 +9,13 @@ const int minPFCandToVertexAssocQuality = noPuUtils::kChHSAssoc; // CV: value re
 
 const double dR2Min=0.01*0.01;
 
-int isVertexAssociated(const reco::PFCandidate& pfCandidate,
+int isVertexAssociated(const reco::PFCandidatePtr& pfCandidate,
                        const PFCandToVertexAssMap& pfCandToVertexAssociations,
                        const reco::VertexCollection& vertices, double dZ)
 {
   int vtxAssociationType = noPuUtils::kNeutral;
 
-  if ( pfCandidate.charge() != 0 ) {
+  if ( pfCandidate->charge() != 0 ) {
     vtxAssociationType = noPuUtils::kChNoAssoc;
     for ( PFCandToVertexAssMap::const_iterator pfCandToVertexAssociation = pfCandToVertexAssociations.begin();
           pfCandToVertexAssociation != pfCandToVertexAssociations.end(); ++pfCandToVertexAssociation ) {
@@ -25,7 +26,12 @@ int isVertexAssociated(const reco::PFCandidate& pfCandidate,
       for ( noPuUtils::CandQualityPairVector::const_iterator pfCandidate_vertex = pfCandidates_vertex.begin();
 	    pfCandidate_vertex != pfCandidates_vertex.end(); ++pfCandidate_vertex ) {
 	 
-	if(deltaR2(pfCandidate.p4(), pfCandidate_vertex->first->p4()) > dR2Min ) continue;
+	const reco::PFCandidatePtr pfcVtx= edm::refToPtr(pfCandidate_vertex->first); //<reco::PFCandidatePtr>
+	//std::cout<<pfCandidate<<"   "<<test<<std::endl;
+
+	if(pfCandidate != pfcVtx ) continue;//std::cout<<" pouet "<<pfCandidate<<"  "<<test<<std::endl;
+
+	//if(deltaR2(pfCandidate->p4(), pfCandidate_vertex->first->p4()) > dR2Min ) continue;
 	double z = pfCandToVertexAssociation->key->position().z();
 	int quality = pfCandidate_vertex->second;
 	promoteAssocToHSAssoc( quality, z, vertices, dZ, vtxAssociationType, false);

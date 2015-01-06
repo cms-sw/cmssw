@@ -10,7 +10,7 @@
 
 #include <vector>
 
-class noPileUpMEtUtilities
+class NoPileUpMEtUtilities
 {
 
  public:
@@ -18,8 +18,8 @@ class noPileUpMEtUtilities
   enum {kOutsideJet=0,kWithin, kAll};
   enum {kChHSMET=0, kChPUMET, kNeutralUncMET, kHadronicHSMET, kHadronicPUMET};
 
-  noPileUpMEtUtilities();
-  ~noPileUpMEtUtilities();
+  NoPileUpMEtUtilities();
+  ~NoPileUpMEtUtilities();
 
  
   // general auxiliary functions
@@ -31,10 +31,6 @@ class noPileUpMEtUtilities
 					     const std::vector<reco::Candidate::LorentzVector>&, 
 					     double, bool);
   
-  reco::PUSubMETCandInfo jet(const reco::PUSubMETCandInfoCollection&, unsigned);
-  reco::PUSubMETCandInfo leadJet(const reco::PUSubMETCandInfoCollection&);
-  reco::PUSubMETCandInfo subleadJet(const reco::PUSubMETCandInfoCollection&);
-
   // auxiliary functions for PFCandidates
   reco::PUSubMETCandInfoCollection cleanPFCandidates(const reco::PUSubMETCandInfoCollection&,
 						     const std::vector<reco::Candidate::LorentzVector>&,
@@ -62,26 +58,26 @@ class noPileUpMEtUtilities
  private:
 
 
-  double _minPtDef;
-  double _maxPtDef;
+  double minPtDef_;
+  double maxPtDef_;
 
-  CommonMETData _chHSPfcSum;
-  CommonMETData _chPUPfcSum;
-  CommonMETData _nUncPfcSum;
-  CommonMETData _nHSJetSum;
-  CommonMETData _nPUJetSum;
+  CommonMETData chHSPfcSum_;
+  CommonMETData chPUPfcSum_;
+  CommonMETData nUncPfcSum_;
+  CommonMETData nHSJetSum_;
+  CommonMETData nPUJetSum_;
 
-  double _chHSPfcSumAbsPx;
-  double _chPUPfcSumAbsPx;
-  double _nUncPfcSumAbsPx;
-  double _nHSJetSumAbsPx;
-  double _nPUJetSumAbsPx;
+  double chHSPfcSumAbsPx_;
+  double chPUPfcSumAbsPx_;
+  double nUncPfcSumAbsPx_;
+  double nHSJetSumAbsPx_;
+  double nPUJetSumAbsPx_;
 
-  double _chHSPfcSumAbsPy;
-  double _chPUPfcSumAbsPy;
-  double _nUncPfcSumAbsPy;
-  double _nHSJetSumAbsPy;
-  double _nPUJetSumAbsPy;
+  double chHSPfcSumAbsPy_;
+  double chPUPfcSumAbsPy_;
+  double nUncPfcSumAbsPy_;
+  double nHSJetSumAbsPy_;
+  double nPUJetSumAbsPy_;
 
 };
 

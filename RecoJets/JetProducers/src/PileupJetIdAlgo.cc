@@ -230,14 +230,14 @@ void PileupJetIdAlgo::runMva()
 std::pair<int,int> PileupJetIdAlgo::getJetIdKey(float jetPt, float jetEta)
 {
   int ptId = 0;
-  if(jetPt > 10 && jetPt < 20) ptId = 1;                                                                                 
-  if(jetPt > 20 && jetPt < 30) ptId = 2;                                                                                 
-  if(jetPt > 30              ) ptId = 3;                                                                                          
+  if(jetPt >= 10 && jetPt < 20) ptId = 1;                                                                                 
+  if(jetPt >= 20 && jetPt < 30) ptId = 2;                                                                                 
+  if(jetPt >= 30              ) ptId = 3;                                                                                          
   
   int etaId = 0;
-  if(std::abs(jetEta) > 2.5  && std::abs(jetEta) < 2.75) etaId = 1;                                                              
-  if(std::abs(jetEta) > 2.75 && std::abs(jetEta) < 3.0 ) etaId = 2;                                                              
-  if(std::abs(jetEta) > 3.0  && std::abs(jetEta) < 5.0 ) etaId = 3;                                 
+  if(std::abs(jetEta) >= 2.5  && std::abs(jetEta) < 2.75) etaId = 1;                                                              
+  if(std::abs(jetEta) >= 2.75 && std::abs(jetEta) < 3.0 ) etaId = 2;                                                              
+  if(std::abs(jetEta) >= 3.0  && std::abs(jetEta) < 5.0 ) etaId = 3;                                 
 
   return std::pair<int,int>(ptId,etaId);
 }
@@ -390,15 +390,21 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 		if(  icand->charge() != 0 ) {
 		        if (lLeadCh == nullptr || candPt > lLeadCh->pt()) { 
 			  lLeadCh = icand;
-			  //To handle the electron case
-			  const reco::Track* pfTrk=nullptr;
-			  if(lPF!=nullptr) {
-			    pfTrk=(lPF->trackRef().get()==nullptr)?lPF->gsfTrackRef().get():lPF->trackRef().get();
+			
+			  const reco::Track* pfTrk = icand->bestTrack();
+			  if(pfTrk==nullptr) { //protection against empty pointers for the miniAOD case
+			    //To handle the electron case
+			    if(lPF!=nullptr) {
+			      pfTrk=(lPF->trackRef().get()==nullptr)?lPF->gsfTrackRef().get():lPF->trackRef().get();
+			    }
+			    reco::Track impactTrack = (lPack==nullptr)?(*pfTrk):(lPack->pseudoTrack());
+			    internalId_.d0_ = std::abs(impactTrack.dxy(vtx->position()));
+			    internalId_.dZ_ = std::abs(impactTrack.dz(vtx->position()));
 			  }
-			  
-			  reco::Track impactTrack = (lPack==nullptr)?(*pfTrk):lPack->pseudoTrack();
-			  internalId_.d0_ = std::abs(impactTrack.dxy(vtx->position()));
-			  internalId_.dZ_ = std::abs(impactTrack.dz(vtx->position()));
+			  else {
+			    internalId_.d0_ = std::abs(pfTrk->dxy(vtx->position()));
+			    internalId_.dZ_ = std::abs(pfTrk->dz(vtx->position()));
+			  }
 			}
 			internalId_.dRMeanCh_  += candPtDr;
 			internalId_.ptDCh_     += candPt*candPt;
@@ -407,44 +413,48 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			sumPtCh                += candPt;
 		}
 		// // beta and betastar		
-		if(  icand->charge() != 0 ) {
+		if( icand->charge() != 0 ) {
 		      if (!isPacked){
-				try { 
-	      			float tkpt = candPt; //icand->trackRef()->pt();
-					sumTkPt += tkpt;
-					// 'classic' beta definition based on track-vertex association
-					bool inVtx0 = find( vtx->tracks_begin(), vtx->tracks_end(), reco::TrackBaseRef(lPF->trackRef()) ) != vtx->tracks_end();
-					bool inAnyOther = false;
-					// alternative beta definition based on track-vertex distance of closest approach
-					double dZ0 = std::abs(lPF->trackRef()->dz(vtx->position()));
-					double dZ = dZ0;
-					for(reco::VertexCollection::const_iterator  vi=allvtx.begin(); vi!=allvtx.end(); ++vi ) {
-						const reco::Vertex & iv = *vi;
-						if( iv.isFake() || iv.ndof() < 4 ) { continue; }
-						// the primary vertex may have been copied by the user: check identity by position
-						bool isVtx0  = (iv.position() - vtx->position()).r() < 0.02;
-						// 'classic' beta definition: check if the track is associated with any vertex other than the primary one
-						if( ! isVtx0 && ! inAnyOther ) {
-							inAnyOther = find( iv.tracks_begin(), iv.tracks_end(), reco::TrackBaseRef(lPF->trackRef()) ) != iv.tracks_end();
-						}
-						// alternative beta: find closest vertex to the track
-						dZ = std::min(dZ,std::abs(lPF->trackRef()->dz(iv.position())));
+			   if(lPF->trackRef().isNonnull() ) { 
+	      			float tkpt = candPt;
+				sumTkPt += tkpt;
+				// 'classic' beta definition based on track-vertex association
+				bool inVtx0 = vtx->trackWeight ( lPF->trackRef()) > 0 ;
+					
+				bool inAnyOther = false;
+				// alternative beta definition based on track-vertex distance of closest approach
+				double dZ0 = std::abs(lPF->trackRef()->dz(vtx->position()));
+				double dZ = dZ0;
+				for(reco::VertexCollection::const_iterator  vi=allvtx.begin(); vi!=allvtx.end(); ++vi ) {
+				    const reco::Vertex & iv = *vi;
+				    if( iv.isFake() || iv.ndof() < 4 ) { continue; }
+				        // the primary vertex may have been copied by the user: check identity by position
+				        bool isVtx0  = (iv.position() - vtx->position()).r() < 0.02;
+					// 'classic' beta definition: check if the track is associated with
+					// any vertex other than the primary one
+					if( ! isVtx0 && ! inAnyOther ) {
+					  inAnyOther =  vtx->trackWeight ( lPF->trackRef()) <= 0 ;
 					}
-					// classic beta/betaStar
-					if( inVtx0 && ! inAnyOther ) {
-						internalId_.betaClassic_ += tkpt;
-					} else if( ! inVtx0 && inAnyOther ) {
-						internalId_.betaStarClassic_ += tkpt;
-					}
-					// alternative beta/betaStar
-					if( dZ0 < 0.2 ) {
-						internalId_.beta_ += tkpt;
-					} else if( dZ < 0.2 ) {
-						internalId_.betaStar_ += tkpt;
-					}
-				} catch (cms::Exception &e) {
-					if(printWarning-- > 0) { std::cerr << e << std::endl; }
+					// alternative beta: find closest vertex to the track
+					dZ = std::min(dZ,std::abs(lPF->trackRef()->dz(iv.position())));
 				}
+				// classic beta/betaStar
+				if( inVtx0 && ! inAnyOther ) {
+				    internalId_.betaClassic_ += tkpt;
+				} else if( ! inVtx0 && inAnyOther ) {
+				    internalId_.betaStarClassic_ += tkpt;
+				}
+				// alternative beta/betaStar
+				if( dZ0 < 0.2 ) {
+				    internalId_.beta_ += tkpt;
+				} else if( dZ < 0.2 ) {
+				    internalId_.betaStar_ += tkpt;
+				}
+			   } else {
+			       if(printWarning-- > 0) { 
+				   edm::LogWarning( "computeIdVariables" ) <<"Invalid reference of track"<<std::endl;
+			       }
+			   }
 			}
 			else{
 				// setting classic and alternative to be the same for now

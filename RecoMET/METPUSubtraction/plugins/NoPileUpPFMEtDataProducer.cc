@@ -178,12 +178,12 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
     setPFCandidateFlag(*jet, *pfCandidates, pfCandidateFlags, flag_isWithinSelectedJet, numWarnings_, maxWarnings_);
     
     reco::PUSubMETCandInfo jetInfo;
-    jetInfo.p4_ = jet->p4();
+    jetInfo.setP4( jet->p4() );
     int jetId = (*jetIds)[jet];
     bool jetIdSelection_passed = PileupJetIdentifier::passJetId(jetId, jetIdSelection_);
-    jetInfo.type_ = ( jetIdSelection_passed ) ?
-      reco::PUSubMETCandInfo::kHS : reco::PUSubMETCandInfo::kPU;
-    jetInfo.passesLooseJetId_ = passesLooseJetId;
+    jetInfo.setType( ( jetIdSelection_passed ) ?
+		     reco::PUSubMETCandInfo::kHS : reco::PUSubMETCandInfo::kPU );
+    jetInfo.setPassesLooseJetId( passesLooseJetId );
     double jetEnergy_uncorrected = 
       jet->chargedHadronEnergy() 
       + jet->neutralHadronEnergy()
@@ -200,10 +200,10 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
     rawJet.setP4(rawJetP4);
     double jetNeutralEnFrac = ( jetEnergy_uncorrected > 0. ) ?
       (jet->neutralEmEnergy() + jet->neutralHadronEnergy())/jetEnergy_uncorrected : -1.;
-    jetInfo.chargedEnFrac_ = (1-jetNeutralEnFrac);
-    jetInfo.offsetEnCorr_ = ( jetEnOffsetCorrector ) ?
-      rawJet.energy()*(1. - jetEnOffsetCorrector->correction(rawJet, evt, es)) : 0.;
-    jetInfo.pfMEtSignObj_ = pfMEtSignInterface_->compResolution(&(*jet));
+    jetInfo.setChargedEnFrac( (1-jetNeutralEnFrac) );
+    jetInfo.setOffsetEnCorr( ( jetEnOffsetCorrector ) ?
+			     rawJet.energy()*(1. - jetEnOffsetCorrector->correction(rawJet, evt, es)) : 0.);
+    jetInfo.setMEtSignObj( pfMEtSignInterface_->compResolution(&(*jet)) );
  
     jetInfos->push_back(jetInfo);    
   }
@@ -222,21 +222,21 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
     int idx = pfCandidatePtr.key();
     reco::PUSubMETCandInfo pfCandInfo;
-    pfCandInfo.p4_ = pfCandidatePtr->p4();
-    pfCandInfo.charge_ = pfCandidatePtr->charge();
-    pfCandInfo.type_ = -1;
+    pfCandInfo.setP4( pfCandidatePtr->p4() );
+    pfCandInfo.setCharge( pfCandidatePtr->charge() );
+    pfCandInfo.setType( -1 );
     // CV: need to call isVertexAssociated_fast instead of isVertexAssociated function
     //    (makes run-time of MVAPFMEtDataProducer::produce decrease from ~1s per event to ~0.35s per event)
     //int vtxAssociationType = isVertexAssociated(*pfCandidatePtr, *pfCandToVertexAssociations, *hardScatterVertex, dZcut_);
     reco::PFCandidateRef pfCandidateRef( pfCandidateHandle, iPFCandidate);
     int vtxAssociationType = isVertexAssociated_fast(pfCandidateRef, pfCandToVertexAssociations_reversed, *hardScatterVertex, dZcut_, numWarnings_, maxWarnings_);
     bool isHardScatterVertex_associated = (vtxAssociationType == noPuUtils::kChHSAssoc);
-    if      ( pfCandidatePtr->charge() == 0 )   pfCandInfo.type_ = reco::PUSubMETCandInfo::kNeutral;
-    else if ( isHardScatterVertex_associated       ) pfCandInfo.type_ = reco::PUSubMETCandInfo::kChHS;
-    else                                             pfCandInfo.type_ = reco::PUSubMETCandInfo::kChPU;
-    pfCandInfo.isWithinJet_ = (pfCandidateFlags[idx] & flag_isWithinSelectedJet);
-    if ( pfCandInfo.isWithinJet_ ) pfCandInfo.passesLooseJetId_ = (pfCandidateFlags[idx] & flag_isWithinFakeJet);
-    else pfCandInfo.passesLooseJetId_ = true;
+    if      ( pfCandidatePtr->charge() == 0 )   pfCandInfo.setType( reco::PUSubMETCandInfo::kNeutral );
+    else if ( isHardScatterVertex_associated       ) pfCandInfo.setType( reco::PUSubMETCandInfo::kChHS );
+    else                                             pfCandInfo.setType( reco::PUSubMETCandInfo::kChPU );
+    pfCandInfo.setIsWithinJet( (pfCandidateFlags[idx] & flag_isWithinSelectedJet) );
+    if ( pfCandInfo.isWithinJet() ) pfCandInfo.setPassesLooseJetId( (pfCandidateFlags[idx] & flag_isWithinFakeJet) );
+    else pfCandInfo.setPassesLooseJetId( true );
     
     // CV: for PFCandidates that are within PFJets (of Pt between 'minJetPtForMEtCov' and 'minJetPt'),
     //     take contribution to PFMEt significance matrix from associated PFJet.
@@ -246,13 +246,15 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
       metsig::SigInputObj pfCandResolution = pfMEtSignInterface_->compResolution(pfCandidatePtr.get());
       metsig::SigInputObj jetResolution = pfMEtSignInterface_->compResolution(jet_matched);
     
-      pfCandInfo.pfMEtSignObj_.set(pfCandResolution.get_type(),
-				   pfCandResolution.get_energy(),
-				   pfCandResolution.get_phi(),
-				   jetResolution.get_sigma_e()*(pfCandidatePtr->energy()/jet_matched->energy()),
-				   jetResolution.get_sigma_tan());
+      metsig::SigInputObj metSign;
+      metSign.set(pfCandResolution.get_type(),
+		 pfCandResolution.get_energy(),
+		 pfCandResolution.get_phi(),
+		 jetResolution.get_sigma_e()*(pfCandidatePtr->energy()/jet_matched->energy()),
+		 jetResolution.get_sigma_tan());
+      pfCandInfo.setMEtSignObj( metSign );
     } else {
-      pfCandInfo.pfMEtSignObj_ = pfMEtSignInterface_->compResolution(pfCandidatePtr.get());
+      pfCandInfo.setMEtSignObj( pfMEtSignInterface_->compResolution(pfCandidatePtr.get()) );
     }
     
     pfCandInfos->push_back(pfCandInfo);

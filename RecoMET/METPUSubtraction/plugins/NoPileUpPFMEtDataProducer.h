@@ -19,7 +19,7 @@
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h" 
 
 #include "RecoMET/METPUSubtraction/interface/PFMEtSignInterfaceBase.h"
-#include "RecoMET/METPUSubtraction/interface/noPileUpMEtAuxFunctions.h"
+#include "RecoMET/METPUSubtraction/interface/NoPileUpMEtAuxFunctions.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"

@@ -10,7 +10,7 @@
 #include <vector>
 #include <utility>
 
-class mvaMEtUtilities 
+class MvaMEtUtilities 
 {
  public:
 
@@ -19,36 +19,36 @@ class mvaMEtUtilities
 
  private:
 
-  CommonMETData _leptonsSum;
-  CommonMETData _leptonsChSum;
-  CommonMETData _pfCandSum;
-  CommonMETData _pfCandChHSSum;
-  CommonMETData _pfCandChPUSum;
-  CommonMETData _neutralJetHSSum;
-  CommonMETData _neutralJetPUSum;
+  CommonMETData leptonsSum_;
+  CommonMETData leptonsChSum_;
+  CommonMETData pfCandSum_;
+  CommonMETData pfCandChHSSum_;
+  CommonMETData pfCandChPUSum_;
+  CommonMETData neutralJetHSSum_;
+  CommonMETData neutralJetPUSum_;
 
-  std::vector<reco::PUSubMETCandInfo> _cleanedJets;
+  std::vector<reco::PUSubMETCandInfo> cleanedJets_;
 
-  double _dzCut;
-  double _ptThreshold;
+  double dzCut_;
+  double ptThreshold_;
 
  public:
   
-  mvaMEtUtilities(const edm::ParameterSet& cfg);
-  virtual ~mvaMEtUtilities();
+  MvaMEtUtilities(const edm::ParameterSet& cfg);
+  virtual ~MvaMEtUtilities();
 
   reco::Candidate::LorentzVector leadJetP4(const std::vector<reco::PUSubMETCandInfo>&);
   reco::Candidate::LorentzVector subleadJetP4(const std::vector<reco::PUSubMETCandInfo>&);
   unsigned numJetsAboveThreshold(const std::vector<reco::PUSubMETCandInfo>&, double);
 
-  std::vector<reco::PUSubMETCandInfo> getCleanedJets();
+  const std::vector<reco::PUSubMETCandInfo> getCleanedJets() const;
 
   //access functions for lepton suns ============
-  double getLeptonsSumMEX();
-  double getLeptonsSumMEY();
+  double getLeptonsSumMEX() const;
+  double getLeptonsSumMEY() const;
 
-  double getLeptonsChSumMEX();
-  double getLeptonsChSumMEY(); 
+  double getLeptonsChSumMEX() const;
+  double getLeptonsChSumMEY() const; 
 
   //recoil and sum computing functions ========
   void computeAllSums(const std::vector<reco::PUSubMETCandInfo>& jets, 
