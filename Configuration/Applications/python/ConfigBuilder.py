@@ -7,6 +7,7 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
 import sys
 import re
+import collections
 
 class Options:
         pass
@@ -789,7 +790,7 @@ class ConfigBuilder(object):
 		for c in self._options.customisation_file_unsch:
 			custOpt.extend(c.split(","))
 
-	custMap={}
+	custMap=collections.OrderedDict()
 	for opt in custOpt:
 		if opt=='': continue
 		if opt.count('.')>1:
@@ -1476,14 +1477,8 @@ class ConfigBuilder(object):
 
     def prepare_L1(self, sequence = None):
 	    """ Enrich the schedule with the L1 simulation step"""
-	    if not sequence:
-		    self.loadAndRemember(self.L1EMDefaultCFF)
-	    else:
-		    # let the L1 package decide for the scenarios available
-		    from L1Trigger.Configuration.ConfigBuilder import getConfigsForScenario
-		    listOfImports = getConfigsForScenario(sequence)
-		    for file in listOfImports:
-			    self.loadAndRemember(file)
+            assert(sequence == None)
+	    self.loadAndRemember(self.L1EMDefaultCFF)
 	    self.scheduleSequence('SimL1Emulator','L1simulation_step')
 	    return
 
