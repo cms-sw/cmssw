@@ -169,6 +169,14 @@ private:
     void updateSiteInfo(std::string orig_site="");
 
     /**
+     * The service registry only functions on threads "owned" by CMSSW; unfortunately,
+     * the Xrootd callbacks occur in non-CMSSW threads.  Hence, using the service
+     * registry there aborts.  Instead, the RequestManager will cache a copy of the
+     * stats service (if it is available) in its constructor.
+     */
+    XrdStatisticsService *m_stats;
+
+    /**
      * Picks a single source for the next operation.
      */
     std::shared_ptr<Source> pickSingleSource();
