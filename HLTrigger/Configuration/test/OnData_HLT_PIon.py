@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_3_0/PIon/V16 (CMSSW_7_3_0)
+# /dev/CMSSW_7_3_0/PIon/V17 (CMSSW_7_3_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/PIon/V16')
+  tableName = cms.string('/dev/CMSSW_7_3_0/PIon/V17')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -836,9 +836,7 @@ process.TrackerDigiGeometryESModule = cms.ESProducer( "TrackerDigiGeometryESModu
 )
 process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
   appendToDataLabel = cms.string( "" ),
-  fromDDD = cms.bool( False ),
-  layerNumberPXB = cms.uint32( 16 ),
-  totalBlade = cms.uint32( 24 )
+  fromDDD = cms.bool( False )
 )
 process.TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilderESProducer",
   ComponentName = cms.string( "TransientTrackBuilder" )
