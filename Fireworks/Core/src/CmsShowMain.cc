@@ -101,6 +101,7 @@ static const char* const kLiveCommandOpt  = "live";
 static const char* const kFieldCommandOpt = "field";
 static const char* const kFreePaletteCommandOpt = "free-palette";
 static const char* const kAutoSaveAllViews = "auto-save-all-views";
+static const char* const kAutoSaveHeight = "auto-save-height";
 static const char* const kEnableFPE        = "enable-fpe";
 static const char* const kZeroWinOffsets   = "zero-window-offsets";
 static const char* const kNoVersionCheck   = "no-version-check";
@@ -166,8 +167,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       (kPortCommandOpt, po::value<unsigned int>(),        "Listen to port for new data files to open")
       (kLoopCommandOpt,                                   "Loop events in play mode")
       (kChainCommandOpt, po::value<unsigned int>(),       "Chain up to a given number of recently open files. Default is 1 - no chain")
-   (kLiveCommandOpt,                                   "Enforce playback mode if a user is not using display")
- (kAutoSaveAllViews, po::value<std::string>(),       "Auto-save all views with given prefix (run_event_lumi_view.png is appended)");
+     (kLiveCommandOpt,                                   "Enforce playback mode if a user is not using display")
+     (kAutoSaveAllViews, po::value<std::string>(),       "Auto-save all views with given prefix (run_event_lumi_view.png is appended)")
+     (kAutoSaveHeight, po::value<int>(),                 "Screenshots height when auto-save-all-views is enabled");
 
  po::options_description debugdesc("Debug");
    debugdesc.add_options()
@@ -348,6 +350,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       std::string fmt = vm[kAutoSaveAllViews].as<std::string>();
       fmt += "%u_%u_%llu_%s.png";
       setAutoSaveAllViewsFormat(fmt);
+   }
+   if (vm.count(kAutoSaveHeight)) {
+      setAutoSaveAllViewsHeight(vm[kAutoSaveHeight].as<int>());
    }
    if(vm.count(kNoVersionCheck)) {
       m_noVersionCheck=true;

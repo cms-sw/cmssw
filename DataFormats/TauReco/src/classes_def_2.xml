@@ -1,6 +1,7 @@
 <lcgdict>
   
-  <class name="reco::PFTau" ClassVersion="16">
+  <class name="reco::PFTau" ClassVersion="17">
+   <version ClassVersion="17" checksum="1523260402"/>
     <version ClassVersion="16" checksum="2695990650"/>
     <version ClassVersion="15" checksum="4105994460"/>
     <version ClassVersion="14" checksum="3087106015"/>
@@ -205,7 +206,8 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
 <!-- </ioread> -->
 
 
-  <class name="reco::PFTauDecayMode" ClassVersion="11">
+  <class name="reco::PFTauDecayMode" ClassVersion="12">
+   <version ClassVersion="12" checksum="2043565930"/>
    <version ClassVersion="11" checksum="3414615810"/>
    <version ClassVersion="10" checksum="2108215737"/>
   </class>
@@ -220,7 +222,8 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTauDecayMode> > >"/>
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTau> > >"/>
 
-  <class name="reco::RecoTauPiZero" ClassVersion="11">
+  <class name="reco::RecoTauPiZero" ClassVersion="12">
+   <version ClassVersion="12" checksum="453348937"/>
    <version ClassVersion="11" checksum="2458276705"/>
    <version ClassVersion="10" checksum="465425628"/>
   </class>
@@ -232,7 +235,8 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
   <class name="edm::RefVector<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> >"/>
   <class name="edm::reftobase::Holder<reco::CompositePtrCandidate, edm::Ref<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> > >" />
 
-  <class name="reco::PFRecoTauChargedHadron" ClassVersion="12">
+  <class name="reco::PFRecoTauChargedHadron" ClassVersion="13">
+   <version ClassVersion="13" checksum="591384956"/>
    <version ClassVersion="12" checksum="2480143236" />
    <version ClassVersion="11" checksum="858406271" />
    <version ClassVersion="10" checksum="4027987990"/>

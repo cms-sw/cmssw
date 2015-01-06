@@ -163,10 +163,8 @@ namespace FitterFuncs{
         chisq += (psFit_y[i]- pulse_shape_sum_[i])*(psFit_y[i]- pulse_shape_sum_[i])/psFit_erry2[i];
 
       if(pedestalConstraint_) {
-	for (i=0;i<nbins; ++i) {
-	  //Add the pedestal Constraint to chi2
-          chisq += invertpedSig2_*(pars[nPars-1] - pedMean_)*(pars[nPars-1]- pedMean_);
-        }
+	 //Add the pedestal Constraint to chi2
+         chisq += invertpedSig2_*(pars[nPars-1] - pedMean_)*(pars[nPars-1]- pedMean_);
       }
         //Add the time Constraint to chi2
       if(timeConstraint_) {

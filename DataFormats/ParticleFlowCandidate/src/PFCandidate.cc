@@ -647,7 +647,7 @@ void PFCandidate::setPFEGammaExtraRef(const reco::PFCandidateEGammaExtraRef & iR
 const math::XYZPoint & PFCandidate::vertex() const {
   switch (vertexType_) {
   case kCandVertex:
-    return vertex_;
+    return LeafCandidate::vertex();
     break;
   case kTrkVertex:
     return trackRef()->vertex();
@@ -675,7 +675,7 @@ const math::XYZPoint & PFCandidate::vertex() const {
     return gsfTrackRef()->vertex();
     break;
   }
-  return vertex_;
+  return LeafCandidate::vertex();
 }
 
 const PFCandidate::ElementsInBlocks& 
