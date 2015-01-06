@@ -364,9 +364,14 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 
 	//std::cout << "Loop over the kinds of objects: objects of kind " << it->first << std::endl;
 	
+
 	if (!_genSelectorMap[it->first]) {
             _genSelectorMap[it->first] = new StringCutObjectSelector<reco::GenParticle>(_genCut[it->first]);
         }
+
+        const std::string objTypeStr = EVTColContainer::getTypeString(it->first);
+        // genAnyMET doesn't make sense. No need their matchesGens
+        if ( TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ) continue;
 
         // Now loop over the genParticles, and apply the operator() over each of them.
         // Fancy syntax: for objects X and Y, X.operator()(Y) is the same as X(Y).
@@ -379,7 +384,8 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 		/// We are going to make a fake reco::LeafCandidate, with our particleType as the pdgId.
 		/// This is an alternative to the older implementation with MatchStruct.
 		reco::LeafCandidate v(0,cand->p4(),cand->vertex(),it->first,0,true);
-		matchesGen.push_back(v);
+
+                matchesGen.push_back(v);
             }
         }
     }
@@ -451,37 +457,31 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
       //int totalobjectssize2 = 2 * countobjects->size();
       int totalobjectssize2 = 2 * countobjects.size();
 
+
+      bool isPassedLeadingCut = true;
+      // We will proceed only when cuts for the pt-leading are satisified.
       for (size_t j = 0; j != matchesGen.size(); ++j) {
+	const unsigned int objType = matchesGen[j].pdgId();
+        // Cut for the pt-leading object 
+        StringCutObjectSelector<reco::LeafCandidate> select( _genCut_leading[objType] );
+        if ( !select( matchesGen[j] ) ) { // No interest case
+          isPassedLeadingCut = false;     // Will skip the following matchesReco loop
+          matchesGen.clear();
+          break;
+        }
+      }
+
+      for (size_t j = 0; ( j != matchesGen.size() ) && isPassedLeadingCut; ++j) {
 	const unsigned int objType = matchesGen[j].pdgId();
 	//std::cout << "(4) Gonna call with " << objType << std::endl;
 	const std::string objTypeStr = EVTColContainer::getTypeString(objType);
-
-	if ( TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ) { // genAnyMET doesn't make sense. 
-	  size_t max_size = matchesGen.size();
-	  for ( size_t jj = j; jj < max_size; jj++ ) {
-	    matchesGen.erase(matchesGen.end());
-	  }
-	  break;
-	}
 	  
 	float pt  = matchesGen[j].pt();
 
 	if (countobjects[objType] == 0) {
-
-	  // Cut for the pt-leading object 
-	  StringCutObjectSelector<reco::LeafCandidate> select( _genCut_leading[objType] );
-	  if ( !select( matchesGen[j] ) ) {
-	    size_t max_size = matchesGen.size();
-	    for ( size_t jj = j; jj < max_size; jj++ ) {
-	      matchesGen.erase(matchesGen.end());
-	    }
-	    break;
-	  }
-
 	  this->fillHist("gen", objTypeStr, "MaxPt1", pt);
 	  ++(countobjects[objType]);
 	  ++counttotal;
-
 	} 
 	else if (countobjects[objType] == 1) {
 	  this->fillHist("gen", objTypeStr, "MaxPt2", pt);
@@ -549,7 +549,21 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	/// Debugging.
 	//std::cout << "Our RECO vector has matchesReco.size() = " << matchesReco.size() << std::endl;
 
-	for (size_t j = 0; j != matchesReco.size(); ++j) {
+
+        bool isPassedLeadingCut = true;
+        // We will proceed only when cuts for the pt-leading are satisified.
+        for (size_t j = 0; j != matchesReco.size(); ++j) {
+          const unsigned int objType = matchesReco[j].pdgId();
+          // Cut for the pt-leading object 
+          StringCutObjectSelector<reco::LeafCandidate> select( _recCut_leading[objType] );
+          if ( !select( matchesReco[j] ) ) { // No interest case 
+            isPassedLeadingCut = false;      // Will skip the following matchesReco loop
+            matchesReco.clear();
+            break;
+          }
+        }
+
+	for (size_t j = 0; ( j != matchesReco.size() ) && isPassedLeadingCut; ++j) {
 	    const unsigned int objType = matchesReco[j].pdgId();
 	    //std::cout << "(4) Gonna call with " << objType << std::endl;
 	    const std::string objTypeStr = EVTColContainer::getTypeString(objType);
@@ -558,18 +572,6 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 
 	    //if ((*countobjects)[objType] == 0) {
 	    if (countobjects[objType] == 0) {
-
-                // Cut for the pt-leading object 
-                StringCutObjectSelector<reco::LeafCandidate> select( _recCut_leading[objType] );
-                //if ( !select( matchesReco[j] ) ) break;
-                if ( !select( matchesReco[j] ) ) {
-                  size_t max_size = matchesReco.size();
-                  for ( size_t jj = j; jj < max_size; jj++ ) {
-                    matchesReco.erase(matchesReco.end());
-                  }
-                  break;
-                }
-
 		this->fillHist("rec", objTypeStr, "MaxPt1", pt);
 		++(countobjects[objType]);
 		++counttotal;
@@ -577,7 +579,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	    else if (countobjects[objType] == 1) {
 	      if( ! ( TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ) ) {
 		this->fillHist("rec", objTypeStr, "MaxPt2", pt);
-	      }
+	      } 
 	      ++(countobjects[objType]);
 	      ++counttotal;
 	    } 
