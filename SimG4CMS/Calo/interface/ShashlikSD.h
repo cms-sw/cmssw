@@ -20,6 +20,7 @@
 #include "TH2D.h"
 
 #include <string>
+#include <fstream>
 #include <map>
 
 class G4LogicalVolume;
@@ -34,11 +35,14 @@ public:
   virtual bool                      ProcessHits(G4Step*, G4TouchableHistory*);
   virtual double                    getEnergyDeposit(G4Step*);
   virtual uint16_t                  getDepth(G4Step*);
+  uint16_t 			    getLayerIDForTimeSim(G4Step*);
   virtual uint32_t                  setDetUnitId(G4Step*);
   G4double                          getAttenuation(G4Step* aStep, double birk1,
 						   double birk2, double birk3);
 
 private:    
+
+  std::ofstream ofs;
 
   G4double                          fiberWt(G4int, G4ThreeVector);
   G4double                          fiberLoss(G4int, G4int); 
@@ -47,6 +51,7 @@ private:
 
   ShashlikDDDConstants*             sdc;
   bool                              useWeight, useAtt,  useBirk;
+  bool 				    storeLayerTimeSim;
   double                            birk1, birk2, birk3, attL, moduleL;
   int                               roType;
   TH2D                             *hFibre[5];

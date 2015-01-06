@@ -20,7 +20,7 @@
 
 #include <iostream>
 
-//#define ecal_time_debug 1
+// #define ecal_time_debug 1
 
 const float EcalTimeMapDigitizer::MIN_ENERGY_THRESHOLD=5e-5; //50 KeV threshold to consider a valid hit in the timing detector
 
@@ -56,6 +56,7 @@ EcalTimeMapDigitizer::EcalTimeMapDigitizer(EcalSubdetector myDet):
   else if (myDet==EcalShashlik){
       size=EKDetId::kSizeForDenseIndexing;
       detId=EKDetId::detIdFromDenseIndex( 0 ) ;
+      isShashlik=1;
   }    
   else 
     edm::LogError("TimeDigiError") << "[EcalTimeMapDigitizer]::ERROR::This subdetector " << myDet << " is not implemented";
@@ -72,7 +73,6 @@ EcalTimeMapDigitizer::EcalTimeMapDigitizer(EcalSubdetector myDet):
      // 			  m_maxBunch-m_minBunch+1, abs(m_minBunch) );
      m_vSam.emplace_back(TimeSamples(CaloGenericDetId( detId.det(), detId.subdetId(), i )));
    }
-
    
    edm::LogInfo("TimeDigiInfo") << "[EcalTimeDigitizer]::Subdetector " << m_subDet << "::Reserved size for time digis " << m_vSam.size();
 
@@ -108,7 +108,7 @@ EcalTimeMapDigitizer::add(const std::vector<PCaloHit> & hits, int bunchCrossing)
        double time = (*it).time();
 
        //time of flight is not corrected here for the vertex position 
-       const double jitter ( time - timeOfFlight( detId, m_timeLayerId ) ) ;
+       const double jitter ( time - timeOfFlight( detId, (*it).depth()-100 ) ) ;
        
        TimeSamples& result ( *findSignal( detId ) ) ;
 
@@ -118,7 +118,11 @@ EcalTimeMapDigitizer::add(const std::vector<PCaloHit> & hits, int bunchCrossing)
        result.nhits[bunchCrossing-m_minBunch]++;
 
 #ifdef ecal_time_debug
-       std::cout << (*it).id()  << "\t" << (*it).depth() << "\t" << jitter << "\t" <<  (*it).energy() << "\t" << result.average_time[bunchCrossing-m_minBunch] << "\t" << result.nhits[bunchCrossing-m_minBunch] << "\t" <<  timeOfFlight( detId, m_timeLayerId ) << std::endl;
+       std::cout << (*it).id()  << "\t depth: " << (*it).depth() << "\t jitter: " << jitter 
+//                 << "\t E: " <<  (*it).energy() 
+                 << "\t time: " << time
+//                 result.average_time[bunchCrossing-m_minBunch] 
+                 << "\t" << result.nhits[bunchCrossing-m_minBunch] << "\t tof: " <<  timeOfFlight( detId, (*it).depth()-100 ) << std::endl;
 #endif
     }
   }
@@ -177,7 +181,7 @@ EcalTimeMapDigitizer::finalizeHits()
       vSamAll( m_index[i] )->calculateAverage() ;
 #ifdef ecal_time_debug 
       for ( unsigned int j ( 0 ) ; j !=  vSamAll( m_index[i] )->time_average_capacity; ++j )
-	std::cout << j << "\t" <<  vSamAll( m_index[i] )->average_time[j] <<  "\t" <<  vSamAll( m_index[i] )->nhits[j] << "\t" <<  vSamAll( m_index[i] )->tot_energy[j] << std::endl;
+	if (vSamAll( m_index[i] )->nhits[j]>0) std::cout << j << "\t time: " <<  vSamAll( m_index[i] )->average_time[j] <<  "\t nhits: " <<  vSamAll( m_index[i] )->nhits[j] << "\t E: " <<  vSamAll( m_index[i] )->tot_energy[j] << std::endl;
 #endif
    }
    
@@ -267,7 +271,12 @@ EcalTimeMapDigitizer::timeOfFlight( const DetId& detId , int layer) const
   //not using the layer yet
    const CaloCellGeometry* cellGeometry ( m_geometry->getGeometry( detId ) ) ;
    assert( 0 != cellGeometry ) ;
-   GlobalPoint layerPos = (dynamic_cast<const TruncatedPyramid*>(cellGeometry))->getPosition( double(layer)+0.5 ); //depth in mm in the middle of the layer position
+   GlobalPoint layerPos;
+   if (!isShashlik)
+     layerPos = (dynamic_cast<const TruncatedPyramid*>(cellGeometry))->getPosition( double(layer)+0.5 ); //depth in mm in the middle of the layer position
+   else
+     layerPos = (dynamic_cast<const TruncatedPyramid*>(cellGeometry))->getPosition( double(layer)*0.4-0.075-0.25 ); 
+     //shashlik layers are 4mm in depth, 1.5mm LYSO plus 2.5mm absorber. Take depth in the middle of the sensitive volume
    return layerPos.mag()*cm/c_light ;
 }
 
