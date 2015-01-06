@@ -13,7 +13,9 @@
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETFwd.h" 
 #include "DataFormats/METReco/interface/PFClusterMET.h"
-#include "DataFormats/METReco/interface/PFClusterMETFwd.h" 
+#include "DataFormats/METReco/interface/PFClusterMETFwd.h"
+#include "DataFormats/METReco/interface/PUSubMETData.h"
+#include "DataFormats/METReco/interface/PUSubMETDataFwd.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETFwd.h" 
 #include "DataFormats/METReco/interface/CommonMETData.h"
@@ -32,8 +34,6 @@
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
 #include "DataFormats/METReco/interface/SigInputObj.h"
-#include "DataFormats/METReco/interface/MVAMEtData.h"
-#include "DataFormats/METReco/interface/MVAMEtDataFwd.h"
 #include "DataFormats/METReco/interface/AnomalousECALVariables.h"
 #include "DataFormats/METReco/interface/BoundaryInformation.h"
 
@@ -156,13 +156,9 @@ namespace DataFormats_METReco {
     std::vector<metsig::SigInputObj> dummy63;
     edm::Wrapper<std::vector<metsig::SigInputObj> > dummy64;
 
-    reco::MVAMEtJetInfo dummyMVAMEtJetInfo;
-    reco::MVAMEtJetInfoCollection dummyMVAMEtJetInfoCollection;
-    edm::Wrapper<reco::MVAMEtJetInfoCollection> dummyMVAMEtJetInfoCollectionWrapped;
-    
-    reco::MVAMEtPFCandInfo dummyMVAMEtPFCandInfo;
-    reco::MVAMEtPFCandInfoCollection dummyMVAMEtPFCandInfoCollection;
-    edm::Wrapper<reco::MVAMEtPFCandInfoCollection> dummyMVAMEtPFCandInfoCollectionWrapped;
+    reco::PUSubMETCandInfo dummyPUSubMETCandInfo;
+    reco::PUSubMETCandInfoCollection dummyPUSubMETCandInfoCollection;
+    edm::Wrapper<reco::PUSubMETCandInfoCollection> dummyPUSubMETCandInfoCollectionWrapped;
 
     AnomalousECALVariables dummyBE20;
     edm::Wrapper<AnomalousECALVariables> dummyBE21;
