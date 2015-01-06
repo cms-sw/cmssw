@@ -1,4 +1,3 @@
-
 /*
     This is the DQM code for UE physics plots
     11/12/2009 Sunil Bansal
@@ -51,12 +50,10 @@ struct deleter {
   }
 };
 
-//--------------------------------------------------------------------------------------------------
 QcdUeDQM::QcdUeDQM(const ParameterSet &parameters)
     : hltResName_(parameters.getUntrackedParameter<string>("hltTrgResults")),
       verbose_(parameters.getUntrackedParameter<int>("verbose", 3)),
       tgeo_(0),
-      theDbe_(0),
       repSumMap_(0),
       repSummary_(0),
       h2TrigCorr_(0),
@@ -111,88 +108,11 @@ QcdUeDQM::QcdUeDQM(const ParameterSet &parameters)
   isHltConfigSuccessful_ = false;  // init
 }
 
-//--------------------------------------------------------------------------------------------------
 QcdUeDQM::~QcdUeDQM() {
   // Destructor.
 }
 
-//--------------------------------------------------------------------------------------------------
-void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
-  if (!isHltConfigSuccessful_) return;
-
-  // Analyze the given event.
-
-  edm::Handle<reco::BeamSpot> beamSpot;
-  bool ValidBS_ = iEvent.getByToken(bsLabel_, beamSpot);
-  if (!ValidBS_) return;
-
-  edm::Handle<reco::TrackCollection> tracks;
-  bool ValidTrack_ = iEvent.getByToken(trackLabel_, tracks);
-  if (!ValidTrack_) return;
-
-  edm::Handle<reco::TrackJetCollection> trkJets;
-  bool ValidTrackJet_ = iEvent.getByToken(chargedJetLabel_, trkJets);
-  if (!ValidTrackJet_) return;
-
-  edm::Handle<reco::CaloJetCollection> calJets;
-  bool ValidCaloJet_ = iEvent.getByToken(caloJetLabel_, calJets);
-  if (!ValidCaloJet_) return;
-
-  edm::Handle<reco::VertexCollection> vertexColl;
-  bool ValidVtxColl_ = iEvent.getByToken(vtxLabel_, vertexColl);
-  if (!ValidVtxColl_) return;
-
-  reco::TrackCollection tracks_sort = *tracks;
-  std::sort(tracks_sort.begin(), tracks_sort.end(), PtSorter());
-
-  // get tracker geometry
-  /*  ESHandle<TrackerGeometry> trackerHandle;
-    iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
-    tgeo_ = trackerHandle.product();
-    if (!tgeo_)return;
-  */
-  selected_.clear();
-  fillHltBits(iEvent, iSetup);
-  // select good tracks
-  if (fillVtxPlots(beamSpot.product(), vertexColl)) {
-    fill1D(hNevts_, 1);
-    for (reco::TrackCollection::const_iterator Trk = tracks_sort.begin();
-         Trk != tracks_sort.end(); ++Trk) {
-
-      if (trackSelection(*Trk, beamSpot.product(), vtx1, vertexColl->size()))
-        selected_.push_back(&*Trk);
-    }
-
-    fillpTMaxRelated(selected_);
-    fillChargedJetSpectra(trkJets);
-    //    fillCaloJetSpectra(calJets);
-    fillUE_with_MaxpTtrack(selected_);
-    if (trkJets->size() > 0) fillUE_with_ChargedJets(selected_, trkJets);
-    // if(calJets->size()>0)fillUE_with_CaloJets(selected_,calJets);
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-void QcdUeDQM::beginJob() {
-  // Begin job and setup the DQM store.
-
-  theDbe_ = Service<DQMStore>().operator->();
-  if (!theDbe_) return;
-
-  //  theDbe_->setCurrentFolder("Physics/QcdUe");
-}
-
-//--------------------------------------------------------------------------------------------------
-void QcdUeDQM::beginLuminosityBlock(const LuminosityBlock &l,
-                                    const EventSetup &iSetup) {
-  if (!isHltConfigSuccessful_) return;
-
-  // At the moment, nothing needed to be done.
-}
-
-//--------------------------------------------------------------------------------------------------
-void QcdUeDQM::beginRun(const Run &run, const EventSetup &iSetup) {
-
+void QcdUeDQM::dqmBeginRun(const Run &run, const EventSetup &iSetup) {
   // indicating change of HLT cfg at run boundries
   // for HLTConfigProvider::init()
   bool isHltCfgChange = false;
@@ -245,22 +165,345 @@ void QcdUeDQM::beginRun(const Run &run, const EventSetup &iSetup) {
       CP(2) cout << "Could not find trigger bit" << endl;
     }
   }
-
-  // book monitoring histograms
-  createHistos();
   isHltConfigSuccessful_ = true;
 }
 
-//--------------------------------------------------------------------------------------------------
-void QcdUeDQM::book1D(std::vector<MonitorElement *> &mes,
+void QcdUeDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
+                              edm::EventSetup const &) {
+  // Book histograms if needed.
+  iBooker.setCurrentFolder("Physics/QcdUe");
+
+  if (1) {
+    const int Nx = hltTrgUsedNames_.size();
+    const double x1 = -0.5;
+    const double x2 = Nx - 0.5;
+    h2TrigCorr_ = iBooker.book2D("h2TriCorr", "Trigger bit x vs y;y&&!x;x&&y",
+                                 Nx, x1, x2, Nx, x1, x2);
+    for (size_t i = 1; i <= hltTrgUsedNames_.size(); ++i) {
+      h2TrigCorr_->setBinLabel(i, hltTrgUsedNames_.at(i - 1), 1);
+      h2TrigCorr_->setBinLabel(i, hltTrgUsedNames_.at(i - 1), 2);
+    }
+    TH1 *h = h2TrigCorr_->getTH1();
+    if (h) h->SetStats(0);
+  }
+  book1D(iBooker, hNevts_, "hNevts", "number of events", 2, 0, 2);
+  book1D(iBooker, hNtrackerLayer_, "hNtrackerLayer",
+         "number of tracker layers;multiplicity", 20, -0.5, 19.5);
+  book1D(iBooker, hNtrackerPixelLayer_, "hNtrackerPixelLayer",
+         "number of pixel layers;multiplicity", 10, -0.5, 9.5);
+  book1D(iBooker, hNtrackerStripPixelLayer_, "hNtrackerStripPixelLayer",
+         "number of strip + pixel layers;multiplicity", 30, -0.5, 39.5);
+  book1D(iBooker, hRatioPtErrorPt_, "hRatioPtErrorPt",
+         "ratio of pT error and track pT", 25, 0., 5.);
+  book1D(iBooker, hTrkPt_, "hTrkPt", "pT of all tracks", 50, 0., 50.);
+  book1D(iBooker, hTrkEta_, "hTrkEta", "eta of all tracks", 40, -4., 4.);
+  book1D(iBooker, hTrkPhi_, "hTrkPhi", "phi of all tracks", 40, -4., 4.);
+  book1D(
+      iBooker, hRatioDxySigmaDxyBS_, "hRatioDxySigmaDxyBS",
+      "ratio of transverse impact parameter and its significance wrt beam spot",
+      60, -10., 10);
+  book1D(iBooker, hRatioDxySigmaDxyPV_, "hRatioDxySigmaDxyPV",
+         "ratio of transverse impact parameter and its significance wrt PV", 60,
+         -10., 10);
+  book1D(iBooker, hRatioDzSigmaDzBS_, "hRatioDzSigmaDzBS",
+         "ratio of longitudinal impact parameter and its significance wrt beam "
+         "spot",
+         80, -20., 20);
+  book1D(iBooker, hRatioDzSigmaDzPV_, "hRatioDzSigmaDzPV",
+         "ratio of longitudinal impact parameter and its significance wrt PV",
+         80, -20., 20);
+  book1D(iBooker, hTrkChi2_, "hTrkChi2", "track chi2", 30, 0., 30);
+  book1D(iBooker, hTrkNdof_, "hTrkNdof", "track NDOF", 100, 0, 100);
+
+  book1D(iBooker, hNgoodTrk_, "hNgoodTrk", "number of good tracks", 50, -0.5,
+         49.5);
+
+  book1D(iBooker, hGoodTrkPt500_, "hGoodTrkPt500",
+         "pT of all good tracks with pT > 500 MeV", 50, 0., 50.);
+  book1D(iBooker, hGoodTrkEta500_, "hGoodTrkEta500",
+         "eta of all good tracks pT > 500 MeV", 40, -4., 4.);
+  book1D(iBooker, hGoodTrkPhi500_, "hGoodTrkPhi500",
+         "phi of all good tracks pT > 500 MeV", 40, -4., 4.);
+
+  book1D(iBooker, hGoodTrkPt900_, "hGoodTrkPt900",
+         "pT of all good tracks with pT > 900 MeV", 50, 0., 50.);
+  book1D(iBooker, hGoodTrkEta900_, "hGoodTrkEta900",
+         "eta of all good tracks pT > 900 MeV", 40, -4., 4.);
+  book1D(iBooker, hGoodTrkPhi900_, "hGoodTrkPhi900",
+         "phi of all good tracks pT > 900 MeV", 40, -4., 4.);
+
+  book1D(iBooker, hNvertices_, "hNvertices", "number of vertices", 5, -0.5,
+         4.5);
+  book1D(iBooker, hVertex_z_, "hVertex_z", "z position of vertex; z[cm]", 200,
+         -50, 50);
+  book1D(iBooker, hVertex_y_, "hVertex_y", "y position of vertex; y[cm]", 100,
+         -5, 5);
+  book1D(iBooker, hVertex_x_, "hVertex_x", "x position of vertex; x[cm]", 100,
+         -5, 5);
+  book1D(iBooker, hVertex_ndof_, "hVertex_ndof", "ndof of vertex", 100, 0, 100);
+  book1D(iBooker, hVertex_rho_, "hVertex_rho", "rho of vertex", 100, 0, 5);
+  book1D(iBooker, hVertex_z_bs_, "hVertex_z_bs",
+         "z position of vertex from beamspot; z[cm]", 200, -50, 50);
+
+  book1D(iBooker, hBeamSpot_z_, "hBeamSpot_z", "z position of beamspot; z[cm]",
+         100, -20, 20);
+  book1D(iBooker, hBeamSpot_y_, "hBeamSpot_y", "y position of beamspot; y[cm]",
+         50, -10, 10);
+  book1D(iBooker, hBeamSpot_x_, "hBeamSpot_x", "x position of beamspot; x[cm]",
+         50, -10, 10);
+
+  if (1) {
+    const int Nx = 25;
+    const double x1 = 0.0;
+    const double x2 = 50.0;
+    book1D(iBooker, hLeadingTrack_pTSpectrum_, "hLeadingTrack_pTSpectrum",
+           "pT spectrum of leading track;pT(GeV/c)", Nx, x1, x2);
+    book1D(iBooker, hLeadingChargedJet_pTSpectrum_,
+           "hLeadingChargedJet_pTSpectrum",
+           "pT spectrum of leading track jet;pT(GeV/c)", Nx, x1, x2);
+  }
+
+  if (1) {
+    const int Nx = 24;
+    const double x1 = -4.;
+    const double x2 = 4.;
+    book1D(iBooker, hLeadingTrack_phiSpectrum_, "hLeadingTrack_phiSpectrum",
+           "#phi spectrum of leading track;#phi", Nx, x1, x2);
+    book1D(iBooker, hLeadingChargedJet_phiSpectrum_,
+           "hLeadingChargedJet_phiSpectrum",
+           "#phi spectrum of leading track jet;#phi", Nx, x1, x2);
+  }
+
+  if (1) {
+    const int Nx = 24;
+    const double x1 = -4.;
+    const double x2 = 4.;
+    book1D(iBooker, hLeadingTrack_etaSpectrum_, "hLeadingTrack_etaSpectrum",
+           "#eta spectrum of leading track;#eta", Nx, x1, x2);
+    book1D(iBooker, hLeadingChargedJet_etaSpectrum_,
+           "hLeadingChargedJet_etaSpectrum",
+           "#eta spectrum of leading track jet;#eta", Nx, x1, x2);
+  }
+
+  if (1) {
+    const int Nx = 75;
+    const double x1 = 0.0;
+    const double x2 = 75.0;
+    const double y1 = 0.;
+    const double y2 = 10.;
+    bookProfile(iBooker, hdNdEtadPhi_pTMax_Toward500_,
+                "hdNdEtadPhi_pTMax_Toward500",
+                "Average number of tracks (pT > 500 MeV) in toward region vs "
+                "leading track pT;pT(GeV/c);dN/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hdNdEtadPhi_pTMax_Transverse500_,
+                "hdNdEtadPhi_pTMax_Transverse500",
+                "Average number of tracks (pT > 500 MeV) in transverse region "
+                "vs leading track pT;pT(GeV/c);dN/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hdNdEtadPhi_pTMax_Away500_,
+                "hdNdEtadPhi_pTMax_Away500",
+                "Average number of tracks (pT > 500 MeV) in away region vs "
+                "leading track pT;pT(GeV/c);dN/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hdNdEtadPhi_trackJet_Toward500_,
+                "hdNdEtadPhi_trackJet_Toward500",
+                "Average number of tracks (pT > 500 MeV) in toward region vs "
+                "leading track jet pT;pT(GeV/c);dN/d#eta d#phi",
+                Nx, x1, x2, y1, y2);
+    bookProfile(iBooker, hdNdEtadPhi_trackJet_Transverse500_,
+                "hdNdEtadPhi_trackJet_Transverse500",
+                "Average number of tracks (pT > 500 MeV) in transverse region "
+                "vs leading track jet pT;pT(GeV/c);dN/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hdNdEtadPhi_trackJet_Away500_,
+                "hdNdEtadPhi_trackJet_Away500",
+                "Average number of tracks (pT > 500 MeV) in away region vs "
+                "leading track jet pT;pT(GeV/c);dN/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+
+    bookProfile(iBooker, hpTSumdEtadPhi_pTMax_Toward500_,
+                "hpTSumdEtadPhi_pTMax_Toward500",
+                "Average number of tracks (pT > 500 MeV) in toward region vs "
+                "leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hpTSumdEtadPhi_pTMax_Transverse500_,
+                "hpTSumdEtadPhi_pTMax_Transverse500",
+                "Average number of tracks (pT > 500 MeV) in transverse region "
+                "vs leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hpTSumdEtadPhi_pTMax_Away500_,
+                "hpTSumdEtadPhi_pTMax_Away500",
+                "Average number of tracks (pT > 500 MeV) in away region vs "
+                "leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hpTSumdEtadPhi_trackJet_Toward500_,
+                "hpTSumdEtadPhi_trackJet_Toward500",
+                "Average number of tracks (pT > 500 MeV) in toward region vs "
+                "leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hpTSumdEtadPhi_trackJet_Transverse500_,
+                "hpTSumdEtadPhi_trackJet_Transverse500",
+                "Average number of tracks (pT > 500 MeV) in transverse region "
+                "vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hpTSumdEtadPhi_trackJet_Away500_,
+                "hpTSumdEtadPhi_trackJet_Away500",
+                "Average number of tracks (pT > 500 MeV) in away region vs "
+                "leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+
+    bookProfile(iBooker, hdNdEtadPhi_pTMax_Toward900_,
+                "hdNdEtadPhi_pTMax_Toward900",
+                "Average number of tracks (pT > 900 MeV) in toward region vs "
+                "leading track pT;pT(GeV/c);dN/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hdNdEtadPhi_pTMax_Transverse900_,
+                "hdNdEtadPhi_pTMax_Transverse900",
+                "Average number of tracks (pT > 900 MeV) in transverse region "
+                "vs leading track pT;pT(GeV/c);dN/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hdNdEtadPhi_pTMax_Away900_,
+                "hdNdEtadPhi_pTMax_Away900",
+                "Average number of tracks (pT > 900 MeV) in away region vs "
+                "leading track pT;pT(GeV/c);dN/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hdNdEtadPhi_trackJet_Toward900_,
+                "hdNdEtadPhi_trackJet_Toward900",
+                "Average number of tracks (pT > 900 MeV) in toward region vs "
+                "leading track jet pT;pT(GeV/c);dN/d#eta d#phi",
+                Nx, x1, x2, y1, y2);
+    bookProfile(iBooker, hdNdEtadPhi_trackJet_Transverse900_,
+                "hdNdEtadPhi_trackJet_Transverse900",
+                "Average number of tracks (pT > 900 MeV) in transverse region "
+                "vs leading track jet pT;pT(GeV/c);dN/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hdNdEtadPhi_trackJet_Away900_,
+                "hdNdEtadPhi_trackJet_Away900",
+                "Average number of tracks (pT > 900 MeV) in away region vs "
+                "leading track jet pT;pT(GeV/c);dN/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+
+    bookProfile(iBooker, hpTSumdEtadPhi_pTMax_Toward900_,
+                "hpTSumdEtadPhi_pTMax_Toward900",
+                "Average number of tracks (pT > 900 MeV) in toward region vs "
+                "leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hpTSumdEtadPhi_pTMax_Transverse900_,
+                "hpTSumdEtadPhi_pTMax_Transverse900",
+                "Average number of tracks (pT > 900 MeV) in transverse region "
+                "vs leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hpTSumdEtadPhi_pTMax_Away900_,
+                "hpTSumdEtadPhi_pTMax_Away900",
+                "Average number of tracks (pT > 900 MeV) in away region vs "
+                "leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hpTSumdEtadPhi_trackJet_Toward900_,
+                "hpTSumdEtadPhi_trackJet_Toward900",
+                "Average number of tracks (pT > 900 MeV) in toward region vs "
+                "leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hpTSumdEtadPhi_trackJet_Transverse900_,
+                "hpTSumdEtadPhi_trackJet_Transverse900",
+                "Average number of tracks (pT > 900 MeV) in transverse region "
+                "vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+    bookProfile(iBooker, hpTSumdEtadPhi_trackJet_Away900_,
+                "hpTSumdEtadPhi_trackJet_Away900",
+                "Average number of tracks (pT > 900 MeV) in away region vs "
+                "leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
+                Nx, x1, x2, y1, y2, 0, 0);
+  }
+
+  if (1) {
+    const int Nx = 20;
+    const double x1 = 0.0;
+    const double x2 = 20.0;
+
+    book1D(iBooker, hChargedJetMulti_, "hChargedJetMulti",
+           "Charged jet multiplicity;multiplicities", Nx, x1, x2);
+  }
+
+  if (1) {
+    const int Nx = 60;
+    const double x1 = -180.0;
+    const double x2 = 180.0;
+
+    book1D(iBooker, hdPhi_maxpTTrack_tracks_, "hdPhi_maxpTTrack_tracks",
+           "delta phi between leading tracks and other "
+           "tracks;#Delta#phi(leading track-track)",
+           Nx, x1, x2);
+    book1D(iBooker, hdPhi_chargedJet_tracks_, "hdPhi_chargedJet_tracks",
+           "delta phi between leading charged jet  and "
+           "tracks;#Delta#phi(leading charged jet-track)",
+           Nx, x1, x2);
+  }
+}
+
+void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
+  if (!isHltConfigSuccessful_) return;
+
+  // Analyze the given event.
+
+  edm::Handle<reco::BeamSpot> beamSpot;
+  bool ValidBS_ = iEvent.getByToken(bsLabel_, beamSpot);
+  if (!ValidBS_) return;
+
+  edm::Handle<reco::TrackCollection> tracks;
+  bool ValidTrack_ = iEvent.getByToken(trackLabel_, tracks);
+  if (!ValidTrack_) return;
+
+  edm::Handle<reco::TrackJetCollection> trkJets;
+  bool ValidTrackJet_ = iEvent.getByToken(chargedJetLabel_, trkJets);
+  if (!ValidTrackJet_) return;
+
+  edm::Handle<reco::CaloJetCollection> calJets;
+  bool ValidCaloJet_ = iEvent.getByToken(caloJetLabel_, calJets);
+  if (!ValidCaloJet_) return;
+
+  edm::Handle<reco::VertexCollection> vertexColl;
+  bool ValidVtxColl_ = iEvent.getByToken(vtxLabel_, vertexColl);
+  if (!ValidVtxColl_) return;
+
+  reco::TrackCollection tracks_sort = *tracks;
+  std::sort(tracks_sort.begin(), tracks_sort.end(), PtSorter());
+
+  // get tracker geometry
+  /*  ESHandle<TrackerGeometry> trackerHandle;
+   iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
+   tgeo_ = trackerHandle.product();
+   if (!tgeo_)return;
+ */
+  selected_.clear();
+  fillHltBits(iEvent, iSetup);
+  // select good tracks
+  if (fillVtxPlots(beamSpot.product(), vertexColl)) {
+    fill1D(hNevts_, 1);
+    for (reco::TrackCollection::const_iterator Trk = tracks_sort.begin();
+         Trk != tracks_sort.end(); ++Trk) {
+      if (trackSelection(*Trk, beamSpot.product(), vtx1, vertexColl->size()))
+        selected_.push_back(&*Trk);
+    }
+
+    fillpTMaxRelated(selected_);
+    fillChargedJetSpectra(trkJets);
+    //    fillCaloJetSpectra(calJets);
+    fillUE_with_MaxpTtrack(selected_);
+    if (trkJets->size() > 0) fillUE_with_ChargedJets(selected_, trkJets);
+    // if(calJets->size()>0)fillUE_with_CaloJets(selected_,calJets);
+  }
+}
+
+void QcdUeDQM::book1D(DQMStore::IBooker &iBooker,
+                      std::vector<MonitorElement *> &mes,
                       const std::string &name, const std::string &title, int nx,
                       double x1, double x2, bool sumw2, bool sbox) {
   // Book 1D histos.
-
   for (size_t i = 0; i < hltTrgUsedNames_.size(); ++i) {
     std::string folderName = "Physics/QcdUe/" + hltTrgUsedNames_.at(i);
-    theDbe_->setCurrentFolder(folderName);
-    MonitorElement *e = theDbe_->book1D(
+    iBooker.setCurrentFolder(folderName);
+    MonitorElement *e = iBooker.book1D(
         Form("%s_%s", name.c_str(), hltTrgUsedNames_.at(i).c_str()),
         Form("%s: %s", hltTrgUsedNames_.at(i).c_str(), title.c_str()), nx, x1,
         x2);
@@ -276,34 +519,8 @@ void QcdUeDQM::book1D(std::vector<MonitorElement *> &mes,
   }
 }
 
-//--------------------------------------------------------------------------------------------------
-void QcdUeDQM::book2D(std::vector<MonitorElement *> &mes,
-                      const std::string &name, const std::string &title, int nx,
-                      double x1, double x2, int ny, double y1, double y2,
-                      bool sumw2, bool sbox) {
-  // Book 2D histos.
-
-  for (size_t i = 0; i < hltTrgUsedNames_.size(); ++i) {
-    std::string folderName = "Physics/QcdUe/" + hltTrgUsedNames_.at(i);
-    theDbe_->setCurrentFolder(folderName);
-    MonitorElement *e = theDbe_->book2D(
-        Form("%s_%s", name.c_str(), hltTrgUsedNames_.at(i).c_str()),
-        Form("%s: %s", hltTrgUsedNames_.at(i).c_str(), title.c_str()), nx, x1,
-        x2, ny, y1, y2);
-    TH1 *h1 = e->getTH1();
-    if (sumw2) {
-      if (0 == h1->GetSumw2N()) {  // protect against re-summing (would cause
-                                   // exception)
-        h1->Sumw2();
-      }
-    }
-    h1->SetStats(sbox);
-    mes.push_back(e);
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-void QcdUeDQM::bookProfile(std::vector<MonitorElement *> &mes,
+void QcdUeDQM::bookProfile(DQMStore::IBooker &iBooker,
+                           std::vector<MonitorElement *> &mes,
                            const std::string &name, const std::string &title,
                            int nx, double x1, double x2, double y1, double y2,
                            bool sumw2, bool sbox) {
@@ -311,365 +528,15 @@ void QcdUeDQM::bookProfile(std::vector<MonitorElement *> &mes,
 
   for (size_t i = 0; i < hltTrgUsedNames_.size(); ++i) {
     std::string folderName = "Physics/QcdUe/" + hltTrgUsedNames_.at(i);
-    theDbe_->setCurrentFolder(folderName);
-    MonitorElement *e = theDbe_->bookProfile(
+    iBooker.setCurrentFolder(folderName);
+    MonitorElement *e = iBooker.bookProfile(
         Form("%s_%s", name.c_str(), hltTrgUsedNames_.at(i).c_str()),
         Form("%s: %s", hltTrgUsedNames_.at(i).c_str(), title.c_str()), nx, x1,
         x2, y1, y2, " ");
     mes.push_back(e);
   }
 }
-//--------------------------------------------------------------------------------------------------
-void QcdUeDQM::createHistos() {
-  // Book histograms if needed.
 
-  /*  if (1) {
-      theDbe_->setCurrentFolder("Physics/EventInfo/");
-      repSumMap_  =
-    theDbe_->book2D("reportSummaryMap","reportSummaryMap",1,0,1,1,0,1);
-      repSummary_ = theDbe_->bookFloat("reportSummary");
-    }
-    */
-  theDbe_->setCurrentFolder("Physics/QcdUe");
-
-  if (1) {
-    const int Nx = hltTrgUsedNames_.size();
-    const double x1 = -0.5;
-    const double x2 = Nx - 0.5;
-    h2TrigCorr_ = theDbe_->book2D("h2TriCorr", "Trigger bit x vs y;y&&!x;x&&y",
-                                  Nx, x1, x2, Nx, x1, x2);
-    for (size_t i = 1; i <= hltTrgUsedNames_.size(); ++i) {
-      h2TrigCorr_->setBinLabel(i, hltTrgUsedNames_.at(i - 1), 1);
-      h2TrigCorr_->setBinLabel(i, hltTrgUsedNames_.at(i - 1), 2);
-    }
-    TH1 *h = h2TrigCorr_->getTH1();
-    if (h) h->SetStats(0);
-  }
-  book1D(hNevts_, "hNevts", "number of events", 2, 0, 2);
-  book1D(hNtrackerLayer_, "hNtrackerLayer",
-         "number of tracker layers;multiplicity", 20, -0.5, 19.5);
-  book1D(hNtrackerPixelLayer_, "hNtrackerPixelLayer",
-         "number of pixel layers;multiplicity", 10, -0.5, 9.5);
-  book1D(hNtrackerStripPixelLayer_, "hNtrackerStripPixelLayer",
-         "number of strip + pixel layers;multiplicity", 30, -0.5, 39.5);
-  book1D(hRatioPtErrorPt_, "hRatioPtErrorPt", "ratio of pT error and track pT",
-         25, 0., 5.);
-  book1D(hTrkPt_, "hTrkPt", "pT of all tracks", 50, 0., 50.);
-  book1D(hTrkEta_, "hTrkEta", "eta of all tracks", 40, -4., 4.);
-  book1D(hTrkPhi_, "hTrkPhi", "phi of all tracks", 40, -4., 4.);
-  book1D(
-      hRatioDxySigmaDxyBS_, "hRatioDxySigmaDxyBS",
-      "ratio of transverse impact parameter and its significance wrt beam spot",
-      60, -10., 10);
-  book1D(hRatioDxySigmaDxyPV_, "hRatioDxySigmaDxyPV",
-         "ratio of transverse impact parameter and its significance wrt PV", 60,
-         -10., 10);
-  book1D(hRatioDzSigmaDzBS_, "hRatioDzSigmaDzBS",
-         "ratio of longitudinal impact parameter and its significance wrt beam "
-         "spot",
-         80, -20., 20);
-  book1D(hRatioDzSigmaDzPV_, "hRatioDzSigmaDzPV",
-         "ratio of longitudinal impact parameter and its significance wrt PV",
-         80, -20., 20);
-  book1D(hTrkChi2_, "hTrkChi2", "track chi2", 30, 0., 30);
-  book1D(hTrkNdof_, "hTrkNdof", "track NDOF", 100, 0, 100);
-
-  book1D(hNgoodTrk_, "hNgoodTrk", "number of good tracks", 50, -0.5, 49.5);
-
-  book1D(hGoodTrkPt500_, "hGoodTrkPt500",
-         "pT of all good tracks with pT > 500 MeV", 50, 0., 50.);
-  book1D(hGoodTrkEta500_, "hGoodTrkEta500",
-         "eta of all good tracks pT > 500 MeV", 40, -4., 4.);
-  book1D(hGoodTrkPhi500_, "hGoodTrkPhi500",
-         "phi of all good tracks pT > 500 MeV", 40, -4., 4.);
-
-  book1D(hGoodTrkPt900_, "hGoodTrkPt900",
-         "pT of all good tracks with pT > 900 MeV", 50, 0., 50.);
-  book1D(hGoodTrkEta900_, "hGoodTrkEta900",
-         "eta of all good tracks pT > 900 MeV", 40, -4., 4.);
-  book1D(hGoodTrkPhi900_, "hGoodTrkPhi900",
-         "phi of all good tracks pT > 900 MeV", 40, -4., 4.);
-
-  book1D(hNvertices_, "hNvertices", "number of vertices", 5, -0.5, 4.5);
-  book1D(hVertex_z_, "hVertex_z", "z position of vertex; z[cm]", 200, -50, 50);
-  book1D(hVertex_y_, "hVertex_y", "y position of vertex; y[cm]", 100, -5, 5);
-  book1D(hVertex_x_, "hVertex_x", "x position of vertex; x[cm]", 100, -5, 5);
-  book1D(hVertex_ndof_, "hVertex_ndof", "ndof of vertex", 100, 0, 100);
-  book1D(hVertex_rho_, "hVertex_rho", "rho of vertex", 100, 0, 5);
-  book1D(hVertex_z_bs_, "hVertex_z_bs",
-         "z position of vertex from beamspot; z[cm]", 200, -50, 50);
-
-  book1D(hBeamSpot_z_, "hBeamSpot_z", "z position of beamspot; z[cm]", 100, -20,
-         20);
-  book1D(hBeamSpot_y_, "hBeamSpot_y", "y position of beamspot; y[cm]", 50, -10,
-         10);
-  book1D(hBeamSpot_x_, "hBeamSpot_x", "x position of beamspot; x[cm]", 50, -10,
-         10);
-
-  if (1) {
-    const int Nx = 25;
-    const double x1 = 0.0;
-    const double x2 = 50.0;
-    book1D(hLeadingTrack_pTSpectrum_, "hLeadingTrack_pTSpectrum",
-           "pT spectrum of leading track;pT(GeV/c)", Nx, x1, x2);
-    //    book1D(hLeadingCaloJet_pTSpectrum_,"hLeadingCalo_pTSpectrum","pT
-    // spectrum of leading calo jet;pT(GeV/c)",Nx,x1,x2);
-    book1D(hLeadingChargedJet_pTSpectrum_, "hLeadingChargedJet_pTSpectrum",
-           "pT spectrum of leading track jet;pT(GeV/c)", Nx, x1, x2);
-  }
-
-  if (1) {
-    const int Nx = 24;
-    const double x1 = -4.;
-    const double x2 = 4.;
-    book1D(hLeadingTrack_phiSpectrum_, "hLeadingTrack_phiSpectrum",
-           "#phi spectrum of leading track;#phi", Nx, x1, x2);
-    //  book1D(hLeadingCaloJet_phiSpectrum_,"hLeadingCaloJet_phiSpectrum","#phi
-    // spectrum of leading calo jet;#phi",Nx,x1,x2);
-    book1D(hLeadingChargedJet_phiSpectrum_, "hLeadingChargedJet_phiSpectrum",
-           "#phi spectrum of leading track jet;#phi", Nx, x1, x2);
-  }
-
-  if (1) {
-    const int Nx = 24;
-    const double x1 = -4.;
-    const double x2 = 4.;
-    book1D(hLeadingTrack_etaSpectrum_, "hLeadingTrack_etaSpectrum",
-           "#eta spectrum of leading track;#eta", Nx, x1, x2);
-    // book1D(hLeadingCaloJet_etaSpectrum_,"hLeadingCaloJet_etaSpectrum","#eta
-    // spectrum of leading calo jet;#eta",Nx,x1,x2);
-    book1D(hLeadingChargedJet_etaSpectrum_, "hLeadingChargedJet_etaSpectrum",
-           "#eta spectrum of leading track jet;#eta", Nx, x1, x2);
-  }
-
-  if (1) {
-    const int Nx = 75;
-    const double x1 = 0.0;
-    const double x2 = 75.0;
-    const double y1 = 0.;
-    const double y2 = 10.;
-    bookProfile(hdNdEtadPhi_pTMax_Toward500_, "hdNdEtadPhi_pTMax_Toward500",
-                "Average number of tracks (pT > 500 MeV) in toward region vs "
-                "leading track pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    bookProfile(hdNdEtadPhi_pTMax_Transverse500_,
-                "hdNdEtadPhi_pTMax_Transverse500",
-                "Average number of tracks (pT > 500 MeV) in transverse region "
-                "vs leading track pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    bookProfile(hdNdEtadPhi_pTMax_Away500_, "hdNdEtadPhi_pTMax_Away500",
-                "Average number of tracks (pT > 500 MeV) in away region vs "
-                "leading track pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    /*
-       bookProfile(hdNdEtadPhi_caloJet_Toward500_,"hdNdEtadPhi_caloJet_Toward500",
-                    "Average number of tracks (pT > 500 MeV) in toward region vs
-       leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-       bookProfile(hdNdEtadPhi_caloJet_Transverse500_,"hdNdEtadPhi_caloJet_Transverse500",
-                    "Average number of tracks (pT > 500 MeV) in transverse
-       region vs leading calo jet pT;pT(GeV/c);dN/d#eta
-       d#phi",Nx,x1,x2,y1,y2,0,0);
-       bookProfile(hdNdEtadPhi_caloJet_Away500_,"hdNdEtadPhi_caloJet_Away500",
-                    "Average number of tracks (pT > 500 MeV) in away region vs
-       leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-     */
-
-    bookProfile(hdNdEtadPhi_trackJet_Toward500_,
-                "hdNdEtadPhi_trackJet_Toward500",
-                "Average number of tracks (pT > 500 MeV) in toward region vs "
-                "leading track jet pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2);
-    bookProfile(hdNdEtadPhi_trackJet_Transverse500_,
-                "hdNdEtadPhi_trackJet_Transverse500",
-                "Average number of tracks (pT > 500 MeV) in transverse region "
-                "vs leading track jet pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    bookProfile(hdNdEtadPhi_trackJet_Away500_, "hdNdEtadPhi_trackJet_Away500",
-                "Average number of tracks (pT > 500 MeV) in away region vs "
-                "leading track jet pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-
-    bookProfile(hpTSumdEtadPhi_pTMax_Toward500_,
-                "hpTSumdEtadPhi_pTMax_Toward500",
-                "Average number of tracks (pT > 500 MeV) in toward region vs "
-                "leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    bookProfile(hpTSumdEtadPhi_pTMax_Transverse500_,
-                "hpTSumdEtadPhi_pTMax_Transverse500",
-                "Average number of tracks (pT > 500 MeV) in transverse region "
-                "vs leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    bookProfile(hpTSumdEtadPhi_pTMax_Away500_, "hpTSumdEtadPhi_pTMax_Away500",
-                "Average number of tracks (pT > 500 MeV) in away region vs "
-                "leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    /*
-        bookProfile(hpTSumdEtadPhi_caloJet_Toward500_,"hpTSumdEtadPhi_caloJet_Toward500",
-                     "Average number of tracks (pT > 500 MeV) in toward region
-       vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-        bookProfile(hpTSumdEtadPhi_caloJet_Transverse500_,"hpTSumdEtadPhi_caloJet_Transverse500",
-                     "Average number of tracks (pT > 500 MeV) in transverse
-       region vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta
-       d#phi",Nx,x1,x2,y1,y2,0,0);
-        bookProfile(hpTSumdEtadPhi_caloJet_Away500_,"hpTSumdEtadPhi_caloJet_Away500",
-                     "Average number of tracks (pT > 500 MeV) in away region vs
-       leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-    */
-
-    bookProfile(hpTSumdEtadPhi_trackJet_Toward500_,
-                "hpTSumdEtadPhi_trackJet_Toward500",
-                "Average number of tracks (pT > 500 MeV) in toward region vs "
-                "leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    bookProfile(hpTSumdEtadPhi_trackJet_Transverse500_,
-                "hpTSumdEtadPhi_trackJet_Transverse500",
-                "Average number of tracks (pT > 500 MeV) in transverse region "
-                "vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    bookProfile(hpTSumdEtadPhi_trackJet_Away500_,
-                "hpTSumdEtadPhi_trackJet_Away500",
-                "Average number of tracks (pT > 500 MeV) in away region vs "
-                "leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-
-    bookProfile(hdNdEtadPhi_pTMax_Toward900_, "hdNdEtadPhi_pTMax_Toward900",
-                "Average number of tracks (pT > 900 MeV) in toward region vs "
-                "leading track pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    bookProfile(hdNdEtadPhi_pTMax_Transverse900_,
-                "hdNdEtadPhi_pTMax_Transverse900",
-                "Average number of tracks (pT > 900 MeV) in transverse region "
-                "vs leading track pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    bookProfile(hdNdEtadPhi_pTMax_Away900_, "hdNdEtadPhi_pTMax_Away900",
-                "Average number of tracks (pT > 900 MeV) in away region vs "
-                "leading track pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    /*
-        bookProfile(hdNdEtadPhi_caloJet_Toward900_,"hdNdEtadPhi_caloJet_Toward900",
-                     "Average number of tracks (pT > 900 MeV) in toward region
-       vs leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-        bookProfile(hdNdEtadPhi_caloJet_Transverse900_,"hdNdEtadPhi_caloJet_Transverse900",
-                     "Average number of tracks (pT > 900 MeV) in transverse
-       region vs leading calo jet pT;pT(GeV/c);dN/d#eta
-       d#phi",Nx,x1,x2,y1,y2,0,0);
-        bookProfile(hdNdEtadPhi_caloJet_Away900_,"hdNdEtadPhi_caloJet_Away900",
-                     "Average number of tracks (pT > 900 MeV) in away region vs
-       leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-    */
-
-    bookProfile(hdNdEtadPhi_trackJet_Toward900_,
-                "hdNdEtadPhi_trackJet_Toward900",
-                "Average number of tracks (pT > 900 MeV) in toward region vs "
-                "leading track jet pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2);
-    bookProfile(hdNdEtadPhi_trackJet_Transverse900_,
-                "hdNdEtadPhi_trackJet_Transverse900",
-                "Average number of tracks (pT > 900 MeV) in transverse region "
-                "vs leading track jet pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    bookProfile(hdNdEtadPhi_trackJet_Away900_, "hdNdEtadPhi_trackJet_Away900",
-                "Average number of tracks (pT > 900 MeV) in away region vs "
-                "leading track jet pT;pT(GeV/c);dN/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-
-    bookProfile(hpTSumdEtadPhi_pTMax_Toward900_,
-                "hpTSumdEtadPhi_pTMax_Toward900",
-                "Average number of tracks (pT > 900 MeV) in toward region vs "
-                "leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    bookProfile(hpTSumdEtadPhi_pTMax_Transverse900_,
-                "hpTSumdEtadPhi_pTMax_Transverse900",
-                "Average number of tracks (pT > 900 MeV) in transverse region "
-                "vs leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    bookProfile(hpTSumdEtadPhi_pTMax_Away900_, "hpTSumdEtadPhi_pTMax_Away900",
-                "Average number of tracks (pT > 900 MeV) in away region vs "
-                "leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    /*
-        bookProfile(hpTSumdEtadPhi_caloJet_Toward900_,"hpTSumdEtadPhi_caloJet_Toward900",
-                     "Average number of tracks (pT > 900 MeV) in toward region
-       vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-        bookProfile(hpTSumdEtadPhi_caloJet_Transverse900_,"hpTSumdEtadPhi_caloJet_Transverse900",
-                     "Average number of tracks (pT > 900 MeV) in transverse
-       region vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta
-       d#phi",Nx,x1,x2,y1,y2,0,0);
-        bookProfile(hpTSumdEtadPhi_caloJet_Away900_,"hpTSumdEtadPhi_caloJet_Away900",
-                     "Average number of tracks (pT > 900 MeV) in away region vs
-       leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-    */
-    bookProfile(hpTSumdEtadPhi_trackJet_Toward900_,
-                "hpTSumdEtadPhi_trackJet_Toward900",
-                "Average number of tracks (pT > 900 MeV) in toward region vs "
-                "leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    bookProfile(hpTSumdEtadPhi_trackJet_Transverse900_,
-                "hpTSumdEtadPhi_trackJet_Transverse900",
-                "Average number of tracks (pT > 900 MeV) in transverse region "
-                "vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-    bookProfile(hpTSumdEtadPhi_trackJet_Away900_,
-                "hpTSumdEtadPhi_trackJet_Away900",
-                "Average number of tracks (pT > 900 MeV) in away region vs "
-                "leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",
-                Nx, x1, x2, y1, y2, 0, 0);
-  }
-
-  if (1) {
-    const int Nx = 20;
-    const double x1 = 0.0;
-    const double x2 = 20.0;
-
-    book1D(hChargedJetMulti_, "hChargedJetMulti",
-           "Charged jet multiplicity;multiplicities", Nx, x1, x2);
-    // book1D(hCaloJetMulti_,"hCaloJetMulti","Calo jet
-    // multiplicity;multiplicities",Nx,x1,x2);
-  }
-
-  if (1) {
-    const int Nx = 60;
-    const double x1 = -180.0;
-    const double x2 = 180.0;
-
-    book1D(hdPhi_maxpTTrack_tracks_, "hdPhi_maxpTTrack_tracks",
-           "delta phi between leading tracks and other "
-           "tracks;#Delta#phi(leading track-track)",
-           Nx, x1, x2);
-    //        book1D(hdPhi_caloJet_tracks_,"hdPhi_caloJet_tracks","delta phi
-    // between leading calo jet  and tracks;#Delta#phi(leading calo
-    // jet-track)",Nx,x1,x2);
-    book1D(hdPhi_chargedJet_tracks_, "hdPhi_chargedJet_tracks",
-           "delta phi between leading charged jet  and "
-           "tracks;#Delta#phi(leading charged jet-track)",
-           Nx, x1, x2);
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-void QcdUeDQM::endJob(void) {}
-
-//--------------------------------------------------------------------------------------------------
-
-void QcdUeDQM::endLuminosityBlock(const LuminosityBlock &l,
-                                  const EventSetup &iSetup) {
-  if (!isHltConfigSuccessful_) return;
-
-  // Update various histograms.
-
-  // repSummary_->Fill(1.);
-  // repSumMap_->Fill(0.5,0.5,1.);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void QcdUeDQM::endRun(const Run &, const EventSetup &) {
-  if (!isHltConfigSuccessful_) return;
-
-  // End run, cleanup. TODO: can this be called several times in DQM???
-}
-
-//--------------------------------------------------------------------------------------------------
 void QcdUeDQM::fill1D(std::vector<TH1F *> &hs, double val, double w) {
   // Loop over histograms and fill if trigger has fired.
 
@@ -693,8 +560,8 @@ void QcdUeDQM::fill1D(std::vector<MonitorElement *> &mes, double val,
 //--------------------------------------------------------------------------------------------------
 void QcdUeDQM::setLabel1D(std::vector<MonitorElement *> &mes) {
   // Loop over histograms and fill if trigger has fired.
-  string cut[5] = {"Nevt",    "vtx!=bmspt",  "Zvtx<10cm",
-                   "pT>1GeV", "trackFromVtx"};
+  string cut[5] = {"Nevt", "vtx!=bmspt", "Zvtx<10cm", "pT>1GeV",
+                   "trackFromVtx"};
   for (size_t i = 0; i < mes.size(); ++i) {
     if (!hltTrgDeci_.at(i)) continue;
     for (size_t j = 1; j < 6; j++) mes.at(i)->setBinLabel(j, cut[j - 1], 1);
@@ -962,7 +829,6 @@ void QcdUeDQM::fillUE_with_MaxpTtrack(
   if (track.size() > 0) {
     if (track[0]->pt() > 1.) {
       for (size_t i = 1; i < track.size(); i++) {
-
         double dphi =
             (180. / PI) * (deltaPhi(track[0]->phi(), track[i]->phi()));
         fill1D(hdPhi_maxpTTrack_tracks_, dphi);
@@ -1252,10 +1118,3 @@ void QcdUeDQM::fillHltBits(const Event &iEvent, const EventSetup &iSetup) {
     }
   }
 }
-
-//--------------------------------------------------------------------------------------------------
-
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:
