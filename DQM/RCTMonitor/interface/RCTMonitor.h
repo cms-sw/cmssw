@@ -42,7 +42,6 @@
 //#include <SimDataFormats/Track/interface/SimTrackContainer.h>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -52,6 +51,7 @@
 // DQM files
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 // GCT and RCT data formats
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
@@ -72,22 +72,16 @@ struct rct_location {
   unsigned crate, card, region;
 };
 
-class RCTMonitor : public edm::EDAnalyzer {
+class RCTMonitor : public DQMEDAnalyzer {
  public:
   explicit RCTMonitor(const edm::ParameterSet&);
   ~RCTMonitor();
-
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
+                      edm::EventSetup const&) override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob();
-  virtual void endJob(void);
-
-  void BookRCT();
   void FillRCT(const edm::Event&, const edm::EventSetup&);
 
  private:
-  // Don't use the default constructor
-  RCTMonitor();
-
   // RCT stuff
   MonitorElement* m_rctRegionsEtEtaPhi;
   MonitorElement* m_rctRegionsOccEtaPhi;
@@ -114,7 +108,6 @@ class RCTMonitor : public edm::EDAnalyzer {
   MonitorElement* m_rctNonIsoEmRank10;
 
   // Bins etc.
-
   // GCT and RCT
   static const unsigned int ETABINS;
   static const float ETAMIN;
@@ -156,23 +149,6 @@ class RCTMonitor : public edm::EDAnalyzer {
   static const unsigned int L1EPHIBINS;
   static const float L1EPHIMIN;
   static const float L1EPHIMAX;
-
-  // event counter
-  int m_nevts;
-
-  // back-end interface
-  DQMStore* m_dbe;
-
-  // Enable the daemon
-  bool m_enableMonitorDaemon;
-
-  // Input digi labels
-
-  edm::InputTag m_rctSource;
-
-  // Write events to an output file named in parameters
-  bool m_writeOutputFile;
-  std::string m_outputFileName;
 
   // define Token(-s)
   edm::EDGetTokenT<L1CaloEmCollection> m_rctSourceToken_;
