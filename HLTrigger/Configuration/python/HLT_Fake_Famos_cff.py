@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_3_0/Fake/V4 (CMSSW_7_3_0)
+# /dev/CMSSW_7_3_0/Fake/V5 (CMSSW_7_3_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/Fake/V4')
+  tableName = cms.string('/dev/CMSSW_7_3_0/Fake/V5')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
