@@ -103,6 +103,11 @@ void FWFileEntry::openFile(bool checkVersion)
 
    // load event
    m_event = new fwlite::Event(m_file);
+
+   if (m_event->size() == 0)
+         throw std::runtime_error("fwlite::Event size == 0");
+
+
    m_eventTree = dynamic_cast<TTree*>(m_file->Get("Events"));
 
    if (m_eventTree == 0)
