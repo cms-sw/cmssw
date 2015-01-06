@@ -1,6 +1,7 @@
 <lcgdict>
 <selection>
-  <class name="reco::V0Candidate" ClassVersion="11">
+  <class name="reco::V0Candidate" ClassVersion="12">
+   <version ClassVersion="12" checksum="3594667806"/>
    <version ClassVersion="11" checksum="3236778854"/>
    <version ClassVersion="10" checksum="1361748283"/>
   </class>

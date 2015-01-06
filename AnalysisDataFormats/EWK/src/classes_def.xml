@@ -1,6 +1,7 @@
 <lcgdict>
 
-   <class name="reco::WMuNuCandidatePtr" ClassVersion="11">
+   <class name="reco::WMuNuCandidatePtr" ClassVersion="12">
+    <version ClassVersion="12" checksum="3487499694"/>
     <version ClassVersion="11" checksum="1077706230"/>
     <version ClassVersion="10" checksum="1846146489"/>
    </class>
@@ -19,7 +20,8 @@
    <class name="edm::reftobase::BaseVectorHolder<reco::WMuNuCandidatePtr>" />
 
 
-   <class name="reco::WMuNuCandidate" ClassVersion="11">
+   <class name="reco::WMuNuCandidate" ClassVersion="12">
+    <version ClassVersion="12" checksum="327366346"/>
     <version ClassVersion="11" checksum="4161541858"/>
     <version ClassVersion="10" checksum="3365055629"/>
    </class>

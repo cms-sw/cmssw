@@ -118,8 +118,3 @@ bool LeafCandidate::isPhoton() const { return false; }
 bool LeafCandidate::isConvertedPhoton() const { return false; }
 
 bool LeafCandidate::isJet() const { return false; }
-
-const unsigned int reco::LeafCandidate::longLivedTag = 65536;
-
-const unsigned int reco::LeafCandidate::massConstraintTag = 131072;
-

@@ -9,7 +9,8 @@
   </ioread>
 
 
-  <class name="reco::Photon" ClassVersion="15">
+  <class name="reco::Photon" ClassVersion="16">
+   <version ClassVersion="16" checksum="3459546220"/>
    <version ClassVersion="15" checksum="577991108"/>
    <version ClassVersion="13" checksum="2963666409"/>
    <version ClassVersion="14" checksum="753726370"/>
@@ -21,11 +22,13 @@
   <ioread sourceClass = "reco::Conversion" version="[1-10]" targetClass="reco::Conversion" source="std::vector<reco::TrackRef> tracks_; std::vector<edm::RefToBase<reco::Track> > trackToBaseRefs_" target="trackToBaseRefs_">
      <![CDATA[trackToBaseRefs_=onfile.trackToBaseRefs_; if(onfile.tracks_.size()>onfile.trackToBaseRefs_.size()) { for(auto const& t: onfile.tracks_) { trackToBaseRefs_.emplace_back(t);} }]]>
   </ioread>
-  <class name="reco::Electron" ClassVersion="12">
+  <class name="reco::Electron" ClassVersion="13">
+   <version ClassVersion="13" checksum="827670837"/>
    <version ClassVersion="12" checksum="1547192125"/>
    <version ClassVersion="11" checksum="1178796923"/>
   </class>
-  <class name="reco::SiStripElectron" ClassVersion="12">
+  <class name="reco::SiStripElectron" ClassVersion="13">
+   <version ClassVersion="13" checksum="1547231262"/>
    <version ClassVersion="12" checksum="634532726"/>
    <version ClassVersion="10" checksum="371046486"/>
    <version ClassVersion="11" checksum="2363574304"/>
@@ -214,7 +217,8 @@
   <class name="reco::GsfElectron::PixelMatchVariables" ClassVersion="2">
     <version ClassVersion="2" checksum="3522539867"/>
   </class>
-  <class name="reco::GsfElectron" ClassVersion="17">
+  <class name="reco::GsfElectron" ClassVersion="18">
+   <version ClassVersion="18" checksum="2072747263"/>
    <version ClassVersion="17" checksum="1861965703"/>
    <version ClassVersion="16" checksum="1022265405"/>
    <version ClassVersion="15" checksum="515498629"/>
