@@ -39,7 +39,7 @@ public:
 
   virtual void HandleResponseWithHosts(XrdCl::XRootDStatus *status,
                                        XrdCl::AnyObject    *response,
-                                       XrdCl::HostList     *hostList)
+                                       XrdCl::HostList     *hostList) override
   {
     pStatus.reset(status);
     pResponse.reset(response);
