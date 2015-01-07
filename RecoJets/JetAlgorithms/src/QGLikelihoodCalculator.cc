@@ -21,7 +21,7 @@ float QGLikelihoodCalculator::computeQGLikelihood(edm::ESHandle<QGLikelihoodObje
 
     int binG = gluonEntry->histogram.findBin(vars[varIndex]);
     float Gi = gluonEntry->histogram.binContent(binG);
-    float Gw = (binG == 0 || binQ == gluonEntry->histogram.numberOfBins()+1)? 1. : gluonEntry->histogram.binRange(binG).width();
+    float Gw = (binG == 0 || binG == gluonEntry->histogram.numberOfBins()+1)? 1. : gluonEntry->histogram.binRange(binG).width();
 
     if(Qi <= 0 || Gi <= 0){	// If one of the two pdf's is empty for this value, look if we have some content in the neighbouring bins
       int q = 1, g = 1;
