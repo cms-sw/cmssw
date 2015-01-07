@@ -8,7 +8,14 @@
 #include "TMethod.h"
 #include "TMethodArg.h"
 
+#include "tbb/concurrent_unordered_map.h"
+
+
 namespace edm {
+  namespace {
+    typedef tbb::concurrent_unordered_map<TMethod const*, TypeWithDict> Map;
+    Map returnTypeMap;
+  }
 
   FunctionWithDict::FunctionWithDict() : function_(nullptr) {
   }
@@ -34,7 +41,13 @@ namespace edm {
 
   TypeWithDict
   FunctionWithDict::finalReturnType() const {
-    return TypeWithDict::byName(function_->GetReturnTypeNormalizedName());
+    auto const& item = returnTypeMap.find(function_);
+    if(item != returnTypeMap.end()) {
+       return item->second;
+    }
+    TypeWithDict theType = TypeWithDict::byName(function_->GetReturnTypeNormalizedName());
+    returnTypeMap.insert(std::make_pair(function_, theType));
+    return theType;
   }
 
   TypeWithDict
