@@ -156,8 +156,8 @@ _fromScratchHGCClusterizer_HGCEE = cms.PSet(
                                          HGC_ECAL_slope = cms.double(0.0796206),
                                          HGC_ECAL_max_radius = cms.double(60.0) ),
     moliereRadii = cms.PSet( HGC_ECAL = cms.double(2.9),
-                             HGC_HCALF = cms.double(6.0),
-                             HGC_HCALB = cms.double(6.0) ), #cm
+                             HGC_HCALF = cms.double(7.0),
+                             HGC_HCALB = cms.double(8.0) ), #cm
     radiationLengths = cms.PSet( HGC_ECAL = cms.vdouble(1.0),
                                  HGC_HCAL = cms.vdouble(1.0) ),
     interactionLengths = cms.PSet( HGC_ECAL = cms.vdouble(1.0),
@@ -176,7 +176,7 @@ _fromScratchHGCClusterizer_HGCEE = cms.PSet(
         minConeAngle = cms.double(0.1), # radians
         maxConeAngle = cms.double(0.5), # radians
         maxConeDepth = cms.double(60), #cm
-        maxClusterAngleToTrack = cms.double(0.10), # radians
+        maxClusterAngleToTrack = cms.double(0.20), # radians
         minECALLayerToCone = cms.uint32(11), # ~9.5 radiation lengths
         ),
     

@@ -153,19 +153,26 @@ correctEnergyActual(reco::PFCluster& cluster) const {
 
   //final offset correction
   if(_isEMCalibration) {
-    eCorr = std::max(0., eCorr-_coef_b/_coef_a);    
+    eCorr = std::max(0., eCorr-_coef_b/_coef_a); 
+    //std::cout << "eCorr EM: " << eCorr << std::endl;
   } else {
+    //std::cout << "energy in mips: " 
+    //      << e_ee << ' ' << e_hef << ' ' << e_heb << std::endl;
     e_ee  = e_ee*_ee_had_emscale_slope   + _ee_had_emscale_offset;
     e_hef = e_hef*_hef_had_emscale_slope + _hef_had_emscale_offset;
     e_heb = e_heb*_heb_had_emscale_slope + _heb_had_emscale_offset;
     eCorr = e_ee + _he_had_correction*(e_hef + _heb_had_correction*e_heb);
+    //std::cout << "eCorr first step: " << eCorr << std::endl;
     eCorr = eCorr*_pion_energy_slope + _pion_energy_offset;
+    //std::cout << "eCorr second step: " << eCorr << std::endl;
     const double residual = ( _had_residual[2]*abs_eta*abs_eta +
 			      _had_residual[1]*abs_eta +
 			      _had_residual[0] );
     eCorr = eCorr*(1-residual);
+    //std::cout << "eCorr HAD: " << eCorr << std::endl;
   }
-
+  
+  
   cluster.setEnergy(eCorr);
   cluster.setCorrectedEnergy(eCorr);
   

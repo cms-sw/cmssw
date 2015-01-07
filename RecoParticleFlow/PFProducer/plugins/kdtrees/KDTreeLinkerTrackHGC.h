@@ -117,7 +117,7 @@ KDTreeLinkerTrackHGC<the_layer,RHscaling>::insertFieldClusterElt(reco::PFBlockEl
   for(size_t rhit = 0; rhit < fraction.size(); ++rhit) {
     const reco::PFRecHitRef& rh = fraction[rhit].recHitRef();
     double fract = fraction[rhit].fraction();
-    /*
+    
     DetId rhId( rh->detId() );
     unsigned rhLayer = 1000;
 
@@ -131,8 +131,8 @@ KDTreeLinkerTrackHGC<the_layer,RHscaling>::insertFieldClusterElt(reco::PFBlockEl
       throw cms::Exception("BadRecHit") 
 	<< "HGC KDTree Linker only accepts HGC DetIds! got: " << rhId.det();
     }
-    */
-    if ( (rh.isNull()) || (fract < 1E-4) ) // ||  rhLayer != seedLayer )
+    
+    if ( (rh.isNull()) || (fract < 1E-4) ||  rhLayer > 6 )
       continue;
       
     const reco::PFRecHit& rechit = *rh;
@@ -242,33 +242,35 @@ void
     std::vector<KDTreeNodeInfo> recHits;
     KDTreeBox trackBox(tracketa-range, tracketa+range, trackphi-range, trackphi+range);
     tree_.search(trackBox, recHits);
-
-    //std::cout << "got " << recHits.size() << " rechits from the KDtree search." << std::endl;
-
+    /*
+    std::cout << "track pt: " << trackPt << std::endl;
+    std::cout << "got " << recHits.size() << " rechits from the KDtree search." << std::endl;
+    */
     // Here we check all rechit candidates using the non-approximated method.
     for(std::vector<KDTreeNodeInfo>::const_iterator rhit = recHits.begin(); 
 	rhit != recHits.end(); ++rhit) {
            
       const std::vector< math::XYZPoint >& cornersxyz      = rhit->ptr->getCornersXYZ();
       const math::XYZPoint& posxyz			   = rhit->ptr->position();
-      //const reco::PFRecHit::REPPoint &rhrep		   = rhit->ptr->positionREP();
-      //const std::vector<reco::PFRecHit::REPPoint>& corners = rhit->ptr->getCornersREP();
+      const reco::PFRecHit::REPPoint &rhrep		   = rhit->ptr->positionREP();
+      const std::vector<reco::PFRecHit::REPPoint>& corners = rhit->ptr->getCornersREP();
       //const auto& corners_xyz = rhit->ptr->getCornersXYZ();
-      if(cornersxyz.size() != 4) continue;
+      //if(cornersxyz.size() != 4) continue;
 
-      /*
-      double rhsizeEta = fabs(corners[0].Eta() - corners[2].Eta());
+      
+      //double rhsizeEta = fabs(corners[0].Eta() - corners[2].Eta());
       double rhsizePhi = fabs(corners[0].Phi() - corners[2].Phi());
       if ( rhsizePhi > M_PI ) rhsizePhi = 2.*M_PI - rhsizePhi;
       
-      double deta = fabs(rhrep.Eta() - tracketa);
+      //double deta = fabs(rhrep.Eta() - tracketa);
       double dphi = fabs(rhrep.Phi() - trackphi);
       if ( dphi > M_PI ) dphi = 2.*M_PI - dphi;
-      
+      /*
       std::cout << the_layer << " rhsize eta/phi: " << rhsizeEta << '/' << rhsizePhi
 		<< " deta/dphi: " << deta << '/' << dphi << " z: " 
 		<< rhit->ptr->position().z() << '/' << atECAL.position().z() << std::endl;
       */
+      
       // Find all clusters associated to given rechit
       RecHit2BlockEltMap::iterator ret = rechit2ClusterLinks_.find(rhit->ptr);
       
@@ -276,6 +278,9 @@ void
 	  clusterIt != ret->second.end(); clusterIt++) {
 	
 	reco::PFClusterRef clusterref = (*clusterIt)->clusterRef();
+	
+	//std::cout << " cluster pt: " << clusterref->energy()/std::cosh(clusterref->position().eta()) << std::endl;
+	
 	//double clusterz = clusterref->position().Z();
 	//int fracsNbr = clusterref->recHitFractions().size();
 
@@ -284,9 +289,9 @@ void
 	for ( unsigned jc=0; jc<4; ++jc ) {
 	  math::XYZPoint cornerposxyz = cornersxyz[jc];
 	  x[jc] = cornerposxyz.X() + (cornerposxyz.X()-posxyz.X())
-	    * (1.00+RHscaling/(0.1*trackPt));
+	    * (2.00+RHscaling/(0.1*trackPt));
 	  y[jc] = cornerposxyz.Y() + (cornerposxyz.Y()-posxyz.Y())
-	    * (1.00+RHscaling/(0.1*trackPt));
+	    * (2.00+RHscaling/(0.1*trackPt));
 	  //std::cout << "hit corner x/y/z: " << cornerposxyz << std::endl;
 	}
 	
