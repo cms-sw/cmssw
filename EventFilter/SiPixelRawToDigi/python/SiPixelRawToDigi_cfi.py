@@ -5,7 +5,6 @@ siPixelDigis = EventFilter.SiPixelRawToDigi.siPixelRawToDigi_cfi.siPixelRawToDig
 siPixelDigis.Timing = cms.untracked.bool(False)
 siPixelDigis.IncludeErrors = cms.bool(True)
 siPixelDigis.InputLabel = cms.InputTag("siPixelRawData")
-siPixelDigis.CheckPixelOrder = cms.bool(False)
 siPixelDigis.UseQualityInfo = cms.bool(False)
 ## ErrorList: list of error codes used by tracking to invalidate modules
 siPixelDigis.ErrorList = cms.vint32(29)
@@ -17,4 +16,3 @@ siPixelDigis.UsePilotBlade = cms.bool(False)
 siPixelDigis.UsePhase1 = cms.bool(False)
 ## Empty Regions PSet means complete unpacking
 siPixelDigis.Regions = cms.PSet( ) 
-
