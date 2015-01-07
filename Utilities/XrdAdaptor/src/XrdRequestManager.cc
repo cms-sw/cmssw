@@ -139,7 +139,24 @@ RequestManager::initialize(std::weak_ptr<RequestManager> self)
     auto opaque = prepareOpaqueString();
     std::string new_filename = m_name + (opaque.size() ? ((m_name.find("?") == m_name.npos) ? "?" : "&") + opaque : "");
     SyncHostResponseHandler handler;
-    file->Open(new_filename, m_flags, m_perms, &handler);
+    XrdCl::XRootDStatus openStatus = file->Open(new_filename, m_flags, m_perms, &handler);
+    if (!openStatus.IsOK())
+    { // In this case, we failed immediately - this indicates we have previously tried to talk to this
+      // server and it was marked bad - xrootd couldn't even queue up the request internally!
+      // In practice, we obsere this happening when the call to getXrootdSiteFromURL fails due to the
+      // redirector being down or authentication failures.
+      ex.clearMessage();
+      ex.clearContext();
+      ex.clearAdditionalInfo();
+      ex << "XrdCl::File::Open(name='" << m_name
+         << "', flags=0x" << std::hex << m_flags
+         << ", permissions=0" << std::oct << m_perms << std::dec
+         << ") => error '" << openStatus.ToStr()
+         << "' (errno=" << openStatus.errNo << ", code=" << openStatus.code << ")";
+      ex.addContext("Calling XrdFile::open()");
+      ex.addAdditionalInfo("Remote server already encountered a fatal error; no redirections were performed.");
+      throw ex;
+    }
     handler.WaitForResponse();
     std::unique_ptr<XrdCl::XRootDStatus> status = handler.GetStatus();
     std::unique_ptr<XrdCl::HostList> hostList = handler.GetHosts();
