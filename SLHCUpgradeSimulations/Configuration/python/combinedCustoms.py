@@ -421,10 +421,6 @@ def cust_2023HGCal_common(process):
         if hasattr(process,'particleFlowBlock'):
             process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('HGCECALClusterImporter'),
                                                                          source = cms.InputTag('particleFlowClusterHGCEE') ) )
-            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
-                                                                         source = cms.InputTag('particleFlowClusterHGCHEF') ) )
-            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
-                                                                         source = cms.InputTag('particleFlowClusterHGCHEB') ) )
             process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCEELinker'),
                                                                         linkType = cms.string('TRACK:HGC_ECAL'),
                                                                         useKDTree = cms.bool(True) ) )
@@ -532,10 +528,6 @@ def cust_2023HGCalV6Muon(process):
         if hasattr(process,'particleFlowBlock'):
             process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('HGCECALClusterImporter'),
                                                                          source = cms.InputTag('particleFlowClusterHGCEE') ) )
-            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
-                                                                         source = cms.InputTag('particleFlowClusterHGCHEF') ) )
-            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
-                                                                         source = cms.InputTag('particleFlowClusterHGCHEB') ) )
             process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCEELinker'),
                                                                         linkType = cms.string('TRACK:HGC_ECAL'),
                                                                         useKDTree = cms.bool(True) ) )

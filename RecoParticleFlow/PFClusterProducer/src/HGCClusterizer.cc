@@ -206,7 +206,8 @@ private:
   void build2DCluster(const edm::Handle<reco::PFRecHitCollection>&,
 		      const reco::PFRecHitCollection&,
 		      const std::vector<bool>&,
-		      const std::vector<bool>&,		     
+		      const std::vector<bool>&,
+		      const unsigned,
 		      const unsigned,
 		      std::vector<bool>&,
 		      reco::PFCluster&);  
@@ -352,7 +353,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     if(hit.neighbours8().size() > 0 ) {
       reco::PFCluster layer_cluster;
       build2DCluster(input,rechits, rechitMask, seedable,
-		     i, usable_rechits, 
+		     i, i, usable_rechits, 
 		     layer_cluster);
       unique_depths.insert(std::abs(hit.position().z()));      
       const auto& hAndFs = layer_cluster.recHitFractions();
@@ -383,7 +384,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     _emPreID->setShowerDirection(cluster.axis());
     _emEnergyCalibration->correctEnergy(cluster);
     em_ID_clusters[i] = _emPreID->isEm(cluster);
-    usable_clusters[i] = !_emPreID->isEm(cluster);
+    usable_clusters[i] = !em_ID_clusters[i];
     /*
     if( ! usable_clusters[i] ) { 
       std::cout << "cluster at " << i << " is EM-locked" << std::endl;
@@ -401,10 +402,13 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   // stuff usable clusters into the output list
   for( unsigned i = 0; i < z_linked_clusters.size(); ++i ) {
     auto& cluster = z_linked_clusters[i];
+    if( cluster.recHitFractions().size() < 5 ) continue;
     if( i >= usable_clusters.size() ) {
-      if( !em_ID_clusters[i] ) _hadEnergyCalibration->correctEnergy(cluster);
+      // by definition these are non-EM-like clusters
+      _hadEnergyCalibration->correctEnergy(cluster);
       output.push_back(cluster);
-    } else if( usable_clusters[i] || em_ID_clusters[i] ) {
+    } else if( i < usable_clusters.size() && 
+	       (usable_clusters[i] || em_ID_clusters[i]) ) {
       if( !em_ID_clusters[i] ) _hadEnergyCalibration->correctEnergy(cluster);
       output.push_back(cluster);
     }
@@ -459,18 +463,23 @@ void HGCClusterizer::updateEvent(const edm::Event& ev) {
     if( usable ) _usable_tracks.push_back(i);
   }
   _usable_tracks.shrink_to_fit();
+  
+  std::sort(_usable_tracks.begin(),_usable_tracks.end(),
+	    [&](const unsigned i, const unsigned j) {
+	      return tracks[i].pt() > tracks[j].pt();
+	    });
+  
 }
 
 void HGCClusterizer::build2DCluster(const edm::Handle<reco::PFRecHitCollection>& handle,
 				    const reco::PFRecHitCollection& input,
 				    const std::vector<bool>& rechitMask,
 				    const std::vector<bool>& seedable,
+				    const unsigned seed_index,
 				    const unsigned current_index,
 				    std::vector<bool>& usable, 
 				    reco::PFCluster& cluster) {
-  usable[current_index] = false;
   const reco::PFRecHit& current_cell = input[current_index];
-  cluster.addRecHitFraction(reco::PFRecHitFraction(makeRefhit(handle,current_index),1.0));
   
   double moliere_radius = -1.0;
   const math::XYZPoint pos = current_cell.position();
@@ -497,14 +506,32 @@ void HGCClusterizer::build2DCluster(const edm::Handle<reco::PFRecHitCollection>&
 			    (float)z_rh.first,(float)z_rh.second);
   std::vector<KDNode> found;
   _hit_kdtree.search(hit_searchcube,found);
-  for( const KDNode& nbourpoint :found ) {
+  // check to see if this hit is closer to another seed than the original
+  const auto& seed_position = input[seed_index].position();
+  const auto& dist_to_seed = (pos - seed_position);
+  math::XYZVector dist_to_nearest_seed = dist_to_seed;
+  for( const KDNode& nbourpoint : found ) {    
+    const auto& nbpos = input[nbourpoint.data].position();
+    const auto& dist_to_nb = (pos - nbpos);
+    if( seedable[nbourpoint.data] && nbourpoint.data != seed_index) {
+      if( dist_to_nb.mag2() < dist_to_nearest_seed.mag2() ) {
+	dist_to_nearest_seed = dist_to_nb;
+      }  
+    }
+  }
+  if( dist_to_nearest_seed.mag2() < dist_to_seed.mag2() ) return;
+  // set hit as used
+  usable[current_index] = false;  
+  cluster.addRecHitFraction(reco::PFRecHitFraction(makeRefhit(handle,current_index),1.0));
+
+  for( const KDNode& nbourpoint : found ) {
     // only cluster if not a seed, not used, and energy less than present
     const reco::PFRecHit& nbour = input[nbourpoint.data];
     if( usable[nbourpoint.data] && !seedable[nbourpoint.data] && 
 	nbour.energy() <= current_cell.energy() && // <= takes care of MIP sea
 	rechitMask[nbourpoint.data] &&
 	(nbour.position() - current_cell.position()).mag2() < moliere_radius*moliere_radius) {
-      build2DCluster(handle,input,rechitMask,seedable,nbourpoint.data,usable,cluster);
+      build2DCluster(handle,input,rechitMask,seedable,seed_index,nbourpoint.data,usable,cluster);
     }
   }
   
@@ -525,16 +552,20 @@ linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
   // now link all clusters with in moliere radius for EE + HEF
   for( unsigned i = 0; i < input_clusters.size(); ++i ) {
     float moliere_radius = -1.0;
+    float z_separation = -1.0;
     DetId seedid = input_clusters[i].seed();
     switch( seedid.subdetId() ) {
     case HGCEE:
       moliere_radius = std::max((double)_moliere_radii[0],_em_profile(HGCEEDetId(seedid).layer()));
+      z_separation = 2.5;
       break;
     case HGCHEF:
       moliere_radius = _moliere_radii[1];
+      z_separation = moliere_radius;
       break;
     case HGCHEB:
       moliere_radius = _moliere_radii[2];
+      z_separation = moliere_radius;
       break;
     default: 
       break;
@@ -543,7 +574,7 @@ linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
     const auto& pos = incluster.position();
     auto x = minmax(pos.X()+moliere_radius,pos.X()-moliere_radius);
     auto y = minmax(pos.Y()+moliere_radius,pos.Y()-moliere_radius);
-    auto z = minmax(pos.Z()+2*moliere_radius,pos.Z()-2*moliere_radius);
+    auto z = minmax(pos.Z()+2.0*moliere_radius,pos.Z()-2.0*moliere_radius);
     KDTreeCube kd_searchcube((float)x.first,(float)x.second,
 			     (float)y.first,(float)y.second,
 			     (float)z.first,(float)z.second);
@@ -552,7 +583,9 @@ linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
       const auto& found_clus = input_clusters[found_node.data];
       const auto& found_pos  = found_clus.position();
       const auto& diff_pos = found_pos - pos;
-      if( diff_pos.rho() < moliere_radius && 
+      const double angle = std::acos(diff_pos.rho()/diff_pos.r());
+      if( angle > 0.2 && diff_pos.r() < moliere_radius && 
+	  std::abs(diff_pos.z()) < z_separation && 
 	  std::abs(diff_pos.Z()) > 1e-3 ) {
 	if( pos.mag2() > found_pos.mag2() ) {
 	  back_links.emplace(i,found_node.data);
@@ -672,7 +705,7 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
     for( auto det = detbegin; det != detend; ++det ) {      
       for( const auto& layer : *det ) {
 	_found.clear();
-	TrajectoryStateOnSurface piStateAtSurface = _mat_prop->propagate (myTSOS, *layer);
+	TrajectoryStateOnSurface piStateAtSurface = _mat_prop->propagate(myTSOS, *layer);
 	if( piStateAtSurface.isValid() ) {
 	  GlobalPoint pt = piStateAtSurface.globalPosition();
 	  math::XYZPoint tkpos(pt.x(),pt.y(),pt.z());
@@ -717,8 +750,9 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 		math::XYZVector tkdir(tkdir_orig.x(),tkdir_orig.y(),tkdir_orig.z());
 		const math::XYZVector& clusdir = output[cluster_match->second].axis();
 		// get angle between vectors...
-		double angle = std::abs(std::acos(tkdir.Dot(clusdir)/std::sqrt(tkdir.mag2()*clusdir.mag2())));	
-		if( cluster_usable[cluster_match->second] && angle < _maxClusterAngleToTrack ) {
+		double angle = std::abs(std::acos(tkdir.Dot(clusdir)/std::sqrt(tkdir.mag2()*clusdir.mag2())));			
+		if( cluster_usable[cluster_match->second] && 
+		    angle < _maxClusterAngleToTrack  ) {
 		  //const auto& pos = output[cluster_match->second].position();
 		  cluster_usable[cluster_match->second] = false;
 		  for( const auto& hAndF : output[cluster_match->second].recHitFractions() ) {
