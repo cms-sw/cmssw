@@ -19,8 +19,10 @@ namespace l1t {
       kTotalHt,
       kMissingEt,
       kMissingHt,
-      kTotalEx,
-      kTotalEy
+      kTotalEtx,
+      kTotalEty,
+      kTotalHtx,
+      kTotalHty,
     };
 
     EtSum(){}

@@ -26,7 +26,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_1_0_pre8/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_PRE_LS171_V9-v1/00000/104FC845-61E7-E311-BBEA-0025905A60B2.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_LS172_V15-v1/00000/08DC28C8-E059-E411-B9C6-0025905B85AA.root')
 )
 
 process.options = cms.untracked.PSet(
