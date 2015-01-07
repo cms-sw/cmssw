@@ -7,7 +7,6 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include <sstream>
@@ -15,68 +14,6 @@
 using namespace reco;
 using namespace std;
 
-MuonAssociatorByHitsHelper::MuonAssociatorByHitsHelper (const edm::ParameterSet& conf, edm::ConsumesCollector && iC) :  
-  includeZeroHitMuons(conf.getParameter<bool>("includeZeroHitMuons")),
-  acceptOneStubMatchings(conf.getParameter<bool>("acceptOneStubMatchings")),
-  UseTracker(conf.getParameter<bool>("UseTracker")),
-  UseMuon(conf.getParameter<bool>("UseMuon")),
-  AbsoluteNumberOfHits_track(conf.getParameter<bool>("AbsoluteNumberOfHits_track")),
-  NHitCut_track(conf.getParameter<unsigned int>("NHitCut_track")),
-  EfficiencyCut_track(conf.getParameter<double>("EfficiencyCut_track")),
-  PurityCut_track(conf.getParameter<double>("PurityCut_track")),
-  AbsoluteNumberOfHits_muon(conf.getParameter<bool>("AbsoluteNumberOfHits_muon")),
-  NHitCut_muon(conf.getParameter<unsigned int>("NHitCut_muon")),
-  EfficiencyCut_muon(conf.getParameter<double>("EfficiencyCut_muon")),
-  PurityCut_muon(conf.getParameter<double>("PurityCut_muon")),
-  UsePixels(conf.getParameter<bool>("UsePixels")),
-  UseGrouped(conf.getParameter<bool>("UseGrouped")),
-  UseSplitting(conf.getParameter<bool>("UseSplitting")),
-  ThreeHitTracksAreSpecial(conf.getParameter<bool>("ThreeHitTracksAreSpecial")),
-  dumpDT(conf.getParameter<bool>("dumpDT")),
-  conf_(conf)
-{
-  edm::LogVerbatim("MuonAssociatorByHitsHelper") << "constructing  MuonAssociatorByHitsHelper" << conf_.dump();
-
-  // up to the user in the other cases - print a message
-  if (UseTracker) edm::LogVerbatim("MuonAssociatorByHitsHelper")<<"\n UseTracker = TRUE  : Tracker SimHits and RecHits WILL be counted";
-  else edm::LogVerbatim("MuonAssociatorByHitsHelper") <<"\n UseTracker = FALSE : Tracker SimHits and RecHits WILL NOT be counted";
-  
-  // up to the user in the other cases - print a message
-  if (UseMuon) edm::LogVerbatim("MuonAssociatorByHitsHelper")<<" UseMuon = TRUE  : Muon SimHits and RecHits WILL be counted";
-  else edm::LogVerbatim("MuonAssociatorByHitsHelper") <<" UseMuon = FALSE : Muon SimHits and RecHits WILL NOT be counted"<<endl;
-  
-  // check consistency of the configuration when allowing zero-hit muon matching (counting invalid hits)
-  if (includeZeroHitMuons) {
-    edm::LogVerbatim("MuonAssociatorByHitsHelper") 
-      <<"\n includeZeroHitMuons = TRUE"
-      <<"\n ==> (re)set NHitCut_muon = 0, PurityCut_muon = 0, EfficiencyCut_muon = 0"<<endl;
-    NHitCut_muon = 0;
-    PurityCut_muon = 0.;
-    EfficiencyCut_muon = 0.;
-  }
-
-  /*
-    //was only used if printing inputs
-  if (conf.getParameter<bool>("crossingframe")) {
-    auto simtracksXFTag = conf.getParameter<edm::InputTag>("simtracksXFTag");
-    iC.consumes<CrossingFrame<SimTrack> >(simtracksXFTag);
-    iC.consumes<CrossingFrame<SimVertex> >(simtracksXFTag);
-  }
-  else{
-    iC.consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
-    iC.consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
-  }
-  */
-
-  //hack for consumes
-  RPCHitAssociator rpctruth(conf_,std::move(iC));
-  DTHitAssociator dttruth(conf_,std::move(iC));
-  MuonTruth muonTruth(conf_,std::move(iC));
-  TrackerHitAssociator trackertruth(conf_,std::move(iC));
-
-}
-
-//compatibility constructor - argh
 MuonAssociatorByHitsHelper::MuonAssociatorByHitsHelper (const edm::ParameterSet& conf) :  
   includeZeroHitMuons(conf.getParameter<bool>("includeZeroHitMuons")),
   acceptOneStubMatchings(conf.getParameter<bool>("acceptOneStubMatchings")),
@@ -94,10 +31,9 @@ MuonAssociatorByHitsHelper::MuonAssociatorByHitsHelper (const edm::ParameterSet&
   UseGrouped(conf.getParameter<bool>("UseGrouped")),
   UseSplitting(conf.getParameter<bool>("UseSplitting")),
   ThreeHitTracksAreSpecial(conf.getParameter<bool>("ThreeHitTracksAreSpecial")),
-  dumpDT(conf.getParameter<bool>("dumpDT")),
-  conf_(conf)
+  dumpDT(conf.getParameter<bool>("dumpDT"))
 {
-  edm::LogVerbatim("MuonAssociatorByHitsHelper") << "constructing  MuonAssociatorByHitsHelper" << conf_.dump();
+  edm::LogVerbatim("MuonAssociatorByHitsHelper") << "constructing  MuonAssociatorByHitsHelper" << conf.dump();
 
   // up to the user in the other cases - print a message
   if (UseTracker) edm::LogVerbatim("MuonAssociatorByHitsHelper")<<"\n UseTracker = TRUE  : Tracker SimHits and RecHits WILL be counted";
@@ -119,21 +55,15 @@ MuonAssociatorByHitsHelper::MuonAssociatorByHitsHelper (const edm::ParameterSet&
 
 }
 
-
-
-MuonAssociatorByHitsHelper::~MuonAssociatorByHitsHelper()
-{
-}
-
 MuonAssociatorByHitsHelper::IndexAssociation
 MuonAssociatorByHitsHelper::associateRecoToSimIndices(const TrackHitsCollection & tC,
-					  const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
-					  const edm::Event * e, const edm::EventSetup * setup) const{
-
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  setup->get<IdealGeometryRecord>().get(tTopoHand);
-  const TrackerTopology *tTopo=tTopoHand.product();
+                                                      const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
+                                                      const Resources& resources) const {
+  auto tTopo = resources.tTopo_;
+  auto trackertruth = resources.trackerHitAssoc_;
+  auto const & csctruth = *resources.cscHitAssoc_;
+  auto const& dttruth = *resources.dtHitAssoc_;
+  auto const& rpctruth = *resources.rpcHitAssoc_;
 
   int tracker_nshared = 0;
   int muon_nshared = 0;
@@ -157,16 +87,6 @@ MuonAssociatorByHitsHelper::associateRecoToSimIndices(const TrackHitsCollection 
   IndexAssociation     outputCollection;
   bool printRtS(true);
 
-  // Tracker hit association  
-  TrackerHitAssociator * trackertruth = new TrackerHitAssociator(*e, conf_);
-  // CSC hit association
-  MuonTruth csctruth(*e,*setup,conf_);
-  // DT hit association
-  printRtS = true;
-  DTHitAssociator dttruth(*e,*setup,conf_,printRtS);
-  // RPC hit association
-  RPCHitAssociator rpctruth(*e,*setup,conf_);
-  
   TrackingParticleCollection tPC;
   if (TPCollectionH.size()!=0) tPC = *(TPCollectionH.product());
 
@@ -391,7 +311,6 @@ MuonAssociatorByHitsHelper::associateRecoToSimIndices(const TrackHitsCollection 
   if (!tC.size()) 
     edm::LogVerbatim("MuonAssociatorByHitsHelper")<<"0 reconstructed tracks (-->> 0 associated !)";
 
-  delete trackertruth;
   for (IndexAssociation::iterator it = outputCollection.begin(), ed = outputCollection.end(); it != ed; ++it) {
     std::sort(it->second.begin(), it->second.end());
   }
@@ -401,14 +320,13 @@ MuonAssociatorByHitsHelper::associateRecoToSimIndices(const TrackHitsCollection 
 
 MuonAssociatorByHitsHelper::IndexAssociation
 MuonAssociatorByHitsHelper::associateSimToRecoIndices( const TrackHitsCollection & tC, 
-					  const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
-					  const edm::Event * e, const edm::EventSetup * setup) const{
-
-
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  setup->get<IdealGeometryRecord>().get(tTopoHand);
-  const TrackerTopology *tTopo=tTopoHand.product();
+                                                       const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
+                                                       const Resources& resources) const {
+  auto tTopo = resources.tTopo_;
+  auto trackertruth = resources.trackerHitAssoc_;
+  auto const & csctruth = *resources.cscHitAssoc_;
+  auto const& dttruth = *resources.dtHitAssoc_;
+  auto const& rpctruth = *resources.rpcHitAssoc_;
 
   int tracker_nshared = 0;
   int muon_nshared = 0;
@@ -435,18 +353,9 @@ MuonAssociatorByHitsHelper::associateSimToRecoIndices( const TrackHitsCollection
 
   IndexAssociation  outputCollection;
 
+
   bool printRtS(true);
 
-  // Tracker hit association  
-  TrackerHitAssociator * trackertruth = new TrackerHitAssociator(*e, conf_);
-  // CSC hit association
-  MuonTruth csctruth(*e,*setup,conf_);
-  // DT hit association
-  printRtS = false;
-  DTHitAssociator dttruth(*e,*setup,conf_,printRtS);  
-  // RPC hit association
-  RPCHitAssociator rpctruth(*e,*setup,conf_);
- 
   TrackingParticleCollection tPC;
   if (TPCollectionH.size()!=0) tPC = *(TPCollectionH.product());
 
@@ -813,7 +722,6 @@ MuonAssociatorByHitsHelper::associateSimToRecoIndices( const TrackHitsCollection
       <<"************************************************************************************************************************"<<"\n";  
   }
   
-  delete trackertruth;
   for (IndexAssociation::iterator it = outputCollection.begin(), ed = outputCollection.end(); it != ed; ++it) {
     std::sort(it->second.begin(), it->second.end());
   }
@@ -829,8 +737,8 @@ void MuonAssociatorByHitsHelper::getMatchedIds
  int& n_tracker_INVALID, int& n_dt_INVALID, int& n_csc_INVALID, int& n_rpc_INVALID,
  int& n_tracker_matched_INVALID, int& n_dt_matched_INVALID, int& n_csc_matched_INVALID, int& n_rpc_matched_INVALID,
  trackingRecHit_iterator begin, trackingRecHit_iterator end,
- TrackerHitAssociator* trackertruth, 
- DTHitAssociator& dttruth, MuonTruth& csctruth, RPCHitAssociator& rpctruth, bool printRtS,
+ const TrackerHitAssociator* trackertruth, 
+ const DTHitAssociator& dttruth, const CSCHitAssociator& csctruth, const RPCHitAssociator& rpctruth, bool printRtS,
  const TrackerTopology *tTopo) const
 
 {

@@ -17,10 +17,16 @@ using namespace reco;
 using namespace std;
 
 MuonToSimAssociatorByHits::MuonToSimAssociatorByHits (const edm::ParameterSet& conf, edm::ConsumesCollector && iC) :
-  helper_(conf,std::move(iC)),
+  helper_(conf),
   conf_(conf)
 {
   TrackerMuonHitExtractor hitExtractor(conf_,std::move(iC)); 
+
+  //hack for consumes
+  RPCHitAssociator rpctruth(conf,std::move(iC));
+  DTHitAssociator dttruth(conf,std::move(iC));
+  CSCHitAssociator muonTruth(conf,std::move(iC));
+  TrackerHitAssociator trackertruth(conf,std::move(iC));
 }
 
 //compatibility constructor - argh
@@ -120,7 +126,26 @@ void MuonToSimAssociatorByHits::associateMuons(MuonToSimCollection & recToSim, S
     }
 
     /// PART 2: call the association routines 
-    auto recSimColl = helper_.associateRecoToSimIndices(muonHitRefs,tPC,event,setup);
+    //Retrieve tracker topology from geometry
+    edm::ESHandle<TrackerTopology> tTopoHand;
+    setup->get<IdealGeometryRecord>().get(tTopoHand);
+    const TrackerTopology *tTopo=tTopoHand.product();
+    
+    bool printRtS = true;
+    
+    // Tracker hit association  
+    TrackerHitAssociator trackertruth(*event, conf_);
+    // CSC hit association
+    CSCHitAssociator csctruth(*event,*setup,conf_);
+    // DT hit association
+    printRtS = false;
+    DTHitAssociator dttruth(*event,*setup,conf_,printRtS);  
+    // RPC hit association
+    RPCHitAssociator rpctruth(*event,*setup,conf_);
+   
+    MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth};
+
+    auto recSimColl = helper_.associateRecoToSimIndices(muonHitRefs,tPC,resources);
     for (auto it = recSimColl.begin(), ed = recSimColl.end(); it != ed; ++it) {
         edm::RefToBase<reco::Muon> rec = muons[it->first];
         std::vector<std::pair<TrackingParticleRef, double> > & tpAss  = recToSim[rec];
@@ -128,7 +153,7 @@ void MuonToSimAssociatorByHits::associateMuons(MuonToSimCollection & recToSim, S
             tpAss.push_back(std::make_pair(tPC[a.idx], a.quality));
         }
     }
-    auto simRecColl = helper_.associateSimToRecoIndices(muonHitRefs,tPC,event,setup);
+    auto simRecColl = helper_.associateSimToRecoIndices(muonHitRefs,tPC,resources);
     for (auto it = simRecColl.begin(), ed = simRecColl.end(); it != ed; ++it) {
         TrackingParticleRef sim = tPC[it->first];
         std::vector<std::pair<edm::RefToBase<reco::Muon>, double> > & recAss = simToRec[sim];

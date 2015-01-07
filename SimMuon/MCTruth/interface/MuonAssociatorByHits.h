@@ -5,7 +5,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -43,6 +42,7 @@ class MuonAssociatorByHits : public TrackAssociatorBase {
  
  private:
   MuonAssociatorByHitsHelper helper_;
+  edm::ParameterSet const conf_;
 };
 
 #endif
