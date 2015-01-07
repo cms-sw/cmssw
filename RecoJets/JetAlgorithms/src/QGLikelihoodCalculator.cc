@@ -17,11 +17,11 @@ float QGLikelihoodCalculator::computeQGLikelihood(edm::ESHandle<QGLikelihoodObje
 
     int binQ = quarkEntry->histogram.findBin(vars[varIndex]);
     float Qi = quarkEntry->histogram.binContent(binQ);
-    float Qw = quarkEntry->histogram.binRange(binQ).width();
+    float Qw = (binQ == 0 || binQ == quarkEntry->histogram.numberOfBins()+1)? 1. : quarkEntry->histogram.binRange(binQ).width();
 
     int binG = gluonEntry->histogram.findBin(vars[varIndex]);
     float Gi = gluonEntry->histogram.binContent(binG);
-    float Gw = gluonEntry->histogram.binRange(binG).width();
+    float Gw = (binG == 0 || binQ == gluonEntry->histogram.numberOfBins()+1)? 1. : gluonEntry->histogram.binRange(binG).width();
 
     if(Qi <= 0 || Gi <= 0){	// If one of the two pdf's is empty for this value, look if we have some content in the neighbouring bins
       int q = 1, g = 1;
