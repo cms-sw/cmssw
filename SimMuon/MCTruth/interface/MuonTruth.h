@@ -34,8 +34,8 @@ public:
  
   void initEvent(const edm::Event &, const edm::EventSetup& );
 
-  std::vector<SimHitIdpr> associateHitId(const TrackingRecHit &);
-  std::vector<SimHitIdpr> associateCSCHitId(const CSCRecHit2D *);
+  std::vector<SimHitIdpr> associateHitId(const TrackingRecHit &) const;
+  std::vector<SimHitIdpr> associateCSCHitId(const CSCRecHit2D *) const;
 
   void analyze(const CSCRecHit2D & recHit);
   void analyze(const CSCStripDigi & stripDigi, int rawDetIdCorrespondingToCSCLayer);
@@ -52,7 +52,7 @@ public:
 
 private:
 
-  std::vector<PSimHit> hitsFromSimTrack(SimHitIdpr truthId);
+  std::vector<PSimHit> hitsFromSimTrack(SimHitIdpr truthId) ;
   // goes to SimHits for information
   int particleType(SimHitIdpr truthId);
 

@@ -144,14 +144,14 @@ std::vector<PSimHit> MuonTruth::muonHits()
 }
 
 
-std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateCSCHitId(const CSCRecHit2D * cscrechit) {
+std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateCSCHitId(const CSCRecHit2D * cscrechit) const {
   std::vector<SimHitIdpr> simtrackids;
   
-  theDetId = cscrechit->geographicalId().rawId();
+  unsigned int detId = cscrechit->geographicalId().rawId();
   int nchannels = cscrechit->nStrips();
   const CSCLayerGeometry * laygeom = cscgeom->layer(cscrechit->cscDetId())->geometry();
   
-  DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(theDetId);    
+  DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(detId);    
   
   if (layerLinks != theDigiSimLinks->end()) {
     
@@ -171,13 +171,13 @@ std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateCSCHitId(const CSCRecHit2
     }
     
   } else edm::LogWarning("MuonTruth")
-    <<"*** WARNING in MuonTruth::associateCSCHitId - CSC layer "<<theDetId<<" has no DigiSimLinks !"<<std::endl;   
+    <<"*** WARNING in MuonTruth::associateCSCHitId - CSC layer "<<detId<<" has no DigiSimLinks !"<<std::endl;   
   
   return simtrackids;
 }
 
 
-std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateHitId(const TrackingRecHit & hit)
+std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateHitId(const TrackingRecHit & hit) const
 {
   std::vector<SimHitIdpr> simtrackids;
   
@@ -186,11 +186,11 @@ std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateHitId(const TrackingRecHi
 
   if (cscrechit) {
     
-    theDetId = cscrechit->geographicalId().rawId();
+    unsigned int detId = cscrechit->geographicalId().rawId();
     int nchannels = cscrechit->nStrips();
     const CSCLayerGeometry * laygeom = cscgeom->layer(cscrechit->cscDetId())->geometry();
 
-    DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(theDetId);    
+    DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(detId);    
 
     if (layerLinks != theDigiSimLinks->end()) {
       
@@ -210,7 +210,7 @@ std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateHitId(const TrackingRecHi
       }
       
     } else edm::LogWarning("MuonTruth")
-      <<"*** WARNING in MuonTruth::associateHitId - CSC layer "<<theDetId<<" has no DigiSimLinks !"<<std::endl;   
+      <<"*** WARNING in MuonTruth::associateHitId - CSC layer "<<detId<<" has no DigiSimLinks !"<<std::endl;   
     
   } else edm::LogWarning("MuonTruth")<<"*** WARNING in MuonTruth::associateHitId, null dynamic_cast !";
   
@@ -221,22 +221,20 @@ std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateHitId(const TrackingRecHi
 std::vector<PSimHit> MuonTruth::hitsFromSimTrack(MuonTruth::SimHitIdpr truthId)
 {
   std::vector<PSimHit> result;
-  edm::PSimHitContainer hits;
-  
-  if (theSimHitMap.find(theDetId) != theSimHitMap.end()) 
-    hits = theSimHitMap[theDetId];
 
-  edm::PSimHitContainer::const_iterator hitItr = hits.begin(), lastHit = hits.end();
+  auto found = theSimHitMap.find(theDetId);
+  if (found != theSimHitMap.end()) {
 
-  for( ; hitItr != lastHit; ++hitItr)
-  {
-    unsigned int hitTrack = hitItr->trackId();
-    EncodedEventId hitEvId = hitItr->eventId();
-
-    if(hitTrack == truthId.first && hitEvId == truthId.second) 
-    {
-      result.push_back(*hitItr);
-    }
+    for(auto const& hit: found->second)
+      {
+        unsigned int hitTrack = hit.trackId();
+        EncodedEventId hitEvId = hit.eventId();
+        
+        if(hitTrack == truthId.first && hitEvId == truthId.second) 
+          {
+            result.push_back(hit);
+          }
+      }
   }
   return result;
 }
@@ -245,7 +243,7 @@ std::vector<PSimHit> MuonTruth::hitsFromSimTrack(MuonTruth::SimHitIdpr truthId)
 int MuonTruth::particleType(MuonTruth::SimHitIdpr truthId)
 {
   int result = 0;
-  std::vector<PSimHit> hits = hitsFromSimTrack(truthId);
+  const std::vector<PSimHit>& hits = hitsFromSimTrack(truthId);
   if(!hits.empty())
   {
     result = hits[0].particleType();
