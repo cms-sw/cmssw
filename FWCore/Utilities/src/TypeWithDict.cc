@@ -664,9 +664,14 @@ namespace edm {
     }
     if(isArray()) {
       TypeWithDict newType = *this;
-      newType.property_ &= ~((long) kIsArray);
-      value_ptr<std::vector<size_t> > emptyVec;
-      newType.arrayDimensions_ = emptyVec;
+      size_t size = newType.arrayDimensions_->size();
+      if(size == 1) {
+        newType.property_ &= ~((long) kIsArray);
+        value_ptr<std::vector<size_t> > emptyVec;
+        newType.arrayDimensions_ = emptyVec;
+      } else {
+        newType.arrayDimensions_->resize(size - 1);
+      }
       return newType;
     }
     return *this;
