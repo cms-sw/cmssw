@@ -19,6 +19,7 @@
 #include "TROOT.h"
 
 #include "boost/thread/tss.hpp"
+#include "tbb/concurrent_unordered_map.h"
 
 #include <cassert>
 #include <cstdio>
@@ -30,6 +31,11 @@
 
 //#include <iostream>
 namespace edm {
+
+  namespace {
+    typedef tbb::concurrent_unordered_map<std::string, TypeWithDict> Map;
+    Map typeMap;
+  }
    static
    void throwTypeException(std::string const& function, std::string const& typeName) {
       throw Exception(errors::DictionaryNotFound)
@@ -51,7 +57,13 @@ namespace edm {
   TypeWithDict
   TypeWithDict::byName(std::string const& name) {
     // This is a public static function.
-    return TypeWithDict::byName(name, 0L);
+    auto const& item = typeMap.find(name);
+    if(item != typeMap.end()) {
+       return item->second;
+    }
+    TypeWithDict theType = TypeWithDict::byName(name, 0L);
+    typeMap.insert(std::make_pair(name, theType));
+    return theType;
   }
 
   TypeWithDict
