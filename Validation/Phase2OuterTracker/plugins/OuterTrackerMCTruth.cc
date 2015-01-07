@@ -94,6 +94,12 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   /// Set pointers to Stacked Modules
   iSetup.get< StackedTrackerGeometryRecord >().get(StackedGeometryHandle);
   theStackedGeometry = StackedGeometryHandle.product(); /// Note this is different from the "global" geometry
+  
+  /// Magnetic Field
+  edm::ESHandle< MagneticField > magneticFieldHandle;
+  iSetup.get< IdealMagneticFieldRecord >().get(magneticFieldHandle);
+  const MagneticField* theMagneticField = magneticFieldHandle.product();
+  double mMagneticFieldStrength = theMagneticField->inTesla(GlobalPoint(0,0,0)).z();
 	
 	/// TrackingParticles
 	edm::Handle< std::vector< TrackingParticle > > TrackingParticleHandle;
@@ -338,7 +344,7 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 			double simPt = thisTP.p4().pt();
 			double simEta = thisTP.momentum().eta();
 			double simPhi = thisTP.momentum().phi();
-// 			double recPt = theStackedGeometry->findRoughPt( mMagneticFieldStrength, &(*tempStubRef) );
+			double recPt = theStackedGeometry->findRoughPt( mMagneticFieldStrength, &(*tempStubRef) );
 			double recEta = theStackedGeometry->findGlobalDirection( &(*tempStubRef) ).eta();
 			double recPhi = theStackedGeometry->findGlobalDirection( &(*tempStubRef) ).phi();
 			
@@ -356,6 +362,8 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 			
 			if ( detIdStub.isBarrel() )
 			{
+        Stub_InvPt_TPart_InvPt_AllLayers->Fill( 1./simPt, 1./recPt ); 
+        Stub_Pt_TPart_Pt_AllLayers->Fill( simPt, recPt );        
 				Stub_Eta_TPart_Eta_AllLayers->Fill( simEta, recEta );
 				Stub_Phi_TPart_Phi_AllLayers->Fill( simPhi, recPhi );
 				
@@ -367,6 +375,8 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 			}
 			else if ( detIdStub.isEndcap() )
 			{
+        Stub_InvPt_TPart_InvPt_AllDisks->Fill( 1./simPt, 1./recPt );
+        Stub_Pt_TPart_Pt_AllDisks->Fill( simPt, recPt ); 
 				Stub_Eta_TPart_Eta_AllDisks->Fill( simEta, recEta );
 				Stub_Phi_TPart_Phi_AllDisks->Fill( simPhi, recPhi );
 				
@@ -569,6 +579,54 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 	
 	/// Stub properties compared to TParticles
 	dqmStore_->setCurrentFolder(topFolderName_+"/TStubVSTPart/");
+  
+  // InvpT
+  edm::ParameterSet psStub_InvPt =  conf_.getParameter<edm::ParameterSet>("TH2Stub_InvPt");
+  HistoName = "Stub_InvPt_TPart_InvPt_AllLayers";
+  Stub_InvPt_TPart_InvPt_AllLayers = dqmStore_->book2D(HistoName, HistoName,
+                                                 psStub_InvPt.getParameter<int32_t>("Nbinsx"),
+                                                 psStub_InvPt.getParameter<double>("xmin"),
+                                                 psStub_InvPt.getParameter<double>("xmax"),
+                                                 psStub_InvPt.getParameter<int32_t>("Nbinsy"),
+                                                 psStub_InvPt.getParameter<double>("ymin"),
+                                                 psStub_InvPt.getParameter<double>("ymax"));
+  Stub_InvPt_TPart_InvPt_AllLayers->setAxisTitle("TPart 1/p_{T}", 1);
+  Stub_InvPt_TPart_InvPt_AllLayers->setAxisTitle("Stub 1/p_{T}", 2);
+  
+  HistoName = "Stub_InvPt_TPart_InvPt_AllDisks";
+  Stub_InvPt_TPart_InvPt_AllDisks = dqmStore_->book2D(HistoName, HistoName,
+                                                 psStub_InvPt.getParameter<int32_t>("Nbinsx"),
+                                                 psStub_InvPt.getParameter<double>("xmin"),
+                                                 psStub_InvPt.getParameter<double>("xmax"),
+                                                 psStub_InvPt.getParameter<int32_t>("Nbinsy"),
+                                                 psStub_InvPt.getParameter<double>("ymin"),
+                                                 psStub_InvPt.getParameter<double>("ymax"));
+  Stub_InvPt_TPart_InvPt_AllDisks->setAxisTitle("TPart 1/p_{T}", 1);
+  Stub_InvPt_TPart_InvPt_AllDisks->setAxisTitle("Stub 1/p_{T}", 2);
+  
+  // pT
+  edm::ParameterSet psStub_Pt =  conf_.getParameter<edm::ParameterSet>("TH2Stub_Pt");
+  HistoName = "Stub_Pt_TPart_Pt_AllLayers";
+  Stub_Pt_TPart_Pt_AllLayers = dqmStore_->book2D(HistoName, HistoName,
+                                                 psStub_Pt.getParameter<int32_t>("Nbinsx"),
+                                                 psStub_Pt.getParameter<double>("xmin"),
+                                                 psStub_Pt.getParameter<double>("xmax"),
+                                                 psStub_Pt.getParameter<int32_t>("Nbinsy"),
+                                                 psStub_Pt.getParameter<double>("ymin"),
+                                                 psStub_Pt.getParameter<double>("ymax"));
+  Stub_Pt_TPart_Pt_AllLayers->setAxisTitle("TPart p_{T}", 1);
+  Stub_Pt_TPart_Pt_AllLayers->setAxisTitle("Stub p_{T}", 2);
+  
+  HistoName = "Stub_Pt_TPart_Pt_AllDisks";
+  Stub_Pt_TPart_Pt_AllDisks = dqmStore_->book2D(HistoName, HistoName,
+                                                 psStub_Pt.getParameter<int32_t>("Nbinsx"),
+                                                 psStub_Pt.getParameter<double>("xmin"),
+                                                 psStub_Pt.getParameter<double>("xmax"),
+                                                 psStub_Pt.getParameter<int32_t>("Nbinsy"),
+                                                 psStub_Pt.getParameter<double>("ymin"),
+                                                 psStub_Pt.getParameter<double>("ymax"));
+  Stub_Pt_TPart_Pt_AllDisks->setAxisTitle("TPart p_{T}", 1);
+  Stub_Pt_TPart_Pt_AllDisks->setAxisTitle("Stub p_{T}", 2);
 
 	// Eta
 	edm::ParameterSet psStub_Eta =  conf_.getParameter<edm::ParameterSet>("TH2Stub_Eta");

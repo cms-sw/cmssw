@@ -68,7 +68,27 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
         Nbinsx = cms.int32(501),
         xmax = cms.double(250.5),                      
         xmin = cms.double(-250.5),
-        ),          
+        ),   
+
+# Stub InvPt vs. TPart InvpT    
+    TH2Stub_InvPt = cms.PSet(
+        Nbinsx = cms.int32(200),
+        xmax = cms.double(0),                      
+        xmin = cms.double(1),
+        Nbinsy = cms.int32(200),
+        ymax = cms.double(0),                      
+        ymin = cms.double(1)
+        ),
+
+# Stub Pt vs. TPart pT    
+    TH2Stub_Pt = cms.PSet(
+        Nbinsx = cms.int32(180),
+        xmax = cms.double(200),                      
+        xmin = cms.double(0),
+        Nbinsy = cms.int32(180),
+        ymax = cms.double(200),                      
+        ymin = cms.double(0)
+        ),
 
 # Stub Eta vs. TPart Eta
     TH2Stub_Eta = cms.PSet(
