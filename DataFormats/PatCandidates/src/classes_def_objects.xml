@@ -16,7 +16,8 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="27">
+  <class name="pat::Electron"  ClassVersion="28">
+   <version ClassVersion="28" checksum="2518240031"/>
    <version ClassVersion="27" checksum="2628480167"/>
    <field name="superClusterRelinked_" transient="true"/>
    <version ClassVersion="26" checksum="2045819644"/>
@@ -40,7 +41,8 @@
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
 
-  <class name="pat::Muon"  ClassVersion="15">
+  <class name="pat::Muon"  ClassVersion="16">
+   <version ClassVersion="16" checksum="2674665735"/>
    <version ClassVersion="15" checksum="2088272079"/>
    <version ClassVersion="14" checksum="132269943"/>
    <version ClassVersion="13" checksum="2943499125"/>
@@ -138,7 +140,8 @@
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
 
-  <class name="pat::Jet"  ClassVersion="14">
+  <class name="pat::Jet"  ClassVersion="15">
+   <version ClassVersion="15" checksum="1826981639"/>
    <version ClassVersion="14" checksum="766989023"/>
    <version ClassVersion="13" checksum="130552029"/>
    <field name="caloTowersTemp_" transient="true"/>
@@ -177,7 +180,8 @@
    <version ClassVersion="11" checksum="3492108938"/>
    <version ClassVersion="10" checksum="417284221"/>
   </class>
-  <class name="pat::PFParticle"  ClassVersion="12">
+  <class name="pat::PFParticle"  ClassVersion="13">
+   <version ClassVersion="13" checksum="223824921"/>
    <version ClassVersion="12" checksum="2881263841"/>
    <version ClassVersion="11" checksum="2923110109"/>
    <version ClassVersion="10" checksum="2240381542"/>
