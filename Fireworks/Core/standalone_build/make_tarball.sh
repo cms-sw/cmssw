@@ -87,7 +87,7 @@ getCmssw()
 
     mkdir -p ${tard}/lib
     fwl="/tmp/fwlite_build_set.file"
-    $dwnCmd $fwl https://raw.githubusercontent.com/cms-sw/cmsdist/IB/$CMSSW_VERSION/stable/fwlite_build_set.file
+    $dwnCmd $fwl https://raw.githubusercontent.com/cms-sw/cmsdist/IB/CMSSW_7_3_X/stable/fwlite_build_set.file
     
     # remove package without libs
     perl -i -ne 'print unless /Fireworks\/Macros/' $fwl
@@ -162,7 +162,7 @@ getSources()
    ln -s  src/Fireworks/Core/macros/default.fwc .
    ln -s  src/Fireworks/Core/macros/ispy.fwc .
    ln -s  src/Fireworks/Core/macros/pflow.fwc .
-   ln -s  src/Fireworks/Core/macros/hfLego.fwc .
+   ln -s  src/Fireworks/Core/macros/miniaod.fwc .
    ln -s  src/Fireworks/Core/macros/simGeo.fwc .
    ln -s  src/Fireworks/Core/macros/overlaps.fwc .
    
@@ -270,10 +270,10 @@ if [ `uname` = "Darwin" ]; then
 fi
 
 origd=$PWD
-getExternals
+
 getCmssw
-
-
+exit
+getExternals
 getSources
 getDataFiles
 echo $tard
