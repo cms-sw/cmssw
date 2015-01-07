@@ -17,9 +17,12 @@ Test program for edm::Ref use in ROOT.
 #include "FWCore/Utilities/interface/TestHelper.h"
 
 #include "DataFormats/FWLite/interface/ChainEvent.h"
+#include "DataFormats/FWLite/interface/EventBase.h"
 #include "DataFormats/FWLite/interface/MultiChainEvent.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+
 static char* gArgV = 0;
 
 extern "C" char** environ;
@@ -165,6 +168,7 @@ void testRefInROOT::testEventBase()
    edm::InputTag tagFull("OtherThing","testUserTag","TEST");
    edm::InputTag tag("OtherThing","testUserTag");
    edm::InputTag tagNotHere("NotHereOtherThing");
+   edm::InputTag tagThing("Thing");
    edm::EventBase* eventBase = &events;
    
    for(events.toBegin(); not events.atEnd(); ++events) {
@@ -173,7 +177,19 @@ void testRefInROOT::testEventBase()
          edm::Handle<edmtest::OtherThingCollection> pOthers;
          eventBase->getByLabel(tagFull,pOthers);
          CPPUNIT_ASSERT(pOthers.isValid());
-         pOthers->size();
+
+         // Test that the get function that takes a ProductID works
+         // by getting a ProductID from a Ref stored in the OtherThingCollection
+         // and testing that one can retrieve the ThingCollection with it.
+         CPPUNIT_ASSERT(pOthers->size() > 0 );
+         edmtest::OtherThingCollection::const_iterator itOther = pOthers->begin();
+         edm::ProductID thingProductID = itOther->ref.id();
+         edm::Handle<edmtest::ThingCollection> thingCollectionHandle;
+         eventBase->get(thingProductID, thingCollectionHandle);
+         edm::Handle<edmtest::ThingCollection> thingCollectionHandle2;
+         eventBase->getByLabel(tagThing, thingCollectionHandle2);
+         CPPUNIT_ASSERT(thingCollectionHandle.product() == thingCollectionHandle2.product() &&
+                        thingCollectionHandle.product()->begin()->a == thingCollectionHandle2.product()->begin()->a);
       }
       {
          edm::Handle<edmtest::OtherThingCollection> pOthers;
