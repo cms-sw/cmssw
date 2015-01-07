@@ -41,6 +41,35 @@ NoMovementsScenario = cms.PSet(
     MisalignmentScenarioSettings
 )
 
+#--------------------------------------------------------
+# Move ring 7 of of TEC in localY by 1.33 mm
+
+def TECRing7Shift(shift):
+  shift_Ring7_Units = cms.PSet( DetUnits = cms.PSet(dYlocal = cms.double(shift)))
+  scenario = cms.PSet(
+    MisalignmentScenarioSettings,
+    TECEndcaps = cms.PSet(
+      distribution = cms.string('fixed'),
+      TECDisk1_2_3 = cms.PSet(
+        TECRing7 = cms.PSet( shift_Ring7_Units )# TECRing7
+      ),
+      TECDisk4_5_6 = cms.PSet(
+        TECRing6 = cms.PSet( shift_Ring7_Units )# TECRing6
+      ),
+      TECDisk7_8 = cms.PSet(
+        TECRing5 = cms.PSet( shift_Ring7_Units )# TECRing5
+      ),
+      TECDisk9 = cms.PSet(
+        TECRing4 = cms.PSet( shift_Ring7_Units )# TECRing4      
+      )
+    )#TECEndcaps
+  )#scenario
+  return scenario
+
+
+TECRing7Plus133mmScenario = TECRing7Shift(0.133)
+TECRing7Minus133mmScenario = TECRing7Shift(-0.133)
+
 # -----------------------------------------------------------------------
 # LS1BPixRepairScenario
 # ---------------------
@@ -77,6 +106,17 @@ LS1BPixRepairScenario = cms.PSet(
     MisalignmentScenarioSettings,
     LS1BPixRepair_TPBHalfBarrel2
 )
+
+LS1BPixRepairAndTECRing7Plus133mmScenario = cms.PSet(
+    TECRing7Plus133mmScenario,
+    LS1BPixRepair_TPBHalfBarrel2
+)
+
+LS1BPixRepairAndTECRing7Minus133mmScenario = cms.PSet(
+    TECRing7Minus133mmScenario,
+    LS1BPixRepair_TPBHalfBarrel2
+)
+
 
 # -----------------------------------------------------------------------
 # CSA14 scenario
@@ -217,6 +257,8 @@ TrackerCSA14AndLS1BPixRepairScenario = cms.PSet(
 		LS1BPixRepair_TPBHalfBarrel2
 	)#TPBBarrels
 )#end of TrackerCSA14AndLS1BPixRepairScenario
+
+
 
 # -----------------------------------------------------------------------
 # Example scenario (dummy movements)
