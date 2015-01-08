@@ -217,16 +217,6 @@ PixelForwardLayerPhase1::groupedCompatibleDetsV( const TrajectoryStateOnSurface&
   					    theHelicity, crossingSide);
   }
 
-  /*
-    for (auto gr : result) {
-    std::cout << "new group" << std::endl;
-    for (auto dge : gr) {
-    PixelBarrelNameUpgrade name(dge.det()->geographicalId());
-    std::cout << "new det with geom det at r:"<<dge.det()->position().perp()<<" id:"<<dge.det()->geographicalId().rawId()<<" name:"<<name.name()<<" isHalf:"<<name.isHalfModule()<<" tsos at:" <<dge.trajectoryState().globalPosition()<< std::endl;
-    }
-    }
-  */
-
 }
 
 
