@@ -13,20 +13,6 @@
 CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder( std::vector<int> detidShifts )
   : m_detidshifts()
 {
-  /*
-  //level 0
-  m_detidshifts[0*nSubDet+0]=-1; m_detidshifts[0*nSubDet+1]=23; m_detidshifts[0*nSubDet+2]=-1; m_detidshifts[0*nSubDet+3]=13; m_detidshifts[0*nSubDet+4]=-1; m_detidshifts[0*nSubDet+5]=18;
-  //level 1
-  m_detidshifts[1*nSubDet+0]=20; m_detidshifts[1*nSubDet+1]=18; m_detidshifts[1*nSubDet+2]=14; m_detidshifts[1*nSubDet+3]=11; m_detidshifts[1*nSubDet+4]=14; m_detidshifts[1*nSubDet+5]=14;
-  //level 2
-  m_detidshifts[2*nSubDet+0]=12; m_detidshifts[2*nSubDet+1]=10; m_detidshifts[2*nSubDet+2]=4 ; m_detidshifts[2*nSubDet+3]=9 ; m_detidshifts[2*nSubDet+4]=5 ; m_detidshifts[2*nSubDet+5]=8 ;
-  //level 3
-  m_detidshifts[3*nSubDet+0]=2 ; m_detidshifts[3*nSubDet+1]=2 ; m_detidshifts[3*nSubDet+2]=2 ; m_detidshifts[3*nSubDet+3]=2 ; m_detidshifts[3*nSubDet+4]=2 ; m_detidshifts[3*nSubDet+5]=5 ;
-  //level 4
-  m_detidshifts[4*nSubDet+0]=0 ; m_detidshifts[4*nSubDet+1]=0 ; m_detidshifts[4*nSubDet+2]=0 ; m_detidshifts[4*nSubDet+3]=0 ; m_detidshifts[4*nSubDet+4]=0 ; m_detidshifts[4*nSubDet+5]=2 ;  
-  //level 0
-  m_detidshifts[5*nSubDet+0]=-1; m_detidshifts[5*nSubDet+1]=-1; m_detidshifts[5*nSubDet+2]=-1; m_detidshifts[5*nSubDet+3]=-1; m_detidshifts[5*nSubDet+4]=-1; m_detidshifts[5*nSubDet+5]=0 ;
-  */
   if(detidShifts.size()!=nSubDet*maxLevels) 
     edm::LogError("WrongConfiguration") << "Wrong configuration of TrackerGeometricDetESModule. Vector of " 
 					<< detidShifts.size() << " elements provided"; 
