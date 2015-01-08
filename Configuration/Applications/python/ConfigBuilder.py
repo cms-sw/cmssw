@@ -2176,6 +2176,11 @@ class ConfigBuilder(object):
 
 	        self.pythonCfgCode += result
 
+	if self._options.nThreads is not "1":
+		self.pythonCfgCode +="\n"
+		self.pythonCfgCode +="#Setup FWK for multithreaded\n"
+		self.pythonCfgCode +="process.options.numberOfThreads=cms.untracked.uint32("+self._options.nThreads+")\n"
+		self.pythonCfgCode +="process.options.numberOfStreams=cms.untracked.uint32(0)\n"
 	#repacked version
 	if self._options.isRepacked:
 		self.pythonCfgCode +="\n"
