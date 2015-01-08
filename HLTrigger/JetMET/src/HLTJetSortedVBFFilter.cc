@@ -107,17 +107,16 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 	typedef Ref<TCollection> TRef;
 
 	bool accept(false);
-	const unsigned int nMax(njets_);
-
-	if (saveTags()) filterproduct.addCollectionTag(inputJets_);
-
-	vector<Jpair> sorted(nMax);
-	vector<TRef> jetRefs(nMax);
-
+	
 	Handle<TCollection> jets;
 	event.getByToken(m_theJetsToken,jets);
 	Handle<JetTagCollection> jetTags;
+
 	if (jets->size()<4) return false;
+
+	const unsigned int nMax(njets_<jets->size()?njets_:jets->size());
+	vector<Jpair> sorted(nMax);
+	vector<TRef> jetRefs(nMax);
 
 	unsigned int nJet=0;
 	double value(0.0);
