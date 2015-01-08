@@ -536,6 +536,8 @@ class Process(object):
                 self.__setattr__(name,item)
             elif isinstance(item,_Unlabelable):
                 self.add_(item)
+            elif isinstance(item,ProcessModifier):
+                item.apply(self)
 
         #now create a sequence which uses the newly made items
         for name in seqs.iterkeys():
@@ -551,9 +553,6 @@ class Process(object):
                 #now put in proper bucket
                 newSeq._place(name,self)
         self.__dict__['_Process__InExtendCall'] = False
-        # apply any newly acquired process modifiers
-        for m in self.__modifiers:
-            m._applyNewProcessModifiers(self)
 
     def _dumpConfigNamedList(self,items,typeName,options):
         returnValue = ''
@@ -689,7 +688,7 @@ class Process(object):
         return returnValue
     def _dumpPython(self, d, options):
         result = ''
-        for name, value in d.iteritems():
+        for name, value in sorted(d.iteritems()):
            result += value.dumpPythonAs(name,options)+'\n'
         return result
     def dumpPython(self, options=PrintOptions()):
@@ -1062,10 +1061,12 @@ class Modifier(object):
   def __init__(self):
     self.__processModifiers = []
     self.__chosen = False
-  def toModifyProcess(self,func):
-    """This is used to register actions to be performed on the process as a whole.
-    This takes as argument a callable object (e.g. function) which takes as its sole argument an instance of Process"""
-    self.__processModifiers.append(func)
+  def makeProcessModifier(self,func):
+    """This is used to create a ProcessModifer which can perform actions on the process as a whole.
+       This takes as argument a callable object (e.g. function) which takes as its sole argument an instance of Process.
+       In order to work, the value returned from this function must be assigned to a uniquely named variable.
+    """
+    return ProcessModifier(self,func)
   def toModify(self,obj, func=None,**kw):
     """This is used to register an action to be performed on the specific object. Two different forms are allowed
     Form 1: A callable object (e.g. function) can be passed as the second. This callable object is expected to take one argument
@@ -1082,12 +1083,6 @@ class Modifier(object):
     else:
       temp =_ParameterModifier(kw)
       temp(obj)
-  def _applyNewProcessModifiers(self,process):
-    """Should only be called by cms.Process instances
-        applies list of accumulated changes to the process"""
-    for m in self.__processModifiers:
-        m(process)
-    self.__processModifiers = list()
   def _setChosen(self):
     """Should only be called by cms.Process instances"""
     self.__chosen = True
@@ -1113,6 +1108,21 @@ class ModifierChain(object):
     def isChosen(self):
         return self.__chosen
 
+class ProcessModifier(object):
+    """A class used by a Modifier to affect an entire Process instance.
+    When a Process 'loads' a module containing a ProcessModifier, that
+    ProcessModifier will be applied to the Process if and only if the 
+    Modifier passed to the constructor has been chosen.
+    """
+    def __init__(self, modifier, func):
+        self.__modifier = modifier
+        self.__func = func
+        self.__seenProcesses = set()
+    def apply(self,process):
+        if self.__modifier.isChosen():
+            if process not in self.__seenProcesses:
+                self.__func(process)
+                self.__seenProcesses.add(process)
 
 if __name__=="__main__":
     import unittest
@@ -1854,6 +1864,9 @@ process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.
             #test that load causes process wide methods to run
             def _rem_a(proc):
                 del proc.a
+            class ProcModifierMod(object):
+                def __init__(self,modifier,func):
+                    self.proc_mod_ = modifier.makeProcessModifier(func)
             class DummyMod(object):
                 def __init__(self):
                     self.a = EDAnalyzer("Dummy")
@@ -1862,18 +1875,20 @@ process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.
             self.assert_(hasattr(p,"a"))
             m1 = Modifier()
             p = Process("test",m1)
-            m1.toModifyProcess(_rem_a)
+            testProcMod = ProcModifierMod(m1,_rem_a)
             p.extend(testMod)
+            p.extend(testProcMod)
             self.assert_(not hasattr(p,"a"))
             #test ModifierChain
             m1 = Modifier()
             mc = ModifierChain(m1)
             p = Process("test",mc)
             testMod = DummyMod()
-            m1.toModifyProcess(_rem_a)
             p.b = EDAnalyzer("Dummy2", fred = int32(1))
             m1.toModify(p.b, fred = int32(3))
             p.extend(testMod)
+            testProcMod = ProcModifierMod(m1,_rem_a)
+            p.extend(testProcMod)
             self.assert_(not hasattr(p,"a"))
             self.assertEqual(p.b.fred.value(),3)
 

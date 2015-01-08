@@ -14,7 +14,7 @@
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class MuonTrackValidator : public thread_unsafe::DQMEDAnalyzer, protected MuonTrackValidatorBase {
+class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBase {
  public:
   /// Constructor
   MuonTrackValidator(const edm::ParameterSet& pset):MuonTrackValidatorBase(pset){

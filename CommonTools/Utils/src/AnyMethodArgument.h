@@ -52,7 +52,6 @@ namespace reco {
     class AnyMethodArgumentFixup : public boost::static_visitor<std::pair<AnyMethodArgument, int> > {
         private:
             edm::TypeWithDict dataType_;
-            const std::type_info & type_;
             template<typename From, typename To>
             std::pair<AnyMethodArgument, int> retOk_(const From &f, int cast) const {
                 return std::pair<AnyMethodArgument,int>(AnyMethodArgument(static_cast<To>(f)), cast);
@@ -60,23 +59,22 @@ namespace reco {
 
             // correct return for each int output type
             std::pair<AnyMethodArgument,int> doInt(int t) const {
-                if (type_ == typeid(int8_t))   { return retOk_<int,int8_t>  (t,0); }
-                if (type_ == typeid(uint8_t))  { return retOk_<int,uint8_t> (t,0); }
-                if (type_ == typeid(int16_t))  { return retOk_<int,int16_t> (t,0); }
-                if (type_ == typeid(uint16_t)) { return retOk_<int,uint16_t>(t,0); }
-                if (type_ == typeid(int32_t))  { return retOk_<int,int32_t> (t,0); }
-                if (type_ == typeid(uint32_t)) { return retOk_<int,uint32_t>(t,0); }
-                if (type_ == typeid(int64_t))  { return retOk_<int,int64_t> (t,0); }
-                if (type_ == typeid(uint64_t)) { return retOk_<int,uint64_t>(t,0); }
-                if (type_ == typeid(unsigned long)) { return retOk_<int,unsigned long>  (t,0); } // harmless if unsigned long matches another type
-                if (type_ == typeid(double))   { return retOk_<int,double>  (t,1); }
-                if (type_ == typeid(float))    { return retOk_<int,float>   (t,1); }
+                if (dataType_ == typeid(int8_t))   { return retOk_<int,int8_t>  (t,0); }
+                if (dataType_ == typeid(uint8_t))  { return retOk_<int,uint8_t> (t,0); }
+                if (dataType_ == typeid(int16_t))  { return retOk_<int,int16_t> (t,0); }
+                if (dataType_ == typeid(uint16_t)) { return retOk_<int,uint16_t>(t,0); }
+                if (dataType_ == typeid(int32_t))  { return retOk_<int,int32_t> (t,0); }
+                if (dataType_ == typeid(uint32_t)) { return retOk_<int,uint32_t>(t,0); }
+                if (dataType_ == typeid(int64_t))  { return retOk_<int,int64_t> (t,0); }
+                if (dataType_ == typeid(uint64_t)) { return retOk_<int,uint64_t>(t,0); }
+                if (dataType_ == typeid(unsigned long)) { return retOk_<int,unsigned long>  (t,0); } // harmless if unsigned long matches another type
+                if (dataType_ == typeid(double))   { return retOk_<int,double>  (t,1); }
+                if (dataType_ == typeid(float))    { return retOk_<int,float>   (t,1); }
                 return std::pair<AnyMethodArgument,int>(t,-1);
             }
         public:
             AnyMethodArgumentFixup(const edm::TypeWithDict& type) : 
-                dataType_(type),
-                type_(type.typeInfo())
+                dataType_(type)
             {
             }
 
@@ -88,13 +86,12 @@ namespace reco {
             template<typename F>
             typename boost::enable_if<boost::is_floating_point<F>, std::pair<AnyMethodArgument,int> >::type
             operator()(const F &t) const { 
-                if (type_ == typeid(double)) { return retOk_<F,double>(t,0); }
-                if (type_ == typeid(float))  { return retOk_<F,float> (t,0); }
+                if (dataType_ == typeid(double)) { return retOk_<F,double>(t,0); }
+                if (dataType_ == typeid(float))  { return retOk_<F,float> (t,0); }
                 return std::pair<AnyMethodArgument,int>(t,-1);
             }
 
             std::pair<AnyMethodArgument,int> operator()(const std::string &t) const { 
-                if (type_ == typeid(std::string)) { return std::pair<AnyMethodArgument,int>(t,0); }
                 if (dataType_.isEnum()) {
                     if (dataType_.dataMemberSize() == 0) {
                         throw parser::Exception(t.c_str()) << "Enumerator '" << dataType_.name() << "' has no keys.\nPerhaps the dictionary is missing?\n";
@@ -103,6 +100,7 @@ namespace reco {
                     // std::cerr << "  value is = " << dataType_.stringToEnumValue(t) << std::endl;
                     return std::pair<AnyMethodArgument,int>(ival,1);
                 }
+                if (dataType_ == typeid(std::string)) { return std::pair<AnyMethodArgument,int>(t,0); }
                 return std::pair<AnyMethodArgument,int>(t,-1);
             }
 

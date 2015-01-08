@@ -2,7 +2,7 @@
 #define FWCore_Framework_EDProducer_h
 
 /*----------------------------------------------------------------------
-  
+
 EDProducer: The base class of "modules" whose main purpose is to insert new
 EDProducts into an Event.
 
@@ -81,8 +81,8 @@ namespace edm {
 
     virtual void beginRun(Run const&iR, EventSetup const&iE){}
     virtual void endRun(Run const& iR, EventSetup const& iE){}
-    virtual void beginLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE){}
-    virtual void endLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE){}
+    virtual void beginLuminosityBlock(LuminosityBlock const& /* iL */, EventSetup const& /* iE */){}
+    virtual void endLuminosityBlock(LuminosityBlock const& /* iL */, EventSetup const& /* iE */){}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
     virtual void preForkReleaseResources() {}

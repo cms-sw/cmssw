@@ -10,7 +10,7 @@
 // system include files
 #include <memory>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -34,7 +34,7 @@ namespace reco {
 class FreeTrajectoryState;
 class MagneticField;
     
-class HLTmumutktkVtxProducer : public edm::EDProducer {
+class HLTmumutktkVtxProducer : public edm::stream::EDProducer<> {
  public:
   explicit HLTmumutktkVtxProducer(const edm::ParameterSet&);
   ~HLTmumutktkVtxProducer();
@@ -47,12 +47,12 @@ class HLTmumutktkVtxProducer : public edm::EDProducer {
   static FreeTrajectoryState initialFreeState( const reco::Track&,const MagneticField*);
   bool checkPreviousCand(const reco::TrackRef& trackref, std::vector<reco::RecoChargedCandidateRef>& ref2);
 
-  edm::InputTag                                          muCandTag_;
-  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> muCandToken_;
-  edm::InputTag                                          trkCandTag_;
-  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> trkCandToken_;
-  edm::InputTag                                          previousCandTag_;
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
+  const edm::InputTag                                          muCandTag_;
+  const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> muCandToken_;
+  const edm::InputTag                                          trkCandTag_;
+  const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> trkCandToken_;
+  const edm::InputTag                                          previousCandTag_;
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
 
   const std::string mfName_;
   const double thirdTrackMass_;
@@ -64,10 +64,10 @@ class HLTmumutktkVtxProducer : public edm::EDProducer {
   const double minTrkTrkMass_;
   const double maxTrkTrkMass_;
   const double minD0Significance_;
-  bool         oppositeSign_;
+  const bool         oppositeSign_;
   const double overlapDR_;
-  edm::InputTag                    beamSpotTag_;
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  const edm::InputTag                    beamSpotTag_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
 
 };
 #endif

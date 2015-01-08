@@ -72,7 +72,7 @@ postProcessorTrack = cms.EDAnalyzer("DQMGenericClient",
                              "h_thetapulleta '#theta Pull vs #eta' thetapull_vs_eta",
                              "h_thetapullphi '#theta Pull vs #phi' thetapull_vs_phi"
                              ),
-    profile= cms.vstring(
+    profile= cms.untracked.vstring(
                          "chi2mean 'mean #chi^{2} vs #eta' chi2_vs_eta",
                          "chi2mean_vs_phi 'mean #chi^{2} vs #phi' chi2_vs_phi",
                          "chi2mean_vs_nhits 'mean #chi^{2} vs n. hits' chi2_vs_nhits",

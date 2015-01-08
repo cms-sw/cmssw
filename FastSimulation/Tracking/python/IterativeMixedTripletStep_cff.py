@@ -6,40 +6,32 @@ import FWCore.ParameterSet.Config as cms
 #from FastSimulation.Tracking.IterativeMixedTripletStepSeedProducer_cff import *
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeMixedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeMixedTripletStepSeeds.firstHitSubDetectorNumber = [2]
-##iterativeMixedTripletStepSeeds.firstHitSubDetectors = [1, 2, 6]
-iterativeMixedTripletStepSeeds.firstHitSubDetectors = [1, 2]
-iterativeMixedTripletStepSeeds.secondHitSubDetectorNumber = [3]
-iterativeMixedTripletStepSeeds.secondHitSubDetectors = [1, 2, 6]
-iterativeMixedTripletStepSeeds.thirdHitSubDetectorNumber = [0]
-iterativeMixedTripletStepSeeds.thirdHitSubDetectors = []
-iterativeMixedTripletStepSeeds.seedingAlgo = ['MixedTriplets']
-iterativeMixedTripletStepSeeds.minRecHits = [3]
-iterativeMixedTripletStepSeeds.pTMin = [0.15]
-iterativeMixedTripletStepSeeds.maxD0 = [10.]
-iterativeMixedTripletStepSeeds.maxZ0 = [30.]
-iterativeMixedTripletStepSeeds.numberOfHits = [2]
-iterativeMixedTripletStepSeeds.originRadius = [2.0] # was 1.2
-iterativeMixedTripletStepSeeds.originHalfLength = [10.0] # was 7.0
-iterativeMixedTripletStepSeeds.originpTMin = [0.35] # we need to add another seed for endcaps only, with 0.5
-iterativeMixedTripletStepSeeds.zVertexConstraint = [-1.0]
-iterativeMixedTripletStepSeeds.primaryVertices = ['none']
+iterativeMixedTripletStepSeeds.outputSeedCollectionName = 'MixedTriplets'
+iterativeMixedTripletStepSeeds.minRecHits = 3
+iterativeMixedTripletStepSeeds.pTMin = 0.15
+iterativeMixedTripletStepSeeds.maxD0 = 10.
+iterativeMixedTripletStepSeeds.maxZ0 = 30.
+iterativeMixedTripletStepSeeds.numberOfHits = 3
+iterativeMixedTripletStepSeeds.originRadius = 2.0 # was 1.2
+iterativeMixedTripletStepSeeds.originHalfLength = 10.0 # was 7.0
+iterativeMixedTripletStepSeeds.originpTMin = 0.35 # we need to add another seed for endcaps only, with 0.5
+iterativeMixedTripletStepSeeds.zVertexConstraint = -1.0
+iterativeMixedTripletStepSeeds.primaryVertex = 'none'
 
-iterativeMixedTripletStepSeeds.newSyntax = True
 #iterativeMixedTripletStepSeeds.layerList = ['BPix1+BPix2+BPix3',
 #                                            'BPix1+BPix2+FPix1_pos',
 #                                            'BPix1+BPix2+FPix1_neg',
 #                                            'BPix1+FPix1_pos+FPix2_pos',
 #                                            'BPix1+FPix1_neg+FPix2_neg']
-from RecoTracker.IterativeTracking.MixedTripletStep_cff import mixedTripletStepSeedLayersA
-iterativeMixedTripletStepSeeds.layerList = mixedTripletStepSeedLayersA.layerList
-# NOTE: what about mixedTripletStepSeedLayersB ? Have to think a way to include that as well.
+from RecoTracker.IterativeTracking.MixedTripletStep_cff import mixedTripletStepSeedLayersA,mixedTripletStepSeedLayersB
+# combine both (A&B); Note: in FullSim, different cuts are applied for A & B seeds; in FastSim cuts are tuned (no need to corresponded to FullSim values)
+iterativeMixedTripletStepSeeds.layerList = mixedTripletStepSeedLayersA.layerList+mixedTripletStepSeedLayersB.layerList
 
 # candidate producer
 #from FastSimulation.Tracking.IterativeThirdCandidateProducer_cff import *
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeMixedTripletStepCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativeMixedTripletStepCandidates.SeedProducer = cms.InputTag("iterativeMixedTripletStepSeeds","MixedTriplets")
+iterativeMixedTripletStepCandidates.SeedProducer = cms.InputTag("iterativeMixedTripletStepSeeds",'MixedTriplets')
 iterativeMixedTripletStepCandidates.TrackProducers = ['pixelPairStepTracks', 'detachedTripletStepTracks']
 iterativeMixedTripletStepCandidates.KeepFittedTracks = False
 iterativeMixedTripletStepCandidates.MinNumberOfCrossedLayers = 3

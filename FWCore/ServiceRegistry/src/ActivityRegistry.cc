@@ -130,6 +130,8 @@ namespace edm {
   void
   ActivityRegistry::connectLocals(ActivityRegistry& iOther) {
 
+     preBeginJobSignal_.connect(std::cref(iOther.preBeginJobSignal_));
+
      preModuleBeginStreamSignal_.connect(std::cref(iOther.preModuleBeginStreamSignal_));
      postModuleBeginStreamSignal_.connect(std::cref(iOther.postModuleBeginStreamSignal_));
 
@@ -267,6 +269,7 @@ namespace edm {
   void
   ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther) {
     copySlotsToFrom(preallocateSignal_,iOther.preallocateSignal_);
+    copySlotsToFrom(preBeginJobSignal_, iOther.preBeginJobSignal_);
     copySlotsToFrom(postBeginJobSignal_, iOther.postBeginJobSignal_);
     copySlotsToFromReverse(postEndJobSignal_, iOther.postEndJobSignal_);
 

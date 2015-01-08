@@ -11,62 +11,6 @@
 
 using namespace std;
 
-CmsTrackerDiskBuilder::CmsTrackerDiskBuilder( unsigned int totalBlade )
-  : m_totalBlade( totalBlade )
-{}
-
-bool
-PhiSort( const GeometricDet* Panel1, const GeometricDet* Panel2 )
-{
-  return( Panel1->phi() < Panel2->phi());
-}
-
-void
-CmsTrackerDiskBuilder::PhiPosNegSplit_innerOuter( GeometricDet::ConstGeometricDetContainer::iterator begin,
-						  GeometricDet::ConstGeometricDetContainer::iterator end )
-{
-  // first sort in phi, lowest first (-pi to +pi)
-  std::sort( begin, end, PhiSort );
-
-  // now put positive phi (in order) ahead of negative phi as in std geometry
-  GeometricDet::ConstGeometricDetContainer theCompsPosNeg;
-  theCompsPosNeg.empty();
-  theCompsPosNeg.clear();
-  // also find the average radius (used to split inner and outer disk panels)
-  double theRmin = (**begin).rho();
-  double theRmax = theRmin;
-  for(GeometricDet::ConstGeometricDetContainer::const_iterator it=begin;
-      it!=end;it++){
-    if((**it).phi() >= 0) theCompsPosNeg.push_back(*it);
-    theRmin = std::min( theRmin, (**it).rho());
-    theRmax = std::max( theRmax, (**it).rho());
-  }
-  for(GeometricDet::ConstGeometricDetContainer::const_iterator it=begin;
-      it!=end;it++){
-    if((**it).phi() < 0) theCompsPosNeg.push_back(*it);
-  }
-
-  // now put inner disk panels first
-  double radius_split = 0.5 * (theRmin + theRmax);
-  GeometricDet::ConstGeometricDetContainer theCompsInnerOuter;
-  theCompsInnerOuter.empty();
-  theCompsInnerOuter.clear();
-  //unsigned int num_inner = 0;
-  for(GeometricDet::ConstGeometricDetContainer::const_iterator it=theCompsPosNeg.begin();
-      it!=theCompsPosNeg.end();it++){
-    if((**it).rho() <= radius_split) {
-      theCompsInnerOuter.push_back(*it);
-      //num_inner++;
-    }
-  }
-  for(GeometricDet::ConstGeometricDetContainer::const_iterator it=theCompsPosNeg.begin();
-      it!=theCompsPosNeg.end();it++){
-    if((**it).rho() > radius_split) theCompsInnerOuter.push_back(*it);
-  }
-  //std::cout << "num of inner = " << num_inner << " with radius less than " << radius_split << std::endl;
-  std::copy(theCompsInnerOuter.begin(), theCompsInnerOuter.end(), begin);
-}
-
 void
 CmsTrackerDiskBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, std::string s )
 {
@@ -87,15 +31,14 @@ CmsTrackerDiskBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, std:
 void
 CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
 {
+
+
   GeometricDet::ConstGeometricDetContainer & comp = det->components();
 
   switch( det->components().front()->type())
   {
   case GeometricDet::panel:
-    if( m_totalBlade == 24 )
-      TrackerStablePhiSort( comp.begin(), comp.end(), ExtractPhi());
-    else
-      PhiPosNegSplit_innerOuter( comp.begin(), comp.end());
+    TrackerStablePhiSort( comp.begin(), comp.end(), ExtractPhi());
     break;
   default:
     edm::LogError( "CmsTrackerDiskBuilder" ) << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();
@@ -105,8 +48,7 @@ CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   GeometricDet::GeometricDetContainer zmaxpanels;  // So, zmin panel is always closer to ip.
 
   uint32_t totalblade = comp.size()/2;
-  if( totalblade != m_totalBlade )
-    edm::LogError( "CmsTrackerDiskBuilder" ) << "ERROR, The Total Number of Blade in one disk is " << totalblade << "; configured " << m_totalBlade;
+  //  std::cout << "pixel_disk " << pixel_disk << endl; 
 
   zminpanels.reserve( totalblade );
   zmaxpanels.reserve( totalblade );
@@ -148,4 +90,6 @@ CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   det->clearComponents();
   det->addComponents( zminpanels );
   det->addComponents( zmaxpanels );
+
 }
+

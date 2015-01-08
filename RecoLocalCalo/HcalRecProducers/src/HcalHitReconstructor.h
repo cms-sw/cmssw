@@ -113,6 +113,8 @@ class HcalTopology;
 
       int puCorrMethod_;
       int cntprtCorrMethod_;
+      bool first_;
+      std::string corrName_,cat_;
     };
 
 #endif

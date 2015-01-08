@@ -27,7 +27,7 @@ class MET;
 class DQMStore;
 class MonitorElement;
 
-class EwkDQM : public thread_unsafe::DQMEDAnalyzer {
+class EwkDQM : public DQMEDAnalyzer {
  public:
   /// Constructor
   EwkDQM(const edm::ParameterSet&);

@@ -26,9 +26,10 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 
-class BxTiming : public edm::EDAnalyzer {
+class BxTiming : public DQMEDAnalyzer {
 
  public:
 
@@ -37,11 +38,10 @@ class BxTiming : public edm::EDAnalyzer {
 
  protected:
 
-  virtual void beginJob(void) ;
-  virtual void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
+  virtual void dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+  
  private:
 
   // input
@@ -71,8 +71,6 @@ class BxTiming : public edm::EDAnalyzer {
   // dqm histogram folder
   std::string histFolder_;
 
-  // dqm common
-  DQMStore* dbe;
  
   // running in filter farm? (use reduced set of me's)
   bool runInFF_;
@@ -107,7 +105,11 @@ class BxTiming : public edm::EDAnalyzer {
   MonitorElement* hBxOccyAllFedSpread[nspr_]; // bx occupancy: mean shift, min, max
 
   MonitorElement* hBxOccyGtTrigType[nttype_]; // gt bx occupancy per trigger type
-  MonitorElement**hBxOccyTrigBit[NSYS];       // subsystem bx occupancy per selected trigger bit 
+  MonitorElement**hBxOccyTrigBit[NSYS];       // subsystem bx occupancy per selected trigger bit
+  MonitorElement* runId_;
+  MonitorElement* lumisecId_;
+  MonitorElement* eventId_;
+  MonitorElement* runStartTimeStamp_;
 
 };
 

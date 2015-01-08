@@ -41,6 +41,7 @@ namespace {
 PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, 
                            const MagneticField *mag, 
                            const TrackerGeometry& geom,
+			   const TrackerTopology& ttopo,
 			   const SiPixelLorentzAngle * lorentzAngle, 
 			   const SiPixelGenErrorDBObject * genErrorDBObject, 
 			   const SiPixelTemplateDBObject * templateDBobject,
@@ -49,7 +50,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf,
   //  : useLAAlignmentOffsets_(false), useLAOffsetFromConfig_(false),
   : useLAOffsetFromConfig_(false),
     useLAWidthFromConfig_(false), useLAWidthFromDB_(false), theFlag_(flag),
-    magfield_(mag), geom_(geom)
+    magfield_(mag), geom_(geom), ttopo_(ttopo)
 {
 
 #ifdef EDM_ML_DEBUG
@@ -139,8 +140,22 @@ void PixelCPEBase::fillDetParams()
 {
   //cout<<" in fillDetParams "<<theFlag_<<endl;
 
-  const unsigned m_detectors = geom_.offsetDU(GeomDetEnumerators::TIB); //first non-pixel detector unit
   auto const & dus = geom_.detUnits();
+  unsigned m_detectors = dus.size();
+  for(unsigned int i=1;i<7;++i) {
+    LogDebug("LookingForFirstStrip") << "Subdetector " << i 
+				     << " GeomDetEnumerator " << GeomDetEnumerators::tkDetEnum[i] 
+				     << " offset " << geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) 
+				     << " is it strip? " << (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size() ? 
+							     dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip() : false);
+    if(geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size() && 
+       dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip()) {
+      if(geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) < m_detectors) m_detectors = geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]);
+    }
+  } 
+  LogDebug("LookingForFirstStrip") << " Chosen offset: " << m_detectors;
+
+
   m_DetParams.resize(m_detectors);
   //cout<<"caching "<<m_detectors<<" pixel detectors"<<endl;
   for (unsigned i=0; i!=m_detectors;++i) {
@@ -499,7 +514,7 @@ PixelCPEBase::driftDirection(DetParam & theDetParam, LocalVector Bfield ) const 
     } else if(useLAWidthFromConfig_) { // get from config 
       
       double lAWidth=0;
-      if( theDetParam.thePart == GeomDetEnumerators::PixelBarrel) lAWidth = lAWidthBPix_; // barrel
+      if( GeomDetEnumerators::isTrackerPixel(theDetParam.thePart) && GeomDetEnumerators::isBarrel(theDetParam.thePart) ) lAWidth = lAWidthBPix_; // barrel
       else lAWidth = lAWidthFPix_;
       
       if(langle!=0.0) theDetParam.widthLAFractionX = std::abs(lAWidth/langle);

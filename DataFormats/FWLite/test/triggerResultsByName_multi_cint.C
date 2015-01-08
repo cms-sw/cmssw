@@ -45,7 +45,7 @@ void triggerResultsByName_multi_cint()
 
     // Try again, but this time test what happens when the process does not
     // exist, the object should not be valid
-    edm::TriggerResultsByName resultsByName = ev.triggerResultsByName("DOESNOTEXIST");
+    resultsByName = ev.triggerResultsByName("DOESNOTEXIST");
     if (resultsByName.isValid()) {
       std::cout << "From TriggerResultsByName, accept = "
                 << resultsByName.accept("p") << "\n";

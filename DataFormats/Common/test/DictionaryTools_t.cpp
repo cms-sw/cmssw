@@ -67,12 +67,15 @@ namespace {
       std::string demangledName(edm::typeDemangle(typeid(T).name()));
       CPPUNIT_ASSERT(type.name() == demangledName);
 
-      edm::TypeID tid(type.typeInfo());
+      edm::TypeID tid(typeid(T));
       CPPUNIT_ASSERT(tid.className() == demangledName);
 
       edm::TypeWithDict typeFromName = edm::TypeWithDict::byName(demangledName);
-      edm::TypeID tidFromName(typeFromName.typeInfo());
-      CPPUNIT_ASSERT(tidFromName.className() == demangledName);
+      CPPUNIT_ASSERT(typeFromName.name() == demangledName);
+      if (type.isClass()) {
+        edm::TypeID tidFromName(typeFromName.typeInfo());
+        CPPUNIT_ASSERT(tidFromName.className() == demangledName);
+      }
     }
   }
 

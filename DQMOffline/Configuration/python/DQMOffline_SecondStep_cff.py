@@ -46,7 +46,6 @@ from DQM.TrackingMonitorClient.TrackingClientConfig_Tier0_cff import *
 DQMOffline_SecondStep_PrePOG = cms.Sequence( TrackingOfflineDQMClient *
                                              muonQualityTests *
                                              egammaPostProcessing *
-#                                             l1TriggerDqmOfflineClient *
                                              triggerOfflineDQMClient *
                                              hltOfflineDQMClient *
                                              bTagCollectorSequenceDATA *
@@ -77,7 +76,6 @@ DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
                                  SiStripOfflineDQMClient *
                                  TrackingOfflineDQMClient *
                                  PixelOfflineDQMClientNoDataCertification *
-#                                 l1TriggerDqmOfflineClient *
                                  triggerOfflineDQMClient *
                                  hltOfflineDQMClient *
                                  dqmFEDIntegrityClient *
@@ -91,7 +89,6 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                SiStripOfflineDQMClient *
                                                TrackingOfflineDQMClient *
                                                PixelOfflineDQMClientNoDataCertification *
-#                                               l1TriggerDqmOfflineClient *
                                                triggerOfflineDQMClient *
                                                hltOfflineDQMClient *
                                                dqmFEDIntegrityClient *

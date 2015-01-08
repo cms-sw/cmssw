@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_PostLS1,customise_csc_hlt
 from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1
+from SLHCUpgradeSimulations.Configuration.fastSimCustoms import customise_fastSimPostLS1
 
 def customisePostLS1(process):
 
@@ -11,6 +12,9 @@ def customisePostLS1(process):
 
     # deal with L1 Emulation separately:
     customiseSimL1EmulatorForPostLS1(process)
+
+    # deal with FastSim separately:
+    process = customise_fastSimPostLS1(process)
 
     # all the rest:
     if hasattr(process,'g4SimHits'):
@@ -68,7 +72,7 @@ def customise_Validation(process):
 
 def customise_Sim(process):
     # enable 2015 HF shower library
-    process.g4SimHits.HFShowerLibrary.FileName  = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en.root'
+    process.g4SimHits.HFShowerLibrary.FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v2.root'
     return process
 
 

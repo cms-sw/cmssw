@@ -1,0 +1,12 @@
+{
+    "destinationDatabase": "oracle://cms_orcon_prod/CMS_COND_GEOMETRY_000", 
+    "destinationTags": {
+        "XMLFILE_Geometry_TagXX_Extended2015_mc": {
+            "dependencies": {}, 
+            "synchronizeTo": "offline"
+        }
+    }, 
+    "inputTag": "XMLFILE_Geometry_TagXX_Extended2015_mc", 
+    "since": null, 
+    "userText": "Extended scenario for 2015 payload config TagXX"
+}

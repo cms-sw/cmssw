@@ -31,7 +31,7 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-class MuonKinVsEtaAnalyzer : public thread_unsafe::DQMEDAnalyzer {
+class MuonKinVsEtaAnalyzer : public DQMEDAnalyzer {
  public:
   
   /// Constructor

@@ -52,7 +52,8 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPhiSym_cff import *
 
 from DQMOffline.Configuration.AlCaRecoDQMHI_cff import *
 
-pathALCARECOEcalCalPhiSym = cms.Path(seqALCARECOEcalCalPhiSym*ALCARECOEcalCalPhisymDQM)
+#pathALCARECOEcalCalPhiSym = cms.Path(seqALCARECOEcalCalPhiSym*ALCARECOEcalCalPhisymDQM)
+pathALCARECOEcalCalPhiSym = cms.Path(seqALCARECOEcalCalPhiSym)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 

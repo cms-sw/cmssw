@@ -212,14 +212,6 @@ L1TDTTF::L1TDTTF(const edm::ParameterSet& ps)
   /// Verbose?
   if ( verbose_ ) edm::LogInfo("L1TDTTF: constructor") << "Verbose enabled";
 
-  /// Use DQMStore?
-  dbe_ = NULL;
-  if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) {
-    dbe_ = edm::Service<DQMStore>().operator->();
-    dbe_->setVerbose(0);
-    dbe_->setCurrentFolder(l1tsubsystemfolder_);
-  }
-
   /// Use ROOT Output?
   if ( ps.getUntrackedParameter<bool>("disableROOToutput", false) ) {
 
@@ -249,35 +241,42 @@ L1TDTTF::~L1TDTTF()
   /// Nothing to destroy
 }
 
+//------------------------------------------------------
+void L1TDTTF::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
+  //empty
+}
 
+void L1TDTTF::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c){
+  //empty
+}
 
 //--------------------------------------------------------
-void L1TDTTF::beginJob(void)
+void L1TDTTF::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&)
 {
  /// testing purposes
+  runId_=ibooker.bookInt("iRun");
+  lumisecId_=ibooker.bookInt("iLumi");
   nev_ = 0;
   nev_dttf_ = 0;
   nev_dttf_track2_ = 0;
 
   // get hold of back-end interface
 
-  if ( dbe_ ) {
+  std::string dttf_trk_folder = l1tsubsystemfolder_;
 
-    std::string dttf_trk_folder = l1tsubsystemfolder_;
-
-    char hname[100]; /// histo name
-    char htitle[100]; /// histo title
+  char hname[100]; /// histo name
+  char htitle[100]; /// histo title
 
     ///////////// OPTIMIZE
-    float start = 0;
-    float stop = 0;
-    int nbins = 0;
+  float start = 0;
+  float stop = 0;
+  int nbins = 0;
     ///////////// OPTIMIZE
 
     /// DTTF Output (6 wheels)
-    dbe_->setCurrentFolder(dttf_trk_folder);
+  ibooker.setCurrentFolder(dttf_trk_folder);
 
-    std::string wheelpath[6] = { "/02-WHEEL_N2",
+  std::string wheelpath[6] = { "/02-WHEEL_N2",
 				 "/03-WHEEL_N1",
 				 "/04-WHEEL_N0",
 				 "/05-WHEEL_P0",
@@ -285,110 +284,110 @@ void L1TDTTF::beginJob(void)
 				 "/07-WHEEL_P2" };
 
 
-    char c_whn[6][3] = { "N2", "N1", "N0", "P0", "P1", "P2" };
+  char c_whn[6][3] = { "N2", "N1", "N0", "P0", "P1", "P2" };
     // char bxn [3][3] = { "N1", "0", "P1" };
     // char bxn[3][25] = {"/BX_NONZERO_ONLY/BX_N1", "", "/BX_NONZERO_ONLY/BX_P1"};
 
-    for ( int iwh = 0; iwh < 6; ++iwh ) {
+  for ( int iwh = 0; iwh < 6; ++iwh ) {
 
-      bookEta( iwh, nbins, start, stop ); ///******************
+    bookEta( iwh, nbins, start, stop ); ///******************
 
       ////////////////////////////
       /// Per wheel summaries
       ////////////////////////////
-      std::string dttf_trk_folder_wheel = dttf_trk_folder + wheelpath[iwh];
-      dbe_->setCurrentFolder(dttf_trk_folder_wheel);
+    std::string dttf_trk_folder_wheel = dttf_trk_folder + wheelpath[iwh];
+    ibooker.setCurrentFolder(dttf_trk_folder_wheel);
 
       /// number of  tracks per event per wheel
-      sprintf(hname, "dttf_01_nTracksPerEvent_wh%s", c_whn[iwh]);
-      sprintf(htitle, "Wheel %s - Number Tracks Per Event", c_whn[iwh]);
-      dttf_nTracksPerEvent_wheel[iwh] = dbe_->book1D(hname, htitle,
+    sprintf(hname, "dttf_01_nTracksPerEvent_wh%s", c_whn[iwh]);
+    sprintf(htitle, "Wheel %s - Number Tracks Per Event", c_whn[iwh]);
+    dttf_nTracksPerEvent_wheel[iwh] = ibooker.book1D(hname, htitle,
 						     10, 0.5, 10.5);
-      dttf_nTracksPerEvent_wheel[iwh]->setAxisTitle("# tracks/event", 1);
+    dttf_nTracksPerEvent_wheel[iwh]->setAxisTitle("# tracks/event", 1);
 
       /// phi vs etafine - for each wheel
-      sprintf(hname, "dttf_07_phi_vs_etaFine_wh%s", c_whn[iwh]);
-      sprintf(htitle, "Wheel %s -   #eta-#phi DTTF Tracks occupancy (fine #eta only, unpacked values)", c_whn[iwh]);
-      dttf_phi_eta_fine_wheel[iwh] = dbe_->book2D(hname, htitle,
+    sprintf(hname, "dttf_07_phi_vs_etaFine_wh%s", c_whn[iwh]);
+    sprintf(htitle, "Wheel %s -   #eta-#phi DTTF Tracks occupancy (fine #eta only, unpacked values)", c_whn[iwh]);
+    dttf_phi_eta_fine_wheel[iwh] = ibooker.book2D(hname, htitle,
 						  nbins, start-0.5, stop-0.5,
 						  144, -6, 138);
       // 144, -0.5, 143.5);
       
-      dttf_phi_eta_fine_wheel[iwh]->setAxisTitle("#eta", 1);
-      dttf_phi_eta_fine_wheel[iwh]->setAxisTitle("#phi", 2);
+    dttf_phi_eta_fine_wheel[iwh]->setAxisTitle("#eta", 1);
+    dttf_phi_eta_fine_wheel[iwh]->setAxisTitle("#phi", 2);
 
       /// phi vs etacoarse - for each wheel
-      sprintf(hname, "dttf_08_phi_vs_etaCoarse_wh%s", c_whn[iwh]);
-      sprintf(htitle, "Wheel %s -   #eta-#phi DTTF Tracks occupancy (coarse #eta only, unpacked values)", c_whn[iwh]);
-      dttf_phi_eta_coarse_wheel[iwh] = dbe_->book2D(hname, htitle,
+    sprintf(hname, "dttf_08_phi_vs_etaCoarse_wh%s", c_whn[iwh]);
+    sprintf(htitle, "Wheel %s -   #eta-#phi DTTF Tracks occupancy (coarse #eta only, unpacked values)", c_whn[iwh]);
+    dttf_phi_eta_coarse_wheel[iwh] = ibooker.book2D(hname, htitle,
 						    nbins, start-0.5, stop-0.5,
 						    144, -6, 138);
       // 144, -0.5, 143.5);
-      dttf_phi_eta_coarse_wheel[iwh]->setAxisTitle("#eta", 1);
-      dttf_phi_eta_coarse_wheel[iwh]->setAxisTitle("#phi", 2);
+    dttf_phi_eta_coarse_wheel[iwh]->setAxisTitle("#eta", 1);
+    dttf_phi_eta_coarse_wheel[iwh]->setAxisTitle("#phi", 2);
 
       /////////////////////////////////////////////
       /// Per wheel summaries : 2ND_TRACK_ONLY
-      std::string dttf_trk_folder_wheel_2ndtrack =
-	dttf_trk_folder_wheel + "/2ND_TRACK_ONLY";
-      dbe_->setCurrentFolder(dttf_trk_folder_wheel_2ndtrack);
+    std::string dttf_trk_folder_wheel_2ndtrack =
+        dttf_trk_folder_wheel + "/2ND_TRACK_ONLY";
+    ibooker.setCurrentFolder(dttf_trk_folder_wheel_2ndtrack);
 
 
       /// DTTF Tracks Quality distribution
-      sprintf(hname, "dttf_04_quality_wh%s_2ndTrack", c_whn[iwh]);
-      sprintf(htitle, "Wheel %s - 2nd Tracks Quality distribution", c_whn[iwh]);
-      dttf_quality_wheel_2ndTrack[iwh] = dbe_->book1D(hname, htitle, 7, 1, 8);
-      setQualLabel( dttf_quality_wheel_2ndTrack[iwh], 1);
+    sprintf(hname, "dttf_04_quality_wh%s_2ndTrack", c_whn[iwh]);
+    sprintf(htitle, "Wheel %s - 2nd Tracks Quality distribution", c_whn[iwh]);
+    dttf_quality_wheel_2ndTrack[iwh] = ibooker.book1D(hname, htitle, 7, 1, 8);
+    setQualLabel( dttf_quality_wheel_2ndTrack[iwh], 1);
 
       /// quality per wheel  2ND TRACK
-      sprintf(hname, "dttf_05_quality_summary_wh%s_2ndTrack", c_whn[iwh]);
-      sprintf(htitle, "Wheel %s - 2nd Tracks - Quality", c_whn[iwh]);
-      dttf_quality_summary_wheel_2ndTrack[iwh] = dbe_->book2D(hname, htitle,
+    sprintf(hname, "dttf_05_quality_summary_wh%s_2ndTrack", c_whn[iwh]);
+    sprintf(htitle, "Wheel %s - 2nd Tracks - Quality", c_whn[iwh]);
+    dttf_quality_summary_wheel_2ndTrack[iwh] = ibooker.book2D(hname, htitle,
 						      12, 1, 13, 7, 1, 8 );
-      dttf_quality_summary_wheel_2ndTrack[iwh]->setAxisTitle("Sector", 1);
-      setQualLabel( dttf_quality_summary_wheel_2ndTrack[iwh], 2);
+    dttf_quality_summary_wheel_2ndTrack[iwh]->setAxisTitle("Sector", 1);
+    setQualLabel( dttf_quality_summary_wheel_2ndTrack[iwh], 2);
       // dttf_quality_summary_wheel_2ndTrack[iwh]->setAxisTitle("Quality", 2);
 
       /// phi vs eta - for each wheel 2ND TRACK
-      sprintf(hname, "dttf_06_phi_vs_eta_wh%s_2ndTrack", c_whn[iwh]);
-      sprintf(htitle, "Wheel %s -   #eta-#phi Distribution of DTTF 2nd Tracks",
+    sprintf(hname, "dttf_06_phi_vs_eta_wh%s_2ndTrack", c_whn[iwh]);
+    sprintf(htitle, "Wheel %s -   #eta-#phi Distribution of DTTF 2nd Tracks",
 	      c_whn[iwh]);
 
-      dttf_phi_eta_wheel_2ndTrack[iwh] = dbe_->book2D(hname, htitle,
+    dttf_phi_eta_wheel_2ndTrack[iwh] = ibooker.book2D(hname, htitle,
 	  					      nbins, start-0.5,stop-0.5,
                                                       144, -6, 138);
       // 144, -0.5, 143.5);
-      dttf_phi_eta_wheel_2ndTrack[iwh]->setAxisTitle("#eta", 1);
-      dttf_phi_eta_wheel_2ndTrack[iwh]->setAxisTitle("#phi", 2);
+    dttf_phi_eta_wheel_2ndTrack[iwh]->setAxisTitle("#eta", 1);
+    dttf_phi_eta_wheel_2ndTrack[iwh]->setAxisTitle("#phi", 2);
 
 
 
       /// DTTF Tracks #eta distribution (Packed values)
-      sprintf(hname, "dttf_07_eta_wh%s_2ndTrack", c_whn[iwh]);
-      sprintf(htitle, "Wheel %s - DTTF 2nd Tracks #eta distribution (Packed values)",
+    sprintf(hname, "dttf_07_eta_wh%s_2ndTrack", c_whn[iwh]);
+    sprintf(htitle, "Wheel %s - DTTF 2nd Tracks #eta distribution (Packed values)",
 	      c_whn[iwh]);
-      dttf_eta_wheel_2ndTrack[iwh] = dbe_->book1D(hname, htitle, 64, -0.5, 63.5);
-      dttf_eta_wheel_2ndTrack[iwh]->setAxisTitle("#eta", 1);
+    dttf_eta_wheel_2ndTrack[iwh] = ibooker.book1D(hname, htitle, 64, -0.5, 63.5);
+    dttf_eta_wheel_2ndTrack[iwh]->setAxisTitle("#eta", 1);
 
       /// DTTF Tracks Phi distribution (Packed values)
-      sprintf(hname, "dttf_08_phi_wh%s_2ndTrack", c_whn[iwh]);
-      sprintf(htitle, "Wheel %s - DTTF 2nd Tracks Phi distribution (Packed values)",
+    sprintf(hname, "dttf_08_phi_wh%s_2ndTrack", c_whn[iwh]);
+    sprintf(htitle, "Wheel %s - DTTF 2nd Tracks Phi distribution (Packed values)",
 	      c_whn[iwh]);
-      dttf_phi_wheel_2ndTrack[iwh] = dbe_->book1D(hname, htitle, 144, -6, 138. );
-      dttf_phi_wheel_2ndTrack[iwh]->setAxisTitle("#phi", 1);
+    dttf_phi_wheel_2ndTrack[iwh] = ibooker.book1D(hname, htitle, 144, -6, 138. );
+    dttf_phi_wheel_2ndTrack[iwh]->setAxisTitle("#phi", 1);
 
       /// DTTF Tracks p_{T} distribution (Packed values)
-      sprintf(hname, "dttf_09_pt_wh%s_2ndTrack", c_whn[iwh]);
-      sprintf(htitle, "Wheel %s - DTTF 2nd Tracks p_{T} distribution (Packed values)",
+    sprintf(hname, "dttf_09_pt_wh%s_2ndTrack", c_whn[iwh]);
+    sprintf(htitle, "Wheel %s - DTTF 2nd Tracks p_{T} distribution (Packed values)",
 	      c_whn[iwh]);
-      dttf_pt_wheel_2ndTrack[iwh]  = dbe_->book1D(hname, htitle, 32, -0.5, 31.5);
-      dttf_pt_wheel_2ndTrack[iwh]->setAxisTitle("p_{T}", 1);
+    dttf_pt_wheel_2ndTrack[iwh]  = ibooker.book1D(hname, htitle, 32, -0.5, 31.5);
+    dttf_pt_wheel_2ndTrack[iwh]->setAxisTitle("p_{T}", 1);
 
       /// DTTF Tracks Charge distribution
-      sprintf(hname, "dttf_10_charge_wh%s_2ndTrack", c_whn[iwh]);
-      sprintf(htitle, "Wheel %s - DTTF 2nd Tracks Charge distribution", c_whn[iwh]);
-      dttf_q_wheel_2ndTrack[iwh] = dbe_->book1D(hname, htitle, 2, -0.5, 1.5);
-      dttf_q_wheel_2ndTrack[iwh]->setAxisTitle("Charge", 1);
+    sprintf(hname, "dttf_10_charge_wh%s_2ndTrack", c_whn[iwh]);
+    sprintf(htitle, "Wheel %s - DTTF 2nd Tracks Charge distribution", c_whn[iwh]);
+    dttf_q_wheel_2ndTrack[iwh] = ibooker.book1D(hname, htitle, 2, -0.5, 1.5);
+    dttf_q_wheel_2ndTrack[iwh]->setAxisTitle("Charge", 1);
 
 
 
@@ -398,120 +397,119 @@ void L1TDTTF::beginJob(void)
        ///////////////////////////////////////////////////////
 
       /// number of tracks per event folder
-      std::string dttf_trk_folder_nTracksPerEvent = dttf_trk_folder_wheel + "/TracksPerEvent";
-      dbe_->setCurrentFolder(dttf_trk_folder_nTracksPerEvent);
+    std::string dttf_trk_folder_nTracksPerEvent = dttf_trk_folder_wheel + "/TracksPerEvent";
+    ibooker.setCurrentFolder(dttf_trk_folder_nTracksPerEvent);
 
-      for(int ise = 0; ise < 12; ++ise) {
-	sprintf(hname, "dttf_nTracksPerEvent_wh%s_se%d", c_whn[iwh], ise+1);
-	sprintf(htitle, "Wheel %s Sector %d - Number of Tracks Per Event",
+    for(int ise = 0; ise < 12; ++ise) {
+      sprintf(hname, "dttf_nTracksPerEvent_wh%s_se%d", c_whn[iwh], ise+1);
+      sprintf(htitle, "Wheel %s Sector %d - Number of Tracks Per Event",
 		c_whn[iwh], ise+1);
-	dttf_nTracksPerEv[iwh][ise] = dbe_->book1D(hname, htitle, 2, 0.5, 2.5);
-	dttf_nTracksPerEv[iwh][ise]->setAxisTitle("# tracks/event", 1);
-      }
+      dttf_nTracksPerEv[iwh][ise] = ibooker.book1D(hname, htitle, 2, 0.5, 2.5);
+      dttf_nTracksPerEv[iwh][ise]->setAxisTitle("# tracks/event", 1);
+    }
 
 
       /// BX_SECTORS for each wheel
-      std::string dttf_trk_folder_wh_bxsec_all =
+    std::string dttf_trk_folder_wh_bxsec_all =
 	dttf_trk_folder_wheel + "/BX_BySector";
-      dbe_->setCurrentFolder(dttf_trk_folder_wh_bxsec_all);
+    ibooker.setCurrentFolder(dttf_trk_folder_wh_bxsec_all);
 
-      for(int ise = 0; ise < 12; ++ise ) {
-	sprintf(hname, "dttf_bx_wh%s_se%d", c_whn[iwh], ise+1);
-	sprintf(htitle, "Wheel %s Sector %d - BX Distribution",
+    for(int ise = 0; ise < 12; ++ise ) {
+      sprintf(hname, "dttf_bx_wh%s_se%d", c_whn[iwh], ise+1);
+      sprintf(htitle, "Wheel %s Sector %d - BX Distribution",
 		c_whn[iwh], ise+1);
-	dttf_bx[iwh][ise] = dbe_->book1D(hname, htitle, 3, -1.5, 1.5);
-	dttf_bx[iwh][ise]->setAxisTitle("BX", 1);
-      }
+      dttf_bx[iwh][ise] = ibooker.book1D(hname, htitle, 3, -1.5, 1.5);
+      dttf_bx[iwh][ise]->setAxisTitle("BX", 1);
+    }
 
-      std::string dttf_trk_folder_wh_bxsec_trk2 =
+    std::string dttf_trk_folder_wh_bxsec_trk2 =
 	dttf_trk_folder_wheel + "/BX_BySector/2ND_TRACK_ONLY";
-      dbe_->setCurrentFolder(dttf_trk_folder_wh_bxsec_trk2);
+    ibooker.setCurrentFolder(dttf_trk_folder_wh_bxsec_trk2);
 
-      for(int ise = 0; ise < 12; ++ise ) {
-	sprintf(hname, "dttf_bx_2ndTrack_wh%s_se%d", c_whn[iwh], ise+1);
-	sprintf(htitle, "Wheel %s Sector %d - BX 2nd Tracks only",
+    for(int ise = 0; ise < 12; ++ise ) {
+      sprintf(hname, "dttf_bx_2ndTrack_wh%s_se%d", c_whn[iwh], ise+1);
+      sprintf(htitle, "Wheel %s Sector %d - BX 2nd Tracks only",
 		c_whn[iwh], ise+1);
-	dttf_bx_2ndTrack[iwh][ise] = dbe_->book1D(hname, htitle, 3, -1.5, 1.5);
-	dttf_bx_2ndTrack[iwh][ise]->setAxisTitle("BX", 1);
-      }
+      dttf_bx_2ndTrack[iwh][ise] = ibooker.book1D(hname, htitle, 3, -1.5, 1.5);
+      dttf_bx_2ndTrack[iwh][ise]->setAxisTitle("BX", 1);
+    }
 
       /// CHARGE folder
-      std::string dttf_trk_folder_charge = dttf_trk_folder_wheel + "/Charge";
-      dbe_->setCurrentFolder(dttf_trk_folder_charge);
+    std::string dttf_trk_folder_charge = dttf_trk_folder_wheel + "/Charge";
+    ibooker.setCurrentFolder(dttf_trk_folder_charge);
 
-      for(int ise = 0; ise < 12; ++ise) {
-	sprintf(hname, "dttf_charge_wh%s_se%d", c_whn[iwh], ise+1);
-	sprintf(htitle, "Wheel %s Sector %d - Packed Charge", c_whn[iwh], ise+1);
-	dttf_q[iwh][ise] = dbe_->book1D(hname, htitle, 2, -0.5, 1.5);
-	dttf_q[iwh][ise]->setAxisTitle("Charge", 1);
-      }
+    for(int ise = 0; ise < 12; ++ise) {
+      sprintf(hname, "dttf_charge_wh%s_se%d", c_whn[iwh], ise+1);
+      sprintf(htitle, "Wheel %s Sector %d - Packed Charge", c_whn[iwh], ise+1);
+      dttf_q[iwh][ise] = ibooker.book1D(hname, htitle, 2, -0.5, 1.5);
+      dttf_q[iwh][ise]->setAxisTitle("Charge", 1);
+    }
 
       /// PT folder
-      std::string dttf_trk_folder_pt = dttf_trk_folder_wheel + "/PT";
-      dbe_->setCurrentFolder(dttf_trk_folder_pt);
+    std::string dttf_trk_folder_pt = dttf_trk_folder_wheel + "/PT";
+    ibooker.setCurrentFolder(dttf_trk_folder_pt);
 
-      for(int ise = 0; ise < 12; ++ise ) {
-	sprintf(hname, "dttf_pt_wh%s_se%d", c_whn[iwh], ise+1);
-	sprintf(htitle, "Wheel %s Sector %d - Packed p_{T}",
+    for(int ise = 0; ise < 12; ++ise ) {
+      sprintf(hname, "dttf_pt_wh%s_se%d", c_whn[iwh], ise+1);
+      sprintf(htitle, "Wheel %s Sector %d - Packed p_{T}",
 		c_whn[iwh], ise + 1 );
-	dttf_pt[iwh][ise]= dbe_->book1D(hname, htitle, 32, -0.5, 31.5);
-	dttf_pt[iwh][ise]->setAxisTitle("p_{T}", 1);
-      }
+      dttf_pt[iwh][ise]= ibooker.book1D(hname, htitle, 32, -0.5, 31.5);
+      dttf_pt[iwh][ise]->setAxisTitle("p_{T}", 1);
+    }
 
       /// PHI folder
-      std::string dttf_trk_folder_phi = dttf_trk_folder_wheel + "/Phi";
-      dbe_->setCurrentFolder(dttf_trk_folder_phi);
+    std::string dttf_trk_folder_phi = dttf_trk_folder_wheel + "/Phi";
+    ibooker.setCurrentFolder(dttf_trk_folder_phi);
 
-      for(int ise = 0; ise < 12; ++ise ) {
-	sprintf(hname, "dttf_phi_wh%s_se%d", c_whn[iwh], ise+1);
-	sprintf(htitle, "Wheel %s Sector %d - Packed Phi", c_whn[iwh], ise+1);
-	dttf_phi[iwh][ise] = dbe_->book1D(hname, htitle, 144, -6, 138);
-	dttf_phi[iwh][ise]->setAxisTitle("#phi", 1);
+    for(int ise = 0; ise < 12; ++ise ) {
+      sprintf(hname, "dttf_phi_wh%s_se%d", c_whn[iwh], ise+1);
+      sprintf(htitle, "Wheel %s Sector %d - Packed Phi", c_whn[iwh], ise+1);
+      dttf_phi[iwh][ise] = ibooker.book1D(hname, htitle, 144, -6, 138);
+      dttf_phi[iwh][ise]->setAxisTitle("#phi", 1);
 	//dttf_phi[iwh][ise] = dbe_->book1D(title,title, 32,-16.5, 15.5);
-      }
+    }
 
       /// QUALITY folder
-      std::string dttf_trk_folder_quality = dttf_trk_folder_wheel + "/Quality";
-      dbe_->setCurrentFolder(dttf_trk_folder_quality);
+    std::string dttf_trk_folder_quality = dttf_trk_folder_wheel + "/Quality";
+    ibooker.setCurrentFolder(dttf_trk_folder_quality);
 
-      for(int ise = 0; ise < 12; ++ise){
-	sprintf(hname, "dttf_qual_wh%s_se%d", c_whn[iwh], ise+1);
-	sprintf(htitle, "Wheel %s Sector %d - Packed Quality",
+    for(int ise = 0; ise < 12; ++ise){
+      sprintf(hname, "dttf_qual_wh%s_se%d", c_whn[iwh], ise+1);
+      sprintf(htitle, "Wheel %s Sector %d - Packed Quality",
 		c_whn[iwh], ise+1);
-	dttf_qual[iwh][ise] = dbe_->book1D(hname, htitle, 7, 1, 8);
-	dttf_qual[iwh][ise]->setAxisTitle("Quality", 1);
-	setQualLabel( dttf_qual[iwh][ise], 1 );
-      }
+      dttf_qual[iwh][ise] = ibooker.book1D(hname, htitle, 7, 1, 8);
+      dttf_qual[iwh][ise]->setAxisTitle("Quality", 1);
+      setQualLabel( dttf_qual[iwh][ise], 1 );
+    }
 
       /// ETA folder
-      std::string dttf_trk_folder_eta = dttf_trk_folder_wheel + "/Eta";
-      dbe_->setCurrentFolder(dttf_trk_folder_eta);
+    std::string dttf_trk_folder_eta = dttf_trk_folder_wheel + "/Eta";
+    ibooker.setCurrentFolder(dttf_trk_folder_eta);
 
-      for (int ise = 0; ise < 12; ++ise ) {
+    for (int ise = 0; ise < 12; ++ise ) {
 
-	sprintf(hname, "dttf_eta_wh%s_se%d", c_whn[iwh], ise+1);
-	sprintf(htitle, "Wheel %s Sector %d - Packed #eta",
+      sprintf(hname, "dttf_eta_wh%s_se%d", c_whn[iwh], ise+1);
+      sprintf(htitle, "Wheel %s Sector %d - Packed #eta",
 		c_whn[iwh], ise+1);
-	dttf_eta[iwh][ise] = dbe_->book1D(hname, htitle, 64, -0.5, 63.5);
-	dttf_eta[iwh][ise]->setAxisTitle("#eta", 1);
+      dttf_eta[iwh][ise] = ibooker.book1D(hname, htitle, 64, -0.5, 63.5);
+      dttf_eta[iwh][ise]->setAxisTitle("#eta", 1);
 
-      }
+    }
 
       /// ETA folder
-      dttf_trk_folder_eta = dttf_trk_folder_wheel + "/EtaFineFraction";
-      dbe_->setCurrentFolder(dttf_trk_folder_eta);
+    dttf_trk_folder_eta = dttf_trk_folder_wheel + "/EtaFineFraction";
+    ibooker.setCurrentFolder(dttf_trk_folder_eta);
 
-      for (int ise = 0; ise < 12; ++ise ) {
+    for (int ise = 0; ise < 12; ++ise ) {
 
-	sprintf(hname, "dttf_etaFine_fraction_wh%s_se%d", c_whn[iwh], ise+1);
-	sprintf(htitle, "Wheel %s Sector %d - Eta Fine Fraction",
+      sprintf(hname, "dttf_etaFine_fraction_wh%s_se%d", c_whn[iwh], ise+1);
+      sprintf(htitle, "Wheel %s Sector %d - Eta Fine Fraction",
 		c_whn[iwh], ise+1);
-	dttf_eta_fine_fraction[iwh][ise] = dbe_->book1D(hname, htitle, 2, 0, 2);
-	dttf_eta_fine_fraction[iwh][ise]->setAxisTitle("#eta", 1);
-	dttf_eta_fine_fraction[iwh][ise]->setBinLabel(1, "fine", 1);
-	dttf_eta_fine_fraction[iwh][ise]->setBinLabel(2, "coarse", 1);
-
-      }
+      dttf_eta_fine_fraction[iwh][ise] = ibooker.book1D(hname, htitle, 2, 0, 2);
+      dttf_eta_fine_fraction[iwh][ise]->setAxisTitle("#eta", 1);
+      dttf_eta_fine_fraction[iwh][ise]->setBinLabel(1, "fine", 1);
+      dttf_eta_fine_fraction[iwh][ise]->setBinLabel(2, "coarse", 1);
+    }
 
     }
 
@@ -519,12 +517,12 @@ void L1TDTTF::beginJob(void)
     /// integrated values: always packed
     ///////////////////////////////////////////////////////
     std::string dttf_trk_folder_inclusive = dttf_trk_folder + "/01-INCLUSIVE";
-    dbe_->setCurrentFolder(dttf_trk_folder_inclusive);
+    ibooker.setCurrentFolder(dttf_trk_folder_inclusive);
 
 
     sprintf(hname, "dttf_01_nTracksPerEvent_integ");
     sprintf(htitle, "Number of DTTF Tracks Per Event");
-    dttf_nTracksPerEvent_integ = dbe_->book1D(hname, htitle, 20, 0.5, 20.5);
+    dttf_nTracksPerEvent_integ = ibooker.book1D(hname, htitle, 20, 0.5, 20.5);
     dttf_nTracksPerEvent_integ->setAxisTitle("# tracks/event", 1);
 
     ///////// ?????????
@@ -537,7 +535,7 @@ void L1TDTTF::beginJob(void)
     if ( online_ ) {
       sprintf(hname, "dttf_04_tracks_occupancy_by_lumi");
       sprintf(htitle, "DTTF Tracks in the last LumiSections");
-      dttf_spare = dbe_->book2D(hname, htitle, 6, 0, 6, 12, 1, 13);
+      dttf_spare = ibooker.book2D(hname, htitle, 6, 0, 6, 12, 1, 13);
       setWheelLabel( dttf_spare );
       dttf_spare->setAxisTitle("Sector", 2);
       dttf_spare->getTH2F()->GetXaxis()->SetNdivisions(12);
@@ -545,7 +543,7 @@ void L1TDTTF::beginJob(void)
 
       sprintf(hname, "dttf_04_global_muons_request");
       sprintf(htitle, "Tracks compatible with a Global Muon in the Barrel");
-      dttf_spare = dbe_->book1D(hname, htitle, 4, -0.5, 3.5 );
+      dttf_spare = ibooker.book1D(hname, htitle, 4, -0.5, 3.5 );
       dttf_spare->setBinLabel(1, "No tracks", 1);
       dttf_spare->setBinLabel(2, "No tracks but GM", 1);
       dttf_spare->setBinLabel(3, "Tracks wo GM", 1);
@@ -555,21 +553,21 @@ void L1TDTTF::beginJob(void)
 
     std::string dttf_trk_folder_integrated_gmt =
       dttf_trk_folder + "/08-GMT_MATCH";
-    dbe_->setCurrentFolder(dttf_trk_folder_integrated_gmt);
+    ibooker.setCurrentFolder(dttf_trk_folder_integrated_gmt);
 
     sprintf(hname, "dttf_tracks_with_gmt_match");
     sprintf(htitle, "DTTF Tracks With a Match in GMT");
-    dttf_gmt_match = dbe_->book2D(hname, htitle, 6, 0., 6., 12, 1., 13.);
+    dttf_gmt_match = ibooker.book2D(hname, htitle, 6, 0., 6., 12, 1., 13.);
     setWheelLabel( dttf_gmt_match );
 
     sprintf(hname, "dttf_tracks_without_gmt_match");
     sprintf(htitle, "DTTF Tracks Without a Match in GMT");
-    dttf_gmt_missed = dbe_->book2D(hname, htitle, 6, 0., 6., 12, 1., 13.);
+    dttf_gmt_missed = ibooker.book2D(hname, htitle, 6, 0., 6., 12, 1., 13.);
     setWheelLabel( dttf_gmt_missed );
 
     sprintf(hname, "dttf_missing_tracks_in_gmt");
     sprintf(htitle, "GMT Tracks Without a Corresponding Track in DTTF");
-    dttf_gmt_ghost = dbe_->book2D(hname, htitle, 5, -2, 3, 12, 1, 13.);
+    dttf_gmt_ghost = ibooker.book2D(hname, htitle, 5, -2, 3, 12, 1, 13.);
 
     dttf_gmt_ghost->setBinLabel(1, "N2", 1);
     dttf_gmt_ghost->setBinLabel(2, "N1", 1);
@@ -582,30 +580,7 @@ void L1TDTTF::beginJob(void)
     // sprintf(htitle, "GMT Tracks Without a Corresponding Track in DTTF");
     // dttf_gmt_ghost_phys = dbe_->book2D(hname, htitle, 64, 0., 64., 144, 0., 144. );
 
-
-  }
-
 }
-
-
-
-//--------------------------------------------------------
-void L1TDTTF::endJob(void)
-{
-  if (verbose_) {
-    edm::LogInfo("EndJob") << "L1TDTTF: end job....";
-    edm::LogInfo("EndJob") << "analyzed " << nev_ << " events";
-    edm::LogInfo("EndJob") << "containing at least one dttf track : "
-			   << nev_dttf_;
-    edm::LogInfo("EndJob") << "containing two dttf tracks : "
-			   << nev_dttf_track2_;
-  }
-    
-  if ( outputFile_.size() != 0  && dbe_ ) dbe_->save(outputFile_);
-
-}
-
-
 
 //--------------------------------------------------------
 void L1TDTTF::analyze(const edm::Event& event,
@@ -1057,115 +1032,3 @@ void L1TDTTF::bookEta( int wh, int & nbins, float & start, float & stop )
 
 }
 
-
-
-
-
-
-//       ///////////////////////////////////////////////////////
-//       /// dttf measures per wheel: per BX assignment
-//       ///////////////////////////////////////////////////////
-
-//       ///      for ( int ibx = 0; ibx < 3; ++ibx ) {
-//       /// LEAVING ONLY BX0!!!
-//       for ( int ibx = 1; ibx < 2; ++ibx ) {
-// 	int tbx = ibx - 1;
-
-// 	std::string dttf_trk_folder_bx = dttf_trk_folder_wheel + bxn[ibx];
-// 	dbe_->setCurrentFolder(dttf_trk_folder_bx);
-
-// 	/// QUALITY folder
-// 	std::string dttf_trk_folder_quality = dttf_trk_folder_bx + "/Quality";
-// 	dbe_->setCurrentFolder(dttf_trk_folder_quality);
-
-// 	for(int ise = 0; ise < 12; ++ise){
-// 	  sprintf(hname, "dttf_qual_bx%d_wh%s_se%d", tbx, c_whn[iwh], ise+1);
-// 	  sprintf(htitle, "Packed Quality bx%d wh%s se%d", tbx, c_whn[iwh], ise+1);
-// 	  dttf_qual[ibx][iwh][ise] = dbe_->book1D(hname, htitle, 8, -0.5, 7.5);
-// 	  dttf_qual[ibx][iwh][ise]->setAxisTitle("Quality", 1);
-// 	}
-
-// 	/// PHI folder
-// 	std::string dttf_trk_folder_phi = dttf_trk_folder_bx + "/Phi";
-// 	dbe_->setCurrentFolder(dttf_trk_folder_phi);
-
-// 	for(int ise = 0; ise < 12; ++ise ) {
-// 	  sprintf(hname, "dttf_phi_bx%d_wh%s_se%d", tbx, c_whn[iwh], ise+1);
-// 	  sprintf(htitle, "Packed Phi bx%d wh%s se%d", tbx, c_whn[iwh], ise+1);
-// 	  dttf_phi[ibx][iwh][ise] = dbe_->book1D(hname, htitle,
-// 						144, -0.5, 143.5);
-// 	  dttf_phi[ibx][iwh][ise]->setAxisTitle("#phi", 1);
-// 	  //dttf_phi[ibx][iwh][ise] = dbe_->book1D(title,title, 32,-16.5, 15.5);
-// 	}
-
-// 	/// ETA folder
-// 	std::string dttf_trk_folder_eta = dttf_trk_folder_bx + "/Eta";
-// 	dbe_->setCurrentFolder(dttf_trk_folder_eta);
-
-// 	for (int ise = 0; ise < 12; ++ise ) {
-
-// 	  // sprintf(hname, "dttf_eta_bx%d_wh%s_se%d", tbx, c_whn[iwh], ise+1);
-// 	  // sprintf(htitle, "Packed Eta bx%d wh%s se%d", tbx, c_whn[iwh], ise+1);
-// 	  // //dttf_eta[ibx][iwh][ise] = dbe_->book1D(hname,title,64,-32.5,32.5);//fix range and bin size!
-// 	  // dttf_eta[ibx][iwh][ise] = dbe_->book1D(hname, htitle, 64, -0.5, 63.5);
-// 	  // dttf_eta[ibx][iwh][ise]->setAxisTitle("#eta", 1);
-
-
-
-// 	  sprintf(hname, "dttf_eta_fine_bx%d_wh%s_se%d", tbx, c_whn[iwh], ise+1);
-// 	  sprintf(htitle, "Packed Eta Fine bx%d wh%s se%d", tbx, c_whn[iwh], ise+1);
-// 	  dttf_eta_fine[ibx][iwh][ise] = dbe_->book1D(hname, htitle, 64, -0.5, 63.5);
-// 	  dttf_eta_fine[ibx][iwh][ise]->setAxisTitle("#eta", 1);
-
-
-
-// 	  sprintf(hname, "dttf_eta_coarse_bx%d_wh%s_se%d", tbx, c_whn[iwh], ise+1);
-// 	  sprintf(htitle, "Packed Eta Coarse bx%d wh%s se%d", tbx, c_whn[iwh], ise+1);
-// 	  dttf_eta_coarse[ibx][iwh][ise] = dbe_->book1D(hname, htitle, 64, -0.5, 63.5);
-// 	  dttf_eta_coarse[ibx][iwh][ise]->setAxisTitle("#eta", 1);
-
-// 	}
-
-// 	/// PT folder
-// 	std::string dttf_trk_folder_pt = dttf_trk_folder_bx + "/PT";
-// 	dbe_->setCurrentFolder(dttf_trk_folder_pt);
-
-// 	for(int ise = 0; ise < 12; ++ise ) {
-// 	  sprintf(hname, "dttf_pt_bx%d_wh%s_se%d", tbx, c_whn[iwh], ise+1);
-// 	  sprintf(htitle, "Packed PT bx%d wh%s se%d", tbx, c_whn[iwh], ise+1);
-// 	  dttf_pt[ibx][iwh][ise]= dbe_->book1D(hname, htitle, 32, -0.5, 31.5);
-// 	  dttf_pt[ibx][iwh][ise]->setAxisTitle("p_{T}", 1);
-// 	}
-
-// 	/// CHARGE folder
-// 	std::string dttf_trk_folder_charge = dttf_trk_folder_bx + "/Charge";
-// 	dbe_->setCurrentFolder(dttf_trk_folder_charge);
-
-// 	for(int ise = 0; ise < 12; ++ise) {
-// 	  sprintf(hname, "dttf_q_bx%d_wh%s_se%d", tbx, c_whn[iwh], ise+1);
-// 	  sprintf(htitle, "Packed Charge  bx%d wh%s se%d", tbx, c_whn[iwh], ise+1);
-// 	  dttf_q[ibx][iwh][ise] = dbe_->book1D(hname, htitle, 2, -0.5, 1.5);
-// 	  dttf_q[ibx][iwh][ise]->setAxisTitle("Charge", 1);
-// 	}
-
-// 	/// number of tracks per event folder
-// 	std::string dttf_trk_folder_nTracksPerEvent = dttf_trk_folder_bx+"/TracksPerEvent";
-// 	dbe_->setCurrentFolder(dttf_trk_folder_nTracksPerEvent);
-
-// 	for(int ise = 0; ise < 12; ++ise) {
-// 	  sprintf(hname, "dttf_nTracksPerEvent_bx%d_wh%s_se%d", tbx, c_whn[iwh], ise+1);
-// 	  sprintf(htitle, "Num Tracks Per Event bx%d wh%s se%d", tbx, c_whn[iwh], ise+1);
-// 	  dttf_nTracksPerEv[ibx][iwh][ise] = dbe_->book1D(hname, htitle, 2, 0.5, 2.5);
-// 	  dttf_nTracksPerEv[ibx][iwh][ise]->setAxisTitle("# tracks/event", 1);
-// 	}
-
-//       }
-
-
-
-
-
-
-
-
-//--------------------------------------------------------

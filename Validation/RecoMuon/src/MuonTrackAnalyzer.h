@@ -45,7 +45,7 @@ class MuonUpdatorAtVertex;
 class DQMStore;
 
 
-class MuonTrackAnalyzer: public thread_unsafe::DQMEDAnalyzer {
+class MuonTrackAnalyzer: public DQMEDAnalyzer {
  public:
   enum EtaRange{all,barrel,endcap};
 

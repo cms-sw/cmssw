@@ -30,7 +30,7 @@ class MonitorElement;
 class MuonServiceProxy;
 class TrackAssociatorBase;
 
-class RecoMuonValidator : public thread_unsafe::DQMEDAnalyzer
+class RecoMuonValidator : public DQMEDAnalyzer
 {
  public:
   RecoMuonValidator(const edm::ParameterSet& pset);

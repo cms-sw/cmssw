@@ -110,6 +110,26 @@ namespace edm {
     return (productHolderIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].startInProcessNames() != 0U);
   }
 
+  char const*
+  ProductHolderIndexHelper::Matches::processName(unsigned int i) const {
+     if (i >= numberOfMatches_) {
+      throw Exception(errors::LogicError)
+        << "ProductHolderIndexHelper::Matches::processName - Argument is out of range.\n";
+     }
+     unsigned int startInProcessNames = productHolderIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].startInProcessNames();
+     return &productHolderIndexHelper_->processNames_[startInProcessNames];
+  }
+
+  char const*
+  ProductHolderIndexHelper::Matches::moduleLabel(unsigned int i) const {
+     if (i >= numberOfMatches_) {
+      throw Exception(errors::LogicError)
+        << "ProductHolderIndexHelper::Matches::moduleLabel - Argument is out of range.\n";
+     }
+     unsigned int start = productHolderIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].startInBigNamesContainer();
+     return &productHolderIndexHelper_->bigNamesContainer_[start];
+  }
+
   ProductHolderIndexHelper::Matches
   ProductHolderIndexHelper::relatedIndexes(KindOfType kindOfType,
                                            TypeID const& typeID,

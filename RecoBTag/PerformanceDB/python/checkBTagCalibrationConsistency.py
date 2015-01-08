@@ -169,7 +169,8 @@ def run_check_data(data_loaders,
     all_res = []
     for data in data_loaders:
         print '\n\n'
-        print '# Checking csv data for type:', data.meas_type
+        print '# Checking csv data for type / op / flavour:', \
+            data.meas_type, data.op, data.flav
         print '='*60 + '\n'
         if verbose:
             data.print_data()
@@ -182,10 +183,29 @@ def run_check_data(data_loaders,
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print "Need csv data file as first argument. Exit."
+        print 'Need csv data file as first argument.'
+        print 'Options:'
+        print '    --light (do not check op, sys, flav)'
+        print '    --separate-by-op'
+        print '    --separate-by-flav'
+        print '    --separate-all (both of the above)'
+        print 'Exit.'
         exit(-1)
-    light = not '--light' in sys.argv
+
+    ck_op = ck_sy = ck_fl = not '--light' in sys.argv
+
+    dataLoader.separate_by_op   = '--separate-by-op'   in sys.argv
+    dataLoader.separate_by_flav = '--separate-by-flav' in sys.argv
+
+    if '--separate-all' in sys.argv:
+        dataLoader.separate_by_op = dataLoader.separate_by_flav = True
+
+    if dataLoader.separate_by_op:
+        ck_op = False
+    if dataLoader.separate_by_flav:
+        ck_fl = False
+
     verbose = True
-    if not all(run_check(sys.argv[1], light, light, light)):
+    if not all(run_check(sys.argv[1], ck_op, ck_sy, ck_fl)):
         exit(-1)
 

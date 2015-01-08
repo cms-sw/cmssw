@@ -11,12 +11,11 @@
 class CmsTrackerSubStrctBuilder : public CmsTrackerLevelBuilder
 {
 public:
-  CmsTrackerSubStrctBuilder( unsigned int totalBlade );
+  CmsTrackerSubStrctBuilder();
   
 private:
   virtual void sortNS( DDFilteredView& , GeometricDet* );
   virtual void buildComponent( DDFilteredView& , GeometricDet*, std::string );
-  unsigned int m_totalBlade;
 };
 
 #endif

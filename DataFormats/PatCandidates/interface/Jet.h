@@ -479,7 +479,7 @@ namespace pat {
       }
 
       /// pipe operator (introduced to use pat::Jet with PFTopProjectors)
-      friend std::ostream& reco::operator<<(std::ostream& out, const Jet& obj);
+      friend std::ostream& reco::operator<<(std::ostream& out, const pat::Jet& obj);
 
     protected:
 

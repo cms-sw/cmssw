@@ -1,20 +1,17 @@
-#include "HLTrigger/JetMET/interface/HLTJetCollectionsForElePlusJets.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "TVector3.h"
-
 #include <string>
 #include <vector>
-#include <typeinfo>
+
+#include "TVector3.h"
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "HLTrigger/JetMET/interface/HLTJetCollectionsForElePlusJets.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+
 
 template<typename T>
 HLTJetCollectionsForElePlusJets<T>::HLTJetCollectionsForElePlusJets(const edm::ParameterSet& iConfig):
@@ -55,7 +52,7 @@ void HLTJetCollectionsForElePlusJets<T>::fillDescriptions(edm::ConfigurationDesc
     //Only for VBF
    // desc.add<double> ("MinSoftJetPt", 25.);
     //desc.add<double> ("MinDeltaEta", -1.);
-    descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollectionsForElePlusJets<T>).name()),desc);
+    descriptions.add(defaultModuleLabel<HLTJetCollectionsForElePlusJets<T>>(), desc);
 }
 
 //

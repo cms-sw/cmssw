@@ -11,7 +11,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     genParticleLabel = cms.string("genParticles"),
     
     # -- The instance name of the reco::GenJets collection
-    genJetLabel = cms.string("ak5GenJets"),
+    genJetLabel = cms.string("ak4GenJets"),
 
     # -- The instance name of the reco::PFJetCollection collection
     recoHtJetLabel = cms.untracked.string("ak4PFJetsCHS"),
@@ -242,7 +242,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     ZnnHbb = cms.PSet( 
         hltPathsToCheck = cms.vstring(
             "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_BTagCSV0p7_v",
-            "HLT_PFMET110_PFMHT110_IDLoose_v",
+            "HLT_PFMET120_PFMHT120_IDLoose_v",
             "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_v"
             ),
         Jet_recCut   = cms.string("pt > 10 && abs(eta) < 2.6"),
@@ -268,6 +268,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
     TTHbbej  = cms.PSet( 
         hltPathsToCheck = cms.vstring(
+            "HLT_Ele27_eta2p1_WP85_Gsf_v",
             "HLT_Ele27_eta2p1_WP85_Gsf_HT200_v"
             ),
         recElecLabel   = cms.string("gedGsfElectrons"),

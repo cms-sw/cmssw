@@ -15,6 +15,7 @@ Module type=IntProducer, Module label=one, Parameter Set ID=bece7daf7ab0166d4f60
 ++++ starting: constructing module with label 'result4' id = 6
 ++++ finished: constructing module with label 'result4' id = 6
 ++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
+++ starting: begin job
 ++++ starting: begin job for module with label 'one' id = 3
 Module type=IntProducer, Module label=one, Parameter Set ID=bece7daf7ab0166d4f6047cc887d46b8
 ++++ finished: begin job for module with label 'one' id = 3

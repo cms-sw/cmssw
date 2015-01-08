@@ -42,7 +42,7 @@ class  DQMStore;
 // class decleration
 //
 
-class GlobalMuonMatchAnalyzer : public thread_unsafe::DQMEDAnalyzer {
+class GlobalMuonMatchAnalyzer : public DQMEDAnalyzer {
    public:
       explicit GlobalMuonMatchAnalyzer(const edm::ParameterSet&);
       ~GlobalMuonMatchAnalyzer();

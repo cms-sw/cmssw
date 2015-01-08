@@ -15,8 +15,16 @@ def generate_flav_c(loaded_data):
     flav_b_data = sorted(flav_b_data, key=lambda e: e.params.etaMin)
     flav_b_data = sorted(flav_b_data, key=lambda e: e.params.ptMin)
     flav_b_data = sorted(flav_b_data, key=lambda e: e.params.discrMin)
-    sys_groups = itertools.groupby(flav_b_data,
-                                   key=lambda e: e.params.operatingPoint)
+    sys_groups = itertools.groupby(
+        flav_b_data,
+        key=lambda e: '%d, %s, %.02f, %.02f, %.02f' % (
+            e.params.operatingPoint,
+            e.params.measurementType,
+            e.params.etaMin,
+            e.params.ptMin,
+            e.params.discrMin
+        )
+    )
 
     def gen_entry_dict(groups):
         for _, grp in groups:
@@ -53,9 +61,6 @@ def main():
     checks = checker.run_check_data(loaders, True, True, False)
     for res, data in itertools.izip(checks, loaders):
         typ = data.meas_type
-        if not res:
-            print 'Checks on input file failed for %s. Exit.' % typ
-            exit(-1)
         if not 0 in data.flavs:
             print 'FLAV_B not found in input file for %s. Exit.' % typ
             exit(-1)

@@ -24,6 +24,7 @@ __email__ = 'mojedasa@cern.ch'
 import argparse
 import logging
 import os
+import re
 import subprocess
 
 import clang.cindex
@@ -45,9 +46,9 @@ serialize_method_begin_template = '''template <class Archive>
 void {klass}::serialize(Archive & ar, const unsigned int)
 {{'''
 
-serialize_method_base_object_template = '    ar & boost::serialization::make_nvp("{base_object_name}", boost::serialization::base_object<{base_object_name}>(*this));'
+serialize_method_base_object_template = '    ar & boost::serialization::make_nvp("{base_object_name_sanitised}", boost::serialization::base_object<{base_object_name}>(*this));'
 
-serialize_method_member_template = '''    ar & BOOST_SERIALIZATION_NVP({member_name});'''
+serialize_method_member_template = '''    ar & boost::serialization::make_nvp("{member_name_sanitised}", {member_name});'''
 
 serialize_method_end = '''}
 '''
@@ -386,6 +387,10 @@ def get_default_gcc_search_paths(gcc = 'g++', language = 'c++'):
 
     return paths
 
+def sanitise(var):
+    return re.sub('[^a-zA-Z0-9.,-:]', '-', var)
+
+
 class SerializationCodeGenerator(object):
 
     def __init__(self, scramFlags=None):
@@ -500,10 +505,12 @@ class SerializationCodeGenerator(object):
             source += serialize_method_begin_template.format(klass=klass) + '\n'
 
             for base_object_name in base_objects:
-                source += serialize_method_base_object_template.format(base_object_name=base_object_name) + '\n'
+                base_object_name_sanitised = sanitise(base_object_name)
+                source += serialize_method_base_object_template.format(base_object_name=base_object_name, base_object_name_sanitised=base_object_name_sanitised) + '\n'
 
             for member_name in members:
-                source += serialize_method_member_template.format(member_name=member_name) + '\n'
+                member_name_sanitised = sanitise(member_name)
+                source += serialize_method_member_template.format(member_name=member_name, member_name_sanitised=member_name_sanitised) + '\n'
 
             source += serialize_method_end
 

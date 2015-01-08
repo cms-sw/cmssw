@@ -18,6 +18,8 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+
 //
 // constructors and destructor
 //
@@ -66,7 +68,7 @@ HLTGenericFilter<T1>::fillDescriptions(edm::ConfigurationDescriptions& descripti
     desc.add<bool>("doIsolated",true);
     desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
     desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
-    descriptions.add(std::string("hlt")+std::string(typeid(HLTGenericFilter<T1>).name()), desc);
+    descriptions.add(defaultModuleLabel<HLTGenericFilter<T1>>(), desc);
 }
 
 template<typename T1>

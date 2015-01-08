@@ -27,7 +27,7 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
-#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
+#include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -386,7 +386,7 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   //  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
   edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
   iEvent.getByLabel("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits", theGSRecHits);
-  TrackerRecHit theFirstSeedingTrackerRecHit;
+  TrajectorySeedHitCandidate theFirstSeedingTrackerRecHit;
 
 
   if ( !mySimEvent[1]->nVertices() ) return;
@@ -589,12 +589,12 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  std::cout <<"counting: "<< theRecHitRangeIteratorEnd-theRecHitRangeIteratorBegin <<" hits to be considered "<< std::endl;
 	  
 	  int hitnum=0;
-	  TrackerRecHit theCurrentRecHit;
+	  TrajectorySeedHitCandidate theCurrentRecHit;
 	  for ( iterRecHit = theRecHitRangeIteratorBegin; 
 		iterRecHit != theRecHitRangeIteratorEnd; 
 		++iterRecHit) {
 	    
-	    theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry,tTopo);
+	    theCurrentRecHit = TrajectorySeedHitCandidate(&(*iterRecHit),theGeometry,tTopo);
 	    std::cout << hitnum << " Hit DetID = " <<   theCurrentRecHit.subDetId() << "\tLayer = " << theCurrentRecHit.layerNumber() << std::endl;	
 	    hitnum++;
 	  }
@@ -702,12 +702,12 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  std::cout <<"counting: "<< theRecHitRangeIteratorEnd-theRecHitRangeIteratorBegin <<" hits to be considered "<< std::endl;
 	  
 	  int hitnum=0;
-	  TrackerRecHit theCurrentRecHit;
+	  TrajectorySeedHitCandidate theCurrentRecHit;
 	  for ( iterRecHit = theRecHitRangeIteratorBegin; 
 		iterRecHit != theRecHitRangeIteratorEnd; 
 		++iterRecHit) {
 	    
-	    theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry,tTopo);
+	    theCurrentRecHit = TrajectorySeedHitCandidate(&(*iterRecHit),theGeometry,tTopo);
 	    std::cout << hitnum << " Hit DetID = " <<   theCurrentRecHit.subDetId() << "\tLayer = " << theCurrentRecHit.layerNumber() << std::endl;	
 	    hitnum++;
 	    

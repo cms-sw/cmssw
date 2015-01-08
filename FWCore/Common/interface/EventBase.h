@@ -39,6 +39,7 @@
 namespace edm {
 
    class ProcessHistory;
+   class ProductID;
    class TriggerResults;
    class TriggerNames;
 
@@ -51,6 +52,9 @@ namespace edm {
       // ---------- const member functions ---------------------
       template<typename T>
       bool getByLabel(InputTag const&, Handle<T>&) const;
+
+      template<typename T>
+      bool get(ProductID const&, Handle<T>&) const;
 
       // AUX functions.
       edm::EventID id() const {return eventAuxiliary().id();}
@@ -77,6 +81,7 @@ namespace edm {
       //EventBase const& operator=(EventBase const&); // allow default
 
       virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const = 0;
+      virtual BasicHandle getImpl(std::type_info const& iProductType, ProductID const& iTag) const = 0;
       // ---------- member data --------------------------------
 
    };
@@ -88,6 +93,18 @@ namespace edm {
       result.clear();
       BasicHandle bh = this->getByLabelImpl(typeid(edm::Wrapper<T>), typeid(T), tag);
      convert_handle(std::move(bh), result);  // throws on conversion error
+      if (result.failedToGet()) {
+         return false;
+      }
+      return true;
+   }
+
+   template<typename T>
+   bool
+   EventBase::get(ProductID const& pid, Handle<T>& result) const {
+      result.clear();
+      BasicHandle bh = this->getImpl(typeid(T), pid);
+      convert_handle(std::move(bh), result);  // throws on conversion error
       if (result.failedToGet()) {
          return false;
       }

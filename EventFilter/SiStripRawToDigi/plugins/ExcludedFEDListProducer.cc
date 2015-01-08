@@ -19,12 +19,12 @@
 
 namespace sistrip {
 
-  ExcludedFEDListProducer::ExcludedFEDListProducer( const edm::ParameterSet& pset ) :
-    runNumber_(0),
-    cabling_(0),
-    cacheId_(0)
-  {
-    token_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel"));
+  ExcludedFEDListProducer::ExcludedFEDListProducer( const edm::ParameterSet& pset ) 
+    : runNumber_(0)
+    , cacheId_(0)
+    , cabling_(0)
+    , token_ ( consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel")) )
+  {    
     produces<DetIdCollection>();
   }
   
@@ -38,7 +38,9 @@ namespace sistrip {
     uint32_t cacheId = es.get<SiStripFedCablingRcd>().cacheIdentifier();
     
     if ( cacheId_ != cacheId ) {
-      
+
+      cacheId_ = cacheId;
+
       edm::ESHandle<SiStripFedCabling> c;
       es.get<SiStripFedCablingRcd>().get( c );
       cabling_ = c.product();

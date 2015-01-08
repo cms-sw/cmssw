@@ -47,18 +47,21 @@ void SeedGeneratorFromProtoTracksEDProducer::fillDescriptions(edm::Configuration
 }
 
 
-SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(const ParameterSet& cfg):theConfig(cfg)
-
+SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(const ParameterSet& cfg)
+ : theConfig(cfg)
+ , originHalfLength        ( cfg.getParameter<double>("originHalfLength")      )
+ , originRadius            ( cfg.getParameter<double>("originRadius")          )
+ , useProtoTrackKinematics ( cfg.getParameter<bool>("useProtoTrackKinematics") )
+ , useEventsWithNoVertex   ( cfg.getParameter<bool>("useEventsWithNoVertex")   )
+ , builderName             ( cfg.getParameter<std::string>("TTRHBuilder")      )
+ , usePV_                  ( cfg.getParameter<bool>( "usePV" )                 )
+ , theInputCollectionTag       ( consumes<reco::TrackCollection> (cfg.getParameter<InputTag>("InputCollection"))       )
+ , theInputVertexCollectionTag ( consumes<reco::VertexCollection>(cfg.getParameter<InputTag>("InputVertexCollection")) )
 {
   produces<TrajectorySeedCollection>();
-  theInputCollectionTag       = consumes<reco::TrackCollection>(cfg.getParameter<InputTag>("InputCollection"));
-  theInputVertexCollectionTag = consumes<reco::VertexCollection>(cfg.getParameter<InputTag>("InputVertexCollection"));
-  originHalfLength            = cfg.getParameter<double>("originHalfLength");
-  originRadius                = cfg.getParameter<double>("originRadius");
-  useProtoTrackKinematics     = cfg.getParameter<bool>("useProtoTrackKinematics");
-  useEventsWithNoVertex       = cfg.getParameter<bool>("useEventsWithNoVertex");
-  builderName                 = cfg.getParameter<std::string>("TTRHBuilder");
-  usePV_                      = cfg.getParameter<bool>( "usePV" );
+  
+  
+  
 }
 
 

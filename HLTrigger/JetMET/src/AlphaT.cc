@@ -25,7 +25,6 @@ double AlphaT::value_(std::vector<bool> * jet_sign) const {
   // Minimum Delta Et for two pseudo-jets
   double min_delta_sum_et = sum_et;
 
-  //If you want to turn off DHT
   if(setDHtZero_){
     min_delta_sum_et = 0.;
   }else{

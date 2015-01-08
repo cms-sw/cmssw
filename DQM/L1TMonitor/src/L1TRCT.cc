@@ -46,13 +46,6 @@ L1TRCT::L1TRCT(const ParameterSet & ps) :
   if (verbose_)
     std::cout << "L1TRCT: constructor...." << std::endl;
 
-
-  dbe = NULL;
-  if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {
-    dbe = Service < DQMStore > ().operator->();
-    dbe->setVerbose(0);
-  }
-
   outputFile_ =
       ps.getUntrackedParameter < std::string > ("outputFile", "");
   if (outputFile_.size() != 0) {
@@ -66,130 +59,71 @@ L1TRCT::L1TRCT(const ParameterSet & ps) :
   if (disable) {
     outputFile_ = "";
   }
-
-
-  if (dbe != NULL) {
-    dbe->setCurrentFolder("L1T/L1TRCT");
-  }
-
-
 }
 
 L1TRCT::~L1TRCT()
 {
 }
 
-void L1TRCT::beginJob(void)
-{
-  nev_ = 0;
+
+
+void L1TRCT::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
+  //runId_->Fill(r.id().run());
+  //
 }
 
-void L1TRCT::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
+void L1TRCT::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c){
+  //
+  //lumisecId_->Fill(l.id().luminosityBlock());
+}
+
+
+void L1TRCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&)
 {
-  //Only histograms booking
+  nev_ = 0;
+  
+  ibooker.setCurrentFolder("L1T/L1TRCT");
 
-  // get hold of back-end interface
-  DQMStore *dbe = 0;
-  dbe = Service < DQMStore > ().operator->();
+  runId_=ibooker.bookInt("iRun");
+  runId_->Fill(-1);
+  lumisecId_=ibooker.bookInt("lumiSection");
+  lumisecId_->Fill(-1);
+  
 
-  if (dbe) {
-    dbe->setCurrentFolder("L1T/L1TRCT");
+  triggerType_ = ibooker.book1D("TriggerType", "TriggerType", 17, -0.5, 16.5);
 
-    triggerType_ =
-      dbe->book1D("TriggerType", "TriggerType", 17, -0.5, 16.5);
-
-    rctIsoEmEtEtaPhi_ =
-	dbe->book2D("RctEmIsoEmEtEtaPhi", "ISO EM E_{T}", ETABINS, ETAMIN,
-		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-    rctIsoEmOccEtaPhi_ =
-	dbe->book2D("RctEmIsoEmOccEtaPhi", "ISO EM OCCUPANCY", ETABINS,
-		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-    rctNonIsoEmEtEtaPhi_ =
-	dbe->book2D("RctEmNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}", ETABINS,
-		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-    rctNonIsoEmOccEtaPhi_ =
-	dbe->book2D("RctEmNonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",
-		    ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctIsoEmEtEtaPhi_ =	ibooker.book2D("RctEmIsoEmEtEtaPhi", "ISO EM E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctIsoEmOccEtaPhi_ = ibooker.book2D("RctEmIsoEmOccEtaPhi", "ISO EM OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctNonIsoEmEtEtaPhi_ = ibooker.book2D("RctEmNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctNonIsoEmOccEtaPhi_ = ibooker.book2D("RctEmNonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     // global regions
-    rctRegionsEtEtaPhi_ =
-	dbe->book2D("RctRegionsEtEtaPhi", "REGION E_{T}", ETABINS, ETAMIN,
-		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-    rctRegionsOccEtaPhi_ =
-	dbe->book2D("RctRegionsOccEtaPhi", "REGION OCCUPANCY", ETABINS,
-		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctRegionsEtEtaPhi_ = ibooker.book2D("RctRegionsEtEtaPhi", "REGION E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctRegionsOccEtaPhi_ = ibooker.book2D("RctRegionsOccEtaPhi", "REGION OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctOverFlowEtaPhi_ =
-	dbe->book2D("RctBitOverFlowEtaPhi", "OVER FLOW OCCUPANCY", ETABINS,
-		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctOverFlowEtaPhi_ = ibooker.book2D("RctBitOverFlowEtaPhi", "OVER FLOW OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctTauVetoEtaPhi_ =
-	dbe->book2D("RctBitTauVetoEtaPhi", "TAU VETO OCCUPANCY", ETABINS,
-		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctTauVetoEtaPhi_ = ibooker.book2D("RctBitTauVetoEtaPhi", "TAU VETO OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctMipEtaPhi_ =
-	dbe->book2D("RctBitMipEtaPhi", "MIP OCCUPANCY", ETABINS,
-		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctMipEtaPhi_ = ibooker.book2D("RctBitMipEtaPhi", "MIP OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctQuietEtaPhi_ =
-	dbe->book2D("RctBitQuietEtaPhi", "QUIET OCCUPANCY", ETABINS,
-		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctQuietEtaPhi_ = ibooker.book2D("RctBitQuietEtaPhi", "QUIET OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctHfPlusTauEtaPhi_ =
-	dbe->book2D("RctBitHfPlusTauEtaPhi", "HF plus Tau OCCUPANCY", ETABINS,
-		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctHfPlusTauEtaPhi_ = ibooker.book2D("RctBitHfPlusTauEtaPhi", "HF plus Tau OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    // local regions
-/*
-    const int nlocphibins = 2; 
-    const float locphimin = -0.5;
-    const float locphimax = 1.5;
-    const int nlocetabins = 11;
-    const float locetamin = -0.5;
-    const float locetamax = 10.5;
-    rctRegionsLocalEtEtaPhi_ =
-	dbe->book2D("RctRegionsLocalEtEtaPhi", "REGION E_{T} (Local)", 
-		    nlocetabins, locetamin, locetamax,
-		    nlocphibins, locphimin, locphimax);
-    rctRegionsLocalOccEtaPhi_ =
-	dbe->book2D("RctRegionsLocalOccEtaPhi", "REGION OCCUPANCY (Local)", 
-		    nlocetabins, locetamin, locetamax,
-		    nlocphibins, locphimin, locphimax);
-    rctTauVetoLocalEtaPhi_ =
-	dbe->book2D("RctTauLocalVetoEtaPhi", "TAU VETO OCCUPANCY (Local)",
-		    nlocetabins, locetamin, locetamax,
-		    nlocphibins, locphimin, locphimax);
-*/
     // rank histos
-    rctRegionRank_ =
-	dbe->book1D("RctRegionRank", "REGION RANK", R10BINS, R10MIN,
-		    R10MAX);
-    rctIsoEmRank_ =
-	dbe->book1D("RctEmIsoEmRank", "ISO EM RANK", R6BINS, R6MIN, R6MAX);
-    rctNonIsoEmRank_ =
-	dbe->book1D("RctEmNonIsoEmRank", "NON-ISO EM RANK", R6BINS, R6MIN,
-		    R6MAX);
+  rctRegionRank_ = ibooker.book1D("RctRegionRank", "REGION RANK", R10BINS, R10MIN, R10MAX);
+  rctIsoEmRank_ = ibooker.book1D("RctEmIsoEmRank", "ISO EM RANK", R6BINS, R6MIN, R6MAX);
+  rctNonIsoEmRank_ = ibooker.book1D("RctEmNonIsoEmRank", "NON-ISO EM RANK", R6BINS, R6MIN, R6MAX);
     // hw coordinates
 //    rctEmCardRegion_ = dbe->book1D("rctEmCardRegion", "Em Card * Region",
 //				   256, -127.5, 127.5);
 
     // bx histos
-    rctRegionBx_ = dbe->book1D("RctRegionBx", "Region BX", 256, -0.5, 4095.5);
-    rctEmBx_ = dbe->book1D("RctEmBx", "EM BX", 256, -0.5, 4095.5);
+  rctRegionBx_ = ibooker.book1D("RctRegionBx", "Region BX", 256, -0.5, 4095.5);
+  rctEmBx_ = ibooker.book1D("RctEmBx", "EM BX", 256, -0.5, 4095.5);
  
-  }
-}
-
-void L1TRCT::endJob(void)
-{
-  if (verbose_)
-    std::cout << "L1TRCT: end job...." << std::endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events";
-
-  if (outputFile_.size() != 0 && dbe)
-    dbe->save(outputFile_);
-
-  return;
+  //}
 }
 
 void L1TRCT::analyze(const Event & e, const EventSetup & c)

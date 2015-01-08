@@ -57,7 +57,7 @@ class SimTrack;
 
 
 
-class PhotonValidator : public thread_unsafe::DQMEDAnalyzer
+class PhotonValidator : public DQMEDAnalyzer
 {
 
  public:
@@ -71,7 +71,6 @@ class PhotonValidator : public thread_unsafe::DQMEDAnalyzer
   //  virtual void beginJob();
   virtual void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) override;
   virtual void endRun (edm::Run const& r, edm::EventSetup const & es) override;
-  virtual void endJob() override;
   void  bookHistograms( DQMStore::IBooker&, edm::Run const &, edm::EventSetup const &) override; 
 
  private:

@@ -21,30 +21,13 @@ L1TGT::L1TGT(const edm::ParameterSet& ps) :
             gtEvmSource_(consumes<L1GlobalTriggerEvmReadoutRecord>(ps.getParameter<edm::InputTag> ("gtEvmSource"))),
             m_runInEventLoop(ps.getUntrackedParameter<bool>("runInEventLoop", false)),
             m_runInEndLumi(ps.getUntrackedParameter<bool>("runInEndLumi", false)),
-            m_runInEndRun(ps.getUntrackedParameter<bool>("runInEndRun", false)),
-            m_runInEndJob(ps.getUntrackedParameter<bool>("runInEndJob", false)),
             verbose_(ps.getUntrackedParameter<bool> ("verbose", false)),
-            m_dbe(0),
-            //
             m_nrEvJob(0), m_nrEvRun(0),
             preGps_(0ULL), preOrb_(0ULL)
 {
 
     m_histFolder = ps.getUntrackedParameter<std::string> ("HistFolder",
             "L1T/L1TGT");
-
-    m_dbe = edm::Service<DQMStore>().operator->();
-    if (m_dbe == 0) {
-        edm::LogInfo("L1TGT") << "\n Unable to get DQMStore service.";
-    } else {
-
-        m_dbe->setVerbose(0);
-        m_dbe->setCurrentFolder(m_histFolder);
-
-    }
-
-    // reserve space for 1000 LS
-    m_pairLsNumberPfIndex.reserve(1000);
 }
 
 L1TGT::~L1TGT() {
@@ -52,50 +35,242 @@ L1TGT::~L1TGT() {
     // empty
 }
 
-void L1TGT::beginJob() {
 
-    m_nrEvJob = 0;
 
-    preGps_ = 0ULL;
-    preOrb_ = 0ULL;
+void L1TGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) {
 
-}
+    runId_=ibooker.bookInt("iRun");
+    runId_->Fill(-1);
+    runStartTimeStamp_=ibooker.bookFloat("eventTimeStamp");
 
-void L1TGT::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) {
+    lumisecId_ = ibooker.bookInt("iLumiSection");
+    lumisecId_->Fill(-1);
 
-    m_nrEvRun = 0;
-
-    m_dbe = edm::Service<DQMStore>().operator->();
-
-    if (m_dbe == 0) {
-        edm::LogInfo("L1TGT") << "\n Unable to get DQMStore service.";
-    } else {
-
-        // clean up directory
-        m_dbe->setCurrentFolder(m_histFolder);
-        if (m_dbe->dirExists(m_histFolder)) {
-            m_dbe->rmdir(m_histFolder);
-        }
-
-        m_dbe->setCurrentFolder(m_histFolder);
-
-    }
+    ibooker.setCurrentFolder(m_histFolder);
 
     // book histograms
-    bookHistograms();
+    const int TotalNrBinsLs = 1000;
+    const double totalNrBinsLs = static_cast<double>(TotalNrBinsLs);
 
+    ibooker.setCurrentFolder(m_histFolder);
+
+    algo_bits = ibooker.book1D("algo_bits", "GT algorithm trigger bits", 128, -0.5, 127.5);
+    algo_bits->setAxisTitle("Algorithm trigger bits", 1);
+
+    algo_bits_corr = ibooker.book2D("algo_bits_corr","GT algorithm trigger bit correlation", 128, -0.5, 127.5, 128, -0.5, 127.5);
+    algo_bits_corr->setAxisTitle("Algorithm trigger bits", 1);
+    algo_bits_corr->setAxisTitle("Algorithm trigger bits", 2);
+
+    tt_bits = ibooker.book1D("tt_bits", "GT technical trigger bits", 64, -0.5, 63.5);
+    tt_bits->setAxisTitle("Technical trigger bits", 1);
+
+    tt_bits_corr = ibooker.book2D("tt_bits_corr",
+                "GT technical trigger bit correlation",
+                64, -0.5, 63.5, 64, -0.5, 63.5);
+    tt_bits_corr->setAxisTitle("Technical trigger bits", 1);
+    tt_bits_corr->setAxisTitle("Technical trigger bits", 2);
+
+    algo_tt_bits_corr = ibooker.book2D("algo_tt_bits_corr",
+                "GT algorithm - technical trigger bit correlation",
+                128, -0.5, 127.5, 64, -0.5, 63.5);
+    algo_tt_bits_corr->setAxisTitle("Algorithm trigger bits", 1);
+    algo_tt_bits_corr->setAxisTitle("Technical trigger bits", 2);
+
+    algo_bits_lumi = ibooker.book2D("algo_bits_lumi",
+                "GT algorithm trigger bit rate per LS",
+                TotalNrBinsLs, 0., totalNrBinsLs, 128, -0.5, 127.5);
+    algo_bits_lumi->setAxisTitle("Luminosity segment", 1);
+    algo_bits_lumi->setAxisTitle("Algorithm trigger bits", 2);
+
+    tt_bits_lumi = ibooker.book2D("tt_bits_lumi",
+                "GT technical trigger bit rate per LS",
+                TotalNrBinsLs, 0., totalNrBinsLs, 64, -0.5, 63.5);
+    tt_bits_lumi->setAxisTitle("Luminosity segment", 1);
+    tt_bits_lumi->setAxisTitle("Technical trigger bits", 2);
+
+    event_type = ibooker.book1D("event_type", "GT event type", 10, -0.5, 9.5);
+    event_type->setAxisTitle("Event type", 1);
+    event_type->setBinLabel(2, "Physics", 1);
+    event_type->setBinLabel(3, "Calibration", 1);
+    event_type->setBinLabel(4, "Random", 1);
+    event_type->setBinLabel(6, "Traced", 1);
+    event_type->setBinLabel(7, "Test", 1);
+    event_type->setBinLabel(8, "Error", 1);
+
+    event_number = ibooker.book1D("event_number",
+                "GT event number (from last resync)",
+                100, 0., 50000.);
+    event_number->setAxisTitle("Event number", 1);
+
+    event_lumi = ibooker.bookProfile("event_lumi",
+                "GT event number (from last resync) vs LS",
+                TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 1.e15, "s");
+    event_lumi->setAxisTitle("Luminosity segment", 1);
+    event_lumi->setAxisTitle("Event number", 2);
+
+    trigger_number = ibooker.book1D("trigger_number",
+                "GT trigger number (from start run)",
+                100, 0., 50000.);
+    trigger_number->setAxisTitle("Trigger number", 1);
+
+    trigger_lumi = ibooker.bookProfile("trigger_lumi",
+                "GT trigger number (from start run) vs LS",
+                TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 1.e15, "s");
+    trigger_lumi->setAxisTitle("Luminosity segment", 1);
+    trigger_lumi->setAxisTitle("Trigger number", 2);
+
+    evnum_trignum_lumi = ibooker.bookProfile("evnum_trignum_lumi",
+                "GT event/trigger number ratio vs LS",
+                TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 2., "s");
+    evnum_trignum_lumi->setAxisTitle("Luminosity segment", 1);
+    evnum_trignum_lumi->setAxisTitle("Event/trigger number ratio", 2);
+
+    orbit_lumi = ibooker.bookProfile("orbit_lumi",
+                "GT orbit number vs LS",
+                TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 1.e15, "s");
+    orbit_lumi->setAxisTitle("Luminosity segment", 1);
+    orbit_lumi->setAxisTitle("Orbit number", 2);
+
+    setupversion_lumi = ibooker.bookProfile("setupversion_lumi",
+                "GT setup version vs LS",
+                TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 1.e10, "i");
+    setupversion_lumi->setAxisTitle("Luminosity segment", 1);
+    setupversion_lumi->setAxisTitle("Setup version", 2);
+
+    gtfe_bx = ibooker.book1D("gtfe_bx", "GTFE Bx number", 3600, 0., 3600.);
+    gtfe_bx->setAxisTitle("GTFE BX number", 1);
+  
+    dbx_module = ibooker.bookProfile("dbx_module", "delta Bx of GT modules wrt GTFE", 20, 0., 20., 100, -4000., 4000., "i");
+    dbx_module->setAxisTitle("GT crate module", 1);
+    dbx_module->setAxisTitle("Module Bx - GTFE Bx", 2);
+    dbx_module->setBinLabel(1, "GTFEevm", 1);
+    dbx_module->setBinLabel(2, "TCS", 1);
+    dbx_module->setBinLabel(3, "FDL", 1);
+    dbx_module->setBinLabel(4, "FDLloc", 1);
+    dbx_module->setBinLabel(5, "PSB9", 1);
+    dbx_module->setBinLabel(6, "PSB9loc", 1);
+    dbx_module->setBinLabel(7, "PSB13", 1);
+    dbx_module->setBinLabel(8, "PSB13loc", 1);
+    dbx_module->setBinLabel(9, "PSB14", 1);
+    dbx_module->setBinLabel(10, "PSB14loc", 1);
+    dbx_module->setBinLabel(11, "PSB15", 1);
+    dbx_module->setBinLabel(12, "PSB15loc", 1);
+    dbx_module->setBinLabel(13, "PSB19", 1);
+    dbx_module->setBinLabel(14, "PSB19loc", 1);
+    dbx_module->setBinLabel(15, "PSB20", 1);
+    dbx_module->setBinLabel(16, "PSB20loc", 1);
+    dbx_module->setBinLabel(17, "PSB21", 1);
+    dbx_module->setBinLabel(18, "PSB21loc", 1);
+    dbx_module->setBinLabel(19, "GMT", 1);
+  
+    BST_MasterStatus = ibooker.book2D("BST_MasterStatus", "BST master status over LS", TotalNrBinsLs, 0., totalNrBinsLs, 6, -1., 5.);
+    BST_MasterStatus->setAxisTitle("Luminosity segment", 1);
+    BST_MasterStatus->setAxisTitle("BST master status", 2);
+    BST_MasterStatus->setBinLabel(2, "Master Beam 1", 2);
+    BST_MasterStatus->setBinLabel(3, "Master Beam 2", 2);
+  
+    BST_turnCountNumber = ibooker.book2D("BST_turnCountNumber", "BST turn count over LS", TotalNrBinsLs, 0., totalNrBinsLs, 250, 0., 4.3e9);
+    BST_turnCountNumber->setAxisTitle("Luminosity segment", 1);
+    BST_turnCountNumber->setAxisTitle("BST turn count number", 2);
+  
+    BST_lhcFillNumber = ibooker.book1D("BST_lhcFillNumber", "BST LHC fill number % 1000", 1000, 0., 1000.);
+    BST_lhcFillNumber->setAxisTitle("BST LHC fill number modulo 1000");
+  
+    BST_beamMode = ibooker.book2D("BST_beamMode", "BST beam mode over LS", TotalNrBinsLs, 0., totalNrBinsLs, 25, 1., 26.);
+    BST_beamMode->setAxisTitle("Luminosity segment", 1);
+    BST_beamMode->setAxisTitle("Mode", 2);
+    BST_beamMode->setBinLabel(1, "No mode", 2);
+    BST_beamMode->setBinLabel(2, "Setup", 2);
+    BST_beamMode->setBinLabel(3, "Inj pilot", 2);
+    BST_beamMode->setBinLabel(4, "Inj intr", 2);
+    BST_beamMode->setBinLabel(5, "Inj nomn", 2);
+    BST_beamMode->setBinLabel(6, "Pre ramp", 2);
+    BST_beamMode->setBinLabel(7, "Ramp", 2);
+    BST_beamMode->setBinLabel(8, "Flat top", 2);
+    BST_beamMode->setBinLabel(9, "Squeeze", 2);
+    BST_beamMode->setBinLabel(10, "Adjust", 2);
+    BST_beamMode->setBinLabel(11, "Stable", 2);
+    BST_beamMode->setBinLabel(12, "Unstable", 2);
+    BST_beamMode->setBinLabel(13, "Beam dump", 2);
+    BST_beamMode->setBinLabel(14, "Ramp down", 2);
+    BST_beamMode->setBinLabel(15, "Recovery", 2);
+    BST_beamMode->setBinLabel(16, "Inj dump", 2);
+    BST_beamMode->setBinLabel(17, "Circ dump", 2);
+    BST_beamMode->setBinLabel(18, "Abort", 2);
+    BST_beamMode->setBinLabel(19, "Cycling", 2);
+    BST_beamMode->setBinLabel(20, "Warn beam dump", 2);
+    BST_beamMode->setBinLabel(21, "No beam", 2);
+  
+    BST_beamMomentum = ibooker.book2D("BST_beamMomentum", "BST beam momentum", TotalNrBinsLs, 0., totalNrBinsLs, 100, 0., 7200.);
+    BST_beamMomentum->setAxisTitle("Luminosity segment", 1);
+    BST_beamMomentum->setAxisTitle("Beam momentum", 2);
+  
+    gpsfreq = ibooker.book1D("gpsfreq", "Clock frequency measured by GPS", 1000, 39.95, 40.2);
+    gpsfreq->setAxisTitle("CMS clock frequency (MHz)");
+  
+    gpsfreqwide = ibooker.book1D("gpsfreqwide", "Clock frequency measured by GPS", 1000, -2., 200.);
+    gpsfreqwide->setAxisTitle("CMS clock frequency (MHz)");
+  
+    gpsfreqlum = ibooker.book2D("gpsfreqlum", "Clock frequency measured by GPS", TotalNrBinsLs, 0., totalNrBinsLs, 100, 39.95, 40.2);
+    gpsfreqlum->setAxisTitle("Luminosity segment", 1);
+    gpsfreqlum->setAxisTitle("CMS clock frequency (MHz)", 2);
+  
+    BST_intensityBeam1 = ibooker.book2D("BST_intensityBeam1", "Intensity beam 1", TotalNrBinsLs, 0., totalNrBinsLs, 1000, 0., 5000.);
+    BST_intensityBeam1->setAxisTitle("Luminosity segment", 1);
+    BST_intensityBeam1->setAxisTitle("Beam intensity", 2);
+  
+    BST_intensityBeam2 = ibooker.book2D("BST_intensityBeam2", "Intensity beam 2", TotalNrBinsLs, 0., totalNrBinsLs, 1000, 0., 5000.);
+    BST_intensityBeam2->setAxisTitle("Luminosity segment", 1);
+    BST_intensityBeam2->setAxisTitle("Beam intensity", 2);
+  
+          // prescale factor index monitoring
+  
+    m_monL1PrescaleFactorSet = ibooker.book2D("L1PrescaleFactorSet", "Index of L1 prescale factor set", TotalNrBinsLs, 0., totalNrBinsLs, 25, 0., 25.);
+    m_monL1PrescaleFactorSet->setAxisTitle("Luminosity segment", 1);
+    m_monL1PrescaleFactorSet->setAxisTitle("L1 PF set index", 2);
+    m_monL1PfIndicesPerLs = ibooker.book1D("L1PfIndicesPerLs", "Number of prescale factor indices used per LS", 10, 0., 10.);
+    m_monL1PfIndicesPerLs->setAxisTitle("Number of PF indices used per LS", 1);
+    m_monL1PfIndicesPerLs->setAxisTitle("Entries", 2);
+  
+  
+          // TCS vs FDL common quantity monitoring
+  
+    ibooker.setCurrentFolder(m_histFolder + "/TCSvsEvmFDL");
+  
+          //    orbit number
+    m_monOrbitNrDiffTcsFdlEvm = ibooker.book1D("OrbitNrDiffTcsFdlEvm", "Orbit number difference (TCS - EVM_FDL)",  2 * MaxOrbitNrDiffTcsFdlEvm + 1, static_cast<float>(-(MaxOrbitNrDiffTcsFdlEvm + 1)), static_cast<float>(MaxOrbitNrDiffTcsFdlEvm + 1));
+    m_monOrbitNrDiffTcsFdlEvm->setAxisTitle("Orbit number difference", 1);
+    m_monOrbitNrDiffTcsFdlEvm->setAxisTitle("Entries/run", 2);
+    m_monLsNrDiffTcsFdlEvm = ibooker.book1D("LsNrDiffTcsFdlEvm", "LS number difference (TCS - EVM_FDL)", 2 * MaxLsNrDiffTcsFdlEvm + 1, static_cast<float>(-(MaxLsNrDiffTcsFdlEvm + 1)),  static_cast<float>(MaxLsNrDiffTcsFdlEvm + 1));
+    m_monLsNrDiffTcsFdlEvm->setAxisTitle("LS number difference", 1);
+    m_monLsNrDiffTcsFdlEvm->setAxisTitle("Entries/run", 2);
+  
+          //    LS number
+    m_monOrbitNrDiffTcsFdlEvmLs = ibooker.book2D("OrbitNrDiffTcsFdlEvmLs", "Orbit number difference (TCS - EVM_FDL)", TotalNrBinsLs, 0., totalNrBinsLs, 2 * MaxOrbitNrDiffTcsFdlEvm + 1, static_cast<float>(-(MaxOrbitNrDiffTcsFdlEvm + 1)),  static_cast<float>(MaxOrbitNrDiffTcsFdlEvm + 1));
+    m_monOrbitNrDiffTcsFdlEvmLs->setAxisTitle("Luminosity segment", 1);
+    m_monOrbitNrDiffTcsFdlEvmLs->setAxisTitle("Orbit number difference (TCS - EVM_FDL)", 2);
+  
+    m_monLsNrDiffTcsFdlEvmLs = ibooker.book2D("LsNrDiffTcsFdlEvmLs",  "LS number difference (TCS - EVM_FDL)", TotalNrBinsLs, 0., totalNrBinsLs, 2 * MaxLsNrDiffTcsFdlEvm + 1, static_cast<float>(-(MaxLsNrDiffTcsFdlEvm + 1)), static_cast<float>(MaxLsNrDiffTcsFdlEvm + 1));
+    m_monLsNrDiffTcsFdlEvmLs->setAxisTitle("Luminosity segment", 1);
+    m_monLsNrDiffTcsFdlEvmLs->setAxisTitle("LS number difference (TCS - EVM_FDL)", 2);
+  
+    ibooker.setCurrentFolder(m_histFolder);
     // clear bookkeeping for prescale factor change
     m_pairLsNumberPfIndex.clear();
 
 }
 
-void L1TGT::beginLuminosityBlock(const edm::LuminosityBlock& iLumi,
-        const edm::EventSetup& evSetup) {
-
-    //
-
+void L1TGT::dqmBeginRun(edm::Run const& iRrun, edm::EventSetup const& evSetup) {
+  //runId_->Fill(iRrun.id().run());
+  m_nrEvRun = 0;
 }
 
+
+void L1TGT::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& evSetup) {
+
+  //lumisecId_->Fill(iLumi.id().luminosityBlock());
+
+}
 
 //
 void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
@@ -454,292 +629,6 @@ void L1TGT::endLuminosityBlock(const edm::LuminosityBlock& iLumi,
     if (m_runInEndLumi) {
         countPfsIndicesPerLs();
     }
-}
-
-void L1TGT::endRun(const edm::Run& iRrun, const edm::EventSetup& evSetup) {
-
-    if (m_runInEndRun) {
-        countPfsIndicesPerLs();
-    }
-
-}
-
-
-void L1TGT::endJob() {
-
-    if (m_runInEndJob) {
-        countPfsIndicesPerLs();
-    }
-
-    if (verbose_) {
-        edm::LogInfo("L1TGT") << "\n Analyzed " << m_nrEvJob << " events";
-    }
-
-    return;
-}
-
-
-// book all histograms for the module
-void L1TGT::bookHistograms() {
-
-    const int TotalNrBinsLs = 1000;
-    const double totalNrBinsLs = static_cast<double>(TotalNrBinsLs);
-
-    if (m_dbe) {
-        m_dbe->setCurrentFolder(m_histFolder);
-
-        algo_bits = m_dbe->book1D("algo_bits", "GT algorithm trigger bits", 128, -0.5, 127.5);
-        algo_bits->setAxisTitle("Algorithm trigger bits", 1);
-
-        algo_bits_corr = m_dbe->book2D("algo_bits_corr",
-                "GT algorithm trigger bit correlation",
-                128, -0.5, 127.5, 128, -0.5, 127.5);
-        algo_bits_corr->setAxisTitle("Algorithm trigger bits", 1);
-        algo_bits_corr->setAxisTitle("Algorithm trigger bits", 2);
-
-        tt_bits = m_dbe->book1D("tt_bits",
-                "GT technical trigger bits",
-                64, -0.5, 63.5);
-        tt_bits->setAxisTitle("Technical trigger bits", 1);
-
-        tt_bits_corr = m_dbe->book2D("tt_bits_corr",
-                "GT technical trigger bit correlation",
-                64, -0.5, 63.5, 64, -0.5, 63.5);
-        tt_bits_corr->setAxisTitle("Technical trigger bits", 1);
-        tt_bits_corr->setAxisTitle("Technical trigger bits", 2);
-
-        algo_tt_bits_corr = m_dbe->book2D("algo_tt_bits_corr",
-                "GT algorithm - technical trigger bit correlation",
-                128, -0.5, 127.5, 64, -0.5, 63.5);
-        algo_tt_bits_corr->setAxisTitle("Algorithm trigger bits", 1);
-        algo_tt_bits_corr->setAxisTitle("Technical trigger bits", 2);
-
-        algo_bits_lumi = m_dbe->book2D("algo_bits_lumi",
-                "GT algorithm trigger bit rate per LS",
-                TotalNrBinsLs, 0., totalNrBinsLs, 128, -0.5, 127.5);
-        algo_bits_lumi->setAxisTitle("Luminosity segment", 1);
-        algo_bits_lumi->setAxisTitle("Algorithm trigger bits", 2);
-
-        tt_bits_lumi = m_dbe->book2D("tt_bits_lumi",
-                "GT technical trigger bit rate per LS",
-                TotalNrBinsLs, 0., totalNrBinsLs, 64, -0.5, 63.5);
-        tt_bits_lumi->setAxisTitle("Luminosity segment", 1);
-        tt_bits_lumi->setAxisTitle("Technical trigger bits", 2);
-
-        event_type = m_dbe->book1D("event_type", "GT event type", 10, -0.5, 9.5);
-        event_type->setAxisTitle("Event type", 1);
-        event_type->setBinLabel(2, "Physics", 1);
-        event_type->setBinLabel(3, "Calibration", 1);
-        event_type->setBinLabel(4, "Random", 1);
-        event_type->setBinLabel(6, "Traced", 1);
-        event_type->setBinLabel(7, "Test", 1);
-        event_type->setBinLabel(8, "Error", 1);
-
-        event_number = m_dbe->book1D("event_number",
-                "GT event number (from last resync)",
-                100, 0., 50000.);
-        event_number->setAxisTitle("Event number", 1);
-
-        event_lumi = m_dbe->bookProfile("event_lumi",
-                "GT event number (from last resync) vs LS",
-                TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 1.e15, "s");
-        event_lumi->setAxisTitle("Luminosity segment", 1);
-        event_lumi->setAxisTitle("Event number", 2);
-
-        trigger_number = m_dbe->book1D("trigger_number",
-                "GT trigger number (from start run)",
-                100, 0., 50000.);
-        trigger_number->setAxisTitle("Trigger number", 1);
-
-        trigger_lumi = m_dbe->bookProfile("trigger_lumi",
-                "GT trigger number (from start run) vs LS",
-                TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 1.e15, "s");
-        trigger_lumi->setAxisTitle("Luminosity segment", 1);
-        trigger_lumi->setAxisTitle("Trigger number", 2);
-
-        evnum_trignum_lumi = m_dbe->bookProfile("evnum_trignum_lumi",
-                "GT event/trigger number ratio vs LS",
-                TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 2., "s");
-        evnum_trignum_lumi->setAxisTitle("Luminosity segment", 1);
-        evnum_trignum_lumi->setAxisTitle("Event/trigger number ratio", 2);
-
-        orbit_lumi = m_dbe->bookProfile("orbit_lumi",
-                "GT orbit number vs LS",
-                TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 1.e15, "s");
-        orbit_lumi->setAxisTitle("Luminosity segment", 1);
-        orbit_lumi->setAxisTitle("Orbit number", 2);
-
-        setupversion_lumi = m_dbe->bookProfile("setupversion_lumi",
-                "GT setup version vs LS",
-                TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 1.e10, "i");
-        setupversion_lumi->setAxisTitle("Luminosity segment", 1);
-        setupversion_lumi->setAxisTitle("Setup version", 2);
-
-        gtfe_bx = m_dbe->book1D("gtfe_bx", "GTFE Bx number", 3600, 0., 3600.);
-        gtfe_bx->setAxisTitle("GTFE BX number", 1);
-
-        dbx_module = m_dbe->bookProfile("dbx_module",
-                "delta Bx of GT modules wrt GTFE",
-                20, 0., 20., 100, -4000., 4000., "i");
-        dbx_module->setAxisTitle("GT crate module", 1);
-        dbx_module->setAxisTitle("Module Bx - GTFE Bx", 2);
-        dbx_module->setBinLabel(1, "GTFEevm", 1);
-        dbx_module->setBinLabel(2, "TCS", 1);
-        dbx_module->setBinLabel(3, "FDL", 1);
-        dbx_module->setBinLabel(4, "FDLloc", 1);
-        dbx_module->setBinLabel(5, "PSB9", 1);
-        dbx_module->setBinLabel(6, "PSB9loc", 1);
-        dbx_module->setBinLabel(7, "PSB13", 1);
-        dbx_module->setBinLabel(8, "PSB13loc", 1);
-        dbx_module->setBinLabel(9, "PSB14", 1);
-        dbx_module->setBinLabel(10, "PSB14loc", 1);
-        dbx_module->setBinLabel(11, "PSB15", 1);
-        dbx_module->setBinLabel(12, "PSB15loc", 1);
-        dbx_module->setBinLabel(13, "PSB19", 1);
-        dbx_module->setBinLabel(14, "PSB19loc", 1);
-        dbx_module->setBinLabel(15, "PSB20", 1);
-        dbx_module->setBinLabel(16, "PSB20loc", 1);
-        dbx_module->setBinLabel(17, "PSB21", 1);
-        dbx_module->setBinLabel(18, "PSB21loc", 1);
-        dbx_module->setBinLabel(19, "GMT", 1);
-
-        BST_MasterStatus = m_dbe->book2D("BST_MasterStatus",
-                "BST master status over LS",
-                TotalNrBinsLs, 0., totalNrBinsLs, 6, -1., 5.);
-        BST_MasterStatus->setAxisTitle("Luminosity segment", 1);
-        BST_MasterStatus->setAxisTitle("BST master status", 2);
-        BST_MasterStatus->setBinLabel(2, "Master Beam 1", 2);
-        BST_MasterStatus->setBinLabel(3, "Master Beam 2", 2);
-
-        BST_turnCountNumber = m_dbe->book2D("BST_turnCountNumber",
-                "BST turn count over LS",
-                TotalNrBinsLs, 0., totalNrBinsLs, 250, 0., 4.3e9);
-        BST_turnCountNumber->setAxisTitle("Luminosity segment", 1);
-        BST_turnCountNumber->setAxisTitle("BST turn count number", 2);
-
-        BST_lhcFillNumber = m_dbe->book1D("BST_lhcFillNumber",
-                "BST LHC fill number % 1000", 1000, 0., 1000.);
-        BST_lhcFillNumber->setAxisTitle("BST LHC fill number modulo 1000");
-
-        BST_beamMode = m_dbe->book2D("BST_beamMode",
-                "BST beam mode over LS",
-                TotalNrBinsLs, 0., totalNrBinsLs, 25, 1., 26.);
-        BST_beamMode->setAxisTitle("Luminosity segment", 1);
-        BST_beamMode->setAxisTitle("Mode", 2);
-        BST_beamMode->setBinLabel(1, "No mode", 2);
-        BST_beamMode->setBinLabel(2, "Setup", 2);
-        BST_beamMode->setBinLabel(3, "Inj pilot", 2);
-        BST_beamMode->setBinLabel(4, "Inj intr", 2);
-        BST_beamMode->setBinLabel(5, "Inj nomn", 2);
-        BST_beamMode->setBinLabel(6, "Pre ramp", 2);
-        BST_beamMode->setBinLabel(7, "Ramp", 2);
-        BST_beamMode->setBinLabel(8, "Flat top", 2);
-        BST_beamMode->setBinLabel(9, "Squeeze", 2);
-        BST_beamMode->setBinLabel(10, "Adjust", 2);
-        BST_beamMode->setBinLabel(11, "Stable", 2);
-        BST_beamMode->setBinLabel(12, "Unstable", 2);
-        BST_beamMode->setBinLabel(13, "Beam dump", 2);
-        BST_beamMode->setBinLabel(14, "Ramp down", 2);
-        BST_beamMode->setBinLabel(15, "Recovery", 2);
-        BST_beamMode->setBinLabel(16, "Inj dump", 2);
-        BST_beamMode->setBinLabel(17, "Circ dump", 2);
-        BST_beamMode->setBinLabel(18, "Abort", 2);
-        BST_beamMode->setBinLabel(19, "Cycling", 2);
-        BST_beamMode->setBinLabel(20, "Warn beam dump", 2);
-        BST_beamMode->setBinLabel(21, "No beam", 2);
-
-        BST_beamMomentum = m_dbe->book2D("BST_beamMomentum",
-                "BST beam momentum",
-                TotalNrBinsLs, 0., totalNrBinsLs, 100, 0., 7200.);
-        BST_beamMomentum->setAxisTitle("Luminosity segment", 1);
-        BST_beamMomentum->setAxisTitle("Beam momentum", 2);
-
-        gpsfreq = m_dbe->book1D("gpsfreq", "Clock frequency measured by GPS",
-                1000, 39.95, 40.2);
-        gpsfreq->setAxisTitle("CMS clock frequency (MHz)");
-
-        gpsfreqwide = m_dbe->book1D("gpsfreqwide",
-                "Clock frequency measured by GPS", 1000, -2., 200.);
-        gpsfreqwide->setAxisTitle("CMS clock frequency (MHz)");
-
-        gpsfreqlum = m_dbe->book2D("gpsfreqlum",
-                "Clock frequency measured by GPS",
-                TotalNrBinsLs, 0., totalNrBinsLs, 100, 39.95, 40.2);
-        gpsfreqlum->setAxisTitle("Luminosity segment", 1);
-        gpsfreqlum->setAxisTitle("CMS clock frequency (MHz)", 2);
-
-        BST_intensityBeam1 = m_dbe->book2D("BST_intensityBeam1",
-                "Intensity beam 1",
-                TotalNrBinsLs, 0., totalNrBinsLs, 1000, 0., 5000.);
-        BST_intensityBeam1->setAxisTitle("Luminosity segment", 1);
-        BST_intensityBeam1->setAxisTitle("Beam intensity", 2);
-
-        BST_intensityBeam2 = m_dbe->book2D("BST_intensityBeam2",
-                "Intensity beam 2",
-                TotalNrBinsLs, 0., totalNrBinsLs, 1000, 0., 5000.);
-        BST_intensityBeam2->setAxisTitle("Luminosity segment", 1);
-        BST_intensityBeam2->setAxisTitle("Beam intensity", 2);
-
-        // prescale factor index monitoring
-
-        m_monL1PrescaleFactorSet = m_dbe->book2D("L1PrescaleFactorSet",
-                "Index of L1 prescale factor set",
-                TotalNrBinsLs, 0., totalNrBinsLs, 25, 0., 25.);
-        m_monL1PrescaleFactorSet->setAxisTitle("Luminosity segment", 1);
-        m_monL1PrescaleFactorSet->setAxisTitle("L1 PF set index", 2);
-
-        m_monL1PfIndicesPerLs = m_dbe->book1D("L1PfIndicesPerLs",
-                "Number of prescale factor indices used per LS", 10, 0., 10.);
-        m_monL1PfIndicesPerLs->setAxisTitle("Number of PF indices used per LS", 1);
-        m_monL1PfIndicesPerLs->setAxisTitle("Entries", 2);
-
-
-        // TCS vs FDL common quantity monitoring
-
-        m_dbe->setCurrentFolder(m_histFolder + "/TCSvsEvmFDL");
-
-        //    orbit number
-        m_monOrbitNrDiffTcsFdlEvm = m_dbe->book1D("OrbitNrDiffTcsFdlEvm",
-                        "Orbit number difference (TCS - EVM_FDL)",
-                        2 * MaxOrbitNrDiffTcsFdlEvm + 1,
-                        static_cast<float>(-(MaxOrbitNrDiffTcsFdlEvm + 1)),
-                        static_cast<float>(MaxOrbitNrDiffTcsFdlEvm + 1));
-        m_monOrbitNrDiffTcsFdlEvm->setAxisTitle("Orbit number difference", 1);
-        m_monOrbitNrDiffTcsFdlEvm->setAxisTitle("Entries/run", 2);
-
-        m_monLsNrDiffTcsFdlEvm = m_dbe->book1D("LsNrDiffTcsFdlEvm",
-                        "LS number difference (TCS - EVM_FDL)",
-                        2 * MaxLsNrDiffTcsFdlEvm + 1,
-                        static_cast<float>(-(MaxLsNrDiffTcsFdlEvm + 1)),
-                        static_cast<float>(MaxLsNrDiffTcsFdlEvm + 1));
-        m_monLsNrDiffTcsFdlEvm->setAxisTitle("LS number difference", 1);
-        m_monLsNrDiffTcsFdlEvm->setAxisTitle("Entries/run", 2);
-
-        //    LS number
-
-        m_monOrbitNrDiffTcsFdlEvmLs = m_dbe->book2D("OrbitNrDiffTcsFdlEvmLs",
-                "Orbit number difference (TCS - EVM_FDL)",
-                TotalNrBinsLs, 0., totalNrBinsLs,
-                2 * MaxOrbitNrDiffTcsFdlEvm + 1,
-                static_cast<float>(-(MaxOrbitNrDiffTcsFdlEvm + 1)),
-                static_cast<float>(MaxOrbitNrDiffTcsFdlEvm + 1));
-        m_monOrbitNrDiffTcsFdlEvmLs->setAxisTitle("Luminosity segment", 1);
-        m_monOrbitNrDiffTcsFdlEvmLs->setAxisTitle("Orbit number difference (TCS - EVM_FDL)", 2);
-
-        m_monLsNrDiffTcsFdlEvmLs = m_dbe->book2D("LsNrDiffTcsFdlEvmLs",
-                "LS number difference (TCS - EVM_FDL)",
-                TotalNrBinsLs, 0., totalNrBinsLs,
-                2 * MaxLsNrDiffTcsFdlEvm + 1,
-                static_cast<float>(-(MaxLsNrDiffTcsFdlEvm + 1)),
-                static_cast<float>(MaxLsNrDiffTcsFdlEvm + 1));
-        m_monLsNrDiffTcsFdlEvmLs->setAxisTitle("Luminosity segment", 1);
-        m_monLsNrDiffTcsFdlEvmLs->setAxisTitle("LS number difference (TCS - EVM_FDL)", 2);
-
-        m_dbe->setCurrentFolder(m_histFolder);
-   }
-
-
-
 }
 
 

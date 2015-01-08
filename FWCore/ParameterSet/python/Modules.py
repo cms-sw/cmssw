@@ -254,7 +254,7 @@ if __name__ == "__main__":
             self.assertEqual(withParam.foo.value(), 1)
             self.assertEqual(withParam.bar.value(), "it")
             self.assertEqual(empty.dumpPython(), "cms.Service(\"Empty\")\n")
-            self.assertEqual(withParam.dumpPython(), "cms.Service(\"Parameterized\",\n    foo = cms.untracked.int32(1),\n    bar = cms.untracked.string(\'it\')\n)\n")
+            self.assertEqual(withParam.dumpPython(), "cms.Service(\"Parameterized\",\n    bar = cms.untracked.string(\'it\'),\n    foo = cms.untracked.int32(1)\n)\n")
         def testSequences(self):
             m = EDProducer("MProducer")
             n = EDProducer("NProducer")

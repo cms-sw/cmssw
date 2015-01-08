@@ -29,16 +29,19 @@
    <class name="EcalSrFlag" ClassVersion="10">
     <version ClassVersion="10" checksum="1550304158"/>
    </class>
-   <class name="EBSrFlag" ClassVersion="10">
+   <class name="EBSrFlag" ClassVersion="11">
+    <version ClassVersion="11" checksum="491809360"/>
     <version ClassVersion="10" checksum="3132891638"/>
    </class>
-   <class name="EESrFlag" ClassVersion="10">
+   <class name="EESrFlag" ClassVersion="11">
+    <version ClassVersion="11" checksum="3823410316"/>
     <version ClassVersion="10" checksum="1563581240"/>
    </class>
    <class name="EcalPnDiodeDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="3691846555"/>
    </class>
-   <class name="EcalMatacqDigi" ClassVersion="10">
+   <class name="EcalMatacqDigi" ClassVersion="11">
+    <version ClassVersion="11" checksum="515819338"/>
     <version ClassVersion="10" checksum="804498184"/>
    </class>
    <class name="std::vector<EcalMGPASample>"/>
@@ -54,16 +57,20 @@
    <class name="std::vector<EcalPnDiodeDigi>"/>
    <class name="std::vector<EcalMatacqDigi>"/>
 
-   <class name="EcalDigiCollection" ClassVersion="10">
+   <class name="EcalDigiCollection" ClassVersion="11">
+    <version ClassVersion="11" checksum="3935588643"/>
     <version ClassVersion="10" checksum="1942146754"/>
    </class>
-   <class name="EBDigiCollection" ClassVersion="10">
+   <class name="EBDigiCollection" ClassVersion="11">
+    <version ClassVersion="11" checksum="2002796583"/>
     <version ClassVersion="10" checksum="3650703276"/>
    </class>
-   <class name="EEDigiCollection" ClassVersion="10">
+   <class name="EEDigiCollection" ClassVersion="11">
+    <version ClassVersion="11" checksum="1785754288"/>
     <version ClassVersion="10" checksum="2146700079"/>
    </class>
-   <class name="ESDigiCollection" ClassVersion="10">
+   <class name="ESDigiCollection" ClassVersion="11">
+    <version ClassVersion="11" checksum="2204546010"/>
     <version ClassVersion="10" checksum="3717953085"/>
    </class>
    <class name="EcalTrigPrimCompactColl" ClassVersion="10">

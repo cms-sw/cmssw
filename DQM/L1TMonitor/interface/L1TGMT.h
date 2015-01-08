@@ -30,6 +30,7 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include <iostream>
 #include <fstream>
@@ -39,7 +40,7 @@
 // class decleration
 //
 
-class L1TGMT : public edm::EDAnalyzer {
+class L1TGMT : public DQMEDAnalyzer {
 
 public:
 
@@ -51,20 +52,16 @@ virtual ~L1TGMT();
 
 protected:
 // Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(void);
 
-// BeginRun
-void beginRun(const edm::Run& r, const edm::EventSetup& c);
-
-// EndJob
-void endJob(void);
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
 
 private:
   // ----------member data ---------------------------
-  DQMStore * dbe;
   
   enum ensubs { DTTF=0, RPCb, CSCTF, RPCf, GMT };
 

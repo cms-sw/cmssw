@@ -33,7 +33,7 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
-#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
+#include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -122,8 +122,8 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 
        const edm::SimTrackContainer* simTracks = &(*theSimTracks);
        const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids();
-       TrackerRecHit theSeedHits;
-       std::vector<TrackerRecHit> outerHits;
+       TrajectorySeedHitCandidate theSeedHits;
+       std::vector<TrajectorySeedHitCandidate> outerHits;
 
        //std::vector<TrajectorySeed>  tmpTS;
        bool isMatch = false;
@@ -153,7 +153,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 
 	       unsigned int outerId = 0;
 	       for( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
-		 theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry, tTopo);
+		 theSeedHits = TrajectorySeedHitCandidate(&(*iterRecHit), theGeometry, tTopo);
 		   unsigned int id = theSeedHits.hit()->geographicalId().rawId();
 		   if( preY < 0 ) {
 		       if( id > outerId ) outerId = id;
@@ -163,7 +163,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 		   }
 	       }
 	       for( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
-		 theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry, tTopo);
+		 theSeedHits = TrajectorySeedHitCandidate(&(*iterRecHit), theGeometry, tTopo);
 		   if( itm->recHit()->hit()->geographicalId().rawId() == theSeedHits.hit()->geographicalId().rawId() ) {
 		       aTrackingRecHit = theSeedHits.hit()->clone();
 	               TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit);
@@ -215,7 +215,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 
 	       unsigned int outerId = 0;
 	       for( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
-		 theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry, tTopo);
+		 theSeedHits = TrajectorySeedHitCandidate(&(*iterRecHit), theGeometry, tTopo);
 		   unsigned int id = theSeedHits.hit()->geographicalId().rawId();
 		   if( preY < 0 ) {
 		       if( id > outerId ) outerId = id;
@@ -225,7 +225,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 		   }
 	       }
 	       for( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
-		 theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry, tTopo);
+		 theSeedHits = TrajectorySeedHitCandidate(&(*iterRecHit), theGeometry, tTopo);
 		   if( outerId == theSeedHits.hit()->geographicalId().rawId() ) {
 		       aTrackingRecHit = theSeedHits.hit()->clone();
 	               TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit);

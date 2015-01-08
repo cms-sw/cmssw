@@ -481,6 +481,20 @@ void testEvent::getByProductID() {
   CPPUNIT_ASSERT(!h.isValid());
   CPPUNIT_ASSERT(h.failedToGet());
   CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+
+  edm::EventBase* baseEvent = currentEvent_.get();
+  handle_t h1;
+  baseEvent->get(wanted, h1);
+  CPPUNIT_ASSERT(h1.isValid());
+  CPPUNIT_ASSERT(h1.id() == wanted);
+  CPPUNIT_ASSERT(h1->value == 1);
+
+  CPPUNIT_ASSERT_THROW(baseEvent->get(invalid, h1), cms::Exception);
+  CPPUNIT_ASSERT(!h1.isValid());
+  CPPUNIT_ASSERT(!baseEvent->get(notpresent, h1));
+  CPPUNIT_ASSERT(!h1.isValid());
+  CPPUNIT_ASSERT(h1.failedToGet());
+  CPPUNIT_ASSERT_THROW(*h1, cms::Exception);
 }
 
 void testEvent::transaction() {

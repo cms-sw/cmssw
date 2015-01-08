@@ -61,9 +61,9 @@ namespace edm {
 
 #ifndef __GCCXML__
     virtual bool isMergeable_() const { return true; }
-    virtual bool mergeProduct_(WrapperBase const* newProduct) { return true; }
+    virtual bool mergeProduct_(WrapperBase const* /* newProduct */) { return true; }
     virtual bool hasIsProductEqual_() const { return true; }
-    virtual bool isProductEqual_(WrapperBase const* newProduct) const { return true; }
+    virtual bool isProductEqual_(WrapperBase const* /* newProduct */) const { return true; }
 #endif
 
     virtual void do_fillView(ProductID const& id,

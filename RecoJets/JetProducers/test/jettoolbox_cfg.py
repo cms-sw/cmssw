@@ -146,29 +146,31 @@ process.out.outputCommands += ['keep *_QJetsAdderAK8_*_*']
 
 process.load('RecoJets.Configuration.RecoPFJets_cff')
 
-patJetsCA8.userData.userFloats.src += ['ca8PFJetsCHSPrunedLinks','ca8PFJetsCHSTrimmedLinks','ca8PFJetsCHSFilteredLinks']
-process.out.outputCommands += ['keep *_ca8PFJetsCHSPrunedLinks_*_*',
-                               'keep *_ca8PFJetsCHSTrimmedLinks_*_*',
-                               'keep *_ca8PFJetsCHSFilteredLinks_*_*']
+patJetsCA8.userData.userFloats.src += ['ca8PFJetsCHSPrunedMass','ca8PFJetsCHSSoftDropMass','ca8PFJetsCHSTrimmedMass','ca8PFJetsCHSFilteredMass']
+process.out.outputCommands += ['keep *_ca8PFJetsCHSPrunedMass_*_*',
+                               'keep *_ca8PFJetsCHSSoftDropMass_*_*',
+                               'keep *_ca8PFJetsCHSTrimmedMass_*_*',
+                               'keep *_ca8PFJetsCHSFilteredMass_*_*']
 
-patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedLinks','ak8PFJetsCHSTrimmedLinks','ak8PFJetsCHSFilteredLinks']
-process.out.outputCommands += ['keep *_ak8PFJetsCHSPrunedLinks_*_*',
-                               'keep *_ak8PFJetsCHSTrimmedLinks_*_*',
-                               'keep *_ak8PFJetsCHSFilteredLinks_*_*']
+patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedMass','ak8PFJetsCHSSoftDropMass','ak8PFJetsCHSTrimmedMass','ak8PFJetsCHSFilteredMass']
+process.out.outputCommands += ['keep *_ak8PFJetsCHSPrunedMass_*_*',
+                               'keep *_ak8PFJetsCHSSoftDropMass_*_*',
+                               'keep *_ak8PFJetsCHSTrimmedMass_*_*',
+                               'keep *_ak8PFJetsCHSFilteredMass_*_*']
 
-process.cmsTopTagPFJetsCHSLinksCA8 = process.ca8PFJetsCHSPrunedLinks.clone()
-process.cmsTopTagPFJetsCHSLinksCA8.src = cms.InputTag("ca8PFJetsCHS")
-process.cmsTopTagPFJetsCHSLinksCA8.matched = cms.InputTag("cmsTopTagPFJetsCHS")
+process.cmsTopTagPFJetsCHSMassCA8 = process.ca8PFJetsCHSPrunedMass.clone()
+process.cmsTopTagPFJetsCHSMassCA8.src = cms.InputTag("ca8PFJetsCHS")
+process.cmsTopTagPFJetsCHSMassCA8.matched = cms.InputTag("cmsTopTagPFJetsCHS")
 
-patJetsCA8.userData.userFloats.src += ['cmsTopTagPFJetsCHSLinksCA8']
-process.out.outputCommands += ['keep *_cmsTopTagPFJetsCHSLinksCA8_*_*']
+patJetsCA8.userData.userFloats.src += ['cmsTopTagPFJetsCHSMassCA8']
+process.out.outputCommands += ['keep *_cmsTopTagPFJetsCHSMassCA8_*_*']
 
-process.cmsTopTagPFJetsCHSLinksAK8 = process.cmsTopTagPFJetsCHSLinksCA8.clone()
-process.cmsTopTagPFJetsCHSLinksAK8.src = cms.InputTag("ak8PFJetsCHS")
-process.cmsTopTagPFJetsCHSLinksAK8.matched = cms.InputTag("cmsTopTagPFJetsCHS")
+process.cmsTopTagPFJetsCHSMassAK8 = process.cmsTopTagPFJetsCHSMassCA8.clone()
+process.cmsTopTagPFJetsCHSMassAK8.src = cms.InputTag("ak8PFJetsCHS")
+process.cmsTopTagPFJetsCHSMassAK8.matched = cms.InputTag("cmsTopTagPFJetsCHS")
 
-patJetsAK8.userData.userFloats.src += ['cmsTopTagPFJetsCHSLinksAK8']
-process.out.outputCommands += ['keep *_cmsTopTagPFJetsCHSLinksAK8_*_*']
+patJetsAK8.userData.userFloats.src += ['cmsTopTagPFJetsCHSMassAK8']
+process.out.outputCommands += ['keep *_cmsTopTagPFJetsCHSMassAK8_*_*']
 
 ####################################################################################################
 

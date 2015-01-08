@@ -39,6 +39,10 @@
 #include "SimGeneral/GFlash/interface/GflashTrajectoryPoint.h"
 #include "SimGeneral/GFlash/interface/GflashHit.h"
 #include "SimGeneral/GFlash/interface/Gflash3Vector.h"
+
+//fastHFShowerLibrary
+#include "FastSimulation/ShowerDevelopment/interface/fastHFShowerLibrary.h"
+
 // STL headers 
 #include <vector>
 #include <iostream>
@@ -92,6 +96,9 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
   thePiKProfile = new GflashPiKShowerProfile(parGflash);
   theProtonProfile = new GflashProtonShowerProfile(parGflash);
   theAntiProtonProfile = new GflashAntiProtonShowerProfile(parGflash);
+
+  // fastHFShowerLibrary
+  theHFShowerLibrary = new fastHFShowerLibrary(fastCalo);
 
   readParameters(fastCalo);
 
@@ -186,6 +193,8 @@ CalorimetryManager::~CalorimetryManager()
   if ( theMuonHcalEffects ) delete theMuonHcalEffects;
 
   if ( theProfile ) delete theProfile;
+
+  if ( theHFShowerLibrary ) delete theHFShowerLibrary;
 }
 
 void CalorimetryManager::reconstruct(RandomEngineAndDistribution const* random)
@@ -234,13 +243,17 @@ void CalorimetryManager::reconstruct(RandomEngineAndDistribution const* random)
 	  
 	if ( myTrack.onEcal() ) 
 	  EMShowerSimulation(myTrack, random);
-	else if ( myTrack.onVFcal() )
-	  reconstructHCAL(myTrack, random);
-	   
+	else if ( myTrack.onVFcal() ) {
+          if(useShowerLibrary) {
+            theHFShowerLibrary->recoHFShowerLibrary(myTrack);  
+            updateHCAL(theHFShowerLibrary->getHitsMap(),myTrack.id());
+          } 
+          else reconstructHCAL(myTrack, random);
+	}   
       } // electron or photon
       else if (pid==13)
 	{
-	  MuonMipSimulation(myTrack, random);
+          MuonMipSimulation(myTrack, random);
 	}
       // Simulate energy smearing for hadrons (i.e., everything 
       // but muons... and SUSY particles that deserve a special 
@@ -682,25 +695,30 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
     // Use HFShower for HF
     if ( !myTrack.onEcal() && !myTrack.onHcal() ) {
       //      std::cout << "CalorimetryManager::HDShowerSimulation(): track entrance = "
-      //		<< myTrack.vfcalEntrance().vertex().X() << " "
-      //		<< myTrack.vfcalEntrance().vertex().Y() << " "
-      //		<< myTrack.vfcalEntrance().vertex().Z() << " "
-      //		<< " , Energy (Gen/Scale) = " << eGen << " " << e << std::endl;
+      //        << myTrack.vfcalEntrance().vertex().X() << " "
+      //        << myTrack.vfcalEntrance().vertex().Y() << " "
+      //        << myTrack.vfcalEntrance().vertex().Z() << " "
+      //        << " , Energy (Gen/Scale) = " << eGen << " " << e << std::endl;
 
       // Warning : We give here the particle energy with the response
       //           but without the resolution/gaussian smearing
       //           For HF, the resolution is due to the PE statistic
 
-      HFShower theShower(random,
-			 &theHDShowerparam,
-			 &myGrid,
-			 &myHcalHitMaker,
-			 onECAL,
-			 eGen);
-			 //			 eGen);
-			 //			 e); // PV Warning : temporarly set the energy to the generated E
+      if(useShowerLibrary) {
+         theHFShowerLibrary->recoHFShowerLibrary(myTrack);  
+         status = true;
+      } else {
+        HFShower theShower(random,
+	    		   &theHDShowerparam,
+	  		   &myGrid,
+			   &myHcalHitMaker,
+			   onECAL,
+			   eGen);
+			   //			 eGen);
+			   //			 e); // PV Warning : temporarly set the energy to the generated E
 
-      status = theShower.compute();
+        status = theShower.compute();
+      }
     } else { 
       if(hdSimMethod_ == 0) {
 	HDShower theShower(random,
@@ -801,7 +819,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
       }
 
       double correction = emeas / eGen;
-      
+
       // RespCorrP factors (ECAL and HCAL separately) calculation
       respCorr(eint);     
 
@@ -821,7 +839,11 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
 	  }
 
       // Save HCAL hits
-	  updateHCAL(myHcalHitMaker.getHits(),myTrack.id(),correction*hcorr);
+      if(myTrack.onVFcal() && useShowerLibrary) {
+        updateHCAL(theHFShowerLibrary->getHitsMap(),myTrack.id());
+      } 
+      else 
+        updateHCAL(myHcalHitMaker.getHits(),myTrack.id(),correction*hcorr);
 	  
     }      
     else {  // shower simulation failed  
@@ -1201,6 +1223,9 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   timeShiftHF_  = HCALparameters.getParameter< std::vector<double> >("timeShiftHF");
   timeShiftHO_  = HCALparameters.getParameter< std::vector<double> >("timeShiftHO");
 
+  // fastHFShowerLibrary
+  edm::ParameterSet m_HS = fastCalo.getParameter<edm::ParameterSet>("HFShowerLibrary");
+  useShowerLibrary       = m_HS.getUntrackedParameter<bool>("useShowerLibrary",false);
 }
 
 void CalorimetryManager::respCorr(double p) {
@@ -1295,26 +1320,28 @@ void CalorimetryManager::updateHCAL(const std::map<CaloHitID,float>& hitMap, int
     //correct energy
 	float energy = mapitr->second;
     energy *= corr;
-	
+
 	float time = mapitr->first.timeSlice();
 	//put energy into uncalibrated state for digitizer && correct timing
 	if(HcalDigitizer_){
 	  HcalDetId hdetid = HcalDetId(mapitr->first.unitID());
 	  if (hdetid.subdetId()== HcalBarrel){
-        energy /= samplingHBHE_[hdetid.ietaAbs()-1]; //re-convert to GeV
+            energy /= samplingHBHE_[hdetid.ietaAbs()-1]; //re-convert to GeV
 		time = timeShiftHB_[hdetid.ietaAbs()-ietaShiftHB_];
-      }
+          }
 	  else if (hdetid.subdetId()== HcalEndcap){
 	    energy /= samplingHBHE_[hdetid.ietaAbs()-1]; //re-convert to GeV
 		time = timeShiftHE_[hdetid.ietaAbs()-ietaShiftHE_];
 	  }
 	  else if (hdetid.subdetId()== HcalForward){
-	    if(hdetid.depth()== 1) energy *= samplingHF_[0];
-	    if(hdetid.depth()== 2) energy *= samplingHF_[1];
+            if(!useShowerLibrary) {
+ 	      if(hdetid.depth()== 1) energy *= samplingHF_[0];
+	      if(hdetid.depth()== 2) energy *= samplingHF_[1];
+            } 
 		time = timeShiftHF_[hdetid.ietaAbs()-ietaShiftHF_];
 	  }
 	  else if (hdetid.subdetId()== HcalOuter){
-        energy /= samplingHO_[hdetid.ietaAbs()-1];
+            energy /= samplingHO_[hdetid.ietaAbs()-1];
 		time = timeShiftHO_[hdetid.ietaAbs()-ietaShiftHO_];
 	  }
 	}	

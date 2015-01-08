@@ -1189,7 +1189,7 @@ using namespace CLHEP;
     
 //    G4double ekin0 = pseudoParticle[3].GetKineticEnergy()/GeV;
     
-    G4ParticleDefinition * aOrgDef = modifiedOriginal.GetDefinition();
+    const G4ParticleDefinition * aOrgDef = modifiedOriginal.GetDefinition();
     G4int diff = 0;
     if(aOrgDef == G4Proton::Proton() || aOrgDef == G4Neutron::Neutron() )  diff = 1;
     if(numberofFinalStateNucleons == 1) diff = 0;
@@ -2106,7 +2106,7 @@ using namespace CLHEP;
     pseudoParticle[4].SetTotalEnergy( etOriginal*GeV );
     pseudoParticle[4].SetMomentum( 0.0, 0.0, pOriginal*GeV );
     
-    G4ParticleDefinition * aOrgDef = modifiedOriginal.GetDefinition();
+    const G4ParticleDefinition * aOrgDef = modifiedOriginal.GetDefinition();
     G4int diff = 0;
     if(aOrgDef == G4Proton::Proton() || aOrgDef == G4Neutron::Neutron() )  diff = 1;
     if(numberofFinalStateNucleons == 1) diff = 0;

@@ -15,7 +15,7 @@
 
 /// Constructor
 SiPixelFolderOrganizer::SiPixelFolderOrganizer(bool getStore) :
-  rootFolder("Pixel")
+  topFolderName("Pixel")
 {  
   //Not allowed in multithread framework, but can still be called by other modules not from DQM.
   if (getStore) dbe_ = edm::Service<DQMStore>().operator->();
@@ -29,7 +29,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type,
   bool flag = false;
 
    if(rawdetid == 0) {
-     dbe_->setCurrentFolder(rootFolder);
+     dbe_->setCurrentFolder(topFolderName);
      flag = true;
    }
    ///
@@ -53,7 +53,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type,
      
      std::ostringstream sfolder;
      
-     sfolder << rootFolder << "/" << subDetectorFolder; 
+     sfolder << topFolderName << "/" << subDetectorFolder; 
      if(type<4){
      sfolder << "/Shell_" <<DBshell
 	     << "/" << slayer;
@@ -86,7 +86,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type,
        
        std::ostringstream sfolder;
        
-       sfolder << rootFolder << "/" << subDetectorFolder; 
+       sfolder << topFolderName << "/" << subDetectorFolder; 
        if(type<4){
        sfolder << "/Shell_" <<DBshell
                << "/" << slayer;
@@ -129,7 +129,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type,
 
       std::ostringstream sfolder;
 
-      sfolder <<rootFolder <<"/" << subDetectorFolder << 
+      sfolder <<topFolderName <<"/" << subDetectorFolder << 
 	"/HalfCylinder_" << side << "/" << sdisk; 
       if(type==0 || type ==4){
 	sfolder << "/" << sblade; 
@@ -165,7 +165,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type,
         
         std::ostringstream sfolder;
         
-        sfolder <<rootFolder <<"/" << subDetectorFolder << 
+        sfolder <<topFolderName <<"/" << subDetectorFolder << 
           "/HalfCylinder_" << side << "/" << sdisk; 
         if(type==0 || type ==4){
           sfolder << "/" << sblade; 
@@ -195,7 +195,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker& iBooker, const u
   bool flag = false;
 
    if(rawdetid == 0) {
-     iBooker.setCurrentFolder(rootFolder);
+     iBooker.setCurrentFolder(topFolderName);
      flag = true;
    }
    ///
@@ -219,7 +219,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker& iBooker, const u
      
      std::ostringstream sfolder;
      
-     sfolder << rootFolder << "/" << subDetectorFolder; 
+     sfolder << topFolderName << "/" << subDetectorFolder; 
      if(type<4){
      sfolder << "/Shell_" <<DBshell
 	     << "/" << slayer;
@@ -252,7 +252,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker& iBooker, const u
        
        std::ostringstream sfolder;
        
-       sfolder << rootFolder << "/" << subDetectorFolder; 
+       sfolder << topFolderName << "/" << subDetectorFolder; 
        if(type<4){
        sfolder << "/Shell_" <<DBshell
                << "/" << slayer;
@@ -295,7 +295,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker& iBooker, const u
 
       std::ostringstream sfolder;
 
-      sfolder <<rootFolder <<"/" << subDetectorFolder << 
+      sfolder <<topFolderName <<"/" << subDetectorFolder << 
 	"/HalfCylinder_" << side << "/" << sdisk; 
       if(type==0 || type ==4){
 	sfolder << "/" << sblade; 
@@ -331,7 +331,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker& iBooker, const u
         
         std::ostringstream sfolder;
         
-        sfolder <<rootFolder <<"/" << subDetectorFolder << 
+        sfolder <<topFolderName <<"/" << subDetectorFolder << 
           "/HalfCylinder_" << side << "/" << sdisk; 
         if(type==0 || type ==4){
           sfolder << "/" << sblade; 
@@ -362,7 +362,7 @@ bool SiPixelFolderOrganizer::setFedFolder(const uint32_t FedId) {
   char sFed[80];  sprintf(sFed,  "FED_%i",FedId);
   std::ostringstream sfolder;
   
-  sfolder << rootFolder << "/" << subDetectorFolder << "/" << sFed;
+  sfolder << topFolderName << "/" << subDetectorFolder << "/" << sFed;
   dbe_->setCurrentFolder(sfolder.str().c_str());
   
   return true;
@@ -376,7 +376,7 @@ bool SiPixelFolderOrganizer::setFedFolder(DQMStore::IBooker& iBooker, const uint
   char sFed[80];  sprintf(sFed,  "FED_%i",FedId);
   std::ostringstream sfolder;
   
-  sfolder << rootFolder << "/" << subDetectorFolder << "/" << sFed;
+  sfolder << topFolderName << "/" << subDetectorFolder << "/" << sFed;
   iBooker.setCurrentFolder(sfolder.str().c_str());
   
   return true;
@@ -387,7 +387,7 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t& rawdetid,
                                              std::string& path,
                                              bool isUpgrade) {
 
-  path = rootFolder;
+  path = topFolderName;
   if(rawdetid == 0) {
     return;
   }else if( (DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) && (!isUpgrade) ) {
@@ -403,7 +403,7 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t& rawdetid,
     char smodule[80]; sprintf(smodule,"Module_%i",  DBmodule);
     
     std::ostringstream sfolder;
-    sfolder << rootFolder << "/" << subDetectorFolder << "/Shell_" <<DBshell << "/" << slayer << "/" << sladder;
+    sfolder << topFolderName << "/" << subDetectorFolder << "/Shell_" <<DBshell << "/" << slayer << "/" << sladder;
     if ( PixelBarrelName(DetId(rawdetid)).isHalfModule() ) sfolder <<"H"; 
     else sfolder <<"F";
     sfolder << "/" <<smodule;
@@ -428,7 +428,7 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t& rawdetid,
     char smodule[80]; sprintf(smodule,"Module_%i",  DBmodule);
     
     std::ostringstream sfolder;
-    sfolder << rootFolder << "/" << subDetectorFolder << "/Shell_" <<DBshell << "/" << slayer << "/" << sladder;
+    sfolder << topFolderName << "/" << subDetectorFolder << "/Shell_" <<DBshell << "/" << slayer << "/" << sladder;
     if ( PixelBarrelNameUpgrade(DetId(rawdetid)).isHalfModule() ) sfolder <<"H"; 
     else sfolder <<"F";
     sfolder << "/" <<smodule;
@@ -455,7 +455,7 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t& rawdetid,
     char smodule[80];sprintf(smodule,"Module_%i",module);
 
     std::ostringstream sfolder;
-    sfolder <<rootFolder <<"/" << subDetectorFolder << "/HalfCylinder_" << side << "/" << sdisk << "/" << sblade << "/" << spanel << "/" << smodule;
+    sfolder <<topFolderName <<"/" << subDetectorFolder << "/HalfCylinder_" << side << "/" << sdisk << "/" << sblade << "/" << spanel << "/" << smodule;
     path = sfolder.str().c_str();
     
     //path = path + "/" + subDetectorFolder + "/" + shc + "/" + sdisk + "/" + sblade + "/" + spanel + "/" + smodule;
@@ -475,7 +475,7 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t& rawdetid,
     char smodule[80];sprintf(smodule,"Module_%i",module);
 
     std::ostringstream sfolder;
-    sfolder <<rootFolder <<"/" << subDetectorFolder << "/HalfCylinder_" << side << "/" << sdisk << "/" << sblade << "/" << spanel << "/" << smodule;
+    sfolder <<topFolderName <<"/" << subDetectorFolder << "/HalfCylinder_" << side << "/" << sdisk << "/" << sblade << "/" << spanel << "/" << smodule;
     path = sfolder.str().c_str();
     
     //path = path + "/" + subDetectorFolder + "/" + shc + "/" + sdisk + "/" + sblade + "/" + spanel + "/" + smodule;

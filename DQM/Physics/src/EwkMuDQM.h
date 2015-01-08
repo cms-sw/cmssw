@@ -27,7 +27,7 @@ class BeamSpot;
 class DQMStore;
 class MonitorElement;
 
-class EwkMuDQM : public thread_unsafe::DQMEDAnalyzer {
+class EwkMuDQM : public DQMEDAnalyzer {
  public:
   EwkMuDQM(const edm::ParameterSet&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);

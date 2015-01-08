@@ -23,7 +23,7 @@
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,23 +32,24 @@
 
 class DivisiveVertexFinder;
 
-class PixelVertexProducer : public edm::EDProducer {
+class PixelVertexProducer : public edm::stream::EDProducer<> {
  public:
   explicit PixelVertexProducer(const edm::ParameterSet&);
   ~PixelVertexProducer();
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
  private:
   // ----------member data ---------------------------
   // Turn on debug printing if verbose_ > 0
-  int verbose_;
-  DivisiveVertexFinder *dvf_;
+  const int verbose_;
   // Tracking cuts before sending tracks to vertex algo
-  double ptMin_;
-  edm::InputTag trackCollName;
-  edm::EDGetTokenT<reco::TrackCollection> token_Tracks;
-  edm::EDGetTokenT<reco::BeamSpot> token_BeamSpot;
-  bool method2;
+  const double ptMin_;
+  const bool method2;
+  const edm::InputTag trackCollName;
+  const edm::EDGetTokenT<reco::TrackCollection> token_Tracks;
+  const edm::EDGetTokenT<reco::BeamSpot> token_BeamSpot;
+
+  DivisiveVertexFinder *dvf_;
 
 };
 #endif

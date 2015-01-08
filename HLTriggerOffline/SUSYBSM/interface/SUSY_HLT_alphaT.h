@@ -54,9 +54,7 @@ class SUSY_HLT_alphaT: public DQMEDAnalyzer{
   void bookHistos(DQMStore::IBooker &);
   
   //variables from config file
-  //edm::EDGetTokenT<reco::PFMETCollection> thePfMETCollection_;
-  edm::EDGetTokenT<reco::CaloMETCollection> theCaloMETCollection_;
-  //edm::EDGetTokenT<reco::PFJetCollection> thePfJetCollection_;
+  edm::EDGetTokenT<reco::PFJetCollection> thePfJetCollection_;
   edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollection_;
   edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
   edm::EDGetTokenT<trigger::TriggerEvent> theTrigSummary_;
@@ -68,22 +66,31 @@ class SUSY_HLT_alphaT: public DQMEDAnalyzer{
   std::string triggerPath_;
   std::string triggerPathAuxiliaryForMuon_;
   std::string triggerPathAuxiliaryForHadronic_;
+  edm::InputTag triggerPreFilter_;
   edm::InputTag triggerFilter_;
   double ptThrJet_;
   double etaThrJet_;
-  double alphaTThrTurnon_;
-  double htThrTurnon_;
+  double pfAlphaTThrTurnon_;
+  double pfHtThrTurnon_;
+  double caloAlphaTThrTurnon_;
+  double caloHtThrTurnon_;
   
   // Histograms
-  MonitorElement* h_triggerHt;
-  //MonitorElement* h_triggerMht;
-  MonitorElement* h_triggerAlphaT;
-  MonitorElement* h_triggerAlphaT_triggerHt;
-  MonitorElement* h_alphaTTurnOn_num;
-  MonitorElement* h_alphaTTurnOn_den;
-  MonitorElement* h_htTurnOn_num;
-  MonitorElement* h_htTurnOn_den;
+  MonitorElement* h_triggerCaloHt;
+  MonitorElement* h_triggerCaloAlphaT;
+  MonitorElement* h_triggerCaloAlphaT_triggerCaloHt;
+  MonitorElement* h_caloAlphaTTurnOn_num;
+  MonitorElement* h_caloAlphaTTurnOn_den;
+  MonitorElement* h_caloHtTurnOn_num;
+  MonitorElement* h_caloHtTurnOn_den;
 
+  MonitorElement* h_triggerPfHt;
+  MonitorElement* h_triggerPfAlphaT;
+  MonitorElement* h_triggerPfAlphaT_triggerPfHt;
+  MonitorElement* h_pfAlphaTTurnOn_num;
+  MonitorElement* h_pfAlphaTTurnOn_den;
+  MonitorElement* h_pfHtTurnOn_num;
+  MonitorElement* h_pfHtTurnOn_den;
 };
 
 #endif

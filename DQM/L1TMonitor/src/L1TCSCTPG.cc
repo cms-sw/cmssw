@@ -20,14 +20,6 @@ L1TCSCTPG::L1TCSCTPG(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TCSCTPG: constructor...." << endl;
 
-
-  dbe = NULL;
-  if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
-  {
-    dbe = Service<DQMStore>().operator->();
-    dbe->setVerbose(0);
-  }
-
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
@@ -37,66 +29,36 @@ L1TCSCTPG::L1TCSCTPG(const ParameterSet& ps)
   if(disable){
     outputFile_="";
   }
-
-
-  if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1T/L1TCSCTPG");
-  }
-
-
 }
 
 L1TCSCTPG::~L1TCSCTPG()
-{
-}
+{}
 
-void L1TCSCTPG::beginJob(void)
+void L1TCSCTPG::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
   nev_ = 0;
-}
-
-void L1TCSCTPG::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) 
-{
-  if ( dbe ) {
-    dbe->setCurrentFolder("L1T/L1TCSCTPG");
-    dbe->rmdir("L1T/L1TCSCTPG");
-  }
-
-
-  if ( dbe ) 
-  {
-    dbe->setCurrentFolder("L1T/L1TCSCTPG");
-    
-    csctpgpattern = dbe->book1D("CSC TPG hit pattern", 
+  ibooker.setCurrentFolder("L1T/L1TCSCTPG");
+  
+  csctpgpattern = ibooker.book1D("CSC TPG hit pattern", 
        "CSC TPG hit pattern", 8, -0.5, 7.5 ) ;
-    csctpgquality = dbe->book1D("CSC TPG quality", 
+  csctpgquality = ibooker.book1D("CSC TPG quality", 
        "CSC TPG quality", 16, 0.5, 16.5 ) ;
-    csctpgwg = dbe->book1D("CSC TPG wire group", 
+  csctpgwg = ibooker.book1D("CSC TPG wire group", 
        "CSC TPG wire group", 116, -0.5, 115.5 ) ;
-    csctpgstrip = dbe->book1D("CSC TPG strip", 
+  csctpgstrip = ibooker.book1D("CSC TPG strip", 
        "CSC TPG strip", 160, -0.5, 159.5 ) ;
-    csctpgstriptype = dbe->book1D("CSC TPG strip type", 
+  csctpgstriptype = ibooker.book1D("CSC TPG strip type", 
        "CSC TPG strip type", 2, 0.5, 1.5 ) ;
-    csctpgbend = dbe->book1D("CSC TPG bend", 
+  csctpgbend = ibooker.book1D("CSC TPG bend", 
        "CSC TPG bend", 3, 0.5, 2.5 ) ;
-    csctpgbx = dbe->book1D("CSC TPG bx", 
+  csctpgbx = ibooker.book1D("CSC TPG bx", 
        "CSC TPG bx", 20, -0.5, 19.5 ) ;
-
-
-  }  
 }
 
+void L1TCSCTPG::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
+}
 
-
-
-void L1TCSCTPG::endJob(void)
-{
-  if(verbose_) cout << "L1TCSCTPG: end job...." << endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
-
- if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
-
- return;
+void L1TCSCTPG::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c){
 }
 
 void L1TCSCTPG::analyze(const Event& e, const EventSetup& c)

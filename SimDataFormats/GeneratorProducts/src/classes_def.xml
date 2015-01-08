@@ -15,11 +15,12 @@
     <class name="HepMC::GenCrossSection" ClassVersion="10">
      <version ClassVersion="10" checksum="920043842"/>
     </class>
-	<class name="HepMC::WeightContainer" ClassVersion="12">
+	<class name="HepMC::WeightContainer" ClassVersion="13">
   <version ClassVersion="10" checksum="2163093401"/>
   <version ClassVersion="11" checksum="376377869"/>
   <version ClassVersion="12" checksum="2537869863"/>
-  </class>
+  <version ClassVersion="13" checksum="1293886956"/>
+ </class>
 	<class name="HepMC::FourVector" ClassVersion="10">
   <version ClassVersion="10" checksum="3279825169"/>
  </class>
@@ -202,14 +203,14 @@
 	<class name="edm::Wrapper&lt;LHERunInfoProduct&gt;"/>
 	<class name="edm::Wrapper&lt;LHEEventProduct&gt;"/>
 
-<!--needed for backward compatibility between HepMC 2.06.xx and 2.05.yy-->
-<ioread sourceClass = "HepMC::Polarization" version="[1-10]" targetClass="HepMC::Polarization" source = "" target="m_defined">
+ <!--needed for backward compatibility between HepMC 2.06.xx and 2.05.yy-->
+ <ioread sourceClass = "HepMC::Polarization" version="[1-10]" targetClass="HepMC::Polarization" source = "" target="m_defined">
    <![CDATA[m_defined=true;
    ]]>
-</ioread>
-<ioread sourceClass = "HepMC::WeightContainer" source = "std::vector<double> m_weights" version="[1-10]" targetClass="HepMC::WeightContainer" target="m_names" include="iostream">
+ </ioread>
+ <ioread sourceClass = "HepMC::WeightContainer" source = "std::vector<double> m_weights" version="[1-10]" targetClass="HepMC::WeightContainer" target="m_names" include="iostream">
    <![CDATA[hepmc_rootio::weightcontainer_set_default_names(onfile.m_weights.size(),m_names);
    ]]>
-</ioread>        
+ </ioread>        
 
 </lcgdict>

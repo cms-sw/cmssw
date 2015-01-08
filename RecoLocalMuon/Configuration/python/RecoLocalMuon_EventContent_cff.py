@@ -34,7 +34,11 @@ RecoLocalMuonRECO = cms.PSet(
 )
 # AOD content
 RecoLocalMuonAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring()
+    outputCommands = cms.untracked.vstring(
+        'keep *_dt4DSegments_*_*', 
+        'keep *_dt4DCosmicSegments_*_*',
+        'keep *_cscSegments_*_*', 
+        'keep *_rpcRecHits_*_*')
 )
 
 

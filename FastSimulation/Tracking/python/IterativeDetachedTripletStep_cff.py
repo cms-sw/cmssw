@@ -1,30 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
-# step 2
+### ITERATIVE TRACKING: STEP 3 ###
 
 # seeding
-#from FastSimulation.Tracking.IterativeSecondSeedProducer_cff import *
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeDetachedTripletSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeDetachedTripletSeeds.firstHitSubDetectorNumber = [1]
-iterativeDetachedTripletSeeds.firstHitSubDetectors = [1]
-iterativeDetachedTripletSeeds.secondHitSubDetectorNumber = [2]
-iterativeDetachedTripletSeeds.secondHitSubDetectors = [1, 2]
-iterativeDetachedTripletSeeds.thirdHitSubDetectorNumber = [2]
-iterativeDetachedTripletSeeds.thirdHitSubDetectors = [1, 2]
-iterativeDetachedTripletSeeds.seedingAlgo = ['DetachedPixelTriplets']
-iterativeDetachedTripletSeeds.minRecHits = [3]
-iterativeDetachedTripletSeeds.pTMin = [0.3]
-iterativeDetachedTripletSeeds.maxD0 = [30.] # it was 5.
-iterativeDetachedTripletSeeds.maxZ0 = [50.]
-iterativeDetachedTripletSeeds.numberOfHits = [3]
-iterativeDetachedTripletSeeds.originRadius = [1.5] 
-iterativeDetachedTripletSeeds.originHalfLength = [15.] 
-iterativeDetachedTripletSeeds.originpTMin = [0.075] 
-iterativeDetachedTripletSeeds.zVertexConstraint = [-1.0]
-iterativeDetachedTripletSeeds.primaryVertices = ['none']
+iterativeDetachedTripletSeeds.outputSeedCollectionName = 'DetachedPixelTriplets'
+iterativeDetachedTripletSeeds.minRecHits = 3
+iterativeDetachedTripletSeeds.pTMin = 0.3
+iterativeDetachedTripletSeeds.maxD0 = 30. # it was 5.
+iterativeDetachedTripletSeeds.maxZ0 = 50.
+iterativeDetachedTripletSeeds.numberOfHits = 3
+iterativeDetachedTripletSeeds.originRadius = 1.5
+iterativeDetachedTripletSeeds.originHalfLength = 15.
+iterativeDetachedTripletSeeds.originpTMin = 0.075
+iterativeDetachedTripletSeeds.zVertexConstraint = -1.0
+iterativeDetachedTripletSeeds.primaryVertex = 'none'
 
-iterativeDetachedTripletSeeds.newSyntax = True
 #iterativeDetachedTripletSeeds.layerList = ['BPix1+BPix2+BPix3',
 #                                   'BPix1+BPix2+FPix1_pos',
 #                                   'BPix1+BPix2+FPix1_neg',
@@ -37,7 +29,7 @@ iterativeDetachedTripletSeeds.layerList = PixelLayerTriplets.layerList
 #from FastSimulation.Tracking.IterativeSecondCandidateProducer_cff import *
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeDetachedTripletTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativeDetachedTripletTrackCandidates.SeedProducer = cms.InputTag("iterativeDetachedTripletSeeds","DetachedPixelTriplets")
+iterativeDetachedTripletTrackCandidates.SeedProducer = cms.InputTag("iterativeDetachedTripletSeeds",'DetachedPixelTriplets')
 iterativeDetachedTripletTrackCandidates.TrackProducers = ['pixelPairStepTracks']
 iterativeDetachedTripletTrackCandidates.KeepFittedTracks = False
 iterativeDetachedTripletTrackCandidates.MinNumberOfCrossedLayers = 3 

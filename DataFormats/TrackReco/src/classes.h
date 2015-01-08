@@ -27,6 +27,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
+#include "DataFormats/TrackReco/interface/DeDxHitInfo.h"
 
 #include <vector>
 
@@ -116,6 +117,20 @@ namespace DataFormats_TrackReco {
     edm::Wrapper<std::pair<reco::TrackRef,reco::TrackRef> > ww1;
     edm::Wrapper<std::vector<std::pair<TrackCandidate, std::pair<reco::TrackRef,reco::TrackRef> > > > ww2;
     edm::Wrapper<std::pair<TrackCandidate, std::pair<reco::TrackRef,reco::TrackRef> > > ww3;
+
+
+    reco::DeDxHitInfo hitInfoDEDX;
+    reco::DeDxHitInfoCollection hitInfoDEDXc;
+    reco::DeDxHitInfoRef hitInfoDEDXr;
+    reco::DeDxHitInfoRefProd hitInfoDEDXp;
+    reco::DeDxHitInfoRefVector hitInfoDEDXv;
+    reco::DeDxHitInfoAss hitInfoDEDXam;
+    edm::Wrapper<reco::DeDxHitInfo> hitInfoDEDXW;
+    edm::Wrapper<reco::DeDxHitInfoCollection> hitInfoDEDXcW;
+    edm::Wrapper<reco::DeDxHitInfoAss> hitInfoDEDXamW;
+
+    reco::DeDxHitInfo::DeDxHitInfoContainer hitInfoContainerDEDX;
+    reco::DeDxHitInfo::DeDxHitInfoContainerCollection hitInfoContainerDEDXc;
 
   };
 }

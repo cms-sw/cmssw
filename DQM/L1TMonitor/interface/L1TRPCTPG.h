@@ -45,6 +45,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include <iostream>
 #include <fstream>
@@ -54,46 +55,36 @@
 // class decleration
 //
 
-class L1TRPCTPG : public edm::EDAnalyzer {
+class L1TRPCTPG : public DQMEDAnalyzer {
 
 public:
 
 // Constructor
-L1TRPCTPG(const edm::ParameterSet& ps);
+ L1TRPCTPG(const edm::ParameterSet& ps);
 
 // Destructor
-virtual ~L1TRPCTPG();
-
-// Booking of MonitoringElemnt for one RPCDetId (= roll)
-std::map<std::string, MonitorElement*> L1TRPCBookME(RPCDetId & detId);
+ virtual ~L1TRPCTPG();
 
 protected:
 // Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-// BeginJob
-void beginJob(void);
-
-// EndJob
-void endJob(void);
+ void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginRun
-void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
+ virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+ virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
+ virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
 private:
   // ----------member data ---------------------------
-  DQMStore * dbe;
-
+ 
   MonitorElement* rpctpgndigi[3];
   MonitorElement* rpctpgbx;
-
-  MonitorElement *  m_digiBxRPCBar;
-
-  MonitorElement *  m_digiBxRPCEnd;
-
-  MonitorElement *  m_digiBxDT;
-
-  MonitorElement *  m_digiBxCSC;
+  MonitorElement* m_digiBxRPCBar;
+  MonitorElement* m_digiBxRPCEnd;
+  MonitorElement* m_digiBxDT;
+  MonitorElement* m_digiBxCSC;
+  MonitorElement* runId_;
+  MonitorElement* lumisecId_;
   
   std::map<uint32_t, std::map<std::string, MonitorElement*> >  rpctpgmeCollection;
 

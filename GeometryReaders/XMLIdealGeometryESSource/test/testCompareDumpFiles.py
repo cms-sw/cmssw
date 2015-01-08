@@ -15,18 +15,15 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.myprint = cms.OutputModule("AsciiOutputModule")
 
-#process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.MessageLogger.cerr.threshold = 'ERROR'
-#process.MessageLogger.destinations = cms.untracked.vstring('compDDdumperrors')
 process.MessageLogger = cms.Service("MessageLogger",
                                     compDDdumperrors = cms.untracked.PSet( threshold = cms.untracked.string('ERROR')),
                                     destinations = cms.untracked.vstring('compDDdumperrors')
                                     )
 
-process.comparedddump = cms.EDAnalyzer("TestCompareDDDumpFiles"
-                                       ,dumpFile1 = cms.string("workarea/xml/dumpSTD")
-                                       ,dumpFile2 = cms.string("workarea/db/dumpBDB")
-                                       ,tolerance = cms.untracked.double(0.0004)
+process.comparedddump = cms.EDAnalyzer("TestCompareDDDumpFiles",
+                                       dumpFile1 = cms.string('workarea/xml/dumpSTD'),
+                                       dumpFile2 = cms.string('workarea/db/dumpBDB'),
+                                       tolerance = cms.untracked.double(0.0004)
                                        )
 
 process.p1 = cms.Path(process.comparedddump)

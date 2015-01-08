@@ -40,7 +40,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
-class SiPixelHitEfficiencySource : public thread_unsafe::DQMEDAnalyzer {
+class SiPixelHitEfficiencySource : public DQMEDAnalyzer {
   public:
     explicit SiPixelHitEfficiencySource(const edm::ParameterSet&);
             ~SiPixelHitEfficiencySource();

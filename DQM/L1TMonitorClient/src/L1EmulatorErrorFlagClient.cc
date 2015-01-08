@@ -31,18 +31,10 @@ L1EmulatorErrorFlagClient::L1EmulatorErrorFlagClient(const edm::ParameterSet& pa
 }
 
 L1EmulatorErrorFlagClient::~L1EmulatorErrorFlagClient() {
-
     //empty
-
 }
 
 void L1EmulatorErrorFlagClient::initialize() {
-
-
-    // get back-end interface
-    m_dbe = edm::Service<DQMStore>().operator->();
-
-    //
 
     m_nrL1Systems = m_l1Systems.size();
 
@@ -90,20 +82,16 @@ void L1EmulatorErrorFlagClient::initialize() {
 }
 
 
-void L1EmulatorErrorFlagClient::beginJob() {
+void L1EmulatorErrorFlagClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
+    ibooker.setCurrentFolder("L1TEMU/EventInfo");
 
-    // get backend interface
-    m_dbe = edm::Service<DQMStore>().operator->();
-
-    m_dbe->setCurrentFolder("L1TEMU/EventInfo");
-
-    if ((m_meSummaryErrorFlagMap = m_dbe->get("L1TEMU/EventInfo/summaryErrorFlagMap"))) {
-        m_dbe->removeElement(m_meSummaryErrorFlagMap->getName());
+    if ((m_meSummaryErrorFlagMap = igetter.get("L1TEMU/EventInfo/summaryErrorFlagMap"))) {
+        igetter.removeElement(m_meSummaryErrorFlagMap->getName());
     }
 
     // define a histogram
-    m_meSummaryErrorFlagMap = m_dbe->book1D("L1SummaryErrorFlagMap",
+    m_meSummaryErrorFlagMap = ibooker.book1D("L1SummaryErrorFlagMap",
             "L1SummaryErrorFlagMap", m_nrL1Systems, 1, m_nrL1Systems + 1);
 
     m_meSummaryErrorFlagMap->setAxisTitle("Agreement fraction", 2);
@@ -112,23 +100,9 @@ void L1EmulatorErrorFlagClient::beginJob() {
 
         m_meSummaryErrorFlagMap->setBinLabel(iSys + 1, m_systemLabel[iSys], 1);
     }
-
 }
 
-
-void L1EmulatorErrorFlagClient::beginRun(const edm::Run& run,
-        const edm::EventSetup& evSetup) {
-
-    // empty
-}
-
-
-void L1EmulatorErrorFlagClient::beginLuminosityBlock(
-        const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup) {
-    // optionally reset histograms here
-}
-
-void L1EmulatorErrorFlagClient::endLuminosityBlock(
+void L1EmulatorErrorFlagClient::dqmEndLuminosityBlock(DQMStore::IGetter &igetter,
         const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup) {
 
     // reset the summary content values
@@ -153,7 +127,7 @@ void L1EmulatorErrorFlagClient::endLuminosityBlock(
         float percAgree = -1.;
 
         if (m_systemMask[iSys] == 0) {
-            percAgree = setSummary(iSys);
+	  percAgree = setSummary(igetter, iSys);
 
             if ((percAgree == -1) && m_verbose) {
                 std::cout << "\nWarning: ErrorFlag histogram for system "
@@ -200,29 +174,10 @@ void L1EmulatorErrorFlagClient::endLuminosityBlock(
 
 }
 
-
-void L1EmulatorErrorFlagClient::analyze(const edm::Event& iEvent,
-        const edm::EventSetup& evSetup) {
-
-    // there is no loop on events in the offline harvesting step
-    // do not put any code here, it will not be executed
-
-}
-
-
-void L1EmulatorErrorFlagClient::endRun(const edm::Run& run,
-        const edm::EventSetup& evSetup) {
-    //empty
-}
-
-void L1EmulatorErrorFlagClient::endJob() {
-    //empty
-}
-
 // set subsystem agreement value in summary map
-Float_t L1EmulatorErrorFlagClient::setSummary(const unsigned int& iMon) const {
+Float_t L1EmulatorErrorFlagClient::setSummary(DQMStore::IGetter &igetter, const unsigned int& iMon) const {
 
-    MonitorElement* QHist = m_dbe->get(m_systemErrorFlag[iMon].data());
+    MonitorElement* QHist = igetter.get(m_systemErrorFlag[iMon].data());
 
     int ntot = 0;
     for (int i = 0; i < QHist->getNbinsX(); i++) {

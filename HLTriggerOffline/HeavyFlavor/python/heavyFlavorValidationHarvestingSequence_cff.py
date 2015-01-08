@@ -76,6 +76,30 @@ hfv9 = heavyFlavorValidationHarvesting.clone(
   MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v')
 )
 
+### 7E33 quarkonia
+hfvQ1 = heavyFlavorValidationHarvesting.clone(
+  MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Dimuon10_Jpsi_Barrel_v')
+)
+hfvQ2 = heavyFlavorValidationHarvesting.clone(
+  MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Dimuon16_Jpsi_v')
+)
+hfvQ3 = heavyFlavorValidationHarvesting.clone(
+  MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Dimuon8_PsiPrime_Barrel_v')
+)
+hfvQ4 = heavyFlavorValidationHarvesting.clone(
+  MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Dimuon8_Upsilon_Barrel_v')
+)
+hfvQ5 = heavyFlavorValidationHarvesting.clone(
+  MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Dimuon0_Phi_Barrel_v')
+)
+hfvQ6 = heavyFlavorValidationHarvesting.clone(
+  MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu16_TkMu0_dEta18_Onia_v')
+)
+hfvQ7 = heavyFlavorValidationHarvesting.clone(
+  MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu16_TkMu0_dEta18_Phi_v')
+)
+
+
 combiner = cms.EDAnalyzer('PlotCombiner',
   MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT'),
   Plots = cms.untracked.VPSet(
@@ -124,6 +148,7 @@ heavyFlavorValidationHarvestingSequence = cms.Sequence(
   +hfvQuadmu1+hfvQuadmu2+hfvQuadmu3+hfvQuadmu4
   +hfvTnP1+hfvTnP2+hfvTnP3+hfvTnP4+hfvTnP5+hfvTnP6+hfvTnP7+hfvTnP8+hfvTnP9+hfvTnP10+hfvTnP11
   +hfv6+hfv7+hfv8+hfv9
+  +hfvQ1+hfvQ2+hfvQ3+hfvQ4+hfvQ5+hfvQ6+hfvQ7
 	+combiner+combiner2
 )
 

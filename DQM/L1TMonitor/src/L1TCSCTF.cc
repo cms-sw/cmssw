@@ -37,14 +37,6 @@ L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
 
   if(verbose_) edm::LogInfo("DataNotFound") << "L1TCSCTF: constructor...." << endl;
 
-
-  dbe = NULL;
-  if ( ps.getUntrackedParameter<bool>("DQMStore", false) )
-    {
-      dbe = Service<DQMStore>().operator->();
-      dbe->setVerbose(0);
-    }
-
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) 
     {
@@ -55,13 +47,6 @@ L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
   if(disable){
     outputFile_="";
   }
-
-  gangedME11a_ = ps.getUntrackedParameter<bool>("gangedME11a", false);
-
-  if ( dbe !=NULL ) 
-    {
-      dbe->setCurrentFolder("L1T/L1TCSCTF");
-    }
 
   // instantiate standard on-fly SR LUTs from CSC TF emulator package
   bzero(srLUTs_,sizeof(srLUTs_));
@@ -103,74 +88,63 @@ L1TCSCTF::~L1TCSCTF()
     delete srLUTs_[i]; //free the array of pointers
 }
 
-void L1TCSCTF::beginJob(void)
+void L1TCSCTF::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
+}
+
+void L1TCSCTF::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&)
 {
   m_scalesCacheID  = -999;
   m_ptScaleCacheID = -999;
 
   nev_ = 0;
-
-  // get hold of back-end interface
-  DQMStore* dbe = 0;
-  dbe = Service<DQMStore>().operator->();
-
-  if( dbe )
-    {
-      dbe->setCurrentFolder("L1T/L1TCSCTF");
-      dbe->rmdir("L1T/L1TCSCTF");
-    }
-
-
-  if( dbe )
-    {
-      dbe->setCurrentFolder("L1T/L1TCSCTF");
+  ibooker.setCurrentFolder("L1T/L1TCSCTF");
 		
       //  Error counting histogram:
       //  1) checks TF data integrity (error rate - first bin),
       //  2) monitors sychronization on input links (4 errors types: SE/SM/BX/AF; ORed for all time bins, links, and SPs),
       //  3) reports FMM status (if in any SP FMM status != "Ready" - fill the last bin)
-      csctferrors = dbe->book1D("CSCTF_errors","CSCTF Errors",6,0,6);	
-      csctferrors->setAxisTitle("Error type",1);
-      csctferrors->setAxisTitle("Number of Errors",2);
-      csctferrors->setBinLabel(1,"Corruptions",1);
-      csctferrors->setBinLabel(2,"Synch. Err.",1);
-      csctferrors->setBinLabel(3,"Synch. Mod.",1);
-      csctferrors->setBinLabel(4,"BX mismatch",1);
-      csctferrors->setBinLabel(5,"Time misalign.",1);
-      csctferrors->setBinLabel(6,"FMM != Ready",1);
+  csctferrors = ibooker.book1D("CSCTF_errors","CSCTF Errors",6,0,6);	
+  csctferrors->setAxisTitle("Error type",1);
+  csctferrors->setAxisTitle("Number of Errors",2);
+  csctferrors->setBinLabel(1,"Corruptions",1);
+  csctferrors->setBinLabel(2,"Synch. Err.",1);
+  csctferrors->setBinLabel(3,"Synch. Mod.",1);
+  csctferrors->setBinLabel(4,"BX mismatch",1);
+  csctferrors->setBinLabel(5,"Time misalign.",1);
+  csctferrors->setBinLabel(6,"FMM != Ready",1);
   	
       //  Occupancy histogram Eta x Y, where Y:
       //  1) Phi_packed of input LCTs from 1st, 2nd, 3rd, and 4th stations
       //  2) Phi_packed of output tracks
       //  (all 12 SPs - 360 degree coveradge)
-      csctfoccupancies = dbe->book2D("CSCTF_occupancies", "CSCTF Occupancies", 64,-32,31,32,0,6.2);
-      csctfoccupancies->setAxisTitle("#eta",1);
-      csctfoccupancies->setAxisTitle("#phi",2);
-      csctfoccupancies->setBinLabel( 1,"-2.5", 1);
-      csctfoccupancies->setBinLabel( 8,"-2.1", 1);
-      csctfoccupancies->setBinLabel(18,"-1.6", 1);
-      csctfoccupancies->setBinLabel(26,"-1.2", 1);
-      csctfoccupancies->setBinLabel(32,"-0.9", 1);
-      csctfoccupancies->setBinLabel(33, "0.9", 1);
-      csctfoccupancies->setBinLabel(39, "1.2", 1);
-      csctfoccupancies->setBinLabel(47, "1.6", 1);
-      csctfoccupancies->setBinLabel(57, "2.1", 1);
-      csctfoccupancies->setBinLabel(64, "2.5", 1);
+  csctfoccupancies = ibooker.book2D("CSCTF_occupancies", "CSCTF Occupancies", 64,-32,31,32,0,6.2);
+  csctfoccupancies->setAxisTitle("#eta",1);
+  csctfoccupancies->setAxisTitle("#phi",2);
+  csctfoccupancies->setBinLabel( 1,"-2.5", 1);
+  csctfoccupancies->setBinLabel( 8,"-2.1", 1);
+  csctfoccupancies->setBinLabel(18,"-1.6", 1);
+  csctfoccupancies->setBinLabel(26,"-1.2", 1);
+  csctfoccupancies->setBinLabel(32,"-0.9", 1);
+  csctfoccupancies->setBinLabel(33, "0.9", 1);
+  csctfoccupancies->setBinLabel(39, "1.2", 1);
+  csctfoccupancies->setBinLabel(47, "1.6", 1);
+  csctfoccupancies->setBinLabel(57, "2.1", 1);
+  csctfoccupancies->setBinLabel(64, "2.5", 1);
 
       // ... and for halo muons only
-      csctfoccupancies_H = dbe->book2D("CSCTF_occupancies_H", "CSCTF Halo Occupancies", 64,-32,31,32,0,6.2);
-      csctfoccupancies_H->setAxisTitle("#eta",1);
-      csctfoccupancies_H->setAxisTitle("#phi",2);
-      csctfoccupancies_H->setBinLabel( 1,"-2.5", 1);
-      csctfoccupancies_H->setBinLabel( 8,"-2.1", 1);
-      csctfoccupancies_H->setBinLabel(18,"-1.6", 1);
-      csctfoccupancies_H->setBinLabel(26,"-1.2", 1);
-      csctfoccupancies_H->setBinLabel(32,"-0.9", 1);
-      csctfoccupancies_H->setBinLabel(33, "0.9", 1);
-      csctfoccupancies_H->setBinLabel(39, "1.2", 1);
-      csctfoccupancies_H->setBinLabel(47, "1.6", 1);
-      csctfoccupancies_H->setBinLabel(57, "2.1", 1);
-      csctfoccupancies_H->setBinLabel(64, "2.5", 1);
+  csctfoccupancies_H = ibooker.book2D("CSCTF_occupancies_H", "CSCTF Halo Occupancies", 64,-32,31,32,0,6.2);
+  csctfoccupancies_H->setAxisTitle("#eta",1);
+  csctfoccupancies_H->setAxisTitle("#phi",2);
+  csctfoccupancies_H->setBinLabel( 1,"-2.5", 1);
+  csctfoccupancies_H->setBinLabel( 8,"-2.1", 1);
+  csctfoccupancies_H->setBinLabel(18,"-1.6", 1);
+  csctfoccupancies_H->setBinLabel(26,"-1.2", 1);
+  csctfoccupancies_H->setBinLabel(32,"-0.9", 1);
+  csctfoccupancies_H->setBinLabel(33, "0.9", 1);
+  csctfoccupancies_H->setBinLabel(39, "1.2", 1);
+  csctfoccupancies_H->setBinLabel(47, "1.6", 1);
+  csctfoccupancies_H->setBinLabel(57, "2.1", 1);
+  csctfoccupancies_H->setBinLabel(64, "2.5", 1);
 
       //haloDelEta12  = dbe->book1D("CSCTF_Halo_Eta12", "#Delta #eta_{12} for Halo Muons", 40, -0.20,0.30);
       //haloDelEta112 = dbe->book1D("CSCTF_Halo_Eta112","#Delta #eta_{112} for Halo Muons", 40, -0.20,0.30);
@@ -178,209 +152,209 @@ void L1TCSCTF::beginJob(void)
       //haloDelEta113 = dbe->book1D("CSCTF_Halo_Eta113","#Delta #eta_{113} for Halo Muons", 40, -0.20,0.30);
 	
       // Quality VS Mode
-      trackModeVsQ = dbe->book2D("CSCTF_Track_ModeVsQual","CSC Track Mode Vs Quality", 19, -0.5, 18.5, 4, 0, 4);
-      trackModeVsQ->setAxisTitle("Track Type", 1);
-      trackModeVsQ->setBinLabel(1,"No Track",1);
-      trackModeVsQ->setBinLabel(2,"Bad Phi/Single",1);
-      trackModeVsQ->setBinLabel(3,"ME1-2-3",1);
-      trackModeVsQ->setBinLabel(4,"ME1-2-4",1);
-      trackModeVsQ->setBinLabel(5,"ME1-3-4",1);
-      trackModeVsQ->setBinLabel(6,"ME2-3-4",1);
-      trackModeVsQ->setBinLabel(7,"ME1-2",1);
-      trackModeVsQ->setBinLabel(8,"ME1-3",1);
-      trackModeVsQ->setBinLabel(9,"ME2-3",1);
-      trackModeVsQ->setBinLabel(10,"ME2-4",1);
-      trackModeVsQ->setBinLabel(11,"ME3-4",1);
-      trackModeVsQ->setBinLabel(12,"MB1-ME3",1);
-      trackModeVsQ->setBinLabel(13,"MB1-ME2",1);
-      trackModeVsQ->setBinLabel(14,"ME1-4",1);
-      trackModeVsQ->setBinLabel(15,"MB1-ME1",1);
-      trackModeVsQ->setBinLabel(16,"Halo Trigger",1);
-      trackModeVsQ->setBinLabel(17,"MB1-ME1-2",1);
-      trackModeVsQ->setBinLabel(18,"MB1-ME1-3",1);
-      trackModeVsQ->setBinLabel(19,"MB1-ME2-3",1);
+  trackModeVsQ = ibooker.book2D("CSCTF_Track_ModeVsQual","CSC Track Mode Vs Quality", 19, -0.5, 18.5, 4, 0, 4);
+  trackModeVsQ->setAxisTitle("Track Type", 1);
+  trackModeVsQ->setBinLabel(1,"No Track",1);
+  trackModeVsQ->setBinLabel(2,"Bad Phi/Single",1);
+  trackModeVsQ->setBinLabel(3,"ME1-2-3",1);
+  trackModeVsQ->setBinLabel(4,"ME1-2-4",1);
+  trackModeVsQ->setBinLabel(5,"ME1-3-4",1);
+  trackModeVsQ->setBinLabel(6,"ME2-3-4",1);
+  trackModeVsQ->setBinLabel(7,"ME1-2",1);
+  trackModeVsQ->setBinLabel(8,"ME1-3",1);
+  trackModeVsQ->setBinLabel(9,"ME2-3",1);
+  trackModeVsQ->setBinLabel(10,"ME2-4",1);
+  trackModeVsQ->setBinLabel(11,"ME3-4",1);
+  trackModeVsQ->setBinLabel(12,"MB1-ME3",1);
+  trackModeVsQ->setBinLabel(13,"MB1-ME2",1);
+  trackModeVsQ->setBinLabel(14,"ME1-4",1);
+  trackModeVsQ->setBinLabel(15,"MB1-ME1",1);
+  trackModeVsQ->setBinLabel(16,"Halo Trigger",1);
+  trackModeVsQ->setBinLabel(17,"MB1-ME1-2",1);
+  trackModeVsQ->setBinLabel(18,"MB1-ME1-3",1);
+  trackModeVsQ->setBinLabel(19,"MB1-ME2-3",1);
 
-      trackModeVsQ->setAxisTitle("Quality",2);
-      trackModeVsQ->setBinLabel(1,"0",2);
-      trackModeVsQ->setBinLabel(2,"1",2);
-      trackModeVsQ->setBinLabel(3,"2",2);
-      trackModeVsQ->setBinLabel(4,"3",2);
+  trackModeVsQ->setAxisTitle("Quality",2);
+  trackModeVsQ->setBinLabel(1,"0",2);
+  trackModeVsQ->setBinLabel(2,"1",2);
+  trackModeVsQ->setBinLabel(3,"2",2);
+  trackModeVsQ->setBinLabel(4,"3",2);
 
       // Mode
-      csctfTrackM = dbe->book1D("CSCTF_Track_Mode","CSC Track Mode", 19, -0.5, 18.5);
-      csctfTrackM->setAxisTitle("Track Type", 1);
-      csctfTrackM->setBinLabel(1,"No Track",1);
-      csctfTrackM->setBinLabel(2,"Bad Phi/Single",1);
-      csctfTrackM->setBinLabel(3,"ME1-2-3",1);
-      csctfTrackM->setBinLabel(4,"ME1-2-4",1);
-      csctfTrackM->setBinLabel(5,"ME1-3-4",1);
-      csctfTrackM->setBinLabel(6,"ME2-3-4",1);
-      csctfTrackM->setBinLabel(7,"ME1-2",1);
-      csctfTrackM->setBinLabel(8,"ME1-3",1);
-      csctfTrackM->setBinLabel(9,"ME2-3",1);
-      csctfTrackM->setBinLabel(10,"ME2-4",1);
-      csctfTrackM->setBinLabel(11,"ME3-4",1);
-      csctfTrackM->setBinLabel(12,"MB1-ME3",1);
-      csctfTrackM->setBinLabel(13,"MB1-ME2",1);
-      csctfTrackM->setBinLabel(14,"ME1-4",1);
-      csctfTrackM->setBinLabel(15,"MB1-ME1",1);
-      csctfTrackM->setBinLabel(16,"Halo Trigger",1);
-      csctfTrackM->setBinLabel(17,"MB1-ME1-2",1);
-      csctfTrackM->setBinLabel(18,"MB1-ME1-3",1);
-      csctfTrackM->setBinLabel(19,"MB1-ME2-3",1);
+  csctfTrackM = ibooker.book1D("CSCTF_Track_Mode","CSC Track Mode", 19, -0.5, 18.5);
+  csctfTrackM->setAxisTitle("Track Type", 1);
+  csctfTrackM->setBinLabel(1,"No Track",1);
+  csctfTrackM->setBinLabel(2,"Bad Phi/Single",1);
+  csctfTrackM->setBinLabel(3,"ME1-2-3",1);
+  csctfTrackM->setBinLabel(4,"ME1-2-4",1);
+  csctfTrackM->setBinLabel(5,"ME1-3-4",1);
+  csctfTrackM->setBinLabel(6,"ME2-3-4",1);
+  csctfTrackM->setBinLabel(7,"ME1-2",1);
+  csctfTrackM->setBinLabel(8,"ME1-3",1);
+  csctfTrackM->setBinLabel(9,"ME2-3",1);
+  csctfTrackM->setBinLabel(10,"ME2-4",1);
+  csctfTrackM->setBinLabel(11,"ME3-4",1);
+  csctfTrackM->setBinLabel(12,"MB1-ME3",1);
+  csctfTrackM->setBinLabel(13,"MB1-ME2",1);
+  csctfTrackM->setBinLabel(14,"ME1-4",1);
+  csctfTrackM->setBinLabel(15,"MB1-ME1",1);
+  csctfTrackM->setBinLabel(16,"Halo Trigger",1);
+  csctfTrackM->setBinLabel(17,"MB1-ME1-2",1);
+  csctfTrackM->setBinLabel(18,"MB1-ME1-3",1);
+  csctfTrackM->setBinLabel(19,"MB1-ME2-3",1);
 		
       // Chamber Occupancy
-      csctfChamberOccupancies = dbe->book2D("CSCTF_Chamber_Occupancies","CSCTF Chamber Occupancies", 54, -0.05, 5.35, 10, -5.5, 4.5);
-      csctfChamberOccupancies->setAxisTitle("Sector, (chambers 1-9 not labeled)",1);
-      csctfChamberOccupancies->setBinLabel(1,"ME-4",2);
-      csctfChamberOccupancies->setBinLabel(2,"ME-3",2);
-      csctfChamberOccupancies->setBinLabel(3,"ME-2",2);
-      csctfChamberOccupancies->setBinLabel(4,"ME-1b",2);
-      csctfChamberOccupancies->setBinLabel(5,"ME-1a",2);
-      csctfChamberOccupancies->setBinLabel(6,"ME+1a",2);
-      csctfChamberOccupancies->setBinLabel(7,"ME+1b",2);
-      csctfChamberOccupancies->setBinLabel(8,"ME+2",2);
-      csctfChamberOccupancies->setBinLabel(9,"ME+3",2);
-      csctfChamberOccupancies->setBinLabel(10,"ME+4",2);
-      csctfChamberOccupancies->setBinLabel(1, "1",1);
-      csctfChamberOccupancies->setBinLabel(10,"2",1);
-      csctfChamberOccupancies->setBinLabel(19,"3",1);
-      csctfChamberOccupancies->setBinLabel(28,"4",1);
-      csctfChamberOccupancies->setBinLabel(37,"5",1);
-      csctfChamberOccupancies->setBinLabel(46,"6",1);
+  csctfChamberOccupancies = ibooker.book2D("CSCTF_Chamber_Occupancies","CSCTF Chamber Occupancies", 54, -0.05, 5.35, 10, -5.5, 4.5);
+  csctfChamberOccupancies->setAxisTitle("Sector, (chambers 1-9 not labeled)",1);
+  csctfChamberOccupancies->setBinLabel(1,"ME-4",2);
+  csctfChamberOccupancies->setBinLabel(2,"ME-3",2);
+  csctfChamberOccupancies->setBinLabel(3,"ME-2",2);
+  csctfChamberOccupancies->setBinLabel(4,"ME-1b",2);
+  csctfChamberOccupancies->setBinLabel(5,"ME-1a",2);
+  csctfChamberOccupancies->setBinLabel(6,"ME+1a",2);
+  csctfChamberOccupancies->setBinLabel(7,"ME+1b",2);
+  csctfChamberOccupancies->setBinLabel(8,"ME+2",2);
+  csctfChamberOccupancies->setBinLabel(9,"ME+3",2);
+  csctfChamberOccupancies->setBinLabel(10,"ME+4",2);
+  csctfChamberOccupancies->setBinLabel(1, "1",1);
+  csctfChamberOccupancies->setBinLabel(10,"2",1);
+  csctfChamberOccupancies->setBinLabel(19,"3",1);
+  csctfChamberOccupancies->setBinLabel(28,"4",1);
+  csctfChamberOccupancies->setBinLabel(37,"5",1);
+  csctfChamberOccupancies->setBinLabel(46,"6",1);
 		
       // Track Phi
-      csctfTrackPhi = dbe->book1D("CSCTF_Track_Phi", "CSCTF Track #phi",144,0,2*M_PI);
-      csctfTrackPhi->setAxisTitle("Track #phi", 1);
+  csctfTrackPhi = ibooker.book1D("CSCTF_Track_Phi", "CSCTF Track #phi",144,0,2*M_PI);
+  csctfTrackPhi->setAxisTitle("Track #phi", 1);
 
       // Track Eta
-      csctfTrackEta = dbe->book1D("CSCTF_Track_Eta", "CSCTF Track #eta",64,-32,32);
-      csctfTrackEta->setAxisTitle("Track #eta", 1);
-      csctfTrackEta->setBinLabel( 1,"-2.5", 1);
-      csctfTrackEta->setBinLabel( 8,"-2.1", 1);
-      csctfTrackEta->setBinLabel(18,"-1.6", 1);
-      csctfTrackEta->setBinLabel(26,"-1.2", 1);
-      csctfTrackEta->setBinLabel(32,"-0.9", 1);
-      csctfTrackEta->setBinLabel(33, "0.9", 1);
-      csctfTrackEta->setBinLabel(39, "1.2", 1);
-      csctfTrackEta->setBinLabel(47, "1.6", 1);
-      csctfTrackEta->setBinLabel(57, "2.1", 1);
-      csctfTrackEta->setBinLabel(64, "2.5", 1);
+  csctfTrackEta = ibooker.book1D("CSCTF_Track_Eta", "CSCTF Track #eta",64,-32,32);
+  csctfTrackEta->setAxisTitle("Track #eta", 1);
+  csctfTrackEta->setBinLabel( 1,"-2.5", 1);
+  csctfTrackEta->setBinLabel( 8,"-2.1", 1);
+  csctfTrackEta->setBinLabel(18,"-1.6", 1);
+  csctfTrackEta->setBinLabel(26,"-1.2", 1);
+  csctfTrackEta->setBinLabel(32,"-0.9", 1);
+  csctfTrackEta->setBinLabel(33, "0.9", 1);
+  csctfTrackEta->setBinLabel(39, "1.2", 1);
+  csctfTrackEta->setBinLabel(47, "1.6", 1);
+  csctfTrackEta->setBinLabel(57, "2.1", 1);
+  csctfTrackEta->setBinLabel(64, "2.5", 1);
 
       // Track Eta Low Quality
-      csctfTrackEtaLowQ = dbe->book1D("CSCTF_Track_Eta_LowQ", "CSCTF Track #eta LQ",64,-32,32);
-      csctfTrackEtaLowQ->setAxisTitle("Track #eta", 1);
-      csctfTrackEtaLowQ->setBinLabel( 1,"-2.5", 1);
-      csctfTrackEtaLowQ->setBinLabel( 8,"-2.1", 1);
-      csctfTrackEtaLowQ->setBinLabel(18,"-1.6", 1);
-      csctfTrackEtaLowQ->setBinLabel(26,"-1.2", 1);
-      csctfTrackEtaLowQ->setBinLabel(32,"-0.9", 1);
-      csctfTrackEtaLowQ->setBinLabel(33, "0.9", 1);
-      csctfTrackEtaLowQ->setBinLabel(39, "1.2", 1);
-      csctfTrackEtaLowQ->setBinLabel(47, "1.6", 1);
-      csctfTrackEtaLowQ->setBinLabel(57, "2.1", 1);
-      csctfTrackEtaLowQ->setBinLabel(64, "2.5", 1);
+  csctfTrackEtaLowQ = ibooker.book1D("CSCTF_Track_Eta_LowQ", "CSCTF Track #eta LQ",64,-32,32);
+  csctfTrackEtaLowQ->setAxisTitle("Track #eta", 1);
+  csctfTrackEtaLowQ->setBinLabel( 1,"-2.5", 1);
+  csctfTrackEtaLowQ->setBinLabel( 8,"-2.1", 1);
+  csctfTrackEtaLowQ->setBinLabel(18,"-1.6", 1);
+  csctfTrackEtaLowQ->setBinLabel(26,"-1.2", 1);
+  csctfTrackEtaLowQ->setBinLabel(32,"-0.9", 1);
+  csctfTrackEtaLowQ->setBinLabel(33, "0.9", 1);
+  csctfTrackEtaLowQ->setBinLabel(39, "1.2", 1);
+  csctfTrackEtaLowQ->setBinLabel(47, "1.6", 1);
+  csctfTrackEtaLowQ->setBinLabel(57, "2.1", 1);
+  csctfTrackEtaLowQ->setBinLabel(64, "2.5", 1);
 
 
       // Track Eta High Quality
-      csctfTrackEtaHighQ = dbe->book1D("CSCTF_Track_Eta_HighQ", "CSCTF Track #eta HQ",64,-32,32);
-      csctfTrackEtaHighQ->setAxisTitle("Track #eta", 1);
-      csctfTrackEtaHighQ->setBinLabel( 1,"-2.5", 1);
-      csctfTrackEtaHighQ->setBinLabel( 8,"-2.1", 1);
-      csctfTrackEtaHighQ->setBinLabel(18,"-1.6", 1);
-      csctfTrackEtaHighQ->setBinLabel(26,"-1.2", 1);
-      csctfTrackEtaHighQ->setBinLabel(32,"-0.9", 1);
-      csctfTrackEtaHighQ->setBinLabel(33, "0.9", 1);
-      csctfTrackEtaHighQ->setBinLabel(39, "1.2", 1);
-      csctfTrackEtaHighQ->setBinLabel(47, "1.6", 1);
-      csctfTrackEtaHighQ->setBinLabel(57, "2.1", 1);
-      csctfTrackEtaHighQ->setBinLabel(64, "2.5", 1);
+  csctfTrackEtaHighQ = ibooker.book1D("CSCTF_Track_Eta_HighQ", "CSCTF Track #eta HQ",64,-32,32);
+  csctfTrackEtaHighQ->setAxisTitle("Track #eta", 1);
+  csctfTrackEtaHighQ->setBinLabel( 1,"-2.5", 1);
+  csctfTrackEtaHighQ->setBinLabel( 8,"-2.1", 1);
+  csctfTrackEtaHighQ->setBinLabel(18,"-1.6", 1);
+  csctfTrackEtaHighQ->setBinLabel(26,"-1.2", 1);
+  csctfTrackEtaHighQ->setBinLabel(32,"-0.9", 1);
+  csctfTrackEtaHighQ->setBinLabel(33, "0.9", 1);
+  csctfTrackEtaHighQ->setBinLabel(39, "1.2", 1);
+  csctfTrackEtaHighQ->setBinLabel(47, "1.6", 1);
+  csctfTrackEtaHighQ->setBinLabel(57, "2.1", 1);
+  csctfTrackEtaHighQ->setBinLabel(64, "2.5", 1);
 
 
       // Halo Phi 
-      csctfTrackPhi_H = dbe->book1D("CSCTF_Track_Phi_H", "CSCTF Halo #phi",144,0,2*M_PI);
-      csctfTrackPhi_H->setAxisTitle("Track #phi", 1);
+  csctfTrackPhi_H = ibooker.book1D("CSCTF_Track_Phi_H", "CSCTF Halo #phi",144,0,2*M_PI);
+  csctfTrackPhi_H->setAxisTitle("Track #phi", 1);
 
       // Halo Eta 
-      csctfTrackEta_H = dbe->book1D("CSCTF_Track_Eta_H", "CSCTF Halo #eta",64,-32,32);
-      csctfTrackEta_H->setAxisTitle("Track #eta", 1);
-      csctfTrackEta_H->setBinLabel( 1,"-2.5", 1);
-      csctfTrackEta_H->setBinLabel( 8,"-2.1", 1);
-      csctfTrackEta_H->setBinLabel(18,"-1.6", 1);
-      csctfTrackEta_H->setBinLabel(26,"-1.2", 1);
-      csctfTrackEta_H->setBinLabel(32,"-0.9", 1);
-      csctfTrackEta_H->setBinLabel(33, "0.9", 1);
-      csctfTrackEta_H->setBinLabel(39, "1.2", 1);
-      csctfTrackEta_H->setBinLabel(47, "1.6", 1);
-      csctfTrackEta_H->setBinLabel(57, "2.1", 1);
-      csctfTrackEta_H->setBinLabel(64, "2.5", 1);
+  csctfTrackEta_H = ibooker.book1D("CSCTF_Track_Eta_H", "CSCTF Halo #eta",64,-32,32);
+  csctfTrackEta_H->setAxisTitle("Track #eta", 1);
+  csctfTrackEta_H->setBinLabel( 1,"-2.5", 1);
+  csctfTrackEta_H->setBinLabel( 8,"-2.1", 1);
+  csctfTrackEta_H->setBinLabel(18,"-1.6", 1);
+  csctfTrackEta_H->setBinLabel(26,"-1.2", 1);
+  csctfTrackEta_H->setBinLabel(32,"-0.9", 1);
+  csctfTrackEta_H->setBinLabel(33, "0.9", 1);
+  csctfTrackEta_H->setBinLabel(39, "1.2", 1);
+  csctfTrackEta_H->setBinLabel(47, "1.6", 1);
+  csctfTrackEta_H->setBinLabel(57, "2.1", 1);
+  csctfTrackEta_H->setBinLabel(64, "2.5", 1);
 		
       // Track Timing
-      csctfbx = dbe->book2D("CSCTF_bx","CSCTF BX", 12,1,13, 7,-3,3) ;
-      csctfbx->setAxisTitle("Sector (Endcap)", 1);
-      csctfbx->setBinLabel( 1," 1 (+)",1);
-      csctfbx->setBinLabel( 2," 2 (+)",1);
-      csctfbx->setBinLabel( 3," 3 (+)",1);
-      csctfbx->setBinLabel( 4," 4 (+)",1);
-      csctfbx->setBinLabel( 5," 5 (+)",1);
-      csctfbx->setBinLabel( 6," 6 (+)",1);
-      csctfbx->setBinLabel( 7," 7 (-)",1);
-      csctfbx->setBinLabel( 8," 8 (-)",1);
-      csctfbx->setBinLabel( 9," 9 (-)",1);
-      csctfbx->setBinLabel(10,"10 (-)",1);
-      csctfbx->setBinLabel(11,"11 (-)",1);
-      csctfbx->setBinLabel(12,"12 (-)",1);
+  csctfbx = ibooker.book2D("CSCTF_bx","CSCTF BX", 12,1,13, 7,-3,3) ;
+  csctfbx->setAxisTitle("Sector (Endcap)", 1);
+  csctfbx->setBinLabel( 1," 1 (+)",1);
+  csctfbx->setBinLabel( 2," 2 (+)",1);
+  csctfbx->setBinLabel( 3," 3 (+)",1);
+  csctfbx->setBinLabel( 4," 4 (+)",1);
+  csctfbx->setBinLabel( 5," 5 (+)",1);
+  csctfbx->setBinLabel( 6," 6 (+)",1);
+  csctfbx->setBinLabel( 7," 7 (-)",1);
+  csctfbx->setBinLabel( 8," 8 (-)",1);
+  csctfbx->setBinLabel( 9," 9 (-)",1);
+  csctfbx->setBinLabel(10,"10 (-)",1);
+  csctfbx->setBinLabel(11,"11 (-)",1);
+  csctfbx->setBinLabel(12,"12 (-)",1);
 		
-      csctfbx->setAxisTitle("CSCTF BX", 2);
-      csctfbx->setBinLabel( 1, "-3", 2);
-      csctfbx->setBinLabel( 2, "-2", 2);
-      csctfbx->setBinLabel( 3, "-1", 2);
-      csctfbx->setBinLabel( 4, "-0", 2);
-      csctfbx->setBinLabel( 5, " 1", 2);
-      csctfbx->setBinLabel( 6, " 2", 2);
-      csctfbx->setBinLabel( 7, " 3", 2);
+  csctfbx->setAxisTitle("CSCTF BX", 2);
+  csctfbx->setBinLabel( 1, "-3", 2);
+  csctfbx->setBinLabel( 2, "-2", 2);
+  csctfbx->setBinLabel( 3, "-1", 2);
+  csctfbx->setBinLabel( 4, "-0", 2);
+  csctfbx->setBinLabel( 5, " 1", 2);
+  csctfbx->setBinLabel( 6, " 2", 2);
+  csctfbx->setBinLabel( 7, " 3", 2);
 
       // Halo Timing
-      csctfbx_H = dbe->book2D("CSCTF_bx_H","CSCTF HALO BX", 12,1,13, 7,-3,3) ;
-      csctfbx_H->setAxisTitle("Sector (Endcap)", 1);
-      csctfbx_H->setBinLabel( 1," 1 (+)",1);
-      csctfbx_H->setBinLabel( 2," 2 (+)",1);
-      csctfbx_H->setBinLabel( 3," 3 (+)",1);
-      csctfbx_H->setBinLabel( 4," 4 (+)",1);
-      csctfbx_H->setBinLabel( 5," 5 (+)",1);
-      csctfbx_H->setBinLabel( 6," 6 (+)",1);
-      csctfbx_H->setBinLabel( 7," 7 (-)",1);
-      csctfbx_H->setBinLabel( 8," 8 (-)",1);
-      csctfbx_H->setBinLabel( 9," 9 (-)",1);
-      csctfbx_H->setBinLabel(10,"10 (-)",1);
-      csctfbx_H->setBinLabel(11,"11 (-)",1);
-      csctfbx_H->setBinLabel(12,"12 (-)",1);
+  csctfbx_H = ibooker.book2D("CSCTF_bx_H","CSCTF HALO BX", 12,1,13, 7,-3,3) ;
+  csctfbx_H->setAxisTitle("Sector (Endcap)", 1);
+  csctfbx_H->setBinLabel( 1," 1 (+)",1);
+  csctfbx_H->setBinLabel( 2," 2 (+)",1);
+  csctfbx_H->setBinLabel( 3," 3 (+)",1);
+  csctfbx_H->setBinLabel( 4," 4 (+)",1);
+  csctfbx_H->setBinLabel( 5," 5 (+)",1);
+  csctfbx_H->setBinLabel( 6," 6 (+)",1);
+  csctfbx_H->setBinLabel( 7," 7 (-)",1);
+  csctfbx_H->setBinLabel( 8," 8 (-)",1);
+  csctfbx_H->setBinLabel( 9," 9 (-)",1);
+  csctfbx_H->setBinLabel(10,"10 (-)",1);
+  csctfbx_H->setBinLabel(11,"11 (-)",1);
+  csctfbx_H->setBinLabel(12,"12 (-)",1);
 	        
-      csctfbx_H->setAxisTitle("CSCTF BX", 2);
-      csctfbx_H->setBinLabel( 1, "-3", 2);
-      csctfbx_H->setBinLabel( 2, "-2", 2);
-      csctfbx_H->setBinLabel( 3, "-1", 2);
-      csctfbx_H->setBinLabel( 4, "-0", 2);
-      csctfbx_H->setBinLabel( 5, " 1", 2);
-      csctfbx_H->setBinLabel( 6, " 2", 2);
-      csctfbx_H->setBinLabel( 7, " 3", 2);
+  csctfbx_H->setAxisTitle("CSCTF BX", 2);
+  csctfbx_H->setBinLabel( 1, "-3", 2);
+  csctfbx_H->setBinLabel( 2, "-2", 2);
+  csctfbx_H->setBinLabel( 3, "-1", 2);
+  csctfbx_H->setBinLabel( 4, "-0", 2);
+  csctfbx_H->setBinLabel( 5, " 1", 2);
+  csctfbx_H->setBinLabel( 6, " 2", 2);
+  csctfbx_H->setBinLabel( 7, " 3", 2);
 
       // Number of Tracks Stubs
-      cscTrackStubNumbers = dbe->book1D("CSCTF_TrackStubs", "Number of Stubs in CSCTF Tracks", 5, 0, 5);
-      cscTrackStubNumbers->setBinLabel( 1, "0", 1);
-      cscTrackStubNumbers->setBinLabel( 2, "1", 1);
-      cscTrackStubNumbers->setBinLabel( 3, "2", 1);
-      cscTrackStubNumbers->setBinLabel( 4, "3", 1);
-      cscTrackStubNumbers->setBinLabel( 5, "4", 1);
+  cscTrackStubNumbers = ibooker.book1D("CSCTF_TrackStubs", "Number of Stubs in CSCTF Tracks", 5, 0, 5);
+  cscTrackStubNumbers->setBinLabel( 1, "0", 1);
+  cscTrackStubNumbers->setBinLabel( 2, "1", 1);
+  cscTrackStubNumbers->setBinLabel( 3, "2", 1);
+  cscTrackStubNumbers->setBinLabel( 4, "3", 1);
+  cscTrackStubNumbers->setBinLabel( 5, "4", 1);
 
       // Number of Tracks	
-      csctfntrack = dbe->book1D("CSCTF_ntrack","Number of CSCTracks found per event", 5, 0, 5 ) ;
-      csctfntrack->setBinLabel( 1, "0", 1);
-      csctfntrack->setBinLabel( 2, "1", 1);
-      csctfntrack->setBinLabel( 3, "2", 1);
-      csctfntrack->setBinLabel( 4, "3", 1);
-      csctfntrack->setBinLabel( 5, "4", 1);
-    }
+  csctfntrack = ibooker.book1D("CSCTF_ntrack","Number of CSCTracks found per event", 5, 0, 5 ) ;
+  csctfntrack->setBinLabel( 1, "0", 1);
+  csctfntrack->setBinLabel( 2, "1", 1);
+  csctfntrack->setBinLabel( 3, "2", 1);
+  csctfntrack->setBinLabel( 4, "3", 1);
+  csctfntrack->setBinLabel( 5, "4", 1);
+      //}
  
   char hname [200];
   char htitle[200];
@@ -390,7 +364,7 @@ void L1TCSCTF::beginJob(void)
     sprintf(hname ,"DTstubsTimeTrackMenTimeArrival_%d",i+1);
     sprintf(htitle,"T_{track} - T_{DT stub} sector %d",i+1);
  
-    DTstubsTimeTrackMenTimeArrival[i] = dbe->book2D(hname,htitle, 7,-3,3, 2,1,3);
+    DTstubsTimeTrackMenTimeArrival[i] = ibooker.book2D(hname,htitle, 7,-3,3, 2,1,3);
     DTstubsTimeTrackMenTimeArrival[i]->getTH2F()->SetMinimum(0);
     
     // axis makeup
@@ -410,85 +384,6 @@ void L1TCSCTF::beginJob(void)
 
   } 
 
-
-  // NEW: CSC EVENT LCT PLOTS, Renjie Wang
-  csctflcts = dbe->book2D("CSCTF_LCT", "CSCTF LCTs", 12,1,13, 18,0,18);
-  csctflcts->setAxisTitle("CSCTF LCT BX",1);
-  csctflcts->setBinLabel(1,"1",1);
-  csctflcts->setBinLabel(2,"2",1);
-  csctflcts->setBinLabel(3,"3",1);
-  csctflcts->setBinLabel(4,"4",1);
-  csctflcts->setBinLabel(5,"5",1);
-  csctflcts->setBinLabel(6,"6",1);
-  csctflcts->setBinLabel(7,"7",1);
-  csctflcts->setBinLabel(8,"8",1);
-  csctflcts->setBinLabel(9,"9",1);
-  csctflcts->setBinLabel(10,"10",1);
-  csctflcts->setBinLabel(11,"11",1);
-  csctflcts->setBinLabel(12,"12",1); 
-
-  int ihist = 0;
-  for (int iEndcap = 0; iEndcap < 2; iEndcap++) {
-    for (int iStation = 1; iStation < 5; iStation++) {
-      for (int iRing = 1; iRing < 4; iRing++) {
-        if (iStation != 1 && iRing > 2) continue;
-        TString signEndcap="+";
-        if(iEndcap==0) signEndcap="-";
-
-        char lcttitle[200];
-        snprintf(lcttitle,200,"ME%s%d/%d", signEndcap.Data(), iStation, iRing);
-        if(ihist<=8){
-                csctflcts -> setBinLabel(9-ihist,lcttitle,2);
-        }
-        else    csctflcts -> setBinLabel(ihist+1,lcttitle,2);
-
-        ihist++;
-      }
-    }
-  }
-
-  
-  // plots for ME1/1 chambers 
-  me11_lctStrip = dbe->book1D("CSC_ME11_LCT_Strip", "CSC_ME11_LCT_Strip", 223, 0, 223);
-  me11_lctStrip->setAxisTitle("Cathode HalfStrip, ME1/1", 1);
- 
-  me11_lctWire  = dbe->book1D("CSC_ME11_LCT_Wire", "CSC_ME11_LCT_Wire", 112, 0, 112);
-  me11_lctWire->setAxisTitle("Anode Wiregroup, ME1/1", 1);
-
-  me11_lctLocalPhi = dbe->book1D("CSC_ME11_LCT_LocalPhi", "CSC_ME11_LCT_LocalPhi", 200,0,1024); 
-  me11_lctLocalPhi ->setAxisTitle("LCT Local #it{#phi}, ME1/1", 1);
-
-  me11_lctPackedPhi = dbe->book1D("CSC_ME11_LCT_PackedPhi", "CSC_ME11_LCT_PackedPhi", 200,0,4096);
-  me11_lctPackedPhi ->setAxisTitle("LCT Packed #it{#phi}, ME1/1",1);
-  
-  me11_lctGblPhi = dbe->book1D("CSC_ME11_LCT_GblPhi", "CSC_ME11_LCT_GblPhi", 200, 0, 2*M_PI);
-  me11_lctGblPhi ->setAxisTitle("LCT Global #it{#phi}, ME1/1", 1);
- 
-  me11_lctGblEta = dbe->book1D("CSC_ME11_LCT_GblEta", "CSC_ME11_LCT_GblEta", 50, 0.9, 2.5);
-  me11_lctGblEta ->setAxisTitle("LCT Global #eta, ME1/1", 1);
-
-
-  // plots for ME4/2 chambers 
-  me42_lctGblPhi = dbe->book1D("CSC_ME42_LCT_GblPhi", "CSC_ME42_LCT_GblPhi", 200, 0, 2*M_PI);
-  me42_lctGblPhi ->setAxisTitle("LCT Global #it{#phi}, ME4/2", 1);
- 
-  me42_lctGblEta = dbe->book1D("CSC_ME42_LCT_GblEta", "CSC_ME42_LCT_GblEta", 50, 0.9, 2.5);
-  me42_lctGblEta ->setAxisTitle("LCT Global #eta, ME4/2", 1);
-
-
-
-}
-
-
-void L1TCSCTF::endJob(void)
-{
-
-  if(verbose_) edm::LogInfo("DataNotFound") << "L1TCSCTF: end job...." << endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events";
-
-  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
-
-  return;
 }
 
 void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
@@ -620,12 +515,8 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
               int station = (*csc).first.station()-1;
               int sector  = (*csc).first.triggerSector()-1;
               int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
-	      int ring      = (*csc).first.ring();
               int cscId   = (*csc).first.triggerCscId()-1;
               int fpga    = ( subSector ? subSector-1 : station+1 );
-	      int strip     = lct -> getStrip();
-	      int keyWire   = lct -> getKeyWG();
-	      int bx        = lct -> getBX();
 
               int endcapAssignment = 1;
               int shift = 1;
@@ -674,76 +565,24 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
                 }
               lclphidat lclPhi;  		
               try {
-                lclPhi = srLUTs_[fpga]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend(), gangedME11a_);
+                lclPhi = srLUTs_[fpga]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend());
               } catch(cms::Exception &) { 
                 bzero(&lclPhi,sizeof(lclPhi)); 
               }
 				
               gblphidat gblPhi;
               try {
-                gblPhi = srLUTs_[fpga]->globalPhiME(lclPhi.phi_local, lct->getKeyWG(), cscId+1, gangedME11a_);
+                gblPhi = srLUTs_[fpga]->globalPhiME(lclPhi.phi_local, lct->getKeyWG(), cscId+1);
               } catch(cms::Exception &) { 
                 bzero(&gblPhi,sizeof(gblPhi)); 
               }
 				
               gbletadat gblEta;
               try {
-                gblEta = srLUTs_[fpga]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->getKeyWG(), cscId+1, gangedME11a_);
+                gblEta = srLUTs_[fpga]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->getKeyWG(), cscId+1);
               } catch(cms::Exception &) { 
                 bzero(&gblEta,sizeof(gblEta)); 
               }
-
-
-              //TrackStub                                                                                                                                 
-              csctf::TrackStub theStub((*lct), (*csc).first);                                                                                             
-              theStub.setPhiPacked(gblPhi.global_phi);
-              theStub.setEtaPacked(gblEta.global_eta);                                                                                                    
-
-	      float etaG = theStub.etaValue();
-              float phiG = fmod( theStub.phiValue()+15.0*M_PI/180+(sector)*60.0*M_PI/180, 2.*M_PI );          
-
-	      // BX plots
-	      // minus side
-	      if (endcap == 0 && station == 0 && ring == 1) { csctflcts -> Fill(bx, 8.5); }
-	      if (endcap == 0 && station == 0 && ring == 2) { csctflcts -> Fill(bx, 7.5); }
-	      if (endcap == 0 && station == 0 && ring == 3) { csctflcts -> Fill(bx, 6.5); }
-	      if (endcap == 0 && station == 1 && ring == 1) { csctflcts -> Fill(bx, 5.5); }
-	      if (endcap == 0 && station == 1 && ring == 2) { csctflcts -> Fill(bx, 4.5); }
-	      if (endcap == 0 && station == 2 && ring == 1) { csctflcts -> Fill(bx, 3.5); }
-	      if (endcap == 0 && station == 2 && ring == 2) { csctflcts -> Fill(bx, 2.5); }
-	      if (endcap == 0 && station == 3 && ring == 1) { csctflcts -> Fill(bx, 1.5); }
-	      if (endcap == 0 && station == 3 && ring == 2) { csctflcts -> Fill(bx, 0.5); }
-	      
-	      // plus side
-	      if (endcap == 1 && station == 0 && ring == 1) { csctflcts -> Fill(bx, 9.5); }
-	      if (endcap == 1 && station == 0 && ring == 2) { csctflcts -> Fill(bx, 10.5); }
-	      if (endcap == 1 && station == 0 && ring == 3) { csctflcts -> Fill(bx, 11.5); }
-	      if (endcap == 1 && station == 1 && ring == 1) { csctflcts -> Fill(bx, 12.5); }
-	      if (endcap == 1 && station == 1 && ring == 2) { csctflcts -> Fill(bx, 13.5); }
-	      if (endcap == 1 && station == 2 && ring == 1) { csctflcts -> Fill(bx, 14.5); }
-	      if (endcap == 1 && station == 2 && ring == 2) { csctflcts -> Fill(bx, 15.5); }
-	      if (endcap == 1 && station == 3 && ring == 1) { csctflcts -> Fill(bx, 16.5); }
-	      if (endcap == 1 && station == 3 && ring == 2) { csctflcts -> Fill(bx, 17.5); }
-	
-	      // only for ME1/1
-	      if(station == 0 && ring == 1){
-	      	me11_lctStrip    -> Fill(strip);
-	     	me11_lctWire     -> Fill(keyWire);
-		me11_lctLocalPhi -> Fill(lclPhi.phi_local);
-	      	me11_lctPackedPhi-> Fill(theStub.phiPacked());
-	      	me11_lctGblPhi   -> Fill(phiG);
-	      	me11_lctGblEta   -> Fill(etaG);
-	      }
-
-	      // only for ME4/2
-	      if(station == 3 && ring == 2){
-	      	me42_lctGblPhi   -> Fill(phiG);
-	      	me42_lctGblEta   -> Fill(etaG);
-	      }
-
-
-
-
            
               // SR LUT gives packed eta and phi values -> normilize them to 1 by scale them to 'max' and shift by 'min'
               //float etaP = gblEta.global_eta/127*1.5 + 0.9;

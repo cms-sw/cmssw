@@ -47,7 +47,7 @@ namespace FitterFuncs{
     pedestalConstraint_ = iPedestalConstraint;
     timeConstraint_     = iTimeConstraint;
     addPulseJitter_     = iAddPulseJitter;
-    pulseJitter_        = iPulseJitter;
+    pulseJitter_        = iPulseJitter*iPulseJitter;
     timeMean_           = iTimeMean;
     timeSig_            = iTimeSig;
     pedMean_            = iPedMean;
@@ -67,21 +67,23 @@ namespace FitterFuncs{
     constexpr int ns_per_bx = HcalConst::nsPerBX;
     constexpr int num_ns = HcalConst::nsPerBX*HcalConst::maxSamples;
     constexpr int num_bx = num_ns/ns_per_bx;
-    // zeroing output binned pulse shape
-    ntmpbin = { {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f} };
     //Get the starting time
     int i_start         = ( -HcalConst::iniTimeShift - pulseTime - slew >0 ? 0 : (int)std::abs(-HcalConst::iniTimeShift-pulseTime-slew) + 1);
-    double offset_start = i_start - HcalConst::iniTimeShift - pulseTime - slew; //-199-2*pars[0]-2.*slew (for pars[0] > 98.5) or just -98.5-pars[0]-slew;
-    if( offset_start == 1.0 ){ offset_start = 0.; i_start-=1; } //Deal with boundary
-    const int bin_start        = (int) offset_start; //bin off to integer
-    const int bin_0_start      = ( offset_start < bin_start + 0.5 ? bin_start -1 : bin_start ); //Round it
-    const int iTS_start        = i_start/ns_per_bx;         //Time Slice for time shift
-    const int distTo25ns_start = HcalConst::nsPerBX - 1 - i_start%ns_per_bx;    //Delta ns 
-    const double factor = offset_start - bin_0_start - 0.5; //Small correction?
-    
+    float offset_start = i_start - HcalConst::iniTimeShift - pulseTime - slew; //-199-2*pars[0]-2.*slew (for pars[0] > 98.5) or just -98.5-pars[0]-slew;
+    // zeroing output binned pulse shape
+    ntmpbin = { {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f} };
+
     if( edm::isNotFinite(offset_start) ){ //Check for nan
       ++ cntNANinfit;
     }else{
+      if( offset_start == 1.0 ){ offset_start = 0.; i_start-=1; } //Deal with boundary
+
+      const int bin_start        = (int) offset_start; //bin off to integer
+      const int bin_0_start      = ( offset_start < bin_start + 0.5 ? bin_start -1 : bin_start ); //Round it
+      const int iTS_start        = i_start/ns_per_bx;         //Time Slice for time shift
+      const int distTo25ns_start = HcalConst::nsPerBX - 1 - i_start%ns_per_bx;    //Delta ns 
+      const float factor = offset_start - bin_0_start - 0.5; //Small correction?
+    
       //Build the new pulse
       ntmpbin[iTS_start] = (bin_0_start == -1 ? // Initial bin (I'm assuming this is ok)
 			      accVarLenIdxMinusOneVec[distTo25ns_start] + factor * diffVarItvlIdxMinusOneVec[distTo25ns_start]
@@ -91,56 +93,83 @@ namespace FitterFuncs{
 	int bin_idx = distTo25ns_start + 1 + (iTS-iTS_start-1)*ns_per_bx + bin_0_start;
 	ntmpbin[iTS] = acc25nsVec[bin_idx] + factor * diff25nsItvlVec[bin_idx];
       }
+      //Scale the pulse 
+      for(int i=iTS_start; i < num_bx; ++i) {
+	ntmpbin[i]     *= pulseHeight;
+      }
+
     }
-    //Scale the pulse 
-    for(int i=0; i < num_bx; ++i) {
-      ntmpbin[i]     *= pulseHeight;
-    }
+
     return;
   }
 
   PulseShapeFunctor::~PulseShapeFunctor() {
   }
 
-  double PulseShapeFunctor::EvalPulse(const std::vector<double>& pars) {
+  double PulseShapeFunctor::EvalPulse(const double *pars, unsigned int nPars) {
       constexpr unsigned nbins = (unsigned) HcalConst::maxSamples;
       unsigned i =0, j=0;
       //Stop crashes
-      for(i =0; i < pars.size(); ++i ) if( edm::isNotFinite(pars[i]) ){ ++ cntNANinfit; return 1e10; }
+      for(i =0; i < nPars; ++i ) if( edm::isNotFinite(pars[i]) ){ ++ cntNANinfit; return 1e10; }
       
       //calculate chisquare
       double chisq  = 0;
-      double delta2 =0;
-      std::array<float,HcalConst::maxSamples> pulse_shape_sum;
-      for(i=0; i < (pars.size()-1)/2; ++i ){
-         int time = (pars[i*2]+timeShift_)*HcalConst::invertnsPerBx;
-         //Interpolate the fit (Quickly)
-         std::array<float,HcalConst::maxSamples> pulse_shape;
-         funcHPDShape(pulse_shape, pars[i*2],pars[i*2+1],psFit_slew[time]);
-         // add an uncertainty from the pulse (currently noise * pulse height =>Ecal uses full cov)
-         if(addPulseJitter_) {
-            for (j=0; j<nbins; ++j) {
-               if( i==0 ) psFit_erry2[j]  = psFit_erry[j]*psFit_erry[j];
-               psFit_erry2[j] += pulse_shape[j]*pulse_shape[j]*pulseJitter_*pulseJitter_;
-            }
-         }
-         for(j=0; j<nbins; ++j){
-            if( i==0 ) pulse_shape_sum[j] = pulse_shape[j] + pars.back();
-            else pulse_shape_sum[j] += pulse_shape[j];
-         }
+      unsigned int parBy2=(nPars-1)/2;
+      //      std::array<float,HcalConst::maxSamples> pulse_shape_;
+
+      if(addPulseJitter_) {
+	int time = (pars[0]+timeShift_)*HcalConst::invertnsPerBx;
+	//Interpolate the fit (Quickly)
+	funcHPDShape(pulse_shape_, pars[0],pars[1],psFit_slew[time]);
+	for (j=0; j<nbins; ++j) {
+	  psFit_erry2[j]  = psFit_erry[j]*psFit_erry[j] + pulse_shape_[j]*pulse_shape_[j]*pulseJitter_;
+	  pulse_shape_sum_[j] = pulse_shape_[j] + pars[nPars-1];
+	}
+
+	i=1;
+	while (i<parBy2) {  
+	  time = (pars[i*2]+timeShift_)*HcalConst::invertnsPerBx;
+	  //Interpolate the fit (Quickly)
+	  funcHPDShape(pulse_shape_, pars[i+2],pars[i*2+1],psFit_slew[time]);
+	  // add an uncertainty from the pulse (currently noise * pulse height =>Ecal uses full cov)
+	 /////
+	  for (j=0; j<nbins; ++j) {
+	    psFit_erry2[j] += pulse_shape_[j]*pulse_shape_[j]*pulseJitter_;
+	    pulse_shape_sum_[j] += pulse_shape_[j];
+	  }	    
+	  i++;
+	}
       }
-      for (i=0;i<nbins; ++i) {
-        delta2 = (psFit_y[i]- pulse_shape_sum[i])*(psFit_y[i]- pulse_shape_sum[i])/psFit_erry2[i];
-        chisq += delta2;
+      else{
+	int time = (pars[0]+timeShift_)*HcalConst::invertnsPerBx;
+	//Interpolate the fit (Quickly)
+	funcHPDShape(pulse_shape_, pars[0],pars[1],psFit_slew[time]);
+	for(j=0; j<nbins; ++j)
+	  pulse_shape_sum_[j] = pulse_shape_[j] + pars[nPars-1];
+
+	i=1;
+	while (i<parBy2) {  
+	  time = (pars[i*2]+timeShift_)*HcalConst::invertnsPerBx;
+	  //Interpolate the fit (Quickly)
+	  funcHPDShape(pulse_shape_, pars[i*2],pars[i*2+1],psFit_slew[time]);
+	  // add an uncertainty from the pulse (currently noise * pulse height =>Ecal uses full cov)
+	  for(j=0; j<nbins; ++j)
+	    pulse_shape_sum_[j] += pulse_shape_[j];
+	  i++;
+	}
       }
-      //Add the pedestal Constraint to chi2
+
+      for (i=0;i<nbins; ++i) 
+        chisq += (psFit_y[i]- pulse_shape_sum_[i])*(psFit_y[i]- pulse_shape_sum_[i])/psFit_erry2[i];
+
       if(pedestalConstraint_) {
-	chisq += invertpedSig2_*(pars.back() - pedMean_)*(pars.back()- pedMean_);
+	 //Add the pedestal Constraint to chi2
+         chisq += invertpedSig2_*(pars[nPars-1] - pedMean_)*(pars[nPars-1]- pedMean_);
       }
-      //Add the time Constraint to chi2
+        //Add the time Constraint to chi2
       if(timeConstraint_) {
-	for(j=0; j< (pars.size()-1)/2; ++j ){
-	  int time = (pars[j*2]+timeShift_)/(double)HcalConst::nsPerBX;
+	for(j=0; j< parBy2; ++j ){
+	  int time = (pars[j*2]+timeShift_)*(double)HcalConst::invertnsPerBx;
 	  double time1 = -100.+time*HcalConst::nsPerBX;
 	  chisq += inverttimeSig2_*(pars[j*2] - timeMean_ - time1)*(pars[j*2] - timeMean_ - time1);
 	}
@@ -149,18 +178,15 @@ namespace FitterFuncs{
    }
 
    double PulseShapeFunctor::singlePulseShapeFunc( const double *x ) {
-      std::vector<double> pars(x, x+3);
-      return EvalPulse(pars);
+      return EvalPulse(x,3);
    }
   
    double PulseShapeFunctor::doublePulseShapeFunc( const double *x ) {
-      std::vector<double> pars(x, x+5);
-      return EvalPulse(pars);
+      return EvalPulse(x,5);
    }
   
    double PulseShapeFunctor::triplePulseShapeFunc( const double *x ) {
-      std::vector<double> pars(x, x+7);
-      return EvalPulse(pars);
+      return EvalPulse(x,7);
    }
   //Greg's Hcal Binning => here to keep the const correctness below (channel discretization)
    double PulseShapeFunctor::sigma(double ifC) { 
@@ -206,7 +232,7 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
   applyTimeSlew_      = iApplyTimeSlew;
   ts4Min_             = iTS4Min;
   ts4Max_             = iTS4Max;
-  pulseJitter_        = iPulseJitter;
+  pulseJitter_        = iPulseJitter*iPulseJitter;
   timeMean_           = iTimeMean;
   timeSig_            = iTimeSig;
   pedMean_            = iPedMean;

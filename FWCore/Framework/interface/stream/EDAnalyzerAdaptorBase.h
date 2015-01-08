@@ -19,6 +19,8 @@
 //
 
 // system include files
+#include <map>
+#include <string>
 #include <vector>
 
 // user include files
@@ -27,6 +29,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
@@ -90,6 +93,14 @@ namespace edm {
       
       void modulesDependentUpon(const std::string& iProcessName,
                                 std::vector<const char*>& oModuleLabels) const;
+
+      void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+                                           ProductRegistry const& preg,
+                                           std::map<std::string, ModuleDescription const*> const& labelsToDesc,
+                                           std::string const& processName) const;
+
+      std::vector<ConsumesInfo> consumesInfo() const;
+
     private:
       EDAnalyzerAdaptorBase(const EDAnalyzerAdaptorBase&); // stop default
       

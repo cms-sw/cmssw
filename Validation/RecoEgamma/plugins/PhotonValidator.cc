@@ -150,7 +150,7 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
       edm::InputTag("famosSimHits"));
   hepMC_Token_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
   genjets_Token_ = consumes<reco::GenJetCollection>(
-      edm::InputTag("iterativeCone5GenJets"));
+      edm::InputTag("ak4GenJets"));
 
 
   nEvt_=0;
@@ -3752,23 +3752,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   h_nPho_->Fill(float(nPho));
 
-}
-
-
-
-
-
-
-void PhotonValidator::endJob() {
-
-
-  std::string outputFileName = parameters_.getParameter<std::string>("OutputFileName");
-  if ( ! isRunCentrally_ ) {
-    edm::Service<DQMStore>()->save(outputFileName);
-  }
-
-  edm::LogInfo("PhotonValidator") << "Analyzed " << nEvt_  << "\n";
-  return ;
 }
 
 float PhotonValidator::phiNormalization(float & phi)

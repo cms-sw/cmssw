@@ -103,6 +103,9 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 #include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
+#include "CondFormats/DataRecord/interface/EcalSamplesCorrelationRcd.h"
+
 #include "SimG4CMS/Calo/interface/EnergyResolutionVsLumi.h"
 #include "SimG4CMS/Calo/interface/EvolutionECAL.h"
 
@@ -174,6 +177,8 @@ public:
   virtual std::auto_ptr<EcalSampleMask> produceEcalSampleMask( const EcalSampleMaskRcd& );
 
   virtual std::auto_ptr<EcalTimeBiasCorrections> produceEcalTimeBiasCorrections( const EcalTimeBiasCorrectionsRcd& );
+
+  virtual std::auto_ptr<EcalSamplesCorrelation> produceEcalSamplesCorrelation( const EcalSamplesCorrelationRcd& );
 
 protected:
   //overriding from ContextRecordIntervalFinder
@@ -294,6 +299,14 @@ private:
   std::vector<double> EEtimeCorrAmplitudeBins_;
   std::vector<double> EEtimeCorrShiftBins_;
 
+  std::vector<double> EBG12samplesCorrelation_;
+  std::vector<double> EBG6samplesCorrelation_;
+  std::vector<double> EBG1samplesCorrelation_;
+  std::vector<double> EEG12samplesCorrelation_;
+  std::vector<double> EEG6samplesCorrelation_;
+  std::vector<double> EEG1samplesCorrelation_;
+  std::string SamplesCorrelationFile_;
+
   int nTDCbins_;
 
   bool getWeightsFromFile_;
@@ -331,6 +344,8 @@ private:
   bool getLaserAlphaFromFile_;
   bool producedEcalSampleMask_;
   bool producedEcalTimeBiasCorrections_;
+  bool producedEcalSamplesCorrelation_;
+  bool getSamplesCorrelationFromFile_;
 
   int    verbose_; // verbosity
 
