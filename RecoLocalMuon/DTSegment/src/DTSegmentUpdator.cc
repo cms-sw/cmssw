@@ -119,12 +119,10 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg, bool allow3par)  const {
   }
   
   
-  // use the 2-par fit UNLESS the 4D segment only has the Phi projection or is out of time by more than 20ns
-  // - in these cases use the 3-par fit
+  // If both phi and zed projections are present and the phi segment is in time (segment t0<intime_cut) the 3-par fit is blocked and 
+  // segments are fit with the 2-par fit. Setting intime_cut to -1 results in the 3-par fit being used always.
   if(seg->hasPhi()) {
     if(seg->hasZed()) {
-
-      // fit in-time Phi segments with the 2par fit and out-of-time segments with the 3par fit
       if (fabs(seg->phiSegment()->t0())<intime_cut) {
         fit(seg->phiSegment(),allow3par,1);
         fit(seg->zSegment(),allow3par,1);      
@@ -132,7 +130,6 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg, bool allow3par)  const {
         fit(seg->phiSegment(),allow3par,0);
         fit(seg->zSegment(),allow3par,0);      
       }
-
     } else fit(seg->phiSegment(),allow3par,0);
   } else fit(seg->zSegment(),allow3par,0);
  

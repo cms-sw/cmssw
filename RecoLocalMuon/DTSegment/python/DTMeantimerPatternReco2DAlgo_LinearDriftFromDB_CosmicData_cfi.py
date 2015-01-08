@@ -17,7 +17,7 @@ DTMeantimerPatternReco2DAlgo_LinearDriftFromDB_CosmicData = cms.PSet(
         AlphaMaxTheta = cms.double(100.),
         MaxChi2 = cms.double(4.0),
         MaxAllowedHits = cms.uint32(50),
-#        intime_cut = cms.double(-1.),
+        intime_cut = cms.double(-1.),
         debug = cms.untracked.bool(False),
 
         # Parameters for the cleaner
