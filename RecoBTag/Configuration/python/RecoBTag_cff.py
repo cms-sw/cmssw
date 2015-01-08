@@ -5,8 +5,9 @@ from RecoBTag.SoftLepton.softLepton_cff import *
 from RecoBTag.ImpactParameter.impactParameter_cff import *
 from RecoBTag.SecondaryVertex.secondaryVertex_cff import *
 from RecoBTau.JetTagComputer.combinedMVA_cff import *
+from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import *
 
-btagging = cms.Sequence(
+legacyBTagging = cms.Sequence(
     (
       # impact parameters and IP-only algorithms
       impactParameterTagInfos *
@@ -28,7 +29,20 @@ btagging = cms.Sequence(
         ghostTrackBJetTags
       ) +
 
-      # new candidate-based fwk, with PF inputs
+      # soft lepton tag infos and algos
+      softPFMuonsTagInfos *
+      softPFMuonBJetTags
+      + softPFElectronsTagInfos *
+      softPFElectronBJetTags
+    )
+
+    # overall combined taggers
+    * combinedMVABJetTags
+)
+
+# new candidate-based fwk, with PF inputs
+pfBTagging = cms.Sequence(
+    (
       # impact parameters and IP-only algorithms
       pfImpactParameterTagInfos *
       ( pfTrackCountingHighEffBJetTags +
@@ -42,7 +56,8 @@ btagging = cms.Sequence(
           pfSimpleSecondaryVertexHighPurBJetTags +
           pfCombinedSecondaryVertexBJetTags
         )
-        + pfInclusiveSecondaryVertexFinderTagInfos *
+        + inclusiveCandidateVertexing *
+        pfInclusiveSecondaryVertexFinderTagInfos *
         pfCombinedInclusiveSecondaryVertexV2BJetTags
 
       ) +
@@ -52,10 +67,10 @@ btagging = cms.Sequence(
       softPFMuonBJetTags
       + softPFElectronsTagInfos *
       softPFElectronBJetTags
-    ) *
+    )
 
     # overall combined taggers
-    ( combinedMVABJetTags +
-      pfCombinedMVABJetTags
-    )
+    * pfCombinedMVABJetTags
 )
+
+btagging = legacyBTagging + pfBTagging

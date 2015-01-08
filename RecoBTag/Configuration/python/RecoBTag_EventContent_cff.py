@@ -36,7 +36,8 @@ RecoBTagFEVT = cms.PSet(
         'keep *_pfSimpleSecondaryVertexHighPurBJetTags_*_*',
         'keep *_pfCombinedSecondaryVertexBJetTags_*_*',
         'keep *_pfCombinedInclusiveSecondaryVertexV2BJetTags_*_*',
-        'keep *_pfCombinedMVABJetTags_*_*'
+        'keep *_pfCombinedMVABJetTags_*_*',
+        'keep *_inclusiveCandidateSecondaryVertices_*_*'
     )
 )
 #RECO content
@@ -75,7 +76,8 @@ RecoBTagRECO = cms.PSet(
         'keep *_pfSimpleSecondaryVertexHighPurBJetTags_*_*',
         'keep *_pfCombinedSecondaryVertexBJetTags_*_*',
         'keep *_pfCombinedInclusiveSecondaryVertexV2BJetTags_*_*',
-        'keep *_pfCombinedMVABJetTags_*_*'
+        'keep *_pfCombinedMVABJetTags_*_*',
+        'keep *_inclusiveCandidateSecondaryVertices_*_*'
     )
 )
 #AOD content
@@ -114,6 +116,7 @@ RecoBTagAOD = cms.PSet(
         'keep *_pfSimpleSecondaryVertexHighPurBJetTags_*_*',
         'keep *_pfCombinedSecondaryVertexBJetTags_*_*',
         'keep *_pfCombinedInclusiveSecondaryVertexV2BJetTags_*_*',
-        'keep *_pfCombinedMVABJetTags_*_*'
+        'keep *_pfCombinedMVABJetTags_*_*',
+        'keep *_inclusiveCandidateSecondaryVertices_*_*'
     )
 )
