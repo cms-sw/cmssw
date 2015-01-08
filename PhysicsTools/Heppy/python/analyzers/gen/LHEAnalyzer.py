@@ -43,16 +43,16 @@ class LHEAnalyzer( Analyzer ):
           if status == 1 and ( ( idabs == 21 ) or (idabs > 0 and idabs < 7) ) : # gluons and quarks
               event.lheHT += sqrt( pup[i][0]**2 + pup[i][1]**2 ) # first entry is px, second py
               event.lheNj +=1
-              if idabs in [12,14,16] :  
-                  if id > 0 :
-                    nu = i
-                  else :
-                    nuBar = i
-              if idabs in [11,13,15] :  
-                  if id > 0 :
-                    l = i
-                  else :
-                    lBar = i
+          if idabs in [12,14,16] :  
+              if id > 0 :
+                nu = i
+              else :
+                nuBar = i
+          if idabs in [11,13,15] :  
+              if id > 0 :
+                l = i
+              else :
+                lBar = i
           v=None
           if l and lBar : #Z to LL
               v=(l,lBar)
@@ -63,7 +63,7 @@ class LHEAnalyzer( Analyzer ):
           elif nu and nuBar : #Z to nn 
               v=(nu,nuBar)
           if v :
-            event.lheV_pt = sqrt( (pup[v(0)][0]+pup[v(1)][0])**2 +  (pup[v(0)][1]+pup[v(1)][1])**2 )
+            event.lheV_pt = sqrt( (pup[v[0]][0]+pup[v[1]][0])**2 +  (pup[v[0]][1]+pup[v[1]][1])**2 )
 
         return True
 
