@@ -1,7 +1,6 @@
 #ifndef DiJetVarAnalyzer_h
 #define DiJetVarAnalyzer_h
 
-
 #include "DQM/DataScouting/interface/ScoutingAnalyzerBase.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
@@ -12,24 +11,14 @@
 #include <vector>
 #include <cmath>
 
-class DiJetVarAnalyzer : public ScoutingAnalyzerBase
- {
-
+class DiJetVarAnalyzer : public ScoutingAnalyzerBase {
   public:
-
     explicit DiJetVarAnalyzer( const edm::ParameterSet &  ) ;
     virtual ~DiJetVarAnalyzer() ;
-
+    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     virtual void analyze( const edm::Event & , const edm::EventSetup &  );
-    virtual void beginRun( const edm::Run &, const edm::EventSetup & );
-    virtual void endRun( edm::Run const &, edm::EventSetup const & ) ;
-
-    virtual void bookMEs();
-
   private: 
-
     edm::InputTag jetCollectionTag_;
-    //edm::InputTag dijetVarCollectionTag_;
     edm::InputTag widejetsCollectionTag_;
     edm::InputTag metCollectionTag_;
     edm::InputTag metCleanCollectionTag_;
@@ -46,13 +35,10 @@ class DiJetVarAnalyzer : public ScoutingAnalyzerBase
     // trigger conditions
     triggerExpression::Evaluator * HLTpathMain_;
     triggerExpression::Evaluator * HLTpathMonitor_;
-    
     // cache some data from the Event for faster access by the trigger conditions
     triggerExpression::Data triggerConfiguration_;
-    
     //1D histograms
     MonitorElement * m_cutFlow;
-
     MonitorElement * m_MjjWide_finalSel;
     MonitorElement * m_MjjWide_finalSel_varbin;
     MonitorElement * m_MjjWide_finalSel_WithoutNoiseFilter;
@@ -106,7 +92,5 @@ class DiJetVarAnalyzer : public ScoutingAnalyzerBase
     edm::EDGetTokenT<std::vector<math::PtEtaPhiMLorentzVector> > widejetsCollectionTagToken_;
     edm::EDGetTokenT<reco::CaloMETCollection> metCollectionTagToken_;
     edm::EDGetTokenT<reco::CaloMETCollection> metCleanCollectionTagToken_;
-
- } ;
-
+};
 #endif
