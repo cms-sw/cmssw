@@ -71,7 +71,7 @@ HLTJetSortedVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descr
 	desc.add<std::string>("value","second");
 	desc.add<int>("triggerType",trigger::TriggerJet);
 	desc.add<int>("njets",4);
-	descriptions.add(string("hlt")+string(typeid(HLTJetSortedVBFFilter<T>).name()),desc);
+        descriptions.add(defaultModuleLabel<HLTJetSortedVBFFilter<T>>(), desc);
 }
 
 template<typename T> float HLTJetSortedVBFFilter<T>::findCSV(const typename std::vector<T>::const_iterator & jet, const reco::JetTagCollection  & jetTags){
