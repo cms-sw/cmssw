@@ -195,6 +195,15 @@ namespace edm {
     return h;
   }
 
+  BasicHandle
+  Event::getImpl(std::type_info const&, ProductID const& pid) const {
+    BasicHandle h = this->getByProductID_(pid);
+    if(h.isValid()) {
+      addToGotBranchIDs(*(h.provenance()));
+    }
+    return h;
+  }
+
   TriggerNames const&
   Event::triggerNames(edm::TriggerResults const& triggerResults) const {
     edm::TriggerNames const* names = triggerNames_(triggerResults);
