@@ -14,6 +14,8 @@
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include <iostream>
 
@@ -22,7 +24,7 @@ using namespace edm;
 using namespace std;
 
 KVFTest::KVFTest(const edm::ParameterSet& iConfig)
-  : theConfig(iConfig), associatorForParamAtPca(0), tree(0)
+  : theConfig(iConfig), associatorForParamAtPca(nullptr)
 {
   token_tracks = consumes<TrackCollection>(iConfig.getParameter<string>("TrackLabel"));
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile");
@@ -46,7 +48,6 @@ void KVFTest::beginJob(){
 
 
 void KVFTest::endJob() {
-  delete tree;
 }
 
 //
@@ -56,12 +57,14 @@ void KVFTest::endJob() {
 void
 KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  if ( associatorForParamAtPca==0 ) {
+  if ( associatorForParamAtPca==nullptr ) {
     edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
     iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
-    associatorForParamAtPca = (TrackAssociatorByChi2 *) theAssociatorForParamAtPca.product();
+    associatorForParamAtPca = theAssociatorForParamAtPca.product();
 
-    tree = new SimpleVertexTree("VertexFitter", associatorForParamAtPca);
+    edm::ESHandle<MagneticField> magField;
+    iSetup.get<IdealMagneticFieldRecord>().get(magField);
+    tree.reset( new SimpleVertexTree("VertexFitter", magField.product()) );
   }
 
 
@@ -113,7 +116,8 @@ KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	const TrackingParticleCollection tPC = *(TPCollectionH.product());
 	reco::RecoToSimCollection recSimColl=associatorForParamAtPca->associateRecoToSim(tks,
 											 TPCollectionH,
-											 &iEvent);    
+											 &iEvent,
+                                                                                         &iSetup);    
 	tree->fill(tv, &sv, &recSimColl);
       }
     }
