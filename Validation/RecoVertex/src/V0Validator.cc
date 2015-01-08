@@ -19,6 +19,8 @@
 
 #include "Validation/RecoVertex/interface/V0Validator.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 
 typedef std::vector<TrackingVertex> TrackingVertexCollection;
 typedef edm::Ref<TrackingVertexCollection> TrackingVertexRef;
