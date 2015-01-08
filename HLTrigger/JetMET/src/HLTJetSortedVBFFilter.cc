@@ -39,11 +39,16 @@ HLTJetSortedVBFFilter<T>::HLTJetSortedVBFFilter(const edm::ParameterSet& iConfig
  ,ptsqq_       (iConfig.getParameter<double>       ("Ptsumqq"     ))
  ,ptsbb_       (iConfig.getParameter<double>       ("Ptsumbb"     ))
  ,seta_        (iConfig.getParameter<double>       ("Etaq1Etaq2"  ))
+ ,njets_       (iConfig.getParameter<int>          ("njets"       ))
  ,value_       (iConfig.getParameter<std::string>  ("value"       ))
  ,triggerType_ (iConfig.getParameter<int>          ("triggerType" ))
 {
   m_theJetsToken = consumes<std::vector<T>>(inputJets_);
   m_theJetTagsToken = consumes<reco::JetTagCollection>(inputJetTags_);
+  if(njets_<4) {
+  	edm::LogWarning("LowNJets")<< "njets="<<njets_<<" it must be >=4. Forced njets=4.";
+  	njets_=4;
+  }
 }
 
 
@@ -67,6 +72,7 @@ HLTJetSortedVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("Etaq1Etaq2",40.);
   desc.add<std::string>("value","second");
   desc.add<int>("triggerType",trigger::TriggerJet);
+  desc.add<int>("njets",4);
   descriptions.add(string("hlt")+string(typeid(HLTJetSortedVBFFilter<T>).name()),desc);
 }
 
@@ -94,7 +100,6 @@ template<typename T>
 bool
 HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup,trigger::TriggerFilterObjectWithRefs& filterproduct) const
 {
-
    using namespace std;
    using namespace edm;
    using namespace reco;
@@ -104,7 +109,7 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
    typedef Ref<TCollection> TRef;
 
    bool accept(false);
-   const unsigned int nMax(4);
+   const unsigned int nMax(njets_);
 
    if (saveTags()) filterproduct.addCollectionTag(inputJets_);
 
@@ -114,14 +119,13 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
    Handle<TCollection> jets;
    event.getByToken(m_theJetsToken,jets);
    Handle<JetTagCollection> jetTags;
+   if (jets->size()<4) return false;
 
    unsigned int nJet=0;
    double value(0.0);
 
    Particle::LorentzVector b1,b2,q1,q2;
-
    if (inputJetTags_.encode()=="") {
-     if (jets->size()<nMax) return false;
      for (typename TCollection::const_iterator jet=jets->begin(); (jet!=jets->end()&& nJet<nMax); ++jet) {
        if (value_=="Pt") {
 	 value=jet->pt();
@@ -143,11 +147,77 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
      b1 = jetRefs[2]->p4();
      b2 = jetRefs[1]->p4();
      q2 = jetRefs[0]->p4();
-   } else {
+   } else if(value_=="1BTagAndEta"){
      event.getByToken(m_theJetTagsToken,jetTags);
+     vector<Jpair> sorted;
+   	 unsigned int b1_idx=-1;
+   	 float csv_max=-999;
+   	 for (typename TCollection::const_iterator jet=jets->begin(); (jet!=jets->end()&& nJet<nMax); ++jet) { //fill "sorted" and get the most b-tagged jet with higher CSV (b1)
+   		value = findCSV(jet, *jetTags);
+   		if(value>csv_max) {
+   			csv_max=value;
+   			b1_idx=nJet;
+   		}
+   		sorted.push_back(make_pair(jet->eta(),nJet));
+   		nJet++;
+//   		cout << "jetPt=" << jet->pt() << "\tjetEta=" << jet->eta() << "\tjetCSV=" << value << endl;
+   	}
+   	if(b1_idx>=sorted.size() || b1_idx<0) edm::LogError("OutOfRange")<< "b1 index out of range.";
+   	sorted.erase(sorted.begin()+b1_idx); //remove the most b-tagged jet from "sorted"
+   	sort(sorted.begin(),sorted.end(),comparator); //sort "sorted" by eta
 
+   	unsigned int q1_idx=sorted.front().second;  //take the backward jet (q1)
+   	unsigned int q2_idx=sorted.back().second;  //take the forward jet (q2)
+   	
+    unsigned int i=0;
+   	while( (i==q1_idx) || (i==q2_idx) || (i==b1_idx) ) i++; //take jet with highest pT but q1,q2,b1 (q2)
+   	unsigned int b2_idx=i;
 
-     if (jetTags->size()<nMax) return false;
+   	if(q1_idx<jets->size()) q1 = jets->at(q1_idx).p4(); else edm::LogWarning("Something wrong with q1");
+   	if(q2_idx<jets->size()) q2 = jets->at(q2_idx).p4(); else edm::LogWarning("Something wrong with q2");
+   	if(b1_idx<jets->size()) b1 = jets->at(b1_idx).p4(); else edm::LogWarning("Something wrong with b1");
+   	if(b2_idx<jets->size()) b2 = jets->at(b2_idx).p4(); else edm::LogWarning("Something wrong with b2");
+
+//   	cout<<"\tPathB: b1="<<b1.pt()<<" b2="<<b2.pt()<<" q1="<<q1.pt()<<" q2="<<q2.pt()<<endl; 
+   } else if(value_=="2BTagAndPt"){
+     event.getByToken(m_theJetTagsToken,jetTags);
+     vector<Jpair> sorted;
+
+   	 unsigned int b1_idx=-1;
+   	 unsigned int b2_idx=-1;
+   	 float csv1=-999;
+   	 float csv2=-999;
+   	 for (typename TCollection::const_iterator jet=jets->begin(); (jet!=jets->end()&& nJet<nMax); ++jet) { //fill "sorted" and get the two most b-tagged jets (b1,b2)
+   		value = findCSV(jet, *jetTags);
+   		if(value>csv1) {
+   			csv2=csv1;
+   			b2_idx=b1_idx;
+   			csv1=value;
+   			b1_idx=nJet;
+   		} 
+   		else if(value>csv2){
+   			csv2=value;
+   			b2_idx=nJet;
+   		}
+   		sorted.push_back(make_pair(jet->eta(),nJet));
+   		nJet++;
+//   		cout << "jetPt=" << jet->pt() << "\tjetEta=" << jet->eta() << "\tjetCSV=" << value << endl;
+   	}
+   	sorted.erase(sorted.begin()+b1_idx); //remove b1 and b2 from sorted
+   	sorted.erase(sorted.begin()+(b1_idx>b2_idx?b2_idx:b2_idx-1));
+
+   	unsigned int q1_idx=sorted.at(0).second;  //get q1 and q2 as the jets with highest pT, but b1 and b2.
+   	unsigned int q2_idx=sorted.at(1).second;
+
+   	if(q1_idx<jets->size()) q1 = jets->at(q1_idx).p4(); else edm::LogWarning("Something wrong with q1");
+   	if(q2_idx<jets->size()) q2 = jets->at(q2_idx).p4(); else edm::LogWarning("Something wrong with q2");
+   	if(b1_idx<jets->size()) b1 = jets->at(b1_idx).p4(); else edm::LogWarning("Something wrong with b1");
+   	if(b2_idx<jets->size()) b2 = jets->at(b2_idx).p4(); else edm::LogWarning("Something wrong with b2");
+
+//   	cout<<"\tPathA: b1="<<b1.pt()<<" b2="<<b2.pt()<<" q1="<<q1.pt()<<" q2="<<q2.pt()<<endl; 
+   }
+   else {
+     event.getByToken(m_theJetTagsToken,jetTags);
      for (typename TCollection::const_iterator jet=jets->begin(); (jet!=jets->end()&& nJet<nMax); ++jet) {
 
        if (value_=="second") {
