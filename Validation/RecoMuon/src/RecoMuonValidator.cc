@@ -2,8 +2,7 @@
 
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
