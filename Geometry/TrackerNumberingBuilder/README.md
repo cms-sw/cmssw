@@ -2,7 +2,7 @@ In this package the `GeometricDet` tree of the `TrackerGeometry` object in the `
 of `TrackerGeometricDetESModule`, and the `TrackerTopology` object is configured to be able to decode the DetIds using
 the same schema.
 
-The graph of the `GeometricDet` tree can be found in [this file](GeometricDetBuilder.png)
+The graph of the `GeometricDet` tree can be found in [this file](doc/GeometricDetBuilder.png)
 
 ## Available DetId Schemas
 The predefined DetId schemas available in this package are:

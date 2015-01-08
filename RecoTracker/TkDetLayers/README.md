@@ -1,1 +1,1 @@
-The graph of the `TkDetLayers` tree can be found in [this file](TkDetLayersTree.pdf)
+The graph of the `TkDetLayers` tree can be found in [this file](doc/TkDetLayersTree.pdf)
