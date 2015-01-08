@@ -228,8 +228,10 @@ private:
   // coning afterburner
   void runConingAfterburner(const edm::Handle<reco::PFRecHitCollection>& handle,
 			    const reco::PFRecHitCollection& hits,
+			    const reco::PFClusterCollection& clusters,
 			    const reco::PFCluster& tk_linked_cluster,
 			    std::vector<bool>& rechit_usable,
+			    std::vector<bool>& cluster_usable,
 			    reco::PFCluster& working_cluster);
 
   // utility
@@ -695,6 +697,7 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
   _hit_nodes.clear();
   
   const reco::TrackCollection& tracks = *_tracks;
+  std::cout << "there are " << _usable_tracks.size() << " tracks to process!" << std::endl;
   for( const unsigned i : _usable_tracks ) {
     reco::PFCluster temp;
     const reco::Track& tk = tracks[i];
@@ -743,27 +746,50 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 	      //const auto& pos = hits[best_index].position();
 	      temp.addRecHitFraction(reco::PFRecHitFraction(makeRefhit(hits_handle,best_index),1.0));
 	      //std::cout << "adding hit at: (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") to cluster! (least distance = " << least_distance << " cm)" << std::endl;	    
-	    } else if ( !rechit_usable[best_index] ) { // rechit is in a cluster or masked
+	    } else { // rechit is in a cluster or masked
 	      auto cluster_match = _rechits_to_clusters.find(best_index);
 	      if( cluster_match != _rechits_to_clusters.end() ) {
 		const GlobalVector& tkdir_orig = piStateAtSurface.globalDirection();
 		math::XYZVector tkdir(tkdir_orig.x(),tkdir_orig.y(),tkdir_orig.z());
 		const math::XYZVector& clusdir = output[cluster_match->second].axis();
 		// get angle between vectors...
-		double angle = std::abs(std::acos(tkdir.Dot(clusdir)/std::sqrt(tkdir.mag2()*clusdir.mag2())));			
+		const double angle = std::abs(std::acos(tkdir.Dot(clusdir)/std::sqrt(tkdir.mag2()*clusdir.mag2())));
+		//const auto& pos = output[cluster_match->second].position();		
 		if( cluster_usable[cluster_match->second] && 
-		    angle < _maxClusterAngleToTrack  ) {
-		  //const auto& pos = output[cluster_match->second].position();
+		    ( angle < _maxClusterAngleToTrack ) ) { 
+		  
 		  cluster_usable[cluster_match->second] = false;
 		  for( const auto& hAndF : output[cluster_match->second].recHitFractions() ) {
 		    temp.addRecHitFraction(hAndF);
 		  }
 		  if( _useAfterburner ) {
-		    runConingAfterburner(hits_handle,hits,output[cluster_match->second],
-					 rechit_usable,temp);
+		    runConingAfterburner(hits_handle,
+					 hits,
+					 output,
+					 output[cluster_match->second],
+					 rechit_usable,
+					 cluster_usable,
+					 temp);
 		  }
-		  //std::cout << "adding cluster at: (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") to cluster!" << std::endl;
+		  //std::cout << "adding cluster at: (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") to had-supercluster!" << std::endl;
+		} /* else {
+		  
+		  std::cout << "rejected cluster at : (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") to had-supercluster!";
+		  if( !cluster_usable[cluster_match->second] ) {
+		    _emPreID->reset();
+		    if( _emPreID->isEm(output[cluster_match->second]) ) {
+		      std::cout << " because cluster is EM!";
+		    } else {
+		      std::cout << " because cluster already used!";		      
+		    }
+		  }
+		  if( angle >= _maxClusterAngleToTrack && (pos - tkpos).rho() >= 1.5) {
+		    std::cout << " because cluster doesn't point along track! " << angle << ' ' << (pos - tkpos).rho();
+		  }
+		  std::cout << std::endl;
+		  
 		}
+		*/
 	      }
 	    }
 	  }
@@ -796,8 +822,10 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 void HGCClusterizer::
 runConingAfterburner(const edm::Handle<reco::PFRecHitCollection>& handle,
 		     const reco::PFRecHitCollection& hits,
+		     const reco::PFClusterCollection& clusters,
 		     const reco::PFCluster& tk_linked_cluster,
 		     std::vector<bool>& rechit_usable,
+		     std::vector<bool>& cluster_usable,
 		     reco::PFCluster& working_cluster) {
   typedef ROOT::Math::PositionVector3D<ROOT::Math::Polar3D<double>, ROOT::Math::DefaultCoordinateSystemTag> PolarPoint;
   std::vector<KDNode> found;
@@ -812,14 +840,7 @@ runConingAfterburner(const edm::Handle<reco::PFRecHitCollection>& handle,
 					   std::abs(hits[rhfs[j].recHitRef().key()].position().z())   );
 				});
     hits_input.insert(pos,rhfs[k].recHitRef().key());
-  }
-  
-  /*
-  for( const unsigned idx : hits_input ) {
-    std::cout << hits[idx].position().z() << ' ';
-  }
-  std::cout << std::endl;
-  */
+  }  
   // get all the hits at the same depth
   auto hits_first_depth = std::equal_range(hits_input.begin(),
 					   hits_input.end(),
@@ -891,6 +912,26 @@ runConingAfterburner(const edm::Handle<reco::PFRecHitCollection>& handle,
 	++added_hits;
       }
     }
-    //std::cout << "added: " << added_hits << " hits from coning" << std::endl;
+    found.clear();
+    _cluster_kdtree.search(rechit_searchcube,found);
+    unsigned added_clusters(0);
+    for( const auto& fcluster : found ) {
+      const auto& thecluster = clusters[fcluster.data];
+      if( !cluster_usable[fcluster.data] ) continue;
+      if( &thecluster == &tk_linked_cluster ) continue; // don't repeatedly add the same cluster
+      double clusangle = (cone_vertex_cartesian - thecluster.position()).theta();
+      if( cone_vertex_cartesian.z() > 0.0f ) clusangle += M_PI;
+      while( clusangle >  M_PI ) clusangle -= 2*M_PI;
+      while( clusangle < -M_PI ) clusangle += 2*M_PI;
+      if( std::abs(clusangle) < std::abs(max_hit_angle) && 
+	      std::abs(thecluster.position().z()) < std::abs(cone_vertex_cartesian.z())+_maxConeDepth ) {
+	cluster_usable[fcluster.data] = false;
+	for( const auto& hit : thecluster.recHitFractions() ) {
+	  working_cluster.addRecHitFraction(hit);  
+	  ++added_hits;
+	}
+	++added_clusters;
+      }    
+    }
   }
 }
