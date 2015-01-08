@@ -154,39 +154,18 @@ void QGLikelihoodDBWriter::beginJob(){
   }
 
 
-  // Get the weights from the file
-  std::map<std::vector<int>, float> weights;
-  for(int i = 0; i < (int)gridOfBins["eta"].size() - 1; ++i){
-    for(int j = 0; j < (int)gridOfBins["pt"].size() - 1; ++j){
-      for(int k = 0; k < (int)gridOfBins["rho"].size() - 1; ++k){
-        std::vector<float> weightsPerBin;
-        if(!getVectorFromFile(f, weightsPerBin, TString::Format("weights/eta%d_pt%d_rho%d", i, j, k))){
-          edm::LogError("NoWeights") << "Missing weights for bin eta" << i << "_pt" << j << "_rho" << k << "!" << std::endl;
-          return;
-        }
-       
-        for(int varIndex = 0; varIndex < 3; ++varIndex){
-          weights[{0, varIndex, i, j, k}] = weightsPerBin[varIndex];
-          weights[{1, varIndex, i, j, k}] = weightsPerBin[varIndex];
-        }
-      }
-    }
-  }
-
   // Write all categories with their histograms to file
   int i = 0;
   for(auto category : categories){
     QGLikelihoodObject::Entry entry;
     entry.category  = category.second;
     entry.histogram = transformToHistogramObject(pdfs[category.first]);
-    entry.mean      = pdfs[category.first]->GetMean();
-    entry.weight    = weights[category.first];
     payload->data.push_back(entry);
     
     char buff[1000];
-    sprintf(buff, "%6d) var=%1d\t\tqg=%1d\t\teta={%5.2f,%5.2f}\t\tpt={%8.2f,%8.2f}\t\trho={%6.2f,%8.2f}\t\tweight=%8.4f", i++,
+    sprintf(buff, "%6d) var=%1d\t\tqg=%1d\t\teta={%5.2f,%5.2f}\t\tpt={%8.2f,%8.2f}\t\trho={%6.2f,%8.2f}", i++,
                         category.second.VarIndex, category.second.QGIndex, category.second.EtaMin, category.second.EtaMax, 
-                        category.second.PtMin,    category.second.PtMax,   category.second.RhoMin, category.second.RhoMax, entry.weight);
+                        category.second.PtMin,    category.second.PtMax,   category.second.RhoMin, category.second.RhoMax);
     edm::LogVerbatim("HistName") << buff << std::endl;
   }
 
