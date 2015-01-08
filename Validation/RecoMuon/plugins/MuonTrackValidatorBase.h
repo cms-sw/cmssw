@@ -20,7 +20,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 
 
 #include "DQMServices/Core/interface/MonitorElement.h"
