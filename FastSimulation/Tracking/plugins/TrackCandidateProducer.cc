@@ -50,30 +50,24 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf):th
 #ifdef FAMOS_DEBUG
   std::cout << "TrackCandidateProducer created" << std::endl;
 #endif
-
+    
+  if(conf.exists("keepFittedTracks")){
+    std::cout << "TrackCandidateProducer no longer supports option keepFittedTracks" << std::endl;
+    assert(false);
+  }
+  if(conf.exists("TrackProducers")){
+    edm::LogError("TrackCandidateProducer") << "TrackCandidateProducer no longer supports TrackProducers" << std::endl;
+    exit (0);
+  }
+ 
   // The main product is a track candidate collection.
   produces<TrackCandidateCollection>();
-
-  // These products contain tracks already reconstructed at this level
-  // (No need to reconstruct them twice!)
-  produces<reco::TrackCollection>();
-  produces<TrackingRecHitCollection>();
-  produces<reco::TrackExtraCollection>();
-  produces<std::vector<Trajectory> >();
-  produces<TrajTrackAssociationCollection>();
   
   // The name of the seed producer
   seedProducer = conf.getParameter<edm::InputTag>("SeedProducer");
 
   // The name of the recHit producer
   hitProducer = conf.getParameter<edm::InputTag>("HitProducer");
-
-  // The name of the track producer (tracks already produced need not be produced again!)
-  // trackProducer = conf.getParameter<edm::InputTag>("TrackProducer");
-  trackProducers = conf.getParameter<std::vector<edm::InputTag> >("TrackProducers");
-
-  // Copy (or not) the tracks already produced in a new collection
-  keepFittedTracks = conf.getParameter<bool>("KeepFittedTracks");
 
   // The minimum number of crossed layers
   minNumberOfCrossedLayers = conf.getParameter<unsigned int>("MinNumberOfCrossedLayers");
@@ -100,32 +94,18 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf):th
   edm::InputTag _label("famosSimHits");
   simVertexToken = consumes<edm::SimVertexContainer>(_label);
   simTrackToken = consumes<edm::SimTrackContainer>(_label);
-  for(unsigned tprod=0; tprod < trackProducers.size(); ++tprod){
-    trackTokens.push_back(consumes<reco::TrackCollection>(trackProducers[tprod]));
-    trajectoryTokens.push_back(consumes<std::vector<Trajectory> >(trackProducers[tprod]));
-    assoMapTokens.push_back(consumes<TrajTrackAssociationCollection>(trackProducers[tprod]));
-  }
 }
-
   
 // Virtual destructor needed.
 TrackCandidateProducer::~TrackCandidateProducer() {
 
   if(thePropagator) delete thePropagator;
-
-  // do nothing
-#ifdef FAMOS_DEBUG
-  std::cout << "TrackCandidateProducer destructed" << std::endl;
-#endif
-
-
 } 
  
 void 
 TrackCandidateProducer::beginRun(edm::Run const&, const edm::EventSetup & es) {
 
   //services
-
   edm::ESHandle<MagneticField>          magField;
   edm::ESHandle<TrackerGeometry>        geometry;
 
@@ -138,29 +118,17 @@ TrackCandidateProducer::beginRun(edm::Run const&, const edm::EventSetup & es) {
   thePropagator = new PropagatorWithMaterial(alongMomentum,0.105,&(*theMagField)); 
 }
   
-  // Functions that gets called by framework every event
+  // Functions that get called by framework every event
 void 
 TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {        
 
-#ifdef FAMOS_DEBUG
-  std::cout << "################################################################" << std::endl;
-  std::cout << " TrackCandidateProducer produce init " << std::endl;
-#endif
-
   // Useful typedef's to avoid retyping
   typedef std::pair<reco::TrackRef,edm::Ref<std::vector<Trajectory> > > TrackPair;
-  typedef std::map<unsigned,TrackPair> TrackMap;
 
   // The produced objects
   std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
-  std::auto_ptr<reco::TrackCollection> recoTracks(new reco::TrackCollection);    
-  std::auto_ptr<TrackingRecHitCollection> recoHits(new TrackingRecHitCollection);
-  std::auto_ptr<reco::TrackExtraCollection> recoTrackExtras(new reco::TrackExtraCollection);
-  std::auto_ptr<std::vector<Trajectory> > recoTrajectories(new std::vector<Trajectory> );
-  std::auto_ptr<TrajTrackAssociationCollection> recoTrajTrackMap( new TrajTrackAssociationCollection() );
   
   // Get the seeds
-  // edm::Handle<TrajectorySeedCollection> theSeeds;
   edm::Handle<edm::View<TrajectorySeed> > theSeeds;
   e.getByToken(seedToken,theSeeds);
 
@@ -173,23 +141,17 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   // No seed -> output an empty track collection
   if(theSeeds->size() == 0) {
     e.put(output);
-    e.put(recoTracks);
-    e.put(recoHits);
-    e.put(recoTrackExtras);
-    e.put(recoTrajectories);
-    e.put(recoTrajTrackMap);
     return;
   }
 
   // Get the GS RecHits
-  //  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
   edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
   e.getByToken(recHitToken, theGSRecHits);
 
   //get other general things
-  const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids(); 
+  const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids();
+ 
   // SimTracks and SimVertices
-
   edm::Handle<edm::SimVertexContainer> theSimVtx;
   e.getByToken(simVertexToken,theSimVtx);
   edm::Handle<edm::SimTrackContainer> theSTC;
@@ -197,82 +159,10 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   const edm::SimTrackContainer* theSimTracks = &(*theSTC);
   LogDebug("FastTracking")<<"looking at: "<< theSimTrackIds.size()<<" simtracks.";
- 
-
      
-
-  // The input track collection + extra's
-  /*
-  edm::Handle<reco::TrackCollection> theTrackCollection;
-  edm:: Handle<std::vector<Trajectory> > theTrajectoryCollection;
-  edm::Handle<TrajTrackAssociationCollection> theAssoMap;  
-  bool isTrackCollection = e.getByLabel(trackProducer,theTrackCollection);
-  */
-  std::vector<edm::Handle<reco::TrackCollection> > theTrackCollections;
-  std::vector<edm:: Handle<std::vector<Trajectory> > > theTrajectoryCollections;
-  std::vector<edm::Handle<TrajTrackAssociationCollection> > theAssoMaps;
-  std::vector<bool> isTrackCollections;
-  TrajTrackAssociationCollection::const_iterator anAssociation;  
-  TrajTrackAssociationCollection::const_iterator lastAssociation;
-  TrackMap theTrackMap;
-  unsigned nCollections = trackProducers.size();
-  unsigned nRecoHits = 0;
-
-  if ( nCollections ) { 
-    theTrackCollections.resize(nCollections);
-    theTrajectoryCollections.resize(nCollections);
-    theAssoMaps.resize(nCollections);
-    isTrackCollections.resize(nCollections);
-    for ( unsigned tprod=0; tprod < nCollections; ++tprod ) { 
-      isTrackCollections[tprod] = e.getByToken(trackTokens[tprod],theTrackCollections[tprod]); 
-
-      if ( isTrackCollections[tprod] ) { 
-	// The track collection
-	reco::TrackCollection::const_iterator aTrack = theTrackCollections[tprod]->begin();
-	reco::TrackCollection::const_iterator lastTrack = theTrackCollections[tprod]->end();
-	// The numbers of hits
-	for ( ; aTrack!=lastTrack; ++aTrack ) nRecoHits+= aTrack->recHitsSize();
-	e.getByToken(trajectoryTokens[tprod],theTrajectoryCollections[tprod]);
-	e.getByToken(assoMapTokens[tprod],theAssoMaps[tprod]);
-	// The association between trajectories and tracks
-	anAssociation = theAssoMaps[tprod]->begin();
-	lastAssociation = theAssoMaps[tprod]->end(); 
-#ifdef FAMOS_DEBUG
-	std::cout << "Input Track Producer " << tprod << " : " << trackProducers[tprod] << std::endl;
-	std::cout << "List of tracks already reconstructed " << std::endl;
-#endif
-	// Build the map of correspondance between reco tracks and sim tracks
-	for ( ; anAssociation != lastAssociation; ++anAssociation ) { 
-	  edm::Ref<std::vector<Trajectory> > aTrajectoryRef = anAssociation->key;
-	  reco::TrackRef aTrackRef = anAssociation->val;
-	  // Find the simtrack id of the reconstructed track
-	  int recoTrackId = findId(*aTrackRef);
-	  if ( recoTrackId < 0 ) continue;
-#ifdef FAMOS_DEBUG
-	  std::cout << recoTrackId << " ";
-#endif
-	  // And store it.
-	  theTrackMap[recoTrackId] = TrackPair(aTrackRef,aTrajectoryRef);
-	}
-#ifdef FAMOS_DEBUG
-	std::cout << std::endl;
-#endif
-      }
-    }
-    // This is to save some time at push_back.
-    recoHits->reserve(nRecoHits); 
-  }
-
-
   // Loop over the seeds
   int currentTrackId = -1;
-  /*
-  TrajectorySeedCollection::const_iterator aSeed = theSeeds->begin();
-  TrajectorySeedCollection::const_iterator lastSeed = theSeeds->end();
-  for ( ; aSeed!=lastSeed; ++aSeed ) { 
-    // The first hit of the seed  and its simtrack id
-  */
-  /* */
+ 
 #ifdef FAMOS_DEBUG
   std::cout << "Input seed Producer : " << seedProducer << std::endl;
   std::cout << "Number of seeds : " << theSeeds->size() << std::endl;
@@ -295,10 +185,6 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
       LogDebug("FastTracking")<<" seed with no hits to be considered.";
 
-      //moved out of the loop
-      //edm::ESHandle<MagneticField> field;
-      //es.get<IdealMagneticFieldRecord>().get(field);
-
       PTrajectoryStateOnDet ptod =theSeeds->at(seednr).startingState();
       DetId id(ptod.detId());
       const GeomDet * g = theGeometry->idToDet(id);
@@ -309,12 +195,6 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       edm::ESHandle<Propagator> propagator;
       es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",propagator);
       
-      //moved out of the loop 
-      //      const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids(); 
-      //      edm::Handle<edm::SimTrackContainer> theSTC;
-      //      e.getByLabel(simTracks_,theSTC);
-      //      const edm::SimTrackContainer* theSimTracks = &(*theSTC);
-
       double minimunEst=1000000;
       LogDebug("FastTracking")<<"looking at: "<< theSimTrackIds.size()<<" simtracks.";
       for ( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
@@ -353,7 +233,6 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  LogDebug("FastTracking")<<"not on the same direction.";
 	  continue;
 	}
-
 	
 	AlgebraicVector5 v(seedState.localParameters().vector() - simtrack_comparestate.localParameters().vector());
 	AlgebraicSymMatrix55 m(seedState.localError().matrix());
@@ -409,41 +288,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       
       // A vector of TrackerRecHits belonging to the track and the number of crossed layers
       std::vector<TrajectorySeedHitCandidate> theTrackerRecHits;
-      unsigned theNumberOfCrossedLayers = 0;
-      
-      // The track has indeed been reconstructed already -> Save the pertaining info
-      TrackMap::const_iterator theTrackIt = theTrackMap.find(simTrackId);
-      if ( nCollections && theTrackIt != theTrackMap.end() ) { 
-	
-	if ( keepFittedTracks ) { 
-	  LogDebug("FastTracking") << "Track " << simTrackId << " already reconstructed -> copy it";
-	  // The track and trajectroy references
-	  reco::TrackRef aTrackRef = theTrackIt->second.first;
-	  edm::Ref<std::vector<Trajectory> > aTrajectoryRef = theTrackIt->second.second;
-	  
-	  // A copy of the track
-	  reco::Track aRecoTrack(*aTrackRef);
-	  recoTracks->push_back(aRecoTrack);      
-	  
-	  // A copy of the hits
-	  unsigned nh = aRecoTrack.recHitsSize();
-	  for ( unsigned ih=0; ih<nh; ++ih ) {
-	    TrackingRecHit *hit = aRecoTrack.recHit(ih)->clone();
-	    recoHits->push_back(hit);
-	  }
-	  
-	  // A copy of the trajectories
-	  recoTrajectories->push_back(*aTrajectoryRef);
-	  
-	}// keepFitterTracks
-	else {	  
-	  LogDebug("FastTracking") << "Track " << simTrackId << " already reconstructed -> ignore it";
-	}
-
-	// The track was not saved -> create a track candidate.
-	
-      } //already existing collection of tracks
-      else{//no collection of tracks already exists
+      unsigned theNumberOfCrossedLayers = 0;      
 
 	LogDebug("FastTracking")<<"Track " << simTrackId << " is considered to return a track candidate" ;
 
@@ -526,14 +371,12 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	      theCurrentRecHit = thePreviousRecHit;
 	    }  
 	  }
-	}
-	
-	// End of loop over the track rechits
-      }//no collection of track already existed. adding the hits by hand.
+	}// End of loop over the track rechits
+
     
       LogDebug("FastTracking")<<" number of hits: " << theTrackerRecHits.size()<<" after counting overlaps and splitting.";
 
-      // 1) Create the OwnWector of TrackingRecHits
+      // 1) Create the OwnVector of TrackingRecHits
       edm::OwnVector<TrackingRecHit> recHits;
       unsigned nTrackerHits = theTrackerRecHits.size();
       recHits.reserve(nTrackerHits); // To save some time at push_back
@@ -547,24 +390,6 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	TrackingRecHit* aTrackingRecHit = theTrackerRecHits[ih].hit()->clone();
 	recHits.push_back(aTrackingRecHit);
 	
-	const DetId& detId = theTrackerRecHits[ih].hit()->geographicalId();
-	LogDebug("FastTracking")
-	  << "Added RecHit from detid " << detId.rawId() 
-	  << " subdet = " << theTrackerRecHits[ih].subDetId() 
-	  << " layer = " << theTrackerRecHits[ih].layerNumber()
-	  << " ring = " << theTrackerRecHits[ih].ringNumber()
-	  << " error = " << theTrackerRecHits[ih].localError()
-	  << std::endl
-	  
-	  << "Track/z/r : "
-	  << simTrackId << " " 
-	  << theTrackerRecHits[ih].globalPosition().z() << " " 
-	  << theTrackerRecHits[ih].globalPosition().perp() << std::endl;
-	if ( theTrackerRecHits[ih].matchedHit() && theTrackerRecHits[ih].matchedHit()->isMatched() ) 
-	  LogTrace("FastTracking") << "Matched : " << theTrackerRecHits[ih].matchedHit()->isMatched() 
-					     << "Rphi Hit = " <<  theTrackerRecHits[ih].matchedHit()->monoHit()->simhitId()		 
-					     << "Stereo Hit = " <<  theTrackerRecHits[ih].matchedHit()->stereoHit()->simhitId()
-					     <<std::endl;
       }//loop over the rechits
 
     // Check the number of crossed layers
@@ -572,7 +397,6 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       LogDebug("FastTracking")<<"not enough layer crossed ("<<theNumberOfCrossedLayers<<")";
       continue;
     }
-
 
     //>>>>>>>>>BACKBUILDING CHANGE: REPLACE THE STARTING STATE
 
@@ -620,117 +444,18 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
        PTSOD = trajectoryStateTransform::persistentState(initialTSOS,recHits.front().geographicalId().rawId()); 
     }
     
-    TrackCandidate  
-      newTrackCandidate(recHits, 
-			*aSeed, 
-			PTSOD, 
-			edm::RefToBase<TrajectorySeed>(theSeeds,seednr));
+    TrackCandidate newTrackCandidate(recHits,*aSeed,PTSOD,edm::RefToBase<TrajectorySeed>(theSeeds,seednr));
 
-    LogDebug("FastTracking")<< "\tSeed Information " << std::endl
-				      << "\tSeed Direction = " << aSeed->direction() << std::endl
-				      << "\tSeed StartingDet = " << aSeed->startingState().detId() << std::endl
-				      << "\tTrajectory Parameters "	      << std::endl
-				      << "\t\t detId  = "	      << newTrackCandidate.trajectoryStateOnDet().detId() 	      << std::endl
-				      << "\t\t loc.px = "
-				      << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().x()    
-				      << std::endl
-				      << "\t\t loc.py = "
-				      << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().y()    
-				      << std::endl
-				      << "\t\t loc.pz = "
-				      << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().z()    
-				      << std::endl
-				      << "\t\t error  = ";
-
-    bool newTrackCandidateIsDuplicate = isDuplicateCandidate(*output,newTrackCandidate);
-    if (!newTrackCandidateIsDuplicate) output->push_back(newTrackCandidate);
-    LogDebug("FastTracking")<<"filling a track candidate into the collection, now having: "<<output->size();
+    output->push_back(newTrackCandidate);
     
     }//loop over possible simtrack associated.
   }//loop over all possible seeds.
   
   // Save the track candidates in the event
   LogDebug("FastTracking") << "Saving " 
-				     << output->size() << " track candidates and " 
-				     << recoTracks->size() << " reco::Tracks ";
+			   << output->size() << " track candidates" ;
   // Save the track candidates
   e.put(output);
-
-
-
-  // Save the tracking recHits
-
-  edm::OrphanHandle <TrackingRecHitCollection> theRecoHits = e.put(recoHits );
-
-  // Create the track extras and add the references to the rechits
-  unsigned hits=0;
-  unsigned nTracks = recoTracks->size();
-  recoTrackExtras->reserve(nTracks); // To save some time at push_back
-  for ( unsigned index = 0; index < nTracks; ++index ) { 
-    //reco::TrackExtra aTrackExtra;
-    reco::Track& aTrack = recoTracks->at(index);
-    reco::TrackExtra aTrackExtra(aTrack.outerPosition(),
-				 aTrack.outerMomentum(),
-				 aTrack.outerOk(),
-				 aTrack.innerPosition(),
-				 aTrack.innerMomentum(),
-				 aTrack.innerOk(),
-				 aTrack.outerStateCovariance(),
-				 aTrack.outerDetId(),
-				 aTrack.innerStateCovariance(),
-				 aTrack.innerDetId(),
-				 aTrack.seedDirection(),
-				 aTrack.seedRef());
-
-    unsigned nHits = aTrack.recHitsSize();
-    for ( unsigned int ih=0; ih<nHits; ++ih) {
-      aTrackExtra.add(TrackingRecHitRef(theRecoHits,hits++));
-    }
-    recoTrackExtras->push_back(aTrackExtra);
-  }
-  
-
-  // Save the track extras
-  edm::OrphanHandle<reco::TrackExtraCollection> theRecoTrackExtras = e.put(recoTrackExtras);
-
-  // Add the reference to the track extra in the tracks
-  for ( unsigned index = 0; index<nTracks; ++index ) { 
-    const reco::TrackExtraRef theTrackExtraRef(theRecoTrackExtras,index);
-    (recoTracks->at(index)).setExtra(theTrackExtraRef);
-  }
-
-  // Save the tracks
-  edm::OrphanHandle<reco::TrackCollection> theRecoTracks = e.put(recoTracks);
-
-  // Save the trajectories
-  edm::OrphanHandle<std::vector<Trajectory> > theRecoTrajectories = e.put(recoTrajectories);
-  
-  // Create and set the trajectory/track association map 
-  for ( unsigned index = 0; index<nTracks; ++index ) { 
-    edm::Ref<std::vector<Trajectory> > trajRef( theRecoTrajectories, index );
-    edm::Ref<reco::TrackCollection>    tkRef( theRecoTracks, index );
-    recoTrajTrackMap->insert(trajRef,tkRef);
-  }
-
-
-  // Save the association map.
-  e.put(recoTrajTrackMap);
-
-}
-
-int 
-TrackCandidateProducer::findId(const reco::Track& aTrack) const {
-  int trackId = -1;
-  trackingRecHit_iterator aHit = aTrack.recHitsBegin();
-  trackingRecHit_iterator lastHit = aTrack.recHitsEnd();
-  for ( ; aHit!=lastHit; ++aHit ) {
-    if ( !(*aHit)->isValid() ) continue;
-    //    const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (*aHit);
-    const SiTrackerGSMatchedRecHit2D * rechit = (const SiTrackerGSMatchedRecHit2D*) (*aHit);
-    trackId = rechit->simtrackId();
-    break;
-  }
-  return trackId;
 }
 
 void 
@@ -752,45 +477,5 @@ TrackCandidateProducer::addSplitHits(const TrajectorySeedHitCandidate& theCurren
     theTrackerRecHits.push_back(TrajectorySeedHitCandidate(mHit,theCurrentRecHit));
     
   }
-
 }
 
-bool TrackCandidateProducer::isDuplicateCandidate(const TrackCandidateCollection& candidates, const TrackCandidate& newCand) const{
-  typedef TrackCandidateCollection::const_iterator TCCI;
-  
-  TCCI candsEnd = candidates.end();
-  double newQbp = newCand.trajectoryStateOnDet().parameters().qbp();
-  double newDxdz = newCand.trajectoryStateOnDet().parameters().dxdz();
-  TrackCandidate::range newHits = newCand.recHits();
-
-  for (TCCI iCand = candidates.begin(); iCand!= candsEnd; ++iCand){
-    //pick some first traits of duplication: qbp and dxdz
-    double iQbp = iCand->trajectoryStateOnDet().parameters().qbp();
-    double iDxdz = iCand->trajectoryStateOnDet().parameters().dxdz();
-    if (newQbp == iQbp && newDxdz == iDxdz){
-      LogDebug("isDuplicateCandidate")<<"Probably a duplicate "<<iQbp <<" : "<<iDxdz;
-      TrackCandidate::range iHits = iCand->recHits();
-      unsigned int nHits = 0;
-      unsigned int nShared = 0;
-      unsigned int nnewHits = 0;
-      for (TrackCandidate::const_iterator iiHit = iHits.first; iiHit != iHits.second; ++iiHit){
-	nHits++;
-	for (TrackCandidate::const_iterator inewHit = newHits.first; inewHit != newHits.second; ++inewHit){
-	  if (iiHit == iHits.first) nnewHits++;
-	  if (sameLocalParameters(&*iiHit,&*inewHit)) nShared++;
-	}
-      }
-      LogDebug("isDuplicateCandidate") <<"nHits  "<<nHits<<" nnewHits "<< nnewHits<< " nShared "<<nShared;
-      if (nHits == nShared && nHits == nnewHits) return true;
-    }
-  }
-  return false;
-}
-
-bool TrackCandidateProducer::sameLocalParameters(const TrackingRecHit* aH, const TrackingRecHit* bH) const {
-  bool localPointSame = aH->localPosition() == bH->localPosition();
-  bool localErrorSame = aH->localPositionError().xx() == bH->localPositionError().xx();
-  localErrorSame &= aH->localPositionError().yy() == bH->localPositionError().yy();
-  localErrorSame &= aH->localPositionError().xy() == bH->localPositionError().xy();
-  return localPointSame && localErrorSame;
-}
