@@ -17,33 +17,12 @@ float QGLikelihoodCalculator::computeQGLikelihood(edm::ESHandle<QGLikelihoodObje
 
     int binQ = quarkEntry->histogram.findBin(vars[varIndex]);
     float Qi = quarkEntry->histogram.binContent(binQ);
-    float Qw = (binQ == 0 || binQ == quarkEntry->histogram.numberOfBins()+1)? 1. : quarkEntry->histogram.binRange(binQ).width();
 
     int binG = gluonEntry->histogram.findBin(vars[varIndex]);
     float Gi = gluonEntry->histogram.binContent(binG);
-    float Gw = (binG == 0 || binG == gluonEntry->histogram.numberOfBins()+1)? 1. : gluonEntry->histogram.binRange(binG).width();
 
-    if(Qi <= 0 || Gi <= 0){	// If one of the two pdf's is empty for this value, look if we have some content in the neighbouring bins
-      int q = 1, g = 1;
-      while(Qi <= 0 && binQ-q > 0 && binQ+q <= quarkEntry->histogram.numberOfBins()){
-        Qi += quarkEntry->histogram.binContent(binQ+q)       + quarkEntry->histogram.binContent(binQ-q);
-        Qw += quarkEntry->histogram.binRange(binQ+q).width() + quarkEntry->histogram.binRange(binQ-q).width();
-        ++q;
-      }
-      while(Gi <= 0 && binG-g > 0 && binG+g <= gluonEntry->histogram.numberOfBins()){
-        Gi += gluonEntry->histogram.binContent(binG+g)       + gluonEntry->histogram.binContent(binG-g);
-        Gw += gluonEntry->histogram.binRange(binG+g).width() + gluonEntry->histogram.binRange(binG-g).width();
-        ++g;
-      }
-      if(Qi <= 0 && Gi <= 0){	// If both are still completely zero, assign extreme value based on position of means
-        if(vars[varIndex] < quarkEntry->mean) 	if(quarkEntry->mean > gluonEntry->mean){ Qi = 0.999; Gi = 0.001;} else { Qi = 0.001; Gi = 0.999;}
-        else					if(quarkEntry->mean < gluonEntry->mean){ Qi = 0.001; Gi = 0.999;} else { Qi = 0.999; Gi = 0.001;}
-      }
-    }
-
- 
-    Q *= std::pow(Qi/Qw, quarkEntry->weight);	// Both quarkEntry and gluonEntry have always the same weight
-    G *= std::pow(Gi/Gw, gluonEntry->weight);
+    Q *= Qi;
+    G *= Gi;
   }
 
   if(Q==0) return 0;
