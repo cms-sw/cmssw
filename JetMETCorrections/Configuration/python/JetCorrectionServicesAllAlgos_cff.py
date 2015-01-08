@@ -8,30 +8,30 @@ from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 #
 
 # L1 (offset) Correction Services
-ak7CaloL1Offset = ak5CaloL1Offset.clone()
-kt4CaloL1Offset = ak5CaloL1Offset.clone()
-kt6CaloL1Offset = ak5CaloL1Offset.clone()
-ic5CaloL1Offset = ak5CaloL1Offset.clone()
+ak7CaloL1Offset = ak5CaloL1Offset.clone(algorithm = 'AK7Calo')
+kt4CaloL1Offset = ak5CaloL1Offset.clone(algorithm = 'KT4Calo')
+kt6CaloL1Offset = ak5CaloL1Offset.clone(algorithm = 'KT6Calo')
+ic5CaloL1Offset = ak5CaloL1Offset.clone(algorithm = 'IC5Calo')
 
-ak7PFL1Offset   = ak5PFL1Offset.clone()
-kt4PFL1Offset   = ak5PFL1Offset.clone()
-kt6PFL1Offset   = ak5PFL1Offset.clone()
-ic5PFL1Offset   = ak5PFL1Offset.clone()
+ak7PFL1Offset   = ak5PFL1Offset.clone(algorithm = 'AK7PF')
+kt4PFL1Offset   = ak5PFL1Offset.clone(algorithm = 'KT4PF')
+kt6PFL1Offset   = ak5PFL1Offset.clone(algorithm = 'KT6PF')
+ic5PFL1Offset   = ak5PFL1Offset.clone(algorithm = 'IC5PF')
 
-ak7JPTL1Offset  = ak5CaloL1Offset.clone()
+ak7JPTL1Offset  = ak5CaloL1Offset.clone(algorithm = 'AK7JPT')
 
 # L1 (fastjet) Correction Services
-ak7CaloL1Fastjet = ak5CaloL1Fastjet.clone()
-kt4CaloL1Fastjet = ak5CaloL1Fastjet.clone()
-kt6CaloL1Fastjet = ak5CaloL1Fastjet.clone()
-ic5CaloL1Fastjet = ak5CaloL1Fastjet.clone()
+ak7CaloL1Fastjet = ak5CaloL1Fastjet.clone(algorithm = 'AK7Calo')
+kt4CaloL1Fastjet = ak5CaloL1Fastjet.clone(algorithm = 'KT4Calo')
+kt6CaloL1Fastjet = ak5CaloL1Fastjet.clone(algorithm = 'KT6Calo')
+ic5CaloL1Fastjet = ak5CaloL1Fastjet.clone(algorithm = 'IC5Calo')
 
-ak7PFL1Fastjet   = ak5PFL1Fastjet.clone()
-kt4PFL1Fastjet   = ak5PFL1Fastjet.clone()
-kt6PFL1Fastjet   = ak5PFL1Fastjet.clone()
-ic5PFL1Fastjet   = ak5PFL1Fastjet.clone()
+ak7PFL1Fastjet   = ak5PFL1Fastjet.clone(algorithm = 'AK7PF')
+kt4PFL1Fastjet   = ak5PFL1Fastjet.clone(algorithm = 'KT4PF')
+kt6PFL1Fastjet   = ak5PFL1Fastjet.clone(algorithm = 'KT6PF')
+ic5PFL1Fastjet   = ak5PFL1Fastjet.clone(algorithm = 'IC5PF')
 
-ak7JPTL1Fastjet  = ak5JPTL1Fastjet.clone()
+ak7JPTL1Fastjet  = ak5JPTL1Fastjet.clone(algorithm = 'AK7JPT')
 
 # SPECIAL L1JPTOffset
 ak7L1JPTOffset = ak5L1JPTOffset.clone()
