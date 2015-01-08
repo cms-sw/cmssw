@@ -221,9 +221,15 @@ namespace edm
     
     //adjust event weights if necessary (in case input event was attempted multiple times)
     if (nAttempts_>1) {
+      double multihadweight = double(naccept)/double(nAttempts_);
+      
+      //adjust weight for GenEventInfoProduct
       std::vector<double> genEventInfoWeights = finalGenEventInfo->weights();
-      genEventInfoWeights.push_back(double(naccept)/double(nAttempts_));
+      genEventInfoWeights.push_back(multihadweight);
       finalGenEventInfo->setWeights(genEventInfoWeights);
+      
+      //adjust weight for HepMC GenEvent (used e.g for RIVET)
+      finalEvent->weights().push_back(multihadweight);
     }
     
     
