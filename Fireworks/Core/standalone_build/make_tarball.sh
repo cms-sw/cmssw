@@ -25,7 +25,7 @@ getExternals()
 	echo "Copy gcc from  $ext/gcc/${gv}/ to ${gccd}"
         for i in bin etc lib lib64 libexec
         do
-	   cp -a $ext/gcc/${gv}/ ${gccd}/gcc
+	   cp -a $ext/gcc/${gv}/$i ${gccd}/gcc
         done
         if [ `uname` = "Darwin" ]; then
            echo "Renaming gcc lib directory to lib64."
@@ -272,7 +272,6 @@ fi
 origd=$PWD
 
 getCmssw
-exit
 getExternals
 getSources
 getDataFiles
