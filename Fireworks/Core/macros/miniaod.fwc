@@ -94,7 +94,7 @@
   </config>
  </config>
  <config name="EventItems" version="1">
-  <config name="EcalCands" version="6">
+  <config name="EcalFromPFCands" version="6">
    <config name="type" version="0">
      <string>std::vector&lt;pat::PackedCandidate&gt;</string>
    </config>
@@ -128,7 +128,7 @@
    <config name="PBConfig" version="1">
    </config>
   </config>
-  <config name="HcalCands" version="6">
+  <config name="HcalFromPFCands" version="6">
    <config name="type" version="0">
      <string>std::vector&lt;pat::PackedCandidate&gt;</string>
    </config>
@@ -176,7 +176,7 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string>pt()&gt;30 &amp; muonEnergyFraction()&lt;0.8 &amp; electronEnergyFraction()&lt;0.8 &amp; photonEnergyFraction()&lt;0.8</string>
+     <string>pt()&gt;30 &amp;&amp; muonEnergyFraction()&lt;0.7 &amp;&amp; electronEnergyFraction()&lt;0.6 &amp;&amp; photonEnergyFraction()&lt;0.6</string>
    </config>
    <config name="color" version="0">
      <string>1000</string>
@@ -374,7 +374,7 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string>pt()&gt;10 &amp; passElectronVeto() &amp; hasPixelSeed()=0</string>
+     <string>pt()&gt;10 &amp; hasPixelSeed()=0 &amp; isPFlowPhoton()</string>
    </config>
    <config name="color" version="0">
      <string>1016</string>
@@ -394,7 +394,7 @@
    <config name="PBConfig" version="1">
    </config>
   </config>
-  <config name="TrackCands" version="6">
+  <config name="TracksFromPFCands" version="6">
    <config name="type" version="0">
      <string>std::vector&lt;pat::PackedCandidate&gt;</string>
    </config>
@@ -428,7 +428,7 @@
    <config name="PBConfig" version="1">
    </config>
   </config>
-  <config name="prunedGenParticles" version="6">
+  <config name="PrunedGenParticles" version="6">
    <config name="type" version="0">
      <string>std::vector&lt;reco::GenParticle&gt;</string>
    </config>
@@ -442,16 +442,16 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string>pt()&gt;10 &amp; (status()==1 | status()=23)</string>
+     <string>pt()&gt;10 &amp; (status()==1 | status()=23 | status()=3)</string>
    </config>
    <config name="color" version="0">
-     <string>1005</string>
+     <string>1000</string>
    </config>
    <config name="isVisible" version="0">
      <string>f</string>
    </config>
    <config name="layer" version="0">
-     <string>23</string>
+     <string>30</string>
    </config>
    <config name="purpose" version="0">
      <string>GenParticles</string>
@@ -462,7 +462,7 @@
    <config name="PBConfig" version="1">
     <config name="Var" version="1">
      <config name="MarkerStyle" version="0">
-       <string>0</string>
+       <string>2</string>
      </config>
      <config name="MarkerSize" version="0">
        <string>2</string>
@@ -475,7 +475,7 @@
   <config name="EventFilters" version="1">
    <config name="------Filter[0]------" version="1">
     <config name="expression" version="0">
-      <string>$Tracks.pt()&gt;1</string>
+      <string>$MET.pt()&gt;30</string>
     </config>
     <config name="enabled" version="0">
       <string>1</string>
@@ -489,7 +489,7 @@
       <string>$Jets.pt()&gt;100</string>
     </config>
     <config name="enabled" version="0">
-      <string>0</string>
+      <string>1</string>
     </config>
     <config name="comment" version="0">
       <string></string>
@@ -531,16 +531,16 @@
  <config name="GUI" version="1">
   <config name="main window" version="3">
    <config name="x" version="0">
-     <string>32</string>
+     <string>120</string>
    </config>
    <config name="y" version="0">
-     <string>50</string>
+     <string>44</string>
    </config>
    <config name="width" version="0">
-     <string>1284</string>
+     <string>1457</string>
    </config>
    <config name="height" version="0">
-     <string>867</string>
+     <string>959</string>
    </config>
    <config name="summaryWeight" version="0">
      <string>20</string>
@@ -666,7 +666,7 @@
       <string>1</string>
     </config>
     <config name="cameraZoomRho Phi" version="0">
-      <string>1.14478</string>
+      <string>1.56716</string>
     </config>
     <config name="cameraMatrix0Rho Phi" version="0">
       <string>1</string>
@@ -708,10 +708,10 @@
       <string>2337.41</string>
     </config>
     <config name="cameraMatrix13Rho Phi" version="0">
-      <string>-1.90939</string>
+      <string>-1.66479</string>
     </config>
     <config name="cameraMatrix14Rho Phi" version="0">
-      <string>-2.31221</string>
+      <string>-1.92618</string>
     </config>
     <config name="cameraMatrix15Rho Phi" version="0">
       <string>1</string>
@@ -803,7 +803,7 @@
       <string>1</string>
     </config>
     <config name="cameraZoomLego" version="0">
-      <string>0.964264</string>
+      <string>0.918074</string>
     </config>
     <config name="cameraMatrix0Lego" version="0">
       <string>1</string>
@@ -845,10 +845,10 @@
       <string>15.7719</string>
     </config>
     <config name="cameraMatrix13Lego" version="0">
-      <string>-4.04739e-15</string>
+      <string>0.129422</string>
     </config>
     <config name="cameraMatrix14Lego" version="0">
-      <string>-3.55271e-15</string>
+      <string>-0.0478526</string>
     </config>
     <config name="cameraMatrix15Lego" version="0">
       <string>1</string>
@@ -961,7 +961,7 @@
       <string>1</string>
     </config>
     <config name="cameraZoomRho Z" version="0">
-      <string>3.2898</string>
+      <string>1.64643</string>
     </config>
     <config name="cameraMatrix0Rho Z" version="0">
       <string>1</string>
@@ -1000,13 +1000,13 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix12Rho Z" version="0">
-      <string>373.09</string>
+      <string>369.652</string>
     </config>
     <config name="cameraMatrix13Rho Z" version="0">
-      <string>-1.21998</string>
+      <string>1.80401</string>
     </config>
     <config name="cameraMatrix14Rho Z" version="0">
-      <string>-1.96419</string>
+      <string>-1.2048</string>
     </config>
     <config name="cameraMatrix15Rho Z" version="0">
       <string>1</string>
@@ -1386,6 +1386,9 @@
     <string>pdgId</string>
     <string>pdgId</string>
     <string>0</string>
+    <string>mass</string>
+    <string>mass()</string>
+    <string>2</string>
   </config>
   <config name="reco::GsfElectron" version="1">
     <string>pT</string>
@@ -1415,6 +1418,9 @@
     <string>charge</string>
     <string>charge</string>
     <string>0</string>
+    <string>isPF</string>
+    <string>isPF()</string>
+    <string>0</string>
   </config>
   <config name="reco::Jet" version="1">
     <string>pT</string>
@@ -1426,6 +1432,15 @@
     <string>phi</string>
     <string>phi</string>
     <string>3</string>
+    <string>muonEnergyFraction</string>
+    <string>muonEnergyFraction()</string>
+    <string>2</string>
+    <string>electronEnergyFraction</string>
+    <string>electronEnergyFraction()</string>
+    <string>2</string>
+    <string>photonEnergyFraction</string>
+    <string>photonEnergyFraction()</string>
+    <string>2</string>
   </config>
   <config name="reco::MET" version="1">
     <string>MET</string>
@@ -1472,9 +1487,6 @@
     <string>d0</string>
     <string>track().d0()</string>
     <string>3</string>
-    <string>d0 / d0Err</string>
-    <string>track().d0() / track().d0Error()</string>
-    <string>3</string>
     <string>charge</string>
     <string>charge</string>
     <string>0</string>
@@ -1492,6 +1504,12 @@
     <string>H/E</string>
     <string>hadronicOverEm</string>
     <string>3</string>
+    <string>isPF</string>
+    <string>isPFlowPhoton()</string>
+    <string>0</string>
+    <string>hasPixSeed</string>
+    <string>hasPixelSeed()</string>
+    <string>0</string>
   </config>
   <config name="reco::Track" version="1">
     <string>pT</string>
