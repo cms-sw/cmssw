@@ -59,15 +59,15 @@ kt6PFL3Absolute   = ak5PFL3Absolute.clone  ( algorithm = 'KT6PF' )
 ic5PFL3Absolute   = ak5PFL3Absolute.clone  ( algorithm = 'IC5PF' )
 
 # Residual Correction Services
-ak7CaloResidual   = ak5CaloResidual.clone()
-kt4CaloResidual   = ak5CaloResidual.clone()
-kt6CaloResidual   = ak5CaloResidual.clone()
-ic5CaloResidual   = ak5CaloResidual.clone()
+ak7CaloResidual   = ak5CaloResidual.clone(algorithm = 'AK7Calo')
+kt4CaloResidual   = ak5CaloResidual.clone(algorithm = 'KT4Calo')
+kt6CaloResidual   = ak5CaloResidual.clone(algorithm = 'KT6Calo')
+ic5CaloResidual   = ak5CaloResidual.clone(algorithm = 'IC5Calo')
 
-ak7PFResidual     = ak5PFResidual.clone()
-kt4PFResidual     = ak5PFResidual.clone()
-kt6PFResidual     = ak5PFResidual.clone()
-ic5PFResidual     = ak5PFResidual.clone()
+ak7PFResidual     = ak5PFResidual.clone(algorithm = 'AK7PF')
+kt4PFResidual     = ak5PFResidual.clone(algorithm = 'KT4PF')
+kt6PFResidual     = ak5PFResidual.clone(algorithm = 'KT6PF')
+ic5PFResidual     = ak5PFResidual.clone(algorithm = 'IC5PF')
 
 # L6 (semileptonically decaying b-jet) Correction Services
 ak7CaloL6SLB = ak5CaloL6SLB.clone(
