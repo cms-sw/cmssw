@@ -108,12 +108,6 @@ PixelForwardLayerPhase1::~PixelForwardLayerPhase1(){
   }
 }
 
-namespace {
-
-  bool groupSortByZ(DetGroupElement i,DetGroupElement j) { return (std::abs(i.det()->position().z())<std::abs(j.det()->position().z())); }
-
-}
-
 void
 PixelForwardLayerPhase1::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
                                            const Propagator& prop,
