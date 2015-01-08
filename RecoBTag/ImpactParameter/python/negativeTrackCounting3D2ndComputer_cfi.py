@@ -15,5 +15,3 @@ negativeTrackCounting3D2ndComputer = cms.ESProducer("NegativeTrackCountingESProd
     trackQualityClass = cms.string("any"),
     useVariableJTA = cms.bool(False)  
 )
-
-
