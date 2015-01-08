@@ -12,8 +12,6 @@
 #include "PixelForwardLayer.h"
 #include "PixelBladeBuilder.h"
 
-using namespace edm;
-using namespace std;
 
 /** A concrete builder for PixelForwardLayer 
  */
@@ -32,12 +30,12 @@ class PixelForwardLayerBuilder {
 template <class T1, class T2>
   ForwardDetLayer* PixelForwardLayerBuilder<T1,T2>::build(const GeometricDet* aPixelForwardLayer,
 							  const TrackerGeometry* theGeomDetGeometry) {
-  vector<const GeometricDet*>  theGeometricPanels = aPixelForwardLayer->components();
+  std::vector<const GeometricDet*>  theGeometricPanels = aPixelForwardLayer->components();
   int panelsSize = theGeometricPanels.size();
 
   /*
   int num = 0;
-  for(vector<const GeometricDet*>::const_iterator it= theGeometricPanels.begin();
+  for(std::vector<const GeometricDet*>::const_iterator it= theGeometricPanels.begin();
       it!=theGeometricPanels.end(); it++, ++num) {
     edm::LogInfo("TkDetLayers") << "PanelsSize: " << panelsSize << " , "
                                 << "PanelNum: " << num  << " , "
@@ -53,7 +51,7 @@ template <class T1, class T2>
 
   //edm::LogInfo(TkDetLayers) << "pixelFwdLayer.panels().size(): " << panelsSize ;
 
-  vector<const T1*> theBlades;
+  std::vector<const T1*> theBlades;
   PixelBladeBuilder<T1> myBladeBuilder;
 
   for(int i=0; i< (panelsSize/2); i++) {
