@@ -25,7 +25,6 @@ struct QGLikelihoodObject{
   struct Entry{
     QGLikelihoodCategory category;
     Histogram histogram;
-    float mean, weight;
     COND_SERIALIZABLE;
   };
 
