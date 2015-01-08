@@ -18,7 +18,7 @@ struct QGLikelihoodParameters{
   int QGIndex, VarIndex;
 };
 
-/// QGLikelihoodObject containing valid range and entries with category, histogram, mean and weight
+/// QGLikelihoodObject containing valid range and entries with category and histogram
 struct QGLikelihoodObject{
   typedef PhysicsTools::Calibration::HistogramF Histogram;
 
