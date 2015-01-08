@@ -4,11 +4,11 @@
 #include "CommonTools/Utils/interface/Exception.h"
 #include "FWCore/Utilities/interface/BaseWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 
 #include <cassert>
 
-using namespace std;
-using reco::parser::AnyMethodArgument;
+using AnyMethodArgument=reco::parser::AnyMethodArgument;
 
 /// Checks for errors which show we got the correct function
 /// but we cannot use it.
@@ -39,11 +39,11 @@ checkMethod(const edm::FunctionWithDict& mem,
   if (mem.isDestructor()) {
     return -1 * parser::kIsDestructor;
   }
-  //No, some operators are allowed, e.g. operator[].
+  // Some operators are allowed, e.g. operator[].
   //if (mem.isOperator()) {
   //  return -1 * parser::kIsOperator;
   //}
-  if (! mem.isPublic()) {
+  if (!mem.isPublic()) {
     return -1 * parser::kIsNotPublic;
   }
   if (mem.isStatic()) {
@@ -55,17 +55,19 @@ checkMethod(const edm::FunctionWithDict& mem,
   if (mem.name().substr(0, 2) == "__") {
     return -1 * parser::kIsFunctionAddedByROOT;
   }
-  if (mem.declaringType() != type) {
+  // Functions from a base class are allowed.
+  //if (mem.declaringType() != type) {
     //std::cerr <<
     //  "\nMETHOD OVERLOAD " <<
     //  mem.name() <<
     //  " by " <<
-    //  type.Name(QUALITIED|SCOPED) <<
+    //  type.qualifiedName() <<
     //  " from " <<
-    //  mem.declaringType().Name(QUALIFIED|SCOPED) <<
+    //  mem.declaringType().qualifiedName() <<
     //  std::endl;
-    return -1 * parser::kOverloaded;
-  }
+    //return -1 * parser::kOverloaded;
+  //}
+
   size_t minArgs = mem.functionParameterSize(true);
   size_t maxArgs = mem.functionParameterSize(false);
   if ((args.size() < minArgs) || (args.size() > maxArgs)) {
@@ -131,7 +133,7 @@ checkMethod(const edm::FunctionWithDict& mem,
   return casts;
 }
 
-typedef pair<int, edm::FunctionWithDict> OK;
+typedef std::pair<int, edm::FunctionWithDict> OK;
 
 bool
 nCasts(const OK& a, const OK& b)
@@ -139,9 +141,9 @@ nCasts(const OK& a, const OK& b)
   return a.first < b.first;
 }
 
-pair<edm::FunctionWithDict, bool>
+std::pair<edm::FunctionWithDict, bool>
 findMethod(const edm::TypeWithDict& t, /*class=in*/
-           const string& name, /*function member name=in*/
+           const std::string& name, /*function member name=in*/
            const std::vector<AnyMethodArgument>& args, /*args=in*/
            std::vector<AnyMethodArgument>& fixuppedArgs, /*args=out*/
            const char* iIterator, /*???=out*/
@@ -164,29 +166,48 @@ findMethod(const edm::TypeWithDict& t, /*class=in*/
     type = theType;
   }
   // strip const, volatile, c++ ref, ..
-  type = type.stripConstRef();;
+  type = type.stripConstRef();
   // Create our return value.
-  pair<edm::FunctionWithDict, bool> mem;
+  std::pair<edm::FunctionWithDict, bool> mem;
   //FIXME: We must initialize mem.first!
   mem.second = false;
   // suitable members and number of integer->real casts required to get them
-  vector<pair<int, edm::FunctionWithDict> > oks;
-  // first look in base scope
-  edm::TypeFunctionMembers functions(type);
-  for (auto const& F : functions) {
-    edm::FunctionWithDict f(F);
-    if (f.name() != name) {
-      continue;
+  std::vector<std::pair<int, edm::FunctionWithDict> > oks;
+  std::string theArgs;
+  for(auto const& item : args) {
+    if(!theArgs.empty()) {
+      theArgs += ',';
     }
+    theArgs += edm::TypeID(item.type()).className();
+  }
+  edm::FunctionWithDict f = type.functionMemberByName(name, theArgs, true);
+  if(bool(f)) {
     int casts = checkMethod(f, type, args, fixuppedArgs);
     if (casts > -1) {
-      oks.push_back(make_pair(casts, f));
-    }
-    else {
+      oks.push_back(std::make_pair(casts, f));
+    } else {
       oError = -1 * casts;
       //is this a show stopper error?
       if (fatalErrorCondition(oError)) {
         return mem;
+      }
+    }
+  } else {
+    edm::TypeFunctionMembers functions(type);
+    for (auto const& F : functions) {
+      edm::FunctionWithDict f(F);
+      if (f.name() != name) {
+        continue;
+      }
+      int casts = checkMethod(f, type, args, fixuppedArgs);
+      if (casts > -1) {
+        oks.push_back(std::make_pair(casts, f));
+      } else {
+        oError = -1 * casts;
+        //is this a show stopper error?
+        if (fatalErrorCondition(oError)) {
+          return mem;
+        }
       }
     }
   }

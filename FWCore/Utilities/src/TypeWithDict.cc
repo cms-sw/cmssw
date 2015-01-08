@@ -35,6 +35,8 @@ namespace edm {
   namespace {
     typedef tbb::concurrent_unordered_map<std::string, TypeWithDict> Map;
     Map typeMap;
+    typedef tbb::concurrent_unordered_map<std::string, FunctionWithDict> FunctionMap;
+    FunctionMap functionMap;
   }
    static
    void throwTypeException(std::string const& function, std::string const& typeName) {
@@ -314,6 +316,11 @@ namespace edm {
     dataType_(nullptr),
     arrayDimensions_(nullptr),
     property_(property) {
+    if(ti_ == nullptr) {
+      ti_ = &typeid(TypeWithDict::invalidType);
+      class_ = nullptr;
+      property_ = 0L;
+    }
   }
 
   TypeWithDict::TypeWithDict(TEnum *enm) : TypeWithDict(enm, 0L) {
@@ -637,15 +644,22 @@ namespace edm {
   }
 
   FunctionWithDict
-  TypeWithDict::functionMemberByName(std::string const& name, std::string const& proto, bool isConst) const {
+  TypeWithDict::functionMemberByName(std::string const& functionName, std::string const& proto, bool isConst) const {
     if (!isClass()) {
       return FunctionWithDict();
     }
-    TMethod* meth = class_->GetMethodWithPrototype(name.c_str(), proto.c_str(), /*objectIsConst=*/isConst, /*mode=*/ROOT::kExactMatch);
+    std::string const& key = name() + '#' + functionName + '#' + proto;
+    auto const& item = functionMap.find(key);
+    if(item != functionMap.end()) {
+       return item->second;
+    }
+    TMethod* meth = class_->GetMethodWithPrototype(functionName.c_str(), proto.c_str(), /*objectIsConst=*/isConst, /*mode=*/ROOT::kConversionMatch);
     if (meth == nullptr) {
       return FunctionWithDict();
     }
-    return FunctionWithDict(meth);
+    FunctionWithDict theFunction = FunctionWithDict(meth);
+    functionMap.insert(std::make_pair(key, theFunction));
+    return theFunction;
   }
 
   TypeWithDict
@@ -971,7 +985,7 @@ namespace edm {
     if (class_ == nullptr) {
       return 0;
     }
-    return class_->GetListOfMethods()->GetSize();
+    return class_->GetListOfMethods(kFALSE)->GetSize();
   }
 
 } // namespace edm
