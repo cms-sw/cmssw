@@ -300,7 +300,7 @@ HLTTrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     ProductID pixelOldProdID, stripOldProdID;
 
     edm::ESHandle<TrackerGeometry> tgh;
-    iSetup.get<TrackerDigiGeometryRecord>().get("",tgh);  //is it correct to use "" ?
+    iSetup.get<TrackerDigiGeometryRecord>().get(tgh);
 
     Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
     if (doPixel_) {
