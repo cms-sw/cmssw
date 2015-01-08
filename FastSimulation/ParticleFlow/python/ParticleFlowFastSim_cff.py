@@ -17,7 +17,6 @@ from RecoParticleFlow.PFProducer.pfLinker_cff import *
 #from RecoParticleFlow.PFProducer.pfGsfElectronCiCSelector_cff import *
 from RecoParticleFlow.PFProducer.pfGsfElectronMVASelector_cff import *
 from RecoParticleFlow.PFProducer.particleFlowEGamma_cff import *
-from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import *
 
 
 particleFlowSimParticle.sim = 'famosSimHits'
@@ -72,7 +71,7 @@ famosParticleFlowSequence = cms.Sequence(
     FSparticleFlow
 )
 
-particleFlowLinks = cms.Sequence(particleFlow*(inclusiveCandidateVertexing+particleFlowPtrs*particleBasedIsolationSequence))
+particleFlowLinks = cms.Sequence(particleFlow*particleFlowPtrs+particleBasedIsolationSequence)
 
 # PF Reco Jets and MET
 from RecoJets.Configuration.RecoPFJets_cff import *
