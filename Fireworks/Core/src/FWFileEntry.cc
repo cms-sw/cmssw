@@ -304,7 +304,8 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
    }
 
 
-   if (interpretedSelection[0] == '$')
+   std::size_t found = interpretedSelection.find('$');
+   if (found!=std::string::npos)
    {
        fwLog(fwlog::kError) << "FWFileEntry::RunFilter invalid expression " <<  interpretedSelection << std::endl;
        filter->m_needsUpdate = false;
