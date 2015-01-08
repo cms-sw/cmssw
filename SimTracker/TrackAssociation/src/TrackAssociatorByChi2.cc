@@ -3,9 +3,7 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/GeometrySurface/interface/Line.h"
-#include "DataFormats/GeometryVector/interface/Pi.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/trackingParametersAtClosestApproachToBeamSpot.h"
 
 using namespace edm;
 using namespace reco;
@@ -146,28 +144,7 @@ TrackAssociatorByChi2::parametersAtClosestApproach(const Basic3DVector<double>& 
 						   const Basic3DVector<double>& momAtVtx,
 						   float charge,
 						   const BeamSpot& bs) const{
-  
-  TrackBase::ParameterVector sParameters;
-  try {
-    FreeTrajectoryState ftsAtProduction(GlobalPoint(vertex.x(),vertex.y(),vertex.z()),
-					GlobalVector(momAtVtx.x(),momAtVtx.y(),momAtVtx.z()),
-					TrackCharge(charge),
-					theMF.product());
-    TSCBLBuilderNoMaterial tscblBuilder;
-    TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction,bs);//as in TrackProducerAlgorithm
-    
-    GlobalPoint v = tsAtClosestApproach.trackStateAtPCA().position();
-    GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
-    sParameters[0] = tsAtClosestApproach.trackStateAtPCA().charge()/p.mag();
-    sParameters[1] = Geom::halfPi() - p.theta();
-    sParameters[2] = p.phi();
-    sParameters[3] = (-v.x()*sin(p.phi())+v.y()*cos(p.phi()));
-    sParameters[4] = v.z()*p.perp()/p.mag() - (v.x()*p.x()+v.y()*p.y())/p.perp() * p.z()/p.mag();
-    
-    return pair<bool,TrackBase::ParameterVector>(true,sParameters);
-  } catch ( ... ) {
-    return pair<bool,TrackBase::ParameterVector>(false,sParameters);
-  }
+  return reco::trackingParametersAtClosestApproachToBeamSpot(vertex,momAtVtx,charge, *theMF, bs);
 }
 
 RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(const edm::RefToBaseVector<reco::Track>& tC, 

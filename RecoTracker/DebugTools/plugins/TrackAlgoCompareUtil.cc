@@ -1,4 +1,6 @@
 #include "RecoTracker/DebugTools/plugins/TrackAlgoCompareUtil.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 
 using namespace std;
 using namespace edm;
