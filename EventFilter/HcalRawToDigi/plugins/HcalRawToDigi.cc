@@ -71,7 +71,7 @@ void HcalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<bool>("UnpackZDC",true);
   desc.addUntracked<bool>("UnpackCalib",true);
   desc.addUntracked<bool>("UnpackTTP",true);
-  desc.addUntracked<bool>("silent",false);
+  desc.addUntracked<bool>("silent",true);
   desc.addUntracked<bool>("ComplainEmptyData",false);
   desc.addUntracked<int>("UnpackerMode",0);
   desc.addUntracked<int>("ExpectedOrbitMessageTime",-1);
