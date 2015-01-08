@@ -125,7 +125,9 @@ HLT_Photon120_R9Id90_HE10_Iso40_EBOnly_VBF_v*			# JIRA: CMSHLT-138
 HLT_Photon250_NoHE_v*						# JIRA: CMSHLT-138
 HLT_Photon300_NoHE_v*						# JIRA: CMSHLT-138
 
-HLT_Mu30_TkMu11_v*						# JIRA: CMSHLT-84
+HLT_Mu40_TkMu11_v*						# JIRA: CMSHLT-195
+HLT_Mu27_TkMu8_v*						# JIRA: CMSHLT-195
+HLT_Mu30_TkMu11_v*						# JIRA: CMSHLT-84 updated by CMSHLT-195
 
 HLT_L2Mu10_NoVertex_NoBPTX_v*					# JIRA: CMSHLT-87
 HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v*				# JIRA: CMSHLT-87
@@ -200,10 +202,18 @@ HLT_Mu8_TrkIsoVVL_v*						# JIRA: CMSHLT-129
 HLT_Mu17_TrkIsoVVL_v*						# JIRA: CMSHLT-129
 HLT_Mu24_TrkIsoVVL_v*						# JIRA: CMSHLT-129
 HLT_Mu34_TrkIsoVVL_v*						# JIRA: CMSHLT-129
-HLT_Ele12_CaloId_TrackId_Iso_PFJet30_v*				# JIRA: CMSHLT-129
-HLT_Ele18_CaloId_TrackId_Iso_PFJet30_v*				# JIRA: CMSHLT-129
-HLT_Ele23_CaloId_TrackId_Iso_PFJet30_v*				# JIRA: CMSHLT-129
-HLT_Ele33_CaloId_TrackId_Iso_PFJet30_v*				# JIRA: CMSHLT-129
+
+#HLT_Ele12_CaloId_TrackId_Iso_PFJet30_v*			# JIRA: CMSHLT-129 removed by CMSHLT-189
+#HLT_Ele18_CaloId_TrackId_Iso_PFJet30_v*			# JIRA: CMSHLT-129 removed by CMSHLT-189
+#HLT_Ele23_CaloId_TrackId_Iso_PFJet30_v*			# JIRA: CMSHLT-129 removed by CMSHLT-189
+#HLT_Ele33_CaloId_TrackId_Iso_PFJet30_v*			# JIRA: CMSHLT-129 removed by CMSHLT-189
+
+HLT_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189   
+HLT_Ele18_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189   
+HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189   
+HLT_Ele33_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189   
+
+
 
 HLT_MET75_IsoTrk50_v*						# JIRA: CMSHLT-130
 HLT_MET90_IsoTrk50_v*						# JIRA: CMSHLT-130
@@ -350,6 +360,8 @@ HLT_Mu15_IsoVVVL_BTagCSV07_PFHT400_v*				# JIRA: CMSHLT-165
 HLT_Mu15_IsoVVVL_PFHT400_PFMET70_v*				# JIRA: CMSHLT-165
 HLT_Mu15_IsoVVVL_PFHT600_v*					# JIRA: CMSHLT-165
 HLT_Mu15_PFHT300_v*						# JIRA: CMSHLT-165
+
+#HLT_ECALHT800_v*						# JIRA: CMSHLT-201 (for 7e33)
 
 #HLT_PixelTracks_Multiplicity60_v* 				# JIRA: CMSHLT-150 (for low PU runs)
 #HLT_PixelTracks_Multiplicity85_v* 				# JIRA: CMSHLT-150 (for low PU runs)
