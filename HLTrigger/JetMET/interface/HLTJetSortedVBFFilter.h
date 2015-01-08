@@ -36,9 +36,6 @@ class HLTJetSortedVBFFilter : public HLTFilter {
   static bool comparator ( const Jpair& l, const Jpair& r) {
     return l.first < r.first;
   }
-  static bool comparator_inv ( const Jpair& l, const Jpair& r) {
-    return l.first > r.first;
-  }
 
   explicit HLTJetSortedVBFFilter(const edm::ParameterSet&);
   ~HLTJetSortedVBFFilter();
