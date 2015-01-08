@@ -20,7 +20,7 @@
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h" 
 
-#include "RecoMET/METPUSubtraction/interface/noPileUpMEtAuxFunctions.h"
+#include "RecoMET/METPUSubtraction/interface/NoPileUpMEtAuxFunctions.h"
 
 class JVFJetIdProducer : public edm::stream::EDProducer<>
 {
