@@ -18,8 +18,6 @@ hltL1SeededEgammaRegionalCTFFinalFitWithMaterial = cms.EDProducer("TrackProducer
                                                                   MeasurementTracker = cms.string(''),
                                                                   useHitsSplitting = cms.bool(False))
 
-#                                                                  TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracksForPhotons")
- #                                                                                                cms.InputTag("globalPixelTrackCandidatesForPhotons")
 
 
 

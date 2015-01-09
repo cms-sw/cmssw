@@ -27,8 +27,5 @@ pixelTracks = cms.EDProducer("PixelTracksProducer",
         )
     ),
     SeedProducer = cms.InputTag("pixelTripletSeeds","PixelTriplet")
-
-#    SaveTracksOnly = cms.untracked.bool(True),
-#   TrackProducers = cms.VInputTag(cms.InputTag("hltPixelTracks"))
 )
 
