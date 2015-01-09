@@ -12,8 +12,17 @@ SiDigitalConverter::DigitalVecType
 SiTrivialDigitalConverter::convert(const std::vector<float>& analogSignal, edm::ESHandle<SiStripGain> & gainHandle, unsigned int detid){
   
   _temp.clear();
-  
-  if(gainHandle.isValid()) {
+
+  if(PreMixing_) {
+    for ( size_t i=0; i<analogSignal.size(); i++) {
+      if (analogSignal[i]<=0) continue;
+      // convert analog amplitude to digital - special algorithm for PreMixing. 
+      // Need to keep all hits, including those at very low pulse heights.
+      int adc = truncate( sqrt(9.0*analogSignal[i]) );
+      if ( adc > 0) _temp.push_back(SiStripDigi(i, adc));
+    }
+  }
+  else if(gainHandle.isValid()) {
     SiStripApvGain::Range detGainRange = gainHandle->getRange(detid);
     for ( size_t i=0; i<analogSignal.size(); i++) {
       if (analogSignal[i]<=0) continue;
