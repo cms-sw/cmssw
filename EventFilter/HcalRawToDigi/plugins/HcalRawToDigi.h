@@ -14,7 +14,7 @@
  *
  ************************************************************/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -26,21 +26,22 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-class HcalRawToDigi : public edm::EDProducer
+class HcalRawToDigi : public edm::stream::EDProducer <>
 {
 public:
   explicit HcalRawToDigi(const edm::ParameterSet& ps);
   virtual ~HcalRawToDigi();
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  virtual void produce(edm::Event& , const edm::EventSetup&) override;
 private:
   edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
   HcalUnpacker unpacker_;
   HcalDataFrameFilter filter_;
   std::vector<int> fedUnpackList_;
-  int firstFED_;
-  bool unpackCalib_, unpackZDC_, unpackTTP_;
-  bool silent_,complainEmptyData_;
-  int unpackerMode_,expectedOrbitMessageTime_;
+  const int firstFED_;
+  const bool unpackCalib_, unpackZDC_, unpackTTP_;
+  const bool silent_, complainEmptyData_;
+  const int unpackerMode_, expectedOrbitMessageTime_;
 
   struct Statistics {
     int max_hbhe, ave_hbhe;
