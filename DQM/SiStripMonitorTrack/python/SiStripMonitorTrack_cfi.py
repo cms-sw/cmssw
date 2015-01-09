@@ -107,7 +107,7 @@ SiStripMonitorTrack = cms.EDAnalyzer(
                          UpdateMode = cms.int32(1)
                          ),
 
-    TH1ClusterChargePerCM = cms.PSet( Nbinx = cms.int32(250),
+    TH1ClusterChargePerCM = cms.PSet( Nbinx = cms.int32(100),
                                       xmin  = cms.double(-0.5),
                                       xmax  = cms.double(9999.5)
     ),
