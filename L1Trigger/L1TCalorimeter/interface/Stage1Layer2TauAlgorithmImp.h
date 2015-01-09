@@ -18,7 +18,6 @@ namespace l1t {
     virtual ~Stage1Layer2SingleTrackHI();
     virtual void processEvent(const std::vector<l1t::CaloEmCand> & clusters,
                               const std::vector<l1t::CaloRegion> & regions,
-			      const std::vector<l1t::Jet> * jets,
                               std::vector<l1t::Tau> * taus);
 
   private:
@@ -32,7 +31,6 @@ namespace l1t {
     virtual ~Stage1Layer2TauAlgorithmImpPP();
     virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
                               const std::vector<l1t::CaloRegion> & regions,
-			      const std::vector<l1t::Jet> * jets,
                               std::vector<l1t::Tau> * taus);
 
   private:
@@ -53,7 +51,6 @@ namespace l1t {
     virtual ~Stage1Layer2TauAlgorithmImpHW();
     virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
                               const std::vector<l1t::CaloRegion> & regions,
-			      const std::vector<l1t::Jet> * jets,
                               std::vector<l1t::Tau> * taus);
 
   private:

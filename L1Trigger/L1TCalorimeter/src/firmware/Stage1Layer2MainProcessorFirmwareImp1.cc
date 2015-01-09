@@ -81,7 +81,7 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
     m_egAlgo->processEvent(emcands, regions, jets, egammas);
   }
   if(m_tauAlgo)
-    m_tauAlgo->processEvent(emcands, regions, jets, taus);
+    m_tauAlgo->processEvent(emcands, regions, taus);
   if(m_sumAlgo)
     m_sumAlgo->processEvent(regions, emcands, etsums);
   if(m_hfRingAlgo)

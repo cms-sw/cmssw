@@ -32,7 +32,6 @@ Stage1Layer2TauAlgorithmImpPP::~Stage1Layer2TauAlgorithmImpPP(){};
 
 void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
 						      const std::vector<l1t::CaloRegion> & regions,
-						      const std::vector<l1t::Jet> * jets,
 						      std::vector<l1t::Tau> * taus) {
 
   double towerLsb = params_->towerLsbSum();
