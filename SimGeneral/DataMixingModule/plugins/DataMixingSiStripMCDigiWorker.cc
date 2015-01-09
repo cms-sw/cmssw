@@ -412,7 +412,6 @@ namespace edm
 	if(RefStrip<numStrips){
 	  float noiseRMS = noiseHandle->getNoise(RefStrip,detNoiseRange);
 	  float gainValue = gainHandle->getStripGain(RefStrip, detGainRange);
-	  std::cout << " NoiseRMSAdder " << noiseRMS << " " << theElectronPerADC<< " " << gainValue << std::endl;
 	  theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC/gainValue);
 	}
 	
