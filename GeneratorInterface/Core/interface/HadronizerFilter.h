@@ -23,6 +23,8 @@
 
 // #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
+#include "GeneratorInterface/Core/interface/HepMCFilterDriver.h"
+
 // LHE Run
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
@@ -30,6 +32,7 @@
 // LHE Event
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
+
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
@@ -65,8 +68,11 @@ namespace edm
     Hadronizer hadronizer_;
     // gen::ExternalDecayDriver* decayer_;
     Decayer* decayer_;
+    HepMCFilterDriver *filter_;
     bool fromSource_;
-
+    InputTag runInfoProductTag_;
+    unsigned int counterRunInfoProducts_;
+    unsigned int nAttempts_;
   };
 
   //------------------------------------------------------------------------
@@ -78,7 +84,11 @@ namespace edm
     EDFilter(),
     hadronizer_(ps),
     decayer_(0),
-    fromSource_(true)
+    filter_(0),
+    fromSource_(true),
+    runInfoProductTag_(),
+    counterRunInfoProducts_(0),
+    nAttempts_(1)
   {
     // TODO:
     // Put the list of types produced by the filters here.
@@ -95,16 +105,31 @@ namespace edm
        ParameterSet ps1 = ps.getParameter<ParameterSet>("ExternalDecays");
        decayer_ = new Decayer(ps1);
     }
+    
+    if ( ps.exists("HepMCFilter") ) {
+      ParameterSet psfilter = ps.getParameter<ParameterSet>("HepMCFilter");
+      filter_ = new HepMCFilterDriver(psfilter);
+    }
+    
+    //initialize setting for multiple hadronization attempts
+    if (ps.exists("nAttempts")) {
+      nAttempts_ = ps.getParameter<unsigned int>("nAttempts");
+    }
 
     produces<edm::HepMCProduct>();
     produces<GenEventInfoProduct>();
     produces<GenLumiInfoProduct, edm::InLumi>();
     produces<GenRunInfoProduct, edm::InRun>();
+    if(filter_)
+      produces<GenFilterInfo, edm::InLumi>(); 
   }
 
   template <class HAD, class DEC>
   HadronizerFilter<HAD,DEC>::~HadronizerFilter()
-  { if (decayer_) delete decayer_; }
+  {
+    if (decayer_) delete decayer_;
+    if (filter_) delete filter_;
+  }
 
   template <class HAD, class DEC>
   bool
@@ -119,58 +144,93 @@ namespace edm
       ev.getByLabel("source", product);
     else
       ev.getByLabel("externalLHEProducer", product);
-
-    lhef::LHEEvent *lheEvent =
-		new lhef::LHEEvent(hadronizer_.getLHERunInfo(), *product);
-    hadronizer_.setLHEEvent( lheEvent );
     
-    // hadronizer_.generatePartons();
-    if ( !hadronizer_.hadronize() ) return false ;
-
-    //  this is "fake" stuff
-    // in principle, decays are done as part of full event generation,
-    // except for particles that are marked as to be kept stable
-    // but we currently keep in it the design, because we might want
-    // to use such feature for other applications
-    //
-    if ( !hadronizer_.decay() ) return false;
+    std::auto_ptr<HepMC::GenEvent> finalEvent;
+    std::auto_ptr<GenEventInfoProduct> finalGenEventInfo;
     
-    std::auto_ptr<HepMC::GenEvent> event (hadronizer_.getGenEvent());
-    if( !event.get() ) return false; 
+    //sum of weights for events passing hadronization
+    double waccept = 0;
+    //number of accepted events
+    unsigned int naccept = 0;
+    
+    for (unsigned int itry = 0; itry<nAttempts_; ++itry) {
 
-    // The external decay driver is being added to the system,
-    // it should be called here
-    //
-    if ( decayer_ ) 
-    {
-      event.reset( decayer_->decay( event.get() ) );
+      lhef::LHEEvent *lheEvent =
+		  new lhef::LHEEvent(hadronizer_.getLHERunInfo(), *product);
+      hadronizer_.setLHEEvent( lheEvent );
+      
+      // hadronizer_.generatePartons();
+      if ( !hadronizer_.hadronize() ) continue ;
+
+      //  this is "fake" stuff
+      // in principle, decays are done as part of full event generation,
+      // except for particles that are marked as to be kept stable
+      // but we currently keep in it the design, because we might want
+      // to use such feature for other applications
+      //
+      if ( !hadronizer_.decay() ) continue;
+      
+      std::auto_ptr<HepMC::GenEvent> event (hadronizer_.getGenEvent());
+      if( !event.get() ) continue; 
+
+      // The external decay driver is being added to the system,
+      // it should be called here
+      //
+      if ( decayer_ ) 
+      {
+        event.reset( decayer_->decay( event.get() ) );
+      }
+
+      if ( !event.get() ) continue;
+
+      // check and perform if there're any unstable particles after 
+      // running external decay packges
+      //
+      hadronizer_.resetEvent( event.release() );
+      if ( !hadronizer_.residualDecay() ) continue;
+
+      hadronizer_.finalizeEvent();
+
+      event.reset( hadronizer_.getGenEvent() );
+      if ( !event.get() ) continue;
+      
+      event->set_event_number( ev.id().event() );
+      
+      std::auto_ptr<GenEventInfoProduct> genEventInfo(hadronizer_.getGenEventInfo());      
+      if (!genEventInfo.get())
+      { 
+        // create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
+        genEventInfo.reset(new GenEventInfoProduct(event.get()));
+      }
+      
+      //if HepMCFilter was specified, test event
+      if (filter_ && !filter_->filter(event.get(), genEventInfo->weight())) continue;      
+      
+      waccept += genEventInfo->weight();
+      ++naccept;
+      
+      //keep the LAST accepted event (which is equivalent to choosing randomly from the accepted events)
+      finalEvent.reset(event.release());
+      finalGenEventInfo.reset(genEventInfo.release());
+      
     }
+    
+    if (!naccept) return false;
+    
 
-    if ( !event.get() ) return false;
-
-    // check and perform if there're any unstable particles after 
-    // running external decay packges
-    //
-    hadronizer_.resetEvent( event.release() );
-    if ( !hadronizer_.residualDecay() ) return false;
-
-    hadronizer_.finalizeEvent();
-
-    event.reset( hadronizer_.getGenEvent() );
-    if ( !event.get() ) return false;
-
-    event->set_event_number( ev.id().event() );
-
-    std::auto_ptr<GenEventInfoProduct> genEventInfo(hadronizer_.getGenEventInfo());
-    if (!genEventInfo.get())
-    { 
-      // create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
-      genEventInfo.reset(new GenEventInfoProduct(event.get()));
+    
+    //adjust event weights if necessary (in case input event was attempted multiple times)
+    if (nAttempts_>1) {
+      std::vector<double> genEventInfoWeights = finalGenEventInfo->weights();
+      genEventInfoWeights.push_back(double(naccept)/double(nAttempts_));
+      finalGenEventInfo->setWeights(genEventInfoWeights);
     }
-    ev.put(genEventInfo);
+    
+    
+    ev.put(finalGenEventInfo);
 
     std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
-    bare_product->addHepMCData( event.release() );
+    bare_product->addHepMCData( finalEvent.release() );
     ev.put(bare_product);
 
     return true;
@@ -231,6 +291,7 @@ namespace edm
 
     hadronizer_.statistics();
     if ( decayer_ ) decayer_->statistics();
+    if ( filter_ ) filter_->statistics();
     lheRunInfo->statistics();
 
     std::auto_ptr<GenRunInfoProduct> griproduct( new GenRunInfoProduct(genRunInfo) );
@@ -265,6 +326,10 @@ namespace edm
             << "Failed to declare special settings in hadronizer "
             << hadronizer_.classname()
             << "\n";
+    }
+    
+    if (filter_) {
+      filter_->resetStatistics();
     }
 
     if (! hadronizer_.initializeForExternalPartons())
@@ -308,6 +373,22 @@ namespace edm
     genLumiInfo->setHEPIDWTUP(lheRunInfo->getHEPRUP()->IDWTUP);
     genLumiInfo->setProcessInfo( GenLumiProcess );
     lumi.put(genLumiInfo);    
+    
+    // produce GenFilterInfo if HepMCFilter is called
+    if (filter_) {
+
+      std::auto_ptr<GenFilterInfo> thisProduct(new GenFilterInfo(
+                                                                 filter_->numEventsPassPos(),
+                                                                 filter_->numEventsPassNeg(),
+                                                                 filter_->numEventsTotalPos(),
+                                                                 filter_->numEventsTotalNeg(),
+                                                                 filter_->sumpass_w(),
+                                                                 filter_->sumpass_w2(),
+                                                                 filter_->sumtotal_w(),
+                                                                 filter_->sumtotal_w2()
+                                                                 ));
+      lumi.put(thisProduct);
+    }
     
     return true;
   }
