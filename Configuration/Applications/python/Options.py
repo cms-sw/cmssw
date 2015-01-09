@@ -378,3 +378,9 @@ expertSettings.add_option("--timeoutOutput",
                           default=False,
                           dest='timeoutOutput'
                           )
+
+expertSettings.add_option("--nThreads",
+                          help="How many threads should CMSSW use (default is 1)",
+                          default="1",
+                          dest='nThreads'
+                          )
