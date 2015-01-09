@@ -906,12 +906,12 @@ void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,std::string nam
 
     // new dE/dx (chargePerCM)
     // https://indico.cern.ch/event/342236/session/5/contribution/10/material/slides/0.pdf
-    float dQdx_fromTrack = siStripClusterTools::chargePerCM(detid, cluster, LV);
+    float dQdx_fromTrack = siStripClusterTools::chargePerCM(detid, *cluster, LV);
     // from straigth line origin-sensor centre
     const StripGeomDetUnit* DetUnit = (const StripGeomDetUnit*) tkgeom_->idToDetUnit(DetId(detid));
     LocalPoint locVtx = DetUnit->toLocal(GlobalPoint(0.0, 0.0, 0.0));
     LocalVector locDir(locVtx.x(), locVtx.y(), locVtx.z());
-    float dQdx_fromOrigin = siStripClusterTools::chargePerCM(detid, cluster, locDir);
+    float dQdx_fromOrigin = siStripClusterTools::chargePerCM(detid, *cluster, locDir);
     
     float noise = cluster->noiseRescaledByGain();
     if(noise > 0.0) fillME(iModME->second.ClusterStoNCorr ,StoN*cos);
@@ -956,12 +956,12 @@ void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,uint32_t detid, co
 
   // new dE/dx (chargePerCM)
   // https://indico.cern.ch/event/342236/session/5/contribution/10/material/slides/0.pdf
-  float dQdx_fromTrack = siStripClusterTools::chargePerCM(detid, cluster, LV);
+  float dQdx_fromTrack = siStripClusterTools::chargePerCM(detid, *cluster, LV);
   // from straigth line origin-sensor centre
   const StripGeomDetUnit* DetUnit = (const StripGeomDetUnit*) tkgeom_->idToDetUnit(DetId(detid));
   LocalPoint locVtx = DetUnit->toLocal(GlobalPoint(0.0, 0.0, 0.0));
   LocalVector locDir(locVtx.x(), locVtx.y(), locVtx.z());
-  float dQdx_fromOrigin = siStripClusterTools::chargePerCM(detid, cluster, locDir);
+  float dQdx_fromOrigin = siStripClusterTools::chargePerCM(detid, *cluster, locDir);
   
   std::map<std::string, LayerMEs>::iterator iLayer  = LayerMEsMap.find(layer_id);
   if (iLayer != LayerMEsMap.end()) {
