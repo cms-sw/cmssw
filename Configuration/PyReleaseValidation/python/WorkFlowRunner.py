@@ -27,8 +27,8 @@ def esReportWorkflow(**kwds):
     datepart = "201" + kwds["release"].split("201")[1]
     d = datetime.strptime(datepart, "%Y-%m-%d-%H00")
   url = "https://%s/ib-matrix.%s/runTheMatrix-data/%s" % (es_hostname,
-                                                                d.strftime("%Y.%m"),
-                                                                sha1_id)
+                                                          d.strftime("%Y.%m"),
+                                                          sha1_id)
   request = urllib2.Request(url)
   if es_auth:
     base64string = base64.encodestring(es_auth).replace('\n', '')
@@ -37,7 +37,7 @@ def esReportWorkflow(**kwds):
   data = json.dumps(payload)
   try:
     result = urllib2.urlopen(request, data=data)
-  except HTTPError, e:
+  except urllib2.HTTPError, e:
     print e
 
 class WorkFlowRunner(Thread):
