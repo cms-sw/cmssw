@@ -2,6 +2,9 @@
 
 #include "EvFFEDSelector.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 namespace evf {
 
   EvFFEDSelector::EvFFEDSelector(edm::ParameterSet const & config) :
@@ -11,6 +14,18 @@ namespace evf {
     produces<FEDRawDataCollection>();
   }
 
+  void EvFFEDSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("inputTag",edm::InputTag("source"));
+    {
+      std::vector<unsigned int> temp1;
+      temp1.reserve(2);
+      temp1.push_back(812);
+      temp1.push_back(1023);
+      desc.add<std::vector<unsigned int> >("fedList",temp1);
+    }
+    descriptions.add("EvFFEDSelector",desc);
+  }
 
   void EvFFEDSelector::produce(edm::StreamID sid, edm::Event & event, edm::EventSetup const & setup) const
   {

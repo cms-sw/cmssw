@@ -46,6 +46,8 @@ class EcalRawToDigi : public edm::stream::EDProducer<>{
    */
   explicit EcalRawToDigi(const edm::ParameterSet& ps);
   
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   /**
    * Functions that are called by framework at each event
    */

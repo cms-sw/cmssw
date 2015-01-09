@@ -12,6 +12,8 @@
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -47,6 +49,12 @@ namespace sistrip {
     }
   }
   
+  void ExcludedFEDListProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("ProductLabel",edm::InputTag("rawDataCollector"));
+    descriptions.add("siStripExcludedFEDListProducer",desc);
+  }
+
   void ExcludedFEDListProducer::produce( edm::Event& event, const edm::EventSetup& es)
   {
     if( runNumber_ != event.run() ) {

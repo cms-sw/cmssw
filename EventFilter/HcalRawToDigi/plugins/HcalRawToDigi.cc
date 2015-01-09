@@ -3,6 +3,8 @@ using namespace std;
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -58,6 +60,25 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
 
 // Virtual destructor needed.
 HcalRawToDigi::~HcalRawToDigi() { }  
+
+void HcalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<int>("HcalFirstFED",int(FEDNumbering::MINHCALFEDID));
+  desc.add<int>("firstSample",0);
+  desc.add<int>("lastSample",9);
+  desc.add<bool>("FilterDataQuality",true);
+  desc.addUntracked<std::vector<int>>("FEDs", std::vector<int>());
+  desc.addUntracked<bool>("UnpackZDC",true);
+  desc.addUntracked<bool>("UnpackCalib",true);
+  desc.addUntracked<bool>("UnpackTTP",true);
+  desc.addUntracked<bool>("silent",true);
+  desc.addUntracked<bool>("ComplainEmptyData",false);
+  desc.addUntracked<int>("UnpackerMode",0);
+  desc.addUntracked<int>("ExpectedOrbitMessageTime",-1);
+  desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
+  descriptions.add("hcalRawToDigi",desc);
+}
+
 
 // Functions that gets called by framework every event
 void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
