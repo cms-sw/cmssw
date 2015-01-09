@@ -37,7 +37,7 @@ namespace edm
     peakMode(ps.getParameter<bool>("APVpeakmode")),
     theThreshold(ps.getParameter<double>("NoiseSigmaThreshold")),
     theElectronPerADC(ps.getParameter<double>( peakMode ? "electronPerAdcPeak" : "electronPerAdcDec" )),
-    theFedAlgo(ps.getParameter<int>("FedAlgorithm")),
+    theFedAlgo(ps.getParameter<int>("FedAlgorithm_PM")),
     geometryType(ps.getParameter<std::string>("GeometryType")),
     theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)),
     theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC, false)) // no premixing
@@ -222,6 +222,60 @@ namespace edm
     iSetup.get<SiStripThresholdRcd>().get(thresholdHandle);
     iSetup.get<SiStripPedestalsRcd>().get(pedestalHandle);
 
+    // First, have to convert all ADC counts to raw pulse heights so that values can be added properly
+    // In PreMixing, pulse heights are saved with ADC = sqrt(9.0*PulseHeight) - have to undo. 
+
+    // This is done here because it's the only place we have access to EventSetup 
+    // Simultaneously, merge lists of hit channels in each DetId.                
+    // Signal Digis are in the list first, have to merge lists of hit strips on the fly,
+    // add signals on duplicates later                                                       
+
+    OneDetectorRawMap LocalRawMap;
+
+    // Now, loop over hits and add them to the map in the proper sorted order        
+    // Note: We are assuming that the hits from the Signal events have been created in
+    // "PreMix" mode, rather than in the standard ADC conversion routines.  If not, this
+    // doesn't work at all.
+
+    // At the moment, both Signal and Reconstituted PU hits have the same compression algorithm.
+    // If this were different, and one needed gains, the conversion back to pulse height can only
+    // be done in this routine.  So, yes, there is an extra loop over hits here in the current code,
+    // because, in principle, one could convert to pulse height during the read/store phase.    
+
+    for(SiGlobalIndex::const_iterator IDet = SiHitStorage_.begin();
+        IDet != SiHitStorage_.end(); IDet++) {
+
+      uint32_t detID = IDet->first;
+
+      OneDetectorMap LocalMap = IDet->second;
+
+      //loop over hit strips for this DetId, do conversion to pulse height, store.
+
+      LocalRawMap.clear();
+
+      OneDetectorMap::const_iterator iLocal  = LocalMap.begin();
+      for(;iLocal != LocalMap.end(); ++iLocal) {
+
+        uint16_t currentStrip = iLocal->strip();
+        float signal = float(iLocal->adc());
+        if(iLocal->adc() == 1022) signal = 1500.;  // average values for overflows
+        if(iLocal->adc() == 1023) signal = 3000.;
+
+        //convert signals back to raw counts 
+
+        float ReSignal = signal*signal/9.0;  // The PreMixing conversion is adc = sqrt(9.0*pulseHeight)
+
+        RawDigi NewRawDigi = std::make_pair(currentStrip,ReSignal);
+
+        LocalRawMap.push_back(NewRawDigi);
+
+      }
+
+      // save information for this detiD into global map
+      SiRawDigis_.insert( SiGlobalRawIndex::value_type( detID, LocalRawMap ) );
+    }
+
+    //  Ok, done with merging raw signals - now add signals on duplicate strips 
 
     // collection of Digis to put in the event
     std::vector< edm::DetSet<SiStripDigi> > vSiStripDigi;
@@ -233,60 +287,49 @@ namespace edm
     signals_.clear();
 
     // big loop over Detector IDs:
-
-    for(SiGlobalIndex::const_iterator IDet = SiHitStorage_.begin();
-	IDet != SiHitStorage_.end(); IDet++) {
+    for(SiGlobalRawIndex::const_iterator IDet = SiRawDigis_.begin();
+        IDet != SiRawDigis_.end(); IDet++) {
 
       uint32_t detID = IDet->first;
 
       SignalMapType Signals;
       Signals.clear();
-      
-      OneDetectorMap LocalMap = IDet->second;
+
+      OneDetectorRawMap LocalMap = IDet->second;
 
       //counter variables
       int formerStrip = -1;
       int currentStrip;
-      int ADCSum = 0;
+      float ADCSum = 0;
 
-      //loop over hit strips for this DetId, add duplicates
+      //loop over hit strips for this DetId, add duplicates 
 
-      OneDetectorMap::const_iterator iLocalchk;
-      OneDetectorMap::const_iterator iLocal  = LocalMap.begin();
+      OneDetectorRawMap::const_iterator iLocalchk;
+      OneDetectorRawMap::const_iterator iLocal  = LocalMap.begin();
       for(;iLocal != LocalMap.end(); ++iLocal) {
 
-	currentStrip = iLocal->strip(); 
+        currentStrip = iLocal->first;  // strip is first element 
 
-	if (currentStrip == formerStrip) { // we have to add these digis together
-	  ADCSum+=iLocal->adc();          // on every element...
-	}
-	else{
-	  if(formerStrip!=-1){
-	    Signals.insert( std::make_pair(formerStrip, ADCSum));
+        if (currentStrip == formerStrip) { // we have to add these digis together 
 
-	    //detAmpl[formerStrip] = ADCSum;
-	    //if (ADCSum > 511) ADCSum = 255;
-	    //else if (ADCSum > 253 && ADCSum < 512) ADCSum = 254;
-	    //SiStripDigi aHit(formerStrip, ADCSum);
-	    //SSD.push_back( aHit );	  
-	  }
-	  // save pointers for next iteration
-	  formerStrip = currentStrip;
-	  ADCSum = iLocal->adc();
-	}
+          ADCSum+=iLocal->second ;          // raw pulse height is second element. 
+        }
+        else{
+          if(formerStrip!=-1){
+            Signals.insert( std::make_pair(formerStrip, ADCSum));
+          }
+          // save pointers for next iteration 
+          formerStrip = currentStrip;
+          ADCSum = iLocal->second; // lone ADC  
+        }
 
-	iLocalchk = iLocal;
-	if((++iLocalchk) == LocalMap.end()) {  //make sure not to lose the last one
+        iLocalchk = iLocal;
+        if((++iLocalchk) == LocalMap.end()) {  //make sure not to lose the last one  
 
-	  Signals.insert( std::make_pair(formerStrip, ADCSum));
-
-	  //detAmpl[formerStrip] = ADCSum;
-	  //	  if (ADCSum > 511) ADCSum = 255;
-	  //else if (ADCSum > 253 && ADCSum < 512) ADCSum = 254;
-	  //SSD.push_back( SiStripDigi(formerStrip, ADCSum) );	  
-	} 
+          Signals.insert( std::make_pair(formerStrip, ADCSum));
+        }
       }
-      // save merged map:
+      // save merged map: 
       signals_.insert( std::make_pair( detID, Signals));
     }
 
@@ -322,8 +365,10 @@ namespace edm
 	SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
 	SiStripApvGain::Range detGainRange = gainHandle->getRange(detID);
 
+	// Gain conversion is already done during signal adding
 	//convert our signals back to raw counts so that we can add noise properly:
 
+	/*
         if(theSignal) {
           for(unsigned int iv = 0; iv!=detAmpl.size(); iv++) {
 	    float signal = detAmpl[iv];
@@ -334,13 +379,14 @@ namespace edm
 	    }
           }
         }
-
+	*/
+	
 	//SiStripPedestals::Range detPedestalRange = pedestalHandle->getRange(detID);
 
 	// -----------------------------------------------------------
 
-	auto& firstChannelWithSignal = firstChannelsWithSignal[detID];
-	auto& lastChannelWithSignal = lastChannelsWithSignal[detID];
+        size_t firstChannelWithSignal = 0;
+        size_t lastChannelWithSignal = numStrips;
 
 	int RefStrip = int(numStrips/2.);
 	while(RefStrip<numStrips&&badChannels[RefStrip]){ //if the refstrip is bad, I move up to when I don't find it
@@ -385,6 +431,8 @@ namespace edm
 
     // clear local storage for this event
     SiHitStorage_.clear();
+    SiRawDigis_.clear();
+    signals_.clear();
   }
 
 } //edm
