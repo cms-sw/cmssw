@@ -64,8 +64,10 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
 
   std::vector<l1t::Tau> *preGtTaus = new std::vector<l1t::Tau>();
   std::vector<l1t::Tau> *preSortTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> *sortedTaus = new std::vector<l1t::Tau>();
   std::vector<l1t::Tau> *preGtIsoTaus = new std::vector<l1t::Tau>();
   std::vector<l1t::Tau> *preSortIsoTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> *sortedIsoTaus = new std::vector<l1t::Tau>();
 
   for(CaloRegionBxCollection::const_iterator region = subRegions->begin();
       region != subRegions->end(); region++) {
@@ -140,18 +142,23 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
     }
   }
 
-  TauToGtScales(params_, preGtTaus, preSortTaus);
-  TauToGtScales(params_, preGtIsoTaus, preSortIsoTaus);
+  TauToGtPtScales(params_, preGtTaus, preSortTaus);
+  TauToGtPtScales(params_, preGtIsoTaus, preSortIsoTaus);
 
-  SortTaus(preSortTaus, taus);
-  SortTaus(preSortIsoTaus, isoTaus);
+  SortTaus(preSortTaus, sortedTaus);
+  SortTaus(preSortIsoTaus, sortedIsoTaus);
+
+  TauToGtEtaScales(params_, sortedTaus, taus);
+  TauToGtEtaScales(params_, sortedIsoTaus, isoTaus);
 
   delete subRegions;
   delete unCorrJets;
   delete preGtTaus;
   delete preSortTaus;
+  delete sortedTaus;
   delete preGtIsoTaus;
   delete preSortIsoTaus;
+  delete sortedIsoTaus;
 
   const bool verbose = true;
   if(verbose)

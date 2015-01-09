@@ -35,9 +35,13 @@ namespace l1t {
 			const std::vector<l1t::EGamma> * input,
 			std::vector<l1t::EGamma> *output);
 
-  void TauToGtScales(CaloParamsStage1 *params,
-		     const std::vector<l1t::Tau> * input,
-		     std::vector<l1t::Tau> *output);
+  void TauToGtEtaScales(CaloParamsStage1 *params,
+			const std::vector<l1t::Tau> * input,
+			std::vector<l1t::Tau> *output);
+
+  void TauToGtPtScales(CaloParamsStage1 *params,
+		       const std::vector<l1t::Tau> * input,
+		       std::vector<l1t::Tau> *output);
 
   void EtSumToGtScales(CaloParamsStage1 *params,
 		       const std::vector<l1t::EtSum> * input,

@@ -96,22 +96,36 @@ namespace l1t {
     }
   }
 
-  void TauToGtScales(CaloParamsStage1 *params,
-		     const std::vector<l1t::Tau> * input,
-		     std::vector<l1t::Tau> *output){
+  void TauToGtEtaScales(CaloParamsStage1 *params,
+			const std::vector<l1t::Tau> * input,
+			std::vector<l1t::Tau> *output){
     for(std::vector<l1t::Tau>::const_iterator itTau = input->begin();
 	itTau != input->end(); ++itTau){
       const unsigned newEta = gtEta(itTau->hwEta());
+
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
+
+      l1t::Tau gtTau(*&ldummy, itTau->hwPt(), newEta, itTau->hwPhi(), itTau->hwQual(), itTau->hwIso());
+      output->push_back(gtTau);
+    }
+  }
+
+  void TauToGtPtScales(CaloParamsStage1 *params,
+		       const std::vector<l1t::Tau> * input,
+		       std::vector<l1t::Tau> *output){
+    for(std::vector<l1t::Tau>::const_iterator itTau = input->begin();
+	itTau != input->end(); ++itTau){
       uint16_t linPt = (uint16_t)itTau->hwPt();
       if(linPt > params->jetScale().linScaleMax() ) linPt = params->jetScale().linScaleMax();
       const uint16_t rankPt = params->jetScale().rank(linPt);
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
-      l1t::Tau gtTau(*&ldummy, rankPt, newEta, itTau->hwPhi(), itTau->hwQual(), itTau->hwIso());
+      l1t::Tau gtTau(*&ldummy, rankPt, itTau->hwEta(), itTau->hwPhi(), itTau->hwQual(), itTau->hwIso());
       output->push_back(gtTau);
     }
   }
+
 
   void EtSumToGtScales(CaloParamsStage1 *params,
 		       const std::vector<l1t::EtSum> * input,

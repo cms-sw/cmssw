@@ -26,11 +26,13 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
 						  std::vector<l1t::Tau> * taus)
 {
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
+  std::vector<l1t::Tau> *preGtEtaTaus = new std::vector<l1t::Tau>();
   std::vector<l1t::Tau> *preGtTaus = new std::vector<l1t::Tau>();
 
   HICaloRingSubtraction(regions, subRegions);
-  findRegions(subRegions, preGtTaus);
-  TauToGtScales(params_, preGtTaus, taus);
+  findRegions(subRegions, preGtEtaTaus);
+  TauToGtEtaScales(params_, preGtEtaTaus, preGtTaus);
+  TauToGtPtScales(params_, preGtTaus, taus);
 
   delete subRegions;
   delete preGtTaus;

@@ -15,7 +15,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/JetFinderMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
-
+#include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 
 using namespace std;
 using namespace l1t;
@@ -64,6 +64,11 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
   TwelveByTwelveFinder(jetSeedThreshold, subRegions, unCorrJets);
 
   std::vector<l1t::Tau> *preGtTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> *preSortTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> *sortedTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> *preGtIsoTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> *preSortIsoTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> *sortedIsoTaus = new std::vector<l1t::Tau>();
 
   for(CaloRegionBxCollection::const_iterator region = subRegions->begin();
       region != subRegions->end(); region++) {
@@ -138,22 +143,27 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 	l1t::Tau theTau(*&tauLorentz, tauEt, region->hwEta(), region->hwPhi(), quality, isoFlag);
 
 	preGtTaus->push_back(theTau);
+	if(isoFlag)
+	  preGtIsoTaus->push_back(theTau);
     }
   }
-  TauToGtScales(params_, preGtTaus, taus);
+  TauToGtPtScales(params_, preGtTaus, preSortTaus);
+  TauToGtPtScales(params_, preGtIsoTaus, preSortIsoTaus);
+
+  SortTaus(preSortTaus, sortedTaus);
+  SortTaus(preSortIsoTaus, sortedIsoTaus);
+
+  TauToGtEtaScales(params_, sortedTaus, taus);
+  TauToGtEtaScales(params_, sortedIsoTaus, isoTaus);
 
   delete subRegions;
   delete unCorrJets;
   delete preGtTaus;
-
-  //the taus should be sorted, highest pT first.
-  // do not truncate the tau list, GT converter handles that
-  auto comp = [&](l1t::Tau i, l1t::Tau j)-> bool {
-    return (i.hwPt() < j.hwPt() );
-  };
-
-  std::sort(taus->begin(), taus->end(), comp);
-  std::reverse(taus->begin(), taus->end());
+  delete preSortTaus;
+  delete sortedTaus;
+  delete preGtIsoTaus;
+  delete preSortIsoTaus;
+  delete sortedIsoTaus;
 }
 
 
