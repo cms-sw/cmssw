@@ -813,7 +813,6 @@ premixUp2015Defaults = {
     '--datatier'    : 'GEN-SIM-DIGI-RAW',
     '--eventcontent': 'PREMIX',
     '--magField'    : '38T_PostLS1',
-#    '--geometry'    : 'Extended2015',
     '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1' # temporary replacement for premix; to be brought back to customisePostLS1
 }
 premixUp2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},premixUp2015Defaults])
@@ -829,7 +828,6 @@ digiPremixUp2015Defaults25ns = {
     '--datatier'     : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
     '--datamix'      : 'PreMix',
     '--customise'    : 'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1', # temporary replacement for premix; to be brought back to customisePostLS1
-#    '--geometry'     : 'Extended2015',
     '--magField'     : '38T_PostLS1',
     }
 digiPremixUp2015Defaults50ns=merge([{'--conditions':'auto:upgradePLS150ns'},
@@ -991,7 +989,6 @@ recoPremixUp15prod = merge([
         {'--datatier' : 'GEN-SIM-RECO,AODSIM'}, 
         {'--eventcontent' : 'RECOSIM,AODSIM'},
         {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1'}, # temporary replacement for premix; to be brought back to customisePostLS1
-        {'--geometry'  : 'Extended2015'},
         step3Up2015Defaults])
 
 steps['RECOPRMXUP15PROD_PU25']=merge([
