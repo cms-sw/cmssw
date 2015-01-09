@@ -112,6 +112,7 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 	event.getByToken(m_theJetsToken,jets);
 	Handle<JetTagCollection> jetTags;
 
+	if (saveTags()) filterproduct.addCollectionTag(inputJets_);
 	if (jets->size()<4) return false;
 
 	const unsigned int nMax(njets_<jets->size()?njets_:jets->size());
@@ -227,7 +228,7 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 		}
 		sort(sorted.begin(),sorted.end(),comparator);
 		for (unsigned int i=0; i<nMax; ++i) {
-			jetRefs[i]= TRef(jets,(*jetTags)[sorted[i].second].first.key());
+			jetRefs[i]= TRef(jets,sorted[i].second);
 		}
 		b1 = jetRefs[3]->p4();
 		b2 = jetRefs[2]->p4();
