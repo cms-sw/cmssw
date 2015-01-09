@@ -1,5 +1,8 @@
 #include "EventFilter/ESRawToDigi/interface/ESRawToDigi.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -34,6 +37,16 @@ ESRawToDigi::~ESRawToDigi(){
 
   delete ESUnpacker_;
 
+}
+
+void ESRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("sourceTag",edm::InputTag("rawDataCollector"));
+  desc.addUntracked<bool>("debugMode",false);
+  desc.add<std::string>("InstanceES","");
+  desc.add<edm::FileInPath>("LookupTable",edm::FileInPath("EventFilter/ESDigiToRaw/data/ES_lookup_table.dat"));
+  desc.add<std::string>("ESdigiCollection","");
+  descriptions.add("esRawToDigi",desc);
 }
 
 void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {

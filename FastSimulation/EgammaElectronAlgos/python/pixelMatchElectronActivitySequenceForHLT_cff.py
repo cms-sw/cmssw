@@ -16,14 +16,12 @@ import FastSimulation.Tracking.TrackCandidateProducer_cfi
 
 hltCkfActivityTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 hltCkfActivityTrackCandidates.SeedProducer = cms.InputTag("hltActivityStartUpElectronPixelSeeds")
-hltCkfActivityTrackCandidates.TrackProducers = []
 hltCkfActivityTrackCandidates.MaxNumberOfCrossedLayers = 999
 hltCkfActivityTrackCandidates.SeedCleaning = True
 hltCkfActivityTrackCandidates.SplitHits = False
 
 hltActivityCkfTrackCandidatesForGSF = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 hltActivityCkfTrackCandidatesForGSF.SeedProducer = cms.InputTag("hltActivityStartUpElectronPixelSeeds")
-hltActivityCkfTrackCandidatesForGSF.TrackProducers = []
 hltActivityCkfTrackCandidatesForGSF.MaxNumberOfCrossedLayers = 999
 hltActivityCkfTrackCandidatesForGSF.SeedCleaning = True
 hltActivityCkfTrackCandidatesForGSF.SplitHits = True

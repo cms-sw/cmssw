@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
+import EventFilter.GctRawToDigi.gctRawToDigi_cfi
 
-l1GctHwDigis = cms.EDProducer("GctRawToDigi",
-    inputLabel = cms.InputTag("rawDataCollector"),
-    gctFedId = cms.untracked.int32(745),
-    hltMode = cms.bool(False),
-    numberOfGctSamplesToUnpack = cms.uint32(1), 
-    numberOfRctSamplesToUnpack = cms.uint32(1),
-    unpackSharedRegions = cms.bool(False),
-    unpackerVersion = cms.uint32(0), #  ** SEE BELOW FOR DETAILS OF THIS OPTION **
-    verbose = cms.untracked.bool(False)
-)
+l1GctHwDigis = EventFilter.GctRawToDigi.gctRawToDigi_cfi.gctRawToDigi.clone()
+l1GctHwDigis.inputLabel = cms.InputTag("rawDataCollector")
+l1GctHwDigis.gctFedId = cms.untracked.int32(745)
+l1GctHwDigis.hltMode = cms.bool(False)
+l1GctHwDigis.numberOfGctSamplesToUnpack = cms.uint32(1) 
+l1GctHwDigis.numberOfRctSamplesToUnpack = cms.uint32(1)
+l1GctHwDigis.unpackSharedRegions = cms.bool(False)
+l1GctHwDigis.unpackerVersion = cms.uint32(0)  #  ** SEE BELOW FOR DETAILS OF THIS OPTION **
+l1GctHwDigis.verbose = cms.untracked.bool(False)
 
 # Details of "unpackerVersion" option:
 # 
