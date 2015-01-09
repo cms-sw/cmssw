@@ -320,7 +320,7 @@ void EvtGenInterface::init(){
   
   // Add additional user information
   if (fPSet->exists("user_decay_file")){
-    std::vector<std::string> user_decays = fPSet->getParameter<std::vector<std::string> >("user_decay_files");
+    std::vector<std::string> user_decays = fPSet->getParameter<std::vector<std::string> >("user_decay_file");
     for(unsigned int i=0;i<user_decays.size();i++){
       edm::FileInPath user_decay(user_decays.at(i)); 
       m_EvtGen->readUDecay(user_decay.fullPath().c_str());
