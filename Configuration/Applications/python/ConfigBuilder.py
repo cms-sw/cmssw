@@ -77,6 +77,7 @@ defaultOptions.runsAndWeightsForMC = None
 defaultOptions.runsScenarioForMC = None
 defaultOptions.runUnscheduled = False
 defaultOptions.timeoutOutput = False
+defaultOptions.nThreads = 1
 
 # some helper routines
 def dumpPython(process,name):
