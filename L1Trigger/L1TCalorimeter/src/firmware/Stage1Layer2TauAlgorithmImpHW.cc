@@ -33,6 +33,7 @@ Stage1Layer2TauAlgorithmImpHW::~Stage1Layer2TauAlgorithmImpHW(){};
 
 void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
 						      const std::vector<l1t::CaloRegion> & regions,
+						      std::vector<l1t::Tau> * isoTaus,
 						      std::vector<l1t::Tau> * taus) {
 
   double towerLsb = params_->towerLsbSum();
@@ -41,7 +42,6 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
   std::vector<double> regionPUSParams = params_->regionPUSParams();
   int tauSeedThreshold= floor( params_->tauSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int tauNeighbourThreshold= floor( params_->tauNeighbourThreshold()/towerLsb + 0.5); // convert GeV to HW units
-  int jetSeedThreshold= floor( params_->jetSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int tauMaxPtTauVeto = floor( params_->tauMaxPtTauVeto()/towerLsb + 0.5);
   int tauMinPtJetIsolationB = floor( params_->tauMinPtJetIsolationB()/towerLsb + 0.5);
   int isoTauEtaMin = params_->isoTauEtaMin();
@@ -60,13 +60,17 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
 
   // ----- need to cluster jets in order to compute jet isolation ----
   std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
-  //slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
-  TwelveByTwelveFinder(jetSeedThreshold, subRegions, unCorrJets);
+  TwelveByTwelveFinder(0, subRegions, unCorrJets);
 
   std::vector<l1t::Tau> *preGtTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> *preSortTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> *preGtIsoTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> *preSortIsoTaus = new std::vector<l1t::Tau>();
 
   for(CaloRegionBxCollection::const_iterator region = subRegions->begin();
       region != subRegions->end(); region++) {
+    if(region->hwEta() < 4 || region->hwEta() > 17)
+      continue;
 
     int regionEt = region->hwPt();
     if(regionEt < tauSeedThreshold) continue;
@@ -74,20 +78,14 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
     int regionEta = region->hwEta();
     int regionPhi = region->hwPhi();
 
-    //int associatedSecondRegionEt =
-    //  AssociatedSecondRegionEt(region->hwEta(), region->hwPhi(),
-    //			       *subRegions);
+    int tauEt = regionEt;
+    int isoFlag = 0;  // is 1 if it passes the relative jet iso requirement
+    int quality = 0;  //doesn't really mean anything and isn't used
 
-    int tauEt=regionEt;
-    int isoFlag=0;  // is 1 if it passes the relative jet iso requirement
-    int quality = 1;  //doesn't really mean anything and isn't used
-
-    int highestNeighborEt=0;
-    int highestNeighborEta=999;
-    int highestNeighborPhi=999;
-    int highestNeighborTauVeto=999;
-
-    // if (regionEt>0) std::cout << "CCLA Prod: TauVeto: " << region->hwQual() << "\tET: " << regionEt << "\tETA: " << regionEta  << "\tPhi: " << regionPhi  << std::endl;
+    int highestNeighborEt=-1;
+    int highestNeighborEta=-1;
+    int highestNeighborPhi=-1;
+    int highestNeighborTauVeto=-1;
 
     //Find neighbor with highest Et
     for(CaloRegionBxCollection::const_iterator neighbor = subRegions->begin();
@@ -95,6 +93,9 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
 
       int neighborPhi = neighbor->hwPhi();
       int neighborEta = neighbor->hwEta();
+      if(neighborEta < 4 || neighborEta > 17)
+	continue;
+
       int deltaPhi = regionPhi - neighborPhi;
       if (std::abs(deltaPhi) == L1CaloRegionDetId::N_PHI-1)
 	deltaPhi = -deltaPhi/std::abs(deltaPhi); //18 regions in phi
@@ -107,16 +108,13 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
 	  highestNeighborEt = neighbor->hwPt();
 	  highestNeighborEta = neighbor->hwEta();
 	  highestNeighborPhi = neighbor->hwPhi();
-	  int neighborTauVeto = neighbor->hwQual() & 0x1; // tauVeto should be the first bit of quality integer
-	  highestNeighborTauVeto = neighborTauVeto;
+	  highestNeighborTauVeto = neighbor->hwQual() & 0x1; // tauVeto should be the first bit of quality integer
 	}
       }
     }
 
-
     string NESW = findNESW(regionEta, regionPhi, highestNeighborEta, highestNeighborPhi);
 
-    //std::cout << "tau et, neighbor et " << tauEt << " " << highestNeighborEt << std::endl;
     if((tauEt > highestNeighborEt && (NESW=="isEast" || NESW=="isNorth"))
        || (tauEt >= highestNeighborEt && (NESW=="isSouth" || NESW=="isWest"))
        || highestNeighborEt == 0 ) {
@@ -124,54 +122,45 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
       if (highestNeighborEt >= tauNeighbourThreshold) tauEt += highestNeighborEt;
 
       int regionTauVeto = region->hwQual() & 0x1;  // tauVeto should be the first bit of quality integer
-      //std::cout<< "regiontauveto, neighbor " << regionTauVeto << " " << highestNeighborTauVeto << std::endl;
 
-	double jetIsolation = JetIsolation(tauEt, region->hwEta(), region->hwPhi(), *unCorrJets);
-	if (region->hwEta() >= isoTauEtaMin && region->hwEta() <= isoTauEtaMax ){
-	  if ((highestNeighborTauVeto == 0 && regionTauVeto == 0) || tauEt > tauMaxPtTauVeto) {
-	    if (jetIsolation < tauMaxJetIsolationA || (tauEt >= tauMinPtJetIsolationB && jetIsolation < tauMaxJetIsolationB)
-		|| (std::abs(jetIsolation - 999.) < 0.1) ) isoFlag=1;
-	  }
+      double jetIsolation = JetIsolation(tauEt, region->hwEta(), region->hwPhi(), *unCorrJets);
+      if (region->hwEta() >= isoTauEtaMin && region->hwEta() <= isoTauEtaMax ){
+	if ((highestNeighborTauVeto == 0 && regionTauVeto == 0) || tauEt > tauMaxPtTauVeto) {
+	  if (jetIsolation < tauMaxJetIsolationA || (tauEt >= tauMinPtJetIsolationB && jetIsolation < tauMaxJetIsolationB)
+	      || (std::abs(jetIsolation - 999.) < 0.1) ) isoFlag=1;
 	}
-	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
+      }
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
 
-	l1t::Tau theTau(*&tauLorentz, tauEt, region->hwEta(), region->hwPhi(), quality, isoFlag);
+      l1t::Tau theTau(*&tauLorentz, tauEt, region->hwEta(), region->hwPhi(), quality, isoFlag);
 
-	preGtTaus->push_back(theTau);
+      preGtTaus->push_back(theTau);
+      if(isoFlag)
+	preGtIsoTaus->push_back(theTau);
     }
   }
-  TauToGtScales(params_, preGtTaus, taus);
+
+  TauToGtScales(params_, preGtTaus, preSortTaus);
+  TauToGtScales(params_, preGtIsoTaus, preSortIsoTaus);
+
+  SortTaus(preSortTaus, taus);
+  SortTaus(preSortIsoTaus, isoTaus);
 
   delete subRegions;
   delete unCorrJets;
   delete preGtTaus;
-
-  //the taus should be sorted, highest pT first.
-  // do not truncate the tau list, GT converter handles that
-  auto comp = [&](l1t::Tau i, l1t::Tau j)-> bool {
-    return (i.hwPt() < j.hwPt() );
-  };
-
-  std::sort(taus->begin(), taus->end(), comp);
-  std::reverse(taus->begin(), taus->end());
-
+  delete preSortTaus;
+  delete preGtIsoTaus;
+  delete preSortIsoTaus;
 
   const bool verbose = true;
   if(verbose)
   {
     std::cout << "Taus" << std::endl;
-    int count = 0;
     for(std::vector<l1t::Tau>::const_iterator iTau = taus->begin(); iTau != taus->end(); ++iTau)
     {
-      count++;
       unsigned int packed = pack15bits(iTau->hwPt(), iTau->hwEta(), iTau->hwPhi());
       std::cout << bitset<15>(packed).to_string() << std::endl;
-      if(count == 4) break;
-    }
-    while(count != 4)
-    {
-      count++;
-      std::cout << "000000000000000" << std::endl;
     }
   }
 }

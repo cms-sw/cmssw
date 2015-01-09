@@ -68,6 +68,7 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
 							 const std::vector<CaloRegion> & regions,
 							 std::vector<EGamma> * egammas,
 							 std::vector<Tau> * taus,
+							 std::vector<Tau> * isoTaus,
 							 std::vector<Jet> * jets,
 							 std::vector<Jet> * preGtJets,
 							 std::vector<EtSum> * etsums,
@@ -81,11 +82,11 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
     m_egAlgo->processEvent(emcands, regions, jets, egammas);
   }
   if(m_tauAlgo)
-    m_tauAlgo->processEvent(emcands, regions, taus);
+    m_tauAlgo->processEvent(emcands, regions, isoTaus, taus);
   if(m_sumAlgo)
     m_sumAlgo->processEvent(regions, emcands, etsums);
   if(m_hfRingAlgo)
-    m_hfRingAlgo->processEvent(regions, emcands, taus, HFringsums);
+    m_hfRingAlgo->processEvent(regions, emcands, isoTaus, HFringsums);
   if(m_hfBitAlgo)
     m_hfBitAlgo->processEvent(regions, emcands, HFbitcounts);
 

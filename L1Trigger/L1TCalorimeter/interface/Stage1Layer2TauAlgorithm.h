@@ -28,6 +28,7 @@ namespace l1t {
     virtual void processEvent(//const std::vector<l1t::CaloStage1> & clusters,
 			      const std::vector<l1t::CaloEmCand> & clusters,
 			      const std::vector<l1t::CaloRegion> & regions,
+			      std::vector<l1t::Tau> * isoTaus,
 			      std::vector<l1t::Tau> * taus) = 0;
 
     virtual ~Stage1Layer2TauAlgorithm(){};

@@ -22,6 +22,7 @@ void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> 
 
 void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmCand> & clusters,
 						  const std::vector<l1t::CaloRegion> & regions,
+						  std::vector<l1t::Tau> * isoTaus,
 						  std::vector<l1t::Tau> * taus)
 {
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
