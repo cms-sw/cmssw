@@ -32,6 +32,8 @@ public:
   /// dtor
   virtual ~SiPixelRawToDigi();
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   /// get data, convert to digis attach againe to Event
   virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 

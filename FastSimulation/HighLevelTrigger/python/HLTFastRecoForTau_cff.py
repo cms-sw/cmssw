@@ -46,7 +46,6 @@ import FastSimulation.Tracking.TrackCandidateProducer_cfi
 
 hltTau3MuCkfTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 hltTau3MuCkfTrackCandidates.SeedProducer = cms.InputTag("hltTau3MuPixelSeedsFromPixelTracks")
-hltTau3MuCkfTrackCandidates.TrackProducers = []
 hltTau3MuCkfTrackCandidates.SeedCleaning = True
 hltTau3MuCkfTrackCandidates.SplitHits = False
 

@@ -11,6 +11,8 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <EventFilter/DTRawToDigi/plugins/DTUnpackingModule.h>
 #include <DataFormats/DTDigi/interface/DTControlData.h>
@@ -76,6 +78,34 @@ DTUnpackingModule::~DTUnpackingModule(){
   delete unpacker;
 }
 
+void DTUnpackingModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("dataType","DDU");
+  desc.add<edm::InputTag>("inputLabel",edm::InputTag("rawDataCollector"));
+  desc.add<bool>("useStandardFEDid",true);
+  desc.addUntracked<int>("minFEDid",770);
+  desc.addUntracked<int>("maxFEDid",779);
+  desc.addOptional<bool>("fedbyType");  // never used, only kept here for back-compatibility
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.addUntracked<bool>("debug",false);
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.addUntracked<bool>("writeSC",true);
+      psd1.addUntracked<bool>("readingDDU",true);
+      psd1.addUntracked<bool>("performDataIntegrityMonitor",false);
+      psd1.addUntracked<bool>("readDDUIDfromDDU",true);
+      psd1.addUntracked<bool>("debug",false);
+      psd1.addUntracked<bool>("localDAQ",false);
+      psd0.add<edm::ParameterSetDescription>("rosParameters",psd1);
+    }
+    psd0.addUntracked<bool>("performDataIntegrityMonitor",false);
+    psd0.addUntracked<bool>("localDAQ",false);
+    desc.add<edm::ParameterSetDescription>("readOutParameters",psd0);
+  }
+  desc.add<bool>("dqmOnly",false);
+  descriptions.add("dtUnpackingModule",desc);
+}
 
 void DTUnpackingModule::produce(Event & e, const EventSetup& context){
 

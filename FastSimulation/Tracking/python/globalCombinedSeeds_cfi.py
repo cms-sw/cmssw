@@ -11,5 +11,3 @@ newCombinedSeeds = cms.EDProducer(
     )
     )
 
-
-
