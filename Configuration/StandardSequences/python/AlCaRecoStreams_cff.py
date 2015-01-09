@@ -46,7 +46,13 @@ from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixelsMinBias_cff import *
 # ECAL Calibration
 ###############################################################
 # ECAL calibration with isol. electrons
+# -- alcareco
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_cff import *
+# -- alcaraw 
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalUncalIsolElectron_cff import *
+# -- alcarereco (rereco done starting from alcaraw
+#from Calibration.EcalAlCaRecoProducers.ALCARECOEcalRecalIsolElectron_cff import *
+
 ###############################################################
 # HCAL Calibration
 ###############################################################
@@ -126,9 +132,18 @@ pathALCARECOSiStripCalZeroBias = cms.Path(seqALCARECOSiStripCalZeroBias*ALCARECO
 
 pathALCARECOLumiPixelsMinBias = cms.Path(seqALCARECOLumiPixelsMinBias)
 
-pathALCARECOEcalCalZElectron = cms.Path(seqALCARECOEcalCalZElectron)
-pathALCARECOEcalCalWElectron = cms.Path(seqALCARECOEcalCalWElectron)
+#### ECAL
+pathALCARECOEcalCalZElectron     = cms.Path(seqALCARECOEcalCalZElectron)
+pathALCARECOEcalCalZSCElectron   = cms.Path(seqALCARECOEcalCalZSCElectron)
+pathALCARECOEcalCalWElectron     = cms.Path(seqALCARECOEcalCalWElectron)
+pathALCARECOEcalUncalZElectron   = cms.Path(seqALCARECOEcalUncalZElectron)
+pathALCARECOEcalUncalZSCElectron = cms.Path(seqALCARECOEcalUncalZSCElectron)
+pathALCARECOEcalUncalWElectron   = cms.Path(seqALCARECOEcalUncalWElectron)
 
+#### Not meant to be used for central production
+#pathALCARECOEcalRecalElectron = cms.Path(seqALCARECOEcalRecalElectron)
+
+####
 pathALCARECOHcalCalDijets = cms.Path(seqALCARECOHcalCalDijets*ALCARECOHcalCalDiJetsDQM)
 pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
 pathALCARECOHcalCalHO = cms.Path(seqALCARECOHcalCalHO*ALCARECOHcalCalHODQM)
@@ -261,14 +276,58 @@ ALCARECOStreamLumiPixelsMinBias = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOStreamEcalCalElectron = cms.FilteredStream(
+ALCARECOStreamEcalCalZElectron = cms.FilteredStream(
 	responsible = 'Shervin Nourbakhsh',
-	name = 'EcalCalElectron',
-	paths  = (pathALCARECOEcalCalZElectron, pathALCARECOEcalCalWElectron),
+	name = 'EcalCalZElectron',
+	paths  = (pathALCARECOEcalCalZElectron, pathALCARECOEcalCalZSCElectron), 
 	content = OutALCARECOEcalCalElectron.outputCommands,
-	selectEvents = OutALCARECOEcalCalElectron.SelectEvents,
+	selectEvents =  cms.untracked.PSet(
+          SelectEvents = cms.vstring('pathALCARECOEcalCalZElectron', 'pathALCARECOEcalCalZSCElectron')
+          ),
 	dataTier = cms.untracked.string('ALCARECO')
 	)
+
+ALCARECOStreamEcalCalWElectron = cms.FilteredStream(
+	responsible = 'Shervin Nourbakhsh',
+	name = 'EcalCalWElectron',
+	paths  = (pathALCARECOEcalCalWElectron),
+	content = OutALCARECOEcalCalElectron.outputCommands,
+	selectEvents =  cms.untracked.PSet(
+          SelectEvents = cms.vstring('pathALCARECOEcalCalWElectron')
+          ),
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamEcalUncalZElectron = cms.FilteredStream(
+	responsible = 'Shervin Nourbakhsh',
+	name = 'EcalUncalZElectron',
+	paths  = (pathALCARECOEcalUncalZElectron, pathALCARECOEcalUncalZSCElectron), 
+	content = OutALCARECOEcalUncalElectron.outputCommands,
+	selectEvents =  cms.untracked.PSet(
+          SelectEvents = cms.vstring('pathALCARECOEcalUncalZElectron', 'pathALCARECOEcalUncalZSCElectron')
+          ),
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamEcalUncalWElectron = cms.FilteredStream(
+	responsible = 'Shervin Nourbakhsh',
+	name = 'EcalUncalWElectron',
+	paths  = (pathALCARECOEcalUncalWElectron),
+	content = OutALCARECOEcalUncalElectron.outputCommands,
+	selectEvents =  cms.untracked.PSet(
+          SelectEvents = cms.vstring('pathALCARECOEcalUncalWElectron')
+          ),
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+# ALCARECOStreamEcalRecalElectron = cms.FilteredStream(
+# 	responsible = 'Shervin Nourbakhsh',
+# 	name = 'EcalRecalElectron',
+# 	paths  = (pathALCARECOEcalRecalElectron),
+# 	content = OutALCARECOEcalRecalElectron.outputCommands,
+# 	selectEvents = cms.PSet(),
+# 	dataTier = cms.untracked.string('ALCARECO')
+# 	)
 
 ALCARECOStreamHcalCalDijets = cms.FilteredStream(
 	responsible = 'Grigory Safronov',
