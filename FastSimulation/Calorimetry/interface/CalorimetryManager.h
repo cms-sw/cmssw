@@ -37,8 +37,6 @@ class GflashAntiProtonShowerProfile;
 // fastHFshowerLibrary
 class fastHFShowerLibrary;
 
-class DQMStore;
-
 namespace edm { 
   class ParameterSet;
 }
@@ -102,8 +100,6 @@ class CalorimetryManager{
   CaloGeometryHelper* myCalorimeter_;
 
   Histos * myHistos;
-  DQMStore * dbe;
-
 
   HCALResponse* myHDResponse_;
   HSParameters * myHSParameters_;
@@ -114,7 +110,6 @@ class CalorimetryManager{
   std::vector<std::pair<CaloHitID,float> > ESMapping_;
 
   bool debug_;
-  bool useDQM_;
   std::vector<unsigned int> evtsToDebug_;
 
   bool unfoldedMode_;
