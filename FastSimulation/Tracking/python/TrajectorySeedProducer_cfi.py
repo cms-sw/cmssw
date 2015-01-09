@@ -5,6 +5,7 @@ trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer",
     outputSeedCollectionName = cms.string("seeds"),
     # The smallest number of layer crossed to create a track candidate
     minRecHits = cms.uint32(5),
+    skipSimTrackIdTags = cms.untracked.VInputTag(),
     beamSpot = cms.InputTag("offlineBeamSpot"),
     originHalfLength = cms.double(15.9),
     # The number of hits needed to make a seed
@@ -34,5 +35,4 @@ trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer",
                             'BPix2+FPix1_pos', 'BPix2+FPix1_neg',
                             'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'),
 )
-
 
