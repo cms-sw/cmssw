@@ -23,9 +23,11 @@ def esReportWorkflow(**kwds):
   payload = kwds
   sha1_id = sha1(kwds["release"] + kwds["architecture"] +  kwds["workflow"] + str(kwds["step"])).hexdigest()
   d = datetime.now()
-  if "201" in kwds["release"]:
-    datepart = "201" + kwds["release"].split("201")[1]
+  if "_201" in kwds["release"]:
+    datepart = "201" + kwds["release"].split("_201")[1]
     d = datetime.strptime(datepart, "%Y-%m-%d-%H00")
+    payload["release_queque"] = kwds["release"].split("_201")[0]
+  payload["release_date"] = d.strftime("%Y-%m-%d-%H00")
   url = "https://%s/ib-matrix.%s/runTheMatrix-data/%s" % (es_hostname,
                                                           d.strftime("%Y.%m"),
                                                           sha1_id)
@@ -92,6 +94,7 @@ class WorkFlowRunner(Thread):
 
         preamble = 'cd '+self.wfDir+'; '
        
+        realstarttime = datetime.now()
         startime='date %s' %time.asctime()
 
         # check where we are running:
@@ -119,12 +122,6 @@ class WorkFlowRunner(Thread):
             isInputOk=True
             istep=istepmone+1
             cmd = preamble
-            esReportWorkflow(workflow=self.wf.nameId,
-                             release=getenv("CMSSW_VERSION"),
-                             architecture=getenv("SCRAM_ARCH"), 
-                             step=istep,
-                             command=cmd,
-                             status="STARTED")
             if aborted:
                 self.npass.append(0)
                 self.nfail.append(0)
@@ -188,6 +185,14 @@ class WorkFlowRunner(Thread):
                 if self.jobReport:
                   cmd += ' --suffix "-j JobReport%s.xml " ' % istep
                 cmd+=closeCmd(istep,self.wf.nameId)            
+                esReportWorkflow(workflow=self.wf.nameId,
+                                 release=getenv("CMSSW_VERSION"),
+                                 architecture=getenv("SCRAM_ARCH"),
+                                 step=istep,
+                                 command=cmd,
+                                 status="STARTED",
+                                 start_time=realstarttime.isoformat(),
+                                 workflow_id=self.wf.numId)
                 retStep = self.doCmd(cmd)
 
 
@@ -220,7 +225,11 @@ class WorkFlowRunner(Thread):
                              architecture=getenv("SCRAM_ARCH"), 
                              step=istep,
                              command=cmd,
-                             status=self.stat[-1])
+                             status=self.stat[-1],
+                             start_time=realstarttime.isoformat(),
+                             end_time=datetime.now().isoformat(),
+                             delta_time=(datetime.now() - realstarttime).seconds,
+                             workflow_id=self.wf.numId)
 
         os.chdir(startDir)
 
