@@ -89,7 +89,6 @@ private:
   void trackStudyFromTrack(edm::Handle<reco::TrackCollection > trackCollectionHandle, const edm::EventSetup& es);
   void trackStudyFromTrajectory(edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection, const edm::EventSetup& es);
   void trajectoryStudy(const edm::Ref<std::vector<Trajectory> > traj, const edm::EventSetup& es);
-  //  void trajectoryStudy(const edm::Ref<std::vector<Trajectory> > traj, reco::TrackRef trackref, const edm::EventSetup& es);
   void trackStudy(const edm::Event& ev, const edm::EventSetup& es);
   //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
   void hitStudy(const edm::EventSetup& es,
@@ -102,8 +101,8 @@ private:
   template <class T> void RecHitInfo(const T* tkrecHit, LocalVector LV, const edm::EventSetup&);
 
   // fill monitorables 
-  void fillModMEs(SiStripClusterInfo*,std::string,float);
-  void fillMEs(SiStripClusterInfo*,uint32_t detid, const TrackerTopology* tTopo, float,enum ClusterFlags);
+  void fillModMEs(SiStripClusterInfo* cluster,std::string name, float cos, uint32_t detid, const LocalVector LV);
+  void fillMEs(SiStripClusterInfo*,uint32_t detid, const TrackerTopology* tTopo, float,enum ClusterFlags,  const LocalVector LV);
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
@@ -132,6 +131,8 @@ private:
     MonitorElement* ClusterWidth;
     MonitorElement* ClusterPos;
     MonitorElement* ClusterPGV;
+    MonitorElement* ClusterChargePerCMfromTrack;
+    MonitorElement* ClusterChargePerCMfromOrigin;
   };
 
   struct LayerMEs{
@@ -145,6 +146,8 @@ private:
     MonitorElement* ClusterWidthOffTrack;
     MonitorElement* ClusterPosOnTrack;
     MonitorElement* ClusterPosOffTrack;
+    MonitorElement* ClusterChargePerCMfromTrack;
+    MonitorElement* ClusterChargePerCMfromOrigin;
   };
   struct SubDetMEs{
     int totNClustersOnTrack;
@@ -157,7 +160,8 @@ private:
     MonitorElement* ClusterChargeOnTrack;
     MonitorElement* ClusterChargeOffTrack;
     MonitorElement* ClusterStoNOffTrack;
- 
+    MonitorElement* ClusterChargePerCMfromTrack;
+    MonitorElement* ClusterChargePerCMfromOrigin;
   };  
   std::map<std::string, ModMEs> ModMEsMap;
   std::map<std::string, LayerMEs> LayerMEsMap;
