@@ -809,11 +809,11 @@ premixUp2015Defaults = {
     '--evt_type'    : 'SingleNuE10_cfi',
     '-s'            : 'GEN,SIM,DIGIPREMIX,L1,DIGI2RAW',
     '-n'            : '10',
-    '--conditions'  : 'auto:upgradePLS1', # 25ns GT; dedicated dict for 50ns
+    '--conditions'  : 'auto:run2_mc', # 25ns GT; dedicated dict for 50ns
     '--datatier'    : 'GEN-SIM-DIGI-RAW',
     '--eventcontent': 'PREMIX',
     '--magField'    : '38T_PostLS1',
-    '--geometry'    : 'Extended2015',
+#    '--geometry'    : 'Extended2015',
     '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1' # temporary replacement for premix; to be brought back to customisePostLS1
 }
 premixUp2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},premixUp2015Defaults])
@@ -822,14 +822,14 @@ steps['PREMIXUP15_PU25']=merge([PU25,Kby(100,100),premixUp2015Defaults])
 steps['PREMIXUP15_PU50']=merge([PU50,Kby(100,100),premixUp2015Defaults50ns])
 
 digiPremixUp2015Defaults25ns = { 
-    '--conditions'   : 'auto:upgradePLS1',
+    '--conditions'   : 'auto:run2_mc',
     '-s'             : 'DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
    '--pileup_input'  :  'das:/RelValPREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[3],
     '--eventcontent' : 'FEVTDEBUGHLT',
     '--datatier'     : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
     '--datamix'      : 'PreMix',
     '--customise'    : 'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1', # temporary replacement for premix; to be brought back to customisePostLS1
-    '--geometry'     : 'Extended2015',
+#    '--geometry'     : 'Extended2015',
     '--magField'     : '38T_PostLS1',
     }
 digiPremixUp2015Defaults50ns=merge([{'--conditions':'auto:upgradePLS150ns'},
