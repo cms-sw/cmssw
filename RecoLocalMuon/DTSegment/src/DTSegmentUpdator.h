@@ -106,6 +106,7 @@ class DTSegmentUpdator{
              const bool allow3par = false,
              const bool block3par = false) const;
 
+    double intime_cut;
     bool vdrift_4parfit;
     double T0_hit_resolution;
     bool perform_delta_rejecting;
