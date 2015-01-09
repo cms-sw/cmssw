@@ -151,6 +151,10 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
   TauToGtEtaScales(params_, sortedTaus, taus);
   TauToGtEtaScales(params_, sortedIsoTaus, isoTaus);
 
+  // set all filler taus to have isolation bit set
+  for(std::vector<l1t::Tau>::iterator iTau = isoTaus->begin(); iTau != isoTaus->end(); ++iTau)
+    iTau->setHwIso(1);
+
   delete subRegions;
   delete unCorrJets;
   delete preGtTaus;
@@ -165,6 +169,12 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
   {
     std::cout << "Taus" << std::endl;
     for(std::vector<l1t::Tau>::const_iterator iTau = taus->begin(); iTau != taus->end(); ++iTau)
+    {
+      unsigned int packed = pack15bits(iTau->hwPt(), iTau->hwEta(), iTau->hwPhi());
+      std::cout << bitset<15>(packed).to_string() << std::endl;
+    }
+    std::cout << "Isolated Taus" << std::endl;
+    for(std::vector<l1t::Tau>::const_iterator iTau = isoTaus->begin(); iTau != isoTaus->end(); ++iTau)
     {
       unsigned int packed = pack15bits(iTau->hwPt(), iTau->hwEta(), iTau->hwPhi());
       std::cout << bitset<15>(packed).to_string() << std::endl;
