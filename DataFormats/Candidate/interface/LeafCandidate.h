@@ -33,6 +33,8 @@ namespace reco {
 
     typedef unsigned int index;
 
+    LeafCandidate() {}
+
     // constructor from candidate 
     explicit LeafCandidate( const Candidate & c) : m_state(c.charge(),c.polarP4(), c.vertex(), c.pdgId(), c.status() ){}
 
@@ -49,7 +51,6 @@ namespace reco {
     LeafCandidate& operator=(LeafCandidate const&)=default;
 #else
     // for Reflex to parse...  (compilation will use the above)
-    LeafCandidate();
     LeafCandidate( Charge q, const PtEtaPhiMass & p4, const Point & vtx = Point( 0, 0, 0 ),
 		   int pdgId = 0, int status = 0, bool integerCharge = true );
     LeafCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
