@@ -59,8 +59,7 @@ class SiPixelRecHitsInputDistributionsMaker : public DQMEDAnalyzer {
 
    protected:
 
-	void bookHistograms(DQMStore::IBooker &);
-	void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override {}; 
+	void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override; 
 	virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 	void beginJob();
 	void endJob();

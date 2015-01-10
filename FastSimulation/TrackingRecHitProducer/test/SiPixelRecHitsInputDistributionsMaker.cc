@@ -46,7 +46,7 @@ SiPixelRecHitsInputDistributionsMaker::SiPixelRecHitsInputDistributionsMaker(con
   trackerContainers = ps.getParameter<std::vector<std::string> >("ROUList");
 }
 
-void SiPixelRecHitsInputDistributionsMaker::bookHistograms(DQMStore::IBooker & ibooker) {
+void SiPixelRecHitsInputDistributionsMaker::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup & ev) {
 
   ibooker.setCurrentFolder("clustBPIX");
   
