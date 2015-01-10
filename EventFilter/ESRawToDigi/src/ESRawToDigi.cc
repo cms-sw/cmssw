@@ -42,10 +42,13 @@ ESRawToDigi::~ESRawToDigi(){
 void ESRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("sourceTag",edm::InputTag("rawDataCollector"));
-  desc.addUntracked<bool>("debugMode",false);
-  desc.add<std::string>("InstanceES","");
-  desc.add<edm::FileInPath>("LookupTable",edm::FileInPath("EventFilter/ESDigiToRaw/data/ES_lookup_table.dat"));
   desc.add<std::string>("ESdigiCollection","");
+  desc.addUntracked<bool>("DoRegional",false);
+  desc.addUntracked<edm::InputTag>("ESFedsListLabel", edm::InputTag(":esfedslist"));
+  desc.addUntracked<bool>("debugMode",false);
+  desc.addOptional<std::string>("InstanceES");
+  desc.addOptional<edm::FileInPath>("LookupTable");
+//desc.add<edm::FileInPath>("LookupTable",edm::FileInPath("EventFilter/ESDigiToRaw/data/ES_lookup_table.dat"));
   descriptions.add("esRawToDigi",desc);
 }
 
