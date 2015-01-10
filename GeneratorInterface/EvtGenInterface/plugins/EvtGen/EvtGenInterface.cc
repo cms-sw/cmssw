@@ -6,6 +6,7 @@
 // The modifications for EvtGen 1.3.0 are implemented by Ian M. Nugent
 // I would like to thank the EvtGen developers, in particular John Black, and Mikhail Kirsanov for their assistance.
 //
+// January 2015: Setting of coherent or incoherent B mixing included by Eduard Burelo 
 
 
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterface.h"
@@ -314,9 +315,16 @@ void EvtGenInterface::init(){
     if(name.Contains("TAUOLA") && useTauola) myExtraModels.push_back(*it);
   }
   
+  // Set up the incoherent (1) or coherent (0) B mixing option
+  BmixingOption = fPSet->getUntrackedParameter<int>("B_Mixing",1);
+  if(BmixingOption!=0 && BmixingOption!=1){
+   throw cms::Exception("Configuration") << "EvtGenProducer requires B_Mixing to be 0 (coherent) or 1 (incoherent) \n"
+     "Please fix this in your configuration.";
+  }
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Create the EvtGen generator object, passing the external generators
-  m_EvtGen = new EvtGen(decay_table.fullPath().c_str(),pdt.fullPath().c_str(),the_engine,radCorrEngine,&myExtraModels);
+  m_EvtGen = new EvtGen(decay_table.fullPath().c_str(),pdt.fullPath().c_str(),the_engine,radCorrEngine,&myExtraModels,BmixingOption);
   
   // Add additional user information
   if (fPSet->exists("user_decay_file")){
