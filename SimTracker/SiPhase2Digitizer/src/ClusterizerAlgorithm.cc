@@ -1,6 +1,6 @@
 #include "SimTracker/SiPhase2Digitizer/interface/ClusterizerAlgorithm.h"
-#include "SimTracker/SiPhase2Digitizer/interface/HitArray.h"
-#include "SimTracker/SiPhase2Digitizer/interface/PixelClusterSimLink.h"
+#include "SimTracker/SiPhase2Digitizer/interface/PixelClusterHitArray.h"
+//#include "SimTracker/SiPhase2Digitizer/interface/PixelClusterSimLink.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -153,7 +153,7 @@ unsigned int ClusterizerAlgorithm::getSimTrackId(const edm::Handle< edm::DetSetV
 }
 
 // Create the links between the clusters and the simTracks
-void ClusterizerAlgorithm::makeLinks(edm::OrphanHandle< edmNew::DetSetVector<SiPixelCluster> > & clusters, std::vector<edm::DetSet<PixelClusterSimLink> > & linksByDet) {
+/*void ClusterizerAlgorithm::makeLinks(edm::OrphanHandle< edmNew::DetSetVector<SiPixelCluster> > & clusters, std::vector<edm::DetSet<PixelClusterSimLink> > & linksByDet) {
 
     // Go over all the clusters
     for (edmNew::DetSetVector< SiPixelCluster >::const_iterator DSViter = clusters->begin(); DSViter != clusters->end(); ++DSViter) {
@@ -185,4 +185,4 @@ void ClusterizerAlgorithm::makeLinks(edm::OrphanHandle< edmNew::DetSetVector<SiP
         linksByDet.push_back(links);
     }
 }
-
+*/

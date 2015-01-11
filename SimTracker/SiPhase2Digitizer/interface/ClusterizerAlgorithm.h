@@ -7,8 +7,8 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 
-#include "SimTracker/SiPhase2Digitizer/interface/HitArray.h"
-#include "SimTracker/SiPhase2Digitizer/interface/PixelClusterSimLink.h"
+#include "SimTracker/SiPhase2Digitizer/interface/PixelClusterHitArray.h"
+//#include "SimTracker/SiPhase2Digitizer/interface/PixelClusterSimLink.h"
 
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationServiceBase.h"
 
@@ -29,7 +29,7 @@ public:
     ClusterizerAlgorithm(edm::ParameterSet const& conf, int maxClusterSize, int maxNumberClusters);
     void setup(const PixelGeomDetUnit* pixDet);
     void clusterizeDetUnit(const edm::DetSet<PixelDigi> & pixelDigis, const edm::Handle< edm::DetSetVector< PixelDigiSimLink > > & pixelSimLinks, edmNew::DetSetVector<SiPixelCluster>::FastFiller & clusters) ;
-    void makeLinks(edm::OrphanHandle< edmNew::DetSetVector<SiPixelCluster> > & clusters, std::vector<edm::DetSet<PixelClusterSimLink> > & linksByDet);
+  //  void makeLinks(edm::OrphanHandle< edmNew::DetSetVector<SiPixelCluster> > & clusters, std::vector<edm::DetSet<PixelClusterSimLink> > & linksByDet);
 
     unsigned int getSimTrackId(const edm::Handle< edm::DetSetVector< PixelDigiSimLink > > & pixelSimLinks, int channel);
 
@@ -39,7 +39,7 @@ private:
 
 public:
     edm::ParameterSet conf_;
-    HitArray hits;
+    PixelClusterHitArray hits;
     int maxClusterSize_;
     int maxNumberClusters_;
     int nrows_;
