@@ -1,19 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoBTag.ImpactParameter.variableJTA_cff import *
+from RecoBTag.ImpactParameter.trackCounting3D2ndComputer_cfi import *
 
 # trackCounting3D3rd btag computer
-trackCounting3D3rdComputer = cms.ESProducer("TrackCountingESProducer",
-    variableJTAPars,
-    minimumImpactParameter = cms.double(-1),
-    useSignedImpactParameterSig = cms.bool(True),
-    impactParameterType = cms.int32(0), ## 0 = 3D, 1 = 2D
-    maximumDistanceToJetAxis = cms.double(0.07),
-    deltaR = cms.double(-1.0), ## use cut from JTA
-    maximumDecayLength = cms.double(5.0),
-    nthTrack = cms.int32(3),
-    trackQualityClass = cms.string("any"),
-    useVariableJTA = cms.bool(False)
+trackCounting3D3rdComputer = trackCounting3D2ndComputer.clone(
+    nthTrack = cms.int32(3)
 )
-
-
