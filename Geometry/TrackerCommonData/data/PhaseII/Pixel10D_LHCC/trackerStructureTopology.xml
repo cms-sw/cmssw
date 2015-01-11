@@ -313,7 +313,7 @@
 <PartSelector path="//Rod2"/>
 <PartSelector path="//Rod3"/>
 <PartSelector path="//Rod4"/>
-<PartSelector path="//Rod5"/>
+<!--<PartSelector path="//Rod5"/>-->
 <PartSelector path="//Rod6"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelLadder"/>
 </SpecPar>
