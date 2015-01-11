@@ -123,10 +123,13 @@ importToBlock( const edm::Event& e,
 	<< "HGC importer expected HGC clusters!";
     }
     /*
-    if( the_type == reco::PFBlockElement::HGC_ECAL && !_emPreID->isEm(*tempref) ) {    
+    if( tempref->energy() > 10.0 && 
+	the_type == reco::PFBlockElement::HGC_ECAL && 
+	!_emPreID->isEm(*tempref) ) {    
       the_type = reco::PFBlockElement::HGC_HCALF;
     }
     */
+    
     reco::PFBlockElementCluster* newelem = 
       new reco::PFBlockElementCluster(tempref,the_type);
     for( auto scelem = elems.begin(); scelem != sc_end; ++scelem ) {

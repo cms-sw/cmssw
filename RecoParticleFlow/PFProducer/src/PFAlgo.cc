@@ -1142,7 +1142,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				  sortedTracks,
 			 	  reco::PFBlockElement::TRACK,
 				  reco::PFBlock::LINKTEST_ALL );
-	bool skip = true;
+	bool skip = true;		  
 	for (unsigned ic=0; ic<kTrack.size();++ic) {
 	  if ( sortedTracks.begin()->second == kTrack[ic] ) { 
 	    skip = false;

@@ -699,9 +699,11 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
   const reco::TrackCollection& tracks = *_tracks;
   std::cout << "there are " << _usable_tracks.size() << " tracks to process!" << std::endl;
   for( const unsigned i : _usable_tracks ) {
+    std::unordered_map<unsigned,unsigned> hits_of_cluster_on_track;
+    std::unordered_map<unsigned,bool> clusters_in_track;
     reco::PFCluster temp;
     const reco::Track& tk = tracks[i];
-    //std::cout << "got track: " << tk.pt() << ' ' << tk.eta() << ' ' << tk.phi() << std::endl;
+    std::cout << "got track: " << tk.pt() << ' ' << tk.eta() << ' ' << tk.phi() << std::endl;
     const TrajectoryStateOnSurface myTSOS = trajectoryStateTransform::outerStateOnSurface(tk, *(_tkGeom.product()),_bField.product());
     auto detbegin = myTSOS.globalPosition().z() > 0 ? _plusSurface.begin() : _minusSurface.begin();
     auto detend = myTSOS.globalPosition().z() > 0 ? _plusSurface.end() : _minusSurface.end();
@@ -749,15 +751,22 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 	    } else { // rechit is in a cluster or masked
 	      auto cluster_match = _rechits_to_clusters.find(best_index);
 	      if( cluster_match != _rechits_to_clusters.end() ) {
+		if( hits_of_cluster_on_track.find(cluster_match->second) == 
+		    hits_of_cluster_on_track.end() ) {
+		  hits_of_cluster_on_track[cluster_match->second] = 0;
+		}
+		hits_of_cluster_on_track[cluster_match->second] += 1;
 		const GlobalVector& tkdir_orig = piStateAtSurface.globalDirection();
 		math::XYZVector tkdir(tkdir_orig.x(),tkdir_orig.y(),tkdir_orig.z());
 		const math::XYZVector& clusdir = output[cluster_match->second].axis();
 		// get angle between vectors...
 		const double angle = std::abs(std::acos(tkdir.Dot(clusdir)/std::sqrt(tkdir.mag2()*clusdir.mag2())));
-		//const auto& pos = output[cluster_match->second].position();		
+		const auto& pos = output[cluster_match->second].position();		
 		if( cluster_usable[cluster_match->second] && 
-		    ( angle < _maxClusterAngleToTrack ) ) { 
-		  
+		    ( angle < _maxClusterAngleToTrack || 
+		      hits_of_cluster_on_track[cluster_match->second] > 7 ||
+		      output[cluster_match->second].recHitFractions().size() < 10   ) ) { 
+		  clusters_in_track[cluster_match->second] = true;
 		  cluster_usable[cluster_match->second] = false;
 		  for( const auto& hAndF : output[cluster_match->second].recHitFractions() ) {
 		    temp.addRecHitFraction(hAndF);
@@ -771,12 +780,21 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 					 cluster_usable,
 					 temp);
 		  }
-		  //std::cout << "adding cluster at: (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") to had-supercluster!" << std::endl;
-		} /* else {
+		  std::cout << "adding cluster at: (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") " 
+			    <<  output[cluster_match->second].pt() << ' ' << pos.eta() << " to had-supercluster! nhits = " 
+			    <<  hits_of_cluster_on_track[cluster_match->second] << std::endl;
+		}  else {
 		  
-		  std::cout << "rejected cluster at : (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") to had-supercluster!";
+		  std::cout << "rejected cluster at : (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") nhits = " 
+			    << hits_of_cluster_on_track[cluster_match->second] << " pt = " 
+			    <<  output[cluster_match->second].pt() << " eta = "  
+			    << pos.eta() << " to had-supercluster! angle = "
+			    << angle << " posdiff = "<< (pos - tkpos).rho()
+			    << " cluster_usable = " << cluster_usable[cluster_match->second];
 		  if( !cluster_usable[cluster_match->second] ) {
 		    _emPreID->reset();
+		    _emPreID->setShowerPosition(output[cluster_match->second].position());
+		    _emPreID->setShowerDirection(output[cluster_match->second].axis());
 		    if( _emPreID->isEm(output[cluster_match->second]) ) {
 		      std::cout << " because cluster is EM!";
 		    } else {
@@ -784,12 +802,12 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 		    }
 		  }
 		  if( angle >= _maxClusterAngleToTrack && (pos - tkpos).rho() >= 1.5) {
-		    std::cout << " because cluster doesn't point along track! " << angle << ' ' << (pos - tkpos).rho();
+		    std::cout << " because cluster doesn't point along track! "; 
 		  }
 		  std::cout << std::endl;
 		  
 		}
-		*/
+		
 	      }
 	    }
 	  }
