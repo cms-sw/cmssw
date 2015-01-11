@@ -45,6 +45,14 @@ def cust_phase2_BE5DPixel10D(process):
     process=jetCustoms.customise_jets(process)
     return process
 
+def cust_phase2_BE5DPixel10D(process):
+    process=customisePostLS1(process)
+    process=customiseBE5DPixel10DLHCC(process)
+    process=customise_HcalPhase2(process)
+    process=customise_ev_BE5DPixel10D(process)
+    process=jetCustoms.customise_jets(process)
+    return process
+
 def cust_phase2_BE5D(process):
     process=customisePostLS1(process)
     process=customiseBE5D(process)
