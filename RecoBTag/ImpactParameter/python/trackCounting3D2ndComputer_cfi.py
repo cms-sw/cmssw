@@ -15,5 +15,3 @@ trackCounting3D2ndComputer = cms.ESProducer("TrackCountingESProducer",
     trackQualityClass = cms.string("any"),
     useVariableJTA = cms.bool(False)
 )
-
-
