@@ -1,9 +1,6 @@
 ## list of all available btagInfos
 supportedBtagInfos = [
     'None'
-  , 'pfImpactParameterTagInfos'
-  , 'pfSecondaryVertexTagInfos'
-  , 'pfInclusiveSecondaryVertexFinderTagInfos'
   , 'impactParameterTagInfos'
   , 'secondaryVertexTagInfos'
   , 'secondaryVertexNegativeTagInfos'
@@ -14,6 +11,12 @@ supportedBtagInfos = [
   , 'inclusiveSecondaryVertexFinderNegativeTagInfos'
   , 'inclusiveSecondaryVertexFinderFilteredTagInfos'
   , 'inclusiveSecondaryVertexFinderFilteredNegativeTagInfos'
+  # new candidate-based fwk
+  , 'pfImpactParameterTagInfos'
+  , 'pfSecondaryVertexTagInfos'
+  , 'pfSecondaryVertexNegativeTagInfos'
+  , 'pfInclusiveSecondaryVertexFinderTagInfos'
+  , 'pfInclusiveSecondaryVertexFinderNegativeTagInfos'
   , 'caTopTagInfos'
   ]
 # extend for "internal use" in PAT/MINIAOD (renaming)
@@ -22,27 +25,20 @@ supportedBtagInfos.append( 'caTopTagInfosPAT' )
 ## dictionary with all available btag discriminators and the btagInfos that they require
 supportedBtagDiscr = {
     'None'                                                  : []
-  , 'pfJetBProbabilityBJetTags'                             : ['pfImpactParameterTagInfos']
-  , 'pfJetProbabilityBJetTags'                              : ['pfImpactParameterTagInfos']
   , 'jetBProbabilityBJetTags'                               : ['impactParameterTagInfos']
   , 'jetProbabilityBJetTags'                                : ['impactParameterTagInfos']
   , 'positiveOnlyJetBProbabilityBJetTags'                   : ['impactParameterTagInfos']
   , 'positiveOnlyJetProbabilityBJetTags'                    : ['impactParameterTagInfos']
   , 'negativeOnlyJetBProbabilityBJetTags'                   : ['impactParameterTagInfos']
   , 'negativeOnlyJetProbabilityBJetTags'                    : ['impactParameterTagInfos']
-  , 'pfTrackCountingHighPurBJetTags'                        : ['pfImpactParameterTagInfos']
-  , 'pfTrackCountingHighEffBJetTags'                        : ['pfImpactParameterTagInfos']
   , 'trackCountingHighPurBJetTags'                          : ['impactParameterTagInfos']
   , 'trackCountingHighEffBJetTags'                          : ['impactParameterTagInfos']
   , 'negativeTrackCountingHighPurBJetTags'                  : ['impactParameterTagInfos']
   , 'negativeTrackCountingHighEffBJetTags'                  : ['impactParameterTagInfos']
-  , 'pfSimpleSecondaryVertexHighEffBJetTags'                : ['pfSecondaryVertexTagInfos']
-  , 'pfSimpleSecondaryVertexHighPurBJetTags'                : ['pfSecondaryVertexTagInfos']
   , 'simpleSecondaryVertexHighEffBJetTags'                  : ['secondaryVertexTagInfos']
   , 'simpleSecondaryVertexHighPurBJetTags'                  : ['secondaryVertexTagInfos']
   , 'negativeSimpleSecondaryVertexHighEffBJetTags'          : ['secondaryVertexNegativeTagInfos']
   , 'negativeSimpleSecondaryVertexHighPurBJetTags'          : ['secondaryVertexNegativeTagInfos']
-  , 'pfCombinedSecondaryVertexBJetTags'                     : ['pfImpactParameterTagInfos', 'pfSecondaryVertexTagInfos']
   , 'combinedSecondaryVertexBJetTags'                       : ['impactParameterTagInfos', 'secondaryVertexTagInfos']
   , 'positiveCombinedSecondaryVertexBJetTags'               : ['impactParameterTagInfos', 'secondaryVertexTagInfos']
   , 'negativeCombinedSecondaryVertexBJetTags'               : ['impactParameterTagInfos', 'secondaryVertexNegativeTagInfos']
@@ -54,7 +50,6 @@ supportedBtagDiscr = {
   , 'combinedInclusiveSecondaryVertexBJetTags'              : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderTagInfos']
   , 'positiveCombinedInclusiveSecondaryVertexBJetTags'      : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderTagInfos']
   , 'negativeCombinedInclusiveSecondaryVertexBJetTags'      : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderNegativeTagInfos']
-  , 'pfCombinedInclusiveSecondaryVertexV2BJetTags'          : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderTagInfos']
   , 'combinedInclusiveSecondaryVertexV2BJetTags'            : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderTagInfos']
   , 'positiveCombinedInclusiveSecondaryVertexV2BJetTags'    : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderTagInfos']
   , 'negativeCombinedInclusiveSecondaryVertexV2BJetTags'    : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderNegativeTagInfos']
@@ -86,4 +81,31 @@ supportedBtagDiscr = {
   , 'combinedMVABJetTags'                                   : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
   , 'positiveCombinedMVABJetTags'                           : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
   , 'negativeCombinedMVABJetTags'                           : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderNegativeTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
+  # new candidate-based fwk
+  , 'pfJetBProbabilityBJetTags'                             : ['pfImpactParameterTagInfos']
+  , 'pfJetProbabilityBJetTags'                              : ['pfImpactParameterTagInfos']
+  , 'pfPositiveOnlyJetBProbabilityBJetTags'                 : ['pfImpactParameterTagInfos']
+  , 'pfPositiveOnlyJetProbabilityBJetTags'                  : ['pfImpactParameterTagInfos']
+  , 'pfNegativeOnlyJetBProbabilityBJetTags'                 : ['pfImpactParameterTagInfos']
+  , 'pfNegativeOnlyJetProbabilityBJetTags'                  : ['pfImpactParameterTagInfos']
+  , 'pfTrackCountingHighPurBJetTags'                        : ['pfImpactParameterTagInfos']
+  , 'pfTrackCountingHighEffBJetTags'                        : ['pfImpactParameterTagInfos']
+  , 'pfNegativeTrackCountingHighPurBJetTags'                : ['pfImpactParameterTagInfos']
+  , 'pfNegativeTrackCountingHighEffBJetTags'                : ['pfImpactParameterTagInfos']
+  , 'pfSimpleSecondaryVertexHighEffBJetTags'                : ['pfSecondaryVertexTagInfos']
+  , 'pfSimpleSecondaryVertexHighPurBJetTags'                : ['pfSecondaryVertexTagInfos']
+  , 'pfNegativeSimpleSecondaryVertexHighEffBJetTags'        : ['pfSecondaryVertexNegativeTagInfos']
+  , 'pfNegativeSimpleSecondaryVertexHighPurBJetTags'        : ['pfSecondaryVertexNegativeTagInfos']
+  , 'pfCombinedSecondaryVertexBJetTags'                     : ['pfImpactParameterTagInfos', 'pfSecondaryVertexTagInfos']
+  , 'pfPositiveCombinedSecondaryVertexBJetTags'             : ['pfImpactParameterTagInfos', 'pfSecondaryVertexTagInfos']
+  , 'pfNegativeCombinedSecondaryVertexBJetTags'             : ['pfImpactParameterTagInfos', 'pfSecondaryVertexNegativeTagInfos']
+  , 'pfCombinedInclusiveSecondaryVertexBJetTags'            : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderTagInfos']
+  , 'pfPositiveCombinedInclusiveSecondaryVertexBJetTags'    : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderTagInfos']
+  , 'pfNegativeCombinedInclusiveSecondaryVertexBJetTags'    : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']
+  , 'pfCombinedInclusiveSecondaryVertexV2BJetTags'          : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderTagInfos']
+  , 'pfPositiveCombinedInclusiveSecondaryVertexV2BJetTags'  : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderTagInfos']
+  , 'pfNegativeCombinedInclusiveSecondaryVertexV2BJetTags'  : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']
+  , 'pfCombinedMVABJetTags'                                 : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
+  , 'pfPositiveCombinedMVABJetTags'                         : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
+  , 'pfNegativeCombinedMVABJetTags'                         : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderNegativeTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
   }

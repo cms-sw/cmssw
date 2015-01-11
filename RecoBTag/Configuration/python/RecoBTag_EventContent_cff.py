@@ -26,8 +26,18 @@ RecoBTagFEVT = cms.PSet(
         'keep *_softMuonByPtBJetTags_*_*',
         'keep *_combinedMVABJetTags_*_*',
         'keep *_pfImpactParameterTagInfos_*_*',
+        'keep *_pfTrackCountingHighEffBJetTags_*_*',
+        'keep *_pfTrackCountingHighPurBJetTags_*_*',
+        'keep *_pfJetProbabilityBJetTags_*_*',
+        'keep *_pfJetBProbabilityBJetTags_*_*',
         'keep *_pfSecondaryVertexTagInfos_*_*',
-        'keep *_pfCombinedSecondaryVertexBJetTags_*_*'
+        'keep *_pfInclusiveSecondaryVertexFinderTagInfos_*_*',
+        'keep *_pfSimpleSecondaryVertexHighEffBJetTags_*_*',
+        'keep *_pfSimpleSecondaryVertexHighPurBJetTags_*_*',
+        'keep *_pfCombinedSecondaryVertexBJetTags_*_*',
+        'keep *_pfCombinedInclusiveSecondaryVertexV2BJetTags_*_*',
+        'keep *_pfCombinedMVABJetTags_*_*',
+        'keep *_inclusiveCandidateSecondaryVertices_*_*'
     )
 )
 #RECO content
@@ -56,8 +66,18 @@ RecoBTagRECO = cms.PSet(
         'keep *_softMuonByPtBJetTags_*_*',
         'keep *_combinedMVABJetTags_*_*',
         'keep *_pfImpactParameterTagInfos_*_*',
+        'keep *_pfTrackCountingHighEffBJetTags_*_*',
+        'keep *_pfTrackCountingHighPurBJetTags_*_*',
+        'keep *_pfJetProbabilityBJetTags_*_*',
+        'keep *_pfJetBProbabilityBJetTags_*_*',
         'keep *_pfSecondaryVertexTagInfos_*_*',
-        'keep *_pfCombinedSecondaryVertexBJetTags_*_*'
+        'keep *_pfInclusiveSecondaryVertexFinderTagInfos_*_*',
+        'keep *_pfSimpleSecondaryVertexHighEffBJetTags_*_*',
+        'keep *_pfSimpleSecondaryVertexHighPurBJetTags_*_*',
+        'keep *_pfCombinedSecondaryVertexBJetTags_*_*',
+        'keep *_pfCombinedInclusiveSecondaryVertexV2BJetTags_*_*',
+        'keep *_pfCombinedMVABJetTags_*_*',
+        'keep *_inclusiveCandidateSecondaryVertices_*_*'
     )
 )
 #AOD content
@@ -76,10 +96,8 @@ RecoBTagAOD = cms.PSet(
         'keep *_combinedSecondaryVertexBJetTags_*_*',
         'keep *_combinedInclusiveSecondaryVertexV2BJetTags_*_*',
         'keep *_ghostTrackBJetTags_*_*',
-#        'keep *_btagSoftElectrons_*_*',
-#        'keep *_softElectronCands_*_*',
-#        'keep *_softPFElectrons_*_*',
-#       'keep *_softElectronTagInfos_*_*',
+#        'keep *_softPFMuonsTagInfos_*_*',
+#        'keep *_softPFElectronsTagInfos_*_*',
         'keep *_softPFElectronBJetTags_*_*',
         'keep *_softPFMuonBJetTags_*_*',
 #        'keep *_softMuonTagInfos_*_*',
@@ -87,6 +105,18 @@ RecoBTagAOD = cms.PSet(
         'keep *_softMuonByIP3dBJetTags_*_*',
         'keep *_softMuonByPtBJetTags_*_*',
         'keep *_combinedMVABJetTags_*_*',
-        'keep *_pfCombinedSecondaryVertexBJetTags_*_*'
+#        'keep *_pfImpactParameterTagInfos_*_*',
+        'keep *_pfTrackCountingHighEffBJetTags_*_*',
+        'keep *_pfTrackCountingHighPurBJetTags_*_*',
+        'keep *_pfJetProbabilityBJetTags_*_*',
+        'keep *_pfJetBProbabilityBJetTags_*_*',
+#        'keep *_pfSecondaryVertexTagInfos_*_*',
+#        'keep *_pfInclusiveSecondaryVertexFinderTagInfos_*_*',
+        'keep *_pfSimpleSecondaryVertexHighEffBJetTags_*_*',
+        'keep *_pfSimpleSecondaryVertexHighPurBJetTags_*_*',
+        'keep *_pfCombinedSecondaryVertexBJetTags_*_*',
+        'keep *_pfCombinedInclusiveSecondaryVertexV2BJetTags_*_*',
+        'keep *_pfCombinedMVABJetTags_*_*',
+        'keep *_inclusiveCandidateSecondaryVertices_*_*'
     )
 )
