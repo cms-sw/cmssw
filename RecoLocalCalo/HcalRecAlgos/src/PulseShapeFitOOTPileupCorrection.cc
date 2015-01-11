@@ -319,8 +319,9 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    bool  fitStatus   = false;
 
    int BX[3] = {4,5,3};
-   if(ts4Chi2_ != 0) fit(1,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
-// Based on the pulse shape ( 2. likely gives the same performance )
+   // Remove single-pulse option for Upgrade... pretty sure most cases eventually go to 3 pulse fit.
+   // if(ts4Chi2_ != 0) fit(1,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
+   // Based on the pulse shape ( 2. likely gives the same performance )
    if(tmpy[2] > 3.*tmpy[3]) BX[2] = 2;
    if(chi2 > ts4Chi2_ && !unConstrainedFit_)   { //fails chi2 cut goes straight to 3 Pulse fit
      fit(3,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
@@ -419,6 +420,28 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
    timevalfit   = results[0];
    chargevalfit = results[1];
    pedvalfit    = results[n-1];
+   
+   
+   if(n == 7){
+   float timeval2fit   = results[2];
+   float chargeval2fit = results[3];
+   float timeval3fit   = results[4];
+   float chargeval3fit = results[5];
+
+     if((std::abs(timevalfit)<std::abs(timeval2fit)) && (std::abs(timevalfit)<std::abs(timeval3fit))){
+      timevalfit   = timevalfit;
+      chargevalfit = chargevalfit;
+     } else if((std::abs(timeval2fit)<std::abs(timevalfit)) && (std::abs(timeval2fit)<std::abs(timeval3fit))){
+      timevalfit = timeval2fit;
+      chargevalfit = chargeval2fit;
+     } else if((std::abs(timeval3fit)<std::abs(timevalfit)) && (std::abs(timeval3fit)<std::abs(timeval2fit))){
+      timevalfit = timeval3fit;
+      chargevalfit = chargeval3fit;
+     }
+   }
+
+   
+   
    if(!(unConstrainedFit_ && iFit == 2)) return;
    //Add the option of the old method 2
    float timeval2fit   = results[2];
