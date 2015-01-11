@@ -193,7 +193,7 @@ namespace HcalSimpleRecAlgoImpl {
                      const int ifirst, const int n, const bool slewCorrect,
                      const bool pulseCorrect, const HcalPulseContainmentCorrection* corr,
                      const HcalTimeSlew::BiasSetting slewFlavor,
-                     const int runnum, const bool useLeak,
+                     const int runnum, const bool useLeak, double w1, 
                      const int puCorrMethod, const PulseShapeFitOOTPileupCorrection * psFitOOTpuCorr)// const on end
   {
 
@@ -252,6 +252,11 @@ namespace HcalSimpleRecAlgoImpl {
        }
     }
 
+    // Use depth1 weight
+    HcalDetId cell(digi.id());
+    if(cell.subdet() <= 2 && cell.depth() == 1)  // HBHE depth 1
+    ampl *= w1;
+
     // Temporary hack to apply energy-dependent corrections to some HB- cells
     if (runnum > 0) {
       const HcalDetId& cell = digi.id();
@@ -268,6 +273,8 @@ namespace HcalSimpleRecAlgoImpl {
       ampl *= leakCorr(ampl); 
       uncorr_ampl *= leakCorr(uncorr_ampl); 
     }
+    
+
 
     RecHit rh(digi.id(),ampl,time);
     //setRawEnergy(rh, static_cast<float>(uncorr_ampl));
@@ -281,7 +288,7 @@ HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, int first, 
 							       first,toadd,correctForTimeslew_, correctForPulse_,
 							       pulseCorr_->get(digi.id(), toadd, phaseNS_),
 							       HcalTimeSlew::Medium,
-                                   0, setLeakCorrection_,
+                                   0, setLeakCorrection_, weight1,
                                    puCorrMethod_, psFitOOTpuCorr_.get());
 }
 
@@ -291,7 +298,7 @@ HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int 
 							   first,toadd,correctForTimeslew_,correctForPulse_,
 							   pulseCorr_->get(digi.id(), toadd, phaseNS_),
 							   HcalTimeSlew::Slow,
-                               0, false,  puCorrMethod_, psFitOOTpuCorr_.get());
+                               0, false, weight1, puCorrMethod_, psFitOOTpuCorr_.get());
 }
 
 HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
@@ -299,14 +306,14 @@ HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, i
 									 first,toadd,correctForTimeslew_,correctForPulse_,
 									 pulseCorr_->get(digi.id(), toadd, phaseNS_),
 									 HcalTimeSlew::Fast,
-                                     0, false, puCorrMethod_, psFitOOTpuCorr_.get());
+                                     0, false, weight1, puCorrMethod_, psFitOOTpuCorr_.get());
 }
 
 HBHERecHit HcalSimpleRecAlgo::reconstructHBHEUpgrade(const HcalUpgradeDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   HBHERecHit result = HcalSimpleRecAlgoImpl::reco<HcalUpgradeDataFrame,HBHERecHit>(digi, coder, calibs,
                                                                                    first, toadd, correctForTimeslew_, correctForPulse_,
                                                                                    pulseCorr_->get(digi.id(), toadd, phaseNS_),
-                                                                                   HcalTimeSlew::Medium, 0, false,
+                                                                                   HcalTimeSlew::Medium, 0, false, weight1,
                                                                                    puCorrMethod_, psFitOOTpuCorr_.get());
 
   //HcalTDCReco tdcReco;
