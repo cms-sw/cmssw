@@ -304,7 +304,7 @@
 <PartSelector path="//Layer2"/>
 <PartSelector path="//Layer3"/>
 <PartSelector path="//Layer4"/>
-<PartSelector path="//Layer5"/>
+<!--<PartSelector path="//Layer5"/>-->
 <PartSelector path="//Layer6"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelLayer"/>
 </SpecPar>
@@ -1987,7 +1987,7 @@
 <Parameter name="PixelROC_X" value="8"/>
 <Parameter name="PixelROC_Y" value="2"/>
 </SpecPar>
-<SpecPar name="BModule1Layer5INNERactivePar">
+<!--<SpecPar name="BModule1Layer5INNERactivePar">
 <PartSelector path="//BModule1Layer5INNERactive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
 <Parameter name="PixelROCRows" value="127"/>
@@ -2178,7 +2178,7 @@
 <Parameter name="PixelROCCols" value="1"/>
 <Parameter name="PixelROC_X" value="8"/>
 <Parameter name="PixelROC_Y" value="2"/>
-</SpecPar>
+</SpecPar>-->
 <SpecPar name="BModule1Layer6INNERactivePar">
 <PartSelector path="//BModule1Layer6INNERactive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
