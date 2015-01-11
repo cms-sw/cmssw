@@ -9,7 +9,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(0.0),
             maxEnergy = cms.double(2.0),
             endcap = cms.bool(False),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -17,7 +17,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(0.0),
             maxEnergy = cms.double(2.0),
             endcap = cms.bool(False),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -25,7 +25,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(0.0),
             maxEnergy = cms.double(2.0),
             endcap = cms.bool(False),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -33,7 +33,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(2.0),
             maxEnergy = cms.double(5.0),
             endcap = cms.bool(False),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -41,7 +41,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(2.0),
             maxEnergy = cms.double(5.0),
             endcap = cms.bool(False),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -49,7 +49,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(2.0),
             maxEnergy = cms.double(5.0),
             endcap = cms.bool(False),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -57,7 +57,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(5.0),
             maxEnergy = cms.double(1000000.0),
             endcap = cms.bool(False),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -65,7 +65,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(5.0),
             maxEnergy = cms.double(1000000.0),
             endcap = cms.bool(False),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -73,7 +73,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(5.0),
             maxEnergy = cms.double(1000000.0),
             endcap = cms.bool(False),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -81,7 +81,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(0.0),
             maxEnergy = cms.double(2.0),
             endcap = cms.bool(True),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -89,7 +89,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(0.0),
             maxEnergy = cms.double(2.0),
             endcap = cms.bool(True),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -97,7 +97,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(0.0),
             maxEnergy = cms.double(2.0),
             endcap = cms.bool(True),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -105,7 +105,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(0.0),
             maxEnergy = cms.double(2.0),
             endcap = cms.bool(True),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -113,7 +113,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(0.0),
             maxEnergy = cms.double(2.0),
             endcap = cms.bool(True),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
 
@@ -122,7 +122,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(2.0),
             maxEnergy = cms.double(5.0),
             endcap = cms.bool(True),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -130,7 +130,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(2.0),
             maxEnergy = cms.double(5.0),
             endcap = cms.bool(True),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -138,7 +138,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(2.0),
             maxEnergy = cms.double(5.0),
             endcap = cms.bool(True),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -146,7 +146,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(2.0),
             maxEnergy = cms.double(5.0),
             endcap = cms.bool(True),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -154,7 +154,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(2.0),
             maxEnergy = cms.double(5.0),
             endcap = cms.bool(True),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
 
@@ -163,7 +163,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(5.0),
             maxEnergy = cms.double(1000000.0),
             endcap = cms.bool(True),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -171,7 +171,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(5.0),
             maxEnergy = cms.double(1000000.0),
             endcap = cms.bool(True),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -179,7 +179,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(5.0),
             maxEnergy = cms.double(1000000.0),
             endcap = cms.bool(True),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -187,7 +187,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(5.0),
             maxEnergy = cms.double(1000000.0),
             endcap = cms.bool(True),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         ),
         cms.PSet(
@@ -195,7 +195,7 @@ particleFlowClusterHBHETimeSelected = cms.EDProducer(
             minEnergy = cms.double(5.0),
             maxEnergy = cms.double(1000000.0),
             endcap = cms.bool(True),
-            minTime = cms.double(-7.6),
+            minTime = cms.double(-7.4),
             maxTime = cms.double(17.4)
         )
 )
