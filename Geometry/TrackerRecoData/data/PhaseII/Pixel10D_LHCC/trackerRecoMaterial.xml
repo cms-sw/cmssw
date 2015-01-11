@@ -404,8 +404,8 @@
 <Parameter name="TrackerXi" value="0.000036"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialTOBPixelBarrelLayer5" eval="true">
-<!--<PartSelector path="//PixelBarrel/Layer5/Rod5/BModule1Layer5/BModule1Layer5INNERwafer/BModule1Layer5INNERactive"/>
+<!--<SpecPar name="TrackerRecMaterialTOBPixelBarrelLayer5" eval="true">
+<PartSelector path="//PixelBarrel/Layer5/Rod5/BModule1Layer5/BModule1Layer5INNERwafer/BModule1Layer5INNERactive"/>
 <PartSelector path="//PixelBarrel/Layer5/Rod5/BModule1Layer5/BModule1Layer5OUTERwafer/BModule1Layer5OUTERactive"/>
 <PartSelector path="//PixelBarrel/Layer5/Rod5/BModule2Layer5/BModule2Layer5INNERwafer/BModule2Layer5INNERactive"/>
 <PartSelector path="//PixelBarrel/Layer5/Rod5/BModule2Layer5/BModule2Layer5OUTERwafer/BModule2Layer5OUTERactive"/>
@@ -430,8 +430,8 @@
 <PartSelector path="//PixelBarrel/Layer5/Rod5/BModule12Layer5/BModule12Layer5INNERwafer/BModule12Layer5INNERactive"/>
 <PartSelector path="//PixelBarrel/Layer5/Rod5/BModule12Layer5/BModule12Layer5OUTERwafer/BModule12Layer5OUTERactive"/>
 <Parameter name="TrackerRadLength" value="0.0177537"/>
-<Parameter name="TrackerXi" value="0.000036"/>-->
-</SpecPar>
+<Parameter name="TrackerXi" value="0.000036"/>
+</SpecPar>-->
 
 <SpecPar name="TrackerRecMaterialTOBPixelBarrelLayer6" eval="true">
 <PartSelector path="//PixelBarrel/Layer6/Rod6/BModule1Layer6/BModule1Layer6INNERwafer/BModule1Layer6INNERactive"/>
