@@ -20,15 +20,14 @@ from RecoBTag.SecondaryVertex.combinedSecondaryVertexSoftLeptonBJetTags_cfi impo
 
 # IVF
 from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderTagInfos_cfi import *
-from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderFilteredTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.combinedInclusiveSecondaryVertexBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.combinedInclusiveSecondaryVertexV2BJetTags_cfi import *
 from RecoBTag.SecondaryVertex.bVertexFilter_cfi import *
 inclusiveSecondaryVerticesFiltered = bVertexFilter.clone()
 inclusiveSecondaryVerticesFiltered.vertexFilter.multiplicityMin = 2
 inclusiveSecondaryVerticesFiltered.secondaryVertices = cms.InputTag("inclusiveSecondaryVertices")
-
 from RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi import *
+from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderFilteredTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.simpleInclusiveSecondaryVertexHighEffBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.simpleInclusiveSecondaryVertexHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.doubleVertex2TrkComputer_cfi import *
@@ -65,5 +64,23 @@ from RecoBTag.SecondaryVertex.pfSimpleSecondaryVertexHighEffBJetTags_cfi import 
 from RecoBTag.SecondaryVertex.pfSimpleSecondaryVertexHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfCombinedSecondaryVertexBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfos_cfi import *
+from RecoBTag.SecondaryVertex.pfCombinedInclusiveSecondaryVertexBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfCombinedInclusiveSecondaryVertexV2BJetTags_cfi import *
 
+# Negative taggers
+from RecoBTag.SecondaryVertex.pfSecondaryVertexNegativeTagInfos_cfi import *
+from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderNegativeTagInfos_cfi import *
+from RecoBTag.SecondaryVertex.pfNegativeSimpleSecondaryVertexHighEffBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.pfNegativeSimpleSecondaryVertexHighPurBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.candidateNegativeCombinedSecondaryVertexComputer_cfi import *
+from RecoBTag.SecondaryVertex.candidateNegativeCombinedSecondaryVertexV2Computer_cfi import *
+from RecoBTag.SecondaryVertex.pfNegativeCombinedSecondaryVertexBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.pfNegativeCombinedInclusiveSecondaryVertexBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.pfNegativeCombinedInclusiveSecondaryVertexV2BJetTags_cfi import *
+
+# Positive taggers
+from RecoBTag.SecondaryVertex.candidatePositiveCombinedSecondaryVertexComputer_cfi import *
+from RecoBTag.SecondaryVertex.candidatePositiveCombinedSecondaryVertexV2Computer_cfi import *
+from RecoBTag.SecondaryVertex.pfPositiveCombinedSecondaryVertexBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.pfPositiveCombinedInclusiveSecondaryVertexBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.pfPositiveCombinedInclusiveSecondaryVertexV2BJetTags_cfi import *
