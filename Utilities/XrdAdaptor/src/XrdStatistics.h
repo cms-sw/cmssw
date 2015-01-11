@@ -4,6 +4,8 @@
 #include "Utilities/StorageFactory/interface/IOTypes.h"
 
 #include <chrono>
+#include <mutex>
+#include <atomic>
 
 namespace edm
 {
@@ -19,6 +21,12 @@ class ClientRequest;
 class XrdReadStatistics;
 class XrdSiteStatistics;
 
+
+/* NOTE: All member information is kept in the XrdSiteStatisticsInformation singleton,
+ * _not_ within the service itself.  This is because we need to be able to use the
+ * singleton on non-CMSSW-created threads.  Services are only available to threads
+ * created by CMSSW.
+ */
 class XrdStatisticsService
 {
 public:
@@ -29,10 +37,24 @@ public:
 
     void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
+private:
+
+};
+
+class XrdSiteStatisticsInformation
+{
+friend class XrdStatisticsService;
+
+public:
+    static XrdSiteStatisticsInformation *getInstance();
+
     std::shared_ptr<XrdSiteStatistics> getStatisticsForSite(std::string const &site);
 
 private:
+    static void createInstance();
 
+    static std::atomic<XrdSiteStatisticsInformation*> m_instance;
+    static std::mutex m_mutex;
     std::vector<std::shared_ptr<XrdSiteStatistics>> m_sites;
 };
 

@@ -76,7 +76,7 @@ private:
     std::string m_site;
 };
 
-Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string &exclude, XrdStatisticsService *statsService)
+Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string &exclude)
     : m_lastDowngrade({0, 0}),
       m_id("(unknown)"),
       m_exclude(exclude),
@@ -105,6 +105,7 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string 
     setXrootdSite();
     assert(m_qm.get());
     assert(m_fh.get());
+    XrdSiteStatisticsInformation *statsService = XrdSiteStatisticsInformation::getInstance();
     if (statsService)
     {
         m_stats = statsService->getStatisticsForSite(m_site);

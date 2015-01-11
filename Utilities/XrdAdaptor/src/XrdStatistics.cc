@@ -14,8 +14,17 @@
 using namespace XrdAdaptor;
 
 
+std::atomic<XrdSiteStatisticsInformation*> XrdSiteStatisticsInformation::m_instance;
+std::mutex XrdSiteStatisticsInformation::m_mutex;
+
+
 XrdStatisticsService::XrdStatisticsService(const edm::ParameterSet &iPS, edm::ActivityRegistry &iRegistry)
 {
+    if (iPS.getUntrackedParameter<bool>("reportToFJR", false))
+    {
+        XrdSiteStatisticsInformation::createInstance();
+    }
+
     iRegistry.watchPostEndJob(this, &XrdStatisticsService::postEndJob);
 }
 
@@ -25,7 +34,10 @@ void XrdStatisticsService::postEndJob()
     edm::Service<edm::JobReport> reportSvc;
     if (!reportSvc.isAvailable()) {return;}
 
-    for (std::shared_ptr<XrdSiteStatistics> const &stats : m_sites)
+    XrdSiteStatisticsInformation *instance = XrdSiteStatisticsInformation::getInstance();
+    if (!instance) {return;}
+
+    for (std::shared_ptr<XrdSiteStatistics> const &stats : instance->m_sites)
     {
         stats->recomputeProperties();
         reportSvc->reportPerformanceForModule(stats->site(), "XrdSiteStatistics", stats->fjrProperties());
@@ -34,7 +46,7 @@ void XrdStatisticsService::postEndJob()
 
 
 std::shared_ptr<XrdSiteStatistics>
-XrdStatisticsService::getStatisticsForSite(std::string const &site)
+XrdSiteStatisticsInformation::getStatisticsForSite(std::string const &site)
 {
     for (std::shared_ptr<XrdSiteStatistics> &stats : m_sites)
     {
@@ -44,6 +56,24 @@ XrdStatisticsService::getStatisticsForSite(std::string const &site)
     return m_sites.back();
 }
 
+
+void
+XrdSiteStatisticsInformation::createInstance()
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    XrdSiteStatisticsInformation *tmp = m_instance.load(std::memory_order_relaxed);
+    if (tmp == nullptr)
+    {
+        tmp = new XrdSiteStatisticsInformation();
+        m_instance.store(tmp, std::memory_order_relaxed);
+    }
+}
+
+XrdSiteStatisticsInformation *
+XrdSiteStatisticsInformation::getInstance()
+{
+    return m_instance.load(std::memory_order_relaxed);
+}
 
 void XrdStatisticsService::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
 {

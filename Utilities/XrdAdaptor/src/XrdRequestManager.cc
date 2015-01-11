@@ -109,8 +109,6 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
       m_distribution(0,100),
       m_excluded_active_count(0)
 {
-    edm::Service<XrdStatisticsService> statsService;
-    if (statsService.isAvailable()) {m_stats = &(*statsService);}
 }
 
 
@@ -205,7 +203,7 @@ RequestManager::initialize(std::weak_ptr<RequestManager> self)
   timespec ts;
   GET_CLOCK_MONOTONIC(ts);
 
-  std::shared_ptr<Source> source(new Source(ts, std::move(file), excludeString, m_stats));
+  std::shared_ptr<Source> source(new Source(ts, std::move(file), excludeString));
   {
     std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
     m_activeSources.push_back(source);
@@ -912,7 +910,7 @@ XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDSt
         std::string excludeString;
         Source::determineHostExcludeString(*m_file, hostList.get(), excludeString);
 
-        source.reset(new Source(now, std::move(m_file), excludeString, manager->m_stats));
+        source.reset(new Source(now, std::move(m_file), excludeString));
         m_promise.set_value(source);
     }
     else

@@ -22,7 +22,7 @@ class XrdStatisticsService;
 class Source : public std::enable_shared_from_this<Source>, boost::noncopyable {
 
 public:
-    Source(timespec now, std::unique_ptr<XrdCl::File> fileHandle, const std::string &exclude, XrdStatisticsService*);
+    Source(timespec now, std::unique_ptr<XrdCl::File> fileHandle, const std::string &exclude);
 
     ~Source();
 
