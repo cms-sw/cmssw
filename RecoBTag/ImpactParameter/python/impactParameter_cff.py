@@ -60,4 +60,26 @@ from RecoBTag.ImpactParameter.pfTrackCountingHighEffBJetTags_cfi import *
 from RecoBTag.ImpactParameter.candidateTrackCounting3D3rdComputer_cfi import *
 from RecoBTag.ImpactParameter.pfTrackCountingHighPurBJetTags_cfi import *
 
+# Negative Tags
 
+# Jet BProb
+from RecoBTag.ImpactParameter.candidateNegativeOnlyJetBProbabilityComputer_cfi import *
+from RecoBTag.ImpactParameter.pfNegativeOnlyJetBProbabilityBJetTags_cfi import *
+# Jet Prob
+from RecoBTag.ImpactParameter.candidateNegativeOnlyJetProbabilityComputer_cfi import *
+from RecoBTag.ImpactParameter.pfNegativeOnlyJetProbabilityBJetTags_cfi import *
+# High Eff
+from RecoBTag.ImpactParameter.candidateNegativeTrackCounting3D2ndComputer_cfi import *
+from RecoBTag.ImpactParameter.pfNegativeTrackCountingHighEffBJetTags_cfi import *
+# High Purity
+from RecoBTag.ImpactParameter.candidateNegativeTrackCounting3D3rdComputer_cfi import *
+from RecoBTag.ImpactParameter.pfNegativeTrackCountingHighPurBJetTags_cfi import *
+
+# Positive-only Tags
+
+# Jet BProb
+from RecoBTag.ImpactParameter.candidatePositiveOnlyJetBProbabilityComputer_cfi import *
+from RecoBTag.ImpactParameter.pfPositiveOnlyJetBProbabilityBJetTags_cfi import *
+# Jet Prob
+from RecoBTag.ImpactParameter.candidatePositiveOnlyJetProbabilityComputer_cfi import *
+from RecoBTag.ImpactParameter.pfPositiveOnlyJetProbabilityBJetTags_cfi import *
