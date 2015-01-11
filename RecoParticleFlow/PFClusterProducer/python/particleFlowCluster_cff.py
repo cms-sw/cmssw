@@ -19,7 +19,7 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cfi import *
 
 
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHE_cfi import *
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHETimeSelected_cfi import *
+#from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHETimeSelected_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHF_cfi import *
 
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import *
