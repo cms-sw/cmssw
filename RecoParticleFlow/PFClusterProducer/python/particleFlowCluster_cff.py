@@ -84,7 +84,7 @@ pfClusteringPS = cms.Sequence(particleFlowRecHitPS*particleFlowClusterPS)
 
 
 #pfClusteringHBHEHF = cms.Sequence(towerMakerPF*particleFlowRecHitHCAL*particleFlowClusterHCAL+particleFlowClusterHFHAD+particleFlowClusterHFEM)
-pfClusteringHBHEHF = cms.Sequence(offlinePrimaryVertices*particleFlowRecHitHBHE*particleFlowRecHitHF*particleFlowClusterHBHE+particleFlowClusterHF*particleFlowClusterHCAL)
+pfClusteringHBHEHF = cms.Sequence(offlinePrimaryVertices*particleFlowRecHitHBHE*particleFlowRecHitHF*particleFlowClusterHBHE*particleFlowClusterHF*particleFlowClusterHCAL)
 pfClusteringHO = cms.Sequence(particleFlowRecHitHO*particleFlowClusterHO)
 
 
