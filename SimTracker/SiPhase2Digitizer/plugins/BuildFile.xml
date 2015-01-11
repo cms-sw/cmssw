@@ -4,6 +4,6 @@
 <library   file="Phase2TrackerDigitizer.cc PSPDigitizerAlgorithm.cc Phase2TrackerDigitizerAlgorithm.cc PixelDigitizerAlgorithm.cc PSSDigitizerAlgorithm.cc SSDigitizerAlgorithm.cc" name="SimTrackerSiPhase2DigitizerPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="SiPhase2Clusterizer.cc ClusterizerAlgorithm.cc HitArray.cc" name="SimTrackerSiPhase2ClusterizerPlugins">
+<library   file="SiPhase2Clusterizer.cc ../src/ClusterizerAlgorithm.cc ../src/PixelClusterHitArray.cc" name="SimTrackerSiPhase2ClusterizerPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

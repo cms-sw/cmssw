@@ -5,11 +5,11 @@
 
 #include <vector>
 
-class HitArray {
+class PixelClusterHitArray {
 
 public:
-	HitArray(int rows, int cols);
-	HitArray() { }
+        PixelClusterHitArray(int rows, int cols);
+	PixelClusterHitArray() { }
 
 	void setSize(int rows, int cols);
 	int operator()(int row, int col) const;

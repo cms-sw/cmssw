@@ -1,6 +1,6 @@
 #include "SimTracker/SiPhase2Digitizer/interface/SiPhase2Clusterizer.h"
 #include "SimTracker/SiPhase2Digitizer/interface/ClusterizerAlgorithm.h"
-#include "SimTracker/SiPhase2Digitizer/interface/PixelClusterSimLink.h"
+//#include "SimTracker/SiPhase2Digitizer/interface/PixelClusterSimLink.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -35,7 +35,7 @@ namespace cms {
         produces< SiPixelClusterCollectionNew >(); 
 
         // Optionally produce simlinks
-        if (generateClusterSimLink_) produces< edm::DetSetVector<PixelClusterSimLink> >();
+        //if (generateClusterSimLink_) produces< edm::DetSetVector<PixelClusterSimLink> >();
 
         // Set the algorithm to use
         clusterizer_ = new ClusterizerAlgorithm(conf, maxClusterSize_, maxNumberClusters_);
@@ -97,12 +97,12 @@ namespace cms {
         edm::OrphanHandle< edmNew::DetSetVector<SiPixelCluster> > clusterCollection = e.put(outputClusters);
 
         // Do the same operations for the SimLinks if we have to generate them
-        if (generateClusterSimLink_) {
+        /*if (generateClusterSimLink_) {
             std::vector< edm::DetSet< PixelClusterSimLink > > linksByDet;
             clusterizer_->makeLinks(clusterCollection, linksByDet);
             std::auto_ptr< edm::DetSetVector< PixelClusterSimLink > > outputLinks(new edm::DetSetVector< PixelClusterSimLink >(linksByDet));
             e.put(outputLinks);
-        }
+        }*/
     }
 
     bool SimTrackerSiPhase2Clusterizer::isOuterTracker(unsigned int detid, const TrackerTopology* topo) {
