@@ -58,12 +58,12 @@ namespace l1t {
                auto mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker");
 
                UnpackerMap res;
-               if (fed == 1) {
+               if (fed == 1361) {
                   res[1] = egamma_unp;
                   res[3] = etsum_unp;
                   res[5] = jet_unp;
                   res[7] = tau_unp;
-               } else if (fed == 2) {
+               } else if (fed == 1360) {
                   res[1] = mp_unp;
                   res[3] = mp_unp;
                   res[5] = mp_unp;

@@ -69,7 +69,7 @@ private:
 
   std::vector<Block> getBlocks(int iAmc);
 
-  void formatAMC13(amc13::Packet& amc13, const std::vector<Block>& blocks);
+  void formatAMC(amc13::Packet& amc13, const std::vector<Block>& blocks, int iAmc);
 
   void formatRaw(edm::Event& iEvent, amc13::Packet& amc13, FEDRawData& fed_data);
   
@@ -102,11 +102,16 @@ private:
 
   // DAQ parameters
   int fedId_;
+  int nAmc_;
   int amcId_;
   int evType_;
   int fwVer_;
   int slinkHeaderSize_;  // in 8-bit words
   int slinkTrailerSize_;
+
+  bool mux_;
+  int muxOffset_;
+
   //  int lenAMC13Header_;
   //  int lenAMC13Trailer_;
   //  int lenAMCHeader_;   
@@ -138,6 +143,7 @@ private:
     fwVer_(iConfig.getUntrackedParameter<int>("fwVersion", 1)),
     slinkHeaderSize_(iConfig.getUntrackedParameter<int>("lenSlinkHeader", 16)),
     slinkTrailerSize_(iConfig.getUntrackedParameter<int>("lenSlinkTrailer", 16)),
+    mux_(iConfig.getUntrackedParameter<bool>("mux", false)),
     //    lenAMC13Header_(iConfig.getUntrackedParameter<int>("lenAMC13Header", 0)),
     //    lenAMC13Trailer_(iConfig.getUntrackedParameter<int>("lenAMC13Trailer", 0)),
     //    lenAMCHeader_(iConfig.getUntrackedParameter<int>("lenAMCHeader", 12)),
@@ -154,6 +160,12 @@ private:
 
   LogDebug("L1T") << "Rx index : " << rxIndex_;
   LogDebug("L1T") << "Tx index : " << txIndex_;
+
+  if (rxFileReader_.size() != txFileReader_.size()) {
+    edm::LogError("L1T") << "Different number of boards in Rx and Tx files";
+  }
+  nAmc_ = std::max(rxFileReader_.size(), txFileReader_.size());
+  LogDebug("L1T") << "# AMC : " << nAmc_;
 
 }
 
@@ -178,22 +190,32 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
 
   // AMC 13 packet
-  //  amc13::Packet amc13;
-    
+  amc13::Packet amc13;    
 
-  // fill the block structure
-  std::vector<Block> blocks = getBlocks(0);
+  // create AMC formatted data
+  if (mux_) {
+      std::vector<Block> blocks = getBlocks(amcId_);
+      formatAMC(amc13, blocks, amcId_);
+      amcId_++;  //advance to next AMC for next event...
+      amcId_ = amcId_ % nAmc_;
+  }
+  else {    
+    for (int i=0; i<nAmc_; ++i) {
+      int iAmc = (amcId_ + i) % nAmc_;
+      std::vector<Block> blocks = getBlocks(iAmc);
+      formatAMC(amc13, blocks, iAmc);
+    }
+  }
 
-  // fill the AMC13 packet
-  amc13::Packet amc13;
-  formatAMC13(amc13, blocks);
+  LogDebug("L1T") << "AMC13 size " << amc13.size();  
 
   // prepare the raw data collection
-  LogDebug("L1T") << "Packing data with FED ID " << fedId_;  
   std::auto_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
   FEDRawData& fed_data = raw_coll->FEDData(fedId_);
 
   formatRaw(iEvent, amc13, fed_data);
+
+  LogDebug("L1T") << "Packing FED ID " << fedId_ << " size " << fed_data.size();
   
   // put the collection in the event
   iEvent.put(raw_coll);  
@@ -225,7 +247,7 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
       }
     }
     
-    LogDebug("L1T") << "Block " << id << ", data " << data.size();
+    LogDebug("L1T") << "AMC " << iBoard << " block " << id << ", size " << data.size();
 
     Block block(id, data);
     blocks.push_back(block);
@@ -249,7 +271,7 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
       }
     }
     
-    LogDebug("L1T") << "Block " << id << ", data " << data.size();
+    LogDebug("L1T") << "AMC " << iBoard << " block " << id << ", size " << data.size();
 
     Block block(id, data);
 
@@ -257,7 +279,7 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
 
   }
 
-  LogDebug("L1T") << "Read " << blocks.size() << " blocks";
+  LogDebug("L1T") << "AMC " << iBoard << ", read " << blocks.size() << " blocks";
 
   // advance pointers to next event
   if (!packetisedData_) {
@@ -271,9 +293,9 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
 
 
 void
-MP7BufferDumpToRaw::formatAMC13(amc13::Packet& amc13, const std::vector<Block>& blocks) {
+MP7BufferDumpToRaw::formatAMC(amc13::Packet& amc13, const std::vector<Block>& blocks, int iAmc) {
 
-  LogDebug("L1T") << "Concatenating blocks";
+  LogDebug("L1T") << "Formatting AMC " << iAmc;
   
   std::vector<uint32_t> load32;
   // TODO this is an empty word to be replaced with a proper MP7
@@ -295,7 +317,7 @@ MP7BufferDumpToRaw::formatAMC13(amc13::Packet& amc13, const std::vector<Block>& 
     load32.insert(load32.end(), load.begin(), load.end());
   }
   
-  LogDebug("L1T") << "Converting payload";
+  LogDebug("L1T") << "Converting payload " << iAmc;
   
   std::vector<uint64_t> load64;
   for (unsigned int i = 0; i < load32.size(); i += 2) {
@@ -305,9 +327,9 @@ MP7BufferDumpToRaw::formatAMC13(amc13::Packet& amc13, const std::vector<Block>& 
     load64.push_back(word);
   }
   
-  LogDebug("L1T") << "Creating AMC packet";
+  LogDebug("L1T") << "Creating AMC packet " << iAmc;
   
-  amc13.add(amcId_, load64);
+  amc13.add(iAmc, load64);
 
 }
 
@@ -317,8 +339,6 @@ void
 MP7BufferDumpToRaw::formatRaw(edm::Event& iEvent, amc13::Packet& amc13, FEDRawData& fed_data)
 {
 
-  LogDebug("L1T") << "Creating FEDRawData";
-
   unsigned int size = slinkHeaderSize_ + slinkTrailerSize_ + amc13.size() * 8;
   fed_data.resize(size);
   unsigned char * payload = fed_data.data();
@@ -326,6 +346,8 @@ MP7BufferDumpToRaw::formatRaw(edm::Event& iEvent, amc13::Packet& amc13, FEDRawDa
 
   auto bxId = iEvent.bunchCrossing();
   auto evtId = iEvent.id().event();
+
+  LogDebug("L1T") << "Creating FEDRawData ID " << fedId_ << ", size " << size;
 
   FEDHeader header(payload);
   header.set(payload, evType_, evtId, bxId, fedId_);

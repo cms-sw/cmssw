@@ -38,8 +38,8 @@ FileData::link(uint32_t i) const {
 MP7FileReader::MP7FileReader(const std::string& path) : valid_(false), path_(path), file_(path) {
     if (!file_.is_open()) {
       edm::LogError("L1T") << "File " << path << " not found";
-        valid_ = false;
-        return;
+      valid_ = false;
+      return;
     }
     else {
       LogDebug("L1T") << "Reading file " << path;
