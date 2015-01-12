@@ -707,8 +707,11 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
     const TrajectoryStateOnSurface myTSOS = trajectoryStateTransform::outerStateOnSurface(tk, *(_tkGeom.product()),_bField.product());
     auto detbegin = myTSOS.globalPosition().z() > 0 ? _plusSurface.begin() : _minusSurface.begin();
     auto detend = myTSOS.globalPosition().z() > 0 ? _plusSurface.end() : _minusSurface.end();
-    for( auto det = detbegin; det != detend; ++det ) {      
+    for( auto det = detbegin; det != detend; ++det ) {  
+      //std::cout << "at HGC detector: " << std::distance(detbegin,det) << std::endl;
+      //unsigned layer_count = 1;
       for( const auto& layer : *det ) {
+	//std::cout << "  at DET layer: " << layer_count++ << std::endl;
 	_found.clear();
 	TrajectoryStateOnSurface piStateAtSurface = _mat_prop->propagate(myTSOS, *layer);
 	if( piStateAtSurface.isValid() ) {
@@ -734,6 +737,7 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 	  _hit_kdtree.search(rechit_searchcube,_found);
 	  double least_distance = std::numeric_limits<double>::max();
 	  unsigned best_index = std::numeric_limits<unsigned>::max();
+	  //std::cout << " hit search got " << _found.size() << " rechits along track!" << std::endl;
 	  for( const auto& hit : _found ) {
 	    const auto& pos = hits[hit.data].position();	  
 	    double dr = (tkpos - pos).r();
@@ -742,6 +746,8 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 	      least_distance = dr;
 	    }
 	  }
+	  //std::cout << " found closest hit: " << best_index << ' ' << least_distance << std::endl;
+	  _found.clear();
 	  if( least_distance != std::numeric_limits<double>::max() ) {
 	    if( rechit_usable[best_index] ) {
 	      rechit_usable[best_index] = false; // do not allow other tracks to grab this
@@ -750,54 +756,63 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 	      //std::cout << "adding hit at: (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") to cluster! (least distance = " << least_distance << " cm)" << std::endl;	    
 	    } else { // rechit is in a cluster or masked
 	      auto cluster_match = _rechits_to_clusters.find(best_index);
-	      if( cluster_match != _rechits_to_clusters.end() ) {
-		if( hits_of_cluster_on_track.find(cluster_match->second) == 
+	      if( cluster_match != _rechits_to_clusters.end() && 
+		  cluster_usable[cluster_match->second] ) {
+		const unsigned clus_idx = cluster_match->second;
+		const auto& the_cluster = output[clus_idx];
+		if( hits_of_cluster_on_track.find(clus_idx) == 
 		    hits_of_cluster_on_track.end() ) {
-		  hits_of_cluster_on_track[cluster_match->second] = 0;
+		  hits_of_cluster_on_track[clus_idx] = 0;
 		}
-		hits_of_cluster_on_track[cluster_match->second] += 1;
+		hits_of_cluster_on_track[clus_idx]++;
 		const GlobalVector& tkdir_orig = piStateAtSurface.globalDirection();
 		math::XYZVector tkdir(tkdir_orig.x(),tkdir_orig.y(),tkdir_orig.z());
-		const math::XYZVector& clusdir = output[cluster_match->second].axis();
+		const math::XYZVector& clusdir = the_cluster.axis();
 		// get angle between vectors...
 		const double angle = std::abs(std::acos(tkdir.Dot(clusdir)/std::sqrt(tkdir.mag2()*clusdir.mag2())));
-		//const auto& pos = output[cluster_match->second].position();		
-		if( cluster_usable[cluster_match->second] && 
+		//const auto& pos = the_cluster.position();		
+		if( cluster_usable[clus_idx] && 
 		    ( angle < _maxClusterAngleToTrack || 
 		      hits_of_cluster_on_track[cluster_match->second] > 7 ||
-		      output[cluster_match->second].recHitFractions().size() < 10 ) ) { 
-		  clusters_in_track[cluster_match->second] = true;
-		  cluster_usable[cluster_match->second] = false;
-		  for( const auto& hAndF : output[cluster_match->second].recHitFractions() ) {
+		      the_cluster.recHitFractions().size() < 10 ) ) { 
+		  clusters_in_track[clus_idx] = true;
+		  cluster_usable[clus_idx] = false;
+		  //std::cout << " adding rechits " << std::endl;
+		  for( const auto& hAndF : the_cluster.recHitFractions() ) {
 		    temp.addRecHitFraction(hAndF);
 		  }
+		  //std::cout << " added " << the_cluster.recHitFractions().size() << " hits!" << std::endl;
 		  if( _useAfterburner ) {
+		    //std::cout << " running afterburner" << std::endl;
 		    runConingAfterburner(hits_handle,
 					 hits,
 					 output,
-					 output[cluster_match->second],
+					 the_cluster,
 					 rechit_usable,
 					 cluster_usable,
 					 temp);
+		    //std::cout << " afterburner done!" << std::endl;
 		  }
 		  /*
 		  std::cout << "adding cluster at: (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") " 
-			    <<  output[cluster_match->second].pt() << ' ' << pos.eta() << " to had-supercluster! nhits = " 
-			    <<  hits_of_cluster_on_track[cluster_match->second] << std::endl;
+			    <<  the_cluster.pt() << ' ' << pos.eta() << " to had-supercluster! nhits_trk = " 
+			    <<  hits_of_cluster_on_track[clus_idx] 
+			    << " nhits = " << the_cluster.recHitFractions().size()
+			    << std::endl;
 		  */
-		}/*  else {
+		} /* else {
 		  
-		  std::cout << "rejected cluster at : (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") nhits = " 
-			    << hits_of_cluster_on_track[cluster_match->second] << " pt = " 
-			    <<  output[cluster_match->second].pt() << " eta = "  
+		  std::cout << "rejected cluster at : (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") nhits_trk = " 
+			    << hits_of_cluster_on_track[clus_idx] << " pt = " 
+			    <<  the_cluster.pt() << " eta = "  
 			    << pos.eta() << " to had-supercluster! angle = "
 			    << angle << " posdiff = "<< (pos - tkpos).rho()
-			    << " cluster_usable = " << cluster_usable[cluster_match->second];
+			    << " cluster_usable = " << cluster_usable[clus_idx];
 		  if( !cluster_usable[cluster_match->second] ) {
 		    _emPreID->reset();
-		    _emPreID->setShowerPosition(output[cluster_match->second].position());
-		    _emPreID->setShowerDirection(output[cluster_match->second].axis());
-		    if( _emPreID->isEm(output[cluster_match->second]) ) {
+		    _emPreID->setShowerPosition(the_cluster.position());
+		    _emPreID->setShowerDirection(the_cluster.axis());
+		    if( _emPreID->isEm(the_cluster) ) {
 		      std::cout << " because cluster is EM!";
 		    } else {
 		      std::cout << " because cluster already used!";		      
@@ -875,10 +890,14 @@ runConingAfterburner(const edm::Handle<reco::PFRecHitCollection>& handle,
   cone_vertex_polar.SetXYZ(cone_vertex_cartesian.x(),
 			   cone_vertex_cartesian.y(),
 			   cone_vertex_cartesian.z());
+  unsigned iterations = 0;
   while( std::abs(cone_vertex_polar.z()) > 
-	 std::abs(hits[*hits_first_depth.first].position().z()) ) {
+	 std::abs(hits[*hits_first_depth.first].position().z()) &&
+	 iterations < 10 ) {
     cone_vertex_polar = cone_vertex_polar - 10.0*cone_axis.Unit();
+    ++iterations;
   }
+  //std::cout << "cone finding took: " << iterations << " iterations" << std::endl;
   cone_vertex_cartesian.SetXYZ(cone_vertex_polar.x(),
 			       cone_vertex_polar.y(),
 			       cone_vertex_polar.z());
@@ -919,6 +938,7 @@ runConingAfterburner(const edm::Handle<reco::PFRecHitCollection>& handle,
 				 (float)z_rh.first,(float)z_rh.second);
     _hit_kdtree.search(rechit_searchcube,found);
     unsigned added_hits = 0;
+    //std::cout << "  coning afterburner -- finding rechits!" << std::endl;
     for( const auto& fhit : found ) {
       if( !rechit_usable[fhit.data] ) continue;
       double rhangle = (cone_vertex_cartesian - hits[fhit.data].position()).theta();
@@ -932,7 +952,9 @@ runConingAfterburner(const edm::Handle<reco::PFRecHitCollection>& handle,
 	++added_hits;
       }
     }
+    //std::cout << "  coning afterburner -- added " << added_hits << " rechits!" << std::endl;
     found.clear();
+    //std::cout << "  coning afterburner -- finding clusters!" << std::endl;
     _cluster_kdtree.search(rechit_searchcube,found);
     unsigned added_clusters(0);
     for( const auto& fcluster : found ) {
@@ -953,5 +975,6 @@ runConingAfterburner(const edm::Handle<reco::PFRecHitCollection>& handle,
 	++added_clusters;
       }    
     }
+    //std::cout << "  coning afterburner -- added " << added_clusters << " clusters!" << std::endl;
   }
 }
