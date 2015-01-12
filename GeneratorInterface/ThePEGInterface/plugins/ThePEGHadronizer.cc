@@ -149,24 +149,31 @@ bool ThePEGHadronizer::hadronize()
 	//need to copy lhe event here unfortunately because of interface mismatch
 	proxy_->loadEvent(boost::shared_ptr<lhef::LHEEvent>(new lhef::LHEEvent(*lheEvent())));
 
+        //dummy for now
+        double mergeweight = 1.0;
+        
 	try {
 		thepegEvent = eg_->shoot();
 	} catch (std::exception& exc) {
 		edm::LogWarning("Generator|ThePEGHadronizer") << "EGPtr::shoot() thrown an exception, event skipped: " << exc.what();
+                lheEvent()->count( lhef::LHERunInfo::kSelected, 1.0, mergeweight );
 		return false;
 	} catch (...) {
 		edm::LogWarning("Generator|ThePEGHadronizer") << "EGPtr::shoot() thrown an unknown exception, event skipped";
+                lheEvent()->count( lhef::LHERunInfo::kSelected, 1.0, mergeweight );
 		return false;
 	}
 
 	if (!thepegEvent) {
 		edm::LogWarning("Generator|ThePEGHadronizer") << "thepegEvent not initialized";
+                lheEvent()->count( lhef::LHERunInfo::kSelected, 1.0, mergeweight );
 		return false;
 	}
 
 	event() = convert(thepegEvent);
 	if (!event().get()) {
 		edm::LogWarning("Generator|ThePEGHadronizer") << "genEvent not initialized";
+                lheEvent()->count( lhef::LHERunInfo::kSelected, 1.0, mergeweight );
 		return false;
 	}
 
@@ -176,6 +183,10 @@ bool ThePEGHadronizer::hadronize()
 	fillAuxiliary(event().get(), &pdf, thepegEvent);
 	event()->set_pdf_info(pdf);
 
+        // update LHE matching statistics
+        //
+        lheEvent()->count( lhef::LHERunInfo::kAccepted, 1.0, mergeweight );        
+        
 	return true;
 
 }
