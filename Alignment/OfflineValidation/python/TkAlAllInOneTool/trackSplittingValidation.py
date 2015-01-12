@@ -6,23 +6,30 @@ from TkAlExceptions import AllInOneError
 
 
 class TrackSplittingValidation(GenericValidationData):
-    def __init__(self, valName, alignment, config):
+    def __init__(self, valName, alignment, config,
+                 configBaseName = "TkAlTrackSplitting", scriptBaseName = "TkAlTrackSplitting", crabCfgBaseName = "TkAlTrackSplitting",
+                 resultBaseName = "TrackSplitting", outputBaseName = "TrackSplitting"):
         mandatories = ["trackcollection"]
+        self.configBaseName = configBaseName
+        self.scriptBaseName = scriptBaseName
+        self.crabCfgBaseName = crabCfgBaseName
+        self.resultBaseName = resultBaseName
+        self.outputBaseName = outputBaseName
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "split", addMandatories = mandatories)
 
     def createConfiguration(self, path ):
-        cfgName = "TkAlTrackSplitting.%s.%s_cfg.py"%(self.name,
-                                                     self.alignmentToValidate.name)
+        cfgName = "%s.%s.%s_cfg.py"%(self.configBaseName, self.name,
+                                     self.alignmentToValidate.name)
         repMap = self.getRepMap()
         cfgs = {cfgName: configTemplates.TrackSplittingTemplate}
         self.filesToCompare[GenericValidationData.defaultReferenceName] = \
-            repMap["resultFile"]
+            repMap["finalResultFile"]
         GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
 
     def createScript(self, path):
-        scriptName = "TkAlTrackSplitting.%s.%s.sh"%(self.name,
-                                                    self.alignmentToValidate.name)
+        scriptName = "%s.%s.%s.sh"%(self.scriptBaseName, self.name,
+                                    self.alignmentToValidate.name)
         repMap = self.getRepMap()
         repMap["CommandLine"]=""
         for cfg in self.configFiles:
@@ -32,26 +39,15 @@ class TrackSplittingValidation(GenericValidationData):
         scripts = {scriptName: configTemplates.scriptTemplate}
         return GenericValidationData.createScript(self, scripts, path, repMap = repMap)
 
-    def createCrabCfg(self, path, crabCfgBaseName = "TkAlTrackSplitting"):
-        return GenericValidationData.createCrabCfg(self, path, crabCfgBaseName)
+    def createCrabCfg(self, path):
+        return GenericValidationData.createCrabCfg(self, path, self.crabCfgBaseName)
 
     def getRepMap( self, alignment = None ):
         repMap = GenericValidationData.getRepMap(self)
         repMap.update({ 
-            "resultFile": replaceByMap( ("/store/caf/user/$USER/.oO[eosdir]Oo."
-                                         "/TrackSplitting_"
-                                         + self.name +
-                                         "_.oO[name]Oo..root"),
-                                        repMap ),
-            "outputFile": replaceByMap( ("TrackSplitting_"
-                                         + self.name +
-                                         "_.oO[name]Oo..root"),
-                                        repMap ),
             "nEvents": self.general["maxevents"],
             "TrackCollection": self.general["trackcollection"]
             })
-        repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
-        repMap["resultFile"] = os.path.expandvars( repMap["resultFile"] )
         # repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
         # if self.jobmode.split( ',' )[0] == "crab":
         #     repMap["outputFile"] = os.path.basename( repMap["outputFile"] )

@@ -7,7 +7,9 @@ from TkAlExceptions import AllInOneError
 
 
 class OfflineValidation(GenericValidationData):
-    def __init__(self, valName, alignment, config, addDefaults = {}, addMandatories = []):
+    def __init__(self, valName, alignment, config, addDefaults = {}, addMandatories = [],
+                 configBaseName = "TkAlOfflineValidation", scriptBaseName = "TkAlOfflineValidation", crabCfgBaseName = "TkAlOfflineValidation",
+                 resultBaseName = "AlignmentValidation", outputBaseName = "AlignmentValidation"):
         defaults = {
             "DMRMethod":"median,rmsNorm",
             "DMRMinimum":"30",
@@ -20,13 +22,17 @@ class OfflineValidation(GenericValidationData):
         mandatories = [ "trackcollection" ]
         defaults.update(addDefaults)
         mandatories += addMandatories
+        self.configBaseName = configBaseName
+        self.scriptBaseName = scriptBaseName
+        self.crabCfgBaseName = crabCfgBaseName
+        self.resultBaseName = resultBaseName
+        self.outputBaseName = outputBaseName
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "offline", addDefaults=defaults,
                                        addMandatories=mandatories)
     
-    def createConfiguration(self, path,
-                            configBaseName = "TkAlOfflineValidation" ):
-        cfgName = "%s.%s.%s_cfg.py"%( configBaseName, self.name,
+    def createConfiguration(self, path):
+        cfgName = "%s.%s.%s_cfg.py"%( self.configBaseName, self.name,
                                       self.alignmentToValidate.name )
         repMap = self.getRepMap()
         if self.NJobs > 1 and self.general["offlineModuleLevelHistsTransient"] == "True":
@@ -63,8 +69,8 @@ class OfflineValidation(GenericValidationData):
             GenericValidationData.defaultReferenceName ] = repMap["finalResultFile"]
         return GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
 
-    def createScript(self, path, scriptBaseName = "TkAlOfflineValidation"):
-        scriptName = "%s.%s.%s.sh"%( scriptBaseName, self.name,
+    def createScript(self, path):
+        scriptName = "%s.%s.%s.sh"%(self.scriptBaseName, self.name,
                                      self.alignmentToValidate.name )
         repMap = self.getRepMap()
         repMap["CommandLine"]=""
@@ -75,36 +81,20 @@ class OfflineValidation(GenericValidationData):
         scripts = {scriptName: configTemplates.scriptTemplate}
         return GenericValidationData.createScript(self, scripts, path, repMap = repMap)
 
-    def createCrabCfg(self, path, crabCfgBaseName = "TkAlOfflineValidation"):
-        return GenericValidationData.createCrabCfg(self, path, crabCfgBaseName)
+    def createCrabCfg(self, path):
+        return GenericValidationData.createCrabCfg(self, path, self.crabCfgBaseName)
 
     def getRepMap(self, alignment = None):
         repMap = GenericValidationData.getRepMap(self, alignment)
         repMap.update({
             "nEvents": self.general["maxevents"],
-            "resultFile": "resultFiles[.oO[nIndex]Oo.]",
-            "resultFiles": addIndex(os.path.expandvars(replaceByMap(
-                                         "/store/caf/user/$USER/.oO[eosdir]Oo./AlignmentValidation_" + self.name + "_.oO[name]Oo..root"
-                                                   , repMap)), self.NJobs),
-            "finalResultFile": os.path.expandvars(replaceByMap(
-                                    "/store/caf/user/$USER/.oO[eosdir]Oo./AlignmentValidation_" + self.name + "_.oO[name]Oo..root"
-                                                   , repMap)),
             "TrackSelectionTemplate": configTemplates.TrackSelectionTemplate,
             "LorentzAngleTemplate": configTemplates.LorentzAngleTemplate,
             "offlineValidationMode": "Standalone",
             "offlineValidationFileOutput": configTemplates.offlineFileOutputTemplate,
             "TrackCollection": self.general["trackcollection"],
-            "outputFile": ".oO[outputFiles[.oO[nIndex]Oo.]]Oo.",
-            "outputFiles": addIndex(os.path.expandvars(replaceByMap(
-                                "AlignmentValidation_" + self.name + "_.oO[name]Oo..root"
-                                                   , repMap)), self.NJobs),
-            "finalOutputFile": os.path.expandvars(replaceByMap(
-                                    "AlignmentValidation_" + self.name + "_.oO[name]Oo..root"
-                                              , repMap))
             })
 
-        repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
-        repMap["resultFile"] = os.path.expandvars( repMap["resultFile"] )
         return repMap
 
     def appendToExtendedValidation( self, validationsSoFar = "" ):
@@ -137,8 +127,9 @@ class OfflineValidation(GenericValidationData):
         return validationsSoFar
 
 class OfflineValidationDQM(OfflineValidation):
-    def __init__(self, valName, alignment, config):
-        OfflineValidation.__init__(self, valName, alignment, config)
+    def __init__(self, valName, alignment, config, configBaseName = "TkAlOfflineValidationDQM"):
+        OfflineValidation.__init__(self, valName, alignment, config,
+                                   configBaseName = configBaseName)
         if not config.has_section("DQM"):
             msg = "You need to have a DQM section in your configfile!"
             raise AllInOneError(msg)
@@ -148,12 +139,10 @@ class OfflineValidationDQM(OfflineValidation):
         self.__lastRun = int(config.get("DQM", "lastRun"))
 
     def createConfiguration(self, path):
-        OfflineValidation.createConfiguration(self, path,
-                                              "TkAlOfflineValidationDQM")
+        OfflineValidation.createConfiguration(self, path)
         
     def createScript(self, path):
-        return OfflineValidation.createScript(self, path,
-                                              "TkAlOfflineValidationDQM")
+        return OfflineValidation.createScript(self, path)
 
     def getRepMap(self, alignment = None):
         repMap = OfflineValidation.getRepMap(self, alignment)

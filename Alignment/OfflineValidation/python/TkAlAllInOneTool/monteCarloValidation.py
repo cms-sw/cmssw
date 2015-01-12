@@ -8,22 +8,29 @@ from TkAlExceptions import AllInOneError
 
 
 class MonteCarloValidation(GenericValidationData):
-    def __init__(self, valName, alignment, config):
+    def __init__(self, valName, alignment, config,
+                 configBaseName = "TkAlMcValidate", scriptBaseName = "TkAlMcValidate", crabCfgBaseName = "TkAlMcValidate",
+                 resultBaseName = "McValidation", outputBaseName = "McValidation"):
+        self.configBaseName = configBaseName
+        self.scriptBaseName = scriptBaseName
+        self.crabCfgBaseName = crabCfgBaseName
+        self.resultBaseName = resultBaseName
+        self.outputBaseName = outputBaseName
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "mcValidate")
 
     def createConfiguration(self, path ):
-        cfgName = "TkAlMcValidate.%s.%s_cfg.py"%(self.name,
-                                                 self.alignmentToValidate.name)
+        cfgName = "%s.%s.%s_cfg.py"%(self.configBaseName, self.name,
+                                     self.alignmentToValidate.name)
         repMap = self.getRepMap()
         cfgs = {cfgName: configTemplates.mcValidateTemplate}
         self.filesToCompare[GenericValidationData.defaultReferenceName] = \
-            repMap["resultFile"]
+            repMap["finalResultFile"]
         GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
 
     def createScript(self, path):
-        scriptName = "TkAlMcValidate.%s.%s.sh"%(self.name,
-                                                self.alignmentToValidate.name)
+        scriptName = "%s.%s.%s.sh"%(self.scriptBaseName, self.name,
+                                    self.alignmentToValidate.name)
         repMap = self.getRepMap()
         repMap["CommandLine"]=""
         for cfg in self.configFiles:
@@ -33,20 +40,12 @@ class MonteCarloValidation(GenericValidationData):
         scripts = {scriptName: configTemplates.scriptTemplate}
         return GenericValidationData.createScript(self, scripts, path, repMap = repMap)
 
-    def createCrabCfg(self, path, crabCfgBaseName = "TkAlMcValidate"):
-        return GenericValidationData.createCrabCfg(self, path,
-                                                   crabCfgBaseName)
+    def createCrabCfg(self, path):
+        return GenericValidationData.createCrabCfg(self, path, self.crabCfgBaseName)
 
     def getRepMap( self, alignment = None ):
         repMap = GenericValidationData.getRepMap(self, alignment)
         repMap.update({
-            "resultFile": replaceByMap(("/store/caf/user/$USER/.oO[eosdir]Oo."
-                                        "/McValidation_"
-                                        + self.name +
-                                        "_.oO[name]Oo..root"), repMap ),
-            "outputFile": replaceByMap(("McValidation_"
-                                        + self.name +
-                                        "_.oO[name]Oo..root"), repMap ),
             "nEvents": self.general["maxevents"]
             })
         repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )

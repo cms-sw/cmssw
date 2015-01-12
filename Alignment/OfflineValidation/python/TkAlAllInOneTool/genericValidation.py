@@ -326,6 +326,25 @@ class GenericValidationData(GenericValidation):
                 msg += str( e )
                 raise AllInOneError( msg )
 
+    def getRepMap(self, alignment = None):
+        result = GenericValidation.getRepMap(self, alignment)
+        outputfile = os.path.expandvars(replaceByMap(
+                           "%s_%s_.oO[name]Oo..root" % (self.outputBaseName, self.name)
+                                 , result))
+        resultfile = os.path.expandvars(replaceByMap(("/store/caf/user/$USER/.oO[eosdir]Oo./" +
+                           "%s_%s_.oO[name]Oo..root" % (self.resultBaseName, self.name))
+                                 , result))
+        result.update({
+                "resultFile": ".oO[resultFiles[.oO[nIndex]Oo.]]Oo.",
+                "resultFiles": addIndex(resultfile, self.NJobs),
+                "finalResultFile": resultfile,
+                "outputFile": ".oO[outputFiles[.oO[nIndex]Oo.]]Oo.",
+                "outputFiles": addIndex(outputfile, self.NJobs),
+                "finalOutputFile": outputfile
+                })
+        return result
+
+
     def createCrabCfg(self, path, crabCfgBaseName):
         """
         Method which creates a `crab.cfg` for a validation on datasets.
