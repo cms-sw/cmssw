@@ -1,20 +1,38 @@
-#ifndef ValidationRecoJetsJetTester_HeavyIons_h
-#define ValidationRecoJetsJetTester_HeavyIons_h
+#ifndef JetAnalyzer_HeavyIons_H
+#define JetAnalyzer_HeavyIons_H
 
-// Producer for validation histograms for Calo, JPT and PF jet objects
-// F. Ratnikov, Sept. 7, 2006
-// Modified by Chiyoung Jeong, Feb. 2, 2010
-// Modified by J. Piedra, Sept. 11, 2013
-// Rewritten by Viola Sordini, Matthias Artur Weber, Robert Schoefbeck Nov./Dez. 2013
-// Modified by Raghav Kunnawalkam Elayavalli, Aug 18th 2014 to run in 72X 
-//                                          , Oct 22nd 2014 to run in 73X
-//                                          , Dec 10th 2014 74X and adding the PF candidates information to easily detect  
-//                                                          the voronoi subtraction algorithm failure modes.  
 
-#include <cmath>
-#include <string>
+//
+// Jet Tester class for heavy ion jets. for DQM jet analysis monitoring 
+// For CMSSW_7_4_X, especially reading background subtracted jets 
+// author: Raghav Kunnawalkam Elayavalli,
+//         Jan 12th 2015 
+//         Rutgers University, email: raghav.k.e at CERN dot CH 
+//
+// this class will be very similar to the class available in the validation suite under RecoJets/JetTester_HeavyIons 
+//
 
-#include "DataFormats/Common/interface/Handle.h"
+
+#include <memory>
+#include <fstream>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -22,9 +40,10 @@
 #include "DataFormats/JetReco/interface/JPTJet.h"
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+
+// include the basic jet for the PuPF jets. 
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
-
 // include the pf candidates 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 // include the voronoi subtraction
@@ -33,36 +52,29 @@
 // include the centrality variables
 #include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-#include "DataFormats/METReco/interface/GenMET.h"
-#include "DataFormats/METReco/interface/GenMETCollection.h"
-#include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/METReco/interface/METCollection.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "RecoJets/JetProducers/interface/JetMatchingTools.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "RecoJets/JetProducers/interface/JetIDHelper.h"
+#include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h" 
+#include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include <map>
+#include <string>
+
+
 
 const Int_t MAXPARTICLE = 10000;
 
 class MonitorElement;
 
-class JetTester_HeavyIons : public DQMEDAnalyzer {
+class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
  public:
 
-  explicit JetTester_HeavyIons (const edm::ParameterSet&);
-  virtual ~JetTester_HeavyIons();
+  explicit JetAnalyzer_HeavyIons (const edm::ParameterSet&);
+  virtual ~JetAnalyzer_HeavyIons();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&); 
   virtual void beginJob();
@@ -71,13 +83,8 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
 
  private:
   
-  void fillMatchHists(const double GenEta,  const double GenPhi,  const double GenPt,
-		      const double RecoEta, const double RecoPhi, const double RecoPt);
-  
   edm::InputTag   mInputCollection;
-  edm::InputTag   mInputGenCollection;
   edm::InputTag   mInputPFCandCollection;
-//  edm::InputTag   rhoTag;
   edm::InputTag   centrality;
   
   std::string     mOutputFile;
@@ -85,8 +92,6 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   std::string     UEAlgo;
   edm::InputTag   Background;
   double          mRecoJetPtThreshold;
-  double          mMatchGenPtThreshold;
-  double          mGenEnergyFractionThreshold;
   double          mReverseEnergyFractionThreshold;
   double          mRThreshold;
   std::string     JetCorrectionService;
@@ -98,8 +103,7 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
   edm::EDGetTokenT<reco::BasicJetCollection> basicJetsToken_;
   edm::EDGetTokenT<reco::JPTJetCollection> jptJetsToken_;
-  edm::EDGetTokenT<reco::GenJetCollection> genJetsToken_;
-  edm::EDGetTokenT<edm::HepMCProduct> evtToken_;
+  //edm::EDGetTokenT<edm::HepMCProduct> evtToken_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandToken_; 
   edm::EDGetTokenT<reco::CandidateView> pfCandViewToken_;
   //edm::EDGetTokenT<reco::VoronoiMap> backgrounds_;
@@ -159,4 +163,5 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
 
 };
 
-#endif
+
+#endif 
