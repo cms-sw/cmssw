@@ -125,6 +125,10 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
 
 CaloRecHitsProducer::~CaloRecHitsProducer() 
 { 
+  if (EcalBarrelRecHitsMaker_) delete EcalBarrelRecHitsMaker_;
+  if (EcalEndcapRecHitsMaker_) delete EcalEndcapRecHitsMaker_;
+  if (EcalPreshowerRecHitsMaker_) delete EcalPreshowerRecHitsMaker_;
+  if (HcalRecHitsMaker_) delete HcalRecHitsMaker_; 
 }
 
 void 
@@ -161,15 +165,6 @@ CaloRecHitsProducer::beginRun(const edm::Run & run, const edm::EventSetup & es) 
       break;
     }
   }
-}
-
-void CaloRecHitsProducer::endJob()
-{ 
-  //std::cout << " (Fast)RecHitsProducer terminating " << std::endl; 
-  if (EcalBarrelRecHitsMaker_) delete EcalBarrelRecHitsMaker_;
-  if (EcalEndcapRecHitsMaker_) delete EcalEndcapRecHitsMaker_;
-  if (EcalPreshowerRecHitsMaker_) delete EcalPreshowerRecHitsMaker_;
-  if (HcalRecHitsMaker_) delete HcalRecHitsMaker_; 
 }
 
 void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
