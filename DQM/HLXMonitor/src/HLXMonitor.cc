@@ -40,7 +40,6 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig) {
   DistribIP2 = iConfig.getUntrackedParameter<std::string>("SecondaryHLXDAQIP",
                                                           "vmepcs2f17-19");
   ResetAtNewRun = iConfig.getUntrackedParameter<bool>("NewRun_Reset", true);
-  SaveAtEndJob = iConfig.getUntrackedParameter<bool>("SaveAtEndJob", true);
 
   eventInfoFolderHLX_ = iConfig.getUntrackedParameter<std::string>(
       "eventInfoFolderHLX", "EventInfoHLX");
@@ -85,12 +84,6 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig) {
     NBINS = (unsigned int)(XMAX - XMIN);
   }
 
-  dbe_ = edm::Service<DQMStore>().operator->();
-
-  if (dbe_) {
-    dbe_->setVerbose(1);
-  }
-
   monitorName_ =
       iConfig.getUntrackedParameter<std::string>("monitorName", "HLX");
   // cout << "Monitor name = " << monitorName_ << endl;
@@ -116,15 +109,49 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig) {
 
   num4NibblePerLS_ = 16.0;
 
-  SetupHists();
-  SetupEventInfo();
+  connectHLXTCP(); // this was originally done in beginJob()
 }
 
-HLXMonitor::~HLXMonitor() { HLXTCP.Disconnect(); }
+HLXMonitor::~HLXMonitor() {
+  HLXTCP.Disconnect();
+  EndRun();
+}
+
+// Method called once each job just before starting event loop
+void HLXMonitor::connectHLXTCP() {
+  HLXTCP.SetIP(DistribIP1);
+  int errorCode = HLXTCP.SetPort(listenPort);
+  cout << "SetPort: " << listenPort << " Success: " << errorCode << endl;
+  errorCode = HLXTCP.SetMode(AquireMode);
+  cout << "AquireMode: " << AquireMode << " Success: " << errorCode << endl;
+
+  while (HLXTCP.IsConnected() == false) {
+    HLXTCP.SetIP(DistribIP1);
+    if (HLXTCP.Connect() != 1) {
+      std::cout << "Failed to connect to " << DistribIP1 << "." << std::endl;
+      sleep(1);
+      std::cout << "Trying " << DistribIP2 << std::endl;
+      HLXTCP.SetIP(DistribIP2);
+      if (HLXTCP.Connect() == 1) break;
+      std::cout << "Failed to connect to " << DistribIP2 << "." << std::endl;
+      std::cout << " Reconnect in " << reconnTime << " seconds." << std::endl;
+      sleep(reconnTime);
+    }
+  }
+  if (HLXTCP.IsConnected() == true) {
+    std::cout << "Successfully connected." << std::endl;
+  }
+}
 
 // ------------ Setup the monitoring elements ---------------
-void HLXMonitor::SetupHists() {
-  dbe_->setCurrentFolder(monitorName_ + "/HFPlus");
+void HLXMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&,
+                                edm::EventSetup const&) {
+  SetupHists(iBooker);
+  SetupEventInfo(iBooker);
+}
+
+void HLXMonitor::SetupHists(DQMStore::IBooker& iBooker) {
+  iBooker.setCurrentFolder(monitorName_ + "/HFPlus");
 
   for (unsigned int iWedge = 0; iWedge < 18 && iWedge < NUM_HLX; ++iWedge) {
     std::ostringstream tempStreamer;
@@ -134,42 +161,43 @@ void HLXMonitor::SetupHists() {
     std::ostringstream wedgeNum;
     wedgeNum << std::dec << (iWedge % 18) + 1;
 
-    dbe_->setCurrentFolder(monitorName_ + "/HFPlus/Wedge" + tempStreamer.str());
+    iBooker.setCurrentFolder(monitorName_ + "/HFPlus/Wedge" +
+                             tempStreamer.str());
 
-    Set1Below[iWedge] = dbe_->book1D(
+    Set1Below[iWedge] = iBooker.book1D(
         "Set1_Below",
         "HF+ Wedge " + wedgeNum.str() + ": Below Threshold 1 - Set 1", NBINS,
         XMIN, XMAX);
-    Set1Between[iWedge] = dbe_->book1D(
+    Set1Between[iWedge] = iBooker.book1D(
         "Set1_Between",
         "HF+ Wedge " + wedgeNum.str() + ": Between Threshold 1 & 2 - Set 1",
         NBINS, XMIN, XMAX);
-    Set1Above[iWedge] = dbe_->book1D(
+    Set1Above[iWedge] = iBooker.book1D(
         "Set1_Above",
         "HF+ Wedge " + wedgeNum.str() + ": Above Threshold 2 - Set 1", NBINS,
         XMIN, XMAX);
-    Set2Below[iWedge] = dbe_->book1D(
+    Set2Below[iWedge] = iBooker.book1D(
         "Set2_Below",
         "HF+ Wedge " + wedgeNum.str() + ": Below Threshold 1 - Set 2", NBINS,
         XMIN, XMAX);
-    Set2Between[iWedge] = dbe_->book1D(
+    Set2Between[iWedge] = iBooker.book1D(
         "Set2_Between",
         "HF+ Wedge " + wedgeNum.str() + ": Between Threshold 1 & 2 - Set 2",
         NBINS, XMIN, XMAX);
-    Set2Above[iWedge] = dbe_->book1D(
+    Set2Above[iWedge] = iBooker.book1D(
         "Set2_Above",
         "HF+ Wedge " + wedgeNum.str() + ": Above Threshold 2 - Set 2", NBINS,
         XMIN, XMAX);
-    ETSum[iWedge] = dbe_->book1D(
+    ETSum[iWedge] = iBooker.book1D(
         "ETSum", "HF+ Wedge " + wedgeNum.str() + ": Transverse Energy", NBINS,
         XMIN, XMAX);
 
-    dbe_->tagContents(monitorName_ + "/HFPlus/Wedge" + tempStreamer.str(),
-                      iWedge + 1);
+    iBooker.tagContents(monitorName_ + "/HFPlus/Wedge" + tempStreamer.str(),
+                        iWedge + 1);
   }
 
   if (NUM_HLX > 17) {
-    dbe_->setCurrentFolder(monitorName_ + "/HFMinus");
+    iBooker.setCurrentFolder(monitorName_ + "/HFMinus");
 
     for (unsigned int iWedge = 18; iWedge < NUM_HLX; ++iWedge) {
       std::ostringstream tempStreamer;
@@ -179,38 +207,38 @@ void HLXMonitor::SetupHists() {
       std::ostringstream wedgeNum;
       wedgeNum << std::dec << (iWedge % 18) + 1;
 
-      dbe_->setCurrentFolder(monitorName_ + "/HFMinus/Wedge" +
-                             tempStreamer.str());
-      Set1Below[iWedge] = dbe_->book1D(
+      iBooker.setCurrentFolder(monitorName_ + "/HFMinus/Wedge" +
+                               tempStreamer.str());
+      Set1Below[iWedge] = iBooker.book1D(
           "Set1_Below",
           "HF- Wedge " + wedgeNum.str() + ": Below Threshold 1 - Set 1", NBINS,
           XMIN, XMAX);
-      Set1Between[iWedge] = dbe_->book1D(
+      Set1Between[iWedge] = iBooker.book1D(
           "Set1_Between",
           "HF- Wedge " + wedgeNum.str() + ": Between Threshold 1 & 2 - Set 1",
           NBINS, XMIN, XMAX);
-      Set1Above[iWedge] = dbe_->book1D(
+      Set1Above[iWedge] = iBooker.book1D(
           "Set1_Above",
           "HF- Wedge " + wedgeNum.str() + ": Above Threshold 2 - Set 1", NBINS,
           XMIN, XMAX);
-      Set2Below[iWedge] = dbe_->book1D(
+      Set2Below[iWedge] = iBooker.book1D(
           "Set2_Below",
           "HF- Wedge " + wedgeNum.str() + ": Below Threshold 1 - Set 2", NBINS,
           XMIN, XMAX);
-      Set2Between[iWedge] = dbe_->book1D(
+      Set2Between[iWedge] = iBooker.book1D(
           "Set2_Between",
           "HF- Wedge " + wedgeNum.str() + ": Between Threshold 1 & 2 - Set 2",
           NBINS, XMIN, XMAX);
-      Set2Above[iWedge] = dbe_->book1D(
+      Set2Above[iWedge] = iBooker.book1D(
           "Set2_Above",
           "HF- Wedge " + wedgeNum.str() + ": Above Threshold 2 - Set 2", NBINS,
           XMIN, XMAX);
-      ETSum[iWedge] = dbe_->book1D(
+      ETSum[iWedge] = iBooker.book1D(
           "ETSum", "HF- Wedge " + wedgeNum.str() + ": Transverse Energy", NBINS,
           XMIN, XMAX);
 
-      dbe_->tagContents(monitorName_ + "/HFMinus/Wedge" + tempStreamer.str(),
-                        iWedge + 1);
+      iBooker.tagContents(monitorName_ + "/HFMinus/Wedge" + tempStreamer.str(),
+                          iWedge + 1);
     }
   }
 
@@ -257,56 +285,56 @@ void HLXMonitor::SetupHists() {
 
   // Comparison Histograms
 
-  dbe_->setCurrentFolder(monitorName_ + "/HFCompare");
+  iBooker.setCurrentFolder(monitorName_ + "/HFCompare");
 
   std::string CompXTitle = "HF Wedge";
   std::string CompEtSumYTitle = "E_{T} Sum per active tower";
   std::string CompOccYTitle = "Occupancy per active tower";
 
   HFCompareEtSum =
-      dbe_->book1D("HFCompareEtSum", "E_{T} Sum", NUM_HLX, 0, NUM_HLX);
+      iBooker.book1D("HFCompareEtSum", "E_{T} Sum", NUM_HLX, 0, NUM_HLX);
   HFCompareEtSum->setAxisTitle(CompXTitle, 1);
   HFCompareEtSum->setAxisTitle(CompEtSumYTitle, 2);
 
-  HFCompareOccBelowSet1 =
-      dbe_->book1D("HFCompareOccBelowSet1",
-                   "Occupancy Below Threshold 1 - Set 1", NUM_HLX, 0, NUM_HLX);
+  HFCompareOccBelowSet1 = iBooker.book1D("HFCompareOccBelowSet1",
+                                         "Occupancy Below Threshold 1 - Set 1",
+                                         NUM_HLX, 0, NUM_HLX);
   HFCompareOccBelowSet1->setAxisTitle(CompXTitle, 1);
   HFCompareOccBelowSet1->setAxisTitle(CompOccYTitle, 2);
 
-  HFCompareOccBetweenSet1 = dbe_->book1D(
+  HFCompareOccBetweenSet1 = iBooker.book1D(
       "HFCompareOccBetweenSet1", "Occupancy Between Threshold 1 & 2 - Set 1",
       NUM_HLX, 0, NUM_HLX);
   HFCompareOccBetweenSet1->setAxisTitle(CompXTitle, 1);
   HFCompareOccBetweenSet1->setAxisTitle(CompOccYTitle, 2);
 
-  HFCompareOccAboveSet1 =
-      dbe_->book1D("HFCompareOccAboveSet1",
-                   "Occupancy Above Threshold 2 - Set 1", NUM_HLX, 0, NUM_HLX);
+  HFCompareOccAboveSet1 = iBooker.book1D("HFCompareOccAboveSet1",
+                                         "Occupancy Above Threshold 2 - Set 1",
+                                         NUM_HLX, 0, NUM_HLX);
   HFCompareOccAboveSet1->setAxisTitle(CompXTitle, 1);
   HFCompareOccAboveSet1->setAxisTitle(CompOccYTitle, 2);
 
-  HFCompareOccBelowSet2 =
-      dbe_->book1D("HFCompareOccBelowSet2",
-                   "Occupancy Below Threshold 1 - Set 2", NUM_HLX, 0, NUM_HLX);
+  HFCompareOccBelowSet2 = iBooker.book1D("HFCompareOccBelowSet2",
+                                         "Occupancy Below Threshold 1 - Set 2",
+                                         NUM_HLX, 0, NUM_HLX);
   HFCompareOccBelowSet2->setAxisTitle(CompXTitle, 1);
   HFCompareOccBelowSet2->setAxisTitle(CompOccYTitle, 2);
 
-  HFCompareOccBetweenSet2 = dbe_->book1D(
+  HFCompareOccBetweenSet2 = iBooker.book1D(
       "HFCompareOccBetweenSet2", "Occupancy Between Threshold 1 & 2 - Set 2",
       NUM_HLX, 0, NUM_HLX);
   HFCompareOccBetweenSet2->setAxisTitle(CompXTitle, 1);
   HFCompareOccBetweenSet2->setAxisTitle(CompOccYTitle, 2);
 
-  HFCompareOccAboveSet2 =
-      dbe_->book1D("HFCompareOccAboveSet2",
-                   "Occupancy Above Threshold 2 - Set 2", NUM_HLX, 0, NUM_HLX);
+  HFCompareOccAboveSet2 = iBooker.book1D("HFCompareOccAboveSet2",
+                                         "Occupancy Above Threshold 2 - Set 2",
+                                         NUM_HLX, 0, NUM_HLX);
   HFCompareOccAboveSet2->setAxisTitle(CompXTitle, 1);
   HFCompareOccAboveSet2->setAxisTitle(CompOccYTitle, 2);
 
   // Average Histograms
 
-  dbe_->setCurrentFolder(monitorName_ + "/Average");
+  iBooker.setCurrentFolder(monitorName_ + "/Average");
 
   int OccBins = 10000;  // This does absolutely nothing.
   double OccMin = 0;
@@ -324,174 +352,174 @@ void HLXMonitor::SetupHists() {
   std::string AvgEtSumYTitle = "Average E_{T} Sum";
   std::string AvgOccYTitle = "Average Tower Occupancy";
 
-  AvgEtSum = dbe_->bookProfile("AvgEtSum", "Average E_{T} Sum", NUM_HLX, 0,
-                               NUM_HLX, EtSumBins, EtSumMin, EtSumMax);
+  AvgEtSum = iBooker.bookProfile("AvgEtSum", "Average E_{T} Sum", NUM_HLX, 0,
+                                 NUM_HLX, EtSumBins, EtSumMin, EtSumMax);
   AvgEtSum->setAxisTitle(AvgXTitle, 1);
   AvgEtSum->setAxisTitle(AvgEtSumYTitle, 2);
 
-  AvgOccBelowSet1 = dbe_->bookProfile(
+  AvgOccBelowSet1 = iBooker.bookProfile(
       "AvgOccBelowSet1", "Average Occupancy Below Threshold 1 - Set1", NUM_HLX,
       0, NUM_HLX, OccBins, OccMin, OccMax, errorOpt.c_str());
   AvgOccBelowSet1->setAxisTitle(AvgXTitle, 1);
   AvgOccBelowSet1->setAxisTitle(AvgOccYTitle, 2);
 
-  AvgOccBetweenSet1 = dbe_->bookProfile(
+  AvgOccBetweenSet1 = iBooker.bookProfile(
       "AvgOccBetweenSet1", "Average Occupancy Between Threhold 1 & 2 - Set1",
       NUM_HLX, 0, NUM_HLX, OccBins, OccMin, OccMax, errorOpt.c_str());
   AvgOccBetweenSet1->setAxisTitle(AvgXTitle, 1);
   AvgOccBetweenSet1->setAxisTitle(AvgOccYTitle, 2);
 
-  AvgOccAboveSet1 = dbe_->bookProfile(
+  AvgOccAboveSet1 = iBooker.bookProfile(
       "AvgOccAboveSet1", "Average Occupancy Above Threshold 2 - Set1", NUM_HLX,
       0, NUM_HLX, OccBins, OccMin, OccMax, errorOpt.c_str());
   AvgOccAboveSet1->setAxisTitle(AvgXTitle, 1);
   AvgOccAboveSet1->setAxisTitle(AvgOccYTitle, 2);
 
-  AvgOccBelowSet2 = dbe_->bookProfile(
+  AvgOccBelowSet2 = iBooker.bookProfile(
       "AvgOccBelowSet2", "Average Occupancy Below Threshold 1 - Set2", NUM_HLX,
       0, NUM_HLX, OccBins, OccMin, OccMax, errorOpt.c_str());
   AvgOccBelowSet2->setAxisTitle(AvgXTitle, 1);
   AvgOccBelowSet2->setAxisTitle(AvgOccYTitle, 2);
 
-  AvgOccBetweenSet2 = dbe_->bookProfile(
+  AvgOccBetweenSet2 = iBooker.bookProfile(
       "AvgOccBetweenSet2", "Average Occupancy Between Threshold 1 & 2 - Set2",
       NUM_HLX, 0, NUM_HLX, OccBins, OccMin, OccMax, errorOpt.c_str());
   AvgOccBetweenSet2->setAxisTitle(AvgXTitle, 1);
   AvgOccBetweenSet2->setAxisTitle(AvgOccYTitle, 2);
 
-  AvgOccAboveSet2 = dbe_->bookProfile(
+  AvgOccAboveSet2 = iBooker.bookProfile(
       "AvgOccAboveSet2", "Average Occupancy Above Threshold 2 - Set2", NUM_HLX,
       0, NUM_HLX, OccBins, OccMin, OccMax, errorOpt.c_str());
   AvgOccAboveSet2->setAxisTitle(AvgXTitle, 1);
   AvgOccAboveSet2->setAxisTitle(AvgOccYTitle, 2);
 
   // Luminosity Histograms
-  dbe_->setCurrentFolder(monitorName_ + "/Luminosity");
+  iBooker.setCurrentFolder(monitorName_ + "/Luminosity");
 
   std::string LumiXTitle = "Bunch Crossing";
   std::string LumiEtSumYTitle = "Luminosity: E_{T} Sum";
   std::string LumiOccYTitle = "Luminosity: Occupancy";
 
-  LumiAvgEtSum =
-      dbe_->bookProfile("LumiAvgEtSum", "Average Luminosity ", int(XMAX - XMIN),
-                        XMIN, XMAX, EtSumBins, EtSumMin, EtSumMax);
+  LumiAvgEtSum = iBooker.bookProfile("LumiAvgEtSum", "Average Luminosity ",
+                                     int(XMAX - XMIN), XMIN, XMAX, EtSumBins,
+                                     EtSumMin, EtSumMax);
   LumiAvgEtSum->setAxisTitle(LumiXTitle, 1);
   LumiAvgEtSum->setAxisTitle(LumiEtSumYTitle, 2);
 
-  LumiAvgOccSet1 =
-      dbe_->bookProfile("LumiAvgOccSet1", "Average Luminosity - Set 1",
-                        int(XMAX - XMIN), XMIN, XMAX, OccBins, OccMax, OccMin);
+  LumiAvgOccSet1 = iBooker.bookProfile(
+      "LumiAvgOccSet1", "Average Luminosity - Set 1", int(XMAX - XMIN), XMIN,
+      XMAX, OccBins, OccMax, OccMin);
   LumiAvgOccSet1->setAxisTitle(LumiXTitle, 1);
   LumiAvgOccSet1->setAxisTitle(LumiOccYTitle, 2);
 
-  LumiAvgOccSet2 =
-      dbe_->bookProfile("LumiAvgOccSet2", "Average Luminosity - Set 2",
-                        int(XMAX - XMIN), XMIN, XMAX, OccBins, OccMax, OccMin);
+  LumiAvgOccSet2 = iBooker.bookProfile(
+      "LumiAvgOccSet2", "Average Luminosity - Set 2", int(XMAX - XMIN), XMIN,
+      XMAX, OccBins, OccMax, OccMin);
   LumiAvgOccSet2->setAxisTitle(LumiXTitle, 1);
   LumiAvgOccSet2->setAxisTitle(LumiOccYTitle, 2);
 
   LumiInstantEtSum =
-      dbe_->book1D("LumiInstantEtSum", "Instantaneous Luminosity ",
-                   int(XMAX - XMIN), XMIN, XMAX);
+      iBooker.book1D("LumiInstantEtSum", "Instantaneous Luminosity ",
+                     int(XMAX - XMIN), XMIN, XMAX);
   LumiInstantEtSum->setAxisTitle(LumiXTitle, 1);
   LumiInstantEtSum->setAxisTitle(LumiEtSumYTitle, 2);
 
   LumiInstantOccSet1 =
-      dbe_->book1D("LumiInstantOccSet1", "Instantaneous Luminosity - Set 1",
-                   int(XMAX - XMIN), XMIN, XMAX);
+      iBooker.book1D("LumiInstantOccSet1", "Instantaneous Luminosity - Set 1",
+                     int(XMAX - XMIN), XMIN, XMAX);
   LumiInstantOccSet1->setAxisTitle(LumiXTitle, 1);
   LumiInstantOccSet1->setAxisTitle(LumiOccYTitle, 2);
 
   LumiInstantOccSet2 =
-      dbe_->book1D("LumiInstantOccSet2", "Instantaneous Luminosity - Set 2",
-                   int(XMAX - XMIN), XMIN, XMAX);
+      iBooker.book1D("LumiInstantOccSet2", "Instantaneous Luminosity - Set 2",
+                     int(XMAX - XMIN), XMIN, XMAX);
   LumiInstantOccSet2->setAxisTitle(LumiXTitle, 1);
   LumiInstantOccSet2->setAxisTitle(LumiOccYTitle, 2);
 
   LumiIntegratedEtSum =
-      dbe_->book1D("LumiIntegratedEtSum", "Integrated Luminosity ",
-                   int(XMAX - XMIN), XMIN, XMAX);
+      iBooker.book1D("LumiIntegratedEtSum", "Integrated Luminosity ",
+                     int(XMAX - XMIN), XMIN, XMAX);
   LumiIntegratedEtSum->setAxisTitle(LumiXTitle, 1);
   LumiIntegratedEtSum->setAxisTitle(LumiEtSumYTitle, 2);
 
   LumiIntegratedOccSet1 =
-      dbe_->book1D("LumiIntegratedOccSet1", "Integrated Luminosity - Set 1",
-                   int(XMAX - XMIN), XMIN, XMAX);
+      iBooker.book1D("LumiIntegratedOccSet1", "Integrated Luminosity - Set 1",
+                     int(XMAX - XMIN), XMIN, XMAX);
   LumiIntegratedOccSet1->setAxisTitle(LumiXTitle, 1);
   LumiIntegratedOccSet1->setAxisTitle(LumiOccYTitle, 2);
 
   LumiIntegratedOccSet2 =
-      dbe_->book1D("LumiIntegratedOccSet2", "Integrated Luminosity - Set 2",
-                   int(XMAX - XMIN), XMIN, XMAX);
+      iBooker.book1D("LumiIntegratedOccSet2", "Integrated Luminosity - Set 2",
+                     int(XMAX - XMIN), XMIN, XMAX);
   LumiIntegratedOccSet2->setAxisTitle(LumiXTitle, 1);
   LumiIntegratedOccSet2->setAxisTitle(LumiOccYTitle, 2);
 
   // Sanity check sum histograms
-  dbe_->setCurrentFolder(monitorName_ + "/CheckSums");
+  iBooker.setCurrentFolder(monitorName_ + "/CheckSums");
 
   std::string sumXTitle = "HF Wedge";
   std::string sumYTitle = "Occupancy Sum (Below+Above+Between)";
 
   SumAllOccSet1 =
-      dbe_->bookProfile("SumAllOccSet1", "Occupancy Check - Set 1", NUM_HLX, 0,
-                        NUM_HLX, OccBins, OccMax, OccMin);
+      iBooker.bookProfile("SumAllOccSet1", "Occupancy Check - Set 1", NUM_HLX,
+                          0, NUM_HLX, OccBins, OccMax, OccMin);
   SumAllOccSet1->setAxisTitle(sumXTitle, 1);
   SumAllOccSet1->setAxisTitle(sumYTitle, 2);
 
   SumAllOccSet2 =
-      dbe_->bookProfile("SumAllOccSet2", "Occupancy Check - Set 2", NUM_HLX, 0,
-                        NUM_HLX, OccBins, OccMax, OccMin);
+      iBooker.bookProfile("SumAllOccSet2", "Occupancy Check - Set 2", NUM_HLX,
+                          0, NUM_HLX, OccBins, OccMax, OccMin);
   SumAllOccSet2->setAxisTitle(sumXTitle, 1);
   SumAllOccSet2->setAxisTitle(sumYTitle, 2);
 
   MissingDQMDataCheck =
-      dbe_->book1D("MissingDQMDataCheck", "Missing Data Count", 1, 0, 1);
+      iBooker.book1D("MissingDQMDataCheck", "Missing Data Count", 1, 0, 1);
   MissingDQMDataCheck->setAxisTitle("", 1);
   MissingDQMDataCheck->setAxisTitle("Number Missing Nibbles", 2);
 
   // Signal & Background monitoring histograms
-  dbe_->setCurrentFolder(monitorName_ + "/SigBkgLevels");
+  iBooker.setCurrentFolder(monitorName_ + "/SigBkgLevels");
 
   MaxInstLumiBX1 =
-      dbe_->book1D("MaxInstLumiBX1", "Max Instantaneous Luminosity BX: 1st",
-                   10000, -1e-5, 0.01);
+      iBooker.book1D("MaxInstLumiBX1", "Max Instantaneous Luminosity BX: 1st",
+                     10000, -1e-5, 0.01);
   MaxInstLumiBX1->setAxisTitle("Max Inst. L (10^{30}cm^{-2}s^{-1})", 1);
   MaxInstLumiBX1->setAxisTitle("Entries", 2);
   MaxInstLumiBX2 =
-      dbe_->book1D("MaxInstLumiBX2", "Max Instantaneous Luminosity BX: 2nd",
-                   10000, -1e-5, 0.01);
+      iBooker.book1D("MaxInstLumiBX2", "Max Instantaneous Luminosity BX: 2nd",
+                     10000, -1e-5, 0.01);
   MaxInstLumiBX2->setAxisTitle("Max Inst. L (10^{30}cm^{-2}s^{-1})", 1);
   MaxInstLumiBX2->setAxisTitle("Entries", 2);
   MaxInstLumiBX3 =
-      dbe_->book1D("MaxInstLumiBX3", "Max Instantaneous Luminosity BX: 3rd",
-                   10000, -1e-5, 0.01);
+      iBooker.book1D("MaxInstLumiBX3", "Max Instantaneous Luminosity BX: 3rd",
+                     10000, -1e-5, 0.01);
   MaxInstLumiBX3->setAxisTitle("Max Inst. L (10^{30}cm^{-2}s^{-1})", 1);
   MaxInstLumiBX3->setAxisTitle("Entries", 2);
   MaxInstLumiBX4 =
-      dbe_->book1D("MaxInstLumiBX4", "Max Instantaneous Luminosity BX: 4th",
-                   10000, -1e-5, 0.01);
+      iBooker.book1D("MaxInstLumiBX4", "Max Instantaneous Luminosity BX: 4th",
+                     10000, -1e-5, 0.01);
   MaxInstLumiBX4->setAxisTitle("Max Inst. L (10^{30}cm^{-2}s^{-1})", 1);
   MaxInstLumiBX4->setAxisTitle("Entries", 2);
 
-  MaxInstLumiBXNum1 =
-      dbe_->book1D("MaxInstLumiBXNum1", "BX Number of Max: 1st", 3564, 0, 3564);
+  MaxInstLumiBXNum1 = iBooker.book1D("MaxInstLumiBXNum1",
+                                     "BX Number of Max: 1st", 3564, 0, 3564);
   MaxInstLumiBXNum1->setAxisTitle("BX", 1);
   MaxInstLumiBXNum1->setAxisTitle("Num Time Max", 2);
-  MaxInstLumiBXNum2 =
-      dbe_->book1D("MaxInstLumiBXNum2", "BX Number of Max: 2nd", 3564, 0, 3564);
+  MaxInstLumiBXNum2 = iBooker.book1D("MaxInstLumiBXNum2",
+                                     "BX Number of Max: 2nd", 3564, 0, 3564);
   MaxInstLumiBXNum2->setAxisTitle("BX", 1);
   MaxInstLumiBXNum2->setAxisTitle("Num Time Max", 2);
-  MaxInstLumiBXNum3 =
-      dbe_->book1D("MaxInstLumiBXNum3", "BX Number of Max: 3rd", 3564, 0, 3564);
+  MaxInstLumiBXNum3 = iBooker.book1D("MaxInstLumiBXNum3",
+                                     "BX Number of Max: 3rd", 3564, 0, 3564);
   MaxInstLumiBXNum3->setAxisTitle("BX", 1);
   MaxInstLumiBXNum3->setAxisTitle("Num Time Max", 2);
-  MaxInstLumiBXNum4 =
-      dbe_->book1D("MaxInstLumiBXNum4", "BX Number of Max: 4th", 3564, 0, 3564);
+  MaxInstLumiBXNum4 = iBooker.book1D("MaxInstLumiBXNum4",
+                                     "BX Number of Max: 4th", 3564, 0, 3564);
   MaxInstLumiBXNum4->setAxisTitle("BX", 1);
   MaxInstLumiBXNum4->setAxisTitle("Num Time Max", 2);
 
   // History histograms
-  dbe_->setCurrentFolder(monitorName_ + "/HistoryRaw");
+  iBooker.setCurrentFolder(monitorName_ + "/HistoryRaw");
 
   std::string HistXTitle = "Time (LS)";
   std::string RecentHistXTitle = "Time (LS/16)";
@@ -504,85 +532,85 @@ void HLXMonitor::SetupHists() {
 
   // Et Sum histories
   HistAvgEtSumHFP =
-      dbe_->bookProfile("HistAvgEtSumHFP", "Average Et Sum: HF+", MAX_LS, 0.5,
-                        (double)MAX_LS + 0.5, EtSumBins, EtSumMin, EtSumMax);
+      iBooker.bookProfile("HistAvgEtSumHFP", "Average Et Sum: HF+", MAX_LS, 0.5,
+                          (double)MAX_LS + 0.5, EtSumBins, EtSumMin, EtSumMax);
   HistAvgEtSumHFP->setAxisTitle(HistXTitle, 1);
   HistAvgEtSumHFP->setAxisTitle(HistEtSumYTitle, 2);
 
   HistAvgEtSumHFM =
-      dbe_->bookProfile("HistAvgEtSumHFM", "Average Et Sum: HF-", MAX_LS, 0.5,
-                        (double)MAX_LS + 0.5, EtSumBins, EtSumMin, EtSumMax);
+      iBooker.bookProfile("HistAvgEtSumHFM", "Average Et Sum: HF-", MAX_LS, 0.5,
+                          (double)MAX_LS + 0.5, EtSumBins, EtSumMin, EtSumMax);
   HistAvgEtSumHFM->setAxisTitle(HistXTitle, 1);
   HistAvgEtSumHFM->setAxisTitle(HistEtSumYTitle, 2);
 
   // Tower Occupancy Histories
-  HistAvgOccBelowSet1HFP = dbe_->bookProfile(
+  HistAvgOccBelowSet1HFP = iBooker.bookProfile(
       "HistAvgOccBelowSet1HFP", "Average Occ Set1Below: HF+", MAX_LS, 0.5,
       (double)MAX_LS + 0.5, OccBins, OccMin, OccMax);
   HistAvgOccBelowSet1HFP->setAxisTitle(HistXTitle, 1);
   HistAvgOccBelowSet1HFP->setAxisTitle(HistOccYTitle, 2);
 
-  HistAvgOccBelowSet1HFM = dbe_->bookProfile(
+  HistAvgOccBelowSet1HFM = iBooker.bookProfile(
       "HistAvgOccBelowSet1HFM", "Average Occ Set1Below: HF-", MAX_LS, 0.5,
       (double)MAX_LS + 0.5, OccBins, OccMin, OccMax);
   HistAvgOccBelowSet1HFM->setAxisTitle(HistXTitle, 1);
   HistAvgOccBelowSet1HFM->setAxisTitle(HistOccYTitle, 2);
 
-  HistAvgOccBetweenSet1HFP = dbe_->bookProfile(
+  HistAvgOccBetweenSet1HFP = iBooker.bookProfile(
       "HistAvgOccBetweenSet1HFP", "Average Occ Set1Between: HF+", MAX_LS, 0.5,
       (double)MAX_LS + 0.5, OccBins, OccMin, OccMax);
   HistAvgOccBetweenSet1HFP->setAxisTitle(HistXTitle, 1);
   HistAvgOccBetweenSet1HFP->setAxisTitle(HistOccYTitle, 2);
 
-  HistAvgOccBetweenSet1HFM = dbe_->bookProfile(
+  HistAvgOccBetweenSet1HFM = iBooker.bookProfile(
       "HistAvgOccBetweenSet1HFM", "Average Occ Set1Between: HF-", MAX_LS, 0.5,
       (double)MAX_LS + 0.5, OccBins, OccMin, OccMax);
   HistAvgOccBetweenSet1HFM->setAxisTitle(HistXTitle, 1);
   HistAvgOccBetweenSet1HFM->setAxisTitle(HistOccYTitle, 2);
 
-  HistAvgOccAboveSet1HFP = dbe_->bookProfile(
+  HistAvgOccAboveSet1HFP = iBooker.bookProfile(
       "HistAvgOccAboveSet1HFP", "Average Occ Set1Above: HF+", MAX_LS, 0.5,
       (double)MAX_LS + 0.5, OccBins, OccMin, OccMax);
   HistAvgOccAboveSet1HFP->setAxisTitle(HistXTitle, 1);
   HistAvgOccAboveSet1HFP->setAxisTitle(HistOccYTitle, 2);
 
-  HistAvgOccAboveSet1HFM = dbe_->bookProfile(
+  HistAvgOccAboveSet1HFM = iBooker.bookProfile(
       "HistAvgOccAboveSet1HFM", "Average Occ Set1Above: HF-", MAX_LS, 0.5,
       (double)MAX_LS + 0.5, OccBins, OccMin, OccMax);
   HistAvgOccAboveSet1HFM->setAxisTitle(HistXTitle, 1);
   HistAvgOccAboveSet1HFM->setAxisTitle(HistOccYTitle, 2);
 
-  HistAvgOccBelowSet2HFP = dbe_->bookProfile(
+  HistAvgOccBelowSet2HFP = iBooker.bookProfile(
       "HistAvgOccBelowSet2HFP", "Average Occ Set2Below: HF+", MAX_LS, 0.5,
       (double)MAX_LS + 0.5, OccBins, OccMin, OccMax);
   HistAvgOccBelowSet2HFP->setAxisTitle(HistXTitle, 1);
   HistAvgOccBelowSet2HFP->setAxisTitle(HistOccYTitle, 2);
 
-  HistAvgOccBelowSet2HFM = dbe_->bookProfile(
+  HistAvgOccBelowSet2HFM = iBooker.bookProfile(
       "HistAvgOccBelowSet2HFM", "Average Occ Set2Below: HF-", MAX_LS, 0.5,
       (double)MAX_LS + 0.5, OccBins, OccMin, OccMax);
   HistAvgOccBelowSet2HFM->setAxisTitle(HistXTitle, 1);
   HistAvgOccBelowSet2HFM->setAxisTitle(HistOccYTitle, 2);
 
-  HistAvgOccBetweenSet2HFP = dbe_->bookProfile(
+  HistAvgOccBetweenSet2HFP = iBooker.bookProfile(
       "HistAvgOccBetweenSet2HFP", "Average Occ Set2Between: HF+", MAX_LS, 0.5,
       (double)MAX_LS + 0.5, OccBins, OccMin, OccMax);
   HistAvgOccBetweenSet2HFP->setAxisTitle(HistXTitle, 1);
   HistAvgOccBetweenSet2HFP->setAxisTitle(HistOccYTitle, 2);
 
-  HistAvgOccBetweenSet2HFM = dbe_->bookProfile(
+  HistAvgOccBetweenSet2HFM = iBooker.bookProfile(
       "HistAvgOccBetweenSet2HFM", "Average Occ Set2Between: HF-", MAX_LS, 0.5,
       (double)MAX_LS + 0.5, OccBins, OccMin, OccMax);
   HistAvgOccBetweenSet2HFM->setAxisTitle(HistXTitle, 1);
   HistAvgOccBetweenSet2HFM->setAxisTitle(HistOccYTitle, 2);
 
-  HistAvgOccAboveSet2HFP = dbe_->bookProfile(
+  HistAvgOccAboveSet2HFP = iBooker.bookProfile(
       "HistAvgOccAboveSet2HFP", "Average Occ Set2Above: HF+", MAX_LS, 0.5,
       (double)MAX_LS + 0.5, OccBins, OccMin, OccMax);
   HistAvgOccAboveSet2HFP->setAxisTitle(HistXTitle, 1);
   HistAvgOccAboveSet2HFP->setAxisTitle(HistOccYTitle, 2);
 
-  HistAvgOccAboveSet2HFM = dbe_->bookProfile(
+  HistAvgOccAboveSet2HFM = iBooker.bookProfile(
       "HistAvgOccAboveSet2HFM", "Average Occ Set2Above: HF-", MAX_LS, 0.5,
       (double)MAX_LS + 0.5, OccBins, OccMin, OccMax);
   HistAvgOccAboveSet2HFM->setAxisTitle(HistXTitle, 1);
@@ -590,146 +618,139 @@ void HLXMonitor::SetupHists() {
 
   // Et Sum histories
   BXvsTimeAvgEtSumHFP =
-      dbe_->book2D("BXvsTimeAvgEtSumHFP", "Average Et Sum: HF+", MAX_LS, 0.5,
-                   (double)MAX_LS + 0.5, NBINS, (double)XMIN, (double)XMAX);
+      iBooker.book2D("BXvsTimeAvgEtSumHFP", "Average Et Sum: HF+", MAX_LS, 0.5,
+                     (double)MAX_LS + 0.5, NBINS, (double)XMIN, (double)XMAX);
   BXvsTimeAvgEtSumHFP->setAxisTitle(BXvsTimeXTitle, 1);
   BXvsTimeAvgEtSumHFP->setAxisTitle(BXvsTimeYTitle, 2);
 
   BXvsTimeAvgEtSumHFM =
-      dbe_->book2D("BXvsTimeAvgEtSumHFM", "Average Et Sum: HF-", MAX_LS, 0.5,
-                   (double)MAX_LS + 0.5, NBINS, (double)XMIN, (double)XMAX);
+      iBooker.book2D("BXvsTimeAvgEtSumHFM", "Average Et Sum: HF-", MAX_LS, 0.5,
+                     (double)MAX_LS + 0.5, NBINS, (double)XMIN, (double)XMAX);
   BXvsTimeAvgEtSumHFM->setAxisTitle(BXvsTimeXTitle, 1);
   BXvsTimeAvgEtSumHFM->setAxisTitle(BXvsTimeYTitle, 2);
 
-  dbe_->setCurrentFolder(monitorName_ + "/HistoryLumi");
+  iBooker.setCurrentFolder(monitorName_ + "/HistoryLumi");
 
   // Lumi Histories
-  HistAvgLumiEtSum = dbe_->bookProfile(
+  HistAvgLumiEtSum = iBooker.bookProfile(
       "HistAvgLumiEtSum", "Average Instant Luminosity: Et Sum", MAX_LS, 0.5,
       (double)MAX_LS + 0.5, EtSumBins, EtSumMin, EtSumMax);
   HistAvgLumiEtSum->setAxisTitle(HistXTitle, 1);
   HistAvgLumiEtSum->setAxisTitle(HistLumiYTitle, 2);
 
-  HistAvgLumiOccSet1 = dbe_->bookProfile(
+  HistAvgLumiOccSet1 = iBooker.bookProfile(
       "HistAvgLumiOccSet1", "Average Instant Luminosity: Occ Set1", MAX_LS, 0.5,
       (double)MAX_LS + 0.5, OccBins, OccMin, OccMax);
   HistAvgLumiOccSet1->setAxisTitle(HistXTitle, 1);
   HistAvgLumiOccSet1->setAxisTitle(HistLumiYTitle, 2);
 
-  HistAvgLumiOccSet2 = dbe_->bookProfile(
+  HistAvgLumiOccSet2 = iBooker.bookProfile(
       "HistAvgLumiOccSet2", "Average Instant Luminosity: Occ Set2", MAX_LS, 0.5,
       (double)MAX_LS + 0.5, OccBins, OccMin, OccMax);
   HistAvgLumiOccSet2->setAxisTitle(HistXTitle, 1);
   HistAvgLumiOccSet2->setAxisTitle(HistLumiYTitle, 2);
 
   HistInstantLumiEtSum =
-      dbe_->book1D("HistInstantLumiEtSum", "Instant Luminosity: Et Sum", MAX_LS,
-                   0.5, (double)MAX_LS + 0.5);
+      iBooker.book1D("HistInstantLumiEtSum", "Instant Luminosity: Et Sum",
+                     MAX_LS, 0.5, (double)MAX_LS + 0.5);
   HistInstantLumiEtSum->setAxisTitle(HistXTitle, 1);
   HistInstantLumiEtSum->setAxisTitle(HistLumiYTitle, 2);
 
   HistInstantLumiOccSet1 =
-      dbe_->book1D("HistInstantLumiOccSet1", "Instant Luminosity: Occ Set1",
-                   MAX_LS, 0.5, (double)MAX_LS + 0.5);
+      iBooker.book1D("HistInstantLumiOccSet1", "Instant Luminosity: Occ Set1",
+                     MAX_LS, 0.5, (double)MAX_LS + 0.5);
   HistInstantLumiOccSet1->setAxisTitle(HistXTitle, 1);
   HistInstantLumiOccSet1->setAxisTitle(HistLumiYTitle, 2);
 
   HistInstantLumiOccSet2 =
-      dbe_->book1D("HistInstantLumiOccSet2", "Instant Luminosity: Occ Set2",
-                   MAX_LS, 0.5, (double)MAX_LS + 0.5);
+      iBooker.book1D("HistInstantLumiOccSet2", "Instant Luminosity: Occ Set2",
+                     MAX_LS, 0.5, (double)MAX_LS + 0.5);
   HistInstantLumiOccSet2->setAxisTitle(HistXTitle, 1);
   HistInstantLumiOccSet2->setAxisTitle(HistLumiYTitle, 2);
 
   HistInstantLumiEtSumError =
-      dbe_->book1D("HistInstantLumiEtSumError", "Luminosity Error: Et Sum",
-                   MAX_LS, 0.5, (double)MAX_LS + 0.5);
+      iBooker.book1D("HistInstantLumiEtSumError", "Luminosity Error: Et Sum",
+                     MAX_LS, 0.5, (double)MAX_LS + 0.5);
   HistInstantLumiEtSumError->setAxisTitle(HistXTitle, 1);
   HistInstantLumiEtSumError->setAxisTitle(HistLumiErrorYTitle, 2);
 
-  HistInstantLumiOccSet1Error =
-      dbe_->book1D("HistInstantLumiOccSet1Error", "Luminosity Error: Occ Set1",
-                   MAX_LS, 0.5, (double)MAX_LS + 0.5);
+  HistInstantLumiOccSet1Error = iBooker.book1D(
+      "HistInstantLumiOccSet1Error", "Luminosity Error: Occ Set1", MAX_LS, 0.5,
+      (double)MAX_LS + 0.5);
   HistInstantLumiOccSet1Error->setAxisTitle(HistXTitle, 1);
   HistInstantLumiOccSet1Error->setAxisTitle(HistLumiErrorYTitle, 2);
 
-  HistInstantLumiOccSet2Error =
-      dbe_->book1D("HistInstantLumiOccSet2Error", "Luminosity Error: Occ Set2",
-                   MAX_LS, 0.5, (double)MAX_LS + 0.5);
+  HistInstantLumiOccSet2Error = iBooker.book1D(
+      "HistInstantLumiOccSet2Error", "Luminosity Error: Occ Set2", MAX_LS, 0.5,
+      (double)MAX_LS + 0.5);
   HistInstantLumiOccSet2Error->setAxisTitle(HistXTitle, 1);
   HistInstantLumiOccSet2Error->setAxisTitle(HistLumiErrorYTitle, 2);
 
   HistIntegratedLumiEtSum =
-      dbe_->book1D("HistIntegratedLumiEtSum", "Integrated Luminosity: Et Sum",
-                   MAX_LS, 0.5, (double)MAX_LS + 0.5);
+      iBooker.book1D("HistIntegratedLumiEtSum", "Integrated Luminosity: Et Sum",
+                     MAX_LS, 0.5, (double)MAX_LS + 0.5);
   HistIntegratedLumiEtSum->setAxisTitle(HistXTitle, 1);
   HistIntegratedLumiEtSum->setAxisTitle(HistLumiYTitle, 2);
 
-  HistIntegratedLumiOccSet1 = dbe_->book1D("HistIntegratedLumiOccSet1",
-                                           "Integrated Luminosity: Occ Set1",
-                                           MAX_LS, 0.5, (double)MAX_LS + 0.5);
+  HistIntegratedLumiOccSet1 = iBooker.book1D("HistIntegratedLumiOccSet1",
+                                             "Integrated Luminosity: Occ Set1",
+                                             MAX_LS, 0.5, (double)MAX_LS + 0.5);
   HistIntegratedLumiOccSet1->setAxisTitle(HistXTitle, 1);
   HistIntegratedLumiOccSet1->setAxisTitle(HistLumiYTitle, 2);
 
-  HistIntegratedLumiOccSet2 = dbe_->book1D("HistIntegratedLumiOccSet2",
-                                           "Integrated Luminosity: Occ Set2",
-                                           MAX_LS, 0.5, (double)MAX_LS + 0.5);
+  HistIntegratedLumiOccSet2 = iBooker.book1D("HistIntegratedLumiOccSet2",
+                                             "Integrated Luminosity: Occ Set2",
+                                             MAX_LS, 0.5, (double)MAX_LS + 0.5);
   HistIntegratedLumiOccSet2->setAxisTitle(HistXTitle, 1);
   HistIntegratedLumiOccSet2->setAxisTitle(HistLumiYTitle, 2);
 
-  dbe_->setCurrentFolder(monitorName_ + "/RecentHistoryLumi");
+  iBooker.setCurrentFolder(monitorName_ + "/RecentHistoryLumi");
 
   // Lumi Recent Histories (past 128 short sections)
   RecentInstantLumiEtSum =
-      dbe_->book1D("RecentInstantLumiEtSum", "Instant Luminosity: Et Sum", 128,
-                   0.5, (double)128 + 0.5);
+      iBooker.book1D("RecentInstantLumiEtSum", "Instant Luminosity: Et Sum",
+                     128, 0.5, (double)128 + 0.5);
   RecentInstantLumiEtSum->setAxisTitle(RecentHistXTitle, 1);
   RecentInstantLumiEtSum->setAxisTitle(HistLumiYTitle, 2);
 
   RecentInstantLumiOccSet1 =
-      dbe_->book1D("RecentInstantLumiOccSet1", "Instant Luminosity: Occ Set1",
-                   128, 0.5, (double)128 + 0.5);
+      iBooker.book1D("RecentInstantLumiOccSet1", "Instant Luminosity: Occ Set1",
+                     128, 0.5, (double)128 + 0.5);
   RecentInstantLumiOccSet1->setAxisTitle(RecentHistXTitle, 1);
   RecentInstantLumiOccSet1->setAxisTitle(HistLumiYTitle, 2);
 
   RecentInstantLumiOccSet2 =
-      dbe_->book1D("RecentInstantLumiOccSet2", "Instant Luminosity: Occ Set2",
-                   128, 0.5, (double)128 + 0.5);
+      iBooker.book1D("RecentInstantLumiOccSet2", "Instant Luminosity: Occ Set2",
+                     128, 0.5, (double)128 + 0.5);
   RecentInstantLumiOccSet2->setAxisTitle(RecentHistXTitle, 1);
   RecentInstantLumiOccSet2->setAxisTitle(HistLumiYTitle, 2);
 
-  RecentIntegratedLumiEtSum =
-      dbe_->book1D("RecentIntegratedLumiEtSum", "Integrated Luminosity: Et Sum",
-                   128, 0.5, (double)128 + 0.5);
+  RecentIntegratedLumiEtSum = iBooker.book1D("RecentIntegratedLumiEtSum",
+                                             "Integrated Luminosity: Et Sum",
+                                             128, 0.5, (double)128 + 0.5);
   RecentIntegratedLumiEtSum->setAxisTitle(RecentHistXTitle, 1);
   RecentIntegratedLumiEtSum->setAxisTitle(HistLumiYTitle, 2);
 
-  RecentIntegratedLumiOccSet1 = dbe_->book1D("RecentIntegratedLumiOccSet1",
-                                             "Integrated Luminosity: Occ Set1",
-                                             128, 0.5, (double)128 + 0.5);
+  RecentIntegratedLumiOccSet1 = iBooker.book1D(
+      "RecentIntegratedLumiOccSet1", "Integrated Luminosity: Occ Set1", 128,
+      0.5, (double)128 + 0.5);
   RecentIntegratedLumiOccSet1->setAxisTitle(RecentHistXTitle, 1);
   RecentIntegratedLumiOccSet1->setAxisTitle(HistLumiYTitle, 2);
 
-  RecentIntegratedLumiOccSet2 = dbe_->book1D("RecentIntegratedLumiOccSet2",
-                                             "Integrated Luminosity: Occ Set2",
-                                             128, 0.5, (double)128 + 0.5);
+  RecentIntegratedLumiOccSet2 = iBooker.book1D(
+      "RecentIntegratedLumiOccSet2", "Integrated Luminosity: Occ Set2", 128,
+      0.5, (double)128 + 0.5);
   RecentIntegratedLumiOccSet2->setAxisTitle(RecentHistXTitle, 1);
   RecentIntegratedLumiOccSet2->setAxisTitle(HistLumiYTitle, 2);
-
-  std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
-  for (size_t i = 0, e = systems.size(); i < e; ++i) {
-    std::cout << "Systems " << systems[i] << std::endl;
-  }
-
-  dbe_->showDirStructure();
 }
 
-void HLXMonitor::SetupEventInfo() {
+void HLXMonitor::SetupEventInfo(DQMStore::IBooker& iBooker) {
   using std::string;
 
   string currentfolder = subSystemName_ + "/" + eventInfoFolderHLX_;
   // cout << "currentfolder " << currentfolder << endl;
 
-  dbe_->setCurrentFolder(currentfolder);
+  iBooker.setCurrentFolder(currentfolder);
 
   pEvent_ = 0;
   evtRateCount_ = 0;
@@ -738,49 +759,48 @@ void HLXMonitor::SetupEventInfo() {
   evtRateWindow_ = 0.5;
 
   // Event specific contents
-  runId_ = dbe_->bookInt("iRun");
-  lumisecId_ = dbe_->bookInt("iLumiSection");
+  runId_ = iBooker.bookInt("iRun");
+  lumisecId_ = iBooker.bookInt("iLumiSection");
 
-  eventId_ = dbe_->bookInt("iEvent");
+  eventId_ = iBooker.bookInt("iEvent");
   eventId_->Fill(-1);
-  eventTimeStamp_ = dbe_->bookFloat("eventTimeStamp");
+  eventTimeStamp_ = iBooker.bookFloat("eventTimeStamp");
 
-  dbe_->setCurrentFolder(currentfolder);
+  iBooker.setCurrentFolder(currentfolder);
   // Process specific contents
-  processTimeStamp_ = dbe_->bookFloat("processTimeStamp");
+  processTimeStamp_ = iBooker.bookFloat("processTimeStamp");
   processTimeStamp_->Fill(getUTCtime(&currentTime_));
-  processLatency_ = dbe_->bookFloat("processLatency");
+  processLatency_ = iBooker.bookFloat("processLatency");
   processTimeStamp_->Fill(-1);
-  processEvents_ = dbe_->bookInt("processedEvents");
+  processEvents_ = iBooker.bookInt("processedEvents");
   processEvents_->Fill(pEvent_);
-  processEventRate_ = dbe_->bookFloat("processEventRate");
+  processEventRate_ = iBooker.bookFloat("processEventRate");
   processEventRate_->Fill(-1);
-  nUpdates_ = dbe_->bookInt("processUpdates");
+  nUpdates_ = iBooker.bookInt("processUpdates");
   nUpdates_->Fill(-1);
 
   // Static Contents
-  processId_ = dbe_->bookInt("processID");
+  processId_ = iBooker.bookInt("processID");
   processId_->Fill(gSystem->GetPid());
-  processStartTimeStamp_ = dbe_->bookFloat("processStartTimeStamp");
+  processStartTimeStamp_ = iBooker.bookFloat("processStartTimeStamp");
   processStartTimeStamp_->Fill(getUTCtime(&currentTime_));
-  runStartTimeStamp_ = dbe_->bookFloat("runStartTimeStamp");
-  hostName_ = dbe_->bookString("hostName", gSystem->HostName());
-  processName_ = dbe_->bookString("processName", subSystemName_);
-  workingDir_ = dbe_->bookString("workingDir", gSystem->pwd());
-  cmsswVer_ = dbe_->bookString("CMSSW_Version", edm::getReleaseVersion());
-  // dqmPatch_= dbe_->bookString("DQM_Patch",dbe_->getDQMPatchVersion());
+  runStartTimeStamp_ = iBooker.bookFloat("runStartTimeStamp");
+  hostName_ = iBooker.bookString("hostName", gSystem->HostName());
+  processName_ = iBooker.bookString("processName", subSystemName_);
+  workingDir_ = iBooker.bookString("workingDir", gSystem->pwd());
+  cmsswVer_ = iBooker.bookString("CMSSW_Version", edm::getReleaseVersion());
 
   // Go to the standard EventInfo folder (in the case online case where this
   // is different).
   currentfolder = subSystemName_ + "/" + eventInfoFolder_;
-  dbe_->setCurrentFolder(currentfolder);
+  iBooker.setCurrentFolder(currentfolder);
 
-  reportSummary_ = dbe_->bookFloat("reportSummary");
-  reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 18,
-                                   0., 18., 2, -1.5, 1.5);
+  reportSummary_ = iBooker.bookFloat("reportSummary");
+  reportSummaryMap_ = iBooker.book2D("reportSummaryMap", "reportSummaryMap", 18,
+                                     0., 18., 2, -1.5, 1.5);
 
   currentfolder = subSystemName_ + "/" + eventInfoFolderHLX_;
-  dbe_->setCurrentFolder(currentfolder);
+  iBooker.setCurrentFolder(currentfolder);
 
   TH2F* summaryHist = reportSummaryMap_->getTH2F();
   summaryHist->GetYaxis()->SetBinLabel(1, "HF-");
@@ -827,7 +847,9 @@ void HLXMonitor::analyze(const edm::Event& iEvent,
   if (HLXTCP.ReceiveLumiSection(lumiSection) == 1) {
     // If this is the first time through, set the runNumber ...
     if (runNumber_ != lumiSection.hdr.runNumber) {
-      if (!currentRunEnded_ && runNumber_ != 0) EndRun();
+      if (!currentRunEnded_ && runNumber_ != 0) {
+        EndRun();
+      }
       runNumber_ = lumiSection.hdr.runNumber;
       currentRunEnded_ = false;
       // std::cout << "Run number is: " << runNumber_ << std::endl;
@@ -852,104 +874,12 @@ void HLXMonitor::analyze(const edm::Event& iEvent,
     HLXTCP.Disconnect();
     EndRun();
   }
-
-  //    do
-  //    {
-  //       errorCode = HLXTCP.ReceiveLumiSection(lumiSection);
-
-  //       while(errorCode !=1)
-  //       {
-  // 	 HLXTCP.Disconnect();
-  // 	 //cout << "Connecting to TCPDistributor" << endl;
-  // 	 errorCode = HLXTCP.Connect();
-  // 	 if(errorCode != 1)
-  // 	 {
-  //  	   if( (attemptCounter%10)==0 ){
-  // 	     cout << "*** Connection Failed: " << errorCode
-  // 		  << " Will attempt to reconnect in " << reconnTime << " seconds." <<
-  // endl;
-  // 	     cout << "This message will be printed once every 10 attempts." <<
-  // endl;
-  //  	   }
-  //  	   ++attemptCounter;
-  // 	   sleep(reconnTime);
-  // 	 }
-  //       }
-  //    } while( errorCode != 1 );
 }
 
-void HLXMonitor::SaveDQMFile() {
-  std::ostringstream tempStreamer;
-  tempStreamer << OutputDir << "/" << OutputFilePrefix << "_" << subSystemName_
-               << "_R" << std::setfill('0') << std::setw(runNumLength)
-               << runNumber_ << "_T00000001.root";
-
-  std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
-  char rewrite[64];
-  sprintf(rewrite, "\\1Run %d/\\2/Run summary", runNumber_);
-  int saveReference_ = DQMStore::SaveWithoutReference;
-  int saveReferenceQMin_ = dqm::qstatus::STATUS_OK;
-
-  for (size_t i = 0, e = systems.size(); i != e; ++i)
-    if (systems[i] != "Reference")
-      // TODO(rovere):  fix the saving to comply w/ the DQM-multithread
-      dbe_->save(tempStreamer.str(), systems[i], "^(Reference/)?([^/]+)",
-                 rewrite, 0, 0, (DQMStore::SaveReferenceTag)saveReference_,
-                 saveReferenceQMin_);
-
-  // dbe_->save(tempStreamer.str());
-}
-
-// ------------ method called once each job just before starting event loop
-// ------------
-void HLXMonitor::beginJob() {
-  HLXTCP.SetIP(DistribIP1);
-  int errorCode = HLXTCP.SetPort(listenPort);
-  cout << "SetPort: " << listenPort << " Success: " << errorCode << endl;
-  errorCode = HLXTCP.SetMode(AquireMode);
-  cout << "AquireMode: " << AquireMode << " Success: " << errorCode << endl;
-
-  while (HLXTCP.IsConnected() == false) {
-    HLXTCP.SetIP(DistribIP1);
-    if (HLXTCP.Connect() != 1) {
-      std::cout << "Failed to connect to " << DistribIP1 << "." << std::endl;
-      sleep(1);
-      std::cout << "Trying " << DistribIP2 << std::endl;
-      HLXTCP.SetIP(DistribIP2);
-      if (HLXTCP.Connect() == 1) break;
-      std::cout << "Failed to connect to " << DistribIP2 << "." << std::endl;
-      std::cout << " Reconnect in " << reconnTime << " seconds." << std::endl;
-      sleep(reconnTime);
-    }
-  }
-  if (HLXTCP.IsConnected() == true) {
-    std::cout << "Successfully connected." << std::endl;
-  }
-}
-
-// ------------ method called once each job just after ending the event loop
-// ------------
-void HLXMonitor::endJob() {
-  // Fill the report summaries at end job
-  // Loop over the HLX's and fill the map,
-  // also calculate the overall quality.
-  HLXTCP.Disconnect();
-  EndRun(SaveAtEndJob);
-}
-
-void HLXMonitor::EndRun(bool saveFile) {
+void HLXMonitor::EndRun() {
   FillReportSummary();
 
   // Do some things that should be done at the end of the run ...
-  if (saveFile && runNumber_ != 0) {
-    if (int(lumiSectionCount / num4NibblePerLS_) >= (int)MinLSBeforeSave)
-      SaveDQMFile();
-    else
-      std::cout << "Num LS's (" << int(lumiSectionCount / num4NibblePerLS_)
-                << ") "
-                << "is less than required minumum (" << MinLSBeforeSave
-                << "). File will not be saved!" << std::endl;
-  }
   expectedNibbles_ = 0;
   for (unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX) totalNibbles_[iHLX] = 0;
 
@@ -983,15 +913,6 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
   HistAvgLumiEtSum->Fill(lsBin, section.lumiSummary.InstantETLumi);
   HistAvgLumiOccSet1->Fill(lsBin, section.lumiSummary.InstantOccLumi[0]);
   HistAvgLumiOccSet2->Fill(lsBin, section.lumiSummary.InstantOccLumi[1]);
-  // std::cout << "Lumi section count " << lumiSectionCount << " lsBin " <<
-  // lsBin
-  //   << " lsBinOld " << lsBinOld << " True section: " <<
-  //   section.hdr.sectionNumber << std::endl;
-
-  // std::cout << "Instant Et sum: " << section.lumiSummary.InstantETLumi
-  //     << " +/- " << section.lumiSummary.InstantETLumiErr << std::endl;
-  // std::cout << "Section sum so far: " << sectionInstantSumEt << " +/- "
-  //     << sqrt(sectionInstantErrSumEt) << std::endl;
 
   int fillBin = lumiSectionCount + 1;
   if (fillBin > 128) {
@@ -1064,11 +985,6 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
                                section.lumiSummary.InstantOccLumiErr[1]);
   RecentIntegratedLumiOccSet2->setBinError(fillBin, recentNewBinError);
 
-  //    std::cout << "New total " <<
-  //    RecentIntegratedLumiEtSum->getBinContent(fillBin)
-  // 	     << " +/- " << RecentIntegratedLumiEtSum->getBinError(fillBin) <<
-  // std::endl;
-
   if (lsBinOld != lsBin) {
     HistInstantLumiEtSum->setBinContent(lsBin, sectionInstantSumEt);
     HistInstantLumiEtSum->setBinError(lsBin, sqrt(sectionInstantErrSumEt));
@@ -1140,9 +1056,9 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
                               section.lumiSummary.InstantOccLumiErr[1];
   ++sectionInstantNorm;
 
-  dbe_->softReset(LumiInstantEtSum);
-  dbe_->softReset(LumiInstantOccSet1);
-  dbe_->softReset(LumiInstantOccSet2);
+  LumiInstantEtSum->softReset();
+  LumiInstantOccSet1->softReset();
+  LumiInstantOccSet2->softReset();
 
   for (int iHLX = 0; iHLX < (int)NUM_HLX; ++iHLX) {
     unsigned int utotal1 = 0;
@@ -1276,7 +1192,6 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
             normEt += oldNormEt;
             normEt /= (double)(lumiSectionCount + 1);
           }
-
           Set1Below[iWedge]->setBinContent(iBin, normOccSet1Below);
           Set1Between[iWedge]->setBinContent(iBin, normOccSet1Between);
           Set1Above[iWedge]->setBinContent(iBin, normOccSet1Above);
@@ -1284,14 +1199,6 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
           Set2Between[iWedge]->setBinContent(iBin, normOccSet2Between);
           Set2Above[iWedge]->setBinContent(iBin, normOccSet2Above);
           ETSum[iWedge]->setBinContent(iBin, normEt);
-
-          // 	       Set1Below[iWedge]->  Fill(iBX, normOccSet1Below   );
-          // 	       Set1Between[iWedge]->Fill(iBX, normOccSet1Between );
-          // 	       Set1Above[iWedge]->  Fill(iBX, normOccSet1Above   );
-          // 	       Set2Below[iWedge]->  Fill(iBX, normOccSet2Below   );
-          // 	       Set2Between[iWedge]->Fill(iBX, normOccSet2Between );
-          // 	       Set2Above[iWedge]->  Fill(iBX, normOccSet2Above   );
-          // 	       ETSum[iWedge]->      Fill(iBX, normEt);
         } else if (Style.compare("Dist") == 0) {
           Set1Below[iWedge]->Fill(normOccSet1Below);
           Set1Between[iWedge]->Fill(normOccSet1Between);
@@ -1355,12 +1262,6 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
 
     int iBin = iBX - (int)XMIN + 1;
     if (iBin <= int(XMAX - XMIN) && iBin >= 1) {
-      // cout << "Et sum " << section.lumiDetail.ETLumi[iBX] << " +/- "
-      //   << section.lumiDetail.ETLumiErr[iBX] << std::endl;
-      // cout << "Occ1 " << section.lumiDetail.OccLumi[0][iBX] << " +/- "
-      //   << section.lumiDetail.OccLumiErr[0][iBX] << std::endl;
-      // cout << "Occ2 " << section.lumiDetail.OccLumi[1][iBX] << " +/- "
-      //   << section.lumiDetail.OccLumiErr[1][iBX] << std::endl;
       LumiInstantEtSum->setBinContent(iBin, section.lumiDetail.ETLumi[iBX]);
       LumiInstantOccSet1->setBinContent(iBin,
                                         section.lumiDetail.OccLumi[0][iBX]);
@@ -1589,100 +1490,99 @@ void HLXMonitor::FillReportSummary() {
 
 void HLXMonitor::ResetAll() {
   for (unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX) {
-    dbe_->softReset(Set1Below[iHLX]);
-    dbe_->softReset(Set1Between[iHLX]);
-    dbe_->softReset(Set1Above[iHLX]);
-    dbe_->softReset(Set2Below[iHLX]);
-    dbe_->softReset(Set2Between[iHLX]);
-    dbe_->softReset(Set2Above[iHLX]);
-
-    dbe_->softReset(ETSum[iHLX]);
+    Set1Below[iHLX]->softReset();
+    Set1Between[iHLX]->softReset();
+    Set1Above[iHLX]->softReset();
+    Set2Below[iHLX]->softReset();
+    Set2Between[iHLX]->softReset();
+    Set2Above[iHLX]->softReset();
+    ETSum[iHLX]->softReset();
   }
 
-  dbe_->softReset(HFCompareEtSum);
-  dbe_->softReset(HFCompareOccBelowSet1);
-  dbe_->softReset(HFCompareOccBetweenSet1);
-  dbe_->softReset(HFCompareOccAboveSet1);
-  dbe_->softReset(HFCompareOccBelowSet2);
-  dbe_->softReset(HFCompareOccBetweenSet2);
-  dbe_->softReset(HFCompareOccAboveSet2);
+  HFCompareEtSum->softReset();
+  HFCompareOccBelowSet1->softReset();
+  HFCompareOccBetweenSet1->softReset();
+  HFCompareOccAboveSet1->softReset();
+  HFCompareOccBelowSet2->softReset();
+  HFCompareOccBetweenSet2->softReset();
+  HFCompareOccAboveSet2->softReset();
 
-  dbe_->softReset(AvgEtSum);
-  dbe_->softReset(AvgOccBelowSet1);
-  dbe_->softReset(AvgOccBetweenSet1);
-  dbe_->softReset(AvgOccAboveSet1);
-  dbe_->softReset(AvgOccBelowSet2);
-  dbe_->softReset(AvgOccBetweenSet2);
-  dbe_->softReset(AvgOccAboveSet2);
+  AvgEtSum->softReset();
+  AvgOccBelowSet1->softReset();
+  AvgOccBetweenSet1->softReset();
+  AvgOccAboveSet1->softReset();
+  AvgOccBelowSet2->softReset();
+  AvgOccBetweenSet2->softReset();
+  AvgOccAboveSet2->softReset();
 
   // Luminosity Monitoring
-  dbe_->softReset(LumiAvgEtSum);
-  dbe_->softReset(LumiAvgOccSet1);
-  dbe_->softReset(LumiAvgOccSet2);
-  dbe_->softReset(LumiInstantEtSum);
-  dbe_->softReset(LumiInstantOccSet1);
-  dbe_->softReset(LumiInstantOccSet2);
-  dbe_->softReset(LumiIntegratedEtSum);
-  dbe_->softReset(LumiIntegratedOccSet1);
-  dbe_->softReset(LumiIntegratedOccSet2);
+  LumiAvgEtSum->softReset();
+  LumiAvgOccSet1->softReset();
+  LumiAvgOccSet2->softReset();
+  LumiInstantEtSum->softReset();
+  LumiInstantOccSet1->softReset();
+  LumiInstantOccSet2->softReset();
+  LumiIntegratedEtSum->softReset();
+  LumiIntegratedOccSet1->softReset();
+  LumiIntegratedOccSet2->softReset();
 
   // Sanity Check for Occupancy
-  dbe_->softReset(SumAllOccSet1);
-  dbe_->softReset(SumAllOccSet2);
-  dbe_->softReset(MissingDQMDataCheck);
+  SumAllOccSet1->softReset();
+  SumAllOccSet2->softReset();
+  MissingDQMDataCheck->softReset();
 
-  dbe_->softReset(MaxInstLumiBX1);
-  dbe_->softReset(MaxInstLumiBX2);
-  dbe_->softReset(MaxInstLumiBX3);
-  dbe_->softReset(MaxInstLumiBX4);
+  MaxInstLumiBX1->softReset();
+  MaxInstLumiBX2->softReset();
+  MaxInstLumiBX3->softReset();
+  MaxInstLumiBX4->softReset();
 
-  dbe_->softReset(MaxInstLumiBXNum1);
-  dbe_->softReset(MaxInstLumiBXNum2);
-  dbe_->softReset(MaxInstLumiBXNum3);
-  dbe_->softReset(MaxInstLumiBXNum4);
+  MaxInstLumiBXNum1->softReset();
+  MaxInstLumiBXNum2->softReset();
+  MaxInstLumiBXNum3->softReset();
+  MaxInstLumiBXNum4->softReset();
 
   // History
   lumiSectionCount = 0;
   previousSection = 0;
-  dbe_->softReset(HistAvgEtSumHFP);
-  dbe_->softReset(HistAvgEtSumHFM);
+  HistAvgEtSumHFP->softReset();
+  HistAvgEtSumHFM->softReset();
 
-  dbe_->softReset(HistAvgOccBelowSet1HFP);
-  dbe_->softReset(HistAvgOccBelowSet1HFM);
-  dbe_->softReset(HistAvgOccBetweenSet1HFP);
-  dbe_->softReset(HistAvgOccBetweenSet1HFM);
-  dbe_->softReset(HistAvgOccAboveSet1HFP);
-  dbe_->softReset(HistAvgOccAboveSet1HFM);
+  HistAvgOccBelowSet1HFP->softReset();
+  HistAvgOccBelowSet1HFM->softReset();
+  HistAvgOccBetweenSet1HFP->softReset();
+  HistAvgOccBetweenSet1HFM->softReset();
+  HistAvgOccAboveSet1HFP->softReset();
+  HistAvgOccAboveSet1HFM->softReset();
 
-  dbe_->softReset(HistAvgOccBelowSet2HFP);
-  dbe_->softReset(HistAvgOccBelowSet2HFM);
-  dbe_->softReset(HistAvgOccBetweenSet2HFP);
-  dbe_->softReset(HistAvgOccBetweenSet2HFM);
-  dbe_->softReset(HistAvgOccAboveSet2HFP);
-  dbe_->softReset(HistAvgOccAboveSet2HFM);
+  HistAvgOccBelowSet2HFP->softReset();
+  HistAvgOccBelowSet2HFM->softReset();
+  HistAvgOccBetweenSet2HFP->softReset();
+  HistAvgOccBetweenSet2HFM->softReset();
+  HistAvgOccAboveSet2HFP->softReset();
+  HistAvgOccAboveSet2HFM->softReset();
 
-  dbe_->softReset(HistAvgLumiEtSum);
-  dbe_->softReset(HistAvgLumiOccSet1);
-  dbe_->softReset(HistAvgLumiOccSet2);
-  dbe_->softReset(HistInstantLumiEtSum);
-  dbe_->softReset(HistInstantLumiOccSet1);
-  dbe_->softReset(HistInstantLumiOccSet2);
-  dbe_->softReset(HistInstantLumiEtSumError);
-  dbe_->softReset(HistInstantLumiOccSet1Error);
-  dbe_->softReset(HistInstantLumiOccSet2Error);
-  dbe_->softReset(HistIntegratedLumiEtSum);
-  dbe_->softReset(HistIntegratedLumiOccSet1);
-  dbe_->softReset(HistIntegratedLumiOccSet2);
+  HistAvgLumiEtSum->softReset();
+  HistAvgLumiOccSet1->softReset();
+  HistAvgLumiOccSet2->softReset();
+  HistInstantLumiEtSum->softReset();
+  HistInstantLumiOccSet1->softReset();
+  HistInstantLumiOccSet2->softReset();
+  HistInstantLumiEtSumError->softReset();
+  HistInstantLumiOccSet1Error->softReset();
+  HistInstantLumiOccSet2Error->softReset();
+  HistIntegratedLumiEtSum->softReset();
+  HistIntegratedLumiOccSet1->softReset();
+  HistIntegratedLumiOccSet2->softReset();
 
-  dbe_->softReset(RecentInstantLumiEtSum);
-  dbe_->softReset(RecentInstantLumiOccSet1);
-  dbe_->softReset(RecentInstantLumiOccSet2);
-  dbe_->softReset(RecentIntegratedLumiEtSum);
-  dbe_->softReset(RecentIntegratedLumiOccSet1);
-  dbe_->softReset(RecentIntegratedLumiOccSet2);
+  RecentInstantLumiEtSum->softReset();
+  RecentInstantLumiOccSet1->softReset();
+  RecentInstantLumiOccSet2->softReset();
+  RecentIntegratedLumiEtSum->softReset();
+  RecentIntegratedLumiOccSet1->softReset();
+  RecentIntegratedLumiOccSet2->softReset();
 
-  dbe_->softReset(BXvsTimeAvgEtSumHFP);
-  dbe_->softReset(BXvsTimeAvgEtSumHFM);
+  BXvsTimeAvgEtSumHFP->softReset();
+  BXvsTimeAvgEtSumHFM->softReset();
 }
 
 double HLXMonitor::getUTCtime(timeval* a, timeval* b) {

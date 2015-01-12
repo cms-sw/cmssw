@@ -34,22 +34,18 @@ Implementation:
 #include "FWCore/Framework/interface/Event.h"        // Not included in example
 #include "FWCore/Framework/interface/MakerMacros.h"  // Not included in example
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
 #include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 
-//
-// class decleration
-//
-
-class HLXMonitor : public edm::EDAnalyzer {
+class HLXMonitor : public DQMEDAnalyzer {
  public:
   typedef HCAL_HLX::LUMI_SECTION LUMI_SECTION;
   typedef HCAL_HLX::TCPReceiver TCPReceiver;
@@ -57,14 +53,14 @@ class HLXMonitor : public edm::EDAnalyzer {
   ~HLXMonitor();
 
  private:
-  virtual void beginJob();
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
+                      edm::EventSetup const&) override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
 
-  void SaveDQMFile();
+  void connectHLXTCP();
 
-  void SetupHists();
-  void SetupEventInfo();
+  void SetupHists(DQMStore::IBooker&);
+  void SetupEventInfo(DQMStore::IBooker&);
 
   void FillHistograms(const LUMI_SECTION&);
   void FillHistoHFCompare(const LUMI_SECTION&);
@@ -73,11 +69,9 @@ class HLXMonitor : public edm::EDAnalyzer {
 
   void ResetAll();
 
-  void EndRun(bool saveFile = true);
+  void EndRun();
 
   double getUTCtime(timeval* a, timeval* b = NULL);
-
-  //  void FillHistoHistory(const LUMI_SECTION&);
 
   // ----------member data ---------------------------
   TCPReceiver HLXTCP;
@@ -185,20 +179,20 @@ class HLXMonitor : public edm::EDAnalyzer {
   //////////////////////////////////////////////////////////////////
   /// These MEs are either static or updated upon each analyze() call
   //////////////////////////////////////////////////////////////////
-  MonitorElement* nUpdates_;  /// Number of collector updates (TBD)
+  MonitorElement* nUpdates_;   /// Number of collector updates (TBD)
   MonitorElement* processId_;  /// The PID associated with this job
   MonitorElement*
       processStartTimeStamp_;  /// The UTC time of the first event processed
   MonitorElement* processTimeStamp_;  /// The UTC time of the last event
-  MonitorElement* processLatency_;  /// Time elapsed since the last event
+  MonitorElement* processLatency_;    /// Time elapsed since the last event
   MonitorElement* processEventRate_;  /// Avg # of events in programmable window
                                       /// (default: 5 min)
-  MonitorElement* processEvents_;  ///# of event processed so far
-  MonitorElement* hostName_;  /// Hostname of the local machine
-  MonitorElement* processName_;  /// DQM "name" of the job (eg, Hcal or DT)
-  MonitorElement* workingDir_;  /// Current working directory of the job
-  MonitorElement* cmsswVer_;  /// CMSSW version run for this job
-  MonitorElement* dqmPatch_;  /// DQM patch version for this job
+  MonitorElement* processEvents_;     ///# of event processed so far
+  MonitorElement* hostName_;          /// Hostname of the local machine
+  MonitorElement* processName_;       /// DQM "name" of the job (eg, Hcal or DT)
+  MonitorElement* workingDir_;        /// Current working directory of the job
+  MonitorElement* cmsswVer_;          /// CMSSW version run for this job
+  MonitorElement* dqmPatch_;          /// DQM patch version for this job
   MonitorElement* errSummary_;  /// Subdetector-specific error summary (float)
   MonitorElement*
       errSummaryEtaPhi_;  /// Subdetector-specific etaPhi summary (float)
@@ -207,9 +201,6 @@ class HLXMonitor : public edm::EDAnalyzer {
   // Report Summary
   MonitorElement* reportSummary_;
   MonitorElement* reportSummaryMap_;
-
-  // DQM Store ...
-  DQMStore* dbe_;
 
   unsigned int numActiveTowersSet1;
   unsigned int numActiveTowersSet2;
@@ -249,7 +240,6 @@ class HLXMonitor : public edm::EDAnalyzer {
   unsigned int set2AboveIndex;
 
   bool ResetAtNewRun;
-  bool SaveAtEndJob;
 
   std::string eventInfoFolderHLX_;
   std::string eventInfoFolder_;
