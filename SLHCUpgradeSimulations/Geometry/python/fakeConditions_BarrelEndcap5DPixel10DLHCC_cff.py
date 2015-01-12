@@ -12,6 +12,12 @@ cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/PhaseII/Pixel10D_LHCC/Pixel
         )
 es_prefer_fake_lorentz = cms.ESPrefer("SiPixelFakeLorentzAngleESSource","siPixelFakeLorentzAngleESSource")
 
+siPixelFakeQualityESSource = cms.ESSource("SiPixelFakeQualityESSource",
+        file = 
+cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/PhaseII/Pixel10D_LHCC/PixelBadModuleGeometry.txt')
+        )
+es_prefer_fake_quality = cms.ESPrefer("SiPixelFakeQualityESSource","siPixelFakeQualityESSource")
+
 from RecoVertex.BeamSpotProducer.BeamSpotFakeParameters_cfi import *
 BeamSpotFakeConditions.X0 = cms.double(0.0)
 BeamSpotFakeConditions.Y0 = cms.double(0.0)
