@@ -137,9 +137,10 @@ namespace l1t {
          LogDebug("L1T") << "Found FEDRawDataCollection with ID " << fedId << " and size " << l1tRcd.size();
 
          if ((int) l1tRcd.size() < slinkHeaderSize_ + slinkTrailerSize_ + amc13HeaderSize_ + amc13TrailerSize_ + amcHeaderSize_ + amcTrailerSize_) {
-            //LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
-            //   << l1tRcd.size() << ") for ID " << fedId_ << ". Returning empty collections!";
-            return;
+            LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
+               << l1tRcd.size() << ") for ID " << fedId << ". Returning empty collections!";
+	    continue;
+            //return;
          }
 
          const unsigned char *data = l1tRcd.data();
