@@ -3,6 +3,7 @@ from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE import customise as customiseBE
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5D import customise as customiseBE5D
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10D import customise as customiseBE5DPixel10D
+from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10DLHCC import customise as customiseBE5DPixel10DLHCC
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10Ddev import customise as customiseBE5DPixel10Ddev
 
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE import l1EventContent as customise_ev_BE
@@ -40,6 +41,14 @@ def cust_phase1_Pixel10D(process):
 def cust_phase2_BE5DPixel10D(process):
     process=customisePostLS1(process)
     process=customiseBE5DPixel10D(process)
+    process=customise_HcalPhase2(process)
+    process=customise_ev_BE5DPixel10D(process)
+    process=jetCustoms.customise_jets(process)
+    return process
+
+def cust_phase2_BE5DPixel10DLHCC(process):
+    process=customisePostLS1(process)
+    process=customiseBE5DPixel10DLHCC(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=jetCustoms.customise_jets(process)
