@@ -36,7 +36,7 @@ def customise_Digi(process):
     process.mix.digitizers.pixel.killModules = True
     
     dead=cms.VPSet()
-        dead.extend([ 
+    dead.extend([ 
         cms.PSet(Dead_detID = cms.int32(307237124), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(307237128), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(307237140), Module = cms.string('whole')),
@@ -546,7 +546,7 @@ def customise_Digi(process):
         cms.PSet(Dead_detID = cms.int32(309370936), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(309370932), Module = cms.string('whole')),
     	 ]);
-    	 dead.extend([ 
+    dead.extend([ 
         cms.PSet(Dead_detID = cms.int32(309371084), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(309371088), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(309371264), Module = cms.string('whole')),
@@ -1056,7 +1056,7 @@ def customise_Digi(process):
         cms.PSet(Dead_detID = cms.int32(310554752), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(310554748), Module = cms.string('whole')),
     	 ]);
-    	 dead.extend([ 
+    dead.extend([ 
         cms.PSet(Dead_detID = cms.int32(310558740), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(310558744), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(310558852), Module = cms.string('whole')),
@@ -1566,7 +1566,7 @@ def customise_Digi(process):
         cms.PSet(Dead_detID = cms.int32(355488860), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(355488864), Module = cms.string('whole')),
     	 ]);
-    	 dead.extend([ 
+    dead.extend([ 
         cms.PSet(Dead_detID = cms.int32(355488968), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(355488964), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(355489020), Module = cms.string('whole')),
@@ -2076,7 +2076,7 @@ def customise_Digi(process):
         cms.PSet(Dead_detID = cms.int32(356303904), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(356303900), Module = cms.string('whole')),
     	 ]);
-    	 dead.extend([ 
+    dead.extend([ 
         cms.PSet(Dead_detID = cms.int32(356303936), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(356303932), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(356304036), Module = cms.string('whole')),
@@ -2586,7 +2586,7 @@ def customise_Digi(process):
         cms.PSet(Dead_detID = cms.int32(347665512), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(347665508), Module = cms.string('whole')),
     	 ]);
-    	 dead.extend([ 
+    dead.extend([ 
         cms.PSet(Dead_detID = cms.int32(347665572), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(347665576), Module = cms.string('whole')),
         cms.PSet(Dead_detID = cms.int32(347665612), Module = cms.string('whole')),
