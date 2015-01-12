@@ -88,6 +88,7 @@ public:
 private:
   edm::EDGetTokenT<reco::PFClusterCollection> _src;
   std::unique_ptr<HGCALShowerBasedEmIdentification> _emPreID;
+  //std::unique_ptr<> _emCalibration;
 };
 
 void HGCECALClusterImporter::
@@ -122,13 +123,23 @@ importToBlock( const edm::Event& e,
       throw cms::Exception("BadInput") 
 	<< "HGC importer expected HGC clusters!";
     }
-    /*
-    if( tempref->energy() > 10.0 && 
-	the_type == reco::PFBlockElement::HGC_ECAL && 
-	!_emPreID->isEm(*tempref) ) {    
+    
+    //prep the EM ID for the cluster
+    _emPreID->reset();
+    _emPreID->setShowerPosition(tempref->position());
+    _emPreID->setShowerDirection(tempref->axis());
+    
+    // need to get EM-calibrated version of the cluster
+
+    // ID charged hadrons by those that pass 
+    // shower start cut but fail width and length
+    if( _emPreID->cutStartPosition(*tempref) && 
+	!( _emPreID->cutSigmaetaeta(*tempref) && 
+	   _emPreID->cutLengthCompatibility(*tempref) )  && 
+	the_type == reco::PFBlockElement::HGC_ECAL ) {    
       the_type = reco::PFBlockElement::HGC_HCALF;
     }
-    */
+    
     
     reco::PFBlockElementCluster* newelem = 
       new reco::PFBlockElementCluster(tempref,the_type);

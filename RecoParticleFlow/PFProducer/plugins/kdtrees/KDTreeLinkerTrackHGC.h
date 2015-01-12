@@ -118,6 +118,7 @@ KDTreeLinkerTrackHGC<the_layer,RHscaling>::insertFieldClusterElt(reco::PFBlockEl
     const reco::PFRecHitRef& rh = fraction[rhit].recHitRef();
     double fract = fraction[rhit].fraction();
     
+    /*
     DetId rhId( rh->detId() );
     unsigned rhLayer = 1000;
 
@@ -131,8 +132,9 @@ KDTreeLinkerTrackHGC<the_layer,RHscaling>::insertFieldClusterElt(reco::PFBlockEl
       throw cms::Exception("BadRecHit") 
 	<< "HGC KDTree Linker only accepts HGC DetIds! got: " << rhId.det();
     }
+    */
     
-    if ( (rh.isNull()) || (fract < 1E-4) ||  rhLayer > 6 )
+    if ( (rh.isNull()) || (fract < 1E-4) )
       continue;
       
     const reco::PFRecHit& rechit = *rh;
@@ -214,100 +216,104 @@ void
     // use in an optimized way our algo results in the recursive linking algo.
     (*it)->setIsValidMultilinks(true);
 
-    const reco::PFTrajectoryPoint& atECAL = 
-      trackref->extrapolatedPoint(the_layer);
+    // for HGC we need to iterate through each compartment and check the linking there
+    for( unsigned ilay = (unsigned)reco::PFTrajectoryPoint::HGC_ECALEntrance; ilay <= (unsigned)the_layer; ++ilay ) {
+    
+      const reco::PFTrajectoryPoint& atECAL = 
+	trackref->extrapolatedPoint((reco::PFTrajectoryPoint::LayerType)ilay);
 
-    // The track didn't reach ecal
-    if( ! atECAL.isValid() ) {
-      //std::cout << "extrapolation to " << the_layer << " was bad!" << std::endl;
-      continue;
-    }
-    
-    const reco::PFTrajectoryPoint& atVertex = 
-      trackref->extrapolatedPoint( reco::PFTrajectoryPoint::ClosestApproach );
-    
-    double trackPt = sqrt(atVertex.momentum().Vect().Perp2());
-    double tracketa = atECAL.positionREP().Eta();
-    double trackphi = atECAL.positionREP().Phi();
-    
-    double trackx = atECAL.position().X();
-    double tracky = atECAL.position().Y();
-    //double trackz = atECAL.position().Z();    
-    
-    // Estimate the maximal envelope in phi/eta that will be used to find rechit candidates.
-    // Same envelope for cap et barrel rechits.
-    double range = getCristalPhiEtaMaxSize() * (2.0 + 1.0 / std::min(1., 0.5*trackPt )); 
-
-    // We search for all candidate recHits, ie all recHits contained in the maximal size envelope.
-    std::vector<KDTreeNodeInfo> recHits;
-    KDTreeBox trackBox(tracketa-range, tracketa+range, trackphi-range, trackphi+range);
-    tree_.search(trackBox, recHits);
-    /*
-    std::cout << "track pt: " << trackPt << std::endl;
-    std::cout << "got " << recHits.size() << " rechits from the KDtree search." << std::endl;
-    */
-    // Here we check all rechit candidates using the non-approximated method.
-    for(std::vector<KDTreeNodeInfo>::const_iterator rhit = recHits.begin(); 
-	rhit != recHits.end(); ++rhit) {
-           
-      const std::vector< math::XYZPoint >& cornersxyz      = rhit->ptr->getCornersXYZ();
-      const math::XYZPoint& posxyz			   = rhit->ptr->position();
-      const reco::PFRecHit::REPPoint &rhrep		   = rhit->ptr->positionREP();
-      const std::vector<reco::PFRecHit::REPPoint>& corners = rhit->ptr->getCornersREP();
-      //const auto& corners_xyz = rhit->ptr->getCornersXYZ();
-      //if(cornersxyz.size() != 4) continue;
-
+      // The track didn't reach ecal
+      if( ! atECAL.isValid() ) {
+	//std::cout << "extrapolation to " << the_layer << " was bad!" << std::endl;
+	continue;
+      }
       
-      //double rhsizeEta = fabs(corners[0].Eta() - corners[2].Eta());
-      double rhsizePhi = fabs(corners[0].Phi() - corners[2].Phi());
-      if ( rhsizePhi > M_PI ) rhsizePhi = 2.*M_PI - rhsizePhi;
+      const reco::PFTrajectoryPoint& atVertex = 
+	trackref->extrapolatedPoint( reco::PFTrajectoryPoint::ClosestApproach );
       
-      //double deta = fabs(rhrep.Eta() - tracketa);
-      double dphi = fabs(rhrep.Phi() - trackphi);
-      if ( dphi > M_PI ) dphi = 2.*M_PI - dphi;
+      double trackPt = sqrt(atVertex.momentum().Vect().Perp2());
+      double tracketa = atECAL.positionREP().Eta();
+      double trackphi = atECAL.positionREP().Phi();
+      
+      double trackx = atECAL.position().X();
+      double tracky = atECAL.position().Y();
+      //double trackz = atECAL.position().Z();    
+      
+      // Estimate the maximal envelope in phi/eta that will be used to find rechit candidates.
+      // Same envelope for cap et barrel rechits.
+      double range = getCristalPhiEtaMaxSize() * (2.0 + 1.0 / std::min(1., 0.5*trackPt )); 
+      
+      // We search for all candidate recHits, ie all recHits contained in the maximal size envelope.
+      std::vector<KDTreeNodeInfo> recHits;
+      KDTreeBox trackBox(tracketa-range, tracketa+range, trackphi-range, trackphi+range);
+      tree_.search(trackBox, recHits);
       /*
-      std::cout << the_layer << " rhsize eta/phi: " << rhsizeEta << '/' << rhsizePhi
-		<< " deta/dphi: " << deta << '/' << dphi << " z: " 
-		<< rhit->ptr->position().z() << '/' << atECAL.position().z() << std::endl;
+	std::cout << "track pt: " << trackPt << std::endl;
+	std::cout << "got " << recHits.size() << " rechits from the KDtree search." << std::endl;
       */
-      
-      // Find all clusters associated to given rechit
-      RecHit2BlockEltMap::iterator ret = rechit2ClusterLinks_.find(rhit->ptr);
-      
-      for(BlockEltSet::const_iterator clusterIt = ret->second.begin(); 
-	  clusterIt != ret->second.end(); clusterIt++) {
+      // Here we check all rechit candidates using the non-approximated method.
+      for(std::vector<KDTreeNodeInfo>::const_iterator rhit = recHits.begin(); 
+	  rhit != recHits.end(); ++rhit) {
 	
-	reco::PFClusterRef clusterref = (*clusterIt)->clusterRef();
+	const std::vector< math::XYZPoint >& cornersxyz      = rhit->ptr->getCornersXYZ();
+	const math::XYZPoint& posxyz			   = rhit->ptr->position();
+	const reco::PFRecHit::REPPoint &rhrep		   = rhit->ptr->positionREP();
+	const std::vector<reco::PFRecHit::REPPoint>& corners = rhit->ptr->getCornersREP();
+	//const auto& corners_xyz = rhit->ptr->getCornersXYZ();
+	//if(cornersxyz.size() != 4) continue;
 	
-	//std::cout << " cluster pt: " << clusterref->energy()/std::cosh(clusterref->position().eta()) << std::endl;
 	
-	//double clusterz = clusterref->position().Z();
-	//int fracsNbr = clusterref->recHitFractions().size();
-
-	double x[5];
-	double y[5];
-	for ( unsigned jc=0; jc<4; ++jc ) {
-	  math::XYZPoint cornerposxyz = cornersxyz[jc];
-	  x[jc] = cornerposxyz.X() + (cornerposxyz.X()-posxyz.X())
-	    * (2.00+RHscaling/(0.1*trackPt));
-	  y[jc] = cornerposxyz.Y() + (cornerposxyz.Y()-posxyz.Y())
-	    * (2.00+RHscaling/(0.1*trackPt));
-	  //std::cout << "hit corner x/y/z: " << cornerposxyz << std::endl;
-	}
+	//double rhsizeEta = fabs(corners[0].Eta() - corners[2].Eta());
+	double rhsizePhi = fabs(corners[0].Phi() - corners[2].Phi());
+	if ( rhsizePhi > M_PI ) rhsizePhi = 2.*M_PI - rhsizePhi;
 	
+	//double deta = fabs(rhrep.Eta() - tracketa);
+	double dphi = fabs(rhrep.Phi() - trackphi);
+	if ( dphi > M_PI ) dphi = 2.*M_PI - dphi;
 	/*
-	std::cout << "hit position x/y/z: " << posxyz
-		  << ' ' <<  rhrep << std::endl;
-	std::cout << "tk position  x/y  : " << trackx << ' ' << tracky
-		  << ' ' << tracketa << ' ' << trackphi << std::endl;
+	  std::cout << the_layer << " rhsize eta/phi: " << rhsizeEta << '/' << rhsizePhi
+	  << " deta/dphi: " << deta << '/' << dphi << " z: " 
+	  << rhit->ptr->position().z() << '/' << atECAL.position().z() << std::endl;
 	*/
-
-	x[4] = x[0];
-	y[4] = y[0];
-
-	// Check if the track and the cluster are linked
-	if(TMath::IsInside(trackx,tracky,5,x,y)) {
-	  target2ClusterLinks_[*it].insert(*clusterIt);	  
+	
+	// Find all clusters associated to given rechit
+	RecHit2BlockEltMap::iterator ret = rechit2ClusterLinks_.find(rhit->ptr);
+	
+	for(BlockEltSet::const_iterator clusterIt = ret->second.begin(); 
+	    clusterIt != ret->second.end(); clusterIt++) {
+	
+	  reco::PFClusterRef clusterref = (*clusterIt)->clusterRef();
+	  
+	  //std::cout << " cluster pt: " << clusterref->energy()/std::cosh(clusterref->position().eta()) << std::endl;
+	  
+	  //double clusterz = clusterref->position().Z();
+	  //int fracsNbr = clusterref->recHitFractions().size();
+	  
+	  double x[5];
+	  double y[5];
+	  for ( unsigned jc=0; jc<4; ++jc ) {
+	    math::XYZPoint cornerposxyz = cornersxyz[jc];
+	    x[jc] = cornerposxyz.X() + (cornerposxyz.X()-posxyz.X())
+	      * (2.00+RHscaling/(0.1*trackPt));
+	    y[jc] = cornerposxyz.Y() + (cornerposxyz.Y()-posxyz.Y())
+	      * (2.00+RHscaling/(0.1*trackPt));
+	    //std::cout << "hit corner x/y/z: " << cornerposxyz << std::endl;
+	  }
+	  
+	  /*
+	    std::cout << "hit position x/y/z: " << posxyz
+	    << ' ' <<  rhrep << std::endl;
+	    std::cout << "tk position  x/y  : " << trackx << ' ' << tracky
+	    << ' ' << tracketa << ' ' << trackphi << std::endl;
+	  */
+	  
+	  x[4] = x[0];
+	  y[4] = y[0];
+	  
+	  // Check if the track and the cluster are linked
+	  if(TMath::IsInside(trackx,tracky,5,x,y)) {
+	    target2ClusterLinks_[*it].insert(*clusterIt);	  
+	  }
 	}
       }
     }

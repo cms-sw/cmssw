@@ -770,9 +770,10 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 		const math::XYZVector& clusdir = the_cluster.axis();
 		// get angle between vectors...
 		const double angle = std::abs(std::acos(tkdir.Dot(clusdir)/std::sqrt(tkdir.mag2()*clusdir.mag2())));
-		//const auto& pos = the_cluster.position();		
+		const auto& pos = the_cluster.position();		
 		if( cluster_usable[clus_idx] && 
-		    ( angle < _maxClusterAngleToTrack || 
+		    ( angle < _maxClusterAngleToTrack ||
+		      (pos - tkpos).rho() < 2.0 || 
 		      hits_of_cluster_on_track[cluster_match->second] > 7 ||
 		      the_cluster.recHitFractions().size() < 10 ) ) { 
 		  clusters_in_track[clus_idx] = true;
@@ -793,14 +794,14 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 					 temp);
 		    //std::cout << " afterburner done!" << std::endl;
 		  }
-		  /*
+		  
 		  std::cout << "adding cluster at: (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") " 
 			    <<  the_cluster.pt() << ' ' << pos.eta() << " to had-supercluster! nhits_trk = " 
 			    <<  hits_of_cluster_on_track[clus_idx] 
 			    << " nhits = " << the_cluster.recHitFractions().size()
 			    << std::endl;
-		  */
-		} /* else {
+		  
+		}  else {
 		  
 		  std::cout << "rejected cluster at : (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") nhits_trk = " 
 			    << hits_of_cluster_on_track[clus_idx] << " pt = " 
@@ -823,7 +824,7 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 		  }
 		  std::cout << std::endl;
 		  
-		  } */
+		  } 
 		
 	      }
 	    }
