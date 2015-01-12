@@ -86,6 +86,7 @@ setattr(TriggerBitAnalyzer,"defaultEventFlagsConfig",cfg.Analyzer(
         "trkPOG_manystripclus53X" : [ "Flag_trkPOG_manystripclus53X" ],
         "trkPOG_toomanystripclus53X" : [ "Flag_trkPOG_toomanystripclus53X" ],
         "trkPOG_logErrorTooManyClusters" : [ "Flag_trkPOG_logErrorTooManyClusters" ],
+        "METFilters" : [ "Flag_METFilters" ],
     }
 )
 )
