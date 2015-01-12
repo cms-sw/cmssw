@@ -1,7 +1,7 @@
 #ifndef FastSimulation_Muons_FastTSGFromL2Muon_H
 #define FastSimulation_Muons_FastTSGFromL2Muon_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -20,7 +20,7 @@ class SimTrack;
 // generate seeds corresponding to L2 muons
 //
 
-class FastTSGFromL2Muon : public edm::EDProducer {
+class FastTSGFromL2Muon : public edm::stream::EDProducer <> {
 
  public:
 

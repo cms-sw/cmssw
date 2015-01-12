@@ -1,7 +1,7 @@
 #ifndef RecoTracker_TrackProducer_FamosRecHitTest_h
 #define RecoTracker_TrackProducer_FamosRecHitTest_h 
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -9,7 +9,7 @@
 
 class TrackerGeometry;
 
-class FamosRecHitTest : public edm::EDAnalyzer
+class FamosRecHitTest : public edm::stream::EDAnalyzer <>
 {
 public:
 

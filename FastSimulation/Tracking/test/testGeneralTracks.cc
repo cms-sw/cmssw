@@ -1,5 +1,5 @@
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -37,7 +37,7 @@
 //#include "TTree.h"
 //#include "TProcessID.h"
 
-class testGeneralTracks : public edm::EDProducer {
+class testGeneralTracks : public edm::stream::EDProducer <> {
 
 public :
   explicit testGeneralTracks(const edm::ParameterSet&);

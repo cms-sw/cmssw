@@ -1,5 +1,5 @@
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -20,7 +20,7 @@
 #include <vector>
 #include <string>
 
-class testMaterialEffects : public edm::EDAnalyzer {
+class testMaterialEffects : public edm::stream::EDAnalyzer <> {
 public :
   explicit testMaterialEffects(const edm::ParameterSet&);
   ~testMaterialEffects();
