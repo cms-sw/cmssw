@@ -38,7 +38,7 @@
 // class decleration
 //
 namespace edm {
-   class EventSetupRecordDataGetter : public EDAnalyzer {
+   class EventSetupRecordDataGetter : public edm::stream::EDAnalyzer< > {
 public:
      explicit EventSetupRecordDataGetter(ParameterSet const&);
      ~EventSetupRecordDataGetter();
@@ -53,12 +53,12 @@ public:
 private:
      void doGet(EventSetup const&);
         // ----------member data ---------------------------
-     ParameterSet pSet_;
+     const ParameterSet pSet_;
       
      typedef std::map<eventsetup::EventSetupRecordKey, std::vector<eventsetup::DataKey> > RecordToDataKeys;
      RecordToDataKeys recordToDataKeys_;
      std::map<eventsetup::EventSetupRecordKey, unsigned long long> recordToCacheIdentifier_;
-     bool verbose_;
+     const bool verbose_;
 
   };
 
