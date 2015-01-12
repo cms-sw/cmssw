@@ -4,84 +4,68 @@
 /** \class PhysicsObjectsMonitor
  *  For now: Analyzer of StandAlone muon tracks
  *  Later: Add other detectors and more Reco
- * 
+ *
  *  \author M. Mulders - CERN <martijn.mulders@cern.ch>
- *  Based on STAMuonAnalyzer by R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
+ *  Based on STAMuonAnalyzer by R. Bellan - INFN Torino
+ *<riccardo.bellan@cern.ch>
  */
 
 // Base Class Headers
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 //#include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
+class ParameterSet;
+class Event;
+class EventSetup;
 }
 
 class TFile;
 class TH1F;
 class TH2F;
 
-class PhysicsObjectsMonitor: public edm::EDAnalyzer {
-public:
+class PhysicsObjectsMonitor : public DQMEDAnalyzer {
+ public:
   /// Constructor
-  PhysicsObjectsMonitor(const edm::ParameterSet& pset);
-
+  PhysicsObjectsMonitor(const edm::ParameterSet &pset);
   /// Destructor
   virtual ~PhysicsObjectsMonitor();
-
   // Operations
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
+                      edm::EventSetup const &) override;
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup);
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-
-  virtual void beginJob() ;
-  virtual void endJob() ;
-protected:
-
-private:
-  std::string theRootFileName;
-  bool saveRootFile;
-  DQMStore * dbe;
-
-
+ private:
   std::string theSTAMuonLabel;
   std::string theSeedCollectionLabel;
 
   // Histograms Simulation
-  MonitorElement  *hPres;
-  MonitorElement  *h1_Pres;
+  MonitorElement *hPres;
+  MonitorElement *h1_Pres;
 
   // Histograms MTCC data
-  MonitorElement  *charge;
-  MonitorElement  *ptot;
-  MonitorElement  *pt;
-  MonitorElement  *px;
-  MonitorElement  *py;
-  MonitorElement  *pz;
-  MonitorElement  *Nmuon;
-  MonitorElement  *Nrechits;
-  MonitorElement  *NDThits;
-  MonitorElement  *NCSChits;
-  MonitorElement  *DTvsCSC;
-  MonitorElement  *DTvsRPC;
-  MonitorElement  *CSCvsRPC;
-  MonitorElement  *NRPChits;
-
-
-  // Counters
-  int numberOfSimTracks;
-  int numberOfRecTracks;
+  MonitorElement *charge;
+  MonitorElement *ptot;
+  MonitorElement *pt;
+  MonitorElement *px;
+  MonitorElement *py;
+  MonitorElement *pz;
+  MonitorElement *Nmuon;
+  MonitorElement *Nrechits;
+  MonitorElement *NDThits;
+  MonitorElement *NCSChits;
+  MonitorElement *DTvsCSC;
+  MonitorElement *DTvsRPC;
+  MonitorElement *CSCvsRPC;
+  MonitorElement *NRPChits;
 
   std::string theDataType;
 
-  //define Token(-s)
+  // define Token(-s)
   edm::EDGetTokenT<reco::TrackCollection> theSTAMuonToken_;
 };
 #endif
-
