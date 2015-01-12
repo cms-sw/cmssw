@@ -41,7 +41,7 @@ MaterialEffectsBlock = cms.PSet(
 	# Smallest pT for the Mutliple Scattering 
         pTmin = cms.double(0.2),
 	# Enable Nuclear Interactions
-        NuclearInteraction = cms.bool(True),
+        NuclearInteraction = cms.bool(False),  # temporary 12.01.14 until bug-fix for nuclear interactions
 	# The energies of the pions used in the above files (same order)
         pionEnergies = cms.untracked.vdouble(
             1.0, 2.0, 3.0, 4.0, 5.0, 7.0, 9.0, 12.0, 15.0, 20.0, 
