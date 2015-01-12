@@ -344,6 +344,19 @@ class GenericValidationData(GenericValidation):
                 })
         return result
 
+    def createScript(self, path, template = configTemplates.scriptTemplate, downloadFiles=[], repMap = None, repMaps = None):
+        scriptName = "%s.%s.%s.sh"%(self.scriptBaseName, self.name,
+                                    self.alignmentToValidate.name )
+        if repMap is None and repMaps is None:
+            repMap = self.getRepMap()
+            repMap["CommandLine"]=""
+            for cfg in self.configFiles:
+                repMap["CommandLine"]+= repMap["CommandLineTemplate"]%{"cfgFile":addIndex(cfg, self.NJobs, ".oO[nIndex]Oo."),
+                                                      "postProcess":""
+                                                     }
+        scripts = {scriptName: template}
+        return GenericValidation.createScript(self, scripts, path, downloadFiles = downloadFiles,
+                                              repMap = repMap, repMaps = repMaps)
 
     def createCrabCfg(self, path, crabCfgBaseName):
         """

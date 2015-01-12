@@ -70,16 +70,8 @@ class OfflineValidation(GenericValidationData):
         return GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
 
     def createScript(self, path):
-        scriptName = "%s.%s.%s.sh"%(self.scriptBaseName, self.name,
-                                     self.alignmentToValidate.name )
-        repMap = self.getRepMap()
-        repMap["CommandLine"]=""
-        for cfg in self.configFiles:
-            repMap["CommandLine"] += repMap["CommandLineTemplate"]%{"cfgFile":addIndex(cfg, self.NJobs, ".oO[nIndex]Oo."),
-                                                                    "postProcess":""
-                                                                   }
-        scripts = {scriptName: configTemplates.scriptTemplate}
-        return GenericValidationData.createScript(self, scripts, path, repMap = repMap)
+        return GenericValidationData.createScript(self, path)
+
 
     def createCrabCfg(self, path):
         return GenericValidationData.createCrabCfg(self, path, self.crabCfgBaseName)

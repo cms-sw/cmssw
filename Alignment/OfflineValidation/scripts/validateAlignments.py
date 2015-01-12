@@ -219,7 +219,6 @@ class ValidationJob:
 ####################--- Functions ---############################
 def createOfflineParJobsMergeScript(offlineValidationList, outFilePath):
     repMap = offlineValidationList[0].getRepMap() # bit ugly since some special features are filled
-    repMap[ "mergeOfflinParJobsInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
     
     theFile = open( outFilePath, "w" )
     theFile.write( replaceByMap( configTemplates.mergeOfflineParJobsTemplate ,repMap ) )
@@ -274,18 +273,22 @@ def createMergeScript( path, validations ):
             else:
                 comparisonLists[ validationName ] = [ validation ]
 
-    if "OfflineValidation" in comparisonLists:
-        repMap["mergeOfflineParJobsScriptPath"] = os.path.join(path, "TkAlOfflineJobsMerge.C")
-        # introduced to merge individual validation outputs separately
-        #  -> avoids problems with merge script
-        repMap["haddLoop"] = "mergeRetCode=0\n"
-        repMap["rmUnmerged"] = ("if [[ mergeRetCode -eq 0 ]]; then\n"
-                                "    echo -e \\n\"Merging succeeded, removing original files.\"\n")
-        anythingToMerge = False
-        for validation in comparisonLists["OfflineValidation"]:
+    # introduced to merge individual validation outputs separately
+    #  -> avoids problems with merge script
+    repMap["haddLoop"] = "mergeRetCode=0\n"
+    repMap["rmUnmerged"] = ("if [[ mergeRetCode -eq 0 ]]; then\n"
+                            "    echo -e \\n\"Merging succeeded, removing original files.\"\n")
+    repMap["copyMergeScripts"] = ""
+    repMap["mergeParallelFilePrefixes"] = ""
+
+    anythingToMerge = []
+    for validationType in comparisonLists:
+        for validation in comparisonLists[validationType]:
             if validation.NJobs == 1:
                 continue
-            anythingToMerge = True
+            if validationType not in anythingToMerge:
+                anythingToMerge += [validationType]
+                repMap["haddLoop"] += '\n\n\n\necho -e "\n\nMerging results from %s jobs"\n\n' % validationType
             repMap["haddLoop"] = validation.appendToMerge(repMap["haddLoop"])
             repMap["haddLoop"] += "tmpMergeRetCode=${?}\n"
             repMap["haddLoop"] += ("if [[ tmpMergeRetCode -eq 0 ]]; then "
@@ -300,21 +303,28 @@ def createMergeScript( path, validations ):
                 longName = os.path.join("/store/caf/user/$USER/",
                                         validation.getRepMap()["eosdir"], f)
                 repMap["rmUnmerged"] += "    cmsRm "+longName+"\n"
-        repMap["rmUnmerged"] += ("else\n"
-                                 "    echo -e \\n\"WARNING: Merging failed, unmerged"
-                                 " files won't be deleted.\\n"
-                                 "(Ignore this warning if merging was done earlier)\"\n"
-                                 "fi\n")
-        if anythingToMerge:
-            createOfflineParJobsMergeScript( comparisonLists["OfflineValidation"],
-                                             repMap["mergeOfflineParJobsScriptPath"] )
-            # DownloadData is the section which merges output files from parallel jobs
-            # it uses the file TkAlOfflineJobsMerge.C
-            repMap["DownloadData"] += replaceByMap("rfcp .oO[mergeOfflineParJobsScriptPath]Oo. .", repMap)
-            repMap["DownloadData"] += replaceByMap( configTemplates.mergeOfflineParallelResults, repMap )
-        else:
-            repMap["DownloadData"] = ""
+    repMap["rmUnmerged"] += ("else\n"
+                             "    echo -e \\n\"WARNING: Merging failed, unmerged"
+                             " files won't be deleted.\\n"
+                             "(Ignore this warning if merging was done earlier)\"\n"
+                             "fi\n")
 
+    if "OfflineValidation" in anythingToMerge:
+        repMap["mergeOfflineParJobsScriptPath"] = os.path.join(path, "TkAlOfflineJobsMerge.C")
+        createOfflineParJobsMergeScript( comparisonLists["OfflineValidation"],
+                                         repMap["mergeOfflineParJobsScriptPath"] )
+        repMap["copyMergeScripts"] += ("cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/merge_TrackerOfflineValidation.C .\n"
+                                       "rfcp %s .\n" % repMap["mergeOfflineParJobsScriptPath"])
+
+    if anythingToMerge:
+        # DownloadData is the section which merges output files from parallel jobs
+        # it uses the file TkAlOfflineJobsMerge.C
+        repMap["DownloadData"] += replaceByMap( configTemplates.mergeParallelResults, repMap )
+    else:
+        repMap["DownloadData"] = ""
+
+
+    if "OfflineValidation" in comparisonLists:
         repMap["extendedValScriptPath"] = os.path.join(path, "TkAlExtendedOfflineValidation.C")
         createExtendedValidationScript(comparisonLists["OfflineValidation"],
                                        repMap["extendedValScriptPath"],

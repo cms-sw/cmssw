@@ -23,6 +23,9 @@ class ZMuMuValidation(GenericValidationData):
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "zmumu", addDefaults=defaults,
                                        addMandatories=mandatories)
+        if self.NJobs > 1:
+            raise AllInOneError("Parallel jobs not implemented for the Z->mumu validation!\n"
+                                "Please set parallelJobs = 1.")
     
     def createConfiguration(self, path):
         cfgName = "%s.%s.%s_cfg.py"%( self.configBaseName, self.name,
@@ -32,16 +35,7 @@ class ZMuMuValidation(GenericValidationData):
         GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
 
     def createScript(self, path):
-        scriptName = "%s.%s.%s.sh"%(self.scriptBaseName, self.name,
-                                    self.alignmentToValidate.name )
-        repMap = self.getRepMap()
-        repMap["CommandLine"]=""
-        for cfg in self.configFiles:
-            repMap["CommandLine"]+= repMap["CommandLineTemplate"]%{"cfgFile":cfg,
-                                                  "postProcess":""
-                                                  }
-        scripts = {scriptName: configTemplates.zMuMuScriptTemplate}
-        return GenericValidationData.createScript(self, scripts, path, repMap = repMap)
+        return GenericValidationData.createScript(self, path, template = configTemplates.zMuMuScriptTemplate)
 
     def createCrabCfg(self, path):
         return GenericValidationData.createCrabCfg(self, path, self.crabCfgBaseName)

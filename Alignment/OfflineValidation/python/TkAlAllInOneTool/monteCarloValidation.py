@@ -18,6 +18,13 @@ class MonteCarloValidation(GenericValidationData):
         self.outputBaseName = outputBaseName
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "mcValidate")
+        if self.NJobs > 1:
+            raise AllInOneError("Parallel jobs not implemented for the MC validation!\n"
+                                "Please set parallelJobs = 1.")
+        if self.dataset.official():
+            raise AllInOneError("MC validation only works with predefined datasets, with a different format than most validations.\n"
+                                "To see how to create it, see the All In One Tool twiki page:\n"
+                                "    https://twiki.cern.ch/twiki/bin/viewauth/CMS/TkAlAllInOneValidation#Monte_Carlo_Validation")
 
     def createConfiguration(self, path ):
         cfgName = "%s.%s.%s_cfg.py"%(self.configBaseName, self.name,
@@ -29,16 +36,7 @@ class MonteCarloValidation(GenericValidationData):
         GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
 
     def createScript(self, path):
-        scriptName = "%s.%s.%s.sh"%(self.scriptBaseName, self.name,
-                                    self.alignmentToValidate.name)
-        repMap = self.getRepMap()
-        repMap["CommandLine"]=""
-        for cfg in self.configFiles:
-            repMap["CommandLine"] += \
-                repMap["CommandLineTemplate"]%{"cfgFile":cfg, "postProcess":"" }
-
-        scripts = {scriptName: configTemplates.scriptTemplate}
-        return GenericValidationData.createScript(self, scripts, path, repMap = repMap)
+        return GenericValidationData.createScript(self, path)
 
     def createCrabCfg(self, path):
         return GenericValidationData.createCrabCfg(self, path, self.crabCfgBaseName)

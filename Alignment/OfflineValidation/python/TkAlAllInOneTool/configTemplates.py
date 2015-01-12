@@ -163,6 +163,24 @@ find . -name "*.stdout" -exec gzip -f {} \;
 
 ######################################################################
 ######################################################################
+mergeParallelResults="""
+
+#set directory to which TkAlOfflineJobsMerge.C saves the merged file
+# export OUTPUTDIR=.oO[datadir]Oo.
+export OUTPUTDIR=.
+.oO[copyMergeScripts]Oo.
+.oO[haddLoop]Oo.
+
+# create log file
+ls -al .oO[mergeParallelFilePrefixes]Oo. > .oO[datadir]Oo./log_rootfilelist.txt
+
+# Remove parallel job files
+.oO[rmUnmerged]Oo.
+"""
+
+
+######################################################################
+######################################################################
 compareAlignmentsExecution="""
 #merge for .oO[validationId]Oo. if it does not exist or is not up-to-date
 echo -e "\n\nComparing validations"

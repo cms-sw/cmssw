@@ -28,16 +28,7 @@ class TrackSplittingValidation(GenericValidationData):
         GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
 
     def createScript(self, path):
-        scriptName = "%s.%s.%s.sh"%(self.scriptBaseName, self.name,
-                                    self.alignmentToValidate.name)
-        repMap = self.getRepMap()
-        repMap["CommandLine"]=""
-        for cfg in self.configFiles:
-            repMap["CommandLine"]+= (repMap["CommandLineTemplate"]
-                                     %{"cfgFile":cfg, "postProcess":""})
-
-        scripts = {scriptName: configTemplates.scriptTemplate}
-        return GenericValidationData.createScript(self, scripts, path, repMap = repMap)
+        return GenericValidationData.createScript(self, path)
 
     def createCrabCfg(self, path):
         return GenericValidationData.createCrabCfg(self, path, self.crabCfgBaseName)
@@ -66,3 +57,15 @@ class TrackSplittingValidation(GenericValidationData):
         validationsSoFar += comparestring
         return validationsSoFar
 
+    def appendToMerge( self, validationsSoFar = "" ):
+        """
+        if no argument or "" is passed a string with an instantiation is returned,
+        else the validation is appended to the list
+        """
+        repMap = self.getRepMap()
+
+        parameters = " ".join(repMap["outputFiles"])
+
+        mergedoutputfile = repMap["finalOutputFile"]
+        validationsSoFar += "hadd %s %s\n" % (mergedoutputfile, parameters)
+        return validationsSoFar
