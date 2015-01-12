@@ -9,20 +9,17 @@
  *
  */
 
+#include <vector>
+#include <string>
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "HLTrigger/JetMET/interface/HLTJetSortedVBFFilter.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-#include<vector>
-#include<string>
-#include<typeinfo>
 
 using namespace std;
 //
@@ -73,7 +70,7 @@ HLTJetSortedVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descr
 	desc.add<std::string>("value","second");
 	desc.add<int>("triggerType",trigger::TriggerJet);
 	desc.add<int>("njets",4);
-	descriptions.add(string("hlt")+string(typeid(HLTJetSortedVBFFilter<T>).name()),desc);
+        descriptions.add(string("hlt")+string(typeid(HLTJetSortedVBFFilter<T>).name()),desc);
 }
 
 template<typename T> float HLTJetSortedVBFFilter<T>::findCSV(const typename std::vector<T>::const_iterator & jet, const reco::JetTagCollection  & jetTags){
@@ -109,17 +106,17 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 	typedef Ref<TCollection> TRef;
 
 	bool accept(false);
-	const unsigned int nMax(njets_);
-
-	if (saveTags()) filterproduct.addCollectionTag(inputJets_);
-
-	vector<Jpair> sorted(nMax);
-	vector<TRef> jetRefs(nMax);
-
+	
 	Handle<TCollection> jets;
 	event.getByToken(m_theJetsToken,jets);
 	Handle<JetTagCollection> jetTags;
+
+	if (saveTags()) filterproduct.addCollectionTag(inputJets_);
 	if (jets->size()<4) return false;
+
+	const unsigned int nMax(njets_<jets->size()?njets_:jets->size());
+	vector<Jpair> sorted(nMax);
+	vector<TRef> jetRefs(nMax);
 
 	unsigned int nJet=0;
 	double value(0.0);
@@ -230,7 +227,7 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 		}
 		sort(sorted.begin(),sorted.end(),comparator);
 		for (unsigned int i=0; i<nMax; ++i) {
-			jetRefs[i]= TRef(jets,(*jetTags)[sorted[i].second].first.key());
+			jetRefs[i]= TRef(jets,sorted[i].second);
 		}
 		b1 = jetRefs[3]->p4();
 		b2 = jetRefs[2]->p4();
