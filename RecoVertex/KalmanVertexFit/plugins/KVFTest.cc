@@ -13,7 +13,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -24,7 +23,7 @@ using namespace edm;
 using namespace std;
 
 KVFTest::KVFTest(const edm::ParameterSet& iConfig)
-  : theConfig(iConfig), associatorForParamAtPca(nullptr)
+  : theConfig(iConfig)
 {
   token_tracks = consumes<TrackCollection>(iConfig.getParameter<string>("TrackLabel"));
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile");
@@ -35,6 +34,7 @@ KVFTest::KVFTest(const edm::ParameterSet& iConfig)
 
   token_TrackTruth = consumes<TrackingParticleCollection>(edm::InputTag("trackingtruth", "TrackTruth"));
   token_VertexTruth = consumes<TrackingVertexCollection>(edm::InputTag("trackingtruth", "VertexTruth"));
+  token_associatorForParamAtPca = consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByChi2"));
 
 }
 
@@ -57,11 +57,10 @@ void KVFTest::endJob() {
 void
 KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  if ( associatorForParamAtPca==nullptr ) {
-    edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
-    iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
-    associatorForParamAtPca = theAssociatorForParamAtPca.product();
+  edm::Handle<reco::TrackToTrackingParticleAssociator> associatorForParamAtPca;
+  iEvent.getByToken(token_associatorForParamAtPca,associatorForParamAtPca);
 
+  if(not tree) {
     edm::ESHandle<MagneticField> magField;
     iSetup.get<IdealMagneticFieldRecord>().get(magField);
     tree.reset( new SimpleVertexTree("VertexFitter", magField.product()) );
@@ -115,9 +114,7 @@ KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       } else {
 	const TrackingParticleCollection tPC = *(TPCollectionH.product());
 	reco::RecoToSimCollection recSimColl=associatorForParamAtPca->associateRecoToSim(tks,
-											 TPCollectionH,
-											 &iEvent,
-                                                                                         &iSetup);    
+											 TPCollectionH);
 	tree->fill(tv, &sv, &recSimColl);
       }
     }
