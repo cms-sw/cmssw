@@ -1,29 +1,29 @@
-// Producer for validation histograms for Calo, JPT and PF jet objects
-// F. Ratnikov, Sept. 7, 2006
-// Modified by Chiyoung Jeong, Feb. 2, 2010
-// Modified by J. Piedra, Sept. 11, 2013
-// Modified by Raghav Kunnawalkam Elayavalli, Aug 18th 2014
-//                                          , Oct 22nd 2014 to run in 73X
+//
+// Jet Analyzer class for heavy ion jets. for DQM jet analysis monitoring 
+// For CMSSW_7_4_X, especially reading background subtracted jets 
+// author: Raghav Kunnawalkam Elayavalli,
+//         Jan 12th 2015 
+//         Rutgers University, email: raghav.k.e at CERN dot CH 
+//
 
-#include "JetTester_HeavyIons.h"
+
+#include "DQMOffline/JetMET/interface/JetAnalyzer_HeavyIons.h"
 
 using namespace edm;
 using namespace reco;
 using namespace std;
 
-JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
+// declare the constructors:
+
+JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
   mInputCollection               (iConfig.getParameter<edm::InputTag>       ("src")),
-  mInputGenCollection            (iConfig.getParameter<edm::InputTag>       ("srcGen")),
   mInputPFCandCollection         (iConfig.getParameter<edm::InputTag>       ("PFcands")),
 //  rhoTag                         (iConfig.getParameter<edm::InputTag>       ("srcRho")),
   centrality                     (iConfig.getParameter<edm::InputTag>       ("centrality")),
   mOutputFile                    (iConfig.getUntrackedParameter<std::string>("OutputFile","")),
-  JetType                        (iConfig.getUntrackedParameter<std::string>("JetType")),
   UEAlgo                         (iConfig.getUntrackedParameter<std::string>("UEAlgo")),
   Background                     (iConfig.getParameter<edm::InputTag>       ("Background")),
   mRecoJetPtThreshold            (iConfig.getParameter<double>              ("recoJetPtThreshold")),
-  mMatchGenPtThreshold           (iConfig.getParameter<double>              ("matchGenPtThreshold")),
-  mGenEnergyFractionThreshold    (iConfig.getParameter<double>              ("genEnergyFractionThreshold")),
   mReverseEnergyFractionThreshold(iConfig.getParameter<double>              ("reverseEnergyFractionThreshold")),
   mRThreshold                    (iConfig.getParameter<double>              ("RThreshold")),
   JetCorrectionService           (iConfig.getParameter<std::string>         ("JetCorrections"))
@@ -48,8 +48,7 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
     if(std::string("Vs")==UEAlgo) pfJetsToken_    = consumes<reco::PFJetCollection>(mInputCollection);
   }
 
-  genJetsToken_ = consumes<reco::GenJetCollection>(edm::InputTag(mInputGenCollection));
-  evtToken_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
+  //evtToken_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
   pfCandToken_ = consumes<reco::PFCandidateCollection>(mInputPFCandCollection);
   pfCandViewToken_ = consumes<reco::CandidateView>(mInputPFCandCollection);
   //backgrounds_ = consumes<reco::VoronoiBackground>(Background);
@@ -97,7 +96,7 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
 }
   //DQMStore* dbe = &*edm::Service<DQMStore>();
    
-void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun,edm::EventSetup const &) 
+void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun,edm::EventSetup const &) 
   {
 
     //if (dbe) {
@@ -168,15 +167,15 @@ void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
 
 
 //------------------------------------------------------------------------------
-// ~JetTester_HeavyIons
+// ~JetAnalyzer_HeavyIons
 //------------------------------------------------------------------------------
-JetTester_HeavyIons::~JetTester_HeavyIons() {}
+JetAnalyzer_HeavyIons::~JetAnalyzer_HeavyIons() {}
 
 
 //------------------------------------------------------------------------------
 // beginJob
 //------------------------------------------------------------------------------
-void JetTester_HeavyIons::beginJob() {
+void JetAnalyzer_HeavyIons::beginJob() {
   std::cout<<"inside the begin job function"<<endl;
 }
 
@@ -184,7 +183,7 @@ void JetTester_HeavyIons::beginJob() {
 //------------------------------------------------------------------------------
 // endJob
 //------------------------------------------------------------------------------
-void JetTester_HeavyIons::endJob()
+void JetAnalyzer_HeavyIons::endJob()
 {
   if (!mOutputFile.empty() && &*edm::Service<DQMStore>())
     {
@@ -196,7 +195,7 @@ void JetTester_HeavyIons::endJob()
 //------------------------------------------------------------------------------
 // analyze
 //------------------------------------------------------------------------------
-void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
+void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 {
   //std::cout<<"in the analyze function"<<endl;
   // Get the primary vertices
@@ -490,16 +489,3 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
   
 }
 
-
-//------------------------------------------------------------------------------
-// fillMatchHists
-//------------------------------------------------------------------------------
-void JetTester_HeavyIons::fillMatchHists(const double GenEta,
-			       const double GenPhi,
-			       const double GenPt,
-			       const double RecoEta,
-			       const double RecoPhi,
-			       const double RecoPt) 
-{
-  //nothing for now. 
-}

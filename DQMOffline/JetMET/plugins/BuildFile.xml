@@ -3,6 +3,16 @@
 <use name="FWCore/Utilities"/>
 <use name="FWCore/Framework"/>
 <use name="DataFormats/Common"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/EgammaCandidates"/>
+<use name="RecoJets/JetAlgorithms"/>
+<use name="RecoJets/JetProducers"/>
+<use name="Validation/RecoJets"/>
+<use name="DataFormats/JetReco"/>
+<use name="root"/>
 <library name="DQMOfflineJetMETPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>
