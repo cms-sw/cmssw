@@ -25,9 +25,9 @@ class  QGLikelihoodDBWriter : public edm::EDAnalyzer{
  public:
   QGLikelihoodDBWriter(const edm::ParameterSet&);
   virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {};
-  virtual void endJob() override {};
-  ~QGLikelihoodDBWriter(){};
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  virtual void endJob() override {}
+  ~QGLikelihoodDBWriter(){}
 
  private:
   bool getVectorFromFile(TFile*, std::vector<float>&, const TString&);
