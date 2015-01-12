@@ -116,7 +116,16 @@ bool ThePEGHadronizer::generatePartonsAndHadronize()
 
 	flushRandomNumberGenerator();
 
-	thepegEvent = eg_->shoot();
+        try {
+                thepegEvent = eg_->shoot();
+        } catch (std::exception& exc) {
+                edm::LogWarning("Generator|ThePEGHadronizer") << "EGPtr::shoot() thrown an exception, event skipped: " << exc.what();
+                return false;
+        } catch (...) {
+                edm::LogWarning("Generator|ThePEGHadronizer") << "EGPtr::shoot() thrown an unknown exception, event skipped";
+                return false;
+        }        
+        
 	if (!thepegEvent) {
 		edm::LogWarning("Generator|ThePEGHadronizer") << "thepegEvent not initialized";
 		return false;
@@ -143,10 +152,10 @@ bool ThePEGHadronizer::hadronize()
 	try {
 		thepegEvent = eg_->shoot();
 	} catch (std::exception& exc) {
-		edm::LogError("Generator|ThePEGHadronizer") << "EGPtr::shoot() thrown an exception, event skipped: " << exc.what();
+		edm::LogWarning("Generator|ThePEGHadronizer") << "EGPtr::shoot() thrown an exception, event skipped: " << exc.what();
 		return false;
 	} catch (...) {
-		edm::LogError("Generator|ThePEGHadronizer") << "EGPtr::shoot() thrown an unknown exception, event skipped";
+		edm::LogWarning("Generator|ThePEGHadronizer") << "EGPtr::shoot() thrown an unknown exception, event skipped";
 		return false;
 	}
 
