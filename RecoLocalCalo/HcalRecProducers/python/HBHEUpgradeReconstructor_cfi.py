@@ -21,13 +21,17 @@ hbheUpgradeReco = cms.EDProducer("HcalSimpleReconstructor",
     ts4Min                = cms.double(100.),   #fC
     ts4Max                = cms.double(10000000.),   #fC # this value should be irrelevant & removed from If statements in slhc 
     pulseJitter           = cms.double(1.),   #GeV/bin
+<<<<<<< HEAD
     meanTime              = cms.double(-1.5), #ns
+=======
+    meanTime              = cms.double(5.), #ns
+>>>>>>> e2be9f7ddccddc749fbc0e0475c0a891a7bab110
     timeSigma             = cms.double(5.),  #ns
     meanPed               = cms.double(0.),   #GeV
     pedSigma              = cms.double(0.5),  #GeV
     noise                 = cms.double(1),    #fC
-    timeMin               = cms.double(-100.),
-    timeMax               = cms.double(75.),  #ns
+    timeMin               = cms.double(-7.5),
+    timeMax               = cms.double(17.5),  #ns
     ts3chi2               = cms.double(5.),   #chi2 (not used)
     ts4chi2               = cms.double(15.),   #chi2 for triple pulse 
     ts345chi2             = cms.double(100.), #chi2 (not used)
