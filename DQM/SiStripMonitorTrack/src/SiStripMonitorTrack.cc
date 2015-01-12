@@ -307,10 +307,10 @@ void SiStripMonitorTrack::bookLayerMEs(DQMStore::IBooker & ibooker , const uint3
   hname = hidmanager.createHistoLayer("Summary_ClusterPosition",name,layer_id,"OffTrack");
   theLayerMEs.ClusterPosOffTrack = ibooker.book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
 
-  hname = hidmanager.createHistoLayer("Summary_ClusterPerCM",name,layer_id,"fromTrack");
+  hname = hidmanager.createHistoLayer("Summary_ClusterChargePerCM",name,layer_id,"fromTrack");
   theLayerMEs.ClusterChargePerCMfromTrack = bookME1D(ibooker , "TH1ClusterChargePerCM", hname.c_str());
 
-  hname = hidmanager.createHistoLayer("Summary_ClusterPerCM",name,layer_id,"fromOrigin");
+  hname = hidmanager.createHistoLayer("Summary_ClusterChargePerCM",name,layer_id,"fromOrigin");
   theLayerMEs.ClusterChargePerCMfromOrigin = bookME1D(ibooker , "TH1ClusterChargePerCM", hname.c_str());
 
   //bookeeping
