@@ -154,10 +154,10 @@ namespace edm {
         overrideFromPSet("overrideSourceTTreeCacheSize", pset, m_ttreeCacheSize, m_ttreeCacheSizePtr);
         overrideFromPSet("overrideSourceTimeout", pset, m_timeout, m_timeoutPtr);
         overrideFromPSet("overridePrefetching", pset, m_enablePrefetching, m_enablePrefetchingPtr);
-        const std::string * tmpStringPtr = NULL;
+        const std::string * tmpStringPtr = nullptr;
         overrideFromPSet("overrideStatisticsDestination", pset, m_statisticsDestination, tmpStringPtr);
         this->computeStatisticsDestination();
-        std::vector<std::string> tmpStatisticsInfo; std::vector<std::string> const *tmpStatisticsInfoPtr = NULL;
+        std::vector<std::string> tmpStatisticsInfo; std::vector<std::string> const *tmpStatisticsInfoPtr = nullptr;
         overrideFromPSet("overrideStatisticsInfo", pset, tmpStatisticsInfo, tmpStatisticsInfoPtr);
         if (tmpStatisticsInfoPtr) {
           m_statisticsInfoAvail = true;
@@ -511,7 +511,7 @@ namespace edm {
                 }
                 std::string tmpStatisticsInfo = _toString(statsDest->getAttribute(_toDOMS("info")));
                 boost::split(m_statisticsInfo, tmpStatisticsInfo, boost::is_any_of("\t ,"));
-                m_statisticsInfoAvail = tmpStatisticsInfo.size();
+                m_statisticsInfoAvail = !tmpStatisticsInfo.empty();
               }
 
               DOMNodeList *prefetchingList = sourceConfig->getElementsByTagName(_toDOMS("prefetching"));
