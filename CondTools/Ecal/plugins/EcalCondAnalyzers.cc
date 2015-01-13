@@ -8,6 +8,12 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondTools/Ecal/interface/EcalPedestalsXMLTranslator.h"
 
+#include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
+#include "CondTools/Ecal/interface/EcalPulseShapesXMLTranslator.h"
+
+#include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
+#include "CondTools/Ecal/interface/EcalPulseCovariancesXMLTranslator.h"
+
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondTools/Ecal/interface/EcalADCToGeVXMLTranslator.h"
 
@@ -52,6 +58,16 @@ typedef EcalCondHandler<EcalPedestals,
 			EcalPedestalsXMLTranslator> EcalPedestalsHandler;
 typedef popcon::PopConAnalyzer<EcalPedestalsHandler>
                                          EcalPedestalsAnalyzer;
+
+typedef EcalCondHandler<EcalPulseShapes,
+			EcalPulseShapesXMLTranslator> EcalPulseShapesHandler;
+typedef popcon::PopConAnalyzer<EcalPulseShapesHandler>
+                                         EcalPulseShapesAnalyzer;
+
+typedef EcalCondHandler<EcalPulseCovariances,
+			EcalPulseCovariancesXMLTranslator> EcalPulseCovariancesHandler;
+typedef popcon::PopConAnalyzer<EcalPulseCovariancesHandler>
+                                         EcalPulseCovariancesAnalyzer;
 
 typedef EcalCondHandler<EcalADCToGeVConstant,
 			EcalADCToGeVXMLTranslator> EcalADCToGeVConstantHandler;
