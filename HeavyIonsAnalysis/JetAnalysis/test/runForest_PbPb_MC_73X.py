@@ -167,6 +167,7 @@ process.load('HeavyIonsAnalysis.JetAnalysis.EGammaAnalyzers_cff')
 process.multiPhotonAnalyzer.GenEventScale = cms.InputTag("generator")
 process.multiPhotonAnalyzer.HepMCProducer = cms.InputTag("generator")
 process.RandomNumberGeneratorService.multiPhotonAnalyzer = process.RandomNumberGeneratorService.generator.clone()
+process.load('HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi')
 
 #####################
 # muons
@@ -200,6 +201,7 @@ process.ana_step = cms.Path(process.heavyIon*
                             process.hiSelectGenJets +
                             process.jetSequences +
                             process.photonStep_withReco +
+                            process.ggHiNtuplizer +
                             process.pfcandAnalyzer +
                             process.rechitAna +
 #temp                            process.hltMuTree +
