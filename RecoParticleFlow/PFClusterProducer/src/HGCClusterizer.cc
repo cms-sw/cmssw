@@ -385,6 +385,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     _emPreID->setShowerPosition(cluster.position());
     _emPreID->setShowerDirection(cluster.axis());
     _emEnergyCalibration->correctEnergy(cluster);
+    cluster.setEmEnergy(cluster.energy());
     em_ID_clusters[i] = _emPreID->isEm(cluster);
     usable_clusters[i] = !em_ID_clusters[i];
     /*
@@ -404,14 +405,24 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   // stuff usable clusters into the output list
   for( unsigned i = 0; i < z_linked_clusters.size(); ++i ) {
     auto& cluster = z_linked_clusters[i];
+    _emEnergyCalibration->correctEnergy(cluster);
+    const double emEnergy = cluster.energy();
+    _hadEnergyCalibration->correctEnergy(cluster);
+    const double hadEnergy = cluster.energy();
+    cluster.setEmEnergy(emEnergy);
+    cluster.setHadEnergy(hadEnergy);
     if( cluster.recHitFractions().size() < 5 ) continue;
     if( i >= usable_clusters.size() ) {
       // by definition these are non-EM-like clusters
-      _hadEnergyCalibration->correctEnergy(cluster);
+      cluster.setEnergy(hadEnergy);
       output.push_back(cluster);
     } else if( i < usable_clusters.size() && 
 	       (usable_clusters[i] || em_ID_clusters[i]) ) {
-      if( !em_ID_clusters[i] ) _hadEnergyCalibration->correctEnergy(cluster);
+      if( !em_ID_clusters[i] ) {
+	cluster.setEnergy(hadEnergy);
+      } else {
+	cluster.setEnergy(emEnergy);
+      }
       output.push_back(cluster);
     }
   }

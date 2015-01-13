@@ -308,7 +308,7 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
       if( (*it)->type() == kdtree->targetType() ) {
 	kdtree->insertTargetElt(it->get());
       }
-      if( (*it)->type() == kdtree->fieldType() ) {
+      if( (*it)->type() == kdtree->fieldType() ) {	
 	kdtree->insertFieldClusterElt(it->get());
       }
     }    

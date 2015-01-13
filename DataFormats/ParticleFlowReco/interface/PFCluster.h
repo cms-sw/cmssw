@@ -79,7 +79,13 @@ namespace reco {
     PFLayer::Layer  layer() const;
     
     /// cluster energy
-    double        energy() const {return energy_;}
+    double        energy()   const {return energy_;}
+    // had or em energies
+    double        emEnergy()  const {return emEnergy_;}    
+    double        hadEnergy() const {return hadEnergy_;}
+    // set them
+    void          setEmEnergy(double em)   { emEnergy_ = em; }
+    void          setHadEnergy(double had) { hadEnergy_ = had; }
 
     /// cluster time
     double        time() const {return time_;}
@@ -184,6 +190,9 @@ namespace reco {
     math::XYZVector     axis_;
     REPAxis             axisrep_;
 
+    //Lindsey: add em/had energies
+    double emEnergy_,hadEnergy_;
+    
     ///Michalis :Add timing information
     double time_;
     double depth_;

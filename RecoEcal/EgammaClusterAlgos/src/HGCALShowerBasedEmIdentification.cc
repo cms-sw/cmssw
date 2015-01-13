@@ -194,7 +194,7 @@ double HGCALShowerBasedEmIdentification::lengthCompatibility(const reco::PFClust
 	
   // shower length	 
   const double length =  (showerPos_ - startPosition(clu)).R();
-  const double lny = clu.energy()/criticalEnergy_>1. ? std::log(clu.energy()/criticalEnergy_) : 0.;
+  const double lny = clu.emEnergy()/criticalEnergy_>1. ? std::log(clu.emEnergy()/criticalEnergy_) : 0.;
 
   // inject here parametrization results
   const double meantmax = meant0_ + meant1_*lny;

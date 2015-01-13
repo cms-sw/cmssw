@@ -45,7 +45,7 @@ double TrackAndHGCHEFLinker::
 testLink( const reco::PFBlockElement* elem1,
 	  const reco::PFBlockElement* elem2 ) const {  
   constexpr reco::PFTrajectoryPoint::LayerType HGCEntrance =
-    reco::PFTrajectoryPoint::HGC_HCALFEntrance;
+    reco::PFTrajectoryPoint::HGC_ECALEntrance;
   const reco::PFBlockElementCluster *hgchefelem(NULL);
   const reco::PFBlockElementTrack   *tkelem(NULL);
   double dist(-1.0);

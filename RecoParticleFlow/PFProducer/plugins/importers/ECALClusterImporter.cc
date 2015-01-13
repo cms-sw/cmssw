@@ -140,7 +140,8 @@ importToBlock( const edm::Event& e,
       the_type = reco::PFBlockElement::HGC_HCALF;
     }
     
-    
+    //std::cout << " importing cluster of type: " << the_type << " pt = " << tempref->pt() << " pos = " << tempref->position() << std::endl;
+
     reco::PFBlockElementCluster* newelem = 
       new reco::PFBlockElementCluster(tempref,the_type);
     for( auto scelem = elems.begin(); scelem != sc_end; ++scelem ) {
