@@ -1,5 +1,5 @@
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -40,7 +40,7 @@
 
 #define DEBUG false
 
-class testTrackingIterations : public edm::EDProducer {
+class testTrackingIterations : public edm::stream::EDProducer <> {
 
 public :
   explicit testTrackingIterations(const edm::ParameterSet&);

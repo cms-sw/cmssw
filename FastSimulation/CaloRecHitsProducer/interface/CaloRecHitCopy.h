@@ -4,7 +4,7 @@
 //  The CaloRecHits copy for HLT
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -17,7 +17,7 @@ class ParameterSet;
 class Event;
 class EventSetup;
 
-class CaloRecHitCopy : public edm::EDProducer
+class CaloRecHitCopy : public edm::stream::EDProducer <>
 {
 
  public:
