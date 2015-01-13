@@ -30,8 +30,8 @@ def efficiency_string(objtype,plot_type,triggerpath):
         xAxis = "p_{T} of Next-to-Leading Generated %s (GeV/c)" % (objtype)
         input_type = "gen%sMaxPt2" % (objtype)
     if plot_type == "TurnOn3":
-        title = "HT Turn-On"
-        xAxis = "HT of Leading Generated %s (GeV/c)" % (objtype)
+        title = "SumEt Turn-On"
+        xAxis = "SumEt of Leading Generated %s (GeV/c)" % (objtype)
         input_type = "gen%sSumEt" % (objtype)
     if plot_type == "EffEta":
         title = "#eta Efficiency"
@@ -62,7 +62,7 @@ def add_reco_strings(strings):
 plot_types = ["TurnOn1", "TurnOn2", "TurnOn3", "EffEta", "EffPhi"]
 #--- IMPORTANT: Update this collection whenever you introduce a new object
 #               in the code (from EVTColContainer::getTypeString)
-obj_types  = ["Mu","refittedStandAloneMuons","Track","Ele","Photon","PFTau","PFJet","MET","PFMET","GenMET","CaloJet"
+obj_types  = ["Mu","refittedStandAloneMuons","Track","Ele","Photon","PFTau","PFJet","MET","PFMET","PFMHT","GenMET","CaloJet"
              ,"CaloMET","l1MET"]
 #--- IMPORTANT: Trigger are extracted from the hltExoticaValidator_cfi.py module
 triggers = [ ] 
@@ -122,6 +122,10 @@ hltExoticaPostDiPhoton = hltExoticaPostProcessor.clone()
 hltExoticaPostDiPhoton.subDirs = ['HLT/Exotica/DiPhoton']
 hltExoticaPostDiPhoton.efficiencyProfile = efficiency_strings
 
+hltExoticaPostSingleMuon = hltExoticaPostProcessor.clone()
+hltExoticaPostSingleMuon.subDirs = ['HLT/Exotica/SingleMuon']
+hltExoticaPostSingleMuon.efficiencyProfile = efficiency_strings
+
 hltExoticaPostHT = hltExoticaPostProcessor.clone()
 hltExoticaPostHT.subDirs = ['HLT/Exotica/HT']
 hltExoticaPostHT.efficiencyProfile = efficiency_strings
@@ -146,7 +150,6 @@ hltExoticaPostDisplacedL2Dimuon = hltExoticaPostProcessor.clone()
 hltExoticaPostDisplacedL2Dimuon.subDirs = ['HLT/Exotica/DisplacedL2Dimuon']
 hltExoticaPostDisplacedL2Dimuon.efficiencyProfile = efficiency_strings
 
-# Not integrated yet
 hltExoticaPostMonojet = hltExoticaPostProcessor.clone()
 hltExoticaPostMonojet.subDirs = ['HLT/Exotica/Monojet']
 hltExoticaPostMonojet.efficiencyProfile = efficiency_strings
@@ -170,6 +173,10 @@ hltExoticaDisplacedDimuonDijet.efficiencyProfile = efficiency_strings
 hltExoticaEleMu = hltExoticaPostProcessor.clone()
 hltExoticaEleMu.subDirs = ['HLT/Exotica/EleMu']
 hltExoticaEleMu.efficiencyProfile = efficiency_strings
+
+hltExoticaPhotonMET = hltExoticaPostProcessor.clone()
+hltExoticaPhotonMET.subDirs = ['HLT/Exotica/PhotonMET']
+hltExoticaPhotonMET.efficiencyProfile = efficiency_strings
 
 hltExoticaHTDisplacedJets = hltExoticaPostProcessor.clone()
 hltExoticaHTDisplacedJets.subDirs = ['HLT/Exotica/HTDisplacedJets']
@@ -196,12 +203,13 @@ hltExoticaPostProcessors = cms.Sequence(
     hltExoticaPostDisplacedMuEG +
     hltExoticaPostDisplacedDimuon +
     hltExoticaPostDisplacedL2Dimuon +
-    # Others (to be properly integrated)
+    # Others
     hltExoticaPostMonojet +
     hltExoticaPostMonojetBackup +
     hltExoticaPostPureMET +
     hltExoticaPostMETplusTrack +
     hltExoticaDisplacedDimuonDijet +
     hltExoticaEleMu +
+    hltExoticaPhotonMET +
     hltExoticaHTDisplacedJets
     )
