@@ -91,8 +91,8 @@ namespace l1t {
       setup_ = PackingSetupFactory::get()->make(config.getParameter<std::string>("Setup"));
       tokens_ = setup_->registerConsumes(config, cc);
 
-      slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 16);
-      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 16);
+      slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 8);
+      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 8);
    }
 
 

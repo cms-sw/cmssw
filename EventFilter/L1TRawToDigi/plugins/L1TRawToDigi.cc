@@ -97,8 +97,8 @@ namespace l1t {
       prov_ = PackingSetupFactory::get()->make(config.getParameter<std::string>("Setup"));
       prov_->registerProducts(*this);
 
-      slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 16);
-      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 16);
+      slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 8);
+      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 8);
       amcHeaderSize_ = config.getUntrackedParameter<int>("lenAMCHeader", 8);
       amcTrailerSize_ = config.getUntrackedParameter<int>("lenAMCTrailer", 0);
       amc13HeaderSize_ = config.getUntrackedParameter<int>("lenAMC13Header", 8);
