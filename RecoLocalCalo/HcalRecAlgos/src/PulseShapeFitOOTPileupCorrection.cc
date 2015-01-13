@@ -4,6 +4,13 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFitOOTPileupCorrection.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
+float timevalfit1_hold =0;// TESTING ONLY
+float timevalfit2_hold =0;// TESTING ONLY
+float timevalfit3_hold = 0;// TESTING ONLY
+float chargevalfit1_hold = 0;// TESTING ONLY
+float chargevalfit2_hold = 0;// TESTING ONLY
+float chargevalfit3_hold = 0;// TESTING ONLY
+
 namespace FitterFuncs{
 
   //Decalare the Pulse object take it in from Hcal and set some options
@@ -335,9 +342,13 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
      fit(3,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,BX);
    }
    */
+   
    //Fix back the timeslew
    if(applyTimeSlew_) timevalfit+=HcalTimeSlew::delay(std::max(1.0,chargeArr[4]),slewFlavor_);
-   int outfitStatus = (fitStatus ? 1: 0 );
+   int outfitStatus = (fitStatus ? 1: 0 ); 
+   
+    std::cout << outfitStatus << " " << timevalfit1_hold << " " << chargevalfit1_hold << " " << timevalfit2_hold << " " << chargevalfit2_hold << " " << timevalfit3_hold << " " << chargevalfit3_hold << std::endl; // TESTING ONLY
+    
    fitParsVec.clear();
    fitParsVec.push_back(chargevalfit);
    fitParsVec.push_back(timevalfit);
@@ -427,17 +438,56 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
    float chargeval2fit = results[3];
    float timeval3fit   = results[4];
    float chargeval3fit = results[5];
+   
+   timevalfit1_hold = timevalfit; // TESTING ONLY
+   timevalfit2_hold = timeval2fit; // TESTING ONLY
+   timevalfit3_hold = timeval3fit;// TESTING ONLY
+   chargevalfit1_hold = chargevalfit;// TESTING ONLY
+   chargevalfit2_hold = chargeval2fit;// TESTING ONLY
+   chargevalfit3_hold = chargeval3fit;// TESTING ONLY
+   
+   float deltaT12 = fabs(timeval2fit - timevalfit);
+   float deltaT13 = fabs(timeval3fit - timevalfit);
+   float deltaT23 = fabs(timeval2fit - timeval3fit);
+   
+   // Pick the time closest to zero
+   // Check to see if this pulse overlaps (delta t < 1 ns) with the other pulses
+   // if so do the weighted average for the time and the total energy for energy
 
      if((std::abs(timevalfit)<std::abs(timeval2fit)) && (std::abs(timevalfit)<std::abs(timeval3fit))){
-      timevalfit   = timevalfit;
-      chargevalfit = chargevalfit;
+        if(deltaT12 < 1){
+          timevalfit = (timeval2fit*chargeval2fit + timevalfit*chargevalfit)/(chargeval2fit+chargevalfit);
+          chargevalfit = chargeval2fit+chargevalfit;     
+        } else if(deltaT13 < 1) {
+          timevalfit = (timevalfit*chargevalfit + timeval3fit*chargeval3fit)/(chargevalfit+chargeval3fit);
+          chargevalfit = chargevalfit+chargeval3fit;
+        } else {
+          timevalfit   = timevalfit;
+          chargevalfit = chargevalfit;
+        }
      } else if((std::abs(timeval2fit)<std::abs(timevalfit)) && (std::abs(timeval2fit)<std::abs(timeval3fit))){
-      timevalfit = timeval2fit;
-      chargevalfit = chargeval2fit;
+       if(deltaT12 < 1){
+          timevalfit = (timeval2fit*chargeval2fit + timevalfit*chargevalfit)/(chargeval2fit+chargevalfit);
+          chargevalfit = chargeval2fit+chargevalfit;     
+        } else if(deltaT23 < 1) {
+          timevalfit = (timeval2fit*chargeval2fit + timeval3fit*chargeval3fit)/(chargeval2fit+chargeval3fit);
+          chargevalfit = chargeval2fit+chargeval3fit;
+        } else {
+          timevalfit = timeval2fit;
+          chargevalfit = chargeval2fit;
+        }
      } else if((std::abs(timeval3fit)<std::abs(timevalfit)) && (std::abs(timeval3fit)<std::abs(timeval2fit))){
-      timevalfit = timeval3fit;
-      chargevalfit = chargeval3fit;
-     }
+       if(deltaT23 < 1){
+          timevalfit = (timeval2fit*chargeval2fit + timeval3fit*chargeval3fit)/(chargeval2fit+chargeval3fit);
+          chargevalfit = chargeval2fit+chargeval3fit;     
+        } else if(deltaT13 < 1) {
+          timevalfit = (timevalfit*chargevalfit + timeval3fit*chargeval3fit)/(chargevalfit+chargeval3fit);
+          chargevalfit = chargevalfit+chargeval3fit;
+        } else {
+          timevalfit = timeval3fit;
+          chargevalfit = chargeval3fit;
+        }
+      }
    }
 
    
