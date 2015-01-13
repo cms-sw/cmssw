@@ -2,7 +2,10 @@
 <use name="SimDataFormats/Track"/>
 <use name="Geometry/HGCalCommonData"/>
 <use name="Geometry/FCalGeometry"/>
+<use name="Geometry/HcalCommonData"/>
+<use name="Geometry/Records"/>
 <use name="SimDataFormats/CaloHit"/>
+<use name="SimDataFormats/CaloTest"/>
 
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
@@ -11,6 +14,5 @@
 <use name="DQMServices/Core"/>
 <use name="DataFormats/ForwardDetId"/>
 <use name="SimG4CMS/Calo"/>
-<use name="Geometry/Records"/>
 <use name="DetectorDescription/Core"/>
 <flags EDM_PLUGIN="1"/>
