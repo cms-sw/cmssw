@@ -385,6 +385,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     _emPreID->setShowerPosition(cluster.position());
     _emPreID->setShowerDirection(cluster.axis());
     _emEnergyCalibration->correctEnergy(cluster);
+    cluster.setEmEnergy(cluster.energy());
     em_ID_clusters[i] = _emPreID->isEm(cluster);
     usable_clusters[i] = !em_ID_clusters[i];
     /*
@@ -404,14 +405,24 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   // stuff usable clusters into the output list
   for( unsigned i = 0; i < z_linked_clusters.size(); ++i ) {
     auto& cluster = z_linked_clusters[i];
+    _emEnergyCalibration->correctEnergy(cluster);
+    const double emEnergy = cluster.energy();
+    _hadEnergyCalibration->correctEnergy(cluster);
+    const double hadEnergy = cluster.energy();
+    cluster.setEmEnergy(emEnergy);
+    cluster.setHadEnergy(hadEnergy);
     if( cluster.recHitFractions().size() < 5 ) continue;
     if( i >= usable_clusters.size() ) {
       // by definition these are non-EM-like clusters
-      _hadEnergyCalibration->correctEnergy(cluster);
+      cluster.setEnergy(hadEnergy);
       output.push_back(cluster);
     } else if( i < usable_clusters.size() && 
 	       (usable_clusters[i] || em_ID_clusters[i]) ) {
-      if( !em_ID_clusters[i] ) _hadEnergyCalibration->correctEnergy(cluster);
+      if( !em_ID_clusters[i] ) {
+	cluster.setEnergy(hadEnergy);
+      } else {
+	cluster.setEnergy(emEnergy);
+      }
       output.push_back(cluster);
     }
   }
@@ -770,9 +781,10 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 		const math::XYZVector& clusdir = the_cluster.axis();
 		// get angle between vectors...
 		const double angle = std::abs(std::acos(tkdir.Dot(clusdir)/std::sqrt(tkdir.mag2()*clusdir.mag2())));
-		//const auto& pos = the_cluster.position();		
+		const auto& pos = the_cluster.position();		
 		if( cluster_usable[clus_idx] && 
-		    ( angle < _maxClusterAngleToTrack || 
+		    ( angle < _maxClusterAngleToTrack ||
+		      (pos - tkpos).rho() < 2.0 || 
 		      hits_of_cluster_on_track[cluster_match->second] > 7 ||
 		      the_cluster.recHitFractions().size() < 10 ) ) { 
 		  clusters_in_track[clus_idx] = true;
@@ -793,14 +805,14 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 					 temp);
 		    //std::cout << " afterburner done!" << std::endl;
 		  }
-		  /*
+		  
 		  std::cout << "adding cluster at: (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") " 
 			    <<  the_cluster.pt() << ' ' << pos.eta() << " to had-supercluster! nhits_trk = " 
 			    <<  hits_of_cluster_on_track[clus_idx] 
 			    << " nhits = " << the_cluster.recHitFractions().size()
 			    << std::endl;
-		  */
-		} /* else {
+		  
+		}  else {
 		  
 		  std::cout << "rejected cluster at : (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") nhits_trk = " 
 			    << hits_of_cluster_on_track[clus_idx] << " pt = " 
@@ -823,7 +835,7 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 		  }
 		  std::cout << std::endl;
 		  
-		  } */
+		  } 
 		
 	      }
 	    }
