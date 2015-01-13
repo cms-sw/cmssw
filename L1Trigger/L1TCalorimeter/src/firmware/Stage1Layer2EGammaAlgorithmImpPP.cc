@@ -12,8 +12,11 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
+#include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/JetFinderMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
+
+#include <bitset>
 
 using namespace std;
 using namespace l1t;
@@ -32,13 +35,16 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
   double jetLsb=params_->jetLsb();
   int egSeedThreshold= floor( params_->egSeedThreshold()/egLsb + 0.5);
   int jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5);
-  double egRelativeJetIsolationBarrelCut = params_->egRelativeJetIsolationBarrelCut();
-  double egRelativeJetIsolationEndcapCut = params_->egRelativeJetIsolationEndcapCut();
+  int egMinPtJetIsolation = params_->egMinPtJetIsolation();
+  int egMaxPtJetIsolation = params_->egMaxPtJetIsolation();
+  int egMinPtHOverEIsolation = params_->egMinPtHOverEIsolation();
+  int egMaxPtHOverEIsolation = params_->egMaxPtHOverEIsolation();
 
   std::string regionPUSType = params_->regionPUSType();
   std::vector<double> regionPUSParams = params_->regionPUSParams();
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
+  std::vector<l1t::EGamma> *preSortEGammas = new std::vector<l1t::EGamma>();
   std::vector<l1t::EGamma> *preGtEGammas = new std::vector<l1t::EGamma>();
 
 
@@ -58,58 +64,110 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
     int eg_et = egCand->hwPt();
     int eg_eta = egCand->hwEta();
     int eg_phi = egCand->hwPhi();
-    //std::cout << "eg_et: " << eg_et << " thresh: " << egSeedThreshold << std::endl;
+    int index = (egCand->hwIso()*4 + egCand->hwQual()) ;
+
+    //std::cout << "JetRankMax: " << params_->jetScale().rankScaleMax()<< " EmRankMax: " << params_->emScale().rankScaleMax()<< std::endl;
+    //std::cout << "JetLinMax: " << params_->jetScale().linScaleMax()<< " EmLinMax: " << params_->emScale().linScaleMax()<< std::endl;
     if(eg_et <= egSeedThreshold) continue;
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > egLorentz(0,0,0,0);
 
-    int quality = 1;
+    //int quality = 1;
     int isoFlag = 0;
+    int isoFlagRct = 0;
 
+    // 3x3 HoE, computed in 3x3
+    if(eg_et>=egMinPtHOverEIsolation && eg_et < egMaxPtHOverEIsolation ) {
+                 if(egCand->hwIso()) isoFlagRct =1;
+    }
+    else {isoFlagRct =1;}
 
-    // ------- isolation and H/E ---------------
-    // double isolation = Isolation(eg_eta, eg_phi, *subRegions);
-    //if( eg_et > 0 && (isolation / eg_et ) > relativeIsolationCut) isoFlag  = 0;
-
-    double jet_pt=AssociatedJetPt(eg_eta,eg_phi,unCorrJets);
-    jet_pt=jet_pt*jetLsb;
+    int ijet_pt=AssociatedJetPt(eg_eta,eg_phi,unCorrJets);
+    // double jet_pt=ijet_pt*jetLsb;
     bool isinBarrel = (eg_eta>=7 && eg_eta<=14);
-    if (jet_pt>0){
-      double jetIsolationEG = jet_pt - eg_et;        // Jet isolation
-      double relativeJetIsolationEG = jetIsolationEG / eg_et;
+    if (ijet_pt>0 && eg_et>=egMinPtJetIsolation && eg_et<egMaxPtJetIsolation){
 
-      if(eg_et >0 && eg_et<63 && isinBarrel && relativeJetIsolationEG < egRelativeJetIsolationBarrelCut) isoFlag=1;
-      if(eg_et >0 && eg_et<63 && !isinBarrel && relativeJetIsolationEG < egRelativeJetIsolationEndcapCut) isoFlag=1;
-      if( eg_et >= 63) isoFlag=1;
+      // Combined Barrel/Endcap LUT uses upper bit to indicate Barrel / Endcap:
+      enum {MAX_LUT_ADDRESS = 0x7fff};
+      enum {LUT_BARREL_OFFSET = 0x0, LUT_ENDCAP_OFFSET = 0x8000};
+
+      unsigned int lutAddress = isoLutIndex(eg_et,ijet_pt);
+
+      if (eg_et >0){
+	if (lutAddress > MAX_LUT_ADDRESS) lutAddress = MAX_LUT_ADDRESS;
+	if (isinBarrel){
+	  isoFlag= params_->egIsolationLUT()->data(LUT_BARREL_OFFSET + lutAddress);
+	} else{
+	  isoFlag= params_->egIsolationLUT()->data(LUT_ENDCAP_OFFSET + lutAddress);
+	}
+	// if (eg_et>20) std::cout << "EG pt: " << eg_et << " Jet pt: " << ijet_pt << ",r: " << ijet_pt*jetLsb << " Address: " << lutAddress << " max: " << params_->egIsolationLUT()->maxSize() << " isol: " << isoFlag << std::endl;
+      }
+
+
     }else{ // no associated jet; assume it's an isolated eg
       isoFlag=1;
     }
 
+    int fullIsoFlag=isoFlag*isoFlagRct;
 
     // double hoe = HoverE(eg_et, eg_eta, eg_phi, *subRegions);
-
+    //if(eg_et>20)
+    //std::cout << "eg/jet/isol/relisol: " << eg_et << " / " << ijet_pt << " /\t " << isoFlag <<  "    "<< isoFlagRct << "    "<<fullIsoFlag<<"   "<<egCand->hwIso()<<std::endl;
 
     // ------- fill the EG candidate vector ---------
-    l1t::EGamma theEG(*&egLorentz, eg_et, eg_eta, eg_phi, quality, isoFlag);
+    l1t::EGamma theEG(*&egLorentz, eg_et, eg_eta, eg_phi, index, fullIsoFlag);
     //?? if( hoe < HoverECut) egammas->push_back(theEG);
-    preGtEGammas->push_back(theEG);
+    preSortEGammas->push_back(theEG);
   }
+
+  // printf("Pre-Sort\n");
+  // for(std::vector<l1t::EGamma>::const_iterator itEGamma = preSortEGammas->begin();
+  //     itEGamma != preSortEGammas->end(); ++itEGamma){
+  //   std::cout << itEGamma->hwPt() << " " << itEGamma->hwEta() << " " << itEGamma->hwPhi() << std::endl;
+  // }
+
+  SortEGammas(preSortEGammas, preGtEGammas);
 
   EGammaToGtScales(params_, preGtEGammas, egammas);
 
+  // printf("Post-Sort\n");
+  // for(std::vector<l1t::EGamma>::const_iterator itEGamma = egammas->begin();
+  //     itEGamma != egammas->end(); ++itEGamma){
+  //   std::cout << itEGamma->hwPt() << " " << itEGamma->hwEta() << " " << itEGamma->hwPhi() << std::endl;
+  // }
 
-  //the EG candidates should be sorted, highest pT first.
-  // do not truncate the EG list, GT converter handles that
-  auto comp = [&](l1t::EGamma i, l1t::EGamma j)-> bool {
-    return (i.hwPt() < j.hwPt() );
-  };
+  const bool verbose = false;
+  if(verbose)
+  {
+    int cEGammas = 0;
+    int fEGammas = 0;
+    printf("EGammas Isolated\n");
+    for(std::vector<l1t::EGamma>::const_iterator itEGamma = egammas->begin();
+	itEGamma != egammas->end(); ++itEGamma){
+      if(itEGamma->hwIso() != 1) continue;
+      cEGammas++;
+      unsigned int packed = pack15bits(itEGamma->hwPt(), itEGamma->hwEta(), itEGamma->hwPhi());
+      cout << bitset<15>(packed).to_string() << endl;
+      if(cEGammas == 4) break;
+    }
+
+    printf("EGammas Non-isolated\n");
+    //printf("pt\teta\tphi\n");
+    for(std::vector<l1t::EGamma>::const_iterator itEGamma = egammas->begin();
+	itEGamma != egammas->end(); ++itEGamma){
+      if(itEGamma->hwIso() != 0) continue;
+      fEGammas++;
+      unsigned int packed = pack15bits(itEGamma->hwPt(), itEGamma->hwEta(), itEGamma->hwPhi());
+      cout << bitset<15>(packed).to_string() << endl;
+      if(fEGammas == 4) break;
+    }
+  }
 
   delete subRegions;
   delete unCorrJets;
+  delete preSortEGammas;
   delete preGtEGammas;
 
-  std::sort(egammas->begin(), egammas->end(), comp);
-  std::reverse(egammas->begin(), egammas->end());
 }
 
 
@@ -140,16 +198,26 @@ double l1t::Stage1Layer2EGammaAlgorithmImpPP::Isolation(int ieta, int iphi,
   return isolation;
 }
 
+//ieta =-28, nrTowers 0 is 0, increases to ieta28, nrTowers=kNrTowersInSum
+unsigned l1t::Stage1Layer2EGammaAlgorithmImpPP::isoLutIndex(unsigned int egPt,unsigned int jetPt) const
+{
+  const unsigned int nbitsEG=6;  // number of bits used for EG bins in LUT file (needed for left shift operation)
+  //  const unsigned int nbitsJet=9; // not used but here for info  number of bits used for Jet bins in LUT file
+
+  unsigned int address= (jetPt << nbitsEG) + egPt;
+  // std::cout << address << "\t## " << egPt << " " << jetPt << std::endl;
+  return address;
+}
 
 
 
-double l1t::Stage1Layer2EGammaAlgorithmImpPP::AssociatedJetPt(int ieta, int iphi,
+int l1t::Stage1Layer2EGammaAlgorithmImpPP::AssociatedJetPt(int ieta, int iphi,
 							      const std::vector<l1t::Jet> * jets)  const {
 
   bool Debug=false;
 
   if (Debug) cout << "Number of jets: " << jets->size() << endl;
-  double pt = -1;
+  int pt = -1;
 
 
   for(JetBxCollection::const_iterator itJet = jets->begin();

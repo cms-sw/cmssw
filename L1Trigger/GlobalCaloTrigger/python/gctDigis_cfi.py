@@ -8,7 +8,8 @@ gctDigis = cms.EDProducer("L1GctEmulator",
     ignoreRCTTauVetoBitsForIsolation = cms.bool(False),
     inputLabel = cms.InputTag("rctDigis"),
     preSamples = cms.uint32(1),
-    postSamples = cms.uint32(1)
+    postSamples = cms.uint32(1),
+    conditionsLabel = cms.string("")
 )
 
 

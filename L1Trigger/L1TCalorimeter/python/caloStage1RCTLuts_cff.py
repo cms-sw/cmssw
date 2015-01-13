@@ -54,7 +54,7 @@ l1CaloScales.L1CaloEmEtScaleLSB = 0.5 # must be the same as egammaLSB
 eg_calib_v1 = [
     1.11, 1.11, 1.11, 1.13, 1.14, 1.15, 1.13, 1.14, 1.16, 1.16, 1.17, 1.19,
     1.24, 1.27, 1.29, 1.29, 1.3, 1.48, 1.3, 1.41, 1.41, 1.4, 1.32, 1.3, 1.26,
-    1.2, 1.22, 1.16,
+    1.2, 1.22, 1.16
 ]
 
 # Used for a lot of 2012 data taking
@@ -75,15 +75,25 @@ eg_calib_v4 = [
     1.310123, 1.249619, 1.218275, 1.218275
 ]
 
-RCTConfigProducers.eGammaECalScaleFactors = eg_calib_v1
+# Et-dependent scale factors
+# This will be a 10*28 array, there are 28 eta scale factors
+# that are applied in 1+9 ET bins (1st bin will be reserved for an ET-averaged value
+# that will allow legacy algorithms to work without change)
+RCTConfigProducers.eGammaECalScaleFactors = (
+    eg_calib_v1  # fallback legacy values
+    +eg_calib_v1 # 0 < et < 10 [GeV]
+    +eg_calib_v1 # 10 < et < 15
+    +eg_calib_v1 # 15 < et < 20
+    +eg_calib_v1 # 20 < et < 25
+    +eg_calib_v1 # 25 < et < 30
+    +eg_calib_v1 # 30 < et < 35
+    +eg_calib_v1 # 35 < et < 40
+    +eg_calib_v1 # 40 < et < 45
+    +eg_calib_v1 # 45 < et 
+)
 
-#RCTConfigProducers.eGammaHCalScaleFactors = [1., 1., 1., 1., 1.,
-#                                                 1., 1., 1., 1., 1.,
-#                                                 1., 1., 1., 1., 1.,
-#                                                 1., 1., 1., 1., 1.,
-#                                                 1., 1., 1., 1., 1.,
-#                                                 1., 1., 1.]
-
+# In principle, HCal can have a similar et-dependance,
+# but we zero it for EG (EG energy is in ECal!)
 RCTConfigProducers.eGammaHCalScaleFactors = [0., 0., 0., 0., 0.,
                                                  0., 0., 0., 0., 0.,
                                                  0., 0., 0., 0., 0.,
@@ -91,29 +101,36 @@ RCTConfigProducers.eGammaHCalScaleFactors = [0., 0., 0., 0., 0.,
                                                  0., 0., 0., 0., 0.,
                                                  0., 0., 0.]
 
-
-
 # We want the same scales for EG and region paths
 RCTConfigProducers.jetMETECalScaleFactors = RCTConfigProducers.eGammaECalScaleFactors
 # Note this was == 1 in 2012!
 
 
-# HSums
-RCTConfigProducers.jetMETHCalScaleFactors = [1., 1., 1., 1., 1.,
-                                                 1., 1., 1., 1., 1.,
-                                                 1., 1., 1., 1., 1.,
-                                                 1., 1., 1., 1., 1.,
-                                                 1., 1., 1., 1., 1.,
-                                                 1., 1., 1.]
-
-
-#RCTConfigProducers.jetMETHCalScaleFactors = [1., 1., 1., 1., 1.,
-#                                                 1., 1., 1., 1., 1.,
-#                                                 1., 1., 1., 1., 1.,
-#                                                 1., 1., 1., 1., 1.,
-#                                                 1., 1., 1., 1., 1.,
-#                                                 1., 1., 1.]
-
+# HCal has 4 HF regions, they are not used in MET but we leave the factors in
+# to possibly correct forward jets if necessary.
+# We also have the ability to use ET-dependence, but will not for now.
+HCalScaleFactorsEta = [
+    1., 1., 1., 1.,
+    1., 1., 1., 1.,
+    1., 1., 1., 1.,
+    1., 1., 1., 1.,
+    1., 1., 1., 1.,
+    1., 1., 1., 1.,
+    1., 1., 1., 1.,
+    1., 1., 1., 1. # HF
+]
+RCTConfigProducers.jetMETHCalScaleFactors = (
+    HCalScaleFactorsEta  # fallback legacy values
+    +HCalScaleFactorsEta # 0 < et < 10 [GeV]
+    +HCalScaleFactorsEta # 10 < et < 15
+    +HCalScaleFactorsEta # 15 < et < 20
+    +HCalScaleFactorsEta # 20 < et < 25
+    +HCalScaleFactorsEta # 25 < et < 30
+    +HCalScaleFactorsEta # 30 < et < 35
+    +HCalScaleFactorsEta # 35 < et < 40
+    +HCalScaleFactorsEta # 40 < et < 45
+    +HCalScaleFactorsEta # 45 < et 
+)
 
 #L1CaloInputScalesProducer =cms.ESProducer("L1CaloInputScalesProducer",
 #L1EcalEtThresholdsPositiveEta = cms.vdouble(

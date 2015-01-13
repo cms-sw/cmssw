@@ -46,6 +46,7 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   getFedsFromOmds(conf.getParameter<bool>("getFedsFromOmds")),
   queryDelayInLS(conf.getParameter<unsigned int>("queryDelayInLS")),
   queryIntervalInLS(conf.getParameter<unsigned int>("queryIntervalInLS")),
+  conditionsLabel(conf.getParameter<std::string>("conditionsLabel")),
   fedUpdatedMask(0)
 {
   produces<L1CaloEmCollection>();
@@ -112,24 +113,24 @@ void L1RCTProducer::updateConfiguration(const edm::EventSetup& eventSetup)
   // handle changes in configuration
   // parameters to configure RCT (thresholds, etc)
   edm::ESHandle<L1RCTParameters> rctParameters;
-  eventSetup.get<L1RCTParametersRcd>().get(rctParameters);
+  eventSetup.get<L1RCTParametersRcd>().get(conditionsLabel, rctParameters);
   const L1RCTParameters* r = rctParameters.product();
 
   //SCALES
 
   // energy scale to convert eGamma output
   edm::ESHandle<L1CaloEtScale> emScale;
-  eventSetup.get<L1EmEtScaleRcd>().get(emScale);
+  eventSetup.get<L1EmEtScaleRcd>().get(conditionsLabel, emScale);
   const L1CaloEtScale* s = emScale.product();
 
  // get energy scale to convert input from ECAL
   edm::ESHandle<L1CaloEcalScale> ecalScale;
-  eventSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
+  eventSetup.get<L1CaloEcalScaleRcd>().get(conditionsLabel, ecalScale);
   const L1CaloEcalScale* e = ecalScale.product();
   
   // get energy scale to convert input from HCAL
   edm::ESHandle<L1CaloHcalScale> hcalScale;
-  eventSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
+  eventSetup.get<L1CaloHcalScaleRcd>().get(conditionsLabel, hcalScale);
   const L1CaloHcalScale* h = hcalScale.product();
 
   // set scales

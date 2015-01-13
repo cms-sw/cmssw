@@ -19,8 +19,6 @@
 using namespace std;
 using namespace l1t;
 
-unsigned int pack15bits(int pt, int eta, int phi);
-
 Stage1Layer2JetAlgorithmImpSimpleHW::Stage1Layer2JetAlgorithmImpSimpleHW(CaloParamsStage1* params) : params_(params)
 {
 }
@@ -28,83 +26,61 @@ Stage1Layer2JetAlgorithmImpSimpleHW::Stage1Layer2JetAlgorithmImpSimpleHW(CaloPar
 Stage1Layer2JetAlgorithmImpSimpleHW::~Stage1Layer2JetAlgorithmImpSimpleHW(){};
 
 void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::CaloRegion> & regions,
-						 const std::vector<l1t::CaloEmCand> & EMCands,
-						 std::vector<l1t::Jet> * jets){
+						       const std::vector<l1t::CaloEmCand> & EMCands,
+						       std::vector<l1t::Jet> * jets,
+						       std::vector<l1t::Jet> * debugJets){
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
-  std::vector<l1t::Jet> *preGtJets = new std::vector<l1t::Jet>();
+  std::vector<l1t::Jet> *preGtEtaJets = new std::vector<l1t::Jet>();
+  std::vector<l1t::Jet> *calibratedRankedJets = new std::vector<l1t::Jet>();
   std::vector<l1t::Jet> *sortedJets = new std::vector<l1t::Jet>();
 
-  simpleHWSubtraction(regions, subRegions);
-  //passThroughJets(subRegions, preGtJets);
-  slidingWindowJetFinder(0, subRegions, preGtJets);
+  //simpleHWSubtraction(regions, subRegions);
 
-  //passThroughJets(&regions,preGtJets);
-  //slidingWindowJetFinder(0, &regions, preGtJets);
+  std::string regionPUSType = "PUM0"; //params_->regionPUSType();
+  std::vector<double> regionPUSParams = params_->regionPUSParams();
+  RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
 
-  //the jets should be sorted, highest pT first.
-  // do not truncate the tau list, GT converter handles that
-  // auto comp = [&](l1t::Jet i, l1t::Jet j)-> bool {
-  //   return (i.hwPt() < j.hwPt() );
-  // };
+  slidingWindowJetFinder(0, subRegions, preGtEtaJets);
 
-  // std::sort(preGtJets->begin(), preGtJets->end(), comp);
-  // std::reverse(preGtJets->begin(), preGtJets->end());
-  // sortedJets = preGtJets;
+  calibrateAndRankJets(params_, preGtEtaJets, calibratedRankedJets);
 
-  // for(unsigned i = 0; i < preGtJets->size(); ++i)
-  //   cout << preGtJets->at(i).hwPt() << "\t" << preGtJets->at(i).hwEta() << "\t" << preGtJets->at(i).hwPhi() << endl;
+  SortJets(calibratedRankedJets, sortedJets);
 
-  SortJets(preGtJets, sortedJets);
+  JetToGtEtaScales(params_, sortedJets, jets);
+  JetToGtEtaScales(params_, preGtEtaJets, debugJets);
+  //JetToGtPtScales(params_, preGtJets, jets);
 
-  // for(unsigned i = 0; i < sortedJets->size(); ++i)
-  //   cout << sortedJets->at(i).hwPt() << "\t" << sortedJets->at(i).hwEta() << "\t" << sortedJets->at(i).hwPhi() << endl;
+  const bool verbose = true;
+  if(verbose)
+  {
+    int cJets = 0;
+    int fJets = 0;
+    printf("Jets Central\n");
+    //printf("pt\teta\tphi\n");
+    for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
+	itJet != jets->end(); ++itJet){
+      if((itJet->hwQual() & 2) == 2) continue;
+      cJets++;
+      unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
+      cout << bitset<15>(packed).to_string() << endl;
+      if(cJets == 4) break;
+    }
 
-  // drop the 4 LSB before passing to GT
-  // for(std::vector<l1t::Jet>::const_iterator itJet = sortedJets->begin();
-  //     itJet != sortedJets->end(); ++itJet){
-  //   const unsigned newEta = gtEta(itJet->hwEta());
-  //   //const unsigned newEta = itJet->hwEta();
-  //   //std::cout << "pre drop: " << itJet->hwPt();
-  //   const uint16_t rankPt = (itJet->hwPt() >> 8);
-  //   //std::cout << " post drop: " << rankPt << std::endl;
-  //   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
-  //   l1t::Jet gtJet(*&ldummy, rankPt, newEta, itJet->hwPhi(), itJet->hwQual());
-  //   jets->push_back(gtJet);
-  // }
-  JetToGtScales(params_, sortedJets, jets);
-
-
-  int cJets = 0;
-  int fJets = 0;
-  printf("Central\n");
-  //printf("pt\teta\tphi\n");
-  for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
-      itJet != jets->end(); ++itJet){
-    if(itJet->hwQual() == 2) continue;
-    cJets++;
-    unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
-    cout << bitset<15>(packed).to_string() << endl;
-    if(cJets == 4) break;
-  }
-
-  printf("Forward\n");
-  //printf("pt\teta\tphi\n");
-  for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
-      itJet != jets->end(); ++itJet){
-    if(itJet->hwQual() != 2) continue;
-    fJets++;
-    unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
-    cout << bitset<15>(packed).to_string() << endl;
-    if(fJets == 4) break;
+    printf("Jets Forward\n");
+    //printf("pt\teta\tphi\n");
+    for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
+	itJet != jets->end(); ++itJet){
+      if((itJet->hwQual() & 2) != 2) continue;
+      fJets++;
+      unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
+      cout << bitset<15>(packed).to_string() << endl;
+      if(fJets == 4) break;
+    }
   }
 
   delete subRegions;
-  delete preGtJets;
+  delete preGtEtaJets;
+  delete calibratedRankedJets;
   delete sortedJets;
-}
-
-unsigned int pack15bits(int pt, int eta, int phi)
-{
-  return( ((pt & 0x3f)) + ((eta & 0xf) << 6) + ((phi & 0x1f) << 10));
 }

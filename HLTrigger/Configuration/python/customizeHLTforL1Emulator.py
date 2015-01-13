@@ -154,6 +154,7 @@ def switchToCustomL1Digis(process, customGmt, customGct, customGt):
     process.hltL1extraParticles.centralJetSource    = cms.InputTag( customGct, 'cenJets' )
     process.hltL1extraParticles.forwardJetSource    = cms.InputTag( customGct, 'forJets' )
     process.hltL1extraParticles.tauJetSource        = cms.InputTag( customGct, 'tauJets' )
+    process.hltL1extraParticles.isoTauJetSource     = cms.InputTag( customGct, 'isoTauJets' )
     process.hltL1extraParticles.etTotalSource       = cms.InputTag( customGct )
     process.hltL1extraParticles.etHadSource         = cms.InputTag( customGct )
     process.hltL1extraParticles.etMissSource        = cms.InputTag( customGct )

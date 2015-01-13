@@ -18,23 +18,36 @@
 
 namespace l1t {
 
-void JetToGtScales(CaloParamsStage1 *params,
-		     const std::vector<l1t::Jet> * input,
-		     std::vector<l1t::Jet> *output);
+  void calibrateAndRankJets(CaloParamsStage1 *params,
+			    const std::vector<l1t::Jet> * input,
+			    std::vector<l1t::Jet> *output);
 
-void EGammaToGtScales(CaloParamsStage1 *params,
+  void JetToGtEtaScales(CaloParamsStage1 *params,
+			const std::vector<l1t::Jet> * input,
+			std::vector<l1t::Jet> *output);
+
+  void JetToGtPtScales(CaloParamsStage1 *params,
+		       const std::vector<l1t::Jet> * input,
+		       std::vector<l1t::Jet> *output);
+
+
+  void EGammaToGtScales(CaloParamsStage1 *params,
 			const std::vector<l1t::EGamma> * input,
 			std::vector<l1t::EGamma> *output);
 
-void TauToGtScales(CaloParamsStage1 *params,
-		     const std::vector<l1t::Tau> * input,
-		     std::vector<l1t::Tau> *output);
+  void TauToGtEtaScales(CaloParamsStage1 *params,
+			const std::vector<l1t::Tau> * input,
+			std::vector<l1t::Tau> *output);
 
-void EtSumToGtScales(CaloParamsStage1 *params,
+  void TauToGtPtScales(CaloParamsStage1 *params,
+		       const std::vector<l1t::Tau> * input,
+		       std::vector<l1t::Tau> *output);
+
+  void EtSumToGtScales(CaloParamsStage1 *params,
 		       const std::vector<l1t::EtSum> * input,
 		       std::vector<l1t::EtSum> *output);
 
-const unsigned int gtEta(const unsigned int iEta);
+  const unsigned int gtEta(const unsigned int iEta);
 }
 
 #endif

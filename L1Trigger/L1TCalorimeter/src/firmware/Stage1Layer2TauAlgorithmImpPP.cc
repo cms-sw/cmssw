@@ -15,7 +15,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/JetFinderMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
-
+#include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 
 using namespace std;
 using namespace l1t;
@@ -32,7 +32,7 @@ Stage1Layer2TauAlgorithmImpPP::~Stage1Layer2TauAlgorithmImpPP(){};
 
 void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
 						      const std::vector<l1t::CaloRegion> & regions,
-						      const std::vector<l1t::Jet> * jets,
+						      std::vector<l1t::Tau> * isoTaus,
 						      std::vector<l1t::Tau> * taus) {
 
   double towerLsb = params_->towerLsbSum();
@@ -42,13 +42,14 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
   int tauSeedThreshold= floor( params_->tauSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int tauNeighbourThreshold= floor( params_->tauNeighbourThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int jetSeedThreshold= floor( params_->jetSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
-  int switchOffTauVeto = floor( params_->switchOffTauVeto()/towerLsb + 0.5);
-  int switchOffTauIso = floor( params_->switchOffTauIso()/towerLsb + 0.5);
-  double tauRelativeJetIsolationLimit = params_->tauRelativeJetIsolationLimit();
-  double tauRelativeJetIsolationCut = params_->tauRelativeJetIsolationCut();
+  int tauMaxPtTauVeto = floor( params_->tauMaxPtTauVeto()/towerLsb + 0.5);
+  int tauMinPtJetIsolationB = floor( params_->tauMinPtJetIsolationB()/towerLsb + 0.5);
+  int isoTauEtaMin = params_->isoTauEtaMin();
+  int isoTauEtaMax = params_->isoTauEtaMax();
+  double tauMaxJetIsolationB = params_->tauMaxJetIsolationB();
+  double tauMaxJetIsolationA = params_->tauMaxJetIsolationA();
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
-
 
 
   //Region Correction will return uncorrected subregions if
@@ -63,7 +64,11 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
   TwelveByTwelveFinder(jetSeedThreshold, subRegions, unCorrJets);
 
   std::vector<l1t::Tau> *preGtTaus = new std::vector<l1t::Tau>();
-
+  std::vector<l1t::Tau> *preSortTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> *sortedTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> *preGtIsoTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> *preSortIsoTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> *sortedIsoTaus = new std::vector<l1t::Tau>();
 
   for(CaloRegionBxCollection::const_iterator region = subRegions->begin();
       region != subRegions->end(); region++) {
@@ -118,7 +123,8 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
     //std::cout << "tau et, neighbor et " << tauEt << " " << highestNeighborEt << std::endl;
     if((tauEt > highestNeighborEt && (NESW=="isEast" || NESW=="isNorth"))
-       || (tauEt >= highestNeighborEt && (NESW=="isSouth" || NESW=="isWest"))) {
+       || (tauEt >= highestNeighborEt && (NESW=="isSouth" || NESW=="isWest"))
+       || highestNeighborEt == 0 ) {
 
       if (highestNeighborEt >= tauNeighbourThreshold) tauEt += highestNeighborEt;
 
@@ -126,32 +132,38 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
       //std::cout<< "regiontauveto, neighbor " << regionTauVeto << " " << highestNeighborTauVeto << std::endl;
 
 	double jetIsolation = JetIsolation(tauEt, region->hwEta(), region->hwPhi(), *unCorrJets);
-
-	if ((highestNeighborTauVeto == 0 && regionTauVeto == 0) || tauEt > switchOffTauVeto) {
-	  if (jetIsolation < tauRelativeJetIsolationCut || (tauEt >= switchOffTauIso && jetIsolation < tauRelativeJetIsolationLimit)
-	      || (std::abs(jetIsolation - 999.) < 0.1) ) isoFlag=1;
+	if (region->hwEta() >= isoTauEtaMin && region->hwEta() <= isoTauEtaMax ){
+	  if ((highestNeighborTauVeto == 0 && regionTauVeto == 0) || tauEt > tauMaxPtTauVeto) {
+	    if (jetIsolation < tauMaxJetIsolationA || (tauEt >= tauMinPtJetIsolationB && jetIsolation < tauMaxJetIsolationB)
+		|| (std::abs(jetIsolation - 999.) < 0.1) ) isoFlag=1;
+	  }
 	}
 	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
 
 	l1t::Tau theTau(*&tauLorentz, tauEt, region->hwEta(), region->hwPhi(), quality, isoFlag);
 
 	preGtTaus->push_back(theTau);
+	if(isoFlag)
+	  preGtIsoTaus->push_back(theTau);
     }
   }
-  TauToGtScales(params_, preGtTaus, taus);
+  TauToGtPtScales(params_, preGtTaus, preSortTaus);
+  TauToGtPtScales(params_, preGtIsoTaus, preSortIsoTaus);
+
+  SortTaus(preSortTaus, sortedTaus);
+  SortTaus(preSortIsoTaus, sortedIsoTaus);
+
+  TauToGtEtaScales(params_, sortedTaus, taus);
+  TauToGtEtaScales(params_, sortedIsoTaus, isoTaus);
 
   delete subRegions;
   delete unCorrJets;
   delete preGtTaus;
-
-  //the taus should be sorted, highest pT first.
-  // do not truncate the tau list, GT converter handles that
-  auto comp = [&](l1t::Tau i, l1t::Tau j)-> bool {
-    return (i.hwPt() < j.hwPt() );
-  };
-
-  std::sort(taus->begin(), taus->end(), comp);
-  std::reverse(taus->begin(), taus->end());
+  delete preSortTaus;
+  delete sortedTaus;
+  delete preGtIsoTaus;
+  delete preSortIsoTaus;
+  delete sortedIsoTaus;
 }
 
 
