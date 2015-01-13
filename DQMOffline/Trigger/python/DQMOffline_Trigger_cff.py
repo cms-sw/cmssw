@@ -78,7 +78,7 @@ offlineHLTSource = cms.Sequence(
     HLTTauDQMOffline *
     #jetMETHLTOfflineSource *
     jetMETHLTOfflineAnalyzer *
-    fsqHLTOfflineSource *
+    fsqHLTOfflineSourceSequence *
     #TnPEfficiency *
     hltInclusiveVBFSource *
     trackingMonitorHLT *
