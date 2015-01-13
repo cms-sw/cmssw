@@ -74,10 +74,6 @@ FamosProducer::beginRun(edm::Run const& run, const edm::EventSetup & es) {
   famosManager_->setupGeometryAndField(run,es);
 }
  
-void FamosProducer::endJob()
-{ 
-}
- 
 void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 {
   ParticleTable::Sentry ptable(famosManager_->simEvent()->theTable());

@@ -9,7 +9,7 @@
 //---------------------------------------------------------------------------
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -49,7 +49,7 @@ namespace edm {
 class RandomEngineAndDistribution;
 class TrackerTopology;
 
-class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
+class SiTrackerGaussianSmearingRecHitConverter : public edm::stream::EDProducer <>
 {
  public:
   //--- Constructor, virtual destructor (just in case)

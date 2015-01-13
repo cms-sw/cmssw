@@ -18,7 +18,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -53,7 +53,7 @@
 typedef math::XYZVector XYZVector;
 typedef math::XYZVector XYZPoint;
 
-class testCaloGeometryTools : public edm::EDAnalyzer {
+class testCaloGeometryTools : public edm::stream::EDAnalyzer <> {
 public:
   explicit testCaloGeometryTools( const edm::ParameterSet& );
   ~testCaloGeometryTools();
