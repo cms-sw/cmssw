@@ -57,6 +57,22 @@ namespace xuti{
   const std::string rms6_tag("rms_x6");
   const std::string rms1_tag("rms_x1");
    
+  const std::string PulseShapes_tag("EcalPulseShapes");
+  const std::string sample0_tag("sample_0");
+  const std::string sample1_tag("sample_1");
+  const std::string sample2_tag("sample_2");
+  const std::string sample3_tag("sample_3");
+  const std::string sample4_tag("sample_4");
+  const std::string sample5_tag("sample_5");
+  const std::string sample6_tag("sample_6");
+  const std::string sample7_tag("sample_7");
+  const std::string sample8_tag("sample_8");
+  const std::string sample9_tag("sample_9");
+  const std::string sample10_tag("sample_10");
+  const std::string sample11_tag("sample_11");
+
+  const std::string PulseCovariances_tag("EcalPulseCovariances");
+
   const std::string ChannelStatus_tag("EcalChannelStatus");
   const std::string ChannelStatusCode_tag("ChannelStatusCode");
 

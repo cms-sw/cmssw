@@ -23,8 +23,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
   toPut = cms.VPSet(
     cms.PSet(
       record = cms.string('EcalSamplesCorrelationRcd'),
-#      tag = cms.string('EcalSamplesCorrelation_mc')
-      tag = cms.string('EcalSamplesCorrelationFile')
+      tag = cms.string('EcalSamplesCorrelation_mc')
+#      tag = cms.string('EcalSamplesCorrelationFile')
     )
   )
 )
