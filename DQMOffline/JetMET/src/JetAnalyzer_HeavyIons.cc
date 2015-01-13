@@ -80,6 +80,18 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
   // Events variables
   mNvtx         = 0;
   mHF           = 0;
+
+  // added Jan 12th 2015
+  mSumPFVsPtInitial_HF = 0;
+  mSumPFVsPt_HF = 0;
+  mSumPFPt_HF = 0;
+  mPFVsPtInitial_eta_phi = 0;
+  mPFVsPt_eta_phi = 0;
+  mPFPt_eta_phi = 0;
+  //mDeltapT_HF = 0;
+  mDeltapT_eta = 0;
+  //mDeltapT_phiMinusPsi2 = 0;
+  mDeltapT_eta_phi = 0;
   
   // Jet parameters
   mEta          = 0;
@@ -146,6 +158,19 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
     mNvtx            = ibooker.book1D("Nvtx",           "number of vertices", 60, 0, 60);
     mHF              = ibooker.book1D("HF", "HF energy distribution",1000,0,10000);
     
+    // added Jan 12th 2015
+    mSumPFVsPtInitial_HF    = ibooker.book2D("SumPFVsPtInitial_HF","",2000,-10000,10000,1000,0,10000);
+    mSumPFVsPt_HF    = ibooker.book2D("SumPFVsPt_HF","",2000,-10000,10000,1000,0,10000);
+    mSumPFPt_HF    = ibooker.book2D("SumPFPt_HF","",2000,-10000,10000,1000,0,10000);
+    mPFVsPtInitial_eta_phi    = ibooker.book3D("SumPFVsPtInitial_eta_phi","",100,0,1000,120,-6,6,70,-3.5,3.5);
+    mPFVsPt_eta_phi    = ibooker.book3D("SumPFVsPt_eta_phi","",100,0,1000,120,-6,6,70,-3.5,3.5);
+    mPFPt_eta_phi    = ibooker.book3D("SumPFPt_eta_phi","",100,0,1000,120,-6,6,70,-3.5,3.5);
+    //mDeltapT_HF  = ibooker.book2D("DeltapT_HF","",400,-200,200,1000,0,10000);
+    mDeltapT_eta = ibooker.book2D("DeltapT_eta","",400,-200,200,70,-6,6);
+    //mDeltapT_phiMinusPsi2 = ibooker.book2D("DeltapT_phiMinusPsi2","",400,-200,200,35,-1.75,1.75);
+    mDeltapT_eta_phi = ibooker.book3D("DeltapT_eta_phi","",400,-200,200,120,-6,6,70,-3.5,3.5);
+    
+
     // Jet parameters
     mEta             = ibooker.book1D("Eta",          "Eta",          120,   -6,    6); 
     mPhi             = ibooker.book1D("Phi",          "Phi",           70, -3.5,  3.5); 
@@ -262,7 +287,8 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
   mEvent.getByToken(centralityToken_, cent);
 
   mHF->Fill(cent->EtHFtowerSum());
-  
+  Float_t HF_energy = cent->EtHFtowerSum();
+
   const reco::PFCandidateCollection *pfCandidateColl = pfCandidates.product();
   
   Float_t vsPt=0;
@@ -343,6 +369,8 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
   Float_t SumPFVsPt[etaBins_];
   Float_t SumPFPt[etaBins_];
 
+  Float_t DeltapT = 0;
+
   for(unsigned icand=0;icand<pfCandidateColl->size(); icand++){
     
     const reco::PFCandidate pfCandidate = pfCandidateColl->at(icand);
@@ -362,6 +390,15 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
     pfPt = pfCandidate.pt();
     pfEta = pfCandidate.eta();
     pfPhi = pfCandidate.phi();
+
+    mPFVsPtInitial_eta_phi->Fill(vsPtInitial,pfEta,pfPhi);
+    mPFVsPt_eta_phi->Fill(vsPt,pfEta,pfPhi);
+    mPFPt_eta_phi->Fill(pfPt,pfEta,pfPhi);
+
+    DeltapT = pfPt - vsPtInitial;
+
+    mDeltapT_eta->Fill(DeltapT,pfEta);
+    mDeltapT_eta_phi->Fill(DeltapT,pfEta,pfPhi);
 
     //std::cout<<pfPt<<" "<<pfEta<<" "<<pfPhi<<" "<<std::endl;
 
@@ -387,17 +424,28 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
     
   }
   
+  Float_t Evt_SumPFVsPt = 0;
+  Float_t Evt_SumPFVsPtInitial = 0;
+  Float_t Evt_SumPFPt = 0;
+
   for(size_t  k = 0;k<nedge_pseudorapidity-1;k++){
     
     mSumPFVsPtInitial->Fill(SumPFVsPtInitial[k]);
+    Evt_SumPFVsPtInitial = Evt_SumPFVsPtInitial + SumPFVsPtInitial[k];
     mSumPFVsPt->Fill(SumPFVsPt[k]);
+    Evt_SumPFVsPt = Evt_SumPFVsPt + SumPFVsPt[k];
     mSumPFPt->Fill(SumPFPt[k]);
+    Evt_SumPFPt = Evt_SumPFPt + SumPFPt[k];
 
     mSumPFVsPtInitial_eta->Fill(edge_pseudorapidity[k],SumPFVsPtInitial[k]);
     mSumPFVsPt_eta->Fill(edge_pseudorapidity[k],SumPFVsPt[k]);
     mSumPFPt_eta->Fill(edge_pseudorapidity[k],SumPFPt[k]);
     
   }// eta bin loop  
+
+  mSumPFVsPtInitial_HF->Fill(Evt_SumPFVsPtInitial,HF_energy);
+  mSumPFVsPt_HF->Fill(Evt_SumPFVsPt,HF_energy);
+  mSumPFPt_HF->Fill(Evt_SumPFPt,HF_energy);
   
   mNPFpart->Fill(NPFpart);
   mSumpt->Fill(SumPt_value);
