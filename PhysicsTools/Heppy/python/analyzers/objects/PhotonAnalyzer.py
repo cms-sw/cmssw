@@ -168,7 +168,7 @@ class PhotonAnalyzer( Analyzer ):
         if not self.cfg_comp.isMC:
             return True
 
-        if hasattr(event, 'genParticles'):
+        if self.cfg_ana.do_mc_match and hasattr(event, 'genParticles'):
             self.matchPhotons(event)
 
         return True
@@ -179,6 +179,7 @@ setattr(PhotonAnalyzer,"defaultConfig",cfg.Analyzer(
     photons='slimmedPhotons',
     ptMin = 20,
     etaMax = 2.5,
-    gammaID = "PhotonCutBasedIDLoose"
+    gammaID = "PhotonCutBasedIDLoose",
+    do_mc_match = True,
   )
 )
