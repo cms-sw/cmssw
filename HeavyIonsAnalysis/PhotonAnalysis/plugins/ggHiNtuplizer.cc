@@ -4,8 +4,8 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
-#include "HeavyIonsAnalysis/ggAnalysis/interface/ggHiNtuplizer.h"
-#include "HeavyIonsAnalysis/ggAnalysis/interface/GenParticleParentage.h"
+#include "HeavyIonsAnalysis/PhotonAnalysis/interface/ggHiNtuplizer.h"
+#include "HeavyIonsAnalysis/PhotonAnalysis/interface/GenParticleParentage.h"
 
 using namespace std;
 

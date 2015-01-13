@@ -1,4 +1,4 @@
-#include "HeavyIonsAnalysis/ggAnalysis/interface/GenParticleParentage.h"
+#include "HeavyIonsAnalysis/PhotonAnalysis/interface/GenParticleParentage.h"
 #include <iostream>
 
 using namespace std;
