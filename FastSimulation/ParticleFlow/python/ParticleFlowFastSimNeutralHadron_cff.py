@@ -91,12 +91,6 @@ PFJetMet = cms.Sequence(
 
 
 
-# Tau tagging
-
-from FastSimulation.ParticleFlow.TauTaggingFastSimNeutralHadron_cff import *
-
-
-
 
 
 

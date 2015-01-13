@@ -56,9 +56,10 @@ reducedRecHits = cms.Sequence ( reducedEcalRecHitsSequence * reducedHcalRecHitsS
 from RecoJets.Configuration.CaloTowersRec_cff import *
 
 # Particle Flow (all interactions with ParticleFlow are dealt with in the following configuration)
-#from FastSimulation.ParticleFlow.ParticleFlowFastSim_cff import *
-from FastSimulation.ParticleFlow.ParticleFlowFastSimNeutralHadron_cff import * # this is the famous "PF patch", see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFastSimFAQ#I_observe_a_discrepancy_in_energ
+from FastSimulation.ParticleFlow.ParticleFlowFastSim_cff import *
+#from FastSimulation.ParticleFlow.ParticleFlowFastSimNeutralHadron_cff import * # this is the famous "PF patch", see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFastSimFAQ#I_observe_a_discrepancy_in_energ
 
+from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 
 # Reco Jets and MET
 from RecoJets.Configuration.RecoJetsGlobal_cff import *
@@ -446,7 +447,7 @@ if(CaloMode==3):
             metreco+
             reducedRecHits+
             famosBTaggingSequence+
-            famosPFTauTaggingSequence
+            PFTau
             )
     elif(MixingMode=='DigiRecoMixing'):
         reconstructionWithFamos = cms.Sequence(
@@ -472,7 +473,7 @@ if(CaloMode==3):
             metreco+
             reducedRecHits+
             famosBTaggingSequence+
-            famosPFTauTaggingSequence
+            PFTau
             )
     else:
         print 'unsupported MixingMode label'
@@ -501,7 +502,7 @@ else:
         metreco+
         reducedRecHits+
         famosBTaggingSequence+
-        famosPFTauTaggingSequence
+        PFTau
         )
 
 
@@ -540,7 +541,7 @@ reconstructionHighLevel = cms.Sequence(
     metreco+
     reducedRecHits+
     famosBTaggingSequence+
-    famosPFTauTaggingSequence
+    PFTau
 )
 
 # Famos pre-defined sequences (and self-explanatory names)
@@ -710,7 +711,7 @@ famosWithBTagging = cms.Sequence(
 
 famosWithPFTauTagging = cms.Sequence(
     famosWithCaloTowersAndParticleFlow+
-    famosPFTauTaggingSequence
+    PFTau
 )
 
 # The simulation sequence without muon digitization
@@ -751,7 +752,7 @@ reconstructionWithFamosNoTk = cms.Sequence(
     metreco+
     reducedRecHits+
     famosBTaggingSequence+
-    famosPFTauTaggingSequence
+    PFTau
 )
 
 # Simulation plus reconstruction
