@@ -8,30 +8,30 @@ from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 #
 
 # L1 (offset) Correction Services
-ak7CaloL1Offset = ak5CaloL1Offset.clone()
-kt4CaloL1Offset = ak5CaloL1Offset.clone()
-kt6CaloL1Offset = ak5CaloL1Offset.clone()
-ic5CaloL1Offset = ak5CaloL1Offset.clone()
+ak7CaloL1Offset = ak5CaloL1Offset.clone(algorithm = 'AK7Calo')
+kt4CaloL1Offset = ak5CaloL1Offset.clone(algorithm = 'KT4Calo')
+kt6CaloL1Offset = ak5CaloL1Offset.clone(algorithm = 'KT6Calo')
+ic5CaloL1Offset = ak5CaloL1Offset.clone(algorithm = 'IC5Calo')
 
-ak7PFL1Offset   = ak5PFL1Offset.clone()
-kt4PFL1Offset   = ak5PFL1Offset.clone()
-kt6PFL1Offset   = ak5PFL1Offset.clone()
-ic5PFL1Offset   = ak5PFL1Offset.clone()
+ak7PFL1Offset   = ak5PFL1Offset.clone(algorithm = 'AK7PF')
+kt4PFL1Offset   = ak5PFL1Offset.clone(algorithm = 'KT4PF')
+kt6PFL1Offset   = ak5PFL1Offset.clone(algorithm = 'KT6PF')
+ic5PFL1Offset   = ak5PFL1Offset.clone(algorithm = 'IC5PF')
 
-ak7JPTL1Offset  = ak5CaloL1Offset.clone()
+ak7JPTL1Offset  = ak5CaloL1Offset.clone(algorithm = 'AK7JPT')
 
 # L1 (fastjet) Correction Services
-ak7CaloL1Fastjet = ak5CaloL1Fastjet.clone()
-kt4CaloL1Fastjet = ak5CaloL1Fastjet.clone()
-kt6CaloL1Fastjet = ak5CaloL1Fastjet.clone()
-ic5CaloL1Fastjet = ak5CaloL1Fastjet.clone()
+ak7CaloL1Fastjet = ak5CaloL1Fastjet.clone(algorithm = 'AK7Calo')
+kt4CaloL1Fastjet = ak5CaloL1Fastjet.clone(algorithm = 'KT4Calo')
+kt6CaloL1Fastjet = ak5CaloL1Fastjet.clone(algorithm = 'KT6Calo')
+ic5CaloL1Fastjet = ak5CaloL1Fastjet.clone(algorithm = 'IC5Calo')
 
-ak7PFL1Fastjet   = ak5PFL1Fastjet.clone()
-kt4PFL1Fastjet   = ak5PFL1Fastjet.clone()
-kt6PFL1Fastjet   = ak5PFL1Fastjet.clone()
-ic5PFL1Fastjet   = ak5PFL1Fastjet.clone()
+ak7PFL1Fastjet   = ak5PFL1Fastjet.clone(algorithm = 'AK7PF')
+kt4PFL1Fastjet   = ak5PFL1Fastjet.clone(algorithm = 'KT4PF')
+kt6PFL1Fastjet   = ak5PFL1Fastjet.clone(algorithm = 'KT6PF')
+ic5PFL1Fastjet   = ak5PFL1Fastjet.clone(algorithm = 'IC5PF')
 
-ak7JPTL1Fastjet  = ak5JPTL1Fastjet.clone()
+ak7JPTL1Fastjet  = ak5JPTL1Fastjet.clone(algorithm = 'AK7JPT')
 
 # SPECIAL L1JPTOffset
 ak7L1JPTOffset = ak5L1JPTOffset.clone()
@@ -59,15 +59,15 @@ kt6PFL3Absolute   = ak5PFL3Absolute.clone  ( algorithm = 'KT6PF' )
 ic5PFL3Absolute   = ak5PFL3Absolute.clone  ( algorithm = 'IC5PF' )
 
 # Residual Correction Services
-ak7CaloResidual   = ak5CaloResidual.clone()
-kt4CaloResidual   = ak5CaloResidual.clone()
-kt6CaloResidual   = ak5CaloResidual.clone()
-ic5CaloResidual   = ak5CaloResidual.clone()
+ak7CaloResidual   = ak5CaloResidual.clone(algorithm = 'AK7Calo')
+kt4CaloResidual   = ak5CaloResidual.clone(algorithm = 'KT4Calo')
+kt6CaloResidual   = ak5CaloResidual.clone(algorithm = 'KT6Calo')
+ic5CaloResidual   = ak5CaloResidual.clone(algorithm = 'IC5Calo')
 
-ak7PFResidual     = ak5PFResidual.clone()
-kt4PFResidual     = ak5PFResidual.clone()
-kt6PFResidual     = ak5PFResidual.clone()
-ic5PFResidual     = ak5PFResidual.clone()
+ak7PFResidual     = ak5PFResidual.clone(algorithm = 'AK7PF')
+kt4PFResidual     = ak5PFResidual.clone(algorithm = 'KT4PF')
+kt6PFResidual     = ak5PFResidual.clone(algorithm = 'KT6PF')
+ic5PFResidual     = ak5PFResidual.clone(algorithm = 'IC5PF')
 
 # L6 (semileptonically decaying b-jet) Correction Services
 ak7CaloL6SLB = ak5CaloL6SLB.clone(
