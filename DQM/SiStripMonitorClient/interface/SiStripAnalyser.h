@@ -9,7 +9,7 @@
  */
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -22,14 +22,13 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
 class SiStripWebInterface;
 class SiStripFedCabling;
 class SiStripDetCabling;
 class SiStripActionExecutor;
 class SiStripClassToMonitorCondData;
 class FEDRawDataCollection;
-class SiStripAnalyser: public edm::EDAnalyzer{
+class SiStripAnalyser: public DQMEDHarvester {
 
 public:
 
@@ -45,36 +44,27 @@ public:
 
 private:
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
-  /// Analyze
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-
   /// Begin Luminosity Block
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) ;
+  void dqmBeginLuminosityBlock(DQMStore::IBooker & ibooker , DQMStore::IGetter & igetter , edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) ;
 
   /// End Luminosity Block
-  
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
+  void dqmEndLuminosityBlock(DQMStore::IBooker & ibooker , DQMStore::IGetter & igetter , edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
 
   /// EndRun
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   /// Endjob
-  void endJob();
+  void dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_);
 
 
 
 private:
 
   SiStripClassToMonitorCondData* condDataMon_;  
-  void checkTrackerFEDs(edm::Event const& e);
-
-  DQMStore* dqmStore_;
+  void checkTrackerFEDsInLS(DQMStore::IGetter & igetter, double iLS);
 
   //SiStripWebInterface* sistripWebInterface_;
 
@@ -84,6 +74,7 @@ private:
   int staticUpdateFrequency_;
   int globalStatusFilling_;
   int shiftReportFrequency_;
+  bool verbose_;
 
   edm::InputTag rawDataTag_;
   edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
@@ -98,12 +89,12 @@ private:
 
   unsigned long long m_cacheID_;
   int nLumiSecs_;
-  int nEvents_;
   bool trackerFEDsFound_;
   bool printFaultyModuleList_;
   bool endLumiAnalysisOn_;
   std::ostringstream html_out_;
-
+  std::string nFEDinfoDir_;
+  std::string nFEDinVsLSname_;
 };
 
 

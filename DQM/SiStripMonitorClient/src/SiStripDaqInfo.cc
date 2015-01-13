@@ -2,7 +2,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/SiStripMonitorClient/interface/SiStripDaqInfo.h"
@@ -35,8 +34,6 @@ SiStripDaqInfo::SiStripDaqInfo(edm::ParameterSet const& pSet) {
   // Create MessageSender
   edm::LogInfo( "SiStripDaqInfo") << "SiStripDaqInfo::Deleting SiStripDaqInfo ";
 
-  // get back-end interface
-  dqmStore_ = edm::Service<DQMStore>().operator->();
   nFedTotal = 0;
   bookedStatus_ = false;
 }
@@ -45,29 +42,23 @@ SiStripDaqInfo::~SiStripDaqInfo() {
 
 }
 //
-// -- Begin Job
-//
-void SiStripDaqInfo::beginJob() {
- 
-}
-//
 // -- Book MEs for SiStrip Daq Fraction
 //
-void SiStripDaqInfo::bookStatus() {
+void SiStripDaqInfo::bookStatus(DQMStore::IBooker & ibooker , DQMStore::IGetter & igetter) {
    edm::LogInfo( "SiStripDcsInfo") << " SiStripDaqInfo::bookStatus " << bookedStatus_;
   if (!bookedStatus_) {
-    dqmStore_->cd();
+    ibooker.cd();
     std::string strip_dir = "";
-    SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir);
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
-    else dqmStore_->setCurrentFolder("SiStrip/EventInfo");
+    SiStripUtility::getTopFolderPath(ibooker , igetter , "SiStrip", strip_dir);
+    if (strip_dir.size() > 0) ibooker.setCurrentFolder(strip_dir+"/EventInfo");
+    else ibooker.setCurrentFolder("SiStrip/EventInfo");
 
     
-    DaqFraction_= dqmStore_->bookFloat("DAQSummary");  
+    DaqFraction_= ibooker.bookFloat("DAQSummary");  
 
-    dqmStore_->cd();    
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DAQContents");
-    else dqmStore_->setCurrentFolder("SiStrip/EventInfo/DAQContents");
+    ibooker.cd();    
+    if (strip_dir.size() > 0) ibooker.setCurrentFolder(strip_dir+"/EventInfo/DAQContents");
+    else ibooker.setCurrentFolder("SiStrip/EventInfo/DAQContents");
       
     std::vector<std::string> det_type;
     det_type.push_back("TIB");
@@ -83,19 +74,19 @@ void SiStripDaqInfo::bookStatus() {
       SubDetMEs local_mes;	
       std::string me_name;
       me_name = "SiStrip_" + det;    
-      local_mes.DaqFractionME = dqmStore_->bookFloat(me_name);  	
+      local_mes.DaqFractionME = ibooker.bookFloat(me_name);  	
       local_mes.ConnectedFeds = 0;
       SubDetMEsMap.insert(make_pair(det, local_mes));
     } 
     bookedStatus_ = true;
-    dqmStore_->cd();
+    ibooker.cd();
   }
 }
 //
 // -- Fill with Dummy values
 //
-void SiStripDaqInfo::fillDummyStatus() {
-  if (!bookedStatus_) bookStatus();
+void SiStripDaqInfo::fillDummyStatus(DQMStore::IBooker & ibooker , DQMStore::IGetter & igetter) {
+  if (!bookedStatus_) bookStatus(ibooker , igetter);
   if (bookedStatus_) {
     for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
       it->second.DaqFractionME->Reset();
@@ -111,6 +102,11 @@ void SiStripDaqInfo::fillDummyStatus() {
 void SiStripDaqInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo ("SiStripDaqInfo") <<"SiStripDaqInfo:: Begining of Run";
 
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  tTopo = tTopoHandle.product();
+
   // Check latest Fed cabling and create TrackerMapCreator
   unsigned long long cacheID = eSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
   if (m_cacheID_ != cacheID) {
@@ -120,14 +116,15 @@ void SiStripDaqInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
 
     readFedIds(fedCabling_, eSetup);
   }
+  /*
   if (!bookedStatus_) bookStatus();  
   if (nFedTotal == 0) {
     fillDummyStatus();
     edm::LogInfo ("SiStripDaqInfo") <<" SiStripDaqInfo::No FEDs Connected!!!";
     return;
   }
-  
-  float nFEDConnected = 0.0;
+  */  
+  nFEDConnected = 0;
   const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
   const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID; 
 
@@ -138,7 +135,7 @@ void SiStripDaqInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
     eSetup.get<RunInfoRcd>().get(sumFED);    
     
     if ( sumFED.isValid() ) {
-      std::vector<int> FedsInIds= sumFED->m_fed_in;   
+      FedsInIds= sumFED->m_fed_in;   
       for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
 	int fedID = FedsInIds[it];     
 	
@@ -146,25 +143,26 @@ void SiStripDaqInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
       }
       edm::LogInfo ("SiStripDaqInfo") <<" SiStripDaqInfo::Total # of FEDs " << nFedTotal 
                                       << " Connected FEDs " << nFEDConnected;
-      if (nFEDConnected > 0) {
-	DaqFraction_->Reset();
-	DaqFraction_->Fill(nFEDConnected/nFedTotal);
-	readSubdetFedFractions(FedsInIds,eSetup);
-      }
     }
-  } 
+  }
 }
-//
-// -- Analyze
-//
-void SiStripDaqInfo::analyze(edm::Event const& event, edm::EventSetup const& eSetup) {
-}
-
 //
 // -- End Luminosity Block
 //
-void SiStripDaqInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
+void SiStripDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
   edm::LogInfo( "SiStripDaqInfo") << "SiStripDaqInfo::endLuminosityBlock";
+
+  if (!bookedStatus_) bookStatus(ibooker , igetter);  
+
+  if (nFedTotal == 0) {
+    fillDummyStatus(ibooker , igetter);
+    edm::LogInfo ("SiStripDaqInfo") <<" SiStripDaqInfo::No FEDs Connected!!!";
+    return;
+  }
+
+  if (nFEDConnected > 0) {
+    readSubdetFedFractions(ibooker , igetter , FedsInIds);
+  }
 }
 //
 // -- End Run
@@ -172,15 +170,19 @@ void SiStripDaqInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm
 void SiStripDaqInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
   edm::LogInfo ("SiStripDaqInfo") <<"SiStripDaqInfo::EndRun";
 }
+
+void SiStripDaqInfo::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter){
+  if (nFEDConnected > 0) {
+    DaqFraction_->Reset();
+    DaqFraction_->Fill((float)nFEDConnected/nFedTotal);
+  }  
+}
+
+
 //
 // -- Read Sub Detector FEDs
 //
 void SiStripDaqInfo::readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabling, edm::EventSetup const& iSetup) {
-
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   auto feds = fedCabling_->fedIds(); 
 
@@ -201,12 +203,7 @@ void SiStripDaqInfo::readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabli
 //
 // -- Fill Subdet FEDIds 
 //
-void SiStripDaqInfo::readSubdetFedFractions(std::vector<int>& fed_ids, edm::EventSetup const& iSetup) {
-
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+void SiStripDaqInfo::readSubdetFedFractions(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter , std::vector<int>& fed_ids) {
 
   const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
   const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID; 
@@ -241,7 +238,7 @@ void SiStripDaqInfo::readSubdetFedFractions(std::vector<int>& fed_ids, edm::Even
 	  break;
 	}
       }
-      if (!fedid_found) findExcludedModule((*iv),tTopo);   
+      if (!fedid_found) findExcludedModule(ibooker , igetter , (*iv),tTopo);   
     }
     int nFedsConnected   = iPos->second.ConnectedFeds;
     int nFedSubDet       = subdetIds.size();
@@ -254,13 +251,13 @@ void SiStripDaqInfo::readSubdetFedFractions(std::vector<int>& fed_ids, edm::Even
 //
 // -- find Excluded Modules
 //
-void SiStripDaqInfo::findExcludedModule(unsigned short fed_id, const TrackerTopology* tTopo) {
-  dqmStore_->cd();
+void SiStripDaqInfo::findExcludedModule(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter , unsigned short fed_id, const TrackerTopology* tTopo) {
+  ibooker.cd();
   std::string mdir = "MechanicalView";
-  if (!SiStripUtility::goToDir(dqmStore_, mdir)) {
-    dqmStore_->setCurrentFolder("SiStrip/"+mdir);
+  if (!SiStripUtility::goToDir(ibooker , igetter , mdir)) {
+    ibooker.setCurrentFolder("SiStrip/"+mdir);
   }
-  std::string mechanical_dir = dqmStore_->pwd();
+  std::string mechanical_dir = ibooker.pwd();
   auto fedChannels = fedCabling_->fedConnections(fed_id);
   int ichannel = 0;
   std::string tag = "ExcludedFedChannel";
@@ -276,25 +273,25 @@ void SiStripDaqInfo::findExcludedModule(unsigned short fed_id, const TrackerTopo
       std::string subdet_folder ;
       SiStripFolderOrganizer folder_organizer;
       folder_organizer.getSubDetFolder(detId,tTopo,subdet_folder);
-      if (!dqmStore_->dirExists(subdet_folder)) {
+      if (!igetter.dirExists(subdet_folder)) {
 	subdet_folder = mechanical_dir + subdet_folder.substr(subdet_folder.find(mdir)+mdir.size());
       }
       bad_module_folder = subdet_folder + "/" + "BadModuleList";
-      dqmStore_->setCurrentFolder(bad_module_folder);    
+      ibooker.setCurrentFolder(bad_module_folder);    
     }
     std::ostringstream detid_str;
     detid_str << detId;
     std::string full_path = bad_module_folder + "/" + detid_str.str();
-    MonitorElement* me = dqmStore_->get(full_path);
+    MonitorElement* me = igetter.get(full_path);
     uint16_t flag = 0; 
     if (me) {
       flag = me->getIntValue();
       me->Reset();
-    } else me = dqmStore_->bookInt(detid_str.str());
+    } else me = ibooker.bookInt(detid_str.str());
     SiStripUtility::setBadModuleFlag(tag, flag);
     me->Fill(flag);
   }
-  dqmStore_->cd();
+  ibooker.cd();
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripDaqInfo);

@@ -2,7 +2,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
@@ -33,18 +32,10 @@
 SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const& pSet) {
   // Create MessageSender
   edm::LogInfo( "SiStripCertificationInfo") << "SiStripCertificationInfo::Deleting SiStripCertificationInfo ";
-  // get back-end interface
-  dqmStore_ = edm::Service<DQMStore>().operator->();
   sistripCertificationBooked_   = false;
 }
 SiStripCertificationInfo::~SiStripCertificationInfo() {
   edm::LogInfo("SiStripCertificationInfo") << "SiStripCertificationInfo::Deleting SiStripCertificationInfo ";
-
-}
-//
-// -- Begin Job
-//
-void SiStripCertificationInfo::beginJob() {
 
 }
 //
@@ -78,27 +69,28 @@ void SiStripCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup con
       LogDebug ("SiStripDcsInfo") << " SiStripDcsInfo :: Connected FEDs " << nFEDConnected_;
     }
   }
- 
-  bookSiStripCertificationMEs();
-  fillDummySiStripCertification();
-  
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  tTopo = tTopoHandle.product(); 
 }
 //
 // -- Book MEs for SiStrip Sertification fractions  
 //
-void SiStripCertificationInfo::bookSiStripCertificationMEs() {
+void SiStripCertificationInfo::bookSiStripCertificationMEs(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   if (!sistripCertificationBooked_) {
-    dqmStore_->cd();
+    ibooker.cd();
     std::string strip_dir = "";
-    SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir); 
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
-    else dqmStore_->setCurrentFolder("SiStrip/EventInfo"); 
+    SiStripUtility::getTopFolderPath(ibooker , igetter , "SiStrip", strip_dir); 
+    if (strip_dir.size() > 0) ibooker.setCurrentFolder(strip_dir+"/EventInfo");
+    else ibooker.setCurrentFolder("SiStrip/EventInfo"); 
 
-    SiStripCertification = dqmStore_->bookFloat("CertificationSummary");  
+    SiStripCertification = ibooker.bookFloat("CertificationSummary");  
 
     std::string  hname  = "CertificationReportMap";
     std::string  htitle = "SiStrip Certification for Good Detector Fraction";
-    SiStripCertificationSummaryMap = dqmStore_->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
+    SiStripCertificationSummaryMap = ibooker.book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
     SiStripCertificationSummaryMap->setAxisTitle("Sub Detector Type", 1);
     SiStripCertificationSummaryMap->setAxisTitle("Layer/Disc Number", 2);
     int ibin = 0;
@@ -111,104 +103,90 @@ void SiStripCertificationInfo::bookSiStripCertificationMEs() {
 
     SubDetMEs local_mes;
     std::string tag;
-    dqmStore_->cd();
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/CertificationContents");
-    else dqmStore_->setCurrentFolder("SiStrip/EventInfo/CertificationContents");
+    ibooker.cd();
+    if (strip_dir.size() > 0) ibooker.setCurrentFolder(strip_dir+"/EventInfo/CertificationContents");
+    else ibooker.setCurrentFolder("SiStrip/EventInfo/CertificationContents");
     tag = "TIB";
     
     local_mes.folder_name = "TIB";
     local_mes.subdet_tag  = "TIB";
     local_mes.n_layer     = 4;
-    local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
+    local_mes.det_fractionME = ibooker.bookFloat("SiStrip_"+tag);
     SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
     
     tag = "TOB";
     local_mes.folder_name = "TOB";
     local_mes.subdet_tag  = "TOB";
     local_mes.n_layer     = 6;
-    local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
+    local_mes.det_fractionME = ibooker.bookFloat("SiStrip_"+tag);
     SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
     
     tag = "TECF";
     local_mes.folder_name = "TEC/PLUS";
     local_mes.subdet_tag  = "TEC+";
     local_mes.n_layer     = 9;
-    local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
+    local_mes.det_fractionME = ibooker.bookFloat("SiStrip_"+tag);
     SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
     
     tag = "TECB";
     local_mes.folder_name = "TEC/MINUS";
     local_mes.subdet_tag  = "TEC-";
     local_mes.n_layer     = 9;
-    local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
+    local_mes.det_fractionME = ibooker.bookFloat("SiStrip_"+tag);
     SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
     
     tag = "TIDF";
     local_mes.folder_name = "TID/PLUS";
     local_mes.subdet_tag  = "TID+";
     local_mes.n_layer     = 3;
-    local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
+    local_mes.det_fractionME = ibooker.bookFloat("SiStrip_"+tag);
     SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
     
     tag = "TIDB";
     local_mes.folder_name = "TID/MINUS";
     local_mes.subdet_tag  = "TID-";
     local_mes.n_layer     = 3;
-    local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
+    local_mes.det_fractionME = ibooker.bookFloat("SiStrip_"+tag);
     SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
     
-    dqmStore_->cd();
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
+    ibooker.cd();
+    if (strip_dir.size() > 0) ibooker.setCurrentFolder(strip_dir+"/EventInfo");
     
     sistripCertificationBooked_  = true;
-    dqmStore_->cd();
+    ibooker.cd();
   }
 }  
 //
-// -- Analyze
-//
-void SiStripCertificationInfo::analyze(edm::Event const& event, edm::EventSetup const& eSetup) {
-}
-//
 // -- End Luminosity Block
 //
-void SiStripCertificationInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
+void SiStripCertificationInfo::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter , edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
   edm::LogInfo( "SiStripDaqInfo") << "SiStripDaqInfo::endLuminosityBlock";
 
-  if (nFEDConnected_ > 0) {
-    fillSiStripCertificationMEsAtLumi();  
-  }
+  bookSiStripCertificationMEs( ibooker , igetter );
+  fillDummySiStripCertification( ibooker , igetter );
+  
+  if (nFEDConnected_ > 0)
+    fillSiStripCertificationMEsAtLumi( ibooker , igetter );  
 }
 
-//
-// -- End of Run
-//
-void SiStripCertificationInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
-  edm::LogInfo ("SiStripCertificationInfo") <<"SiStripCertificationInfo:: End Run";
-
-  if (nFEDConnected_ > 0) {
-    fillSiStripCertificationMEs(eSetup);
-  }
+void SiStripCertificationInfo::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
+  if (nFEDConnected_ > 0) 
+    fillSiStripCertificationMEs(ibooker , igetter);
 }
 //
 // --Fill SiStrip Certification 
 //
-void SiStripCertificationInfo::fillSiStripCertificationMEs(edm::EventSetup const& eSetup) {
+void SiStripCertificationInfo::fillSiStripCertificationMEs(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
   if (!sistripCertificationBooked_) {
     edm::LogError("SiStripCertificationInfo") << " SiStripCertificationInfo::fillSiStripCertificationMEs : MEs missing ";
     return;
   }
 
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  resetSiStripCertificationMEs();
+  resetSiStripCertificationMEs(ibooker , igetter);
   std::string mdir = "MechanicalView";
-  dqmStore_->cd();
-  if (!SiStripUtility::goToDir(dqmStore_, mdir)) return;
-  std::string mechanical_dir = dqmStore_->pwd();
+  ibooker.cd();
+  if (!SiStripUtility::goToDir(ibooker , igetter , mdir)) return;
+  std::string mechanical_dir = ibooker.pwd();
   uint16_t nDetTot = 0;
   uint16_t nFaultyTot = 0;
   uint16_t nSToNTot = 0; 
@@ -223,7 +201,7 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs(edm::EventSetup const
     MonitorElement* me = it->second.det_fractionME;
     if (!me) continue;
     std::string bad_module_folder = mechanical_dir+"/"+it->second.folder_name+"/"+"BadModuleList";
-    std::vector<MonitorElement *> faulty_detMEs = dqmStore_->getContents(bad_module_folder);
+    std::vector<MonitorElement *> faulty_detMEs = igetter.getContents(bad_module_folder);
     
     uint16_t ndet_subdet = 0;
     uint16_t nfaulty_subdet = 0;
@@ -255,7 +233,7 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs(edm::EventSetup const
     // Check S/N status flag and use the minimum between the two
     std::string full_path = mechanical_dir.substr(0, mechanical_dir.find_last_of("/")) 
                             + "/EventInfo/reportSummaryContents/SiStrip_SToNFlag_"+name;
-    MonitorElement* me_ston = dqmStore_->get(full_path);
+    MonitorElement* me_ston = igetter.get(full_path);
     me->Reset();
     if (me_ston && me_ston->kind()==MonitorElement::DQM_KIND_REAL) {
       float ston_flg = me_ston->getFloatValue(); 
@@ -275,8 +253,8 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs(edm::EventSetup const
 //
 // --Fill SiStrip Certification 
 //
-void SiStripCertificationInfo::resetSiStripCertificationMEs() {
-  if (!sistripCertificationBooked_) bookSiStripCertificationMEs();
+void SiStripCertificationInfo::resetSiStripCertificationMEs(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
+  if (!sistripCertificationBooked_) bookSiStripCertificationMEs(ibooker , igetter);
   if (sistripCertificationBooked_) {
     SiStripCertification->Reset();
     for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); 
@@ -289,8 +267,8 @@ void SiStripCertificationInfo::resetSiStripCertificationMEs() {
 //
 // -- Fill Dummy SiStrip Certification
 //
-void SiStripCertificationInfo::fillDummySiStripCertification() {
-  resetSiStripCertificationMEs();
+void SiStripCertificationInfo::fillDummySiStripCertification(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
+  resetSiStripCertificationMEs(ibooker, igetter);
   if (sistripCertificationBooked_) {
     SiStripCertification->Fill(-1.0);
     for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); 
@@ -309,15 +287,15 @@ void SiStripCertificationInfo::fillDummySiStripCertification() {
 //
 // --Fill SiStrip Certification
 //
-void SiStripCertificationInfo::fillSiStripCertificationMEsAtLumi() {
+void SiStripCertificationInfo::fillSiStripCertificationMEsAtLumi(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   if (!sistripCertificationBooked_) {
     edm::LogError("SiStripCertificationInfo") << " SiStripCertificationInfo::fillSiStripCertificationMEsAtLumi : MEs missing ";
     return;
   }
-  resetSiStripCertificationMEs();
-  dqmStore_->cd();
+  resetSiStripCertificationMEs(ibooker , igetter);
+  ibooker.cd();
   std::string strip_dir = "";
-  SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir);
+  SiStripUtility::getTopFolderPath(ibooker , igetter, "SiStrip", strip_dir);
   if (strip_dir.size() == 0) strip_dir = "SiStrip";
 
   std::string full_path;
@@ -327,10 +305,10 @@ void SiStripCertificationInfo::fillSiStripCertificationMEsAtLumi() {
        it != SubDetMEsMap.end(); it++) {
     std::string type = it->first;
     full_path = strip_dir + "/EventInfo/DCSContents/SiStrip_" + type;
-    MonitorElement* me_dcs = dqmStore_->get(full_path);
+    MonitorElement* me_dcs = igetter.get(full_path);
     if (me_dcs && me_dcs->kind() == MonitorElement::DQM_KIND_REAL) dcs_flag = me_dcs->getFloatValue(); 
     full_path = strip_dir + "/EventInfo/reportSummaryContents/SiStrip_" + type;
-    MonitorElement* me_dqm = dqmStore_->get(full_path);
+    MonitorElement* me_dqm = igetter.get(full_path);
     if (me_dqm && me_dqm->kind() == MonitorElement::DQM_KIND_REAL) dqm_flag = me_dqm->getFloatValue(); 
     it->second.det_fractionME->Reset();
     it->second.det_fractionME->Fill(fminf(dqm_flag,dcs_flag));
@@ -338,10 +316,10 @@ void SiStripCertificationInfo::fillSiStripCertificationMEsAtLumi() {
   dcs_flag = 1.0;
   dqm_flag = 1.0;
   full_path = strip_dir + "/EventInfo/reportSummary";
-  MonitorElement* me_dqm = dqmStore_->get(full_path);
+  MonitorElement* me_dqm = igetter.get(full_path);
   if (me_dqm && me_dqm->kind() == MonitorElement::DQM_KIND_REAL) dqm_flag = me_dqm->getFloatValue();
   full_path = strip_dir + "/EventInfo/DCSSummary";
-  MonitorElement* me_dcs = dqmStore_->get(full_path);
+  MonitorElement* me_dcs = igetter.get(full_path);
   if (me_dcs && me_dcs->kind() == MonitorElement::DQM_KIND_REAL) dcs_flag = me_dcs->getFloatValue();
   SiStripCertification->Reset();
   SiStripCertification->Fill(fminf(dqm_flag,dcs_flag));   

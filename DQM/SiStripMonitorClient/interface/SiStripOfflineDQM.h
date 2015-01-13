@@ -21,12 +21,13 @@
 
 #include <string>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include <iostream>
 #include <fstream>
@@ -34,11 +35,10 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
 class SiStripActionExecutor;
 class SiStripDetCabling;
 
-class SiStripOfflineDQM: public edm::EDAnalyzer {
+class SiStripOfflineDQM: public DQMEDHarvester {
 
  public:
 
@@ -50,43 +50,28 @@ class SiStripOfflineDQM: public edm::EDAnalyzer {
 
  private:
 
-  /// BeginJob
-  void beginJob();
-
-  /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
-
-  /// Analyze
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-
-  /// End Of Luminosity
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
-
-  /// EndRun
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
-  /// Endjob
-  void endJob();
+  void dqmEndLuminosityBlock(DQMStore::IBooker & , DQMStore::IGetter & , edm::LuminosityBlock const &, edm::EventSetup const&);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
 private:
 
-  void checkTrackerFEDs(edm::Event const& e);
-  bool openInputFile();
-
-  DQMStore* dqmStore_;
-
   SiStripActionExecutor* actionExecutor_;
 
-  bool createSummary_;
-  std::string inputFileName_;
-  std::string outputFileName_;
-  int globalStatusFilling_; 
   bool usedWithEDMtoMEConverter_;
-  int nEvents_;
+  bool createSummary_;
+  int globalStatusFilling_; 
   bool trackerFEDsFound_;
   bool printFaultyModuleList_;
-
+  edm::ESHandle< SiStripDetCabling > det_cabling;
+  const TrackerTopology *tTopo;
   edm::ParameterSet configPar_;
+  edm::ESHandle<SiStripQuality> ssq;
+  bool useSSQuality_;
+  std::string ssqLabel_;
+  bool configRead;
 
 };
 #endif

@@ -53,23 +53,23 @@ void SiStripHistoPlotter::setNewPlot(std::string& path, std::string& option, int
 //
 // -- Create Plots 
 //
-void SiStripHistoPlotter::createPlots(DQMStore* dqm_store) {
+void SiStripHistoPlotter::createPlots(DQMStore::IGetter & igetter) {
   if (plotList_.size() == 0) return;
   std::string name = "Dummy";
   if (!hasNamedImage(name)) createDummyImage(name);
   for (std::vector<PlotParameter>::iterator it = plotList_.begin(); 
        it != plotList_.end(); it++) {
-    makePlot(dqm_store, (*it));
+    makePlot(igetter , (*it));
   }
   plotList_.clear();
 }
 //
 // -- Draw Histograms 
 //
-void SiStripHistoPlotter::makePlot(DQMStore* dqm_store, const PlotParameter& par) {
+void SiStripHistoPlotter::makePlot(DQMStore::IGetter & igetter, const PlotParameter& par) {
   TCanvas * canvas = new TCanvas("TKCanvas", "TKCanvas", par.CWidth, par.CHeight);
 
-  MonitorElement * me = dqm_store->get(par.Path);
+  MonitorElement * me = igetter.get(par.Path);
   if (me) { 
 	
     int istat =  SiStripUtility::getMEStatus(me);
@@ -323,21 +323,21 @@ void SiStripHistoPlotter::setNewCondDBPlot(std::string& path, std::string& optio
 //
 // -- Create CondDB Plots 
 //
-void SiStripHistoPlotter::createCondDBPlots(DQMStore* dqm_store) {
+void SiStripHistoPlotter::createCondDBPlots(DQMStore::IGetter & igetter) {
   if (condDBPlotList_.size() == 0) return;
   std::string name = "Dummy";
   if (!hasNamedImage(name)) createDummyImage(name);
 
   for (std::vector<PlotParameter>::iterator it = condDBPlotList_.begin(); 
        it != condDBPlotList_.end(); it++) {
-    makeCondDBPlots(dqm_store, (*it));
+    makeCondDBPlots(igetter, (*it));
   }
   condDBPlotList_.clear();
 }
 //
 // -- Draw CondDB Histograms 
 //
-void SiStripHistoPlotter::makeCondDBPlots(DQMStore* dqm_store, const PlotParameter& par) {
+void SiStripHistoPlotter::makeCondDBPlots(DQMStore::IGetter & igetter, const PlotParameter& par) {
   TCanvas * canvas = new TCanvas("TKCanvas", "TKCanvas", par.CWidth, par.CHeight);
 
   std::vector<std::string> htypes;
@@ -345,7 +345,7 @@ void SiStripHistoPlotter::makeCondDBPlots(DQMStore* dqm_store, const PlotParamet
   SiStripUtility::split(option, htypes, ",");
 
   std::string tag;
-  std::vector<MonitorElement*> all_mes = dqm_store->getContents(par.Path);
+  std::vector<MonitorElement*> all_mes = igetter.getContents(par.Path);
 
   for (std::vector<std::string>::const_iterator ih = htypes.begin();
        ih!= htypes.end(); ih++) {

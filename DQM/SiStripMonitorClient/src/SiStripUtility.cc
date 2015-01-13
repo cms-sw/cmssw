@@ -1,6 +1,5 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -161,18 +160,18 @@ int SiStripUtility::getMEStatus(MonitorElement* me) {
 //
 // --  Fill Module Names
 // 
-void SiStripUtility::getModuleFolderList(DQMStore * dqm_store, std::vector<std::string>& mfolders){
-  std::string currDir = dqm_store->pwd();
+void SiStripUtility::getModuleFolderList(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::vector<std::string>& mfolders){
+  std::string currDir = ibooker.pwd();
   if (currDir.find("module_") != std::string::npos)  {
     //    std::string mId = currDir.substr(currDir.find("module_")+7, 9);
     mfolders.push_back(currDir);
   } else {  
-    std::vector<std::string> subdirs = dqm_store->getSubdirs();
+    std::vector<std::string> subdirs = igetter.getSubdirs();
     for (std::vector<std::string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
-      dqm_store->cd(*it);
-      getModuleFolderList(dqm_store, mfolders);
-      dqm_store->goUp();
+      ibooker.cd(*it);
+      getModuleFolderList(ibooker , igetter, mfolders);
+      ibooker.goUp();
     }
   }
 }
@@ -212,13 +211,13 @@ void SiStripUtility::getMEValue(MonitorElement* me, std::string & val){
 //
 // -- go to a given Directory
 //
-bool SiStripUtility::goToDir(DQMStore * dqm_store, std::string name) {
-  std::string currDir = dqm_store->pwd();
+bool SiStripUtility::goToDir(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::string name) {
+  std::string currDir = ibooker.pwd();
   std::string dirName = currDir.substr(currDir.find_last_of("/")+1);
   if (dirName.find(name) == 0) {
     return true;
   }
-  std::vector<std::string> subDirVec = dqm_store->getSubdirs();
+  std::vector<std::string> subDirVec = igetter.getSubdirs();
   for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
     std::string fname = (*ic);
@@ -227,8 +226,8 @@ bool SiStripUtility::goToDir(DQMStore * dqm_store, std::string name) {
 	(fname.find("AlCaReco")  != std::string::npos) ||
 	(fname.find("HLT")       != std::string::npos) 
 	) continue;
-    dqm_store->cd(fname);
-    if (!goToDir(dqm_store, name))  dqm_store->goUp();
+    ibooker.cd(fname);
+    if (!goToDir(ibooker, igetter, name))  ibooker.goUp();
     else return true;
   }
   return false;  
@@ -301,18 +300,18 @@ void SiStripUtility::getBadModuleStatus(uint16_t flag, std::string & message){
 //
 // -- Set Event Info Folder
 //
-void SiStripUtility::getTopFolderPath(DQMStore * dqm_store, std::string top_dir, std::string& path) {
+void SiStripUtility::getTopFolderPath(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::string top_dir, std::string& path) {
 
   path = ""; 
-  dqm_store->cd();
-  if (dqm_store->dirExists(top_dir)) {
-    dqm_store->cd(top_dir);
-    path = dqm_store->pwd();
+  ibooker.cd();
+  if (igetter.dirExists(top_dir)) {
+    ibooker.cd(top_dir);
+    path = ibooker.pwd();
   } else {
-    if (SiStripUtility::goToDir(dqm_store, top_dir)) {
+    if (SiStripUtility::goToDir(ibooker,igetter, top_dir)) {
       std::string mdir = "MechanicalView";
-      if (SiStripUtility::goToDir(dqm_store, mdir)) {
-	path = dqm_store->pwd(); 
+      if (SiStripUtility::goToDir(ibooker, igetter, mdir)) {
+	path = ibooker.pwd(); 
 	path = path.substr(0, path.find(mdir)-1);
       }
     }
