@@ -9,12 +9,12 @@
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
-#include "HLTrigger/HLTcore/interface/TriggerExpressionL1Reader.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionL1AlgoReader.h"
 
 namespace triggerExpression {
 
 // define the result of the module from the L1 reults
-bool L1Reader::operator()(const Data & data) const {
+bool L1AlgoReader::operator()(const Data & data) const {
   if (not data.hasL1T())
     return false;
 
@@ -30,7 +30,7 @@ bool L1Reader::operator()(const Data & data) const {
   return false;
 }
 
-void L1Reader::dump(std::ostream & out) const {
+void L1AlgoReader::dump(std::ostream & out) const {
   if (m_triggers.size() == 0) {
     out << "FALSE";
   } else if (m_triggers.size() == 1) {
@@ -43,14 +43,17 @@ void L1Reader::dump(std::ostream & out) const {
   }
 }
 
-void L1Reader::init(const Data & data) {
+void L1AlgoReader::init(const Data & data) {
+  if (not data.hasL1T())
+    return;
+
   const L1GtTriggerMenu & menu = data.l1tMenu();
   const L1GtTriggerMask & mask = data.l1tAlgoMask();
 
   // clear the previous configuration
   m_triggers.clear();
 
-  // check if the pattern has is a glob expression, or a single trigger name 
+  // check if the pattern has is a glob expression, or a single trigger name
   if (not edm::is_glob(m_pattern)) {
     // no wildcard expression
     const AlgorithmMap & triggerMap = menu.gtAlgorithmAliasMap();
@@ -65,7 +68,7 @@ void L1Reader::init(const Data & data) {
       else
         edm::LogWarning("Configuration") << "requested L1 trigger \"" << m_pattern << "\" does not exist in the current L1 menu";
   } else {
-    // expand wildcards in the pattern 
+    // expand wildcards in the pattern
     bool match = false;
     boost::regex re(edm::glob2reg(m_pattern));
     const AlgorithmMap & triggerMap = menu.gtAlgorithmAliasMap();
