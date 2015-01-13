@@ -7,33 +7,63 @@ namespace Phase2Tracker
     public:
       stackedDigi() {}
       stackedDigi(const SiPixelCluster *, STACK_LAYER, int);
+      stackedDigi(int, int, int, STACK_LAYER, int);
       ~stackedDigi() {}
       bool operator<(stackedDigi) const ;
-      inline const SiPixelCluster * getDigi() const { return digi_; }
       inline STACK_LAYER getLayer() const { return layer_; }
       inline int getModuleType() const { return moduletype_; }
-      inline int getRawX() const { return rawx_; }
-      inline int getRawY() const { return rawy_; }
+      inline int getRawX()   const { return rawx_; }
+      inline int getRawY()   const { return rawy_; }
+      inline int getDigiX()  const { return digix_; }
+      inline int getDigiY()  const { return digiy_; }
+      inline int getSizeX()  const { return sizex_; }
+      inline int getSide()   const { return side_; }
+      // get side and type, to map to concentrators (0 = S-left, 1 = S-right, 2 = P-left, 3 = P-right)
+      inline int getSideType()   const { return side_ + 2*(1-moduletype_) + 2*layer_*moduletype_; }
       inline int getChipId() const { return chipid_; }
+      void setPosSizeX(int, int);
     private:
       void calcchipid();
-      const SiPixelCluster * digi_;
+      int digix_, digiy_, sizex_;
       STACK_LAYER layer_;
       int moduletype_;
-      int rawx_;
-      int rawy_;
+      int rawx_, rawy_;
+      int side_;
       int chipid_;
   };
 
-  stackedDigi::stackedDigi(const SiPixelCluster * digi, STACK_LAYER layer, int moduletype) : digi_(digi), layer_(layer), moduletype_(moduletype) 
+  stackedDigi::stackedDigi(const SiPixelCluster * digi, STACK_LAYER layer, int moduletype) : 
+      digix_(digi->minPixelRow()), 
+      digiy_(digi->minPixelCol()), 
+      sizex_(digi->sizeX()),
+      layer_(layer), 
+      moduletype_(moduletype) 
   {
+    calcchipid();
+  }
+
+  stackedDigi::stackedDigi(int digix, int digiy, int sizex, STACK_LAYER layer, int moduletype) :
+    digix_(digix),
+    digiy_(digiy),
+    sizex_(sizex),
+    layer_(layer),
+     moduletype_(moduletype)
+  {
+    calcchipid();
+  }
+
+  void stackedDigi::setPosSizeX(int pos, int size)
+  {
+    digix_ = pos;
+    sizex_ = size;
     calcchipid();
   }
 
   void stackedDigi::calcchipid() 
   {
-    int x = digi_->minPixelRow();
-    int y = digi_->minPixelCol();
+    int x = digix_;
+    int y = digiy_;
+    side_ = 0;
     if (moduletype_ == 1)
     {
       if(layer_ == LAYER_INNER)
@@ -44,7 +74,12 @@ namespace Phase2Tracker
         if (y >= PS_COLS/2)
         {
           chipid_ += 8;
+          side_ = 1;
           rawy_ = y - PS_COLS/2;
+        }
+        else
+        {  
+          rawy_ = y;
         }
         rawx_ = x%PS_ROWS;
       }
@@ -52,7 +87,11 @@ namespace Phase2Tracker
       {
         // SonPS
         chipid_ = x/PS_ROWS;
-        if (y > 0) { chipid_ += 8; }
+        if (y > 0) 
+        { 
+          chipid_ += 8; 
+          side_ = 1;
+        }
         rawx_ = x%PS_ROWS;
         rawy_ = y;
       }
@@ -63,7 +102,11 @@ namespace Phase2Tracker
       if(layer_ == LAYER_OUTER) { x += 1; }
       chipid_ = x/STRIPS_PER_CBC;
       // which side ? 
-      if (y > 0) { chipid_ += 8; }
+      if (y > 0) 
+      { 
+        chipid_ += 8; 
+        side_ = 1;
+      }
       rawx_ = x%STRIPS_PER_CBC;
       rawy_ = y;
     }

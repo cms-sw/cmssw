@@ -8,8 +8,52 @@
 
 namespace Phase2Tracker
 {
-  const int MAX_NP = 31;
-  const int MAX_NS = 31;
+  const int MAX_NP = 31; // max P clusters per concentrator i.e. per side
+  const int MAX_NS = 31; // same for S clusters
+
+  std::pair<int,int> SortExpandAndLimitClusters(std::vector<stackedDigi> & digis, int max_ns, int max_np)
+  {
+    std::vector<stackedDigi> processed;
+    // number of clusters allowed : P-left, P-right, S-left, S-right 
+    int roomleft[4] = {max_ns,max_ns,max_np,max_np};
+    // fill left and right vectors, expand big clusters
+    for(auto dig = digis.begin(); dig < digis.end(); dig++)
+    {
+      if(dig->getSizeX() > 8)
+      {
+        int pos = dig->getDigiX();
+        int end = pos + dig->getSizeX();
+        while (pos < end)
+        {
+          // compute size of cluster to add
+          int isize = std::min(8,end-pos);
+          // add cluster
+          stackedDigi ndig(*dig);
+          ndig.setPosSizeX(pos,isize); 
+          if(roomleft[ndig.getSideType()] > 0) 
+          {
+            processed.push_back(ndig); 
+            roomleft[ndig.getSideType()] -= 1;
+          }
+          pos += isize;
+        } 
+      }
+      else
+      {
+        if(roomleft[dig->getSideType()] > 0) 
+        { 
+          processed.push_back(*dig); 
+          roomleft[dig->getSideType()] -= 1;
+        }
+      }
+    }
+    // Sort vector
+    std::sort(processed.begin(),processed.end());
+    // replace input vector
+    digis.swap(processed);
+    // return number of S and P clusters
+    return std::make_pair(2*max_ns - roomleft[2] - roomleft[3], 2*max_np - roomleft[0] - roomleft[1]); 
+  }
 
   Phase2TrackerDigiToRaw::Phase2TrackerDigiToRaw(const Phase2TrackerCabling * cabling, std::map<int,int> stackmap, edm::Handle< edmNew::DetSetVector<SiPixelCluster> > digis_handle, int mode):
     cabling_(cabling),
@@ -96,8 +140,6 @@ namespace Phase2Tracker
       // container for digis, to be sorted afterwards
       std::vector<stackedDigi> digs_mod;
       edmNew::DetSet<SiPixelCluster>::const_iterator it;
-      int ns = 0; 
-      int np = 0;
       // pair modules if there are digis for both
       if(stackMap_[idigi->detId()] > 0)
       {
@@ -105,54 +147,20 @@ namespace Phase2Tracker
 	if( (idigi+1) != digis.end() and (int)(idigi+1)->detId() == stackMap_[idigi->detId()])
         {
           // next digi is the corresponding outer plane : join them
-          if (moduletype == 0)
+          for (it = idigi->begin(); it != idigi->end(); it++)
           {
-            // 2S module
-            for (it = idigi->begin(); it != idigi->end(); it++)
-            {
-              digs_mod.push_back(stackedDigi(it,LAYER_INNER,moduletype));
-            }
-            idigi++;
-            for (it = idigi->begin(); it != idigi->end(); it++)
-            {
-              digs_mod.push_back(stackedDigi(it,LAYER_OUTER,moduletype));
-            }
-            // do not overflow max number of clusters
-            if((int)digs_mod.size() > MAX_NS) 
-            { 
-              digs_mod.resize(MAX_NS); 
-            }
-            writeFeHeaderSparsified(fedbuffer,bitindex,moduletype,0,digs_mod.size());
+            digs_mod.push_back(stackedDigi(it,LAYER_INNER,moduletype));
           }
-          else
+          idigi++;
+          for (it = idigi->begin(); it != idigi->end(); it++)
           {
-            // PS module
-            np = idigi->size();
-            ns = (idigi+1)->size();
-            writeFeHeaderSparsified(fedbuffer,bitindex,moduletype,np,ns);
-            for (it = idigi->begin(); it != idigi->end() and std::distance(idigi->begin(),it) < MAX_NP; it++)
-            {
-              digs_mod.push_back(stackedDigi(it,LAYER_INNER,moduletype));
-            }
-            idigi++;
-            for (it = idigi->begin(); it != idigi->end() and std::distance(idigi->begin(),it) < MAX_NS; it++)
-            {
-              digs_mod.push_back(stackedDigi(it,LAYER_OUTER,moduletype));
-            }
+            digs_mod.push_back(stackedDigi(it,LAYER_OUTER,moduletype));
           }
         }
         else
         {
-          // next digi is from another stack, process only the current INNER one
-          if (moduletype == 0)
-          {
-            writeFeHeaderSparsified(fedbuffer,bitindex,moduletype,0,idigi->size());
-          }
-          else
-          {
-            writeFeHeaderSparsified(fedbuffer,bitindex,moduletype,idigi->size(),0);
-          }
-          for (it = idigi->begin(); it != idigi->end() and std::distance(idigi->begin(),it) < MAX_NP; it++)
+          // next digi is from another module, only use this one
+          for (it = idigi->begin(); it != idigi->end(); it++)
           {
             digs_mod.push_back(stackedDigi(it,LAYER_INNER,moduletype));
           }
@@ -161,22 +169,28 @@ namespace Phase2Tracker
       else
       {
         // digis from outer plane (S in case of PS) 
-        writeFeHeaderSparsified(fedbuffer,bitindex,moduletype,0,idigi->size());
-        for (it = idigi->begin(); it != idigi->end() and std::distance(idigi->begin(),it) < MAX_NS; it++)
+        for (it = idigi->begin(); it != idigi->end(); it++)
         {
           digs_mod.push_back(stackedDigi(it,LAYER_OUTER,moduletype));
         }
       }
-      // sort according to strip, side and chip id
+      // here we should:
+      // - sort all digis
       std::sort(digs_mod.begin(),digs_mod.end());
+      // - divide big clusters into 8-strips parts
+      // - count digis on each side/layer (concentrator)
+      // - remove extra digis
+      std::pair<int,int> nums = SortExpandAndLimitClusters(digs_mod, MAX_NS, MAX_NP);
+      // - write appropriate header
+      writeFeHeaderSparsified(fedbuffer, bitindex, moduletype, nums.second, nums.first);
+      // - write the digis
       std::vector<stackedDigi>::iterator its;
-      // write all clusters
       for(its = digs_mod.begin(); its != digs_mod.end(); its++)
       {
         writeCluster(fedbuffer, bitindex, *its);
       }
 
-    } // end idigi loop
+    } // end idigi (FE) loop
     // add daq trailer 
     fedbuffer.push_back(*(uint64_t*)FedDaqTrailer_.data());
     return fedbuffer;
@@ -184,21 +198,21 @@ namespace Phase2Tracker
 
   void Phase2TrackerDigiToRaw::writeFeHeaderSparsified(std::vector<uint64_t> & buffer, uint64_t & bitpointer, int modtype, int np, int ns)
   {
-    uint8_t  length = 6;
+    uint8_t  length = 7;
     uint16_t header = (uint16_t)modtype & 0x01;
-    // np and ns are on 5 bits : trunk them
-    if(np > MAX_NP) { np = MAX_NP; }
-    if(ns > MAX_NS) { ns = MAX_NS; }
+    // TODO : np and ns are on 6 bits : should we throw an error if we have too many clusters ?
+    // if(np > MAX_NP*2+1) { }
+    // if(ns > MAX_NS*2+1) { }
     // module type switch
     if (modtype == 1)
     {
-      header |= ((uint16_t)np & 0x1F)<<1;
-      header |= ((uint16_t)ns & 0x1F)<<6;
-      length = 11;
+      header |= ((uint16_t)np & 0x3F)<<1;
+      header |= ((uint16_t)ns & 0x3F)<<7;
+      length = 12;
     }
     else 
     {
-      header |= ((uint16_t)ns & 0x1F)<<1;
+      header |= ((uint16_t)ns & 0x3F)<<1;
     }
     write_n_at_m(buffer,length,bitpointer,header);
     bitpointer += length;
@@ -229,19 +243,21 @@ namespace Phase2Tracker
 
   void Phase2TrackerDigiToRaw::writeSCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, stackedDigi digi)
   {
+    std::cout << "S " << digi.getChipId() << " " << digi.getRawX() << " " << digi.getSizeX() << std::endl; 
     uint16_t scluster = (digi.getChipId() & 0x0F) << 11;
     scluster |= (digi.getRawX() & 0xFF) << 3;
-    scluster |= ((digi.getDigi()->sizeX()-1) & 0x07);
+    scluster |= ((digi.getSizeX()-1) & 0x07);
     write_n_at_m(buffer,15,bitpointer,scluster);
     bitpointer += 15;
   }
 
   void Phase2TrackerDigiToRaw::writePCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, stackedDigi digi)
   {
+    std::cout << "P " << digi.getChipId() << " " << digi.getRawX() << " " << digi.getSizeX() << " " << digi.getRawY() << std::endl; 
     uint32_t pcluster = (digi.getChipId() & 0x0F) << 14;
     pcluster |= (digi.getRawX() & 0x7F) << 7;
     pcluster |= (digi.getRawY() & 0x0F) << 3;
-    pcluster |= ((digi.getDigi()->sizeX()-1) & 0x07);
+    pcluster |= ((digi.getSizeX()-1) & 0x07);
     write_n_at_m(buffer,18,bitpointer,pcluster);
     bitpointer += 18;
   }
