@@ -86,10 +86,11 @@ private:
   unsigned rxIndex_;
   unsigned txIndex_;
 
-
-  // packet reader (if needed)
-  //  MP7PacketReader rxPacketReader_;
-  //  MP7PacketReader txPacketReader_;
+  // packet readers
+  MP7PacketReader rxPacketReader_;
+  MP7PacketReader txPacketReader_;
+  //  MP7PacketReader::PacketData::const_iter rxItr_;
+  //  MP7PacketReader::PacketData txItr_;
 
   // formatting parameters
   bool packetisedData_;
@@ -135,6 +136,8 @@ private:
   MP7BufferDumpToRaw::MP7BufferDumpToRaw(const edm::ParameterSet& iConfig) :
     rxFileReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt")),
     txFileReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt")),
+    rxPacketReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt")),
+    txPacketReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt")),
     packetisedData_(iConfig.getUntrackedParameter<bool>("packetisedData", true)),
     nFramesPerEvent_(iConfig.getUntrackedParameter<int>("nFramesPerEvent", 6)),
     fedId_(iConfig.getUntrackedParameter<int>("fedId", 1)),
@@ -239,12 +242,22 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
     if (size==0) continue;
 
     std::vector<uint32_t> data;
-    for (unsigned iFrame=rxIndex_; iFrame<rxIndex_+size; ++iFrame) {
-      if (!packetisedData_) {
+    if (packetisedData_) {
+      const PacketData& p = rxPacketReader_.get(iBoard);
+      PacketData::const_iterator itr = p.begin();
+      for (unsigned i=0; i<rxIndex_; i++) itr++;
+      for (unsigned iFrame=itr->first_; iFrame<itr->last_; ++iFrame) {
+	uint64_t d = itr->links_.find(link)->second.at(iFrame);
+      	data.push_back(d);
+      }
+    }
+    else {
+      for (unsigned iFrame=rxIndex_; iFrame<rxIndex_+size; ++iFrame) {
 	uint64_t d = rxFileReader_.get(iBoard).link(link).at(iFrame);
 	//	LogDebug("L1T") << "Frame " << iFrame << " : " << std::hex << d;
 	if ((d & 0x100000000) > 0) data.push_back( d & 0xffffffff );
       }
+      rxIndex_ += nFramesPerEvent_;
     }
     
     LogDebug("L1T") << "AMC " << iBoard << " block " << id << ", size " << data.size();
@@ -263,12 +276,22 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
     if (size==0) continue;
 
     std::vector<uint32_t> data;
-    for (unsigned iFrame=txIndex_; iFrame<txIndex_+size; ++iFrame) {
-      if (!packetisedData_) {
+    if (packetisedData_) {
+      const PacketData& p = txPacketReader_.get(iBoard);
+      PacketData::const_iterator itr = p.begin();
+      for (unsigned i=0; i<txIndex_; i++) itr++;
+      for (unsigned iFrame=itr->first_; iFrame<itr->last_; ++iFrame) {
+	uint64_t d = itr->links_.find(link)->second.at(iFrame);
+	data.push_back(d);
+      }
+    }
+    else {
+      for (unsigned iFrame=txIndex_; iFrame<txIndex_+size; ++iFrame) {
 	uint64_t d = txFileReader_.get(iBoard).link(link).at(iFrame);
 	//	LogDebug("L1T") << "Frame " << iFrame << " : " << std::hex << d;
 	if ((d & 0x100000000) > 0) data.push_back( d & 0xffffffff );
       }
+      txIndex_ += nFramesPerEvent_;
     }
     
     LogDebug("L1T") << "AMC " << iBoard << " block " << id << ", size " << data.size();
@@ -277,15 +300,12 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
 
     blocks.push_back(block);
 
+
+
+
   }
 
   LogDebug("L1T") << "AMC " << iBoard << ", read " << blocks.size() << " blocks";
-
-  // advance pointers to next event
-  if (!packetisedData_) {
-    rxIndex_ += nFramesPerEvent_;
-    txIndex_ += nFramesPerEvent_;
-  }
 
   return blocks;
   

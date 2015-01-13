@@ -29,6 +29,11 @@ options.register('dmOffset',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Demux offset (frames)")
+options.register('dump',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Print RAW data")
                  
 options.parseArguments()
 
@@ -96,26 +101,27 @@ process.load('EventFilter.L1TRawToDigi.stage2MP7BufferRaw_cff')
 
 process.stage2MPRaw.nFramesOffset    = cms.untracked.int32(options.mpOffset)
 process.stage2MPRaw.nFramesLatency   = cms.untracked.int32(options.mpLatency)
-process.stage2MPRaw.rxFile = cms.untracked.string("12MPcat_rx_summary.txt")
-process.stage2MPRaw.txFile = cms.untracked.string("")
+process.stage2MPRaw.rxFile = cms.untracked.string("mp_rx_summary.txt")
+process.stage2MPRaw.txFile = cms.untracked.string("mp_tx_summary.txt")
 
 process.stage2DemuxRaw.nFramesOffset    = cms.untracked.int32(options.dmOffset)
 process.stage2DemuxRaw.nFramesLatency   = cms.untracked.int32(options.dmLatency)
-process.stage2DemuxRaw.rxFile = cms.untracked.string("")
+process.stage2DemuxRaw.rxFile = cms.untracked.string("demux_rx_summary.txt")
 process.stage2DemuxRaw.txFile = cms.untracked.string("demux_tx_summary.txt")
 
+process.rawDataCollector.verbose = cms.untracked.int32(2)
 
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer( 
     "DumpFEDRawDataProduct",
-    label = cms.untracked.string("stage2DemuxRaw"),
-    feds = cms.untracked.vint32 ( 1361 ),
-    dumpPayload = cms.untracked.bool ( True )
+    label = cms.untracked.string("rawDataCollector"),
+    feds = cms.untracked.vint32 ( 1360, 1361 ),
+    dumpPayload = cms.untracked.bool ( options.dump )
 )
 
 # raw to digi
 process.load('EventFilter.L1TRawToDigi.caloStage2Digis_cfi')
-process.caloStage2Digis.InputLabel = cms.InputTag('stage2DemuxRaw')
+process.caloStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("caloStage2Digis")
@@ -127,9 +133,9 @@ process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("caloStage2Digis")
 
 # Path and EndPath definitions
 process.path = cms.Path(
-#    process.stage2MP7BufferRaw
+    process.stage2MP7BufferRaw
 #    process.stage2MPRaw
-    process.stage2DemuxRaw
+#    +process.stage2DemuxRaw
     +process.dumpRaw
     +process.caloStage2Digis
 #    +process.l1tStage2CaloAnalyzer
