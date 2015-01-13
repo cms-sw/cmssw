@@ -82,11 +82,11 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
 
 # Stub Pt vs. TPart pT    
     TH2Stub_Pt = cms.PSet(
-        Nbinsx = cms.int32(180),
-        xmax = cms.double(200.0),                      
+        Nbinsx = cms.int32(100),
+        xmax = cms.double(50.0),                      
         xmin = cms.double(0.0),
-        Nbinsy = cms.int32(180),
-        ymax = cms.double(200.0),                      
+        Nbinsy = cms.int32(100),
+        ymax = cms.double(50.0),                      
         ymin = cms.double(0.0)
         ),
 
@@ -126,8 +126,8 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
         xmax = cms.double(3.1416),                      
         xmin = cms.double(-3.1416),
         Nbinsy = cms.int32(100),
-        ymax = cms.double(100.0),                      
-        ymin = cms.double(-100.0)
+        ymax = cms.double(40.0),                      
+        ymin = cms.double(-40.0)
         ),
 
 # Stub EtaRes vs. TPart Eta
@@ -162,7 +162,7 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
 
 # Stub Width vs. TPart Pt
     TH2Stub_W_Pt = cms.PSet(
-        Nbinsx = cms.int32(200),
+        Nbinsx = cms.int32(100),
         xmax = cms.double(50.0),                      
         xmin = cms.double(0.0),
         Nbinsy = cms.int32(41),
