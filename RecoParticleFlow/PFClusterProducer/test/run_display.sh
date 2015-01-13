@@ -2,8 +2,10 @@
 
 #-c ${CMSSW_BASE}/src/RecoParticleFlow/PFClusterProducer/test/hgcal_rechits.fwc
 
-cmsShow -n --geom-file ~/work/public/xHGCAL/cmsRecoGeom-2023HGCalV5.root --sim-geom-file ~/work/public/xHGCAL/cmsSimGeom-2023HGCalV5.root -i ${CMSSW_BASE}/src/matrix_tests/12201_SingleElectronPt10+SingleElectronPt10_Extended2023HGCalMuon_GenSimFull+DigiFull_Extended2023HGCalMuon+RecoFull_Extended2023HGCalMuon+HARVESTFull_Extended2023HGCalMuon/step3.root
+cmsShow -n --geom-file ~/work/public/xHGCAL/cmsRecoGeom-2023HGCalV5.root --sim-geom-file ~/work/public/xHGCAL/cmsSimGeom-2023HGCalV5.root -i ${CMSSW_BASE}/src/matrix_tests/low_energy_chargedpi/step3.root
 
+
+#${CMSSW_BASE}/src/matrix_tests/12202_SingleElectronPt10+SingleElectronPt10_Extended2023HGCalMuon_GenSimFull+DigiFull_Extended2023HGCalMuon+RecoFull_Extended2023HGCalMuon+HARVESTFull_Extended2023HGCalMuon/step3.root
 
 #/afs/cern.ch/work/v/vandreev/public/pileup/SLHC18patch2/step3_v4_QCD_Pt_80_120_14TeV_PU.root
 

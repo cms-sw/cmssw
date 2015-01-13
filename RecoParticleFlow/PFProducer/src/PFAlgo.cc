@@ -1142,7 +1142,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				  sortedTracks,
 			 	  reco::PFBlockElement::TRACK,
 				  reco::PFBlock::LINKTEST_ALL );
-	bool skip = true;
+	bool skip = true;		  
 	for (unsigned ic=0; ic<kTrack.size();++ic) {
 	  if ( sortedTracks.begin()->second == kTrack[ic] ) { 
 	    skip = false;
@@ -1180,7 +1180,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	
 	// Get the energy calibrated (for photons)
 	bool crackCorrection = false;
-	double ecalEnergy = calibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,crackCorrection);
+	// LG -- for HGC
+	const bool isHGCCluster = ( clusterRef->layer() == PFLayer::HGC_ECAL  || 
+				    clusterRef->layer() == PFLayer::HGC_HCALF || 
+				    clusterRef->layer() == PFLayer::HGC_HCALB    );
+	double ecalEnergy = ( isHGCCluster ? clusterRef->energy() : calibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,crackCorrection) );	
 	if ( debug_ )
 	  std::cout << "Corrected ECAL(+PS) energy = " << ecalEnergy << std::endl;
 
@@ -1191,9 +1195,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	double previousSlopeEcal = slopeEcal;
 	calibEcal = std::max(totalEcal,0.);
 	calibHcal = 0.;
-	calibration_->energyEmHad(trackMomentum,calibEcal,calibHcal,
-				  clusterRef->positionREP().Eta(),
-				  clusterRef->positionREP().Phi());
+	if( !isHGCCluster ) {
+	  calibration_->energyEmHad(trackMomentum,calibEcal,calibHcal,
+				    clusterRef->positionREP().Eta(),
+				    clusterRef->positionREP().Phi());
+	}
 	if ( totalEcal > 0.) slopeEcal = calibEcal/totalEcal;
 
 	if ( debug_ )
@@ -1679,7 +1685,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  }
 	}	
 	
-	if( TheOtherHGC != -1 ) {
+	if( TheOtherHGC != -1 && active[TheOtherHGC] ) {
 	  PFClusterRef otherhgcclusterref = elements[TheOtherHGC].clusterRef();
 	  if(debug_) 
 	    cout<<"PFAlgo : found other HGC cluster associated to this track: "
@@ -1920,7 +1926,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	      
 	    // Calibrate the ECAL energy for photons
 	    bool crackCorrection = false;
-	    float ecalEnergyCalibrated = calibration_->energyEm(*eclusterref,ps1Ene,ps2Ene,crackCorrection);
+	    const bool isHGCCluster = ( eclusterref->layer() == PFLayer::HGC_ECAL  || 
+					eclusterref->layer() == PFLayer::HGC_HCALF || 
+					eclusterref->layer() == PFLayer::HGC_HCALB    );
+	    float ecalEnergyCalibrated = eclusterref->energy();
+	    if( !isHGCCluster ) { 
+	      ecalEnergyCalibrated = calibration_->energyEm(*eclusterref,ps1Ene,ps2Ene,crackCorrection);
+	    }
 	    math::XYZVector photonDirection(eclusterref->position().X(),
 					    eclusterref->position().Y(),
 					    eclusterref->position().Z());
@@ -2043,9 +2055,14 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       calibHcal = std::max(0.,totalHcal);
       hadronAtECAL = calibHcal * hadronDirection;
       // Calibrate ECAL and HCAL energy under the hadron hypothesis.
-      calibration_->energyEmHad(totalChargedMomentum,calibEcal,calibHcal,
-				hclusterref->positionREP().Eta(),
-				hclusterref->positionREP().Phi());
+      const bool isHGCCluster = ( hclusterref->layer() == PFLayer::HGC_ECAL  || 
+				  hclusterref->layer() == PFLayer::HGC_HCALF || 
+				  hclusterref->layer() == PFLayer::HGC_HCALB    );
+      if( !isHGCCluster ) {
+	calibration_->energyEmHad(totalChargedMomentum,calibEcal,calibHcal,
+				  hclusterref->positionREP().Eta(),
+				  hclusterref->positionREP().Phi());
+      }
       caloEnergy = calibEcal+calibHcal;
       if ( totalEcal > 0.) slopeEcal = calibEcal/totalEcal;
 
@@ -2880,7 +2897,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       vector<double> ps2Ene(1,static_cast<double>(0.));
       associatePSClusters(iEcal, reco::PFBlockElement::PS2, block, elements, linkData, active, ps2Ene);
       bool crackCorrection = false;
-      double ecalEnergy = calibration_->energyEm(*eclusterRef,ps1Ene,ps2Ene,crackCorrection);
+      const bool isHGCCluster = ( eclusterRef->layer() == PFLayer::HGC_ECAL  || 
+				  eclusterRef->layer() == PFLayer::HGC_HCALF || 
+				  eclusterRef->layer() == PFLayer::HGC_HCALB    );
+      double ecalEnergy = eclusterRef->energy();
+      if( !isHGCCluster ) {
+	ecalEnergy = calibration_->energyEm(*eclusterRef,ps1Ene,ps2Ene,crackCorrection);
+      }
       
       //std::cout << "EcalEnergy, ps1, ps2 = " << ecalEnergy 
       //          << ", " << ps1Ene[0] << ", " << ps2Ene[0] << std::endl;
@@ -3006,9 +3029,14 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       //caloEnergy = totalHcal/0.7;
       calibEcal = totalEcal;
     } else { 
-      calibration_->energyEmHad(-1.,calibEcal,calibHcal,
-				hclusterRef->positionREP().Eta(),
-				hclusterRef->positionREP().Phi());      
+      const bool isHGCCluster = ( hclusterRef->layer() == PFLayer::HGC_ECAL  || 
+				  hclusterRef->layer() == PFLayer::HGC_HCALF || 
+				  hclusterRef->layer() == PFLayer::HGC_HCALB    );
+      if( !isHGCCluster ) {
+	calibration_->energyEmHad(-1.,calibEcal,calibHcal,
+				  hclusterRef->positionREP().Eta(),
+				  hclusterRef->positionREP().Phi());      
+      }
       //caloEnergy = calibEcal+calibHcal;
     }
 
