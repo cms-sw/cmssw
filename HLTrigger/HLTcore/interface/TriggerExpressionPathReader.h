@@ -1,5 +1,5 @@
-#ifndef HLTrigger_HLTfilters_TriggerExpressionHLTReader_h
-#define HLTrigger_HLTfilters_TriggerExpressionHLTReader_h
+#ifndef HLTrigger_HLTfilters_TriggerExpressionPathReader_h
+#define HLTrigger_HLTfilters_TriggerExpressionPathReader_h
 
 #include <vector>
 #include <string>
@@ -8,15 +8,15 @@
 
 namespace triggerExpression {
 
-class HLTReader : public Evaluator {
+class PathReader : public Evaluator {
 public:
-  HLTReader(const std::string & pattern) :
+  PathReader(const std::string & pattern) :
     m_pattern(pattern),
     m_triggers()
   { }
 
   bool operator()(const Data & data) const;
-  
+
   void init(const Data & data);
 
   void dump(std::ostream & out) const;
@@ -28,4 +28,4 @@ private:
 
 } // namespace triggerExpression
 
-#endif // HLTrigger_HLTfilters_TriggerExpressionHLTReader_h
+#endif // HLTrigger_HLTfilters_TriggerExpressionPathReader_h
