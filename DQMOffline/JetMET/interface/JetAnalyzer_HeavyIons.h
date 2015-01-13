@@ -75,12 +75,12 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
 
   explicit JetAnalyzer_HeavyIons (const edm::ParameterSet&);
   virtual ~JetAnalyzer_HeavyIons();
-
+  
   virtual void analyze(const edm::Event&, const edm::EventSetup&); 
   virtual void beginJob();
   virtual void endJob();
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) ;
-
+  
  private:
   
   edm::InputTag   mInputCollection;
@@ -137,6 +137,20 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   // Event variables (including centrality)
   MonitorElement* mNvtx;
   MonitorElement* mHF;
+
+  // new additions Jan 12th 2015
+  MonitorElement *mSumPFVsPt_HF;
+  MonitorElement *mSumPFVsPtInitial_HF;
+  MonitorElement *mSumPFPt_HF;
+  MonitorElement *mPFVsPtInitial_eta_phi;
+  MonitorElement *mPFVsPt_eta_phi;
+  MonitorElement *mPFPt_eta_phi;
+  //MonitorElement *mSumDeltapT_HF;
+  MonitorElement *mDeltapT_eta;
+  //MonitorElement *mDeltapT_phiMinusPsi2;
+  MonitorElement *mDeltapT_eta_phi;
+  //MonitorElement *mS
+  
   
   // Jet parameters
   MonitorElement* mEta;
