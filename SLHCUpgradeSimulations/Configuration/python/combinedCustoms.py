@@ -471,8 +471,8 @@ def cust_2023HGCalV6Muon(process):
     exactly the same as the cust_2023HGCalMuon function but this could change in the
     future.
     """
-    process = cust_2023HGCal_common(process)
-    process = customise_me0(process)
+#    process = cust_2023HGCal_common(process)
+#    process = customise_me0(process)
     process=customisePostLS1(process)
     process=customiseBE5DPixel10D(process)
     process=customise_HcalPhase2(process)
