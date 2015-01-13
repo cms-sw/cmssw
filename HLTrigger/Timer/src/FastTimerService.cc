@@ -472,7 +472,7 @@ void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
 
           // book counter histograms
           if (m_enable_dqm_bypath_counters) {
-            pathinfo.dqm_module_counter = booker.book1D(pathname + "_module_counter", pathname + " module counter", modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
+            pathinfo.dqm_module_counter = booker.book1D(pathname + "_module_counter", pathname + " module counter", modules.size() + 1, -0.5, modules.size() + 0.5)->getTH1F();
             // find module labels
             for (uint32_t i = 0; i < modules.size(); ++i) {
               pathinfo.dqm_module_counter->GetXaxis()->SetBinLabel( i+1, labels[i] );
