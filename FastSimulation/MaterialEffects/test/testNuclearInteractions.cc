@@ -1,5 +1,5 @@
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -26,7 +26,7 @@
 #include "TTree.h"
 #include "TProcessID.h"
 
-class testNuclearInteractions : public edm::EDProducer {
+class testNuclearInteractions : public edm::stream::EDProducer <> {
 
 public :
   explicit testNuclearInteractions(const edm::ParameterSet&);

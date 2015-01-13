@@ -10,7 +10,7 @@
 //---------------------------------------------------------------------------
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 // Data Formats
@@ -25,7 +25,7 @@ namespace edm {
   class EventSetup;
 }
 
-class TrackingRecHitTranslator : public edm::EDProducer
+class TrackingRecHitTranslator : public edm::stream::EDProducer <>
 {
  public:
   //--- Constructor, virtual destructor (just in case)
