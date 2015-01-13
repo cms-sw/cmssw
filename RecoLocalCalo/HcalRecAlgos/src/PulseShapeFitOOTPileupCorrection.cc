@@ -4,12 +4,12 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFitOOTPileupCorrection.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-float timevalfit1_hold =0;// TESTING ONLY
+/* float timevalfit1_hold =0;// TESTING ONLY
 float timevalfit2_hold =0;// TESTING ONLY
 float timevalfit3_hold = 0;// TESTING ONLY
 float chargevalfit1_hold = 0;// TESTING ONLY
 float chargevalfit2_hold = 0;// TESTING ONLY
-float chargevalfit3_hold = 0;// TESTING ONLY
+float chargevalfit3_hold = 0;// TESTING ONLY */
 
 namespace FitterFuncs{
 
@@ -347,7 +347,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    if(applyTimeSlew_) timevalfit+=HcalTimeSlew::delay(std::max(1.0,chargeArr[4]),slewFlavor_);
    int outfitStatus = (fitStatus ? 1: 0 ); 
    
-    std::cout << outfitStatus << " " << timevalfit1_hold << " " << chargevalfit1_hold << " " << timevalfit2_hold << " " << chargevalfit2_hold << " " << timevalfit3_hold << " " << chargevalfit3_hold << std::endl; // TESTING ONLY
+    //std::cout << outfitStatus << " " << timevalfit1_hold << " " << chargevalfit1_hold << " " << timevalfit2_hold << " " << chargevalfit2_hold << " " << timevalfit3_hold << " " << chargevalfit3_hold << std::endl; // TESTING ONLY
     
    fitParsVec.clear();
    fitParsVec.push_back(chargevalfit);
@@ -439,12 +439,12 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
    float timeval3fit   = results[4];
    float chargeval3fit = results[5];
    
-   timevalfit1_hold = timevalfit; // TESTING ONLY
+/*    timevalfit1_hold = timevalfit; // TESTING ONLY
    timevalfit2_hold = timeval2fit; // TESTING ONLY
    timevalfit3_hold = timeval3fit;// TESTING ONLY
    chargevalfit1_hold = chargevalfit;// TESTING ONLY
    chargevalfit2_hold = chargeval2fit;// TESTING ONLY
-   chargevalfit3_hold = chargeval3fit;// TESTING ONLY
+   chargevalfit3_hold = chargeval3fit;// TESTING ONLY */
    
    float deltaT12 = fabs(timeval2fit - timevalfit);
    float deltaT13 = fabs(timeval3fit - timevalfit);
