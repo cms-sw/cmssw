@@ -27,6 +27,8 @@
 
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 #include <math.h>
 
 // To plot resolutions, angles, etc. for muons only
@@ -38,7 +40,6 @@ using namespace edm;
 const double PI = 3.14159265358979323;
 
 SiPixelRecHitsInputDistributionsMaker::SiPixelRecHitsInputDistributionsMaker(const ParameterSet& ps): 
-  dbe_(0), 
   conf_(ps),
   src_( ps.getParameter<edm::InputTag>( "src" ) ) 
 {
