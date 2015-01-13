@@ -114,14 +114,14 @@ namespace Phase2Tracker
           if (mod_type == 0)
           {
               num_p = 0; 
-              num_s = static_cast<uint8_t>(read_n_at_m(payloadPointer_,5,bitOffset+1));
-              bitOffset += 6;
+              num_s = static_cast<uint8_t>(read_n_at_m(payloadPointer_,6,bitOffset+1));
+              bitOffset += 7;
           }
           else
           {
-              num_p = static_cast<uint8_t>(read_n_at_m(payloadPointer_,5,bitOffset+1));
-              num_s = static_cast<uint8_t>(read_n_at_m(payloadPointer_,5,bitOffset+6));
-              bitOffset += 11;
+              num_p = static_cast<uint8_t>(read_n_at_m(payloadPointer_,6,bitOffset+1));
+              num_s = static_cast<uint8_t>(read_n_at_m(payloadPointer_,6,bitOffset+7));
+              bitOffset += 12;
           }
           // start indexing
           int currCBC = -1;
