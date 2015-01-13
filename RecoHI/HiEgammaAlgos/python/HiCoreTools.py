@@ -227,7 +227,7 @@ class RemoveSpecificPATObjects(ConfigToolBase):
 
         for obj in range(len(names)):
             if( names[obj] == 'Photons' ):
-                removeIfInSequence(process, 'patPhotonIsolation', "patHeavyIonDefaultSequence", postfix)
+                # removeIfInSequence(process, 'patPhotonIsolation', "patHeavyIonDefaultSequence", postfix)
                 removeIfInSequence(process, 'photonMatch', "patHeavyIonDefaultSequence", postfix)
             if( names[obj] == 'Muons' ):
                 removeIfInSequence(process, 'muonMatch', "patHeavyIonDefaultSequence", postfix)

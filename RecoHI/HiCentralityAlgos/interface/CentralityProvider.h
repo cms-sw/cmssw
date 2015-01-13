@@ -15,6 +15,7 @@ class CentralityProvider : public CentralityBins {
  public:
   CentralityProvider(const edm::EventSetup& iSetup);
   CentralityProvider(const edm::EventSetup& iSetup, edm::ConsumesCollector && iC);
+  CentralityProvider(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC);
   ~CentralityProvider(){;}
 
   enum VariableType {HFtowers, HFtowersPlus, HFtowersMinus, HFtowersTrunc, HFtowersPlusTrunc, HFtowersMinusTrunc, HFhits, PixelHits, PixelTracks, Tracks, EB, EE, Missing};
@@ -49,14 +50,3 @@ class CentralityProvider : public CentralityBins {
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-
-

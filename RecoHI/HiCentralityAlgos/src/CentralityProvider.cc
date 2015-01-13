@@ -2,44 +2,47 @@
 
 CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup){}
 
-CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup, edm::ConsumesCollector && iC) :
+CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup, edm::ConsumesCollector && iC){}
+
+CentralityProvider::CentralityProvider(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) :
    prevRun_(0),
    varType_(Missing)
 {
-   const edm::ParameterSet &thepset = edm::getProcessParameterSet();
-   if(thepset.exists("HeavyIonGlobalParameters")){
-      edm::ParameterSet hiPset = thepset.getParameter<edm::ParameterSet>("HeavyIonGlobalParameters");
-      tag_ = iC.consumes<reco::Centrality>(hiPset.getParameter<edm::InputTag>("centralitySrc"));
-      centralityVariable_ = hiPset.getParameter<std::string>("centralityVariable");
-      pPbRunFlip_ = hiPset.getUntrackedParameter<unsigned int>("pPbRunFlip",99999999);
-      if(centralityVariable_.compare("HFtowers") == 0) varType_ = HFtowers;
-      if(centralityVariable_.compare("HFtowersPlus") == 0) varType_ = HFtowersPlus;
-      if(centralityVariable_.compare("HFtowersMinus") == 0) varType_ = HFtowersMinus;
-      if(centralityVariable_.compare("HFtowersTrunc") == 0) varType_ = HFtowersTrunc;
-      if(centralityVariable_.compare("HFtowersPlusTrunc") == 0) varType_ = HFtowersPlusTrunc;
-      if(centralityVariable_.compare("HFtowersMinusTrunc") == 0) varType_ = HFtowersMinusTrunc;
-      if(centralityVariable_.compare("HFhits") == 0) varType_ = HFhits;
-      if(centralityVariable_.compare("PixelHits") == 0) varType_ = PixelHits;
-      if(centralityVariable_.compare("PixelTracks") == 0) varType_ = PixelTracks;
-      if(centralityVariable_.compare("Tracks") == 0) varType_ = Tracks;
-      if(centralityVariable_.compare("EB") == 0) varType_ = EB;
-      if(centralityVariable_.compare("EE") == 0) varType_ = EE;
-      if(varType_ == Missing){
-	 std::string errorMessage="Requested Centrality variable does not exist : "+centralityVariable_+"\n" +
-	    "Supported variables are: \n" + "HFtowers HFhits PixelHits PixelTracks Tracks EB EE" + "\n";
-	 throw cms::Exception("Configuration",errorMessage);
-      }
-      if(hiPset.exists("nonDefaultGlauberModel")){
-	 centralityMC_ = hiPset.getParameter<std::string>("nonDefaultGlauberModel");
-      }
-      centralityLabel_ = centralityVariable_+centralityMC_;
-      SetName(centralityLabel_.data());
-   }else{
-   }
-   newRun(iSetup);
+    tag_ = iC.consumes<reco::Centrality>(iConfig.getParameter<edm::InputTag>("Centrality"));
+
+  //newRun(iSetup);
 }
 
 void CentralityProvider::newEvent(const edm::Event& ev,const edm::EventSetup& iSetup){
+  const edm::ParameterSet &thepset = edm::getProcessParameterSet();
+  if(thepset.exists("HeavyIonGlobalParameters")){
+    edm::ParameterSet hiPset = thepset.getParameter<edm::ParameterSet>("HeavyIonGlobalParameters");
+    centralityVariable_ = hiPset.getParameter<std::string>("centralityVariable");
+    pPbRunFlip_ = hiPset.getUntrackedParameter<unsigned int>("pPbRunFlip",99999999);
+    if(centralityVariable_.compare("HFtowers") == 0) varType_ = HFtowers;
+    if(centralityVariable_.compare("HFtowersPlus") == 0) varType_ = HFtowersPlus;
+    if(centralityVariable_.compare("HFtowersMinus") == 0) varType_ = HFtowersMinus;
+    if(centralityVariable_.compare("HFtowersTrunc") == 0) varType_ = HFtowersTrunc;
+    if(centralityVariable_.compare("HFtowersPlusTrunc") == 0) varType_ = HFtowersPlusTrunc;
+    if(centralityVariable_.compare("HFtowersMinusTrunc") == 0) varType_ = HFtowersMinusTrunc;
+    if(centralityVariable_.compare("HFhits") == 0) varType_ = HFhits;
+    if(centralityVariable_.compare("PixelHits") == 0) varType_ = PixelHits;
+    if(centralityVariable_.compare("PixelTracks") == 0) varType_ = PixelTracks;
+    if(centralityVariable_.compare("Tracks") == 0) varType_ = Tracks;
+    if(centralityVariable_.compare("EB") == 0) varType_ = EB;
+    if(centralityVariable_.compare("EE") == 0) varType_ = EE;
+    if(varType_ == Missing){
+      std::string errorMessage="Requested Centrality variable does not exist : "+centralityVariable_+"\n" +
+	"Supported variables are: \n" + "HFtowers HFhits PixelHits PixelTracks Tracks EB EE" + "\n";
+      throw cms::Exception("Configuration",errorMessage);
+    }
+    if(hiPset.exists("nonDefaultGlauberModel")){
+      centralityMC_ = hiPset.getParameter<std::string>("nonDefaultGlauberModel");
+    }
+    centralityLabel_ = centralityVariable_+centralityMC_;
+    SetName(centralityLabel_.data());
+  }
+
    ev.getByToken(tag_,chandle_);
    if(ev.id().run() == prevRun_) return;
    if(prevRun_ < pPbRunFlip_ && ev.id().run() >= pPbRunFlip_){
@@ -119,8 +122,3 @@ double CentralityProvider::centralityValue() const {
 
    return var;
 }
-
-
-
-
-
