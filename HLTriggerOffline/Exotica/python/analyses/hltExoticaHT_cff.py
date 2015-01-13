@@ -11,9 +11,10 @@ HTPSet = cms.PSet(
         "HLT_PFHT650_v",
         "HLT_HT900_v",        # Run2
         "HLT_HT300_v",        # Run2
-        #"HLT_HT750_v"         # Run1 (frozenHLT)
+        "HLT_ECALHT800_v"     # Run2 7e33
+        #"HLT_HT750_v"        # Run1 (frozenHLT)
         ),
-    recPFMETLabel  = cms.InputTag("recoExoticaValidationHT"),
+    recPFMHTLabel  = cms.InputTag("recoExoticaValidationHT"),
     recPFJetLabel  = cms.InputTag("ak4PFJets"),
     # -- Analysis specific cuts
     MET_genCut      = cms.string("sumEt > 75"),
