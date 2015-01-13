@@ -21,7 +21,7 @@
 
 class LHAupLesHouches : public Pythia8::LHAup {
   public:
-    LHAupLesHouches() {;}
+    LHAupLesHouches() : setScalesFromLHEF_(false) {;}
 
     //void loadRunInfo(const boost::shared_ptr<lhef::LHERunInfo> &runInfo)
     void loadRunInfo(lhef::LHERunInfo* runInfo)
@@ -30,6 +30,8 @@ class LHAupLesHouches : public Pythia8::LHAup {
     //void loadEvent(const boost::shared_ptr<lhef::LHEEvent> &event)
     void loadEvent(lhef::LHEEvent* event)
       { this->event = event; }
+      
+    void setScalesFromLHEF(bool b) { setScalesFromLHEF_ = b; }
 
   private:
 
@@ -40,4 +42,8 @@ class LHAupLesHouches : public Pythia8::LHAup {
     lhef::LHERunInfo* runInfo;
     //boost::shared_ptr<lhef::LHEEvent>	event;
     lhef::LHEEvent* event;
+    
+    // Flag to set particle production scales or not.
+    bool setScalesFromLHEF_;
+
 };
