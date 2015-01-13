@@ -17,6 +17,8 @@
 #include <sstream>
 #include <cmath>
 
+
+
 using namespace std;
 namespace MK = reco::MustacheKernel;
 
@@ -166,7 +168,9 @@ namespace {
   };
 }
 
-PFECALSuperClusterAlgo::PFECALSuperClusterAlgo() : beamSpot_(0) { }
+PFECALSuperClusterAlgo::PFECALSuperClusterAlgo() : beamSpot_(0) { 
+  hgcEmPreId_.reset( nullptr );
+}
 
 void PFECALSuperClusterAlgo::
 setPFClusterCalibration(const std::shared_ptr<PFEnergyCalibration>& calib) {
@@ -238,6 +242,13 @@ loadAndSortPFClusters(const edm::Event &iEvent) {
     LogDebug("PFClustering") 
       << "Loading PFCluster i="<<cluster.key()
       <<" energy="<<cluster->energy()<<std::endl;
+
+    if( useHGCPreId_ ) {
+      hgcEmPreId_->reset();
+      hgcEmPreId_->setShowerPosition(cluster->position());
+      hgcEmPreId_->setShowerDirection(cluster->axis());      
+      if( !hgcEmPreId_->cutLengthCompatibility(*cluster) ) continue;
+    }
         
     CalibratedClusterPtr calib_cluster(new CalibratedPFCluster(cluster));
     switch( cluster->layer() ) {

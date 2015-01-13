@@ -16,6 +16,7 @@
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/HGCALShowerBasedEmIdentification.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -106,6 +107,13 @@ class PFECALSuperClusterAlgo {
   //void setThreshPFClusterMustacheOutBarrel(double thresh){ threshPFClusterMustacheOutBarrel_ = thresh;}
   //void setThreshPFClusterMustacheOutEndcap(double thresh){ threshPFClusterMustacheOutEndcap_ = thresh;}
 
+  void setUseHGCPreId(bool useHGCPreId) { 
+    useHGCPreId_ = useHGCPreId;
+    if( useHGCPreId_ ) {
+      hgcEmPreId_.reset(new HGCALShowerBasedEmIdentification(true) );
+    }
+  }
+
   void setCrackCorrections( bool applyCrackCorrections) { applyCrackCorrections_ = applyCrackCorrections;}
   
   void setTokens(const edm::ParameterSet&, edm::ConsumesCollector&&);
@@ -147,6 +155,10 @@ class PFECALSuperClusterAlgo {
   // regression
   bool useRegression_;
   std::unique_ptr<PFSCRegressionCalc> regr_;  
+
+  // HGCal light EM pre-ID
+  bool useHGCPreId_;
+  std::unique_ptr<HGCALShowerBasedEmIdentification> hgcEmPreId_;
   
   double threshSuperClusterEt_;  
 

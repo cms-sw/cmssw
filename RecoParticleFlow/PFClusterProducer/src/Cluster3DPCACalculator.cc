@@ -12,6 +12,8 @@
 
 #include "RecoParticleFlow/PFClusterProducer/interface/ECALRecHitResolutionProvider.h"
 
+#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
+
 #include "TPrincipal.h"
 
 class Cluster3DPCACalculator : public PFCPositionCalculatorBase {
@@ -21,7 +23,13 @@ class Cluster3DPCACalculator : public PFCPositionCalculatorBase {
     _posCalcNCrystals(conf.getParameter<int>("posCalcNCrystals")),
     _logWeightDenom(conf.getParameter<double>("logWeightDenominator")),
     _minAllowedNorm(conf.getParameter<double>("minAllowedNormalization")),
-    _pca(new TPrincipal(3,"D")){ }
+    _w0PerLayer(conf.getParameter<std::vector<double> >("w0PerLayer")),
+    _logWeightScale(conf.getParameter<double>("logWeightScale")),
+    _pca(new TPrincipal(3,"D")){ 
+    _layer2mip[(unsigned)PFLayer::HGC_ECAL]  = 55.1*1e-6;
+    _layer2mip[(unsigned)PFLayer::HGC_HCALF] = 85.0*1e-6;
+    _layer2mip[(unsigned)PFLayer::HGC_HCALB] = 1498.4*1e-6; 
+  }
   Cluster3DPCACalculator(const Cluster3DPCACalculator&) = delete;
   Cluster3DPCACalculator& operator=(const Cluster3DPCACalculator&) = delete;
 
@@ -32,7 +40,11 @@ class Cluster3DPCACalculator : public PFCPositionCalculatorBase {
   const int _posCalcNCrystals;
   const double _logWeightDenom;
   const double _minAllowedNorm;
+  const std::vector<double> _w0PerLayer;
+  const double _logWeightScale;
   
+  std::unordered_map<unsigned,double> _layer2mip;
+
   std::unique_ptr<TPrincipal> _pca;
 
   void showerParameters(const reco::PFCluster&, math::XYZPoint&, 
@@ -71,35 +83,46 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
   double max_e = 0.0;  
   PFLayer::Layer max_e_layer = PFLayer::NONE;
   reco::PFRecHitRef refseed;  
-  // find the seed and max layer and also calculate time
-  //Michalis : Even if we dont use timing in clustering here we should fill
-  //the time information for the cluster. This should use the timing resolution(1/E)
-  //so the weight should be fraction*E^2
-  //calculate a simplistic depth now. The log weighted will be done
-  //in different stage  
-  double pcavars[3];
+  double pcavars[3];  
+
+  for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
+    const reco::PFRecHitRef& refhit = rhf.recHitRef();
+    const double rh_energy = refhit->energy()/_layer2mip[(unsigned)refhit->layer()];
+    cl_energy += rh_energy;
+    if( rh_energy > max_e ) {
+      max_e = rh_energy;
+      max_e_layer = rhf.recHitRef()->layer();
+    }  
+  }
+
+  bool use_log_weights = true;
+  if( max_e_layer != PFLayer::HGC_ECAL ) use_log_weights = false;
+
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
     if( refhit->detId() == cluster.seed() ) refseed = refhit;
     const double rh_fraction = rhf.fraction();
-    const double rh_rawenergy = refhit->energy();
-    const double rh_energy = rh_rawenergy * rh_fraction;   
+    //const double rh_rawenergy = refhit->energy();
+    const double rh_energy = refhit->energy()*rh_fraction/_layer2mip[(unsigned)refhit->layer()];
     if( edm::isNotFinite(rh_energy) ) {
       throw cms::Exception("PFClusterAlgo")
 	<<"rechit " << refhit->detId() << " has a NaN energy... " 
 	<< "The input of the particle flow clustering seems to be corrupted.";
-    }
-    cl_energy += rh_energy;
+    }    
     pcavars[0] = refhit->position().x();
     pcavars[1] = refhit->position().y();
-    pcavars[2] = refhit->position().z();
-    for( int i = 0; i < int(rh_energy/_logWeightDenom); ++i ) {
+    pcavars[2] = refhit->position().z();     
+    int nhit = 0;
+    if( use_log_weights ) {
+      nhit = std::max(_logWeightScale*std::log(rh_energy/20.0),1.0);
+    } else { // use linear weights, most likely a hadron if in HCAL
+      nhit = int( rh_energy );
+    }
+
+    for( int i = 0; i < nhit; ++i ) {
       _pca->AddRow(pcavars);
     }
-    if( rh_energy > max_e ) {
-      max_e = rh_energy;
-      max_e_layer = rhf.recHitRef()->layer();
-    }    
+      
   }
   cluster.setEnergy(cl_energy);
   //cluster.setTime(cl_time/cl_timeweight);
