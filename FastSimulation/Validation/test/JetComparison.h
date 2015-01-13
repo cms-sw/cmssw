@@ -3,7 +3,7 @@
  
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -38,7 +38,7 @@
 
 
 
-class JetComparison : public edm::EDAnalyzer {
+class JetComparison : public edm::stream::EDAnalyzer <> {
  public:
    JetComparison(edm::ParameterSet const& conf);
   ~JetComparison();
