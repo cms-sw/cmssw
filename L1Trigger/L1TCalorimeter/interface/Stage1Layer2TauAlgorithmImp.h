@@ -45,6 +45,11 @@ namespace l1t {
     double JetIsolation(int et, int ieta, int iphi,
 			const std::vector<l1t::Jet> & jets) const;
 
+    unsigned isoLutIndex(unsigned int tauPt,unsigned int jetPt) const;
+
+    int AssociatedJetPt(int ieta, int iphi,
+			const std::vector<l1t::Jet> * jets) const;
+
   };
 
   class Stage1Layer2TauAlgorithmImpHW : public Stage1Layer2TauAlgorithm {
