@@ -28,8 +28,8 @@ then
             fi
         else
             echo "store"
-	        CHOIX_ETAPE='force'
-#            CHOIX_ETAPE='store'
+#	        CHOIX_ETAPE='force'
+            CHOIX_ETAPE='store'
             CHOIX_JOB='1nh'
 		fi
 	else
@@ -43,7 +43,7 @@ else
     CHOIX_JOB='8nh'
 fi
 
-echo $1 $CHOIX_ETAPE
+echo "***" $1 $CHOIX_ETAPE
 
 if [ "$2" != "i" ] 
 then
@@ -89,12 +89,29 @@ echo $3 $CHOIX_CALCUL
 case $CHOIX_CALCUL in
 Full | gedvsgedFull) echo "Full"
 	echo "--"
+            if [ "$CHOIX_ETAPE" == "store" ]
+            then
+                echo "== store =="
+                for var in `ls DQM*.root`
+                    do
+                        echo $var
+                        i=${var:38}
+                        #echo $i
+                        #echo ${i:0:$((${#i}-12))}
+                        j=${i:0:$((${#i}-12))}
+                        echo electronHistos.$j.root
+			var_final=electronHistos.$j.root
+			cp $var $var_final
+                    done
+            fi
+
 	for i in Pt10Startup_UP15 Pt1000Startup_UP15 Pt35Startup_UP15 TTbarStartup_13 ZEEStartup_13 QcdPt80Pt120Startup_13
 #	for i in Pt1000Startup_UP15 TTbarStartup_13 ZEEStartup_13 QcdPt80Pt120Startup_13
 #	for i in TTbarStartup_13 
 		do 
 			echo " == ${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE"
-			${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE
+#            ${COPIE_FICHIERS}${CHOIX_CALCUL}${i}_gedGsfE__RECO3.root electronHistos.Val${CHOIX_CALCUL}${i}_gedGsfE.root
+#			${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE
 		done
 	;;
 PileUp) echo "PileUp"
@@ -102,7 +119,8 @@ PileUp) echo "PileUp"
 	for i in TTbarStartup ZEEStartup
 		do 
 			echo " == ${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE"
-			${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE
+#            ${COPIE_FICHIERS}${CHOIX_CALCUL}${i}_gedGsfE__RECO3.root electronHistos.Val${CHOIX_CALCUL}${i}_gedGsfE.root
+#			${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE
 		done
 	;;
 Fast) echo "Fast"
@@ -111,6 +129,7 @@ Fast) echo "Fast"
 #	for i in ZEEStartup
 		do 
 			echo " == ${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE"
+#            ${COPIE_FICHIERS}${CHOIX_CALCUL}${i}_gedGsfE__RECO3.root electronHistos.Val${CHOIX_CALCUL}${i}_gedGsfE.root
 #			${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE
 		done
 	;;
