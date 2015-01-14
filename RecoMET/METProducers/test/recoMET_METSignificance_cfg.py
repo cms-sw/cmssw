@@ -34,15 +34,7 @@ process.out = cms.OutputModule(
 ##____________________________________________________________________________||
 process.options   = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 process.MessageLogger.cerr.FwkReport.reportEvery = 50
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
-
-##____________________________________________________________________________||
-process.METSignificance.jeta = process.METSignificanceParams.jeta
-process.METSignificance.jpar = process.METSignificanceParams.jpar
-process.METSignificance.pjpar = process.METSignificanceParams.pjpar
-process.METSignificance.jetResAlgo = process.METSignificanceParams.jetResAlgo
-process.METSignificance.jetResEra = process.METSignificanceParams.jetResEra
-process.METSignificance.jetThreshold = process.METSignificanceParams.jetThreshold
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 ##____________________________________________________________________________||
 process.p = cms.Path(

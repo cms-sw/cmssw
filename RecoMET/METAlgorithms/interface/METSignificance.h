@@ -16,48 +16,48 @@ Implementation:
 #ifndef METAlgorithms_METSignificance_h
 #define METAlgorithms_METSignificance_h
 //____________________________________________________________________________||
+#include "CondFormats/JetMETObjects/interface/JetResolution.h"
+
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "TMatrixD.h"
+#include "DataFormats/Math/interface/deltaR.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "TF1.h"
 
 //____________________________________________________________________________||
 namespace metsig {
 
    class METSignificance {
       public:
-         explicit METSignificance() {  };
-         ~METSignificance() {  };
+         METSignificance(const edm::ParameterSet& iConfig);
+         ~METSignificance();
 
-         TMatrixD getCovariance();
-         double getSignificance(TMatrixD&);
-
-         void addJets( const std::vector<reco::Jet>& );
-         void addLeptons( const std::vector<reco::Candidate::LorentzVector>& );
-         void addCandidates( const std::vector<reco::Candidate::LorentzVector>& );
-         void addMET( const reco::MET& );
-
-         void setThreshold( const double& );
-         void setJetEtaBins( const std::vector<double>& );
-         void setJetParams( const std::vector<double>& );
-         void setPJetParams( const std::vector<double>& );
-         void setResFiles( const std::string&, const std::string& );
+         reco::METCovMatrix getCovariance(const edm::View<reco::Jet>& jets,
+					  const std::vector<reco::Candidate::LorentzVector>& leptons,
+					  const edm::View<reco::Candidate>& pfCandidates);
+     double getSignificance(const reco::METCovMatrix& cov, const reco::MET& met ) const;
 
       private:
-         std::vector<reco::Jet> cleanJets(double, double);
+         std::vector<reco::Jet> cleanJets(const edm::View<reco::Jet>& jets, 
+					  const std::vector<reco::Candidate::LorentzVector>& leptons);
+         bool cleanJet(const reco::Jet& jet, 
+		   const std::vector<reco::Candidate::LorentzVector>& leptons);
 
-         std::vector<reco::Jet> jets;
-         std::vector<reco::Candidate::LorentzVector> leptons;
-         std::vector<reco::Candidate::LorentzVector> candidates;
-         reco::MET met;
+         double jetThreshold_;
+         double dR2match_;
+         std::vector<double> jetEtas_;
+         std::vector<double> jetParams_;
+         std::vector<double> pjetParams_;
 
-         double jetThreshold;
-         std::vector<double> jetetas;
-         std::vector<double> jetparams;
-         std::vector<double> pjetparams;
+         JetResolution* ptRes_;
+         JetResolution* phiRes_;
 
-         std::string ptResFileName;
-         std::string phiResFileName;
+         TF1* fPtEta_;
+         TF1* fPhiEta_;
+
    };
 
 }

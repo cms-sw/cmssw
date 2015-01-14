@@ -14,100 +14,104 @@ Implementation:
 //
 //
 
-// system include files
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "CondFormats/JetMETObjects/interface/JetResolution.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-
-#include "TLorentzVector.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "TMatrixD.h"
-
-#include <cstdlib>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <sys/stat.h>
-
 #include "RecoMET/METAlgorithms/interface/METSignificance.h"
 
-TMatrixD
-metsig::METSignificance::getCovariance()
-{
 
-   edm::FileInPath fpt(ptResFileName);
-   edm::FileInPath fphi(phiResFileName);
+metsig::METSignificance::METSignificance(const edm::ParameterSet& iConfig) {
 
-   JetResolution *ptRes_  = new JetResolution(fpt.fullPath().c_str(),false);
-   JetResolution *phiRes_ = new JetResolution(fphi.fullPath().c_str(),false);
+  edm::ParameterSet cfgParams = iConfig.getParameter<edm::ParameterSet>("parameters");
 
-   // disambiguate jets and leptons
-   std::vector<reco::Jet> cleanjets = cleanJets(jetThreshold, 0.4);
 
+  std::string ptResFileName = cfgParams.getParameter<std::string>("ptResFile");
+  std::string phiResFileName = cfgParams.getParameter<std::string>("phiResFile");
+
+  double dRmatch = cfgParams.getParameter<double>("dRMatch");
+  dR2match_ = dRmatch*dRmatch;
+  
+  jetThreshold_ = cfgParams.getParameter<double>("jetThreshold");
+  jetEtas_ = cfgParams.getParameter<std::vector<double> >("jeta");
+  jetParams_ = cfgParams.getParameter<std::vector<double> >("jpar");
+  pjetParams_ = cfgParams.getParameter<std::vector<double> >("pjpar");
+
+
+  edm::FileInPath fpt("CondFormats/JetMETObjects/data/"+ptResFileName);
+  edm::FileInPath fphi("CondFormats/JetMETObjects/data/"+phiResFileName);
+
+  ptRes_  = new JetResolution(fpt.fullPath().c_str(),false);
+  phiRes_ = new JetResolution(fphi.fullPath().c_str(),false);
+
+  fPtEta_ = nullptr;
+  fPhiEta_ = nullptr;
+
+}
+
+metsig::METSignificance::~METSignificance() {
+  delete ptRes_;
+  delete phiRes_;
+  delete fPtEta_;
+  delete fPhiEta_;
+}
+
+
+reco::METCovMatrix
+metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
+				       const std::vector<reco::Candidate::LorentzVector>& leptons,
+				       const edm::View<reco::Candidate>& pfCandidates) {
+  
    // metsig covariance
    double cov_xx = 0;
    double cov_xy = 0;
    double cov_yy = 0;
-
+ 
    // calculate sumPt
    double sumPt = 0;
-   for( std::vector<reco::Candidate::LorentzVector>::const_iterator cand = candidates.begin();
-         cand != candidates.end(); ++cand){
-      sumPt += cand->Pt();
+   for( edm::View<reco::Candidate>::const_iterator cand = pfCandidates.begin();
+         cand != pfCandidates.end(); ++cand){
+      sumPt += cand->pt();
    }
+
+   //MM & NM :subtraction of lepton will need more study to see which option is optimal
+   //does not signficantly change the results
 
    // subtract leptons out of sumPt
-   for ( std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin();
-         lepton != leptons.end(); ++lepton ) {
-      //sumPt -= lepton->Pt();
-   }
+   // for ( std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin();
+   //       lepton != leptons.end(); ++lepton ) {
+   //   //sumPt -= lepton->Pt();
+   // }
+   // //protection against unphysical events
+   // if(sumPt<0) sumPt=0;
 
    // add jets to metsig covariance matrix and subtract them from sumPt
-   for(std::vector<reco::Jet>::const_iterator jet = cleanjets.begin(); jet != cleanjets.end(); ++jet) {
+   for(edm::View<reco::Jet>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
+     
+     // disambiguate jets and leptons
+     if(!cleanJet(*jet, leptons) ) continue;
+
       double jpt  = jet->pt();
       double jeta = jet->eta();
-      double feta = fabs(jeta);
-      double c = cos(jet->phi());
-      double s = sin(jet->phi());
+      double feta = std::abs(jeta);
+      double c = std::cos(jet->phi());
+      double s = std::sin(jet->phi());
 
       // jet energy resolutions
-      double jeta_res = (fabs(jeta) < 9.9) ? jeta : 9.89; // JetResolutions defined for |eta|<9.9
-      TF1* fPtEta    = ptRes_ -> parameterEta("sigma",jeta_res);
-      TF1* fPhiEta   = phiRes_-> parameterEta("sigma",jeta_res);
-      double sigmapt = fPtEta->Eval(jpt);
-      double sigmaphi = fPhiEta->Eval(jpt);
-      delete fPtEta;
-      delete fPhiEta;
+      double jeta_res = (std::abs(jeta) < 9.9) ? jeta : 9.89; // JetResolutions defined for |eta|<9.9
+      fPtEta_    = ptRes_ -> parameterEta("sigma",jeta_res);
+      fPhiEta_   = phiRes_-> parameterEta("sigma",jeta_res);
+      double sigmapt = fPtEta_->Eval(jpt);
+      double sigmaphi = fPhiEta_->Eval(jpt);
+      delete fPtEta_;
+      delete fPhiEta_;
 
       // split into high-pt and low-pt sector
-      if( jpt > jetThreshold ){
+      if( jpt > jetThreshold_ ){
          // high-pt jets enter into the covariance matrix via JER
 
          double scale = 0;
-         if(feta<jetetas[0]) scale = jetparams[0];
-         else if(feta<jetetas[1]) scale = jetparams[1];
-         else if(feta<jetetas[2]) scale = jetparams[2];
-         else if(feta<jetetas[3]) scale = jetparams[3];
-         else scale = jetparams[4];
+         if(feta<jetEtas_[0]) scale = jetParams_[0];
+         else if(feta<jetEtas_[1]) scale = jetParams_[1];
+         else if(feta<jetEtas_[2]) scale = jetParams_[2];
+         else if(feta<jetEtas_[3]) scale = jetParams_[3];
+         else scale = jetParams_[4];
 
          double dpt = scale*jpt*sigmapt;
          double dph = jpt*sigmaphi;
@@ -121,7 +125,7 @@ metsig::METSignificance::getCovariance()
             sumPt -= jet->daughter(i)->pt();
          }
 
-      }else{
+      } else {
 
          // subtract the pf constituents in each jet out of the sumPt
          for(unsigned int i=0; i < jet->numberOfDaughters(); i++){
@@ -135,10 +139,10 @@ metsig::METSignificance::getCovariance()
    }
 
    // add pseudo-jet to metsig covariance matrix
-   cov_xx += pjetparams[0]*pjetparams[0] + pjetparams[1]*pjetparams[1]*sumPt;
-   cov_yy += pjetparams[0]*pjetparams[0] + pjetparams[1]*pjetparams[1]*sumPt;
+   cov_xx += pjetParams_[0]*pjetParams_[0] + pjetParams_[1]*pjetParams_[1]*sumPt;
+   cov_yy += pjetParams_[0]*pjetParams_[0] + pjetParams_[1]*pjetParams_[1]*sumPt;
 
-   TMatrixD cov(2,2);
+   reco::METCovMatrix cov;
    cov(0,0) = cov_xx;
    cov(1,0) = cov_xy;
    cov(0,1) = cov_xy;
@@ -148,8 +152,8 @@ metsig::METSignificance::getCovariance()
 }
 
 double
-metsig::METSignificance::getSignificance(TMatrixD& cov)
-{
+metsig::METSignificance::getSignificance(const reco::METCovMatrix& cov, const reco::MET& met) const {
+
    // covariance matrix determinant
    double det = cov(0,0)*cov(1,1) - cov(0,1)*cov(1,0);
 
@@ -164,72 +168,17 @@ metsig::METSignificance::getSignificance(TMatrixD& cov)
    return sig;
 }
 
-std::vector<reco::Jet>
-metsig::METSignificance::cleanJets(double ptThreshold, double dRmatch)
-{
-   double dR2match = dRmatch*dRmatch;
-   std::vector<reco::Jet> retVal;
-   for ( std::vector<reco::Jet>::const_iterator jet = jets.begin();
-         jet != jets.end(); ++jet ) {
-      bool isOverlap = false;
-      for ( std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin();
-            lepton != leptons.end(); ++lepton ) {
-         TLorentzVector ljet, llep;
-         ljet.SetPtEtaPhiE( jet->pt(), jet->eta(), jet->phi(), jet->energy() );
-         llep.SetPtEtaPhiE( lepton->pt(), lepton->eta(), lepton->phi(), lepton->energy() );
-         if ( pow(ljet.DeltaR( llep ),2) < dR2match ) isOverlap = true;  
-      }
-      if ( jet->pt() > ptThreshold && !isOverlap ){
-         retVal.push_back(*jet);
-      }
-   }
+bool
+metsig::METSignificance::cleanJet(const reco::Jet& jet, 
+				  const std::vector<reco::Candidate::LorentzVector>& leptons) {
+  
+  if ( jet.pt() < jetThreshold_ ) return false;
 
-   return retVal;
+  for ( std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin();
+	lepton != leptons.end(); ++lepton ) {
+    if ( reco::deltaR2( *lepton, jet) < dR2match_ ) {
+      return false;
+    }
+  }
+  return true;
 }
-
-void
-metsig::METSignificance::addJets(const std::vector<reco::Jet>& inputJets){
-   jets = inputJets;
-}
-
-void
-metsig::METSignificance::addLeptons(const std::vector<reco::Candidate::LorentzVector>& inputLeptons){
-   leptons = inputLeptons;
-}
-
-void
-metsig::METSignificance::addCandidates(const std::vector<reco::Candidate::LorentzVector>& inputCandidates){
-   candidates = inputCandidates;
-}
-
-void
-metsig::METSignificance::addMET(const reco::MET& inputMET){
-   met = inputMET;
-}
-
-void
-metsig::METSignificance::setThreshold(const double& inputThreshold){
-   jetThreshold = inputThreshold;
-}
-
-void
-metsig::METSignificance::setJetEtaBins(const std::vector<double>& inputEtaBins){
-   jetetas = inputEtaBins;
-}
-
-void
-metsig::METSignificance::setJetParams(const std::vector<double>& inputParams){
-   jetparams = inputParams;
-}
-
-void
-metsig::METSignificance::setPJetParams(const std::vector<double>& inputParams){
-   pjetparams = inputParams;
-}
-
-void
-metsig::METSignificance::setResFiles(const std::string& inputPtFile, const std::string& inputPhiFile){
-   ptResFileName = inputPtFile;
-   phiResFileName = inputPhiFile;
-}
-

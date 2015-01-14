@@ -8,20 +8,6 @@
 //____________________________________________________________________________||
 #include "RecoMET/METProducers/interface/METSignificanceProducer.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/METReco/interface/METFwd.h"
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETFwd.h"
-#include "DataFormats/METReco/interface/CommonMETData.h"
-
-#include "RecoMET/METAlgorithms/src/METSignificance.cc"
-
-#include <string.h>
-
-#include "TMatrixD.h"
 
 //____________________________________________________________________________||
 namespace cms
@@ -30,24 +16,18 @@ namespace cms
 //____________________________________________________________________________||
   METSignificanceProducer::METSignificanceProducer(const edm::ParameterSet& iConfig)
   {
+    
+    std::vector<edm::InputTag> srcLeptonsTags = iConfig.getParameter< std::vector<edm::InputTag> >("srcLeptons");
+    for(std::vector<edm::InputTag>::const_iterator it=srcLeptonsTags.begin();it!=srcLeptonsTags.end();it++) {
+      lepTokens_.push_back( consumes<edm::View<reco::Candidate> >( *it ) );
+    }
+    
+    pfjetsToken_    = consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("srcPfJets"));
 
-   std::vector<edm::InputTag> srcLeptonsTags = iConfig.getParameter< std::vector<edm::InputTag> >("srcLeptons");
-   for(std::vector<edm::InputTag>::const_iterator it=srcLeptonsTags.begin();it!=srcLeptonsTags.end();it++) {
-      srcLeptons_.push_back( consumes<edm::View<reco::Candidate> >( *it ) );
-   }
+    metToken_ = consumes<edm::View<reco::MET> >(iConfig.getParameter<edm::InputTag>("srcMet"));
+    pfCandidatesToken_ = consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("srcPFCandidates"));
 
-   pfjetsTag_    = iConfig.getUntrackedParameter<edm::InputTag>("pfjetsTag");
-
-   metTag_ = iConfig.getUntrackedParameter<edm::InputTag>("metTag");
-   pfcandidatesTag_ = iConfig.getUntrackedParameter<edm::InputTag>("pfcandidatesTag");
-
-   jetThreshold_ = iConfig.getParameter<double>("jetThreshold");
-   jetEtas_ = iConfig.getParameter<std::vector<double>>("jeta");
-   jetParams_ = iConfig.getParameter<std::vector<double>>("jpar");
-   pjetParams_ = iConfig.getParameter<std::vector<double>>("pjpar");
-
-   resAlg  = iConfig.getParameter<std::string>("jetResAlgo");
-   resEra  = iConfig.getParameter<std::string>("jetResEra");
+    metSigAlgo_ = new metsig::METSignificance(iConfig);
 
    produces<double>("METSignificance");
    produces<double>("CovarianceMatrix00");
@@ -60,37 +40,27 @@ namespace cms
 //____________________________________________________________________________||
   void METSignificanceProducer::produce(edm::Event& event, const edm::EventSetup& setup)
   {
-   using namespace edm;
-
    //
    // met
    //
-
-   Handle<View<reco::MET> > metHandle;
-   event.getByLabel(metTag_, metHandle);
-   reco::MET met = (*metHandle)[0];
-
-   //
-   // candidates
-   //
-
-   Handle<reco::CandidateView> inputCandidates;
-   event.getByLabel( pfcandidatesTag_, inputCandidates );
-   std::vector<reco::Candidate::LorentzVector> candidates;
-   for(View<reco::Candidate>::const_iterator cand = inputCandidates->begin();
-         cand != inputCandidates->end(); ++cand) {
-      candidates.push_back( cand->p4() );
-   }
-
-   //
-   // leptons
-   //
-
+    edm::Handle<edm::View<reco::MET> > metHandle;
+    event.getByToken(metToken_, metHandle);
+    reco::MET met = (*metHandle)[0];
+    
+    //
+    // candidates
+    //
+    edm::Handle<reco::CandidateView> pfCandidates;
+    event.getByToken( pfCandidatesToken_, pfCandidates );
+    
+    //
+    // leptons
+    //
    std::vector<reco::Candidate::LorentzVector> leptons;
-   for ( std::vector<EDGetTokenT<View<reco::Candidate> > >::const_iterator srcLeptons_i = srcLeptons_.begin();
-         srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i ) {
+   for ( std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator srcLeptons_i = lepTokens_.begin();
+         srcLeptons_i != lepTokens_.end(); ++srcLeptons_i ) {
 
-      Handle<reco::CandidateView> leptons_i;
+     edm::Handle<reco::CandidateView> leptons_i;
       event.getByToken(*srcLeptons_i, leptons_i);
       for ( reco::CandidateView::const_iterator lepton = leptons_i->begin();
             lepton != leptons_i->end(); ++lepton ) {
@@ -101,42 +71,14 @@ namespace cms
    //
    // jets
    //
-
-   Handle<View<reco::Jet>> inputJets;
-   event.getByLabel( pfjetsTag_, inputJets );
-   std::vector<reco::Jet> jets;
-   for(View<reco::Jet>::const_iterator jet = inputJets->begin(); jet != inputJets->end(); ++jet) {
-      jets.push_back( *jet );
-   }
-
-   //
-   // resolutions
-   //
-
-   std::string path = "CondFormats/JetMETObjects/data";
-   std::string ptFileName  = path + "/" + resEra + "_PtResolution_" +resAlg+".txt";
-   std::string phiFileName = path + "/" + resEra + "_PhiResolution_"+resAlg+".txt";
-
+   edm::Handle<edm::View<reco::Jet> > jets;
+   event.getByToken( pfjetsToken_, jets );
+   
    //
    // compute the significance
    //
-
-   metsig::METSignificance metsig;
-
-   metsig.addMET( met );
-   metsig.addJets( jets );
-   metsig.addLeptons( leptons );
-   metsig.addCandidates( candidates );
-
-   metsig.setThreshold( jetThreshold_ );
-   metsig.setJetEtaBins( jetEtas_ );
-   metsig.setJetParams( jetParams_ );
-   metsig.setPJetParams( pjetParams_ );
-
-   metsig.setResFiles( ptFileName, phiFileName );
-
-   TMatrixD cov = metsig.getCovariance();
-   double sig  = metsig.getSignificance(cov);
+   reco::METCovMatrix cov = metSigAlgo_->getCovariance( *jets, leptons, *pfCandidates);
+   double sig  = metSigAlgo_->getSignificance(cov, met);
 
    std::auto_ptr<double> significance (new double);
    (*significance) = sig;

@@ -21,14 +21,25 @@
 //____________________________________________________________________________||
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
+#include "DataFormats/METReco/interface/CommonMETData.h"
+
+#include "RecoMET/METAlgorithms/src/METSignificance.cc"
+
+#include <string.h>
+
 
 //____________________________________________________________________________||
 namespace metsig
@@ -50,19 +61,12 @@ namespace cms
 
       // ----------member data ---------------------------
 
-      edm::InputTag pfjetsTag_;
-      edm::InputTag metTag_;
-      edm::InputTag pfcandidatesTag_;
-      std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > srcLeptons_;
-      Int_t metsSize_;
-
-      double jetThreshold_;
-      std::vector<double> jetEtas_;
-      std::vector<double> jetParams_;
-      std::vector<double> pjetParams_;
-
-      std::string resAlg;
-      std::string resEra;
+      edm::EDGetTokenT<edm::View<reco::Jet> > pfjetsToken_;
+      edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
+      edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandidatesToken_;
+      std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
+ 
+      metsig::METSignificance* metSigAlgo_;
 
     };
 }

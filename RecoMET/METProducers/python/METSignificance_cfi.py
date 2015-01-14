@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoMET.METProducers.METSignificanceParams_cfi import METSignificanceParams
+
 ##____________________________________________________________________________||
 METSignificance = cms.EDProducer(
     "METSignificanceProducer",
@@ -8,8 +10,10 @@ METSignificance = cms.EDProducer(
        'slimmedMuons',
        'slimmedPhotons'
        ),
-    pfjetsTag            = cms.untracked.InputTag('slimmedJets'),
-    metTag               = cms.untracked.InputTag('slimmedMETs'),
-    pfcandidatesTag      = cms.untracked.InputTag('packedPFCandidates')
+    srcPfJets            = cms.InputTag('slimmedJets'),
+    srcMet               = cms.InputTag('slimmedMETs'),
+    srcPFCandidates      = cms.InputTag('packedPFCandidates'),
+    
+    parameters = METSignificanceParams
     )
 ##____________________________________________________________________________||
