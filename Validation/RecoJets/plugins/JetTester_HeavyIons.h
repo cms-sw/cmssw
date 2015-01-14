@@ -142,6 +142,7 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   MonitorElement *mPFVsPt_eta_phi;
   MonitorElement *mPFPt_eta_phi;
   //MonitorElement *mSumDeltapT_HF;
+  MonitorElement *mDeltapT;
   MonitorElement *mDeltapT_eta;
   //MonitorElement *mDeltapT_phiMinusPsi2;
   MonitorElement *mDeltapT_eta_phi;

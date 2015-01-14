@@ -88,6 +88,7 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
   mPFVsPtInitial_eta_phi = 0;
   mPFVsPt_eta_phi = 0;
   mPFPt_eta_phi = 0;
+  mDeltapT = 0;
   //mDeltapT_HF = 0;
   mDeltapT_eta = 0;
   //mDeltapT_phiMinusPsi2 = 0;
@@ -106,34 +107,12 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
   mNJets_40     = 0;
   
 }
-  //DQMStore* dbe = &*edm::Service<DQMStore>();
    
 void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun,edm::EventSetup const &) 
   {
 
-    //if (dbe) {
-    //dbe->setCurrentFolder("JetMET/JetValidation/"+mInputCollection.label());
 
     ibooker.setCurrentFolder("JetMET/JetValidation/"+mInputCollection.label());
-
-    // double log10PtMin  = 0.50;
-    // double log10PtMax  = 3.75;
-    // int    log10PtBins = 26; 
-
-    // double etaRange[91] = {
-    //     -6.0, -5.8, -5.6, -5.4, -5.2, -5.0, -4.8, -4.6, -4.4, -4.2,
-    // 		     -4.0, -3.8, -3.6, -3.4, -3.2, -3.0, -2.9, -2.8, -2.7, -2.6,
-    // 		     -2.5, -2.4, -2.3, -2.2, -2.1, -2.0, -1.9, -1.8, -1.7, -1.6,
-    // 		     -1.5, -1.4, -1.3, -1.2, -1.1, -1.0, -0.9, -0.8, -0.7, -0.6,
-    // 		     -0.5, -0.4, -0.3, -0.2, -0.1,
-    // 		     0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
-    // 		     1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9,
-    // 		     2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9,
-    // 		     3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.8,
-    // 		     5.0, 5.2, 5.4, 5.6, 5.8, 6.0
-    //    };
-
-    //cout<<"inside the book histograms function"<<endl;
 
     // particle flow variables histograms 
     mNPFpart         = ibooker.book1D("NPFpart","",1000,0,10000);
@@ -150,27 +129,28 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
     mSumPFVsPt       = ibooker.book1D("SumPFVsPt","",10000,-10000,10000);
     mSumPFVsPtInitial= ibooker.book1D("SumPFVsPtInitial","",10000,-10000,10000);
     mSumPFPt         = ibooker.book1D("SumPFPt","",10000,-10000,10000);
-    mSumPFVsPt_eta   = ibooker.book2D("SumPFVsPt_etaBins","",60,-6,+6,10000,-10000,10000);
-    mSumPFVsPtInitial_eta   = ibooker.book2D("SumPFVsPtInitial_etaBins","",60,-6,+6,10000,-10000,10000);
-    mSumPFPt_eta     = ibooker.book2D("SumPFPt_etaBins","",60,-6,+6,10000,-10000,10000);
+    mSumPFVsPt_eta   = ibooker.book2D("SumPFVsPt_eta","",60,-6,+6,10000,-10000,10000);
+    mSumPFVsPtInitial_eta   = ibooker.book2D("SumPFVsPtInitial_eta","",60,-6,+6,10000,-10000,10000);
+    mSumPFPt_eta     = ibooker.book2D("SumPFPt_eta","",60,-6,+6,10000,-10000,10000);
 
     // Event variables
-    mNvtx            = ibooker.book1D("Nvtx",           "number of vertices", 60, 0, 60);
+    mNvtx            = ibooker.book1D("Nvtx","number of vertices", 60, 0, 60);
     mHF              = ibooker.book1D("HF", "HF energy distribution",1000,0,10000);
     
     // added Jan 12th 2015
     mSumPFVsPtInitial_HF    = ibooker.book2D("SumPFVsPtInitial_HF","",2000,-10000,10000,1000,0,10000);
     mSumPFVsPt_HF    = ibooker.book2D("SumPFVsPt_HF","",2000,-10000,10000,1000,0,10000);
     mSumPFPt_HF    = ibooker.book2D("SumPFPt_HF","",2000,-10000,10000,1000,0,10000);
-    mPFVsPtInitial_eta_phi    = ibooker.book3D("SumPFVsPtInitial_eta_phi","",100,0,1000,120,-6,6,70,-3.5,3.5);
-    mPFVsPt_eta_phi    = ibooker.book3D("SumPFVsPt_eta_phi","",100,0,1000,120,-6,6,70,-3.5,3.5);
-    mPFPt_eta_phi    = ibooker.book3D("SumPFPt_eta_phi","",100,0,1000,120,-6,6,70,-3.5,3.5);
+    mPFVsPtInitial_eta_phi    = ibooker.book2D("SumPFVsPtInitial_eta_phi","",120,-6,6,70,-3.5,3.5);
+    mPFVsPt_eta_phi    = ibooker.book2D("SumPFVsPt_eta_phi","",120,-6,6,70,-3.5,3.5);
+    mPFPt_eta_phi    = ibooker.book2D("SumPFPt_eta_phi","",120,-6,6,70,-3.5,3.5);
+    mDeltapT  = ibooker.book1D("DeltapT","",400,0,200);
     //mDeltapT_HF  = ibooker.book2D("DeltapT_HF","",400,-200,200,1000,0,10000);
-    mDeltapT_eta = ibooker.book2D("DeltapT_eta","",400,-200,200,70,-6,6);
+    mDeltapT_eta = ibooker.book2D("DeltapT_eta","",70,-6,6,400,-200,200);
     //mDeltapT_phiMinusPsi2 = ibooker.book2D("DeltapT_phiMinusPsi2","",400,-200,200,35,-1.75,1.75);
-    mDeltapT_eta_phi = ibooker.book3D("DeltapT_eta_phi","",400,-200,200,120,-6,6,70,-3.5,3.5);
+    mDeltapT_eta_phi = ibooker.book2D("DeltapT_eta_phi","",120,-6,6,70,-3.5,3.5);
     
-
+    
     // Jet parameters
     mEta             = ibooker.book1D("Eta",          "Eta",          120,   -6,    6); 
     mPhi             = ibooker.book1D("Phi",          "Phi",           70, -3.5,  3.5); 
@@ -222,7 +202,6 @@ void JetAnalyzer_HeavyIons::endJob()
 //------------------------------------------------------------------------------
 void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 {
-  //std::cout<<"in the analyze function"<<endl;
   // Get the primary vertices
   //----------------------------------------------------------------------------
   edm::Handle<vector<reco::Vertex> > pvHandle;
@@ -246,7 +225,6 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 
   // Get the Jet collection
   //----------------------------------------------------------------------------
-  //math::XYZTLorentzVector p4tmp[2];
   
   std::vector<Jet> recoJets;
   recoJets.clear();
@@ -260,16 +238,12 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
   edm::Handle<reco::CandidateView> candidates_;
   
-  //const reco::PFCandidateCollection *pfCandidateColl = pfcandidates.product();
   edm::Handle<edm::ValueMap<VoronoiBackground>> VsBackgrounds;
   edm::Handle<std::vector<float>> vn_;
 
   edm::Handle<reco::Centrality> cent;
   
-  // for example
-  // edm::Handle<PFCandidate /*name of actual handle*/> pfcand;
-  // mEvent.getByToken(PFCandToken_,pfcand);
-  
+
   if (isCaloJet) mEvent.getByToken(caloJetsToken_, caloJets);
   if (isJPTJet)  mEvent.getByToken(jptJetsToken_, jptJets);
   if (isPFJet) {  
@@ -383,7 +357,6 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
       vsPtInitial = voronoi.pt_subtracted();
       vsArea = voronoi.area();
       
-      //std::cout<<"vsPt = "<<vsPt<<"; vsPtInitial = "<<vsPtInitial<<"; vsArea = "<<vsArea<<std::endl;
     }
     
     NPFpart++;
@@ -391,16 +364,15 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
     pfEta = pfCandidate.eta();
     pfPhi = pfCandidate.phi();
 
-    mPFVsPtInitial_eta_phi->Fill(vsPtInitial,pfEta,pfPhi);
-    mPFVsPt_eta_phi->Fill(vsPt,pfEta,pfPhi);
-    mPFPt_eta_phi->Fill(pfPt,pfEta,pfPhi);
+    mPFVsPtInitial_eta_phi->Fill(pfEta,pfPhi,vsPtInitial);
+    mPFVsPt_eta_phi->Fill(pfEta,pfPhi,vsPt);
+    mPFPt_eta_phi->Fill(pfEta,pfPhi,pfPt);
 
     DeltapT = pfPt - vsPtInitial;
 
-    mDeltapT_eta->Fill(DeltapT,pfEta);
-    mDeltapT_eta_phi->Fill(DeltapT,pfEta,pfPhi);
+    mDeltapT_eta->Fill(pfEta,DeltapT);
+    mDeltapT_eta_phi->Fill(pfEta,pfPhi,DeltapT);
 
-    //std::cout<<pfPt<<" "<<pfEta<<" "<<pfPhi<<" "<<std::endl;
 
     for(size_t k = 0;k<nedge_pseudorapidity-1; k++){
       if(pfEta >= edge_pseudorapidity[k] && pfEta < edge_pseudorapidity[k+1]){
@@ -422,7 +394,7 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
     //mPFVsPtEqualized
     mPFArea->Fill(vsArea);
     
-  }
+  }//pf candidate loop
   
   Float_t Evt_SumPFVsPt = 0;
   Float_t Evt_SumPFVsPtInitial = 0;
@@ -430,11 +402,11 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 
   for(size_t  k = 0;k<nedge_pseudorapidity-1;k++){
     
-    mSumPFVsPtInitial->Fill(SumPFVsPtInitial[k]);
+    //mSumPFVsPtInitial->Fill(SumPFVsPtInitial[k]);
     Evt_SumPFVsPtInitial = Evt_SumPFVsPtInitial + SumPFVsPtInitial[k];
-    mSumPFVsPt->Fill(SumPFVsPt[k]);
+    //mSumPFVsPt->Fill(SumPFVsPt[k]);
     Evt_SumPFVsPt = Evt_SumPFVsPt + SumPFVsPt[k];
-    mSumPFPt->Fill(SumPFPt[k]);
+    //mSumPFPt->Fill(SumPFPt[k]);
     Evt_SumPFPt = Evt_SumPFPt + SumPFPt[k];
 
     mSumPFVsPtInitial_eta->Fill(edge_pseudorapidity[k],SumPFVsPtInitial[k]);
@@ -443,6 +415,9 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
     
   }// eta bin loop  
 
+  mSumPFVsPtInitial->Fill(Evt_SumPFVsPtInitial);
+  mSumPFVsPt->Fill(Evt_SumPFVsPt);
+  mSumPFPt->Fill(Evt_SumPFPt);
   mSumPFVsPtInitial_HF->Fill(Evt_SumPFVsPtInitial,HF_energy);
   mSumPFVsPt_HF->Fill(Evt_SumPFVsPt,HF_energy);
   mSumPFPt_HF->Fill(Evt_SumPFPt,HF_energy);
@@ -450,43 +425,27 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
   mNPFpart->Fill(NPFpart);
   mSumpt->Fill(SumPt_value);
   
-  //std::cout<<"finished loading the pfcandidates"<<std::endl;
   
   if (isCaloJet)
     {
-      //std::cout<<caloJets->size()<<endl;
       for (unsigned ijet=0; ijet<caloJets->size(); ijet++) recoJets.push_back((*caloJets)[ijet]);
     }
   
   if (isJPTJet)
     {
-      //std::cout<<jptJets->size()<<endl;
       for (unsigned ijet=0; ijet<jptJets->size(); ijet++) recoJets.push_back((*jptJets)[ijet]);
     }
   
   if (isPFJet) {
     if(std::string("Pu")==UEAlgo){
-      //std::cout<<basicJets->size()<<endl;
       for (unsigned ijet=0; ijet<basicJets->size();ijet++) recoJets.push_back((*basicJets)[ijet]);
     }
     if(std::string("Vs")==UEAlgo){
-      //std::cout<<pfJets->size()<<endl;
       for (unsigned ijet=0; ijet<pfJets->size(); ijet++) recoJets.push_back((*pfJets)[ijet]);
     }
   }
   
-  /*
-    std::cout<<mInputCollection.label()<<endl;
-    std::cout<<"jet type = "<<JetType<<endl;
-    std::cout<<"UE algorithm = "<<UEAlgo<<endl;
-    std::cout<<"size of jets = "<<recoJets.size()<<endl;
-    if(isCaloJet)
-    std::cout<<"isValid = "<<caloJets.isValid()<<endl; 
-    if(isJPTJet)
-    std::cout<<"isValid = "<<jptJets.isValid()<<endl; 
-    if(isPFJet)
-    std::cout<<"isValid = "<<pfJets.isValid()<<endl; 
-  */
+
     
   if (isCaloJet && !caloJets.isValid()) return;
   if (isJPTJet  && !jptJets.isValid())  return;
@@ -495,12 +454,7 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
     if(std::string("Vs")==UEAlgo){if(!pfJets.isValid())   return;}
   }
   
-  
-  //std::cout<<"after the trip point"<<endl;
-  //std::cout<<mInputCollection.label()<<endl;
-  //std::cout<<"jet type = "<<JetType<<endl;
-  //std::cout<<"size of jets = "<<recoJets.size()<<endl;
-  
+
   // int nJet      = 0;
   // int nJet_E_20_40 = 0;
   // int nJet_B_20_40 = 0;
@@ -510,11 +464,9 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
   
   for (unsigned ijet=0; ijet<recoJets.size(); ijet++) {
 
-    //std::cout<<"pt = "<<recoJets[ijet].pt()<<endl;	  
     
     if (recoJets[ijet].pt() > mRecoJetPtThreshold) {
       //counting forward and barrel jets
-      //cout<<"inside jet pt > 10 condition"<<endl;
       
       // get an idea of no of jets with pT>40 GeV 
       if(recoJets[ijet].pt() > 40)
