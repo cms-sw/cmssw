@@ -66,7 +66,7 @@ namespace pos{
 				  std::ofstream *out2)  const {;}
     virtual void writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
     virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
-    virtual void writeXML(                                                              std::ofstream *out) const {;}
+    virtual void writeXML(                                                              std::ofstream *out) const {std::cout << __LINE__ << " " << __PRETTY_FUNCTION__ << "\tUnimplemented method" << std::endl ;;}
     virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
 
     void setAuthor (std::string author)  {creator_ = author ;} 
