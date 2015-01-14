@@ -103,7 +103,6 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
   edm::EDGetTokenT<reco::BasicJetCollection> basicJetsToken_;
   edm::EDGetTokenT<reco::JPTJetCollection> jptJetsToken_;
-  //edm::EDGetTokenT<edm::HepMCProduct> evtToken_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandToken_; 
   edm::EDGetTokenT<reco::CandidateView> pfCandViewToken_;
   //edm::EDGetTokenT<reco::VoronoiMap> backgrounds_;
@@ -146,6 +145,7 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   MonitorElement *mPFVsPt_eta_phi;
   MonitorElement *mPFPt_eta_phi;
   //MonitorElement *mSumDeltapT_HF;
+  MonitorElement *mDeltapT;
   MonitorElement *mDeltapT_eta;
   //MonitorElement *mDeltapT_phiMinusPsi2;
   MonitorElement *mDeltapT_eta_phi;
