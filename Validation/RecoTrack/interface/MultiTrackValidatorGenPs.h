@@ -9,6 +9,7 @@
 
 #include "Validation/RecoTrack/interface/MultiTrackValidator.h"
 #include "CommonTools/CandAlgos/interface/GenParticleCustomSelector.h"
+#include "SimDataFormats/Associations/interface/TrackToGenParticleAssociator.h"
 
 class MultiTrackValidatorGenPs : public MultiTrackValidator {
  public:
@@ -24,6 +25,7 @@ class MultiTrackValidatorGenPs : public MultiTrackValidator {
 private:
 
   GenParticleCustomSelector gpSelector;				      
+  edm::EDGetTokenT<reco::TrackToGenParticleAssociator> label_gen_associator;
 
 };
 

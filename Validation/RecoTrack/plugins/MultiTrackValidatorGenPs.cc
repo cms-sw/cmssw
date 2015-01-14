@@ -10,9 +10,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
@@ -23,7 +21,6 @@
 #include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
 #include "SimTracker/TrackAssociation/plugins/CosmicParametersDefinerForTPESProducer.h"
 #include "Validation/RecoTrack/interface/MTVHistoProducerAlgoFactory.h"
-#include "SimTracker/TrackAssociation/interface/TrackGenAssociatorBase.h"
 
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -37,6 +34,8 @@
 using namespace std;
 using namespace edm;
 
+static const std::string kTrackAssociatorByChi2("trackAssociatorByChi2");
+
 MultiTrackValidatorGenPs::MultiTrackValidatorGenPs(const edm::ParameterSet& pset):MultiTrackValidator(pset){
 
   gpSelector = GenParticleCustomSelector(pset.getParameter<double>("ptMinGP"),
@@ -47,6 +46,15 @@ MultiTrackValidatorGenPs::MultiTrackValidatorGenPs(const edm::ParameterSet& pset
 					 pset.getParameter<bool>("chargedOnlyGP"),
 					 pset.getParameter<int>("statusGP"),
 					 pset.getParameter<std::vector<int> >("pdgIdGP"));
+
+  if(UseAssociators) {
+    for(auto const& name: associators) {
+      if( name == kTrackAssociatorByChi2) {
+        label_gen_associator = consumes<reco::TrackToGenParticleAssociator>(edm::InputTag(name));
+        break;
+      }
+    }
+  }
 
 }
 
@@ -91,17 +99,13 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
     }
   }
 
-  const TrackGenAssociatorBase* trackGenAssociator =nullptr;
-  int ww = 0;
-  for(auto const& name: associators) {
-    if( name == "TrackAssociatorByChi2") {
-      edm::ESHandle<TrackGenAssociatorBase> trackGenAssociatorH;
-      setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",trackGenAssociatorH);
+  const reco::TrackToGenParticleAssociator* trackGenAssociator =nullptr;
+  if(UseAssociators and not label_gen_associator.isUninitialized()) {
+      edm::Handle<reco::TrackToGenParticleAssociator> trackGenAssociatorH;
+      event.getByToken(label_gen_associator,trackGenAssociatorH);
       trackGenAssociator = trackGenAssociatorH.product();
-      break;
-    }
-    ++ww;
   }
+
   if ( not trackGenAssociator) { return ; }
 
   int w=0; //counter counting the number of sets of histograms
@@ -123,18 +127,14 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
                                          << label[www].process()<<":"
                                          << label[www].label()<<":"
                                          << label[www].instance()<<" with "
-                                         << associators[ww].c_str() <<"\n";
+                                         << kTrackAssociatorByChi2 <<"\n";
       
       LogTrace("TrackValidator") << "Calling associateRecoToGen method" << "\n";
       recGenColl=trackGenAssociator->associateRecoToGen(trackCollection,
-							TPCollectionHfake,
-							&event,
-                                                        &setup);
+							TPCollectionHfake);
       LogTrace("TrackValidator") << "Calling associateGenToReco method" << "\n";
       genRecColl=trackGenAssociator->associateGenToReco(trackCollection,
-							TPCollectionHeff, 
-							&event,
-                                                        &setup);
+							TPCollectionHeff);
     }
     else{
       edm::LogVerbatim("TrackValidator") << "Analyzing " 
