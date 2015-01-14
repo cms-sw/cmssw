@@ -60,13 +60,14 @@ namespace FSQ {
 //################################################################################################
 class BaseHandler {
     public:
-        BaseHandler();
-        ~BaseHandler(){
-            delete m_expression;
-        }
+        virtual ~BaseHandler() { }
+
         BaseHandler(const edm::ParameterSet& iConfig,  triggerExpression::Data & eventCache):
               m_expression(triggerExpression::parse( iConfig.getParameter<std::string>("triggerSelection")))
          {
+              if (not m_expression)
+                  edm::LogError("FSQ::BaseHandler") << "Failed to parse TriggerResults expression '" << iConfig.getParameter<std::string>("triggerSelection") << "'";
+
               // extract list of used paths
               std::vector<std::string> strs;
               std::string triggerSelection = iConfig.getParameter<std::string>("triggerSelection");
@@ -92,7 +93,7 @@ class BaseHandler {
         virtual void book(DQMStore::IBooker & booker) = 0;
         virtual void getAndStoreTokens(edm::ConsumesCollector && iC) = 0;
 
-        triggerExpression::Evaluator * m_expression;
+        std::unique_ptr<triggerExpression::Evaluator> m_expression;
         triggerExpression::Data * m_eventCache;
         std::string m_dirname;
         std::map<std::string,  MonitorElement*> m_histos;
@@ -319,6 +320,8 @@ class HandlerTemplate: public BaseHandler {
                     return;
             }
 
+            if (not m_expression)
+                return;
             if (m_eventCache->configurationUpdated()) {
                 m_expression->init(*m_eventCache);
             }
