@@ -28,7 +28,7 @@ namespace pos{
     PixelCalibBase();
     virtual ~PixelCalibBase();
     virtual std::string mode() const {return mode_;}
-    virtual void writeXMLHeader(  pos::PixelConfigKey key,
+    virtual void writeXMLHeader(  pos::PixelConfigKey &key, 
 				  int version, 
 				  std::string path, 
 				  std::ofstream *out,
