@@ -439,36 +439,36 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
    // if so do the weighted average for the time and the total energy for energy
 
      if((std::abs(timevalfit)<std::abs(timeval2fit)) && (std::abs(timevalfit)<std::abs(timeval3fit))){
-        if(deltaT12 < 1){
+        if(deltaT12 < overlapLimit){
           timevalfit = (timeval2fit*chargeval2fit + timevalfit*chargevalfit)/(chargeval2fit+chargevalfit);
           chargevalfit = chargeval2fit+chargevalfit;     
         } 
-        if(deltaT13 < 1) {
+        if(deltaT13 < overlapLimit) {
           timevalfit = (timevalfit*chargevalfit + timeval3fit*chargeval3fit)/(chargevalfit+chargeval3fit);
           chargevalfit = chargevalfit+chargeval3fit;
         } 
      } else if((std::abs(timeval2fit)<std::abs(timevalfit)) && (std::abs(timeval2fit)<std::abs(timeval3fit))){
 
-        if(deltaT23 < 1) {
+        if(deltaT23 < overlapLimit) {
           timevalfit = (timeval2fit*chargeval2fit + timeval3fit*chargeval3fit)/(chargeval2fit+chargeval3fit);
           chargevalfit = chargeval2fit+chargeval3fit;
         } 
-        if(deltaT12 < 1){
+        if(deltaT12 < overlapLimit){
           timevalfit = (timeval2fit*chargeval2fit + timevalfit*chargevalfit)/(chargeval2fit+chargevalfit);
           chargevalfit = chargeval2fit+chargevalfit;     
-        } else if(deltaT23 >= 1) {
+        } else if(deltaT23 >= overlapLimit) {
           timevalfit = timeval2fit;
           chargevalfit = chargeval2fit;
         }
      } else if((std::abs(timeval3fit)<std::abs(timevalfit)) && (std::abs(timeval3fit)<std::abs(timeval2fit))){
-       if(deltaT23 < 1){
+       if(deltaT23 < overlapLimit){
           timevalfit = (timeval2fit*chargeval2fit + timeval3fit*chargeval3fit)/(chargeval2fit+chargeval3fit);
           chargevalfit = chargeval2fit+chargeval3fit;     
         }
-        if(deltaT13 < 1) {
+        if(deltaT13 < overlapLimit) {
           timevalfit = (timevalfit*chargevalfit + timeval3fit*chargeval3fit)/(chargevalfit+chargeval3fit);
           chargevalfit = chargevalfit+chargeval3fit;
-        } else if(deltaT23 >= 1){
+        } else if(deltaT23 >= overlapLimit){
           timevalfit = timeval3fit;
           chargevalfit = chargeval3fit;
         }
