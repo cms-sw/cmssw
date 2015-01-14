@@ -79,25 +79,9 @@ GlobalDigisHistogrammer::GlobalDigisHistogrammer(const edm::ParameterSet& iPSet)
 void GlobalDigisHistogrammer::bookHistograms(DQMStore::IBooker & ibooker,
   edm::Run const &, edm::EventSetup const & ){
 
-  //Put in analyzer stuff here.... Pasted from Rec Hits... 
-
-  // if (ibooker) {
-  //   if (verbosity > 0 ) {
-  //     ibooker.setVerbose(1);
-  //   } else {
-  //     ibooker.setVerbose(0);
-  //   }
-  // }
-
-  // if (ibooker) {
-  //   if (verbosity > 0 ) ibooker.showDirStructure();
-  // }
-  // ????? do we need to set verbosity in ibooker
-
 //monitor elements 
 
 //Si Strip  ***Done***
-  // if (ibooker) {
   std::string SiStripString[19] = {"TECW1", "TECW2", "TECW3", "TECW4", "TECW5",
       "TECW6", "TECW7", "TECW8", "TIBL1", "TIBL2", "TIBL3", "TIBL4", "TIDW1",
       "TIDW2", "TIDW3", "TOBL1", "TOBL2", "TOBL3", "TOBL4"};
@@ -337,60 +321,12 @@ void GlobalDigisHistogrammer::bookHistograms(DQMStore::IBooker & ibooker,
   mehCSCWiren = ibooker.book1D("hCSCWireTime", "CSC Wire Time", 10, 0., 10.);
   mehCSCWiren->setAxisTitle("Time", 1);
   mehCSCWiren->setAxisTitle("Count", 2);
-  // }
 
 } //close bookHistograms
 
 GlobalDigisHistogrammer::~GlobalDigisHistogrammer() 
 {
-  // if (doOutput)
-  //   if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 }
-
-// void GlobalDigisHistogrammer::beginJob( void )
-// {
-//   std::string MsgLoggerCat = "GlobalDigisHistogrammer_beginJob";
-
-//   // setup calorimeter constants from service
-//   //edm::ESHandle<EcalADCToGeVConstant> pAgc;
-//   //iSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
-//   //const EcalADCToGeVConstant* agc = pAgc.product();
-  
-//   //EcalMGPAGainRatio * defaultRatios = new EcalMGPAGainRatio();
-
-//   // ECalgainConv_[0] = 0.;
-//   // ECalgainConv_[1] = 1.;
-//   // // ECalgainConv_[2] = defaultRatios->gain12Over6() ;
-//   //ECalgainConv_[3] = ECalgainConv_[2]*(defaultRatios->gain6Over1()) ;
-
-//   //delete defaultRatios;
-
-//   //ECalbarrelADCtoGeV_ = agc->getEBValue();
-//   //ECalendcapADCtoGeV_ = agc->getEEValue();
-
-//   //if (verbosity >= 0) {
-//   // edm::LogInfo(MsgLoggerCat) 
-//   // << "Modified Calorimeter gain constants: g0 = " << ECalgainConv_[0]
-//   //<< ", g1 = " << ECalgainConv_[1] << ", g2 = " << ECalgainConv_[2]
-//   // << ", g3 = " << ECalgainConv_[3];
-//   // edm::LogInfo(MsgLoggerCat)
-//   //  << "Modified Calorimeter ADCtoGeV constants: barrel = " 
-//   //  << ECalbarrelADCtoGeV_ << ", endcap = " << ECalendcapADCtoGeV_;
-//   //}
-
-//   // clear storage vectors
-//   //clear();
-//   return;
-// }
-
-// void GlobalDigisHistogrammer::endJob()
-// {
-//   std::string MsgLoggerCat = "GlobalDigisHistogrammer_endJob";
-//   if (verbosity >= 0)
-//     edm::LogInfo(MsgLoggerCat) 
-//       << "Terminating having processed " << count << " events.";
-//   return;
-// }
 
 void GlobalDigisHistogrammer::analyze(const edm::Event& iEvent, 
 				  const edm::EventSetup& iSetup)
