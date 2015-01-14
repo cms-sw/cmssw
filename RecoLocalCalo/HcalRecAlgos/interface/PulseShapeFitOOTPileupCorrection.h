@@ -130,6 +130,7 @@ private:
     double pedSig_;
     double noise_;    
     HcalTimeSlew::BiasSetting slewFlavor_;    
+    const float overlapLimit = 1;
 };
 
 #endif // PulseShapeFitOOTPileupCorrection_h
