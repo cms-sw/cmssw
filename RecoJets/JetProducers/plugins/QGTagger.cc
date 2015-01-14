@@ -82,7 +82,9 @@ void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
     float ptD, axis2; int mult;
     std::tie(mult, ptD, axis2) = calcVariables(&*jet, vertexCollection);
 
-    float qgValue = qgLikelihood->computeQGLikelihood(QGLParamsColl, pt, jet->eta(), *rho, {(float) mult, ptD, -std::log(axis2)});
+    float qgValue;
+    if(mult > 2) qgValue = qgLikelihood->computeQGLikelihood(QGLParamsColl, pt, jet->eta(), *rho, {(float) mult, ptD, -std::log(axis2)});
+    else         qgValue = -1;
 
     qgProduct->push_back(qgValue);
     if(produceSyst){
