@@ -2,6 +2,7 @@
 #define FWCore_Catalog_SiteLocalConfig_h
 
 // INCLUDES
+# include <set>
 # include <string>
 # include <vector>
 # include <netdb.h>
@@ -40,6 +41,7 @@ namespace edm {
     virtual unsigned int debugLevel() const = 0;
     virtual std::vector<std::string> const* sourceNativeProtocols() const = 0;
     virtual struct addrinfo const * statisticsDestination() const = 0;
+    virtual std::set<std::string> const* statisticsInfo() const = 0;
     virtual std::string const& siteName (void) const = 0;
 
     // implicit copy constructor
