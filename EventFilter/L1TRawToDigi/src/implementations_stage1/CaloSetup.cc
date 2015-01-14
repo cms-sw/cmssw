@@ -20,7 +20,7 @@ namespace l1t {
                PackerMap res;
 
                // Use amc id 1 for packing
-               res[1] = {
+               res[0x200D] = {
                   PackerFactory::get()->make("stage1::IsoEGammaPacker"),
                   PackerFactory::get()->make("stage1::NonIsoEGammaPacker"),
                   PackerFactory::get()->make("stage1::CentralJetPacker"),
@@ -52,38 +52,45 @@ namespace l1t {
             };
 
             virtual UnpackerMap getUnpackers(int fed, int amc, int fw) override {
-               auto rctRegion_unp = UnpackerFactory::get()->make("stage1::RCTRegionUnpacker");
-               auto rctEm_unp = UnpackerFactory::get()->make("stage1::RCTEmUnpacker");
-               auto iegamma_unp = UnpackerFactory::get()->make("stage1::IsoEGammaUnpacker");
-               auto niegamma_unp = UnpackerFactory::get()->make("stage1::NonIsoEGammaUnpacker");
+               UnpackerMap res;
+
                auto cjet_unp = UnpackerFactory::get()->make("stage1::CentralJetUnpacker");
                auto fjet_unp = UnpackerFactory::get()->make("stage1::ForwardJetUnpacker");
-               auto tau_unp = UnpackerFactory::get()->make("stage1::TauUnpacker");
-               auto isotau_unp = UnpackerFactory::get()->make("stage1::IsoTauUnpacker");
-               auto etsum_unp = UnpackerFactory::get()->make("stage1::EtSumUnpacker");
-               auto ring_unp = UnpackerFactory::get()->make("stage1::HFRingUnpacker");
 
-               UnpackerMap res;
-               /* res[1] = iegamma_unp; */
-               /* res[2] = niegamma_unp; */
-               /* res[3] = cjet_unp; */
-               /* res[4] = fjet_unp; */
-               /* res[5] = tau_unp; */
-               /* res[6] = etsum_unp; */
-               /* res[7] = ring_unp; */
-               /* res[8] = isotau_unp; */
-               
-               for (int m=0;m<36;m++) {
-                 if(amc==4109){
-                   res[m*2] = rctRegion_unp;
-                 }
-                 else if(amc==4110){
-                   res[m*2] = rctEm_unp;
-                 }
-               }
-               if(amc==4109){
-                 res[105] = cjet_unp;
-                 res[107] = fjet_unp;
+               if (fed == 1352) {
+                  if (amc == 0x200D) {
+                     auto iegamma_unp = UnpackerFactory::get()->make("stage1::IsoEGammaUnpacker");
+                     auto niegamma_unp = UnpackerFactory::get()->make("stage1::NonIsoEGammaUnpacker");
+                     auto tau_unp = UnpackerFactory::get()->make("stage1::TauUnpacker");
+                     auto isotau_unp = UnpackerFactory::get()->make("stage1::IsoTauUnpacker");
+                     auto etsum_unp = UnpackerFactory::get()->make("stage1::EtSumUnpacker");
+                     auto ring_unp = UnpackerFactory::get()->make("stage1::HFRingUnpacker");
+
+                     res[1] = iegamma_unp;
+                     res[2] = niegamma_unp;
+                     res[3] = cjet_unp;
+                     res[4] = fjet_unp;
+                     res[5] = tau_unp;
+                     res[6] = etsum_unp;
+                     res[7] = ring_unp;
+                     res[8] = isotau_unp;
+                  }
+               } else {
+                  auto rctRegion_unp = UnpackerFactory::get()->make("stage1::RCTRegionUnpacker");
+                  auto rctEm_unp = UnpackerFactory::get()->make("stage1::RCTEmUnpacker");
+
+                  for (int m=0;m<36;m++) {
+                    if(amc==4109){
+                      res[m*2] = rctRegion_unp;
+                    }
+                    else if(amc==4110){
+                      res[m*2] = rctEm_unp;
+                    }
+                  }
+                  if(amc==4109){
+                    res[105] = cjet_unp;
+                    res[107] = fjet_unp;
+                  }
                }
                return res;
             };

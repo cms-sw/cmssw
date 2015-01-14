@@ -14,12 +14,13 @@ stage1Raw = cms.EDProducer(
     nFramesLatency   = cms.untracked.int32(0),
 
     # DAQ parameters
-    amcId            = cms.untracked.int32(1),
-    fedId            = cms.untracked.int32(1300),
+    amcId            = cms.untracked.int32(0x200D),
+    fedId            = cms.untracked.int32(1352),
     eventType        = cms.untracked.int32(238),
     fwVersion        = cms.untracked.int32(255),
     lenSlinkHeader   = cms.untracked.int32(8),  # length in 8 bit words !
     lenSlinkTrailer  = cms.untracked.int32(8),
+    mux = cms.untracked.bool(True),
 
     # these parameters specify the amount of data from each link to be
     # recorded in the FEDRawData object
