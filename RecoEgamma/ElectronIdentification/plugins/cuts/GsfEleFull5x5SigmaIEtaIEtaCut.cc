@@ -30,7 +30,6 @@ GsfEleFull5x5SigmaIEtaIEtaCut::GsfEleFull5x5SigmaIEtaIEtaCut(const edm::Paramete
   
 }
 
-
 CutApplicatorBase::result_type 
 GsfEleFull5x5SigmaIEtaIEtaCut::
 operator()(const reco::GsfElectronPtr& cand) const{  
@@ -42,7 +41,7 @@ operator()(const reco::GsfElectronPtr& cand) const{
   
   // Retrieve the variable value for this particle
   const float full5x5SigmaIEtaIEta = cand->full5x5_sigmaIetaIeta();
-  
+
   // Apply the cut and return the result
-  return full5x5SigmaIEtaIEta < full5x5SigmaIEtaIEtaCutValue;
+  return cand->full5x5_sigmaIetaIeta() < full5x5SigmaIEtaIEtaCutValue;
 }
