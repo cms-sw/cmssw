@@ -6,7 +6,7 @@
       <PartSelector path="//PixelBarrelActiveFull1"/>
       <PartSelector path="//PixelBarrelActiveFull2"/>
       <PartSelector path="//PixelBarrelActiveFull3"/>
-<PartSelector path="//BModule1Layer1INNERactive"/>
+<!--<PartSelector path="//BModule1Layer1INNERactive"/>
 <PartSelector path="//BModule1Layer1OUTERactive"/>
 <PartSelector path="//BModule2Layer1INNERactive"/>
 <PartSelector path="//BModule2Layer1OUTERactive"/>
@@ -69,7 +69,7 @@
 <PartSelector path="//BModule31Layer1INNERactive"/>
 <PartSelector path="//BModule31Layer1OUTERactive"/>
 <PartSelector path="//BModule32Layer1INNERactive"/>
-<PartSelector path="//BModule32Layer1OUTERactive"/>
+<PartSelector path="//BModule32Layer1OUTERactive"/>-->
 <PartSelector path="//BModule1Layer2INNERactive"/>
 <PartSelector path="//BModule1Layer2OUTERactive"/>
 <PartSelector path="//BModule2Layer2INNERactive"/>
@@ -204,7 +204,7 @@
 <PartSelector path="//BModule11Layer4OUTERactive"/>
 <PartSelector path="//BModule12Layer4INNERactive"/>
 <PartSelector path="//BModule12Layer4OUTERactive"/>
-<!--<PartSelector path="//BModule1Layer5INNERactive"/>
+<PartSelector path="//BModule1Layer5INNERactive"/>
 <PartSelector path="//BModule1Layer5OUTERactive"/>
 <PartSelector path="//BModule2Layer5INNERactive"/>
 <PartSelector path="//BModule2Layer5OUTERactive"/>
@@ -227,7 +227,7 @@
 <PartSelector path="//BModule11Layer5INNERactive"/>
 <PartSelector path="//BModule11Layer5OUTERactive"/>
 <PartSelector path="//BModule12Layer5INNERactive"/>
-<PartSelector path="//BModule12Layer5OUTERactive"/>-->
+<PartSelector path="//BModule12Layer5OUTERactive"/>
 <PartSelector path="//BModule1Layer6INNERactive"/>
 <PartSelector path="//BModule1Layer6OUTERactive"/>
 <PartSelector path="//BModule2Layer6INNERactive"/>
