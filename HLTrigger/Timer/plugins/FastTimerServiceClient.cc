@@ -150,7 +150,7 @@ FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker & booker, DQMStor
       continue;
     TH1F * counter = me_counter->getTH1F();
     TH1F * total   = me_total  ->getTH1F();
-    uint32_t bins = counter->GetXaxis()->GetNbins();
+    uint32_t bins = counter->GetXaxis()->GetNbins() - 1;
     double   min  = counter->GetXaxis()->GetXmin();
     double   max  = counter->GetXaxis()->GetXmax();
     booker.setCurrentFolder(current_path + "/Paths");
