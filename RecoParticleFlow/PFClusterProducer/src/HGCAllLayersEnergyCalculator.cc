@@ -139,7 +139,7 @@ correctEnergyActual(reco::PFCluster& cluster) const {
       zside_layer = getlayer<HGCHEDetId>(hit.detId());
       mip_value = _mipValueInGeV_heb;
       mip2gev = effMIP_to_InvGeV;
-      e_heb += ((*weights)[zside_layer.second-1])*hit.energy()/(mip_value*std::tanh(abs_eta));
+      e_heb += ((*weights)[zside_layer.second-1])*hit.energy()/(mip_value*std::tanh(abs_eta))/2.0;
       break;
     default:
       throw cms::Exception("BadRecHit")
