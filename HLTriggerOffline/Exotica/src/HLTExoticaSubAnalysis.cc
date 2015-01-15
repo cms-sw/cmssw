@@ -22,7 +22,7 @@
 #include <set>
 #include <algorithm>
 
-int verbose=0;
+static constexpr int verbose=0;
 
 /// Constructor
 HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
