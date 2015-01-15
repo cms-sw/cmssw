@@ -638,10 +638,9 @@ FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
   //---------- triggerResults ----------
-  if(&m_triggerResults) {  
+  if(m_triggerResults.isValid()) {
     m_triggerNames = iEvent.triggerNames(*m_triggerResults);
-  } 
-  else {
+  } else {
     edm::LogError("FSQDiJetAve") << "TriggerResults not found";
     return;
   } 
