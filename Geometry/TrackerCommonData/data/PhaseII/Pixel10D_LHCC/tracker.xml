@@ -11513,7 +11513,7 @@
 <rSolid name="tracker:Tracker"/>
 <rMaterial name="materials:Air"/>
 </LogicalPart>
-<LogicalPart name="BModule1Layer1" category="unspecified">
+<!--<LogicalPart name="BModule1Layer1" category="unspecified">
 <rSolid name="tracker:BModule1Layer1"/>
 <rMaterial name="tracker:modulecompositeL1P1"/>
 </LogicalPart>
@@ -12160,7 +12160,7 @@
 <LogicalPart name="Layer1" category="unspecified">
 <rSolid name="tracker:Layer1"/>
 <rMaterial name="materials:Air"/>
-</LogicalPart>
+</LogicalPart>-->
 <LogicalPart name="BModule1Layer2" category="unspecified">
 <rSolid name="tracker:BModule1Layer2"/>
 <rMaterial name="tracker:modulecompositeL2P1"/>
@@ -13525,7 +13525,7 @@
 <rSolid name="tracker:Layer4"/>
 <rMaterial name="materials:Air"/>
 </LogicalPart>
-<!--<LogicalPart name="BModule1Layer5" category="unspecified">
+<LogicalPart name="BModule1Layer5" category="unspecified">
 <rSolid name="tracker:BModule1Layer5"/>
 <rMaterial name="tracker:modulecompositeL5P1"/>
 </LogicalPart>
@@ -13772,7 +13772,7 @@
 <LogicalPart name="Layer5" category="unspecified">
 <rSolid name="tracker:Layer5"/>
 <rMaterial name="materials:Air"/>
-</LogicalPart>-->
+</LogicalPart>
 <LogicalPart name="BModule1Layer6" category="unspecified">
 <rSolid name="tracker:BModule1Layer6"/>
 <rMaterial name="tracker:modulecompositeL6P1"/>
@@ -16051,7 +16051,7 @@
       <ZSection z="[cms:TrackBeamZ2]" rMin="7.4*cm" rMax="[cms:TrackCalorR]"/>
     </Polycone>
  
-<Box name="BModule1Layer1" dx="48*mm" dy="23.13*mm" dz="1.4*mm"/>
+<!--<Box name="BModule1Layer1" dx="48*mm" dy="23.13*mm" dz="1.4*mm"/>
 <Box name="BModule1Layer1INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
 <Box name="BModule1Layer1OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
 <Box name="BModule1Layer1INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
@@ -16212,7 +16212,7 @@
 <Box name="BModule32Layer1INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
 <Box name="BModule32Layer1OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
 <Box name="Rod1" dx="4.422*mm" dy="48*mm" dz="1150*mm"/>
-<Tubs name="Layer1" rMin="213.578*mm" rMax="251.079*mm" dz="1150*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<Tubs name="Layer1" rMin="213.578*mm" rMax="251.079*mm" dz="1150*mm" startPhi="0*deg" deltaPhi="360*deg"/>-->
 <Box name="BModule1Layer2" dx="48*mm" dy="23.13*mm" dz="0.9*mm"/>
 <Box name="BModule1Layer2INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
 <Box name="BModule1Layer2OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
@@ -16554,7 +16554,7 @@
 <Box name="BModule12Layer4OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
 <Box name="Rod4" dx="4.022*mm" dy="45.72*mm" dz="1169.44*mm"/>
 <Tubs name="Layer4" rMin="669.978*mm" rMax="703.511*mm" dz="1169.44*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<!--<Box name="BModule1Layer5" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="BModule1Layer5" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
 <Box name="BModule1Layer5INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
 <Box name="BModule1Layer5OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
 <Box name="BModule1Layer5INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
@@ -16615,7 +16615,7 @@
 <Box name="BModule12Layer5INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
 <Box name="BModule12Layer5OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
 <Box name="Rod5" dx="4.022*mm" dy="45.72*mm" dz="1169.44*mm"/>
-<Tubs name="Layer5" rMin="871.879*mm" rMax="905.08*mm" dz="1169.44*mm" startPhi="0*deg" deltaPhi="360*deg"/>-->
+<Tubs name="Layer5" rMin="871.879*mm" rMax="905.08*mm" dz="1169.44*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Box name="BModule1Layer6" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
 <Box name="BModule1Layer6INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
 <Box name="BModule1Layer6OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
@@ -17194,7 +17194,7 @@
 <Tubs name="supportR904Z295" rMin="905.08*mm" rMax="1063.98*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 </SolidSection>
 <PosPartSection label="tracker.xml">
-<PosPart copyNumber="1">
+<!--<PosPart copyNumber="1">
 <rParent name="tracker:Rod1"/>
 <rChild name="tracker:BModule1Layer1"/>
 <rRotation name="tracker:HCZ2YX"/>
@@ -18151,7 +18151,7 @@
 <PosPart copyNumber="1">
 <rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:Layer1"/>
-</PosPart>
+</PosPart>-->
 <PosPart copyNumber="1">
 <rParent name="tracker:Rod2"/>
 <rChild name="tracker:BModule1Layer2"/>
@@ -20168,7 +20168,7 @@
 <rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:Layer4"/>
 </PosPart>
-<!--<PosPart copyNumber="1">
+<PosPart copyNumber="1">
 <rParent name="tracker:Rod5"/>
 <rChild name="tracker:BModule1Layer5"/>
 <rRotation name="tracker:HCZ2YX"/>
@@ -20531,7 +20531,7 @@
 <PosPart copyNumber="1">
 <rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:Layer5"/>
-</PosPart>-->
+</PosPart>
 <PosPart copyNumber="1">
 <rParent name="tracker:Rod6"/>
 <rChild name="tracker:BModule1Layer6"/>
@@ -22870,7 +22870,7 @@
 <rChild name="tracker:supportR904Z295"/>
 <Translation x="0*mm" y="0*mm" z="-290*mm"/>
 </PosPart>
-<Algorithm name="track:DDTrackerPhiAltAlgo">
+<!--<Algorithm name="track:DDTrackerPhiAltAlgo">
 <rParent name="tracker:Layer1"/>
 <String name="ChildName" value="tracker:Rod1"/>
 <Numeric name="Tilt" value="90*deg"/>
@@ -22882,7 +22882,7 @@
 <Numeric name="Number" value="16"/>
 <Numeric name="StartCopyNo" value="1"/>
 <Numeric name="IncrCopyNo" value="1"/>
-</Algorithm>
+</Algorithm>-->
 <Algorithm name="track:DDTrackerPhiAltAlgo">
 <rParent name="tracker:Layer2"/>
 <String name="ChildName" value="tracker:Rod2"/>
@@ -22922,7 +22922,7 @@
 <Numeric name="StartCopyNo" value="1"/>
 <Numeric name="IncrCopyNo" value="1"/>
 </Algorithm>
-<!--<Algorithm name="track:DDTrackerPhiAltAlgo">
+<Algorithm name="track:DDTrackerPhiAltAlgo">
 <rParent name="tracker:Layer5"/>
 <String name="ChildName" value="tracker:Rod5"/>
 <Numeric name="Tilt" value="90*deg"/>
@@ -22934,7 +22934,7 @@
 <Numeric name="Number" value="62"/>
 <Numeric name="StartCopyNo" value="1"/>
 <Numeric name="IncrCopyNo" value="1"/>
-</Algorithm>-->
+</Algorithm>
 <Algorithm name="track:DDTrackerPhiAltAlgo">
 <rParent name="tracker:Layer6"/>
 <String name="ChildName" value="tracker:Rod6"/>
