@@ -99,24 +99,27 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   if (aStep == NULL) 
     return 0;
 
+  // Get theTrack 
+  G4Track*        theTrack = aStep->GetTrack();
+
   // preStepPoint information *********************************************
   
   G4StepPoint*       preStepPoint = aStep->GetPreStepPoint();
   G4VPhysicalVolume* currentPV    = preStepPoint->GetPhysicalVolume();
   G4LogicalVolume*   currentLV    = currentPV->GetLogicalVolume();
+
+#ifdef debugLog
   G4String           name   = currentPV->GetName();
   std::string        nameVolume;
   nameVolume.assign(name,0,4);
-  
-#ifdef debugLog
+
   G4SteppingControl  stepControlFlag = aStep->GetControlFlag();
   if (aStep->IsFirstStepInVolume()) 
     LogDebug("ForwardSim") << "CastorSD::getEnergyDeposit:"
 			   << "\n IsFirstStepInVolume " ; 
 #endif
+
     
-  // Get theTrack 
-  G4Track*        theTrack = aStep->GetTrack();
     
 #ifdef debugLog
   if (useShowerLibrary && currentLV==lvCAST) {
@@ -226,28 +229,32 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     //        G4Material*        mat   = lv->GetMaterial();
     //        G4double           rad   = mat->GetRadlen();
     
-    
+   
+#ifdef debugLog
     // postStepPoint information *********************************************
     G4StepPoint* postStepPoint= aStep->GetPostStepPoint();   
     G4VPhysicalVolume* postPV    = postStepPoint->GetPhysicalVolume();
+
     G4String           postname   = postPV->GetName();
     std::string        postnameVolume;
     postnameVolume.assign(postname,0,4);
-    
+
     // theTrack information  *************************************************
     // G4Track*        theTrack = aStep->GetTrack();   
     //G4double        entot    = theTrack->GetTotalEnergy();
     G4ThreeVector   vert_mom = theTrack->GetVertexMomentumDirection();
-    
+        
     G4ThreeVector  localPoint = theTrack->GetTouchable()->GetHistory()->
       GetTopTransform().TransformPoint(hitPoint);
-    
+
+    G4String       particleType = theTrack->GetDefinition()->GetParticleName();
+
     // calculations...       *************************************************
     double phi = -100.;
     if (vert_mom.x() != 0) phi = atan2(vert_mom.y(),vert_mom.x()); 
     if (phi < 0.) phi += twopi;
-    G4String       particleType = theTrack->GetDefinition()->GetParticleName();
-#ifdef debugLog
+
+
     double costheta =vert_mom.z()/sqrt(vert_mom.x()*vert_mom.x()+
 				      vert_mom.y()*vert_mom.y()+
 				      vert_mom.z()*vert_mom.z());
@@ -528,7 +535,6 @@ int CastorSD::setTrackID (G4Step* aStep) {
 
   theTrack     = aStep->GetTrack();
 
-  double etrack = preStepPoint->GetKineticEnergy();
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
   int      primaryID = trkInfo->getIDonCaloSurface();
   if (primaryID == 0) {
@@ -539,8 +545,10 @@ int CastorSD::setTrackID (G4Step* aStep) {
     primaryID = theTrack->GetTrackID();
   }
 
-  if (primaryID != previousID.trackID())
+  if (primaryID != previousID.trackID()) {
+    double etrack = preStepPoint->GetKineticEnergy();
     resetForNewPrimary(preStepPoint->GetPosition(), etrack);
+  }
 
   return primaryID;
 }
