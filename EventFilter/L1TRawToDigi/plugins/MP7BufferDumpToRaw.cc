@@ -106,8 +106,8 @@ private:
   std::vector<int> boardId_;
 
   // board readout params
-  std::vector<int> rxBlockLength_;
-  std::vector<int> txBlockLength_;  
+  std::vector< std::vector<int> > rxBlockLength_;
+  std::vector< std::vector<int> > txBlockLength_;  
   bool mux_;
   int muxOffset_;
 
@@ -140,8 +140,6 @@ private:
     nFramesPerEvent_(iConfig.getUntrackedParameter<int>("nFramesPerEvent", 6)),
     iBoard_(iConfig.getUntrackedParameter<int>("boardOffset", 0)),
     boardId_(iConfig.getUntrackedParameter<std::vector<int> >("boardId")),
-    rxBlockLength_(iConfig.getUntrackedParameter< std::vector<int> >("rxBlockLength")),
-    txBlockLength_(iConfig.getUntrackedParameter< std::vector<int> >("txBlockLength")),
     mux_(iConfig.getUntrackedParameter<bool>("mux", false)),
     fedId_(iConfig.getUntrackedParameter<int>("fedId", 1)),
     evType_(iConfig.getUntrackedParameter<int>("eventType", 1)),
@@ -167,6 +165,19 @@ private:
 
   if (nBoard_ != boardId_.size()) {
     edm::LogError("L1T") << "Found " << nBoard_ << " boards, but given " << boardId_.size() << " IDs";
+  }
+
+
+  // block length PSet
+  std::vector<edm::ParameterSet> vpset = iConfig.getUntrackedParameter< std::vector<edm::ParameterSet> >("blocks");
+
+  if (vpset.size() != nBoard_) {
+    edm::LogError("L1T") << "Block spec size " << vpset.size() << " incompatible with number of boards " << nBoard_;
+  }
+
+  for (unsigned i=0; i<nBoard_; ++i) {
+    rxBlockLength_.push_back(vpset.at(i).getUntrackedParameter< std::vector<int> >("rxBlockLength") );
+    txBlockLength_.push_back(vpset.at(i).getUntrackedParameter< std::vector<int> >("rxBlockLength") );
   }
 
 }
@@ -234,10 +245,10 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
   std::vector<Block> blocks;
 
   // Rx blocks first
-  for (unsigned link=0; link<rxBlockLength_.size(); ++link) {
+  for (unsigned link=0; link<rxBlockLength_.at(iBoard).size(); ++link) {
     
     unsigned id   = link*2;
-    unsigned size = rxBlockLength_.at(link);
+    unsigned size = rxBlockLength_.at(iBoard).at(link);
 
     if (size==0) continue;
 
@@ -273,10 +284,10 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
   }
   
   // then Tx blocks
-  for (unsigned link=0; link<txBlockLength_.size(); ++link) {
+  for (unsigned link=0; link<txBlockLength_.at(iBoard).size(); ++link) {
     
     unsigned id   = (link*2)+1;
-    unsigned size = txBlockLength_.at(link);
+    unsigned size = txBlockLength_.at(iBoard).at(link);
 
     if (size==0) continue;
 

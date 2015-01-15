@@ -1,34 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-stage2MPRaw = cms.EDProducer(
-    "MP7BufferDumpToRaw",
-    rxFile           = cms.untracked.string("mp_rx_summary.txt"),
-    txFile           = cms.untracked.string("mp_tx_summary.txt"),
 
-    # input file type
-    packetisedData   = cms.untracked.bool(True),
-
-    # parameters for non-packetised data
-    nFramesPerEvent  = cms.untracked.int32(41),
-    nFramesOffset    = cms.untracked.int32(0),
-    nFramesLatency   = cms.untracked.int32(0),
-
-    # DAQ parameters
-    fedId            = cms.untracked.int32(1360),
-    eventType        = cms.untracked.int32(238),
-    fwVersion        = cms.untracked.int32(255),
-    lenSlinkHeader   = cms.untracked.int32(8),
-    lenSlinkTrailer  = cms.untracked.int32(8),
-
-    # HW parameters
-    boardId          = cms.untracked.vint32( 1,2,3,4,5,6,7,8,9,10,11 ),
-    mux              = cms.untracked.bool(True),
-    muxOffset        = cms.untracked.int32(0),
-
-    # these parameters specify the amount of data from each link to be
-    # recorded in the FEDRawData object
-    # if insufficient data is read from any channel to produce the
-    # record, module will pad with zeros
+mpblocks = cms.untracked.PSet(
     rxBlockLength    = cms.untracked.vint32(41,41,41,41, # q0 0-3
                                             41,41,41,41, # q1 4-7
                                             41,41,41,41, # q2 8-11
@@ -66,5 +39,50 @@ stage2MPRaw = cms.EDProducer(
                                             0,0,0,0, # q15 60-63
                                             0,0,0,0, # q16 64-67
                                             0,0,0,0) # q17 68-71
+)
+
+stage2MPRaw = cms.EDProducer(
+    "MP7BufferDumpToRaw",
+    rxFile           = cms.untracked.string("mp_rx_summary.txt"),
+    txFile           = cms.untracked.string("mp_tx_summary.txt"),
+
+    # input file type
+    packetisedData   = cms.untracked.bool(True),
+
+    # parameters for non-packetised data
+    nFramesPerEvent  = cms.untracked.int32(41),
+    nFramesOffset    = cms.untracked.int32(0),
+    nFramesLatency   = cms.untracked.int32(0),
+
+    # DAQ parameters
+    fedId            = cms.untracked.int32(1360),
+    eventType        = cms.untracked.int32(238),
+    fwVersion        = cms.untracked.int32(255),
+    lenSlinkHeader   = cms.untracked.int32(8),
+    lenSlinkTrailer  = cms.untracked.int32(8),
+
+    # HW parameters
+    boardId          = cms.untracked.vint32( 1,2,3,4,5,6,7,8,9,10,11,12 ),
+    mux              = cms.untracked.bool(True),
+    muxOffset        = cms.untracked.int32(0),
+
+    # these parameters specify the amount of data from each link to be
+    # recorded in the FEDRawData object
+    # if insufficient data is read from any channel to produce the
+    # record, module will pad with zeros
+    blocks           = cms.untracked.VPSet(
+        mpblocks,
+        mpblocks,
+        mpblocks,
+        mpblocks,
+        mpblocks,
+        mpblocks,
+        mpblocks,
+        mpblocks,
+        mpblocks,
+        mpblocks,
+        mpblocks,
+        mpblocks,
+    )
 
 )
