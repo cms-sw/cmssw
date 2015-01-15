@@ -68,6 +68,7 @@ class TrackFindingAMProducer : public edm::EDProducer
   double                       mMagneticField;
   std::string                  nBKName;
   int                          nThresh;
+  int                          nMissingHits;
   SectorTree                   m_st;
   PatternFinder                *m_pf;
   const StackedTrackerGeometry *theStackedTracker;
@@ -94,6 +95,7 @@ TrackFindingAMProducer::TrackFindingAMProducer( const edm::ParameterSet& iConfig
   TTPatternOutputTag = iConfig.getParameter< std::string >( "TTPatternName" );
   nBKName            = iConfig.getParameter< std::string >("inputBankFile");
   nThresh            = iConfig.getParameter< int >("threshold");
+  nMissingHits       = iConfig.getParameter< int >("nbMissingHits");
 
   std::cout << "Loading pattern bank file : " << std::endl;
   std::cout << nBKName << std::endl;
@@ -117,6 +119,11 @@ TrackFindingAMProducer::TrackFindingAMProducer( const edm::ParameterSet& iConfig
   }  
 
   m_pf = new PatternFinder( m_st.getSuperStripSize(), nThresh, &m_st, "", "" );
+
+  if(nMissingHits>-1)
+  {
+    m_pf->useMissingHitThreshold(nMissingHits);
+  }
 
   produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( TTPatternOutputTag );
 }

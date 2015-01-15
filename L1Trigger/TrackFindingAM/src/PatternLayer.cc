@@ -2,28 +2,7 @@
 #include <iomanip>
 #include "../interface/PatternLayer.h"
 
-map<string, int> PatternLayer::GRAY_POSITIONS = PatternLayer::CreateMap();
-map<string, vector<string> > PatternLayer::positions_cache;
-
-map<string, int> PatternLayer::CreateMap(){
-  map<string, int> p;
-  p[""]=0;
-  p["0"]=0;
-  p["1"]=1;
-  p["00"]=0;
-  p["01"]=1;
-  p["10"]=3;
-  p["11"]=2;
-  p["000"]=0;
-  p["001"]=1;
-  p["011"]=2;
-  p["010"]=3;
-  p["110"]=4;
-  p["111"]=5;
-  p["101"]=6;
-  p["100"]=7;
-  return p;
-}
+map<string, vector<short> > PatternLayer::positions_cache;
 
 PatternLayer::PatternLayer(){
   bits=0;
@@ -71,47 +50,38 @@ int PatternLayer::getDCBitsNumber(){
   return 3;
 }
 
-void PatternLayer::getPositionsFromDC(vector<char> dc, vector<string>& positions){
-  int index = -1;
-  bool containsX = false;
+void PatternLayer::getPositionsFromDC(vector<char> dc, vector<short>& positions){
+  while(dc.size()!=0 && dc[0]!=3){
+    char val = dc[0];
 
-  for(int i=0;i<DC_BITS;i++){
-    if(dc[i]==2){
-      containsX=true;
-      index=i;
-      break;
+    if(positions.size()==0){
+      if(val==2){
+	positions.push_back(0);
+	positions.push_back(1);
+      }
+      else{
+	positions.push_back(val);
+      }
     }
-  }
-  
-  if(!containsX){ // no don't care bit : nothing to do
-    ostringstream oss;
-    for(int i=0;i<DC_BITS;i++){
-      if(dc[i]!=3)
-	oss<<(int)dc[i];
+    else{
+      unsigned int fin=positions.size();
+      for(unsigned int i=0;i<fin;i++){
+	short nv=positions[0];
+	if(val==2){
+	  positions.push_back(nv*2);
+	  positions.push_back((nv*2)+1);
+	}
+	else{
+	  positions.push_back(nv*2+val);
+	}
+	positions.erase(positions.begin());
+      }
     }
-    positions.push_back(oss.str());
-    return;
-  }
-  else{
-    vector<string> v1;
-    vector<string> v2;
-    vector<char> newDC1 = dc;
-    vector<char> newDC2 = dc;
-
-    newDC1[index]=0;
-    newDC2[index]=1;
-    getPositionsFromDC(newDC1, v1);
-    getPositionsFromDC(newDC2, v2);
-    for(unsigned int i=0;i<v1.size();i++){
-      positions.push_back(v1[i]);
-    }
-    for(unsigned int i=0;i<v2.size();i++){
-      positions.push_back(v2[i]);
-    }
+    dc.erase(dc.begin());
   }
 }
 
-vector<string> PatternLayer::getPositionsFromDC(){
+vector<short> PatternLayer::getPositionsFromDC(){
 
   vector<char> v;
   for(int i=0;i<DC_BITS;i++){
@@ -119,15 +89,15 @@ vector<string> PatternLayer::getPositionsFromDC(){
   }
 
   string ref(v.begin(),v.end());
-  
+
   //check if we already have the result
-  map<string, vector<string> >::iterator it = positions_cache.find(ref);
+  map<string, vector<short> >::iterator it = positions_cache.find(ref);
   if(it!=positions_cache.end()){ // already computed
     return it->second;
   }
   
   //not yet computed
-  vector<string> n_vec;
+  vector<short> n_vec;
   getPositionsFromDC(v,n_vec); 
   //keep the result for later usage
   positions_cache[ref]=n_vec;

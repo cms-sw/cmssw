@@ -139,6 +139,20 @@ vector<Sector*> SectorTree::getActivePatternsPerSector(int active_threshold){
   return list;
 }
 
+vector<Sector*> SectorTree::getActivePatternsPerSectorUsingMissingHit(int max_nb_missing_hit, int active_threshold){
+  vector<Sector*> list;
+  for(unsigned int i=0;i<sector_list.size();i++){
+    Sector* copy = new Sector(*sector_list[i]);
+    vector<GradedPattern*> active_patterns = sector_list[i]->getActivePatternsUsingMissingHit(max_nb_missing_hit, active_threshold);
+    for(unsigned int j=0;j<active_patterns.size();j++){
+      copy->getPatternTree()->addPattern(active_patterns[j], NULL);
+      delete active_patterns[j];
+    }
+    list.push_back(copy);
+  }
+  return list;
+}
+
 int SectorTree::getSuperStripSize(){
   return superStripSize;
 }

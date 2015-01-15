@@ -84,6 +84,13 @@ GradedPattern* PatternTrunk::getActivePattern(int active_threshold){
   return NULL;
 }
 
+GradedPattern* PatternTrunk::getActivePatternUsingMissingHit(int max_nb_missing_hit, int active_threshold){
+  if(lowDefPattern->isActiveUsingMissingHit(max_nb_missing_hit, active_threshold)){
+    return new GradedPattern(*lowDefPattern);
+  }
+  return NULL;
+}
+
 void PatternTrunk::deleteFDPatterns(){
   for(map<string, GradedPattern*>::iterator itr = fullDefPatterns.begin(); itr != fullDefPatterns.end(); ++itr){
     delete itr->second;
@@ -91,93 +98,29 @@ void PatternTrunk::deleteFDPatterns(){
   fullDefPatterns.clear();
 }
 
-/*
-  This method is recursive. We know what to do with arrays with only two elements. 
-  If the size is above 2, we split the array in 2 smaller arrays and call the method on both parts.
-  As we are using gray code, it's a bit tricky to know if we need to put a 0 or a 1. If you are in
-  the first half array -> 0 left branch and 1 right branch. If you are in the second half it's the opposite.
-  The 'reverse' parameter is used to know in which half array we are.
- */
-void PatternTrunk::computeDCBits(vector<int> &v, bool* values, int size, int reverse){
-
-  
-  if(size==2){
-    if(values[0] && values[1]){
-      v.push_back(2);
-      return;
-    }
-    if(values[0]){
-      v.push_back(reverse);
-      return;
-    }
-    else{
-      v.push_back(1-reverse);
-      return;
-    }
-  }
-
-  bool half1=0;
-  bool half2=0;
-
-  for(int i=0;i<size/2;i++){
-    half1 |= values[i];
-  }
-  for(int i=size/2;i<size;i++){
-    half2 |= values[i];
-  }
-
-  if(half1 && half2){
-    vector<int> v1;
-    vector<int> v2;
-    computeDCBits(v1, values, size/2, 0);
-    computeDCBits(v2, values+size/2, size/2, 1);
-    v.push_back(2);
-    for(unsigned int i=0;i<v1.size();i++){
-      if(v1[i]==v2[i])
-	v.push_back(v1[i]);
-      else
-	v.push_back(2);
-    }
-    return;
-  }
-  if(half1){
-    vector<int> v1;
-    computeDCBits(v1, values, size/2, 0);
-    v.push_back(reverse);
-    for(unsigned int i=0;i<v1.size();i++){
-      v.push_back(v1[i]);
-    }
-    return;
-  }
-  if(half2){
-    vector<int> v1;
-    computeDCBits(v1, values+size/2, size/2, 1);
-    v.push_back(1-reverse);
-    for(unsigned int i=0;i<v1.size();i++){
-      v.push_back(v1[i]);
-    }
-    return;
-  }
-
-}
-
 void PatternTrunk::computeAdaptativePattern(short r){
-  int size = (int)pow(2.0,r);
-  bool strips[size];
   int nb_layers = lowDefPattern->getNbLayers();
   for(int i=0;i<nb_layers;i++){
-    memset(strips,false,size*sizeof(bool));
-    PatternLayer* pl = lowDefPattern->getLayerStrip(i);
-    int ld_position = pl->getStrip();
     
+    PatternLayer* pl = lowDefPattern->getLayerStrip(i);
+    int last_bits=0;
+    vector<int> bits(r,0);
+
     for(map<string, GradedPattern*>::iterator itr = fullDefPatterns.begin(); itr != fullDefPatterns.end(); ++itr){
       PatternLayer* fd_pl = itr->second->getLayerStrip(i);
-      int index = fd_pl->getStrip()-size*ld_position;
-      strips[index]=true;
+      last_bits = fd_pl->getStripCode();
+      if(itr==fullDefPatterns.begin()){//first pattern, we simply copy the last bits
+	for(int j=0;j<r;j++){
+	  bits[j]=((last_bits>>(r-j-1)))&(0x1);
+	}
+      }
+      else{//this is not the first pattern: if we have a different bit we set the DC value to don't care
+	for(int j=0;j<r;j++){
+	  if(bits[j]!=((last_bits>>(r-j-1))&(0x1)))
+	    bits[j]=2;
+	}
+      }
     }
-   
-    vector<int> bits;
-    computeDCBits(bits,strips,size,0);
 
     for(unsigned int j=0;j<bits.size();j++){
       pl->setDC(j,bits[j]);
@@ -198,32 +141,27 @@ void PatternTrunk::updateDCBits(GradedPattern* p){
       max_nb_dc = nb_dc2;
     if(max_nb_dc==0)
       return;
-    int size = (int)pow(2.0,max_nb_dc);
-    bool strips[size];
 
     for(int i=0;i<nb_layers;i++){
-      memset(strips,false,size*sizeof(bool));
       PatternLayer* pl = lowDefPattern->getLayerStrip(i);
-
-      vector<string> positions=pl->getPositionsFromDC();
-      for(unsigned int j=0;j<positions.size();j++){
-	for(int k=0;k<=max_nb_dc-nb_dc1;k++){
-	  strips[PatternLayer::GRAY_POSITIONS[positions[j]]*(max_nb_dc-nb_dc1+1)+k]=true;
-	}
-      }
-   
-      positions.clear();
       PatternLayer* pl2 = p->getLayerStrip(i);
-      positions=pl2->getPositionsFromDC();
-      for(unsigned int j=0;j<positions.size();j++){
-	for(int k=0;k<=max_nb_dc-nb_dc2;k++){
-	  strips[PatternLayer::GRAY_POSITIONS[positions[j]]*(max_nb_dc-nb_dc2+1)+k]=true;
-	}
+      vector<int> bits(max_nb_dc,0);
+
+      for(int j=max_nb_dc-1;j>=0;j--){
+	char pat1=pl->getDC(j);
+	char pat2=pl2->getDC(j);
+
+	if(pat1==3)
+	  bits[j]=pat2;
+	else if(pat2==3)
+	  bits[j]=pat1;
+	else if(pat1==pat2)
+	  bits[j]=pat1;
+	else
+	  bits[j]=2;
+	
       }
-      
-      vector<int> bits;
-      computeDCBits(bits,strips,size,0);
-      
+
       for(unsigned int j=0;j<bits.size();j++){
 	pl->setDC(j,bits[j]);
       }

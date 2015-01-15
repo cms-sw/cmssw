@@ -225,6 +225,23 @@ void PatternTree::getActivePatterns(int active_threshold, vector<GradedPattern*>
   }
 }
 
+void PatternTree::getActivePatternsUsingMissingHit(int max_nb_missing_hit, int active_threshold, vector<GradedPattern*>& active_patterns){
+  if(patterns.size()!=0){
+    for(map<string, PatternTrunk*>::iterator itr = patterns.begin(); itr != patterns.end(); ++itr){
+      GradedPattern* p = itr->second->getActivePatternUsingMissingHit(max_nb_missing_hit, active_threshold);
+      if(p!=NULL)
+	active_patterns.push_back(p);
+    }
+  }
+  else{
+    for(vector<PatternTrunk*>::iterator itr = v_patterns.begin(); itr != v_patterns.end(); ++itr){
+      GradedPattern* p = (*itr)->getActivePatternUsingMissingHit(max_nb_missing_hit, active_threshold);
+      if(p!=NULL)
+	active_patterns.push_back(p);
+    }
+  }
+}
+
 void PatternTree::addPatternsFromTree(PatternTree* p){
   if(patterns.size()==0)
     switchToMap();

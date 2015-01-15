@@ -4,6 +4,8 @@ Pattern::Pattern(int nb){
   nb_layer = nb;
   strips=NULL;
   nb_strips=NULL;
+  nbFakeSSKnown=false;
+  nbFakeSS=0;
   for(int i=0;i<nb_layer;i++){
     layer_strips.push_back(NULL);
   }
@@ -13,6 +15,8 @@ Pattern::Pattern(){
   nb_layer = 3;
   strips=NULL;
   nb_strips=NULL;
+  nbFakeSSKnown=false;
+  nbFakeSS=0;
   for(int i=0;i<nb_layer;i++){
     layer_strips.push_back(NULL);
   }
@@ -22,6 +26,8 @@ Pattern::Pattern(const Pattern& p){
   nb_layer = p.nb_layer;
   nb_strips = NULL;
   strips = NULL;
+  nbFakeSSKnown=false;
+  nbFakeSS=0;
 
   if(p.strips!=NULL){
     nb_strips=new char[nb_layer];
@@ -88,6 +94,28 @@ bool Pattern::isActive(int active_threshold){
   }
   if(score>=active_threshold)
     return true;
+  else
+    return false;
+}
+
+bool Pattern::isActiveUsingMissingHit(int nb_allowed_missing_hit, int active_threshold){
+  int score=0;
+  if(strips!=NULL){
+    for(int i=0;i<nb_layer;i++){
+      for(int j=0;j<(int)nb_strips[i];j++){
+	if(strips[i][j]->isHit()){
+	  score++;
+	  break;
+	}
+      }
+    }
+  }
+  int limit=nb_layer-getNbFakeSuperstrips()-nb_allowed_missing_hit;
+  if(limit<active_threshold)
+    limit=active_threshold;
+  if(score>=limit){
+    return true;
+  }
   else
     return false;
 }
@@ -177,12 +205,16 @@ bool Pattern::contains(Pattern* hdp){
     return false;
   
   for(int i=0;i<nb_layer;i++){
-    int factor = (int)pow(2.0,layer_strips[i]->getDCBitsNumber());
-    int base_index = layer_strips[i]->getStrip()*factor;
-    vector<string> positions=layer_strips[i]->getPositionsFromDC();
+    //cout<<"index gray : "<<layer_strips[i]->getStripCode()<<endl;
+    int base_index = layer_strips[i]->getStripCode()<<layer_strips[i]->getDCBitsNumber();
+    //cout<<"index gray decale: "<<base_index<<endl;
+    vector<short> positions=layer_strips[i]->getPositionsFromDC();
     bool found = false;
+    short reference = hdp->getLayerStrip(i)->getStripCode();
     for(unsigned int j=0;j<positions.size();j++){
-      if(hdp->getLayerStrip(i)->getStrip()==base_index+PatternLayer::GRAY_POSITIONS[positions[j]]){
+      int index = base_index | positions[j];
+      //      cout<<"index gray avec DC "<<positions[j]<<" : "<<index<<endl;
+      if(reference==index){
 	found=true;
 	break;
       }
@@ -200,4 +232,20 @@ ostream& operator<<(ostream& out, const Pattern& s){
   }
   out<<endl;
   return out;
+}
+
+int Pattern::getNbFakeSuperstrips(){
+  if(nbFakeSSKnown)
+    return nbFakeSS;
+  else{
+    int score = 0;
+    for(int k=0;k<getNbLayers();k++){
+      PatternLayer* mp = getLayerStrip(k);
+      if(mp->isFake())
+	score++;
+    }
+    nbFakeSSKnown=true;
+    nbFakeSS=score;
+    return score;
+  }
 }
