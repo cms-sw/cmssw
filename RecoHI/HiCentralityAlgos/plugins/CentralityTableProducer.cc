@@ -40,7 +40,6 @@ using namespace std;
 class CentralityTableProducer : public edm::EDAnalyzer {
    public:
       explicit CentralityTableProducer(const edm::ParameterSet&);
-      explicit CentralityTableProducer(const edm::ParameterSet&, const edm::EventSetup&, edm::ConsumesCollector &&);
       ~CentralityTableProducer();
 
    private:

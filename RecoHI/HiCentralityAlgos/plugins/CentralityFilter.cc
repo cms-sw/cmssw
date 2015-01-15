@@ -24,7 +24,6 @@
 
 class CentralityFilter : public edm::EDFilter {
    public:
-      explicit CentralityFilter(const edm::ParameterSet&, const edm::EventSetup&, edm::ConsumesCollector &&);
       explicit CentralityFilter(const edm::ParameterSet&);
       ~CentralityFilter();
 

@@ -47,7 +47,6 @@ class CentralityBinProducer : public edm::EDProducer {
   enum VariableType {HFtowers = 0, HFtowersPlus = 1, HFtowersMinus = 2, HFtowersTrunc = 3, HFtowersPlusTrunc = 4, HFtowersMinusTrunc = 5, HFhits = 6, PixelHits = 7, PixelTracks = 8, Tracks = 9, EB = 10, EE = 11, Missing = 12};
    public:
       explicit CentralityBinProducer(const edm::ParameterSet&);
-      explicit CentralityBinProducer(const edm::ParameterSet&, const edm::EventSetup&, edm::ConsumesCollector &&);
       ~CentralityBinProducer();
 
    private:
@@ -156,8 +155,6 @@ CentralityBinProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   default:
     throw cms::Exception("CentralityBinProducer","Centrality variable not recognized.");
   }
-
-
 
   int bin = inputDB_->m_table.size() - 1;
   for(unsigned int i = 0; i < inputDB_->m_table.size(); ++i){
