@@ -41,8 +41,7 @@ def getHighMultVPSet():
         ret.append(tracksCount)				
 
         tracksCountDenom = tracksCount.clone()
-        alwaysTrue = partialPathName+"*" + " OR NOT " + partialPathName+"*"
-        tracksCountDenom.triggerSelection = cms.string(alwaysTrue)
+        tracksCountDenom.triggerSelection=cms.string("TRUE")
         tracksCountDenom.drawables =  cms.VPSet(
             cms.PSet (name = cms.string("count_denominator"), expression = cms.string("at(0)"),
                              bins = cms.int32(30), min = cms.double(t), max = cms.double(t+t/2))
@@ -249,9 +248,7 @@ def getPTAveVPSet():
             ret.append(recoPFtopology)
             recoPFtopologyDenom = recoPFtopology.clone()
             #recoPFtopologyDenom.triggerSelection = cms.string("HLTriggerFirstPath*")
-            alwaysTrue = partialPathName+"*" + " OR NOT " + partialPathName+"*"
-            #recoPFtopologyDenom.triggerSelection = cms.string(partialPathName+"*")
-            recoPFtopologyDenom.triggerSelection = cms.string(alwaysTrue)
+            recoPFtopologyDenom.triggerSelection = cms.string("TRUE")
             recoPFtopologyDenom.drawables =  cms.VPSet(
                 cms.PSet (name = cms.string("ptAve_denominator"), expression = cms.string("(at(0).pt+at(1).pt)/2"),
                              bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)  )
