@@ -215,6 +215,12 @@
 #include "CondFormats/MFObjects/interface/MagFieldConfig.h"
 
 #include "CondFormats/Common/interface/BaseKeyed.h"
-//#include "CondFormats/Common/interface/KeyList.h"
+
+#include "CondFormats/External/interface/DetID.h"
+#include "CondFormats/External/interface/EcalDetID.h"
+#include "CondFormats/External/interface/SMatrix.h"
+#include "CondFormats/External/interface/L1GtLogicParser.h"
+#include "CondFormats/External/interface/Timestamp.h"
+#include "CondFormats/External/interface/HLTPrescaleTable.h"
 
 #endif
