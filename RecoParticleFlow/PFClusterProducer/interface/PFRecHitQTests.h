@@ -266,7 +266,7 @@ class PFRecHitQTestHCALTimeVsDepth : public PFRecHitQTestBase {
 	minTimes_.push_back(psets[i].getParameter<double>("minTime"));
 	maxTimes_.push_back(psets[i].getParameter<double>("maxTime"));
 	thresholds_.push_back(psets[i].getParameter<double>("threshold"));
-        endcap_.push_back(psets[i].getParameter<bool>("endcap"));
+	endcap_.push_back(psets[i].getParameter<bool>("endcap"));
       }
     }
 
