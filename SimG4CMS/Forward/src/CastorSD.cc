@@ -94,7 +94,7 @@ void CastorSD::initRun(){
 
 double CastorSD::getEnergyDeposit(G4Step * aStep) {
   
-  float NCherPhot = 0.;
+  double NCherPhot = 0.;
 
   if (aStep == NULL) 
     return 0;
@@ -243,16 +243,16 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
       GetTopTransform().TransformPoint(hitPoint);
     
     // calculations...       *************************************************
-    float phi = -100.;
+    double phi = -100.;
     if (vert_mom.x() != 0) phi = atan2(vert_mom.y(),vert_mom.x()); 
     if (phi < 0.) phi += twopi;
     G4String       particleType = theTrack->GetDefinition()->GetParticleName();
 #ifdef debugLog
-    float costheta =vert_mom.z()/sqrt(vert_mom.x()*vert_mom.x()+
+    double costheta =vert_mom.z()/sqrt(vert_mom.x()*vert_mom.x()+
 				      vert_mom.y()*vert_mom.y()+
 				      vert_mom.z()*vert_mom.z());
-    float theta = acos(std::min(std::max(costheta,float(-1.)),float(1.)));
-    float eta = -log(tan(theta/2));
+    double theta = acos(std::min(std::max(costheta,double(-1.)),double(1.)));
+    double eta = -log(tan(theta/2));
     G4int          primaryID    = theTrack->GetTrackID();
     // *************************************************
     
@@ -286,12 +286,12 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 	currentLV == lvC4HF) {
       //      if(nameVolume == "C3EF" || nameVolume == "C4EF" || nameVolume == "C3HF" || nameVolume == "C4HF") {
       
-      float bThreshold = 0.67;
-      float nMedium = 1.4925;
-      //     float photEnSpectrDL = (1./400.nm-1./700.nm)*10000000.cm/nm; /* cm-1  */
-      //     float photEnSpectrDL = 10714.285714;
+      double bThreshold = 0.67;
+      double nMedium = 1.4925;
+      //     double photEnSpectrDL = (1./400.nm-1./700.nm)*10000000.cm/nm; /* cm-1  */
+      //     double photEnSpectrDL = 10714.285714;
       
-      float photEnSpectrDE = 1.24;    /* see below   */
+      double photEnSpectrDE = 1.24;    /* see below   */
       /*     E = 2pi*(1./137.)*(eV*cm/370.)/lambda  =     */
       /*       = 12.389184*(eV*cm)/lambda                 */
       /*     Emax = 12.389184*(eV*cm)/400nm*10-7cm/nm  = 3.01 eV     */
@@ -300,29 +300,29 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
       /*   */
       /* default for Castor nameVolume  == "CASF" or (C3TF & C4TF)  */
       
-      float thFullRefl = 23.;  /* 23.dergee */
-      float thFullReflRad = thFullRefl*pi/180.;
+      double thFullRefl = 23.;  /* 23.dergee */
+      double thFullReflRad = thFullRefl*pi/180.;
       
       /* default for Castor nameVolume  == "CASF" or (C3TF & C4TF)  */
-      float thFibDir = 45.;  /* .dergee */
+      double thFibDir = 45.;  /* .dergee */
       /* for test HF geometry volumes:   
 	 if(nameVolume == "GF2Q" || nameVolume == "GFNQ" ||
 	 nameVolume == "GR2Q" || nameVolume == "GRNQ")
 	 thFibDir = 0.0; // .dergee
       */
-      float thFibDirRad = thFibDir*pi/180.;
+      double thFibDirRad = thFibDir*pi/180.;
       /*   */
       /*   */
       
       // at which theta the point is located:
-      //     float th1    = hitPoint.theta();
+      //     double th1    = hitPoint.theta();
       
       // theta of charged particle in LabRF(hit momentum direction):
-      float costh =hit_mom.z()/sqrt(hit_mom.x()*hit_mom.x()+
+      double costh =hit_mom.z()/sqrt(hit_mom.x()*hit_mom.x()+
 				    hit_mom.y()*hit_mom.y()+
 				    hit_mom.z()*hit_mom.z());
       if (zint < 0) costh = -costh;
-      float th = acos(std::min(std::max(costh,float(-1.)),float(1.)));
+      double th = acos(std::min(std::max(costh,double(-1.)),double(1.)));
       
       // just in case (can do bot use):
       if (th < 0.) th += twopi;
@@ -330,26 +330,26 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
       
       
       // theta of cone with Cherenkov photons w.r.t.direction of charged part.:
-      float costhcher =1./(nMedium*beta);
-      float thcher = acos(std::min(std::max(costhcher,float(-1.)),float(1.)));
+      double costhcher =1./(nMedium*beta);
+      double thcher = acos(std::min(std::max(costhcher,double(-1.)),double(1.)));
       
       // diff thetas of charged part. and quartz direction in LabRF:
-      float DelFibPart = fabs(th - thFibDirRad);
+      double DelFibPart = fabs(th - thFibDirRad);
       
       // define real distances:
-      float d = fabs(tan(th)-tan(thFibDirRad));   
+      double d = fabs(tan(th)-tan(thFibDirRad));   
       
-      //       float a = fabs(tan(thFibDirRad)-tan(thFibDirRad+thFullReflRad));   
-      //       float r = fabs(tan(th)-tan(th+thcher));   
+      //       double a = fabs(tan(thFibDirRad)-tan(thFibDirRad+thFullReflRad));   
+      //       double r = fabs(tan(th)-tan(th+thcher));   
       
-      float a = tan(thFibDirRad)+tan(fabs(thFibDirRad-thFullReflRad));   
-      float r = tan(th)+tan(fabs(th-thcher));   
+      double a = tan(thFibDirRad)+tan(fabs(thFibDirRad-thFullReflRad));   
+      double r = tan(th)+tan(fabs(th-thcher));   
       
       
       // define losses d_qz in cone of full reflection inside quartz direction
-      float d_qz;
+      double d_qz;
 #ifdef debugLog
-      float variant;
+      double variant;
 #endif
       if(DelFibPart > (thFullReflRad + thcher) ) {
 	d_qz = 0.; 
@@ -388,11 +388,11 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 	    
 	    // use crossed length of circles(cone projection)
 	    // dC1/dC2 : 
-	    float arg_arcos = 0.;
-	    float tan_arcos = 2.*a*d;
+	    double arg_arcos = 0.;
+	    double tan_arcos = 2.*a*d;
 	    if(tan_arcos != 0.) arg_arcos =(r*r-a*a-d*d)/tan_arcos; 
 	    arg_arcos = fabs(arg_arcos);
-	    float th_arcos = acos(std::min(std::max(arg_arcos,float(-1.)),float(1.)));
+	    double th_arcos = acos(std::min(std::max(arg_arcos,double(-1.)),double(1.)));
 	    d_qz = th_arcos/pi/2.;
 	    d_qz = fabs(d_qz);
 	    
@@ -425,16 +425,16 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 	
 	if(poissNCherPhot < 0) poissNCherPhot = 0;
 	
-	float effPMTandTransport = 0.19;
+	double effPMTandTransport = 0.19;
 	double ReflPower = 0.1;
 	double proba = d_qz + (1-d_qz)*ReflPower;
 	NCherPhot = poissNCherPhot*effPMTandTransport*proba*0.307;
 	
 	
 #ifdef debugLog
-	float thgrad = th*180./pi;
-	float thchergrad = thcher*180./pi;
-	float DelFibPartgrad = DelFibPart*180./pi;
+	double thgrad = th*180./pi;
+	double thchergrad = thcher*180./pi;
+	double DelFibPartgrad = DelFibPart*180./pi;
 	LogDebug("ForwardSim") << " ==============================> start all "
 			       << "information:<========= \n" << " =====> for "
 			       << "test:<===  \n" << " variant = " << variant  
@@ -556,10 +556,10 @@ uint32_t CastorSD::rotateUnitID(uint32_t unitID, G4Track* track, const CastorSho
 // ==============================================================
   
   // Get 'track' phi:
-  float   trackPhi = track->GetPosition().phi(); 
+  double   trackPhi = track->GetPosition().phi(); 
   if(trackPhi<0) trackPhi += 2*M_PI ;
   // Get phi from primary that gave rise to SL 'shower':
-  float  showerPhi = shower.getPrimPhi(); 
+  double  showerPhi = shower.getPrimPhi(); 
   if(showerPhi<0) showerPhi += 2*M_PI ;
   // Delta phi:
   
@@ -577,7 +577,7 @@ uint32_t CastorSD::rotateUnitID(uint32_t unitID, G4Track* track, const CastorSho
   //                            << "\n  complement = " << complement ; 
   
   // Get 'track' z:
-  float   trackZ = track->GetPosition().z();
+  double   trackZ = track->GetPosition().z();
   
   int aux ;
   int dSec = 2*(trackOctSector - showerOctSector) ;
