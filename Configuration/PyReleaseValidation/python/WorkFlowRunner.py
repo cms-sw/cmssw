@@ -26,8 +26,26 @@ def esReportWorkflow(**kwds):
   if "_201" in kwds["release"]:
     datepart = "201" + kwds["release"].split("_201")[1]
     d = datetime.strptime(datepart, "%Y-%m-%d-%H00")
-    payload["release_queque"] = kwds["release"].split("_201")[0]
+    payload["release_queue"] = kwds["release"].split("_201")[0]
   payload["release_date"] = d.strftime("%Y-%m-%d-%H00")
+  # Parse log file to look for exceptions, errors and warnings.
+  logFile = payload.pop("log_file", "")
+  exception = ""
+  inException = False
+  if exists(logFile):
+    lines = file(logFile).read()
+    for l in lines.split("\n"):
+      if l.startswith("----- Begin Fatal Exception"):
+        inException = True
+        continue
+      if l.startswith("----- End Fatal Exception"):
+        inException = False
+        continue
+      if inException:
+        exception += l + "\n"
+  if exception:
+    payload["exception"] = exception
+      
   url = "https://%s/ib-matrix.%s/runTheMatrix-data/%s" % (es_hostname,
                                                           d.strftime("%Y.%m"),
                                                           sha1_id)
@@ -185,6 +203,7 @@ class WorkFlowRunner(Thread):
                 if self.jobReport:
                   cmd += ' --suffix "-j JobReport%s.xml " ' % istep
                 cmd+=closeCmd(istep,self.wf.nameId)            
+                
                 esReportWorkflow(workflow=self.wf.nameId,
                                  release=getenv("CMSSW_VERSION"),
                                  architecture=getenv("SCRAM_ARCH"),
@@ -229,7 +248,8 @@ class WorkFlowRunner(Thread):
                              start_time=realstarttime.isoformat(),
                              end_time=datetime.now().isoformat(),
                              delta_time=(datetime.now() - realstarttime).seconds,
-                             workflow_id=self.wf.numId)
+                             workflow_id=self.wf.numId,
+                             log_file="%s/step%d_%s.log" % (self.wfDir, istep, self.wf.nameId))
 
         os.chdir(startDir)
 
