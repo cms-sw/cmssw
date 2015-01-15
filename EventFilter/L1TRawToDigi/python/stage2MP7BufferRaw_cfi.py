@@ -14,12 +14,14 @@ stage2MPRaw = cms.EDProducer(
     nFramesLatency   = cms.untracked.int32(0),
 
     # DAQ parameters
-    amcId            = cms.untracked.int32(1),
     fedId            = cms.untracked.int32(1360),
     eventType        = cms.untracked.int32(238),
     fwVersion        = cms.untracked.int32(255),
     lenSlinkHeader   = cms.untracked.int32(8),
     lenSlinkTrailer  = cms.untracked.int32(8),
+
+    # HW parameters
+    boardId          = cms.untracked.vint32( 1,2,3,4,5,6,7,8,9,10,11 ),
     mux              = cms.untracked.bool(True),
     muxOffset        = cms.untracked.int32(0),
 

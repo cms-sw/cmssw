@@ -100,25 +100,23 @@ private:
 
   // packetised data parameters
 
+  // hardware params
+  unsigned nBoard_;
+  unsigned iBoard_;
+  std::vector<int> boardId_;
 
-  // DAQ parameters
+  // board readout params
+  std::vector<int> rxBlockLength_;
+  std::vector<int> txBlockLength_;  
+  bool mux_;
+  int muxOffset_;
+
+  // DAQ params
   int fedId_;
-  int nAmc_;
-  int amcId_;
   int evType_;
   int fwVer_;
   int slinkHeaderSize_;  // in 8-bit words
   int slinkTrailerSize_;
-
-  bool mux_;
-  int muxOffset_;
-
-  //  int lenAMC13Header_;
-  //  int lenAMC13Trailer_;
-  //  int lenAMCHeader_;   
-  //  int lenAMCTrailer_;   
-  std::vector<int> rxBlockLength_;
-  std::vector<int> txBlockLength_;  
 
 };
 
@@ -140,19 +138,16 @@ private:
     txPacketReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt")),
     packetisedData_(iConfig.getUntrackedParameter<bool>("packetisedData", true)),
     nFramesPerEvent_(iConfig.getUntrackedParameter<int>("nFramesPerEvent", 6)),
+    iBoard_(iConfig.getUntrackedParameter<int>("boardOffset", 0)),
+    boardId_(iConfig.getUntrackedParameter<std::vector<int> >("boardId")),
+    rxBlockLength_(iConfig.getUntrackedParameter< std::vector<int> >("rxBlockLength")),
+    txBlockLength_(iConfig.getUntrackedParameter< std::vector<int> >("txBlockLength")),
+    mux_(iConfig.getUntrackedParameter<bool>("mux", false)),
     fedId_(iConfig.getUntrackedParameter<int>("fedId", 1)),
-    amcId_(iConfig.getUntrackedParameter<int>("amcId")),
     evType_(iConfig.getUntrackedParameter<int>("eventType", 1)),
     fwVer_(iConfig.getUntrackedParameter<int>("fwVersion", 1)),
     slinkHeaderSize_(iConfig.getUntrackedParameter<int>("lenSlinkHeader", 16)),
-    slinkTrailerSize_(iConfig.getUntrackedParameter<int>("lenSlinkTrailer", 16)),
-    mux_(iConfig.getUntrackedParameter<bool>("mux", false)),
-    //    lenAMC13Header_(iConfig.getUntrackedParameter<int>("lenAMC13Header", 0)),
-    //    lenAMC13Trailer_(iConfig.getUntrackedParameter<int>("lenAMC13Trailer", 0)),
-    //    lenAMCHeader_(iConfig.getUntrackedParameter<int>("lenAMCHeader", 12)),
-    //    lenAMCTrailer_(iConfig.getUntrackedParameter<int>("lenAMCTrailer", 8)),
-    rxBlockLength_(iConfig.getUntrackedParameter< std::vector<int> >("rxBlockLength")),
-    txBlockLength_(iConfig.getUntrackedParameter< std::vector<int> >("txBlockLength"))
+    slinkTrailerSize_(iConfig.getUntrackedParameter<int>("lenSlinkTrailer", 16))
 {
 
   produces<FEDRawDataCollection>();
@@ -167,8 +162,12 @@ private:
   if (rxFileReader_.size() != txFileReader_.size()) {
     edm::LogError("L1T") << "Different number of boards in Rx and Tx files";
   }
-  nAmc_ = std::max(rxFileReader_.size(), txFileReader_.size());
-  LogDebug("L1T") << "# AMC : " << nAmc_;
+  nBoard_ = std::max(rxFileReader_.size(), txFileReader_.size());
+  LogDebug("L1T") << "# AMC : " << nBoard_;
+
+  if (nBoard_ != boardId_.size()) {
+    edm::LogError("L1T") << "Found " << nBoard_ << " boards, but given " << boardId_.size() << " IDs";
+  }
 
 }
 
@@ -197,16 +196,15 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // create AMC formatted data
   if (mux_) {
-      std::vector<Block> blocks = getBlocks(amcId_);
-      formatAMC(amc13, blocks, amcId_);
-      amcId_++;  //advance to next AMC for next event...
-      amcId_ = amcId_ % nAmc_;
+    std::vector<Block> blocks = getBlocks(iBoard_);
+    formatAMC(amc13, blocks, boardId_.at(iBoard_));
+    iBoard_++;  //advance to next AMC for next event...
+    iBoard_ = iBoard_ % nBoard_;
   }
-  else {    
-    for (int i=0; i<nAmc_; ++i) {
-      int iAmc = (amcId_ + i) % nAmc_;
-      std::vector<Block> blocks = getBlocks(iAmc);
-      formatAMC(amc13, blocks, iAmc);
+  else {
+    for (unsigned iBoard=0; iBoard<nBoard_; ++iBoard) {
+      std::vector<Block> blocks = getBlocks(iBoard);
+      formatAMC(amc13, blocks, boardId_.at(iBoard));
     }
   }
 
@@ -231,6 +229,8 @@ std::vector<Block>
 MP7BufferDumpToRaw::getBlocks(int iBoard)
 {
 
+  LogDebug("L1T") << "Getting blocks from board " << iBoard; 
+
   std::vector<Block> blocks;
 
   // Rx blocks first
@@ -243,10 +243,15 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
 
     std::vector<uint32_t> data;
     if (packetisedData_) {
+
       const PacketData& p = rxPacketReader_.get(iBoard);
       PacketData::const_iterator itr = p.begin();
       for (unsigned i=0; i<rxIndex_; i++) itr++;
-      for (unsigned iFrame=itr->first_; iFrame<itr->last_; ++iFrame) {
+
+      LogDebug("L1T") << "Found packet [" << itr->first_ << ", " << itr->last_ << "]";
+      LogDebug("L1T") << "Link " << link << " has " << itr->links_.find(link)->second.size() << " frames";
+
+      for (unsigned iFrame=0; iFrame<itr->links_.find(link)->second.size(); ++iFrame) {
 	uint64_t d = itr->links_.find(link)->second.at(iFrame);
       	data.push_back(d);
       }
