@@ -144,8 +144,15 @@ CentralityBinProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   case HFtowers : value = chandle_->EtHFtowerSum();break;
   case HFtowersPlus : value = chandle_->EtHFtowerSumPlus();break;
   case HFtowersMinus : value = chandle_->EtHFtowerSumMinus();break;
-  case HFtowersPlus : value = chandle_->EtHFtowerSumPlus();break;
-
+  case HFhits : value = chandle_->EtHFhitSum();break;
+  case HFtowersTrunc : value = chandle_->EtHFtruncated();break;
+  case HFtowersPlusTrunc : value = chandle_->EtHFtruncatedPlus();break;
+  case HFtowersMinusTrunc : value = chandle_->EtHFtruncatedMinus();break;
+  case PixelHits : value = chandle_->multiplicityPixel();break;
+  case PixelTracks : value = chandle_->NpixelTracks();break;
+  case Tracks : value = chandle_->Ntracks();break;
+  case EB : value = chandle_->EtEBSum();break;
+  case EE : value = chandle_->EtEESum();break;
   default:
     throw cms::Exception("CentralityBinProducer","Centrality variable not recognized.");
   }
