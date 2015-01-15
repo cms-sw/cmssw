@@ -10,8 +10,8 @@ stage2DemuxRaw = cms.EDProducer(
 
     # parameters for non-packetised data
     nFramesPerEvent  = cms.untracked.int32(6),
-    nFramesOffset    = cms.untracked.int32(0),
-    nFramesLatency   = cms.untracked.int32(0),
+    nFramesOffset    = cms.untracked.vuint32(0),
+    nFramesLatency   = cms.untracked.vuint32(0),
 
     # DAQ parameters
     fedId            = cms.untracked.int32(1366),

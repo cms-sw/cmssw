@@ -99,13 +99,21 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 # buffer dump to RAW
 process.load('EventFilter.L1TRawToDigi.stage2MP7BufferRaw_cff')
 
-process.stage2MPRaw.nFramesOffset    = cms.untracked.int32(options.mpOffset)
-process.stage2MPRaw.nFramesLatency   = cms.untracked.int32(options.mpLatency)
+mpOffsets = cms.untracked.vint32()
+for i in range (0,11):
+    mpOffsets.append(options.mpOffset)
+
+mpLatencies = cms.untracked.vint32()
+for i in range (0,11):
+    mpLatencies.append(options.mpLatency)
+
+process.stage2MPRaw.nFramesOffset    = cms.untracked.vuint32(mpOffsets)
+process.stage2MPRaw.nFramesLatency   = cms.untracked.vuint32(mpLatencies)
 process.stage2MPRaw.rxFile = cms.untracked.string("mp_rx_summary.txt")
 process.stage2MPRaw.txFile = cms.untracked.string("mp_tx_summary.txt")
 
-process.stage2DemuxRaw.nFramesOffset    = cms.untracked.int32(options.dmOffset)
-process.stage2DemuxRaw.nFramesLatency   = cms.untracked.int32(options.dmLatency)
+process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(options.dmOffset)
+process.stage2DemuxRaw.nFramesLatency   = cms.untracked.vuint32(options.dmLatency)
 process.stage2DemuxRaw.rxFile = cms.untracked.string("demux_rx_summary.txt")
 process.stage2DemuxRaw.txFile = cms.untracked.string("demux_tx_summary.txt")
 

@@ -83,8 +83,8 @@ private:
   // file readers
   MP7FileReader rxFileReader_;
   MP7FileReader txFileReader_;
-  unsigned rxIndex_;
-  unsigned txIndex_;
+  std::vector<unsigned> rxIndex_;
+  std::vector<unsigned> txIndex_;
 
   // packet readers
   MP7PacketReader rxPacketReader_;
@@ -150,19 +150,28 @@ private:
 
   produces<FEDRawDataCollection>();
 
-  // advance pointers for non packetised data
-  rxIndex_ = iConfig.getUntrackedParameter<int>("nFramesOffset", 0);
-  txIndex_ = rxIndex_ + iConfig.getUntrackedParameter<int>("nFramesLatency", 3);
-
-  LogDebug("L1T") << "Rx index : " << rxIndex_;
-  LogDebug("L1T") << "Tx index : " << txIndex_;
-
+  // check tx/rx file size consistency and number of boards
   if (rxFileReader_.size() != txFileReader_.size()) {
     edm::LogError("L1T") << "Different number of boards in Rx and Tx files";
   }
   nBoard_ = std::max(rxFileReader_.size(), txFileReader_.size());
-  LogDebug("L1T") << "# AMC : " << nBoard_;
+  LogDebug("L1T") << "# boards : " << nBoard_;
 
+  // advance pointers for non packetised data
+  rxIndex_ = iConfig.getUntrackedParameter< std::vector<unsigned> >("nFramesOffset");
+  if (rxIndex_.size() != nBoard_) {
+    edm::LogError("L1T") << "Wrong number of boards in nFramesOffset " << rxIndex_.size();
+  }
+
+  txIndex_ = iConfig.getUntrackedParameter< std::vector<unsigned> >("nFramesLatency");
+  if (txIndex_.size() != nBoard_) {
+    edm::LogError("L1T") << "Wrong number of boards in nFramesLatency " << txIndex_.size();
+  }
+
+  // add latency to offset for Tx
+  for (unsigned i=0; i<rxIndex_.size(); ++i) txIndex_.at(i) += rxIndex_.at(i);
+
+  // check board IDs
   if (nBoard_ != boardId_.size()) {
     edm::LogError("L1T") << "Found " << nBoard_ << " boards, but given " << boardId_.size() << " IDs";
   }
@@ -172,7 +181,7 @@ private:
   std::vector<edm::ParameterSet> vpset = iConfig.getUntrackedParameter< std::vector<edm::ParameterSet> >("blocks");
 
   if (vpset.size() != nBoard_) {
-    edm::LogError("L1T") << "Block spec size " << vpset.size() << " incompatible with number of boards " << nBoard_;
+    edm::LogError("L1T") << "Wrong number of block specs " << vpset.size();
   }
 
   for (unsigned i=0; i<nBoard_; ++i) {
@@ -257,7 +266,7 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
 
       const PacketData& p = rxPacketReader_.get(iBoard);
       PacketData::const_iterator itr = p.begin();
-      for (unsigned i=0; i<rxIndex_; i++) itr++;
+      for (unsigned i=0; i<rxIndex_.at(iBoard); i++) itr++;
 
       LogDebug("L1T") << "Found packet [" << itr->first_ << ", " << itr->last_ << "]";
       LogDebug("L1T") << "Link " << link << " has " << itr->links_.find(link)->second.size() << " frames";
@@ -268,12 +277,12 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
       }
     }
     else {
-      for (unsigned iFrame=rxIndex_; iFrame<rxIndex_+size; ++iFrame) {
+      for (unsigned iFrame=rxIndex_.at(iBoard); iFrame<rxIndex_.at(iBoard)+size; ++iFrame) {
 	uint64_t d = rxFileReader_.get(iBoard).link(link).at(iFrame);
 	//	LogDebug("L1T") << "Frame " << iFrame << " : " << std::hex << d;
 	if ((d & 0x100000000) > 0) data.push_back( d & 0xffffffff );
       }
-      rxIndex_ += nFramesPerEvent_;
+      rxIndex_.at(iBoard) += nFramesPerEvent_;
     }
     
     LogDebug("L1T") << "AMC " << iBoard << " block " << id << ", size " << data.size();
@@ -295,19 +304,19 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
     if (packetisedData_) {
       const PacketData& p = txPacketReader_.get(iBoard);
       PacketData::const_iterator itr = p.begin();
-      for (unsigned i=0; i<txIndex_; i++) itr++;
+      for (unsigned i=0; i<txIndex_.at(iBoard); i++) itr++;
       for (unsigned iFrame=itr->first_; iFrame<itr->last_; ++iFrame) {
 	uint64_t d = itr->links_.find(link)->second.at(iFrame);
 	data.push_back(d);
       }
     }
     else {
-      for (unsigned iFrame=txIndex_; iFrame<txIndex_+size; ++iFrame) {
+      for (unsigned iFrame=txIndex_.at(iBoard); iFrame<txIndex_.at(iBoard)+size; ++iFrame) {
 	uint64_t d = txFileReader_.get(iBoard).link(link).at(iFrame);
 	//	LogDebug("L1T") << "Frame " << iFrame << " : " << std::hex << d;
 	if ((d & 0x100000000) > 0) data.push_back( d & 0xffffffff );
       }
-      txIndex_ += nFramesPerEvent_;
+      txIndex_.at(iBoard) += nFramesPerEvent_;
     }
     
     LogDebug("L1T") << "AMC " << iBoard << " block " << id << ", size " << data.size();

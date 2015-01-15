@@ -51,8 +51,8 @@ stage2MPRaw = cms.EDProducer(
 
     # parameters for non-packetised data
     nFramesPerEvent  = cms.untracked.int32(41),
-    nFramesOffset    = cms.untracked.int32(0),
-    nFramesLatency   = cms.untracked.int32(0),
+    nFramesOffset    = cms.untracked.vuint32(0,0,0,0,0,0,0,0,0,0,0,0),
+    nFramesLatency   = cms.untracked.vuint32(0,0,0,0,0,0,0,0,0,0,0,0),
 
     # DAQ parameters
     fedId            = cms.untracked.int32(1360),

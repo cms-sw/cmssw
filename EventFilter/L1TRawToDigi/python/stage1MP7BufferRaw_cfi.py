@@ -10,8 +10,8 @@ stage1Raw = cms.EDProducer(
 
     # parameters for non-packetised data
     nFramesPerEvent  = cms.untracked.int32(6),
-    nFramesOffset    = cms.untracked.int32(0),
-    nFramesLatency   = cms.untracked.int32(0),
+    nFramesOffset    = cms.untracked.vint32(0,0),
+    nFramesLatency   = cms.untracked.vint32(0,0),
 
     # DAQ parameters
     boardId          = cms.untracked.int32( 0x100D, 0x100E ),
