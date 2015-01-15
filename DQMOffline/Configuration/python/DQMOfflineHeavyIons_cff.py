@@ -16,7 +16,7 @@ from DQM.BeamMonitor.AlcaBeamMonitorHeavyIons_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 
 DQMOfflineHeavyIonsPreDPG = cms.Sequence( dqmDcsInfo *
-                                          l1TriggerDqmOffline * # L1 emulator is run within this sequence for real data
+                                          l1TriggerDqmOffline *  # L1 emulator is run within this sequence for real data
                                           ecal_dqm_source_offline *
                                           hcalOfflineDQMSource *
                                           SiStripDQMTier0_hi *
@@ -24,7 +24,8 @@ DQMOfflineHeavyIonsPreDPG = cms.Sequence( dqmDcsInfo *
                                           dtSources *
                                           rpcTier0Source *
                                           cscSources *
-                                          es_dqm_source_offline )
+                                          es_dqm_source_offline)
+                                          
 
 DQMOfflineHeavyIonsDPG = cms.Sequence( DQMOfflineHeavyIonsPreDPG *
                                        DQMMessageLogger )
@@ -69,7 +70,7 @@ DQMOfflineHeavyIonsPrePOG = cms.Sequence( muonMonitors
                                           * jetMETDQMOfflineSource
                                           * egammaDQMOffline
                                           * triggerOfflineDQMSource
-                                          #* pvMonitor
+                                          #* pvMonitor # already commented out. 
                                           * alcaBeamMonitor
                                           * dqmPhysicsHI
                                           )
@@ -80,5 +81,7 @@ DQMOfflineHeavyIonsPOG = cms.Sequence( DQMOfflineHeavyIonsPrePOG *
 DQMOfflineHeavyIons = cms.Sequence( DQMOfflineHeavyIonsPreDPG *
                                     DQMOfflineHeavyIonsPrePOG *
                                     DQMMessageLogger )
+#DQMOfflineHeavyIons = cms.Sequence(  jetMETDQMOfflineSource *
+#                                    DQMMessageLogger )
     
 #DQMOfflineHeavyIonsPhysics = cms.Sequence( dqmPhysics )
