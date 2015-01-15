@@ -146,8 +146,8 @@ private:
     fedId_(iConfig.getUntrackedParameter<int>("fedId", 1)),
     evType_(iConfig.getUntrackedParameter<int>("eventType", 1)),
     fwVer_(iConfig.getUntrackedParameter<int>("fwVersion", 1)),
-    slinkHeaderSize_(iConfig.getUntrackedParameter<int>("lenSlinkHeader", 16)),
-    slinkTrailerSize_(iConfig.getUntrackedParameter<int>("lenSlinkTrailer", 16))
+    slinkHeaderSize_(iConfig.getUntrackedParameter<int>("lenSlinkHeader", 8)),
+    slinkTrailerSize_(iConfig.getUntrackedParameter<int>("lenSlinkTrailer", 8))
 {
 
   produces<FEDRawDataCollection>();
@@ -204,7 +204,7 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   else {
     for (unsigned iBoard=0; iBoard<nBoard_; ++iBoard) {
       std::vector<Block> blocks = getBlocks(iBoard);
-      formatAMC(amc13, blocks, boardId_.at(iBoard));
+      formatAMC(amc13, blocks, iBoard);
     }
   }
 
@@ -318,9 +318,9 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
 
 
 void
-MP7BufferDumpToRaw::formatAMC(amc13::Packet& amc13, const std::vector<Block>& blocks, int iAmc) {
+MP7BufferDumpToRaw::formatAMC(amc13::Packet& amc13, const std::vector<Block>& blocks, int iBoard) {
 
-  LogDebug("L1T") << "Formatting AMC " << iAmc;
+  LogDebug("L1T") << "Formatting Board " << iBoard;
   
   std::vector<uint32_t> load32;
   // TODO this is an empty word to be replaced with a proper MP7
@@ -342,7 +342,7 @@ MP7BufferDumpToRaw::formatAMC(amc13::Packet& amc13, const std::vector<Block>& bl
     load32.insert(load32.end(), load.begin(), load.end());
   }
   
-  LogDebug("L1T") << "Converting payload " << iAmc;
+  LogDebug("L1T") << "Converting payload " << iBoard;
   
   std::vector<uint64_t> load64;
   for (unsigned int i = 0; i < load32.size(); i += 2) {
@@ -352,9 +352,9 @@ MP7BufferDumpToRaw::formatAMC(amc13::Packet& amc13, const std::vector<Block>& bl
     load64.push_back(word);
   }
   
-  LogDebug("L1T") << "Creating AMC packet " << iAmc;
+  LogDebug("L1T") << "Creating AMC packet " << iBoard;
   
-  amc13.add(iAmc, load64);
+  amc13.add(iBoard, boardId_.at(iBoard), load64);
 
 }
 

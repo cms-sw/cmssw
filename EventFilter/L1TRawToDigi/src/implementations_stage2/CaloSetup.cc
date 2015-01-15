@@ -20,8 +20,8 @@ namespace l1t {
                PackerMap res;
 
                if (fed == 1) {
-                  // Use amc id 1 for packing
-                  res[1] = {
+                  // Use board id 1 for packing
+                  res[{1, 1}] = {
                      PackerFactory::get()->make("stage2::CaloTowerPacker"),
                      PackerFactory::get()->make("stage2::EGammaPacker"),
                      PackerFactory::get()->make("stage2::EtSumPacker"),
@@ -48,7 +48,7 @@ namespace l1t {
                return std::unique_ptr<UnpackerCollections>(new CaloCollections(e));
             };
 
-            virtual UnpackerMap getUnpackers(int fed, int amc, int fw) override {
+            virtual UnpackerMap getUnpackers(int fed, int board, int amc, int fw) override {
                auto tower_unp = UnpackerFactory::get()->make("stage2::CaloTowerUnpacker");
                auto egamma_unp = UnpackerFactory::get()->make("stage2::EGammaUnpacker");
                auto etsum_unp = UnpackerFactory::get()->make("stage2::EtSumUnpacker");

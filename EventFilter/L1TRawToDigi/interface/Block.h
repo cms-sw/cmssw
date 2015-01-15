@@ -4,6 +4,8 @@
 #include <memory>
 #include <vector>
 
+#include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
+
 namespace l1t {
    enum block_t { MP7 = 0, CTP7 };
 
@@ -50,8 +52,12 @@ namespace l1t {
          BlockHeader header() const { return header_; };
          std::vector<uint32_t> payload() const { return payload_; };
 
+         void amc(const amc::Header& h) { amc_ = h; };
+         amc::Header amc() const { return amc_; };
+
       private:
          BlockHeader header_;
+         amc::Header amc_;
          std::vector<uint32_t> payload_;
    };
 

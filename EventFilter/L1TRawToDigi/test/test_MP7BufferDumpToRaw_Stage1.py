@@ -84,7 +84,7 @@ process.stage1Raw.txFile = cms.untracked.string("stage1_tx_summary.txt")
 process.dumpRaw = cms.EDAnalyzer( 
     "DumpFEDRawDataProduct",
     label = cms.untracked.string("stage1Raw"),
-    feds = cms.untracked.vint32 ( 1300 ),
+    feds = cms.untracked.vint32 ( 1352 ),
     dumpPayload = cms.untracked.bool ( True )
 )
 

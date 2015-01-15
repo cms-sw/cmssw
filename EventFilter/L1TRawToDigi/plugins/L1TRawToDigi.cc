@@ -97,8 +97,8 @@ namespace l1t {
       prov_ = PackingSetupFactory::get()->make(config.getParameter<std::string>("Setup"));
       prov_->registerProducts(*this);
 
-      slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 16);
-      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 16);
+      slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 8);
+      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 8);
       amcHeaderSize_ = config.getUntrackedParameter<int>("lenAMCHeader", 8);
       amcTrailerSize_ = config.getUntrackedParameter<int>("lenAMCTrailer", 0);
       amc13HeaderSize_ = config.getUntrackedParameter<int>("lenAMC13Header", 8);
@@ -198,22 +198,28 @@ namespace l1t {
                fw = fwId_;
 
             unsigned board = amc.header().getBoardID();
+            unsigned amc_no = amc.header().getAMCNumber();
 
-            auto unpackers = prov_->getUnpackers(fedId, board, fw);
+            auto unpackers = prov_->getUnpackers(fedId, board, amc_no, fw);
 
             // getBlock() returns a non-null auto_ptr on success
             std::auto_ptr<Block> block;
             while ((block = payload->getBlock()).get()) {
                auto unpacker = unpackers.find(block->header().getID());
+
+               block->amc(amc.header());
+
                if (unpacker == unpackers.end()) {
                   LogDebug("L1T") << "Cannot find an unpacker for block ID "
-                     << block->header().getID() << ", FED ID " << fedId << ", and FW ID "
-                     << fw << "!";
+                     << block->header().getID() << ", AMC # " << amc_no
+                     << ", board ID " << board << ", FED ID " << fedId
+                     << ", and FW ID " << fw << "!";
                   // TODO Handle error
                } else if (!unpacker->second->unpack(*block, coll.get())) {
                   LogDebug("L1T") << "Error unpacking data for block ID "
-                     << block->header().getID() << ", FED ID " << fedId << ", and FW ID "
-                     << fw << "!";
+                     << block->header().getID() << ", AMC # " << amc_no
+                     << ", board ID " << board << ", FED ID " << fedId
+                     << ", and FW ID " << fw << "!";
                   // TODO Handle error
                }
             }
