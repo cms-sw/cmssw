@@ -64,7 +64,6 @@ class BaseHandler {
     public:
         BaseHandler();
         ~BaseHandler(){
-            delete m_expression;
         }
         BaseHandler(const edm::ParameterSet& iConfig,  triggerExpression::Data & eventCache):
               m_expression(triggerExpression::parse( iConfig.getParameter<std::string>("triggerSelection")))
@@ -93,7 +92,7 @@ class BaseHandler {
         virtual void book(DQMStore::IBooker & booker) = 0;
         virtual void getAndStoreTokens(edm::ConsumesCollector && iC) = 0;
 
-        triggerExpression::Evaluator * m_expression;
+        std::unique_ptr<triggerExpression::Evaluator>  m_expression;
         triggerExpression::Data * m_eventCache;
 
         std::string m_dirname;
@@ -273,7 +272,6 @@ class HandlerTemplate: public BaseHandler {
                     edm::LogInfo("FSQDiJetAve") << "One of requested paths not found, skipping event";
                     return;
             }
-
             if (m_eventCache->configurationUpdated()) {
                 m_expression->init(*m_eventCache);
             }
