@@ -1192,7 +1192,7 @@ namespace {
 						}
 					}
 
-					double interp;
+					double interp = 0;
 
 #ifdef STANDALONE
 					if (j == 0) {
