@@ -38,9 +38,9 @@ QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
   produceSyst(							systLabel != "")
 {
   produces<edm::ValueMap<float>>("qgLikelihood");
-  produces<edm::ValueMap<float>>("axis2Likelihood");
-  produces<edm::ValueMap<int>>("multLikelihood");
-  produces<edm::ValueMap<float>>("ptDLikelihood");
+  produces<edm::ValueMap<float>>("axis2");
+  produces<edm::ValueMap<int>>("mult");
+  produces<edm::ValueMap<float>>("ptD");
   if(produceSyst){
     produces<edm::ValueMap<float>>("qgLikelihoodSmearedQuark");
     produces<edm::ValueMap<float>>("qgLikelihoodSmearedGluon");
@@ -82,7 +82,9 @@ void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
     float ptD, axis2; int mult;
     std::tie(mult, ptD, axis2) = calcVariables(&*jet, vertexCollection);
 
-    float qgValue = qgLikelihood->computeQGLikelihood(QGLParamsColl, pt, jet->eta(), *rho, {(float) mult, ptD, -std::log(axis2)});
+    float qgValue;
+    if(mult > 2) qgValue = qgLikelihood->computeQGLikelihood(QGLParamsColl, pt, jet->eta(), *rho, {(float) mult, ptD, -std::log(axis2)});
+    else         qgValue = -1;
 
     qgProduct->push_back(qgValue);
     if(produceSyst){
@@ -95,10 +97,10 @@ void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
     ptDProduct->push_back(ptD);
   }
 
-  putInEvent("qgLikelihood", 	jets, qgProduct,    iEvent);
-  putInEvent("axis2Likelihood", jets, axis2Product, iEvent);
-  putInEvent("multLikelihood", 	jets, multProduct,  iEvent);
-  putInEvent("ptDLikelihood", 	jets, ptDProduct,   iEvent);
+  putInEvent("qgLikelihood", jets, qgProduct,    iEvent);
+  putInEvent("axis2",        jets, axis2Product, iEvent);
+  putInEvent("mult",         jets, multProduct,  iEvent);
+  putInEvent("ptD",          jets, ptDProduct,   iEvent);
   if(produceSyst){
     putInEvent("qgLikelihoodSmearedQuark", jets, smearedQuarkProduct, iEvent);
     putInEvent("qgLikelihoodSmearedGluon", jets, smearedGluonProduct, iEvent);
