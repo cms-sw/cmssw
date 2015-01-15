@@ -9,7 +9,7 @@ from os.path import exists, basename, join
 from os import getenv
 from datetime import datetime
 from hashlib import sha1
-import urllib2, base64, json
+import urllib2, base64, json, re
 
 # This is used to report results of the runTheMatrix to the elasticsearch
 # instance used for IBs. This way we can track progress even if the logs are
@@ -31,7 +31,10 @@ def esReportWorkflow(**kwds):
   # Parse log file to look for exceptions, errors and warnings.
   logFile = payload.pop("log_file", "")
   exception = ""
+  error = ""
+  errors = []
   inException = False
+  inError = False
   if exists(logFile):
     lines = file(logFile).read()
     for l in lines.split("\n"):
@@ -41,10 +44,26 @@ def esReportWorkflow(**kwds):
       if l.startswith("----- End Fatal Exception"):
         inException = False
         continue
+      if l.startswith("%MSG-e"):
+        inError = True
+        error = l
+        error_kind = re.split(" [0-9a-zA-Z-]* [0-9:]{8} CET", error)[0].replace("%MSG-e ", "")
+        continue
+      if inError == True and l.startswith("%MSG"):
+        inError = False
+        errors.append({"error": error, "kind": error_kind})
+        error = ""
+        error_kind = ""
+        continue
       if inException:
         exception += l + "\n"
+      if inError:
+        error += l + "\n"
+
   if exception:
     payload["exception"] = exception
+  if errors:
+    payload["errors"] = errors
       
   url = "https://%s/ib-matrix.%s/runTheMatrix-data/%s" % (es_hostname,
                                                           d.strftime("%Y.%m"),
