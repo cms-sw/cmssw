@@ -19,8 +19,7 @@ namespace l1t {
             virtual PackerMap getPackers(int fed, int fw) override {
                PackerMap res;
 
-               // Use amc id 1 for packing
-               res[0x200D] = {
+               res[{1, 0x200D}] = {
                   PackerFactory::get()->make("stage1::IsoEGammaPacker"),
                   PackerFactory::get()->make("stage1::NonIsoEGammaPacker"),
                   PackerFactory::get()->make("stage1::CentralJetPacker"),
@@ -51,14 +50,14 @@ namespace l1t {
                return std::unique_ptr<UnpackerCollections>(new CaloCollections(e));
             };
 
-            virtual UnpackerMap getUnpackers(int fed, int amc, int fw) override {
+            virtual UnpackerMap getUnpackers(int fed, int board, int amc, int fw) override {
                UnpackerMap res;
 
                auto cjet_unp = UnpackerFactory::get()->make("stage1::CentralJetUnpacker");
                auto fjet_unp = UnpackerFactory::get()->make("stage1::ForwardJetUnpacker");
 
                if (fed == 1352) {
-                  if (amc == 0x200D) {
+                  if (board == 0x200D) {
                      auto iegamma_unp = UnpackerFactory::get()->make("stage1::IsoEGammaUnpacker");
                      auto niegamma_unp = UnpackerFactory::get()->make("stage1::NonIsoEGammaUnpacker");
                      auto tau_unp = UnpackerFactory::get()->make("stage1::TauUnpacker");
@@ -80,14 +79,14 @@ namespace l1t {
                   auto rctEm_unp = UnpackerFactory::get()->make("stage1::RCTEmUnpacker");
 
                   for (int m=0;m<36;m++) {
-                    if(amc==4109){
+                    if (board == 4109) {
                       res[m*2] = rctRegion_unp;
                     }
-                    else if(amc==4110){
+                    else if (board == 4110) {
                       res[m*2] = rctEm_unp;
                     }
                   }
-                  if(amc==4109){
+                  if (board == 4109) {
                     res[105] = cjet_unp;
                     res[107] = fjet_unp;
                   }

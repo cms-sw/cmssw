@@ -329,7 +329,7 @@ MP7BufferDumpToRaw::formatAMC(amc13::Packet& amc13, const std::vector<Block>& bl
   
   LogDebug("L1T") << "Creating AMC packet " << iAmc;
   
-  amc13.add(iAmc, load64);
+  amc13.add(iAmc, iAmc, load64);
 
 }
 
