@@ -19,7 +19,7 @@ namespace l1t {
             virtual PackerMap getPackers(int fed, int fw) override {
                PackerMap res;
 
-               if (fed == 1) {
+               if (fed == 1366) {
                   // Use board id 1 for packing
                   res[{1, 1}] = {
                      PackerFactory::get()->make("stage2::CaloTowerPacker"),
@@ -58,7 +58,7 @@ namespace l1t {
                auto mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker");
 
                UnpackerMap res;
-               if (fed == 1361) {
+               if (fed == 1366) {
                   res[1] = egamma_unp;
                   res[3] = etsum_unp;
                   res[5] = jet_unp;

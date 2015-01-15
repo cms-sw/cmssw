@@ -14,7 +14,7 @@ stage2DemuxRaw = cms.EDProducer(
     nFramesLatency   = cms.untracked.int32(0),
 
     # DAQ parameters
-    fedId            = cms.untracked.int32(1361),
+    fedId            = cms.untracked.int32(1366),
     eventType        = cms.untracked.int32(238),
     fwVersion        = cms.untracked.int32(255),
     lenSlinkHeader   = cms.untracked.int32(8),  # length in 8 bit words !

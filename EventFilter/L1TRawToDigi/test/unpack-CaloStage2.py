@@ -115,7 +115,7 @@ process.rawDataCollector.verbose = cms.untracked.int32(2)
 process.dumpRaw = cms.EDAnalyzer( 
     "DumpFEDRawDataProduct",
     label = cms.untracked.string("rawDataCollector"),
-    feds = cms.untracked.vint32 ( 1360, 1361 ),
+    feds = cms.untracked.vint32 ( 1360, 1366 ),
     dumpPayload = cms.untracked.bool ( options.dump )
 )
 
