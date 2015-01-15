@@ -101,11 +101,21 @@ namespace l1t {
 			std::vector<l1t::Tau> *output){
     for(std::vector<l1t::Tau>::const_iterator itTau = input->begin();
 	itTau != input->end(); ++itTau){
-      const unsigned newEta = gtEta(itTau->hwEta());
+      unsigned newPhi = itTau->hwPhi();
+      unsigned newEta = gtEta(itTau->hwEta());
+
+      // taus with hwQual & 10 ==10 are "padding" jets from a sort, set their eta and phi
+      // to the max value
+      if((itTau->hwQual() & 0x10) == 0x10)
+      {
+	newEta = 0x0;
+	newPhi = 0x0;
+      }
+
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
-      l1t::Tau gtTau(*&ldummy, itTau->hwPt(), newEta, itTau->hwPhi(), itTau->hwQual(), itTau->hwIso());
+      l1t::Tau gtTau(*&ldummy, itTau->hwPt(), newEta, newPhi, itTau->hwQual(), itTau->hwIso());
       output->push_back(gtTau);
     }
   }
