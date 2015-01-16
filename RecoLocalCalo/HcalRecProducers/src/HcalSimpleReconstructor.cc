@@ -10,6 +10,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
     
@@ -270,5 +271,21 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
     } else if (subdet_==HcalOther && subdetOther_==HcalCalibration) {
       process<HcalCalibDigiCollection, HcalCalibRecHitCollection>(e, eventSetup);
     }
-  } 
+  }
+
+  //
+  // Print a message stating how many fit errors occurred (rather than printing each error individually)
+  //
+  auto errorFrequency=reco_.fitErrorCodeFrequency();
+  if( !errorFrequency.empty() )
+  {
+    std::string message="Fit errors produced:\n";
+    for( const auto& codeFrequencyPair : errorFrequency )
+    {
+      if( codeFrequencyPair.first==0 ) message+="\t"+std::to_string(codeFrequencyPair.second)+ " successful fits.\n";
+      else message+="\tError "+std::to_string(codeFrequencyPair.first)+" occurred "+std::to_string(codeFrequencyPair.second)+ " times.\n";
+    }
+    edm::LogWarning( "HcalSimpleReconstructor" ) << message;
+  }
+  reco_.resetFitErrorFrequency(); // Now that data has been output, reset ready for the next event.
 }
