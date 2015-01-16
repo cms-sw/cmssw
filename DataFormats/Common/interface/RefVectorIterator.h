@@ -42,7 +42,7 @@ namespace edm {
     class RefProxy {
     public:
       RefProxy(value_type const& ref) : ref_(ref) { }
-      value_type* operator->() { return &ref_; }
+      value_type const* operator->() const { return &ref_; }
     private:
       value_type ref_;
     };
