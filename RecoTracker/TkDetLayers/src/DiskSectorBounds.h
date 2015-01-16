@@ -31,10 +31,6 @@ public:
      
    virtual bool inside( const Local3DPoint& p, const LocalError& err, float scale) const;
  
-   //virtual bool inside( const Local2DPoint& p, const LocalError& err, float scale=1.f) const {
-   //  return Bounds::inside(p,err,scale);
-   //}
- 
    virtual Bounds* clone() const { 
      return new DiskSectorBounds(*this);
    }
