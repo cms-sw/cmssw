@@ -11,10 +11,16 @@
 #include "DataFormats/Common/interface/ContainerMask.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class dso_hidden MeasurementTrackerEventProducer final : public edm::stream::EDProducer<> {
 public:
       explicit MeasurementTrackerEventProducer(const edm::ParameterSet &iConfig) ;
       ~MeasurementTrackerEventProducer() {}
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
 private:
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
