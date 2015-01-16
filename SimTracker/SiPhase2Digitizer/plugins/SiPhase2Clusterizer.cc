@@ -1,4 +1,4 @@
-#include "SimTracker/SiPhase2Digitizer/interface/SiPhase2Clusterizer.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/SiPhase2Clusterizer.h"
 #include "SimTracker/SiPhase2Digitizer/interface/ClusterizerAlgorithm.h"
 //#include "SimTracker/SiPhase2Digitizer/interface/PixelClusterSimLink.h"
 
