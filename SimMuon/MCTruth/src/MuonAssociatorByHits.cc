@@ -56,14 +56,13 @@ MuonAssociatorByHits::associateRecoToSim( const edm::RefToBaseVector<reco::Track
   setup->get<IdealGeometryRecord>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
-  bool printRtS(true);
 
   // Tracker hit association  
   TrackerHitAssociator trackertruth(*e, conf_);
   // CSC hit association
   CSCHitAssociator csctruth(*e,*setup,conf_);
   // DT hit association
-  printRtS = false;
+  bool printRtS(true);
   DTHitAssociator dttruth(*e,*setup,conf_,printRtS);  
   // RPC hit association
   RPCHitAssociator rpctruth(*e,*setup,conf_);

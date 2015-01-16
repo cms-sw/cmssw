@@ -131,14 +131,13 @@ void MuonToSimAssociatorByHits::associateMuons(MuonToSimCollection & recToSim, S
     setup->get<IdealGeometryRecord>().get(tTopoHand);
     const TrackerTopology *tTopo=tTopoHand.product();
     
-    bool printRtS = true;
     
     // Tracker hit association  
     TrackerHitAssociator trackertruth(*event, conf_);
     // CSC hit association
     CSCHitAssociator csctruth(*event,*setup,conf_);
     // DT hit association
-    printRtS = false;
+    bool printRtS = true;
     DTHitAssociator dttruth(*event,*setup,conf_,printRtS);  
     // RPC hit association
     RPCHitAssociator rpctruth(*event,*setup,conf_);
