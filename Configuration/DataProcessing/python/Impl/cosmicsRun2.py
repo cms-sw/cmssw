@@ -77,7 +77,8 @@ class cosmicsRun2(Reco):
         Proton collisions data taking AlCa Harvesting
 
         """
-        if not 'skims' in args:
+
+        if not 'skims' in args and not 'alcapromptdataset' in args:
             args['skims']=['SiStripQuality']
             
         return Reco.alcaHarvesting(self, globalTag, datasetName, **args)
