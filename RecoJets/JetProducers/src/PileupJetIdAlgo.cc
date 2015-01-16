@@ -397,7 +397,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			    if(lPF!=nullptr) {
 			      pfTrk=(lPF->trackRef().get()==nullptr)?lPF->gsfTrackRef().get():lPF->trackRef().get();
 			    }
-			    reco::Track impactTrack = (lPack==nullptr)?(*pfTrk):(lPack->pseudoTrack());
+			    const reco::Track& impactTrack = (lPack==nullptr)?(*pfTrk):(lPack->pseudoTrack());
 			    internalId_.d0_ = std::abs(impactTrack.dxy(vtx->position()));
 			    internalId_.dZ_ = std::abs(impactTrack.dz(vtx->position()));
 			  }
@@ -450,11 +450,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 				} else if( dZ < 0.2 ) {
 				    internalId_.betaStar_ += tkpt;
 				}
-			   } else {
-			       if(printWarning-- > 0) { 
-				   edm::LogWarning( "computeIdVariables" ) <<"Invalid reference of track"<<std::endl;
-			       }
-			   }
+			   } 
 			}
 			else{
 				// setting classic and alternative to be the same for now

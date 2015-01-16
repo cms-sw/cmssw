@@ -5,7 +5,7 @@
 
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 const int flag_isWithinFakeJet      = 1;
 const int flag_isWithinSelectedJet  = 2;
@@ -150,7 +150,7 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
   edm::Handle<PFCandToVertexAssMap> pfCandToVertexAssociations;
   evt.getByToken(srcPFCandToVertexAssociations_, pfCandToVertexAssociations);
 
-  noPuUtils::reversedPFCandToVertexAssMap pfCandToVertexAssociations_reversed = reversePFCandToVertexAssociation(*pfCandToVertexAssociations);
+  noPuUtils::reversedPFCandToVertexAssMap pfCandToVertexAssociations_reversed = noPuUtils::reversePFCandToVertexAssociation(*pfCandToVertexAssociations);
  
   edm::Handle<reco::VertexCollection> hardScatterVertex;
   evt.getByToken(srcHardScatterVertex_, hardScatterVertex);
@@ -229,7 +229,7 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
     //    (makes run-time of MVAPFMEtDataProducer::produce decrease from ~1s per event to ~0.35s per event)
     //int vtxAssociationType = isVertexAssociated(*pfCandidatePtr, *pfCandToVertexAssociations, *hardScatterVertex, dZcut_);
     reco::PFCandidateRef pfCandidateRef( pfCandidateHandle, iPFCandidate);
-    int vtxAssociationType = isVertexAssociated_fast(pfCandidateRef, pfCandToVertexAssociations_reversed, *hardScatterVertex, dZcut_, numWarnings_, maxWarnings_);
+    int vtxAssociationType = noPuUtils::isVertexAssociated_fast(pfCandidateRef, pfCandToVertexAssociations_reversed, *hardScatterVertex, dZcut_, numWarnings_, maxWarnings_);
     bool isHardScatterVertex_associated = (vtxAssociationType == noPuUtils::kChHSAssoc);
     if      ( pfCandidatePtr->charge() == 0 )   pfCandInfo.setType( reco::PUSubMETCandInfo::kNeutral );
     else if ( isHardScatterVertex_associated       ) pfCandInfo.setType( reco::PUSubMETCandInfo::kChHS );

@@ -31,7 +31,7 @@ namespace reco
 
 
     //Access functions ================
-    const reco::Candidate::LorentzVector p4() const {return p4_;};
+    const reco::Candidate::LorentzVector& p4() const {return p4_;};
     const float dZ() const {return dZ_;};
     
     int type() const {return type_;};
@@ -44,7 +44,7 @@ namespace reco
     float mva() const {return mva_;};
     float chargedEnFrac() const {return chargedEnFrac_;};
 
-    const metsig::SigInputObj metSignObj() const {return pfMEtSignObj_;};
+    const metsig::SigInputObj& metSignObj() const {return pfMEtSignObj_;};
 
     //setting functions ================
     void setP4( const reco::Candidate::LorentzVector p4 ) {p4_ = p4;};

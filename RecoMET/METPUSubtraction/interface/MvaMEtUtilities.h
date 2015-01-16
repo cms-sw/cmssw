@@ -41,7 +41,7 @@ class MvaMEtUtilities
   reco::Candidate::LorentzVector subleadJetP4(const std::vector<reco::PUSubMETCandInfo>&);
   unsigned numJetsAboveThreshold(const std::vector<reco::PUSubMETCandInfo>&, double);
 
-  const std::vector<reco::PUSubMETCandInfo> getCleanedJets() const;
+  const std::vector<reco::PUSubMETCandInfo>& getCleanedJets() const;
 
   //access functions for lepton suns ============
   double getLeptonsSumMEX() const;

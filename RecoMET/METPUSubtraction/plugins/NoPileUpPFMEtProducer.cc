@@ -6,7 +6,7 @@
 #include "RecoMET/METAlgorithms/interface/significanceAlgo.h"
 #include "DataFormats/METReco/interface/SigInputObj.h"
 
-#include <math.h>
+#include <cmath>
 
 const double defaultPFMEtResolutionX = 10.;
 const double defaultPFMEtResolutionY = 10.;
@@ -353,10 +353,12 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
       if ( jet->type() == reco::PUSubMETCandInfo::kHS ) {	
 	addToCommonMETData(*sumNoPUjets, jet->p4() );
 	metSignObjectsNoPUjets.push_back(jet->metSignObj() );
-	sumNoPUjetOffsetEnCorr->mex   += jet->offsetEnCorr()*cos(jet->p4().phi())*sin(jet->p4().theta());
-	sumNoPUjetOffsetEnCorr->mey   += jet->offsetEnCorr()*sin(jet->p4().phi())*sin(jet->p4().theta());
-	sumNoPUjetOffsetEnCorr->mez   += jet->offsetEnCorr()*cos(jet->p4().theta());
-	sumNoPUjetOffsetEnCorr->sumet += jet->offsetEnCorr()*sin(jet->p4().theta());
+	float jetp = jet->p4().P();
+	float jetcorr = jet->offsetEnCorr();
+	sumNoPUjetOffsetEnCorr->mex   += jetcorr*jet->p4().px()/jetp;
+	sumNoPUjetOffsetEnCorr->mey   += jetcorr*jet->p4().py()/jetp;
+	sumNoPUjetOffsetEnCorr->mez   += jetcorr*jet->p4().pz()/jetp;
+	sumNoPUjetOffsetEnCorr->sumet += jetcorr*jet->p4().pt()/jetp;
 	metsig::SigInputObj pfMEtSignObjectOffsetEnCorr(
           jet->metSignObj().get_type(),
 	  jet->offsetEnCorr(),

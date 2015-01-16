@@ -27,7 +27,7 @@ namespace noPuUtils {
   typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::PFCandidateCollection, reco::VertexCollection, int> > 
     reversedPFCandToVertexAssMap; 
   
-}
+
 
 
 // check if the pf candidate is associated with a vertex, 
@@ -47,5 +47,8 @@ int isVertexAssociated_fast(const reco::PFCandidateRef&, const noPuUtils::revers
 void promoteAssocToHSAssoc(int quality, double z,
 			   const reco::VertexCollection& vertices,
 			   double dZ, int& vtxAssociationType, bool checkdR2);
+
+
+}
 
 #endif

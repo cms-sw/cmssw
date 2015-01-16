@@ -3,7 +3,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 MvaMEtUtilities::MvaMEtUtilities(const edm::ParameterSet& cfg) 
 {
@@ -278,7 +278,7 @@ MvaMEtUtilities::getLeptonsChSumMEY() const {
 } 
 
 
-const std::vector<reco::PUSubMETCandInfo> 
+const std::vector<reco::PUSubMETCandInfo>& 
 MvaMEtUtilities::getCleanedJets() const {
   return cleanedJets_;
 }
