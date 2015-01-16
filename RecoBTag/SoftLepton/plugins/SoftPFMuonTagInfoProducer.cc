@@ -38,6 +38,7 @@ SoftPFMuonTagInfoProducer::SoftPFMuonTagInfoProducer(const edm::ParameterSet& co
   muonToken   = consumes<edm::View<reco::Muon> >(conf.getParameter<edm::InputTag>("muons"));
   vertexToken = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("vertex"));
   pTcut       = conf.getParameter<double>("muonPt");
+  SIPcut      = conf.getParameter<double>("muonSIP");
   IPcut       = conf.getParameter<double>("filterIp");
   ratio1cut   = conf.getParameter<double>("filterRatio1");
   ratio2cut   = conf.getParameter<double>("filterRatio2");
@@ -78,7 +79,6 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
     tagInfo.setJetRef(jetRef);
     // Loop on jet daughters
     for(unsigned int id=0, nd=jetRef->numberOfDaughters(); id<nd; ++id) {
-      //const reco::Candidate* lep = jetRef->daughter(id);
       edm::Ptr<reco::Candidate> lepPtr = jetRef->daughterPtr(id);
       if(abs(lepPtr->pdgId())!=13) continue;
       
@@ -128,7 +128,7 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
       properties.ratioRel = muon->p4().Dot(jetRef->p4()) / jetRef->p4().Vect().Mag2();
       properties.p0Par    = boostedPPar(muon->momentum(), jetRef->momentum());
       
-      if(fabs(properties.sip3d)>200.) continue;
+      if(fabs(properties.sip3d)>SIPcut) continue;
       
       // Filter leptons from W, Z decays
       if(useFilter && ((fabs(properties.sip3d)<IPcut && properties.ratio>ratio1cut) || properties.ratio>ratio2cut)) continue;
