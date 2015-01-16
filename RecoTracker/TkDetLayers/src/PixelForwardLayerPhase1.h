@@ -12,6 +12,8 @@
  */
 
 
+#pragma GCC visibility push(hidden)
+
 class PixelForwardLayerPhase1 GCC11_FINAL : public ForwardDetLayer {
  public:
   PixelForwardLayerPhase1(std::vector<const Phase1PixelBlade*>& blades);
@@ -75,7 +77,7 @@ class PixelForwardLayerPhase1 GCC11_FINAL : public ForwardDetLayer {
   std::vector<float> theBinFinder_byR;
   std::vector<unsigned int> theBinFinder_byR_index;
   std::vector<unsigned int> theBinFinder_byR_nextindex;
-  bool useR;
+  // bool useR;
   std::vector<const GeometricSearchDet*> theComps;
   std::vector<const GeomDet*> theBasicComps;
 };

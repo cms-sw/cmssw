@@ -25,13 +25,15 @@ public:
    virtual float width()     const { return 2.f*theRmax*std::sin(thePhiExtH);}
    virtual float thickness() const { return theZmax-theZmin;}
  
+   
+   
    virtual bool inside( const Local3DPoint& p) const;
      
    virtual bool inside( const Local3DPoint& p, const LocalError& err, float scale) const;
  
-   virtual bool inside( const Local2DPoint& p, const LocalError& err) const {
-     return Bounds::inside(p,err);
-   }
+   //virtual bool inside( const Local2DPoint& p, const LocalError& err, float scale=1.f) const {
+   //  return Bounds::inside(p,err,scale);
+   //}
  
    virtual Bounds* clone() const { 
      return new DiskSectorBounds(*this);

@@ -17,6 +17,7 @@
  */
 
 
+template <class T>
 class PixelBladeBuilder {  
  public:
   PixelBladeBuilder(){};
