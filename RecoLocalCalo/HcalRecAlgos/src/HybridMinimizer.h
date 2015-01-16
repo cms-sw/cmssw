@@ -263,6 +263,12 @@ public:
 
    void SetMinimizerType( EMinimizerType type);
 
+   /** @brief Suppress all messages and warnings that would normally printed to stdout.
+    *
+    * This should be used with care, and only if the fit status is always checked with "Status()"
+    * to make sure no errors occurred.
+    */
+   void SuppressMessages( bool suppressMessages=true ) { suppressMessages_=suppressMessages; }
 protected: 
    
    // protected function for accessing the internal Minuit2 object. Needed for derived classes
@@ -288,7 +294,7 @@ private:
    ROOT::Minuit2::FunctionMinimum * fMinimum;
    mutable std::vector<double> fValues;
    mutable std::vector<double> fErrors;
-
+   bool suppressMessages_; ///< Whether or not to print messages and warnings
 }; 
 
 }

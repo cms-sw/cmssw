@@ -177,6 +177,10 @@ PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPul
                                                                        ts4Min_(0), ts4Max_(0), pulseJitter_(0), timeMean_(0), timeSig_(0), pedMean_(0), pedSig_(0),
                                                                        noise_(0) {
    hybridfitter = new PSFitter::HybridMinimizer(PSFitter::HybridMinimizer::kMigrad);
+   // Suppress all output to stdout and assume that the calling code makes
+   // use of the fitErrorCodeFrequency method to report errors.
+   hybridfitter->SuppressMessages();
+
    iniTimesArr = { {-100,-75,-50,-25,0,25,50,75,100,125} };
 }
 
@@ -393,6 +397,7 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
      if( fitTimes_ != 2 || tries !=1 ){
         hybridfitter->SetMinimizerType(PSFitter::HybridMinimizer::kMigrad);
         fitStatus = hybridfitter->Minimize();
+        ++fitErrorCodes_[hybridfitter->Status()];
      }
      double chi2valfit = hybridfitter->MinValue();
      const double *newresults = hybridfitter->X();
@@ -408,6 +413,7 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
        if(tries==0){
 	 hybridfitter->SetMinimizerType(PSFitter::HybridMinimizer::kScan);
 	 fitStatus = hybridfitter->Minimize();
+	 ++fitErrorCodes_[hybridfitter->Status()];
        } else if(tries==1){
 	 hybridfitter->SetStrategy(1);
        } else if(tries==2){
