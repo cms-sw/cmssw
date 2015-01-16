@@ -104,7 +104,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
     //}
 
     if (!checkForNans(smoothed)) {
-      edm::LogError("TrackNaN")<<"Track has NaN";
+      edm::LogWarning("TrackNaN")<<"Track has NaN";
       return Trajectory();
     }
 
