@@ -68,9 +68,7 @@ void pat::PATPackedClusterProducer::produce(edm::Event& iEvent, const edm::Event
   std::auto_ptr< std::vector<pat::PackedCluster> > outputClustersPtr( new std::vector<pat::PackedCluster> );
   if(inputPFClusters.isValid()){
     for(const auto& clus : *inputPFClusters){
-      //     std::cout <<"clus before "<<clus.energy()*sin(clus.position().theta())<<" eta "<<clus.eta()<<" phi "<<clus.phi()<<std::endl;
       if(passSelection_(clus,eles,phos)) outputClustersPtr->push_back(clus);
-      //  std::cout <<"clus after "<<outputClustersPtr->back().et()<<" eta "<<outputClustersPtr->back().eta()<<" phi "<<outputClustersPtr->back().phi()<<std::endl;
     }
   }else{
     for(const auto& clus : *inputCaloClusters){
