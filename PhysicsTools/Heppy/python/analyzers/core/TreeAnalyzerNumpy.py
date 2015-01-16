@@ -11,15 +11,17 @@ class TreeAnalyzerNumpy( Analyzer ):
 
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(TreeAnalyzerNumpy,self).__init__(cfg_ana, cfg_comp, looperName)
-
+        self.outservicename = "outputfile"
+        if hasattr(cfg_ana,"outservicename") :
+            self.outservicename = cfg_ana.outservicename
 
 
     def beginLoop(self, setup) :
         super(TreeAnalyzerNumpy, self).beginLoop(setup)
         print setup.services
-        if "outputfile" in setup.services:
-            print "Using outputfile given in setup.outputfile"
-            self.file = setup.services["outputfile"].file
+        if self.outservicename in setup.services:
+            print "Using outputfile given in", self.outservicename
+            self.file = setup.services[self.outservicename].file
         else :
             fileName = '/'.join([self.dirName,
                              'tree.root'])
@@ -35,6 +37,6 @@ class TreeAnalyzerNumpy( Analyzer ):
 
     def write(self, setup):
         super(TreeAnalyzerNumpy, self).write(setup)
-        if "outputfile" not in setup.services:
+        if self.outservicename not in setup.services:
             self.file.Write() 
 

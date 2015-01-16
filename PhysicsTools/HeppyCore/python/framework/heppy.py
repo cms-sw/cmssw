@@ -48,7 +48,8 @@ def runLoop( comp, outDir, config, options):
     loop = Looper( fullName,
                    config,
                    options.nevents, 0,
-                   nPrint = options.nprint)
+                   nPrint = options.nprint,
+                   timeReport = options.timeReport)
     print loop
     if options.iEvent is None:
         loop.loop()
@@ -202,6 +203,12 @@ if __name__ == '__main__':
                       action='store_true',
                       help="stay in the command line prompt instead of exiting",
                       default=False)
+    parser.add_option("-t", "--timereport", 
+                      dest="timeReport",
+                      action='store_true',
+                      help="Make a report of the time used by each analyzer",
+                      default=False)
+
 
 
     (options,args) = parser.parse_args()
