@@ -66,7 +66,7 @@ public:
   // access to config
   edm::ParameterSet config() const { return theConfig; }
 
-  static void illDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
   // ----------member data ---------------------------
