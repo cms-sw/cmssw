@@ -138,7 +138,7 @@ private:
     double pedSig_;
     double noise_;    
     HcalTimeSlew::BiasSetting slewFlavor_;    
-    const double overlapLimit = 1.0;
+    const double overlapLimit = 10.0; // nano seconds
 
     /// Keeps track of how many times each error code is produced when trying fits.
     mutable std::map<int,int> fitErrorCodes_;
