@@ -49,7 +49,7 @@
 
 
 namespace edm {
-  class ConfigurationDescriptions;
+  class ConfigurationDescriptions; 
 }
 
 //
