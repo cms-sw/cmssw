@@ -174,6 +174,8 @@ namespace {
 
 	class problem_t {
 	public:
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-const-variable"
 		static constexpr double infinity	= INFINITY;
 		// These are equivalent to the constants used by IBM ILOG
 		// CPLEX
@@ -183,6 +185,7 @@ namespace {
 		static const char equal			= 'E';
 		static const char greater_equal	= 'G';
 		static const char range			= 'R';
+#pragma clang diagnostic pop
 	protected:
 		bool _optimized;
 		bool _variable_named;
@@ -470,7 +473,10 @@ namespace {
 
 	class bpmpd_problem_t : public problem_t {
 	public:
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-const-variable"
 		static constexpr double infinity	= BPMPD_INFINITY_BOUND;
+#pragma clang diagnostic pop
 	protected:
 		double _objective_sense;
 		double _objective_value;
