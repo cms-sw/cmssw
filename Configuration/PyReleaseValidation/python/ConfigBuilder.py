@@ -1336,7 +1336,7 @@ class ConfigBuilder(object):
 				elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
 					self._options.inlineObjets+=','+name
 
-		if sequence == self.GENDefaultSeq or sequence == 'pgen_genonly' or ( sequence == 'pgen_hi' and 'generator' in genModules):
+		if sequence == self.GENDefaultSeq or sequence == 'pgen_genonly' or ( sequence == 'pgen_himix' or sequence == 'pgen_hi'):
 			if 'ProductionFilterSequence' in genModules and ('generator' in genModules or 'hiSignal' in genModules):
 				self.productionFilterSequence = 'ProductionFilterSequence'
 			elif 'generator' in genModules:
