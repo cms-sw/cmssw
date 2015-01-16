@@ -22,7 +22,7 @@ workflows[510]=['',['SoftQCDinelastic_13TeV_pythia8','HARVESTGEN']]
 
 # Matrix Element Generations (LHE Generation)
 
-# Hadronization (Hadronization of LHE)
+# Hadronization (LHE Generation + Hadronization)
 workflows[514]=['',['GGToH_13TeV_pythia8','HARVESTGEN']]
 workflows[515]=['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV_py8_taupinu',['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV','Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_taupinu','HARVESTGEN2']]
 workflows[516]=['',['WJetsLNutaupinu_13TeV_madgraph-pythia8','HARVESTGEN']]
