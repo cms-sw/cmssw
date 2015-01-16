@@ -6,15 +6,15 @@ class Photon(PhysicsObject ):
     '''
     def hOVERe(self):
 #        return self.physObj.full5x5_hadTowOverEm()
-        hadTowDepth1O = self.physObj.hadTowDepth1OverEm() * (self.physObj.superCluster().energy()/self.physObj.full5x5_e5x5() if self.physObj.full5x5_e5x5() else 1)
-        hadTowDepth2O = self.physObj.hadTowDepth2OverEm() * (self.physObj.superCluster().energy()/self.physObj.full5x5_e5x5() if self.physObj.full5x5_e5x5() else 1)
+        hadTowDepth1O = self.physObj.hadTowDepth1OverEm() * (self.physObj.superCluster().energy()/self.physObj.e5x5() if self.physObj.e5x5() else 1)
+        hadTowDepth2O = self.physObj.hadTowDepth2OverEm() * (self.physObj.superCluster().energy()/self.physObj.e5x5() if self.physObj.e5x5() else 1)
         return hadTowDepth1O + hadTowDepth2O
 
     def r9(self):
-        return self.physObj.full5x5_r9()
+        return self.physObj.r9()
 
     def sigmaIetaIeta(self):
-        return self.physObj.full5x5_sigmaIetaIeta()
+        return self.physObj.sigmaIetaIeta()
 
     def chargedHadronIso(self):
         return self.physObj.chargedHadronIso()
