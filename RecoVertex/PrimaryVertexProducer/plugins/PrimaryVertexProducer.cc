@@ -1,5 +1,8 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducer.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -270,6 +273,72 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   
 }
 
+void
+PrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("TrackLabel",edm::InputTag("generalTracks"))->setComment("");
+  desc.add<edm::InputTag>("beamSpotLabel",edm::InputTag("offlineBeamSpot"))->setComment("");
+  {
+    edm::ParameterSetDescription vpsd1;
+    vpsd1.add<double>("maxDistanceToBeam",1.0)->setComment("");
+    vpsd1.add<bool>("useBeamConstraint",false)->setComment("");
+    vpsd1.add<double>("minNdof",0.0)->setComment("");
+    vpsd1.add<std::string>("algorithm","AdaptiveVertexFitter")->setComment("");
+    vpsd1.add<std::string>("label","")->setComment("");
+    std::vector<edm::ParameterSet> temp1;
+    temp1.reserve(2);
+    {
+      edm::ParameterSet temp2;
+      temp1.addParameter<double>("maxDistanceToBeam",1.0);
+      temp1.addParameter<bool>("useBeamConstraint",false);
+      temp1.addParameter<double>("minNdof",0.0);
+      temp1.addParameter<std::string>("algorithm","AdaptiveVertexFitter");
+      temp1.addParameter<std::string>("label","");
+      temp1.push_back(temp2);
+    }
+    {
+      edm::ParameterSet temp2;
+      temp1.addParameter<double>("maxDistanceToBeam",1.0);
+      temp1.addParameter<bool>("useBeamConstraint",true);
+      temp1.addParameter<double>("minNdof",2.0);
+      temp1.addParameter<std::string>("algorithm","AdaptiveVertexFitter");
+      temp1.addParameter<std::string>("label","WithBS");
+      temp1.push_back(temp2);
+    }
+
+    desc.addVPSet("vertexCollections",vpsd1,temp1)->setComment("");
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("maxNormalizedChi2",20.0)->setComment("");
+    psd0.add<double>("minPt",0.0)->setComment("");
+    psd0.add<std::string>("algorithm","filter")->setComment("");
+    psd0.add<double>("maxD0Significance",5.0)->setComment("");
+    psd0.add<std::string>("trackQuality","any")->setComment("");
+    psd0.add<int>("minPixelLayersWithHits",2)->setComment("");
+    psd0.add<int>("minSiliconLayersWithHits",5)->setComment("");
+    desc.add<edm::ParameterSetDescription>("TkFilterParameters",psd0)->setComment("");
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("vertexSize",0.01)->setComment("");
+      psd1.add<double>("d0CutOff",3.0)->setComment("");
+      psd1.add<double>("Tmin",4.0)->setComment("");
+      psd1.add<double>("dzCutOff",4.0)->setComment("");
+      psd1.add<double>("coolingFactor",0.6)->setComment("");
+      psd0.add<edm::ParameterSetDescription>("TkDAClusParameters",psd1)->setComment("");
+    }
+    psd0.add<std::string>("algorithm","DA_vect")->setComment("");
+    desc.add<edm::ParameterSetDescription>("TkClusParameters",psd0)->setComment("");
+  }
+  desc.addUntracked<bool>("verbose",false)->setComment("");
+
+  descriptions.add("offlinePrimaryVertices",desc);
+  descriptions.setComment("");
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(PrimaryVertexProducer);

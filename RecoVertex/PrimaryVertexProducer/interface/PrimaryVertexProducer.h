@@ -47,6 +47,11 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
 #include "RecoVertex/VertexTools/interface/VertexCompatibleWithBeam.h"
 
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 //
 // class declaration
 //
@@ -60,6 +65,8 @@ public:
 
   // access to config
   edm::ParameterSet config() const { return theConfig; }
+
+  static void illDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
   // ----------member data ---------------------------
