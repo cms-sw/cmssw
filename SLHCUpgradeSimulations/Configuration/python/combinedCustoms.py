@@ -236,6 +236,10 @@ def cust_2023SHCal(process):
         process.ecalEndcapClusterTaskExtras.EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEK")
         process.ecalEndcapRecoSummary.recHitCollection_EE = cms.InputTag("ecalRecHit","EcalRecHitsEK")
 
+    if hasattr(process,'FEVTDEBUGHLTEventContent'):
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_particleFlowRecHitHBHE_*_*')
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_particleFlowClusterHBHE_*_*')
+
     return process
 
 def cust_2023SHCalNoExtPix(process):
