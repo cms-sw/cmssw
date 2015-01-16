@@ -154,11 +154,14 @@ class HandlerTemplate: public BaseHandler {
                 booker.setCurrentFolder(m_dirname);
                 m_isSetup = true;
                 for (size_t i = 0; i < m_drawables.size(); ++i){
-                    std::string histoName = m_dqmhistolabel + "_" +m_drawables.at(i).getParameter<std::string>("name");
-                    std::string expression = m_drawables.at(i).getParameter<std::string>("expression");
-                    int bins =  m_drawables.at(i).getParameter<int>("bins");
-                    double rangeLow  =  m_drawables.at(i).getParameter<double>("min");
-                    double rangeHigh =  m_drawables.at(i).getParameter<double>("max");
+                    // XXX 'template' keyword (in 5 lines below) is required for LLVM/Clang (< pre-3.6, 65d8b4c)
+                    // The keyword informs the compiler name getParameter<>() should be looked up as a template
+                    // See PR22247: http://llvm.org/bugs/show_bug.cgi?id=22247
+                    std::string histoName = m_dqmhistolabel + "_" +m_drawables.at(i).template getParameter<std::string>("name");
+                    std::string expression = m_drawables.at(i).template getParameter<std::string>("expression");
+                    int bins =  m_drawables.at(i).template getParameter<int>("bins");
+                    double rangeLow  =  m_drawables.at(i).template getParameter<double>("min");
+                    double rangeHigh =  m_drawables.at(i).template getParameter<double>("max");
 
                     m_histos[histoName] =  booker.book1D(histoName, histoName, bins, rangeLow, rangeHigh);
                     StringObjectFunction<std::vector<TOutputCandidateType> > * func 
