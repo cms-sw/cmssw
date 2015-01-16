@@ -34,6 +34,13 @@ namespace cond {
 		   "createPayload" );
   }
 
+  
+  template <> HcalQIEDataExtended* createPayload<HcalQIEDataExtended>( const std::string& payloadTypeName ){
+    if( payloadTypeName == "HcalQIEDataExtended" ) return new HcalQIEDataExtended(0);
+    throwException(std::string("Type mismatch, target object is type \"")+payloadTypeName+"\"",
+		   "createPayload" );
+  }
+  
 }
 
 REGISTER_PLUGIN(HcalPedestalsRcd,HcalPedestals);
@@ -44,6 +51,7 @@ REGISTER_PLUGIN(HcalElectronicsMapRcd,HcalElectronicsMap);
 REGISTER_PLUGIN(HcalChannelQualityRcd,HcalChannelQuality);
 REGISTER_PLUGIN(HcalQIEDataRcd,HcalQIEData);
 REGISTER_PLUGIN(HcalCalibrationQIEDataRcd,HcalCalibrationQIEData);
+REGISTER_PLUGIN(HcalQIEDataExtendedRcd,HcalQIEDataExtended);
 REGISTER_PLUGIN(HcalZSThresholdsRcd,HcalZSThresholds);
 REGISTER_PLUGIN(HcalRespCorrsRcd,HcalRespCorrs);
 REGISTER_PLUGIN(HcalLUTCorrsRcd,HcalLUTCorrs);

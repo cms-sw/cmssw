@@ -21,6 +21,7 @@ class HcalPedestalWidthsRcd;
 class HcalGainsRcd;
 class HcalGainWidthsRcd;
 class HcalQIEDataRcd;
+class HcalQIEDataExtendedRcd;
 class HcalChannelQualityRcd;
 class HcalElectronicsMapRcd;
 class HcalRespCorrsRcd;
@@ -60,6 +61,7 @@ protected:
   std::auto_ptr<HcalGains> produceGains (const HcalGainsRcd& rcd);
   std::auto_ptr<HcalGainWidths> produceGainWidths (const HcalGainWidthsRcd& rcd);
   std::auto_ptr<HcalQIEData> produceQIEData (const HcalQIEDataRcd& rcd);
+  std::auto_ptr<HcalQIEDataExtended> produceQIEDataExtended (const HcalQIEDataExtendedRcd& rcd);
   std::auto_ptr<HcalChannelQuality> produceChannelQuality (const HcalChannelQualityRcd& rcd);
   std::auto_ptr<HcalElectronicsMap> produceElectronicsMap (const HcalElectronicsMapRcd& rcd);
 

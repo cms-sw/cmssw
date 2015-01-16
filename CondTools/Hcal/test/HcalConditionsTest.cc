@@ -24,6 +24,7 @@ R.Ofierzynski - 2.Oct. 2007
 
 #include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
+#include "CondFormats/DataRecord/interface/HcalQIEDataExtendedRcd.h"
 #include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
@@ -88,6 +89,7 @@ namespace edmtest
 
     dumpIt(new HcalElectronicsMap, new HcalElectronicsMapRcd, e,context,"ElectronicsMap");
     dumpIt(new HcalQIEData, new HcalQIEDataRcd, e,context,"QIEData");
+    dumpIt(new HcalQIEDataExtended, new HcalQIEDataExtendedRcd, e,context,"QIEDataExtended");
     dumpIt(new HcalPedestals(false), new HcalPedestalsRcd, e,context,"Pedestals");
     dumpIt(new HcalPedestalWidths(false), new HcalPedestalWidthsRcd, e,context,"PedestalWidths");
     dumpIt(new HcalGains, new HcalGainsRcd, e,context,"Gains");

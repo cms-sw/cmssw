@@ -54,6 +54,7 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::PFCorrsCallback &
 			  &HcalDbProducer::timeCorrsCallback &
 			  &HcalDbProducer::QIEDataCallback &
+			  &HcalDbProducer::QIEDataExtendedCallback &
 			  &HcalDbProducer::gainWidthsCallback &
 			  &HcalDbProducer::channelQualityCallback &
 			  &HcalDbProducer::zsThresholdsCallback &
@@ -199,6 +200,25 @@ void HcalDbProducer::QIEDataCallback (const HcalQIEDataRcd& fRecord) {
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIEData")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL QIEData set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(mQIEData));
+  }
+}
+
+void HcalDbProducer::QIEDataExtendedCallback (const HcalQIEDataExtendedRcd& fRecord) {
+  edm::ESTransientHandle <HcalQIEDataExtended> item;
+  fRecord.get (item);
+
+  mQIEDataExtended.reset( new HcalQIEDataExtended(*item));
+
+
+  edm::ESHandle<HcalTopology> htopo;
+  fRecord.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  mQIEDataExtended->setTopo(topo);
+
+  mService->setData (mQIEDataExtended.get());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIEDataExtended")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL QIEDataExtended set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mQIEDataExtended));
   }
 }
 

@@ -14,6 +14,7 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
+#include "CondFormats/HcalObjects/interface/HcalQIEDataExtended.h"
 #include "CondFormats/HcalObjects/interface/HcalCalibrationQIEData.h"
 
 

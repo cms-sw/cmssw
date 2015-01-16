@@ -1236,6 +1236,90 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObjec
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEDataExtended* fObject) {
+  char buffer [1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()<1) continue;
+    if (items [0] == "SHAPE") { // basic shape
+      //this shape keyword is obsolete //cmora says what??
+    }
+    else { // QIE parameters
+      if (items.size () < 38) {
+	edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 38 items: eta, phi, depth, subdet, QIEbarcode, QIEchannel, 4 capId x 4 Ranges x offsets, 4 capId x 4 Ranges x slopes" << std::endl;
+	continue;
+      }
+      DetId id = getId (items);
+      fObject->sort (); //this does nothing c.m.h.
+      //      try {
+      //      fObject->getCoder (id);
+      //      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
+	//      }
+//      catch (cms::Exception& e) {
+	HcalQIECoderExtended coder (id.rawId ());
+	coder.setQIEId(atof(items[4].c_str()),atof(items[5].c_str()));
+	int index = 6;
+	for (unsigned capid = 0; capid < 4; capid++) {
+	  for (unsigned range = 0; range < 4; range++) {
+	    coder.setOffset (capid, range, atof (items [index++].c_str ()));
+	  }
+	}
+	for (unsigned capid = 0; capid < 4; capid++) {
+	  for (unsigned range = 0; range < 4; range++) {
+	    coder.setSlope (capid, range, atof (items [index++].c_str ()));
+	  }
+	}
+	if (items.size()>38)
+	  coder.setQIEIndex(atoi(items[index++].c_str()));
+
+	fObject->addCoder (coder);
+//      }
+    }
+  }
+  fObject->sort ();
+  return true;
+}
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEDataExtended& fObject) {
+  std::cout <<"dumping object\n";
+  char buffer [1024];
+
+  fOutput << "# QIE data" << std::endl;
+  sprintf (buffer, "# %15s %15s %15s %15s %20s %20s %36s %36s %36s %36s %36s %36s %36s %36s\n", 
+	   "eta", "phi", "dep", "det", "QIEbarcode","QIEchannel",
+	   "4 x offsets cap0", "4 x offsets cap1", "4 x offsets cap2", "4 x offsets cap3",
+	   "4 x slopes cap0", "4 x slopes cap1", "4 x slopes cap2", "4 x slopes cap3");
+  fOutput << buffer;
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    const HcalQIECoderExtended* coder = fObject.getCoder (*channel);
+    dumpId (fOutput, *channel);
+    sprintf(buffer," %15d %15d ",coder->getQIEbarcode(),coder->getQIEchannel());
+    fOutput << buffer;
+    for (unsigned capid = 0; capid < 4; capid++) {
+      for (unsigned range = 0; range < 4; range++) {
+	sprintf (buffer, " %8.5f", coder->offset (capid, range));
+	fOutput << buffer;
+      }
+    }
+    for (unsigned capid = 0; capid < 4; capid++) {
+      for (unsigned range = 0; range < 4; range++) {
+	sprintf (buffer, " %8.5f", coder->slope (capid, range));
+	fOutput << buffer;
+      }
+    }
+    sprintf (buffer, " %2d", coder->qieIndex());
+    fOutput << buffer;
+    fOutput << std::endl;
+  }
+  return true;
+}
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCalibrationQIEData* fObject) {
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {

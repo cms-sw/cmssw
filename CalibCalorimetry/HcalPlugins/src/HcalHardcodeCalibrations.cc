@@ -191,6 +191,10 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceQIEData);
       findingRecord <HcalQIEDataRcd> ();
     }
+    if ((*objectName == "QIEDataExtended") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceQIEDataExtended);
+      findingRecord <HcalQIEDataExtendedRcd> ();
+    }
     if ((*objectName == "ChannelQuality") || (*objectName == "channelQuality") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceChannelQuality);
       findingRecord <HcalChannelQualityRcd> ();
@@ -370,6 +374,29 @@ std::auto_ptr<HcalQIEData> HcalHardcodeCalibrations::produceQIEData (const HcalQ
   }
   return result;
 }
+
+
+std::auto_ptr<HcalQIEDataExtended> HcalHardcodeCalibrations::produceQIEDataExtended (const HcalQIEDataExtendedRcd& rcd) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceQIEDataExtended-> ...";
+
+  /*
+  std::cout << std::endl << ">>>  HcalHardcodeCalibrations::produceQIEDataExtended"
+	    << std::endl;  
+  */
+
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+
+  std::auto_ptr<HcalQIEDataExtended> result (new HcalQIEDataExtended (topo));
+  std::vector <HcalGenericDetId> cells = allCells(*topo);
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalQIECoderExtended coder = HcalDbHardcode::makeQIECoderExtended (*cell);
+    result->addCoder (coder);
+  }
+  return result;
+}
+
 
 std::auto_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQuality (const HcalChannelQualityRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceChannelQuality-> ...";

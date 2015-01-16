@@ -18,6 +18,9 @@ namespace CondFormats_HcalObjects {
  
     HcalQIEData myqie();
     std::vector<HcalQIECoder> myqievec;
+
+    HcalQIEDataExtended myqieextended();
+    std::vector<HcalQIECoderExtended> myqieextendedvec;
  
     HcalCalibrationQIEData mycalqie();
     std::vector<HcalCalibrationQIECoder> mycalqieVec;

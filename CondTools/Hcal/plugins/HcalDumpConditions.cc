@@ -94,6 +94,8 @@ namespace edmtest
       dumpIt(new HcalElectronicsMap, new HcalElectronicsMapRcd, e,context,"ElectronicsMap");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIEData")) != mDumpRequest.end())
       dumpIt(new HcalQIEData(&(*topology)), new HcalQIEDataRcd, e,context,"QIEData");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIEDataExtended")) != mDumpRequest.end())
+      dumpIt(new HcalQIEData(&(*topology)), new HcalQIEDataRcd, e,context,"QIEDataExtended");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Pedestals")) != mDumpRequest.end())
       dumpIt(new HcalPedestals(&(*topology)), new HcalPedestalsRcd, e,context,"Pedestals");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PedestalWidths")) != mDumpRequest.end())

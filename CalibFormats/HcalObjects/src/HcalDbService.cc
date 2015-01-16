@@ -17,6 +17,7 @@ HcalDbService::HcalDbService (const edm::ParameterSet& cfg):
   mPedestals (0), mPedestalWidths (0),
   mGains (0), mGainWidths (0),  
   mQIEData(0),
+  mQIEDataExtended(0),
   mElectronicsMap(0),
   mRespCorrs(0),
   mL1TriggerObjects(0),
@@ -51,7 +52,7 @@ const HcalCalibrationWidths& HcalDbService::getHcalCalibrationWidths(const HcalG
 
 void HcalDbService::buildCalibrations() const {
   // we use the set of ids for pedestals as the master list
-  if ((!mPedestals) || (!mGains) || (!mQIEData) || (!mRespCorrs) || (!mTimeCorrs) || (!mLUTCorrs) ) return;
+  if ((!mPedestals) || (!mGains) || (!mQIEData) || (!mQIEDataExtended) || (!mRespCorrs) || (!mTimeCorrs) || (!mLUTCorrs) ) return;
 
   if (!mCalibSet.load(std::memory_order_acquire)) {
 
@@ -82,7 +83,7 @@ void HcalDbService::buildCalibrations() const {
 
 void HcalDbService::buildCalibWidths() const {
   // we use the set of ids for pedestal widths as the master list
-  if ((!mPedestalWidths) || (!mGainWidths) || (!mQIEData) ) return;
+  if ((!mPedestalWidths) || (!mGainWidths) || (!mQIEData) || (!mQIEDataExtended) ) return;
 
   if (!mCalibWidthSet.load(std::memory_order_acquire)) {
 
@@ -223,6 +224,13 @@ const HcalQIECoder* HcalDbService::getHcalCoder (const HcalGenericDetId& fId) co
   return 0;
 }
 
+const HcalQIECoderExtended* HcalDbService::getHcalCoderExtended (const HcalGenericDetId& fId) const {
+  if (mQIEDataExtended) {
+    return mQIEDataExtended->getCoder (fId);
+  }
+  return 0;
+}
+
 const HcalQIEShape* HcalDbService::getHcalShape (const HcalGenericDetId& fId) const {
   if (mQIEData) {
     return &mQIEData->getShape (fId);
@@ -233,6 +241,13 @@ const HcalQIEShape* HcalDbService::getHcalShape (const HcalGenericDetId& fId) co
 const HcalQIEShape* HcalDbService::getHcalShape (const HcalQIECoder *coder) const {
   if (mQIEData) {
     return &mQIEData->getShape(coder);
+  }
+  return 0;
+}
+
+const HcalQIEShape* HcalDbService::getHcalShape (const HcalQIECoderExtended *coder) const {
+  if (mQIEDataExtended) {
+    return &mQIEDataExtended->getShape(coder);
   }
   return 0;
 }

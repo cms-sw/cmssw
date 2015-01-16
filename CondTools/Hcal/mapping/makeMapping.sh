@@ -14,7 +14,7 @@ CORAL_AUTH_PASSWORD=blah
 export CORAL_AUTH_USER
 export CORAL_AUTH_PASSWORD
 
-#for object in HcalPedestals HcalPedestalWidths HcalGains HcalGainWidths HcalQIEData HcalElectronicsMap HcalChannelQuality
+#for object in HcalPedestals HcalPedestalWidths HcalGains HcalGainWidths HcalQIEData HcalQIEDataExtended HcalElectronicsMap HcalChannelQuality
 for object in HcalPedestals HcalPedestalWidths HcalGains HcalGainWidths HcalElectronicsMap HcalChannelQuality
 do
     echo processing $object...

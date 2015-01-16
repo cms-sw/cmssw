@@ -55,6 +55,10 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceQIEData);
       findingRecord <HcalQIEDataRcd> ();
     }
+    else if (objectName == "QIEDataExtended") {
+      setWhatProduced (this, &HcalTextCalibrations::produceQIEDataExtended);
+      findingRecord <HcalQIEDataExtendedRcd> ();
+    }
     else if (objectName == "ChannelQuality") {
       setWhatProduced (this, &HcalTextCalibrations::produceChannelQuality);
       findingRecord <HcalChannelQualityRcd> ();
@@ -134,7 +138,7 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
     else {
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
-		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap "
+		<< "Pedestals PedestalWidths Gains GainWidths QIEData QIEDataExtended ChannelQuality ElectronicsMap "
 		<< "ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
 		<< "ValidationCorrs LutMetadata DcsValues DcsMap CholeskyMatrices CovarianceMatrices "
 		<< "RecoParams LongRecoParams FlagHFDigiTimeParams MCParams "
@@ -227,6 +231,13 @@ std::auto_ptr<HcalQIEData> HcalTextCalibrations::produceQIEData (const HcalQIEDa
   rcd.getRecord<IdealGeometryRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalQIEData> (topo,mInputs ["QIEData"]);
+}
+
+std::auto_ptr<HcalQIEDataExtended> HcalTextCalibrations::produceQIEDataExtended (const HcalQIEDataExtendedRcd& rcd) {
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalQIEDataExtended> (topo,mInputs ["QIEDataExtended"]);
 }
 
 std::auto_ptr<HcalChannelQuality> HcalTextCalibrations::produceChannelQuality (const HcalChannelQualityRcd& rcd) {
