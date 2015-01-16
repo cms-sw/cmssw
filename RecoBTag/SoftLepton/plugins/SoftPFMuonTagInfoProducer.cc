@@ -1,6 +1,6 @@
 // * Author: Alberto Zucchetta
 // * Mail: a.zucchetta@cern.ch
-// * November 6, 2014
+// * January 16, 2015
 
 #include "RecoBTag/SoftLepton/plugins/SoftPFMuonTagInfoProducer.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
