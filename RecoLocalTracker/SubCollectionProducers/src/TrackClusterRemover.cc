@@ -22,6 +22,8 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace {
 
@@ -30,6 +32,8 @@ namespace {
     TrackClusterRemover(const edm::ParameterSet& iConfig) ;
     ~TrackClusterRemover(){}
     void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   private:
  
 
@@ -198,6 +202,24 @@ namespace {
 
 
 }
+
+void
+TrackClusterRemover::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("stripClusters",edm::InputTag("siStripClusters"));
+  desc.add<edm::InputTag>("oldClusterRemovalInfo",edm::InputTag(""));
+  desc.add<edm::InputTag>("trajectories",edm::InputTag("tracks"));
+  desc.add<edm::InputTag>("overrideTrkQuals",edm::InputTag(""));
+  desc.add<edm::InputTag>("pixelClusters",edm::InputTag("siPixelClusters"));
+  desc.add<int>("minNumberOfLayersWithMeasBeforeFiltering",0);
+  desc.add<double>("maxChi2",30.0);
+  desc.add<std::string>("TrackQuality","highPurity");
+
+  descriptions.add("trackClusterRemover",desc);
+  descriptions.setComment("");
+}
+
 
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
