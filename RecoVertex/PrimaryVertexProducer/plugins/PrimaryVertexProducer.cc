@@ -290,20 +290,20 @@ PrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
     temp1.reserve(2);
     {
       edm::ParameterSet temp2;
-      temp2.addParameter<double>("maxDistanceToBeam",1.0)->setComment("");
-      temp2.addParameter<bool>("useBeamConstraint",false)->setComment("");
-      temp2.addParameter<double>("minNdof",0.0)->setComment("");
-      temp2.addParameter<std::string>("algorithm","AdaptiveVertexFitter")->setComment("");
-      temp2.addParameter<std::string>("label","")->setComment("");
+      temp2.addParameter<double>("maxDistanceToBeam",1.0);
+      temp2.addParameter<bool>("useBeamConstraint",false);
+      temp2.addParameter<double>("minNdof",0.0);
+      temp2.addParameter<std::string>("algorithm","AdaptiveVertexFitter");
+      temp2.addParameter<std::string>("label","");
       temp1.push_back(temp2);
     }
     {
       edm::ParameterSet temp2;
-      temp2.addParameter<double>("maxDistanceToBeam",1.0)->setComment("");
-      temp2.addParameter<bool>("useBeamConstraint",true)->setComment("");
-      temp2.addParameter<double>("minNdof",2.0)->setComment("");
-      temp2.addParameter<std::string>("algorithm","AdaptiveVertexFitter")->setComment("");
-      temp2.addParameter<std::string>("label","WithBS")->setComment("");
+      temp2.addParameter<double>("maxDistanceToBeam",1.0);
+      temp2.addParameter<bool>("useBeamConstraint",true);
+      temp2.addParameter<double>("minNdof",2.0);
+      temp2.addParameter<std::string>("algorithm","AdaptiveVertexFitter");
+      temp2.addParameter<std::string>("label","WithBS");
       temp1.push_back(temp2);
     }
 
