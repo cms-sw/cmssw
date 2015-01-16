@@ -1339,7 +1339,7 @@ class ConfigBuilder(object):
 				elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
 					self._options.inlineObjets+=','+name
 
-		if sequence == self.GENDefaultSeq or sequence == 'pgen_genonly' or ( sequence == 'pgen_hi' and 'generator' in genModules):
+		if sequence == self.GENDefaultSeq or sequence == 'pgen_genonly' or ( sequence == 'pgen_himix' or sequence == 'pgen_hi'):
 			if 'ProductionFilterSequence' in genModules and ('generator' in genModules or 'hiSignal' in genModules):
 				self.productionFilterSequence = 'ProductionFilterSequence'
 			elif 'generator' in genModules:
@@ -1469,6 +1469,7 @@ class ConfigBuilder(object):
 	    if "DIGIPREMIX" in self.stepMap.keys():
 		    self.executeAndRemember("process.esDigiToRaw.Label = cms.string('mix')")  ##terrible hack - bypass zero suppression
 		    self.executeAndRemember("process.SiStripDigiToRaw.FedReadoutMode = cms.string('PREMIX_RAW')") ##special readout mode for StripTracker
+
             return
 
     def prepare_REPACK(self, sequence = None):
