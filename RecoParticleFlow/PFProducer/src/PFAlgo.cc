@@ -52,6 +52,69 @@ using namespace boost;
 
 typedef std::list< reco::PFBlockRef >::iterator IBR;
 
+namespace {
+  // check if this the track is close to another
+  // cluster with better energy residual  
+  bool check_hgcal_link(const reco::PFBlock& block,
+			const reco::PFBlock::LinkData& linkData,
+			const unsigned iHGC,
+			const unsigned iTrack,
+			const bool debug) {
+    constexpr double dmax = std::numeric_limits<double>::max();
+    typedef std::multimap<double, unsigned> linkmap;
+    typedef linkmap::iterator ilink;
+    
+    bool result = true;
+
+    const reco::PFBlockElementCluster* const hgcElem = 
+      static_cast<const reco::PFBlockElementCluster*>(&(block.elements()[iHGC]));
+    const reco::PFBlockElementTrack* const tkElem = 
+      static_cast<const reco::PFBlockElementTrack*>(&(block.elements()[iTrack]));
+
+    const double eClus = hgcElem->clusterRef()->energy();
+    const double pTrack = tkElem->trackRef()->p();
+    const double inputResidual = ( eClus - pTrack)/pTrack;
+
+    linkmap otherTracks;
+    block.associatedElements( iHGC, linkData,
+                              otherTracks ,
+                              reco::PFBlockElement::TRACK,
+			      reco::PFBlock::LINKTEST_ALL );
+    // let's see first if there's another track with better energy
+    // residual 
+    double bestResidual(dmax);
+    const reco::PFBlockElementTrack* bestOtherTrack = nullptr;
+    for( ilink itrk = otherTracks.begin(); itrk != otherTracks.end(); ++itrk ) {
+      if( itrk->second == iTrack ) continue;
+      const reco::PFBlockElementTrack* thisTrack = 
+	static_cast<const reco::PFBlockElementTrack*>(&(block.elements()[itrk->second]));
+      const double pThisTrack = thisTrack->trackRef()->p();
+      const double residual = ( eClus - pThisTrack ) / pThisTrack;
+      if( std::abs(residual) < std::abs(bestResidual) ) {
+	bestResidual = residual;
+	bestOtherTrack = thisTrack;
+      }
+    }
+
+    if( bestResidual != dmax ) {
+      if( debug )
+	std::cout << "Found best residual from closer track: " << bestResidual << ' ' << *bestOtherTrack << std::endl;
+
+      if( debug ) {
+	if( std::abs(inputResidual) < std::abs(bestResidual) ) {
+	  std::cout << "input residual " << inputResidual << " better than " << bestResidual << " !" << std::endl;
+	} else {
+	  std::cout << "input residual " << inputResidual << " worse than " << bestResidual << " !" << std::endl;
+	}      
+      }
+      // if a closer track has a better residual then we do not link this track
+      if( std::abs(inputResidual) > std::abs(bestResidual) ) result = false;
+
+    }
+
+    return result;
+  }
+}
 
 
 PFAlgo::PFAlgo()
@@ -1351,6 +1414,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
     // In case several HCAL elements are linked to this track, 
     // unlinking all of them except the closest. 
+    // for HGCAL you also need to consider the best energy residual
+    // since clusters can be dense about the track
+    // -- this could be mitigated to some extent using more elaborate 
+    //    initial linking strategies
     for(IE ie = hcalElems.begin(); ie != hcalElems.end(); ++ie ) {
       
       unsigned index = ie->second;
@@ -1365,6 +1432,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       assert( type == PFBlockElement::HCAL || 
 	      type == PFBlockElement::HGC_HCALF || type == PFBlockElement::HGC_HCALB );
       
+      bool satifiesHGCAL_linking = true;
+      if( type == PFBlockElement::HGC_HCALF || 
+	  type == PFBlockElement::HGC_HCALB    ) {
+	satifiesHGCAL_linking = check_hgcal_link(block,linkData,index,iTrack,debug_);
+      }
+
       // all hcal clusters except the closest 
       // will be unlinked from the track
       if( !hcalFound && type == PFBlockElement::HCAL ) { // closest hcal
@@ -1373,12 +1446,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
         hcalFound = true;        
         // active[index] = false;
         // hcalUsed.push_back( index );
-      } else if(!hgHcalFound[0] && type == PFBlockElement::HGC_HCALF ) { // HEF
+      } else if(!hgHcalFound[0] && type == PFBlockElement::HGC_HCALF && satifiesHGCAL_linking) { // HEF
 	if(debug_) 
-          cout<<"\t\tclosest HGCHEF cluster, doing nothing"<<endl;        
-        hgHcalFound[0] = true;
-      } else if(!hgHcalFound[1] && type == PFBlockElement::HGC_HCALB ) { // HEB 
-	if(debug_) 
+          cout<<"\t\tclosest HGCHEF cluster, doing nothing"<<endl;     
+	hgHcalFound[0] = true;	
+      } else if(!hgHcalFound[1] && type == PFBlockElement::HGC_HCALB && satifiesHGCAL_linking) { // HEB 
+	if(debug_ ) 
           cout<<"\t\tclosest HGCHEB cluster, doing nothing"<<endl;        
         hgHcalFound[1] = true;
       } else { // other associated hcal
@@ -1387,7 +1460,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
           cout<<"\t\tsecondary hcal cluster. unlinking"<<endl;
         block.setLink( iTrack, index, -1., linkData,
                        PFBlock::LINKTEST_RECHIT );
-      }
+      }      
+
     } //loop hcal elements   
   } // end of loop 1 on elements iEle of any type
 

@@ -411,17 +411,25 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     const double hadEnergy = cluster.energy();
     cluster.setEmEnergy(emEnergy);
     cluster.setHadEnergy(hadEnergy);
-    if( cluster.recHitFractions().size() < 5 ) continue;
+    if( cluster.recHitFractions().size() < 5 ) continue; // kill noise
     if( i >= usable_clusters.size() ) {
       // by definition these are non-EM-like clusters
       cluster.setEnergy(hadEnergy);
       output.push_back(cluster);
     } else if( i < usable_clusters.size() && 
 	       (usable_clusters[i] || em_ID_clusters[i]) ) {
-      if( !em_ID_clusters[i] ) {
-	cluster.setEnergy(hadEnergy);
-      } else {
-	cluster.setEnergy(emEnergy);
+      if( cluster.size() > 20 ) {
+	if( !em_ID_clusters[i] ) {
+	  cluster.setEnergy(hadEnergy);
+	} else {
+	  cluster.setEnergy(emEnergy);
+	}
+      } else { // the calibrations at present do not extend well to low energy
+	if( cluster.layer() == PFLayer::HGC_ECAL ) {
+	  cluster.setEnergy(emEnergy);
+	} else {
+	  cluster.setEnergy(hadEnergy);
+	}
       }
       output.push_back(cluster);
     }
