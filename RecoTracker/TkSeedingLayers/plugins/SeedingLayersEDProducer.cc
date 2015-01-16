@@ -9,6 +9,8 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class dso_hidden SeedingLayersEDProducer: public edm::stream::EDProducer<> {
 public:
@@ -16,7 +18,9 @@ public:
   ~SeedingLayersEDProducer();
 
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-
+  
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  
 private:
   SeedingLayerSetsBuilder builder_;
 };
@@ -46,5 +50,57 @@ void SeedingLayersEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
   iEvent.put(prod);
 }
+
+void
+SeedingLayersEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  {
+    std::vector<std::string> temp1;
+    temp1.reserve(0);
+    desc.add<std::vector<std::string> >("layerList",temp1);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    desc.add<edm::ParameterSetDescription>("MTOB",psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    desc.add<edm::ParameterSetDescription>("TEC",psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    desc.add<edm::ParameterSetDescription>("MTID",psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    desc.add<edm::ParameterSetDescription>("FPix",psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    desc.add<edm::ParameterSetDescription>("MTEC",psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    desc.add<edm::ParameterSetDescription>("MTIB",psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    desc.add<edm::ParameterSetDescription>("TID",psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    desc.add<edm::ParameterSetDescription>("TOB",psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    desc.add<edm::ParameterSetDescription>("BPix",psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    desc.add<edm::ParameterSetDescription>("TIB",psd0);
+  }
+  descriptions.add("seedingLayersEDProducer",desc);
+}
+
 
 DEFINE_FWK_MODULE(SeedingLayersEDProducer);
