@@ -7,6 +7,9 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include <iostream>
  
 //
@@ -74,6 +77,19 @@ bool DetectorStateFilter::filter( edm::Event & evt, edm::EventSetup const& es) {
   }
   return detectorOn_;
 }
+
+void
+DetectorStateFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.addUntracked<edm::InputTag>("DcsStatusLabel",edm::InputTag("scalersRawToDigi"));
+  desc.addUntracked<std::string>("DetectorType","sistrip");
+  desc.addUntracked<bool>("DebugOn",false);
+
+  descriptions.add("detectorStateFilter",desc);
+  descriptions.setComment("");
+}
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(DetectorStateFilter);
