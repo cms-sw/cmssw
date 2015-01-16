@@ -179,7 +179,7 @@ PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPul
    hybridfitter = new PSFitter::HybridMinimizer(PSFitter::HybridMinimizer::kMigrad);
    // Suppress all output to stdout and assume that the calling code makes
    // use of the fitErrorCodeFrequency method to report errors.
-   //hybridfitter->SuppressMessages();
+   hybridfitter->SuppressMessages();
 
    iniTimesArr = { {-100,-75,-50,-25,0,25,50,75,100,125} };
 }
