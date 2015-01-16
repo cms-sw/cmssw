@@ -56,6 +56,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class MagneticField;
 namespace cms
 {
@@ -86,6 +90,8 @@ namespace cms
     void run(edm::Handle<edmNew::DetSetVector<SiPixelCluster> >  inputhandle,
 	     SiPixelRecHitCollectionNew & output,
 	     edm::ESHandle<TrackerGeometry> & geom);
+
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   private:
     edm::ParameterSet conf_;
