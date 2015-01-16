@@ -300,20 +300,20 @@
     </SpecPar>
 
 <SpecPar name="OuterTrackerPixelBarrelLayerPar">
-<PartSelector path="//Layer1"/>
+<!--<PartSelector path="//Layer1"/>-->
 <PartSelector path="//Layer2"/>
 <PartSelector path="//Layer3"/>
 <PartSelector path="//Layer4"/>
-<!--<PartSelector path="//Layer5"/>-->
+<PartSelector path="//Layer5"/>
 <PartSelector path="//Layer6"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelLayer"/>
 </SpecPar>
 <SpecPar name="OuterTrackerPixelBarrelLadderPar">
-<PartSelector path="//Rod1"/>
+<!--<PartSelector path="//Rod1"/>-->
 <PartSelector path="//Rod2"/>
 <PartSelector path="//Rod3"/>
 <PartSelector path="//Rod4"/>
-<!--<PartSelector path="//Rod5"/>-->
+<PartSelector path="//Rod5"/>
 <PartSelector path="//Rod6"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelLadder"/>
 </SpecPar>
@@ -403,7 +403,7 @@
 <PartSelector path="//Ring15Disc10"/>
 <Parameter name="TkDDDStructure" value="PixelEndcapPanel"/>
 </SpecPar>
-<SpecPar name="BModule1Layer1INNERactivePar">
+<!--<SpecPar name="BModule1Layer1INNERactivePar">
 <PartSelector path="//BModule1Layer1INNERactive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
 <Parameter name="PixelROCRows" value="240"/>
@@ -914,7 +914,7 @@
 <Parameter name="PixelROCCols" value="1"/>
 <Parameter name="PixelROC_X" value="4"/>
 <Parameter name="PixelROC_Y" value="2"/>
-</SpecPar>
+</SpecPar>-->
 <SpecPar name="BModule1Layer2INNERactivePar">
 <PartSelector path="//BModule1Layer2INNERactive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
@@ -1987,7 +1987,7 @@
 <Parameter name="PixelROC_X" value="8"/>
 <Parameter name="PixelROC_Y" value="2"/>
 </SpecPar>
-<!--<SpecPar name="BModule1Layer5INNERactivePar">
+<SpecPar name="BModule1Layer5INNERactivePar">
 <PartSelector path="//BModule1Layer5INNERactive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
 <Parameter name="PixelROCRows" value="127"/>
@@ -2178,7 +2178,7 @@
 <Parameter name="PixelROCCols" value="1"/>
 <Parameter name="PixelROC_X" value="8"/>
 <Parameter name="PixelROC_Y" value="2"/>
-</SpecPar>-->
+</SpecPar>
 <SpecPar name="BModule1Layer6INNERactivePar">
 <PartSelector path="//BModule1Layer6INNERactive"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
