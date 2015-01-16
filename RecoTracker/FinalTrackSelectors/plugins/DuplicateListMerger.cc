@@ -339,11 +339,12 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       tx.setResiduals(track.residuals());
       // fill TrackingRecHits
       unsigned nh1=track.recHitsSize();
+      auto const firstTrackIndex = outputTrkHits->size();
       for ( unsigned ih=0; ih<nh1; ++ih ) { 
 	  //const TrackingRecHit*hit=&((*(track->recHit(ih))));
 	outputTrkHits->push_back( track.recHit(ih)->clone() );
-	tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
       }
+      tx.setHits(  refTrkHits, firstTrackIndex, outputTrkHits->size() - firstTrackIndex );
     }
     edm::Ref< std::vector<Trajectory> > trajRef(mergedTrajHandle, (*matchIter0).first);
     TrajTrackAssociationCollection::const_iterator match = mergedTrajTrackHandle->find(trajRef);

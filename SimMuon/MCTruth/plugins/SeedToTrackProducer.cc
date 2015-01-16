@@ -141,14 +141,15 @@ SeedToTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         edm::LogVerbatim("SeedToTrackProducer") << "trackPtError=" << theTrack.ptError() << "trackPhiError=" << theTrack.phiError() << endl;
  
         //fill the seed segments in the track
-        unsigned int index_hit = 0;
+        unsigned int nHitsAdded = 0;
         for(TrajectorySeed::recHitContainer::const_iterator itRecHits=(L2seeds->at(i)).recHits().first; itRecHits!=(L2seeds->at(i)).recHits().second; ++itRecHits, ++countRH) {
             TrackingRecHit* hit = (itRecHits)->clone();
             theTrack.appendHitPattern(*hit);
             selectedTrackHits->push_back(hit);
-            index_hit++;
-            theTrackExtra.add(TrackingRecHitRef( rHits, hidx ++ ) );
+            nHitsAdded++;
         }
+        theTrackExtra.setHits( rHits, hidx, nHitsAdded );
+        hidx += nHitsAdded;
         selectedTracks->push_back(theTrack);
         selectedTrackExtras->push_back(theTrackExtra);
 
