@@ -26,6 +26,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 class dso_hidden TrackListMerger : public edm::stream::EDProducer<>
   {
   public:
@@ -35,6 +38,8 @@ class dso_hidden TrackListMerger : public edm::stream::EDProducer<>
     virtual ~TrackListMerger();
 
     virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   private:
     std::auto_ptr<reco::TrackCollection> outputTrks;
@@ -829,6 +834,134 @@ TrackListMerger::~TrackListMerger() { }
     return;
 
   }//end produce
+
+void
+TrackListMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<double>("MinPT",0.05);
+  desc.add<double>("MaxNormalizedChisq",1000.0);
+  desc.add<int>("MinFound",3);
+  desc.add<double>("ShareFrac",0.19);
+  desc.addUntracked<bool>("copyExtras",false);
+  desc.add<bool>("copyMVA",true);
+  desc.add<bool>("writeOnlyTrkQuals",false);
+  desc.add<bool>("allowFirstHitShare",true);
+  desc.add<double>("Epsilon",-0.001);
+  {
+    std::vector<edm::InputTag> temp1;
+    temp1.push_back(edm::InputTag(""));
+    temp1.push_back(edm::InputTag(""));
+    desc.add<std::vector<edm::InputTag> >("selectedTrackQuals",temp1);
+  }
+  {
+    std::vector<double> temp1;
+    temp1.reserve(2);
+    temp1.push_back(1.0);
+    temp1.push_back(1.0);
+
+    desc.add<std::vector<double> >("indivShareFrac",temp1);
+  }
+  desc.add<double>("FoundHitBonus",5.0);
+  {
+    edm::ParameterSetDescription vpsd1;
+    vpsd1.add<bool>("pQual",false);
+    {
+      std::vector<int> temp1;
+      temp1.reserve(2);
+      temp1.push_back(0);
+      temp1.push_back(1);
+      vpsd1.add<std::vector<int> >("tLists",temp1);
+    }
+    std::vector<edm::ParameterSet> temp1;
+    temp1.reserve(5);
+    {
+      edm::ParameterSet temp2;
+      temp2.addParameter<bool>("pQual",false);
+      {
+        std::vector<int> temp3;
+        temp3.reserve(2);
+        temp3.push_back(0);
+        temp3.push_back(1);
+        temp2.addParameter<std::vector<int> >("tLists",temp3);
+      }
+      temp1.push_back(temp2);
+    }
+    {
+      edm::ParameterSet temp2;
+      temp2.addParameter<bool>("pQual",true);
+      {
+        std::vector<int> temp3;
+        temp3.reserve(2);
+        temp3.push_back(2);
+        temp3.push_back(3);
+        temp2.addParameter<std::vector<int> >("tLists",temp3);
+      }
+      temp1.push_back(temp2);
+    }
+    {
+      edm::ParameterSet temp2;
+      temp2.addParameter<bool>("pQual",true);
+      {
+        std::vector<int> temp3;
+        temp3.reserve(2);
+        temp3.push_back(4);
+        temp3.push_back(5);
+        temp2.addParameter<std::vector<int> >("tLists",temp3);
+      }
+      temp1.push_back(temp2);
+    }
+    {
+      edm::ParameterSet temp2;
+      temp2.addParameter<bool>("pQual",true);
+      {
+        std::vector<int> temp3;
+        temp3.reserve(4);
+        temp3.push_back(2);
+        temp3.push_back(3);
+        temp3.push_back(4);
+        temp3.push_back(5);
+        temp2.addParameter<std::vector<int> >("tLists",temp3);
+      }
+      temp1.push_back(temp2);
+    }
+    {
+      edm::ParameterSet temp2;
+      temp2.addParameter<bool>("pQual",true);
+      {
+        std::vector<int> temp3;
+        temp3.reserve(6);
+        temp3.push_back(0);
+        temp3.push_back(1);
+        temp3.push_back(2);
+        temp3.push_back(3);
+        temp3.push_back(4);
+        temp3.push_back(5);
+        temp2.addParameter<std::vector<int> >("tLists",temp3);
+      }
+      temp1.push_back(temp2);
+    }
+    desc.addVPSet("setsToMerge",vpsd1,temp1);
+  }
+  {
+    std::vector<int> temp1;
+    temp1.reserve(2);
+    temp1.push_back(0);
+    temp1.push_back(0);
+    desc.add<std::vector<int> >("hasSelector",temp1);
+  }
+  {
+    std::vector<edm::InputTag> temp1;
+    temp1.push_back(edm::InputTag(""));
+    temp1.push_back(edm::InputTag(""));
+    desc.add<std::vector<edm::InputTag> >("TrackProducers",temp1);
+  }
+  desc.add<double>("LostHitPenalty",20.0);
+  desc.add<std::string>("newQuality","confirmed");
+
+  descriptions.add("trackListMerger",desc);
+  descriptions.setComment("");
+}
 
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
