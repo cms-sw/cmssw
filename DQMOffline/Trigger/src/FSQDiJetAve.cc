@@ -564,8 +564,7 @@ typedef HandlerTemplate<reco::Track, int > RecoTrackCounter;
 //
 //################################################################################################
 FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
-  m_eventCache(iConfig.getParameterSet("triggerConfiguration") , consumesCollector()),
-  m_isSetup(false)
+  m_eventCache(iConfig.getParameterSet("triggerConfiguration") , consumesCollector())
 {
   m_useGenWeight = iConfig.getParameter<bool>("useGenWeight");
   if (m_useGenWeight) {
