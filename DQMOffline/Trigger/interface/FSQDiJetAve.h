@@ -75,7 +75,6 @@ class FSQDiJetAve : public DQMEDAnalyzer {
       // ----------member data ---------------------------
       //
       triggerExpression::Data m_eventCache;
-      bool m_isSetup;
       bool m_useGenWeight;
       HLTConfigProvider m_hltConfig;
 

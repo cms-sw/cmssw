@@ -175,13 +175,18 @@ TH1F  HLTBTagHarvestingAnalyzer::calculateEfficiency1D(DQMStore::IBooker& ibooke
 	eff.SetMarkerSize(0.8);
 	eff.GetYaxis()->SetRangeUser(-0.001,1.001);
 	for(int i=1;i<=num.GetNbinsX();i++){
-		double d, n;
+		double d, n,err;
 		d= den.GetBinContent(i);
 		n= num.GetBinContent(i);
 		double e;
-		if(d!=0)	e=n/d;
-		else		e=0;
-		double err = sqrt(e*(1-e)/d); //from binomial standard deviation
+		if(d!=0){
+			e=n/d;
+			err =  sqrt(e*(1-e)/d); //from binomial standard deviation
+		}
+		else{
+			e=0;
+			err=0;
+		}		
 		eff.SetBinContent( i, e );
 		eff.SetBinError( i, err );
 	}
