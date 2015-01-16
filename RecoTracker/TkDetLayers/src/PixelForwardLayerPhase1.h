@@ -75,7 +75,7 @@ class PixelForwardLayerPhase1 GCC11_FINAL : public ForwardDetLayer {
   std::vector<float> theBinFinder_byR;
   std::vector<unsigned int> theBinFinder_byR_index;
   std::vector<unsigned int> theBinFinder_byR_nextindex;
-  bool useR;
+  // bool useR;
   std::vector<const GeometricSearchDet*> theComps;
   std::vector<const GeomDet*> theBasicComps;
 };
