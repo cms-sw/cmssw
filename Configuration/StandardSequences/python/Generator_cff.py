@@ -59,14 +59,10 @@ pgen_genonly = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")
 #
 
 hiGenJets = cms.Sequence(hiGenParticlesForJets*hiRecoGenJets)
-
 from PhysicsTools.HepMCCandAlgos.HiGenParticles_cfi import *
 
 pgen_hi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+hiGenParticles+hiGenJets)
-
-from SimGeneral.MixingModule.MatchVtx_cfi import *
-
-pgen_himix = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+matchVtx+hiGenParticles+hiGenJets)
+pgen_himix = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+cms.SequencePlaceholder("mix")+VertexSmearing+hiGenParticles+hiGenJets)
 
 fixGenInfo = cms.Sequence(GeneInfo * genJetMET)
 
