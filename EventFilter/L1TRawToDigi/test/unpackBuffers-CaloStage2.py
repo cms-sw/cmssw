@@ -34,6 +34,16 @@ options.register('dump',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Print RAW data")
+options.register('doMP',
+                 True,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Read MP data")
+options.register('doDemux',
+                 True,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Read demux data")
                  
 options.parseArguments()
 
@@ -141,13 +151,19 @@ process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("caloStage2Digis")
 
 # Path and EndPath definitions
 process.path = cms.Path(
-    process.stage2MP7BufferRaw
-#    process.stage2MPRaw
-#    +process.stage2DemuxRaw
+    process.stage2MPRaw
+    +process.stage2DemuxRaw
+    +process.rawDataCollector
     +process.dumpRaw
     +process.caloStage2Digis
-#    +process.l1tStage2CaloAnalyzer
+    +process.l1tStage2CaloAnalyzer
 )
+
+if (not options.doMP):
+    process.path.remove(process.stage2MPRaw)
+
+if (not options.doDemux):
+    process.path.remove(process.stage2DemuxRaw)
 
 process.out = cms.EndPath(
     process.output
