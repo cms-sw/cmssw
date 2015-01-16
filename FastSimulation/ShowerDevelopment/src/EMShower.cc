@@ -7,10 +7,6 @@
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-
 #include <cmath>
 
 //#include "FastSimulation/Utilities/interface/Histos.h"

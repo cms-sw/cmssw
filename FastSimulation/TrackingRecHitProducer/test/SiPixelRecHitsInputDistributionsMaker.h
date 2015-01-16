@@ -20,8 +20,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //DWM histogram services
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 //#include "FWCore/ServiceRegistry/interface/Service.h"
@@ -67,7 +65,6 @@ class SiPixelRecHitsInputDistributionsMaker : public DQMEDAnalyzer {
 
    private:
 
-	DQMStore* dbe_;
 	std::string outputFile_;
 
 	edm::ParameterSet conf_;
