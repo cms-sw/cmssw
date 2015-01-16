@@ -43,7 +43,7 @@ namespace muonisolation {
     class ConeSizes {
     private:
       enum  IsoDim { DIM = 15};
-      static float cone_dr[DIM];
+      static const float cone_dr[DIM];
     public:
       int dim() const { return DIM;}
       double size(int i) const;
