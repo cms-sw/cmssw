@@ -9,6 +9,11 @@ import FWCore.ParameterSet.Config as cms
 # options
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing('analysis')
+options.register('mpFramesPerEvent',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "MP frames per event")
 options.register('mpLatency',
                  0,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -19,6 +24,11 @@ options.register('mpOffset',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "MP offset (frames)")
+options.register('dmFramesPerEvent',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Demux frames per event")
 options.register('dmLatency',
                  0,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -117,11 +127,13 @@ mpLatencies = cms.untracked.vint32()
 for i in range (0,11):
     mpLatencies.append(options.mpLatency)
 
+process.stage2MPRaw.nFramesPerEvent    = cms.untracked.int32(options.mpFramesPerEvent)
 process.stage2MPRaw.nFramesOffset    = cms.untracked.vuint32(mpOffsets)
 process.stage2MPRaw.nFramesLatency   = cms.untracked.vuint32(mpLatencies)
 process.stage2MPRaw.rxFile = cms.untracked.string("mp_rx_summary.txt")
 process.stage2MPRaw.txFile = cms.untracked.string("mp_tx_summary.txt")
 
+process.stage2DemuxRaw.nFramesPerEvent    = cms.untracked.int32(options.dmFramesPerEvent)
 process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(options.dmOffset)
 process.stage2DemuxRaw.nFramesLatency   = cms.untracked.vuint32(options.dmLatency)
 process.stage2DemuxRaw.rxFile = cms.untracked.string("demux_rx_summary.txt")
@@ -143,7 +155,7 @@ process.caloStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("caloStage2Digis")
+process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
 process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("caloStage2Digis")
 process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("caloStage2Digis")
 process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("caloStage2Digis")

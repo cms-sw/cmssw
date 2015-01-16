@@ -59,10 +59,9 @@ namespace l1t {
 
                UnpackerMap res;
                if (fed == 1366) {
-                  res[1] = egamma_unp;
-                  res[3] = etsum_unp;
-                  res[5] = jet_unp;
-                  res[7] = tau_unp;
+                  res[1] = jet_unp;
+                  res[3] = jet_unp;
+                  res[5] = etsum_unp;
                } else if (fed == 1360) {
                   res[1] = mp_unp;
                   res[3] = mp_unp;
