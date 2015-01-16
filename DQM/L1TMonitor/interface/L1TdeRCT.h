@@ -248,6 +248,9 @@ private:
   // end region channel information
 
 
+  bool first;
+
+
   //begin fed vector information
   static const int crateFED[90];
   MonitorElement *fedVectorMonitorRUN_;
