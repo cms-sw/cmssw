@@ -78,6 +78,9 @@ private:
   void book(DQMStore::IBooker &, const TrackerTopology* tTopo);
   void bookModMEs(DQMStore::IBooker &, const uint32_t& );
   void bookLayerMEs(DQMStore::IBooker &, const uint32_t&, std::string&);
+  void bookRing(DQMStore::IBooker &, const uint32_t&, std::string&);
+  MonitorElement* handleBookMEs(DQMStore::IBooker &, std::string&, std::string&, std::string&, std::string&);
+  void bookRingMEs(DQMStore::IBooker &, const uint32_t&, std::string&);
   void bookSubDetMEs(DQMStore::IBooker &, std::string& name);
   MonitorElement * bookME1D(DQMStore::IBooker & , const char*, const char*);
   MonitorElement * bookME2D(DQMStore::IBooker & , const char*, const char*);
@@ -147,7 +150,21 @@ private:
     MonitorElement* ClusterPosOnTrack;
     MonitorElement* ClusterPosOffTrack;
     MonitorElement* ClusterChargePerCMfromTrack;
-    MonitorElement* ClusterChargePerCMfromOrigin;
+    MonitorElement* ClusterChargePerCMfromOriginOnTrack;
+    MonitorElement* ClusterChargePerCMfromOriginOffTrack;
+  };
+  struct RingMEs{
+    MonitorElement* ClusterStoNCorrOnTrack;
+    MonitorElement* ClusterChargeCorrOnTrack;
+    MonitorElement* ClusterChargeOnTrack;
+    MonitorElement* ClusterChargeOffTrack;
+    MonitorElement* ClusterNoiseOnTrack;
+    MonitorElement* ClusterNoiseOffTrack;
+    MonitorElement* ClusterWidthOnTrack;
+    MonitorElement* ClusterWidthOffTrack;
+    MonitorElement* ClusterChargePerCMfromTrack;
+    MonitorElement* ClusterChargePerCMfromOriginOnTrack;
+    MonitorElement* ClusterChargePerCMfromOriginOffTrack;
   };
   struct SubDetMEs{
     int totNClustersOnTrack;
@@ -161,11 +178,13 @@ private:
     MonitorElement* ClusterChargeOffTrack;
     MonitorElement* ClusterStoNOffTrack;
     MonitorElement* ClusterChargePerCMfromTrack;
-    MonitorElement* ClusterChargePerCMfromOrigin;
+    MonitorElement* ClusterChargePerCMfromOriginOnTrack;
+    MonitorElement* ClusterChargePerCMfromOriginOffTrack;
   };  
-  std::map<std::string, ModMEs> ModMEsMap;
-  std::map<std::string, LayerMEs> LayerMEsMap;
-  std::map<std::string, SubDetMEs> SubDetMEsMap;  
+  std::map<std::string, ModMEs>       ModMEsMap;
+  std::map<std::string, LayerMEs>     LayerMEsMap;
+  std::map<std::string, RingMEs>      RingMEsMap;
+  std::map<std::string, SubDetMEs>    SubDetMEsMap;  
   
   edm::ESHandle<TrackerGeometry> tkgeom_;
   edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
@@ -191,7 +210,6 @@ private:
   std::unordered_set<const SiStripCluster*> vPSiStripCluster;
   bool tracksCollection_in_EventTree;
   bool trackAssociatorCollection_in_EventTree;
-  bool flag_ring;
   edm::EventNumber_t eventNb;
   int firstEvent;
 
