@@ -38,32 +38,57 @@ particleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
                                  minTime = cms.double(-18.0),
                                  maxTime = cms.double(18.0),
                                  threshold = cms.double(0.0),
+                                 endcap = cms.bool(True),
                              ),
                              cms.PSet( 
                                  depth = cms.int32(2),
                                  minTime = cms.double(-18.0),
                                  maxTime = cms.double(18.0),
                                  threshold = cms.double(0.0),
+                                 endcap = cms.bool(True),
                              ),
                              cms.PSet( 
                                  depth = cms.int32(3),
                                  minTime = cms.double(-18.0),
                                  maxTime = cms.double(18.0),
                                  threshold = cms.double(0.0),
+                                 endcap = cms.bool(True),
                              ),
                              cms.PSet( 
                                  depth = cms.int32(4),
                                  minTime = cms.double(-18.0),
                                  maxTime = cms.double(18.0),
                                  threshold = cms.double(0.0),
+                                 endcap = cms.bool(True),
                              ),
                              cms.PSet( 
                                  depth = cms.int32(5),
                                  minTime = cms.double(-18.0),
                                  maxTime = cms.double(18.0),
                                  threshold = cms.double(0.0),
+                                 endcap = cms.bool(True),
                              ),
-
+                             cms.PSet(
+                                 depth = cms.int32(1),
+                                 minTime = cms.double(-18.0),
+                                 maxTime = cms.double(11.0),
+                                 threshold = cms.double(0.0),
+                                 endcap = cms.bool(False),
+                             ),
+                             cms.PSet(
+                                 depth = cms.int32(2),
+                                 minTime = cms.double(-18.0),
+                                 maxTime = cms.double(11.0),
+                                 threshold = cms.double(0.0),
+                                 endcap = cms.bool(False),
+                             ),
+                             cms.PSet(
+                                 depth = cms.int32(3),
+                                 minTime = cms.double(-18.0),
+                                 maxTime = cms.double(11.0),
+                                 threshold = cms.double(0.0),
+                                 endcap = cms.bool(False),
+                             ),
                       )
                   ) 
 
