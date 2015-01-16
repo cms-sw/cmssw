@@ -100,7 +100,7 @@ class HLTProcess(object):
 
 
   def getRawConfigurationFromDB(self):
-    url = 'http://j2eeps.cern.ch/cms-project-confdb-hltdev/get.jsp'
+    url = 'http://cms-project-confdb-hltdev.web.cern.ch/cms-project-confdb-hltdev/get.jsp'
     postdata = dict([ (key, ','.join(vals)) for key, vals in self.options.iteritems() if vals ])
     postdata['noedsources'] = ''
     if self.config.fragment:
@@ -118,7 +118,7 @@ class HLTProcess(object):
 
 
   def getPathList(self):
-    url = 'http://j2eeps.cern.ch/cms-project-confdb-hltdev/get.jsp'
+    url = 'http://cms-project-confdb-hltdev.web.cern.ch/cms-project-confdb-hltdev/get.jsp'
     postdata = { 
       'noedsources': '', 
       'noes':        '',
