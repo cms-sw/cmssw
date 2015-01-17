@@ -20,6 +20,10 @@ private:
   //Set to true if we are using the old error parameterization
   const bool useLegacyError;
 
+  //Clusters with charge/path > this cut will use old error parameterization
+  // (overridden by useLegacyError; negative value disables the cut)
+  const float maxChgOneMIP;
+
 public:  
   StripClusterParameterEstimator::LocalValues
   localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const;
@@ -36,6 +40,7 @@ public:
 			  const SiStripLatency& latency) 
   : StripCPE(conf, mag, geom, lorentz, backPlaneCorrection, confObj, latency )
   , useLegacyError(conf.existsAs<bool>("useLegacyError") ? conf.getParameter<bool>("useLegacyError") : true)
+  , maxChgOneMIP(conf.existsAs<float>("maxChgOneMIP") ? conf.getParameter<double>("maxChgOneMIP") : -6000.)
   {
     mLC_P[0] = conf.existsAs<double>("mLC_P0") ? conf.getParameter<double>("mLC_P0") : -.326;
     mLC_P[1] = conf.existsAs<double>("mLC_P1") ? conf.getParameter<double>("mLC_P1") :  .618;
