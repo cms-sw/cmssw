@@ -41,7 +41,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 
 # geometry
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 #del process.CaloTopologyBuilder etc. to speed up...???
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

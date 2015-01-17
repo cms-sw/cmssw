@@ -30,7 +30,7 @@ process.source = cms.Source("PoolSource",
 )
 
 #################################### Geometry ##########################################
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 #process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
 process.load('Configuration/StandardSequences/MixingNoPileUp_cff')
