@@ -29,7 +29,7 @@ pfMVAMEt = cms.EDProducer("PFMETProducerMVA",
                                'selectedPhotons',
                                'selectedJets'),
     minNumLeptons = cms.int32(0),                     
-    srcRho = cms.InputTag('kt6PFJets','rho'),
+    srcRho = cms.InputTag('fixedGridRhoFastjetAll'),
     globalThreshold = cms.double(-1.),
     minCorrJetPt = cms.double(-1.),
     inputFileNames = cms.PSet(

@@ -1,5 +1,5 @@
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
-#if GCC_PREREQUISITE(4,8,0) || defined(__clang__)
+#if GCC_PREREQUISITE(4,8,0)
 
 #include "DataFormats/Math/interface/ExtVec.h"
 
