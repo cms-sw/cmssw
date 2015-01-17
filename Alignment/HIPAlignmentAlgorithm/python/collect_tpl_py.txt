@@ -34,7 +34,7 @@ process.survey = cms.ESSource("PoolDBESSource",
         tag = cms.string('valueTag')
     ), 
         cms.PSet(
-            record = cms.string('TrackerSurveyErrorRcd'),
+            record = cms.string('TrackerSurveyErrorExtendedRcd'),
             tag = cms.string('errorTag')
         )),
      connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/surveyObjects/surveyRcd_ALLTK_PXFoppPXB_tightSSTUltraTightTOB_311.db')

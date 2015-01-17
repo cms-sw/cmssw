@@ -6,7 +6,7 @@ from TkAlExceptions import AllInOneError
 class Alignment:
     def __init__(self, name, config, runGeomComp = "1"):
         self.condShorts = {
-            "TrackerAlignmentErrorRcd":
+            "TrackerAlignmentErrorExtendedRcd":
                 {"zeroAPE":{"connectString": ("frontier://FrontierProd"
                                               "/CMS_COND_31X_FROM21X"),
                             "tagName": "TrackerIdealGeometryErrors210_mc",

@@ -2,6 +2,7 @@
   <use   name="CondFormats/Alignment"/>
   <use   name="CondFormats/GeometryObjects"/>
   <use   name="CondFormats/AlignmentRecord"/>
+  <use   name="DataFormats/MuonDetId"/>
   <use   name="DetectorDescription/Core"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>

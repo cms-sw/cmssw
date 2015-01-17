@@ -7,7 +7,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "GR_R_61_V6::All" # FT_R_42_V13A used in rereco of 2010 cosmics
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Configuration.Geometry.GeometryDB_cff")
+process.load("Configuration.Geometry.GeometryIdeal_cff")
 #process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
@@ -63,8 +63,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
        tag = cms.string('Alignments')
    ),
        cms.PSet(
-           record = cms.string('TrackerAlignmentErrorRcd'),
-           tag = cms.string('AlignmentErrors')
+           record = cms.string('TrackerAlignmentErrorExtendedRcd'),
+           tag = cms.string('AlignmentErrorsExtended')
        ))
 )
 """

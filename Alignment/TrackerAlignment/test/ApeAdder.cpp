@@ -27,8 +27,8 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -55,7 +55,7 @@ private:
 };
 
 ApeAdder::ApeAdder( const edm::ParameterSet& iConfig )  :
-  theErrorRecordName( "TrackerAlignmentErrorRcd" )
+  theErrorRecordName( "TrackerAlignmentErrorExtendedRcd" )
 { 
 
   // The APE to set to all GeomDets
@@ -93,7 +93,7 @@ void ApeAdder::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
     this->addApe(theAlignableTracker->pixelEndcapGeomDets());
   
   // Store to DB
-  AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
+  AlignmentErrorsExtended* alignmentErrors = theAlignableTracker->alignmentErrors();
 
   // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
@@ -101,7 +101,7 @@ void ApeAdder::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
   // Save to DB
-  poolDbService->writeOne<AlignmentErrors>(alignmentErrors, poolDbService->beginOfTime(),
+  poolDbService->writeOne<AlignmentErrorsExtended>(alignmentErrors, poolDbService->beginOfTime(),
                                            theErrorRecordName);
 
 
