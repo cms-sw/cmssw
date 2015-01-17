@@ -385,7 +385,6 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, const TrackerTopo
   }
 
   lokal_folder += rest.str();
-  std::cout << "[SiStripFolderOrganizer::setLayerFolder] lokal_folder: " << lokal_folder << "(used by dbe_->setCurrentFolder)" << std::endl;
   dbe_->setCurrentFolder(lokal_folder);
 }
 
