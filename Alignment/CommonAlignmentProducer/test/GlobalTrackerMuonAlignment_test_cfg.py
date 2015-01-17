@@ -58,7 +58,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("Configuration/StandardSequences/MagneticField_38T_cff")
 
 # Geometry
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 #from Configuration.StandardSequences.GeometryExtended_cff import *
 
 # Gloabal Tag

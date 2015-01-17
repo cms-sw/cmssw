@@ -23,7 +23,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # load configuration files
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'GR_R_42_V14::All'
 
