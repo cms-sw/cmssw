@@ -19,6 +19,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <functional>
 
 class TrackerTopology;
 
@@ -29,6 +30,7 @@ class MuonAssociatorByHitsHelper {
   //typedef std::map<unsigned int, std::vector<SimHitIdpr> > MapOfMatchedIds;
   typedef std::pair<unsigned int,std::vector<SimHitIdpr> > uint_SimHitIdpr_pair;
   typedef boost::ptr_vector<uint_SimHitIdpr_pair> MapOfMatchedIds;
+  typedef std::vector<std::pair<trackingRecHit_iterator, trackingRecHit_iterator> > TrackHitsCollection;
   
   MuonAssociatorByHitsHelper (const edm::ParameterSet& conf);   
 
@@ -38,10 +40,10 @@ class MuonAssociatorByHitsHelper {
     CSCHitAssociator const* cscHitAssoc_;
     DTHitAssociator const* dtHitAssoc_;
     RPCHitAssociator const* rpcHitAssoc_;
+    std::function<void(const TrackHitsCollection&, const TrackingParticleCollection&)> diagnostics_;
   };
   
  
-  typedef std::vector<std::pair<trackingRecHit_iterator, trackingRecHit_iterator> > TrackHitsCollection;
   struct IndexMatch {
       IndexMatch(size_t index, double global_quality) : idx(index), quality(global_quality) {}
       size_t idx; double quality; 

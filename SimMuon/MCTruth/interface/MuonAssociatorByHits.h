@@ -16,6 +16,12 @@
 
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHitsHelper.h"
 
+#include <memory>
+
+namespace muonAssociatorByHitsDiagnostics {
+  class InputDumper;
+}
+
 class MuonAssociatorByHits : public TrackAssociatorBase {
   
  public:
@@ -43,6 +49,8 @@ class MuonAssociatorByHits : public TrackAssociatorBase {
  private:
   MuonAssociatorByHitsHelper helper_;
   edm::ParameterSet const conf_;
+
+  std::unique_ptr<muonAssociatorByHitsDiagnostics::InputDumper> diagnostics_;
 };
 
 #endif

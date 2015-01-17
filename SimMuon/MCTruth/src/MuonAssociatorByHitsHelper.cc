@@ -59,6 +59,7 @@ MuonAssociatorByHitsHelper::IndexAssociation
 MuonAssociatorByHitsHelper::associateRecoToSimIndices(const TrackHitsCollection & tC,
                                                       const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
                                                       const Resources& resources) const {
+
   auto tTopo = resources.tTopo_;
   auto trackertruth = resources.trackerHitAssoc_;
   auto const & csctruth = *resources.cscHitAssoc_;
@@ -89,6 +90,10 @@ MuonAssociatorByHitsHelper::associateRecoToSimIndices(const TrackHitsCollection 
 
   TrackingParticleCollection tPC;
   if (TPCollectionH.size()!=0) tPC = *(TPCollectionH.product());
+
+  if(resources.diagnostics_) {
+    resources.diagnostics_(tC,tPC);
+  }
 
   int tindex=0;
   for (TrackHitsCollection::const_iterator track=tC.begin(); track!=tC.end(); track++, tindex++) {
