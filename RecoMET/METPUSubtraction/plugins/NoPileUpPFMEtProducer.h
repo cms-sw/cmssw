@@ -16,7 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoMET/METPUSubtraction/interface/PFMEtSignInterfaceBase.h"
-#include "RecoMET/METPUSubtraction/interface/noPileUpMEtUtilities.h"
+#include "RecoMET/METPUSubtraction/interface/NoPileUpMEtUtilities.h"
 
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETFwd.h"
@@ -43,12 +43,12 @@ class NoPileUpPFMEtProducer : public edm::stream::EDProducer<>
 
   edm::EDGetTokenT<reco::PFMETCollection> srcMEt_;
   edm::InputTag srcMEtCov_;
-  edm::EDGetTokenT<reco::MVAMEtJetInfoCollection> srcJetInfo_;
-  edm::EDGetTokenT<reco::MVAMEtJetInfoCollection> srcJetInfoLeptonMatch_;
-  edm::EDGetTokenT<reco::MVAMEtPFCandInfoCollection> srcPFCandInfo_;
-  edm::EDGetTokenT<reco::MVAMEtPFCandInfoCollection> srcPFCandInfoLeptonMatch_;
+  edm::EDGetTokenT<reco::PUSubMETCandInfoCollection> srcJetInfo_;
+  edm::EDGetTokenT<reco::PUSubMETCandInfoCollection> srcJetInfoLeptonMatch_;
+  edm::EDGetTokenT<reco::PUSubMETCandInfoCollection> srcPFCandInfo_;
+  edm::EDGetTokenT<reco::PUSubMETCandInfoCollection> srcPFCandInfoLeptonMatch_;
   typedef std::vector<edm::InputTag>  vInputTag;
-  std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > srcLeptons_;
+  std::vector<edm::EDGetTokenT<reco::CandidateView > > srcLeptons_;
 
   edm::EDGetTokenT<CorrMETData> srcType0Correction_;
 
@@ -78,6 +78,9 @@ class NoPileUpPFMEtProducer : public edm::stream::EDProducer<>
   bool saveInputs_;
 
   int verbosity_;
+
+  NoPileUpMEtUtilities utils_;
+
 };
 
 #endif
