@@ -7,11 +7,11 @@
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 
-#pragma GCC visibility push(hidden)
-
 class GeomDet;
 class Plane;
 class TrajectoryStateOnSurface;
+
+#pragma GCC visibility push(hidden)
 
 namespace tkDetUtil {
 
