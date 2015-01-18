@@ -22,8 +22,11 @@ Py8InterfaceBase::Py8InterfaceBase( edm::ParameterSet const& ps )
   
   pythiaPylistVerbosity = ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0);
   pythiaHepMCVerbosity  = ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false);
+  pythiaHepMCVerbosityParticles = ps.getUntrackedParameter<bool>("pythiaHepMCVerbosityParticles", false);
   maxEventsToPrint      = ps.getUntrackedParameter<int>("maxEventsToPrint", 0);
 
+  if(pythiaHepMCVerbosityParticles)
+    ascii_io = new HepMC::IO_AsciiParticles("cout", std::ios::out);
 }
 
 bool Py8InterfaceBase::readSettings( int ) 
