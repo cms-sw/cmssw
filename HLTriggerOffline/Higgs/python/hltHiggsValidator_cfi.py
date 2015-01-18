@@ -268,7 +268,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
     TTHbbej  = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_Ele27_eta2p1_WP85_Gsf_v",
+            "HLT_Ele27_WP85_Gsf_v",
             "HLT_Ele27_eta2p1_WP85_Gsf_HT200_v"
             ),
         recElecLabel   = cms.string("gedGsfElectrons"),
