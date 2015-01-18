@@ -7,6 +7,8 @@
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
 #include "GeneratorInterface/Pythia8Interface/interface/P8RndmEngine.h"
 
+#include "HepMC/IO_AsciiParticles.h"
+
 #include <Pythia8/Pythia.h>
 #include <Pythia8Plugins/HepMC2.h>
 
@@ -45,7 +47,9 @@ namespace gen {
 	 
 	 unsigned int                   pythiaPylistVerbosity;
          bool                           pythiaHepMCVerbosity;
+         bool                           pythiaHepMCVerbosityParticles;
 	 unsigned int                   maxEventsToPrint;
+         HepMC::IO_AsciiParticles*      ascii_io;
 
       private:
 

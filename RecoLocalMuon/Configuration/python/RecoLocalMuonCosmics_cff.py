@@ -4,16 +4,14 @@ import FWCore.ParameterSet.Config as cms
 # 1D RecHits
 from RecoLocalMuon.DTRecHit.dt1DRecHits_LinearDriftFromDB_CosmicData_cfi import *
 # 2D Segments
-from RecoLocalMuon.DTSegment.dt2DSegments_CombPatternReco2D_LinearDriftFromDB_CosmicData_cfi import *
-#from RecoLocalMuon.DTSegment.dt2DSegments_MTPatternReco2D_LinearDriftFromDB_CosmicData_cfi import *
+from RecoLocalMuon.DTSegment.dt2DSegments_MTPatternReco2D_LinearDriftFromDB_CosmicData_cfi import *
 # 4D Segments
-from RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_LinearDriftFromDB_CosmicData_cfi import *
-#from RecoLocalMuon.DTSegment.dt4DSegments_MTPatternReco4D_LinearDriftFromDB_CosmicData_cfi import *
+from RecoLocalMuon.DTSegment.dt4DSegments_MTPatternReco4D_LinearDriftFromDB_CosmicData_cfi import *
 # T0 seg correction
 from RecoLocalMuon.DTSegment.dt4DSegments_ApplyT0Correction_cfi import *
 
 #------------------------------------ CSC -----------------------------------------------
-# 2D RecHit	
+# 2D RecHit
 from RecoLocalMuon.CSCRecHitD.cscRecHitD_cfi import *
 # Segments
 from RecoLocalMuon.CSCSegment.cscSegments_cfi import *
