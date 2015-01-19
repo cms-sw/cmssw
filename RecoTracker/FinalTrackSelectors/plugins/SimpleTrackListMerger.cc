@@ -496,12 +496,13 @@ namespace {
           // fill TrackingRecHits
           std::vector<const TrackingRecHit*>& iHits = rh1[track];
           unsigned nh1 = iHits.size();
+          auto const firstHitIndex = outputTrkHits->size();
           for ( unsigned ih=0; ih<nh1; ++ih ) {
             const TrackingRecHit* hit = iHits[ih];
             //for( trackingRecHit_iterator hit = itB; hit != itE; ++hit ) {
             outputTrkHits->push_back( hit->clone() );
-            tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
           }
+          tx.setHits( refTrkHits, firstHitIndex, nh1 );
       }
       trackRefs[current] = reco::TrackRef(refTrks, outputTrks->size() - 1);
 
@@ -614,11 +615,12 @@ namespace {
           // fill TrackingRecHits
           std::vector<const TrackingRecHit*>& jHits = rh2[track];
           unsigned nh2 = jHits.size();
+          auto const firstHitIndex2 = outputTrkHits->size();
           for ( unsigned jh=0; jh<nh2; ++jh ) {
             const TrackingRecHit* hit = jHits[jh];
             outputTrkHits->push_back( hit->clone() );
-            tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
           }
+          tx.setHits( refTrkHits, firstHitIndex2, nh2 );
       }
       trackRefs[current] = reco::TrackRef(refTrks, outputTrks->size() - 1);
 

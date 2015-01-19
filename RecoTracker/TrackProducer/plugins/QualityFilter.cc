@@ -131,7 +131,8 @@ QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (copyExtras_) {
       //PUT TRACKING HITS IN THE EVENT
       OrphanHandle<TrackingRecHitCollection> theRecoHits = iEvent.put(selHits );
-  
+      edm::RefProd<TrackingRecHitCollection> theRecoHitsProd(theRecoHits);
+
       //PUT TRACK EXTRA IN THE EVENT
       selTrackExtras->reserve(nTracks);
       unsigned hits=0;
@@ -155,9 +156,8 @@ QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         auto & aTrackExtra = selTrackExtras->back();
         //unsigned nHits = aTrack.numberOfValidHits();
         auto nHits = aTrack.recHitsSize();
-        for ( unsigned int ih=0; ih<nHits; ++ih) {
-          aTrackExtra.add(TrackingRecHitRef(theRecoHits,hits++));
-        }
+        aTrackExtra.setHits(theRecoHitsProd, hits, nHits);
+        hits += nHits;
         selTrackExtras->push_back(aTrackExtra);
       }
 
