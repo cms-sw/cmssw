@@ -165,13 +165,14 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       
       //      edm::LogVerbatim("MuonTrackProducer")<<"\n printing initial hit_pattern";
       //      trk->hitPattern().print();
-	
+      unsigned int nHitsToAdd = 0;
       for (trackingRecHit_iterator iHit = trk->recHitsBegin(); iHit != trk->recHitsEnd(); iHit++) {
         TrackingRecHit* hit = (*iHit)->clone();
         selectedTrackHits->push_back( hit );
-        newExtra->add( TrackingRecHitRef( rHits, hidx++ ) );
+        ++nHitsToAdd;
       }
-
+      newExtra->setHits( rHits, hidx, nHitsToAdd );
+      hidx += nHitsToAdd;
       if (trackType == "innerTrackPlusSegments") { 
 	
 	int wheel, station, sector;
@@ -247,6 +248,7 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 		if(segment->hasPhi()) {
 		  const DTChamberRecSegment2D* phiSeg = segment->phiSegment();
 		  std::vector<const TrackingRecHit*> phiHits = phiSeg->recHits();
+                  unsigned int nHitsAdded = 0;
 		  for(std::vector<const TrackingRecHit*>::const_iterator ihit = phiHits.begin();
 		      ihit != phiHits.end(); ++ihit) {
 		    TrackingRecHit* seghit = (*ihit)->clone();
@@ -254,13 +256,16 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 		    //		    edm::LogVerbatim("MuonTrackProducer")<<"hit pattern for position "<<index_hit<<" set to:";
 		    //		    newTrk->hitPattern().printHitPattern(index_hit, std::cout);
 		    selectedTrackHits->push_back( seghit );
-		    newExtra->add( TrackingRecHitRef( rHits, hidx ++ ) );
+                    ++nHitsAdded;
 		  }
+                  newExtra->setHits( rHits, hidx, nHitsAdded );
+                  hidx += nHitsAdded;
 		}
 		
 		if(segment->hasZed()) {
 		  const DTSLRecSegment2D* zSeg = (*segment).zSegment();
 		  std::vector<const TrackingRecHit*> zedHits = zSeg->recHits();
+                  unsigned int nHitsAdded = 0;
 		  for(std::vector<const TrackingRecHit*>::const_iterator ihit = zedHits.begin();
 		      ihit != zedHits.end(); ++ihit) {
 		    TrackingRecHit* seghit = (*ihit)->clone();
@@ -268,8 +273,10 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 		    //		    edm::LogVerbatim("MuonTrackProducer")<<"hit pattern for position "<<index_hit<<" set to:";
 		    //		    newTrk->hitPattern().printHitPattern(index_hit, std::cout);
 		    selectedTrackHits->push_back( seghit );
-		    newExtra->add( TrackingRecHitRef( rHits, hidx ++ ) );
+                    ++nHitsAdded;
 		  }
+                  newExtra->setHits( rHits, hidx, nHitsAdded );
+                  hidx += nHitsAdded;
 		}
 	      } else edm::LogWarning("MuonTrackProducer")<<"\n***WARNING: UNMATCHED DT segment ! \n";
 	    } // if (subdet == MuonSubdetId::DT)
@@ -288,6 +295,7 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 		edm::LogVerbatim("MuonTrackProducer")<<"\t ===> MATCHING with CSC segment with index = "<<segmentCSC.key();
 		
 		std::vector<const TrackingRecHit*> hits = segment->recHits();
+                unsigned int nHitsAdded = 0;
 		for(std::vector<const TrackingRecHit*>::const_iterator ihit = hits.begin();
 		    ihit != hits.end(); ++ihit) {
 		  TrackingRecHit* seghit = (*ihit)->clone();
@@ -295,8 +303,10 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 		  //		    edm::LogVerbatim("MuonTrackProducer")<<"hit pattern for position "<<index_hit<<" set to:";
 		  //		    newTrk->hitPattern().printHitPattern(index_hit, std::cout);
 		  selectedTrackHits->push_back( seghit );
-		  newExtra->add( TrackingRecHitRef( rHits, hidx ++ ) );		  
+                  ++nHitsAdded;
 		}
+                newExtra->setHits( rHits, hidx, nHitsAdded );
+                hidx += nHitsAdded;
 	      } else edm::LogWarning("MuonTrackProducer")<<"\n***WARNING: UNMATCHED CSC segment ! \n";
 	    }  //  else if (subdet == MuonSubdetId::CSC)
 
