@@ -5,7 +5,7 @@ HighPtPhotonPSet = cms.PSet(
         "HLT_Photon175_v",  # Run2 proposal
         "HLT_Photon165_HE10_v",  # Run2 proposal
         "HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon31_AND_HE10_R9Id65_Mass10_v",  # Run2 proposal
-        "HLT_Photon26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Mass60_v",  # Run2 proposal
+        "HLT_Photon26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Mass60_v"  # Run2 proposal
         #"HLT_Photon135_v"  # Run1 (frozenHLT)
         ),
     recPhotonLabel  = cms.InputTag("gedPhotons"),
