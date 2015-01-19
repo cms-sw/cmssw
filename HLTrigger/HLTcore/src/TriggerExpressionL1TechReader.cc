@@ -59,6 +59,9 @@ void L1TechReader::dump(std::ostream & out) const {
 }
 
 void L1TechReader::init(const Data & data) {
+  if (not data.hasL1T())
+    return;
+
   const L1GtTriggerMenu & menu = data.l1tMenu();
   const L1GtTriggerMask & mask = data.l1tTechMask();
 

@@ -8,7 +8,7 @@ from FWCore.ParameterSet.Modules import _Module
 import sys
 import re
 import collections
-
+import FWCore.ParameterSet.DictTypes as DictTypes
 class Options:
         pass
 
@@ -791,7 +791,7 @@ class ConfigBuilder(object):
 		for c in self._options.customisation_file_unsch:
 			custOpt.extend(c.split(","))
 
-	custMap=collections.OrderedDict()
+	custMap=DictTypes.SortedKeysDict()
 	for opt in custOpt:
 		if opt=='': continue
 		if opt.count('.')>1:

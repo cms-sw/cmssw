@@ -18,7 +18,6 @@
 class EcalHitMaker;
 class HcalHitMaker;
 class RandomEngineAndDistribution;
-class DQMStore;
 
 class HDShower 
 {
@@ -38,8 +37,7 @@ class HDShower
 	   HcalHitMaker* myHcalHitMaker,
 	   int onECAL, 
 	   double epart,
-	   double pmip,
-           DQMStore * const dbeIn);
+	   double pmip);
 
   int getmip() {return mip;}
 
@@ -129,9 +127,6 @@ class HDShower
   // Famos Random Engine
   const RandomEngineAndDistribution* random;
   
-  //DQM for distribution histos
-  DQMStore * dbe;
-
   //calorimeter depths
   double depthECAL, depthGAP, depthGAPx0, depthHCAL, depthToHCAL;
 };
