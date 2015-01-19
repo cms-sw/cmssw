@@ -86,3 +86,22 @@ void DQMEDAnalyzer::globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
                                                     LuminosityBlockContext const*,
                                                     dqmDetails::NoCache*)
 {}
+
+
+
+//############################## ONLY NEEDED IN THE TRANSITION PERIOD ################################
+//here the thread_unsafe (simplified) carbon copy of the DQMEDAnalyzer
+
+thread_unsafe::DQMEDAnalyzer::DQMEDAnalyzer() {}
+
+void thread_unsafe::DQMEDAnalyzer::beginRun(edm::Run const &iRun,
+					    edm::EventSetup const &iSetup) {
+  dqmBeginRun(iRun, iSetup);
+  DQMStore * store = edm::Service<DQMStore>().operator->();
+  store->bookTransaction([this, &iRun, &iSetup](DQMStore::IBooker &b) {
+      this->bookHistograms(b, iRun, iSetup);
+    },
+    iRun.run(),
+    0,
+    0);
+}
