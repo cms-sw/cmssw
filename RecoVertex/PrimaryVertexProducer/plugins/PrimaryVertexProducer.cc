@@ -330,6 +330,10 @@ PrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
       psd1.add<double>("dzCutOff",4.0)->setComment("");
       psd1.add<double>("coolingFactor",0.6)->setComment("");
       psd0.add<edm::ParameterSetDescription>("TkDAClusParameters",psd1)->setComment("");
+
+      edm::ParameterSetDescription psd2;
+      psd2.add<double>("zSeparation",0.1)->setComment("");
+      psd0.add<edm::ParameterSetDescription>("TkGapClusParameters",psd2)->setComment("");
     }
     psd0.add<std::string>("algorithm","DA_vect")->setComment("");
     desc.add<edm::ParameterSetDescription>("TkClusParameters",psd0)->setComment("");
