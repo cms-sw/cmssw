@@ -428,6 +428,17 @@ HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt ){
       addToHepMC(*p,idEvt,evt);                     // generate decay
     }
   }
+
+  // add code to ensure all particles have an end vertex and if they are undecayed with no end vertes set to status 1
+  for (HepMC::GenEvent::particle_const_iterator p= evt->particles_begin(); p != evt->particles_end(); ++p){
+    if(!(*p)->end_vertex()){
+      HepMC::GenVertex* vtx = new HepMC::GenVertex((*p)->production_vertex()->position());
+      evt->add_vertex(vtx);
+      vtx->add_particle_in(*p);
+      (*p)->set_status(1);
+    }
+  }
+
   return evt;
 }
 
