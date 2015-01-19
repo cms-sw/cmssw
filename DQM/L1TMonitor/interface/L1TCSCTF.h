@@ -55,7 +55,7 @@
 // class decleration
 //
 
-class L1TCSCTF : public DQMEDAnalyzer {
+class L1TCSCTF : public thread_unsafe::DQMEDAnalyzer {
 
  public:
 
