@@ -68,13 +68,13 @@ class METAnalyzer( Analyzer ):
             mupy += mu.py()
 
         #subtract muon momentum and construct met                                                                                                                                                                                                     
-        if hasattr(event, 'deltaMetFromJetSmearing'):
+        if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJetSmearing'):
             import ROOT
             px,py = event.metNoMu.px()+event.deltaMetFromJetSmearing[0]-mupx, event.metNoMu.py()+event.deltaMetFromJetSmearing[1]-mupy
             event.metNoMu.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
             px,py = event.metNoMuNoPU.px()+event.deltaMetFromJetSmearing[0]-mupx, event.metNoMuNoPU.py()+event.deltaMetFromJetSmearing[1]-mupy
             event.metNoMuNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, hypot(px,py)))
-        if hasattr(event, 'deltaMetFromJEC') and event.deltaMetFromJEC[0] != 0 and event.deltaMetFromJEC[1] != 0:
+        if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJEC') and event.deltaMetFromJEC[0] != 0 and event.deltaMetFromJEC[1] != 0:
             import ROOT
             px,py = event.metNoMu.px()+event.deltaMetFromJEC[0]-mupx, event.metNoMu.py()+event.deltaMetFromJEC[1]-mupy
             event.met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
@@ -85,13 +85,13 @@ class METAnalyzer( Analyzer ):
     def makeMETs(self, event):
         event.met = self.handles['met'].product()[0]
         event.metNoPU = self.handles['nopumet'].product()[0]
-        if hasattr(event, 'deltaMetFromJetSmearing'):
+        if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJetSmearing'):
             import ROOT
             px,py = event.met.px()+event.deltaMetFromJetSmearing[0], event.met.py()+event.deltaMetFromJetSmearing[1]
             event.met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
             px,py = event.metNoPU.px()+event.deltaMetFromJetSmearing[0], event.metNoPU.py()+event.deltaMetFromJetSmearing[1]
             event.metNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
-        if hasattr(event, 'deltaMetFromJEC') and event.deltaMetFromJEC[0] != 0 and event.deltaMetFromJEC[1] != 0:
+        if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJEC') and event.deltaMetFromJEC[0] != 0 and event.deltaMetFromJEC[1] != 0:
             import ROOT
             px,py = event.met.px()+event.deltaMetFromJEC[0], event.met.py()+event.deltaMetFromJEC[1]
             event.met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
@@ -117,6 +117,7 @@ class METAnalyzer( Analyzer ):
 
 setattr(METAnalyzer,"defaultConfig", cfg.Analyzer(
     class_object = METAnalyzer,
+    recalibrate = True,
     doTkMet = False,
     doMetNoMu = False,  
     candidates='packedPFCandidates',
