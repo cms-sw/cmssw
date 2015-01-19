@@ -191,7 +191,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         recCaloMETLabel = cms.string("caloMet"),
         recMuonLabel  = cms.string("muons"),
         # -- Analysis specific cuts
-        minCandidates = cms.uint32(2), 
+        minCandidates = cms.uint32(1), 
         parametersTurnOn = cms.vdouble(0,
                                 1, 8, 9, 10,
                                 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,

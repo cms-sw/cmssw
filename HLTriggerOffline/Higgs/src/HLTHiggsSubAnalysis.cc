@@ -140,7 +140,8 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
             }
         }
     }
-    NptPlots = ( _useNminOneCuts ? _minCandidates : 2 );
+//    NptPlots = ( _useNminOneCuts ? _minCandidates : 2 );
+    NptPlots = _minCandidates;
 }
 
 HLTHiggsSubAnalysis::~HLTHiggsSubAnalysis()
