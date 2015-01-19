@@ -53,8 +53,8 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
   pfCandToken_ = consumes<reco::PFCandidateCollection>(mInputPFCandCollection);
   pfCandViewToken_ = consumes<reco::CandidateView>(mInputPFCandCollection);
   //backgrounds_ = consumes<reco::VoronoiBackground>(Background);
-  backgrounds_ = consumes<edm::ValueMap<reco::VoronoiBackground>>(Background);
-  backgrounds_value_ = consumes<std::vector<float>>(Background);
+  backgrounds_ = consumes<edm::ValueMap<reco::VoronoiBackground> >(Background);
+  backgrounds_value_ = consumes<std::vector<float> >(Background);
   centralityToken_ = consumes<reco::Centrality>(centrality);
   
   // need to initialize the PF cand histograms : which are also event variables 
@@ -106,6 +106,7 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
   mJetArea      = 0;
   mjetpileup    = 0;
   mNJets_40     = 0;
+  mNJets        = 0;
   
 }
   //DQMStore* dbe = &*edm::Service<DQMStore>();
@@ -184,6 +185,7 @@ void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
     mJetArea         = ibooker.book1D("JetArea",      "JetArea",       100,   0, 4);
     mjetpileup       = ibooker.book1D("jetPileUp","jetPileUp",100,0,150);
     mNJets_40        = ibooker.book1D("NJets", "NJets 40<Pt",  50,    0,   50);
+    mNJets        = ibooker.book1D("NJets", "NJets",  50,    0,   100);
 
 
     if (mOutputFile.empty ()) 
@@ -258,9 +260,9 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
   edm::Handle<JPTJetCollection>   jptJets;
   edm::Handle<PFJetCollection>    pfJets;
   edm::Handle<BasicJetCollection> basicJets;
-  
+
   // Get the Particle flow candidates and the Voronoi variables 
-  edm::Handle<reco::PFCandidateCollection> pfCandidates;
+  edm::Handle<reco::PFCandidateCollection> pfCandidates; 
   edm::Handle<reco::CandidateView> candidates_;
   
   //const reco::PFCandidateCollection *pfCandidateColl = pfcandidates.product();
@@ -386,7 +388,6 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
       vsPtInitial = voronoi.pt_subtracted();
       vsArea = voronoi.area();
       
-      //std::cout<<"vsPt = "<<vsPt<<"; vsPtInitial = "<<vsPtInitial<<"; vsArea = "<<vsArea<<std::endl;
     }
     
     NPFpart++;
@@ -403,7 +404,6 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
     mDeltapT_eta->Fill(pfEta,DeltapT);
     mDeltapT_eta_phi->Fill(pfEta,pfPhi,DeltapT);
 
-    //std::cout<<pfPt<<" "<<pfEta<<" "<<pfPhi<<" "<<std::endl;
 
     for(size_t k = 0;k<nedge_pseudorapidity-1; k++){
       if(pfEta >= edge_pseudorapidity[k] && pfEta < edge_pseudorapidity[k+1]){
@@ -456,43 +456,25 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
   mNPFpart->Fill(NPFpart);
   mSumpt->Fill(SumPt_value);
   
-  //std::cout<<"finished loading the pfcandidates"<<std::endl;
   
   if (isCaloJet)
     {
-      //std::cout<<caloJets->size()<<endl;
       for (unsigned ijet=0; ijet<caloJets->size(); ijet++) recoJets.push_back((*caloJets)[ijet]);
     }
   
   if (isJPTJet)
     {
-      //std::cout<<jptJets->size()<<endl;
       for (unsigned ijet=0; ijet<jptJets->size(); ijet++) recoJets.push_back((*jptJets)[ijet]);
     }
   
   if (isPFJet) {
     if(std::string("Pu")==UEAlgo){
-      //std::cout<<basicJets->size()<<endl;
       for (unsigned ijet=0; ijet<basicJets->size();ijet++) recoJets.push_back((*basicJets)[ijet]);
     }
     if(std::string("Vs")==UEAlgo){
-      //std::cout<<pfJets->size()<<endl;
       for (unsigned ijet=0; ijet<pfJets->size(); ijet++) recoJets.push_back((*pfJets)[ijet]);
     }
   }
-  
-  /*
-    std::cout<<mInputCollection.label()<<endl;
-    std::cout<<"jet type = "<<JetType<<endl;
-    std::cout<<"UE algorithm = "<<UEAlgo<<endl;
-    std::cout<<"size of jets = "<<recoJets.size()<<endl;
-    if(isCaloJet)
-    std::cout<<"isValid = "<<caloJets.isValid()<<endl; 
-    if(isJPTJet)
-    std::cout<<"isValid = "<<jptJets.isValid()<<endl; 
-    if(isPFJet)
-    std::cout<<"isValid = "<<pfJets.isValid()<<endl; 
-  */
     
   if (isCaloJet && !caloJets.isValid()) return;
   if (isJPTJet  && !jptJets.isValid())  return;
@@ -501,27 +483,18 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
     if(std::string("Vs")==UEAlgo){if(!pfJets.isValid())   return;}
   }
   
-  
-  //std::cout<<"after the trip point"<<endl;
-  //std::cout<<mInputCollection.label()<<endl;
-  //std::cout<<"jet type = "<<JetType<<endl;
-  //std::cout<<"size of jets = "<<recoJets.size()<<endl;
-  
-  // int nJet      = 0;
   // int nJet_E_20_40 = 0;
   // int nJet_B_20_40 = 0;
   // int nJet_E_40 = 0;
   // int nJet_B_40 = 0;
   int nJet_40 = 0;
+
+  mNJets->Fill(recoJets.size());
   
   for (unsigned ijet=0; ijet<recoJets.size(); ijet++) {
-
-    //std::cout<<"pt = "<<recoJets[ijet].pt()<<endl;	  
     
     if (recoJets[ijet].pt() > mRecoJetPtThreshold) {
       //counting forward and barrel jets
-      //cout<<"inside jet pt > 10 condition"<<endl;
-      
       // get an idea of no of jets with pT>40 GeV 
       if(recoJets[ijet].pt() > 40)
 	nJet_40++;

@@ -158,6 +158,7 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   MonitorElement* mConstituents;
   MonitorElement* mJetArea;
   MonitorElement* mjetpileup;
+  MonitorElement* mNJets;
   MonitorElement* mNJets_40;
 
   // Parameters

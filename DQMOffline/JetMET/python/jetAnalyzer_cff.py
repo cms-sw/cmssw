@@ -11,4 +11,5 @@ jetDQMAnalyzerSequenceCosmics = cms.Sequence(jetDQMAnalyzerAk4CaloUncleaned)
 
 jetDQMAnalyzerSequenceHI = cms.Sequence(jetDQMAnalyzerIC5CaloHIUncleaned
                                         * jetDQMAnalyzerAkVs3PF
+                                        * jetDQMAnalyzerAk4PFCleaned
 )

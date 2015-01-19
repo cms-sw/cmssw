@@ -168,3 +168,29 @@ jetDQMAnalyzerAkVs3PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
                                     RThreshold = cms.double(0.3),
                                     reverseEnergyFractionThreshold = cms.double(0.5)
 )
+jetDQMAnalyzerAkVs4PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
+                                    JetType = cms.untracked.string('pf'),
+                                    UEAlgo = cms.untracked.string('Vs'),
+                                    OutputFile = cms.untracked.string(''),
+                                    src = cms.InputTag("akVs4PFJets"),
+                                    PFcands = cms.InputTag("particleFlowTmp"),
+                                    Background = cms.InputTag("voronoiBackgroundPF"),
+                                    centrality = cms.InputTag("hiCentrality"),
+                                    JetCorrections = cms.string(""),
+                                    recoJetPtThreshold = cms.double(10),        
+                                    RThreshold = cms.double(0.3),
+                                    reverseEnergyFractionThreshold = cms.double(0.5)
+)
+jetDQMAnalyzerAkVs5PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
+                                    JetType = cms.untracked.string('pf'),
+                                    UEAlgo = cms.untracked.string('Vs'),
+                                    OutputFile = cms.untracked.string(''),
+                                    src = cms.InputTag("akVs5PFJets"),
+                                    PFcands = cms.InputTag("particleFlowTmp"),
+                                    Background = cms.InputTag("voronoiBackgroundPF"),
+                                    centrality = cms.InputTag("hiCentrality"),
+                                    JetCorrections = cms.string(""),
+                                    recoJetPtThreshold = cms.double(10),        
+                                    RThreshold = cms.double(0.3),
+                                    reverseEnergyFractionThreshold = cms.double(0.5)
+)
