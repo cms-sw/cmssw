@@ -104,6 +104,7 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
   mConstituents = 0;
   mJetArea      = 0;
   mjetpileup    = 0;
+  mNJets        = 0;
   mNJets_40     = 0;
   
 }
@@ -162,6 +163,7 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
     mJetArea         = ibooker.book1D("JetArea",      "JetArea",       100,   0, 4);
     mjetpileup       = ibooker.book1D("jetPileUp","jetPileUp",100,0,150);
     mNJets_40        = ibooker.book1D("NJets", "NJets 40<Pt",  50,    0,   50);
+    mNJets           = ibooker.book1D("NJets", "NJets",  50,    0,   100);
     
     if (mOutputFile.empty ()) 
       LogInfo("OutputInfo") << " Histograms will NOT be saved";
@@ -455,12 +457,13 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
   }
   
 
-  // int nJet      = 0;
   // int nJet_E_20_40 = 0;
   // int nJet_B_20_40 = 0;
   // int nJet_E_40 = 0;
   // int nJet_B_40 = 0;
   int nJet_40 = 0;
+
+  mNJets->Fill(recoJets.size());
   
   for (unsigned ijet=0; ijet<recoJets.size(); ijet++) {
 
