@@ -36,7 +36,7 @@ HLTJetTagWithMatching<T>::HLTJetTagWithMatching(const edm::ParameterSet & config
   m_MaxTag (config.getParameter<double>        ("MaxTag") ),
   m_MinJets(config.getParameter<int>           ("MinJets") ),
   m_TriggerType(config.getParameter<int>       ("TriggerType") ),
-  m_deltaR (config.getParameter<double>           ("deltR") )
+  m_deltaR (config.getParameter<double>           ("deltaR") )
 {
   m_JetsToken = consumes<std::vector<T> >(m_Jets),
   m_JetTagsToken = consumes<reco::JetTagCollection>(m_JetTags),
