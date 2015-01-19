@@ -379,6 +379,11 @@ def getFSQAll():
     ret.extend(getZeroBias_SinglePixelTrackVPSet())
     return ret
 
+def getFSQHI():
+    ret = cms.VPSet()
+    ret.extend(getZeroBias_SinglePixelTrackVPSet())
+    #ret.extend(getHighMultVPSet())
+    return ret
 
 fsqdirname = "HLT/FSQ/"
 
