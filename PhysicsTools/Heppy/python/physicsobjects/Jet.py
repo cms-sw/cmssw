@@ -48,11 +48,12 @@ class Jet(PhysicsObject):
         if not self.isPFJet():
             raise RuntimeError, "jetID implemented only for PF Jets"
         eta = abs(self.eta());
-        chf = self.chargedHadronEnergyFraction();
-        nhf = self.neutralHadronEnergyFraction();
-        phf = self.neutralEmEnergyFraction();
-        muf = self.muonEnergyFraction();
-        elf = self.chargedEmEnergyFraction();
+        energy = (self.p4()*self.rawFactor()).energy();
+        chf = self.chargedHadronEnergy()/energy;
+        nhf = self.neutralHadronEnergy()/energy;
+        phf = self.neutralEmEnergy()/energy;
+        muf = self.muonEnergy()/energy;
+        elf = self.chargedEmEnergy()/energy;
         chm = self.chargedHadronMultiplicity();
         npr = self.chargedMultiplicity() + self.neutralMultiplicity();
         #if npr != self.nConstituents():
