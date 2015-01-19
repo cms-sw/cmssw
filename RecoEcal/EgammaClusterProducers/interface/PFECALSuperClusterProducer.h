@@ -45,9 +45,10 @@ class PFECALSuperClusterProducer : public edm::stream::EDProducer<> {
   explicit PFECALSuperClusterProducer(const edm::ParameterSet&);
   ~PFECALSuperClusterProducer();
 
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions); 
 
  private:  
   // ----------member data ---------------------------
