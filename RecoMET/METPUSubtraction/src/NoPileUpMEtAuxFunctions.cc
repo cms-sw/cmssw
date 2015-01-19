@@ -6,9 +6,6 @@
 #include <cmath>
 
 namespace noPuUtils{
-
-  const int minPFCandToVertexAssocQuality = noPuUtils::kChHSAssoc; // CV: value recommended by Matthias Geisler, representing "good" PFCandidate-vertex associations
-
   const double dR2Min=0.01*0.01;
 
   int isVertexAssociated(const reco::PFCandidatePtr& pfCandidate,
