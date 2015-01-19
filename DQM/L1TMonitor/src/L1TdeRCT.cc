@@ -72,8 +72,6 @@ const unsigned int CHNLBINS = 396;
 const float CHNLMIN = -0.5;
 const float CHNLMAX = 395.5;
 
-bool first = true ;
-
 
 const int L1TdeRCT::crateFED[90]=
     {613, 614, 603, 702, 718,
@@ -110,8 +108,6 @@ L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
    doubleThreshold_ ( ps.getParameter< int >("doubleThreshold") ),
    filterTriggerType_ (ps.getParameter< int >("filterTriggerType") )
 {
-
-
 
   singlechannelhistos_ = ps.getUntrackedParameter < bool > ("singlechannelhistos", false);
 
@@ -434,12 +430,6 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
   bool regionEmulMip      [PhiEtaMax] = {false};
   bool regionEmulQuiet    [PhiEtaMax] = {false};
   bool regionEmulHfPlusTau[PhiEtaMax] = {false};
-
-if(first)
-{
-  first = false ;
-}
-
 
   // StepII: fill variables
 

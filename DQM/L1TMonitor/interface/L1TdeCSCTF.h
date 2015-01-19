@@ -39,7 +39,7 @@
 #include "TTree.h"
 #include "TFile.h"
 
-class L1TdeCSCTF : public DQMEDAnalyzer {
+class L1TdeCSCTF : public thread_unsafe::DQMEDAnalyzer {
 private:
   edm::EDGetTokenT<L1CSCTrackCollection> dataTrackProducer;
   edm::EDGetTokenT<L1CSCTrackCollection> emulTrackProducer;
