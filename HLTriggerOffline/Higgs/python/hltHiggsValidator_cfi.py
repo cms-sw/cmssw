@@ -178,8 +178,9 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
      Htaunu = cms.PSet(
         hltPathsToCheck = cms.vstring(
-            "HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v",
-            "HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v",
+#            "HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v",
+#            "HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v",
+            "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_v",
             "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v",
             # monitoring triggers for efficiency measurement
             "HLT_LooseIsoPFTau50_Trk30_eta2p1_v",
