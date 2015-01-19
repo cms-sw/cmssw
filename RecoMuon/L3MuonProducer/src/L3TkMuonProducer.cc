@@ -226,8 +226,8 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup){
     unsigned int iRH=0;
     for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit,++iRH ) {
       outRecHits->push_back((*hit)->clone());
-      (*outTrackExtras)[i].add( TrackingRecHitRef( rHits, iRH));
     }
+    (*outTrackExtras)[i].setHits( rHits, 0, iRH);
   }
   
   LogDebug(metname)<<"made: "<<outTracks->size()<<" tracks, "<<outTrackExtras->size()<<" extras and "<<outRecHits->size()<<" rechits.";

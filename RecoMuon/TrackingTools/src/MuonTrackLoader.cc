@@ -284,6 +284,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     }
     
     // Fill the track extra with the rec hit (persistent-)reference
+    unsigned int nHitsAdded = 0;
     for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin(); recHit != transHits.end(); ++recHit) {
       TrackingRecHit *singleHit = (**recHit).hit()->clone();
       std::vector<const TrackingRecHit*> hits = MuonTrackLoader::unpackHit(*singleHit);
@@ -302,9 +303,11 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
           }
       }
       recHitCollection->push_back( singleHit );  
-      // set the TrackingRecHitRef (persitent reference of the tracking rec hits)
-      trackExtra.add(TrackingRecHitRef(recHitCollectionRefProd, recHitsIndex++ ));
+      ++nHitsAdded;
     }
+    // set the TrackingRecHitRef (persitent reference of the tracking rec hits)
+    trackExtra.setHits(recHitCollectionRefProd, recHitsIndex, nHitsAdded);
+    recHitsIndex +=nHitsAdded;
 
     // fill the TrackExtraCollection
     trackExtraCollection->push_back(trackExtra);
@@ -617,6 +620,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     pair<bool,reco::Track> updateResult(false,reco::Track());
             
     // Fill the track extra with the rec hit (persistent-)reference
+    unsigned int nHitsAdded = 0;
     for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
 	 recHit != transHits.end(); ++recHit) {
 	TrackingRecHit *singleHit = (**recHit).hit()->clone();
@@ -635,11 +639,13 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
                 break;
             }
         }
-	}
-	recHitCollection->push_back( singleHit );  
-	// set the TrackingRecHitRef (persitent reference of the tracking rec hits)
-	trackExtra.add(TrackingRecHitRef(recHitCollectionRefProd, recHitsIndex++ ));
     }
+    recHitCollection->push_back( singleHit );
+    ++nHitsAdded;
+    }
+    // set the TrackingRecHitRef (persitent reference of the tracking rec hits)
+    trackExtra.setHits(recHitCollectionRefProd, recHitsIndex, nHitsAdded);
+    recHitsIndex += nHitsAdded;
 
     // fill the TrackExtraCollection
     trackExtraCollection->push_back(trackExtra);

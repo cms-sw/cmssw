@@ -98,10 +98,12 @@ private:
           selTracks_->back().setExtra( TrackExtraRef( rTrackExtras, selTrackExtras_->size() - 1) );
           TrackExtra & tx = selTrackExtras_->back();
           // TrackingRecHits
+          auto const firstHitIndex = selHits_->size();
           for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
               selHits_->push_back( (*hit)->clone() );
-              tx.add( TrackingRecHitRef( rHits, selHits_->size() - 1) );
           }
+          tx.setHits( rHits, firstHitIndex, selHits_->size() - firstHitIndex );
+
           if (copyTrajectories_) {
               goodTracks[current] = reco::TrackRef(rTracks, selTracks_->size() - 1);
           }
