@@ -123,7 +123,7 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
   vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
   vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
   
-  static int nRPCTrackBarrel, nRPCTrackEndcap , nDTTrack, nCSCTrack;
+  int nRPCTrackBarrel, nRPCTrackEndcap , nDTTrack, nCSCTrack;
   nRPCTrackBarrel = 0;
   nRPCTrackEndcap = 0;
   nDTTrack = 0;
