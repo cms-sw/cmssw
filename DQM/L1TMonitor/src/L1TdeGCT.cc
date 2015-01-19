@@ -3,6 +3,9 @@
 
 using namespace dedefs;
 
+const int L1TdeGCT::nGctColl_;
+const int L1TdeGCT::nerr;
+
 L1TdeGCT::L1TdeGCT(const edm::ParameterSet& iConfig) {
 
   verbose_ = iConfig.getUntrackedParameter<int>("VerboseFlag",0);
