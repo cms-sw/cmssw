@@ -1,8 +1,16 @@
 #include <DQM/RPCMonitorDigi/interface/RPCEfficiency.h>
+#include <DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h>
 
 
-void RPCEfficiency::bookDetUnitSeg(DQMStore::IBooker & ibooker, RPCDetId & detId,int nstrips,std::string folder, std::map<std::string, MonitorElement*> & meMap) {
+void RPCEfficiency::bookDetUnitSeg(DQMStore::IBooker & ibooker, RPCDetId & detId,int nstrips,std::string folderPath, std::map<std::string, MonitorElement*> & meMap) {
   
+  
+  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); 
+
+  std::string folder = folderPath +  folderStr->folderStructure(detId);
+
+
+
   ibooker.setCurrentFolder(folder);
 
   char meId [128];
@@ -31,6 +39,9 @@ void RPCEfficiency::bookDetUnitSeg(DQMStore::IBooker & ibooker, RPCDetId & detId
     meMap[meId] = ibooker.book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
     
   }
+
+  delete folderStr;
+
 }
 
 
