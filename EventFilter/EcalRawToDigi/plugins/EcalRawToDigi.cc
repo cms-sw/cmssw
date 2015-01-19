@@ -12,6 +12,9 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
   
   //define the list of FED to be unpacked
@@ -541,4 +544,202 @@ EcalRawToDigi::~EcalRawToDigi()
   if(myMap_      ) delete myMap_;
   if(theUnpacker_) delete theUnpacker_;
   
+}
+
+void EcalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("tccUnpacking",true);
+  desc.add<edm::InputTag>("FedLabel",edm::InputTag("listfeds"));
+  desc.add<bool>("srpUnpacking",true);
+  desc.add<bool>("syncCheck",true);
+  desc.add<bool>("feIdCheck",true);
+  desc.addUntracked<bool>("silentMode",true);
+  desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
+  {
+    std::vector<int> temp1;
+    temp1.reserve(54);
+    temp1.push_back(601);
+    temp1.push_back(602);
+    temp1.push_back(603);
+    temp1.push_back(604);
+    temp1.push_back(605);
+    temp1.push_back(606);
+    temp1.push_back(607);
+    temp1.push_back(608);
+    temp1.push_back(609);
+    temp1.push_back(610);
+    temp1.push_back(611);
+    temp1.push_back(612);
+    temp1.push_back(613);
+    temp1.push_back(614);
+    temp1.push_back(615);
+    temp1.push_back(616);
+    temp1.push_back(617);
+    temp1.push_back(618);
+    temp1.push_back(619);
+    temp1.push_back(620);
+    temp1.push_back(621);
+    temp1.push_back(622);
+    temp1.push_back(623);
+    temp1.push_back(624);
+    temp1.push_back(625);
+    temp1.push_back(626);
+    temp1.push_back(627);
+    temp1.push_back(628);
+    temp1.push_back(629);
+    temp1.push_back(630);
+    temp1.push_back(631);
+    temp1.push_back(632);
+    temp1.push_back(633);
+    temp1.push_back(634);
+    temp1.push_back(635);
+    temp1.push_back(636);
+    temp1.push_back(637);
+    temp1.push_back(638);
+    temp1.push_back(639);
+    temp1.push_back(640);
+    temp1.push_back(641);
+    temp1.push_back(642);
+    temp1.push_back(643);
+    temp1.push_back(644);
+    temp1.push_back(645);
+    temp1.push_back(646);
+    temp1.push_back(647);
+    temp1.push_back(648);
+    temp1.push_back(649);
+    temp1.push_back(650);
+    temp1.push_back(651);
+    temp1.push_back(652);
+    temp1.push_back(653);
+    temp1.push_back(654);
+    desc.add<std::vector<int> >("orderedFedList",temp1);
+  }
+  desc.add<bool>("eventPut",true);
+  desc.add<int>("numbTriggerTSamples",1);
+  desc.add<int>("numbXtalTSamples",10);
+  {
+    std::vector<int> temp1;
+    temp1.reserve(54);
+    temp1.push_back(1);
+    temp1.push_back(2);
+    temp1.push_back(3);
+    temp1.push_back(4);
+    temp1.push_back(5);
+    temp1.push_back(6);
+    temp1.push_back(7);
+    temp1.push_back(8);
+    temp1.push_back(9);
+    temp1.push_back(10);
+    temp1.push_back(11);
+    temp1.push_back(12);
+    temp1.push_back(13);
+    temp1.push_back(14);
+    temp1.push_back(15);
+    temp1.push_back(16);
+    temp1.push_back(17);
+    temp1.push_back(18);
+    temp1.push_back(19);
+    temp1.push_back(20);
+    temp1.push_back(21);
+    temp1.push_back(22);
+    temp1.push_back(23);
+    temp1.push_back(24);
+    temp1.push_back(25);
+    temp1.push_back(26);
+    temp1.push_back(27);
+    temp1.push_back(28);
+    temp1.push_back(29);
+    temp1.push_back(30);
+    temp1.push_back(31);
+    temp1.push_back(32);
+    temp1.push_back(33);
+    temp1.push_back(34);
+    temp1.push_back(35);
+    temp1.push_back(36);
+    temp1.push_back(37);
+    temp1.push_back(38);
+    temp1.push_back(39);
+    temp1.push_back(40);
+    temp1.push_back(41);
+    temp1.push_back(42);
+    temp1.push_back(43);
+    temp1.push_back(44);
+    temp1.push_back(45);
+    temp1.push_back(46);
+    temp1.push_back(47);
+    temp1.push_back(48);
+    temp1.push_back(49);
+    temp1.push_back(50);
+    temp1.push_back(51);
+    temp1.push_back(52);
+    temp1.push_back(53);
+    temp1.push_back(54);
+    desc.add<std::vector<int> >("orderedDCCIdList",temp1);
+  }
+  {
+    std::vector<int> temp1;
+    temp1.reserve(54);
+    temp1.push_back(601);
+    temp1.push_back(602);
+    temp1.push_back(603);
+    temp1.push_back(604);
+    temp1.push_back(605);
+    temp1.push_back(606);
+    temp1.push_back(607);
+    temp1.push_back(608);
+    temp1.push_back(609);
+    temp1.push_back(610);
+    temp1.push_back(611);
+    temp1.push_back(612);
+    temp1.push_back(613);
+    temp1.push_back(614);
+    temp1.push_back(615);
+    temp1.push_back(616);
+    temp1.push_back(617);
+    temp1.push_back(618);
+    temp1.push_back(619);
+    temp1.push_back(620);
+    temp1.push_back(621);
+    temp1.push_back(622);
+    temp1.push_back(623);
+    temp1.push_back(624);
+    temp1.push_back(625);
+    temp1.push_back(626);
+    temp1.push_back(627);
+    temp1.push_back(628);
+    temp1.push_back(629);
+    temp1.push_back(630);
+    temp1.push_back(631);
+    temp1.push_back(632);
+    temp1.push_back(633);
+    temp1.push_back(634);
+    temp1.push_back(635);
+    temp1.push_back(636);
+    temp1.push_back(637);
+    temp1.push_back(638);
+    temp1.push_back(639);
+    temp1.push_back(640);
+    temp1.push_back(641);
+    temp1.push_back(642);
+    temp1.push_back(643);
+    temp1.push_back(644);
+    temp1.push_back(645);
+    temp1.push_back(646);
+    temp1.push_back(647);
+    temp1.push_back(648);
+    temp1.push_back(649);
+    temp1.push_back(650);
+    temp1.push_back(651);
+    temp1.push_back(652);
+    temp1.push_back(653);
+    temp1.push_back(654);
+    desc.add<std::vector<int> >("FEDs",temp1);
+  }
+  desc.add<bool>("DoRegional",false);
+  desc.add<bool>("feUnpacking",true);
+  desc.add<bool>("forceToKeepFRData",false);
+  desc.add<bool>("headerUnpacking",true);
+  desc.add<bool>("memUnpacking",true);
+
+  descriptions.add("ecalEBunpacker", desc);
 }
