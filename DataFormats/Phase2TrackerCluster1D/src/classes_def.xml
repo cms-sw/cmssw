@@ -1,0 +1,29 @@
+<lcgdict>
+    <class name="Phase2TrackerCluster1D" ClassVersion="10">
+        <version ClassVersion="10" checksum="3868623983"/>
+    </class>
+
+    <class name="std::vector< Phase2TrackerCluster1D >"/>
+    <class name="edm::DetSet< Phase2TrackerCluster1D >"/>
+    <class name="std::vector< edm::DetSet< Phase2TrackerCluster1D > >"/>
+
+    <class name="Phase2TrackerCluster1DCollection"/>
+    <class name="Phase2TrackerCluster1DCollectionNew"/>
+
+    <class name="edm::Wrapper< Phase2TrackerCluster1DCollection >"/>
+    <class name="edm::Wrapper< Phase2TrackerCluster1DCollectionNew >"/>
+
+    <class name="Phase2TrackerCluster1DRef"/>
+    <class name="Phase2TrackerCluster1DRefNew"/>
+
+    <class name="Phase2TrackerCluster1DRefVector"/>
+    <class name="Phase2TrackerCluster1DRefProd"/>
+   
+    <class name="edm::Ref< Phase2TrackerCluster1DCollection, edm::DetSet< Phase2TrackerCluster1D >, edm::refhelper::FindDetSetForDetSetVector< Phase2TrackerCluster1D, Phase2TrackerCluster1DCollection > >"/>
+    <class name="std::vector< edm::Ref< Phase2TrackerCluster1DCollectionNew, Phase2TrackerCluster1D, Phase2TrackerCluster1DCollectionNew::FindForDetSetVector > >"/>
+    <class name="edmNew::DetSetVector< edm::Ref< Phase2TrackerCluster1DCollectionNew, Phase2TrackerCluster1D, Phase2TrackerCluster1DCollectionNew::FindForDetSetVector> >"/>
+    <class name="edm::Wrapper< edmNew::DetSetVector< edm::Ref< Phase2TrackerCluster1DCollectionNew, Phase2TrackerCluster1D, Phase2TrackerCluster1DCollectionNew::FindForDetSetVector> > >"/>
+
+    <class name="edm::ContainerMask< Phase2TrackerCluster1DCollectionNew >"/>
+    <class name="edm::Wrapper< edm::ContainerMask< Phase2TrackerCluster1DCollectionNew > >"/>
+</lcgdict>
