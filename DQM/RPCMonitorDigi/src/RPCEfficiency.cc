@@ -298,9 +298,6 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		RPCDetId rpcId = rollasociated->id();
 		const BoundPlane & RPCSurface = rollasociated->surface(); 
 		
-// 		RPCGeomServ rpcsrv(rpcId);
-// 		std::string nameRoll = rpcsrv.name();
-		
 		GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
 		
 		LocalPoint CenterRollinDTFrame = DTSurface.toLocal(CenterPointRollGlobal);
