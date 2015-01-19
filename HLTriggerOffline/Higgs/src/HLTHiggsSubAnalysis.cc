@@ -63,6 +63,11 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
     edm::ParameterSet anpset = pset.getParameter<edm::ParameterSet>(analysisname);
     // Collections labels (but genparticles already initialized) 
     // initializing _recLabels data member)
+    if( anpset.exists("parametersTurnOn") )
+    {
+        _parametersTurnOn = anpset.getParameter<std::vector<double> >("parametersTurnOn");
+        _pset.addParameter("parametersTurnOn",_parametersTurnOn); 
+    }
     this->bookobjects( anpset, iC );
     // Generic objects: Initialization of cuts
     for(std::map<unsigned int,std::string>::const_iterator it = _recLabels.begin();

@@ -192,6 +192,13 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         recMuonLabel  = cms.string("muons"),
         # -- Analysis specific cuts
         minCandidates = cms.uint32(2), 
+        parametersTurnOn = cms.vdouble(0,
+                                1, 8, 9, 10,
+                                11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+                                22, 24, 26, 28, 30, 32, 34, 36, 38, 40,
+                                45, 50, 55, 60, 65, 70, 
+                                80, 100, 120, 140, 160, 180, 200,
+                                ),
         ),
     H2tau  = cms.PSet( 
         hltPathsToCheck = cms.vstring(
