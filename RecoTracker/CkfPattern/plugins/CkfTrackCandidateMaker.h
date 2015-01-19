@@ -67,6 +67,7 @@ namespace cms
       {
 	edm::ParameterSetDescription psd0;
 	psd0.add<std::string>("refToPSet_","GroupedCkfTrajectoryBuilder")->setComment("");
+	psd0.setAllowAnything();
 	desc.add<edm::ParameterSetDescription>("TrajectoryBuilderPSet",psd0)->setComment("");
       }
       desc.add<std::string>("NavigationSchool","SimpleNavigationSchool")->setComment("");
