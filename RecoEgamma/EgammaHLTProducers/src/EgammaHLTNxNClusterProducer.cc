@@ -22,38 +22,25 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTNxNClusterProducer.h"
 #include "TVector3.h"
 
-EgammaHLTNxNClusterProducer::EgammaHLTNxNClusterProducer(const edm::ParameterSet& ps) {
-  
-  doBarrel_   = ps.getParameter<bool>("doBarrel");
-  doEndcaps_   = ps.getParameter<bool>("doEndcaps");
-  
-  barrelHitProducer_ = consumes<EcalRecHitCollection>(ps.getParameter< edm::InputTag > ("barrelHitProducer"));
-  endcapHitProducer_ = consumes<EcalRecHitCollection>(ps.getParameter< edm::InputTag > ("endcapHitProducer"));
-  
-  clusEtaSize_ = ps.getParameter<int> ("clusEtaSize");
-  clusPhiSize_ = ps.getParameter<int> ("clusPhiSize");
-  
-  // The names of the produced cluster collections
-  barrelClusterCollection_  = ps.getParameter<std::string>("barrelClusterCollection");
-  endcapClusterCollection_  = ps.getParameter<std::string>("endcapClusterCollection");
-    
-  clusSeedThr_ = ps.getParameter<double> ("clusSeedThr");
-  clusSeedThrEndCap_ = ps.getParameter<double> ("clusSeedThrEndCap");
-  
-  useRecoFlag_ = ps.getParameter<bool>("useRecoFlag");
-  flagLevelRecHitsToUse_ = ps.getParameter<int>("flagLevelRecHitsToUse"); 
-  
-  useDBStatus_ = ps.getParameter<bool>("useDBStatus");
-  statusLevelRecHitsToUse_ = ps.getParameter<int>("statusLevelRecHitsToUse"); 
-  
-    // Parameters for the position calculation:
-  posCalculator_ = PositionCalc( ps.getParameter<edm::ParameterSet>("posCalcParameters") );
-
-  //max number of seeds / clusters, once reached, then return 0 
-  maxNumberofSeeds_    = ps.getParameter<int> ("maxNumberofSeeds");
-  maxNumberofClusters_ = ps.getParameter<int> ("maxNumberofClusters");
-  
-  debug_ = ps.getParameter<int> ("debugLevel");
+EgammaHLTNxNClusterProducer::EgammaHLTNxNClusterProducer(const edm::ParameterSet& ps):
+  doBarrel_               (ps.getParameter<bool>("doBarrel")),
+  doEndcaps_              (ps.getParameter<bool>("doEndcaps")),
+  barrelHitProducer_      (consumes<EcalRecHitCollection>(ps.getParameter< edm::InputTag > ("barrelHitProducer"))),
+  endcapHitProducer_      (consumes<EcalRecHitCollection>(ps.getParameter< edm::InputTag > ("endcapHitProducer"))),
+  clusEtaSize_            (ps.getParameter<int> ("clusEtaSize")),
+  clusPhiSize_            (ps.getParameter<int> ("clusPhiSize")),
+  barrelClusterCollection_(ps.getParameter<std::string>("barrelClusterCollection")),
+  endcapClusterCollection_(ps.getParameter<std::string>("endcapClusterCollection")),
+  clusSeedThr_            (ps.getParameter<double> ("clusSeedThr")),
+  clusSeedThrEndCap_      (ps.getParameter<double> ("clusSeedThrEndCap")),
+  useRecoFlag_            (ps.getParameter<bool>("useRecoFlag")),
+  flagLevelRecHitsToUse_  (ps.getParameter<int>("flagLevelRecHitsToUse")), 
+  useDBStatus_            (ps.getParameter<bool>("useDBStatus")),
+  statusLevelRecHitsToUse_(ps.getParameter<int>("statusLevelRecHitsToUse")), 
+  maxNumberofSeeds_       (ps.getParameter<int> ("maxNumberofSeeds")),
+  maxNumberofClusters_    (ps.getParameter<int> ("maxNumberofClusters")),
+  debug_                  (ps.getParameter<int> ("debugLevel")),
+  posCalculator_          (PositionCalc( ps.getParameter<edm::ParameterSet>("posCalcParameters"))) {
   
   produces< reco::BasicClusterCollection >(barrelClusterCollection_);
   produces< reco::BasicClusterCollection >(endcapClusterCollection_);
