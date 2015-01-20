@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #Global fast calorimetry parameters
 from FastSimulation.Calorimetry.HcalResponse_cfi import *
 from FastSimulation.Calorimetry.HSParameters_cfi import *
-from FastSimulation.Configuration.CommonInputs_cff import *
+#from FastSimulation.Configuration.CommonInputs_cff import *
 FamosCalorimetryBlock = cms.PSet(
     Calorimetry = cms.PSet(
         HSParameterBlock,
@@ -285,12 +285,5 @@ FamosCalorimetryBlock = cms.PSet(
     )
 )
 
-if(CaloMode == 1 ):
-    FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = True
-    
-if(CaloMode == 2 ):
-    FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
-
-if(CaloMode == 3 ):
-    FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = True
-    FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
+FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = True
+FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
