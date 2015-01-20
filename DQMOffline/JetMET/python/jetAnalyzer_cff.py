@@ -31,4 +31,11 @@ jetDQMAnalyzerSequenceHI = cms.Sequence(jetDQMAnalyzerIC5CaloHIUncleaned
                                         * jetDQMAnalyzerAkVs5PF
                                         #* jetDQMAnalyzerAkVs6PF	   
                                         #* jetDQMAnalyzerAkVs7PF
+
+                                        #* jetDQMAnalyzerAk3CaloCleaned
+                                        #* jetDQMAnalyzerAk4CaloCleaned
+                                        #* jetDQMAnalyzerAk5CaloCleaned
+                                        #* jetDQMAnalyzerAk3PFCleaned
+                                        #* jetDQMAnalyzerAk4PFCleaned
+                                        #* jetDQMAnalyzerAk5PFCleaned                                        
 )

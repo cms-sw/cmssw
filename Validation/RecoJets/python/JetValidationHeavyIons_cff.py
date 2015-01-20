@@ -398,6 +398,89 @@ JetAnalyzerAkVs7PF = cms.EDAnalyzer("JetTester_HeavyIons",
 )				    			    
 '''
 
+# AntiKt5 Calo jets
+#-------------------------------------------------------------------------------
+JetAnalyzerAk3Calo = cms.EDAnalyzer("JetTester",
+                                    JetType = cms.untracked.string('calo'),
+                                    OutputFile = cms.untracked.string(''),
+                                    src            = cms.InputTag("ak3CaloJets"),
+#                                    srcRho         = cms.InputTag("ro", "ak4CaloJets"),
+                                    srcGen         = cms.InputTag("ak3HiCleanedGenJets"),
+                                    JetCorrections = cms.string(""),
+                                    recoJetPtThreshold = cms.double(40),
+                                    genEnergyFractionThreshold     = cms.double(0.05),
+                                    matchGenPtThreshold                 = cms.double(20.0),
+                                    RThreshold                     = cms.double(0.3)
+                                    )
+#-------------------------------------------------------------------------------
+JetAnalyzerAk4Calo = cms.EDAnalyzer("JetTester",
+                                    JetType = cms.untracked.string('calo'),
+                                    OutputFile = cms.untracked.string(''),
+                                    src            = cms.InputTag("ak4CaloJets"),
+#                                    srcRho         = cms.InputTag("rho", "ak4CaloJets"),
+                                    srcGen         = cms.InputTag("ak4HiCleanedGenJets"),
+                                    JetCorrections = cms.string(""),
+                                    recoJetPtThreshold = cms.double(40),
+                                    genEnergyFractionThreshold     = cms.double(0.05),
+                                    matchGenPtThreshold                 = cms.double(20.0),
+                                    RThreshold                     = cms.double(0.3)
+                                    )
+#-------------------------------------------------------------------------------
+JetAnalyzerAk5Calo = cms.EDAnalyzer("JetTester",
+                                    JetType = cms.untracked.string('calo'),
+                                    OutputFile = cms.untracked.string(''),
+                                    src            = cms.InputTag("ak5CaloJets"),
+#                                    srcRho         = cms.InputTag("rho", "ak4CaloJets"),
+                                    srcGen         = cms.InputTag("ak5HiCleanedGenJets"),
+                                    JetCorrections = cms.string(""),
+                                    recoJetPtThreshold = cms.double(40),
+                                    genEnergyFractionThreshold     = cms.double(0.05),
+                                    matchGenPtThreshold                 = cms.double(20.0),
+                                    RThreshold                     = cms.double(0.3)
+                                    )
+
+
+# AntiKt5 PF jets
+#-------------------------------------------------------------------------------
+JetAnalyzerAk3PF = cms.EDAnalyzer("JetTester",
+                                    JetType = cms.untracked.string('pf'),
+                                    OutputFile = cms.untracked.string(''),
+                                    src            = cms.InputTag("ak3PFJets"),
+#                                    srcRho         = cms.InputTag("ro", "ak4PFJets"),
+                                    srcGen         = cms.InputTag("ak3HiCleanedGenJets"),
+                                    JetCorrections = cms.string(""),
+                                    recoJetPtThreshold = cms.double(40),
+                                    genEnergyFractionThreshold     = cms.double(0.05),
+                                    matchGenPtThreshold                 = cms.double(20.0),
+                                    RThreshold                     = cms.double(0.3)
+                                    )
+#-------------------------------------------------------------------------------
+JetAnalyzerAk4PF = cms.EDAnalyzer("JetTester",
+                                    JetType = cms.untracked.string('pf'),
+                                    OutputFile = cms.untracked.string(''),
+                                    src            = cms.InputTag("ak4PFJets"),
+#                                    srcRho         = cms.InputTag("rho", "ak4PFJets"),
+                                    srcGen         = cms.InputTag("ak4HiCleanedGenJets"),
+                                    JetCorrections = cms.string(""),
+                                    recoJetPtThreshold = cms.double(40),
+                                    genEnergyFractionThreshold     = cms.double(0.05),
+                                    matchGenPtThreshold                 = cms.double(20.0),
+                                    RThreshold                     = cms.double(0.3)
+                                    )
+#-------------------------------------------------------------------------------
+JetAnalyzerAk5PF = cms.EDAnalyzer("JetTester",
+                                    JetType = cms.untracked.string('cpf'),
+                                    OutputFile = cms.untracked.string(''),
+                                    src            = cms.InputTag("ak5PFJets"),
+#                                    srcRho         = cms.InputTag("rho", "ak4PFJets"),
+                                    srcGen         = cms.InputTag("ak5HiCleanedGenJets"),
+                                    JetCorrections = cms.string(""),
+                                    recoJetPtThreshold = cms.double(40),
+                                    genEnergyFractionThreshold     = cms.double(0.05),
+                                    matchGenPtThreshold                 = cms.double(20.0),
+                                    RThreshold                     = cms.double(0.3)
+                                    )
+
 hiJetValidation = cms.Sequence(
     ak2HiCleanedGenJets
     * ak3HiCleanedGenJets
@@ -429,5 +512,12 @@ hiJetValidation = cms.Sequence(
     * JetAnalyzerAkVs5PF
     #* JetAnalyzerAkVs6PF	   
     #* JetAnalyzerAkVs7PF
-    
+
+    #* JetAnalyzerAk3Calo
+    #* JetAnalyzerAk4Calo
+    #* JetAnalyzerAk5Calo
+
+    #* JetAnalyzerAk3PF
+    #* JetAnalyzerAk4PF
+    #* JetAnalyzerAk5PF    
 )
