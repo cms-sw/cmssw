@@ -10,7 +10,6 @@
 ///
 LaserAlignmentT0ProducerDQM::LaserAlignmentT0ProducerDQM( const edm::ParameterSet& aConfiguration ) {
   
-  theDqmStore = edm::Service<DQMStore>().operator->();
   theConfiguration = aConfiguration;
   FillDetectorId();
 
@@ -27,13 +26,8 @@ LaserAlignmentT0ProducerDQM::~LaserAlignmentT0ProducerDQM() {
 }
 
 
-
-
-
-///
-///
-///
-void LaserAlignmentT0ProducerDQM::beginJob() {
+void LaserAlignmentT0ProducerDQM::bookHistograms(DQMStore::IBooker &iBooker,
+  edm::Run const &, edm::EventSetup const &) {
 
   // upper and lower treshold for a profile considered showing a signal
   theLowerAdcThreshold = theConfiguration.getParameter<unsigned int>( "LowerAdcThreshold" );
@@ -43,7 +37,7 @@ void LaserAlignmentT0ProducerDQM::beginJob() {
   theDigiProducerList = theConfiguration.getParameter<std::vector<edm::ParameterSet> >( "DigiProducerList" );
 
   std::string folderName = theConfiguration.getParameter<std::string>( "FolderName" ); 
-  theDqmStore->setCurrentFolder( folderName );
+  iBooker.setCurrentFolder(folderName);
 
   std::string nameAndTitle;
   std::stringstream labelBuilder;
@@ -55,7 +49,7 @@ void LaserAlignmentT0ProducerDQM::beginJob() {
   // x: 16 modules (5*TEC-, 6*TIB, 6*TOB, 5*TEC+), all from -z to z
   // y: 8 beams
   nameAndTitle = "NumberOfSignals_AlignmentTubes";
-  nSignalsAT   = theDqmStore->book2D( nameAndTitle, nameAndTitle, 22, 0, 22, nBeams, 0, nBeams );
+  nSignalsAT   = iBooker.book2D( nameAndTitle, nameAndTitle, 22, 0, 22, nBeams, 0, nBeams );
   //  nSignalsAT->setAxisTitle( "z-pos", 1 );
   //  nSignalsAT->setAxisTitle( "beam", 2 );
 
@@ -82,22 +76,22 @@ void LaserAlignmentT0ProducerDQM::beginJob() {
   // x: disk1...disk9 (from inner to outer, so z changes direction!)
   // y: 8 beams
   nameAndTitle       = "NumberOfSignals_TEC+R4";
-  nSignalsTECPlusR4  = theDqmStore->book2D( nameAndTitle, nameAndTitle, nDisks, 0, nDisks, nBeams, 0, nBeams );
+  nSignalsTECPlusR4  = iBooker.book2D( nameAndTitle, nameAndTitle, nDisks, 0, nDisks, nBeams, 0, nBeams );
   //  nSignalsTECPlusR4->setAxisTitle( "disk", 1 );
   //  nSignalsTECPlusR4->setAxisTitle( "beam", 2 );
 
   nameAndTitle       = "NumberOfSignals_TEC+R6";
-  nSignalsTECPlusR6  = theDqmStore->book2D( nameAndTitle, nameAndTitle, nDisks, 0, nDisks, nBeams, 0, nBeams );
+  nSignalsTECPlusR6  = iBooker.book2D( nameAndTitle, nameAndTitle, nDisks, 0, nDisks, nBeams, 0, nBeams );
   //  nSignalsTECPlusR6->setAxisTitle( "disk", 1 );
   //  nSignalsTECPlusR6->setAxisTitle( "beam", 2 );
 
   nameAndTitle       = "NumberOfSignals_TEC-R4";
-  nSignalsTECMinusR4 = theDqmStore->book2D( nameAndTitle, nameAndTitle, nDisks, 0, nDisks, nBeams, 0, nBeams );
+  nSignalsTECMinusR4 = iBooker.book2D( nameAndTitle, nameAndTitle, nDisks, 0, nDisks, nBeams, 0, nBeams );
   //  nSignalsTECMinusR4->setAxisTitle( "disk", 1 );
   //  nSignalsTECMinusR4->setAxisTitle( "beam", 2 );
 
   nameAndTitle       = "NumberOfSignals_TEC-R6";
-  nSignalsTECMinusR6 = theDqmStore->book2D( nameAndTitle, nameAndTitle, nDisks, 0, nDisks, nBeams, 0, nBeams );
+  nSignalsTECMinusR6 = iBooker.book2D( nameAndTitle, nameAndTitle, nDisks, 0, nDisks, nBeams, 0, nBeams );
   //  nSignalsTECMinusR6->setAxisTitle( "disk", 1 );
   //  nSignalsTECMinusR6->setAxisTitle( "beam", 2 );
 
@@ -182,29 +176,6 @@ void LaserAlignmentT0ProducerDQM::analyze( const edm::Event& aEvent, const edm::
 
 
 }
-
-
-
-
-
-///
-///
-///
-void LaserAlignmentT0ProducerDQM::endJob() {
-
-  bool writeToPlainROOTFile = theConfiguration.getParameter<bool>( "OutputInPlainROOT" );
-  
-  if( writeToPlainROOTFile ) {
-    std::string outputFileName = theConfiguration.getParameter<std::string>( "PlainOutputFileName" );
-    theDqmStore->showDirStructure();
-    theDqmStore->save( outputFileName );
-  }
-
-}
-
-
-
-
 
 ///
 ///
