@@ -89,7 +89,7 @@ CentralityBinProducer::CentralityBinProducer(const edm::ParameterSet& iConfig):
    using namespace edm;
    tag_ = consumes<reco::Centrality>(iConfig.getParameter<edm::InputTag>("Centrality"));
    centralityVariable_ = iConfig.getParameter<std::string>("centralityVariable");
-   pPbRunFlip_ = iConfig.getUntrackedParameter<unsigned int>("pPbRunFlip",99999999);
+   pPbRunFlip_ = iConfig.getParameter<unsigned int>("pPbRunFlip");
 
    if(centralityVariable_.compare("HFtowers") == 0) varType_ = HFtowers;
    if(centralityVariable_.compare("HFtowersPlus") == 0) varType_ = HFtowersPlus;
