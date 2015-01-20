@@ -58,10 +58,14 @@ from FastSimulation.Tracking.recoTrackAccumulator_cfi import *
 
 from FastSimulation.Configuration.mixFastSimObjects_cfi import *
 
+from FastSimulation.Configuration.trackingTruthProducerFastSim_cfi import *
+
 mix = cms.EDProducer("MixingModule",
                      digitizers = cms.PSet(ecal = cms.PSet(ecalDigitizer),
                                            hcal = cms.PSet(hcalDigitizer),
-                                           tracker = cms.PSet(trackAccumulator)),
+                                           tracker = cms.PSet(trackAccumulator),
+                                           mergedtruth = cms.PSet(trackingParticles)
+                                           ),
                      LabelPlayback = cms.string(''),
                      maxBunch = cms.int32(0),
                      minBunch = cms.int32(0), ## in terms of 25nsec
@@ -89,11 +93,7 @@ mix = cms.EDProducer("MixingModule",
 ##                         OOT_type = cms.untracked.string('Poisson'),  ## generate OOT with a Poisson matching the number chosen for in-time
                                            #OOT_type = cms.untracked.string('fixed'),  ## generate OOT with a fixed distribution
                                            #intFixed_OOT = cms.untracked.int32(2),
-                         fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/user/federica/FastSim/MinBias_620/MinBias_8TeV_cfi_GEN_SIM_RECO.root'),
-                                           #fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/user/federica/FastSim/MinBias_620/SingleNuE10_cfi_py_GEN_SIM_RECO.root'),
-                                           #fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/user/federica/FastSim/MinBias_620/SingleMuPt10_cfi_py_GEN_SIM_RECO_50evt.root'), 
-                                           #fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/relval/CMSSW_7_0_0_pre1/RelValProdMinBias/AODSIM/PRE_ST62_V8-v1/00000/CCA02E69-520F-E311-96CA-003048678BB2.root'), # from FullSim
-                                          #### fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/g/giamman/public/mixing/MinBias_GENSIMRECO.root')
+                                           fileNames = cms.untracked.vstring()
                                            ),
                      mixObjects = cms.PSet(
     mixSH = cms.PSet(

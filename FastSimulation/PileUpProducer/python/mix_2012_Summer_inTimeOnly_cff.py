@@ -64,18 +64,8 @@ prob = cms.vdouble(
                          1.570E-05,
                          5.005E-06)
 
-from FastSimulation.Configuration.CommonInputs_cff import MixingMode
-
-if (MixingMode=='DigiRecoMixing'):
-    # mix at SIM and RECO levels:
-    from FastSimulation.Configuration.MixingHitsAndTracks_cff import *
-    mix.input.nbPileupEvents.probFunctionVariable = npu
-    mix.input.nbPileupEvents.probValue = prob
-elif (MixingMode=='GenMixing'):
-    # mix at GEN level:
-    from FastSimulation.Configuration.MixingFull_cff import *
-    mixGenPU.input.nbPileupEvents.probFunctionVariable = npu
-    mixGenPU.input.nbPileupEvents.probValue = prob
-else:
-    print 'unsupported MixingMode label'
+# mix at SIM and RECO levels:
+from FastSimulation.Configuration.MixingHitsAndTracks_cff import *
+mix.input.nbPileupEvents.probFunctionVariable = npu
+mix.input.nbPileupEvents.probValue = prob
     
