@@ -56,9 +56,10 @@ fixedGridRhoFastjetCentralCalo = fixedGridRhoFastjetAllCalo.clone(
 recoJets   =cms.Sequence(#kt4CaloJets+kt6CaloJets+kt6CaloJetsCentral+
                          fixedGridRhoFastjetAllCalo+
                          fixedGridRhoFastjetCentralCalo+
-                         iterativeCone5CaloJets+
-                         ak4CaloJets+
-                         ak5CaloJets+ak7CaloJets)
+                         #iterativeCone5CaloJets+
+                         ak4CaloJets
+                         #+ak5CaloJets+ak7CaloJets
+                         )
 
 recoAllJets=cms.Sequence(sisCone5CaloJets+sisCone7CaloJets+
                          kt4CaloJets+kt6CaloJets+
@@ -69,7 +70,8 @@ recoAllJets=cms.Sequence(sisCone5CaloJets+sisCone7CaloJets+
                          ak5CaloJets+
                          ak5CaloJets+ak7CaloJets+
                          gk5CaloJets+gk7CaloJets+
-                         ca4CaloJets+ca6CaloJets)
+                         ca4CaloJets+ca6CaloJets
+			 )
 
 
 recoAllJetsPUOffsetCorr=cms.Sequence(sisCone5CaloJetsPUCorr+sisCone7CaloJetsPUCorr+

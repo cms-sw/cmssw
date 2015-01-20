@@ -107,17 +107,18 @@ ak5PFJetsCHSSoftDrop = ak5PFJetsSoftDrop.clone(
 
     
 ak4PFJetsCHS = ak5PFJetsCHS.clone(
-    rParam = 0.4
+    rParam = 0.4,
+    jetPtMin = 5.0
     )    
 
 ak8PFJetsCHS = ak5PFJetsCHS.clone(
     rParam = 0.8,
-    jetPtMin = 15.0
+    jetPtMin = 50.0
     )
 
 ak8PFJetsCHSPruned = ak5PFJetsCHSPruned.clone(
     rParam = 0.8,
-    jetPtMin = 15.0
+    jetPtMin = 100.0
     )
 
 ak8PFJetsCHSFiltered = ak5PFJetsCHSFiltered.clone(
@@ -132,7 +133,7 @@ ak8PFJetsCHSTrimmed = ak5PFJetsCHSTrimmed.clone(
 
 ak8PFJetsCHSSoftDrop = ak5PFJetsCHSSoftDrop.clone(
     rParam = 0.8,
-    jetPtMin = 15.0
+    jetPtMin = 100.0
     )
 
 
@@ -180,7 +181,7 @@ hepTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents"
 
 
 recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
-                           iterativeCone5PFJets+
+                           #iterativeCone5PFJets+
                            #kt6PFJetsCentralChargedPileUp+
                            #kt6PFJetsCentralNeutral+
                            #kt6PFJetsCentralNeutralTight+
@@ -188,21 +189,23 @@ recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
                            fixedGridRhoFastjetAll+
                            fixedGridRhoFastjetCentralChargedPileUp+
                            fixedGridRhoFastjetCentralNeutral+
-                           ak4PFJets+ak5PFJets+ak8PFJets+
+                           ak4PFJets+
+			   #ak5PFJets+
+			   #ak8PFJets+
                            pfNoPileUpJMESequence+
-                           ak5PFJetsCHS+
+                           #ak5PFJetsCHS+
                            ak4PFJetsCHS+                           
                            ak8PFJetsCHS+
                            #ca8PFJetsCHS+
                            ak8PFJetsCHSConstituents+
-                           ak8PFJetsCHSPruned+
-                           ak8PFJetsCHSPrunedMass+
+                           #ak8PFJetsCHSPruned+
+                           #ak8PFJetsCHSPrunedMass+
                            ak8PFJetsCHSSoftDrop+
                            ak8PFJetsCHSSoftDropMass+
-                           cmsTopTagPFJetsCHS+
-                           hepTopTagPFJetsCHS+
-                           ca15PFJetsCHSMassDropFiltered+
-                           ca15PFJetsCHSFiltered
+                           cmsTopTagPFJetsCHS
+                           #hepTopTagPFJetsCHS+
+                           #ca15PFJetsCHSMassDropFiltered+
+                           #ca15PFJetsCHSFiltered
     )
 
 recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
