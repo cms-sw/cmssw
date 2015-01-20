@@ -30,9 +30,9 @@ ShashlikDDDConstants::~ShashlikDDDConstants() {
 #endif
 }
 
-std::pair<int,int> ShashlikDDDConstants::getSMM(int ix, int iy) const {
+std::pair<int,int> ShashlikDDDConstants::getSMM(int ix, int iy, bool testOnly) const {
 
-  int iq = quadrant(ix,iy);
+  int iq = quadrant(ix,iy, testOnly);
   if (iq != 0) {
     int jx = (ix-1)/nMods;
     int jy = (iy-1)/nMods;
@@ -71,7 +71,7 @@ std::pair<int,int> ShashlikDDDConstants::getXY(int sm, int mod) const {
 }
 
 bool ShashlikDDDConstants::isValidXY(int ix, int iy) const {
-  int  iq = quadrant(ix,iy);
+  int  iq = quadrant(ix,iy, true);
   if (iq != 0) {
     int jx = (ix-1)/nMods;
     int jy = (iy-1)/nMods;
@@ -89,7 +89,7 @@ bool ShashlikDDDConstants::isValidSMM(int sm, int mod) const {
   return ok;
 }
 
-int ShashlikDDDConstants::quadrant(int ix, int iy) const {
+int ShashlikDDDConstants::quadrant(int ix, int iy, bool testOnly) const {
   int iq(0);
   ix = (ix-1) / nMods + 1;
   iy = (iy-1) / nMods + 1;
@@ -100,11 +100,11 @@ int ShashlikDDDConstants::quadrant(int ix, int iy) const {
     if (iy>nRow && iy<=2*nRow) iq = 2;
     else if (iy>0 && iy<=nRow) iq = 3;
   }
-  if (iq == 0) std::cout << "ShashlikDDDConstants::quadrant-> missing ix/iy " << ix << '/' << iy << '/' << nRow << std::endl;
+  assert (iq != 0 || testOnly);
   return iq;
 }
 
-int ShashlikDDDConstants::quadrant(int sm) const {
+int ShashlikDDDConstants::quadrant(int sm, bool testOnly) const {
   int iq(0);
   if (sm > 4*nSM) {
   } else if (sm > 3*nSM) {
@@ -116,7 +116,9 @@ int ShashlikDDDConstants::quadrant(int sm) const {
   } else if (sm > 0) {
     iq = 1;
   }
-  if (iq == 0)  std::cerr << "ShashlikDDDConstants::quadrant-> missing SM/nSM " << sm << '/' << nSM << std::endl;
+  else {
+    assert (testOnly);
+  }
   return iq;
 }
 
