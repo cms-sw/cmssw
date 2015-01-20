@@ -18,11 +18,7 @@ from FastSimulation.HighLevelTrigger.HLTFastRecoForXchannel_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForSpecial_cff import *
 
 # L1 emulator - using directly L1Trigger.Configuration.SimL1Emulator_cff
-# for everithing but simRctDigis that is taken from CaloRecHits_cff for 
-# CaloMode = 3
-#
-# For CaloMode = 0 simRctDigis is taken from SimL1Emulator_cff as well:
-# this a hack to make things work, a better solution has to be implemented
+# for everithing but simRctDigis that is taken from CaloRecHits_cff
 #
 # GT digis and L1 extra have different module label naming  w.r.t.
 # FullSim as they are used as input to HLT w.o. any packing/unpacking
@@ -38,16 +34,7 @@ from L1Trigger.Configuration.SimL1Emulator_cff import simGctDigis,             \
 from L1Trigger.GlobalTrigger.gtDigis_cfi import *
 
 # The calorimeter emulator requires doDigis=true
-# In CMSSW > 61X CaloMode can be updated with the following import
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
-if(CaloMode==0 or CaloMode==2):
-    ecalRecHit.doDigis = True
-if(CaloMode==0 or CaloMode==1):
-    hbhereco.doDigis = True
-    hfreco.doDigis = True
-    horeco.doDigis = True
-if(CaloMode==0) :
-    from L1Trigger.Configuration.SimL1Emulator_cff import simRctDigis
 
 # GT emulator
 gtDigis.EmulateBxInEvent = 1
