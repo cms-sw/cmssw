@@ -217,12 +217,6 @@ expertSettings.add_option("--gflash",
                   default=defaultOptions.gflash,
                   dest="gflash")
 
-expertSettings.add_option("--himix",
-                 help="Run the Heavy Ions signal mixing.",
-                 action="store_true",
-                 default=defaultOptions.himix,
-                 dest="himix")
-                                                    
 expertSettings.add_option("--python_filename",
                           help="Change the name of the created config file ",
                           default='',
