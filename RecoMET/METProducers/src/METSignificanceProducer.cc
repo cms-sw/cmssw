@@ -45,7 +45,7 @@ namespace cms
    //
     edm::Handle<edm::View<reco::MET> > metHandle;
     event.getByToken(metToken_, metHandle);
-    reco::MET met = (*metHandle)[0];
+    const reco::MET& met = (*metHandle)[0];
     
     //
     // candidates
