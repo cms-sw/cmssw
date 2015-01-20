@@ -1,5 +1,5 @@
-#ifndef CommonTools_PFCandProducer_PrimaryVertexSorting_
-#define CommonTools_PFCandProducer_PrimaryVertexSorting_
+#ifndef CommonTools_RecoAlgos_PrimaryVertexSorting_
+#define CommonTools_RecoAlgos_PrimaryVertexSorting_
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -8,10 +8,9 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "CommonTools/ParticleFlow/interface/PFPrimaryVertexAssignment.h"
+#include "CommonTools/RecoAlgos/interface/PrimaryVertexAssignment.h"
 
 
 
