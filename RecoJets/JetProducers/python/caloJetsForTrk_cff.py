@@ -5,5 +5,5 @@ from RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi import calotowermaker
 caloTowerForTrk = calotowermaker.clone(hbheInput=cms.InputTag('hbheprereco'))
 ak4CaloJetsForTrk = ak4CaloJets.clone(srcPVs = cms.InputTag('firstStepPrimaryVertices'), src= cms.InputTag('caloTowerForTrk'))
 
-process.caloJetsForTrk = cms.Sequence(caloTowerForTrk*ak4CaloJetsForTrk)
+caloJetsForTrk = cms.Sequence(caloTowerForTrk*ak4CaloJetsForTrk)
 
