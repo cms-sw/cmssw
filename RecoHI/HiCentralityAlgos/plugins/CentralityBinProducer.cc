@@ -159,13 +159,13 @@ CentralityBinProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   int bin = inputDB_->m_table.size() - 1;
   for(unsigned int i = 0; i < inputDB_->m_table.size(); ++i){
 
-    if(value >= inputDB_->m_table[i].bin_edge){
+    if(value >= inputDB_->m_table[i].bin_edge && value < inputDB_->m_table[i-1].bin_edge){
       bin = i;
     }
+
   }
 
    std::auto_ptr<int> binp(new int(bin));
-
    iEvent.put(binp,centralityVariable_.data());
  
 }
@@ -183,7 +183,6 @@ CentralityBinProducer::beginRun(edm::Run const& iRun, const edm::EventSetup& iSe
   }
   prevRun_ = iRun.run();
 
-  edm::ESHandle<CentralityTable> inputDB_;
   iSetup.get<HeavyIonRcd>().get(centralityLabel_,inputDB_);
 
 }
