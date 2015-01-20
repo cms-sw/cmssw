@@ -55,7 +55,7 @@ particleFlowRecHitHF.producers[0].qualityTests =cms.VPSet(
 
 ### With the new mixing scheme, the label of the Trajectory collection for the primary event is different:
 from FastSimulation.Configuration.CommonInputs_cff import *
-if(CaloMode==3 and MixingMode=='DigiRecoMixing'):
+if(MixingMode=='DigiRecoMixing'):
     trackerDrivenElectronSeeds.TkColList = cms.VInputTag(cms.InputTag("generalTracksBeforeMixing"))
 
 
