@@ -105,7 +105,7 @@ CentralityBinProducer::CentralityBinProducer(const edm::ParameterSet& iConfig):
    if(centralityVariable_.compare("EE") == 0) varType_ = EE;
    if(varType_ == Missing){
      std::string errorMessage="Requested Centrality variable does not exist : "+centralityVariable_+"\n" +
-       "Supported variables are: \n" + "HFtowers HFhits PixelHits PixelTracks Tracks EB EE" + "\n";
+       "Supported variables are: \n" + "HFtowers HFtowersPlus HFtowersMinus HFtowersTrunc HFtowersPlusTrunc HFtowersMinusTrunc HFhits PixelHits PixelTracks Tracks EB EE" + "\n";
      throw cms::Exception("Configuration",errorMessage);
    }
 
@@ -172,11 +172,20 @@ CentralityBinProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
 void
-CentralityBinProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup)
+CentralityBinProducer::beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup)
 {
+
+  if(prevRun_ < pPbRunFlip_ && iRun.run() >= pPbRunFlip_){
+     if(centralityVariable_.compare("HFtowersPlus") == 0) varType_ = HFtowersMinus;
+     if(centralityVariable_.compare("HFtowersMinus") == 0) varType_ = HFtowersPlus;
+     if(centralityVariable_.compare("HFtowersPlusTrunc") == 0) varType_ = HFtowersMinusTrunc;
+     if(centralityVariable_.compare("HFtowersMinusTrunc") == 0) varType_ = HFtowersPlusTrunc;
+  }
+  prevRun_ = iRun.run();
 
   edm::ESHandle<CentralityTable> inputDB_;
   iSetup.get<HeavyIonRcd>().get(centralityLabel_,inputDB_);
+
 }
 
 //define this as a plug-in
