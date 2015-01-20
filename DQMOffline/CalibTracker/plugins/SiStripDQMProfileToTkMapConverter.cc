@@ -14,10 +14,6 @@ SiStripDQMProfileToTkMapConverter::SiStripDQMProfileToTkMapConverter(const edm::
   reader = new SiStripDetInfoFileReader(fp_.fullPath());  
   
   edm::LogInfo("SiStripDQMProfileToTkMapConverter") << " before opening file " << filename.c_str();  
-  dqmStore_ = edm::Service<DQMStore>().operator->(); 
-  dqmStore_->setVerbose(iConfig.getUntrackedParameter<uint32_t>("verbosity",0)); 
-  
-  dqmStore_->open(filename.c_str(), false,dirpath); 
   edm::LogInfo("SiStripDQMProfileToTkMapConverter") << " after opening file ";  
 }
 
@@ -26,7 +22,9 @@ SiStripDQMProfileToTkMapConverter::~SiStripDQMProfileToTkMapConverter(){
   edm::LogInfo("SiStripDQMProfileToTkMapConverter") << " dtor";
 }
 
-void SiStripDQMProfileToTkMapConverter::beginRun(const edm::Run& run, const edm::EventSetup& es){
+void SiStripDQMProfileToTkMapConverter::dqmEndLuminosityBlock(
+  DQMStore::IBooker &, DQMStore::IGetter & iGetter,
+  edm::LuminosityBlock const &, edm::EventSetup const& es) {
 
   tkMap=new TrackerMap( "DigiOcc" );
   tkhisto=new TkHistoMap("DigiOcc","DigiOcc",-1.);
@@ -78,7 +76,7 @@ void SiStripDQMProfileToTkMapConverter::beginRun(const edm::Run& run, const edm:
 
   edm::LogInfo("SiStripDQMProfileToTkMapConverter") <<" [SiStripDQMProfileToTkMapConverter] dirpath " << dirpath << std::endl;
   
-  std::vector<MonitorElement*> MEs = dqmStore_->getAllContents(dirpath);
+  std::vector<MonitorElement*> MEs = iGetter.getAllContents(dirpath);
   
   edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::bookHistos] vector size " << MEs.size()<< std::endl;
 
@@ -139,9 +137,6 @@ void SiStripDQMProfileToTkMapConverter::beginRun(const edm::Run& run, const edm:
   }
   LogDebug("SiStripDQMProfileToTkMapConverter") <<" [SiStripDQMProfileToTkMapConverter] fullPrint " << ssFull.str() << std::endl;
   edm::LogInfo("SiStripDQMProfileToTkMapConverter") <<" [SiStripDQMProfileToTkMapConverter] fullPrint " << ssReport.str() << std::endl;
-}
-
-void SiStripDQMProfileToTkMapConverter::endJob(){
 
   std::string filename=TkMapFileName_;
   if (filename!=""){
@@ -151,8 +146,4 @@ void SiStripDQMProfileToTkMapConverter::endJob(){
     tkhisto->save(filename+".root");
     tkhisto->saveAsCanvas(filename+"_Canvas.root",conf_.getUntrackedParameter<std::string>("TkMapDrawOption","E"));
   }
-
 }
-
-
-

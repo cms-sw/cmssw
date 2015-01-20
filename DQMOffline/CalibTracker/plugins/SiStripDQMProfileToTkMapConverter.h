@@ -11,7 +11,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/SiStripCommon/interface/TkHistoMap.h" 
@@ -23,20 +23,15 @@
 #include <sstream>
 
 
-class SiStripDQMProfileToTkMapConverter : public edm::EDAnalyzer {
+class SiStripDQMProfileToTkMapConverter : public DQMEDHarvester {
 
 public:
 
   SiStripDQMProfileToTkMapConverter(const edm::ParameterSet&);
   ~SiStripDQMProfileToTkMapConverter();
 
-private:
-
- //Will be called at the beginning of the job
-  void beginRun(const edm::Run &, const edm::EventSetup &);
-  void analyze(const edm::Event&, const edm::EventSetup&){};
-  void endJob();
-
+  virtual void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) override;
+  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) {};
 
 private:
   const edm::ParameterSet conf_;
@@ -44,9 +39,6 @@ private:
   SiStripDetInfoFileReader* reader;
   std::string filename, dirpath;
   std::string TkMapFileName_;
-
-  DQMStore* dqmStore_;
-
 
   TkHistoMap *tkhisto;
   TrackerMap * tkMap;  
