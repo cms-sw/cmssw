@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
@@ -28,7 +28,7 @@
 class DTT0;
 class TFile;
 
-class DTt0DBValidation : public edm::EDAnalyzer {
+class DTt0DBValidation : public DQMEDAnalyzer {
 public:
   /// Constructor
   DTt0DBValidation(const edm::ParameterSet& pset);
@@ -38,25 +38,19 @@ public:
 
   /// Operations
   //Read the DTGeometry and the t0 DB
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
-  void endRun(edm::Run const&, edm::EventSetup const&);
-  void endJob(); 
-  void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
+  virtual void endStream(void) override;
 
 private:
-  void bookHistos(DTLayerId lId, int firstWire, int lastWire);
-  void bookHistos(int wheel);
+  void bookHistos(DQMStore::IBooker &, DTLayerId lId, int firstWire, int lastWire);
+  void bookHistos(DQMStore::IBooker &, int wheel);
 
-  DQMStore* dbe_;
   // Switch for verbosity
   std::string metname_;
   // The DB label
   std::string labelDBRef_;
   std::string labelDB_;
-
-  // The file which will contain the difference plot
-  bool outputMEsInRootFile_;
-  std::string outputFileName_;
 
   std::string t0TestName_;
 

@@ -40,30 +40,19 @@ DTt0DBValidation::DTt0DBValidation(const ParameterSet& pset) {
   metname_ = "InterChannelSynchDBValidation";
   LogVerbatim(metname_) << "[DTt0DBValidation] Constructor called!";
 
-  // Get the DQM needed services
-  dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation");
-
   // Get dataBase label
   labelDBRef_ = pset.getParameter<string>("labelDBRef");
   labelDB_ = pset.getParameter<string>("labelDB");
 
   t0TestName_ = "t0DifferenceInRange";
   if( pset.exists("t0TestName") ) t0TestName_ = pset.getParameter<string>("t0TestName");
-  
-  outputMEsInRootFile_ = false;
-  if( pset.exists("OutputFileName") ){
-     outputMEsInRootFile_ = true;
-     outputFileName_ = pset.getParameter<std::string>("OutputFileName");
-  }
 }
 
 
 DTt0DBValidation::~DTt0DBValidation(){}
 
 
-void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
-
+void DTt0DBValidation::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &setup) {
   metname_ = "InterChannelSynchDBValidation";
   LogVerbatim(metname_) << "[DTt0DBValidation] Parameters initialization";
  
@@ -78,8 +67,10 @@ void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
   LogVerbatim(metname_) << "[DTt0DBValidation] T0 to validate version: " << t0->version();
 
   //book&reset the summary histos
+  iBooker.setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation");
+
   for(int wheel=-2; wheel<=2; wheel++){
-    bookHistos(wheel);
+    bookHistos(iBooker, wheel);
     wheelSummary_[wheel]->Reset();
   }
 
@@ -153,7 +144,7 @@ void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
 	const DTTopology& dtTopo = dtGeom_->layer(layerId)->specificTopology();
 	const int firstWire = dtTopo.firstChannel();
 	const int lastWire = dtTopo.lastChannel();
-	bookHistos(layerId, firstWire, lastWire);
+	bookHistos(iBooker, layerId, firstWire, lastWire);
       }
 
       LogTrace(metname_)<< "Filling the histo for wire: "<<(*theMap).first
@@ -162,10 +153,11 @@ void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
 
     }
   } // Loop over the t0 map reference
-   
 }
 
-void DTt0DBValidation::endRun(edm::Run const& run, edm::EventSetup const& setup) {
+void DTt0DBValidation::analyze(const edm::Event &, const edm::EventSetup &) {}
+
+void DTt0DBValidation::endStream() {
 
   // Check the histos
   string testCriterionName = t0TestName_; 
@@ -200,13 +192,8 @@ void DTt0DBValidation::endRun(edm::Run const& run, edm::EventSetup const& setup)
 
 }
 
-void DTt0DBValidation::endJob() {
-  // Write the histos on a file
-  if(outputMEsInRootFile_) dbe_->save(outputFileName_); 
-}
-
   // Book a set of histograms for a given Layer
-void DTt0DBValidation::bookHistos(DTLayerId lId, int firstWire, int lastWire) {
+void DTt0DBValidation::bookHistos(DQMStore::IBooker &iBooker, DTLayerId lId, int firstWire, int lastWire) {
   
   LogTrace(metname_)<< "   Booking histos for L: " << lId;
 
@@ -224,22 +211,22 @@ void DTt0DBValidation::bookHistos(DTLayerId lId, int firstWire, int lastWire) {
     "_SL" + superLayer.str()+
     "_L" + layer.str();
   
-  dbe_->setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation/Wheel" + wheel.str() +
+  iBooker.setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation/Wheel" + wheel.str() +
 			   "/Station" + station.str() +
 			   "/Sector" + sector.str() +
 			   "/SuperLayer" +superLayer.str());
   // Create the monitor elements
   MonitorElement * hDifference;
-  hDifference = dbe_->book1D("T0Difference"+lHistoName, "difference between the two t0 values",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
+  hDifference = iBooker.book1D("T0Difference"+lHistoName, "difference between the two t0 values",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
   
   t0DiffHistos_[lId] = hDifference;
 }
 
 // Book the summary histos
-void DTt0DBValidation::bookHistos(int wheel) {
-  dbe_->setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation");
+void DTt0DBValidation::bookHistos(DQMStore::IBooker &iBooker, int wheel) {
+  iBooker.setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation");
   stringstream wh; wh << wheel;
-    wheelSummary_[wheel]= dbe_->book2D("SummaryWrongT0_W"+wh.str(), "W"+wh.str()+": summary of wrong t0 differences",44,1,45,14,1,15);
+    wheelSummary_[wheel]= iBooker.book2D("SummaryWrongT0_W"+wh.str(), "W"+wh.str()+": summary of wrong t0 differences",44,1,45,14,1,15);
     wheelSummary_[wheel]->setBinLabel(1,"M1L1",1);
     wheelSummary_[wheel]->setBinLabel(2,"M1L2",1);
     wheelSummary_[wheel]->setBinLabel(3,"M1L3",1);

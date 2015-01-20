@@ -41,10 +41,6 @@ DTnoiseDBValidation::DTnoiseDBValidation(const ParameterSet& pset) {
 
   LogVerbatim("NoiseDBValidation") << "[DTnoiseDBValidation] Constructor called!";
 
-  // Get the DQM needed services
-  dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder("DT/DtCalib/NoiseDBValidation");
-
   // Get dataBase label
   labelDBRef_ = pset.getParameter<string>("labelDBRef");
   labelDB_ = pset.getParameter<string>("labelDB");
@@ -63,18 +59,12 @@ DTnoiseDBValidation::DTnoiseDBValidation(const ParameterSet& pset) {
 
   layerTestName_ = "noiseLayerOccInRange";
   if( pset.exists("layerTestName") ) layerTestName_ = pset.getParameter<string>("layerTestName");
-  
-  outputMEsInRootFile_ = false;
-  if( pset.exists("OutputFileName") ){
-     outputMEsInRootFile_ = true;
-     outputFileName_ = pset.getParameter<std::string>("OutputFileName");
-  }
 }
 
 
 DTnoiseDBValidation::~DTnoiseDBValidation(){}
 
-void DTnoiseDBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
+void DTnoiseDBValidation::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &setup) {
   ESHandle<DTStatusFlag> noiseRef;
   setup.get<DTStatusFlagRcd>().get(labelDBRef_, noiseRef);
   noiseRefMap_ = &*noiseRef;
@@ -92,20 +82,22 @@ void DTnoiseDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
   noisyCellsValid_ = 0;
 
   // Histo booking
-  diffHisto_ = dbe_->book1D("noisyCellDiff", "percentual (wrt the previous db) total number of noisy cells",1, 0.5, 1.5);
+  iBooker.setCurrentFolder("DT/DtCalib/NoiseDBValidation");
+
+  diffHisto_ = iBooker.book1D("noisyCellDiff", "percentual (wrt the previous db) total number of noisy cells",1, 0.5, 1.5);
   diffHisto_->setBinLabel(1,"Diff");
-  wheelHisto_ = dbe_->book1D("wheelOccupancy", "percentual noisy cells occupancy per wheel",5, -2.5, 2.5);
+  wheelHisto_ = iBooker.book1D("wheelOccupancy", "percentual noisy cells occupancy per wheel",5, -2.5, 2.5);
   wheelHisto_->setBinLabel(1,"Wh-2");
   wheelHisto_->setBinLabel(2,"Wh-1");
   wheelHisto_->setBinLabel(3,"Wh0");
   wheelHisto_->setBinLabel(4,"Wh1");
   wheelHisto_->setBinLabel(5,"Wh2");
-  stationHisto_ = dbe_->book1D("stationOccupancy", "percentual noisy cells occupancy per station",4, 0.5, 4.5);
+  stationHisto_ = iBooker.book1D("stationOccupancy", "percentual noisy cells occupancy per station",4, 0.5, 4.5);
   stationHisto_->setBinLabel(1,"St1");
   stationHisto_->setBinLabel(2,"St2");
   stationHisto_->setBinLabel(3,"St3");
   stationHisto_->setBinLabel(4,"St4");
-  sectorHisto_ = dbe_->book1D("sectorOccupancy", "percentual noisy cells occupancy per sector",12, 0.5, 12.5);
+  sectorHisto_ = iBooker.book1D("sectorOccupancy", "percentual noisy cells occupancy per sector",12, 0.5, 12.5);
   sectorHisto_->setBinLabel(1,"Sect1");
   sectorHisto_->setBinLabel(2,"Sect2");
   sectorHisto_->setBinLabel(3,"Sect3");
@@ -118,7 +110,7 @@ void DTnoiseDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
   sectorHisto_->setBinLabel(10,"Sect10");
   sectorHisto_->setBinLabel(11,"Sect11");
   sectorHisto_->setBinLabel(12,"Sect12");
-  layerHisto_ = dbe_->book1D("layerOccupancy", "percentual noisy cells occupancy per layer",3, 0.5, 3.5);
+  layerHisto_ = iBooker.book1D("layerOccupancy", "percentual noisy cells occupancy per layer",3, 0.5, 3.5);
   layerHisto_->setBinLabel(1,"First 10 bins");
   layerHisto_->setBinLabel(2,"Middle bins");
   layerHisto_->setBinLabel(3,"Last 10 bins");
@@ -172,7 +164,7 @@ void DTnoiseDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
       layerMap[3]++;
 
     const DTChamberId chId = wireId.layerId().superlayerId().chamberId();
-    if( noiseHistoMap_.find(chId) == noiseHistoMap_.end() ) bookHisto(chId);
+    if( noiseHistoMap_.find(chId) == noiseHistoMap_.end() ) bookHisto(iBooker, chId);
     int binNumber = 4*(wireId.superLayer() - 1) + wireId.layer(); 
     noiseHistoMap_[chId]->Fill(wireId.wire(),binNumber);
   }
@@ -205,7 +197,9 @@ void DTnoiseDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
 
 }
 
-void DTnoiseDBValidation::endRun(edm::Run const& run, edm::EventSetup const& setup) {
+void DTnoiseDBValidation::analyze(const edm::Event &, const edm::EventSetup &) {}
+
+void DTnoiseDBValidation::endStream() {
 
   // test on difference histo
   //string testCriterionName;
@@ -263,12 +257,7 @@ void DTnoiseDBValidation::endRun(edm::Run const& run, edm::EventSetup const& set
 
 }
 
-void DTnoiseDBValidation::endJob() {
-  // Write the histos in a ROOT file
-  if(outputMEsInRootFile_) dbe_->save(outputFileName_);
-}
-
-void DTnoiseDBValidation::bookHisto(const DTChamberId& chId) {
+void DTnoiseDBValidation::bookHisto(DQMStore::IBooker &iBooker, const DTChamberId& chId) {
   stringstream histoName;
   histoName << "NoiseOccupancy" 
             << "_W" << chId.wheel() 
@@ -292,7 +281,7 @@ void DTnoiseDBValidation::bookHisto(const DTChamberId& chId) {
         }
      }
 
-     noiseHistoMap_[chId] = dbe_->book2D(histoName.str(),"Noise occupancy",nWiresMax,1,(nWiresMax + 1),12,1,13);
+     noiseHistoMap_[chId] = iBooker.book2D(histoName.str(),"Noise occupancy",nWiresMax,1,(nWiresMax + 1),12,1,13);
      for(int i_sl = 1; i_sl <= 3; ++i_sl) {
         for(int i_lay = 1; i_lay <= 4; ++i_lay) {
            int binNumber = 4*(i_sl - 1) + i_lay;
