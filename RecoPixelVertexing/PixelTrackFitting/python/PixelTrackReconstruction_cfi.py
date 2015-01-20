@@ -30,7 +30,8 @@ PixelTrackReconstructionBlock = cms.PSet (
         )
     ),
     CleanerPSet = cms.PSet(
-        ComponentName = cms.string('PixelTrackCleanerBySharedHits')
+        ComponentName = cms.string('PixelTrackCleanerBySharedHits'),
+        useQuadrupletAlgo = cms.bool(False),
     )
 )
 
