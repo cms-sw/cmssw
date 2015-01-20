@@ -17,36 +17,29 @@
 #include <DataFormats/Math/interface/deltaR.h>
 
 template<typename T1>
-HLTHcalPFClusterIsolationProducer<T1>::HLTHcalPFClusterIsolationProducer(const edm::ParameterSet& config) {
-    
+HLTHcalPFClusterIsolationProducer<T1>::HLTHcalPFClusterIsolationProducer(const edm::ParameterSet& config) :
+  pfClusterProducerHCAL_  ( consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducerHCAL"))),
+  rhoProducer_            ( consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"))),
+  pfClusterProducerHFEM_  ( consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducerHFEM"))),
+  pfClusterProducerHFHAD_ ( consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducerHFHAD"))),
+  useHF_                  ( config.getParameter<bool>("useHF")),
+  drMax_                  ( config.getParameter<double>("drMax")),
+  drVetoBarrel_           ( config.getParameter<double>("drVetoBarrel")),
+  drVetoEndcap_           ( config.getParameter<double>("drVetoEndcap")),
+  etaStripBarrel_         ( config.getParameter<double>("etaStripBarrel")),
+  etaStripEndcap_         ( config.getParameter<double>("etaStripEndcap")),
+  energyBarrel_           ( config.getParameter<double>("energyBarrel")),
+  energyEndcap_           ( config.getParameter<double>("energyEndcap")),
+  doRhoCorrection_        ( config.getParameter<bool>("doRhoCorrection")),
+  rhoMax_                 ( config.getParameter<double>("rhoMax")),
+  rhoScale_               ( config.getParameter<double>("rhoScale")), 
+  effectiveAreaBarrel_    ( config.getParameter<double>("effectiveAreaBarrel")),
+  effectiveAreaEndcap_    ( config.getParameter<double>("effectiveAreaEndcap")) {
+  
   std::string recoCandidateProducerName = "recoCandidateProducer";
   if ((typeid(HLTHcalPFClusterIsolationProducer<T1>) == typeid(HLTHcalPFClusterIsolationProducer<reco::RecoEcalCandidate>))) recoCandidateProducerName = "recoEcalCandidateProducer";
-  
   recoCandidateProducer_ = consumes<T1Collection>(config.getParameter<edm::InputTag>(recoCandidateProducerName));
-  pfClusterProducerHCAL_     = consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducerHCAL"));
-  useHF_                     = config.getParameter<bool>("useHF");  
-  if (useHF_) {
-    pfClusterProducerHFEM_     = consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducerHFEM"));
-    pfClusterProducerHFHAD_    = consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducerHFHAD"));
-  }
-
-  drMax_          = config.getParameter<double>("drMax");
-  drVetoBarrel_   = config.getParameter<double>("drVetoBarrel");
-  drVetoEndcap_   = config.getParameter<double>("drVetoEndcap");
-  etaStripBarrel_ = config.getParameter<double>("etaStripBarrel");
-  etaStripEndcap_ = config.getParameter<double>("etaStripEndcap");
-  energyBarrel_   = config.getParameter<double>("energyBarrel");
-  energyEndcap_   = config.getParameter<double>("energyEndcap");
-
-  doRhoCorrection_                = config.getParameter<bool>("doRhoCorrection");
-  if (doRhoCorrection_)
-    rhoProducer_                    = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"));
   
-  rhoMax_                         = config.getParameter<double>("rhoMax"); 
-  rhoScale_                       = config.getParameter<double>("rhoScale"); 
-  effectiveAreaBarrel_            = config.getParameter<double>("effectiveAreaBarrel");
-  effectiveAreaEndcap_            = config.getParameter<double>("effectiveAreaEndcap");
-
   produces <T1IsolationMap >();
 }
 
@@ -85,7 +78,7 @@ void HLTHcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationD
 }
 
 template<typename T1>
-void HLTHcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void HLTHcalPFClusterIsolationProducer<T1>::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   
   edm::Handle<double> rhoHandle;
   double rho = 0.0;

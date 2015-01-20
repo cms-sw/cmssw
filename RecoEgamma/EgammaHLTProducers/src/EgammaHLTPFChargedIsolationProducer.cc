@@ -15,27 +15,20 @@
 
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
 
-//#include "DataFormats/TrackReco/interface/TrackFwd.h"
-//#include "DataFormats/TrackReco/interface/Track.h"
-//#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-
 #include <DataFormats/Math/interface/deltaR.h>
 
-EgammaHLTPFChargedIsolationProducer::EgammaHLTPFChargedIsolationProducer(const edm::ParameterSet& config) {
-
-  pfCandidateProducer_       = consumes<reco::PFCandidateCollection>(config.getParameter<edm::InputTag>("pfCandidatesProducer"));
-  beamSpotProducer_          = consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("beamSpotProducer"));
-
-  useGsfTrack_ = config.getParameter<bool>("useGsfTrack");
-  useSCRefs_ = config.getParameter<bool>("useSCRefs");
-  
-  drMax_ = config.getParameter<double>("drMax");
-  drVetoBarrel_ = config.getParameter<double>("drVetoBarrel");
-  drVetoEndcap_ = config.getParameter<double>("drVetoEndcap");
-  ptMin_ = config.getParameter<double>("ptMin");
-  dzMax_ = config.getParameter<double>("dzMax");
-  dxyMax_ = config.getParameter<double>("dxyMax");
-  pfToUse_ = config.getParameter<int>("pfCandidateType");
+EgammaHLTPFChargedIsolationProducer::EgammaHLTPFChargedIsolationProducer(const edm::ParameterSet& config):
+  pfCandidateProducer_(consumes<reco::PFCandidateCollection>(config.getParameter<edm::InputTag>("pfCandidatesProducer"))),
+  beamSpotProducer_   (consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("beamSpotProducer"))),
+  useGsfTrack_        (config.getParameter<bool>("useGsfTrack")),
+  useSCRefs_          (config.getParameter<bool>("useSCRefs")),
+  drMax_              (config.getParameter<double>("drMax")),
+  drVetoBarrel_       (config.getParameter<double>("drVetoBarrel")),
+  drVetoEndcap_       (config.getParameter<double>("drVetoEndcap")),
+  ptMin_              (config.getParameter<double>("ptMin")),
+  dzMax_              (config.getParameter<double>("dzMax")),
+  dxyMax_             (config.getParameter<double>("dxyMax")),
+  pfToUse_            (config.getParameter<int>("pfCandidateType")) {
 
   if(useSCRefs_) {
     recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"));

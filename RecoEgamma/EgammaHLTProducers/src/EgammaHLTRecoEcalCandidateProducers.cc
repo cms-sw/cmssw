@@ -19,18 +19,16 @@
 
 
 EgammaHLTRecoEcalCandidateProducers::EgammaHLTRecoEcalCandidateProducers(const edm::ParameterSet& config) : 
-  conf_(config) {
-  // use onfiguration file to setup input/output collection names
-  scHybridBarrelProducer_       = consumes<reco::SuperClusterCollection>(conf_.getParameter<edm::InputTag>("scHybridBarrelProducer"));
-  scIslandEndcapProducer_       = consumes<reco::SuperClusterCollection>(conf_.getParameter<edm::InputTag>("scIslandEndcapProducer"));
-  
-  recoEcalCandidateCollection_  = conf_.getParameter<std::string>("recoEcalCandidateCollection");
+  scHybridBarrelProducer_(consumes<reco::SuperClusterCollection>(config.getParameter<edm::InputTag>("scHybridBarrelProducer"))),
+  scIslandEndcapProducer_(consumes<reco::SuperClusterCollection>(config.getParameter<edm::InputTag>("scIslandEndcapProducer"))),
+  recoEcalCandidateCollection_(config.getParameter<std::string>("recoEcalCandidateCollection")) {
 
   // Register the product
   produces< reco::RecoEcalCandidateCollection >(recoEcalCandidateCollection_);
 }
 
-EgammaHLTRecoEcalCandidateProducers::~EgammaHLTRecoEcalCandidateProducers() {}
+EgammaHLTRecoEcalCandidateProducers::~EgammaHLTRecoEcalCandidateProducers() 
+{}
 
 void EgammaHLTRecoEcalCandidateProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -40,9 +38,7 @@ void EgammaHLTRecoEcalCandidateProducers::fillDescriptions(edm::ConfigurationDes
   descriptions.add(("hltEgammaHLTRecoEcalCandidateProducers"), desc);  
 }
 
-void EgammaHLTRecoEcalCandidateProducers::beginJob() {}
-
-void EgammaHLTRecoEcalCandidateProducers::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
+void EgammaHLTRecoEcalCandidateProducers::produce(edm::StreamID sid, edm::Event& theEvent, const edm::EventSetup& theEventSetup) const {
 
   using namespace edm;
 
