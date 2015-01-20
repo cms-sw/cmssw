@@ -30,20 +30,20 @@ class HLTDiJetEtaTopologyFilter : public HLTFilter {
 
    private:
       edm::EDGetTokenT<std::vector<T>> m_theJetToken;
-      edm::InputTag inputJetTag_; // input tag identifying jets
-      double minPtAve_;
-      double atLeastOneJetAbovePT_;
-      double minPtTag_;
-      double minPtProbe_; 
-      double minDphi_;
-      double tagEtaMin_;
-      double tagEtaMax_;
-      double probeEtaMin_;
-      double probeEtaMax_;
-      bool applyAbsToTag_;
-      bool applyAbsToProbe_;
-      bool oppositeEta_;
-      int    triggerType_;
+      const edm::InputTag inputJetTag_; // input tag identifying jets
+      const double minPtAve_;
+      const double atLeastOneJetAbovePT_;
+      const double minPtTag_;
+      const double minPtProbe_; 
+      const double minDphi_;
+      const double tagEtaMin_;
+      const double tagEtaMax_;
+      const double probeEtaMin_;
+      const double probeEtaMax_;
+      const bool applyAbsToTag_;
+      const bool applyAbsToProbe_;
+      const bool oppositeEta_;
+      const int    triggerType_;
 };
 
 #endif //HLTDiJetEtaTopologyFilter_h
