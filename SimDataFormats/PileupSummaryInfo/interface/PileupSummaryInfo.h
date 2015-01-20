@@ -26,7 +26,7 @@ class PileupSummaryInfo {
  public:
 
   PileupSummaryInfo(){};
-
+ 
   PileupSummaryInfo( const int num_PU_vertices,
 		     std::vector<float>& zpositions,
 		     std::vector<float>& sumpT_lowpT,
@@ -49,6 +49,7 @@ class PileupSummaryInfo {
 		     std::vector<float>& sumpT_highpT,
 		     std::vector<int>& ntrks_lowpT,
 		     std::vector<int>& ntrks_highpT,
+		     std::vector<edm::EventID>& eventInfo,
 		     int bunchCrossing,
 		     float TrueNumInteractions,
 		     int bunchSpacing);
