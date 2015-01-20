@@ -34,11 +34,9 @@ DEFINE_FWK_MODULE(SiStripPopConNoisesDQM);
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DQMOffline/CalibTracker/plugins/SiStripQualityHotStripIdentifierRoot.h"
-#include "DQMOffline/CalibTracker/plugins/SiStripDQMProfileToTkMapConverter.h"
 
 #include "DQMOffline/CalibTracker/plugins/SiStripBadComponentsDQMServiceReader.h"
 DEFINE_FWK_MODULE(SiStripBadComponentsDQMServiceReader);
 
 
 DEFINE_FWK_MODULE(SiStripQualityHotStripIdentifierRoot);
-DEFINE_FWK_MODULE(SiStripDQMProfileToTkMapConverter);

@@ -312,7 +312,9 @@ private:
   TAxis *getAxis(const char *func, int axis) const;
 
   // ------------ Operations for MEs that are normally never reset ---------
+public:
   void softReset(void);
+private:
   void disableSoftReset(void);
   void addProfiles(TProfile *h1, TProfile *h2, TProfile *sum, float c1, float c2);
   void addProfiles(TProfile2D *h1, TProfile2D *h2, TProfile2D *sum, float c1, float c2);
