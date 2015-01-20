@@ -16,7 +16,3 @@ GlobalTrajectoryBuilderCommon.TrackTransformer.TrackerRecHitBuilder = 'WithoutRe
 # ECAL severity
 from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import *
 
-# This flag is to switch between GEN-level and SIM/RECO-level pileup mixing
-
-MixingMode = 'GenMixing' # GEN-level <---- DEFAULT
-#MixingMode = 'DigiRecoMixing' # SIM/RECO-level; can be used only if CaloMode==3
