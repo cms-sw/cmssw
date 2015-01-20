@@ -18,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 #include<typeinfo>
 
@@ -56,7 +57,7 @@ HLTJetEtaTopologyFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& des
     desc.add<double>("maxJetEta", 1.4);
     desc.add<bool> ("applyAbsToJet", false),
     desc.add<int>("triggerType",trigger::TriggerJet);
-    descriptions.add(std::string("hlt")+std::string(typeid(HLTJetEtaTopologyFilter<T>).name()),desc);
+    descriptions.add(defaultModuleLabel<HLTJetEtaTopologyFilter<T>>(), desc);
 }
 
 // ------------ method called to produce the data  ------------
