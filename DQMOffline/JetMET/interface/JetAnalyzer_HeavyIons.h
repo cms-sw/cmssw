@@ -41,6 +41,12 @@
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/CandidateWithRef.h"
+
 // include the basic jet for the PuPF jets. 
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
@@ -57,6 +63,8 @@
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/DetId/interface/DetId.h"
+
 #include "DataFormats/Scalers/interface/DcsStatus.h" 
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
@@ -104,11 +112,14 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::JPTJetCollection> jptJetsToken_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandToken_; 
   edm::EDGetTokenT<reco::CandidateView> pfCandViewToken_;
+  edm::EDGetTokenT<reco::CandidateView> caloCandViewToken_;
+
   //edm::EDGetTokenT<reco::VoronoiMap> backgrounds_;
   edm::EDGetTokenT<edm::ValueMap<reco::VoronoiBackground>> backgrounds_;
   edm::EDGetTokenT<std::vector<float>> backgrounds_value_;
   edm::EDGetTokenT<reco::Centrality> centralityToken_;
-  
+  edm::EDGetTokenT<std::vector<reco::Vertex> > hiVertexToken_;
+
   //Include Particle flow variables 
   MonitorElement *mNPFpart;
   MonitorElement *mPFPt;
@@ -118,6 +129,14 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   MonitorElement *mPFVsPtInitial;
   MonitorElement *mPFVsPtEqualized;
   MonitorElement *mPFArea;
+  MonitorElement *mNCalopart;
+  MonitorElement *mCaloPt;
+  MonitorElement *mCaloEta;
+  MonitorElement *mCaloPhi;
+  MonitorElement *mCaloVsPt;
+  MonitorElement *mCaloVsPtInitial;
+  MonitorElement *mCaloVsPtEqualized;
+  MonitorElement *mCaloArea;
   MonitorElement *mSumpt;
   MonitorElement *mvn;
   MonitorElement *mpsin;
@@ -131,6 +150,14 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   MonitorElement *mSumPFVsPtInitial_eta;
   MonitorElement *mSumPFVsPt_eta;
   MonitorElement *mSumPFPt_eta;
+
+  MonitorElement *mSumCaloVsPt;
+  MonitorElement *mSumCaloVsPtInitial;
+  MonitorElement *mSumCaloPt;
+
+  MonitorElement *mSumCaloVsPtInitial_eta;
+  MonitorElement *mSumCaloVsPt_eta;
+  MonitorElement *mSumCaloPt_eta;
 
   // Event variables (including centrality)
   MonitorElement* mNvtx;
@@ -148,7 +175,123 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   MonitorElement *mDeltapT_eta;
   //MonitorElement *mDeltapT_phiMinusPsi2;
   MonitorElement *mDeltapT_eta_phi;
-  //MonitorElement *mS
+
+  MonitorElement *mSumCaloVsPt_HF;
+  MonitorElement *mSumCaloVsPtInitial_HF;
+  MonitorElement *mSumCaloPt_HF;
+  MonitorElement *mCaloVsPtInitial_eta_phi;
+  MonitorElement *mCaloVsPt_eta_phi;
+  MonitorElement *mCaloPt_eta_phi;
+
+  MonitorElement *mVs_0_x;
+  MonitorElement *mVs_0_y;
+  MonitorElement *mVs_1_x;
+  MonitorElement *mVs_1_y;
+  MonitorElement *mVs_2_x;
+  MonitorElement *mVs_2_y;
+  MonitorElement *mVs_0_x_versus_HF;
+  MonitorElement *mVs_0_y_versus_HF;
+  MonitorElement *mVs_1_x_versus_HF;
+  MonitorElement *mVs_1_y_versus_HF;
+  MonitorElement *mVs_2_x_versus_HF;
+  MonitorElement *mVs_2_y_versus_HF;
+  
+  MonitorElement *mPFVsPtInitial_n5p191_n2p650;
+  MonitorElement *mPFVsPtInitial_n2p650_n2p043;
+  MonitorElement *mPFVsPtInitial_n2p043_n1p740;
+  MonitorElement *mPFVsPtInitial_n1p740_n1p479;
+  MonitorElement *mPFVsPtInitial_n1p479_n1p131;
+  MonitorElement *mPFVsPtInitial_n1p131_n0p783;
+  MonitorElement *mPFVsPtInitial_n0p783_n0p522;
+  MonitorElement *mPFVsPtInitial_n0p522_0p522;
+  MonitorElement *mPFVsPtInitial_0p522_0p783;
+  MonitorElement *mPFVsPtInitial_0p783_1p131;
+  MonitorElement *mPFVsPtInitial_1p131_1p479;
+  MonitorElement *mPFVsPtInitial_1p479_1p740;
+  MonitorElement *mPFVsPtInitial_1p740_2p043;
+  MonitorElement *mPFVsPtInitial_2p043_2p650;
+  MonitorElement *mPFVsPtInitial_2p650_5p191;
+
+  MonitorElement *mPFVsPt_n5p191_n2p650;
+  MonitorElement *mPFVsPt_n2p650_n2p043;
+  MonitorElement *mPFVsPt_n2p043_n1p740;
+  MonitorElement *mPFVsPt_n1p740_n1p479;
+  MonitorElement *mPFVsPt_n1p479_n1p131;
+  MonitorElement *mPFVsPt_n1p131_n0p783;
+  MonitorElement *mPFVsPt_n0p783_n0p522;
+  MonitorElement *mPFVsPt_n0p522_0p522;
+  MonitorElement *mPFVsPt_0p522_0p783;
+  MonitorElement *mPFVsPt_0p783_1p131;
+  MonitorElement *mPFVsPt_1p131_1p479;
+  MonitorElement *mPFVsPt_1p479_1p740;
+  MonitorElement *mPFVsPt_1p740_2p043;
+  MonitorElement *mPFVsPt_2p043_2p650;
+  MonitorElement *mPFVsPt_2p650_5p191;
+
+  MonitorElement *mPFPt_n5p191_n2p650;
+  MonitorElement *mPFPt_n2p650_n2p043;
+  MonitorElement *mPFPt_n2p043_n1p740;
+  MonitorElement *mPFPt_n1p740_n1p479;
+  MonitorElement *mPFPt_n1p479_n1p131;
+  MonitorElement *mPFPt_n1p131_n0p783;
+  MonitorElement *mPFPt_n0p783_n0p522;
+  MonitorElement *mPFPt_n0p522_0p522;
+  MonitorElement *mPFPt_0p522_0p783;
+  MonitorElement *mPFPt_0p783_1p131;
+  MonitorElement *mPFPt_1p131_1p479;
+  MonitorElement *mPFPt_1p479_1p740;
+  MonitorElement *mPFPt_1p740_2p043;
+  MonitorElement *mPFPt_2p043_2p650;
+  MonitorElement *mPFPt_2p650_5p191;
+  
+  
+  MonitorElement *mCaloVsPtInitial_n5p191_n2p650;
+  MonitorElement *mCaloVsPtInitial_n2p650_n2p043;
+  MonitorElement *mCaloVsPtInitial_n2p043_n1p740;
+  MonitorElement *mCaloVsPtInitial_n1p740_n1p479;
+  MonitorElement *mCaloVsPtInitial_n1p479_n1p131;
+  MonitorElement *mCaloVsPtInitial_n1p131_n0p783;
+  MonitorElement *mCaloVsPtInitial_n0p783_n0p522;
+  MonitorElement *mCaloVsPtInitial_n0p522_0p522;
+  MonitorElement *mCaloVsPtInitial_0p522_0p783;
+  MonitorElement *mCaloVsPtInitial_0p783_1p131;
+  MonitorElement *mCaloVsPtInitial_1p131_1p479;
+  MonitorElement *mCaloVsPtInitial_1p479_1p740;
+  MonitorElement *mCaloVsPtInitial_1p740_2p043;
+  MonitorElement *mCaloVsPtInitial_2p043_2p650;
+  MonitorElement *mCaloVsPtInitial_2p650_5p191;
+
+  MonitorElement *mCaloVsPt_n5p191_n2p650;
+  MonitorElement *mCaloVsPt_n2p650_n2p043;
+  MonitorElement *mCaloVsPt_n2p043_n1p740;
+  MonitorElement *mCaloVsPt_n1p740_n1p479;
+  MonitorElement *mCaloVsPt_n1p479_n1p131;
+  MonitorElement *mCaloVsPt_n1p131_n0p783;
+  MonitorElement *mCaloVsPt_n0p783_n0p522;
+  MonitorElement *mCaloVsPt_n0p522_0p522;
+  MonitorElement *mCaloVsPt_0p522_0p783;
+  MonitorElement *mCaloVsPt_0p783_1p131;
+  MonitorElement *mCaloVsPt_1p131_1p479;
+  MonitorElement *mCaloVsPt_1p479_1p740;
+  MonitorElement *mCaloVsPt_1p740_2p043;
+  MonitorElement *mCaloVsPt_2p043_2p650;
+  MonitorElement *mCaloVsPt_2p650_5p191;
+
+  MonitorElement *mCaloPt_n5p191_n2p650;
+  MonitorElement *mCaloPt_n2p650_n2p043;
+  MonitorElement *mCaloPt_n2p043_n1p740;
+  MonitorElement *mCaloPt_n1p740_n1p479;
+  MonitorElement *mCaloPt_n1p479_n1p131;
+  MonitorElement *mCaloPt_n1p131_n0p783;
+  MonitorElement *mCaloPt_n0p783_n0p522;
+  MonitorElement *mCaloPt_n0p522_0p522;
+  MonitorElement *mCaloPt_0p522_0p783;
+  MonitorElement *mCaloPt_0p783_1p131;
+  MonitorElement *mCaloPt_1p131_1p479;
+  MonitorElement *mCaloPt_1p479_1p740;
+  MonitorElement *mCaloPt_1p740_2p043;
+  MonitorElement *mCaloPt_2p043_2p650;
+  MonitorElement *mCaloPt_2p650_5p191;
   
   
   // Jet parameters

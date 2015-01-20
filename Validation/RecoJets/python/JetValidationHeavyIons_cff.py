@@ -404,29 +404,29 @@ hiJetValidation = cms.Sequence(
     * ak4HiCleanedGenJets 
     * ak5HiCleanedGenJets
     #* iterativeCone7HiCleanedGenJets
-    #* iterativeCone5HiCleanedGenJets
+    * iterativeCone5HiCleanedGenJets
     #* JetAnalyzerICPU7Calo
-    #* JetAnalyzerICPU5Calo
+    * JetAnalyzerICPU5Calo
 
-    #* JetAnalyzerAkPU3Calo
-    #* JetAnalyzerAkPU4Calo
-    #* JetAnalyzerAkPU5Calo
+    * JetAnalyzerAkPU3Calo
+    * JetAnalyzerAkPU4Calo
+    * JetAnalyzerAkPU5Calo
 
-    #* JetAnalyzerAkPU3PF
-    #* JetAnalyzerAkPU4PF
-    #* JetAnalyzerAkPU5PF
-
+    * JetAnalyzerAkPU3PF
+    * JetAnalyzerAkPU4PF
+    * JetAnalyzerAkPU5PF
+    
     * JetAnalyzerAkVs2Calo	   
-    #* JetAnalyzerAkVs3Calo	   
-    #* JetAnalyzerAkVs4Calo	   
-    #* JetAnalyzerAkVs5Calo	   
+    * JetAnalyzerAkVs3Calo	   
+    * JetAnalyzerAkVs4Calo	   
+    * JetAnalyzerAkVs5Calo	   
     #* JetAnalyzerAkVs6Calo
     #* JetAnalyzerAkVs7Calo
     
     #* JetAnalyzerAkVs2PF
-    #* JetAnalyzerAkVs3PF
-    #* JetAnalyzerAkVs4PF	   
-    #* JetAnalyzerAkVs5PF
+    * JetAnalyzerAkVs3PF
+    * JetAnalyzerAkVs4PF	   
+    * JetAnalyzerAkVs5PF
     #* JetAnalyzerAkVs6PF	   
     #* JetAnalyzerAkVs7PF
     

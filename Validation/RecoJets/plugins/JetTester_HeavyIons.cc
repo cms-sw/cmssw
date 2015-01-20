@@ -717,9 +717,9 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
 
       NCaloTower++;
 
-      caloPt = caloCandidates.p4(vtx).Et();
-      caloEta = caloCandidates.p4(vtx).Eta();
-      caloPhi = caloCandidates.p4(vtx).Phi();
+      caloPt = tower.p4(vtx).Et();
+      caloEta = tower.p4(vtx).Eta();
+      caloPhi = tower.p4(vtx).Phi();
 
       mCaloVsPtInitial_eta_phi->Fill(caloEta,caloPhi,vsPtInitial);
       mCaloVsPt_eta_phi->Fill(caloEta,caloPhi,vsPt);
