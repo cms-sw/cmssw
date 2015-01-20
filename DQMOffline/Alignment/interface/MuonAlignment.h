@@ -49,7 +49,7 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cone.h" 
 
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 namespace edm {
@@ -63,7 +63,7 @@ class TH1F;
 typedef std::vector< std::vector<int> > intDVector;
 typedef std::vector<TrackingRecHit *> RecHitVector;
 
-class MuonAlignment : public edm::EDAnalyzer {
+class MuonAlignment : public DQMEDAnalyzer {
 public:
 
     /// Constructor
@@ -72,20 +72,15 @@ public:
     /// Destructor
     virtual ~MuonAlignment();
   
-    /// Inizialize parameters for histo binning
-    void beginJob();
 
-    /// Get the analysis
-    void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+    virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
 
     /// Save the histos
-    void endJob(void);
+    virtual void endStream(void) override;
 
 private:
     // ----------member data ---------------------------
-  
-    DQMStore* dbe;
-
     MonitorElement *hLocalPositionDT;
     MonitorElement *hLocalPositionRmsDT;
     MonitorElement *hLocalAngleDT;
