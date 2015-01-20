@@ -50,7 +50,7 @@ class EgammaHLTNxNClusterProducer : public edm::EDProducer {
   EgammaHLTNxNClusterProducer(const edm::ParameterSet& ps);
   ~EgammaHLTNxNClusterProducer();
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override ;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
@@ -58,37 +58,30 @@ class EgammaHLTNxNClusterProducer : public edm::EDProducer {
   void makeNxNClusters(edm::Event &evt, const edm::EventSetup &es,const EcalRecHitCollection *hits, const reco::CaloID::Detectors detector); 
   
   bool checkStatusOfEcalRecHit(const EcalChannelStatus &channelStatus, const EcalRecHit &rh);
-  
-  
-  std::string barrelClusterCollection_;
-  std::string endcapClusterCollection_;
-  
-  std::string barrelHits_;
-  std::string endcapHits_;
         
+  //std::map<std::string,double> providedParameters;
+      
+  const bool doBarrel_;
+  const bool doEndcaps_;  
+  const edm::EDGetTokenT<EcalRecHitCollection> barrelHitProducer_;
+  const edm::EDGetTokenT<EcalRecHitCollection> endcapHitProducer_;
+  const int clusEtaSize_ ;
+  const int clusPhiSize_;
+  const std::string barrelClusterCollection_;
+  const std::string endcapClusterCollection_;
+  const double clusSeedThr_;
+  const double clusSeedThrEndCap_;
+
+  const bool useRecoFlag_; 
+  const int flagLevelRecHitsToUse_; 
+  const bool useDBStatus_; 
+  const int statusLevelRecHitsToUse_;
+
+  const int maxNumberofSeeds_ ; 
+  const int maxNumberofClusters_; 
+
+  const int debug_; 
+
   PositionCalc posCalculator_; // position calculation algorithm
-  std::map<std::string,double> providedParameters;
-  
-  edm::EDGetTokenT<EcalRecHitCollection> barrelHitProducer_;
-  edm::EDGetTokenT<EcalRecHitCollection> endcapHitProducer_;
-      
-  double clusSeedThr_;
-  double clusSeedThrEndCap_;
-      
-  bool doBarrel_;
-  bool doEndcaps_;
-  
-  bool useRecoFlag_; 
-  bool useDBStatus_; 
-  int flagLevelRecHitsToUse_; 
-  int statusLevelRecHitsToUse_;
-  
-  int clusEtaSize_ ;
-  int clusPhiSize_;
-        
-  int debug_; 
-  
-  int maxNumberofSeeds_ ; 
-  int maxNumberofClusters_; 
 };
 #endif
