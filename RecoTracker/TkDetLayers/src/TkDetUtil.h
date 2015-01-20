@@ -13,6 +13,8 @@ class GeomDet;
 class Plane;
 class TrajectoryStateOnSurface;
 
+#pragma GCC visibility push(hidden)
+
 namespace tkDetUtil {
 
   inline
