@@ -29,7 +29,7 @@ class ShashlikDDDConstants {
   void                loadSpecPars(const std::vector<int>& firstY,
 				   const std::vector<int>& lastY);
   
-  std::pair<int,int>  getSMM(int ix, int iy) const;
+  std::pair<int,int>  getSMM(int ix, int iy, bool testOnly = false) const;
   std::pair<int,int>  getXY(int sm, int mod) const;
   /// SM per side
   int                 getSuperModules() const {return 4*nSM;}
@@ -44,8 +44,8 @@ class ShashlikDDDConstants {
   bool                isValidSMM(int sm, int mod) const;
   /// quadrant for module (ix:iy) 21
   ///                             34
-  int                 quadrant(int ix, int iy) const;
-  int                 quadrant(int sm) const;
+  int                 quadrant(int ix, int iy, bool testOnly = false) const;
+  int                 quadrant(int sm, bool testOnly = false) const;
   /// module ix is on the right?
   bool positiveX (int ix) const {return ix >= getModuleCols();} 
   /// module iy is on the top?
