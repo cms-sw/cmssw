@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -26,7 +26,7 @@ namespace edm {
 }
 
 template<typename T1>
-class HLTHcalPFClusterIsolationProducer : public edm::EDProducer {
+class HLTHcalPFClusterIsolationProducer : public edm::global::EDProducer<> {
 
   typedef std::vector<T1> T1Collection;
   typedef edm::Ref<T1Collection> T1Ref;
@@ -36,32 +36,33 @@ class HLTHcalPFClusterIsolationProducer : public edm::EDProducer {
   explicit HLTHcalPFClusterIsolationProducer(const edm::ParameterSet&);
   ~HLTHcalPFClusterIsolationProducer();    
       
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
  
  private:
 
   edm::EDGetTokenT<T1Collection> recoCandidateProducer_;
-  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHCAL_;
-  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHFEM_;
-  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHFHAD_;
-  edm::EDGetTokenT<double> rhoProducer_;
+  const edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHCAL_;
+  const edm::EDGetTokenT<double> rhoProducer_;
+  const edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHFEM_;
+  const edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHFHAD_;
 
-  double drMax_;
-  double drVetoBarrel_;
-  double drVetoEndcap_;
-  double etaStripBarrel_;
-  double etaStripEndcap_;
-  double energyBarrel_;
-  double energyEndcap_;
-  
-  float effectiveAreaBarrel_;
-  float effectiveAreaEndcap_;
-  bool doRhoCorrection_;
-  float rhoScale_;
-  float rhoMax_;
-  
-  bool useHF_;
+  const bool useHF_; 
+
+  const double drMax_;
+  const double drVetoBarrel_;
+  const double drVetoEndcap_;
+  const double etaStripBarrel_;
+  const double etaStripEndcap_;
+  const double energyBarrel_;
+  const double energyEndcap_;
+
+  const bool doRhoCorrection_;
+  const float rhoMax_;
+  const float rhoScale_;
+  const float effectiveAreaBarrel_;
+  const float effectiveAreaEndcap_;
+   
 };
 
 #endif

@@ -13,8 +13,6 @@ class GsfTrackProducer : public GsfTrackProducerBase, public edm::EDProducer {
 public:
 
   explicit GsfTrackProducer(const edm::ParameterSet& iConfig);
-
-
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:

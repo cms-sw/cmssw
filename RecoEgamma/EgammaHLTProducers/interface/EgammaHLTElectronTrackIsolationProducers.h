@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,29 +34,29 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTElectronTrackIsolationProducers : public edm::EDProducer {
+class EgammaHLTElectronTrackIsolationProducers : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTElectronTrackIsolationProducers(const edm::ParameterSet&);
   ~EgammaHLTElectronTrackIsolationProducers();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;
-  edm::EDGetTokenT<reco::TrackCollection> trackProducer_;
-  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotProducer_;
+  const edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;
+  const edm::EDGetTokenT<reco::TrackCollection> trackProducer_;
+  const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotProducer_;
 
-  bool useGsfTrack_;
-  bool useSCRefs_;
+  const bool useGsfTrack_;
+  const bool useSCRefs_;
 
-  double egTrkIsoPtMin_; 
-  double egTrkIsoConeSize_;
-  double egTrkIsoZSpan_;   
-  double egTrkIsoRSpan_;  
-  double egTrkIsoVetoConeSizeBarrel_;
-  double egTrkIsoVetoConeSizeEndcap_;
-  double egTrkIsoStripBarrel_;
-  double egTrkIsoStripEndcap_;
+  const double egTrkIsoPtMin_; 
+  const double egTrkIsoConeSize_;
+  const double egTrkIsoZSpan_;   
+  const double egTrkIsoRSpan_;  
+  const double egTrkIsoVetoConeSizeBarrel_;
+  const double egTrkIsoVetoConeSizeEndcap_;
+  const double egTrkIsoStripBarrel_;
+  const double egTrkIsoStripEndcap_;
 };
 
