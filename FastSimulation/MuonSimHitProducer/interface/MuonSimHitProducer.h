@@ -23,7 +23,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
 // FastSimulation headers
@@ -55,7 +55,7 @@ namespace edm {
 // class declaration
 //
 
-class MuonSimHitProducer : public edm::EDProducer {
+class MuonSimHitProducer : public edm::stream::EDProducer <> {
    public:
 
       explicit MuonSimHitProducer(const edm::ParameterSet&);

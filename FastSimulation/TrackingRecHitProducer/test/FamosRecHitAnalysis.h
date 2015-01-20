@@ -4,7 +4,7 @@
 #ifndef FastSimulation_TrackingRecHitProducer_FamosRecHitAnalysis_h
 #define FastSimulation_TrackingRecHitProducer_FamosRecHitAnalysis_h
  
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -19,7 +19,7 @@
 class TrackerGeometry;
 class TrackerTopology;
 
-class FamosRecHitAnalysis : public edm::EDAnalyzer
+class FamosRecHitAnalysis : public edm::stream::EDAnalyzer <>
 {
 public:
   
@@ -27,7 +27,6 @@ public:
   
   virtual ~FamosRecHitAnalysis();
   virtual void beginRun(edm::Run const&, const edm::EventSetup & ) override;
-  virtual void endJob() override; 
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   
 private:

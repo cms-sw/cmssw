@@ -288,4 +288,30 @@
 
 <class name="EcalSamplesCorrelation" />
 
+<!-- base class -->
+<class name="EcalPulseShape"/>
+<!-- templates for EcalCondObjectContainer having the class as template parameter -->
+<class name="std::vector<EcalPulseShape>"/>
+<class name="EcalContainer<EEDetId,EcalPulseShape>"/>
+<class name="EcalContainer<EBDetId,EcalPulseShape>"/>
+<class name="EcalCondObjectContainer<EcalPulseShape>">
+   <field name = "eb_" mapping = "blob"/>
+   <field name = "ee_" mapping = "blob"/>
+</class>
+<!-- typedefs for EcalCondObjectContainer -->
+<class name="EcalPulseShapes"/>
+
+<!-- base class -->
+<class name="EcalPulseCovariance"/>
+<!-- templates for EcalCondObjectContainer having the class as template parameter -->
+<class name="std::vector<EcalPulseCovariance>"/>
+<class name="EcalContainer<EEDetId,EcalPulseCovariance>"/>
+<class name="EcalContainer<EBDetId,EcalPulseCovariance>"/>
+<class name="EcalCondObjectContainer<EcalPulseCovariance>">
+   <field name = "eb_" mapping = "blob"/>
+   <field name = "ee_" mapping = "blob"/>
+</class>
+<!-- typedefs for EcalCondObjectContainer -->
+<class name="EcalPulseCovariances"/>
+
 </lcgdict>
