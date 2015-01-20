@@ -1357,9 +1357,9 @@ class ConfigBuilder(object):
 
                 if self._options.scenario == 'HeavyIons': 
 			if self._options.pileup=='HiMixGEN':
-				self.loadAndRemember("Configuration/StandardSequences/GeneratorHI_cff")
-			else:
 				self.loadAndRemember("Configuration/StandardSequences/GeneratorMix_cff")
+			else:
+				self.loadAndRemember("Configuration/StandardSequences/GeneratorHI_cff")
 
         self.process.generation_step = cms.Path( getattr(self.process,genSeqName) )
         self.schedule.append(self.process.generation_step)
