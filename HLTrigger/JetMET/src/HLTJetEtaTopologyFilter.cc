@@ -28,6 +28,7 @@
 template<typename T>
 HLTJetEtaTopologyFilter<T>::HLTJetEtaTopologyFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
     inputJetTag_ (iConfig.template getParameter< edm::InputTag > ("inputJetTag")),
+    m_theJetToken(consumes<std::vector<T>>(inputJetTag_)),
     minPtJet_    (iConfig.template getParameter<double> ("minPtJet")),
     //minPtJet3_   (iConfig.template getParameter<double> ("minPtJet3")),
     jetEtaMin_     (iConfig.template getParameter<double> ("minJetEta")),
@@ -36,7 +37,6 @@ HLTJetEtaTopologyFilter<T>::HLTJetEtaTopologyFilter(const edm::ParameterSet& iCo
 
     triggerType_ (iConfig.template getParameter<int> ("triggerType"))
 {
-    m_theJetToken = consumes<std::vector<T>>(inputJetTag_);
     LogDebug("") << "HLTJetEtaTopologyFilter: Input/minDphi/triggerType : "
         << inputJetTag_.encode() << " "
         << triggerType_;

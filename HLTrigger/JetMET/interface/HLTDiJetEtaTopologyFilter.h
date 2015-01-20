@@ -29,8 +29,8 @@ class HLTDiJetEtaTopologyFilter : public HLTFilter {
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
-      edm::EDGetTokenT<std::vector<T>> m_theJetToken;
       const edm::InputTag inputJetTag_; // input tag identifying jets
+      const edm::EDGetTokenT<std::vector<T>> m_theJetToken;
       const double minPtAve_;
       const double atLeastOneJetAbovePT_;
       const double minPtTag_;
