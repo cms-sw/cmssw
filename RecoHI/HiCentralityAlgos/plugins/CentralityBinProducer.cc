@@ -175,7 +175,6 @@ void
 CentralityBinProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup)
 {
 
-  edm::ESHandle<CentralityTable> inputDB_;
   iSetup.get<HeavyIonRcd>().get(centralityLabel_,inputDB_);
 }
 
