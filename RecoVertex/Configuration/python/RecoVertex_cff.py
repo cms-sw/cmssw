@@ -11,15 +11,19 @@ from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import *
 from CommonTools.RecoAlgos.TrackWithVertexRefSelector_cfi import *
 from RecoJets.JetProducers.TracksForJets_cff import *
 from CommonTools.RecoAlgos.sortedPrimaryVertices_cfi import *
+from RecoJets.JetProducers.caloJetsForTrk_cff import *
 
 unsortedOfflinePrimaryVertices=offlinePrimaryVertices.clone()
 offlinePrimaryVertices=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices")
 offlinePrimaryVerticesWithBS=sortedPrimaryVertices.clone(vertices=cms.InputTag("unsortedOfflinePrimaryVertices","WithBS"))
-trackWithVertexRefSelector.vertexTag="unsortedOfflinePrimaryVertices"
+trackWithVertexRefSelectorBeforeSorting = trackWithVertexRefSelector.clone(vertexTag="unsortedOfflinePrimaryVertices")
+trackRefsForJetsBeforeSorting = trackRefsForJets.clone(src="trackWithVertexRefSelectorBeforeSorting")
+
 
 vertexreco = cms.Sequence(unsortedOfflinePrimaryVertices*
-        trackWithVertexRefSelector*
-        trackRefsForJets*
+        trackWithVertexRefSelectorBeforeSorting*
+        trackRefsForJetsBeforeSorting*
+        caloJetsForTrk * 
         offlinePrimaryVertices*
         offlinePrimaryVerticesWithBS*
         generalV0Candidates*
