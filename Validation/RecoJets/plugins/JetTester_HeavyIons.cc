@@ -517,7 +517,22 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
   edm::Handle<vector<reco::Vertex> > pvHandle;
   mEvent.getByToken(pvToken_, pvHandle);
   reco::Vertex::Point vtx(0,0,0);
-  vtx = getVtx(mEvent);
+  edm::Handle<reco::VertexCollection> vtxs;
+  //vtx = getVtx(mEvent);
+
+  mEvent.getByToken(hiVertexToken_, vtxs);
+  int greatestvtx = 0;
+  int nVertex = vtxs->size();
+
+  for (unsigned int i = 0 ; i< vtxs->size(); ++i){
+    unsigned int daughter = (*vtxs)[i].tracksSize();
+    if( daughter > (*vtxs)[greatestvtx].tracksSize()) greatestvtx = i;
+  }
+
+  if(nVertex<=0){
+    vtx =  reco::Vertex::Point(0,0,0);
+  }
+  vtx = (*vtxs)[greatestvtx].position();
 
   int nGoodVertices = 0;
 
@@ -691,7 +706,7 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
       const CaloTower & tower  = (*caloCandidates)[icand];
       reco::CandidateViewRef ref(calocandidates_,icand);
       //10 is tower pT min
-      if(getEt(caloCandidates.id(),caloCandidates.energy())<10) continue;
+      //if(getEt(caloCandidates.id(),caloCandidates.energy())<10) continue;
 
       if(std::string("Vs")==UEAlgo) {
 	const reco::VoronoiBackground& voronoi = (*VsBackgrounds)[ref];
@@ -1023,23 +1038,4 @@ void JetTester_HeavyIons::fillMatchHists(const double GenEta,
 			       const double RecoPt) 
 {
   //nothing for now. 
-}
-
-// vertex
-reco::Vertex::Point JetTester_HeavyIons::getVtx(const edm::Event & ev){
-
-  ev.getByToken(hiVertexToken_, vtxs);
-  int greatestvtx = 0;
-  int nVertex = vtxs->size();
-
-  for (unsigned int i = 0 ; i< vtxs->size(); ++i){
-    unsigned int daughter = (*vtxs)[i].tracksSize();
-    if( daughter > (*vtxs)[greatestvtx].tracksSize()) greatestvtx = i;
-  }
-
-  if(nVertex<=0){
-    return reco::Vertex::Point(0,0,0);
-  }
-  return (*vtxs)[greatestvtx].position();
-
 }
