@@ -1009,10 +1009,6 @@ class ConfigBuilder(object):
 	    if not self._options.beamspot:
 		    self._options.beamspot=VtxSmearedHIDefaultKey
             self.HLTDefaultSeq = 'HIon'
-            if not self._options.himix:
-                    self.GENDefaultSeq='pgen_hi'
-            else:
-                    self.GENDefaultSeq='pgen_himix'
             self.VALIDATIONDefaultCFF="Configuration/StandardSequences/ValidationHeavyIons_cff"
             self.VALIDATIONDefaultSeq=''
             self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentHeavyIons_cff"
@@ -1353,8 +1349,8 @@ class ConfigBuilder(object):
 				elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
 					self._options.inlineObjets+=','+name
 
-		if sequence == self.GENDefaultSeq or sequence == 'pgen_genonly' or ( sequence == 'pgen_himix' or sequence == 'pgen_hi'):
-			if 'ProductionFilterSequence' in genModules and ('generator' in genModules or 'hiSignal' in genModules):
+		if sequence == self.GENDefaultSeq or sequence == 'pgen_genonly':
+			if 'ProductionFilterSequence' in genModules and ('generator' in genModules):
 				self.productionFilterSequence = 'ProductionFilterSequence'
 			elif 'generator' in genModules:
 				self.productionFilterSequence = 'generator'
@@ -1371,8 +1367,11 @@ class ConfigBuilder(object):
                 except ImportError:
                         raise Exception("VertexSmearing type or beamspot "+self._options.beamspot+" unknown.")
 
-                if self._options.scenario == 'HeavyIons' and self._options.himix:
-                        self.loadAndRemember("SimGeneral/MixingModule/himixGEN_cff")
+                if self._options.scenario == 'HeavyIons': 
+			if self._options.pileup=='HiMixGEN':
+				self.loadAndRemember("PhysicsTools/HepMCCandAlgos/himixGEN_cff")
+			else:
+				self.loadAndRemember("PhysicsTools/HepMCCandAlgos/hiGEN_cff")
 
         self.process.generation_step = cms.Path( getattr(self.process,genSeqName) )
         self.schedule.append(self.process.generation_step)
