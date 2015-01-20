@@ -392,6 +392,14 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			  lLeadCh = icand;
 			
 			  const reco::Track* pfTrk = icand->bestTrack();
+			  if (lPF && std::abs(icand->pdgId()) == 13 && pfTrk == nullptr){
+			    reco::MuonRef lmuRef = lPF->muonRef();
+			    if (lmuRef.isNonnull()){
+			      const reco::Muon& lmu = *lmuRef.get();
+			      pfTrk = lmu.bestTrack();
+			      edm::LogWarning("BadMuon")<<"Found a PFCandidate muon without a trackRef: falling back to Muon::bestTrack ";
+			    }
+			  }
 			  if(pfTrk==nullptr) { //protection against empty pointers for the miniAOD case
 			    //To handle the electron case
 			    if(lPF!=nullptr) {
