@@ -75,7 +75,7 @@ namespace egHLT {
     EleHLTFilterMon(const EleHLTFilterMon&){}
     EleHLTFilterMon& operator=(const EleHLTFilterMon&){return *this;}
   public:
-    EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBitSet filterBit,const BinData& bins,const CutMasks& masks);
+    EleHLTFilterMon(DQMStore::IBooker &iBooker, const std::string& filterName,TrigCodes::TrigBitSet filterBit,const BinData& bins,const CutMasks& masks);
     ~EleHLTFilterMon();
     
     
