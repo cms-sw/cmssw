@@ -4,13 +4,12 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -23,16 +22,14 @@
  *
  */
 
-class PrimaryVertexMonitor : public edm::EDAnalyzer {
+class PrimaryVertexMonitor : public DQMEDAnalyzer {
    public:
       explicit PrimaryVertexMonitor(const edm::ParameterSet& pSet);
 
       ~PrimaryVertexMonitor();
 
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&);       
-      virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-
-  virtual void endJob();
+      virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+      virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
 
    private:
 
@@ -46,7 +43,6 @@ class PrimaryVertexMonitor : public edm::EDAnalyzer {
 
   edm::ParameterSet conf_;
 
-  DQMStore * dqmStore_;
   std::string dqmLabel;
 
   std::string TopFolderName_;

@@ -178,8 +178,9 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
      Htaunu = cms.PSet(
         hltPathsToCheck = cms.vstring(
-            "HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v",
-            "HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v",
+#            "HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v",
+#            "HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v",
+            "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_v",
             "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v",
             # monitoring triggers for efficiency measurement
             "HLT_LooseIsoPFTau50_Trk30_eta2p1_v",
@@ -190,7 +191,14 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         recCaloMETLabel = cms.string("caloMet"),
         recMuonLabel  = cms.string("muons"),
         # -- Analysis specific cuts
-        minCandidates = cms.uint32(2), 
+        minCandidates = cms.uint32(1), 
+        parametersTurnOn = cms.vdouble(0,
+                                1, 8, 9, 10,
+                                11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+                                22, 24, 26, 28, 30, 32, 34, 36, 38, 40,
+                                45, 50, 55, 60, 65, 70, 
+                                80, 100, 120, 140, 160, 180, 200,
+                                ),
         ),
     H2tau  = cms.PSet( 
         hltPathsToCheck = cms.vstring(
