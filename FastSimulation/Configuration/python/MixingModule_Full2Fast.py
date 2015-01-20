@@ -34,3 +34,18 @@ def setVertexGeneratorPileUpProducer(process):
     return process
 
 
+def prepareGenMixing(process):
+
+
+
+    return process
+
+def prepareDigiRecoMixing(process):
+
+    from FastSimulation.Configuration.mixHitsAndTracksWithPU_cfi import digitizers as digitizers_fast
+    from FastSimulation.Configuration.mixHitsAndTracksWithPU_cfi import mixObjects as mixObjects_fast
+
+    process.mix.digitizers = digitizers_fast
+    process.mix.mixObjects = mixObjects_fast
+
+    return process
