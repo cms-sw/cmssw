@@ -25,6 +25,10 @@
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/CandidateWithRef.h"
 
 // include the pf candidates 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -42,6 +46,8 @@
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -69,6 +75,9 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   virtual void beginJob();
   virtual void endJob();
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) ;
+  //reco::Vertex::Point getVtx(const edm::Event& ev);
+
+  //double getEt(const DetID )
 
  private:
   
@@ -110,9 +119,6 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   edm::EDGetTokenT<std::vector<float>> backgrounds_value_;
   edm::EDGetTokenT<reco::Centrality> centralityToken_;
   edm::EDGetTokenT<std::vector<reco::Vertex> > hiVertexToken_;
-
-  edm::Handle<reco::VertexCollection> vtxs;
-
   
   //Include Particle flow variables 
   MonitorElement *mNPFpart;
