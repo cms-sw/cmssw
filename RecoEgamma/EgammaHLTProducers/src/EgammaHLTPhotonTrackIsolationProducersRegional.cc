@@ -13,33 +13,29 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-EgammaHLTPhotonTrackIsolationProducersRegional::EgammaHLTPhotonTrackIsolationProducersRegional(const edm::ParameterSet& config) : conf_(config)
-{
-
-  recoEcalCandidateProducer_    = consumes<reco::RecoEcalCandidateCollection> (conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
-  trackProducer_                = consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("trackProducer"));
-
-  countTracks_                  = conf_.getParameter<bool>("countTracks");
-
-  egTrkIsoPtMin_                = conf_.getParameter<double>("egTrkIsoPtMin");
-  egTrkIsoConeSize_             = conf_.getParameter<double>("egTrkIsoConeSize");
-  egTrkIsoZSpan_                = conf_.getParameter<double>("egTrkIsoZSpan");
-  egTrkIsoRSpan_                = conf_.getParameter<double>("egTrkIsoRSpan");
-  egTrkIsoVetoConeSize_         = conf_.getParameter<double>("egTrkIsoVetoConeSize");
-  double egTrkIsoStripBarrel    = conf_.getParameter<double>("egTrkIsoStripBarrel");
-  double egTrkIsoStripEndcap    = conf_.getParameter<double>("egTrkIsoStripEndcap");
+EgammaHLTPhotonTrackIsolationProducersRegional::EgammaHLTPhotonTrackIsolationProducersRegional(const edm::ParameterSet& config):
+  recoEcalCandidateProducer_(consumes<reco::RecoEcalCandidateCollection> (config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
+  trackProducer_            (consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("trackProducer"))),
+  countTracks_              (config.getParameter<bool>("countTracks")),
+  egTrkIsoPtMin_            (config.getParameter<double>("egTrkIsoPtMin")),
+  egTrkIsoConeSize_         (config.getParameter<double>("egTrkIsoConeSize")),
+  egTrkIsoZSpan_            (config.getParameter<double>("egTrkIsoZSpan")),
+  egTrkIsoRSpan_            (config.getParameter<double>("egTrkIsoRSpan")),
+  egTrkIsoVetoConeSize_     (config.getParameter<double>("egTrkIsoVetoConeSize")),
+  egTrkIsoStripBarrel_      (config.getParameter<double>("egTrkIsoStripBarrel")),
+  egTrkIsoStripEndcap_      (config.getParameter<double>("egTrkIsoStripEndcap")) {
   
-  test_ = new EgammaHLTTrackIsolation(egTrkIsoPtMin_,egTrkIsoConeSize_,
-				      egTrkIsoZSpan_,egTrkIsoRSpan_,egTrkIsoVetoConeSize_,
-				      egTrkIsoStripBarrel,egTrkIsoStripEndcap);
-
+  test_ = new EgammaHLTTrackIsolation(egTrkIsoPtMin_, egTrkIsoConeSize_,
+				      egTrkIsoZSpan_, egTrkIsoRSpan_, egTrkIsoVetoConeSize_,
+				      egTrkIsoStripBarrel_, egTrkIsoStripEndcap_);
 
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
-
 }
 
-EgammaHLTPhotonTrackIsolationProducersRegional::~EgammaHLTPhotonTrackIsolationProducersRegional(){delete test_;}
+EgammaHLTPhotonTrackIsolationProducersRegional::~EgammaHLTPhotonTrackIsolationProducersRegional() {
+  delete test_;
+}
 
 void EgammaHLTPhotonTrackIsolationProducersRegional::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -59,8 +55,7 @@ void EgammaHLTPhotonTrackIsolationProducersRegional::fillDescriptions(edm::Confi
 
 // ------------ method called to produce the data  ------------
 void
-EgammaHLTPhotonTrackIsolationProducersRegional::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+EgammaHLTPhotonTrackIsolationProducersRegional::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
