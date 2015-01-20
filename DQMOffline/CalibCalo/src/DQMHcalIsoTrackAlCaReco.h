@@ -28,8 +28,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -52,7 +50,7 @@
 #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -65,23 +63,16 @@
 
 #include "TH1F.h"
 
-class DQMHcalIsoTrackAlCaReco : public edm::EDAnalyzer {
+class DQMHcalIsoTrackAlCaReco : public DQMEDAnalyzer {
 public:
   explicit DQMHcalIsoTrackAlCaReco(const edm::ParameterSet&);
   ~DQMHcalIsoTrackAlCaReco();
   
-  
-private:
-
-  DQMStore* dbe_;  
-
-  virtual void beginJob() override ;
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
 
+private:
   std::string folderName_;
-  bool saveToFile_;
-  std::string outRootFileName_;
   edm::EDGetTokenT<trigger::TriggerEvent> hltEventTag_;
   std::string l1FilterTag_;
   std::vector<std::string> hltFilterTag_;
