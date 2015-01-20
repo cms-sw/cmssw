@@ -1,9 +1,9 @@
 // -*-c++-*-
-// 
 //
-// Class to collect HLT scaler information 
+//
+// Class to collect HLT scaler information
 // for Trigger Cross Section Monitor
-// [wittich 11/07] 
+// [wittich 11/07]
 
 // Revision 1.19  2011/03/29 09:46:03  rekovic
 // clean vector pairPDPaths in beginRun and tidy up
@@ -57,58 +57,35 @@
 #define HLTSCALERS_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
-
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-
-class HLTScalers: public edm::EDAnalyzer
-{
-public:
-  /// Constructors
-  HLTScalers(const edm::ParameterSet& ps);
-  
-  /// Destructor
-  virtual ~HLTScalers() {};
-  
-  /// BeginJob
+class HLTScalers : public DQMEDAnalyzer {
+ public:
+  HLTScalers(const edm::ParameterSet &ps);
+  virtual ~HLTScalers(){};
   void beginJob(void);
+  void dqmBeginRun(const edm::Run &run, const edm::EventSetup &c);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
+                      edm::EventSetup const &) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
+                            const edm::EventSetup &c);
+  void analyze(const edm::Event &e, const edm::EventSetup &c);
+  /// DQM Client Diagnostic should be performed here:
+  void endLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
+                          const edm::EventSetup &c);
+  void endRun(const edm::Run &run, const edm::EventSetup &c);
 
-//   /// Endjob
-//   void endJob(void);
-  
-  /// BeginRun
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
-
-  /// EndRun
-  void endRun(const edm::Run& run, const edm::EventSetup& c);
-
-  
-  /// Begin LumiBlock
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-			    const edm::EventSetup& c) ;
-
-  /// End LumiBlock
-  /// DQM Client Diagnostic should be performed here
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c);
-
-  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
-
-
-private:
-
+ private:
   HLTConfigProvider hltConfig_;
-  std::string folderName_; // dqm folder name
+  std::string folderName_;  // dqm folder name
   std::string processname_;
-  std::vector <std::pair<std::string, std::vector<std::string> > > pairPDPaths_;
+  std::vector<std::pair<std::string, std::vector<std::string> > > pairPDPaths_;
   edm::EDGetTokenT<edm::TriggerResults> trigResultsSource_;
 
-  DQMStore * dbe_;
   MonitorElement *scalersPD_;
   MonitorElement *scalers_;
   MonitorElement *scalersN_;
@@ -122,12 +99,11 @@ private:
   MonitorElement *hltOverallScalerN_;
   MonitorElement *diagnostic_;
 
-  bool resetMe_, sentPaths_, monitorDaemon_; 
+  bool resetMe_, sentPaths_, monitorDaemon_;
 
-  int nev_; // Number of events processed
-  int nLumi_; // number of lumi blocks
+  int nev_;    // Number of events processed
+  int nLumi_;  // number of lumi blocks
   int currentRun_;
-
 };
 
-#endif // HLTSCALERS_H
+#endif  // HLTSCALERS_H
