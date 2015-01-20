@@ -84,8 +84,6 @@ process.GlobalTag = customiseGlobalTag(process.GlobalTag,'auto:run2_mc_GRun')
 
 # Apply ECAL miscalibration 
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
-if(CaloMode==0 or CaloMode==2):
-    process.ecalRecHit.doMiscalib = True
 
 # Apply Tracker misalignment
 process.famosSimHits.ApplyAlignment = True
