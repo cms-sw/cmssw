@@ -335,9 +335,11 @@ baseDataSetRelease=[
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1', # for fastsim id test
     'CMSSW_7_1_0_pre5-START71_V1-v2',          # 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                                # this an previous should be unified, when -v2 will be gone
-    'CMSSW_7_3_0_pre1-PRE_LS172_V15-v1',       # 13 TeV samples with GEN-SIM from 720_p4; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1', #  fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_7_3_0_pre2-MCRUN2_73_V1-v1',        # GEN-SIM for BPH trigger relvals made in 73pre2; to be uniformed to the other 13 TeV GEN-SIM, in 7_4
+    #'CMSSW_7_3_0_pre1-PRE_LS172_V15-v1',       # 4 - 13 TeV samples with GEN-SIM from 720_p4; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
+    'CMSSW_7_4_0_pre5-MCRUN2_73_V9_postLS1beamspot-v1', # 4 - 13 TeV samples with GEN-SIM from 740_p5; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
+    'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1' #  5 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
+    #'CMSSW_7_3_0_pre2-MCRUN2_73_V1-v1',        # 6 - GEN-SIM for BPH trigger relvals made in 73pre2; to be uniformed to the other 13 TeV GEN-SIM, in 7_4
+    #'CMSSW_7_3_0_pre2-MCRUN2_73_V1-v1',        # 6 - GEN-SIM for BPH trigger relvals made in 73pre2; to be uniformed to the other 13 TeV GEN-SIM, in 7_4
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -391,11 +393,11 @@ steps['MinBiasHS_13INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBiasHS_13/%s/GE
 steps['Higgs200ChargedTaus_13INPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 
 # activate GEN-SIM recycling once we'll have the first set of gen-sim
-steps['Upsilon1SToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValUpsilon1SToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
-steps['BuToKstarMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBuToKstarMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
-steps['BsToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBsToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
-steps['JpsiMuMu_Pt-15INPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMuMu_Pt-15/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
-steps['BuToKstarPsi2S_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBuToKstarPsi2S_13/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
+steps['Upsilon1SToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValUpsilon1SToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+steps['BuToKstarMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBuToKstarMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+steps['BsToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBsToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+steps['JpsiMuMu_Pt-15INPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMuMu_Pt-15/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+steps['BuToKstarPsi2S_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBuToKstarPsi2S_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['WE_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWE_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['WM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWM_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['WpM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWpM_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
