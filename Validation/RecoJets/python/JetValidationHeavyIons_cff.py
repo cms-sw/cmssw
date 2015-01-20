@@ -173,6 +173,7 @@ JetAnalyzerAkVs2Calo = cms.EDAnalyzer("JetTester_HeavyIons",
                                       src = cms.InputTag("akVs2CaloJets"),
                                       srcGen = cms.InputTag("ak2HiCleanedGenJets"),
                                       PFcands = cms.InputTag("particleFlowTmp"),
+                                      #Cands = cms.InputTag("caloTowers"),
                                       Background = cms.InputTag("voronoiBackgroundCalo"),
                                       #srcRho = cms.InputTag("iterativeConePu5CaloJets","rho"),
                                       centrality = cms.InputTag("hiCentrality"),
@@ -403,29 +404,29 @@ hiJetValidation = cms.Sequence(
     * ak4HiCleanedGenJets 
     * ak5HiCleanedGenJets
     #* iterativeCone7HiCleanedGenJets
-    * iterativeCone5HiCleanedGenJets
+    #* iterativeCone5HiCleanedGenJets
     #* JetAnalyzerICPU7Calo
-    * JetAnalyzerICPU5Calo
+    #* JetAnalyzerICPU5Calo
 
-    * JetAnalyzerAkPU3Calo
-    * JetAnalyzerAkPU4Calo
-    * JetAnalyzerAkPU5Calo
+    #* JetAnalyzerAkPU3Calo
+    #* JetAnalyzerAkPU4Calo
+    #* JetAnalyzerAkPU5Calo
 
-    * JetAnalyzerAkPU3PF
-    * JetAnalyzerAkPU4PF
-    * JetAnalyzerAkPU5PF
+    #* JetAnalyzerAkPU3PF
+    #* JetAnalyzerAkPU4PF
+    #* JetAnalyzerAkPU5PF
 
-    #* JetAnalyzerAkVs2Calo	   
-    * JetAnalyzerAkVs3Calo	   
-    * JetAnalyzerAkVs4Calo	   
-    * JetAnalyzerAkVs5Calo	   
+    * JetAnalyzerAkVs2Calo	   
+    #* JetAnalyzerAkVs3Calo	   
+    #* JetAnalyzerAkVs4Calo	   
+    #* JetAnalyzerAkVs5Calo	   
     #* JetAnalyzerAkVs6Calo
     #* JetAnalyzerAkVs7Calo
     
     #* JetAnalyzerAkVs2PF
-    * JetAnalyzerAkVs3PF
-    * JetAnalyzerAkVs4PF	   
-    * JetAnalyzerAkVs5PF
+    #* JetAnalyzerAkVs3PF
+    #* JetAnalyzerAkVs4PF	   
+    #* JetAnalyzerAkVs5PF
     #* JetAnalyzerAkVs6PF	   
     #* JetAnalyzerAkVs7PF
     
