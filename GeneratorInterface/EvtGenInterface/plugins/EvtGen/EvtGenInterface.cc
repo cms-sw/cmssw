@@ -437,6 +437,9 @@ HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt ){
       vtx->add_particle_in(*p);
       (*p)->set_status(1);
     }
+    else if((*p)->end_vertex()->particles_out_size()>0 && (*p)->status()==1){
+      (*p)->set_status(2);
+    }
   }
 
   return evt;
