@@ -1,16 +1,15 @@
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="7_2_0_pre5_test">
-<var name="TEST_REF" value="7_2_0_pre4_std">
+<var name="TEST_NEW" value="7_4_0_pre2_dev_newhistos">
+<var name="TEST_REF" value="7_4_0_pre1_std">
 
-<var name="TAG_STARTUP" value="POSTLS172_V3">
+<var name="TAG_STARTUP" value="MCRUN2_73_V7">
 <var name="DATA_VERSION" value="v1">
 
 TAG for the REFERENCE DATA, USED ONLY FOR INFORMATION ON WEB PAGE
-<var name="DD_COND_REF" value="POSTLS172_V3-v2">
+<var name="DD_COND_REF" value="MCRUN2_73_V5-v1">
 
 <var name="DD_RELEASE" value="${CMSSW_VERSION}">
 
-<!--var name="STORE_DIR" value="/afs/cern.ch/user/a/archiron//private/CMSSW_7_2_0_pre4_TEST/src/Validation/RecoEgamma/test"-->
 <var name="STORE_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_NEW}">
 <var name="STORE_REF" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_REF}">
 
@@ -66,10 +65,7 @@ some RelVal reco files which have been regenerated locally.
 
 <var name="TEST_AFS_DIR" value="/afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/ReleaseValidationTmp/SeedsRemaker3">
 <!--var name="TEST_AFS_DIR" value="/afs/cern.ch/user/a/archiron/private/Root_Regress"-->
-<!--var name="TEST_AFS_DIR" value="/afs/cern.ch/user/a/archiron//private/CMSSW_7_2_0_pre4_TEST/src/Validation/RecoEgamma/test"-->
 <file name="electronInputDataFiles.txt">
-file:${TEST_AFS_DIR}/DQM_V0001_R000000001__RelValSingleElectronPt35_UP15__CMSSW_7_2_0_pre4-POSTLS172_V3-v2__RECO.root
-file:${TEST_AFS_DIR}/DQM_V0001_R000000001__RelValSingleElectronPt35_UP15__CMSSW_7_2_0_pre4-POSTLS172_V3-v2__DQMIO.root
 file:${TEST_AFS_DIR}/RelValSingleElectronPt10-STARTUP-RECO.root
 file:${TEST_AFS_DIR}/RelValSingleElectronPt35-STARTUP-RECO.root
 file:${TEST_AFS_DIR}/RelValTTbar-STARTUP-RECO.root
@@ -547,12 +543,10 @@ FullSim
   
       <var name="DD_SAMPLE" value="RelValSingleElectronPt35_UP15">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
-      <!--var name="DD_SOURCE" value="/afs/cern.ch/user/a/archiron/private/CMSSW_7_2_0_pre4_TEST/src/Validation/RecoEgamma/test"-->
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
       
-      <!--var name="RED_FILE"  value="DQM_V0001_R000000001__RelValSingleElectronPt35_UP15__CMSSW_7_2_0_pre4-POSTLS172_V3-v2__RECO.root"-->
-      <var name="RED_FILE"  value="electronHistos.ValFullPt35Startup_UP15_gedGsfE.root">
       <var name="BLUE_FILE" value="electronHistos.ValFullPt35Startup_UP15_gedGsfE.root">
+      <var name="RED_FILE" value="electronHistos.ValFullPt35Startup_UP15_gedGsfE.root">
 
       <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${RED_FILE} -b ${BLUE_FILE} -t "${TEST_NEW} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / gedGsfElectrons / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/GedVsGed/Fullgedvsged_${DD_SAMPLE}_gedGsfE_Startup'>
       
