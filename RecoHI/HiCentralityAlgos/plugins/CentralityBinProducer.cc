@@ -159,8 +159,8 @@ CentralityBinProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   int bin = inputDB_->m_table.size() - 1;
   for(unsigned int i = 0; i < inputDB_->m_table.size(); ++i){
 
-    if(value >= inputDB_->m_table[i].bin_edge && value < inputDB_->m_table[i-1].bin_edge){
-      bin = i;
+    if(value >= inputDB_->m_table[i].bin_edge && value){
+      bin = i; break;
     }
 
   }
