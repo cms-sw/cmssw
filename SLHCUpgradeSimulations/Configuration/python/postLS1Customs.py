@@ -72,7 +72,7 @@ def customise_Validation(process):
 
 def customise_Sim(process):
     # enable 2015 HF shower library
-    process.g4SimHits.HFShowerLibrary.FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v2.root'
+    process.g4SimHits.HFShowerLibrary.FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root'
     return process
 
 
