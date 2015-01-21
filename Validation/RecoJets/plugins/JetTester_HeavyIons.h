@@ -159,6 +159,22 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   MonitorElement *mSumCaloVsPt_eta;
   MonitorElement *mSumCaloPt_eta;
 
+  MonitorElement *mSumSquaredPFVsPt;
+  MonitorElement *mSumSquaredPFVsPtInitial;
+  MonitorElement *mSumSquaredPFPt;
+
+  MonitorElement *mSumSquaredPFVsPtInitial_eta;
+  MonitorElement *mSumSquaredPFVsPt_eta;
+  MonitorElement *mSumSquaredPFPt_eta;
+
+  MonitorElement *mSumSquaredCaloVsPt;
+  MonitorElement *mSumSquaredCaloVsPtInitial;
+  MonitorElement *mSumSquaredCaloPt;
+
+  MonitorElement *mSumSquaredCaloVsPtInitial_eta;
+  MonitorElement *mSumSquaredCaloVsPt_eta;
+  MonitorElement *mSumSquaredCaloPt_eta;
+
   // Event variables (including centrality)
   MonitorElement* mNvtx;
   MonitorElement* mHF;
@@ -317,7 +333,7 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
 
   static const size_t nedge_pseudorapidity = etaBins_ + 1;
 
-
+ 
 };
 
 #endif

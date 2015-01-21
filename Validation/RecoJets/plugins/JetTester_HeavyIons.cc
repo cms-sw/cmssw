@@ -54,7 +54,6 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
   pfCandToken_ = consumes<reco::PFCandidateCollection>(mInputPFCandCollection);
   pfCandViewToken_ = consumes<reco::CandidateView>(mInputPFCandCollection);
   caloCandViewToken_ = consumes<reco::CandidateView>(edm::InputTag("towerMaker"));
-  //backgrounds_ = consumes<reco::VoronoiBackground>(Background);
   backgrounds_ = consumes<edm::ValueMap<reco::VoronoiBackground> >(Background);
   backgrounds_value_ = consumes<std::vector<float> >(Background);
   centralityToken_ = consumes<reco::Centrality>(centrality);
@@ -76,6 +75,12 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
     mSumPFVsPtInitial_eta = 0;
     mSumPFVsPt_eta = 0;
     mSumPFPt_eta = 0;
+    mSumSquaredPFVsPt = 0;
+    mSumSquaredPFVsPtInitial = 0;
+    mSumSquaredPFPt = 0;
+    mSumSquaredPFVsPtInitial_eta = 0;
+    mSumSquaredPFVsPt_eta = 0;
+    mSumSquaredPFPt_eta = 0;
     mSumPFVsPtInitial_HF = 0;
     mSumPFVsPt_HF = 0;
     mSumPFPt_HF = 0;
@@ -140,13 +145,20 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
     mCaloVsPt = 0;
     mCaloVsPtInitial = 0;
     mCaloVsPtEqualized = 0;
-    mCaloArea = 0;  
+    mCaloArea = 0;
+    
     mSumCaloVsPt = 0;
     mSumCaloVsPtInitial = 0;
     mSumCaloPt = 0;
     mSumCaloVsPtInitial_eta = 0;
     mSumCaloVsPt_eta = 0;
     mSumCaloPt_eta = 0;
+    mSumSquaredCaloVsPt = 0;
+    mSumSquaredCaloVsPtInitial = 0;
+    mSumSquaredCaloPt = 0;
+    mSumSquaredCaloVsPtInitial_eta = 0;
+    mSumSquaredCaloVsPt_eta = 0;
+    mSumSquaredCaloPt_eta = 0;
     mSumCaloVsPtInitial_HF = 0;
     mSumCaloVsPt_HF = 0;
     mSumCaloPt_HF = 0;
@@ -277,6 +289,11 @@ void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
 
     //cout<<"inside the book histograms function"<<endl;
 
+    double edge_pseudorapidity[etaBins_ +1] = {-5.191, -2.650, -2.043, -1.740, -1.479, -1.131, -0.783, -0.522, 0.522, 0.783, 1.131, 1.479, 1.740, 2.043, 2.650, 5.191 };
+
+    TH2F *h2D_etabins_vs_pt2 = new TH2F("h2D_etabins_vs_pt2","",etaBins_,edge_pseudorapidity,10000,0,10000);
+    TH2F *h2D_etabins_vs_pt = new TH2F("h2D_etabins_vs_pt","",etaBins_,edge_pseudorapidity,10000,-10000,10000);
+
     if(isPFJet){
 
       mNPFpart         = ibooker.book1D("NPFpart","No of particle flow candidates",1000,0,10000);
@@ -291,9 +308,16 @@ void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
       mSumPFVsPt       = ibooker.book1D("SumPFVsPt","Sum of PF VS p_T ",10000,-10000,10000);
       mSumPFVsPtInitial= ibooker.book1D("SumPFVsPtInitial","Sum PF VS p_T initial",10000,-10000,10000);
       mSumPFPt         = ibooker.book1D("SumPFPt","",10000,-10000,10000);
-      mSumPFVsPt_eta   = ibooker.book2D("SumPFVsPt_etaBins","",60,-6,+6,10000,-10000,10000);
-      mSumPFVsPtInitial_eta   = ibooker.book2D("SumPFVsPtInitial_etaBins","",60,-6,+6,10000,-10000,10000);
-      mSumPFPt_eta     = ibooker.book2D("SumPFPt_etaBins","",60,-6,+6,10000,-10000,10000);
+      mSumPFVsPt_eta   = ibooker.book2D("SumPFVsPt_etaBins",h2D_etabins_vs_pt);
+      mSumPFVsPtInitial_eta   = ibooker.book2D("SumPFVsPtInitial_etaBins",h2D_etabins_vs_pt);
+      mSumPFPt_eta     = ibooker.book2D("SumPFPt_etaBins",h2D_etabins_vs_pt);
+
+      mSumSquaredPFVsPt       = ibooker.book1D("SumSquaredPFVsPt"," ",10000,-10000,10000);
+      mSumSquaredPFVsPtInitial= ibooker.book1D("SumSquaredPFVsPtInitial"," ",10000,-10000,10000);
+      mSumSquaredPFPt         = ibooker.book1D("SumSquaredPFPt"," ",10000,-10000,10000);
+      mSumSquaredPFVsPt_eta   = ibooker.book2D("SumSquaredPFVsPt_etaBins",h2D_etabins_vs_pt2);
+      mSumSquaredPFVsPtInitial_eta   = ibooker.book2D("SumSquaredPFVsPtInitial_etaBins",h2D_etabins_vs_pt2);
+      mSumSquaredPFPt_eta     = ibooker.book2D("SumSquaredPFPt_etaBins",h2D_etabins_vs_pt2);
 
       mSumPFVsPtInitial_HF    = ibooker.book2D("SumPFVsPtInitial_HF","",2000,-10000,10000,1000,0,10000);
       mSumPFVsPt_HF    = ibooker.book2D("SumPFVsPt_HF","",2000,-10000,10000,1000,0,10000);
@@ -367,9 +391,16 @@ void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
       mSumCaloVsPt       = ibooker.book1D("SumCaloVsPt","Sum of Calo VS p_T ",10000,-10000,10000);
       mSumCaloVsPtInitial= ibooker.book1D("SumCaloVsPtInitial","Sum Calo VS p_T initial",10000,-10000,10000);
       mSumCaloPt         = ibooker.book1D("SumCaloPt","",10000,-10000,10000);
-      mSumCaloVsPt_eta   = ibooker.book2D("SumCaloVsPt_etaBins","",60,-6,+6,10000,-10000,10000);
-      mSumCaloVsPtInitial_eta   = ibooker.book2D("SumCaloVsPtInitial_etaBins","",60,-6,+6,10000,-10000,10000);
-      mSumCaloPt_eta     = ibooker.book2D("SumCaloPt_etaBins","",60,-6,+6,10000,-10000,10000);
+      mSumCaloVsPt_eta   = ibooker.book2D("SumCaloVsPt_etaBins",h2D_etabins_vs_pt);
+      mSumCaloVsPtInitial_eta   = ibooker.book2D("SumCaloVsPtInitial_etaBins",h2D_etabins_vs_pt);
+      mSumCaloPt_eta     = ibooker.book2D("SumCaloPt_etaBins",h2D_etabins_vs_pt);
+
+      mSumSquaredCaloVsPt       = ibooker.book1D("SumSquaredCaloVsPt","",10000,-10000,10000);
+      mSumSquaredCaloVsPtInitial= ibooker.book1D("SumSquaredCaloVsPtInitial","",10000,-10000,10000);
+      mSumSquaredCaloPt         = ibooker.book1D("SumSquaredCaloPt","",10000,-10000,10000);
+      mSumSquaredCaloVsPt_eta   = ibooker.book2D("SumSquaredCaloVsPt_etaBins",h2D_etabins_vs_pt2);
+      mSumSquaredCaloVsPtInitial_eta   = ibooker.book2D("SumSquaredCaloVsPtInitial_etaBins",h2D_etabins_vs_pt2);
+      mSumSquaredCaloPt_eta     = ibooker.book2D("SumSquaredCaloPt_etaBins",h2D_etabins_vs_pt2);
 
       mSumCaloVsPtInitial_HF    = ibooker.book2D("SumCaloVsPtInitial_HF","",2000,-10000,10000,1000,0,10000);
       mSumCaloVsPt_HF    = ibooker.book2D("SumCaloVsPt_HF","",2000,-10000,10000,1000,0,10000);
@@ -377,7 +408,6 @@ void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
       mCaloVsPtInitial_eta_phi    = ibooker.book2D("SumCaloVsPtInitial_eta_phi","",120,-6,6,70,-3.5,3.5);
       mCaloVsPt_eta_phi    = ibooker.book2D("SumCaloVsPt_eta_phi","",120,-6,6,70,-3.5,3.5);
       mCaloPt_eta_phi    = ibooker.book2D("SumCaloPt_eta_phi","",120,-6,6,70,-3.5,3.5);
-
 
       mCaloVsPtInitial_n5p191_n2p650 = ibooker.book1D("mCaloVsPtInitial_n5p191_n2p650","Sum CaloVsPt Initial variable in the eta range -5.191 to -2.650",100,0,1000);
       mCaloVsPtInitial_n2p650_n2p043 = ibooker.book1D("mCaloVsPtInitial_n2p650_n2p043","Sum CaloVsPt Initial variable in the eta range -2.650 to -2.043 ",100,0,1000);
@@ -441,7 +471,7 @@ void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
     // added Jan 12th 2015
     mDeltapT  = ibooker.book1D("DeltapT","",400,0,200);
     //mDeltapT_HF  = ibooker.book2D("DeltapT_HF","",400,-200,200,1000,0,10000);
-    mDeltapT_eta = ibooker.book2D("DeltapT_eta","",70,-6,6,400,-200,200);
+    mDeltapT_eta = ibooker.book2D("DeltapT_eta","",60,-6,+6,400,-200,200);
     //mDeltapT_phiMinusPsi2 = ibooker.book2D("DeltapT_phiMinusPsi2","",400,-200,200,35,-1.75,1.75);
     mDeltapT_eta_phi = ibooker.book2D("DeltapT_eta_phi","",120,-6,6,70,-3.5,3.5);
     
@@ -471,7 +501,6 @@ void JetTester_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
     mVs_1_y_versus_HF = ibooker.book2D("Vs_1_y_versus_HF","flow modulated sumpT versus HF from both HF (+ and -) with sin, vn = 1",1000,0,10000,100,0,1000);
     mVs_2_x_versus_HF = ibooker.book2D("Vs_2_x_versus_HF","flow modulated sumpT versus HF from both HF (+ and -) with cos, vn = 2",1000,0,10000,100,0,1000);
     mVs_2_y_versus_HF = ibooker.book2D("Vs_2_y_versus_HF","flow modulated sumpT versus HF from both HF (+ and -) with sin, vn = 2",1000,0,10000,100,0,1000);
-
     
     if (mOutputFile.empty ()) 
       LogInfo("OutputInfo") << " Histograms will NOT be saved";
@@ -700,6 +729,9 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
     Float_t SumCaloVsPtInitial[etaBins_];
     Float_t SumCaloVsPt[etaBins_];
     Float_t SumCaloPt[etaBins_];
+    Float_t SumSquaredCaloVsPtInitial[etaBins_];
+    Float_t SumSquaredCaloVsPt[etaBins_];
+    Float_t SumSquaredCaloPt[etaBins_];
 
     for(unsigned icand = 0;icand<caloCandidates->size(); icand++){
 
@@ -735,7 +767,9 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
 	  SumCaloVsPtInitial[k] = SumCaloVsPtInitial[k] + vsPtInitial;
 	  SumCaloVsPt[k] = SumCaloVsPt[k] + vsPt;
 	  SumCaloPt[k] = SumCaloPt[k] + caloPt;
-	
+	  SumSquaredCaloVsPtInitial[k] = SumSquaredCaloVsPtInitial[k] + vsPtInitial*vsPtInitial;
+	  SumSquaredCaloVsPt[k] = SumSquaredCaloVsPt[k] + vsPt*vsPt;
+	  SumSquaredCaloPt[k] = SumSquaredCaloPt[k] + caloPt*caloPt;	
 	}// eta selection statement 
       
       }// eta bin loop
@@ -755,6 +789,10 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
     Float_t Evt_SumCaloVsPt = 0;
     Float_t Evt_SumCaloVsPtInitial = 0;
     Float_t Evt_SumCaloPt = 0;
+
+    Float_t Evt_SumSquaredCaloVsPt = 0;
+    Float_t Evt_SumSquaredCaloVsPtInitial = 0;
+    Float_t Evt_SumSquaredCaloPt = 0;
 
     mCaloVsPtInitial_n5p191_n2p650->Fill(SumCaloVsPtInitial[0]);
     mCaloVsPtInitial_n2p650_n2p043->Fill(SumCaloVsPtInitial[1]);
@@ -812,16 +850,32 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
       Evt_SumCaloVsPt = Evt_SumCaloVsPt + SumCaloVsPt[k];
       //mSumCaloPt->Fill(SumCaloPt[k]);
       Evt_SumCaloPt = Evt_SumCaloPt + SumCaloPt[k];
+      
+      //mSumSquaredCaloVsPtInitial->Fill(SumSquaredCaloVsPtInitial[k]);
+      Evt_SumSquaredCaloVsPtInitial = Evt_SumSquaredCaloVsPtInitial + SumSquaredCaloVsPtInitial[k];
+      //mSumSquaredCaloVsPt->Fill(SumSquaredCaloVsPt[k]);
+      Evt_SumSquaredCaloVsPt = Evt_SumSquaredCaloVsPt + SumSquaredCaloVsPt[k];
+      //mSumSquaredCaloPt->Fill(SumSquaredCaloPt[k]);
+      Evt_SumSquaredCaloPt = Evt_SumSquaredCaloPt + SumSquaredCaloPt[k];
 
       mSumCaloVsPtInitial_eta->Fill(edge_pseudorapidity[k],SumCaloVsPtInitial[k]);
       mSumCaloVsPt_eta->Fill(edge_pseudorapidity[k],SumCaloVsPt[k]);
       mSumCaloPt_eta->Fill(edge_pseudorapidity[k],SumCaloPt[k]);
+      
+      mSumSquaredCaloVsPtInitial_eta->Fill(edge_pseudorapidity[k],SumSquaredCaloVsPtInitial[k]);
+      mSumSquaredCaloVsPt_eta->Fill(edge_pseudorapidity[k],SumSquaredCaloVsPt[k]);
+      mSumSquaredCaloPt_eta->Fill(edge_pseudorapidity[k],SumSquaredCaloPt[k]);
     
     }// eta bin loop  
 
     mSumCaloVsPtInitial->Fill(Evt_SumCaloVsPtInitial);
     mSumCaloVsPt->Fill(Evt_SumCaloVsPt);
     mSumCaloPt->Fill(Evt_SumCaloPt);
+    
+    mSumSquaredCaloVsPtInitial->Fill(Evt_SumSquaredCaloVsPtInitial);
+    mSumSquaredCaloVsPt->Fill(Evt_SumSquaredCaloVsPt);
+    mSumSquaredCaloPt->Fill(Evt_SumSquaredCaloPt);
+    
     mSumCaloVsPtInitial_HF->Fill(Evt_SumCaloVsPtInitial,HF_energy);
     mSumCaloVsPt_HF->Fill(Evt_SumCaloVsPt,HF_energy);
     mSumCaloPt_HF->Fill(Evt_SumCaloPt,HF_energy);
@@ -836,6 +890,10 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
     Float_t SumPFVsPtInitial[etaBins_];
     Float_t SumPFVsPt[etaBins_];
     Float_t SumPFPt[etaBins_];
+    
+    Float_t SumSquaredPFVsPtInitial[etaBins_];
+    Float_t SumSquaredPFVsPt[etaBins_];
+    Float_t SumSquaredPFPt[etaBins_];
     
     for(unsigned icand=0;icand<pfCandidateColl->size(); icand++){
     
@@ -871,6 +929,10 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
 	  SumPFVsPtInitial[k] = SumPFVsPtInitial[k] + vsPtInitial;
 	  SumPFVsPt[k] = SumPFVsPt[k] + vsPt;
 	  SumPFPt[k] = SumPFPt[k] + pfPt;
+
+	  SumSquaredPFVsPtInitial[k] = SumSquaredPFVsPtInitial[k] + vsPtInitial*vsPtInitial;
+	  SumSquaredPFVsPt[k] = SumSquaredPFVsPt[k] + vsPt*vsPt;
+	  SumSquaredPFPt[k] = SumSquaredPFPt[k] + pfPt*pfPt;
 	
 	}// eta selection statement 
       
@@ -892,6 +954,10 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
     Float_t Evt_SumPFVsPtInitial = 0;
     Float_t Evt_SumPFPt = 0;
 
+    Float_t Evt_SumSquaredPFVsPt = 0;
+    Float_t Evt_SumSquaredPFVsPtInitial = 0;
+    Float_t Evt_SumSquaredPFPt = 0;
+    
     mPFVsPtInitial_n5p191_n2p650->Fill(SumPFVsPtInitial[0]);
     mPFVsPtInitial_n2p650_n2p043->Fill(SumPFVsPtInitial[1]);
     mPFVsPtInitial_n2p043_n1p740->Fill(SumPFVsPtInitial[2]);
@@ -952,12 +1018,29 @@ void JetTester_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSetu
       mSumPFVsPtInitial_eta->Fill(edge_pseudorapidity[k],SumPFVsPtInitial[k]);
       mSumPFVsPt_eta->Fill(edge_pseudorapidity[k],SumPFVsPt[k]);
       mSumPFPt_eta->Fill(edge_pseudorapidity[k],SumPFPt[k]);
-    
+
+      //mSumSquaredPFVsPtInitial->Fill(SumSquaredPFVsPtInitial[k]);
+      Evt_SumSquaredPFVsPtInitial = Evt_SumSquaredPFVsPtInitial + SumSquaredPFVsPtInitial[k];
+      //mSumSquaredPFVsPt->Fill(SumSquaredPFVsPt[k]);
+      Evt_SumSquaredPFVsPt = Evt_SumSquaredPFVsPt + SumSquaredPFVsPt[k];
+      //mSumSquaredPFPt->Fill(SumSquaredPFPt[k]);
+      Evt_SumSquaredPFPt = Evt_SumSquaredPFPt + SumSquaredPFPt[k];
+
+      mSumSquaredPFVsPtInitial_eta->Fill(edge_pseudorapidity[k],SumSquaredPFVsPtInitial[k]);
+      mSumSquaredPFVsPt_eta->Fill(edge_pseudorapidity[k],SumSquaredPFVsPt[k]);
+      mSumSquaredPFPt_eta->Fill(edge_pseudorapidity[k],SumSquaredPFPt[k]);
+
+      
     }// eta bin loop  
 
     mSumPFVsPtInitial->Fill(Evt_SumPFVsPtInitial);
     mSumPFVsPt->Fill(Evt_SumPFVsPt);
     mSumPFPt->Fill(Evt_SumPFPt);
+    
+    mSumSquaredPFVsPtInitial->Fill(Evt_SumSquaredPFVsPtInitial);
+    mSumSquaredPFVsPt->Fill(Evt_SumSquaredPFVsPt);
+    mSumSquaredPFPt->Fill(Evt_SumSquaredPFPt);
+    
     mSumPFVsPtInitial_HF->Fill(Evt_SumPFVsPtInitial,HF_energy);
     mSumPFVsPt_HF->Fill(Evt_SumPFVsPt,HF_energy);
     mSumPFPt_HF->Fill(Evt_SumPFPt,HF_energy);
