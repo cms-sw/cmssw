@@ -409,8 +409,9 @@ namespace edm {
             playEventID,
             std::bind(&MixingModule::pileAllWorkers, std::ref(*this), _1, mcc, bunchIdx,
                         _2, vertexOffset, std::ref(setup), e.streamID())
-            );
-        }
+            ); 
+	  (*playbackInfo_)=(*playbackInfo_H); 
+	}
       }
       for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
         (*accItr)->finalizeBunchCrossing(e, setup, bunchIdx);
