@@ -188,6 +188,11 @@ L1TrackProducer::L1TrackProducer(edm::ParameterSet const& iConfig) // :   config
 
   asciiEventOutName_ = iConfig.getUntrackedParameter<string>("asciiFileName","");
 
+  eventnum=0;
+  if (asciiEventOutName_!="") {
+    asciiEventOut_.open(asciiEventOutName_.c_str());
+  }
+
 }
 
 /////////////
@@ -196,16 +201,16 @@ L1TrackProducer::~L1TrackProducer()
 {
   /// Insert here what you need to delete
   /// when you close the class instance
+  if (asciiEventOutName_!="") {
+    asciiEventOut_.close();
+  }
+
 }  
 
 //////////
 // END JOB
 void L1TrackProducer::endRun(const edm::Run& run, const edm::EventSetup& iSetup)
 {
-
-  if (asciiEventOutName_!="") {
-    asciiEventOut_.close();
-  }
 
   /// Things to be done at the exit of the event Loop 
 
@@ -215,10 +220,6 @@ void L1TrackProducer::endRun(const edm::Run& run, const edm::EventSetup& iSetup)
 // BEGIN JOB
 void L1TrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& iSetup )
 {
-  eventnum=0;
-  if (asciiEventOutName_!="") {
-    asciiEventOut_.open(asciiEventOutName_.c_str());
-  }
 }
 
 //////////
@@ -343,15 +344,20 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const TTStub<Ref_PixelDigi_>* stub=iterTTStub;
 
       double stubPt = theStackedGeometry->findRoughPt(mMagneticFieldStrength,stub);
-
+      
       if (stubPt>10000.0) stubPt=9999.99;
-      GlobalPoint stubPosition = theStackedGeometry->findGlobalPosition(stub);
 
       StackedTrackerDetId stubDetId = stub->getDetId();
       unsigned int iStack = stubDetId.iLayer();
       unsigned int iRing = stubDetId.iRing();
       unsigned int iPhi = stubDetId.iPhi();
       unsigned int iZ = stubDetId.iZ();
+
+
+      if (stub->getTriggerBend()<0.0) stubPt=-stubPt;
+
+      GlobalPoint stubPosition = theStackedGeometry->findGlobalPosition(stub);
+
 
       std::vector<bool> innerStack;
       std::vector<int> irphi;

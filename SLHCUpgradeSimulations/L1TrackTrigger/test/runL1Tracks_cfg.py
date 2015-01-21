@@ -27,7 +27,17 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 process.source = cms.Source("PoolSource",
      fileNames = cms.untracked.vstring(
-     '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SingleElectron_E2023TTI_PU140.root'
+#     '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SingleElectron_E2023TTI_PU140.root'
+      '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/NoPU/SingleMuon_DIGI_1.root',
+      '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/NoPU/SingleMuon_DIGI_2.root',
+      '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/NoPU/SingleMuon_DIGI_3.root',
+      '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/NoPU/SingleMuon_DIGI_4.root'
+#     '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/TTbar/PU140/TTbar_E2023TTI_PU140_1.root'
+#      '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Neutrinos/PU140/SingleNeutrino_E2023TTI_PU140_5.root',
+#      '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Neutrinos/PU140/SingleNeutrino_E2023TTI_PU140_6.root',
+#      '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Neutrinos/PU140/SingleNeutrino_E2023TTI_PU140_7.root',
+#      '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Neutrinos/PU140/SingleNeutrino_E2023TTI_PU140_8.root',
+#      '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Neutrinos/PU140/SingleNeutrino_E2023TTI_PU140_9.root'
      )
 )
 
