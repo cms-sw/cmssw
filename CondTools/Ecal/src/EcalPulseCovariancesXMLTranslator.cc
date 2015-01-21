@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <vector>
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
@@ -53,7 +54,7 @@ int  EcalPulseCovariancesXMLTranslator::readXML(const std::string& filename,
     DetId detid = readCellId(dynamic_cast<DOMElement*>(cellnode));
     //    std::cout << " readCell Id Channel " << chan << " tag " << mean12_tag << std::endl;
 
-    std::string pulsecov_tag[int(std::pow(EcalPulseShape::TEMPLATESAMPLES,2))];
+    std::vector<std::string> pulsecov_tag(static_cast<size_t>(std::pow(EcalPulseShape::TEMPLATESAMPLES,2)));
     for(int k=0; k<std::pow(EcalPulseShape::TEMPLATESAMPLES,2); ++k) {
       int i = k/EcalPulseShape::TEMPLATESAMPLES;
       int j = k%EcalPulseShape::TEMPLATESAMPLES;
@@ -107,7 +108,7 @@ std::string EcalPulseCovariancesXMLTranslator::dumpXML(const EcalCondHeader& hea
     
   DOMElement* root = doc->getDocumentElement();
 
-  std::string pulsecov_tag[int(std::pow(EcalPulseShape::TEMPLATESAMPLES,2))];
+  std::vector<std::string> pulsecov_tag(static_cast<size_t>(std::pow(EcalPulseShape::TEMPLATESAMPLES,2)));
   for(int k=0; k<std::pow(EcalPulseShape::TEMPLATESAMPLES,2); ++k) {
     int i = k/EcalPulseShape::TEMPLATESAMPLES;
     int j = k%EcalPulseShape::TEMPLATESAMPLES;
