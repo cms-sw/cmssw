@@ -58,7 +58,7 @@
 
 // Substructure
 #include "RecoJets/JetAlgorithms/interface/CATopJetHelper.h"
-#include "DataFormats/JetReco/interface/CATopJetTagInfo.h"
+#include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"
 
 // ROOT
 #include "TLorentzVector.h"

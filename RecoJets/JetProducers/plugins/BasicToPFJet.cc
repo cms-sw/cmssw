@@ -24,7 +24,7 @@
 // user include files
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/JetReco/interface/CATopJetTagInfo.h"
+#include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 //include header file
