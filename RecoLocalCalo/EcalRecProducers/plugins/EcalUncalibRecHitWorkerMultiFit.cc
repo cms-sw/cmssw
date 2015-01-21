@@ -42,7 +42,13 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   if (useLumiInfoRunHeader_) {
     bunchSpacing_ = c.consumes<int>(edm::InputTag("addPileupInfo","bunchSpacing"));
   }
+  
+  bool doPrefit = ps.getParameter<bool>("doPrefit");
+  multiFitMethod_.setDoPrefit(doPrefit);
 
+  double prefitMaxChiSq = ps.getParameter<double>("prefitMaxChiSq");
+  multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSq);
+  
   // algorithm to be used for timing
   timealgo_ = ps.getParameter<std::string>("timealgo");
   
