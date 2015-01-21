@@ -16,7 +16,6 @@
 
 // system include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,6 +31,7 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 //DQM services for histogram
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -43,14 +43,13 @@ class MonitorElement;
 // class declaration
 //
 
-class GlobalTest : public edm::EDAnalyzer {
+class GlobalTest : public DQMEDAnalyzer {
  public:
   explicit GlobalTest(const edm::ParameterSet&);
   ~GlobalTest();
 
-  void beginJob();
-  void endJob();
-
+  void bookHistograms(DQMStore::IBooker &,
+      edm::Run const &, edm::EventSetup const &) override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
  private:
@@ -66,8 +65,6 @@ class GlobalTest : public edm::EDAnalyzer {
   MonitorElement * trackPartIdH_[nMaxH];
   MonitorElement * caloEnergyEBH_[nMaxH];
   MonitorElement * caloEnergyEEH_[nMaxH];
-
-  DQMStore* dbe_;
 
   const static int nrHistos=6;
   char * labels[nrHistos];
