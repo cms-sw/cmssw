@@ -282,3 +282,66 @@ void ElectronSeedProducer::filterSeeds
     LogDebug("ElectronSeedProducer")<<"Number of Seeds: "<<theInitialSeedColl->size() ;
    }
  }
+
+void  ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("barrelSuperClusters", edm::InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"));
+  desc.add<edm::InputTag>("endcapSuperClusters", edm::InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"));
+  
+  desc.add<bool>("fromTrackerSeeds", true);
+  desc.add<edm::InputTag>("initialSeeds", edm::InputTag("newCombinedSeeds"));
+  desc.add<bool>("preFilteredSeeds", false);
+  desc.add<bool>("useRecoVertex", false);
+  desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVerticesWithBS"));
+  desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.add<bool>("dynamicPhiRoad", true);
+  desc.add<bool>("searchInTIDTEC", true);
+
+  desc.add<std::string>("measurementTrackerName", std::string(""));
+  desc.add<edm::InputTag>("measurementTrackerEvent", edm::InputTag("MeasurementTrackerEvent"));
+
+  desc.add<double>("SCEtCut",  0.0);
+
+  desc.add<bool>("applyHOverECut", true);
+  desc.add<double>("hOverEConeSize"  , 0.15);
+  desc.add<double>("maxHOverEBarrel" , 0.15);
+  desc.add<double>("maxHOverEEndcaps", 0.15);
+  desc.add<double>("maxHBarrel"      , 0.0);
+  desc.add<double>("maxHEndcaps"     , 0.0);
+
+  desc.add<edm::InputTag>("hcalRecHits", edm::InputTag("hbhereco"));
+  desc.add<double>("hOverEHBMinE", 0.7);
+  desc.add<double>("hOverEHFMinE", 0.8);
+
+  desc.add<edm::InputTag>("hcalTowers", edm::InputTag("towerMaker"));
+  desc.add<double>("hOverEPtMin", 0.);
+
+  desc.add<double>("nSigmasDeltaZ1"   , 5.);
+  desc.add<double>("deltaZ1WithVertex", 25.);
+  desc.add<double>("z2MinB"           , -0.09);
+  desc.add<double>("z2MaxB"           , 0.09);
+  desc.add<double>("r2MinF"           , -0.15);
+  desc.add<double>("r2MaxF"           , 0.15);
+  desc.add<double>("rMinI"            , -0.2);
+  desc.add<double>("rMaxI"            , 0.2);
+
+  desc.add<double>("LowPtThreshold" , 5.0);
+  desc.add<double>("HighPtThreshold", 35.0);
+  desc.add<double>("SizeWindowENeg" , 0.675);
+  desc.add<double>("DeltaPhi1Low"   , 0.23);
+  desc.add<double>("DeltaPhi1High"  , 0.08);
+  desc.add<double>("DeltaPhi2B"     , 0.008);
+  desc.add<double>("DeltaPhi2F"     , 0.012);
+
+  desc.add<double>("ePhiMin1",  -0.125);
+  desc.add<double>("ePhiMax1",  0.075);
+  desc.add<double>("pPhiMin1",  -0.075);
+  desc.add<double>("pPhiMax1",  0.125);
+  desc.add<double>("PhiMin2B",  -0.002);
+  desc.add<double>("PhiMax2B",  0.002);
+  desc.add<double>("PhiMin2F",  -0.003);
+  desc.add<double>("PhiMax2F",  0.003);
+
+  descriptions.add("ecalDrivenElectronSeeds",desc);
+}
