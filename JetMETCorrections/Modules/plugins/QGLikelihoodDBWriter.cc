@@ -160,6 +160,7 @@ void QGLikelihoodDBWriter::beginJob(){
     QGLikelihoodObject::Entry entry;
     entry.category  = category.second;
     entry.histogram = transformToHistogramObject(pdfs[category.first]);
+    entry.mean      = 0; // not used by the algorithm, is an old data member used in the past, but DB objects are not allowed to change
     payload->data.push_back(entry);
     
     char buff[1000];
