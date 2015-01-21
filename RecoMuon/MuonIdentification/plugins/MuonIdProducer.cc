@@ -395,7 +395,7 @@ void MuonIdProducer::calculateMuonHitEtaRanges(const edm::EventSetup& eventSetup
       for ( auto& dtSegment : *dtSegmentHandle_ )
       {
          const auto& detId = dtSegment.chamberId();
-         const auto ch = geom->chamber(detId);
+         const auto& ch = geom->chamber(detId);
          const double eta = ch->toGlobal(dtSegment.localPosition()).eta();
          muonHitsEta_.push_back(eta);
       }
@@ -408,7 +408,7 @@ void MuonIdProducer::calculateMuonHitEtaRanges(const edm::EventSetup& eventSetup
       for ( auto& cscSegment : *cscSegmentHandle_ )
       {
          const CSCDetId& detId = cscSegment.cscDetId();
-         const auto ch = geom->chamber(detId);
+         const auto& ch = geom->chamber(detId);
          const double eta = ch->toGlobal(cscSegment.localPosition()).eta();
          muonHitsEta_.push_back(eta);
       }
@@ -421,7 +421,7 @@ void MuonIdProducer::calculateMuonHitEtaRanges(const edm::EventSetup& eventSetup
       for ( auto& rpcRecHit : *rpcRecHitHandle_ )
       {
          const RPCDetId& detId = rpcRecHit.rpcId();
-         const auto ch = geom->roll(detId);
+         const auto& ch = geom->roll(detId);
          const double eta = ch->toGlobal(rpcRecHit.localPosition()).eta();
          muonHitsEta_.push_back(eta);
       }
