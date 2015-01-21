@@ -51,7 +51,8 @@ using namespace reco ;
 ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
  : //conf_(iConfig),
    applyHOverECut_(true), hcalHelper_(0),
-   caloGeom_(0), caloGeomCacheId_(0), caloTopo_(0), caloTopoCacheId_(0) {
+   caloGeom_(0), caloGeomCacheId_(0), caloTopo_(0), caloTopoCacheId_(0)
+ {
   conf_ = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
 
   initialSeeds_ = consumes<TrajectorySeedCollection>(conf_.getParameter<edm::InputTag>("initialSeeds")) ;
@@ -60,56 +61,35 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   prefilteredSeeds_ = conf_.getParameter<bool>("preFilteredSeeds") ;
 
   // new beamSpot tag
-  if (conf_.exists("beamSpot")) { 
-    beamSpotTag_ = consumes<reco::BeamSpot>(conf_.getParameter<edm::InputTag>("beamSpot")); 
-  } else {
-    beamSpotTag_ = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
-  }
+  beamSpotTag_ = consumes<reco::BeamSpot>(conf_.getParameter<edm::InputTag>("beamSpot")); 
 
   // for H/E
-  //  if (conf_.exists("applyHOverECut"))
-  //   { applyHOverECut_ = conf_.getParameter<bool>("applyHOverECut") ; }
   applyHOverECut_ = conf_.getParameter<bool>("applyHOverECut") ;
   if (applyHOverECut_)
    {
-    ElectronHcalHelper::Configuration hcalCfg ;
-    hcalCfg.hOverEConeSize = conf_.getParameter<double>("hOverEConeSize") ;
-    if (hcalCfg.hOverEConeSize>0)
-     {
-      hcalCfg.useTowers = true ;
-      hcalCfg.hcalTowers = 
-	consumes<CaloTowerCollection>(conf_.getParameter<edm::InputTag>("hcalTowers")) ;
-      hcalCfg.hOverEPtMin = conf_.getParameter<double>("hOverEPtMin") ;
-     }
-    hcalHelper_ = new ElectronHcalHelper(hcalCfg) ;
-    maxHOverEBarrel_=conf_.getParameter<double>("maxHOverEBarrel") ;
-    maxHOverEEndcaps_=conf_.getParameter<double>("maxHOverEEndcaps") ;
-    maxHBarrel_=conf_.getParameter<double>("maxHBarrel") ;
-    maxHEndcaps_=conf_.getParameter<double>("maxHEndcaps") ;
-    //    hOverEConeSize_=conf_.getParameter<double>("hOverEConeSize") ;
-    //    hOverEHBMinE_=conf_.getParameter<double>("hOverEHBMinE") ;
-//    hOverEHFMinE_=conf_.getParameter<double>("hOverEHFMinE") ;
+     ElectronHcalHelper::Configuration hcalCfg ;
+     hcalCfg.hOverEConeSize = conf_.getParameter<double>("hOverEConeSize") ;
+     if (hcalCfg.hOverEConeSize>0)
+       {
+	 hcalCfg.useTowers = true ;
+	 hcalCfg.hcalTowers = 
+	   consumes<CaloTowerCollection>(conf_.getParameter<edm::InputTag>("hcalTowers")) ;
+	 hcalCfg.hOverEPtMin = conf_.getParameter<double>("hOverEPtMin") ;
+       }
+     hcalHelper_ = new ElectronHcalHelper(hcalCfg) ;
+     maxHOverEBarrel_=conf_.getParameter<double>("maxHOverEBarrel") ;
+     maxHOverEEndcaps_=conf_.getParameter<double>("maxHOverEEndcaps") ;
+     maxHBarrel_=conf_.getParameter<double>("maxHBarrel") ;
+     maxHEndcaps_=conf_.getParameter<double>("maxHEndcaps") ;
    }
 
-  if( conf_.exists("RegionPSet") ) {
-    edm::ParameterSet rpset = 
-      conf_.getParameter<edm::ParameterSet>("RegionPSet");
-    filterVtxTag_ = 
-      consumes<std::vector<reco::Vertex> >(rpset.getParameter<edm::InputTag> ("VertexProducer"));
-  }
+  edm::ParameterSet rpset = conf_.getParameter<edm::ParameterSet>("RegionPSet");
+  filterVtxTag_ = consumes<std::vector<reco::Vertex> >(rpset.getParameter<edm::InputTag> ("VertexProducer"));
 
   ElectronSeedGenerator::Tokens esg_tokens;
   esg_tokens.token_bs = beamSpotTag_;
-  if(conf_.exists("vertices")) {
-    esg_tokens.token_vtx = 
-      mayConsume<reco::VertexCollection>(conf_.getParameter<edm::InputTag>("vertices"));
-  } else {
-    esg_tokens.token_vtx = 
-      mayConsume<reco::VertexCollection>(edm::InputTag("offlinePrimaryVerticesWithBS"));
-  }
-  if(conf_.existsAs<edm::InputTag>("measurementTrackerEvent")) {
-    esg_tokens.token_measTrkEvt= consumes<MeasurementTrackerEvent>(conf_.getParameter<edm::InputTag>("measurementTrackerEvent"));
-  }
+  esg_tokens.token_vtx = mayConsume<reco::VertexCollection>(conf_.getParameter<edm::InputTag>("vertices"));
+  esg_tokens.token_measTrkEvt= consumes<MeasurementTrackerEvent>(conf_.getParameter<edm::InputTag>("measurementTrackerEvent"));
 
   matcher_ = new ElectronSeedGenerator(conf_,esg_tokens) ;
 
@@ -136,7 +116,6 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   //register your products
   produces<ElectronSeedCollection>() ;
 }
-
 
 void ElectronSeedProducer::beginRun(edm::Run const&, edm::EventSetup const&) 
 {}
