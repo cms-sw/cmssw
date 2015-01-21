@@ -27,7 +27,7 @@ float MuonTagger::discriminator(const TagInfoHelper& tagInfo) const {
 
   float bestTag = - std::numeric_limits<float>::infinity(); // default value, used if there are no leptons associated to this jet
   const reco::CandSoftLeptonTagInfo& info = tagInfo.get<reco::CandSoftLeptonTagInfo>();
-
+  
   // If there are multiple leptons, look for the highest tag result
   for (unsigned int i=0; i<info.leptons(); i++) {
     const reco::SoftLeptonProperties& properties = info.properties(i);
@@ -40,7 +40,7 @@ float MuonTagger::discriminator(const TagInfoHelper& tagInfo) const {
     }
     float sip3d = flip ? -properties.sip3d : properties.sip3d;
     float sip2d = flip ? -properties.sip2d : properties.sip2d;
-    float tag = mvaID->mvaValue(sip3d, sip2d, properties.ptRel, properties.ratio);
+    float tag = mvaID->mvaValue(sip3d, sip2d, properties.ptRel, properties.deltaR, properties.ratio);
     if(tag>bestTag) bestTag = tag;
   }
   

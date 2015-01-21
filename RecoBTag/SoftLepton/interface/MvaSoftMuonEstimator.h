@@ -20,14 +20,14 @@ class MvaSoftMuonEstimator {
     MvaSoftMuonEstimator();
     ~MvaSoftMuonEstimator();
     
-   float mvaValue(float, float, float, float);
+   float mvaValue(float, float, float, float, float);
     
   private:
     
     TMVA::Reader* TMVAReader;
     
     std::string weightFile;
-    float mva_sip3d, mva_sip2d, mva_ptRel, mva_ratio;
+    float mva_sip3d, mva_sip2d, mva_ptRel, mva_deltaR, mva_ratio;
 
 };
 
