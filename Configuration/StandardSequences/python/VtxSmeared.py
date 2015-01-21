@@ -36,5 +36,5 @@ VtxSmeared = {
     'NominalCollision2015'  :        'IOMC.EventVertexGenerators.VtxSmearedNominalCollision2015_cfi'
 
 }
-VtxSmearedDefaultKey='Realistic8TeVCollision'
+VtxSmearedDefaultKey='NominalCollision2015'
 VtxSmearedHIDefaultKey='RealisticHI2011Collision'
