@@ -88,7 +88,6 @@ private:
   struct TLSData;
   static thread_local TLSData *m_tls;
 
-  std::unique_ptr<G4Event> m_currentEvent;
   std::unique_ptr<G4SimEvent> m_simEvent;
 };
 
