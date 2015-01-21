@@ -4,6 +4,7 @@
   <use   name="RecoJets/JetProducers"/>
   <use   name="RecoJets/JetAlgorithms"/>
   <use   name="FWCore/Framework"/>
+  <use   name="DataFormats/BTauReco"/>
   <use   name="DataFormats/JetReco"/>
   <use   name="DataFormats/VertexReco"/>
   <use   name="Geometry/CaloGeometry"/>

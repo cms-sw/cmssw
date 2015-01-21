@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DataFormats/JetReco/interface/CATopJetTagInfo.h"
+#include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
