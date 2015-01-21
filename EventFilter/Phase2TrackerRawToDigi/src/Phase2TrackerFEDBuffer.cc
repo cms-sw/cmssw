@@ -121,7 +121,7 @@ namespace Phase2Tracker
           {
               num_p = static_cast<uint8_t>(read_n_at_m(payloadPointer_,6,bitOffset+1));
               num_s = static_cast<uint8_t>(read_n_at_m(payloadPointer_,6,bitOffset+7));
-              bitOffset += 12;
+              bitOffset += 13;
           }
           // start indexing
           int currCBC = -1;

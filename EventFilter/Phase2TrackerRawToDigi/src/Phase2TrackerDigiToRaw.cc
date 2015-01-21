@@ -200,15 +200,12 @@ namespace Phase2Tracker
   {
     uint8_t  length = 7;
     uint16_t header = (uint16_t)modtype & 0x01;
-    // TODO : np and ns are on 6 bits : should we throw an error if we have too many clusters ?
-    // if(np > MAX_NP*2+1) { }
-    // if(ns > MAX_NS*2+1) { }
     // module type switch
     if (modtype == 1)
     {
       header |= ((uint16_t)np & 0x3F)<<1;
       header |= ((uint16_t)ns & 0x3F)<<7;
-      length = 12;
+      length = 13;
     }
     else 
     {
@@ -243,6 +240,7 @@ namespace Phase2Tracker
 
   void Phase2TrackerDigiToRaw::writeSCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, stackedDigi digi)
   {
+    // std::cout << "S " << digi.getRawX() << " " << digi.getSizeX() << std::endl; 
     std::cout << "S " << digi.getChipId() << " " << digi.getRawX() << " " << digi.getSizeX() << std::endl; 
     uint16_t scluster = (digi.getChipId() & 0x0F) << 11;
     scluster |= (digi.getRawX() & 0xFF) << 3;
@@ -253,6 +251,7 @@ namespace Phase2Tracker
 
   void Phase2TrackerDigiToRaw::writePCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, stackedDigi digi)
   {
+    // std::cout << "P " << digi.getRawX() << " " << digi.getSizeX() << " " << digi.getRawY() << std::endl; 
     std::cout << "P " << digi.getChipId() << " " << digi.getRawX() << " " << digi.getSizeX() << " " << digi.getRawY() << std::endl; 
     uint32_t pcluster = (digi.getChipId() & 0x0F) << 14;
     pcluster |= (digi.getRawX() & 0x7F) << 7;
