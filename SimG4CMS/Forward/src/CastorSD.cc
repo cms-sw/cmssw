@@ -217,316 +217,318 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     
     // track is killed in getFromLibrary...
 
-  } else {
-    
-    // remember primary particle hitting the CASTOR detector
-    
-    TrackInformationExtractor TIextractor;
-    TrackInformation& trkInfo = TIextractor(theTrack);
-    if (!trkInfo.hasCastorHit()) {
-      trkInfo.setCastorHitPID(parCode);
-    }
-    const int castorHitPID = trkInfo.getCastorHitPID();
-    
-    // Check whether castor hit track is HAD
-    const bool isHad = !(castorHitPID==emPDG || castorHitPID==epPDG || castorHitPID==gammaPDG || castorHitPID == mupPDG || castorHitPID == mumPDG);
-    
-    
-    // Usual calculations
-    // G4ThreeVector      hitPoint = preStepPoint->GetPosition();	
-    // G4ThreeVector      hit_mom = preStepPoint->GetMomentumDirection();
-    G4double           stepl    = aStep->GetStepLength()/cm;
-    G4double           beta     = preStepPoint->GetBeta();
-    G4double           charge   = preStepPoint->GetCharge();
-    //        G4VProcess*        curprocess   = preStepPoint->GetProcessDefinedStep();
-    //        G4String           namePr   = preStepPoint->GetProcessDefinedStep()->GetProcessName();
-    //        std::string nameProcess;
-    //        nameProcess.assign(namePr,0,4);
-    
-    //        G4LogicalVolume*   lv    = currentPV->GetLogicalVolume();
-    //        G4Material*        mat   = lv->GetMaterial();
-    //        G4double           rad   = mat->GetRadlen();
-    
-   
-#ifdef debugLog
-    // postStepPoint information *********************************************
-    G4StepPoint* postStepPoint= aStep->GetPostStepPoint();   
-    G4VPhysicalVolume* postPV= postStepPoint->GetPhysicalVolume();
-
-    G4String           postname   = postPV->GetName();
-    std::string        postnameVolume;
-    postnameVolume.assign(postname,0,4);
-
-    // theTrack information  *************************************************
-    // G4Track*        theTrack = aStep->GetTrack();   
-    //G4double        entot    = theTrack->GetTotalEnergy();
-    G4ThreeVector   vert_mom = theTrack->GetVertexMomentumDirection();
-        
-    G4ThreeVector  localPoint = theTrack->GetTouchable()->GetHistory()->
-      GetTopTransform().TransformPoint(hitPoint);
-
-    G4String       particleType = theTrack->GetDefinition()->GetParticleName();
-
-    // calculations...       *************************************************
-    double phi = -100.;
-    if (vert_mom.x() != 0) phi = atan2(vert_mom.y(),vert_mom.x()); 
-    if (phi < 0.) phi += twopi;
-
-
-    double costheta =vert_mom.z()/sqrt(vert_mom.x()*vert_mom.x()+
-				      vert_mom.y()*vert_mom.y()+
-				      vert_mom.z()*vert_mom.z());
-    double theta = acos(std::min(std::max(costheta,double(-1.)),double(1.)));
-    double eta = -log(tan(theta/2));
-    G4int          primaryID    = theTrack->GetTrackID();
-    // *************************************************
-    
-    
-    // *************************************************
-    double edep   = aStep->GetTotalEnergyDeposit();
-#endif
-
-    // *************************************************
-    
-    
-    // *************************************************
-    // take into account light collection curve for plate
-    //      double weight = curve_Castor(nameVolume, preStepPoint);
-    //      double edep   = aStep->GetTotalEnergyDeposit() * weight;
-    // *************************************************
-    
-    
-    // *************************************************
-    /*    comments for sensitive volumes:      
-	  C001 ...-... CP06,CBU1 ...-...CALM --- > fibres and bundle 
-	  for first release of CASTOR
-	  CASF  --- > quartz plate  for first and second releases of CASTOR  
-	  GF2Q, GFNQ, GR2Q, GRNQ 
-	  for tests with my own test geometry of HF (on ask of Gavrilov)
-	  C3TF, C4TF - for third release of CASTOR
-    */
-    double meanNCherPhot=0;
-    
-    if (currentLV == lvC3EF || currentLV == lvC4EF || currentLV == lvC3HF ||
-	currentLV == lvC4HF) {
-      //      if(nameVolume == "C3EF" || nameVolume == "C4EF" || nameVolume == "C3HF" || nameVolume == "C4HF") {
-      
-      double bThreshold = 0.67;
-      double nMedium = 1.4925;
-      //     double photEnSpectrDL = (1./400.nm-1./700.nm)*10000000.cm/nm; /* cm-1  */
-      //     double photEnSpectrDL = 10714.285714;
-      
-      double photEnSpectrDE = 1.24;    /* see below   */
-      /*     E = 2pi*(1./137.)*(eV*cm/370.)/lambda  =     */
-      /*       = 12.389184*(eV*cm)/lambda                 */
-      /*     Emax = 12.389184*(eV*cm)/400nm*10-7cm/nm  = 3.01 eV     */
-      /*     Emin = 12.389184*(eV*cm)/700nm*10-7cm/nm  = 1.77 eV     */
-      /*     delE = Emax - Emin = 1.24 eV  --> */
-      /*   */
-      /* default for Castor nameVolume  == "CASF" or (C3TF & C4TF)  */
-      
-      double thFullRefl = 23.;  /* 23.dergee */
-      double thFullReflRad = thFullRefl*pi/180.;
-      
-      /* default for Castor nameVolume  == "CASF" or (C3TF & C4TF)  */
-      double thFibDir = 45.;  /* .dergee */
-      /* for test HF geometry volumes:   
-	 if(nameVolume == "GF2Q" || nameVolume == "GFNQ" ||
-	 nameVolume == "GR2Q" || nameVolume == "GRNQ")
-	 thFibDir = 0.0; // .dergee
-      */
-      double thFibDirRad = thFibDir*pi/180.;
-      /*   */
-      /*   */
-      
-      // at which theta the point is located:
-      //     double th1    = hitPoint.theta();
-      
-      // theta of charged particle in LabRF(hit momentum direction):
-      double costh =hit_mom.z()/sqrt(hit_mom.x()*hit_mom.x()+
-				    hit_mom.y()*hit_mom.y()+
-				    hit_mom.z()*hit_mom.z());
-      if (zint < 0) costh = -costh;
-      double th = acos(std::min(std::max(costh,double(-1.)),double(1.)));
-      
-      // just in case (can do bot use):
-      if (th < 0.) th += twopi;
-      
-      
-      
-      // theta of cone with Cherenkov photons w.r.t.direction of charged part.:
-      double costhcher =1./(nMedium*beta);
-      double thcher = acos(std::min(std::max(costhcher,double(-1.)),double(1.)));
-      
-      // diff thetas of charged part. and quartz direction in LabRF:
-      double DelFibPart = fabs(th - thFibDirRad);
-      
-      // define real distances:
-      double d = fabs(tan(th)-tan(thFibDirRad));   
-      
-      //       double a = fabs(tan(thFibDirRad)-tan(thFibDirRad+thFullReflRad));   
-      //       double r = fabs(tan(th)-tan(th+thcher));   
-      
-      double a = tan(thFibDirRad)+tan(fabs(thFibDirRad-thFullReflRad));   
-      double r = tan(th)+tan(fabs(th-thcher));   
-      
-      
-      // define losses d_qz in cone of full reflection inside quartz direction
-      double d_qz;
-#ifdef debugLog
-      double variant;
-#endif
-      if(DelFibPart > (thFullReflRad + thcher) ) {
-	d_qz = 0.; 
-#ifdef debugLog
-	variant=0.;
-#endif
-      }
-      // if(d > (r+a) ) {d_qz = 0.; variant=0.;}
-      else {
-	if((th + thcher) < (thFibDirRad+thFullReflRad) && 
-	   (th - thcher) > (thFibDirRad-thFullReflRad)) {
-	  d_qz = 1.; 
-#ifdef debugLog
-	  variant=1.;
-#endif
-	}
-	// if((DelFibPart + thcher) < thFullReflRad ) {d_qz = 1.; variant=1.;}
-	// if((d+r) < a ) {d_qz = 1.; variant=1.;}
-	else {
-	  if((thFibDirRad + thFullReflRad) < (th + thcher) && 
-	     (thFibDirRad - thFullReflRad) > (th - thcher) ) {
-	    // if((thcher - DelFibPart ) > thFullReflRad ) 
-	    // if((r-d ) > a ) 
-	    d_qz = 0.; 
-#ifdef debugLog
-	    variant=2.;
-#endif
-	  } else {
-	    // if((thcher + DelFibPart ) > thFullReflRad && 
-	    //    thcher < (DelFibPart+thFullReflRad) ) 
-	    //      {
-	    d_qz = 0.; 
-#ifdef debugLog
-	    variant=3.;
-#endif
-	    
-	    // use crossed length of circles(cone projection)
-	    // dC1/dC2 : 
-	    double arg_arcos = 0.;
-	    double tan_arcos = 2.*a*d;
-	    if(tan_arcos != 0.) arg_arcos =(r*r-a*a-d*d)/tan_arcos; 
-	    arg_arcos = fabs(arg_arcos);
-	    double th_arcos = acos(std::min(std::max(arg_arcos,double(-1.)),double(1.)));
-	    d_qz = th_arcos/pi/2.;
-	    d_qz = fabs(d_qz);
-	    
-	    
-	    
-	    //	    }
-	    //             else
-	    //  	     {
-	    //                d_qz = 0.; variant=4.;
-	    //#ifdef debugLog
-	    // std::cout <<" ===============>variant 4 information: <===== " <<std::endl;
-	    // std::cout <<" !!!!!!!!!!!!!!!!!!!!!!  variant = " << variant  <<std::endl;
-	    //#endif 
-	    //
-	    // 	     }
-	  }
-	}
-      }
-
-
-      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      
-      if(charge != 0. && beta > bThreshold )  {
-	
-	meanNCherPhot = 370.*charge*charge*
-	  ( 1. - 1./(nMedium*nMedium*beta*beta) )*
-	  photEnSpectrDE*stepl;
-	
-	const double scale = (isHad ? non_compensation_factor : 1.0);
-	G4int poissNCherPhot = (G4int) G4Poisson(meanNCherPhot * scale);
-	
-	if(poissNCherPhot < 0) poissNCherPhot = 0;
-	
-	double effPMTandTransport = 0.19;
-	double ReflPower = 0.1;
-	double proba = d_qz + (1-d_qz)*ReflPower;
-	NCherPhot = poissNCherPhot*effPMTandTransport*proba*0.307;
-	
-	
-#ifdef debugLog
-	double thgrad = th*180./pi;
-	double thchergrad = thcher*180./pi;
-	double DelFibPartgrad = DelFibPart*180./pi;
-	LogDebug("ForwardSim") << " ==============================> start all "
-			       << "information:<========= \n" << " =====> for "
-			       << "test:<===  \n" << " variant = " << variant  
-			       << "\n thgrad = " << thgrad  << "\n thchergrad "
-			       << "= " << thchergrad  << "\n DelFibPartgrad = "
-			       << DelFibPartgrad << "\n d_qz = " << d_qz  
-			       << "\n =====> Start Step Information <===  \n"
-			       << " ===> calo preStepPoint info <===  \n" 
-			       << " hitPoint = " << hitPoint  << "\n"
-			       << " hitMom = " << hit_mom  << "\n"
-			       << " stepControlFlag = " << stepControlFlag 
-	  // << "\n curprocess = " << curprocess << "\n"
-	  // << " nameProcess = " << nameProcess 
-			       << "\n charge = " << charge << "\n"
-			       << " beta = " << beta << "\n"
-			       << " bThreshold = " << bThreshold << "\n"
-			       << " thgrad =" << thgrad << "\n"
-			       << " effPMTandTransport=" << effPMTandTransport 
-	  // << "\n volume = " << name 
-			       << "\n nameVolume = " << nameVolume << "\n"
-			       << " nMedium = " << nMedium << "\n"
-	  //  << " rad length = " << rad << "\n"
-	  //  << " material = " << mat << "\n"
-			       << " stepl = " << stepl << "\n"
-			       << " photEnSpectrDE = " << photEnSpectrDE <<"\n"
-			       << " edep = " << edep << "\n"
-			       << " ===> calo theTrack info <=== " << "\n"
-			       << " particleType = " << particleType << "\n"
-			       << " primaryID = " << primaryID << "\n"
-			       << " entot= " << theTrack->GetTotalEnergy() << "\n"
-			       << " vert_eta= " << eta  << "\n"
-			       << " vert_phi= " << phi << "\n"
-			       << " vert_mom= " << vert_mom  << "\n"
-			       << " ===> calo hit preStepPointinfo <=== "<<"\n"
-			       << " local point = " << localPoint << "\n"
-			       << " ==============================> final info"
-			       << ":  <=== \n" 
-			       << " meanNCherPhot = " << meanNCherPhot << "\n"
-			       << " poissNCherPhot = " << poissNCherPhot <<"\n"
-			       << " NCherPhot = " << NCherPhot;
-#endif 
-	
-	// Included by WC
-	//	     std::cout << "\n volume = "         << name 
-	//	          << "\n nameVolume = "     << nameVolume << "\n"
-	//	          << "\n postvolume = "     << postname 
-	//	          << "\n postnameVolume = " << postnameVolume << "\n"
-	//	          << "\n particleType = "   << particleType 
-	//	          << "\n primaryID = "      << primaryID << "\n";
-	
-      }
-    }
-    
-    
-#ifdef debugLog
-    LogDebug("ForwardSim") << "CastorSD:: " << nameVolume 
-      //      << " Light Collection Efficiency " << weight
-			   << " Weighted Energy Deposit " << edep/MeV 
-			   << " MeV\n";
-#endif
-    // Temporary member for testing purpose only...
-    // unit_id = setDetUnitId(aStep);
-    // if(NCherPhot != 0) std::cout << "\n  UnitID = " << unit_id << "  ;  NCherPhot = " << NCherPhot ;
-    
+    return 0;
   }
+  
 
+  // Full - Simulation starts here
+
+  double meanNCherPhot=0;
+    
+  // remember primary particle hitting the CASTOR detector
+    
+  TrackInformationExtractor TIextractor;
+  TrackInformation& trkInfo = TIextractor(theTrack);
+  if (!trkInfo.hasCastorHit()) {
+    trkInfo.setCastorHitPID(parCode);
+  }
+  const int castorHitPID = trkInfo.getCastorHitPID();
+  
+  // Check whether castor hit track is HAD
+  const bool isHad = !(castorHitPID==emPDG || castorHitPID==epPDG || castorHitPID==gammaPDG || castorHitPID == mupPDG || castorHitPID == mumPDG);
+  
+  
+  // Usual calculations
+  // G4ThreeVector      hitPoint = preStepPoint->GetPosition();	
+  // G4ThreeVector      hit_mom = preStepPoint->GetMomentumDirection();
+  G4double           stepl    = aStep->GetStepLength()/cm;
+  G4double           beta     = preStepPoint->GetBeta();
+  G4double           charge   = preStepPoint->GetCharge();
+  //        G4VProcess*        curprocess   = preStepPoint->GetProcessDefinedStep();
+  //        G4String           namePr   = preStepPoint->GetProcessDefinedStep()->GetProcessName();
+  //        std::string nameProcess;
+  //        nameProcess.assign(namePr,0,4);
+  
+  //        G4LogicalVolume*   lv    = currentPV->GetLogicalVolume();
+  //        G4Material*        mat   = lv->GetMaterial();
+  //        G4double           rad   = mat->GetRadlen();
+  
+  
+#ifdef debugLog
+  // postStepPoint information *********************************************
+  G4StepPoint* postStepPoint= aStep->GetPostStepPoint();   
+  G4VPhysicalVolume* postPV= postStepPoint->GetPhysicalVolume();
+  
+  G4String           postname   = postPV->GetName();
+  std::string        postnameVolume;
+  postnameVolume.assign(postname,0,4);
+  
+  // theTrack information  *************************************************
+  // G4Track*        theTrack = aStep->GetTrack();   
+  //G4double        entot    = theTrack->GetTotalEnergy();
+  G4ThreeVector   vert_mom = theTrack->GetVertexMomentumDirection();
+  
+  G4ThreeVector  localPoint = theTrack->GetTouchable()->GetHistory()->
+    GetTopTransform().TransformPoint(hitPoint);
+  
+  G4String       particleType = theTrack->GetDefinition()->GetParticleName();
+  
+  // calculations...       *************************************************
+  double phi = -100.;
+  if (vert_mom.x() != 0) phi = atan2(vert_mom.y(),vert_mom.x()); 
+  if (phi < 0.) phi += twopi;
+  
+  
+  double costheta =vert_mom.z()/sqrt(vert_mom.x()*vert_mom.x()+
+				     vert_mom.y()*vert_mom.y()+
+				     vert_mom.z()*vert_mom.z());
+  double theta = acos(std::min(std::max(costheta,double(-1.)),double(1.)));
+  double eta = -log(tan(theta/2));
+  G4int          primaryID    = theTrack->GetTrackID();
+  // *************************************************
+    
+  
+  // *************************************************
+  double edep   = aStep->GetTotalEnergyDeposit();
+#endif
+  
+  // *************************************************
+  
+  
+  // *************************************************
+  // take into account light collection curve for plate
+  //      double weight = curve_Castor(nameVolume, preStepPoint);
+  //      double edep   = aStep->GetTotalEnergyDeposit() * weight;
+  // *************************************************
+  
+  
+  // *************************************************
+  /*    comments for sensitive volumes:      
+	C001 ...-... CP06,CBU1 ...-...CALM --- > fibres and bundle 
+	for first release of CASTOR
+	CASF  --- > quartz plate  for first and second releases of CASTOR  
+	GF2Q, GFNQ, GR2Q, GRNQ 
+	for tests with my own test geometry of HF (on ask of Gavrilov)
+	C3TF, C4TF - for third release of CASTOR
+  */  
+  if (currentLV == lvC3EF || currentLV == lvC4EF || currentLV == lvC3HF ||
+      currentLV == lvC4HF) {
+    //      if(nameVolume == "C3EF" || nameVolume == "C4EF" || nameVolume == "C3HF" || nameVolume == "C4HF") {
+    
+    double bThreshold = 0.67;
+    double nMedium = 1.4925;
+    //     double photEnSpectrDL = (1./400.nm-1./700.nm)*10000000.cm/nm; /* cm-1  */
+    //     double photEnSpectrDL = 10714.285714;
+    
+    double photEnSpectrDE = 1.24;    /* see below   */
+    /*     E = 2pi*(1./137.)*(eV*cm/370.)/lambda  =     */
+    /*       = 12.389184*(eV*cm)/lambda                 */
+    /*     Emax = 12.389184*(eV*cm)/400nm*10-7cm/nm  = 3.01 eV     */
+    /*     Emin = 12.389184*(eV*cm)/700nm*10-7cm/nm  = 1.77 eV     */
+    /*     delE = Emax - Emin = 1.24 eV  --> */
+    /*   */
+    /* default for Castor nameVolume  == "CASF" or (C3TF & C4TF)  */
+    
+    double thFullRefl = 23.;  /* 23.dergee */
+    double thFullReflRad = thFullRefl*pi/180.;
+    
+    /* default for Castor nameVolume  == "CASF" or (C3TF & C4TF)  */
+    double thFibDir = 45.;  /* .dergee */
+    /* for test HF geometry volumes:   
+       if(nameVolume == "GF2Q" || nameVolume == "GFNQ" ||
+       nameVolume == "GR2Q" || nameVolume == "GRNQ")
+       thFibDir = 0.0; // .dergee
+    */
+    double thFibDirRad = thFibDir*pi/180.;
+    /*   */
+    /*   */
+    
+    // at which theta the point is located:
+    //     double th1    = hitPoint.theta();
+    
+    // theta of charged particle in LabRF(hit momentum direction):
+    double costh =hit_mom.z()/sqrt(hit_mom.x()*hit_mom.x()+
+				   hit_mom.y()*hit_mom.y()+
+				   hit_mom.z()*hit_mom.z());
+    if (zint < 0) costh = -costh;
+    double th = acos(std::min(std::max(costh,double(-1.)),double(1.)));
+    
+    // just in case (can do bot use):
+    if (th < 0.) th += twopi;
+    
+    
+    
+    // theta of cone with Cherenkov photons w.r.t.direction of charged part.:
+    double costhcher =1./(nMedium*beta);
+    double thcher = acos(std::min(std::max(costhcher,double(-1.)),double(1.)));
+    
+    // diff thetas of charged part. and quartz direction in LabRF:
+    double DelFibPart = fabs(th - thFibDirRad);
+    
+    // define real distances:
+    double d = fabs(tan(th)-tan(thFibDirRad));   
+    
+    //       double a = fabs(tan(thFibDirRad)-tan(thFibDirRad+thFullReflRad));   
+    //       double r = fabs(tan(th)-tan(th+thcher));   
+    
+    double a = tan(thFibDirRad)+tan(fabs(thFibDirRad-thFullReflRad));   
+    double r = tan(th)+tan(fabs(th-thcher));   
+    
+    
+    // define losses d_qz in cone of full reflection inside quartz direction
+    double d_qz;
+#ifdef debugLog
+    double variant;
+#endif
+    if(DelFibPart > (thFullReflRad + thcher) ) {
+      d_qz = 0.; 
+#ifdef debugLog
+      variant=0.;
+#endif
+    }
+    // if(d > (r+a) ) {d_qz = 0.; variant=0.;}
+    else {
+      if((th + thcher) < (thFibDirRad+thFullReflRad) && 
+	 (th - thcher) > (thFibDirRad-thFullReflRad)) {
+	d_qz = 1.; 
+#ifdef debugLog
+	variant=1.;
+#endif
+      }
+      // if((DelFibPart + thcher) < thFullReflRad ) {d_qz = 1.; variant=1.;}
+      // if((d+r) < a ) {d_qz = 1.; variant=1.;}
+      else {
+	if((thFibDirRad + thFullReflRad) < (th + thcher) && 
+	   (thFibDirRad - thFullReflRad) > (th - thcher) ) {
+	  // if((thcher - DelFibPart ) > thFullReflRad ) 
+	  // if((r-d ) > a ) 
+	  d_qz = 0.; 
+#ifdef debugLog
+	  variant=2.;
+#endif
+	} else {
+	  // if((thcher + DelFibPart ) > thFullReflRad && 
+	  //    thcher < (DelFibPart+thFullReflRad) ) 
+	  //      {
+	  d_qz = 0.; 
+#ifdef debugLog
+	  variant=3.;
+#endif
+	  
+	  // use crossed length of circles(cone projection)
+	  // dC1/dC2 : 
+	  double arg_arcos = 0.;
+	  double tan_arcos = 2.*a*d;
+	  if(tan_arcos != 0.) arg_arcos =(r*r-a*a-d*d)/tan_arcos; 
+	  arg_arcos = fabs(arg_arcos);
+	  double th_arcos = acos(std::min(std::max(arg_arcos,double(-1.)),double(1.)));
+	  d_qz = th_arcos/pi/2.;
+	  d_qz = fabs(d_qz);
+	  
+	  
+	  
+	  //	    }
+	  //             else
+	  //  	     {
+	  //                d_qz = 0.; variant=4.;
+	  //#ifdef debugLog
+	  // std::cout <<" ===============>variant 4 information: <===== " <<std::endl;
+	  // std::cout <<" !!!!!!!!!!!!!!!!!!!!!!  variant = " << variant  <<std::endl;
+	  //#endif 
+	  //
+	  // 	     }
+	}
+      }
+    }
+    
+    
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    if(charge != 0. && beta > bThreshold )  {
+      
+      meanNCherPhot = 370.*charge*charge*
+	( 1. - 1./(nMedium*nMedium*beta*beta) )*
+	photEnSpectrDE*stepl;
+      
+      const double scale = (isHad ? non_compensation_factor : 1.0);
+      G4int poissNCherPhot = (G4int) G4Poisson(meanNCherPhot * scale);
+      
+      if(poissNCherPhot < 0) poissNCherPhot = 0;
+      
+      double effPMTandTransport = 0.19;
+      double ReflPower = 0.1;
+      double proba = d_qz + (1-d_qz)*ReflPower;
+      NCherPhot = poissNCherPhot*effPMTandTransport*proba*0.307;
+      
+      
+#ifdef debugLog
+      double thgrad = th*180./pi;
+      double thchergrad = thcher*180./pi;
+      double DelFibPartgrad = DelFibPart*180./pi;
+      LogDebug("ForwardSim") << " ==============================> start all "
+			     << "information:<========= \n" << " =====> for "
+			     << "test:<===  \n" << " variant = " << variant  
+			     << "\n thgrad = " << thgrad  << "\n thchergrad "
+			     << "= " << thchergrad  << "\n DelFibPartgrad = "
+			     << DelFibPartgrad << "\n d_qz = " << d_qz  
+			     << "\n =====> Start Step Information <===  \n"
+			     << " ===> calo preStepPoint info <===  \n" 
+			     << " hitPoint = " << hitPoint  << "\n"
+			     << " hitMom = " << hit_mom  << "\n"
+			     << " stepControlFlag = " << stepControlFlag 
+	// << "\n curprocess = " << curprocess << "\n"
+	// << " nameProcess = " << nameProcess 
+			     << "\n charge = " << charge << "\n"
+			     << " beta = " << beta << "\n"
+			     << " bThreshold = " << bThreshold << "\n"
+			     << " thgrad =" << thgrad << "\n"
+			     << " effPMTandTransport=" << effPMTandTransport 
+	// << "\n volume = " << name 
+			     << "\n nameVolume = " << nameVolume << "\n"
+			     << " nMedium = " << nMedium << "\n"
+	//  << " rad length = " << rad << "\n"
+	//  << " material = " << mat << "\n"
+			     << " stepl = " << stepl << "\n"
+			     << " photEnSpectrDE = " << photEnSpectrDE <<"\n"
+			     << " edep = " << edep << "\n"
+			     << " ===> calo theTrack info <=== " << "\n"
+			     << " particleType = " << particleType << "\n"
+			     << " primaryID = " << primaryID << "\n"
+			     << " entot= " << theTrack->GetTotalEnergy() << "\n"
+			     << " vert_eta= " << eta  << "\n"
+			     << " vert_phi= " << phi << "\n"
+			     << " vert_mom= " << vert_mom  << "\n"
+			     << " ===> calo hit preStepPointinfo <=== "<<"\n"
+			     << " local point = " << localPoint << "\n"
+			     << " ==============================> final info"
+			     << ":  <=== \n" 
+			     << " meanNCherPhot = " << meanNCherPhot << "\n"
+			     << " poissNCherPhot = " << poissNCherPhot <<"\n"
+			     << " NCherPhot = " << NCherPhot;
+#endif 
+      
+      // Included by WC
+      //	     std::cout << "\n volume = "         << name 
+      //	          << "\n nameVolume = "     << nameVolume << "\n"
+      //	          << "\n postvolume = "     << postname 
+      //	          << "\n postnameVolume = " << postnameVolume << "\n"
+      //	          << "\n particleType = "   << particleType 
+      //	          << "\n primaryID = "      << primaryID << "\n";
+      
+    }
+  }
+    
+  
+#ifdef debugLog
+  LogDebug("ForwardSim") << "CastorSD:: " << nameVolume 
+    //      << " Light Collection Efficiency " << weight
+			 << " Weighted Energy Deposit " << edep/MeV 
+			 << " MeV\n";
+#endif
+  // Temporary member for testing purpose only...
+  // unit_id = setDetUnitId(aStep);
+  // if(NCherPhot != 0) std::cout << "\n  UnitID = " << unit_id << "  ;  NCherPhot = " << NCherPhot ;
+  
   return NCherPhot;
 }
 
