@@ -150,7 +150,6 @@ addMixingScenario("Flat_0_50_25ns",{'file': 'SimGeneral.MixingModule.mix_Flat_0_
 addMixingScenario("Flat_0_50_50ns",{'file': 'SimGeneral.MixingModule.mix_Flat_0_50_50ns_cfi'})
 
 MixingDefaultKey = '2012_Summer_50ns_PoissonOOTPU'
-MixingFSDefaultKey = '2012_Summer_inTimeOnly'
 
 def printMe():
     global Mixing
@@ -160,13 +159,10 @@ def printMe():
     for key in keys:
         print 'addMixingScenario("%s",%s)'%(key,repr(Mixing[key]))
 
-def defineMixing(dict,FS=False):
+def defineMixing(dict):
     commands=[]
     if 'N' in dict:
-        if FS:
-            commands.append('process.famosPileUp.PileUpSimulator.averageNumber = cms.double(%f)'%(dict['N'],))
-        else:
-            commands.append('process.mix.input.nbPileupEvents.averageNumber = cms.double(%f)'%(dict['N'],))
+        commands.append('process.mix.input.nbPileupEvents.averageNumber = cms.double(%f)'%(dict['N'],))
         dict.pop('N')
     if 'BX' in dict:
         commands.append('process.mix.bunchspace = cms.int32(%d)'%(dict['BX'],))

@@ -686,7 +686,7 @@ class ConfigBuilder(object):
 					mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],))[0]
 				else:
 					mixingDict['F']=self._options.pileup_input.split(',')
-			specialization=defineMixing(mixingDict,self._options.fast)
+			specialization=defineMixing(mixingDict)
 			for command in specialization:
 				self.executeAndRemember(command)
 			if len(mixingDict)!=0:
@@ -1101,12 +1101,12 @@ class ConfigBuilder(object):
 
         # Mixing
 	if self._options.pileup=='default':
-		from Configuration.StandardSequences.Mixing import MixingDefaultKey,MixingFSDefaultKey
+		self._options.pileup=MixingDefaultKey
+		# temporary, until digi-reco mixing becomes standard in RelVals
 		if self._options.fast:
-			self._options.pileup=MixingFSDefaultKey
-		else:
-			self._options.pileup=MixingDefaultKey
-			
+			self._options.pileup="GEN_" + MixingDefaultKey
+		
+
 	#not driven by a default cff anymore
 	if self._options.isData:
 		self._options.pileup=None
