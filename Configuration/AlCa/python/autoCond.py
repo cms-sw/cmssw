@@ -10,11 +10,11 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
     'run1_mc_pa'        :   'MCPA1_73_V2::All',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   'DESRUN2_73_V3::All',
+    'run2_design'       :   'DESRUN2_73_V4::All',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   'MCRUN2_73_V6::All',
+    'run2_mc_50ns'      :   'MCRUN2_73_V8::All',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   'MCRUN2_73_V7::All',
+    'run2_mc'           :   'MCRUN2_73_V9::All',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   'GR_R_73_V0A::All',
     # GlobalTag for Run2 data reprocessing
