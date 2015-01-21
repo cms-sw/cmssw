@@ -30,7 +30,7 @@ class HLTJetEtaTopologyFilter : public HLTFilter {
 
    private:
       const edm::InputTag inputJetTag_; // input tag identifying jets
-      edm::EDGetTokenT<std::vector<T>> m_theJetToken;
+      const edm::EDGetTokenT<std::vector<T>> m_theJetToken;
       const double minPtJet_;
       //double minPtJet3_;
       const double jetEtaMin_;
