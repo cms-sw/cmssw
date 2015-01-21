@@ -254,6 +254,8 @@ from RecoVertex.Configuration.RecoVertex_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoBTag.Configuration.RecoBTag_cff import *
 
+from SimGeneral.PileupInformation.AddPileupSummary_cfi import addPileupInfo
+
 famosBTaggingSequence = cms.Sequence(
     btagging
 )
@@ -271,10 +273,12 @@ trackReco = cms.Sequence(
     siTrackerGaussianSmearingRecHits+
     iterativeTracking
     )
+
+doAllDigi = cms.Sequence(caloDigis+muonDigi)
 digitizationSequence = cms.Sequence(
-    cms.SequencePlaceholder("mixHitsAndTracks")+
-    muonDigi+
-    caloDigis
+    cms.SequencePlaceholder("mix")
+    *doAllDigi
+    *addPileupInfo
     )
 trackDigiVertexSequence = cms.Sequence(
     trackReco+
@@ -302,6 +306,7 @@ famosEcalDrivenElectronSequence = cms.Sequence(
 simulationSequence.insert(0,genParticles)
 
 reconstructionWithFamos = cms.Sequence(
+    trackExtrapolator+
     caloTowersSequence+
     particleFlowCluster+
     ecalClusters+

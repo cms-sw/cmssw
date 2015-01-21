@@ -14,8 +14,9 @@ from FastSimulation.Tracking.IterativeMixedTripletStep_cff import *
 from FastSimulation.Tracking.IterativePixelLessStep_cff import *
 from FastSimulation.Tracking.IterativeTobTecStep_cff import *
 
-trackExtrapolator.trackSrc = cms.InputTag("generalTracksBeforeMixing")
-lastTrackingSteps = cms.Sequence(generalTracksBeforeMixing+trackExtrapolator)
+#trackExtrapolator.trackSrc = cms.InputTag("generalTracksBeforeMixing")
+trackExtrapolator.trackSrc = cms.InputTag("generalTracks")
+lastTrackingSteps = cms.Sequence(generalTracksBeforeMixing)
         
 import RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi
 MeasurementTrackerEvent = RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi.MeasurementTrackerEvent.clone(

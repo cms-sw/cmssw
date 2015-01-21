@@ -1,4 +1,5 @@
-from FastSimulation.PileUpProducer.PileUpSimulator8TeV_cfi import PileUpSimulatorBlock as _block8TeV
+import FWCore.ParameterSet.Config as cms
+
 from FastSimulation.Configuration.MixingFamos_cff import *
 
 #define the PU scenario itself

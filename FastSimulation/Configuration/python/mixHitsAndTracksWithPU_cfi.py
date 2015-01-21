@@ -54,11 +54,12 @@ hcalDigitizer = cms.PSet(
     accumulatorType = cms.string("HcalDigiProducer"),
     makeDigiSimLinks = cms.untracked.bool(False))
 
-from FastSimulation.Tracking.recoTrackAccumulator_cfi import *
+from FastSimulation.Tracking.recoTrackAccumulator_cfi import * # !!!!!!!!!!! remove this file
 
+#!!!!!!!!!!!!!!
 from FastSimulation.Configuration.mixFastSimObjects_cfi import *
 
-from FastSimulation.Configuration.trackingTruthProducerFastSim_cfi import *
+from FastSimulation.Configuration.trackingTruthProducerFastSim_cfi import *  # !!!!!!!! remove this file
 
 mix = cms.EDProducer("MixingModule",
                      digitizers = cms.PSet(ecal = cms.PSet(ecalDigitizer),
