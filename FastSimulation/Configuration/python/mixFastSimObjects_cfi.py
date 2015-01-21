@@ -1,9 +1,16 @@
+#######################
+# this file is the FastSim equivalent of SimGeneral/MixingModule/python/mixObjects_cfi.py
+# last reviewer:    Lukas Vanelderen
+# last review data: Jan 20 2014
+#######################
+
 import FWCore.ParameterSet.Config as cms
 
 mixReconstructedTracks = cms.PSet(
     input = cms.VInputTag(cms.InputTag("generalTracks")),
     type = cms.string('RecoTrack')
     )
+
 mixSimHits = cms.PSet(
     input = cms.VInputTag(cms.InputTag("MuonSimHits","MuonCSCHits"), cms.InputTag("MuonSimHits","MuonDTHits"), cms.InputTag("MuonSimHits","MuonRPCHits"), cms.InputTag("famosSimHits","TrackerHits")),
     type = cms.string('PSimHit'),
@@ -16,6 +23,7 @@ mixSimHits = cms.PSet(
                                            'MuonRPCHits', 
                                            'TrackerHits')
     )
+
 mixCaloHits = cms.PSet(
     input = cms.VInputTag(cms.InputTag("famosSimHits","EcalHitsEB"), cms.InputTag("famosSimHits","EcalHitsEE"), cms.InputTag("famosSimHits","EcalHitsES"), cms.InputTag("famosSimHits","HcalHits")),
     type = cms.string('PCaloHit'),
@@ -28,23 +36,25 @@ mixCaloHits = cms.PSet(
                                            'EcalHitsES', # keep only ES and remove the others?
                                            'HcalHits')
     )
+
 mixSimTracks = cms.PSet(
     input = cms.VInputTag(cms.InputTag("famosSimHits")),
     makeCrossingFrame = cms.untracked.bool(True),
     type = cms.string('SimTrack')
     )
+
 mixMuonSimTracks = cms.PSet(
     input = cms.VInputTag(cms.InputTag("famosSimHits","MuonSimTracks")),
     makeCrossingFrame = cms.untracked.bool(True),
     type = cms.string('SimTrack')
     )
+
 mixSimVertices = cms.PSet(
     input = cms.VInputTag(cms.InputTag("famosSimHits")),
     makeCrossingFrame = cms.untracked.bool(True),
     type = cms.string('SimVertex')
     )
-    
-    
+        
 mixHepMCProducts = cms.PSet(
     makeCrossingFrame = cms.untracked.bool(True),
     input = cms.VInputTag(cms.InputTag("generator")),
