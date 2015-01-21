@@ -5,8 +5,8 @@
 // Description: Sensitive Detector class for Castor
 ///////////////////////////////////////////////////////////////////////////////
 
-//  Added by WC 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
 
 #include "SimG4CMS/Forward/interface/CastorSD.h"
 //#include "SimDataFormats/CaloHit/interface/CastorShowerEvent.h"
@@ -203,7 +203,10 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   bool OkToUse = false;
   if ( inRange && !dot) OkToUse = true;
   
-  if (useShowerLibrary && aboveThreshold && notaMuon && (!backward) && OkToUse && angleok && currentLV == lvCAST ) {
+  const bool particleWithinShowerLibrary = aboveThreshold &&
+    notaMuon && (!backward) && OkToUse && angleok && currentLV == lvCAST;
+  
+  if (useShowerLibrary && particleWithinShowerLibrary) {
     // Use Castor shower library if energy is above threshold, is not a muon 
     // and is not moving backward 
     getFromLibrary(aStep);
@@ -211,9 +214,24 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 #ifdef debugLog
     LogDebug("ForwardSim") << " Current logical volume is " << nameVolume ;
 #endif
+    
+    // track is killed in getFromLibrary...
 
   } else {
-
+    
+    // remember primary particle hitting the CASTOR detector
+    
+    TrackInformationExtractor TIextractor;
+    TrackInformation& trkInfo = TIextractor(theTrack);
+    if (!trkInfo.hasCastorHit()) {
+      trkInfo.setCastorHitPID(parCode);
+    }
+    const int castorHitPID = trkInfo.getCastorHitPID();
+    
+    // Check whether castor hit track is HAD
+    const bool isHad = !(castorHitPID==emPDG || castorHitPID==epPDG || castorHitPID==gammaPDG || castorHitPID == mupPDG || castorHitPID == mumPDG);
+    
+    
     // Usual calculations
     // G4ThreeVector      hitPoint = preStepPoint->GetPosition();	
     // G4ThreeVector      hit_mom = preStepPoint->GetMomentumDirection();
@@ -233,7 +251,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 #ifdef debugLog
     // postStepPoint information *********************************************
     G4StepPoint* postStepPoint= aStep->GetPostStepPoint();   
-    G4VPhysicalVolume* postPV    = postStepPoint->GetPhysicalVolume();
+    G4VPhysicalVolume* postPV= postStepPoint->GetPhysicalVolume();
 
     G4String           postname   = postPV->GetName();
     std::string        postnameVolume;
@@ -428,7 +446,8 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 	  ( 1. - 1./(nMedium*nMedium*beta*beta) )*
 	  photEnSpectrDE*stepl;
 	
-	G4int poissNCherPhot = (G4int) G4Poisson(meanNCherPhot);
+	const double scale = (isHad ? non_compensation_factor : 1.0);
+	G4int poissNCherPhot = (G4int) G4Poisson(meanNCherPhot * scale);
 	
 	if(poissNCherPhot < 0) poissNCherPhot = 0;
 	
