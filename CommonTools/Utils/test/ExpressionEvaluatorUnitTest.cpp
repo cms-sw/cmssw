@@ -12,7 +12,8 @@ int main() {
 
    // build fake test package...
    std::string pkg = "VITest/ExprEval";
-   system("mkdir -p $CMSSW_BASE/src/VITest/ExprEval/src; cp CommonTools/Utils/test/ExprEvalStubs/*.h $CMSSW_BASE/src/VITest/ExprEval/src/.; pushd $CMSSW_BASE; scram b -j 8; popd");
+   system("mkdir -p $CMSSW_BASE/src/VITest/ExprEval/src; cp CommonTools/Utils/test/ExprEvalStubs/*.h $CMSSW_BASE/src/VITest/ExprEval/src/.");
+   system("cp CommonTools/Utils/test/ExprEvalStubs/BuildFile.xml $CMSSW_BASE/src/VITest/ExprEval/.; pushd $CMSSW_BASE; scram b -j 8; popd");
 
   using reco::ExpressionEvaluator;
 
@@ -33,16 +34,16 @@ int main() {
 
   std::string cut = "bool eval(int i, int j) override { return i<10&& j<5; }";
 
-  ExpressionEvaluator parser2("VITest/ExprEval","vcut",cut.c_str());
+  ExpressionEvaluator parser2("VITest/ExprEval","eetest::vcut",cut.c_str());
 
-  auto mcut = parser2.expr<vcut>();
+  auto mcut = parser2.expr<eetest::vcut>();
 
   std::cout << mcut->eval(2,7) << ' ' << mcut->eval(3, 4) << std::endl;
 
   try {
     std::string cut = "bool eval(int i, int j) override { return i<10&& j<5; }";
-    ExpressionEvaluator parser2("Bla/Blo","vcut",cut.c_str());
-    auto mcut = parser2.expr<vcut>();
+    ExpressionEvaluator parser2("Bla/Blo","eetest::vcut",cut.c_str());
+    auto mcut = parser2.expr<eetest::vcut>();
     std::cout << mcut->eval(2,7) << ' ' << mcut->eval(3, 4) << std::endl;
   }catch( cms::Exception const & e) {
     std::cout << e.what()  << std::endl;
@@ -53,8 +54,8 @@ int main() {
 
   try {
     std::string cut = "bool eval(int i, int j) ride { return i<10&& j<5; }";
-    ExpressionEvaluator parser2("VITest/ExprEval","vcut",cut.c_str());
-    auto mcut = parser2.expr<vcut>();
+    ExpressionEvaluator parser2("VITest/ExprEval","eetest::vcut",cut.c_str());
+    auto mcut = parser2.expr<eetest::vcut>();
     std::cout << mcut->eval(2,7) << ' ' << mcut->eval(3, 4) << std::endl;
  
  }catch( cms::Exception const & e) {

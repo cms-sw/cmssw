@@ -1,3 +1,5 @@
-struct vcut {
-  virtual bool eval(int,int)=0;
-};
+namespace eetest {
+  struct vcut {
+    virtual bool eval(int,int)=0;
+  };
+}
