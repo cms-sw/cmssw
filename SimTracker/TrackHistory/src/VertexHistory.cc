@@ -1,10 +1,11 @@
 
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/Records/interface/VertexAssociatorRecord.h"
 #include "SimTracker/TrackHistory/interface/VertexHistory.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 VertexHistory::VertexHistory (
-    const edm::ParameterSet & config
+  const edm::ParameterSet & config,
+  edm::ConsumesCollector&& collector
 ) : HistoryBase()
 {
     // Name of the track collection
@@ -17,7 +18,7 @@ VertexHistory::VertexHistory (
     trackingTruth_ = config.getUntrackedParameter<edm::InputTag> ( "trackingTruth" );
 
     // Track association record
-    trackAssociator_ = config.getUntrackedParameter<std::string> ( "trackAssociator" );
+    trackAssociator_ = config.getUntrackedParameter<edm::InputTag> ( "trackAssociator" );
 
     // Track association record
     vertexAssociator_ = config.getUntrackedParameter<std::string> ( "vertexAssociator" );
@@ -30,6 +31,14 @@ VertexHistory::VertexHistory (
 
     // Enable SimToReco association
     enableSimToReco_ = config.getUntrackedParameter<bool> ( "enableSimToReco" );
+
+    if(enableRecoToSim_ or enableSimToReco_) {
+      collector.consumes<edm::View<reco::Track>>(trackProducer_);
+      collector.consumes<edm::View<reco::Vertex>>(vertexProducer_);
+      collector.consumes<TrackingParticleCollection>(trackingTruth_);
+      collector.consumes<TrackingVertexCollection>(trackingTruth_);
+      collector.consumes<reco::TrackToTrackingParticleAssociator>(trackAssociator_);
+    }
 
     quality_ = 0.;
 }
@@ -51,8 +60,8 @@ void VertexHistory::newEvent (
         event.getByLabel(trackingTruth_, TPCollection);
 
         // Get the track associator
-        edm::ESHandle<TrackAssociatorBase> trackAssociator;
-        setup.get<TrackAssociatorRecord>().get(trackAssociator_, trackAssociator);
+        edm::Handle<reco::TrackToTrackingParticleAssociator> trackAssociator;
+        event.getByLabel(trackAssociator_, trackAssociator);
 
         // Vertex collection
         edm::Handle<edm::View<reco::Vertex> > vertexCollection;
@@ -70,7 +79,7 @@ void VertexHistory::newEvent (
         {
             // Get the map between recovertex -> simvertex
             reco::RecoToSimCollection
-	      trackRecoToSim = trackAssociator->associateRecoToSim(trackCollection, TPCollection, &event,&setup);
+	      trackRecoToSim = trackAssociator->associateRecoToSim(trackCollection, TPCollection);
 
             // Calculate the map between recovertex -> simvertex
             recoToSim_ = vertexAssociator->associateRecoToSim(vertexCollection, TVCollection, event, trackRecoToSim);
@@ -80,7 +89,7 @@ void VertexHistory::newEvent (
         {
             // Get the map between recovertex <- simvertex
             reco::SimToRecoCollection
-	      trackSimToReco = trackAssociator->associateSimToReco (trackCollection, TPCollection, &event, &setup);
+	      trackSimToReco = trackAssociator->associateSimToReco (trackCollection, TPCollection);
 
             // Calculate the map between recovertex <- simvertex
             simToReco_ = vertexAssociator->associateSimToReco(vertexCollection, TVCollection, event, trackSimToReco);

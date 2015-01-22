@@ -20,8 +20,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -41,8 +39,11 @@ GlobalMuonMatchAnalyzer::GlobalMuonMatchAnalyzer(const edm::ParameterSet& ps)
 {
   iConfig = ps;
   //now do what ever initialization is needed
-  tkAssociatorName_ = iConfig.getUntrackedParameter<std::string>("tkAssociator");
-  muAssociatorName_ = iConfig.getUntrackedParameter<std::string>("muAssociator");
+  tkAssociatorName_ = iConfig.getUntrackedParameter<edm::InputTag>("tkAssociator");
+  muAssociatorName_ = iConfig.getUntrackedParameter<edm::InputTag>("muAssociator");
+
+  tkAssociatorToken_ = consumes<reco::TrackToTrackingParticleAssociator>(tkAssociatorName_);
+  muAssociatorToken_ = consumes<reco::TrackToTrackingParticleAssociator>(muAssociatorName_);
 
 subsystemname_ = iConfig.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
   tpName_ = iConfig.getUntrackedParameter<edm::InputTag>("tpLabel");
@@ -97,20 +98,22 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
    Handle<View<Track> > tkHandle;
    iEvent.getByToken(tkToken_,tkHandle);
 
-   reco::RecoToSimCollection tkrecoToSimCollection;
-   reco::SimToRecoCollection tksimToRecoCollection;
-   tkrecoToSimCollection = tkAssociator_->associateRecoToSim(tkHandle,tpHandle,&iEvent,&iSetup);
-   tksimToRecoCollection = tkAssociator_->associateSimToReco(tkHandle,tpHandle,&iEvent,&iSetup);
+   edm::Handle<reco::TrackToTrackingParticleAssociator> tkAssociator;
+   iEvent.getByToken(tkAssociatorToken_,tkAssociator);
 
-   reco::RecoToSimCollection starecoToSimCollection;
-   reco::SimToRecoCollection stasimToRecoCollection;
-   starecoToSimCollection = muAssociator_->associateRecoToSim(staHandle,tpHandle,&iEvent,&iSetup);
-   stasimToRecoCollection = muAssociator_->associateSimToReco(staHandle,tpHandle,&iEvent,&iSetup);
+   // Mu Associator
+   edm::Handle<reco::TrackToTrackingParticleAssociator> muAssociator;
+  iEvent.getByToken(muAssociatorToken_,muAssociator);
 
-   reco::RecoToSimCollection glbrecoToSimCollection;
-   reco::SimToRecoCollection glbsimToRecoCollection;
-   glbrecoToSimCollection = muAssociator_->associateRecoToSim(glbHandle,tpHandle,&iEvent,&iSetup);
-   glbsimToRecoCollection = muAssociator_->associateSimToReco(glbHandle,tpHandle,&iEvent,&iSetup);
+   
+   reco::RecoToSimCollection tkrecoToSimCollection = tkAssociator->associateRecoToSim(tkHandle,tpHandle);
+   reco::SimToRecoCollection tksimToRecoCollection = tkAssociator->associateSimToReco(tkHandle,tpHandle);
+
+   reco::RecoToSimCollection starecoToSimCollection = muAssociator->associateRecoToSim(staHandle,tpHandle);
+   reco::SimToRecoCollection stasimToRecoCollection = muAssociator->associateSimToReco(staHandle,tpHandle);
+
+   reco::RecoToSimCollection glbrecoToSimCollection = muAssociator->associateRecoToSim(glbHandle,tpHandle);
+   reco::SimToRecoCollection glbsimToRecoCollection = muAssociator->associateSimToReco(glbHandle,tpHandle);
 
 
    for (TrackingParticleCollection::size_type i=0; i<tpColl.size(); ++i){
@@ -248,14 +251,6 @@ void GlobalMuonMatchAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 {
   // Tk Associator
 
-  edm::ESHandle<TrackAssociatorBase> tkassociatorHandle;
-  iSetup.get<TrackAssociatorRecord>().get(tkAssociatorName_,tkassociatorHandle);
-  tkAssociator_ = tkassociatorHandle.product();
-
-  // Mu Associator
-  edm::ESHandle<TrackAssociatorBase> muassociatorHandle;
-  iSetup.get<TrackAssociatorRecord>().get(muAssociatorName_,muassociatorHandle);
-  muAssociator_ = muassociatorHandle.product();
   ibooker.cd();
   std::string dirName="Matcher/";
   //  ibooker.setCurrentFolder("RecoMuonV/Matcher");

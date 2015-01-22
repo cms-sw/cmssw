@@ -14,9 +14,13 @@
 #define update(a, b) do { (a) = (a) | (b); } while(0)
 
 
-VertexClassifier::VertexClassifier(edm::ParameterSet const & config) : VertexCategories(), tracer_(config),
+VertexClassifier::VertexClassifier(edm::ParameterSet const & config,
+                                   edm::ConsumesCollector&& collector) : 
+        VertexCategories(), 
+        tracer_(config,std::move(collector)),
         hepMCLabel_( config.getUntrackedParameter<edm::InputTag>("hepMC") )
 {
+    collector.consumes<edm::HepMCProduct>(hepMCLabel_);
     // Set the history depth after hadronization
     tracer_.depth(-2);
 

@@ -43,19 +43,11 @@ using namespace reco;
 using namespace std;
 
   
-HLTInclusiveVBFSource::HLTInclusiveVBFSource(const edm::ParameterSet& iConfig):
-  isSetup_(false)
+HLTInclusiveVBFSource::HLTInclusiveVBFSource(const edm::ParameterSet& iConfig)
 {
   LogDebug("HLTInclusiveVBFSource") << "constructor....";
   nCount_ = 0;
-  dbe = Service < DQMStore > ().operator->();
-  if ( ! dbe ) {
-    LogDebug("HLTInclusiveVBFSource") << "unabel to get DQMStore service?";
-  }
-  if (iConfig.getUntrackedParameter < bool > ("DQMStore", false)) {
-    dbe->setVerbose(0);
-  }
-  
+ 
   dirname_              = iConfig.getUntrackedParameter("dirname",std::string("HLT/InclusiveVBF"));
   processname_          = iConfig.getParameter<std::string>("processname");
   triggerSummaryLabel_  = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
@@ -471,256 +463,218 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   }
 }
 
-
-// -- method called once each job just before starting event loop  --------
-void 
-HLTInclusiveVBFSource::beginJob(){
-}
-
 // BeginRun
 void 
-HLTInclusiveVBFSource::beginRun(const edm::Run& run, const edm::EventSetup& c){
-  if(!isSetup_){
-    DQMStore *dbe = 0;
-    dbe = Service<DQMStore>().operator->();
-    if (dbe) {
-      dbe->setCurrentFolder(dirname_);
-      dbe->rmdir(dirname_);
-    }
-    if (dbe) {
-      dbe->setCurrentFolder(dirname_);
-    }
-    
-    //--- htlConfig_
-    bool changed(true);
-    if (!hltConfig_.init(run, c, processname_, changed)) {
-      LogDebug("HLTInclusiveVBFSource") << "HLTConfigProvider failed to initialize.";
-    }
-    
-    const unsigned int numberOfPaths(hltConfig_.size());
-    for(unsigned int i=0; i!=numberOfPaths; ++i){
-      bool numFound = false;
-      pathname      = hltConfig_.triggerName(i);
-      filtername    = "dummy";
-      unsigned int usedPrescale = 1;
-      unsigned int objectType = 0;
-      std::string triggerType = "";
-      
-      if(pathname.find("HLT_Di") == std::string::npos) continue;
-      if(pathname.find("Jet") == std::string::npos) continue;
-      if(pathname.find("MJJ") == std::string::npos) continue;
-      if(pathname.find("VBF_v") == std::string::npos) continue;
-      
-      if(debug_){
-	cout<<" - Startup:Path = "<<pathname<<endl;
-      //cout<<" - Startup:PS = "<<hltConfig_.prescaleSize()<<endl;
-      }
-      
-      triggerType = "DiJet_Trigger";
-      objectType = trigger::TriggerJet;
-      
-      // Checking if the trigger exist in HLT table or not
-      for (unsigned int i=0; i!=numberOfPaths; ++i) {
-	std::string HLTname = hltConfig_.triggerName(i);
-	if(HLTname == pathname)numFound = true;
-      }
-      
-      if(numFound==false) continue;
-      std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
-      std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
-      for(; numpathmodule!= numpathmodules.end(); ++numpathmodule){
-	edm::InputTag testTag(*numpathmodule,"",processname_);
-	if (hltConfig_.moduleType(*numpathmodule) == "HLTCaloJetVBFFilter"
-	    || hltConfig_.moduleType(*numpathmodule) == "HLTPFJetVBFFilter")
-	  {
-	    filtername = *numpathmodule;
-	    if(debug_) cout<<" - Startup:Module = "<<hltConfig_.moduleType(*numpathmodule)<<", FilterName = "<<filtername<<endl;
-	  }
-	
-      }
-      if(debug_) cout<<" - Startup:Final filter = "<<filtername<<endl;
-      
-      if(objectType == 0 || numFound==false) continue;
-      //if(debug_){
-      //cout<<"Pathname = "<<pathname
-      //    <<", Filtername = "<<filtername
-      //    <<", ObjectType = "<<objectType<<endl;
-      //}
-      hltPathsAll_.push_back(PathInfo(usedPrescale, pathname, filtername, processname_, objectType, triggerType)); 
-    }//Loop over paths
-    
-    //if(debug_) cout<<"== end hltPathsEff_.push_back ======" << endl;
-    
-    std::string dirName = dirname_ + "/MonitorInclusiveVBFTrigger/";
-    for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
-      if(debug_) cout<<"Storing: "<<v->getPath()<<", Prescale = "<<v->getprescaleUsed()<<endl;
-      //if(v->getprescaleUsed()!=1) continue;
-      
-      std::string subdirName = dirName + v->getPath();
-      std::string trigPath = "("+v->getPath()+")";
-      dbe->setCurrentFolder(subdirName);  
-      
-      MonitorElement*  RECO_deltaEta_DiJet;
-      MonitorElement*  RECO_deltaPhi_DiJet;
-      MonitorElement*  RECO_invMass_DiJet;
-      MonitorElement*  HLT_deltaEta_DiJet;
-      MonitorElement*  HLT_deltaPhi_DiJet;
-      MonitorElement*  HLT_invMass_DiJet;
-      MonitorElement*  RECO_deltaEta_DiJet_Match;
-      MonitorElement*  RECO_deltaPhi_DiJet_Match;
-      MonitorElement*  RECO_invMass_DiJet_Match;
-      MonitorElement*  RECOHLT_deltaEta;
-      MonitorElement*  RECOHLT_deltaPhi;
-      MonitorElement*  RECOHLT_invMass;
-      MonitorElement*  NumberOfMatches;
-      MonitorElement*  NumberOfEvents;
-      
-      //dummy                     = dbe->bookFloat("dummy");
-      RECO_deltaEta_DiJet       = dbe->bookFloat("RECO_deltaEta_DiJet");
-      RECO_deltaPhi_DiJet       = dbe->bookFloat("RECO_deltaPhi_DiJet");
-      RECO_invMass_DiJet        = dbe->bookFloat("RECO_invMass_DiJet");
-      HLT_deltaEta_DiJet        = dbe->bookFloat("HLT_deltaEta_DiJet");
-      HLT_deltaPhi_DiJet        = dbe->bookFloat("HLT_deltaPhi_DiJet ");
-      HLT_invMass_DiJet         = dbe->bookFloat("HLT_invMass_DiJet");
-      RECO_deltaEta_DiJet_Match = dbe->bookFloat("RECO_deltaEta_DiJet_Match");
-      RECO_deltaPhi_DiJet_Match = dbe->bookFloat("RECO_deltaPhi_DiJet_Match");
-      RECO_invMass_DiJet_Match  = dbe->bookFloat("RECO_invMass_DiJet_Match");
-      RECOHLT_deltaEta          = dbe->bookFloat("RECOHLT_deltaEta");
-      RECOHLT_deltaPhi          = dbe->bookFloat("RECOHLT_deltaPhi ");
-      RECOHLT_invMass           = dbe->bookFloat("RECOHLT_invMass");
-      NumberOfMatches           = dbe->bookFloat("NumberOfMatches");
-      NumberOfEvents            = dbe->bookFloat("NumberOfEvents");
-      
-      std::string labelname("ME");
-      std::string histoname(labelname+"");
-      std::string title(labelname+"");
-	
-      //RECO_deltaEta_DiJet
-      histoname     = labelname+"_RECO_deltaEta_DiJet";
-      title         = labelname+"_RECO_deltaEta_DiJet "+trigPath;
-      RECO_deltaEta_DiJet = dbe->book1D(histoname.c_str(),title.c_str(),50,-10.,10.);
-      RECO_deltaEta_DiJet->getTH1F();
-
-      //RECO_deltaPhi_DiJet
-      histoname     = labelname+"_RECO_deltaPhi_DiJet";
-      title         = labelname+"_RECO_deltaPhi_DiJet "+trigPath;
-      RECO_deltaPhi_DiJet = dbe->book1D(histoname.c_str(),title.c_str(),35,-3.5,3.5);
-      RECO_deltaPhi_DiJet->getTH1F();
-
-      //RECO_invMass_DiJet
-      histoname     = labelname+"_RECO_invMass_DiJet";
-      title         = labelname+"_RECO_invMass_DiJet "+trigPath;
-      RECO_invMass_DiJet = dbe->book1D(histoname.c_str(),title.c_str(),100,500.,2000.);
-      RECO_invMass_DiJet->getTH1F(); 
-
-      //HLT_deltaEta_DiJet
-      histoname     = labelname+"_HLT_deltaEta_DiJet";
-      title         = labelname+"_HLT_deltaEta_DiJet "+trigPath;
-      HLT_deltaEta_DiJet = dbe->book1D(histoname.c_str(),title.c_str(),50,-10.,10.);
-      HLT_deltaEta_DiJet->getTH1F();
-
-      //HLT_deltaPhi_DiJet
-      histoname     = labelname+"_HLT_deltaPhi_DiJet";
-      title         = labelname+"_HLT_deltaPhi_DiJet "+trigPath;
-      HLT_deltaPhi_DiJet = dbe->book1D(histoname.c_str(),title.c_str(),35,-3.5,3.5);
-      HLT_deltaPhi_DiJet->getTH1F();
-
-      //HLT_invMass_DiJet
-      histoname     = labelname+"_HLT_invMass_DiJet";
-      title         = labelname+"_HLT_invMass_DiJet "+trigPath;
-      HLT_invMass_DiJet = dbe->book1D(histoname.c_str(),title.c_str(),100,500.,2000.);
-      HLT_invMass_DiJet->getTH1F();
-
-      //RECO_deltaEta_DiJet_Match
-      histoname     = labelname+"_RECO_deltaEta_DiJet_Match";
-      title         = labelname+"_RECO_deltaEta_DiJet_Match "+trigPath;
-      RECO_deltaEta_DiJet_Match = dbe->book1D(histoname.c_str(),title.c_str(),50,-10.,10.);
-      RECO_deltaEta_DiJet_Match->getTH1F();
-
-      //RECO_deltaPhi_DiJet_Match
-      histoname     = labelname+"_RECO_deltaPhi_DiJet_Match";
-      title         = labelname+"_RECO_deltaPhi_DiJet_Match "+trigPath;
-      RECO_deltaPhi_DiJet_Match = dbe->book1D(histoname.c_str(),title.c_str(),35,-3.5,3.5);
-      RECO_deltaPhi_DiJet_Match->getTH1F();
-
-      //RECO_invMass_DiJet_Match
-      histoname     = labelname+"_RECO_invMass_DiJet_Match";
-      title         = labelname+"_RECO_invMass_DiJet_Match "+trigPath;
-      RECO_invMass_DiJet_Match = dbe->book1D(histoname.c_str(),title.c_str(),100,500.,2000.);
-      RECO_invMass_DiJet_Match->getTH1F(); 
-
-      //RECOHLT_deltaEta
-      histoname     = labelname+"_RECOHLT_deltaEta";
-      title         = labelname+"_RECOHLT_deltaEta "+trigPath;
-      RECOHLT_deltaEta = dbe->book2D(histoname.c_str(),title.c_str(),50,-10.,10.,50,-10.,10.);
-      RECOHLT_deltaEta->getTH2F();
-
-      //RECOHLT_deltaPhi
-      histoname     = labelname+"_RECOHLT_deltaPhi";
-      title         = labelname+"_RECOHLT_deltaPhi "+trigPath;
-      RECOHLT_deltaPhi = dbe->book2D(histoname.c_str(),title.c_str(),35,-3.5,3.5,35,-3.5,3.5);
-      RECOHLT_deltaPhi->getTH2F();
-
-      //RECOHLT_invMass
-      histoname     = labelname+"_RECOHLT_invMass";
-      title         = labelname+"_RECOHLT_invMass "+trigPath;
-      RECOHLT_invMass = dbe->book2D(histoname.c_str(),title.c_str(),100,500.,2000.,100,500.,2000.);
-      RECOHLT_invMass->getTH2F(); 
-      
-      //NumberOfMatches 
-      histoname     = labelname+"_NumberOfMatches ";
-      title         = labelname+"_NumberOfMatches  "+trigPath;
-      NumberOfMatches = dbe->book1D(histoname.c_str(),title.c_str(),2,0.,2.);
-      NumberOfMatches->getTH1F();
-
-      //NumberOfEvents
-      histoname     = labelname+"_NumberOfEvents";
-      title         = labelname+"_NumberOfEvents "+trigPath;
-      NumberOfEvents = dbe->book1D(histoname.c_str(),title.c_str(),10,0.,10.);
-      NumberOfEvents->getTH1F();
-      
-      //} 
-      v->setHistos(
-		   RECO_deltaEta_DiJet,
-		   RECO_deltaPhi_DiJet,
-		   RECO_invMass_DiJet,
-		   HLT_deltaEta_DiJet,
-		   HLT_deltaPhi_DiJet,
-		   HLT_invMass_DiJet,
-		   RECO_deltaEta_DiJet_Match,
-		   RECO_deltaPhi_DiJet_Match,
-		   RECO_invMass_DiJet_Match,
-		   RECOHLT_deltaEta,
-		   RECOHLT_deltaPhi,
-		   RECOHLT_invMass,
-		   NumberOfMatches,
-		   NumberOfEvents
-		   );
-      //break;//We need only the first unprescale paths
-    }
+HLTInclusiveVBFSource::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &run, edm::EventSetup const &c) {
+  iBooker.setCurrentFolder(dirname_);
+  
+  //--- htlConfig_
+  bool changed(true);
+  if (!hltConfig_.init(run, c, processname_, changed)) {
+    LogDebug("HLTInclusiveVBFSource") << "HLTConfigProvider failed to initialize.";
   }
-}
+  
+  const unsigned int numberOfPaths(hltConfig_.size());
+  for(unsigned int i=0; i!=numberOfPaths; ++i){
+    bool numFound = false;
+    pathname      = hltConfig_.triggerName(i);
+    filtername    = "dummy";
+    unsigned int usedPrescale = 1;
+    unsigned int objectType = 0;
+    std::string triggerType = "";
+    
+    if(pathname.find("HLT_Di") == std::string::npos) continue;
+    if(pathname.find("Jet") == std::string::npos) continue;
+    if(pathname.find("MJJ") == std::string::npos) continue;
+    if(pathname.find("VBF_v") == std::string::npos) continue;
+    
+    if(debug_){
+      cout<<" - Startup:Path = "<<pathname<<endl;
+    //cout<<" - Startup:PS = "<<hltConfig_.prescaleSize()<<endl;
+    }
+    
+    triggerType = "DiJet_Trigger";
+    objectType = trigger::TriggerJet;
+    
+    // Checking if the trigger exist in HLT table or not
+    for (unsigned int i=0; i!=numberOfPaths; ++i) {
+      std::string HLTname = hltConfig_.triggerName(i);
+      if(HLTname == pathname)numFound = true;
+    }
+    
+    if(numFound==false) continue;
+    std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
+    std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
+    for(; numpathmodule!= numpathmodules.end(); ++numpathmodule){
+      edm::InputTag testTag(*numpathmodule,"",processname_);
+      if (hltConfig_.moduleType(*numpathmodule) == "HLTCaloJetVBFFilter"
+          || hltConfig_.moduleType(*numpathmodule) == "HLTPFJetVBFFilter")
+        {
+          filtername = *numpathmodule;
+          if(debug_) cout<<" - Startup:Module = "<<hltConfig_.moduleType(*numpathmodule)<<", FilterName = "<<filtername<<endl;
+        }
+      
+    }
+    if(debug_) cout<<" - Startup:Final filter = "<<filtername<<endl;
+    
+    if(objectType == 0 || numFound==false) continue;
+    //if(debug_){
+    //cout<<"Pathname = "<<pathname
+    //    <<", Filtername = "<<filtername
+    //    <<", ObjectType = "<<objectType<<endl;
+    //}
+    hltPathsAll_.push_back(PathInfo(usedPrescale, pathname, filtername, processname_, objectType, triggerType)); 
+  }//Loop over paths
+  
+  //if(debug_) cout<<"== end hltPathsEff_.push_back ======" << endl;
+  
+  std::string dirName = dirname_ + "/MonitorInclusiveVBFTrigger/";
+  for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
+    if(debug_) cout<<"Storing: "<<v->getPath()<<", Prescale = "<<v->getprescaleUsed()<<endl;
+    //if(v->getprescaleUsed()!=1) continue;
+    
+    std::string subdirName = dirName + v->getPath();
+    std::string trigPath = "("+v->getPath()+")";
+    iBooker.setCurrentFolder(subdirName);  
+    
+    MonitorElement*  RECO_deltaEta_DiJet;
+    MonitorElement*  RECO_deltaPhi_DiJet;
+    MonitorElement*  RECO_invMass_DiJet;
+    MonitorElement*  HLT_deltaEta_DiJet;
+    MonitorElement*  HLT_deltaPhi_DiJet;
+    MonitorElement*  HLT_invMass_DiJet;
+    MonitorElement*  RECO_deltaEta_DiJet_Match;
+    MonitorElement*  RECO_deltaPhi_DiJet_Match;
+    MonitorElement*  RECO_invMass_DiJet_Match;
+    MonitorElement*  RECOHLT_deltaEta;
+    MonitorElement*  RECOHLT_deltaPhi;
+    MonitorElement*  RECOHLT_invMass;
+    MonitorElement*  NumberOfMatches;
+    MonitorElement*  NumberOfEvents;
+    
+    //dummy                     = iBooker.bookFloat("dummy");
+    RECO_deltaEta_DiJet       = iBooker.bookFloat("RECO_deltaEta_DiJet");
+    RECO_deltaPhi_DiJet       = iBooker.bookFloat("RECO_deltaPhi_DiJet");
+    RECO_invMass_DiJet        = iBooker.bookFloat("RECO_invMass_DiJet");
+    HLT_deltaEta_DiJet        = iBooker.bookFloat("HLT_deltaEta_DiJet");
+    HLT_deltaPhi_DiJet        = iBooker.bookFloat("HLT_deltaPhi_DiJet ");
+    HLT_invMass_DiJet         = iBooker.bookFloat("HLT_invMass_DiJet");
+    RECO_deltaEta_DiJet_Match = iBooker.bookFloat("RECO_deltaEta_DiJet_Match");
+    RECO_deltaPhi_DiJet_Match = iBooker.bookFloat("RECO_deltaPhi_DiJet_Match");
+    RECO_invMass_DiJet_Match  = iBooker.bookFloat("RECO_invMass_DiJet_Match");
+    RECOHLT_deltaEta          = iBooker.bookFloat("RECOHLT_deltaEta");
+    RECOHLT_deltaPhi          = iBooker.bookFloat("RECOHLT_deltaPhi ");
+    RECOHLT_invMass           = iBooker.bookFloat("RECOHLT_invMass");
+    NumberOfMatches           = iBooker.bookFloat("NumberOfMatches");
+    NumberOfEvents            = iBooker.bookFloat("NumberOfEvents");
+    
+    std::string labelname("ME");
+    std::string histoname(labelname+"");
+    std::string title(labelname+"");
+      
+    //RECO_deltaEta_DiJet
+    histoname     = labelname+"_RECO_deltaEta_DiJet";
+    title         = labelname+"_RECO_deltaEta_DiJet "+trigPath;
+    RECO_deltaEta_DiJet = iBooker.book1D(histoname.c_str(),title.c_str(),50,-10.,10.);
+    RECO_deltaEta_DiJet->getTH1F();
 
-//--------------------------------------------------------
-void HLTInclusiveVBFSource::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
-						  const EventSetup& context) {
-}
+    //RECO_deltaPhi_DiJet
+    histoname     = labelname+"_RECO_deltaPhi_DiJet";
+    title         = labelname+"_RECO_deltaPhi_DiJet "+trigPath;
+    RECO_deltaPhi_DiJet = iBooker.book1D(histoname.c_str(),title.c_str(),35,-3.5,3.5);
+    RECO_deltaPhi_DiJet->getTH1F();
 
-//--------------------------------------------------------
-void 
-HLTInclusiveVBFSource::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
-						const EventSetup& context) {
-}
+    //RECO_invMass_DiJet
+    histoname     = labelname+"_RECO_invMass_DiJet";
+    title         = labelname+"_RECO_invMass_DiJet "+trigPath;
+    RECO_invMass_DiJet = iBooker.book1D(histoname.c_str(),title.c_str(),100,500.,2000.);
+    RECO_invMass_DiJet->getTH1F(); 
 
-// - method called once each job just after ending the event loop  ------------
-void 
-HLTInclusiveVBFSource::endJob() {
-  //delete jetID;
-}
+    //HLT_deltaEta_DiJet
+    histoname     = labelname+"_HLT_deltaEta_DiJet";
+    title         = labelname+"_HLT_deltaEta_DiJet "+trigPath;
+    HLT_deltaEta_DiJet = iBooker.book1D(histoname.c_str(),title.c_str(),50,-10.,10.);
+    HLT_deltaEta_DiJet->getTH1F();
 
-/// EndRun
-void HLTInclusiveVBFSource::endRun(const edm::Run& run, const edm::EventSetup& c){
-  //if (debug_) std::cout << "endRun, run " << run.id() << std::endl;
+    //HLT_deltaPhi_DiJet
+    histoname     = labelname+"_HLT_deltaPhi_DiJet";
+    title         = labelname+"_HLT_deltaPhi_DiJet "+trigPath;
+    HLT_deltaPhi_DiJet = iBooker.book1D(histoname.c_str(),title.c_str(),35,-3.5,3.5);
+    HLT_deltaPhi_DiJet->getTH1F();
+
+    //HLT_invMass_DiJet
+    histoname     = labelname+"_HLT_invMass_DiJet";
+    title         = labelname+"_HLT_invMass_DiJet "+trigPath;
+    HLT_invMass_DiJet = iBooker.book1D(histoname.c_str(),title.c_str(),100,500.,2000.);
+    HLT_invMass_DiJet->getTH1F();
+
+    //RECO_deltaEta_DiJet_Match
+    histoname     = labelname+"_RECO_deltaEta_DiJet_Match";
+    title         = labelname+"_RECO_deltaEta_DiJet_Match "+trigPath;
+    RECO_deltaEta_DiJet_Match = iBooker.book1D(histoname.c_str(),title.c_str(),50,-10.,10.);
+    RECO_deltaEta_DiJet_Match->getTH1F();
+
+    //RECO_deltaPhi_DiJet_Match
+    histoname     = labelname+"_RECO_deltaPhi_DiJet_Match";
+    title         = labelname+"_RECO_deltaPhi_DiJet_Match "+trigPath;
+    RECO_deltaPhi_DiJet_Match = iBooker.book1D(histoname.c_str(),title.c_str(),35,-3.5,3.5);
+    RECO_deltaPhi_DiJet_Match->getTH1F();
+
+    //RECO_invMass_DiJet_Match
+    histoname     = labelname+"_RECO_invMass_DiJet_Match";
+    title         = labelname+"_RECO_invMass_DiJet_Match "+trigPath;
+    RECO_invMass_DiJet_Match = iBooker.book1D(histoname.c_str(),title.c_str(),100,500.,2000.);
+    RECO_invMass_DiJet_Match->getTH1F(); 
+
+    //RECOHLT_deltaEta
+    histoname     = labelname+"_RECOHLT_deltaEta";
+    title         = labelname+"_RECOHLT_deltaEta "+trigPath;
+    RECOHLT_deltaEta = iBooker.book2D(histoname.c_str(),title.c_str(),50,-10.,10.,50,-10.,10.);
+    RECOHLT_deltaEta->getTH2F();
+
+    //RECOHLT_deltaPhi
+    histoname     = labelname+"_RECOHLT_deltaPhi";
+    title         = labelname+"_RECOHLT_deltaPhi "+trigPath;
+    RECOHLT_deltaPhi = iBooker.book2D(histoname.c_str(),title.c_str(),35,-3.5,3.5,35,-3.5,3.5);
+    RECOHLT_deltaPhi->getTH2F();
+
+    //RECOHLT_invMass
+    histoname     = labelname+"_RECOHLT_invMass";
+    title         = labelname+"_RECOHLT_invMass "+trigPath;
+    RECOHLT_invMass = iBooker.book2D(histoname.c_str(),title.c_str(),100,500.,2000.,100,500.,2000.);
+    RECOHLT_invMass->getTH2F(); 
+    
+    //NumberOfMatches 
+    histoname     = labelname+"_NumberOfMatches ";
+    title         = labelname+"_NumberOfMatches  "+trigPath;
+    NumberOfMatches = iBooker.book1D(histoname.c_str(),title.c_str(),2,0.,2.);
+    NumberOfMatches->getTH1F();
+
+    //NumberOfEvents
+    histoname     = labelname+"_NumberOfEvents";
+    title         = labelname+"_NumberOfEvents "+trigPath;
+    NumberOfEvents = iBooker.book1D(histoname.c_str(),title.c_str(),10,0.,10.);
+    NumberOfEvents->getTH1F();
+    
+    //} 
+    v->setHistos(
+      	   RECO_deltaEta_DiJet,
+      	   RECO_deltaPhi_DiJet,
+      	   RECO_invMass_DiJet,
+      	   HLT_deltaEta_DiJet,
+      	   HLT_deltaPhi_DiJet,
+      	   HLT_invMass_DiJet,
+      	   RECO_deltaEta_DiJet_Match,
+      	   RECO_deltaPhi_DiJet_Match,
+      	   RECO_invMass_DiJet_Match,
+      	   RECOHLT_deltaEta,
+      	   RECOHLT_deltaPhi,
+      	   RECOHLT_invMass,
+      	   NumberOfMatches,
+      	   NumberOfEvents
+      	   );
+    //break;//We need only the first unprescale paths
+  }
 }
 
 bool HLTInclusiveVBFSource::isBarrel(double eta){

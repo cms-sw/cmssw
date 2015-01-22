@@ -4,17 +4,20 @@
 
 
 TrackHistory::TrackHistory (
-    const edm::ParameterSet & config
+  const edm::ParameterSet & config,
+  edm::ConsumesCollector&& collector
 ) : HistoryBase()
 {
     // Name of the track collection
     trackProducer_ = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );
+    collector.consumes<edm::View<reco::Track> >(trackProducer_);
 
     // Name of the traking pariticle collection
     trackingTruth_ = config.getUntrackedParameter<edm::InputTag> ( "trackingTruth" );
+    collector.consumes<TrackingParticleCollection>(trackingTruth_);
 
     // Track association record
-    trackAssociator_ = config.getUntrackedParameter<std::string> ( "trackAssociator" );
+    trackAssociator_ = config.getUntrackedParameter<edm::InputTag> ( "trackAssociator" );
 
     // Association by max. value
     bestMatchByMaxValue_ = config.getUntrackedParameter<bool> ( "bestMatchByMaxValue" );
@@ -24,6 +27,10 @@ TrackHistory::TrackHistory (
 
     // Enable SimToReco association
     enableSimToReco_ = config.getUntrackedParameter<bool> ( "enableSimToReco" );
+
+    if(enableRecoToSim_ or enableSimToReco_) {
+      collector.consumes<reco::TrackToTrackingParticleAssociator>(trackAssociator_);
+    }
 
     quality_ = 0.;
 }
@@ -44,14 +51,14 @@ void TrackHistory::newEvent (
         event.getByLabel(trackingTruth_, TPCollection);
 
         // Get the track associator
-        edm::ESHandle<TrackAssociatorBase> associator;
-        setup.get<TrackAssociatorRecord>().get(trackAssociator_, associator);
+        edm::Handle<reco::TrackToTrackingParticleAssociator> associator;
+        event.getByLabel(trackAssociator_, associator);
 
         // Calculate the map between recotracks -> tp
-        if ( enableRecoToSim_ ) recoToSim_ = associator->associateRecoToSim(trackCollection, TPCollection, &event, &setup);
+        if ( enableRecoToSim_ ) recoToSim_ = associator->associateRecoToSim(trackCollection, TPCollection);
 
         // Calculate the map between recotracks <- tp
-        if ( enableSimToReco_ ) simToReco_ = associator->associateSimToReco(trackCollection, TPCollection, &event, &setup);
+        if ( enableSimToReco_ ) simToReco_ = associator->associateSimToReco(trackCollection, TPCollection );
     }
 }
 

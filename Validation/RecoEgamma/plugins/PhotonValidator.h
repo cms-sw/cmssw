@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
@@ -17,6 +16,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -131,7 +131,6 @@ class PhotonValidator : public DQMEDAnalyzer
   edm::EDGetTokenT<reco::GenJetCollection> genjets_Token_;
 
   std::unique_ptr<PhotonMCTruthFinder>  thePhotonMCTruthFinder_;
-  const TrackAssociatorBase * theTrackAssociator_;
 
   bool fastSim_;
   bool isRunCentrally_;

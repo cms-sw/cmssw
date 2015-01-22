@@ -34,7 +34,7 @@ class EgammaHLTPFPhotonIsolationProducer : public edm::EDProducer {
   explicit EgammaHLTPFPhotonIsolationProducer(const edm::ParameterSet&);
   ~EgammaHLTPFPhotonIsolationProducer() {};    
       
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
  
  private:

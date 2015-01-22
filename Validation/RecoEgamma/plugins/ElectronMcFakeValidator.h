@@ -186,6 +186,9 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_scl_SigIEtaIEta_ ;
     MonitorElement *h1_scl_SigIEtaIEta_barrel_ ;
     MonitorElement *h1_scl_SigIEtaIEta_endcaps_ ;
+    MonitorElement *h1_scl_full5x5_sigmaIetaIeta_; // new 2014.01.12
+    MonitorElement *h1_scl_full5x5_sigmaIetaIeta_barrel_; // new 2014.01.12
+    MonitorElement *h1_scl_full5x5_sigmaIetaIeta_endcaps_; // new 2014.01.12
     MonitorElement *h1_scl_E1x5_ ;
     MonitorElement *h1_scl_E1x5_barrel_ ;
     MonitorElement *h1_scl_E1x5_endcaps_ ;
@@ -238,36 +241,36 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_EoP;
     MonitorElement *h1_ele_EoP_barrel;
     MonitorElement *h1_ele_EoP_endcaps;
-    MonitorElement *h1_ele_EoP_eg;
-    MonitorElement *h1_ele_EoP_eg_barrel;
-    MonitorElement *h1_ele_EoP_eg_endcaps;
+//    MonitorElement *h1_ele_EoP_eg;
+//    MonitorElement *h1_ele_EoP_eg_barrel;
+//    MonitorElement *h1_ele_EoP_eg_endcaps;
     MonitorElement *h2_ele_EoPVsEta;
     MonitorElement *h2_ele_EoPVsPhi;
     MonitorElement *h2_ele_EoPVsE;
     MonitorElement *h1_ele_EseedOP;
     MonitorElement *h1_ele_EseedOP_barrel;
     MonitorElement *h1_ele_EseedOP_endcaps;
-    MonitorElement *h1_ele_EseedOP_eg;
-    MonitorElement *h1_ele_EseedOP_eg_barrel;
-    MonitorElement *h1_ele_EseedOP_eg_endcaps;
+//    MonitorElement *h1_ele_EseedOP_eg;
+//    MonitorElement *h1_ele_EseedOP_eg_barrel;
+//    MonitorElement *h1_ele_EseedOP_eg_endcaps;
     MonitorElement *h2_ele_EseedOPVsEta;
     MonitorElement *h2_ele_EseedOPVsPhi;
     MonitorElement *h2_ele_EseedOPVsE;
     MonitorElement *h1_ele_EoPout;
     MonitorElement *h1_ele_EoPout_barrel;
     MonitorElement *h1_ele_EoPout_endcaps;
-    MonitorElement *h1_ele_EoPout_eg;
-    MonitorElement *h1_ele_EoPout_eg_barrel;
-    MonitorElement *h1_ele_EoPout_eg_endcaps;
+//    MonitorElement *h1_ele_EoPout_eg;
+//    MonitorElement *h1_ele_EoPout_eg_barrel;
+//    MonitorElement *h1_ele_EoPout_eg_endcaps;
     MonitorElement *h2_ele_EoPoutVsEta;
     MonitorElement *h2_ele_EoPoutVsPhi;
     MonitorElement *h2_ele_EoPoutVsE;
     MonitorElement *h1_ele_EeleOPout;
     MonitorElement *h1_ele_EeleOPout_barrel;
     MonitorElement *h1_ele_EeleOPout_endcaps;
-    MonitorElement *h1_ele_EeleOPout_eg;
-    MonitorElement *h1_ele_EeleOPout_eg_barrel;
-    MonitorElement *h1_ele_EeleOPout_eg_endcaps;
+//    MonitorElement *h1_ele_EeleOPout_eg;
+//    MonitorElement *h1_ele_EeleOPout_eg_barrel;
+//    MonitorElement *h1_ele_EeleOPout_eg_endcaps;
     MonitorElement *h2_ele_EeleOPoutVsEta;
     MonitorElement *h2_ele_EeleOPoutVsPhi;
     MonitorElement *h2_ele_EeleOPoutVsE;
@@ -275,54 +278,54 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_dEtaSc_propVtx;
     MonitorElement *h1_ele_dEtaSc_propVtx_barrel;
     MonitorElement *h1_ele_dEtaSc_propVtx_endcaps;
-    MonitorElement *h1_ele_dEtaSc_propVtx_eg;
-    MonitorElement *h1_ele_dEtaSc_propVtx_eg_barrel;
-    MonitorElement *h1_ele_dEtaSc_propVtx_eg_endcaps;
+//    MonitorElement *h1_ele_dEtaSc_propVtx_eg;
+//    MonitorElement *h1_ele_dEtaSc_propVtx_eg_barrel;
+//    MonitorElement *h1_ele_dEtaSc_propVtx_eg_endcaps;
     MonitorElement *h2_ele_dEtaScVsEta_propVtx;
     MonitorElement *h2_ele_dEtaScVsPhi_propVtx;
     MonitorElement *h2_ele_dEtaScVsPt_propVtx;
     MonitorElement *h1_ele_dPhiSc_propVtx;
     MonitorElement *h1_ele_dPhiSc_propVtx_barrel;
     MonitorElement *h1_ele_dPhiSc_propVtx_endcaps;
-    MonitorElement *h1_ele_dPhiSc_propVtx_eg;
-    MonitorElement *h1_ele_dPhiSc_propVtx_eg_barrel;
-    MonitorElement *h1_ele_dPhiSc_propVtx_eg_endcaps;
+//    MonitorElement *h1_ele_dPhiSc_propVtx_eg;
+//    MonitorElement *h1_ele_dPhiSc_propVtx_eg_barrel;
+//    MonitorElement *h1_ele_dPhiSc_propVtx_eg_endcaps;
     MonitorElement *h2_ele_dPhiScVsEta_propVtx;
     MonitorElement *h2_ele_dPhiScVsPhi_propVtx;
     MonitorElement *h2_ele_dPhiScVsPt_propVtx;
     MonitorElement *h1_ele_dEtaCl_propOut;
     MonitorElement *h1_ele_dEtaCl_propOut_barrel;
     MonitorElement *h1_ele_dEtaCl_propOut_endcaps;
-    MonitorElement *h1_ele_dEtaCl_propOut_eg;
-    MonitorElement *h1_ele_dEtaCl_propOut_eg_barrel;
-    MonitorElement *h1_ele_dEtaCl_propOut_eg_endcaps;
+//    MonitorElement *h1_ele_dEtaCl_propOut_eg;
+//    MonitorElement *h1_ele_dEtaCl_propOut_eg_barrel;
+//    MonitorElement *h1_ele_dEtaCl_propOut_eg_endcaps;
     MonitorElement *h2_ele_dEtaClVsEta_propOut;
     MonitorElement *h2_ele_dEtaClVsPhi_propOut;
     MonitorElement *h2_ele_dEtaClVsPt_propOut;
     MonitorElement *h1_ele_dPhiCl_propOut;
     MonitorElement *h1_ele_dPhiCl_propOut_barrel;
     MonitorElement *h1_ele_dPhiCl_propOut_endcaps;
-    MonitorElement *h1_ele_dPhiCl_propOut_eg;
-    MonitorElement *h1_ele_dPhiCl_propOut_eg_barrel;
-    MonitorElement *h1_ele_dPhiCl_propOut_eg_endcaps;
+//    MonitorElement *h1_ele_dPhiCl_propOut_eg;
+//    MonitorElement *h1_ele_dPhiCl_propOut_eg_barrel;
+//    MonitorElement *h1_ele_dPhiCl_propOut_eg_endcaps;
     MonitorElement *h2_ele_dPhiClVsEta_propOut;
     MonitorElement *h2_ele_dPhiClVsPhi_propOut;
     MonitorElement *h2_ele_dPhiClVsPt_propOut;
     MonitorElement *h1_ele_dEtaEleCl_propOut;
     MonitorElement *h1_ele_dEtaEleCl_propOut_barrel;
     MonitorElement *h1_ele_dEtaEleCl_propOut_endcaps;
-    MonitorElement *h1_ele_dEtaEleCl_propOut_eg;
-    MonitorElement *h1_ele_dEtaEleCl_propOut_eg_barrel;
-    MonitorElement *h1_ele_dEtaEleCl_propOut_eg_endcaps;
+//    MonitorElement *h1_ele_dEtaEleCl_propOut_eg;
+//    MonitorElement *h1_ele_dEtaEleCl_propOut_eg_barrel;
+//    MonitorElement *h1_ele_dEtaEleCl_propOut_eg_endcaps;
     MonitorElement *h2_ele_dEtaEleClVsEta_propOut;
     MonitorElement *h2_ele_dEtaEleClVsPhi_propOut;
     MonitorElement *h2_ele_dEtaEleClVsPt_propOut;
     MonitorElement *h1_ele_dPhiEleCl_propOut;
     MonitorElement *h1_ele_dPhiEleCl_propOut_barrel;
     MonitorElement *h1_ele_dPhiEleCl_propOut_endcaps;
-    MonitorElement *h1_ele_dPhiEleCl_propOut_eg;
-    MonitorElement *h1_ele_dPhiEleCl_propOut_eg_barrel;
-    MonitorElement *h1_ele_dPhiEleCl_propOut_eg_endcaps;
+//    MonitorElement *h1_ele_dPhiEleCl_propOut_eg;
+//    MonitorElement *h1_ele_dPhiEleCl_propOut_eg_barrel;
+//    MonitorElement *h1_ele_dPhiEleCl_propOut_eg_endcaps;
     MonitorElement *h2_ele_dPhiEleClVsEta_propOut;
     MonitorElement *h2_ele_dPhiEleClVsPhi_propOut;
     MonitorElement *h2_ele_dPhiEleClVsPt_propOut;
@@ -358,9 +361,9 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_HoE_endcaps;
     MonitorElement *h1_ele_HoE_bc_barrel;
     MonitorElement *h1_ele_HoE_bc_endcaps;
-    MonitorElement *h1_ele_HoE_eg;
-    MonitorElement *h1_ele_HoE_eg_barrel;
-    MonitorElement *h1_ele_HoE_eg_endcaps;
+//    MonitorElement *h1_ele_HoE_eg;
+//    MonitorElement *h1_ele_HoE_eg_barrel;
+//   MonitorElement *h1_ele_HoE_eg_endcaps;
     MonitorElement *h1_ele_HoE_fiducial;
     MonitorElement *h2_ele_HoEVsEta;
     MonitorElement *h2_ele_HoEVsPhi;
@@ -369,7 +372,9 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_fbrem;
     MonitorElement *h1_ele_fbrem_barrel;
     MonitorElement *h1_ele_fbrem_endcaps;
-
+    MonitorElement *h1_ele_superclusterfbrem; // new 2014.02.12
+    MonitorElement *h1_ele_superclusterfbrem_barrel; // new 2014.02.12
+    MonitorElement *h1_ele_superclusterfbrem_endcaps; // new 2014.02.12
     MonitorElement *p1_ele_fbremVsEta_mode;
     MonitorElement *p1_ele_fbremVsEta_mean;
 
@@ -389,6 +394,9 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_mva;
     MonitorElement *h1_ele_mva_barrel;
     MonitorElement *h1_ele_mva_endcaps;
+    MonitorElement *h1_ele_mva_isolated;
+    MonitorElement *h1_ele_mva_barrel_isolated;
+    MonitorElement *h1_ele_mva_endcaps_isolated;
     MonitorElement *h1_ele_provenance;
     MonitorElement *h1_ele_provenance_barrel;
     MonitorElement *h1_ele_provenance_endcaps;
@@ -435,14 +443,14 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth1_endcaps;
     MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth2;
 
-    MonitorElement *h1_ele_dIso_tkSumPt_dr03;
+/*    MonitorElement *h1_ele_dIso_tkSumPt_dr03;
     MonitorElement *h1_ele_dIso_tkSumPt_dr04;
     MonitorElement *h1_ele_dIso_ecalFullRecHitSumEt_dr03;
     MonitorElement *h1_ele_dIso_ecalFullRecHitSumEt_dr04;
     MonitorElement *h1_ele_dIso_ecalReducedRecHitSumEt_dr03;
     MonitorElement *h1_ele_dIso_ecalReducedRecHitSumEt_dr04;
     MonitorElement *h1_ele_dIso_hcalTowerSumEt_dr03;
-    MonitorElement *h1_ele_dIso_hcalTowerSumEt_dr04;
+    MonitorElement *h1_ele_dIso_hcalTowerSumEt_dr04;*/ // removed on 2014/12/02
 
     MonitorElement *h1_ele_hcalDepth1OverEcalBc;
     MonitorElement *h1_ele_hcalDepth1OverEcalBc_barrel;

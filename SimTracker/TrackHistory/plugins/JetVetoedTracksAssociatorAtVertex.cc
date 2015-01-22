@@ -38,8 +38,10 @@ JetVetoedTracksAssociatorAtVertex::JetVetoedTracksAssociatorAtVertex(const edm::
         : mJets (fConfig.getParameter<edm::InputTag> ("jets")),
         mTracks (fConfig.getParameter<edm::InputTag> ("tracks")),
         mAssociator (fConfig.getParameter<double> ("coneSize")),
-        classifier(fConfig)
+        classifier(fConfig,consumesCollector())
 {
+    consumes<edm::View<reco::Jet>>(mJets);
+    consumes<reco::TrackCollection>(mTracks);
     produces<reco::JetTracksAssociation::Container> ();
 }
 

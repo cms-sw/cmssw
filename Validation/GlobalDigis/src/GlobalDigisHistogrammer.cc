@@ -6,7 +6,6 @@
  */
 
 #include "Validation/GlobalDigis/interface/GlobalDigisHistogrammer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 GlobalDigisHistogrammer::GlobalDigisHistogrammer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
@@ -65,228 +64,6 @@ GlobalDigisHistogrammer::GlobalDigisHistogrammer(const edm::ParameterSet& iPSet)
 
       << "===============================\n";
   }
-
-  //Put in analyzer stuff here.... Pasted from Rec Hits... 
-
-  dbe = 0;
-dbe = edm::Service<DQMStore>().operator->();
-if (dbe) {
-    if (verbosity > 0 ) {
-      dbe->setVerbose(1);
-    } else {
-      dbe->setVerbose(0);
-    }
-}
-if (dbe) {
-    if (verbosity > 0 ) dbe->showDirStructure();
-  }
-
-//monitor elements 
-
-//Si Strip  ***Done***
- if(dbe)
-   {
-std::string SiStripString[19] = {"TECW1", "TECW2", "TECW3", "TECW4", "TECW5", "TECW6", "TECW7", "TECW8", "TIBL1", "TIBL2", "TIBL3", "TIBL4", "TIDW1", "TIDW2", "TIDW3", "TOBL1", "TOBL2", "TOBL3", "TOBL4"};
-for(int i = 0; i<19; ++i)
-{
-  mehSiStripn[i]=0;
-  mehSiStripADC[i]=0;
-  mehSiStripStrip[i]=0;
-}
-dbe->setCurrentFolder("GlobalDigisV/SiStrips");
-for(int amend = 0; amend < 19; ++amend)
-{ 
-  mehSiStripn[amend] = dbe->book1D("hSiStripn_"+SiStripString[amend], SiStripString[amend]+"  Digis",500,0.,1000.);
-  mehSiStripn[amend]->setAxisTitle("Number of Digis",1);
-  mehSiStripn[amend]->setAxisTitle("Count",2);
-  mehSiStripADC[amend] = dbe->book1D("hSiStripADC_"+SiStripString[amend],SiStripString[amend]+" ADC",150,0.0,300.);
-  mehSiStripADC[amend]->setAxisTitle("ADC",1);
-  mehSiStripADC[amend]->setAxisTitle("Count",2);
-  mehSiStripStrip[amend] = dbe->book1D("hSiStripStripADC_"+SiStripString[amend],SiStripString[amend]+" Strip",200,0.0,800.);
-  mehSiStripStrip[amend]->setAxisTitle("Strip Number",1);
-  mehSiStripStrip[amend]->setAxisTitle("Count",2);
-}
-
-
-//HCal  **DONE**
-std::string HCalString[4] = {"HB", "HE", "HO","HF"}; 
-float calnUpper[4] = {3000.,3000.,3000.,2000.}; float calnLower[4]={2000.,2000.,2000.,1000.}; 
-float SHEUpper[4]={0.05,.05,0.05,20};
-float SHEvAEEUpper[4] = {5000, 5000, 5000, 20}; float SHEvAEELower[4] = {-5000, -5000, -5000, -20}; 
-int SHEvAEEnBins[4] = {200,200,200,40};
-double ProfileUpper[4] = {1.,1.,1.,20.};  
-
-for(int i =0; i<4; ++i)
-{
-  mehHcaln[i]=0;
-  mehHcalAEE[i]=0;
-  mehHcalSHE[i]=0;
-  mehHcalAEESHE[i]=0;
-  mehHcalSHEvAEE[i]=0;
-}
-dbe->setCurrentFolder("GlobalDigisV/HCals");
- 
-for(int amend = 0; amend < 4; ++amend)
-{
-  mehHcaln[amend] = dbe->book1D("hHcaln_"+HCalString[amend],HCalString[amend]+"  digis", 1000, calnLower[amend], calnUpper[amend]);
-  mehHcaln[amend]->setAxisTitle("Number of Digis",1);
-  mehHcaln[amend]->setAxisTitle("Count",2);
-  mehHcalAEE[amend] = dbe->book1D("hHcalAEE_"+HCalString[amend],HCalString[amend]+"Cal AEE", 60, -10., 50.);
-  mehHcalAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
-  mehHcalAEE[amend]->setAxisTitle("Count",2);
-  mehHcalSHE[amend] = dbe->book1D("hHcalSHE_"+HCalString[amend],HCalString[amend]+"Cal SHE", 100, 0.0, SHEUpper[amend]);
-  mehHcalSHE[amend]->setAxisTitle("Simulated Hit Energy",1);
-  mehHcalSHE[amend]->setAxisTitle("Count",2);
-  mehHcalAEESHE[amend] = dbe->book1D("hHcalAEESHE_"+HCalString[amend], HCalString[amend]+"Cal AEE/SHE", SHEvAEEnBins[amend], SHEvAEELower[amend], SHEvAEEUpper[amend]);
-  mehHcalAEESHE[amend]->setAxisTitle("ADC / SHE",1);
-  mehHcalAEESHE[amend]->setAxisTitle("Count",2);
-  
-  //************  Not sure how to do Profile ME **************
-  mehHcalSHEvAEE[amend] = dbe->bookProfile("hHcalSHEvAEE_"+HCalString[amend],HCalString[amend]+"Cal SHE vs. AEE", 60, (float)-10., (float)50., 100, (float)0., (float)ProfileUpper[amend],"");
-  mehHcalSHEvAEE[amend]->setAxisTitle("AEE / SHE",1);
-  mehHcalSHEvAEE[amend]->setAxisTitle("SHE",2);
-
-}
-
-
-
-
-//Ecal **Done **
-std::string ECalString[2] = {"EB","EE"}; 
-
-for(int i =0; i<2; ++i)
-{
-  mehEcaln[i]=0;
-  mehEcalAEE[i]=0;
-  mehEcalSHE[i]=0;
-  mehEcalMaxPos[i]=0;
-  mehEcalMultvAEE[i]=0;
-  mehEcalSHEvAEESHE[i]=0;
-}
-dbe->setCurrentFolder("GlobalDigisV/ECals");
- 
-for(int amend = 0; amend < 2; ++amend)
-{
-  mehEcaln[amend] = dbe->book1D("hEcaln_"+ECalString[amend],ECalString[amend]+"  digis", 300, 1000., 4000.);
-  mehEcaln[amend]->setAxisTitle("Number of Digis",1);
-  mehEcaln[amend]->setAxisTitle("Count",2);
-  mehEcalAEE[amend] = dbe->book1D("hEcalAEE_"+ECalString[amend],ECalString[amend]+"Cal AEE", 100, 0., 1.);
-  mehEcalAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
-  mehEcalAEE[amend]->setAxisTitle("Count",2);
-  mehEcalSHE[amend] = dbe->book1D("hEcalSHE_"+ECalString[amend],ECalString[amend]+"Cal SHE", 50, 0., 5.);
-  mehEcalSHE[amend]->setAxisTitle("Simulated Hit Energy",1);
-  mehEcalSHE[amend]->setAxisTitle("Count",2);
-  mehEcalMaxPos[amend] = dbe->book1D("hEcalMaxPos_"+ECalString[amend],ECalString[amend]+"Cal MaxPos",10, 0., 10.);
-  mehEcalMaxPos[amend]->setAxisTitle("Maximum Position",1);
-  mehEcalMaxPos[amend]->setAxisTitle("Count",2);
-  
-  //************  Not sure how to do Profile ME **************
-  mehEcalSHEvAEESHE[amend] = dbe->bookProfile("hEcalSHEvAEESHE_"+ECalString[amend],ECalString[amend]+"Cal SHE vs. AEE/SHE",100, (float)0., (float)10., 50, (float)0., (float)5.,"");
-  mehEcalSHEvAEESHE[amend]->setAxisTitle("AEE / SHE",1);
-  mehEcalSHEvAEESHE[amend]->setAxisTitle("SHE",2);
-  mehEcalMultvAEE[amend] = dbe->bookProfile("hEcalMultvAEE_"+ECalString[amend],ECalString[amend]+"Cal Multi vs. AEE", 100, (float)0., (float)10., 400, (float)0., (float)4000.,"");
-  mehEcalMultvAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
-  mehEcalMultvAEE[amend]->setAxisTitle("Number of Digis",2);
-
-
-
-}
-  mehEcaln[2] = 0;
-  mehEcaln[2] = dbe->book1D("hEcaln_ES","ESCAL  digis", 100, 0., 500.);
-  mehEcaln[2]->setAxisTitle("Number of Digis",1);
-  mehEcaln[2]->setAxisTitle("Count",2);
-  std::string ADCNumber[3] = {"0", "1", "2"};
-  for(int i =0; i<3; ++i)
-    {
-      mehEScalADC[i] = 0;
-      mehEScalADC[i] = dbe->book1D("hEcalADC"+ADCNumber[i]+"_ES","ESCAL  ADC"+ADCNumber[i], 150, 950., 1500.);
-      mehEScalADC[i]->setAxisTitle("ADC"+ADCNumber[i],1);
-      mehEScalADC[i]->setAxisTitle("Count",2);
-
-    }
-
-//Si Pixels ***DONE***  
-std::string SiPixelString[7] = {"BRL1", "BRL2", "BRL3", "FWD1n", "FWD1p", "FWD2n", "FWD2p"};
-for(int j =0; j<7; ++j)
-{
-  mehSiPixeln[j]=0;
-  mehSiPixelADC[j]=0;
-  mehSiPixelRow[j]=0;
-  mehSiPixelCol[j]=0;
-}
-
-dbe->setCurrentFolder("GlobalDigisV/SiPixels");
-for(int amend = 0; amend < 7; ++amend)
-{
-  if(amend<3) mehSiPixeln[amend] = dbe->book1D("hSiPixeln_"+SiPixelString[amend],SiPixelString[amend]+" Digis",50,0.,100.);
-  else mehSiPixeln[amend] = dbe->book1D("hSiPixeln_"+SiPixelString[amend],SiPixelString[amend]+" Digis",25,0.,50.);
-  mehSiPixeln[amend]->setAxisTitle("Number of Digis",1);
-  mehSiPixeln[amend]->setAxisTitle("Count",2);
-  mehSiPixelADC[amend] = dbe->book1D("hSiPixelADC_"+SiPixelString[amend],SiPixelString[amend]+" ADC",150,0.0,300.);
-  mehSiPixelADC[amend]->setAxisTitle("ADC",1);
-  mehSiPixelADC[amend]->setAxisTitle("Count",2);
-  mehSiPixelRow[amend] = dbe->book1D("hSiPixelRow_"+SiPixelString[amend],SiPixelString[amend]+" Row",100,0.0,100.);
-  mehSiPixelRow[amend]->setAxisTitle("Row Number",1);
-  mehSiPixelRow[amend]->setAxisTitle("Count",2);
-  mehSiPixelCol[amend] = dbe->book1D("hSiPixelColumn_"+SiPixelString[amend],SiPixelString[amend]+" Column",200,0.0,500.);
-  mehSiPixelCol[amend]->setAxisTitle("Column Number",1);
-  mehSiPixelCol[amend]->setAxisTitle("Count",2);
-}
-//Muons ***DONE****
-dbe->setCurrentFolder("GlobalDigisV/Muons");
-std::string MuonString[4] = {"MB1", "MB2", "MB3", "MB4"};
-
-for(int i =0; i < 4; ++i)
-{
-  mehDtMuonn[i] = 0;
-  mehDtMuonLayer[i] = 0;
-  mehDtMuonTime[i] = 0;
-  mehDtMuonTimevLayer[i] = 0;
-}
-
-for(int j = 0; j < 4; ++j)
-{
-  mehDtMuonn[j] = dbe->book1D("hDtMuonn_"+MuonString[j],MuonString[j]+"  digis",25, 0., 50.);
-  mehDtMuonn[j]->setAxisTitle("Number of Digis",1);
-  mehDtMuonn[j]->setAxisTitle("Count",2);
-  mehDtMuonLayer[j] = dbe->book1D("hDtLayer_"+MuonString[j],MuonString[j]+"  Layer",12, 1., 13.);
-  mehDtMuonLayer[j]->setAxisTitle("4 * (SuperLayer - 1) + Layer",1);
-  mehDtMuonLayer[j]->setAxisTitle("Count",2);
-  mehDtMuonTime[j] = dbe->book1D("hDtMuonTime_"+MuonString[j],MuonString[j]+"  Time",300, 400., 1000.);
-  mehDtMuonTime[j]->setAxisTitle("Time",1);
-  mehDtMuonTime[j]->setAxisTitle("Count",2);
-  mehDtMuonTimevLayer[j] = dbe->bookProfile("hDtMuonTimevLayer_"+MuonString[j],MuonString[j]+"  Time vs. Layer",12, 1., 13., 300, 400., 1000.,"");
-  mehDtMuonTimevLayer[j]->setAxisTitle("4 * (SuperLayer - 1) + Layer",1);
-  mehDtMuonTimevLayer[j]->setAxisTitle("Time",2);
-}
-
-//  ****  Have to do CSC and RPC now *****
-//CSC 
-mehCSCStripn = 0;
-mehCSCStripn = dbe->book1D("hCSCStripn","CSC Strip digis",25, 0., 50.);
-mehCSCStripn->setAxisTitle("Number of Digis",1);
-mehCSCStripn->setAxisTitle("Count",2);
-
-mehCSCStripADC = 0;
-mehCSCStripADC = dbe->book1D("hCSCStripADC","CSC Strip ADC", 110, 0., 1100.);
-mehCSCStripADC->setAxisTitle("ADC",1);
-mehCSCStripADC->setAxisTitle("Count",2);
-
-mehCSCWiren = 0;
-mehCSCWiren = dbe->book1D("hCSCWiren","CSC Wire digis",25, 0., 50.);
-mehCSCWiren->setAxisTitle("Number of Digis",1);
-mehCSCWiren->setAxisTitle("Count",2);
-
-
-
-mehCSCWireTime = 0;
-mehCSCWiren = dbe->book1D("hCSCWireTime","CSC Wire Time",10, 0., 10.);
-mehCSCWiren->setAxisTitle("Time",1);
-mehCSCWiren->setAxisTitle("Count",2);
- 
-
-}
-
 }
 
   // set default constants
@@ -299,57 +76,256 @@ mehCSCWiren->setAxisTitle("Count",2);
   //ECalbarrelADCtoGeV_ = 0.035;
   //ECalendcapADCtoGeV_ = 0.06;
 
+void GlobalDigisHistogrammer::bookHistograms(DQMStore::IBooker & ibooker,
+  edm::Run const &, edm::EventSetup const & ){
 
+//monitor elements 
+
+//Si Strip  ***Done***
+  std::string SiStripString[19] = {"TECW1", "TECW2", "TECW3", "TECW4", "TECW5",
+      "TECW6", "TECW7", "TECW8", "TIBL1", "TIBL2", "TIBL3", "TIBL4", "TIDW1",
+      "TIDW2", "TIDW3", "TOBL1", "TOBL2", "TOBL3", "TOBL4"};
+
+  for (int i = 0; i < 19; ++i) {
+    mehSiStripn[i] = 0;
+    mehSiStripADC[i] = 0;
+    mehSiStripStrip[i] = 0;
+  }
+
+  ibooker.setCurrentFolder("GlobalDigisV/SiStrips");
+  for (int amend = 0; amend < 19; ++amend) { 
+    mehSiStripn[amend] = ibooker.book1D("hSiStripn_" + SiStripString[amend],
+        SiStripString[amend] + "  Digis", 500, 0., 1000.);
+
+    mehSiStripn[amend]->setAxisTitle("Number of Digis", 1);
+    mehSiStripn[amend]->setAxisTitle("Count", 2);
+    mehSiStripADC[amend] = ibooker.book1D("hSiStripADC_" + SiStripString[amend],
+        SiStripString[amend] + " ADC", 150, 0.0, 300.);
+
+    mehSiStripADC[amend]->setAxisTitle("ADC", 1);
+    mehSiStripADC[amend]->setAxisTitle("Count", 2);
+    mehSiStripStrip[amend] = ibooker.book1D("hSiStripStripADC_" + SiStripString[amend],
+        SiStripString[amend] + " Strip", 200, 0.0, 800.);
+    mehSiStripStrip[amend]->setAxisTitle("Strip Number", 1);
+    mehSiStripStrip[amend]->setAxisTitle("Count", 2);
+  }
+
+  //HCal  **DONE**
+  std::string HCalString[4] = {"HB", "HE", "HO","HF"};
+  float calnUpper[4] = {3000., 3000., 3000., 2000.};
+  float calnLower[4] = {2000., 2000., 2000., 1000.};
+  float SHEUpper[4] = {0.05, .05, 0.05, 20};
+  float SHEvAEEUpper[4] = {5000, 5000, 5000, 20};
+  float SHEvAEELower[4] = {-5000, -5000, -5000, -20};
+  int SHEvAEEnBins[4] = {200, 200, 200, 40};
+  double ProfileUpper[4] = {1., 1., 1., 20.};
+
+  for (int i =0; i<4; ++i) {
+    mehHcaln[i] = 0;
+    mehHcalAEE[i] = 0;
+    mehHcalSHE[i] = 0;
+    mehHcalAEESHE[i] = 0;
+    mehHcalSHEvAEE[i] = 0;
+  }
+
+  ibooker.setCurrentFolder("GlobalDigisV/HCals");
+  for (int amend = 0; amend < 4; ++amend) {
+    mehHcaln[amend] = ibooker.book1D("hHcaln_" + HCalString[amend],
+        HCalString[amend] + "  digis", 1000, calnLower[amend], calnUpper[amend]);
+
+    mehHcaln[amend]->setAxisTitle("Number of Digis", 1);
+    mehHcaln[amend]->setAxisTitle("Count", 2);
+    mehHcalAEE[amend] = ibooker.book1D("hHcalAEE_" + HCalString[amend],
+        HCalString[amend]+"Cal AEE", 60, -10., 50.);
+
+    mehHcalAEE[amend]->setAxisTitle("Analog Equivalent Energy", 1);
+    mehHcalAEE[amend]->setAxisTitle("Count", 2);
+    mehHcalSHE[amend] = ibooker.book1D("hHcalSHE_" + HCalString[amend],
+        HCalString[amend]+"Cal SHE", 100, 0.0, SHEUpper[amend]);
+
+    mehHcalSHE[amend]->setAxisTitle("Simulated Hit Energy", 1);
+    mehHcalSHE[amend]->setAxisTitle("Count", 2);
+    mehHcalAEESHE[amend] = ibooker.book1D("hHcalAEESHE_" + HCalString[amend],
+        HCalString[amend] + "Cal AEE/SHE", SHEvAEEnBins[amend],
+        SHEvAEELower[amend], SHEvAEEUpper[amend]);
+
+    mehHcalAEESHE[amend]->setAxisTitle("ADC / SHE", 1);
+    mehHcalAEESHE[amend]->setAxisTitle("Count", 2);
+  
+    //************  Not sure how to do Profile ME **************
+    mehHcalSHEvAEE[amend] = ibooker.bookProfile("hHcalSHEvAEE_" + HCalString[amend],
+        HCalString[amend] + "Cal SHE vs. AEE", 60, (float)-10., (float)50., 100,
+        (float)0., (float)ProfileUpper[amend],"");
+
+    mehHcalSHEvAEE[amend]->setAxisTitle("AEE / SHE", 1);
+    mehHcalSHEvAEE[amend]->setAxisTitle("SHE", 2);
+  }
+
+  //Ecal **Done **
+  std::string ECalString[2] = {"EB","EE"}; 
+
+  for (int i = 0; i < 2; ++i) {
+    mehEcaln[i] = 0;
+    mehEcalAEE[i] = 0;
+    mehEcalSHE[i] = 0;
+    mehEcalMaxPos[i] = 0;
+    mehEcalMultvAEE[i] = 0;
+    mehEcalSHEvAEESHE[i] = 0;
+  }
+
+  ibooker.setCurrentFolder("GlobalDigisV/ECals");
+  for (int amend = 0; amend < 2; ++amend) {
+    mehEcaln[amend] = ibooker.book1D("hEcaln_" + ECalString[amend],
+        ECalString[amend] + "  digis", 300, 1000., 4000.);
+
+    mehEcaln[amend]->setAxisTitle("Number of Digis", 1);
+    mehEcaln[amend]->setAxisTitle("Count", 2);
+    mehEcalAEE[amend] = ibooker.book1D("hEcalAEE_" + ECalString[amend],
+        ECalString[amend] + "Cal AEE", 100, 0., 1.);
+
+    mehEcalAEE[amend]->setAxisTitle("Analog Equivalent Energy", 1);
+    mehEcalAEE[amend]->setAxisTitle("Count", 2);
+    mehEcalSHE[amend] = ibooker.book1D("hEcalSHE_" + ECalString[amend],
+        ECalString[amend] + "Cal SHE", 50, 0., 5.);
+
+    mehEcalSHE[amend]->setAxisTitle("Simulated Hit Energy", 1);
+    mehEcalSHE[amend]->setAxisTitle("Count", 2);
+    mehEcalMaxPos[amend] = ibooker.book1D("hEcalMaxPos_" + ECalString[amend],
+        ECalString[amend] + "Cal MaxPos", 10, 0., 10.);
+
+    mehEcalMaxPos[amend]->setAxisTitle("Maximum Position", 1);
+    mehEcalMaxPos[amend]->setAxisTitle("Count", 2);
+    
+    //************  Not sure how to do Profile ME **************
+    mehEcalSHEvAEESHE[amend] = ibooker.bookProfile("hEcalSHEvAEESHE_" + ECalString[amend],
+        ECalString[amend] + "Cal SHE vs. AEE/SHE", 100, (float)0., (float)10., 50,
+        (float)0., (float)5., "");
+
+    mehEcalSHEvAEESHE[amend]->setAxisTitle("AEE / SHE", 1);
+    mehEcalSHEvAEESHE[amend]->setAxisTitle("SHE", 2);
+    mehEcalMultvAEE[amend] = ibooker.bookProfile("hEcalMultvAEE_" + ECalString[amend],
+        ECalString[amend] + "Cal Multi vs. AEE", 100, (float)0., (float)10., 400,
+        (float)0., (float)4000., "");
+    mehEcalMultvAEE[amend]->setAxisTitle("Analog Equivalent Energy", 1);
+    mehEcalMultvAEE[amend]->setAxisTitle("Number of Digis", 2);
+  }
+
+  mehEcaln[2] = 0;
+  mehEcaln[2] = ibooker.book1D("hEcaln_ES", "ESCAL  digis", 100, 0., 500.);
+  mehEcaln[2]->setAxisTitle("Number of Digis", 1);
+  mehEcaln[2]->setAxisTitle("Count", 2);
+  std::string ADCNumber[3] = {"0", "1", "2"};
+  for (int i = 0; i < 3; ++i) {
+    mehEScalADC[i] = 0;
+    mehEScalADC[i] = ibooker.book1D(
+        "hEcalADC" + ADCNumber[i] + "_ES","ESCAL  ADC" + ADCNumber[i], 150, 950., 1500.);
+
+    mehEScalADC[i]->setAxisTitle("ADC" + ADCNumber[i], 1);
+    mehEScalADC[i]->setAxisTitle("Count", 2);
+  }
+
+  //Si Pixels ***DONE***  
+  std::string SiPixelString[7] = {"BRL1", "BRL2", "BRL3", "FWD1n", "FWD1p", "FWD2n",
+      "FWD2p"};
+
+  for (int j = 0; j < 7; ++j) {
+    mehSiPixeln[j] = 0;
+    mehSiPixelADC[j] = 0;
+    mehSiPixelRow[j] = 0;
+    mehSiPixelCol[j] = 0;
+  }
+
+  ibooker.setCurrentFolder("GlobalDigisV/SiPixels");
+  for (int amend = 0; amend < 7; ++amend) {
+    if (amend < 3) {
+      mehSiPixeln[amend] = ibooker.book1D("hSiPixeln_" + SiPixelString[amend],
+          SiPixelString[amend] + " Digis", 50, 0., 100.);
+    }
+    else {
+      mehSiPixeln[amend] = ibooker.book1D("hSiPixeln_" + SiPixelString[amend],
+          SiPixelString[amend] + " Digis", 25, 0., 50.);
+    }
+
+    mehSiPixeln[amend]->setAxisTitle("Number of Digis", 1);
+    mehSiPixeln[amend]->setAxisTitle("Count", 2);
+    mehSiPixelADC[amend] = ibooker.book1D("hSiPixelADC_" + SiPixelString[amend],
+        SiPixelString[amend] + " ADC", 150, 0.0, 300.);
+
+    mehSiPixelADC[amend]->setAxisTitle("ADC", 1);
+    mehSiPixelADC[amend]->setAxisTitle("Count", 2);
+    mehSiPixelRow[amend] = ibooker.book1D("hSiPixelRow_" + SiPixelString[amend],
+        SiPixelString[amend] + " Row", 100, 0.0, 100.);
+
+    mehSiPixelRow[amend]->setAxisTitle("Row Number", 1);
+    mehSiPixelRow[amend]->setAxisTitle("Count", 2);
+    mehSiPixelCol[amend] = ibooker.book1D("hSiPixelColumn_" + SiPixelString[amend],
+        SiPixelString[amend] + " Column", 200, 0.0, 500.);
+
+    mehSiPixelCol[amend]->setAxisTitle("Column Number", 1);
+    mehSiPixelCol[amend]->setAxisTitle("Count", 2);
+  }
+
+  //Muons ***DONE****
+  ibooker.setCurrentFolder("GlobalDigisV/Muons");
+  std::string MuonString[4] = {"MB1", "MB2", "MB3", "MB4"};
+
+  for (int i = 0; i < 4; ++i) {
+    mehDtMuonn[i] = 0;
+    mehDtMuonLayer[i] = 0;
+    mehDtMuonTime[i] = 0;
+    mehDtMuonTimevLayer[i] = 0;
+  }
+
+  for (int j = 0; j < 4; ++j) {
+    mehDtMuonn[j] = ibooker.book1D("hDtMuonn_" + MuonString[j],
+        MuonString[j] + "  digis", 25, 0., 50.);
+
+    mehDtMuonn[j]->setAxisTitle("Number of Digis", 1);
+    mehDtMuonn[j]->setAxisTitle("Count", 2);
+    mehDtMuonLayer[j] = ibooker.book1D("hDtLayer_" + MuonString[j],
+        MuonString[j]+"  Layer", 12, 1., 13.);
+
+    mehDtMuonLayer[j]->setAxisTitle("4 * (SuperLayer - 1) + Layer", 1);
+    mehDtMuonLayer[j]->setAxisTitle("Count", 2);
+    mehDtMuonTime[j] = ibooker.book1D("hDtMuonTime_" + MuonString[j],
+        MuonString[j] + "  Time", 300, 400., 1000.);
+
+    mehDtMuonTime[j]->setAxisTitle("Time", 1);
+    mehDtMuonTime[j]->setAxisTitle("Count", 2);
+    mehDtMuonTimevLayer[j] = ibooker.bookProfile("hDtMuonTimevLayer_" + MuonString[j],
+        MuonString[j] + "  Time vs. Layer", 12, 1., 13., 300, 400., 1000., "");
+
+    mehDtMuonTimevLayer[j]->setAxisTitle("4 * (SuperLayer - 1) + Layer", 1);
+    mehDtMuonTimevLayer[j]->setAxisTitle("Time", 2);
+  }
+
+
+  //  ****  Have to do CSC and RPC now *****
+  //CSC 
+  mehCSCStripn = 0;
+  mehCSCStripn = ibooker.book1D("hCSCStripn", "CSC Strip digis", 25, 0., 50.);
+  mehCSCStripn->setAxisTitle("Number of Digis", 1);
+  mehCSCStripn->setAxisTitle("Count", 2);
+
+  mehCSCStripADC = 0;
+  mehCSCStripADC = ibooker.book1D("hCSCStripADC", "CSC Strip ADC", 110, 0., 1100.);
+  mehCSCStripADC->setAxisTitle("ADC", 1);
+  mehCSCStripADC->setAxisTitle("Count", 2);
+
+  mehCSCWiren = 0;
+  mehCSCWiren = ibooker.book1D("hCSCWiren", "CSC Wire digis", 25, 0., 50.);
+  mehCSCWiren->setAxisTitle("Number of Digis", 1);
+  mehCSCWiren->setAxisTitle("Count", 2);
+
+  mehCSCWireTime = 0;
+  mehCSCWiren = ibooker.book1D("hCSCWireTime", "CSC Wire Time", 10, 0., 10.);
+  mehCSCWiren->setAxisTitle("Time", 1);
+  mehCSCWiren->setAxisTitle("Count", 2);
+
+} //close bookHistograms
 
 GlobalDigisHistogrammer::~GlobalDigisHistogrammer() 
 {
-  if (doOutput)
-    if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
-}
-
-void GlobalDigisHistogrammer::beginJob( void )
-{
-  std::string MsgLoggerCat = "GlobalDigisHistogrammer_beginJob";
-
-  // setup calorimeter constants from service
-  //edm::ESHandle<EcalADCToGeVConstant> pAgc;
-  //iSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
-  //const EcalADCToGeVConstant* agc = pAgc.product();
-  
-  //EcalMGPAGainRatio * defaultRatios = new EcalMGPAGainRatio();
-
-  // ECalgainConv_[0] = 0.;
-  // ECalgainConv_[1] = 1.;
-  // // ECalgainConv_[2] = defaultRatios->gain12Over6() ;
-  //ECalgainConv_[3] = ECalgainConv_[2]*(defaultRatios->gain6Over1()) ;
-
-  //delete defaultRatios;
-
-  //ECalbarrelADCtoGeV_ = agc->getEBValue();
-  //ECalendcapADCtoGeV_ = agc->getEEValue();
-
-  //if (verbosity >= 0) {
-  // edm::LogInfo(MsgLoggerCat) 
-  // << "Modified Calorimeter gain constants: g0 = " << ECalgainConv_[0]
-  //<< ", g1 = " << ECalgainConv_[1] << ", g2 = " << ECalgainConv_[2]
-  // << ", g3 = " << ECalgainConv_[3];
-  // edm::LogInfo(MsgLoggerCat)
-  //  << "Modified Calorimeter ADCtoGeV constants: barrel = " 
-  //  << ECalbarrelADCtoGeV_ << ", endcap = " << ECalendcapADCtoGeV_;
-  //}
-
-  // clear storage vectors
-  //clear();
-  return;
-}
-
-void GlobalDigisHistogrammer::endJob()
-{
-  std::string MsgLoggerCat = "GlobalDigisHistogrammer_endJob";
-  if (verbosity >= 0)
-    edm::LogInfo(MsgLoggerCat) 
-      << "Terminating having processed " << count << " events.";
-  return;
 }
 
 void GlobalDigisHistogrammer::analyze(const edm::Event& iEvent, 

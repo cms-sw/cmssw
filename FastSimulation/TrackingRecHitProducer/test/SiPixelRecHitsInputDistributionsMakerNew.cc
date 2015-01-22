@@ -29,6 +29,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+#include <DQMServices/Core/interface/MonitorElement.h>
+
 #include <math.h>
 
 // To plot resolutions, angles, etc. for muons only
@@ -38,11 +40,9 @@ using namespace std;
 using namespace edm;
 
 SiPixelRecHitsInputDistributionsMakerNew::SiPixelRecHitsInputDistributionsMakerNew(const ParameterSet& ps): 
-  dbe_(0), 
   conf_(ps),
   src_( ps.getParameter<edm::InputTag>( "src" ) ) 
 {
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "pixelrechitshisto.root");
   cotAlphaLowEdgeBarrel_  = -0.2;
   cotAlphaBinWidthBarrel_ = 0.08;
   cotBetaLowEdgeBarrel_   = -5.5;
@@ -52,10 +52,14 @@ SiPixelRecHitsInputDistributionsMakerNew::SiPixelRecHitsInputDistributionsMakerN
   cotAlphaBinWidthForward_	= 0.1;
   cotBetaLowEdgeForward_	= 0.;
   cotBetaBinWidthForward_	= 0.15;
+}
 
-  dbe_ = Service<DQMStore>().operator->();
-  dbe_->showDirStructure();
-  dbe_->setCurrentFolder("clustBPIX");
+
+void SiPixelRecHitsInputDistributionsMakerNew::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup & ev) {
+
+  
+
+  ibooker.setCurrentFolder("clustBPIX");
   
   Char_t histo[200];
   Char_t title[200];
@@ -73,22 +77,22 @@ SiPixelRecHitsInputDistributionsMakerNew::SiPixelRecHitsInputDistributionsMakerN
 	     double y2_ = cotBetaLowEdgeBarrel_ +  (jj+1)*cotBetaBinWidthBarrel_ ;
 	     sprintf( histo, "hx0%d%02d%d", ii+1, jj+1, kk+1 );
 	     sprintf( title, "cotalpha %.2f-%.2f cotabeta %.1f-%.1f qbin %d Edge X", x1_, x2_, y1_, y2_, kk+1 );
-	     recHitResBarrelEdgeX[ii][jj][kk]  = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+	     recHitResBarrelEdgeX[ii][jj][kk]  = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
 	     sprintf( histo, "hy0%d%02d%d", ii+1, jj+1, kk+1 );
 	     sprintf( title, "cotalpha %.2f-%.2f cotabeta %.1f-%.1f qbin %d Edge Y", x1_, x2_, y1_, y2_, kk+1 );
-	     recHitResBarrelEdgeY[ii][jj][kk]  = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+	     recHitResBarrelEdgeY[ii][jj][kk]  = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
 	     sprintf( histo, "hx110%d%02d%d", ii+1, jj+1, kk+1 );
 	     sprintf( title, "cotalpha %.2f-%.2f cotabeta %.1f-%.1f qbin %d nxpix > 1, BigX", x1_, x2_, y1_, y2_, kk+1 );
-	     recHitResBarrelMultiPixBigX[ii][jj][kk]  = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+	     recHitResBarrelMultiPixBigX[ii][jj][kk]  = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
 	     sprintf( histo, "hx111%d%02d%d", ii+1, jj+1, kk+1 );
 	     sprintf( title, "cotalpha %.2f-%.2f cotabeta %.1f-%.1f qbin %d nxpix > 1", x1_, x2_, y1_, y2_, kk+1 );
-	     recHitResBarrelMultiPixX[ii][jj][kk]  = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+	     recHitResBarrelMultiPixX[ii][jj][kk]  = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
 	     sprintf( histo, "hy110%d%02d%d", ii+1, jj+1, kk+1 );
 	     sprintf( title, "cotalpha %.2f-%.2f cotabeta %.1f-%.1f qbin %d nypix > 1, BigY", x1_, x2_, y1_, y2_, kk+1 );
-	     recHitResBarrelMultiPixBigY[ii][jj][kk]  = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+	     recHitResBarrelMultiPixBigY[ii][jj][kk]  = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
 	     sprintf( histo, "hy111%d%02d%d", ii+1, jj+1, kk+1 );
 	     sprintf( title, "cotalpha %.2f-%.2f cotabeta %.1f-%.1f qbin %d nypix > 1", x1_, x2_, y1_, y2_, kk+1 );
-	     recHitResBarrelMultiPixY[ii][jj][kk]  = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+	     recHitResBarrelMultiPixY[ii][jj][kk]  = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
 	  }
 
   for ( int ii=0; ii < cotAlphaBinsBarrel_ ; ii++ )
@@ -100,53 +104,53 @@ SiPixelRecHitsInputDistributionsMakerNew::SiPixelRecHitsInputDistributionsMakerN
 	double y2_ = cotBetaLowEdgeBarrel_ +  (jj+1)*cotBetaBinWidthBarrel_ ;
 	sprintf( histo, "hx100%d%02d", ii+1, jj+1 );
 	sprintf( title, "cotalpha %.2f-%.2f cotabeta %.1f-%.1f nxpix = 1, BigX", x1_, x2_, y1_, y2_ );
-	recHitResBarrelSinglePixBigX[ii][jj]  = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+	recHitResBarrelSinglePixBigX[ii][jj]  = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
 	sprintf( histo, "hx101%d%02d", ii+1, jj+1 );
 	sprintf( title, "cotalpha %.2f-%.2f cotabeta %.1f-%.1f nxpix = 1", x1_, x2_, y1_, y2_ );
-	recHitResBarrelSinglePixX[ii][jj]  = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+	recHitResBarrelSinglePixX[ii][jj]  = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
 	sprintf( histo, "hy100%d%02d", ii+1, jj+1 );
 	sprintf( title, "cotalpha %.2f-%.2f cotabeta %.1f-%.1f nypix = 1, BigY", x1_, x2_, y1_, y2_ );
-	recHitResBarrelSinglePixBigY[ii][jj]  = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+	recHitResBarrelSinglePixBigY[ii][jj]  = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
 	sprintf( histo, "hy101%d%02d", ii+1, jj+1 );
 	sprintf( title, "cotalpha %.2f-%.2f cotabeta %.1f-%.1f nypix = 1", x1_, x2_, y1_, y2_ );
-	recHitResBarrelSinglePixY[ii][jj]  = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+	recHitResBarrelSinglePixY[ii][jj]  = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
      }
 
-  dbe_->setCurrentFolder("clustBPIXInfo");
-  recHitClusterInfo = dbe_->book1D("Cluster Info", "Cluster Info", 10, -0.5, 9.5 );
-  recHitcotAlpha[0] = dbe_->book1D("cotAlpha all", "cotAlpha all", 5, -0.2, 0.2 );
-  recHitcotAlpha[1] = dbe_->book1D("cotAlpha edge", "cotAlpha edge", 5, -0.2, 0.2 );
-  recHitcotAlpha[2] = dbe_->book1D("cotAlpha MultiPixBigX", "cotAlpha MultiPixBigX", 5, -0.2, 0.2 );
-  recHitcotAlpha[3] = dbe_->book1D("cotAlpha SinglePixBigX", "cotAlpha SinglePixBigX", 5, -0.2, 0.2 );
-  recHitcotAlpha[4] = dbe_->book1D("cotAlpha MultiPixX", "cotAlpha MultiPixX", 5, -0.2, 0.2 );
-  recHitcotAlpha[5] = dbe_->book1D("cotAlpha SinglePixX", "cotAlpha SinglePixX", 5, -0.2, 0.2 );
-  recHitcotAlpha[6] = dbe_->book1D("cotAlpha MultiPixBigY", "cotAlpha MultiPixBigY", 5, -0.2, 0.2 );
-  recHitcotAlpha[7] = dbe_->book1D("cotAlpha SinglePixBigY", "cotAlpha SinglePixBigY", 5, -0.2, 0.2 );
-  recHitcotAlpha[8] = dbe_->book1D("cotAlpha MultiPixY", "cotAlpha MultiPixY", 5, -0.2, 0.2 );
-  recHitcotAlpha[9] = dbe_->book1D("cotAlpha SinglePixY", "cotAlpha SinglePixY",  5, -0.2, 0.2 );
+  ibooker.setCurrentFolder("clustBPIXInfo");
+  recHitClusterInfo = ibooker.book1D("Cluster Info", "Cluster Info", 10, -0.5, 9.5 );
+  recHitcotAlpha[0] = ibooker.book1D("cotAlpha all", "cotAlpha all", 5, -0.2, 0.2 );
+  recHitcotAlpha[1] = ibooker.book1D("cotAlpha edge", "cotAlpha edge", 5, -0.2, 0.2 );
+  recHitcotAlpha[2] = ibooker.book1D("cotAlpha MultiPixBigX", "cotAlpha MultiPixBigX", 5, -0.2, 0.2 );
+  recHitcotAlpha[3] = ibooker.book1D("cotAlpha SinglePixBigX", "cotAlpha SinglePixBigX", 5, -0.2, 0.2 );
+  recHitcotAlpha[4] = ibooker.book1D("cotAlpha MultiPixX", "cotAlpha MultiPixX", 5, -0.2, 0.2 );
+  recHitcotAlpha[5] = ibooker.book1D("cotAlpha SinglePixX", "cotAlpha SinglePixX", 5, -0.2, 0.2 );
+  recHitcotAlpha[6] = ibooker.book1D("cotAlpha MultiPixBigY", "cotAlpha MultiPixBigY", 5, -0.2, 0.2 );
+  recHitcotAlpha[7] = ibooker.book1D("cotAlpha SinglePixBigY", "cotAlpha SinglePixBigY", 5, -0.2, 0.2 );
+  recHitcotAlpha[8] = ibooker.book1D("cotAlpha MultiPixY", "cotAlpha MultiPixY", 5, -0.2, 0.2 );
+  recHitcotAlpha[9] = ibooker.book1D("cotAlpha SinglePixY", "cotAlpha SinglePixY",  5, -0.2, 0.2 );
 
-  recHitcotBeta[0] = dbe_->book1D("cotBeta all", "cotBeta all", 11, -5.5, 5.5 );
-  recHitcotBeta[1] = dbe_->book1D("cotBeta edge", "cotBeta edge", 11, -5.5, 5.5 );
-  recHitcotBeta[2] = dbe_->book1D("cotBeta MultiPixBigX", "cotBeta MultiPixBigX",11, -5.5, 5.5 );
-  recHitcotBeta[3] = dbe_->book1D("cotBeta SinglePixBigX", "cotBeta SinglePixBigX",11, -5.5, 5.5 );
-  recHitcotBeta[4] = dbe_->book1D("cotBeta MultiPixX", "cotBeta MultiPixX",11, -5.5, 5.5 );
-  recHitcotBeta[5] = dbe_->book1D("cotBeta SinglePixX", "cotBeta SinglePixX",11, -5.5, 5.5 );
-  recHitcotBeta[6] = dbe_->book1D("cotBeta MultiPixBigY", "cotBeta MultiPixBigY",11, -5.5, 5.5 );
-  recHitcotBeta[7] = dbe_->book1D("cotBeta SinglePixBigY", "cotBeta SinglePixBigY",11, -5.5, 5.5 );
-  recHitcotBeta[8] = dbe_->book1D("cotBeta MultiPixY", "cotBeta MultiPixY",11, -5.5, 5.5 );
-  recHitcotBeta[9] = dbe_->book1D("cotBeta SinglePixY", "cotBeta SinglePixY", 11, -5.5, 5.5 );
+  recHitcotBeta[0] = ibooker.book1D("cotBeta all", "cotBeta all", 11, -5.5, 5.5 );
+  recHitcotBeta[1] = ibooker.book1D("cotBeta edge", "cotBeta edge", 11, -5.5, 5.5 );
+  recHitcotBeta[2] = ibooker.book1D("cotBeta MultiPixBigX", "cotBeta MultiPixBigX",11, -5.5, 5.5 );
+  recHitcotBeta[3] = ibooker.book1D("cotBeta SinglePixBigX", "cotBeta SinglePixBigX",11, -5.5, 5.5 );
+  recHitcotBeta[4] = ibooker.book1D("cotBeta MultiPixX", "cotBeta MultiPixX",11, -5.5, 5.5 );
+  recHitcotBeta[5] = ibooker.book1D("cotBeta SinglePixX", "cotBeta SinglePixX",11, -5.5, 5.5 );
+  recHitcotBeta[6] = ibooker.book1D("cotBeta MultiPixBigY", "cotBeta MultiPixBigY",11, -5.5, 5.5 );
+  recHitcotBeta[7] = ibooker.book1D("cotBeta SinglePixBigY", "cotBeta SinglePixBigY",11, -5.5, 5.5 );
+  recHitcotBeta[8] = ibooker.book1D("cotBeta MultiPixY", "cotBeta MultiPixY",11, -5.5, 5.5 );
+  recHitcotBeta[9] = ibooker.book1D("cotBeta SinglePixY", "cotBeta SinglePixY", 11, -5.5, 5.5 );
 
-  recHitqBin[0] = dbe_->book1D("qBin all", "qBin all", 4, -0.5, 3.5 );
-  recHitqBin[1] = dbe_->book1D("qBin edge", "qBin edge",4, -0.5, 3.5 );
-  recHitqBin[2] = dbe_->book1D("qBin MultiPixBigX", "qBin MultiPixBigX",4, -0.5, 3.5 );
-  recHitqBin[3] = dbe_->book1D("qBin MultiPixX", "qBin MultiPixX",4, -0.5, 3.5 );
-  recHitqBin[4] = dbe_->book1D("qBin MultiPixBigY","qBin MultiPixBigY",4, -0.5, 3.5 );
-  recHitqBin[5] = dbe_->book1D("qBin MultiPixY", "qBin MultiPixY",4, -0.5, 3.5 );
-  recHitqBin[6] = dbe_->book1D("qBin", "qBin all", 10, -0.5, 9.5 );
-  recHitqBin[7] = dbe_->book1D("charge", "charge distribution", 100, 0, 700000 );
+  recHitqBin[0] = ibooker.book1D("qBin all", "qBin all", 4, -0.5, 3.5 );
+  recHitqBin[1] = ibooker.book1D("qBin edge", "qBin edge",4, -0.5, 3.5 );
+  recHitqBin[2] = ibooker.book1D("qBin MultiPixBigX", "qBin MultiPixBigX",4, -0.5, 3.5 );
+  recHitqBin[3] = ibooker.book1D("qBin MultiPixX", "qBin MultiPixX",4, -0.5, 3.5 );
+  recHitqBin[4] = ibooker.book1D("qBin MultiPixBigY","qBin MultiPixBigY",4, -0.5, 3.5 );
+  recHitqBin[5] = ibooker.book1D("qBin MultiPixY", "qBin MultiPixY",4, -0.5, 3.5 );
+  recHitqBin[6] = ibooker.book1D("qBin", "qBin all", 10, -0.5, 9.5 );
+  recHitqBin[7] = ibooker.book1D("charge", "charge distribution", 100, 0, 700000 );
 
 
-  dbe_->setCurrentFolder("clustFPIX");
+  ibooker.setCurrentFolder("clustFPIX");
   // RecHit resolutions in forward according to cotAlpha, cotBeta, qBin
   for ( int ii=0; ii < cotAlphaBinsForward_ ; ii++ )
     for( int jj=0; jj < cotBetaBinsForward_ ; jj++ )
@@ -158,17 +162,17 @@ SiPixelRecHitsInputDistributionsMakerNew::SiPixelRecHitsInputDistributionsMakerN
 	  double y2_ = cotBetaLowEdgeForward_ +  (jj+1)*cotBetaBinWidthForward_ ;
 	  sprintf( histo, "fhx0%d%02d%d", ii+1, jj+1, kk+1 );
 	  sprintf( title, "cotalpha %.2f-%.2f cotbeta %.2f-%.2f qbin %d Edge X", x1_, x2_, y1_, y2_, kk+1 );
-	  recHitResForwardEdgeX[ii][jj][kk]  = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+	  recHitResForwardEdgeX[ii][jj][kk]  = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
 	  sprintf( histo, "fhy0%d%02d%d", ii+1, jj+1, kk+1 );
 	  sprintf( title, "cotalpha %.2f-%.2f cotbeta %.2f-%.2f qbin %d Edge Y", x1_, x2_, y1_, y2_, kk+1 );
-	  recHitResForwardEdgeY[ii][jj][kk]  = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+	  recHitResForwardEdgeY[ii][jj][kk]  = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
 
           sprintf( histo, "fhx11%d%02d%d", ii+1, jj+1, kk+1 );
           sprintf( title, "cotalpha %.2f-%.2f cotbeta %.2f-%.2f qbin %d X", x1_, x2_, y1_, y2_, kk+1 );
-          recHitResForwardX[ii][jj][kk]  = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+          recHitResForwardX[ii][jj][kk]  = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
           sprintf( histo, "fhy11%d%02d%d", ii+1, jj+1, kk+1 );
           sprintf( title, "cotalpha %.2f-%.2f cotbeta %.2f-%.2f qbin %d Y", x1_, x2_, y1_, y2_, kk+1 );
-          recHitResForwardY[ii][jj][kk]  = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+          recHitResForwardY[ii][jj][kk]  = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
       }
 
   for ( int ii=0; ii < cotAlphaBinsForward_ ; ii++ )
@@ -180,98 +184,88 @@ SiPixelRecHitsInputDistributionsMakerNew::SiPixelRecHitsInputDistributionsMakerN
 	double y2_ = cotBetaLowEdgeForward_ +  (jj+1)*cotBetaBinWidthForward_ ;
 	sprintf( histo, "fhx100%d%02d", ii+1, jj+1 );
 	sprintf( title, "cotalpha %.2f-%.2f cotbeta %.2f-%.2f sizex=1 BigX",  x1_, x2_, y1_, y2_);
-	recHitResForwardSingleBX[ii][jj] = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+	recHitResForwardSingleBX[ii][jj] = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
 	sprintf( histo, "fhy100%d%02d", ii+1, jj+1 );
 	sprintf( title, "cotalpha %.2f-%.2f cotbeta %.2f-%.2f sizey=1 BigY", x1_, x2_, y1_, y2_);
-	recHitResForwardSingleBY[ii][jj] = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+	recHitResForwardSingleBY[ii][jj] = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
 	sprintf( histo, "fhx101%d%02d", ii+1, jj+1 );
 	sprintf( title, "cotalpha %.2f-%.2f cotbeta %.2f-%.2f sizex=1",  x1_, x2_, y1_, y2_);
-	recHitResForwardSingleX[ii][jj] = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+	recHitResForwardSingleX[ii][jj] = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
 	sprintf( histo, "fhy101%d%02d", ii+1, jj+1 );
 	sprintf( title, "cotalpha %.2f-%.2f cotbeta %.2f-%.2f sizey=1",  x1_, x2_, y1_, y2_);
-	recHitResForwardSingleY[ii][jj] = dbe_->book1D(histo,title, 2000, -0.10, 0.10);
+	recHitResForwardSingleY[ii][jj] = ibooker.book1D(histo,title, 2000, -0.10, 0.10);
       }
   
 
 
-  dbe_->setCurrentFolder("simHitBPIX");
+  ibooker.setCurrentFolder("simHitBPIX");
   //SimHit alpha in barrel
-  simHitAlphaBarrel = dbe_->book1D("simHit_alpha_AllModules_Barrel", "SimHit Alpha distribution for all modules in barrel", 14, -0.28, 0.28);
-  simHitAlphaBarrelBigPixel = dbe_->book1D("simHit_alpha_AllModules_Barrel_BigPixel", "SimHit Alpha distribution for all modules in barrel for bigpixels", 14, -0.28, 0.28);
+  simHitAlphaBarrel = ibooker.book1D("simHit_alpha_AllModules_Barrel", "SimHit Alpha distribution for all modules in barrel", 14, -0.28, 0.28);
+  simHitAlphaBarrelBigPixel = ibooker.book1D("simHit_alpha_AllModules_Barrel_BigPixel", "SimHit Alpha distribution for all modules in barrel for bigpixels", 14, -0.28, 0.28);
   //SimHit beta in barrel
-  simHitBetaBarrel = dbe_->book1D("simHit_beta_AllModules_Barrel", "SimHit beta distribution for all modules in barrel<", 55, 0., 1.595);
-  simHitBetaBarrelBigPixel = dbe_->book1D("simHit_beta_AllModules_Barrel_BigPixel", "SimHit beta distribution for all modules in barrel for bigpixels", 55, 0., 1.595);
+  simHitBetaBarrel = ibooker.book1D("simHit_beta_AllModules_Barrel", "SimHit beta distribution for all modules in barrel<", 55, 0., 1.595);
+  simHitBetaBarrelBigPixel = ibooker.book1D("simHit_beta_AllModules_Barrel_BigPixel", "SimHit beta distribution for all modules in barrel for bigpixels", 55, 0., 1.595);
 
   // Alpha and beta probabilities according as multiplicities
-  simHitAlphaMultiBarrel[0] = dbe_->book1D("hist_alpha_barrel_0", "#alpha probability (barrel)", 14, -0.28, 0.28);
-  simHitAlphaMultiBarrelBigPixel[0] = dbe_->book1D("hist_alpha_barrel_big_0", "#alpha probability bigpix (barrel)", 14, -0.28, 0.28);
-  simHitBetaMultiBarrel[0] = dbe_->book1D("hist_beta_barrel_0", "#beta probability (barrel)", 55, 0., 1.595);
-  simHitBetaMultiBarrelBigPixel[0] = dbe_->book1D("hist_beta_barrel_big_0", "#beta probability bigpix (barrel)", 55, 0., 1.595);
+  simHitAlphaMultiBarrel[0] = ibooker.book1D("hist_alpha_barrel_0", "#alpha probability (barrel)", 14, -0.28, 0.28);
+  simHitAlphaMultiBarrelBigPixel[0] = ibooker.book1D("hist_alpha_barrel_big_0", "#alpha probability bigpix (barrel)", 14, -0.28, 0.28);
+  simHitBetaMultiBarrel[0] = ibooker.book1D("hist_beta_barrel_0", "#beta probability (barrel)", 55, 0., 1.595);
+  simHitBetaMultiBarrelBigPixel[0] = ibooker.book1D("hist_beta_barrel_big_0", "#beta probability bigpix (barrel)", 55, 0., 1.595);
   for(int i=1; i<4; i++) {
     sprintf(histo, "hist_alpha_barrel_%d", i);
     sprintf(title, "#alpha probability multiplicity=%d (barrel)",i);
-    simHitAlphaMultiBarrel[i] = dbe_->book1D(histo, title, 14, -0.28, 0.28);
+    simHitAlphaMultiBarrel[i] = ibooker.book1D(histo, title, 14, -0.28, 0.28);
     sprintf(histo, "hist_alpha_barrel_big_%d", i);
     sprintf(title, "#alpha probability multiplicity=%d bigpixel (barrel)",i);
-    simHitAlphaMultiBarrelBigPixel[i] = dbe_->book1D(histo, title, 14, -0.28, 0.28);
+    simHitAlphaMultiBarrelBigPixel[i] = ibooker.book1D(histo, title, 14, -0.28, 0.28);
   }
   for(int i=1; i<7; i++) {
     sprintf(histo, "hist_beta_barrel_%d", i);
     sprintf(title, "#beta probability multiplicity=%d (barrel)",i);
-    simHitBetaMultiBarrel[i] = dbe_->book1D(histo, title, 55, 0., 1.595);
+    simHitBetaMultiBarrel[i] = ibooker.book1D(histo, title, 55, 0., 1.595);
     sprintf(histo, "hist_beta_barrel_big_%d", i);
     sprintf(title, "#beta probability multiplicity=%d bigpixel (barrel)",i);
-    simHitBetaMultiBarrelBigPixel[i] = dbe_->book1D(histo, title, 55, 0., 1.595);
+    simHitBetaMultiBarrelBigPixel[i] = ibooker.book1D(histo, title, 55, 0., 1.595);
   }
-  simHitAlphaMultiBarrel[4] = dbe_->book1D("hist_alpha_barrel_4", "#alpha probability multiplicity>3 (barrel)", 14, -0.28, 0.28);
-  simHitAlphaMultiBarrelBigPixel[4] = dbe_->book1D("hist_alpha_barrel_big_4", "#alpha probability multiplicity>3 bigpixel (barrel)", 14, -0.28, 0.28);
-  simHitBetaMultiBarrel[7] = dbe_->book1D("hist_beta_barrel_7", "#beta probability multiplicity>6 (barrel)", 55, 0., 1.595);
-  simHitBetaMultiBarrelBigPixel[7] = dbe_->book1D("hist_beta_barrel_big_7", "#beta probability multiplicity>6 bigpixel (barrel)", 55, 0., 1.595);
+  simHitAlphaMultiBarrel[4] = ibooker.book1D("hist_alpha_barrel_4", "#alpha probability multiplicity>3 (barrel)", 14, -0.28, 0.28);
+  simHitAlphaMultiBarrelBigPixel[4] = ibooker.book1D("hist_alpha_barrel_big_4", "#alpha probability multiplicity>3 bigpixel (barrel)", 14, -0.28, 0.28);
+  simHitBetaMultiBarrel[7] = ibooker.book1D("hist_beta_barrel_7", "#beta probability multiplicity>6 (barrel)", 55, 0., 1.595);
+  simHitBetaMultiBarrelBigPixel[7] = ibooker.book1D("hist_beta_barrel_big_7", "#beta probability multiplicity>6 bigpixel (barrel)", 55, 0., 1.595);
 
-  dbe_->setCurrentFolder("simHitFPIX");
+  ibooker.setCurrentFolder("simHitFPIX");
   //SimHit alpha in forward
-  simHitAlphaForward = dbe_->book1D("simHit_alpha_AllModules_Forward", "SimHit Alpha distribution for all modules in forward", 14, 0.104, 0.566);
-  simHitAlphaForwardBigPixel = dbe_->book1D("simHit_alpha_AllModules_Forward_BigPixel", "SimHit Alpha distribution for all modules in forward for bigpixels", 14, 0.104, 0.566);
+  simHitAlphaForward = ibooker.book1D("simHit_alpha_AllModules_Forward", "SimHit Alpha distribution for all modules in forward", 14, 0.104, 0.566);
+  simHitAlphaForwardBigPixel = ibooker.book1D("simHit_alpha_AllModules_Forward_BigPixel", "SimHit Alpha distribution for all modules in forward for bigpixels", 14, 0.104, 0.566);
   //SimHit beta in forward
-  simHitBetaForward = dbe_->book1D("simHit_beta_AllModules_Forward", "SimHit beta distribution for all modules in forward", 10, 0.203, 0.493);
-  simHitBetaForwardBigPixel = dbe_->book1D("simHit_beta_AllModules_Forward_BigPixel", "SimHit beta distribution for all modules in forward for bigpixels", 10, 0.203, 0.493);
+  simHitBetaForward = ibooker.book1D("simHit_beta_AllModules_Forward", "SimHit beta distribution for all modules in forward", 10, 0.203, 0.493);
+  simHitBetaForwardBigPixel = ibooker.book1D("simHit_beta_AllModules_Forward_BigPixel", "SimHit beta distribution for all modules in forward for bigpixels", 10, 0.203, 0.493);
 
   // Alpha and beta probabilities according as multiplicities
-  simHitAlphaMultiForward[0] = dbe_->book1D("hist_alpha_forward_0", "#alpha probability (forward)", 14, 0.104, 0.566);
-  simHitAlphaMultiForwardBigPixel[0] = dbe_->book1D("hist_alpha_forward_big_0", "#alpha probability bigpixel (forward)", 14, 0.104, 0.566);
-  simHitBetaMultiForward[0] = dbe_->book1D("hist_beta_forward_0", "#beta probability (forward)", 10, 0.203, 0.493);
-  simHitBetaMultiForwardBigPixel[0] = dbe_->book1D("hist_beta_forward_big_0", "#beta probability bigpixel (forward)", 10, 0.203, 0.493);
+  simHitAlphaMultiForward[0] = ibooker.book1D("hist_alpha_forward_0", "#alpha probability (forward)", 14, 0.104, 0.566);
+  simHitAlphaMultiForwardBigPixel[0] = ibooker.book1D("hist_alpha_forward_big_0", "#alpha probability bigpixel (forward)", 14, 0.104, 0.566);
+  simHitBetaMultiForward[0] = ibooker.book1D("hist_beta_forward_0", "#beta probability (forward)", 10, 0.203, 0.493);
+  simHitBetaMultiForwardBigPixel[0] = ibooker.book1D("hist_beta_forward_big_0", "#beta probability bigpixel (forward)", 10, 0.203, 0.493);
   for (int i=1; i<3; i++) {
     sprintf(histo, "hist_alpha_forward_%d", i);
     sprintf(title, "#alpha probability multiplicity=%d (forward)", i);
-    simHitAlphaMultiForward[i] = dbe_->book1D(histo, title, 14, 0.104, 0.566);
+    simHitAlphaMultiForward[i] = ibooker.book1D(histo, title, 14, 0.104, 0.566);
     sprintf(histo, "hist_alpha_forward_big_%d", i);
     sprintf(title, "#alpha probability multiplicity=%d bigpixel (forward)", i);
-    simHitAlphaMultiForwardBigPixel[i] = dbe_->book1D(histo, title, 14, 0.104, 0.566);
+    simHitAlphaMultiForwardBigPixel[i] = ibooker.book1D(histo, title, 14, 0.104, 0.566);
     sprintf(histo, "hist_beta_forward_%d", i);
     sprintf(title, "#beta probability multiplicity=%d (forward)", i);
-    simHitBetaMultiForward[i] = dbe_->book1D(histo, title, 10, 0.203, 0.493);
+    simHitBetaMultiForward[i] = ibooker.book1D(histo, title, 10, 0.203, 0.493);
     sprintf(histo, "hist_beta_forward_big_%d", i);
     sprintf(title, "#beta probability multiplicity=%d bigpixel (forward)", i);
-    simHitBetaMultiForwardBigPixel[i] = dbe_->book1D(histo, title, 10, 0.203, 0.493);
+    simHitBetaMultiForwardBigPixel[i] = ibooker.book1D(histo, title, 10, 0.203, 0.493);
   }
-  simHitAlphaMultiForward[3] = dbe_->book1D("hist_alpha_forward_3", "#alpha probability multiplicity>2 (forward)", 14, 0.104, 0.566);
-  simHitAlphaMultiForwardBigPixel[3] = dbe_->book1D("hist_alpha_forward_big_3", "#alpha probability multiplicity>2 bigpixel (forward)", 14, 0.104, 0.566);
-  simHitBetaMultiForward[3] = dbe_->book1D("hist_beta_forward_3", "#beta probability multiplicity>2 (forward)", 10, 0.203, 0.493);
-  simHitBetaMultiForwardBigPixel[3] = dbe_->book1D("hist_beta_forward_big_3", "#beta probability multiplicity>2 bigpixel (forward)", 10, 0.203, 0.493);
-  
-  trackerContainers.clear();
-  trackerContainers = ps.getParameter<std::vector<std::string> >("ROUList");
-
+  simHitAlphaMultiForward[3] = ibooker.book1D("hist_alpha_forward_3", "#alpha probability multiplicity>2 (forward)", 14, 0.104, 0.566);
+  simHitAlphaMultiForwardBigPixel[3] = ibooker.book1D("hist_alpha_forward_big_3", "#alpha probability multiplicity>2 bigpixel (forward)", 14, 0.104, 0.566);
+  simHitBetaMultiForward[3] = ibooker.book1D("hist_beta_forward_3", "#beta probability multiplicity>2 (forward)", 10, 0.203, 0.493);
+  simHitBetaMultiForwardBigPixel[3] = ibooker.book1D("hist_beta_forward_big_3", "#beta probability multiplicity>2 bigpixel (forward)", 10, 0.203, 0.493);
 }
 
 SiPixelRecHitsInputDistributionsMakerNew::~SiPixelRecHitsInputDistributionsMakerNew() {
-}
-
-void SiPixelRecHitsInputDistributionsMakerNew::beginJob() { }
-
-void SiPixelRecHitsInputDistributionsMakerNew::endJob() {
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
 void SiPixelRecHitsInputDistributionsMakerNew::analyze(const edm::Event& e, const edm::EventSetup& es) 

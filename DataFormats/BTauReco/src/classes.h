@@ -1,14 +1,14 @@
 #include <utility>
 #include <vector>
 
-#include "Rtypes.h" 
-#include "Math/Cartesian3D.h" 
-#include "Math/CylindricalEta3D.h" 
-#include "Math/Polar3D.h" 
-#include "Math/PxPyPzE4D.h" 
+#include "Rtypes.h"
+#include "Math/Cartesian3D.h"
+#include "Math/CylindricalEta3D.h"
+#include "Math/Polar3D.h"
+#include "Math/PxPyPzE4D.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
-#include "DataFormats/Common/interface/RefProd.h" 
+#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/FwdRef.h"
 #include "DataFormats/Common/interface/FwdPtr.h"
@@ -16,12 +16,12 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"  
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h" 
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
@@ -42,6 +42,7 @@
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
+#include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"
 
 namespace reco {
     typedef TrackTauImpactParameterAssociationCollection::map_type          TrackTauImpactParameterAssociationMapType;
@@ -223,7 +224,7 @@ namespace DataFormats_BTauReco {
     reco::BaseTagInfoRefProd                                            bti_rp;
     reco::BaseTagInfoRefVector                                          bti_rv;
     edm::Wrapper<reco::BaseTagInfoCollection>                           bti_wc;
-    
+
     reco::JetTagInfo                                                    jti;
     reco::JetTagInfoCollection                                          jti_c;
     reco::JetTagInfoRef                                                 jti_r;
@@ -240,8 +241,17 @@ namespace DataFormats_BTauReco {
     reco::JTATagInfoRefVector                                           jtati_rv;
     edm::Wrapper<reco::JTATagInfoCollection>                            jtati_wc;
 
+    reco::CATopJetProperties                                            catopjetp;
+    std::pair<edm::RefToBase<reco::Jet>, reco::CATopJetProperties>      catopjetp_p;
+    reco::CATopJetTagInfo                                               catopjet;
+    reco::CATopJetTagInfoCollection                                     catopjet_c;
+    reco::CATopJetTagInfoRef                                            catopjet_r;
+    reco::CATopJetTagInfoRefProd                                        catopjet_rp;
+    reco::CATopJetTagInfoRefVector                                      catopjet_rv;
+    edm::Wrapper<reco::CATopJetTagInfoCollection>                       catopjet_wc;
+
     std::vector<Measurement1D>                                          vm1d;
-	    
+
     // RefToBase Holders for TagInfos
     edm::RefToBase<reco::BaseTagInfo>                                           rb;
     edm::reftobase::IndirectHolder<reco::BaseTagInfo>                           rbh;
@@ -304,6 +314,8 @@ namespace DataFormats_BTauReco {
     edm::reftobase::RefHolder<reco::TauMassTagInfoFwdRef>                          rbh_tmtf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoFwdRef> rb_tpf;
     edm::reftobase::RefHolder<reco::TrackProbabilityTagInfoFwdRef>                 rbh_tpf;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CATopJetTagInfoRef>            rb_catopjet;
+    edm::reftobase::RefHolder<reco::CATopJetTagInfoRef>                            rbh_catopjet;
 
     edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > vm_ptr_bti;
     edm::Wrapper<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > > w_vm_ptr_bti;
@@ -338,4 +350,3 @@ namespace DataFormats_BTauReco {
     edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::CandSecondaryVertexTagInfo>, std::vector<reco::VertexCompositePtrCandidate>, unsigned int > > > dummy10;
   };
 }
-

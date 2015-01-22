@@ -2,12 +2,11 @@
 #define DTtTrigDBValidation_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
@@ -21,7 +20,7 @@
 //class DTTtrig;
 class TFile;
 
-class DTtTrigDBValidation : public edm::EDAnalyzer {
+class DTtTrigDBValidation : public DQMEDAnalyzer {
 
 public:
   /// Constructor
@@ -31,10 +30,8 @@ public:
   virtual ~DTtTrigDBValidation();
 
   /// Operations
-  void beginRun(edm::Run const&, edm::EventSetup const&);
-  void endRun(edm::Run const&, edm::EventSetup const&);
-  void analyze(edm::Event const&, edm::EventSetup const&) {}
-  void endJob();
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void analyze( const edm::Event&, const edm::EventSetup&) override;
 
 private:
 
@@ -47,11 +44,6 @@ private:
   int lowerLimit_;
   int higherLimit_;
 
-  // The file which will contain the difference plots
-  bool outputMEsInRootFile_;
-  std::string outputFileName_;
-
-  DQMStore* dbe_;
   // The DTGeometry
   edm::ESHandle<DTGeometry> dtGeom_;
 
@@ -63,8 +55,8 @@ private:
   std::map<std::pair<int,int>, MonitorElement* > tTrigDiffHistos_;
   std::map<int, MonitorElement* > tTrigDiffWheel_;
 
-  void bookHistos(int,int);
-  void bookHistos(int wheel);
+  void bookHistos(DQMStore::IBooker &, int, int);
+  void bookHistos(DQMStore::IBooker &, int wheel);
   // Compute the station from the bin number of mean and sigma histos
   int stationFromBin(int bin) const;
   // Compute the sl from the bin number of mean and sigma histos

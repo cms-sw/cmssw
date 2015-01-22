@@ -72,7 +72,7 @@ namespace egHLT {
     PhoHLTFilterMon(const PhoHLTFilterMon&){}
     PhoHLTFilterMon& operator=(const PhoHLTFilterMon&){return *this;}
   public:
-    PhoHLTFilterMon(const std::string& filterName,TrigCodes::TrigBitSet filterBit,const BinData& bins,const CutMasks& masks);
+    PhoHLTFilterMon(DQMStore::IBooker &iBooker, const std::string& filterName,TrigCodes::TrigBitSet filterBit,const BinData& bins,const CutMasks& masks);
     ~PhoHLTFilterMon();
     
     
