@@ -25,7 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "RecoVertex/KalmanVertexFit/interface/SimpleVertexTree.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include <TFile.h>
@@ -50,7 +50,6 @@ private:
 
   edm::ParameterSet theConfig;
   edm::ParameterSet kvfPSet;
-  const TrackAssociatorBase * associatorForParamAtPca;
   std::unique_ptr<SimpleVertexTree> tree;
   TFile*  rootFile_;
 
@@ -58,5 +57,6 @@ private:
   edm::EDGetTokenT<reco::TrackCollection> token_tracks; 
   edm::EDGetTokenT<TrackingParticleCollection> token_TrackTruth;
   edm::EDGetTokenT<TrackingVertexCollection> token_VertexTruth;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> token_associatorForParamAtPca;
 
 };

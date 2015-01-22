@@ -19,8 +19,8 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
-#include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociator.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 // for selection cut
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -53,8 +53,7 @@ class RecoMuonValidator : public DQMEDAnalyzer
   edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
 
   edm::InputTag muAssocLabel_;
-  const MuonAssociatorByHits * assoByHits;
-  //  edm::EDGetTokenT<> muAssocToken_;
+  edm::EDGetTokenT<reco::MuonToTrackingParticleAssociator> muAssocToken_;
   
   edm::InputTag beamspotLabel_;
   edm::InputTag primvertexLabel_;
@@ -77,7 +76,7 @@ class RecoMuonValidator : public DQMEDAnalyzer
   TrackingParticleSelector tpSelector_;
 
   // Track to use
-  MuonAssociatorByHits::MuonTrackType trackType_;
+  reco::MuonTrackType trackType_;
 
   struct MuonME;
   MuonME * muonME_;

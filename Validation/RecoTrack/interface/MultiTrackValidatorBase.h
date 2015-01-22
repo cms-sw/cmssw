@@ -17,7 +17,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h" 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -76,8 +76,6 @@ class MultiTrackValidatorBase {
   edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > m_dEdx2Tag;
 
   edm::ESHandle<MagneticField> theMF;
-  std::vector<const TrackAssociatorBase*> associator;
-
 
   bool ignoremissingtkcollection_;
   bool skipHistoFit;

@@ -55,7 +55,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-#include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
+#include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include <SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h>
 
@@ -82,7 +82,7 @@ class MuonMCClassifier : public edm::EDProducer {
         StringCutObjectSelector<pat::Muon> muonCut_;
 
         /// Track to use
-        MuonAssociatorByHits::MuonTrackType trackType_;
+        reco::MuonTrackType trackType_;
 
         /// The TrackingParticle objects
         edm::EDGetTokenT<TrackingParticleCollection> trackingParticlesToken_;
@@ -137,10 +137,10 @@ MuonMCClassifier::MuonMCClassifier(const edm::ParameterSet &iConfig) :
     genParticles_(linkToGenParticles_ ? iConfig.getParameter<edm::InputTag>("genParticles") : edm::InputTag("NONE"))
 {
     std::string trackType = iConfig.getParameter< std::string >("trackType");
-    if (trackType == "inner") trackType_ = MuonAssociatorByHits::InnerTk;
-    else if (trackType == "outer") trackType_ = MuonAssociatorByHits::OuterTk;
-    else if (trackType == "global") trackType_ = MuonAssociatorByHits::GlobalTk;
-    else if (trackType == "segments") trackType_ = MuonAssociatorByHits::Segments;
+    if (trackType == "inner") trackType_ = reco::InnerTk;
+    else if (trackType == "outer") trackType_ = reco::OuterTk;
+    else if (trackType == "global") trackType_ = reco::GlobalTk;
+    else if (trackType == "segments") trackType_ = reco::Segments;
     else throw cms::Exception("Configuration") << "Track type '" << trackType << "' not supported.\n";
     if (linkToGenParticles_) {
       genParticlesToken_ = consumes<reco::GenParticleCollection>(genParticles_);
@@ -189,13 +189,12 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         iEvent.getByToken(genParticlesToken_, genParticles);
     }
 
-    edm::ESHandle<TrackAssociatorBase> associatorBase;
-    iSetup.get<TrackAssociatorRecord>().get(associatorLabel_, associatorBase);
-    const MuonAssociatorByHits * assoByHits = dynamic_cast<const MuonAssociatorByHits *>(associatorBase.product());
-    if (assoByHits == 0) throw cms::Exception("Configuration") << "The Track Associator with label '" << associatorLabel_ << "' is not a MuonAssociatorByHits.\n";
+    edm::Handle<reco::MuonToTrackingParticleAssociator> associatorBase;
+    iEvent.getByLabel(associatorLabel_, associatorBase);
+    const reco::MuonToTrackingParticleAssociator * assoByHits = associatorBase.product();
 
-    MuonAssociatorByHits::MuonToSimCollection recSimColl;
-    MuonAssociatorByHits::SimToMuonCollection simRecColl;
+    reco::MuonToSimCollection recSimColl;
+    reco::SimToMuonCollection simRecColl;
     edm::LogVerbatim("MuonMCClassifier") <<"\n ***************************************************************** ";
     edm::LogVerbatim("MuonMCClassifier") <<  " RECO MUON association, type:  "<< trackType_;
     edm::LogVerbatim("MuonMCClassifier") <<  " ***************************************************************** \n";
@@ -221,21 +220,21 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         allTPs.push_back(TrackingParticleRef(trackingParticles,i));
     }
 
-    assoByHits->associateMuons(recSimColl, simRecColl, selMuons, trackType_, allTPs, &iEvent, &iSetup);
+    assoByHits->associateMuons(recSimColl, simRecColl, selMuons, trackType_, allTPs);
 
     // for global muons without hits on muon detectors, look at the linked standalone muon
-    MuonAssociatorByHits::MuonToSimCollection UpdSTA_recSimColl;
-    MuonAssociatorByHits::SimToMuonCollection UpdSTA_simRecColl;
-    if (trackType_ == MuonAssociatorByHits::GlobalTk) {
+    reco::MuonToSimCollection UpdSTA_recSimColl;
+    reco::SimToMuonCollection UpdSTA_simRecColl;
+    if (trackType_ == reco::GlobalTk) {
       edm::LogVerbatim("MuonMCClassifier") <<"\n ***************************************************************** ";
       edm::LogVerbatim("MuonMCClassifier") <<  " STANDALONE (UpdAtVtx) MUON association ";
       edm::LogVerbatim("MuonMCClassifier") <<  " ***************************************************************** \n";
-      assoByHits->associateMuons(UpdSTA_recSimColl, UpdSTA_simRecColl, selMuons, MuonAssociatorByHits::OuterTk,
-				 allTPs, &iEvent, &iSetup);
+      assoByHits->associateMuons(UpdSTA_recSimColl, UpdSTA_simRecColl, selMuons, reco::OuterTk,
+				 allTPs);
     }
 
-    typedef MuonAssociatorByHits::MuonToSimCollection::const_iterator r2s_it;
-    typedef MuonAssociatorByHits::SimToMuonCollection::const_iterator s2r_it;
+    typedef reco::MuonToSimCollection::const_iterator r2s_it;
+    typedef reco::SimToMuonCollection::const_iterator s2r_it;
 
     size_t nmu = muons->size();
     edm::LogVerbatim("MuonMCClassifier") <<"\n There are "<<nmu<<" reco::Muons.";
@@ -276,7 +275,7 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             } else {
                 edm::LogWarning("MuonMCClassifier") << "\n***WARNING:  This I do NOT understand: why no match back? *** \n";
             }
-        } else if ((trackType_ == MuonAssociatorByHits::GlobalTk) &&
+        } else if ((trackType_ == reco::GlobalTk) &&
                     mu->isGlobalMuon()) {
             // perform a second attempt, matching with the standalone muon
             r2s_it matchSta = UpdSTA_recSimColl.find(mu);
