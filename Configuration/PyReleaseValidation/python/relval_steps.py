@@ -1158,13 +1158,6 @@ steps['HARVESTUP15FS']={'-s':'HARVESTING:validationHarvestingFS',
                         '--filetype':'DQM',
                         '--scenario':'pp'}
 
-steps['HARVESTUP17']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                   '--conditions':'auto:run2_mc', 
-                   '--mc':'',
-                   '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
-                   '--filetype':'DQM',
-                   '--geometry' : 'Extended2017' #check geo
-                   }
 
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
                     '--conditions':'auto:run1_data',
@@ -1245,3 +1238,193 @@ steps['MINIAODMCUP1550']   =merge([{'--conditions':'auto:run2_mc_50ns'},stepMini
 steps['MINIAODMCUP15HI']   =merge([{'--conditions':'auto:run2_mc_HIon'},stepMiniAODMC])
 steps['MINIAODMCUP15FS']   =merge([{'--filein':'file:step1.root','--fast':''},stepMiniAODMC])
 steps['MINIAODMCUP15FS50'] =merge([{'--conditions':'auto:run2_mc_50ns'},steps['MINIAODMCUP15FS']])
+
+
+#################################################################################
+####From this line till the end of the file :
+####UPGRADE WORKFLOWS IN PREPARATION - Gaelle's sandbox - 
+#####Accessible only through the option --what upgrade
+#####therefore not run in IBs (at some they might be...) 
+#####Transparent for any of the standard workflows
+#### list of worflows defined (not necessarly running though): runTheMatrix.py --what upgrade -n 
+#### 
+###
+#################################################################################
+
+from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
+
+defaultDataSets={}
+defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refHGCALV5-v'
+defaultDataSets['Extended2023SHCalNoTaper']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refSHNoTaper-v'
+defaultDataSets['2019WithGEMAging']='CMSSW_6_2_0_SLHC20-DES19_62_V8_UPG2019withGEM-v'
+keys=defaultDataSets.keys()
+for key in keys:
+  defaultDataSets[key+'PU']=defaultDataSets[key]
+  
+# sometimes v1 won't be used - override it here - the dictionary key is gen fragment + '_' + geometry
+versionOverrides={}
+
+baseDataSetReleaseBetter={}
+for gen in upgradeFragments:
+    for ds in defaultDataSets: 
+       	key=gen[:-4]+'_'+ds   
+        version='1'
+        if key in versionOverrides:
+            version = versionOverrides[key]
+        baseDataSetReleaseBetter[key]=defaultDataSets[ds]+version
+
+PUDataSets={}
+for ds in defaultDataSets:
+    key='MinBias_TuneZ2star_14TeV_pythia6'+'_'+ds
+    name=baseDataSetReleaseBetter[key]
+    PUDataSets[ds]={'-n':10,'--pileup':'AVE_140_BX_25ns','--pileup_input':'das:/RelValMinBias_TuneZ2star_14TeV/%s/GEN-SIM'%(name,)}
+
+
+upgradeStepDict={}
+for step in upgradeSteps:
+    upgradeStepDict[step]={}
+
+# just make all combinations - yes, some will be nonsense.. but then these are not used unless
+# specified above
+for k in upgradeKeys:
+    k2=k
+    if 'PU' in k[-2:]:
+        k2=k[:-2]
+    geom=upgradeGeoms[k2]
+    gt=upgradeGTs[k2]
+    cust=upgradeCustoms[k2]
+    upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
+                                       '-n' : 10,
+                                       '--conditions' : gt,
+                                       '--beamspot' : 'Gauss',
+                                       '--magField' : '38T_PostLS1',
+                                       '--datatier' : 'GEN-SIM',
+                                       '--eventcontent': 'FEVTDEBUG',
+                                       '--geometry' : geom
+                                       }
+    if cust!=None : upgradeStepDict['GenSimFull'][k]['--customise']=cust
+        
+    upgradeStepDict['GenSimHLBeamSpotFull'][k]= {'-s' : 'GEN,SIM',
+                                       '-n' : 10,
+                                       '--conditions' : gt,
+                                       '--beamspot' : 'HLLHC',
+                                       '--magField' : '38T_PostLS1',
+                                       '--datatier' : 'GEN-SIM',
+                                       '--eventcontent': 'FEVTDEBUG',
+                                       '--geometry' : geom
+                                       }
+    if cust!=None : upgradeStepDict['GenSimHLBeamSpotFull'][k]['--customise']=cust
+    
+    upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
+                                      '--conditions':gt,
+                                      '--datatier':'GEN-SIM-DIGI-RAW',
+                                      '-n':'10',
+                                      '--magField' : '38T_PostLS1',
+                                      '--eventcontent':'FEVTDEBUGHLT',
+                                      '--geometry' : geom
+                                      }
+    if cust!=None : upgradeStepDict['DigiFull'][k]['--customise']=cust
+    
+    upgradeStepDict['DigiFullTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW',
+                                      '--conditions':gt,
+                                      '--datatier':'GEN-SIM-DIGI-RAW',
+                                      '-n':'10',
+                                      '--magField' : '38T_PostLS1',
+                                      '--eventcontent':'FEVTDEBUGHLT',
+                                      '--geometry' : geom
+                                      }
+    if cust!=None : upgradeStepDict['DigiFullTrigger'][k]['--customise']=cust
+    
+    
+    if k2 in PUDataSets:
+        upgradeStepDict['DigiFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['DigiFull'][k]])
+    upgradeStepDict['DigiTrkTrigFull'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,RECO:pixeltrackerlocalreco',
+                                             '--conditions':gt,
+                                             '--datatier':'GEN-SIM-DIGI-RAW',
+                                             '-n':'10',
+                                             '--magField' : '38T_PostLS1',
+                                             '--eventcontent':'FEVTDEBUGHLT',
+                                             '--geometry' : geom
+                                             }
+    if cust!=None : upgradeStepDict['DigiTrkTrigFull'][k]['--customise']=cust
+
+    upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
+                                      '--conditions':gt,
+                                      '--datatier':'GEN-SIM-RECO,DQMIO',
+                                      '-n':'10',
+                                      '--eventcontent':'FEVTDEBUGHLT,DQM',
+                                      '--magField' : '38T_PostLS1',
+                                      '--geometry' : geom
+                                      }
+    if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
+
+    if k2 in PUDataSets:
+        upgradeStepDict['RecoFullPU'][k]=merge([PUDataSets[k2],{'-s':'RAW2DIGI,L1Reco,RECO,DQM'},upgradeStepDict['RecoFull'][k]])
+
+    upgradeStepDict['RecoFullHGCAL'][k] = {'-s':'RAW2DIGI,L1Reco,RECO',
+                                      '--conditions':gt,
+                                      '--datatier':'GEN-SIM-RECO',
+                                      '-n':'10',
+                                      '--eventcontent':'RECOSIM',
+                                      '--magField' : '38T_PostLS1',
+                                      '--geometry' : geom
+                                      }
+    if cust!=None : upgradeStepDict['RecoFullHGCAL'][k]['--customise']=cust
+
+    if k2 in PUDataSets:
+        upgradeStepDict['RecoFullPUHGCAL'][k]=merge([PUDataSets[k2],{'-s':'RAW2DIGI,L1Reco,RECO'},upgradeStepDict['RecoFullHGCAL'][k]])
+
+    upgradeStepDict['HARVESTFull'][k]={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+                                    '--conditions':gt,
+                                    '--mc':'',
+                                    '--magField' : '38T_PostLS1',
+                                    '--geometry' : geom,
+                                    '--scenario' : 'pp',
+                                    '--filetype':'DQM'
+                                    }
+    if cust!=None : upgradeStepDict['HARVESTFull'][k]['--customise']=cust
+
+    if k2 in PUDataSets:
+        upgradeStepDict['HARVESTFullPU'][k]=merge([PUDataSets[k2],{'-s':'HARVESTING:dqmHarvesting'},upgradeStepDict['HARVESTFull'][k]])
+
+    upgradeStepDict['FastSim'][k]={'-s':'GEN,SIM,RECO,VALIDATION',
+                                   '--eventcontent':'FEVTDEBUGHLT,DQM',
+                                   '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
+                                   '--conditions':gt,
+                                   '--fast':'',
+                                   '--geometry' : geom,
+                                   '--relval':'27000,3000'}
+    if cust!=None : upgradeStepDict['FastSim'][k]['--customise']=cust
+
+    upgradeStepDict['HARVESTFast'][k]={'-s':'HARVESTING:validationHarvestingFS',
+                                    '--conditions':gt,
+                                    '--mc':'',
+                                    '--magField' : '38T_PostLS1',
+                                    '--geometry' : geom,
+                                    '--scenario' : 'pp'
+                                    }
+    if cust!=None : upgradeStepDict['HARVESTFast'][k]['--customise']=cust
+
+
+
+
+for step in upgradeSteps:
+    # we need to do this for each fragment
+   if 'Sim' in step:
+        for frag in upgradeFragments:
+            howMuch=howMuches[frag]
+            for key in upgradeKeys:
+                k=frag[:-4]+'_'+key+'_'+step
+                steps[k]=merge([ {'cfg':frag},howMuch,upgradeStepDict[step][key]])
+                #get inputs in case of -i...but no need to specify in great detail
+                #however, there can be a conflict of beam spots but this is lost in the dataset name
+                #so please be careful   
+                s=frag[:-4]+'_'+key
+                if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter:
+                    steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+frag[:-4]+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
+   else:
+        for key in upgradeKeys:
+            k=step+'_'+key
+            if step in upgradeStepDict and key in upgradeStepDict[step]: 
+                steps[k]=merge([upgradeStepDict[step][key]])
+            
