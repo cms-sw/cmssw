@@ -41,10 +41,13 @@ using namespace std;
 using namespace reco;
 
 GenTrackMatcher::GenTrackMatcher(const ParameterSet & p) :
-        tracer_(p),
+        tracer_(p,consumesCollector()),
         tracks_(p.getUntrackedParameter<edm::InputTag>("trackProducer")),
         genParticles_(p.getUntrackedParameter<edm::InputTag>("genParticles"))
 {
+    consumes<View<Track>>(tracks_);
+    consumes<vector<int>>(genParticles_);
+    consumes<GenParticleCollection>(genParticles_);
     produces<GenParticleMatch>();
 }
 

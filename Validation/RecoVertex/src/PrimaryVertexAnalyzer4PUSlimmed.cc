@@ -53,6 +53,9 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
         edm::EDGetTokenT<reco::VertexCollection>(
             consumes<reco::VertexCollection>(l)));
   }
+  if(use_TP_associator_) {
+    recoTrackToTrackingParticleAssociatorToken_ = consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByHits"));
+  }
 }
 
 PrimaryVertexAnalyzer4PUSlimmed::~PrimaryVertexAnalyzer4PUSlimmed() {}
@@ -999,15 +1002,14 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
     // TODO(rovere) fetch an already existing collection from the
     // event instead of making another association on the fly???
     if (use_TP_associator_) {
-      edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
-      iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",
-                                              theHitsAssociator);
-      associatorByHits_ = reinterpret_cast<const TrackAssociatorBase*>(
-          theHitsAssociator.product());
+      edm::Handle<reco::TrackToTrackingParticleAssociator> theHitsAssociator;
+      iEvent.getByToken(recoTrackToTrackingParticleAssociatorToken_,
+                        theHitsAssociator);
+      associatorByHits_ = theHitsAssociator.product();
       r2s_ = associatorByHits_->associateRecoToSim(
-          trackCollectionH, TPCollectionH, &iEvent, &iSetup);
+          trackCollectionH, TPCollectionH);
       s2r_ = associatorByHits_->associateSimToReco(
-          trackCollectionH, TPCollectionH, &iEvent, &iSetup);
+          trackCollectionH, TPCollectionH);
     }
   }
 

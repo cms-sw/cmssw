@@ -26,7 +26,6 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 // #include "RecoVertex/KalmanVertexFit/test/SimpleVertexTree.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicVertex.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicParticle.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicTree.h"
@@ -57,7 +56,6 @@ private:
 
   edm::ParameterSet theConfig;
   edm::ParameterSet kvfPSet;
-  const TrackAssociatorBase * associatorForParamAtPca;
 //   std::unique_ptr<SimpleVertexTree> tree;
 //   TFile*  rootFile_;
 
