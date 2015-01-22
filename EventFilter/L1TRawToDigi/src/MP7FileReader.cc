@@ -1,3 +1,6 @@
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "EventFilter/L1TRawToDigi/interface/MP7FileReader.h"
 
 //#include <boost/filesystem.hpp>
@@ -25,21 +28,34 @@ boost::regex MP7FileReader::reValid_("([01])v([0-9a-fA-F]{8})");
 const std::vector<uint64_t>& 
 FileData::link(uint32_t i) const {
     LinkMap::const_iterator it = links_.find(i);
-    if ( it == links_.end() )
-        throw std::runtime_error("Link id not found");
-    
+    if ( it == links_.end() ) {
+      edm::LogError("L1T") << "Link id " << i << " not found";
+    }
     return  it->second;
 }
 
 //____________________________________________________________________________//
 MP7FileReader::MP7FileReader(const std::string& path) : valid_(false), path_(path), file_(path) {
     if (!file_.is_open()) {
-        //cout << "File " << path << " not found" << endl;
-        valid_ = false;
-        return;
+      edm::LogError("L1T") << "File " << path << " not found";
+      valid_ = false;
+      return;
+    }
+    else {
+      LogDebug("L1T") << "Reading file " << path;
     }
 
     load();
+
+    LogDebug("L1T") << "# buffers " << buffers_.size();
+
+    if (buffers_.size() > 0) {
+      LogDebug("L1T") << "# links " << buffers_.at(0).size();
+      if (buffers_.at(0).size()>0) {
+	LogDebug("L1T") << "# frames " << buffers_.at(0).link(0).size();
+      }
+    }
+
 }
 
 //____________________________________________________________________________//
@@ -130,11 +146,12 @@ MP7FileReader::searchBoard() {
             id = what[1];
             return id;
         } else {
-            //cout << "Here '" << line << "'" << endl;
-            throw std::logic_error("Unexpected line found!");
+	  edm::LogError("L1T") << "Unexpected line found";
+	  return std::string("");
         }
     }
-    throw std::logic_error("No board found");
+    edm::LogError("L1T") << "No board found";
+    return std::string("");
 }
 
 //____________________________________________________________________________//
