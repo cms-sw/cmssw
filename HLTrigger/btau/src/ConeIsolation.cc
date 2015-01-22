@@ -82,7 +82,7 @@ ConeIsolation::~ConeIsolation()
 void
 ConeIsolation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("JetTrackSrc",edm::InputTag("ak4JTA"));
+  desc.add<edm::InputTag>("JetTrackSrc",edm::InputTag("ic5JetTracksAssociatorAtVertex"));
   desc.add<edm::InputTag>("vertexSrc",edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("BeamSpotProducer",edm::InputTag("offlineBeamSpot"));
   desc.add<bool>("useBeamSpot",false);

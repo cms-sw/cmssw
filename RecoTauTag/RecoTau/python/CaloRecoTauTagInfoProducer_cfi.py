@@ -27,7 +27,7 @@ caloRecoTauTagInfoProducer = cms.EDProducer("CaloRecoTauTagInfoProducer",
     # parameters of the considered neutral ECAL BasicClusters
     ECALBasicClustersAroundCaloJet_DRConeSize = cms.double(0.5),
     tkmaxipt = cms.double(0.1),
-    CaloJetTracksAssociatorProducer = cms.InputTag('ak4JTA')
+    CaloJetTracksAssociatorProducer = cms.InputTag('ic5JetTracksAssociatorAtVertex')
 )
 
 
