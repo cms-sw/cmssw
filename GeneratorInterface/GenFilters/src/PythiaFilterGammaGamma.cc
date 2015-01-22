@@ -160,27 +160,32 @@ bool PythiaFilterGammaGamma::filter(edm::Event& iEvent, const edm::EventSetup& i
 	}
 
 	if(acceptPrompts) {
-	  bool isPrompt=false;
-       
-	  const GenParticle* mother = (*itSeed)->production_vertex() ?
-	    *((*itSeed)->production_vertex()->particles_in_const_begin()) : 0;
-	  const GenParticle* motherMother = (mother != 0 && mother->production_vertex()) ?
-	    *(mother->production_vertex()->particles_in_const_begin()) : 0;
-	  const GenParticle* motherMotherMother = (motherMother != 0 && motherMother->production_vertex()) ?
-	    *(motherMother->production_vertex()->particles_in_const_begin()) : 0;
+	 
+	    if ((*itSeed)->momentum().perp()>promptPtThreshold)
+	    {
+	      bool isPrompt=true;
+	      this_id = (*itSeed)->pdg_id();
+	      mom = (*itSeed);
+	      while (mom->pdg_id() == this_id) {
+	   
+		const GenParticle* mother = mom->production_vertex() ?       
+		  *(mom->production_vertex()->particles_in_const_begin()) : 0;
 
+		mom = mother;
+		if (mom == 0) {
+		  break;
+		}	  
+	      }
 
-	  if ( ((mother->pdg_id() != (*itSeed)->pdg_id()) && (mother->pdg_id()<-22||mother->pdg_id()>22) && mother->status() == 2) ||
-	       ((motherMother->pdg_id() != (*itSeed)->pdg_id()) && (motherMother->pdg_id()<-22||motherMother->pdg_id()>22) && motherMother->status() == 2) ||
-	       ((motherMotherMother->pdg_id() != (*itSeed)->pdg_id()) && (motherMotherMother->pdg_id()<-22||motherMotherMother->pdg_id()>22) && motherMotherMother->status() == 2) ) isPrompt=false;
+	      first_different_id = mom->pdg_id();
+	  
+	      if (mom->status() == 2 && std::abs(first_different_id)>100) isPrompt=false;
+	
 
-	  else if ((*itSeed)->momentum().perp()>promptPtThreshold) isPrompt=true;
-
-
-	  if(isPrompt) counter=0;
-	  if(isPrompt) counterPrompt++;
+	      if(isPrompt) counter=0;
+	      if(isPrompt) counterPrompt++;
+	    }
 	}
-
       }
     }
 
