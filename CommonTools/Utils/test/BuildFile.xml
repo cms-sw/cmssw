@@ -9,3 +9,14 @@
   <use   name="CommonTools/Utils"/>
   <use   name="cppunit"/>
 </bin>
+
+
+<bin file="ExprEvalPopen_t.cpp">
+  <use name="CommonTools/Utils"/>
+</bin>
+
+
+<bin file="ExpressionEvaluatorUnitTest.cpp">
+  <use name="CommonTools/Utils"/>
+</bin>
+
