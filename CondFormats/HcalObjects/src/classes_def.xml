@@ -91,10 +91,6 @@
    <field name="mShape" transient="true"/>
  </class>
 
- <class name="HcalQIECoderExtended">
-   <field name="mQIEIndex" transient="true"/>
- </class>
-
 
  <class name="std::vector<HcalQIECoderExtended>"/>
  <class name="std::pair<std::string, std::vector<HcalQIECoderExtended> >"/>
