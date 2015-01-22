@@ -19,31 +19,13 @@ namespace Phase2Tracker
     // fill left and right vectors, expand big clusters
     for(auto dig = digis.begin(); dig < digis.end(); dig++)
     {
-      if(dig->getSizeX() > 8)
+      std::vector<stackedDigi> parts = dig->splitDigi();
+      for(auto id = parts.begin(); id < parts.end(); id++)
       {
-        int pos = dig->getDigiX();
-        int end = pos + dig->getSizeX();
-        while (pos < end)
-        {
-          // compute size of cluster to add
-          int isize = std::min(8,end-pos);
-          // add cluster
-          stackedDigi ndig(*dig);
-          ndig.setPosSizeX(pos,isize); 
-          if(roomleft[ndig.getSideType()] > 0) 
-          {
-            processed.push_back(ndig); 
-            roomleft[ndig.getSideType()] -= 1;
-          }
-          pos += isize;
-        } 
-      }
-      else
-      {
-        if(roomleft[dig->getSideType()] > 0) 
+        if(roomleft[id->getSideType()] > 0) 
         { 
-          processed.push_back(*dig); 
-          roomleft[dig->getSideType()] -= 1;
+          processed.push_back(*id); 
+          roomleft[id->getSideType()] -= 1;
         }
       }
     }
@@ -241,7 +223,7 @@ namespace Phase2Tracker
   void Phase2TrackerDigiToRaw::writeSCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, stackedDigi digi)
   {
     // std::cout << "S " << digi.getRawX() << " " << digi.getSizeX() << std::endl; 
-    std::cout << "S " << digi.getChipId() << " " << digi.getRawX() << " " << digi.getSizeX() << std::endl; 
+    std::cout << "S chip: " << digi.getChipId() << " rawX: " << digi.getRawX() << " sizeX: " << digi.getSizeX() << std::endl; 
     uint16_t scluster = (digi.getChipId() & 0x0F) << 11;
     scluster |= (digi.getRawX() & 0xFF) << 3;
     scluster |= ((digi.getSizeX()-1) & 0x07);
@@ -252,7 +234,7 @@ namespace Phase2Tracker
   void Phase2TrackerDigiToRaw::writePCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, stackedDigi digi)
   {
     // std::cout << "P " << digi.getRawX() << " " << digi.getSizeX() << " " << digi.getRawY() << std::endl; 
-    std::cout << "P " << digi.getChipId() << " " << digi.getRawX() << " " << digi.getSizeX() << " " << digi.getRawY() << std::endl; 
+    std::cout << "P chip: " << digi.getChipId() << " rawX: " << digi.getRawX() << " sizeX: " << digi.getSizeX() << " rawY: " << digi.getRawY() << std::endl; 
     uint32_t pcluster = (digi.getChipId() & 0x0F) << 14;
     pcluster |= (digi.getRawX() & 0x7F) << 7;
     pcluster |= (digi.getRawY() & 0x0F) << 3;

@@ -21,7 +21,10 @@ namespace Phase2Tracker
       // get side and type, to map to concentrators (0 = S-left, 1 = S-right, 2 = P-left, 3 = P-right)
       inline int getSideType()   const { return side_ + 2*(1-moduletype_) + 2*layer_*moduletype_; }
       inline int getChipId() const { return chipid_; }
+      inline int getStripsX() const { return (moduletype_ == 1)?PS_ROWS:(STRIPS_PER_CBC/2); }
       void setPosSizeX(int, int);
+      bool shouldSplit() const;
+      std::vector<stackedDigi> splitDigi() const;
     private:
       void calcchipid();
       int digix_, digiy_, sizex_;
@@ -51,6 +54,48 @@ namespace Phase2Tracker
   {
     calcchipid();
   }
+
+  bool stackedDigi::shouldSplit() const
+  {
+    if (getSizeX() > 8 or getDigiX()%getStripsX() + getSizeX() > getStripsX()) return true;
+    return false;
+  }
+
+  std::vector<stackedDigi> stackedDigi::splitDigi() const
+  {
+    std::vector<stackedDigi> parts;
+    if(shouldSplit())
+    {
+      int pos = getDigiX();
+      int end = pos + getSizeX();
+      int isize;
+      while (pos < end)
+      {
+        int nextchip = (pos/getStripsX() + 1)*getStripsX();
+        isize = std::min(std::min(8,end-pos),nextchip-pos);
+        stackedDigi ndig(*this);
+        ndig.setPosSizeX(pos,isize);
+        parts.push_back(ndig);
+        pos += isize;
+      }
+      // debug couts
+      /*
+      std::cout << "--- Split digi at " << getDigiX() << ", raw: " << getRawX() << ", length: " << getSizeX() << std::endl;
+      for (auto id = parts.begin(); id < parts.end(); id++)
+      {
+        std::cout << " -- " << id->getDigiX() << ", raw:  " << id->getRawX() << " " << id->getSizeX() << std::endl;
+      }
+      std::cout << "--- End of split ---" << std::endl;
+      */
+      // end of debug
+    }
+    else
+    {
+      parts.push_back(*this);
+    }
+    return parts;
+  }
+
 
   void stackedDigi::setPosSizeX(int pos, int size)
   {
