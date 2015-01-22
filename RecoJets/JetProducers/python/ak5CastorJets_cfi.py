@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 
-ak7CastorJets = cms.EDProducer(
+ak5CastorJets = cms.EDProducer(
     "FastjetJetProducer",
     AnomalousCellParameters,
     src            = cms.InputTag('CastorTowerReco'),
@@ -28,6 +28,6 @@ ak7CastorJets = cms.EDProducer(
        GhostArea = cms.double(0.01),
        Ghost_EtaMax = cms.double(5.0),
     jetAlgorithm = cms.string("AntiKt"),
-    rParam       = cms.double(0.7)
+    rParam       = cms.double(0.5)
     )
 
