@@ -66,7 +66,7 @@ int main() {
 
 
 
-  system("rm -r $CMSSW_BASE/src/VITest");
+  system("rm -rf $CMSSW_BASE/src/VITest $CMSSW_BASE/include/$SCRAM_ARCH/VITest");
 
   return 0;
 
