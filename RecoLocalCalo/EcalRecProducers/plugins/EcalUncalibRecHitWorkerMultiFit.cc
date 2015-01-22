@@ -46,8 +46,9 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   bool doPrefit = ps.getParameter<bool>("doPrefit");
   multiFitMethod_.setDoPrefit(doPrefit);
 
-  double prefitMaxChiSq = ps.getParameter<double>("prefitMaxChiSq");
-  multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSq);
+  prefitMaxChiSqEB_ = ps.getParameter<double>("prefitMaxChiSqEB");
+  prefitMaxChiSqEE_ = ps.getParameter<double>("prefitMaxChiSqEE");
+  //multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEB, prefitMaxChiSqEE);
   
   // algorithm to be used for timing
   timealgo_ = ps.getParameter<std::string>("timealgo");
@@ -269,11 +270,13 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                 aped  = &peds->endcap(hashedIndex);
                 aGain = &gains->endcap(hashedIndex);
                 gid   = &grps->endcap(hashedIndex);
+		multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEE_);
         } else {
                 unsigned int hashedIndex = EBDetId(detid).hashedIndex();
                 aped  = &peds->barrel(hashedIndex);
                 aGain = &gains->barrel(hashedIndex);
                 gid   = &grps->barrel(hashedIndex);
+		multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEB_);
         }
 
         pedVec[0] = aped->mean_x12;
@@ -342,7 +345,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                 const SampleMatrix &noisecormat = noisecor(barrel,gain);
                 const FullSampleVector &fullpulse = barrel ? fullpulseEB : fullpulseEE;
                 const FullSampleMatrix &fullpulsecov = barrel ? fullpulsecovEB : fullpulsecovEE;
-                                
+
                 uncalibRecHit = multiFitMethod_.makeRecHit(*itdg, aped, aGain, noisecormat,fullpulse,fullpulsecov,activeBX);
                 
                 // === time computation ===

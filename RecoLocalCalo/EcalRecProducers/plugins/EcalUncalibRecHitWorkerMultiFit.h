@@ -121,7 +121,8 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 bool kPoorRecoFlagEE_;
                 double chi2ThreshEB_;
                 double chi2ThreshEE_;
-
+		double prefitMaxChiSqEB_;
+		double prefitMaxChiSqEE_;
 
  private:
                 void fillInputs(const edm::ParameterSet& params);
