@@ -100,6 +100,18 @@ def prepareGenMixing(process):
     if hasattr(process.mix,"input"):
         del process.mix.input
     
+    # No track mixing when Gen-mixing
+    del process.mix.digitizers.tracker
+    del process.mix.mixObjects.mixRecoTracks
+    del process.generalTracks
+    process.generalTracks = process.generalTracksBeforeMixing.clone()
+    process.lastTrackingSteps.replace(process.generalTracksBeforeMixing,process.generalTracks)
+    del process.generalTracksBeforeMixing
+
+    # Use generalTracks where DIGI-RECO mixing requires preMixTracks
+    process.generalConversionTrackProducer.TrackProducer = cms.string('generalTracks')
+    process.trackerDrivenElectronSeeds.TkColList = cms.VInputTag(cms.InputTag("generalTracks"))
+    
     # Add the gen-level PileUpProducer to the process
     process.famosPileUp = cms.EDProducer(
         "PileUpProducer",
@@ -110,6 +122,9 @@ def prepareGenMixing(process):
     # Insert the PileUpProducer in the simulation sequence
     pos = process.simulationSequence.index(process.famosSimHits)
     process.simulationSequence.insert(pos,process.famosPileUp)
+
+    # PileUp info must be read from PileUpProducer, rather than from MixingModule
+    process.addPileupInfo.PileupMixingLabel = cms.InputTag("famosPileUp")
     
     return process
 
