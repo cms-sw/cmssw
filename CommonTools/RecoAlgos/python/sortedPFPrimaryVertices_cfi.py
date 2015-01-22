@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-sortedPrimaryVertices = cms.EDProducer("RecoChargedRefCandidatePrimaryVertexSorter",
+sortedPFPrimaryVertices = cms.EDProducer("PFCandidatePrimaryVertexSorter",
     sorting = cms.PSet(),
     assignment = cms.PSet(
     #cuts to assign primary tracks not used in PV fit based on dZ compatibility
@@ -17,16 +17,15 @@ sortedPrimaryVertices = cms.EDProducer("RecoChargedRefCandidatePrimaryVertexSort
     maxDxySigForNotReconstructedPrimary = cms.double(2), #in AND with next
     maxDxyForNotReconstructedPrimary = cms.double(0.01), #in AND with prev
     ),
-  particles = cms.InputTag("trackRefsForJets"),
+  particles = cms.InputTag("particleFlow"),
   vertices= cms.InputTag("offlinePrimaryVertices"),
-#  Jets= cms.InputTag("ak4PFJets"),
-  jets= cms.InputTag("ak4CaloJetsForTrk"),
+  jets= cms.InputTag("ak4PFJets"),
   qualityForPrimary = cms.int32(2),
   usePVMET = cms.bool(True),
-  produceAssociationToOriginalVertices=  cms.bool(False),
+  produceAssociationToOriginalVertices = cms.bool(True),
   produceSortedVertices = cms.bool(True),
-  producePileUpCollection  = cms.bool(False),
-  produceNoPileUpCollection = cms.bool(False),
+  producePileUpCollection  = cms.bool(True),
+  produceNoPileUpCollection = cms.bool(True),
 
 )
 

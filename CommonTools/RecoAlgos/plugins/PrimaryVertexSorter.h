@@ -86,14 +86,13 @@ PrimaryVertexSorter<ParticlesCollection>::PrimaryVertexSorter(const edm::Paramet
   tokenCandidates_(consumes<ParticlesCollection>(iConfig.getParameter<InputTag>("particles"))),
   tokenVertices_(consumes<VertexCollection>(iConfig.getParameter<InputTag>("vertices"))),
   tokenJets_(consumes<edm::View<reco::Candidate> > (iConfig.getParameter<InputTag>("jets"))),
+  produceOriginalMapping_(iConfig.getParameter<bool>("produceAssociationToOriginalVertices")),
+  produceSortedVertices_(iConfig.getParameter<bool>("produceSortedVertices")),
+  producePFPileUp_(iConfig.getParameter<bool>("producePileUpCollection")),
+  producePFNoPileUp_(iConfig.getParameter<bool>("produceNoPileUpCollection")),
   qualityCut_(iConfig.getParameter<int>("qualityForPrimary")),
   useMET_(iConfig.getParameter<bool>("usePVMET"))
 {
- //could be made configurable if needed
-  produceOriginalMapping_=true;
-  produceSortedVertices_=true;
-  producePFPileUp_=true;
-  producePFNoPileUp_=true;
 
 
   if(produceOriginalMapping_){
@@ -184,6 +183,7 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(Event& iEvent,  const Eve
   size_t newIdx=0;
   for(auto const &  idx :  scores)
   {
+    std::cout << newIdx << " score: " << idx.first << " oldidx: " << idx.second << " "<< producePFPileUp_ << std::endl;
     oldToNew[idx.second]=newIdx;
     newToOld[newIdx]=idx.second;
     newIdx++;
@@ -193,16 +193,25 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(Event& iEvent,  const Eve
 
 
   if(produceOriginalMapping_){
-      auto_ptr< CandToVertex>  pfCandToVertexOriginalOutput( new CandToVertex );
-      //FIXME: todo    
+    auto_ptr< CandToVertex>  pfCandToOriginalVertexOutput( new CandToVertex );
+    auto_ptr< CandToVertexQuality>  pfCandToOriginalVertexQualityOutput( new CandToVertexQuality() );
+    CandToVertex::Filler cand2VertexFiller(*pfCandToOriginalVertexOutput);
+    CandToVertexQuality::Filler cand2VertexQualityFiller(*pfCandToOriginalVertexQualityOutput);
+    cand2VertexFiller.insert(particlesHandle,pfToPVVector.begin(),pfToPVVector.end());
+    cand2VertexQualityFiller.insert(particlesHandle,pfToPVQualityVector.begin(),pfToPVQualityVector.end());
+
+    cand2VertexFiller.fill();
+    cand2VertexQualityFiller.fill();
+    iEvent.put( pfCandToOriginalVertexOutput ,"original");
+    iEvent.put( pfCandToOriginalVertexQualityOutput ,"original");
   }
 
   if(produceSortedVertices_){
       std::vector<int> pfToSortedPVVector;
-      std::vector<int> pfToSortedPVQualityVector;
+//      std::vector<int> pfToSortedPVQualityVector;
       for(size_t i=0;i<pfToPVVector.size();i++) {
         pfToSortedPVVector.push_back(oldToNew[pfToPVVector[i]]);
-        pfToSortedPVQualityVector.push_back(pfToPVQualityVector[i]);
+//        pfToSortedPVQualityVector.push_back(pfToPVQualityVector[i]); //same as old!
       }
 
       auto_ptr< reco::VertexCollection>  sortedVerticesOutput( new reco::VertexCollection );
@@ -216,13 +225,14 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(Event& iEvent,  const Eve
     CandToVertexQuality::Filler cand2VertexQualityFiller(*pfCandToVertexQualityOutput);
 
     cand2VertexFiller.insert(particlesHandle,pfToSortedPVVector.begin(),pfToSortedPVVector.end());
-    cand2VertexQualityFiller.insert(particlesHandle,pfToSortedPVQualityVector.begin(),pfToSortedPVQualityVector.end());
+    cand2VertexQualityFiller.insert(particlesHandle,pfToPVQualityVector.begin(),pfToPVQualityVector.end());
 
     cand2VertexFiller.fill();
     cand2VertexQualityFiller.fill();
     iEvent.put( pfCandToVertexOutput );
     iEvent.put( pfCandToVertexQualityOutput );
   }
+
 
   auto_ptr< PFCollection >  pfCollectionNOPUOriginalOutput( new PFCollection );
   auto_ptr< PFCollection >  pfCollectionNOPUOutput( new PFCollection );
