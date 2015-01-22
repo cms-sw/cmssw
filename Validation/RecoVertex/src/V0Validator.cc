@@ -19,8 +19,6 @@
 
 #include "Validation/RecoVertex/interface/V0Validator.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 
 typedef std::vector<TrackingVertex> TrackingVertexCollection;
 typedef edm::Ref<TrackingVertexCollection> TrackingVertexRef;
@@ -47,7 +45,9 @@ V0Validator::V0Validator(const edm::ParameterSet& iConfig)
   , edmSimVertexContainerToken_( consumes<edm::SimVertexContainer>( edm::InputTag( std::string( "g4SimHits" ) ) ) )
   , vec_recoVertex_Token_( consumes< std::vector<reco::Vertex> >( edm::InputTag( std::string( "offlinePrimaryVertices" ) ) ) )
   , recoVertexCompositeCandidateCollection_k0s_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getParameter<edm::InputTag>( "kShortCollection" ) ) )
-  , recoVertexCompositeCandidateCollection_lambda_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getParameter<edm::InputTag>( "lambdaCollection" ) ) ) {
+  , recoVertexCompositeCandidateCollection_lambda_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getParameter<edm::InputTag>( "lambdaCollection" ) ) )
+  , recoTrackToTrackingParticleAssociator_Token_( consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByHits")) )
+{
 
   genLam = genK0s = realLamFoundEff = realK0sFoundEff = lamCandFound = k0sCandFound = noTPforK0sCand = noTPforLamCand = realK0sFound = realLamFound = 0;
   
@@ -296,8 +296,8 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken( trackingParticleCollection_Eff_Token_, TPCollectionEff );
   const TrackingParticleCollection tPCeff = *( TPCollectionEff.product() );
 
-  edm::ESHandle<TrackAssociatorBase> associatorByHits;
-  iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits", associatorByHits);
+  edm::Handle<reco::TrackToTrackingParticleAssociator> associatorByHits;
+  iEvent.getByToken(recoTrackToTrackingParticleAssociator_Token_, associatorByHits);
 
   // Get tracks
   Handle< View<reco::Track> > trackCollectionH;
