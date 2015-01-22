@@ -145,6 +145,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE( HcalPedestalWidths )
       FETCH_PAYLOAD_CASE( HcalPedestals )
       FETCH_PAYLOAD_CASE( HcalQIEData )
+      FETCH_PAYLOAD_CASE( HcalQIEDataExtended )
       FETCH_PAYLOAD_CASE( HcalRecoParams )
       FETCH_PAYLOAD_CASE( HcalRespCorrs )
       FETCH_PAYLOAD_CASE( HcalTimeCorrs )
