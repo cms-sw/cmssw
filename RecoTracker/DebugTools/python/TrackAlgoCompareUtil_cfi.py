@@ -20,8 +20,8 @@ trackAlgoCompareUtil = cms.EDProducer("TrackAlgoCompareUtil",
 
     # associator label (by hits default)
     UseAssociators = cms.bool(True),
-    assocLabel_algoA = cms.untracked.string('TrackAssociatorByHits'),
-    assocLabel_algoB = cms.untracked.string('TrackAssociatorByHits'),
+    assocLabel_algoA = cms.untracked.string('trackAssociatorByHits'),
+    assocLabel_algoB = cms.untracked.string('trackAssociatorByHits'),
     
     # if an asociation map exist in the event, use it--its faster (set UseAssociatos = cms.bool(False)
     associatormap_algoA = cms.InputTag("trackingParticleRecoTrackAsssociation"),

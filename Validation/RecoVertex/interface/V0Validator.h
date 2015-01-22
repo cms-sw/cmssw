@@ -32,7 +32,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -40,6 +40,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/VertexAssociatorRecord.h"
 #include "SimTracker/VertexAssociation/interface/VertexAssociatorBase.h"
@@ -207,5 +208,6 @@ private:
   edm::EDGetTokenT<edm::SimVertexContainer> edmSimVertexContainerToken_;
   edm::EDGetTokenT< std::vector<reco::Vertex> > vec_recoVertex_Token_;
   edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> recoVertexCompositeCandidateCollection_k0s_Token_, recoVertexCompositeCandidateCollection_lambda_Token_;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> recoTrackToTrackingParticleAssociator_Token_;
 };
 

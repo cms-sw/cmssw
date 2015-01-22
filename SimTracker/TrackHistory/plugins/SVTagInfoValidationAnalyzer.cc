@@ -88,7 +88,7 @@ private:
 };
 
 
-SVTagInfoValidationAnalyzer::SVTagInfoValidationAnalyzer(const edm::ParameterSet& config) : classifier_(config)
+SVTagInfoValidationAnalyzer::SVTagInfoValidationAnalyzer(const edm::ParameterSet& config) : classifier_(config, consumesCollector())
 {
   //Initialize counters
     n_event = 0;
@@ -110,9 +110,11 @@ SVTagInfoValidationAnalyzer::SVTagInfoValidationAnalyzer(const edm::ParameterSet
 
     // Get the track collection
     svTagInfoProducer_ = config.getUntrackedParameter<edm::InputTag> ( "svTagInfoProducer" );
+    consumes<reco::SecondaryVertexTagInfoCollection>(svTagInfoProducer_);
 
     // Name of the traking pariticle collection
     trackingTruth_ = config.getUntrackedParameter<edm::InputTag> ( "trackingTruth" );
+    consumes<TrackingVertexCollection>(trackingTruth_);
 
     // Number of track categories
     numberVertexClassifier_ = VertexCategories::Unknown+1;

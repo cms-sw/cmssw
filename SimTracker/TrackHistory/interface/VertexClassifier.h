@@ -2,6 +2,7 @@
 #ifndef VertexClassifier_h
 #define VertexClassifier_h
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -22,7 +23,8 @@ public:
     typedef VertexCategories Categories;
 
     //! Constructor by ParameterSet
-    VertexClassifier(edm::ParameterSet const & pset);
+    VertexClassifier(edm::ParameterSet const & pset,
+                     edm::ConsumesCollector&&);
 
     virtual ~VertexClassifier() {}
 

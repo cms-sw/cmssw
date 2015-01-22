@@ -14,7 +14,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 //#include "MagneticField/Engine/interface/MagneticField.h"
 //#include "MagneticField/Records/interface/IdealMagneticField.h"
 
@@ -54,9 +53,6 @@ KineExample::~KineExample() {
 }
 
 void KineExample::beginRun(Run const& run, EventSetup const& setup){
-  edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
-  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
-  associatorForParamAtPca = theAssociatorForParamAtPca.product() ;
 
 //   edm::ESHandle<MagneticField> magField;
 //   setup.get<IdealMagneticFieldRecord>().get(magField);

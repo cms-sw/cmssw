@@ -4,6 +4,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/GeometrySurface/interface/Line.h"
 #include "TrackingTools/PatternTools/interface/trackingParametersAtClosestApproachToBeamSpot.h"
+#include "getChi2.h"
 
 using namespace edm;
 using namespace reco;
@@ -79,43 +80,13 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
   return outputVec;
 }
 
-double TrackAssociatorByChi2::getChi2(TrackBase::ParameterVector& rParameters,
-				      TrackBase::CovarianceMatrix& recoTrackCovMatrix,
-				      Basic3DVector<double>& momAtVtx,
-				      Basic3DVector<double>& vert,
-				      int& charge,
+double TrackAssociatorByChi2::getChi2(const TrackBase::ParameterVector& rParameters,
+				      const TrackBase::CovarianceMatrix& recoTrackCovMatrix,
+				      const Basic3DVector<double>& momAtVtx,
+				      const Basic3DVector<double>& vert,
+				      int charge,
 				      const reco::BeamSpot& bs) const{
-  
-  double chi2;
-  
-  std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, charge, bs);
-  if (params.first){
-    TrackBase::ParameterVector sParameters=params.second;
-    
-    TrackBase::ParameterVector diffParameters = rParameters - sParameters;
-    diffParameters[2] = reco::deltaPhi(diffParameters[2],0.f);
-    chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
-    chi2 /= 5;
-    
-    LogDebug("TrackAssociator") << "====NEW RECO TRACK WITH PT=" << sin(rParameters[1])*float(charge)/rParameters[0] << "====\n" 
-				<< "qoverp sim: " << sParameters[0] << "\n" 
-				<< "lambda sim: " << sParameters[1] << "\n" 
-				<< "phi    sim: " << sParameters[2] << "\n" 
-				<< "dxy    sim: " << sParameters[3] << "\n" 
-				<< "dsz    sim: " << sParameters[4] << "\n" 
-				<< ": " /*<< */ << "\n" 
-				<< "qoverp rec: " << rParameters[0] << "\n" 
-				<< "lambda rec: " << rParameters[1] << "\n" 
-				<< "phi    rec: " << rParameters[2] << "\n" 
-				<< "dxy    rec: " << rParameters[3] << "\n" 
-				<< "dsz    rec: " << rParameters[4] << "\n" 
-				<< ": " /*<< */ << "\n" 
-				<< "chi2: " << chi2 << "\n";
-    
-    return chi2;  
-  } else {
-    return 10000000000.;
-  }
+  return track_associator::getChi2(rParameters, recoTrackCovMatrix,momAtVtx, vert, charge, *theMF, bs);
 }
 
 
@@ -262,115 +233,3 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(const edm::RefToBa
 
 
 
-RecoToGenCollection TrackAssociatorByChi2::associateRecoToGen(const edm::RefToBaseVector<reco::Track>& tC, 
-							      const edm::RefVector<GenParticleCollection>& tPCH,
-							      const edm::Event * e,
-                                                              const edm::EventSetup *setup ) const{
-  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  e->getByLabel(bsSrc,recoBeamSpotHandle);
-  reco::BeamSpot bs = *recoBeamSpotHandle;      
-
-  RecoToGenCollection  outputCollection;
-
-  GenParticleCollection tPC;
-  if (tPCH.size()!=0)  tPC = *tPCH.product();
-
-  int tindex=0;
-  for (RefToBaseVector<reco::Track>::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
-
-    LogDebug("TrackAssociator") << "=========LOOKING FOR ASSOCIATION===========" << "\n"
-				<< "rec::Track #"<<tindex<<" with pt=" << (*rt)->pt() <<  "\n"
-				<< "===========================================" << "\n";
- 
-    TrackBase::ParameterVector rParameters = (*rt)->parameters();
-
-    TrackBase::CovarianceMatrix recoTrackCovMatrix = (*rt)->covariance();
-    if (onlyDiagonal){
-      for (unsigned int i=0;i<5;i++){
-	for (unsigned int j=0;j<5;j++){
-	  if (i!=j) recoTrackCovMatrix(i,j)=0;
-	}
-      }
-    } 
-
-    recoTrackCovMatrix.Invert();
-
-    int tpindex =0;
-    for (GenParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
-	
-      //skip tps with a very small pt
-      //if (sqrt(tp->momentum().perp2())<0.5) continue;
-      int charge = tp->charge();
-      if (charge==0) continue;
-      Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
-      Basic3DVector<double> vert=(Basic3DVector<double>) tp->vertex();
-
-      double chi2 = getChi2(rParameters,recoTrackCovMatrix,momAtVtx,vert,charge,bs);
-      
-      if (chi2<chi2cut) {
-	outputCollection.insert(tC[tindex], 
-				std::make_pair(edm::Ref<GenParticleCollection>(tPCH, tpindex),
-					       -chi2));//-chi2 because the Association Map is ordered using std::greater
-      }
-    }
-  }
-  outputCollection.post_insert();
-  return outputCollection;
-}
-
-
-GenToRecoCollection TrackAssociatorByChi2::associateGenToReco(const edm::RefToBaseVector<reco::Track>& tC, 
-							      const edm::RefVector<GenParticleCollection>& tPCH,
-							      const edm::Event * e,
-							      const edm::EventSetup *setup ) const {
-
-  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  e->getByLabel(bsSrc,recoBeamSpotHandle);
-  reco::BeamSpot bs = *recoBeamSpotHandle;      
-
-  GenToRecoCollection  outputCollection;
-
-  GenParticleCollection tPC;
-  if (tPCH.size()!=0)  tPC = *tPCH.product();
-
-  int tpindex =0;
-  for (GenParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
-    
-    //skip tps with a very small pt
-    //if (sqrt(tp->momentum().perp2())<0.5) continue;
-    int charge = tp->charge();
-    if (charge==0) continue;
-    
-    LogDebug("TrackAssociator") << "=========LOOKING FOR ASSOCIATION===========" << "\n"
-				<< "TrackingParticle #"<<tpindex<<" with pt=" << sqrt(tp->momentum().perp2()) << "\n"
-				<< "===========================================" << "\n";
-    
-    Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
-    Basic3DVector<double> vert(tp->vertex().x(),tp->vertex().y(),tp->vertex().z());
-      
-    int tindex=0;
-    for (RefToBaseVector<reco::Track>::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
-      
-      TrackBase::ParameterVector rParameters = (*rt)->parameters();      
-      TrackBase::CovarianceMatrix recoTrackCovMatrix = (*rt)->covariance();
-      if (onlyDiagonal) {
-	for (unsigned int i=0;i<5;i++){
-	  for (unsigned int j=0;j<5;j++){
-	    if (i!=j) recoTrackCovMatrix(i,j)=0;
-	  }
-	}
-      }
-      recoTrackCovMatrix.Invert();
-      
-      double chi2 = getChi2(rParameters,recoTrackCovMatrix,momAtVtx,vert,charge,bs);
-      
-      if (chi2<chi2cut) {
-	outputCollection.insert(edm::Ref<GenParticleCollection>(tPCH, tpindex),
-				std::make_pair(tC[tindex],
-					       -chi2));//-chi2 because the Association Map is ordered using std::greater
-      }
-    }
-  }
-  outputCollection.post_insert();
-  return outputCollection;
-}

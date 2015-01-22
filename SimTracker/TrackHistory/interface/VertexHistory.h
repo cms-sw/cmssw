@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimTracker/TrackHistory/interface/HistoryBase.h"
@@ -24,7 +25,8 @@ public:
 
        /param[in] config with the configuration values
     */
-    VertexHistory(const edm::ParameterSet &);
+    VertexHistory(const edm::ParameterSet &,
+                  edm::ConsumesCollector&&);
 
     //! Pre-process event information (for accessing reconstruction information)
     void newEvent(const edm::Event &, const edm::EventSetup &);
@@ -85,7 +87,7 @@ private:
 
     edm::InputTag trackingTruth_;
 
-    std::string trackAssociator_;
+    edm::InputTag trackAssociator_;
 
     std::string vertexAssociator_;
 
