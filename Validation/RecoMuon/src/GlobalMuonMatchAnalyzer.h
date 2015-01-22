@@ -26,9 +26,10 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 
 namespace reco {class Track;}
@@ -69,10 +70,10 @@ class GlobalMuonMatchAnalyzer : public DQMEDAnalyzer {
   MonitorElement *h_fake, *h_fakePt;
 
   const TrackAssociatorBase *tkAssociator_, *muAssociator_;
-  std::string tkAssociatorName_, muAssociatorName_;
+  edm::InputTag tkAssociatorName_, muAssociatorName_;
   edm::InputTag tkName_, tpName_, glbName_, staName_;
   edm::EDGetTokenT<edm::View<reco::Track> >  tkToken_, tpToken_, glbToken_, staToken_;
-
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> tkAssociatorToken_, muAssociatorToken_;
 
 };
 

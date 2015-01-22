@@ -43,7 +43,7 @@
 // simulated track
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 // simulated vertex
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -340,7 +340,7 @@ private:
   edm::ESHandle<TransientTrackBuilder> theB_;
 
   TFile* rootFile_;             
-  TrackAssociatorBase * associatorByHits_;
+  const reco::TrackToTrackingParticleAssociator * associatorByHits_;
 
   std::string recoTrackProducer_;
   std::string outputFile_;       // output file
@@ -365,4 +365,5 @@ private:
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
   edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollectionToken_;
   edm::EDGetTokenT<edm::HepMCProduct> edmHepMCProductToken_;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> recoTrackToTrackingParticleAssociatorToken_;
 };

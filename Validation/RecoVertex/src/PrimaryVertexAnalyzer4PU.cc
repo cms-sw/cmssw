@@ -113,6 +113,8 @@ PrimaryVertexAnalyzer4PU::PrimaryVertexAnalyzer4PU(const ParameterSet& iConfig)
 									) 
 				    )
   , edmHepMCProductToken_( consumes<edm::HepMCProduct>( edm::InputTag( std::string( "generator" ) ) ) ) // starting with 3_1_0 pre something
+  , recoTrackToTrackingParticleAssociatorToken_(consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByHits")))
+    
 {
    //now do what ever initialization is needed
   // open output file to store histograms}
@@ -1939,10 +1941,10 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
   vector<SimEvent> simEvt;
   if (gotTP && gotTV ){
 
-    edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
-    iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theHitsAssociator);
-    associatorByHits_ = (TrackAssociatorBase *) theHitsAssociator.product();
-    r2s_ =   associatorByHits_->associateRecoToSim (trackCollectionH,TPCollectionH, &iEvent, &iSetup ); 
+    edm::Handle<reco::TrackToTrackingParticleAssociator> theHitsAssociator;
+    iEvent.getByToken(recoTrackToTrackingParticleAssociatorToken_,theHitsAssociator);
+    associatorByHits_ = theHitsAssociator.product();
+    r2s_ =   associatorByHits_->associateRecoToSim (trackCollectionH,TPCollectionH); 
     simEvt=getSimEvents(TPCollectionH, TVCollectionH, trackCollectionH);
 
     if (simEvt.size()==0){

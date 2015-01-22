@@ -11,7 +11,7 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
     simLabel = cms.InputTag("mix","MergedTrackTruth"),
     muonLabel = cms.InputTag("muons"),
 
-    muAssocLabel = cms.InputTag("MuonAssociatorByHits"),
+    muAssocLabel = cms.InputTag("muonAssociatorByHitsHelper"),
 
     doAssoc = cms.untracked.bool(True),
 

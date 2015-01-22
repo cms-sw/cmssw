@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 muonAssociatorByHitsCommonParameters = cms.PSet(
-    dumpInputCollections = cms.bool(False),
+    dumpInputCollections = cms.untracked.bool(False),
     #
     #....... general input parameters
     #
