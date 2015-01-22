@@ -10,7 +10,7 @@ process.GlobalTag.globaltag = 'POSTLS172_V4::All'
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-     '/store/relval/CMSSW_7_4_0_pre2/RelValH130GGgluonfusion_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/92F31767-4E85-E411-AD98-02163E00E969.root'
+     'file:8A676D55-1186-E411-921D-02163E0104B8.root'
     )
 )
 

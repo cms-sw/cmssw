@@ -183,7 +183,7 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(Event& iEvent,  const Eve
   size_t newIdx=0;
   for(auto const &  idx :  scores)
   {
-    std::cout << newIdx << " score: " << idx.first << " oldidx: " << idx.second << " "<< producePFPileUp_ << std::endl;
+//    std::cout << newIdx << " score: " << idx.first << " oldidx: " << idx.second << " "<< producePFPileUp_ << std::endl;
     oldToNew[idx.second]=newIdx;
     newToOld[newIdx]=idx.second;
     newIdx++;
