@@ -3,6 +3,8 @@
 #include <math.h>
 #include <iostream>
 
+const int CaloSamples::MAXSAMPLES;
+
 CaloSamples::CaloSamples() : id_(), size_(0), presamples_(0), preciseSize_(0), precisePresamples_(0) { setBlank() ; }
 
 CaloSamples::CaloSamples(const DetId& id, int size) :

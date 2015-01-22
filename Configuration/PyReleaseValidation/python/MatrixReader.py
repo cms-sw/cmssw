@@ -49,8 +49,8 @@ class MatrixReader(object):
                              'relval_upgrade':'upg-',
                              'relval_identity':'id-',
                              'relval_machine': 'mach-',
-                             'relval_unsch': 'unsch-'
-                             , 'relval_premix': 'premix-'
+                             'relval_unsch': 'unsch-',
+                             'relval_premix': 'premix-'
                              }
 
         self.files = ['relval_standard' ,
@@ -63,9 +63,22 @@ class MatrixReader(object):
                       'relval_upgrade',
                       'relval_identity',
                       'relval_machine',
-                      'relval_unsch'
-                      , 'relval_premix'
+                      'relval_unsch',
+                      'relval_premix'
                       ]
+        self.filesDefault = {'relval_standard':True ,
+                             'relval_highstats':True ,
+                             'relval_pileup':True,
+                             'relval_generator':True,
+                             'relval_extendedgen':True,
+                             'relval_production':True,
+                             'relval_ged':True,
+                             'relval_upgrade':False,
+                             'relval_identity':False,
+                             'relval_machine':True,
+                             'relval_unsch':True,
+                             'relval_premix':False
+                             }
 
         self.relvalModule = None
         
@@ -103,7 +116,7 @@ class MatrixReader(object):
         
         prefix = self.filesPrefMap[fileNameIn]
         
-        print "processing ", fileNameIn
+        print "processing", fileNameIn
         
         try:
             _tmpMod = __import__( 'Configuration.PyReleaseValidation.'+fileNameIn )
@@ -112,7 +125,8 @@ class MatrixReader(object):
             print "ERROR importing file ", fileNameIn, str(e)
             return
 
-        print "request for INPUT for ", useInput
+        if useInput is not None:
+            print "request for INPUT for ", useInput
 
         
         fromInput={}
@@ -286,6 +300,10 @@ class MatrixReader(object):
                 print "ignoring non-requested file",matrixFile
                 continue
 
+            if self.what == 'all' and not self.filesDefault[matrixFile]:
+                print "ignoring file not used by default (enable with -w)",matrixFile
+                continue
+
             try:
                 self.readMatrix(matrixFile, useInput, refRel, fromScratch)
             except Exception, e:
@@ -444,7 +462,7 @@ class MatrixReader(object):
             if self.what != 'all' and self.what not in matrixFile:
                 print "ignoring non-requested file",matrixFile
                 continue
-            if self.what == 'all' and ('upgrade' in matrixFile):
+            if self.what == 'all' and not self.filesDefault[matrixFile]:
                 print "ignoring",matrixFile,"from default matrix"
                 continue
             

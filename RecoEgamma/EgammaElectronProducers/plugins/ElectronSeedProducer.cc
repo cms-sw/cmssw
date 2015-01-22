@@ -19,7 +19,6 @@
 #include "ElectronSeedProducer.h"
 
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
-//#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
@@ -52,8 +51,7 @@ using namespace reco ;
 ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
  : //conf_(iConfig),
    applyHOverECut_(true), hcalHelper_(0),
-   caloGeom_(0), caloGeomCacheId_(0), caloTopo_(0), caloTopoCacheId_(0)
- {
+   caloGeom_(0), caloGeomCacheId_(0), caloTopo_(0), caloTopoCacheId_(0) {
   conf_ = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
 
   initialSeeds_ = consumes<TrajectorySeedCollection>(conf_.getParameter<edm::InputTag>("initialSeeds")) ;
@@ -69,8 +67,8 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   }
 
   // for H/E
-//  if (conf_.exists("applyHOverECut"))
-//   { applyHOverECut_ = conf_.getParameter<bool>("applyHOverECut") ; }
+  //  if (conf_.exists("applyHOverECut"))
+  //   { applyHOverECut_ = conf_.getParameter<bool>("applyHOverECut") ; }
   applyHOverECut_ = conf_.getParameter<bool>("applyHOverECut") ;
   if (applyHOverECut_)
    {
@@ -88,8 +86,8 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
     maxHOverEEndcaps_=conf_.getParameter<double>("maxHOverEEndcaps") ;
     maxHBarrel_=conf_.getParameter<double>("maxHBarrel") ;
     maxHEndcaps_=conf_.getParameter<double>("maxHEndcaps") ;
-//    hOverEConeSize_=conf_.getParameter<double>("hOverEConeSize") ;
-//    hOverEHBMinE_=conf_.getParameter<double>("hOverEHBMinE") ;
+    //    hOverEConeSize_=conf_.getParameter<double>("hOverEConeSize") ;
+    //    hOverEHBMinE_=conf_.getParameter<double>("hOverEHBMinE") ;
 //    hOverEHFMinE_=conf_.getParameter<double>("hOverEHFMinE") ;
    }
 
@@ -140,12 +138,11 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
 }
 
 
-void ElectronSeedProducer::beginRun(edm::Run const&, edm::EventSetup const&) {
-}
+void ElectronSeedProducer::beginRun(edm::Run const&, edm::EventSetup const&) 
+{}
 
 void ElectronSeedProducer::endRun(edm::Run const&, edm::EventSetup const&)
- {
- }
+{}
 
 ElectronSeedProducer::~ElectronSeedProducer()
  {

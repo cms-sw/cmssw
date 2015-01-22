@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 SingleMuonPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
         "HLT_Mu45_e2p1_v", # Run 2 
-        "HLT_Mu50_v", # Run 2
+        "HLT_Mu50_v" # Run 2
         ),
     recMuonLabel  = cms.InputTag("muons"),
     # -- Analysis specific cuts

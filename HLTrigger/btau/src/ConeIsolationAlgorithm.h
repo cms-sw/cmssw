@@ -33,12 +33,10 @@ public:
 
  private:
   // algorithm parameters
-  int    m_nthTrack;
   int    m_cutPixelHits;
   int    m_cutTotalHits;
   double m_cutMaxTIP;
   double m_cutMinPt;
-  double m_cutMaxDecayLen;
   double m_cutMaxChiSquared;
   double matching_cone;
   double signal_cone;

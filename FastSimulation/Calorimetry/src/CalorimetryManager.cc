@@ -47,11 +47,6 @@
 #include <vector>
 #include <iostream>
 
-//DQM
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
 //CMSSW headers 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"

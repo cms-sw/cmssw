@@ -1,26 +1,13 @@
 //updated by Reza Goldouzian
 //FastSimulation Headers
 #include "FastSimulation/ShowerDevelopment/interface/HDShower.h"
-//#include "FastSimulation/Utilities/interface/Histos.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
-
-
-//////////////////////////////////////////////////////////////////////
-// What's this?
-//#include "FastSimulation/FamosCalorimeters/interface/FASTCalorimeter.h"
 
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 
 // CMSSW headers
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-///////////////////////////////////////////////////////////////
-// And This???? Doesn't seem to be needed
-// #include "Calorimetry/CaloDetector/interface/CellGeometry.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <cmath>
 

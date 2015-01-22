@@ -41,6 +41,9 @@
 
 #include "Calibration/IsolatedParticles/plugins/IsolatedGenParticles.h"
 
+const int IsolatedGenParticles::PBins;
+const int IsolatedGenParticles::EtaBins;
+
 IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) {
 
   genSrc_    = iConfig.getUntrackedParameter("GenSrc",std::string("generator"));

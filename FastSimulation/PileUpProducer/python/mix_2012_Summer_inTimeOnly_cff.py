@@ -64,7 +64,7 @@ prob = cms.vdouble(
                          1.570E-05,
                          5.005E-06)
 
-from FastSimulation.Configuration.CommonInputs_cff import MixingMode # CaloMode and MixingMode are defined here
+from FastSimulation.Configuration.CommonInputs_cff import MixingMode
 
 if (MixingMode=='DigiRecoMixing'):
     # mix at SIM and RECO levels:

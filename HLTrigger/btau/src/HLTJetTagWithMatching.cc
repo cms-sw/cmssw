@@ -37,7 +37,7 @@ HLTJetTagWithMatching<T>::HLTJetTagWithMatching(const edm::ParameterSet & config
   m_MaxTag (config.getParameter<double>        ("MaxTag") ),
   m_MinJets(config.getParameter<int>           ("MinJets") ),
   m_TriggerType(config.getParameter<int>       ("TriggerType") ),
-  m_deltaR (config.getParameter<double>           ("deltR") )
+  m_deltaR (config.getParameter<double>           ("deltaR") )
 {
   m_JetsToken = consumes<std::vector<T> >(m_Jets),
   m_JetTagsToken = consumes<reco::JetTagCollection>(m_JetTags),
@@ -55,7 +55,7 @@ HLTJetTagWithMatching<T>::~HLTJetTagWithMatching()
 {
 }
 
-template<typename T> float HLTJetTagWithMatching<T>::findCSV(const typename std::vector<T>::const_iterator & jet, const reco::JetTagCollection  & jetTags, float minDr=0.1 ){
+template<typename T> float HLTJetTagWithMatching<T>::findCSV(const typename std::vector<T>::const_iterator & jet, const reco::JetTagCollection  & jetTags, float minDr){
          float tmpCSV = -20 ;
          for (reco::JetTagCollection::const_iterator jetb = jetTags.begin(); (jetb!=jetTags.end()); ++jetb) {
          float tmpDr = reco::deltaR(*jet,*(jetb->first));

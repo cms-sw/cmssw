@@ -5,15 +5,15 @@ HTDisplacedJetsPSet = cms.PSet(
         "HLT_HT650_DisplacedDijet80_Inclusive_v",
         "HLT_HT750_DisplacedDijet80_Inclusive_v",
         "HLT_HT350_DisplacedDijet80_DisplacedTrack_v",
-        "HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v"
+        "HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v",
         # 5e33, 7e33 menus
-        "HLT_HT500_DisplacedDijet40_Inclusive_v"
-        "HLT_HT550_DisplacedDijet40_Inclusive_v"
-        "HLT_HT350_DisplacedDijet40_DisplacedTrack_v"
-        #"HLT_HT350_DisplacedDijet80_DisplacedTrack_v"
-        "HLT_VBF_DisplacedJet40_DisplacedTrack_v"
-        "HLT_VBF_DisplacedJet40_Hadronic_v"
-        "HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_v"
+        "HLT_HT500_DisplacedDijet40_Inclusive_v",
+        "HLT_HT550_DisplacedDijet40_Inclusive_v",
+        "HLT_HT350_DisplacedDijet40_DisplacedTrack_v",
+        #"HLT_HT350_DisplacedDijet80_DisplacedTrack_v",
+        "HLT_VBF_DisplacedJet40_DisplacedTrack_v",
+        "HLT_VBF_DisplacedJet40_Hadronic_v",
+        "HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_v",
         "HLT_VBF_DisplacedJet40_TightID_Hadronic_v"
         ),
     recPFMHTLabel  = cms.InputTag("recoExoticaValidationHT"),

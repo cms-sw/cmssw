@@ -56,7 +56,16 @@ class HLTProcess(object):
     "HLT_Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL_v*",
     "HLT_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_v*",
     "HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v*",
-    "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*"
+    "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*",
+    "HLT_HT500_DisplacedDijet40_Inclusive_v*",
+    "HLT_HT350_DisplacedDijet40_DisplacedTrack_v*",
+    "HLT_VBF_DisplacedJet40_DisplacedTrack_v*",
+    "HLT_VBF_DisplacedJet40_Hadronic_v*",
+    "HLT_HT550_DisplacedDijet40_Inclusive_v*",
+    "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*",
+    "HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_v*",
+    "HLT_VBF_DisplacedJet40_TightID_Hadronic_v*"
+
   )
 
   def __init__(self, configuration):
@@ -100,7 +109,7 @@ class HLTProcess(object):
 
 
   def getRawConfigurationFromDB(self):
-    url = 'http://j2eeps.cern.ch/cms-project-confdb-hltdev/get.jsp'
+    url = 'http://cms-project-confdb-hltdev.web.cern.ch/cms-project-confdb-hltdev/get.jsp'
     postdata = dict([ (key, ','.join(vals)) for key, vals in self.options.iteritems() if vals ])
     postdata['noedsources'] = ''
     if self.config.fragment:
@@ -118,7 +127,7 @@ class HLTProcess(object):
 
 
   def getPathList(self):
-    url = 'http://j2eeps.cern.ch/cms-project-confdb-hltdev/get.jsp'
+    url = 'http://cms-project-confdb-hltdev.web.cern.ch/cms-project-confdb-hltdev/get.jsp'
     postdata = { 
       'noedsources': '', 
       'noes':        '',

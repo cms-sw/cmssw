@@ -583,7 +583,7 @@ bool Pythia8Hadronizer::residualDecay()
 
     HepMC::GenParticle* part = event().get()->barcode_to_particle( ipart );
 
-    if ( part->status() == 1 )
+    if ( part->status() == 1 && (fDecayer->particleData).canDecay(part->pdg_id()) )
     {
       fDecayer->event.reset();
       Particle py8part(  part->pdg_id(), 93, 0, 0, 0, 0, 0, 0,
@@ -637,7 +637,8 @@ void Pythia8Hadronizer::finalizeEvent()
   //******** Verbosity ********
 
   if (maxEventsToPrint > 0 &&
-      (pythiaPylistVerbosity || pythiaHepMCVerbosity)) {
+      (pythiaPylistVerbosity || pythiaHepMCVerbosity ||
+                                pythiaHepMCVerbosityParticles) ) {
     maxEventsToPrint--;
     if (pythiaPylistVerbosity) {
       fMasterGen->info.list(std::cout); 
@@ -649,6 +650,12 @@ void Pythia8Hadronizer::finalizeEvent()
                 << fMasterGen->info.code() << "\n"
                 << "----------------------" << std::endl;
       event()->print();
+    }
+    if (pythiaHepMCVerbosityParticles) {
+      std::cout << "Event process = "
+                << fMasterGen->info.code() << "\n"
+                << "----------------------" << std::endl;
+      ascii_io->write_event(event().get());
     }
   }
 }

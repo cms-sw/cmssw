@@ -170,6 +170,7 @@ class DQMStore
     void goUp(void);
     const std::string & pwd(void);
     void tag(MonitorElement *, unsigned int);
+    void tagContents(const std::string &, unsigned int);
 
    private:
     explicit IBooker(DQMStore * store):owner_(0) {

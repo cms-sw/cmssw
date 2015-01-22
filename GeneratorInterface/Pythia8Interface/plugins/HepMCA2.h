@@ -34,7 +34,8 @@ public:
   virtual ~Pythia8ToHepMCA() {;}
 
   // Alternative method to convert Pythia events into HepMC ones.
-  bool append_event( Pythia8::Event& pyev, GenEvent* evt, GenParticle* rootpart);
+  bool append_event( Pythia8::Event& pyev, GenEvent* evt, GenParticle* rootpart,
+    int ibarcode = -1, Pythia8::Info* pyinfo = 0, Pythia8::Settings* pyset = 0);
 
   // Read out values for some switches.
   bool print_inconsistency()  const {return m_print_inconsistency;}
@@ -70,7 +71,8 @@ private:
 // Read one event from Pythia8, append GenEvent
 // and return T/F = success/failure.
 
-inline bool Pythia8ToHepMCA::append_event( Pythia8::Event& pyev, GenEvent* evt, GenParticle* rootpart) {
+inline bool Pythia8ToHepMCA::append_event( Pythia8::Event& pyev, GenEvent* evt, GenParticle* rootpart,
+  int ibarcode, Pythia8::Info* pyinfo, Pythia8::Settings* pyset) {
 
   // 1. Error if no event passed.
   if (!evt) {
@@ -85,6 +87,9 @@ inline bool Pythia8ToHepMCA::append_event( Pythia8::Event& pyev, GenEvent* evt, 
   double lenFac = HepMC::Units::conversion_factor(HepMC::Units::MM,
     evt->length_unit());
     
+  int NewBarcode = evt->particles_size();
+  if (ibarcode > -1) NewBarcode = ibarcode;
+
   GenVertex* prod_vtx0 = new GenVertex();
   prod_vtx0->add_particle_in( rootpart );
   evt->add_vertex( prod_vtx0 );
@@ -100,7 +105,8 @@ inline bool Pythia8ToHepMCA::append_event( Pythia8::Event& pyev, GenEvent* evt, 
       FourVector( momFac * pyev[i].px(), momFac * pyev[i].py(),
                   momFac * pyev[i].pz(), momFac * pyev[i].e()  ),
       pyev[i].id(), pyev[i].statusHepMC() );
-    hepevt_particles[i]->suggest_barcode(0);
+    if (ibarcode !=0) NewBarcode++;
+    hepevt_particles[i]->suggest_barcode(NewBarcode);
     hepevt_particles[i]->set_generated_mass( momFac * pyev[i].m() );
 
     // Colour flow uses index 1 and 2.
@@ -181,6 +187,10 @@ inline bool Pythia8ToHepMCA::append_event( Pythia8::Event& pyev, GenEvent* evt, 
     }
   }
 
+  // If hadronization switched on then no final coloured particles.
+  bool doHadr = (pyset == 0) ? m_free_parton_warnings
+    : pyset->flag("HadronLevel:all") && pyset->flag("HadronLevel:Hadronize");
+
   // 4. Check for particles which come from nowhere, i.e. are without
   // mothers or daughters. These need to be attached to a vertex, or else
   // they will never become part of the event.
@@ -194,7 +204,7 @@ inline bool Pythia8ToHepMCA::append_event( Pythia8::Event& pyev, GenEvent* evt, 
     }
 
     // Also check for free partons (= gluons and quarks; not diquarks?).
-    if ( m_free_parton_warnings ) {
+    if ( doHadr && m_free_parton_warnings ) {
       if ( hepevt_particles[i]->pdg_id() == 21 &&
         !hepevt_particles[i]->end_vertex() ) {
         std::cerr << "gluon without end vertex " << i << std::endl;

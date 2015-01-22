@@ -75,20 +75,16 @@ void PixelTrackProducer::store(edm::Event& ev, const TracksWithTTRHs& tracksWith
   LogDebug("TrackProducer") << "put the collection of TrackingRecHit in the event" << "\n";
   edm::OrphanHandle <TrackingRecHitCollection> ohRH = ev.put( recHits );
 
-
+  edm::RefProd<TrackingRecHitCollection> hitCollProd(ohRH);
   for (int k = 0; k < nTracks; k++)
   {
-    reco::TrackExtra* theTrackExtra = new reco::TrackExtra();
+    reco::TrackExtra theTrackExtra{};
 
     //fill the TrackExtra with TrackingRecHitRef
     unsigned int nHits = tracks->at(k).numberOfValidHits();
-    for(unsigned int i = 0; i < nHits; ++i) {
-      theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
-      cc++;
-    }
-
-    trackExtras->push_back(*theTrackExtra);
-    delete theTrackExtra;
+    theTrackExtra.setHits(hitCollProd, cc, nHits);
+    cc +=nHits;
+    trackExtras->push_back(theTrackExtra);
   }
 
   LogDebug("TrackProducer") << "put the collection of TrackExtra in the event" << "\n";

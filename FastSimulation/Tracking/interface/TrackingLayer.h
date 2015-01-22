@@ -20,7 +20,7 @@ class TrackingLayer
         };
         struct eqfct
         {
-            static hashfct gethash;
+            static const hashfct gethash;
             inline bool operator()(const TrackingLayer &l1, const TrackingLayer &l2) const 
             {
                 return l1.getSubDetNumber()==l2.getSubDetNumber() and l1.getLayerNumber()==l2.getLayerNumber() and l1.getSideNumber()==l2.getSideNumber();
@@ -43,8 +43,8 @@ class TrackingLayer
         
         Det _subDet;
         Side _side;
-        static eqfct _eqfct;
-        static hashfct _hashfct;
+        static const eqfct _eqfct;
+        static const hashfct _hashfct;
         unsigned int _layerNumber;
         
         TrackingLayer();

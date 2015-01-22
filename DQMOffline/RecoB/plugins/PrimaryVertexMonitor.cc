@@ -15,7 +15,6 @@ using namespace edm;
 
 PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
   : conf_          ( pSet )
-  , dqmStore_      ( edm::Service<DQMStore>().operator->() )
   , TopFolderName_ ( pSet.getParameter<std::string>("TopFolderName") )
   , AlignmentLabel_( pSet.getParameter<std::string>("AlignmentLabel"))
   , nbvtx(NULL)
@@ -58,9 +57,9 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
 
 // -- BeginRun
 //---------------------------------------------------------------------------------//
-void 
-PrimaryVertexMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
-{
+void
+PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
+  edm::Run const &, edm::EventSetup const &) {
 
   std::string dqmLabel = "";
 
@@ -70,53 +69,53 @@ PrimaryVertexMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
 
   //  get the store
   dqmLabel = TopFolderName_+"/"+vertexInputTag_.label();
-  dqmStore_->setCurrentFolder(dqmLabel);
+  iBooker.setCurrentFolder(dqmLabel);
 
-//   xPos = dqmStore_->book1D ("xPos","x Coordinate" ,100, -0.1, 0.1);
+//   xPos = iBooker.book1D ("xPos","x Coordinate" ,100, -0.1, 0.1);
 
-  nbvtx      = dqmStore_->book1D("vtxNbr","Reconstructed Vertices in Event",50,-0.5,49.5);
+  nbvtx      = iBooker.book1D("vtxNbr","Reconstructed Vertices in Event",50,-0.5,49.5);
 
-  nbtksinvtx[0] = dqmStore_->book1D("otherVtxTrksNbr","Reconstructed Tracks in Vertex (other Vtx)",40,-0.5,99.5); 
-  trksWeight[0] = dqmStore_->book1D("otherVtxTrksWeight","Total weight of Tracks in Vertex (other Vtx)",40,0,100.); 
-  vtxchi2[0]    = dqmStore_->book1D("otherVtxChi2","#chi^{2} (other Vtx)",100,0.,200.);
-  vtxndf[0]     = dqmStore_->book1D("otherVtxNdf","ndof (other Vtx)",100,0.,200.);
-  vtxprob[0]    = dqmStore_->book1D("otherVtxProb","#chi^{2} probability (other Vtx)",100,0.,1.);
-  nans[0]       = dqmStore_->book1D("otherVtxNans","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz (other Vtx)",9,0.5,9.5);
+  nbtksinvtx[0] = iBooker.book1D("otherVtxTrksNbr","Reconstructed Tracks in Vertex (other Vtx)",40,-0.5,99.5); 
+  trksWeight[0] = iBooker.book1D("otherVtxTrksWeight","Total weight of Tracks in Vertex (other Vtx)",40,0,100.); 
+  vtxchi2[0]    = iBooker.book1D("otherVtxChi2","#chi^{2} (other Vtx)",100,0.,200.);
+  vtxndf[0]     = iBooker.book1D("otherVtxNdf","ndof (other Vtx)",100,0.,200.);
+  vtxprob[0]    = iBooker.book1D("otherVtxProb","#chi^{2} probability (other Vtx)",100,0.,1.);
+  nans[0]       = iBooker.book1D("otherVtxNans","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz (other Vtx)",9,0.5,9.5);
 
-  nbtksinvtx[1] = dqmStore_->book1D("tagVtxTrksNbr","Reconstructed Tracks in Vertex (tagged Vtx)",100,-0.5,99.5); 
-  trksWeight[1] = dqmStore_->book1D("tagVtxTrksWeight","Total weight of Tracks in Vertex (tagged Vtx)",100,0,100.); 
-  vtxchi2[1]    = dqmStore_->book1D("tagVtxChi2","#chi^{2} (tagged Vtx)",100,0.,200.);
-  vtxndf[1]     = dqmStore_->book1D("tagVtxNdf","ndof (tagged Vtx)",100,0.,200.);
-  vtxprob[1]    = dqmStore_->book1D("tagVtxProb","#chi^{2} probability (tagged Vtx)",100,0.,1.);
-  nans[1]       = dqmStore_->book1D("tagVtxNans","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz (tagged Vtx)",9,0.5,9.5);
+  nbtksinvtx[1] = iBooker.book1D("tagVtxTrksNbr","Reconstructed Tracks in Vertex (tagged Vtx)",100,-0.5,99.5); 
+  trksWeight[1] = iBooker.book1D("tagVtxTrksWeight","Total weight of Tracks in Vertex (tagged Vtx)",100,0,100.); 
+  vtxchi2[1]    = iBooker.book1D("tagVtxChi2","#chi^{2} (tagged Vtx)",100,0.,200.);
+  vtxndf[1]     = iBooker.book1D("tagVtxNdf","ndof (tagged Vtx)",100,0.,200.);
+  vtxprob[1]    = iBooker.book1D("tagVtxProb","#chi^{2} probability (tagged Vtx)",100,0.,1.);
+  nans[1]       = iBooker.book1D("tagVtxNans","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz (tagged Vtx)",9,0.5,9.5);
 
-  xrec[0]	 = dqmStore_->book1D("otherPosX","Position x Coordinate (other Vtx)",100,-0.1,0.1);
-  yrec[0]	 = dqmStore_->book1D("otherPosY","Position y Coordinate (other Vtx)",100,-0.1,0.1);
-  zrec[0]        = dqmStore_->book1D("otherPosZ","Position z Coordinate (other Vtx)",100,-20.,20.);
-  xDiff[0]	 = dqmStore_->book1D("otherDiffX","X distance from BeamSpot (other Vtx)",100,-500,500);
-  yDiff[0]	 = dqmStore_->book1D("otherDiffY","Y distance from BeamSpot (other Vtx)",100,-500,500);
-  xerr[0]	 = dqmStore_->book1D("otherErrX","Uncertainty x Coordinate (other Vtx)",100,-0.1,0.1);
-  yerr[0]	 = dqmStore_->book1D("otherErrY","Uncertainty y Coordinate (other Vtx)",100,-0.1,0.1);
-  zerr[0]        = dqmStore_->book1D("otherErrZ","Uncertainty z Coordinate (other Vtx)",100,-20.,20.);
-  xerrVsTrks[0]	 = dqmStore_->book2D("otherErrVsWeightX","Uncertainty x Coordinate vs. track weight (other Vtx)",100,0,100.,100,-0.1,0.1);
-  yerrVsTrks[0]	 = dqmStore_->book2D("otherErrVsWeightY","Uncertainty y Coordinate vs. track weight (other Vtx)",100,0,100.,100,-0.1,0.1);
-  zerrVsTrks[0]	 = dqmStore_->book2D("otherErrVsWeightZ","Uncertainty z Coordinate vs. track weight (other Vtx)",100,0,100.,100,-0.1,0.1);
+  xrec[0]	 = iBooker.book1D("otherPosX","Position x Coordinate (other Vtx)",100,-0.1,0.1);
+  yrec[0]	 = iBooker.book1D("otherPosY","Position y Coordinate (other Vtx)",100,-0.1,0.1);
+  zrec[0]        = iBooker.book1D("otherPosZ","Position z Coordinate (other Vtx)",100,-20.,20.);
+  xDiff[0]	 = iBooker.book1D("otherDiffX","X distance from BeamSpot (other Vtx)",100,-500,500);
+  yDiff[0]	 = iBooker.book1D("otherDiffY","Y distance from BeamSpot (other Vtx)",100,-500,500);
+  xerr[0]	 = iBooker.book1D("otherErrX","Uncertainty x Coordinate (other Vtx)",100,-0.1,0.1);
+  yerr[0]	 = iBooker.book1D("otherErrY","Uncertainty y Coordinate (other Vtx)",100,-0.1,0.1);
+  zerr[0]        = iBooker.book1D("otherErrZ","Uncertainty z Coordinate (other Vtx)",100,-20.,20.);
+  xerrVsTrks[0]	 = iBooker.book2D("otherErrVsWeightX","Uncertainty x Coordinate vs. track weight (other Vtx)",100,0,100.,100,-0.1,0.1);
+  yerrVsTrks[0]	 = iBooker.book2D("otherErrVsWeightY","Uncertainty y Coordinate vs. track weight (other Vtx)",100,0,100.,100,-0.1,0.1);
+  zerrVsTrks[0]	 = iBooker.book2D("otherErrVsWeightZ","Uncertainty z Coordinate vs. track weight (other Vtx)",100,0,100.,100,-0.1,0.1);
 
 
-  xrec[1]     = dqmStore_->book1D("tagPosX","Position x Coordinate (tagged Vtx)",100,-0.1,0.1);
-  yrec[1]     = dqmStore_->book1D("tagPosY","Position y Coordinate (tagged Vtx)",100,-0.1,0.1);
-  zrec[1]     = dqmStore_->book1D("tagPosZ","Position z Coordinate (tagged Vtx)",100,-20.,20.);
-  xDiff[1]    = dqmStore_->book1D("tagDiffX","X distance from BeamSpot (tagged Vtx)",100,-500, 500);
-  yDiff[1]    = dqmStore_->book1D("tagDiffY","Y distance from BeamSpot (tagged Vtx)",100,-500, 500);
-  xerr[1]     = dqmStore_->book1D("tagErrX","Uncertainty x Coordinate (tagged Vtx)",100,0.,100);
-  yerr[1]     = dqmStore_->book1D("tagErrY","Uncertainty y Coordinate (tagged Vtx)",100,0.,100);
-  zerr[1]     = dqmStore_->book1D("tagErrZ","Uncertainty z Coordinate (tagged Vtx)",100,0.,100);
-  xerrVsTrks[1]	 = dqmStore_->book2D("tagErrVsWeightX","Uncertainty x Coordinate vs. track weight (tagged Vtx)",100,0,100.,100,0.,100);
-  yerrVsTrks[1]	 = dqmStore_->book2D("tagErrVsWeightY","Uncertainty y Coordinate vs. track weight (tagged Vtx)",100,0,100.,100,0.,100);
-  zerrVsTrks[1]	 = dqmStore_->book2D("tagErrVsWeightZ","Uncertainty z Coordinate vs. track weight (tagged Vtx)",100,0,100.,100,0.,100);
+  xrec[1]     = iBooker.book1D("tagPosX","Position x Coordinate (tagged Vtx)",100,-0.1,0.1);
+  yrec[1]     = iBooker.book1D("tagPosY","Position y Coordinate (tagged Vtx)",100,-0.1,0.1);
+  zrec[1]     = iBooker.book1D("tagPosZ","Position z Coordinate (tagged Vtx)",100,-20.,20.);
+  xDiff[1]    = iBooker.book1D("tagDiffX","X distance from BeamSpot (tagged Vtx)",100,-500, 500);
+  yDiff[1]    = iBooker.book1D("tagDiffY","Y distance from BeamSpot (tagged Vtx)",100,-500, 500);
+  xerr[1]     = iBooker.book1D("tagErrX","Uncertainty x Coordinate (tagged Vtx)",100,0.,100);
+  yerr[1]     = iBooker.book1D("tagErrY","Uncertainty y Coordinate (tagged Vtx)",100,0.,100);
+  zerr[1]     = iBooker.book1D("tagErrZ","Uncertainty z Coordinate (tagged Vtx)",100,0.,100);
+  xerrVsTrks[1]	 = iBooker.book2D("tagErrVsWeightX","Uncertainty x Coordinate vs. track weight (tagged Vtx)",100,0,100.,100,0.,100);
+  yerrVsTrks[1]	 = iBooker.book2D("tagErrVsWeightY","Uncertainty y Coordinate vs. track weight (tagged Vtx)",100,0,100.,100,0.,100);
+  zerrVsTrks[1]	 = iBooker.book2D("tagErrVsWeightZ","Uncertainty z Coordinate vs. track weight (tagged Vtx)",100,0,100.,100,0.,100);
 
-  type[0] = dqmStore_->book1D("otherType","Vertex type (other Vtx)",3,-0.5,2.5);
-  type[1] = dqmStore_->book1D("tagType","Vertex type (tagged Vtx)",3,-0.5,2.5);
+  type[0] = iBooker.book1D("otherType","Vertex type (other Vtx)",3,-0.5,2.5);
+  type[1] = iBooker.book1D("tagType","Vertex type (tagged Vtx)",3,-0.5,2.5);
   for (int i=0;i<2;++i){
     type[i]->getTH1F()->GetXaxis()->SetBinLabel(1,"Valid, real");
     type[i]->getTH1F()->GetXaxis()->SetBinLabel(2,"Valid, fake");
@@ -126,17 +125,17 @@ PrimaryVertexMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
 
   //  get the store
   dqmLabel = TopFolderName_+"/"+beamSpotInputTag_.label();
-  dqmStore_->setCurrentFolder(dqmLabel);
+  iBooker.setCurrentFolder(dqmLabel);
   
-  bsX 		= dqmStore_->book1D("bsX", "BeamSpot x0", 100,-0.1,0.1);
-  bsY 		= dqmStore_->book1D("bsY", "BeamSpot y0", 100,-0.1,0.1);
-  bsZ 		= dqmStore_->book1D("bsZ", "BeamSpot z0", 100,-2.,2.);
-  bsSigmaZ 	= dqmStore_->book1D("bsSigmaZ", "BeamSpot sigmaZ", 100, 0., 10. );
-  bsDxdz 	= dqmStore_->book1D("bsDxdz", "BeamSpot dxdz", 100, -0.0003, 0.0003);
-  bsDydz 	= dqmStore_->book1D("bsDydz", "BeamSpot dydz", 100, -0.0003, 0.0003);
-  bsBeamWidthX 	= dqmStore_->book1D("bsBeamWidthX", "BeamSpot BeamWidthX", 100, 0., 100.);
-  bsBeamWidthY 	= dqmStore_->book1D("bsBeamWidthY", "BeamSpot BeamWidthY", 100, 0., 100.);
-  bsType	= dqmStore_->book1D("bsType", "BeamSpot type", 4, -1.5, 2.5);
+  bsX 		= iBooker.book1D("bsX", "BeamSpot x0", 100,-0.1,0.1);
+  bsY 		= iBooker.book1D("bsY", "BeamSpot y0", 100,-0.1,0.1);
+  bsZ 		= iBooker.book1D("bsZ", "BeamSpot z0", 100,-2.,2.);
+  bsSigmaZ 	= iBooker.book1D("bsSigmaZ", "BeamSpot sigmaZ", 100, 0., 10. );
+  bsDxdz 	= iBooker.book1D("bsDxdz", "BeamSpot dxdz", 100, -0.0003, 0.0003);
+  bsDydz 	= iBooker.book1D("bsDydz", "BeamSpot dydz", 100, -0.0003, 0.0003);
+  bsBeamWidthX 	= iBooker.book1D("bsBeamWidthX", "BeamSpot BeamWidthX", 100, 0., 100.);
+  bsBeamWidthY 	= iBooker.book1D("bsBeamWidthY", "BeamSpot BeamWidthY", 100, 0., 100.);
+  bsType	= iBooker.book1D("bsType", "BeamSpot type", 4, -1.5, 2.5);
   bsType->getTH1F()->GetXaxis()->SetBinLabel(1,"Unknown");
   bsType->getTH1F()->GetXaxis()->SetBinLabel(2,"Fake");
   bsType->getTH1F()->GetXaxis()->SetBinLabel(3,"LHC");
@@ -145,7 +144,7 @@ PrimaryVertexMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
   
   //  get the store
   dqmLabel = TopFolderName_+"/"+AlignmentLabel_;
-  dqmStore_->setCurrentFolder(dqmLabel);
+  iBooker.setCurrentFolder(dqmLabel);
 
   int    TKNoBin    = conf_.getParameter<int>(   "TkSizeBin");
   double TKNoMin    = conf_.getParameter<double>("TkSizeMin");
@@ -168,47 +167,47 @@ PrimaryVertexMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
   double EtaMax     = conf_.getParameter<double>("EtaMax");
   
       
-  ntracks = dqmStore_->book1D("ntracks","number of PV tracks (p_{T} > 1 GeV)", 3*TKNoBin, TKNoMin, (TKNoMax+0.5)*3.-0.5);
+  ntracks = iBooker.book1D("ntracks","number of PV tracks (p_{T} > 1 GeV)", 3*TKNoBin, TKNoMin, (TKNoMax+0.5)*3.-0.5);
   ntracks->setAxisTitle("Number of PV Tracks (p_{T} > 1 GeV) per Event", 1);
   ntracks->setAxisTitle("Number of Event", 2);
 
-  weight = dqmStore_->book1D("weight","weight of PV tracks (p_{T} > 1 GeV)", 100, 0., 1.);
+  weight = iBooker.book1D("weight","weight of PV tracks (p_{T} > 1 GeV)", 100, 0., 1.);
   weight->setAxisTitle("weight of PV Tracks (p_{T} > 1 GeV) per Event", 1);
   weight->setAxisTitle("Number of Event", 2);
 
-  sumpt    = dqmStore_->book1D("sumpt",   "#Sum p_{T} of PV tracks (p_{T} > 1 GeV)",       100,-0.5,199.5); 
-  chi2ndf  = dqmStore_->book1D("chi2ndf", "PV tracks (p_{T} > 1 GeV) #chi^{2}/ndof",       100, 0., 200. );
-  chi2prob = dqmStore_->book1D("chi2prob","PV tracks (p_{T} > 1 GeV) #chi^{2} probability",100, 0.,   1. );
-  dxy      = dqmStore_->book1D("dxy",     "PV tracks (p_{T} > 1 GeV) d_{xy} (cm)",         DxyBin, DxyMin, DxyMax);
-  dz       = dqmStore_->book1D("dz",      "PV tracks (p_{T} > 1 GeV) d_{z} (cm)",          DzBin,  DzMin,  DzMax );
-  dxyErr   = dqmStore_->book1D("dxyErr",  "PV tracks (p_{T} > 1 GeV) d_{xy} error (cm)",   100, 0.,   1. );
-  dzErr    = dqmStore_->book1D("dzErr",   "PV tracks (p_{T} > 1 GeV) d_{z} error(cm)",     100, 0.,   1. );
+  sumpt    = iBooker.book1D("sumpt",   "#Sum p_{T} of PV tracks (p_{T} > 1 GeV)",       100,-0.5,199.5); 
+  chi2ndf  = iBooker.book1D("chi2ndf", "PV tracks (p_{T} > 1 GeV) #chi^{2}/ndof",       100, 0., 200. );
+  chi2prob = iBooker.book1D("chi2prob","PV tracks (p_{T} > 1 GeV) #chi^{2} probability",100, 0.,   1. );
+  dxy      = iBooker.book1D("dxy",     "PV tracks (p_{T} > 1 GeV) d_{xy} (cm)",         DxyBin, DxyMin, DxyMax);
+  dz       = iBooker.book1D("dz",      "PV tracks (p_{T} > 1 GeV) d_{z} (cm)",          DzBin,  DzMin,  DzMax );
+  dxyErr   = iBooker.book1D("dxyErr",  "PV tracks (p_{T} > 1 GeV) d_{xy} error (cm)",   100, 0.,   1. );
+  dzErr    = iBooker.book1D("dzErr",   "PV tracks (p_{T} > 1 GeV) d_{z} error(cm)",     100, 0.,   1. );
 
-  dxyVsPhi_pt1 = dqmStore_->bookProfile("dxyVsPhi_pt1", "PV tracks (p_{T} > 1 GeV) d_{xy} (cm) VS track #phi",PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
+  dxyVsPhi_pt1 = iBooker.bookProfile("dxyVsPhi_pt1", "PV tracks (p_{T} > 1 GeV) d_{xy} (cm) VS track #phi",PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
   dxyVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #phi",  1);
   dxyVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{xy}",2);
-  dzVsPhi_pt1  = dqmStore_->bookProfile("dzVsPhi_pt1",  "PV tracks (p_{T} > 1 GeV) d_{z} (cm) VS track #phi", PhiBin, PhiMin, PhiMax, DzBin,  DzMin,  DzMax, "");  
+  dzVsPhi_pt1  = iBooker.bookProfile("dzVsPhi_pt1",  "PV tracks (p_{T} > 1 GeV) d_{z} (cm) VS track #phi", PhiBin, PhiMin, PhiMax, DzBin,  DzMin,  DzMax, "");  
   dzVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 1);
   dzVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{z}",2);
 
-  dxyVsEta_pt1 = dqmStore_->bookProfile("dxyVsEta_pt1", "PV tracks (p_{T} > 1 GeV) d_{xy} (cm) VS track #eta",EtaBin, EtaMin, EtaMax, DxyBin, DxyMin, DxyMax,"");
+  dxyVsEta_pt1 = iBooker.bookProfile("dxyVsEta_pt1", "PV tracks (p_{T} > 1 GeV) d_{xy} (cm) VS track #eta",EtaBin, EtaMin, EtaMax, DxyBin, DxyMin, DxyMax,"");
   dxyVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #eta",  1);
   dxyVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{xy}",2);
-  dzVsEta_pt1  = dqmStore_->bookProfile("dzVsEta_pt1",  "PV tracks (p_{T} > 1 GeV) d_{z} (cm) VS track #eta", EtaBin, EtaMin, EtaMax, DzBin,  DzMin,  DzMax, "");
+  dzVsEta_pt1  = iBooker.bookProfile("dzVsEta_pt1",  "PV tracks (p_{T} > 1 GeV) d_{z} (cm) VS track #eta", EtaBin, EtaMin, EtaMax, DzBin,  DzMin,  DzMax, "");
   dzVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
   dzVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{z}",2);
 
-  dxyVsPhi_pt10 = dqmStore_->bookProfile("dxyVsPhi_pt10", "PV tracks (p_{T} > 1 GeV) d_{xy} (cm) VS track #phi",PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
+  dxyVsPhi_pt10 = iBooker.bookProfile("dxyVsPhi_pt10", "PV tracks (p_{T} > 1 GeV) d_{xy} (cm) VS track #phi",PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
   dxyVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #phi",  1);
   dxyVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{xy}",2);
-  dzVsPhi_pt10  = dqmStore_->bookProfile("dzVsPhi_pt10",  "PV tracks (p_{T} > 10 GeV) d_{z} (cm) VS track #phi", PhiBin, PhiMin, PhiMax, DzBin,  DzMin,  DzMax, "");  
+  dzVsPhi_pt10  = iBooker.bookProfile("dzVsPhi_pt10",  "PV tracks (p_{T} > 10 GeV) d_{z} (cm) VS track #phi", PhiBin, PhiMin, PhiMax, DzBin,  DzMin,  DzMax, "");  
   dzVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #phi", 1);
   dzVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{z}",2);
 
-  dxyVsEta_pt10 = dqmStore_->bookProfile("dxyVsEta_pt10", "PV tracks (p_{T} > 10 GeV) d_{xy} (cm) VS track #eta",EtaBin, EtaMin, EtaMax, DxyBin, DxyMin, DxyMax,"");
+  dxyVsEta_pt10 = iBooker.bookProfile("dxyVsEta_pt10", "PV tracks (p_{T} > 10 GeV) d_{xy} (cm) VS track #eta",EtaBin, EtaMin, EtaMax, DxyBin, DxyMin, DxyMax,"");
   dxyVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #eta",  1);
   dxyVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{xy}",2);
-  dzVsEta_pt10  = dqmStore_->bookProfile("dzVsEta_pt10",  "PV tracks (p_{T} > 10 GeV) d_{z} (cm) VS track #eta", EtaBin, EtaMin, EtaMax, DzBin,  DzMin,  DzMax, "");
+  dzVsEta_pt10  = iBooker.bookProfile("dzVsEta_pt10",  "PV tracks (p_{T} > 10 GeV) d_{z} (cm) VS track #eta", EtaBin, EtaMin, EtaMax, DzBin,  DzMin,  DzMax, "");
   dzVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #eta", 1);
   dzVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{z}",2);
 
@@ -382,12 +381,6 @@ void PrimaryVertexMonitor::vertexPlots(const Vertex & v, const BeamSpot& beamSpo
       }
     }
 }
-
-
-void PrimaryVertexMonitor::endJob()
-{
-}
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(PrimaryVertexMonitor);
