@@ -273,7 +273,7 @@ void WalkAST::CheckReturnStmt(const clang::ReturnStmt * RS, const clang::MemberE
 			const CXXRecordDecl *RD;
 			if ( RTy->isRecordType() ) RD = RTy->getAsCXXRecordDecl();
 			else RD = RTy->getPointeeCXXRecordDecl();
-			const ClassTemplateSpecializationDecl *SD = dyn_cast_or_null<ClassTemplateSpecializationDecl>(RD);
+			const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
 			for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
 				if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type) {
 					const QualType QAT = SD->getTemplateArgs().get(J).getAsType();
