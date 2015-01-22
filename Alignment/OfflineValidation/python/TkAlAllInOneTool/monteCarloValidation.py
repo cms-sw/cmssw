@@ -16,15 +16,12 @@ class MonteCarloValidation(GenericValidationData):
         self.crabCfgBaseName = crabCfgBaseName
         self.resultBaseName = resultBaseName
         self.outputBaseName = outputBaseName
+        self.needParentFiles = True
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "mcValidate")
         if self.NJobs > 1:
             raise AllInOneError("Parallel jobs not implemented for the MC validation!\n"
                                 "Please set parallelJobs = 1.")
-        if self.dataset.official():
-            raise AllInOneError("MC validation only works with predefined datasets, with a different format than most validations.\n"
-                                "To see how to create it, see the All In One Tool twiki page:\n"
-                                "    https://twiki.cern.ch/twiki/bin/viewauth/CMS/TkAlAllInOneValidation#Monte_Carlo_Validation")
 
     def createConfiguration(self, path ):
         cfgName = "%s.%s.%s_cfg.py"%(self.configBaseName, self.name,

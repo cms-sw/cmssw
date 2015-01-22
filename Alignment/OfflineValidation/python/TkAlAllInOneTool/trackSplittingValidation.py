@@ -15,6 +15,7 @@ class TrackSplittingValidation(GenericValidationData):
         self.crabCfgBaseName = crabCfgBaseName
         self.resultBaseName = resultBaseName
         self.outputBaseName = outputBaseName
+        self.needParentFiles = False
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "split", addMandatories = mandatories)
 

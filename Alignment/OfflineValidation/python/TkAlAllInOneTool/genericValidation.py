@@ -264,7 +264,8 @@ class GenericValidationData(GenericValidation):
                     firstRun = self.general["firstRun"],
                     lastRun = self.general["lastRun"],
                     begin = self.general["begin"],
-                    end = self.general["end"] )
+                    end = self.general["end"],
+                    parent = self.needParentFiles )
             except AllInOneError, e:
                 msg = "In section [%s:%s]: "%(valType, self.name)
                 msg += str(e)

@@ -20,6 +20,7 @@ class ZMuMuValidation(GenericValidationData):
         self.crabCfgBaseName = crabCfgBaseName
         self.resultBaseName = resultBaseName
         self.outputBaseName = outputBaseName
+        self.needParentFiles = False
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "zmumu", addDefaults=defaults,
                                        addMandatories=mandatories)

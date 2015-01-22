@@ -27,6 +27,7 @@ class OfflineValidation(GenericValidationData):
         self.crabCfgBaseName = crabCfgBaseName
         self.resultBaseName = resultBaseName
         self.outputBaseName = outputBaseName
+        self.needParentFiles = False
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "offline", addDefaults=defaults,
                                        addMandatories=mandatories)

@@ -12,9 +12,10 @@ from TkAlExceptions import AllInOneError
 
 
 class Dataset:
-    def __init__( self, datasetName, dasLimit = 0, tryPredefinedFirst = True, cmssw = os.environ["CMSSW_BASE"], cmsswrelease = os.environ["CMSSW_RELEASE_BASE"] ):
+    def __init__( self, datasetName, dasLimit = 0, tryPredefinedFirst = True,
+                  cmssw = os.environ["CMSSW_BASE"], cmsswrelease = os.environ["CMSSW_RELEASE_BASE"]):
         self.__name = datasetName
-
+        self.__origName = datasetName
         self.__dasLimit = dasLimit
         self.__fileList = None
         self.__fileInfoList = None
@@ -24,6 +25,9 @@ class Dataset:
         self.__cmsswrelease = cmsswrelease
         self.__firstusedrun = None
         self.__lastusedrun = None
+        self.__parentDataset = None
+        self.__parentFileList = None
+        self.__parentFileInfoList = None
 
         # check, if dataset name matches CMS dataset naming scheme
         if re.match( r'/.+/.+/.+', self.__name ):
@@ -110,7 +114,7 @@ class Dataset:
 
     def __createSnippet( self, jsonPath = None, begin = None, end = None,
                          firstRun = None, lastRun = None, repMap = None,
-                         crab = False ):
+                         crab = False, parent = False ):
         if firstRun:
             firstRun = int( firstRun )
         if lastRun:
@@ -188,6 +192,15 @@ class Dataset:
             fileStr = [ "readFiles.extend( [\n'" + files + "'\n] )" \
                         for files in fileStr ]
             files = "\n".join( fileStr )
+
+            if parent:
+                splitParentFileList = list( self.__chunks( self.fileList(parent = True), 255 ) )
+                parentFileStr = [ "',\n'".join( parentFiles ) for parentFiles in splitParentFileList ]
+                parentFileStr = [ "secFiles.extend( [\n'" + parentFiles + "'\n] )" \
+                            for parentFiles in parentFileStr ]
+                parentFiles = "\n".join( parentFileStr )
+                files += "\n\n" + parentFiles
+
 
         theMap = repMap
         theMap["files"] = files
@@ -278,6 +291,16 @@ class Dataset:
                    "and you will not be able run in CRAB mode"
                    %( self.name() ))
             return "unknown"
+
+    def __getParentDataset( self ):
+        dasQuery = "parent dataset=" + self.__name
+        data = self.__getData( dasQuery )
+        try:
+            return self.__findInJson(data, ["parent", "name"])
+        except KeyError:
+            raise AllInOneError("Cannot find the parent of the dataset '" + self.__name + "'\n"
+                                "Here is the DAS output:\n" + str(jsondict) +
+                                "\nIt's possible that this was a server error.  If so, it may work if you try again later")
 
     def __getMagneticField( self ):
         Bfieldlocation = os.path.join( self.__cmsswrelease, "python", "Configuration", "StandardSequences" )
@@ -383,13 +406,37 @@ class Dataset:
             else:
                 return lastrunB
 
-    def __getFileInfoList( self, dasLimit ):
-        if self.__fileInfoList:
+    def __getFileInfoList( self, dasLimit, parent = False ):
+        if self.__predefined:
+            if parent:
+                extendstring = "secFiles.extend"
+            else:
+                extendstring = "readFiles.extend"
+            with open(self.__fileName) as f:
+                files = []
+                copy = False
+                for line in f.readlines():
+                    if "]" in line:
+                        copy = False
+                    if copy:
+                        files.append({name: line.translate(None, "', " + '"')})
+                    if extendstring in line and "[" in line and "]" not in line:
+                        copy = True
+            return files
+
+        if self.__fileInfoList and not parent:
             return self.__fileInfoList
+        if self.__parentFileInfoList and parent:
+            return self.__parentFileInfoList
+
+        if parent:
+            searchdataset = self.parentDataset()
+        else:
+            searchdataset = self.__name
         dasQuery_files = ( 'file dataset=%s | grep file.name, file.nevents, '
                            'file.creation_time, '
-                           'file.modification_time'%( self.__name ) )
-        print "Requesting file information for '%s' from DAS..."%( self.__name ),
+                           'file.modification_time'%( searchdataset ) )
+        print "Requesting file information for '%s' from DAS..."%( searchdataset ),
         data = self.__getData( dasQuery_files, dasLimit )
         print "Done."
         data = [ self.__findInJson(entry,"file") for entry in data ]
@@ -419,6 +466,10 @@ class Dataset:
                          }
             fileInformationList.append( fileDict )
         fileInformationList.sort( key=lambda info: self.__findInJson(info,"name") )
+        if parent:
+            self.__parentFileInfoList = fileInformationList
+        else:
+            self.__fileInfoList = fileInformationList
         return fileInformationList
 
     def __getRunList( self ):
@@ -514,23 +565,52 @@ class Dataset:
             return begin, end, firstRun, lastRun
 
     def dataType( self ):
+        if not self.__dataType:
+            self.__dataType = self.__getDataType()
         return self.__dataType
 
     def magneticField( self ):
+        if not self.__magneticField:
+            self.__magneticField = self.__getMagneticField()
         return self.__magneticField
-    
+
     def magneticFieldForRun( self, run = -1 ):
         return self.__getMagneticFieldForRun(run)
 
+    def parentDataset( self ):
+        if not self.__parentDataset:
+            self.__parentDataset = self.__getParentDataset()
+        return self.__parentDataset
+
     def datasetSnippet( self, jsonPath = None, begin = None, end = None,
-                        firstRun = None, lastRun = None, crab = False ):
+                        firstRun = None, lastRun = None, crab = False, parent = False ):
+        if self.__predefined and parent:
+                with open(self.__filename) as f:
+                    if "secFiles.extend" not in f.read():
+                        msg = ("The predefined dataset '%s' does not contain secondary files, "
+                               "which your validation requires!") % self.__name
+                        if self.__official:
+                            self.__name = self.__origName
+                            self.__predefined = False
+                            print msg
+                            print ("Retreiving the files from DAS.  You will be asked if you want "
+                                   "to overwrite the old dataset.\n"
+                                   "It will still be compatible with validations that don't need secondary files.")
+                        else:
+                            raise AllInOneError(msg)
+
         if self.__predefined:
-            return ("process.load(\"Alignment.OfflineValidation.%s_cff\")\n"
-                    "process.maxEvents = cms.untracked.PSet(\n"
-                    "    input = cms.untracked.int32(.oO[nEvents]Oo.)\n"
-                    ")\n"
-                    "process.source.skipEvents=cms.untracked.uint32(.oO[nIndex]Oo.*.oO[nEvents]Oo./.oO[parallelJobs]Oo.)"
-                    %(self.__name))
+            snippet = ("process.load(\"Alignment.OfflineValidation.%s_cff\")\n"
+                       "process.maxEvents = cms.untracked.PSet(\n"
+                       "    input = cms.untracked.int32(.oO[nEvents]Oo.)\n"
+                       ")\n"
+                       "process.source.skipEvents=cms.untracked.uint32(.oO[nIndex]Oo.*.oO[nEvents]Oo./.oO[parallelJobs]Oo.)"
+                       %(self.__name))
+            if not parent:
+                with open(self.__filename) as f:
+                    if "secFiles.extend" in f.read():
+                        snippet += "\nprocess.source.secondaryFileNames = cms.untracked.vstring()"
+            return snippet
         theMap = { "process": "process.",
                    "tab": " " * len( "process." ),
                    "nEvents": ".oO[nEvents]Oo.",
@@ -544,10 +624,11 @@ class Dataset:
                                                firstRun = firstRun,
                                                lastRun = lastRun,
                                                repMap = theMap,
-                                               crab = crab )
+                                               crab = crab,
+                                               parent = parent )
         if jsonPath == "" and begin == "" and end == "" and firstRun == "" and lastRun == "":
             try:
-                self.dump_cff()
+                self.dump_cff(parent = parent)
             except AllInOneError, e:
                 print "Can't store the dataset as a cff:"
                 print e
@@ -555,9 +636,9 @@ class Dataset:
         return datasetSnippet
 
     def dump_cff( self, outName = None, jsonPath = None, begin = None,
-                  end = None, firstRun = None, lastRun = None ):
+                  end = None, firstRun = None, lastRun = None, parent = False ):
         if self.__alreadyStored:
-            return     
+            return
         self.__alreadyStored = True
         if outName == None:
             outName = "Dataset" + self.__name.replace("/", "_")
@@ -586,7 +667,8 @@ class Dataset:
                                             end = end,
                                             firstRun = firstRun,
                                             lastRun = lastRun,
-                                            repMap = theMap)
+                                            repMap = theMap,
+                                            parent = parent)
         magneticField = self.__magneticField
         if magneticField == "AutoFromDBCurrent":
             magneticField = "%s, %s" % (magneticField, str(self.__getMagneticFieldForRun()).replace("\n"," ")[0])
@@ -615,16 +697,23 @@ class Dataset:
         theFile.close()
         return
 
-    def fileList( self ):
-        if self.__fileList:
+    def fileList( self, parent = False ):
+        if self.__fileList and not parent:
             return self.__fileList
+        if self.__parentFileList and parent:
+            return self.__parentFileList
+
         fileList = [ self.__findInJson(fileInfo,"name") \
-                     for fileInfo in self.fileInfoList() ]
-        self.__fileList = fileList
+                     for fileInfo in self.fileInfoList(parent) ]
+
+        if not parent:
+            self.__fileList = fileList
+        else:
+            self.__parentFileList = fileList
         return fileList
-    
-    def fileInfoList( self ):
-        return self.__getFileInfoList( self.__dasLimit )
+
+    def fileInfoList( self, parent = False ):
+        return self.__getFileInfoList( self.__dasLimit, parent )
 
     def name( self ):
         return self.__name
