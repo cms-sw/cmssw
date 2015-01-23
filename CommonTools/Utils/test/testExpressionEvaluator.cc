@@ -29,19 +29,72 @@ CPPUNIT_TEST_SUITE_REGISTRATION( testExpressionEvaluator );
 
 #include <iostream>
 namespace {
-  void checkCandidate(reco::Candidate const & cand, const std::string & expression, double x) {
+  void checkCandidate(reco::LeafCandidate const & cand, const std::string & expression, double x) {
     std::cerr << "testing " << expression << std::endl;
     try {
-     std::string sexpr = "double eval(reco::Candidate const& cand) const override { return ";
+     //provide definition of the virtual function as a string
+     std::string sexpr = "double eval(reco::LeafCandidate const& cand) const override { return ";
      sexpr += expression + ";}";
-     reco::ExpressionEvaluator parser("VITest/ExprEval","eetest::ValueOnCandidate",sexpr.c_str());
-     auto expr = parser.expr<eetest::ValueOnCandidate>();
+     // construct the expression evaluator (pkg where precompile.h resides, name of base class, declaration of overloaded member function)
+     reco::ExpressionEvaluator eval("VITest/ExprEval","eetest::ValueOnCandidate",sexpr.c_str());
+     // obtain a pointer to the base class  (to be stored in Filter and Analyser at thier costruction time!)
+     eetest::ValueOnCandidate const * expr = eval.expr<eetest::ValueOnCandidate>();
+     CPPUNIT_ASSERT(expr);
+     // invoke
      CPPUNIT_ASSERT(std::abs(expr->eval(cand) - x) < 1.e-6);
     } catch(cms::Exception const & e) {
+      // if compilation fails, the compiler output is part of the exception message
       std::cerr << e.what()  << std::endl;
       CPPUNIT_ASSERT("ExpressionEvaluator threw"==0);
     }
   }
+
+  struct MyAnalyzer {
+    using Selector = eetest::MaskCandidateCollection;
+    explicit MyAnalyzer(std::string const & cut) {
+      std::string sexpr = "void eval(Collection const & c, Mask & m) const override{";
+      sexpr += "\n auto cut = [](reco::LeafCandidate const & cand){ return "+cut+";};\n"; 
+      sexpr += "  m.resize(c.size()); std::transform(c.begin(),c.end(),m.begin(), [&](Collection::value_type const & c){ return cut(*c);}); }";
+      std::cerr << "testing " << sexpr << std::endl;
+      try {
+        reco::ExpressionEvaluator eval("VITest/ExprEval","eetest::MaskCandidateCollection",sexpr.c_str());
+        m_selector = eval.expr<Selector>();
+        CPPUNIT_ASSERT(m_selector);
+      } catch(cms::Exception const & e) {
+        std::cerr << e.what()  << std::endl;
+        CPPUNIT_ASSERT("ExpressionEvaluator threw"==0);
+      }
+
+    }
+
+    void analyze() const {
+      auto inputColl = generate();
+      Selector::Collection cands; cands.reserve(inputColl.size());
+      for (auto const & c : inputColl) cands.push_back(&c);
+      Selector::Mask mask;
+      m_selector->eval(cands,mask);    
+      CPPUNIT_ASSERT(2==std::count(mask.begin(),mask.end(),true));
+    }
+
+   std::vector<reco::LeafCandidate>  generate() const {
+     reco::Candidate::LorentzVector p1(10, -10, -10, 15);
+     reco::Candidate::LorentzVector incr(0, 3, 3, 0);
+
+     int sign=1;
+     std::vector<reco::LeafCandidate> ret;
+     for (int i=0; i<10; ++i) {
+       ret.emplace_back(sign,p1);
+       sign = -sign;
+       p1 += incr;
+     }
+     return ret;  
+   }
+
+
+
+    Selector const * m_selector = nullptr;
+  };
+
 }
 
 void testExpressionEvaluator::checkAll() {
@@ -71,6 +124,9 @@ void testExpressionEvaluator::checkAll() {
     checkCandidate(cand,"reco::deltaR(*cand.daughter(0), *cand.daughter(1))", reco::deltaR(*cand.daughter(0), *cand.daughter(1)));
 
   }
+
+  MyAnalyzer analyzer("cand.pt()>15 & std::abs(cand.eta())<2");
+  analyzer.analyze();
 
 
 }
