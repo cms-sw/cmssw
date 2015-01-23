@@ -89,7 +89,10 @@ MuonAssociatorByHitsHelper::associateRecoToSimIndices(const TrackHitsCollection 
   bool printRtS(true);
 
   TrackingParticleCollection tPC;
-  if (TPCollectionH.size()!=0) tPC = *(TPCollectionH.product());
+  tPC.reserve(TPCollectionH.size());
+  for(auto const& ref: TPCollectionH) {
+    tPC.push_back(*ref);
+  }
 
   if(resources.diagnostics_) {
     resources.diagnostics_(tC,tPC);
@@ -362,7 +365,10 @@ MuonAssociatorByHitsHelper::associateSimToRecoIndices( const TrackHitsCollection
   bool printRtS(true);
 
   TrackingParticleCollection tPC;
-  if (TPCollectionH.size()!=0) tPC = *(TPCollectionH.product());
+  tPC.reserve(TPCollectionH.size());
+  for(auto const& ref: TPCollectionH) {
+    tPC.push_back(*ref);
+  }
 
   bool any_trackingParticle_matched = false;
   
