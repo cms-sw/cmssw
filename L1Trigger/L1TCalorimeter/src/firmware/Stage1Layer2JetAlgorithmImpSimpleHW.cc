@@ -28,10 +28,11 @@ Stage1Layer2JetAlgorithmImpSimpleHW::~Stage1Layer2JetAlgorithmImpSimpleHW(){};
 void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::CaloRegion> & regions,
 						       const std::vector<l1t::CaloEmCand> & EMCands,
 						       std::vector<l1t::Jet> * jets,
-						       std::vector<l1t::Jet> * preGtJets){
+						       std::vector<l1t::Jet> * debugJets){
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::Jet> *preGtEtaJets = new std::vector<l1t::Jet>();
+  std::vector<l1t::Jet> *calibratedRankedJets = new std::vector<l1t::Jet>();
   std::vector<l1t::Jet> *sortedJets = new std::vector<l1t::Jet>();
 
   //simpleHWSubtraction(regions, subRegions);
@@ -42,12 +43,15 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
 
   slidingWindowJetFinder(0, subRegions, preGtEtaJets);
 
-  SortJets(preGtEtaJets, sortedJets);
+  calibrateAndRankJets(params_, preGtEtaJets, calibratedRankedJets);
 
-  JetToGtEtaScales(params_, sortedJets, preGtJets);
-  JetToGtPtScales(params_, preGtJets, jets);
+  SortJets(calibratedRankedJets, sortedJets);
 
-  const bool verbose = false;
+  JetToGtEtaScales(params_, sortedJets, jets);
+  JetToGtEtaScales(params_, preGtEtaJets, debugJets);
+  //JetToGtPtScales(params_, preGtJets, jets);
+
+  const bool verbose = true;
   if(verbose)
   {
     int cJets = 0;
@@ -77,5 +81,6 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
 
   delete subRegions;
   delete preGtEtaJets;
+  delete calibratedRankedJets;
   delete sortedJets;
 }
