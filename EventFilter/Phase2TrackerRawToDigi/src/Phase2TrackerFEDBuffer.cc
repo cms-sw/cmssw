@@ -107,8 +107,8 @@ namespace Phase2Tracker
           uint8_t mod_type = static_cast<uint8_t>(read_n_at_m(payloadPointer_,1,bitOffset));
           // note the index of the next channel to fill
           int ichan = channels_.size();
-          // add the proper number of channels for this FE (2 channels per chip) 
-          channels_.insert(channels_.end(),size_t(MAX_CBC_PER_FE*2),Phase2TrackerFEDChannel(payloadPointer_,0,0));
+          // add the proper number of channels for this FE (4 channels per module, 1 for each side of S and P) 
+          channels_.insert(channels_.end(),size_t(4),Phase2TrackerFEDChannel(payloadPointer_,0,0));
           // read number of clusters of each type
           uint8_t num_p, num_s;
           if (mod_type == 0)
@@ -124,69 +124,51 @@ namespace Phase2Tracker
               bitOffset += 13;
           }
           // start indexing
-          int currCBC = -1;
-          int iCBC = -1;
-          int chanSize = 0;
-          int iOffset = 0;
+          int iCBC;
+          int iOffset = bitOffset;
+          int chansize_0 = 0, chansize_1 = 0, chansize_2 = 0, chansize_3 = 0;
           for (int i=0; i<num_p; i++)
           {
-              // test if new chip 
               iCBC = static_cast<uint8_t>(read_n_at_m(payloadPointer_,4,bitOffset+14));
-              if(iCBC != currCBC)
+              if(iCBC < 8)
               {
-                  if(currCBC >= 0) 
-                  {
-                      // save channel (P channels start after S channels)
-                      iOffset = bitOffset - chanSize;
-                      channels_[ichan + currCBC + MAX_CBC_PER_FE] = Phase2TrackerFEDChannel(payloadPointer_,iOffset/8,(chanSize + 8 -1)/8,iOffset%8,DET_PonPS);
-                  }
-                  chanSize   = P_CLUSTER_SIZE_BITS;
+                chansize_2 += P_CLUSTER_SIZE_BITS;
               }
-              else 
+              else
               {
-                  chanSize += P_CLUSTER_SIZE_BITS;
+                chansize_3 += P_CLUSTER_SIZE_BITS;
               }
               bitOffset += P_CLUSTER_SIZE_BITS;
-              currCBC = iCBC;
-              if(i == num_p-1)
-              {
-                iOffset = bitOffset - chanSize;
-                channels_[ichan + currCBC + MAX_CBC_PER_FE] = Phase2TrackerFEDChannel(payloadPointer_,iOffset/8,(chanSize + 8 -1)/8,iOffset%8,DET_PonPS);
-              }
           }
-          currCBC = -1;
           for (int i=0; i<num_s; i++)
           {
               iCBC = static_cast<uint8_t>(read_n_at_m(payloadPointer_,4,bitOffset+11));
-              if(iCBC != currCBC)
+              if(iCBC < 8)
               {
-                  if(currCBC >= 0) 
-                  {
-                      // save channel according to module type
-                      DET_TYPE det_type = (mod_type == 0) ? DET_Son2S : DET_SonPS;
-                      iOffset = bitOffset - chanSize;
-                      channels_[ichan + currCBC] = Phase2TrackerFEDChannel(payloadPointer_,iOffset/8,(chanSize + 8 -1)/8,iOffset%8,det_type);
-                  }
-                  chanSize   = S_CLUSTER_SIZE_BITS;
+                chansize_0 += S_CLUSTER_SIZE_BITS;
               }
-              else 
+              else
               {
-                  chanSize += S_CLUSTER_SIZE_BITS;
+                chansize_1 += S_CLUSTER_SIZE_BITS;
               }
               bitOffset += S_CLUSTER_SIZE_BITS;
-              currCBC = iCBC;
-              if(i == num_s-1)
-              {
-                DET_TYPE det_type = (mod_type == 0) ? DET_Son2S : DET_SonPS;
-                iOffset = bitOffset - chanSize;
-                channels_[ichan + currCBC] = Phase2TrackerFEDChannel(payloadPointer_,iOffset/8,(chanSize + 8 -1)/8,iOffset%8,det_type);
-              } 
           }
+          // P plane
+          channels_[ichan + 0] = Phase2TrackerFEDChannel(payloadPointer_,iOffset/8,(chansize_2 + 8 -1)/8,iOffset%8,DET_PonPS);
+          iOffset += chansize_2;
+          channels_[ichan + 1] = Phase2TrackerFEDChannel(payloadPointer_,iOffset/8,(chansize_3 + 8 -1)/8,iOffset%8,DET_PonPS);
+          iOffset += chansize_3;
+          // S plane
+          DET_TYPE det_type = (mod_type == 0) ? DET_Son2S : DET_SonPS;
+          channels_[ichan + 2] = Phase2TrackerFEDChannel(payloadPointer_,iOffset/8,(chansize_0 + 8 -1)/8,iOffset%8,det_type);
+          iOffset += chansize_0;
+          channels_[ichan + 3] = Phase2TrackerFEDChannel(payloadPointer_,iOffset/8,(chansize_1 + 8 -1)/8,iOffset%8,det_type);
+          iOffset += chansize_1;
         }
         else
         {
           // else fill with null channels, don't advance the channel pointer
-          channels_.insert(channels_.end(),size_t(MAX_CBC_PER_FE*2),Phase2TrackerFEDChannel(payloadPointer_,0,0));
+          channels_.insert(channels_.end(),size_t(4),Phase2TrackerFEDChannel(payloadPointer_,0,0));
         }
       }
       // compute byte offset for payload

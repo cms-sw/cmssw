@@ -58,15 +58,7 @@ namespace Phase2Tracker {
     computePosAndSize();
     return (*this);
   }
-/*
-  bool Phase2TrackerFEDZSChannelUnpacker::gluedToNextCluster() const
-  {
-    uint8_t size = rawSize();
-    if (clustersLeft_ == 0 or size < 8) { return false; }
-    uint8_t nextpos = (uint8_t)read_n_at_m(data_,8,3+currentOffset_+clusterdatasize_);
-    return (nextpos == rawIndex() + size);
-  }
-*/  
+
   inline Phase2TrackerFEDZSChannelUnpacker& Phase2TrackerFEDZSChannelUnpacker::operator ++ (int)
   {
     ++(*this); return *this;
@@ -92,7 +84,7 @@ namespace Phase2Tracker {
   bool Phase2TrackerFEDZSSon2SChannelUnpacker::gluedToNextCluster() const
   {
     uint8_t size = rawSize();
-    if (clustersLeft_ <= 1 or size < 8) { return false; }
+    if (clustersLeft_ <= 1) { return false; }
     uint8_t nextpos = (uint8_t)read_n_at_m(data_,8,3+currentOffset_+clusterdatasize_);
     return (nextpos == rawIndex() + size*2);
   }
@@ -117,7 +109,7 @@ namespace Phase2Tracker {
   bool Phase2TrackerFEDZSSonPSChannelUnpacker::gluedToNextCluster() const
   {
     uint8_t size = rawSize();
-    if (clustersLeft_ <= 1 or size < 8) { return false; }
+    if (clustersLeft_ <= 1) { return false; }
     uint8_t nextpos = (uint8_t)read_n_at_m(data_,8,3+currentOffset_+clusterdatasize_);
     return (nextpos == rawIndex() + size);
   }
@@ -143,7 +135,7 @@ namespace Phase2Tracker {
   bool Phase2TrackerFEDZSPonPSChannelUnpacker::gluedToNextCluster() const
   {
     uint8_t size = rawSize();
-    if (clustersLeft_ <= 1 or size < 8 or clusterZpos() != (uint8_t)read_n_at_m(data_,4,3+currentOffset_+clusterdatasize_)) { return false; }
+    if (clustersLeft_ <= 1 or clusterZpos() != (uint8_t)read_n_at_m(data_,4,3+currentOffset_+clusterdatasize_)) { return false; }
     uint8_t nextpos = (uint8_t)read_n_at_m(data_,7,7+currentOffset_+clusterdatasize_);
     return (nextpos == rawIndex() + size);
   }

@@ -52,8 +52,8 @@ namespace Phase2Tracker {
         strxy["x"] = (int)(PS_ROWS*icbc + rawx);
         break;
       case DET_PonPS:
-        if(icbc-MAX_CBC_PER_FE > 7) { strxy["y"] = rawy + PS_COLS/2; icbc -= 8; }
-        strxy["x"] = (int)(PS_ROWS*(icbc-MAX_CBC_PER_FE) + rawx); 
+        if(icbc > 7) { strxy["y"] = rawy + PS_COLS/2; icbc -= 8; }
+        strxy["x"] = (int)(PS_ROWS*icbc + rawx); 
         break;
       case UNUSED:
         return strxy;
@@ -251,6 +251,7 @@ namespace Phase2Tracker {
         {
           // loop channels
           int ichan = 0;
+          int icbc;
           for ( int ife = 0; ife < MAX_FE_PER_FED; ife++ )
           {
             // get fedid from cabling
@@ -259,15 +260,15 @@ namespace Phase2Tracker {
             // container for this module's digis
             std::vector<SiPixelCluster> clustersTop;
             std::vector<SiPixelCluster> clustersBottom;
-            // there are two times more channels than CBCs in unsparsified FEDbuffers
-            for ( int icbc = 0; icbc < MAX_CBC_PER_FE*2; icbc++ )
+            // looping over concentrators (4 virtual concentrators in case of PS)
+            for ( int iconc = 0; iconc < 4; iconc++ )
             {
               const Phase2TrackerFEDChannel& channel = buffer->channel(ichan);
               if(channel.length() > 0)
               {
                 #ifdef EDM_ML_DEBUG
                 ss << dec << " id from cabling : " << detid << endl;
-                ss << dec << " reading channel : " << icbc << " on FE " << ife;
+                ss << dec << " reading channel : " << iconc << " on FE " << ife;
                 ss << dec << " with length  : " << (int) channel.length() << endl;
                 #endif
                 // create appropriate unpacker
@@ -276,6 +277,7 @@ namespace Phase2Tracker {
                   Phase2TrackerFEDZSSon2SChannelUnpacker unpacker = Phase2TrackerFEDZSSon2SChannelUnpacker(channel);
                   while (unpacker.hasData())
                   {
+                    icbc = unpacker.chipId();
                     #ifdef EDM_ML_DEBUG
                     ss << dec << "Son2S cluster at position: " << (int)unpacker.clusterIndex() << " with size: " << (int)unpacker.clusterSize() << endl;
                     #endif
@@ -297,6 +299,7 @@ namespace Phase2Tracker {
                   Phase2TrackerFEDZSSonPSChannelUnpacker unpacker = Phase2TrackerFEDZSSonPSChannelUnpacker(channel);
                   while (unpacker.hasData())
                   {
+                    icbc = unpacker.chipId();
                     #ifdef EDM_ML_DEBUG
                     ss << dec << "SonPS cluster at position: " << (int)unpacker.clusterIndex() << " with size: " << (int)unpacker.clusterSize() << endl;
                     #endif
@@ -311,6 +314,7 @@ namespace Phase2Tracker {
                   Phase2TrackerFEDZSPonPSChannelUnpacker unpacker = Phase2TrackerFEDZSPonPSChannelUnpacker(channel);
                   while (unpacker.hasData())
                   {
+                    icbc = unpacker.chipId();
                     #ifdef EDM_ML_DEBUG
                     ss << dec << "PonPS cluster at position: " << (int)unpacker.clusterIndex() <<" , "<<  (int)unpacker.clusterZpos() << " with size: " << (int)unpacker.clusterSize() << endl;
                     #endif
@@ -320,15 +324,9 @@ namespace Phase2Tracker {
                     unpacker++;
                   }
                 }
-                else
-                {
-                  // TODO: throw appropriate exception for nonexistant module type
-                }
-                
               } // end reading CBC's channel
               ichan++;
             } // end loop on channels
-            // NEW
             if(detid > 0)
             {
               std::vector<SiPixelCluster>::iterator it;
