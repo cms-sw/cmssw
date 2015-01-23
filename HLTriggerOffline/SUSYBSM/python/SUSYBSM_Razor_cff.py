@@ -5,10 +5,10 @@ SUSY_HLT_Razor_Main = cms.EDAnalyzer("SUSY_HLT_Razor",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
-  TriggerResults = cms.InputTag('TriggerResults','','reHLT'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_RsqMR300_Rsq0p09_MR200_v'),
-  TriggerFilter = cms.InputTag('hltRsqMR300Rsq0p09MR200', '', 'reHLT'), #the last filter in the path
-  CaloFilter = cms.InputTag('hltRsqMR240Rsq0p0196MR100Calo', '', 'reHLT'), #filter implementing cuts on calo MR and Rsq
+  TriggerFilter = cms.InputTag('hltRsqMR300Rsq0p09MR200', '', 'HLT'), #the last filter in the path
+  CaloFilter = cms.InputTag('hltRsqMR240Rsq0p0196MR100Calo', '', 'HLT'), #filter implementing cuts on calo MR and Rsq
   hemispheres = cms.InputTag('hemispheres')
 )
 
@@ -16,10 +16,10 @@ SUSY_HLT_Razor_QuadJet = cms.EDAnalyzer("SUSY_HLT_Razor",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
-  TriggerResults = cms.InputTag('TriggerResults','','reHLT'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_RsqMR300_Rsq0p09_MR200_4jet_v'),
-  TriggerFilter = cms.InputTag('hltRsqMR300Rsq0p09MR200', '', 'reHLT'), #the last filter in the path
-  CaloFilter = cms.InputTag('hltRsqMR240Rsq0p0196MR100Calo', '', 'reHLT'), #filter implementing cuts on calo MR and Rsq
+  TriggerFilter = cms.InputTag('hltRsqMR300Rsq0p09MR200', '', 'HLT'), #the last filter in the path
+  CaloFilter = cms.InputTag('hltRsqMR240Rsq0p0196MR100Calo', '', 'HLT'), #filter implementing cuts on calo MR and Rsq
   hemispheres = cms.InputTag('hemispheres')
 )
 
@@ -27,10 +27,10 @@ SUSY_HLT_Razor_DM = cms.EDAnalyzer("SUSY_HLT_Razor",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
-  TriggerResults = cms.InputTag('TriggerResults','','reHLT'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_Rsq0p36_v'),
-  TriggerFilter = cms.InputTag('hltRsq0p36', '', 'reHLT'), #the last filter in the path
-  CaloFilter = cms.InputTag('hltRsq0p16Calo', '', 'reHLT'), #filter implementing cuts on calo MR and Rsq
+  TriggerFilter = cms.InputTag('hltRsq0p36', '', 'HLT'), #the last filter in the path
+  CaloFilter = cms.InputTag('hltRsq0p16Calo', '', 'HLT'), #filter implementing cuts on calo MR and Rsq
   hemispheres = cms.InputTag('hemispheres')
 )
 
@@ -38,10 +38,10 @@ SUSY_HLT_Razor_Main_7e33 = cms.EDAnalyzer("SUSY_HLT_Razor",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
-  TriggerResults = cms.InputTag('TriggerResults','','reHLT'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_RsqMR260_Rsq0p09_MR200_v'),
-  TriggerFilter = cms.InputTag('hltRsqMR260Rsq0p09MR200', '', 'reHLT'), #the last filter in the path
-  CaloFilter = cms.InputTag('hltRsqMR240Rsq0p0196MR100Calo', '', 'reHLT'), #filter implementing cuts on calo MR and Rsq
+  TriggerFilter = cms.InputTag('hltRsqMR260Rsq0p09MR200', '', 'HLT'), #the last filter in the path
+  CaloFilter = cms.InputTag('hltRsqMR240Rsq0p0196MR100Calo', '', 'HLT'), #filter implementing cuts on calo MR and Rsq
   hemispheres = cms.InputTag('hemispheres')
 )
 
@@ -49,10 +49,10 @@ SUSY_HLT_Razor_QuadJet_7e33 = cms.EDAnalyzer("SUSY_HLT_Razor",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
-  TriggerResults = cms.InputTag('TriggerResults','','reHLT'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_RsqMR260_Rsq0p09_MR200_4jet_v'),
-  TriggerFilter = cms.InputTag('hltRsqMR260Rsq0p09MR200', '', 'reHLT'), #the last filter in the path
-  CaloFilter = cms.InputTag('hltRsqMR240Rsq0p0196MR100Calo', '', 'reHLT'), #filter implementing cuts on calo MR and Rsq
+  TriggerFilter = cms.InputTag('hltRsqMR260Rsq0p09MR200', '', 'HLT'), #the last filter in the path
+  CaloFilter = cms.InputTag('hltRsqMR240Rsq0p0196MR100Calo', '', 'HLT'), #filter implementing cuts on calo MR and Rsq
   hemispheres = cms.InputTag('hemispheres')
 )
 
@@ -62,10 +62,10 @@ SUSY_HLT_Razor_Main_FASTSIM = cms.EDAnalyzer("SUSY_HLT_Razor",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
-  TriggerResults = cms.InputTag('TriggerResults','','reHLT'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_RsqMR300_Rsq0p09_MR200_v'),
-  TriggerFilter = cms.InputTag('hltRsqMR300Rsq0p09MR200', '', 'reHLT'), #the last filter in the path
-  CaloFilter = cms.InputTag('hltRsqMR240Rsq0p0196MR100Calo', '', 'reHLT'), #filter implementing cuts on calo MR and Rsq
+  TriggerFilter = cms.InputTag('hltRsqMR300Rsq0p09MR200', '', 'HLT'), #the last filter in the path
+  CaloFilter = cms.InputTag('hltRsqMR240Rsq0p0196MR100Calo', '', 'HLT'), #filter implementing cuts on calo MR and Rsq
   hemispheres = cms.InputTag('hemispheres')
 )
 
@@ -73,10 +73,10 @@ SUSY_HLT_Razor_QuadJet_FASTSIM = cms.EDAnalyzer("SUSY_HLT_Razor",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
-  TriggerResults = cms.InputTag('TriggerResults','','reHLT'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_RsqMR300_Rsq0p09_MR200_4jet_v'),
-  TriggerFilter = cms.InputTag('hltRsqMR300Rsq0p09MR200', '', 'reHLT'), #the last filter in the path
-  CaloFilter = cms.InputTag('hltRsqMR240Rsq0p0196MR100Calo', '', 'reHLT'), #filter implementing cuts on calo MR and Rsq
+  TriggerFilter = cms.InputTag('hltRsqMR300Rsq0p09MR200', '', 'HLT'), #the last filter in the path
+  CaloFilter = cms.InputTag('hltRsqMR240Rsq0p0196MR100Calo', '', 'HLT'), #filter implementing cuts on calo MR and Rsq
   hemispheres = cms.InputTag('hemispheres')
 )
 
@@ -84,10 +84,10 @@ SUSY_HLT_Razor_DM_FASTSIM = cms.EDAnalyzer("SUSY_HLT_Razor",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
-  TriggerResults = cms.InputTag('TriggerResults','','reHLT'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_Rsq0p36_v'),
-  TriggerFilter = cms.InputTag('hltRsq0p36', '', 'reHLT'), #the last filter in the path
-  CaloFilter = cms.InputTag('hltRsq0p16Calo', '', 'reHLT'), #filter implementing cuts on calo MR and Rsq
+  TriggerFilter = cms.InputTag('hltRsq0p36', '', 'HLT'), #the last filter in the path
+  CaloFilter = cms.InputTag('hltRsq0p16Calo', '', 'HLT'), #filter implementing cuts on calo MR and Rsq
   hemispheres = cms.InputTag('hemispheres')
 )
 
@@ -95,10 +95,10 @@ SUSY_HLT_Razor_Main_7e33_FASTSIM = cms.EDAnalyzer("SUSY_HLT_Razor",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
-  TriggerResults = cms.InputTag('TriggerResults','','reHLT'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_RsqMR260_Rsq0p09_MR200_v'),
-  TriggerFilter = cms.InputTag('hltRsqMR260Rsq0p09MR200', '', 'reHLT'), #the last filter in the path
-  CaloFilter = cms.InputTag('hltRsqMR240Rsq0p0196MR100Calo', '', 'reHLT'), #filter implementing cuts on calo MR and Rsq
+  TriggerFilter = cms.InputTag('hltRsqMR260Rsq0p09MR200', '', 'HLT'), #the last filter in the path
+  CaloFilter = cms.InputTag('hltRsqMR240Rsq0p0196MR100Calo', '', 'HLT'), #filter implementing cuts on calo MR and Rsq
   hemispheres = cms.InputTag('hemispheres')
 )
 
@@ -106,10 +106,10 @@ SUSY_HLT_Razor_QuadJet_7e33_FASTSIM = cms.EDAnalyzer("SUSY_HLT_Razor",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
-  TriggerResults = cms.InputTag('TriggerResults','','reHLT'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   TriggerPath = cms.string('HLT_RsqMR260_Rsq0p09_MR200_4jet_v'),
-  TriggerFilter = cms.InputTag('hltRsqMR260Rsq0p09MR200', '', 'reHLT'), #the last filter in the path
-  CaloFilter = cms.InputTag('hltRsqMR240Rsq0p0196MR100Calo', '', 'reHLT'), #filter implementing cuts on calo MR and Rsq
+  TriggerFilter = cms.InputTag('hltRsqMR260Rsq0p09MR200', '', 'HLT'), #the last filter in the path
+  CaloFilter = cms.InputTag('hltRsqMR240Rsq0p0196MR100Calo', '', 'HLT'), #filter implementing cuts on calo MR and Rsq
   hemispheres = cms.InputTag('hemispheres')
 )
 
