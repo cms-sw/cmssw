@@ -18,6 +18,7 @@ virtclasses = set()
 badfuncs = set()
 badclasses = set()
 esdclasses = set()
+dclasses = set()
 dataclasses = set()
 flaggedclasses = set()
 import networkx as nx
@@ -28,14 +29,14 @@ f = open('classes.txt.dumperft')
 for line in f:
        if datacl.search(line) :
                classname = line.split("'")[1]
-               esdclasses.add(classname)
+               dclasses.add(classname)
 f.close()
 
 f = open('classes.txt.inherits')
 for line in f:
        if datacl.search(line) :
                classname = line.split("'")[1]
-               esdclasses.add(classname)
+               dataclasses.add(classname)
 f.close()
 
 
@@ -106,8 +107,8 @@ for n,nbrdict in H.adjacency_iter():
 
 for n,nbrdict in H.adjacency_iter():
 	for nbr,eattr in nbrdict.items():
-		if nbr in dataclasses and 'kind' in eattr and eattr['kind'] == ' base class '  :
-			dataclasses.add(n)
+		if nbr in dclasses and 'kind' in eattr and eattr['kind'] == ' base class '  :
+			dclasses.add(n)
 
 print "flagged functions found by checker"
 for dfunc in sorted(badfuncs) : 
@@ -120,14 +121,10 @@ for dclass in sorted(badclasses) :
 print
 
 print "flagged classes found by checker union get" 
-for dclass in sorted(dataclasses.intersection(badclasses)) :
+for dclass in sorted(dclasses.intersection(badclasses)) :
 	print dclass
 print
 
-print "flagged classes found by checker union dumper" 
-for dclass in sorted(esdclasses.intersection(badclasses)) :
-	print dclass
-print
 
 print "classes inheriting from flagged classes"
 for dclass in sorted(virtclasses):
