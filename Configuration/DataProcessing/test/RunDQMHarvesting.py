@@ -22,6 +22,7 @@ class RunDQMHarvesting:
         self.run = None
         self.globalTag = 'UNSPECIFIED::All'
         self.inputLFN = None
+        self.dqmio = None
 
     def __call__(self):
         if self.scenario == None:
@@ -56,8 +57,12 @@ class RunDQMHarvesting:
         
         
         try:
+            kwds = {}
+            if not self.dqmio is None:
+                kwds['newDQMIO'] = self.dqmio
+
             process = scenario.dqmHarvesting(self.dataset, self.run,
-                                             self.globalTag)
+                                             self.globalTag, **kwds)
             
         except Exception, ex:
             msg = "Error creating Harvesting config:\n"
@@ -78,7 +83,7 @@ class RunDQMHarvesting:
 
 if __name__ == '__main__':
     valid = ["scenario=", "run=", "dataset=",
-             "global-tag=", "lfn="]
+             "global-tag=", "lfn=", "dqmio"]
     usage = """RunDQMHarvesting.py <options>"""
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
@@ -101,5 +106,7 @@ if __name__ == '__main__':
             harvester.run = arg
         if opt == "--dataset":
             harvester.dataset = arg
+        if opt == "--dqmio":
+            harvester.dqmio = True
 
     harvester()

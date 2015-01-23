@@ -53,11 +53,9 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
   
   Handle<SimVertexContainer> simVertexCollection;
   event.getByLabel(simvtxTag, simVertexCollection);
-  const SimVertexContainer& simVC = *(simVertexCollection.product());
 
   edm::Handle<TrackingParticleCollection>  TPCollectionH ;
   event.getByLabel(tpTag,TPCollectionH);
-  const TrackingParticleCollection& tPC   = *(TPCollectionH.product());
 
   cout << "\nEvent ID = "<< event.id() << endl ;
 
