@@ -40,7 +40,7 @@ void TUFWalker::VisitChildren( clang::Stmt *S) {
 void TUFWalker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 	CXXMethodDecl * MD = CE->getMethodDecl();
 	if (!MD) return;
-	const CXXMethodDecl * PD = llvm::dyn_cast<CXXMethodDecl>(AC->getDecl());
+	const CXXMethodDecl * PD = llvm::dyn_cast_or_null<CXXMethodDecl>(AC->getDecl());
 	if (!PD) return;
 	std::string mname = support::getQualifiedName(*MD);
 	std::string pname = support::getQualifiedName(*PD);

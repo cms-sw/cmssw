@@ -175,21 +175,21 @@ void WalkAST::VisitChildren( clang::Stmt *S) {
 void WalkAST::CheckBinaryOperator(const clang::BinaryOperator * BO,const clang::MemberExpr *IME) {
   if (BO->isAssignmentOp()) {
 
-	if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(BO->getLHS())){
+	if (clang::MemberExpr * ME = dyn_cast_or_null<clang::MemberExpr>(BO->getLHS())){
 			if (ME->isImplicitAccess()) ReportMember(ME);
 		}
   } else  {
-	if (clang::UnaryOperator * UO = llvm::dyn_cast<clang::UnaryOperator>(BO->getLHS()->IgnoreParenImpCasts()) ) {
+	if (clang::UnaryOperator * UO = llvm::dyn_cast_or_null<clang::UnaryOperator>(BO->getLHS()->IgnoreParenImpCasts()) ) {
 		if (UO->getOpcode() == clang::UnaryOperatorKind::UO_Deref) {
-			if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(UO->getSubExpr()->IgnoreParenImpCasts())){
+			if (clang::MemberExpr * ME = dyn_cast_or_null<clang::MemberExpr>(UO->getSubExpr()->IgnoreParenImpCasts())){
 				if (ME->isImplicitAccess()) ReportMember(ME);
 				}
-			if (clang::DeclRefExpr * DRE =dyn_cast<clang::DeclRefExpr>(UO->getSubExpr()->IgnoreParenImpCasts())){
-				if (const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl())) {
+			if (clang::DeclRefExpr * DRE =dyn_cast_or_null<clang::DeclRefExpr>(UO->getSubExpr()->IgnoreParenImpCasts())){
+				if (const clang::VarDecl * D = llvm::dyn_cast_or_null<clang::VarDecl>(DRE->getDecl())) {
 					clang::QualType t =  D->getType();
-					const clang::Expr * E = llvm::dyn_cast<clang::Expr>(D->getInit());
+					const clang::Expr * E = llvm::dyn_cast_or_null<clang::Expr>(D->getInit());
 					if (E && t->isPointerType() ) {
-						const clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(E->IgnoreParenImpCasts());
+						const clang::MemberExpr * ME = dyn_cast_or_null<clang::MemberExpr>(E->IgnoreParenImpCasts());
 						if (ME && ME->isImplicitAccess()) ReportMember(ME);
 						}	
 						
@@ -202,7 +202,7 @@ void WalkAST::CheckBinaryOperator(const clang::BinaryOperator * BO,const clang::
 
 void WalkAST::CheckUnaryOperator(const clang::UnaryOperator * UO,const clang::MemberExpr *E) {
   if (UO->isIncrementDecrementOp()) {
-		if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(UO->getSubExpr()->IgnoreParenImpCasts())) ReportMember(ME);
+		if (clang::MemberExpr * ME = dyn_cast_or_null<clang::MemberExpr>(UO->getSubExpr()->IgnoreParenImpCasts())) ReportMember(ME);
 	}
 }
 
@@ -220,14 +220,14 @@ void WalkAST::CheckCXXOperatorCallExpr(const clang::CXXOperatorCallExpr *OCE,con
 	case OO_PipeEqual:
 	case OO_LessLessEqual:
 	case OO_GreaterGreaterEqual:
-	if (const clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(OCE->arg_begin()->IgnoreParenImpCasts())){
+	if (const clang::MemberExpr * ME = dyn_cast_or_null<clang::MemberExpr>(OCE->arg_begin()->IgnoreParenImpCasts())){
 		if (ME->isImplicitAccess())
 			ReportMember(ME);
 	} 
 
 	case OO_PlusPlus:
 	case OO_MinusMinus:
-	if (const clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(OCE->getCallee()->IgnoreParenCasts())) {
+	if (const clang::MemberExpr * ME = dyn_cast_or_null<clang::MemberExpr>(OCE->getCallee()->IgnoreParenCasts())) {
 		if (ME->isImplicitAccess())
 			ReportMember(ME);
 	} 
@@ -311,7 +311,7 @@ void WalkAST::VisitCXXConstCastExpr(clang::CXXConstCastExpr *CCE) {
 }
 
 void WalkAST::VisitDeclRefExpr( clang::DeclRefExpr * DRE) {
-  if (clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl()) ) { 
+  if (clang::VarDecl * D = llvm::dyn_cast_or_null<clang::VarDecl>(DRE->getDecl()) ) { 
   	clang::SourceLocation SL = DRE->getLocStart();
   	if (BR.getSourceManager().isInSystemHeader(SL) || BR.getSourceManager().isInExternCSystemHeader(SL)) return;
 	if ( support::isSafeClassName( D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
@@ -322,7 +322,7 @@ void WalkAST::VisitDeclRefExpr( clang::DeclRefExpr * DRE) {
 
 void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
  
- if (const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl())) {
+ if (const clang::VarDecl * D = llvm::dyn_cast_or_null<clang::VarDecl>(DRE->getDecl())) {
 	clang::QualType t =  D->getType();
 	const clang::Stmt * PS = ParentStmt(DRE);
  	CmsException m_exception;
@@ -403,19 +403,19 @@ void WalkAST::VisitMemberExpr( clang::MemberExpr *ME) {
   if (!(ME->isImplicitAccess())) return;
   Stmt * P = AC->getParentMap().getParent(ME);
 	while (AC->getParentMap().hasParent(P)) {
-		if (const clang::UnaryOperator * UO = llvm::dyn_cast<clang::UnaryOperator>(P)) 
+		if (const clang::UnaryOperator * UO = llvm::dyn_cast_or_null<clang::UnaryOperator>(P)) 
 			{ WalkAST::CheckUnaryOperator(UO,ME);}
-		if (const clang::BinaryOperator * BO = llvm::dyn_cast<clang::BinaryOperator>(P)) 
+		if (const clang::BinaryOperator * BO = llvm::dyn_cast_or_null<clang::BinaryOperator>(P)) 
 			{ WalkAST::CheckBinaryOperator(BO,ME);}
-		if (const clang::CXXOperatorCallExpr *OCE = llvm::dyn_cast<clang::CXXOperatorCallExpr>(P)) 
+		if (const clang::CXXOperatorCallExpr *OCE = llvm::dyn_cast_or_null<clang::CXXOperatorCallExpr>(P)) 
 			{ WalkAST::CheckCXXOperatorCallExpr(OCE,ME);}
-		if (const clang::ExplicitCastExpr * CE = llvm::dyn_cast<clang::ExplicitCastExpr>(P))
+		if (const clang::ExplicitCastExpr * CE = llvm::dyn_cast_or_null<clang::ExplicitCastExpr>(P))
 			{ WalkAST::CheckExplicitCastExpr(CE,ME);}
-		if (const clang::ReturnStmt * RS = llvm::dyn_cast<clang::ReturnStmt>(P)) 
+		if (const clang::ReturnStmt * RS = llvm::dyn_cast_or_null<clang::ReturnStmt>(P)) 
 			{ WalkAST::CheckReturnStmt(RS,ME); }
-		if (const clang::CXXConstCastExpr * CCE = llvm::dyn_cast<clang::CXXConstCastExpr>(P))
+		if (const clang::CXXConstCastExpr * CCE = llvm::dyn_cast_or_null<clang::CXXConstCastExpr>(P))
 			{ WalkAST::ReportCast(CCE);}
-		const clang::CXXNewExpr * NE = llvm::dyn_cast<clang::CXXNewExpr>(P);if (NE) break;
+		const clang::CXXNewExpr * NE = llvm::dyn_cast_or_null<clang::CXXNewExpr>(P);if (NE) break;
 		P = AC->getParentMap().getParent(P);
 	}
 }
@@ -436,15 +436,15 @@ void WalkAST::VisitCXXMemberCallExpr( clang::CXXMemberCallExpr *CE) {
   Visit(CE->getImplicitObjectArgument()->IgnoreParenCasts());
 
   const Expr * IOA = CE->getImplicitObjectArgument()->IgnoreParenCasts();
-  const MemberExpr * ME = dyn_cast<MemberExpr>(IOA);
+  const MemberExpr * ME = dyn_cast_or_null<MemberExpr>(IOA);
   if ( !MD->isConst() && ME && ME->isImplicitAccess() ) ReportCall(CE);
 
   for(int i=0, j=CE->getNumArgs(); i<j; i++) {
     if (CE->getArg(i)) {
-	if ( const clang::Expr *E = llvm::dyn_cast<clang::Expr>(CE->getArg(i)))  {
-	  const clang::MemberExpr *AME=llvm::dyn_cast<clang::MemberExpr>(E);
+	if ( const clang::Expr *E = llvm::dyn_cast_or_null<clang::Expr>(CE->getArg(i)))  {
+	  const clang::MemberExpr *AME=llvm::dyn_cast_or_null<clang::MemberExpr>(E);
 	    if (AME && AME->isImplicitAccess()) {
-		clang::ParmVarDecl *PVD=llvm::dyn_cast<clang::ParmVarDecl>(MD->getParamDecl(i));
+		clang::ParmVarDecl *PVD=llvm::dyn_cast_or_null<clang::ParmVarDecl>(MD->getParamDecl(i));
 		clang::QualType QT = PVD->getOriginalType();
 		const clang::Type * T = QT.getTypePtr();
 		if (!support::isConst(QT) && T->isReferenceType() && ME && ME->isImplicitAccess()) ReportCallArg(CE,i);
@@ -459,7 +459,7 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
  if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
  if ( visitingCallExpr ) {
 	clang::Expr * IOA = visitingCallExpr->getImplicitObjectArgument();
-	if (!( IOA->isImplicitCXXThis() || llvm::dyn_cast<CXXThisExpr>(IOA->IgnoreParenCasts()))) return;
+	if (!( IOA->isImplicitCXXThis() || llvm::dyn_cast_or_null<CXXThisExpr>(IOA->IgnoreParenCasts()))) return;
 	}
   std::string buf;
   llvm::raw_string_ostream os(buf);
@@ -629,6 +629,32 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
 	if (  !m_exception.reportClass( DLoc, BR ) ) return;
 
+	for ( auto I = RD->field_begin(), E = RD->field_end(); I != E; ++I)
+		{
+		const FieldDecl * D = (*I) ;
+        	if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
+		if ( D->isMutable() )
+                	{
+                	    clang::QualType t =  D->getType();
+                	    clang::ento::PathDiagnosticLocation DLoc =
+                	    clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
+                
+                	    if ( ! m_exception.reportMutableMember( t, DLoc, BR ) )
+                		return;
+                	    if ( support::isSafeClassName( t.getCanonicalType().getAsString() ) ) return;
+                	    if ( ! support::isDataClass( D->getParent()->getQualifiedNameAsString() ) ) return;
+                	    std::string buf;
+                	    llvm::raw_string_ostream os(buf);
+                	    os << "Mutable member '" <<t.getAsString()<<" "<<*D << "' in data class '"<<D->getParent()->getQualifiedNameAsString()<<"', might be thread-unsafe when accessing via a const handle.";
+                	    BR.EmitBasicReport(D, this, "Mutable member in data class",
+                	    					"Data Class Const Correctness", os.str(), DLoc);
+                	    std::string tolog = "data class '"+RD->getNameAsString()+"' mutable member '" + support::getQualifiedName(*D) + "' Warning: "+os.str();
+                            writeLog(tolog);
+ 
+                	}
+
+                 }
+	
 // Check the class methods (member methods).
 	for (clang::CXXRecordDecl::method_iterator
 		I = RD->method_begin(), E = RD->method_end(); I != E; ++I)  {
