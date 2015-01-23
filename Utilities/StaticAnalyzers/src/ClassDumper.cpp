@@ -25,7 +25,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 	std::string rootname("ROOT::");
 	std::string edmname("edm::");
 	std::string crname("class '");
-	const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
+	const ClassTemplateSpecializationDecl *SD = dyn_cast_or_null<ClassTemplateSpecializationDecl>(RD);
 	if (SD) {
 		std::string buf;
 		llvm::raw_string_ostream os(buf);
@@ -69,7 +69,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 				if (!qual.getTypePtr()->isRecordType()) continue;
 				if (const CXXRecordDecl * TRD = qual.getTypePtr()->getAsCXXRecordDecl()) {
 					std::string fname = TRD->getQualifiedNameAsString();
-					const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(TRD);
+					const ClassTemplateSpecializationDecl *SD = dyn_cast_or_null<ClassTemplateSpecializationDecl>(TRD);
 					if (SD) {
 							std::string buf;
 							llvm::raw_string_ostream os(buf);
