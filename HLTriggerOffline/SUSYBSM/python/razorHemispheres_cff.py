@@ -11,4 +11,5 @@ hemispheres = cms.EDFilter(
     maxNJ = cms.int32(9)
 )
 
-hemisphereSequence = cms.Sequence(ak4PFJets*ak4PFJetsCHS*hemispheres)
+#hemisphereSequence = cms.Sequence(ak4PFJets*ak4PFJetsCHS*hemispheres)
+hemisphereSequence = cms.Sequence(hemispheres)
