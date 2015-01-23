@@ -74,7 +74,7 @@ GenEventInfoProduct &GenEventInfoProduct::operator = (GenEventInfoProduct const 
 	return *this;
 }
 
-double GenEventInfoProduct::weight() const
+double GenEventInfoProduct::weightProduct() const
 {
 	return std::accumulate(weights_.begin(), weights_.end(),
 	                       1., std::multiplies<double>());
