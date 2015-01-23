@@ -1222,6 +1222,8 @@ class ConfigBuilder(object):
         self.prepare_ALCA(sequence, workflow = "output")
 
     def prepare_ALCA(self, sequence = None, workflow = 'full'):
+        print "Sequence: " + sequence
+        print "Defcff = " + self.ALCADefaultCFF
         """ Enrich the process with alca streams """
         alcaConfig=self.loadDefaultOrSpecifiedCFF(sequence,self.ALCADefaultCFF)
         sequence = sequence.split('.')[-1]
