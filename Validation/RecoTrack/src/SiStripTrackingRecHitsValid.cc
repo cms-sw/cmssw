@@ -14,10 +14,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -1354,22 +1351,22 @@ void SiStripTrackingRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const ed
       // Keep in mind that when we are on the TID or TEC we deal with rings not wheel 
       int32_t stereolnumber = det_layer_pair.second;
       std::vector<uint32_t> stereoandmatchedDetIds;        
-      if ( (det_layer_pair.first == "TIB") &&  (TIBDetId(detid).stereo()== 1) ) {
+      if ( (det_layer_pair.first == "TIB") &&  (tTopo->tibIsStereo(detid)== 1) ) {
 	substructure.getTIBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0,0);
 	isStereo = true;
-      } else if ( (det_layer_pair.first == "TOB") &&  (TOBDetId(detid).stereo()== 1) ) {
+      } else if ( (det_layer_pair.first == "TOB") &&  (tTopo->tobIsStereo(detid)== 1) ) {
 	substructure.getTOBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0);
 	isStereo = true;
-      } else if ( (det_layer_pair.first == "TID") && (stereolnumber > 0) && (TIDDetId(detid).stereo()== 1) ) {
+      } else if ( (det_layer_pair.first == "TID") && (stereolnumber > 0) && (tTopo->tidIsStereo(detid)== 1) ) {
 	substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,2,0,abs(stereolnumber),1);
 	isStereo = true;
-      } else if ( (det_layer_pair.first == "TID") && (stereolnumber < 0) && (TIDDetId(detid).stereo()== 1) ) {
+      } else if ( (det_layer_pair.first == "TID") && (stereolnumber < 0) && (tTopo->tidIsStereo(detid)== 1) ) {
 	substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,1,0,abs(stereolnumber),1);
 	isStereo = true;
-      } else if ( (det_layer_pair.first == "TEC") && (stereolnumber > 0) && (TECDetId(detid).stereo()== 1) ) {
+      } else if ( (det_layer_pair.first == "TEC") && (stereolnumber > 0) && (tTopo->tecIsStereo(detid)== 1) ) {
 	substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,2,0,0,0,abs(stereolnumber),1);
 	isStereo = true;
-      } else if ( (det_layer_pair.first == "TEC") && (stereolnumber < 0) && (TECDetId(detid).stereo()== 1) ) {
+      } else if ( (det_layer_pair.first == "TEC") && (stereolnumber < 0) && (tTopo->tecIsStereo(detid)== 1) ) {
 	substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,1,0,0,0,abs(stereolnumber),1);
 	isStereo = true;
       }
