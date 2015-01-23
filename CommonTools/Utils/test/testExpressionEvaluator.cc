@@ -49,12 +49,27 @@ namespace {
     }
   }
 
+  std::vector<reco::LeafCandidate>  generate() {
+     reco::Candidate::LorentzVector p1(10, -10, -10, 15);
+     reco::Candidate::LorentzVector incr(0, 3, 3, 0);
+
+     int sign=1;
+     std::vector<reco::LeafCandidate> ret;
+     for (int i=0; i<10; ++i) {
+       ret.emplace_back(sign,p1);
+       sign = -sign;
+       p1 += incr;
+     }
+     return ret;
+   }
+
+
   struct MyAnalyzer {
     using Selector = eetest::MaskCandidateCollection;
     explicit MyAnalyzer(std::string const & cut) {
       std::string sexpr = "void eval(Collection const & c, Mask & m) const override{";
       sexpr += "\n auto cut = [](reco::LeafCandidate const & cand){ return "+cut+";};\n"; 
-      sexpr += "  m.resize(c.size()); std::transform(c.begin(),c.end(),m.begin(), [&](Collection::value_type const & c){ return cut(*c);}); }";
+      sexpr += "mask(c,m,cut); }";
       std::cerr << "testing " << sexpr << std::endl;
       try {
         reco::ExpressionEvaluator eval("VITest/ExprEval","eetest::MaskCandidateCollection",sexpr.c_str());
@@ -74,26 +89,45 @@ namespace {
       Selector::Mask mask;
       m_selector->eval(cands,mask);    
       CPPUNIT_ASSERT(2==std::count(mask.begin(),mask.end(),true));
+      int ind=0;
+      cands.erase(std::remove_if(cands.begin(),cands.end(),[&](Selector::Collection::value_type const &){return !mask[ind++];}),cands.end());
+      CPPUNIT_ASSERT(2==cands.size());
+     }
+
+
+     Selector const * m_selector = nullptr;
+  };
+
+
+  struct MyAnalyzer2 {
+    using Selector = eetest::SelectCandidateCollection;
+    explicit MyAnalyzer2(std::string const & cut) {
+      std::string sexpr = "void eval(Collection & c) const override{";
+      sexpr += "\n auto cut = [](reco::LeafCandidate const & cand){ return "+cut+";};\n";
+      sexpr += "select(c,cut); }";
+      std::cerr << "testing " << sexpr << std::endl;
+      try {
+	reco::ExpressionEvaluator eval("VITest/ExprEval","eetest::SelectCandidateCollection",sexpr.c_str());
+        m_selector = eval.expr<Selector>();
+        CPPUNIT_ASSERT(m_selector);
+      } catch(cms::Exception const & e) {
+        std::cerr << e.what()  << std::endl;
+        CPPUNIT_ASSERT("ExpressionEvaluator threw"==0);
+      }                                                                                                     
     }
 
-   std::vector<reco::LeafCandidate>  generate() const {
-     reco::Candidate::LorentzVector p1(10, -10, -10, 15);
-     reco::Candidate::LorentzVector incr(0, 3, 3, 0);
-
-     int sign=1;
-     std::vector<reco::LeafCandidate> ret;
-     for (int i=0; i<10; ++i) {
-       ret.emplace_back(sign,p1);
-       sign = -sign;
-       p1 += incr;
-     }
-     return ret;  
-   }
-
-
+    void analyze() const {
+      auto inputColl = generate();
+      Selector::Collection cands; cands.reserve(inputColl.size());
+      for (auto const & c : inputColl) cands.push_back(&c);
+      m_selector->eval(cands);
+      CPPUNIT_ASSERT(2==cands.size());
+    }
 
     Selector const * m_selector = nullptr;
   };
+
+
 
 }
 
@@ -127,6 +161,9 @@ void testExpressionEvaluator::checkAll() {
 
   MyAnalyzer analyzer("cand.pt()>15 & std::abs(cand.eta())<2");
   analyzer.analyze();
+
+  MyAnalyzer2 analyzer2("cand.pt()>15 & std::abs(cand.eta())<2");
+  analyzer2.analyze();
 
 
 }
