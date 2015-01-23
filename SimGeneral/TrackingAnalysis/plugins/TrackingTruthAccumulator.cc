@@ -650,9 +650,7 @@ namespace // Unnamed namespace for things only used in this file
 
 		bool isInVolume=this->vectorIsInsideVolume( simVertex.position() );
 
-		// TODO - Still need to set the truth ID properly. I'm not sure what to set
-		// the second parameter of the EncodedTruthId constructor to.
-		TrackingVertex returnValue( simVertex.position(), isInVolume, EncodedTruthId( simVertex.eventId(), 0 ) );
+		TrackingVertex returnValue( simVertex.position(), isInVolume, simVertex.eventId() );
 		
 		// add the SimVertex to the TrackingVertex
 		returnValue.addG4Vertex(simVertex);
