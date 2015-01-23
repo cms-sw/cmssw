@@ -26,14 +26,7 @@ sort -u < classes.txt.dumperft.unsorted | grep -e"^class" >classes.txt.dumperft.
 awk -F\' ' {print "class \47"$2"\47\n\nclass \47"$4"\47\n\nclass \47"$6"\47\n\n" } '  <classes.txt.dumperft.sorted | sort -u >classes.txt.dumperft
 sort -u < classes.txt.dumperall.unsorted | grep -e"^class" >classes.txt.dumperall
 sort -u < function-dumper.txt.unsorted > function-calls-db.txt
-awk -F\' 'NR==FNR{a[$2]=1;next} { for(i in a){if($4==i && $3==" base class "){print}} }' classes.txt.dumperft.sorted classes.txt.dumperall | sort -u >classes.txt.inherits.sorted
-awk -F\' 'NR==FNR{a[$2]=1;next} { for(i in a){if($2==i){ print "class \47"$2"\47\n\nclass \47"$4"\47\n\nclass \47"$6"\47\n\n" }} }' classes.txt.inherits.sorted classes.txt.dumperall | sort -u >classes.txt.inherits
-cp classes.txt.dumperft classes.txt.dumperft.tmp
-for j in 0 1 2 3 4 5 6 7 8 9;do
-awk -F\' 'NR==FNR{a[$2]=1;next} { for(i in a){if($2==i){ print "class \47"$2"\47\n\nclass \47"$4"\47\n\nclass \47"$6"\47\n\n" };if($4==i && $3==" base class "){ print "class \47"$2"\47\n\nclass \47"$4"\47\n\n" }} }' classes.txt.dumperft.tmp classes.txt.dumperall | sort -u >classes.txt.dumperft.$j
-cp classes.txt.dumperft.$j classes.txt.dumperft.tmp
-done
-rm classes.txt.dumperft.[0-9]
-cat classes.txt.dumperft.tmp classes.txt.dumperct classes.txt.dumperft classes.txt.inherits | grep -e"^class" | grep -v \'\' | sort -u >classes.txt
+class-composition.py >classes.txt.inherits
+cat classes.txt.inherits classes.txt.dumperft classes.txt.dumperct | grep -e"^class" | grep -v \'\' | sort -u >classes.txt
 rm *.txt.*unsorted
 classname-blmflt.py
