@@ -107,7 +107,7 @@ addMixingScenario("Phys14_50ns_PoissonOOT",{'file': 'SimGeneral.MixingModule.mix
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
 ##fastsim section
-addMixingScenario("FS_NoPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_NoPileUp_cff'})
+addMixingScenario("FS_NoPileUp",{'file': 'FastSimulation.Configuration.mixNoPU_cfi'})
 addMixingScenario("FS_LowLumiPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_LowLumiPileUp_cff'})
 addMixingScenario("FS_FlatDist10_2011EarlyData_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_FlatDist10_2011EarlyData_inTimeOnly_cff'})
 addMixingScenario("FS_E7TeV_Fall2011_Reprocess_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E7TeV_Fall2011_Reprocess_inTimeOnly_cff'})

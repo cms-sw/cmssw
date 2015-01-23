@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from FastSimulation.Configuration.CommonInputs_cff import MixingMode # MixingMode are defined here
-
 npu = cms.vint32(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59)
 prob = cms.vdouble(
                          2.560E-06,
@@ -66,15 +64,6 @@ prob = cms.vdouble(
                          5.005E-06)
 
 
-if (MixingMode=='DigiRecoMixing'):
-    # mix at SIM and RECO levels:
-    from FastSimulation.Configuration.MixingHitsAndTracks_cff import *
-    mix.input.nbPileupEvents.probFunctionVariable = npu
-    mix.input.nbPileupEvents.probValue = prob
-else:
-    print '#####################################################################################################################'
-    print '#####################################################################################################################'
-    print 'You are requesting a PU scenario that requires the DigiRecoMixing option, but you are actually using a different one!'
-    print '#####################################################################################################################'
-    print '#####################################################################################################################'
-    
+from FastSimulation.Configuration.MixingHitsAndTracks_cff import *
+mix.input.nbPileupEvents.probFunctionVariable = npu
+mix.input.nbPileupEvents.probValue = prob
