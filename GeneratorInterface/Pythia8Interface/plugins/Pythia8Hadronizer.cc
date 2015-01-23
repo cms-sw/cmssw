@@ -551,7 +551,7 @@ bool Pythia8Hadronizer::hadronize()
   
   //add ckkw merging weight
   if (mergeweight!=1.) {
-    event()->weights().push_back(mergeweight);
+    event()->weights()[0] *= mergeweight;
   }
   
   if (fEmissionVetoHook) {
