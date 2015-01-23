@@ -10,6 +10,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
@@ -28,8 +29,9 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
 
    void fillGenParticles (const edm::Event&);
    void fillGenPileupInfo(const edm::Event&);
-   void fillElectrons    (const edm::Event&, const edm::EventSetup&);
+   void fillElectrons    (const edm::Event&, const edm::EventSetup&, math::XYZPoint& pv);
    void fillPhotons      (const edm::Event&, const edm::EventSetup&);
+   void fillMuons        (const edm::Event&, const edm::EventSetup&, math::XYZPoint& pv);
 
    // Et and pT sums
    float getGenCalIso(edm::Handle<vector<reco::GenParticle> >&, reco::GenParticleCollection::const_iterator, float dRMax, bool removeMu, bool removeNu);
@@ -44,6 +46,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    edm::EDGetTokenT<vector<reco::GenParticle> >    genParticlesCollection_;
    edm::EDGetTokenT<edm::View<reco::GsfElectron> > gsfElectronsCollection_;
    edm::EDGetTokenT<edm::View<reco::Photon> >      recoPhotonsCollection_;
+   edm::EDGetTokenT<edm::View<reco::Muon> >        recoMuonsCollection_;
    edm::EDGetTokenT<EcalRecHitCollection>          ebRecHitCollection_;
    edm::EDGetTokenT<EcalRecHitCollection>          eeRecHitCollection_;
    edm::EDGetTokenT<vector<reco::Vertex> >         vtxCollection_;
@@ -163,6 +166,31 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    vector<float>  phoBC1Eta_;
    vector<float>  phoBC2E_;
    vector<float>  phoBC2Eta_;
+
+   // reco::Muon
+   Int_t          nMu_;
+   vector<float>  muPt_;
+   vector<float>  muEta_;
+   vector<float>  muPhi_;
+   vector<int>    muCharge_;
+   vector<int>    muType_;
+   vector<int>    muIsGood_;
+   vector<float>  muD0_;
+   vector<float>  muDz_;
+   vector<float>  muChi2NDF_;
+   vector<float>  muInnerD0_;
+   vector<float>  muInnerDz_;
+   vector<int>    muTrkLayers_;
+   vector<int>    muPixelLayers_;
+   vector<int>    muPixelHits_;
+   vector<int>    muMuonHits_;
+   vector<int>    muTrkQuality_;
+   vector<int>    muStations_;
+   vector<float>  muIsoTrk_;
+   vector<float>  muPFChIso_;
+   vector<float>  muPFPhoIso_;
+   vector<float>  muPFNeuIso_;
+   vector<float>  muPFPUIso_;
 };
 
 #endif

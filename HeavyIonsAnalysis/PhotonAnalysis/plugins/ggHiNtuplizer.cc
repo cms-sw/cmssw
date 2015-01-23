@@ -3,6 +3,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 #include "HeavyIonsAnalysis/PhotonAnalysis/interface/ggHiNtuplizer.h"
 #include "HeavyIonsAnalysis/PhotonAnalysis/interface/GenParticleParentage.h"
@@ -19,6 +20,7 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps)
    genParticlesCollection_ = consumes<vector<reco::GenParticle> >   (ps.getParameter<edm::InputTag>("genParticleSrc"));
    gsfElectronsCollection_ = consumes<edm::View<reco::GsfElectron> >(ps.getParameter<edm::InputTag>("gsfElectronLabel"));
    recoPhotonsCollection_  = consumes<edm::View<reco::Photon> >     (ps.getParameter<edm::InputTag>("recoPhotonSrc"));
+   recoMuonsCollection_    = consumes<edm::View<reco::Muon> >       (ps.getParameter<edm::InputTag>("recoMuonSrc"));
    ebRecHitCollection_     = consumes<EcalRecHitCollection>         (ps.getParameter<edm::InputTag>("ebRecHitCollection"));
    eeRecHitCollection_     = consumes<EcalRecHitCollection>         (ps.getParameter<edm::InputTag>("eeRecHitCollection"));
    vtxCollection_          = consumes<vector<reco::Vertex> >        (ps.getParameter<edm::InputTag>("VtxLabel"));
@@ -137,6 +139,30 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps)
    tree_->Branch("phoBC1Eta",             &phoBC1Eta_);
    tree_->Branch("phoBC2E",               &phoBC2E_);
    tree_->Branch("phoBC2Eta",             &phoBC2Eta_);
+
+   tree_->Branch("nMu",                   &nMu_);
+   tree_->Branch("muPt",                  &muPt_);
+   tree_->Branch("muEta",                 &muEta_);
+   tree_->Branch("muPhi",                 &muPhi_);
+   tree_->Branch("muCharge",              &muCharge_);
+   tree_->Branch("muType",                &muType_);
+   tree_->Branch("muIsGood",              &muIsGood_);
+   tree_->Branch("muD0",                  &muD0_);
+   tree_->Branch("muDz",                  &muDz_);
+   tree_->Branch("muChi2NDF",             &muChi2NDF_);
+   tree_->Branch("muInnerD0",             &muInnerD0_);
+   tree_->Branch("muInnerDz",             &muInnerDz_);
+   tree_->Branch("muTrkLayers",           &muTrkLayers_);
+   tree_->Branch("muPixelLayers",         &muPixelLayers_);
+   tree_->Branch("muPixelHits",           &muPixelHits_);
+   tree_->Branch("muMuonHits",            &muMuonHits_);
+   tree_->Branch("muTrkQuality",          &muTrkQuality_);
+   tree_->Branch("muStations",            &muStations_);
+   tree_->Branch("muIsoTrk",              &muIsoTrk_);
+   tree_->Branch("muPFChIso",             &muPFChIso_);
+   tree_->Branch("muPFPhoIso",            &muPFPhoIso_);
+   tree_->Branch("muPFNeuIso",            &muPFNeuIso_);
+   tree_->Branch("muPFPUIso",             &muPFPUIso_);
 }
 
 void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
@@ -147,6 +173,7 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
    nMC_ = 0;
    nEle_ = 0;
    nPho_ = 0;
+   nMu_ = 0;
 
    nPU_                  .clear();
    puBX_                 .clear();
@@ -248,6 +275,29 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
    phoBC2E_              .clear();
    phoBC2Eta_            .clear();
 
+   muPt_                 .clear();
+   muEta_                .clear();
+   muPhi_                .clear();
+   muCharge_             .clear();
+   muType_               .clear();
+   muIsGood_             .clear();
+   muD0_                 .clear();
+   muDz_                 .clear();
+   muChi2NDF_            .clear();
+   muInnerD0_            .clear();
+   muInnerDz_            .clear();
+   muTrkLayers_          .clear();
+   muPixelLayers_        .clear();
+   muPixelHits_          .clear();
+   muMuonHits_           .clear();
+   muTrkQuality_         .clear();
+   muStations_           .clear();
+   muIsoTrk_             .clear();
+   muPFChIso_            .clear();
+   muPFPhoIso_           .clear();
+   muPFNeuIso_           .clear();
+   muPFPUIso_            .clear();
+
    run_    = e.id().run();
    event_  = e.id().event();
    lumis_  = e.luminosityBlock();
@@ -259,8 +309,20 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
       fillGenParticles(e);
    }
 
-   fillElectrons(e, es);
+   edm::Handle<vector<reco::Vertex> > vtxHandle;
+   e.getByToken(vtxCollection_, vtxHandle);
+
+   // best-known primary vertex coordinates
+   math::XYZPoint pv(0, 0, 0);
+   for (vector<reco::Vertex>::const_iterator v = vtxHandle->begin(); v != vtxHandle->end(); ++v)
+      if (!v->isFake()) {
+         pv.SetXYZ(v->x(), v->y(), v->z());
+         break;
+      }
+
+   fillElectrons(e, es, pv);
    fillPhotons(e, es);
+   fillMuons(e, es, pv);
 
    tree_->Fill();
 }
@@ -439,26 +501,15 @@ float ggHiNtuplizer::getGenTrkIso(edm::Handle<vector<reco::GenParticle> > &handl
    return ptSum;
 }
 
-void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es)
+void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es, math::XYZPoint& pv)
 {
    // Fills tree branches with reco GSF electrons.
 
    edm::Handle<edm::View<reco::GsfElectron> > gsfElectronsHandle;
    e.getByToken(gsfElectronsCollection_, gsfElectronsHandle);
 
-   edm::Handle<vector<reco::Vertex> > vtxHandle;
-   e.getByToken(vtxCollection_, vtxHandle);
-
    EcalClusterLazyTools       lazyTool     (e, es, ebRecHitCollection_, eeRecHitCollection_);
    noZS::EcalClusterLazyTools lazyTool_noZS(e, es, ebRecHitCollection_, eeRecHitCollection_);
-
-   // best-known primary vertex coordinates
-   math::XYZPoint pv(0, 0, 0);
-   for (vector<reco::Vertex>::const_iterator v = vtxHandle->begin(); v != vtxHandle->end(); ++v)
-      if (!v->isFake()) {
-         pv.SetXYZ(v->x(), v->y(), v->z());
-         break;
-      }
 
    // loop over electrons
    for (edm::View<reco::GsfElectron>::const_iterator ele = gsfElectronsHandle->begin(); ele != gsfElectronsHandle->end(); ++ele) {
@@ -527,9 +578,6 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es)
    edm::Handle<edm::View<reco::Photon> > recoPhotonsHandle;
    e.getByToken(recoPhotonsCollection_, recoPhotonsHandle);
 
-   edm::Handle<vector<reco::Vertex> > vtxHandle;
-   e.getByToken(vtxCollection_, vtxHandle);
-
    EcalClusterLazyTools       lazyTool     (e, es, ebRecHitCollection_, eeRecHitCollection_);
    noZS::EcalClusterLazyTools lazyTool_noZS(e, es, ebRecHitCollection_, eeRecHitCollection_);
 
@@ -591,6 +639,64 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es)
       nPho_++;
 
    } // photons loop
+}
+
+void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, math::XYZPoint& pv)
+{
+   // Fills tree branches with reco muons.
+
+   edm::Handle<edm::View<reco::Muon> > recoMuonsHandle;
+   e.getByToken(recoMuonsCollection_, recoMuonsHandle);
+
+   for (edm::View<reco::Muon>::const_iterator mu = recoMuonsHandle->begin(); mu != recoMuonsHandle->end(); ++mu) {
+      if (mu->pt() < 5) continue;
+      if (!(mu->isPFMuon() || mu->isGlobalMuon() || mu->isTrackerMuon())) continue;
+
+      muPt_    .push_back(mu->pt());
+      muEta_   .push_back(mu->eta());
+      muPhi_   .push_back(mu->phi());
+      muCharge_.push_back(mu->charge());
+      muType_  .push_back(mu->type());
+      muIsGood_.push_back((int) muon::isGoodMuon(*mu, muon::selectionTypeFromString("TMOneStationTight")));
+      muD0_    .push_back(mu->muonBestTrack()->dxy(pv));
+      muDz_    .push_back(mu->muonBestTrack()->dz(pv));
+
+      const reco::TrackRef glbMu = mu->globalTrack();
+      const reco::TrackRef innMu = mu->innerTrack();
+
+      if (glbMu.isNull()) {
+         muChi2NDF_ .push_back(-99);
+         muMuonHits_.push_back(-99);
+      } else {
+         muChi2NDF_.push_back(glbMu->normalizedChi2());
+         muMuonHits_.push_back(glbMu->hitPattern().numberOfValidMuonHits());
+      }
+
+      if (innMu.isNull()) {
+         muInnerD0_     .push_back(-99);
+         muInnerDz_     .push_back(-99);
+         muTrkLayers_   .push_back(-99);
+         muPixelLayers_ .push_back(-99);
+         muPixelHits_   .push_back(-99);
+         muTrkQuality_  .push_back(-99);
+      } else {
+         muInnerD0_     .push_back(innMu->dxy(pv));
+         muInnerDz_     .push_back(innMu->dz(pv));
+         muTrkLayers_   .push_back(innMu->hitPattern().trackerLayersWithMeasurement());
+         muPixelLayers_ .push_back(innMu->hitPattern().pixelLayersWithMeasurement());
+         muPixelHits_   .push_back(innMu->hitPattern().numberOfValidPixelHits());
+         muTrkQuality_  .push_back(innMu->quality(reco::TrackBase::highPurity));
+      }
+
+      muStations_ .push_back(mu->numberOfMatchedStations());
+      muIsoTrk_   .push_back(mu->isolationR03().sumPt);
+      muPFChIso_  .push_back(mu->pfIsolationR04().sumChargedHadronPt);
+      muPFPhoIso_ .push_back(mu->pfIsolationR04().sumPhotonEt);
+      muPFNeuIso_ .push_back(mu->pfIsolationR04().sumNeutralHadronEt);
+      muPFPUIso_  .push_back(mu->pfIsolationR04().sumPUPt);
+
+      nMu_++;
+   } // muons loop
 }
 
 DEFINE_FWK_MODULE(ggHiNtuplizer);
