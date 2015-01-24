@@ -1,5 +1,8 @@
 #include <cppunit/extensions/HelperMacros.h>
+
 #include "CommonTools/Utils/interface/ExpressionEvaluator.h"
+#include "CommonTools/Utils/interface/ExpressionEvaluatorTemplates.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
@@ -7,8 +10,6 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
-
-#include "CommonTools/Utils/test/ExprEvalStubs/CutOnCandidate.h"
 
 class testExpressionEvaluator : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testExpressionEvaluator);
@@ -36,9 +37,9 @@ namespace {
      std::string sexpr = "double eval(reco::LeafCandidate const& cand) const override { return ";
      sexpr += expression + ";}";
      // construct the expression evaluator (pkg where precompile.h resides, name of base class, declaration of overloaded member function)
-     reco::ExpressionEvaluator eval("VITest/ExprEval","eetest::ValueOnCandidate",sexpr.c_str());
+     reco::ExpressionEvaluator eval("VITest/ExprEval","reco::ValueOnObject<reco::LeafCandidate>",sexpr.c_str());
      // obtain a pointer to the base class  (to be stored in Filter and Analyser at thier costruction time!)
-     eetest::ValueOnCandidate const * expr = eval.expr<eetest::ValueOnCandidate>();
+     reco::ValueOnObject<reco::LeafCandidate> const * expr = eval.expr<reco::ValueOnObject<reco::LeafCandidate>>();
      CPPUNIT_ASSERT(expr);
      // invoke
      CPPUNIT_ASSERT(std::abs(expr->eval(cand) - x) < 1.e-6);
@@ -65,14 +66,14 @@ namespace {
 
 
   struct MyAnalyzer {
-    using Selector = eetest::MaskCandidateCollection;
+    using Selector = reco::MaskCollection<reco::LeafCandidate>;
     explicit MyAnalyzer(std::string const & cut) {
       std::string sexpr = "void eval(Collection const & c, Mask & m) const override{";
       sexpr += "\n auto cut = [](reco::LeafCandidate const & cand){ return "+cut+";};\n"; 
       sexpr += "mask(c,m,cut); }";
       std::cerr << "testing " << sexpr << std::endl;
       try {
-        reco::ExpressionEvaluator eval("VITest/ExprEval","eetest::MaskCandidateCollection",sexpr.c_str());
+        reco::ExpressionEvaluator eval("VITest/ExprEval","reco::MaskCollection<reco::LeafCandidate>",sexpr.c_str());
         m_selector = eval.expr<Selector>();
         CPPUNIT_ASSERT(m_selector);
       } catch(cms::Exception const & e) {
@@ -100,14 +101,14 @@ namespace {
 
 
   struct MyAnalyzer2 {
-    using Selector = eetest::SelectCandidateCollection;
+    using Selector = reco::SelectInCollection<reco::LeafCandidate>;
     explicit MyAnalyzer2(std::string const & cut) {
       std::string sexpr = "void eval(Collection & c) const override{";
       sexpr += "\n auto cut = [](reco::LeafCandidate const & cand){ return "+cut+";};\n";
       sexpr += "select(c,cut); }";
       std::cerr << "testing " << sexpr << std::endl;
       try {
-	reco::ExpressionEvaluator eval("VITest/ExprEval","eetest::SelectCandidateCollection",sexpr.c_str());
+	reco::ExpressionEvaluator eval("VITest/ExprEval","reco::SelectInCollection<reco::LeafCandidate>",sexpr.c_str());
         m_selector = eval.expr<Selector>();
         CPPUNIT_ASSERT(m_selector);
       } catch(cms::Exception const & e) {
