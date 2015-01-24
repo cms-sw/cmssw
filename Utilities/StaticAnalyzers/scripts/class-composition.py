@@ -41,7 +41,7 @@ for line in f :
 			H.add_edge(fields[1],fields[3],kind=fields[2])
 f.close()
 
-f = open('db.txt')
+f = open('function-calls-db.txt')
 
 for line in f :
 	if not bfunc.search(line) : continue
