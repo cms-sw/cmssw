@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
-source = cms.Source("EmptySource")
+
 generator = cms.EDFilter("Pythia8GeneratorFilter",
                          pythiaPylistVerbosity = cms.untracked.int32(1),
                          # put here the efficiency of your filter (1. if no filter)
@@ -17,7 +17,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
         processParameters = cms.vstring(
             'HiggsSM:gg2H = on',
             '25:onMode = off',
-            '25:onIfAny = 22',
+            '25:onIfMatch = 22 22',
             ),
         parameterSets = cms.vstring('pythia8CommonSettings',
                                     'pythia8CUEP8M1Settings',
