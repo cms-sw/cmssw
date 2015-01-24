@@ -18,7 +18,7 @@
 
 
 #include <string>
-#include <map>
+#include "tbb/concurrent_unordered_map.h"
 
 
 
@@ -92,7 +92,7 @@ namespace PhysicsTools
 					const ProcessRegistry *process);
 	    static void unregisterProcess(const char *name);
 	    
-	    typedef std::map<std::string, const ProcessRegistry*> RegistryMap;
+	    typedef tbb::concurrent_unordered_map<std::string, const ProcessRegistry*> RegistryMap;
 	    
 	    /// return map of all registered processes, allocate if necessary
 	      static RegistryMap *getRegistry();
