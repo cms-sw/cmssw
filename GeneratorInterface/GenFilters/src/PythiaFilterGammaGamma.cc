@@ -124,6 +124,10 @@ bool PythiaFilterGammaGamma::filter(edm::Event& iEvent, const edm::EventSetup& i
   std::vector<TLorentzVector> candidate, candidateNarrow, candidateSeed;
   std::vector<const GenParticle*>::iterator itSeed;
 
+  const GenParticle* mom;
+  int this_id;
+  int first_different_id;
+
   for(itSeed = seeds.begin(); itSeed != seeds.end(); ++itSeed) {
 
     TLorentzVector energy, narrowCone, temp1, temp2, tempseed;
