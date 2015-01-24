@@ -139,8 +139,9 @@ class MVAComputer {
 
 		inline void eval(const VarProcessor *proc, int *outConf,
 		                 double *output, int *loop,
+                                 VarProcessor::LoopCtx& ctx,
 		                 unsigned int offset, unsigned int out) const
-		{ proc->eval(values_, conf_, output, outConf, loop, offset); }
+                { proc->eval(values_, conf_, output, outConf, loop, ctx, offset); }
 
 		inline double output(unsigned int output) const
 		{ return values_[conf_[output]]; }
@@ -158,7 +159,8 @@ class MVAComputer {
 		DerivContext() : n_(0) {}
 
 		void eval(const VarProcessor *proc, int *outConf,
-		          double *output, int *loop,
+		          double *output, int *loop, 
+                          VarProcessor::LoopCtx& ctx,
 		          unsigned int offset, unsigned int out) const;
 
 		double output(unsigned int output,
