@@ -104,7 +104,7 @@ void ProcForeach::eval(ValueIterator iter, unsigned int n) const
         auto& loopSize = iter.loopCtx().size();
 	while(iter) {
 		unsigned int size = iter.size();
-		if (loopSize)
+		if (!loopSize)
 			loopSize = size;
 
 		double value = iter[offset];
