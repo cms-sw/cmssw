@@ -50,7 +50,7 @@ class CentralityBinProducer : public edm::EDProducer {
       ~CentralityBinProducer();
 
    private:
-      virtual void beginRun(edm::Run const& run, const edm::EventSetup& iSetup);
+      virtual void beginRun(edm::Run const& run, const edm::EventSetup& iSetup) override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
