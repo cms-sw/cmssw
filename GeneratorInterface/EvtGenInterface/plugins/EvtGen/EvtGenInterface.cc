@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "Utilities/General/interface/FileInPath.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -432,7 +433,7 @@ HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt ){
   // add code to ensure all particles have an end vertex and if they are undecayed with no end vertes set to status 1
   for (HepMC::GenEvent::particle_const_iterator p= evt->particles_begin(); p != evt->particles_end(); ++p){
     if((*p)->end_vertex() && (*p)->status() == 1)(*p)->set_status(2);
-    if((*p)->end_vertex() && (*p)->end_vertex()->particles_out_size()==0) std::cout << "EvtGenInterface::decay error: empty end vertex!" <<    std::endl;
+    if((*p)->end_vertex() && (*p)->end_vertex()->particles_out_size()==0) edm::LogWarning("EvtGenInterface::decay error: empty end vertex!");
   } 
   return evt;
 }
