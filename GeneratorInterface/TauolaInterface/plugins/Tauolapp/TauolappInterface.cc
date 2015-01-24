@@ -340,6 +340,12 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
        }
      }             
    }
+
+   for (HepMC::GenEvent::particle_const_iterator p= evt->particles_begin(); p != evt->particles_end(); ++p){
+     if((*p)->end_vertex() && (*p)->status() == 1)(*p)->set_status(2);
+     if((*p)->end_vertex() && (*p)->end_vertex()->particles_out_size()==0) std::cout << "EvtGenInterface::decay error: empty end vertex!" << std::endl;
+   }
+
    return evt;
 }
 
