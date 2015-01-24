@@ -119,12 +119,13 @@ VarProcessor *ProcessRegistry<VarProcessor, Calibration::VarProcessor,
 }
 
 void VarProcessor::deriv(double *input, int *conf, double *output,
-                         int *outConf, int *loop, unsigned int offset,
+                         int *outConf, int *loop, LoopCtx& ctx,
+                         unsigned int offset,
                          unsigned int in, unsigned int out_,
                          std::vector<double> &deriv) const
 {
 	ValueIterator iter(inputVars.iter(), input, conf,
-	                   output, outConf, loop, offset);
+	                   output, outConf, loop, ctx, offset);
 
 	eval(iter, nInputVars);
 
