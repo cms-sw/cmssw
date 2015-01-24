@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
-source = cms.Source("EmptySource")
+
 generator = cms.EDFilter("Pythia8GeneratorFilter",
                          crossSection = cms.untracked.double(71.39e+09),
                          maxEventsToPrint = cms.untracked.int32(0),
