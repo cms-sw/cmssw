@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-source = cms.Source("EmptySource")
+
 
 generator = cms.EDFilter("Pythia8GeneratorFilter",
                                                       crossSection = cms.untracked.double(1.0),
