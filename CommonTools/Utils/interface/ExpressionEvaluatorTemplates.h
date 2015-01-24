@@ -1,3 +1,5 @@
+#ifndef CommonToolsUtilsExpressionEvaluatorTemplates_H
+#define	CommonToolsUtilsExpressionEvaluatorTemplates_H
 #include <vector>
 #include <algorithm>
 
@@ -34,5 +36,7 @@ namespace reco {
     virtual void eval(Collection&) const = 0;
   };
 
-
 }
+
+#endif	// CommonToolsUtilsExpressionEvaluatorTemplates_H
+
