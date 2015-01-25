@@ -20,11 +20,10 @@ def get_VertexGeneratorPSet_PileUpProducer(process):
 
     # check the type of the standard vertex generator
     vertexGeneratorType = vertexGenerator.type_().replace("EvtVtxGenerator","")
-    if not vertexGeneratorType in ["Betafunc","Flat","Gauss"]:
+    vtxGenMap = {"Betafunc":"BetaFunc","Flat":"Flat","Gauss":"Gaussian"}
+    if not vertexGeneratorType in vtxGenMap.keys():
         raise Error("WARNING: given vertex generator type for vertex smearing is not supported")
-    if vertexGeneratorType == "Gauss":
-        vertexGeneratorType == "Gaussian"
-    vertexParameters.type = cms.string(vertexGeneratorType)
+    vertexParameters.type = cms.string(vtxGenMap[vertexGeneratorType])
     
     # set vertex generator parameters in PileUpProducer
     vertexGeneratorParameterNames = vertexGenerator.parameterNames_()
@@ -84,8 +83,8 @@ def prepareGenMixing(process):
     # although it has no effect in case of Gen-mixing
 
     # OOT PU not supported for Gen-mixing: disable it
-    process.mix.maxbunch = cms.int32(0)
-    process.mix.minbunch = cms.int32(0)
+    process.mix.maxBunch = cms.int32(0)
+    process.mix.minBunch = cms.int32(0)
     
     # set the bunch spacing
     # bunch spacing matters for calorimeter calibration
@@ -146,9 +145,23 @@ def prepareDigiRecoMixing(process):
     del process.simCastorDigis
     del process.simSiPixelDigis
     del process.simSiStripDigis
-
+    
     # import the FastSim specific EDAliases for collections from MixingModule
     from FastSimulation.Configuration.digitizers_cfi import generalTracks
     process.generalTracks = generalTracks
+
+    # get rid of some FullSim specific psets that work confusing when dumping FastSim cfgs 
+    # (this is optional)
+    del process.trackingParticles
+    del process.stripDigitizer
+    del process.SiStripSimBlock
+    del process.castorDigitizer
+    del process.pixelDigitizer
+    del process.ecalDigitizer
+    
+    
+    # get rid of FullSim specific services that work confusing when dumping FastSim cfgs
+    # (this is optional)
+    del process.siStripGainSimESProducer
 
     return process
