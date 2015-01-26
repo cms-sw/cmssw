@@ -10,7 +10,7 @@
  *
  *          Jan. '14: modified by
  *
- *          M. Artur Weber
+ *          M. Artur W2eber
  *          R. Schoefbeck
  *          V. Sordini
  */
@@ -121,8 +121,8 @@ class METAnalyzer : public DQMEDAnalyzer{
   void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   //  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   // Fill MonitorElements
-  void fillMESet(const edm::Event&, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET&,std::map<std::string,MonitorElement*>&);
-  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET& ,std::map<std::string,MonitorElement*>&,bool);
+  void fillMESet(const edm::Event&, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET&,std::map<std::string,MonitorElement*>&,int);
+  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET& ,std::map<std::string,MonitorElement*>&,bool,bool,int);
   void makeRatePlot(std::string, double);
 
 //  bool selectHighPtJetEvent(const edm::Event&);
@@ -135,7 +135,7 @@ class METAnalyzer : public DQMEDAnalyzer{
  // Book MonitorElements
   void bookMESet(std::string,DQMStore::IBooker &,std::map<std::string,MonitorElement*>&);
 // Book MonitorElements
-  void bookMonitorElement(std::string,DQMStore::IBooker &, std::map<std::string,MonitorElement*>&,bool );
+  void bookMonitorElement(std::string,DQMStore::IBooker &, std::map<std::string,MonitorElement*>&,bool ,bool);
 
   // ----------member data ---------------------------
   edm::ParameterSet parameters;
@@ -340,37 +340,94 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* meHFHadronEt;
   MonitorElement* meHFEMEtFraction;
   MonitorElement* meHFEMEt;
-
+ //MEs where we fill if the previous two bunches are empty (25 ns bunch spacing)
   MonitorElement* mePhotonEtFraction_EmptyBunch;
   MonitorElement* meNeutralHadronEtFraction_EmptyBunch;
   MonitorElement* meChargedHadronEtFraction_EmptyBunch;
   MonitorElement* meMET_EmptyBunch;
   MonitorElement* meSumET_EmptyBunch;
 
+  MonitorElement* meMETPhiChargedHadronsBarrel_EmptyBunch;
+  MonitorElement* meMETPhiChargedHadronsEndcapPlus_EmptyBunch;
+  MonitorElement* meMETPhiChargedHadronsEndcapMinus_EmptyBunch;
+  MonitorElement* meMETPhiNeutralHadronsBarrel_EmptyBunch;
+  MonitorElement* meMETPhiNeutralHadronsEndcapPlus_EmptyBunch;
+  MonitorElement* meMETPhiNeutralHadronsEndcapMinus_EmptyBunch;
+  MonitorElement* meMETPhiPhotonsBarrel_EmptyBunch;
+  MonitorElement* meMETPhiPhotonsEndcapPlus_EmptyBunch;
+  MonitorElement* meMETPhiPhotonsEndcapMinus_EmptyBunch;
+  MonitorElement* meMETPhiHFHadronsPlus_EmptyBunch;
+  MonitorElement* meMETPhiHFHadronsMinus_EmptyBunch;
+  MonitorElement* meMETPhiHFEGammasPlus_EmptyBunch;
+  MonitorElement* meMETPhiHFEGammasMinus_EmptyBunch;
+
+  //MEs where we fill if the previous bunch is empty (25 ns bunch spacing)
   MonitorElement* mePhotonEtFraction_oneEmptyBunch;
   MonitorElement* meNeutralHadronEtFraction_oneEmptyBunch;
   MonitorElement* meChargedHadronEtFraction_oneEmptyBunch;
   MonitorElement* meMET_oneEmptyBunch;
   MonitorElement* meSumET_oneEmptyBunch;
 
+  MonitorElement* meMETPhiChargedHadronsBarrel_oneEmptyBunch;
+  MonitorElement* meMETPhiChargedHadronsEndcapPlus_oneEmptyBunch;
+  MonitorElement* meMETPhiChargedHadronsEndcapMinus_oneEmptyBunch;
+  MonitorElement* meMETPhiNeutralHadronsBarrel_oneEmptyBunch;
+  MonitorElement* meMETPhiNeutralHadronsEndcapPlus_oneEmptyBunch;
+  MonitorElement* meMETPhiNeutralHadronsEndcapMinus_oneEmptyBunch;
+  MonitorElement* meMETPhiPhotonsBarrel_oneEmptyBunch;
+  MonitorElement* meMETPhiPhotonsEndcapPlus_oneEmptyBunch;
+  MonitorElement* meMETPhiPhotonsEndcapMinus_oneEmptyBunch;
+  MonitorElement* meMETPhiHFHadronsPlus_oneEmptyBunch;
+  MonitorElement* meMETPhiHFHadronsMinus_oneEmptyBunch;
+  MonitorElement* meMETPhiHFEGammasPlus_oneEmptyBunch;
+  MonitorElement* meMETPhiHFEGammasMinus_oneEmptyBunch;
+
+  //MEs where we fill if the previous bunch is filled (25 ns bunch spacing)
   MonitorElement* mePhotonEtFraction_oneFullBunch;
   MonitorElement* meNeutralHadronEtFraction_oneFullBunch;
   MonitorElement* meChargedHadronEtFraction_oneFullBunch;
   MonitorElement* meMET_oneFullBunch;
   MonitorElement* meSumET_oneFullBunch;
 
+  MonitorElement* meMETPhiChargedHadronsBarrel_oneFullBunch;
+  MonitorElement* meMETPhiChargedHadronsEndcapPlus_oneFullBunch;
+  MonitorElement* meMETPhiChargedHadronsEndcapMinus_oneFullBunch;
+  MonitorElement* meMETPhiNeutralHadronsBarrel_oneFullBunch;
+  MonitorElement* meMETPhiNeutralHadronsEndcapPlus_oneFullBunch;
+  MonitorElement* meMETPhiNeutralHadronsEndcapMinus_oneFullBunch;
+  MonitorElement* meMETPhiPhotonsBarrel_oneFullBunch;
+  MonitorElement* meMETPhiPhotonsEndcapPlus_oneFullBunch;
+  MonitorElement* meMETPhiPhotonsEndcapMinus_oneFullBunch;
+  MonitorElement* meMETPhiHFHadronsPlus_oneFullBunch;
+  MonitorElement* meMETPhiHFHadronsMinus_oneFullBunch;
+  MonitorElement* meMETPhiHFEGammasPlus_oneFullBunch;
+  MonitorElement* meMETPhiHFEGammasMinus_oneFullBunch;
+
+  //MEs where we fill if two previous bunches are filled (25 ns bunch spacing)
   MonitorElement* meChargedHadronEtFraction_noEmptyBunch;
   MonitorElement* mePhotonEtFraction_noEmptyBunch;
   MonitorElement* meNeutralHadronEtFraction_noEmptyBunch;
   MonitorElement* meMET_noEmptyBunch;
   MonitorElement* meSumET_noEmptyBunch;
 
+  MonitorElement* meMETPhiChargedHadronsBarrel_noEmptyBunch;
+  MonitorElement* meMETPhiChargedHadronsEndcapPlus_noEmptyBunch;
+  MonitorElement* meMETPhiChargedHadronsEndcapMinus_noEmptyBunch;
+  MonitorElement* meMETPhiNeutralHadronsBarrel_noEmptyBunch;
+  MonitorElement* meMETPhiNeutralHadronsEndcapPlus_noEmptyBunch;
+  MonitorElement* meMETPhiNeutralHadronsEndcapMinus_noEmptyBunch;
+  MonitorElement* meMETPhiPhotonsBarrel_noEmptyBunch;
+  MonitorElement* meMETPhiPhotonsEndcapPlus_noEmptyBunch;
+  MonitorElement* meMETPhiPhotonsEndcapMinus_noEmptyBunch;
+  MonitorElement* meMETPhiHFHadronsPlus_noEmptyBunch;
+  MonitorElement* meMETPhiHFHadronsMinus_noEmptyBunch;
+  MonitorElement* meMETPhiHFEGammasPlus_noEmptyBunch;
+  MonitorElement* meMETPhiHFEGammasMinus_noEmptyBunch;
+
   double ptMinCand_;
 
   // Smallest raw HCAL energy linked to the track
   double hcalMin_;
-  //MonitorElement* mProfileIsoPFChHad_HadEn;
-  //MonitorElement* mProfileIsoPFChHad_EMEn;
   MonitorElement* mProfileIsoPFChHad_HadPtCentral;
   MonitorElement* mProfileIsoPFChHad_HadPtEndcap;
   MonitorElement* mProfileIsoPFChHad_EMPtCentral;
@@ -384,10 +441,24 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* mProfileIsoPFChHad_TrackOccupancy;
 
   //PFcandidate maps
-  std::vector<MonitorElement* > profilePFCand_x_,profilePFCand_y_,occupancyPFCand_,energyPFCand_,ptPFCand_,multiplicityPFCand_;
-  std::vector<std::string> profilePFCand_x_name_,profilePFCand_y_name_,occupancyPFCand_name_,energyPFCand_name_,ptPFCand_name_,multiplicityPFCand_name_;
+  std::vector<MonitorElement* > profilePFCand_x_,profilePFCand_y_,occupancyPFCand_,ptPFCand_,multiplicityPFCand_;
+  std::vector<std::string> profilePFCand_x_name_,profilePFCand_y_name_,occupancyPFCand_name_,ptPFCand_name_,multiplicityPFCand_name_;
   std::vector<double> etaMinPFCand_, etaMaxPFCand_, MExPFCand_, MEyPFCand_;
   std::vector<int> typePFCand_, nbinsPFCand_, countsPFCand_, etaNBinsPFCand_;
+
+  MonitorElement* meMETPhiChargedHadronsBarrel;
+  MonitorElement* meMETPhiChargedHadronsEndcapPlus;
+  MonitorElement* meMETPhiChargedHadronsEndcapMinus;
+  MonitorElement* meMETPhiNeutralHadronsBarrel;
+  MonitorElement* meMETPhiNeutralHadronsEndcapPlus;
+  MonitorElement* meMETPhiNeutralHadronsEndcapMinus;
+  MonitorElement* meMETPhiPhotonsBarrel;
+  MonitorElement* meMETPhiPhotonsEndcapPlus;
+  MonitorElement* meMETPhiPhotonsEndcapMinus;
+  MonitorElement* meMETPhiHFHadronsPlus;
+  MonitorElement* meMETPhiHFHadronsMinus;
+  MonitorElement* meMETPhiHFEGammasPlus;
+  MonitorElement* meMETPhiHFEGammasMinus;
  
   edm::EDGetTokenT<std::vector<reco::PFCandidate> > pflowToken_;
 

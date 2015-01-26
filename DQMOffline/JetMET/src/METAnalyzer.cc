@@ -189,19 +189,26 @@ void METAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 void METAnalyzer::bookMESet(std::string DirName, DQMStore::IBooker & ibooker, std::map<std::string,MonitorElement*>& map_of_MEs)
 {
   bool bLumiSecPlot=fill_met_high_level_histo;
-  bookMonitorElement(DirName,ibooker,map_of_MEs,bLumiSecPlot);
+  //bool inTriggerPathPlots=false;
+  bool fillPFCandidatePlots=false;
+
 
   if (DirName.find("Cleaned")!=std::string::npos) {
+    fillPFCandidatePlots=true;
+    bookMonitorElement(DirName,ibooker,map_of_MEs,bLumiSecPlot,fillPFCandidatePlots);
     for (unsigned int i = 0; i<triggerFolderEventFlag_.size(); i++) {
+      fillPFCandidatePlots=false;
       if (triggerFolderEventFlag_[i]->on()) {
-        bookMonitorElement(DirName+"/"+triggerFolderLabels_[i],ibooker,map_of_MEs,false);
+        bookMonitorElement(DirName+"/"+triggerFolderLabels_[i],ibooker,map_of_MEs,bLumiSecPlot,fillPFCandidatePlots);
       }
     }
+  }else{
+    bookMonitorElement(DirName,ibooker,map_of_MEs,bLumiSecPlot,fillPFCandidatePlots);
   }
 }
 
 // ***********************************************************
-void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibooker, std::map<std::string,MonitorElement*>& map_of_MEs, bool bLumiSecPlot=false)
+void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibooker, std::map<std::string,MonitorElement*>& map_of_MEs, bool bLumiSecPlot=false, bool fillPFCandPlots=false)
 {
   if (verbose_) std::cout << "bookMonitorElement " << DirName << std::endl;
 
@@ -306,50 +313,193 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
   }
 
   if(isPFMet_){
-    mePhotonEtFraction_EmptyBunch          = ibooker.book1D("PfPhotonEtFraction_BXm2BXm1Empty",        "pfmet.photonEtFraction() prev empty 2 bunches",         50, 0,    1);
-    mePhotonEtFraction_noEmptyBunch        = ibooker.book1D("PfPhotonEtFraction_BXm2BXm1Filled",      "pfmet.photonEtFraction() prev filled 2 bunches",         50, 0,    1);
-    meNeutralHadronEtFraction_EmptyBunch   = ibooker.book1D("PfNeutralHadronEtFraction_BXm2BXm1Empty",   "pfmet.neutralHadronEtFraction() prev empty 2 bunches",         50, 0,    1);
-    meNeutralHadronEtFraction_noEmptyBunch = ibooker.book1D("PfNeutralHadronEtFraction_BXm2BXm1Filled", "pfmet.neutralHadronEtFraction() prev filled 2 bunches",         50, 0,    1);
-    meChargedHadronEtFraction_EmptyBunch   = ibooker.book1D("PfChargedHadronEtFraction_BXm2BXm1Empty",   "pfmet.chargedHadronEtFraction() prev empty 2 bunches",         50, 0,    1);
-    meChargedHadronEtFraction_noEmptyBunch = ibooker.book1D("PfChargedHadronEtFraction_BXm2BXm1Filled", "pfmet.chargedHadronEtFraction() prev filled 2 bunches",         50, 0,    1);
-    meMET_EmptyBunch                       = ibooker.book1D("MET_EmptyBunch",   "MET prev empty 2 bunches",        200,    0, 1000);
-    meMET_noEmptyBunch                     = ibooker.book1D("MET_BXm2BXm1Filled", "MET prev filled 2 bunches",       200,    0, 1000);
-    meSumET_EmptyBunch                     = ibooker.book1D("SumET_EmptyBunch",   "SumET prev empty 2 bunches",    400,    0, 4000);
-    meSumET_noEmptyBunch                   = ibooker.book1D("SumET_BXm2BXm1Filled", "SumET prev filled 2 bunches",   400,    0, 4000);
+    if(fillPFCandPlots){
+      //histos where two previous bunches were empty/filled
+      mePhotonEtFraction_EmptyBunch          = ibooker.book1D("PfPhotonEtFraction_BXm2BXm1Empty",        "pfmet.photonEtFraction() prev empty 2 bunches",         50, 0,    1);
+      mePhotonEtFraction_noEmptyBunch        = ibooker.book1D("PfPhotonEtFraction_BXm2BXm1Filled",      "pfmet.photonEtFraction() prev filled 2 bunches",         50, 0,    1);
+      meNeutralHadronEtFraction_EmptyBunch   = ibooker.book1D("PfNeutralHadronEtFraction_BXm2BXm1Empty",   "pfmet.neutralHadronEtFraction() prev empty 2 bunches",         50, 0,    1);
+      meNeutralHadronEtFraction_noEmptyBunch = ibooker.book1D("PfNeutralHadronEtFraction_BXm2BXm1Filled", "pfmet.neutralHadronEtFraction() prev filled 2 bunches",         50, 0,    1);
+      meChargedHadronEtFraction_EmptyBunch   = ibooker.book1D("PfChargedHadronEtFraction_BXm2BXm1Empty",   "pfmet.chargedHadronEtFraction() prev empty 2 bunches",         50, 0,    1);
+      meChargedHadronEtFraction_noEmptyBunch = ibooker.book1D("PfChargedHadronEtFraction_BXm2BXm1Filled", "pfmet.chargedHadronEtFraction() prev filled 2 bunches",         50, 0,    1);
+      meMET_EmptyBunch                       = ibooker.book1D("MET_BXm2BXm1Empty",   "MET prev empty 2 bunches",        200,    0, 1000);
+      meMET_noEmptyBunch                     = ibooker.book1D("MET_BXm2BXm1Filled", "MET prev filled 2 bunches",       200,    0, 1000);
+      meSumET_EmptyBunch                     = ibooker.book1D("SumET_BXm2BXm1Empty",   "SumET prev empty 2 bunches",    400,    0, 4000);
+      meSumET_noEmptyBunch                   = ibooker.book1D("SumET_BXm2BXm1Filled", "SumET prev filled 2 bunches",   400,    0, 4000);
+      
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEtFraction_BXm2BXm1Empty"       ,mePhotonEtFraction_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEtFraction_BXm2BXm1Filled"     ,mePhotonEtFraction_noEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralHadronEtFraction_BXm2BXm1Empty"  ,meNeutralHadronEtFraction_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralEtFraction_BXm2BXm1Filled"      ,meNeutralHadronEtFraction_noEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedHadronEtFraction_BXm2BXm1Empty"  ,meChargedHadronEtFraction_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedEtFraction_BXm2BXm1Filled"      ,meChargedHadronEtFraction_noEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_BXm2BXm1Empty"    ,meMET_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_BXm2BXm1Filled"  ,meMET_noEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SumET_BXm2BXm1Empty"  ,meSumET_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SumET_BXm2BXm1Filled",meSumET_noEmptyBunch));
 
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEtFraction_BXm2BXm1Empty"       ,mePhotonEtFraction_EmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEtFraction_BXm2BXm1Filled"     ,mePhotonEtFraction_noEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralHadronEtFraction_BXm2BXm1Empty"  ,meNeutralHadronEtFraction_EmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralEtFraction_BXm2BXm1Filled"      ,meNeutralHadronEtFraction_noEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedHadronEtFraction_BXm2BXm1Empty"  ,meChargedHadronEtFraction_EmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedEtFraction_BXm2BXm1Filled"      ,meChargedHadronEtFraction_noEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_BXm2BXm1Empty"    ,meMET_EmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_BXm2BXm1Filled"  ,meMET_noEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SumET_BXm2BXm1Empty"  ,meSumET_EmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SumET_BXm2BXm1Filled",meSumET_noEmptyBunch));
+      meMETPhiChargedHadronsBarrel_noEmptyBunch       = ibooker.book1D("METPhiChargedHadronsBarrel_BXm2BXm1Filled",     "METPhi_PFChargedHadronsBarrel prev two bunches filled",       50, -M_PI,M_PI);
+      meMETPhiChargedHadronsEndcapPlus_noEmptyBunch   = ibooker.book1D("METPhiChargedHadronsEndcapPlus_BXm2BXm1Filled", "METPhi_PFChargedHadronsEndcapPlus prev two bunches filled",   50, -M_PI,M_PI);
+      meMETPhiChargedHadronsEndcapMinus_noEmptyBunch  = ibooker.book1D("METPhiChargedHadronsEndcapMinus_BXm2BXm1Filled","METPhi_PFChargedHadronsEndcapMinus prev two bunches filled",  50, -M_PI,M_PI);
+      meMETPhiNeutralHadronsBarrel_noEmptyBunch       = ibooker.book1D("METPhiNeutralHadronsBarrel_BXm2BXm1Filled",     "METPhi_PFNeutralHadronsBarrel prev two bunches filled",       50, -M_PI,M_PI);
+      meMETPhiNeutralHadronsEndcapPlus_noEmptyBunch   = ibooker.book1D("METPhiNeutralHadronsEndcapPlus_BXm2BXm1Filled", "METPhi_PFNeutralHadronsEndcapPlus prev two bunches filled",   50, -M_PI,M_PI);
+      meMETPhiNeutralHadronsEndcapMinus_noEmptyBunch  = ibooker.book1D("METPhiNeutralHadronsEndcapMinus_BXm2BXm1Filled","METPhi_PFNeutralHadronsEndcapMinus prev two bunches filled",  50, -M_PI,M_PI);
+      meMETPhiPhotonsBarrel_noEmptyBunch              = ibooker.book1D("METPhiPhotonsBarrel_BXm2BXm1Filled",            "METPhi_PFPhotonsBarrel prev two bunches filled",              50, -M_PI,M_PI);
+      meMETPhiPhotonsEndcapPlus_noEmptyBunch          = ibooker.book1D("METPhiPhotonsEndcapPlus_BXm2BXm1Filled",        "METPhi_PFPhotonsEndcapPlus prev two bunches filled",          50, -M_PI,M_PI);
+      meMETPhiPhotonsEndcapMinus_noEmptyBunch         = ibooker.book1D("METPhiPhotonsEndcapMinus_BXm2BXm1Filled",       "METPhi_PFPhotonsEndcapMinus prev two bunches filled",         50, -M_PI,M_PI);
+      meMETPhiHFHadronsPlus_noEmptyBunch              = ibooker.book1D("METPhiHFHadronsPlus_BXm2BXm1Filled",            "METPhi_PFHFHadronsPlus prev two bunches filled",              50, -M_PI,M_PI);
+      meMETPhiHFHadronsMinus_noEmptyBunch             = ibooker.book1D("METPhiHFHadronsMinus_BXm2BXm1Filled",           "METPhi_PFHFHadronsMinus prev two bunches filled",             50, -M_PI,M_PI);
+      meMETPhiHFEGammasPlus_noEmptyBunch              = ibooker.book1D("METPhiHFEGammasPlus_BXm2BXm1Filled",            "METPhi_PFHFEGammasPlus prev two bunches filled",              50, -M_PI,M_PI);
+      meMETPhiHFEGammasMinus_noEmptyBunch             = ibooker.book1D("METPhiHFEGammasMinus_BXm2BXm1Filled",           "METPhi_PFHFEGammasMinus prev two bunches filled",             50, -M_PI,M_PI);
 
-    mePhotonEtFraction_oneEmptyBunch          = ibooker.book1D("PfPhotonEtFraction_BXm1Empty",        "pfmet.photonEtFraction() prev empty bunch",         50, 0,    1);
-    mePhotonEtFraction_oneFullBunch        = ibooker.book1D("PfPhotonEtFraction_BXm1Filled",      "pfmet.photonEtFraction() prev filled bunch",         50, 0,    1);
-    meNeutralHadronEtFraction_oneEmptyBunch   = ibooker.book1D("PfNeutralHadronEtFraction_BXm1Empty",   "pfmet.neutralHadronEtFraction() prev empty bunch",         50, 0,    1);
-    meNeutralHadronEtFraction_oneFullBunch = ibooker.book1D("PfNeutralHadronEtFraction_BXm1Filled", "pfmet.neutralHadronEtFraction() prev filled bunch",         50, 0,    1);
-    meChargedHadronEtFraction_oneEmptyBunch   = ibooker.book1D("PfChargedHadronEtFraction_BXm1Empty",   "pfmet.chargedHadronEtFraction() prev empty bunch",         50, 0,    1);
-    meChargedHadronEtFraction_oneFullBunch = ibooker.book1D("PfChargedHadronEtFraction_BXm1Filled", "pfmet.chargedHadronEtFraction() prev filled bunch",         50, 0,    1);
-    meMET_oneEmptyBunch                       = ibooker.book1D("MET_BXm1Empty",   "MET prev empty bunch",        200,    0, 1000);
-    meMET_oneFullBunch                     = ibooker.book1D("MET_BXm1Filled", "MET prev filled bunch",       200,    0, 1000);
-    meSumET_oneEmptyBunch                     = ibooker.book1D("SumET_BXm1Empty",   "SumET prev empty bunch",    400,    0, 4000);
-    meSumET_oneFullBunch                   = ibooker.book1D("SumET_BXm1Filled", "SumET prev filled bunch",   400,    0, 4000);
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiChargedHadronsBarrel_BXm2BXm1Filled"         ,meMETPhiChargedHadronsBarrel_noEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiChargedHadronsEndcapPlus_BXm2BXm1Filled"     ,meMETPhiChargedHadronsEndcapPlus_noEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiChargedHadronsEndcapMinus_BXm2BXm1Filled"    ,meMETPhiChargedHadronsEndcapMinus_noEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiNeutralHadronsBarrel_BXm2BXm1Filled"         ,meMETPhiNeutralHadronsBarrel_noEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiNeutralHadronsEndcapPlus_BXm2BXm1Filled"     ,meMETPhiNeutralHadronsEndcapPlus_noEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiNeutralHadronsEndcapMinus_BXm2BXm1Filled"    ,meMETPhiNeutralHadronsEndcapMinus_noEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiPhotonsBarrel_BXm2BXm1Filled"                ,meMETPhiPhotonsBarrel_noEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiPhotonsEndcapPlus_BXm2BXm1Filled"            ,meMETPhiPhotonsEndcapPlus_noEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiPhotonsEndcapMinus_BXm2BXm1Filled"           ,meMETPhiPhotonsEndcapMinus_noEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFHadronsPlus_BXm2BXm1Filled"                ,meMETPhiHFHadronsPlus_noEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFHadronsMinus_BXm2BXm1Filled"               ,meMETPhiHFHadronsMinus_noEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFEGammasPlus_BXm2BXm1Filled"                ,meMETPhiHFEGammasPlus_noEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFEGammasMinus_BXm2BXm1Filled"               ,meMETPhiHFEGammasMinus_noEmptyBunch));
 
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEtFraction_BXm1Empty"       ,mePhotonEtFraction_oneEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEtFraction_BXm1Filled"     ,mePhotonEtFraction_oneFullBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralHadronEtFraction_BXm1Empty"  ,meNeutralHadronEtFraction_oneEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralEtFraction_BXm1Filled"      ,meNeutralHadronEtFraction_oneFullBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedHadronEtFraction_BXm1Empty"  ,meChargedHadronEtFraction_oneEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedEtFraction_BXm1Filled"      ,meChargedHadronEtFraction_oneFullBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_BXm1Empty"    ,meMET_oneEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_BXm1Filled"  ,meMET_oneFullBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SumET_BXm1Empty"  ,meSumET_oneEmptyBunch));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SumET_BXm1Filled",meSumET_oneFullBunch));
+      meMETPhiChargedHadronsBarrel_EmptyBunch       = ibooker.book1D("METPhiChargedHadronsBarrel_BXm2BXm1Empty",     "METPhi_PFChargedHadronsBarrel prev two bunches empty",       50, -M_PI,M_PI);
+      meMETPhiChargedHadronsEndcapPlus_EmptyBunch   = ibooker.book1D("METPhiChargedHadronsEndcapPlus_BXm2BXm1Empty", "METPhi_PFChargedHadronsEndcapPlus prev two bunches empty",   50, -M_PI,M_PI);
+      meMETPhiChargedHadronsEndcapMinus_EmptyBunch  = ibooker.book1D("METPhiChargedHadronsEndcapMinus_BXm2BXm1Empty","METPhi_PFChargedHadronsEndcapMinus prev two bunches empty",  50, -M_PI,M_PI);
+      meMETPhiNeutralHadronsBarrel_EmptyBunch       = ibooker.book1D("METPhiNeutralHadronsBarrel_BXm2BXm1Empty",     "METPhi_PFNeutralHadronsBarrel prev two bunches empty",       50, -M_PI,M_PI);
+      meMETPhiNeutralHadronsEndcapPlus_EmptyBunch   = ibooker.book1D("METPhiNeutralHadronsEndcapPlus_BXm2BXm1Empty", "METPhi_PFNeutralHadronsEndcapPlus prev two bunches empty",   50, -M_PI,M_PI);
+      meMETPhiNeutralHadronsEndcapMinus_EmptyBunch  = ibooker.book1D("METPhiNeutralHadronsEndcapMinus_BXm2BXm1Empty","METPhi_PFNeutralHadronsEndcapMinus prev two bunches empty",  50, -M_PI,M_PI);
+      meMETPhiPhotonsBarrel_EmptyBunch              = ibooker.book1D("METPhiPhotonsBarrel_BXm2BXm1Empty",            "METPhi_PFPhotonsBarrel prev two bunches empty",              50, -M_PI,M_PI);
+      meMETPhiPhotonsEndcapPlus_EmptyBunch          = ibooker.book1D("METPhiPhotonsEndcapPlus_BXm2BXm1Empty",        "METPhi_PFPhotonsEndcapPlus prev two bunches empty",          50, -M_PI,M_PI);
+      meMETPhiPhotonsEndcapMinus_EmptyBunch         = ibooker.book1D("METPhiPhotonsEndcapMinus_BXm2BXm1Empty",       "METPhi_PFPhotonsEndcapMinus prev two bunches empty",         50, -M_PI,M_PI);
+      meMETPhiHFHadronsPlus_EmptyBunch              = ibooker.book1D("METPhiHFHadronsPlus_BXm2BXm1Empty",            "METPhi_PFHFHadronsPlus prev two bunches empty",              50, -M_PI,M_PI);
+      meMETPhiHFHadronsMinus_EmptyBunch             = ibooker.book1D("METPhiHFHadronsMinus_BXm2BXm1Empty",           "METPhi_PFHFHadronsMinus prev two bunches empty",             50, -M_PI,M_PI);
+      meMETPhiHFEGammasPlus_EmptyBunch              = ibooker.book1D("METPhiHFEGammasPlus_BXm2BXm1Empty",            "METPhi_PFHFEGammasPlus prev two bunches empty",              50, -M_PI,M_PI);
+      meMETPhiHFEGammasMinus_EmptyBunch             = ibooker.book1D("METPhiHFEGammasMinus_BXm2BXm1Empty",           "METPhi_PFHFEGammasMinus prev two bunches empty",             50, -M_PI,M_PI);
+      
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiChargedHadronsBarrel_BXm2BXm1Empty"         ,meMETPhiChargedHadronsBarrel_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiChargedHadronsEndcapPlus_BXm2BXm1Empty"     ,meMETPhiChargedHadronsEndcapPlus_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiChargedHadronsEndcapMinus_BXm2BXm1Empty"    ,meMETPhiChargedHadronsEndcapMinus_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiNeutralHadronsBarrel_BXm2BXm1Empty"         ,meMETPhiNeutralHadronsBarrel_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiNeutralHadronsEndcapPlus_BXm2BXm1Empty"     ,meMETPhiNeutralHadronsEndcapPlus_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiNeutralHadronsEndcapMinus_BXm2BXm1Empty"    ,meMETPhiNeutralHadronsEndcapMinus_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiPhotonsBarrel_BXm2BXm1Empty"                ,meMETPhiPhotonsBarrel_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiPhotonsEndcapPlus_BXm2BXm1Empty"            ,meMETPhiPhotonsEndcapPlus_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiPhotonsEndcapMinus_BXm2BXm1Empty"           ,meMETPhiPhotonsEndcapMinus_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFHadronsPlus_BXm2BXm1Empty"                ,meMETPhiHFHadronsPlus_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFHadronsMinus_BXm2BXm1Empty"               ,meMETPhiHFHadronsMinus_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFEGammasPlus_BXm2BXm1Empty"                ,meMETPhiHFEGammasPlus_EmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFEGammasMinus_BXm2BXm1Empty"               ,meMETPhiHFEGammasMinus_EmptyBunch));
 
+      //histos where one previous bunch was empty/filled
+      mePhotonEtFraction_oneEmptyBunch          = ibooker.book1D("PfPhotonEtFraction_BXm1Empty",        "pfmet.photonEtFraction() prev empty bunch",         50, 0,    1);
+      mePhotonEtFraction_oneFullBunch        = ibooker.book1D("PfPhotonEtFraction_BXm1Filled",      "pfmet.photonEtFraction() prev filled bunch",         50, 0,    1);
+      meNeutralHadronEtFraction_oneEmptyBunch   = ibooker.book1D("PfNeutralHadronEtFraction_BXm1Empty",   "pfmet.neutralHadronEtFraction() prev empty bunch",         50, 0,    1);
+      meNeutralHadronEtFraction_oneFullBunch = ibooker.book1D("PfNeutralHadronEtFraction_BXm1Filled", "pfmet.neutralHadronEtFraction() prev filled bunch",         50, 0,    1);
+      meChargedHadronEtFraction_oneEmptyBunch   = ibooker.book1D("PfChargedHadronEtFraction_BXm1Empty",   "pfmet.chargedHadronEtFraction() prev empty bunch",         50, 0,    1);
+      meChargedHadronEtFraction_oneFullBunch = ibooker.book1D("PfChargedHadronEtFraction_BXm1Filled", "pfmet.chargedHadronEtFraction() prev filled bunch",         50, 0,    1);
+      meMET_oneEmptyBunch                       = ibooker.book1D("MET_BXm1Empty",   "MET prev empty bunch",        200,    0, 1000);
+      meMET_oneFullBunch                     = ibooker.book1D("MET_BXm1Filled", "MET prev filled bunch",       200,    0, 1000);
+      meSumET_oneEmptyBunch                     = ibooker.book1D("SumET_BXm1Empty",   "SumET prev empty bunch",    400,    0, 4000);
+      meSumET_oneFullBunch                   = ibooker.book1D("SumET_BXm1Filled", "SumET prev filled bunch",   400,    0, 4000);
+      
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEtFraction_BXm1Empty"       ,mePhotonEtFraction_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEtFraction_BXm1Filled"     ,mePhotonEtFraction_oneFullBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralHadronEtFraction_BXm1Empty"  ,meNeutralHadronEtFraction_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralEtFraction_BXm1Filled"      ,meNeutralHadronEtFraction_oneFullBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedHadronEtFraction_BXm1Empty"  ,meChargedHadronEtFraction_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedEtFraction_BXm1Filled"      ,meChargedHadronEtFraction_oneFullBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_BXm1Empty"    ,meMET_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MET_BXm1Filled"  ,meMET_oneFullBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SumET_BXm1Empty"  ,meSumET_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SumET_BXm1Filled",meSumET_oneFullBunch));
+
+      meMETPhiChargedHadronsBarrel_oneFullBunch       = ibooker.book1D("METPhiChargedHadronsBarrel_BXm1Filled",     "METPhi_PFChargedHadronsBarrel prev bunch filled",       50, -M_PI,M_PI);
+      meMETPhiChargedHadronsEndcapPlus_oneFullBunch   = ibooker.book1D("METPhiChargedHadronsEndcapPlus_BXm1Filled", "METPhi_PFChargedHadronsEndcapPlus prev bunch filled",   50, -M_PI,M_PI);
+      meMETPhiChargedHadronsEndcapMinus_oneFullBunch  = ibooker.book1D("METPhiChargedHadronsEndcapMinus_BXm1Filled","METPhi_PFChargedHadronsEndcapMinus prev bunch filled",  50, -M_PI,M_PI);
+      meMETPhiNeutralHadronsBarrel_oneFullBunch       = ibooker.book1D("METPhiNeutralHadronsBarrel_BXm1Filled",     "METPhi_PFNeutralHadronsBarrel prev bunch filled",       50, -M_PI,M_PI);
+      meMETPhiNeutralHadronsEndcapPlus_oneFullBunch   = ibooker.book1D("METPhiNeutralHadronsEndcapPlus_BXm1Filled", "METPhi_PFNeutralHadronsEndcapPlus prev bunch filled",   50, -M_PI,M_PI);
+      meMETPhiNeutralHadronsEndcapMinus_oneFullBunch  = ibooker.book1D("METPhiNeutralHadronsEndcapMinus_BXm1Filled","METPhi_PFNeutralHadronsEndcapMinus prev bunch filled",  50, -M_PI,M_PI);
+      meMETPhiPhotonsBarrel_oneFullBunch              = ibooker.book1D("METPhiPhotonsBarrel_BXm1Filled",            "METPhi_PFPhotonsBarrel prev bunch filled",              50, -M_PI,M_PI);
+      meMETPhiPhotonsEndcapPlus_oneFullBunch          = ibooker.book1D("METPhiPhotonsEndcapPlus_BXm1Filled",        "METPhi_PFPhotonsEndcapPlus prev bunch filled",          50, -M_PI,M_PI);
+      meMETPhiPhotonsEndcapMinus_oneFullBunch         = ibooker.book1D("METPhiPhotonsEndcapMinus_BXm1Filled",       "METPhi_PFPhotonsEndcapMinus prev bunch filled",         50, -M_PI,M_PI);
+      meMETPhiHFHadronsPlus_oneFullBunch              = ibooker.book1D("METPhiHFHadronsPlus_BXm1Filled",            "METPhi_PFHFHadronsPlus prev bunch filled",              50, -M_PI,M_PI);
+      meMETPhiHFHadronsMinus_oneFullBunch             = ibooker.book1D("METPhiHFHadronsMinus_BXm1Filled",           "METPhi_PFHFHadronsMinus prev bunch filled",             50, -M_PI,M_PI);
+      meMETPhiHFEGammasPlus_oneFullBunch              = ibooker.book1D("METPhiHFEGammasPlus_BXm1Filled",            "METPhi_PFHFEGammasPlus prev bunch filled",              50, -M_PI,M_PI);
+      meMETPhiHFEGammasMinus_oneFullBunch             = ibooker.book1D("METPhiHFEGammasMinus_BXm1Filled",           "METPhi_PFHFEGammasMinus prev bunch filled",             50, -M_PI,M_PI);
+
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiChargedHadronsBarrel_BXm1Filled"         ,meMETPhiChargedHadronsBarrel_oneFullBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiChargedHadronsEndcapPlus_BXm1Filled"     ,meMETPhiChargedHadronsEndcapPlus_oneFullBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiChargedHadronsEndcapMinus_BXm1Filled"    ,meMETPhiChargedHadronsEndcapMinus_oneFullBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiNeutralHadronsBarrel_BXm1Filled"         ,meMETPhiNeutralHadronsBarrel_oneFullBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiNeutralHadronsEndcapPlus_BXm1Filled"     ,meMETPhiNeutralHadronsEndcapPlus_oneFullBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiNeutralHadronsEndcapMinus_BXm1Filled"    ,meMETPhiNeutralHadronsEndcapMinus_oneFullBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiPhotonsBarrel_BXm1Filled"                ,meMETPhiPhotonsBarrel_oneFullBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiPhotonsEndcapPlus_BXm1Filled"            ,meMETPhiPhotonsEndcapPlus_oneFullBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiPhotonsEndcapMinus_BXm1Filled"           ,meMETPhiPhotonsEndcapMinus_oneFullBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFHadronsPlus_BXm1Filled"                ,meMETPhiHFHadronsPlus_oneFullBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFHadronsMinus_BXm1Filled"               ,meMETPhiHFHadronsMinus_oneFullBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFEGammasPlus_BXm1Filled"                ,meMETPhiHFEGammasPlus_oneFullBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFEGammasMinus_BXm1Filled"               ,meMETPhiHFEGammasMinus_oneFullBunch));
+
+      meMETPhiChargedHadronsBarrel_oneEmptyBunch       = ibooker.book1D("METPhiChargedHadronsBarrel_BXm1Empty",     "METPhi_PFChargedHadronsBarrel prev bunch empty",       50, -M_PI,M_PI);
+      meMETPhiChargedHadronsEndcapPlus_oneEmptyBunch   = ibooker.book1D("METPhiChargedHadronsEndcapPlus_BXm1Empty", "METPhi_PFChargedHadronsEndcapPlus prev bunch empty",   50, -M_PI,M_PI);
+      meMETPhiChargedHadronsEndcapMinus_oneEmptyBunch  = ibooker.book1D("METPhiChargedHadronsEndcapMinus_BXm1Empty","METPhi_PFChargedHadronsEndcapMinus prev bunch empty",  50, -M_PI,M_PI);
+      meMETPhiNeutralHadronsBarrel_oneEmptyBunch       = ibooker.book1D("METPhiNeutralHadronsBarrel_BXm1Empty",     "METPhi_PFNeutralHadronsBarrel prev bunch empty",       50, -M_PI,M_PI);
+      meMETPhiNeutralHadronsEndcapPlus_oneEmptyBunch   = ibooker.book1D("METPhiNeutralHadronsEndcapPlus_BXm1Empty", "METPhi_PFNeutralHadronsEndcapPlus prev bunch empty",   50, -M_PI,M_PI);
+      meMETPhiNeutralHadronsEndcapMinus_oneEmptyBunch  = ibooker.book1D("METPhiNeutralHadronsEndcapMinus_BXm1Empty","METPhi_PFNeutralHadronsEndcapMinus prev bunch empty",  50, -M_PI,M_PI);
+      meMETPhiPhotonsBarrel_oneEmptyBunch              = ibooker.book1D("METPhiPhotonsBarrel_BXm1Empty",            "METPhi_PFPhotonsBarrel prev bunch empty",              50, -M_PI,M_PI);
+      meMETPhiPhotonsEndcapPlus_oneEmptyBunch          = ibooker.book1D("METPhiPhotonsEndcapPlus_BXm1Empty",        "METPhi_PFPhotonsEndcapPlus prev bunch empty",          50, -M_PI,M_PI);
+      meMETPhiPhotonsEndcapMinus_oneEmptyBunch         = ibooker.book1D("METPhiPhotonsEndcapMinus_BXm1Empty",       "METPhi_PFPhotonsEndcapMinus prev bunch empty",         50, -M_PI,M_PI);
+      meMETPhiHFHadronsPlus_oneEmptyBunch              = ibooker.book1D("METPhiHFHadronsPlus_BXm1Empty",            "METPhi_PFHFHadronsPlus prev bunch empty",              50, -M_PI,M_PI);
+      meMETPhiHFHadronsMinus_oneEmptyBunch             = ibooker.book1D("METPhiHFHadronsMinus_BXm1Empty",           "METPhi_PFHFHadronsMinus prev bunch empty",             50, -M_PI,M_PI);
+      meMETPhiHFEGammasPlus_oneEmptyBunch              = ibooker.book1D("METPhiHFEGammasPlus_BXm1Empty",            "METPhi_PFHFEGammasPlus prev bunch empty",              50, -M_PI,M_PI);
+      meMETPhiHFEGammasMinus_oneEmptyBunch             = ibooker.book1D("METPhiHFEGammasMinus_BXm1Empty",           "METPhi_PFHFEGammasMinus prev bunch empty",             50, -M_PI,M_PI);
+
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiChargedHadronsBarrel_BXm1Empty"         ,meMETPhiChargedHadronsBarrel_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiChargedHadronsEndcapPlus_BXm1Empty"     ,meMETPhiChargedHadronsEndcapPlus_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiChargedHadronsEndcapMinus_BXm1Empty"    ,meMETPhiChargedHadronsEndcapMinus_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiNeutralHadronsBarrel_BXm1Empty"         ,meMETPhiNeutralHadronsBarrel_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiNeutralHadronsEndcapPlus_BXm1Empty"     ,meMETPhiNeutralHadronsEndcapPlus_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiNeutralHadronsEndcapMinus_BXm1Empty"    ,meMETPhiNeutralHadronsEndcapMinus_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiPhotonsBarrel_BXm1Empty"                ,meMETPhiPhotonsBarrel_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiPhotonsEndcapPlus_BXm1Empty"            ,meMETPhiPhotonsEndcapPlus_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiPhotonsEndcapMinus_BXm1Empty"           ,meMETPhiPhotonsEndcapMinus_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFHadronsPlus_BXm1Empty"                ,meMETPhiHFHadronsPlus_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFHadronsMinus_BXm1Empty"               ,meMETPhiHFHadronsMinus_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFEGammasPlus_BXm1Empty"                ,meMETPhiHFEGammasPlus_oneEmptyBunch));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFEGammasMinus_BXm1Empty"               ,meMETPhiHFEGammasMinus_oneEmptyBunch));
+
+      meMETPhiChargedHadronsBarrel       = ibooker.book1D("METPhiChargedHadronsBarrel",     "METPhi_PFChargedHadronsBarrel",       50, -M_PI,M_PI);
+      meMETPhiChargedHadronsEndcapPlus   = ibooker.book1D("METPhiChargedHadronsEndcapPlus", "METPhi_PFChargedHadronsEndcapPlus",   50, -M_PI,M_PI);
+      meMETPhiChargedHadronsEndcapMinus  = ibooker.book1D("METPhiChargedHadronsEndcapMinus","METPhi_PFChargedHadronsEndcapMinus",  50, -M_PI,M_PI);
+      meMETPhiNeutralHadronsBarrel       = ibooker.book1D("METPhiNeutralHadronsBarrel",     "METPhi_PFNeutralHadronsBarrel",       50, -M_PI,M_PI);
+      meMETPhiNeutralHadronsEndcapPlus   = ibooker.book1D("METPhiNeutralHadronsEndcapPlus", "METPhi_PFNeutralHadronsEndcapPlus",   50, -M_PI,M_PI);
+      meMETPhiNeutralHadronsEndcapMinus  = ibooker.book1D("METPhiNeutralHadronsEndcapMinus","METPhi_PFNeutralHadronsEndcapMinus",  50, -M_PI,M_PI);
+      meMETPhiPhotonsBarrel              = ibooker.book1D("METPhiPhotonsBarrel",            "METPhi_PFPhotonsBarrel",              50, -M_PI,M_PI);
+      meMETPhiPhotonsEndcapPlus          = ibooker.book1D("METPhiPhotonsEndcapPlus",        "METPhi_PFPhotonsEndcapPlus",          50, -M_PI,M_PI);
+      meMETPhiPhotonsEndcapMinus         = ibooker.book1D("METPhiPhotonsEndcapMinus",       "METPhi_PFPhotonsEndcapMinus",         50, -M_PI,M_PI);
+      meMETPhiHFHadronsPlus              = ibooker.book1D("METPhiHFHadronsPlus",            "METPhi_PFHFHadronsPlus",              50, -M_PI,M_PI);
+      meMETPhiHFHadronsMinus             = ibooker.book1D("METPhiHFHadronsMinus",           "METPhi_PFHFHadronsMinus",             50, -M_PI,M_PI);
+      meMETPhiHFEGammasPlus              = ibooker.book1D("METPhiHFEGammasPlus",            "METPhi_PFHFEGammasPlus",              50, -M_PI,M_PI);
+      meMETPhiHFEGammasMinus             = ibooker.book1D("METPhiHFEGammasMinus",           "METPhi_PFHFEGammasMinus",             50, -M_PI,M_PI);
+
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiChargedHadronsBarrel"         ,meMETPhiChargedHadronsBarrel));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiChargedHadronsEndcapPlus"     ,meMETPhiChargedHadronsEndcapPlus));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiChargedHadronsEndcapMinus"    ,meMETPhiChargedHadronsEndcapMinus));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiNeutralHadronsBarrel"         ,meMETPhiNeutralHadronsBarrel));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiNeutralHadronsEndcapPlus"     ,meMETPhiNeutralHadronsEndcapPlus));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiNeutralHadronsEndcapMinus"    ,meMETPhiNeutralHadronsEndcapMinus));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiPhotonsBarrel"                ,meMETPhiPhotonsBarrel));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiPhotonsEndcapPlus"            ,meMETPhiPhotonsEndcapPlus));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiPhotonsEndcapMinus"           ,meMETPhiPhotonsEndcapMinus));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFHadronsPlus"                ,meMETPhiHFHadronsPlus));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFHadronsMinus"               ,meMETPhiHFHadronsMinus));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFEGammasPlus"                ,meMETPhiHFEGammasPlus));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFEGammasMinus"               ,meMETPhiHFEGammasMinus));
+    }
     mePhotonEt                = ibooker.book1D("PfPhotonEt",                "pfmet.photonEt()",                100, 0, 1000);
     meNeutralHadronEt         = ibooker.book1D("PfNeutralHadronEt",         "pfmet.neutralHadronEt()",         100, 0, 1000);
     meElectronEt              = ibooker.book1D("PfElectronEt",              "pfmet.electronEt()",              100, 0, 100);
@@ -384,126 +534,120 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFHadronEt_profile"              ,meHFHadronEt_profile));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFEMEt_profile"                  ,meHFEMEt_profile));
 
-    if(!etaMinPFCand_.empty()){
-      etaMinPFCand_.clear();
-      etaMaxPFCand_.clear();
-      typePFCand_.clear();
-      nbinsPFCand_.clear();
-      countsPFCand_.clear();
-      MExPFCand_.clear();
-      MEyPFCand_.clear();
-      profilePFCand_x_.clear();
-      profilePFCand_y_.clear();
-      occupancyPFCand_.clear();
-      energyPFCand_.clear();
-      ptPFCand_.clear();
-      multiplicityPFCand_.clear();
-      profilePFCand_x_name_.clear();
-      profilePFCand_y_name_.clear();
-      occupancyPFCand_name_.clear();
-      energyPFCand_name_.clear();
-      ptPFCand_name_.clear();
-      multiplicityPFCand_name_.clear();
-    }
-    for (std::vector<edm::ParameterSet>::const_iterator v = diagnosticsParameters_.begin(); v!=diagnosticsParameters_.end(); v++) {
-      int etaNBinsPFCand = v->getParameter<int>("etaNBins");
-      double etaMinPFCand = v->getParameter<double>("etaMin");
-      double etaMaxPFCand = v->getParameter<double>("etaMax");
-      int phiNBinsPFCand = v->getParameter<int>("phiNBins");
-      double phiMinPFCand = v->getParameter<double>("phiMin");
-      double phiMaxPFCand = v->getParameter<double>("phiMax");
-      int nMinPFCand = v->getParameter<int>("nMin");
-      int nMaxPFCand = v->getParameter<int>("nMax");
-      int nbinsPFCand = v->getParameter<double>("nbins");
-
-      // etaNBins_.push_back(etaNBins);
-      etaMinPFCand_.push_back(etaMinPFCand);
-      etaMaxPFCand_.push_back(etaMaxPFCand);
-      nbinsPFCand_.push_back(nbinsPFCand);
-      typePFCand_.push_back(v->getParameter<int>("type"));
-      countsPFCand_.push_back(0);
-      MExPFCand_.push_back(0.);
-      MEyPFCand_.push_back(0.);
-      //std::cout<<" n/min/maxPFCand "<<nbinsPFCand<<" "<<etaMinPFCand<<" "<<etaMaxPFCand<<std::endl;
-
-      profilePFCand_x_.push_back(ibooker.bookProfile(std::string(v->getParameter<std::string>("name")).append("_Px_").c_str(),     "Px",       nbinsPFCand, nMinPFCand, nMaxPFCand, -300,300));
-      profilePFCand_x_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_Px_").c_str());
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+profilePFCand_x_name_[profilePFCand_x_name_.size()-1], profilePFCand_x_[profilePFCand_x_.size()-1]));
-      profilePFCand_y_.push_back(ibooker.bookProfile(std::string(v->getParameter<std::string>("name")).append("_Py_").c_str(),     "Py",       nbinsPFCand, nMinPFCand, nMaxPFCand, -300,300));
-      profilePFCand_y_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_Py_").c_str());
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+profilePFCand_y_name_[profilePFCand_y_name_.size()-1], profilePFCand_y_[profilePFCand_y_.size()-1]));
-      multiplicityPFCand_.push_back(ibooker.book1D(std::string(v->getParameter<std::string>("name")).append("_multiplicity_").c_str(),"multiplicity", nbinsPFCand, nMinPFCand, nMaxPFCand));
-      multiplicityPFCand_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_multiplicity_").c_str());
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+ multiplicityPFCand_name_[multiplicityPFCand_name_.size()-1], multiplicityPFCand_[multiplicityPFCand_.size()-1]));
-
-      //push back names first, we need to create histograms with the name and fill it for endcap plots later
-      occupancyPFCand_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_occupancy_").c_str());
-      energyPFCand_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_energy_").c_str());
-      ptPFCand_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_pt_").c_str());
-      //special booking for endcap plots, merge plots for eminus and eplus into one plot, using variable binning
-      //barrel plots have eta-boundaries on minus and plus side
-      //parameters start on minus side
-      if(etaMinPFCand*etaMaxPFCand<0){//barrel plots, plot only in barrel region
-	occupancyPFCand_.push_back(ibooker.book2D(std::string(v->getParameter<std::string>("name")).append("_occupancy_").c_str(),"occupancy", etaNBinsPFCand, etaMinPFCand, etaMaxPFCand, phiNBinsPFCand, phiMinPFCand, phiMaxPFCand));
-	energyPFCand_.push_back(ibooker.book2D(std::string(v->getParameter<std::string>("name")).append("_energy_").c_str(),"energy", etaNBinsPFCand, etaMinPFCand, etaMaxPFCand, phiNBinsPFCand, phiMinPFCand, phiMaxPFCand));
-	ptPFCand_.push_back(ibooker.book2D(std::string(v->getParameter<std::string>("name")).append("_pt_").c_str(),"pt", etaNBinsPFCand, etaMinPFCand, etaMaxPFCand, phiNBinsPFCand, phiMinPFCand, phiMaxPFCand));
-      }else{//endcap or forward plots, 
-	const int nbins_eta_endcap=2*(etaNBinsPFCand+1);
-	double eta_limits_endcap[nbins_eta_endcap];
-	for(int i=0;i<nbins_eta_endcap;i++){
-	  if(i<(etaNBinsPFCand+1)){
-	    eta_limits_endcap[i]=etaMinPFCand+i*(etaMaxPFCand-etaMinPFCand)/(double)etaNBinsPFCand;
-	  }else{
-	    eta_limits_endcap[i]= -etaMaxPFCand +(i- (etaNBinsPFCand+1) )*(etaMaxPFCand-etaMinPFCand)/(double)etaNBinsPFCand;
-	  }
+    if(fillPFCandPlots){
+	if(!etaMinPFCand_.empty()){
+	  etaMinPFCand_.clear();
+	  etaMaxPFCand_.clear();
+	  typePFCand_.clear();
+	  nbinsPFCand_.clear();
+	  countsPFCand_.clear();
+	  MExPFCand_.clear();
+	  MEyPFCand_.clear();
+	  profilePFCand_x_.clear();
+	  profilePFCand_y_.clear();
+	  occupancyPFCand_.clear();
+	  ptPFCand_.clear();
+	  multiplicityPFCand_.clear();
+	  profilePFCand_x_name_.clear();
+	  profilePFCand_y_name_.clear();
+	  occupancyPFCand_name_.clear();
+	  ptPFCand_name_.clear();
+	  multiplicityPFCand_name_.clear();
 	}
-	TH2F* hist_temp_occup = new TH2F((occupancyPFCand_name_[occupancyPFCand_name_.size()-1]).c_str(),"occupancy",nbins_eta_endcap-1, eta_limits_endcap, phiNBinsPFCand, phiMinPFCand, phiMaxPFCand);
-	occupancyPFCand_.push_back(ibooker.book2D(occupancyPFCand_name_[occupancyPFCand_name_.size()-1],hist_temp_occup));
-	TH2F* hist_temp_energy = new TH2F((energyPFCand_name_[energyPFCand_name_.size()-1]).c_str(),"energy",nbins_eta_endcap-1, eta_limits_endcap, phiNBinsPFCand, phiMinPFCand, phiMaxPFCand);
-	energyPFCand_.push_back(ibooker.book2D(energyPFCand_name_[energyPFCand_name_.size()-1],hist_temp_energy));
-	TH2F* hist_temp_pt = new TH2F((ptPFCand_name_[ptPFCand_name_.size()-1]).c_str(),"pt",nbins_eta_endcap-1, eta_limits_endcap, phiNBinsPFCand, phiMinPFCand, phiMaxPFCand);
-	ptPFCand_.push_back(ibooker.book2D(ptPFCand_name_[ptPFCand_name_.size()-1], hist_temp_pt));
+	for (std::vector<edm::ParameterSet>::const_iterator v = diagnosticsParameters_.begin(); v!=diagnosticsParameters_.end(); v++) {
+	  int etaNBinsPFCand = v->getParameter<int>("etaNBins");
+	  double etaMinPFCand = v->getParameter<double>("etaMin");
+	  double etaMaxPFCand = v->getParameter<double>("etaMax");
+	  int phiNBinsPFCand = v->getParameter<int>("phiNBins");
+	  double phiMinPFCand = v->getParameter<double>("phiMin");
+	  double phiMaxPFCand = v->getParameter<double>("phiMax");
+	  int nMinPFCand = v->getParameter<int>("nMin");
+	  int nMaxPFCand = v->getParameter<int>("nMax");
+	  int nbinsPFCand = v->getParameter<double>("nbins");
+	  
+	  // etaNBins_.push_back(etaNBins);
+	  etaMinPFCand_.push_back(etaMinPFCand);
+	  etaMaxPFCand_.push_back(etaMaxPFCand);
+	  nbinsPFCand_.push_back(nbinsPFCand);
+	  typePFCand_.push_back(v->getParameter<int>("type"));
+	  countsPFCand_.push_back(0);
+	  MExPFCand_.push_back(0.);
+	  MEyPFCand_.push_back(0.);
+	  
+	  profilePFCand_x_.push_back(ibooker.bookProfile(std::string(v->getParameter<std::string>("name")).append("_Px_").c_str(),     "Px",       nbinsPFCand, nMinPFCand, nMaxPFCand, -300,300));
+	  profilePFCand_x_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_Px_").c_str());
+	  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+profilePFCand_x_name_[profilePFCand_x_name_.size()-1], profilePFCand_x_[profilePFCand_x_.size()-1]));
+	  profilePFCand_y_.push_back(ibooker.bookProfile(std::string(v->getParameter<std::string>("name")).append("_Py_").c_str(),     "Py",       nbinsPFCand, nMinPFCand, nMaxPFCand, -300,300));
+	  profilePFCand_y_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_Py_").c_str());
+	  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+profilePFCand_y_name_[profilePFCand_y_name_.size()-1], profilePFCand_y_[profilePFCand_y_.size()-1]));
+	  multiplicityPFCand_.push_back(ibooker.book1D(std::string(v->getParameter<std::string>("name")).append("_multiplicity_").c_str(),"multiplicity", nbinsPFCand, nMinPFCand, nMaxPFCand));
+	  multiplicityPFCand_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_multiplicity_").c_str());
+	  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+ multiplicityPFCand_name_[multiplicityPFCand_name_.size()-1], multiplicityPFCand_[multiplicityPFCand_.size()-1]));
+	  
+	  //push back names first, we need to create histograms with the name and fill it for endcap plots later
+	  occupancyPFCand_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_occupancy_").c_str());
+	  
+	  ptPFCand_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_pt_").c_str());
+	  //special booking for endcap plots, merge plots for eminus and eplus into one plot, using variable binning
+	  //barrel plots have eta-boundaries on minus and plus side
+	  //parameters start on minus side
+	  if(etaMinPFCand*etaMaxPFCand<0){//barrel plots, plot only in barrel region
+	      occupancyPFCand_.push_back(ibooker.book2D(std::string(v->getParameter<std::string>("name")).append("_occupancy_").c_str(),"occupancy", etaNBinsPFCand, etaMinPFCand, etaMaxPFCand, phiNBinsPFCand, phiMinPFCand, phiMaxPFCand));
+	    ptPFCand_.push_back(ibooker.book2D(std::string(v->getParameter<std::string>("name")).append("_pt_").c_str(),"pt", etaNBinsPFCand, etaMinPFCand, etaMaxPFCand, phiNBinsPFCand, phiMinPFCand, phiMaxPFCand));
+	  }else{//endcap or forward plots, 
+	    const int nbins_eta_endcap=2*(etaNBinsPFCand+1);
+	    double eta_limits_endcap[nbins_eta_endcap];
+	    for(int i=0;i<nbins_eta_endcap;i++){
+	      if(i<(etaNBinsPFCand+1)){
+		eta_limits_endcap[i]=etaMinPFCand+i*(etaMaxPFCand-etaMinPFCand)/(double)etaNBinsPFCand;
+	      }else{
+		eta_limits_endcap[i]= -etaMaxPFCand +(i- (etaNBinsPFCand+1) )*(etaMaxPFCand-etaMinPFCand)/(double)etaNBinsPFCand;
+	      }
+	    }
+	    TH2F* hist_temp_occup = new TH2F((occupancyPFCand_name_[occupancyPFCand_name_.size()-1]).c_str(),"occupancy",nbins_eta_endcap-1, eta_limits_endcap, phiNBinsPFCand, phiMinPFCand, phiMaxPFCand);
+	    occupancyPFCand_.push_back(ibooker.book2D(occupancyPFCand_name_[occupancyPFCand_name_.size()-1],hist_temp_occup));
+	    TH2F* hist_temp_pt = new TH2F((ptPFCand_name_[ptPFCand_name_.size()-1]).c_str(),"pt",nbins_eta_endcap-1, eta_limits_endcap, phiNBinsPFCand, phiMinPFCand, phiMaxPFCand);
+	    ptPFCand_.push_back(ibooker.book2D(ptPFCand_name_[ptPFCand_name_.size()-1], hist_temp_pt));
+	  }
+	  
+	  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+ occupancyPFCand_name_[occupancyPFCand_name_.size()-1], occupancyPFCand_[occupancyPFCand_.size()-1]));
+	  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+ ptPFCand_name_[ptPFCand_name_.size()-1], ptPFCand_[ptPFCand_.size()-1]));
+	}
+ 
+	mProfileIsoPFChHad_TrackOccupancy=ibooker.book2D("IsoPfChHad_Track_profile","Isolated PFChHadron Tracker_occupancy", 108, -2.7, 2.7, 160, -M_PI,M_PI);
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_Track_profile"        ,mProfileIsoPFChHad_TrackOccupancy));
+	mProfileIsoPFChHad_TrackPt=ibooker.book2D("IsoPfChHad_TrackPt","Isolated PFChHadron TrackPt", 108, -2.7, 2.7, 160, -M_PI,M_PI);
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_TrackPt"        ,mProfileIsoPFChHad_TrackPt));
+	
+	
+	mProfileIsoPFChHad_EcalOccupancyCentral  = ibooker.book2D("IsoPfChHad_ECAL_profile_central","IsolatedPFChHa ECAL occupancy (Barrel)", 180, -1.479, 1.479, 125, -M_PI,M_PI);
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_ECAL_profile_central"        ,mProfileIsoPFChHad_EcalOccupancyCentral));
+	mProfileIsoPFChHad_EMPtCentral=ibooker.book2D("IsoPfChHad_EMPt_central","Isolated PFChHadron HadPt_central", 180, -1.479, 1.479, 360, -M_PI,M_PI);
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_EMPt_central"        ,mProfileIsoPFChHad_EMPtCentral));
+	
+	mProfileIsoPFChHad_EcalOccupancyEndcap  = ibooker.book2D("IsoPfChHad_ECAL_profile_endcap","IsolatedPFChHa ECAL occupancy (Endcap)", 110, -2.75, 2.75, 125, -M_PI,M_PI);
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_ECAL_profile_endcap"        ,mProfileIsoPFChHad_EcalOccupancyEndcap));
+	mProfileIsoPFChHad_EMPtEndcap=ibooker.book2D("IsoPfChHad_EMPt_endcap","Isolated PFChHadron EMPt_endcap", 110, -2.75, 2.75, 125, -M_PI,M_PI);
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_EMPt_endcap"        ,mProfileIsoPFChHad_EMPtEndcap));
+	
+	const int nbins_eta=16;
+	
+	double eta_limits[nbins_eta]={-2.650,-2.500,-2.322,-2.172,-2.043,-1.930,-1.830,-1.740,1.740,1.830,1.930,2.043,2.172,2.3122,2.500,2.650};
+	
+	TH2F* hist_temp_HCAL =new TH2F("IsoPfChHad_HCAL_profile_endcap","IsolatedPFChHa HCAL occupancy (outer endcap)",nbins_eta-1,eta_limits, 36, -M_PI,M_PI);
+	TH2F* hist_tempPt_HCAL=(TH2F*)hist_temp_HCAL->Clone("Isolated PFCHHadron HadPt (outer endcap)");
+	
+	mProfileIsoPFChHad_HcalOccupancyCentral  = ibooker.book2D("IsoPfChHad_HCAL_profile_central","IsolatedPFChHa HCAL occupancy (Central Part)", 40, -1.740, 1.740, 72, -M_PI,M_PI);
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_HCAL_profile_central"        ,mProfileIsoPFChHad_HcalOccupancyCentral));
+	mProfileIsoPFChHad_HadPtCentral=ibooker.book2D("IsoPfChHad_HadPt_central","Isolated PFChHadron HadPt_central", 40, -1.740, 1.740, 72, -M_PI,M_PI);
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_HadPt_central"        ,mProfileIsoPFChHad_HadPtCentral));
+	
+	mProfileIsoPFChHad_HcalOccupancyEndcap  = ibooker.book2D("IsoPfChHad_HCAL_profile_endcap",hist_temp_HCAL);
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_HCAL_profile_endcap"        ,mProfileIsoPFChHad_HcalOccupancyEndcap));
+	mProfileIsoPFChHad_HadPtEndcap=ibooker.book2D("IsoPfChHad_HadPt_endcap",hist_tempPt_HCAL);
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_HadPt_endcap"        ,mProfileIsoPFChHad_HadPtEndcap));
       }
- 
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+ occupancyPFCand_name_[occupancyPFCand_name_.size()-1], occupancyPFCand_[occupancyPFCand_.size()-1]));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+ energyPFCand_name_[energyPFCand_name_.size()-1], energyPFCand_[energyPFCand_.size()-1]));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+ ptPFCand_name_[ptPFCand_name_.size()-1], ptPFCand_[ptPFCand_.size()-1]));
-    }
- 
-    mProfileIsoPFChHad_TrackOccupancy=ibooker.book2D("IsoPfChHad_Track_profile","Isolated PFChHadron Tracker_occupancy", 108, -2.7, 2.7, 160, -M_PI,M_PI);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_Track_profile"        ,mProfileIsoPFChHad_TrackOccupancy));
-    mProfileIsoPFChHad_TrackPt=ibooker.book2D("IsoPfChHad_TrackPt","Isolated PFChHadron TrackPt", 108, -2.7, 2.7, 160, -M_PI,M_PI);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_TrackPt"        ,mProfileIsoPFChHad_TrackPt));
-
-
-    mProfileIsoPFChHad_EcalOccupancyCentral  = ibooker.book2D("IsoPfChHad_ECAL_profile_central","IsolatedPFChHa ECAL occupancy (Barrel)", 180, -1.479, 1.479, 125, -M_PI,M_PI);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_ECAL_profile_central"        ,mProfileIsoPFChHad_EcalOccupancyCentral));
-    mProfileIsoPFChHad_EMPtCentral=ibooker.book2D("IsoPfChHad_EMPt_central","Isolated PFChHadron HadPt_central", 180, -1.479, 1.479, 360, -M_PI,M_PI);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_EMPt_central"        ,mProfileIsoPFChHad_EMPtCentral));
-
-    mProfileIsoPFChHad_EcalOccupancyEndcap  = ibooker.book2D("IsoPfChHad_ECAL_profile_endcap","IsolatedPFChHa ECAL occupancy (Endcap)", 110, -2.75, 2.75, 125, -M_PI,M_PI);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_ECAL_profile_endcap"        ,mProfileIsoPFChHad_EcalOccupancyEndcap));
-    mProfileIsoPFChHad_EMPtEndcap=ibooker.book2D("IsoPfChHad_EMPt_endcap","Isolated PFChHadron EMPt_endcap", 110, -2.75, 2.75, 125, -M_PI,M_PI);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_EMPt_endcap"        ,mProfileIsoPFChHad_EMPtEndcap));
-
-    const int nbins_eta=16;
-
-    double eta_limits[nbins_eta]={-2.650,-2.500,-2.322,-2.172,-2.043,-1.930,-1.830,-1.740,1.740,1.830,1.930,2.043,2.172,2.3122,2.500,2.650};
-
-    TH2F* hist_temp_HCAL =new TH2F("IsoPfChHad_HCAL_profile_endcap","IsolatedPFChHa HCAL occupancy (outer endcap)",nbins_eta-1,eta_limits, 36, -M_PI,M_PI);
-    TH2F* hist_tempPt_HCAL=(TH2F*)hist_temp_HCAL->Clone("Isolated PFCHHadron HadPt (outer endcap)");
-
-    mProfileIsoPFChHad_HcalOccupancyCentral  = ibooker.book2D("IsoPfChHad_HCAL_profile_central","IsolatedPFChHa HCAL occupancy (Central Part)", 40, -1.740, 1.740, 72, -M_PI,M_PI);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_HCAL_profile_central"        ,mProfileIsoPFChHad_HcalOccupancyCentral));
-    mProfileIsoPFChHad_HadPtCentral=ibooker.book2D("IsoPfChHad_HadPt_central","Isolated PFChHadron HadPt_central", 40, -1.740, 1.740, 72, -M_PI,M_PI);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_HadPt_central"        ,mProfileIsoPFChHad_HadPtCentral));
-
-    mProfileIsoPFChHad_HcalOccupancyEndcap  = ibooker.book2D("IsoPfChHad_HCAL_profile_endcap",hist_temp_HCAL);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_HCAL_profile_endcap"        ,mProfileIsoPFChHad_HcalOccupancyEndcap));
-    mProfileIsoPFChHad_HadPtEndcap=ibooker.book2D("IsoPfChHad_HadPt_endcap",hist_tempPt_HCAL);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_HadPt_endcap"        ,mProfileIsoPFChHad_HadPtEndcap));
-
-
+	
   }
 
   if(isPFMet_ || isMiniAODMet_){
@@ -1025,8 +1169,8 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;
   iEvent.getByToken( gtToken_, gtReadoutRecord);
 
-  bool techTriggerResultBxE = false;
-  bool techTriggerResultBxF = false;
+  bool techTriggerResultBxM2 = false;
+  bool techTriggerResultBxM1 = false;
   bool techTriggerResultBx0 = false;
 
   if (!gtReadoutRecord.isValid()) {
@@ -1034,18 +1178,32 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (verbose_) std::cout << "METAnalyzer: Could not find GT readout record product" << std::endl;
   }else{
     // trigger results before mask for BxInEvent -2 (E), -1 (F), 0 (L1A), 1, 2 
-    const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxE = gtReadoutRecord->technicalTriggerWord(-2);
-    const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxF = gtReadoutRecord->technicalTriggerWord(-1);
+    const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxM2 = gtReadoutRecord->technicalTriggerWord(-2);
+    const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxM1 = gtReadoutRecord->technicalTriggerWord(-1);
     const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBx0 = gtReadoutRecord->technicalTriggerWord();
     //const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxG = gtReadoutRecord->technicalTriggerWord(1);
     //const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxH = gtReadoutRecord->technicalTriggerWord(2);
     if (m_bitAlgTechTrig_ > -1) {
       techTriggerResultBx0 = technicalTriggerWordBeforeMaskBx0.at(m_bitAlgTechTrig_);
       if(techTriggerResultBx0!=0){
-	techTriggerResultBxE = technicalTriggerWordBeforeMaskBxE.at(m_bitAlgTechTrig_);
-	techTriggerResultBxF = technicalTriggerWordBeforeMaskBxF.at(m_bitAlgTechTrig_);
+	techTriggerResultBxM2 = technicalTriggerWordBeforeMaskBxM2.at(m_bitAlgTechTrig_);
+	techTriggerResultBxM1 = technicalTriggerWordBeforeMaskBxM1.at(m_bitAlgTechTrig_);
       }	
     }
+  }
+
+  int trigger_flag=0;
+  if(techTriggerResultBx0 && techTriggerResultBxM2 && techTriggerResultBxM1){//current and previous two bunches filled
+    trigger_flag=2;
+  }
+  if(techTriggerResultBx0 && techTriggerResultBxM1){//current and previous bunch filled
+    trigger_flag=1;
+  }
+  if(techTriggerResultBx0 && !techTriggerResultBxM1){//current bunch filled, but  previous bunch emtpy
+    trigger_flag=-1;
+  }
+  if(techTriggerResultBx0 && !techTriggerResultBxM2 && !techTriggerResultBxM1){//current bunch filled, but previous two bunches emtpy
+    trigger_flag=-2;
   }
 
   // DCS Filter
@@ -1057,71 +1215,47 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        ic != folderNames_.end(); ic++){
     bool pass_selection = false;
     if ((*ic=="Uncleaned")  &&(isCaloMet_ || bPrimaryVertex)){
-      fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet, *pfmet,*calomet,map_dijet_MEs);
+      fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet, *pfmet,*calomet,map_dijet_MEs,trigger_flag);
       pass_selection =true;
     }
     //take two lines out for first check
     if ((*ic=="Cleaned")    &&bDCSFilter&&bHBHENoiseFilter&&bPrimaryVertex&&bJetID){
-      fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet,*pfmet,*calomet,map_dijet_MEs);
+      fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet,*pfmet,*calomet,map_dijet_MEs,trigger_flag);
       pass_selection=true;
     }
     if ((*ic=="DiJet" )     &&bDCSFilter&&bHBHENoiseFilter&& bPrimaryVertex&& bDiJetID){
-      fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet,*pfmet,*calomet,map_dijet_MEs);
+      fillMESet(iEvent, DirName_old+"/"+*ic, *met,*patmet,*pfmet,*calomet,map_dijet_MEs,trigger_flag);
       pass_selection=true;
     }
     if(pass_selection && isPFMet_){
       DirName=DirName_old+"/"+*ic;
-      if(techTriggerResultBx0 && techTriggerResultBxE && techTriggerResultBxF){
-	mePhotonEtFraction_noEmptyBunch    = map_dijet_MEs[DirName+"/"+"PfPhotonEtFraction_BXm2BXm1Filled"];     if (  mePhotonEtFraction_noEmptyBunch  && mePhotonEtFraction_noEmptyBunch ->getRootObject())  mePhotonEtFraction_noEmptyBunch  ->Fill((*pfmet).photonEtFraction());
-	meNeutralHadronEtFraction_noEmptyBunch    = map_dijet_MEs[DirName+"/"+"PfNeutralHadronEtFraction_BXm2BXm1Filled"];     if (  meNeutralHadronEtFraction_noEmptyBunch  && meNeutralHadronEtFraction_noEmptyBunch ->getRootObject())  meNeutralHadronEtFraction_noEmptyBunch  ->Fill((*pfmet).neutralHadronEtFraction());
-	meChargedHadronEtFraction_noEmptyBunch    = map_dijet_MEs[DirName+"/"+"PfChargedHadronEtFraction_BXm2BXm1Filled"];     if (  meChargedHadronEtFraction_noEmptyBunch  && meChargedHadronEtFraction_noEmptyBunch ->getRootObject())  meChargedHadronEtFraction_noEmptyBunch  ->Fill((*pfmet).chargedHadronEtFraction());
-	meMET_noEmptyBunch    = map_dijet_MEs[DirName+"/"+"MET_BXm2BXm1Filled"];     if (  meMET_noEmptyBunch  && meMET_noEmptyBunch ->getRootObject())  meMET_noEmptyBunch  ->Fill((*pfmet).pt());
-	meSumET_noEmptyBunch    = map_dijet_MEs[DirName+"/"+"SumET_BXm2BXm1Filled"];     if (  meSumET_noEmptyBunch  && meSumET_noEmptyBunch ->getRootObject())  meSumET_noEmptyBunch  ->Fill((*pfmet).sumEt());
-      }
-      if(techTriggerResultBx0 && techTriggerResultBxF){
-	mePhotonEtFraction_oneFullBunch    = map_dijet_MEs[DirName+"/"+"PfPhotonEtFraction_BXm1Filled"];     if (  mePhotonEtFraction_oneFullBunch  && mePhotonEtFraction_oneFullBunch ->getRootObject())  mePhotonEtFraction_oneFullBunch  ->Fill((*pfmet).photonEtFraction());
-	meNeutralHadronEtFraction_oneFullBunch    = map_dijet_MEs[DirName+"/"+"PfNeutralHadronEtFraction_BXm1Filled"];     if (  meNeutralHadronEtFraction_oneFullBunch  && meNeutralHadronEtFraction_oneFullBunch ->getRootObject())  meNeutralHadronEtFraction_oneFullBunch  ->Fill((*pfmet).neutralHadronEtFraction());
-	meChargedHadronEtFraction_oneFullBunch    = map_dijet_MEs[DirName+"/"+"PfChargedHadronEtFraction_BXm1Filled"];     if (  meChargedHadronEtFraction_oneFullBunch  && meChargedHadronEtFraction_oneFullBunch ->getRootObject())  meChargedHadronEtFraction_oneFullBunch  ->Fill((*pfmet).chargedHadronEtFraction());
-	meMET_oneFullBunch    = map_dijet_MEs[DirName+"/"+"MET_BXm1Filled"];     if (  meMET_oneFullBunch  && meMET_oneFullBunch ->getRootObject())  meMET_oneFullBunch  ->Fill((*pfmet).pt());
-	meSumET_oneFullBunch    = map_dijet_MEs[DirName+"/"+"SumET_BXm1Filled"];     if (  meSumET_oneFullBunch  && meSumET_oneFullBunch ->getRootObject())  meSumET_oneFullBunch  ->Fill((*pfmet).sumEt());
-      }
-      if(techTriggerResultBx0 && !techTriggerResultBxE && !techTriggerResultBxF){
-	mePhotonEtFraction_EmptyBunch    = map_dijet_MEs[DirName+"/"+"PfPhotonEtFraction_BXm2BXm1Empty"];     if (  mePhotonEtFraction_EmptyBunch  && mePhotonEtFraction_EmptyBunch ->getRootObject())  mePhotonEtFraction_EmptyBunch  ->Fill((*pfmet).photonEtFraction());
-	meNeutralHadronEtFraction_EmptyBunch    = map_dijet_MEs[DirName+"/"+"PfNeutralHadronEtFraction_BXm2BXm1Empty"];     if (  meNeutralHadronEtFraction_EmptyBunch  && meNeutralHadronEtFraction_EmptyBunch ->getRootObject())  meNeutralHadronEtFraction_EmptyBunch  ->Fill((*pfmet).neutralHadronEtFraction());
-	meChargedHadronEtFraction_EmptyBunch    = map_dijet_MEs[DirName+"/"+"PfChargedHadronEtFraction_BXm2BXm1Empty"];     if (  meChargedHadronEtFraction_EmptyBunch  && meChargedHadronEtFraction_EmptyBunch ->getRootObject())  meChargedHadronEtFraction_EmptyBunch  ->Fill((*pfmet).chargedHadronEtFraction());
-	meMET_EmptyBunch    = map_dijet_MEs[DirName+"/"+"MET_BXm2BXm1Empty"];     if (  meMET_EmptyBunch  && meMET_EmptyBunch ->getRootObject())  meMET_EmptyBunch  ->Fill((*pfmet).pt());
-	meSumET_EmptyBunch    = map_dijet_MEs[DirName+"/"+"SumET_BXm2BXm1Empty"];     if (  meSumET_EmptyBunch  && meSumET_EmptyBunch ->getRootObject())  meSumET_EmptyBunch  ->Fill((*pfmet).sumEt());
-      }
-      if(techTriggerResultBx0 && !techTriggerResultBxF){
-	mePhotonEtFraction_oneEmptyBunch    = map_dijet_MEs[DirName+"/"+"PfPhotonEtFraction_BXm1Empty"];     if (  mePhotonEtFraction_oneEmptyBunch  && mePhotonEtFraction_oneEmptyBunch ->getRootObject())  mePhotonEtFraction_oneEmptyBunch  ->Fill((*pfmet).photonEtFraction());
-	meNeutralHadronEtFraction_oneEmptyBunch    = map_dijet_MEs[DirName+"/"+"PfNeutralHadronEtFraction_BXm1Empty"];     if (  meNeutralHadronEtFraction_oneEmptyBunch  && meNeutralHadronEtFraction_oneEmptyBunch ->getRootObject())  meNeutralHadronEtFraction_oneEmptyBunch  ->Fill((*pfmet).neutralHadronEtFraction());
-	meChargedHadronEtFraction_oneEmptyBunch    = map_dijet_MEs[DirName+"/"+"PfChargedHadronEtFraction_BXm1Empty"];     if (  meChargedHadronEtFraction_oneEmptyBunch  && meChargedHadronEtFraction_oneEmptyBunch ->getRootObject())  meChargedHadronEtFraction_oneEmptyBunch  ->Fill((*pfmet).chargedHadronEtFraction());
-	meMET_oneEmptyBunch    = map_dijet_MEs[DirName+"/"+"MET_BXm1Empty"];     if (  meMET_oneEmptyBunch  && meMET_oneEmptyBunch ->getRootObject())  meMET_oneEmptyBunch  ->Fill((*pfmet).pt());
-	meSumET_oneEmptyBunch    = map_dijet_MEs[DirName+"/"+"SumET_BXm1Empty"];     if (  meSumET_oneEmptyBunch  && meSumET_oneEmptyBunch ->getRootObject())  meSumET_oneEmptyBunch  ->Fill((*pfmet).sumEt());
-      }
-    } 
+    }
   }
 }
 
 
 // ***********************************************************
 void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
-			    const reco::MET& met, const pat::MET& patmet, const reco::PFMET& pfmet, const reco::CaloMET& calomet,std::map<std::string,MonitorElement*>&  map_of_MEs)
+			    const reco::MET& met, const pat::MET& patmet, const reco::PFMET& pfmet, const reco::CaloMET& calomet,std::map<std::string,MonitorElement*>&  map_of_MEs, int techTriggerCase)
 {
   bool bLumiSecPlot=fill_met_high_level_histo;
-  if (DirName.find("Uncleaned")) bLumiSecPlot=true; //now done on configlevel
-  fillMonitorElement(iEvent, DirName, std::string(""), met, patmet, pfmet, calomet, map_of_MEs,bLumiSecPlot);
+  bool fillPFCandidatePlots=false;
   if (DirName.find("Cleaned")) {
+    fillPFCandidatePlots=true;
+    fillMonitorElement(iEvent, DirName, std::string(""), met, patmet, pfmet, calomet, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase);
     for (unsigned int i = 0; i<triggerFolderLabels_.size(); i++) {
-      if (triggerFolderDecisions_[i]){  fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, patmet, pfmet, calomet, map_of_MEs, false);
+      fillPFCandidatePlots=false;
+      if (triggerFolderDecisions_[i]){  
+	fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, patmet, pfmet, calomet, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase);
       }
     }
-  }
-
-  if (DirName.find("DiJet")) {
+  }else if (DirName.find("DiJet")) {
+    fillMonitorElement(iEvent, DirName, std::string(""), met, patmet, pfmet, calomet, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase);
     for (unsigned int i = 0; i<triggerFolderLabels_.size(); i++) {
-      if (triggerFolderDecisions_[i])  fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, patmet, pfmet, calomet, map_of_MEs, false);
+      if (triggerFolderDecisions_[i])  fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, patmet, pfmet, calomet, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase);
     }
+  }else{
+    fillMonitorElement(iEvent, DirName, std::string(""), met, patmet, pfmet, calomet, map_of_MEs,bLumiSecPlot,fillPFCandidatePlots,techTriggerCase);
   }
   
 
@@ -1130,7 +1264,7 @@ void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
 // ***********************************************************
 void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirName,
 					 std::string subFolderName,
-				     const reco::MET& met,const pat::MET & patmet, const reco::PFMET & pfmet, const reco::CaloMET &calomet, std::map<std::string,MonitorElement*>&  map_of_MEs,bool bLumiSecPlot)
+				     const reco::MET& met,const pat::MET & patmet, const reco::PFMET & pfmet, const reco::CaloMET &calomet, std::map<std::string,MonitorElement*>&  map_of_MEs,bool bLumiSecPlot, bool fillPFCandidatePlots,int techTriggerCase)
 {
 // Reconstructed MET Information
   double SumET  = met.sumEt();
@@ -1247,117 +1381,308 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 
     if(isPFMet_){
 
-      for (unsigned int i=0;i<countsPFCand_.size();i++) {
-	countsPFCand_[i]=0;
-	MExPFCand_[i]=0.;
-	MEyPFCand_[i]=0.;
-      }
-
-      // typedef std::vector<reco::PFCandidate> pfCand;
-      edm::Handle<std::vector<reco::PFCandidate> > particleFlow;
-      iEvent.getByToken(pflowToken_, particleFlow);
-      for (unsigned int i = 0; i < particleFlow->size(); ++i) {
-	const reco::PFCandidate& c = particleFlow->at(i);
-	for (unsigned int j=0; j<typePFCand_.size(); j++) {
-	  if (c.particleId()==typePFCand_[j]) {
-	    //second check for endcap, if inside barrel Max and Min symmetric around 0
-	    if ( ((c.eta()>etaMinPFCand_[j]) && (c.eta()<etaMaxPFCand_[j])) || ((c.eta()> (-etaMaxPFCand_[j])) && (c.eta()< (-etaMinPFCand_[j]))) ){
-	      countsPFCand_[j]+=1;
-	      MExPFCand_[j]-=c.px();
-	      MEyPFCand_[j]-=c.py();
-	      ptPFCand_[j]   = map_of_MEs[DirName + "/"+ptPFCand_name_[j]];
-	      if ( ptPFCand_[j]       && ptPFCand_[j]->getRootObject()) ptPFCand_[j]->Fill(c.eta(), c.phi(), c.pt());
-	      energyPFCand_[j]   = map_of_MEs[DirName + "/"+energyPFCand_name_[j]];
-	      if ( energyPFCand_[j]       && energyPFCand_[j]->getRootObject()) energyPFCand_[j]->Fill(c.eta(), c.phi(), c.energy());
-	      occupancyPFCand_[j]   = map_of_MEs[DirName + "/"+occupancyPFCand_name_[j]];
-	      if ( occupancyPFCand_[j]       && occupancyPFCand_[j]->getRootObject()) occupancyPFCand_[j]->Fill(c.eta(), c.phi());
-	    }
-	  }
+      if(fillPFCandidatePlots){
+	//std::cout<<"pass 0"<<std::endl;
+	for (unsigned int i=0;i<countsPFCand_.size();i++) {
+	  countsPFCand_[i]=0;
+	  MExPFCand_[i]=0.;
+	  MEyPFCand_[i]=0.;
 	}
-	//fill quantities for isolated charged hadron quantities
-	//only for charged hadrons
-	if ( c.particleId() == 1 &&  c.pt() > ptMinCand_ ){
-	  // At least 1 GeV in HCAL
-	  double ecalRaw = c.rawEcalEnergy();
-	  double hcalRaw = c.rawHcalEnergy();
-	  if ( (ecalRaw + hcalRaw) > hcalMin_ ){
-	    const PFCandidate::ElementsInBlocks& theElements = c.elementsInBlocks();
-	    if( theElements.empty() ) continue;
-	    unsigned int iTrack=-999;
-	    std::vector<unsigned int> iECAL;// =999;
-	    std::vector<unsigned int> iHCAL;// =999;
-	    const reco::PFBlockRef blockRef = theElements[0].first;
-	    const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
-	    // Check that there is only one track in the block.
-	    unsigned int nTracks = 0;
-	    for(unsigned int iEle=0; iEle<elements.size(); iEle++) {	         
-	      // Find the tracks in the block
-	      PFBlockElement::Type type = elements[iEle].type();
-	      switch( type ) {
-	      case PFBlockElement::TRACK:
-		iTrack = iEle;
-		nTracks++;
-		break;
-	      case PFBlockElement::ECAL:
-		iECAL.push_back( iEle );
-		break;
-	      case PFBlockElement::HCAL:
-		iHCAL.push_back( iEle );
-		break;
-	      default:
-		continue;
-	      } 
-	    }
-	    if ( nTracks == 1 ){
-	      // Characteristics of the track
-	      const reco::PFBlockElementTrack& et = dynamic_cast<const reco::PFBlockElementTrack &>( elements[iTrack] );
-	      mProfileIsoPFChHad_TrackOccupancy=map_of_MEs[DirName+"/"+"IsoPfChHad_Track_profile"];
-	      if (mProfileIsoPFChHad_TrackOccupancy  && mProfileIsoPFChHad_TrackOccupancy->getRootObject()) mProfileIsoPFChHad_TrackOccupancy->Fill(et.trackRef()->eta(),et.trackRef()->phi());
-	      mProfileIsoPFChHad_TrackPt=map_of_MEs[DirName+"/"+"IsoPfChHad_TrackPt"];
-	      if (mProfileIsoPFChHad_TrackPt  && mProfileIsoPFChHad_TrackPt->getRootObject()) mProfileIsoPFChHad_TrackPt->Fill(et.trackRef()->eta(),et.trackRef()->phi(),et.trackRef()->pt());
-	      //ECAL element
-	      
-	      for(unsigned int ii=0;ii<iECAL.size();ii++) {
-		const reco::PFBlockElementCluster& eecal = dynamic_cast<const reco::PFBlockElementCluster &>( elements[ iECAL[ii] ] );
-		if(fabs(eecal.clusterRef()->eta())<1.479){
-		  mProfileIsoPFChHad_EcalOccupancyCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_ECAL_profile_central"];
-		  if (mProfileIsoPFChHad_EcalOccupancyCentral  && mProfileIsoPFChHad_EcalOccupancyCentral->getRootObject()) mProfileIsoPFChHad_EcalOccupancyCentral->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi());
-		  mProfileIsoPFChHad_EMPtCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_EMPt_central"];
-		  if (mProfileIsoPFChHad_EMPtCentral  && mProfileIsoPFChHad_EMPtCentral->getRootObject()) mProfileIsoPFChHad_EMPtCentral->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi(),eecal.clusterRef()->pt());
-		}else{
-		  mProfileIsoPFChHad_EcalOccupancyEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_ECAL_profile_endcap"];
-		  if (mProfileIsoPFChHad_EcalOccupancyEndcap  && mProfileIsoPFChHad_EcalOccupancyEndcap->getRootObject()) mProfileIsoPFChHad_EcalOccupancyEndcap->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi());
-		  mProfileIsoPFChHad_EMPtEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_EMPt_endcap"];
-		  if (mProfileIsoPFChHad_EMPtEndcap  && mProfileIsoPFChHad_EMPtEndcap->getRootObject()) mProfileIsoPFChHad_EMPtEndcap->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi(),eecal.clusterRef()->pt());
-		}
+	
+	// typedef std::vector<reco::PFCandidate> pfCand;
+	edm::Handle<std::vector<reco::PFCandidate> > particleFlow;
+	iEvent.getByToken(pflowToken_, particleFlow);
+	float px_chargedHadronsBarrel=0;
+	float py_chargedHadronsBarrel=0;
+	float px_chargedHadronsEndcapPlus=0;
+	float py_chargedHadronsEndcapPlus=0;
+	float px_chargedHadronsEndcapMinus=0;
+	float py_chargedHadronsEndcapMinus=0;
+	float px_neutralHadronsBarrel=0;
+	float py_neutralHadronsBarrel=0;
+	float px_neutralHadronsEndcapPlus=0;
+	float py_neutralHadronsEndcapPlus=0;
+	float px_neutralHadronsEndcapMinus=0;
+	float py_neutralHadronsEndcapMinus=0;
+	float px_PhotonsBarrel=0;
+	float py_PhotonsBarrel=0;
+	float px_PhotonsEndcapPlus=0;
+	float py_PhotonsEndcapPlus=0;
+	float px_PhotonsEndcapMinus=0;
+	float py_PhotonsEndcapMinus=0;
+	float px_HFHadronsPlus=0;
+	float py_HFHadronsPlus=0;
+	float px_HFHadronsMinus=0;
+	float py_HFHadronsMinus=0;
+	float px_HFEGammasPlus=0;
+	float py_HFEGammasPlus=0;
+	float px_HFEGammasMinus=0;
+	float py_HFEGammasMinus=0;
+	for (unsigned int i = 0; i < particleFlow->size(); ++i) {
+	  const reco::PFCandidate& c = particleFlow->at(i);
+	  for (unsigned int j=0; j<typePFCand_.size(); j++) {
+	    if(c.particleId()==1){//charged hadrons
+	      //endcap minus
+	      if(c.eta()>(-3.0)&& c.eta()<(-1.392)){
+		px_chargedHadronsEndcapMinus-=c.px();
+		py_chargedHadronsEndcapMinus-=c.py();
+	      }else if(c.eta()>=(-1.392)&& c.eta()<=1.392){//barrel
+		px_chargedHadronsBarrel-=c.px();
+		py_chargedHadronsBarrel-=c.py();
+	      }else if(c.eta()>1.392 && c.eta()<3.0){//endcap plus
+		px_chargedHadronsEndcapPlus-=c.px();
+		py_chargedHadronsEndcapPlus-=c.py();
 	      }
-	      //HCAL element
-	      for(unsigned int ii=0;ii<iHCAL.size();ii++) {
-		const reco::PFBlockElementCluster& ehcal = dynamic_cast<const reco::PFBlockElementCluster &>( elements[ iHCAL[ii] ] );
-		if(fabs(ehcal.clusterRef()->eta())<1.740){
-		  mProfileIsoPFChHad_HcalOccupancyCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_HCAL_profile_central"];
-		  if (mProfileIsoPFChHad_HcalOccupancyCentral  && mProfileIsoPFChHad_HcalOccupancyCentral->getRootObject()) mProfileIsoPFChHad_HcalOccupancyCentral->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi());
-		  mProfileIsoPFChHad_HadPtCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_HadPt_central"];
-		  if (mProfileIsoPFChHad_HadPtCentral  && mProfileIsoPFChHad_HadPtCentral->getRootObject()) mProfileIsoPFChHad_HadPtCentral->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi(),ehcal.clusterRef()->pt());
-		}else{
-		  mProfileIsoPFChHad_HcalOccupancyEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_HCAL_profile_endcap"];
-		  if (mProfileIsoPFChHad_HcalOccupancyEndcap  && mProfileIsoPFChHad_HcalOccupancyEndcap->getRootObject()) mProfileIsoPFChHad_HcalOccupancyEndcap->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi());
-		  mProfileIsoPFChHad_HadPtEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_HadPt_endcap"];
-		  if (mProfileIsoPFChHad_HadPtEndcap  && mProfileIsoPFChHad_HadPtEndcap->getRootObject()) mProfileIsoPFChHad_HadPtEndcap->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi(),ehcal.clusterRef()->pt());
-		}	
-	      }      
-	    } 
+	    }
+	    if(c.particleId()==5){//neutral hadrons
+	      //endcap minus
+	      if(c.eta()>(-3.0)&& c.eta()<(-1.392)){
+		px_neutralHadronsEndcapMinus-=c.px();
+		py_neutralHadronsEndcapMinus-=c.py();
+	      }else if(c.eta()>=(-1.392)&& c.eta()<=1.392){
+		px_neutralHadronsBarrel-=c.px();
+		py_neutralHadronsBarrel-=c.py();
+	      }else if(c.eta()>1.392 && c.eta()<3.0){
+		px_neutralHadronsEndcapPlus-=c.px();
+		py_neutralHadronsEndcapPlus-=c.py();
+	      }
+	    }
+	    if(c.particleId()==4){//photons
+	      //endcap minus
+	      if(c.eta()>(-3.0)&& c.eta()<(-1.479)){
+		px_PhotonsEndcapMinus-=c.px();
+		py_PhotonsEndcapMinus-=c.py();
+	      }else if(c.eta()>=(-1.479)&& c.eta()<=1.479){
+		px_PhotonsBarrel-=c.px();
+		py_PhotonsBarrel-=c.py();
+	      }else if(c.eta()>1.479 && c.eta()<3.0){
+		px_PhotonsEndcapPlus-=c.px();
+		py_PhotonsEndcapPlus-=c.py();
+	      }
+	    }
+	    if(c.particleId()==6){//HFHadrons
+	      //forward minus
+	      if(c.eta()>(-5.20)&& c.eta()<-2.901376){
+		px_HFHadronsMinus-=c.px();
+		py_HFHadronsMinus-=c.py();
+	      }else if(c.eta()>2.901376 && c.eta()<5.20){//forward plus
+		px_HFHadronsPlus-=c.px();
+		py_HFHadronsPlus-=c.py();
+	      }
+	    }
+	    if(c.particleId()==7){//HFEGammas
+	      //forward minus
+	      if(c.eta()>(-5.20)&& c.eta()<-2.901376){
+		px_HFEGammasMinus-=c.px();
+		py_HFEGammasMinus-=c.py();
+	      }else if(c.eta()>2.901376 && c.eta()<5.20){//forward plus
+		px_HFEGammasPlus-=c.px();
+		py_HFEGammasPlus-=c.py();
+	      }
+	    }
+	    if (c.particleId()==typePFCand_[j]) {
+	      //second check for endcap, if inside barrel Max and Min symmetric around 0
+	      if ( ((c.eta()>etaMinPFCand_[j]) && (c.eta()<etaMaxPFCand_[j])) || ((c.eta()> (-etaMaxPFCand_[j])) && (c.eta()< (-etaMinPFCand_[j]))) ){
+		countsPFCand_[j]+=1;
+		MExPFCand_[j]-=c.px();
+		MEyPFCand_[j]-=c.py();
+		ptPFCand_[j]   = map_of_MEs[DirName + "/"+ptPFCand_name_[j]];
+		if ( ptPFCand_[j]       && ptPFCand_[j]->getRootObject()) ptPFCand_[j]->Fill(c.eta(), c.phi(), c.pt());
+		occupancyPFCand_[j]   = map_of_MEs[DirName + "/"+occupancyPFCand_name_[j]];
+		if ( occupancyPFCand_[j]       && occupancyPFCand_[j]->getRootObject()) occupancyPFCand_[j]->Fill(c.eta(), c.phi());
+	      }
+	    }
+	  }
+	  //std::cout<<"pass 1"<<std::endl;
+	  //fill quantities for isolated charged hadron quantities
+	  //only for charged hadrons
+	  if ( c.particleId() == 1 &&  c.pt() > ptMinCand_ ){
+	    // At least 1 GeV in HCAL
+	    double ecalRaw = c.rawEcalEnergy();
+	    double hcalRaw = c.rawHcalEnergy();
+	    if ( (ecalRaw + hcalRaw) > hcalMin_ ){
+	      const PFCandidate::ElementsInBlocks& theElements = c.elementsInBlocks();
+	      if( theElements.empty() ) continue;
+	      unsigned int iTrack=-999;
+	      std::vector<unsigned int> iECAL;// =999;
+	      std::vector<unsigned int> iHCAL;// =999;
+	      const reco::PFBlockRef blockRef = theElements[0].first;
+	      const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
+	      // Check that there is only one track in the block.
+	      unsigned int nTracks = 0;
+	      //std::cout<<"pass 2"<<std::endl;
+	      for(unsigned int iEle=0; iEle<elements.size(); iEle++) {	         
+		// Find the tracks in the block
+		PFBlockElement::Type type = elements[iEle].type();
+		switch( type ) {
+		case PFBlockElement::TRACK:
+		  iTrack = iEle;
+		  nTracks++;
+		  break;
+		case PFBlockElement::ECAL:
+		  iECAL.push_back( iEle );
+		  break;
+		case PFBlockElement::HCAL:
+		  iHCAL.push_back( iEle );
+		  break;
+		default:
+		  continue;
+		} 
+	      }
+	      //std::cout<<"pass 3"<<std::endl;
+	      if ( nTracks == 1 ){
+		// Characteristics of the track
+		const reco::PFBlockElementTrack& et = dynamic_cast<const reco::PFBlockElementTrack &>( elements[iTrack] );
+		mProfileIsoPFChHad_TrackOccupancy=map_of_MEs[DirName+"/"+"IsoPfChHad_Track_profile"];
+		if (mProfileIsoPFChHad_TrackOccupancy  && mProfileIsoPFChHad_TrackOccupancy->getRootObject()) mProfileIsoPFChHad_TrackOccupancy->Fill(et.trackRef()->eta(),et.trackRef()->phi());
+		mProfileIsoPFChHad_TrackPt=map_of_MEs[DirName+"/"+"IsoPfChHad_TrackPt"];
+		if (mProfileIsoPFChHad_TrackPt  && mProfileIsoPFChHad_TrackPt->getRootObject()) mProfileIsoPFChHad_TrackPt->Fill(et.trackRef()->eta(),et.trackRef()->phi(),et.trackRef()->pt());
+		//ECAL element
+		//std::cout<<"pass 10"<<std::endl;
+		for(unsigned int ii=0;ii<iECAL.size();ii++) {
+		  const reco::PFBlockElementCluster& eecal = dynamic_cast<const reco::PFBlockElementCluster &>( elements[ iECAL[ii] ] );
+		  if(fabs(eecal.clusterRef()->eta())<1.479){
+		    mProfileIsoPFChHad_EcalOccupancyCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_ECAL_profile_central"];
+		    if (mProfileIsoPFChHad_EcalOccupancyCentral  && mProfileIsoPFChHad_EcalOccupancyCentral->getRootObject()) mProfileIsoPFChHad_EcalOccupancyCentral->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi());
+		    mProfileIsoPFChHad_EMPtCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_EMPt_central"];
+		    if (mProfileIsoPFChHad_EMPtCentral  && mProfileIsoPFChHad_EMPtCentral->getRootObject()) mProfileIsoPFChHad_EMPtCentral->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi(),eecal.clusterRef()->pt());
+		  }else{
+		    mProfileIsoPFChHad_EcalOccupancyEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_ECAL_profile_endcap"];
+		    if (mProfileIsoPFChHad_EcalOccupancyEndcap  && mProfileIsoPFChHad_EcalOccupancyEndcap->getRootObject()) mProfileIsoPFChHad_EcalOccupancyEndcap->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi());
+		    mProfileIsoPFChHad_EMPtEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_EMPt_endcap"];
+		    if (mProfileIsoPFChHad_EMPtEndcap  && mProfileIsoPFChHad_EMPtEndcap->getRootObject()) mProfileIsoPFChHad_EMPtEndcap->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi(),eecal.clusterRef()->pt());
+		  }
+		}
+		//std::cout<<"pass 4"<<std::endl;
+		
+		//HCAL element
+		for(unsigned int ii=0;ii<iHCAL.size();ii++) {
+		  const reco::PFBlockElementCluster& ehcal = dynamic_cast<const reco::PFBlockElementCluster &>( elements[ iHCAL[ii] ] );
+		  if(fabs(ehcal.clusterRef()->eta())<1.740){
+		    mProfileIsoPFChHad_HcalOccupancyCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_HCAL_profile_central"];
+		    if (mProfileIsoPFChHad_HcalOccupancyCentral  && mProfileIsoPFChHad_HcalOccupancyCentral->getRootObject()) mProfileIsoPFChHad_HcalOccupancyCentral->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi());
+		    mProfileIsoPFChHad_HadPtCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_HadPt_central"];
+		    if (mProfileIsoPFChHad_HadPtCentral  && mProfileIsoPFChHad_HadPtCentral->getRootObject()) mProfileIsoPFChHad_HadPtCentral->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi(),ehcal.clusterRef()->pt());
+		  }else{
+		    mProfileIsoPFChHad_HcalOccupancyEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_HCAL_profile_endcap"];
+		    if (mProfileIsoPFChHad_HcalOccupancyEndcap  && mProfileIsoPFChHad_HcalOccupancyEndcap->getRootObject()) mProfileIsoPFChHad_HcalOccupancyEndcap->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi());
+		    mProfileIsoPFChHad_HadPtEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_HadPt_endcap"];
+		    if (mProfileIsoPFChHad_HadPtEndcap  && mProfileIsoPFChHad_HadPtEndcap->getRootObject()) mProfileIsoPFChHad_HadPtEndcap->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi(),ehcal.clusterRef()->pt());
+		  }	
+		}
+		//std::cout<<"pass 5"<<std::endl;
+	      }
+	    }
 	  }
 	}
-      }
-      for (unsigned int j=0; j<countsPFCand_.size(); j++) {
-	profilePFCand_x_[j]   = map_of_MEs[DirName + "/"+profilePFCand_x_name_[j]];
-	if(profilePFCand_x_[j] && profilePFCand_x_[j]->getRootObject())	profilePFCand_x_[j]->Fill(countsPFCand_[j], MExPFCand_[j]);
-	profilePFCand_y_[j]   = map_of_MEs[DirName + "/"+profilePFCand_y_name_[j]];
-	if(profilePFCand_y_[j] && profilePFCand_y_[j]->getRootObject())	profilePFCand_y_[j]->Fill(countsPFCand_[j], MEyPFCand_[j]);
-	multiplicityPFCand_[j]   = map_of_MEs[DirName + "/"+multiplicityPFCand_name_[j]];
-	if(multiplicityPFCand_[j] && multiplicityPFCand_[j]->getRootObject())	multiplicityPFCand_[j]->Fill(countsPFCand_[j]);
-      }
+	//std::cout<<"pass 6"<<std::endl;
+	for (unsigned int j=0; j<countsPFCand_.size(); j++) {
+	  profilePFCand_x_[j]   = map_of_MEs[DirName + "/"+profilePFCand_x_name_[j]];
+	  if(profilePFCand_x_[j] && profilePFCand_x_[j]->getRootObject())	profilePFCand_x_[j]->Fill(countsPFCand_[j], MExPFCand_[j]);
+	  profilePFCand_y_[j]   = map_of_MEs[DirName + "/"+profilePFCand_y_name_[j]];
+	  if(profilePFCand_y_[j] && profilePFCand_y_[j]->getRootObject())	profilePFCand_y_[j]->Fill(countsPFCand_[j], MEyPFCand_[j]);
+	  multiplicityPFCand_[j]   = map_of_MEs[DirName + "/"+multiplicityPFCand_name_[j]];
+	  if(multiplicityPFCand_[j] && multiplicityPFCand_[j]->getRootObject())	multiplicityPFCand_[j]->Fill(countsPFCand_[j]);
+	}
+	meMETPhiChargedHadronsBarrel     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel"];if(meMETPhiChargedHadronsBarrel  && meMETPhiChargedHadronsBarrel ->getRootObject())meMETPhiChargedHadronsBarrel->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
+	meMETPhiChargedHadronsEndcapPlus     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapPlus"];if(meMETPhiChargedHadronsEndcapPlus  && meMETPhiChargedHadronsEndcapPlus ->getRootObject())meMETPhiChargedHadronsEndcapPlus->Fill(atan2(py_chargedHadronsEndcapPlus,px_chargedHadronsEndcapPlus));
+	meMETPhiChargedHadronsEndcapMinus     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapMinus"];if(meMETPhiChargedHadronsEndcapMinus  && meMETPhiChargedHadronsEndcapMinus ->getRootObject())meMETPhiChargedHadronsEndcapMinus->Fill(atan2(py_chargedHadronsEndcapMinus,px_chargedHadronsEndcapMinus));
+	meMETPhiNeutralHadronsBarrel     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsBarrel"];if(meMETPhiNeutralHadronsBarrel  && meMETPhiNeutralHadronsBarrel ->getRootObject())meMETPhiNeutralHadronsBarrel->Fill(atan2(py_neutralHadronsBarrel,px_neutralHadronsBarrel));
+	meMETPhiNeutralHadronsEndcapPlus     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapPlus"];if(meMETPhiNeutralHadronsEndcapPlus  && meMETPhiNeutralHadronsEndcapPlus ->getRootObject())meMETPhiNeutralHadronsEndcapPlus->Fill(atan2(py_neutralHadronsEndcapPlus,px_neutralHadronsEndcapPlus));
+	meMETPhiNeutralHadronsEndcapMinus     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapMinus"];if(meMETPhiNeutralHadronsEndcapMinus  && meMETPhiNeutralHadronsEndcapMinus ->getRootObject())meMETPhiNeutralHadronsEndcapMinus->Fill(atan2(py_neutralHadronsEndcapMinus,px_neutralHadronsEndcapMinus));
+	meMETPhiPhotonsBarrel     = map_of_MEs[DirName+"/"+"METPhiPhotonsBarrel"];if(meMETPhiPhotonsBarrel  && meMETPhiPhotonsBarrel ->getRootObject())meMETPhiPhotonsBarrel->Fill(atan2(py_PhotonsBarrel,px_PhotonsBarrel));
+	meMETPhiPhotonsEndcapPlus     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapPlus"];if(meMETPhiPhotonsEndcapPlus  && meMETPhiPhotonsEndcapPlus ->getRootObject())meMETPhiPhotonsEndcapPlus->Fill(atan2(py_PhotonsEndcapPlus,px_PhotonsEndcapPlus));
+	meMETPhiPhotonsEndcapMinus     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapMinus"];if(meMETPhiPhotonsEndcapMinus  && meMETPhiPhotonsEndcapMinus ->getRootObject())meMETPhiPhotonsEndcapMinus->Fill(atan2(py_PhotonsEndcapMinus,px_PhotonsEndcapMinus));
+	meMETPhiHFHadronsPlus     = map_of_MEs[DirName+"/"+"METPhiHFHadronsPlus"];if(meMETPhiHFHadronsPlus  && meMETPhiHFHadronsPlus ->getRootObject())meMETPhiHFHadronsPlus->Fill(atan2(py_HFHadronsPlus,px_HFHadronsPlus));
+	meMETPhiHFHadronsMinus     = map_of_MEs[DirName+"/"+"METPhiHFHadronsMinus"];if(meMETPhiHFHadronsMinus  && meMETPhiHFHadronsMinus ->getRootObject())meMETPhiHFHadronsMinus->Fill(atan2(py_HFHadronsMinus,px_HFHadronsMinus));
+	meMETPhiHFEGammasPlus     = map_of_MEs[DirName+"/"+"METPhiHFEGammasPlus"];if(meMETPhiHFEGammasPlus  && meMETPhiHFEGammasPlus ->getRootObject())meMETPhiHFEGammasPlus->Fill(atan2(py_HFEGammasPlus,px_HFEGammasPlus));
+	meMETPhiHFEGammasMinus     = map_of_MEs[DirName+"/"+"METPhiHFEGammasMinus"];if(meMETPhiHFEGammasMinus  && meMETPhiHFEGammasMinus ->getRootObject())meMETPhiHFEGammasMinus->Fill(atan2(py_HFEGammasMinus,px_HFEGammasMinus));
+	//fill other diagnostic plots based on trigger decision
+	if(techTriggerCase==2){//techTriggerResultBx0 && techTriggerResultBxM2 && techTriggerResultBxM1
+	  mePhotonEtFraction_noEmptyBunch    = map_of_MEs[DirName+"/"+"PfPhotonEtFraction_BXm2BXm1Filled"];     if (  mePhotonEtFraction_noEmptyBunch  && mePhotonEtFraction_noEmptyBunch ->getRootObject())  mePhotonEtFraction_noEmptyBunch  ->Fill(pfmet.photonEtFraction());
+	  meNeutralHadronEtFraction_noEmptyBunch    = map_of_MEs[DirName+"/"+"PfNeutralHadronEtFraction_BXm2BXm1Filled"];     if (  meNeutralHadronEtFraction_noEmptyBunch  && meNeutralHadronEtFraction_noEmptyBunch ->getRootObject())  meNeutralHadronEtFraction_noEmptyBunch  ->Fill(pfmet.neutralHadronEtFraction());
+	  meChargedHadronEtFraction_noEmptyBunch    = map_of_MEs[DirName+"/"+"PfChargedHadronEtFraction_BXm2BXm1Filled"];     if (  meChargedHadronEtFraction_noEmptyBunch  && meChargedHadronEtFraction_noEmptyBunch ->getRootObject())  meChargedHadronEtFraction_noEmptyBunch  ->Fill(pfmet.chargedHadronEtFraction());
+	  meMET_noEmptyBunch    = map_of_MEs[DirName+"/"+"MET_BXm2BXm1Filled"];     if (  meMET_noEmptyBunch  && meMET_noEmptyBunch ->getRootObject())  meMET_noEmptyBunch  ->Fill(pfmet.pt());
+	  meSumET_noEmptyBunch    = map_of_MEs[DirName+"/"+"SumET_BXm2BXm1Filled"];     if (  meSumET_noEmptyBunch  && meSumET_noEmptyBunch ->getRootObject())  meSumET_noEmptyBunch  ->Fill(pfmet.sumEt());
+	  meMETPhiChargedHadronsBarrel_noEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel_BXm2BXm1Filled"];if(meMETPhiChargedHadronsBarrel_noEmptyBunch  && meMETPhiChargedHadronsBarrel_noEmptyBunch ->getRootObject())meMETPhiChargedHadronsBarrel_noEmptyBunch->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
+	  meMETPhiChargedHadronsEndcapPlus_noEmptyBunch  = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapPlus_BXm2BXm1Filled"];if(meMETPhiChargedHadronsEndcapPlus_noEmptyBunch  && meMETPhiChargedHadronsEndcapPlus_noEmptyBunch ->getRootObject())meMETPhiChargedHadronsEndcapPlus_noEmptyBunch->Fill(atan2(py_chargedHadronsEndcapPlus,px_chargedHadronsEndcapPlus));
+	  meMETPhiChargedHadronsEndcapMinus_noEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapMinus_BXm2BXm1Filled"];if(meMETPhiChargedHadronsEndcapMinus_noEmptyBunch  && meMETPhiChargedHadronsEndcapMinus_noEmptyBunch ->getRootObject())meMETPhiChargedHadronsEndcapMinus_noEmptyBunch->Fill(atan2(py_chargedHadronsEndcapMinus,px_chargedHadronsEndcapMinus));
+	  meMETPhiNeutralHadronsBarrel_noEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsBarrel_BXm2BXm1Filled"];if(meMETPhiNeutralHadronsBarrel_noEmptyBunch  && meMETPhiNeutralHadronsBarrel_noEmptyBunch ->getRootObject())meMETPhiNeutralHadronsBarrel_noEmptyBunch->Fill(atan2(py_neutralHadronsBarrel,px_neutralHadronsBarrel));
+	  meMETPhiNeutralHadronsEndcapPlus_noEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapPlus_BXm2BXm1Filled"];if(meMETPhiNeutralHadronsEndcapPlus_noEmptyBunch  && meMETPhiNeutralHadronsEndcapPlus_noEmptyBunch ->getRootObject())meMETPhiNeutralHadronsEndcapPlus_noEmptyBunch->Fill(atan2(py_neutralHadronsEndcapPlus,px_neutralHadronsEndcapPlus));
+	  meMETPhiNeutralHadronsEndcapMinus_noEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapMinus_BXm2BXm1Filled"];if(meMETPhiNeutralHadronsEndcapMinus_noEmptyBunch  && meMETPhiNeutralHadronsEndcapMinus_noEmptyBunch ->getRootObject())meMETPhiNeutralHadronsEndcapMinus_noEmptyBunch->Fill(atan2(py_neutralHadronsEndcapMinus,px_neutralHadronsEndcapMinus));
+	  meMETPhiPhotonsBarrel_noEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiPhotonsBarrel_BXm2BXm1Filled"];if(meMETPhiPhotonsBarrel_noEmptyBunch  && meMETPhiPhotonsBarrel_noEmptyBunch ->getRootObject())meMETPhiPhotonsBarrel_noEmptyBunch->Fill(atan2(py_PhotonsBarrel,px_PhotonsBarrel));
+	  meMETPhiPhotonsEndcapPlus_noEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapPlus_BXm2BXm1Filled"];if(meMETPhiPhotonsEndcapPlus_noEmptyBunch  && meMETPhiPhotonsEndcapPlus_noEmptyBunch ->getRootObject())meMETPhiPhotonsEndcapPlus_noEmptyBunch->Fill(atan2(py_PhotonsEndcapPlus,px_PhotonsEndcapPlus));
+	  meMETPhiPhotonsEndcapMinus_noEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapMinus_BXm2BXm1Filled"];if(meMETPhiPhotonsEndcapMinus_noEmptyBunch  && meMETPhiPhotonsEndcapMinus_noEmptyBunch ->getRootObject())meMETPhiPhotonsEndcapMinus_noEmptyBunch->Fill(atan2(py_PhotonsEndcapMinus,px_PhotonsEndcapMinus));
+	  meMETPhiHFHadronsPlus_noEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiHFHadronsPlus_BXm2BXm1Filled"];if(meMETPhiHFHadronsPlus_noEmptyBunch  && meMETPhiHFHadronsPlus_noEmptyBunch ->getRootObject())meMETPhiHFHadronsPlus_noEmptyBunch->Fill(atan2(py_HFHadronsPlus,px_HFHadronsPlus));
+	  meMETPhiHFHadronsMinus_noEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiHFHadronsMinus_BXm2BXm1Filled"];if(meMETPhiHFHadronsMinus_noEmptyBunch  && meMETPhiHFHadronsMinus_noEmptyBunch ->getRootObject())meMETPhiHFHadronsMinus_noEmptyBunch->Fill(atan2(py_HFHadronsMinus,px_HFHadronsMinus));
+	  meMETPhiHFEGammasPlus_noEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiHFEGammasPlus_BXm2BXm1Filled"];if(meMETPhiHFEGammasPlus_noEmptyBunch  && meMETPhiHFEGammasPlus_noEmptyBunch ->getRootObject())meMETPhiHFEGammasPlus_noEmptyBunch->Fill(atan2(py_HFEGammasPlus,px_HFEGammasPlus));
+	  meMETPhiHFEGammasMinus_noEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiHFEGammasMinus_BXm2BXm1Filled"];if(meMETPhiHFEGammasMinus_noEmptyBunch  && meMETPhiHFEGammasMinus_noEmptyBunch ->getRootObject())meMETPhiHFEGammasMinus_noEmptyBunch->Fill(atan2(py_HFEGammasMinus,px_HFEGammasMinus));
+	}
+	if(techTriggerCase==1){//techTriggerResultBx0 && techTriggerResultBxM1
+	  mePhotonEtFraction_oneFullBunch    = map_of_MEs[DirName+"/"+"PfPhotonEtFraction_BXm1Filled_BXm1Filled"];     if (  mePhotonEtFraction_oneFullBunch  && mePhotonEtFraction_oneFullBunch ->getRootObject())  mePhotonEtFraction_oneFullBunch  ->Fill(pfmet.photonEtFraction());
+	  meNeutralHadronEtFraction_oneFullBunch    = map_of_MEs[DirName+"/"+"PfNeutralHadronEtFraction_BXm1Filled"];     if (  meNeutralHadronEtFraction_oneFullBunch  && meNeutralHadronEtFraction_oneFullBunch ->getRootObject())  meNeutralHadronEtFraction_oneFullBunch  ->Fill(pfmet.neutralHadronEtFraction());
+	  meChargedHadronEtFraction_oneFullBunch    = map_of_MEs[DirName+"/"+"PfChargedHadronEtFraction_BXm1Filled"];     if (  meChargedHadronEtFraction_oneFullBunch  && meChargedHadronEtFraction_oneFullBunch ->getRootObject())  meChargedHadronEtFraction_oneFullBunch  ->Fill(pfmet.chargedHadronEtFraction());
+	  meMET_oneFullBunch    = map_of_MEs[DirName+"/"+"MET_BXm1Filled"];     if (  meMET_oneFullBunch  && meMET_oneFullBunch ->getRootObject())  meMET_oneFullBunch  ->Fill(pfmet.pt());
+	  meSumET_oneFullBunch    = map_of_MEs[DirName+"/"+"SumET_BXm1Filled"];     if (  meSumET_oneFullBunch  && meSumET_oneFullBunch ->getRootObject())  meSumET_oneFullBunch  ->Fill(pfmet.sumEt());
+	  meMETPhiChargedHadronsBarrel_oneFullBunch     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel_BXm1Filled"];if(meMETPhiChargedHadronsBarrel_oneFullBunch  && meMETPhiChargedHadronsBarrel_oneFullBunch ->getRootObject())meMETPhiChargedHadronsBarrel_oneFullBunch->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
+	  meMETPhiChargedHadronsEndcapPlus_oneFullBunch  = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapPlus_BXm1Filled"];if(meMETPhiChargedHadronsEndcapPlus_oneFullBunch  && meMETPhiChargedHadronsEndcapPlus_oneFullBunch ->getRootObject())meMETPhiChargedHadronsEndcapPlus_oneFullBunch->Fill(atan2(py_chargedHadronsEndcapPlus,px_chargedHadronsEndcapPlus));
+	  meMETPhiChargedHadronsEndcapMinus_oneFullBunch     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapMinus_BXm1Filled"];if(meMETPhiChargedHadronsEndcapMinus_oneFullBunch  && meMETPhiChargedHadronsEndcapMinus_oneFullBunch ->getRootObject())meMETPhiChargedHadronsEndcapMinus_oneFullBunch->Fill(atan2(py_chargedHadronsEndcapMinus,px_chargedHadronsEndcapMinus));
+	  meMETPhiNeutralHadronsBarrel_oneFullBunch     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsBarrel_BXm1Filled"];if(meMETPhiNeutralHadronsBarrel_oneFullBunch  && meMETPhiNeutralHadronsBarrel_oneFullBunch ->getRootObject())meMETPhiNeutralHadronsBarrel_oneFullBunch->Fill(atan2(py_neutralHadronsBarrel,px_neutralHadronsBarrel));
+	  meMETPhiNeutralHadronsEndcapPlus_oneFullBunch     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapPlus_BXm1Filled"];if(meMETPhiNeutralHadronsEndcapPlus_oneFullBunch  && meMETPhiNeutralHadronsEndcapPlus_oneFullBunch ->getRootObject())meMETPhiNeutralHadronsEndcapPlus_oneFullBunch->Fill(atan2(py_neutralHadronsEndcapPlus,px_neutralHadronsEndcapPlus));
+	  meMETPhiNeutralHadronsEndcapMinus_oneFullBunch     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapMinus_BXm1Filled"];if(meMETPhiNeutralHadronsEndcapMinus_oneFullBunch  && meMETPhiNeutralHadronsEndcapMinus_oneFullBunch ->getRootObject())meMETPhiNeutralHadronsEndcapMinus_oneFullBunch->Fill(atan2(py_neutralHadronsEndcapMinus,px_neutralHadronsEndcapMinus));
+	  meMETPhiPhotonsBarrel_oneFullBunch     = map_of_MEs[DirName+"/"+"METPhiPhotonsBarrel_BXm1Filled"];if(meMETPhiPhotonsBarrel_oneFullBunch  && meMETPhiPhotonsBarrel_oneFullBunch ->getRootObject())meMETPhiPhotonsBarrel_oneFullBunch->Fill(atan2(py_PhotonsBarrel,px_PhotonsBarrel));
+	  meMETPhiPhotonsEndcapPlus_oneFullBunch     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapPlus_BXm1Filled"];if(meMETPhiPhotonsEndcapPlus_oneFullBunch  && meMETPhiPhotonsEndcapPlus_oneFullBunch ->getRootObject())meMETPhiPhotonsEndcapPlus_oneFullBunch->Fill(atan2(py_PhotonsEndcapPlus,px_PhotonsEndcapPlus));
+	  meMETPhiPhotonsEndcapMinus_oneFullBunch     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapMinus_BXm1Filled"];if(meMETPhiPhotonsEndcapMinus_oneFullBunch  && meMETPhiPhotonsEndcapMinus_oneFullBunch ->getRootObject())meMETPhiPhotonsEndcapMinus_oneFullBunch->Fill(atan2(py_PhotonsEndcapMinus,px_PhotonsEndcapMinus));
+	  meMETPhiHFHadronsPlus_oneFullBunch     = map_of_MEs[DirName+"/"+"METPhiHFHadronsPlus_BXm1Filled"];if(meMETPhiHFHadronsPlus_oneFullBunch  && meMETPhiHFHadronsPlus_oneFullBunch ->getRootObject())meMETPhiHFHadronsPlus_oneFullBunch->Fill(atan2(py_HFHadronsPlus,px_HFHadronsPlus));
+	  meMETPhiHFHadronsMinus_oneFullBunch     = map_of_MEs[DirName+"/"+"METPhiHFHadronsMinus_BXm1Filled"];if(meMETPhiHFHadronsMinus_oneFullBunch  && meMETPhiHFHadronsMinus_oneFullBunch ->getRootObject())meMETPhiHFHadronsMinus_oneFullBunch->Fill(atan2(py_HFHadronsMinus,px_HFHadronsMinus));
+	  meMETPhiHFEGammasPlus_oneFullBunch     = map_of_MEs[DirName+"/"+"METPhiHFEGammasPlus_BXm1Filled"];if(meMETPhiHFEGammasPlus_oneFullBunch  && meMETPhiHFEGammasPlus_oneFullBunch ->getRootObject())meMETPhiHFEGammasPlus_oneFullBunch->Fill(atan2(py_HFEGammasPlus,px_HFEGammasPlus));
+	  meMETPhiHFEGammasMinus_oneFullBunch     = map_of_MEs[DirName+"/"+"METPhiHFEGammasMinus_BXm1Filled"];if(meMETPhiHFEGammasMinus_oneFullBunch  && meMETPhiHFEGammasMinus_oneFullBunch ->getRootObject())meMETPhiHFEGammasMinus_oneFullBunch->Fill(atan2(py_HFEGammasMinus,px_HFEGammasMinus));
+	}
+	if(techTriggerCase==(-2)){//techTriggerResultBx0 && !techTriggerResultBxM2 && !techTriggerResultBxM1
+	  mePhotonEtFraction_EmptyBunch    = map_of_MEs[DirName+"/"+"PfPhotonEtFraction_BXm2BXm1Empty"];     if (  mePhotonEtFraction_EmptyBunch  && mePhotonEtFraction_EmptyBunch ->getRootObject())  mePhotonEtFraction_EmptyBunch  ->Fill(pfmet.photonEtFraction());
+	  meNeutralHadronEtFraction_EmptyBunch    = map_of_MEs[DirName+"/"+"PfNeutralHadronEtFraction_BXm2BXm1Empty"];     if (  meNeutralHadronEtFraction_EmptyBunch  && meNeutralHadronEtFraction_EmptyBunch ->getRootObject())  meNeutralHadronEtFraction_EmptyBunch  ->Fill(pfmet.neutralHadronEtFraction());
+	  meChargedHadronEtFraction_EmptyBunch    = map_of_MEs[DirName+"/"+"PfChargedHadronEtFraction_BXm2BXm1Empty"];     if (  meChargedHadronEtFraction_EmptyBunch  && meChargedHadronEtFraction_EmptyBunch ->getRootObject())  meChargedHadronEtFraction_EmptyBunch  ->Fill(pfmet.chargedHadronEtFraction());
+	  meMET_EmptyBunch    = map_of_MEs[DirName+"/"+"MET_BXm2BXm1Empty"];     if (  meMET_EmptyBunch  && meMET_EmptyBunch ->getRootObject())  meMET_EmptyBunch  ->Fill(pfmet.pt());
+	  meSumET_EmptyBunch    = map_of_MEs[DirName+"/"+"SumET_BXm2BXm1Empty"];     if (  meSumET_EmptyBunch  && meSumET_EmptyBunch ->getRootObject())  meSumET_EmptyBunch  ->Fill(pfmet.sumEt());
+	  meMETPhiChargedHadronsBarrel_EmptyBunch     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel_BXm2BXm1Empty"];if(meMETPhiChargedHadronsBarrel_EmptyBunch  && meMETPhiChargedHadronsBarrel_EmptyBunch ->getRootObject())meMETPhiChargedHadronsBarrel_EmptyBunch->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
+	  meMETPhiChargedHadronsEndcapPlus_EmptyBunch  = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapPlus_BXm2BXm1Empty"];if(meMETPhiChargedHadronsEndcapPlus_EmptyBunch  && meMETPhiChargedHadronsEndcapPlus_EmptyBunch ->getRootObject())meMETPhiChargedHadronsEndcapPlus_EmptyBunch->Fill(atan2(py_chargedHadronsEndcapPlus,px_chargedHadronsEndcapPlus));
+	  meMETPhiChargedHadronsEndcapMinus_EmptyBunch     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapMinus_BXm2BXm1Empty"];if(meMETPhiChargedHadronsEndcapMinus_EmptyBunch  && meMETPhiChargedHadronsEndcapMinus_EmptyBunch ->getRootObject())meMETPhiChargedHadronsEndcapMinus_EmptyBunch->Fill(atan2(py_chargedHadronsEndcapMinus,px_chargedHadronsEndcapMinus));
+	  meMETPhiNeutralHadronsBarrel_EmptyBunch     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsBarrel_BXm2BXm1Empty"];if(meMETPhiNeutralHadronsBarrel_EmptyBunch  && meMETPhiNeutralHadronsBarrel_EmptyBunch ->getRootObject())meMETPhiNeutralHadronsBarrel_EmptyBunch->Fill(atan2(py_neutralHadronsBarrel,px_neutralHadronsBarrel));
+	  meMETPhiNeutralHadronsEndcapPlus_EmptyBunch     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapPlus_BXm2BXm1Empty"];if(meMETPhiNeutralHadronsEndcapPlus_EmptyBunch  && meMETPhiNeutralHadronsEndcapPlus_EmptyBunch ->getRootObject())meMETPhiNeutralHadronsEndcapPlus_EmptyBunch->Fill(atan2(py_neutralHadronsEndcapPlus,px_neutralHadronsEndcapPlus));
+	  meMETPhiNeutralHadronsEndcapMinus_EmptyBunch     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapMinus_BXm2BXm1Empty"];if(meMETPhiNeutralHadronsEndcapMinus_EmptyBunch  && meMETPhiNeutralHadronsEndcapMinus_EmptyBunch ->getRootObject())meMETPhiNeutralHadronsEndcapMinus_EmptyBunch->Fill(atan2(py_neutralHadronsEndcapMinus,px_neutralHadronsEndcapMinus));
+	  meMETPhiPhotonsBarrel_EmptyBunch     = map_of_MEs[DirName+"/"+"METPhiPhotonsBarrel_BXm2BXm1Empty"];if(meMETPhiPhotonsBarrel_EmptyBunch  && meMETPhiPhotonsBarrel_EmptyBunch ->getRootObject())meMETPhiPhotonsBarrel_EmptyBunch->Fill(atan2(py_PhotonsBarrel,px_PhotonsBarrel));
+	  meMETPhiPhotonsEndcapPlus_EmptyBunch     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapPlus_BXm2BXm1Empty"];if(meMETPhiPhotonsEndcapPlus_EmptyBunch  && meMETPhiPhotonsEndcapPlus_EmptyBunch ->getRootObject())meMETPhiPhotonsEndcapPlus_EmptyBunch->Fill(atan2(py_PhotonsEndcapPlus,px_PhotonsEndcapPlus));
+	  meMETPhiPhotonsEndcapMinus_EmptyBunch     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapMinus_BXm2BXm1Empty"];if(meMETPhiPhotonsEndcapMinus_EmptyBunch  && meMETPhiPhotonsEndcapMinus_EmptyBunch ->getRootObject())meMETPhiPhotonsEndcapMinus_EmptyBunch->Fill(atan2(py_PhotonsEndcapMinus,px_PhotonsEndcapMinus));
+	  meMETPhiHFHadronsPlus_EmptyBunch     = map_of_MEs[DirName+"/"+"METPhiHFHadronsPlus_BXm2BXm1Empty"];if(meMETPhiHFHadronsPlus_EmptyBunch  && meMETPhiHFHadronsPlus_EmptyBunch ->getRootObject())meMETPhiHFHadronsPlus_EmptyBunch->Fill(atan2(py_HFHadronsPlus,px_HFHadronsPlus));
+	  meMETPhiHFHadronsMinus_EmptyBunch     = map_of_MEs[DirName+"/"+"METPhiHFHadronsMinus_BXm2BXm1Empty"];if(meMETPhiHFHadronsMinus_EmptyBunch  && meMETPhiHFHadronsMinus_EmptyBunch ->getRootObject())meMETPhiHFHadronsMinus_EmptyBunch->Fill(atan2(py_HFHadronsMinus,px_HFHadronsMinus));
+	  meMETPhiHFEGammasPlus_EmptyBunch     = map_of_MEs[DirName+"/"+"METPhiHFEGammasPlus_BXm2BXm1Empty"];if(meMETPhiHFEGammasPlus_EmptyBunch  && meMETPhiHFEGammasPlus_EmptyBunch ->getRootObject())meMETPhiHFEGammasPlus_EmptyBunch->Fill(atan2(py_HFEGammasPlus,px_HFEGammasPlus));
+	  meMETPhiHFEGammasMinus_EmptyBunch     = map_of_MEs[DirName+"/"+"METPhiHFEGammasMinus_BXm2BXm1Empty"];if(meMETPhiHFEGammasMinus_EmptyBunch  && meMETPhiHFEGammasMinus_EmptyBunch ->getRootObject())meMETPhiHFEGammasMinus_EmptyBunch->Fill(atan2(py_HFEGammasMinus,px_HFEGammasMinus));
+	}
+	if(techTriggerCase==(-1)){//techTriggerResultBx0 && !techTriggerResultBxM1
+	  mePhotonEtFraction_oneEmptyBunch    = map_of_MEs[DirName+"/"+"PfPhotonEtFraction_BXm1Empty"];     if (  mePhotonEtFraction_oneEmptyBunch  && mePhotonEtFraction_oneEmptyBunch ->getRootObject())  mePhotonEtFraction_oneEmptyBunch  ->Fill(pfmet.photonEtFraction());
+	  meNeutralHadronEtFraction_oneEmptyBunch    = map_of_MEs[DirName+"/"+"PfNeutralHadronEtFraction_BXm1Empty"];     if (  meNeutralHadronEtFraction_oneEmptyBunch  && meNeutralHadronEtFraction_oneEmptyBunch ->getRootObject())  meNeutralHadronEtFraction_oneEmptyBunch  ->Fill(pfmet.neutralHadronEtFraction());
+	  meChargedHadronEtFraction_oneEmptyBunch    = map_of_MEs[DirName+"/"+"PfChargedHadronEtFraction_BXm1Empty"];     if (  meChargedHadronEtFraction_oneEmptyBunch  && meChargedHadronEtFraction_oneEmptyBunch ->getRootObject())  meChargedHadronEtFraction_oneEmptyBunch  ->Fill(pfmet.chargedHadronEtFraction());
+	  meMET_oneEmptyBunch    = map_of_MEs[DirName+"/"+"MET_BXm1Empty"];     if (  meMET_oneEmptyBunch  && meMET_oneEmptyBunch ->getRootObject())  meMET_oneEmptyBunch  ->Fill(pfmet.pt());
+	  meSumET_oneEmptyBunch    = map_of_MEs[DirName+"/"+"SumET_BXm1Empty"];     if (  meSumET_oneEmptyBunch  && meSumET_oneEmptyBunch ->getRootObject())  meSumET_oneEmptyBunch  ->Fill(pfmet.sumEt());
+	  meMETPhiChargedHadronsBarrel_oneEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel_BXm1Empty"];if(meMETPhiChargedHadronsBarrel_oneEmptyBunch  && meMETPhiChargedHadronsBarrel_oneEmptyBunch ->getRootObject())meMETPhiChargedHadronsBarrel_oneEmptyBunch->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
+	  meMETPhiChargedHadronsEndcapPlus_oneEmptyBunch  = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapPlus_BXm1Empty"];if(meMETPhiChargedHadronsEndcapPlus_oneEmptyBunch  && meMETPhiChargedHadronsEndcapPlus_oneEmptyBunch ->getRootObject())meMETPhiChargedHadronsEndcapPlus_oneEmptyBunch->Fill(atan2(py_chargedHadronsEndcapPlus,px_chargedHadronsEndcapPlus));
+	  meMETPhiChargedHadronsEndcapMinus_oneEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsEndcapMinus_BXm1Empty"];if(meMETPhiChargedHadronsEndcapMinus_oneEmptyBunch  && meMETPhiChargedHadronsEndcapMinus_oneEmptyBunch ->getRootObject())meMETPhiChargedHadronsEndcapMinus_oneEmptyBunch->Fill(atan2(py_chargedHadronsEndcapMinus,px_chargedHadronsEndcapMinus));
+	  meMETPhiNeutralHadronsBarrel_oneEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsBarrel_BXm1Empty"];if(meMETPhiNeutralHadronsBarrel_oneEmptyBunch  && meMETPhiNeutralHadronsBarrel_oneEmptyBunch ->getRootObject())meMETPhiNeutralHadronsBarrel_oneEmptyBunch->Fill(atan2(py_neutralHadronsBarrel,px_neutralHadronsBarrel));
+	  meMETPhiNeutralHadronsEndcapPlus_oneEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapPlus_BXm1Empty"];if(meMETPhiNeutralHadronsEndcapPlus_oneEmptyBunch  && meMETPhiNeutralHadronsEndcapPlus_oneEmptyBunch ->getRootObject())meMETPhiNeutralHadronsEndcapPlus_oneEmptyBunch->Fill(atan2(py_neutralHadronsEndcapPlus,px_neutralHadronsEndcapPlus));
+	  meMETPhiNeutralHadronsEndcapMinus_oneEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiNeutralHadronsEndcapMinus_BXm1Empty"];if(meMETPhiNeutralHadronsEndcapMinus_oneEmptyBunch  && meMETPhiNeutralHadronsEndcapMinus_oneEmptyBunch ->getRootObject())meMETPhiNeutralHadronsEndcapMinus_oneEmptyBunch->Fill(atan2(py_neutralHadronsEndcapMinus,px_neutralHadronsEndcapMinus));
+	  meMETPhiPhotonsBarrel_oneEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiPhotonsBarrel_BXm1Empty"];if(meMETPhiPhotonsBarrel_oneEmptyBunch  && meMETPhiPhotonsBarrel_oneEmptyBunch ->getRootObject())meMETPhiPhotonsBarrel_oneEmptyBunch->Fill(atan2(py_PhotonsBarrel,px_PhotonsBarrel));
+	  meMETPhiPhotonsEndcapPlus_oneEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapPlus_BXm1Empty"];if(meMETPhiPhotonsEndcapPlus_oneEmptyBunch  && meMETPhiPhotonsEndcapPlus_oneEmptyBunch ->getRootObject())meMETPhiPhotonsEndcapPlus_oneEmptyBunch->Fill(atan2(py_PhotonsEndcapPlus,px_PhotonsEndcapPlus));
+	  meMETPhiPhotonsEndcapMinus_oneEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiPhotonsEndcapMinus_BXm1Empty"];if(meMETPhiPhotonsEndcapMinus_oneEmptyBunch  && meMETPhiPhotonsEndcapMinus_oneEmptyBunch ->getRootObject())meMETPhiPhotonsEndcapMinus_oneEmptyBunch->Fill(atan2(py_PhotonsEndcapMinus,px_PhotonsEndcapMinus));
+	  meMETPhiHFHadronsPlus_oneEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiHFHadronsPlus_BXm1Empty"];if(meMETPhiHFHadronsPlus_oneEmptyBunch  && meMETPhiHFHadronsPlus_oneEmptyBunch ->getRootObject())meMETPhiHFHadronsPlus_oneEmptyBunch->Fill(atan2(py_HFHadronsPlus,px_HFHadronsPlus));
+	  meMETPhiHFHadronsMinus_oneEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiHFHadronsMinus_BXm1Empty"];if(meMETPhiHFHadronsMinus_oneEmptyBunch  && meMETPhiHFHadronsMinus_oneEmptyBunch ->getRootObject())meMETPhiHFHadronsMinus_oneEmptyBunch->Fill(atan2(py_HFHadronsMinus,px_HFHadronsMinus));
+	  meMETPhiHFEGammasPlus_oneEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiHFEGammasPlus_BXm1Empty"];if(meMETPhiHFEGammasPlus_oneEmptyBunch  && meMETPhiHFEGammasPlus_oneEmptyBunch ->getRootObject())meMETPhiHFEGammasPlus_oneEmptyBunch->Fill(atan2(py_HFEGammasPlus,px_HFEGammasPlus));
+	  meMETPhiHFEGammasMinus_oneEmptyBunch     = map_of_MEs[DirName+"/"+"METPhiHFEGammasMinus_BXm1Empty"];if(meMETPhiHFEGammasMinus_oneEmptyBunch  && meMETPhiHFEGammasMinus_oneEmptyBunch ->getRootObject())meMETPhiHFEGammasMinus_oneEmptyBunch->Fill(atan2(py_HFEGammasMinus,px_HFEGammasMinus));
+	}
+
+
+
+      }//fill candidate plots only then
+      //std::cout<<"pass 7"<<std::endl;
       
       // PFMET getters
       //----------------------------------------------------------------------------
