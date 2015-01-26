@@ -637,9 +637,22 @@ class ConfigBuilder(object):
         # load the pile up file
 	if self._options.pileup:
 		pileupSpec=self._options.pileup.split(',')[0]
+
+		# FastSim: GEN-mixing or DIGI-RECO mixing?
+		GEN_mixing = False
+		if self._options.fast and pileupSpec.find("GEN_") == 0:
+                        GEN_mixing = True
+                        pileupSpec = pileupSpec[4:]
+
+		# Does the requested pile-up scenario exist?
 		from Configuration.StandardSequences.Mixing import Mixing,defineMixing
 		if not pileupSpec in Mixing and '.' not in pileupSpec and 'file:' not in pileupSpec:
-			raise Exception(pileupSpec+' is not a know mixing scenario:\n available are: '+'\n'.join(Mixing.keys()))
+			message = pileupSpec+' is not a know mixing scenario:\n available are: '+'\n'.join(Mixing.keys())
+			if self._options.fast:
+				message += "\n-"*20+"\n additional options for FastSim (gen-mixing):\n" + "-"*20 + "\n" + '\n'.join(["GEN_" + x for x in Mixing.keys()]) + "\n"
+			raise Exception(message)
+
+		# Put mixing parameters in a dictionary
 		if '.' in pileupSpec:
 			mixingDict={'file':pileupSpec}
 		elif pileupSpec.startswith('file:'):
@@ -649,6 +662,8 @@ class ConfigBuilder(object):
 			mixingDict=copy.copy(Mixing[pileupSpec])
 		if len(self._options.pileup.split(','))>1:
 			mixingDict.update(eval(self._options.pileup[self._options.pileup.find(',')+1:]))
+
+		# Load the pu cfg file corresponding to the requested pu scenario
 		if 'file:' in pileupSpec:
 			#the file is local
 			self.process.load(mixingDict['file'])
@@ -656,8 +671,13 @@ class ConfigBuilder(object):
 			self._options.inlineObjets+=',mix'
 		else:
 			self.loadAndRemember(mixingDict['file'])
-			#if self._options.fast:
-			#	self._options.customisation_file.append("FastSimulation/Configuration/MixingModule_Full2Fast.setVertexGeneratorPileUpProducer")
+
+		# FastSim: transform cfg of MixingModule from FullSim to FastSim 
+		if self._options.fast:
+			if GEN_mixing:
+				self._options.customisation_file.append("FastSimulation/Configuration/MixingModule_Full2Fast.prepareGenMixing")
+			else:   
+				self._options.customisation_file.append("FastSimulation/Configuration/MixingModule_Full2Fast.prepareDigiRecoMixing")
 
 		mixingDict.pop('file')
 		if not "DATAMIX" in self.stepMap.keys(): # when DATAMIX is present, pileup_input refers to pre-mixed GEN-RAW
@@ -666,15 +686,11 @@ class ConfigBuilder(object):
 					mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],))[0]
 				else:
 					mixingDict['F']=self._options.pileup_input.split(',')
-			specialization=defineMixing(mixingDict,self._options.fast)
+			specialization=defineMixing(mixingDict)
 			for command in specialization:
 				self.executeAndRemember(command)
 			if len(mixingDict)!=0:
 				raise Exception('unused mixing specification: '+mixingDict.keys().__str__())
-
-			if self._options.fast and not 'SIM' in self.stepMap and not 'FASTSIM' in self.stepMap:
-				self.executeAndRemember('process.mix.playback= True')
-
 
         # load the geometry file
         try:
@@ -1085,18 +1101,16 @@ class ConfigBuilder(object):
 
         # Mixing
 	if self._options.pileup=='default':
-		from Configuration.StandardSequences.Mixing import MixingDefaultKey,MixingFSDefaultKey
+		from Configuration.StandardSequences.Mixing import MixingDefaultKey
+		self._options.pileup=MixingDefaultKey
+		# temporary, until digi-reco mixing becomes standard in RelVals
 		if self._options.fast:
-			self._options.pileup=MixingFSDefaultKey
-		else:
-			self._options.pileup=MixingDefaultKey
-			
+			self._options.pileup="GEN_" + MixingDefaultKey
+		
+
 	#not driven by a default cff anymore
 	if self._options.isData:
 		self._options.pileup=None
-        if self._options.isMC==True and self._options.himix==False:
-                if self._options.fast:
-			self._options.pileup='FS_'+self._options.pileup
         elif self._options.isMC==True and self._options.himix==True:
 		self._options.pileup='HiMix'
 

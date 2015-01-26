@@ -92,6 +92,7 @@ from FastSimulation.Tracking.IterativeTracking_cff import *
 HLTBeginSequence = cms.Sequence(
     siTrackerGaussianSmearingRecHits+ # repetition if RECO is executed; needed by the next line
     iterativeTracking               + # repetition if RECO is executed; needed by the next line
+    trackExtrapolator               +
     caloRecHits                     + # repetition if RECO is executed; needed to allow -s GEN,SIM,HLT without RECO
     L1Emulator                      +
     l1extraParticles                +
