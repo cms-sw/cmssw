@@ -18,6 +18,4 @@ recoAllJetIds = cms.Sequence( ak4JetID + ak7JetID + sc5JetID + sc7JetID + ic5Jet
                               ca4JetID + ca6JetID + gk5JetID + gk7JetID )
 
 recoJetIds = cms.Sequence( ak4JetID
-                           #+ ak7JetID
-			   #+ ic5JetID
 			  )

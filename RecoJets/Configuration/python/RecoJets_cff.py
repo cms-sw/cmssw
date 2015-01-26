@@ -53,12 +53,9 @@ fixedGridRhoFastjetCentralCalo = fixedGridRhoFastjetAllCalo.clone(
     maxRapidity = cms.double(2.5)
     )
 
-recoJets   =cms.Sequence(#kt4CaloJets+kt6CaloJets+kt6CaloJetsCentral+
-                         fixedGridRhoFastjetAllCalo+
+recoJets   =cms.Sequence(fixedGridRhoFastjetAllCalo+
                          fixedGridRhoFastjetCentralCalo+
-                         #iterativeCone5CaloJets+
                          ak4CaloJets
-                         #+ak5CaloJets+ak7CaloJets
                          )
 
 recoAllJets=cms.Sequence(sisCone5CaloJets+sisCone7CaloJets+
