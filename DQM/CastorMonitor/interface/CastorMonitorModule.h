@@ -85,22 +85,16 @@ protected:
   
   void analyze(const edm::Event& iEvent, const edm::EventSetup& eventSetup);
   
-  void beginJob(const edm::EventSetup& iSetup);
-  
- void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
-//  void beginRun(const edm::Run& iRun, const edm::EventSetup& eventSetup);
+  void dqmBeginRun(const edm::Run &, const edm::EventSetup &);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
 
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                             const edm::EventSetup& eventSetup) ;
 
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                           const edm::EventSetup& eventSetup);
-
-  void endJob(void);
   
   void endRun(const edm::Run& run, const edm::EventSetup& eventSetup);
-
-//  void reset(void);
 
 private:
 

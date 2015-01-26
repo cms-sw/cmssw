@@ -32,7 +32,6 @@ public:
   virtual ~CastorBaseMonitor(); 
 
   virtual void setup(const edm::ParameterSet& ps);
-  virtual void done();
 
 protected:
   int fVerbosity;

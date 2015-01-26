@@ -110,6 +110,3 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, co
 //if(fVerbosity>0) std::cout<<"CastorLEDMonitor::processEvent(end)"<<std::endl;
   return;
 }
-
-//=================== done  ================================//
-void CastorLEDMonitor::done() { }

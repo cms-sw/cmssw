@@ -158,11 +158,3 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis,
   if(fVerbosity>0) std::cout << "CastorDigiMonitor::processEvent (end)"<< std::endl;
   return;
  }
-
-//======================= done =====================================//
-void CastorDigiMonitor::done() {
-  long int hdigierrEntr = h2digierr->getEntries();
-  if(fVerbosity>0) std::cout << "CastorDigiMonitor: capId,er,dv summary (entries="
-	<<hdigierrEntr<<"):"<<std::endl;
-  return;
-}

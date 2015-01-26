@@ -35,6 +35,3 @@ void CastorBaseMonitor::setup(const edm::ParameterSet& ps)
   if(fVerbosity>0) std::cout << "CastorBaseMonitor::setup (end)" << std::endl;
   return;
 }
-
-//============================ done  ===============================//
-void CastorBaseMonitor::done(){}

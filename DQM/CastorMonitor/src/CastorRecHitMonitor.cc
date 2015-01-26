@@ -22,10 +22,6 @@ CastorRecHitMonitor::CastorRecHitMonitor(const edm::ParameterSet& ps)
 //======================= Destructor ==============================//
 CastorRecHitMonitor::~CastorRecHitMonitor() { }
 
-void CastorRecHitMonitor::done() {
-}
-
-
 //=================== setup ===============//
 
 void CastorRecHitMonitor::setup(const edm::ParameterSet& ps)

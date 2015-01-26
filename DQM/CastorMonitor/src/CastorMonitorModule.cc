@@ -65,36 +65,31 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
   }
  //-------------------------------------------------------------//
   
- std::string subsystemname = ps.getUntrackedParameter<std::string>("subSystemFolder","Castor");
- if(fVerbosity>1) std::cout << "===>CastorMonitor name = " << subsystemname << std::endl;
-// rootFolder_ = subsystemname + "/";
-//std::cout<<"CastorMonitorModule()::CastorCurrentFolder:"<<rootFolder_<<std::endl;
- if(fVerbosity>0) std::cout<<"CastorMonitorModule Constructor(end)"<< std::endl;
+  std::string subsystemname = ps.getUntrackedParameter<std::string>("subSystemFolder","Castor");
+  if(fVerbosity>1) std::cout << "===>CastorMonitor name = " << subsystemname << std::endl;
 
- return;
+  ievt_ = 0;
+  
+  if(fVerbosity>0) std::cout<<"CastorMonitorModule Constructor(end)"<< std::endl;
 }
 
 //======================= Destructor ===============================//
-
 CastorMonitorModule::~CastorMonitorModule() { 
   if (DigiMon_ != NULL) { delete DigiMon_; }
   if (RecHitMon_ != NULL) { delete RecHitMon_; }
   if (LedMon_ != NULL) { delete LedMon_; }
 }
 
-//========================== beginJob =============================//
-void CastorMonitorModule::beginJob(const edm::EventSetup& iSetup)
-{
-  if(fVerbosity>0) std::cout<<"CastorMonitorModule::beginJob(start)"<< std::endl;
-   ievt_ = 0;
+void CastorMonitorModule::dqmBeginRun(const edm::Run& iRun,
+                                      const edm::EventSetup& iSetup) {
   iSetup.get<CastorDbRecord>().get(conditions_);
-    ////---- get Castor Pedestal Values from the DB
+  
+  ////---- get Castor Pedestal Values from the DB
   iSetup.get<CastorPedestalsRcd>().get(dbPedestals);
-  if(!dbPedestals.isValid() && fVerbosity>0) 
-	std::cout<<"CASTOR has no CastorPedestals in the CondDB"<<std::endl;
-  return;
-} 
-
+  if(!dbPedestals.isValid() && fVerbosity>0) {
+    std::cout<<"CASTOR has no CastorPedestals in the CondDB"<<std::endl;
+  }
+}
 
 //=============== bookHistograms =================//
 void CastorMonitorModule::bookHistograms(DQMStore::IBooker& ibooker,

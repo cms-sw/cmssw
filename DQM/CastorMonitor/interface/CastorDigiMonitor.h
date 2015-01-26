@@ -22,7 +22,6 @@ public:
   void setup(const edm::ParameterSet& ps);
  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
   void processEvent(const CastorDigiCollection& cast,const CastorDbService& cond, int bunch);
-  void done();
 
 private:
   std::string subsystemname_;

@@ -14,7 +14,6 @@ public:
   void setup(const edm::ParameterSet& ps);
  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
   void processEvent(const CastorRecHitCollection& castorHits);
-  void done();
 
 private:  
  int ievt_;
