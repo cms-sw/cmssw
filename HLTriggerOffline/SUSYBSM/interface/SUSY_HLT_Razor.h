@@ -36,6 +36,7 @@ class SUSY_HLT_Razor: public DQMEDAnalyzer{
   static double CalcMR(TLorentzVector ja,TLorentzVector jb);
   static double CalcR(double MR, TLorentzVector ja,TLorentzVector jb, edm::Handle<edm::View<reco::MET> > met, const std::vector<math::XYZTLorentzVector>& muons);
   virtual ~SUSY_HLT_Razor();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
@@ -57,6 +58,8 @@ class SUSY_HLT_Razor: public DQMEDAnalyzer{
   edm::EDGetTokenT<std::vector<math::XYZTLorentzVector> > theHemispheres_;
 
   std::string triggerPath_;
+  std::string denomPath_; // denominator path for 1.4e34 lumi
+  std::string denomPathLoose_; // denominator path for 7e33 lumi
   edm::InputTag triggerFilter_;
   edm::InputTag caloFilter_;
   
