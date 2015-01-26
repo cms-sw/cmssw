@@ -352,7 +352,7 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 
 		  if ( dist < closest ) 
 		    {
-		      closest = x_res;
+		      closest = dist;
 		      closestit = m;
 		    }
 		} // end sim hit loop
