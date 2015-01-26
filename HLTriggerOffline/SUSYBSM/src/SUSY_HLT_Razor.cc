@@ -15,6 +15,8 @@ SUSY_HLT_Razor::SUSY_HLT_Razor(const edm::ParameterSet& ps)
   theHemispheres_ = consumes<std::vector<math::XYZTLorentzVector> >(ps.getParameter<edm::InputTag>("hemispheres"));
   triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResults"));
   triggerPath_ = ps.getParameter<std::string>("TriggerPath");
+  denomPath_ = ps.getParameter<std::string>("DenomPath");
+  denomPathLoose_ = ps.getParameter<std::string>("DenomPathLoose");
   triggerFilter_ = ps.getParameter<edm::InputTag>("TriggerFilter");
   caloFilter_ = ps.getParameter<edm::InputTag>("CaloFilter");
   thePfJetCollection_ = consumes<reco::PFJetCollection>(ps.getParameter<edm::InputTag>("pfJetCollection"));
@@ -41,6 +43,21 @@ void SUSY_HLT_Razor::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
   edm::EventSetup const& context)
 {
    edm::LogInfo("SUSY_HLT_Razor") << "SUSY_HLT_Razor::beginLuminosityBlock" << std::endl;
+}
+
+void SUSY_HLT_Razor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("pfJetCollection",edm::InputTag("ak4PFJetsCHS"));
+  desc.add<edm::InputTag>("CaloFilter",edm::InputTag("hltRsqMR200Rsq0p01MR100Calo","","HLT"))->setComment("Calo HLT filter module used to save razor variable objects");
+  desc.add<edm::InputTag>("pfMETCollection",edm::InputTag("pfMet"));
+  desc.add<edm::InputTag>("hemispheres",edm::InputTag("hemispheres"))->setComment("hemisphere jets used to compute razor variables");
+  desc.add<std::string>("TriggerPath","HLT_RsqMR300_Rsq0p09_MR200_v")->setComment("trigger path name");
+  desc.add<std::string>("DenomPath","HLT_Ele40_eta2p1_WP85_Gsf_v")->setComment("tight denominator trigger path name (for 1.4e34 lumi)");
+  desc.add<std::string>("DenomPathLoose","HLT_Ele35_eta2p1_WP85_Gsf_v")->setComment("loose denominator trigger path name (for 7e33 lumi)");
+  desc.add<edm::InputTag>("TriggerFilter",edm::InputTag("hltRsqMR300Rsq0p09MR200","","HLT"))->setComment("PF HLT filter module used to save razor variable objects");
+  desc.add<edm::InputTag>("TriggerResults",edm::InputTag("TriggerResults","","HLT"));
+  desc.add<edm::InputTag>("trigSummary",edm::InputTag("hltTriggerSummaryAOD"));
+  descriptions.add("SUSY_HLT_Razor_Main",desc);
 }
 
 void SUSY_HLT_Razor::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
@@ -117,13 +134,21 @@ void SUSY_HLT_Razor::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
   }
 
   bool hasFired = false;
-  std::string denomPath = "HLT_Ele27_eta2p1_WP85_Gsf_v1"; //trigger path used as a reference for computing turn-ons and efficiencies
   bool denomFired = false;
   const edm::TriggerNames& trigNames = e.triggerNames(*hltresults);
   unsigned int numTriggers = trigNames.size();
   for( unsigned int hltIndex=0; hltIndex<numTriggers; ++hltIndex ){
-      if (trigNames.triggerName(hltIndex).find(triggerPath_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFired = true;
-      if (trigNames.triggerName(hltIndex).find(denomPath) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) denomFired = true;
+      if (trigNames.triggerName(hltIndex).find(triggerPath_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) 
+	{
+	  hasFired = true;
+	}      
+      if (trigNames.triggerName(hltIndex).find(denomPath_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) {
+	denomFired = true;
+      }
+      if (trigNames.triggerName(hltIndex).find(denomPathLoose_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) 
+	{
+	denomFired = true;
+	}
   }
 
   float pfHT = 0.0;
