@@ -229,7 +229,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
     VBFHbb_0btag  = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_QuadPFJet_VBF_Common_v",
+            "HLT_QuadPFJet_VBF_v",
             "HLT_L1_TripleJet_VBF_v"
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
