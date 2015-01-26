@@ -177,7 +177,7 @@ void DetIdAssociator::buildMap()
 	     // FIX ME: this should be a fatal error
 	     if(edm::isNotFinite(iter->mag())||iter->mag()>1e5) { //Detector parts cannot be 1 km away or be NaN
 	       edm::LogWarning("TrackAssociator") << "Critical error! Bad detector unit geometry:\n\tDetId:" 
-						  << id_itr->rawId() << "\t mag(): " << iter->mag() << "\n" << DetIdInfo::info( *id_itr )
+						  << id_itr->rawId() << "\t mag(): " << iter->mag() << "\n" << DetIdInfo::info( *id_itr,0 )
 						  << "\nSkipped the element";
 	       continue;
 	     }
