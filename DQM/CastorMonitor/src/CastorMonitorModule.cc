@@ -83,7 +83,7 @@ CastorMonitorModule::~CastorMonitorModule() {
 void CastorMonitorModule::dqmBeginRun(const edm::Run& iRun,
                                       const edm::EventSetup& iSetup) {
   iSetup.get<CastorDbRecord>().get(conditions_);
-  
+
   ////---- get Castor Pedestal Values from the DB
   iSetup.get<CastorPedestalsRcd>().get(dbPedestals);
   if(!dbPedestals.isValid() && fVerbosity>0) {
@@ -125,18 +125,6 @@ void CastorMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
 
 void CastorMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context)
 {}
-
-void CastorMonitorModule::endJob(void)
-{
-  if (fVerbosity>0)  std::cout <<"CastorMonitorModule::endJob (start)"<<std::endl;
- 
-  if(DigiMon_!=NULL) DigiMon_->done();
-  if(RecHitMon_!=NULL) RecHitMon_->done();
-  if(LedMon_!=NULL) LedMon_->done();
-
- if (fVerbosity>0)  std::cout <<"CastorMonitorModule::endJob (end)"<<std::endl;
- return;
-}
 
 //========================== analyze  ===============================//
 void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetup& eventSetup)
