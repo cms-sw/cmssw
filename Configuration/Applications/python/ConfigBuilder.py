@@ -1101,6 +1101,7 @@ class ConfigBuilder(object):
 
         # Mixing
 	if self._options.pileup=='default':
+		from Configuration.StandardSequences.Mixing import MixingDefaultKey
 		self._options.pileup=MixingDefaultKey
 		# temporary, until digi-reco mixing becomes standard in RelVals
 		if self._options.fast:

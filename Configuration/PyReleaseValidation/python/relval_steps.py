@@ -752,7 +752,7 @@ PU50={'-n':10,'--pileup':'AVE_35_BX_50ns','--pileup_input':'das:/RelValMinBias_1
 
 
 #PU for FastSim
-PUFS={'--pileup':'default'}
+PUFS={'--pileup':'GEN_2012_Summer_50ns_PoissonOOTPU'}
 PUFS2={'--pileup':'2012_Startup_50ns_PoissonOOTPU'}
 PUFSAVE10={'--pileup':'GEN_AVE_10_BX_25ns'}
 PUFSAVE20={'--pileup':'GEN_AVE_20_BX_25ns'}

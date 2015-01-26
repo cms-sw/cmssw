@@ -65,8 +65,8 @@ def get_PileUpSimulatorPSet_PileUpProducer(_input):
         raise
 
     # minbias files
-    from FastSimulation.PileUpProducer.PileUpFiles_cff import fileNames_13TeV
-    PileUpSimulator.fileNames = fileNames_13TeV
+    from FastSimulation.PileUpProducer.PileUpFiles_cff import fileNames_8TeV
+    PileUpSimulator.fileNames = fileNames_8TeV
     
     # a purely technical, but required, setting
     PileUpSimulator.inputFile = cms.untracked.string('PileUpInputFile.txt')
@@ -94,11 +94,31 @@ def prepareGenMixing(process):
     # where it is propagated to the pileUpInfo, from which calorimeter calibration reads the bunch spacing
     process.mix.bunchspace = 450
 
+    # define the PileUpProducer module
+    process.famosPileUp = cms.EDProducer(
+        "PileUpProducer",
+        PileUpSimulator = cms.PSet(),
+        VertexGenerator = cms.PSet()
+        )
+
+    # get the pu vertex distribution
+    process.famosPileUp.VertexGenerator = get_VertexGeneratorPSet_PileUpProducer(process)
+
+
+    # get pu distribution from MixingModule
+    process.famosPileUp.PileUpSimulator = get_PileUpSimulatorPSet_PileUpProducer(process.mix.input)     
+
     # MixingModule only used for digitization, no need for input
-    _input_temp = process.mix.input
-    if hasattr(process.mix,"input"):
-        del process.mix.input
-    
+    del process.mix.input
+
+    # Insert the PileUpProducer in the simulation sequence
+    pos = process.simulationSequence.index(process.famosSimHits)
+    process.simulationSequence.insert(pos,process.famosPileUp)
+
+    # Adapt pileup files if needed (usualy needed for postLS1 customisation)
+    if hasattr(process,"genMixPileUpFiles"):
+        process.famosPileUp.PileUpSimulator.fileNames = process.genMixPileUpFiles.fileNames
+        
     # No track mixing when Gen-mixing
     del process.mix.digitizers.tracker
     del process.mix.mixObjects.mixRecoTracks
@@ -110,17 +130,6 @@ def prepareGenMixing(process):
     # Use generalTracks where DIGI-RECO mixing requires preMixTracks
     process.generalConversionTrackProducer.TrackProducer = cms.string('generalTracks')
     process.trackerDrivenElectronSeeds.TkColList = cms.VInputTag(cms.InputTag("generalTracks"))
-    
-    # Add the gen-level PileUpProducer to the process
-    process.famosPileUp = cms.EDProducer(
-        "PileUpProducer",
-        PileUpSimulator = get_PileUpSimulatorPSet_PileUpProducer(_input_temp),
-        VertexGenerator = get_VertexGeneratorPSet_PileUpProducer(process)
-        )
-    
-    # Insert the PileUpProducer in the simulation sequence
-    pos = process.simulationSequence.index(process.famosSimHits)
-    process.simulationSequence.insert(pos,process.famosPileUp)
 
     # PileUp info must be read from PileUpProducer, rather than from MixingModule
     process.addPileupInfo.PileupMixingLabel = cms.InputTag("famosPileUp")
