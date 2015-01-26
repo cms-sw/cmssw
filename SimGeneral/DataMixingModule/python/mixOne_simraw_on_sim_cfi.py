@@ -32,7 +32,7 @@ ecalPreshowerDigis = EventFilter.ESRawToDigi.esRawToDigi_cfi.esRawToDigi.clone()
 
 hcalDigis = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()
 
-#muonCSCDigis = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone()
+muonCSCDigis = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone()
 
 muonDTDigis = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone()
 
@@ -47,7 +47,7 @@ siPixelDigis.InputLabel = 'rawDataCollector'
 ecalDigis.InputLabel = 'rawDataCollector'
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
-#muonCSCDigis.InputObjects = 'rawDataCollector'
+muonCSCDigis.InputObjects = 'rawDataCollector'
 muonDTDigis.inputLabel = 'rawDataCollector'
 #muonRPCDigis.InputLabel = 'rawDataCollector'
 #castorDigis.InputLabel = 'rawDataCollector'
@@ -72,7 +72,7 @@ mixData = cms.EDProducer("DataMixingModule",
                                              hcalDigis = hcalDigis,
                                              muonDTDigis = muonDTDigis,
                                              #muonRPCDigis = muonRPCDigis,
-                                             #muonCSCDigis = muonCSCDigis,
+                                             muonCSCDigis = muonCSCDigis,
                                              siStripDigis = siStripDigis,
                                              siPixelDigis = siPixelDigis,
                              )),
