@@ -9,10 +9,8 @@
 #include "RecoBTag/SoftLepton/interface/MvaSoftMuonEstimator.h"
 
 
-MvaSoftMuonEstimator::MvaSoftMuonEstimator() {
-  weightFile="RecoBTag/SoftLepton/data/SoftPFMuon_BDT.weights.xml";
-  
-  TMVAReader = new TMVA::Reader("!Color:!Silent:Error");
+MvaSoftMuonEstimator::MvaSoftMuonEstimator(std::string weightFile) {
+  TMVAReader = new TMVA::Reader("Color:Silent:Error");
   TMVAReader->SetVerbose(false);
   TMVAReader->AddVariable("TagInfo1.sip3d", &mva_sip3d);
   TMVAReader->AddVariable("TagInfo1.sip2d", &mva_sip2d);
@@ -32,9 +30,13 @@ float MvaSoftMuonEstimator::mvaValue(float sip3d, float sip2d, float ptRel, floa
   mva_sip3d = sip3d;
   mva_sip2d = sip2d;
   mva_ptRel = ptRel;
+  mva_deltaR = deltaR;
   mva_ratio = ratio;
   // Evaluate tagger
-  float tag = TMVAReader->EvaluateMVA("BDT")*0.8 + 0.45;
+  float tag = TMVAReader->EvaluateMVA("BDT");
+  // Transform output between 0 and 1
+  tag = tag*0.8 + 0.45;
+  
   return tag;
 }
 

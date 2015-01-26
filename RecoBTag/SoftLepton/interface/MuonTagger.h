@@ -22,7 +22,8 @@ class MuonTagger : public JetTagComputer {
     virtual float discriminator(const TagInfoHelper& tagInfo) const;
     
   private:
-
+    
+    std::string weightFile;
     btag::LeptonSelector m_selector;
     TRandom3* random;
     MvaSoftMuonEstimator* mvaID;

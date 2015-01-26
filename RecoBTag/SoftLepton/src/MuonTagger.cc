@@ -13,7 +13,8 @@
 MuonTagger::MuonTagger(const edm::ParameterSet& conf): m_selector(conf) {
   uses("smTagInfos");
   random=new TRandom3();
-  mvaID=new MvaSoftMuonEstimator();
+  weightFile=edm::FileInPath("RecoBTag/SoftLepton/data/SoftPFMuon_BDT.weights.xml").fullPath();
+  mvaID=new MvaSoftMuonEstimator(weightFile);
 }
 
 MuonTagger::~MuonTagger() {
@@ -33,7 +34,7 @@ float MuonTagger::discriminator(const TagInfoHelper& tagInfo) const {
     const reco::SoftLeptonProperties& properties = info.properties(i);
     bool flip(false);
     if(m_selector.isNegative()) {
-      int seed=1+round(10000.*fabs(properties.deltaR));
+      int seed=1+round(10000.*properties.deltaR);
       random->SetSeed(seed);
       float rndm = random->Uniform(0,1);
       if(rndm<0.5) flip=true;

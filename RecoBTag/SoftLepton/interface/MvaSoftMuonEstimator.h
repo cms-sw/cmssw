@@ -17,7 +17,7 @@ class MvaSoftMuonEstimator {
 
   public:
   
-    MvaSoftMuonEstimator();
+    MvaSoftMuonEstimator(std::string);
     ~MvaSoftMuonEstimator();
     
    float mvaValue(float, float, float, float, float);
