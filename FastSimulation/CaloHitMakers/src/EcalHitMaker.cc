@@ -1359,7 +1359,7 @@ EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
   //  std::cout << " Entering gapsLifting "  << std::endl;
   CrystalPad & myPad = padsatdepth_[iq];
   unsigned ngaps=gaps.size();
-  static bool debug=false;
+  constexpr bool debug=false;
   if(ngaps==1)
     {
       if(debug)
