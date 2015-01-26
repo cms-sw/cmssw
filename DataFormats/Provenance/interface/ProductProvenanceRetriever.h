@@ -16,7 +16,6 @@ ProductProvenanceRetriever: Manages the per event/lumi/run per product provenanc
 #include <iosfwd>
 #include <memory>
 #include <set>
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 /*
   ProductProvenanceRetriever

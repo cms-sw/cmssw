@@ -1,7 +1,6 @@
 <use   name="DataFormats/Common"/>
 <use   name="FWCore/MessageLogger"/>
-<use   name="rootrflx"/>
-<use   name="tbb"/>
+
 <export>
   <lib   name="1"/>
 </export>

@@ -9,7 +9,7 @@
 #include "CoralBase/Attribute.h"
 
 
-ora::InlineCArrayStreamerBase::InlineCArrayStreamerBase( const Reflex::Type& objectType,
+ora::InlineCArrayStreamerBase::InlineCArrayStreamerBase( const edm::TypeWithDict& objectType,
                                                          MappingElement& mapping,
                                                          ContainerSchema& contSchema):
   m_objectType( objectType ),
@@ -25,14 +25,14 @@ ora::InlineCArrayStreamerBase::~InlineCArrayStreamerBase(){
 bool ora::InlineCArrayStreamerBase::buildDataElement(DataElement& dataElement,
                                                      IRelationalData& relationalData,
                                                      RelationalBuffer* operationBuffer){
-  m_arrayType = ClassUtils::resolvedType( m_objectType.ToType() );  
+  m_arrayType = ClassUtils::resolvedType( m_objectType.toType() );  
   if ( ! m_arrayType ) {
     throwException( "Missing dictionary information for the element of array \"" +
-                    m_objectType.Name(Reflex::SCOPED) + "\"",
+                    m_objectType.cppName() + "\"",
                     "InlineCArrayStreamerBase::buildDataElement" );
   }
   // Loop over the elements of the array.
-  for ( unsigned int i=0;i<m_objectType.ArrayLength();i++){
+  for ( size_t i=0;i<m_objectType.maximumIndex(0U);++i){
 
     // Form the element name
     std::string arrayElementLabel = MappingRules::variableNameForArrayIndex( m_mapping.variableName(),i);
@@ -44,14 +44,14 @@ bool ora::InlineCArrayStreamerBase::buildDataElement(DataElement& dataElement,
                       "InlineCArrayStreamerBase::buildDataElement" );
     }
     MappingElement& arrayElementMapping = iMe->second;
-    DataElement& arrayElement = dataElement.addChild( i*m_arrayType.SizeOf(), 0 );
+    DataElement& arrayElement = dataElement.addChild( i*m_arrayType.size(), 0 );
 
     processArrayElement( arrayElement, relationalData, arrayElementMapping, operationBuffer );
   }
   return true;
 }
 
-ora::InlineCArrayWriter::InlineCArrayWriter( const Reflex::Type& objectType,
+ora::InlineCArrayWriter::InlineCArrayWriter( const edm::TypeWithDict& objectType,
                                              MappingElement& mapping,
                                              ContainerSchema& contSchema ):
   InlineCArrayStreamerBase( objectType, mapping, contSchema ),
@@ -95,7 +95,7 @@ void ora::InlineCArrayWriter::write( int oid, const void* data ){
   }
 }
 
-ora::InlineCArrayUpdater::InlineCArrayUpdater( const Reflex::Type& objectType,
+ora::InlineCArrayUpdater::InlineCArrayUpdater( const edm::TypeWithDict& objectType,
                                                MappingElement& mapping,
                                                ContainerSchema& contSchema  ):
   InlineCArrayStreamerBase( objectType, mapping, contSchema  ),
@@ -140,7 +140,7 @@ void ora::InlineCArrayUpdater::update( int oid,
   }
 }
 
-ora::InlineCArrayReader::InlineCArrayReader( const Reflex::Type& objectType,
+ora::InlineCArrayReader::InlineCArrayReader( const edm::TypeWithDict& objectType,
                                              MappingElement& mapping,
                                              ContainerSchema& contSchema ):
   InlineCArrayStreamerBase( objectType, mapping, contSchema ),
@@ -197,7 +197,7 @@ void ora::InlineCArrayReader::clear(){
   }
 }
     
-ora::InlineCArrayStreamer::InlineCArrayStreamer( const Reflex::Type& objectType,
+ora::InlineCArrayStreamer::InlineCArrayStreamer( const edm::TypeWithDict& objectType,
                                                  MappingElement& mapping,
                                                  ContainerSchema& schema ):
   m_objectType( objectType ),

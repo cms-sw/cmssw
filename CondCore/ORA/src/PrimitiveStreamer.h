@@ -3,7 +3,7 @@
 
 #include "IRelationalStreamer.h"
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace ora {
 
@@ -14,7 +14,7 @@ namespace ora {
 
       public:
 
-      PrimitiveStreamerBase( const Reflex::Type& objectType, MappingElement& mapping );
+      PrimitiveStreamerBase( const edm::TypeWithDict& objectType, MappingElement& mapping );
 
       virtual ~PrimitiveStreamerBase();
 
@@ -26,7 +26,7 @@ namespace ora {
 
     private:
 
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       MappingElement& m_mapping;
       int m_columnIndex;
       DataElement* m_dataElement;
@@ -35,7 +35,7 @@ namespace ora {
 
   class PrimitiveWriter : public PrimitiveStreamerBase, public IRelationalWriter {
     public:
-    PrimitiveWriter( const Reflex::Type& objectType, MappingElement& mapping );
+    PrimitiveWriter( const edm::TypeWithDict& objectType, MappingElement& mapping );
 
     virtual ~PrimitiveWriter();
 
@@ -50,7 +50,7 @@ namespace ora {
 
   class PrimitiveUpdater : public PrimitiveStreamerBase, public IRelationalUpdater {
     public:
-    PrimitiveUpdater( const Reflex::Type& objectType, MappingElement& mapping );
+    PrimitiveUpdater( const edm::TypeWithDict& objectType, MappingElement& mapping );
 
     virtual ~PrimitiveUpdater();
 
@@ -64,7 +64,7 @@ namespace ora {
 
   class PrimitiveReader : public PrimitiveStreamerBase, public IRelationalReader {
     public:
-    PrimitiveReader( const Reflex::Type& objectType, MappingElement& mapping );
+    PrimitiveReader( const edm::TypeWithDict& objectType, MappingElement& mapping );
 
     virtual ~PrimitiveReader();
 
@@ -83,7 +83,7 @@ namespace ora {
   class PrimitiveStreamer : public IRelationalStreamer 
   {
     public:
-    PrimitiveStreamer( const Reflex::Type& objectType, MappingElement& mapping );
+    PrimitiveStreamer( const edm::TypeWithDict& objectType, MappingElement& mapping );
 
     ~PrimitiveStreamer();
 
@@ -94,7 +94,7 @@ namespace ora {
     IRelationalReader* newReader();
 
     private:
-    Reflex::Type m_objectType;
+    edm::TypeWithDict m_objectType;
     MappingElement& m_mapping;
   }; 
   

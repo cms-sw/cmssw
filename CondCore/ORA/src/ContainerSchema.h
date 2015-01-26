@@ -4,7 +4,7 @@
 #include "MappingTree.h"
 #include "Sequences.h"
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace coral {
   class ISchema;
@@ -21,7 +21,7 @@ namespace ora {
 
     ContainerSchema( int containerId,
                      const std::string& containerName,
-                     const Reflex::Type& containerType,
+                     const edm::TypeWithDict& containerType,
                      DatabaseSession& session );
 
     ContainerSchema( int containerId,
@@ -37,19 +37,19 @@ namespace ora {
 
     void evolve();
 
-    void create( const Reflex::Type& dependentClass );
+    void create( const edm::TypeWithDict& dependentClass );
 
-    void evolve( const Reflex::Type& dependentClass, MappingTree& baseMapping );
+    void evolve( const edm::TypeWithDict& dependentClass, MappingTree& baseMapping );
     
     void setAccessPermission( const std::string& principal, bool forWrite );
     
-    const Reflex::Type& type();
+    const edm::TypeWithDict& type();
 
     MappingTree& mapping( bool writeEnabled=false);
 
-    bool extendIfRequired( const Reflex::Type& dependentClass );
+    bool extendIfRequired( const edm::TypeWithDict& dependentClass );
     
-    MappingElement& mappingForDependentClass( const Reflex::Type& dependentClass, bool writeEnabled=false );
+    MappingElement& mappingForDependentClass( const edm::TypeWithDict& dependentClass, bool writeEnabled=false );
 
     bool mappingForDependentClasses( std::vector<MappingElement>& destination );
 
@@ -73,15 +73,15 @@ namespace ora {
 
     private:
     void initClassDict();
-    bool loadMappingForDependentClass( const Reflex::Type& dependentClass );
-    void extend( const Reflex::Type& dependentClass );
+    bool loadMappingForDependentClass( const edm::TypeWithDict& dependentClass );
+    void extend( const edm::TypeWithDict& dependentClass );
     void getTableHierarchy( const std::set<std::string>& containerMappingVersions, std::vector<std::string>& destination );
     private:
 
     int m_containerId;
     std::string m_containerName;
     std::string m_className;
-    Reflex::Type m_classDict;
+    edm::TypeWithDict m_classDict;
     DatabaseSession& m_session;
     bool m_loaded;
     Sequences m_containerSchemaSequences;

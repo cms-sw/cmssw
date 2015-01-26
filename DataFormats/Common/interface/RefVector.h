@@ -151,7 +151,7 @@ namespace edm {
                   helper_vector& helpers) const;
 
     //Needed for ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(11)
   private:
     contents_type refVector_;
   };

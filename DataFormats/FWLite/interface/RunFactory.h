@@ -23,7 +23,6 @@
 #include <memory>
 
 #include "DataFormats/FWLite/interface/Run.h"
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace fwlite {
     class RunFactory {

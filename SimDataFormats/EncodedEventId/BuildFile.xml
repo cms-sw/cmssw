@@ -1,6 +1,6 @@
 <use   name="boost"/>
 <use   name="rootcore"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>

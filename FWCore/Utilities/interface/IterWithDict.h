@@ -2,7 +2,7 @@
 #define FWCore_Utilities_IterWithDict_h
 
 /*----------------------------------------------------------------------
-  
+
 IterWithDict:  An iterator for a TList so a range for loop can be used
 
 ----------------------------------------------------------------------*/
@@ -11,33 +11,33 @@ IterWithDict:  An iterator for a TList so a range for loop can be used
 
 namespace edm {
 
-  class IterWithDictBase {
-  public:
-    IterWithDictBase();
-    explicit IterWithDictBase(TList* list);
-    bool operator!=(IterWithDictBase const &) const;
+class IterWithDictBase {
+private:
+  TIter iter_;
+  bool atEnd_;
+protected:
+  void advance();
+  TIter const& iter() const;
+public:
+  IterWithDictBase();
+  explicit IterWithDictBase(TList*);
+  bool operator!=(IterWithDictBase const&) const;
+};
 
-  protected:
-    void advance();
-    TIter const& iter() const;
+template<typename T>
+class IterWithDict : public IterWithDictBase {
+public:
+  IterWithDict() : IterWithDictBase() {}
+  explicit IterWithDict(TList* list) : IterWithDictBase(list) {}
+  IterWithDict<T>& operator++() {
+    advance();
+    return *this;
+  }
+  T* operator*() const {
+    return static_cast<T*>(*iter());
+  }
+};
 
-  private:
-    TIter iter_;
-    bool atEnd_;
-  };
+} // namespace edm
 
-  template<typename T>
-  class IterWithDict : public IterWithDictBase {
-  public:
-    IterWithDict() : IterWithDictBase() {}
-    explicit IterWithDict(TList* list) : IterWithDictBase(list) {}
-    IterWithDict<T>& operator++() {
-      advance();
-      return *this;
-    }
-    T* operator*() const {
-      return static_cast<T*>(*iter());
-    }
-  };
-}
-#endif
+#endif // FWCore_Utilities_IterWithDict_h

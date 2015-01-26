@@ -9,14 +9,20 @@
   <class name="edm::Ref<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >,EcalUncalibratedRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >,EcalUncalibratedRecHit> >"/>
   <class name="edm::RefVector<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >,EcalUncalibratedRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >,EcalUncalibratedRecHit> >"/>
   <class name="edm::RefProd<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> > >"/>
+  <class name="edm::StrictWeakOrdering<EcalUncalibratedRecHit>"/> <!-- Root6 -->
 
   <class name="EcalRecHit" ClassVersion="12">
    <version ClassVersion="10" checksum="283504841"/>
    <version ClassVersion="11" checksum="3356791847"/>
    <version ClassVersion="12" checksum="3356791847"/>
   </class>
+  <enum name="EcalRecHit::Flags"/>
+  <enum name="EcalRecHit::ESFlags"/>
+  <enum name="EcalSeverityLevel::SeverityLevel"/>
+
   <class name="std::vector<EcalRecHit>"/>
   <class name="edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >"/>
+  <class name="edm::StrictWeakOrdering<EcalRecHit>" /> <!-- Root6 -->
   <class name="edm::Wrapper<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >" />
   <class name="edm::Ref<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >,EcalRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >,EcalRecHit> >"/>
   <class name="edm::RefVector<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >,EcalRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >,EcalRecHit> >"/>
@@ -45,5 +51,4 @@
   <class name="edm::Wrapper<edm::RefGetter<EcalRecHit> >"/>
  
   <class name="edm::Ref< edm::LazyGetter<EcalRecHit>, EcalRecHit, edm::FindValue<EcalRecHit> >"/>
-  <enum name="EcalSeverityLevel::SeverityLevel"/> 
 </lcgdict>

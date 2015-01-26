@@ -1,5 +1,6 @@
 #ifndef LibraryLoader_RootAutoLibraryLoader_h
 #define LibraryLoader_RootAutoLibraryLoader_h
+
 /**\class RootAutoLibraryLoader
  *
  * ROOT helper class which can automatically load the
@@ -8,38 +9,37 @@
  * \author Chris Jones, Cornell
  *
  */
+
 #include "TClassGenerator.h"
 #include "RVersion.h"
 
+#include <string>
 #include <typeinfo>
 
 class DummyClassToStopCompilerWarning;
 
 namespace edm {
+
 class RootAutoLibraryLoader : public TClassGenerator {
   friend class DummyClassToStopCompilerWarning;
-public:
-  /// return class type
-  virtual TClass *GetClass(char const* classname, Bool_t load);
-  /// return class type
-  virtual TClass *GetClass(type_info const& typeinfo, Bool_t load);
-  /// interface for TClass generators
-  //ClassDef(RootAutoLibraryLoader,1);
+private: // Private Data Members
+  std::string classNameAttemptingToLoad_;
+private: // Private Function Members
+  RootAutoLibraryLoader();
+  RootAutoLibraryLoader(RootAutoLibraryLoader const&); // NOT IMPLEMENTED
+  RootAutoLibraryLoader const& operator=(RootAutoLibraryLoader const&); // NOT IMPLEMENTED
+public: // Public Static Function Members
   /// enable automatic library loading
   static void enable();
-
   /// load all known libraries holding dictionaries
   static void loadAll();
-
-private:
-  char const* classNameAttemptingToLoad_; //!
-  RootAutoLibraryLoader();
-  RootAutoLibraryLoader(RootAutoLibraryLoader const&); // stop default
-  RootAutoLibraryLoader const& operator=(RootAutoLibraryLoader const&); // stop default
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,6)
-  bool isInitializingCintex_;
-#endif
+public: // Public Function Members
+  /// return class type
+  virtual TClass* GetClass(const char* classname, Bool_t load);
+  /// return class type
+  virtual TClass* GetClass(const type_info& typeinfo, Bool_t load);
 };
 
-}
-#endif
+} // namespace edm
+
+#endif // LibraryLoader_RootAutoLibraryLoader_h

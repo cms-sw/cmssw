@@ -290,13 +290,13 @@ FWTableViewManager::tableFormats(const edm::TypeWithDict &key)
          continue;
       if (!m.isConst())
          continue;
-      if (m.returnType().name() == isint)
+      if (m.finalReturnType().name() == isint)
          handle.column(m.name().c_str(), TableEntry::INT);
-      else if (m.returnType().name() == isbool)
+      else if (m.finalReturnType().name() == isbool)
          handle.column(m.name().c_str(), TableEntry::BOOL);
-      else if (m.returnType().name() == isdouble)
+      else if (m.finalReturnType().name() == isdouble)
          handle.column(m.name().c_str(), 5);
-      else if (m.returnType().name() == isfloat)
+      else if (m.finalReturnType().name() == isfloat)
          handle.column(m.name().c_str(), 3);
    }
    edm::TypeDataMembers dataMembers(key);

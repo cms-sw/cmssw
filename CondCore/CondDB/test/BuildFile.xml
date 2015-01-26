@@ -1,9 +1,9 @@
 <flags   GENREFLEX_ARGS="--"/>
-<use   name="rootrflx"/>
 <use   name="CondCore/CondDB"/>
 <use   name="CondFormats/Common"/>
 <use   name="DataFormats/StdDictionaries"/>
 <use   name="FWCore/PluginManager"/>
+<use   name="FWCore/RootAutoLibraryLoader"/>
 <library   name="testCondDBDict" file="">
 </library>
 <bin   file="testConditionDatabase_0.cpp" name="testConditionDatabase_0">

@@ -5,7 +5,7 @@
 <use   name="DataFormats/Math"/>
 <use   name="boost"/>
 <use   name="clhep"/>
-<use   name="rootrflx"/>
+
 <use   name="DataFormats/DetId"/>
 <use   name="FWCore/Utilities"/>
 <export>

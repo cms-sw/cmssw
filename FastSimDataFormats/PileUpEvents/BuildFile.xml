@@ -1,4 +1,4 @@
-<use   name="rootrflx"/>
+<use name="rootcore"/>
 <export>
   <lib   name="1"/>
 </export>

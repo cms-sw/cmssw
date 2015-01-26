@@ -3,7 +3,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="CondFormats/Serialization"/>
 <use   name="boost_serialization"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>

@@ -177,7 +177,7 @@ namespace edm {
        try {
           size_t temp; //used to hold the memory for the return value
           FunctionWithDict sizeFunc = iObject.typeOf().functionMemberByName("size");
-          assert(sizeFunc.returnType() == typeid(size_t));
+          assert(sizeFunc.finalReturnType() == typeid(size_t));
           sizeObj = ObjectWithDict(TypeWithDict(typeid(size_t)), &temp);
           sizeFunc.invoke(iObject, &sizeObj);
           //std::cout << "size of type '" << sizeObj.name() << "' " << sizeObj.typeName() << std::endl;
@@ -192,7 +192,7 @@ namespace edm {
           LogAbsolute("EventContent") << iIndent << iName << kNameValueSep << "[size=" << size << "]";//"\n";
           ObjectWithDict contained;
           std::string indexIndent = iIndent + iIndentDelta;
-          TypeWithDict atReturnType(atMember.returnType());
+          TypeWithDict atReturnType(atMember.finalReturnType());
           //std::cout << "return type " << atReturnType.name() << " size of " << atReturnType.SizeOf()
           // << " pointer? " << atReturnType.isPointer() << " ref? " << atReturnType.isReference() << std::endl;
 
@@ -228,7 +228,7 @@ namespace edm {
                       << iEx.what() << ")>\n";
              }
              if(!isRef) {
-                atReturnType.destruct(contained.address(), true);
+                contained.destruct(true);
              }
           }
           return true;

@@ -4,7 +4,7 @@
 #include "IRelationalStreamer.h"
 #include "RelationalStreamerFactory.h"
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace ora {
 
@@ -16,7 +16,7 @@ namespace ora {
 
     public:
 
-    InlineCArrayStreamerBase( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    InlineCArrayStreamerBase( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     virtual ~InlineCArrayStreamerBase();
 
@@ -26,8 +26,8 @@ namespace ora {
 
     protected:
 
-    Reflex::Type m_objectType;
-    Reflex::Type m_arrayType;
+    edm::TypeWithDict m_objectType;
+    edm::TypeWithDict m_arrayType;
     RelationalStreamerFactory m_streamerFactory;
     private:
 
@@ -36,7 +36,7 @@ namespace ora {
 
   class InlineCArrayWriter : public InlineCArrayStreamerBase, public IRelationalWriter {
     public:
-    InlineCArrayWriter( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    InlineCArrayWriter( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     virtual ~InlineCArrayWriter();
 
@@ -55,7 +55,7 @@ namespace ora {
 
   class InlineCArrayUpdater : public InlineCArrayStreamerBase, public IRelationalUpdater {
     public:
-    InlineCArrayUpdater( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    InlineCArrayUpdater( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     virtual ~InlineCArrayUpdater();
 
@@ -73,7 +73,7 @@ namespace ora {
 
   class InlineCArrayReader : public InlineCArrayStreamerBase, public IRelationalReader {
     public:
-    InlineCArrayReader( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    InlineCArrayReader( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     virtual ~InlineCArrayReader();
 
@@ -96,7 +96,7 @@ namespace ora {
   class InlineCArrayStreamer : public IRelationalStreamer 
   {
     public:
-    InlineCArrayStreamer( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    InlineCArrayStreamer( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     ~InlineCArrayStreamer();
 
@@ -107,7 +107,7 @@ namespace ora {
     IRelationalReader* newReader();
 
     private:
-    Reflex::Type m_objectType;
+    edm::TypeWithDict m_objectType;
     MappingElement& m_mapping;
     ContainerSchema& m_schema;
 

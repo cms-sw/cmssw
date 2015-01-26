@@ -1,5 +1,5 @@
 <use   name="DataFormats/Common"/>
-<use   name="rootrflx"/>
+
 <use   name="clhepheader"/>
 <use   name="DataFormats/CaloRecHit"/>
 <use   name="DataFormats/TrackingRecHit"/>

@@ -8,7 +8,7 @@
 <use   name="boost"/>
 <use   name="boost_serialization"/>
 <use   name="rootmath"/>
-<use   name="rootrflx"/>
+
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>

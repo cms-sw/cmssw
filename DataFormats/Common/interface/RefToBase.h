@@ -46,7 +46,6 @@ reference type.
 #include "DataFormats/Common/interface/Holder.h"
 #include "DataFormats/Common/interface/IndirectHolder.h"
 #include "DataFormats/Common/interface/RefHolder.h"
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
   //--------------------------------------------------------------------

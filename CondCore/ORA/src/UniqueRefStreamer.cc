@@ -9,8 +9,8 @@
 #include "RelationalStreamerFactory.h"
 // externals
 #include "CoralBase/Attribute.h"
-#include "Reflex/Object.h"
-#include "Reflex/Member.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
 
 namespace ora {
   
@@ -23,7 +23,7 @@ namespace ora {
         m_depInsert( 0 ){
       }
 
-      void build( const Reflex::Type& objectType, MappingElement& mapping,
+      void build( const edm::TypeWithDict& objectType, MappingElement& mapping,
                   ContainerSchema& contSchema, RelationalBuffer& operationBuffer ){
 
         m_depInsert = &operationBuffer.newInsert( mapping.tableName());
@@ -33,11 +33,11 @@ namespace ora {
           m_depInsert->addId( *iC );
         }
 
-        MappingElement::iterator iMe = mapping.find( objectType.Name(Reflex::SCOPED) );
+        MappingElement::iterator iMe = mapping.find( objectType.cppName() );
         // the first inner mapping is the relevant...
         if( iMe == mapping.end()){
           throwException("Could not find a mapping element for class \""+
-                         objectType.Name(Reflex::SCOPED)+"\"",
+                         objectType.cppName()+"\"",
                          "DependentClassWriter::write");
         }
         RelationalStreamerFactory streamerFactory( contSchema );
@@ -80,16 +80,16 @@ namespace ora {
         m_depQuery(){
       }
 
-      void build( const Reflex::Type& objectType, MappingElement& depMapping, ContainerSchema& contSchema ){
+      void build( const edm::TypeWithDict& objectType, MappingElement& depMapping, ContainerSchema& contSchema ){
 
         m_type = objectType;
         m_depQuery.reset( new SelectOperation( depMapping.tableName(), contSchema.storageSchema()));
         m_depQuery->addWhereId(  depMapping.columnNames()[ 1 ] );
-        MappingElement::iterator iMap = depMapping.find( m_type.Name(Reflex::SCOPED) );
+        MappingElement::iterator iMap = depMapping.find( m_type.cppName() );
         // the first inner mapping is the good one ...
         if( iMap == depMapping.end()){
           throwException("Could not find a mapping element for class \""+
-                         m_type.Name(Reflex::SCOPED)+"\"",
+                         m_type.cppName()+"\"",
                          "DependentClassReadBuffer::ReadBuffer");
         }
         MappingElement& mapping = iMap->second;
@@ -123,7 +123,7 @@ namespace ora {
 
     private:
       DataElement m_dataElement;
-      Reflex::Type m_type;
+      edm::TypeWithDict m_type;
       std::auto_ptr<IRelationalReader> m_reader;
       std::auto_ptr<SelectOperation> m_depQuery;
   };
@@ -140,7 +140,7 @@ namespace ora {
       }
       
     public:
-      void build( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema ){
+      void build( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema ){
         m_reader.build( objectType, mapping, contSchema );
         m_valid = true;
       }
@@ -168,7 +168,7 @@ namespace ora {
   };    
 }
 
-ora::UniqueRefWriter::UniqueRefWriter( const Reflex::Type& objectType,
+ora::UniqueRefWriter::UniqueRefWriter( const edm::TypeWithDict& objectType,
                                        MappingElement& mapping,
                                        ContainerSchema& contSchema ):
   m_objectType( objectType ),
@@ -222,20 +222,23 @@ void ora::UniqueRefWriter::write( int oid,
 
   void* refAddress = m_dataElement->address( data );
 
-  Reflex::Object refObj( m_objectType, const_cast<void*>(refAddress));
+  edm::ObjectWithDict refObj( m_objectType, const_cast<void*>(refAddress));
 
   bool isNull;
-  refObj.Invoke("operator!",isNull);
+  edm::ObjectWithDict resObj = edm::ObjectWithDict(edm::TypeWithDict(typeid(bool)), &isNull);
+  refObj.typeOf().functionMemberByName("operator!").invoke(refObj, &resObj);
 
   int refId = 0;
   std::string className = uniqueRefNullLabel();
 
   if(!isNull){
     // resolving the ref type
-    std::type_info* refTypeInfo = 0;
-    refObj.Invoke("typeInfo",refTypeInfo);
-    Reflex::Type refType = ClassUtils::lookupDictionary(*refTypeInfo);
-    className = refType.Name(Reflex::SCOPED);
+    const std::type_info *refTypeInfo = 0;
+    edm::TypeWithDict typeInfoDict( typeid(std::type_info*) );
+    edm::ObjectWithDict refTIObj( typeInfoDict, &refTypeInfo );
+    m_objectType.functionMemberByName("typeInfo").invoke( refObj,  &refTIObj);
+    edm::TypeWithDict refType = ClassUtils::lookupDictionary( *refTypeInfo );
+    className = refType.cppName();
 
     // building the dependent buffer
     MappingElement& depMapping =  m_schema.mappingForDependentClass( refType, true );    
@@ -245,8 +248,10 @@ void ora::UniqueRefWriter::write( int oid,
     
     DependentClassWriter writer;
     writer.build( refType, depMapping, m_schema, m_operationBuffer->addVolatileBuffer() );
-    void* refData;
-    refObj.Invoke("operator*",refData);
+    void* refData = 0;
+    edm::ObjectWithDict refDataObj(edm::TypeWithDict(typeid(void*)), &refData);
+    m_objectType.functionMemberByName("operator*").invoke( refObj, &refDataObj );
+    
     writer.write( oid, refId, refData );
 
   }
@@ -256,7 +261,7 @@ void ora::UniqueRefWriter::write( int oid,
   parentData[m_columnIndexes[1]].data<int>()=refId;
 }
 
-ora::UniqueRefUpdater::UniqueRefUpdater( const Reflex::Type& objectType,
+ora::UniqueRefUpdater::UniqueRefUpdater( const edm::TypeWithDict& objectType,
                                          MappingElement& mapping,
                                          ContainerSchema& contSchema ):
   m_writer( objectType, mapping, contSchema ){
@@ -281,7 +286,7 @@ void ora::UniqueRefUpdater::update( int oid,
   m_writer.write( oid, data );
 }
 
-ora::UniqueRefReader::UniqueRefReader( const Reflex::Type& objectType,
+ora::UniqueRefReader::UniqueRefReader( const edm::TypeWithDict& objectType,
                                        MappingElement& mapping,
                                        ContainerSchema& contSchema ):
   m_objectType( objectType ),
@@ -333,14 +338,14 @@ void ora::UniqueRefReader::read( void* data ){
   std::string className = row[m_columnIndexes[0]].data<std::string>();
   int refId = row[m_columnIndexes[1]].data<int>();
 
-  Reflex::Type refType = ClassUtils::lookupDictionary(className);
+  edm::TypeWithDict refType = ClassUtils::lookupDictionary(className);
   
   // building the dependent buffer
   MappingElement& depMapping =  m_schema.mappingForDependentClass( refType );
   
   // resolving loader address
-  Reflex::Member loaderMember = m_objectType.MemberByName("m_loader");
-  DataElement& loaderElement = m_dataElement->addChild( loaderMember.Offset(), 0 );
+  edm::MemberWithDict loaderMember = m_objectType.dataMemberByName("m_loader");
+  DataElement& loaderElement = m_dataElement->addChild( loaderMember.offset(), 0 );
   void* loaderAddress = loaderElement.address( data );
   boost::shared_ptr<IPtrLoader>* loaderPtr = static_cast<boost::shared_ptr<IPtrLoader>*>( loaderAddress );
   // creating new loader
@@ -355,7 +360,7 @@ void ora::UniqueRefReader::read( void* data ){
 void ora::UniqueRefReader::clear(){
 }
 
-ora::UniqueRefStreamer::UniqueRefStreamer( const Reflex::Type& objectType,
+ora::UniqueRefStreamer::UniqueRefStreamer( const edm::TypeWithDict& objectType,
                                            MappingElement& mapping,
                                            ContainerSchema& contSchema ):
   m_objectType( objectType ),

@@ -12,7 +12,7 @@ public:
   MyTestData():
     a( 0 ),
     b( 0. ),
-    s(""){
+    s(" "){
     for( size_t i=0;i<2;i++)
       for( size_t j=0;j<2;j++){
 	d[i][j]=0;
@@ -84,6 +84,8 @@ void MyTestData::serialize(Archive & ar, const unsigned int)
     ar & BOOST_SERIALIZATION_NVP(a);
     ar & BOOST_SERIALIZATION_NVP(b);
     ar & BOOST_SERIALIZATION_NVP(s);
+    ar & BOOST_SERIALIZATION_NVP(d);
+    ar & BOOST_SERIALIZATION_NVP(f);
 }
 
 #endif /* !defined(__GCCXML__) */

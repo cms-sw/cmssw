@@ -48,7 +48,10 @@ namespace reco {
   public:
 
     typedef std::vector<std::pair<CaloClusterPtr::key_type,edm::Ptr<PFCluster> > > EEtoPSAssociation;
-    typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
+    // Next typedef uses double in ROOT 6 rather than Double32_t due to a bug in ROOT 5,
+    // which otherwise would make ROOT5 files unreadable in ROOT6.  This does not increase
+    // the size on disk, because due to the bug, double was actually stored on disk in ROOT 5.
+    typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<double> > REPPoint;
   
     PFCluster() : CaloCluster(CaloCluster::particleFlow), time_(-99.0), layer_(PFLayer::NONE), color_(1) {}
 

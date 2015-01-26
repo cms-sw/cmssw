@@ -9,10 +9,14 @@
   <version ClassVersion="11" checksum="3240540910"/>
   <version ClassVersion="10" checksum="380152127"/>
  </class>
- <class name="edmtest::EnumProduct" ClassVersion="10">
+ <class name="edmtest::EnumProduct" ClassVersion="11">
+  <version ClassVersion="11" checksum="3817882977"/>
   <version ClassVersion="10" checksum="3025325436"/>
  </class>
  <enum name="edmtest::TheEnumProduct"/>
+ <class name="edmtest::ArrayProduct" ClassVersion="10">
+  <version ClassVersion="10" checksum="3635152897"/>
+ </class>
  <class name="edmtest::TransientIntProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="304339852"/>
  </class>
@@ -114,10 +118,10 @@
  <class name="edm::PtrVector<edmtest::Thing>"/>
  <class name="edm::Ref<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> >"/>
  <class name="edm::RefVector<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> >"/>
- <class name="edmtest::TrackOfThings"/>
- <class name="std::vector<edmtest::TrackOfThings>" ClassVersion="10">
-  <version ClassVersion="10" checksum="1189167006"/>
+ <class name="edmtest::TrackOfThings" ClassVersion="6">
+  <version ClassVersion="6" checksum="545056495"/>
  </class>
+ <class name="std::vector<edmtest::TrackOfThings>"/>
  <class name="edm::Wrapper<std::vector<edmtest::TrackOfThings> >"/>
  <class name="edm::Wrapper<edmtest::Thing>"/>
  <class name="edm::Wrapper<edmtest::ThingWithMerge>"/>
@@ -144,6 +148,8 @@
  <class name="edm::Wrapper<edmtestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901>"/>
  <class name="edmtest::DeleteEarly" ClassVersion="3">
    <version ClassVersion="3" checksum="1338867524"/>
-</class>   
+ </class>
  <class name="edm::Wrapper<edmtest::DeleteEarly>"/>
+ <class name="edm::Wrapper<edm::EventID>"/>
+ <class name="edm::Wrapper<edm::ProductID>"/>
 </lcgdict>

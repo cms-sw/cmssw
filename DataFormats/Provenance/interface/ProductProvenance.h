@@ -10,7 +10,6 @@ and how it came into existence.
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 #include <memory>
 

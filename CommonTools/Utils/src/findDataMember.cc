@@ -2,7 +2,7 @@
 //
 // Package:     Utilities
 // Class  :     findDataMember
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -34,33 +34,33 @@ findDataMember(const edm::TypeWithDict& iType,
                int& oError)
 {
   edm::MemberWithDict ret;
-      oError = parser::kNameDoesNotExist;
-      edm::TypeWithDict type = iType;
+  oError = parser::kNameDoesNotExist;
+  edm::TypeWithDict type = iType;
   if (!bool(type)) {
     return ret;
   }
   if (type.isPointer()) {
     type = type.toType();
-         }
+  }
   ret = type.dataMemberByName(iName);
   if (!bool(ret)) {
     // check base classes
-            edm::TypeBases bases(type);
+    edm::TypeBases bases(type);
     for (auto const& B : bases) {
       ret = findDataMember(edm::BaseWithDict(B).typeOf(), iName, oError);
-               //only stop if we found it or some other error happened
+      //only stop if we found it or some other error happened
       if (bool(ret) || (oError != parser::kNameDoesNotExist)) {
-                  break;
-               }
-            }
-         }
+        break;
+      }
+    }
+  }
   if (bool(ret) && !ret.isPublic()) {
     ret = edm::MemberWithDict();
-            oError = parser::kIsNotPublic;
-         }
+    oError = parser::kIsNotPublic;
+  }
   else if (bool(ret)) {
-         oError = parser::kNoError;
-      }
+    oError = parser::kNoError;
+  }
   return ret;
 }
 

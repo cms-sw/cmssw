@@ -1,8 +1,6 @@
 {
   gSystem->Load("libFWCoreFWLite.so");
   gSystem->Load("libValidationRecoParticleFlow.so");
-  gSystem->Load("libCintex.so");
-  ROOT::Cintex::Cintex::Enable();
 
   gStyle->SetOptStat(1111);
 

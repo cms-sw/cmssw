@@ -16,6 +16,7 @@
 #include "CompareToObjectMapRecord.h"
 
 #include <algorithm>
+#include <iostream>
 #include <string>
 #include <vector>
 

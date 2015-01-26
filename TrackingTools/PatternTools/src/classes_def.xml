@@ -1,20 +1,17 @@
 <lcgdict>
   <class name="Trajectory"/>
-  <!-- persistent="false" qualifier for non-wrappers is deprecated. Will be removed when no longer needed.-->
   <class name="std::vector<Trajectory>" />
   <class name="edm::Wrapper<std::vector<Trajectory> >" persistent="false"/>
   <class name="edm::RefProd<std::vector<Trajectory> >"/>
   <class name="edm::Ref<std::vector<Trajectory>, Trajectory, edm::refhelper::FindUsingAdvance<std::vector<Trajectory>, Trajectory> >"/>
 
   <class name="MomentumConstraint"/>
-  <!-- persistent="false" qualifier for non-wrappers is deprecated. Will be removed when no longer needed.-->
-  <class name="std::vector<MomentumConstraint>" persistent="false"/>
+  <class name="std::vector<MomentumConstraint>"/>
   <class name="edm::Wrapper<std::vector<MomentumConstraint> >" persistent="false"/>
   <class name="edm::RefProd<std::vector<MomentumConstraint> >"/>
 
   <class name="VertexConstraint"/>
-  <!-- persistent="false" qualifier for non-wrappers is deprecated. Will be removed when no longer needed.-->
-  <class name="std::vector<VertexConstraint>" persistent="false"/>
+  <class name="std::vector<VertexConstraint>"/>
   <class name="edm::Wrapper<std::vector<VertexConstraint> >" persistent="false"/>
   <class name="edm::RefProd<std::vector<VertexConstraint> >"/>
 
@@ -59,8 +56,12 @@
        <field name="transientMap_" transient="true" />
   </class>
 
+  <class name="edm::helpers::KeyVal<edm::Ref<vector<Trajectory>,Trajectory,edm::refhelper::FindUsingAdvance<vector<Trajectory>,Trajectory> >,edm::Ref<vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<vector<reco::Track>,reco::Track> > >"/>
+
   <class name="TrajAnnealing"/>
   <class name="std::vector<TrajAnnealing>" persistent="false"/>
   <class name="edm::Wrapper<std::vector<TrajAnnealing> >" persistent="false"/>
 
+  <!-- This next spec should not really be here, but it is a workaround for a ROOT6 problem (Danilo Piparo).-->
+  <class name="GlobalErrorBase<double,ErrorMatrixTag>" />
 </lcgdict>

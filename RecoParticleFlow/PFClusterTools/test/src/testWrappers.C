@@ -3,10 +3,6 @@
  * 
  */
 {
-	gSystem->Load("libCintex.so");
- 
-	Cintex::Enable();
- 
 	gSystem->Load("libRecoParticleFlowPFClusterTools.so");
 	
 	TFile f("TestWrappers.root", "recreate");

@@ -2,7 +2,7 @@
 <use   name="DataFormats/Provenance"/>
 <use   name="FWCore/Utilities"/>
 <use   name="SimDataFormats/PileupSummaryInfo"/>
-<use   name="rootrflx"/>
+
 <use   name="roofit"/>
 <use   name="rootcore"/>
 <use   name="root"/>

@@ -48,10 +48,10 @@ namespace reco {
       Values{name, enumType},
       [](const Values& iLHS, const Values& iRHS) -> bool {
         return std::strcmp(iLHS.first, iRHS.first) < 0;
-    });
+      });
     if (f.first == f.second) {
       return t.isEnum() ? enumType : invalid;
-  }
+    }
     return f.first->second;
   }
 

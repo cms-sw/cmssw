@@ -84,10 +84,15 @@
    
    <class name="edm::SortedCollection<ESDataFrame,edm::StrictWeakOrdering<ESDataFrame> >"/>
    <class name="edm::SortedCollection<EcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi> >"/>
+   <class name="edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi>" /> <!-- Root6 -->
    <class name="edm::SortedCollection<EcalPseudoStripInputDigi,edm::StrictWeakOrdering<EcalPseudoStripInputDigi> >"/>
+   <class name="edm::StrictWeakOrdering<EcalPseudoStripInputDigi>" /> <!-- Root6 -->
    <class name="edm::SortedCollection<EBSrFlag,edm::StrictWeakOrdering<EBSrFlag> >"/>
+   <class name="edm::StrictWeakOrdering<EBSrFlag>" /> <!-- Root6 -->
    <class name="edm::SortedCollection<EESrFlag,edm::StrictWeakOrdering<EESrFlag> >"/>
+   <class name="edm::StrictWeakOrdering<EESrFlag>" /> <!-- Root6 -->
    <class name="edm::SortedCollection<EcalPnDiodeDigi,edm::StrictWeakOrdering<EcalPnDiodeDigi> >"/>
+   <class name="edm::StrictWeakOrdering<EcalPnDiodeDigi>" /> <!-- Root6 -->
    <class name="edm::SortedCollection<EcalMatacqDigi,edm::StrictWeakOrdering<EcalMatacqDigi> >"/>
    <class name="edm::Wrapper<edm::SortedCollection<ESDataFrame,edm::StrictWeakOrdering<ESDataFrame> > >" splitLevel="0" id="C3D41492-2914-2291-7C22-BBE6D77043F7"/>
    <class name="edm::Wrapper<edm::SortedCollection<EcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi> > > " splitLevel="0" id="D932A444-CBDD-A27C-4D85-BFED25EFBCF8"/>

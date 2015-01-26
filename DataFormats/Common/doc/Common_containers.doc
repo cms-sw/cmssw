@@ -44,8 +44,8 @@ Commonly used persistent containers.
 </pre>
 \endhtmlonly
   The attribute <tt>transientMap_</tt> has to be declared transient in the
-  Reflex dictionary. Other used persistent 
-  types have to be declared in the Reflex dictionary, depending case by case:
+  dictionary. Other used persistent 
+  types have to be declared in the dictionary, depending case by case:
 \htmlonly
 <pre>
 &lt;lcgdict&gt;

@@ -8,8 +8,8 @@
 #include <vector>
 #include <set>
 
-namespace Reflex{
-  class Type;
+namespace edm {
+  class TypeWithDict;
 }
 
 namespace ora {
@@ -28,7 +28,7 @@ namespace ora {
 
     public:
 
-    static std::string versionOfClass( const Reflex::Type& dictionary );
+    static std::string versionOfClass( const edm::TypeWithDict& dictionary );
     public:
     /// Constructor
     explicit MappingDatabase( IDatabaseSchema& schema );
@@ -58,11 +58,11 @@ namespace ora {
 
     bool getClassVersionListForContainer( int containerId, std::map<std::string,std::string>& versionMap );
 
-    void insertClassVersion( const Reflex::Type& dictionaryEntry, int dependencyIndex, int containerId, const std::string& mappingVersion, bool asBase=false );
+    void insertClassVersion( const edm::TypeWithDict& dictionaryEntry, int dependencyIndex, int containerId, const std::string& mappingVersion, bool asBase=false );
 
     void insertClassVersion( const std::string& className, const std::string& classVersion, int dependencyIndex, int containerId, const std::string& mappingVersion, bool asBase=false );
 
-    void setMappingVersionForClass( const Reflex::Type& dictionaryEntry, int containerId, const std::string& mappingVersion , bool dependency=false);
+    void setMappingVersionForClass( const edm::TypeWithDict& dictionaryEntry, int containerId, const std::string& mappingVersion , bool dependency=false);
 
     void storeMapping( const MappingTree& mappingStructure );
     

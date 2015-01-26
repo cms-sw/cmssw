@@ -137,4 +137,23 @@
    <class name="edm::Association<reco::FFTCaloJetCollection>" />
    <class name="edm::Wrapper<edm::Association<reco::FFTCaloJetCollection> >" />
 
+
+
+  <class name="reco::CATopJetProperties" ClassVersion="10">
+   <version ClassVersion="10" checksum="4096516518"/>
+  </class>
+  <class name="std::pair<edm::RefToBase<reco::Jet>, reco::CATopJetProperties>"/>
+ 
+  <class name="reco::CATopJetTagInfo" ClassVersion="11">
+   <version ClassVersion="11" checksum="241737491"/>
+   <version ClassVersion="10" checksum="3059833435"/>
+  </class>
+  <class name="reco::CATopJetTagInfoCollection"/>
+  <class name="reco::CATopJetTagInfoRef"/>
+  <class name="reco::CATopJetTagInfoRefProd"/>
+  <class name="reco::CATopJetTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::CATopJetTagInfoCollection>"/>
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CATopJetTagInfoRef>" />
+  <class name="edm::reftobase::RefHolder<reco::CATopJetTagInfoRef>" />
+
 </lcgdict>

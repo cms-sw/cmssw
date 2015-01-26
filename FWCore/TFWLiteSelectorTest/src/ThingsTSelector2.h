@@ -34,5 +34,4 @@ private:
     ClassDef(ThingsTSelector2,2)
   };
 }
-template<> atomic_TClass_ptr TFWLiteSelector<tfwliteselectortest::ThingsWorker>::fgIsA;
 #endif

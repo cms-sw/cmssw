@@ -1,3 +1,5 @@
+#include "SimDataFormats/CaloHit/interface/CastorShowerEvent.h"
+#include "SimDataFormats/CaloHit/interface/CastorShowerLibraryInfo.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerLibraryEventInfo.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"

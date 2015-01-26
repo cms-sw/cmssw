@@ -1041,11 +1041,11 @@ void QcdLowPtDQM::fillTracklets(
   }
 
   // fill tracklet based info
-  TAxis *xa = AlphaTracklets->GetXaxis();
-  int ybin = AlphaTracklets->GetYaxis()->FindFixBin(pixels.size());
-  int zbin = AlphaTracklets->GetZaxis()->FindFixBin(trackletV.z());
-  int tbin = AlphaTracklets->GetBin(0, ybin, zbin);
-  for (size_t k = 0; k < tracklets.size(); ++k) {
+  const TAxis *xa = AlphaTracklets->GetXaxis();
+  int ybin  = AlphaTracklets->GetYaxis()->FindFixBin(pixels.size());
+  int zbin  = AlphaTracklets->GetZaxis()->FindFixBin(trackletV.z());
+  int tbin  = AlphaTracklets->GetBin(0,ybin,zbin);
+  for(size_t k=0; k<tracklets.size(); ++k) {
     const Tracklet &tl(tracklets.at(k));
     fill2D(detaphi, tl.deta(), tl.dphi());
     fill1D(deta, tl.deta());

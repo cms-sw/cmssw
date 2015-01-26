@@ -102,7 +102,8 @@
   </class>
   <class name="std::vector<L1GtLogicParser::OperandToken> "/>
 
-  <class name="L1GtLogicParser::TokenRPN" ClassVersion="10">
+  <class name="L1GtLogicParser::TokenRPN" ClassVersion="11">
+   <version ClassVersion="11" checksum="1759531300"/>
    <version ClassVersion="10" checksum="535147936"/>
   </class>
   <class name="std::vector<L1GtLogicParser::TokenRPN> "/>

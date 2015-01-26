@@ -46,10 +46,10 @@ private:
   double min, max;
   int Nbin;
   TH1F * ZMassSa;
-  void histo(const TH1F* hist, char* cx, char* cy) const;
+  void histo(TH1F* hist, char* cx, char* cy) const;
 };
 
-void ZMuMuSaMassHistogram::histo(const TH1F* hist,char* cx, char*cy) const{
+void ZMuMuSaMassHistogram::histo(TH1F* hist,char* cx, char*cy) const{
   hist->GetXaxis()->SetTitle(cx);
   hist->GetYaxis()->SetTitle(cy);
   hist->GetXaxis()->SetTitleOffset(1);

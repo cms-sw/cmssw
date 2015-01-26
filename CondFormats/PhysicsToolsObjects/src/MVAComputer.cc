@@ -9,7 +9,7 @@
 //     the discriminator computer calibration object. POOL doesn't support
 //     polymorph pointers, so this is implemented using multiple containers
 //     for each possible sub-class and an index array from which the
-//     array of pointers can be reconstructed. 
+//     array of pointers can be reconstructed.
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
@@ -22,8 +22,6 @@
 #include <cstddef>
 
 #include <atomic>
-
-#include <Reflex/Reflex.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -182,10 +180,10 @@ std::vector<VarProcessor*> MVAComputer::getProcessors() const
 	return processors;
 }
 
-void MVAComputer::addProcessor(const VarProcessor *proc)
+void MVAComputer::addProcessor(const VarProcessor* proc)
 {
-	cacheId = getNextMVAComputerCacheId();
-        processors.push_back(proc->clone().release());
+  cacheId = getNextMVAComputerCacheId();
+  processors.push_back(proc->clone().release());
 }
 
 static MVAComputerContainer::CacheId getNextMVAComputerContainerCacheId()

@@ -7,8 +7,8 @@ namespace coral {
   class Blob;
 }
 
-namespace Reflex {
-  class Type;
+namespace edm {
+    class TypeWithDict;
 }
 
 namespace ora {
@@ -20,10 +20,10 @@ namespace ora {
     /// Empty destructor
     virtual ~IBlobStreamingService() {}
 
-    virtual boost::shared_ptr<coral::Blob> write( const void* addressOfInputData, const Reflex::Type& classDictionary, bool useCompression = true ) = 0;
+    virtual boost::shared_ptr<coral::Blob> write( const void* addressOfInputData, const edm::TypeWithDict & classDictionary, bool useCompression = true ) = 0;
 
     /// Reads an object from a Blob and fills-in the container
-    virtual void read( const coral::Blob& blobData, void* addressOfContainer, const Reflex::Type& classDictionary ) = 0;
+    virtual void read( const coral::Blob& blobData, void* addressOfContainer, const edm::TypeWithDict& classDictionary ) = 0;
   };
 
 }

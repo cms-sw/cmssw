@@ -9,9 +9,9 @@
 #include "ClassUtils.h"
 // externals
 #include "CoralBase/Attribute.h"
-#include "Reflex/Member.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
 
-ora::OraReferenceStreamerBase::OraReferenceStreamerBase( const Reflex::Type& objectType,
+ora::OraReferenceStreamerBase::OraReferenceStreamerBase( const edm::TypeWithDict& objectType,
                                                          MappingElement& mapping,
                                                          ContainerSchema& schema):
   m_objectType( objectType ),
@@ -33,24 +33,24 @@ bool ora::OraReferenceStreamerBase::buildDataElement(DataElement& dataElement,
                                                      IRelationalData& relationalData){
   m_dataElement = &dataElement;
   // first resolve the oid0 and oid2 data elements...
-  Reflex::Type refType = Reflex::Type::ByTypeInfo( typeid(Reference) );
-  //Reflex::Type oidType = Reflex::Type::ByTypeInfo( typeid(OId) );
-  Reflex::OffsetFunction baseOffsetFunc = 0;
+  edm::TypeWithDict refType( typeid(Reference) );
+  //edm::TypeWithDict oidType = edm::TypeWithDict::ByTypeInfo( typeid(OId) );
+  size_t baseOffsetFunc = 0;
   if( m_objectType != refType ){
     bool foundRef = ClassUtils::findBaseType( m_objectType, refType, baseOffsetFunc );
     if(!foundRef){
-      throwException("Type \""+m_objectType.Name(Reflex::SCOPED)+"\" is not an Ora Reference.",
+      throwException("Type \""+m_objectType.cppName()+"\" is not an Ora Reference.",
                      "OraReferenceStreamerBase::buildDataElement");
     } 
   }
-  Reflex::Member contIdMember = refType.DataMemberByName("m_containerId");
-  Reflex::Member itemIdMember = refType.DataMemberByName("m_itemId");
+  edm::MemberWithDict contIdMember = refType.dataMemberByName("m_containerId");
+  edm::MemberWithDict itemIdMember = refType.dataMemberByName("m_itemId");
   if( !contIdMember || !itemIdMember ){
     throwException("Data members for class OId not found.",
                    "OraReferenceStreamerBase::buildDataElement");
   }
-  m_dataElemOId0 = &dataElement.addChild( contIdMember.Offset(), baseOffsetFunc );
-  m_dataElemOId1 = &dataElement.addChild( itemIdMember.Offset(), baseOffsetFunc);
+  m_dataElemOId0 = &dataElement.addChild( contIdMember.offset(), baseOffsetFunc );
+  m_dataElemOId1 = &dataElement.addChild( itemIdMember.offset(), baseOffsetFunc);
   // then book the columns in the data attribute... 
   const std::vector<std::string>& columns =  m_mapping.columnNames();
   if( columns.size() < 2 ){
@@ -100,7 +100,7 @@ void ora::OraReferenceStreamerBase::bindDataForRead( void* data ){
   if(refHandler) refHandler->onLoad( *static_cast<Reference*>( refPtr ) );
 }
 
-ora::OraReferenceWriter::OraReferenceWriter( const Reflex::Type& objectType,
+ora::OraReferenceWriter::OraReferenceWriter( const edm::TypeWithDict& objectType,
                                              MappingElement& mapping,
                                              ContainerSchema& schema  ):
   OraReferenceStreamerBase( objectType, mapping, schema ){
@@ -123,7 +123,7 @@ void ora::OraReferenceWriter::write( int,
   bindDataForUpdate( data );  
 }
 
-ora::OraReferenceUpdater::OraReferenceUpdater( const Reflex::Type& objectType,
+ora::OraReferenceUpdater::OraReferenceUpdater( const edm::TypeWithDict& objectType,
                                                MappingElement& mapping,
                                                ContainerSchema& schema):
   OraReferenceStreamerBase( objectType, mapping, schema ){
@@ -146,7 +146,7 @@ void ora::OraReferenceUpdater::update( int,
   bindDataForUpdate( data );  
 }
 
-ora::OraReferenceReader::OraReferenceReader( const Reflex::Type& objectType,
+ora::OraReferenceReader::OraReferenceReader( const edm::TypeWithDict& objectType,
                                              MappingElement& mapping,
                                              ContainerSchema& schema ):
   OraReferenceStreamerBase( objectType, mapping, schema ){
@@ -174,7 +174,7 @@ void ora::OraReferenceReader::clear(){
 }
 
     
-ora::OraReferenceStreamer::OraReferenceStreamer( const Reflex::Type& objectType,
+ora::OraReferenceStreamer::OraReferenceStreamer( const edm::TypeWithDict& objectType,
                                                  MappingElement& mapping,
                                                  ContainerSchema& schema ):
   m_objectType( objectType ),

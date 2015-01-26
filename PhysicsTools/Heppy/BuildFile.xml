@@ -1,7 +1,6 @@
 <use name="root"/>
 <use name="rootcore"/>
 <use name="rootinteractive"/>
-<use name="rootrflx"/>
 <use name="rootpy"/>
 <use name="clhepheader"/>
 <use name="DataFormats/Candidate"/>

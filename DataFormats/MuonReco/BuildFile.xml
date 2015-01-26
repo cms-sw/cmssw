@@ -5,7 +5,7 @@
 <use   name="DataFormats/DTRecHit"/>
 <use   name="DataFormats/CSCRecHit"/>
 <use   name="DataFormats/VertexReco"/>
-<use   name="rootrflx"/>
+
 <use   name="rootmath"/>
 <export>
   <lib   name="1"/>
