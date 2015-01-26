@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_3_0/GRun/V41 (CMSSW_7_3_1_patch2_HLT1)
+# /dev/CMSSW_7_3_0/GRun/V42 (CMSSW_7_3_1_patch2_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/GRun/V41')
+  tableName = cms.string('/dev/CMSSW_7_3_0/GRun/V42')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -381,8 +381,11 @@ process.HLTPSetPvClusterComparerForIT = cms.PSet(
   track_chi2_max = cms.double( 20.0 ),
   track_prob_min = cms.double( -1.0 )
 )
-process.streams = cms.PSet(  A = cms.vstring( 'InitialPD',
-  'Templates' ) )
+process.streams = cms.PSet( 
+  A = cms.vstring( 'InitialPD',
+    'Templates' ),
+  ReleaseValidation = cms.vstring(  )
+)
 process.datasets = cms.PSet( 
   InitialPD = cms.vstring( 'HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV0p3_v1',
     'HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v1',
