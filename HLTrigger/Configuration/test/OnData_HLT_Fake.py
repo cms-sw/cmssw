@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_3_0/Fake/V11 (CMSSW_7_3_1_patch2_HLT1)
+# /dev/CMSSW_7_3_0/Fake/V12 (CMSSW_7_3_1_patch2_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/Fake/V11')
+  tableName = cms.string('/dev/CMSSW_7_3_0/Fake/V12')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -24233,14 +24233,14 @@ process.hltL3SecondaryVertexTagInfos = cms.EDProducer( "SecondaryVertexProducer"
     trackSort = cms.string( "sip3dSig" ),
     extSVCollection = cms.InputTag( "secondaryVertices" )
 )
-process.hltL3CombinedSecondaryVertexBJetTags = cms.EDProducer( "JetTagProducer",
+process.hltCombinedSecondaryVertexBJetTagsCalo = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "hltCombinedSecondaryVertex" ),
     tagInfos = cms.VInputTag( 'hltFastPixelBLifetimeL3TagInfos','hltL3SecondaryVertexTagInfos' )
 )
 process.hltBLifetimeL3FilterCSV = cms.EDFilter( "HLTCaloJetTag",
     saveTags = cms.bool( True ),
     MinJets = cms.int32( 1 ),
-    JetTags = cms.InputTag( "hltL3CombinedSecondaryVertexBJetTags" ),
+    JetTags = cms.InputTag( "hltCombinedSecondaryVertexBJetTagsCalo" ),
     TriggerType = cms.int32( 86 ),
     Jets = cms.InputTag( "hltSelector4CentralJetsL1FastJet" ),
     MinTag = cms.double( 0.7 ),
@@ -28722,7 +28722,7 @@ process.hltSusyPreBtagJetFilter = cms.EDFilter( "HLT1CaloJet",
 process.hltBLifetimeL3FilterCSVsusy = cms.EDFilter( "HLTCaloJetTag",
     saveTags = cms.bool( True ),
     MinJets = cms.int32( 1 ),
-    JetTags = cms.InputTag( "hltL3CombinedSecondaryVertexBJetTags" ),
+    JetTags = cms.InputTag( "hltCombinedSecondaryVertexBJetTagsCalo" ),
     TriggerType = cms.int32( 86 ),
     Jets = cms.InputTag( "hltSelector4CentralJetsL1FastJet" ),
     MinTag = cms.double( 0.7 ),
@@ -29039,7 +29039,7 @@ process.hltMhtNoPU80Filter = cms.EDFilter( "HLTMhtFilter",
 process.hltBLifetimeL3FilterCSV0p6 = cms.EDFilter( "HLTCaloJetTag",
     saveTags = cms.bool( True ),
     MinJets = cms.int32( 1 ),
-    JetTags = cms.InputTag( "hltL3CombinedSecondaryVertexBJetTags" ),
+    JetTags = cms.InputTag( "hltCombinedSecondaryVertexBJetTagsCalo" ),
     TriggerType = cms.int32( 86 ),
     Jets = cms.InputTag( "hltSelector4CentralJetsL1FastJet" ),
     MinTag = cms.double( 0.6 ),
@@ -29392,7 +29392,7 @@ process.HLTIterativeTrackingForBTagIteration0 = cms.Sequence( process.hltIter0PF
 process.HLTIterativeTrackingForBTagIteration1 = cms.Sequence( process.hltIter1ClustersRefRemovalForBTag + process.hltIter1MaskedMeasurementTrackerEventForBTag + process.hltIter1PixelLayerTripletsForBTag + process.hltIter1PFlowPixelSeedsForBTag + process.hltIter1PFlowCkfTrackCandidatesForBTag + process.hltIter1PFlowCtfWithMaterialTracksForBTag + process.hltIter1PFlowTrackSelectionHighPurityLooseForBTag + process.hltIter1PFlowTrackSelectionHighPurityTightForBTag + process.hltIter1PFlowTrackSelectionHighPurityForBTag )
 process.HLTIterativeTrackingForBTagIteration2 = cms.Sequence( process.hltIter2ClustersRefRemovalForBTag + process.hltIter2MaskedMeasurementTrackerEventForBTag + process.hltIter2PixelLayerPairsForBTag + process.hltIter2PFlowPixelSeedsForBTag + process.hltIter2PFlowCkfTrackCandidatesForBTag + process.hltIter2PFlowCtfWithMaterialTracksForBTag + process.hltIter2PFlowTrackSelectionHighPurityForBTag )
 process.HLTIterativeTrackingForBTagIter02 = cms.Sequence( process.HLTIterativeTrackingForBTagIteration0 + process.HLTIterativeTrackingForBTagIteration1 + process.hltIter1MergedForBTag + process.HLTIterativeTrackingForBTagIteration2 + process.hltIter2MergedForBTag )
-process.HLTBtagCSVSequenceL3 = cms.Sequence( process.HLTDoLocalPixelSequenceRegForBTag + process.HLTDoLocalStripSequenceRegForBTag + process.HLTIterativeTrackingForBTagIter02 + process.hltVerticesL3 + process.hltFastPixelBLifetimeL3Associator + process.hltFastPixelBLifetimeL3TagInfos + process.hltL3SecondaryVertexTagInfos + process.hltL3CombinedSecondaryVertexBJetTags )
+process.HLTBtagCSVSequenceL3 = cms.Sequence( process.HLTDoLocalPixelSequenceRegForBTag + process.HLTDoLocalStripSequenceRegForBTag + process.HLTIterativeTrackingForBTagIter02 + process.hltVerticesL3 + process.hltFastPixelBLifetimeL3Associator + process.hltFastPixelBLifetimeL3TagInfos + process.hltL3SecondaryVertexTagInfos + process.hltCombinedSecondaryVertexBJetTagsCalo )
 process.HLTIter2TrackAndTauJets4Iter3Sequence = cms.Sequence( process.hltIter2TrackRefsForJets4Iter3 + process.hltAK4Iter2TrackJets4Iter3 + process.hltIter2TrackAndTauJets4Iter3 )
 process.HLTIterativeTrackingIteration3 = cms.Sequence( process.hltIter3ClustersRefRemoval + process.hltIter3MaskedMeasurementTrackerEvent + process.hltIter3LayerTriplets + process.hltIter3PFlowMixedSeeds + process.hltIter3PFlowCkfTrackCandidates + process.hltIter3PFlowCtfWithMaterialTracks + process.hltIter3PFlowTrackSelectionHighPurityLoose + process.hltIter3PFlowTrackSelectionHighPurityTight + process.hltIter3PFlowTrackSelectionHighPurity )
 process.HLTIter3TrackAndTauJets4Iter4Sequence = cms.Sequence( process.hltIter3TrackRefsForJets4Iter4 + process.hltAK4Iter3TrackJets4Iter4 + process.hltIter3TrackAndTauJets4Iter4 )

@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_3_0/Fake/V11 (CMSSW_7_3_1_patch2_HLT1)
+# /dev/CMSSW_7_3_0/Fake/V12 (CMSSW_7_3_1_patch2_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/Fake/V11')
+  tableName = cms.string('/dev/CMSSW_7_3_0/Fake/V12')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -23738,14 +23738,14 @@ hltL3SecondaryVertexTagInfos = cms.EDProducer( "SecondaryVertexProducer",
     trackSort = cms.string( "sip3dSig" ),
     extSVCollection = cms.InputTag( "secondaryVertices" )
 )
-hltL3CombinedSecondaryVertexBJetTags = cms.EDProducer( "JetTagProducer",
+hltCombinedSecondaryVertexBJetTagsCalo = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "hltCombinedSecondaryVertex" ),
     tagInfos = cms.VInputTag( 'hltFastPixelBLifetimeL3TagInfos','hltL3SecondaryVertexTagInfos' )
 )
 hltBLifetimeL3FilterCSV = cms.EDFilter( "HLTCaloJetTag",
     saveTags = cms.bool( True ),
     MinJets = cms.int32( 1 ),
-    JetTags = cms.InputTag( "hltL3CombinedSecondaryVertexBJetTags" ),
+    JetTags = cms.InputTag( "hltCombinedSecondaryVertexBJetTagsCalo" ),
     TriggerType = cms.int32( 86 ),
     Jets = cms.InputTag( "hltSelector4CentralJetsL1FastJet" ),
     MinTag = cms.double( 0.7 ),
@@ -28227,7 +28227,7 @@ hltSusyPreBtagJetFilter = cms.EDFilter( "HLT1CaloJet",
 hltBLifetimeL3FilterCSVsusy = cms.EDFilter( "HLTCaloJetTag",
     saveTags = cms.bool( True ),
     MinJets = cms.int32( 1 ),
-    JetTags = cms.InputTag( "hltL3CombinedSecondaryVertexBJetTags" ),
+    JetTags = cms.InputTag( "hltCombinedSecondaryVertexBJetTagsCalo" ),
     TriggerType = cms.int32( 86 ),
     Jets = cms.InputTag( "hltSelector4CentralJetsL1FastJet" ),
     MinTag = cms.double( 0.7 ),
@@ -28544,7 +28544,7 @@ hltMhtNoPU80Filter = cms.EDFilter( "HLTMhtFilter",
 hltBLifetimeL3FilterCSV0p6 = cms.EDFilter( "HLTCaloJetTag",
     saveTags = cms.bool( True ),
     MinJets = cms.int32( 1 ),
-    JetTags = cms.InputTag( "hltL3CombinedSecondaryVertexBJetTags" ),
+    JetTags = cms.InputTag( "hltCombinedSecondaryVertexBJetTagsCalo" ),
     TriggerType = cms.int32( 86 ),
     Jets = cms.InputTag( "hltSelector4CentralJetsL1FastJet" ),
     MinTag = cms.double( 0.6 ),
@@ -28776,7 +28776,7 @@ HLTIterativeTrackingForBTagIteration0 = cms.Sequence( hltIter0PFlowPixelSeedsFro
 HLTIterativeTrackingForBTagIteration1 = cms.Sequence( hltIter1ClustersRefRemovalForBTag + hltIter1MaskedMeasurementTrackerEventForBTag + hltIter1PixelLayerTripletsForBTag + hltIter1PFlowPixelSeedsForBTag + hltIter1PFlowCkfTrackCandidatesForBTag + hltIter1PFlowCtfWithMaterialTracksForBTag + hltIter1PFlowTrackSelectionHighPurityLooseForBTag + hltIter1PFlowTrackSelectionHighPurityTightForBTag + hltIter1PFlowTrackSelectionHighPurityForBTag )
 HLTIterativeTrackingForBTagIteration2 = cms.Sequence( hltIter2ClustersRefRemovalForBTag + hltIter2MaskedMeasurementTrackerEventForBTag + hltIter2PixelLayerPairsForBTag + hltIter2PFlowPixelSeedsForBTag + hltIter2PFlowCkfTrackCandidatesForBTag + hltIter2PFlowCtfWithMaterialTracksForBTag + hltIter2PFlowTrackSelectionHighPurityForBTag )
 HLTIterativeTrackingForBTagIter02 = cms.Sequence( HLTIterativeTrackingForBTagIteration0 + HLTIterativeTrackingForBTagIteration1 + hltIter1MergedForBTag + HLTIterativeTrackingForBTagIteration2 + hltIter2MergedForBTag )
-HLTBtagCSVSequenceL3 = cms.Sequence( HLTDoLocalPixelSequenceRegForBTag + HLTDoLocalStripSequenceRegForBTag + HLTIterativeTrackingForBTagIter02 + hltVerticesL3 + hltFastPixelBLifetimeL3Associator + hltFastPixelBLifetimeL3TagInfos + hltL3SecondaryVertexTagInfos + hltL3CombinedSecondaryVertexBJetTags )
+HLTBtagCSVSequenceL3 = cms.Sequence( HLTDoLocalPixelSequenceRegForBTag + HLTDoLocalStripSequenceRegForBTag + HLTIterativeTrackingForBTagIter02 + hltVerticesL3 + hltFastPixelBLifetimeL3Associator + hltFastPixelBLifetimeL3TagInfos + hltL3SecondaryVertexTagInfos + hltCombinedSecondaryVertexBJetTagsCalo )
 HLTIter2TrackAndTauJets4Iter3Sequence = cms.Sequence( hltIter2TrackRefsForJets4Iter3 + hltAK4Iter2TrackJets4Iter3 + hltIter2TrackAndTauJets4Iter3 )
 HLTIterativeTrackingIteration3 = cms.Sequence( hltIter3ClustersRefRemoval + hltIter3MaskedMeasurementTrackerEvent + hltIter3LayerTriplets + hltIter3PFlowMixedSeeds + hltIter3PFlowCkfTrackCandidates + hltIter3PFlowCtfWithMaterialTracks + hltIter3PFlowTrackSelectionHighPurityLoose + hltIter3PFlowTrackSelectionHighPurityTight + hltIter3PFlowTrackSelectionHighPurity )
 HLTIter3TrackAndTauJets4Iter4Sequence = cms.Sequence( hltIter3TrackRefsForJets4Iter4 + hltAK4Iter3TrackJets4Iter4 + hltIter3TrackAndTauJets4Iter4 )
