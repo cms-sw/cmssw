@@ -33,12 +33,8 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -62,13 +58,18 @@ private:
   virtual void endJob() ;
 
   std::string theNavigationSchoolName;
+  const TrackerTopology *tTopo;
+  void print(std::ostream& os,const DetLayer* dl);
+  void print(std::ostream&os, const NavigationSchool::StateType & layers);
+  void print(std::ostream&os, const NavigationSchool *nav);
+
 };
 
 //navigation printouts
-std::ostream& operator<<(std::ostream& os,const DetLayer* dl){
+void NavigationSchoolAnalyzer::print(std::ostream& os,const DetLayer* dl){
   const std::vector<const GeomDet*>& bComponents = dl->basicComponents();
 
-  if (bComponents.empty()){/* t'es pas dans la merde */;return os;}
+  if (bComponents.empty()){/* t'es pas dans la merde */;return;}
 
   const GeomDet* tag = bComponents.front();
   unsigned int LorW=0;
@@ -76,11 +77,11 @@ std::ostream& operator<<(std::ostream& os,const DetLayer* dl){
 
   switch (dl->subDetector()){
   case GeomDetEnumerators::PixelBarrel :
-    LorW = PXBDetId(tag->geographicalId()).layer(); break;
+    LorW = tTopo->pxbLayer(tag->geographicalId()); break;
   case GeomDetEnumerators::TIB :
-    LorW = TIBDetId(tag->geographicalId()).layer(); break;
+    LorW = tTopo->tibLayer(tag->geographicalId()); break;
   case GeomDetEnumerators::TOB :
-    LorW = TOBDetId(tag->geographicalId()).layer(); break;
+    LorW = tTopo->tobLayer(tag->geographicalId()); break;
   case GeomDetEnumerators::DT :
     LorW = DTChamberId(tag->geographicalId().rawId()).station(); break;
   case GeomDetEnumerators::RPCEndcap :
@@ -89,14 +90,14 @@ std::ostream& operator<<(std::ostream& os,const DetLayer* dl){
     LorW = RPCDetId(tag->geographicalId().rawId()).station(); break;
 
   case GeomDetEnumerators::PixelEndcap :    
-    LorW = PXFDetId(tag->geographicalId()).disk(); 
-    side = PXFDetId(tag->geographicalId()).side();break;
+    LorW = tTopo->pxfDisk(tag->geographicalId());
+    side = tTopo->pxfSide(tag->geographicalId());break;
   case GeomDetEnumerators::TID :
-    LorW = TIDDetId(tag->geographicalId()).wheel(); 
-    side = TIDDetId(tag->geographicalId()).side();break;
+    LorW = tTopo->tidWheel(tag->geographicalId());
+    side = tTopo->tidSide(tag->geographicalId());break;
   case GeomDetEnumerators::TEC :
-    LorW = TECDetId(tag->geographicalId()).wheel();
-    side = TECDetId(tag->geographicalId()).side(); break;
+    LorW = tTopo->tecWheel(tag->geographicalId());
+    side = tTopo->tecSide(tag->geographicalId()); break;
   case GeomDetEnumerators::CSC :
     LorW = CSCDetId(tag->geographicalId().rawId()).layer();
     side = CSCDetId(tag->geographicalId().rawId()).endcap(); break;
@@ -121,19 +122,17 @@ std::ostream& operator<<(std::ostream& os,const DetLayer* dl){
     break;
   }
   os<< (void*)dl <<"\n";
-  return os;
+  return;
 }
 
-
-
-std::ostream& operator<<(std::ostream&os, const NavigationSchool::StateType & layers){
+void NavigationSchoolAnalyzer::print(std::ostream&os, const NavigationSchool::StateType & layers){
   for (NavigationSchool::StateType::const_iterator l = layers.begin(); l!=layers.end();++l)
     {
       std::vector<const DetLayer*> displayThose;
 
       os<<"####################\n"	 
-	<<"Layer: \n"
-	<<(*l)->detLayer();
+	<<"Layer: \n";
+      print(os,(*l)->detLayer());
       
       displayThose= (*l)->nextLayers(insideOut);
       if (displayThose.empty())
@@ -141,7 +140,7 @@ std::ostream& operator<<(std::ostream&os, const NavigationSchool::StateType & la
       else{
 	os<<"*** INsideOUT CONNECTED TO ***\n";
 	for(std::vector<const DetLayer*>::iterator nl =displayThose.begin();nl!=displayThose.end();++nl)
-	  {os<<(*nl)<<"-----------------\n";}}
+	  {print(os,*nl); os<<"-----------------\n";}}
 
       displayThose = (*l)->nextLayers(outsideIn);
       if (displayThose.empty())
@@ -149,16 +148,18 @@ std::ostream& operator<<(std::ostream&os, const NavigationSchool::StateType & la
       else{
 	os<<"*** OUTsideIN CONNECTED TO ***\n";
 	for(std::vector<const DetLayer*>::iterator nl =displayThose.begin();nl!=displayThose.end();++nl)
-	  {os<<(*nl)<<"-----------------\n";}}
+	  {print(os,*nl); os<<"-----------------\n";}}
     }
-  return os<<"\n";
+  os<<"\n";
+  return;
 }
 
 
-std::ostream& operator<<(std::ostream&os, const NavigationSchool *nav){
+void NavigationSchoolAnalyzer::print(std::ostream&os, const NavigationSchool *nav){
   NavigationSchool::StateType layer=const_cast<NavigationSchool *>(nav)->navigableLayers();
-  os<<layer;
-  return os;}
+  print(os,layer);
+  return;
+}
 
 
 
@@ -266,12 +267,16 @@ void NavigationSchoolAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 }
 
 void NavigationSchoolAnalyzer::beginRun(edm::Run & run, const edm::EventSetup& iSetup) {
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  tTopo = tTopoHandle.product();
+
   //get the navigation school
   edm::ESHandle<NavigationSchool> nav;
   iSetup.get<NavigationSchoolRecord>().get(theNavigationSchoolName, nav);
   // NavigationSetter setter(*nav.product());
-  std::cout << "NavigationSchoolAnalyzer "<<"hello at run" << std::endl;
-  std::cout << "NavigationSchoolAnalyzer "<<"NavigationSchool display of: "<<theNavigationSchoolName<<"\n"<<nav.product() << std::endl;
+  edm::LogInfo("NavigationSchoolAnalyzer")<<"NavigationSchool display of: " <<theNavigationSchoolName<<"\n";
+  print (std::cout,nav.product());
 }
 
 void NavigationSchoolAnalyzer::endJob() {}
