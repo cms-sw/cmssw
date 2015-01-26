@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         
-    hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb_2btag", "VBFHbb_1btag", "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej"), 
+    hltProcessName = cms.string("HLTX"),
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej"), 
     histDirectory  = cms.string("HLT/Higgs"),
     
     # -- The instance name of the reco::GenParticles collection
@@ -227,14 +227,21 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         # -- Analysis specific cuts
         minCandidates = cms.uint32(2), 
         ),
+    VBFHbb_0btag  = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_QuadPFJet_VBF_Common_v",
+            "HLT_L1_TripleJet_VBF_v"
+            ),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(4), 
+        NminOneCuts = cms.untracked.vdouble(2.5, 240, 2.1, 0, 0, 0, 0, 0, 0, 95, 85, 70, 40), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        ),
     VBFHbb_2btag  = cms.PSet( 
         hltPathsToCheck = cms.vstring(
             "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200_v",
             "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq240_v",
-            "HLT_QuadPFJet_VBF_Mqq200_v",
-            "HLT_QuadPFJet_VBF_Mqq240_v",
-            "HLT_QuadPFJet_VBF_v",
-            "HLT_L1_TripleJet_VBF_v"
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
         jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
@@ -246,10 +253,6 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         hltPathsToCheck = cms.vstring(
             "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq460_v",
             "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v",
-            "HLT_QuadPFJet_VBF_Mqq460_v",
-            "HLT_QuadPFJet_VBF_Mqq500_v",
-            "HLT_QuadPFJet_VBF_v",
-            "HLT_L1_TripleJet_VBF_v"
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
         jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
