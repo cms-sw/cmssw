@@ -1,6 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
+## This object is used to customise for different running scenarios. Changes
+## for Run 2 are after the defaults
+from Configuration.StandardSequences.Eras import eras
+
 # Default parameters for CSCTriggerPrimitives generator
 # =====================================================
 cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
@@ -310,3 +314,19 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         mpcMaxStubs = cms.untracked.uint32(3)
     )
 )
+
+##
+## Make changes for Run 2
+##
+eras.run2.toModify( cscTriggerPrimitiveDigis, debugParameters=True )
+eras.run2.toModify( cscTriggerPrimitiveDigis, checkBadChambers_=False )
+eras.run2.toModify( cscTriggerPrimitiveDigis.commonParam, isSLHC=True )
+eras.run2.toModify( cscTriggerPrimitiveDigis.commonParam, smartME1aME1b=True )
+eras.run2.toModify( cscTriggerPrimitiveDigis.commonParam, gangedME1a=False )
+eras.run2.toModify( cscTriggerPrimitiveDigis.alctParam07, alctNarrowMaskForR1=True )
+eras.run2.toModify( cscTriggerPrimitiveDigis.alctParam07, alctGhostCancellationBxDepth = cms.untracked.int32(1) )
+eras.run2.toModify( cscTriggerPrimitiveDigis.alctParam07, alctGhostCancellationSideQuality = cms.untracked.bool(True) )
+eras.run2.toModify( cscTriggerPrimitiveDigis.alctParam07, alctPretrigDeadtime = cms.untracked.uint32(4) )
+eras.run2.toModify( cscTriggerPrimitiveDigis.clctParam07, clctPidThreshPretrig=4 )
+eras.run2.toModify( cscTriggerPrimitiveDigis.clctParam07, clctMinSeparation=5 )
+eras.run2.toModify( cscTriggerPrimitiveDigis.tmbParam, matchTrigWindowSize=3 )

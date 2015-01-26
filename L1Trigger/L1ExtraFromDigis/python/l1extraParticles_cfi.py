@@ -21,3 +21,19 @@ l1extraParticles = cms.EDProducer("L1ExtraParticlesProd",
 )
 
 
+#
+# Modify for running in run 2
+#
+from Configuration.StandardSequences.Eras import eras
+eras.run2.toModify( l1extraParticles, etTotalSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+eras.run2.toModify( l1extraParticles, nonIsolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","nonIsoEm") )
+eras.run2.toModify( l1extraParticles, etMissSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+eras.run2.toModify( l1extraParticles, htMissSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+eras.run2.toModify( l1extraParticles, forwardJetSource = cms.InputTag("caloStage1LegacyFormatDigis","forJets") )
+eras.run2.toModify( l1extraParticles, centralJetSource = cms.InputTag("caloStage1LegacyFormatDigis","cenJets") )
+eras.run2.toModify( l1extraParticles, tauJetSource = cms.InputTag("caloStage1LegacyFormatDigis","tauJets") )
+eras.run2.toModify( l1extraParticles, isoTauJetSource = cms.InputTag("caloStage1LegacyFormatDigis","isoTauJets") )
+eras.run2.toModify( l1extraParticles, isolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","isoEm") )
+eras.run2.toModify( l1extraParticles, etHadSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+eras.run2.toModify( l1extraParticles, hfRingEtSumsSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+eras.run2.toModify( l1extraParticles, hfRingBitCountsSource = cms.InputTag("caloStage1LegacyFormatDigis") )

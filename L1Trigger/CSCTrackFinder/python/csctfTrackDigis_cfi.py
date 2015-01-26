@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+## This object is used to customise for different running scenarios. Changes
+## for Run 2 are after the defaults
+from Configuration.StandardSequences.Eras import eras
+
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 	DTproducer = cms.untracked.InputTag("dtTriggerPrimitiveDigis"),
@@ -112,4 +116,9 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 	readDtDirect = cms.bool(False),
 )
 
-
+##
+## Make changes for Run 2
+##
+eras.run2.toModify( csctfTrackDigis.SectorProcessor.PTLUT, PtMethod = 34 )
+eras.run2.toModify( csctfTrackDigis.SectorProcessor, gangedME1a = False )
+eras.run2.toModify( csctfTrackDigis.SectorProcessor, firmwareSP = 20140515 )

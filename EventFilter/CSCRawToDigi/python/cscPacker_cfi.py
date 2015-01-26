@@ -17,4 +17,10 @@ cscpacker = cms.EDProducer("CSCDigiToRawModule",
     preTriggerWindowMax = cms.int32(1)
 )
 
-
+##
+## Make changes for running in Run 2
+##
+from Configuration.StandardSequences.Eras import eras
+eras.run2.toModify( cscpacker, useFormatVersion = cms.uint32(2013) )
+eras.run2.toModify( cscpacker, usePreTriggers = cms.bool(False) )
+eras.run2.toModify( cscpacker, packEverything = cms.bool(True) )

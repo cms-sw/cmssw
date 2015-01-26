@@ -14,4 +14,8 @@ l1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
     VmeXmlFile = cms.string('')
 )
 
-
+##
+## Make changes for Run 2
+##
+from Configuration.StandardSequences.Eras import eras
+eras.run2.toModify( l1GtTriggerMenuXml, DefXmlFile = 'L1Menu_Collisions2015_25ns_v1_L1T_Scales_20101224_Imp0_0x102f.xml' )

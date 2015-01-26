@@ -14,6 +14,10 @@ import FWCore.ParameterSet.Config as cms
 # SimCalorimetry.Configuration.ecalDigiSequence_cff
 # SimCalorimetry.Configuration.hcalDigiSequence_cff
 
+## This object is used to customise for different running scenarios. Changes
+## for Run 2 are after the defaults at the bottom of this file.
+from Configuration.StandardSequences.Eras import eras
+
 ### calorimeter emulators
 
 # RCT (Regional Calorimeter Trigger) emulator
@@ -120,8 +124,10 @@ simGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
     cms.InputTag( 'simHcalTechTrigDigis' ),
     cms.InputTag( 'simCastorTechTrigDigis' )
     )
-
-
+# Changes for Run 2 (selectively applied if Run 2 is active)
+eras.run2.toModify( simGtDigis, GctInputTag = 'simCaloStage1LegacyFormatDigis' )
+eras.run2.toModify( simGtDigis, TechnicalTriggersInputTags = cms.VInputTag() )
+                    
 ### L1 Trigger sequences
 
 SimL1MuTriggerPrimitives = cms.Sequence( 
@@ -148,3 +154,24 @@ SimL1Emulator = cms.Sequence(
     simGmtDigis + 
     SimL1TechnicalTriggers + 
     simGtDigis )
+
+##
+## Make changes for Run 2
+##
+def _modifyLoadSimL1Trigger( theProcess ) :
+    """
+    ProcessModifier that loads config fragments required for Run 2 into the process object.
+    Also switches the GCT digis for the Stage1 digis in the SimL1Emulator sequence
+    """
+    theProcess.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
+    theProcess.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
+    theProcess.load('L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuXml_cfi')
+    # Note that this function is applied before the objects in this file are added
+    # to the process. So things declared in this file should be used "bare", i.e.
+    # not with "theProcess." in front of them. L1TCaloStage1 is an exception because
+    # it is not declared in this file but loaded into the process in one of the "load"
+    # statements above.
+    SimL1Emulator.replace( simGctDigis, theProcess.L1TCaloStage1 )
+
+# A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"
+modifyL1TriggerConfigurationSimL1EmulatorForRun2_ = eras.run2.makeProcessModifier( _modifyLoadSimL1Trigger )

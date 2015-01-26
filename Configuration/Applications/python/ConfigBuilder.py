@@ -675,6 +675,18 @@ class ConfigBuilder(object):
 			if self._options.fast and not 'SIM' in self.stepMap and not 'FASTSIM' in self.stepMap:
 				self.executeAndRemember('process.mix.playback= True')
 
+			# Some config components need to know what the bunch spacing is to be
+			# able to configure themselves properly. To do this enable an era (aka
+			# cms.Modifier) for the particular bunch spacing.
+			if hasattr(self.process,"mix") and hasattr(self.process.mix,"bunchspace") :
+				# Extend the comma seperated list, but take care not to add erroneous commas
+				if self.process.mix.bunchspace == 25 :
+					if self._options.era : self._options.era+=",bunchspacing25ns"
+					else : self._options.era="bunchspacing25ns"
+				elif self.process.mix.bunchspace == 50 :
+					if self._options.era : self._options.era+=",bunchspacing50ns"
+					else : self._options.era="bunchspacing50ns"
+
 
         # load the geometry file
         try:
@@ -2097,7 +2109,15 @@ class ConfigBuilder(object):
         self.pythonCfgCode += "# using: \n# "+__version__[1:-1]+"\n# "+__source__[1:-1]+'\n'
         self.pythonCfgCode += "# with command line options: "+self._options.arguments+'\n'
         self.pythonCfgCode += "import FWCore.ParameterSet.Config as cms\n\n"
-        self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"')\n\n"
+        if hasattr(self._options,"era") and self._options.era :
+            self.pythonCfgCode += "from Configuration.StandardSequences.Eras import eras\n\n"
+            self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"'" # Start of the line, finished after the loop
+            # Multiple eras can be specified in a comma seperated list
+            for requestedEra in self._options.era.split(",") :
+                self.pythonCfgCode += ",eras."+requestedEra
+            self.pythonCfgCode += ")\n\n" # end of the line
+        else :
+            self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"')\n\n"
 
         self.pythonCfgCode += "# import of standard configurations\n"
         for module in self.imports:
