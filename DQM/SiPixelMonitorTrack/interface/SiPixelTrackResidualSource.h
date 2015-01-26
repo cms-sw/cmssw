@@ -91,6 +91,15 @@ class SiPixelTrackResidualSource : public DQMEDAnalyzer {
     MonitorElement* meSubdetResidualX[3];
     MonitorElement* meSubdetResidualY[3];
 
+
+    MonitorElement* meResidualXSummedLay_1;
+    MonitorElement* meResidualYSummedLay_1;
+    MonitorElement* meResidualXSummedLay_2;
+    MonitorElement* meResidualYSummedLay_2;
+    MonitorElement* meResidualXSummedLay_3;
+    MonitorElement* meResidualYSummedLay_3;
+
+
     MonitorElement* meNofTracks_;
     MonitorElement* meNofTracksInPixVol_;
     MonitorElement* meNofClustersOnTrack_;

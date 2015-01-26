@@ -153,10 +153,49 @@ void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run& r, edm::EventSetup 
 
 void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & iSetup){
 
+
+  std::string hisID;
+
   // book residual histograms in theSiPixelFolder - one (x,y) pair of histograms per det
   SiPixelFolderOrganizer theSiPixelFolder(false);
   for (std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.begin(); 
        pxd!=theSiPixelStructure.end(); pxd++) {
+
+    bool lay_1_booked = false,  lay_2_booked = false, lay_3_booked = false;
+
+    if(ladOn){
+      //book by summed layer if we are booking by ladder, module, or layer
+           
+      if(PixelBarrelNameUpgrade((*pxd).first).layerName()==1&&lay_1_booked==false){
+	iBooker.setCurrentFolder(topFolderName_+"/Barrel");
+	hisID = "siPixelTrackResiduals_SummedLayer_1";
+	meResidualXSummedLay_1 = iBooker.book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+	meResidualXSummedLay_1->setAxisTitle("hit-to-track residual in r-phi (um)",1);
+	meResidualYSummedLay_1 = iBooker.book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
+	meResidualYSummedLay_1->setAxisTitle("hit-to-track residual in z (um)",1);
+	lay_1_booked=true;
+
+      }else if(PixelBarrelNameUpgrade((*pxd).first).layerName()==2&&lay_2_booked==false){
+	iBooker.setCurrentFolder(topFolderName_+"/Barrel");	  
+	hisID = "siPixelTrackResiduals_SummedLayer_2";
+	meResidualXSummedLay_2 = iBooker.book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+	meResidualXSummedLay_2->setAxisTitle("hit-to-track residual in r-phi (um)",1);
+	meResidualYSummedLay_2 = iBooker.book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
+	meResidualYSummedLay_2->setAxisTitle("hit-to-track residual in z (um)",1);
+	lay_2_booked=true;
+
+      }else if(PixelBarrelNameUpgrade((*pxd).first).layerName()==3&&lay_3_booked==false){
+	iBooker.setCurrentFolder(topFolderName_+"/Barrel");
+	hisID = "siPixelTrackResiduals_SummedLayer_3";
+	meResidualXSummedLay_3 = iBooker.book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
+	meResidualXSummedLay_3->setAxisTitle("hit-to-track residual in r-phi (um)",1);
+	meResidualYSummedLay_3 = iBooker.book1D("residualY_"+hisID,"Hit-to-Track Residual in Z",100,-300,300);
+	meResidualYSummedLay_3->setAxisTitle("hit-to-track residual in z (um)",1);
+	lay_3_booked=true;
+      }
+
+    }
+    
 
     if(modOn){
       if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,0,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,reducedSet,0,isUpgrade);
@@ -830,7 +869,20 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		  // fill the residual histograms 
 
 		  std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.find(detId);
-		  if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill(residual, reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);		
+		  if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill(residual, reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);	
+
+		  if(ladOn&&pxd!=theSiPixelStructure.end()){  
+		    if(PixelBarrelNameUpgrade((*pxd).first).layerName()==1){ 
+		      (meResidualXSummedLay_1)->Fill(residual.x());    
+		      (meResidualYSummedLay_1)->Fill(residual.y()); 
+		    }else if(PixelBarrelNameUpgrade((*pxd).first).layerName()==2){ 
+		      (meResidualXSummedLay_2)->Fill(residual.x());    
+		      (meResidualYSummedLay_2)->Fill(residual.y()); 
+		    }else if(PixelBarrelNameUpgrade((*pxd).first).layerName()==3){ 
+		      (meResidualXSummedLay_3)->Fill(residual.x());    
+		      (meResidualYSummedLay_3)->Fill(residual.y()); 
+		    }
+		  }	
 		}//three hits
 	      }//is valid
 	    }//rechits loop
