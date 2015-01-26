@@ -1,11 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-
-
-
-OutALCARECOPromptCalibProd_noDrop = cms.PSet(
+OutALCARECOPromptCalibProdSiPixelAli_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOPromptCalibProd')
+        SelectEvents = cms.vstring('pathALCARECOPromptCalibProdSiPixelAli')
     ),
     outputCommands = cms.untracked.vstring(
         'keep *_alcaBeamSpotProducer_*_*',
@@ -14,5 +11,5 @@ OutALCARECOPromptCalibProd_noDrop = cms.PSet(
 
 import copy
 
-OutALCARECOPromptCalibProd=copy.deepcopy(OutALCARECOPromptCalibProd_noDrop)
-OutALCARECOPromptCalibProd.outputCommands.insert(0, "drop *")
+OutALCARECOPromptCalibProdSiPixelAli=copy.deepcopy(OutALCARECOPromptCalibProd_noDrop)
+OutALCARECOPromptCalibProdSiPixelAli.outputCommands.insert(0, "drop *")
