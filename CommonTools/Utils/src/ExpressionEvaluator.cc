@@ -42,7 +42,7 @@ namespace {
 
 namespace reco{
 
-ExpressionEvaluator::ExpressionEvaluator(const char * pkg, const char * iname, const char * iexpr) :
+ExpressionEvaluator::ExpressionEvaluator(const char * pkg, const char * iname, std::string const & iexpr) :
   m_name("VI_"+generateName())
 {
 

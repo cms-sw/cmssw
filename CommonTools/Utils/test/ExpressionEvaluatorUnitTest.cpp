@@ -34,9 +34,10 @@ int main() {
 
   std::string cut = "bool eval(int i, int j) override { return i<10&& j<5; }";
 
-  ExpressionEvaluator parser2("VITest/ExprEval","eetest::vcut",cut.c_str());
+  // ExpressionEvaluator parser2("VITest/ExprEval","eetest::vcut",cut.c_str());
+  // auto mcut = parser2.expr<eetest::vcut>();
 
-  auto mcut = parser2.expr<eetest::vcut>();
+  auto mcut = reco_expressionEvaluator("VITest/ExprEval",eetest::vcut,cut);
 
   std::cout << mcut->eval(2,7) << ' ' << mcut->eval(3, 4) << std::endl;
 
