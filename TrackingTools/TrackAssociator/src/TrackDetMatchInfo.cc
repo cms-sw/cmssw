@@ -172,7 +172,7 @@ double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSi
 	{
 	   if ( id.det() != DetId::Calo ) {
 	      throw cms::Exception("FatalError") << "Wrong DetId. Expected CaloTower, but found:\n" <<
-		DetIdInfo::info(id)<<"\n";
+		DetIdInfo::info(id,0)<<"\n";
 	   }
 	   CaloTowerDetId centerId(id);
 	   for(std::vector<const CaloTower*>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++) {
@@ -206,7 +206,7 @@ double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSi
 	{
 	   if( id.det() != DetId::Ecal || (id.subdetId() != EcalBarrel && id.subdetId() != EcalEndcap) ) {
 	      throw cms::Exception("FatalError") << "Wrong DetId. Expected EcalBarrel or EcalEndcap, but found:\n" <<
-		DetIdInfo::info(id)<<"\n";
+		DetIdInfo::info(id,0)<<"\n";
 	   }
 	   // Since the ECAL granularity is small and the gap between EE and EB is significant,
 	   // energy is computed only within the system that contains the central element
@@ -242,7 +242,7 @@ double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSi
 	{
 	   if( id.det() != DetId::Hcal || (id.subdetId() != HcalBarrel && id.subdetId() != HcalEndcap) ) {
 	      throw cms::Exception("FatalError") << "Wrong DetId. Expected HE or HB, but found:\n" <<
-		DetIdInfo::info(id)<<"\n";
+		DetIdInfo::info(id,0)<<"\n";
 	   }
 	   HcalDetId centerId(id);
 	   for(std::vector<const HBHERecHit*>::const_iterator hit=hcalRecHits.begin(); hit!=hcalRecHits.end(); hit++) {
@@ -261,7 +261,7 @@ double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSi
 	{
 	   if( id.det() != DetId::Hcal || (id.subdetId() != HcalOuter) ) {
 	      throw cms::Exception("FatalError") << "Wrong DetId. Expected HO, but found:\n" <<
-		DetIdInfo::info(id)<<"\n";
+		DetIdInfo::info(id,0)<<"\n";
 	   }
 	   HcalDetId centerId(id);
 	   for(std::vector<const HORecHit*>::const_iterator hit=hoRecHits.begin(); hit!=hoRecHits.end(); hit++) {
@@ -409,7 +409,7 @@ DetId TrackDetMatchInfo::findMaxDeposition(const DetId& id, EnergyType type, int
 	{
 	   if ( id.det() != DetId::Calo ) {
 	      throw cms::Exception("FatalError") << "Wrong DetId. Expected CaloTower, but found:\n" <<
-		DetIdInfo::info(id)<<"\n";
+		DetIdInfo::info(id,0)<<"\n";
 	   }
 	   CaloTowerDetId centerId(id);
 	   for(std::vector<const CaloTower*>::const_iterator hit=towers.begin(); hit!=towers.end(); hit++) {
@@ -455,7 +455,7 @@ DetId TrackDetMatchInfo::findMaxDeposition(const DetId& id, EnergyType type, int
 	{
 	   if( id.det() != DetId::Ecal || (id.subdetId() != EcalBarrel && id.subdetId() != EcalEndcap) ) {
 	      throw cms::Exception("FatalError") << "Wrong DetId. Expected EcalBarrel or EcalEndcap, but found:\n" <<
-		DetIdInfo::info(id)<<"\n";
+		DetIdInfo::info(id,0)<<"\n";
 	   }
 	   // Since the ECAL granularity is small and the gap between EE and EB is significant,
 	   // energy is computed only within the system that contains the central element
@@ -497,7 +497,7 @@ DetId TrackDetMatchInfo::findMaxDeposition(const DetId& id, EnergyType type, int
 	{
 	   if( id.det() != DetId::Hcal || (id.subdetId() != HcalBarrel && id.subdetId() != HcalEndcap) ) {
 	      throw cms::Exception("FatalError") << "Wrong DetId. Expected HE or HB, but found:\n" <<
-		DetIdInfo::info(id)<<"\n";
+		DetIdInfo::info(id,0)<<"\n";
 	   }
 	   HcalDetId centerId(id);
 	   for(std::vector<const HBHERecHit*>::const_iterator hit=hcalRecHits.begin(); hit!=hcalRecHits.end(); hit++) {
@@ -519,7 +519,7 @@ DetId TrackDetMatchInfo::findMaxDeposition(const DetId& id, EnergyType type, int
 	{
 	   if( id.det() != DetId::Hcal || (id.subdetId() != HcalOuter) ) {
 	      throw cms::Exception("FatalError") << "Wrong DetId. Expected HO, but found:\n" <<
-		DetIdInfo::info(id)<<"\n";
+		DetIdInfo::info(id,0)<<"\n";
 	   }
 	   HcalDetId centerId(id);
 	   for(std::vector<const HORecHit*>::const_iterator hit=hoRecHits.begin(); hit!=hoRecHits.end(); hit++) {
