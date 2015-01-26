@@ -14,7 +14,6 @@ B2GDQM = cms.EDAnalyzer(
         'ak4PFJets',
         'ak4PFJetsCHS',
         'ak8PFJetsCHS',
-        'ak8PFJetsCHSPruned',
         'ak8PFJetsCHSSoftDrop',
         'cmsTopTagPFJetsCHS'
         ),
