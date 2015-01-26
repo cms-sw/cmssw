@@ -11,5 +11,5 @@ OutALCARECOPromptCalibProdSiPixelAli_noDrop = cms.PSet(
 
 import copy
 
-OutALCARECOPromptCalibProdSiPixelAli=copy.deepcopy(OutALCARECOPromptCalibProd_noDrop)
+OutALCARECOPromptCalibProdSiPixelAli=copy.deepcopy(OutALCARECOPromptCalibProdSiPixelAli_noDrop)
 OutALCARECOPromptCalibProdSiPixelAli.outputCommands.insert(0, "drop *")
