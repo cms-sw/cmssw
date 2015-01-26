@@ -257,6 +257,8 @@ FASTPUEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
                                            'keep *_famosSimHits_*_*',
                                            'keep *_MuonSimHits_*_*',
-                                           'keep Traj*_*_*_*',
-                                           'keep *_generalTracks_*_*')
+                                           'drop *_generalTracksBeforeMixing_MVAVals_*',
+                                           'drop *_famosSimHits_VertexTypes_*',    
+                                           'keep *_generalTracksBeforeMixing_*_*'
+                                           )
     )
