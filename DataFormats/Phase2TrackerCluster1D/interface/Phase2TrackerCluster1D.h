@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
@@ -39,7 +38,6 @@ inline bool operator< (const Phase2TrackerCluster1D& one, const Phase2TrackerClu
     return one.firstStrip() < other.firstStrip();
 }
 
-typedef edm::DetSetVector< Phase2TrackerCluster1D > Phase2TrackerCluster1DCollection;
 typedef edmNew::DetSetVector< Phase2TrackerCluster1D > Phase2TrackerCluster1DCollectionNew;
 
 #endif 
