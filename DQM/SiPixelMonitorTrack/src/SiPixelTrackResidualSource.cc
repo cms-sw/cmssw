@@ -152,12 +152,28 @@ void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run& r, edm::EventSetup 
 }
 
 void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & iSetup){
-
+ 
   // book residual histograms in theSiPixelFolder - one (x,y) pair of histograms per det
   SiPixelFolderOrganizer theSiPixelFolder(false);
-  for (std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.begin(); 
-       pxd!=theSiPixelStructure.end(); pxd++) {
+  std::stringstream nameX, titleX, nameY, titleY;
 
+  if(ladOn){
+    iBooker.setCurrentFolder(topFolderName_+"/Barrel");
+    for (int i = 1; i <= noOfLayers; i++){
+      nameX.str(std::string()); nameX <<"siPixelTrackResidualsX_SummedLayer_" << i;
+      titleX.str(std::string()); titleX <<"Layer"<< i << "Hit-to-Track Residual in r-phi";
+      meResidualXSummedLay.push_back(iBooker.book1D(nameX.str(),titleX.str(),100,-150,150));
+      meResidualXSummedLay.at(i-1)->setAxisTitle("hit-to-track residual in r-phi (um)",1);
+      nameY.str(std::string()); nameY <<"siPixelTrackResidualsY_SummedLayer_" << i;
+      titleY.str(std::string()); titleY <<"Layer"<< i << "Hit-to-Track Residual in Z";
+      meResidualYSummedLay.push_back(iBooker.book1D(nameY.str(),titleY.str(),100,-300,300));
+      meResidualYSummedLay.at(i-1)->setAxisTitle("hit-to-track residual in z (um)",1);
+    }
+  }
+
+  for (std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.begin(); 
+       pxd!=theSiPixelStructure.end(); pxd++){
+   
     if(modOn){
       if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,0,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,reducedSet,0,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Folder Creation Failed! "; 
@@ -830,7 +846,13 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		  // fill the residual histograms 
 
 		  std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.find(detId);
-		  if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill(residual, reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);		
+		  if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill(residual, reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);	
+
+		  if(ladOn&&pxd!=theSiPixelStructure.end()){  
+		    meResidualXSummedLay.at(PixelBarrelNameUpgrade((*pxd).first).layerName()-1)->Fill(residual.x());    
+		    meResidualYSummedLay.at(PixelBarrelNameUpgrade((*pxd).first).layerName()-1)->Fill(residual.y());    
+		  }
+	
 		}//three hits
 	      }//is valid
 	    }//rechits loop
