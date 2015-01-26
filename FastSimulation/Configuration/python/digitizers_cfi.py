@@ -29,20 +29,20 @@ theDigitizers.hcal.hitsProducer = cms.string("famosSimHits")
 from FastSimulation.Tracking.recoTrackAccumulator_cfi import recoTrackAccumulator
 theDigitizers.tracker = cms.PSet(recoTrackAccumulator)
 
-# fastsim has different input for TrackingParticles
-trackingParticles = theDigitizersValid.mergedtruth
-trackingParticles.allowDifferentSimHitProcesses = True
-trackingParticles.simHitCollections = cms.PSet(
+# fastsim has different input for merged truth
+mergedtruth = theDigitizersValid.mergedtruth
+mergedtruth.allowDifferentSimHitProcesses = True
+mergedtruth.simHitCollections = cms.PSet(
         muon = cms.VInputTag( cms.InputTag('MuonSimHits','MuonDTHits'),
                        cms.InputTag('MuonSimHits','MuonCSCHits'),
                        cms.InputTag('MuonSimHits','MuonRPCHits') ),
         trackerAndPixel = cms.VInputTag( cms.InputTag('famosSimHits','TrackerHits') )
     )
-trackingParticles.simTrackCollection = cms.InputTag('famosSimHits')
-trackingParticles.simVertexCollection = cms.InputTag('famosSimHits')
+mergedtruth.simTrackCollection = cms.InputTag('famosSimHits')
+mergedtruth.simVertexCollection = cms.InputTag('famosSimHits')
 
 theDigitizersValid = theDigitizers.clone()
-theDigitizersValid.mergedTruth = cms.PSet(trackingParticles)
+theDigitizersValid.mergedtruth = cms.PSet(mergedtruth)
 
 #######################
 # ALIASES FOR DIGI AND MIXED TRACK COLLECTIONS
