@@ -74,11 +74,13 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
  return;
 }
 
-
 //======================= Destructor ===============================//
 
-CastorMonitorModule::~CastorMonitorModule(){ } 
-
+CastorMonitorModule::~CastorMonitorModule() { 
+  if (DigiMon_ != NULL) { delete DigiMon_; }
+  if (RecHitMon_ != NULL) { delete RecHitMon_; }
+  if (LedMon_ != NULL) { delete LedMon_; }
+}
 
 //========================== beginJob =============================//
 void CastorMonitorModule::beginJob(const edm::EventSetup& iSetup)
