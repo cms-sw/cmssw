@@ -396,7 +396,6 @@ JetAnalyzerAkVs7PF = cms.EDAnalyzer("JetTester_HeavyIons",
                                     RThreshold = cms.double(0.3),
                                     reverseEnergyFractionThreshold = cms.double(0.5)
 )				    			    
-'''
 
 # AntiKt5 Calo jets
 #-------------------------------------------------------------------------------
@@ -480,36 +479,37 @@ JetAnalyzerAk5PF = cms.EDAnalyzer("JetTester",
                                     matchGenPtThreshold                 = cms.double(20.0),
                                     RThreshold                     = cms.double(0.3)
                                     )
-
+'''
 hiJetValidation = cms.Sequence(
-    ak2HiCleanedGenJets
-    * ak3HiCleanedGenJets
-    * ak4HiCleanedGenJets 
-    * ak5HiCleanedGenJets
+    #ak2HiCleanedGenJets
+    ak3HiCleanedGenJets
+    #* ak4HiCleanedGenJets 
+    #* ak5HiCleanedGenJets
+
     #* iterativeCone7HiCleanedGenJets
-    * iterativeCone5HiCleanedGenJets
+    #* iterativeCone5HiCleanedGenJets
     #* JetAnalyzerICPU7Calo
-    * JetAnalyzerICPU5Calo
+    #* JetAnalyzerICPU5Calo
 
     * JetAnalyzerAkPU3Calo
-    * JetAnalyzerAkPU4Calo
-    * JetAnalyzerAkPU5Calo
+    #* JetAnalyzerAkPU4Calo
+    #* JetAnalyzerAkPU5Calo
 
     * JetAnalyzerAkPU3PF
-    * JetAnalyzerAkPU4PF
-    * JetAnalyzerAkPU5PF
+    #* JetAnalyzerAkPU4PF
+    #* JetAnalyzerAkPU5PF
     
-    * JetAnalyzerAkVs2Calo	   
+    #* JetAnalyzerAkVs2Calo
     * JetAnalyzerAkVs3Calo	   
-    * JetAnalyzerAkVs4Calo	   
-    * JetAnalyzerAkVs5Calo	   
+    #* JetAnalyzerAkVs4Calo	   
+    #* JetAnalyzerAkVs5Calo	   
     #* JetAnalyzerAkVs6Calo
     #* JetAnalyzerAkVs7Calo
     
     #* JetAnalyzerAkVs2PF
     * JetAnalyzerAkVs3PF
-    * JetAnalyzerAkVs4PF	   
-    * JetAnalyzerAkVs5PF
+    #* JetAnalyzerAkVs4PF	   
+    #* JetAnalyzerAkVs5PF
     #* JetAnalyzerAkVs6PF	   
     #* JetAnalyzerAkVs7PF
 
@@ -520,4 +520,5 @@ hiJetValidation = cms.Sequence(
     #* JetAnalyzerAk3PF
     #* JetAnalyzerAk4PF
     #* JetAnalyzerAk5PF    
+
 )

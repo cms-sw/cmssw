@@ -65,7 +65,6 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
     mPFPhi = 0;
     mPFVsPt = 0;
     mPFVsPtInitial = 0;
-    mPFVsPtEqualized = 0;
     mPFArea = 0;
     mSumPFVsPt = 0;
     mSumPFVsPtInitial = 0;
@@ -86,53 +85,53 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
     mPFVsPt_eta_phi = 0;
     mPFPt_eta_phi = 0;
 
-    mPFVsPtInitial_n5p191_n2p650 = 0;
-    mPFVsPtInitial_n2p650_n2p043 = 0;
-    mPFVsPtInitial_n2p043_n1p740 = 0;
-    mPFVsPtInitial_n1p740_n1p479 = 0;
-    mPFVsPtInitial_n1p479_n1p131 = 0;
-    mPFVsPtInitial_n1p131_n0p783 = 0;
-    mPFVsPtInitial_n0p783_n0p522 = 0;
-    mPFVsPtInitial_n0p522_0p522 = 0;
-    mPFVsPtInitial_0p522_0p783 = 0;
-    mPFVsPtInitial_0p783_1p131 = 0;
-    mPFVsPtInitial_1p131_1p479 = 0;
-    mPFVsPtInitial_1p479_1p740 = 0;
-    mPFVsPtInitial_1p740_2p043 = 0;
-    mPFVsPtInitial_2p043_2p650 = 0;
-    mPFVsPtInitial_2p650_5p191 = 0;
+    mSumPFVsPtInitial_n5p191_n2p650 = 0;
+    mSumPFVsPtInitial_n2p650_n2p043 = 0;
+    mSumPFVsPtInitial_n2p043_n1p740 = 0;
+    mSumPFVsPtInitial_n1p740_n1p479 = 0;
+    mSumPFVsPtInitial_n1p479_n1p131 = 0;
+    mSumPFVsPtInitial_n1p131_n0p783 = 0;
+    mSumPFVsPtInitial_n0p783_n0p522 = 0;
+    mSumPFVsPtInitial_n0p522_0p522 = 0;
+    mSumPFVsPtInitial_0p522_0p783 = 0;
+    mSumPFVsPtInitial_0p783_1p131 = 0;
+    mSumPFVsPtInitial_1p131_1p479 = 0;
+    mSumPFVsPtInitial_1p479_1p740 = 0;
+    mSumPFVsPtInitial_1p740_2p043 = 0;
+    mSumPFVsPtInitial_2p043_2p650 = 0;
+    mSumPFVsPtInitial_2p650_5p191 = 0;
 
-    mPFVsPt_n5p191_n2p650 = 0;
-    mPFVsPt_n2p650_n2p043 = 0;
-    mPFVsPt_n2p043_n1p740 = 0;
-    mPFVsPt_n1p740_n1p479 = 0;
-    mPFVsPt_n1p479_n1p131 = 0;
-    mPFVsPt_n1p131_n0p783 = 0;
-    mPFVsPt_n0p783_n0p522 = 0;
-    mPFVsPt_n0p522_0p522 = 0;
-    mPFVsPt_0p522_0p783 = 0;
-    mPFVsPt_0p783_1p131 = 0;
-    mPFVsPt_1p131_1p479 = 0;
-    mPFVsPt_1p479_1p740 = 0;
-    mPFVsPt_1p740_2p043 = 0;
-    mPFVsPt_2p043_2p650 = 0;
-    mPFVsPt_2p650_5p191 = 0;
+    mSumPFVsPt_n5p191_n2p650 = 0;
+    mSumPFVsPt_n2p650_n2p043 = 0;
+    mSumPFVsPt_n2p043_n1p740 = 0;
+    mSumPFVsPt_n1p740_n1p479 = 0;
+    mSumPFVsPt_n1p479_n1p131 = 0;
+    mSumPFVsPt_n1p131_n0p783 = 0;
+    mSumPFVsPt_n0p783_n0p522 = 0;
+    mSumPFVsPt_n0p522_0p522 = 0;
+    mSumPFVsPt_0p522_0p783 = 0;
+    mSumPFVsPt_0p783_1p131 = 0;
+    mSumPFVsPt_1p131_1p479 = 0;
+    mSumPFVsPt_1p479_1p740 = 0;
+    mSumPFVsPt_1p740_2p043 = 0;
+    mSumPFVsPt_2p043_2p650 = 0;
+    mSumPFVsPt_2p650_5p191 = 0;
 
-    mPFPt_n5p191_n2p650 = 0;
-    mPFPt_n2p650_n2p043 = 0;
-    mPFPt_n2p043_n1p740 = 0;
-    mPFPt_n1p740_n1p479 = 0;
-    mPFPt_n1p479_n1p131 = 0;
-    mPFPt_n1p131_n0p783 = 0;
-    mPFPt_n0p783_n0p522 = 0;
-    mPFPt_n0p522_0p522 = 0;
-    mPFPt_0p522_0p783 = 0;
-    mPFPt_0p783_1p131 = 0;
-    mPFPt_1p131_1p479 = 0;
-    mPFPt_1p479_1p740 = 0;
-    mPFPt_1p740_2p043 = 0;
-    mPFPt_2p043_2p650 = 0;
-    mPFPt_2p650_5p191 = 0;
+    mSumPFPt_n5p191_n2p650 = 0;
+    mSumPFPt_n2p650_n2p043 = 0;
+    mSumPFPt_n2p043_n1p740 = 0;
+    mSumPFPt_n1p740_n1p479 = 0;
+    mSumPFPt_n1p479_n1p131 = 0;
+    mSumPFPt_n1p131_n0p783 = 0;
+    mSumPFPt_n0p783_n0p522 = 0;
+    mSumPFPt_n0p522_0p522 = 0;
+    mSumPFPt_0p522_0p783 = 0;
+    mSumPFPt_0p783_1p131 = 0;
+    mSumPFPt_1p131_1p479 = 0;
+    mSumPFPt_1p479_1p740 = 0;
+    mSumPFPt_1p740_2p043 = 0;
+    mSumPFPt_2p043_2p650 = 0;
+    mSumPFPt_2p650_5p191 = 0;
   
   }
   if(isCaloJet){
@@ -142,8 +141,8 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
     mCaloPhi = 0;
     mCaloVsPt = 0;
     mCaloVsPtInitial = 0;
-    mCaloVsPtEqualized = 0;
-    mCaloArea = 0;  
+    mCaloArea = 0;
+    
     mSumCaloVsPt = 0;
     mSumCaloVsPtInitial = 0;
     mSumCaloPt = 0;
@@ -163,53 +162,53 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
     mCaloVsPt_eta_phi = 0;
     mCaloPt_eta_phi = 0;
 
-    mCaloVsPtInitial_n5p191_n2p650 = 0;
-    mCaloVsPtInitial_n2p650_n2p043 = 0;
-    mCaloVsPtInitial_n2p043_n1p740 = 0;
-    mCaloVsPtInitial_n1p740_n1p479 = 0;
-    mCaloVsPtInitial_n1p479_n1p131 = 0;
-    mCaloVsPtInitial_n1p131_n0p783 = 0;
-    mCaloVsPtInitial_n0p783_n0p522 = 0;
-    mCaloVsPtInitial_n0p522_0p522 = 0;
-    mCaloVsPtInitial_0p522_0p783 = 0;
-    mCaloVsPtInitial_0p783_1p131 = 0;
-    mCaloVsPtInitial_1p131_1p479 = 0;
-    mCaloVsPtInitial_1p479_1p740 = 0;
-    mCaloVsPtInitial_1p740_2p043 = 0;
-    mCaloVsPtInitial_2p043_2p650 = 0;
-    mCaloVsPtInitial_2p650_5p191 = 0;
+    mSumCaloVsPtInitial_n5p191_n2p650 = 0;
+    mSumCaloVsPtInitial_n2p650_n2p043 = 0;
+    mSumCaloVsPtInitial_n2p043_n1p740 = 0;
+    mSumCaloVsPtInitial_n1p740_n1p479 = 0;
+    mSumCaloVsPtInitial_n1p479_n1p131 = 0;
+    mSumCaloVsPtInitial_n1p131_n0p783 = 0;
+    mSumCaloVsPtInitial_n0p783_n0p522 = 0;
+    mSumCaloVsPtInitial_n0p522_0p522 = 0;
+    mSumCaloVsPtInitial_0p522_0p783 = 0;
+    mSumCaloVsPtInitial_0p783_1p131 = 0;
+    mSumCaloVsPtInitial_1p131_1p479 = 0;
+    mSumCaloVsPtInitial_1p479_1p740 = 0;
+    mSumCaloVsPtInitial_1p740_2p043 = 0;
+    mSumCaloVsPtInitial_2p043_2p650 = 0;
+    mSumCaloVsPtInitial_2p650_5p191 = 0;
 
-    mCaloVsPt_n5p191_n2p650 = 0;
-    mCaloVsPt_n2p650_n2p043 = 0;
-    mCaloVsPt_n2p043_n1p740 = 0;
-    mCaloVsPt_n1p740_n1p479 = 0;
-    mCaloVsPt_n1p479_n1p131 = 0;
-    mCaloVsPt_n1p131_n0p783 = 0;
-    mCaloVsPt_n0p783_n0p522 = 0;
-    mCaloVsPt_n0p522_0p522 = 0;
-    mCaloVsPt_0p522_0p783 = 0;
-    mCaloVsPt_0p783_1p131 = 0;
-    mCaloVsPt_1p131_1p479 = 0;
-    mCaloVsPt_1p479_1p740 = 0;
-    mCaloVsPt_1p740_2p043 = 0;
-    mCaloVsPt_2p043_2p650 = 0;
-    mCaloVsPt_2p650_5p191 = 0;
+    mSumCaloVsPt_n5p191_n2p650 = 0;
+    mSumCaloVsPt_n2p650_n2p043 = 0;
+    mSumCaloVsPt_n2p043_n1p740 = 0;
+    mSumCaloVsPt_n1p740_n1p479 = 0;
+    mSumCaloVsPt_n1p479_n1p131 = 0;
+    mSumCaloVsPt_n1p131_n0p783 = 0;
+    mSumCaloVsPt_n0p783_n0p522 = 0;
+    mSumCaloVsPt_n0p522_0p522 = 0;
+    mSumCaloVsPt_0p522_0p783 = 0;
+    mSumCaloVsPt_0p783_1p131 = 0;
+    mSumCaloVsPt_1p131_1p479 = 0;
+    mSumCaloVsPt_1p479_1p740 = 0;
+    mSumCaloVsPt_1p740_2p043 = 0;
+    mSumCaloVsPt_2p043_2p650 = 0;
+    mSumCaloVsPt_2p650_5p191 = 0;
 
-    mCaloPt_n5p191_n2p650 = 0;
-    mCaloPt_n2p650_n2p043 = 0;
-    mCaloPt_n2p043_n1p740 = 0;
-    mCaloPt_n1p740_n1p479 = 0;
-    mCaloPt_n1p479_n1p131 = 0;
-    mCaloPt_n1p131_n0p783 = 0;
-    mCaloPt_n0p783_n0p522 = 0;
-    mCaloPt_n0p522_0p522 = 0;
-    mCaloPt_0p522_0p783 = 0;
-    mCaloPt_0p783_1p131 = 0;
-    mCaloPt_1p131_1p479 = 0;
-    mCaloPt_1p479_1p740 = 0;
-    mCaloPt_1p740_2p043 = 0;
-    mCaloPt_2p043_2p650 = 0;
-    mCaloPt_2p650_5p191 = 0;
+    mSumCaloPt_n5p191_n2p650 = 0;
+    mSumCaloPt_n2p650_n2p043 = 0;
+    mSumCaloPt_n2p043_n1p740 = 0;
+    mSumCaloPt_n1p740_n1p479 = 0;
+    mSumCaloPt_n1p479_n1p131 = 0;
+    mSumCaloPt_n1p131_n0p783 = 0;
+    mSumCaloPt_n0p783_n0p522 = 0;
+    mSumCaloPt_n0p522_0p522 = 0;
+    mSumCaloPt_0p522_0p783 = 0;
+    mSumCaloPt_0p783_1p131 = 0;
+    mSumCaloPt_1p131_1p479 = 0;
+    mSumCaloPt_1p479_1p740 = 0;
+    mSumCaloPt_1p740_2p043 = 0;
+    mSumCaloPt_2p043_2p650 = 0;
+    mSumCaloPt_2p650_5p191 = 0;
   
   }
   mSumpt = 0;
@@ -262,180 +261,196 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
   {
 
     ibooker.setCurrentFolder("JetMET/JetValidation/"+mInputCollection.label());
+    
+    static const size_t ncms_hcal_edge_pseudorapidity = 82 + 1;
+    static const double cms_hcal_edge_pseudorapidity[ncms_hcal_edge_pseudorapidity] = {
+      -5.191, -4.889, -4.716, -4.538, -4.363, -4.191, -4.013,
+      -3.839, -3.664, -3.489, -3.314, -3.139, -2.964, -2.853,
+      -2.650, -2.500, -2.322, -2.172, -2.043, -1.930, -1.830,
+      -1.740, -1.653, -1.566, -1.479, -1.392, -1.305, -1.218,
+      -1.131, -1.044, -0.957, -0.879, -0.783, -0.696, -0.609,
+      -0.522, -0.435, -0.348, -0.261, -0.174, -0.087,
+      0.000,
+      0.087, 0.174, 0.261, 0.348, 0.435, 0.522, 0.609,
+      0.696, 0.783, 0.879, 0.957, 1.044, 1.131, 1.218,
+      1.305, 1.392, 1.479, 1.566, 1.653, 1.740, 1.830,
+      1.930, 2.043, 2.172, 2.322, 2.500, 2.650, 2.853,
+      2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013,
+      4.191, 4.363, 4.538, 4.716, 4.889, 5.191
+    };
+    
+    //cout<<"inside the book histograms function"<<endl;
 
     double edge_pseudorapidity[etaBins_ +1] = {-5.191, -2.650, -2.043, -1.740, -1.479, -1.131, -0.783, -0.522, 0.522, 0.783, 1.131, 1.479, 1.740, 2.043, 2.650, 5.191 };
 
-    TH2F *h2D_etabins_vs_pt2 = new TH2F("h2D_etabins_vs_pt2","",etaBins_,edge_pseudorapidity,10000,0,10000);
-    TH2F *h2D_etabins_vs_pt = new TH2F("h2D_etabins_vs_pt","",etaBins_,edge_pseudorapidity,10000,-10000,10000);
+    TH2F *h2D_etabins_vs_pt2 = new TH2F("h2D_etabins_vs_pt2","etaBins (x axis), sum pt^{2} (y axis)",etaBins_,edge_pseudorapidity,10000,0,10000);
+    TH2F *h2D_etabins_vs_pt = new TH2F("h2D_etabins_vs_pt","etaBins (x axis), sum pt (y axis)",etaBins_,edge_pseudorapidity,10000,-1000,1000);
+    TH2F *h2D_etabins_vs_phi = new TH2F("h2D_etabins_vs_phi","candidate map, eta(x axis), phi (y axis), pt (z axis)",ncms_hcal_edge_pseudorapidity-1,cms_hcal_edge_pseudorapidity,36,-TMath::Pi(),TMath::Pi());
 
     if(isPFJet){
 
       mNPFpart         = ibooker.book1D("NPFpart","No of particle flow candidates",1000,0,10000);
-      mPFPt            = ibooker.book1D("PFPt","PF candidate p_{T}",100,0,1000);
+      mPFPt            = ibooker.book1D("PFPt","PF candidate p_{T}",1000,-5000,5000);
       mPFEta           = ibooker.book1D("PFEta","PF candidate #eta",120,-6,6);
       mPFPhi           = ibooker.book1D("PFPhi","PF candidate #phi",70,-3.5,3.5);
-      mPFVsPt          = ibooker.book1D("PFVsPt","Vs PF candidate p_{T}",100,0,1000);
-      mPFVsPtInitial   = ibooker.book1D("PFVsPtInitial","Vs background subtracted PF candidate p_{T}",100,0,1000);
-      mPFVsPtEqualized = ibooker.book1D("PFVsPtEqualized","Vs equalized subtracted PF candidate p_{T}",100,0,1000);
+      mPFVsPt          = ibooker.book1D("PFVsPt","Vs PF candidate p_{T}",1000,-5000,5000);
+      mPFVsPtInitial   = ibooker.book1D("PFVsPtInitial","Vs background subtracted PF candidate p_{T}",1000,-5000,5000);
       mPFArea          = ibooker.book1D("PFArea","VS PF candidate area",100,0,4);
       
-      mSumPFVsPt       = ibooker.book1D("SumPFVsPt","Sum of PF VS p_T ",10000,-10000,10000);
-      mSumPFVsPtInitial= ibooker.book1D("SumPFVsPtInitial","Sum PF VS p_T initial",10000,-10000,10000);
-      mSumPFPt         = ibooker.book1D("SumPFPt","",10000,-10000,10000);
+      mSumPFVsPt       = ibooker.book1D("SumPFVsPt","Sum of final PF VS p_{T}",1000,-10000,10000);
+      mSumPFVsPtInitial= ibooker.book1D("SumPFVsPtInitial","Sum PF VS p_{T} after subtraction",1000,-10000,10000);
+      mSumPFPt         = ibooker.book1D("SumPFPt","Sum of initial PF p_{T}",1000,-10000,10000);
       mSumPFVsPt_eta   = ibooker.book2D("SumPFVsPt_etaBins",h2D_etabins_vs_pt);
       mSumPFVsPtInitial_eta   = ibooker.book2D("SumPFVsPtInitial_etaBins",h2D_etabins_vs_pt);
       mSumPFPt_eta     = ibooker.book2D("SumPFPt_etaBins",h2D_etabins_vs_pt);
 
-      mSumSquaredPFVsPt       = ibooker.book1D("SumSquaredPFVsPt"," ",10000,-10000,10000);
-      mSumSquaredPFVsPtInitial= ibooker.book1D("SumSquaredPFVsPtInitial"," ",10000,-10000,10000);
-      mSumSquaredPFPt         = ibooker.book1D("SumSquaredPFPt"," ",10000,-10000,10000);
+      mSumSquaredPFVsPt       = ibooker.book1D("SumSquaredPFVsPt","Sum PF Vs p_{T} square",10000,0,10000);
+      mSumSquaredPFVsPtInitial= ibooker.book1D("SumSquaredPFVsPtInitial","Sum PF Vs p_{T} square after subtraction ",10000,0,10000);
+      mSumSquaredPFPt         = ibooker.book1D("SumSquaredPFPt","Sum of initial PF p_{T} squared",10000,0,10000);
       mSumSquaredPFVsPt_eta   = ibooker.book2D("SumSquaredPFVsPt_etaBins",h2D_etabins_vs_pt2);
       mSumSquaredPFVsPtInitial_eta   = ibooker.book2D("SumSquaredPFVsPtInitial_etaBins",h2D_etabins_vs_pt2);
       mSumSquaredPFPt_eta     = ibooker.book2D("SumSquaredPFPt_etaBins",h2D_etabins_vs_pt2);
 
-      mSumPFVsPtInitial_HF    = ibooker.book2D("SumPFVsPtInitial_HF","",2000,-10000,10000,1000,0,10000);
-      mSumPFVsPt_HF    = ibooker.book2D("SumPFVsPt_HF","",2000,-10000,10000,1000,0,10000);
-      mSumPFPt_HF    = ibooker.book2D("SumPFPt_HF","",2000,-10000,10000,1000,0,10000);
-      mPFVsPtInitial_eta_phi    = ibooker.book2D("SumPFVsPtInitial_eta_phi","",120,-6,6,70,-3.5,3.5);
-      mPFVsPt_eta_phi    = ibooker.book2D("SumPFVsPt_eta_phi","",120,-6,6,70,-3.5,3.5);
-      mPFPt_eta_phi    = ibooker.book2D("SumPFPt_eta_phi","",120,-6,6,70,-3.5,3.5);
+      mSumPFVsPtInitial_HF    = ibooker.book2D("SumPFVsPtInitial_HF","HF Energy (y axis) vs Sum PF Vs p_{T} before subtraction (x axis)",1000,-1000,1000,1000,0,10000);
+      mSumPFVsPt_HF    = ibooker.book2D("SumPFVsPt_HF","HF energy (y axis) vs Sum PF Vs p_{T} final (x axis)",1000,-1000,1000,1000,0,10000);
+      mSumPFPt_HF    = ibooker.book2D("SumPFPt_HF","HF energy (y axis) vs Sum initial PF p_{T} (x axis)",1000,-1000,1000,1000,0,10000);
+      mPFVsPtInitial_eta_phi    = ibooker.book2D("PFVsPtInitial_eta_phi",h2D_etabins_vs_phi);
+      mPFVsPt_eta_phi    = ibooker.book2D("PFVsPt_eta_phi",h2D_etabins_vs_phi);
+      mPFPt_eta_phi    = ibooker.book2D("PFPt_eta_phi",h2D_etabins_vs_phi);
 
+      mSumPFVsPtInitial_n5p191_n2p650 = ibooker.book1D("mSumPFVsPtInitial_n5p191_n2p650","Sum PFVsPt Initial variable in the eta range -5.191 to -2.650",1000,-1000,1000);
+      mSumPFVsPtInitial_n2p650_n2p043 = ibooker.book1D("mSumPFVsPtInitial_n2p650_n2p043","Sum PFVsPt Initial variable in the eta range -2.650 to -2.043 ",1000,-1000,1000);
+      mSumPFVsPtInitial_n2p043_n1p740 = ibooker.book1D("mSumPFVsPtInitial_n2p043_n1p740","Sum PFVsPt Initial variable in the eta range -2.043 to -1.740",1000,-1000,1000);
+      mSumPFVsPtInitial_n1p740_n1p479 = ibooker.book1D("mSumPFVsPtInitial_n1p740_n1p479","Sum PFVsPt Initial variable in the eta range -1.740 to -1.479",1000,-1000,1000);
+      mSumPFVsPtInitial_n1p479_n1p131 = ibooker.book1D("mSumPFVsPtInitial_n1p479_n1p131","Sum PFVsPt Initial variable in the eta range -1.479 to -1.131",1000,-1000,1000);
+      mSumPFVsPtInitial_n1p131_n0p783 = ibooker.book1D("mSumPFVsPtInitial_n1p131_n0p783","Sum PFVsPt Initial variable in the eta range -1.131 to -0.783",1000,-1000,1000);
+      mSumPFVsPtInitial_n0p783_n0p522 = ibooker.book1D("mSumPFVsPtInitial_n0p783_n0p522","Sum PFVsPt Initial variable in the eta range -0.783 to -0.522",1000,-1000,1000);
+      mSumPFVsPtInitial_n0p522_0p522 = ibooker.book1D("mSumPFVsPtInitial_n0p522_0p522","Sum PFVsPt Initial variable in the eta range -0.522 to 0.522",1000,-1000,1000);
+      mSumPFVsPtInitial_0p522_0p783 = ibooker.book1D("mSumPFVsPtInitial_0p522_0p783","Sum PFVsPt Initial variable in the eta range 0.522 to 0.783",1000,-1000,1000);
+      mSumPFVsPtInitial_0p783_1p131 = ibooker.book1D("mSumPFVsPtInitial_0p783_1p131","Sum PFVsPt Initial variable in the eta range 0.783 to 1.131",1000,-1000,1000);
+      mSumPFVsPtInitial_1p131_1p479 = ibooker.book1D("mSumPFVsPtInitial_1p131_1p479","Sum PFVsPt Initial variable in the eta range 1.131 to 1.479",1000,-1000,1000);
+      mSumPFVsPtInitial_1p479_1p740 = ibooker.book1D("mSumPFVsPtInitial_1p479_1p740","Sum PFVsPt Initial variable in the eta range 1.479 to 1.740",1000,-1000,1000);
+      mSumPFVsPtInitial_1p740_2p043 = ibooker.book1D("mSumPFVsPtInitial_1p740_2p043","Sum PFVsPt Initial variable in the eta range 1.740 to 2.043",1000,-1000,1000);
+      mSumPFVsPtInitial_2p043_2p650 = ibooker.book1D("mSumPFVsPtInitial_2p043_2p650","Sum PFVsPt Initial variable in the eta range 2.043 to 2.650",1000,-1000,1000);
+      mSumPFVsPtInitial_2p650_5p191 = ibooker.book1D("mSumPFVsPtInitial_2p650_5p191","Sum PFVsPt Initial variable in the eta range 2.650 to 5.191",1000,-1000,1000);
 
-      mPFVsPtInitial_n5p191_n2p650 = ibooker.book1D("mPFVsPtInitial_n5p191_n2p650","Sum PFVsPt Initial variable in the eta range -5.191 to -2.650",100,0,1000);
-      mPFVsPtInitial_n2p650_n2p043 = ibooker.book1D("mPFVsPtInitial_n2p650_n2p043","Sum PFVsPt Initial variable in the eta range -2.650 to -2.043 ",100,0,1000);
-      mPFVsPtInitial_n2p043_n1p740 = ibooker.book1D("mPFVsPtInitial_n2p043_n1p740","Sum PFVsPt Initial variable in the eta range -2.043 to -1.740",100,0,1000);
-      mPFVsPtInitial_n1p740_n1p479 = ibooker.book1D("mPFVsPtInitial_n1p740_n1p479","Sum PFVsPt Initial variable in the eta range -1.740 to -1.479",100,0,1000);
-      mPFVsPtInitial_n1p479_n1p131 = ibooker.book1D("mPFVsPtInitial_n1p479_n1p131","Sum PFVsPt Initial variable in the eta range -1.479 to -1.131",100,0,1000);
-      mPFVsPtInitial_n1p131_n0p783 = ibooker.book1D("mPFVsPtInitial_n1p131_n0p783","Sum PFVsPt Initial variable in the eta range -1.131 to -0.783",100,0,1000);
-      mPFVsPtInitial_n0p783_n0p522 = ibooker.book1D("mPFVsPtInitial_n0p783_n0p522","Sum PFVsPt Initial variable in the eta range -0.783 to -0.522",100,0,1000);
-      mPFVsPtInitial_n0p522_0p522 = ibooker.book1D("mPFVsPtInitial_n0p522_0p522","Sum PFVsPt Initial variable in the eta range -0.522 to 0.522",100,0,1000);
-      mPFVsPtInitial_0p522_0p783 = ibooker.book1D("mPFVsPtInitial_0p522_0p783","Sum PFVsPt Initial variable in the eta range 0.522 to 0.783",100,0,1000);
-      mPFVsPtInitial_0p783_1p131 = ibooker.book1D("mPFVsPtInitial_0p783_1p131","Sum PFVsPt Initial variable in the eta range 0.783 to 1.131",100,0,1000);
-      mPFVsPtInitial_1p131_1p479 = ibooker.book1D("mPFVsPtInitial_1p131_1p479","Sum PFVsPt Initial variable in the eta range 1.131 to 1.479",100,0,1000);
-      mPFVsPtInitial_1p479_1p740 = ibooker.book1D("mPFVsPtInitial_1p479_1p740","Sum PFVsPt Initial variable in the eta range 1.479 to 1.740",100,0,1000);
-      mPFVsPtInitial_1p740_2p043 = ibooker.book1D("mPFVsPtInitial_1p740_2p043","Sum PFVsPt Initial variable in the eta range 1.740 to 2.043",100,0,1000);
-      mPFVsPtInitial_2p043_2p650 = ibooker.book1D("mPFVsPtInitial_2p043_2p650","Sum PFVsPt Initial variable in the eta range 2.043 to 2.650",100,0,1000);
-      mPFVsPtInitial_2p650_5p191 = ibooker.book1D("mPFVsPtInitial_2p650_5p191","Sum PFVsPt Initial variable in the eta range 2.650 to 5.191",100,0,1000);
+      mSumPFVsPt_n5p191_n2p650 = ibooker.book1D("mSumPFVsPt_n5p191_n2p650","Sum PFVsPt  variable in the eta range -5.191 to -2.650",1000,-1000,1000);
+      mSumPFVsPt_n2p650_n2p043 = ibooker.book1D("mSumPFVsPt_n2p650_n2p043","Sum PFVsPt  variable in the eta range -2.650 to -2.043 ",1000,-1000,1000);
+      mSumPFVsPt_n2p043_n1p740 = ibooker.book1D("mSumPFVsPt_n2p043_n1p740","Sum PFVsPt  variable in the eta range -2.043 to -1.740",1000,-1000,1000);
+      mSumPFVsPt_n1p740_n1p479 = ibooker.book1D("mSumPFVsPt_n1p740_n1p479","Sum PFVsPt  variable in the eta range -1.740 to -1.479",1000,-1000,1000);
+      mSumPFVsPt_n1p479_n1p131 = ibooker.book1D("mSumPFVsPt_n1p479_n1p131","Sum PFVsPt  variable in the eta range -1.479 to -1.131",1000,-1000,1000);
+      mSumPFVsPt_n1p131_n0p783 = ibooker.book1D("mSumPFVsPt_n1p131_n0p783","Sum PFVsPt  variable in the eta range -1.131 to -0.783",1000,-1000,1000);
+      mSumPFVsPt_n0p783_n0p522 = ibooker.book1D("mSumPFVsPt_n0p783_n0p522","Sum PFVsPt  variable in the eta range -0.783 to -0.522",1000,-1000,1000);
+      mSumPFVsPt_n0p522_0p522 = ibooker.book1D("mSumPFVsPt_n0p522_0p522","Sum PFVsPt  variable in the eta range -0.522 to 0.522",1000,-1000,1000);
+      mSumPFVsPt_0p522_0p783 = ibooker.book1D("mSumPFVsPt_0p522_0p783","Sum PFVsPt  variable in the eta range 0.522 to 0.783",1000,-1000,1000);
+      mSumPFVsPt_0p783_1p131 = ibooker.book1D("mSumPFVsPt_0p783_1p131","Sum PFVsPt  variable in the eta range 0.783 to 1.131",1000,-1000,1000);
+      mSumPFVsPt_1p131_1p479 = ibooker.book1D("mSumPFVsPt_1p131_1p479","Sum PFVsPt  variable in the eta range 1.131 to 1.479",1000,-1000,1000);
+      mSumPFVsPt_1p479_1p740 = ibooker.book1D("mSumPFVsPt_1p479_1p740","Sum PFVsPt  variable in the eta range 1.479 to 1.740",1000,-1000,1000);
+      mSumPFVsPt_1p740_2p043 = ibooker.book1D("mSumPFVsPt_1p740_2p043","Sum PFVsPt  variable in the eta range 1.740 to 2.043",1000,-1000,1000);
+      mSumPFVsPt_2p043_2p650 = ibooker.book1D("mSumPFVsPt_2p043_2p650","Sum PFVsPt  variable in the eta range 2.043 to 2.650",1000,-1000,1000);
+      mSumPFVsPt_2p650_5p191 = ibooker.book1D("mSumPFVsPt_2p650_5p191","Sum PFVsPt  variable in the eta range 2.650 to 5.191",1000,-1000,1000);
 
-      mPFVsPt_n5p191_n2p650 = ibooker.book1D("mPFVsPt_n5p191_n2p650","Sum PFVsPt  variable in the eta range -5.191 to -2.650",100,0,1000);
-      mPFVsPt_n2p650_n2p043 = ibooker.book1D("mPFVsPt_n2p650_n2p043","Sum PFVsPt  variable in the eta range -2.650 to -2.043 ",100,0,1000);
-      mPFVsPt_n2p043_n1p740 = ibooker.book1D("mPFVsPt_n2p043_n1p740","Sum PFVsPt  variable in the eta range -2.043 to -1.740",100,0,1000);
-      mPFVsPt_n1p740_n1p479 = ibooker.book1D("mPFVsPt_n1p740_n1p479","Sum PFVsPt  variable in the eta range -1.740 to -1.479",100,0,1000);
-      mPFVsPt_n1p479_n1p131 = ibooker.book1D("mPFVsPt_n1p479_n1p131","Sum PFVsPt  variable in the eta range -1.479 to -1.131",100,0,1000);
-      mPFVsPt_n1p131_n0p783 = ibooker.book1D("mPFVsPt_n1p131_n0p783","Sum PFVsPt  variable in the eta range -1.131 to -0.783",100,0,1000);
-      mPFVsPt_n0p783_n0p522 = ibooker.book1D("mPFVsPt_n0p783_n0p522","Sum PFVsPt  variable in the eta range -0.783 to -0.522",100,0,1000);
-      mPFVsPt_n0p522_0p522 = ibooker.book1D("mPFVsPt_n0p522_0p522","Sum PFVsPt  variable in the eta range -0.522 to 0.522",100,0,1000);
-      mPFVsPt_0p522_0p783 = ibooker.book1D("mPFVsPt_0p522_0p783","Sum PFVsPt  variable in the eta range 0.522 to 0.783",100,0,1000);
-      mPFVsPt_0p783_1p131 = ibooker.book1D("mPFVsPt_0p783_1p131","Sum PFVsPt  variable in the eta range 0.783 to 1.131",100,0,1000);
-      mPFVsPt_1p131_1p479 = ibooker.book1D("mPFVsPt_1p131_1p479","Sum PFVsPt  variable in the eta range 1.131 to 1.479",100,0,1000);
-      mPFVsPt_1p479_1p740 = ibooker.book1D("mPFVsPt_1p479_1p740","Sum PFVsPt  variable in the eta range 1.479 to 1.740",100,0,1000);
-      mPFVsPt_1p740_2p043 = ibooker.book1D("mPFVsPt_1p740_2p043","Sum PFVsPt  variable in the eta range 1.740 to 2.043",100,0,1000);
-      mPFVsPt_2p043_2p650 = ibooker.book1D("mPFVsPt_2p043_2p650","Sum PFVsPt  variable in the eta range 2.043 to 2.650",100,0,1000);
-      mPFVsPt_2p650_5p191 = ibooker.book1D("mPFVsPt_2p650_5p191","Sum PFVsPt  variable in the eta range 2.650 to 5.191",100,0,1000);
-
-      mPFPt_n5p191_n2p650 = ibooker.book1D("mPFPt_n5p191_n2p650","Sum PFVsPt Initial variable in the eta range -5.191 to -2.650",100,0,1000);
-      mPFPt_n2p650_n2p043 = ibooker.book1D("mPFPt_n2p650_n2p043","Sum PFVsPt Initial variable in the eta range -2.650 to -2.043 ",100,0,1000);
-      mPFPt_n2p043_n1p740 = ibooker.book1D("mPFPt_n2p043_n1p740","Sum PFVsPt Initial variable in the eta range -2.043 to -1.740",100,0,1000);
-      mPFPt_n1p740_n1p479 = ibooker.book1D("mPFPt_n1p740_n1p479","Sum PFVsPt Initial variable in the eta range -1.740 to -1.479",100,0,1000);
-      mPFPt_n1p479_n1p131 = ibooker.book1D("mPFPt_n1p479_n1p131","Sum PFVsPt Initial variable in the eta range -1.479 to -1.131",100,0,1000);
-      mPFPt_n1p131_n0p783 = ibooker.book1D("mPFPt_n1p131_n0p783","Sum PFVsPt Initial variable in the eta range -1.131 to -0.783",100,0,1000);
-      mPFPt_n0p783_n0p522 = ibooker.book1D("mPFPt_n0p783_n0p522","Sum PFVsPt Initial variable in the eta range -0.783 to -0.522",100,0,1000);
-      mPFPt_n0p522_0p522 = ibooker.book1D("mPFPt_n0p522_0p522","Sum PFVsPt Initial variable in the eta range -0.522 to 0.522",100,0,1000);
-      mPFPt_0p522_0p783 = ibooker.book1D("mPFPt_0p522_0p783","Sum PFVsPt Initial variable in the eta range 0.522 to 0.783",100,0,1000);
-      mPFPt_0p783_1p131 = ibooker.book1D("mPFPt_0p783_1p131","Sum PFVsPt Initial variable in the eta range 0.783 to 1.131",100,0,1000);
-      mPFPt_1p131_1p479 = ibooker.book1D("mPFPt_1p131_1p479","Sum PFVsPt Initial variable in the eta range 1.131 to 1.479",100,0,1000);
-      mPFPt_1p479_1p740 = ibooker.book1D("mPFPt_1p479_1p740","Sum PFVsPt Initial variable in the eta range 1.479 to 1.740",100,0,1000);
-      mPFPt_1p740_2p043 = ibooker.book1D("mPFPt_1p740_2p043","Sum PFVsPt Initial variable in the eta range 1.740 to 2.043",100,0,1000);
-      mPFPt_2p043_2p650 = ibooker.book1D("mPFPt_2p043_2p650","Sum PFVsPt Initial variable in the eta range 2.043 to 2.650",100,0,1000);
-      mPFPt_2p650_5p191 = ibooker.book1D("mPFPt_2p650_5p191","Sum PFVsPt Initial variable in the eta range 2.650 to 5.191",100,0,1000);
+      mSumPFPt_n5p191_n2p650 = ibooker.book1D("mSumPFPt_n5p191_n2p650","Sum PFPt  in the eta range -5.191 to -2.650",1000,-1000,1000);
+      mSumPFPt_n2p650_n2p043 = ibooker.book1D("mSumPFPt_n2p650_n2p043","Sum PFPt  in the eta range -2.650 to -2.043 ",1000,-1000,1000);
+      mSumPFPt_n2p043_n1p740 = ibooker.book1D("mSumPFPt_n2p043_n1p740","Sum PFPt  in the eta range -2.043 to -1.740",1000,-1000,1000);
+      mSumPFPt_n1p740_n1p479 = ibooker.book1D("mSumPFPt_n1p740_n1p479","Sum PFPt  in the eta range -1.740 to -1.479",1000,-1000,1000);
+      mSumPFPt_n1p479_n1p131 = ibooker.book1D("mSumPFPt_n1p479_n1p131","Sum PFPt  in the eta range -1.479 to -1.131",1000,-1000,1000);
+      mSumPFPt_n1p131_n0p783 = ibooker.book1D("mSumPFPt_n1p131_n0p783","Sum PFPt  in the eta range -1.131 to -0.783",1000,-1000,1000);
+      mSumPFPt_n0p783_n0p522 = ibooker.book1D("mSumPFPt_n0p783_n0p522","Sum PFPt  in the eta range -0.783 to -0.522",1000,-1000,1000);
+      mSumPFPt_n0p522_0p522 = ibooker.book1D("mSumPFPt_n0p522_0p522","Sum PFPt  in the eta range -0.522 to 0.522",1000,-1000,1000);
+      mSumPFPt_0p522_0p783 = ibooker.book1D("mSumPFPt_0p522_0p783","Sum PFPt  in the eta range 0.522 to 0.783",1000,-1000,1000);
+      mSumPFPt_0p783_1p131 = ibooker.book1D("mSumPFPt_0p783_1p131","Sum PFPt  in the eta range 0.783 to 1.131",1000,-1000,1000);
+      mSumPFPt_1p131_1p479 = ibooker.book1D("mSumPFPt_1p131_1p479","Sum PFPt  in the eta range 1.131 to 1.479",1000,-1000,1000);
+      mSumPFPt_1p479_1p740 = ibooker.book1D("mSumPFPt_1p479_1p740","Sum PFPt  in the eta range 1.479 to 1.740",1000,-1000,1000);
+      mSumPFPt_1p740_2p043 = ibooker.book1D("mSumPFPt_1p740_2p043","Sum PFPt  in the eta range 1.740 to 2.043",1000,-1000,1000);
+      mSumPFPt_2p043_2p650 = ibooker.book1D("mSumPFPt_2p043_2p650","Sum PFPt  in the eta range 2.043 to 2.650",1000,-1000,1000);
+      mSumPFPt_2p650_5p191 = ibooker.book1D("mSumPFPt_2p650_5p191","Sum PFPt  in the eta range 2.650 to 5.191",1000,-1000,1000);
       
     }
 
     if(isCaloJet){
 
       mNCalopart         = ibooker.book1D("NCalopart","No of particle flow candidates",1000,0,10000);
-      mCaloPt            = ibooker.book1D("CaloPt","Calo candidate p_{T}",100,0,1000);
+      mCaloPt            = ibooker.book1D("CaloPt","Calo candidate p_{T}",1000,-5000,5000);
       mCaloEta           = ibooker.book1D("CaloEta","Calo candidate #eta",120,-6,6);
       mCaloPhi           = ibooker.book1D("CaloPhi","Calo candidate #phi",70,-3.5,3.5);
-      mCaloVsPt          = ibooker.book1D("CaloVsPt","Vs Calo candidate p_{T}",100,0,1000);
-      mCaloVsPtInitial   = ibooker.book1D("CaloVsPtInitial","Vs background subtracted Calo candidate p_{T}",100,0,1000);
-      mCaloVsPtEqualized = ibooker.book1D("CaloVsPtEqualized","Vs equalized subtracted Calo candidate p_{T}",100,0,1000);
+      mCaloVsPt          = ibooker.book1D("CaloVsPt","Vs Calo candidate p_{T}",1000,-5000,5000);
+      mCaloVsPtInitial   = ibooker.book1D("CaloVsPtInitial","Vs background subtracted Calo candidate p_{T}",1000,-5000,5000);
       mCaloArea          = ibooker.book1D("CaloArea","VS Calo candidate area",100,0,4);
       
-      mSumCaloVsPt       = ibooker.book1D("SumCaloVsPt","Sum of Calo VS p_T ",10000,-10000,10000);
-      mSumCaloVsPtInitial= ibooker.book1D("SumCaloVsPtInitial","Sum Calo VS p_T initial",10000,-10000,10000);
-      mSumCaloPt         = ibooker.book1D("SumCaloPt","",10000,-10000,10000);
+      mSumCaloVsPt       = ibooker.book1D("SumCaloVsPt","Sum of final Calo VS p_{T} ",1000,-10000,10000);
+      mSumCaloVsPtInitial= ibooker.book1D("SumCaloVsPtInitial","Sum Calo VS p_{T} after subtraction",1000,-10000,10000);
+      mSumCaloPt         = ibooker.book1D("SumCaloPt","Sum Calo p_{T}",1000,-10000,10000);
       mSumCaloVsPt_eta   = ibooker.book2D("SumCaloVsPt_etaBins",h2D_etabins_vs_pt);
       mSumCaloVsPtInitial_eta   = ibooker.book2D("SumCaloVsPtInitial_etaBins",h2D_etabins_vs_pt);
       mSumCaloPt_eta     = ibooker.book2D("SumCaloPt_etaBins",h2D_etabins_vs_pt);
-
-      mSumSquaredCaloVsPt       = ibooker.book1D("SumSquaredCaloVsPt","",10000,-10000,10000);
-      mSumSquaredCaloVsPtInitial= ibooker.book1D("SumSquaredCaloVsPtInitial","",10000,-10000,10000);
-      mSumSquaredCaloPt         = ibooker.book1D("SumSquaredCaloPt","",10000,-10000,10000);
+      
+      mSumSquaredCaloVsPt       = ibooker.book1D("SumSquaredCaloVsPt","Sum of final Calo VS p_{T} squared",10000,0,10000);
+      mSumSquaredCaloVsPtInitial= ibooker.book1D("SumSquaredCaloVsPtInitial","Sum of subtracted Calo VS p_{T} squared",10000,0,10000);
+      mSumSquaredCaloPt         = ibooker.book1D("SumSquaredCaloPt","Sum of initial Calo tower p_{T} squared",10000,0,10000);
       mSumSquaredCaloVsPt_eta   = ibooker.book2D("SumSquaredCaloVsPt_etaBins",h2D_etabins_vs_pt2);
       mSumSquaredCaloVsPtInitial_eta   = ibooker.book2D("SumSquaredCaloVsPtInitial_etaBins",h2D_etabins_vs_pt2);
       mSumSquaredCaloPt_eta     = ibooker.book2D("SumSquaredCaloPt_etaBins",h2D_etabins_vs_pt2);
 
-      mSumCaloVsPtInitial_HF    = ibooker.book2D("SumCaloVsPtInitial_HF","",2000,-10000,10000,1000,0,10000);
-      mSumCaloVsPt_HF    = ibooker.book2D("SumCaloVsPt_HF","",2000,-10000,10000,1000,0,10000);
-      mSumCaloPt_HF    = ibooker.book2D("SumCaloPt_HF","",2000,-10000,10000,1000,0,10000);
-      mCaloVsPtInitial_eta_phi    = ibooker.book2D("SumCaloVsPtInitial_eta_phi","",120,-6,6,70,-3.5,3.5);
-      mCaloVsPt_eta_phi    = ibooker.book2D("SumCaloVsPt_eta_phi","",120,-6,6,70,-3.5,3.5);
-      mCaloPt_eta_phi    = ibooker.book2D("SumCaloPt_eta_phi","",120,-6,6,70,-3.5,3.5);
+      mSumCaloVsPtInitial_HF    = ibooker.book2D("SumCaloVsPtInitial_HF","HF Energy (y axis) vs Sum Calo Vs p_{T} before subtraction (x axis)",1000,-1000,1000,1000,0,10000);
+      mSumCaloVsPt_HF    = ibooker.book2D("SumCaloVsPt_HF","HF Energy (y axis) vs Sum Calo Vs p_{T} (x axis)",1000,-1000,1000,1000,0,10000);
+      mSumCaloPt_HF    = ibooker.book2D("SumCaloPt_HF","HF Energy (y axis) vs Sum Calo tower p_{T}",1000,-1000,1000,1000,0,10000);
+      mCaloVsPtInitial_eta_phi    = ibooker.book2D("CaloVsPtInitial_eta_phi",h2D_etabins_vs_phi);
+      mCaloVsPt_eta_phi    = ibooker.book2D("CaloVsPt_eta_phi",h2D_etabins_vs_phi);
+      mCaloPt_eta_phi    = ibooker.book2D("CaloPt_eta_phi",h2D_etabins_vs_phi);
 
+      mSumCaloVsPtInitial_n5p191_n2p650 = ibooker.book1D("mSumCaloVsPtInitial_n5p191_n2p650","Sum CaloVsPt Initial variable in the eta range -5.191 to -2.650",1000,-1000,1000);
+      mSumCaloVsPtInitial_n2p650_n2p043 = ibooker.book1D("mSumCaloVsPtInitial_n2p650_n2p043","Sum CaloVsPt Initial variable in the eta range -2.650 to -2.043 ",1000,-1000,1000);
+      mSumCaloVsPtInitial_n2p043_n1p740 = ibooker.book1D("mSumCaloVsPtInitial_n2p043_n1p740","Sum CaloVsPt Initial variable in the eta range -2.043 to -1.740",1000,-1000,1000);
+      mSumCaloVsPtInitial_n1p740_n1p479 = ibooker.book1D("mSumCaloVsPtInitial_n1p740_n1p479","Sum CaloVsPt Initial variable in the eta range -1.740 to -1.479",1000,-1000,1000);
+      mSumCaloVsPtInitial_n1p479_n1p131 = ibooker.book1D("mSumCaloVsPtInitial_n1p479_n1p131","Sum CaloVsPt Initial variable in the eta range -1.479 to -1.131",1000,-1000,1000);
+      mSumCaloVsPtInitial_n1p131_n0p783 = ibooker.book1D("mSumCaloVsPtInitial_n1p131_n0p783","Sum CaloVsPt Initial variable in the eta range -1.131 to -0.783",1000,-1000,1000);
+      mSumCaloVsPtInitial_n0p783_n0p522 = ibooker.book1D("mSumCaloVsPtInitial_n0p783_n0p522","Sum CaloVsPt Initial variable in the eta range -0.783 to -0.522",1000,-1000,1000);
+      mSumCaloVsPtInitial_n0p522_0p522 = ibooker.book1D("mSumCaloVsPtInitial_n0p522_0p522","Sum CaloVsPt Initial variable in the eta range -0.522 to 0.522",1000,-1000,1000);
+      mSumCaloVsPtInitial_0p522_0p783 = ibooker.book1D("mSumCaloVsPtInitial_0p522_0p783","Sum CaloVsPt Initial variable in the eta range 0.522 to 0.783",1000,-1000,1000);
+      mSumCaloVsPtInitial_0p783_1p131 = ibooker.book1D("mSumCaloVsPtInitial_0p783_1p131","Sum CaloVsPt Initial variable in the eta range 0.783 to 1.131",1000,-1000,1000);
+      mSumCaloVsPtInitial_1p131_1p479 = ibooker.book1D("mSumCaloVsPtInitial_1p131_1p479","Sum CaloVsPt Initial variable in the eta range 1.131 to 1.479",1000,-1000,1000);
+      mSumCaloVsPtInitial_1p479_1p740 = ibooker.book1D("mSumCaloVsPtInitial_1p479_1p740","Sum CaloVsPt Initial variable in the eta range 1.479 to 1.740",1000,-1000,1000);
+      mSumCaloVsPtInitial_1p740_2p043 = ibooker.book1D("mSumCaloVsPtInitial_1p740_2p043","Sum CaloVsPt Initial variable in the eta range 1.740 to 2.043",1000,-1000,1000);
+      mSumCaloVsPtInitial_2p043_2p650 = ibooker.book1D("mSumCaloVsPtInitial_2p043_2p650","Sum CaloVsPt Initial variable in the eta range 2.043 to 2.650",1000,-1000,1000);
+      mSumCaloVsPtInitial_2p650_5p191 = ibooker.book1D("mSumCaloVsPtInitial_2p650_5p191","Sum CaloVsPt Initial variable in the eta range 2.650 to 5.191",1000,-1000,1000);
 
-      mCaloVsPtInitial_n5p191_n2p650 = ibooker.book1D("mCaloVsPtInitial_n5p191_n2p650","Sum CaloVsPt Initial variable in the eta range -5.191 to -2.650",100,0,1000);
-      mCaloVsPtInitial_n2p650_n2p043 = ibooker.book1D("mCaloVsPtInitial_n2p650_n2p043","Sum CaloVsPt Initial variable in the eta range -2.650 to -2.043 ",100,0,1000);
-      mCaloVsPtInitial_n2p043_n1p740 = ibooker.book1D("mCaloVsPtInitial_n2p043_n1p740","Sum CaloVsPt Initial variable in the eta range -2.043 to -1.740",100,0,1000);
-      mCaloVsPtInitial_n1p740_n1p479 = ibooker.book1D("mCaloVsPtInitial_n1p740_n1p479","Sum CaloVsPt Initial variable in the eta range -1.740 to -1.479",100,0,1000);
-      mCaloVsPtInitial_n1p479_n1p131 = ibooker.book1D("mCaloVsPtInitial_n1p479_n1p131","Sum CaloVsPt Initial variable in the eta range -1.479 to -1.131",100,0,1000);
-      mCaloVsPtInitial_n1p131_n0p783 = ibooker.book1D("mCaloVsPtInitial_n1p131_n0p783","Sum CaloVsPt Initial variable in the eta range -1.131 to -0.783",100,0,1000);
-      mCaloVsPtInitial_n0p783_n0p522 = ibooker.book1D("mCaloVsPtInitial_n0p783_n0p522","Sum CaloVsPt Initial variable in the eta range -0.783 to -0.522",100,0,1000);
-      mCaloVsPtInitial_n0p522_0p522 = ibooker.book1D("mCaloVsPtInitial_n0p522_0p522","Sum CaloVsPt Initial variable in the eta range -0.522 to 0.522",100,0,1000);
-      mCaloVsPtInitial_0p522_0p783 = ibooker.book1D("mCaloVsPtInitial_0p522_0p783","Sum CaloVsPt Initial variable in the eta range 0.522 to 0.783",100,0,1000);
-      mCaloVsPtInitial_0p783_1p131 = ibooker.book1D("mCaloVsPtInitial_0p783_1p131","Sum CaloVsPt Initial variable in the eta range 0.783 to 1.131",100,0,1000);
-      mCaloVsPtInitial_1p131_1p479 = ibooker.book1D("mCaloVsPtInitial_1p131_1p479","Sum CaloVsPt Initial variable in the eta range 1.131 to 1.479",100,0,1000);
-      mCaloVsPtInitial_1p479_1p740 = ibooker.book1D("mCaloVsPtInitial_1p479_1p740","Sum CaloVsPt Initial variable in the eta range 1.479 to 1.740",100,0,1000);
-      mCaloVsPtInitial_1p740_2p043 = ibooker.book1D("mCaloVsPtInitial_1p740_2p043","Sum CaloVsPt Initial variable in the eta range 1.740 to 2.043",100,0,1000);
-      mCaloVsPtInitial_2p043_2p650 = ibooker.book1D("mCaloVsPtInitial_2p043_2p650","Sum CaloVsPt Initial variable in the eta range 2.043 to 2.650",100,0,1000);
-      mCaloVsPtInitial_2p650_5p191 = ibooker.book1D("mCaloVsPtInitial_2p650_5p191","Sum CaloVsPt Initial variable in the eta range 2.650 to 5.191",100,0,1000);
+      mSumCaloVsPt_n5p191_n2p650 = ibooker.book1D("mSumCaloVsPt_n5p191_n2p650","Sum CaloVsPt  variable in the eta range -5.191 to -2.650",1000,-1000,1000);
+      mSumCaloVsPt_n2p650_n2p043 = ibooker.book1D("mSumCaloVsPt_n2p650_n2p043","Sum CaloVsPt  variable in the eta range -2.650 to -2.043 ",1000,-1000,1000);
+      mSumCaloVsPt_n2p043_n1p740 = ibooker.book1D("mSumCaloVsPt_n2p043_n1p740","Sum CaloVsPt  variable in the eta range -2.043 to -1.740",1000,-1000,1000);
+      mSumCaloVsPt_n1p740_n1p479 = ibooker.book1D("mSumCaloVsPt_n1p740_n1p479","Sum CaloVsPt  variable in the eta range -1.740 to -1.479",1000,-1000,1000);
+      mSumCaloVsPt_n1p479_n1p131 = ibooker.book1D("mSumCaloVsPt_n1p479_n1p131","Sum CaloVsPt  variable in the eta range -1.479 to -1.131",1000,-1000,1000);
+      mSumCaloVsPt_n1p131_n0p783 = ibooker.book1D("mSumCaloVsPt_n1p131_n0p783","Sum CaloVsPt  variable in the eta range -1.131 to -0.783",1000,-1000,1000);
+      mSumCaloVsPt_n0p783_n0p522 = ibooker.book1D("mSumCaloVsPt_n0p783_n0p522","Sum CaloVsPt  variable in the eta range -0.783 to -0.522",1000,-1000,1000);
+      mSumCaloVsPt_n0p522_0p522 = ibooker.book1D("mSumCaloVsPt_n0p522_0p522","Sum CaloVsPt  variable in the eta range -0.522 to 0.522",1000,-1000,1000);
+      mSumCaloVsPt_0p522_0p783 = ibooker.book1D("mSumCaloVsPt_0p522_0p783","Sum CaloVsPt  variable in the eta range 0.522 to 0.783",1000,-1000,1000);
+      mSumCaloVsPt_0p783_1p131 = ibooker.book1D("mSumCaloVsPt_0p783_1p131","Sum CaloVsPt  variable in the eta range 0.783 to 1.131",1000,-1000,1000);
+      mSumCaloVsPt_1p131_1p479 = ibooker.book1D("mSumCaloVsPt_1p131_1p479","Sum CaloVsPt  variable in the eta range 1.131 to 1.479",1000,-1000,1000);
+      mSumCaloVsPt_1p479_1p740 = ibooker.book1D("mSumCaloVsPt_1p479_1p740","Sum CaloVsPt  variable in the eta range 1.479 to 1.740",1000,-1000,1000);
+      mSumCaloVsPt_1p740_2p043 = ibooker.book1D("mSumCaloVsPt_1p740_2p043","Sum CaloVsPt  variable in the eta range 1.740 to 2.043",1000,-1000,1000);
+      mSumCaloVsPt_2p043_2p650 = ibooker.book1D("mSumCaloVsPt_2p043_2p650","Sum CaloVsPt  variable in the eta range 2.043 to 2.650",1000,-1000,1000);
+      mSumCaloVsPt_2p650_5p191 = ibooker.book1D("mSumCaloVsPt_2p650_5p191","Sum CaloVsPt  variable in the eta range 2.650 to 5.191",1000,-1000,1000);
 
-      mCaloVsPt_n5p191_n2p650 = ibooker.book1D("mCaloVsPt_n5p191_n2p650","Sum CaloVsPt  variable in the eta range -5.191 to -2.650",100,0,1000);
-      mCaloVsPt_n2p650_n2p043 = ibooker.book1D("mCaloVsPt_n2p650_n2p043","Sum CaloVsPt  variable in the eta range -2.650 to -2.043 ",100,0,1000);
-      mCaloVsPt_n2p043_n1p740 = ibooker.book1D("mCaloVsPt_n2p043_n1p740","Sum CaloVsPt  variable in the eta range -2.043 to -1.740",100,0,1000);
-      mCaloVsPt_n1p740_n1p479 = ibooker.book1D("mCaloVsPt_n1p740_n1p479","Sum CaloVsPt  variable in the eta range -1.740 to -1.479",100,0,1000);
-      mCaloVsPt_n1p479_n1p131 = ibooker.book1D("mCaloVsPt_n1p479_n1p131","Sum CaloVsPt  variable in the eta range -1.479 to -1.131",100,0,1000);
-      mCaloVsPt_n1p131_n0p783 = ibooker.book1D("mCaloVsPt_n1p131_n0p783","Sum CaloVsPt  variable in the eta range -1.131 to -0.783",100,0,1000);
-      mCaloVsPt_n0p783_n0p522 = ibooker.book1D("mCaloVsPt_n0p783_n0p522","Sum CaloVsPt  variable in the eta range -0.783 to -0.522",100,0,1000);
-      mCaloVsPt_n0p522_0p522 = ibooker.book1D("mCaloVsPt_n0p522_0p522","Sum CaloVsPt  variable in the eta range -0.522 to 0.522",100,0,1000);
-      mCaloVsPt_0p522_0p783 = ibooker.book1D("mCaloVsPt_0p522_0p783","Sum CaloVsPt  variable in the eta range 0.522 to 0.783",100,0,1000);
-      mCaloVsPt_0p783_1p131 = ibooker.book1D("mCaloVsPt_0p783_1p131","Sum CaloVsPt  variable in the eta range 0.783 to 1.131",100,0,1000);
-      mCaloVsPt_1p131_1p479 = ibooker.book1D("mCaloVsPt_1p131_1p479","Sum CaloVsPt  variable in the eta range 1.131 to 1.479",100,0,1000);
-      mCaloVsPt_1p479_1p740 = ibooker.book1D("mCaloVsPt_1p479_1p740","Sum CaloVsPt  variable in the eta range 1.479 to 1.740",100,0,1000);
-      mCaloVsPt_1p740_2p043 = ibooker.book1D("mCaloVsPt_1p740_2p043","Sum CaloVsPt  variable in the eta range 1.740 to 2.043",100,0,1000);
-      mCaloVsPt_2p043_2p650 = ibooker.book1D("mCaloVsPt_2p043_2p650","Sum CaloVsPt  variable in the eta range 2.043 to 2.650",100,0,1000);
-      mCaloVsPt_2p650_5p191 = ibooker.book1D("mCaloVsPt_2p650_5p191","Sum CaloVsPt  variable in the eta range 2.650 to 5.191",100,0,1000);
-
-      mCaloPt_n5p191_n2p650 = ibooker.book1D("mCaloPt_n5p191_n2p650","Sum CaloVsPt Initial variable in the eta range -5.191 to -2.650",100,0,1000);
-      mCaloPt_n2p650_n2p043 = ibooker.book1D("mCaloPt_n2p650_n2p043","Sum CaloVsPt Initial variable in the eta range -2.650 to -2.043 ",100,0,1000);
-      mCaloPt_n2p043_n1p740 = ibooker.book1D("mCaloPt_n2p043_n1p740","Sum CaloVsPt Initial variable in the eta range -2.043 to -1.740",100,0,1000);
-      mCaloPt_n1p740_n1p479 = ibooker.book1D("mCaloPt_n1p740_n1p479","Sum CaloVsPt Initial variable in the eta range -1.740 to -1.479",100,0,1000);
-      mCaloPt_n1p479_n1p131 = ibooker.book1D("mCaloPt_n1p479_n1p131","Sum CaloVsPt Initial variable in the eta range -1.479 to -1.131",100,0,1000);
-      mCaloPt_n1p131_n0p783 = ibooker.book1D("mCaloPt_n1p131_n0p783","Sum CaloVsPt Initial variable in the eta range -1.131 to -0.783",100,0,1000);
-      mCaloPt_n0p783_n0p522 = ibooker.book1D("mCaloPt_n0p783_n0p522","Sum CaloVsPt Initial variable in the eta range -0.783 to -0.522",100,0,1000);
-      mCaloPt_n0p522_0p522 = ibooker.book1D("mCaloPt_n0p522_0p522","Sum CaloVsPt Initial variable in the eta range -0.522 to 0.522",100,0,1000);
-      mCaloPt_0p522_0p783 = ibooker.book1D("mCaloPt_0p522_0p783","Sum CaloVsPt Initial variable in the eta range 0.522 to 0.783",100,0,1000);
-      mCaloPt_0p783_1p131 = ibooker.book1D("mCaloPt_0p783_1p131","Sum CaloVsPt Initial variable in the eta range 0.783 to 1.131",100,0,1000);
-      mCaloPt_1p131_1p479 = ibooker.book1D("mCaloPt_1p131_1p479","Sum CaloVsPt Initial variable in the eta range 1.131 to 1.479",100,0,1000);
-      mCaloPt_1p479_1p740 = ibooker.book1D("mCaloPt_1p479_1p740","Sum CaloVsPt Initial variable in the eta range 1.479 to 1.740",100,0,1000);
-      mCaloPt_1p740_2p043 = ibooker.book1D("mCaloPt_1p740_2p043","Sum CaloVsPt Initial variable in the eta range 1.740 to 2.043",100,0,1000);
-      mCaloPt_2p043_2p650 = ibooker.book1D("mCaloPt_2p043_2p650","Sum CaloVsPt Initial variable in the eta range 2.043 to 2.650",100,0,1000);
-      mCaloPt_2p650_5p191 = ibooker.book1D("mCaloPt_2p650_5p191","Sum CaloVsPt Initial variable in the eta range 2.650 to 5.191",100,0,1000);
+      mSumCaloPt_n5p191_n2p650 = ibooker.book1D("mSumCaloPt_n5p191_n2p650","Sum Calo tower pT variable in the eta range -5.191 to -2.650",1000,-1000,1000);
+      mSumCaloPt_n2p650_n2p043 = ibooker.book1D("mSumCaloPt_n2p650_n2p043","Sum Calo tower pT variable in the eta range -2.650 to -2.043 ",1000,-1000,1000);
+      mSumCaloPt_n2p043_n1p740 = ibooker.book1D("mSumCaloPt_n2p043_n1p740","Sum Calo tower pT variable in the eta range -2.043 to -1.740",1000,-1000,1000);
+      mSumCaloPt_n1p740_n1p479 = ibooker.book1D("mSumCaloPt_n1p740_n1p479","Sum Calo tower pT variable in the eta range -1.740 to -1.479",1000,-1000,1000);
+      mSumCaloPt_n1p479_n1p131 = ibooker.book1D("mSumCaloPt_n1p479_n1p131","Sum Calo tower pT variable in the eta range -1.479 to -1.131",1000,-1000,1000);
+      mSumCaloPt_n1p131_n0p783 = ibooker.book1D("mSumCaloPt_n1p131_n0p783","Sum Calo tower pT variable in the eta range -1.131 to -0.783",1000,-1000,1000);
+      mSumCaloPt_n0p783_n0p522 = ibooker.book1D("mSumCaloPt_n0p783_n0p522","Sum Calo tower pT variable in the eta range -0.783 to -0.522",1000,-1000,1000);
+      mSumCaloPt_n0p522_0p522 = ibooker.book1D("mSumCaloPt_n0p522_0p522","Sum Calo tower pT variable in the eta range -0.522 to 0.522",1000,-1000,1000);
+      mSumCaloPt_0p522_0p783 = ibooker.book1D("mSumCaloPt_0p522_0p783","Sum Calo tower pT variable in the eta range 0.522 to 0.783",1000,-1000,1000);
+      mSumCaloPt_0p783_1p131 = ibooker.book1D("mSumCaloPt_0p783_1p131","Sum Calo tower pT variable in the eta range 0.783 to 1.131",1000,-1000,1000);
+      mSumCaloPt_1p131_1p479 = ibooker.book1D("mSumCaloPt_1p131_1p479","Sum Calo tower pT variable in the eta range 1.131 to 1.479",1000,-1000,1000);
+      mSumCaloPt_1p479_1p740 = ibooker.book1D("mSumCaloPt_1p479_1p740","Sum Calo tower pT variable in the eta range 1.479 to 1.740",1000,-1000,1000);
+      mSumCaloPt_1p740_2p043 = ibooker.book1D("mSumCaloPt_1p740_2p043","Sum Calo tower pT variable in the eta range 1.740 to 2.043",1000,-1000,1000);
+      mSumCaloPt_2p043_2p650 = ibooker.book1D("mSumCaloPt_2p043_2p650","Sum Calo tower pT variable in the eta range 2.043 to 2.650",1000,-1000,1000);
+      mSumCaloPt_2p650_5p191 = ibooker.book1D("mSumCaloPt_2p650_5p191","Sum Calo tower pT variable in the eta range 2.650 to 5.191",1000,-1000,1000);
       
     }
 
     // particle flow variables histograms 
-    mSumpt           = ibooker.book1D("SumpT","Sum p_{T} of all the PF candidates pre event",1000,0,10000);
+    mSumpt           = ibooker.book1D("SumpT","Sum p_{T} of all the PF candidates per event",1000,0,10000);
     mvn              = ibooker.book1D("vn","vn",100,0,10);
     mpsin            = ibooker.book1D("mpsin","psin",100,0,10);
 
@@ -444,11 +459,11 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
     mHF              = ibooker.book1D("HF", "HF energy distribution",1000,0,10000);
 
     // added Jan 12th 2015
-    mDeltapT  = ibooker.book1D("DeltapT","",400,0,200);
+    mDeltapT  = ibooker.book1D("DeltapT","",400,-200,200);
     //mDeltapT_HF  = ibooker.book2D("DeltapT_HF","",400,-200,200,1000,0,10000);
-    mDeltapT_eta = ibooker.book2D("DeltapT_eta","",70,-6,6,400,-200,200);
+    mDeltapT_eta = ibooker.book2D("DeltapT_eta","",60,-6,+6,400,-200,200);
     //mDeltapT_phiMinusPsi2 = ibooker.book2D("DeltapT_phiMinusPsi2","",400,-200,200,35,-1.75,1.75);
-    mDeltapT_eta_phi = ibooker.book2D("DeltapT_eta_phi","",120,-6,6,70,-3.5,3.5);
+    mDeltapT_eta_phi = ibooker.book2D("DeltapT_eta_phi",h2D_etabins_vs_phi);
     
     // Jet parameters
     mEta             = ibooker.book1D("Eta",          "Eta",          120,   -6,    6); 
@@ -460,22 +475,22 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
     mConstituents    = ibooker.book1D("Constituents", "Constituents", 100,    0,  100); 
     mJetArea         = ibooker.book1D("JetArea",      "JetArea",       100,   0, 4);
     mjetpileup       = ibooker.book1D("jetPileUp","jetPileUp",100,0,150);
-    mNJets_40        = ibooker.book1D("NJets", "NJets 40<Pt",  50,    0,   50);
+    mNJets_40        = ibooker.book1D("NJets_pt_greater_40", "NJets pT > 40 GeV",  50,    0,   100);
     mNJets        = ibooker.book1D("NJets", "NJets",  50,    0,   100);
 
-    mVs_0_x  = ibooker.book1D("Vs_0_x","flow modulated sumpT from both HF (+ and -) with cos, vn = 0",100,0,1000);
-    mVs_0_y  = ibooker.book1D("Vs_0_y","flow modulated sumpT from both HF (+ and -) with sin, vn = 0",100,0,1000);
-    mVs_1_x  = ibooker.book1D("Vs_1_x","flow modulated sumpT from both HF (+ and -) with cos, vn = 1",100,0,1000);
-    mVs_1_y  = ibooker.book1D("Vs_1_y","flow modulated sumpT from both HF (+ and -) with sin, vn = 1",100,0,1000);
-    mVs_2_x  = ibooker.book1D("Vs_2_x","flow modulated sumpT from both HF (+ and -) with cos, vn = 2",100,0,1000);
-    mVs_2_y  = ibooker.book1D("Vs_2_y","flow modulated sumpT from both HF (+ and -) with sin, vn = 2",100,0,1000);
+    mVs_0_x  = ibooker.book1D("Vs_0_x","flow modulated sumpT from both HF (+ and -) with cos, vn = 0",1000,-10000,10000);
+    mVs_0_y  = ibooker.book1D("Vs_0_y","flow modulated sumpT from both HF (+ and -) with sin, vn = 0",1000,-10000,10000);
+    mVs_1_x  = ibooker.book1D("Vs_1_x","flow modulated sumpT from both HF (+ and -) with cos, vn = 1",1000,-10000,10000);
+    mVs_1_y  = ibooker.book1D("Vs_1_y","flow modulated sumpT from both HF (+ and -) with sin, vn = 1",1000,-10000,10000);
+    mVs_2_x  = ibooker.book1D("Vs_2_x","flow modulated sumpT from both HF (+ and -) with cos, vn = 2",1000,-10000,10000);
+    mVs_2_y  = ibooker.book1D("Vs_2_y","flow modulated sumpT from both HF (+ and -) with sin, vn = 2",1000,-10000,10000);
     
-    mVs_0_x_versus_HF = ibooker.book2D("Vs_0_x_versus_HF","flow modulated sumpT versus HF from both HF (+ and -) with cos, vn = 0",1000,0,10000,100,0,1000);
-    mVs_0_y_versus_HF = ibooker.book2D("Vs_0_y_versus_HF","flow modulated sumpT versus HF from both HF (+ and -) with sin, vn = 0",1000,0,10000,100,0,1000);
-    mVs_1_x_versus_HF = ibooker.book2D("Vs_1_x_versus_HF","flow modulated sumpT versus HF from both HF (+ and -) with cos, vn = 1",1000,0,10000,100,0,1000);
-    mVs_1_y_versus_HF = ibooker.book2D("Vs_1_y_versus_HF","flow modulated sumpT versus HF from both HF (+ and -) with sin, vn = 1",1000,0,10000,100,0,1000);
-    mVs_2_x_versus_HF = ibooker.book2D("Vs_2_x_versus_HF","flow modulated sumpT versus HF from both HF (+ and -) with cos, vn = 2",1000,0,10000,100,0,1000);
-    mVs_2_y_versus_HF = ibooker.book2D("Vs_2_y_versus_HF","flow modulated sumpT versus HF from both HF (+ and -) with sin, vn = 2",1000,0,10000,100,0,1000);
+    mVs_0_x_versus_HF = ibooker.book2D("Vs_0_x_versus_HF","flow modulated sumpT (y axis) from both HF (+ and -) with cos, vn = 0 versus HF energy (x axis)",1000,0,10000,1000,-10000,10000);
+    mVs_0_y_versus_HF = ibooker.book2D("Vs_0_y_versus_HF","flow modulated sumpT (y axis) from both HF (+ and -) with sin, vn = 0 versus HF energy (x axis)",1000,0,10000,1000,-10000,10000);
+    mVs_1_x_versus_HF = ibooker.book2D("Vs_1_x_versus_HF","flow modulated sumpT (y axis) from both HF (+ and -) with cos, vn = 1 versus HF energy (x axis)",1000,0,10000,1000,-10000,10000);
+    mVs_1_y_versus_HF = ibooker.book2D("Vs_1_y_versus_HF","flow modulated sumpT (y axis) from both HF (+ and -) with sin, vn = 1 versus HF energy (x axis)",1000,0,10000,1000,-10000,10000);
+    mVs_2_x_versus_HF = ibooker.book2D("Vs_2_x_versus_HF","flow modulated sumpT (y axis) from both HF (+ and -) with cos, vn = 2 versus HF energy (x axis)",1000,0,10000,1000,-10000,10000);
+    mVs_2_y_versus_HF = ibooker.book2D("Vs_2_y_versus_HF","flow modulated sumpT (y axis) from both HF (+ and -) with sin, vn = 2 versus HF energy (x axis)",1000,0,10000,1000,-10000,10000);
     
     if (mOutputFile.empty ()) 
       LogInfo("OutputInfo") << " Histograms will NOT be saved";
@@ -704,6 +719,16 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
     Float_t SumSquaredCaloVsPt[etaBins_];
     Float_t SumSquaredCaloPt[etaBins_];
 
+    for(int i = 0;i<etaBins_;i++){
+
+      SumCaloVsPtInitial[i] = 0;
+      SumCaloVsPt[i] = 0;
+      SumCaloPt[i] = 0;
+      SumSquaredCaloVsPtInitial[i] = 0;
+      SumSquaredCaloVsPt[i] = 0;
+      SumSquaredCaloPt[i] = 0;
+      
+    }
     
     for(unsigned icand = 0;icand<caloCandidates->size(); icand++){
 
@@ -711,6 +736,12 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
       reco::CandidateViewRef ref(calocandidates_,icand);
       //10 is tower pT min
       //if(getEt(caloCandidates.id(),caloCandidates.energy())<10) continue;
+      if(tower.p4(vtx).Et() < 0.1) continue;
+
+      DeltapT = 0;
+      vsPt = 0;
+      vsPtInitial = 0;
+      vsArea = 0;
 
       if(std::string("Vs")==UEAlgo) {
 	const reco::VoronoiBackground& voronoi = (*VsBackgrounds)[ref];
@@ -730,7 +761,7 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
       mCaloPt_eta_phi->Fill(caloEta,caloPhi,caloPt);
 
       DeltapT = caloPt - vsPtInitial;
-
+      mDeltapT->Fill(DeltapT);
       mDeltapT_eta->Fill(caloEta,DeltapT);
       mDeltapT_eta_phi->Fill(caloEta,caloPhi,DeltapT);
 
@@ -742,6 +773,7 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 	  SumSquaredCaloVsPtInitial[k] = SumSquaredCaloVsPtInitial[k] + vsPtInitial*vsPtInitial;
 	  SumSquaredCaloVsPt[k] = SumSquaredCaloVsPt[k] + vsPt*vsPt;
 	  SumSquaredCaloPt[k] = SumSquaredCaloPt[k] + caloPt*caloPt;
+	  break;
 	}// eta selection statement 
       
       }// eta bin loop
@@ -766,53 +798,55 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
     Float_t Evt_SumSquaredCaloVsPtInitial = 0;
     Float_t Evt_SumSquaredCaloPt = 0;
     
-    mCaloVsPtInitial_n5p191_n2p650->Fill(SumCaloVsPtInitial[0]);
-    mCaloVsPtInitial_n2p650_n2p043->Fill(SumCaloVsPtInitial[1]);
-    mCaloVsPtInitial_n2p043_n1p740->Fill(SumCaloVsPtInitial[2]);
-    mCaloVsPtInitial_n1p740_n1p479->Fill(SumCaloVsPtInitial[3]);
-    mCaloVsPtInitial_n1p479_n1p131->Fill(SumCaloVsPtInitial[4]);
-    mCaloVsPtInitial_n1p131_n0p783->Fill(SumCaloVsPtInitial[5]);
-    mCaloVsPtInitial_n0p783_n0p522->Fill(SumCaloVsPtInitial[6]);
-    mCaloVsPtInitial_n0p522_0p522->Fill(SumCaloVsPtInitial[7]);
-    mCaloVsPtInitial_0p522_0p783->Fill(SumCaloVsPtInitial[8]);
-    mCaloVsPtInitial_0p783_1p131->Fill(SumCaloVsPtInitial[9]);
-    mCaloVsPtInitial_1p131_1p479->Fill(SumCaloVsPtInitial[10]);
-    mCaloVsPtInitial_1p479_1p740->Fill(SumCaloVsPtInitial[11]);
-    mCaloVsPtInitial_1p740_2p043->Fill(SumCaloVsPtInitial[12]);
-    mCaloVsPtInitial_2p043_2p650->Fill(SumCaloVsPtInitial[13]);
-    mCaloVsPtInitial_2p650_5p191->Fill(SumCaloVsPtInitial[14]);
 
-    mCaloVsPt_n5p191_n2p650->Fill(SumCaloVsPt[0]);
-    mCaloVsPt_n2p650_n2p043->Fill(SumCaloVsPt[1]);
-    mCaloVsPt_n2p043_n1p740->Fill(SumCaloVsPt[2]);
-    mCaloVsPt_n1p740_n1p479->Fill(SumCaloVsPt[3]);
-    mCaloVsPt_n1p479_n1p131->Fill(SumCaloVsPt[4]);
-    mCaloVsPt_n1p131_n0p783->Fill(SumCaloVsPt[5]);
-    mCaloVsPt_n0p783_n0p522->Fill(SumCaloVsPt[6]);
-    mCaloVsPt_n0p522_0p522->Fill(SumCaloVsPt[7]);
-    mCaloVsPt_0p522_0p783->Fill(SumCaloVsPt[8]);
-    mCaloVsPt_0p783_1p131->Fill(SumCaloVsPt[9]);
-    mCaloVsPt_1p131_1p479->Fill(SumCaloVsPt[10]);
-    mCaloVsPt_1p479_1p740->Fill(SumCaloVsPt[11]);
-    mCaloVsPt_1p740_2p043->Fill(SumCaloVsPt[12]);
-    mCaloVsPt_2p043_2p650->Fill(SumCaloVsPt[13]);
-    mCaloVsPt_2p650_5p191->Fill(SumCaloVsPt[14]);
+    mSumCaloVsPtInitial_n5p191_n2p650->Fill(SumCaloVsPtInitial[0]);
+    mSumCaloVsPtInitial_n2p650_n2p043->Fill(SumCaloVsPtInitial[1]);
+    mSumCaloVsPtInitial_n2p043_n1p740->Fill(SumCaloVsPtInitial[2]);
+    mSumCaloVsPtInitial_n1p740_n1p479->Fill(SumCaloVsPtInitial[3]);
+    mSumCaloVsPtInitial_n1p479_n1p131->Fill(SumCaloVsPtInitial[4]);
+    mSumCaloVsPtInitial_n1p131_n0p783->Fill(SumCaloVsPtInitial[5]);
+    mSumCaloVsPtInitial_n0p783_n0p522->Fill(SumCaloVsPtInitial[6]);
+    mSumCaloVsPtInitial_n0p522_0p522->Fill(SumCaloVsPtInitial[7]);
+    mSumCaloVsPtInitial_0p522_0p783->Fill(SumCaloVsPtInitial[8]);
+    mSumCaloVsPtInitial_0p783_1p131->Fill(SumCaloVsPtInitial[9]);
+    mSumCaloVsPtInitial_1p131_1p479->Fill(SumCaloVsPtInitial[10]);
+    mSumCaloVsPtInitial_1p479_1p740->Fill(SumCaloVsPtInitial[11]);
+    mSumCaloVsPtInitial_1p740_2p043->Fill(SumCaloVsPtInitial[12]);
+    mSumCaloVsPtInitial_2p043_2p650->Fill(SumCaloVsPtInitial[13]);
+    mSumCaloVsPtInitial_2p650_5p191->Fill(SumCaloVsPtInitial[14]);
 
-    mCaloPt_n5p191_n2p650->Fill(SumCaloPt[0]);
-    mCaloPt_n2p650_n2p043->Fill(SumCaloPt[1]);
-    mCaloPt_n2p043_n1p740->Fill(SumCaloPt[2]);
-    mCaloPt_n1p740_n1p479->Fill(SumCaloPt[3]);
-    mCaloPt_n1p479_n1p131->Fill(SumCaloPt[4]);
-    mCaloPt_n1p131_n0p783->Fill(SumCaloPt[5]);
-    mCaloPt_n0p783_n0p522->Fill(SumCaloPt[6]);
-    mCaloPt_n0p522_0p522->Fill(SumCaloPt[7]);
-    mCaloPt_0p522_0p783->Fill(SumCaloPt[8]);
-    mCaloPt_0p783_1p131->Fill(SumCaloPt[9]);
-    mCaloPt_1p131_1p479->Fill(SumCaloPt[10]);
-    mCaloPt_1p479_1p740->Fill(SumCaloPt[11]);
-    mCaloPt_1p740_2p043->Fill(SumCaloPt[12]);
-    mCaloPt_2p043_2p650->Fill(SumCaloPt[13]);
-    mCaloPt_2p650_5p191->Fill(SumCaloPt[14]);
+    mSumCaloVsPt_n5p191_n2p650->Fill(SumCaloVsPt[0]);
+    mSumCaloVsPt_n2p650_n2p043->Fill(SumCaloVsPt[1]);
+    mSumCaloVsPt_n2p043_n1p740->Fill(SumCaloVsPt[2]);
+    mSumCaloVsPt_n1p740_n1p479->Fill(SumCaloVsPt[3]);
+    mSumCaloVsPt_n1p479_n1p131->Fill(SumCaloVsPt[4]);
+    mSumCaloVsPt_n1p131_n0p783->Fill(SumCaloVsPt[5]);
+    mSumCaloVsPt_n0p783_n0p522->Fill(SumCaloVsPt[6]);
+    mSumCaloVsPt_n0p522_0p522->Fill(SumCaloVsPt[7]);
+    mSumCaloVsPt_0p522_0p783->Fill(SumCaloVsPt[8]);
+    mSumCaloVsPt_0p783_1p131->Fill(SumCaloVsPt[9]);
+    mSumCaloVsPt_1p131_1p479->Fill(SumCaloVsPt[10]);
+    mSumCaloVsPt_1p479_1p740->Fill(SumCaloVsPt[11]);
+    mSumCaloVsPt_1p740_2p043->Fill(SumCaloVsPt[12]);
+    mSumCaloVsPt_2p043_2p650->Fill(SumCaloVsPt[13]);
+    mSumCaloVsPt_2p650_5p191->Fill(SumCaloVsPt[14]);
+
+    mSumCaloPt_n5p191_n2p650->Fill(SumCaloPt[0]);
+    mSumCaloPt_n2p650_n2p043->Fill(SumCaloPt[1]);
+    mSumCaloPt_n2p043_n1p740->Fill(SumCaloPt[2]);
+    mSumCaloPt_n1p740_n1p479->Fill(SumCaloPt[3]);
+    mSumCaloPt_n1p479_n1p131->Fill(SumCaloPt[4]);
+    mSumCaloPt_n1p131_n0p783->Fill(SumCaloPt[5]);
+    mSumCaloPt_n0p783_n0p522->Fill(SumCaloPt[6]);
+    mSumCaloPt_n0p522_0p522->Fill(SumCaloPt[7]);
+    mSumCaloPt_0p522_0p783->Fill(SumCaloPt[8]);
+    mSumCaloPt_0p783_1p131->Fill(SumCaloPt[9]);
+    mSumCaloPt_1p131_1p479->Fill(SumCaloPt[10]);
+    mSumCaloPt_1p479_1p740->Fill(SumCaloPt[11]);
+    mSumCaloPt_1p740_2p043->Fill(SumCaloPt[12]);
+    mSumCaloPt_2p043_2p650->Fill(SumCaloPt[13]);
+    mSumCaloPt_2p650_5p191->Fill(SumCaloPt[14]);
+
 
     for(size_t  k = 0;k<nedge_pseudorapidity-1;k++){
     
@@ -867,12 +901,25 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
     Float_t SumSquaredPFVsPtInitial[etaBins_];
     Float_t SumSquaredPFVsPt[etaBins_];
     Float_t SumSquaredPFPt[etaBins_];
+
+    for(int i = 0;i<etaBins_;i++){
+
+      SumPFVsPtInitial[i] = 0;
+      SumPFVsPt[i] = 0;
+      SumPFPt[i] = 0;
+      SumSquaredPFVsPtInitial[i] = 0;
+      SumSquaredPFVsPt[i] = 0;
+      SumSquaredPFPt[i] = 0;
+      
+    }
     
     for(unsigned icand=0;icand<pfCandidateColl->size(); icand++){
     
       const reco::PFCandidate pfCandidate = pfCandidateColl->at(icand);
       reco::CandidateViewRef ref(pfcandidates_,icand);
-    
+
+      if(pfCandidate.pt() < 5) continue;
+      
       if(std::string("Vs")==UEAlgo) {
       
 	const reco::VoronoiBackground& voronoi = (*VsBackgrounds)[ref];
@@ -892,7 +939,7 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
       mPFPt_eta_phi->Fill(pfEta,pfPhi,pfPt);
 
       DeltapT = pfPt - vsPtInitial;
-
+      mDeltapT->Fill(DeltapT);
       mDeltapT_eta->Fill(pfEta,DeltapT);
       mDeltapT_eta_phi->Fill(pfEta,pfPhi,DeltapT);
 
@@ -906,7 +953,7 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 	  SumSquaredPFVsPtInitial[k] = SumSquaredPFVsPtInitial[k] + vsPtInitial*vsPtInitial;
 	  SumSquaredPFVsPt[k] = SumSquaredPFVsPt[k] + vsPt*vsPt;
 	  SumSquaredPFPt[k] = SumSquaredPFPt[k] + pfPt*pfPt;
-		
+	  break;
 	}// eta selection statement 
       
       }// eta bin loop
@@ -930,53 +977,53 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
     Float_t Evt_SumSquaredPFVsPtInitial = 0;
     Float_t Evt_SumSquaredPFPt = 0;
     
-    mPFVsPtInitial_n5p191_n2p650->Fill(SumPFVsPtInitial[0]);
-    mPFVsPtInitial_n2p650_n2p043->Fill(SumPFVsPtInitial[1]);
-    mPFVsPtInitial_n2p043_n1p740->Fill(SumPFVsPtInitial[2]);
-    mPFVsPtInitial_n1p740_n1p479->Fill(SumPFVsPtInitial[3]);
-    mPFVsPtInitial_n1p479_n1p131->Fill(SumPFVsPtInitial[4]);
-    mPFVsPtInitial_n1p131_n0p783->Fill(SumPFVsPtInitial[5]);
-    mPFVsPtInitial_n0p783_n0p522->Fill(SumPFVsPtInitial[6]);
-    mPFVsPtInitial_n0p522_0p522->Fill(SumPFVsPtInitial[7]);
-    mPFVsPtInitial_0p522_0p783->Fill(SumPFVsPtInitial[8]);
-    mPFVsPtInitial_0p783_1p131->Fill(SumPFVsPtInitial[9]);
-    mPFVsPtInitial_1p131_1p479->Fill(SumPFVsPtInitial[10]);
-    mPFVsPtInitial_1p479_1p740->Fill(SumPFVsPtInitial[11]);
-    mPFVsPtInitial_1p740_2p043->Fill(SumPFVsPtInitial[12]);
-    mPFVsPtInitial_2p043_2p650->Fill(SumPFVsPtInitial[13]);
-    mPFVsPtInitial_2p650_5p191->Fill(SumPFVsPtInitial[14]);
+    mSumPFVsPtInitial_n5p191_n2p650->Fill(SumPFVsPtInitial[0]);
+    mSumPFVsPtInitial_n2p650_n2p043->Fill(SumPFVsPtInitial[1]);
+    mSumPFVsPtInitial_n2p043_n1p740->Fill(SumPFVsPtInitial[2]);
+    mSumPFVsPtInitial_n1p740_n1p479->Fill(SumPFVsPtInitial[3]);
+    mSumPFVsPtInitial_n1p479_n1p131->Fill(SumPFVsPtInitial[4]);
+    mSumPFVsPtInitial_n1p131_n0p783->Fill(SumPFVsPtInitial[5]);
+    mSumPFVsPtInitial_n0p783_n0p522->Fill(SumPFVsPtInitial[6]);
+    mSumPFVsPtInitial_n0p522_0p522->Fill(SumPFVsPtInitial[7]);
+    mSumPFVsPtInitial_0p522_0p783->Fill(SumPFVsPtInitial[8]);
+    mSumPFVsPtInitial_0p783_1p131->Fill(SumPFVsPtInitial[9]);
+    mSumPFVsPtInitial_1p131_1p479->Fill(SumPFVsPtInitial[10]);
+    mSumPFVsPtInitial_1p479_1p740->Fill(SumPFVsPtInitial[11]);
+    mSumPFVsPtInitial_1p740_2p043->Fill(SumPFVsPtInitial[12]);
+    mSumPFVsPtInitial_2p043_2p650->Fill(SumPFVsPtInitial[13]);
+    mSumPFVsPtInitial_2p650_5p191->Fill(SumPFVsPtInitial[14]);
 
-    mPFVsPt_n5p191_n2p650->Fill(SumPFVsPt[0]);
-    mPFVsPt_n2p650_n2p043->Fill(SumPFVsPt[1]);
-    mPFVsPt_n2p043_n1p740->Fill(SumPFVsPt[2]);
-    mPFVsPt_n1p740_n1p479->Fill(SumPFVsPt[3]);
-    mPFVsPt_n1p479_n1p131->Fill(SumPFVsPt[4]);
-    mPFVsPt_n1p131_n0p783->Fill(SumPFVsPt[5]);
-    mPFVsPt_n0p783_n0p522->Fill(SumPFVsPt[6]);
-    mPFVsPt_n0p522_0p522->Fill(SumPFVsPt[7]);
-    mPFVsPt_0p522_0p783->Fill(SumPFVsPt[8]);
-    mPFVsPt_0p783_1p131->Fill(SumPFVsPt[9]);
-    mPFVsPt_1p131_1p479->Fill(SumPFVsPt[10]);
-    mPFVsPt_1p479_1p740->Fill(SumPFVsPt[11]);
-    mPFVsPt_1p740_2p043->Fill(SumPFVsPt[12]);
-    mPFVsPt_2p043_2p650->Fill(SumPFVsPt[13]);
-    mPFVsPt_2p650_5p191->Fill(SumPFVsPt[14]);
+    mSumPFVsPt_n5p191_n2p650->Fill(SumPFVsPt[0]);
+    mSumPFVsPt_n2p650_n2p043->Fill(SumPFVsPt[1]);
+    mSumPFVsPt_n2p043_n1p740->Fill(SumPFVsPt[2]);
+    mSumPFVsPt_n1p740_n1p479->Fill(SumPFVsPt[3]);
+    mSumPFVsPt_n1p479_n1p131->Fill(SumPFVsPt[4]);
+    mSumPFVsPt_n1p131_n0p783->Fill(SumPFVsPt[5]);
+    mSumPFVsPt_n0p783_n0p522->Fill(SumPFVsPt[6]);
+    mSumPFVsPt_n0p522_0p522->Fill(SumPFVsPt[7]);
+    mSumPFVsPt_0p522_0p783->Fill(SumPFVsPt[8]);
+    mSumPFVsPt_0p783_1p131->Fill(SumPFVsPt[9]);
+    mSumPFVsPt_1p131_1p479->Fill(SumPFVsPt[10]);
+    mSumPFVsPt_1p479_1p740->Fill(SumPFVsPt[11]);
+    mSumPFVsPt_1p740_2p043->Fill(SumPFVsPt[12]);
+    mSumPFVsPt_2p043_2p650->Fill(SumPFVsPt[13]);
+    mSumPFVsPt_2p650_5p191->Fill(SumPFVsPt[14]);
 
-    mPFPt_n5p191_n2p650->Fill(SumPFPt[0]);
-    mPFPt_n2p650_n2p043->Fill(SumPFPt[1]);
-    mPFPt_n2p043_n1p740->Fill(SumPFPt[2]);
-    mPFPt_n1p740_n1p479->Fill(SumPFPt[3]);
-    mPFPt_n1p479_n1p131->Fill(SumPFPt[4]);
-    mPFPt_n1p131_n0p783->Fill(SumPFPt[5]);
-    mPFPt_n0p783_n0p522->Fill(SumPFPt[6]);
-    mPFPt_n0p522_0p522->Fill(SumPFPt[7]);
-    mPFPt_0p522_0p783->Fill(SumPFPt[8]);
-    mPFPt_0p783_1p131->Fill(SumPFPt[9]);
-    mPFPt_1p131_1p479->Fill(SumPFPt[10]);
-    mPFPt_1p479_1p740->Fill(SumPFPt[11]);
-    mPFPt_1p740_2p043->Fill(SumPFPt[12]);
-    mPFPt_2p043_2p650->Fill(SumPFPt[13]);
-    mPFPt_2p650_5p191->Fill(SumPFPt[14]);
+    mSumPFPt_n5p191_n2p650->Fill(SumPFPt[0]);
+    mSumPFPt_n2p650_n2p043->Fill(SumPFPt[1]);
+    mSumPFPt_n2p043_n1p740->Fill(SumPFPt[2]);
+    mSumPFPt_n1p740_n1p479->Fill(SumPFPt[3]);
+    mSumPFPt_n1p479_n1p131->Fill(SumPFPt[4]);
+    mSumPFPt_n1p131_n0p783->Fill(SumPFPt[5]);
+    mSumPFPt_n0p783_n0p522->Fill(SumPFPt[6]);
+    mSumPFPt_n0p522_0p522->Fill(SumPFPt[7]);
+    mSumPFPt_0p522_0p783->Fill(SumPFPt[8]);
+    mSumPFPt_0p783_1p131->Fill(SumPFPt[9]);
+    mSumPFPt_1p131_1p479->Fill(SumPFPt[10]);
+    mSumPFPt_1p479_1p740->Fill(SumPFPt[11]);
+    mSumPFPt_1p740_2p043->Fill(SumPFPt[12]);
+    mSumPFPt_2p043_2p650->Fill(SumPFPt[13]);
+    mSumPFPt_2p650_5p191->Fill(SumPFPt[14]);
 
     for(size_t  k = 0;k<nedge_pseudorapidity-1;k++){
     
