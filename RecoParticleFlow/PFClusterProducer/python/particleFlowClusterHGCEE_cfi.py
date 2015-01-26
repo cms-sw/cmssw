@@ -112,11 +112,11 @@ _HGCEE_EMEnergyCalibrator = cms.PSet(
     weights_hef = cms.vdouble(weight_vec_hef),
     weights_heb = cms.vdouble(weight_vec_heb),
     #EM calibration
-    effMip_to_InverseGeV_a = cms.double(80.0837),
-    effMip_to_InverseGeV_b = cms.double(-107.229),
-    effMip_to_InverseGeV_c = cms.double(0.0472817),    
-    effMip_to_InverseGeV_d = cms.double(-0.266294),    
-    effMip_to_InverseGeV_e = cms.double(0.34684),
+    effMip_to_InverseGeV_a = cms.double(79.8689),
+    effMip_to_InverseGeV_b = cms.double(-78.5959),
+    effMip_to_InverseGeV_c = cms.double(0.0450119),    
+    effMip_to_InverseGeV_d = cms.double(-0.257893),    
+    effMip_to_InverseGeV_e = cms.double(0.341825),
     # hadron calibration
     ee_had_emscale_slope = cms.double(0.2339),
     ee_had_emscale_offset = cms.double(0.1778),
