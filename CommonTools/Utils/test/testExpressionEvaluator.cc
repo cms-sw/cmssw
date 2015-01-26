@@ -19,8 +19,8 @@ class testExpressionEvaluator : public CppUnit::TestFixture {
 public:
   testExpressionEvaluator() {
    std::cerr << "setting up VITest/ExprEval" << std::endl;
-   system("mkdir -p $CMSSW_BASE/src/VITest/ExprEval/src; cp CommonTools/Utils/test/ExprEvalStubs/*.h $CMSSW_BASE/src/VITest/ExprEval/src/.");
-   system("cp CommonTools/Utils/test/ExprEvalStubs/BuildFile.xml $CMSSW_BASE/src/VITest/ExprEval/.; pushd $CMSSW_BASE; scram b -j 8; popd");
+   system("mkdir -p $CMSSW_BASE/src/VITest/ExprEval/src; cp $CMSSW_BASE/src/CommonTools/Utils/test/ExprEvalStubs/*.h $CMSSW_BASE/src/VITest/ExprEval/src/.");
+   system("cp $CMSSW_BASE/src/CommonTools/Utils/test/ExprEvalStubs/BuildFile.xml $CMSSW_BASE/src/VITest/ExprEval/.; pushd $CMSSW_BASE; scram b -j 8; popd");
    system("ls -l $CMSSW_BASE/include/$SCRAM_ARCH/VITest/ExprEval/src");
   }
   ~testExpressionEvaluator() {system("rm -rf $CMSSW_BASE/src/VITest $CMSSW_BASE/include/$SCRAM_ARCH/VITest");}

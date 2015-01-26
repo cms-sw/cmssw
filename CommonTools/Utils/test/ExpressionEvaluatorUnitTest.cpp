@@ -12,8 +12,9 @@ int main() {
 
    // build fake test package...
    std::string pkg = "VITest/ExprEval";
-   system("mkdir -p $CMSSW_BASE/src/VITest/ExprEval/src; cp CommonTools/Utils/test/ExprEvalStubs/*.h $CMSSW_BASE/src/VITest/ExprEval/src/.");
-   system("cp CommonTools/Utils/test/ExprEvalStubs/BuildFile.xml $CMSSW_BASE/src/VITest/ExprEval/.; pushd $CMSSW_BASE; scram b -j 8; popd");
+   system("echo $CMSSW_BASE");
+   system("mkdir -p $CMSSW_BASE/src/VITest/ExprEval/src; cp $CMSSW_BASE/src/CommonTools/Utils/test/ExprEvalStubs/*.h $CMSSW_BASE/src/VITest/ExprEval/src/.");
+   system("cp $CMSSW_BASE/src/CommonTools/Utils/test/ExprEvalStubs/BuildFile.xml $CMSSW_BASE/src/VITest/ExprEval/.; pushd $CMSSW_BASE; scram b -j 8; popd");
 
   using reco::ExpressionEvaluator;
 
