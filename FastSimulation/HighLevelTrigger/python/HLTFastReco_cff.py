@@ -89,6 +89,7 @@ import L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi
 hltL1GtTrigReport = L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi.l1GtTrigReport.clone()
 hltL1GtTrigReport.PrintVerbosity = 1
 hltL1GtTrigReport.PrintOutput = 2
+hltL1GtTrigReport.L1GtRecordInputTag = cms.InputTag("simGtDigis")
 
 # HLT Report
 options = cms.untracked.PSet(
