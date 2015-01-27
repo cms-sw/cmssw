@@ -167,6 +167,7 @@ namespace Phase2Tracker
     }
     if (chipid_ <  d2.getChipId()) { return true; }
     if (chipid_ == d2.getChipId() and rawx_ < d2.getRawX() ) { return true; }
+    if (chipid_ == d2.getChipId() and rawx_ == d2.getRawX() and rawy_ < d2.getRawY()) { return true; }
     return false;
   }
 }
