@@ -126,7 +126,7 @@ ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig) :
   outputFile_(iConfig.getParameter<std::string>("outputFile")),
   args_(iConfig.getParameter<std::vector<std::string> >("args")),
   npars_(iConfig.getParameter<uint32_t>("numberOfParameters")),
-  nEvents_(iConfig.getParameter<uint32_t>("nEvents"))
+  nEvents_(iConfig.getUntrackedParameter<uint32_t>("nEvents"))
 {
   if (npars_ != args_.size())
     throw cms::Exception("ExternalLHEProducer") << "Problem with configuration: " << args_.size() << " script arguments given, expected " << npars_;
@@ -452,7 +452,7 @@ ExternalLHEProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<std::string>("outputFile", "myoutput");
   desc.add<std::vector<std::string> >("args");
   desc.add<uint32_t>("numberOfParameters");
-  desc.add<uint32_t>("nEvents");
+  desc.addUntracked<uint32_t>("nEvents");
 
   descriptions.addDefault(desc);
 }
