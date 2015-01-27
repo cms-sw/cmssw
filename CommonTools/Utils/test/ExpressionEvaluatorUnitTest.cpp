@@ -5,21 +5,16 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "TestArea.h"
 
 #include <iostream>
 
 int main() {
 
    // build fake test package...
-   std::string pkg = "VITest/ExprEval";
+   std::string pkg = "EEUnitTest/ExprEval";
 
-   std::cerr << "setting up VITest/ExprEval" << std::endl;
-   system("rm -rf $CMSSW_BASE/src/VITest $CMSSW_BASE/include/$SCRAM_ARCH/VITest");
-   system("echo $CMSSW_BASE");
-   system("mkdir -p $CMSSW_BASE/src/VITest/ExprEval/src; cp $CMSSW_BASE/src/CommonTools/Utils/test/ExprEvalStubs/*.h $CMSSW_BASE/src/VITest/ExprEval/src/.");
-   system("cp $CMSSW_BASE/src/CommonTools/Utils/test/ExprEvalStubs/BuildFile.xml $CMSSW_BASE/src/VITest/ExprEval/.; pushd $CMSSW_BASE; scram b -j 8; popd");
-   system("ls $CMSSW_BASE/src; ls -l $CMSSW_BASE/src/VITest/ExprEval/src");
-   system("ls -l $CMSSW_BASE/include/$SCRAM_ARCH/VITest/ExprEval/src");
+   TestArea testArea("EEUnitTest");
 
   using reco::ExpressionEvaluator;
 
@@ -29,7 +24,7 @@ int main() {
 
   std::string expr = "void eval(Coll const & c, Res & r) override{ r.resize(c.size()); std::transform(c.begin(),c.end(),r.begin(), [](Coll::value_type const & c){ return (*c).pt()>10;}); }";
 
-  ExpressionEvaluator parser("VITest/ExprEval", "MyExpr",expr.c_str());
+  ExpressionEvaluator parser("EEUnitTest/ExprEval", "MyExpr",expr.c_str());
 
   auto func = parser.expr<MyExpr>();
 
@@ -40,10 +35,10 @@ int main() {
 
   std::string cut = "bool eval(int i, int j) override { return i<10&& j<5; }";
 
-  // ExpressionEvaluator parser2("VITest/ExprEval","eetest::vcut",cut.c_str());
+  // ExpressionEvaluator parser2("EEUnitTest/ExprEval","eetest::vcut",cut.c_str());
   // auto mcut = parser2.expr<eetest::vcut>();
 
-  auto mcut = reco_expressionEvaluator("VITest/ExprEval",eetest::vcut,cut);
+  auto mcut = reco_expressionEvaluator("EEUnitTest/ExprEval",eetest::vcut,cut);
 
   std::cout << mcut->eval(2,7) << ' ' << mcut->eval(3, 4) << std::endl;
 
@@ -61,7 +56,7 @@ int main() {
 
   try {
     std::string cut = "bool eval(int i, int j) ride { return i<10&& j<5; }";
-    ExpressionEvaluator parser2("VITest/ExprEval","eetest::vcut",cut.c_str());
+    ExpressionEvaluator parser2("EEUnitTest/ExprEval","eetest::vcut",cut.c_str());
     auto mcut = parser2.expr<eetest::vcut>();
     std::cout << mcut->eval(2,7) << ' ' << mcut->eval(3, 4) << std::endl;
  
@@ -71,9 +66,6 @@ int main() {
     std::cout << "unknown error...." << std::endl;
   }
 
-
-
-  system("rm -rf $CMSSW_BASE/src/VITest $CMSSW_BASE/include/$SCRAM_ARCH/VITest");
 
   return 0;
 

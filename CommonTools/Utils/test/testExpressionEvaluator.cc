@@ -10,6 +10,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
+#include "TestArea.h"
 
 class testExpressionEvaluator : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testExpressionEvaluator);
@@ -17,17 +18,11 @@ class testExpressionEvaluator : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  testExpressionEvaluator() {
-   std::cerr << "setting up VITest/ExprEval" << std::endl;
-   system("rm -rf $CMSSW_BASE/src/VITest $CMSSW_BASE/include/$SCRAM_ARCH/VITest");
-   system("echo $CMSSW_BASE");
-   system("mkdir -p $CMSSW_BASE/src/VITest/ExprEval/src; cp $CMSSW_BASE/src/CommonTools/Utils/test/ExprEvalStubs/*.h $CMSSW_BASE/src/VITest/ExprEval/src/.");
-   system("cp $CMSSW_BASE/src/CommonTools/Utils/test/ExprEvalStubs/BuildFile.xml $CMSSW_BASE/src/VITest/ExprEval/.; pushd $CMSSW_BASE; scram b -j 8; popd");
-   system("ls $CMSSW_BASE/src; ls -l $CMSSW_BASE/src/VITest/ExprEval/src");
-   system("ls -l $CMSSW_BASE/include/$SCRAM_ARCH/VITest/ExprEval/src");
-  }
-  ~testExpressionEvaluator() {system("rm -rf $CMSSW_BASE/src/VITest $CMSSW_BASE/include/$SCRAM_ARCH/VITest");}
+  testExpressionEvaluator() : testArea("EEIntTest"){}
+  ~testExpressionEvaluator(){}
   void checkAll(); 
+
+  TestArea testArea;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testExpressionEvaluator );
@@ -41,7 +36,7 @@ namespace {
      std::string sexpr = "double eval(reco::LeafCandidate const& cand) const override { return ";
      sexpr += expression + ";}";
      // construct the expression evaluator (pkg where precompile.h resides, name of base class, declaration of overloaded member function)
-     reco::ExpressionEvaluator eval("VITest/ExprEval","reco::ValueOnObject<reco::LeafCandidate>",sexpr.c_str());
+     reco::ExpressionEvaluator eval("EEIntTest/ExprEval","reco::ValueOnObject<reco::LeafCandidate>",sexpr.c_str());
      // obtain a pointer to the base class  (to be stored in Filter and Analyser at thier costruction time!)
      reco::ValueOnObject<reco::LeafCandidate> const * expr = eval.expr<reco::ValueOnObject<reco::LeafCandidate>>();
      CPPUNIT_ASSERT(expr);
@@ -77,7 +72,7 @@ namespace {
       sexpr += "mask(c,m,cut); }";
       std::cerr << "testing " << sexpr << std::endl;
       try {
-        reco::ExpressionEvaluator eval("VITest/ExprEval","reco::MaskCollection<reco::LeafCandidate>",sexpr.c_str());
+        reco::ExpressionEvaluator eval("EEIntTest/ExprEval","reco::MaskCollection<reco::LeafCandidate>",sexpr.c_str());
         m_selector = eval.expr<Selector>();
         CPPUNIT_ASSERT(m_selector);
       } catch(cms::Exception const & e) {
@@ -112,7 +107,7 @@ namespace {
       sexpr += "select(c,cut); }";
       std::cerr << "testing " << sexpr << std::endl;
       try {
-	reco::ExpressionEvaluator eval("VITest/ExprEval","reco::SelectInCollection<reco::LeafCandidate>",sexpr.c_str());
+	reco::ExpressionEvaluator eval("EEIntTest/ExprEval","reco::SelectInCollection<reco::LeafCandidate>",sexpr.c_str());
         m_selector = eval.expr<Selector>();
         CPPUNIT_ASSERT(m_selector);
       } catch(cms::Exception const & e) {
