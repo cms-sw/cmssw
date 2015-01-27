@@ -13,27 +13,32 @@ namespace Phase2Tracker {
   public:
     Phase2TrackerFEDZSChannelUnpacker(const Phase2TrackerFEDChannel& channel);
     bool hasData() const { return clustersLeft_; }
+    // go to next clusters, merge adjacent clusters (default method)
     Phase2TrackerFEDZSChannelUnpacker& operator ++ ();
     Phase2TrackerFEDZSChannelUnpacker& operator ++ (int);
-    virtual int clusterX() const = 0; 
-    virtual int clusterY() const = 0;
-    void Merge(); 
-    int mergedX(); 
-    int mergedY();
-    int mergedSize();
+    inline int clusterX()    const { return clusterx_; } 
+    inline int clusterY()    const { return clustery_; }
+    inline int clusterSize() const { return clustersize_; }
+    virtual int unMergedX()    const = 0; 
+    virtual int unMergedY()    const = 0;
+    virtual int unMergedSize() const = 0;
   protected:
-    virtual uint8_t rawX() const = 0;
+    // merge next clusters if adjacent
+    void Merge(); 
+    // go to next cluster without merging adjacent clusters
+    Phase2TrackerFEDZSChannelUnpacker& advance();
+    // raw methods (bitwise operations)
+    virtual uint8_t rawX()    const = 0;
     virtual uint8_t rawSize() const = 0;
-    virtual uint8_t chipId() const = 0;
+    virtual uint8_t chipId()  const = 0;
     virtual bool gluedToNextCluster() const = 0;
     const uint8_t* data_;
     uint16_t currentOffset_; // caution : this is in bits, not bytes
     uint16_t clustersLeft_;
     uint8_t clusterdatasize_;
-    int mergedx_;
-    int mergedy_;
-    int mergedsize_;
-    bool merged_ = false;
+    int clusterx_;
+    int clustery_;
+    int clustersize_;
   };
 
   inline Phase2TrackerFEDZSChannelUnpacker::Phase2TrackerFEDZSChannelUnpacker(const Phase2TrackerFEDChannel& channel)
@@ -44,41 +49,30 @@ namespace Phase2Tracker {
 
   void Phase2TrackerFEDZSChannelUnpacker::Merge()
   {
-    mergedx_ = clusterX();
-    mergedsize_  = rawSize();
+    clusterx_     = unMergedX();
+    clustery_     = unMergedY();
+    clustersize_  = unMergedSize();
     while(gluedToNextCluster())
     {
-      std::cout << "Cluster " << (uint16_t)clusterX() << " " << (uint16_t)rawSize() << " on chip " << (uint16_t)chipId() << " has to be merged with next one : ";
-      ++(*this);
-      mergedsize_ += rawSize();
-      std::cout << (uint16_t)clusterX() << " " << (uint16_t)rawSize() << " on chip " << (uint16_t)chipId() << std::endl;
+      std::cout << "Cluster " << (uint16_t)unMergedX() << " " << (uint16_t)unMergedSize() << " on chip " << (uint16_t)chipId() << " has to be merged with next one : ";
+      this->advance();
+      clustersize_ += unMergedSize();
+      std::cout << (uint16_t)unMergedX() << " " << (uint16_t)unMergedSize() << " on chip " << (uint16_t)chipId() << std::endl;
     }
-    merged_ = true;
-  }
-
-  int Phase2TrackerFEDZSChannelUnpacker::mergedX()
-  {
-    if (!merged_) Merge();
-    return mergedx_;
-  }
-
-  int Phase2TrackerFEDZSChannelUnpacker::mergedY()
-  {
-    if (!merged_) Merge();
-    return clusterY();
-  }
-
-  int Phase2TrackerFEDZSChannelUnpacker::mergedSize()
-  {
-    if (!merged_) Merge();
-    return mergedsize_;
   }
 
   inline Phase2TrackerFEDZSChannelUnpacker& Phase2TrackerFEDZSChannelUnpacker::operator ++ ()
   {
     currentOffset_ += clusterdatasize_; 
     clustersLeft_--;
-    merged_ = false;
+    Merge();
+    return (*this);
+  }
+
+  Phase2TrackerFEDZSChannelUnpacker& Phase2TrackerFEDZSChannelUnpacker::advance()
+  {
+    currentOffset_ += clusterdatasize_;
+    clustersLeft_--;
     return (*this);
   }
 
@@ -94,24 +88,26 @@ namespace Phase2Tracker {
           {
               clusterdatasize_ = S_CLUSTER_SIZE_BITS;
               clustersLeft_ = channel.length()*8/clusterdatasize_;
+              Merge();
           }
           inline uint8_t rawX()     const { return (uint8_t)read_n_at_m(data_,8,3+currentOffset_); }
           inline uint8_t rawSize()  const { return (uint8_t)read_n_at_m(data_,3,currentOffset_)+1; }
           inline uint8_t chipId()   const { return (uint8_t)read_n_at_m(data_,4,11+currentOffset_); }
-          int clusterX() const; 
-          int clusterY() const;
+          int unMergedX() const; 
+          int unMergedY() const;
+          inline int unMergedSize() const { return rawSize(); } 
           bool gluedToNextCluster() const;
           Phase2TrackerFEDZSSon2SChannelUnpacker next() const;
   };
 
-  int Phase2TrackerFEDZSSon2SChannelUnpacker::clusterX() const
+  int Phase2TrackerFEDZSSon2SChannelUnpacker::unMergedX() const
   {
     uint8_t id = chipId();
     if(id>7) id -= 8;
     return (STRIPS_PER_CBC*id + rawX())/2;
   }
 
-  int Phase2TrackerFEDZSSon2SChannelUnpacker::clusterY() const
+  int Phase2TrackerFEDZSSon2SChannelUnpacker::unMergedY() const
   {
     return (chipId() > 7)?1:0;
   }
@@ -119,10 +115,10 @@ namespace Phase2Tracker {
   bool Phase2TrackerFEDZSSon2SChannelUnpacker::gluedToNextCluster() const
   {
     uint8_t size = rawSize();
-    if (clustersLeft_ <= 1 or this->next().clusterY() != clusterY()) return false; 
-    if (this->next().clusterX() == clusterX() + size) 
+    if (clustersLeft_ <= 1 or this->next().unMergedY() != unMergedY()) return false; 
+    if (this->next().unMergedX() == unMergedX() + size) 
     {
-      if(size == 8 or (clusterX() + size)%(STRIPS_PER_CBC/2) == 0) return true;
+      if(size == 8 or (unMergedX() + size)%(STRIPS_PER_CBC/2) == 0) return true;
     }
     return false;
   }
@@ -130,7 +126,7 @@ namespace Phase2Tracker {
   Phase2TrackerFEDZSSon2SChannelUnpacker Phase2TrackerFEDZSSon2SChannelUnpacker::next() const
   {
     Phase2TrackerFEDZSSon2SChannelUnpacker next(*this);
-    next++;
+    next.advance();
     return next;
   }
 
@@ -141,24 +137,26 @@ namespace Phase2Tracker {
           {
               clusterdatasize_ = S_CLUSTER_SIZE_BITS;  
               clustersLeft_ = channel.length()*8/clusterdatasize_;
+              Merge();
           }
           inline uint8_t rawX()     const { return (uint8_t)read_n_at_m(data_,8,3+currentOffset_); }
           inline uint8_t rawSize()  const { return (uint8_t)read_n_at_m(data_,3,currentOffset_)+1; }
           inline uint8_t chipId()   const { return (uint8_t)read_n_at_m(data_,4,11+currentOffset_); }
-          int clusterX() const;
-          int clusterY() const;
+          int unMergedX() const;
+          int unMergedY() const;
+          inline int unMergedSize() const { return rawSize(); } 
           bool gluedToNextCluster() const;
           Phase2TrackerFEDZSSonPSChannelUnpacker next() const;
   };
   
-  int Phase2TrackerFEDZSSonPSChannelUnpacker::clusterX() const
+  int Phase2TrackerFEDZSSonPSChannelUnpacker::unMergedX() const
   {
     uint8_t id = chipId();
     if(id>7) id -= 8;
     return PS_ROWS*id + rawX();
   }
 
-  int Phase2TrackerFEDZSSonPSChannelUnpacker::clusterY() const
+  int Phase2TrackerFEDZSSonPSChannelUnpacker::unMergedY() const
   {
     return (chipId() > 7)?1:0;
   }
@@ -166,17 +164,17 @@ namespace Phase2Tracker {
   Phase2TrackerFEDZSSonPSChannelUnpacker Phase2TrackerFEDZSSonPSChannelUnpacker::next() const
   {
     Phase2TrackerFEDZSSonPSChannelUnpacker next(*this);
-    next++;
+    next.advance();
     return next;
   }
 
   bool Phase2TrackerFEDZSSonPSChannelUnpacker::gluedToNextCluster() const
   {
     uint8_t size = rawSize();
-    if (clustersLeft_ <= 1 or this->next().clusterY() != clusterY()) { return false; }
-    if (this->next().clusterX() == clusterX() + size) 
+    if (clustersLeft_ <= 1 or this->next().unMergedY() != unMergedY()) { return false; }
+    if (this->next().unMergedX() == unMergedX() + size) 
     {
-      if(size == 8 or (clusterX() + size)%PS_ROWS == 0) return true;
+      if(size == 8 or (unMergedX() + size)%PS_ROWS == 0) return true;
     }
     return false; 
   }
@@ -188,25 +186,27 @@ namespace Phase2Tracker {
           {
               clusterdatasize_ = P_CLUSTER_SIZE_BITS;  
               clustersLeft_ = channel.length()*8/clusterdatasize_;
+              Merge();
           }
           inline uint8_t rawX()        const { return (uint8_t)read_n_at_m(data_,7,7+currentOffset_);  }
+          inline uint8_t rawY()        const { return (uint8_t)read_n_at_m(data_,4,3+currentOffset_); }
           inline uint8_t rawSize()     const { return (uint8_t)read_n_at_m(data_,3,currentOffset_)+1; }
           inline uint8_t chipId()      const { return (uint8_t)read_n_at_m(data_,4,14+currentOffset_); }
-          inline uint8_t rawY()        const { return (uint8_t)read_n_at_m(data_,4,3+currentOffset_); }
-          int clusterX() const; 
-          int clusterY() const; 
+          int unMergedX() const; 
+          int unMergedY() const; 
+          inline int unMergedSize() const { return rawSize(); } 
           bool gluedToNextCluster() const;
           Phase2TrackerFEDZSPonPSChannelUnpacker next() const;
   };
 
-  int Phase2TrackerFEDZSPonPSChannelUnpacker::clusterX() const
+  int Phase2TrackerFEDZSPonPSChannelUnpacker::unMergedX() const
   {
     uint8_t id = chipId();
     if(id>7) id -= 8;
     return PS_ROWS*id + rawX();
   }
 
-  int Phase2TrackerFEDZSPonPSChannelUnpacker::clusterY() const
+  int Phase2TrackerFEDZSPonPSChannelUnpacker::unMergedY() const
   {
     return (chipId() > 7)?(rawY()+PS_COLS/2):rawY();
   }
@@ -214,17 +214,17 @@ namespace Phase2Tracker {
   Phase2TrackerFEDZSPonPSChannelUnpacker Phase2TrackerFEDZSPonPSChannelUnpacker::next() const
   {
     Phase2TrackerFEDZSPonPSChannelUnpacker next(*this);
-    next++;
+    next.advance();
     return next;
   }
 
   bool Phase2TrackerFEDZSPonPSChannelUnpacker::gluedToNextCluster() const
   {
     uint8_t size = rawSize();
-    if (clustersLeft_ <= 1 or this->next().clusterY() != clusterY()) { return false; }
-    if (this->next().clusterX() == clusterX() + size) 
+    if (clustersLeft_ <= 1 or this->next().unMergedY() != unMergedY()) { return false; }
+    if (this->next().unMergedX() == unMergedX() + size) 
     {
-      if(size == 8 or (clusterX() + size)%PS_ROWS == 0) return true;
+      if(size == 8 or (unMergedX() + size)%PS_ROWS == 0) return true;
     }
     return false; 
   }

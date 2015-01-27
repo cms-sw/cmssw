@@ -283,13 +283,13 @@ namespace Phase2Tracker {
                     #endif
                     if (unpacker.rawX()%2) 
                     {
-		      clustersTop.push_back(makeSiPixelCluster(unpacker.mergedX(),unpacker.mergedSize(),unpacker.mergedY()));
+		      clustersTop.push_back(makeSiPixelCluster(unpacker.clusterX(),unpacker.clusterSize(),unpacker.clusterY()));
                     }
                     else 
                     {
-                      clustersBottom.push_back(makeSiPixelCluster(unpacker.mergedX(),unpacker.mergedSize(),unpacker.mergedY()));
+                      clustersBottom.push_back(makeSiPixelCluster(unpacker.clusterX(),unpacker.clusterSize(),unpacker.clusterY()));
                     }
-                    std::cout << std::dec << "Son2S " << (int)unpacker.mergedX() << " " << (int)unpacker.mergedSize() << " " << icbc << std::endl;
+                    std::cout << std::dec << "Son2S " << (int)unpacker.clusterX() << " " << (int)unpacker.clusterSize() << " " << icbc << std::endl;
                     unpacker++;
                   }
                 } 
@@ -302,8 +302,8 @@ namespace Phase2Tracker {
                     #ifdef EDM_ML_DEBUG
                     ss << dec << "SonPS cluster at position: " << (int)unpacker.rawX() << " with size: " << (int)unpacker.rawSize() << endl;
                     #endif
-                    clustersTop.push_back(makeSiPixelCluster(unpacker.mergedX(),unpacker.mergedSize(),unpacker.mergedY()));
-                    std::cout << std::dec << "SonPS " << (int)unpacker.mergedX() << " " << (int)unpacker.mergedSize() << " " << icbc << std::endl;
+                    clustersTop.push_back(makeSiPixelCluster(unpacker.clusterX(),unpacker.clusterSize(),unpacker.clusterY()));
+                    std::cout << std::dec << "SonPS " << (int)unpacker.clusterX() << " " << (int)unpacker.clusterSize() << " " << icbc << std::endl;
                     unpacker++;
                   }
                 }
@@ -316,8 +316,8 @@ namespace Phase2Tracker {
                     #ifdef EDM_ML_DEBUG
                     ss << dec << "PonPS cluster at position: " << (int)unpacker.rawX() <<" , "<<  (int)unpacker.rawY() << " with size: " << (int)unpacker.rawSize() << endl;
                     #endif
-                    clustersBottom.push_back(makeSiPixelCluster(unpacker.mergedX(),unpacker.mergedSize(),unpacker.mergedY()));
-                    std::cout << std::dec << "PonPS " << (int)unpacker.mergedX() << " " << (int)unpacker.mergedSize() << " " << (int)unpacker.rawY() << " " << icbc << std::endl;
+                    clustersBottom.push_back(makeSiPixelCluster(unpacker.clusterX(),unpacker.clusterSize(),unpacker.clusterY()));
+                    std::cout << std::dec << "PonPS " << (int)unpacker.clusterX() << " " << (int)unpacker.clusterSize() << " " << (int)unpacker.clusterY() << " " << icbc << std::endl;
                     unpacker++;
                   }
                 }
