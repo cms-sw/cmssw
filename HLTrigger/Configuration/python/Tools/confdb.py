@@ -642,7 +642,7 @@ for module in process.__dict__.itervalues():
         elif parameter.moduleLabel == 'hltL1GtObjectMap':
           parameter.moduleLabel = "gtDigisFromSkim"
         elif parameter.moduleLabel == 'hltGctDigis':
-          parameter.moduleLabel ="caloStage1LegacyFormatDigis"
+          parameter.moduleLabel ="simCaloStage1LegacyFormatDigis"
 """
 
   def overrideOutput(self):
