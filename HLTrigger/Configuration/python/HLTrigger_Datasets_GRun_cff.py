@@ -9,7 +9,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetInitialPD_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetInitialPD_selector.l1tResults = cms.InputTag('')
 streamA_datasetInitialPD_selector.throw      = cms.bool(False)
-streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV0p3_v1', 
+streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV0p3_v1', 
     'HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v1', 
     'HLT_AK8PFJet360TrimMod_Mass30_v1', 
     'HLT_BTagMu_DiJet110_Mu5_v1', 
@@ -180,13 +180,8 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v1', 
     'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v1', 
     'HLT_Mu8_TrkIsoVVL_v1', 
-    'HLT_PFHT200_DiPFJet90_PFAlphaT0p57_v1', 
-    'HLT_PFHT250_DiPFJet90_PFAlphaT0p55_v1', 
-    'HLT_PFHT300_DiPFJet90_PFAlphaT0p53_v1', 
-    'HLT_PFHT350_DiPFJet90_PFAlphaT0p52_v1', 
     'HLT_PFHT350_PFMET120_NoiseCleaned_v1', 
     'HLT_PFHT350_v1', 
-    'HLT_PFHT400_DiPFJet90_PFAlphaT0p51_v1', 
     'HLT_PFHT550_4Jet_v1', 
     'HLT_PFHT600_v1', 
     'HLT_PFHT650_4Jet_v1', 
@@ -254,7 +249,6 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_QuadJet45_TripleCSV0p5_v1', 
     'HLT_QuadMuon0_Dimuon0_Jpsi_v1', 
     'HLT_QuadMuon0_Dimuon0_Upsilon_v1', 
-    'HLT_QuadPFJet_BTagCSV_VBF_v1', 
     'HLT_QuadPFJet_VBF_v1', 
     'HLT_Rsq0p36_v1', 
     'HLT_RsqMR260_Rsq0p09_MR200_4jet_v1', 
@@ -264,7 +258,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_TkMu24_eta2p1_v1', 
     'HLT_TkMu27_v1', 
     'HLT_TripleMu_12_10_5_v1', 
-    'HLT_ZeroBias_v1' ) )
+    'HLT_ZeroBias_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTemplates_selector
 streamA_datasetTemplates_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

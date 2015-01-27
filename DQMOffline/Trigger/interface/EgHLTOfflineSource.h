@@ -54,7 +54,7 @@ namespace egHLT {
 
 // }
 
-class EgHLTOfflineSource : public DQMEDAnalyzer {
+class EgHLTOfflineSource : public thread_unsafe::DQMEDAnalyzer {
  
  private:
   MonitorElement* dqmErrsMonElem_; //monitors DQM errors (ie failing to get trigger info, etc)
