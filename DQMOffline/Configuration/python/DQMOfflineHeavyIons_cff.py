@@ -81,7 +81,5 @@ DQMOfflineHeavyIonsPOG = cms.Sequence( DQMOfflineHeavyIonsPrePOG *
 DQMOfflineHeavyIons = cms.Sequence( DQMOfflineHeavyIonsPreDPG *
                                     DQMOfflineHeavyIonsPrePOG *
                                     DQMMessageLogger )
-#DQMOfflineHeavyIons = cms.Sequence(  jetMETDQMOfflineSource *
-#                                    DQMMessageLogger )
     
 #DQMOfflineHeavyIonsPhysics = cms.Sequence( dqmPhysics )
