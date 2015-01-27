@@ -1,0 +1,414 @@
+from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
+from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
+from PhysicsTools.Heppy.physicsobjects.Electron import Electron
+from PhysicsTools.Heppy.physicsobjects.Muon import Muon
+#from CMGTools.TTHAnalysis.tools.EfficiencyCorrector import EfficiencyCorrector
+
+from PhysicsTools.HeppyCore.utils.deltar import bestMatch
+from PhysicsTools.Heppy.physicsutils.RochesterCorrections import rochcor
+from PhysicsTools.Heppy.physicsutils.MuScleFitCorrector   import MuScleFitCorr
+from PhysicsTools.Heppy.physicsutils.ElectronCalibrator import EmbeddedElectronCalibrator
+#from CMGTools.TTHAnalysis.electronCalibrator import ElectronCalibrator
+import PhysicsTools.HeppyCore.framework.config as cfg
+from PhysicsTools.HeppyCore.utils.deltar import * 
+from PhysicsTools.Heppy.physicsutils.genutils import *
+
+
+from ROOT import heppy
+cmgMuonCleanerBySegments = heppy.CMGMuonCleanerBySegmentsAlgo()
+
+class LeptonAnalyzer( Analyzer ):
+
+    
+    def __init__(self, cfg_ana, cfg_comp, looperName ):
+        super(LeptonAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
+        if self.cfg_ana.doMuScleFitCorrections and self.cfg_ana.doMuScleFitCorrections != "none":
+            if self.cfg_ana.doMuScleFitCorrections not in [ "none", "prompt", "prompt-sync", "rereco", "rereco-sync" ]:
+                raise RuntimeError, 'doMuScleFitCorrections must be one of "none", "prompt", "prompt-sync", "rereco", "rereco-sync"'
+            rereco = ("prompt" not in self.cfg_ana.doMuScleFitCorrections)
+            sync   = ("sync"       in self.cfg_ana.doMuScleFitCorrections)
+            self.muscleCorr = MuScleFitCorr(cfg_comp.isMC, rereco, sync)
+            if hasattr(self.cfg_ana, "doRochesterCorrections") and self.cfg_ana.doRochesterCorrections:
+                raise RuntimeError, "You can't run both Rochester and MuScleFit corrections!"
+        else:
+            self.cfg_ana.doMuScleFitCorrections = False
+	#FIXME: only Embedded works
+        self.electronEnergyCalibrator = EmbeddedElectronCalibrator()
+#        if hasattr(cfg_comp,'efficiency'):
+#            self.efficiency= EfficiencyCorrector(cfg_comp.efficiency)
+        self.eleEffectiveArea = getattr(cfg_ana, 'ele_effectiveAreas', "Phys14_25ns_v1")
+        self.muEffectiveArea  = getattr(cfg_ana, 'mu_effectiveAreas',  "Phys14_25ns_v1")
+    #----------------------------------------
+    # DECLARATION OF HANDLES OF LEPTONS STUFF   
+    #----------------------------------------
+        
+
+    def declareHandles(self):
+        super(LeptonAnalyzer, self).declareHandles()
+
+        #leptons
+        self.handles['muons'] = AutoHandle(self.cfg_ana.muons,"std::vector<pat::Muon>")            
+        self.handles['electrons'] = AutoHandle(self.cfg_ana.electrons,"std::vector<pat::Electron>")            
+    
+        #rho for muons
+        self.handles['rhoMu'] = AutoHandle( self.cfg_ana.rhoMuon, 'double')
+        #rho for electrons
+        self.handles['rhoEle'] = AutoHandle( self.cfg_ana.rhoElectron, 'double')
+
+    def beginLoop(self, setup):
+        super(LeptonAnalyzer,self).beginLoop(setup)
+        self.counters.addCounter('events')
+        count = self.counters.counter('events')
+        count.register('all events')
+
+    #------------------
+    # MAKE LEPTON LISTS
+    #------------------
+
+    
+    def makeLeptons(self, event):
+        ### inclusive leptons = all leptons that could be considered somewhere in the analysis, with minimal requirements (used e.g. to match to MC)
+        event.inclusiveLeptons = []
+        ### selected leptons = subset of inclusive leptons passing some basic id definition and pt requirement
+        ### other    leptons = subset of inclusive leptons failing some basic id definition and pt requirement
+        event.selectedLeptons = []
+        event.selectedMuons = []
+        event.selectedElectrons = []
+        event.otherLeptons = []
+
+        #muons
+        allmuons = self.makeAllMuons(event)
+
+        for mu in allmuons:
+            # inclusive, very loose, selection
+            if (mu.track().isNonnull() and mu.muonID(self.cfg_ana.inclusive_muon_id) and 
+                    mu.pt()>self.cfg_ana.inclusive_muon_pt and abs(mu.eta())<self.cfg_ana.inclusive_muon_eta and 
+                    abs(mu.dxy())<self.cfg_ana.inclusive_muon_dxy and abs(mu.dz())<self.cfg_ana.inclusive_muon_dz):
+                event.inclusiveLeptons.append(mu)
+                # basic selection
+                if (mu.muonID(self.cfg_ana.loose_muon_id) and 
+                        mu.pt() > self.cfg_ana.loose_muon_pt and abs(mu.eta()) < self.cfg_ana.loose_muon_eta and 
+                        abs(mu.dxy()) < self.cfg_ana.loose_muon_dxy and abs(mu.dz()) < self.cfg_ana.loose_muon_dz and
+                        mu.relIso03 < self.cfg_ana.loose_muon_relIso and 
+                        mu.absIso03 < (self.cfg_ana.loose_muon_absIso if hasattr(self.cfg_ana,'loose_muon_absIso') else 9e99)):
+                    mu.looseIdSusy = True
+                    event.selectedLeptons.append(mu)
+                    event.selectedMuons.append(mu)
+                else:
+                    mu.looseIdSusy = False
+                    event.otherLeptons.append(mu)
+
+        #electrons        
+        allelectrons = self.makeAllElectrons(event)
+
+        looseMuons = event.selectedLeptons[:]
+        for ele in allelectrons:
+            ## remove muons if muForEleCrossCleaning is not empty
+            ## apply selection
+            if ( ele.electronID(self.cfg_ana.inclusive_electron_id) and
+                    ele.pt()>self.cfg_ana.inclusive_electron_pt and abs(ele.eta())<self.cfg_ana.inclusive_electron_eta and 
+                    abs(ele.dxy())<self.cfg_ana.inclusive_electron_dxy and abs(ele.dz())<self.cfg_ana.inclusive_electron_dz and 
+                    ele.lostInner()<=self.cfg_ana.inclusive_electron_lostHits ):
+                event.inclusiveLeptons.append(ele)
+                # basic selection
+                if (ele.electronID(self.cfg_ana.loose_electron_id) and
+                         ele.pt()>self.cfg_ana.loose_electron_pt and abs(ele.eta())<self.cfg_ana.loose_electron_eta and 
+                         abs(ele.dxy()) < self.cfg_ana.loose_electron_dxy and abs(ele.dz())<self.cfg_ana.loose_electron_dz and 
+                         ele.relIso03 <= self.cfg_ana.loose_electron_relIso and
+                         ele.absIso03 < (self.cfg_ana.loose_electron_absIso if hasattr(self.cfg_ana,'loose_electron_absIso') else 9e99) and
+                         ele.lostInner() <= self.cfg_ana.loose_electron_lostHits and
+                         ( True if (hasattr(self.cfg_ana,'notCleaningElectrons') and self.cfg_ana.notCleaningElectrons) else (bestMatch(ele, looseMuons)[1] > (self.cfg_ana.min_dr_electron_muon**2)) )):
+                    event.selectedLeptons.append(ele)
+                    event.selectedElectrons.append(ele)
+                    ele.looseIdSusy = True
+                else:
+                    event.otherLeptons.append(ele)
+                    ele.looseIdSusy = False
+
+        event.otherLeptons.sort(key = lambda l : l.pt(), reverse = True)
+        event.selectedLeptons.sort(key = lambda l : l.pt(), reverse = True)
+        event.selectedMuons.sort(key = lambda l : l.pt(), reverse = True)
+        event.selectedElectrons.sort(key = lambda l : l.pt(), reverse = True)
+        event.inclusiveLeptons.sort(key = lambda l : l.pt(), reverse = True)
+
+        for lepton in event.selectedLeptons:
+            if hasattr(self,'efficiency'):
+                self.efficiency.attachToObject(lepton)
+
+    def makeAllMuons(self, event):
+        """
+               make a list of all muons, and apply basic corrections to them
+        """
+        # Start from all muons
+        allmuons = map( Muon, self.handles['muons'].product() )
+
+        # Muon scale and resolution corrections (if enabled)
+        if self.cfg_ana.doMuScleFitCorrections:
+            for mu in allmuons:
+                self.muscleCorr.correct(mu, event.run)
+        elif self.cfg_ana.doRochesterCorrections:
+            for mu in allmuons:
+                corp4 = rochcor.corrected_p4(mu, event.run) 
+                mu.setP4( corp4 )
+
+        # Clean up dulicate muons (note: has no effect unless the muon id is removed)
+        if self.cfg_ana.doSegmentBasedMuonCleaning:
+            isgood = cmgMuonCleanerBySegments.clean( self.handles['muons'].product() )
+            newmu = []
+            for i,mu in enumerate(allmuons):
+                if isgood[i]: newmu.append(mu)
+            allmuons = newmu
+
+        # Attach EAs for isolation:
+        for mu in allmuons:
+          mu.rho = float(self.handles['rhoMu'].product()[0])
+          if self.muEffectiveArea == "Data2012":
+              if   aeta < 1.0  : mu.EffectiveArea03 = 0.382;
+              elif aeta < 1.47 : mu.EffectiveArea03 = 0.317;
+              elif aeta < 2.0  : mu.EffectiveArea03 = 0.242;
+              elif aeta < 2.2  : mu.EffectiveArea03 = 0.326;
+              elif aeta < 2.3  : mu.EffectiveArea03 = 0.462;
+              else             : mu.EffectiveArea03 = 0.372;
+              if   aeta < 1.0  : mu.EffectiveArea04 = 0.674;
+              elif aeta < 1.47 : mu.EffectiveArea04 = 0.565;
+              elif aeta < 2.0  : mu.EffectiveArea04 = 0.442;
+              elif aeta < 2.2  : mu.EffectiveArea04 = 0.515;
+              elif aeta < 2.3  : mu.EffectiveArea04 = 0.821;
+              else             : mu.EffectiveArea04 = 0.660;
+          elif self.muEffectiveArea == "Phys14_25ns_v1":
+              aeta = abs(mu.eta())
+              if   aeta < 0.800: mu.EffectiveArea03 = 0.0913
+              elif aeta < 1.300: mu.EffectiveArea03 = 0.0765
+              elif aeta < 2.000: mu.EffectiveArea03 = 0.0546
+              elif aeta < 2.200: mu.EffectiveArea03 = 0.0728
+              else:              mu.EffectiveArea03 = 0.1177
+              if   aeta < 0.800: mu.EffectiveArea04 = 0.1564
+              elif aeta < 1.300: mu.EffectiveArea04 = 0.1325
+              elif aeta < 2.000: mu.EffectiveArea04 = 0.0913
+              elif aeta < 2.200: mu.EffectiveArea04 = 0.1212
+              else:              mu.EffectiveArea04 = 0.2085
+          else: raise RuntimeError,  "Unsupported value for mu_effectiveAreas: can only use Data2012 (rho: ?) and Phys14_v1 (rho: fixedGridRhoFastjetAll)"
+        # Attach the vertex to them, for dxy/dz calculation
+        for mu in allmuons:
+            mu.associatedVertex = event.goodVertices[0]
+
+        # Compute relIso in 0.3 and 0.4 cones
+        for mu in allmuons:
+            if self.cfg_ana.mu_isoCorr=="rhoArea" :
+                mu.absIso03 = (mu.pfIsolationR03().sumChargedHadronPt + max( mu.pfIsolationR03().sumNeutralHadronEt +  mu.pfIsolationR03().sumPhotonEt - mu.rho * mu.EffectiveArea03,0.0))
+                mu.absIso04 = (mu.pfIsolationR04().sumChargedHadronPt + max( mu.pfIsolationR04().sumNeutralHadronEt +  mu.pfIsolationR04().sumPhotonEt - mu.rho * mu.EffectiveArea04,0.0))
+            elif self.cfg_ana.mu_isoCorr=="deltaBeta" :
+                mu.absIso03 = (mu.pfIsolationR03().sumChargedHadronPt + max( mu.pfIsolationR03().sumNeutralHadronEt +  mu.pfIsolationR03().sumPhotonEt -  mu.pfIsolationR03().sumPUPt/2,0.0))
+                mu.absIso04 = (mu.pfIsolationR04().sumChargedHadronPt + max( mu.pfIsolationR04().sumNeutralHadronEt +  mu.pfIsolationR04().sumPhotonEt -  mu.pfIsolationR04().sumPUPt/2,0.0))
+            else :
+                raise RuntimeError, "Unsupported mu_isoCorr name '" + str(self.cfg_ana.mu_isoCorr) +  "'! For now only 'rhoArea' and 'deltaBeta' are supported."
+            mu.relIso03 = mu.absIso03/mu.pt()
+            mu.relIso04 = mu.absIso04/mu.pt()
+ 
+        return allmuons
+
+    def makeAllElectrons(self, event):
+        """
+               make a list of all electrons, and apply basic corrections to them
+        """
+        allelectrons = map( Electron, self.handles['electrons'].product() )
+
+        ## Duplicate removal for fast sim (to be checked if still necessary in latest greatest 5.3.X releases)
+        allelenodup = []
+        for e in allelectrons:
+            dup = False
+            for e2 in allelenodup:
+                if abs(e.pt()-e2.pt()) < 1e-6 and abs(e.eta()-e2.eta()) < 1e-6 and abs(e.phi()-e2.phi()) < 1e-6 and e.charge() == e2.charge():
+                    dup = True
+                    break
+            if not dup: allelenodup.append(e)
+        allelectrons = allelenodup
+
+        # fill EA for rho-corrected isolation
+        for ele in allelectrons:
+          ele.rho = float(self.handles['rhoEle'].product()[0])
+          if self.eleEffectiveArea == "Data2012":
+              # https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaEARhoCorrection?rev=14
+              SCEta = abs(ele.superCluster().eta())
+              if   SCEta < 1.0  : ele.EffectiveArea03 = 0.13 # 0.130;
+              elif SCEta < 1.479: ele.EffectiveArea03 = 0.14 # 0.137;
+              elif SCEta < 2.0  : ele.EffectiveArea03 = 0.07 # 0.067;
+              elif SCEta < 2.2  : ele.EffectiveArea03 = 0.09 # 0.089;
+              elif SCEta < 2.3  : ele.EffectiveArea03 = 0.11 # 0.107;
+              elif SCEta < 2.4  : ele.EffectiveArea03 = 0.11 # 0.110;
+              else              : ele.EffectiveArea03 = 0.14 # 0.138;
+              if   SCEta < 1.0  : ele.EffectiveArea04 = 0.208;
+              elif SCEta < 1.479: ele.EffectiveArea04 = 0.209;
+              elif SCEta < 2.0  : ele.EffectiveArea04 = 0.115;
+              elif SCEta < 2.2  : ele.EffectiveArea04 = 0.143;
+              elif SCEta < 2.3  : ele.EffectiveArea04 = 0.183;
+              elif SCEta < 2.4  : ele.EffectiveArea04 = 0.194;
+              else              : ele.EffectiveArea04 = 0.261;
+          elif self.eleEffectiveArea == "Phys14_25ns_v1":
+              aeta = abs(ele.eta())
+              if   aeta < 0.800: ele.EffectiveArea03 = 0.1013
+              elif aeta < 1.300: ele.EffectiveArea03 = 0.0988
+              elif aeta < 2.000: ele.EffectiveArea03 = 0.0572
+              elif aeta < 2.200: ele.EffectiveArea03 = 0.0842
+              else:              ele.EffectiveArea03 = 0.1530
+              if   aeta < 0.800: ele.EffectiveArea04 = 0.1830 
+              elif aeta < 1.300: ele.EffectiveArea04 = 0.1734 
+              elif aeta < 2.000: ele.EffectiveArea04 = 0.1077 
+              elif aeta < 2.200: ele.EffectiveArea04 = 0.1565 
+              else:              ele.EffectiveArea04 = 0.2680 
+          else: raise RuntimeError,  "Unsupported value for ele_effectiveAreas: can only use Data2012 (rho: ?) and Phys14_v1 (rho: fixedGridRhoFastjetAll)"
+
+        # Electron scale calibrations
+        if self.cfg_ana.doElectronScaleCorrections:
+            for ele in allelectrons:
+                self.electronEnergyCalibrator.correct(ele, event.run)
+
+        # Attach the vertex
+        for ele in allelectrons:
+            ele.associatedVertex = event.goodVertices[0]
+
+        # Compute relIso with R=0.3 and R=0.4 cones
+        for ele in allelectrons:
+            if self.cfg_ana.ele_isoCorr=="rhoArea" :
+                 ele.absIso03 = (ele.chargedHadronIsoR(0.3) + max(ele.neutralHadronIsoR(0.3)+ele.photonIsoR(0.3)-ele.rho*ele.EffectiveArea03,0))
+                 ele.absIso04 = (ele.chargedHadronIsoR(0.4) + max(ele.neutralHadronIsoR(0.4)+ele.photonIsoR(0.4)-ele.rho*ele.EffectiveArea04,0))
+            elif self.cfg_ana.ele_isoCorr=="deltaBeta" :
+                 ele.absIso03 = (ele.chargedHadronIsoR(0.3) + max( ele.neutralHadronIsoR(0.3)+ele.photonIsoR(0.3) - ele.puChargedHadronIsoR(0.3)/2, 0.0))
+                 ele.absIso04 = (ele.chargedHadronIsoR(0.4) + max( ele.neutralHadronIsoR(0.4)+ele.photonIsoR(0.4) - ele.puChargedHadronIsoR(0.4)/2, 0.0))
+            else :
+                 raise RuntimeError, "Unsupported ele_isoCorr name '" + str(self.cfg_ana.ele_isoCorr) +  "'! For now only 'rhoArea' and 'deltaBeta' are supported."
+            ele.relIso03 = ele.absIso03/ele.pt()
+            ele.relIso04 = ele.absIso04/ele.pt()
+
+        # Set tight MVA id
+        for ele in allelectrons:
+            if self.cfg_ana.ele_tightId=="MVA" :
+                 ele.tightIdResult = ele.electronID("POG_MVA_ID_Trig_full5x5")
+            elif self.cfg_ana.ele_tightId=="Cuts_2012" :
+                 ele.tightIdResult = -1 + 1*ele.electronID("POG_Cuts_ID_2012_Veto_full5x5") + 1*ele.electronID("POG_Cuts_ID_2012_Loose_full5x5") + 1*ele.electronID("POG_Cuts_ID_2012_Medium_full5x5") + 1*ele.electronID("POG_Cuts_ID_2012_Tight_full5x5")
+            else :
+                 raise RuntimeError, "Unsupported ele_tightId name '" + str(self.cfg_ana.ele_tightId) +  "'! For now only 'MVA' and 'Cuts_2012' are supported."
+
+        
+        return allelectrons 
+
+    def matchLeptons(self, event):
+        def plausible(rec,gen):
+            if abs(rec.pdgId()) == 11 and abs(gen.pdgId()) != 11:   return False
+            if abs(rec.pdgId()) == 13 and abs(gen.pdgId()) != 13:   return False
+            dr = deltaR(rec.eta(),rec.phi(),gen.eta(),gen.phi())
+            if dr < 0.3: return True
+            if rec.pt() < 10 and abs(rec.pdgId()) == 13 and gen.pdgId() != rec.pdgId(): return False
+            if dr < 0.7: return True
+            if min(rec.pt(),gen.pt())/max(rec.pt(),gen.pt()) < 0.3: return False
+            return True
+
+        leps = event.inclusiveLeptons if self.cfg_ana.match_inclusiveLeptons else event.selectedLeptons
+        match = matchObjectCollection3(leps, 
+                                       event.genleps + event.gentauleps, 
+                                       deltaRMax = 1.2, filter = plausible)
+        for lep in leps:
+            gen = match[lep]
+            lep.mcMatchId  = (gen.sourceId if gen != None else  0)
+            lep.mcMatchTau = (gen in event.gentauleps if gen else -99)
+
+    def isFromB(self,particle,bid=5, done={}):
+        for i in xrange( particle.numberOfMothers() ): 
+            mom  = particle.mother(i)
+            momid = abs(mom.pdgId())
+            if momid / 1000 == bid or momid / 100 == bid or momid == bid: 
+                return True
+            elif mom.status() == 2 and self.isFromB(mom, done=done):
+                return True
+        return False
+
+    def matchAnyLeptons(self, event): 
+        event.anyLeptons = [ x for x in event.genParticles if x.status() == 1 and abs(x.pdgId()) in [11,13] ]
+        leps = event.inclusiveLeptons if hasattr(event, 'inclusiveLeptons') else event.selectedLeptons
+        match = matchObjectCollection3(leps, event.anyLeptons, deltaRMax = 0.3, filter = lambda x,y : abs(x.pdgId()) == abs(y.pdgId()))
+        for lep in leps:
+            gen = match[lep]
+            lep.mcMatchAny_gp = gen
+            if gen:
+                if   self.isFromB(gen):       lep.mcMatchAny = 5 # B (inclusive of B->D)
+                elif self.isFromB(gen,bid=4): lep.mcMatchAny = 4 # Charm
+                else: lep.mcMatchAny = 1
+            else: 
+                lep.mcMatchAny = 0
+            # fix case where the matching with the only prompt leptons failed, but we still ended up with a prompt match
+            if gen != None and hasattr(lep,'mcMatchId') and lep.mcMatchId == 0:
+                if isPromptLepton(gen, False): lep.mcMatchId = 100
+            elif not hasattr(lep,'mcMatchId'):
+                lep.mcMatchId = 0
+            if not hasattr(lep,'mcMatchTau'): lep.mcMatchTau = 0
+
+    def process(self, event):
+        self.readCollections( event.input )
+        self.counters.counter('events').inc('all events')
+
+        #call the leptons functions
+        self.makeLeptons(event)
+
+        if self.cfg_comp.isMC and self.cfg_ana.do_mc_match:
+            self.matchLeptons(event)
+            self.matchAnyLeptons(event)
+            
+        return True
+
+#A default config
+setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
+    verbose=False,
+    class_object=LeptonAnalyzer,
+    # input collections
+    muons='slimmedMuons',
+    electrons='slimmedElectrons',
+    rhoMuon= 'fixedGridRhoFastjetAll',
+    rhoElectron = 'fixedGridRhoFastjetAll',
+##    photons='slimmedPhotons',
+    # energy scale corrections and ghost muon suppression (off by default)
+    doMuScleFitCorrections=False, # "rereco"
+    doRochesterCorrections=False,
+    doElectronScaleCorrections=False, # "embedded" in 5.18 for regression
+    doSegmentBasedMuonCleaning=False,
+    # inclusive very loose muon selection
+    inclusive_muon_id  = "POG_ID_Loose",
+    inclusive_muon_pt  = 3,
+    inclusive_muon_eta = 2.4,
+    inclusive_muon_dxy = 0.5,
+    inclusive_muon_dz  = 1.0,
+    # loose muon selection
+    loose_muon_id     = "POG_ID_Loose",
+    loose_muon_pt     = 5,
+    loose_muon_eta    = 2.4,
+    loose_muon_dxy    = 0.05,
+    loose_muon_dz     = 0.2,
+    loose_muon_relIso = 0.4,
+    # inclusive very loose electron selection
+    inclusive_electron_id  = "",
+    inclusive_electron_pt  = 5,
+    inclusive_electron_eta = 2.5,
+    inclusive_electron_dxy = 0.5,
+    inclusive_electron_dz  = 1.0,
+    inclusive_electron_lostHits = 1.0,
+    # loose electron selection
+    loose_electron_id     = "", #POG_MVA_ID_NonTrig_full5x5",
+    loose_electron_pt     = 7,
+    loose_electron_eta    = 2.4,
+    loose_electron_dxy    = 0.05,
+    loose_electron_dz     = 0.2,
+    loose_electron_relIso = 0.4,
+    loose_electron_lostHits = 1.0,
+    # muon isolation correction method (can be "rhoArea" or "deltaBeta")
+    mu_isoCorr = "rhoArea" ,
+    mu_effectiveAreas = "Phys14_25ns_v1", #(can be 'Data2012' or 'Phys14_25ns_v1')
+    # electron isolation correction method (can be "rhoArea" or "deltaBeta")
+    ele_isoCorr = "rhoArea" ,
+    el_effectiveAreas = "Phys14_25ns_v1" , #(can be 'Data2012' or 'Phys14_25ns_v1')
+    ele_tightId = "Cuts_2012" ,
+    # minimum deltaR between a loose electron and a loose muon (on overlaps, discard the electron)
+    min_dr_electron_muon = 0.02,
+    # do MC matching 
+    do_mc_match = True, # note: it will in any case try it only on MC, not on data
+    match_inclusiveLeptons = False, # match to all inclusive leptons
+    )
+)
