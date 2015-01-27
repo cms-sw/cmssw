@@ -25,7 +25,7 @@ DQMOfflineHeavyIonsPreDPG = cms.Sequence( dqmDcsInfo *
                                           rpcTier0Source *
                                           cscSources *
                                           es_dqm_source_offline )
-                                          
+
 DQMOfflineHeavyIonsDPG = cms.Sequence( DQMOfflineHeavyIonsPreDPG *
                                        DQMMessageLogger )
 
