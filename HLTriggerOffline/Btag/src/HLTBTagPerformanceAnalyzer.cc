@@ -139,7 +139,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 			JetTag.insert(JetTagMap::value_type(iter->first, iter->second));
 		}
 		else {
-			excp << "Collections ==> not found";            
+		  excp << "Collection " << JetTagCollection_Label[ind] <<  " ==> not found";            
 			excp.raise(); 
 		}
 
