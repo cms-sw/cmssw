@@ -35,8 +35,6 @@ from L1Trigger.Configuration.SimL1Emulator_cff import simGctDigis,             \
     simRpcTriggerDigis, RPCConeBuilder, simGmtDigis,                           \
     SimL1MuTriggerPrimitives, SimL1MuTrackFinders
 
-from L1Trigger.GlobalTrigger.gtDigis_cfi import *
-
 # The calorimeter emulator requires doDigis=true
 # In CMSSW > 61X CaloMode can be updated with the following import
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
@@ -50,9 +48,13 @@ if(CaloMode==0) :
     from L1Trigger.Configuration.SimL1Emulator_cff import simRctDigis
 
 # GT emulator
-gtDigis.EmulateBxInEvent = 1
-gtDigis.GmtInputTag = cms.InputTag("simGmtDigis") 
-gtDigis.GctInputTag = cms.InputTag("simGctDigis")
+from L1Trigger.GlobalTrigger.gtDigis_cfi import *
+
+simGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone(
+   EmulateBxInEvent = 1,
+   GmtInputTag = cms.InputTag("simGmtDigis"),
+   GctInputTag = cms.InputTag("simGctDigis")
+)
 
 # Emulator sequence
 L1Emulator = cms.Sequence(simRctDigis + 
@@ -61,7 +63,7 @@ L1Emulator = cms.Sequence(simRctDigis +
                           SimL1MuTrackFinders + 
                           simRpcTriggerDigis + 
                           simGmtDigis +
-                          gtDigis)
+                          simGtDigis)
 
 # L1Extra - provides 4-vector representation of L1 trigger objects - not needed by HLT
 # The muon extra particles are done here, but could be done also by L1ParamMuons.
