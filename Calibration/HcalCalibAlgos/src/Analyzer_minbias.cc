@@ -55,20 +55,14 @@ namespace cms{
     tok_hltL1GtMap_   = consumes<L1GlobalTriggerObjectMapRecord>(edm::InputTag("hltL1GtObjectMap"));
   }
   
-  Analyzer_minbias::~Analyzer_minbias() {
-    
-    // do anything here that needs to be done at desctruction time
-    // (e.g. close files, deallocate resources etc.)
-    
-  }
+  Analyzer_minbias::~Analyzer_minbias() { }
   
-  void Analyzer_minbias::beginRun( const edm::Run& r, const edm::EventSetup& iSetup) {
-  }
+  void Analyzer_minbias::beginRun( const edm::Run& r, const edm::EventSetup& iSetup) { }
   
-  void Analyzer_minbias::endRun( const edm::Run& r, const edm::EventSetup& iSetup) {
-  }
+  void Analyzer_minbias::endRun( const edm::Run& r, const edm::EventSetup& iSetup) { }
   
   void Analyzer_minbias::beginJob() {
+
     hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;
 
     myTree = new TTree("RecJet","RecJet Tree");
@@ -104,9 +98,7 @@ namespace cms{
   void Analyzer_minbias::endJob() {
    
     int ii=0;
-    // std::cout << " Hello me here" << std::endl;
     for (std::map<std::pair<int,HcalDetId>,myInfo>::const_iterator itr=myMap.begin(); itr != myMap.end(); ++itr) {
-      //  std::cout << " Hello me here" << std::endl;
       int h = itr->first.first;
       LogDebug("AnalyzerMB") << "Fired trigger bit number " << h; 
       int i = itr->first.second.subdet();
@@ -119,7 +111,6 @@ namespace cms{
 	mom1_MB = info.theMB1;
 	mom2_MB = info.theMB2;
 	mom4_MB = info.theMB4;
-	//std::cout << " Hello me here" << std::endl;
 	mom0_Noise = info.theNS0;
 	mom1_Noise = info.theNS1;
 	mom2_Noise = info.theNS2;
@@ -127,9 +118,7 @@ namespace cms{
 	mom0_Diff = info.theDif0;
 	mom1_Diff = info.theDif1;
 	mom2_Diff = info.theDif2;
-	//std::cout << " Hello me here" << std::endl;
 	rnnumber = info.runcheck;
-	//std::cout << " Hello me here" << std::endl;
 	trigbit= h; 
 	mysubd = i;
 	depth = j;
@@ -155,7 +144,6 @@ namespace cms{
     hOutputFile->cd();
     myTree->Write();
     hOutputFile->Close() ;
-    //std::cout<<" File is closed "<<std::endl;
     return ;
   }
   //
@@ -166,16 +154,12 @@ namespace cms{
   
   void Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     
-    //std::cout<<" Start Analyzer_minbias::analyze "<<nevent<<std::endl;
-    using namespace edm;
     rnnum = (float)iEvent.run(); 
     const HcalRespCorrs* myRecalib=0;
     if (theRecalib ) {
-      // Radek:   
       edm::ESHandle <HcalRespCorrs> recalibCorrs;
       iSetup.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
       myRecalib = recalibCorrs.product();
-      // end
     } // theRecalib
     
       // Noise part for HB HE
@@ -290,7 +274,6 @@ namespace cms{
 	    itr1->second.theNS1 += energyhit;
 	    itr1->second.theNS2 += (energyhit*energyhit);
 	    itr1->second.theNS4 += (energyhit*energyhit*energyhit*energyhit);
-	    // std::cout << " Hello me here" << std::endl;
 	    itr1->second.runcheck = rnnum;
 	    
 	    std::map<std::pair<int,HcalDetId>,myInfo>::iterator itr2 = tmpMap.find(std::pair<int,HcalDetId>(algoBit,hid));
@@ -303,7 +286,6 @@ namespace cms{
 	    itr2->second.theNS1 += energyhit;
 	    itr2->second.theNS2 += (energyhit*energyhit);
 	    itr2->second.theNS4 += (energyhit*energyhit*energyhit*energyhit);
-	    // std::cout << " Hello me here" << std::endl;
 	    itr2->second.runcheck = rnnum;
 	    
 	  } // HBHE_NS
@@ -335,7 +317,6 @@ namespace cms{
 	    itr1->second.theMB1 += energyhit;
 	    itr1->second.theMB2 += (energyhit*energyhit);
 	    itr1->second.theMB4 += (energyhit*energyhit*energyhit*energyhit);
-	    //std::cout << " Hello me here" << std::endl;
 	    itr1->second.runcheck = rnnum;
 	    float mydiff = 0.0;
 	    if (itr2 !=tmpMap.end()) {
@@ -356,9 +337,7 @@ namespace cms{
 	      
 	    HFRecHit aHit(hbheItr->id(),hbheItr->energy()*icalconst,hbheItr->time());
 	    double energyhit = aHit.energy();
-	    //
 	    // Remove PMT hits
-	    //	 	 
 	    if(fabs(energyhit) > 40. ) continue;
 	      
 	    DetId id = (*hbheItr).detid(); 
@@ -375,7 +354,6 @@ namespace cms{
 	    itr1->second.theNS1 += energyhit;
 	    itr1->second.theNS2 += (energyhit*energyhit);
 	    itr1->second.theNS4 += (energyhit*energyhit*energyhit*energyhit);
-	    //	std::cout << " Hello me here" << std::endl;
 	    itr1->second.runcheck = rnnum;
 
 	    std::map<std::pair<int,HcalDetId>,myInfo>::iterator itr2 = tmpMap.find(std::pair<int,HcalDetId>(algoBit,hid));
@@ -388,7 +366,6 @@ namespace cms{
 	    itr2->second.theNS1 += energyhit;
 	    itr2->second.theNS2 += (energyhit*energyhit);
 	    itr2->second.theNS4 += (energyhit*energyhit*energyhit*energyhit);
-	    //	std::cout << " Hello me here" << std::endl;
 	    itr2->second.runcheck = rnnum;
 	      
 	  } // HF_NS
@@ -404,9 +381,7 @@ namespace cms{
 	    HFRecHit aHit(hbheItr->id(),hbheItr->energy()*icalconst,hbheItr->time());
 	      
 	    double energyhit = aHit.energy();
-	    //
 	    // Remove PMT hits
-	    //	 
 	    if(fabs(energyhit) > 40. ) continue;
 	      
 	    DetId id = (*hbheItr).detid(); 
@@ -425,7 +400,6 @@ namespace cms{
 	    itr1->second.theMB1 += energyhit;
 	    itr1->second.theMB2 += (energyhit*energyhit);
 	    itr1->second.theMB4 += (energyhit*energyhit*energyhit*energyhit);
-	    //std::cout << " Hello me here" << std::endl;
 	    itr1->second.runcheck = rnnum;
 	    float mydiff = 0.0;
 	    if (itr2 !=tmpMap.end()) {
