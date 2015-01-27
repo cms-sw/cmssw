@@ -162,9 +162,6 @@ void ElectronAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm::Run con
   iBooker.setCurrentFolder(outputInternalPath_) ;
 
   nEvents_ = 0 ;
-  setBookIndex(-1) ;
-  setBookPrefix("h") ;
-//  setBookStatOverflowFlag( set_StatOverflowFlag ) ;
 
   // basic quantities
   h1_vertexPt_barrel = bookH1(iBooker, "vertexPt_barrel","ele transverse momentum in barrel",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
