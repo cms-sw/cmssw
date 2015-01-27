@@ -6,7 +6,7 @@
 #define RecoBTag_SoftLepton_MvaSoftMuonEstimator_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+
 
 #include <TROOT.h>
 #include "TMVA/Factory.h"

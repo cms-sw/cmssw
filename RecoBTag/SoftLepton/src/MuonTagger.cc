@@ -13,7 +13,7 @@
 MuonTagger::MuonTagger(const edm::ParameterSet& conf): m_selector(conf) {
   uses("smTagInfos");
   random=new TRandom3();
-  weightFile=edm::FileInPath("RecoBTag/SoftLepton/data/SoftPFMuon_BDT.weights.xml").fullPath();
+  weightFile=edm::FileInPath("RecoBTag/SoftLepton/data/SoftPFMuon_BDT.weights.xml.gz").fullPath();
   mvaID=new MvaSoftMuonEstimator(weightFile);
 }
 
@@ -44,7 +44,7 @@ float MuonTagger::discriminator(const TagInfoHelper& tagInfo) const {
     float tag = mvaID->mvaValue(sip3d, sip2d, properties.ptRel, properties.deltaR, properties.ratio);
     if(tag>bestTag) bestTag = tag;
   }
-  
+
   return bestTag;
 }
 
