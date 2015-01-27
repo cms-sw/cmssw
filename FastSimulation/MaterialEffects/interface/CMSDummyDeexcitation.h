@@ -13,6 +13,9 @@
 #include "G4ReactionProductVector.hh"
 
 class G4Fragment;
+class G4HadFinalState;
+class G4HadProjectile;
+class G4Nucleus;
 
 class CMSDummyDeexcitation : public G4VPreCompoundModel
 { 
@@ -22,8 +25,7 @@ public:
 
   virtual ~CMSDummyDeexcitation() {};
 
-  //  virtual G4HadFinalState * ApplyYourself(const G4HadProjectile & thePrimary, 
-  //                                      G4Nucleus & theNucleus);
+  G4HadFinalState* ApplyYourself(const G4HadProjectile&, G4Nucleus&) { return 0; } 
 
   G4ReactionProductVector* DeExcite(G4Fragment&) { return new G4ReactionProductVector(); };
 
