@@ -51,6 +51,10 @@ PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::stri
   TGaxis::SetMaxDigits(4);
   // (This sets a static variable: correct in .eps-images but must be set
   // again manually when viewing the .root-files)
+
+  // Make ROOT calculate histogram statistics using all data,
+  // regardless of displayed range
+  TH1::StatOverflows(kTRUE);
 }
 
 //------------------------------------------------------------------------------
@@ -457,7 +461,6 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 
 	TString myTitle = "Surface Shape, ";
 	myTitle += subDetName;
-	// TODO: move "layer"/"disc" below into the legend, like with DMRs
 	if (layer!=0) {
 	  // TEC and TID have discs, the rest have layers
 	  if (iSubDet==4 || iSubDet==6)
@@ -476,25 +479,33 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 	TLegend* legend = 0;
 	THStack *hs = addHists(selection, residType, &legend);
 	if (!hs || hs->GetHists()==0 || hs->GetHists()->GetSize()==0) {
-	  std::cout << "No histogram for " << subDetName << ", perhaps not enough data?" << std::endl; 
-	  continue; 
+	  std::cout << "No histogram for " << subDetName <<
+	               ", perhaps not enough data? Creating default histogram." << std::endl;
+	  if(hs == 0)
+	    hs = new THStack("hstack", "");
+
+	  TProfile* defhist = new TProfile("defhist", "Empty default histogram", 100, -1, 1, -1, 1);
+	  hs->Add(defhist);
+	  hs->SetTitle( myTitle );
+	  hs->Draw();
 	}
-	hs->SetTitle( myTitle );
-	modifySSHistAndLegend(hs, legend);
+	else {
+	  hs->SetTitle( myTitle );
+	  hs->Draw("nostack PE");
+	  modifySSHistAndLegend(hs, legend);
+	  legend->Draw();
 
-	hs->Draw("nostack PE");
-	legend->Draw();
-
-	// Adjust Labels
-	TH1* firstHisto = (TH1*) hs->GetHists()->First();
-	TString xName = firstHisto->GetXaxis()->GetTitle();
-	TString yName = firstHisto->GetYaxis()->GetTitle();
-	hs->GetHistogram()->GetXaxis()->SetTitleColor( kBlack ); 
-	hs->GetHistogram()->GetXaxis()->SetTitle( xName ); 
-	hs->GetHistogram()->GetYaxis()->SetTitleColor( kBlack );
-	// micrometers:
-	yName.ReplaceAll("cm", "#mum");
-	hs->GetHistogram()->GetYaxis()->SetTitle( yName ); 
+	  // Adjust Labels
+	  TH1* firstHisto = (TH1*) hs->GetHists()->First();
+	  TString xName = firstHisto->GetXaxis()->GetTitle();
+	  TString yName = firstHisto->GetYaxis()->GetTitle();
+	  hs->GetHistogram()->GetXaxis()->SetTitleColor( kBlack ); 
+	  hs->GetHistogram()->GetXaxis()->SetTitle( xName ); 
+	  hs->GetHistogram()->GetYaxis()->SetTitleColor( kBlack );
+	  // micrometers:
+	  yName.ReplaceAll("cm", "#mum");
+	  hs->GetHistogram()->GetYaxis()->SetTitle( yName ); 
+	}
 
 	// Save plot to file
 	std::ostringstream plotName;
@@ -612,8 +623,12 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
   // if modified, check also TrackerOfflineValidationSummary_cfi.py and TrackerOfflineValidation_Standalone_cff.py
   if (variable == "meanX") {          plotinfo.nbins = 50;  plotinfo.min = -0.001; plotinfo.max = 0.001; }
   else if (variable == "meanY") {     plotinfo.nbins = 50;  plotinfo.min = -0.005; plotinfo.max = 0.005; }
-  else if (variable == "medianX") {   plotinfo.nbins = 100;  plotinfo.min = -0.001; plotinfo.max = 0.001; }
-  else if (variable == "medianY") {   plotinfo.nbins = 100;  plotinfo.min = -0.001; plotinfo.max = 0.001; }
+  else if (variable == "medianX")
+    if (plotSplits) {                 plotinfo.nbins = 50;  plotinfo.min = -0.0005; plotinfo.max = 0.0005;}
+    else {                            plotinfo.nbins = 100;  plotinfo.min = -0.001; plotinfo.max = 0.001; }
+  else if (variable == "medianY")
+    if (plotSplits) {                 plotinfo.nbins = 50;  plotinfo.min = -0.0005; plotinfo.max = 0.0005;}
+    else {                            plotinfo.nbins = 100;  plotinfo.min = -0.001; plotinfo.max = 0.001; }
   else if (variable == "meanNormX") { plotinfo.nbins = 100; plotinfo.min = -2.0;   plotinfo.max = 2.0; }
   else if (variable == "meanNormY") { plotinfo.nbins = 100; plotinfo.min = -2.0;   plotinfo.max = 2.0; }
   else if (variable == "rmsX") {      plotinfo.nbins = 100; plotinfo.min = 0.0;    plotinfo.max = 0.1; }
@@ -673,6 +688,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
       int maxlayer = plotLayers ? plotinfo.nLayers : plotLayerN;
 
       plotinfo.vars = *it;
+      plotinfo.h1 = plotinfo.h2 = plotinfo.h = 0;
 
       for (int layer = minlayer; layer <= maxlayer; layer++) {
 
@@ -723,67 +739,80 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 
     }
 
-    if (plotinfo.h != 0 || plotinfo.h1 != 0 || plotinfo.h2 != 0) {
-
+    if (hstack.GetHists()!=0 && hstack.GetHists()->GetSize()!=0) {
       hstack.Draw("nostack");
       hstack.SetMaximum(plotinfo.maxY*1.3);
       setTitleStyle(hstack, variable.c_str(), "#modules", plotinfo.subDetId);
       setHistStyle(*hstack.GetHistogram(), variable.c_str(), "#modules", 1);
 
       plotinfo.legend->Draw(); 
- 
-      std::ostringstream plotName;
-      plotName << outputDir << "/D";
-     
-      if (variable=="medianX") plotName << "medianR_";
-      else if (variable=="medianY") plotName << "medianYR_";
-      else if (variable=="meanX") plotName << "meanR_";
-      else if (variable=="meanY") plotName << "meanYR_";
-      else if (variable=="meanNormX") plotName << "meanNR_";
-      else if (variable=="meanNormY") plotName << "meanNYR_";
-      else if (variable=="rmsX") plotName << "rmsR_";
-      else if (variable=="rmsY") plotName << "rmsYR_";
-      else if (variable=="rmsNormX") plotName << "rmsNR_";
-      else if (variable=="rmsNormY") plotName << "rmsNYR_";
-
-      switch (i) {
-      case 1: plotName << "BPIX"; break;
-      case 2: plotName << "FPIX"; break;
-      case 3: plotName << "TIB"; break;
-      case 4: plotName << "TID"; break;
-      case 5: plotName << "TOB"; break;
-      case 6: plotName << "TEC"; break;
-      }
-
-      if (plotPlain && !plotSplits) { plotName << "_plain"; }
-      else if (!plotPlain && plotSplits) { plotName << "_split"; }
-      if (plotLayers) {
-        // TEC and TID have discs, the rest have layers
-        if (i==4 || i==6)
-          plotName << "_discs";
-	else
-	  plotName << "_layers";
-      }
-      if (plotLayerN > 0) {
-        // TEC and TID have discs, the rest have layers
-        if (i==4 || i==6)
-          plotName << "_disc";
-	else
-	  plotName << "_layer";
-	plotName << plotLayerN;
-      }
- 
-      // EPS-file
-      c.Update(); 
-      c.Print((plotName.str() + ".eps").c_str());
-
-      // ROOT-file
-      TFile f((plotName.str() + ".root").c_str(), "recreate");
-      c.Write();
-      f.Close();
-      
     }
+    else {
+      // Draw an empty default histogram
+      plotinfo.h = new TH1F("defhist", "Empty default histogram", plotinfo.nbins, plotinfo.min, plotinfo.max);
+      plotinfo.h->SetMaximum(10);
+      if (plotinfo.variable.find("Norm") == std::string::npos)
+        scaleXaxis(plotinfo.h, 10000);
+      setTitleStyle(*plotinfo.h, variable.c_str(), "#modules", plotinfo.subDetId);
+      setHistStyle(*plotinfo.h, variable.c_str(), "#modules", 1);
+      plotinfo.h->Draw();
+    }
+
+    std::ostringstream plotName;
+    plotName << outputDir << "/D";
+
+    if (variable=="medianX") plotName << "medianR_";
+    else if (variable=="medianY") plotName << "medianYR_";
+    else if (variable=="meanX") plotName << "meanR_";
+    else if (variable=="meanY") plotName << "meanYR_";
+    else if (variable=="meanNormX") plotName << "meanNR_";
+    else if (variable=="meanNormY") plotName << "meanNYR_";
+    else if (variable=="rmsX") plotName << "rmsR_";
+    else if (variable=="rmsY") plotName << "rmsYR_";
+    else if (variable=="rmsNormX") plotName << "rmsNR_";
+    else if (variable=="rmsNormY") plotName << "rmsNYR_";
+
+    switch (i) {
+    case 1: plotName << "BPIX"; break;
+    case 2: plotName << "FPIX"; break;
+    case 3: plotName << "TIB"; break;
+    case 4: plotName << "TID"; break;
+    case 5: plotName << "TOB"; break;
+    case 6: plotName << "TEC"; break;
+    }
+
+    if (plotPlain && !plotSplits) { plotName << "_plain"; }
+    else if (!plotPlain && plotSplits) { plotName << "_split"; }
+    if (plotLayers) {
+      // TEC and TID have discs, the rest have layers
+      if (i==4 || i==6)
+        plotName << "_discs";
+      else
+        plotName << "_layers";
+    }
+    if (plotLayerN > 0) {
+      // TEC and TID have discs, the rest have layers
+      if (i==4 || i==6)
+        plotName << "_disc";
+      else
+        plotName << "_layer";
+      plotName << plotLayerN;
+    }
+
+    // EPS-file
+    c.Update(); 
+    c.Print((plotName.str() + ".eps").c_str());
+
+    // ROOT-file
+    TFile f((plotName.str() + ".root").c_str(), "recreate");
+    c.Write();
+    f.Close();
     
+    // Free allocated memory.
+    delete plotinfo.h;
+    delete plotinfo.h1;
+    delete plotinfo.h2;
+
   }
 
 }
@@ -826,15 +855,33 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
     return;
   }
 
-  // Small adjustments: move the legend right so that it doesn't block
-  // the exponent of the y-axis scale
+  // Small adjustments: move the legend right and up so that it doesn't block
+  // the exponent of the y-axis scale and doesn't cut the histogram border
   TLegend* l = (TLegend*)findObjectFromCanvas(normchi, "TLegend");
   if (l != 0) {
     l->SetX1NDC(0.25);
+    l->SetY1NDC(0.86);
   }
   l = (TLegend*)findObjectFromCanvas(chiprob, "TLegend");
   if (l != 0) {
     l->SetX1NDC(0.25);
+    l->SetY1NDC(0.86);
+  }
+
+  // Move stat boxes slightly right so that the border lines fit in
+  int i = 1;
+  for (TH1F* h = (TH1F*)findObjectFromCanvas(normchi, "TH1F", i); h != 0;
+       h = (TH1F*)findObjectFromCanvas(normchi, "TH1F", ++i)) {
+        TPaveStats *s = (TPaveStats*)h->GetListOfFunctions()->FindObject("stats");
+        if (s != 0)
+          s->SetX2NDC(0.995);
+  }
+  i = 1;
+  for (TH1F* h = (TH1F*)findObjectFromCanvas(chiprob, "TH1F", i); h != 0;
+       h = (TH1F*)findObjectFromCanvas(chiprob, "TH1F", ++i)) {
+        TPaveStats *s = (TPaveStats*)h->GetListOfFunctions()->FindObject("stats");
+        if (s != 0)
+          s->SetX2NDC(0.995);
   }
 
   chiprob->Draw();
@@ -1054,6 +1101,14 @@ void  PlotAlignmentValidation::setLegendStyle( TLegend& leg )
 }
 
 //------------------------------------------------------------------------------
+void PlotAlignmentValidation::scaleXaxis(TH1* hist, Int_t scale)
+{
+  Double_t xmin = hist->GetXaxis()->GetXmin();
+  Double_t xmax = hist->GetXaxis()->GetXmax();
+  hist->GetXaxis()->SetLimits(xmin*scale, xmax*scale);
+}
+
+//------------------------------------------------------------------------------
 TObject* PlotAlignmentValidation::findObjectFromCanvas(TCanvas* canv, const char* className, Int_t n) {
   // Finds the n-th instance of the given class from the canvas
   TIter next(canv->GetListOfPrimitives());
@@ -1078,6 +1133,7 @@ void  PlotAlignmentValidation::setNiceStyle() {
     zoff = MyStyle->GetLabelOffset("Z");
 
   MyStyle->SetCanvasBorderMode ( 0 );
+  MyStyle->SetFrameBorderMode ( 0 );
   MyStyle->SetPadBorderMode    ( 0 );
   MyStyle->SetPadColor         ( 0 );
   MyStyle->SetCanvasColor      ( 0 );
@@ -1345,11 +1401,8 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
   plotinfo.legend->AddEntry(h, legend.str().c_str(), "l");
 
   // Scale the x-axis (cm to um), if needed
-  if (plotinfo.variable.find("Norm") == std::string::npos) {
-    Double_t xmin = h->GetXaxis()->GetXmin();
-    Double_t xmax = h->GetXaxis()->GetXmax();
-    h->GetXaxis()->SetLimits(xmin*10000, xmax*10000);
-  }
+  if (plotinfo.variable.find("Norm") == std::string::npos)
+    scaleXaxis(h, 10000);
 
 }
 
@@ -1410,4 +1463,6 @@ void PlotAlignmentValidation::modifySSHistAndLegend(THStack* hs, TLegend* legend
     index++;
   }
 
+  // Make some room for the legend
+  hs->SetMaximum(hs->GetMaximum("nostack PE")*1.3);
 }
