@@ -262,7 +262,7 @@ famosBTaggingSequence = cms.Sequence(
 
 ## rechist from calo are needed by caloTowerForTrk
 # in fact localreco modules should run before globalreco ones...
-vertexreco.insert(0,caloRecHits)
+vertexreco.insert(0,caloRecHitsPreTrk)
 
 ############### FastSim sequences
 

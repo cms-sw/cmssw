@@ -28,7 +28,6 @@ defaultOptions.useCondDBv1 = False
 defaultOptions.scenarioOptions=['pp','cosmics','nocoll','HeavyIons']
 defaultOptions.harvesting= 'AtRunEnd'
 defaultOptions.gflash = False
-defaultOptions.himix = False
 defaultOptions.number = -1
 defaultOptions.number_out = None
 defaultOptions.arguments = ""
@@ -429,10 +428,6 @@ class ConfigBuilder(object):
         if 'GEN' in self.stepMap.keys() or 'LHE' in self.stepMap or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
                 self.process.source=cms.Source("EmptySource")
-            # if option himix is active, drop possibly duplicate DIGI-RAW info:
-            if self._options.himix==True:
-                self.process.source.inputCommands = cms.untracked.vstring('drop *','keep *_generator_*_*','keep *_g4SimHits_*_*')
-                self.process.source.dropDescendantsOfDroppedBranches=cms.untracked.bool(False)
 
 	# modify source in case of run-dependent MC
 	self.runsAndWeights=None
@@ -1001,18 +996,10 @@ class ConfigBuilder(object):
             self.RECODefaultSeq='reconstructionCosmics'
             self.DQMDefaultSeq='DQMOfflineCosmics'
 
-        if self._options.himix:
-                print "From the presence of the himix option, we have determined that this is heavy ions and will use '--scenario HeavyIons'."
-                self._options.scenario='HeavyIons'
-
         if self._options.scenario=='HeavyIons':
 	    if not self._options.beamspot:
 		    self._options.beamspot=VtxSmearedHIDefaultKey
             self.HLTDefaultSeq = 'HIon'
-            if not self._options.himix:
-                    self.GENDefaultSeq='pgen_hi'
-            else:
-                    self.GENDefaultSeq='pgen_himix'
             self.VALIDATIONDefaultCFF="Configuration/StandardSequences/ValidationHeavyIons_cff"
             self.VALIDATIONDefaultSeq=''
             self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentHeavyIons_cff"
@@ -1111,9 +1098,6 @@ class ConfigBuilder(object):
 	#not driven by a default cff anymore
 	if self._options.isData:
 		self._options.pileup=None
-        elif self._options.isMC==True and self._options.himix==True:
-		self._options.pileup='HiMix'
-
 
 	if self._options.slhc:
 		self.GeometryCFF='SLHCUpgradeSimulations.Geometry.%s_cmsSimIdealGeometryXML_cff'%(self._options.slhc,)
@@ -1353,8 +1337,8 @@ class ConfigBuilder(object):
 				elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
 					self._options.inlineObjets+=','+name
 
-		if sequence == self.GENDefaultSeq or sequence == 'pgen_genonly' or ( sequence == 'pgen_himix' or sequence == 'pgen_hi'):
-			if 'ProductionFilterSequence' in genModules and ('generator' in genModules or 'hiSignal' in genModules):
+		if sequence == self.GENDefaultSeq or sequence == 'pgen_genonly':
+			if 'ProductionFilterSequence' in genModules and ('generator' in genModules):
 				self.productionFilterSequence = 'ProductionFilterSequence'
 			elif 'generator' in genModules:
 				self.productionFilterSequence = 'generator'
@@ -1371,8 +1355,11 @@ class ConfigBuilder(object):
                 except ImportError:
                         raise Exception("VertexSmearing type or beamspot "+self._options.beamspot+" unknown.")
 
-                if self._options.scenario == 'HeavyIons' and self._options.himix:
-                        self.loadAndRemember("SimGeneral/MixingModule/himixGEN_cff")
+                if self._options.scenario == 'HeavyIons': 
+			if self._options.pileup=='HiMixGEN':
+				self.loadAndRemember("Configuration/StandardSequences/GeneratorMix_cff")
+			else:
+				self.loadAndRemember("Configuration/StandardSequences/GeneratorHI_cff")
 
         self.process.generation_step = cms.Path( getattr(self.process,genSeqName) )
         self.schedule.append(self.process.generation_step)
@@ -1399,12 +1386,6 @@ class ConfigBuilder(object):
 
 		if self._options.magField=='0T':
 			self.executeAndRemember("process.g4SimHits.UseMagneticField = cms.bool(False)")
-
-		if self._options.himix==True:
-			if self._options.geometry in defaultOptions.geometryExtendedOptions:
-				self.loadAndRemember("SimGeneral/MixingModule/himixSIMExtended_cff")
-			else:
-				self.loadAndRemember("SimGeneral/MixingModule/himixSIMIdeal_cff")
 	else:
 		if self._options.magField=='0T':
 			self.executeAndRemember("process.famosSimHits.UseMagneticField = cms.bool(False)")
@@ -1418,9 +1399,6 @@ class ConfigBuilder(object):
 
         if self._options.gflash==True:
                 self.loadAndRemember("Configuration/StandardSequences/GFlashDIGI_cff")
-
-        if self._options.himix==True:
-            self.loadAndRemember("SimGeneral/MixingModule/himixDIGI_cff")
 
         if sequence == 'pdigi_valid':
             self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
