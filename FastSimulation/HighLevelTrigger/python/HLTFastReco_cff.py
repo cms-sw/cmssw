@@ -49,7 +49,7 @@ if(CaloMode==0) :
 
 # GT emulator
 simGtDigis.EmulateBxInEvent = 1
-simGtDifis.GmtInputTag = cms.InputTag("simGmtDigis")
+simGtDigis.GmtInputTag = cms.InputTag("simGmtDigis")
 simGtDigis.GctInputTag = cms.InputTag("simGctDigis")
 
 # Emulator sequence
