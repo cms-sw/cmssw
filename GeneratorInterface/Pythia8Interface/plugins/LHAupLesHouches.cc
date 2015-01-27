@@ -74,7 +74,7 @@ bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
     
     //handle clustering scales if present,
     //applies to outgoing partons only
-    if (scales.size()>0 && hepeup.ISTUP[i]==1) {
+    if (setScalesFromLHEF_ && scales.size()>0 && hepeup.ISTUP[i]==1) {
       if (iscale>=scales.size()) {
         edm::LogError("InvalidLHEInput") << "Pythia8 requires"
                                     << "cluster scales for all outgoing partons or for none" 

@@ -22,8 +22,11 @@ Py8InterfaceBase::Py8InterfaceBase( edm::ParameterSet const& ps )
   
   pythiaPylistVerbosity = ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0);
   pythiaHepMCVerbosity  = ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false);
+  pythiaHepMCVerbosityParticles = ps.getUntrackedParameter<bool>("pythiaHepMCVerbosityParticles", false);
   maxEventsToPrint      = ps.getUntrackedParameter<int>("maxEventsToPrint", 0);
 
+  if(pythiaHepMCVerbosityParticles)
+    ascii_io = new HepMC::IO_AsciiParticles("cout", std::ios::out);
 }
 
 bool Py8InterfaceBase::readSettings( int ) 
@@ -40,6 +43,14 @@ bool Py8InterfaceBase::readSettings( int )
       if (!fMasterGen->readString(*line)) throw cms::Exception("PythiaError")
 			              << "Pythia 8 did not accept \""
 				      << *line << "\"." << std::endl;
+
+      if (line->find("ParticleDecays:") != std::string::npos) {
+
+        if (!fDecayer->readString(*line)) throw cms::Exception("PythiaError")
+                                      << "Pythia 8 Decayer did not accept \""
+                                      << *line << "\"." << std::endl;
+      }
+
    }
 
    return true;

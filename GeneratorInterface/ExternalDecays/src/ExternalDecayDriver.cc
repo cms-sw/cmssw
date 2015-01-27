@@ -78,6 +78,10 @@ ExternalDecayDriver::~ExternalDecayDriver()
 }
 
 
+HepMC::GenEvent* ExternalDecayDriver::decay(HepMC::GenEvent* evt, lhef::LHEEvent *lheEvent){
+  if(fTauolaInterface) fTauolaInterface->SetLHE(lheEvent);
+  return decay(evt);
+}
 HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt )
 {
    if ( !fIsInitialized ) return evt;
