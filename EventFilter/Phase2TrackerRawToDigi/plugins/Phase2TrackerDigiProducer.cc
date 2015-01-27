@@ -279,18 +279,17 @@ namespace Phase2Tracker {
                   {
                     icbc = unpacker.chipId();
                     #ifdef EDM_ML_DEBUG
-                    ss << dec << "Son2S cluster at position: " << (int)unpacker.clusterIndex() << " with size: " << (int)unpacker.clusterSize() << endl;
+                    ss << dec << "Son2S cluster at position: " << (int)unpacker.rawX() << " with size: " << (int)unpacker.rawSize() << endl;
                     #endif
-                    std::cout << std::dec << "Son2S " << (int)unpacker.clusterIndex() << " " << (int)unpacker.clusterSize() << " " << icbc << std::endl;
-                    std::map<std::string,int> rawxy = stripFromRaw(icbc,channel.dettype(),(int)unpacker.clusterIndex());
-                    if (unpacker.clusterIndex()%2) 
+                    if (unpacker.rawX()%2) 
                     {
-		      clustersTop.push_back(makeSiPixelCluster(rawxy["x"],unpacker.clusterSize(),rawxy["y"]));
+		      clustersTop.push_back(makeSiPixelCluster(unpacker.mergedX(),unpacker.mergedSize(),unpacker.mergedY()));
                     }
                     else 
                     {
-                      clustersBottom.push_back(makeSiPixelCluster(rawxy["x"],unpacker.clusterSize(),rawxy["y"]));
+                      clustersBottom.push_back(makeSiPixelCluster(unpacker.mergedX(),unpacker.mergedSize(),unpacker.mergedY()));
                     }
+                    std::cout << std::dec << "Son2S " << (int)unpacker.mergedX() << " " << (int)unpacker.mergedSize() << " " << icbc << std::endl;
                     unpacker++;
                   }
                 } 
@@ -301,11 +300,10 @@ namespace Phase2Tracker {
                   {
                     icbc = unpacker.chipId();
                     #ifdef EDM_ML_DEBUG
-                    ss << dec << "SonPS cluster at position: " << (int)unpacker.clusterIndex() << " with size: " << (int)unpacker.clusterSize() << endl;
+                    ss << dec << "SonPS cluster at position: " << (int)unpacker.rawX() << " with size: " << (int)unpacker.rawSize() << endl;
                     #endif
-                    std::cout << std::dec << "SonPS " << (int)unpacker.clusterIndex() << " " << (int)unpacker.clusterSize() << " " << icbc << std::endl;
-                    std::map<std::string,int> rawxy = stripFromRaw(icbc,channel.dettype(),(int)unpacker.clusterIndex());
-                    clustersTop.push_back(makeSiPixelCluster(rawxy["x"],unpacker.clusterSize(),rawxy["y"]));
+                    clustersTop.push_back(makeSiPixelCluster(unpacker.mergedX(),unpacker.mergedSize(),unpacker.mergedY()));
+                    std::cout << std::dec << "SonPS " << (int)unpacker.mergedX() << " " << (int)unpacker.mergedSize() << " " << icbc << std::endl;
                     unpacker++;
                   }
                 }
@@ -316,11 +314,10 @@ namespace Phase2Tracker {
                   {
                     icbc = unpacker.chipId();
                     #ifdef EDM_ML_DEBUG
-                    ss << dec << "PonPS cluster at position: " << (int)unpacker.clusterIndex() <<" , "<<  (int)unpacker.clusterZpos() << " with size: " << (int)unpacker.clusterSize() << endl;
+                    ss << dec << "PonPS cluster at position: " << (int)unpacker.rawX() <<" , "<<  (int)unpacker.rawY() << " with size: " << (int)unpacker.rawSize() << endl;
                     #endif
-                    std::cout << std::dec << "PonPS " << (int)unpacker.clusterIndex() << " " << (int)unpacker.clusterSize() << " " << (int)unpacker.clusterZpos() << " " << icbc << std::endl;
-                    std::map<std::string,int> rawxy = stripFromRaw(icbc,channel.dettype(),(int)unpacker.clusterIndex(),(int)unpacker.clusterZpos());
-                    clustersBottom.push_back(makeSiPixelCluster(rawxy["x"],unpacker.clusterSize(),rawxy["y"]));
+                    clustersBottom.push_back(makeSiPixelCluster(unpacker.mergedX(),unpacker.mergedSize(),unpacker.mergedY()));
+                    std::cout << std::dec << "PonPS " << (int)unpacker.mergedX() << " " << (int)unpacker.mergedSize() << " " << (int)unpacker.rawY() << " " << icbc << std::endl;
                     unpacker++;
                   }
                 }
