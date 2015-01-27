@@ -32,7 +32,7 @@ from FastSimulation.HighLevelTrigger.HLTFastRecoForSpecial_cff import *
 from L1Trigger.Configuration.SimL1Emulator_cff import simGctDigis,             \
     simDtTriggerPrimitiveDigis, L1DTConfigFromDB, simCscTriggerPrimitiveDigis, \
     simCsctfTrackDigis, simDttfDigis, simCsctfDigis,                           \
-    simRpcTriggerDigis, RPCConeBuilder, simGmtDigis,                           \
+    simRpcTriggerDigis, RPCConeBuilder, simGmtDigis, simGtDigis,               \
     SimL1MuTriggerPrimitives, SimL1MuTrackFinders
 
 # The calorimeter emulator requires doDigis=true
@@ -48,13 +48,9 @@ if(CaloMode==0) :
     from L1Trigger.Configuration.SimL1Emulator_cff import simRctDigis
 
 # GT emulator
-from L1Trigger.GlobalTrigger.gtDigis_cfi import *
-
-simGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone(
-   EmulateBxInEvent = 1,
-   GmtInputTag = cms.InputTag("simGmtDigis"),
-   GctInputTag = cms.InputTag("simGctDigis")
-)
+simGtDigis.EmulateBxInEvent = 1
+simGtDifis.GmtInputTag = cms.InputTag("simGmtDigis")
+simGtDigis.GctInputTag = cms.InputTag("simGctDigis")
 
 # Emulator sequence
 L1Emulator = cms.Sequence(simRctDigis + 
