@@ -490,6 +490,7 @@ class METAnalyzer : public DQMEDAnalyzer{
   bool isMiniAODMet_;
 
   bool fill_met_high_level_histo;
+  bool fillCandidateMap_histos;
 
 };
 #endif

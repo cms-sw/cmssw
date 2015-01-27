@@ -95,6 +95,7 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   //}
   
   fill_met_high_level_histo = parameters.getParameter<bool>("fillMetHighLevel");
+  fillCandidateMap_histos = parameters.getParameter<bool>("fillCandidateMaps");
   
   hTriggerLabelsIsSet_ = false;
   //jet cleanup parameters
@@ -313,7 +314,7 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
   }
 
   if(isPFMet_){
-    if(fillPFCandPlots){
+    if(fillPFCandPlots && fillCandidateMap_histos){//first bool internal checks for subdirectory filling, second bool given in cfg file, checks that we fill maps only in one module in total
       //histos where two previous bunches were empty/filled
       mePhotonEtFraction_EmptyBunch          = ibooker.book1D("PfPhotonEtFraction_BXm2BXm1Empty",        "pfmet.photonEtFraction() prev empty 2 bunches",         50, 0,    1);
       mePhotonEtFraction_noEmptyBunch        = ibooker.book1D("PfPhotonEtFraction_BXm2BXm1Filled",      "pfmet.photonEtFraction() prev filled 2 bunches",         50, 0,    1);
@@ -534,7 +535,7 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFHadronEt_profile"              ,meHFHadronEt_profile));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFEMEt_profile"                  ,meHFEMEt_profile));
 
-    if(fillPFCandPlots){
+    if(fillPFCandPlots && fillCandidateMap_histos){
 	if(!etaMinPFCand_.empty()){
 	  etaMinPFCand_.clear();
 	  etaMaxPFCand_.clear();
@@ -1381,7 +1382,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 
     if(isPFMet_){
 
-      if(fillPFCandidatePlots){
+      if(fillPFCandidatePlots && fillCandidateMap_histos){
 	//std::cout<<"pass 0"<<std::endl;
 	for (unsigned int i=0;i<countsPFCand_.size();i++) {
 	  countsPFCand_[i]=0;

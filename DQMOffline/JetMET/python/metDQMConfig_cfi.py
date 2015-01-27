@@ -23,6 +23,8 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
 
     fillMetHighLevel = cms.bool(True),
 
+    fillCandidateMaps = cms.bool(False),
+
     CleaningParameters = cleaningParameters.clone(),
     METDiagonisticsParameters = multPhiCorr_METDiagnostics,
 
@@ -123,6 +125,7 @@ pfMetDQMAnalyzer = caloMetDQMAnalyzer.clone(
     JetCollectionLabel  = cms.InputTag("ak4PFJets"),
     JetCorrections = cms.InputTag("dqmAk4PFL1FastL2L3ResidualCorrector"),
     fillMetHighLevel = cms.bool(False),
+    fillCandidateMaps = cms.bool(True),
     onlyCleaned                = cms.untracked.bool(False),
     DCSFilter = cms.PSet(
         DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
@@ -138,6 +141,7 @@ pfMetT1DQMAnalyzer = caloMetDQMAnalyzer.clone(
     JetCollectionLabel  = cms.InputTag("ak4PFJetsCHS"),
     JetCorrections = cms.InputTag("dqmAk4PFCHSL1FastL2L3ResidualCorrector"),
     fillMetHighLevel = cms.bool(False),
+    fillCandidateMaps = cms.bool(False),
     DCSFilter = cms.PSet(
         DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
         Filter = cms.untracked.bool(True)
@@ -145,6 +149,7 @@ pfMetT1DQMAnalyzer = caloMetDQMAnalyzer.clone(
 )
 pfMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzer.clone(
     fillMetHighLevel = cms.bool(True),
+    fillCandidateMaps = cms.bool(False),
     CleaningParameters = cleaningParameters.clone(
         vertexCollection    = cms.InputTag( "goodOfflinePrimaryVerticesDQMforMiniAOD" ),
         ),
