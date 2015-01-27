@@ -49,7 +49,7 @@ hiDetachedTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
             sigmaZVertex = cms.double(4.0),
             fixedError = cms.double(0.5),
             VertexCollection = cms.InputTag("hiSelectedVertex"),
-            ptMin = cms.double(0.95),
+            ptMin = cms.double(0.9),
             useFoundVertices = cms.bool(True),
             originRadius = cms.double(0.5)
         )
@@ -76,12 +76,12 @@ hiDetachedTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
         nSigmaLipMaxTolerance = cms.double(0),
         chi2 = cms.double(1000.0),
         ComponentName = cms.string('HIPixelTrackFilter'),
-        nSigmaTipMaxTolerance = cms.double(4.0),
+        nSigmaTipMaxTolerance = cms.double(0),
         clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache"),
         VertexCollection = cms.InputTag("hiSelectedVertex"),
         useClusterShape = cms.bool(True),
-        lipMax = cms.double(0.5),
-        tipMax = cms.double(0.5),
+        lipMax = cms.double(1.0),
+        tipMax = cms.double(1.0),
         ptMin = cms.double(0.95)
     ),
 	
@@ -110,7 +110,7 @@ import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 hiDetachedTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     maxLostHits = 1,
     minimumNumberOfHits = 6,
-    minPt = cms.double(0.95),
+    minPt = cms.double(0.3),
     constantValueForLostHitsFractionFilter = cms.double(0.701)
     )
 
@@ -175,7 +175,6 @@ hiDetachedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMul
     name = 'hiDetachedTripletStep',
     preFilterName = 'hiDetachedTripletStepTight',
     applyAdaptedPVCuts = cms.bool(False)
-    # min_nhits = 14
     ),
     ) #end of vpset
     ) #end of clone
