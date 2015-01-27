@@ -194,7 +194,6 @@ mv Loop/* ./
    return script
 
 
-
 class MyBatchManager( BatchManager ):
    '''Batch manager specific to cmsRun processes.''' 
          
@@ -216,6 +215,8 @@ class MyBatchManager( BatchManager ):
            scriptFile.write( batchScriptLocal( storeDir, value) )  # watch out arguments are swapped (although not used)
        elif mode == 'PISA' :
 	   scriptFile.write( batchScriptPISA( storeDir, value) ) 	
+       elif mode == 'IC':
+           scriptFile.write( batchScriptIC(jobDir) )
        scriptFile.close()
        os.system('chmod +x %s' % scriptFileName)
        
