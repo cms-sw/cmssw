@@ -1,6 +1,8 @@
 C MLM-style matching for aMC@NLO showering in Herwig6
 C Original code from R.Frederix and S.Frixione
 C Adapted for CMSSW interface by J.Bendavid
+c Ported back to original Algorithm by 
+c K. Schweiger and M.A. Harrendorf
 C----------------------------------------------------------------------
       SUBROUTINE HWDUMMY
 C     Force compiler to generate code for hwmatch
@@ -12,21 +14,21 @@ C----------------------------------------------------------------------
 C----------------------------------------------------------------------
       SUBROUTINE HWHDECAY
 c
-      INCLUDE 'HERWIG65.INC'
+c      INCLUDE 'HERWIG65.INC'
 c
-      INTEGER NMAX,IHEP,IST,ID1
-      PARAMETER (NMAX=2000)
+c      INTEGER NMAX,IHEP,IST,ID1
+c      PARAMETER (NMAX=2000)
 c
-      DO 200 IHEP=1,NHEP
-        IST=ISTHEP(IHEP)      
-        ID1=IDHEP(IHEP)
-        IF(IST.GE.120 .or. IST.LE.125) THEN
-          IF(ID1.EQ.25)THEN
-	    ISTHEP(IHEP) = 1
-	    CALL HWDHIG(ZERO)
-	  ENDIF
-	ENDIF
-200   CONTINUE
+c      DO 200 IHEP=1,NHEP
+c        IST=ISTHEP(IHEP)      
+c        ID1=IDHEP(IHEP)
+c        IF(IST.GE.120 .or. IST.LE.125) THEN
+c          IF(ID1.EQ.25)THEN
+c	    ISTHEP(IHEP) = 1
+c	    CALL HWDHIG(ZERO)
+c	  ENDIF
+c	ENDIF
+c 200   CONTINUE
 c
       RETURN
 c
@@ -40,12 +42,12 @@ c Variables specific to matching
       INTEGER PASS
       INTEGER NMAX
       PARAMETER (NMAX=2000)
-      INTEGER NS,IHEP,IST,ID1,IM1,IM2,I,n_match,max_multiplicity_flag
+      INTEGER NS,IHEP,ist,id,i,n_match,max_multiplicity_flag
+      INTEGER IHARD,NHARD,JMO1,JMO2
       DOUBLE PRECISION PS(4,NMAX),matching_scale
       LOGICAL max_multiplicity,matched
 c Other variables, used here for checks
-      INTEGER IFH,IJ,J
-      DOUBLE PRECISION PPH(5),PSUM(2)
+
 c
       common/HWMATCHPRAM/n_match,max_multiplicity_flag,matching_scale
 c
@@ -56,58 +58,42 @@ c
       endif
 c
       IF (IERROR.NE.0) RETURN
-c
       NS=0
-      IFH=0
-      DO 100 IHEP=1,NHEP
-        IST=ISTHEP(IHEP)      
-        ID1=IDHEP(IHEP)
-        IM1=JMOHEP(1,IHEP)
-        IM2=JMOHEP(2,IHEP)
-        IF ((IST.EQ.2) .AND. (ABS(ID1).LE.5 .or.
-     &       ID1.EQ.21 .or.ID1.eq.22) .AND. 
-     &	     IDHEP(IM1).NE.25 .AND. IDHEP(IM1).NE.23 .AND.
-     &       IDHEP(IM1).NE.24 .AND. IDHEP(IM1).NE.-24) THEN
-          NS=NS+1
-          IF (NS.GT.NMAX) STOP 'Too many particles!'
-          DO I=1,4
-             PS(I,NS)=PHEP(I,IHEP)
-          ENDDO
-        ENDIF
-        IF(IST.EQ.195)THEN
-          IF(ID1.EQ.25)THEN
-            IFH=IFH+1
-            DO IJ=1,5
-	      PPH(IJ)=PHEP(IJ,IHEP)
-	    ENDDO
-          ENDIF
-        ENDIF
-  100 CONTINUE
-c Specific for Higgs production, safety check: there must be only
-c one Higgs. Stops otherwise
-      IF(IFH.NE.1.AND.IERROR.EQ.0)THEN
-c         CALL HWUEPR
+      IHARD=-1
+      NHARD=0
+      DO IHEP=1,min(NHEP,10)
+         IF(ISTHEP(IHEP).EQ.120)THEN
+            IHARD=IHEP
+            NHARD=NHARD+1
+         ENDIF
+      ENDDO
+      IF( (IHARD.EQ.-1.OR.NHARD.NE.1).AND.
+     #    IERROR.EQ.0) THEN
+         CALL HWUEPR
+         WRITE(*,*)IHARD,NHARD
          CALL HWWARN('HWMATCH',501)
       ENDIF
-c Must not include in PS anything except what produced by the shower;
-c Higgs decay products must be excluded. Loose check on this
-      do j=1,2
-         psum(j)=0d0
-      enddo
-      do i=1,ns
-         do j=1,2
-            psum(j)=psum(j)+ps(j,i)
-         enddo
-      enddo
-c      if (abs(pph(1)+psum(1)).gt.1d0 .or.
-c     #    abs(pph(2)+psum(2)).gt.1d0) then
-c         call hwuepr
-c         write (*,*) pph
-c         write (*,*) psum
-c         call hwwarn('HWMATCH',110)
-c      endif
+      DO 100 IHEP=1,NHEP
+         IST=ISTHEP(IHEP)  ! status code of the current particle
+         ID =IDHEP(IHEP)   ! PDG-code of the current particle
+c Keep QCD partons from primary shower. This already excludes radiation
+c from particles that are decayed in Herwig, but not decays that have
+c been included via MadSpin.
+         IF( IST.EQ.2 .AND. ( (ABS(ID).GE.1.AND.ABS(ID).LE.5) .OR.
+     $        ID.EQ.21 ) ) THEN
+            JMO1=JMOHEP(1,JMOHEP(1,IHEP))
+            JMO2=JMOHEP(2,JMOHEP(1,IHEP))
+            IF(ISTHEP(JMO1).GE.121.AND.ISTHEP(JMO1).LE.124.AND.
+     $           JMOHEP(1,JMO1).EQ.IHARD.AND.JMO2.EQ.IHARD)THEN
+               NS=NS+1
+               IF (NS.GT.NMAX) STOP 'Too many particles!'
+               DO I=1,4
+                  PS(I,NS)=PHEP(I,IHEP)
+               ENDDO
+            ENDIF
+         ENDIF
+  100 CONTINUE
 c
-c      WRITE(*,*) NS
 c matching_scale: this is the \mu_Q of the paper
 c      matching_scale=50d0
 c n_match identified the i-parton sample of the paper: that's the number
@@ -290,6 +276,5 @@ c
          PTCALC=SQRT(PTSQ)
       ENDIF
       END
-
 
 
