@@ -13,10 +13,10 @@
   <Constant name="zHECal3"     value="([zHECal2]+348.0*mm)"/>
   <Constant name="zHECal4"     value="([zHECal3]+348.0*mm)"/>
   <Constant name="zHECal5"     value="([zHECal4]+15.0*mm)"/>
-  <Constant name="zHECalP3"    value="([zHECal1]+174.0*mm)"/>
+  <Constant name="zHECalP3"    value="([zHECal1]+522.0*mm)"/>
   <Constant name="z1Beam"      value="([zHECal2]-([rMaxHECal2]/[slopeTop]))"/>
   <Constant name="rMaxHECal1" value="([zHECal1]-[z1Beam])*[slopeTop]"/>
-  <Constant name="rMaxHECalP3" value="([zHECalP3]-[z1Beam])*[slopeTop]"/>
+  <Constant name="rMaxHECalP3" value="[rMaxHECal2]"/>
   <Constant name="rMinHECal1"  value="[etaMax:slope]*[zHECal1]"/>
   <Constant name="rMinHECal2"  value="[etaMax:slope]*[zHECal2]"/>
   <Constant name="rMinHECal3"  value="[etaMax:slope]*[zHECal3]"/>    
@@ -49,11 +49,11 @@
   </Polyhedra>
   <Polyhedra name="HEPart1" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
     <ZSection z="[zHECal1]"  rMin="[rMinHECal1]"  rMax="[rMaxHECal1]"/>
+    <ZSection z="[zHECal2]"  rMin="[rMinHECal2]"  rMax="[rMaxHECal2]"/>
     <ZSection z="[zHECalP3]" rMin="[rMinHECalP3]" rMax="[rMaxHECalP3]"/>
   </Polyhedra>
   <Polyhedra name="HEPart2" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
     <ZSection z="[zHECalP3]" rMin="[rMinHECalP3]" rMax="[rMaxHECalP3]"/>
-    <ZSection z="[zHECal2]"  rMin="[rMinHECal2]"  rMax="[rMaxHECal2]"/>
     <ZSection z="[zHECal3]"  rMin="[rMinHECal3]"  rMax="[rMaxHECal2]"/>
     <ZSection z="[zHECal3]"  rMin="[rMinHECal3]"  rMax="[rMaxHECal3]"/>
     <ZSection z="[zHECal4]"  rMin="[rMinHECal4]"  rMax="[rMaxHECal3]"/>
@@ -161,11 +161,11 @@
     <Numeric name="ModType"       value="1"/>
     <Numeric name="ModNumber"     value="1"/>
     <Numeric name="LayerType"     value="1"/>
-    <Vector name="LayerNumber" type="numeric" nEntries="2"> 
-       7, 8 </Vector>
+    <Vector name="LayerNumber" type="numeric" nEntries="6"> 
+       7, 8, 9, 10, 11, 12 </Vector>
     <Vector name="PhiName" type="string" nEntries="2"> Phi0, Phi1</Vector>
-    <Vector name="LayerName" type="string" nEntries="2"> 
-       Layer07, Layer08</Vector>
+    <Vector name="LayerName" type="string" nEntries="6"> 
+       Layer07, Layer08, Layer09, Layer10, Layer11, Layer12 </Vector>
     <String  name="MotherName"    value="HE"/>
     <String  name="ModName"       value="Part1"/>
     <Numeric name="IdOffset"      value="4000"/>
@@ -197,12 +197,11 @@
     <Numeric name="ModType"       value="1"/>
     <Numeric name="ModNumber"     value="1"/>
     <Numeric name="LayerType"     value="1"/>
-    <Vector name="LayerNumber" type="numeric" nEntries="10">
-        9, 10, 11, 12, 13, 14, 15, 16, 17, 18 </Vector>
+    <Vector name="LayerNumber" type="numeric" nEntries="6">
+        13, 14, 15, 16, 17, 18 </Vector>
     <Vector name="PhiName" type="string" nEntries="2"> Phi0, Phi1</Vector>
-    <Vector name="LayerName" type="string" nEntries="10"> 
-       Layer09, Layer10, Layer11, 
-       Layer12, Layer13, Layer14, Layer15, Layer16, Layer17, Layer18</Vector>
+    <Vector name="LayerName" type="string" nEntries="6"> 
+       Layer13, Layer14, Layer15, Layer16, Layer17, Layer18</Vector>
     <String  name="MotherName"    value="HE"/>
     <String  name="ModName"       value="Part2"/>
     <Numeric name="IdOffset"      value="4000"/>
