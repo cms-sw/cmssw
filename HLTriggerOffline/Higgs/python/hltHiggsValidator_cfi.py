@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         
-    hltProcessName = cms.string("HLTX"),
+    hltProcessName = cms.string("HLT"),
     analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej"), 
     histDirectory  = cms.string("HLT/Higgs"),
     
