@@ -1,7 +1,7 @@
 #define bTagPostValidation for the b-tag DQM validation (efficiency and mistagrate plot)
 process.bTagPostValidation = cms.EDAnalyzer("HLTBTagHarvestingAnalyzer",
 	HLTPathNames = cms.vstring('HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v1'),
-	histoName	= cms.string('hltL3CombinedSecondaryVertexBJetTags'),
+	histoName	= cms.string('hltCombinedSecondaryVertexBJetTagsCalo'),
 	minTag	= cms.double(0.6),
 	# MC stuff
 	mcFlavours = cms.PSet(
