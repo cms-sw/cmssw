@@ -364,7 +364,8 @@ float EcalClusterToolsT<noZS>::matrixSize( const reco::BasicCluster &cluster, co
             cursor.home();
             cursor.offsetBy( i, j );
             float frac=getFraction(v_id,*cursor);
-            if (frac > 0) result++;
+            float energy = recHitEnergy( *cursor, recHits )*frac;
+            if (energy > 0) result++;
         }
     }
     return result;
