@@ -5,8 +5,8 @@
 
 #include "TrackingTools/DetLayers/interface/RingedForwardLayer.h"
 #include "Phase2OTECRing.h"
-#include<array>
-
+#include <array>
+#include <atomic>
 
 /** A concrete implementation for Phase 2 OT EC layer 
  *  built out of Phase2OTECRings
@@ -17,7 +17,11 @@ class Phase2OTECRingedLayer GCC11_FINAL : public RingedForwardLayer {
  public:
   Phase2OTECRingedLayer(std::vector<const Phase2OTECRing*>& rings)  __attribute__ ((cold));
   ~Phase2OTECRingedLayer()  __attribute__ ((cold));
-  
+
+  // Default implementations would not properly manage memory
+  Phase2OTECRingedLayer( const Phase2OTECRingedLayer& ) = delete;
+  Phase2OTECRingedLayer& operator=( const Phase2OTECRingedLayer&) = delete;
+
   // GeometricSearchDet interface
   
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
@@ -56,6 +60,7 @@ class Phase2OTECRingedLayer GCC11_FINAL : public RingedForwardLayer {
 
  private:
   std::vector<GeomDet const*> theBasicComps;
+  mutable std::atomic<std::vector<const GeometricSearchDet*>*> theComponents;
   const Phase2OTECRing* theComps[NOTECRINGS];
   struct RingPar { float theRingR, thetaRingMin, thetaRingMax;};
   RingPar ringPars[NOTECRINGS];

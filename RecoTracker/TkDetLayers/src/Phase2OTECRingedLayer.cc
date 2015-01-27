@@ -20,9 +20,17 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 
 //hopefully is never called!
 const std::vector<const GeometricSearchDet*>& Phase2OTECRingedLayer::components() const{
-  static std::vector<const GeometricSearchDet*> crap;
-  for ( auto c: theComps) crap.push_back(c);
-  return crap;
+  if (not theComponents) {
+    std::unique_ptr<std::vector<const GeometricSearchDet*>> temp( new std::vector<const GeometricSearchDet*>() );
+    temp->reserve(NOTECRINGS);
+    for ( auto c: theComps) temp->push_back(c);
+    std::vector<const GeometricSearchDet*>* expected = nullptr;
+    if(theComponents.compare_exchange_strong(expected,temp.get())) {
+      //this thread set the value
+      temp.release();
+    }
+  }
+  return *theComponents;
  }
 
 
@@ -99,6 +107,8 @@ Phase2OTECRingedLayer::computeDisk( const vector<const Phase2OTECRing*>& rings) 
 
 Phase2OTECRingedLayer::~Phase2OTECRingedLayer(){
   for (auto c : theComps) delete c;
+
+  delete theComponents.load();
 } 
 
   
