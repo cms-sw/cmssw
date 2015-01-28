@@ -120,6 +120,8 @@ namespace edmtest
       dumpIt(new HcalValidationCorrs(&(*topology)), new HcalValidationCorrsRcd, e,context,"ValidationCorrs");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("LutMetadata")) != mDumpRequest.end())
       dumpIt(new HcalLutMetadata(&(*topology)), new HcalLutMetadataRcd, e,context,"LutMetadata");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ODFCorrections")) != mDumpRequest.end())
+      dumpIt(new HcalODFCorrections, new HcalODFCorrectionsRcd, e,context,"ODFCorrections");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("DcsValues")) != mDumpRequest.end())
       dumpIt(new HcalDcsValues, new HcalDcsRcd, e,context,"DcsValues");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("DcsMap")) != mDumpRequest.end())

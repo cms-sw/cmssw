@@ -24,6 +24,7 @@ class HcalTimeCorrsRcd;
 class HcalLUTCorrsRcd;
 class HcalPFCorrsRcd;
 class HcalZSThresholdsRcd;
+class HcalODFCorrectionsRcd;
 class HcalL1TriggerObjectsRcd;
 class HcalValidationCorrsRcd;
 class HcalLutMetadataRcd;
@@ -61,6 +62,7 @@ protected:
 
   std::auto_ptr<HcalRespCorrs> produceRespCorrs (const HcalRespCorrsRcd& rcd);
   std::auto_ptr<HcalZSThresholds> produceZSThresholds (const HcalZSThresholdsRcd& rcd);
+  std::auto_ptr<HcalODFCorrections> produceODFCorrections (const HcalODFCorrectionsRcd& rcd);
   std::auto_ptr<HcalL1TriggerObjects> produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd);
   std::auto_ptr<HcalTimeCorrs> produceTimeCorrs (const HcalTimeCorrsRcd& rcd);
   std::auto_ptr<HcalLUTCorrs> produceLUTCorrs (const HcalLUTCorrsRcd& rcd);

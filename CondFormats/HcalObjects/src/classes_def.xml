@@ -69,6 +69,10 @@
  </class>
  <class name="HcalGainWidths"/>
 
+ <class name="HcalODFCorrections" class_version="0"/>
+ <class name="HcalODFCorrections::Item"/>
+ <class name="std::vector<HcalODFCorrections::Item>"/>
+
  <class name="HcalQIECoder">
    <field name="mQIEIndex" transient="true"/>
  </class>

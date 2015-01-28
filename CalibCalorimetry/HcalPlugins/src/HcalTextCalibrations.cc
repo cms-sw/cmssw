@@ -63,6 +63,10 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceZSThresholds);
       findingRecord <HcalZSThresholdsRcd> ();
     }
+    else if (objectName == "HcalODFCorrections") {
+      setWhatProduced (this, &HcalTextCalibrations::produceODFCorrections);
+      findingRecord <HcalODFCorrectionsRcd> ();
+    }
     else if (objectName == "RespCorrs") {
       setWhatProduced (this, &HcalTextCalibrations::produceRespCorrs);
       findingRecord <HcalRespCorrsRcd> ();
@@ -137,7 +141,7 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
 		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap "
 		<< "ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
 		<< "ValidationCorrs LutMetadata DcsValues DcsMap CholeskyMatrices CovarianceMatrices "
-		<< "RecoParams LongRecoParams FlagHFDigiTimeParams MCParams "
+		<< "RecoParams LongRecoParams ODFCorrections FlagHFDigiTimeParams MCParams "
 		<< std::endl;
     }
   }
@@ -276,6 +280,11 @@ std::auto_ptr<HcalL1TriggerObjects> HcalTextCalibrations::produceL1TriggerObject
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalL1TriggerObjects> (topo,mInputs ["L1TriggerObjects"]);
 }
+
+std::auto_ptr<HcalODFCorrections> HcalTextCalibrations::produceODFCorrections (const HcalODFCorrectionsRcd& rcd) {
+  return produce_impl<HcalODFCorrections> (mInputs ["ODFCorrections"]);
+}
+
 
 std::auto_ptr<HcalElectronicsMap> HcalTextCalibrations::produceElectronicsMap (const HcalElectronicsMapRcd& rcd) {
   return produce_impl<HcalElectronicsMap> (mInputs ["ElectronicsMap"]);

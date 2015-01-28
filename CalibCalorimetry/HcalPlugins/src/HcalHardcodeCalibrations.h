@@ -40,6 +40,7 @@ class HcalFlagHFDigiTimeParamsRcd;
 class HcalTimingParamsRcd;
 class HcalCholeskyMatricesRcd;
 class HcalCovarianceMatricesRcd;
+class HcalODFCorrections;
 
 class HcalHardcodeCalibrations : public edm::ESProducer,
 		       public edm::EventSetupRecordIntervalFinder
@@ -70,6 +71,7 @@ protected:
   std::auto_ptr<HcalLUTCorrs> produceLUTCorrs (const HcalLUTCorrsRcd& rcd);
   std::auto_ptr<HcalPFCorrs> producePFCorrs (const HcalPFCorrsRcd& rcd);
 
+  std::auto_ptr<HcalODFCorrections> produceODFCorrections (const HcalODFCorrectionsRcd& rcd);
   std::auto_ptr<HcalValidationCorrs> produceValidationCorrs (const HcalValidationCorrsRcd& rcd);
   std::auto_ptr<HcalLutMetadata> produceLutMetadata (const HcalLutMetadataRcd& rcd);
   std::auto_ptr<HcalDcsValues> produceDcsValues (const HcalDcsRcd& rcd);

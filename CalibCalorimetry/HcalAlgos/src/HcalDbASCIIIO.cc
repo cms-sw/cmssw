@@ -693,6 +693,55 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalLongRecoParams&
   return true;
 }
 
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalODFCorrections* fObject)
+{
+  
+  if (!fObject) { 
+    return false; 
+  }
+  char buffer [1024];
+  int lineno = 1;
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size() == 0) continue; // blank line
+    if (items.size() < 4) {
+      edm::LogWarning("Format Error") << "Bad line (" << lineno << "): " << buffer << std::endl << "Line must contain 4 items: eta, phi, low, high." << std::endl;
+      continue;
+    }
+    if (items.size() > 4) {
+      edm::LogWarning("Format Error") << "Bad line (" << lineno << "): " << buffer << std::endl << "Line must contain 4 items: eta, phi, low, high." << std::endl;
+      continue;
+    }
+    int eta = atoi(items[0].c_str());
+    int phi = atoi(items[1].c_str());
+    float low = atof(items[2].c_str());
+    float high = atof(items[3].c_str());
+    
+    fObject->addValues(eta, phi, low, high);
+    
+    lineno += 1;
+  }
+  return true;
+}
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalODFCorrections& fObject)
+{
+  char buffer [1024];
+
+  sprintf (buffer, "# %15s %15s %15s %15s\n", "eta", "phi", "low", "high");
+  fOutput << buffer;
+
+  std::vector<HcalODFCorrections::Item> values = fObject.getValues();
+  for (std::vector<HcalODFCorrections::Item>::iterator it = values.begin(); it != values.end(); it++) {
+
+    sprintf (buffer, " %15u %15u %15f %15f", it->eta, it->phi, it->low, it->high);
+    fOutput << buffer << std::endl;
+
+  }
+  return true;
+}
+
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalMCParams* fObject)
 {
   if (!fObject) return false; // fObject = new HcalMCParams();

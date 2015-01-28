@@ -76,6 +76,9 @@ namespace CondFormats_HcalObjects {
     HcalMCParams myMCParams;
     std::vector<HcalMCParam> myMCParamsVec;
 
+    HcalODFCorrections myODFCorrections;
+    std::vector<HcalODFCorrections::Item> myODFCorrectionsVec;
+    
     // HF noise DB objects
     HcalFlagHFDigiTimeParams myHcalFlagHFDigiTimeParams;
     std::vector<HcalFlagHFDigiTimeParam> myHcalFlagHFDigiTimeParamVec;

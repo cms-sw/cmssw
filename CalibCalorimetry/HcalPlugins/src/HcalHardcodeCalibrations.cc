@@ -203,6 +203,10 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceZSThresholds);
       findingRecord <HcalZSThresholdsRcd> ();
     }
+    if ((*objectName == "HcalODFCorrections") || (*objectName == "ODFCorrections") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceODFCorrections);
+      findingRecord <HcalODFCorrectionsRcd> ();
+    }
     if ((*objectName == "RespCorrs") || (*objectName == "ResponseCorrection") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceRespCorrs);
       findingRecord <HcalRespCorrsRcd> ();
@@ -573,6 +577,14 @@ std::auto_ptr<HcalDcsValues>
   std::auto_ptr<HcalDcsValues> result(new HcalDcsValues);
   return result;
 }
+
+std::auto_ptr<HcalODFCorrections>
+  HcalHardcodeCalibrations::produceODFCorrections (const HcalODFCorrectionsRcd& rcd) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceODFCorrections-> ...";
+  std::auto_ptr<HcalODFCorrections> result(new HcalODFCorrections);
+  return result;
+}
+
 
 std::auto_ptr<HcalDcsMap> HcalHardcodeCalibrations::produceDcsMap (const HcalDcsMapRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceDcsMap-> ...";

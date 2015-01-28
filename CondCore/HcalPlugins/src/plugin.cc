@@ -39,6 +39,7 @@ namespace cond {
 REGISTER_PLUGIN(HcalPedestalsRcd,HcalPedestals);
 REGISTER_PLUGIN(HcalPedestalWidthsRcd,HcalPedestalWidths);
 REGISTER_PLUGIN(HcalGainsRcd,HcalGains);
+REGISTER_PLUGIN(HcalODFCorrectionsRcd,HcalODFCorrections);
 REGISTER_PLUGIN(HcalGainWidthsRcd,HcalGainWidths);
 REGISTER_PLUGIN(HcalElectronicsMapRcd,HcalElectronicsMap);
 REGISTER_PLUGIN(HcalChannelQualityRcd,HcalChannelQuality);
