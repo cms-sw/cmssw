@@ -15,7 +15,6 @@
 
 CastorDbService::CastorDbService (const edm::ParameterSet& cfg)
   : 
-  mQieShapeCache (0),
   mPedestals (0),
   mPedestalWidths (0),
   mGains (0),
