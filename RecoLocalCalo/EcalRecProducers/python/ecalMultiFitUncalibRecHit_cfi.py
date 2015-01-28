@@ -15,7 +15,8 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     useLumiInfoRunHeader = cms.bool(True),
     
     doPrefit = cms.bool(False),
-    prefitMaxChiSq = cms.double(25.),
+    prefitMaxChiSqEB = cms.double(25.),
+    prefitMaxChiSqEE = cms.double(10.),
     
     
 

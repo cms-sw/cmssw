@@ -48,7 +48,6 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
 
   prefitMaxChiSqEB_ = ps.getParameter<double>("prefitMaxChiSqEB");
   prefitMaxChiSqEE_ = ps.getParameter<double>("prefitMaxChiSqEE");
-  //multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEB, prefitMaxChiSqEE);
   
   // algorithm to be used for timing
   timealgo_ = ps.getParameter<std::string>("timealgo");
