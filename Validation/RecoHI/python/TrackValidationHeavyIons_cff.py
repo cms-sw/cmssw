@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # track associator settings
 from Validation.RecoTrack.TrackValidation_cff import trackAssociatorByHitsRecoDenom
-trackAssociatorByHitsRecoDenom.SimToRecoDenominator = cms.string('reco')
 
 # reco track quality cuts
 from Validation.RecoTrack.cuts_cff import *
