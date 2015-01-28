@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-HcalIsoTrkAnalyzer = cms.EDAnalyzer("HcalIsoTrkAnalyzer",
+HcalIsoTracksFilter = cms.EDFilter("AlCaIsoTracksFilter",
                                     TrackLabel        = cms.InputTag("generalTracks"),
                                     VertexLabel       = cms.InputTag("offlinePrimaryVertices"),
                                     BeamSpotLabel     = cms.InputTag("offlineBeamSpot"),
@@ -9,7 +9,7 @@ HcalIsoTrkAnalyzer = cms.EDAnalyzer("HcalIsoTrkAnalyzer",
                                     HBHERecHitLabel   = cms.InputTag("hbhereco"),
                                     TriggerEventLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
                                     TriggerResultLabel= cms.InputTag("TriggerResults","","HLT"),
-                                    Triggers          = cms.vstring("HLT_IsoTrackHB","HLT_IsoTrackHE"),
+                                   Triggers           = cms.vstring("HLT_PFJet40","HLT_PFJet80","HLT_PFJet140","HLT_PFJet200","HLT_PFJet260","HLT_PFJet320","HLT_PFJet320","HLT_PFJet400"),
                                     TrackQuality      = cms.string("highPurity"),
                                     ProcessName       = cms.string("HLT"),
                                     L1Filter          = cms.string(""),
