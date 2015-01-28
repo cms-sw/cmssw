@@ -20,11 +20,14 @@ public:
 
   LocalErrorBaseExtended(const NullMatrix &) {}
 
-  LocalErrorBaseExtended(InvalidError) {
+   LocalErrorBaseExtended(InvalidError) {
     theCartesianError[0][0] = -9999.e10f;
     theCartesianError[0][1] = 0;
     theCartesianError[1][1] = -9999.e10f;
     theCartesianError[2][2] = -9999.e10f;
+    theCartesianError[1][2] = 0;
+    theCartesianError[1][3] = 0;
+    theCartesianError[2][3] = 0;
     theCartesianError[3][3] = -9999.e10f;
   }
 
@@ -45,7 +48,7 @@ public:
     theCartesianError(2,0)=c31;
     theCartesianError(3,0)=c41;
 
-    theCartesianError(1,1)=c33;
+    theCartesianError(1,1)=c22;
     theCartesianError(2,1)=c32;
     theCartesianError(3,1)=c42;
 
@@ -55,7 +58,7 @@ public:
     theCartesianError(3,3)=c44;
 
   }
-  
+ 
     LocalErrorBaseExtended(const AlgebraicSymMatrix44 & err) : 
       theCartesianError(err) { }
   
