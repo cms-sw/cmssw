@@ -6,9 +6,12 @@ import FWCore.ParameterSet.Config as cms
 RecoTrackerFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoTracks_generalTracks_*_*', 
         'keep recoTrackExtras_generalTracks_*_*',
+        'keep recoTracks_displacedTracks_*_*',
+        'keep recoTrackExtras_displacedTracks_*_*',
         'keep TrackingRecHitsOwned_extraFromSeeds_*_*',
         'keep uints_extraFromSeeds_*_*',                                   
         'keep TrackingRecHitsOwned_generalTracks_*_*', 
+        'keep TrackingRecHitsOwned_displacedTracks_*_*', 
         'keep recoTracks_beamhaloTracks_*_*', 
         'keep recoTrackExtras_beamhaloTracks_*_*', 
         'keep TrackingRecHitsOwned_beamhaloTracks_*_*',
@@ -27,15 +30,19 @@ RecoTrackerFEVT = cms.PSet(
         'keep *_dedxHarmonic2_*_*',
         'keep *_trackExtrapolator_*_*',
         'keep floatedmValueMap_generalTracks_*_*',
+        'keep floatedmValueMap_displacedTracks_*_*',
     )
 )
 #RECO content
 RecoTrackerRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoTracks_generalTracks_*_*', 
         'keep recoTrackExtras_generalTracks_*_*',
+        'keep recoTracks_displacedTracks_*_*',
+        'keep recoTrackExtras_displacedTracks_*_*',
         'keep TrackingRecHitsOwned_extraFromSeeds_*_*',
         'keep uints_extraFromSeeds_*_*',                                   
         'keep TrackingRecHitsOwned_generalTracks_*_*', 
+        'keep TrackingRecHitsOwned_displacedTracks_*_*', 
         'keep recoTracks_beamhaloTracks_*_*', 
         'keep recoTrackExtras_beamhaloTracks_*_*', 
         'keep TrackingRecHitsOwned_beamhaloTracks_*_*',
@@ -54,11 +61,13 @@ RecoTrackerRECO = cms.PSet(
         'keep *_dedxHarmonic2_*_*',
         'keep *_trackExtrapolator_*_*',
         'keep floatedmValueMap_generalTracks_*_*',
+        'keep floatedmValueMap_displacedTracks_*_*',
     )
 )
 #AOD content
 RecoTrackerAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoTracks_generalTracks_*_*', 
+        'keep recoTracks_displacedTracks_*_*',
         'keep recoTracks_rsWithMaterialTracks_*_*',
         'keep recoTracks_conversionStepTracks_*_*',
         'keep recoTracks_beamhaloTracks_*_*',
@@ -68,6 +77,7 @@ RecoTrackerAOD = cms.PSet(
         'keep *_dedxHitInfo_*_*',
         'keep *_trackExtrapolator_*_*',
         'keep floatedmValueMap_generalTracks_*_*',
+        'keep floatedmValueMap_displacedTracks_*_*',
     )
 )
 

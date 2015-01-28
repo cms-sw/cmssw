@@ -36,7 +36,12 @@ RecoMuonAOD = cms.PSet(
                                            'keep recoTracks_tevMuons_*_*', 
                                            'keep recoTrackExtras_tevMuons_*_*', 
                                            'keep recoTracks_generalTracks_*_*',
+                                           'keep recoTracks_displacedTracks_*_*',
                                            'keep recoTracksToOnerecoTracksAssociation_tevMuons_*_*', 
+                                           # Displaced Global Muons
+                                           'keep recoTracks_displacedGlobalMuons_*_*',
+                                           'keep recoTrackExtras_displacedGlobalMuons_*_*', 
+                                           'keep TrackingRecHitsOwned_displacedGlobalMuons_*_*',
                                            # Cosmics
                                            'keep recoTracks_cosmicMuons_*_*',
                                            'keep recoTracks_globalCosmicMuons_*_*', 
