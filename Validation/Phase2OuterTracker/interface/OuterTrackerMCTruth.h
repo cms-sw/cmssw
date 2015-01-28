@@ -49,16 +49,29 @@ public:
 	MonitorElement* Cluster_PID = 0;
 	MonitorElement* Stub_PID = 0;
 	// Stubs vs. TrackingParticles
+  MonitorElement* Stub_InvPt_TPart_InvPt_AllLayers = 0;
+  MonitorElement* Stub_Pt_TPart_Pt_AllLayers = 0;
 	MonitorElement* Stub_Eta_TPart_Eta_AllLayers = 0;
 	MonitorElement* Stub_Phi_TPart_Phi_AllLayers = 0;
+  
+  MonitorElement* Stub_InvPtRes_TPart_Eta_AllLayers = 0;
+  MonitorElement* Stub_PtRes_TPart_Eta_AllLayers = 0;
 	MonitorElement* Stub_EtaRes_TPart_Eta_AllLayers = 0;
 	MonitorElement* Stub_PhiRes_TPart_Eta_AllLayers = 0;
+  
 	MonitorElement* Stub_W_TPart_Pt_AllLayers = 0;
 	MonitorElement* Stub_W_TPart_InvPt_AllLayers = 0;
+  
+  MonitorElement* Stub_InvPt_TPart_InvPt_AllDisks = 0;
+  MonitorElement* Stub_Pt_TPart_Pt_AllDisks = 0;
 	MonitorElement* Stub_Eta_TPart_Eta_AllDisks = 0;
 	MonitorElement* Stub_Phi_TPart_Phi_AllDisks = 0;
+  
+  MonitorElement* Stub_InvPtRes_TPart_Eta_AllDisks = 0;
+  MonitorElement* Stub_PtRes_TPart_Eta_AllDisks = 0;
 	MonitorElement* Stub_EtaRes_TPart_Eta_AllDisks = 0;
 	MonitorElement* Stub_PhiRes_TPart_Eta_AllDisks = 0;
+  
 	MonitorElement* Stub_W_TPart_Pt_AllDisks = 0;
 	MonitorElement* Stub_W_TPart_InvPt_AllDisks = 0;
 	
