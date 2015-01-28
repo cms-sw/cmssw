@@ -41,6 +41,12 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     bunchSpacing_ = c.consumes<int>(edm::InputTag("addPileupInfo","bunchSpacing"));
   }
 
+  doPrefitEB_ = ps.getParameter<bool>("doPrefitEB");
+  doPrefitEE_ = ps.getParameter<bool>("doPrefitEE");
+
+  prefitMaxChiSqEB_ = ps.getParameter<double>("prefitMaxChiSqEB");
+  prefitMaxChiSqEE_ = ps.getParameter<double>("prefitMaxChiSqEE");
+
   // algorithm to be used for timing
   timealgo_ = ps.getParameter<std::string>("timealgo");
   
@@ -268,6 +274,8 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                 gid       = &grps->endcap(hashedIndex);
                 aPulse    = &pulseshapes->endcap(hashedIndex);
                 aPulseCov = &pulsecovariances->endcap(hashedIndex);
+                multiFitMethod_.setDoPrefit(doPrefitEE_);
+		multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEE_);
         } else {
                 unsigned int hashedIndex = EBDetId(detid).hashedIndex();
                 aped      = &peds->barrel(hashedIndex);
@@ -275,6 +283,8 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                 gid       = &grps->barrel(hashedIndex);
                 aPulse    = &pulseshapes->barrel(hashedIndex);
                 aPulseCov = &pulsecovariances->barrel(hashedIndex);
+                multiFitMethod_.setDoPrefit(doPrefitEB_);
+		multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEB_);
         }
 
         pedVec[0] = aped->mean_x12;
