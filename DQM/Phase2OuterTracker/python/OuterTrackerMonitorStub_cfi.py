@@ -16,7 +16,7 @@ OuterTrackerMonitorStub = cms.EDAnalyzer('OuterTrackerMonitorStub',
         ),
 	
 #TTStub barrel y vs x zoomed	
-TH2TTStub_Barrel_XY_Zoom = cms.PSet(
+    TH2TTStub_Barrel_XY_Zoom = cms.PSet(
         Nbinsx = cms.int32(960),
         xmax = cms.double(60),                      
         xmin = cms.double(30),
@@ -24,8 +24,9 @@ TH2TTStub_Barrel_XY_Zoom = cms.PSet(
         ymax = cms.double(15),                      
         ymin = cms.double(-15)
         ),
+
 #TTStub #rho vs z
-TH2TTStub_RZ = cms.PSet(
+    TH2TTStub_RZ = cms.PSet(
         Nbinsx = cms.int32(900),
         xmax = cms.double(300),                      
         xmin = cms.double(-300),
@@ -33,8 +34,9 @@ TH2TTStub_RZ = cms.PSet(
         ymax = cms.double(120),                      
         ymin = cms.double(0)
         ),
+
 #TTStub Forward Endcap #rho vs. z	
-TH2TTStub_Endcap_Fw_RZ_Zoom = cms.PSet(
+    TH2TTStub_Endcap_Fw_RZ_Zoom = cms.PSet(
         Nbinsx = cms.int32(960),
         xmax = cms.double(170),                      
         xmin = cms.double(140),
@@ -42,8 +44,9 @@ TH2TTStub_Endcap_Fw_RZ_Zoom = cms.PSet(
         ymax = cms.double(60),                      
         ymin = cms.double(30)
         ),
+
 #TTStub Backward Endcap #rho vs. z	
-TH2TTStub_Endcap_Bw_RZ_Zoom = cms.PSet(
+    TH2TTStub_Endcap_Bw_RZ_Zoom = cms.PSet(
         Nbinsx = cms.int32(960),
         xmax = cms.double(-140),                      
         xmin = cms.double(-170),
@@ -53,7 +56,7 @@ TH2TTStub_Endcap_Bw_RZ_Zoom = cms.PSet(
         ),    
 
 #TTStub eta distribution
-TH1TTStub_Eta = cms.PSet(
+    TH1TTStub_Eta = cms.PSet(
         Nbinsx = cms.int32(45), 
         xmin = cms.double(-3), 
         xmax = cms.double(3)
@@ -66,7 +69,7 @@ TH1TTStub_Stack = cms.PSet(
         xmax = cms.double(6.5)
         ),
 	
-#TTstub displacement or offset
+#TTStub displacement or offset
 TH2TTStub_DisOf = cms.PSet(
         Nbinsx = cms.int32(6),
         xmax = cms.double(6.5),                      

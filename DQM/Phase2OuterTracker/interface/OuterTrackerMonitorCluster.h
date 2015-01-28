@@ -31,6 +31,14 @@ public:
 	MonitorElement* Cluster_OMem_Endcap = 0;
 	MonitorElement* Cluster_W = 0;
   MonitorElement* Cluster_Eta = 0;
+	
+	MonitorElement* Cluster_Barrel_XY = 0;
+  MonitorElement* Cluster_Barrel_XY_Zoom = 0;
+  MonitorElement* Cluster_Endcap_Fw_XY = 0;
+  MonitorElement* Cluster_Endcap_Bw_XY = 0;
+  MonitorElement* Cluster_RZ = 0;
+  MonitorElement* Cluster_Endcap_Fw_RZ_Zoom = 0;
+  MonitorElement* Cluster_Endcap_Bw_RZ_Zoom = 0;
 
  private:
   DQMStore* dqmStore_;

@@ -25,19 +25,19 @@ public:
   //virtual void beginJob() ;
   virtual void endJob() ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
- 
-	// TTCluster stacks
-	MonitorElement* Cluster_Gen_Barrel = 0;
-	MonitorElement* Cluster_Unkn_Barrel = 0;
-	MonitorElement* Cluster_Comb_Barrel = 0;
-	MonitorElement* Cluster_Gen_Endcap = 0;
-	MonitorElement* Cluster_Unkn_Endcap = 0;
-	MonitorElement* Cluster_Comb_Endcap = 0;
-	MonitorElement* Cluster_Gen_Eta = 0;
-	MonitorElement* Cluster_Unkn_Eta = 0;
-	MonitorElement* Cluster_Comb_Eta = 0;
-	
-
+  
+  // TTCluster stacks
+  MonitorElement* Cluster_Gen_Barrel = 0;
+  MonitorElement* Cluster_Unkn_Barrel = 0;
+  MonitorElement* Cluster_Comb_Barrel = 0;
+  MonitorElement* Cluster_Gen_Endcap = 0;
+  MonitorElement* Cluster_Unkn_Endcap = 0;
+  MonitorElement* Cluster_Comb_Endcap = 0;
+  MonitorElement* Cluster_Gen_Eta = 0;
+  MonitorElement* Cluster_Unkn_Eta = 0;
+  MonitorElement* Cluster_Comb_Eta = 0;
+  
+  
  private:
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
