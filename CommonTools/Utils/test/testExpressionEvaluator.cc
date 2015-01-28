@@ -10,7 +10,6 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
-#include "TestArea.h"
 
 class testExpressionEvaluator : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testExpressionEvaluator);
@@ -18,11 +17,10 @@ class testExpressionEvaluator : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  testExpressionEvaluator() : testArea("EEIntTest"){}
+  testExpressionEvaluator() {}
   ~testExpressionEvaluator(){}
   void checkAll(); 
 
-  TestArea testArea;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testExpressionEvaluator );

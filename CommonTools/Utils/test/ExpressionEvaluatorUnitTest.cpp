@@ -1,11 +1,14 @@
 #include "CommonTools/Utils/interface/ExpressionEvaluator.h"
 
-#include "CommonTools/Utils/test/ExprEvalStubs/MyExpr.h"
-#include "CommonTools/Utils/test/ExprEvalStubs/vcut.h"
+// #include "CommonTools/Utils/test/ExprEvalStubs/MyExpr.h"
+// #include "CommonTools/Utils/test/ExprEvalStubs/vcut.h"
+
+
+#include "ExpressionEvaluatorTests/EEUnitTest/src/MyExpr.h"
+#include "ExpressionEvaluatorTests/EEUnitTest/src/vcut.h"
+
 
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include "TestArea.h"
 
 #include <iostream>
 
@@ -13,8 +16,6 @@ int main() {
 
    // build fake test package...
    std::string pkg = "ExpressionEvaluatorTests/EEUnitTest";
-
-   TestArea testArea("EEUnitTest");
 
   using reco::ExpressionEvaluator;
 
