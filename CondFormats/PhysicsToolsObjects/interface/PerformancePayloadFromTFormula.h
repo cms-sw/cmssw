@@ -86,7 +86,7 @@ class PerformancePayloadFromTFormula : public PerformancePayload {
   //
   // the transient part
   //
-  mutable   std::vector< boost::shared_ptr<TFormula> > compiledFormulas_ COND_TRANSIENT;
+  std::vector< boost::shared_ptr<TFormula> > compiledFormulas_ COND_TRANSIENT;
 
  COND_SERIALIZABLE;
 };
