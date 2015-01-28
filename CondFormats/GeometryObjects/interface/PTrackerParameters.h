@@ -115,6 +115,8 @@ class PTrackerParameters
   TIBItem tib;
   TIDItem tid;
   TOBItem tob;
+
+  std::vector<int> pDetIdShifts;
   
   COND_SERIALIZABLE;
 };
