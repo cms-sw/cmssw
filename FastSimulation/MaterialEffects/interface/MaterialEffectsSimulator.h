@@ -52,7 +52,6 @@ class MaterialEffectsSimulator
   ///Electron mass in GeV/c2
   inline double eMass() const { return 0.000510998902; }
 
-
   /// Compute the material effect (calls the sub class)
   void updateState(ParticlePropagator& myTrack, double radlen, RandomEngineAndDistribution const*);
   
@@ -74,6 +73,9 @@ class MaterialEffectsSimulator
   /// The id of the closest charged daughter (filled for nuclear interactions only)
   inline int closestDaughterId() { return theClosestChargedDaughterId; } 
 
+  /// Used by  NuclearInteractionSimulator to save last sampled event
+  virtual void save() {};
+
  private:
 
   /// Overloaded in all material effects updtators
@@ -81,7 +83,6 @@ class MaterialEffectsSimulator
 
   /// Returns the fraction of radiation lengths traversed
   inline double radiationLength() const {return radLengths;}
-
 
  protected:
 
