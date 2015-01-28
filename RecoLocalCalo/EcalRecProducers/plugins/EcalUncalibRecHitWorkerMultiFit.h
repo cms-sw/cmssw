@@ -25,6 +25,9 @@
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
+#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
 
 namespace edm {
@@ -46,14 +49,15 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
 
         protected:
 
-                edm::ParameterSet EcalPulseShapeParameters_;
-
                 double pedVec[3];
 		double pedRMSVec[3];
                 double gainRatios[3];
 
                 edm::ESHandle<EcalPedestals> peds;
                 edm::ESHandle<EcalGainRatios>  gains;
+                edm::ESHandle<EcalSamplesCorrelation> noisecovariances;
+                edm::ESHandle<EcalPulseShapes> pulseshapes;
+                edm::ESHandle<EcalPulseCovariances> pulsecovariances;
 
                 double timeCorrection(float ampli,
                     const std::vector<float>& amplitudeBins, const std::vector<float>& shiftBins);
@@ -122,9 +126,6 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 double chi2ThreshEB_;
                 double chi2ThreshEE_;
 
-
- private:
-                void fillInputs(const edm::ParameterSet& params);
 
 };
 
