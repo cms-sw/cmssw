@@ -40,6 +40,51 @@ def customisePostLS1(process):
 
     return process
 
+def customiseRun2EraExtras(process):
+    """
+    This function should be used in addition to the "--era run2" cmsDriver
+    option so that it can perform the last few changes that the era hasn't
+    implemented yet.
+    
+    As functionality is added to the run2 era the corresponding line will
+    be removed from this function until the whole function is removed.
+    
+    Currently does exactly the same as "customisePostLS1", since the run2
+    era doesn't make any changes yet (coming in later pull requests).
+    """
+    # deal with CSC separately:
+    process = customise_csc_PostLS1(process)
+
+    # deal with L1 Emulation separately:
+    customiseSimL1EmulatorForPostLS1(process)
+
+    # deal with FastSim separately:
+    process = customise_fastSimPostLS1(process)
+
+    # all the rest:
+    if hasattr(process,'g4SimHits'):
+        process=customise_Sim(process)
+    if hasattr(process,'DigiToRaw'):
+        process=customise_DigiToRaw(process)
+    if hasattr(process,'RawToDigi'):
+        process=customise_RawToDigi(process)
+    if hasattr(process,'reconstruction'):
+        process=customise_Reco(process)
+    if hasattr(process,'digitisation_step'):
+        process=customise_Digi(process)
+    if hasattr(process,'HLTSchedule'):
+        process=customise_HLT(process)
+    if hasattr(process,'L1simulation_step'):
+        process=customise_L1Emulator(process)
+    if hasattr(process,'dqmoffline_step'):
+        process=customise_DQM(process)
+    if hasattr(process,'dqmHarvesting'):
+        process=customise_harvesting(process)
+    if hasattr(process,'validation_step'):
+        process=customise_Validation(process)
+
+    return process
+    
 
 def digiEventContent(process):
     #extend the event content
