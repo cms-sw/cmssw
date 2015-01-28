@@ -14,7 +14,8 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     ampErrorCalculation = cms.bool(True),
     useLumiInfoRunHeader = cms.bool(True),
     
-    doPrefit = cms.bool(False),
+    doPrefitEB = cms.bool(False),
+    doPrefitEE = cms.bool(False),
     prefitMaxChiSqEB = cms.double(25.),
     prefitMaxChiSqEE = cms.double(10.),
     

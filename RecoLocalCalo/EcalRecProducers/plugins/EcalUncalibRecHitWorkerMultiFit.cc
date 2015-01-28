@@ -43,8 +43,8 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     bunchSpacing_ = c.consumes<int>(edm::InputTag("addPileupInfo","bunchSpacing"));
   }
   
-  bool doPrefit = ps.getParameter<bool>("doPrefit");
-  multiFitMethod_.setDoPrefit(doPrefit);
+  doPrefitEB_ = ps.getParameter<bool>("doPrefitEB");
+  doPrefitEE_ = ps.getParameter<bool>("doPrefitEE");
 
   prefitMaxChiSqEB_ = ps.getParameter<double>("prefitMaxChiSqEB");
   prefitMaxChiSqEE_ = ps.getParameter<double>("prefitMaxChiSqEE");
@@ -269,12 +269,14 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                 aped  = &peds->endcap(hashedIndex);
                 aGain = &gains->endcap(hashedIndex);
                 gid   = &grps->endcap(hashedIndex);
+                multiFitMethod_.setDoPrefit(doPrefitEE_);
 		multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEE_);
         } else {
                 unsigned int hashedIndex = EBDetId(detid).hashedIndex();
                 aped  = &peds->barrel(hashedIndex);
                 aGain = &gains->barrel(hashedIndex);
                 gid   = &grps->barrel(hashedIndex);
+                multiFitMethod_.setDoPrefit(doPrefitEB_);
 		multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEB_);
         }
 

@@ -121,6 +121,8 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 bool kPoorRecoFlagEE_;
                 double chi2ThreshEB_;
                 double chi2ThreshEE_;
+                bool doPrefitEB_;
+                bool doPrefitEE_;
 		double prefitMaxChiSqEB_;
 		double prefitMaxChiSqEE_;
 
