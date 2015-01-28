@@ -41,8 +41,10 @@ MaterialEffectsBlock = cms.PSet(
 	# Smallest pT for the Mutliple Scattering 
         pTmin = cms.double(0.2),
 	# Enable Nuclear Interactions
-        NuclearInteraction = cms.bool(False),  # temporary 12.01.14 until bug-fix for nuclear interactions
-	# The energies of the pions used in the above files (same order)
+        NuclearInteraction = cms.bool(False), # temporary 12.01.14 until bug-fix for nuclear interactions
+        #
+        G4NuclearInteraction = cms.bool(False), 	
+        # The energies of the pions used in the above files (same order)
         pionEnergies = cms.untracked.vdouble(
             1.0, 2.0, 3.0, 4.0, 5.0, 7.0, 9.0, 12.0, 15.0, 20.0, 
             30.0, 50.0, 100.0, 200.0, 300.0, 500.0, 700.0, 1000.0
@@ -180,6 +182,7 @@ MaterialEffectsForMuonsBlock = cms.PSet(
 	# Smallest pT for the Mutliple Scattering 
         pTmin = cms.double(0.3),
 	# Enable Nuclear Interactions
+        G4NuclearInteraction = cms.bool(False), 	
         NuclearInteraction = cms.bool(False)
 
     )
@@ -220,6 +223,7 @@ MaterialEffectsForMuonsInECALBlock = cms.PSet(
 	# Smallest pT for the Mutliple Scattering 
         pTmin = cms.double(0.3),
 	# Enable Nuclear Interactions
+        G4NuclearInteraction = cms.bool(False), 	
         NuclearInteraction = cms.bool(False)
     )
 )
@@ -259,6 +263,7 @@ MaterialEffectsForMuonsInHCALBlock = cms.PSet(
 	# Smallest pT for the Mutliple Scattering 
         pTmin = cms.double(0.3),
 	# Enable Nuclear Interactions
+        G4NuclearInteraction = cms.bool(False), 	
         NuclearInteraction = cms.bool(False)
 
     )

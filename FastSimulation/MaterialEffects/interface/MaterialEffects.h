@@ -38,7 +38,8 @@ class ParticlePropagator;
 class PairProductionSimulator;
 class BremsstrahlungSimulator;
 class EnergyLossSimulator;
-class NuclearInteractionSimulator;
+//class NuclearInteractionSimulator;
+class MaterialEffectsSimulator;
 class MultipleScatteringSimulator;
 class MuonBremsstrahlungSimulator;
 class RandomEngineAndDistribution;
@@ -85,7 +86,7 @@ class MaterialEffects
     return EnergyLoss;
   }
 
-/// Return the Muon Bremsstrahlung engine
+  /// Return the Muon Bremsstrahlung engine
   inline MuonBremsstrahlungSimulator* muonBremsstrahlungSimulator() const {
     return MuonBremsstrahlung;
   }
@@ -104,11 +105,11 @@ class MaterialEffects
 
   PairProductionSimulator* PairProduction;
   BremsstrahlungSimulator* Bremsstrahlung;
-////// Muon Brem
+  ////// Muon Brem
   MuonBremsstrahlungSimulator* MuonBremsstrahlung;
   MultipleScatteringSimulator* MultipleScattering;
   EnergyLossSimulator* EnergyLoss;
-  NuclearInteractionSimulator* NuclearInteraction;
+  MaterialEffectsSimulator* NuclearInteraction;
 
   // Cuts for material effects
   double pTmin;
