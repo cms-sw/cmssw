@@ -12,7 +12,7 @@
 int main() {
 
    // build fake test package...
-   std::string pkg = "EEUnitTest/ExprEval";
+   std::string pkg = "ExpressionEvaluatorTests/EEUnitTest";
 
    TestArea testArea("EEUnitTest");
 
@@ -24,7 +24,7 @@ int main() {
 
   std::string expr = "void eval(Coll const & c, Res & r) override{ r.resize(c.size()); std::transform(c.begin(),c.end(),r.begin(), [](Coll::value_type const & c){ return (*c).pt()>10;}); }";
 
-  ExpressionEvaluator parser("EEUnitTest/ExprEval", "MyExpr",expr.c_str());
+  ExpressionEvaluator parser("ExpressionEvaluatorTests/EEUnitTest", "MyExpr",expr.c_str());
 
   auto func = parser.expr<MyExpr>();
 
@@ -35,10 +35,10 @@ int main() {
 
   std::string cut = "bool eval(int i, int j) override { return i<10&& j<5; }";
 
-  // ExpressionEvaluator parser2("EEUnitTest/ExprEval","eetest::vcut",cut.c_str());
+  // ExpressionEvaluator parser2("ExpressionEvaluatorTests/EEUnitTest","eetest::vcut",cut.c_str());
   // auto mcut = parser2.expr<eetest::vcut>();
 
-  auto mcut = reco_expressionEvaluator("EEUnitTest/ExprEval",eetest::vcut,cut);
+  auto mcut = reco_expressionEvaluator("ExpressionEvaluatorTests/EEUnitTest",eetest::vcut,cut);
 
   std::cout << mcut->eval(2,7) << ' ' << mcut->eval(3, 4) << std::endl;
 
@@ -56,7 +56,7 @@ int main() {
 
   try {
     std::string cut = "bool eval(int i, int j) ride { return i<10&& j<5; }";
-    ExpressionEvaluator parser2("EEUnitTest/ExprEval","eetest::vcut",cut.c_str());
+    ExpressionEvaluator parser2("ExpressionEvaluatorTests/EEUnitTest","eetest::vcut",cut.c_str());
     auto mcut = parser2.expr<eetest::vcut>();
     std::cout << mcut->eval(2,7) << ' ' << mcut->eval(3, 4) << std::endl;
  

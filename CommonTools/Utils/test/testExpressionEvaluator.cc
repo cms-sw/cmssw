@@ -36,7 +36,7 @@ namespace {
      std::string sexpr = "double eval(reco::LeafCandidate const& cand) const override { return ";
      sexpr += expression + ";}";
      // construct the expression evaluator (pkg where precompile.h resides, name of base class, declaration of overloaded member function)
-     reco::ExpressionEvaluator eval("EEIntTest/ExprEval","reco::ValueOnObject<reco::LeafCandidate>",sexpr.c_str());
+     reco::ExpressionEvaluator eval("ExpressionEvaluatorTests/EEIntTest","reco::ValueOnObject<reco::LeafCandidate>",sexpr.c_str());
      // obtain a pointer to the base class  (to be stored in Filter and Analyser at thier costruction time!)
      reco::ValueOnObject<reco::LeafCandidate> const * expr = eval.expr<reco::ValueOnObject<reco::LeafCandidate>>();
      CPPUNIT_ASSERT(expr);
@@ -72,7 +72,7 @@ namespace {
       sexpr += "mask(c,m,cut); }";
       std::cerr << "testing " << sexpr << std::endl;
       try {
-        reco::ExpressionEvaluator eval("EEIntTest/ExprEval","reco::MaskCollection<reco::LeafCandidate>",sexpr.c_str());
+        reco::ExpressionEvaluator eval("ExpressionEvaluatorTests/EEIntTest","reco::MaskCollection<reco::LeafCandidate>",sexpr.c_str());
         m_selector = eval.expr<Selector>();
         CPPUNIT_ASSERT(m_selector);
       } catch(cms::Exception const & e) {
@@ -107,7 +107,7 @@ namespace {
       sexpr += "select(c,cut); }";
       std::cerr << "testing " << sexpr << std::endl;
       try {
-	reco::ExpressionEvaluator eval("EEIntTest/ExprEval","reco::SelectInCollection<reco::LeafCandidate>",sexpr.c_str());
+	reco::ExpressionEvaluator eval("ExpressionEvaluatorTests/EEIntTest","reco::SelectInCollection<reco::LeafCandidate>",sexpr.c_str());
         m_selector = eval.expr<Selector>();
         CPPUNIT_ASSERT(m_selector);
       } catch(cms::Exception const & e) {
