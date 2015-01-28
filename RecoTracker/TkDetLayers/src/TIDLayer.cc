@@ -121,7 +121,9 @@ TIDLayer::fillRingPars(int i) {
 
 
 TIDLayer::TIDLayer(vector<const TIDRing*>& rings) :
-  RingedForwardLayer(true) {
+  RingedForwardLayer(true),
+  theComponents{nullptr}
+{
   //They should be already R-ordered. TO BE CHECKED!!
   //sort( theRings.begin(), theRings.end(), DetLessR());
 

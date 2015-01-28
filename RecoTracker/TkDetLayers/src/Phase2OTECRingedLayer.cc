@@ -48,7 +48,9 @@ Phase2OTECRingedLayer::fillRingPars(int i) {
 
 
 Phase2OTECRingedLayer::Phase2OTECRingedLayer(vector<const Phase2OTECRing*>& rings):
-  RingedForwardLayer(true) {
+  RingedForwardLayer(true),
+  theComponents{nullptr}
+{
   //They should be already R-ordered. TO BE CHECKED!!
   //sort( theRings.begin(), theRings.end(), DetLessR());
 
