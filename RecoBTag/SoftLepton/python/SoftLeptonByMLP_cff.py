@@ -27,7 +27,7 @@ softPFMuonBJetTags = cms.EDProducer("JetTagProducer",
 )
 softPFMuonComputer = cms.ESProducer("MuonTaggerESProducer",
     ipSign = cms.string("any"),
-    weightFile = cms.FileInPath('RecoBTag/SoftLepton/data/SoftPFMuon_BDT.weights.xml.gz')
+    weightFile = cms.FileInPath('RecoBTag/SoftLepton/data/SoftPFMuon_BDT.weights.xml')
 )
 negativeSoftPFMuonBJetTags = cms.EDProducer("JetTagProducer",
     jetTagComputer = cms.string('negativeSoftPFMuonComputer'),
@@ -35,7 +35,7 @@ negativeSoftPFMuonBJetTags = cms.EDProducer("JetTagProducer",
 )
 negativeSoftPFMuonComputer = cms.ESProducer("MuonTaggerESProducer",
     ipSign = cms.string("negative"),
-    weightFile = cms.FileInPath('RecoBTag/SoftLepton/data/SoftPFMuon_BDT.weights.xml.gz')
+    weightFile = cms.FileInPath('RecoBTag/SoftLepton/data/SoftPFMuon_BDT.weights.xml')
 )
 positiveSoftPFMuonBJetTags = cms.EDProducer("JetTagProducer",
     jetTagComputer = cms.string('positiveSoftPFMuonComputer'),
@@ -43,5 +43,5 @@ positiveSoftPFMuonBJetTags = cms.EDProducer("JetTagProducer",
 )
 positiveSoftPFMuonComputer = cms.ESProducer("MuonTaggerESProducer",
     ipSign = cms.string("positive"),
-    weightFile = cms.FileInPath('RecoBTag/SoftLepton/data/SoftPFMuon_BDT.weights.xml.gz')
+    weightFile = cms.FileInPath('RecoBTag/SoftLepton/data/SoftPFMuon_BDT.weights.xml')
 )
