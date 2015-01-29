@@ -30,7 +30,7 @@ MagELayer::~MagELayer(){
 }
 
 
-MagVolume * 
+const MagVolume * 
 MagELayer::findVolume(const GlobalPoint & gp, double tolerance) const {
   for(vector<MagVolume*>::const_iterator ivol = theVolumes.begin();
 	ivol != theVolumes.end(); ++ivol) {

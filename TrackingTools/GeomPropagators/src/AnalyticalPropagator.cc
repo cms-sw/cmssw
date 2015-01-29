@@ -95,7 +95,7 @@ AnalyticalPropagator::propagateWithPath(const FreeTrajectoryState& fts,
   //
 
   //try {
-    ReferenceCountingPointer<TangentPlane> plane(cylinder.tangentPlane(x));  // need to be here until tsos is created!
+    ConstReferenceCountingPointer<TangentPlane> plane(cylinder.tangentPlane(x));  // need to be here until tsos is created!
     return propagatedStateWithPath(fts,*plane,gtp,s);
   /*
   } catch(...) {
