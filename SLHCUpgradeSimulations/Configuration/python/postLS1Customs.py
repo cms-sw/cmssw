@@ -371,6 +371,20 @@ def customise_Reco(process):
             )
         )
 
+    #Lower Thresholds also for Clusters!!!    
+
+    for p in process.particleFlowClusterHO.seedFinder.thresholdsByDetector:
+        p.seedingThreshold = cms.double(0.08)
+
+    for p in process.particleFlowClusterHO.initialClusteringStep.thresholdsByDetector:
+        p.gatheringThreshold = cms.double(0.05)
+
+    for p in process.particleFlowClusterHO.pfClusterBuilder.recHitEnergyNorms:
+        p.recHitEnergyNorm = cms.double(0.05)
+
+    process.particleFlowClusterHO.pfClusterBuilder.positionCalc.logWeightDenominator = cms.double(0.05)
+    process.particleFlowClusterHO.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator = cms.double(0.05)
+
     return process
 
 
