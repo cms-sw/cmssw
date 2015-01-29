@@ -1,4 +1,4 @@
-#if (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 7)) || defined(__clang__)
+#if ((defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 7)) || defined(__clang__)) && !defined(__INTEL_COMPILER)
 #include "DataFormats/Math/interface/ExtVec.h"
 
 #include <ostream>
