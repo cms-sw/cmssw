@@ -34,7 +34,7 @@ class LHAupLesHouches : public Pythia8::LHAup {
   private:
 
     bool setInit();
-    bool setEvent(int idProcIn, double mRecalculate = -1.);
+    bool setEvent(int idProcIn);
 
     //boost::shared_ptr<lhef::LHERunInfo> runInfo;
     lhef::LHERunInfo* runInfo;
