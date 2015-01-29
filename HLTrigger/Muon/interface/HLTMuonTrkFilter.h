@@ -34,6 +34,7 @@ class HLTMuonTrkFilter : public HLTFilter {
   unsigned int m_requiredTypeMask;
   double m_maxNormalizedChi2;
   double m_minPt;
+  unsigned int m_minN;
   double m_maxAbsEta;
   muon::SelectionType m_trkMuonId;
   bool m_saveTags;
