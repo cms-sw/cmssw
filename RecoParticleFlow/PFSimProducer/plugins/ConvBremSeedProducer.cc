@@ -544,7 +544,7 @@ ConvBremSeedProducer::makeTrajectoryState( const DetLayer* layer,
   GlobalPoint  pos( pp.X(), pp.Y(), pp.Z());
   GlobalVector mom( pp.Px(), pp.Py(), pp.Pz());
 
-  ReferenceCountingPointer<TangentPlane> plane = layer->surface().tangentPlane(pos);
+  auto plane = layer->surface().tangentPlane(pos);
 
   return TrajectoryStateOnSurface
     (GlobalTrajectoryParameters( pos, mom, TrackCharge( pp.charge()), field), *plane);
