@@ -53,9 +53,6 @@ public:
   /// BeginRun
   void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
 
-  /// Endjob
-  void endJob();
-
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup);
 
@@ -70,9 +67,6 @@ protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
-
-  // The BE interface
-  DQMStore* theDbe;
 
   // Switch for detailed analysis
   bool detailedAnalysis;

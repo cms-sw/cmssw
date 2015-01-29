@@ -54,6 +54,9 @@ class DTTriggerEfficiencyTask: public DQMEDAnalyzer{
 
  protected:
 
+  /// BeginRun
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
+
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   /// Book chamber granularity histograms
@@ -74,9 +77,6 @@ class DTTriggerEfficiencyTask: public DQMEDAnalyzer{
   /// To reset the MEs
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
 
-  /// EndJob
-  void endJob(void);
-
  private:
 
   int nevents;
@@ -96,7 +96,6 @@ class DTTriggerEfficiencyTask: public DQMEDAnalyzer{
   edm::InputTag inputTagSEG;
   edm::EDGetTokenT<L1MuGMTReadoutCollection> gmt_Token_;
 
-  DQMStore* dbe;
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
   DTTrigGeomUtils* trigGeomUtils;

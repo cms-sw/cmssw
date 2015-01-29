@@ -35,9 +35,6 @@ DTChamberEfficiencyTask::DTChamberEfficiencyTask(const ParameterSet& pset) {
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "[DTChamberEfficiencyTask] Constructor called!";
 
-  // Get the DQM needed services
-  //theDbe = edm::Service<DQMStore>().operator->();
-
   parameters = pset;
 
   // the name of the 4D rec hits collection
@@ -64,12 +61,6 @@ DTChamberEfficiencyTask::~DTChamberEfficiencyTask(){
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "[DTChamberEfficiencyTask] Destructor called!";
 }
 
-
-void DTChamberEfficiencyTask::beginJob(){
-
-}
-
-
 void DTChamberEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask")<<"[DTChamberEfficiencyTask]: Begin of LS transition";
@@ -90,12 +81,12 @@ void DTChamberEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSe
 
 void DTChamberEfficiencyTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& setup){
 
+  // Get the DT Geometry
+  setup.get<MuonGeometryRecord>().get(dtGeom);
+
 }
 
 void DTChamberEfficiencyTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
-
-  // Get the DT Geometry
-  context.get<MuonGeometryRecord>().get(dtGeom);
 
   ibooker.setCurrentFolder("DT/DTChamberEfficiencyTask");
 
@@ -108,14 +99,6 @@ void DTChamberEfficiencyTask::bookHistograms(DQMStore::IBooker & ibooker, edm::R
   }
 
 }
-
-
-void DTChamberEfficiencyTask::endJob(){
-
-    edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask")<<"[DTChamberEfficiencyTask] endjob called!";
-}
-
-
 
 // Book a set of histograms for a given Layer
 void DTChamberEfficiencyTask::bookHistos(DQMStore::IBooker & ibooker, DTChamberId chId) {

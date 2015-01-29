@@ -23,10 +23,7 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore::IBooker & ibooker, const st
 					   int mode) :
              DTTimeEvolutionHisto(ibooker, name, title, nbins, 1, lsPrescale, sliding, mode) {
 
-
-  //DTTimeEvolutionHisto(ibooker, name, title, nbins, theFirstLS, lsPrescale, sliding, mode);
-  //histo = dbe->get(dbe->pwd() + "/" + name);
-  nBookedBins = histo->getNbinsX();
+    nBookedBins = histo->getNbinsX();
 }
 
 
@@ -72,7 +69,7 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore::IBooker & ibooker, const st
   }
 }
 
-//FR changed previous constructor with 2 arguments: 
+//FR changed previous constructor with 2 arguments:
 //no igetter here!! so I get the histo from the client and just instanciate here a DTTimeEvolutionHisto
 
 DTTimeEvolutionHisto::DTTimeEvolutionHisto(MonitorElement* histoGot) : valueLastTimeSlot(0), theFirstLS(1),
@@ -90,17 +87,14 @@ DTTimeEvolutionHisto::~DTTimeEvolutionHisto(){}
 
 
 void DTTimeEvolutionHisto::setTimeSlotValue(float value, int timeSlot) {
-  //   LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
-  //   << "[DTTimeEvolutionHisto] ME name: " <<  histo->getName() << endl;
+
   if(!doSlide) {
-    //     LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
-    //     << "        fill bin: " << timeSlot << " with value: " << value << endl;
+
     histo->Fill(timeSlot,value);
   } else {
     for(int bin = 1; bin != nBookedBins; ++bin) {
       float value = histo->getBinContent(bin);
-      //       LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
-      //  << "        bin: " << bin << " has value: " << value << endl;
+
       if(bin == 1) { // average of previous time slots (fixme)
 	histo->setBinContent(bin, (value + histo->getBinContent(bin+1))/2.);
       } else if(bin != nBookedBins) {

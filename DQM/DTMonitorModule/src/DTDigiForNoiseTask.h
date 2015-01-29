@@ -51,17 +51,14 @@ public:
 
 protected:
 
+  /// begin run
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
+
   /// bookHistograms
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-  /// BeginJob
-//-  void beginJob();
-
-  /// BeginRun
-//-  void beginRun(const edm::Run&, const edm::EventSetup&);
 
   /// Book the ME
-//-  void bookHistos(const DTLayerId& dtSL);
   void bookHistos(DQMStore::IBooker &, const DTLayerId& dtSL);
 
   /// To reset the MEs
@@ -70,15 +67,10 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-  /// Endjob
-//-  void endJob();
-
 private:
 
   bool debug;
   int nevents;
-
-  DQMStore* dbe;
 
   edm::ParameterSet parameters;
 

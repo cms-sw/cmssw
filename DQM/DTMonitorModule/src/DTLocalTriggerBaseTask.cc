@@ -95,7 +95,6 @@ DTLocalTriggerBaseTask::DTLocalTriggerBaseTask(const edm::ParameterSet& ps) :
   }
 
   theParams = ps;
-  //theDQMStore = edm::Service<DQMStore>().operator->();
 
 }
 
@@ -108,20 +107,7 @@ DTLocalTriggerBaseTask::~DTLocalTriggerBaseTask() {
 
 }
 
-
-void DTLocalTriggerBaseTask::beginJob() {
-
-  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
-    << "[DTLocalTriggerBaseTask]: BeginJob" << endl;
-
-}
-
 void DTLocalTriggerBaseTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
-
-  //FR moved here from beginRun
-  ESHandle<DTGeometry> theGeom;
-  context.get<MuonGeometryRecord>().get(theGeom);
-  theTrigGeomUtils = new DTTrigGeomUtils(theGeom);
 
   ibooker.setCurrentFolder("DT/EventInfo/Counters");
   nEventMonitor = ibooker.bookFloat("nProcessedEventsTrigger");
@@ -178,21 +164,10 @@ void DTLocalTriggerBaseTask::dqmBeginRun(const edm::Run& run, const edm::EventSe
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
     << "[DTLocalTriggerBaseTask]: BeginRun" << endl;
 
+  ESHandle<DTGeometry> theGeom;
+  context.get<MuonGeometryRecord>().get(theGeom);
+  theTrigGeomUtils = new DTTrigGeomUtils(theGeom);
 
-
-}
-
-
-void DTLocalTriggerBaseTask::endJob() {
-
-  LogVerbatim("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
-    << "[DTLocalTriggerBaseTask]: analyzed " << nEvents << " events" << endl;
-
-  //FR comment following
-  /*
-  if (processDCC) ibooker.rmdir(topFolder("DCC"));
-  if (processDDU) ibooker.rmdir(topFolder("DDU"));
-  */
 }
 
 

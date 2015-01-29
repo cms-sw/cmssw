@@ -1,5 +1,3 @@
-
-
 /*
  *  See header file for a description of this class.
  *
@@ -46,9 +44,6 @@ DTEfficiencyTask::DTEfficiencyTask(const ParameterSet& pset) {
   recHitToken_    = consumes<DTRecHitCollection>(
       edm::InputTag(pset.getParameter<string>("recHitLabel")));
 
-  // Get the DQM needed services
-  //theDbe = edm::Service<DQMStore>().operator->();
-
   parameters = pset;
 }
 
@@ -56,17 +51,11 @@ DTEfficiencyTask::DTEfficiencyTask(const ParameterSet& pset) {
 DTEfficiencyTask::~DTEfficiencyTask(){
 }
 
-
-void DTEfficiencyTask::beginJob(){
-}
-
 void DTEfficiencyTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
 
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
 
-  // Get the pedestals tTrig (always get it, even if the TPRange is taken from conf)
-  //context.get<DTRangeT0Rcd>().get(t0RangeMap);
 }
 
 
@@ -108,7 +97,7 @@ void DTEfficiencyTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
           stringstream station; station << layerId.superlayerId().chamberId().station();
           stringstream sector; sector << layerId.superlayerId().chamberId().sector();
           stringstream wheel; wheel << layerId.superlayerId().chamberId().wheel();
-          
+
           const int firstWire = (*l_it)->specificTopology().firstChannel();
           const int lastWire = (*l_it)->specificTopology().lastChannel();
 
@@ -160,12 +149,6 @@ void DTEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Even
   }
 
 }
-
-
-void DTEfficiencyTask::endJob(){
-
-}
-
 
 void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
@@ -227,7 +210,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
       if(debug)
 	cout << "   == RecSegment dimension: " << (*segment4D).dimension() << endl;
 
-      // If Statio != 4 skip RecHits with dimension != 4
+      // If Station != 4 skip RecHits with dimension != 4
       // For the Station 4 consider 2D RecHits
       if((*chamberId).station() != 4 && (*segment4D).dimension() != 4) {
 	if(debug)
@@ -384,8 +367,6 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	  cout << "[DTEfficiencyTask] Layer without recHits is: " << missLayerId << endl;
 	// -------------------------------------------------------
 
-
-
 	const DTLayer* missLayer = chamber->layer(missLayerId);
 
 	LocalPoint missLayerPosInChamber = chamber->toLocal(missLayer->toGlobal(LocalPoint(0,0,0)));
@@ -414,7 +395,6 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	if(debug)
 	  cout << "[DTEfficiencyTask] Cell without hit is: " << missWireId << endl;
 	// ----------------------------------------------------------
-
 
 	bool foundUnAssRechit = false;
 

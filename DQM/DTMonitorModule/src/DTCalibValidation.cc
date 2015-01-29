@@ -33,20 +33,6 @@ using namespace std;
 
 DTCalibValidation::DTCalibValidation(const ParameterSet& pset) {
 
-  //debug = pset.getUntrackedParameter<bool>("debug",false);
-
-  //FR comment the following, use ibooker instead
-  // Get the DQM needed services
-
-  // To remove into CMSSW versions before 20X
-  // theDbe = edm::Service<DQMStore>().operator->();
-  // To add into CMSSW versions before 20X
-  /*theDbe = edm::Service<DaqMonitorBEInterface>().operator->();
-  theDbe->setVerbose(1);
-  edm::Service<MonitorDaemon>().operator->();*/
-
-  //theDbe->setCurrentFolder("DT/DTCalibValidation");
-
   parameters = pset;
 
   //FR the following was previously in the beginJob
@@ -79,32 +65,14 @@ DTCalibValidation::~DTCalibValidation(){
  LogVerbatim("DTCalibValidation") << "Segments used to compute residuals: " << rightSegment;
  LogVerbatim("DTCalibValidation") << "Segments not used to compute residuals: " << wrongSegment;
 
- //theDbe->showDirStructure();
- /*
- bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
- std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
-
- if(outputMEsInRootFile){
-   theDbe->showDirStructure();
-   theDbe->save(outputFileName);
- }
- theDbe->rmdir("DT/DTCalibValidation");
- */
 }
 
-
-void DTCalibValidation::beginJob(){
-}
-
-//void DTCalibValidation::beginRun(const Run& run, const EventSetup& setup) {
  void DTCalibValidation::dqmBeginRun(const edm::Run& run, const edm::EventSetup& setup) {
 
+ // get the geometry
+  setup.get<MuonGeometryRecord>().get(dtGeom);
+
  }
-
-
-void DTCalibValidation::endJob(){
-
-}
 
 void DTCalibValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
@@ -259,24 +227,6 @@ DTCalibValidation::recHitDistFromWire(const DTRecHit1DPair& hitPair, const DTLay
 float
 DTCalibValidation::recHitDistFromWire(const DTRecHit1D& recHit, const DTLayer* layer) {
   return fabs(recHit.localPosition().x() - layer->specificTopology().wirePosition(recHit.wireId().wire()));
-
-  //to check the compatibility position / distance
-  /* // Get the recHit and the wire position
-  const DTChamber* chamber = (*layer).chamber();
-  GlobalPoint recHitPosGlob = layer->toGlobal(recHit.localPosition());
-  LocalPoint recHitPosInChamber = chamber->toLocal(recHitPosGlob);
-  float wireX = layer->specificTopology().wirePosition(recHit.wireId().wire());
-  LocalPoint wirePosInLay(wireX,recHit.localPosition().y(),0);
-  GlobalPoint wirePosGlob = layer->toGlobal(wirePosInLay);
-  LocalPoint wirePosInChamber = chamber->toLocal(wirePosGlob);
-
-  float recHitDist = -1;
-  if(recHit.wireId().layerId().superlayerId().superlayer() != 2)
-    recHitDist = fabs(recHitPosInChamber.x()-wirePosInChamber.x());
-  else
-    recHitDist = fabs(recHitPosInChamber.y()-wirePosInChamber.y());
-
-    return recHitDist; */
 
 }
 
@@ -448,7 +398,6 @@ void DTCalibValidation::compute(const DTGeometry *dtGeom,
 	else
 	  fillHistos(wireId.superlayerId(), SegmDistance, residualOnDistance, (wirePosInChamber.y() - segPosAtZWire.y()), residualOnPosition, step);
 
-
       }
     }
   }
@@ -461,10 +410,6 @@ void DTCalibValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
   //FR substitute the DQMStore instance by ibooker
    ibooker.setCurrentFolder("DT/DTCalibValidation");
 
-  //FR the following was previously in beginRun
-
- // get the geometry
-  iSetup.get<MuonGeometryRecord>().get(dtGeom);
   DTSuperLayerId slId;
 
   // Loop over all the chambers
@@ -481,7 +426,7 @@ void DTCalibValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
       if(!detailedAnalysis) firstStep=3;
       // Loop over the 3 steps
       for(int step = firstStep; step <= 3; ++step) {
-        
+
          LogTrace("DTCalibValidation") << "   Booking histos for SL: " << slId;
 
          // Compose the chamber name
@@ -505,7 +450,7 @@ void DTCalibValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
 		        	   "/Sector" + sector.str());
          // Create the monitor elements
          vector<MonitorElement *> histos;
-         // Note hte order matters
+         // Note the order matters
           histos.push_back(ibooker.book1D("hResDist"+slHistoName,
 	         			  "Residuals on the distance from wire (rec_hit - segm_extr) (cm)",
 		        		  200, -0.4, 0.4));

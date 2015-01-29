@@ -29,8 +29,6 @@ DTScalerInfoTask::DTScalerInfoTask(const edm::ParameterSet& ps) :
   scalerToken_ = consumes<LumiScalersCollection>(
       ps.getUntrackedParameter<InputTag>("inputTagScaler"));
   theParams = ps;
-  theDQMStore = edm::Service<DQMStore>().operator->();
-
 }
 
 
@@ -38,14 +36,6 @@ DTScalerInfoTask::~DTScalerInfoTask() {
 
   LogTrace("DTDQM|DTMonitorModule|DTScalerInfoTask")
     << "[DTScalerInfoTask]: analyzed " << nEvents << " events" << endl;
-
-}
-
-
-void DTScalerInfoTask::beginJob() {
-
-  LogTrace("DTDQM|DTMonitorModule|DTScalerInfoTask")
-    << "[DTScalerInfoTask]: BeginJob" << endl;
 
 }
 
@@ -81,15 +71,6 @@ void DTScalerInfoTask::endLuminosityBlock(const LuminosityBlock& lumiSeg, const 
   }
 
 }
-
-
-void DTScalerInfoTask::endJob() {
-
-  LogVerbatim("DTDQM|DTMonitorModule|DTScalerInfoTask")
-    << "[DTScalerInfoTask]: analyzed " << nEvents << " events" << endl;
-
-}
-
 
 void DTScalerInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 

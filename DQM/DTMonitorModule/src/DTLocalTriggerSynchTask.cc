@@ -1,4 +1,3 @@
-
 /*
  * \file DTLocalTriggerSynchTask.cc
  *
@@ -70,12 +69,11 @@ DTLocalTriggerSynchTask::~DTLocalTriggerSynchTask() {
 
 void DTLocalTriggerSynchTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
 
+  edm::LogVerbatim ("DTLocalTriggerSynchTask") <<"[DTLocalTriggerSynchTask]: Book Histograms"<<endl;
+
   ibooker.setCurrentFolder(baseDir());
   ibooker.bookFloat("BXTimeSpacing")->Fill(bxTime);
 
-  edm::LogVerbatim ("DTLocalTriggerSynchTask") <<"[DTLocalTriggerSynchTask]: Book Histograms"<<endl;
-
-  context.get<MuonGeometryRecord>().get(muonGeom);
   tTrigSync = DTTTrigSyncFactory::get()->create(parameters.getParameter<std::string>("tTrigMode"),
 						parameters.getParameter<edm::ParameterSet>("tTrigModeConfig"));
   tTrigSync->setES(context);
@@ -96,6 +94,7 @@ void DTLocalTriggerSynchTask::bookHistograms(DQMStore::IBooker & ibooker, edm::R
 
 void DTLocalTriggerSynchTask::dqmBeginRun(const Run& run, const EventSetup& context) {
 
+  context.get<MuonGeometryRecord>().get(muonGeom);
 }
 
 

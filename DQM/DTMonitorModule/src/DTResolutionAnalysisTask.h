@@ -31,7 +31,6 @@ class DQMStore;
 class MonitorElement;
 class DTGeometry;
 
-//-class DTResolutionAnalysisTask: public edm::EDAnalyzer{
 class DTResolutionAnalysisTask: public DQMEDAnalyzer{
 public:
   /// Constructor
@@ -49,9 +48,6 @@ public:
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
-  /// Endjob
-//-  void endJob();
-
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup);
 
@@ -59,7 +55,6 @@ public:
 protected:
 
 private:
-  DQMStore* theDbe;
 
   edm::ESHandle<DTGeometry> dtGeom;
 

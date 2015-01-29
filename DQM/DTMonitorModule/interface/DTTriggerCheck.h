@@ -22,7 +22,6 @@
 #include <string>
 #include <map>
 #include <vector>
-//#include <pair>
 
 class DQMStore;
 class MonitorElement;
@@ -42,16 +41,9 @@ void analyze(const edm::Event& event, const edm::EventSetup& setup);
 
 void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-// BeginJob
-void beginJob();
-
-// EndJob
-void endJob();
-
 protected:
 
 private:
-  DQMStore* theDbe;
 
   bool debug;
 

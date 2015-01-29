@@ -48,17 +48,11 @@ public:
   /// Destructor
   virtual ~DTChamberEfficiencyTask();
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
   void dqmBeginRun(const edm::Run& run, const edm::EventSetup& setup);
 
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
-  /// Endjob
-  void endJob();
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup);
@@ -78,9 +72,6 @@ private:
 			 const DTChamberId& MB2) const;
 
   void bookHistos(DQMStore::IBooker & ibooker, DTChamberId chId);
-
-
-  DQMStore* theDbe;
 
   // Switch for verbosity
   bool debug;

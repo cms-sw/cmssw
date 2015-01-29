@@ -69,9 +69,7 @@ class DTChamberEfficiency : public DQMEDAnalyzer
 
   //Operations
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-  void beginJob();
   void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
-  void endJob();
 
  protected:
 // Book the histograms
@@ -105,16 +103,12 @@ void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const
 
   edm::ESHandle<DTGeometry> dtGeom;
 
-  DQMStore* theDbe;
-
   MuonServiceProxy* theService;
   MuonDetLayerMeasurements* theMeasurementExtractor;
   Chi2MeasurementEstimator* theEstimator;
 
   edm::ESHandle<MagneticField> magfield;
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-
-  //std::map<DTChamberId, std::vector<MonitorElement*> > histosPerW;
 
   std::vector<std::vector<MonitorElement*> > histosPerW;
 

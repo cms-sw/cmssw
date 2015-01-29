@@ -52,9 +52,6 @@ class DTScalerInfoTask: public DQMEDAnalyzer{
   // Book the histograms
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-  // BeginJob
-  void beginJob();
-
   ///Beginrun
   void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
 
@@ -67,15 +64,11 @@ class DTScalerInfoTask: public DQMEDAnalyzer{
   /// Perform trend plot operations
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
 
-  /// EndJob
-  void endJob(void);
-
  private:
 
   int nEvents;
   int nEventsInLS;
 
-  DQMStore* theDQMStore;
   edm::ParameterSet theParams;
 
   edm::EDGetTokenT<LumiScalersCollection> scalerToken_;

@@ -47,10 +47,6 @@ public:
 		       int mode = 0);
 
 
-
-  /// retrieve the monitor element from DQMStore
-  ///DTTimeEvolutionHisto(DQMStore::IBooker& ibooker, const std::string& name);
-
   //FR changed the previous 2 argument constructor to the following one
   DTTimeEvolutionHisto(MonitorElement*);
 

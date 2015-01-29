@@ -1,4 +1,3 @@
-
 /*
  *  See header file for a description of this class.
  *
@@ -57,9 +56,6 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : ne
   phiSegmCut = pset.getUntrackedParameter<double>("phiSegmCut",30.);
   nhitsCut = pset.getUntrackedParameter<int>("nhitsCut",12);
 
-  // Get the DQM needed services
-  theDbe = edm::Service<DQMStore>().operator->();
-
   // top folder for the histograms in DQMStore
   topHistoFolder = pset.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
   // hlt DQM mode
@@ -69,19 +65,20 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : ne
 
 
 DTSegmentAnalysisTask::~DTSegmentAnalysisTask(){
-  //FR noved fron endjob
+  //FR moved fron endjob
   delete hNevtPerLS;
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Destructor called!";
 }
 
 
 void DTSegmentAnalysisTask::dqmBeginRun(const Run& run, const edm::EventSetup& context){
-}
-
-void DTSegmentAnalysisTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
 
   // Get the DT Geometry
   context.get<MuonGeometryRecord>().get(dtGeom);
+
+}
+
+void DTSegmentAnalysisTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
 
   if (!hltDQMMode) {
     ibooker.setCurrentFolder("DT/EventInfo/Counters");
@@ -123,17 +120,6 @@ void DTSegmentAnalysisTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
   hNevtPerLS = new DTTimeEvolutionHisto(ibooker,"NevtPerLS","# evt.",nTimeBins,nLSTimeBin,slideTimeBins,2);
 
 }
-
-
-void DTSegmentAnalysisTask::endJob() {
-
-  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") <<"[DTSegmentAnalysisTask] endjob called!";
-
-  //theDbe->save("testMonitoring.root");
-
-}
-
-
 
 void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
@@ -306,8 +292,7 @@ void DTSegmentAnalysisTask::bookHistos(DQMStore::IBooker & ibooker, DTChamberId 
     stringstream wheel; wheel << wh;
     ibooker.setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str());
     string histoName =  "numberOfSegments_W" + wheel.str();
-    //FR commente line below, get no longer allowed by multithread!
-    //if (ibooker.get(topHistoFolder + "/Wheel" + wheel.str() + "/" + histoName)) continue;
+
     summaryHistos[wh] = ibooker.book2D(histoName.c_str(),histoName.c_str(),12,1,13,4,1,5);
     summaryHistos[wh]->setAxisTitle("Sector",1);
     summaryHistos[wh]->setBinLabel(1,"1",1);

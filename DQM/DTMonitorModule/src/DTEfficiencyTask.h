@@ -43,14 +43,8 @@ public:
   /// Destructor
   virtual ~DTEfficiencyTask();
 
-  /// BeginJob
-  void beginJob();
-
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
-  /// Endjob
-  void endJob();
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup);
@@ -66,7 +60,6 @@ void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const
 private:
 
   edm::ESHandle<DTGeometry> muonGeom;
-  DQMStore* theDbe;
 
   // Switch for verbosity
   bool debug;

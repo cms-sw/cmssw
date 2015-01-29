@@ -61,9 +61,6 @@ public:
 
 protected:
 
-  /// BeginJob
-  void beginJob();
-
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
 
   // Book the histograms
@@ -85,8 +82,6 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-  /// Endjob
-  void endJob();
 
   /// get the L1A source
   std::string triggerSource();
@@ -107,8 +102,7 @@ private:
   float kFactor;
 
   //check for sync noise
-  //  bool newChamber;
-  //  DTChamberId chDone;
+
   std::map<DTChamberId,int> hitMap;
   std::set<DTChamberId> syncNoisyChambers;
   int syncNumTot;

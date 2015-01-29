@@ -49,15 +49,8 @@ class DTCalibValidation: public DQMEDAnalyzer{
   /// Destructor
   virtual ~DTCalibValidation();
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
   void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) ;
-  //void beginRun(const edm::Run&, const edm::EventSetup&);
-
-  /// Endjob
-  void endJob();
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup);
@@ -68,11 +61,6 @@ class DTCalibValidation: public DQMEDAnalyzer{
 
 
  private:
-
-  // To remove into CMSSW versions before 20X
-  DQMStore* theDbe;
-  // To add into CMSSW versions before 20X
-  //DaqMonitorBEInterface* theDbe;
 
   // Switch for verbosity
   //bool debug;
@@ -141,8 +129,6 @@ class DTCalibValidation: public DQMEDAnalyzer{
 
 };
 #endif
-
-
 
 
 /* Local Variables: */

@@ -45,7 +45,6 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
   LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")  << "[DTTriggerEfficiencyTask]: Constructor" << endl;
 
   parameters = ps;
-//  dbe = edm::Service<DQMStore>().operator->();
 
   muons_Token_ = consumes<reco::MuonCollection>(
       parameters.getUntrackedParameter<edm::InputTag>("inputTagMuons"));
@@ -80,6 +79,14 @@ DTTriggerEfficiencyTask::~DTTriggerEfficiencyTask() {
 
 }
 
+void DTTriggerEfficiencyTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
+
+  // Get the geometry
+  context.get<MuonGeometryRecord>().get(muonGeom);
+  trigGeomUtils = new DTTrigGeomUtils(muonGeom);
+
+}
+
 void DTTriggerEfficiencyTask::bookHistograms(DQMStore::IBooker & ibooker,
                                              edm::Run const & run,
                                              edm::EventSetup const & context) {
@@ -103,10 +110,6 @@ void DTTriggerEfficiencyTask::bookHistograms(DQMStore::IBooker & ibooker,
       }
     }
   }
-
-  context.get<MuonGeometryRecord>().get(muonGeom);
-  trigGeomUtils = new DTTrigGeomUtils(muonGeom);
-
 }
 
 void DTTriggerEfficiencyTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
@@ -114,14 +117,6 @@ void DTTriggerEfficiencyTask::beginLuminosityBlock(const LuminosityBlock& lumiSe
   LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") <<"[DTTriggerEfficiencyTask]: Begin of LS transition"<<endl;
 
 }
-
-
-void DTTriggerEfficiencyTask::endJob(){
-
-  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")  << "[DTTriggerEfficiencyTask]: analyzed " << nevents << " events" << endl;
-
-}
-
 
 void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
@@ -315,7 +310,6 @@ void DTTriggerEfficiencyTask::bookChamberHistos(DQMStore::IBooker& ibooker,const
   string bookingFolder = hwFolder + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() + "/" + folder;
   string histoTag      = "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
-//  dbe->setCurrentFolder(bookingFolder);
   ibooker.setCurrentFolder(bookingFolder);
 
   LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")
@@ -327,22 +321,19 @@ void DTTriggerEfficiencyTask::bookChamberHistos(DQMStore::IBooker& ibooker,const
 
   string histoName = histoType + "_TrackPosvsAngle" +  histoTag;
   string histoLabel = "Position vs Angle (phi)";
-//  (chamberHistos[dtCh.rawId()])[histoType + "_TrackPosvsAngle"] =
-//    dbe->book2D(histoName,histoLabel,12,-30.,30.,nbins,min,max);
+
   (chamberHistos[dtCh.rawId()])[histoType + "_TrackPosvsAngle"] =
     ibooker.book2D(histoName,histoLabel,12,-30.,30.,nbins,min,max);
 
   histoName = histoType + "_TrackPosvsAngleAnyQual" +  histoTag;
   histoLabel = "Position vs Angle (phi) for any qual triggers";
-//  (chamberHistos[dtCh.rawId()])[histoType + "_TrackPosvsAngleAnyQual"] =
-//    dbe->book2D(histoName,histoLabel,12,-30.,30.,nbins,min,max);
+
   (chamberHistos[dtCh.rawId()])[histoType + "_TrackPosvsAngleAnyQual"] =
     ibooker.book2D(histoName,histoLabel,12,-30.,30.,nbins,min,max);
 
   histoName = histoType + "_TrackPosvsAngleCorr" +  histoTag;
   histoLabel = "Position vs Angle (phi) for correlated triggers";
-//  (chamberHistos[dtCh.rawId()])[histoType + "_TrackPosvsAngleCorr"] =
-//    dbe->book2D(histoName,histoLabel,12,-30.,30.,nbins,min,max);
+
   (chamberHistos[dtCh.rawId()])[histoType + "_TrackPosvsAngleCorr"] =
     ibooker.book2D(histoName,histoLabel,12,-30.,30.,nbins,min,max);
 
@@ -359,8 +350,7 @@ void DTTriggerEfficiencyTask::bookWheelHistos(DQMStore::IBooker& ibooker,int whe
     basedir = topFolder(hTag) + folder + "/" ;
   }
 
-//  dbe->setCurrentFolder(basedir);
-  ibooker.setCurrentFolder(basedir);  
+  ibooker.setCurrentFolder(basedir);
 
   string hTagName = "_W" + wh.str();
 
@@ -368,8 +358,6 @@ void DTTriggerEfficiencyTask::bookWheelHistos(DQMStore::IBooker& ibooker,int whe
     << "[DTTriggerEfficiencyTask]: booking histos in "<< basedir << endl;
 
   string hName = hTag + "_TrigEffDenum" + hTagName;
-//  MonitorElement* me = dbe->book2D(hName.c_str(),hName.c_str(),12,1,13,4,1,5);
- 
 
   MonitorElement* me = ibooker.book2D(hName.c_str(),hName.c_str(),12,1,13,4,1,5);
 
@@ -382,7 +370,6 @@ void DTTriggerEfficiencyTask::bookWheelHistos(DQMStore::IBooker& ibooker,int whe
   wheelHistos[wheel][hTag + "_TrigEffDenum"] = me;
 
   hName = hTag + "_TrigEffNum" + hTagName;
-//  me = dbe->book2D(hName.c_str(),hName.c_str(),12,1,13,4,1,5);
   me = ibooker.book2D(hName.c_str(),hName.c_str(),12,1,13,4,1,5);
 
   me->setBinLabel(1,"MB1",2);

@@ -56,9 +56,6 @@ class DTLocalTriggerBaseTask: public DQMEDAnalyzer{
 
  protected:
 
-  // BeginJob
-  void beginJob();
-
   ///Beginrun
   void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
 
@@ -70,9 +67,6 @@ class DTLocalTriggerBaseTask: public DQMEDAnalyzer{
 
   /// Perform trend plot operations
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
-
-  /// EndJob
-  void endJob(void);
 
  private:
 
@@ -113,7 +107,6 @@ class DTLocalTriggerBaseTask: public DQMEDAnalyzer{
   int targetBXDCC;
   int bestAccRange;
 
-  DQMStore* theDQMStore;
   edm::ParameterSet theParams;
   DTTrigGeomUtils* theTrigGeomUtils;
   std::vector<std::string> theTypes;

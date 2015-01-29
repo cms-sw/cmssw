@@ -43,9 +43,6 @@ DTDigiForNoiseTask::DTDigiForNoiseTask(const edm::ParameterSet& ps){
   parameters = ps;
 
   nevents = 0;
-
-//-  dbe = edm::Service<DQMStore>().operator->();
-
 }
 
 
@@ -56,17 +53,20 @@ DTDigiForNoiseTask::~DTDigiForNoiseTask(){
 
 }
 
+void DTDigiForNoiseTask::dqmBeginRun(const Run& run, const EventSetup& setup)
+{
 
-//-void DTDigiForNoiseTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
+  // Get the geometry
+  setup.get<MuonGeometryRecord>().get(muonGeom);
+  return;
+}
+
 void DTDigiForNoiseTask::bookHistograms(DQMStore::IBooker & ibooker,
                                              edm::Run const & run,
                                              edm::EventSetup const & context) {
 
   if(debug)
     cout<<"[DTDigiForNoiseTask]: boojHistograms"<<endl;
-
-  // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
 
 }
 
@@ -85,8 +85,6 @@ void DTDigiForNoiseTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Ev
 
 }
 
-
-//-void DTDigiForNoiseTask::bookHistos(const DTLayerId& lId) {
 void DTDigiForNoiseTask::bookHistos(DQMStore::IBooker & ibooker,const DTLayerId& lId) {
 
   if (debug) cout<<"[DTDigiForNoiseTask]: booking"<<endl;
@@ -99,7 +97,6 @@ void DTDigiForNoiseTask::bookHistos(DQMStore::IBooker & ibooker,const DTLayerId&
   stringstream station; station << dtChId.station();
   stringstream sector; sector << dtChId.sector();
 
-//-  dbe->setCurrentFolder("DT/DTDigiForNoiseTask/Wheel" + wheel.str() +
   ibooker.setCurrentFolder("DT/DTDigiForNoiseTask/Wheel" + wheel.str() +
 			"/Station" + station.str() +
 			"/Sector" + sector.str() + "/DigiPerEvent");
@@ -124,7 +121,6 @@ void DTDigiForNoiseTask::bookHistos(DQMStore::IBooker & ibooker,const DTLayerId&
   const int lastWire = dtTopo.lastChannel();
   int nWires = lastWire-firstWire+1;
 
-//-  digiHistos[lId] = dbe->book2D(histoName,histoName,nWires,firstWire,lastWire,10,-0.5,9.5);
   digiHistos[lId] = ibooker.book2D(histoName,histoName,nWires,firstWire,lastWire,10,-0.5,9.5);
 
 // dynamic bookings staticized
@@ -133,7 +129,6 @@ void DTDigiForNoiseTask::bookHistos(DQMStore::IBooker & ibooker,const DTLayerId&
   auto ch_end = muonGeom->chambers().end();
   // Loop over the SLs
   for (; ch_it != ch_end; ++ch_it) {
-    //    DTChamberId ch = (*ch_it)->id();
     vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
     vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
     // Loop over the SLs
@@ -144,8 +139,6 @@ void DTDigiForNoiseTask::bookHistos(DQMStore::IBooker & ibooker,const DTLayerId&
       for(; l_it != l_end; ++l_it) {
 	DTLayerId layerId = (*l_it)->id();
 
-//-	  if (digiHistos.find(layerId) == digiHistos.end())
-//-	    bookHistos(layerId);
 	    bookHistos(ibooker,layerId);
       }
     }
@@ -157,7 +150,6 @@ void DTDigiForNoiseTask::bookHistos(DQMStore::IBooker & ibooker,const DTLayerId&
 void DTDigiForNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   nevents++;
-  //  cout << "events:  " << nevents << endl;
   if (nevents%1000 == 0 && debug) {}
 
   edm::Handle<DTDigiCollection> dtdigis;
@@ -170,7 +162,6 @@ void DTDigiForNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   auto ch_end = muonGeom->chambers().end();
   // Loop over the SLs
   for (; ch_it != ch_end; ++ch_it) {
-    //    DTChamberId ch = (*ch_it)->id();
     vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
     vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
     // Loop over the SLs
@@ -187,10 +178,6 @@ void DTDigiForNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	  const DTTopology& dtTopo = muonGeom->layer(layerId)->specificTopology();
 	  const int firstWire = dtTopo.firstChannel();
 	  const int lastWire = dtTopo.lastChannel();
-
-//-	  if (digiHistos.find(layerId) == digiHistos.end())
-//-	    bookHistos(layerId);
-//-	    bookHistos(ibooker,layerId);
 
 	  if (digiHistos.find(layerId) != digiHistos.end()){
 	    for (int wire=firstWire; wire-lastWire <= 0; wire++) {
@@ -219,3 +206,6 @@ void DTDigiForNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 // show-trailing-whitespace: t
 // truncate-lines: t
 // End:
+
+
+

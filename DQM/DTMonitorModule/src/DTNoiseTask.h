@@ -17,6 +17,9 @@
 #include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
 #include <DataFormats/DTDigi/interface/DTDigi.h>
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+
+#include <CondFormats/DTObjects/interface/DTTtrig.h>
+
 // RecHit
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
@@ -48,10 +51,7 @@ public:
 
 
 protected:
-  /// BeginJob
-//-  void beginJob();
 
-//-  void beginRun(const edm::Run&, const edm::EventSetup&);
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
 
   void beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg, const edm::EventSetup& context);
@@ -61,13 +61,8 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-  /// Endjob
-//-  void endJob();
-
 private:
 
-//-  void bookHistos(DTChamberId chId);
-//-  void bookHistos(DTSuperLayerId slId);
   void bookHistos(DQMStore::IBooker &, DTChamberId chId);
   void bookHistos(DQMStore::IBooker &, DTSuperLayerId slId);
 
@@ -82,8 +77,8 @@ private:
   //switch for segment veto
   bool doSegmentVeto;
 
-  DQMStore *dbe;
   edm::ESHandle<DTGeometry> dtGeom;
+  edm::ESHandle<DTTtrig> tTrigMap;
 
   //tTrig map per Station
   std::map<DTChamberId, double> tTrigStMap;

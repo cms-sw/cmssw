@@ -26,7 +26,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-// #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <fstream>
@@ -40,7 +39,6 @@ class DTDDUData;
 class DTTimeEvolutionHisto;
 
 class DTDataIntegrityTask: public DQMEDAnalyzer {
-//class DTDataIntegrityTask: public edm::EDAnalyzer {
 
 public:
 
@@ -61,15 +59,13 @@ public:
   void fedNonFatal(int dduID);
 
   bool eventHasErrors() const;
-  void beginJob();
-  void endJob();
 
   void beginLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) override;
   void endLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) override;
- 
+
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-protected:  
+protected:
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
@@ -155,9 +151,9 @@ private:
 
   // The label to retrieve the digis
   edm::EDGetTokenT<DTDDUCollection> dduToken;
-  
+
   edm::EDGetTokenT<DTROS25Collection> ros25Token;
-  
+ 
 };
 
 

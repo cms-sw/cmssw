@@ -1,3 +1,4 @@
+
 #ifndef DTRunConditionVar_H
 #define DTRunConditionVar_H
 
@@ -41,7 +42,6 @@ class MonitorElement;
 class DetLayer;
 class DetId;
 
-//-class DTRunConditionVar : public edm::EDAnalyzer
 class DTRunConditionVar : public DQMEDAnalyzer
 {
 
@@ -52,18 +52,15 @@ class DTRunConditionVar : public DQMEDAnalyzer
     //Destructor
     ~DTRunConditionVar() ;
 
-    //BookHistogram
+    //BookHistograms
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
     //Operations
     void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-//-    void beginJob();
     void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
-//-    void endJob();
 
   private:
 
-//-    void bookChamberHistos(const DTChamberId& dtCh, std::string histoType, int , float , float);
     void bookChamberHistos(DQMStore::IBooker &,const DTChamberId& dtCh, std::string histoType, int , float , float);
 
     bool debug;
@@ -76,8 +73,6 @@ class DTRunConditionVar : public DQMEDAnalyzer
 
     edm::ESHandle<DTMtime> mTime;
     const DTMtime* mTimeMap_;
-
-    DQMStore* theDbe;
 
     std::map<uint32_t, std::map<std::string, MonitorElement*> > chamberHistos;
 

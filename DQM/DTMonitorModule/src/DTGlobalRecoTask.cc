@@ -13,23 +13,17 @@ using namespace std;
 
 DTGlobalRecoTask::DTGlobalRecoTask(const edm::ParameterSet& ps, const edm::EventSetup& context){
  logFile.open("DTGlobalRecoTask.log");
+ nevents = 0;
 }
 
 DTGlobalRecoTask::~DTGlobalRecoTask(){
+  cout << "DTGlobalRecoTask: analyzed " << nevents << " events" << endl;
   logFile.close();
 }
 
-void DTGlobalRecoTask::beginJob(){
-  nevents = 0;
-}
 
 void DTGlobalRecoTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
     ibooker.setCurrentFolder("DT/DTGlobalRecoTask");
-}
-
-
-void DTGlobalRecoTask::endJob(){
-  cout << "DTGlobalRecoTask: analyzed " << nevents << " events" << endl;
 }
 
 void DTGlobalRecoTask::analyze(const edm::Event& e, const edm::EventSetup& c){

@@ -59,14 +59,10 @@ class DTLocalTriggerTask: public DQMEDAnalyzer{
 
  protected:
 
-  // BeginJob
-  void beginJob();
-
   ///Beginrun
   void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
 
   /// Book the histograms
-protected:  
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void bookHistos(DQMStore::IBooker &, const DTChamberId& dtCh, std::string folder, std::string histoTag );
@@ -97,9 +93,6 @@ protected:
 
   /// To reset the MEs
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
-
-  /// EndJob
-  void endJob(void);
 
   /// Get the L1A source
   void triggerSource(const edm::Event& e);
@@ -135,7 +128,6 @@ protected:
   const L1MuDTChambThDigi* ithbest[6][5][13];
   bool track_ok[6][5][15];
 
-  DQMStore* dbe;
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
   DTTrigGeomUtils* trigGeomUtils;

@@ -46,11 +46,6 @@ void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-// BeginJob
-void beginJob();
-
-// EndJob
-void endJob(void);
 
 private:
 

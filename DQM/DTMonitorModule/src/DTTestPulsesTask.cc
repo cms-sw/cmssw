@@ -44,9 +44,6 @@ DTTestPulsesTask::DTTestPulsesTask(const edm::ParameterSet& ps){
   t0sPeakRange = make_pair( parameters.getUntrackedParameter<int>("t0sRangeLowerBound", -100),
 			    parameters.getUntrackedParameter<int>("t0sRangeUpperBound", 100));
 
-
-  //dbe = edm::Service<DQMStore>().operator->();
-
 }
 
 DTTestPulsesTask::~DTTestPulsesTask(){
@@ -55,21 +52,12 @@ DTTestPulsesTask::~DTTestPulsesTask(){
 
 }
 
-
-void DTTestPulsesTask::beginJob(){
-
-  cout<<"[DTTestPulsesTask]: BeginJob"<<endl;
-  nevents = 0;
-
-}
-
 void DTTestPulsesTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
 
+   cout<<"[DTTestPulsesTask]: dqmBeginRun"<<endl;
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
-
-  // Get the pedestals tTrig (always get it, even if the TPRange is taken from conf)
-  //context.get<DTRangeT0Rcd>().get(t0RangeMap);
+  nevents = 0;
 }
 
 void DTTestPulsesTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
@@ -83,8 +71,7 @@ void DTTestPulsesTask::bookHistos(DQMStore::IBooker & ibooker, string folder, st
 
   cout<<"[DTTestPulseTask]: booking"<<endl;
 
-
-  //here put the static booking loop
+//here put the static booking loop
 
  // Loop over all the chambers
   vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
@@ -112,18 +99,13 @@ void DTTestPulsesTask::bookHistos(DQMStore::IBooker & ibooker, string folder, st
           stringstream station; station << layerId.superlayerId().chamberId().station();
           stringstream sector; sector << layerId.superlayerId().chamberId().sector();
           stringstream wheel; wheel << layerId.superlayerId().chamberId().wheel();
-          
+
           // TP Profiles
           if ( folder == "TPProfile" ) {
 
 	   const int nWires = (*l_it)->specificTopology().channels();
-           /*const int nWires = muonGeom->layer(DTLayerId(dtLayer.wheel(),
-						 dtLayer.station(),
-						 dtLayer.sector(),
-						 dtLayer.superlayer(),
-						 dtLayer.layer()))->specificTopology().channels();*/
 
-          ibooker.setCurrentFolder("DT/DTTestPulsesTask/Wheel" + wheel.str() +
+           ibooker.setCurrentFolder("DT/DTTestPulsesTask/Wheel" + wheel.str() +
 		         	  "/Station" + station.str() +
 			          "/Sector" + sector.str() +
 			          "/SuperLayer" + superLayer.str() +
@@ -138,7 +120,6 @@ void DTTestPulsesTask::bookHistos(DQMStore::IBooker & ibooker, string folder, st
 
           // Setting the range
           if ( parameters.getUntrackedParameter<bool>("readDB", false) ) {
-            //t0RangeMap->slRangeT0( dtLayer.superlayerId() , t0sPeakRange.first, t0sPeakRange.second);
             t0RangeMap->slRangeT0( layerId.superlayerId() , t0sPeakRange.first, t0sPeakRange.second);
           }
 

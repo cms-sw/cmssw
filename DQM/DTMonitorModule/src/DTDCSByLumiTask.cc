@@ -36,7 +36,6 @@ using namespace std;
 
 DTDCSByLumiTask::DTDCSByLumiTask(const edm::ParameterSet& ps) : theEvents(0) , theLumis(0) {
 
-  //theDQMStore = Service<DQMStore>().operator->();
   LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
     << "[DTDCSByLumiTask]: Constructor" << endl;
 
@@ -51,22 +50,6 @@ DTDCSByLumiTask::~DTDCSByLumiTask(){
   LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
     << "DTDCSByLumiTask: processed " << theEvents <<
     " events in " << theLumis << " lumi sections" << endl;
-
-}
-
-
-void DTDCSByLumiTask::endJob(){
-
-  LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
-    <<"[DTDCSByLumiTask] endjob called!"<<endl;
-
-}
-
-
-void DTDCSByLumiTask::beginJob(){
-
-  LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
-    <<"[DTDCSByLumiTask]: BeginJob"<<endl;
 
 }
 
@@ -170,13 +153,6 @@ void DTDCSByLumiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, co
     hActiveUnits[wheel+2]->Fill(2,nActiveWires); // CB 2nd bin is the list of wires wit HV ON
 
   }
-
-  /* LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
-     << "[DTDCSByLumiTask]: processed lumi # : " << lumiSeg.id().luminosityBlock()
-     << "\t# of wires " << hActiveUnits->getBinContent(1)
-     << "\t# of Active wires (anodes && cathodes && strips ON) : "
-     << hActiveUnits->getBinContent(2) << endl;
-   */
 }
 
 

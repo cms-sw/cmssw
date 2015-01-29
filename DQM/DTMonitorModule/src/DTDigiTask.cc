@@ -93,8 +93,6 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   // switch on production of time-boxes with layer granularity
   doLayerTimeBoxes = ps.getUntrackedParameter<bool>("doLayerTimeBoxes", false);
 
-  //dbe = edm::Service<DQMStore>().operator->();
-
   syncNumTot = 0;
   syncNum = 0;
 
@@ -108,19 +106,11 @@ DTDigiTask::~DTDigiTask(){
 
 }
 
-void DTDigiTask::endJob(){
-  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask] endjob called!"<<endl;
-}
-
-void DTDigiTask::beginJob(){
-  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask]: BeginJob"<<endl;
-  nevents = 0;
-}
-
 
 void DTDigiTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
 
  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask]: begin run" << endl;
+  nevents = 0;
 
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
@@ -521,13 +511,6 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 
         wheelHistos["SyncNoiseEvents"][wh]->Fill(chId.sector(),chId.station());
 
-        // Only needed in case of ratio map not used right now
-        // FIXME check and optimize
-        // nSynchNoiseEvents[iter->first]++;
-        // FIXME: should update all chambers each event
-        // wheelHistos["SyncNoiseEvents"][(*iter).first.wheel()]->setBinContent((*iter).first.sector(),(*iter).first.station(),
-        // 								(double)nSynchNoiseEvents[iter->first]/(double)nevents);
-
       }
     }
 
@@ -637,27 +620,9 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
         // TimeBoxes per SL
         histoTag = "TimeBox" + triggerSource();
 
-	//FR comment the following cannot pass ibooker to analyze method!
-	/*
-        if (digiHistos[histoTag].find(indexSL) == digiHistos[histoTag].end())
-          bookHistos(ibooker,  dtSLId, string("TimeBoxes"), histoTag );
-	*/
         (digiHistos.find(histoTag)->second).find(indexSL)->second->Fill(tdcTime);
         if(doLayerTimeBoxes)
           (digiHistos.find(histoTag)->second).find((*dtLayerId_It).first.rawId())->second->Fill(tdcTime);
-        // FIXME: remove the time distribution for the after-pulses
-        // 2nd - 1st (CathodPhotoPeak) per SL
-        // 	  if ( (*digiIt).number() == 1 ) {
-
-        // 	    DTDigiCollection::const_iterator firstDigiIt = digiIt;
-        // 	    firstDigiIt--;
-
-        // 	    histoTag = "CathodPhotoPeak";
-        // 	    if (digiHistos[histoTag].find(indexSL) == digiHistos[histoTag].end())
-        // 	      bookHistos(ibooker,  dtSLId, string("CathodPhotoPeaks"), histoTag );
-        // 	    (digiHistos.find(histoTag)->second).find(indexSL)->second->Fill((*digiIt).countsTDC()-
-        // 									    (*firstDigiIt).countsTDC());
-        // 	  }
       }
 
       // Fill Occupancies
@@ -684,16 +649,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
           map<int, MonitorElement*>::const_iterator histoPerWheel =
             wheelHistos[histoTag].find(dtChId.wheel());
 
-	//FR comment the following cannot pass ibooker to analyze method!
-	  /*
-          if(histoPerWheel ==  wheelHistos[histoTag].end()) { // dynamic booking
-            bookHistos(ibooker, dtChId.wheel(), string("Occupancies"), histoTag);
-            histoPerWheel = wheelHistos[histoTag].find(dtChId.wheel());
-          }
-	  */
           histoPerWheel->second->Fill(dtChId.sector(),dtChId.station()); // FIXME: normalize to # of layers
-
-
         }
 
         if(doNoiseOccupancies) { // fill occupancies for hits before the ttrig
@@ -706,13 +662,6 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
             map<uint32_t, MonitorElement*>::const_iterator mappedHisto =
               digiHistos[histoTag].find(indexCh);
 
-	//FR comment the following cannot pass ibooker to analyze method!
-	    /*
-            if(mappedHisto == digiHistos[histoTag].end()) {
-              bookHistos(ibooker, dtChId, string("Occupancies"), histoTag);
-              mappedHisto = digiHistos[histoTag].find(indexCh);
-            }
-	    */
             mappedHisto->second->Fill((*digiIt).wire(),
                 (layer_number+(superlayer_number-1)*4)-1);
 
@@ -721,13 +670,6 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
             map<int, MonitorElement*>::const_iterator histoPerWheel =
               wheelHistos[histoTag].find(dtChId.wheel());
 
-	//FR comment the following cannot pass ibooker to analyze method!
-	    /*
-            if(histoPerWheel ==  wheelHistos[histoTag].end()) { // dynamic booking
-              bookHistos(ibooker, dtChId.wheel(), string("Occupancies"), histoTag);
-              histoPerWheel = wheelHistos[histoTag].find(dtChId.wheel());
-            }
-	    */
             histoPerWheel->second->Fill(dtChId.sector(),dtChId.station()); // FIXME: normalize to # of layers
 
           }
@@ -742,13 +684,6 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
             map<uint32_t, MonitorElement*>::const_iterator mappedHisto =
               digiHistos[histoTag].find(indexCh);
 
-	//FR comment the following cannot pass ibooker to analyze method!
-	    /*
-            if(mappedHisto == digiHistos[histoTag].end()) {
-              bookHistos(ibooker, dtChId, string("Occupancies"), histoTag);
-              mappedHisto = digiHistos[histoTag].find(indexCh);
-            }
-	    */
             mappedHisto->second->Fill((*digiIt).wire(),
                 (layer_number+(superlayer_number-1)*4)-1);
 
@@ -757,13 +692,6 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
             map<int, MonitorElement*>::const_iterator histoPerWheel =
               wheelHistos[histoTag].find(dtChId.wheel());
 
-	//FR comment the following cannot pass ibooker to analyze method!
-	    /*
-            if(histoPerWheel ==  wheelHistos[histoTag].end()) { // dynamic booking
-              bookHistos(ibooker, dtChId.wheel(), string("Occupancies"), histoTag);
-              histoPerWheel = wheelHistos[histoTag].find(dtChId.wheel());
-            }
-	    */
             histoPerWheel->second->Fill(dtChId.sector(),dtChId.station()); // FIXME: normalize to # of layers
 
           }
@@ -811,18 +739,6 @@ string DTDigiTask::topFolder() const {
 
 
 void DTDigiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) {
-
-  // To be used for ratio plots not used right now
-  //  Update all histos for SynchNoise if needed
-  //   if(lookForSyncNoise || filterSyncNoise) {
-  //     //loop over chambers with synch noise events and update their entries in the histos
-  //     for(map<DTChamberId, int>::const_iterator nEvPerch = nSynchNoiseEvents.begin();
-  // 	nEvPerch != nSynchNoiseEvents.end(); ++nEvPerch) {
-  //       DTChamberId chId = (*nEvPerch).first;
-  //       wheelHistos["SyncNoiseEvents"][chId.wheel()]->setBinContent(chId.sector(),chId.station(),
-  // 								  (double)nSynchNoiseEvents[chId]/(double)nevents);
-  //    }
-  //  }
 
 }
 

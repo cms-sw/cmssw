@@ -60,9 +60,6 @@ DTChamberEfficiency::DTChamberEfficiency(const ParameterSet& pSet)
   LogVerbatim("DTDQM|DTMonitorModule|DTChamberEfficiency")
     << "DTChamberEfficiency: constructor called";
 
-  // Get the DQM needed services
-  //theDbe = Service<DQMStore>().operator->();
-
   // service parameters
   ParameterSet serviceParameters = pSet.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
@@ -99,13 +96,6 @@ DTChamberEfficiency::~DTChamberEfficiency()
   delete theService;
   delete theMeasurementExtractor;
   delete theEstimator;
-}
-
-void DTChamberEfficiency::beginJob() {
-
-  LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency")
-    << "DTChamberEfficiency: beginOfJob";
-  return;
 }
 
 void DTChamberEfficiency::dqmBeginRun(const Run& run, const EventSetup& setup)
@@ -146,15 +136,6 @@ void DTChamberEfficiency::bookHistograms(DQMStore::IBooker & ibooker, edm::Run c
 
     histosPerW.push_back(histos);
   }
-
-  return;
-}
-
-
-void DTChamberEfficiency::endJob()
-{
-  LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency")
-    << "DTChamberEfficiency: endOfJob";
 
   return;
 }
@@ -281,8 +262,6 @@ bool DTChamberEfficiency::chamberSelection(const DetId& idDetLay, reco::Transien
   return true;
 }
 
-//riempi una per ogni segmento e una per segmento sopra 12 hit
-
 MeasurementContainer DTChamberEfficiency::segQualityCut(const MeasurementContainer& seg_list) const
 {
 
@@ -320,7 +299,7 @@ vector<const DetLayer*> detLayers;
 if(theNavigationType == "Standard"){
    // ask for compatible layers
    detLayers = navigationSchool.compatibleLayers(*initialLayer,fts,propDir);
-    // I have to fit by hand the first layer until the seedTSOS is defined on the first rechit layer
+   // I have to fit by hand the first layer until the seedTSOS is defined on the first rechit layer
    // In fact the first layer is not returned by initialLayer->compatibleLayers.
 
    detLayers.insert(detLayers.begin(),initialLayer);

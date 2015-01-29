@@ -49,9 +49,6 @@ public:
 
 protected:
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
   void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
 
@@ -68,8 +65,6 @@ protected:
 private:
 
   int nevents;
-
-  DQMStore* dbe;
 
   edm::ParameterSet parameters;
 

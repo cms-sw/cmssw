@@ -45,9 +45,6 @@ public:
 
 protected:
 
-  /// BeginJob
-  void beginJob();
-
   /// Begin Run
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
 
@@ -63,9 +60,6 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-  /// Endjob
-  void endJob();
-
 private:
 
   std::string topFolder() const;
@@ -75,7 +69,6 @@ private:
 
   bool DTHVRecordFound;
 
-  DQMStore* theDQMStore;
   edm::ESHandle<DTGeometry> theDTGeom;
   // CB Get HV DB and loop on half layers
   edm::ESHandle<DTHVStatus> hvStatus;
