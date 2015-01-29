@@ -90,6 +90,10 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 const EcalWeightSet::EcalWeightMatrix* weights[2];
                 EcalUncalibRecHitTimeWeightsAlgo<EBDataFrame> weightsMethod_barrel_;
                 EcalUncalibRecHitTimeWeightsAlgo<EEDataFrame> weightsMethod_endcap_;
+                bool doPrefitEB_;
+                bool doPrefitEE_;
+		double prefitMaxChiSqEB_;
+		double prefitMaxChiSqEE_;
 
                 // ratio method
                 std::vector<double> EBtimeFitParameters_; 
@@ -121,7 +125,6 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 bool kPoorRecoFlagEE_;
                 double chi2ThreshEB_;
                 double chi2ThreshEE_;
-
 
  private:
                 void fillInputs(const edm::ParameterSet& params);
