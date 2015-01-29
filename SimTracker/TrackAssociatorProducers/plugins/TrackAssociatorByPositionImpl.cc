@@ -143,7 +143,7 @@ RecoToSimCollection TrackAssociatorByPositionImpl::associateRecoToSim(const edm:
       if (dQ < theQCut){
 	atLeastOne=true;
 	outputCollection.insert(tCH[Ti],
-				std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH,TPi),-dQ));//association map with quality, is order greater-first
+				std::make_pair(tPCH[TPi],-dQ));//association map with quality, is order greater-first
 	edm::LogVerbatim("TrackAssociatorByPositionImpl")<<"track number: "<<Ti
 						     <<" associated with dQ: "<<dQ
 						     <<" to TrackingParticle number: " <<TPi;}
@@ -153,7 +153,7 @@ RecoToSimCollection TrackAssociatorByPositionImpl::associateRecoToSim(const edm:
     }//loop over tracking particles
     if (theMinIfNoMatch && !atLeastOne && dQmin!=dQmin_default){
       outputCollection.insert(tCH[minPair.first],
-			      std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH,minPair.second),-dQmin));}
+			      std::make_pair(tPCH[minPair.second],-dQmin));}
   }//loop over tracks
   outputCollection.post_insert();
   return outputCollection;
@@ -195,7 +195,7 @@ SimToRecoCollection TrackAssociatorByPositionImpl::associateSimToReco(const edm:
       double dQ= quality(trackReferenceState, simReferenceState);
       if (dQ < theQCut){
 	atLeastOne=true;
-	outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH,TPi),
+	outputCollection.insert(tPCH[TPi],
 				std::make_pair(tCH[Ti],-dQ));//association map with quality, is order greater-first
 	edm::LogVerbatim("TrackAssociatorByPositionImpl")<<"TrackingParticle number: "<<TPi
 						     <<" associated with dQ: "<<dQ
@@ -205,7 +205,7 @@ SimToRecoCollection TrackAssociatorByPositionImpl::associateSimToReco(const edm:
 	minPair = std::make_pair(TPi,Ti);}
     }//loop over tracks
     if (theMinIfNoMatch && !atLeastOne && dQmin!=dQmin_default){
-      outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH,minPair.first),
+      outputCollection.insert(tPCH[minPair.first],
 			      std::make_pair(tCH[minPair.second],-dQmin));}
   }//loop over tracking particles
   
