@@ -110,8 +110,6 @@ private:
 
   edm::Handle<LTCDigiCollection> ltcdigis;
 
-  DQMStore* dbe;
-
   edm::ESHandle<DTGeometry> muonGeom;
   edm::ESHandle<DTReadOutMapping> mapping;
 

@@ -92,9 +92,6 @@ private:
 
   int nevents;
 
-  // back-end interface
-  DQMStore * dbe;
-
   DTROChainCoding coding;
 
   // Monitor Elements

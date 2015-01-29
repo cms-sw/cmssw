@@ -31,7 +31,7 @@ int FirstRos=0,nevents=0,n,m;
 const unsigned long long max_bx = 59793997824ULL;
 #include "ROSDebugUtility.h"
 
-DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(0) , dbe(0) {
+DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(0) {
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
   << "[DTDataIntegrityTask]: Constructor" <<endl;
