@@ -42,6 +42,7 @@ HLTMuonTrkFilter::HLTMuonTrkFilter(const edm::ParameterSet& iConfig) : HLTFilter
   m_requiredTypeMask  = iConfig.getParameter<unsigned int>("requiredTypeMask");
   m_trkMuonId         = muon::SelectionType(iConfig.getParameter<unsigned int>("trkMuonId"));
   m_minPt             = iConfig.getParameter<double>("minPt");
+  m_minN              = iConfig.getParameter<unsigned int>("minN");
   m_maxAbsEta         = iConfig.getParameter<double>("maxAbsEta");
 }
 
@@ -60,6 +61,7 @@ HLTMuonTrkFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<unsigned int>("requiredTypeMask",0);
   desc.add<unsigned int>("trkMuonId",0);
   desc.add<double>("minPt",24);
+  desc.add<unsigned int>("minN",1);
   desc.add<double>("maxAbsEta",1e99);
   descriptions.add("hltMuonTrkFilter",desc);
 }
@@ -74,12 +76,12 @@ HLTMuonTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
   if ( saveTags() ) filterproduct.addCollectionTag(m_candsTag);
   if ( cands->size() != muons->size() )
     throw edm::Exception(edm::errors::Configuration) << "Both input collection must be aligned and represent same physical muon objects";
-
+  
   edm::Handle<trigger::TriggerFilterObjectWithRefs> previousLevelCands;
   std::vector<l1extra::L1MuonParticleRef> vl1cands;
   std::vector<l1extra::L1MuonParticleRef>::iterator vl1cands_begin;
   std::vector<l1extra::L1MuonParticleRef>::iterator vl1cands_end;
-
+  
   bool check_l1match = true;
   if (m_previousCandTag == edm::InputTag("")) check_l1match = false;
   if (check_l1match) {
@@ -88,7 +90,7 @@ HLTMuonTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
     vl1cands_begin = vl1cands.begin();
     vl1cands_end = vl1cands.end();
   }
-
+  
   std::vector<unsigned int> filteredMuons;
   for ( unsigned int i=0; i<muons->size(); ++i ){
     const reco::Muon& muon(muons->at(i));
@@ -96,10 +98,10 @@ HLTMuonTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
     if (check_l1match) {
       bool matchl1 = false;
       for (std::vector<l1extra::L1MuonParticleRef>::iterator l1cand = vl1cands_begin; l1cand != vl1cands_end; ++l1cand) {
-	if (deltaR(muon,**l1cand) < 0.3) {
-	  matchl1 = true;
-	  break;
-	}
+        if (deltaR(muon,**l1cand) < 0.3) {
+          matchl1 = true;
+          break;
+        }
       }
       if (!matchl1) continue;
     }
@@ -118,9 +120,9 @@ HLTMuonTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
     if ( std::abs(muon.eta()) > m_maxAbsEta ) continue;
     filteredMuons.push_back(i);
   }
-
+  
   for ( std::vector<unsigned int>::const_iterator itr = filteredMuons.begin(); itr != filteredMuons.end(); ++itr )
     filterproduct.addObject(trigger::TriggerMuon, reco::RecoChargedCandidateRef(cands,*itr));
-
-  return filteredMuons.size()>0;
+  
+  return filteredMuons.size()>=m_minN;
 }
