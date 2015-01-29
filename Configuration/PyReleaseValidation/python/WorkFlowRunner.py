@@ -10,6 +10,7 @@ from os import getenv
 from datetime import datetime
 from hashlib import sha1
 import urllib2, base64, json, re
+from socket import gethostname
 
 # This is used to report results of the runTheMatrix to the elasticsearch
 # instance used for IBs. This way we can track progress even if the logs are
@@ -65,6 +66,7 @@ def esReportWorkflow(**kwds):
   if errors:
     payload["errors"] = errors
       
+  payload["hostname"] = gethostname()
   url = "https://%s/ib-matrix.%s/runTheMatrix-data/%s" % (es_hostname,
                                                           d.strftime("%Y.%m"),
                                                           sha1_id)
