@@ -23,9 +23,9 @@ class MuonTagger : public JetTagComputer {
     
   private:
     
-    std::string weightFile;
     btag::LeptonSelector m_selector;
     TRandom3* random;
+    edm::FileInPath WeightFile;
     MvaSoftMuonEstimator* mvaID;
 };
 

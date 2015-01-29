@@ -17,7 +17,6 @@ MvaSoftMuonEstimator::MvaSoftMuonEstimator(std::string weightFile) {
   TMVAReader->AddVariable("TagInfo1.ptRel", &mva_ptRel);
   TMVAReader->AddVariable("TagInfo1.deltaR", &mva_deltaR);
   TMVAReader->AddVariable("TagInfo1.ratio", &mva_ratio);
-  //TMVAReader->BookMVA("BDT", weightFile);
   reco::details::loadTMVAWeights(TMVAReader, "BDT", weightFile.c_str()); 
 }
 

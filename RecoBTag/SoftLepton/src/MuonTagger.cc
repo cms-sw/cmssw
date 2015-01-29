@@ -13,8 +13,8 @@
 MuonTagger::MuonTagger(const edm::ParameterSet& conf): m_selector(conf) {
   uses("smTagInfos");
   random=new TRandom3();
-  weightFile=edm::FileInPath("RecoBTag/SoftLepton/data/SoftPFMuon_BDT.weights.xml.gz").fullPath();
-  mvaID=new MvaSoftMuonEstimator(weightFile);
+  WeightFile=conf.getParameter<edm::FileInPath>("weightFile");
+  mvaID=new MvaSoftMuonEstimator(WeightFile.fullPath());
 }
 
 MuonTagger::~MuonTagger() {
