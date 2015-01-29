@@ -36,7 +36,7 @@
 #include "DataFormats/HeavyIonEvent/interface/VoronoiBackground.h"
 #include "RecoHI/HiJetAlgos/interface/UEParameters.h"
 // include the centrality variables
-#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
+#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
