@@ -123,11 +123,31 @@ class GeometryComparison(GenericValidation):
                        ("rfmkdir -p .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images\n")
                    repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"plot*.eps\" "
+                       ("find . -maxdepth 1 -name \"*PXB*\" "
                         "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
                         "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
                    repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"plot*.pdf\" "
+                       ("find . -maxdepth 1 -name \"*PXF*\" "
+                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name \"*TIB*\" "
+                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name \"*TID*\" "
+                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name \"*TEC*\" "
+                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name \"*TOB*\" "
+                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name \"*tracker*\" "
                         "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
                         "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
                    repMap["runComparisonScripts"] += \
