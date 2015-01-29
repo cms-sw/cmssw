@@ -1,5 +1,3 @@
-
-
 /*
  *  See header file for a description of this class.
  *
@@ -40,41 +38,12 @@ DTSummaryClients::~DTSummaryClients(){
   
 }
 
-//-void DTSummaryClients::beginRun(Run const& run, EventSetup const& eSetup) {
-//-
-//-  LogVerbatim("DTDQM|DTMonitorClient|DTSummaryClients") <<"[DTSummaryClients]: BeginRun"; 
-//-
-//-}
-
-
-//-void DTSummaryClients::endJob(void){
 void DTSummaryClients::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
   
   LogVerbatim ("DTDQM|DTMonitorClient|DTSummaryClients") <<"[DTSummaryClients]: endJob"; 
 
 }
 
-
-//-void DTSummaryClients::endRun(Run const& run, EventSetup const& eSetup) {
-//- 
-//-  LogVerbatim ("DTDQM|DTMonitorClient|DTSummaryClients") <<"[DTSummaryClients]: endRun"; 
-//-
-//-}
-
-
-//-void DTSummaryClients::analyze(const Event& event, const EventSetup& context){
-//-
-//-   nevents++;
-//-   if(nevents%1000 == 0) {
-//-     LogVerbatim("DTDQM|DTMonitorClient|DTSummaryClients") << "[DTSummaryClients] Analyze #Run: " << event.id().run()
-//-					 << " #Event: " << event.id().event()
-//-					 << " LS: " << event.luminosityBlock()	
-//-					 << endl;
-//-   }
-//-}
-
-
-//-void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   void DTSummaryClients::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
                          edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
   
@@ -187,17 +156,6 @@ void DTSummaryClients::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
 
   if(occupancyFound && !noDTData)
     summaryReport->Fill(totalStatus/5.);
-
-//   cout << "-----------------------------------------------------------------------------" << endl;
-//   cout << " In the endLuminosityBlock: " << endl;
-//   for(int wheel = -2; wheel != 3; ++wheel) {
-//     for(int sector = 1; sector != 13; sector++) {
-//       cout << " wheel: " << wheel << " sector: " << sector << " status on the map is: "
-// 	   << summaryReportMap->getBinContent(sector, wheel+3) << endl;
-//     }
-//   }
-//   cout << "-----------------------------------------------------------------------------" << endl;
-
 
 }
 

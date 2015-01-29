@@ -41,21 +41,13 @@ DTDeadChannelTest::DTDeadChannelTest(const edm::ParameterSet& ps){
   parameters = ps;
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
+  nevents = 0;
 
 }
 
 DTDeadChannelTest::~DTDeadChannelTest(){
 
   edm::LogVerbatim ("deadChannel") << "DTDeadChannelTest: analyzed " << nevents << " events";
-
-}
-
-
-void DTDeadChannelTest::beginJob(){
-
-  edm::LogVerbatim ("deadChannel") << "[DTDeadChannelTest]: BeginJob";
-
-  nevents = 0;
 
 }
 
@@ -77,7 +69,6 @@ void DTDeadChannelTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
   run = lumiSeg.run();
 
 }
-
 
 
 void DTDeadChannelTest::analyze(const edm::Event& e, const edm::EventSetup& context){
@@ -186,9 +177,7 @@ void DTDeadChannelTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMSt
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
 	edm::LogError ("deadChannel") << "Layer : "<<(*hOccDiff).first<<" Bad occupancy difference channels: "<<(*channel).getBin()<<" Contents : "<<(*channel).getContents();
-      }
-      // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
-      // edm::LogWarning("deadChannel")<< "-------- Layer : "<<(*hOccDiff).first<<"  "<<theOccupancyDiffQReport->getMessage()<<" ------- "<<theOccupancyDiffQReport->getStatus(); 
+      } 
     }
   }
 

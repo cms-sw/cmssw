@@ -20,7 +20,6 @@
 class DQMStore;
 class MonitorElement;
 
-//-class DTDCSSummary : public edm::EDAnalyzer {
 class DTDCSSummary : public DQMEDHarvester {
 public:
   /// Constructor
@@ -40,14 +39,7 @@ public:
 protected:
   
 private:
-//-  virtual void beginJob();
-//-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
-//-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-//-  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
-//-  virtual void endJob() ;
 
-  DQMStore *theDbe;  
-  
   MonitorElement*  totalDCSFraction;
   std::map<int, MonitorElement*> dcsFractions;
 

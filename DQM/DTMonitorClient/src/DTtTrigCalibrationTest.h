@@ -84,8 +84,6 @@ private:
   int run;
   int percentual;
 
-  DQMStore* dbe;
-
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
   edm::ESHandle<DTTtrig> tTrigMap;

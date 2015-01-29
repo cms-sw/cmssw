@@ -4,7 +4,7 @@
 
 /** \class DTLocalTriggerTPTest
  * *
- *  DQM Test Client
+ *  DQ Test Client
  *
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *

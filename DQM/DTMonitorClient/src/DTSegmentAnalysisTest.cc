@@ -53,6 +53,7 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const ParameterSet& ps){
   // top folder for the histograms in DQMStore
   topHistoFolder = ps.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
   // hlt DQM mode
+
   hltDQMMode = ps.getUntrackedParameter<bool>("hltDQMMode",false);
   nMinEvts  = ps.getUntrackedParameter<int>("nEventsCert", 5000);
   maxPhiHit  = ps.getUntrackedParameter<int>("maxPhiHit", 7);
@@ -70,30 +71,21 @@ DTSegmentAnalysisTest::~DTSegmentAnalysisTest(){
   LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "DTSegmentAnalysisTest: analyzed " << nevents << " events";
 }
 
-
-//-void DTSegmentAnalysisTest::beginJob(){
-//-
-//-  LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: BeginJob"; 
-//-
-//-}
-
-
 void DTSegmentAnalysisTest::beginRun(const Run& run, const EventSetup& context){
 
   LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") <<"[DTSegmentAnalysisTest]: BeginRun"; 
 
   context.get<MuonGeometryRecord>().get(muonGeom);
-
 }
 
 
-void DTSegmentAnalysisTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, edm::LuminosityBlock const & lumiSeg, 
-                                                                    edm::EventSetup const & context) {
+void DTSegmentAnalysisTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, 
+                                                  edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
 
   // book the histos
+
   if (!bookingdone) bookHistos(ibooker);  
   bookingdone = 1; 
-
 
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
@@ -102,7 +94,7 @@ void DTSegmentAnalysisTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, D
     LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest")
       <<"[DTSegmentAnalysisTest]: End of LS " << nLumiSegs 
       << ". Client called in online mode , perform DQM client operation";
-//-    performClientDiagnostic();
+
     performClientDiagnostic(igetter);
   }
 
@@ -114,10 +106,10 @@ void DTSegmentAnalysisTest::endRun(Run const& run, EventSetup const& context) {
 void DTSegmentAnalysisTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   if (!runOnline) {
+
     LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest")
-//-      <<"[DTSegmentAnalysisTest]: endRun. Client called in offline mode , perform DQM client operation";
       <<"[DTSegmentAnalysisTest]: endJob. Client called in offline mode , perform DQM client operation";
-//-    performClientDiagnostic();
+
     performClientDiagnostic(igetter);
   }
 
@@ -151,10 +143,8 @@ void DTSegmentAnalysisTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGe
       LogError ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Histo NevtPerLS not found!" << endl;
     }
   }
-
 }
 
-//-void DTSegmentAnalysisTest::performClientDiagnostic() {
 void DTSegmentAnalysisTest::performClientDiagnostic(DQMStore::IGetter & igetter) {
 
   summaryHistos[3]->Reset();
@@ -268,7 +258,7 @@ void DTSegmentAnalysisTest::performClientDiagnostic(DQMStore::IGetter & igetter)
 	vector<dqm::me_util::Channel> badChannels = theChi2QReport->getBadChannels();
 	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	     channel != badChannels.end(); channel++) {
-	  // FIXME: log into a ME
+
 	  LogError ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Wheel: "<<(*histo).first.first
 								   << " Sector: "<<(*histo).first.second
 								   << " Bad stations: "<<(*channel).getBin()
@@ -276,7 +266,8 @@ void DTSegmentAnalysisTest::performClientDiagnostic(DQMStore::IGetter & igetter)
 	}
       }
     }
-    
+
+ 
     string segmRecHitCriterionName = parameters.getUntrackedParameter<string>("segmRecHitTestName","segmRecHitInRange");
     for(map<pair<int, int>, MonitorElement*> ::const_iterator histo = segmRecHitHistos.begin();
 	histo != segmRecHitHistos.end();
@@ -287,7 +278,7 @@ void DTSegmentAnalysisTest::performClientDiagnostic(DQMStore::IGetter & igetter)
 	vector<dqm::me_util::Channel> badChannels = theSegmRecHitQReport->getBadChannels();
 	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	     channel != badChannels.end(); channel++) {
-	  // FIXME: log into a ME
+
 	  LogError ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << "Wheel: "<<(*histo).first.first
 								   << " Sector: "<<(*histo).first.second
 								   << " Bad stations on recHit number: "
@@ -299,7 +290,6 @@ void DTSegmentAnalysisTest::performClientDiagnostic(DQMStore::IGetter & igetter)
     }
 
   } // end of detailedAnalysis
-
 }
 
 
@@ -328,8 +318,6 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
   
 }
 
-
-//-void DTSegmentAnalysisTest::bookHistos() {
 void DTSegmentAnalysisTest::bookHistos(DQMStore::IBooker & ibooker) {
 
   for(int wh=-2; wh<=2; wh++){

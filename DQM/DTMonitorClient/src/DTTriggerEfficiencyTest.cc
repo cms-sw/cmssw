@@ -62,48 +62,8 @@ void DTTriggerEfficiencyTest::beginRun(const edm::Run& r,const edm::EventSetup& 
 
 void DTTriggerEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
                          edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & c) {
-  if (bookingdone) return;
-  bookingdone = 1; 
-
-  vector<string>::const_iterator iTr   = trigSources.begin();
-  vector<string>::const_iterator trEnd = trigSources.end();
-  vector<string>::const_iterator iHw   = hwSources.begin();
-  vector<string>::const_iterator hwEnd = hwSources.end();
-
-
-  //Booking
-  if(parameters.getUntrackedParameter<bool>("staticBooking", true)){
-    for (; iTr != trEnd; ++iTr){
-      trigSource = (*iTr);
-      for (; iHw != hwEnd; ++iHw){
-        hwSource = (*iHw);
-        // Loop over the TriggerUnits
-
-        bookHistos(ibooker,"TrigEffPhi","");
-        bookHistos(ibooker,"TrigEffCorrPhi","");
-        for (int wh=-2; wh<=2; ++wh){
-          if (detailedPlots) {
-            for (int sect=1; sect<=12; ++sect){
-              for (int stat=1; stat<=4; ++stat){
-                DTChamberId chId(wh,stat,sect);
-
-                bookChambHistos(ibooker,chId,"TrigEffPosvsAnglePhi","Segment");
-                bookChambHistos(ibooker,chId,"TrigEffPosvsAngleCorrPhi","Segment");
-              }
-            }
-          }
-
-          bookWheelHistos(ibooker,wh,"TrigEffPhi","");  
-          bookWheelHistos(ibooker,wh,"TrigEffCorrPhi","");  
-        }
-      }
-    }
-  }
-
 }
 
-
-//-void DTTriggerEfficiencyTest::runClientDiagnostic() {
 void DTTriggerEfficiencyTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   // Loop over Trig & Hw sources
@@ -160,8 +120,6 @@ void DTTriggerEfficiencyTest::runClientDiagnostic(DQMStore::IBooker & ibooker, D
               if (TrackPosvsAngle && TrackPosvsAngleAnyQual && TrackPosvsAngleCorr && TrackPosvsAngle->GetEntries()>1) {
 
                 if( chambME[indexCh].find(fullName("TrigEffAnglePhi")) == chambME[indexCh].end()){
-//-                  bookChambHistos(chId,"TrigEffPosvsAnglePhi","Segment");
-//-                  bookChambHistos(chId,"TrigEffPosvsAngleCorrPhi","Segment");
                   bookChambHistos(ibooker,chId,"TrigEffPosvsAnglePhi","Segment");
                   bookChambHistos(ibooker,chId,"TrigEffPosvsAngleCorrPhi","Segment");
                 }
@@ -249,7 +207,6 @@ string DTTriggerEfficiencyTest::getMEName(string histoTag, string folder, int wh
 
 }
 
-//-void DTTriggerEfficiencyTest::bookHistos(string hTag,string folder) {
 void DTTriggerEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker,string hTag,string folder) {
 
   string basedir;  
@@ -270,7 +227,6 @@ void DTTriggerEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker,string hTag
 
 }
 
-//-void DTTriggerEfficiencyTest::bookWheelHistos(int wheel,string hTag,string folder) {
 void DTTriggerEfficiencyTest::bookWheelHistos(DQMStore::IBooker & ibooker,int wheel,string hTag,string folder) {
 
   stringstream wh; wh << wheel;
@@ -368,8 +324,45 @@ void DTTriggerEfficiencyTest::bookChambHistos(DQMStore::IBooker & ibooker,DTCham
 }
 
 
+void DTTriggerEfficiencyTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
-void DTTriggerEfficiencyTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {}
+
+  vector<string>::const_iterator iTr   = trigSources.begin();
+  vector<string>::const_iterator trEnd = trigSources.end();
+  vector<string>::const_iterator iHw   = hwSources.begin();
+  vector<string>::const_iterator hwEnd = hwSources.end();
+
+
+  //Booking
+  if(parameters.getUntrackedParameter<bool>("staticBooking", true)){
+    for (; iTr != trEnd; ++iTr){
+      trigSource = (*iTr);
+      for (; iHw != hwEnd; ++iHw){
+        hwSource = (*iHw);
+        // Loop over the TriggerUnits
+
+        bookHistos(ibooker,"TrigEffPhi","");
+        bookHistos(ibooker,"TrigEffCorrPhi","");
+        for (int wh=-2; wh<=2; ++wh){
+          if (detailedPlots) {
+            for (int sect=1; sect<=12; ++sect){
+              for (int stat=1; stat<=4; ++stat){
+                DTChamberId chId(wh,stat,sect);
+
+                bookChambHistos(ibooker,chId,"TrigEffPosvsAnglePhi","Segment");
+                bookChambHistos(ibooker,chId,"TrigEffPosvsAngleCorrPhi","Segment");
+              }
+            }
+          }
+
+          bookWheelHistos(ibooker,wh,"TrigEffPhi","");  
+          bookWheelHistos(ibooker,wh,"TrigEffCorrPhi","");  
+        }
+      }
+    }
+  }
+  bookingdone = 1;
+}
 
 
 

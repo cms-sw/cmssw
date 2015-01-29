@@ -40,7 +40,6 @@ class DTGeometry;
 class DTChamberId;
 class DTSuperLayerId;
 
-//-class DTSegmentAnalysisTest: public edm::EDAnalyzer{
 class DTSegmentAnalysisTest: public DQMEDHarvester{
 
 public:
@@ -51,13 +50,7 @@ public:
   /// Destructor
   virtual ~DTSegmentAnalysisTest();
 
-
-  /// BeginJob
-//-  void beginJob();
-//-  void endJob(void);
-
-
-  void beginRun(const edm::Run& run, const edm::EventSetup& eSetup);
+  void beginRun(const edm::Run&, const edm::EventSetup&);
 
   void bookHistos(DQMStore::IBooker &);
 
@@ -88,8 +81,6 @@ private:
   bool runOnline;
 
   bool bookingdone;
-
-  DQMStore* dbe;
 
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;

@@ -22,8 +22,6 @@
 class DQMStore;
 class MonitorElement;
 
-
-//-class DTOfflineSummaryClients: public edm::EDAnalyzer{
 class DTOfflineSummaryClients: public DQMEDHarvester{
 
 public:
@@ -35,30 +33,19 @@ public:
   virtual ~DTOfflineSummaryClients();
 
   /// BeginRun
-//-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
-  void dqmBeginRun (const edm::Run& r, const edm::EventSetup& c);
+  void beginRun (const edm::Run& r, const edm::EventSetup& c);
 
   /// EndLumi
-//-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
   void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
 
   /// EndJob
-//-  void endJob(void);
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
-  /// Analyze
-//-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  /// DQM Client Diagnostic
-//-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
-
 protected:
-
 
 private:
 
   int nevents;
-  DQMStore* dbe;
 
   bool bookingdone;
 

@@ -93,7 +93,6 @@ void DTLocalTriggerSynchTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker,
 	std::vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
 	for (; chambIt!=chambEnd; ++chambIt) { 
 	  DTChamberId chId = ((*chambIt)->id());
-//-	  bookChambHistos(chId,ratioHistoTag);
 	  bookChambHistos(ibooker,chId,ratioHistoTag);
 	}
       }
@@ -163,10 +162,8 @@ void DTLocalTriggerSynchTest::runClientDiagnostic(DQMStore::IBooker & ibooker, D
 
 }
 
-//-void DTLocalTriggerSynchTest::endJob(){
 void DTLocalTriggerSynchTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
 
-//-  DTLocalTriggerBaseTest::endJob();
   DTLocalTriggerBaseTest::dqmEndJob(ibooker,igetter);
 
   if ( parameters.getParameter<bool>("writeDB")) {
@@ -181,15 +178,12 @@ void DTLocalTriggerSynchTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 
 	DTChamberId chId = (*chambIt)->id();
 	float fineDelay = 0;
-//-	int coarseDelay = static_cast<int>((getFloatFromME(chId,"tTrig_SL1") + getFloatFromME(chId,"tTrig_SL3"))*0.5/bxTime);
 	int coarseDelay = static_cast<int>((getFloatFromME(igetter,chId,"tTrig_SL1") + 
                                                                         getFloatFromME(igetter,chId,"tTrig_SL3"))*0.5/bxTime);
 
 	bool fineDiff   = parameters.getParameter<bool>("fineParamDiff");
 	bool coarseDiff = parameters.getParameter<bool>("coarseParamDiff");
 
-
-//-	TH1F *ratioH     = getHisto<TH1F>(dbe->get(getMEName(ratioHistoTag,"", chId)));    
 	TH1F *ratioH     = getHisto<TH1F>(igetter.get(getMEName(ratioHistoTag,"", chId)));    
 	if (ratioH->GetEntries()>minEntries) {	      
 	  TF1 *fitF=ratioH->GetFunction("mypol8");
@@ -236,7 +230,6 @@ void DTLocalTriggerSynchTest::makeRatioME(TH1F* numerator, TH1F* denominator, Mo
   
 }
 
-//-float DTLocalTriggerSynchTest::getFloatFromME(DTChamberId chId, std::string meType) {
 float DTLocalTriggerSynchTest::getFloatFromME(DQMStore::IGetter & igetter,
                                                  DTChamberId chId, std::string meType) {
    
@@ -253,7 +246,6 @@ float DTLocalTriggerSynchTest::getFloatFromME(DQMStore::IGetter & igetter,
      + "_Sec" + sector.str()
      + "_St" + station.str();
 
-//-   MonitorElement* me = dbe->get(histoname);
    MonitorElement* me = igetter.get(histoname);
    if (me) { 
      return me->getFloatValue(); 
@@ -266,7 +258,6 @@ float DTLocalTriggerSynchTest::getFloatFromME(DQMStore::IGetter & igetter,
 
  }
 
-//-void DTLocalTriggerSynchTest::bookChambHistos(DTChamberId chambId, string htype, string subfolder) {
 void DTLocalTriggerSynchTest::bookChambHistos(DQMStore::IBooker & ibooker, 
                                                  DTChamberId chambId, string htype, string subfolder) {
   
@@ -281,7 +272,6 @@ void DTLocalTriggerSynchTest::bookChambHistos(DQMStore::IBooker & ibooker,
   string folder = topFolder(isDCC) + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str();
   if ( subfolder!="") { folder += "7" + subfolder; }
 
-//-  dbe->setCurrentFolder(folder);
   ibooker.setCurrentFolder(folder);
 
   LogPrint(category()) << "[" << testName << "Test]: booking " << folder << "/" <<HistoName;
@@ -292,7 +282,6 @@ void DTLocalTriggerSynchTest::bookChambHistos(DQMStore::IBooker & ibooker,
   float max = rangeInBX ? bxTime : nBXHigh*bxTime;
   int nbins = static_cast<int>(ceil( rangeInBX ? bxTime : (nBXHigh-nBXLow)*bxTime));
 
-//-  chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"All/HH ratio vs Muon Arrival Time",nbins,min,max);
   chambME[indexChId][fullType] = ibooker.book1D(HistoName.c_str(),"All/HH ratio vs Muon Arrival Time",nbins,min,max);
 
 }

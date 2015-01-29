@@ -76,14 +76,6 @@ void DTtTrigCalibrationTest::beginRun(Run const& run, EventSetup const& context)
   void DTtTrigCalibrationTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
                          edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
 
-  // counts number of updats (online mode) or number of events (standalone mode)
-  //nevents++;
-  // if running in standalone perform diagnostic only after a reasonalbe amount of events
-  //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
-  //   nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
-  //edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: "<<nevents<<" updates";
-
-
   edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: End of LS transition, performing the DQM client operation";
 
   // counts number of lumiSegs 
@@ -168,8 +160,6 @@ void DTtTrigCalibrationTest::beginRun(Run const& run, EventSetup const& context)
 	    wheelHistos[3]->Fill((*ch_it)->id().sector()-1,(*ch_it)->id().wheel());
 	  }
 	}
-	// FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
-	// edm::LogWarning ("tTrigCalibration") <<"-------- "<<theQReport->getMessage()<<" ------- "<<theQReport->getStatus();
       } 
     }
 
@@ -177,8 +167,6 @@ void DTtTrigCalibrationTest::beginRun(Run const& run, EventSetup const& context)
 
 }
 
-
-//-void DTtTrigCalibrationTest::endJob(){
 void DTtTrigCalibrationTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest] endjob called!";
@@ -213,9 +201,6 @@ string DTtTrigCalibrationTest::getMEName(const DTSuperLayerId & slID) {
   
 }
 
-
-
-//-void DTtTrigCalibrationTest::bookHistos(const DTChamberId & ch) {
 void DTtTrigCalibrationTest::bookHistos(DQMStore::IBooker & ibooker, const DTChamberId & ch) {
 
   stringstream wheel; wheel << ch.wheel();	
@@ -229,7 +214,6 @@ void DTtTrigCalibrationTest::bookHistos(DQMStore::IBooker & ibooker, const DTCha
 
 }
 
-//- void DTtTrigCalibrationTest::bookHistos(const DTChamberId & ch, int wh) {
 void DTtTrigCalibrationTest::bookHistos(DQMStore::IBooker & ibooker, const DTChamberId & ch, int wh) {
   
   ibooker.setCurrentFolder("DT/Tests/DTtTrigCalibration/SummaryPlot");

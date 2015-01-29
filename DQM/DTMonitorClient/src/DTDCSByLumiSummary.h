@@ -1,3 +1,4 @@
+
 #ifndef DTMonitorClient_DTDCSByLumiSummary_H
 #define DTMonitorClient_DTDCSByLumiSummary_H
 
@@ -25,7 +26,6 @@ class DQMStore;
 class MonitorElement;
 class DTTimeEvolutionHisto;
 
-//-class DTDCSByLumiSummary : public edm::EDAnalyzer {
 class DTDCSByLumiSummary : public DQMEDHarvester {
 
 public:

@@ -45,35 +45,6 @@ DTDataIntegrityTest::~DTDataIntegrityTest(){
 
 }
 
-
-//-void DTDataIntegrityTest::beginJob(){
-//-  LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") << "[DTDataIntegrityTest]: Beginjob";
-//-}
-
-
-
-//-void DTDataIntegrityTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-//-
-//-  LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]: Begin of LS transition";
-//-
-//-  // Get the run number
-//-  run = lumiSeg.run();
-//-
-//-}
-
-
-
-//-void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
-//-  // count the analyzed events
-//-  nevents++;
-//-  if(nevents%1000 == 0)
-//-    LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest")
-//-      << "[DTDataIntegrityTest]: "<<nevents<<" events";
-//-}
-
-
-
-//-void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   void DTDataIntegrityTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
                                           edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
 
@@ -103,10 +74,6 @@ DTDataIntegrityTest::~DTDataIntegrityTest(){
   glbSummaryHisto = ibooker.book2D("DataIntegrityGlbSummary","Summary Data Integrity",12,1,13,5,-2,3);
   glbSummaryHisto->setAxisTitle("Sector",1);
   glbSummaryHisto->setAxisTitle("Wheel",2);
-
-//-}
-
-//-void DTDataIntegrityTest::beginRun(const Run& run, const EventSetup& context){
 
   context.get<DTReadOutMappingRcd>().get(mapping);
 
@@ -221,15 +188,10 @@ DTDataIntegrityTest::~DTDataIntegrityTest(){
   
 }
 
-
-
-//-void DTDataIntegrityTest::endJob(){
 void DTDataIntegrityTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest] endjob called!";
 }
-
-
 
 string DTDataIntegrityTest::getMEName(string histoType, int FEDId){
   //Use the DDU name to find the ME

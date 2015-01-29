@@ -82,7 +82,6 @@ void DTFineDelayCorr::beginRun(edm::Run const & run, edm::EventSetup const & evS
 
 }
 
-//-void DTFineDelayCorr::runClientDiagnostic() {
 void DTFineDelayCorr::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
   int coarseDelay = -999;
   float oldFineDelay = -999;
@@ -136,7 +135,6 @@ void DTFineDelayCorr::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore:
     }
 
     // ** Retrieve t0Mean histograms **
-//-    TH1F *t0H = getHisto<TH1F>(dbe->get(getMEName(t0MeanHistoTag,"", chId)));
     TH1F *t0H = getHisto<TH1F>(igetter.get(getMEName(t0MeanHistoTag,"", chId)));
     float newFineDelay = -999;   // initialize to dummy number
     cout <<"MG: " << getMEName(t0MeanHistoTag,"", chId) << " entries: " << t0H->GetEntries() << endl; 
@@ -183,10 +181,8 @@ void DTFineDelayCorr::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore:
    }
 }
 
-//-void DTFineDelayCorr::endJob(){
 void DTFineDelayCorr::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
 
-//-  DTLocalTriggerBaseTest::endJob();
   DTLocalTriggerBaseTest::dqmEndJob( ibooker,igetter);
 
    if (writeDB) {

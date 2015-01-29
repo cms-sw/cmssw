@@ -30,8 +30,6 @@ class DTSuperLayerId;
 class DQMStore;
 class MonitorElement;
 
-
-//-class DTResolutionAnalysisTest: public edm::EDAnalyzer {
 class DTResolutionAnalysisTest: public DQMEDHarvester {
 
 public:
@@ -52,9 +50,6 @@ public:
   /// Get the ME name
   std::string getMEName(const DTSuperLayerId & slID);
 
-
-//-  void endRun(edm::Run const& run, edm::EventSetup const& c);
-
 protected:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
 
@@ -66,8 +61,6 @@ private:
   int prescaleFactor;
   int run;
   int percentual;
-
-  DQMStore* dbe;
 
   // permitted test ranges
   double  maxGoodMeanValue;

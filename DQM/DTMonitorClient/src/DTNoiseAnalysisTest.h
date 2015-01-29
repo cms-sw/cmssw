@@ -34,7 +34,6 @@ class DTSuperLayerId;
 class DQMStore;
 class MonitorElement;
 
-//-class DTNoiseAnalysisTest: public edm::EDAnalyzer{
 class DTNoiseAnalysisTest: public DQMEDHarvester{
 
 public:
@@ -70,8 +69,6 @@ private:
   int nMinEvts;
   
   bool bookingdone;
-
-  DQMStore* dbe;
   
   // the dt geometry
   edm::ESHandle<DTGeometry> muonGeom;

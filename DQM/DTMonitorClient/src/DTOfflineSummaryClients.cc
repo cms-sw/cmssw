@@ -40,41 +40,21 @@ DTOfflineSummaryClients::~DTOfflineSummaryClients(){
   
 }
 
-//-void DTOfflineSummaryClients::beginRun(Run const& run, EventSetup const& eSetup) {
-//-
-//-  LogVerbatim("DTDQM|DTMonitorClient|DTOfflineSummaryClients") <<"[DTOfflineSummaryClients]: BeginRun"; 
-//-
-//-}
 
+void DTOfflineSummaryClients::beginRun (const edm::Run& r, const edm::EventSetup& c)  {};
 
-//-void DTOfflineSummaryClients::endJob(void){
-//-  
-//-  LogVerbatim ("DTDQM|DTMonitorClient|DTOfflineSummaryClients") <<"[DTOfflineSummaryClients]: endJob"; 
-//-
-//-}
-
-
-//-void DTOfflineSummaryClients::analyze(const Event& event, const EventSetup& context){
-//-
-//-   nevents++;
-//-   if(nevents%1000 == 0) {
-//-     LogVerbatim("DTDQM|DTMonitorClient|DTOfflineSummaryClients") << "[DTOfflineSummaryClients] Analyze #Run: " << event.id().run()
-//-					 << " #Event: " << event.id().event()
-//-					 << " LS: " << event.luminosityBlock()	
-//-					 << endl;
-//-   }
-//-}
-
-
-//-void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  void DTOfflineSummaryClients::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+void DTOfflineSummaryClients::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
                                          edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
 
   LogVerbatim("DTDQM|DTMonitorClient|DTOfflineSummaryClients")
     << "[DTOfflineSummaryClients]: End of LS transition" << endl;
 
-  if (!bookingdone) {
-  
+}
+
+void DTOfflineSummaryClients::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+
+  LogVerbatim ("DTDQM|DTMonitorClient|DTOfflineSummaryClients") <<"[DTOfflineSummaryClients]: end job. Performin client operation"; 
+
   // book the summary histos
 
   ibooker.setCurrentFolder("DT/EventInfo"); 
@@ -96,20 +76,8 @@ DTOfflineSummaryClients::~DTOfflineSummaryClients(){
     theSummaryContents.push_back(ibooker.bookFloat(meName));
     // Initialize to 1 so that no alarms are thrown at the beginning of the run
     theSummaryContents[wheel+2]->Fill(1.);
-     }
-
   }
-  bookingdone = 1; 
 
-}
-
-
-//-void DTOfflineSummaryClients::endRun(Run const& run, EventSetup const& context) {
-void DTOfflineSummaryClients::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
-
-  LogVerbatim ("DTDQM|DTMonitorClient|DTOfflineSummaryClients") <<"[DTOfflineSummaryClients]: end job. Performin client operation"; 
-
-  
   // reset the monitor elements
   summaryReportMap->Reset();
   summaryReport->Fill(0.);

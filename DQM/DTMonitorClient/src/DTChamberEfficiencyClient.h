@@ -52,7 +52,7 @@ public:
 
 protected:
 
-
+  void beginRun(const edm::Run& , const edm::EventSetup&);
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// book the report summary
@@ -62,11 +62,8 @@ protected:
 
 private:
 
-  int nevents;
   unsigned int nLumiSegs;
   int prescaleFactor;
-
-  bool bookingdone;
 
   edm::ESHandle<DTGeometry> muonGeom;
 

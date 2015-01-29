@@ -48,8 +48,6 @@ DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps){
   edm::LogVerbatim ("resolution") << "[DTResolutionTest]: Constructor";
   parameters = ps;
 
-//-  dbe = edm::Service<DQMStore>().operator->();
-
 //FR: no idea if this input file needs to be used! comment it for now
 //-  if(ps.getUntrackedParameter<bool>("readFile", false))	 
 //-   dbe->open(ps.getUntrackedParameter<string>("inputFile", "residuals.root"));
@@ -57,8 +55,6 @@ DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps){
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
   percentual = parameters.getUntrackedParameter<int>("BadSLpercentual", 10);
-
-  //debug = parameters.getUntrackedParameter<bool>("debug", false);
 
   nevents = 0;
 
@@ -73,37 +69,10 @@ DTResolutionTest::~DTResolutionTest(){
 
 }
 
-
-//-void DTResolutionTest::beginRun(const edm::Run& run, const edm::EventSetup& context){
-//-
-//-  edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: BeginRun";
-//-
-//-}
-
-
-//-void DTResolutionTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-//-
-//-  edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: Begin of LS transition";
-//-
-//-  // Get the run number
-//-  run = lumiSeg.run();
-//-}
-
-
-//-void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& context){
-//-
-//-  nevents++;
-//-  edm::LogVerbatim ("resolution") << "[DTResolutionTest]: "<<nevents<<" events";
-//-
-//-}
-
-
-
-//-void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
                          edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
   
-  // counts number of updats (online mode) or number of events (standalone mode)
+  // counts number of updates (online mode) or number of events (standalone mode)
   //nevents++;
   // if running in standalone perform diagnostic only after a reasonalbe amount of events
   //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
@@ -118,15 +87,14 @@ DTResolutionTest::~DTResolutionTest(){
 
   // book the histos
   for(int wheel=-2; wheel<3; wheel++){
-//-    bookHistos(wheel);
+
     bookHistos(ibooker,wheel);
     }
   vector<const DTChamber*> chambers = muonGeom->chambers();
   for(vector<const DTChamber*>::const_iterator chamber = chambers.begin();
-      chamber != chambers.end(); ++chamber) {
-//-    bookHistos((*chamber)->id());
+                                     chamber != chambers.end(); ++chamber) {
     bookHistos(ibooker,(*chamber)->id());
-    }
+  }
 
   }
   bookingdone = 1; 
@@ -284,7 +252,7 @@ DTResolutionTest::~DTResolutionTest(){
 	  } catch (cms::Exception& iException) {
 	    edm::LogError ("resolution") << "[DTResolutionTest]: Exception when fitting..."
 					 << "SuperLayer : " << slID << "\n"
-					 << "                    STEP : " << parameters.getUntrackedParameter<string>("STEP", "STEP3") << "\n"		
+					 << "                    STEP : " << parameters.getUntrackedParameter<string>("STEP", "STEP3") << "\n"
 					 << "Filling slope histogram with standard value -99. for bin " << BinNumber;
 	    SlopeHistos.find(make_pair(slID.wheel(),slID.sector()))->second->setBinContent(BinNumber, -99.);
 	    continue;
@@ -340,8 +308,6 @@ DTResolutionTest::~DTResolutionTest(){
 	  }	
 	}
       }
-      // FIXE ME: if the quality test fails this cout return a null pointer
-      //edm::LogWarning ("resolution") << "-------- wheel: "<<wheel.str()<<" sector: "<<sector.str()<<"  "<<theMeanQReport->getMessage()<<" ------- "<<theMeanQReport->getStatus(); 
     }
   }
   
@@ -381,8 +347,6 @@ DTResolutionTest::~DTResolutionTest(){
 	    wheelSigmaHistos[3]->Fill((*hSigma).first.second-1,(*hSigma).first.first);
 	  }
 	}
-	// FIXE ME: if the quality test fails this cout return a null pointer
-	//edm::LogWarning ("resolution") << "-------- wheel: "<<wheel.str()<<" sector: "<<sector.str()<<"  "<<theSigmaQReport->getMessage()<<" ------- "<<theSigmaQReport->getStatus();
       }
     }
   }
@@ -423,22 +387,15 @@ DTResolutionTest::~DTResolutionTest(){
 	    wheelSlopeHistos[3]->Fill((*hSlope).first.second-1,(*hSlope).first.first);
 	  }
 	}
-	// FIXE ME: if the quality test fails this cout return a null pointer
-	//edm::LogWarning ("resolution") << "-------- wheel: "<<wheel.str()<<" sector: "<<sector.str()<<"  "<<theSlopeQReport->getMessage()<<" ------- "<<theSlopeQReport->getStatus();
       }
     }
   }
 
 }
 
-
-
-//-void DTResolutionTest::endJob(){
 void DTResolutionTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   edm::LogVerbatim ("resolution") << "[DTResolutionTest] endjob called!";
-  //dbe->rmdir("DT/DTCalibValidation");
-  //dbe->rmdir("DT/Tests/DTResolution");
 
   //FR: no idea if this output file needs to be written!! comment it for now
   //bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
@@ -520,9 +477,6 @@ string DTResolutionTest::getMEName2D(const DTSuperLayerId & slID) {
   
 }
 
-
-
-//-void DTResolutionTest::bookHistos(const DTChamberId & ch) {
 void DTResolutionTest::bookHistos(DQMStore::IBooker & ibooker, const DTChamberId & ch) {
 
   stringstream wheel; wheel << ch.wheel();		

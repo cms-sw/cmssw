@@ -50,17 +50,11 @@ public:
 
 protected:
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& context);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  /// Endjob
-  void endJob(){};
 
   /// book the new ME
   void bookHistos(DQMStore::IBooker &, const DTLayerId & ch, int firstWire, int lastWire);

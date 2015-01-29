@@ -54,39 +54,6 @@ DTChamberEfficiencyTest::~DTChamberEfficiencyTest(){
 
 }
 
-
-//-void DTChamberEfficiencyTest::beginJob(){
-//-
-//-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") <<"[DTChamberEfficiencyTest]: BeginJob"; 
-//-
-//-  nevents = 0;
-//-
-//-}
-
-
-//-void DTChamberEfficiencyTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-//-
-//-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") <<"[DTChamberEfficiencyTest]: Begin of LS transition";
-//-
-//-  // Get the run number
-//-  run = lumiSeg.run();
-//-
-//-}
-
-
-//-void DTChamberEfficiencyTest::beginRun(const edm::Run& run, const edm::EventSetup& setup){
-//-
-//-}
-
-//-void DTChamberEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& context){
-//-
-//-  nevents++;
-//-  edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "[DTChamberEfficiencyTest]: "<<nevents<<" events";
-//-
-//-}
-
-
-//-void DTChamberEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   void DTChamberEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, 
                                          edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
   
@@ -100,24 +67,15 @@ DTChamberEfficiencyTest::~DTChamberEfficiencyTest(){
   vector<const DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
   for (; ch_it != ch_end; ++ch_it) {
     // histo booking
-//-    bookHistos((*ch_it)->id());
     bookHistos(ibooker,(*ch_it)->id());
   }
 
   //summary histo booking
-//-  bookHistos();
   bookHistos(ibooker);
 
   }
 
   bookingdone = 1; 
-
-  // counts number of updats (online mode) or number of events (standalone mode)
-  //nevents++;
-  // if running in standalone perform diagnostic only after a reasonalbe amount of events
-  //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
-  //     nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;  
-  //edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "[DTChamberEfficiencyTest]: "<<nevents<<" updates";
   
   edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") <<"[DTChamberEfficiencyTest]: End of LS transition, performing the DQM client operation";
 
@@ -200,8 +158,6 @@ DTChamberEfficiencyTest::~DTChamberEfficiencyTest(){
 	   channel != badChannels.end(); channel++) {
 	edm::LogError ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "Chamber : " << (*hXEff).first << " Bad XChamberEfficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
       }
-      // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
-      // edm::LogWarning ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "-------- Chamber : "<<(*hXEff).first<<"  "<<theXEfficiencyQReport->getMessage()<<" ------- "<<theXEfficiencyQReport->getStatus();
     }
   }
 
@@ -218,8 +174,6 @@ DTChamberEfficiencyTest::~DTChamberEfficiencyTest(){
 	   channel != badChannels.end(); channel++) {
 	edm::LogError ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "Chamber : " << (*hYEff).first <<" Bad YChamberEfficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
       }
-      // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
-      // edm::LogWarning ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "-------- Chamber : "<<(*hYEff).first<<"  "<<theYEfficiencyQReport->getMessage()<<" ------- "<<theYEfficiencyQReport->getStatus();
     }
   }
 
@@ -236,17 +190,11 @@ DTChamberEfficiencyTest::~DTChamberEfficiencyTest(){
 
 }
 
-
-
-//-void DTChamberEfficiencyTest::endJob(){
 void DTChamberEfficiencyTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   edm::LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "[DTChamberEfficiencyTest] endjob called!";
 
 }
-
-
-
 
 string DTChamberEfficiencyTest::getMEName(string histoTag, const DTChamberId & chID) {
 
@@ -269,8 +217,6 @@ string DTChamberEfficiencyTest::getMEName(string histoTag, const DTChamberId & c
   
 }
 
-
-//-void DTChamberEfficiencyTest::bookHistos(const DTChamberId & chId) {
 void DTChamberEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker, const DTChamberId & chId) {
 
   stringstream wheel; wheel << chId.wheel();
@@ -292,8 +238,6 @@ void DTChamberEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker, const DTCh
 
 }
 
-
-//-void DTChamberEfficiencyTest::bookHistos() {
 void DTChamberEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker) {
 
   for(int wh=-2; wh<=2; wh++){

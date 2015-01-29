@@ -36,7 +36,6 @@ public:
 protected:
   void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, 
                                                       edm::EventSetup const &);
-//-  virtual void endJob() ;
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
 
 private:

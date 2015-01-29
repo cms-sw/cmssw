@@ -42,14 +42,7 @@ DTDAQInfo::DTDAQInfo(const ParameterSet& pset) {
 
 }
 
-
-
-
 DTDAQInfo::~DTDAQInfo() {}
-
-
-
-//-void DTDAQInfo::beginJob(){}
 
   void DTDAQInfo::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, edm::LuminosityBlock const & lumiSeg, 
                                    edm::EventSetup const & setup) {
@@ -202,12 +195,8 @@ DTDAQInfo::~DTDAQInfo() {}
   }
 }
 
-
-//void DTDAQInfo::endJob() {}
 void DTDAQInfo::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {}
 
-
-//-void DTDAQInfo::analyze(const Event& event, const EventSetup& setup){}
 
 
 

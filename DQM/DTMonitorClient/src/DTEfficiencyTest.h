@@ -42,7 +42,6 @@ class DTChamberId;
 class DTSuperLayerId;
 class DTLayerId;
 
-//-class DTEfficiencyTest: public edm::EDAnalyzer{
 class DTEfficiencyTest: public DQMEDHarvester{
 
 public:
@@ -54,9 +53,6 @@ public:
   virtual ~DTEfficiencyTest();
 
 protected:
-
-  /// BeginJob
-//-  void beginJob();
 
   /// beginrun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
@@ -86,8 +82,6 @@ private:
   int prescaleFactor;
   int run;
   int percentual;
-
-  DQMStore* dbe;
 
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;

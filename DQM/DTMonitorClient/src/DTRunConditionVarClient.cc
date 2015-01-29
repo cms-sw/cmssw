@@ -54,8 +54,6 @@ DTRunConditionVarClient::DTRunConditionVarClient(const ParameterSet& pSet)
   maxGoodT0Sigma = pSet.getUntrackedParameter<double>("maxGoodT0Sigma");
   minBadT0Sigma = pSet.getUntrackedParameter<double>("minBadT0Sigma");
 
-//-  theDbe = Service<DQMStore>().operator->();
-
   nevents = 0;
 
   bookingdone = 0;
@@ -68,120 +66,59 @@ DTRunConditionVarClient::~DTRunConditionVarClient()
     << "DTRunConditionVarClient: Destructor called";
 }
 
-//-void DTRunConditionVarClient::beginJob()
-//-
-//-  LogVerbatim ("DTDQM|DTMonitorClient|DTRunConditionVarClient")
-//-    << "DTRunConditionVarClient: BeginJob";
-//-
-//-  return;
-//-}
+void DTRunConditionVarClient::beginRun(const Run& run, const EventSetup& context){
 
-//-void DTRunConditionVarClient::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context)
-//-{
-//-  LogVerbatim ("DTDQM|DTMonitorClient|DTRunConditionVarClient")
-//-    << "[DTRunConditionVarClient]: Begin of LS transition";
-//-
-//-  return;
-//-}
+  LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTRunConditionVarClient]: BeginRun"; 
+  // Get the map of vdrift from the setup
+  context.get<DTMtimeRcd>().get(mTime);
+  mTimeMap_ = &*mTime;
+}
 
-//-void DTRunConditionVarClient::beginRun(const Run& run, const EventSetup& setup)
-//-{
-//-  LogVerbatim ("DTDQM|DTMonitorClient|DTRunConditionVarClient")
-//-    << "DTRunConditionVarClient: beginRun";
-//-
-//-  return;
-//-}
 
-//-void DTRunConditionVarClient::analyze(const Event& e, const EventSetup& context)
-//-{
-//-
-//-  nevents++;
-//-  LogVerbatim ("DTDQM|DTMonitorClient|DTRunConditionVarClient")
-//-    << "[DTRunConditionVarClient]: " << nevents << " events";
-//-  return;
-//-}
 
-//-void DTRunConditionVarClient::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context)
   void DTRunConditionVarClient::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
                          edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context)
 {
+
+}  
+
+void DTRunConditionVarClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) 
+{
   LogVerbatim ("DTDQM|DTMonitorClient|DTRunConditionVarClient")
-    << "DTRunConditionVarClient: endluminosityBlock";
+    << "DTRunConditionVarClient: end job";
 
-  if (!bookingdone) 
-  {
-
-//-  theDbe -> setCurrentFolder("DT/02-Segments");
   ibooker.setCurrentFolder("DT/02-Segments");
 
-//-  glbVDriftSummary = theDbe->book2D("VDriftGlbSummary", "# of MBs with good mean and good sigma of vDrift",12,1,13,5,-2,3);
-//-  glbT0Summary = theDbe->book2D("T0GlbSummary", "# of MBs with good mean and good sigma of t0",12,1,13,5,-2,3);
   glbVDriftSummary = ibooker.book2D("VDriftGlbSummary", "# of MBs with good mean and good sigma of vDrift",12,1,13,5,-2,3);
   glbT0Summary = ibooker.book2D("T0GlbSummary", "# of MBs with good mean and good sigma of t0",12,1,13,5,-2,3);
 
-//-  theDbe -> setCurrentFolder("DT/02-Segments/02-MeanVDrift");
   ibooker.setCurrentFolder("DT/02-Segments/02-MeanVDrift");
 
-//-  summaryHistos["MeanVDriftGlbSummary"] = theDbe -> book2D("MeanVDriftGlbSummary","mean VDrift average per sector",12,1.,13.,5,-2.,3.);
-//-  allwheelHistos["allMeanVDrift"] = theDbe -> book1D("VDriftMeanAllWheels","mean VDrift for all chambers",60,0.0048,0.006);
   summaryHistos["MeanVDriftGlbSummary"] = ibooker.book2D("MeanVDriftGlbSummary","mean VDrift average per sector",12,1.,13.,5,-2.,3.);
   allwheelHistos["allMeanVDrift"] = ibooker.book1D("VDriftMeanAllWheels","mean VDrift for all chambers",60,0.0048,0.006);
 
-//-  theDbe -> setCurrentFolder("DT/02-Segments/02-SigmaVDrift");
   ibooker.setCurrentFolder("DT/02-Segments/02-SigmaVDrift");
 
-//-  summaryHistos["SigmaVDriftGlbSummary"] = theDbe -> book2D("SigmaVDriftGlbSummary","# of Chambers with good sigma VDrift",12,1.,13.,5,-2.,3.);
-//-  allwheelHistos["allSigmaVDrift"] = theDbe -> book1D("VDriftSigmaAllWheels","sigma VDrift for all chambers",30,0.,0.0006);
   summaryHistos["SigmaVDriftGlbSummary"] = ibooker.book2D("SigmaVDriftGlbSummary","# of Chambers with good sigma VDrift",12,1.,13.,5,-2.,3.);
   allwheelHistos["allSigmaVDrift"] = ibooker.book1D("VDriftSigmaAllWheels","sigma VDrift for all chambers",30,0.,0.0006);
 
-//-  theDbe -> setCurrentFolder("DT/02-Segments/03-MeanT0");
   ibooker.setCurrentFolder("DT/02-Segments/03-MeanT0");
 
-//-  summaryHistos["MeanT0GlbSummary"] = theDbe -> book2D("MeanT0GlbSummary","mean T0 average per sector",12,1.,13.,5,-2.,3.); 
-//-  allwheelHistos["allMeanT0"] = theDbe -> book1D("T0MeanAllWheels","mean T0 for all chambers",100,-25.,25.);
   summaryHistos["MeanT0GlbSummary"] = ibooker.book2D("MeanT0GlbSummary","mean T0 average per sector",12,1.,13.,5,-2.,3.); 
   allwheelHistos["allMeanT0"] = ibooker.book1D("T0MeanAllWheels","mean T0 for all chambers",100,-25.,25.);
 
-//-  theDbe -> setCurrentFolder("DT/02-Segments/03-SigmaT0");
   ibooker.setCurrentFolder("DT/02-Segments/03-SigmaT0");
 
-//-  summaryHistos["SigmaT0GlbSummary"] = theDbe -> book2D("SigmaT0GlbSummary","# of Chambers with good sigma T0",12,1.,13.,5,-2.,3.);
-//-  allwheelHistos["allSigmaT0"] = theDbe -> book1D("T0SigmaAllWheels","sigma T0 for alla chambers",50,0,25);
   summaryHistos["SigmaT0GlbSummary"] = ibooker.book2D("SigmaT0GlbSummary","# of Chambers with good sigma T0",12,1.,13.,5,-2.,3.);
   allwheelHistos["allSigmaT0"] = ibooker.book1D("T0SigmaAllWheels","sigma T0 for alla chambers",50,0,25);
 
   for(int wh=-2; wh<=2; wh++) {
-//-    bookWheelHistos("MeanVDrift","02-MeanVDrift",wh,60,0.0048,0.006,true);
-//-    bookWheelHistos("SigmaVDrift","02-SigmaVDrift",wh,30,0.,0.0006);
-//-    bookWheelHistos("MeanT0","03-MeanT0",wh,100,-25.,25.);
-//-    bookWheelHistos("SigmaT0","03-SigmaT0",wh,50,0,25);
     bookWheelHistos(ibooker,"MeanVDrift","02-MeanVDrift",wh,60,0.0048,0.006,true);
     bookWheelHistos(ibooker,"SigmaVDrift","02-SigmaVDrift",wh,30,0.,0.0006);
     bookWheelHistos(ibooker,"MeanT0","03-MeanT0",wh,100,-25.,25.);
     bookWheelHistos(ibooker,"SigmaT0","03-SigmaT0",wh,50,0,25);
    }
-  }
-  bookingdone = 1; 
 
-
-  // Get the map of vdrift from the setup
-  context.get<DTMtimeRcd>().get(mTime);
-  mTimeMap_ = &*mTime;
-
-}  
-
-
-//-void DTRunConditionVarClient::endRun(Run const& run, EventSetup const& context)
-void DTRunConditionVarClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) 
-{
-  LogVerbatim ("DTDQM|DTMonitorClient|DTRunConditionVarClient")
-//-    << "DTRunConditionVarClient: endRun";
-    << "DTRunConditionVarClient: end job";
-
-//-  // Get the map of vdrift from the setup
-//-  context.get<DTMtimeRcd>().get(mTime);
-//-  mTimeMap_ = &*mTime;
 
   for(int wheel=-2;wheel<=2;wheel++){
     for(int sec=1; sec<=14; sec++) {
@@ -190,8 +127,6 @@ void DTRunConditionVarClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
         if( (sec == 13 || sec == 14) && stat != 4  ) continue;
 
         // Get the ME produced by DTRunConditionVar Source
-//-        MonitorElement* VDriftME = getChamberHistos(DTChamberId(wheel,stat,sec),"VDrift_FromSegm"); 
-//-        MonitorElement* T0ME = getChamberHistos(DTChamberId(wheel,stat,sec),"T0_FromSegm"); 
         MonitorElement* VDriftME = getChamberHistos(igetter,DTChamberId(wheel,stat,sec),"VDrift_FromSegm"); 
         MonitorElement* T0ME = getChamberHistos(igetter,DTChamberId(wheel,stat,sec),"T0_FromSegm"); 
 
@@ -230,7 +165,6 @@ void DTRunConditionVarClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 
         }
 
-        //
         DTChamberId indexCh(wheel,stat,sec);
 
         float vDriftDev(0.), errvDriftDev(0.);
@@ -314,13 +248,6 @@ void DTRunConditionVarClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
   return;
 }
 
-//-void DTRunConditionVarClient::endJob()
-//-{
-//-  LogVerbatim ("DTDQM|DTMonitorClient|DTRunConditionVarClient")
-//-    << "DTRunConditionVarClient: endJob";
-//-  return;
-//-}
-
 float DTRunConditionVarClient::varQuality(float var, float maxGood, float minBad) {
 
   float qual(0);
@@ -357,22 +284,19 @@ void DTRunConditionVarClient::percDevVDrift(DTChamberId indexCh, float meanVD, f
   return;
 }
 
-//-void DTRunConditionVarClient::bookWheelHistos(string histoType, string subfolder, int wh, int nbins, float min, float max, bool isVDCorr )
-void DTRunConditionVarClient::bookWheelHistos(DQMStore::IBooker & ibooker, string histoType, string subfolder, int wh, int nbins, float min, float max, bool isVDCorr )
+void DTRunConditionVarClient::bookWheelHistos(DQMStore::IBooker & ibooker, string histoType, string subfolder, 
+                                              int wh, int nbins, float min, float max, bool isVDCorr )
 {
   stringstream wheel; wheel << wh;
 
   string folder = "DT/02-Segments/" + subfolder; 
 
-//-  theDbe->setCurrentFolder(folder);
   ibooker.setCurrentFolder(folder);
 
   string histoName = histoType + "_W" + wheel.str();
   string histoLabel = histoType;
 
-//-  (wheelHistos[wh])[histoType] = theDbe -> book1D(histoName, histoLabel, nbins, min, max);
   (wheelHistos[wh])[histoType] = ibooker.book1D(histoName, histoLabel, nbins, min, max);
-
 
   if( isVDCorr ) {
     histoLabel = "Summary of corrections to VDrift DB values";
@@ -382,7 +306,6 @@ void DTRunConditionVarClient::bookWheelHistos(DQMStore::IBooker & ibooker, strin
     histoName = histoType + "Summary_W" + wheel.str();
   }
 
-//-  MonitorElement* me = theDbe -> book2D(histoName, histoLabel,12,1,13,4,1,5);
   MonitorElement* me = ibooker.book2D(histoName, histoLabel,12,1,13,4,1,5);
 
   me->setBinLabel(1,"MB1",2);
@@ -396,7 +319,6 @@ void DTRunConditionVarClient::bookWheelHistos(DQMStore::IBooker & ibooker, strin
   return;
 }
 
-//-MonitorElement* DTRunConditionVarClient::getChamberHistos(const DTChamberId& dtCh, string histoType) {
 MonitorElement* DTRunConditionVarClient::getChamberHistos(DQMStore::IGetter & igetter,const DTChamberId& dtCh, string histoType) {
 
   int wh = dtCh.wheel();		
@@ -410,13 +332,11 @@ MonitorElement* DTRunConditionVarClient::getChamberHistos(DQMStore::IGetter & ig
   string histoTag      = "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
   string MEpath = folder + "/" + histoType + histoTag;
 
-//-  theDbe->setCurrentFolder(folder);
   igetter.setCurrentFolder(folder);
 
   LogTrace ("DTDQM|DTMonitorModule|DTRunConditionVar") 
     << "[DTRunConditionVar]: getting ME from " << folder << endl;
 
-//-  MonitorElement* ME = theDbe -> get(MEpath);
   MonitorElement* ME = igetter.get(MEpath);
 
   return ME;

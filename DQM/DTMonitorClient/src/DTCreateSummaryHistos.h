@@ -49,10 +49,7 @@ public:
   virtual ~DTCreateSummaryHistos();
 
 protected:
-
-  /// BeginJob
-//-  void beginJob();
-                                                                                                                                                                                                                                                                                                                                                                                       
+                                                                                                       
   /// BeginRun
    void beginRun(const edm::Run& run, const edm::EventSetup& setup);
 

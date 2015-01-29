@@ -192,8 +192,6 @@ void DTOccupancyTest::beginRun(const edm::Run& run, const EventSetup& context){
 
 }
 
-
-//-void DTOccupancyTest::endJob(){
 void DTOccupancyTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest] endjob called!";
@@ -384,10 +382,6 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
 
   if(writeRootFile) ntuple->Fill(values);
 
-//   double averageLayerOcc = totalChamberOccupp/(nSL*4);
-//   double averageSquaredLayeroccup = squaredLayerOccupSum/(nSL*4);
-//   double layerOccupRMS = sqrt(averageSquaredLayeroccup - averageLayerOcc*averageLayerOcc);
-
   double minCellRMS = 99999999;
   double referenceCellOccup = -1;
 
@@ -417,21 +411,11 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
   referenceCellOccup = builder.getBestCluster().averageMean();
   minCellRMS = builder.getBestCluster().averageRMS();
 
-//   set<DTLayerId> bestLayers getLayerIDs()
-
   double safeFactor = 3.;
-//   if(minCellRMS > referenceCellOccup) safeFactor = 5;
 
   LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << " Reference cell occup.: " << referenceCellOccup
 						    << " RMS: " << minCellRMS << endl;
   
-  // Set a warning for particularly high RMS: noise can "mask" dead channels
-//   bool rmsWarning = false;
-//   if(layerOccupRMS > averageLayerOcc) {
-//     cout << " Warning RMS is too big: monitoring all layers" << endl;
-//     rmsWarning = true;
-//   }  
-
   int nFailingSLs = 0;
 
   // Check the layer occupancy
@@ -440,9 +424,6 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
     if(chId.station() == 4 && slay == 2) continue;
 
     int binYlow = ((slay-1)*4)+1;
-//     int binYhigh = binYlow+3;
-
-
     int nFailingLayers = 0;
 
     for(int lay = 1; lay <= 4; ++lay) { // loop over layers
@@ -472,22 +453,11 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
 	continue;
       }
 
-
-      
-//       double avCellOccInLayer = averageCellOccupAndRMS[layID].first;
-//       double cellOccupRMS =  averageCellOccupAndRMS[layID].second;
-//       if(monitoredLayers.find(layID) != monitoredLayers.end() ||
-// 	 layerInteg == 0 ||
-// 	 layerInteg < (averageLayerOcc - 3*layerOccupRMS) ||
-// 	 cellOccupRMS > avCellOccInLayer ||
-// 	 avCellOccInLayer < referenceCellOccup/3.) { // check the layer
-
 	if(alreadyMonitored || builder.isProblematic(layID)) { // check the layer
 
 	  // Add it to the list of of monitored layers
 	  if(monitoredLayers.find(layID) == monitoredLayers.end()) monitoredLayers.insert(layID);
 
-// 	if(layerInteg != 0) { // check # of dead cells
 	  int totalDeadCells = 0;
 	  int nDeadCellsInARow = 1;
 	  int nDeadCellsInARowMax = 0;
@@ -522,16 +492,6 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
 							    << " # dead cells in a row: " << nDeadCellsInARowMax
 							    << " total # of dead cells: " << totalDeadCells;
 	  
-
-	  // Count dead cells
-// 	  if(TMath::Erf(referenceCellOccup/sqrt(referenceCellOccup)) > 2./3. &&
-// 	     nDeadCellsInARowMax >  nWires/3.
-// 	     && nDeadCellsInARowMax <  2*nWires/3.) {
-// 	    cout << " -> fail cells!" << endl;
-
-// 	    failCells = true;
-// 	    histo->SetBinContent(nBinsX+1,binY,-1.);
-// 	  } else
 	  if((TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup)) < 10./(double)nWires &&
 	      nDeadCellsInARowMax>= 10.) ||
 	     (TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup)) < 0.5 &&
@@ -550,16 +510,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
 							      << "  erfc: "
 							      <<   TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup))
 							      << endl;
-// 	      failCells = true;
-// 	      histo->SetBinContent(nBinsX+1,binY,-1.);
 	  }
-
-// 	} else { // all layer is dead
-// 	  LogTrace("DTDQM|DTMonitorClient|DTOccupancyTest") << "     fail layer: no entries" << endl;
-// 	  nFailingLayers++;
-// 	  failLayer = true;
-// 	  histo->SetBinContent(nBinsX+1,binY,-1.);
-// 	}
       }
     }
     // Check if the whole layer is off

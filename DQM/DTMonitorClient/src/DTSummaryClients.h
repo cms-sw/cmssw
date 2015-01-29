@@ -33,7 +33,6 @@
 #include <memory>
 #include <string>
 
-//-class DTSummaryClients: public edm::EDAnalyzer{
 class DTSummaryClients: public DQMEDHarvester{
 
 public:
@@ -46,28 +45,13 @@ public:
 
 protected:
 
-  /// BeginRun
-//-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
-
-
-  /// EndRun
-//-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
-
-  /// EndJob
-//-  void endJob(void);
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
-  /// Analyze
-//-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  /// DQM Client Diagnostic
-//-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
   void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
 
 private:
 
   int nevents;
-  DQMStore* dbe;
 
   MonitorElement*  summaryReport;
   MonitorElement*  summaryReportMap;

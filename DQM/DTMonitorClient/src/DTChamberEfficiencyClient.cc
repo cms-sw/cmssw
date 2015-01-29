@@ -35,8 +35,6 @@ DTChamberEfficiencyClient::DTChamberEfficiencyClient(const ParameterSet& pSet)
 
   prescaleFactor = pSet.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
-  bookingdone = 0;
-
 }
 
 DTChamberEfficiencyClient::~DTChamberEfficiencyClient()
@@ -45,31 +43,28 @@ DTChamberEfficiencyClient::~DTChamberEfficiencyClient()
      << "DTChamberEfficiencyClient: Destructor called";
 }
 
+void DTChamberEfficiencyClient::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
+
+  // Get the DT Geometry
+  setup.get<MuonGeometryRecord>().get(muonGeom);
+
+}
+
 
 void DTChamberEfficiencyClient::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
                                                          edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & setup)
 {
-
   LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
     << "DTChamberEfficiencyClient: endluminosityBlock";
-
-  if (!bookingdone) {
-  // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(muonGeom);
-
-  nevents = 0;
-
-  bookHistos(ibooker);  
-
-  }
-  bookingdone = 1; 
-
 }  
 
 void DTChamberEfficiencyClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) 
 {
   LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
     << "DTChamberEfficiencyClient: endRun";
+
+  bookHistos(ibooker);  
+
   // reset the global summary
   globalEffSummary->Reset();
 
@@ -115,8 +110,6 @@ void DTChamberEfficiencyClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore:
 	  const float effQual= numerQual/denom;
 	  const float eff_error_Qual = sqrt((effQual+effQual*effQual)/denom);
 
-	  //if(wheel == 2 && k == 2 && j == 2) cout << "Eff ch " << effAll << " " << lumiSeg.id() << endl;
-
 	  summaryHistos[wheel+2][0]->setBinContent(j,k,effAll);
 	  summaryHistos[wheel+2][0]->setBinError(j,k,eff_error_All);
 
@@ -149,8 +142,6 @@ void DTChamberEfficiencyClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore:
 	  
 	  const double tmpefficiency = segmentWheelSummary->getBinContent(sector, station);
 	  const double tmpvariance = pow(segmentWheelSummary->getBinError(sector, station),2);
-
-	  //if(wheel == 2 && sector == 9) cout << "ch " << station << " " << tmpefficiency << " " << tmpvariance << " " << lumiSeg.id() << endl;
 	  
 	  if(tmpefficiency < 0.2 || tmpvariance == 0){
 	    nFailingChambers++;
@@ -192,23 +183,12 @@ void DTChamberEfficiencyClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore:
 	else if(eff_result < 0.5 && eff_result > 0.3) globalEffSummary->Fill(sector,wheel,0.4);
 	else if(eff_result < 0.3 && eff_result > 0.) globalEffSummary->Fill(sector,wheel,0.15);
 
-	//if(wheel == 2 && sector == 9) cout << "eff_result " << eff_result << endl;
-	//if(wheel == 2 && sector == 9) cout << "nfail " << nFailingChambers++ << endl;
-
       }
     }
   }
   return;
 }
 
-//-void DTChamberEfficiencyClient::endJob()
-//-{
-//-  LogVerbatim ("DTDQM|DTMonitorClient|DTChamberEfficiencyClient")
-//-    << "DTChamberEfficiencyClient: endJob";
-//-  return;
-//-}
-
-//-void DTChamberEfficiencyClient::bookHistos()
 void DTChamberEfficiencyClient::bookHistos(DQMStore::IBooker & ibooker)
 {
 

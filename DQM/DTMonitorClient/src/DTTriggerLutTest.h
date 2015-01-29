@@ -49,7 +49,6 @@ protected:
   /// Fill summary plots managing double MB4 chambers
   void fillWhPlot(MonitorElement *plot,int sect,int stat, float value, bool lessIsBest = true);
 
-//-  void bookCmsHistos1d(std::string hTag, std::string folder="");
   void bookCmsHistos1d(DQMStore::IBooker &,std::string hTag, std::string folder="");
 
   double thresholdWarnPhi, thresholdErrPhi;

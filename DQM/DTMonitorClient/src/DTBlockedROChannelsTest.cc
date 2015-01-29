@@ -47,12 +47,11 @@ DTBlockedROChannelsTest::~DTBlockedROChannelsTest() {
 }
 
 
-void DTBlockedROChannelsTest::beginJob() {
-  LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTBlockedROChannelsTest")
-    << "[DTBlockedROChannelsTest]: BeginJob";
+void DTBlockedROChannelsTest::beginRun(const Run& run, const EventSetup& setup)
+{
 
   nupdates = 0;
-  run=0;
+  return;
 }
 
 
@@ -90,7 +89,6 @@ void DTBlockedROChannelsTest::fillChamberMap( DQMStore::IGetter & igetter, const
     chAndRobs->second.init(false);
   }
 }
-
 
 
 void DTBlockedROChannelsTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
@@ -204,33 +202,11 @@ void DTBlockedROChannelsTest::performClientDiagnostic(DQMStore::IGetter & igette
       wheelHitos[chId.wheel()]->Fill(sectorForPlot, chId.station(),
           scale*chPercent);
       totalPerc += chPercent*scale*1./240.; // CB has to be 240 as double stations are taken into account by scale factor
-      //       if(chPercent != 1.) {
-      // 	cout << "Ch: " << (*chAndRobs).first << endl;
-      // 	cout << "      perc: " << chPercent << endl;
-      //       }
+
       // Fill the summary
       summaryHisto->Fill(sectorForPlot, chId.wheel(), 0.25*scale*chPercent);
     }
   }
-
-  // commented out since trend plots need to be updated in by lumi certification  
-  //   // this part is executed even if no events were processed in order to include the last LS 
-  //   if(offlineMode) { // save the results in a map and draw them in the end-run
-  //     if(resultsPerLumi.size() == 0) { // the first 2 LS are analyzed together
-  // //       cout << "LS: " << nLumiSegs << " total %: " << totalPerc << endl;
-  //       resultsPerLumi[nLumiSegs] = totalPerc;
-  //     } else {
-  // //       cout << "LS: " << nLumiSegs << " total %: " << prevTotalPerc << endl;
-  //       resultsPerLumi[nLumiSegs] = prevTotalPerc;
-  //     }
-  //     prevTotalPerc = totalPerc;
-  //     prevNLumiSegs = nLumiSegs;
-
-  //   } else { // directly fill the histo
-  //     hSystFractionVsLS->accumulateValueTimeSlot(totalPerc);
-  //     hSystFractionVsLS->updateTimeSlot(nLumiSegs, nevents);
-  //     prevTotalPerc = totalPerc;
-  //   }
 
   if(!offlineMode) { // fill trend histo only in online
     hSystFractionVsLS->accumulateValueTimeSlot(totalPerc);

@@ -45,7 +45,6 @@ class DTGeometry;
 class DTChamberId;
 class DTLayerId;
 
-//-class DTRunConditionVarClient: public edm::EDAnalyzer{
 class DTRunConditionVarClient: public DQMEDHarvester{
 
   public:
@@ -56,34 +55,26 @@ class DTRunConditionVarClient: public DQMEDHarvester{
     /// Destructor
     virtual ~DTRunConditionVarClient();
 
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+
   protected:
 
- //-   void beginJob();
- //-   void analyze(const edm::Event& e, const edm::EventSetup& c);
- //-   void endJob();
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
     /// book the report summary
-//-    void bookWheelHistos(std::string histoType, std::string subfolder, int wh, int nbins, float min, float max, bool isVDCorr=false);
-    void bookWheelHistos(DQMStore::IBooker &,std::string histoType, std::string subfolder, int wh, int nbins, float min, float max, bool isVDCorr=false);
+
+    void bookWheelHistos(DQMStore::IBooker &,std::string histoType, std::string subfolder, 
+                         int wh, int nbins, float min, float max, bool isVDCorr=false);
 
     /// DQM Client Diagnostic
-//-    void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context);
-//-    void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
   void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
 
-//-    void beginRun(const edm::Run& run, const edm::EventSetup& setup);
-//-    void endRun(edm::Run const& run, edm::EventSetup const& c);
 
-    // 
-    float varQuality(float var, float maxGood, float minBad);
-
-    //
-    void percDevVDrift(DTChamberId indexCh, float meanVD, float sigmaVD, float& devVD, float& errdevVD);
+  float varQuality(float var, float maxGood, float minBad);
+  void percDevVDrift(DTChamberId indexCh, float meanVD, float sigmaVD, float& devVD, float& errdevVD);
 
   private:
 
-//-    MonitorElement* getChamberHistos(const DTChamberId&, std::string);
     MonitorElement* getChamberHistos(DQMStore::IGetter & ,const DTChamberId&, std::string);
 
     int nevents;      
@@ -107,8 +98,6 @@ class DTRunConditionVarClient: public DQMEDHarvester{
     const DTMtime* mTimeMap_;
 
   bool bookingdone;
-
-    DQMStore* theDbe;
 
     MonitorElement* glbVDriftSummary;
     MonitorElement* glbT0Summary;

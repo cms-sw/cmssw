@@ -50,11 +50,6 @@ DTLocalTriggerTest::~DTLocalTriggerTest(){
 
 }
 
-//-void DTLocalTriggerTest::beginJob(){
-//-
-//-  DTLocalTriggerBaseTest::beginJob();
-//-}
-
 
 void DTLocalTriggerTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
                          edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
@@ -158,11 +153,9 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 	  for (int sect=1; sect<=12; ++sect){
 	    DTChamberId chId(wh,stat,sect);
 	    int sector_id = (wh+3)+(sect-1)*5;
-	    // uint32_t indexCh = chId.rawId();
 	    
 	    if (hwSource=="COM") {
 	      // Perform DCC-DDU matching test and generates summaries (Phi view)
-//-	      TH2F * DDUvsDCC = getHisto<TH2F>(dbe->get(getMEName("QualDDUvsQualDCC","LocalTriggerPhi", chId)));
 	      TH2F * DDUvsDCC = getHisto<TH2F>(igetter.get(getMEName("QualDDUvsQualDCC","LocalTriggerPhi", chId)));
 	      if (DDUvsDCC) {
 		
@@ -188,7 +181,6 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 		  }
 		  
 		  if( whME[wh].find(fullName("MatchingPhi")) == whME[wh].end() ){
-//-		    bookWheelHistos(wh,"MatchingPhi");
 		    bookWheelHistos(ibooker,wh,"MatchingPhi");
 		  }
 		  
@@ -202,9 +194,6 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 	    }
 	    else {
 	      // Perform DCC/DDU common plot analysis (Phi ones)
-//-	      TH2F * BXvsQual      = getHisto<TH2F>(dbe->get(getMEName("BXvsQual","LocalTriggerPhi", chId)));
-//-	      TH1F * BestQual      = getHisto<TH1F>(dbe->get(getMEName("BestQual","LocalTriggerPhi", chId)));
-//-	      TH2F * Flag1stvsQual = getHisto<TH2F>(dbe->get(getMEName("Flag1stvsQual","LocalTriggerPhi", chId))); 
 	      TH2F * BXvsQual      = getHisto<TH2F>(igetter.get(getMEName("BXvsQual","LocalTriggerPhi", chId)));
 	      TH1F * BestQual      = getHisto<TH1F>(igetter.get(getMEName("BestQual","LocalTriggerPhi", chId)));
 	      TH2F * Flag1stvsQual = getHisto<TH2F>(igetter.get(getMEName("Flag1stvsQual","LocalTriggerPhi", chId))); 
@@ -249,8 +238,6 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 		  }
 		  
 		  if( secME[sector_id].find(fullName("BXDistribPhi")) == secME[sector_id].end() ){
-//-		    bookSectorHistos(wh,sect,"QualDistribPhi");
-//-		    bookSectorHistos(wh,sect,"BXDistribPhi");
 		    bookSectorHistos(ibooker,wh,sect,"QualDistribPhi");
 		    bookSectorHistos(ibooker,wh,sect,"BXDistribPhi");
 		  }
@@ -275,11 +262,6 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 		  delete QualDistr;
 
 		  if( whME[wh].find(fullName("CorrectBXPhi")) == whME[wh].end() ){
-//-		    bookWheelHistos(wh,"ResidualBXPhi");
-//-		    bookWheelHistos(wh,"CorrectBXPhi");
-//-		    bookWheelHistos(wh,"CorrFractionPhi");
-//-		    bookWheelHistos(wh,"2ndFractionPhi");
-//-		    bookWheelHistos(wh,"TriggerInclusivePhi");
 		    bookWheelHistos(ibooker,wh,"ResidualBXPhi");
 		    bookWheelHistos(ibooker,wh,"CorrectBXPhi");
 		    bookWheelHistos(ibooker,wh,"CorrFractionPhi");
@@ -302,9 +284,6 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 	      }
 
 	      if (hwSource=="DDU") {
-		// Perform DDU plot analysis (Theta ones)	    
-//-		TH2F * ThetaBXvsQual = getHisto<TH2F>(dbe->get(getMEName("ThetaBXvsQual","LocalTriggerTheta", chId)));
-//-		TH1F * ThetaBestQual = getHisto<TH1F>(dbe->get(getMEName("ThetaBestQual","LocalTriggerTheta", chId)));
 		TH2F * ThetaBXvsQual = getHisto<TH2F>(igetter.get(getMEName("ThetaBXvsQual","LocalTriggerTheta", chId)));
 		TH1F * ThetaBestQual = getHisto<TH1F>(igetter.get(getMEName("ThetaBestQual","LocalTriggerTheta", chId)));
 	
@@ -316,18 +295,8 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 		  double trigs    = ThetaBestQual->GetEntries(); 
 		  double trigsH   = ThetaBestQual->GetBinContent(4);
 		  delete BXH; 
-		
-		  // if( secME[sector_id].find(fullName("HFractionTheta")) == secME[sector_id].end() ){
-		  // 		// bookSectorHistos(wh,sect,"CorrectBXTheta");
-		  // 		bookSectorHistos(wh,sect,"HFractionTheta");
-		  // 	      }
-		  //std::map<std::string,MonitorElement*> *innerME = &(secME.find(sector_id)->second);
-		  // innerME->find(fullName("CorrectBXTheta"))->second->setBinContent(stat,BX_OK);
-		  //innerME->find(fullName("HFractionTheta"))->second->setBinContent(stat,trigsH/trigs);
-		
+				
 		  if( whME[wh].find(fullName("HFractionTheta")) == whME[wh].end() ){
-//-		    bookWheelHistos(wh,"CorrectBXTheta");
-//-		    bookWheelHistos(wh,"HFractionTheta");
 		    bookWheelHistos(ibooker,wh,"CorrectBXTheta");
 		    bookWheelHistos(ibooker,wh,"HFractionTheta");
 		  }
@@ -339,7 +308,6 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 	      }
 	      else if (hwSource=="DCC") {
 		// Perform DCC plot analysis (Theta ones)	    
-//-		TH2F * ThetaPosvsBX = getHisto<TH2F>(dbe->get(getMEName("PositionvsBX","LocalTriggerTheta", chId)));
 		TH2F * ThetaPosvsBX = getHisto<TH2F>(igetter.get(getMEName("PositionvsBX","LocalTriggerTheta", chId)));
 	      
 		// no theta triggers in stat 4!
@@ -350,7 +318,6 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 		  delete BX; 
 		
 		  if( whME[wh].find(fullName("CorrectBXTheta")) == whME[wh].end() ){
-//-		    bookWheelHistos(wh,"CorrectBXTheta");
 		    bookWheelHistos(ibooker,wh,"CorrectBXTheta");
 		  }
 		  std::map<std::string,MonitorElement*> *innerME = &(whME.find(wh)->second);
@@ -440,7 +407,6 @@ void DTLocalTriggerTest::fillGlobalSummary(DQMStore::IGetter & igetter) {
       int corr   = cmsME.find(fullName("CorrFractionSummary"))->second->getBinContent(sect,wh+3);
       int second = cmsME.find(fullName("2ndFractionSummary"))->second->getBinContent(sect,wh+3);
       int lut=0;
-//-      MonitorElement * lutsME = dbe->get(topFolder(hwSource=="DCC") + "Summaries/TrigLutSummary");
       MonitorElement * lutsME = igetter.get(topFolder(hwSource=="DCC") + "Summaries/TrigLutSummary");
       if (lutsME) {
 	lut = lutsME->getBinContent(sect,wh+3);
@@ -461,7 +427,6 @@ void DTLocalTriggerTest::fillGlobalSummary(DQMStore::IGetter & igetter) {
     cmsME.find("TrigGlbSummary")->second->Reset(); // white histo id DCC is not RO
   
   string nEvtsName = "DT/EventInfo/Counters/nProcessedEventsTrigger";
-//-  MonitorElement * meProcEvts = dbe->get(nEvtsName);
   MonitorElement * meProcEvts = igetter.get(nEvtsName);
 
   if (meProcEvts) {

@@ -230,7 +230,6 @@ string DTNoiseAnalysisTest::getMEName(const DTChamberId & chID) {
 
   string folderName = 
     "DT/05-Noise/Wheel" +  wheel.str() +
-    //     "/Station" + station.str() +
     "/Sector" + sector.str() + "/";
 
   string histoname = folderName + string("NoiseRate")  
@@ -242,8 +241,6 @@ string DTNoiseAnalysisTest::getMEName(const DTChamberId & chID) {
 
 }
 
-
-//-void DTNoiseAnalysisTest::bookHistos() {
 void DTNoiseAnalysisTest::bookHistos(DQMStore::IBooker & ibooker) {
 
   ibooker.setCurrentFolder("DT/05-Noise");

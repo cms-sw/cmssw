@@ -37,8 +37,6 @@ DTEfficiencyTest::DTEfficiencyTest(const edm::ParameterSet& ps){
   edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: Constructor";
 
   parameters = ps;
-
-//-  dbe = edm::Service<DQMStore>().operator->();
   
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
@@ -55,7 +53,6 @@ DTEfficiencyTest::~DTEfficiencyTest(){
 
 void DTEfficiencyTest::beginRun(edm::Run const & run, edm::EventSetup const & context) {
 
-//-  edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: BeginJob";
   edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: Begin run";
 
   nevents = 0;
@@ -149,9 +146,6 @@ void DTEfficiencyTest::beginRun(edm::Run const & run, edm::EventSetup const & co
 	string HistoName = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() +  "_SL" + superLayer.str() +  "_L" + layer.str();
 	
 	// Get the ME produced by EfficiencyTask Source
-//-	MonitorElement * occupancy_histo = dbe->get(getMEName("hEffOccupancy", lID));	
-//-	MonitorElement * unassOccupancy_histo = dbe->get(getMEName("hEffUnassOccupancy", lID));
-//-	MonitorElement * recSegmOccupancy_histo = dbe->get(getMEName("hRecSegmOccupancy", lID));
 	MonitorElement * occupancy_histo = igetter.get(getMEName("hEffOccupancy", lID));	
 	MonitorElement * unassOccupancy_histo = igetter.get(getMEName("hEffUnassOccupancy", lID));
 	MonitorElement * recSegmOccupancy_histo = igetter.get(getMEName("hRecSegmOccupancy", lID));
@@ -169,14 +163,12 @@ void DTEfficiencyTest::beginRun(edm::Run const & run, edm::EventSetup const & co
 	  for(int bin=firstWire; bin <= lastWire; bin++) {
 	    if((recSegmOccupancy_histo_root->GetBinContent(bin))!=0) {
 	      //cout<<"book histos"<<endl;
-//-	      if (EfficiencyHistos.find(lID) == EfficiencyHistos.end()) bookHistos(lID, firstWire, lastWire);
 	      if (EfficiencyHistos.find(lID) == EfficiencyHistos.end()) bookHistos(ibooker,lID, firstWire, lastWire);
 	      float efficiency = occupancy_histo_root->GetBinContent(bin) / recSegmOccupancy_histo_root->GetBinContent(bin);
 	      float errorEff = sqrt(efficiency*(1-efficiency) / recSegmOccupancy_histo_root->GetBinContent(bin));
 	      EfficiencyHistos.find(lID)->second->setBinContent(bin, efficiency);
 	      EfficiencyHistos.find(lID)->second->setBinError(bin, errorEff);
 		  
-//-	      if (UnassEfficiencyHistos.find(lID) == EfficiencyHistos.end()) bookHistos(lID, firstWire, lastWire);
 	      if (UnassEfficiencyHistos.find(lID) == EfficiencyHistos.end()) bookHistos(ibooker,lID, firstWire, lastWire);
 	      float unassEfficiency = unassOccupancy_histo_root->GetBinContent(bin) / recSegmOccupancy_histo_root->GetBinContent(bin);
 	      float errorUnassEff = sqrt(unassEfficiency*(1-unassEfficiency) / recSegmOccupancy_histo_root->GetBinContent(bin));
@@ -279,7 +271,6 @@ void DTEfficiencyTest::beginRun(edm::Run const & run, edm::EventSetup const & co
       SLBCells != SuperLayerBadCells.end();
       SLBCells++) {
     if((*SLBCells).second[0]/(*SLBCells).second[1] > double(percentual/100)){
-//-      if(wheelHistos.find((*SLBCells).first.wheel()) == wheelHistos.end()) bookHistos((*SLBCells).first.wheel());
       if(wheelHistos.find((*SLBCells).first.wheel()) == wheelHistos.end()) bookHistos(ibooker,(*SLBCells).first.wheel());
       if(!((*SLBCells).first.station() == 4 && (*SLBCells).first.superlayer() == 3))
 	wheelHistos[(*SLBCells).first.wheel()]->Fill((*SLBCells).first.sector()-1,((*SLBCells).first.superlayer()-1)+3*((*SLBCells).first.station()-1));
@@ -305,7 +296,6 @@ void DTEfficiencyTest::beginRun(edm::Run const & run, edm::EventSetup const & co
       SLUBCells != SuperLayerUnassBadCells.end();
       SLUBCells++) {
     if((*SLUBCells).second[0]/(*SLUBCells).second[1] > double(percentual/100)){
-//-      if(wheelUnassHistos.find((*SLUBCells).first.wheel()) == wheelUnassHistos.end()) bookHistos((*SLUBCells).first.wheel());
       if(wheelUnassHistos.find((*SLUBCells).first.wheel()) == wheelUnassHistos.end()) bookHistos(ibooker,(*SLUBCells).first.wheel());
       if(!((*SLUBCells).first.station() == 4 && (*SLUBCells).first.superlayer() == 3))
 	wheelUnassHistos[(*SLUBCells).first.wheel()]->Fill((*SLUBCells).first.sector()-1,((*SLUBCells).first.superlayer()-1)+3*((*SLUBCells).first.station()-1));
@@ -330,14 +320,9 @@ void DTEfficiencyTest::beginRun(edm::Run const & run, edm::EventSetup const & co
   
 }
 
-
-//-void DTEfficiencyTest::endJob(){
 void DTEfficiencyTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest] endjob called!";
-
-//-  dbe->rmdir("DT/Tests/DTEfficiency");
-
 }
 
 
@@ -367,8 +352,6 @@ string DTEfficiencyTest::getMEName(string histoTag, const DTLayerId & lID) {
   
 }
 
-
-//-void DTEfficiencyTest::bookHistos(const DTLayerId & lId, int firstWire, int lastWire) {
 void DTEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker, const DTLayerId & lId, int firstWire, int lastWire) {
 
   stringstream wheel; wheel << lId.superlayerId().wheel();
@@ -381,28 +364,21 @@ void DTEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker, const DTLayerId &
   string EfficiencyHistoName =  "Efficiency_" + HistoName; 
   string UnassEfficiencyHistoName =  "UnassEfficiency_" + HistoName; 
 
-//-  dbe->setCurrentFolder("DT/Tests/DTEfficiency/Wheel" + wheel.str() +
   ibooker.setCurrentFolder("DT/Tests/DTEfficiency/Wheel" + wheel.str() +
 			   "/Station" + station.str() +
 			   "/Sector" + sector.str());
 
-//-  EfficiencyHistos[lId] = dbe->book1D(EfficiencyHistoName.c_str(),EfficiencyHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
   EfficiencyHistos[lId] = ibooker.book1D(EfficiencyHistoName.c_str(),EfficiencyHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
-//-  UnassEfficiencyHistos[lId] = dbe->book1D(UnassEfficiencyHistoName.c_str(),UnassEfficiencyHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
   UnassEfficiencyHistos[lId] = ibooker.book1D(UnassEfficiencyHistoName.c_str(),UnassEfficiencyHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
 
 }
 
-
-//-void DTEfficiencyTest::bookHistos(int wh) {
 void DTEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker, int wh) {
   
-//-  dbe->setCurrentFolder("DT/Tests/DTEfficiency/SummaryPlot");
   ibooker.setCurrentFolder("DT/Tests/DTEfficiency/SummaryPlot");
 
   if(wheelHistos.find(3) == wheelHistos.end()){
     string histoName =  "ESummary_testFailedByAtLeastBadSL";
-//-    wheelHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelHistos[3] = ibooker.book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelHistos[3]->setBinLabel(1,"Sector1",1);
     wheelHistos[3]->setBinLabel(1,"Sector1",1);
@@ -427,7 +403,6 @@ void DTEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker, int wh) {
   }
   if(wheelUnassHistos.find(3) == wheelUnassHistos.end()){
     string histoName =  "UESummary_testFailedByAtLeastBadSL";
-//-    wheelUnassHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelUnassHistos[3] = ibooker.book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelUnassHistos[3]->setBinLabel(1,"Sector1",1);
     wheelUnassHistos[3]->setBinLabel(1,"Sector1",1);
@@ -456,7 +431,6 @@ void DTEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker, int wh) {
 
   if(wheelHistos.find(wh) == wheelHistos.end()){
     string histoName =  "ESummary_testFailed_W" + wheel.str();
-//-    wheelHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
     wheelHistos[wh] = ibooker.book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
     wheelHistos[wh]->setBinLabel(1,"Sector1",1);
     wheelHistos[wh]->setBinLabel(2,"Sector2",1);
@@ -486,7 +460,6 @@ void DTEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker, int wh) {
   }  
   if(wheelUnassHistos.find(wh) == wheelUnassHistos.end()){  
     string histoName =  "UESummary_testFailed_W" + wheel.str();
-//-    wheelUnassHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
     wheelUnassHistos[wh] = ibooker.book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
     wheelUnassHistos[wh]->setBinLabel(1,"Sector1",1);
     wheelUnassHistos[wh]->setBinLabel(2,"Sector2",1);

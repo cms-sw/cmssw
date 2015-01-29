@@ -73,10 +73,6 @@ void DTLocalTriggerLutTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, D
 	hwSource = (*iHw);
 	// Loop over the TriggerUnits
 	for (int wh=-2; wh<=2; ++wh){
-//-	  bookWheelHistos(wh,"PhiResidualMean");  
-//-	  bookWheelHistos(wh,"PhiResidualRMS");
-//-	  bookWheelHistos(wh,"PhibResidualMean");  
-//-	  bookWheelHistos(wh,"PhibResidualRMS");
 	  bookWheelHistos(ibooker,wh,"PhiResidualMean");  
 	  bookWheelHistos(ibooker,wh,"PhiResidualRMS");
 	  bookWheelHistos(ibooker,wh,"PhibResidualMean");  
@@ -181,9 +177,6 @@ void DTLocalTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQM
 	  
 	    // Fill client histos
 	    if( whME[wh].find(fullName("PhibTkvsTrigCorr")) == whME[wh].end() ){
-//-	      bookWheelHistos(wh,"PhibTkvsTrigSlope");  
-//-	      bookWheelHistos(wh,"PhibTkvsTrigIntercept");  
-//-	      bookWheelHistos(wh,"PhibTkvsTrigCorr");  
 	      bookWheelHistos(ibooker,wh,"PhibTkvsTrigSlope");  
 	      bookWheelHistos(ibooker,wh,"PhibTkvsTrigIntercept");  
 	      bookWheelHistos(ibooker,wh,"PhibTkvsTrigCorr");  
@@ -222,8 +215,6 @@ void DTLocalTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQM
 	  
 	  // Fill client histos
 	  if( whME[wh].find(fullName("PhiResidualMean")) == whME[wh].end() ){
-//-	    bookWheelHistos(wh,"PhiResidualMean");  
-//-	    bookWheelHistos(wh,"PhiResidualRMS");  
 	    bookWheelHistos(ibooker,wh,"PhiResidualMean");  
 	    bookWheelHistos(ibooker,wh,"PhiResidualRMS");  
 	  }
@@ -258,8 +249,6 @@ void DTLocalTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQM
 	  
 	  // Fill client histos
 	  if( whME[wh].find(fullName("PhibResidualMean")) == whME[wh].end() ){
-//-	    bookWheelHistos(wh,"PhibResidualMean");  
-//-	    bookWheelHistos(wh,"PhibResidualRMS");  
 	    bookWheelHistos(ibooker,wh,"PhibResidualMean");  
 	    bookWheelHistos(ibooker,wh,"PhibResidualRMS");  
 	  }

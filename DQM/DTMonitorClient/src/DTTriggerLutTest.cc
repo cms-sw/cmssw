@@ -76,25 +76,14 @@ void DTTriggerLutTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMSto
 	// Loop over the TriggerUnits
 	for (int wh=-2; wh<=2; ++wh){
 	  if (detailedAnalysis){
-//-	    bookWheelHistos(wh,"PhiResidualPercentage");  
-//-	    bookWheelHistos(wh,"PhibResidualPercentage"); 
 	    bookWheelHistos(ibooker,wh,"PhiResidualPercentage");  
 	    bookWheelHistos(ibooker,wh,"PhibResidualPercentage"); 
 	  }
-
-//-	  bookWheelHistos(wh,"PhiLutSummary","Summaries");
-//-	  bookWheelHistos(wh,"PhibLutSummary","Summaries");      
+   
 	  bookWheelHistos(ibooker,wh,"PhiLutSummary","Summaries");
 	  bookWheelHistos(ibooker,wh,"PhibLutSummary","Summaries");      
 	  
 	  if (detailedAnalysis){
-//-	    bookWheelHistos(wh,"PhiResidualMean");  
-//-	    bookWheelHistos(wh,"PhiResidualRMS");
-//-	    bookWheelHistos(wh,"PhibResidualMean");  
-//-	    bookWheelHistos(wh,"PhibResidualRMS");
-//-	    bookWheelHistos(wh,"CorrelationFactorPhi");
-//-	    bookWheelHistos(wh,"CorrelationFactorPhib");
-//-	    bookWheelHistos(wh,"DoublePeakFlagPhib");
 	    bookWheelHistos(ibooker,wh,"PhiResidualMean");  
 	    bookWheelHistos(ibooker,wh,"PhiResidualRMS");
 	    bookWheelHistos(ibooker,wh,"PhibResidualMean");  
@@ -105,8 +94,6 @@ void DTTriggerLutTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMSto
 	  }
 
 	}
-
-//-	bookCmsHistos("TrigLutSummary","",true);
 
 	bookCmsHistos(ibooker,"TrigLutSummary","",true);
 	bookCmsHistos(ibooker,"PhiLutSummary");
@@ -153,13 +140,11 @@ void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore
 	std::map<std::string,MonitorElement*> &innerME = whME[wh];
 	  
 	// Make Phi Residual Summary
-//-	TH1F * PhiResidual = getHisto<TH1F>(dbe->get(getMEName("PhiResidual","Segment", chId)));
 	TH1F * PhiResidual = getHisto<TH1F>(igetter.get(getMEName("PhiResidual","Segment", chId)));
 	int phiSummary = 1;
 	if (PhiResidual && PhiResidual->GetEntries()>10) {
 
 	  if( innerME.find(fullName("PhiResidualPercentage")) == innerME.end() ){
-//-	    bookWheelHistos(wh,"PhiResidualPercentage");  
 	    bookWheelHistos(ibooker,wh,"PhiResidualPercentage");  
 	  }
 	  
@@ -176,30 +161,9 @@ void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore
 	
 	if (detailedAnalysis){
 
-// 	  if ((phiSummary ==0)&& (PhiResidual->GetEntries()>100)) {  //Precision Peak test
-
-// 	    Float_t *source = new float[31];
-// 	    Float_t *dest   = new float[31];
-// 	    //TSpectrum *g = new TSpectrum(5);
-// 	    float media  = PhiResidual->GetMean();
-// 	    int   center = PhiResidual->GetXaxis()->FindBin(media);
-// 	    for (int i = 0; i < 30; i++) {
-// 	      source[i]=PhiResidual->GetBinContent(center+i-15);}
-// 	    int nFound = g->SearchHighRes(source, dest, 30, 1, 6, kFALSE, 5, kTRUE,2);
-// 	    /if (nFound>1) { // has more than 1 peak
-// 	      if( innerME.find(fullName("DoublePeakFlagPhi")) == innerME.end() ){
-// 		bookWheelHistos(wh,"DoublePeakFlagPhi");
-// 	      }
-// 	    }
-
-// 	    fillWhPlot(innerME.find(fullName("DoublePeakFlagPhi"))->second,sect,stat,1,false);	    
-// 	  }
-
 	  if ((phiSummary==0)||(phiSummary==3)){ //Information on the Peak
 
-	    if( innerME.find(fullName("PhiResidualMean")) == innerME.end() ){
-//-	      bookWheelHistos(wh,"PhiResidualMean");  
-//-	      bookWheelHistos(wh,"PhiResidualRMS");  
+	    if( innerME.find(fullName("PhiResidualMean")) == innerME.end() ){ 
 	      bookWheelHistos(ibooker,wh,"PhiResidualMean");  
 	      bookWheelHistos(ibooker,wh,"PhiResidualRMS");  
 	    }
@@ -219,13 +183,11 @@ void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore
 	    
 	  }
 	  
-//-	  TH2F * TrackPhitkvsPhitrig   = getHisto<TH2F>(dbe->get(getMEName("PhitkvsPhitrig","Segment", chId)));
 	  TH2F * TrackPhitkvsPhitrig   = getHisto<TH2F>(igetter.get(getMEName("PhitkvsPhitrig","Segment", chId)));
 
 	  if (TrackPhitkvsPhitrig && TrackPhitkvsPhitrig->GetEntries()>100) {
 	    float corr = TrackPhitkvsPhitrig->GetCorrelationFactor();
 	    if( innerME.find(fullName("CorrelationFactorPhi")) == innerME.end() ){
-//-	      bookWheelHistos(wh,"CorrelationFactorPhi");
 	      bookWheelHistos(ibooker,wh,"CorrelationFactorPhi");
 	    }
 	    fillWhPlot(innerME.find(fullName("CorrelationFactorPhi"))->second,sect,stat,corr,false);
@@ -235,14 +197,12 @@ void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore
 	
 				
 	// Make Phib Residual Summary
-//-	TH1F * PhibResidual = getHisto<TH1F>(dbe->get(getMEName("PhibResidual","Segment", chId)));
 	TH1F * PhibResidual = getHisto<TH1F>(igetter.get(getMEName("PhibResidual","Segment", chId)));
 	int phibSummary = stat==3 ? -1 : 1; // station 3 has no meaningful MB3 phi bending information
 	
 	if (stat != 3 && PhibResidual && PhibResidual->GetEntries()>10) {// station 3 has no meaningful MB3 phi bending information
 
-	  if( innerME.find(fullName("PhibResidualPercentage")) == innerME.end() ){
-//-	    bookWheelHistos(wh,"PhibResidualPercentage");  
+	  if( innerME.find(fullName("PhibResidualPercentage")) == innerME.end() ){ 
 	    bookWheelHistos(ibooker,wh,"PhibResidualPercentage");  
 	  }
 	  
@@ -258,31 +218,11 @@ void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore
 
 	fillWhPlot(innerME.find(fullName("PhibLutSummary"))->second,sect,stat,phibSummary);
 	
-	if (detailedAnalysis){
-
-// 	  if ((phibSummary ==0)&& (PhibResidual->GetEntries()>100)) {  //Precision Peak test 
-// 	    Float_t * source = new float[31];
-// 	    Float_t * dest = new float[31];
-// 	    TSpectrum *spec = new TSpectrum(5);
-// 	    float media = PhibResidual->GetMean();
-// 	    int center= PhibResidual->GetXaxis()->FindBin(media);
-// 	    for (int i = 0; i < 30; i++) {
-// 	      source[i]=PhibResidual->GetBinContent(center+i-15);
-// 	    }
-// 	    int nFound = spec->SearchHighRes(source,dest,30,1,6,kFALSE,5,kTRUE,2);
-// 	    if (nFound>1) { // has more than 1 peak
-// 	      if( innerME.find(fullName("DoublePeakFlagPhib")) == innerME.end() ){
-// 		bookWheelHistos(wh,"DoublePeakFlagPhib");
-// 	      }
-// 	      fillWhPlot(innerME.find(fullName("DoublePeakFlagPhib"))->second,sect,stat,1,false);
-// 	    }
-// 	  }	  
+	if (detailedAnalysis){	  
 	  
 	  if ((phibSummary==0)||(phibSummary==3)){
 
-	    if( innerME.find(fullName("PhibResidualMean")) == innerME.end() ){
-//-	      bookWheelHistos(wh,"PhibResidualMean");  
-//-	      bookWheelHistos(wh,"PhibResidualRMS");  
+	    if( innerME.find(fullName("PhibResidualMean")) == innerME.end() ){  
 	      bookWheelHistos(ibooker,wh,"PhibResidualMean");  
 	      bookWheelHistos(ibooker,wh,"PhibResidualRMS");  
 	    }
@@ -301,13 +241,11 @@ void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore
 	    fillWhPlot(innerME.find(fullName("PhibResidualRMS"))->second,sect,stat,rms);
 	  }
 
-//-	  TH2F * TrackPhibtkvsPhibtrig   = getHisto<TH2F>(dbe->get(getMEName("PhibtkvsPhibtrig","Segment", chId)));
 	  TH2F * TrackPhibtkvsPhibtrig   = getHisto<TH2F>(igetter.get(getMEName("PhibtkvsPhibtrig","Segment", chId)));
 	  if (TrackPhibtkvsPhibtrig && TrackPhibtkvsPhibtrig->GetEntries()>100) {
 
 	    float corr = TrackPhibtkvsPhibtrig->GetCorrelationFactor();
 	    if( innerME.find(fullName("CorrelationFactorPhib")) == innerME.end() ){
-//-	      bookWheelHistos(wh,"CorrelationFactorPhib");
 	      bookWheelHistos(ibooker,wh,"CorrelationFactorPhib");
 	    }
 
@@ -386,21 +324,17 @@ int DTTriggerLutTest::performLutTest(double perc,double thresholdWarn ,double th
 
 }
 
-//-void DTTriggerLutTest::bookCmsHistos1d(string hTag, string folder) {
 void DTTriggerLutTest::bookCmsHistos1d(DQMStore::IBooker & ibooker, string hTag, string folder) {
 
   string basedir = topFolder(true);
   if (folder != "") {
     basedir += folder +"/" ;
   }
-//-  dbe->setCurrentFolder(basedir);
   ibooker.setCurrentFolder(basedir);
 
   string hName = fullName(hTag);
   LogTrace(category()) << "[" << testName << "Test]: booking " << basedir << hName;
 
-
-//-  MonitorElement* me = dbe->book1D(hName.c_str(),hName.c_str(),101,-0.005,1.005);
   MonitorElement* me = ibooker.book1D(hName.c_str(),hName.c_str(),101,-0.005,1.005);
   me->setAxisTitle("Percentage",1);
   cmsME[hName] = me;

@@ -34,10 +34,9 @@ class DTBlockedROChannelsTest: public DQMEDHarvester {
 
   protected:
 
-    /// BeginJob
-    void beginJob();
-
     /// BeginRun
+    void beginRun(const edm::Run& , const edm::EventSetup&);
+
     void fillChamberMap( DQMStore::IGetter & igetter, const edm::EventSetup& c); 
 
 
@@ -46,11 +45,9 @@ class DTBlockedROChannelsTest: public DQMEDHarvester {
 
     /// DQM Client Diagnostic in online mode
     void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&); 
-
-    /// DQM Client Diagnostic in offline mode
     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
 
-  private:
+private:
     int readOutToGeometry(int dduId, int rosNumber, int& wheel, int& sector);
 
   private:

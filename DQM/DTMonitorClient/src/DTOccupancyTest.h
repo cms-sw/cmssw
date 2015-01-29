@@ -36,7 +36,6 @@ class DQMStore;
 #include "TFile.h"
 #include "TNtuple.h"
 
-//-class DTOccupancyTest: public edm::EDAnalyzer{
 class DTOccupancyTest: public DQMEDHarvester{
 
 public:
@@ -62,7 +61,6 @@ protected:
 private:
 
   /// book the summary histograms
-//-  void bookHistos(const int wheelId, std::string folder, std::string histoTag);
   void bookHistos(DQMStore::IBooker &, const int wheelId, std::string folder, std::string histoTag);
 
   /// Get the ME name
@@ -74,8 +72,6 @@ private:
   std::string topFolder() const;
 
   int nevents;
-
-  DQMStore* dbe;
 
   edm::ESHandle<DTGeometry> muonGeom;
 

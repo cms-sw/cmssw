@@ -41,7 +41,6 @@ class DTGeometry;
 class DTChamberId;
 class DTSuperLayerId;
 
-//-class DTResolutionTest: public edm::EDAnalyzer{
 class DTResolutionTest: public DQMEDHarvester{
 
 public:
@@ -54,33 +53,20 @@ public:
 
 protected:
 
-  /// BeginRun
-//-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
-
-
-  /// Analyze
-//-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-
   /// Endjob
-//-  void endJob();
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// book the new ME
-//-  void bookHistos(const DTChamberId & ch);
   void bookHistos(DQMStore::IBooker &, const DTChamberId & ch);
 
   /// book the summary histograms
-//-  void bookHistos(int wh);
   void bookHistos(DQMStore::IBooker &, int wh);
 
   /// Get the ME name
   std::string getMEName(const DTSuperLayerId & slID);
   std::string getMEName2D(const DTSuperLayerId & slID);
 
-//-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
   /// DQM Client Diagnostic
-//-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
   void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
 
 
@@ -93,8 +79,6 @@ private:
   int percentual;
 
   bool bookingdone;
-
-  DQMStore* dbe;
 
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;

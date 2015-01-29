@@ -52,7 +52,6 @@ class DTSuperLayerId;
 class DTLayerId ;
 class DTWireId;
 
-//-class DTNoiseTest: public edm::EDAnalyzer{
 class DTNoiseTest: public DQMEDHarvester{
 
 public:
@@ -65,22 +64,9 @@ public:
 
 protected:
 
-  /// BeginJob
-//-  void beginJob();
-
-  /// BeginRun
-//-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
-
-  /// Analyze
-//-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  /// Endjob
-//-  void endJob();
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// book the new ME
-//-  void bookHistos(const DTChamberId & ch, std::string folder, std::string histoTag);
-//-  void bookHistos(const DTLayerId & ch, int nWire,std::string folder, std::string histoTag);
   void bookHistos(DQMStore::IBooker &, const DTChamberId & ch, std::string folder, std::string histoTag);
   void bookHistos(DQMStore::IBooker &, const DTLayerId & ch, int nWire,std::string folder, std::string histoTag);
 
@@ -88,12 +74,7 @@ protected:
   std::string getMEName(const DTChamberId & ch);
   std::string getMEName(const DTLayerId & ly);
 
-
-
-//-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
   /// DQM Client Diagnostic
-//-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
   void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
  
 
@@ -107,20 +88,15 @@ private:
   int run;
 
   bool bookingdone;
-
-  DQMStore* dbe;
   
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
   edm::ESHandle<DTTtrig> tTrigMap;
 
-  // the collection of noisy channels
-  //std::map< uint32_t, std::vector<DTWireId> > theNoisyChannels;
-   
+  // the collection of noisy channels   
   std::vector<DTWireId>  theNoisyChannels;
 
   // histograms: < detRawID, Histogram >
-  //std::map<  uint32_t , MonitorElement* > histos;
   std::map<std::string, std::map<uint32_t, MonitorElement*> > histos;
 
 };

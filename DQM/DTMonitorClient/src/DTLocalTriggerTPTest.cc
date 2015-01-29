@@ -68,8 +68,6 @@ void DTLocalTriggerTPTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQ
 	hwSource = (*iHw);
 	// Loop over the TriggerUnits
 	for (int wh=-2; wh<=2; ++wh){
-//-	  bookWheelHistos(wh,"CorrectBXPhi");
-//-	  bookWheelHistos(wh,"ResidualBXPhi");
 	  bookWheelHistos(ibooker,wh,"CorrectBXPhi");
 	  bookWheelHistos(ibooker,wh,"ResidualBXPhi");
 	}
@@ -102,9 +100,6 @@ void DTLocalTriggerTPTest::runClientDiagnostic(DQMStore::IBooker & ibooker,
 	for (int wh=-2; wh<=2; ++wh){
 	  for (int sect=1; sect<=12; ++sect){
 	    DTChamberId chId(wh,stat,sect);
-	    // int sector_id = (wh+3)+(sect-1)*5;
-	    // uint32_t indexCh = chId.rawId();
-	    
 
 	    // Perform DCC/DDU common plot analysis (Phi ones)
 	    TH2F * BXvsQual      = getHisto<TH2F>(igetter.get(getMEName("BXvsQual","LocalTriggerPhi", chId)));
@@ -119,8 +114,6 @@ void DTLocalTriggerTPTest::runClientDiagnostic(DQMStore::IBooker & ibooker,
 		delete BX;
 
 		if( whME[wh].find(fullName("CorrectBXPhi")) == whME[wh].end() ){
-//-		  bookWheelHistos(wh,"ResidualBXPhi");
-//-		  bookWheelHistos(wh,"CorrectBXPhi");
 		  bookWheelHistos(ibooker,wh,"ResidualBXPhi");
 		  bookWheelHistos(ibooker,wh,"CorrectBXPhi");
 		}

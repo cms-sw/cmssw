@@ -35,7 +35,6 @@ DTDCSByLumiSummary::DTDCSByLumiSummary(const ParameterSet& pset) {
 DTDCSByLumiSummary::~DTDCSByLumiSummary() {}
 
 
-//-- copy also to end of dqmEndLuminosityBlock
 void  DTDCSByLumiSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup) {
 
 }
@@ -127,10 +126,7 @@ void DTDCSByLumiSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMS
 
 }
 
-
-//-void DTDCSByLumiSummary::endRun(const edm::Run& run, const edm::EventSetup& setup) {
 void DTDCSByLumiSummary::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
-
 
   // Book trend plots ME & loop on map to fill it with by lumi info
   map<int,std::vector<float> >::const_iterator fracPerLumiIt  = dcsFracPerLumi.begin();
@@ -205,14 +201,4 @@ void DTDCSByLumiSummary::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
   }
 
 }
-
-
-//-void DTDCSByLumiSummary::endJob() {  
-//-
-//-}
-
-
-//-void DTDCSByLumiSummary::analyze(const Event& event, const EventSetup& setup){ 
-//-
-//-}
 

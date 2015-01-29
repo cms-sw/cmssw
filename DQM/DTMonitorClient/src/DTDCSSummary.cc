@@ -31,56 +31,26 @@ DTDCSSummary::DTDCSSummary(const ParameterSet& pset) {
 
 }
 
-
-
-
 DTDCSSummary::~DTDCSSummary() {}
 
-
-
-//-void DTDCSSummary::beginJob(){}
-
-
-
-//-void DTDCSSummary::beginLuminosityBlock(const LuminosityBlock& lumi, const  EventSetup& setup) {
-//-}
-
-
-
-
-//-void DTDCSSummary::endLuminosityBlock(const LuminosityBlock&  lumi, const  EventSetup& setup){}
 void DTDCSSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
                          edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
 
   if (bookingdone) return;
 
-  // get the DQMStore
-//-  theDbe = Service<DQMStore>().operator->();
-  
-  // book the ME
-//-  theDbe->setCurrentFolder("DT/EventInfo/DCSContents");
   ibooker.setCurrentFolder("DT/EventInfo/DCSContents");
   // global fraction
-//-  totalDCSFraction = theDbe->bookFloat("DTDCSSummary");  
   totalDCSFraction = ibooker.bookFloat("DTDCSSummary");  
   totalDCSFraction->Fill(-1);
   // Wheel "fractions" -> will be 0 or 1
   for(int wheel = -2; wheel != 3; ++wheel) {
     stringstream streams;
     streams << "DT_Wheel" << wheel;
-    dcsFractions[wheel] = theDbe->bookFloat(streams.str());
+    dcsFractions[wheel] = ibooker.bookFloat(streams.str());
     dcsFractions[wheel]->Fill(-1);
   }
   
   bookingdone = 1; 
 }
 
-
-//-void DTDCSSummary::endJob() {}
 void DTDCSSummary::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {}
-
-
-//-void DTDCSSummary::analyze(const Event& event, const EventSetup& setup){}
-
-
-

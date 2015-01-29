@@ -1,4 +1,3 @@
-
 /*
  *  See header file for a description of this class.
  *
@@ -70,15 +69,6 @@ DTCreateSummaryHistos::~DTCreateSummaryHistos(){
   theFile->Close();
 
 }
-
-
-//-void DTCreateSummaryHistos::beginJob(){
-//-
-//-  edm::LogVerbatim ("histos") << "[DTCreateSummaryHistos]: BeginJob";
-//-
-//-  nevents = 0;
-//-
-//-}
 
 void DTCreateSummaryHistos::beginRun(const edm::Run& run, const edm::EventSetup& context){
 

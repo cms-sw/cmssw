@@ -39,7 +39,6 @@ class TH1F;
 class TH2F;
 class TH1D;
 
-//-class DTLocalTriggerBaseTest: public edm::EDAnalyzer{
 class DTLocalTriggerBaseTest: public DQMEDHarvester{
 
 public:
@@ -85,12 +84,6 @@ protected:
   /// Set configuration variables
   void setConfig(const edm::ParameterSet& ps, std::string name);
 
-/*   /// Set labels to wheel plots (Phi) */
-/*   void setLabelPh(MonitorElement* me); */
-
-/*   /// Set labels to theta plots (Theta) */
-/*   void setLabelTh(MonitorElement* me);  */
-
   /// Create fullname from histo partial name
   std::string fullName(std::string htype);
 
@@ -116,7 +109,6 @@ protected:
   std::vector<std::string> trigSources;
   std::vector<std::string> hwSources;
 
-  DQMStore* dbe;
   std::string sourceFolder;
   edm::ParameterSet parameters;
   bool runOnline;

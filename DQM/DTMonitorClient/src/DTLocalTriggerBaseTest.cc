@@ -109,7 +109,6 @@ void DTLocalTriggerBaseTest::setConfig(const edm::ParameterSet& ps, string name)
 
   parameters = ps;
   nevents = 0;
-//-  dbe = edm::Service<DQMStore>().operator->();
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
@@ -156,31 +155,6 @@ string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, int 
   
 }
 
-
-// void DTLocalTriggerBaseTest::setLabelPh(MonitorElement* me){
-
-//   for (int i=0; i<48; ++i){
-//     stringstream label;
-//     int stat = (i%4) +1;
-//     if (stat==1) label << "Sec " << i/4 +1 << " ";
-//     me->setBinLabel(i+1,label.str().c_str());
-//   }
-
-// }
-
-// void DTLocalTriggerBaseTest::setLabelTh(MonitorElement* me){
-
-//   for (int i=0; i<36; ++i){
-//     stringstream label;
-//     int stat = (i%3) +1;
-//     if (stat==1) label << "Sec " << i/3 +1 << " ";
-//     me->setBinLabel(i+1,label.str().c_str());
-//   }
-
-// }
-
-
-//-void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string hTag,string folder) {
 void DTLocalTriggerBaseTest::bookSectorHistos(DQMStore::IBooker & ibooker,
                                                  int wheel,int sector,string hTag,string folder) {
   
@@ -192,14 +166,14 @@ void DTLocalTriggerBaseTest::bookSectorHistos(DQMStore::IBooker & ibooker,
   if (folder!="") {
     basedir += folder +"/";
   }
-//-  dbe->setCurrentFolder(basedir);
+
   ibooker.setCurrentFolder(basedir);
 
   string fullTag = fullName(hTag);
   string hname    = fullTag + "_W" + wh.str()+"_Sec" +sc.str();
   LogTrace(category()) << "[" << testName << "Test]: booking " << basedir << hname;
   if (hTag.find("BXDistribPhi") != string::npos){    
-//-    MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),25,-4.5,20.5,4,0.5,4.5);
+
     MonitorElement* me = ibooker.book2D(hname.c_str(),hname.c_str(),25,-4.5,20.5,4,0.5,4.5);
     me->setBinLabel(1,"MB1",2);
     me->setBinLabel(2,"MB2",2);
@@ -209,7 +183,6 @@ void DTLocalTriggerBaseTest::bookSectorHistos(DQMStore::IBooker & ibooker,
     return;
   }
   else if (hTag.find("QualDistribPhi") != string::npos){    
-//-    MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),7,-0.5,6.5,4,0.5,4.5);
     MonitorElement* me = ibooker.book2D(hname.c_str(),hname.c_str(),7,-0.5,6.5,4,0.5,4.5);
     me->setBinLabel(1,"MB1",2);
     me->setBinLabel(2,"MB2",2);
@@ -227,7 +200,6 @@ void DTLocalTriggerBaseTest::bookSectorHistos(DQMStore::IBooker & ibooker,
   }
   else if (hTag.find("Phi") != string::npos || 
       hTag.find("TkvsTrig") != string::npos ){    
-//-    MonitorElement* me = dbe->book1D(hname.c_str(),hname.c_str(),4,0.5,4.5);
     MonitorElement* me = ibooker.book1D(hname.c_str(),hname.c_str(),4,0.5,4.5);
     me->setBinLabel(1,"MB1",1);
     me->setBinLabel(2,"MB2",1);
@@ -238,7 +210,6 @@ void DTLocalTriggerBaseTest::bookSectorHistos(DQMStore::IBooker & ibooker,
   }
   
   if (hTag.find("Theta") != string::npos){
-//-    MonitorElement* me =dbe->book1D(hname.c_str(),hname.c_str(),3,0.5,3.5);
     MonitorElement* me =ibooker.book1D(hname.c_str(),hname.c_str(),3,0.5,3.5);
     me->setBinLabel(1,"MB1",1);
     me->setBinLabel(2,"MB2",1);
@@ -249,7 +220,6 @@ void DTLocalTriggerBaseTest::bookSectorHistos(DQMStore::IBooker & ibooker,
   
 }
 
-//-void DTLocalTriggerBaseTest::bookCmsHistos(string hTag, string folder, bool isGlb) {
 void DTLocalTriggerBaseTest::bookCmsHistos(DQMStore::IBooker & ibooker, 
                                                string hTag, string folder, bool isGlb) {
 
@@ -258,14 +228,12 @@ void DTLocalTriggerBaseTest::bookCmsHistos(DQMStore::IBooker & ibooker,
   if (folder != "") {
     basedir += folder +"/" ;
   }
-//-  dbe->setCurrentFolder(basedir);
+
   ibooker.setCurrentFolder(basedir);
 
   string hname = isGlb ? hTag : fullName(hTag);
   LogTrace(category()) << "[" << testName << "Test]: booking " << basedir << hname;
 
-
-//-  MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),12,1,13,5,-2,3);
   MonitorElement* me = ibooker.book2D(hname.c_str(),hname.c_str(),12,1,13,5,-2,3);
   me->setAxisTitle("Sector",1);
   me->setAxisTitle("Wheel",2);
@@ -273,7 +241,6 @@ void DTLocalTriggerBaseTest::bookCmsHistos(DQMStore::IBooker & ibooker,
 
 }
 
-//-void DTLocalTriggerBaseTest::bookWheelHistos(int wheel,string hTag,string folder) {
 void DTLocalTriggerBaseTest::bookWheelHistos(DQMStore::IBooker & ibooker,int wheel,string hTag,string folder) {
   
   stringstream wh; wh << wheel;
@@ -288,7 +255,7 @@ void DTLocalTriggerBaseTest::bookWheelHistos(DQMStore::IBooker & ibooker,int whe
   if (folder != "") {
     basedir += folder +"/" ;
   }
-//-  dbe->setCurrentFolder(basedir);
+
   ibooker.setCurrentFolder(basedir);
 
   string fullTag = fullName(hTag);
@@ -298,7 +265,6 @@ void DTLocalTriggerBaseTest::bookWheelHistos(DQMStore::IBooker & ibooker,int whe
   
   if (hTag.find("Phi")!= string::npos ||
       hTag.find("Summary") != string::npos ){    
-//-    MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),12,1,13,4,1,5);
     MonitorElement* me = ibooker.book2D(hname.c_str(),hname.c_str(),12,1,13,4,1,5);
 
 //     setLabelPh(me);
@@ -313,7 +279,7 @@ void DTLocalTriggerBaseTest::bookWheelHistos(DQMStore::IBooker & ibooker,int whe
   }
   
   if (hTag.find("Theta") != string::npos){
-//-    MonitorElement* me =dbe->book2D(hname.c_str(),hname.c_str(),12,1,13,3,1,4);
+
     MonitorElement* me =ibooker.book2D(hname.c_str(),hname.c_str(),12,1,13,3,1,4);
 
 //     setLabelTh(me);

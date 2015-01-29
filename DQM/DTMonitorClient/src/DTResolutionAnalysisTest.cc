@@ -57,15 +57,6 @@ DTResolutionAnalysisTest::~DTResolutionAnalysisTest(){
 
 }
 
-
-//-void DTResolutionAnalysisTest::beginJob(){
-//-
-//-  LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: BeginJob"; 
-//-
-//-  nevents = 0;
-//-
-//-}
-
   void DTResolutionAnalysisTest::beginRun(const Run& run, const EventSetup& context){
 
   LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: BeginRun"; 
@@ -125,10 +116,8 @@ void DTResolutionAnalysisTest::bookHistos(DQMStore::IBooker & ibooker) {
 
   // loop over all the CMS wheels, sectors & book the summary histos
   for (int wheel=-2; wheel<=2; wheel++){
-//-    bookHistos(wheel);
     bookHistos(ibooker,wheel);
     for (int sector=1; sector<=12; sector++){
-//-      bookHistos(wheel, sector);
       bookHistos(ibooker,wheel, sector);
     }
   }
@@ -144,7 +133,6 @@ void DTResolutionAnalysisTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::
     return;
   }
 
-//-  bookHistos(); // histos booked only if top histo folder exist
   bookHistos(ibooker); // histos booked only if top histo folder exist
   // as Standard/AlcaReco Harvest is performed in the same step
 
@@ -279,9 +267,6 @@ void DTResolutionAnalysisTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::
 
 }
 
-
-
-//-void DTResolutionAnalysisTest::bookHistos(int wh) { 
 void DTResolutionAnalysisTest::bookHistos(DQMStore::IBooker & ibooker,int wh) { 
 
   stringstream wheel; wheel <<wh;
@@ -303,10 +288,6 @@ void DTResolutionAnalysisTest::bookHistos(DQMStore::IBooker & ibooker,int wh) {
   wheelMeanHistos[wh]->setBinLabel(9,"MB3_SL3",2);
   wheelMeanHistos[wh]->setBinLabel(10,"MB4_SL1",2);
   wheelMeanHistos[wh]->setBinLabel(11,"MB4_SL3",2); 
-  //   wheelMeanHistos[wh]->setBinLabel(12,"MB4_SL1",2);
-  //   wheelMeanHistos[wh]->setBinLabel(13,"MB4_SL3",2); 
-
-
 
   ibooker.setCurrentFolder(topHistoFolder + "/01-SigmaRes");
   histoName =  "SigmaSummaryRes_W" + wheel.str();
@@ -325,13 +306,8 @@ void DTResolutionAnalysisTest::bookHistos(DQMStore::IBooker & ibooker,int wh) {
   wheelSigmaHistos[wh]->setBinLabel(9,"MB3_SL3",2);
   wheelSigmaHistos[wh]->setBinLabel(10,"MB4_SL1",2);
   wheelSigmaHistos[wh]->setBinLabel(11,"MB4_SL3",2);
-  //   wheelSigmaHistos[wh]->setBinLabel(12,"MB4_SL1",2);
-  //   wheelSigmaHistos[wh]->setBinLabel(13,"MB4_SL3",2);
-
 }
 
-
-//-void DTResolutionAnalysisTest::bookHistos(int wh, int sect) {
 void DTResolutionAnalysisTest::bookHistos(DQMStore::IBooker & ibooker,int wh, int sect) {
 
   stringstream wheel; wheel << wh;		
