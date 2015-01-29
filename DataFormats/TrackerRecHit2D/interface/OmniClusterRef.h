@@ -66,10 +66,8 @@ public:
   // bool isRegional() const { return (rawIndex() & kIsRegional)==kIsRegional; }
   // bool isNonRegionalStrip() const {return (rawIndex() & kIsRegional)==kIsStrip;}
 
+private:
   edm::RefCoreWithIndex me;
- 
-  
 };
 
 #endif // TrackerRecHit2D_OmniClusterRef_H
-
