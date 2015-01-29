@@ -18,8 +18,6 @@
 
 using namespace std;
 
-
-
 class GeometryComparisonPlotter
 {
     // internal variables
@@ -30,13 +28,15 @@ class GeometryComparisonPlotter
             _output_directory,
             _output_filename,
             _print_option;
-    bool _kPrint,
-         _kLegend,
-         _kWrite,
-         _kBatchMode,
-         _k1dModule,
-         _k2dModule;
-    int _kLevelCut;
+    bool _print,
+         _legend,
+         _write,
+         _batchMode,
+         _1dModule,
+         _2dModule;
+    int _levelCut,
+        _window_width,
+        _window_height;
 
     // branches
     map<TString, int> branch_i;
@@ -77,6 +77,7 @@ public:
     void SetWrite               (const bool);           // activates the writing into a Root file
     void Set1dModule            (const bool);           // cut to include 1D modules
     void Set2dModule            (const bool);           // cut to include 2D modules
+#define DEFAULT_LEVEL 1
     void SetLevelCut            (const int);            // module level: level=1 (default)
     void SetBatchMode           (const bool);           // activates the display of the canvases
     void SetBranchMax           (const TString,         // sets a max value for the variable
@@ -90,4 +91,8 @@ public:
     void SetOutputDirectoryName (const TString);        // sets the output name of the directory
     void SetOutputFileName      (const TString);        // sets the name of the root file (if applicable)
     void SetPrintOption         (const Option_t *);     // litteraly the print option of the TPad::Print()
+#define DEFAULT_WINDOW_WIDTH 1400
+#define DEFAULT_WINDOW_HEIGHT 1000
+    void SetCanvasSize          (const int window_width = DEFAULT_WINDOW_WIDTH,
+                                 const int window_height = DEFAULT_WINDOW_HEIGHT);
 };

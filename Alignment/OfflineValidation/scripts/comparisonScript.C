@@ -34,7 +34,6 @@ void comparisonScript (TString inFile="mp1510_vs_mp1509.Comparison_commonTracker
 
     // now the object to produce the comparison plots is created
     GeometryComparisonPlotter * cp = new GeometryComparisonPlotter (inFile, outDir);
-    cp->SetPrintOption("png");
     // x and y contain the couples to plot
     // -> every combination possible will be performed
     // /!\ always give units (otherwise, unexpected bug from root...)
@@ -42,11 +41,12 @@ void comparisonScript (TString inFile="mp1510_vs_mp1509.Comparison_commonTracker
     x.push_back("r");                                           cp->SetBranchUnits("r",     "cm");
     x.push_back("phi");                                         cp->SetBranchUnits("phi",   "rad");
     x.push_back("z");                                           cp->SetBranchUnits("z",     "cm");
-    y.push_back("dr");		cp->SetBranchSF("dr", 	10000);     cp->SetBranchUnits("dr",    "#mu{}m");
-    y.push_back("dz");		cp->SetBranchSF("dz", 	10000);     cp->SetBranchUnits("dz",    "#mu{}m");
-    y.push_back("rdphi");	cp->SetBranchSF("rdphi",10000);     cp->SetBranchUnits("rdphi", "#mu{}m rad");
-    y.push_back("dx");		cp->SetBranchSF("dx", 	10000);     cp->SetBranchUnits("dx",    "#mu{}m");
-    y.push_back("dy");		cp->SetBranchSF("dy", 	10000);     cp->SetBranchUnits("dy",    "#mu{}m");
+    y.push_back("dr");		cp->SetBranchSF("dr", 	10000);     cp->SetBranchUnits("dr",    "#mu m");
+    y.push_back("dz");		cp->SetBranchSF("dz", 	10000);     cp->SetBranchUnits("dz",    "#mu m");
+    y.push_back("rdphi");	cp->SetBranchSF("rdphi",10000);     cp->SetBranchUnits("rdphi", "#mu m rad");
+    y.push_back("dx");		cp->SetBranchSF("dx", 	10000);     cp->SetBranchUnits("dx",    "#mu m");
+    y.push_back("dy");		cp->SetBranchSF("dy", 	10000);     cp->SetBranchUnits("dy",    "#mu m");
+    cp->SetPrintOption("png");
     cp->MakePlots(x, y);
     // remark: what takes the more time is the creation of the output files,
     // not the looping on the tree (because the code is perfect, of course :p)
