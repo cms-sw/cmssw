@@ -13,7 +13,7 @@ namespace DDI {
     Reflection(const DDSolid & s);
     double volume() const;
     void stream(std::ostream &) const;
-    const DDSolid & solid() { return s_; } 
+    const DDSolid & solid() const { return s_; } 
   private:
     DDSolid s_;  
   };      
