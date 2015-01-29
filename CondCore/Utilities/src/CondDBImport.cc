@@ -154,6 +154,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( HcalL1TriggerObjects )
       IMPORT_PAYLOAD_CASE( HcalLUTCorrs )
       IMPORT_PAYLOAD_CASE( HcalLongRecoParams )
+      IMPORT_PAYLOAD_CASE( HcalZDCLowGainFractions )
       IMPORT_PAYLOAD_CASE( HcalLutMetadata )
       IMPORT_PAYLOAD_CASE( HcalMCParams )
       IMPORT_PAYLOAD_CASE( HcalPFCorrs )
