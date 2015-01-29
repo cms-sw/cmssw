@@ -23,7 +23,7 @@ namespace HcalConst{
    constexpr int maxSamples = 10;
    constexpr int maxPSshapeBin = 256;
    constexpr int nsPerBX = 25;
-   constexpr float iniTimeShift = 106.5f;
+   constexpr float iniTimeShift = 98.5f;
    constexpr double invertnsPerBx = 0.04;
 
 }

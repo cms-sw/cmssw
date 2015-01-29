@@ -338,7 +338,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    }
    */
    //Fix back the timeslew
-   if(applyTimeSlew_) timevalfit+=HcalTimeSlew::delay(std::max(1.0,chargeArr[4]),slewFlavor_);
+   //if(applyTimeSlew_) timevalfit+=HcalTimeSlew::delay(std::max(1.0,chargeArr[4]),slewFlavor_);
    int outfitStatus = (fitStatus ? 1: 0 );
    fitParsVec.clear();
    fitParsVec.push_back(chargevalfit);
