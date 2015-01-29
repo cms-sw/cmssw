@@ -27,8 +27,8 @@ MagBSector::~MagBSector(){
   }
 }
 
-MagVolume * MagBSector::findVolume(const GlobalPoint & gp, double tolerance) const {
-  MagVolume * result = 0;
+const MagVolume * MagBSector::findVolume(const GlobalPoint & gp, double tolerance) const {
+  const MagVolume * result = 0;
   Geom::Phi<float> phi = gp.phi();
 
   // FIXME : use a binfinder
