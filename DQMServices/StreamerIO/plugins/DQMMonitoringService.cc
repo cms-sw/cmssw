@@ -51,6 +51,11 @@ void DQMMonitoringService::evEvent(StreamID const& iContext) {
   auto now = std::chrono::high_resolution_clock::now();
   auto count = duration_cast<seconds>(now - last_report_time_).count();
 
+  if (count < 30) {
+    // we don't want to report too often
+    return;
+  }
+
   ptree doc;
   doc.put("events_total", nevents_);
 
