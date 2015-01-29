@@ -4,6 +4,8 @@
 #include <algorithm>
 #include<numeric>
 #include<limits>
+#include<memory>
+#include<tuple>
 
 namespace reco {
 

@@ -32,8 +32,9 @@ private:
 
 }
 
-#define RECO_XSTR(s) RECO_STR(s)
-#define RECO_STR(s) #s
+#define SINGLE_ARG(...) __VA_ARGS__
+#define RECO_XSTR(...) RECO_STR(__VA_ARGS__)
+#define RECO_STR(...) #__VA_ARGS__
 #define reco_expressionEvaluator(pkg, EXPR, iexpr) reco::expressionEvaluator<EXPR>(pkg,RECO_XSTR(EXPR),iexpr)
 
 #endif // CommonToolsUtilsExpressionEvaluator_H
