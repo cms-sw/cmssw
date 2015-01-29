@@ -607,14 +607,9 @@ step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
                            '--relval':'27000,3000'},
                            step1Defaults])
 step1FastPUNewMixing =merge([{'-s':'GEN,SIM,RECO',
-                           '--fast':'',
-                           '--conditions'  :'auto:run2_mc',
-                           '--magField'    :'38T_PostLS1',
-                           '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                            '--eventcontent':'FASTPU',
-                           '--datatier':'GEN-SIM-RECO',
-                           '--relval':'27000,3000'},
-                           step1Defaults])
+                           '--datatier':'GEN-SIM-RECO'},
+                           step1FastUpg2015Defaults])
 
 
 #step1FastDefaults
