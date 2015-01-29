@@ -36,7 +36,8 @@ for line in f :
 		if fields[2] == ' member data class ':
 			H.add_edge(fields[1],fields[3],kind=fields[2])
 		if fields[2] == ' templated member data class ':
-			H.add_edge(fields[1],fields[5],kind=fields[2])
+			H.add_edge(fields[1],fields[3],kind=' member data class ')
+			H.add_edge(fields[1],fields[5],kind=' templated member data class type ')
 		if fields[2] == ' base class ':
 			H.add_edge(fields[1],fields[3],kind=fields[2])
 f.close()
