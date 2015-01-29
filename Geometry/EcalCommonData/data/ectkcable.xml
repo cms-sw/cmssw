@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="ectkcable.xml" eval="true">
+  <Constant name="z0CabEC"  value="2.70888*m"/>
+  <Constant name="z1CabEC"  value="2.78000*m"/>
+  <Constant name="z2CabEC"  value="3.05756*m"/>
+  <Constant name="z3CabEC"  value="3.10606*m"/>
+  <Constant name="z4CabEC"  value="3.28850*m"/>
+  <Constant name="rMin0Cab" value="1.40500*m"/>
+  <Constant name="rMin1Cab" value="1.42000*m"/>
+  <Constant name="rMin2Cab" value="1.72150*m"/>
+  <Constant name="rMax0Cab" value="1.28300*m"/>
+  <Constant name="rMax1Cab" value="1.42445*m"/>
+</ConstantsSection>
+
+<SolidSection label="ectkcable.xml">
+  <!-- Tracking support and cables -->
+  <Polycone name="ETCS" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[z0CabEC]" rMin="[eecon:EBRMin]" rMax="[eecon:EBRMin]"/>
+    <ZSection z="[z1CabEC]" rMin="[eecon:EBRMin]" rMax="[rMax0Cab]"/>
+    <ZSection z="[z2CabEC]" rMin="[rMin0Cab]"     rMax="[rMax1Cab]"/>
+    <ZSection z="[z2CabEC]" rMin="[rMin0Cab]"     rMax="[eecon:EBRMax]"/>
+    <ZSection z="[z3CabEC]" rMin="[rMin1Cab]"     rMax="[eecon:EBRMax]"/>
+    <ZSection z="[z3CabEC]" rMin="[rMin2Cab]"     rMax="[eecon:EBRMax]"/>
+    <ZSection z="[z4CabEC]" rMin="[rMin2Cab]"     rMax="[eecon:EBRMax]"/>
+  </Polycone>
+  <Polycone name="ETCS_1" startPhi="10*deg" deltaPhi="160*deg">
+    <ZSection z="[z0CabEC]" rMin="[eecon:EBRMin]" rMax="[eecon:EBRMin]"/>
+    <ZSection z="[z1CabEC]" rMin="[eecon:EBRMin]" rMax="[rMax0Cab]"/>
+    <ZSection z="[z2CabEC]" rMin="[rMin0Cab]"     rMax="[rMax1Cab]"/>
+    <ZSection z="[z2CabEC]" rMin="[rMin0Cab]"     rMax="[eecon:EBRMax]"/>
+    <ZSection z="[z3CabEC]" rMin="[rMin1Cab]"     rMax="[eecon:EBRMax]"/>
+  </Polycone>
+  <Polycone name="ETCS_2" startPhi="10*deg" deltaPhi="160*deg">
+    <ZSection z="[z3CabEC]" rMin="[rMin2Cab]"     rMax="[eecon:EBRMax]"/>
+    <ZSection z="[z4CabEC]" rMin="[rMin2Cab]"     rMax="[eecon:EBRMax]"/>
+  </Polycone>
+  <Polycone name="ETSU" startPhi="-5*deg" deltaPhi="10*deg">
+    <ZSection z="[z0CabEC]" rMin="[eecon:EBRMin]" rMax="[eecon:EBRMin]"/>
+    <ZSection z="[z1CabEC]" rMin="[eecon:EBRMin]" rMax="[rMax0Cab]"/>
+    <ZSection z="[z2CabEC]" rMin="[rMin0Cab]"     rMax="[rMax1Cab]"/>
+    <ZSection z="[z2CabEC]" rMin="[rMin0Cab]"     rMax="[eecon:EBRMax]"/>
+    <ZSection z="[z3CabEC]" rMin="[rMin1Cab]"     rMax="[eecon:EBRMax]"/>
+    <ZSection z="[z3CabEC]" rMin="[rMin2Cab]"     rMax="[eecon:EBRMax]"/>
+    <ZSection z="[z4CabEC]" rMin="[rMin2Cab]"     rMax="[eecon:EBRMax]"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="ectkcable.xml">
+  <LogicalPart name="ETCA" category="unspecified">
+    <rSolid name="ETCS"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="Tracker_PP1_Cables" category="unspecified">
+    <rSolid name="ETCS_1"/>
+    <rMaterial name="trackermaterial:Tk_Cables_PP1"/>
+  </LogicalPart>
+  <LogicalPart name="Tracker_PP1_Connectors" category="unspecified">
+    <rSolid name="ETCS_2"/>
+    <rMaterial name="trackermaterial:Tk_Connectors_PP1"/>
+  </LogicalPart>
+  <LogicalPart name="ETSU" category="unspecified">
+    <rSolid name="ETSU"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="ectkcable.xml">
+  <!-- Tracker Support and Cables -->
+  <PosPart copyNumber="1">
+    <rParent name="eregalgo:ECAL"/>
+    <rChild name="ectkcable:ETCA"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="eregalgo:ECAL"/>
+    <rChild name="ectkcable:ETCA"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="ectkcable:ETCA"/>
+    <rChild name="ectkcable:ETSU"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="ectkcable:ETCA"/>
+    <rChild name="ectkcable:ETSU"/>
+    <rRotation name="rotations:R180"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="ectkcable:ETCA"/>
+    <rChild name="ectkcable:Tracker_PP1_Cables"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="ectkcable:ETCA"/>
+    <rChild name="ectkcable:Tracker_PP1_Cables"/>
+    <rRotation name="rotations:R180"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="ectkcable:ETCA"/>
+    <rChild name="ectkcable:Tracker_PP1_Connectors"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="ectkcable:ETCA"/>
+    <rChild name="ectkcable:Tracker_PP1_Connectors"/>
+    <rRotation name="rotations:R180"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>

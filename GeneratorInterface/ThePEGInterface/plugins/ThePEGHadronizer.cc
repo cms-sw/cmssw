@@ -176,6 +176,9 @@ bool ThePEGHadronizer::hadronize()
                 lheEvent()->count( lhef::LHERunInfo::kSelected, 1.0, mergeweight );
 		return false;
 	}
+	
+	//Fill LHE weight (since it's not otherwise propagated)
+	event()->weights()[0] *= lheEvent()->getHEPEUP()->XWGTUP;
 
 	HepMC::PdfInfo pdf;
 	clearAuxiliary(event().get(), &pdf);

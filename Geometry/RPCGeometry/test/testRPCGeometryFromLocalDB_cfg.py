@@ -2,11 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
 
-process.load('Configuration/StandardSequences/GeometryDB_cff')
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = 'MC_31X_V8::All'
+process.GlobalTag.globaltag = 'POSTLS172_V6::All'
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

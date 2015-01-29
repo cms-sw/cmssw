@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
-source = cms.Source("EmptySource")
+
 generator = cms.EDFilter("Pythia8GeneratorFilter",
                          #pythiaHepMCVerbosity = cms.untracked.bool(False),
                          maxEventsToPrint = cms.untracked.int32(0),
@@ -24,6 +24,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
             '23:onIfAny = 13',
             'PhaseSpace:pTHatMin = 20.',
             'PhaseSpace:pTHatMax = 300.',
+            'PhaseSpace:mHatMin = 75.',
             ),
         parameterSets = cms.vstring('pythia8CommonSettings',
                                     'pythia8CUEP8M1Settings',

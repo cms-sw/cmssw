@@ -120,6 +120,7 @@ workflows[135.2] = ['SingleMuPt10_UP15', ['SingleMuPt10FS_UP15','HARVESTUP15FS',
 workflows[135.3] = ['SingleMuPt100_UP15', ['SingleMuPt100FS_UP15','HARVESTUP15FS','MINIAODMCUP15FS']]
 workflows[135.4] = ['ZEE_13', ['ZEEFS_13','HARVESTUP15FS','MINIAODMCUP15FS']]
 workflows[135.5] = ['ZTT_13',['ZTTFS_13','HARVESTUP15FS','MINIAODMCUP15FS']]
+workflows[135.9] = ['ZMM_13',['ZMMFS_13','HARVESTUP15FS','MINIAODMCUP15FS']]
 
 workflows[135.6]  = ['QCD_FlatPt_15_3000_13', ['QCDFlatPt153000FS_13','HARVESTUP15FS','MINIAODMCUP15FS']]
 workflows[135.7] = ['H130GGgluonfusion_13', ['H130GGgluonfusionFS_13','HARVESTUP15FS','MINIAODMCUP15FS']]
@@ -235,6 +236,8 @@ workflows[140] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
 workflows[140.1] = ['',['QCD_Pt_80_120_13_HI','DIGIHI','RECOHI','HARVESTHI']]
 workflows[140.2] = ['',['PhotonJets_Pt_10_13_HI','DIGIHI','RECOHI','HARVESTHI']]
 workflows[140.3] = ['',['ZMM_13_HI','DIGIHI','RECOHI','HARVESTHI']]
+workflows[140.4] = ['',['ZEEMM_13_HI','DIGIHI','RECOHI','HARVESTHI']]
+
 # legacy: 141 => B0; 143 => B3 ; 144 => B5
 #workflows[142] = ['',['HydjetQ_B8_2760GeV','DIGIHI','RECOHI','HARVESTHI','MINIAODMCUP15HI']]
 

@@ -517,7 +517,11 @@ bool Pythia8Hadronizer::hadronize()
 
   bool py8next = fMasterGen->next();
 
-  double mergeweight = fMasterGen.get()->info.mergingWeight();
+  double mergeweight = fMasterGen.get()->info.mergingWeightNLO();
+  if (fMergingHook) {
+    mergeweight *= fMergingHook->getNormFactor();
+  }
+  
   
   //protect against 0-weight from ckkw or similar
   if (!py8next || std::abs(mergeweight)==0.)
@@ -549,9 +553,9 @@ bool Pythia8Hadronizer::hadronize()
     return false;
   }
   
-  //add ckkw merging weight
+  //add ckkw/umeps/unlops merging weight
   if (mergeweight!=1.) {
-    event()->weights().push_back(mergeweight);
+    event()->weights()[0] *= mergeweight;
   }
   
   if (fEmissionVetoHook) {

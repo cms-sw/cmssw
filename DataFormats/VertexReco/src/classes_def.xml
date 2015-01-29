@@ -34,6 +34,8 @@
 <!--      <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQuality<std::vector<reco::Track>,std::vector<reco::Vertex>,int,unsigned int> > >" /> -->
 
 
+ <class name="edm::Association<std::vector<reco::Vertex> > "/>
+ <class name="edm::Wrapper<edm::Association<std::vector<reco::Vertex> > >"/>
   <class name="std::vector<std::pair<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,int> >" />
   <class name="std::pair<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,int>" />
 

@@ -475,6 +475,7 @@ steps['WE_13']=gen2015('WE_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['WM_13']=gen2015('WM_13TeV_TuneCUETP8M1_cfi',Kby(9,200))
 steps['WpM_13']=gen2015('WpM_13TeV_TuneCUETP8M1_cfi',Kby(9,200))
 steps['ZMM_13']=gen2015('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(18,300))
+steps['ZEEMM_13']=gen2015('ZEEMM_13TeV_TuneCUETP8M1_cfi',Kby(18,300))
 steps['ZpMM_13']=gen2015('ZpMM_13TeV_TuneCUETP8M1_cfi',Kby(9,200))
 
 steps['ZTT']=genS('ZTT_All_hadronic_8TeV_TuneCUETP8M1_cfi',Kby(9,150))
@@ -565,6 +566,7 @@ steps['HydjetQ_MinBias_2760GeV_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValHy
 steps['QCD_Pt_80_120_13_HI']=merge([hiDefaults,steps['QCD_Pt_80_120_13']])
 steps['PhotonJets_Pt_10_13_HI']=merge([hiDefaults,steps['PhotonJets_Pt_10_13']])
 steps['ZMM_13_HI']=merge([hiDefaults,steps['ZMM_13']])
+steps['ZEEMM_13_HI']=merge([hiDefaults,steps['ZEEMM_13']])
 
 
 def changeRefRelease(steps,listOfPairs):
@@ -634,7 +636,8 @@ steps['SingleGammaFlatPt10To10FS']=merge([{'cfg':'SingleGammaFlatPt10To100_pythi
 #step1FastUpg2015Defaults
 steps['TTbarFS_13']=merge([{'cfg':'TTbar_13TeV_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastUpg2015Defaults])
 steps['ZEEFS_13']=merge([{'cfg':'ZEE_13TeV_TuneCUETP8M1_cfi'},Kby(100,2000),step1FastUpg2015Defaults])
-steps['ZTTFS_13']=merge([{'cfg':'ZTT_Tauola_OneLepton_OtherHadrons_13TeV_TuneCUETP8M1_cfi'},Kby(100,2000),step1FastUpg2015Defaults])
+steps['ZTTFS_13']=merge([{'cfg':'ZTT_All_hadronic_13TeV_TuneCUETP8M1_cfi'},Kby(100,2000),step1FastUpg2015Defaults])
+steps['ZMMFS_13']=merge([{'cfg':'ZMM_13TeV_TuneCUETP8M1_cfi'},Kby(100,2000),step1FastUpg2015Defaults])
 steps['QCDFlatPt153000FS_13']=merge([{'cfg':'QCDForPF_13TeV_TuneCUETP8M1_cfi'},Kby(27,2000),step1FastUpg2015Defaults])
 steps['QCD_Pt_80_120FS_13']=merge([{'cfg':'QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi'},Kby(100,500),step1FastUpg2015Defaults])
 steps['QCD_Pt_3000_3500FS_13']=merge([{'cfg':'QCD_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi'},Kby(100,500),step1FastUpg2015Defaults])
@@ -758,10 +761,10 @@ PU50={'-n':10,'--pileup':'AVE_35_BX_50ns','--pileup_input':'das:/RelValMinBias_1
 
 
 #PU for FastSim
-PUFS={'--pileup':'default'}
-PUFS2={'--pileup':'mix_2012_Startup_inTimeOnly'}
-PUFSAVE10={'--pileup':'E13TeV_AVE_10_inTimeOnly'}
-PUFSAVE20={'--pileup':'E13TeV_AVE_20_inTimeOnly'}
+PUFS={'--pileup':'GEN_2012_Summer_50ns_PoissonOOTPU'}
+PUFS2={'--pileup':'2012_Startup_50ns_PoissonOOTPU'}
+PUFSAVE10={'--pileup':'GEN_AVE_10_BX_25ns'}
+PUFSAVE20={'--pileup':'GEN_AVE_20_BX_25ns'}
 
 #
 steps['TTbarFSPU']=merge([PUFS,Kby(100,500),steps['TTbarFS']] )
@@ -821,7 +824,7 @@ premixUp2015Defaults = {
     '--datatier'    : 'GEN-SIM-DIGI-RAW',
     '--eventcontent': 'PREMIX',
     '--magField'    : '38T_PostLS1',
-    '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1' # temporary replacement for premix; to be brought back to customisePostLS1
+    '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1' # temporary replacement for premix; to be brought back to customisePostLS1
 }
 premixUp2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},premixUp2015Defaults])
 

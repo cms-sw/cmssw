@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<ConstantsSection label="hcalalgo.xml" eval="true">
+  <Constant name="Z0HBHE" value="389.550*cm"/>
+  <Constant name="Z0HE" value="398.250*cm"/>
+  <Constant name="Z1HB" value="324.200*cm"/>
+  <Constant name="z2HB" value="370.460*cm"/>
+  <Constant name="z3HB" value="375.022*cm"/>
+  <Constant name="z4HB" value="446.079*cm"/>
+  <Constant name="z5HB" value="449.127*cm"/>
+  <Constant name="z6HB" value="[cms:CalorBeamZ2]"/>
+  <Constant name="zRat" value="([Z0HE]-[z6HB])/([cms:CalorBeamZ1]-[z6HB])"/>
+  <Constant name="rMin1" value="177.500*cm"/>
+  <Constant name="rMin3" value="171.200*cm"/>
+  <Constant name="rMin4" value="277.071*cm"/>
+  <Constant name="rMin5" value="281.342*cm"/>
+  <Constant name="rMin2" value="[cms:CalorBeamR2]+[zRat]*                                 ([cms:CalorBeamR1]-[cms:CalorBeamR2])"/>
+  <Constant name="rMax1" value="186.650*cm"/>
+  <Constant name="rMax3" value="192.703*cm"/>
+  <Constant name="rMax4" value="287.000*cm"/>
+</ConstantsSection>
+
+<SolidSection label="hcalalgo.xml">
+  <Polycone name="HCal" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="-[z6HB]"   rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[Z0HE]"   rMin="[rMin2]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[Z0HE]"   rMin="[rMin3]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[Z0HBHE]" rMin="[rMin3]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[Z0HBHE]" rMin="[rMin1]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[Z0HBHE]"  rMin="[rMin1]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[Z0HBHE]"  rMin="[rMin3]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[Z0HE]"    rMin="[rMin3]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[Z0HE]"    rMin="[rMin2]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[z6HB]"    rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR]"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="hcalalgo.xml">
+  <LogicalPart name="HCal" category="unspecified">
+    <rSolid name="HCal"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hcalalgo.xml">
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="hcalalgo:HCal"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>
