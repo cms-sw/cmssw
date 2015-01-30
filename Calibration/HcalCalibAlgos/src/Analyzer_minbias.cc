@@ -244,6 +244,7 @@ namespace cms{
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
       int ii(0);
+      bool ok(false);
       for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin();
 	   itMap != objMapVec.end(); ++itMap, ++ii) {
 	float algoBit = (*itMap).algoBitNumber();
@@ -251,6 +252,7 @@ namespace cms{
         std::string algoNameStr = (*itMap).algoName();
 	
         if (resultGt == 1) {
+	  ok = true;
 	  for(HBHERecHitCollection::const_iterator hbheItr=HithbheNS.begin(); hbheItr!=HithbheNS.end(); hbheItr++) {
 	    
 	    // Recalibration of energy
@@ -409,10 +411,9 @@ namespace cms{
 	      itr1->second.theDif2 += (mydiff*mydiff);
 	    }
 	  }
-	} else {
-	  LogDebug("AnalyzerMB") << "No passed L1 Triggers";
 	}
       }
+      if (!ok) LogDebug("AnalyzerMB") << "No passed L1 Triggers";
     }
   }
 }
