@@ -94,7 +94,7 @@ for node in nodes:
 					print "class '"+child+"'"
 					stack.append( ( child, iter( H[child] ) ) )
 					kind=H[parent][child]['kind']
-					#print parent, kind, child 
+					print parent, kind, child 
 					if stdptr.search(kind):
 						if child in I :
 							Q=nx.dfs_preorder_nodes(I,child)
