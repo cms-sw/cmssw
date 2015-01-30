@@ -30,6 +30,7 @@
 
 
 <bin file="ExpressionEvaluatorUnitTest.cpp">
+  <flags CXXFLAGS="-fopenmp"/>
   <use name="CommonTools/Utils"/>
 </bin>
 

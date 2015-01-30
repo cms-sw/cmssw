@@ -7,6 +7,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
+#include <atomic>
 
 int main() {
 
@@ -66,6 +67,22 @@ int main() {
   }catch(...) {
     std::cout << "unknown error...." << std::endl;
   }
+
+
+  // stress test
+  std::atomic<int> j(0);
+#pragma omp parallel 
+  {
+    reco::genericExpression<bool, int, int> const * acut = nullptr;
+    for (int i=0; i<1000; ++i) {
+      acut = reco_expressionEvaluator("CommonTools/Utils",SINGLE_ARG(reco::genericExpression<bool, int, int>),cut);
+      (*acut)(2,7);
+      std::cerr << j++ <<',';
+    }
+  }
+  std::cerr << std::endl;
+
+
 
   std::cout << "If HERE OK" << std::endl;
 

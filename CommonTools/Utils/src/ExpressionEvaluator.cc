@@ -128,7 +128,7 @@ ExpressionEvaluator::ExpressionEvaluator(const char * pkg, const char * iname, s
   }
 
   m_expr = dlsym(dl,factory.c_str());
-
+  remove(m_name);
 }
 
 
