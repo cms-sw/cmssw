@@ -16,7 +16,7 @@
 //
 //--------------------------------------------------
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 // Data Formats 
@@ -34,7 +34,7 @@
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class HLTL1MuonSelector : public edm::EDProducer {
+class HLTL1MuonSelector : public edm::global::EDProducer<> {
  
  public:
   
@@ -45,7 +45,7 @@ class HLTL1MuonSelector : public edm::EDProducer {
   ~HLTL1MuonSelector();
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
  private:
 

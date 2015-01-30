@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -20,12 +20,12 @@ namespace edm {
     class ConfigurationDescriptions;
 }
 
-class L3MuonSumCaloPFIsolationProducer : public edm::EDProducer {
+class L3MuonSumCaloPFIsolationProducer : public edm::global::EDProducer<> {
 public:
     explicit L3MuonSumCaloPFIsolationProducer(const edm::ParameterSet&);
     ~L3MuonSumCaloPFIsolationProducer();
     
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
 private:
