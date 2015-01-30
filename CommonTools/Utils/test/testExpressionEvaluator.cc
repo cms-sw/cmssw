@@ -176,21 +176,21 @@ void testExpressionEvaluator::checkAll() {
   reco::CaloJet::Specific caloSpecific; caloSpecific.mMaxEInEmTowers = 0.5;
   pat::Jet jet(reco::CaloJet(p1+p2, reco::Jet::Point(), caloSpecific, constituents));
   { 
-  std::string expression = "jet.userData<std::vector<int>>(\"my2int\")";
+  std::string expression = "jet.userData<math::XYZVector>(\"my2int\")";
   std::cerr << "testing " << expression << std::endl;
     try {
      //provide definition of the virtual function as a string
-     std::string sexpr = "std::vector<int> const * operator()(pat::Jet const& jet) const override { return ";
+     std::string sexpr = "math::XYZVector const * operator()(pat::Jet const& jet) const override { return ";
      sexpr += expression + ";}";
      // obtain a pointer to the base class  (to be stored in Filter and Analyser at thier costruction time!)
-     auto const * expr = reco_expressionEvaluator("CommonTools/RecoUtils",SINGLE_ARG(reco::genericExpression<std::vector<int> const *, pat::Jet const &>),sexpr);
+     auto const * expr = reco_expressionEvaluator("CommonTools/RecoUtils",SINGLE_ARG(reco::genericExpression<math::XYZVector const *, pat::Jet const &>),sexpr);
      CPPUNIT_ASSERT(expr);
      // invoke
      CPPUNIT_ASSERT((*expr)(jet)==nullptr);
-     jet.addUserData("my2int",std::vector<int>(2,-1));
-     CPPUNIT_ASSERT(jet.userData<std::vector<int>>("my2int")->size()==2);
+     jet.addUserData("my2int",math::XYZVector(-2,-1,2));
+     CPPUNIT_ASSERT(jet.userData<math::XYZVector>("my2int")->z()==2);
      std::cout << "now expr eval" << std::endl;
-     CPPUNIT_ASSERT((*expr)(jet)->size()==2);
+     CPPUNIT_ASSERT((*expr)(jet)->z()==2);
     } catch(cms::Exception const & e) {
       // if compilation fails, the compiler output is part of the exception message
       std::cerr << e.what()  << std::endl;
