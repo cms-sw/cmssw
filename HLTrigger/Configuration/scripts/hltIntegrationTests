@@ -252,8 +252,12 @@ process.source.skipEvents = cms.untracked.uint32( $SKIP )
 fi
 
 # set the number of threads and streams for the whole hlt job
-echo "process.options.numberOfThreads = cms.untracked.uint32( $THREADS )" >> hlt.py
-echo "process.options.numberOfStreams = cms.untracked.uint32( $STREAMS )" >> hlt.py
+cat >> hlt.py << @EOF
+# configure multithreading, and allocate 10 MB of stack space per thread
+process.options.numberOfThreads = cms.untracked.uint32( $THREADS )
+process.options.numberOfStreams = cms.untracked.uint32( $STREAMS )
+process.options.sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
+@EOF
 
 # dump the menu name, and its release template
 log "HLT menu: $(head -n1 hlt.py | cut -c 3-)"
