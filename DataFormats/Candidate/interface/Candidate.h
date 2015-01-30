@@ -263,6 +263,11 @@ namespace reco {
     }
 
     virtual const Track * bestTrack() const {return nullptr;}	
+ 
+    /// uncertainty on dz 
+    virtual float dzError() const { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dzError(); else return 0; }
+    /// uncertainty on dxy
+    virtual float dxyError() const { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dxyError(); else return 0; }
 
     virtual bool isElectron() const = 0;
     virtual bool isMuon() const = 0;
