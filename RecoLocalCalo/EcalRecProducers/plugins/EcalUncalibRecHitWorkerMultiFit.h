@@ -112,6 +112,19 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
 
                 double EBtimeConstantTerm_;
                 double EEtimeConstantTerm_;
+                double EBtimeNconst_;
+                double EEtimeNconst_;
+                double outOfTimeThreshG12pEB_;
+                double outOfTimeThreshG12mEB_;
+                double outOfTimeThreshG61pEB_;
+                double outOfTimeThreshG61mEB_;
+                double outOfTimeThreshG12pEE_;
+                double outOfTimeThreshG12mEE_;
+                double outOfTimeThreshG61pEE_;
+                double outOfTimeThreshG61mEE_;
+                double amplitudeThreshEB_;
+                double amplitudeThreshEE_;
+                double ebSpikeThresh_;
 
                 edm::ESHandle<EcalTimeBiasCorrections> timeCorrBias_;
 
