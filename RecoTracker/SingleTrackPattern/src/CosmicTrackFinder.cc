@@ -34,6 +34,17 @@ namespace cms
   {
     geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
     useHitsSplitting_=conf.getParameter<bool>("useHitsSplitting");
+    matchedrecHitsToken_ = consumes<SiStripMatchedRecHit2DCollection>(
+        conf_.getParameter<edm::InputTag>("matchedRecHits"));
+    rphirecHitsToken_ = consumes<SiStripRecHit2DCollection>(
+        conf_.getParameter<edm::InputTag>("rphirecHits"));
+    stereorecHitsToken_ = consumes<SiStripRecHit2DCollection>(
+        conf_.getParameter<edm::InputTag>("stereorecHits"));
+    pixelRecHitsToken_ = consumes<SiPixelRecHitCollection>(
+        conf_.getParameter<edm::InputTag>("pixelRecHits"));
+    seedToken_ = consumes<TrajectorySeedCollection>(
+        conf_.getParameter<edm::InputTag>("cosmicSeeds"));
+
     produces<TrackCandidateCollection>();
   }
 
@@ -44,27 +55,26 @@ namespace cms
   // Functions that gets called by framework every event
   void CosmicTrackFinder::produce(edm::Event& e, const edm::EventSetup& es)
   {
-    using namespace std  ;
-    edm::InputTag matchedrecHitsTag = conf_.getParameter<edm::InputTag>("matchedRecHits");
-    edm::InputTag rphirecHitsTag = conf_.getParameter<edm::InputTag>("rphirecHits");
-    edm::InputTag stereorecHitsTag = conf_.getParameter<edm::InputTag>("stereorecHits");
-    edm::InputTag pixelRecHitsTag = conf_.getParameter<edm::InputTag>("pixelRecHits");  
+    using namespace std;
 
-
-    edm::InputTag seedTag = conf_.getParameter<edm::InputTag>("cosmicSeeds");
     // retrieve seeds
     edm::Handle<TrajectorySeedCollection> seed;
-    e.getByLabel(seedTag,seed);  
+    e.getByToken(seedToken_, seed);
 
-  //retrieve PixelRecHits
+    //retrieve PixelRecHits
     static const SiPixelRecHitCollection s_empty;
     const SiPixelRecHitCollection *pixelHitCollection = &s_empty;
     edm::Handle<SiPixelRecHitCollection> pixelHits;
     if (geometry!="MTCC" && (geometry!="CRACK" )) {
-      if( e.getByLabel(pixelRecHitsTag, pixelHits)) {
+      if( e.getByToken(pixelRecHitsToken_, pixelHits)) {
 	pixelHitCollection = pixelHits.product();
       } else {
-	edm::LogWarning("CosmicTrackFinder") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsTag << " cannot be found, using empty collection of same type.";
+        Labels l;
+        labelsForToken(pixelRecHitsToken_, l);
+	edm::LogWarning("CosmicTrackFinder")
+            << "Collection SiPixelRecHitCollection with InputTag "
+            << l.module
+            << " cannot be found, using empty collection of same type.";
       }
     }
     
@@ -73,11 +83,11 @@ namespace cms
 
  //retrieve StripRecHits
     edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
-    e.getByLabel( matchedrecHitsTag ,matchedrecHits);
+    e.getByToken(matchedrecHitsToken_, matchedrecHits);
     edm::Handle<SiStripRecHit2DCollection> rphirecHits;
-    e.getByLabel( rphirecHitsTag ,rphirecHits);
+    e.getByToken(rphirecHitsToken_, rphirecHits);
     edm::Handle<SiStripRecHit2DCollection> stereorecHits;
-    e.getByLabel( stereorecHitsTag, stereorecHits);
+    e.getByToken(stereorecHitsToken_, stereorecHits);
 
     // Step B: create empty output collection
     std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);
