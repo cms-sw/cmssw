@@ -42,7 +42,7 @@ iterativeLowPtTripletTracksWithTriplets.src = 'iterativeLowPtTripletTrackCandida
 iterativeLowPtTripletTracksWithTriplets.TTRHBuilder = 'WithoutRefit'
 iterativeLowPtTripletTracksWithTriplets.Fitter = 'KFFittingSmootherSecond'
 iterativeLowPtTripletTracksWithTriplets.Propagator = 'PropagatorWithMaterial'
-iterativeLowPtTripletTracksWithTriplets.trackAlgo = cms.untracked.uint32(5) # lowPtTripletStep
+iterativeLowPtTripletTracksWithTriplets.AlgorithmName = cms.string('lowPtTripletStep')
 
 
 # simtrack id producer
