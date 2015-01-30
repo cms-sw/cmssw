@@ -9,3 +9,28 @@
   <use   name="CommonTools/Utils"/>
   <use   name="cppunit"/>
 </bin>
+
+<bin   name="testExpressionEvaluator" file="testExpressionEvaluator.cc,testRunner.cpp">
+  <use   name="Geometry/CommonDetUnit"/>
+  <use   name="DataFormats/TrackReco"/>
+  <use   name="DataFormats/TrackerRecHit2D"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="DataFormats/PatCandidates"/>
+  <use   name="DataFormats/GeometryVector"/>
+  <use   name="DataFormats/SiStripCluster"/>
+  <use   name="CommonTools/Utils"/>
+  <use   name="cppunit"/>
+</bin>
+
+
+
+<bin file="ExprEvalPopen_t.cpp">
+  <use name="CommonTools/Utils"/>
+</bin>
+
+
+<bin file="ExpressionEvaluatorUnitTest.cpp">
+  <flags CXXFLAGS="-fopenmp"/>
+  <use name="CommonTools/Utils"/>
+</bin>
+
