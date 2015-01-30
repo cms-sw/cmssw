@@ -56,7 +56,16 @@ class HLTProcess(object):
     "HLT_Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL_v*",
     "HLT_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_v*",
     "HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v*",
-    "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*"
+    "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*",
+    "HLT_HT500_DisplacedDijet40_Inclusive_v*",
+    "HLT_HT350_DisplacedDijet40_DisplacedTrack_v*",
+    "HLT_VBF_DisplacedJet40_DisplacedTrack_v*",
+    "HLT_VBF_DisplacedJet40_Hadronic_v*",
+    "HLT_HT550_DisplacedDijet40_Inclusive_v*",
+    "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*",
+    "HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_v*",
+    "HLT_VBF_DisplacedJet40_TightID_Hadronic_v*"
+
   )
 
   def __init__(self, configuration):
@@ -642,7 +651,7 @@ for module in process.__dict__.itervalues():
         elif parameter.moduleLabel == 'hltL1GtObjectMap':
           parameter.moduleLabel = "gtDigisFromSkim"
         elif parameter.moduleLabel == 'hltGctDigis':
-          parameter.moduleLabel ="caloStage1LegacyFormatDigis"
+          parameter.moduleLabel ="simCaloStage1LegacyFormatDigis"
 """
 
   def overrideOutput(self):
