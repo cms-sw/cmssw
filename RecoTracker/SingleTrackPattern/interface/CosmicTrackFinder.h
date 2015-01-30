@@ -83,6 +83,11 @@ namespace cms
     std::string geometry;
     bool trinevents;
     bool useHitsSplitting_;
+    edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> matchedrecHitsToken_;
+    edm::EDGetTokenT<SiStripRecHit2DCollection> rphirecHitsToken_;
+    edm::EDGetTokenT<SiStripRecHit2DCollection> stereorecHitsToken_;
+    edm::EDGetTokenT<SiPixelRecHitCollection> pixelRecHitsToken_;
+    edm::EDGetTokenT<TrajectorySeedCollection> seedToken_;
   };
 }
 

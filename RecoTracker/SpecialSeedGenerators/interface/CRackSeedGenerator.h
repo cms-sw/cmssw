@@ -24,7 +24,9 @@ class CRackSeedGenerator : public edm::EDProducer
  private:
   edm::ParameterSet conf_;
   SeedGeneratorForCRack  cosmic_seed;
-
+  edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> matchedrecHitsToken_;
+  edm::EDGetTokenT<SiStripRecHit2DCollection> rphirecHitsToken_;
+  edm::EDGetTokenT<SiStripRecHit2DCollection> stereorecHitsToken_;
 };
 
 #endif
