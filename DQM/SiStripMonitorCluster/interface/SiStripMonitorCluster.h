@@ -41,8 +41,6 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   explicit SiStripMonitorCluster(const edm::ParameterSet&);
   ~SiStripMonitorCluster();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  //virtual void beginJob() ;
-  virtual void endJob() ;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) ;
   
@@ -104,8 +102,8 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   MonitorElement* StripNoise3Cycle = 0;
   MonitorElement* NumberOfPixelClus = 0;
   MonitorElement* NumberOfStripClus = 0;
-
   MonitorElement* BPTXrateTrend = 0;
+  MonitorElement* NclusVsCycleTimeProf2D = 0;
 
  private:
 
@@ -126,8 +124,6 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   MonitorElement * bookMETrend(const char*, const char* , DQMStore::IBooker & ibooker);
   MonitorElement* bookME1D(const char* ParameterSetLabel, const char* HistoName , DQMStore::IBooker & ibooker);
 
- private:
-  DQMStore* dqmStore_;
   edm::ParameterSet conf_;
   std::map<uint32_t, ModMEs> ModuleMEsMap;
   std::map<std::string, LayerMEs> LayerMEsMap;
@@ -190,6 +186,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   bool globalswitchMultiRegions;
   bool clustertkhistomapon;
   bool createTrendMEs;
+  bool globalswitchnclusvscycletimeprof2don;
 
   bool Mod_On_;
   bool ClusterHisto_;

@@ -545,13 +545,13 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
       meTE_Low_HE = ib.book2D(histo, histo, 80, -5., 75.,  70, -48., 92.);
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HE" ) ;
-      meTE_HE = ib.book2D(histo, histo, 200, -5., 395.,  70, -48., 92.);
+      meTE_HE = ib.book2D(histo, histo, 200, -5., 2995.,  70, -48., 92.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_Low_HE" ) ;
       meTEprofileHE_Low = ib.bookProfile(histo, histo, 80, -5., 75., 70, -48., 92.); 
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HE" ) ;
-      meTEprofileHE = ib.bookProfile(histo, histo, 200, -5., 395., 70, -48., 92.); 
+      meTEprofileHE = ib.bookProfile(histo, histo, 200, -5., 2995., 70, -48., 92.); 
 
       //Timing by depth and rechits vs simhits are not drawn
       if (useAllHistos_){
