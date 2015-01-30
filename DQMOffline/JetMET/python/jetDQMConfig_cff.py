@@ -26,7 +26,8 @@ jetDQMParameters = cms.PSet(
     pVMin       = cms.double(0.0),
 
     ptThreshold     = cms.double(20.),
-    ptThresholdUnc  = cms.double(17.5),
+    #ptThresholdUnc  = cms.double(17.5),
+    ptThresholdUnc  = cms.double(30),# dicuss to raise thresholds
     asymmetryThirdJetCut = cms.double(30),
     balanceThirdJetCut   = cms.double(0.2),
     fillJIDPassFrac   = cms.int32(1),

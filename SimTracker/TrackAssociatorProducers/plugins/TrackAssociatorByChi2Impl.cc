@@ -125,10 +125,11 @@ RecoToSimCollection TrackAssociatorByChi2Impl::associateRecoToSim(const edm::Ref
 
   RecoToSimCollection  outputCollection;
 
-  TrackingParticleCollection tPC;
+  //dereference the edm::Refs only once
+  std::vector<TrackingParticle const*> tPC;
   tPC.reserve(tPCH.size());
   for(auto const& ref: tPCH) {
-    tPC.push_back(*ref);
+    tPC.push_back(&(*ref));
   }
 
   int tindex=0;
@@ -152,20 +153,20 @@ RecoToSimCollection TrackAssociatorByChi2Impl::associateRecoToSim(const edm::Ref
     recoTrackCovMatrix.Invert();
 
     int tpindex =0;
-    for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
+    for (auto tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
 	
       //skip tps with a very small pt
-      //if (sqrt(tp->momentum().perp2())<0.5) continue;
-      int charge = tp->charge();
+      //if (sqrt((*tp)->momentum().perp2())<0.5) continue;
+      int charge = (*tp)->charge();
       if (charge==0) continue;
-      Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
-      Basic3DVector<double> vert=(Basic3DVector<double>) tp->vertex();
+      Basic3DVector<double> momAtVtx((*tp)->momentum().x(),(*tp)->momentum().y(),(*tp)->momentum().z());
+      Basic3DVector<double> vert=(Basic3DVector<double>) (*tp)->vertex();
 
       double chi2 = getChi2(rParameters,recoTrackCovMatrix,momAtVtx,vert,charge,bs);
       
       if (chi2<chi2cut) {
 	outputCollection.insert(tC[tindex], 
-				std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
+				std::make_pair(tPCH[tpindex],
 					       -chi2));//-chi2 because the Association Map is ordered using std::greater
       }
     }
@@ -181,26 +182,20 @@ SimToRecoCollection TrackAssociatorByChi2Impl::associateSimToReco(const edm::Ref
 
   SimToRecoCollection  outputCollection;
 
-  TrackingParticleCollection tPC;
-  tPC.reserve(tPCH.size());
-  for(auto const& ref: tPCH) {
-    tPC.push_back(*ref);
-  }
-
   int tpindex =0;
-  for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
+  for (auto tp=tPCH.begin(); tp!=tPCH.end(); tp++, ++tpindex){
     
     //skip tps with a very small pt
     //if (sqrt(tp->momentum().perp2())<0.5) continue;
-    int charge = tp->charge();
+    int charge = (*tp)->charge();
     if (charge==0) continue;
     
     LogDebug("TrackAssociator") << "=========LOOKING FOR ASSOCIATION===========" << "\n"
-				<< "TrackingParticle #"<<tpindex<<" with pt=" << sqrt(tp->momentum().perp2()) << "\n"
+				<< "TrackingParticle #"<<tpindex<<" with pt=" << sqrt((*tp)->momentum().perp2()) << "\n"
 				<< "===========================================" << "\n";
     
-    Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
-    Basic3DVector<double> vert(tp->vertex().x(),tp->vertex().y(),tp->vertex().z());
+    Basic3DVector<double> momAtVtx((*tp)->momentum().x(),(*tp)->momentum().y(),(*tp)->momentum().z());
+    Basic3DVector<double> vert((*tp)->vertex().x(),(*tp)->vertex().y(),(*tp)->vertex().z());
       
     int tindex=0;
     for (RefToBaseVector<reco::Track>::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
@@ -219,7 +214,7 @@ SimToRecoCollection TrackAssociatorByChi2Impl::associateSimToReco(const edm::Ref
       double chi2 = getChi2(rParameters,recoTrackCovMatrix,momAtVtx,vert,charge,bs);
       
       if (chi2<chi2cut) {
-	outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH, tpindex),
+	outputCollection.insert(*tp,
 				std::make_pair(tC[tindex],
 					       -chi2));//-chi2 because the Association Map is ordered using std::greater
       }
