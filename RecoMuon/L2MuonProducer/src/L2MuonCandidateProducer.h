@@ -18,14 +18,14 @@
  *   \author  J.Alcaraz
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class L2MuonCandidateProducer : public edm::EDProducer {
+class L2MuonCandidateProducer : public edm::global::EDProducer<> {
 
  public:
 
@@ -36,7 +36,7 @@ class L2MuonCandidateProducer : public edm::EDProducer {
   virtual ~L2MuonCandidateProducer(); 
   
   /// produce candidates
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup&) const override;
   
  private:
   

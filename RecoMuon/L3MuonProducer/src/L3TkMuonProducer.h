@@ -10,7 +10,7 @@
  */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -22,7 +22,7 @@
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class L3TkMuonProducer : public edm::EDProducer {
+class L3TkMuonProducer : public edm::stream::EDProducer<> {
 
  public:
 
@@ -33,7 +33,7 @@ class L3TkMuonProducer : public edm::EDProducer {
   virtual ~L3TkMuonProducer(); 
   
   /// produce candidates
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef edm::Ref<L3MuonTrajectorySeedCollection> SeedRef;
   
