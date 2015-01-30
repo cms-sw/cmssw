@@ -24,10 +24,11 @@ RecoToGenCollection TrackGenAssociatorByChi2Impl::associateRecoToGen(const edm::
 
   RecoToGenCollection  outputCollection;
 
-  GenParticleCollection tPC;
+  //dereference the edm::Refs only once
+  std::vector<GenParticle const*> tPC;
   tPC.reserve(tPCH.size());
   for(auto const& ref: tPCH) {
-    tPC.push_back(*ref);
+    tPC.push_back(&(*ref));
   }
 
   int tindex=0;
@@ -51,20 +52,21 @@ RecoToGenCollection TrackGenAssociatorByChi2Impl::associateRecoToGen(const edm::
     recoTrackCovMatrix.Invert();
 
     int tpindex =0;
-    for (GenParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
+    for (auto tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
 	
       //skip tps with a very small pt
-      //if (sqrt(tp->momentum().perp2())<0.5) continue;
-      int charge = tp->charge();
+      //if (sqrt((*tp)->momentum().perp2())<0.5) continue;
+      int charge = (*tp)->charge();
       if (charge==0) continue;
-      Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
-      Basic3DVector<double> vert=(Basic3DVector<double>) tp->vertex();
+      Basic3DVector<double> momAtVtx((*tp)->momentum().x(),(*tp)->momentum().y(),(*tp)->momentum().z());
+      Basic3DVector<double> vert=(Basic3DVector<double>) (*tp)->vertex();
 
       double chi2 = getChi2(rParameters,recoTrackCovMatrix,momAtVtx,vert,charge,bs);
       
       if (chi2<chi2cut) {
+        //NOTE: tPC and tPCH use the same index for the same object
 	outputCollection.insert(tC[tindex], 
-				std::make_pair(edm::Ref<GenParticleCollection>(tPCH, tpindex),
+				std::make_pair(tPCH[tpindex],
 					       -chi2));//-chi2 because the Association Map is ordered using std::greater
       }
     }
@@ -80,26 +82,20 @@ GenToRecoCollection TrackGenAssociatorByChi2Impl::associateGenToReco(const edm::
 
   GenToRecoCollection  outputCollection;
 
-  GenParticleCollection tPC;
-  tPC.reserve(tPCH.size());
-  for(auto const& ref: tPCH) {
-    tPC.push_back(*ref);
-  }
-
   int tpindex =0;
-  for (GenParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){
+  for (auto tp=tPCH.begin(); tp!=tPCH.end(); tp++, ++tpindex){
     
     //skip tps with a very small pt
-    //if (sqrt(tp->momentum().perp2())<0.5) continue;
-    int charge = tp->charge();
+    //if (sqrt((*tp)->momentum().perp2())<0.5) continue;
+    int charge = (*tp)->charge();
     if (charge==0) continue;
     
     LogDebug("TrackAssociator") << "=========LOOKING FOR ASSOCIATION===========" << "\n"
-				<< "TrackingParticle #"<<tpindex<<" with pt=" << sqrt(tp->momentum().perp2()) << "\n"
+				<< "TrackingParticle #"<<tpindex<<" with pt=" << sqrt((*tp)->momentum().perp2()) << "\n"
 				<< "===========================================" << "\n";
     
-    Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
-    Basic3DVector<double> vert(tp->vertex().x(),tp->vertex().y(),tp->vertex().z());
+    Basic3DVector<double> momAtVtx((*tp)->momentum().x(),(*tp)->momentum().y(),(*tp)->momentum().z());
+    Basic3DVector<double> vert((*tp)->vertex().x(),(*tp)->vertex().y(),(*tp)->vertex().z());
       
     int tindex=0;
     for (RefToBaseVector<reco::Track>::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
@@ -118,7 +114,7 @@ GenToRecoCollection TrackGenAssociatorByChi2Impl::associateGenToReco(const edm::
       double chi2 = getChi2(rParameters,recoTrackCovMatrix,momAtVtx,vert,charge,bs);
       
       if (chi2<chi2cut) {
-	outputCollection.insert(edm::Ref<GenParticleCollection>(tPCH, tpindex),
+	outputCollection.insert(*tp,
 				std::make_pair(tC[tindex],
 					       -chi2));//-chi2 because the Association Map is ordered using std::greater
       }

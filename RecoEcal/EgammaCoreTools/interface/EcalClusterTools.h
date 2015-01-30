@@ -101,6 +101,7 @@ class EcalClusterToolsT {
                 static float e4x4( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology);
 
                 static float e5x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
+                static int   n5x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
 
                 // energy in the 2x5 strip right of the max crystal (does not contain max crystal)
 		// 2 crystals wide in eta, 5 wide in phi.
@@ -177,6 +178,7 @@ class EcalClusterToolsT {
                 // get the energy deposited in a matrix centered in the maximum energy crystal = (0,0)
                 // the size is specified by ixMin, ixMax, iyMin, iyMax in unit of crystals
                 static float matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax );
+                static int matrixSize( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax );
 
                 static float getFraction( const std::vector< std::pair<DetId, float> > &v_id, DetId id);
                 // get the DetId and the energy of the maximum energy crystal in a vector of DetId
@@ -350,6 +352,25 @@ float EcalClusterToolsT<noZS>::matrixEnergy( const reco::BasicCluster &cluster, 
     return energy;
 }
 
+template<bool noZS>
+int EcalClusterToolsT<noZS>::matrixSize( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax )
+{
+    // fast version
+    CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
+    int result = 0;
+    const std::vector< std::pair<DetId, float> >& v_id = cluster.hitsAndFractions();
+    for ( int i = ixMin; i <= ixMax; ++i ) {
+        for ( int j = iyMin; j <= iyMax; ++j ) {
+            cursor.home();
+            cursor.offsetBy( i, j );
+            float frac=getFraction(v_id,*cursor);
+            float energy = recHitEnergy( *cursor, recHits )*frac;
+            if (energy > 0) result++;
+        }
+    }
+    return result;
+}
+
 
 template<bool noZS>
 std::vector<DetId> EcalClusterToolsT<noZS>::matrixDetId( const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax )
@@ -413,6 +434,13 @@ float EcalClusterToolsT<noZS>::e5x5( const reco::BasicCluster &cluster, const Ec
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits ).first;
     return matrixEnergy( cluster, recHits, topology, id, -2, 2, -2, 2 );
+}
+
+template<bool noZS>
+int EcalClusterToolsT<noZS>::n5x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
+{
+    DetId id = getMaximum( cluster.hitsAndFractions(), recHits ).first;
+    return matrixSize( cluster, recHits, topology, id, -2, 2, -2, 2 );
 }
 
 template<bool noZS>
