@@ -9,7 +9,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -20,7 +20,7 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-class CaloMuonMerger : public edm::EDProducer {
+class CaloMuonMerger : public edm::stream::EDProducer<> {
 public:
   explicit CaloMuonMerger(const edm::ParameterSet & iConfig);
   virtual ~CaloMuonMerger() { }
