@@ -161,17 +161,41 @@ class Dataset:
                              for run in selectedRunList ]
                 splitLumiList = list( self.__chunks( lumiList, 255 ) )
             else:
-                theLumiList = LumiList ( filename = jsonPath )
-                allRuns = theLumiList.getRuns()
-                runsToRemove = []
-                for run in allRuns:
-                    if firstRun and int( run ) < firstRun:
-                        runsToRemove.append( run )
-                    if lastRun and int( run ) > lastRun:
-                        runsToRemove.append( run )
-                theLumiList.removeRuns( runsToRemove )
-                splitLumiList = list( self.__chunks(
-                    theLumiList.getCMSSWString().split(','), 255 ) )
+                theLumiList = None
+                try:
+                    theLumiList = LumiList ( filename = jsonPath )
+                except ValueError:
+                    pass
+
+                if theLumiList is not None:
+                    allRuns = theLumiList.getRuns()
+                    runsToRemove = []
+                    for run in allRuns:
+                        if firstRun and int( run ) < firstRun:
+                            runsToRemove.append( run )
+                        if lastRun and int( run ) > lastRun:
+                            runsToRemove.append( run )
+                    theLumiList.removeRuns( runsToRemove )
+                    splitLumiList = list( self.__chunks(
+                        theLumiList.getCMSSWString().split(','), 255 ) )
+                else:
+                    with open(jsonPath) as f:
+                        jsoncontents = f.read()
+                        if "process.source.lumisToProcess" in jsoncontents:
+                            msg = "%s is not a json file, but it seems to be a CMSSW lumi selection cff snippet.  Trying to use it" % jsonPath
+                            if firstRun or lastRun:
+                                msg += ("\n  (after applying firstRun and/or lastRun)")
+                            msg += ".\nPlease note that, depending on the format of this file, it may not work as expected."
+                            msg += "\nCheck your config file to make sure that it worked properly."
+                            print msg
+
+                            self.__firstUsedRun = -1
+                            self.__lastUsedRun = -1
+                            if firstRun or lastRun:
+                                jsoncontents = re.sub("\d+:(\d+|max)-\d+:(\d+|max)", self.getForceRunRangeFunction(firstRun, lastRun), jsoncontents)
+                            lumiSecExtend = jsoncontents
+                            splitLumiList = [[""]]
+
             if not len(splitLumiList[0][0]) == 0:
                 lumiSecStr = [ "',\n'".join( lumis ) \
                                for lumis in splitLumiList ]
@@ -249,6 +273,33 @@ class Dataset:
                         pass
         #if it's not found
         raise KeyError("Can't find " + strings[0])
+
+    def forcerunrange(self, firstRun, lastRun, s):
+        """s must be in the format run1:lum1-run2:lum2"""
+        s = s.group()
+        print s
+        run1 = s.split("-")[0].split(":")[0]
+        lum1 = s.split("-")[0].split(":")[1]
+        run2 = s.split("-")[1].split(":")[0]
+        lum2 = s.split("-")[1].split(":")[1]
+        if int(run2) < firstRun or int(run1) > lastRun:
+            return ""
+        if int(run1) < firstRun or firstRun < 0:
+            run1 = firstRun
+            lum1 = 1
+        if int(run2) > lastRun:
+            run2 = lastRun
+            lum2 = "max"
+        if int(run1) < self.__firstUsedRun:
+            self.__firstUsedRun = int(run1)
+        if int(run2) > self.__lastUsedRun:
+            self.__lastUsedRun = int(run2)
+        return "%s:%s-%s:%s" % (run1, lum1, run2, lum2)
+
+    def getForceRunRangeFunction(self, firstRun, lastRun):
+        def forcerunrangefunction(s):
+            return self.forcerunrange(firstRun, lastRun, s)
+        return forcerunrangefunction
 
     def __getData( self, dasQuery, dasLimit = 0 ):
         dasData = das_client.get_data( 'https://cmsweb.cern.ch',
@@ -734,7 +785,7 @@ if __name__ == '__main__':
                  'Collisions12/8TeV/Prompt/'
                  'Cert_190456-207898_8TeV_PromptReco_Collisions12_JSON.txt' )
     dataset = Dataset( datasetName )
-    print dataset.datasetSnippet( nEvents = 100,jsonPath = jsonFile,
+    print dataset.datasetSnippet( jsonPath = jsonFile,
                                   firstRun = "207800",
                                   end = "20121128")
     dataset.dump_cff( outName = "Dataset_Test_TkAlMinBias_Run2012D",
