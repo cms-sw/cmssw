@@ -223,6 +223,12 @@
   <class name="edm::Ptr<pat::MET>" />
   <class name="edm::Ptr<pat::Conversion>" />
 
+  <class name="edm::FwdPtr<pat::PackedCandidate>" />
+  <class name="std::vector<edm::FwdPtr<pat::PackedCandidate> >" />
+  <class name="edm::Wrapper<edm::FwdPtr<pat::PackedCandidate> >" />
+  <class name="edm::Wrapper<std::vector<edm::FwdPtr<pat::PackedCandidate> > >" />
+
+
   <!-- PAT Object Collections -->
   <class name="std::vector<pat::Electron>" />
   <class name="std::vector<pat::Muon>" />
