@@ -43,9 +43,9 @@ const std::string PFMETAlgorithmMVA::updateVariableNames(std::string input)
   if(input=="jetphi2")   return "jet2_Phi";
   if(input=="nalljet")   return "nJets";
   if(input=="njet")      return "numJetsPtGt30";
-  if(input=="uphi_mva")  return "PhiCorrection_UPhi";
-  if(input=="uphix_mva") return "PhiCorrection_UPhi";
-  if(input=="ux_mva")    return "RecoilCorrection_U";
+  if(input=="uphi_mva")  return "PhiCor_UPhi";
+  if(input=="uphix_mva") return "PhiCor_UPhi";
+  if(input=="ux_mva")    return "RecoilCor_U";
   return input;
 }
 
@@ -62,10 +62,12 @@ const GBRForest* PFMETAlgorithmMVA::loadMVAfromFile(const edm::FileInPath& input
       variableNames.push_back(updateVariableNames(lVec->at(i)));
   }
 
-  if(mvaName.find("U1Correction")  != std::string::npos) varForU_    = variableNames;
-  if(mvaName.find("PhiCorrection") != std::string::npos) varForDPhi_ = variableNames;
-  if(mvaName.find("CovU1")         != std::string::npos) varForCovU1_ = variableNames;
-  if(mvaName.find("CovU2")         != std::string::npos) varForCovU2_ = variableNames;
+  if(mvaName.find(mvaNameU_)      != std::string::npos) varForU_    = variableNames;
+  else if(mvaName.find(mvaNameDPhi_)   != std::string::npos) varForDPhi_ = variableNames;
+  else if(mvaName.find(mvaNameCovU1_)  != std::string::npos) varForCovU1_ = variableNames;
+  else if(mvaName.find(mvaNameCovU2_)  != std::string::npos) varForCovU2_ = variableNames;
+  else throw cms::Exception("PFMETAlgorithmMVA::loadMVA") << "MVA MET weight file tree names do not match specified inputs" << std::endl;
+
 
   const GBRForest* mva = (GBRForest*)inputFile->Get(mvaName.data());
   if ( !mva )
@@ -111,23 +113,19 @@ PFMETAlgorithmMVA::~PFMETAlgorithmMVA()
 //-------------------------------------------------------------------------------
 void PFMETAlgorithmMVA::initialize(const edm::EventSetup& es)
 {
+  edm::ParameterSet cfgInputRecords = cfg_.getParameter<edm::ParameterSet>("inputRecords");
+  mvaNameU_       = cfgInputRecords.getParameter<std::string>("U");
+  mvaNameDPhi_    = cfgInputRecords.getParameter<std::string>("DPhi");
+  mvaNameCovU1_   = cfgInputRecords.getParameter<std::string>("CovU1");
+  mvaNameCovU2_   = cfgInputRecords.getParameter<std::string>("CovU2");
+
   if ( loadMVAfromDB_ ) {
-    edm::ParameterSet cfgInputRecords = cfg_.getParameter<edm::ParameterSet>("inputRecords");
-    mvaNameU_       = cfgInputRecords.getParameter<std::string>("U");
     mvaReaderU_     = loadMVAfromDB(es, mvaNameU_);
-    mvaNameDPhi_    = cfgInputRecords.getParameter<std::string>("DPhi");
     mvaReaderDPhi_  = loadMVAfromDB(es, mvaNameDPhi_);
-    mvaNameCovU1_   = cfgInputRecords.getParameter<std::string>("CovU1");
     mvaReaderCovU1_ = loadMVAfromDB(es, mvaNameCovU1_);
-    mvaNameCovU2_   = cfgInputRecords.getParameter<std::string>("CovU2");
     mvaReaderCovU2_ = loadMVAfromDB(es, mvaNameCovU2_);
   } else {
     edm::ParameterSet cfgInputFileNames = cfg_.getParameter<edm::ParameterSet>("inputFileNames");
-    
-    mvaNameU_      = "U1Correction";
-    mvaNameDPhi_   = "PhiCorrection";
-    mvaNameCovU1_  = "CovU1";
-    mvaNameCovU2_  = "CovU2";
     
     edm::FileInPath inputFileNameU = cfgInputFileNames.getParameter<edm::FileInPath>("U");
     mvaReaderU_     = loadMVAfromFile(inputFileNameU, mvaNameU_);
@@ -207,13 +205,7 @@ Float_t* PFMETAlgorithmMVA::createFloatVector(std::vector<std::string> variableN
     int i = 0;
     for(auto variableName: variableNames)
     {
-        int slashPos = variableName.find("/");
-        if ( slashPos == -1)
-            floatVector[i++] = var_[variableName];
-        else // evaluate the slashes in the input. Might be replaced by root's evaluation functionality
-        {
-            floatVector[i++] = var_[variableName.substr(0, slashPos)] / var_[variableName.substr(slashPos+1, variableName.size()-1-slashPos)];
-        }
+        floatVector[i++] = var_[variableName];
     }
     return floatVector;
 }
@@ -224,9 +216,10 @@ void PFMETAlgorithmMVA::evaluateMVA()
   // CV: MVAs needs to be evaluated in order { DPhi, U1, CovU1, CovU2 }
   //     as MVA for U1 (CovU1, CovU2) uses output of DPhi (DPhi and U1) MVA
   mvaOutputDPhi_  = GetResponse(mvaReaderDPhi_, varForDPhi_);
-  var_["PhiCorrection_UPhi"] = var_["particleFlow_UPhi"] + mvaOutputDPhi_;
+  var_["PhiCor_UPhi"] = var_["particleFlow_UPhi"] + mvaOutputDPhi_;
   mvaOutputU_     = GetResponse(mvaReaderU_, varForU_);
-  var_["RecoilCorrection_U"] = var_["particleFlow_U"] * mvaOutputU_;
+  var_["RecoilCor_U"] = var_["particleFlow_U"] * mvaOutputU_;
+  var_["RecoilCor_UPhi"] = var_["PhiCor_UPhi"];
   mvaOutputCovU1_ = GetResponse(mvaReaderCovU1_, varForCovU1_)* mvaOutputU_ * var_["particleFlow_U"];
   mvaOutputCovU2_ = GetResponse(mvaReaderCovU2_, varForCovU2_)* mvaOutputU_ * var_["particleFlow_U"];
 
@@ -244,8 +237,8 @@ void PFMETAlgorithmMVA::evaluateMVA()
 
 void PFMETAlgorithmMVA::computeMET()
 {
-    double U      = var_["RecoilCorrection_U"];
-    double Phi    = var_["PhiCorrection_UPhi"];
+    double U      = var_["RecoilCor_U"];
+    double Phi    = var_["PhiCor_UPhi"];
     if ( U < 0. ) Phi += Pi; //RF: No sign flip for U necessary in that case?
     double cosPhi = cos(Phi);
     double sinPhi = sin(Phi);
