@@ -9,30 +9,50 @@ process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-# print event number once every 1000 events
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+#process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 
 process.source = cms.Source('LHESource',
-    fileNames = cms.untracked.vstring('file:/data4/juwu/LHE/dy0j_5f_LO_MLM.lhe')
+    fileNames = cms.untracked.vstring('file:w01j_5f_NLO.lhe')
 )
-
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'POSTLS172_V7::All', '')
 
 process.load('Configuration.Generator.HerwigppDefaults_cfi')
 
 process.generator = cms.EDFilter('ThePEGHadronizerFilter',
     process.herwigDefaultsBlock,
     configFiles = cms.vstring(),
+    lheDefaults1 = cms.vstring(
+         'cd /Herwig/Cuts',
+         'create ThePEG::Cuts NoCuts',
+         'cd /Herwig/EventHandlers',
+         'create ThePEG::LesHouchesInterface LHEReader',
+         'set LHEReader:Cuts /Herwig/Cuts/NoCuts',
+         'create ThePEG::LesHouchesEventHandler LHEHandler',
+#         'set LHEHandler:WeightOption VarWeight',
+         'set LHEHandler:WeightOption 1',
+         'set LHEHandler:PartonExtractor /Herwig/Partons/QCDExtractor',
+         'set LHEHandler:CascadeHandler /Herwig/Shower/ShowerHandler',
+         'set LHEHandler:HadronizationHandler /Herwig/Hadronization/ClusterHadHandler',
+         'set LHEHandler:DecayHandler /Herwig/Decays/DecayHandler',
+         'insert LHEHandler:LesHouchesReaders 0 LHEReader',
+         'cd /Herwig/Generators',
+         'set LHCGenerator:EventHandler /Herwig/EventHandlers/LHEHandler',
+         'cd /Herwig/Shower',
+         'set Evolver:HardVetoScaleSource Read',
+         'set Evolver:MECorrMode No',
+         'cd /',
+    ),
+    lheDefaultPDFs1 = cms.vstring(
+#         'set /Herwig/EventHandlers/LHEReader:PDFA /Herwig/Partons/myPDFset',
+#         'set /Herwig/EventHandlers/LHEReader:PDFB /Herwig/Partons/myPDFset',
+    ),
     parameterSets = cms.vstring(
         'cmsDefaults',  # NOTE: pp@14TeV by default
-        'lheDefaults',
+        'lheDefaults1',
         #'cm14TeV',
     ),
 )
@@ -54,5 +74,6 @@ process.output_step = cms.EndPath(process.RAWSIMoutput)
 
 process.schedule = cms.Schedule(process.generation_step,process.endjob_step,process.output_step)
 
+# filter all path with the production filter sequence
 for path in process.paths:
     getattr(process,path)._seq = process.generator * getattr(process,path)._seq
