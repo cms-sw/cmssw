@@ -28,7 +28,7 @@ class MuonSelectionTypeValueMapProducer : public edm::stream::EDProducer<> {
         virtual ~MuonSelectionTypeValueMapProducer() {}
 
     private:
-        virtual void produce(edm::Event&, const edm::EventSetup&);
+        virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
         edm::InputTag inputMuonCollection_;
 	edm::EDGetTokenT<reco::MuonCollection> muonToken_;
