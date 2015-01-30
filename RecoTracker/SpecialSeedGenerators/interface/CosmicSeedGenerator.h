@@ -34,6 +34,10 @@ class CosmicSeedGenerator : public edm::EDProducer
   edm::ParameterSet conf_;
   SeedGeneratorForCosmics  cosmic_seed;
   ClusterChecker check;
+  // get Inputs
+  edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> matchedrecHitsToken_;
+  edm::EDGetTokenT<SiStripRecHit2DCollection> rphirecHitsToken_;
+  edm::EDGetTokenT<SiStripRecHit2DCollection> stereorecHitsToken_;
 
 
 };
