@@ -9,6 +9,7 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "Cintex/Cintex.h"
 
 
 class testExpressionEvaluator : public CppUnit::TestFixture {
@@ -17,7 +18,7 @@ class testExpressionEvaluator : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  testExpressionEvaluator() {}
+  testExpressionEvaluator() {ROOT::Cintex::Cintex::Enable();} // for crappy pats
   ~testExpressionEvaluator(){}
   void checkAll(); 
 
@@ -34,7 +35,7 @@ namespace {
      std::string sexpr = "double eval(reco::LeafCandidate const& cand) const override { return ";
      sexpr += expression + ";}";
      // construct the expression evaluator (pkg where precompile.h resides, name of base class, declaration of overloaded member function)
-     reco::ExpressionEvaluator eval("ExpressionEvaluatorTests/EEIntTest","reco::ValueOnObject<reco::LeafCandidate>",sexpr.c_str());
+     reco::ExpressionEvaluator eval("CommonTools/CandUtils","reco::ValueOnObject<reco::LeafCandidate>",sexpr.c_str());
      // obtain a pointer to the base class  (to be stored in Filter and Analyser at thier costruction time!)
      reco::ValueOnObject<reco::LeafCandidate> const * expr = eval.expr<reco::ValueOnObject<reco::LeafCandidate>>();
      CPPUNIT_ASSERT(expr);
@@ -70,7 +71,7 @@ namespace {
       sexpr += "mask(c,m,cut); }";
       std::cerr << "testing " << sexpr << std::endl;
       try {
-        reco::ExpressionEvaluator eval("ExpressionEvaluatorTests/EEIntTest","reco::MaskCollection<reco::LeafCandidate>",sexpr.c_str());
+        reco::ExpressionEvaluator eval("CommonTools/CandUtils","reco::MaskCollection<reco::LeafCandidate>",sexpr.c_str());
         m_selector = eval.expr<Selector>();
         CPPUNIT_ASSERT(m_selector);
       } catch(cms::Exception const & e) {
@@ -105,7 +106,7 @@ namespace {
       sexpr += "select(c,cut); }";
       std::cerr << "testing " << sexpr << std::endl;
       try {
-	reco::ExpressionEvaluator eval("ExpressionEvaluatorTests/EEIntTest","reco::SelectInCollection<reco::LeafCandidate>",sexpr.c_str());
+	reco::ExpressionEvaluator eval("CommonTools/CandUtils","reco::SelectInCollection<reco::LeafCandidate>",sexpr.c_str());
         m_selector = eval.expr<Selector>();
         CPPUNIT_ASSERT(m_selector);
       } catch(cms::Exception const & e) {
@@ -163,5 +164,38 @@ void testExpressionEvaluator::checkAll() {
   MyAnalyzer2 analyzer2("cand.pt()>15 & std::abs(cand.eta())<2");
   analyzer2.analyze();
 
+
+  // pat
+
+  std::vector<reco::LeafCandidate> cands;
+  cands.push_back(c1);  cands.push_back(c2); 
+  edm::TestHandle<std::vector<reco::LeafCandidate> > constituentsHandle(&cands, edm::ProductID(42));
+  reco::Jet::Constituents constituents;
+  constituents.push_back( reco::Jet::Constituent(constituentsHandle, 0) );
+  constituents.push_back( reco::Jet::Constituent(constituentsHandle, 1) );
+  reco::CaloJet::Specific caloSpecific; caloSpecific.mMaxEInEmTowers = 0.5;
+  pat::Jet jet(reco::CaloJet(p1+p2, reco::Jet::Point(), caloSpecific, constituents));
+  { 
+  std::string expression = "jet.userData<std::vector<int>>(\"my2int\")";
+  std::cerr << "testing " << expression << std::endl;
+    try {
+     //provide definition of the virtual function as a string
+     std::string sexpr = "std::vector<int> const * operator()(pat::Jet const& jet) const override { return ";
+     sexpr += expression + ";}";
+     // obtain a pointer to the base class  (to be stored in Filter and Analyser at thier costruction time!)
+     auto const * expr = reco_expressionEvaluator("CommonTools/RecoUtils",SINGLE_ARG(reco::genericExpression<std::vector<int> const *, pat::Jet const &>),sexpr);
+     CPPUNIT_ASSERT(expr);
+     // invoke
+     CPPUNIT_ASSERT((*expr)(jet)==nullptr);
+     jet.addUserData("my2int",std::vector<int>(2,-1));
+     CPPUNIT_ASSERT(jet.userData<std::vector<int>>("my2int")->size()==2);
+     std::cout << "now expr eval" << std::endl;
+     CPPUNIT_ASSERT((*expr)(jet)->size()==2);
+    } catch(cms::Exception const & e) {
+      // if compilation fails, the compiler output is part of the exception message
+      std::cerr << e.what()  << std::endl;
+      CPPUNIT_ASSERT("ExpressionEvaluator threw"==0);
+    }
+  }
 
 }

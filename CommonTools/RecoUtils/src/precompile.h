@@ -1,7 +1,5 @@
 // for integration test 
 #include "CommonTools/Utils/interface/ExpressionEvaluatorTemplates.h"
-#include <numeric>
-#include<memory>
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
