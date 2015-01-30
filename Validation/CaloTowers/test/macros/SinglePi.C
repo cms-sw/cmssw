@@ -1,4 +1,23 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
+#include "TH1.h"
+#include "TH2.h"
+#include "TLegend.h"
+#include "TCanvas.h"
+#include "TProfile.h"
+#include "TPaveStats.h"
+#include "TFile.h"
+#include "TString.h"
+#include "TList.h"
+#include "TStyle.h"
+#include "TClass.h"
+#include "TKey.h"
+#include "TDirectory.h"
+
+#include <cstdio>
+#include <string>
+#include <iostream>
+
+TDirectory* fileDirectory( TDirectory *target, std::string s);
 
 void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6", bool fastsim=false){
 
@@ -16,107 +35,114 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    TProfile* f1_prof[Nprof];
    TProfile* f2_prof[Nprof];
 
-   char *labelp[Nprof];
+   char labelp[Nprof][64];
 
    //1D Histos
    const int Nhist1  = 7;
 
-   TH1F* f1_hist1[Nhist1];
-   TH1F* f2_hist1[Nhist1];
+   TH1* f1_hist1[Nhist1];
+   TH1* f2_hist1[Nhist1];
 
-   char *label1[Nhist1];
+   char label1[Nhist1][64];
 
    //Labels
    //Profiles
-   labelp[0] = &"CaloTowersTask_emean_vs_ieta_E1.gif";
-   labelp[1] = &"CaloTowersTask_emean_vs_ieta_H1.gif";
-   labelp[2] = &"CaloTowersTask_emean_vs_ieta_EH1.gif";
+   sprintf(labelp[0], "CaloTowersTask_emean_vs_ieta_E1.gif");
+   sprintf(labelp[1], "CaloTowersTask_emean_vs_ieta_H1.gif");
+   sprintf(labelp[2], "CaloTowersTask_emean_vs_ieta_EH1.gif");
 
-   labelp[3] = &"RecHitsTask_emean_vs_ieta_E.gif";
-   labelp[4] = &"RecHitsTask_emean_vs_ieta_H.gif";
-   labelp[5] = &"RecHitsTask_emean_vs_ieta_EH.gif";
+   sprintf(labelp[3], "RecHitsTask_emean_vs_ieta_E.gif");
+   sprintf(labelp[4], "RecHitsTask_emean_vs_ieta_H.gif");
+   sprintf(labelp[5], "RecHitsTask_emean_vs_ieta_EH.gif");
    if (!fastsim) {
-     labelp[6] = &"SimHitsTask_emean_vs_ieta_E.gif";
-     labelp[7] = &"SimHitsTask_emean_vs_ieta_H.gif";
-     labelp[8] = &"SimHitsTask_emean_vs_ieta_EH.gif";
+       sprintf(labelp[6], "SimHitsTask_emean_vs_ieta_E.gif");
+       sprintf(labelp[7], "SimHitsTask_emean_vs_ieta_H.gif");
+       sprintf(labelp[8], "SimHitsTask_emean_vs_ieta_EH.gif");
    }
-   labelp[9]  = &"RecHitsTask_timing_vs_energy_profile_HB.gif";
-   labelp[10] = &"RecHitsTask_timing_vs_energy_profile_HE.gif";
-   labelp[11] = &"RecHitsTask_timing_vs_energy_profile_HF.gif";
+   sprintf(labelp[9], "RecHitsTask_timing_vs_energy_profile_HB.gif");
+   sprintf(labelp[10], "RecHitsTask_timing_vs_energy_profile_HE.gif");
+   sprintf(labelp[11], "RecHitsTask_timing_vs_energy_profile_HF.gif");
 
 
 
    //1D Histos
-   label1[0] = &"N_calotowers_HB.gif";
-   label1[1] = &"N_calotowers_HE.gif";
-   label1[2] = &"N_calotowers_HF.gif";
+   sprintf(label1[0], "N_calotowers_HB.gif");
+   sprintf(label1[1], "N_calotowers_HE.gif");
+   sprintf(label1[2], "N_calotowers_HF.gif");
    
-   label1[3] = &"RecHits_energy_HB.gif";
-   label1[4] = &"RecHits_energy_HE.gif";
-   label1[5] = &"RecHits_energy_HO.gif";
-   label1[6] = &"RecHits_energy_HF.gif";
+   sprintf(label1[3], "RecHits_energy_HB.gif");
+   sprintf(label1[4], "RecHits_energy_HE.gif");
+   sprintf(label1[5], "RecHits_energy_HO.gif");
+   sprintf(label1[6], "RecHits_energy_HF.gif");
 
+   TDirectory *td = fileDirectory(&f1, "CaloTowersTask");
+   //f1.cd("DQMData/CaloTowersV/CaloTowersTask");
+   //gDirectory->pwd();
+   td->pwd();
+   f1_prof[0] = (TProfile*)td->Get("emean_vs_ieta_E1");
+   f1_prof[1] = (TProfile*)td->Get("emean_vs_ieta_H1");
+   f1_prof[2] = (TProfile*)td->Get("emean_vs_ieta_EH1");
 
-   f1.cd("DQMData/CaloTowersV/CaloTowersTask");
-   gDirectory->pwd();
-   f1_prof[0] = emean_vs_ieta_E1;
-   f1_prof[1] = emean_vs_ieta_H1;
-   f1_prof[2] = emean_vs_ieta_EH1;
+   f1_hist1[0] = (TH1*)td->Get("CaloTowersTask_number_of_fired_towers_HB");
+   f1_hist1[1] = (TH1*)td->Get("CaloTowersTask_number_of_fired_towers_HE");
+   f1_hist1[2] = (TH1*)td->Get("CaloTowersTask_number_of_fired_towers_HF");
 
-   f1_hist1[0] = CaloTowersTask_number_of_fired_towers_HB;
-   f1_hist1[1] = CaloTowersTask_number_of_fired_towers_HE;
-   f1_hist1[2] = CaloTowersTask_number_of_fired_towers_HF;
+   td = fileDirectory(&f1, "HcalRecHitTask");
+   //f1.cd("DQMData/HcalRecHitsV/HcalRecHitTask");
+   f1_prof[3] = (TProfile*)td->Get("HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E");
+   f1_prof[4] = (TProfile*)td->Get("HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths");
+   f1_prof[5] = (TProfile*)td->Get("HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH");
 
-   f1.cd("DQMData/HcalRecHitsV/HcalRecHitTask");
-   f1_prof[3] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E;
-   f1_prof[4] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths;
-   f1_prof[5] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH;
+   f1_prof[9] = (TProfile*)td->Get("HcalRecHitTask_timing_vs_energy_profile_HB");
+   f1_prof[10] = (TProfile*)td->Get("HcalRecHitTask_timing_vs_energy_profile_Low_HE");
+   f1_prof[11] = (TProfile*)td->Get("HcalRecHitTask_timing_vs_energy_profile_Low_HF");
 
-   f1_prof[9] = HcalRecHitTask_timing_vs_energy_profile_HB;   
-   f1_prof[10] = HcalRecHitTask_timing_vs_energy_profile_Low_HE;   
-   f1_prof[11] = HcalRecHitTask_timing_vs_energy_profile_Low_HF;   
-
-   f1_hist1[3] = HcalRecHitTask_energy_of_rechits_HB;
-   f1_hist1[4] = HcalRecHitTask_energy_of_rechits_HE;
-   f1_hist1[5] = HcalRecHitTask_energy_of_rechits_HO;
-   f1_hist1[6] = HcalRecHitTask_energy_of_rechits_HF;   
+   f1_hist1[3] = (TH1*)td->Get("HcalRecHitTask_energy_of_rechits_HB");
+   f1_hist1[4] = (TH1*)td->Get("HcalRecHitTask_energy_of_rechits_HE");
+   f1_hist1[5] = (TH1*)td->Get("HcalRecHitTask_energy_of_rechits_HO");
+   f1_hist1[6] = (TH1*)td->Get("HcalRecHitTask_energy_of_rechits_HF");   
 
    if (!fastsim) {
-     f1.cd("DQMData/HcalSimHitsV/HcalSimHitTask");
-     f1_prof[6] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_E;
-     f1_prof[7] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths;
-     f1_prof[8] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_EH;
+       td = fileDirectory(&f1, "HcalSimHitTask");
+       //f1.cd("DQMData/HcalSimHitsV/HcalSimHitTask");
+       f1_prof[6] = (TProfile*)td->Get("HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_E");
+       f1_prof[7] = (TProfile*)td->Get("HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths");
+       f1_prof[8] = (TProfile*)td->Get("HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_EH");
    }
 
-   f2.cd("DQMData/CaloTowersV/CaloTowersTask");
-   gDirectory->pwd();
-   f2_prof[0] = emean_vs_ieta_E1;
-   f2_prof[1] = emean_vs_ieta_H1;
-   f2_prof[2] = emean_vs_ieta_EH1;
+   td = fileDirectory(&f2, "CaloTowersTask");
+   //f2.cd("DQMData/CaloTowersV/CaloTowersTask");
+   //gDirectory->pwd();
+   td->pwd();
+   f2_prof[0] = (TProfile*)td->Get("emean_vs_ieta_E1");
+   f2_prof[1] = (TProfile*)td->Get("emean_vs_ieta_H1");
+   f2_prof[2] = (TProfile*)td->Get("emean_vs_ieta_EH1");
 
-   f2_hist1[0] = CaloTowersTask_number_of_fired_towers_HB;
-   f2_hist1[1] = CaloTowersTask_number_of_fired_towers_HE;
-   f2_hist1[2] = CaloTowersTask_number_of_fired_towers_HF;
+   f2_hist1[0] = (TH1*)td->Get("CaloTowersTask_number_of_fired_towers_HB");
+   f2_hist1[1] = (TH1*)td->Get("CaloTowersTask_number_of_fired_towers_HE");
+   f2_hist1[2] = (TH1*)td->Get("CaloTowersTask_number_of_fired_towers_HF");
 
-   f2.cd("DQMData/HcalRecHitsV/HcalRecHitTask");
-   f2_prof[3] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E;
-   f2_prof[4] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths;
-   f2_prof[5] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH;
+   td = fileDirectory(&f2, "HcalRecHitTask");
+   //f2.cd("DQMData/HcalRecHitsV/HcalRecHitTask");
+   f2_prof[3] = (TProfile*)td->Get("HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E");
+   f2_prof[4] = (TProfile*)td->Get("HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths");
+   f2_prof[5] = (TProfile*)td->Get("HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH");
 
-   f2_prof[9] = HcalRecHitTask_timing_vs_energy_profile_HB;   
-   f2_prof[10] = HcalRecHitTask_timing_vs_energy_profile_Low_HE;   
-   f2_prof[11] = HcalRecHitTask_timing_vs_energy_profile_Low_HF;   
+   f2_prof[9] = (TProfile*)td->Get("HcalRecHitTask_timing_vs_energy_profile_HB");
+   f2_prof[10] = (TProfile*)td->Get("HcalRecHitTask_timing_vs_energy_profile_Low_HE");
+   f2_prof[11] = (TProfile*)td->Get("HcalRecHitTask_timing_vs_energy_profile_Low_HF"); 
 
-   f2_hist1[3] = HcalRecHitTask_energy_of_rechits_HB;
-   f2_hist1[4] = HcalRecHitTask_energy_of_rechits_HE;
-   f2_hist1[5] = HcalRecHitTask_energy_of_rechits_HO;
-   f2_hist1[6] = HcalRecHitTask_energy_of_rechits_HF;
+   f2_hist1[3] = (TH1*)td->Get("HcalRecHitTask_energy_of_rechits_HB");
+   f2_hist1[4] = (TH1*)td->Get("HcalRecHitTask_energy_of_rechits_HE");
+   f2_hist1[5] = (TH1*)td->Get("HcalRecHitTask_energy_of_rechits_HO");
+   f2_hist1[6] = (TH1*)td->Get("HcalRecHitTask_energy_of_rechits_HF");
 
    if (!fastsim) {
-     f2.cd("DQMData/HcalSimHitsV/HcalSimHitTask");
-     f2_prof[6] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_E;
-     f2_prof[7] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths;
-     f2_prof[8] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_EH;
+       td = fileDirectory(&f2, "HcalSimHitTask");
+       //f2.cd("DQMData/HcalSimHitsV/HcalSimHitTask");
+       f2_prof[6] = (TProfile*)td->Get("HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_E");
+       f2_prof[7] = (TProfile*)td->Get("HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths");
+       f2_prof[8] = (TProfile*)td->Get("HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_EH");
    }
 
    //Profiles
@@ -252,10 +278,10 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
      ptstats->SetTextColor(41);
      f1_hist1[i]->GetListOfFunctions()->Add(ptstats);
      ptstats->SetParent(f1_hist1[i]->GetListOfFunctions());
-     TPaveStats *ptstats = new TPaveStats(0.85,0.74,0.98,0.86,"brNDC");
-     ptstats->SetTextColor(43);
-     f2_hist1[i]->GetListOfFunctions()->Add(ptstats);
-     ptstats->SetParent(f2_hist1[i]->GetListOfFunctions());
+     TPaveStats *ptstats2 = new TPaveStats(0.85,0.74,0.98,0.86,"brNDC");
+     ptstats2->SetTextColor(43);
+     f2_hist1[i]->GetListOfFunctions()->Add(ptstats2);
+     ptstats2->SetParent(f2_hist1[i]->GetListOfFunctions());
          
      f1_hist1[i]->Draw(""); // "stat"   
      f2_hist1[i]->Draw("histsames");   
@@ -330,7 +356,7 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
 
   TCanvas *myc = new TCanvas("myc","",800,600);
 
-  TProfile* ratio1 = f2_prof[2]->Clone();
+  TProfile* ratio1 = (TProfile*)f2_prof[2]->Clone();
   ratio1->Divide(f1_prof[2]);
   ratio1->SetMaximum(1.2);
   ratio1->SetMinimum(0.8);
@@ -356,3 +382,33 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    return ;  
      
 }
+
+TDirectory* fileDirectory( TDirectory *target, std::string s) 
+{
+    TDirectory *retval = 0;
+
+    // loop over all keys in this directory
+    TIter nextkey(target->GetListOfKeys());
+    TKey *key, *oldkey=0;
+    while((key = (TKey*)nextkey())) 
+    {
+	//keep only the highest cycle number for each key
+	if (oldkey && !strcmp(oldkey->GetName(),key->GetName())) continue;
+
+	// read object from file
+	target->cd();
+	TObject *obj = key->ReadObj();
+	
+	if(obj->IsA()->InheritsFrom(TDirectory::Class())) 
+	{
+	    // it's a subdirectory
+	    //cout << "Found subdirectory " << obj->GetName() << endl;
+	    if(strcmp(s.c_str(), obj->GetName()) == 0) return (TDirectory*)obj;
+	    
+	    if((retval = fileDirectory((TDirectory*)obj, s))) break;
+	    
+	}
+    }
+    return retval;
+}
+
