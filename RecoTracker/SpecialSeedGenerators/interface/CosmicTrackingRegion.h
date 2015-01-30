@@ -12,12 +12,13 @@
 #include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
-#include <vector>
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
 
+#include <vector>
 
 using SeedingHit = BaseTrackerRecHit const *;
 
@@ -55,9 +56,11 @@ public:
 			const GlobalPoint & vertexPos,
 			float ptMin, float rVertex, float zVertex,
 			float deltaEta, float deltaPhi,
-			float dummy = 0.)			
+			float dummy = 0.,
+                        const MeasurementTrackerEvent * measurementTracker = nullptr)
     : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin), 
 			  rVertex, zVertex),
+      theMeasurementTracker_(measurementTracker),
       measurementTrackerName_("")
   { }
   
@@ -65,16 +68,19 @@ public:
 		       const GlobalPoint & vertexPos,
 		       float ptMin, float rVertex, float zVertex,
 		       float deltaEta, float deltaPhi,
-		       const edm::ParameterSet & extra)
+		       const edm::ParameterSet & extra,
+                       const MeasurementTrackerEvent * measurementTracker = nullptr)
     : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin),
-			  rVertex, zVertex)
-  {
+			  rVertex, zVertex),
+      theMeasurementTracker_(measurementTracker)
+      {
 	measurementTrackerName_ = extra.getParameter<std::string>("measurementTrackerName");
-  }
-  
+      }
+
   CosmicTrackingRegion(CosmicTrackingRegion const & rh) : 
   TrackingRegionBase(rh),
-  measurementTrackerName_(rh.measurementTrackerName_){}
+      theMeasurementTracker_(rh.theMeasurementTracker_),
+      measurementTrackerName_(rh.measurementTrackerName_){}
   
   virtual TrackingRegion::ctfHits 
   hits(
@@ -108,6 +114,7 @@ private:
 
 
 
+  const MeasurementTrackerEvent *theMeasurementTracker_;
   std::string measurementTrackerName_;
 
   using cacheHitPointer = mayown_ptr<BaseTrackerRecHit>;
