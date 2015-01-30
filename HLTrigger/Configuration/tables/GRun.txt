@@ -80,7 +80,7 @@ HLT_IsoMu20_eta2p1_TriCentralPFJet50_40_30_v*			# JIRA: CMSHLT-193
 HLT_IsoMu20_eta2p1_TriCentralPFJet30_v*				# JIRA: CMSHLT-193
 HLT_IsoMu20_eta2p1_CentralPFJet30_BTagCSV07_v*			# JIRA: CMSHLT-193
 HLT_IsoMu24_eta2p1_TriCentralPFJet50_40_30_v*			# JIRA: CMSHLT-193
-HLT_IsoMu24_eta2p1_TriCentralPFJet00_v*				# JIRA: CMSHLT-193
+HLT_IsoMu24_eta2p1_TriCentralPFJet30_v*				# JIRA: CMSHLT-193
 HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV07_v*			# JIRA: CMSHLT-193
 HLT_Ele27_eta2p1_WP75_Gsf_v*					# JIRA: CMSHLT-193
 HLT_Ele32_eta2p1_WP75_Gsf_v*					# JIRA: CMSHLT-193

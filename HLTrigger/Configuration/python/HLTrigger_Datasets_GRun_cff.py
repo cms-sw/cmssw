@@ -123,6 +123,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_IsoMu20_v1', 
     'HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV07_v1', 
     'HLT_IsoMu24_eta2p1_LooseIsoPFTau20_v1', 
+    'HLT_IsoMu24_eta2p1_TriCentralPFJet30_v1', 
     'HLT_IsoMu24_eta2p1_TriCentralPFJet50_40_30_v1', 
     'HLT_IsoMu24_eta2p1_v1', 
     'HLT_IsoMu27_v1', 
