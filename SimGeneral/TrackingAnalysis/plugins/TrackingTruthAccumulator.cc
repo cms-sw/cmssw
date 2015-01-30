@@ -620,14 +620,16 @@ namespace // Unnamed namespace for things only used in this file
 			if( processType==pSimHit->processType() && particleType==pSimHit->particleType() && pdgId==pSimHit->particleType() )
 			{
 				++numberOfHits;
-				if( newDetector.det() == DetId::Tracker ) ++numberOfTrackerHits;
-
 				oldLayer=newLayer;
-				newLayer=tTopo->layer( newDetector );
+                                newLayer=0;
+				if( newDetector.det() == DetId::Tracker ) {
+                                  ++numberOfTrackerHits;
 
-				// Count hits using layers for glued detectors
-				// newlayer !=0 excludes Muon layers set to 0 by LayerFromDetid
-				if( (oldLayer!=newLayer || (oldLayer==newLayer && oldDetector.subdetId()!=newDetector.subdetId())) && newLayer!=0 ) ++matchedHits;
+                                  newLayer=tTopo->layer( newDetector );
+
+                                  // Count hits using layers for glued detectors
+                                  if( (oldLayer!=newLayer || (oldLayer==newLayer && oldDetector.subdetId()!=newDetector.subdetId())) ) ++matchedHits;
+                                }
 			}
 		} // end of loop over the sim hits for this sim track
 
