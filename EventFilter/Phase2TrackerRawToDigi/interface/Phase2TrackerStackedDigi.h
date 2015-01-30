@@ -159,12 +159,8 @@ namespace Phase2Tracker
 
   bool stackedDigi::operator<(const stackedDigi d2) const
   {
-    // in PS modules, P should always come before S, independantly of the chipid
-    if(moduletype_ == 1)
-    {
-      if(layer_ < d2.getLayer()) { return true;  }
-      if(layer_ > d2.getLayer()) { return false; }
-    }
+    if(layer_ < d2.getLayer()) { return true;  }
+    if(layer_ > d2.getLayer()) { return false; }
     if (chipid_ <  d2.getChipId()) { return true; }
     if (chipid_ == d2.getChipId() and rawx_ < d2.getRawX() ) { return true; }
     if (chipid_ == d2.getChipId() and rawx_ == d2.getRawX() and rawy_ < d2.getRawY()) { return true; }

@@ -91,6 +91,7 @@ namespace Phase2Tracker {
               Merge();
           }
           inline uint8_t rawX()     const { return (uint8_t)read_n_at_m(data_,8,3+currentOffset_); }
+          inline int Plane()        const { return rawX()%2; }
           inline uint8_t rawSize()  const { return (uint8_t)read_n_at_m(data_,3,currentOffset_)+1; }
           inline uint8_t chipId()   const { return (uint8_t)read_n_at_m(data_,4,11+currentOffset_); }
           int unMergedX() const; 
@@ -115,7 +116,7 @@ namespace Phase2Tracker {
   bool Phase2TrackerFEDZSSon2SChannelUnpacker::gluedToNextCluster() const
   {
     uint8_t size = rawSize();
-    if (clustersLeft_ <= 1 or this->next().unMergedY() != unMergedY()) return false; 
+    if (clustersLeft_ <= 1 or this->next().unMergedY() != unMergedY() or this->next().Plane() != Plane()) return false; 
     if (this->next().unMergedX() == unMergedX() + size) 
     {
       if(size == 8 or (unMergedX() + size)%(STRIPS_PER_CBC/2) == 0) return true;
