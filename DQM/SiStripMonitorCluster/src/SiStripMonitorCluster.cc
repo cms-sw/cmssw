@@ -41,7 +41,7 @@
 
 //--------------------------------------------------------------------------------------------
 SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig)
-  : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(false), reset_each_run(false), m_cacheID_(0)
+  : conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(false), reset_each_run(false), m_cacheID_(0)
 					    //  , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig, consumesCollector()))
 {
 
@@ -156,6 +156,9 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig)
   dk0 = ClusterMultiplicityRegions.getParameter<double>("dk0");
   maxClus = ClusterMultiplicityRegions.getParameter<double>("MaxClus");
   minPix = ClusterMultiplicityRegions.getParameter<double>("MinPix");
+
+  edm::ParameterSet ParametersNclusVsCycleTimeProf2D = conf_.getParameter<edm::ParameterSet>("NclusVsCycleTimeProf2D");
+  globalswitchnclusvscycletimeprof2don = ParametersNclusVsCycleTimeProf2D.getParameter<bool>("globalswitchon");
 
   clustertkhistomapon = conf_.getParameter<bool>("TkHistoMap_On");
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
@@ -396,6 +399,21 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es , DQMStore::IBoo
 					     GlobalTH1Parameters.getParameter<double>("xmin"),
 					     GlobalTH1Parameters.getParameter<double>("xmax"));
       StripNoise3Cycle->setAxisTitle("APV Cycle");
+    }
+
+    if ( globalswitchnclusvscycletimeprof2don ) {
+      const char* HistoName  = "StripClusVsBXandOrbit";
+      const char* HistoTitle = "Strip cluster multiplicity vs BX mod(70) and Orbit;Event 1 BX mod(70);time [Orb#]";
+      edm::ParameterSet ParametersNclusVsCycleTimeProf2D = conf_.getParameter<edm::ParameterSet>("NclusVsCycleTimeProf2D");
+      NclusVsCycleTimeProf2D = ibooker.bookProfile2D ( HistoName , HistoTitle ,
+						       ParametersNclusVsCycleTimeProf2D.getParameter<int32_t>("Nbins"),
+						       ParametersNclusVsCycleTimeProf2D.getParameter<double>("xmin"),
+						       ParametersNclusVsCycleTimeProf2D.getParameter<double>("xmax"),
+						       ParametersNclusVsCycleTimeProf2D.getParameter<int32_t>("Nbinsy"),
+						       ParametersNclusVsCycleTimeProf2D.getParameter<double>("ymin"),
+						       ParametersNclusVsCycleTimeProf2D.getParameter<double>("ymax"),
+						       0 , 0 );
+      if (NclusVsCycleTimeProf2D->kind() == MonitorElement::DQM_KIND_TPROFILE2D) NclusVsCycleTimeProf2D->getTH1()->SetBit(TH1::kCanRebin);
     }
 
     if (ClusterHisto_){
@@ -740,17 +758,25 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       if (subdetswitchapvcycledbxprof2on)
 	sdetmes.SubDetApvDBxProf2->Fill(tbx_corr%70,dbx,sdetmes.totNClusters);
     }
-  }
-}
-//
-// -- EndJob
-//
-void SiStripMonitorCluster::endJob(void){
-  bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
+    //------------------
+    //void DigiBXCorrHistogramMaker<T>::fill(const T& he, const std::map<int,int>& ndigi, const edm::Handle<APVCyclePhaseCollection>& phase) {                                                                    
+    //NdigiVsCycleTimeTH2->Fill(tbx_corr%70,(int)event_history->_orbit,digi->second)                                                                                                                              
 
-  // save histos in a file
-  if(outputMEsInRootFile) dqmStore_->save(outputFileName);
+    if ( globalswitchnclusvscycletimeprof2don )
+      {
+	long long tbx_corr = tbx;
+	int the_phase = apv_phase_collection->getPhase("All");
+	
+	if( the_phase == APVCyclePhaseCollection::nopartition ||
+	    the_phase == APVCyclePhaseCollection::multiphase ||
+	    the_phase == APVCyclePhaseCollection::invalid )
+	  the_phase=30;
+	
+	tbx_corr -= the_phase;
+
+	NclusVsCycleTimeProf2D->Fill( tbx_corr%70 , (int)event_history->_orbit , NStripClusters );
+      }
+  }
 }
 //
 // -- Reset MEs

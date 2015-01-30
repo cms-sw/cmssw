@@ -12,6 +12,9 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
   
   //define the list of FED to be unpacked

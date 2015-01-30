@@ -260,6 +260,16 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         globalswitchon = cms.bool(False)
         ),
                                        
+    NclusVsCycleTimeProf2D = cms.PSet(
+        Nbins = cms.int32(70),
+        xmin = cms.double(-0.5),
+        xmax = cms.double(69.5),
+        Nbinsy = cms.int32(90),
+        ymin = cms.double(0.),
+        ymax = cms.double(90*262144),
+        globalswitchon = cms.bool(True)
+        ),
+
     Mod_On = cms.bool(True),
     ClusterHisto = cms.bool(False),
 
