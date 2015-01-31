@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 import re
-stdcl = re.compile("^std::")
+stdcl = re.compile("^std::(.*)[^>]$")
+stdptr = re.compile("(.*)_ptr$")
 datacl = re.compile("^class ")
 bfunc = re.compile("^function ")
 mbcl = re.compile("(base|data) class")
@@ -27,6 +28,7 @@ derivedclasses = set()
 import networkx as nx
 G=nx.DiGraph()
 H=nx.DiGraph()
+I=nx.DiGraph()
 
 
 f = open('classes.txt.dumperall')
@@ -34,11 +36,12 @@ for line in f :
 	if mbcl.search(line) :
 		fields = line.split("'")
 		if fields[2] == ' member data class ':
-			H.add_edge(fields[1],fields[3],kind=fields[2])
+			if not stdcl.search(fields[2]) : H.add_edge(fields[1],fields[3],kind=fields[2])
 		if fields[2] == ' templated member data class ':
-			H.add_edge(fields[1],fields[5],kind=fields[2])
+			H.add_edge(fields[1],fields[5],kind=fields[3])
 		if fields[2] == ' base class ':
 			H.add_edge(fields[1],fields[3],kind=fields[2])
+			I.add_edge(fields[3],fields[1],kind=' derived class')
 f.close()
 
 f = open('function-calls-db.txt')
@@ -67,25 +70,37 @@ for line in f :
 		statics.add(fields[3])
 f.close()
 
-for n,nbrdict in H.adjacency_iter():
-	for nbr,eattr in nbrdict.items():
-		if nbr in dataclasses and 'kind' in eattr and eattr['kind'] == ' base class '  :
-			dataclasses.add(n)
-
-for dclass in sorted(dataclasses):
-	if dclass in H:
-		for n in nx.dfs_preorder_nodes(H,dclass):
-			memberclasses.add(n)			
-
-for n,nbrdict in H.adjacency_iter():
-	for nbr,eattr in nbrdict.items():
-		if nbr in memberclasses and 'kind' in eattr and eattr['kind'] == ' base class '  :
-			memberclasses.add(n)
-
-for mclass in sorted(memberclasses):
-	dataclasses.add(mclass)
-
-for dclass in sorted(dataclasses):
-	print "class '"+dclass+"'"
-
-
+visited = set()
+nodes = sorted(dataclasses)
+for node in nodes:
+	if node in visited:
+		continue
+	visited.add(node)			
+	if node in H : stack = [(node,iter(H[node]))]
+	if node in I :
+		Q=nx.dfs_preorder_nodes(I,node)
+		for q in Q:
+			print "class '"+q+"'"
+			if q in H : 
+				stack.append(  ( q, iter( H[q] ) ) )
+	while stack:
+		parent,children = stack[-1]
+		print "class '"+parent+"'"
+		try:
+			child = next(children)
+			if child not in visited:
+				visited.add(child)
+				if not stdcl.search(child): 
+					print "class '"+child+"'"
+					stack.append( ( child, iter( H[child] ) ) )
+					kind=H[parent][child]['kind']
+					print parent, kind, child 
+					if stdptr.search(kind):
+						if child in I :
+							Q=nx.dfs_preorder_nodes(I,child)
+							for q in Q :
+								print "class '"+q+"'"
+								if q in H : 
+									stack.append(  ( q, iter( H[q] ) ) )
+		except StopIteration:
+			stack.pop()
