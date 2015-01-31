@@ -91,7 +91,6 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 										const clang::CXXRecordDecl * TAD = tt->getPointeeCXXRecordDecl();
 										if (TAD) taname = TAD->getQualifiedNameAsString();
 										std::string sdname = SD->getQualifiedNameAsString();
-										std::string cfname = "templated member data class 'bare_ptr' template type class '"+taname+"'";
 										std::string cfname = "templated member data class '"+sdname+"' template type class '"+taname+"'";
 										std::string cbname = "templated member data class 'bare_ptr' template type class '"+taname+"'";
 										support::writeLog(crname+" "+cfname,tname);
