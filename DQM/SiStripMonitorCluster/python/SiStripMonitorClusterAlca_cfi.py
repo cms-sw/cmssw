@@ -8,8 +8,6 @@ SiStripCalZeroBiasMonitorCluster = DQM.SiStripMonitorCluster.SiStripMonitorClust
     # can overwrite this in .cfg file with: replace SiStripMonitorCluster.OutputMEsInRootFile = true
 SiStripCalZeroBiasMonitorCluster.ClusterProducerStrip = cms.InputTag("calZeroBiasClusters")
 SiStripCalZeroBiasMonitorCluster.ClusterProducerPix = cms.InputTag('siPixelClusters')
-SiStripCalZeroBiasMonitorCluster.OutputMEsInRootFile = cms.bool(False)
-SiStripCalZeroBiasMonitorCluster.OutputFileName = cms.string('SiStripMonitorCluster.root')
 
 SiStripCalZeroBiasMonitorCluster.ResetMEsEachRun = cms.bool(False)
 

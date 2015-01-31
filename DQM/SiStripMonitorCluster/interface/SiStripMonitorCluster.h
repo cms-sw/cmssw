@@ -113,7 +113,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   void createSubDetMEs(std::string label , DQMStore::IBooker & ibooker);
   int FindRegion(int nstrip,int npixel);
   void fillModuleMEs(ModMEs& mod_mes, ClusterProperties& cluster);
-  void fillLayerMEs(LayerMEs&, ClusterProperties& cluster, float timeinorbit);
+  void fillLayerMEs(LayerMEs&, ClusterProperties& cluster);
 
   void ResetModuleMEs(uint32_t idet);
 
@@ -121,7 +121,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
-  MonitorElement * bookMETrend(const char*, const char* , DQMStore::IBooker & ibooker);
+  MonitorElement * bookMETrend(const char* , DQMStore::IBooker & ibooker);
   MonitorElement* bookME1D(const char* ParameterSetLabel, const char* HistoName , DQMStore::IBooker & ibooker);
 
   edm::ParameterSet conf_;
@@ -145,6 +145,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
 
   int runNb, eventNb;
   int firstEvent;
+  float trendVar;
 
   bool layerswitchncluson;
   bool layerswitchcluschargeon;
@@ -186,6 +187,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   bool globalswitchMultiRegions;
   bool clustertkhistomapon;
   bool createTrendMEs;
+  bool trendVsLs_;
   bool globalswitchnclusvscycletimeprof2don;
 
   bool Mod_On_;
