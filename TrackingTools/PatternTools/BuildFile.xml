@@ -12,6 +12,7 @@
 <use   name="TrackingTools/TrajectoryParametrization"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="rootrflx"/>
+<Flags CXXFLAGS="-g -D=EDM_ML_DEBUG"/>
 <export>
   <lib   name="1"/>
 </export>

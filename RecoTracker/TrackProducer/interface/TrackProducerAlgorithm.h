@@ -60,6 +60,8 @@ public:
 	  conf_.getParameter<bool>( "GeometricInnerState" ) : true);
 	if (conf_.exists("reMatchSplitHits"))
 	  reMatchSplitHits_=conf_.getParameter<bool>("reMatchSplitHits");
+        if (conf_.exists("usePropagatorForPCA"))
+          usePropagatorForPCA_ = conf_.getParameter<bool>("usePropagatorForPCA");
       }
 
   /// Destructor
@@ -136,6 +138,7 @@ public:
   reco::TrackBase::TrackAlgorithm algo_;
   bool reMatchSplitHits_;
   bool geometricInnerState_;
+  bool usePropagatorForPCA_;
 
   TrajectoryStateOnSurface getInitialState(const T * theT,
 					   TransientTrackingRecHit::RecHitContainer& hits,
