@@ -26,7 +26,8 @@ sort -u < classes.txt.dumperft.unsorted | grep -e"^class" >classes.txt.dumperft.
 awk -F\' ' {print "class \47"$2"\47\n\nclass \47"$4"\47\n\nclass \47"$6"\47\n\n" } '  <classes.txt.dumperft.sorted | sort -u >classes.txt.dumperft
 sort -u < classes.txt.dumperall.unsorted | grep -e"^class" >classes.txt.dumperall
 sort -u < function-dumper.txt.unsorted > function-calls-db.txt
-class-composition.py >classes.txt.inherits
+class-composition.py >classes.txt.inherits.unsorted
+sort -u classes.txt.inherits.unsorted | grep -e"^class" | grep -v \'\' >classes.txt.inherits
 cat classes.txt.inherits classes.txt.dumperft classes.txt.dumperct | grep -e"^class" | grep -v \'\' | sort -u >classes.txt
 rm *.txt.*unsorted
 classname-blmflt.py
