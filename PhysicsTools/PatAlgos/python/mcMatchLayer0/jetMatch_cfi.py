@@ -17,7 +17,7 @@ patJetPartonMatch = cms.EDProducer("MCMatcher",      # cut on deltaR, deltaPt/Pt
 
 patJetGenJetMatch = cms.EDProducer("GenJetMatcher",  # cut on deltaR; pick best by deltaR
     src         = cms.InputTag("ak4PFJetsCHS"),      # RECO jets (any View<Jet> is ok)
-    matched     = cms.InputTag("ak4GenJetsNoNu"),    # GEN jets  (must be GenJetCollection)
+    matched     = cms.InputTag("ak4GenJets"),        # GEN jets  (must be GenJetCollection)
     mcPdgId     = cms.vint32(),                      # n/a
     mcStatus    = cms.vint32(),                      # n/a
     checkCharge = cms.bool(False),                   # n/a
