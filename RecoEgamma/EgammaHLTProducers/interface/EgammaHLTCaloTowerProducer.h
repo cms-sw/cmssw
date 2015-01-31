@@ -33,8 +33,8 @@ class EgammaHLTCaloTowerProducer : public edm::global::EDProducer<> {
 
   const edm::EDGetTokenT<CaloTowerCollection> towers_;
   const double cone_;
-  const edm::EDGetTokenT<l1extra::L1EmParticleCollection> l1isoseeds_;
-  const edm::EDGetTokenT<l1extra::L1EmParticleCollection> l1nonisoseeds_;
+  const edm::EDGetTokenT<edm::View<reco::Candidate>> l1isoseeds_;
+  const edm::EDGetTokenT<edm::View<reco::Candidate>> l1nonisoseeds_;
   const double EtThreshold_;
   const double EThreshold_;
 };

@@ -46,36 +46,22 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 
 // Class header file
-#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTRechitInRegionsProducer.h"
-
-//#include "DataFormats/Math/interface/deltaR.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/HLTRechitInRegionsProducer.h"
 
 
-EgammaHLTRechitInRegionsProducer::EgammaHLTRechitInRegionsProducer(const edm::ParameterSet& ps) {
-
-  useUncalib_    = ps.getParameter<bool>("useUncalib");
-  //hitproducer_   = ps.getParameter<edm::InputTag>("ecalhitproducer");
-
-  l1TagIsolated_ = ps.getParameter< edm::InputTag > ("l1TagIsolated");
-  l1TagNonIsolated_ = ps.getParameter< edm::InputTag > ("l1TagNonIsolated");
-  doIsolated_   = ps.getParameter<bool>("doIsolated");
-  
-  l1LowerThr_ = ps.getParameter<double> ("l1LowerThr");
-  l1UpperThr_ = ps.getParameter<double> ("l1UpperThr");
-  l1LowerThrIgnoreIsolation_ = ps.getParameter<double> ("l1LowerThrIgnoreIsolation");
-
-  regionEtaMargin_   = ps.getParameter<double>("regionEtaMargin");
-  regionPhiMargin_   = ps.getParameter<double>("regionPhiMargin");
-
-  //const std::vector<std::string> flagnames = ps.getParameter<std::vector<std::string> >("RecHitFlagToBeExcluded");
-  //const std::vector<int> flagsexcl = StringToEnumValue<EcalRecHit::Flags>(flagnames);
-  
-  //const std::vector<std::string> severitynames = ps.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded");
-  //const std::vector<int> severitiesexcl = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynames);
-
-  hitLabels     = ps.getParameter<std::vector<edm::InputTag>>("ecalhitLabels");
-  productLabels = ps.getParameter<std::vector<std::string>>("productLabels");
-
+template<typename T1>
+HLTRechitInRegionsProducer<T1>::HLTRechitInRegionsProducer(const edm::ParameterSet& ps):
+  useUncalib_      (ps.getParameter<bool>("useUncalib")),
+  l1TagIsolated_   (ps.getParameter< edm::InputTag > ("l1TagIsolated")),
+  l1TagNonIsolated_(ps.getParameter< edm::InputTag > ("l1TagNonIsolated")),
+  doIsolated_      (ps.getParameter<bool>("doIsolated")),
+  l1LowerThr_      (ps.getParameter<double> ("l1LowerThr")),
+  l1UpperThr_      (ps.getParameter<double> ("l1UpperThr")),
+  l1LowerThrIgnoreIsolation_(ps.getParameter<double> ("l1LowerThrIgnoreIsolation")),
+  regionEtaMargin_(ps.getParameter<double>("regionEtaMargin")),
+  regionPhiMargin_(ps.getParameter<double>("regionPhiMargin")),
+  hitLabels       (ps.getParameter<std::vector<edm::InputTag>>("ecalhitLabels")),
+  productLabels(ps.getParameter<std::vector<std::string>>("productLabels")) {
   if (useUncalib_) {
     for (unsigned int i=0; i<hitLabels.size(); i++) { 
       uncalibHitTokens.push_back(consumes<EcalUncalibratedRecHitCollection>(hitLabels[i]));
@@ -90,10 +76,13 @@ EgammaHLTRechitInRegionsProducer::EgammaHLTRechitInRegionsProducer(const edm::Pa
 }
 
 
-EgammaHLTRechitInRegionsProducer::~EgammaHLTRechitInRegionsProducer()
+
+template<typename T1>
+HLTRechitInRegionsProducer<T1>::~HLTRechitInRegionsProducer()
 {}
 
-void EgammaHLTRechitInRegionsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template<typename T1>
+void HLTRechitInRegionsProducer<T1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   std::vector<std::string> productTags;
   productTags.push_back("EcalRegionalRecHitsEB");
@@ -114,12 +103,11 @@ void EgammaHLTRechitInRegionsProducer::fillDescriptions(edm::ConfigurationDescri
   desc.add<double>("l1LowerThrIgnoreIsolation", 0.0);
   desc.add<double>("regionEtaMargin", 0.14);
   desc.add<double>("regionPhiMargin", 0.4);
-  //desc.add<std::vector<std::string> >("RecHitFlagToBeExcluded", std::vector<std::string>());
-  //desc.add<std::vector<std::string> >("RecHitSeverityToBeExcluded", std::vector<std::string>());
-  descriptions.add(("hltEgammaHLTRechitInRegionsProducer"), desc);  
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTRechitInRegionsProducer<T1>).name()), desc);
 }
 
-void EgammaHLTRechitInRegionsProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
+template<typename T1>
+void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   // get the collection geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
@@ -129,13 +117,12 @@ void EgammaHLTRechitInRegionsProducer::produce(edm::Event& evt, const edm::Event
   std::auto_ptr<const CaloSubdetectorTopology> topology;
     
   //Get the L1 EM Particle Collection
-  //Get the L1 EM Particle Collection
-  edm::Handle< l1extra::L1EmParticleCollection > emIsolColl ;
+  edm::Handle< T1Collection > emIsolColl ;
   if(doIsolated_) 
     evt.getByLabel(l1TagIsolated_, emIsolColl);
 
   //Get the L1 EM Particle Collection
-  edm::Handle< l1extra::L1EmParticleCollection > emNonIsolColl ;
+  edm::Handle< T1Collection > emNonIsolColl ;
   evt.getByLabel(l1TagNonIsolated_, emNonIsolColl);
   
   // Get the CaloGeometry
@@ -143,57 +130,10 @@ void EgammaHLTRechitInRegionsProducer::produce(edm::Event& evt, const edm::Event
   es.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
 
   std::vector<EcalEtaPhiRegion> regions;
-  if(doIsolated_) {
-    for( l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl->begin(); emItr != emIsolColl->end() ;++emItr ) {
-      if ((emItr->et() > l1LowerThr_) and (emItr->et() < l1UpperThr_)) {
-
-	// Access the GCT hardware object corresponding to the L1Extra EM object.
-	int etaIndex = emItr->gctEmCand()->etaIndex();
-	int phiIndex = emItr->gctEmCand()->phiIndex();
-
-	// Use the L1CaloGeometry to find the eta, phi bin boundaries.
-	double etaLow  = l1CaloGeom->etaBinLowEdge(etaIndex);
-	double etaHigh = l1CaloGeom->etaBinHighEdge(etaIndex);
-	double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
-	double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
-
-	etaLow -= regionEtaMargin_;
-	etaHigh += regionEtaMargin_;
-	phiLow -= regionPhiMargin_;
-	phiHigh += regionPhiMargin_;
-
-	regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
-      }
-    }
-  }
+  if(doIsolated_) getEtaPhiRegions(&regions, *emIsolColl, *l1CaloGeom, true);
   
-  if(!doIsolated_ or (l1LowerThrIgnoreIsolation_ < 64)) {
-    for( l1extra::L1EmParticleCollection::const_iterator emItr = emNonIsolColl->begin(); emItr != emNonIsolColl->end() ;++emItr ) {
-      
-      if(doIsolated_ and (emItr->et() < l1LowerThrIgnoreIsolation_)) 
-	continue;
+  if(!doIsolated_ or (l1LowerThrIgnoreIsolation_ < 64)) getEtaPhiRegions(&regions, *emNonIsolColl, *l1CaloGeom, false);
 
-      if ((emItr->et() > l1LowerThr_) and (emItr->et() < l1UpperThr_)) {
-	
-	// Access the GCT hardware object corresponding to the L1Extra EM object.
-	int etaIndex = emItr->gctEmCand()->etaIndex();
-	int phiIndex = emItr->gctEmCand()->phiIndex();
-	
-	// Use the L1CaloGeometry to find the eta, phi bin boundaries.
-	double etaLow  = l1CaloGeom->etaBinLowEdge(etaIndex);
-	double etaHigh = l1CaloGeom->etaBinHighEdge(etaIndex);
-	double phiLow  = l1CaloGeom->emJetPhiBinLowEdge(phiIndex);
-	double phiHigh = l1CaloGeom->emJetPhiBinHighEdge(phiIndex);
-
-	etaLow -= regionEtaMargin_;
-	etaHigh += regionEtaMargin_;
-	phiLow -= regionPhiMargin_;
-	phiHigh += regionPhiMargin_;
-
-	regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
-      }
-    }
-  }
 
   if (useUncalib_) {
 
@@ -283,4 +223,59 @@ void EgammaHLTRechitInRegionsProducer::produce(edm::Event& evt, const edm::Event
     }
   }
 }
+
+template<>
+void HLTRechitInRegionsProducer<l1extra::L1EmParticle>::getEtaPhiRegions(std::vector<EcalEtaPhiRegion> * theRegions, T1Collection theCandidateCollection, const L1CaloGeometry& l1CaloGeom, bool isolatedCase){
+    for (unsigned int candItr = 0 ; candItr < theCandidateCollection.size(); candItr++){
+        l1extra::L1EmParticle emItr = theCandidateCollection.at(candItr);
+        
+        if (!isolatedCase){
+            if(doIsolated_ and (emItr.et() < l1LowerThrIgnoreIsolation_)) continue;
+        }
+    
+        if ((emItr.et() > l1LowerThr_) and (emItr.et() < l1UpperThr_)) {
+            
+            // Access the GCT hardware object corresponding to the L1Extra EM object.
+            int etaIndex = emItr.gctEmCand()->etaIndex();
+            int phiIndex = emItr.gctEmCand()->phiIndex();
+            
+            // Use the L1CaloGeometry to find the eta, phi bin boundaries.
+            double etaLow  = l1CaloGeom.etaBinLowEdge(etaIndex);
+            double etaHigh = l1CaloGeom.etaBinHighEdge(etaIndex);
+            double phiLow  = l1CaloGeom.emJetPhiBinLowEdge( phiIndex ) ;
+            double phiHigh = l1CaloGeom.emJetPhiBinHighEdge( phiIndex ) ;
+            
+            etaLow -= regionEtaMargin_;
+            etaHigh += regionEtaMargin_;
+            phiLow -= regionPhiMargin_;
+            phiHigh += regionPhiMargin_;
+            
+            
+            
+            theRegions->push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+        }
+    }
+}
+
+template<typename T1>
+void HLTRechitInRegionsProducer<T1>::getEtaPhiRegions(std::vector<EcalEtaPhiRegion> * theRegions, T1Collection theCandidateCollection, const L1CaloGeometry& l1CaloGeom, bool isolatedCase){
+    for (unsigned int candItr = 0 ; candItr < theCandidateCollection.size(); candItr++){
+        T1 emItr = theCandidateCollection.at(candItr);
+        if ((emItr.et() > l1LowerThr_) and (emItr.et() < l1UpperThr_)) {
+            
+            double etaLow = emItr.eta() - regionEtaMargin_;
+            double etaHigh = emItr.eta() + regionEtaMargin_;
+            double phiLow = emItr.phi() - regionPhiMargin_;
+            double phiHigh = emItr.phi() + regionPhiMargin_;
+            
+            theRegions->push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+        }
+    }
+}
+
+typedef HLTRechitInRegionsProducer<l1extra::L1EmParticle> EgammaHLTRechitInRegionsProducer;
+DEFINE_FWK_MODULE(EgammaHLTRechitInRegionsProducer);
+
+typedef HLTRechitInRegionsProducer<reco::RecoChargedCandidate> MuonHLTRechitInRegionsProducer;
+DEFINE_FWK_MODULE(MuonHLTRechitInRegionsProducer);
 
