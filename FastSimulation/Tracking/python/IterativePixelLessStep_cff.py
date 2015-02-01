@@ -48,7 +48,7 @@ iterativePixelLessTracks.TTRHBuilder = 'WithoutRefit'
 ##iterativePixelLessTracks.Fitter = 'KFFittingSmootherWithOutlierRejection'
 iterativePixelLessTracks.Fitter = 'KFFittingSmootherFourth'
 iterativePixelLessTracks.Propagator = 'PropagatorWithMaterial'
-iterativePixelLessTracks.trackAlgo = cms.untracked.uint32(9)
+iterativePixelLessTracks.AlgorithmName = cms.string('pixelLessStep')
 
 # simtrack id producer
 pixelLessStepIds = cms.EDProducer("SimTrackIdProducer",

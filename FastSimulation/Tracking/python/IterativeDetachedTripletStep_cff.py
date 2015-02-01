@@ -41,7 +41,7 @@ iterativeDetachedTripletTracks.src = 'iterativeDetachedTripletTrackCandidates'
 iterativeDetachedTripletTracks.TTRHBuilder = 'WithoutRefit'
 iterativeDetachedTripletTracks.Fitter = 'KFFittingSmootherSecond'
 iterativeDetachedTripletTracks.Propagator = 'PropagatorWithMaterial'
-iterativeDetachedTripletTracks.trackAlgo = cms.untracked.uint32(7) # detachedTripletStep
+iterativeDetachedTripletTracks.AlgorithmName = cms.string('detachedTripletStep')
 
 # simtrack id producer
 detachedTripletStepIds = cms.EDProducer("SimTrackIdProducer",

@@ -42,7 +42,7 @@ iterativePixelPairTracks.src = 'iterativePixelPairCandidates'
 iterativePixelPairTracks.TTRHBuilder = 'WithoutRefit'
 iterativePixelPairTracks.Fitter = 'KFFittingSmootherSecond'
 iterativePixelPairTracks.Propagator = 'PropagatorWithMaterial'
-iterativePixelPairTracks.trackAlgo = cms.untracked.uint32(6) # pixelPairStep
+iterativePixelPairTracks.AlgorithmName = cms.string('pixelPairStep')
 
 # simtrack id producer
 pixelPairStepIds = cms.EDProducer("SimTrackIdProducer",
