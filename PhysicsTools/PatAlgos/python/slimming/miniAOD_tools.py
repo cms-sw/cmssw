@@ -77,17 +77,47 @@ def miniAOD_customizeCommon(process):
                                     distMax = cms.double(0.8)
                         )
 
-    #add AK8
+    ## Add AK8
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
     addJetCollection(process, labelName = 'AK8',
                      jetSource = cms.InputTag('ak8PFJetsCHS'),
                      algo= 'AK', rParam = 0.8,
                      jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+                     genJetCollection = cms.InputTag('ak8GenJets'),
                      btagInfos = ['caTopTagInfosPAT']
                      )
     process.patJetsAK8.userData.userFloats.src = [] # start with empty list of user floats
     process.selectedPatJetsAK8.cut = cms.string("pt > 100")
-    process.patJetGenJetMatchAK8.matched =  'slimmedGenJets'
+    ## Add AK8 soft drop jets
+    addJetCollection(
+        process,
+        labelName = 'AK8PFCHSSoftDrop',
+        jetSource = cms.InputTag('ak8PFJetsCHSSoftDrop'),
+        btagDiscriminators = ['None'], # turn-off b tagging
+        jetCorrections = ('AK8PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'None'),
+        genJetCollection = cms.InputTag('ak8GenJets'),
+        getJetMCFlavour = False # jet flavor needs to be disabled for groomed fat jets
+    )
+    ## Add AK8 soft drop subjets
+    addJetCollection(
+        process,
+        labelName = 'AK8PFCHSSoftDropSubjets',
+        jetSource = cms.InputTag('ak8PFJetsCHSSoftDrop','SubJets'),
+        algo = 'AK',  # needed for subjet flavor clustering
+        rParam = 0.8, # needed for subjet flavor clustering
+        btagDiscriminators = [x.getModuleLabel() for x in process.patJets.discriminatorSources], # Use the same b-tag discriminators as for ak4 jets
+        jetCorrections = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'None'), # Using AK4 JECs for subjets which is not entirely appropriate
+        genJetCollection = cms.InputTag('ak4GenJets'), # Using ak4GenJets for matching which is not entirely appropriate
+        explicitJTA = True,  # needed for subjet b tagging
+        svClustering = True, # needed for subjet b tagging
+        fatJets=cms.InputTag('ak8PFJetsCHS'),               # needed for subjet flavor clustering
+        groomedFatJets=cms.InputTag('ak8PFJetsCHSSoftDrop') # needed for subjet flavor clustering
+    )
+    ## Re-establish references between PATified AK8 soft drop jets and subjets using the BoostedJetMerger
+    process.selectedPatJetsAK8PFCHSSoftDropPacked = cms.EDProducer("BoostedJetMerger",
+        jetSrc=cms.InputTag("selectedPatJetsAK8PFCHSSoftDrop"),
+        subjetSrc=cms.InputTag("selectedPatJetsAK8PFCHSSoftDropSubjets")
+    )
     ## AK8 groomed masses
     from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSSoftDrop, ak8PFJetsCHSFiltered, ak8PFJetsCHSTrimmed 
     process.ak8PFJetsCHSPruned   = ak8PFJetsCHSPruned.clone()
@@ -101,16 +131,39 @@ def miniAOD_customizeCommon(process):
     process.patJetsAK8.tagInfoSources = cms.VInputTag(cms.InputTag("caTopTagInfosPAT"))
     process.patJetsAK8.addTagInfos = cms.bool(True)
 
-
-
-    # add Njetiness
+    # Add Njettiness
     process.load('RecoJets.JetProducers.nJettinessAdder_cfi')
     process.NjettinessAK8 = process.Njettiness.clone()
     process.NjettinessAK8.src = cms.InputTag("ak8PFJetsCHS")
     process.NjettinessAK8.cone = cms.double(0.8)
     process.patJetsAK8.userData.userFloats.src += ['NjettinessAK8:tau1','NjettinessAK8:tau2','NjettinessAK8:tau3']
 
-
+    ## Add soft drop subjet info
+    process.ak8PFJetsCHSSubJet = cms.EDProducer("RecoJetDeltaRValueMapProducer",
+        src = cms.InputTag("ak8PFJetsCHS"),
+        matched = cms.InputTag("selectedPatJetsAK8PFCHSSoftDropPacked"),
+        distMax = cms.double(0.8),
+        values = cms.vstring(
+            "? numberOfDaughters > 0 ? daughterPtr(0).bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags') : -9999",
+            "? numberOfDaughters > 1 ? daughterPtr(1).bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags') : -9999",
+            "? numberOfDaughters > 0 ? daughterPtr(0).partonFlavour : -9999",
+            "? numberOfDaughters > 1 ? daughterPtr(1).partonFlavour : -9999",
+            "? numberOfDaughters > 0 ? daughterPtr(0).jecFactor(0) : -9999",
+            "? numberOfDaughters > 1 ? daughterPtr(1).jecFactor(0) : -9999"
+        ),
+        valueLabels = cms.vstring(
+            "1CSVv2IVF",
+            "2CSVv2IVF",
+            "1Flavour",
+            "2Flavour",
+            "1JecFactor0",
+            "2JecFactor0"
+        ),
+        lazyParser = cms.bool(True)
+    )
+    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSSubJet:1CSVv2IVF','ak8PFJetsCHSSubJet:2CSVv2IVF',
+                                                   'ak8PFJetsCHSSubJet:1Flavour','ak8PFJetsCHSSubJet:2Flavour',
+                                                   'ak8PFJetsCHSSubJet:1JecFactor0','ak8PFJetsCHSSubJet:2JecFactor0']
 
     #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
