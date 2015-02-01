@@ -116,7 +116,8 @@ reducedEcalRecHitsES = cms.EDProducer("ReducedESRecHitCollectionProducer",
                                       interestingDetIds = cms.VInputTag(
                                         cms.InputTag("interestingEcalDetIdPFES"),
                                         cms.InputTag("interestingEcalDetIdRefinedES"), 
-                                      )
+                                      ),
+                                      interestingDetIdsNoToClean = cms.VInputTag(),                                   
 )
 
 #selected digis
