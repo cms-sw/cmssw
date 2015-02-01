@@ -96,9 +96,7 @@ EgammaIsoHcalDetIdCollectionProducer::produce (edm::Event& iEvent,
   std::unique(indexToStore.begin(),indexToStore.end());
   
   std::auto_ptr< DetIdCollection > detIdCollection (new DetIdCollection(indexToStore) ) ;
-  
-  std::cout <<"done "<<" index to store "<<indexToStore.size()<<std::endl;
- 
+   
   iEvent.put( detIdCollection, interestingDetIdCollection_ );
 
 }

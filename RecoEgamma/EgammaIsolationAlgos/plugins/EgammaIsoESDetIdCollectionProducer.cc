@@ -64,8 +64,6 @@ EgammaIsoESDetIdCollectionProducer::produce (edm::Event& iEvent,
   edm::Handle<reco::PFCluster::EEtoPSAssociation> eeClusToESMap;
   iEvent.getByToken(eeClusToESMapToken_,eeClusToESMap);
 
-  std::cout <<"map has "<<eeClusToESMap->size() <<" entries"<<std::endl;
-
   edm::Handle<reco::PFClusterCollection> ecalPFClusters;
   iEvent.getByToken(ecalPFClustersToken_,ecalPFClusters);
 
@@ -98,9 +96,7 @@ EgammaIsoESDetIdCollectionProducer::produce (edm::Event& iEvent,
   std::unique(indexToStore.begin(),indexToStore.end());
   
   std::auto_ptr< DetIdCollection > detIdCollection (new DetIdCollection(indexToStore) ) ;
-  
-  std::cout <<"done "<<" index to store "<<indexToStore.size()<<std::endl;
- 
+   
   iEvent.put( detIdCollection, interestingDetIdCollection_ );
 
 }
