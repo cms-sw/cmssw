@@ -49,7 +49,7 @@ iterativeTobTecTracks.src = 'iterativeTobTecTrackCandidates'
 iterativeTobTecTracks.TTRHBuilder = 'WithoutRefit'
 iterativeTobTecTracks.Fitter = 'KFFittingSmootherFifth'
 iterativeTobTecTracks.Propagator = 'PropagatorWithMaterial'
-iterativeTobTecTracks.trackAlgo = cms.untracked.uint32(10) # tobTecStep
+iterativeTobTecTracks.AlgorithmName = cms.string('tobTecStep')
 
 # simtrack id producer
 tobTecStepIds = cms.EDProducer("SimTrackIdProducer",
