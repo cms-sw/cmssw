@@ -66,7 +66,7 @@ interestingGamIsoDetIdEE.innerRadius = 0.0
 
 import RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoHCALDetIdModule_cff
 interestingGedEgammaIsoHCALDetId = RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoHCALDetIdModule_cff.interestingEgammaIsoHCALDetId.clone()
-interestingGedEgammaIsoHCALDetId.recHitsLabel=cms.InputTag("hbhereco"),
+interestingGedEgammaIsoHCALDetId.recHitsLabel=cms.InputTag("hbhereco")
 interestingGedEgammaIsoHCALDetId.elesLabel=cms.InputTag("gedGsfElectrons")
 interestingGedEgammaIsoHCALDetId.phosLabel=cms.InputTag("gedPhotons")
 interestingGedEgammaIsoHCALDetId.superClustersLabel=cms.InputTag("particleFlowEGamma")
