@@ -7,6 +7,7 @@
 
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 class SiStripFecCablingRcd : public edm::eventsetup::DependentRecordImplementation<SiStripFecCablingRcd,
@@ -16,7 +17,7 @@ class SiStripDetCablingRcd : public edm::eventsetup::DependentRecordImplementati
   boost::mpl::vector<SiStripFedCablingRcd> > {};
 
 class SiStripRegionCablingRcd : public edm::eventsetup::DependentRecordImplementation<SiStripRegionCablingRcd,
-  boost::mpl::vector<SiStripDetCablingRcd,TrackerDigiGeometryRecord> > {};
+  boost::mpl::vector<SiStripDetCablingRcd,TrackerDigiGeometryRecord,IdealGeometryRecord> > {};
 
 // class SiStripGainRcd : public edm::eventsetup::DependentRecordImplementation<SiStripGainRcd, boost::mpl::vector<SiStripApvGainRcd> > {};
 class SiStripGainRcd : public edm::eventsetup::DependentRecordImplementation<SiStripGainRcd, boost::mpl::vector<SiStripApvGainRcd, SiStripApvGain2Rcd, SiStripApvGain3Rcd> > {};

@@ -29,6 +29,10 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
   edm::ESHandle<TrackerGeometry> tkgeom;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( tkgeom );
   
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iRecord.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   //here build an object of type SiStripRegionCabling using the information from class SiStripDetCabling **PLUS** the geometry.
   
   //Construct region cabling object
@@ -56,7 +60,7 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
     uint32_t subdet = static_cast<uint32_t>(SiStripRegionCabling::subdetFromDetId(idet->first));
     
     //Find layer from det-id
-    uint32_t layer = SiStripRegionCabling::layerFromDetId(idet->first);
+    uint32_t layer = tTopo->layer(idet->first);
 
     //@@ BELOW IS TEMP FIX TO HANDLE BUG IN DET CABLING
     std::vector<const FedChannelConnection *> conns = idet->second;

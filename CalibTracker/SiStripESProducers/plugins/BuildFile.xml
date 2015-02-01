@@ -11,6 +11,7 @@
 <library   file="geom/*.cc" name="CalibTrackerSiStripGeomESProducersPlugins">
   <use   name="CalibTracker/SiStripESProducers"/>
   <use   name="Geometry/TrackerGeometryBuilder"/>
+  <use   name="DataFormats/TrackerCommon"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="DBWriter/*.cc" name="CalibTrackerSiStripESProducersDBWriterPlugins">
