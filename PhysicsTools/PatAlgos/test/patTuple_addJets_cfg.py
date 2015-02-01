@@ -35,14 +35,14 @@ switchJetCollection(
    jetSource = cms.InputTag('ak4PFJets'),
    jetCorrections = ('AK4PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
    btagDiscriminators = [
-       'jetBProbabilityBJetTags'
-     , 'jetProbabilityBJetTags'
-     , 'trackCountingHighPurBJetTags'
-     , 'trackCountingHighEffBJetTags'
-     , 'simpleSecondaryVertexHighEffBJetTags'
-     , 'simpleSecondaryVertexHighPurBJetTags'
-     , 'combinedSecondaryVertexBJetTags'
-     ],
+       'pfJetBProbabilityBJetTags'
+     , 'pfJetProbabilityBJetTags'
+     , 'pfTrackCountingHighPurBJetTags'
+     , 'pfTrackCountingHighEffBJetTags'
+     , 'pfSimpleSecondaryVertexHighEffBJetTags'
+     , 'pfSimpleSecondaryVertexHighPurBJetTags'
+     , 'pfCombinedInclusiveSecondaryVertexV2BJetTags'
+     ]
    )
 process.out.outputCommands.append( 'drop *_selectedPatJets_caloTowers_*' )
 
@@ -70,14 +70,14 @@ addJetCollection(
    jetSource = cms.InputTag('ak4CaloJets'),
    jetCorrections = ('AK7Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'), # FIXME: Use proper JECs, as soon as available
    btagDiscriminators = [
-       'jetBProbabilityBJetTags'
-     , 'jetProbabilityBJetTags'
-     , 'trackCountingHighPurBJetTags'
-     , 'trackCountingHighEffBJetTags'
-     , 'simpleSecondaryVertexHighEffBJetTags'
-     , 'simpleSecondaryVertexHighPurBJetTags'
-     , 'combinedSecondaryVertexBJetTags'
-     ],
+       'pfJetBProbabilityBJetTags'
+     , 'pfJetProbabilityBJetTags'
+     , 'pfTrackCountingHighPurBJetTags'
+     , 'pfTrackCountingHighEffBJetTags'
+     , 'pfSimpleSecondaryVertexHighEffBJetTags'
+     , 'pfSimpleSecondaryVertexHighPurBJetTags'
+     , 'pfCombinedInclusiveSecondaryVertexV2BJetTags'
+     ]
    )
 process.out.outputCommands.append( 'drop *_selectedPatJets%s_pfCandidates_*'%( labelAK4Calo ) )
 ## JetID works only with RECO input for the CaloTowers (s. below for 'process.source.fileNames')
