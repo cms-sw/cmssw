@@ -45,7 +45,7 @@ iterativeMixedTripletStepTracks.TTRHBuilder = 'WithoutRefit'
 ##iterativeMixedTripletStepTracks.Fitter = 'KFFittingSmootherWithOutlierRejection'
 iterativeMixedTripletStepTracks.Fitter = 'KFFittingSmootherThird'
 iterativeMixedTripletStepTracks.Propagator = 'PropagatorWithMaterial'
-iterativeMixedTripletStepTracks.trackAlgo = cms.untracked.uint32(8)
+iterativeMixedTripletStepTracks.AlgorithmName = cms.string('mixedTripletStep')
 
 # simtrack id producer
 mixedTripletStepIds = cms.EDProducer("SimTrackIdProducer",
