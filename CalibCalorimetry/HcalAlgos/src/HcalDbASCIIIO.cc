@@ -1285,11 +1285,11 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEDataExtended
   std::cout <<"dumping object\n";
   char buffer [1024];
 
-  fOutput << "# QIE data" << std::endl;
-  sprintf (buffer, "# %15s %15s %15s %15s %20s %20s %36s %36s %36s %36s %36s %36s %36s %36s\n", 
+  fOutput << "# QIE data extended" << std::endl;
+  sprintf (buffer, "# %15s %15s %15s %15s %20s %20s %36s %36s %36s %36s %36s %36s %36s %36s %15s\n", 
 	   "eta", "phi", "dep", "det", "QIEbarcode","QIEchannel",
 	   "4 x offsets cap0", "4 x offsets cap1", "4 x offsets cap2", "4 x offsets cap3",
-	   "4 x slopes cap0", "4 x slopes cap1", "4 x slopes cap2", "4 x slopes cap3");
+	   "4 x slopes cap0", "4 x slopes cap1", "4 x slopes cap2", "4 x slopes cap3", "qieindex");
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
@@ -1298,21 +1298,23 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEDataExtended
        channel++) {
     const HcalQIECoderExtended* coder = fObject.getCoder (*channel);
     dumpId (fOutput, *channel);
-    sprintf(buffer," %15d %15d ",coder->getQIEbarcode(),coder->getQIEchannel());
+    sprintf(buffer," %20d %20d ",coder->getQIEbarcode(),coder->getQIEchannel());
     fOutput << buffer;
     for (unsigned capid = 0; capid < 4; capid++) {
       for (unsigned range = 0; range < 4; range++) {
 	sprintf (buffer, " %8.5f", coder->offset (capid, range));
 	fOutput << buffer;
       }
+      fOutput<<" ";
     }
     for (unsigned capid = 0; capid < 4; capid++) {
       for (unsigned range = 0; range < 4; range++) {
 	sprintf (buffer, " %8.5f", coder->slope (capid, range));
 	fOutput << buffer;
       }
+      fOutput<<" ";
     }
-    sprintf (buffer, " %2d", coder->qieIndex());
+    sprintf (buffer, "%15d", coder->qieIndex());
     fOutput << buffer;
     fOutput << std::endl;
   }
