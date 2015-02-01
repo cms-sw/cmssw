@@ -1,28 +1,18 @@
-#ifndef _INTERESTINGHCALDETIDCOLLECTIONPRODUCER_H
-#define _INTERESTINGHCALDETIDCOLLECTIONPRODUCER_H
+#ifndef RECOEGAMMA_EGAMMAISOLATIONALGOS_EGAMMAISOHCALDETIDCOLLECTIONPRODUCER_H
+#define RECOEGAMMA_EGAMMAISOLATIONALGOS_EGAMMAISOHCALDETIDCOLLECTIONPRODUCER_H
+
 
 // -*- C++ -*-
 //
-// Package:    InterestingHcalDetIdCollectionProducer
-// Class:      InterestingHcalDetIdCollectionProducer
+// Package:    EgammaIsoHcalDetIdCollectionProducer
+// Class:      EgammaIsoHcalDetIdCollectionProducer
 // 
-/**\class InterestingHcalDetIdCollectionProducer 
-Original author: Paolo Meridiani PH/CMG
+/**\class EgammaIsoHcalDetIdCollectionProducer 
+Original author: Sam Harper (RAL)
  
 Make a collection of detids to be kept tipically in a AOD rechit collection
-Modified from the ECAL version "InterestingHcalDetIdCollectionProducer" to be HCAL
+Modified from the ECAL version "InterestingDetIdCollectionProducer" to be HCAL
 
-The following classes of "interesting id" are considered
-
-    1.in a region around  the seed of the cluster collection specified
-      by paramter basicClusters. The size of the region is specified by
-      minimalEtaSize_, minimalPhiSize_
- 
-    2. if the severity of the hit is >= severityLevel_
-       If severityLevel=0 this class is ignored
-
-    3. Channels next to dead ones,  keepNextToDead_ is true
-    4. Channels next to the EB/EE transition if keepNextToBoundary_ is true
 */
 
 
@@ -51,10 +41,10 @@ The following classes of "interesting id" are considered
 
 
 
-class InterestingHcalDetIdCollectionProducer : public edm::stream::EDProducer<> {
+class EgammaIsoHcalDetIdCollectionProducer : public edm::stream::EDProducer<> {
 public:
   //! ctor
-  explicit InterestingHcalDetIdCollectionProducer(const edm::ParameterSet&);
+  explicit EgammaIsoHcalDetIdCollectionProducer(const edm::ParameterSet&);
   virtual void beginRun (edm::Run const&, const edm::EventSetup&) override final;
   //! producer
   virtual void produce(edm::Event &, const edm::EventSetup&);

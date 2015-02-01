@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/InterestingHcalDetIdCollectionProducer.h"
+#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaIsoHcalDetIdCollectionProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -10,7 +10,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 
-InterestingHcalDetIdCollectionProducer::InterestingHcalDetIdCollectionProducer(const edm::ParameterSet& iConfig) 
+EgammaIsoHcalDetIdCollectionProducer::EgammaIsoHcalDetIdCollectionProducer(const edm::ParameterSet& iConfig) 
 {
 
   recHitsToken_ = 
@@ -42,7 +42,7 @@ InterestingHcalDetIdCollectionProducer::InterestingHcalDetIdCollectionProducer(c
 }
 
 
-void InterestingHcalDetIdCollectionProducer::beginRun (edm::Run const& run, const edm::EventSetup & iSetup)  
+void EgammaIsoHcalDetIdCollectionProducer::beginRun (edm::Run const& run, const edm::EventSetup & iSetup)  
 {
    iSetup.get<IdealGeometryRecord>().get(towerMap_);
    //  std::cout <<" got geom "<<towerMap_.isValid()<<" "<<&(*towerMap_)<<std::endl;
@@ -50,7 +50,7 @@ void InterestingHcalDetIdCollectionProducer::beginRun (edm::Run const& run, cons
 
 // ------------ method called to produce the data  ------------
 void
-InterestingHcalDetIdCollectionProducer::produce (edm::Event& iEvent, 
+EgammaIsoHcalDetIdCollectionProducer::produce (edm::Event& iEvent, 
                                 const edm::EventSetup& iSetup)
 {
 
@@ -130,11 +130,11 @@ int calDIPhi(int iPhi1,int iPhi2)
 
 
 void
-InterestingHcalDetIdCollectionProducer::addDetIds(const reco::SuperCluster& superClus,const HBHERecHitCollection& recHits,std::vector<DetId>& detIdsToStore)
+EgammaIsoHcalDetIdCollectionProducer::addDetIds(const reco::SuperCluster& superClus,const HBHERecHitCollection& recHits,std::vector<DetId>& detIdsToStore)
 {
   DetId seedId = superClus.seed()->seed();
   if(seedId.det() != DetId::Ecal) {
-    edm::LogError("InterestingHcalDetIdCollectionProducerError") << "Somehow the supercluster has a seed which is not ECAL, something is badly wrong";
+    edm::LogError("EgammaIsoHcalDetIdCollectionProducerError") << "Somehow the supercluster has a seed which is not ECAL, something is badly wrong";
   }
   //so we are using CaloTowers to get the iEta/iPhi of the HCAL rec hit behind the seed cluster, this might go funny on tower 28 but shouldnt matter there
  
