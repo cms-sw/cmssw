@@ -109,12 +109,12 @@ addJetCollection(
 )
 process.patJetsAK4PF.addTagInfos = True
 
-# uncomment the following lines to add subjets of pruned ca8PFJetsCHS with new b-tags to your PAT output
+# uncomment the following lines to add subjets of ak8PFJetsCHSSoftDrop with new b-tags to your PAT output
 addJetCollection(
    process,
    labelName = 'AK8PFCHSSoftDropSubjets',
    jetSource = cms.InputTag('ak8PFJetsCHSSoftDrop','SubJets'),
-   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'), # Use AK4 JECs for subjets which might not be completely appropriate
+   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'), # Using AK4 JECs for subjets which might not be completely appropriate
    algo = 'AK',  # needed for subjet flavor clustering
    rParam = 0.8, # needed for subjet flavor clustering
    btagDiscriminators = btagDiscriminators,
