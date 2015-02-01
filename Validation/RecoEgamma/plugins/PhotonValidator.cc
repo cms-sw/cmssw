@@ -14,9 +14,9 @@
 //
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 //
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -151,6 +151,8 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
   hepMC_Token_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
   genjets_Token_ = consumes<reco::GenJetCollection>(
       edm::InputTag("ak4GenJets"));
+
+  consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByHitsForPhotonValidation"));
 
 
   nEvt_=0;
@@ -1616,10 +1618,6 @@ void  PhotonValidator::dqmBeginRun (edm::Run const & r, edm::EventSetup const & 
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);
 
 
-  edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
-  theEventSetup.get<TrackAssociatorRecord>().get("trackAssociatorByHitsForPhotonValidation",theHitsAssociator);
-  theTrackAssociator_ = theHitsAssociator.product();
-
   thePhotonMCTruthFinder_.reset(new PhotonMCTruthFinder() );
 
 }
@@ -1643,6 +1641,11 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   const float END_HI = 2.5;
   // Electron mass
   //const Float_t mElec= 0.000511;
+
+  edm::Handle<reco::TrackToTrackingParticleAssociator> theHitsAssociator;
+  e.getByLabel("trackAssociatorByHitsForPhotonValidation",theHitsAssociator);
+  reco::TrackToTrackingParticleAssociator const* trackAssociator = theHitsAssociator.product();
+
 
 
   nEvt_++;
@@ -1789,11 +1792,11 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   if ( useTP) {
     if ( ! fastSim_) {
       // Sim to Reco
-      OISimToReco = theTrackAssociator_->associateSimToReco(outInTrkHandle, ElectronTPHandle, &e, &esup);
-      IOSimToReco = theTrackAssociator_->associateSimToReco(inOutTrkHandle, ElectronTPHandle, &e, &esup);
+      OISimToReco = trackAssociator->associateSimToReco(outInTrkHandle, ElectronTPHandle);
+      IOSimToReco = trackAssociator->associateSimToReco(inOutTrkHandle, ElectronTPHandle);
       // Reco to Sim
-      OIRecoToSim = theTrackAssociator_->associateRecoToSim(outInTrkHandle, ElectronTPHandle, &e, &esup);
-      IORecoToSim = theTrackAssociator_->associateRecoToSim(inOutTrkHandle, ElectronTPHandle, &e, &esup);
+      OIRecoToSim = trackAssociator->associateRecoToSim(outInTrkHandle, ElectronTPHandle);
+      IORecoToSim = trackAssociator->associateRecoToSim(inOutTrkHandle, ElectronTPHandle);
     }
   }
   //
@@ -2812,8 +2815,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    RefToBase<reco::Track> tfrb = tracks[i];
 	    RefToBaseVector<reco::Track> tc;
             tc.push_back(tfrb);
-	    // reco::RecoToSimCollection q = theTrackAssociator_->associateRecoToSim(tc,theConvTP_,&e,&esup);
-	    reco::SimToRecoCollection q = theTrackAssociator_->associateSimToReco(tc,theConvTP_,&e,&esup);
+	    // reco::RecoToSimCollection q = trackAssociator->associateRecoToSim(tc,theConvTP_);
+	    reco::SimToRecoCollection q = trackAssociator->associateSimToReco(tc,theConvTP_);
 	    std::vector<std::pair<RefToBase<reco::Track>, double> >  trackV;
 	    int tpI = 0;
 
@@ -3240,7 +3243,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      RefToBase<reco::Track> tfrb = tracks[i];
 	      RefToBaseVector<reco::Track> tc;
 	      tc.push_back(tfrb);
-	      reco::SimToRecoCollection q = theTrackAssociator_->associateSimToReco(tc,theConvTP_,&e,&esup);
+	      reco::SimToRecoCollection q = trackAssociator->associateSimToReco(tc,theConvTP_);
 	      std::vector<std::pair<RefToBase<reco::Track>, double> >  trackV;
 	      int tpI = 0;
 	      
@@ -3363,8 +3366,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 	  if ( theConvTP_.size() < 2 )   continue;
 
-	  reco::RecoToSimCollection p1 =  theTrackAssociator_->associateRecoToSim(tc1,theConvTP_,&e,&esup);
-	  reco::RecoToSimCollection p2 =  theTrackAssociator_->associateRecoToSim(tc2,theConvTP_,&e,&esup);
+	  reco::RecoToSimCollection p1 =  trackAssociator->associateRecoToSim(tc1,theConvTP_);
+	  reco::RecoToSimCollection p2 =  trackAssociator->associateRecoToSim(tc2,theConvTP_);
 	  std::vector<std::pair<RefToBase<reco::Track>, double> > trackV1, trackV2;
           try {
             std::vector<std::pair<TrackingParticleRef, double> > tp1 = p1[tk1];

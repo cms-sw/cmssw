@@ -97,8 +97,9 @@ FastSimRecoLocalCaloAOD = cms.PSet(
 
 #Full Event content 
 FastSimRecoTrackerFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_iterativeGSWithMaterialTracks_*_*')
-)
+    outputCommands = cms.untracked.vstring('keep *_iterativeGSWithMaterialTracks_*_*',
+                                           'keep *_generalTracksBeforeMixing_*_*')
+    )
 
 #RECO content
 FastSimRecoTrackerRECO = cms.PSet(
@@ -256,6 +257,8 @@ FASTPUEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
                                            'keep *_famosSimHits_*_*',
                                            'keep *_MuonSimHits_*_*',
-                                           'keep Traj*_*_*_*',
-                                           'keep *_generalTracks_*_*')
+                                           'drop *_generalTracksBeforeMixing_MVAVals_*',
+                                           'drop *_famosSimHits_VertexTypes_*',    
+                                           'keep *_generalTracksBeforeMixing_*_*'
+                                           )
     )

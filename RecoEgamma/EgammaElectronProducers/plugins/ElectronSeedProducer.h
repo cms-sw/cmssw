@@ -50,6 +50,7 @@ class ElectronSeedProducer : public edm::stream::EDProducer<>
 
     virtual void produce( edm::Event &, const edm::EventSetup & ) override final;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   private:
 
     void filterClusters

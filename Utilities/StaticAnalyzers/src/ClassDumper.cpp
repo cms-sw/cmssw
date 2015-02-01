@@ -21,11 +21,8 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 	clang::LangOptions LangOpts;
 	LangOpts.CPlusPlus = true;
 	clang::PrintingPolicy Policy(LangOpts);
-	std::string stdname("std::");
-	std::string rootname("ROOT::");
-	std::string edmname("edm::");
 	std::string crname("class '");
-	const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
+	const ClassTemplateSpecializationDecl *SD = dyn_cast_or_null<ClassTemplateSpecializationDecl>(RD);
 	if (SD) {
 		std::string buf;
 		llvm::raw_string_ostream os(buf);
@@ -39,14 +36,15 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 				if (tt->isRecordType()) {
 					auto TAD = tt->getAsCXXRecordDecl();
 					if (TAD) taname = TAD->getQualifiedNameAsString();
+					std::string sdname = SD->getQualifiedNameAsString();
+					std::string cfname = "templated data class '"+sdname+"' template type class '"+taname+"'";
+					support::writeLog(crname+" "+cfname,tname);
 				}
 				if (tt->isPointerType() || tt->isReferenceType() ) {
 					auto TAD = tt->getPointeeCXXRecordDecl();
 					if (TAD) taname = TAD->getQualifiedNameAsString();
-				}
-				if ( ! ( taname == "")  ) {
 					std::string sdname = SD->getQualifiedNameAsString();
-					std::string cfname = "templated data class '"+sdname+"' template type class '"+taname+"'";
+					std::string cfname = "templated data class 'bare_ptr' template type class '"+taname+"'";
 					support::writeLog(crname+" "+cfname,tname);
 				}
 			}
@@ -62,14 +60,15 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 // Dump the class member classes
 		for ( auto I = RD->field_begin(), E = RD->field_end(); I != E; ++I) {
 				clang::QualType qual;
-				if (I->getType().getTypePtr()->isAnyPointerType())
-					qual = I->getType().getTypePtr()->getPointeeType();
+				clang::QualType type = I->getType();
+				if (type.getTypePtr()->isAnyPointerType())
+					qual = type.getTypePtr()->getPointeeType();
 				else
-					qual = I->getType().getNonReferenceType();
+					qual = type.getNonReferenceType();
 				if (!qual.getTypePtr()->isRecordType()) continue;
 				if (const CXXRecordDecl * TRD = qual.getTypePtr()->getAsCXXRecordDecl()) {
 					std::string fname = TRD->getQualifiedNameAsString();
-					const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(TRD);
+					const ClassTemplateSpecializationDecl *SD = dyn_cast_or_null<ClassTemplateSpecializationDecl>(TRD);
 					if (SD) {
 							std::string buf;
 							llvm::raw_string_ostream os(buf);
@@ -84,21 +83,30 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 									if ( tt->isRecordType() ) {
 										const clang::CXXRecordDecl * TAD = tt->getAsCXXRecordDecl();
 										if (TAD) taname = TAD->getQualifiedNameAsString();
-									}
-									if ( tt->isPointerType() || tt->isReferenceType() ) {
-										const clang::CXXRecordDecl * TAD = tt->getPointeeCXXRecordDecl();
-										if (TAD) taname = TAD->getQualifiedNameAsString();
-									}
-									if (!(taname == "")) {
 										std::string sdname = SD->getQualifiedNameAsString();
 										std::string cfname = "templated member data class '"+sdname+"' template type class '"+taname+"'";
 										support::writeLog(crname+" "+cfname,tname);
 									}
+									if ( tt->isPointerType() || tt->isReferenceType() ) {
+										const clang::CXXRecordDecl * TAD = tt->getPointeeCXXRecordDecl();
+										if (TAD) taname = TAD->getQualifiedNameAsString();
+										std::string sdname = SD->getQualifiedNameAsString();
+										std::string cfname = "templated member data class '"+sdname+"' template type class '"+taname+"'";
+										std::string cbname = "templated member data class 'bare_ptr' template type class '"+taname+"'";
+										support::writeLog(crname+" "+cfname,tname);
+										support::writeLog(crname+" "+cbname,tname);
+									}
 								}
 							}
 					} else {
+						if (type.getTypePtr()->isRecordType()) {
 							std::string cfname ="member data class '"+fname+"' ";
 							support::writeLog(crname+" "+cfname,tname);
+							}
+						if (type.getTypePtr()->isAnyPointerType()) {
+							std::string cfname = "templated member data class 'bare_ptr' template type class '"+fname+"'";
+							support::writeLog(crname+" "+cfname,tname);
+							}
 					}
 				}
 			}

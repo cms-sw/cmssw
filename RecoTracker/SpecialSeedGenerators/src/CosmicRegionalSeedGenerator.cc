@@ -50,7 +50,7 @@ CosmicRegionalSeedGenerator::CosmicRegionalSeedGenerator(edm::ParameterSet const
   recoMuonsToken_     	        = iC.consumes<reco::MuonCollection>(recoMuonsCollection_);
   recoTrackMuonsToken_	        = iC.consumes<reco::TrackCollection>(recoTrackMuonsCollection_);
   recoL2MuonsToken_   	        = iC.consumes<reco::RecoChargedCandidateCollection>(recoL2MuonsCollection_);
-
+  measurementTrackerEventToken_ = iC.consumes<MeasurementTrackerEvent>(edm::InputTag("MeasurementTrackerEvent"));
 
   edm::LogInfo ("CosmicRegionalSeedGenerator") << "Reco muons collection: "        << recoMuonsCollection_ << "\n"
 					       << "Reco tracks muons collection: " << recoTrackMuonsCollection_<< "\n"
@@ -63,6 +63,12 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
   std::vector<TrackingRegion* > result;
 
 
+  const MeasurementTrackerEvent *measurementTracker = nullptr;
+  if(!measurementTrackerEventToken_.isUninitialized()) {
+    edm::Handle<MeasurementTrackerEvent> hmte;
+    event.getByToken(measurementTrackerEventToken_, hmte);
+    measurementTracker = hmte.product();
+  }
   //________________________________________
   //
   //Seeding on Sta muon (MC && Datas)
@@ -197,6 +203,7 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
       
 	
       //definition of the region
+
       CosmicTrackingRegion *etaphiRegion = new CosmicTrackingRegion((-1)*regionMom,
 								    center,
 								    ptMin_,
@@ -204,8 +211,8 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 								    zVertex_,
 								    deltaEta_,
 								    deltaPhi_,
-								    regionPSet
-								    );
+								    regionPSet,
+								    measurementTracker);
 
 
 
@@ -358,8 +365,8 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 								    zVertex_,
 								    deltaEta_,
 								    deltaPhi_,
-								    regionPSet
-								    );
+								    regionPSet,
+								    measurementTracker);
       
 
       //return the result
@@ -490,8 +497,8 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 								    zVertex_,
 								    deltaEta_,
 								    deltaPhi_,
-								    regionPSet
-								    );
+								    regionPSet,
+								    measurementTracker);
       
       result.push_back(etaphiRegion);      
 

@@ -30,8 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -52,10 +51,9 @@ class TrackMCQuality : public edm::EDProducer {
       
       // ----------member data ---------------------------
 
-  edm::ESHandle<TrackAssociatorBase> theAssociator;
   edm::InputTag label_tr;
   edm::InputTag label_tp;
-  std::string associator;
+  edm::InputTag label_associator;
 };
 
 //
@@ -73,8 +71,11 @@ class TrackMCQuality : public edm::EDProducer {
 TrackMCQuality::TrackMCQuality(const edm::ParameterSet& pset):
   label_tr(pset.getParameter< edm::InputTag >("label_tr")),
   label_tp(pset.getParameter< edm::InputTag >("label_tp")),
-  associator(pset.getParameter< std::string >("associator"))
+  label_associator(pset.getParameter< edm::InputTag >("associator"))
 {
+  consumes<reco::TrackToTrackingParticleAssociator>(label_associator);
+  consumes<TrackingParticleCollection>(label_tp);
+  consumes<edm::View<reco::Track> >(label_tr);
   
   produces<reco::TrackCollection>();
 }
@@ -94,19 +95,18 @@ void
 TrackMCQuality::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  iSetup.get<TrackAssociatorRecord>().get(associator,theAssociator);
-
-
    using namespace edm;
+   Handle<reco::TrackToTrackingParticleAssociator> associator;
+   iEvent.getByLabel(label_associator,associator);
+
    Handle<TrackingParticleCollection>  TPCollection ;
    iEvent.getByLabel(label_tp, TPCollection);
      
    Handle<edm::View<reco::Track> > trackCollection;
    iEvent.getByLabel (label_tr, trackCollection );
 
-   reco::RecoToSimCollection recSimColl=theAssociator->associateRecoToSim(trackCollection,
-									  TPCollection,
-									  &iEvent,&iSetup);
+   reco::RecoToSimCollection recSimColl=associator->associateRecoToSim(trackCollection,
+                                                                       TPCollection);
    
    //then loop the track collection
    std::auto_ptr<reco::TrackCollection> outTracks(new reco::TrackCollection(trackCollection->size()));

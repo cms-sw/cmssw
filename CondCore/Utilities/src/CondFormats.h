@@ -176,6 +176,7 @@
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h"
 #include "CondFormats/HcalObjects/interface/HcalLUTCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalLongRecoParams.h"
+#include "CondFormats/HcalObjects/interface/HcalZDCLowGainFractions.h"
 #include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
 #include "CondFormats/HcalObjects/interface/HcalMCParams.h"
 #include "CondFormats/HcalObjects/interface/HcalPFCorrs.h"

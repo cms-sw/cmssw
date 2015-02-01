@@ -100,6 +100,8 @@ namespace edm {
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<reco::Track>)).friendlyClassName(),std::string(""),tag,label);
+            branchesActivate(TypeID(typeid(std::vector<reco::TrackExtra>)).friendlyClassName(),std::string(""),tag,label);
+            branchesActivate(TypeID(typeid(edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >)).friendlyClassName(),std::string(""),tag,label);
 	    // note: no crossing frame is foreseen to be used for this object type
 
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
@@ -409,8 +411,9 @@ namespace edm {
             playEventID,
             std::bind(&MixingModule::pileAllWorkers, std::ref(*this), _1, mcc, bunchIdx,
                         _2, vertexOffset, std::ref(setup), e.streamID())
-            );
-        }
+            ); 
+	  (*playbackInfo_)=(*playbackInfo_H); 
+	}
       }
       for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
         (*accItr)->finalizeBunchCrossing(e, setup, bunchIdx);

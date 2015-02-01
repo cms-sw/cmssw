@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/RefVector.h"
@@ -109,13 +109,13 @@ class TkConvValidator : public DQMEDAnalyzer
   edm::EDGetTokenT<TrackingParticleCollection> tpSelForFake_Token_;
   edm::EDGetTokenT<edm::HepMCProduct> hepMC_Token_;
   edm::EDGetTokenT<reco::GenJetCollection> genjets_Token_;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> trackAssociator_Token_;
 
   std::string dqmpath_;
 
   edm::InputTag label_tp_;
 
   PhotonMCTruthFinder*  thePhotonMCTruthFinder_;
-  TrackAssociatorBase * theTrackAssociator_;
 
   bool isRunCentrally_;
 

@@ -88,9 +88,9 @@ public:
     tv_iterator decayVertices_end() const;
 
 
-    ///< @brief Electric charge. Note this is taken from the first SimTrack only.
+    /// @brief Electric charge. Note this is taken from the first SimTrack only.
     float charge() const { return g4Tracks_[0].charge(); }
-    ///< Gives charge in unit of quark charge (should be 3 time the abaove)
+    /// Gives charge in unit of quark charge (should be 3 times "charge()")
     int threeCharge() const { return lrintf(3.f*charge()); }
 
     const LorentzVector& p4() const; ///< @brief Four-momentum Lorentz vector. Note this is taken from the first SimTrack only.
@@ -116,7 +116,7 @@ public:
     double rapidity() const; ///< @brief Rapidity. Note this is taken from the first SimTrack only.
     double y() const; ///< @brief Same as rapidity().
 
-    ///< @brief Parent vertex position
+    /// @brief Parent vertex position
     Point vertex() const {
        const TrackingVertex::LorentzVector & p = (*parentVertex_).position();
        return Point(p.x(),p.y(),p.z());
@@ -134,7 +134,7 @@ public:
 
     static const unsigned int longLivedTag; ///< long lived flag
 
-    ///< is long lived?
+    /// is long lived?
     bool longLived() const { return status()&longLivedTag;}
 
    /** @brief Gives the total number of hits, including muon hits. Hits on overlaps in the same layer count separately.

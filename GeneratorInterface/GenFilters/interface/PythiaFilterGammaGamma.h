@@ -26,8 +26,6 @@ class PythiaFilterGammaGamma : public edm::EDFilter {
   explicit PythiaFilterGammaGamma(const edm::ParameterSet&);
   ~PythiaFilterGammaGamma();
   
-  //void writeFile();
-  
   virtual bool filter(edm::Event&, const edm::EventSetup&);
  private:
 
@@ -39,20 +37,15 @@ class PythiaFilterGammaGamma : public edm::EDFilter {
   double minetacut;
   double maxetacut;
   int maxEvents;
-  int nSelectedEvents, nGeneratedEvents;
+  int nSelectedEvents, nGeneratedEvents, counterPrompt;
 
   double ptSeedThr, etaSeedThr, ptGammaThr, etaGammaThr, ptTkThr, etaTkThr;
   double ptElThr, etaElThr, dRTkMax, dRSeedMax, dPhiSeedMax, dEtaSeedMax, dRNarrowCone, pTMinCandidate1, pTMinCandidate2, etaMaxCandidate;
-  double invMassWide, invMassNarrow;
+  double invMassMin, invMassMax;
+  double energyCut;
   int nTkConeMax, nTkConeSum;
   bool acceptPrompts;
   double promptPtThreshold;
-  
-  //std::string fileName;
-  //TH1D *hPtSeed[2], *hEtaSeed[2], *hMassNarrow, *hMassWide;
-  //TH1I *hPidSeed[2], *hNTk[2], *hSel, *hNTkSum;
-  //TH1D *hPtCandidate[2], *hEtaCandidate[2];
-  //TH1I *hPidCandidate[2];
 
 };
 #endif

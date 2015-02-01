@@ -21,7 +21,7 @@ process.source = cms.Source("PoolSource",
 # MessageLogger
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.MessageLogger.categories = cms.untracked.vstring('testAssociatorRecoMuon', 'MuonAssociatorByHits')
+process.MessageLogger.categories = cms.untracked.vstring('testAssociatorRecoMuon', 'muonAssociatorByHitsHelper')
 process.MessageLogger.cout = cms.untracked.PSet(
     noTimeStamps = cms.untracked.bool(True),
     threshold = cms.untracked.string('INFO'),
@@ -41,7 +41,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")            # On RAW+RECO
 #process.load("SimMuon.MCTruth.MuonAssociatorByHitsESProducer_cfi")           # On RAW+RECO
 process.load("SimGeneral.TrackingAnalysis.trackingParticlesNoSimHits_cfi")    # On RECO
-process.load("SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi")  # On RECO
+process.load("SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi")  # On RECO
 
 process.GlobalTag.globaltag = cms.string('START37_V3::All')
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
@@ -53,10 +53,10 @@ process.testanalyzer = cms.EDAnalyzer("testAssociatorRecoMuon",
     #tpTag    = cms.InputTag("mix"),                          # RAW+RECO
     #associatorLabel = cms.string("muonAssociatorByHits"),            # RAW+RECO
     tpTag    = cms.InputTag("mergedtruthNoSimHits"),                # RECO Only
-    associatorLabel = cms.string("muonAssociatorByHits_NoSimHits"), # RECO Only
+    associatorLabel = cms.string("muonAssociatorByHitsNoSimHitsHelper"), # RECO Only
 ) 
 
 process.skim = cms.EDFilter("CandViewCountFilter", src = cms.InputTag("muons"), minNumber = cms.uint32(1))
-process.test = cms.Path(process.skim+process.mix * process.trackingParticlesNoSimHits * process.testanalyzer) # RECO
+process.test = cms.Path(process.skim+process.mix * process.trackingParticlesNoSimHits * process.muonAssociatorByHitsNoSimHitsHelper * process.testanalyzer) # RECO
 #process.test = cms.Path(process.skim+process.mix * process.trackingParticles       * process.testanalyzer) # RAW+RECO
 

@@ -144,99 +144,24 @@ std::vector<PSimHit> MuonTruth::muonHits()
 }
 
 
-std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateCSCHitId(const CSCRecHit2D * cscrechit) {
-  std::vector<SimHitIdpr> simtrackids;
-  
-  theDetId = cscrechit->geographicalId().rawId();
-  int nchannels = cscrechit->nStrips();
-  const CSCLayerGeometry * laygeom = cscgeom->layer(cscrechit->cscDetId())->geometry();
-  
-  DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(theDetId);    
-  
-  if (layerLinks != theDigiSimLinks->end()) {
-    
-    for(int idigi = 0; idigi < nchannels; ++idigi) {
-      // strip and readout channel numbers may differ in ME1/1A
-      int istrip = cscrechit->channels(idigi);
-      int channel = laygeom->channel(istrip);
-      
-      for (LayerLinks::const_iterator link=layerLinks->begin(); link!=layerLinks->end(); ++link) {
-	int ch = static_cast<int>(link->channel());
-	if (ch == channel) {
-	  SimHitIdpr currentId(link->SimTrackId(), link->eventId());
-	  if (find(simtrackids.begin(), simtrackids.end(), currentId) == simtrackids.end())
-	    simtrackids.push_back(currentId);
-	}
-      }
-    }
-    
-  } else edm::LogWarning("MuonTruth")
-    <<"*** WARNING in MuonTruth::associateCSCHitId - CSC layer "<<theDetId<<" has no DigiSimLinks !"<<std::endl;   
-  
-  return simtrackids;
-}
-
-
-std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateHitId(const TrackingRecHit & hit)
-{
-  std::vector<SimHitIdpr> simtrackids;
-  
-  const TrackingRecHit * hitp = &hit;
-  const CSCRecHit2D * cscrechit = dynamic_cast<const CSCRecHit2D *>(hitp);
-
-  if (cscrechit) {
-    
-    theDetId = cscrechit->geographicalId().rawId();
-    int nchannels = cscrechit->nStrips();
-    const CSCLayerGeometry * laygeom = cscgeom->layer(cscrechit->cscDetId())->geometry();
-
-    DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(theDetId);    
-
-    if (layerLinks != theDigiSimLinks->end()) {
-      
-      for(int idigi = 0; idigi < nchannels; ++idigi) {
-	// strip and readout channel numbers may differ in ME1/1A
-	int istrip = cscrechit->channels(idigi);
-	int channel = laygeom->channel(istrip);
-	
-	for (LayerLinks::const_iterator link=layerLinks->begin(); link!=layerLinks->end(); ++link) {
-	  int ch = static_cast<int>(link->channel());
-	  if (ch == channel) {
-	    SimHitIdpr currentId(link->SimTrackId(), link->eventId());
-	    if (find(simtrackids.begin(), simtrackids.end(), currentId) == simtrackids.end())
-	      simtrackids.push_back(currentId);
-	  }
-	}
-      }
-      
-    } else edm::LogWarning("MuonTruth")
-      <<"*** WARNING in MuonTruth::associateHitId - CSC layer "<<theDetId<<" has no DigiSimLinks !"<<std::endl;   
-    
-  } else edm::LogWarning("MuonTruth")<<"*** WARNING in MuonTruth::associateHitId, null dynamic_cast !";
-  
-  return simtrackids;
-}
-
 
 std::vector<PSimHit> MuonTruth::hitsFromSimTrack(MuonTruth::SimHitIdpr truthId)
 {
   std::vector<PSimHit> result;
-  edm::PSimHitContainer hits;
-  
-  if (theSimHitMap.find(theDetId) != theSimHitMap.end()) 
-    hits = theSimHitMap[theDetId];
 
-  edm::PSimHitContainer::const_iterator hitItr = hits.begin(), lastHit = hits.end();
+  auto found = theSimHitMap.find(theDetId);
+  if (found != theSimHitMap.end()) {
 
-  for( ; hitItr != lastHit; ++hitItr)
-  {
-    unsigned int hitTrack = hitItr->trackId();
-    EncodedEventId hitEvId = hitItr->eventId();
-
-    if(hitTrack == truthId.first && hitEvId == truthId.second) 
-    {
-      result.push_back(*hitItr);
-    }
+    for(auto const& hit: found->second)
+      {
+        unsigned int hitTrack = hit.trackId();
+        EncodedEventId hitEvId = hit.eventId();
+        
+        if(hitTrack == truthId.first && hitEvId == truthId.second) 
+          {
+            result.push_back(hit);
+          }
+      }
   }
   return result;
 }
@@ -245,7 +170,7 @@ std::vector<PSimHit> MuonTruth::hitsFromSimTrack(MuonTruth::SimHitIdpr truthId)
 int MuonTruth::particleType(MuonTruth::SimHitIdpr truthId)
 {
   int result = 0;
-  std::vector<PSimHit> hits = hitsFromSimTrack(truthId);
+  const std::vector<PSimHit>& hits = hitsFromSimTrack(truthId);
   if(!hits.empty())
   {
     result = hits[0].particleType();

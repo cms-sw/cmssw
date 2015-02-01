@@ -72,7 +72,7 @@ def FASTSIM(process):
 #   modifications when running L1T+HLT
 
     process=L1THLT(process)
-    process.hltL1GtTrigReport.L1GtRecordInputTag = cms.InputTag("gtDigis")
+    process.hltL1GtTrigReport.L1GtRecordInputTag = cms.InputTag("simGtDigis")
 
     return(process)
 

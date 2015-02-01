@@ -10,7 +10,6 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -121,10 +120,10 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       h_pullDz.push_back( ibooker.book1D("pullDz","pull of dz parameter",250,-25,25) );
       h_pullQoverp.push_back( ibooker.book1D("pullQoverp","pull of qoverp parameter",250,-25,25) );
       
-      if (associators[ww]=="TrackAssociatorByChi2"){
+      if (associators[ww]=="trackAssociatorByChi2"){
 	h_assochi2.push_back( ibooker.book1D("assocChi2","track association #chi^{2}",1000000,0,100000) );
 	h_assochi2_prob.push_back(ibooker.book1D("assocChi2_prob","probability of association #chi^{2}",100,0,1));
-      } else if (associators[ww]=="TrackAssociatorByHits"){
+      } else if (associators[ww]=="trackAssociatorByHits"){
 	h_assocFraction.push_back( ibooker.book1D("assocFraction","fraction of shared hits",200,0,2) );
 	h_assocSharedHit.push_back(ibooker.book1D("assocSharedHit","number of shared hits",20,0,20));
       }
@@ -219,13 +218,6 @@ BinLogX(h_assocpT_Quality075[j]->getTH1F());
 
     }
   }
-  if (UseAssociators) {
-    edm::ESHandle<TrackAssociatorBase> theAssociator;
-    for (unsigned int w=0;w<associators.size();w++) {
-      setup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
-      associator.push_back( theAssociator.product() );
-    }
-  }
 }
 
 void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup& setup){
@@ -248,6 +240,15 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   event.getByToken(bsSrc_Token,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;
+
+  std::vector<const reco::TrackToTrackingParticleAssociator*> associator;
+  if (UseAssociators) {
+    edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
+    for (unsigned int w=0;w<associators.size();w++) {
+      event.getByLabel(associators[w],theAssociator);
+      associator.push_back( theAssociator.product() );
+    }
+  }
   
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
@@ -281,12 +282,10 @@ edm::LogVerbatim("MuonTrackValidator") << "Analyzing "
 
 LogTrace("MuonTrackValidator") << "Calling associateRecoToSim method" << "\n";
 recSimColl=associator[ww]->associateRecoToSim(trackCollection,
-TPCollectionHfake,
-&event,&setup);
+                                              TPCollectionHfake);
 LogTrace("MuonTrackValidator") << "Calling associateSimToReco method" << "\n";
 simRecColl=associator[ww]->associateSimToReco(trackCollection,
-TPCollectionHeff,
-&event,&setup);
+                                              TPCollectionHeff);
 }
 else{
 edm::LogVerbatim("MuonTrackValidator") << "Analyzing "
@@ -645,13 +644,13 @@ edm::LogVerbatim("MuonTrackValidator") << "\t N valid rechits = "<< (int)track->
   try{
 if (!Track_is_matched) continue;
 
-if (associators[ww]=="TrackAssociatorByChi2"){
+if (associators[ww]=="trackAssociatorByChi2"){
 //association chi2
 double assocChi2 = -tp.begin()->second;//in association map is stored -chi2
 h_assochi2[www]->Fill(assocChi2);
 h_assochi2_prob[www]->Fill(TMath::Prob((assocChi2)*5,5));
 }
-else if (associators[ww]=="TrackAssociatorByHits"){
+else if (associators[ww]=="trackAssociatorByHits"){
 double fraction = tp.begin()->second;
 h_assocFraction[www]->Fill(fraction);
 h_assocSharedHit[www]->Fill(fraction*track->numberOfValidHits());

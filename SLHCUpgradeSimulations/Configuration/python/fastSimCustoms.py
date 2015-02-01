@@ -3,12 +3,18 @@ import FWCore.ParameterSet.Config as cms
 def customise_fastSimPostLS1(process):
 
     if hasattr(process,'famosSimHits'):
-       process=customise_fastSim(process)
-
+       process=customise_fastSimProducer(process)
+       
+    from FastSimulation.PileUpProducer.PileUpFiles_cff import fileNames_13TeV
+    process.genMixPileUpFiles = cms.PSet(fileNames = fileNames_13TeV)
+    if hasattr(process,'famosPileUp'):
+        if hasattr(process.famosPileUp,"PileUpSimulator"):
+            process.famosPileUp.PileUpSimulator.fileNames = fileNames_13TeV
+    
     return process
 
 
-def customise_fastSim(process): 
+def customise_fastSimProducer(process): 
 
     # enable 2015 HF shower library
     process.famosSimHits.Calorimetry.HFShowerLibrary.useShowerLibrary = True

@@ -23,12 +23,11 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(5))
 
 process.source = cms.Source("EmptySource")
 
-
-from GeneratorInterface.ThePEGInterface.herwigDefaults_cff import *
 from GeneratorInterface.ThePEGInterface.herwigValidation_cff import *
+process.load('Configuration.Generator.HerwigppDefaults_cfi')
 
 process.generator = cms.EDFilter("ThePEGGeneratorFilter",
-	herwigDefaultsBlock,
+	process.herwigDefaultsBlock,
 	herwigValidationBlock,
 
 	configFiles = cms.vstring(

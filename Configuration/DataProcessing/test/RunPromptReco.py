@@ -23,6 +23,7 @@ class RunPromptReco:
         self.writeAlcareco = False
         self.writeAod = False
 	self.writeDqm = False
+	self.writeDqmio = False
         self.noOutput = False
         self.globalTag = None
         self.inputLFN = None
@@ -62,6 +63,9 @@ class RunPromptReco:
 	if self.writeDqm:
             dataTiers.append("DQM")
             print "Configuring to Write out Dqm..."
+	if self.writeDqmio:
+            dataTiers.append("DQMIO")
+            print "Configuring to Write out Dqmio..."
 
         try:
             if self.noOutput:
@@ -96,7 +100,7 @@ class RunPromptReco:
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "reco", "alcareco", "aod", "dqm",
+    valid = ["scenario=", "reco", "alcareco", "aod", "dqm", "dqmio",
              "no-output", "global-tag=", "lfn="]
     usage = \
 """
@@ -108,6 +112,7 @@ Where options are:
  --alcareco (to enable ALCARECO output)
  --aod (to enable AOD output)
  --dqm (to enable DQM output)
+ --dqmio (to enable DQMIO output)
  --no-output (create config with no output, overrides other settings)
  --global-tag=GlobalTag
  --lfn=/store/input/lfn
@@ -138,6 +143,8 @@ python RunPromptReco.py --scenario=cosmics --reco --aod --alcareco --dqm --globa
             recoinator.writeAod = True
         if opt == "--dqm":
             recoinator.writeDqm = True
+        if opt == "--dqmio":
+            recoinator.writeDqmio = True
         if opt == "--no-output":
             recoinator.noOutput = True
         if opt == "--global-tag":
