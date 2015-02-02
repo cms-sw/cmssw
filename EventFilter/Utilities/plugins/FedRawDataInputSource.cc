@@ -245,6 +245,17 @@ bool FedRawDataInputSource::checkNextEvent()
   }
 }
 
+void FedRawDataInputSource::createBoLSFile(const uint32_t lumiSection, bool checkIfExists)
+{
+  //used for backpressure mechanisms and monitoring
+  const std::string fuBoLS = daqDirector_->getBoLSFilePathOnFU(lumiSection);
+  struct stat buf;
+  if (checkIfExists==false || stat(fuBoLS.c_str(), &buf) != 0) {
+    int bol_fd = open(fuBoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+    close(bol_fd);
+  }
+}
+
 void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
 {
   if (!luminosityBlockAuxiliary()
@@ -259,9 +270,11 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
         daqDirector_->lockFULocal2();
         int eol_fd = open(fuEoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
         close(eol_fd);
+        createBoLSFile(lumiSection,false);
         daqDirector_->unlockFULocal2();
       }
     }
+    else createBoLSFile(lumiSection,true);//needed for initial lumisection
 
     currentLumiSection_ = lumiSection;
 
