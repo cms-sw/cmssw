@@ -247,18 +247,18 @@ def customiseRun2EraExtras(process):
         if hasattr(process,b):
             #print "BEFORE:  ", getattr(process, b).centralJetSource
             if (getattr(process, b).centralJetSource == cms.InputTag("simGctDigis","cenJets")):
-                getattr(process, b).etTotalSource = cms.InputTag("simCaloStage1FormatDigis")
-                getattr(process, b).nonIsolatedEmSource = cms.InputTag("simCaloStage1FormatDigis","nonIsoEm")
-                getattr(process, b).etMissSource = cms.InputTag("simCaloStage1FormatDigis")
-                getattr(process, b).htMissSource = cms.InputTag("simCaloStage1FormatDigis")
-                getattr(process, b).forwardJetSource = cms.InputTag("simCaloStage1FormatDigis","forJets")
-                getattr(process, b).centralJetSource = cms.InputTag("simCaloStage1FormatDigis","cenJets")
-                getattr(process, b).tauJetSource = cms.InputTag("simCaloStage1FormatDigis","tauJets")
-                getattr(process, b).isoTauJetSource = cms.InputTag("simCaloStage1FormatDigis","isoTauJets")
-                getattr(process, b).isolatedEmSource = cms.InputTag("simCaloStage1FormatDigis","isoEm")
-                getattr(process, b).etHadSource = cms.InputTag("simCaloStage1FormatDigis")
-                getattr(process, b).hfRingEtSumsSource = cms.InputTag("simCaloStage1FormatDigis")
-                getattr(process, b).hfRingBitCountsSource = cms.InputTag("simCaloStage1FormatDigis")
+                getattr(process, b).etTotalSource = cms.InputTag("simCaloStage1LegacyFormatDigis")
+                getattr(process, b).nonIsolatedEmSource = cms.InputTag("simCaloStage1LegacyFormatDigis","nonIsoEm")
+                getattr(process, b).etMissSource = cms.InputTag("simCaloStage1LegacyFormatDigis")
+                getattr(process, b).htMissSource = cms.InputTag("simCaloStage1LegacyFormatDigis")
+                getattr(process, b).forwardJetSource = cms.InputTag("simCaloStage1LegacyFormatDigis","forJets")
+                getattr(process, b).centralJetSource = cms.InputTag("simCaloStage1LegacyFormatDigis","cenJets")
+                getattr(process, b).tauJetSource = cms.InputTag("simCaloStage1LegacyFormatDigis","tauJets")
+                getattr(process, b).isoTauJetSource = cms.InputTag("simCaloStage1LegacyFormatDigis","isoTauJets")
+                getattr(process, b).isolatedEmSource = cms.InputTag("simCaloStage1LegacyFormatDigis","isoEm")
+                getattr(process, b).etHadSource = cms.InputTag("simCaloStage1LegacyFormatDigis")
+                getattr(process, b).hfRingEtSumsSource = cms.InputTag("simCaloStage1LegacyFormatDigis")
+                getattr(process, b).hfRingBitCountsSource = cms.InputTag("simCaloStage1LegacyFormatDigis")
             else:
                 #print "INFO:  customizing ", b, "to use new calo Stage 1 digis converted to legacy format"
                 getattr(process, b).etTotalSource = cms.InputTag("caloStage1LegacyFormatDigis")
@@ -309,6 +309,20 @@ def customiseRun2EraExtras(process):
                     flags              = cms.vstring('Standard')
                 )
             )
+        #Lower Thresholds also for Clusters!!!    
+    
+        for p in process.particleFlowClusterHO.seedFinder.thresholdsByDetector:
+            p.seedingThreshold = cms.double(0.08)
+    
+        for p in process.particleFlowClusterHO.initialClusteringStep.thresholdsByDetector:
+            p.gatheringThreshold = cms.double(0.05)
+    
+        for p in process.particleFlowClusterHO.pfClusterBuilder.recHitEnergyNorms:
+            p.recHitEnergyNorm = cms.double(0.05)
+    
+        process.particleFlowClusterHO.pfClusterBuilder.positionCalc.logWeightDenominator = cms.double(0.05)
+        process.particleFlowClusterHO.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator = cms.double(0.05)
+
     if hasattr(process,'digitisation_step'):
         alist=['RAWSIM','RAWDEBUG','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT','PREMIX','PREMIXRAW']
         for a in alist:
