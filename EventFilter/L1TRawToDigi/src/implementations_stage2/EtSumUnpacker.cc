@@ -23,7 +23,8 @@ namespace stage2 {
 
      LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
-     int nBX = int(ceil(block.header().getSize() / 4.)); // Since there are 4 EtSum objects reported per event (see CMS IN-2013/005)
+     int nBX = int(ceil(block.header().getSize() / 6.)); // Since there 6 frames per demux output event
+     // expect the first four frames to be the first 4 EtSum objects reported per event (see CMS IN-2013/005)
 
      // Find the central, first and last BXs
      int firstBX = -(ceil((double)nBX/2.)-1);
@@ -55,7 +56,7 @@ namespace stage2 {
        met.setHwPhi((raw_data >> 12) & 0xFF);
        met.setType(l1t::EtSum::kMissingEt);       
 
-       LogDebug("L1T") << "MET: phi " << met.hwPhi() << " pT " << met.hwPt();
+       LogDebug("L1T") << "MET: phi " << met.hwPhi() << " pT " << met.hwPt() << " bx " << bx;
 
        res_->push_back(bx,met);
 
@@ -69,7 +70,7 @@ namespace stage2 {
        mht.setHwPhi((raw_data >> 12) & 0xFF);
        mht.setType(l1t::EtSum::kMissingHt);       
 
-       LogDebug("L1T") << "MHT: phi " << mht.hwPhi() << " pT " << mht.hwPt();
+       LogDebug("L1T") << "MHT: phi " << mht.hwPhi() << " pT " << mht.hwPt() << " bx " << bx;
 
        res_->push_back(bx,mht);       
 
@@ -82,7 +83,7 @@ namespace stage2 {
        et.setHwPt(raw_data & 0xFFF);
        et.setType(l1t::EtSum::kTotalEt);       
 
-       LogDebug("L1T") << "ET: pT " << et.hwPt();
+       LogDebug("L1T") << "ET: pT " << et.hwPt() << " bx " << bx;
 
        res_->push_back(bx,et);
 
