@@ -83,10 +83,6 @@ def customiseRun2EraExtras(process):
 
     # digitizer
     if hasattr(process, 'simMuonCSCDigis'):
-        if hasattr(process,"CSCIndexerESProducer"):
-            process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
-        if hasattr(process,"CSCChannelMapperESProducer"):
-            process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
         ## Make sure there's no bad chambers/channels
         #process.simMuonCSCDigis.strips.readBadChambers = True
         #process.simMuonCSCDigis.wires.readBadChannels = True
@@ -100,11 +96,6 @@ def customiseRun2EraExtras(process):
 
     # L1 stub emulator upgrade algorithm
     if hasattr(process, 'simCscTriggerPrimitiveDigis'):
-        if hasattr(process,"CSCIndexerESProducer"):
-            process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
-        if hasattr(process,"CSCChannelMapperESProducer"):
-            process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
-    
         from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi import cscTriggerPrimitiveDigisPostLS1
         process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS1
         process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCComparatorDigi')
@@ -125,11 +116,6 @@ def customiseRun2EraExtras(process):
 
     # CSC RecHiti producer adjustments 
     if hasattr(process, 'csc2DRecHits'):
-        if hasattr(process,"CSCIndexerESProducer"):
-            process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
-        if hasattr(process,"CSCChannelMapperESProducer"):
-            process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
-    
         # Turn off some flags for CSCRecHitD that are turned ON in default config
         process.csc2DRecHits.readBadChannels = cms.bool(False)
         process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
