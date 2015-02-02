@@ -134,8 +134,8 @@ private:
   MP7BufferDumpToRaw::MP7BufferDumpToRaw(const edm::ParameterSet& iConfig) :
     rxFileReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt")),
     txFileReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt")),
-    rxPacketReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt")),
-    txPacketReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt")),
+    rxPacketReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt"), 1, 0),
+    txPacketReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt"), 1, 0),
     packetisedData_(iConfig.getUntrackedParameter<bool>("packetisedData", true)),
     nFramesPerEvent_(iConfig.getUntrackedParameter<int>("nFramesPerEvent", 6)),
     iBoard_(iConfig.getUntrackedParameter<int>("boardOffset", 0)),
@@ -197,7 +197,7 @@ private:
       rxBlockLength_.at(i).at(j) = rx.at(j);
 
       if (rx.at(j) != 0) {
-	LogDebug("L1T") << "Block readout : board " << i << " Rx link " << j;
+	//	LogDebug("L1T") << "Block readout : board " << i << " Rx link " << j << " size " << rx.at(j);
       }
     }
 
@@ -208,12 +208,15 @@ private:
       txBlockLength_.at(i).at(j) = tx.at(j);
 
       if (tx.at(j) != 0) {
-	LogDebug("L1T") << "Block readout : board " << i << " Tx link " << j;
+	//	LogDebug("L1T") << "Block readout : board " << i << " Tx link " << j << " size " << tx.at(j);
       }
     }
 
   }
 
+  LogDebug("L1T") << "Board ID size " << boardId_.size();
+
+  LogDebug("L1T") << "Frames per event " << nFramesPerEvent_;
 
 }
 
@@ -243,9 +246,7 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // create AMC formatted data
   if (mux_) {
     std::vector<Block> blocks = getBlocks(iBoard_);
-    formatAMC(amc13, blocks, boardId_.at(iBoard_));
-    iBoard_++;  //advance to next AMC for next event...
-    iBoard_ = iBoard_ % nBoard_;
+    formatAMC(amc13, blocks, iBoard_);
   }
   else {
     for (unsigned iBoard=0; iBoard<nBoard_; ++iBoard) {
@@ -266,6 +267,12 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   // put the collection in the event
   iEvent.put(raw_coll);  
+
+  //advance to next AMC for next event, if required...
+  if (mux_) {
+    iBoard_++;
+    iBoard_ = iBoard_ % nBoard_;
+  }
   
 }
 
@@ -303,11 +310,13 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
       }
     }
     else {
+
       for (unsigned iFrame=rxIndex_.at(iBoard); iFrame<rxIndex_.at(iBoard)+size; ++iFrame) {
 	uint64_t d = rxFileReader_.get(iBoard).link(link).at(iFrame);
 	LogDebug("L1T") << "Frame " << iFrame << " : " << std::hex << d;
 	if ((d & 0x100000000) > 0) data.push_back( d & 0xffffffff );
       }
+
     }
     
     LogDebug("L1T") << "Board " << iBoard << " block " << id << ", size " << data.size();
@@ -329,20 +338,28 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
 
     std::vector<uint32_t> data;
     if (packetisedData_) {
+
       const PacketData& p = txPacketReader_.get(iBoard);
       PacketData::const_iterator itr = p.begin();
       for (unsigned i=0; i<txIndex_.at(iBoard); i++) itr++;
-      for (unsigned iFrame=itr->first_; iFrame<itr->last_; ++iFrame) {
+
+      LogDebug("L1T") << "Found packet [" << itr->first_ << ", " << itr->last_ << "]";
+      LogDebug("L1T") << "Link " << link << " has " << itr->links_.find(link)->second.size() << " frames";
+
+      for (unsigned iFrame=0; iFrame<itr->links_.find(link)->second.size(); ++iFrame) {
 	uint64_t d = itr->links_.find(link)->second.at(iFrame);
 	data.push_back(d);
       }
+
     }
     else {
+
       for (unsigned iFrame=txIndex_.at(iBoard); iFrame<txIndex_.at(iBoard)+size; ++iFrame) {
 	uint64_t d = txFileReader_.get(iBoard).link(link).at(iFrame);
 	LogDebug("L1T") << "Frame " << iFrame << " : " << std::hex << d;
 	if ((d & 0x100000000) > 0) data.push_back( d & 0xffffffff );
       }
+
     }
     
     LogDebug("L1T") << "Board " << iBoard << " block " << id << ", size " << data.size();
@@ -401,6 +418,7 @@ MP7BufferDumpToRaw::formatAMC(amc13::Packet& amc13, const std::vector<Block>& bl
   }
   
   LogDebug("L1T") << "Creating AMC packet " << iBoard;
+  //  LogDebug("L1T") << iBoard << ", " << boardId_.at(iBoard) << ", " << load64.size();
   
   amc13.add(iBoard, boardId_.at(iBoard), load64);
 
