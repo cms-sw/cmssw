@@ -19,6 +19,11 @@ options.register('mpOffset',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "MP offset (frames)")
+options.register('dmFramesPerEvent',
+                 6,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Demux frames per event")
 options.register('dmLatency',
                  0,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -34,6 +39,21 @@ options.register('dump',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Print RAW data")
+options.register('doMP',
+                 True,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Read MP data")
+options.register('doDemux',
+                 True,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Read demux data")
+options.register('nMP',
+                 11,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Number of MPs")
                  
 options.parseArguments()
 
@@ -99,20 +119,39 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 # buffer dump to RAW
 process.load('EventFilter.L1TRawToDigi.stage2MP7BufferRaw_cff')
 
-mpOffsets = cms.untracked.vint32()
-for i in range (0,11):
-    mpOffsets.append(options.mpOffset)
+# skip events
+dmOffset = options.dmOffset + (options.skipEvents * options.dmFramesPerEvent)
 
-mpLatencies = cms.untracked.vint32()
-for i in range (0,11):
-    mpLatencies.append(options.mpLatency)
+mpOffsets = cms.untracked.vint32()
+for i in range (0,options.nMP):
+    offset = options.mpOffset + (options.skipEvents / options.nMP)
+    if (i < options.skipEvents % options.nMP):
+        offset = offset + 1    
+    mpOffsets.append(offset)
+
+boardOffset = options.skipEvents % options.nMP
+
+# print some debug info
+print "nMP           = ", options.nMP
+print "maxEvents     = ", options.maxEvents
+print "skipEvents    = ", options.skipEvents
+print "dmOffset      = ", dmOffset
+print "mpBoardOffset = ", boardOffset
+print "mpOffset      = ", mpOffsets
+print " "
+
+#mpLatencies = cms.untracked.vint32( 0,0,0,0,0,0,0,0,0,0,0 )
+#for i in range (0,11):
+#    mpLatencies.[i](options.mpLatency)
 
 process.stage2MPRaw.nFramesOffset    = cms.untracked.vuint32(mpOffsets)
-process.stage2MPRaw.nFramesLatency   = cms.untracked.vuint32(mpLatencies)
+process.stage2MPRaw.boardOffset    = cms.untracked.int32(boardOffset)
+#process.stage2MPRaw.nFramesLatency   = cms.untracked.vuint32(mpLatencies)
 process.stage2MPRaw.rxFile = cms.untracked.string("mp_rx_summary.txt")
 process.stage2MPRaw.txFile = cms.untracked.string("mp_tx_summary.txt")
 
-process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(options.dmOffset)
+process.stage2DemuxRaw.nFramesPerEvent    = cms.untracked.int32(options.dmFramesPerEvent)
+process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(dmOffset)
 process.stage2DemuxRaw.nFramesLatency   = cms.untracked.vuint32(options.dmLatency)
 process.stage2DemuxRaw.rxFile = cms.untracked.string("demux_rx_summary.txt")
 process.stage2DemuxRaw.txFile = cms.untracked.string("demux_tx_summary.txt")
@@ -133,11 +172,9 @@ process.caloStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("caloStage2Digis")
+process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.mpEGToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.mpTauToken = cms.InputTag("None")
 
 # Path and EndPath definitions
 process.path = cms.Path(
