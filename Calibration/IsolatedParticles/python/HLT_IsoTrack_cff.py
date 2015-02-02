@@ -1,18 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-hltL1sL1SingleJet68 = cms.EDFilter("HLTLevel1GTSeed",
-                                   L1SeedsLogicalExpression = cms.string( "L1_SingleJet68" ),
-                                   saveTags = cms.bool( True ),
-                                   L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
-                                   L1UseL1TriggerObjectMaps = cms.bool( True ),
-                                   L1UseAliasesForSeeding = cms.bool( True ),
-                                   L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-                                   L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-                                   L1NrBxInEvent = cms.int32( 3 ),
-                                   L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-                                   L1TechTriggerSeeding = cms.bool( False )
-                                   )
-
 hltPreIsoTrackHE = cms.EDFilter("HLTPrescaler",
                                 L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
                                 offset = cms.uint32( 0 )
@@ -316,7 +303,7 @@ hltIsolPixelTrackL3FilterHE = cms.EDFilter("HLTPixelIsolTrackFilter",
                                            MinPtTrack = cms.double( 20.0 ),
                                            DropMultiL2Event = cms.bool( False ),
                                            L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
-                                           MinEnergyTrack = cms.double( 38.0 ),
+                                           MinEnergyTrack = cms.double( 18.0 ),
                                            NMaxTrackCandidates = cms.int32( 999 ),
                                            MaxEtaTrack = cms.double( 2.2 ),
                                            candTag = cms.InputTag( "hltHITIPTCorrectorHE" ),
@@ -368,7 +355,7 @@ hltIsolPixelTrackL2FilterHB = cms.EDFilter("HLTPixelIsolTrackFilter",
                                            MinPtTrack = cms.double( 3.5 ),
                                            DropMultiL2Event = cms.bool( False ),
                                            L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
-                                           MinEnergyTrack = cms.double( 8.0 ),
+                                           MinEnergyTrack = cms.double( 12.0 ),
                                            NMaxTrackCandidates = cms.int32( 10 ),
                                            MaxEtaTrack = cms.double( 1.15 ),
                                            candTag = cms.InputTag( "hltIsolPixelTrackProdHB" ),
@@ -429,6 +416,21 @@ hltHITPixelTripletSeedGeneratorHB = cms.EDProducer("SeedGeneratorFromRegionHitsE
         ),
                                                    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
                                                    )
+HLTPSetCkfTrajectoryBuilder = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetCkfTrajectoryFilter" ) ),
+  maxCand = cms.int32( 5 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+
 
 hltHITCkfTrackCandidatesHB = cms.EDProducer("CkfTrackCandidateMaker",
                                             src = cms.InputTag( "hltHITPixelTripletSeedGeneratorHB" ),
@@ -484,7 +486,7 @@ hltIsolPixelTrackL3FilterHB = cms.EDFilter("HLTPixelIsolTrackFilter",
                                            MinPtTrack = cms.double( 20.0 ),
                                            DropMultiL2Event = cms.bool( False ),
                                            L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
-                                           MinEnergyTrack = cms.double( 38.0 ),
+                                           MinEnergyTrack = cms.double( 18.0 ),
                                            NMaxTrackCandidates = cms.int32( 999 ),
                                            MaxEtaTrack = cms.double( 1.15 ),
                                            candTag = cms.InputTag( "hltHITIPTCorrectorHB" ),
@@ -514,7 +516,7 @@ hltIsolEcalPixelTrackProdHE = cms.EDProducer("IsolatedEcalPixelTrackCandidatePro
 hltEcalIsolPixelTrackL2FilterHB = cms.EDFilter("HLTEcalPixelIsolTrackFilter",
                                                MaxEnergyIn = cms.double(1.2),
                                                MaxEnergyOut = cms.double(1.2),
-                                               candTag = cms.InputTag("isolEcalPixelTrackProdHB"),
+                                               candTag = cms.InputTag("hltIsolEcalPixelTrackProdHB"),
                                                NMaxTrackCandidates=cms.int32(10),
                                                DropMultiL2Event = cms.bool(False),
                                                saveTags = cms.bool( False )
@@ -523,7 +525,7 @@ hltEcalIsolPixelTrackL2FilterHB = cms.EDFilter("HLTEcalPixelIsolTrackFilter",
 hltEcalIsolPixelTrackL2FilterHE = cms.EDFilter("HLTEcalPixelIsolTrackFilter",
                                                MaxEnergyIn = cms.double(1.2),
                                                MaxEnergyOut = cms.double(1.2),
-                                               candTag = cms.InputTag("isolEcalPixelTrackProdHE"),
+                                               candTag = cms.InputTag("hltIsolEcalPixelTrackProdHE"),
                                                NMaxTrackCandidates=cms.int32(10),
                                                DropMultiL2Event = cms.bool(False),
                                                saveTags = cms.bool( False )
