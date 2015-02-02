@@ -166,6 +166,10 @@ namespace reco {
       else
         return nullptr;
     }
+    /// uncertainty on dz 
+    virtual float dzError() const { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dzError(); else return 0; }
+    /// uncertainty on dxy
+    virtual float dxyError() const { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dxyError(); else return 0; }
 
     /// set gsftrack reference 
     void setGsfTrackRef(const reco::GsfTrackRef& ref);   

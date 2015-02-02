@@ -14,24 +14,13 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
         EvtGen130 = cms.untracked.PSet(
             decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_2010.DEC'),
             particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
-            user_decay_file = cms.untracked.bool(True),
-            user_decay_files = cms.vstring('GeneratorInterface/ExternalDecays/data/Bu_JpsiK.dec'),
+     #       user_decay_file = cms.untracked.bool(True),
+            user_decay_file = cms.vstring('GeneratorInterface/ExternalDecays/data/Bu_JpsiK.dec'),
             list_forced_decays = cms.vstring('MyB+','MyB-'),
             operates_on_particles = cms.vint32()
             ),
         parameterSets = cms.vstring('EvtGen130')
         ),
-                         #ExternalDecays = cms.PSet(
-                         #EvtGen = cms.untracked.PSet(
-                         #operates_on_particles = cms.vint32( 0 ), 
-                         #use_default_decay = cms.untracked.bool(False),
-                         #decay_table = cms.FileInPath('GeneratorInterface/ExternalDecays/data/DECAY_NOLONGLIFE.DEC'),
-                         #particle_property_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/evt.pdl'),
-                         #user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/Bu_JpsiK.dec'),
-                         #list_forced_decays = cms.vstring('MyB+','MyB-'),
-                         #),
-                         #parameterSets = cms.vstring('EvtGen')
-                         #),
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,
