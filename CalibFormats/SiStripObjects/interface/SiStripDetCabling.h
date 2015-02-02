@@ -16,6 +16,7 @@
 #include <vector>
 #include <string>
 #include <map>
+
 class SiStripDetCabling
 {
  public:
@@ -64,7 +65,7 @@ class SiStripDetCabling
  private:
   SiStripDetCabling(const SiStripDetCabling&); // stop default
   const SiStripDetCabling& operator=(const SiStripDetCabling&); // stop default
-  void addFromSpecificConnection( std::map<uint32_t, std::vector<int> > & , const std::map< uint32_t, std::vector<int> >  &, const int connectionType = -1 ) const;
+  void addFromSpecificConnection( std::map<uint32_t, std::vector<int> > & , const std::map< uint32_t, std::vector<int> >  &, std::map< int16_t, uint32_t >* connectionsToFill = nullptr ) const;
   bool IsInMap(const uint32_t& det_id, const std::map<uint32_t, std::vector<int> > &) const;
   int16_t layerSearch( const uint32_t detId ) const;
   uint32_t detNumber(const std::string & subDet, const uint16_t layer, const int connectionType) const;
@@ -81,8 +82,7 @@ class SiStripDetCabling
   // 0 = connected
   // 1 = detected
   // 2 = undetected
-  // Note: it is mutable because the method changing it must be const.
-  mutable std::map< int16_t, uint32_t > connectionCount[3];
+  std::map< int16_t, uint32_t > connectionCount[3];
   const SiStripFedCabling * fedCabling_;
 };
 #endif
