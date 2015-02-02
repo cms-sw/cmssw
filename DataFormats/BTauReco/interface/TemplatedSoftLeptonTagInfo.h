@@ -22,7 +22,8 @@ public:
         etaRel(   std::numeric_limits<float>::quiet_NaN() ),
         deltaR(   std::numeric_limits<float>::quiet_NaN() ),
         ratio(    std::numeric_limits<float>::quiet_NaN() ),
-        ratioRel( std::numeric_limits<float>::quiet_NaN() )
+        ratioRel( std::numeric_limits<float>::quiet_NaN() ),
+        elec_mva( std::numeric_limits<float>::quiet_NaN() )
     { }
 
     float sip2d;                            // 2D signed impact parameter
@@ -34,6 +35,8 @@ public:
     float deltaR;                           // (pseudo)angular distance to jet axis
     float ratio;                            // momentum over jet energy
     float ratioRel;                         // momentum parallel to jet axis over jet energy
+
+    float elec_mva;
 
     struct Quality {
         static const float undef;
