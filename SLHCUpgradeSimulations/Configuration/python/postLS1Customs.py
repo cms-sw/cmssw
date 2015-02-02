@@ -95,12 +95,6 @@ def customiseRun2EraExtras(process):
         process.cscpacker.usePreTriggers = cms.bool(False)
         process.cscpacker.packEverything = cms.bool(True)
 
-    # CSC RecHiti producer adjustments 
-    if hasattr(process, 'csc2DRecHits'):
-        # Turn off some flags for CSCRecHitD that are turned ON in default config
-        process.csc2DRecHits.readBadChannels = cms.bool(False)
-        process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
-
     # deal with L1 Emulation separately:
     # replace the L1 menu from the global tag with one of the following alternatives
     # the menu will be read from an XML file instead of the global tag - must copy the file in luminosityDirectory
