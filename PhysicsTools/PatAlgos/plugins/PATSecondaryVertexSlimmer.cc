@@ -23,15 +23,15 @@ namespace pat {
             virtual void produce(edm::Event&, const edm::EventSetup&);
         private:
             edm::EDGetTokenT<reco::VertexCompositePtrCandidateCollection> src_;
-            edm::EDGetTokenT<std::vector<reco::Vertex> > srcOld_;
+            edm::EDGetTokenT<std::vector<reco::Vertex> > srcLegacy_;
             edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > map_;
             edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > map2_;
     };
 }
 
 pat::PATSecondaryVertexSlimmer::PATSecondaryVertexSlimmer(const edm::ParameterSet& iConfig) :
-    src_(consumes<reco::VertexCompositePtrCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"))),
-    srcOld_(mayConsume<std::vector<reco::Vertex> >(edm::InputTag("inclusiveSecondaryVertices"))),
+    src_(mayConsume<reco::VertexCompositePtrCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+    srcLegacy_(mayConsume<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("src"))),
     map_(consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
     map2_(mayConsume<edm::Association<pat::PackedCandidateCollection> >(iConfig.existsAs<edm::InputTag>("lostTracksCandidates") ? iConfig.getParameter<edm::InputTag>("lostTracksCandidates") : edm::InputTag("lostTracks") ))
 {
@@ -74,7 +74,7 @@ void pat::PATSecondaryVertexSlimmer::produce(edm::Event& iEvent, const edm::Even
     else
     {
         edm::Handle<std::vector<reco::Vertex> > vertices;
-        iEvent.getByToken(srcOld_, vertices);
+        iEvent.getByToken(srcLegacy_, vertices);
 
         edm::Handle<edm::Association<pat::PackedCandidateCollection> > pf2pc2;
         iEvent.getByToken(map2_,pf2pc2);
