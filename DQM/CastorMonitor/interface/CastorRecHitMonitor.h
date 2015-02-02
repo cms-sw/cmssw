@@ -21,8 +21,8 @@ private:
  std::string subsystemname;
 
  TH2F *h2RecHitMap;
- MonitorElement* h2RHchan;
- MonitorElement* h2RHvsSec;
+ //MonitorElement* h2RHchan;
+ //MonitorElement* h2RHvsSec;
  MonitorElement* h2RHmap;
  MonitorElement* h2RHoccmap;
  MonitorElement* h2RHentriesMap;

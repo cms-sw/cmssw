@@ -39,16 +39,16 @@ void CastorLEDMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 
   ibooker.setCurrentFolder(subsystemname + "/CastorLEDMonitor");
   sprintf(s,"CastorLED_qVsTS(allPMT)");
-   h2qts = ibooker.book2D(s,s, 10,0,10., 5000,0.,10000.);
-   h2qts->getTH2F()->GetXaxis()->SetTitle("TS");
-   h2qts->getTH2F()->GetYaxis()->SetTitle("Qcastor(fC)");
-   h2qts->getTH2F()->SetOption("colz");
+   //h2qts = ibooker.book2D(s,s, 10,0,10., 5000,0.,10000.);
+   //h2qts->getTH2F()->GetXaxis()->SetTitle("TS");
+   //h2qts->getTH2F()->GetYaxis()->SetTitle("Qcastor(fC)");
+   //h2qts->getTH2F()->SetOption("colz");
 
   sprintf(s,"CastorLED_qVsPMT");
-   h2QvsPMT = ibooker.book2D(s,s, 224,0,224, 5000,0.,50000.);    
-   h2QvsPMT->getTH2F()->GetXaxis()->SetTitle("sector*14+module");
-   h2QvsPMT->getTH2F()->GetYaxis()->SetTitle("RecHit");
-   h2QvsPMT->getTH2F()->SetOption("colz");
+   //h2QvsPMT = ibooker.book2D(s,s, 224,0,224, 5000,0.,50000.);    
+   //h2QvsPMT->getTH2F()->GetXaxis()->SetTitle("sector*14+module");
+   //h2QvsPMT->getTH2F()->GetYaxis()->SetTitle("RecHit");
+   //h2QvsPMT->getTH2F()->SetOption("colz");
 
   sprintf(s,"CastorLEDqMap(cumulative)");
     h2qMap = ibooker.book2D(s,s,14, 0,14, 16, 0,16);
@@ -91,11 +91,11 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, co
    for(int i=0; i<digi.size(); i++) {
      int dig=digi.sample(i).adc() & 0x7f;
      float ets = LedMonAdc2fc[dig] + 0.5;
-     h2qts->Fill(i,ets);
+     //h2qts->Fill(i,ets);
      qsum += ets;
    }
-   int ind = sector*14 + module;
-   h2QvsPMT->Fill(ind,qsum);
+   //int ind = sector*14 + module;
+   //h2QvsPMT->Fill(ind,qsum);
    h2qMap->Fill(module,sector,qsum);
  } // end for(CastorDigiCollection::const_iterator j=castorDigis...
 

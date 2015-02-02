@@ -45,10 +45,10 @@ private:
   int ievt_;
   std::string subsystemname;
 
-  MonitorElement *h2qts;
+  //MonitorElement *h2qts;
   MonitorElement *h2qMap;
   MonitorElement *h2meanMap;
-  MonitorElement *h2QvsPMT;
+  //MonitorElement *h2QvsPMT;
 
 };
 
