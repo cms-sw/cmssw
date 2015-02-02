@@ -21,10 +21,10 @@ cleaningAlgoConfig = cms.PSet(
   # near cracks raise the energy threshold by this factor
   tightenCrack_e1_single=cms.double(1),
   # near cracks, divide the e4e1 threshold by this factor
-  tightenCrack_e4e1_single=cms.double(1),
+  tightenCrack_e4e1_single=cms.double(2.5),
   # same as above for double spike
-  tightenCrack_e1_double=cms.double(1),
-  tightenCrack_e6e2_double=cms.double(1),
+  tightenCrack_e1_double=cms.double(2),
+  tightenCrack_e6e2_double=cms.double(3),
   # consider for double spikes if above this threshold
   cThreshold_double =cms.double(10),
   # mark double spike if e6e2< e6e2thresh
