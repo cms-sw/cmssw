@@ -89,12 +89,6 @@ def customiseRun2EraExtras(process):
         process.simCsctfTrackDigis.DTproducer = cms.untracked.InputTag("simDtTriggerPrimitiveDigis")
         process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")
 
-    # packer - simply get rid of it
-    if hasattr(process, 'cscpacker') or hasattr(process, 'csctfpacker'):
-        process.cscpacker.useFormatVersion = cms.uint32(2013)
-        process.cscpacker.usePreTriggers = cms.bool(False)
-        process.cscpacker.packEverything = cms.bool(True)
-
     # deal with L1 Emulation separately:
     # replace the L1 menu from the global tag with one of the following alternatives
     # the menu will be read from an XML file instead of the global tag - must copy the file in luminosityDirectory

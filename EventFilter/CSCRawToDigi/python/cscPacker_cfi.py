@@ -18,3 +18,11 @@ cscpacker = cms.EDProducer("CSCDigiToRawModule",
 )
 
 
+##
+## Make changes for running in Run 2
+##
+from Configuration.StandardSequences.Eras import eras
+# packer - simply get rid of it
+eras.run2.toModify( cscpacker, useFormatVersion = cms.uint32(2013) )
+eras.run2.toModify( cscpacker, usePreTriggers = cms.bool(False) )
+eras.run2.toModify( cscpacker, packEverything = cms.bool(True) )
