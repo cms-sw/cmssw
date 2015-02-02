@@ -72,6 +72,7 @@ namespace evf{
       std::string getMergedRootHistogramFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getEoLSFilePathOnBU(const unsigned int ls) const;
       std::string getEoLSFilePathOnFU(const unsigned int ls) const;
+      std::string getBoLSFilePathOnFU(const unsigned int ls) const;
       std::string getEoRFilePath() const;
       std::string getEoRFilePathOnFU() const;
       std::string getRunOpenDirPath() const {return run_dir_ +"/open";}
