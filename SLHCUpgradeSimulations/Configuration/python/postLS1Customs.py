@@ -75,19 +75,6 @@ def customiseRun2EraExtras(process):
             print "         This path has the following modules:"
             print "         ", getattr(process, path_name).moduleNames(),"\n"
 
-    # digitizer
-    if hasattr(process, 'simMuonCSCDigis'):
-        ## Make sure there's no bad chambers/channels
-        #process.simMuonCSCDigis.strips.readBadChambers = True
-        #process.simMuonCSCDigis.wires.readBadChannels = True
-        #process.simMuonCSCDigis.digitizeBadChambers = True
-    
-        ## Customised timing offsets so that ALCTs and CLCTs times are centered in signal BX. 
-        ## These offsets below were tuned for the case of 3 layer pretriggering 
-        ## and median stub timing algorithm.
-        process.simMuonCSCDigis.strips.bunchTimingOffsets = cms.vdouble(0.0, 37.53, 37.66, 55.4, 48.2, 54.45, 53.78, 53.38, 54.12, 51.98, 51.28)
-        process.simMuonCSCDigis.wires.bunchTimingOffsets = cms.vdouble(0.0, 22.88, 22.55, 29.28, 30.0, 30.0, 30.5, 31.0, 29.5, 29.1, 29.88)
-
     # L1 stub emulator upgrade algorithm
     if hasattr(process, 'simCscTriggerPrimitiveDigis'):
         from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi import cscTriggerPrimitiveDigisPostLS1
