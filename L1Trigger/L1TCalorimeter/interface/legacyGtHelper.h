@@ -22,6 +22,10 @@ namespace l1t {
 			    const std::vector<l1t::Jet> * input,
 			    std::vector<l1t::Jet> *output);
 
+  void calibrateAndRankTaus(CaloParamsStage1 *params,
+			    const std::vector<l1t::Tau> * input,
+			    std::vector<l1t::Tau> *output);
+
   void JetToGtEtaScales(CaloParamsStage1 *params,
 			const std::vector<l1t::Jet> * input,
 			std::vector<l1t::Jet> *output);

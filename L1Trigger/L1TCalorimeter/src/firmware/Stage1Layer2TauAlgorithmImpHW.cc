@@ -43,11 +43,8 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
   int tauSeedThreshold= floor( params_->tauSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int tauNeighbourThreshold= floor( params_->tauNeighbourThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int tauMaxPtTauVeto = floor( params_->tauMaxPtTauVeto()/towerLsb + 0.5);
-  int tauMinPtJetIsolationB = floor( params_->tauMinPtJetIsolationB()/towerLsb + 0.5);
   int isoTauEtaMin = params_->isoTauEtaMin();
   int isoTauEtaMax = params_->isoTauEtaMax();
-  double tauMaxJetIsolationB = params_->tauMaxJetIsolationB();
-  double tauMaxJetIsolationA = params_->tauMaxJetIsolationA();
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
 
@@ -125,13 +122,23 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
 
       int regionTauVeto = region->hwQual() & 0x1;  // tauVeto should be the first bit of quality integer
 
-      double jetIsolation = JetIsolation(tauEt, region->hwEta(), region->hwPhi(), *unCorrJets);
+      // compute relative jet isolation
       if (region->hwEta() >= isoTauEtaMin && region->hwEta() <= isoTauEtaMax ){
 	if ((highestNeighborTauVeto == 0 && regionTauVeto == 0) || tauEt > tauMaxPtTauVeto) {
-	  if (jetIsolation < tauMaxJetIsolationA || (tauEt >= tauMinPtJetIsolationB && jetIsolation < tauMaxJetIsolationB)
-	      || (std::abs(jetIsolation - 999.) < 0.1) ) isoFlag=1;
+	  int jetEt=AssociatedJetPt(region->hwEta(), region->hwPhi(),unCorrJets);
+	  if (jetEt>0){
+	    unsigned int MAX_LUT_ADDRESS = params_->tauIsolationLUT()->maxSize()-1;
+	    unsigned int lutAddress = isoLutIndex(tauEt,jetEt);
+	    if (tauEt >0){
+	      if (lutAddress > MAX_LUT_ADDRESS) lutAddress = MAX_LUT_ADDRESS;
+	      isoFlag= params_->tauIsolationLUT()->data(lutAddress);
+	    }
+	  }else{ // no associated jet
+	    isoFlag=1;
+	  }
 	}
       }
+
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
 
       l1t::Tau theTau(*&tauLorentz, tauEt, region->hwEta(), region->hwPhi(), quality, isoFlag);
@@ -142,8 +149,10 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
     }
   }
 
-  TauToGtPtScales(params_, preGtTaus, preSortTaus);
-  TauToGtPtScales(params_, preGtIsoTaus, preSortIsoTaus);
+  // TauToGtPtScales(params_, preGtTaus, preRankTaus);
+  // TauToGtPtScales(params_, preGtIsoTaus, preRankIsoTaus);
+  calibrateAndRankTaus(params_,preGtTaus,preSortTaus);
+  calibrateAndRankTaus(params_,preGtIsoTaus, preSortIsoTaus);
 
   SortTaus(preSortTaus, sortedTaus);
   SortTaus(preSortIsoTaus, sortedIsoTaus);
@@ -181,9 +190,6 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
     }
   }
 }
-
-
-
 
 
 //  Compute jet isolation.
@@ -233,4 +239,81 @@ string l1t::Stage1Layer2TauAlgorithmImpHW::findNESW(int ieta, int iphi, int neta
 
   return "999";
 
+}
+
+int l1t::Stage1Layer2TauAlgorithmImpHW::AssociatedJetPt(int ieta, int iphi,
+							      const std::vector<l1t::Jet> * jets)  const {
+
+  bool Debug=false;
+
+  if (Debug) cout << "Number of jets: " << jets->size() << endl;
+  int pt = -1;
+
+
+  for(JetBxCollection::const_iterator itJet = jets->begin();
+      itJet != jets->end(); ++itJet){
+
+    int jetEta = itJet->hwEta();
+    int jetPhi = itJet->hwPhi();
+    if (Debug) cout << "Matching ETA: " << ieta << " " << jetEta << endl;
+    if (Debug) cout << "Matching PHI: " << iphi << " " << jetPhi << endl;
+    if ((jetEta == ieta) && (jetPhi == iphi)){
+      pt = itJet->hwPt();
+      break;
+    }
+  }
+
+  // set output
+  return pt;
+}
+
+unsigned l1t::Stage1Layer2TauAlgorithmImpHW::isoLutIndex(unsigned int tauPt,unsigned int jetPt) const
+{
+  //const unsigned int nbitsTau=9;  // number of bits used for et in LUT file (needed for left shift operation)
+  //const unsigned int nbitsJet=9;
+
+  const unsigned int nbitsTau=8;  // number of bits used for et in LUT file (needed for left shift operation)
+  const unsigned int nbitsJet=8;
+
+  const unsigned int maxJet = pow(2,nbitsJet)-1;
+  const unsigned int maxTau = pow(2,nbitsTau)-1;
+
+  if (nbitsTau < 9)
+  {
+    if (nbitsTau == 6)
+      {
+      tauPt=tauPt>>3;
+      }
+    else if (nbitsTau == 7)
+      {
+      tauPt=tauPt>>2;
+      }
+    else if (nbitsTau == 8)
+      {
+	tauPt=tauPt>>1;
+      }
+  }
+
+  if (nbitsJet < 9)// no need to do shift if nbits>=9
+  {
+    if (nbitsJet == 6)
+      {
+      jetPt=jetPt>>3;
+      }
+    else if (nbitsJet == 7)
+      {
+      jetPt=jetPt>>2;
+      }
+    else if (nbitsJet == 8)
+      {
+	jetPt=jetPt>>1;
+      }
+  }
+
+  if (jetPt>maxJet) jetPt=maxJet;
+  if (tauPt>maxTau) tauPt=maxTau;
+
+  unsigned int address= (jetPt << nbitsTau) + tauPt;
+  // std::cout << address << "\t## " << tauPt << " " << jetPt << std::endl;
+  return address;
 }

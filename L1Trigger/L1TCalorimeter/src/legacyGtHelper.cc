@@ -29,6 +29,27 @@ namespace l1t {
     }
   }
 
+  void calibrateAndRankTaus(CaloParamsStage1 *params,
+			    const std::vector<l1t::Tau> * input,
+			    std::vector<l1t::Tau> *output){
+
+    for(std::vector<l1t::Tau>::const_iterator itTau = input->begin();
+	itTau != input->end(); ++itTau){
+      unsigned int pt = itTau->hwPt();
+      if(pt > ((1<<10) -1) )
+	pt = ((1<<10) -1);
+      unsigned int eta = itTau->hwEta();
+      unsigned int lutAddress = (eta<<10)+pt;
+
+      unsigned int rank = params->tauCalibrationLUT()->data(lutAddress);
+
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
+      l1t::Tau outTau(*&ldummy, rank, itTau->hwEta(), itTau->hwPhi(), itTau->hwQual());
+      output->push_back(outTau);
+    }
+  }
+
+
   void JetToGtEtaScales(CaloParamsStage1 *params,
 			const std::vector<l1t::Jet> * input,
 			std::vector<l1t::Jet> *output){
