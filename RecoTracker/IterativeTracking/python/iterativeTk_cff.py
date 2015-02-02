@@ -13,7 +13,6 @@ from RecoTracker.IterativeTracking.JetCoreRegionalStep_cff import *
 from RecoTracker.FinalTrackSelectors.earlyGeneralTracks_cfi import *
 from RecoTracker.IterativeTracking.MuonSeededStep_cff import *
 from RecoTracker.FinalTrackSelectors.preDuplicateMergingGeneralTracks_cfi import *
-from RecoTracker.FinalTrackSelectors.preDuplicateMergingDisplacedTracks_cfi import *
 from RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep_cff import *
 
@@ -28,11 +27,8 @@ iterTracking = cms.Sequence(InitialStepPreSplitting*
 			    JetCoreRegionalStep *	
                             earlyGeneralTracks*
                             muonSeededStep*
-                            muonSeededStepDisplaced*
                             preDuplicateMergingGeneralTracks*
-                            preDuplicateMergingDisplacedTracks*
                             generalTracksSequence*
-                            displacedTracksSequence*
                             ConvStep*
                             conversionStepTracks
                             )
