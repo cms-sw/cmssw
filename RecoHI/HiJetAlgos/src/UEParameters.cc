@@ -1,7 +1,7 @@
 
 #include "RecoHI/HiJetAlgos/interface/UEParameters.h"
 
-UEParameters::UEParameters(const std::vector<float> *v, int nn, int neta) : v_(v) {
+UEParameters::UEParameters(const std::vector<float> *v, int nn, int neta) : v_(v), nn_(nn), neta_(neta){
   parameters_ = new boost::const_multi_array_ref<float, 4>(&(*v)[0], boost::extents[neta][nreduced_particle_flow_id][nn][2]);
 }
 

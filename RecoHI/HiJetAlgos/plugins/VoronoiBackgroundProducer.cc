@@ -3,10 +3,14 @@
 #include <iostream>
 
 // user include files
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,6 +19,9 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
+
+#include "CondFormats/HIObjects/interface/UETable.h"
+#include "CondFormats/DataRecord/interface/HeavyIonUERcd.h"
 
 #include "RecoHI/HiJetAlgos/interface/VoronoiAlgorithm.h"
 
@@ -41,7 +48,9 @@ class VoronoiBackgroundProducer : public edm::EDProducer {
    double equalizeThreshold0_;
    double equalizeThreshold1_;
    double equalizeR_;
+   bool useTextTable_;
    bool isCalo_;
+   std::string tableLabel_;
    int etaBins_;
    int fourierOrder_;
    std::vector<reco::VoronoiBackground> vvm;
@@ -66,7 +75,9 @@ VoronoiBackgroundProducer::VoronoiBackgroundProducer(const edm::ParameterSet& iC
    equalizeThreshold0_(iConfig.getParameter<double>("equalizeThreshold0")),
    equalizeThreshold1_(iConfig.getParameter<double>("equalizeThreshold1")),
    equalizeR_(iConfig.getParameter<double>("equalizeR")),
+   useTextTable_(iConfig.getParameter<bool>("useTextTable")),
    isCalo_(iConfig.getParameter<bool>("isCalo")),
+   tableLabel_(iConfig.getParameter<std::string>("tableLabel")),
    etaBins_(iConfig.getParameter<int>("etaBins")),
    fourierOrder_(iConfig.getParameter<int>("fourierOrder"))
 {
@@ -94,8 +105,29 @@ VoronoiBackgroundProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 {
    using namespace edm;
    if(voronoi_ == 0){
-     bool data = iEvent.isRealData();
-     voronoi_ = new VoronoiAlgorithm(equalizeR_,data,isCalo_,std::pair<double, double>(equalizeThreshold0_,equalizeThreshold1_),doEqualize_);
+	UECalibration *ue = NULL;
+	if (useTextTable_) {
+	 const bool isData = iEvent.isRealData();
+	 const char *calibrationFile = NULL;
+      if(isCalo_){
+        if(isData) calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_calo_data.txt";
+        if(!isData) calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_calo_mc.txt";
+      }else{
+        if(isData) calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_pf_data.txt";
+        if(!isData) calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_pf_mc.txt";
+      }
+	ue = new UECalibration(calibrationFile);
+	}
+	else {
+	 edm::ESHandle<UETable> ueHandle;
+
+	 iSetup.get<HeavyIonUERcd>().get(tableLabel_,ueHandle);
+
+	 const UETable *ueTable = ueHandle.product();
+	 ue = new UECalibration(ueTable->values);
+	}
+
+     voronoi_ = new VoronoiAlgorithm(ue,equalizeR_,std::pair<double, double>(equalizeThreshold0_,equalizeThreshold1_),doEqualize_);
    }
 
    voronoi_->clear();
