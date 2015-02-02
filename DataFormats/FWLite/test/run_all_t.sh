@@ -22,6 +22,8 @@ root -b -n -q ${LOCAL_TEST_DIR}/triggerResultsByName_multi_cint.C || die 'Failed
 ${LOCAL_TEST_DIR}/VIPTest.sh || die 'Failed to create file' $?
 root -b -n -q ${LOCAL_TEST_DIR}/vector_int_cint.C || die 'Failed in vector_int_cint.C' $?
 
+python ${LOCAL_TEST_DIR}/pyroot_handle_reuse.py || die 'Failed in pyroot_handle_reuse.py' $?
+
 #NOTE: ROOT has a bug which keeps the AssociationVector from running its ioread rule and therefore it never clears its cache
 #test AssociationVector reading
 #rm -f ${LOCAL_TEST_DIR}/avtester.root

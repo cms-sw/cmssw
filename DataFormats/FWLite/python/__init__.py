@@ -56,17 +56,7 @@ class Handle:
         # turn off warnings
         oldWarningLevel = ROOT.gErrorIgnoreLevel
         ROOT.gErrorIgnoreLevel = ROOT.kError
-        self._type      = typeString 
-        self._wrapper   = ROOT.edm.Wrapper (self._type)()
-        self._typeInfo  = self._wrapper.typeInfo()
-        self._exception = RuntimeError ("getByLabel not called for '%s'", self)
-        ROOT.SetOwnership (self._wrapper, False)
-        # restore warning state
-        ROOT.gErrorIgnoreLevel = oldWarningLevel
-        # O.k.  This is a little weird.  We want a pointer to an EDM
-        # wrapper, but we don't want the memory it is pointing to.
-        # So, we've created it and grabbed the type info.  Since we
-        # don't want a memory leak, we destroy it.
+        self._nodel = False
         if kwargs.get ('noDelete'):
             print "Not deleting wrapper"
             del kwargs['noDelete']
@@ -78,7 +68,6 @@ class Handle:
         # should complain.
         if len (kwargs):
             raise RuntimeError, "Unknown arguments %s" % kwargs
-
 
     def isValid (self):
         """Returns true if getByLabel call was successful and data is
@@ -98,6 +87,18 @@ class Handle:
 
                                           
     ## Private member functions ##
+
+    def _resetWrapper (self):
+        """(Internal) reset the edm wrapper"""
+        self._wrapper   = ROOT.edm.Wrapper (self._type)()
+        self._typeInfo  = self._wrapper.typeInfo()
+        ROOT.SetOwnership (self._wrapper, False)
+        # O.k.  This is a little weird.  We want a pointer to an EDM
+        # wrapper, but we don't want the memory it is pointing to.
+        # So, we've created it and grabbed the type info.  Since we
+        # don't want a memory leak, we destroy it.
+        if not self._nodel :
+            self._wrapper.IsA().Destructor( self._wrapper )
 
     def _typeInfoGetter (self):
         """(Internal) Return the type info"""
@@ -227,6 +228,8 @@ class Lumis:
             argsList.append ('')
         (moduleLabel, productInstanceLabel, processLabel) = argsList
         labelString = "'" + "', '".join(argsList) + "'"
+        if not handle._wrapper :
+            handle._resetWrapper()
         handle._setStatus ( self._lumi.getByLabel( handle._typeInfoGetter(),
                                                    moduleLabel,
                                                    productInstanceLabel,
@@ -378,6 +381,8 @@ class Runs:
             argsList.append ('')
         (moduleLabel, productInstanceLabel, processLabel) = argsList
         labelString = "'" + "', '".join(argsList) + "'"
+        if not handle._wrapper :
+            handle._resetWrapper()
         handle._setStatus ( self._run.getByLabel( handle._typeInfoGetter(),
                                                    moduleLabel,
                                                    productInstanceLabel,
@@ -547,6 +552,8 @@ class Events:
             argsList.append ('')
         (moduleLabel, productInstanceLabel, processLabel) = argsList
         labelString = "'" + "', '".join(argsList) + "'"
+        if not handle._wrapper :
+            handle._resetWrapper()
         handle._setStatus ( self._event.getByLabel( handle._typeInfoGetter(),
                                                     moduleLabel,
                                                     productInstanceLabel,
