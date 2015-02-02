@@ -11,6 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -26,7 +27,6 @@
 
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "DataFormats/Provenance/interface/EventID.h"  
-#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -48,15 +48,15 @@
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h" //-- no CastorUnpackerReport at the moment !
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h" //-- HcalCastorDetId
 
-#include "DQM/CastorMonitor/interface/CastorMonitorSelector.h"
+//#include "DQM/CastorMonitor/interface/CastorMonitorSelector.h"
 #include "DQM/CastorMonitor/interface/CastorDigiMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorRecHitMonitor.h"
-#include "DQM/CastorMonitor/interface/CastorChannelQualityMonitor.h"
+//#include "DQM/CastorMonitor/interface/CastorChannelQualityMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorLEDMonitor.h"
-#include "DQM/CastorMonitor/interface/CastorPSMonitor.h"
-#include "DQM/CastorMonitor/interface/CastorHIMonitor.h"
-#include "DQM/CastorMonitor/interface/CastorDataIntegrityMonitor.h"
-#include "DQM/CastorMonitor/interface/CastorTowerJetMonitor.h"
+//#include "DQM/CastorMonitor/interface/CastorPSMonitor.h"
+//#include "DQM/CastorMonitor/interface/CastorHIMonitor.h"
+//#include "DQM/CastorMonitor/interface/CastorDataIntegrityMonitor.h"
+//#include "DQM/CastorMonitor/interface/CastorTowerJetMonitor.h"
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h" //-- use to get/dump Calib to DB 
 #include "CondFormats/CastorObjects/interface/CastorChannelQuality.h" //-- use to get/hold channel status
@@ -74,207 +74,59 @@
 
 
 
-class CastorMonitorModule : public edm::EDAnalyzer{
+class CastorMonitorModule : public DQMEDAnalyzer{
 
 public:
   
-  ////---- constructor
   CastorMonitorModule(const edm::ParameterSet& ps);
-
-  ////---- destructor
   ~CastorMonitorModule();
   
- protected:
+protected:
   
-  ////---- analyze
   void analyze(const edm::Event& iEvent, const edm::EventSetup& eventSetup);
   
-  ////---- beginJob
-  void beginJob();
-  
-  ////---- beginRun
-  void beginRun(const edm::Run& iRun, const edm::EventSetup& eventSetup);
+  void dqmBeginRun(const edm::Run &, const edm::EventSetup &);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
 
-  ////---- begin LumiBlock
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                             const edm::EventSetup& eventSetup) ;
 
-  ////---- end LumiBlock
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                           const edm::EventSetup& eventSetup);
-
-  ////---- endJob
-  void endJob(void);
   
-  ////---- endRun
   void endRun(const edm::Run& run, const edm::EventSetup& eventSetup);
 
-  ////---- reset
-  void reset(void);
+private:
 
-  ////---- boolean prescale test for event
-  bool prescale();
-
-  ////---- check whether Castor has FED data
-  void CheckCastorStatus     (const FEDRawDataCollection& rawraw, 
-			      const HcalUnpackerReport& report, 
-			      const CastorElectronicsMap& emap,
-			      const CastorDigiCollection& castordigi
-			      );
-    
- private:
- 
-  ////----
-  ////---- steerable variables that can be specified in the configuration 
-  ////---- input file for the process.       
-  ////----
-  ////---- prescale variables for restricting the frequency of analyzer
-  ////---- behavior.  The base class does not implement prescales.
-  ////---- set to -1 to be ignored.
-  int prescaleEvt_;    //-- units of events
-  int prescaleLS_;     //-- units of lumi sections
-  int prescaleTime_;   //-- units of minutes
-  int prescaleUpdate_; //-- units of "updates", TBD
-
-  ////---- name of the monitoring process which derives from this
-  ////---- class, used to standardize filename and file structure
-  std::string monitorName_;
-
-  ////---- verbosity switch used for debugging or informational output
   int fVerbosity;  
-
-  ////---- counters and flags
-  int nevt_;
-  int nlumisecs_;
-  bool saved_;
-
-  ////---- castor products among the event data   
+  float fedsUnpacked;
   bool rawOK_    ;
   bool reportOK_ ;
   bool digiOK_   ;
   bool rechitOK_ ;
-  bool towerOK_  ;
-  bool jetOK_    ;
-  bool jetIdOK_  ;
   
-  int nRaw;
-  int nDigi;
-  int nRechit;
-  int nTower;
-  int nJet;
-  int nJetId;
-   
-  
-  ////---- control whether or not to display time used by each module
-  bool showTiming_; 
-  edm::CPUTimer cpu_timer; 
-
-  ////---- psTime
-  struct{
-    timeval startTV,updateTV;
-    double elapsedTime; 
-    double vetoTime; 
-    double updateTime;
-  } psTime_;    
-
-
-  ////---- define the DQMStore 
-  DQMStore* dbe_;  
-
-  ////---- define environment variables
-  int ilumisec_, itime_,ibunch_;
-  edm::RunNumber_t irun_;
-  edm::EventNumber_t ievent_;
-  bool actonLS_ ;
+  int irun_,ilumisec_,ievent_,itime_,ibunch_;
   std::string rootFolder_;
 
   int ievt_;
-  int ievt_pre_; //-- copy of counter used for prescale purposes
-  bool fedsListed_;
-  
+  int NBunchesOrbit;
   edm::InputTag inputLabelRaw_;
   edm::InputTag inputLabelReport_;
   edm::InputTag inputLabelDigi_;
   edm::InputTag inputLabelRecHitCASTOR_;
-  edm::InputTag inputLabelTowerCASTOR_;  
-  edm::InputTag inputLabelBasicJetCASTOR_;  
-  edm::InputTag inputLabelJetIdCASTOR_ ;
-  edm::InputTag inputLabelCastorTowers_    ; 
-  edm::InputTag inputLabelCastorBasicJets_ ; 
-  edm::InputTag inputLabelCastorJetIDs_ ; 
 
-  ////---- define  CastorTowerCollection
-  // typedef std::vector<reco::CastorTower> CastorTowerCollection;
-  // edm::InputTag inputLabelCaloTower_;
-  // edm::InputTag inputLabelLaser_;
-
-  ////---- Maps of readout hardware unit to calorimeter channel
-  std::map<uint32_t, std::vector<HcalCastorDetId> > DCCtoCell;
-  std::map<uint32_t, std::vector<HcalCastorDetId> > ::iterator thisDCC;
-  std::map<std::pair <int,int> , std::vector<HcalCastorDetId> > HTRtoCell;
-  std::map<std::pair <int,int> , std::vector<HcalCastorDetId> > ::iterator thisHTR;
-
-  ////---- define ME used to display the DQM Job Status
-  MonitorElement* meFEDS_;
-  MonitorElement* meStatus_;
-  MonitorElement* meRunType_;
-  MonitorElement* meEvtMask_;
-  MonitorElement* meTrigger_;
-  MonitorElement* meLatency_;
-  MonitorElement* meQuality_;
-  MonitorElement* CastorEventProduct;
- 
-
-  ////---- define monitors
-  CastorMonitorSelector*    evtSel_;
   CastorRecHitMonitor*      RecHitMon_;
-  CastorChannelQualityMonitor*  CQMon_;
   CastorDigiMonitor*        DigiMon_;
   CastorLEDMonitor*         LedMon_;
-  CastorPSMonitor*          PSMon_;
-  CastorHIMonitor*          HIMon_;
-  CastorDataIntegrityMonitor* DataIntMon_;
-  CastorTowerJetMonitor*     TowerJetMon_;
 
-  MonitorElement* meEVT_;
+  MonitorElement* CastorEventProduct;
 
   edm::ESHandle<CastorDbService> conditions_;
-  const CastorElectronicsMap*     CastorReadoutMap_;
 
-  ////---- pedestal parameters from CastorPedestalsRcd, initialized in beginRun
+  bool showTiming_; 
+  edm::CPUTimer cpu_timer; 
   edm::ESHandle<CastorPedestals> dbPedestals;
 
-  // pedestal width averaged over capIDs, calculated in beginRun
-  // aware of the difference between index[0..15][0..13] 
-  // and sector/module numeration[1..16][1..14]
-  float        fPedestalNSigmaAverage[14][16];
-
-  std::vector<HcalGenericDetId> listEMap; //electronics Emap
-
-
-  std::ofstream m_logFile;
-
-  ////---- decide whether the Castor status should be checked
-  bool checkCASTOR_;
-
-  ////----- define this ME to check whether the Castor is present 
-  ////----- in the run (using FED info)  
-  ////----- 1 is present , 0 - no Digis , -1 no within FED 
-  MonitorElement* meCASTOR_;
-   
-  ////---- to remove the EventDisplay Monitor in the Offline case
-  bool EDMonOn_;
-
-  /////---- myquality_ will store status values for each det ID I find
-  bool dump2database_;
-  std::map<HcalCastorDetId, unsigned int> myquality_;
-  CastorChannelQuality* chanquality_;
-
-  //define tokens
-  edm::EDGetTokenT<FEDRawDataCollection> inputLabelRawToken_;
-  edm::EDGetTokenT<HcalUnpackerReport> inputLabelReportToken_;
-  edm::EDGetTokenT<CastorDigiCollection> inputLabelDigiToken_;
-  edm::EDGetTokenT<CastorRecHitCollection> inputLabelRecHitCASTORToken_;
 };
 
 #endif
