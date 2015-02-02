@@ -27,13 +27,7 @@ SiStripCalZeroBiasMonitorCluster.PixelDCSfilter = cms.PSet()
 SiStripCalZeroBiasMonitorCluster.StripDCSfilter = cms.PSet()
 
 SiStripCalZeroBiasMonitorCluster.CreateTrendMEs = cms.bool(False)
-SiStripCalZeroBiasMonitorCluster.Trending = cms.PSet(
-    Nbins = cms.int32(600),
-    xmin = cms.double(0.0),
-    xmax = cms.double(1.0*60*60),
-    ymin = cms.double(0.0),
-    ymax = cms.double(100000.0)
-)
+SiStripCalZeroBiasMonitorCluster.TrendVsLS = cms.bool(True)
 SiStripCalZeroBiasMonitorCluster.TH1ClusterNoise = cms.PSet(
     Nbinx          = cms.int32(20),
     xmin           = cms.double(-0.5),
@@ -131,11 +125,6 @@ SiStripCalZeroBiasMonitorCluster.ClusterConditions = cms.PSet(
     maxWidth   = cms.double(10000.0)
 )
 SiStripCalZeroBiasMonitorCluster.TProfTotalNumberOfClusters = cms.PSet(
-    Nbins = cms.int32(600),
-    xmin = cms.double(0.0),
-    xmax = cms.double(1.0*60*60),
-    ymin = cms.double(0.0),
-    ymax = cms.double(0.0),
     subdetswitchon = cms.bool(True)
 )
 SiStripCalZeroBiasMonitorCluster.TH1TotalNumberOfClusters = cms.PSet(
