@@ -166,10 +166,11 @@ TaggingVariableList TemplatedSoftLeptonTagInfo<REF>::taggingVariables(void) cons
     list.insert( TaggingVariable(btau::trackSip2dSig,  data.sip2d),    true );
     list.insert( TaggingVariable(btau::trackSip3dSig,  data.sip3d),    true );
     list.insert( TaggingVariable(btau::trackPtRel,     data.ptRel),    true );
-    list.insert( TaggingVariable(btau::trackP0Par,     data.ptRel),    true );
+    list.insert( TaggingVariable(btau::trackP0Par,     data.p0Par),    true );
     list.insert( TaggingVariable(btau::trackEtaRel,    data.etaRel),   true );
     list.insert( TaggingVariable(btau::trackDeltaR,    data.deltaR),   true );
     list.insert( TaggingVariable(btau::trackPParRatio, data.ratioRel), true );
+    list.insert( TaggingVariable(btau::electronMVA,    data.elec_mva), true );
   }
 
   list.finalize();

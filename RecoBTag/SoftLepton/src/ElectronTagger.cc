@@ -27,6 +27,5 @@ float ElectronTagger::discriminator(const TagInfoHelper & tagInfo) const {
 	delete r;
     }
   }
-
   return bestTag;
 }

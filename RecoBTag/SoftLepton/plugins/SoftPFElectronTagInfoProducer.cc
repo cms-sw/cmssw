@@ -44,7 +44,6 @@ SoftPFElectronTagInfoProducer::~SoftPFElectronTagInfoProducer()
 
 void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-	std::cout<<"In the analyzer"<<std::endl;
 	reco::CandSoftLeptonTagInfoCollection* theElecTagInfo = new reco::CandSoftLeptonTagInfoCollection;
 	edm::ESHandle<TransientTrackBuilder> builder;
  	iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
