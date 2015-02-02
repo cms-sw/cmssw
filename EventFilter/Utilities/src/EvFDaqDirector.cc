@@ -385,6 +385,10 @@ namespace evf {
     return run_dir_ + "/" + fffnaming::eolsFileName(run_,ls);
   }
 
+  std::string EvFDaqDirector::getBoLSFilePathOnFU(const unsigned int ls) const {
+    return run_dir_ + "/" + fffnaming::bolsFileName(run_,ls);
+  }
+
   std::string EvFDaqDirector::getEoRFilePath() const {
     return bu_run_dir_ + "/" + fffnaming::eorFileName(run_);
   }
