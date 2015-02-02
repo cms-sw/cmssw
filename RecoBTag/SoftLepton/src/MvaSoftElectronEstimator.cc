@@ -27,12 +27,12 @@ MvaSoftEleEstimator::MvaSoftEleEstimator(std::string weightFile)
 {
 	TMVAReader = new TMVA::Reader("Color:Silent:Error");
   	TMVAReader->SetVerbose(false);
-  	TMVAReader->AddVariable("TagInfo1.sip3d", 	&mva_sip3d);
-  	TMVAReader->AddVariable("TagInfo1.sip2d", 	&mva_sip2d);
-  	TMVAReader->AddVariable("TagInfo1.ptRel", 	&mva_ptRel);
-  	TMVAReader->AddVariable("TagInfo1.deltaR",	&mva_deltaR);
-  	TMVAReader->AddVariable("TagInfo1.ratio", 	&mva_ratio);
-	TMVAReader->AddVariable("mva_e_pi", 		&mva_e_pi);
+  	TMVAReader->AddVariable("sip3d", 	&mva_sip3d);
+  	TMVAReader->AddVariable("sip2d", 	&mva_sip2d);
+  	TMVAReader->AddVariable("ptRel", 	&mva_ptRel);
+  	TMVAReader->AddVariable("deltaR",	&mva_deltaR);
+  	TMVAReader->AddVariable("ratio", 	&mva_ratio);
+	TMVAReader->AddVariable("mva_e_pi", 	&mva_e_pi);
   	reco::details::loadTMVAWeights(TMVAReader, "BDT", weightFile.c_str()); 
         
 }
