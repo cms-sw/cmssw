@@ -90,7 +90,8 @@ private:
   virtual void beginRun(edm::Run const&, edm::EventSetup const&);
   virtual void endRun(edm::Run const&, edm::EventSetup const&);
   reco::HcalIsolatedTrackCandidateCollection* select(edm::Handle<edm::TriggerResults>& triggerResults, const std::vector<std::string> & triggerNames_, edm::Handle<reco::TrackCollection>& trkCollection, math::XYZPoint& leadPV,edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle, edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle, edm::Handle<HBHERecHitCollection>& hbhe);
-  
+  void setPtEtaPhi(std::vector< edm::Ref<l1extra::L1JetParticleCollection> >& objref, double &ptL1, double &etaL1, double &phiL1);
+
   // ----------member data ---------------------------
   HLTConfigProvider          hltConfig_;
   std::vector<std::string>   trigNames, HLTNames;
@@ -105,7 +106,6 @@ private:
   edm::InputTag              labelGenTrack_, labelRecVtx_,  labelHltGT_;
   edm::InputTag              labelEB_, labelEE_, labelHBHE_;
   const MagneticField       *bField;
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
   const CaloGeometry        *geo;
   double                     ptL1, etaL1, phiL1;
 
@@ -196,11 +196,11 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig) :
 
   //create also IsolatedPixelTrackCandidateCollection which contains isolation info and reference to primary track
   produces<reco::HcalIsolatedTrackCandidateCollection>("HcalIsolatedTrackCollection");
-  produces<reco::TrackCollection>(labelGenTrack_.label());
-  produces<reco::VertexCollection>(labelRecVtx_.label());
-  produces<EcalRecHitCollection>(labelEB_.label());
-  produces<EcalRecHitCollection>(labelEE_.label());
-  produces<HBHERecHitCollection>(labelHBHE_.label());
+  produces<reco::TrackCollection>(labelGenTrack_.encode());
+  produces<reco::VertexCollection>(labelRecVtx_.encode());
+  produces<EcalRecHitCollection>(labelEB_.encode());
+  produces<EcalRecHitCollection>(labelEE_.encode());
+  produces<HBHERecHitCollection>(labelHBHE_.encode());
 
 }
 
@@ -220,14 +220,31 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   trigger::TriggerEvent triggerEvent;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
   iEvent.getByToken(tok_trigEvt_, triggerEventHandle);
+  if (!triggerEventHandle.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelTriggerEvent_;
+    return;
+  }
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByToken(tok_trigRes_, triggerResults);
+  if (!triggerResults.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelTriggerResults_;
+    return;
+  }
 
   edm::Handle<reco::TrackCollection> trkCollection;
   iEvent.getByToken(tok_genTrack_, trkCollection);
+  if (!trkCollection.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
+    return;
+  }
   reco::TrackCollection::const_iterator trkItr;
   edm::Handle<reco::VertexCollection> recVtxs;
   iEvent.getByToken(tok_recVtx_, recVtxs);  
+  if (!trkCollection.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
+    return;
+  }
+
   edm::Handle<reco::BeamSpot> beamSpotH;
   iEvent.getByToken(tok_bs_, beamSpotH);
   math::XYZPoint leadPV(0,0,0);
@@ -240,43 +257,41 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   LogDebug("HcalIsoTrack") << "Primary Vertex " << leadPV;
 
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
-  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
   iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
+  if (!barrelRecHitsHandle.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEB_;
+    return;
+  }
+  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
   iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
+  if (!endcapRecHitsHandle.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEE_;
+    return;
+  }
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByToken(tok_hbhe_, hbhe);
+  if (!hbhe.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelHBHE_;
+    return;
+  }
 
   //Get L1 trigger object
   ptL1 = etaL1 = phiL1 = 0;
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
   iEvent.getByToken(tok_hltGT_, l1trigobj);
+
   std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1tauobjref;
   l1trigobj->getObjects(trigger::TriggerL1TauJet, l1tauobjref);
-  for (unsigned int p=0; p<l1tauobjref.size(); p++) {
-    if (l1tauobjref[p]->pt()>ptL1) {
-      ptL1  = l1tauobjref[p]->pt(); 
-      phiL1 = l1tauobjref[p]->phi();
-      etaL1 = l1tauobjref[p]->eta();
-    }
-  }
+  setPtEtaPhi(l1tauobjref,ptL1,etaL1,phiL1);
+
   std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1jetobjref;
   l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
-  for (unsigned int p=0; p<l1jetobjref.size(); p++) {
-    if (l1jetobjref[p]->pt()>ptL1) {
-      ptL1  = l1jetobjref[p]->pt();
-      phiL1 = l1jetobjref[p]->phi();
-      etaL1 = l1jetobjref[p]->eta();
-    }
-  }
+  setPtEtaPhi(l1jetobjref,ptL1,etaL1,phiL1);
+
   std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1forjetobjref;
   l1trigobj->getObjects(trigger::TriggerL1ForJet, l1forjetobjref);
-  for (unsigned int p=0; p<l1forjetobjref.size(); p++) {
-    if (l1forjetobjref[p]->pt()>ptL1) {
-      ptL1  = l1forjetobjref[p]->pt();
-      phiL1 = l1forjetobjref[p]->phi();
-      etaL1 = l1forjetobjref[p]->eta();
-    }
-  }
+  setPtEtaPhi(l1forjetobjref,ptL1,etaL1,phiL1);
+
   //For valid HLT record
   if (!triggerEventHandle.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Error! Can't get the product "
@@ -312,11 +327,11 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	  outputHBHEColl->push_back(*hhit);
 
 	iEvent.put(outputHcalIsoTrackColl, "HcalIsolatedTrackCollection");
-	iEvent.put(outputTColl,    labelGenTrack_.label());
-	iEvent.put(outputVColl,    labelRecVtx_.label());
-	iEvent.put(outputEBColl,   labelEB_.label());
-	iEvent.put(outputEEColl,   labelEE_.label());
-	iEvent.put(outputHBHEColl, labelHBHE_.label());
+	iEvent.put(outputTColl,    labelGenTrack_.encode());
+	iEvent.put(outputVColl,    labelRecVtx_.encode());
+	iEvent.put(outputEBColl,   labelEB_.encode());
+	iEvent.put(outputEEColl,   labelEE_.encode());
+	iEvent.put(outputHBHEColl, labelHBHE_.encode());
       }
     }
   }
@@ -341,7 +356,6 @@ void AlCaIsoTracksProducer::beginRun(edm::Run const& iRun, edm::EventSetup const
   edm::ESHandle<MagneticField> bFieldH;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
   bField = bFieldH.product();
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   geo    = pG.product();
@@ -449,6 +463,17 @@ AlCaIsoTracksProducer::select(edm::Handle<edm::TriggerResults>& triggerResults,
     }
   }
   return trackCollection;
+}
+
+void AlCaIsoTracksProducer::setPtEtaPhi(std::vector< edm::Ref<l1extra::L1JetParticleCollection> >& objref, double &ptL1, double &etaL1, double &phiL1) {
+
+  for (unsigned int p=0; p<objref.size(); p++) {
+    if (objref[p]->pt()>ptL1) {
+      ptL1  = objref[p]->pt(); 
+      phiL1 = objref[p]->phi();
+      etaL1 = objref[p]->eta();
+    }
+  }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -90,7 +90,8 @@ private:
   double                     a_mipR, a_coneR, a_charIsoR;
   double                     pTrackMin_, eEcalMax_, eIsolation_;
   int                        nRun, nAll, nGood;
-  edm::InputTag              triggerEvent_, theTriggerResultsLabel;
+  edm::InputTag              triggerEvent_, theTriggerResultsLabel, labelHBHE_;
+  edm::InputTag              labelGenTrack_, labelRecVtx_, labelEB_, labelEE_;
   edm::EDGetTokenT<trigger::TriggerEvent>  tok_trigEvt;
   edm::EDGetTokenT<edm::TriggerResults>    tok_trigRes;
 
@@ -141,19 +142,24 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   eIsolation_                         = iConfig.getParameter<double>("IsolationEnergy");
   triggerEvent_                       = iConfig.getParameter<edm::InputTag>("TriggerEventLabel");
   theTriggerResultsLabel              = iConfig.getParameter<edm::InputTag>("TriggerResultLabel");
+  labelGenTrack_                      = iConfig.getParameter<edm::InputTag>("TrackLabel");
+  labelRecVtx_                        = iConfig.getParameter<edm::InputTag>("VertexLabel");
+  labelEB_                            = iConfig.getParameter<edm::InputTag>("EBRecHitLabel");
+  labelEE_                            = iConfig.getParameter<edm::InputTag>("EERecHitLabel");
+  labelHBHE_                          = iConfig.getParameter<edm::InputTag>("HBHERecHitLabel");
 
   // define tokens for access
   tok_trigEvt   = consumes<trigger::TriggerEvent>(triggerEvent_);
   tok_trigRes   = consumes<edm::TriggerResults>(theTriggerResultsLabel);
-  tok_genTrack_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("TrackLabel"));
-  tok_recVtx_   = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("VertexLabel"));
+  tok_genTrack_ = consumes<reco::TrackCollection>(labelGenTrack_);
+  tok_recVtx_   = consumes<reco::VertexCollection>(labelRecVtx_);
   tok_bs_       = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("BeamSpotLabel"));
  
-  tok_EB_       = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitLabel"));
-  tok_EE_       = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitLabel"));
-  tok_hbhe_     = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("HBHERecHitLabel"));
+  tok_EB_       = consumes<EcalRecHitCollection>(labelEB_);
+  tok_EE_       = consumes<EcalRecHitCollection>(labelEE_);
+  tok_hbhe_     = consumes<HBHERecHitCollection>(labelHBHE_);
 
-  std::vector<int>dummy(trigNames.size(),0);
+  std::vector<int> dummy(trigNames.size(),0);
   trigKount = trigPass = dummy;
   edm::LogInfo("HcalIsoTrack") <<"Parameters read from config file \n" 
 			       <<"\t minPt "           << selectionParameters.minPt   
@@ -195,19 +201,21 @@ void HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::ESHandle<MagneticField> bFieldH;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
   const MagneticField *bField = bFieldH.product();
-  
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
 
   // get handles to calogeometry and calotopology
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry* geo = pG.product();
   
+  bool okC(true);
   //Get track collection
   edm::Handle<reco::TrackCollection> trkCollection;
   iEvent.getByToken(tok_genTrack_, trkCollection);
   reco::TrackCollection::const_iterator trkItr;
+  if (!trkCollection.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
+    okC = false;
+  }
  
   //event weight for FLAT sample
   t_EventWeight = 1.0;
@@ -229,11 +237,23 @@ void HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   
   // RecHits
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
-  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
   iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
+  if (!barrelRecHitsHandle.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEB_;
+    okC = false;
+  }
+  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
   iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
+  if (!endcapRecHitsHandle.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEE_;
+    okC = false;
+  }
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByToken(tok_hbhe_, hbhe);
+  if (!hbhe.isValid()) {
+    edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelHBHE_;
+    okC = false;
+  }
 	  
   //Propagate tracks to calorimeter surface)
   std::vector<spr::propagatedTrackDirection> trkCaloDirections;
@@ -252,7 +272,7 @@ void HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   if (!triggerEventHandle.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Error! Can't get the product "
 				    << triggerEvent_.label() ;
-  } else {
+  } else if (okC) {
     triggerEvent = *(triggerEventHandle.product());
     
     const trigger::TriggerObjectCollection& TOC(triggerEvent.getObjects());
