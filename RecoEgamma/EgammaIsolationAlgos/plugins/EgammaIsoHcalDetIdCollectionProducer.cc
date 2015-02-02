@@ -34,6 +34,7 @@ EgammaIsoHcalDetIdCollectionProducer::EgammaIsoHcalDetIdCollectionProducer(const
   maxDIEta_ = iConfig.getParameter<int>("maxDIEta");
   maxDIPhi_ = iConfig.getParameter<int>("maxDIPhi");
 
+  minEnergyHCAL_= iConfig.getParameter<double>("minEnergyHCAL");
   
    //register your products
   produces< DetIdCollection > (interestingDetIdCollection_) ;
@@ -143,8 +144,8 @@ EgammaIsoHcalDetIdCollectionProducer::addDetIds(const reco::SuperCluster& superC
   for(auto& recHit : recHits){
     int dIEtaAbs = std::abs(calDIEta(seedHcalIEta,recHit.id().ieta()));
     int dIPhiAbs = std::abs(calDIPhi(seedHcalIPhi,recHit.id().iphi()));
-    
-    if(dIEtaAbs<=maxDIEta_ && dIPhiAbs<=maxDIPhi_) detIdsToStore.push_back(recHit.id().rawId());
+  
+    if(dIEtaAbs<=maxDIEta_ && dIPhiAbs<=maxDIPhi_ && recHit.energy()>minEnergyHCAL_) detIdsToStore.push_back(recHit.id().rawId());
   }
 
 }

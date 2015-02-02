@@ -66,6 +66,8 @@ private:
 
   int maxDIEta_;
   int maxDIPhi_;
+
+  float minEnergyHCAL_;
   
   edm::ESHandle<CaloTowerConstituentsMap> towerMap_;
   

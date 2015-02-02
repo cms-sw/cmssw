@@ -75,6 +75,7 @@ interestingGedEgammaIsoHCALDetId.minEleEt=cms.double(20)
 interestingGedEgammaIsoHCALDetId.minPhoEt=cms.double(20)
 interestingGedEgammaIsoHCALDetId.maxDIEta=cms.int32(5)
 interestingGedEgammaIsoHCALDetId.maxDIPhi=cms.int32(5)
+interestingGedEgammaIsoHCALDetId.minEnergyHCAL = cms.double(0.8)
 
 
 import RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoESDetIdModule_cff
