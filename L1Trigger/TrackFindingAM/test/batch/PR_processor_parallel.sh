@@ -37,11 +37,13 @@ if [ ${1} = "PR" ]; then
     # Current default is 4 for hybrid sectors 
 
     thresh=4
+    nmiss=1
 
     # First we decide the threshold to apply (5 for barrel sectors only)
 
     if [[ $SEC -ge 16 && $SEC -le 31 ]]; then 
 	thresh=5
+	nmiss=-1
     fi
 
     #
@@ -73,6 +75,7 @@ if [ ${1} = "PR" ]; then
     sed "s#BANKFILENAME#$BK#"                              -i BH_dummy_${SECBK}_${OUTPUT}.py
     sed "s/MYGLOBALTAG/$GT/"                               -i BH_dummy_${SECBK}_${OUTPUT}.py
     sed "s/THRESHOLD/$thresh/"                             -i BH_dummy_${SECBK}_${OUTPUT}.py
+    sed "s/NBMISSHIT/$nmiss/"                              -i BH_dummy_${SECBK}_${OUTPUT}.py
     sed "s/PATTCONT/AML1Patternsb$SEC/"                    -i BH_dummy_${SECBK}_${OUTPUT}.py
 
     cmsRun BH_dummy_${SECBK}_${OUTPUT}.py 
@@ -219,7 +222,7 @@ if [ ${1} = "FINAL" ]; then
     export SCRAM_ARCH=slc6_amd64_gcc472
     eval `scramv1 runtime -sh`   
 
-    cd /tmp/$USER
+    cd $INPUTDIR
     TOP=$PWD
 
     cd $TOP
@@ -297,6 +300,8 @@ if [ ${1} = "FIT" ]; then
     cd $INTMP
     TOP=$PWD
 
+    mkdir ${INTMP}/RECOVERY
+
     #
     # And we tweak the python generation script according to our needs
     #  
@@ -322,6 +327,24 @@ if [ ${1} = "FIT" ]; then
     lcg-cp file://$INPUT            ${OUTDIR}/$INFILE
     lcg-cp file://$TOP/$OUTPUT      ${OUTDIR}/$OUTPUT
     lcg-cp file://$TOP/EXTR_$OUTPUT ${OUTDIR}/$OUTPUTE
+
+    deal=`lcg-ls ${OUTDIR}/$INFILE | wc -l`
+
+    if [ $deal = "0" ]; then
+	mv $INPUT ${INTMP}/RECOVERY/$INFILE
+    fi
+
+    deal=`lcg-ls ${OUTDIR}/$OUTPUT | wc -l`
+
+    if [ $deal = "0" ]; then
+	mv $TOP/$OUTPUT ${INTMP}/RECOVERY/$OUTPUT
+    fi
+
+    deal=`lcg-ls ${OUTDIR}/$OUTPUTE | wc -l`
+
+    if [ $deal = "0" ]; then
+	mv $TOP/EXTR_$OUTPUT ${INTMP}/RECOVERY/$OUTPUTE
+    fi
 
     rm $OUTPUT
     rm EXTR_$OUTPUT

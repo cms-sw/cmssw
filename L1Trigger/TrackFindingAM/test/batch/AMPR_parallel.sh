@@ -74,10 +74,9 @@ parallel=/gridgroup/cms/brochet/.local/bin/parallel
 ###########################################################
 
 INDIR=$INPUTDIR
-mkdir $INDIR/TMPDAT
 
 OUTDIR=$SEBASE/$MATTER
-OUTDIRTMP=$INDIR/TMPDAT
+OUTDIRTMP=$INDIR/TMPDAT_$MATTER
 INDIR_GRID=srm://$LFC_HOST/$INDIR
 INDIR_XROOT=root://$LFC_HOST/$INDIR
 OUTDIR_GRID=srm://$LFC_HOST/$OUTDIR
@@ -89,7 +88,7 @@ OUTDIR_XROOT=root://$LFC_HOST/$OUTDIR
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideLcgAccess
 #
 
-source /afs/cern.ch/project/gd/LCG-share/current_3.2/etc/profile.d/grid-env.sh
+#source /afs/cern.ch/project/gd/LCG-share/current_3.2/etc/profile.d/grid-env.sh
 voms-proxy-init --voms cms --valid 100:00 -out $HOME/.globus/gridproxy.cert
 export X509_USER_PROXY=${HOME}/.globus/gridproxy.cert
 
@@ -109,7 +108,7 @@ echo 'The final pattern reco output files will be written in: '$OUTDIR
 
 lfc-mkdir $OUTDIR
 mkdir $OUTDIRTMP
-mkdir ${INDIR}/TMP
+mkdir ${INDIR}/TMP_$MATTER
 
 # We loop over the data directory in order to find all the files to process
 
@@ -117,7 +116,7 @@ ninput=0
 nsj=0
 npsc=$NFILES
 
-echo "#\!/bin/bash" > global_stuff.sh
+echo "#\!/bin/bash" > global_stuff_${MATTER}.sh
 
 for ll in `\ls $INDIR | grep EDM` 
 do   
@@ -132,36 +131,36 @@ do
 
 	nsj=$(( $nsj + 1))
 
-	echo "source $PACKDIR/batch/run_${nsj}.sh"  >> global_stuff.sh
+	echo "source $PACKDIR/batch/run_${nsj}_${MATTER}.sh"  >> global_stuff_${MATTER}.sh
 
-	echo "#\!/bin/bash" > run_${nsj}.sh
+	echo "#\!/bin/bash" > run_${nsj}_${MATTER}.sh
 
 	if [ $NCORES = 1 ]; then
-	    echo "$PACKDIR/batch/run_PR_${nsj}.sh" >> run_${nsj}.sh
-	    echo "$PACKDIR/batch/run_MERGE_${nsj}.sh" >> run_${nsj}.sh
-	    echo "$PACKDIR/batch/run_FMERGE_${nsj}.sh" >> run_${nsj}.sh
-	    echo "$PACKDIR/batch/run_FIT_${nsj}.sh" >> run_${nsj}.sh
-	    echo "$PACKDIR/batch/run_RM_${nsj}.sh" >> run_${nsj}.sh
+	    echo "$PACKDIR/batch/run_PR_${nsj}_${MATTER}.sh" >> run_${nsj}_${MATTER}.sh
+	    echo "$PACKDIR/batch/run_MERGE_${nsj}_${MATTER}.sh" >> run_${nsj}_${MATTER}.sh
+	    echo "$PACKDIR/batch/run_FMERGE_${nsj}_${MATTER}.sh" >> run_${nsj}_${MATTER}.sh
+	    echo "$PACKDIR/batch/run_FIT_${nsj}_${MATTER}.sh" >> run_${nsj}_${MATTER}.sh
+	    echo "$PACKDIR/batch/run_RM_${nsj}_${MATTER}.sh" >> run_${nsj}_${MATTER}.sh
 	else
-	    echo "${parallel} -j ${NCORES} < $PACKDIR/batch/run_PR_${nsj}.sh" >> run_${nsj}.sh
-	    echo "${parallel} -j ${NCORES} < $PACKDIR/batch/run_MERGE_${nsj}.sh" >> run_${nsj}.sh
-	    echo "${parallel} -j ${NCORES} < $PACKDIR/batch/run_FMERGE_${nsj}.sh" >> run_${nsj}.sh
-	    echo "${parallel} -j ${NCORES} < $PACKDIR/batch/run_FIT_${nsj}.sh" >> run_${nsj}.sh
-	    echo "${parallel} -j ${NCORES} < $PACKDIR/batch/run_RM_${nsj}.sh" >> run_${nsj}.sh
+	    echo "${parallel} -j ${NCORES} < $PACKDIR/batch/run_PR_${nsj}_${MATTER}.sh" >> run_${nsj}_${MATTER}.sh
+	    echo "${parallel} -j ${NCORES} < $PACKDIR/batch/run_MERGE_${nsj}_${MATTER}.sh" >> run_${nsj}_${MATTER}.sh
+	    echo "${parallel} -j ${NCORES} < $PACKDIR/batch/run_FMERGE_${nsj}_${MATTER}.sh" >> run_${nsj}_${MATTER}.sh
+	    echo "${parallel} -j ${NCORES} < $PACKDIR/batch/run_FIT_${nsj}_${MATTER}.sh" >> run_${nsj}_${MATTER}.sh
+	    echo "$PACKDIR/batch/run_RM_${nsj}_${MATTER}.sh" >> run_${nsj}_${MATTER}.sh
 	fi
 
-	echo "#\!/bin/bash" > run_PR_${nsj}.sh
-	echo "#\!/bin/bash" > run_MERGE_${nsj}.sh
-	echo "#\!/bin/bash" > run_FMERGE_${nsj}.sh
-	echo "#\!/bin/bash" > run_FIT_${nsj}.sh
-	echo "#\!/bin/bash" > run_RM_${nsj}.sh
+	echo "#\!/bin/bash" > run_PR_${nsj}_${MATTER}.sh
+	echo "#\!/bin/bash" > run_MERGE_${nsj}_${MATTER}.sh
+	echo "#\!/bin/bash" > run_FMERGE_${nsj}_${MATTER}.sh
+	echo "#\!/bin/bash" > run_FIT_${nsj}_${MATTER}.sh
+	echo "#\!/bin/bash" > run_RM_${nsj}_${MATTER}.sh
 
-	chmod 755 run_${nsj}.sh
-	chmod 755 run_PR_${nsj}.sh
-	chmod 755 run_MERGE_${nsj}.sh
-	chmod 755 run_FMERGE_${nsj}.sh
-	chmod 755 run_FIT_${nsj}.sh
-	chmod 755 run_RM_${nsj}.sh
+	chmod 755 run_${nsj}_${MATTER}.sh
+	chmod 755 run_PR_${nsj}_${MATTER}.sh
+	chmod 755 run_MERGE_${nsj}_${MATTER}.sh
+	chmod 755 run_FMERGE_${nsj}_${MATTER}.sh
+	chmod 755 run_FIT_${nsj}_${MATTER}.sh
+	chmod 755 run_RM_${nsj}_${MATTER}.sh
 
     fi
 
@@ -179,6 +178,20 @@ do
 
     processed=0
     section=0
+
+    AMPR_FILE=${OUTDIR_GRID}/$OUTF
+    FIT_FILE=${OUTDIR_GRID}/$OUTE
+    EXTR_FILE=${OUTDIR_GRID}/$OUTD
+
+    dealF=`lcg-ls $AMPR_FILE | wc -l`
+    dealE=`lcg-ls $FIT_FILE | wc -l`
+    dealD=`lcg-ls $EXTR_FILE | wc -l`
+
+    if [ $dealF != "0" ] && [ $dealE != "0" ] && [ $dealD != "0" ]; then
+	
+	echo "File "$l" has already processed, skip it..."
+	continue;
+    fi
 
     while [ $i -lt $NTOT ]
     do
@@ -200,7 +213,7 @@ do
 	    SECNUM=`echo $k | sed s/^.*sec// | cut -d_ -f1` 
 	    OUTS1=`echo $l | cut -d. -f1`_`echo $k | cut -d. -f1`_${i}_${j}
 
-	    echo "$PACKDIR/batch/PR_processor_parallel.sh PR ${INDIR}/$l $BANKDIR/$k $OUTS1.root  ${i} $NPFILE $OUTDIRTMP $RELEASEDIR $sec $GTAG $SECNUM ${INDIR}/TMP" >> run_PR_${nsj}.sh
+	    echo "$PACKDIR/batch/PR_processor_parallel.sh PR ${INDIR}/$l $BANKDIR/$k $OUTS1.root  ${i} $NPFILE $OUTDIRTMP $RELEASEDIR $sec $GTAG $SECNUM ${INDIR}/TMP_${MATTER}" >> run_PR_${nsj}_${MATTER}.sh
 	    sec=$(( $sec + 1))
 
 	done # End of bank loop
@@ -211,7 +224,7 @@ do
 	# procedure
 	#
 
-	echo "$PACKDIR/batch/PR_processor_parallel.sh  MERGE ${i}_${j}.root $OUTDIRTMP $OUTDIRTMP ${OUTM}_ $RELEASEDIR $GTAG ${OUTM}_${i}_${j} ${INDIR}/TMP" >> run_MERGE_${nsj}.sh
+	echo "$PACKDIR/batch/PR_processor_parallel.sh  MERGE ${i}_${j}.root $OUTDIRTMP $OUTDIRTMP ${OUTM}_ $RELEASEDIR $GTAG ${OUTM}_${i}_${j} ${INDIR}/TMP_${MATTER}" >> run_MERGE_${nsj}_${MATTER}.sh
 
 	i=$(( $i + $NPFILE ))
 	j=$(( $j + $NPFILE ))
@@ -223,11 +236,11 @@ do
     # file have been processed. Then launch the final merging 
     # 
 
-    echo "$PACKDIR/batch/PR_processor_parallel.sh  FINAL MERGED_${OUTM}_ $OUTDIRTMP $OUTDIRTMP $OUTF $RELEASEDIR ${OUTM} ${INDIR}/TMP"  >> run_FMERGE_${nsj}.sh
-    echo "$PACKDIR/batch/PR_processor_parallel.sh  FIT $OUTDIRTMP/${OUTF} $OUTE $OUTD $NTOT $OUTDIR_GRID $RELEASEDIR $GTAG ${OUTM} ${INDIR}/TMP" >> run_FIT_${nsj}.sh
-    echo "rm $OUTDIRTMP/*${OUTM}_*" >> run_RM_${nsj}.sh
-
+    echo "$PACKDIR/batch/PR_processor_parallel.sh  FINAL MERGED_${OUTM}_ $OUTDIRTMP $OUTDIRTMP $OUTF $RELEASEDIR ${OUTM} ${INDIR}/TMP_${MATTER}"  >> run_FMERGE_${nsj}_${MATTER}.sh
+    echo "$PACKDIR/batch/PR_processor_parallel.sh  FIT $OUTDIRTMP/${OUTF} $OUTE $OUTD $NTOT $OUTDIR_GRID $RELEASEDIR $GTAG ${OUTM} ${INDIR}/TMP_${MATTER}" >> run_FIT_${nsj}_${MATTER}.sh
+    echo "cd $OUTDIRTMP" >> run_RM_${nsj}_${MATTER}.sh
+    echo "rm *${OUTM}_*root" >> run_RM_${nsj}_${MATTER}.sh
 done
 
-chmod 755 global_stuff.sh
+chmod 755 global_stuff_${MATTER}.sh
 

@@ -271,6 +271,14 @@ class Sector{
   vector<GradedPattern*> getActivePatterns(int active_threshold);
 
   /**
+     \brief Get the active patterns of the sector
+     \param max_nb_missing_hit The maximum number of non active layers to activate the pattern
+     \param active_threshold The minimum number of hit super strips to activate the pattern
+     \return A vector containing pointers on copies of the patterns
+  **/
+  vector<GradedPattern*> getActivePatternsUsingMissingHit(int max_nb_missing_hit, int active_threshold);
+
+  /**
      \brief Associates a fitter to the Sector
      \param f The TrackFitter object which will be used for this sector
   **/

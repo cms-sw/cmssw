@@ -472,6 +472,12 @@ vector<GradedPattern*> Sector::getActivePatterns(int active_threshold){
   return active_patterns;
 }
 
+vector<GradedPattern*> Sector::getActivePatternsUsingMissingHit(int max_nb_missing_hit, int active_threshold){
+  vector<GradedPattern*> active_patterns;
+  patterns->getActivePatternsUsingMissingHit(max_nb_missing_hit, active_threshold, active_patterns);
+  return active_patterns;
+}
+
 void Sector::setFitter(TrackFitter* f){
   if(fitter!=NULL)
     delete fitter;
