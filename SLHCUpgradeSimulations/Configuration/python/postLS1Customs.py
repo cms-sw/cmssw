@@ -75,12 +75,6 @@ def customiseRun2EraExtras(process):
             print "         This path has the following modules:"
             print "         ", getattr(process, path_name).moduleNames(),"\n"
 
-    # use unganged geometry
-    if hasattr(process,"CSCGeometryESModule"):
-        process.CSCGeometryESModule.useGangedStripsInME1a = False
-    if hasattr(process,"idealForDigiCSCGeometry"):
-        process.idealForDigiCSCGeometry.useGangedStripsInME1a = False
-
     # digitizer
     if hasattr(process, 'simMuonCSCDigis'):
         ## Make sure there's no bad chambers/channels
@@ -347,7 +341,6 @@ def customiseRun2EraExtras(process):
                     process.mix.digitizers.pixel.thePUEfficiency_BPix2 = cms.vdouble( 9.99974e-01, -8.91313e-07, 5.29196e-12, -2.28725e-15 )
                     process.mix.digitizers.pixel.thePUEfficiency_BPix3 = cms.vdouble( 1.00005, -6.59249e-07, 2.75277e-11, -1.62683e-15 )
     if hasattr(process,'HLTSchedule'):
-        process.CSCGeometryESModule.useGangedStripsInME1a = False
         process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
         process.hltCsc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
         if hasattr(process,"CSCIndexerESProducer"):
