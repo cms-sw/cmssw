@@ -73,8 +73,8 @@ interestingGedEgammaIsoHCALDetId.superClustersLabel=cms.InputTag("particleFlowEG
 interestingGedEgammaIsoHCALDetId.minSCEt=cms.double(20)
 interestingGedEgammaIsoHCALDetId.minEleEt=cms.double(20)
 interestingGedEgammaIsoHCALDetId.minPhoEt=cms.double(20)
-interestingGedEgammaIsoHCALDetId.maxDIEta=cms.int32(6)
-interestingGedEgammaIsoHCALDetId.maxDIPhi=cms.int32(6)
+interestingGedEgammaIsoHCALDetId.maxDIEta=cms.int32(5)
+interestingGedEgammaIsoHCALDetId.maxDIPhi=cms.int32(5)
 
 
 import RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoESDetIdModule_cff
