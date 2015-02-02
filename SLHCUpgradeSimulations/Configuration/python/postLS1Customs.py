@@ -292,8 +292,6 @@ def customiseRun2EraExtras(process):
             process.famosPileUp.PileUpSimulator.fileNames = fileNames_13TeV
 
     # all the rest:
-    if hasattr(process,'g4SimHits'):
-        process.g4SimHits.HFShowerLibrary.FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root'
     if hasattr(process,'reconstruction'):
         #lowering HO threshold with SiPM
         for prod in process.particleFlowRecHitHO.producers:
