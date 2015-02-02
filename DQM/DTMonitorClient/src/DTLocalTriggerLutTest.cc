@@ -2,6 +2,9 @@
  *  See header file for a description of this class.
  *
  *  \author C. Battilana S. Marcellini - INFN Bologna
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah ncpp-um-my
+ *
  */
 
 
@@ -42,6 +45,7 @@ DTLocalTriggerLutTest::DTLocalTriggerLutTest(const edm::ParameterSet& ps){
   thresholdPhibRMS  = ps.getUntrackedParameter<double>("thresholdPhibRMS",.8);
   doCorrStudy       = ps.getUntrackedParameter<bool>("doCorrelationStudy",false);
 
+  bookingdone = 0;
 
 }
 
@@ -51,9 +55,10 @@ DTLocalTriggerLutTest::~DTLocalTriggerLutTest(){
 }
 
 
-void DTLocalTriggerLutTest::beginJob(){
-  
-  DTLocalTriggerBaseTest::beginJob();
+void DTLocalTriggerLutTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
+
+  if (bookingdone) return;
 
   vector<string>::const_iterator iTr   = trigSources.begin();
   vector<string>::const_iterator trEnd = trigSources.end();
@@ -68,17 +73,18 @@ void DTLocalTriggerLutTest::beginJob(){
 	hwSource = (*iHw);
 	// Loop over the TriggerUnits
 	for (int wh=-2; wh<=2; ++wh){
-	  bookWheelHistos(wh,"PhiResidualMean");  
-	  bookWheelHistos(wh,"PhiResidualRMS");
-	  bookWheelHistos(wh,"PhibResidualMean");  
-	  bookWheelHistos(wh,"PhibResidualRMS");
+	  bookWheelHistos(ibooker,wh,"PhiResidualMean");  
+	  bookWheelHistos(ibooker,wh,"PhiResidualRMS");
+	  bookWheelHistos(ibooker,wh,"PhibResidualMean");  
+	  bookWheelHistos(ibooker,wh,"PhibResidualRMS");
 	  if (doCorrStudy) {
-	    bookWheelHistos(wh,"PhiTkvsTrigSlope");  
-	    bookWheelHistos(wh,"PhiTkvsTrigIntercept");  
-	    bookWheelHistos(wh,"PhiTkvsTrigCorr");  
-	    bookWheelHistos(wh,"PhibTkvsTrigSlope");  
-	    bookWheelHistos(wh,"PhibTkvsTrigIntercept");  
-	    bookWheelHistos(wh,"PhibTkvsTrigCorr");
+
+	    bookWheelHistos(ibooker,wh,"PhiTkvsTrigSlope");  
+	    bookWheelHistos(ibooker,wh,"PhiTkvsTrigIntercept");  
+	    bookWheelHistos(ibooker,wh,"PhiTkvsTrigCorr");  
+	    bookWheelHistos(ibooker,wh,"PhibTkvsTrigSlope");  
+	    bookWheelHistos(ibooker,wh,"PhibTkvsTrigIntercept");  
+	    bookWheelHistos(ibooker,wh,"PhibTkvsTrigCorr");
 	  }  
 	}
       }
@@ -92,25 +98,26 @@ void DTLocalTriggerLutTest::beginJob(){
       hwSource = (*iHw);
       // Loop over the TriggerUnits
       for (int wh=-2; wh<=2; ++wh){
-	bookWheelHistos(wh,"PhiLutSummary");
-	bookWheelHistos(wh,"PhibLutSummary");
+
+	bookWheelHistos(ibooker,wh,"PhiLutSummary");
+	bookWheelHistos(ibooker,wh,"PhibLutSummary");
       }
-      bookCmsHistos("PhiLutSummary");
-      bookCmsHistos("PhibLutSummary");
+
+      bookCmsHistos(ibooker,"PhiLutSummary");
+      bookCmsHistos(ibooker,"PhibLutSummary");
     }	
   }
 
-}
+  bookingdone = 1; 
 
+}
 
 void DTLocalTriggerLutTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
-  
-  DTLocalTriggerBaseTest::beginRun(r,c);
 
+    DTLocalTriggerBaseTest::beginRun(r,c);
 }
 
-
-void DTLocalTriggerLutTest::runClientDiagnostic() {
+void DTLocalTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   // Loop over Trig & Hw sources
   for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
@@ -128,15 +135,17 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 
 	if (doCorrStudy) {
 	  // Perform Correlation Plots analysis (DCC + segment Phi)
-	  TH2F * TrackPhitkvsPhitrig   = getHisto<TH2F>(dbe->get(getMEName("PhitkvsPhitrig","Segment", chId)));
+
+	  TH2F * TrackPhitkvsPhitrig   = getHisto<TH2F>(igetter.get(getMEName("PhitkvsPhitrig","Segment", chId)));
 	
 	  if (TrackPhitkvsPhitrig && TrackPhitkvsPhitrig->GetEntries()>10) {
 	    
 	    // Fill client histos
 	    if( whME[wh].find(fullName("PhiTkvsTrigCorr")) == whME[wh].end() ){
-	      bookWheelHistos(wh,"PhiTkvsTrigSlope");  
-	      bookWheelHistos(wh,"PhiTkvsTrigIntercept");  
-	      bookWheelHistos(wh,"PhiTkvsTrigCorr");  
+ 
+	      bookWheelHistos(ibooker,wh,"PhiTkvsTrigSlope");  
+	      bookWheelHistos(ibooker,wh,"PhiTkvsTrigIntercept");  
+	      bookWheelHistos(ibooker,wh,"PhiTkvsTrigCorr");  
 	    }
 	    
 	    TProfile* PhitkvsPhitrigProf = TrackPhitkvsPhitrig->ProfileX();
@@ -162,15 +171,15 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	  }
 	
 	  // Perform Correlation Plots analysis (DCC + segment Phib)
-	  TH2F * TrackPhibtkvsPhibtrig = getHisto<TH2F>(dbe->get(getMEName("PhibtkvsPhibtrig","Segment", chId)));
+	  TH2F * TrackPhibtkvsPhibtrig = getHisto<TH2F>(igetter.get(getMEName("PhibtkvsPhibtrig","Segment", chId)));
 	  
 	  if (stat != 3 && TrackPhibtkvsPhibtrig && TrackPhibtkvsPhibtrig->GetEntries()>10) {// station 3 has no meaningful MB3 phi bending information
 	  
 	    // Fill client histos
 	    if( whME[wh].find(fullName("PhibTkvsTrigCorr")) == whME[wh].end() ){
-	      bookWheelHistos(wh,"PhibTkvsTrigSlope");  
-	      bookWheelHistos(wh,"PhibTkvsTrigIntercept");  
-	      bookWheelHistos(wh,"PhibTkvsTrigCorr");  
+	      bookWheelHistos(ibooker,wh,"PhibTkvsTrigSlope");  
+	      bookWheelHistos(ibooker,wh,"PhibTkvsTrigIntercept");  
+	      bookWheelHistos(ibooker,wh,"PhibTkvsTrigCorr");  
 	    }
 	    
 	    TProfile* PhibtkvsPhibtrigProf = TrackPhibtkvsPhibtrig->ProfileX(); 
@@ -198,15 +207,16 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	}
 	
 	// Make Phi Residual Summary
-	TH1F * PhiResidual = getHisto<TH1F>(dbe->get(getMEName("PhiResidual","Segment", chId)));
+
+	TH1F * PhiResidual = getHisto<TH1F>(igetter.get(getMEName("PhiResidual","Segment", chId)));
 	int phiSummary = 1;
 	
 	if (PhiResidual && PhiResidual->GetEffectiveEntries()>10) {
 	  
 	  // Fill client histos
 	  if( whME[wh].find(fullName("PhiResidualMean")) == whME[wh].end() ){
-	    bookWheelHistos(wh,"PhiResidualMean");  
-	    bookWheelHistos(wh,"PhiResidualRMS");  
+	    bookWheelHistos(ibooker,wh,"PhiResidualMean");  
+	    bookWheelHistos(ibooker,wh,"PhiResidualRMS");  
 	  }
 	  
 	  double peak = PhiResidual->GetBinCenter(PhiResidual->GetMaximumBin());
@@ -232,15 +242,15 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	fillWhPlot(whME[wh].find(fullName("PhiLutSummary"))->second,sect,stat,phiSummary);
 	
 	// Make Phib Residual Summary
-	TH1F * PhibResidual = getHisto<TH1F>(dbe->get(getMEName("PhibResidual","Segment", chId)));
+	TH1F * PhibResidual = getHisto<TH1F>(igetter.get(getMEName("PhibResidual","Segment", chId)));
 	int phibSummary = stat==3 ? 0 : 1; // station 3 has no meaningful MB3 phi bending information
 	
 	if (stat != 3 && PhibResidual && PhibResidual->GetEffectiveEntries()>10) {// station 3 has no meaningful MB3 phi bending information
 	  
 	  // Fill client histos
 	  if( whME[wh].find(fullName("PhibResidualMean")) == whME[wh].end() ){
-	    bookWheelHistos(wh,"PhibResidualMean");  
-	    bookWheelHistos(wh,"PhibResidualRMS");  
+	    bookWheelHistos(ibooker,wh,"PhibResidualMean");  
+	    bookWheelHistos(ibooker,wh,"PhibResidualRMS");  
 	  }
 	  
 	  double peak = PhibResidual->GetBinCenter(PhibResidual->GetMaximumBin());
@@ -336,3 +346,5 @@ void DTLocalTriggerLutTest::fillWhPlot(MonitorElement *plot, int sect, int stat,
 
 }
 
+
+void DTLocalTriggerLutTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {}

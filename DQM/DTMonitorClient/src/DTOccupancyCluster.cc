@@ -58,18 +58,12 @@ DTOccupancyCluster::DTOccupancyCluster(const DTOccupancyPoint& singlePoint) : ra
   thePoints.push_back(singlePoint);
 }
 
-
-
 DTOccupancyCluster::~DTOccupancyCluster(){}
-
-
 
  // Check if the cluster candidate satisfies the quality requirements
 bool DTOccupancyCluster::isValid() const {
   return theValidity;
 }
-
-
 
 // Add a point to the cluster: returns false if the point does not satisfy the
 // quality requirement
@@ -155,61 +149,32 @@ TH2F * DTOccupancyCluster::getHisto(std::string histoName, int nBinsX, double mi
 
 bool DTOccupancyCluster::qualityCriterion(const DTOccupancyPoint& firstPoint,
 					  const DTOccupancyPoint& secondPoint) {
-  //   cout << "   Seed qualityCriterion results: " << endl;
-  //   cout << "      delta mean: " << firstPoint.deltaMean(secondPoint) << endl;
-  //   cout << "      delta rms: " << firstPoint.deltaRMS(secondPoint) << endl;
-  //   cout << "      average rms: " << computeAverageRMS(firstPoint, secondPoint) << endl;
-  //   cout << "      min rms: " << computeMinRMS(firstPoint, secondPoint) << endl;
+
   if(firstPoint.deltaMean(secondPoint) <  computeAverageRMS(firstPoint, secondPoint) &&
      firstPoint.deltaRMS(secondPoint) < computeMinRMS(firstPoint, secondPoint)) {
     theValidity = true;
-    //     cout << "    seed is valid!" << endl;
+
     return true;
   }  
-  //   cout << "    seed is not valid!" << endl;
+
   theValidity = false;
   return false;
 }
-
-
-
-  
+ 
 bool  DTOccupancyCluster::qualityCriterion(const DTOccupancyPoint& anotherPoint) {
-  //   double minDistance = distance(anotherPoint);
-
+ 
   double minrms = 0;
   if(anotherPoint.rms() < averageRMS()) minrms = anotherPoint.rms();
   else minrms = averageRMS();
 
-  //   cout << "  delta mean: " <<   fabs(averageMean() - anotherPoint.mean()) << endl;
-  //   cout << "  average RMS: " << fabs(averageRMS() + anotherPoint.rms())/2. << endl;
-  //   cout << "  delta rms: " <<  fabs(averageRMS() - anotherPoint.rms()) << endl;
-  //   cout << " min rms: " << minrms << endl;
-  //   if(fabs(averageMean() - anotherPoint.mean()) < fabs(averageRMS() + anotherPoint.rms())/2. &&
-  //      fabs(averageRMS() - anotherPoint.rms()) < minrms) {
-
   if(fabs(averageMean() - anotherPoint.mean()) < averageRMS() &&
      fabs(averageRMS() - anotherPoint.rms()) < 2*minrms/3.) {
     theValidity = true;
-    //     cout << "    point is valid!" << endl;
     return true;
   }  
-  //   cout << "    point is not valid!" << endl;
   theValidity = false;
   return false;
-
-  //   if(thePoints.size() == 1) return false;
-  //   // Get the minimum distance from the point
-  //   double minDistance = distance(anotherPoint);
-  //   cout << "     min distance from cluster is: " << minDistance << endl;
-  //   cout << "     radius is: " << radius << endl;
-  //   // compare the minimum distance with the radius;
-  //   if(minDistance < 2*radius) return true;
-  //   else return false;
 }
-
-
-
 
 void DTOccupancyCluster::computeRadius() {
   double radius_squared = 0;
@@ -222,7 +187,6 @@ void DTOccupancyCluster::computeRadius() {
   }
   radius_squared = radius_squared/(2*TMath::Power(thePoints.size()+1,2));
   radius = sqrt(radius_squared);
-  //   cout << "    the new cluster radius is: " << radius << endl;
 }
 
 
