@@ -10,7 +10,6 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="DataFormats/CLHEP"/>
 <use   name="CLHEP"/>
-<Flags CXXFLAGS="-g -D=EDM_ML_DEBUG"/>
 <export>
   <lib   name="1"/>
 </export>
