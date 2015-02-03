@@ -58,6 +58,7 @@ namespace evf {
     IntJ filesize_; 
     StringJ inputFiles_;
     IntJ fileAdler32_; 
+    StringJ transferDestination_; 
     boost::shared_ptr<FastMonitor> jsonMonitor_;
     evf::FastMonitoringService *fms_;
     DataPointDefinition outJsonDef_;
@@ -80,6 +81,7 @@ namespace evf {
     filesize_(0),
     inputFiles_(),
     fileAdler32_(1),
+    transferDestination_(),
     outBuf_(new unsigned char[1024*1024])
   {
     std::string baseRunDir = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
@@ -103,6 +105,7 @@ namespace evf {
     filesize_.setName("Filesize");
     inputFiles_.setName("InputFiles");
     fileAdler32_.setName("FileAdler32");
+    transferDestination_.setName("TransferDestination");
 
     outJsonDef_.setDefaultGroup("data");
     outJsonDef_.addLegendItem("Processed","integer",DataPointDefinition::SUM);
@@ -113,6 +116,7 @@ namespace evf {
     outJsonDef_.addLegendItem("Filesize","integer",DataPointDefinition::SUM);
     outJsonDef_.addLegendItem("InputFiles","string",DataPointDefinition::CAT);
     outJsonDef_.addLegendItem("FileAdler32","integer",DataPointDefinition::ADLER32);
+    outJsonDef_.addLegendItem("TransferDestination","string",DataPointDefinition::SAME);
     std::stringstream tmpss,ss;
     tmpss << baseRunDir << "/open/" << "output_" << getpid() << ".jsd";
     ss << baseRunDir << "/" << "output_" << getpid() << ".jsd";
@@ -140,6 +144,7 @@ namespace evf {
     jsonMonitor_->registerGlobalMonitorable(&filesize_,false);
     jsonMonitor_->registerGlobalMonitorable(&inputFiles_,false);
     jsonMonitor_->registerGlobalMonitorable(&fileAdler32_,false);
+    jsonMonitor_->registerGlobalMonitorable(&transferDestination_,false);
     jsonMonitor_->commit(nullptr);
   }
   
@@ -155,6 +160,7 @@ namespace evf {
 	                                       << openInitFileName;
     c_->setInitMessageFile(openInitFileName);
     c_->start();
+    
   }
   
   template<typename Consumer>
@@ -168,7 +174,7 @@ namespace evf {
   void
   RecoEventOutputModuleForFU<Consumer>::doOutputHeader(InitMsgBuilder const& init_message) const
   {
-    edm::Service<evf::EvFDaqDirector>()->writeTransferSystemJsonMaybe(stream_label_);
+    transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestination(stream_label_);
     c_->doOutputHeader(init_message);
 
     const std::string openIniFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(stream_label_);
