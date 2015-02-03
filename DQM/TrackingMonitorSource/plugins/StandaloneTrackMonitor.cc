@@ -278,7 +278,7 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
     edm::Handle<std::vector<PileupSummaryInfo> > PupInfo;
     iEvent.getByToken(puSummaryToken_, PupInfo);
 
-    if (verbose_) std::cout << "nPUColl = " << PupInfo->size() << std::endl;
+    if (verbose_) edm::LogInfo("StandaloneTrackMonitor") << "nPUColl = " << PupInfo->size();
     for (auto const& v : *PupInfo) {
       int bx = v.getBunchCrossing();
       if (bunchCrossingH_) bunchCrossingH_->Fill(bx);
@@ -291,7 +291,7 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
       }
     }
   }
-  if (verbose_) std::cout << "PU reweight factor = " << wfac << std::endl;
+  if (verbose_) edm::LogInfo("StandaloneTrackMonitor") << "PU reweight factor = " << wfac;
 
   if (!vertexColl.isValid())
     edm::LogError("DqmTrackStudy") << "Error! Failed to get reco::Vertex Collection, " << vertexTag_;
@@ -303,8 +303,7 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
   int ntracks = 0;
   if (tracks.isValid()) {
     edm::LogInfo("StandaloneTrackMonitor") << "Total # of Tracks: " << tracks->size();
-    if (verbose_) std::cout << "Total # of Tracks: " 
-		     << tracks->size() << std::endl;
+    if (verbose_) edm::LogInfo("StandaloneTrackMonitor") <<"Total # of Tracks: " << tracks->size();
     reco::Track::TrackQuality quality = reco::Track::qualityByName(trackQuality_);
     for (auto const& track : *tracks) {
       if (!track.quality(quality)) continue;
@@ -415,13 +414,13 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
 	  }
 	}   
       }
-      if (verbose_) std::cout << ">>> HITs: nPixBarrel: " << nPixBarrel
+      if (verbose_) edm::LogInfo("StandaloneTrackMonitor") 
+		              << " >>> HITs: nPixBarrel: " << nPixBarrel
 			      << " nPixEndcap: " << nPixEndcap
 			      << " nStripTIB: " << nStripTIB
 			      << " nStripTOB: " << nStripTOB
 			      << " nStripTEC: " << nStripTEC
-			      << " nStripTID: " << nStripTID
-			      << std::endl;
+			      << " nStripTID: " << nStripTID;
       if (haveAllHistograms_) {
 	nPixBarrelH_->Fill(nPixBarrel, wfac);
 	nPixEndcapH_->Fill(nPixEndcap, wfac);

@@ -77,11 +77,12 @@ bool HLTPathSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) 
 
     // Results from TriggerResults product
     if (verbose_)
-      std::cout << " Trigger path <" << path << "> status:"
-		<< " WasRun=" << triggerResultsHandle_->wasrun(triggerIndex)
-		<< " Accept=" << triggerResultsHandle_->accept(triggerIndex)
-		<< " Error=" << triggerResultsHandle_->error(triggerIndex)
-		<< std::endl;
+      edm::LogInfo("HLTPathSelector") 
+	           << " Trigger path <" << path << "> status:"
+		   << " WasRun=" << triggerResultsHandle_->wasrun(triggerIndex)
+		   << " Accept=" << triggerResultsHandle_->accept(triggerIndex)
+		   << " Error=" << triggerResultsHandle_->error(triggerIndex);
+    
     if (triggerResultsHandle_->wasrun(triggerIndex) && triggerResultsHandle_->accept(triggerIndex)) {
       ++flag;
       if (tmap_.find(path) == tmap_.end())
@@ -94,13 +95,13 @@ bool HLTPathSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) 
   return false;
 }
 void HLTPathSelector::endJob() {
-  std::cout << setw(32) << "HLT Path"
-	    << setw(9) << "ACCEPT"
-	    << std::endl;
+
+  edm::LogInfo("HLTPathSelector") 
+            << setw(32) << "HLT Path"
+	    << setw(9) << "ACCEPT";
   for (auto const& jt: tmap_)  
-    std::cout << setw(32) << jt.first
-	      << setw(9) << jt.second 
-	      << std::endl;
+    edm::LogInfo("HLTPathSelector")
+      << setw(9) << jt.second; 
 }
 // Define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"

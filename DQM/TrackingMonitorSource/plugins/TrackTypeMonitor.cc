@@ -394,12 +394,10 @@ void TrackTypeMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& 
 	}
 	if (drmin < 0.01) {
           if (verbose_) {
-  	    std::cout << "Match: " << ++nmatch << " drmin = " << drmin << std::endl;
-	    std::cout << " Track Pt: " << track.pt() << " Eta: " << track.eta() << " Phi: " << track.phi()
-		      << std::endl;
+	    edm::LogInfo("TrackTypeMonitor") << " Match: " << ++nmatch << " drmin = " << drmin;
+	    edm::LogInfo("TrackTypeMonitor") << " Track Pt: " << track.pt() << " Eta: " << track.eta() << " Phi: " << track.phi();
 	    for (auto const& isotk : isoTrkList) {
-	      std::cout << " Lepton Pt: " << isotk->pt() << " Eta: " << isotk->eta() << " Phi: " << isotk->phi()
-			<< std::endl;
+	      edm::LogInfo("TrackTypeMonitor") << " Lepton Pt: " << isotk->pt() << " Eta: " << isotk->eta() << " Phi: " << isotk->phi();
 	    }
           }
           continue;
