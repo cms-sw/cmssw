@@ -197,7 +197,6 @@ muonSeededStepCore = cms.Sequence(
     muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut +
     muonSeededSeedsOutIn + muonSeededTrackCandidatesOutIn + muonSeededTracksOutIn 
 )
-
 muonSeededStepExtra = cms.Sequence(
     muonSeededTracksInOutSelector +
     muonSeededTracksOutInSelector
