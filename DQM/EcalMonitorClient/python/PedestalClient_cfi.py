@@ -20,7 +20,9 @@ ecalPedestalClient = cms.untracked.PSet(
         toleranceRMS = cms.untracked.vdouble(toleranceRMS),
         expectedPNMean = cms.untracked.double(expectedPNMean),
         tolerancePNMean = cms.untracked.double(tolerancePNMean),
-        tolerancePNRMS = cms.untracked.vdouble(tolerancePNRMS)
+        tolerancePNRMS = cms.untracked.vdouble(tolerancePNRMS),
+        MGPAGains = ecaldqmMGPAGains,
+        MGPAGainsPN = ecaldqmMGPAGainsPN
     ),
     sources = cms.untracked.PSet(
         Pedestal = ecalPedestalTask.MEs.Pedestal,

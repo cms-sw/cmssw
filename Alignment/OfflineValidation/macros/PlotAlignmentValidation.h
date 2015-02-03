@@ -80,12 +80,13 @@ public:
   void plotSubDetResiduals(bool plotNormHisto=false, unsigned int subDetId=7);//subDetector number :1.TPB, 2.TBE+, 3.TBE-, 4.TIB, 5.TID+, 6.TID-, 7.TOB, 8.TEC+ or 9.TEC-
   void plotDMR(const std::string& plotVar="medianX",Int_t minHits = 50, const std::string& options = "plain"); // plotVar=mean,meanX,meanY,median,rms etc., comma-separated list can be given; minHits=the minimum hits needed for module to appear in plot; options="plain" for regular DMR, "split" for inwards/outwards split, "layers" for layerwise DMR, "layer=N" for Nth layer, or combination of the previous (e.g. "split layers")
   void plotSurfaceShapes(const std::string& options = "layers",const std::string& variable="");
+  void plotChi2(const char *inputFile);
   // plotSurfaceShapes: options="split","layers"/"layer","subdet"
   void plotHitMaps();
   void setOutputDir( std::string dir );
   void setTreeBaseDir( std::string dir = "TrackerOfflineValidationStandalone");
   
-  THStack* addHists(const char *selection, const TString &residType = "xPrime", bool printModuleIds = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
+  THStack* addHists(const char *selection, const TString &residType = "xPrime", TLegend **myLegend = 0, bool printModuleIds = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
   
 private : 
   TList getTreeList();
@@ -104,6 +105,8 @@ private :
   void setNiceStyle();
   void setCanvasStyle( TCanvas& canv );
   void setLegendStyle( TLegend& leg );
+  void scaleXaxis(TH1* hist, Int_t scale);
+  TObject* findObjectFromCanvas(TCanvas* canv, const char* className, Int_t n=1);
 
   TString outputFile;
   std::string outputDir;
@@ -137,7 +140,7 @@ private :
 				    int nbins, double min, double max);
   void setDMRHistStyleAndLegend(TH1F* h, DMRPlotInfo& plotinfo, int direction = 0, int layer = 0);
   void plotDMRHistogram(DMRPlotInfo& plotinfo, int direction = 0, int layer = 0);
-
+  void modifySSHistAndLegend(THStack* hs, TLegend* legend);
 };
 
 #endif // PLOTALIGNNMENTVALIDATION_H_

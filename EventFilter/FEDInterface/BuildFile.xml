@@ -1,3 +1,4 @@
 <export>
+  <use   name="DataFormats/FEDRawData"/>
   <lib   name="1"/>
 </export>

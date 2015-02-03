@@ -14,6 +14,8 @@ from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 from RecoEgamma.EgammaHFProducers.hfEMClusteringSequence_cff import *
 from TrackingTools.Configuration.TrackingTools_cff import *
 
+#from RecoEgamma.EgammaIsolationAlgos.egmIsolationDefinitions_cff import *
+
 #importing new gedGsfElectronSequence :
 #from RecoEgamma.EgammaElectronProducers.gedGsfElectronSequence_cff import *
 from RecoEgamma.EgammaElectronProducers.pfBasedElectronIso_cff import *

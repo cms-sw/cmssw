@@ -8,6 +8,15 @@ process = cms.Process("HCALDQM")
 subsystem="Hcal" # specify subsystem name here
 
 #----------------------------
+# Event Source
+#-----------------------------
+# for live online DQM in P5
+process.load("DQM.Integration.test.inputsource_cfi")
+
+# for testing in lxplus
+#process.load("DQM.Integration.test.fileinputsource_cfi")
+
+#----------------------------
 # DQM Environment
 #-----------------------------
 process.load("DQMServices.Components.DQMEnvironment_cfi")
@@ -15,7 +24,6 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQM.Integration.test.environment_cfi")
 process.dqmEnv.subSystemFolder = subsystem
 process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
-process.dqmSaver.dirName = '.'
 
 print "Running with run type = ", process.runType.getRunType()
 
@@ -36,15 +44,6 @@ playbackHCAL=False
 if (host==HcalPlaybackHost):
     playbackHCAL=True
 
-#----------------------------
-# Event Source
-#-----------------------------
-# for live online DQM in P5
-process.load("DQM.Integration.test.inputsource_cfi")
-
-# for testing in lxplus
-#process.load("DQM.Integration.test.fileinputsource_cfi")
-
 #-----------------------------
 # Hcal Conditions: from Global Conditions Tag 
 #-----------------------------
@@ -53,6 +52,8 @@ process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 
 # DB condition for offline test
 #process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+
+process.load("Configuration.Geometry.GeometryIdeal_cff")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -122,7 +123,7 @@ process.hcalBeamMonitor.hotrate=0.40
 
 process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
 process.load("DQM.HcalMonitorClient.ZDCMonitorClient_cfi")
-process.load("DQM.HcalMonitorTasks.HcalZDCMonitor_cfi")
+#process.load("DQM.HcalMonitorTasks.HcalZDCMonitor_cfi")
 
 #-----------------------------
 #  Configure Hcal DQM
@@ -278,7 +279,7 @@ process.p = cms.Path(process.hcalDigis
                      *process.hcalMonitorTasksOnlineSequence 
                      *process.hcalClient
                      *process.qTester
-                     *process.hcalZDCMonitor
+                     #*process.hcalZDCMonitor
                      *process.dqmEnv
                      *process.dqmSaver)
 

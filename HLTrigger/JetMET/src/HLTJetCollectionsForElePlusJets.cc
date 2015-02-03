@@ -82,11 +82,15 @@ HLTJetCollectionsForElePlusJets<T>::produce(edm::Event& iEvent, const edm::Event
   iEvent.getByToken(m_theElectronToken,PrevFilterOutput);
  
   //its easier on the if statement flow if I try everything at once, shouldnt add to timing
+  // Electrons can be stored as objects of types TriggerCluster, TriggerElectron, or TriggerPhoton
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > clusCands;
   PrevFilterOutput->getObjects(trigger::TriggerCluster,clusCands);
 
   std::vector<edm::Ref<reco::ElectronCollection> > eleCands;
   PrevFilterOutput->getObjects(trigger::TriggerElectron,eleCands);
+  
+  trigger::VRphoton photonCands;
+  PrevFilterOutput->getObjects(trigger::TriggerPhoton, photonCands);
   
   //prepare the collection of 3-D vector for electron momenta
   std::vector<TVector3> ElePs;
@@ -105,6 +109,15 @@ HLTJetCollectionsForElePlusJets<T>::produce(edm::Event& iEvent, const edm::Event
                   eleCands[candNr]->superCluster()->position().x(),
                   eleCands[candNr]->superCluster()->position().y(),
                   eleCands[candNr]->superCluster()->position().z());
+      ElePs.push_back(positionVector);
+    }
+  }
+  else if(!photonCands.empty()){ // try trigger photons
+    for(size_t candNr=0;candNr<photonCands.size();candNr++){
+      TVector3 positionVector(
+                  photonCands[candNr]->superCluster()->position().x(),
+                  photonCands[candNr]->superCluster()->position().y(),
+                  photonCands[candNr]->superCluster()->position().z());
       ElePs.push_back(positionVector);
     }
   }

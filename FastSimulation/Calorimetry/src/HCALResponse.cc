@@ -224,8 +224,8 @@ double HCALResponse::getMIPfraction(double energy, double eta){
   break;
   }
   }
-                                                                                                                                                                         if(ie == -1) return mipfraction [det][maxHDe[det]][deta]; // more than maximal - the last value is used instead of extrapolating
-                                                                                                                                                                         double y1, y2;
+  if(ie == -1) return mipfraction [det][maxHDe[det]-1][deta]; // more than maximal - the last value is used instead of extrapolating
+  double y1, y2;
   double x1 = eGridHD[det][ie];
   double x2 = eGridHD[det][ie+1];
   y1=mipfraction[det][ie][deta];

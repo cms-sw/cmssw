@@ -99,17 +99,65 @@
 
 	<!-- GenFilterInfo -->
 
-	<class name="GenFilterInfo" ClassVersion="10">
+	<class name="GenFilterInfo" ClassVersion="11">
+  <version ClassVersion="11" checksum="1506634242"/>
   <version ClassVersion="10" checksum="2060912306"/>
  </class>
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_" version="[-10]" targetClass="GenFilterInfo" target="numPassPositiveEvents_">
+	  <![CDATA[numPassPositiveEvents_ = onfile.numEventsPassed_;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "" version="[-10]" targetClass="GenFilterInfo" target="numPassNegativeEvents_">
+	  <![CDATA[numPassNegativeEvents_ = 0;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsTried_" version="[-10]" targetClass="GenFilterInfo" target="numTotalPositiveEvents_">
+	  <![CDATA[numTotalPositiveEvents_ = onfile.numEventsTried_;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "" version="[-10]" targetClass="GenFilterInfo" target="numTotalNegativeEvents_">
+	  <![CDATA[numTotalNegativeEvents_ = 0;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_" version="[-10]" targetClass="GenFilterInfo" target="sumPassWeights_">
+	  <![CDATA[sumPassWeights_ = onfile.numEventsPassed_;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_" version="[-10]" targetClass="GenFilterInfo" target="sumPassWeights2_">
+	  <![CDATA[sumPassWeights2_ = onfile.numEventsPassed_;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsTried_" version="[-10]" targetClass="GenFilterInfo" target="sumTotalWeights_">
+	  <![CDATA[sumTotalWeights_ = onfile.numEventsTried_;]]>
+	</ioread> 
+	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsTried_" version="[-10]" targetClass="GenFilterInfo" target="sumTotalWeights2_">
+	  <![CDATA[sumTotalWeights2_ = onfile.numEventsTried_;]]>
+	</ioread> 
 	<class name="edm::Wrapper&lt;GenFilterInfo&gt;"/>
 
+	<!-- GenLumiInfoProduct -->
+
+	<class name="GenLumiInfoProduct" ClassVersion="10">
+	  <version ClassVersion="10" checksum="2365797689"/> 
+	</class>
+	<class name="GenLumiInfoProduct::FinalStat" ClassVersion="10">
+	  <version ClassVersion="10" checksum="1937303025"/>  
+	</class>
+	<class name="GenLumiInfoProduct::XSec" ClassVersion="10">
+	  <version ClassVersion="10" checksum="1482608724"/> 
+	</class>
+	<class name="std::vector&lt;GenLumiInfoProduct::ProcessInfo&gt;"/>
+	<class name="GenLumiInfoProduct::ProcessInfo" ClassVersion="10">
+	  <version ClassVersion="10" checksum="621228037"/>
+	</class>
+	<class name="edm::Wrapper&lt;GenLumiInfoProduct&gt;"/>
 
 	<!-- GenEventInfoProduct -->
 
-	<class name="GenEventInfoProduct" ClassVersion="10">
+ <class name="GenEventInfoProduct" ClassVersion="11">
+  <version ClassVersion="11" checksum="4154339631"/>
   <version ClassVersion="10" checksum="2479857328"/>
  </class>
+ <ioread sourceClass = "GenEventInfoProduct" version="[-10]" targetClass="GenEventInfoProduct" source = "" target="nMEPartons_">
+    <![CDATA[nMEPartons_ = -1;]]>
+ </ioread> 
+ <ioread sourceClass = "GenEventInfoProduct" version="[-10]" targetClass="GenEventInfoProduct" source = "" target="nMEPartonsFiltered_">
+    <![CDATA[nMEPartonsFiltered_ = -1;]]>
+ </ioread> 
 	<class name="edm::Wrapper&lt;GenEventInfoProduct&gt;"/>
 
 	<!-- LHE products -->
@@ -135,11 +183,18 @@
 	<class name="LHERunInfoProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="2098560362"/>
  </class>
-	<class name="LHEEventProduct" ClassVersion="12">
+	<class name="LHEEventProduct" ClassVersion="13">
   <version ClassVersion="10" checksum="1026978494"/>
   <version ClassVersion="11" checksum="619154414"/>
   <version ClassVersion="12" checksum="259352862"/>
+  <version ClassVersion="13" checksum="3927731647"/>
  </class>
+ <ioread sourceClass = "LHEEventProduct" version="[-12]" targetClass="LHEEventProduct" source = "" target="npLO_">
+    <![CDATA[npLO_ = -99;]]>
+  </ioread> 
+ <ioread sourceClass = "LHEEventProduct" version="[-12]" targetClass="LHEEventProduct" source = "" target="npNLO_">
+    <![CDATA[npNLO_ = -99;]]>
+  </ioread>   
  <class name="gen::WeightsInfo" ClassVersion="10">
   <version ClassVersion="10" checksum="2663143460"/>
  </class>

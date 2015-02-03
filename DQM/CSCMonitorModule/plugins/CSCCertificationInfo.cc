@@ -25,18 +25,7 @@ CSCCertificationInfo::CSCCertificationInfo(const edm::ParameterSet& ps) {
    
 }
 
-/*** No longer triggered for DQMEDHarvester ***/
-/*
-void CSCCertificationInfo::beginJob(){
- 
- for (std::map<std::string, MonitorElement*>::iterator it = mos.begin(); it != mos.end(); it++) { 
-    it->second->Fill(-1);
-  }
 
-}
-*/
-
-// void CSCCertificationInfo::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &, edm::EventSetup const &)
 void CSCCertificationInfo::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
 {
 

@@ -1,5 +1,6 @@
 #include "SimG4Core/Generators/interface/Generator.h"
 #include "SimG4Core/Generators/interface/HepMCParticle.h"
+#include "SimG4Core/Generators/interface/LumiMonitorFilter.h"
 
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 
@@ -31,6 +32,7 @@ Generator::Generator(const ParameterSet & p) :
   theMaxPCut(p.getParameter<double>("MaxPCut")),   
   theEtaCutForHector(p.getParameter<double>("EtaCutForHector")),
   verbose(p.getUntrackedParameter<int>("Verbosity",0)),
+  fLumiFilter(0),
   evt_(0),
   vtx_(0),
   weight_(0),
@@ -40,6 +42,9 @@ Generator::Generator(const ParameterSet & p) :
   pdgFilterSel(false), 
   fPDGFilter(false) 
 {
+  bool lumi = p.getParameter<bool>("ApplyLumiMonitorCuts");
+  if(lumi) { fLumiFilter = new LumiMonitorFilter(); }
+
   double theRDecLenCut = p.getParameter<double>("RDecLenCut")*cm;
   theDecRCut2 = theRDecLenCut*theRDecLenCut;
 
@@ -60,8 +65,8 @@ Generator::Generator(const ParameterSet & p) :
 	  edm::LogWarning("SimG4CoreGenerator") 
 	    << " *** Selecting only PDG ID = " << pdgFilter[ii];
 	} else {
-	  edm::LogWarning("SimG4CoreGenerator") << " *** Filtering out PDG ID = " 
-						<< pdgFilter[ii];
+	  edm::LogWarning("SimG4CoreGenerator") 
+	    << " *** Filtering out PDG ID = " << pdgFilter[ii];
 	}
       }
     }
@@ -82,14 +87,20 @@ Generator::Generator(const ParameterSet & p) :
     << " cm;  Z_hector = " << Z_hector << " cm\n"
     << "ApplyPCuts: " << fPCuts << "  ApplyPtransCut: " << fPtransCut
     << "  ApplyEtaCuts: " << fEtaCuts 
-    << "  ApplyPhiCuts: " << fPhiCuts;
+    << "  ApplyPhiCuts: " << fPhiCuts
+    << "  ApplyLumiMonitorCuts: " << lumi;
+  if(lumi) { fLumiFilter->Describe(); }
 }
 
 Generator::~Generator() 
-{}
-
-void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 {
+  delete fLumiFilter;
+}
+
+void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
+{
+
+  HepMC::GenEvent *evt=new HepMC::GenEvent(*evt_orig);
 
   if ( *(evt->vertices_begin()) == 0 ) {
     throw SimG4Exception("SimG4CoreGenerator: Corrupted Event - GenEvent with no vertex");
@@ -302,6 +313,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 	      continue;
 	    }
 	  }
+	  if(fLumiFilter && !fLumiFilter->isGoodForLumiMonitor(*pitr)) 
+	    { continue; }
 	  toBeAdded = true;
 	  if ( verbose > 2 ) LogDebug("SimG4CoreGenerator") 
 	    << "GenParticle barcode = " << (*pitr)->barcode() 
@@ -363,7 +376,22 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
     G4PrimaryVertex* g4vtx = new G4PrimaryVertex(0.0, 0.0, 0.0, 0.0);
     if ( verbose > 1 ) g4vtx->Print();
     g4evt->AddPrimaryVertex(g4vtx);
+  } else {
+    // restore original particle status
+    // to avoid problem downstream
+    for(HepMC::GenEvent::vertex_const_iterator vitr= evt->vertices_begin(); vitr != evt->vertices_end(); ++vitr ) { 
+      HepMC::GenVertex::particle_iterator pitr;
+      for (pitr= (*vitr)->particles_begin(HepMC::children);
+	   pitr != (*vitr)->particles_end(HepMC::children); ++pitr){
+	int status = (*pitr)->status();
+	if(status > 1000) {
+	  (*pitr)->set_status(status - 1000); 
+	} 
+      }
+    }
   }
+
+  delete evt;
 }
 
 void Generator::particleAssignDaughters( G4PrimaryParticle* g4p, 
@@ -436,7 +464,6 @@ void Generator::particleAssignDaughters( G4PrimaryParticle* g4p,
         double dd = std::sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)+(z1-z2)*(z1-z2));
         particleAssignDaughters(g4daught,*vpdec,dd);
       }
-
     (*vpdec)->set_status(1000+(*vpdec)->status()); 
     g4p->SetDaughter(g4daught);
 

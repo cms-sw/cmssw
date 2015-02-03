@@ -260,7 +260,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, b
   std::string dataFileName = bfs::path(dataFilePathName).filename().string();
   // The availability test of the FastMonitoringService was done in the ctor.
   bpt::ptree data;
-  bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles;
+  bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles, fileAdler32;
 
   processedEvents.put("", fms_ ? (fms_->getEventsProcessedForLumi(lumi)) : -1); // Processed events
   acceptedEvents.put("", fms_ ? (fms_->getEventsProcessedForLumi(lumi)) : -1); // Accepted events, same as processed for our purposes
@@ -270,6 +270,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, b
   fileList.put("", dataFileName); // Data file the information refers to
   fileSize.put("", dataFileStat.st_size); // Size in bytes of the data file
   inputFiles.put("", ""); // We do not care about input files!
+  fileAdler32.put("", -1); // placeholder to match output json definition
 
   data.push_back(std::make_pair("", processedEvents));
   data.push_back(std::make_pair("", acceptedEvents));
@@ -278,6 +279,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, b
   data.push_back(std::make_pair("", fileList));
   data.push_back(std::make_pair("", fileSize));
   data.push_back(std::make_pair("", inputFiles));
+  data.push_back(std::make_pair("", fileAdler32));
 
   pt.add_child("data", data);
 
@@ -664,7 +666,16 @@ DQMFileSaver::globalEndLuminosityBlock(const edm::LuminosityBlock & iLS, const e
           << "Internal error, can save files"
           << " only in ROOT or ProtocolBuffer format.";
     }
-    if (convention_ == FilterUnit) // store at every lumi section end
+
+    // Store at every lumi section end only if some events have been processed.
+    // Caveat: if faking FilterUnit, i.e. not accessing DAQ2 services,
+    // we cannot ask FastMonitoringService the processed events, so we are forced
+    // to save the file at every lumisection, even with no statistics.
+    // Here, we protect the call to get the processed events in a lumi section
+    // by testing the pointer to FastMonitoringService: if not null, i.e. in real FU mode,
+    // we check that the events are not 0; otherwise, we skip the test, so we store at every lumi transition. 
+    // TODO(diguida): allow fake FU mode to skip file creation at empty lumi sections.
+    if (convention_ == FilterUnit && (fms_ ? (fms_->getEventsProcessedForLumi(ilumi) > 0) : !fms_))
     {
       char rewrite[128];
       sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun, ilumi, ilumi);
@@ -681,6 +692,9 @@ DQMFileSaver::globalEndLuminosityBlock(const edm::LuminosityBlock & iLS, const e
           << "Internal error, can save files"
           << " only in ROOT format.";
     }
+
+    // after saving per LS, delete the old LS global histograms.
+    dbe_->markForDeletion(enableMultiThread_ ? irun : 0, ilumi);
   }
 }
 

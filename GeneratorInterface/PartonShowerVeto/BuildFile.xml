@@ -5,6 +5,7 @@
 <use   name="GeneratorInterface/AlpgenInterface"/>
 <use   name="GeneratorInterface/LHEInterface"/>
 <use   name="fastjet"/>
+<use   name="pythia8"/>
 <use   name="f77compiler"/>
 <export>
   <lib   name="1"/>

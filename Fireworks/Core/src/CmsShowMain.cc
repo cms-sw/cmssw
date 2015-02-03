@@ -153,8 +153,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       (kConfigFileCommandOpt, po::value<std::string>(),   "Include configuration file")
       (kNoConfigFileCommandOpt,                           "Empty configuration")
       (kNoVersionCheck,                                   "No file version check")
-      (kGeomFileCommandOpt,   po::value<std::string>(),   "Include geometry file")
-      (kSimGeomFileCommandOpt,po::value<std::string>(),   "Set simulation geometry file to browser")
+      (kGeomFileCommandOpt,   po::value<std::string>(),   "Reco geometry file. Default is cmsGeom10.root")
+      (kSimGeomFileCommandOpt,po::value<std::string>(),   "Geometry file for browsing in table view. Default is CmsSimGeom-14.root. Can be simulation or reco geometry in TGeo format")
      (kFieldCommandOpt, po::value<double>(),             "Set magnetic field value explicitly. Default is auto-field estimation")
    (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
    (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
@@ -262,11 +262,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    // geometry
    if (vm.count(kGeomFileOpt)) {
       setGeometryFilename(vm[kGeomFileOpt].as<std::string>());
+      fwLog(fwlog::kInfo) << "Geometry file " << geometryFilename() << "\n";
    } else {
       //  fwLog(fwlog::kInfo) << "No geom file name.  Choosing default.\n";
       setGeometryFilename("cmsGeom10.root");
    }
-   fwLog(fwlog::kInfo) << "Geometry file " << geometryFilename() << "\n";
 
    if (vm.count(kSimGeomFileOpt)) {
       setSimGeometryFilename(vm[kSimGeomFileOpt].as<std::string>());
@@ -284,7 +284,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    // open any graphics or build dictionaries
    AutoLibraryLoader::enable();
 
-   TEveManager::Create(kFALSE, "FIV");
+   TEveManager::Create(kFALSE, eveMode ? "FIV" : "FI");
 
    setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
 

@@ -25,20 +25,10 @@ CSCDaqInfo::CSCDaqInfo(const edm::ParameterSet& ps) {
    
 }
 
-void CSCDaqInfo::beginJob() {
-/*
-  for (std::map<std::string, MonitorElement*>::iterator it = mos.begin(); it != mos.end(); it++) { 
-    it->second->Fill(-1);
-  }
-*/
-};
 
-void CSCDaqInfo::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &, edm::EventSetup const &)
+void CSCDaqInfo::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
 {
 
-  // dbe = Service<DQMStore>().operator->();
-
-  // dbe->setCurrentFolder("CSC/EventInfo/DAQContents");
   
   ibooker.cd();
   ibooker.setCurrentFolder("CSC/EventInfo/DAQContents");
