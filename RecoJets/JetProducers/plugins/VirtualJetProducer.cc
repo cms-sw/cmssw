@@ -33,7 +33,6 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include "fastjet/SISConePlugin.hh"
 #include "fastjet/CMSIterativeConePlugin.hh"
@@ -282,7 +281,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
 
   if (!srcPVs_.label().empty()) input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
   input_candidateview_token_ = consumes<reco::CandidateView>(src_);
-  input_candidatefwdptr_token_ = consumes<std::vector<edm::FwdPtr<reco::Candidate> > >(src_);
+  input_candidatefwdptr_token_ = consumes<std::vector<edm::FwdPtr<reco::PFCandidate> > >(src_);
   
 }
 
@@ -340,8 +339,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   // get inputs and convert them to the fastjet format (fastjet::PeudoJet)
   edm::Handle<reco::CandidateView> inputsHandle;
   
-  edm::Handle< std::vector<edm::FwdPtr<reco::Candidate> > > pfinputsHandleAsFwdPtr; 
-  // edm::Handle< std::vector<edm::FwdPtr<pat::PackedCandidate> > > patinputsHandleAsFwdPtr; 
+  edm::Handle< std::vector<edm::FwdPtr<reco::PFCandidate> > > pfinputsHandleAsFwdPtr; 
   
   bool isView = iEvent.getByToken(input_candidateview_token_, inputsHandle);
   if ( isView ) {
@@ -349,28 +347,15 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
       inputs_.push_back(inputsHandle->ptrAt(i));
     }
   } else {
-    bool isPF = iEvent.getByToken(input_candidatefwdptr_token_, pfinputsHandleAsFwdPtr);
-    if ( isPF ) {
-      for (size_t i = 0; i < pfinputsHandleAsFwdPtr->size(); ++i) {
-	if ( (*pfinputsHandleAsFwdPtr)[i].ptr().isAvailable() ) {
-	  inputs_.push_back( (*pfinputsHandleAsFwdPtr)[i].ptr() );
-	}
-	else if ( (*pfinputsHandleAsFwdPtr)[i].backPtr().isAvailable() ) {
-	  inputs_.push_back( (*pfinputsHandleAsFwdPtr)[i].backPtr() );
-	}
+    iEvent.getByToken(input_candidatefwdptr_token_, pfinputsHandleAsFwdPtr);
+    for (size_t i = 0; i < pfinputsHandleAsFwdPtr->size(); ++i) {
+      if ( (*pfinputsHandleAsFwdPtr)[i].ptr().isAvailable() ) {
+	inputs_.push_back( (*pfinputsHandleAsFwdPtr)[i].ptr() );
+      }
+      else if ( (*pfinputsHandleAsFwdPtr)[i].backPtr().isAvailable() ) {
+	inputs_.push_back( (*pfinputsHandleAsFwdPtr)[i].backPtr() );
       }
     }
-    //  else {
-    //   iEvent.getByToken(input_candidatefwdptr_token_, patinputsHandleAsFwdPtr);
-    //   for (size_t i = 0; i < patinputsHandleAsFwdPtr->size(); ++i) {
-    // 	if ( (*patinputsHandleAsFwdPtr)[i].ptr().isAvailable() ) {
-    // 	  inputs_.push_back( (*patinputsHandleAsFwdPtr)[i].ptr() );
-    // 	}
-    // 	else if ( (*patinputsHandleAsFwdPtr)[i].backPtr().isAvailable() ) {
-    // 	  inputs_.push_back( (*patinputsHandleAsFwdPtr)[i].backPtr() );
-    // 	}
-    //   }      
-    // }
   }
   LogDebug("VirtualJetProducer") << "Got inputs\n";
   

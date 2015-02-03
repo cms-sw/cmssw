@@ -207,7 +207,7 @@ protected:
 
   // tokens for the data access
   edm::EDGetTokenT<reco::CandidateView> input_candidateview_token_;
-  edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::Candidate> > > input_candidatefwdptr_token_;
+  edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::PFCandidate> > > input_candidatefwdptr_token_;
 
  protected:
   edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
