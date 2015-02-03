@@ -13,25 +13,32 @@ selectedTracks = cms.EDFilter("TrackSelector",
     cut = cms.string("pt > 0.5"),
     filter = cms.bool(False)
 )
-hltPathFilter = cms.EDFilter("HLTPathFilter",
+hltPathFilter = cms.EDFilter("HLTPathSelector",
     processName = cms.string("HLT"),
-    triggerName = cms.string("HLT_ZeroBias_v7"),
-    triggerResults = cms.InputTag("TriggerResults","","HLT"),
-    triggerEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT")
+    hltPathsOfInterest = cms.vstring("HLT_ZeroBias"),
+    triggerResults = cms.untracked.InputTag("TriggerResults","","HLT"),
+    triggerEvent = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
 )
 ztoMMEventSelector = cms.EDFilter("ZtoMMEventSelector")
 ztoEEEventSelector = cms.EDFilter("ZtoEEEventSelector")
 
 standaloneTrackMonitorEE = standaloneTrackMonitor.clone()
 standaloneValidationElec = cms.Sequence(
-                                 selectedPrimaryVertices
-                               * selectedTracks
+                                 selectedTracks
+                               * selectedPrimaryVertices
                                * ztoEEEventSelector
                                * standaloneTrackMonitorEE)
 
 standaloneTrackMonitorMM = standaloneTrackMonitor.clone()
 standaloneValidationMuon = cms.Sequence(
-                                 selectedPrimaryVertices
-                               * selectedTracks
+                                 selectedTracks
+                               * selectedPrimaryVertices
                                * ztoMMEventSelector
                                * standaloneTrackMonitorMM)
+
+standaloneTrackMonitorMB = standaloneTrackMonitor.clone()
+standaloneValidationMinbias = cms.Sequence(
+                                    hltPathFilter
+                                  * selectedTracks
+                                  * selectedPrimaryVertices
+                                  * standaloneTrackMonitorMB)
