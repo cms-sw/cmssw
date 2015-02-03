@@ -30,7 +30,9 @@ namespace l1t {
 
     CaloConfig() { version_=Version; }
     ~CaloConfig() {}
+    friend class CaloConfigHelper;
 
+  private:
     unsigned version_;
     std::vector<unsigned> uconfig_;
     std::vector<std::string> sconfig_;
