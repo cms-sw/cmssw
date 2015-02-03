@@ -65,7 +65,6 @@ public:
   explicit SiStripMonitorTrack(const edm::ParameterSet&);
   ~SiStripMonitorTrack();
   void dqmBeginRun(const edm::Run& run, const edm::EventSetup& es) ;
-  virtual void endJob(void);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
@@ -86,7 +85,7 @@ private:
   MonitorElement * bookME2D(DQMStore::IBooker & , const char*, const char*);
   MonitorElement * bookME3D(DQMStore::IBooker & , const char*, const char*);
   MonitorElement * bookMEProfile(DQMStore::IBooker & , const char*, const char*);
-  MonitorElement * bookMETrend(DQMStore::IBooker & , const char*, const char*);
+  MonitorElement * bookMETrend(DQMStore::IBooker & , const char*);
   // internal evaluation of monitorables
   void AllClusters(const edm::Event& ev, const edm::EventSetup& es); 
   void trackStudyFromTrack(edm::Handle<reco::TrackCollection > trackCollectionHandle, const edm::EventSetup& es);
@@ -110,16 +109,14 @@ private:
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
-  void getSubDetTag(std::string& folder_name, std::string& tag);
 
   // ----------member data ---------------------------
   
 private:
-  DQMStore * dbe;
   edm::ParameterSet conf_;
   std::string histname; 
   LocalVector LV;
-  float iOrbitSec;
+  float iOrbitSec , iLumisection;
 
   std::string topFolderName_;
   
