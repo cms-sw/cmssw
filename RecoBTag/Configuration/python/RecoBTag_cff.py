@@ -27,17 +27,17 @@ legacyBTagging = cms.Sequence(
 
         + ghostTrackVertexTagInfos *
         ghostTrackBJetTags
-      ) +
+      ) #+
 
       # soft lepton tag infos and algos
-      softPFMuonsTagInfos *
-      softPFMuonBJetTags
-      + softPFElectronsTagInfos *
-      softPFElectronBJetTags
+      #softPFMuonsTagInfos *
+      #softPFMuonBJetTags
+      #+ softPFElectronsTagInfos *
+      #softPFElectronBJetTags
     )
 
     # overall combined taggers
-    * combinedMVABJetTags
+    #* combinedMVABJetTags
 )
 
 # new candidate-based fwk, with PF inputs
@@ -60,17 +60,17 @@ pfBTagging = cms.Sequence(
         pfInclusiveSecondaryVertexFinderTagInfos *
         pfCombinedInclusiveSecondaryVertexV2BJetTags
 
-      ) +
+      ) #+
 
       # soft lepton tag infos and algos
-      softPFMuonsTagInfos *
-      softPFMuonBJetTags
-      + softPFElectronsTagInfos *
-      softPFElectronBJetTags
+      #softPFMuonsTagInfos *
+      #softPFMuonBJetTags
+      #+ softPFElectronsTagInfos *
+      #softPFElectronBJetTags
     )
 
     # overall combined taggers
-    * pfCombinedMVABJetTags
+    #* pfCombinedMVABJetTags
 )
 
 btagging = legacyBTagging + pfBTagging
