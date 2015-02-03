@@ -15,69 +15,19 @@ using namespace std;
 using namespace edm;
 
 
-DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
+DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore::IBooker & ibooker, const string& name,
 					   const string& title,
 					   int nbins,
 					   int lsPrescale,
 					   bool sliding,
-					   int mode) : valueLastTimeSlot(0),
-						       theFirstLS(1),
-						       theLSPrescale(lsPrescale),
-						       doSlide(sliding),
-						       theMode(mode) {
+					   int mode) :
+             DTTimeEvolutionHisto(ibooker, name, title, nbins, 1, lsPrescale, sliding, mode) {
 
-  DTTimeEvolutionHisto(dbe, name, title, nbins, theFirstLS, lsPrescale, sliding, mode);
-  histo = dbe->get(dbe->pwd() + "/" + name);
-  nBookedBins = histo->getNbinsX();
+    nBookedBins = histo->getNbinsX();
 }
 
 
-// DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
-// 					   const string& title,
-// 					   int nbins,
-// 					   int lsPrescale,
-// 					   bool sliding,
-// 					   int mode) : valueLastTimeSlot(0),
-// 						       theLSPrescale(lsPrescale),
-// 						       doSlide(sliding),
-// 						       theMode(mode) {
-//   // set the number of bins to be booked
-//   nBookedBins = nbins;
-//   if(sliding) nBookedBins++;
-//   if(!sliding && theMode == 0)
-//     LogWarning("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
-//       << "[DTTimeEvolutionHisto]***Error: wrong configuration" << endl;
-
-
-//   stringstream realTitle; realTitle << title << "/" <<  theLSPrescale << " LS";
-
-//   // book the ME
-//   histo = dbe->book1D(name, realTitle.str(), nBookedBins, 1., nBookedBins+1.);
-
-//   // set the axis label
-//   if(sliding) {
-//     histo->setBinLabel(1,"avg. previous",1);
-//   } else {
-//     // loop over bins and
-//     for(int bin =1; bin != nBookedBins+1; ++bin) {
-//       stringstream label;
-//       if(theLSPrescale > 1) {
-// 	label << "LS " << ((bin-1)*theLSPrescale)+1 << "-" << bin*theLSPrescale;
-//       } else {
-// 	label << "LS " << ((bin-1)*theLSPrescale)+1;
-//       }
-//       histo->setBinLabel(bin, label.str(),1);
-
-//     }
-
-//   }
-
-// }
-
-
-
-
-DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
+DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore::IBooker & ibooker, const string& name,
 					   const string& title,
 					   int nbins,
 					   int firstLS,
@@ -95,17 +45,18 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
     LogWarning("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
       << "[DTTimeEvolutionHisto]***Error: wrong configuration" << endl;
 
-
   stringstream realTitle; realTitle << title << "/" <<  theLSPrescale << " LS";
 
   // book the ME
-  histo = dbe->book1D(name, realTitle.str(), nBookedBins, (float)theFirstLS, nBookedBins+1.);
+
+  histo = ibooker.book1D(name, realTitle.str(), nBookedBins, (float)theFirstLS, nBookedBins+1.);
 
   // set the axis label
   if(sliding) {
     histo->setBinLabel(1,"avg. previous",1);
   } else {
     // loop over bins and
+
     for(int bin =1; bin != nBookedBins+1; ++bin) {
       stringstream label;
       if(theLSPrescale > 1) {
@@ -114,23 +65,20 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
 	label << "LS " << ((bin-1)*theLSPrescale)+theFirstLS;
       }
       histo->setBinLabel(bin, label.str(),1);
-
     }
-
   }
-
 }
 
+//FR changed previous constructor with 2 arguments:
+//no igetter here!! so I get the histo from the client and just instanciate here a DTTimeEvolutionHisto
 
-
-DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name) : valueLastTimeSlot(0),
-										theFirstLS(1),
+DTTimeEvolutionHisto::DTTimeEvolutionHisto(MonitorElement* histoGot) : valueLastTimeSlot(0), theFirstLS(1),
 										theLSPrescale(-1),
 										doSlide(false),
 										theMode(0) { // FIXME: set other memebers to sensible values
   LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
-    << "[DTTimeEvolutionHisto] Retrieve ME with name: " << name << endl;
-  histo = dbe->get(name);
+    << "[DTTimeEvolutionHisto] Retrieve ME with name: " << " "<< endl;
+  histo = histoGot;
 }
 
 
@@ -139,17 +87,14 @@ DTTimeEvolutionHisto::~DTTimeEvolutionHisto(){}
 
 
 void DTTimeEvolutionHisto::setTimeSlotValue(float value, int timeSlot) {
-  //   LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
-  //   << "[DTTimeEvolutionHisto] ME name: " <<  histo->getName() << endl;
+
   if(!doSlide) {
-    //     LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
-    //     << "        fill bin: " << timeSlot << " with value: " << value << endl;
+
     histo->Fill(timeSlot,value);
   } else {
     for(int bin = 1; bin != nBookedBins; ++bin) {
       float value = histo->getBinContent(bin);
-      //       LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
-      //  << "        bin: " << bin << " has value: " << value << endl;
+
       if(bin == 1) { // average of previous time slots (fixme)
 	histo->setBinContent(bin, (value + histo->getBinContent(bin+1))/2.);
       } else if(bin != nBookedBins) {

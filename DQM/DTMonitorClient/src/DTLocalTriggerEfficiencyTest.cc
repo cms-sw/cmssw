@@ -2,6 +2,9 @@
  *  See header file for a description of this class.
  *
  *  \author C. Battilana S. Marcellini - INFN Bologna
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah ncpp-um-my
+ *
  */
 
 
@@ -38,6 +41,8 @@ DTLocalTriggerEfficiencyTest::DTLocalTriggerEfficiencyTest(const edm::ParameterS
   baseFolderDCC = "DT/03-LocalTrigger-DCC/";
   baseFolderDDU = "DT/04-LocalTrigger-DDU/";
 
+  bookingdone = 0;
+
 }
 
 
@@ -51,9 +56,17 @@ DTLocalTriggerEfficiencyTest::~DTLocalTriggerEfficiencyTest(){
 
 
 void DTLocalTriggerEfficiencyTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
-  
+
   DTLocalTriggerBaseTest::beginRun(r,c);
   trigGeomUtils = new DTTrigGeomUtils(muonGeom);
+}
+
+
+
+void DTLocalTriggerEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
+
+  if (bookingdone) return;
 
   vector<string>::const_iterator iTr   = trigSources.begin();
   vector<string>::const_iterator trEnd = trigSources.end();
@@ -72,37 +85,40 @@ void DTLocalTriggerEfficiencyTest::beginRun(const edm::Run& r, const edm::EventS
 	  for (int sect=1; sect<=12; ++sect){
 	    for (int stat=1; stat<=4; ++stat){
 	      DTChamberId chId(wh,stat,sect);
-	      bookChambHistos(chId,"TrigEffPosvsAnglePhi");
-	      bookChambHistos(chId,"TrigEffPosvsAngleHHHLPhi");
-	      bookChambHistos(chId,"TrigEffPosPhi");
-	      bookChambHistos(chId,"TrigEffPosHHHLPhi");
-	      bookChambHistos(chId,"TrigEffAnglePhi");
-	      bookChambHistos(chId,"TrigEffAngleHHHLPhi");
+	      bookChambHistos(ibooker,chId,"TrigEffPosvsAnglePhi");
+	      bookChambHistos(ibooker,chId,"TrigEffPosvsAngleHHHLPhi");
+	      bookChambHistos(ibooker,chId,"TrigEffPosPhi");
+	      bookChambHistos(ibooker,chId,"TrigEffPosHHHLPhi");
+	      bookChambHistos(ibooker,chId,"TrigEffAnglePhi");
+	      bookChambHistos(ibooker,chId,"TrigEffAngleHHHLPhi");
 	      if (stat<=3) {
-		bookChambHistos(chId,"TrigEffPosvsAngleTheta");
-		bookChambHistos(chId,"TrigEffPosvsAngleHTheta");
-		bookChambHistos(chId,"TrigEffPosTheta");
-		bookChambHistos(chId,"TrigEffPosHTheta");
-		bookChambHistos(chId,"TrigEffAngleTheta");
-		bookChambHistos(chId,"TrigEffAngleHTheta");
+		bookChambHistos(ibooker,chId,"TrigEffPosvsAngleTheta");
+		bookChambHistos(ibooker,chId,"TrigEffPosvsAngleHTheta");
+		bookChambHistos(ibooker,chId,"TrigEffPosTheta");
+		bookChambHistos(ibooker,chId,"TrigEffPosHTheta");
+		bookChambHistos(ibooker,chId,"TrigEffAngleTheta");
+		bookChambHistos(ibooker,chId,"TrigEffAngleHTheta");
 	      }
 	    }
-	    bookSectorHistos(wh,sect,"TrigEffPhi");  
-	    bookSectorHistos(wh,sect,"TrigEffTheta");  
+
+	    bookSectorHistos(ibooker,wh,sect,"TrigEffPhi");  
+	    bookSectorHistos(ibooker,wh,sect,"TrigEffTheta");  
 	  }
-	  bookWheelHistos(wh,"TrigEffPhi");  
-	  bookWheelHistos(wh,"TrigEffHHHLPhi");  
-	  bookWheelHistos(wh,"TrigEffTheta");  
-	  bookWheelHistos(wh,"TrigEffHTheta");  
+ 
+	  bookWheelHistos(ibooker,wh,"TrigEffPhi");  
+	  bookWheelHistos(ibooker,wh,"TrigEffHHHLPhi");  
+	  bookWheelHistos(ibooker,wh,"TrigEffTheta");  
+	  bookWheelHistos(ibooker,wh,"TrigEffHTheta");  
 	}
       }
     }
   }
-  
+
+  bookingdone = 1; 
 }
 
-
-void DTLocalTriggerEfficiencyTest::runClientDiagnostic() {
+void DTLocalTriggerEfficiencyTest::runClientDiagnostic(DQMStore::IBooker & ibooker,
+                                                                  DQMStore::IGetter & igetter) {
 
   // Loop over Trig & Hw sources
   for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
@@ -117,27 +133,30 @@ void DTLocalTriggerEfficiencyTest::runClientDiagnostic() {
 	    int sector_id = (wh+3)+(sect-1)*5;
 	    uint32_t indexCh = chId.rawId();
 
-	    // Perform Efficiency analysis (Phi+Segments 2D)
-	    TH2F * TrackPosvsAngle            = getHisto<TH2F>(dbe->get(getMEName("TrackPosvsAngle","Segment", chId)));
-	    TH2F * TrackPosvsAngleandTrig     = getHisto<TH2F>(dbe->get(getMEName("TrackPosvsAngleandTrig","Segment", chId)));
-	    TH2F * TrackPosvsAngleandTrigHHHL = getHisto<TH2F>(dbe->get(getMEName("TrackPosvsAngleandTrigHHHL","Segment", chId)));
+
+	    TH2F * TrackPosvsAngle            = getHisto<TH2F>(igetter.get(getMEName("TrackPosvsAngle","Segment", chId)));
+	    TH2F * TrackPosvsAngleandTrig     = getHisto<TH2F>(igetter.get(getMEName("TrackPosvsAngleandTrig","Segment", chId)));
+	    TH2F * TrackPosvsAngleandTrigHHHL = getHisto<TH2F>(igetter.get(getMEName("TrackPosvsAngleandTrigHHHL","Segment", chId)));
 	    
 	    if (TrackPosvsAngle && TrackPosvsAngleandTrig && TrackPosvsAngleandTrigHHHL && TrackPosvsAngle->GetEntries()>1) {
 	      
 	      if( chambME[indexCh].find(fullName("TrigEffAnglePhi")) == chambME[indexCh].end()){
-		bookChambHistos(chId,"TrigEffPosvsAnglePhi");
-		bookChambHistos(chId,"TrigEffPosvsAngleHHHLPhi");
-		bookChambHistos(chId,"TrigEffPosPhi");
-		bookChambHistos(chId,"TrigEffPosHHHLPhi");
-		bookChambHistos(chId,"TrigEffAnglePhi");
-		bookChambHistos(chId,"TrigEffAngleHHHLPhi");
+
+		bookChambHistos(ibooker,chId,"TrigEffPosvsAnglePhi");
+		bookChambHistos(ibooker,chId,"TrigEffPosvsAngleHHHLPhi");
+		bookChambHistos(ibooker,chId,"TrigEffPosPhi");
+		bookChambHistos(ibooker,chId,"TrigEffPosHHHLPhi");
+		bookChambHistos(ibooker,chId,"TrigEffAnglePhi");
+		bookChambHistos(ibooker,chId,"TrigEffAngleHHHLPhi");
 	      }
 	      if( secME[sector_id].find(fullName("TrigEffPhi")) == secME[sector_id].end() ){
-		bookSectorHistos(wh,sect,"TrigEffPhi");  
+
+		bookSectorHistos(ibooker,wh,sect,"TrigEffPhi");  
 	      }
 	      if( whME[wh].find(fullName("TrigEffPhi")) == whME[wh].end() ){
-		bookWheelHistos(wh,"TrigEffPhi");  
-		bookWheelHistos(wh,"TrigEffHHHLPhi");  
+
+		bookWheelHistos(ibooker,wh,"TrigEffPhi");  
+		bookWheelHistos(ibooker,wh,"TrigEffHHHLPhi");  
 	      }
 
 	      std::map<std::string,MonitorElement*> *innerME = &(secME[sector_id]);
@@ -176,27 +195,29 @@ void DTLocalTriggerEfficiencyTest::runClientDiagnostic() {
 	    }
 	
 	    // Perform Efficiency analysis (Theta+Segments)  CB FIXME -> no DCC theta qual info
-	    TH2F * TrackThetaPosvsAngle            = getHisto<TH2F>(dbe->get(getMEName("TrackThetaPosvsAngle","Segment", chId)));
-	    TH2F * TrackThetaPosvsAngleandTrig     = getHisto<TH2F>(dbe->get(getMEName("TrackThetaPosvsAngleandTrig","Segment", chId)));
-	    TH2F * TrackThetaPosvsAngleandTrigH    = getHisto<TH2F>(dbe->get(getMEName("TrackThetaPosvsAngleandTrigH","Segment", chId)));
+	    TH2F * TrackThetaPosvsAngle            = getHisto<TH2F>(igetter.get(getMEName("TrackThetaPosvsAngle","Segment", chId)));
+	    TH2F * TrackThetaPosvsAngleandTrig     = getHisto<TH2F>(igetter.get(getMEName("TrackThetaPosvsAngleandTrig","Segment", chId)));
+	    TH2F * TrackThetaPosvsAngleandTrigH    = getHisto<TH2F>(igetter.get(getMEName("TrackThetaPosvsAngleandTrigH","Segment", chId)));
 	    
 	    if (TrackThetaPosvsAngle && TrackThetaPosvsAngleandTrig && TrackThetaPosvsAngleandTrigH && TrackThetaPosvsAngle->GetEntries()>1) {
 	      
 	      if( chambME[indexCh].find(fullName("TrigEffAngleTheta")) == chambME[indexCh].end()){
-		bookChambHistos(chId,"TrigEffPosvsAngleTheta");
-		bookChambHistos(chId,"TrigEffPosvsAngleHTheta");
-		bookChambHistos(chId,"TrigEffPosTheta");
-		bookChambHistos(chId,"TrigEffPosHTheta");
-		bookChambHistos(chId,"TrigEffAngleTheta");
-		bookChambHistos(chId,"TrigEffAngleHTheta");
+
+		bookChambHistos(ibooker,chId,"TrigEffPosvsAngleTheta");
+		bookChambHistos(ibooker,chId,"TrigEffPosvsAngleHTheta");
+		bookChambHistos(ibooker,chId,"TrigEffPosTheta");
+		bookChambHistos(ibooker,chId,"TrigEffPosHTheta");
+		bookChambHistos(ibooker,chId,"TrigEffAngleTheta");
+		bookChambHistos(ibooker,chId,"TrigEffAngleHTheta");
 	      }
-	      if( secME[sector_id].find(fullName("TrigEffTheta")) == secME[sector_id].end() ){
-		bookSectorHistos(wh,sect,"TrigEffTheta");  
+	      if( secME[sector_id].find(fullName("TrigEffTheta")) == secME[sector_id].end() ){ 
+		bookSectorHistos(ibooker,wh,sect,"TrigEffTheta");  
 	      }
 	      if( whME[wh].find(fullName("TrigEffTheta")) == whME[wh].end() ){
-		bookWheelHistos(wh,"TrigEffTheta");  
-		bookWheelHistos(wh,"TrigEffHTheta");  
+		bookWheelHistos(ibooker,wh,"TrigEffTheta");  
+		bookWheelHistos(ibooker,wh,"TrigEffHTheta");  
 	      }
+
 
 	      std::map<std::string,MonitorElement*> *innerME = &(secME[sector_id]);
 	      TH1D* TrackThetaPos               = TrackThetaPosvsAngle->ProjectionY();
@@ -290,8 +311,7 @@ void DTLocalTriggerEfficiencyTest::makeEfficiencyME2D(TH2F* numerator, TH2F* den
 
 }    
 
-
-void DTLocalTriggerEfficiencyTest::bookChambHistos(DTChamberId chambId, string htype) {
+void DTLocalTriggerEfficiencyTest::bookChambHistos(DQMStore::IBooker & ibooker,DTChamberId chambId, string htype) {
   
   stringstream wheel; wheel << chambId.wheel();
   stringstream station; station << chambId.station();	
@@ -301,7 +321,7 @@ void DTLocalTriggerEfficiencyTest::bookChambHistos(DTChamberId chambId, string h
   bool isDCC = hwSource=="DCC" ;
   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
-  dbe->setCurrentFolder(topFolder(isDCC) + "Wheel" + wheel.str() +
+  ibooker.setCurrentFolder(topFolder(isDCC) + "Wheel" + wheel.str() +
 			"/Sector" + sector.str() +
 			"/Station" + station.str() + "/Segment");
 
@@ -311,64 +331,69 @@ void DTLocalTriggerEfficiencyTest::bookChambHistos(DTChamberId chambId, string h
   
   uint32_t indexChId = chambId.rawId();
   if (htype.find("TrigEffAnglePhi") == 0){
-    chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency vs angle of incidence (Phi)",16,-40.,40.);
+    chambME[indexChId][fullType] = ibooker.book1D(HistoName.c_str(),"Trigger efficiency vs angle of incidence (Phi)",16,-40.,40.);
   }
   else if (htype.find("TrigEffAngleHHHLPhi") == 0){
-    chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency (HH/HL) vs angle of incidence (Phi)",16,-40.,40.);
+    chambME[indexChId][fullType] = ibooker.book1D(HistoName.c_str(),"Trigger efficiency (HH/HL) vs angle of incidence (Phi)",16,-40.,40.);
   }
   else if (htype.find("TrigEffAngleTheta") == 0){
-    chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency vs angle of incidence (Theta)",16,-40.,40.);
+    chambME[indexChId][fullType] = ibooker.book1D(HistoName.c_str(),"Trigger efficiency vs angle of incidence (Theta)",16,-40.,40.);
   }
   else if (htype.find("TrigEffAngleHTheta") == 0){
-    chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency (H) vs angle of incidence (Theta)",16,-40.,40.);
+    chambME[indexChId][fullType] = ibooker.book1D(HistoName.c_str(),"Trigger efficiency (H) vs angle of incidence (Theta)",16,-40.,40.);
   }
   else if (htype.find("TrigEffPosPhi") == 0 ){
     float min,max;
     int nbins;
     trigGeomUtils->phiRange(chambId,min,max,nbins);
-    chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency vs position (Phi)",nbins,min,max);
+    chambME[indexChId][fullType] = ibooker.book1D(HistoName.c_str(),"Trigger efficiency vs position (Phi)",nbins,min,max);
   }
   else if (htype.find("TrigEffPosvsAnglePhi") == 0 ){
     float min,max;
     int nbins;
     trigGeomUtils->phiRange(chambId,min,max,nbins);
-    chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency position vs angle (Phi)",16,-40.,40.,nbins,min,max);
+    chambME[indexChId][fullType] = ibooker.book2D(HistoName.c_str(),"Trigger efficiency position vs angle (Phi)",16,-40.,40.,nbins,min,max);
   }
   else if (htype.find("TrigEffPosvsAngleHHHLPhi") == 0 ){
     float min,max;
     int nbins;
     trigGeomUtils->phiRange(chambId,min,max,nbins);
-    chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency (HH/HL) pos vs angle (Phi)",16,-40.,40.,nbins,min,max);
+    chambME[indexChId][fullType] = ibooker.book2D(HistoName.c_str(),"Trigger efficiency (HH/HL) pos vs angle (Phi)",16,-40.,40.,nbins,min,max);
   }
   else if (htype.find("TrigEffPosHHHLPhi") == 0 ){
     float min,max;
     int nbins;
     trigGeomUtils->phiRange(chambId,min,max,nbins);
-    chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency (HH/HL) vs position (Phi)",nbins,min,max);
+    chambME[indexChId][fullType] = ibooker.book1D(HistoName.c_str(),"Trigger efficiency (HH/HL) vs position (Phi)",nbins,min,max);
   }
   else if (htype.find("TrigEffPosTheta") == 0){
     float min,max;
     int nbins;
     trigGeomUtils->thetaRange(chambId,min,max,nbins);
-    chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency vs position (Theta)",nbins,min,max);
+    chambME[indexChId][fullType] = ibooker.book1D(HistoName.c_str(),"Trigger efficiency vs position (Theta)",nbins,min,max);
   }
   else if (htype.find("TrigEffPosHTheta") == 0){
     float min,max;
     int nbins;
     trigGeomUtils->thetaRange(chambId,min,max,nbins);
-    chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency (H) vs position (Theta)",nbins,min,max);
+    chambME[indexChId][fullType] = ibooker.book1D(HistoName.c_str(),"Trigger efficiency (H) vs position (Theta)",nbins,min,max);
   }
   else if (htype.find("TrigEffPosvsAngleTheta") == 0 ){
     float min,max;
     int nbins;
     trigGeomUtils->thetaRange(chambId,min,max,nbins);
-    chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency pos vs angle (Theta)",16,-40.,40.,nbins,min,max);
+    chambME[indexChId][fullType] = ibooker.book2D(HistoName.c_str(),"Trigger efficiency pos vs angle (Theta)",16,-40.,40.,nbins,min,max);
   }
   else if (htype.find("TrigEffPosvsAngleHTheta") == 0 ){
     float min,max;
     int nbins;
     trigGeomUtils->thetaRange(chambId,min,max,nbins);
-    chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency (H) pos vs angle (Theta)",16,-40.,40.,nbins,min,max);
+    chambME[indexChId][fullType] = ibooker.book2D(HistoName.c_str(),"Trigger efficiency (H) pos vs angle (Theta)",16,-40.,40.,nbins,min,max);
   }
 
 }
+
+
+
+void DTLocalTriggerEfficiencyTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {}
+
