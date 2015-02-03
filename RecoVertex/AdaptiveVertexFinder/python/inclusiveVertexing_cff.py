@@ -20,6 +20,28 @@ inclusiveCandidateSecondaryVertices.secondaryVertices = cms.InputTag("candidateV
 inclusiveCandidateSecondaryVertices.maxFraction = 0.2
 inclusiveCandidateSecondaryVertices.minSignificance = 10.
 
-
-inclusiveVertexing = cms.Sequence(inclusiveVertexFinder*vertexMerger*trackVertexArbitrator*inclusiveSecondaryVertices)
 inclusiveCandidateVertexing = cms.Sequence(inclusiveCandidateVertexFinder*candidateVertexMerger*candidateVertexArbitrator*inclusiveCandidateSecondaryVertices)
+
+
+#relaxed IVF reconstruction cuts for candidate-based ctagging
+inclusiveCandidateVertexFinderCtagL = inclusiveCandidateVertexFinder.clone()
+inclusiveCandidateVertexFinderCtagL.vertexMinDLen2DSig = 1.25 
+inclusiveCandidateVertexFinderCtagL.vertexMinDLenSig = 0.25
+inclusiveCandidateVertexFinderCtagL.clusterizer.seedMin3DIPSignificance = 1.0
+#inclusiveCandidateVertexFinderCtagL.clusterizer.seedMin3DIPValue = 0.005
+inclusiveCandidateVertexFinderCtagL.clusterizer.distanceRatio = 10
+
+candidateVertexMergerCtagL = candidateVertexMerger.clone()
+candidateVertexMergerCtagL.secondaryVertices = cms.InputTag("inclusiveCandidateVertexFinderCtagL")
+
+candidateVertexArbitratorCtagL = candidateVertexArbitrator.clone()
+candidateVertexArbitratorCtagL.secondaryVertices = cms.InputTag("candidateVertexMergerCtagL")
+
+inclusiveCandidateSecondaryVerticesCtagL = candidateVertexMerger.clone()
+inclusiveCandidateSecondaryVerticesCtagL.secondaryVertices = cms.InputTag("candidateVertexArbitratorCtagL")
+inclusiveCandidateSecondaryVerticesCtagL.maxFraction = 0.2
+inclusiveCandidateSecondaryVerticesCtagL.minSignificance = 10.
+
+inclusiveCandidateVertexingCtagL = cms.Sequence(inclusiveCandidateVertexFinderCtagL*candidateVertexMergerCtagL*candidateVertexArbitratorCtagL*inclusiveCandidateSecondaryVerticesCtagL)
+
+
