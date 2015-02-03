@@ -498,6 +498,11 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
       LogInfo("OutputInfo") << " Histograms will NOT be saved";
     else 
       LogInfo("OutputInfo") << " Histograms will be saved to file:" << mOutputFile;
+
+    delete h2D_etabins_vs_pt2;
+    delete h2D_etabins_vs_pt;
+    delete h2D_etabins_vs_phi;
+
   }
 
 
@@ -511,21 +516,21 @@ JetAnalyzer_HeavyIons::~JetAnalyzer_HeavyIons() {}
 //------------------------------------------------------------------------------
 // beginJob
 //------------------------------------------------------------------------------
-void JetAnalyzer_HeavyIons::beginJob() {
-  std::cout<<"inside the begin job function"<<endl;
-}
+//void JetAnalyzer_HeavyIons::beginJob() {
+//  std::cout<<"inside the begin job function"<<endl;
+//}
 
 
 //------------------------------------------------------------------------------
 // endJob
 //------------------------------------------------------------------------------
-void JetAnalyzer_HeavyIons::endJob()
-{
-  if (!mOutputFile.empty() && &*edm::Service<DQMStore>())
-    {
-      edm::Service<DQMStore>()->save(mOutputFile);
-    }
-}
+//void JetAnalyzer_HeavyIons::endJob()
+//{
+//  if (!mOutputFile.empty() && &*edm::Service<DQMStore>())
+//    {
+//      edm::Service<DQMStore>()->save(mOutputFile);
+//    }
+//}
 
 
 //------------------------------------------------------------------------------

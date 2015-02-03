@@ -72,8 +72,8 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
   virtual ~JetTester_HeavyIons();
 
   void analyze(const edm::Event&, const edm::EventSetup&) override; 
-  virtual void beginJob(); 
-  virtual void endJob();
+  //virtual void beginJob(); 
+  //virtual void endJob();
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   //reco::Vertex::Point getVtx(const edm::Event& ev);
 
