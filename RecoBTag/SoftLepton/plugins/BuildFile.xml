@@ -29,6 +29,5 @@
   <use name="RecoEgamma/EgammaTools"/>
   <use name="boost_regex"/>
   <use name="rootmath"/>
-  <use name="DataFormats/PatCandidates"/>
   <flags EDM_PLUGIN="1"/>
 </library>
