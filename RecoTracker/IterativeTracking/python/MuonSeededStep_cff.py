@@ -40,8 +40,8 @@ muonSeededMeasurementEstimatorForOutIn = TrackingTools.KalmanUpdators.Chi2Measur
     MaxChi2 = cms.double(30.0), ## was 30 ## TO BE TUNED
     nSigma  = cms.double(3.),    ## was 3  ## TO BE TUNED 
 )
-###------------- TrajectoryFilter, defining selections on the trajectories while building them ----------------
 
+###------------- TrajectoryFilter, defining selections on the trajectories while building them ----------------
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 muonSeededTrajectoryFilterForInOut = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone()
 muonSeededTrajectoryFilterForInOut.constantValueForLostHitsFractionFilter = 10 ## allow more lost hits
@@ -202,6 +202,7 @@ muonSeededStepExtra = cms.Sequence(
     muonSeededTracksInOutSelector +
     muonSeededTracksOutInSelector
 )
+
 muonSeededStep = cms.Sequence(
     earlyMuons +
     muonSeededStepCore +
