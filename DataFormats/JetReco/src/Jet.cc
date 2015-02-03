@@ -362,11 +362,7 @@ std::vector<const Candidate*> Jet::getJetConstituentsQuick () const {
   for (int i = 0; i < nDaughters; ++i) {
     if(!(this->sourceCandidatePtr(i).isNonnull() && this->sourceCandidatePtr(i).isAvailable()))
     {
-<<<<<<< HEAD
         edm::LogInfo("JetConstituentPointer") << "Bad pointer to jet constituent found.  Check for possible dropped particle.";
-=======
-        std::cerr << "Bad pointer to jet constituent found.  Check for possible dropped particle." << std::endl;
->>>>>>> 6173104247ae9bb5d166e7f12418d93789a5d8ee
         continue;
     }
     result.push_back (daughter (i));
