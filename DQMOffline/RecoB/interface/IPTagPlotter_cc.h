@@ -2,12 +2,12 @@
 #include <string>
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DQMOffline/RecoB/interface/IPTagPlotter.h"
 
-#include "DQMOffline/RecoB/interface/TrackIPTagPlotter.h"
-
-TrackIPTagPlotter::TrackIPTagPlotter(const std::string & tagName,
-				     const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, 
-				     const unsigned int& mc, const bool& wf, DQMStore::IBooker & ibook_) :
+template <class Container, class Base>
+IPTagPlotter<Container, Base>::IPTagPlotter(const std::string & tagName,
+						      const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, 
+						      const unsigned int& mc, const bool& wf, DQMStore::IBooker & ibook_) :
   BaseTagInfoPlotter(tagName, etaPtBin),
   nBinEffPur_(pSet.getParameter<int>("nBinEffPur")),
   startEffPur_(pSet.getParameter<double>("startEffPur")),
@@ -540,8 +540,8 @@ TrackIPTagPlotter::TrackIPTagPlotter(const std::string & tagName,
 
 }
 
-
-TrackIPTagPlotter::~TrackIPTagPlotter ()
+template <class Container, class Base> 
+IPTagPlotter<Container, Base>::~IPTagPlotter ()
 {
   if (willFinalize_) {
     for(int n=1; n != 3; ++n) {
@@ -595,18 +595,23 @@ TrackIPTagPlotter::~TrackIPTagPlotter ()
   }
 }
 
-void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
+template <class Container, class Base> 
+void IPTagPlotter<Container, Base>::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
 				    const double & jec,
 				    const int & jetFlavour)
 {
   analyzeTag(baseTagInfo, jec, jetFlavour, 1.);
 }
-void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
+
+template <class Container, class Base> 
+void IPTagPlotter<Container, Base>::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
 				    const double & jec,
 				    const int & jetFlavour, const float & w)
 {
-  const reco::TrackIPTagInfo * tagInfo = 
-	dynamic_cast<const reco::TrackIPTagInfo *>(baseTagInfo);
+  //  const reco::TrackIPTagInfo * tagInfo = 
+  //	dynamic_cast<const reco::TrackIPTagInfo *>(baseTagInfo);
+  const reco::IPTagInfo<Container, Base> * tagInfo = 
+    dynamic_cast<const reco::IPTagInfo<Container, Base> *>(baseTagInfo);
 
   if (!tagInfo) {
     throw cms::Exception("Configuration")
@@ -627,8 +632,8 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
 
   std::vector<std::size_t> sortedIndices = tagInfo->sortedIndexes(reco::btag::IP2DSig);
   std::vector<std::size_t> selectedIndices;
-  reco::TrackRefVector sortedTracks = tagInfo->sortedTracks(sortedIndices);
-  reco::TrackRefVector selectedTracks;
+  Container sortedTracks = tagInfo->sortedTracks(sortedIndices);
+  Container selectedTracks;
   for(unsigned int n = 0; n != sortedIndices.size(); ++n) {
     double decayLength = (ip[sortedIndices[n]].closestToJetAxis - pv).mag();
     double jetDistance = ip[sortedIndices[n]].distanceToJetAxis.value();
@@ -642,7 +647,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
   trkNbr2D->fill(jetFlavour, selectedIndices.size(),w);
 
   for(unsigned int n=0; n != selectedIndices.size(); ++n) {
-    const reco::TrackRef& track = selectedTracks[n];
+    const reco::Track * track =  reco::btag::toTrack(selectedTracks[n]);
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
     tkcntHistosSig2D[4]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip2d.significance(), true,w);
     tkcntHistosVal2D[4]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip2d.value(), true,w);
@@ -681,7 +686,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     }
   }
   for(unsigned int n=0; n != selectedIndices.size(); ++n) {
-    const reco::TrackRef& track = selectedTracks[n];
+    const reco::Track * track = reco::btag::toTrack(selectedTracks[n]);
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
     tkcntHistosProb2D[4]->fill(jetFlavour, trackQual, prob2d[selectedIndices[n]], true,w);
     if(ip[selectedIndices[n]].ip2d.value() < 0) tkcntHistosTkProbIPneg2D->fill(jetFlavour, trackQual, prob2d[selectedIndices[n]], true,w);
@@ -713,7 +718,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
   int nSelectedTracks = selectedIndices.size();
 
   for(unsigned int n=0; n != selectedIndices.size(); ++n) {
-    const reco::TrackRef& track = selectedTracks[n];
+    const reco::Track * track = reco::btag::toTrack(selectedTracks[n]);
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
     tkcntHistosSig3D[4]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip3d.significance(), true,w);
     tkcntHistosVal3D[4]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip3d.value(), true,w);
@@ -757,7 +762,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     }
   }
   for(unsigned int n=0; n != selectedIndices.size(); ++n) {
-    const reco::TrackRef& track = selectedTracks[n];
+    const reco::Track * track = reco::btag::toTrack(selectedTracks[n]);
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
     tkcntHistosProb3D[4]->fill(jetFlavour, trackQual, prob3d[selectedIndices[n]], true,w);
     if(ip[selectedIndices[n]].ip3d.value() < 0) tkcntHistosTkProbIPneg3D->fill(jetFlavour, trackQual, prob3d[selectedIndices[n]], true,w);
@@ -771,16 +776,17 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     tkcntHistosVal3D[n]->fill(jetFlavour, trackQual, lowerIPBound-1.0, false,w);
     tkcntHistosErr3D[n]->fill(jetFlavour, trackQual, lowerIPEBound-1.0, false,w);
   }
-  for(unsigned int n = 0; n != tagInfo->tracks().size(); ++n) {
-    trackQualHisto->fill(jetFlavour, highestTrackQual(tagInfo->tracks()[n]),w);
+  for(unsigned int n = 0; n != sortedTracks.size(); ++n) {
+    trackQualHisto->fill(jetFlavour, highestTrackQual(reco::btag::toTrack(sortedTracks[n])),w);
   }
 
   //still need to implement weights in FlavourHistograms2D
-  trackMultVsJetPtHisto->fill(jetFlavour, tagInfo->jet()->pt()*jec, tagInfo->tracks().size());
+  trackMultVsJetPtHisto->fill(jetFlavour, tagInfo->jet()->pt()*jec, sortedTracks.size());
   selectedTrackMultVsJetPtHisto->fill(jetFlavour, tagInfo->jet()->pt()*jec, nSelectedTracks); //tagInfo->selectedTracks().size());
 }
 
-void TrackIPTagPlotter::finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_)
+template <class Container, class Base> 
+void IPTagPlotter<Container, Base>::finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_)
 {
   //
   // final processing:
@@ -819,7 +825,9 @@ void TrackIPTagPlotter::finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter 
   for(int n=0; n != 4; ++n) effPurFromHistos[n]->compute(ibook_);
 }
 
-void TrackIPTagPlotter::psPlot(const std::string & name)
+
+template <class Container, class Base> 
+void IPTagPlotter<Container, Base>::psPlot(const std::string & name)
 {
   const std::string cName("TrackIPPlots"+ theExtensionString);
   RecoBTag::setTDRStyle()->cd();
@@ -911,7 +919,8 @@ void TrackIPTagPlotter::psPlot(const std::string & name)
 }
 
 
-void TrackIPTagPlotter::epsPlot(const std::string & name)
+template <class Container, class Base>
+void IPTagPlotter<Container, Base>::epsPlot(const std::string & name)
 {
   if (willFinalize_) {
     for(int n=0; n != 4; ++n) effPurFromHistos[n]->epsPlot(name);
@@ -953,7 +962,8 @@ void TrackIPTagPlotter::epsPlot(const std::string & name)
   }
 }
 
-reco::TrackBase::TrackQuality TrackIPTagPlotter::highestTrackQual(const reco::TrackRef& track) const {
+template <class Container, class Base> 
+reco::TrackBase::TrackQuality IPTagPlotter<Container, Base>::highestTrackQual(const reco::Track * track) const {
   for(reco::TrackBase::TrackQuality i = reco::TrackBase::highPurity; i != reco::TrackBase::undefQuality; i = reco::TrackBase::TrackQuality(i - 1))
   {
     if(track->quality(i))

@@ -20,7 +20,7 @@ from DQMOffline.RecoB.bTagCommon_cff import *
 tagConfig = cms.VPSet(
         cms.PSet(
             bTagGenericAnalysisBlock,
-            label = cms.InputTag("combinedInclusiveSecondaryVertexV2BJetTags"),
+            label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
             folder = cms.string("CSVv2")
         ),
 )
