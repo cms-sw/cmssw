@@ -54,7 +54,8 @@ public:
     conf_(conf),
     algoName_(conf_.getParameter<std::string>( "AlgorithmName" )),
     algo_(reco::TrackBase::algoByName(algoName_)),
-    reMatchSplitHits_(false)
+    reMatchSplitHits_(false),
+    usePropagatorForPCA_(false)
       {
         geometricInnerState_ = (conf_.exists("GeometricInnerState") ?
 	  conf_.getParameter<bool>( "GeometricInnerState" ) : true);
