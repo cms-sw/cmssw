@@ -11,9 +11,15 @@ class Photon(PhysicsObject ):
         return hadTowDepth1O + hadTowDepth2O
 
     def r9(self):
-        return self.physObj.full5x5_r9()
+        return self.physObj.r9()
 
     def sigmaIetaIeta(self):
+        return self.physObj.sigmaIetaIeta()
+
+    def full5x5_r9(self):
+        return self.physObj.full5x5_r9()
+
+    def full5x5_sigmaIetaIeta(self):
         return self.physObj.full5x5_sigmaIetaIeta()
 
     def chargedHadronIso(self):
@@ -29,12 +35,10 @@ class Photon(PhysicsObject ):
         keepThisPhoton = True
         if name == "PhotonCutBasedIDLoose_CSA14":
             if abs(self.physObj.eta())<1.479 :
-                if self.sigmaIetaIeta() > 0.012 : keepThisPhoton = False
-                #if self.physObj.sigmaIetaIeta() > 0.012 : keepThisPhoton = False
+                if self.full5x5_sigmaIetaIeta() > 0.012 : keepThisPhoton = False
                 if self.hOVERe() > 0.0559       : keepThisPhoton = False
             else :
-                if self.sigmaIetaIeta() > 0.035 : keepThisPhoton = False
-                #if self.physObj.sigmaIetaIeta() > 0.035 : keepThisPhoton = False
+                if self.full5x5_sigmaIetaIeta() > 0.035 : keepThisPhoton = False
                 if self.hOVERe() > 0.049        : keepThisPhoton = False
         return keepThisPhoton
                 
