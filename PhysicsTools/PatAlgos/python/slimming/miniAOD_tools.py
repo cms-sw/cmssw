@@ -139,7 +139,7 @@ def miniAOD_customizeCommon(process):
     process.patJetsAK8.userData.userFloats.src += ['NjettinessAK8:tau1','NjettinessAK8:tau2','NjettinessAK8:tau3']
 
     ## Add soft drop subjet info
-    process.ak8PFJetsCHSSubJet = cms.EDProducer("RecoJetDeltaRValueMapProducer",
+    process.ak8PFJetsCHSSDSubJet = cms.EDProducer("RecoJetDeltaRValueMapProducer",
         src = cms.InputTag("ak8PFJetsCHS"),
         matched = cms.InputTag("selectedPatJetsAK8PFCHSSoftDropPacked"),
         distMax = cms.double(0.8),
@@ -160,30 +160,30 @@ def miniAOD_customizeCommon(process):
             "? numberOfDaughters > 1 ? daughterPtr(1).bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags') : -9999"
         ),
         valueLabels = cms.vstring(
+            "0Pt",
             "1Pt",
-            "2Pt",
+            "0Eta",
             "1Eta",
-            "2Eta",
+            "0Phi",
             "1Phi",
-            "2Phi",
+            "0Mass",
             "1Mass",
-            "2Mass",
+            "0JecFactor0",
             "1JecFactor0",
-            "2JecFactor0",
+            "0Flavour",
             "1Flavour",
-            "2Flavour",
-            "1CSVv2IVF",
-            "2CSVv2IVF"
+            "0CSVv2IVF",
+            "1CSVv2IVF"
         ),
         lazyParser = cms.bool(True)
     )
-    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSSubJet:1Pt','ak8PFJetsCHSSubJet:2Pt',
-                                                   'ak8PFJetsCHSSubJet:1Eta','ak8PFJetsCHSSubJet:2Eta',
-                                                   'ak8PFJetsCHSSubJet:1Phi','ak8PFJetsCHSSubJet:2Phi',
-                                                   'ak8PFJetsCHSSubJet:1Mass','ak8PFJetsCHSSubJet:2Mass',
-                                                   'ak8PFJetsCHSSubJet:1JecFactor0','ak8PFJetsCHSSubJet:2JecFactor0',
-                                                   'ak8PFJetsCHSSubJet:1Flavour','ak8PFJetsCHSSubJet:2Flavour',
-                                                   'ak8PFJetsCHSSubJet:1CSVv2IVF','ak8PFJetsCHSSubJet:2CSVv2IVF']
+    process.patJetsAK8.userData.userFloats.src += [ 'ak8PFJetsCHSSDSubJet:0Pt'        , 'ak8PFJetsCHSSDSubJet:1Pt'
+                                                   ,'ak8PFJetsCHSSDSubJet:0Eta'       , 'ak8PFJetsCHSSDSubJet:1Eta'
+                                                   ,'ak8PFJetsCHSSDSubJet:0Phi'       , 'ak8PFJetsCHSSDSubJet:1Phi'
+                                                   ,'ak8PFJetsCHSSDSubJet:0Mass'      , 'ak8PFJetsCHSSDSubJet:1Mass'
+                                                   ,'ak8PFJetsCHSSDSubJet:0JecFactor0', 'ak8PFJetsCHSSDSubJet:1JecFactor0'
+                                                   ,'ak8PFJetsCHSSDSubJet:0Flavour'   , 'ak8PFJetsCHSSDSubJet:1Flavour'
+                                                   ,'ak8PFJetsCHSSDSubJet:0CSVv2IVF'  , 'ak8PFJetsCHSSDSubJet:1CSVv2IVF']
 
     #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
