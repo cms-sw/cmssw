@@ -50,7 +50,7 @@ SoftPFMuonTagInfoProducer::~SoftPFMuonTagInfoProducer() {}
 
 void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Declare produced collection
-  reco::CandSoftLeptonTagInfoCollection* theMuonTagInfo = new reco::CandSoftLeptonTagInfoCollection;    
+  std::auto_ptr<reco::CandSoftLeptonTagInfoCollection> theMuonTagInfo(new reco::CandSoftLeptonTagInfoCollection);
   
   // Declare and open Jet collection
   edm::Handle<edm::View<reco::Jet> > theJetCollection;
@@ -133,16 +133,17 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
       // Filter leptons from W, Z decays
       if(useFilter && ((fabs(properties.sip3d)<IPcut && properties.ratio>ratio1cut) || properties.ratio>ratio2cut)) continue;
       
-      // Fill and write Tag Info
+      // Insert lepton properties
       tagInfo.insert(lepPtr, properties);
-      theMuonTagInfo->push_back(tagInfo);
       
     } // --- End loop on daughters
     
+    // Fill the TagInfo collection
+    theMuonTagInfo->push_back(tagInfo);
   } // --- End loop on jets
   
-  std::auto_ptr<reco::CandSoftLeptonTagInfoCollection> MuonTagInfoCollection(theMuonTagInfo);
-  iEvent.put(MuonTagInfoCollection);
+  // Put the TagInfo collection in the event
+  iEvent.put(theMuonTagInfo);
 }
 
 
