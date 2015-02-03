@@ -46,8 +46,8 @@ class DiLeptonAnalyzer( Analyzer ):
     LeptonClass = Lepton 
     OtherLeptonClass = Lepton 
 
-    def beginLoop(self):
-        super(DiLeptonAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(DiLeptonAnalyzer,self).beginLoop(setup)
         self.counters.addCounter('DiLepton')
         count = self.counters.counter('DiLepton')
         count.register('all events')

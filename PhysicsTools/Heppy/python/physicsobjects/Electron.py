@@ -9,6 +9,9 @@ class Electron( Lepton ):
         for setting this attribute externally if he wants to use the tightId
         function.'''
         super(Electron, self).__init__(*args, **kwargs)
+        self._physObjInit()
+
+    def _physObjInit(self):
         self.tightIdResult = None
         self.associatedVertex = None
         self.rho              = None
@@ -26,6 +29,9 @@ class Electron( Lepton ):
         elif id == "POG_MVA_ID_Trig_full5x5":     return self.mvaIDTight(full5x5=True)
         elif id.startswith("POG_Cuts_ID_"): 
                 return self.cutBasedId(id.replace("POG_Cuts_ID_","POG_")) 
+        for ID in self.electronIDs():
+            if ID.first == id:
+                return ID.second
         raise RuntimeError, "Electron id '%s' not yet implemented in Electron.py" % id
 
     def cutBasedId(self, wp, showerShapes="auto"):
@@ -126,17 +132,17 @@ class Electron( Lepton ):
     def mvaIDZZ(self):
         return self.mvaIDLoose() and (self.gsfTrack().trackerExpectedHitsInner().numberOfLostHits()<=1)
 
-    def chargedHadronIso(self,R=0.4):
+    def chargedHadronIsoR(self,R=0.4):
         if   R == 0.3: return self.physObj.pfIsolationVariables().sumChargedHadronPt 
         elif R == 0.4: return self.physObj.chargedHadronIso()
         raise RuntimeError, "Electron chargedHadronIso missing for R=%s" % R
 
-    def neutralHadronIso(self,R=0.4):
+    def neutralHadronIsoR(self,R=0.4):
         if   R == 0.3: return self.physObj.pfIsolationVariables().sumNeutralHadronEt 
         elif R == 0.4: return self.physObj.neutralHadronIso()
         raise RuntimeError, "Electron neutralHadronIso missing for R=%s" % R
 
-    def photonIso(self,R=0.4):
+    def photonIsoR(self,R=0.4):
         if   R == 0.3: return self.physObj.pfIsolationVariables().sumPhotonEt 
         elif R == 0.4: return self.physObj.photonIso()
         raise RuntimeError, "Electron photonIso missing for R=%s" % R
@@ -145,7 +151,7 @@ class Electron( Lepton ):
         if   R == 0.3: return self.physObj.pfIsolationVariables().sumChargedParticlePt 
         raise RuntimeError, "Electron chargedAllIso missing for R=%s" % R
 
-    def puChargedHadronIso(self,R=0.4):
+    def puChargedHadronIsoR(self,R=0.4):
         if   R == 0.3: return self.physObj.pfIsolationVariables().sumPUPt 
         elif R == 0.4: return self.physObj.puChargedHadronIso()
         raise RuntimeError, "Electron chargedHadronIso missing for R=%s" % R
@@ -167,10 +173,11 @@ class Electron( Lepton ):
         if vertex is None:
             vertex = self.associatedVertex
         return self.gsfTrack().dxy( vertex.position() )
- 
+    def p4(self):	
+	 return ROOT.reco.Candidate.p4(self.physObj) 
 
-    def p4(self,kind=None):
-        return self.physObj.p4(self.physObj.candidateP4Kind() if kind == None else kind)
+#    def p4(self):
+#        return self.physObj.p4(self.physObj.candidateP4Kind()) # if kind == None else kind)
 
     def dz(self, vertex=None):
         '''Returns dz.

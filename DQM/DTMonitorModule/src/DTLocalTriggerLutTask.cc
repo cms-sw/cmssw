@@ -59,7 +59,9 @@ DTLocalTriggerLutTask::DTLocalTriggerLutTask(const edm::ParameterSet& ps) : trig
 
   baseFolder = "DT/03-LocalTrigger-DCC/";
   parameters = ps;
-  dbe = edm::Service<DQMStore>().operator->();
+
+  nEvents = 0;
+  nLumis  = 0;
 
 }
 
@@ -71,61 +73,62 @@ DTLocalTriggerLutTask::~DTLocalTriggerLutTask() {
 
 }
 
+void DTLocalTriggerLutTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
 
-void DTLocalTriggerLutTask::beginJob(){
-
-  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerLutTask") << "[DTLocalTriggerLutTask]: BeginJob" << endl;
-  nEvents = 0;
-  nLumis  = 0;
-
+  // Get the geometry
+  context.get<MuonGeometryRecord>().get(theGeomLabel,muonGeom);
+  trigGeomUtils = new DTTrigGeomUtils(muonGeom);
 }
 
-void DTLocalTriggerLutTask::bookHistos(DTChamberId chId) {
+void DTLocalTriggerLutTask::bookHistos(DQMStore::IBooker & ibooker, DTChamberId chId) {
 
   stringstream wheel; wheel << chId.wheel();
   stringstream sector; sector << chId.sector();
   stringstream station; station << chId.station();
 
-  dbe->setCurrentFolder(topFolder() + "Wheel" + wheel.str() + "/Sector" + sector.str() +
+  ibooker.setCurrentFolder(topFolder() + "Wheel" + wheel.str() + "/Sector" + sector.str() +
 			"/Station" + station.str() + "/Segment");
 
   string chTag = "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
   std::map<std::string, MonitorElement*> &chambMap = chHistos[chId.rawId()];
 
   string hName = "DCC_PhiResidual";
-  chambMap[hName] = dbe->book1D(hName+chTag,"Trigger local position - Segment local position (correlated triggers)",nPhiBins,-rangePhi,rangePhi);
+
+  chambMap[hName] = ibooker.book1D(hName+chTag,"Trigger local position - Segment local position (correlated triggers)",nPhiBins,-rangePhi,rangePhi);
   hName = "DCC_PhibResidual";
-  chambMap[hName] =dbe->book1D(hName+chTag,"Trigger local direction - Segment local direction (correlated triggers)",nPhibBins,-rangePhiB,rangePhiB);
+
+  chambMap[hName] = ibooker.book1D(hName+chTag,"Trigger local direction - Segment local direction (correlated triggers)",nPhibBins,-rangePhiB,rangePhiB);
 
   if (detailedAnalysis) {
 
     hName = "DCC_PhitkvsPhitrig";
-    chambMap[hName] = dbe->book2D(hName+chTag,"Local position: segment vs trigger",100,-500.,500.,100,-500.,500.);
+
+    chambMap[hName] = ibooker.book2D(hName+chTag,"Local position: segment vs trigger",100,-500.,500.,100,-500.,500.);
     hName = "DCC_PhibtkvsPhibtrig";
-    chambMap[hName] =dbe->book2D(hName+chTag,"Local direction : segment vs trigger",200,-40.,40.,200,-40.,40.);
+
+    chambMap[hName] =ibooker.book2D(hName+chTag,"Local direction : segment vs trigger",200,-40.,40.,200,-40.,40.);
     hName = "DCC_PhibResidualvsTkPos";
-    chambMap[hName] =dbe->book2D(hName+chTag,"Local direction residual vs Segment Position",100,-500.,500.,200,-10.,10.);
+
+    chambMap[hName] =ibooker.book2D(hName+chTag,"Local direction residual vs Segment Position",100,-500.,500.,200,-10.,10.);
     hName = "DCC_PhiResidualvsTkPos";
-    chambMap[hName] =dbe->book2D(hName+chTag,"Local Position residual vs Segment Position",100,-500.,500.,200,-10.,10.);
+
+    chambMap[hName] =ibooker.book2D(hName+chTag,"Local Position residual vs Segment Position",100,-500.,500.,200,-10.,10.);
 
   }
 
 }
 
+void DTLocalTriggerLutTask::bookHistograms(DQMStore::IBooker & ibooker,
+                                             edm::Run const & run,
+                                             edm::EventSetup const & context) {
 
-
-void DTLocalTriggerLutTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
-
-  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerLutTask") << "[DTLocalTriggerLutTask]: BeginRun" << endl;
-
-  context.get<MuonGeometryRecord>().get(theGeomLabel,muonGeom);
-  trigGeomUtils = new DTTrigGeomUtils(muonGeom);
+  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerLutTask") << "[DTLocalTriggerLutTask]: bookHistograms" << endl;
 
   std::vector<const DTChamber*>::const_iterator chambIt  = muonGeom->chambers().begin();
   std::vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
 
   for (; chambIt!=chambEnd; ++chambIt)
-    bookHistos((*chambIt)->id());
+    bookHistos(ibooker,(*chambIt)->id());
 
 }
 
@@ -153,13 +156,6 @@ void DTLocalTriggerLutTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 
 }
 
-
-void DTLocalTriggerLutTask::endJob(){
-
-  LogVerbatim("DTDQM|DTMonitorModule|DTLocalTriggerLutTask") << "[DTLocalTriggerLutTask]: analyzed " << nEvents << " events" << endl;
-  dbe->rmdir(topFolder());
-
-}
 
 
 void DTLocalTriggerLutTask::analyze(const edm::Event& e, const edm::EventSetup& c){

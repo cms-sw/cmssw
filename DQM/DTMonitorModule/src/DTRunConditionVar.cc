@@ -1,3 +1,4 @@
+
 /******* \class DTRunConditionVar *******
  *
  * Description:
@@ -50,11 +51,6 @@ DTRunConditionVar::DTRunConditionVar(const ParameterSet& pSet):
   dt4DSegmentsToken_(consumes<DTRecSegment4DCollection>(
       pSet.getParameter<InputTag>("recoSegments")))
 {
-  //  LogVerbatim("DTDQM|DTRunConditionVar|DTRunConditionVar")
-  //    << "DTRunConditionVar: constructor called";
-
-  // Get the DQM needed services
-  theDbe = Service<DQMStore>().operator->();
 
 }
 
@@ -66,19 +62,19 @@ DTRunConditionVar::~DTRunConditionVar()
   // free memory
 }
 
-
-
-void DTRunConditionVar::beginJob() {
+void DTRunConditionVar::bookHistograms(DQMStore::IBooker & ibooker,
+                                             edm::Run const & iRun,
+                                             edm::EventSetup const & /* iSetup */) {
 
   LogTrace("DTDQM|DTMonitorModule|DTRunConditionVar")
-    << "DTRunConditionVar: beginOfJob";
+    << "DTRunConditionVar: bookHistograms";
 
   for(int wheel=-2;wheel<=2;wheel++){
     for(int sec=1; sec<=14; sec++) {
       for(int stat=1; stat<=4; stat++) {
 
-        bookChamberHistos(DTChamberId(wheel,stat,sec),"VDrift_FromSegm",100,0.0043,0.0065);
-        bookChamberHistos(DTChamberId(wheel,stat,sec),"T0_FromSegm",100,-25.,25.);
+        bookChamberHistos(ibooker,DTChamberId(wheel,stat,sec),"VDrift_FromSegm",100,0.0043,0.0065);
+        bookChamberHistos(ibooker,DTChamberId(wheel,stat,sec),"T0_FromSegm",100,-25.,25.);
 
       }
     }
@@ -88,30 +84,13 @@ void DTRunConditionVar::beginJob() {
   return;
 }
 
-
-
-
-
-void DTRunConditionVar::beginRun(const Run& run, const EventSetup& setup)
+void DTRunConditionVar::dqmBeginRun(const Run& run, const EventSetup& setup)
 {
   // Get the DT Geometry
   setup.get<MuonGeometryRecord>().get(dtGeom);
 
   return;
 }
-
-
-
-
-void DTRunConditionVar::endJob()
-{
-  LogTrace("DTDQM|DTMonitorModule|DTRunConditionVar")
-    << "DTRunConditionVar: endOfJob";
-
-  return;
-}
-
-
 
 void DTRunConditionVar::analyze(const Event & event,
     const EventSetup& eventSetup)
@@ -181,23 +160,11 @@ void DTRunConditionVar::analyze(const Event & event,
       }
     }
 
-    //    if( (*segment).hasZed() ){
-    //      double segmentVDrift = segment->zSegment()->vDrift();
-    //      double segmentT0 = segment->zSegment()->t0();
-    //
-    //
-    //      if(segmentT0 != -999 ) ht0[sector-1]->Fill(segmentT0);
-    //      if( segmentVDrift > 0.00 ) hvd[sector-1]->Fill(segmentVDrift);
-    //
-    //    }
   } //end loop on segment
 
 } //end analyze
 
-
-
-
-void DTRunConditionVar::bookChamberHistos(const DTChamberId& dtCh, string histoType, int nbins, float min, float max) {
+void DTRunConditionVar::bookChamberHistos(DQMStore::IBooker & ibooker,const DTChamberId& dtCh, string histoType, int nbins, float min, float max) {
 
   int wh = dtCh.wheel();
   int sc = dtCh.sector();
@@ -209,7 +176,7 @@ void DTRunConditionVar::bookChamberHistos(const DTChamberId& dtCh, string histoT
   string bookingFolder = "DT/02-Segments/Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str();
   string histoTag      = "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
-  theDbe->setCurrentFolder(bookingFolder);
+  ibooker.setCurrentFolder(bookingFolder);
 
   LogTrace ("DTDQM|DTMonitorModule|DTRunConditionVar")
     << "[DTRunConditionVar]: booking histos in " << bookingFolder << endl;
@@ -218,7 +185,7 @@ void DTRunConditionVar::bookChamberHistos(const DTChamberId& dtCh, string histoT
   string histoLabel = histoType;
 
   (chamberHistos[dtCh.rawId()])[histoType] =
-    theDbe->book1D(histoName,histoLabel,nbins,min,max);
+    ibooker.book1D(histoName,histoLabel,nbins,min,max);
 
 }
 
