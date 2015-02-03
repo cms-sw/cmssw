@@ -49,6 +49,7 @@ if not "NoJEC" in whichJets:
         process.ak4JetsJEC.src = 'ak4PFJets'
         process.ak4JetsJEC.correctors = ['ak4PFL1FastL2L3']
 process.myak4JetTracksAssociatorAtVertex.jets = newjetID
+process.pfImpactParameterTagInfos.jets        = newjetID
 process.softPFMuonsTagInfos.jets              = newjetID
 process.softPFElectronsTagInfos.jets          = newjetID
 process.AK4byRef.jets                         = newjetID
