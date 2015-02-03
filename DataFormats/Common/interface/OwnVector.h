@@ -429,7 +429,7 @@ namespace edm {
       }
       else {
         pointers.push_back(*i);
-        holder_type h(ref_type(id, *i, key,this));
+        holder_type h(ref_type(id, *i, key));
         helpers.push_back(&h);
       }
     }

@@ -13,6 +13,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
@@ -79,7 +81,7 @@ void ImpactParameter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         std::auto_ptr<JetTagCollection>                 tagCollection;
         std::auto_ptr<TauImpactParameterInfoCollection> extCollection( new TauImpactParameterInfoCollection() );
         if (not isolatedTaus->empty()) {
-          edm::RefToBaseProd<reco::Jet> prod( isolatedTaus->begin()->jet() );
+          edm::RefToBaseProd<reco::Jet> prod( edm::makeRefToBaseProdFrom(isolatedTaus->begin()->jet(), iEvent) );
           tagCollection.reset( new JetTagCollection(prod) );
         } else {
           tagCollection.reset( new JetTagCollection() );

@@ -74,7 +74,6 @@ void testRef::constructTest() {
    CPPUNIT_ASSERT(dummyRef.id() == pid);
    CPPUNIT_ASSERT(dummyRefProd.id() == pid);
    CPPUNIT_ASSERT(dummyRef.key() == key);
-   CPPUNIT_ASSERT(dummyRef.product() == &dummyCollection);
    CPPUNIT_ASSERT(&(*dummyRef) == &dummyCollection[key]);
    CPPUNIT_ASSERT((dummyRef.operator->()) == &dummyCollection[key]);
    CPPUNIT_ASSERT(dummyRef->address() == dummyCollection[key].address());
@@ -200,22 +199,14 @@ void testRef::getTest() {
 
    OrphanHandle<IntCollection> handle(wptr, pid);
 
-   Ref<IntCollection> ref0(handle, 0);
-   ref0.refCore().setProductGetter(&tester);
-   //only have to set ProductGetter since they share the same ptr
-   //ref0.refCore().setProductPtr(0); 
+   Ref<IntCollection> ref0(pid, 0, &tester);
    CPPUNIT_ASSERT(!ref0.hasProductCache());
 
-   Ref<IntCollection> ref1(handle, 1);
-   ref1.refCore().setProductGetter(&tester);
-   //ref1.refCore().setProductPtr(0);
-
-   Ref<IntCollection> ref2(pid, 1, &tester);
+   Ref<IntCollection> ref1(pid, 1, &tester);
 
    CPPUNIT_ASSERT(0 == ref0->value_);
    CPPUNIT_ASSERT(ref0.hasProductCache());
    CPPUNIT_ASSERT(1 == ref1->value_);
-   CPPUNIT_ASSERT(1 == ref2->value_);
    CPPUNIT_ASSERT(1 == (*ref1).value_);
 
    RefProd<IntCollection> refProd0(handle);

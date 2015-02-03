@@ -84,14 +84,14 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
   edm::ESHandle<MagneticField> theMagField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
-  reco::RecoEcalCandidateIsolationMap dEtaMap;
-  reco::RecoEcalCandidateIsolationMap dEtaSeedMap;
-  reco::RecoEcalCandidateIsolationMap dPhiMap;
-  reco::RecoEcalCandidateIsolationMap oneOverESuperMinusOneOverPMap;
-  reco::RecoEcalCandidateIsolationMap oneOverESeedMinusOneOverPMap;
-  reco::RecoEcalCandidateIsolationMap missingHitsMap;
-  reco::RecoEcalCandidateIsolationMap validHitsMap;
-  reco::RecoEcalCandidateIsolationMap chi2Map;
+  reco::RecoEcalCandidateIsolationMap dEtaMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap dEtaSeedMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap dPhiMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap oneOverESuperMinusOneOverPMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap oneOverESeedMinusOneOverPMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap missingHitsMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap validHitsMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap chi2Map(recoEcalCandHandle);
 
   for(reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand = recoEcalCandHandle->begin(); iRecoEcalCand != recoEcalCandHandle->end(); iRecoEcalCand++){
     reco::RecoEcalCandidateRef recoEcalCandRef(recoEcalCandHandle,iRecoEcalCand-recoEcalCandHandle->begin());

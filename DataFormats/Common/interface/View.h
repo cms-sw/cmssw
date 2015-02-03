@@ -135,10 +135,6 @@ namespace edm {
     // The following is for testing only.
     static void fill_from_range(T* first, T* last, View& output);
 
-    void const* product() const {
-      return refs_.product();
-    }
-
   private:
     seq_t items_;
     RefToBaseVector<T> refs_;

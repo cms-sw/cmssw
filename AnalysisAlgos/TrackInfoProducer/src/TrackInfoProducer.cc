@@ -28,7 +28,6 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
   //
 
   std::auto_ptr<reco::TrackInfoCollection>    outputColl (new reco::TrackInfoCollection);
-  std::auto_ptr<reco::TrackInfoTrackAssociationCollection>    TIassociationColl (new reco::TrackInfoTrackAssociationCollection);
 
   edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
   edm::Handle<reco::TrackCollection > trackCollection;
@@ -71,6 +70,7 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 //     if(updatedStateTag_!="") rTrackInfou =   theEvent.put(outputUpdatedColl,updatedStateTag_ );
 //     if(combinedStateTag_!="") rTrackInfoc =   theEvent.put(outputCombinedColl,combinedStateTag_ );
     rTrackInfo=theEvent.put(outputColl);
+    std::auto_ptr<reco::TrackInfoTrackAssociationCollection>    TIassociationColl (new reco::TrackInfoTrackAssociationCollection(assoMap->refProd().val, rTrackInfo));
 
     for(std::map<reco::TrackRef,unsigned int>::iterator ref_iter=trackid.begin();ref_iter!=trackid.end();ref_iter++){
 

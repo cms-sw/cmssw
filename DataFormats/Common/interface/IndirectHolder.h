@@ -46,8 +46,6 @@ namespace edm {
       virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const;
       virtual std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() const;
       virtual EDProductGetter const* productGetter() const;
-      virtual bool hasProductCache() const;
-      virtual void const * product() const;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
@@ -133,18 +131,6 @@ namespace edm {
     inline
     EDProductGetter const* IndirectHolder<T>::productGetter() const {
       return helper_->productGetter();
-    }
-
-    template <typename T>
-    inline
-    bool IndirectHolder<T>::hasProductCache() const {
-      return helper_->hasProductCache();
-    }
-
-    template <typename T>
-    inline
-    void const * IndirectHolder<T>::product() const {
-      return helper_->product();
     }
 
     template <typename T>

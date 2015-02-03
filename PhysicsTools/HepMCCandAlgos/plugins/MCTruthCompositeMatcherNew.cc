@@ -69,7 +69,7 @@ namespace reco {
 	    indices[i] = found ? int(mc.key()) : -1;
 	  }
 	}
-	CandidateBaseRefProd ref(cands->refAt(0));
+	CandidateBaseRefProd ref(cands);
 	filler.insert(ref, indices.begin(), indices.end());
 	filler.fill();
       }

@@ -61,7 +61,6 @@ namespace edm {
 
     void fillView(std::vector<void const*>& pointers) const;
     std::auto_ptr<reftobase::RefVectorHolderBase> vectorHolder() const;
-    const void * product() const;
  
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
@@ -268,12 +267,6 @@ namespace edm {
   std::auto_ptr<reftobase::RefVectorHolderBase> RefToBaseVector<T>::vectorHolder() const {
     return holder_ ? holder_->vectorHolder() : std::auto_ptr<reftobase::RefVectorHolderBase>();
   }
-
-  template <typename T>
-  const void * RefToBaseVector<T>::product() const {
-    return holder_ ? holder_->product() : 0;
-  }
-
 }
 
 #include "DataFormats/Common/interface/RefVector.h"

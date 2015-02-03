@@ -48,8 +48,8 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid, edm::Event& iEven
   EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_ );
   noZS::EcalClusterLazyTools lazyTools5x5(iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_ );
 
-  reco::RecoEcalCandidateIsolationMap clshMap;
-  reco::RecoEcalCandidateIsolationMap clsh5x5Map;
+  reco::RecoEcalCandidateIsolationMap clshMap(recoecalcandHandle);
+  reco::RecoEcalCandidateIsolationMap clsh5x5Map(recoecalcandHandle);
   
  
   for(unsigned int iRecoEcalCand = 0; iRecoEcalCand<recoecalcandHandle->size(); iRecoEcalCand++) {

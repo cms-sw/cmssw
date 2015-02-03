@@ -87,10 +87,6 @@ namespace edm {
       checkTypeAtCompileTime(handle.product());
     }
 
-    /// Constructor from RefVector<C, T, F>
-    template<typename T, typename F>
-    explicit RefProd(RefVector<C, T, F> const& ref);
-
     // Constructor for those users who do not have a product handle,
     // but have a pointer to a product getter (such as the EventPrincipal).
     // prodGetter will ususally be a pointer to the event principal.
@@ -171,14 +167,6 @@ namespace edm {
 namespace edm {
   template<typename C, typename T, typename F>
   class RefVector;
-
-  /// Constructor from RefVector.
-  template<typename C>
-  template<typename T, typename F>
-  inline
-  RefProd<C>::RefProd(RefVector<C, T, F> const& ref) :
-      product_(ref.id(), ref.hasProductCache() ?  ref.product() : 0, ref.productGetter(), ref.isTransient()) {
-  }
 
   /// Dereference operator
   template<typename C>

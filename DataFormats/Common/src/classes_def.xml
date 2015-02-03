@@ -49,9 +49,15 @@
  <class name="edm::reftobase::RefHolderBase" ClassVersion="10">
   <version ClassVersion="10" checksum="133255391"/>
  </class>
- <class name="edm::RefVectorBase<unsigned int>"/>
- <class name="edm::RefVectorBase<unsigned long>"/>
- <class name="edm::RefVectorBase<int>"/>
+ <class name="edm::RefVectorBase<unsigned int>">
+   <field name="members_" transient="true"/>
+ </class>
+ <class name="edm::RefVectorBase<unsigned long>">
+   <field name="members_" transient="true"/>
+ </class>
+ <class name="edm::RefVectorBase<int>">
+   <field name="members_" transient="true"/>
+ </class>
  <class name="edm::Ref<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> >"/>
  <class name="edm::RefVector<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> >"/>
  <class name="edm::RefToBaseVector<int>"/>

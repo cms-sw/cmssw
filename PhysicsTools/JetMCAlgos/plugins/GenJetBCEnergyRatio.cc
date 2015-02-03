@@ -89,9 +89,8 @@ void GenJetBCEnergyRatio::produce( Event& iEvent, const EventSetup& iEs )
   JetBCEnergyRatioCollection * jtc2;
 
   if (genjets.product()->size() > 0) {
-    const JetRef jj = genjets->refAt(0);
-    jtc1 = new JetBCEnergyRatioCollection(RefToBaseProd<Jet>(jj));
-    jtc2 = new JetBCEnergyRatioCollection(RefToBaseProd<Jet>(jj));
+    jtc1 = new JetBCEnergyRatioCollection(RefToBaseProd<Jet>(genjets));
+    jtc2 = new JetBCEnergyRatioCollection(RefToBaseProd<Jet>(genjets));
   } else {
     jtc1 = new JetBCEnergyRatioCollection();
     jtc2 = new JetBCEnergyRatioCollection();

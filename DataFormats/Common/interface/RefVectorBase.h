@@ -25,9 +25,9 @@ namespace edm {
     typedef typename keys_type::size_type size_type;
     /// Default constructor needed for reading from persistent store. Not for direct use.
     RefVectorBase() : product_(), keys_() {}
-    RefVectorBase( RefVectorBase const & rhs) : product_(rhs.product_), keys_(rhs.keys_) {}
+    RefVectorBase( RefVectorBase const & rhs) : product_(rhs.product_), keys_(rhs.keys_), members_(rhs.members_) {}
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
-    RefVectorBase( RefVectorBase && rhs)  noexcept : product_(std::move(rhs.product_)), keys_(std::move(rhs.keys_)) {}
+    RefVectorBase( RefVectorBase && rhs)  noexcept : product_(std::move(rhs.product_)), keys_(std::move(rhs.keys_)), members_(std::move(rhs.members_)) {}
 #endif
 
     explicit RefVectorBase(ProductID const& productID, void const* prodPtr = 0,
@@ -40,6 +40,8 @@ namespace edm {
     /// Accessor for product ID and product getter
     RefCore const& refCore() const {return product_;}
 
+    std::vector<void const*> const& members() const { return members_; }
+
     /// Accessor for vector of keys and pointers
     keys_type const& keys() const {return keys_;}
 
@@ -50,8 +52,20 @@ namespace edm {
     size_type size() const {return keys_.size();}
 
     void pushBack(RefCore const& product, KEY const& key) {
-      product_.pushBackItem(product, true);
-      keys_.push_back(key);
+      product_.pushBackRefItem(product);
+      if(product.productPtr() != nullptr) {
+        if(members_.empty()) {
+          members_.resize(keys_.size(), nullptr);
+        }
+        members_.push_back(product.productPtr());
+        keys_.push_back(key);
+        return;
+      } else {
+        if(!members_.empty()) {
+          members_.push_back(nullptr);
+        }
+        keys_.push_back(key);
+      }
     }
 
     /// Capacity of vector
@@ -62,12 +76,14 @@ namespace edm {
 
     /// erase an element from the vector 
     typename keys_type::iterator eraseAtIndex(size_type index) {
+      members_.erase(members_.begin() + index);
       return keys_.erase(keys_.begin() + index);
     }
     
     /// clear the vector
     void clear() {
       keys_.clear();
+      members_.clear();
       product_ = RefCore();
     }
 
@@ -75,6 +91,7 @@ namespace edm {
     void swap(RefVectorBase<KEY> & other)  noexcept {
       product_.swap(other.product_);
       keys_.swap(other.keys_);
+      members_.swap(other.members_);
     }
 
     /// Copy assignment
@@ -87,6 +104,7 @@ namespace edm {
     RefVectorBase& operator=(RefVectorBase && rhs)  noexcept {
       product_ = std::move(rhs.product_); 
       keys_ =std::move(rhs.keys_);
+      members_ = std::move(rhs.members_);
       return *this;
     }
 #endif
@@ -97,6 +115,7 @@ namespace edm {
   private:
     RefCore product_;
     keys_type keys_;
+    std::vector<void const*> members_;
   };
 
   /// Equality operator

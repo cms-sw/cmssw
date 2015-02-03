@@ -32,6 +32,10 @@ namespace edm {
       typedef K key_type;
       Key() { }
       Key(const K & k) : key(k) { }
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+      template<typename K_>
+      Key(K_&& k) : key(std::forward<K_>(k)) { }
+#endif
       K key;
     };
     

@@ -67,7 +67,7 @@ namespace edm {
       for (iter i = coll.begin(), e = coll.end(); i!=e; ++i, ++key) {
 	element_type const* address = GetProduct<product_type>::address(i);
 	ptrs.push_back(address);
-	ref_type ref(id, address, key, GetProduct<product_type>::product(coll) );
+	ref_type ref(id, address, key);
 	holder_type h(ref);
 	helpers.push_back(&h);
       }

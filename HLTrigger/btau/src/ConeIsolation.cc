@@ -101,8 +101,8 @@ ConeIsolation::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    std::auto_ptr<reco::JetTagCollection>             tagCollection;
    std::auto_ptr<reco::IsolatedTauTagInfoCollection> extCollection( new reco::IsolatedTauTagInfoCollection() );
-if (not jetTracksAssociation->empty()) {
-     RefToBaseProd<reco::Jet> prod( jetTracksAssociation->begin()->first );
+   if (not jetTracksAssociation->empty()) {
+     RefToBaseProd<reco::Jet> prod( jetTracksAssociation->keyProduct() );
      tagCollection.reset( new reco::JetTagCollection(prod) );
    } else {
      tagCollection.reset( new reco::JetTagCollection() );

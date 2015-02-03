@@ -38,7 +38,7 @@ namespace helper {
     explicit MasterCollection(const edm::Handle<edm::View<T> > & handle) :
       handle_(handle) {
       if(handle_->size() != 0) 
-	ref_ = edm::RefToBaseProd<T>(handle_->refAt(0));
+	ref_ = edm::RefToBaseProd<T>(handle_);
     }
     size_t size() const { 
       if (ref_.isNull()) return 0;

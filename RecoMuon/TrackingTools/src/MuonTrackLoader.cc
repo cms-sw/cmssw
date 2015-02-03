@@ -162,15 +162,15 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   // Collection of Trajectory
   auto_ptr<vector<Trajectory> > trajectoryCollection(new vector<Trajectory>);
   
-  // Association map between track and trajectory
-  std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
-  
   // don't waste any time...
   if ( trajectories.empty() ) { 
     event.put(recHitCollection,instance);
     event.put(trackExtraCollection,instance);
     if(theTrajectoryFlag) {
       event.put(trajectoryCollection,instance);
+
+      // Association map between track and trajectory
+      std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
       event.put( trajTrackMap, instance );
     }
     if(theUpdatingAtVtx){
@@ -350,6 +350,10 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 
   if ( theTrajectoryFlag ) {
     OrphanHandle<std::vector<Trajectory> > rTrajs = event.put(trajectoryCollection,instance);
+
+    // Association map between track and trajectory
+    std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection(rTrajs, nonUpdatedHandle) );
+  
     // Now Create traj<->tracks association map
     for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); 
           i != tjTkMap.end(); i++ ) {
@@ -509,15 +513,15 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   // Collection of Trajectory
   auto_ptr<vector<Trajectory> > trajectoryCollection(new vector<Trajectory>);
   
-  // Association map between track and trajectory
-  std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
-  
   // don't waste any time...
   if ( trajectories.empty() ) { 
     event.put(recHitCollection,instance);
     event.put(trackExtraCollection,instance);
     if(theTrajectoryFlag) {
       event.put(trajectoryCollection,instance);
+
+      // Association map between track and trajectory
+      std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
       event.put( trajTrackMap, instance );
     }
     event.put(trackToTrackmap, instance);
@@ -682,6 +686,10 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 
   if ( theTrajectoryFlag ) {
     OrphanHandle<std::vector<Trajectory> > rTrajs = event.put(trajectoryCollection,instance);
+
+    // Association map between track and trajectory
+    std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection(rTrajs, nonUpdatedHandle) );
+
     // Now Create traj<->tracks association map
     for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); 
           i != tjTkMap.end(); i++ ) {

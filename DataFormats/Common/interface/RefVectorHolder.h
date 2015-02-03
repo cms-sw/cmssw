@@ -83,9 +83,6 @@ namespace edm {
       const_iterator end() const {
 	return const_iterator(new const_iterator_imp_specific(refs_.end()));
       }
-      virtual void const* product() const {
-	return refs_.product();
-      }
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
