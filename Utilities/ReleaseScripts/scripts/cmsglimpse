@@ -1,6 +1,6 @@
 #!/bin/bash
 CURRENT_SCRAM_PROJECT=$(echo $SCRAMRT_SET | cut -d: -f2)
-CURRENT_SRC_AREA=$(echo $CMSSW_RELEASE_BASE)/src
+CURRENT_SRC_AREA=$(echo $CMSSW_RELEASE_BASE)
 args=
 action=
 
@@ -32,7 +32,7 @@ do
 	;;
     -H )[ $# -gt 1 ] || { echo "Option \`$1' requires an argument" 1>&2; exit 1;  }
 	CURRENT_SCRAM_PROJECT=$2; shift; shift
-        CURRENT_SRC_AREA=$(CMS_PATH)/$(SCRAM_ARCH)/cms/cmssw/$(CURRENT_SCRAM_PROJECT)/src
+	CURRENT_SRC_AREA=$(scram --arch $SCRAM_ARCH list -c $CURRENT_SCRAM_PROJECT | awk '{print $3}')
         ;;
     * ) args="$args $1"; shift;;	
   esac
@@ -45,6 +45,10 @@ then
 	exit 1
 fi
 
+if [ ! -e $CURRENT_SRC_AREA/.glimpse_full ]
+then
+  CURRENT_SRC_AREA=$CURRENT_SRC_AREA/src
+fi
 case $action in
 	full )
 		if [ ! -e $CURRENT_SRC_AREA/.glimpse_full/.glimpse_index ]
