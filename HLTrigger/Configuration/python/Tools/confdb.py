@@ -387,8 +387,8 @@ process = customizeHLTforMC(process)
       # FIXME: this should be updated to take into accout the --l1-emulator option
       self._fix_parameter(                               type = 'InputTag', value = 'hltL1extraParticles',  replace = 'l1extraParticles')
       self._fix_parameter(name = 'GMTReadoutCollection', type = 'InputTag', value = 'hltGtDigis',           replace = 'simGmtDigis')
-      self._fix_parameter(                               type = 'InputTag', value = 'hltGtDigis',           replace = 'gtDigis')
-      self._fix_parameter(                               type = 'InputTag', value = 'hltL1GtObjectMap',     replace = 'gtDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltGtDigis',           replace = 'simGtDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltL1GtObjectMap',     replace = 'simGtDigis')
       self._fix_parameter(name = 'initialSeeds',         type = 'InputTag', value = 'noSeedsHere',          replace = 'globalPixelSeeds:GlobalPixel')
       self._fix_parameter(name = 'preFilteredSeeds',     type = 'bool',     value = 'True',                 replace = 'False')
       self._fix_parameter(                               type = 'InputTag', value = 'hltOfflineBeamSpot',   replace = 'offlineBeamSpot')
@@ -642,7 +642,7 @@ for module in process.__dict__.itervalues():
         elif parameter.moduleLabel == 'hltL1GtObjectMap':
           parameter.moduleLabel = "gtDigisFromSkim"
         elif parameter.moduleLabel == 'hltGctDigis':
-          parameter.moduleLabel ="caloStage1LegacyFormatDigis"
+          parameter.moduleLabel ="simCaloStage1LegacyFormatDigis"
 """
 
   def overrideOutput(self):
