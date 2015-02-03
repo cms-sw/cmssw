@@ -521,11 +521,13 @@ void HcalRawDataMonitor::setup(DQMStore::IBooker &ib){
 }
 
 // Analyze
-void HcalRawDataMonitor::analyze(const edm::Event& e, const edm::EventSetup& s){
+void HcalRawDataMonitor::analyze(const edm::Event& e, const edm::EventSetup& s)
+{
+  HcalBaseDQMonitor::analyze(e,s);
   if (!IsAllowedCalibType()) return;
   if (LumiInOrder(e.luminosityBlock())==false) return;
 
-  HcalBaseDQMonitor::analyze(e,s); // base class increments ievt_, etc. counters
+//  HcalBaseDQMonitor::analyze(e,s); // base class increments ievt_, etc. counters
   
   // try to get die Data
   edm::Handle<FEDRawDataCollection> rawraw;
