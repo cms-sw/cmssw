@@ -4,12 +4,10 @@ from RecoJets.Configuration.RecoPFJets_cff import *
 from CommonTools.ParticleFlow.pfNoPileUp_cff import *
 
 GammaJetAnalysis = cms.EDAnalyzer('GammaJetAnalysis',
-                                  caloJetCollName     = cms.string('ak5CaloJets'),
                                   rhoColl             = cms.InputTag("fixedGridRhoFastjetAll"),
                                   PFMETColl           = cms.InputTag("pfMet"),
                                   PFMETTYPE1Coll      = cms.InputTag("pfType1CorrectedMet"),
                                   photonCollName      = cms.string('gedPhotons'),
-                                  caloJetCorrName     = cms.string('ak4CaloL2L3'),
                                   pfJetCollName       = cms.string('ak4PFJetsCHS'),
                                   pfJetCorrName       = cms.string('ak4PFCHSL2L3'),
                                   genJetCollName      = cms.string('ak4GenJets'),

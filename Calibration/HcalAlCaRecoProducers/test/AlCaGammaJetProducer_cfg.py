@@ -19,27 +19,32 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = 
 cms.untracked.vstring(
-   'file:/tmp/andriusj/522CE329-7B81-E411-B6C3-0025905A6110.root'
-#    '/store/relval/CMSSW_7_3_0/RelValPhotonJets_Pt_10_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/522CE329-7B81-E411-B6C3-0025905A6110.root',
-#    '/store/relval/CMSSW_7_3_0/RelValPhotonJets_Pt_10_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/5279D224-7B81-E411-BCAA-002618943930.root'
+#   'file:/tmp/andriusj/6EC8FCC8-E2A8-E411-9506-002590596468.root'
+        '/store/relval/CMSSW_7_4_0_pre6/RelValPhotonJets_Pt_10_13/GEN-SIM-RECO/MCRUN2_74_V1-v1/00000/6EC8FCC8-E2A8-E411-9506-002590596468.root'
  )
 )
 
 process.load("Calibration.HcalAlCaRecoProducers.alcagammajet_cfi")
+process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalGammaJet_Output_cff")
+
+#process.GammaJetRecos = cms.OutputModule("PoolOutputModule",
+#    outputCommands = cms.untracked.vstring('drop *',
+##                 'keep recoPhotonCores_*_*_*',
+#                 'keep recoSuperClusters_*_*_*',
+#                 #'keep recoTracks_*_*_*',
+#                 'keep recoTracks_generalTracks_*_*',
+#                 #'keep *_PhotonIDProd_*_*',
+#               'keep *_particleFlow_*_*',
+#              'keep recoPFBlocks_particleFlowBlock_*_*',
+#              'keep recoPFClusters_*_*_*',
+##                         'keep *_particleFlowPtrs_*_*',
+#        'keep *_GammaJetProd_*_*'),
+#    fileName = cms.untracked.string('gjet.root')
+#)
 
 process.GammaJetRecos = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('drop *',
-                 'keep recoPhotonCores_*_*_*',
-                 'keep recoSuperClusters_*_*_*',
-                 #'keep recoTracks_*_*_*',
-                 'keep recoTracks_generalTracks_*_*',
-                 #'keep *_PhotonIDProd_*_*',
-               'keep *_particleFlow_*_*',
-                                           'keep recoPFBlocks_particleFlowBlock_*_*',
-'keep recoPFClusters_*_*_*',
-#                                           'keep *_particleFlowPtrs_*_*',
-        'keep *_GammaJetProd_*_*'),
-    fileName = cms.untracked.string('gjet.root')
+   outputCommands = process.OutALCARECOHcalCalGammaJet.outputCommands,
+   fileName = cms.untracked.string('gjet.root')
 )
 
 process.p = cms.Path(process.GammaJetProd)
