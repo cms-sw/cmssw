@@ -1104,7 +1104,7 @@ upgradeKeys=['2017',
              '2019WithGEM',
              'BE5DPixel10D',
              '2017Aging',
-             '2019Aging',
+             '2019WithGEMAging',
              'Extended2023',
              'Extended2023HGCalMuon',
              'Extended2023SHCal',
@@ -1121,14 +1121,15 @@ upgradeKeys=['2017',
              'BE5DPixel10DLHCC',
              'Extended2023HGCalV4',
              'Extended2023HGCalMuonPU',
-             'Extended2023SHCalNoTaperPU'	     
+             'Extended2023SHCalNoTaperPU',	     
+             '2019WithGEMAgingPU'
 	     ]
 	     
 upgradeGeoms={ '2017' : 'Extended2017',
                '2019' : 'Extended2019',
                '2019WithGEM' : 'Extended2019',
                '2017Aging' : 'Extended2017',
-               '2019Aging' : 'Extended2019',
+               '2019WithGEMAging' : 'Extended2019',
                'BE5D' : 'ExtendedPhase2TkBE5D',
                'BE5DPixel10D' : 'ExtendedPhase2TkBE5DPixel10D',
                '2017dev' : 'Extended2017dev,Extended2017devReco',
@@ -1154,7 +1155,7 @@ upgradeGTs={ '2017' : 'auto:upgrade2017',
              '2019' : 'auto:upgrade2019',
              '2019WithGEM' : 'auto:upgrade2019',
              '2017Aging' : 'W17_300_62E2::All',
-             '2019Aging' : 'W19_300_62E2::All',
+             '2019WithGEMAging' : 'PH1_1K_FB_V3::All',#EB aged at 1000fb-1
              'BE5D' : 'auto:upgradePLS3',
              'BE5DPixel10D' : 'auto:upgradePLS3',
              '2017dev' : 'auto:upgrade2017',
@@ -1180,7 +1181,7 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
                  '2019' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019',
                  '2019WithGEM' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019WithGem',
                  '2017Aging' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017,SLHCUpgradeSimulations/Configuration/aging.customise_aging_300',
-                 '2019Aging' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/aging.customise_aging_300',
+                 '2019WithGEMAging' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019WithGem,SLHCUpgradeSimulations/Configuration/aging.customise_aging_newpixel_1000',
                  'BE5D' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5D',
                  'BE5DPixel10D' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5DPixel10D',
                  '2017dev' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017dev',
@@ -1240,6 +1241,7 @@ upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
 defaultDataSets={}
 defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refHGCALV5-v'
 defaultDataSets['Extended2023SHCalNoTaper']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refSHNoTaper-v'
+defaultDataSets['2019WithGEMAging']='CMSSW_6_2_0_SLHC20-DES19_62_V8_UPG2019withGEM-v'
 keys=defaultDataSets.keys()
 for key in keys:
   defaultDataSets[key+'PU']=defaultDataSets[key]
@@ -1278,7 +1280,7 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    '2019':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    '2019WithGEM':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    '2017Aging':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   '2019Aging':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+                   '2019WithGEMAging':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'BE5D':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'BE5DPixel10D':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    '2017dev':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
@@ -1300,7 +1302,8 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalMuon4Eta':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalV4' : ['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalMuonPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL'],
-                   'Extended2023SHCalNoTaperPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+                   'Extended2023SHCalNoTaperPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
+                   '2019WithGEMAgingPU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
                    }
 
 upgradeStepDict={}
