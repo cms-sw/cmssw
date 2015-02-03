@@ -74,12 +74,12 @@ namespace edm {
          ObsoleteSignal() = default;
 
          template<typename U>
-         void connect(U iFunc) {
+         void connect(U /*  iFunc */) {
             throwObsoleteSignalException();
          }
          
          template<typename U>
-         void connect_front(U iFunc) {
+         void connect_front(U /*  iFunc*/) {
             throwObsoleteSignalException();
          }
 
