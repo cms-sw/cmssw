@@ -226,7 +226,10 @@ HLTMuonPlotter::analyze(const Event & iEvent, const EventSetup & iSetup)
       
       const size_t hltStep = (step >= 2) ? step - 2 : 0;
       size_t level = 0;
-      if ((stepLabels_[step].find("L3") != string::npos)||(stepLabels_[step].find("Tk") != string::npos)) level = 3;
+      if ((stepLabels_[step].find("L3TkIso") != string::npos)||(stepLabels_[step].find("TkTkIso") != string::npos)) level = 6;
+      else if ((stepLabels_[step].find("L3HcalIso") != string::npos)||(stepLabels_[step].find("TkEcalIso") != string::npos)) level = 5;
+      else if ((stepLabels_[step].find("L3EcalIso") != string::npos)||(stepLabels_[step].find("TkEcalIso") != string::npos)) level = 4;
+      else if ((stepLabels_[step].find("L3") != string::npos)||(stepLabels_[step].find("Tk") != string::npos)) level = 3;
       else if (stepLabels_[step].find("L2") != string::npos) level = 2;
       else if (stepLabels_[step].find("L1") != string::npos) level = 1;
       

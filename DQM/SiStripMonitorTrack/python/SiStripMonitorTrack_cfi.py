@@ -14,9 +14,6 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     RawDigiProducer = cms.string('simSiStripDigis'),
     RawDigiLabel    = cms.string('VirginRaw'),
     
-    OutputMEsInRootFile = cms.bool(False),
-    OutputFileName = cms.string('test_monitortrackparameters_rs.root'),    
-    
     Cluster_src = cms.InputTag('siStripClusters'),
     
     ModulesToBeExcluded = cms.vuint32(),
@@ -121,11 +118,12 @@ SiStripMonitorTrack = cms.EDAnalyzer(
                                    ymax = cms.double(1.2)
                                    ),
     
-    Trending = cms.PSet( Nbins      = cms.int32(10),
-                         Steps      = cms.int32(5),
-                         UpdateMode = cms.int32(1)
-                         ),
-
+    Trending = cms.PSet( 
+        Nbins = cms.int32(2400),
+        xmin = cms.double(0.0),
+        xmax = cms.double(150)
+        ),
+    
     TH1ClusterChargePerCM = cms.PSet(
         layerView = cms.bool(False),
         ringView  = cms.bool(True),
