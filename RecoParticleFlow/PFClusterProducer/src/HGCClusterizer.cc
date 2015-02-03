@@ -721,6 +721,7 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
     std::unordered_map<unsigned,unsigned> hits_of_cluster_on_track;
     std::unordered_map<unsigned,bool> clusters_in_track;
     reco::PFCluster temp;
+    temp.setTrack(reco::TrackRef(_tracks,i));
     const reco::Track& tk = tracks[i];
     //std::cout << "got track: " << tk.pt() << ' ' << tk.eta() << ' ' << tk.phi() << std::endl;
     const TrajectoryStateOnSurface myTSOS = trajectoryStateTransform::outerStateOnSurface(tk, *(_tkGeom.product()),_bField.product());
