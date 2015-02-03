@@ -129,9 +129,9 @@ HLTJetCollectionsVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSet
         if ( std::abs(jetTwoRef->eta() - jetOneRef->eta()) < minDeltaEta_ ) continue;
 
         thereAreVBFJets = true;
-        refOne = TRef(refVector, distance(refVector.begin(), jetOne));
+        refOne = *jetOne;
         goodJetRefs.push_back(refOne);
-        refTwo = TRef(refVector, distance(refVector.begin(), jetTwo));
+        refTwo = *jetTwo;
         goodJetRefs.push_back(refTwo);
 
         firstJetIndex = (int) (jetOne - refVector.begin());
@@ -155,7 +155,7 @@ HLTJetCollectionsVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSet
 
         if (jetThreeRef->pt() >= thirdJetPt_ && std::abs(jetThreeRef->eta()) <= maxAbsThirdJetEta_) {
           goodThirdJet = true;
-          refThree = TRef(refVector, distance(refVector.begin(), jetThree));
+          refThree = *jetThree;
           goodJetRefs.push_back(refThree);
           break;
         }
