@@ -80,6 +80,10 @@ def esReportWorkflow(**kwds):
     result = urllib2.urlopen(request, data=data)
   except urllib2.HTTPError, e:
     print e
+    try:
+      print result.read()
+    except:
+      pass
 
 class WorkFlowRunner(Thread):
     def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True,dasOptions="",jobReport=False):
