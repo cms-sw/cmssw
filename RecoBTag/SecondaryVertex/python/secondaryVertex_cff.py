@@ -10,8 +10,6 @@ from RecoBTag.SecondaryVertex.simpleSecondaryVertexHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexComputer_cfi import *
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexV2Computer_cfi import *
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexBJetTags_cfi import *
-from RecoBTag.SecondaryVertex.combinedSecondaryVertexMVAComputer_cfi import *
-from RecoBTag.SecondaryVertex.combinedSecondaryVertexMVABJetTags_cfi import *
 from RecoBTag.SecondaryVertex.ghostTrackVertexTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.ghostTrackComputer_cfi import *
 from RecoBTag.SecondaryVertex.ghostTrackBJetTags_cfi import *
