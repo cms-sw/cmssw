@@ -107,7 +107,7 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 
   edm::ESHandle<Alignments> globalPositionRcd;
   edm::ValidityInterval iov(setup.get<GlobalPositionRcd>().validityInterval() );
-  if (iov.first().eventID().run()!=1 || iov.last().eventID().run()!=4294967295) {
+  if (iov.first().eventID().run()!=1 || iov.last().eventID().run()!=18446744073709551615) {
     throw cms::Exception("DatabaseError")
       << "@SUB=AlignmentProducer::applyDB"
       << "\nTrying to apply "<< setup.get<GlobalPositionRcd>().key().name()
