@@ -353,8 +353,11 @@ void  RPCEfficiencySecond::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 	    EffGlobD[dIndex]->setBinLabel(indexDisk[dIndex],camera,1);
 	  }
 	}
+	delete folderStr;
       }
     }
+  
+
   }
   double eff,N,err;
   int k;
@@ -385,6 +388,7 @@ void  RPCEfficiencySecond::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
     EffGlobD[d]->setAxisRange(-4.,100.,2);
     EffGlobD[d]->setAxisTitle("%",2);
   }
+
 
 }
 
