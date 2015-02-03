@@ -98,16 +98,16 @@ bTagCommonBlock = cms.PSet(
             label = cms.InputTag("ghostTrackBJetTags"),
             folder = cms.string("GhTrk")
         ),
-        cms.PSet(
-            bTagSoftLeptonAnalysisBlock,
-            label = cms.InputTag("softPFMuonBJetTags"),
-            folder = cms.string("SMT")
-        ),
-        cms.PSet(
-            bTagSoftLeptonAnalysisBlock,
-            label = cms.InputTag("softPFElectronBJetTags"),
-            folder = cms.string("SET")
-        ),
+        #cms.PSet(
+            #bTagSoftLeptonAnalysisBlock,
+            #label = cms.InputTag("softPFMuonBJetTags"),
+            #folder = cms.string("SMT")
+        #),
+        #cms.PSet(
+            #bTagSoftLeptonAnalysisBlock,
+            #label = cms.InputTag("softPFElectronBJetTags"),
+            #folder = cms.string("SET")
+        #),
     )    
 )
 
