@@ -22,7 +22,7 @@ class GeometryComparison(GenericValidation):
                                 with `alignment`
         - `config`: `BetterConfigParser` instance which includes the
                     configuration of the validations
-        - `copyImages`: Boolean which indicates whether png- and pdf-files 
+        - `copyImages`: Boolean which indicates whether png- and pdf-files
                         should be copied back from the batch farm
         - `randomWorkDirPart`: If this option is ommitted a random number is
                                generated to create unique path names for the
@@ -49,7 +49,7 @@ class GeometryComparison(GenericValidation):
                    %(valName, allCompares))
             raise AllInOneError(msg)
         self.copyImages = copyImages
-    
+
     def getRepMap(self, alignment = None):
         if alignment == None:
             alignment = self.alignmentToValidate
@@ -57,7 +57,7 @@ class GeometryComparison(GenericValidation):
         referenceName = "IDEAL"
         if not self.referenceAlignment == "IDEAL":
             referenceName = self.referenceAlignment.name
-        
+
         repMap.update({
             "comparedGeometry": (".oO[alignmentName]Oo."
                                  "ROOTGeometry.root"),
@@ -97,12 +97,12 @@ class GeometryComparison(GenericValidation):
             cfgName = replaceByMap(("TkAlCompareCommon.oO[common]Oo.."
                                     ".oO[name]Oo._cfg.py"),repMap)
             cfgs[cfgName] = replaceByMap(configTemplates.compareTemplate, repMap)
-            
+
             cfgSchedule.append( cfgName )
         GenericValidation.createConfiguration(self, cfgs, path, cfgSchedule)
 
-    def createScript(self, path):    
-        repMap = self.getRepMap()    
+    def createScript(self, path):
+        repMap = self.getRepMap()
         repMap["runComparisonScripts"] = ""
         scriptName = replaceByMap(("TkAlGeomCompare.%s..oO[name]Oo..sh"
                                    %self.name), repMap)
@@ -112,10 +112,10 @@ class GeometryComparison(GenericValidation):
                     ("rfcp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation"
                      "/scripts/comparisonScript.C .\n"
                      "rfcp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation"
-                     "/scripts/comparisonPlots.h .\n"
+                     "/scripts/GeometryComparisonPlotter.h .\n"
                      "rfcp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation"
-                     "/scripts/comparisonPlots.cc .\n"
-                     "root -b -q 'comparisonScript.C(\""
+                     "/scripts/GeometryComparisonPlotter.cc .\n"
+                     "root -b -q 'comparisonScript.C+(\""
                      ".oO[name]Oo..Comparison_common"+name+".root\",\""
                      "./\")'\n")
                 if  self.copyImages:
@@ -123,11 +123,31 @@ class GeometryComparison(GenericValidation):
                        ("rfmkdir -p .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images\n")
                    repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"plot*.eps\" "
+                       ("find . -maxdepth 1 -name \"*PXB*\" "
                         "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
                         "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
                    repMap["runComparisonScripts"] += \
-                       ("find . -maxdepth 1 -name \"plot*.pdf\" "
+                       ("find . -maxdepth 1 -name \"*PXF*\" "
+                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name \"*TIB*\" "
+                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name \"*TID*\" "
+                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name \"*TEC*\" "
+                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name \"*TOB*\" "
+                        "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
+                        "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
+                   repMap["runComparisonScripts"] += \
+                       ("find . -maxdepth 1 -name \"*tracker*\" "
                         "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
                         "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
                    repMap["runComparisonScripts"] += \
@@ -174,7 +194,7 @@ class GeometryComparison(GenericValidation):
                     ("cmsStage -f OUTPUT_comparison.root %s\n"
                      %resultingFile)
                 self.filesToCompare[ name ] = resultingFile
-                
+
         repMap["CommandLine"]=""
 
         for cfg in self.configFiles:
@@ -188,7 +208,7 @@ class GeometryComparison(GenericValidation):
                                  ".oO[runComparisonScripts]Oo.\n"
                                  )
 
-        scripts = {scriptName: replaceByMap( configTemplates.scriptTemplate, repMap ) }  
+        scripts = {scriptName: replaceByMap( configTemplates.scriptTemplate, repMap ) }
         return GenericValidation.createScript(self, scripts, path)
 
     def createCrabCfg(self, path):
