@@ -8,7 +8,8 @@ from PhysicsTools.HeppyCore.utils.deltar import cleanObjectCollection, matchObje
 from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
 from PhysicsTools.HeppyCore.utils.deltar import deltaR2
 
-from PhysicsTools.Heppy.physicsutils.btagsf_lowercase import BTagSF
+
+from PhysicsTools.Heppy.physicsutils.BTagSF import BTagSF
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import GenParticle
 from PhysicsTools.Heppy.utils.cmsswRelease import isNewerThan
 
@@ -55,8 +56,8 @@ class JetAnalyzer( Analyzer ):
             self.mchandles['genJets'] = AutoHandle('slimmedGenJets',
                                                    'std::vector<reco::GenJet>')
 
-    def beginLoop(self):
-        super(JetAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(JetAnalyzer,self).beginLoop(setup)
         self.counters.addCounter('jets')
         count = self.counters.counter('jets')
         count.register('all events')
