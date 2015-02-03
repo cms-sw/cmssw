@@ -15,6 +15,7 @@ myak4JetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
 #new input for impactParameterTagInfos, softleptons
 from RecoBTag.Configuration.RecoBTag_cff import *
 impactParameterTagInfos.jetTracks = cms.InputTag("myak4JetTracksAssociatorAtVertex")
+pfImpactParameterTagInfos.jets = jetID
 softPFMuonsTagInfos.jets = jetID
 softPFElectronsTagInfos.jets = jetID
 
