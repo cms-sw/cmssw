@@ -1,6 +1,7 @@
 ## list of all available btagInfos
 supportedBtagInfos = [
     'None'
+    # legacy framework (not supported with MiniAOD)
   , 'impactParameterTagInfos'
   , 'secondaryVertexTagInfos'
   , 'secondaryVertexNegativeTagInfos'
@@ -11,7 +12,7 @@ supportedBtagInfos = [
   , 'inclusiveSecondaryVertexFinderNegativeTagInfos'
   , 'inclusiveSecondaryVertexFinderFilteredTagInfos'
   , 'inclusiveSecondaryVertexFinderFilteredNegativeTagInfos'
-  # new candidate-based fwk
+     # new candidate-based framework (supported with RECO/AOD/MiniAOD)
   , 'pfImpactParameterTagInfos'
   , 'pfSecondaryVertexTagInfos'
   , 'pfSecondaryVertexNegativeTagInfos'
@@ -25,6 +26,7 @@ supportedBtagInfos.append( 'caTopTagInfosPAT' )
 ## dictionary with all available btag discriminators and the btagInfos that they require
 supportedBtagDiscr = {
     'None'                                                  : []
+    # legacy framework (not supported with MiniAOD)
   , 'jetBProbabilityBJetTags'                               : ['impactParameterTagInfos']
   , 'jetProbabilityBJetTags'                                : ['impactParameterTagInfos']
   , 'positiveOnlyJetBProbabilityBJetTags'                   : ['impactParameterTagInfos']
@@ -81,7 +83,7 @@ supportedBtagDiscr = {
   , 'combinedMVABJetTags'                                   : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
   , 'positiveCombinedMVABJetTags'                           : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
   , 'negativeCombinedMVABJetTags'                           : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderNegativeTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
-  # new candidate-based fwk
+    # new candidate-based framework (supported with RECO/AOD/MiniAOD)
   , 'pfJetBProbabilityBJetTags'                             : ['pfImpactParameterTagInfos']
   , 'pfJetProbabilityBJetTags'                              : ['pfImpactParameterTagInfos']
   , 'pfPositiveOnlyJetBProbabilityBJetTags'                 : ['pfImpactParameterTagInfos']
