@@ -17,11 +17,6 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/Common/interface/Ref.h"
-
 #include "CondFormats/DataRecord/interface/HeavyIonUERcd.h"
 #include "CondFormats/HIObjects/interface/UETable.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"

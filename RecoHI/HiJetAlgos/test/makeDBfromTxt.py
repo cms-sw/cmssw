@@ -18,7 +18,7 @@ ivars.register ('outputFile',
                 mytype=ivars.varType.string,
                 info="for testing")
 
-ivars.inputFile="/afs/cern.ch/user/y/ylai/ue_calibrations_pf_data.txt"
+ivars.inputFile="./ue_calibrations_pf_data.txt"
 ivars.outputFile="./output.db"
 
 ivars.parseArguments()
