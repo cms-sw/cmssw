@@ -686,7 +686,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	for (segment = allCSCSegments->begin();segment!=allCSCSegments->end(); ++segment){
 	  CSCDetId CSCId = segment->cscDetId();
 	  
-	  if(CSCSegmentsCounter[CSCId]==1 && CSCId.station()!=4 && CSCId.ring()!=1 && allCSCSegments->size()>=2){
+	  if(CSCSegmentsCounter[CSCId]==1 && CSCId.ring()!=1 && allCSCSegments->size()>=2){
 	     LogDebug("rpcefficiency")<<"CSC \t \t yes";
 	    int cscEndCap = CSCId.endcap();
 	    int cscStation = CSCId.station();
