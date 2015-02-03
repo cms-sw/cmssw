@@ -64,7 +64,8 @@ testLink( const reco::PFBlockElement* elem1,
    const reco::PFCluster::REPPoint& tkreppos = tkAtHGCHEB.positionREP();
 
    if( tkelem->trackRef() == clusterref->track() ) {
-    dist = 1.0;
+    dist = 1e-3;
+    return dist;
    }
 
   // Check if the linking has been done using the KDTree algo
