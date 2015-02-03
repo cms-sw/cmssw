@@ -6,6 +6,7 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //Own header file
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -361,7 +362,7 @@ std::vector<const Candidate*> Jet::getJetConstituentsQuick () const {
   for (int i = 0; i < nDaughters; ++i) {
     if(!(this->sourceCandidatePtr(i).isNonnull() && this->sourceCandidatePtr(i).isAvailable()))
     {
-        std::cerr << "Bad pointer to jet constituent found.  Check for possible dropped particle." << std::endl;
+        edm::LogInfo("JetConstituentPointer") << "Bad pointer to jet constituent found.  Check for possible dropped particle.";
         continue;
     }
     result.push_back (daughter (i));
