@@ -5,14 +5,14 @@ from CommonTools.ParticleFlow.pfNoPileUp_cff import *
 
 GammaJetAnalysis = cms.EDAnalyzer('GammaJetAnalysis',
                                   caloJetCollName     = cms.string('ak5CaloJets'),
-                                  rhoColl             = cms.InputTag("kt6PFJets","rho"),
+                                  rhoColl             = cms.InputTag("fixedGridRhoFastjetAll"),
                                   PFMETColl           = cms.InputTag("pfMet"),
                                   PFMETTYPE1Coll      = cms.InputTag("pfType1CorrectedMet"),
-                                  photonCollName      = cms.string('photons'),
-                                  caloJetCorrName     = cms.string('ak5CaloL2L3'),
-                                  pfJetCollName       = cms.string('ak5PFJetsCHS'),
-                                  pfJetCorrName       = cms.string('ak5PFchsL2L3'),
-                                  genJetCollName      = cms.string('ak5GenJets'),
+                                  photonCollName      = cms.string('gedPhotons'),
+                                  caloJetCorrName     = cms.string('ak4CaloL2L3'),
+                                  pfJetCollName       = cms.string('ak4PFJetsCHS'),
+                                  pfJetCorrName       = cms.string('ak4PFCHSL2L3'),
+                                  genJetCollName      = cms.string('ak4GenJets'),
                                   genParticleCollName = cms.string('genParticles'),
                                   genEventInfoName    = cms.string('generator'),
                                   hbheRecHitName      = cms.string('hbhereco'),
@@ -32,7 +32,5 @@ GammaJetAnalysis = cms.EDAnalyzer('GammaJetAnalysis',
                                   doPFJets            = cms.bool(True),
                                   doGenJets           = cms.bool(True),
                                   debug               = cms.untracked.int32(0),
-                                  workOnAOD           = cms.bool(False)
+                                  workOnAOD           = cms.int32(0)
                                   )
-
-

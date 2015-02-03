@@ -38,13 +38,15 @@
 //
 
 class AlCaGammaJetProducer : public edm::EDProducer {
- public:
+
+public:
   explicit AlCaGammaJetProducer(const edm::ParameterSet&);
   ~AlCaGammaJetProducer();
   virtual void beginJob() ;
   virtual void produce(edm::Event &, const edm::EventSetup&);
   virtual void endJob();
- private:
+
+private:
   bool select (reco::PhotonCollection, reco::PFJetCollection);                                             
 
   // ----------member data ---------------------------
@@ -113,8 +115,8 @@ AlCaGammaJetProducer::AlCaGammaJetProducer(const edm::ParameterSet& iConfig) : n
   produces<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>>(labelHF_.encode());
   produces<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>>(labelHO_.encode());
   produces<edm::TriggerResults>(labelTrigger_.encode());
-  produces<edm::ValueMap<Bool_t>>(labelLoosePhot_.encode());
-  produces<edm::ValueMap<Bool_t>>(labelTightPhot_.encode());
+  produces<std::vector<Bool_t>>(labelLoosePhot_.encode());
+  produces<std::vector<Bool_t>>(labelTightPhot_.encode());
   produces<double>(labelRho_.encode());
   produces<reco::PFCandidateCollection>(labelPFCandidate_.encode());
   produces<reco::VertexCollection>(labelVertex_.encode());
@@ -146,13 +148,13 @@ void AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   nAll_++;
 
   // Access the collections from iEvent
-  edm::Handle<reco::PhotonCollection> pho;
-  iEvent.getByToken(tok_Photon_,pho);
-  if (!pho.isValid()) {
+  edm::Handle<reco::PhotonCollection> phoHandle;
+  iEvent.getByToken(tok_Photon_,phoHandle);
+  if (!phoHandle.isValid()) {
     edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get the product " << labelPhoton_;
     return ;
   }
-  const reco::PhotonCollection photon = *(pho.product());
+  const reco::PhotonCollection photon = *(phoHandle.product());
 
   edm::Handle<reco::PFJetCollection> pfjet;
   iEvent.getByToken(tok_PFJet_,pfjet);
@@ -250,109 +252,128 @@ void AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   }
   const reco::BeamSpot beam = *(bs.product());
 
+  // declare variables
+  // copy from standard place, if the event is useful
+  std::auto_ptr<reco::PFJetCollection>  miniPFjetCollection(new reco::PFJetCollection);
+  std::auto_ptr<reco::PhotonCollection> miniPhotonCollection(new reco::PhotonCollection);
+  std::auto_ptr<reco::PFCandidateCollection> miniPFCandCollection(new reco::PFCandidateCollection);
+  std::auto_ptr<reco::VertexCollection> miniVtxCollection(new reco::VertexCollection);
+  std::auto_ptr<reco::PFMETCollection> miniPFMETCollection(new reco::PFMETCollection);
+  std::auto_ptr<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>>  miniHBHECollection(new edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>);
+  std::auto_ptr<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>>  miniHOCollection(new edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>);
+  std::auto_ptr<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>>  miniHFCollection(new edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>);
+  std::auto_ptr<reco::GsfElectronCollection> miniGSFeleCollection(new reco::GsfElectronCollection);
+  std::auto_ptr<reco::ConversionCollection> miniConversionCollection(new reco::ConversionCollection);
+
+  std::auto_ptr<reco::BeamSpot> miniBeamSpotCollection(new reco::BeamSpot(beam.position(),beam.sigmaZ(),
+									    beam.dxdz(),beam.dydz(),beam.BeamWidthX(),
+									    beam.covariance(),beam.type()));
+    
+  std::auto_ptr<edm::TriggerResults> miniTriggerCollection(new edm::TriggerResults);
+
+  std::auto_ptr<double> miniRhoCollection(new double);
+  std::auto_ptr<std::vector<Bool_t> > miniLoosePhoton(new std::vector<Bool_t>());
+  std::auto_ptr<std::vector<Bool_t> > miniTightPhoton(new std::vector<Bool_t>());
+
+
   // See if this event is useful
   bool accept = select(photon, pfjets);
   if (accept) {
     nSelect_++;
 
     //Copy from standard place
-    std::auto_ptr<reco::PFJetCollection>  miniPFjetCollection(new reco::PFJetCollection);
     for(reco::PFJetCollection::const_iterator pfjetItr=pfjets.begin();
         pfjetItr!=pfjets.end(); pfjetItr++) {
       miniPFjetCollection->push_back(*pfjetItr);
     }
 
-    std::auto_ptr<reco::PhotonCollection> miniPhotonCollection(new reco::PhotonCollection);
     for(reco::PhotonCollection::const_iterator phoItr=photon.begin();
         phoItr!=photon.end(); phoItr++) {
       miniPhotonCollection->push_back(*phoItr);
     }
 
-    std::auto_ptr<reco::PFCandidateCollection> miniPFCandCollection(new reco::PFCandidateCollection);
     for(reco::PFCandidateCollection::const_iterator pfcItr=pfcand.begin();
         pfcItr!=pfcand.end(); pfcItr++) {
       miniPFCandCollection->push_back(*pfcItr);
     }
 
-    std::auto_ptr<reco::VertexCollection> miniVtxCollection(new reco::VertexCollection);
     for(reco::VertexCollection::const_iterator vtxItr=vtx.begin();
         vtxItr!=vtx.end(); vtxItr++) {
       miniVtxCollection->push_back(*vtxItr);
     }
 
-    std::auto_ptr<reco::PFMETCollection> miniPFMETCollection(new reco::PFMETCollection);
     for(reco::PFMETCollection::const_iterator pfmetItr=pfmet.begin();
         pfmetItr!=pfmet.end(); pfmetItr++) {
       miniPFMETCollection->push_back(*pfmetItr);
     }
 
-    std::auto_ptr<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>>  miniHBHECollection(new edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>);
     for(edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >::const_iterator hbheItr=Hithbhe.begin(); 
 	hbheItr!=Hithbhe.end(); hbheItr++) {
       miniHBHECollection->push_back(*hbheItr);
     }
 
-    std::auto_ptr<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>>  miniHOCollection(new edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>);
     for(edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >::const_iterator hoItr=Hitho.begin();
         hoItr!=Hitho.end(); hoItr++) {
       miniHOCollection->push_back(*hoItr);
     }
 
-    std::auto_ptr<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>>  miniHFCollection(new edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>);
     for(edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >::const_iterator hfItr=Hithf.begin();
         hfItr!=Hithf.end(); hfItr++) {
       miniHFCollection->push_back(*hfItr);
     }
 
-    std::auto_ptr<reco::GsfElectronCollection> miniGSFeleCollection(new reco::GsfElectronCollection);
     for(reco::GsfElectronCollection::const_iterator gsfItr=gsfele.begin();
         gsfItr!=gsfele.end(); gsfItr++) {
       miniGSFeleCollection->push_back(*gsfItr);
     }
 
-    std::auto_ptr<reco::ConversionCollection> miniConversionCollection(new reco::ConversionCollection);
     for(reco::ConversionCollection::const_iterator convItr=conv.begin();
         convItr!=conv.end(); convItr++) {
       miniConversionCollection->push_back(*convItr);
     }
 
-    std::auto_ptr<reco::BeamSpot> miniBeamSpotCollection(new reco::BeamSpot(beam.position(),beam.sigmaZ(),
-									    beam.dxdz(),beam.dydz(),beam.BeamWidthX(),
-									    beam.covariance(),beam.type()));
-    
-    std::auto_ptr<edm::TriggerResults> miniTriggerCollection(new edm::TriggerResults);
     *miniTriggerCollection = trigres;
-
-    std::auto_ptr<double> miniRhoCollection(new double);
     *miniRhoCollection = rho_val;
 
     edm::Handle<edm::ValueMap<Bool_t> > loosePhotonQual;
     iEvent.getByToken(tok_loosePhoton_, loosePhotonQual);
-    std::auto_ptr<edm::ValueMap<Bool_t> > miniLoosePhoton(new edm::ValueMap<Bool_t>());
-    if (loosePhotonQual.isValid()) *miniLoosePhoton = *(loosePhotonQual.product());
-
     edm::Handle<edm::ValueMap<Bool_t> > tightPhotonQual;
     iEvent.getByToken(tok_tightPhoton_, tightPhotonQual);
-    std::auto_ptr<edm::ValueMap<Bool_t> > miniTightPhoton(new edm::ValueMap<Bool_t>());
-    if (tightPhotonQual.isValid()) *miniTightPhoton = *(tightPhotonQual.product());
-
-    //Put them in the event
-    iEvent.put( miniPhotonCollection,      labelPhoton_.encode());
-    iEvent.put( miniPFjetCollection,       labelPFJet_.encode());
-    iEvent.put( miniHBHECollection,        labelHBHE_.encode());
-    iEvent.put( miniHFCollection,          labelHF_.encode());
-    iEvent.put( miniHOCollection,          labelHO_.encode());
-    iEvent.put( miniTriggerCollection,     labelTrigger_.encode());
-    iEvent.put( miniPFCandCollection,      labelPFCandidate_.encode());
-    iEvent.put( miniVtxCollection,         labelVertex_.encode());
-    iEvent.put( miniPFMETCollection,       labelPFMET_.encode());
-    iEvent.put( miniGSFeleCollection,      labelGsfEle_.encode());
-    iEvent.put( miniRhoCollection,         labelRho_.encode());
-    iEvent.put( miniConversionCollection,  labelConv_.encode());
-    iEvent.put( miniBeamSpotCollection,    labelBeamSpot_.encode());
-    iEvent.put( miniLoosePhoton,           labelLoosePhot_.encode());
-    iEvent.put( miniTightPhoton,           labelTightPhot_.encode());
+    if (loosePhotonQual.isValid() && tightPhotonQual.isValid()) {
+      miniLoosePhoton->reserve(miniPhotonCollection->size());
+      miniTightPhoton->reserve(miniPhotonCollection->size());
+      for (int iPho=0; iPho<int(miniPhotonCollection->size()); ++iPho) {
+	edm::Ref<reco::PhotonCollection> photonRef(phoHandle,iPho);
+	if (!photonRef) {
+	  std::cout << "failed ref" << std::endl;
+	  miniLoosePhoton->push_back(-1);
+	  miniTightPhoton->push_back(-1);
+	}
+	else {
+	  miniLoosePhoton->push_back((*loosePhotonQual)[photonRef]);
+	  miniTightPhoton->push_back((*tightPhotonQual)[photonRef]);
+	}
+      }
+    }
   }
+
+  //Put them in the event
+  iEvent.put( miniPhotonCollection,      labelPhoton_.encode());
+  iEvent.put( miniPFjetCollection,       labelPFJet_.encode());
+  iEvent.put( miniHBHECollection,        labelHBHE_.encode());
+  iEvent.put( miniHFCollection,          labelHF_.encode());
+  iEvent.put( miniHOCollection,          labelHO_.encode());
+  iEvent.put( miniTriggerCollection,     labelTrigger_.encode());
+  iEvent.put( miniPFCandCollection,      labelPFCandidate_.encode());
+  iEvent.put( miniVtxCollection,         labelVertex_.encode());
+  iEvent.put( miniPFMETCollection,       labelPFMET_.encode());
+  iEvent.put( miniGSFeleCollection,      labelGsfEle_.encode());
+  iEvent.put( miniRhoCollection,         labelRho_.encode());
+  iEvent.put( miniConversionCollection,  labelConv_.encode());
+  iEvent.put( miniBeamSpotCollection,    labelBeamSpot_.encode());
+  iEvent.put( miniLoosePhoton,           labelLoosePhot_.encode());
+  iEvent.put( miniTightPhoton,           labelTightPhot_.encode());
+
   return;
 
 }
