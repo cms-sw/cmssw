@@ -282,7 +282,6 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
 	//	LogDebug("L1T") << "Frame " << iFrame << " : " << std::hex << d;
 	if ((d & 0x100000000) > 0) data.push_back( d & 0xffffffff );
       }
-      rxIndex_.at(iBoard) += nFramesPerEvent_;
     }
     
     LogDebug("L1T") << "AMC " << iBoard << " block " << id << ", size " << data.size();
@@ -316,7 +315,6 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
 	//	LogDebug("L1T") << "Frame " << iFrame << " : " << std::hex << d;
 	if ((d & 0x100000000) > 0) data.push_back( d & 0xffffffff );
       }
-      txIndex_.at(iBoard) += nFramesPerEvent_;
     }
     
     LogDebug("L1T") << "AMC " << iBoard << " block " << id << ", size " << data.size();
@@ -328,6 +326,11 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
 
 
 
+  }
+
+  if (!packetisedData_) {
+     rxIndex_.at(iBoard) += nFramesPerEvent_;
+     txIndex_.at(iBoard) += nFramesPerEvent_;
   }
 
   LogDebug("L1T") << "AMC " << iBoard << ", read " << blocks.size() << " blocks";
