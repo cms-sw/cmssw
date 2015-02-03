@@ -247,6 +247,8 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (mux_) {
     std::vector<Block> blocks = getBlocks(iBoard_);
     formatAMC(amc13, blocks, iBoard_);
+    iBoard_++;  //advance to next AMC for next event...
+    iBoard_ = iBoard_ % nBoard_;
   }
   else {
     for (unsigned iBoard=0; iBoard<nBoard_; ++iBoard) {
