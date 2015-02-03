@@ -18,8 +18,6 @@ HLTPathSelector::HLTPathSelector(const edm::ParameterSet& ps):
   triggerEventToken_(consumes<trigger::TriggerEvent>(triggerEventTag_)) 
 {
 }
-HLTPathSelector::~HLTPathSelector() {
-}
 void HLTPathSelector::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup) {
   bool changed(true);
   if (hltConfig_.init(iRun, iSetup, processName_, changed)) {

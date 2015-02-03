@@ -121,9 +121,6 @@ StandaloneTrackMonitor::StandaloneTrackMonitor(const edm::ParameterSet& ps):
   }
 }
 
-StandaloneTrackMonitor::~StandaloneTrackMonitor() {
-}
-
 void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker &iBook, edm::Run const& iRun, edm::EventSetup const& iSetup) {
 
   edm::ParameterSet TrackEtaHistoPar = parameters_.getParameter<edm::ParameterSet>("trackEtaH");

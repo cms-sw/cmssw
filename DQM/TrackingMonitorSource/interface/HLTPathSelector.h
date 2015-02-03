@@ -7,20 +7,20 @@
 #include "TPRegexp.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
-class HLTPathSelector : public edm::EDFilter {
+class HLTPathSelector : public edm::stream::EDFilter<> {
 public:
   explicit HLTPathSelector(const edm::ParameterSet&);
-  virtual ~HLTPathSelector();
 
-  void beginRun(edm::Run const &, edm::EventSetup const&);
-  bool filter(edm::Event&, edm::EventSetup const&);
-  void endJob();
+private:
+  void beginRun(edm::Run const &, edm::EventSetup const&) override;
+  bool filter(edm::Event&, edm::EventSetup const&) override;
+  void endJob() ;
 
 private:
 

@@ -26,13 +26,12 @@ class TH1D;
 class TrackTypeMonitor : public DQMEDAnalyzer {
 public:
   TrackTypeMonitor( const edm::ParameterSet& );
-  ~TrackTypeMonitor();
 
 protected:
 
-  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup);
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
 
 private:
 

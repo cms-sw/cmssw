@@ -47,10 +47,6 @@ ZtoEEEventSelector::ZtoEEEventSelector(const edm::ParameterSet& ps):
 {
 }
 
-ZtoEEEventSelector::~ZtoEEEventSelector() {
-}
-void ZtoEEEventSelector::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup) {
-}
 bool ZtoEEEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   // Read Electron Collection
   edm::Handle<reco::GsfElectronCollection> electronColl;

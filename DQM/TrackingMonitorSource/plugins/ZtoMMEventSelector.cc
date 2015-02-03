@@ -38,10 +38,6 @@ ZtoMMEventSelector::ZtoMMEventSelector(const edm::ParameterSet& ps):
   maxInvMass_(ps.getUntrackedParameter<double>("maxInvMass", 120))
 {
 }
-ZtoMMEventSelector::~ZtoMMEventSelector() {
-}
-void ZtoMMEventSelector::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup) {
-}
 bool ZtoMMEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   // Read Muon Collection
   edm::Handle<reco::MuonCollection> muonColl;

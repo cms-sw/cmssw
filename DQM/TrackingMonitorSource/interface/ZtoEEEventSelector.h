@@ -1,20 +1,19 @@
+
 #ifndef DQM_TrackingMonitorSource_ZtoEEEventSelector_h
 #define DQM_TrackingMonitorSource_ZtoEEEventSelector_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 
-class ZtoEEEventSelector : public edm::EDFilter {
+class ZtoEEEventSelector : public edm::stream::EDFilter<> {
 public:
   explicit ZtoEEEventSelector(const edm::ParameterSet&);
-  virtual ~ZtoEEEventSelector();
 
-  void beginRun(edm::Run const &, edm::EventSetup const&);
-  bool filter(edm::Event&, edm::EventSetup const&);
+  bool filter(edm::Event&, edm::EventSetup const&) override;
 
 private:
   // module config parameters

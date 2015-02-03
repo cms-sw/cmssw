@@ -2,18 +2,16 @@
 #define DQM_TrackingMonitorSource_ZtoMMEventSelector_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-class ZtoMMEventSelector : public edm::EDFilter {
+class ZtoMMEventSelector : public edm::stream::EDFilter<> {
 public:
   explicit ZtoMMEventSelector(const edm::ParameterSet&);
-  virtual ~ZtoMMEventSelector();
 
-  void beginRun(edm::Run const &, edm::EventSetup const&);
-  bool filter(edm::Event&, edm::EventSetup const&);
+  bool filter(edm::Event&, edm::EventSetup const&) override;
 
 private:
   bool verbose_;

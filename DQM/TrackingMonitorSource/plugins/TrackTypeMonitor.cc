@@ -60,8 +60,6 @@ TrackTypeMonitor::TrackTypeMonitor(const edm::ParameterSet& ps):
   trackChi2bynDOFHList_.clear();
   nTracksHList_.clear();
 }
-TrackTypeMonitor::~TrackTypeMonitor() {
-}
 void TrackTypeMonitor::bookHistograms(DQMStore::IBooker &iBook, edm::Run const& iRun, edm::EventSetup const& iSetup) {
   edm::ParameterSet TrackEtaHistoPar = parameters_.getParameter<edm::ParameterSet>("TrackEtaPar");
   edm::ParameterSet TrackPhiHistoPar = parameters_.getParameter<edm::ParameterSet>("TrackPhiPar");

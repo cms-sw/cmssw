@@ -2,7 +2,7 @@
 #define DQM_TrackingMonitorSource_WtoLNuSelector_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -17,13 +17,12 @@ namespace {
   class BeamSpot;
 }
 
-class WtoLNuSelector : public edm::EDFilter {
+class WtoLNuSelector : public edm::stream::EDFilter<> {
 public:
   explicit WtoLNuSelector(const edm::ParameterSet&);
-  virtual ~WtoLNuSelector();
 
-  void beginRun(edm::Run const &, edm::EventSetup const&);
-  bool filter(edm::Event&, edm::EventSetup const&);
+private:
+  bool filter(edm::Event&, edm::EventSetup const&) override;
   double getMt(const TLorentzVector& vlep, const reco::PFMET& obj);
 
 private:

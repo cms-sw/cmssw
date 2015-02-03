@@ -35,10 +35,6 @@ WtoLNuSelector::WtoLNuSelector(const edm::ParameterSet& ps):
 {
 }
 
-WtoLNuSelector::~WtoLNuSelector() {
-}
-void WtoLNuSelector::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup) {
-}
 bool WtoLNuSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   // Read Electron Collection
   edm::Handle<reco::GsfElectronCollection> electronColl;
