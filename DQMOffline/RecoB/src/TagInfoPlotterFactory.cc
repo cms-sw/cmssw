@@ -36,5 +36,5 @@ BaseTagInfoPlotter*  TagInfoPlotterFactory::buildPlotter(const string& dataForma
   }
   throw cms::Exception("Configuration")
     << "BTagPerformanceAnalysis: Unknown ExtendedTagInfo " << dataFormatType << endl
-    << "Choose between TrackCounting, TrackProbability, SoftLepton, TrackIP, TaggingVariable, GenericMVA\n";
+    << "Choose between TrackCounting, TrackProbability, SoftLepton, TrackIP, CandIP, TaggingVariable, GenericMVA\n";
 }
