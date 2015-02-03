@@ -461,42 +461,7 @@ std::pair<TrajectoryStateOnSurface, double> Geant4ePropagator::propagateGeneric(
 	return TsosPP(TrajectoryStateOnSurface(tParsDest, curvError, pDest, side),
 			finalPathLength);
 }
-/*
-//Require method with input TrajectoryStateOnSurface to be used in track fitting
-//Don't need extra info about starting surface; use regular propagation method
-TrajectoryStateOnSurface Geant4ePropagator::propagate(
-		const TrajectoryStateOnSurface& tsos, const Plane& plane) const
-{
-	const FreeTrajectoryState ftsStart = *tsos.freeState();
-	return propagateWithPath(ftsStart, plane).first;
-}
 
-TrajectoryStateOnSurface Geant4ePropagator::propagate(
-		const FreeTrajectoryState& ftsStart, const Plane& plane) const
-{
-	return propagateWithPath(ftsStart, plane).first;
-}
-*/
-
-/** Propagate from a free state (e.g. position and momentum in
- *  in global cartesian coordinates) to a cylinder.
- */
-/*
-TrajectoryStateOnSurface Geant4ePropagator::propagate(
-		const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const
-{
-	return propagateWithPath(ftsStart, cDest).first;
-}
-
-//Require method with input TrajectoryStateOnSurface to be used in track fitting
-//Don't need extra info about starting surface; use regular propagation method
-TrajectoryStateOnSurface Geant4ePropagator::propagate(
-		const TrajectoryStateOnSurface& tsos, const Cylinder& cyl) const
-{
-	const FreeTrajectoryState ftsStart = *tsos.freeState();
-	return propagateWithPath(ftsStart, cyl).first;
-}
-*/
 //
 ////////////////////////////////////////////////////////////////////////////
 //
