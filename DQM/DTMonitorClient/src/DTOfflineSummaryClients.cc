@@ -2,6 +2,9 @@
  *  See header file for a description of this class.
  *
  *  \author M. Pelliccioni - INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  */
 
 
@@ -27,9 +30,8 @@ using namespace std;
 DTOfflineSummaryClients::DTOfflineSummaryClients(const ParameterSet& ps) : nevents(0) {
 
   LogVerbatim("DTDQM|DTMonitorClient|DTOfflineSummaryClients") << "[DTOfflineSummaryClients]: Constructor";
-  
-  
-  dbe = Service<DQMStore>().operator->();
+ 
+  bookingdone = 0;
 
 }
 
@@ -38,69 +40,44 @@ DTOfflineSummaryClients::~DTOfflineSummaryClients(){
   
 }
 
-void DTOfflineSummaryClients::beginRun(Run const& run, EventSetup const& eSetup) {
 
-  LogVerbatim("DTDQM|DTMonitorClient|DTOfflineSummaryClients") <<"[DTOfflineSummaryClients]: BeginRun"; 
+void DTOfflineSummaryClients::beginRun (const edm::Run& r, const edm::EventSetup& c)  {};
 
-  // book the summary histos
-  dbe->setCurrentFolder("DT/EventInfo"); 
-  summaryReport = dbe->bookFloat("reportSummary");
-  // Initialize to 1 so that no alarms are thrown at the beginning of the run
-  summaryReport->Fill(1.);
-
-  summaryReportMap = dbe->book2D("reportSummaryMap","DT Report Summary Map",12,1,13,5,-2,3);
-  summaryReportMap->setAxisTitle("sector",1);
-  summaryReportMap->setAxisTitle("wheel",2);
-
-  dbe->setCurrentFolder("DT/EventInfo/reportSummaryContents");
-
-  for(int wheel = -2; wheel != 3; ++wheel) {
-    stringstream streams;
-    streams << "DT_Wheel" << wheel;
-    string meName = streams.str();    
-    theSummaryContents.push_back(dbe->bookFloat(meName));
-    // Initialize to 1 so that no alarms are thrown at the beginning of the run
-    theSummaryContents[wheel+2]->Fill(1.);
-  }
-
-
-
-
-}
-
-
-void DTOfflineSummaryClients::endJob(void){
-  
-  LogVerbatim ("DTDQM|DTMonitorClient|DTOfflineSummaryClients") <<"[DTOfflineSummaryClients]: endJob"; 
-
-}
-
-
-void DTOfflineSummaryClients::analyze(const Event& event, const EventSetup& context){
-
-   nevents++;
-   if(nevents%1000 == 0) {
-     LogVerbatim("DTDQM|DTMonitorClient|DTOfflineSummaryClients") << "[DTOfflineSummaryClients] Analyze #Run: " << event.id().run()
-					 << " #Event: " << event.id().event()
-					 << " LS: " << event.luminosityBlock()	
-					 << endl;
-   }
-}
-
-
-void DTOfflineSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+void DTOfflineSummaryClients::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+                                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
 
   LogVerbatim("DTDQM|DTMonitorClient|DTOfflineSummaryClients")
     << "[DTOfflineSummaryClients]: End of LS transition" << endl;
 
 }
 
+void DTOfflineSummaryClients::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
-void DTOfflineSummaryClients::endRun(Run const& run, EventSetup const& context) {
+  LogVerbatim ("DTDQM|DTMonitorClient|DTOfflineSummaryClients") <<"[DTOfflineSummaryClients]: end job. Performin client operation"; 
 
-  LogVerbatim ("DTDQM|DTMonitorClient|DTOfflineSummaryClients") <<"[DTOfflineSummaryClients]: endRun. Performin client operation"; 
+  // book the summary histos
 
-  
+  ibooker.setCurrentFolder("DT/EventInfo"); 
+  summaryReport = ibooker.bookFloat("reportSummary");
+  // Initialize to 1 so that no alarms are thrown at the beginning of the run
+  summaryReport->Fill(1.);
+
+  summaryReportMap = ibooker.book2D("reportSummaryMap","DT Report Summary Map",12,1,13,5,-2,3);
+  summaryReportMap->setAxisTitle("sector",1);
+  summaryReportMap->setAxisTitle("wheel",2);
+
+  ibooker.setCurrentFolder("DT/EventInfo/reportSummaryContents");
+
+  for(int wheel = -2; wheel != 3; ++wheel) {
+    stringstream streams;
+    streams << "DT_Wheel" << wheel;
+    string meName = streams.str();    
+
+    theSummaryContents.push_back(ibooker.bookFloat(meName));
+    // Initialize to 1 so that no alarms are thrown at the beginning of the run
+    theSummaryContents[wheel+2]->Fill(1.);
+  }
+
   // reset the monitor elements
   summaryReportMap->Reset();
   summaryReport->Fill(0.);
@@ -114,7 +91,7 @@ void DTOfflineSummaryClients::endRun(Run const& run, EventSetup const& context) 
     // retrieve the chamber efficiency summary
     stringstream str;
     str << "DT/05-ChamberEff/EfficiencyMap_All_W" << wheel;
-    MonitorElement * segmentWheelSummary =  dbe->get(str.str());
+    MonitorElement * segmentWheelSummary =  igetter.get(str.str());
     if(segmentWheelSummary != 0) {
 
       float nFailingChambers = 0.;

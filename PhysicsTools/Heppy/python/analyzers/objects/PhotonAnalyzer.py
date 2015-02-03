@@ -11,8 +11,7 @@ from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.Photon import Photon
 
-#from CMGTools.TTHAnalysis.analyzers.ttHLepMCMatchAnalyzer import matchObjectCollection3
-from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi, bestMatch
+from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi, bestMatch, matchObjectCollection3
 
 import PhysicsTools.HeppyCore.framework.config as cfg
 
@@ -33,16 +32,15 @@ class PhotonAnalyzer( Analyzer ):
 
         #photons
         self.handles['photons'] = AutoHandle( self.cfg_ana.photons,'std::vector<pat::Photon>')
+        self.mchandles['packedGen'] = AutoHandle( 'packedGenParticles', 'std::vector<pat::PackedGenParticle>' )
 
-    def beginLoop(self):
-        super(PhotonAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(PhotonAnalyzer,self).beginLoop(setup)
         self.counters.addCounter('events')
         count = self.counters.counter('events')
         count.register('all events')
         count.register('has >=1 gamma at preselection')
         count.register('has >=1 selected gamma')
-
-##    tauID = "PhotonCutBasedID",
 
     def makePhotons(self, event):
         event.allphotons = map( Photon, self.handles['photons'].product() )
@@ -60,22 +58,40 @@ class PhotonAnalyzer( Analyzer ):
             def idWP(gamma,X):
                 """Create an integer equal to 1-2-3 for (loose,medium,tight)"""
 
-## medium not stored
-##                return gamma.photonID(X%"Loose") + gamma.photonID(X%"Medium") + gamma.photonID(X%"Tight")
-
-                id=-1
+                id=0
                 if gamma.photonID(X%"Loose"):
-                    id=0
+                    id=1
+                #if gamma.photonID(X%"Medium"):
+                #    id=2 
                 if gamma.photonID(X%"Tight"):
-                    id=2
+                    id=3
                 return id
 
             gamma.idCutBased = idWP(gamma, "PhotonCutBasedID%s")
 
-            if gamma.photonID(self.cfg_ana.gammaID):
+
+            keepThisPhoton = True
+            if self.cfg_ana.gammaID=="PhotonCutBasedIDLoose_CSA14" :
+                keepThisPhoton = gamma.photonIDCSA14("PhotonCutBasedIDLoose_CSA14")
+                gamma.idCutBased = keepThisPhoton
+                # we're keeing sigmaietaieta sidebands, but the id is false for them:
+                
+                if abs(gamma.eta())< 1.479 and gamma.sigmaIetaIeta()>0.010 : 
+                    gamma.idCutBased = False
+                if abs(gamma.eta())>=1.479 and gamma.sigmaIetaIeta()>0.0321 : 
+                    gamma.idCutBased = False
+            else:
+              keepThisPhoton = gamma.photonID(self.cfg_ana.gammaID)
+
+            if gamma.hasPixelSeed():
+              keepThisPhoton = False
+              gamma.idCutBased = 0
+
+
+            if keepThisPhoton:
                 event.selectedPhotons.append(gamma)
-            
-            if gamma.photonID(self.cfg_ana.gammaID) and abs(gamma.eta()) < self.etaCentral:
+
+            if keepThisPhoton and abs(gamma.eta()) < self.etaCentral:
                 event.selectedPhotonsCentral.append(gamma)
 
         event.selectedPhotons.sort(key = lambda l : l.pt(), reverse = True)
@@ -86,12 +102,46 @@ class PhotonAnalyzer( Analyzer ):
         if len(event.selectedPhotons): self.counters.counter('events').inc('has >=1 selected gamma')
        
     def matchPhotons(self, event):
-        event.genPhotons = [ x for x in event.genParticles if x.status() == 3 and abs(x.pdgId()) == 22 ]
-#FIXME
-#        match = matchObjectCollection3(event.allphotons, event.genPhotons, deltaRMax = 0.5)
-#        for gamma in event.allphotons:
-#            gen = match[gamma]
-#            gamma.mcMatchId = 1 if gen else 0
+        event.genPhotons = [ x for x in event.genParticles if x.status() == 1 and abs(x.pdgId()) == 22 ]
+        event.genPhotonsWithMom = [ x for x in event.genPhotons if x.numberOfMothers()>0 ]
+        event.genPhotonsWithoutMom = [ x for x in event.genPhotons if x.numberOfMothers()==0 ]
+        event.genPhotonsMatched = [ x for x in event.genPhotonsWithMom if abs(x.mother(0).pdgId())<23 ]
+        match = matchObjectCollection3(event.allphotons, event.genPhotonsMatched, deltaRMax = 0.1)
+        matchNoMom = matchObjectCollection3(event.allphotons, event.genPhotonsWithoutMom, deltaRMax = 0.1)
+        packedGenParts = [ p for p in self.mchandles['packedGen'].product() if abs(p.eta()) < 3.1 ]
+        for gamma in event.allphotons:
+          gen = match[gamma]
+          if gen and gen.pt()>=0.5*gamma.pt() and gen.pt()<=2.*gamma.pt():
+            gamma.mcMatchId = 22
+            sumPt = 0.;
+            for part in packedGenParts:
+              if abs(part.pdgId())==12: continue # exclude neutrinos
+              if abs(part.pdgId())==14: continue
+              if abs(part.pdgId())==16: continue
+              if abs(part.pdgId())==18: continue
+              if deltaR(gen.eta(), gen.phi(), part.eta(), part.phi()) > 0.4: continue
+              sumPt += part.pt()
+            sumPt -= gen.pt()
+            if sumPt<0. : sumPt=0.
+            gamma.genIso = sumPt
+          else:
+            genNoMom = matchNoMom[gamma]
+            if genNoMom:
+              gamma.mcMatchId = 7
+              sumPt = 0.;
+              for part in packedGenParts:
+                if abs(part.pdgId())==12: continue # exclude neutrinos
+                if abs(part.pdgId())==14: continue
+                if abs(part.pdgId())==16: continue
+                if abs(part.pdgId())==18: continue
+                if deltaR(genNoMom.eta(), genNoMom.phi(), part.eta(), part.phi()) > 0.4: continue
+                sumPt += part.pt()
+              sumPt -= genNoMom.pt()
+              if sumPt<0. : sumPt=0.
+              gamma.genIso = sumPt
+            else:
+              gamma.mcMatchId = 0
+              gamma.genIso = -1.
 
     def printInfo(self, event):
         print '----------------'
@@ -112,17 +162,14 @@ class PhotonAnalyzer( Analyzer ):
 
     def process(self, event):
         self.readCollections( event.input )
-        #call the photons functions
         self.makePhotons(event)
-        
 #        self.printInfo(event)   
 
-## ===> do matching                                                                                                                                                                                                     
         if not self.cfg_comp.isMC:
             return True
 
-        self.matchPhotons(event)
-
+        if self.cfg_ana.do_mc_match and hasattr(event, 'genParticles'):
+            self.matchPhotons(event)
 
         return True
 
@@ -132,6 +179,7 @@ setattr(PhotonAnalyzer,"defaultConfig",cfg.Analyzer(
     photons='slimmedPhotons',
     ptMin = 20,
     etaMax = 2.5,
-    gammaID = "PhotonCutBasedIDLoose"
+    gammaID = "PhotonCutBasedIDLoose",
+    do_mc_match = True,
   )
 )
