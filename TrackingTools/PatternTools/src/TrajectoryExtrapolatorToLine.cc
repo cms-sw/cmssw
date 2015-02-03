@@ -13,8 +13,7 @@ TrajectoryStateOnSurface TrajectoryExtrapolatorToLine::extrapolate(const FreeTra
   DeepCopyPointerByClone<Propagator> p(aPropagator.clone());
   p->setPropagationDirection(anyDirection);
 
-//  FreeTrajectoryState fastFts(fts.parameters());
-  FreeTrajectoryState fastFts = fts;  
+  FreeTrajectoryState fastFts(fts.parameters(), fts.curvilinearError());
   GlobalVector T1 = fastFts.momentum().unit();
    GlobalPoint T0 = fastFts.position();
    double distance = 9999999.9;
