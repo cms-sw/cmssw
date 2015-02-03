@@ -9,7 +9,6 @@ import RecoTracker.SpecialSeedGenerators.inOutSeedsFromTrackerMuons_cfi
 muonSeededSeedsOutIn = RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi.outInSeedsFromStandaloneMuons.clone(
     src = "earlyMuons",
 )
-
 muonSeededSeedsInOut = RecoTracker.SpecialSeedGenerators.inOutSeedsFromTrackerMuons_cfi.inOutSeedsFromTrackerMuons.clone(
     src = "earlyMuons",
 )
@@ -42,6 +41,7 @@ muonSeededMeasurementEstimatorForOutIn = TrackingTools.KalmanUpdators.Chi2Measur
     nSigma  = cms.double(3.),    ## was 3  ## TO BE TUNED 
 )
 ###------------- TrajectoryFilter, defining selections on the trajectories while building them ----------------
+
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 muonSeededTrajectoryFilterForInOut = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone()
 muonSeededTrajectoryFilterForInOut.constantValueForLostHitsFractionFilter = 10 ## allow more lost hits
@@ -50,6 +50,7 @@ muonSeededTrajectoryFilterForInOut.minimumNumberOfHits = 3 ## allow more lost hi
 muonSeededTrajectoryFilterForOutIn = muonSeededTrajectoryFilterForInOut.clone()
 muonSeededTrajectoryFilterForOutIn.constantValueForLostHitsFractionFilter = 10 ## allow more lost hits
 muonSeededTrajectoryFilterForOutIn.minimumNumberOfHits = 5 ## allow more lost hits
+
 ###------------- TrajectoryBuilders ----------------
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 muonSeededTrajectoryBuilderForInOut = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
@@ -74,6 +75,7 @@ muonSeededTrajectoryBuilderForOutIn = RecoTracker.CkfPattern.GroupedCkfTrajector
     requireSeedHitsInRebuild = cms.bool(True), 
     keepOriginalIfRebuildFails = cms.bool(False), 
 )
+
 ###-------------  Fitter-Smoother -------------------
 import TrackingTools.TrackFitters.RungeKuttaFitters_cff
 muonSeededFittingSmootherWithOutliersRejectionAndRK = TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFittingSmootherWithOutliersRejectionAndRK.clone(
@@ -189,6 +191,8 @@ muonSeededTracksOutInSelector = RecoTracker.FinalTrackSelectors.multiTrackSelect
     ) #end of clone
 
 
+
+
 muonSeededStepCore = cms.Sequence(
     muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut +
     muonSeededSeedsOutIn + muonSeededTrackCandidatesOutIn + muonSeededTracksOutIn 
@@ -198,7 +202,6 @@ muonSeededStepExtra = cms.Sequence(
     muonSeededTracksInOutSelector +
     muonSeededTracksOutInSelector
 )
-
 muonSeededStep = cms.Sequence(
     earlyMuons +
     muonSeededStepCore +
