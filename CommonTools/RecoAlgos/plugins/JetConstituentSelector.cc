@@ -96,6 +96,8 @@ public:
 
 typedef JetConstituentSelector<reco::PFJet> PFJetConstituentSelector;
 typedef JetConstituentSelector<pat::Jet, std::vector< edm::FwdPtr<pat::PackedCandidate> > > PatJetConstituentSelector;
+typedef JetConstituentSelector<reco::PFJet, std::vector< edm::FwdPtr<pat::PackedCandidate> > > MiniAODJetConstituentSelector;
 
 DEFINE_FWK_MODULE( PFJetConstituentSelector );
 DEFINE_FWK_MODULE( PatJetConstituentSelector );
+DEFINE_FWK_MODULE( MiniAODJetConstituentSelector );
