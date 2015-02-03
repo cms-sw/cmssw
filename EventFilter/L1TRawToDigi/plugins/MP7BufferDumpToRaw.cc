@@ -217,7 +217,7 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // create AMC formatted data
   if (mux_) {
     std::vector<Block> blocks = getBlocks(iBoard_);
-    formatAMC(amc13, blocks, boardId_.at(iBoard_));
+    formatAMC(amc13, blocks, iBoard_);
     iBoard_++;  //advance to next AMC for next event...
     iBoard_ = iBoard_ % nBoard_;
   }
