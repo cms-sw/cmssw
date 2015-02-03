@@ -173,7 +173,7 @@ double HGCALShowerBasedEmIdentification::sigmaetaeta(const reco::PFCluster& clu)
   double feta;
   constexpr double feta_0 = 0.00964148 - 0.01078431*1.5 + 0.00495703*1.5*1.5;
   const double clu_eta = std::abs(clu.eta()); 
-  feta = 0.00964148 - clu_eta*(0.0107843 + 0.00495703*clu_eta);
+  feta = 0.00964148 - clu_eta*(0.0107843 - 0.00495703*clu_eta);
   sigmaetaeta *= feta_0 / feta ;
 
   return sigmaetaeta;
