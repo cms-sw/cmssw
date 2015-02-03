@@ -42,7 +42,6 @@
    <field name="tib" mapping="blob"/>
    <field name="tid" mapping="blob"/>
    <field name="tob" mapping="blob"/>
-   <field name="pDetIdShifts" mapping="blob"/>
  </class>
  <class name="PTrackerParameters::PxbItem"/>
  <class name="PTrackerParameters::PxfItem"/>

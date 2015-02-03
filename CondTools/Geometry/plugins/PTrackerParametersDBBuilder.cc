@@ -113,8 +113,6 @@ PTrackerParametersDBBuilder::beginRun( const edm::Run&, edm::EventSetup const& e
   ptp->tob.moduleMask = tobPars.at(0); // 0x7
   ptp->tob.sterMask = tobPars.at(0); // 0x3
  
-  ptp->pDetIdShifts = dbl_to_int( DDVectorGetter::get( "detIdShifts" ));
-
   if( mydbservice->isNewTagRequest( "PTrackerParametersRcd" ))
   {
     mydbservice->createNewIOV<PTrackerParameters>( ptp, mydbservice->beginOfTime(), mydbservice->endOfTime(), "PTrackerParametersRcd" );
