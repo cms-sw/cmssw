@@ -144,26 +144,46 @@ def miniAOD_customizeCommon(process):
         matched = cms.InputTag("selectedPatJetsAK8PFCHSSoftDropPacked"),
         distMax = cms.double(0.8),
         values = cms.vstring(
-            "? numberOfDaughters > 0 ? daughterPtr(0).bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags') : -9999",
-            "? numberOfDaughters > 1 ? daughterPtr(1).bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags') : -9999",
+            "? numberOfDaughters > 0 ? daughterPtr(0).pt : -9999",
+            "? numberOfDaughters > 1 ? daughterPtr(1).pt : -9999",
+            "? numberOfDaughters > 0 ? daughterPtr(0).eta : -9999",
+            "? numberOfDaughters > 1 ? daughterPtr(1).eta : -9999",
+            "? numberOfDaughters > 0 ? daughterPtr(0).phi : -9999",
+            "? numberOfDaughters > 1 ? daughterPtr(1).phi : -9999",
+            "? numberOfDaughters > 0 ? daughterPtr(0).mass : -9999",
+            "? numberOfDaughters > 1 ? daughterPtr(1).mass : -9999",
+            "? numberOfDaughters > 0 ? daughterPtr(0).jecFactor(0) : -9999",
+            "? numberOfDaughters > 1 ? daughterPtr(1).jecFactor(0) : -9999",
             "? numberOfDaughters > 0 ? daughterPtr(0).partonFlavour : -9999",
             "? numberOfDaughters > 1 ? daughterPtr(1).partonFlavour : -9999",
-            "? numberOfDaughters > 0 ? daughterPtr(0).jecFactor(0) : -9999",
-            "? numberOfDaughters > 1 ? daughterPtr(1).jecFactor(0) : -9999"
+            "? numberOfDaughters > 0 ? daughterPtr(0).bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags') : -9999",
+            "? numberOfDaughters > 1 ? daughterPtr(1).bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags') : -9999"
         ),
         valueLabels = cms.vstring(
-            "1CSVv2IVF",
-            "2CSVv2IVF",
+            "1Pt",
+            "2Pt",
+            "1Eta",
+            "2Eta",
+            "1Phi",
+            "2Phi",
+            "1Mass",
+            "2Mass",
+            "1JecFactor0",
+            "2JecFactor0",
             "1Flavour",
             "2Flavour",
-            "1JecFactor0",
-            "2JecFactor0"
+            "1CSVv2IVF",
+            "2CSVv2IVF"
         ),
         lazyParser = cms.bool(True)
     )
-    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSSubJet:1CSVv2IVF','ak8PFJetsCHSSubJet:2CSVv2IVF',
+    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSSubJet:1Pt','ak8PFJetsCHSSubJet:2Pt',
+                                                   'ak8PFJetsCHSSubJet:1Eta','ak8PFJetsCHSSubJet:2Eta',
+                                                   'ak8PFJetsCHSSubJet:1Phi','ak8PFJetsCHSSubJet:2Phi',
+                                                   'ak8PFJetsCHSSubJet:1Mass','ak8PFJetsCHSSubJet:2Mass',
+                                                   'ak8PFJetsCHSSubJet:1JecFactor0','ak8PFJetsCHSSubJet:2JecFactor0',
                                                    'ak8PFJetsCHSSubJet:1Flavour','ak8PFJetsCHSSubJet:2Flavour',
-                                                   'ak8PFJetsCHSSubJet:1JecFactor0','ak8PFJetsCHSSubJet:2JecFactor0']
+                                                   'ak8PFJetsCHSSubJet:1CSVv2IVF','ak8PFJetsCHSSubJet:2CSVv2IVF']
 
     #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
