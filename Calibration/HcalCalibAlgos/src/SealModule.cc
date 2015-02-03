@@ -8,13 +8,13 @@
 #include "Calibration/HcalCalibAlgos/interface/HcalCalibrator.h"
 
 using cms::Analyzer_minbias;
-using cms::DiJetAnalyzer;
+//using cms::DiJetAnalyzer;
 using cms::HcalConstantsASCIIWriter;
 using cms::HitReCalibrator;
 
 
 DEFINE_FWK_MODULE(Analyzer_minbias);
-DEFINE_FWK_MODULE(DiJetAnalyzer);
+//DEFINE_FWK_MODULE(DiJetAnalyzer);
 DEFINE_FWK_MODULE(HcalConstantsASCIIWriter);
 DEFINE_FWK_MODULE(HitReCalibrator);
 
