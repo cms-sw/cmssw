@@ -89,13 +89,13 @@ class PileUpAnalyzer( Analyzer ):
         else:
             self.handles['vertices'] =  AutoHandle( self.allVertices, 'std::vector<reco::Vertex>' ) 
 
-    def beginLoop(self):
-        super(PileUpAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(PileUpAnalyzer,self).beginLoop(setup)
         self.averages.add('vertexWeight', Average('vertexWeight') )
 
 
-    def process(self, iEvent, event):
-        self.readCollections( iEvent )
+    def process(self, event):
+        self.readCollections( event.input )
         ## if component is embed return (has no trigger obj)
         if self.cfg_comp.isEmbed :
           return True
@@ -141,7 +141,7 @@ class PileUpAnalyzer( Analyzer ):
         self.averages['vertexWeight'].add( event.vertexWeight )
         return True
         
-    def write(self):
-        super(PileUpAnalyzer, self).write()
+    def write(self, setup):
+        super(PileUpAnalyzer, self).write(setup)
         if self.cfg_comp.isMC and self.doHists:
             self.rawmcpileup.write()

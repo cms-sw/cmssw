@@ -13,7 +13,7 @@ from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.Lepton import Lepton
 from PhysicsTools.Heppy.physicsobjects.Tau import Tau
 
-from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi, bestMatch
+from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi, bestMatch , matchObjectCollection3
 
 import PhysicsTools.HeppyCore.framework.config as cfg
 
@@ -32,8 +32,8 @@ class TauAnalyzer( Analyzer ):
         self.handles['taus'] = AutoHandle( ('slimmedTaus',''),'std::vector<pat::Tau>')
 
 
-    def beginLoop(self):
-        super(TauAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(TauAnalyzer,self).beginLoop(setup)
         self.counters.addCounter('events')
         count = self.counters.counter('events')
         count.register('all events')
@@ -93,10 +93,27 @@ class TauAnalyzer( Analyzer ):
         if len(event.selectedTaus): self.counters.counter('events').inc('has >=1 selected taus')
         if len(event.looseTaus): self.counters.counter('events').inc('has >=1 loose taus')
         if len(event.inclusiveTaus): self.counters.counter('events').inc('has >=1 inclusive taus')
+
+
+    def matchTaus(self, event):
+        match = matchObjectCollection3(event.inclusiveTaus, event.gentaus, deltaRMax = 0.5)
+        for lep in event.inclusiveTaus:
+            gen = match[lep]
+            lep.mcMatchId = 1 if gen else 0
+
     def process(self, event):
         self.readCollections( event.input )
+
         self.makeTaus(event)
+
+        if not self.cfg_comp.isMC:
+            return True
+
+        if hasattr(event, 'gentaus'):
+            self.matchTaus(event)
+        
         return True
+
 
 setattr(TauAnalyzer,"defaultConfig",cfg.Analyzer(
     class_object=TauAnalyzer,
