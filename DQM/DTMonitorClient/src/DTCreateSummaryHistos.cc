@@ -1,8 +1,10 @@
-
 /*
  *  See header file for a description of this class.
  *
  *  \author G. Mila - INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah ncpp-um-my
+ *
  */
 
 
@@ -56,21 +58,15 @@ DTCreateSummaryHistos::DTCreateSummaryHistos(const edm::ParameterSet& ps){
   DDUId = ps.getUntrackedParameter<int>("DDUId");
 
   MainFolder = "DQMData/DT/";
+
+  nevents = 0;
+
 }
 
 DTCreateSummaryHistos::~DTCreateSummaryHistos(){
 
   edm::LogVerbatim ("histos") << "DTCreateSummaryHistos: analyzed " << nevents << " events";
   theFile->Close();
-
-}
-
-
-void DTCreateSummaryHistos::beginJob(){
-
-  edm::LogVerbatim ("histos") << "[DTCreateSummaryHistos]: BeginJob";
-
-  nevents = 0;
 
 }
 
@@ -81,15 +77,7 @@ void DTCreateSummaryHistos::beginRun(const edm::Run& run, const edm::EventSetup&
 
 }
 
-void DTCreateSummaryHistos::analyze(const edm::Event& e, const edm::EventSetup& context){
-  
-  nevents++;
-  runNumber = e.id().run();
-
-}
-
-
-void DTCreateSummaryHistos::endJob(){
+void DTCreateSummaryHistos::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   edm::LogVerbatim ("histos") << "[DTCreateSummaryHistos] endjob called!";
 
