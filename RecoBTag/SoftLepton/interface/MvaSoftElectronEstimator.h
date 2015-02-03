@@ -38,11 +38,11 @@ class MvaSoftEleEstimator{
     MvaSoftEleEstimator(std::string);
     ~MvaSoftEleEstimator(); 
     
-    Double_t mvaValue(Float_t, Float_t, Float_t, Float_t,Float_t);
+    Double_t mvaValue(Float_t, Float_t, Float_t,Float_t,Float_t,Float_t);
 
   private:
     TMVA::Reader* TMVAReader;
-    float mva_sip3d, mva_sip2d, mva_ptRel, mva_ratioRel, mva_e_pi;
+    float mva_sip3d, mva_sip2d, mva_ptRel, mva_deltaR, mva_ratio, mva_e_pi;
 };
 
 #endif

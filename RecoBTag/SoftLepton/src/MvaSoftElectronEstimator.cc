@@ -27,11 +27,11 @@ MvaSoftEleEstimator::MvaSoftEleEstimator(std::string weightFile)
 {
 	TMVAReader = new TMVA::Reader("Color:Silent:Error");
   	TMVAReader->SetVerbose(false);
+  	TMVAReader->AddVariable("sip3d", 	&mva_sip3d);
   	TMVAReader->AddVariable("sip2d", 	&mva_sip2d);
-        TMVAReader->AddVariable("sip3d",        &mva_sip3d);
   	TMVAReader->AddVariable("ptRel", 	&mva_ptRel);
-  	//TMVAReader->AddVariable("deltaR",	&mva_deltaR);
-  	TMVAReader->AddVariable("ratioRel", 	&mva_ratioRel);
+  	TMVAReader->AddVariable("deltaR",	&mva_deltaR);
+  	TMVAReader->AddVariable("ratio", 	&mva_ratio);
 	TMVAReader->AddVariable("mva_e_pi", 	&mva_e_pi);
   	reco::details::loadTMVAWeights(TMVAReader, "BDT", weightFile.c_str()); 
         
@@ -44,12 +44,13 @@ MvaSoftEleEstimator::~MvaSoftEleEstimator()
 
 //--------------------------------------------------------------------------------------------------
 
-Double_t MvaSoftEleEstimator::mvaValue(Float_t sip2d, Float_t sip3d, Float_t ptRel, Float_t ratioRel, Float_t mva_e_pi) {
+Double_t MvaSoftEleEstimator::mvaValue(Float_t sip2d, Float_t sip3d, Float_t ptRel, float deltaR, Float_t ratioRel, Float_t mva_e_pi) {
   
   mva_sip3d = sip3d;
   mva_sip2d = sip2d;
   mva_ptRel = ptRel;
-  mva_ratioRel = ratioRel;
+  mva_deltaR = deltaR;
+  mva_ratio = ratioRel;
   mva_e_pi = mva_e_pi;
 
   float tag = TMVAReader->EvaluateMVA("BDT");
