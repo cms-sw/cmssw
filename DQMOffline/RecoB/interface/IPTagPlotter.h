@@ -1,24 +1,22 @@
-#ifndef TrackIPTagPlotter_H
-#define TrackIPTagPlotter_H
+#ifndef IPTagPlotter_H
+#define IPTagPlotter_H
 
 #include "DQMOffline/RecoB/interface/BaseTagInfoPlotter.h"
-#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DQMOffline/RecoB/interface/TrackIPHistograms.h"
 #include "DQMOffline/RecoB/interface/FlavourHistorgrams2D.h"
-// #include "RecoBTag/MCTools/interface/JetFlavour.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/BTauReco/interface/IPTagInfo.h"
 
-
-class TrackIPTagPlotter : public BaseTagInfoPlotter {
+template <class Container, class Base>
+class IPTagPlotter : public BaseTagInfoPlotter {
 
 
  public:
-
-  TrackIPTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
+  IPTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
 		     const edm::ParameterSet& pSet, const unsigned int& mc, 
 		     const bool& wf, DQMStore::IBooker & ibook);
 
-  ~TrackIPTagPlotter () ;
+  ~IPTagPlotter () ;
 
   void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour);
   void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour, const float & w);
@@ -29,7 +27,7 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
 
   void psPlot(const std::string & name);
 
-  reco::TrackBase::TrackQuality highestTrackQual(const reco::TrackRef& track) const;
+  reco::TrackBase::TrackQuality highestTrackQual(const reco::Track * track) const;
 
  private:
 
@@ -79,5 +77,7 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
   FlavourHistograms2D<double, int> * trackMultVsJetPtHisto;
   FlavourHistograms2D<double, int> * selectedTrackMultVsJetPtHisto;
 } ;
+
+#include "DQMOffline/RecoB/interface/IPTagPlotter_cc.h"
 
 #endif
