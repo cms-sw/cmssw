@@ -26,6 +26,9 @@
 #include "CondFormats/HIObjects/interface/UETable.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
+// For DB entry using JetCorrector to store the vector of float
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h" 
+
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 
@@ -47,6 +50,7 @@ private:
   // ----------member data ---------------------------
 
   bool debug_;
+  bool jetCorrectorFormat_;
 
   string calibrationFile_;
   unsigned int runnum_;
@@ -82,6 +86,7 @@ UETableProducer::UETableProducer(const edm::ParameterSet& iConfig):
   //calibrationFile_ = "RecoHI/HiJetAlgos/data/ue_calibrations_pf_data.txt";
 
   debug_ = iConfig.getUntrackedParameter<bool>("debug",false);
+  jetCorrectorFormat_ = iConfig.getUntrackedParameter<bool>("jetCorrectorFormat",false);
 
   np[0] = 3;// Number of reduced PF ID (track, ECAL, HCAL)
   np[1] = 15;// Number of pseudorapidity block
@@ -89,6 +94,14 @@ UETableProducer::UETableProducer(const edm::ParameterSet& iConfig):
   np[3] = 2;// Re or Im
   np[4] = 82;// Number of feature parameter
 
+  ni0[0] = np[1];
+  ni0[1] = 344;// Number of track binning (kept = ECAL)
+
+  ni1[0] = np[1];
+  ni1[1] = 344;// Number of ECAL binning
+
+  ni2[0] = np[1];
+  ni2[1] = 82;// Number of HCAL binning
 
 }
 
@@ -119,18 +132,22 @@ UETableProducer::beginRun(const edm::EventSetup& iSetup)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 UETableProducer::endJob() {
-
   std::string qpDataName = calibrationFile_.c_str();
   std::ifstream textTable_(qpDataName.c_str());
 
-  UETable* ue_predictor_pf = new UETable();
+  std::vector<float> ue_vec;
+  UETable *ue_predictor_pf = NULL;
 
+  if (!jetCorrectorFormat_) {
+	ue_predictor_pf = new UETable();
+  }
   //  unsigned int Nnp_full = np[0] * np[1] * np[2] * np[3] * np[4];
   unsigned int Nnp = np[0] * np[1] * (1 + (np[2] - 1) * np[3]) * np[4];
   unsigned int Nni0 = ni0[0]*ni0[1];
   unsigned int Nni1 = ni1[0]*ni1[1];
   unsigned int Nni2 = ni2[0]*ni2[1];
 
+  if (!jetCorrectorFormat_) {
   ue_predictor_pf->np.resize(5);
   ue_predictor_pf->ni0.resize(2);
   ue_predictor_pf->ni1.resize(2);
@@ -149,7 +166,7 @@ UETableProducer::endJob() {
 
   std::copy(edge_pseudorapidity, edge_pseudorapidity + 16, ue_predictor_pf->edgeEta.begin());
 
-  ue_predictor_pf->values.clear();
+  }
 
   std::string line;
 
@@ -163,28 +180,50 @@ UETableProducer::endJob() {
     int bin0, bin1, bin2, bin3, bin4;
     if(index < Nnp){
       linestream>>bin0>>bin1>>bin2>>bin3>>bin4>>val;
-	  ue_predictor_pf->values.push_back(val);
+	  ue_vec.push_back(val);
     }else if(index < Nnp + Nni0){
       linestream>>bin0>>bin1>>val;
-	  ue_predictor_pf->values.push_back(val);
+	  ue_vec.push_back(val);
     }else if(index < Nnp + Nni0 + Nni1){
       linestream>>bin0>>bin1>>val;
-	  ue_predictor_pf->values.push_back(val);
+	  ue_vec.push_back(val);
     }else if(index < Nnp + Nni0 + Nni1 + Nni2){
       linestream>>bin0>>bin1>>val;
-	  ue_predictor_pf->values.push_back(val);
+	  ue_vec.push_back(val);
     }
     ++index;
+
   }
 
   edm::Service<cond::service::PoolDBOutputService> pool;
+
   if( pool.isAvailable() ){
+
+  if (jetCorrectorFormat_) {
+    // A minimal dummy line that satisfies the JME # token >= 6 requirement, and has the correct key type
+    JetCorrectorParameters::Definitions definition("1 0 0 0 Correction L1Offset");
+    std::vector<JetCorrectorParameters::Record> record(1, JetCorrectorParameters::Record(ue_vec.size(), std::vector<float>(ue_vec.size(), 0), std::vector<float>(ue_vec.size(), 0), ue_vec));
+    JetCorrectorParameters parameter(definition, record);
+
+    JetCorrectorParametersCollection *jme_payload = new JetCorrectorParametersCollection();
+
+    jme_payload->push_back(JetCorrectorParametersCollection::L1Offset, parameter);
+
+    if( pool->isNewTagRequest( "HeavyIonUERcd" ) ){
+      pool->createNewIOV<JetCorrectorParametersCollection>( jme_payload, pool->beginOfTime(), pool->endOfTime(), "HeavyIonUERcd" );
+    }else{
+      pool->appendSinceTime<JetCorrectorParametersCollection>( jme_payload, pool->currentTime(), "HeavyIonUERcd" );
+    }
+  }
+  else {
+    ue_predictor_pf->values = ue_vec;
+
     if( pool->isNewTagRequest( "HeavyIonUERcd" ) ){
       pool->createNewIOV<UETable>( ue_predictor_pf, pool->beginOfTime(), pool->endOfTime(), "HeavyIonUERcd" );
     }else{
       pool->appendSinceTime<UETable>( ue_predictor_pf, pool->currentTime(), "HeavyIonUERcd" );
     }
-
+  }
   }
 }
 

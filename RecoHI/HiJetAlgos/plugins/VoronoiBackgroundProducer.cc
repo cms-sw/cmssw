@@ -23,6 +23,10 @@
 #include "CondFormats/HIObjects/interface/UETable.h"
 #include "CondFormats/DataRecord/interface/HeavyIonUERcd.h"
 
+// For DB entry using JetCorrector to store the vector of float
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+
 #include "RecoHI/HiJetAlgos/interface/VoronoiAlgorithm.h"
 
 using namespace std;
@@ -49,6 +53,7 @@ class VoronoiBackgroundProducer : public edm::EDProducer {
    double equalizeThreshold1_;
    double equalizeR_;
    bool useTextTable_;
+   bool jetCorrectorFormat_;
    bool isCalo_;
    std::string tableLabel_;
    int etaBins_;
@@ -76,6 +81,7 @@ VoronoiBackgroundProducer::VoronoiBackgroundProducer(const edm::ParameterSet& iC
    equalizeThreshold1_(iConfig.getParameter<double>("equalizeThreshold1")),
    equalizeR_(iConfig.getParameter<double>("equalizeR")),
    useTextTable_(iConfig.getParameter<bool>("useTextTable")),
+   jetCorrectorFormat_(iConfig.getParameter<bool>("jetCorrectorFormat")),
    isCalo_(iConfig.getParameter<bool>("isCalo")),
    tableLabel_(iConfig.getParameter<std::string>("tableLabel")),
    etaBins_(iConfig.getParameter<int>("etaBins")),
@@ -117,6 +123,16 @@ VoronoiBackgroundProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         if(!isData) calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_pf_mc.txt";
       }
 	ue = new UECalibration(calibrationFile);
+	}
+	else if (jetCorrectorFormat_) {
+		edm::ESHandle<JetCorrectorParametersCollection> ueHandle;
+
+		iSetup.get<JetCorrectionsRecord>().get(tableLabel_,ueHandle);
+
+		const JetCorrectorParametersCollection *payload = ueHandle.product();
+		std::vector<float> ue_vec = (*payload)[JetCorrectorParametersCollection::L1Offset].record(0).parameters();
+
+		ue = new UECalibration(ue_vec);
 	}
 	else {
 	 edm::ESHandle<UETable> ueHandle;

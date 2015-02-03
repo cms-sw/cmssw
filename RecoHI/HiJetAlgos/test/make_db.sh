@@ -71,7 +71,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           )
 
 process.makeUETableDB = cms.EDAnalyzer('UETableProducer',
-                                       txtFile = cms.string(ivars.inputFile)
+                                       txtFile = cms.string(ivars.inputFile),
+				       jetCorrectorFormat = cms.untracked.bool(True)
                                        )
 
 process.step  = cms.Path(process.makeUETableDB)
