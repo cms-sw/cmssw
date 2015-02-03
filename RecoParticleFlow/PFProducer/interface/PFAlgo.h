@@ -67,6 +67,9 @@ class PFAlgo {
                      double nSigmaHCAL, 
                      const boost::shared_ptr<PFEnergyCalibration>& calibration,
 		     const boost::shared_ptr<PFEnergyCalibrationHF>& thepfEnergyCalibrationHF);
+
+  void setHGCalParameters(double HGCalResolutionConst, 
+			  double HGCalResolutionStoch);
   
   void setCandConnectorParameters( const edm::ParameterSet& iCfgCandConnector ){
     connector_.setParameters(iCfgCandConnector);
@@ -249,7 +252,8 @@ class PFAlgo {
 
   /// todo: use PFClusterTools for this
   double neutralHadronEnergyResolution( double clusterEnergy,
-					double clusterEta ) const;
+					double clusterEta,
+					reco::PFBlockElement::Type the_cluster_type ) const;
 
  
   double nSigmaHCAL( double clusterEnergy, 
@@ -308,6 +312,10 @@ class PFAlgo {
   bool               useHO_;
   int                algo_;
   bool               debug_;
+
+  // HGCal parameters for clustering configuration
+  double HGCalResolutionConst_;
+  double HGCalResolutionStoch_;
 
   /// Variables for PFElectrons
   std::string mvaWeightFileEleID_;
