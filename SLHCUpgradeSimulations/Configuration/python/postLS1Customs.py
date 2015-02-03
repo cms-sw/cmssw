@@ -75,36 +75,8 @@ def customiseRun2EraExtras(process):
             print "         This path has the following modules:"
             print "         ", getattr(process, path_name).moduleNames(),"\n"
 
-    # use unganged geometry
-    if hasattr(process,"CSCGeometryESModule"):
-        process.CSCGeometryESModule.useGangedStripsInME1a = False
-    if hasattr(process,"idealForDigiCSCGeometry"):
-        process.idealForDigiCSCGeometry.useGangedStripsInME1a = False
-
-    # digitizer
-    if hasattr(process, 'simMuonCSCDigis'):
-        if hasattr(process,"CSCIndexerESProducer"):
-            process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
-        if hasattr(process,"CSCChannelMapperESProducer"):
-            process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
-        ## Make sure there's no bad chambers/channels
-        #process.simMuonCSCDigis.strips.readBadChambers = True
-        #process.simMuonCSCDigis.wires.readBadChannels = True
-        #process.simMuonCSCDigis.digitizeBadChambers = True
-    
-        ## Customised timing offsets so that ALCTs and CLCTs times are centered in signal BX. 
-        ## These offsets below were tuned for the case of 3 layer pretriggering 
-        ## and median stub timing algorithm.
-        process.simMuonCSCDigis.strips.bunchTimingOffsets = cms.vdouble(0.0, 37.53, 37.66, 55.4, 48.2, 54.45, 53.78, 53.38, 54.12, 51.98, 51.28)
-        process.simMuonCSCDigis.wires.bunchTimingOffsets = cms.vdouble(0.0, 22.88, 22.55, 29.28, 30.0, 30.0, 30.5, 31.0, 29.5, 29.1, 29.88)
-
     # L1 stub emulator upgrade algorithm
     if hasattr(process, 'simCscTriggerPrimitiveDigis'):
-        if hasattr(process,"CSCIndexerESProducer"):
-            process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
-        if hasattr(process,"CSCChannelMapperESProducer"):
-            process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
-    
         from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi import cscTriggerPrimitiveDigisPostLS1
         process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS1
         process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCComparatorDigi')
@@ -116,23 +88,6 @@ def customiseRun2EraExtras(process):
         process.simCsctfTrackDigis = csctfTrackDigisUngangedME1a
         process.simCsctfTrackDigis.DTproducer = cms.untracked.InputTag("simDtTriggerPrimitiveDigis")
         process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")
-
-    # packer - simply get rid of it
-    if hasattr(process, 'cscpacker') or hasattr(process, 'csctfpacker'):
-        process.cscpacker.useFormatVersion = cms.uint32(2013)
-        process.cscpacker.usePreTriggers = cms.bool(False)
-        process.cscpacker.packEverything = cms.bool(True)
-
-    # CSC RecHiti producer adjustments 
-    if hasattr(process, 'csc2DRecHits'):
-        if hasattr(process,"CSCIndexerESProducer"):
-            process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
-        if hasattr(process,"CSCChannelMapperESProducer"):
-            process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
-    
-        # Turn off some flags for CSCRecHitD that are turned ON in default config
-        process.csc2DRecHits.readBadChannels = cms.bool(False)
-        process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
 
     # deal with L1 Emulation separately:
     # replace the L1 menu from the global tag with one of the following alternatives
@@ -340,7 +295,6 @@ def customiseRun2EraExtras(process):
             if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf2'):
                 process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.60)
     if hasattr(process,'HLTSchedule'):
-        process.CSCGeometryESModule.useGangedStripsInME1a = False
         process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
         process.hltCsc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
         if hasattr(process,"CSCIndexerESProducer"):
