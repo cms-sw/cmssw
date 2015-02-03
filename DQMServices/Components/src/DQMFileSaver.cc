@@ -285,7 +285,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, e
   std::string dataFileName = bfs::path(dataFilePathName).filename().string();
   // The availability test of the FastMonitoringService was done in the ctor.
   bpt::ptree data;
-  bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles, fileAdler32;
+  bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles, fileAdler32, transferDestination;
 
   processedEvents.put("", fms ? (fms->getEventsProcessedForLumi(lumi)) : -1); // Processed events
   acceptedEvents.put("", fms ? (fms->getEventsProcessedForLumi(lumi)) : -1); // Accepted events, same as processed for our purposes
@@ -296,6 +296,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, e
   fileSize.put("", dataFileStat.st_size); // Size in bytes of the data file
   inputFiles.put("", ""); // We do not care about input files!
   fileAdler32.put("", -1); // placeholder to match output json definition
+  transferDestination.put("", transferDestination_); // Data file the information refers to
 
   data.push_back(std::make_pair("", processedEvents));
   data.push_back(std::make_pair("", acceptedEvents));
@@ -305,6 +306,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, e
   data.push_back(std::make_pair("", fileSize));
   data.push_back(std::make_pair("", inputFiles));
   data.push_back(std::make_pair("", fileAdler32));
+  data.push_back(std::make_pair("", transferDestination));
 
   pt.add_child("data", data);
 
@@ -643,7 +645,7 @@ DQMFileSaver::globalBeginRun(const edm::Run &r, const edm::EventSetup &) const
   if ((convention_ == FilterUnit) && (!fakeFilterUnitMode_))
   {
     evf::EvFDaqDirector * daqDirector = (evf::EvFDaqDirector *) (edm::Service<evf::EvFDaqDirector>().operator->());
-    daqDirector->writeTransferSystemJsonMaybe(stream_label_);
+    transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestination(stream_label_);
     const std::string initFileName = daqDirector->getInitFilePath(stream_label_);
     std::ofstream file(initFileName);
     file.close();

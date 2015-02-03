@@ -94,6 +94,7 @@ private:
 
   static const std::string streamPrefix_;
   static const std::string streamSuffix_;
+  std::string transferDestination_;
 };
 
 #endif // DQMSERVICES_COMPONEntS_DQMFILESAVER_H

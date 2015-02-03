@@ -39,6 +39,12 @@
          "name" : "FileAdler32",
          "operation" : "sum",
          "type" : "integer"
+      },
+      {
+         "name" : "TransferDestination",
+         "operation" : "same",
+         "type" : "string"
       }
+
    ]
 }
