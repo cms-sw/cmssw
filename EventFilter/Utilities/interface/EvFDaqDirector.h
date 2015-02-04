@@ -125,6 +125,7 @@ namespace evf{
       bool directorBu_;
       unsigned int run_;
       bool outputAdler32Recheck_;
+      std::string hltSourceDirectory_;
 
       std::string hostname_;
       std::string run_string_;
