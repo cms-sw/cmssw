@@ -81,8 +81,8 @@ hbheprereco = cms.EDProducer(
                                   TS4TS5ChargeThreshold = cms.double(70),
                                   First = cms.int32(4),
                                   Last = cms.int32(6),
-                                  Threshold = cms.vdouble(100, 120, 160, 200, 300, 500),
-                                  Cut = cms.vdouble(-50, -100, -100, -100, -100, -100)),
+                                  Threshold = cms.vdouble(100, 120, 160, 200, 300, 500, 1.0e4),
+                                  Cut = cms.vdouble(-50, -100, -100, -100, -100, -100, -1.0e6)),
 
     # shaped cut parameters are triples of (energy, low time threshold, high time threshold) values.
     # The low and high thresholds must straddle zero (i.e., low<0, high>0); use win_offset to shift.

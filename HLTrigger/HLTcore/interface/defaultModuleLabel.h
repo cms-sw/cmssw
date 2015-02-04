@@ -5,12 +5,21 @@
 #include <string>
 
 // boost headers
+#include <boost/version.hpp>
+#if BOOST_VERSION < 105200
+#include <boost/units/detail/utility.hpp>
+#else
 #include <boost/core/demangle.hpp>
+#endif
 
 template <typename T>
 std::string defaultModuleLabel() {
   // start with the demangled name for T
+#if BOOST_VERSION < 105200
+  std::string name = boost::units::detail::demangle(typeid(T).name());
+#else
   std::string name = boost::core::demangle(typeid(T).name());
+#endif
 
   // expected size of the label
   unsigned int size = 0;
