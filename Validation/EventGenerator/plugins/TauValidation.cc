@@ -15,15 +15,13 @@
 using namespace edm;
 
 TauValidation::TauValidation(const edm::ParameterSet& iPSet): 
-  wmanager_(iPSet,consumesCollector())
-  ,genparticleCollection_(iPSet.getParameter<edm::InputTag>("genparticleCollection"))
-  ,hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection"))
+  //  wmanager_(iPSet,consumesCollector())
+  genparticleCollection_(iPSet.getParameter<edm::InputTag>("genparticleCollection"))
   ,NMODEID(TauDecay::NMODEID-1)// fortran to C++ index
   ,zsbins(20)
   ,zsmin(-0.5)
   ,zsmax(0.5)
 {    
-  hepmcCollectionToken_=consumes<HepMCProduct>(hepmcCollection_);
   genparticleCollectionToken_=consumes<reco::GenParticleCollection>(genparticleCollection_);
 }
 
@@ -166,7 +164,7 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
   edm::Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(genparticleCollectionToken_, genParticles );
   
-  double weight =   wmanager_.weight(iEvent);
+  double weight = 1.0;//=   wmanager_.weight(iEvent);
   //////////////////////////////////////////////
   // find taus
   for (reco::GenParticleCollection::const_iterator iter = genParticles->begin(); iter != genParticles->end(); ++iter) {
