@@ -461,6 +461,7 @@ void HcalBeamMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run,
 
 void HcalBeamMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)
 {
+  HcalBaseDQMonitor::analyze(e,c);
   if (!IsAllowedCalibType()) return;
   if (LumiInOrder(e.luminosityBlock())==false) return;
 
@@ -495,7 +496,7 @@ void HcalBeamMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)
     }
 
   //good event; increment counters and process
-  HcalBaseDQMonitor::analyze(e,c);
+//  HcalBaseDQMonitor::analyze(e,c);
   processEvent(*hbhe_rechit, *ho_rechit, *hf_rechit, *hf_digi, e.bunchCrossing());
 
 } //void HcalBeamMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)

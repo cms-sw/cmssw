@@ -604,6 +604,7 @@ void HcalDeadCellMonitor::endJob()
 
 void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 {
+  HcalBaseDQMonitor::analyze(e,s);
   if (!IsAllowedCalibType()) return;
   endLumiProcessed_=false;
 
@@ -697,7 +698,7 @@ void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   if (debug_>1) std::cout <<"\t<HcalDeadCellMonitor::analyze>  Processing good event! event # = "<<ievt_<<std::endl;
   // Good event found; increment counter (via base class analyze method)
   // This also runs the allowed calibration /lumi in order tests again;  remove?
-  HcalBaseDQMonitor::analyze(e,s);
+//  HcalBaseDQMonitor::analyze(e,s);
   
   ++deadevt_; //increment local counter
   
