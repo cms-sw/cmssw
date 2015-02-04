@@ -769,13 +769,15 @@ PU25={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_1
 PU50={'-n':10,'--pileup':'AVE_35_BX_50ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[4],)}
 
 
+
 #PU for FastSim
+FS_PU_INPUT_13TEV = "file:/afs/cern.ch/work/l/lveldere/minbias.root"
 PUFS={'--pileup':'GEN_2012_Summer_50ns_PoissonOOTPU'}
 PUFS2={'--pileup':'2012_Startup_50ns_PoissonOOTPU'}
 PUFSAVE10={'--pileup':'GEN_AVE_10_BX_25ns'}
-PUFSAVE10_DIGIRECOMIX_ITO={'--pileup':'AVE_10_BX_25ns',"--pileup_input":"file:REPLACEME_13TeV.root","--customise":"FastSimulation/Configuration/Customs.disableOOTPU"}
+PUFSAVE10_DIGIRECOMIX_ITO={'--pileup':'AVE_10_BX_25ns',"--pileup_input":FS_PU_INPUT_13TEV,"--customise":"FastSimulation/Configuration/Customs.disableOOTPU,SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1"}
 PUFSAVE20={'--pileup':'GEN_AVE_20_BX_25ns'}
-PUFS25={'--pileup':'AVE_35_BX_25ns',"--pileup_input":"file:REPLACEME_13TeV.root"}
+PUFS25={'--pileup':'AVE_35_BX_25ns',"--pileup_input":FS_PU_INPUT_13TEV}
 
 #
 steps['TTbarFSPU']=merge([PUFS,Kby(100,500),steps['TTbarFS']] )
