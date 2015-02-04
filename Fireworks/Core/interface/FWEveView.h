@@ -34,6 +34,9 @@ class TEveScene;
 class TEveWindowSlot;
 class TEveCaloViz;
 
+class FWTGLViewer;
+class FWTEveViewer;
+
 class FWEventAnnotation;
 class CmsAnnotation;
 class FWViewContextMenuHandlerGL;
@@ -71,7 +74,7 @@ public:
    virtual void populateController(ViewerParameterGUI&) const;
 
    TGLViewer*  viewerGL() const;
-   TEveViewer* viewer()      { return m_viewer; }
+   TEveViewer* viewer();
    TEveScene*  eventScene()  { return m_eventScene;}
    TEveScene*  geoScene()    { return m_geoScene; }
 
@@ -110,7 +113,7 @@ private:
 
    // ---------- member data --------------------------------
 
-   TEveViewer*          m_viewer;
+   FWTEveViewer*        m_viewer;
    TEveScene*           m_eventScene;
    TEveElement*         m_ownedProducts;
    TEveScene*           m_geoScene;
@@ -119,9 +122,6 @@ private:
    CmsAnnotation*       m_overlayLogo;
    ScaleAnnotation*     m_energyMaxValAnnotation;
    TGLCameraGuide*      m_cameraGuide;
-
-
-
 
 private:
    // style parameters
