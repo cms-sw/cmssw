@@ -15,6 +15,9 @@ class MagneticField;
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 namespace reco {class BeamSpot;}
 
 class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
@@ -33,6 +36,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     edm::EDGetTokenT<reco::GsfElectronCoreCollection> electronCoreCollection_;
     edm::EDGetTokenT<reco::GsfTrackCollection> electronTrackCollection_;
     edm::EDGetTokenT<reco::ElectronSeedCollection> electronSeedCollection_;
+    /* ajout 03/02/2015 */
+    edm::EDGetTokenT<reco::VertexCollection> offlineVerticesCollection_;
+    /* fin ajout */
     edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_ ;
     bool readAOD_;
 
@@ -92,6 +98,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_recCoreNum;
     MonitorElement *h1_recTrackNum;
     MonitorElement *h1_recSeedNum;
+    /* ajout 04/02/2015*/
+    MonitorElement *h1_recOfflineVertices;
+    /* fin ajout */
 
     MonitorElement *h1_mc_Eta;
     MonitorElement *h1_mc_AbsEta;
