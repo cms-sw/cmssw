@@ -1023,19 +1023,11 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
   /* new 2015.03.02 */
   edm::Handle<reco::VertexCollection> vertexCollectionHandle;
   iEvent.getByToken(offlineVerticesCollection_, vertexCollectionHandle);
-//  int count = 0;
   if(!vertexCollectionHandle.isValid()) 
-  {std::cout << "vertexCollectionHandle KO" << std::endl;}
+  {edm::LogInfo("ElectronMcSignalValidator::analyze") << "vertexCollectionHandle KO" ;}
   else 
   {
-      std::cout << "vertexCollectionHandle OK" << std::endl;
-//      reco::VertexCollection::const_iterator verticesIter;
-      std::cout <<"Treating event "<< iEvent.id() <<" with "<< vertexCollectionHandle.product()->size() <<" vertices" << std::endl; ;
-/*      for ( verticesIter=vertexCollectionHandle->begin() ; verticesIter!=vertexCollectionHandle->end() ; verticesIter++ )
-      {
-          count++;
-      } */
-      std::cout <<"count = "<< vertexCollectionHandle.product()->size() << std::endl; ;
+      edm::LogInfo("ElectronMcSignalValidator::analyze") << "vertexCollectionHandle OK" ;
   }
   /* end new */
   
