@@ -9,3 +9,8 @@ CSCIndexerESProducer = cms.ESProducer("CSCIndexerESProducer",
   AlgoName = cms.string("CSCIndexerStartup")
 )
 
+#
+# Modify for running in run 2
+#
+from Configuration.StandardSequences.Eras import eras
+eras.run2.toModify( CSCIndexerESProducer, AlgoName=cms.string("CSCIndexerPostls1") )
