@@ -17,8 +17,8 @@ void pat::PackedGenParticle::unpack() const {
     float y = int16_t(packedY_)*6.0f/std::numeric_limits<int16_t>::max();
     float pt=MiniFloatConverter::float16to32(packedPt_);
     float m=MiniFloatConverter::float16to32(packedM_);
-    float pz = tanh(y)*sqrt((m*m+pt*pt)/(1.-tanh(y)*tanh(y)));
-    float eta = asinh(pz/pt);
+    float pz = std::tanh(y)*std::sqrt((m*m+pt*pt)/(1.-std::tanh(y)*std::tanh(y)));
+    float eta = std::asinh(pz/pt);
     p4_ = PolarLorentzVector(pt,eta,int16_t(packedPhi_)*3.2f/std::numeric_limits<int16_t>::max(),m);
     p4c_ = p4_;
     unpacked_ = true;
