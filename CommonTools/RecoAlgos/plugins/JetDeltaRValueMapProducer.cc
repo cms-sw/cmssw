@@ -48,17 +48,20 @@ public:
     if( value_!="" )
       produces< JetValueMap >();
 
-    if( valueLabels_.size()>0 && valueLabels_.size()==values_.size() )
+    if( valueLabels_.size()>0 || values_.size()>0 )
     {
-      multiValue_ = true;
-      for( size_t i=0; i<valueLabels_.size(); ++i)
+      if( valueLabels_.size()==values_.size() )
       {
-        evaluationMap_.insert( std::make_pair( valueLabels_[i], StringObjectFunction<T>( values_[i], lazyParser_ ) ) );
-        produces< JetValueMap >(valueLabels_[i]);
+        multiValue_ = true;
+        for( size_t i=0; i<valueLabels_.size(); ++i)
+        {
+          evaluationMap_.insert( std::make_pair( valueLabels_[i], StringObjectFunction<T>( values_[i], lazyParser_ ) ) );
+          produces< JetValueMap >(valueLabels_[i]);
+        }
       }
+      else
+        edm::LogWarning("ValueLabelMismatch") << "The number of value labels does not match the number of values. Values will not be evaluated.";
     }
-    else
-      edm::LogWarning("ValueLabelMismatch") << "The number of value labels does not match the number of values. Values will not be evaluated.";
   }
 
   virtual ~JetDeltaRValueMapProducer() {}
