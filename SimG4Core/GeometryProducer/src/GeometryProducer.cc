@@ -59,7 +59,8 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const & p) :
     m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
     m_pField(p.getParameter<edm::ParameterSet>("MagneticField")), 
     m_pUseSensitiveDetectors(p.getParameter<bool>("UseSensitiveDetectors")),
-    m_attach(0), m_p(p)
+//    m_attach(0), m_p(p)
+    m_attach(0), m_p(p), m_firstRun ( true )
 {
     //Look for an outside SimActivityRegistry
     //this is used by the visualization code
@@ -75,17 +76,48 @@ GeometryProducer::~GeometryProducer()
     if (m_kernel!=0) delete m_kernel; 
 }
 
-void GeometryProducer::beginJob(){
+//void GeometryProducer::beginJob(){
+void GeometryProducer::updateMagneticField( edm::EventSetup const& es) {
+    if (m_pUseMagneticField)
+    {
+       // setup the magnetic field
+       edm::ESHandle<MagneticField> pMF;
+       es.get<IdealMagneticFieldRecord>().get(pMF);
+       const GlobalPoint g(0.,0.,0.);
+       LogDebug("GeometryProducer") << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;
+
+       m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), m_pField));
+
+           G4TransportationManager * tM = G4TransportationManager::GetTransportationManager();
+        // update field here ...          
+        m_fieldBuilder->build( tM->GetFieldManager(),tM->GetPropagatorInField());
+
+        LogDebug("GeometryProducer") << "Magentic field updated" << std::endl;
+    }
+
 }
  
-void GeometryProducer::endJob()
-{ std::cout << " GeometryProducer terminating " << std::endl; }
- 
+//void GeometryProducer::endJob()
+//{ std::cout << " GeometryProducer terminating " << std::endl; }
+
+void GeometryProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const& es) {
+       // mag field can change in new lumi section
+       updateMagneticField( es );
+}
+
 void GeometryProducer::produce(edm::Event & e, const edm::EventSetup & es)
 {
-    m_kernel = G4RunManagerKernel::GetRunManagerKernel();
+//    m_kernel = G4RunManagerKernel::GetRunManagerKernel();
+    if ( !m_firstRun )
+               return;
+       m_firstRun = false;
+
+    LogDebug("GeometryProducer") << "Producing G4 Geom" << std::endl;   
+
+    m_kernel = G4RunManagerKernel::GetRunManagerKernel();   
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
     std::cout << " GeometryProducer initializing " << std::endl;
+    LogDebug("GeometryProducer") << " GeometryProducer initializing " << std::endl;
     // DDDWorld: get the DDCV from the ES and use it to build the World
     edm::ESTransientHandle<DDCompactView> pDD;
     es.get<IdealGeometryRecord>().get(pDD);
@@ -95,41 +127,33 @@ void GeometryProducer::produce(edm::Event & e, const edm::EventSetup & es)
     const DDDWorld * world = new DDDWorld(&(*pDD), map_, catalog_, false);
     m_registry.dddWorldSignal_(world);
 
-    if (m_pUseMagneticField)
-    {
-	// setup the magnetic field
-	edm::ESHandle<MagneticField> pMF;
-	es.get<IdealMagneticFieldRecord>().get(pMF);
-	const GlobalPoint g(0.,0.,0.);
-	std::cout << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;
-
-	m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>
-	  (new sim::FieldBuilder(&(*pMF), m_pField));
-	// G4TransportationManager * tM = G4TransportationManager::GetTransportationManager();
-	// m_fieldBuilder->configure("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());
-    }
+    updateMagneticField( es );
 
     if (m_pUseSensitiveDetectors)
     {
-	std::cout << " instantiating sensitive detectors " << std::endl;
-	// instantiate and attach the sensitive detectors
-	m_trackManager = std::auto_ptr<SimTrackManager>(new SimTrackManager);
-	if (m_attach==0) m_attach = new AttachSD;
-	{
-	    std::pair< std::vector<SensitiveTkDetector*>,
-		std::vector<SensitiveCaloDetector*> > 
-	      sensDets = m_attach->create(*world,(*pDD),catalog_,m_p,m_trackManager.get(),m_registry);
-      
-	    m_sensTkDets.swap(sensDets.first);
-	    m_sensCaloDets.swap(sensDets.second);
-	}
+       LogDebug("GeometryProducer") << " instantiating sensitive detectors " << std::endl;
+       // instantiate and attach the sensitive detectors
+       m_trackManager = std::auto_ptr<SimTrackManager>(new SimTrackManager);
+       if (m_attach==0) m_attach = new AttachSD;
+       {
+           std::pair< std::vector<SensitiveTkDetector*>,
+               std::vector<SensitiveCaloDetector*> > 
+             sensDets = m_attach->create(*world,(*pDD),catalog_,m_p,m_trackManager.get(),m_registry);
+          
+           m_sensTkDets.swap(sensDets.first);
+           m_sensCaloDets.swap(sensDets.second);
+       }
 
-	std::cout << " Sensitive Detector building finished; found " << m_sensTkDets.size()
-		  << " Tk type Producers, and " << m_sensCaloDets.size() 
-		  << " Calo type producers " << std::endl;
+       LogDebug("GeometryProducer") << " Sensitive Detector building finished; found " << m_sensTkDets.size()
+                 << " Tk type Producers, and " << m_sensCaloDets.size() 
+                 << " Calo type producers " << std::endl;
+
     }
     for(Producers::iterator itProd = m_producers.begin();itProd != m_producers.end();
-	++itProd) { (*itProd)->produce(e,es); }
+           ++itProd) { 
+        (*itProd)->produce(e,es); 
+    }
+
 }
 
 DEFINE_FWK_MODULE(GeometryProducer);
