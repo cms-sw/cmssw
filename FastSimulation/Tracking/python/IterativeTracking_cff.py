@@ -29,9 +29,9 @@ MeasurementTrackerEvent = RecoTracker.MeasurementDet.MeasurementTrackerEventProd
 iterativeTracking = cms.Sequence(
                                  MeasurementTrackerEvent 
                                  +iterativeInitialStep
+                                 +iterativeDetachedTripletStep
                                  +iterativeLowPtTripletStep
                                  +iterativePixelPairStep
-                                 +iterativeDetachedTripletStep
                                  +iterativeMixedTripletStep
                                  +iterativePixelLessStep
                                  +iterativeTobTecStep
