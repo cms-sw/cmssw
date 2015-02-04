@@ -1,4 +1,5 @@
 <use   name="DataFormats/METReco"/>
+<use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/CaloTowers"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/CSCRecHit"/>

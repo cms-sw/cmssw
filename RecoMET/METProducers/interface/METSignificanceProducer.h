@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    METProducers
-// Class:      PFMETProducer
+// Class:      METSignificanceProducer
 //
-/**\class PFMETProducer
+/**\class METSignificanceProducer
 
  Description: An EDProducer for CaloMET
 
@@ -15,33 +15,28 @@
 //
 
 //____________________________________________________________________________||
-#ifndef PFMETProducer_h
-#define PFMETProducer_h
+#ifndef METSignificanceProducer_h
+#define METSignificanceProducer_h
 
 //____________________________________________________________________________||
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 
-#include "RecoMET/METAlgorithms/interface/METAlgo.h"
-#include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
-#include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
-#include "RecoMET/METAlgorithms/interface/SignPFSpecificAlgo.h"
-#include "RecoMET/METAlgorithms/interface/METSignificance.h"
-
-#include "TVector.h"
+#include "RecoMET/METAlgorithms/src/METSignificance.cc"
 
 #include <string.h>
 
@@ -55,31 +50,26 @@ namespace metsig
 //____________________________________________________________________________||
 namespace cms
 {
-  class PFMETProducer: public edm::stream::EDProducer<>
+  class METSignificanceProducer: public edm::stream::EDProducer<>
     {
     public:
-      explicit PFMETProducer(const edm::ParameterSet&);
-      virtual ~PFMETProducer() { }
+      explicit METSignificanceProducer(const edm::ParameterSet&);
+      virtual ~METSignificanceProducer() { }
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
     private:
 
-      reco::METCovMatrix getMETCovMatrix(const edm::Event& event, 
-					 const edm::View<reco::Candidate>& input) const;
+      // ----------member data ---------------------------
 
-
-      edm::EDGetTokenT<edm::View<reco::Candidate> > inputToken_;
-
-      bool calculateSignificance_;
+      edm::EDGetTokenT<edm::View<reco::Jet> > pfjetsToken_;
+      edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
+      edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandidatesToken_;
+      std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
+ 
       metsig::METSignificance* metSigAlgo_;
 
-      double globalThreshold_;
-      double jetThreshold_;
-
-      edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
-      std::vector< edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
-  };
+    };
 }
 
 //____________________________________________________________________________||
-#endif // PFMETProducer_h
+#endif // METSignificanceProducer_h
