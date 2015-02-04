@@ -91,7 +91,7 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
       // If not PFCandidate is available, find a match looping on the muon collection
       else {
         for(unsigned int im=0, nm=theMuonCollection->size(); im<nm; ++im) { // --- Begin loop on muons
-          const reco::Muon* recomuon=theMuonCollection->refAt(im).get();
+          const reco::Muon* recomuon=&theMuonCollection->at(im);
           const pat::Muon* patmuon=dynamic_cast<const pat::Muon*>(recomuon);
           // Step 2: try a match between reco::Candidate
           if(patmuon) {
@@ -112,20 +112,21 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
       if(!muon || !muon::isLooseMuon(*muon) || muon->pt()<pTcut) continue;
       reco::TrackRef trkRef( muon->innerTrack() );
       reco::TrackBaseRef trkBaseRef( trkRef );
-      
       // Build Transient Track
       reco::TransientTrack transientTrack=transientTrackBuilder->build(trkRef);
+      // Define jet and muon vectors
+      reco::Candidate::Vector jetvect(jetRef->p4().Vect()), muonvect(muon->p4().Vect());
       // Calculate variables
       reco::SoftLeptonProperties properties;
       properties.sip2d    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
       properties.sip3d    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
       properties.deltaR   = deltaR(*jetRef, *muon);
-      properties.ptRel    = ( (jetRef->p4().Vect()-muon->p4().Vect()).Cross(muon->p4().Vect()) ).R() / jetRef->p4().Vect().R(); // | (Pj-Pu) X Pu | / | Pj |
-      float mag = muon->p4().Vect().R()*jetRef->p4().Vect().R();
+      properties.ptRel    = ( (jetvect-muonvect).Cross(muonvect) ).R() / jetvect.R(); // | (Pj-Pu) X Pu | / | Pj |
+      float mag = muonvect.R()*jetvect.R();
       float dot = muon->p4().Dot(jetRef->p4());
       properties.etaRel   = -log((mag - dot)/(mag + dot)) / 2.;
       properties.ratio    = muon->pt() / jetRef->pt();
-      properties.ratioRel = muon->p4().Dot(jetRef->p4()) / jetRef->p4().Vect().Mag2();
+      properties.ratioRel = muon->p4().Dot(jetRef->p4()) / jetvect.Mag2();
       properties.p0Par    = boostedPPar(muon->momentum(), jetRef->momentum());
       
       if(fabs(properties.sip3d)>SIPcut) continue;
