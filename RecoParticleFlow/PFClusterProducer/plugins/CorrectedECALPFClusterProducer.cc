@@ -63,7 +63,7 @@ public:
     _inputPS = consumes<reco::PFClusterCollection>( inputPS );
 
     const edm::ParameterSet corConf = conf.getParameterSet("energyCorrector");
-    _corrector.reset(new PFClusterEMEnergyCorrector(corConf));
+    _corrector.reset(new PFClusterEMEnergyCorrector(corConf,consumesCollector()));
 
     produces<reco::PFCluster::EEtoPSAssociation>();
     produces<reco::PFClusterCollection>();
@@ -126,9 +126,8 @@ produce(edm::Event& e, const edm::EventSetup& es) {
     }
   }
   std::sort(association_out->begin(),association_out->end(),sortByKey);
-
-  _corrector->setEEtoPSAssociation(*association_out);
-  _corrector->correctEnergies(*clusters_out);
+  
+  _corrector->correctEnergies(e,es,*association_out,*clusters_out);
   
   association_out->shrink_to_fit();
   
@@ -142,8 +141,12 @@ void CorrectedECALPFClusterProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<edm::InputTag>("inputPS",edm::InputTag("particleFlowClusterPS"));
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<bool>("applyCrackCorrections",false);
     psd0.add<std::string>("algoName","PFClusterEMEnergyCorrector");
+    psd0.add<edm::InputTag>("recHitsEBLabel",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+    psd0.add<edm::InputTag>("recHitsEELabel",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+    psd0.add<edm::InputTag>("verticesLabel",edm::InputTag("offlinePrimaryVertices"));
+    psd0.add<bool>("autoDetectBunchSpacing",true);
+    psd0.add<int>("bunchSpacing",25);
     desc.add<edm::ParameterSetDescription>("energyCorrector",psd0);
   }
   desc.add<edm::InputTag>("inputECAL",edm::InputTag("particleFlowClusterECALUncorrected"));
