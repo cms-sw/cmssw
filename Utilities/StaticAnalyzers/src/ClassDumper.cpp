@@ -44,8 +44,10 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 					auto TAD = tt->getPointeeCXXRecordDecl();
 					if (TAD) taname = TAD->getQualifiedNameAsString();
 					std::string sdname = SD->getQualifiedNameAsString();
-					std::string cfname = "templated data class 'bare_ptr' template type class '"+taname+"'";
+					std::string cfname = "templated data class '"+sdname+"' template type class '*"+taname+"'";
+					std::string cbname = "templated data class 'bare_ptr' template type class '"+taname+"'";
 					support::writeLog(crname+" "+cfname,tname);
+					support::writeLog(crname+" "+cbname,tname);
 				}
 			}
 		}
@@ -91,7 +93,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 										const clang::CXXRecordDecl * TAD = tt->getPointeeCXXRecordDecl();
 										if (TAD) taname = TAD->getQualifiedNameAsString();
 										std::string sdname = SD->getQualifiedNameAsString();
-										std::string cfname = "templated member data class '"+sdname+"' template type class '"+taname+"'";
+										std::string cfname = "templated member data class '"+sdname+"' template type class '*"+taname+"'";
 										std::string cbname = "templated member data class 'bare_ptr' template type class '"+taname+"'";
 										support::writeLog(crname+" "+cfname,tname);
 										support::writeLog(crname+" "+cbname,tname);
@@ -158,17 +160,32 @@ void ClassDumperFT::checkASTDecl(const clang::FunctionTemplateDecl *TD,clang::en
  	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation()).getFilename();
  	if (!support::isCmsLocalFile(sfile)) return;
 
+	std::string crname("class '");
 	std::string pname = "classes.txt.dumperft.unsorted";
 	if (TD->getTemplatedDecl()->getQualifiedNameAsString().find("typelookup") != std::string::npos ) {
 		for ( auto I = TD->spec_begin(),
 				E = TD->spec_end(); I != E; ++I) {
-			for (unsigned J = 0, F = (*I)->getTemplateSpecializationArgs()->size(); J!=F;++J){
-				if (auto D = (*I)->getTemplateSpecializationArgs()->get(J).getAsType()->getAsCXXRecordDecl()) {
-					if (D) {ClassDumper dumper; dumper.checkASTDecl( D, mgr, BR,pname );}
-				}
-				if (auto D = (*I)->getTemplateSpecializationArgs()->get(J).getAsType()->getPointeeCXXRecordDecl()) {
-					if (D) {ClassDumper dumper; dumper.checkASTDecl( D, mgr, BR,pname );}
-				}
+			auto * SD = (*I); 
+			for (unsigned J = 0, F = SD->getTemplateSpecializationArgs()->size(); J!=F;++J) {
+				auto D = SD->getTemplateSpecializationArgs()->get(J).getAsType()->getAsCXXRecordDecl();
+				if (D) {
+					ClassDumper dumper; dumper.checkASTDecl( D, mgr, BR,pname );
+					std::string taname = D->getQualifiedNameAsString();
+					std::string sdname = SD->getQualifiedNameAsString();
+					std::string cfname = "templated function '"+sdname+"' template type class '"+taname+"'";
+					support::writeLog(crname+" "+cfname,pname);
+					}
+				auto E = SD->getTemplateSpecializationArgs()->get(J).getAsType()->getPointeeCXXRecordDecl();
+				if (E) {
+					ClassDumper dumper; dumper.checkASTDecl( D, mgr, BR,pname );
+					std::string taname = E->getQualifiedNameAsString();
+					std::string sdname = SD->getQualifiedNameAsString();
+					std::string cfname = "templated function '"+sdname+"' template type class '*"+taname+"'";
+					support::writeLog(crname+" "+cfname,pname);
+					std::string cbname = "templated class 'bare_ptr' template type class '"+taname+"'";
+					support::writeLog(crname+" "+cbname,pname);
+					}
+
 			}
 		}
 	}
