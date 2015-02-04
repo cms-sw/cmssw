@@ -25,6 +25,7 @@
 #include "G4PionPlus.hh"
 #include "G4PionMinus.hh"
 #include "G4AntiProton.hh"
+#include "G4AntiNeutron.hh"
 #include "G4KaonPlus.hh"
 #include "G4KaonMinus.hh"
 #include "G4KaonZeroLong.hh"
@@ -32,6 +33,25 @@
 #include "G4KaonZero.hh"
 #include "G4AntiKaonZero.hh"
 #include "G4GenericIon.hh"
+
+#include "G4Lambda.hh"
+#include "G4OmegaMinus.hh"
+#include "G4SigmaMinus.hh"
+#include "G4SigmaPlus.hh"
+#include "G4SigmaZero.hh"
+#include "G4XiMinus.hh"
+#include "G4XiZero.hh"
+#include "G4AntiLambda.hh"
+#include "G4AntiOmegaMinus.hh"
+#include "G4AntiSigmaMinus.hh"
+#include "G4AntiSigmaPlus.hh"
+#include "G4AntiSigmaZero.hh"
+#include "G4AntiXiMinus.hh"
+#include "G4AntiXiZero.hh"
+#include "G4AntiAlpha.hh"
+#include "G4AntiDeuteron.hh"
+#include "G4AntiTriton.hh"
+#include "G4AntiHe3.hh"
 
 #include "G4Material.hh"
 #include "G4DecayPhysics.hh"
@@ -43,11 +63,14 @@ const double fact = 1.0/CLHEP::GeV;
 NuclearInteractionFTFSimulator::NuclearInteractionFTFSimulator(  
   unsigned int distAlgo, 
   double distCut) :
-  theDistAlgo(distAlgo),
   theDistCut(distCut),
-  distMin(1E99)
+  distMin(1E99),
+  theDistAlgo(distAlgo)
 {
   theEnergyLimit = 1*CLHEP::GeV;
+  currInteractionLength = 0.0;
+  currPrimary = 0;
+  currIdx = 0;
 
   // FTF model
   theHadronicModel = new G4TheoFSGenerator("FTF");
@@ -63,7 +86,7 @@ NuclearInteractionFTFSimulator::NuclearInteractionFTFSimulator(
   theHadronicModel->SetMinEnergy(theEnergyLimit);
 
   // Geant4 particles
-  numHadrons = 11;
+  numHadrons = 30;
   theG4Hadron.resize(numHadrons,0);
   theG4Hadron[0] = G4Proton::Proton();
   theG4Hadron[1] = G4Neutron::Neutron();
@@ -76,6 +99,25 @@ NuclearInteractionFTFSimulator::NuclearInteractionFTFSimulator(
   theG4Hadron[8] = G4KaonZeroShort::KaonZeroShort();
   theG4Hadron[9] = G4KaonZero::KaonZero();
   theG4Hadron[10]= G4AntiKaonZero::AntiKaonZero();
+  theG4Hadron[11]= G4Lambda::Lambda();
+  theG4Hadron[12]= G4OmegaMinus::OmegaMinus();
+  theG4Hadron[13]= G4SigmaMinus::SigmaMinus();
+  theG4Hadron[14]= G4SigmaPlus::SigmaPlus();
+  theG4Hadron[15]= G4SigmaZero::SigmaZero();
+  theG4Hadron[16]= G4XiMinus::XiMinus();
+  theG4Hadron[17]= G4XiZero::XiZero();
+  theG4Hadron[18]= G4AntiNeutron::AntiNeutron();
+  theG4Hadron[19]= G4AntiLambda::AntiLambda();
+  theG4Hadron[20]= G4AntiOmegaMinus::AntiOmegaMinus();
+  theG4Hadron[21]= G4AntiSigmaMinus::AntiSigmaMinus();
+  theG4Hadron[22]= G4AntiSigmaPlus::AntiSigmaPlus();
+  theG4Hadron[23]= G4AntiSigmaZero::AntiSigmaZero();
+  theG4Hadron[24]= G4AntiXiMinus::AntiXiMinus();
+  theG4Hadron[25]= G4AntiXiZero::AntiXiZero();
+  theG4Hadron[26]= G4AntiAlpha::AntiAlpha();
+  theG4Hadron[27]= G4AntiDeuteron::AntiDeuteron();
+  theG4Hadron[28]= G4AntiTriton::AntiTriton();
+  theG4Hadron[29]= G4AntiHe3::AntiHe3();
 
   G4GenericIon::GenericIon();
   G4DecayPhysics decays;
@@ -93,6 +135,25 @@ NuclearInteractionFTFSimulator::NuclearInteractionFTFSimulator(
   theNuclIntLength[4] = 3.593;
   theNuclIntLength[5] = 7.154;
   theNuclIntLength[6] = 5.889;
+  theNuclIntLength[11]= 4.986;
+  theNuclIntLength[12]= 4.983;
+  theNuclIntLength[13]= 4.986;
+  theNuclIntLength[14]= 4.986;
+  theNuclIntLength[15]= 4.986;
+  theNuclIntLength[16]= 4.986;
+  theNuclIntLength[17]= 4.986;
+  theNuclIntLength[18]= 3.597;
+  theNuclIntLength[19]= 3.608;
+  theNuclIntLength[20]= 3.639;
+  theNuclIntLength[21]= 3.613;
+  theNuclIntLength[22]= 3.613;
+  theNuclIntLength[23]= 3.613;
+  theNuclIntLength[24]= 3.62;
+  theNuclIntLength[25]= 3.62;
+  theNuclIntLength[26]= 1.971;
+  theNuclIntLength[27]= 2.301;
+  theNuclIntLength[28]= 1.997;
+  theNuclIntLength[29]= 1.997;
 
   // list of PDG codes
   theId.resize(numHadrons,0);
@@ -124,28 +185,40 @@ NuclearInteractionFTFSimulator::~NuclearInteractionFTFSimulator() {
 void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle, 
 					     RandomEngineAndDistribution const* random)
 {
-  // check if primary particle is in the local list
-  int thePid = Particle.pid(); 
-  currParticle = 0;
-  int i = 0;
-  for(; i<numHadrons-2; ++i) {
-    if(theId[i] == thePid) {
-      currParticle = theG4Hadron[i];
-      // neutral kaons
-      if(7 == i || 8 == i) {
-	currParticle = theG4Hadron[9];
-	if(random->flatShoot() > 0.5) { currParticle = theG4Hadron[10]; }
+  ParticlePropagator* primary = &Particle;
+  if(primary != currPrimary || currInteractionLength <= 0.0) {
+    currPrimary = primary;
+
+    // check if primary particle is in the local list
+    int thePid = Particle.pid(); 
+    currParticle = 0;
+    currIdx = 0;
+    for(; currIdx<numHadrons; ++currIdx) {
+      if(theId[currIdx] == thePid) {
+	currParticle = theG4Hadron[currIdx];
+	// neutral kaons
+	if(7 == currIdx || 8 == currIdx) {
+	  currParticle = theG4Hadron[9];
+	  if(random->flatShoot() > 0.5) { currParticle = theG4Hadron[10]; }
+	}
+	break;
       }
-      break;
     }
+    if(!currParticle) { 
+      currInteractionLength = 1.E20;
+      return; 
+    }
+    currInteractionLength = -G4Log(random->flatShoot())*theNuclIntLength[currIdx]; 
   }
   if(!currParticle) { return; }
+  currInteractionLength -= radLengths;
 
   //std::cout << "*NuclearInteractionFTFSimulator::compute: R(X0)= " << radLengths
-  //	    << " Rnuc(X0)= " <<  theNuclIntLength[i] << std::endl;
+  //	      << " Rnuc(X0)= " << theNuclIntLength[i] << "  IntLength(X0)= " 
+  //          << currInteractionLength << std::endl;
 
-  // Check random position of nuclear interaction
-  if ( -G4Log(random->flatShoot())*theNuclIntLength[i] > radLengths ) { return; }
+  // Check position of nuclear interaction
+  if (currInteractionLength > 0.0) { return; }
 
   // fill projectile for Geant4
   double e  = CLHEP::GeV*Particle.momentum().e();
@@ -154,7 +227,10 @@ void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle,
   //std::cout << " Primary " <<  currParticle->GetParticleName() 
   //	    << "  E(GeV)= " << e*fact << std::endl;
 
-  if(e <= theEnergyLimit + mass) { return; }
+  if(e <= theEnergyLimit + mass) { 
+    currInteractionLength = 1.E20;
+    return; 
+  }
 
   double px = Particle.momentum().px();
   double py = Particle.momentum().py();
@@ -167,7 +243,7 @@ void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle,
 	    << px << " " << py << " " << pz << ")" << std::endl;
   */
 
-  G4DynamicParticle* dynParticle = new G4DynamicParticle(theG4Hadron[i],dir,e-mass);
+  G4DynamicParticle* dynParticle = new G4DynamicParticle(theG4Hadron[currIdx],dir,e-mass);
   currTrack = new G4Track(dynParticle, 0.0, vectProj);
   currTrack->SetStep(dummyStep);
 
