@@ -52,7 +52,7 @@ class AddJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'algo', 'AK', "Jet algorithm of the input collection from which the new patJet collection should be created")
         self.addParameter(self._defaultParameters,'rParam', 0.4, "Jet size (distance parameter R used in jet clustering)")
         self.addParameter(self._defaultParameters,'getJetMCFlavour', True, "Get jet MC truth flavour")
-        self.addParameter(self._defaultParameters,'genJetCollection', cms.InputTag("ak4GenJetsNoNu"), "GenJet collection to match to", cms.InputTag)
+        self.addParameter(self._defaultParameters,'genJetCollection', cms.InputTag("ak4GenJets"), "GenJet collection to match to", cms.InputTag)
         self.addParameter(self._defaultParameters,'genParticles', cms.InputTag("genParticles"), "GenParticle collection to be used", cms.InputTag)
         self.addParameter(self._defaultParameters,'jetCorrections',None, "Add all relevant information about jet energy corrections that you want to be added to your new patJet \
         collection. The format has to be given in a python tuple of type: (\'AK4Calo\',[\'L2Relative\', \'L3Absolute\'], patMet). Here the first argument corresponds to the payload \
