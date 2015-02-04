@@ -66,6 +66,7 @@ private:
   G4Step* dummyStep;
   G4Track* currTrack;
   const G4ParticleDefinition* currParticle;
+
   G4Nucleus targetNucleus;
   G4HadProjectile theProjectile;
   G4LorentzVector curr4Mom;
@@ -74,10 +75,11 @@ private:
 
   double theEnergyLimit;
 
-  int numHadrons;
-
-  unsigned int theDistAlgo;
   double theDistCut;
   double distMin;
+
+  int numHadrons;
+  int currIdx;
+  unsigned int theDistAlgo;
 };
 #endif
