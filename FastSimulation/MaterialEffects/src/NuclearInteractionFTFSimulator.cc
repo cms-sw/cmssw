@@ -68,8 +68,6 @@ NuclearInteractionFTFSimulator::NuclearInteractionFTFSimulator(
   theDistAlgo(distAlgo)
 {
   theEnergyLimit = 1*CLHEP::GeV;
-  currInteractionLength = 0.0;
-  currPrimary = 0;
   currIdx = 0;
 
   // FTF model
@@ -159,8 +157,9 @@ NuclearInteractionFTFSimulator::NuclearInteractionFTFSimulator(
   theId.resize(numHadrons,0);
 
   // local objects
+  currIdx = 0;
   currTrack = 0;
-  currParticle = 0;
+  currParticle = theG4Hadron[0];
   vectProj.set(0.0,0.0,1.0);  
   theBoost.set(0.0,0.0,1.0);  
 
@@ -185,12 +184,11 @@ NuclearInteractionFTFSimulator::~NuclearInteractionFTFSimulator() {
 void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle, 
 					     RandomEngineAndDistribution const* random)
 {
-  ParticlePropagator* primary = &Particle;
-  if(primary != currPrimary || currInteractionLength <= 0.0) {
-    currPrimary = primary;
+  //std::cout << "#### Primary " << Particle.pid() << " E(GeV)= " 
+  //	    << Particle.momentum().e() << std::endl;
 
-    // check if primary particle is in the local list
-    int thePid = Particle.pid(); 
+  int thePid = Particle.pid(); 
+  if(thePid != theId[currIdx]) {
     currParticle = 0;
     currIdx = 0;
     for(; currIdx<numHadrons; ++currIdx) {
@@ -204,34 +202,28 @@ void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle,
 	break;
       }
     }
-    if(!currParticle) { 
-      currInteractionLength = 1.E20;
-      return; 
-    }
-    currInteractionLength = -G4Log(random->flatShoot())*theNuclIntLength[currIdx]; 
   }
   if(!currParticle) { return; }
-  currInteractionLength -= radLengths;
-
-  //std::cout << "*NuclearInteractionFTFSimulator::compute: R(X0)= " << radLengths
-  //	      << " Rnuc(X0)= " << theNuclIntLength[i] << "  IntLength(X0)= " 
-  //          << currInteractionLength << std::endl;
-
-  // Check position of nuclear interaction
-  if (currInteractionLength > 0.0) { return; }
 
   // fill projectile for Geant4
-  double e  = CLHEP::GeV*Particle.momentum().e();
+  double e = CLHEP::GeV*Particle.momentum().e();
   double mass = currParticle->GetPDGMass();
+  /*
+  std::cout << " Primary " <<  currParticle->GetParticleName() 
+  	    << "  E(GeV)= " << e*fact << std::endl;
+  */
+  if(e <= theEnergyLimit + mass) { return; }
 
-  //std::cout << " Primary " <<  currParticle->GetParticleName() 
-  //	    << "  E(GeV)= " << e*fact << std::endl;
+  double  currInteractionLength = -G4Log(random->flatShoot())*theNuclIntLength[currIdx]; 
+  /*
+  std::cout << "*NuclearInteractionFTFSimulator::compute: R(X0)= " << radLengths
+	    << " Rnuc(X0)= " << theNuclIntLength[currIdx] << "  IntLength(X0)= " 
+            << currInteractionLength << std::endl;
+  */
+  // Check position of nuclear interaction
+  if (currInteractionLength > radLengths) { return; }
 
-  if(e <= theEnergyLimit + mass) { 
-    currInteractionLength = 1.E20;
-    return; 
-  }
-
+  // fill projectile for Geant4
   double px = Particle.momentum().px();
   double py = Particle.momentum().py();
   double pz = Particle.momentum().pz();
@@ -260,7 +252,7 @@ void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle,
       result->SetTrafoToLab(theProjectile.GetTrafoToLab());
       _theUpdatedState.clear();
 
-      // std::cout << "   " << nsec << " secondaries" << std::endl;
+      //std::cout << "   " << nsec << " secondaries" << std::endl;
       // Generate angle
       double phi = random->flatShoot()*CLHEP::twopi;
       theClosestChargedDaughterId = -1;

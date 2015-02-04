@@ -66,7 +66,6 @@ private:
   G4Step* dummyStep;
   G4Track* currTrack;
   const G4ParticleDefinition* currParticle;
-  ParticlePropagator* currPrimary;
 
   G4Nucleus targetNucleus;
   G4HadProjectile theProjectile;
@@ -75,7 +74,6 @@ private:
   G4ThreeVector theBoost;
 
   double theEnergyLimit;
-  double currInteractionLength;
 
   double theDistCut;
   double distMin;
