@@ -50,6 +50,9 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
   electronTrackCollection_ = consumes<reco::GsfTrackCollection>(conf.getParameter<edm::InputTag>("electronTrackCollection"));
   electronSeedCollection_ = consumes<reco::ElectronSeedCollection>(conf.getParameter<edm::InputTag>("electronSeedCollection"));
   matchingObjectCollection_ = consumes<reco::GenJetCollection>(conf.getParameter<edm::InputTag>("matchingObjectCollection"));
+  /* new 03/02/2015 */
+  offlineVerticesCollection_ = consumes<reco::VertexCollection> (conf.getParameter<edm::InputTag>("offlinePrimaryVertices"));
+  /* fin new */
 
   beamSpotTag_ = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"));
   readAOD_ = conf.getParameter<bool>("readAOD");
@@ -146,6 +149,7 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
   h1_recCoreNum_ = 0 ;
   h1_recTrackNum_ = 0 ;
   h1_recSeedNum_ = 0 ;
+  h1_recOfflineVertices_ = 0 ;  // new 2015.04.02
 
   h1_matchingObjectEta = 0 ;
   h1_matchingObjectAbsEta = 0 ;
@@ -452,6 +456,7 @@ void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::
   h1_recCoreNum_= bookH1(iBooker, "recCoreNum","# rec electron cores",21, -0.5,20.5,"N_{core}");
   h1_recTrackNum_= bookH1(iBooker, "recTrackNum","# rec gsf tracks",41, -0.5,40.5,"N_{track}"); 
   h1_recSeedNum_= bookH1(iBooker, "recSeedNum","# rec electron seeds",101, -0.5,100.5,"N_{seed}"); 
+  h1_recOfflineVertices_ = bookH1(iBooker, "recOfflineVertices","# rec Offline Primary Vertices",61, -0.5,60.5,"N_{Vertices}");  // new 2015.04.02
 
   // mc
   h1_matchingObjectEta = bookH1withSumw2(iBooker, "matchingObject_eta",matchingObjectType+" #eta",eta_nbin,eta_min,eta_max,"#eta");
@@ -842,6 +847,19 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
   edm::Handle<edm::ValueMap<double> > isoFromDepsHcal03Handle        ;   iEvent.getByToken( isoFromDepsHcal03Tag_       , isoFromDepsHcal03Handle        ) ;
   edm::Handle<edm::ValueMap<double> > isoFromDepsHcal04Handle        ;   iEvent.getByToken( isoFromDepsHcal04Tag_       , isoFromDepsHcal04Handle        ) ;
 
+  /* new 2015.04.02 */
+  edm::Handle<reco::VertexCollection> vertexCollectionHandle;
+  iEvent.getByToken(offlineVerticesCollection_, vertexCollectionHandle);
+  if(!vertexCollectionHandle.isValid()) 
+  {std::cout << "vertexCollectionHandle KO" << std::endl;}
+  else 
+  {
+      std::cout << "vertexCollectionHandle OK" << std::endl;
+      std::cout <<"Treating event "<< iEvent.id() <<" with "<< vertexCollectionHandle.product()->size() <<" vertices" << std::endl; ;
+      std::cout <<"count = "<< vertexCollectionHandle.product()->size() << std::endl; ;
+  }
+  /* fin new */
+
   // get gen jets
   edm::Handle<reco::GenJetCollection> genJets ;
   iEvent.getByToken(matchingObjectCollection_,genJets);
@@ -858,7 +876,7 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
   h1_recCoreNum_->Fill((*gsfElectronCores).size());
   h1_recTrackNum_->Fill((*gsfElectronTracks).size());
   h1_recSeedNum_->Fill((*gsfElectronSeeds).size());
-
+  h1_recOfflineVertices_->Fill((*vertexCollectionHandle).size());  // new 2015.04.02
 
   // all rec electrons
   reco::GsfElectronCollection::const_iterator gsfIter ;
