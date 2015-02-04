@@ -7,6 +7,7 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
 import sys
 import re
+import collections
 
 class Options:
         pass
@@ -789,7 +790,7 @@ class ConfigBuilder(object):
 		for c in self._options.customisation_file_unsch:
 			custOpt.extend(c.split(","))
 
-	custMap={}
+	custMap=collections.OrderedDict()
 	for opt in custOpt:
 		if opt=='': continue
 		if opt.count('.')>1:
@@ -1476,27 +1477,22 @@ class ConfigBuilder(object):
 
     def prepare_L1(self, sequence = None):
 	    """ Enrich the schedule with the L1 simulation step"""
-	    if not sequence:
-		    self.loadAndRemember(self.L1EMDefaultCFF)
-	    else:
-		    # let the L1 package decide for the scenarios available
-		    from L1Trigger.Configuration.ConfigBuilder import getConfigsForScenario
-		    listOfImports = getConfigsForScenario(sequence)
-		    for file in listOfImports:
-			    self.loadAndRemember(file)
+            assert(sequence == None)
+	    self.loadAndRemember(self.L1EMDefaultCFF)
 	    self.scheduleSequence('SimL1Emulator','L1simulation_step')
 	    return
 
     def prepare_L1REPACK(self, sequence = None):
             """ Enrich the schedule with the L1 simulation step, running the L1 emulator on data unpacked from the RAW collection, and repacking the result in a new RAW collection"""
-            if sequence is not 'GT':
-                  print 'Running the full L1 emulator is not supported yet'
-                  raise Exception('unsupported feature')
-            if sequence is 'GT':
-                  self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRepack_GT_cff')
-		  if self._options.scenario == 'HeavyIons':
-			  self.renameInputTagsInSequence("SimL1Emulator","rawDataCollector","rawDataRepacker")
-                  self.scheduleSequence('SimL1Emulator','L1simulation_step')
+	    supported = ['GT','GT1','GT2','GCTGT']
+            if sequence in supported:
+                self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRepack_%s_cff'%sequence)
+		if self._options.scenario == 'HeavyIons':
+			self.renameInputTagsInSequence("SimL1Emulator","rawDataCollector","rawDataRepacker")
+		self.scheduleSequence('SimL1Emulator','L1RePack_step')
+	    else:
+                print "L1REPACK with '",sequence,"' is not supported! Supported choices are: ",supported
+                raise Exception('unsupported feature')
 
 
     def prepare_HLT(self, sequence = None):
@@ -1960,6 +1956,12 @@ class ConfigBuilder(object):
 
         # decide which AlcaHARVESTING paths to use
         harvestingList = sequence.split("+")
+
+
+
+ 	from Configuration.AlCa.autoPCL import autoPCL
+ 	self.expandMapping(harvestingList,autoPCL)
+	
         for name in harvestingConfig.__dict__:
             harvestingstream = getattr(harvestingConfig,name)
             if name in harvestingList and isinstance(harvestingstream,cms.Path):

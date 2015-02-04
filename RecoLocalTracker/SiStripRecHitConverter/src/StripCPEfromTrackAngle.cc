@@ -1,5 +1,6 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"                                                           
+#include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
 
 #include "vdt/vdtMath.h"
 
@@ -38,7 +39,15 @@ localParameters( const SiStripCluster& cluster, const GeomDetUnit& det, const Lo
 
   const unsigned N = cluster.amplitudes().size();
   const float fullProjection = p.coveredStrips( track+p.drift, ltp.position());
-  const float uerr2 = useLegacyError || cluster.isMerged() ? legacyStripErrorSquared(N,std::abs(fullProjection)) : stripErrorSquared( N, std::abs(fullProjection),ssdid.subDetector() );
+  float uerr2;
+  if (useLegacyError) {
+    uerr2 = legacyStripErrorSquared(N,std::abs(fullProjection));
+  } else if (maxChgOneMIP < 0.0) {
+    uerr2 = cluster.isMerged() ? legacyStripErrorSquared(N,std::abs(fullProjection)) : stripErrorSquared( N, std::abs(fullProjection),ssdid.subDetector() );
+  } else {
+    float dQdx = siStripClusterTools::chargePerCM(ssdid, cluster, ltp);
+    uerr2 = dQdx > maxChgOneMIP ? legacyStripErrorSquared(N,std::abs(fullProjection)) : stripErrorSquared( N, std::abs(fullProjection),ssdid.subDetector() );
+  }
   const float strip = cluster.barycenter() -  0.5f*(1.f-p.backplanecorrection) * fullProjection
     + 0.5f*p.coveredStrips(track, ltp.position());
 

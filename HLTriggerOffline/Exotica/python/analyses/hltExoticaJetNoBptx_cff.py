@@ -5,7 +5,7 @@ JetNoBptxPSet = cms.PSet(
         "HLT_JetE50_NoBPTX3BX_NoHalo_v", # Run2 proposal AND Run1 (frozenHLT)
         "HLT_JetE30_NoBPTX_v",
         "HLT_JetE30_NoBPTX3BX_NoHalo_v",
-        "HLT_JetE70_NoBPTX3BX_NoHalo_v",
+        "HLT_JetE70_NoBPTX3BX_NoHalo_v"
         ),
     recCaloJetLabel    = cms.InputTag("ak4CaloJets"),
 

@@ -53,7 +53,7 @@ void SUSY_HLT_DiJet_MET::dqmBeginRun(edm::Run const &run, edm::EventSetup const 
   }
 
   if(!pathFound) {
-    edm::LogError ("SUSY_HLT_DiJet_MET") << "Path not found" << "\n";
+    edm::LogWarning("SUSY_HLT_DiJet_MET") << "Path not found" << "\n";
     return;
   }
 

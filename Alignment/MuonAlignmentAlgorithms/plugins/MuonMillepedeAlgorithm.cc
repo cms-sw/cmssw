@@ -240,7 +240,7 @@
 
 	  // loop over tracks  
 	  //int t_counter = 0;
-	  const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs_;
+	  const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs();
 	  for( ConstTrajTrackPairCollection::const_iterator it=tracks.begin();
 	       it!=tracks.end();it++) {
 

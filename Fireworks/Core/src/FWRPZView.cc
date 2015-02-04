@@ -209,13 +209,6 @@ FWRPZView::eventBegin()
 }
 
 void
-FWRPZView::eventEnd()
-{
-   FWEveView::eventEnd();
-   viewerGL()->RequestDraw();
-}
-
-void
 FWRPZView::doShiftOriginToBeamSpot()
 { 
 #ifdef TEVEPROJECTIONS_DISPLACE_ORIGIN_MODE

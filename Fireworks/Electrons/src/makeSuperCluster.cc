@@ -34,6 +34,7 @@ bool makeRhoPhiSuperCluster( FWProxyBuilderBase* pb,
    TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur());
 
    std::vector< std::pair<DetId, float> > detids = iCluster->hitsAndFractions();
+   if (detids.empty()) return false;
    std::vector<double> phis;
    for( std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(), end = detids.end(); id != end; ++id )
    {
@@ -73,6 +74,7 @@ bool makeRhoZSuperCluster( FWProxyBuilderBase* pb,
    double theta_max = 0;
    double theta_min = 10;
    std::vector<std::pair<DetId, float> > detids = iCluster->hitsAndFractions();
+   if (detids.empty()) return false;
    for( std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(), end = detids.end(); id != end; ++id )
    {
       const float* corners = pb->context().getGeom()->getCorners( id->first.rawId());

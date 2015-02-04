@@ -2,21 +2,24 @@
 
 #include "TFile.h"
 #include "TTreeCache.h"
+#include "TEveTreeTools.h"
 #include "TError.h"
 #include "TMath.h"
 
-#include "Fireworks/Core/interface/FWFileEntry.h"
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
 
+#include "FWCore/Utilities/interface/WrappedClassName.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+
 #define private public
 #include "Fireworks/Core/interface/FWEventItem.h"
 #undef private
 
+#include "Fireworks/Core/interface/FWFileEntry.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/fwPaths.h"
@@ -100,6 +103,11 @@ void FWFileEntry::openFile(bool checkVersion)
 
    // load event
    m_event = new fwlite::Event(m_file);
+
+   if (m_event->size() == 0)
+         throw std::runtime_error("fwlite::Event size == 0");
+
+
    m_eventTree = dynamic_cast<TTree*>(m_file->Get("Events"));
 
    if (m_eventTree == 0)
@@ -259,32 +267,49 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
     
    // parse selection for known Fireworks expressions
    std::string interpretedSelection = filter->m_selector->m_expression;
-    
+
    for (FWEventItemsManager::const_iterator i = eiMng->begin(),
            end = eiMng->end(); i != end; ++i)
    {
       FWEventItem *item = *i;
       if (item == 0) 
          continue;
-      //FIXME: hack to get full branch name filled
+      // FIXME: hack to get full branch name filled
       if (item->m_event == 0) 
       {
          item->m_event = m_event;
          item->getPrimaryData();
          item->m_event = 0;
       }
+
       boost::regex re(std::string("\\$") + (*i)->name());
-      std::string fullBranchName = m_event->getBranchNameFor(*(item->type()->GetTypeInfo()), 
-                                                             item->moduleLabel().c_str(), 
-                                                             item->productInstanceLabel().c_str(),
-                                                             item->processName().c_str());
-      
-      interpretedSelection = boost::regex_replace(interpretedSelection, re,
-                                                  fullBranchName + ".obj");
-      // printf("selection after applying s/%s/%s/: %s\n",
-      //     (std::string("\\$") + (*i)->name()).c_str(),
-      //     ((*i)->m_fullBranchName + ".obj").c_str(),
-      //     interpretedSelection.c_str());
+
+      if (boost::regex_search(interpretedSelection, re))
+      {
+         const edm::TypeWithDict elementType(const_cast<TClass*>(item->type()));
+         const edm::TypeWithDict wrapperType = edm::TypeWithDict::byName(edm::wrappedClassName(elementType.name()));
+         std::string fullBranchName = m_event->getBranchNameFor(wrapperType.typeInfo(),
+                                                                item->moduleLabel().c_str(), 
+                                                                item->productInstanceLabel().c_str(),
+                                                                item->processName().c_str());
+
+         interpretedSelection = boost::regex_replace(interpretedSelection, re,
+                                                     fullBranchName + ".obj");
+
+         // printf("selection after applying s/%s/%s/: %s\n",
+         //     (std::string("\\$") + (*i)->name()).c_str(),
+         //     ((*i)->m_fullBranchName + ".obj").c_str(),
+         //     interpretedSelection.c_str());
+      }
+   }
+
+
+   std::size_t found = interpretedSelection.find('$');
+   if (found!=std::string::npos)
+   {
+       fwLog(fwlog::kError) << "FWFileEntry::RunFilter invalid expression " <<  interpretedSelection << std::endl;
+       filter->m_needsUpdate = false;
+       return;
    }
 
    m_file->cd();
@@ -293,61 +318,58 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
    // Since ROOT will leave any TBranches used in the filtering at the last event,
    // we need to be able to reset them to what fwlite::Event expects them to be
    // we do this by holding onto the old buffers and create temporary new ones.
-   
-   TObjArray* branches = m_eventTree->GetListOfBranches();
-   std::vector<void*> previousBranchAddresses;
-   previousBranchAddresses.reserve(branches->GetEntriesFast());
+
+   std::map<TBranch*, void*> prevAddrs;
+
    {
+      TObjArray* branches = m_eventTree->GetListOfBranches();
       std::auto_ptr<TIterator> pIt( branches->MakeIterator());
-      while(TObject* branchObj = pIt->Next()) {
+      while (TObject* branchObj = pIt->Next())
+      {
          TBranch* b = dynamic_cast<TBranch*> (branchObj);
-         if(0!=b) {
+         if (0!=b)
+         {
             const char * name = b->GetName();
             unsigned int length = strlen(name);
-            if(length > 1 && name[length-1]!='.') {
-               //this is not a data branch so we should ignore it
-               previousBranchAddresses.push_back(0);
+            if (length > 1 && name[length-1] != '.')
+            {
+               // This is not a data branch so we should ignore it.
                continue;
             }
-            //std::cout <<" branch '"<<b->GetName()<<"' "<<static_cast<void*>(b->GetAddress())<<std::endl;
-            if(0!=b->GetAddress()) {
+            if (0 != b->GetAddress())
+            {
+               if (prevAddrs.find(b) != prevAddrs.end())
+               {
+                  fwLog(fwlog::kWarning) << "FWFileEntry::runFilter branch is already in the map!\n";
+               }
+               prevAddrs.insert(std::make_pair(b, b->GetAddress()));
+
+               // std::cout <<"Zeroing branch: "<< b->GetName() <<" "<< (void*) b->GetAddress() <<std::endl;
                b->SetAddress(0);
             }
-            previousBranchAddresses.push_back(b->GetAddress());
-         } else {
-            previousBranchAddresses.push_back(0);
          }
       }
    }
 
-   FWTEventList *flist = (FWTEventList*) gDirectory->Get("fworks_filter");
-   if (flist == 0)
-      flist = new FWTEventList("fworks_filter");
-
-   Int_t result = m_eventTree->Draw(">>fworks_filter", interpretedSelection.c_str());
-   
    if (filter->m_eventList)
       filter->m_eventList->Reset();
    else
       filter->m_eventList = new FWTEventList;
 
-   filter->m_eventList->Add(flist);
-      
+   TEveSelectorToEventList stoelist(filter->m_eventList, interpretedSelection.c_str());
+   Long64_t result = m_eventTree->Process(&stoelist);
+
    if (result < 0)
-      fwLog(fwlog::kWarning) << "FWFile::runFilter in file [" << m_file->GetName() << "] filter [" << filter->m_selector->m_expression << "] is invalid." << std::endl;
+      fwLog(fwlog::kWarning) << "FWFileEntry::runFilter in file [" << m_file->GetName() << "] filter [" << filter->m_selector->m_expression << "] is invalid." << std::endl;
    else      
-      fwLog(fwlog::kDebug) << "FWFile::runFilter is file [" << m_file->GetName() << "], filter [" << filter->m_selector->m_expression << "] has ["  << flist->GetN() << "] events selected" << std::endl;
+      fwLog(fwlog::kDebug) << "FWFileEntry::runFilter is file [" << m_file->GetName() << "], filter [" << filter->m_selector->m_expression << "] has ["  << filter->m_eventList->GetN() << "] events selected" << std::endl;
 
    // Set back the old branch buffers.
    {
-      std::auto_ptr<TIterator> pIt( branches->MakeIterator());
-      std::vector<void*>::const_iterator itAddress = previousBranchAddresses.begin();
-      while(TObject* branchObj = pIt->Next()) {
-         TBranch* b = dynamic_cast<TBranch*> (branchObj);
-         if(0!=b && 0!=*itAddress) {
-            b->SetAddress(*itAddress);
-         }
-         ++itAddress;
+      for (auto i : prevAddrs)
+      {
+         // std::cout <<"Resetting branch: "<< i.first->GetName() <<" "<< i.second <<std::endl;
+         i.first->SetAddress(i.second);
       }
    }
 
