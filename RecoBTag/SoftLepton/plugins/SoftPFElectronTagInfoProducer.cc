@@ -85,11 +85,11 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 			else{
 				if(ConversionTools::hasMatchedConversion(*(recoelectron),hConversions,beamspot.position()))continue;
 			}
-			float deta=fabs(recoelectron->eta()-jetRef->eta());
-			float dphi=fabs(recoelectron->phi()-jetRef->phi());
+			float deta=abs(recoelectron->eta()-jetRef->eta());
+			float dphi=abs(recoelectron->phi()-jetRef->phi());
 			float dphi2=dphi<3.14159?dphi:6.2831-dphi;
 			//Make sure that the electron is inside the jet
-			if(sqrt(pow(deta,2)+pow(dphi2,2))>0.5)continue;
+			if(pow(deta,2)+pow(dphi2,2)>0.25)continue;
 			// Need a gsfTrack
 			if(recoelectron->gsfTrack().get()==NULL)continue;
 			reco::SoftLeptonProperties properties;
@@ -110,7 +110,7 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
   			properties.ratioRel = recoelectron->p4().Dot(jetRef->p4()) / pjet.Mag2();
   			properties.p0Par    = boostedPPar(recoelectron->momentum(), jetRef->momentum());
 			properties.elec_mva    = recoelectron->mva_e_pi();
-			 if(fabs(properties.sip3d>200)) continue;
+			 if(abs(properties.sip3d>200)) continue;
 			// Fill the TagInfos
 			tagInfo.insert(lepPtr, properties );
 		}
