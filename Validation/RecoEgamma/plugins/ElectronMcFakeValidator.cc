@@ -20,6 +20,9 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -763,9 +766,9 @@ void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::
   h1_ele_fbrem_endcaps = bookH1withSumw2(iBooker, "fbrem_endcaps", "ele brem franction for endcaps, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
   p1_ele_fbremVsEta_mode  = bookP1(iBooker, "fbremvsEtamode","mean ele brem fraction vs eta, mode of GSF components",eta2D_nbin,eta_min,eta_max,0.,1.,"#eta","<P_{in} - P_{out} / P_{in}>");
   p1_ele_fbremVsEta_mean  = bookP1(iBooker, "fbremvsEtamean","mean ele brem fraction vs eta, mean of GSF components",eta2D_nbin,eta_min,eta_max,0.,1.,"#eta","<P_{in} - P_{out} / P_{in}>");
-  h1_ele_superclusterfbrem = bookH1withSumw2(iBooker, "superclusterfbrem","ele brem fraction, mode of GSF components",100,0.,1.,"P_{in} - P_{out} / P_{in}");
-  h1_ele_superclusterfbrem_barrel = bookH1withSumw2(iBooker, "superclusterfbrem_barrel","ele brem fraction for barrel, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
-  h1_ele_superclusterfbrem_endcaps = bookH1withSumw2(iBooker, "superclusterfbrem_endcaps", "ele brem franction for endcaps, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
+  h1_ele_superclusterfbrem = bookH1withSumw2(iBooker, "superclusterfbrem","supercluster brem fraction, mode of GSF components",100,0.,1.,"P_{in} - P_{out} / P_{in}");
+  h1_ele_superclusterfbrem_barrel = bookH1withSumw2(iBooker, "superclusterfbrem_barrel","supercluster brem fraction for barrel, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
+  h1_ele_superclusterfbrem_endcaps = bookH1withSumw2(iBooker, "superclusterfbrem_endcaps", "supercluster brem franction for endcaps, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
   // e/g et pflow electrons
   h1_ele_mva = bookH1withSumw2(iBooker, "mva","ele identification mva",100,-1.,1.);
   h1_ele_mva_barrel = bookH1withSumw2(iBooker, "mva_barrel", "ele identification mva barrel",100,-1.,1.);
