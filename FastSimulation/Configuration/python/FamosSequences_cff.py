@@ -56,8 +56,8 @@ reducedRecHits = cms.Sequence ( reducedEcalRecHitsSequence * reducedHcalRecHitsS
 from RecoJets.Configuration.CaloTowersRec_cff import *
 
 # Particle Flow (all interactions with ParticleFlow are dealt with in the following configuration)
-from FastSimulation.ParticleFlow.ParticleFlowFastSim_cff import *
-#from FastSimulation.ParticleFlow.ParticleFlowFastSimNeutralHadron_cff import * # this is the famous "PF patch", see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFastSimFAQ#I_observe_a_discrepancy_in_energ
+#from FastSimulation.ParticleFlow.ParticleFlowFastSim_cff import *
+from FastSimulation.ParticleFlow.ParticleFlowFastSimNeutralHadron_cff import * # this is the famous "PF patch", see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFastSimFAQ#I_observe_a_discrepancy_in_energ
 
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 
