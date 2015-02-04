@@ -24,6 +24,8 @@ class NTupleVariable:
     def fillBranch(self,treeNumpy,object,isMC):
         if self.mcOnly and not isMC: return
         treeNumpy.fill(self.name, self(object))
+    def __repr__(self):
+        return "<NTupleVariable[%s]>" % self.name
 
 class NTupleObjectType:
     def __init__(self,name,baseObjectTypes=[],mcOnly=[],variables=[]):
@@ -60,6 +62,8 @@ class NTupleObjectType:
         return ret
     def removeVariable(self,name):
         self.variables = [ v for v in self.variables if v.name != name]
+    def __repr__(self):
+        return "<NTupleObjectType[%s]>" % self.name
 
 class NTupleObject:
     def __init__(self, name, objectType, help="", mcOnly=False):
@@ -79,6 +83,8 @@ class NTupleObject:
         allvars = self.objectType.allVars(isMC)
         for v in allvars:
             treeNumpy.fill("%s_%s" % (self.name, v.name), v(object))
+    def __repr__(self):
+        return "<NTupleObject[%s]>" % self.name
 
 
 class NTupleCollection:
@@ -137,5 +143,7 @@ class NTupleCollection:
         for v in allvars:
             name="%s_%s" % (self.name, v.name) if v.name != "" else self.name
             treeNumpy.vfill(name, [ v(collection[i]) for i in xrange(num) ])
+    def __repr__(self):
+        return "<NTupleCollection[%s]>" % self.name
 
 
