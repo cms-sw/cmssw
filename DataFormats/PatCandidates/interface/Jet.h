@@ -71,6 +71,7 @@ namespace pat {
   typedef std::vector<edm::FwdPtr<reco::BaseTagInfo> > TagInfoFwdPtrCollection;
   typedef std::vector<edm::FwdPtr<reco::PFCandidate> > PFCandidateFwdPtrCollection;
   typedef std::vector<edm::FwdPtr<CaloTower> > CaloTowerFwdPtrCollection;
+  typedef std::vector<edm::FwdPtr<pat::Jet> > JetFwdPtrCollection;
 
 
   class Jet : public PATObject<reco::Jet> {
@@ -481,6 +482,25 @@ namespace pat {
       /// pipe operator (introduced to use pat::Jet with PFTopProjectors)
       friend std::ostream& reco::operator<<(std::ostream& out, const pat::Jet& obj);
 
+
+
+      /// Access to subjet list
+      pat::JetFwdPtrCollection const & subjets( unsigned int index = 0 ) const;
+
+
+      /// String access to subjet list
+      pat::JetFwdPtrCollection const & subjets( std::string label ) const ;
+
+      /// Add new set of subjets
+      void addSubjets( pat::JetFwdPtrCollection const & pieces, std::string label = ""  );
+
+      /// Check to see if the subjet collection exists
+      bool hasSubjets( std::string label ) const { return find( subjetLabels_.begin(), subjetLabels_.end(), label) != subjetLabels_.end(); }
+      
+      /// Number of subjet collections
+      unsigned int nSubjetCollections(  ) const { return  subjetCollections_.size(); }
+      
+
     protected:
 
       // ---- for content embedding ----
@@ -496,6 +516,10 @@ namespace pat {
       reco::PFCandidateCollection pfCandidates_; // Compatibility embedding
       reco::PFCandidateFwdPtrVector pfCandidatesFwdPtr_; // Refactorized content embedding
 
+
+      // ---- Jet Substructure ----
+      std::vector< pat::JetFwdPtrCollection> subjetCollections_;
+      std::vector< std::string>          subjetLabels_; 
 
       // ---- MC info ----
 
