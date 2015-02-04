@@ -26,6 +26,8 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
+#include "DataFormats/Math/interface/deltaR.h"
+
 SoftPFElectronTagInfoProducer::SoftPFElectronTagInfoProducer (const edm::ParameterSet& conf)
 {
 	token_jets          = consumes<edm::View<reco::Jet> >(conf.getParameter<edm::InputTag>("jets"));
@@ -85,11 +87,8 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 			else{
 				if(ConversionTools::hasMatchedConversion(*(recoelectron),hConversions,beamspot.position()))continue;
 			}
-			float deta=abs(recoelectron->eta()-jetRef->eta());
-			float dphi=abs(recoelectron->phi()-jetRef->phi());
-			float dphi2=dphi<3.14159?dphi:6.2831-dphi;
 			//Make sure that the electron is inside the jet
-			if(deta*deta+dphi*dphi2>0.25)continue;
+			if(deltaR2((*recoelectron),(*jetRef))>0.25)continue;
 			// Need a gsfTrack
 			if(recoelectron->gsfTrack().get()==NULL)continue;
 			reco::SoftLeptonProperties properties;
