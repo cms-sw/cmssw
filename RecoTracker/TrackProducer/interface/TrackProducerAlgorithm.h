@@ -54,12 +54,15 @@ public:
     conf_(conf),
     algoName_(conf_.getParameter<std::string>( "AlgorithmName" )),
     algo_(reco::TrackBase::algoByName(algoName_)),
-    reMatchSplitHits_(false)
+    reMatchSplitHits_(false),
+    usePropagatorForPCA_(false)
       {
         geometricInnerState_ = (conf_.exists("GeometricInnerState") ?
 	  conf_.getParameter<bool>( "GeometricInnerState" ) : true);
 	if (conf_.exists("reMatchSplitHits"))
 	  reMatchSplitHits_=conf_.getParameter<bool>("reMatchSplitHits");
+        if (conf_.exists("usePropagatorForPCA"))
+          usePropagatorForPCA_ = conf_.getParameter<bool>("usePropagatorForPCA");
       }
 
   /// Destructor
@@ -136,6 +139,7 @@ public:
   reco::TrackBase::TrackAlgorithm algo_;
   bool reMatchSplitHits_;
   bool geometricInnerState_;
+  bool usePropagatorForPCA_;
 
   TrajectoryStateOnSurface getInitialState(const T * theT,
 					   TransientTrackingRecHit::RecHitContainer& hits,
