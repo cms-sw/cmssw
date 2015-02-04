@@ -12,6 +12,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include "RecoJets/JetProducers/interface/PileUpSubtractor.h"
 #include "RecoJets/JetProducers/interface/AnomalousTower.h"
@@ -208,6 +209,7 @@ protected:
   // tokens for the data access
   edm::EDGetTokenT<reco::CandidateView> input_candidateview_token_;
   edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::PFCandidate> > > input_candidatefwdptr_token_;
+  edm::EDGetTokenT<std::vector<edm::FwdPtr<pat::PackedCandidate> > > input_packedcandidatefwdptr_token_;
 
  protected:
   edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
