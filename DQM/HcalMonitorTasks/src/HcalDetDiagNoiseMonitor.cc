@@ -280,9 +280,10 @@ void HcalDetDiagNoiseMonitor::setup(DQMStore::IBooker &ib){
 
 void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   getLogicalMap(iSetup);
+  HcalBaseDQMonitor::analyze(iEvent, iSetup);
   if (!IsAllowedCalibType()) return;
   if (LumiInOrder(iEvent.luminosityBlock())==false) return;
-  HcalBaseDQMonitor::analyze(iEvent, iSetup);
+//  HcalBaseDQMonitor::analyze(iEvent, iSetup);
   bool isNoiseEvent=false;  
   int orbit=-1111;
   int bx=-1111;

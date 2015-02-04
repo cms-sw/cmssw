@@ -269,7 +269,7 @@ process.qTester = cms.EDAnalyzer("QualityTester",
 
 process.p = cms.Path(process.hcalDigis
                      *process.valHcalTriggerPrimitiveDigis
-                     *process.gtEvmDigis#to unpack l1gtEvm
+                     #*process.gtEvmDigis#to unpack l1gtEvm
                      *process.l1GtUnpack
                      *process.horeco
                      *process.hfreco
