@@ -89,7 +89,7 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 			float dphi=abs(recoelectron->phi()-jetRef->phi());
 			float dphi2=dphi<3.14159?dphi:6.2831-dphi;
 			//Make sure that the electron is inside the jet
-			if(pow(deta,2)+pow(dphi2,2)>0.25)continue;
+			if(deta*deta+dphi*dphi2>0.25)continue;
 			// Need a gsfTrack
 			if(recoelectron->gsfTrack().get()==NULL)continue;
 			reco::SoftLeptonProperties properties;
