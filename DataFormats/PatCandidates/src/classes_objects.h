@@ -2,6 +2,7 @@
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/Common/interface/FwdPtr.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -164,6 +165,11 @@ namespace DataFormats_PatCandidates {
   edm::Ptr<pat::Conversion> ptr_Conversion;
   edm::Ptr<pat::Muon> ptr_Muon;
   edm::Ptr<pat::Tau> ptr_Tau;
+
+  edm::FwdPtr<pat::PackedCandidate> fwdptr_pc;
+  edm::Wrapper< edm::FwdPtr<pat::PackedCandidate> > w_fwdptr_pc;
+  std::vector< edm::FwdPtr<pat::PackedCandidate> > v_fwdptr_pc;
+  edm::Wrapper< std::vector< edm::FwdPtr<pat::PackedCandidate> > > wv_fwdptr_pc;
 
   edm::Wrapper<edm::Association<pat::PackedCandidateCollection > > w_asso_pc;
   edm::Wrapper<edm::Association<reco::PFCandidateCollection > >    w_asso_pfc;
