@@ -55,10 +55,10 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
       conf.getParameter<edm::InputTag>("electronTrackCollection"));
   electronSeedCollection_  = consumes<reco::ElectronSeedCollection> (
       conf.getParameter<edm::InputTag>("electronSeedCollection"));
-  /* ajout 03/02/2015 */
+  /* new 03/02/2015 */
   offlineVerticesCollection_ = consumes<reco::VertexCollection> (
       conf.getParameter<edm::InputTag>("offlinePrimaryVertices"));
-  /* fin ajout */
+  /* fin new */
   beamSpotTag_ = consumes<reco::BeamSpot> (
       conf.getParameter<edm::InputTag>("beamSpot"));
 
@@ -172,9 +172,7 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
   h1_recCoreNum = 0 ;
   h1_recTrackNum = 0 ;
   h1_recSeedNum = 0 ;
-  /* ajout 04/02/2015*/
-  h1_recOfflineVertices = 0 ;
-  /* fin ajout */
+  h1_recOfflineVertices = 0 ;  // new 2015.04.02
 
   h1_mc_Eta = 0 ;
   h1_mc_AbsEta = 0 ;
@@ -545,9 +543,7 @@ void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm
   h1_recCoreNum = bookH1(iBooker, "recCoreNum","# rec electron cores",21, -0.5,20.5,"N_{core}");
   h1_recTrackNum = bookH1(iBooker, "recTrackNum","# rec gsf tracks",41, -0.5,40.5,"N_{track}");
   h1_recSeedNum = bookH1(iBooker, "recSeedNum","# rec electron seeds",101, -0.5,100.5,"N_{seed}");
-  /* ajout 04/02/2015*/
-  h1_recOfflineVertices = bookH1(iBooker, "recOfflineVertices","# rec Offline Primary Vertices",101, -0.5,100.5,"N_{Vertices}");
-  /* fin ajout */
+  h1_recOfflineVertices = bookH1(iBooker, "recOfflineVertices","# rec Offline Primary Vertices",61, -0.5,60.5,"N_{Vertices}");  // new 2015.04.02
 
   // mc
   setBookPrefix("h_mc") ;
@@ -1024,7 +1020,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
   edm::Handle<edm::ValueMap<double> > isoFromDepsHcal04Handle;
   iEvent.getByToken( isoFromDepsHcal04Tag_, isoFromDepsHcal04Handle);
 
-  /* ajout 03/02/2015*/
+  /* new 2015.03.02 */
   edm::Handle<reco::VertexCollection> vertexCollectionHandle;
   iEvent.getByToken(offlineVerticesCollection_, vertexCollectionHandle);
 //  int count = 0;
@@ -1033,7 +1029,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
   else 
   {
       std::cout << "vertexCollectionHandle OK" << std::endl;
-      reco::VertexCollection::const_iterator verticesIter;
+//      reco::VertexCollection::const_iterator verticesIter;
       std::cout <<"Treating event "<< iEvent.id() <<" with "<< vertexCollectionHandle.product()->size() <<" vertices" << std::endl; ;
 /*      for ( verticesIter=vertexCollectionHandle->begin() ; verticesIter!=vertexCollectionHandle->end() ; verticesIter++ )
       {
@@ -1041,7 +1037,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
       } */
       std::cout <<"count = "<< vertexCollectionHandle.product()->size() << std::endl; ;
   }
-  /* fin ajout */
+  /* end new */
   
   edm::LogInfo("ElectronMcSignalValidator::analyze")
     <<"Treating event "<<iEvent.id()
@@ -1050,9 +1046,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
   h1_recCoreNum->Fill((*gsfElectronCores).size());
   h1_recTrackNum->Fill((*gsfElectronTracks).size());
   h1_recSeedNum->Fill((*gsfElectronSeeds).size());
-  /* ajout 04/02/2015*/
-  h1_recOfflineVertices->Fill((*vertexCollectionHandle).size());
-  /* fin ajout */
+  h1_recOfflineVertices->Fill((*vertexCollectionHandle).size()); // new 2015.04.02
 
 
   //===============================================
