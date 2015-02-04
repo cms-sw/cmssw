@@ -851,12 +851,10 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
   edm::Handle<reco::VertexCollection> vertexCollectionHandle;
   iEvent.getByToken(offlineVerticesCollection_, vertexCollectionHandle);
   if(!vertexCollectionHandle.isValid()) 
-  {std::cout << "vertexCollectionHandle KO" << std::endl;}
+  {edm::LogInfo("ElectronMcFakeValidator::analyze") << "vertexCollectionHandle KO" ;}
   else 
   {
-      std::cout << "vertexCollectionHandle OK" << std::endl;
-      std::cout <<"Treating event "<< iEvent.id() <<" with "<< vertexCollectionHandle.product()->size() <<" vertices" << std::endl; ;
-      std::cout <<"count = "<< vertexCollectionHandle.product()->size() << std::endl; ;
+      edm::LogInfo("ElectronMcFakeValidator::analyze") << "vertexCollectionHandle OK" ;
   }
   /* fin new */
 
