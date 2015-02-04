@@ -1333,16 +1333,16 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	}
 	*/ 
 
-	// Check the presence of preshower clusters in the vicinity
-	// Preshower cluster closer to another ECAL cluster are ignored.
-	vector<double> ps1Ene(1,static_cast<double>(0.));
-	associatePSClusters(index, reco::PFBlockElement::PS1, block, elements, linkData, active, ps1Ene);
-	vector<double> ps2Ene(1,static_cast<double>(0.));
-	associatePSClusters(index, reco::PFBlockElement::PS2, block, elements, linkData, active, ps2Ene);
-	
-	// Get the energy calibrated (for photons)
-	bool crackCorrection = false;
-	double ecalEnergy = calibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,crackCorrection);
+        // Check the presence of preshower clusters in the vicinity
+        // Preshower cluster closer to another ECAL cluster are ignored.
+        //JOSH: This should use the association map already produced by the cluster corrector for consistency,
+        //but should be ok for now
+        vector<double> ps1Ene(1,static_cast<double>(0.));
+        associatePSClusters(index, reco::PFBlockElement::PS1, block, elements, linkData, active, ps1Ene);
+        vector<double> ps2Ene(1,static_cast<double>(0.));
+        associatePSClusters(index, reco::PFBlockElement::PS2, block, elements, linkData, active, ps2Ene);        
+        
+	double ecalEnergy = clusterRef->correctedEnergy();
 	if ( debug_ )
 	  std::cout << "Corrected ECAL(+PS) energy = " << ecalEnergy << std::endl;
 
@@ -2020,23 +2020,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    // totalEcal += eclusterref->energy();
 	    // float ecalEnergyUnCalibrated = eclusterref->energy();
 	    //std::cout << "Ecal Uncalibrated " << ecalEnergyUnCalibrated << std::endl;
-	    
-	    // check the presence of preshower clusters in the vicinity
-	    vector<double> ps1Ene(1,static_cast<double>(0.));
-	    associatePSClusters(iEcal, reco::PFBlockElement::PS1, 
-				block, elements, linkData, active, 
-				ps1Ene);
-	    vector<double> ps2Ene(1,static_cast<double>(0.));
-	    associatePSClusters(iEcal, reco::PFBlockElement::PS2, 
-				block, elements, linkData, active, 
-				ps2Ene); 
-	    std::pair<double,double> psEnes = make_pair(ps1Ene[0],
-							ps2Ene[0]);
-	    associatedPSs.insert(make_pair(iEcal,psEnes));
-	      
-	    // Calibrate the ECAL energy for photons
-	    bool crackCorrection = false;
-	    float ecalEnergyCalibrated = calibration_->energyEm(*eclusterref,ps1Ene,ps2Ene,crackCorrection);
+
+	    float ecalEnergyCalibrated = eclusterref->correctedEnergy();
 	    ::math::XYZVector photonDirection(eclusterref->position().X(),
 					    eclusterref->position().Y(),
 					    eclusterref->position().Z());
@@ -2977,13 +2962,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       reco::PFClusterRef eclusterRef = elements[iEcal].clusterRef();
       assert( !eclusterRef.isNull() );
 
-      // Check the presence of ps clusters in the vicinity
-      vector<double> ps1Ene(1,static_cast<double>(0.));
-      associatePSClusters(iEcal, reco::PFBlockElement::PS1, block, elements, linkData, active, ps1Ene);
-      vector<double> ps2Ene(1,static_cast<double>(0.));
-      associatePSClusters(iEcal, reco::PFBlockElement::PS2, block, elements, linkData, active, ps2Ene);
-      bool crackCorrection = false;
-      double ecalEnergy = calibration_->energyEm(*eclusterRef,ps1Ene,ps2Ene,crackCorrection);
+      double ecalEnergy = eclusterRef->correctedEnergy();
       
       //std::cout << "EcalEnergy, ps1, ps2 = " << ecalEnergy 
       //          << ", " << ps1Ene[0] << ", " << ps2Ene[0] << std::endl;
@@ -3163,13 +3142,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
     active[iEcal] = false;
 
-    // Check the presence of ps clusters in the vicinity
-    vector<double> ps1Ene(1,static_cast<double>(0.));
-    associatePSClusters(iEcal, reco::PFBlockElement::PS1, block, elements, linkData, active, ps1Ene);
-    vector<double> ps2Ene(1,static_cast<double>(0.));
-    associatePSClusters(iEcal, reco::PFBlockElement::PS2, block, elements, linkData, active, ps2Ene);
-    bool crackCorrection = false;
-    float ecalEnergy = calibration_->energyEm(*clusterref,ps1Ene,ps2Ene,crackCorrection);
+    float ecalEnergy = clusterref->correctedEnergy();
     // float ecalEnergy = calibration_->energyEm( clusterref->energy() );
     double particleEnergy = ecalEnergy;
     
