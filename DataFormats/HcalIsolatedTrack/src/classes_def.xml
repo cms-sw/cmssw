@@ -36,4 +36,17 @@
   <class name="edm::Wrapper<reco::EcalIsolatedParticleCandidateCollection>"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::EcalIsolatedParticleCandidate>,reco::EcalIsolatedParticleCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::EcalIsolatedParticleCandidate>,reco::EcalIsolatedParticleCandidate> > >" />
 
+  <class name="reco::HcalIsolatedTrackCandidate" ClassVersion="13">
+   <version ClassVersion="14" checksum="3313409542"/>
+   <version ClassVersion="13" checksum="3313409542"/>
+  </class>
+  <class name="reco::HcalIsolatedTrackCandidateCollection"/>
+  <class name="reco::HcalIsolatedTrackCandidateRef"/>
+  <class name="reco::HcalIsolatedTrackCandidateRefVector"/>
+  <class name="reco::HcalIsolatedTrackCandidateRefProd"/>
+  <class name="edm::Wrapper<reco::HcalIsolatedTrackCandidateCollection>"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::HcalIsolatedTrackCandidate>,reco::HcalIsolatedTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::HcalIsolatedTrackCandidate>,reco::HcalIsolatedTrackCandidate> > >" />
+  <class name="edm::Ref<std::vector<reco::HcalIsolatedTrackCandidate>,reco::HcalIsolatedTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::HcalIsolatedTrackCandidate>,reco::HcalIsolatedTrackCandidate> >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::HcalIsolatedTrackCandidate>,reco::HcalIsolatedTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::HcalIsolatedTrackCandidate>,reco::HcalIsolatedTrackCandidate> > >"/>
+
 </lcgdict>
