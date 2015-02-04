@@ -23,6 +23,9 @@ class PFClusterEMEnergyCorrector {
   void correctEnergies(const edm::Event &evt, const edm::EventSetup &es, const reco::PFCluster::EEtoPSAssociation &assoc, reco::PFClusterCollection& cs);
 
  private:    
+  bool _applyCrackCorrections;
+  bool _applyMVACorrections;
+   
   bool autoDetectBunchSpacing_;
   int bunchSpacingManual_;
   
@@ -36,6 +39,8 @@ class PFClusterEMEnergyCorrector {
   std::vector<std::string> _condnames_sigma_50ns;
   std::vector<std::string> _condnames_mean_25ns;
   std::vector<std::string> _condnames_sigma_25ns;  
+  
+   std::unique_ptr<PFEnergyCalibration> _calibrator;
   
 };
 

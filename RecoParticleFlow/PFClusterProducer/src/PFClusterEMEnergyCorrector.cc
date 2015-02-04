@@ -13,55 +13,100 @@ namespace {
   } 
 }
 
-PFClusterEMEnergyCorrector::PFClusterEMEnergyCorrector(const edm::ParameterSet& conf, edm::ConsumesCollector &&cc) {
+PFClusterEMEnergyCorrector::PFClusterEMEnergyCorrector(const edm::ParameterSet& conf, edm::ConsumesCollector &&cc) :
+  _calibrator(new PFEnergyCalibration) {
 
-  _recHitsEB = cc.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("recHitsEBLabel"));
-  _recHitsEE = cc.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("recHitsEELabel"));
-  _vertices  = cc.consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("verticesLabel"));
+   _applyCrackCorrections = conf.getParameter<bool>("applyCrackCorrections");
+   _applyMVACorrections = conf.getParameter<bool>("applyMVACorrections");
   
-  autoDetectBunchSpacing_ = conf.getParameter<bool>("autoDetectBunchSpacing");
+   
+  if (_applyMVACorrections) {
+    _recHitsEB = cc.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("recHitsEBLabel"));
+    _recHitsEE = cc.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("recHitsEELabel"));
+    _vertices  = cc.consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("verticesLabel"));
+    
+    autoDetectBunchSpacing_ = conf.getParameter<bool>("autoDetectBunchSpacing");
 
-  if (autoDetectBunchSpacing_) {
-    bunchSpacing_ = cc.consumes<int>(edm::InputTag("addPileupInfo","bunchSpacing"));
-    bunchSpacingManual_ = 0;
+    if (autoDetectBunchSpacing_) {
+      bunchSpacing_ = cc.consumes<int>(edm::InputTag("addPileupInfo","bunchSpacing"));
+      bunchSpacingManual_ = 0;
+    }
+    else {
+      bunchSpacingManual_ = conf.getParameter<int>("bunchSpacing");
+    }
+    
+    _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize1_mean_50ns");
+    _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize2_mean_50ns");
+    _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize3_mean_50ns");
+    _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize1_mean_50ns");
+    _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize2_mean_50ns");
+    _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize3_mean_50ns");
+
+    _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize1_sigma_50ns");
+    _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize2_sigma_50ns");
+    _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize3_sigma_50ns");
+    _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize1_sigma_50ns");
+    _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize2_sigma_50ns");
+    _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize3_sigma_50ns");
+    
+    _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize1_mean_25ns");
+    _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize2_mean_25ns");
+    _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize3_mean_25ns");
+    _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize1_mean_25ns");
+    _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize2_mean_25ns");
+    _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize3_mean_25ns");
+
+    _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize1_sigma_25ns");
+    _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize2_sigma_25ns");
+    _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize3_sigma_25ns");
+    _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize1_sigma_25ns");
+    _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize2_sigma_25ns");
+    _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize3_sigma_25ns");      
   }
-  else {
-    bunchSpacingManual_ = conf.getParameter<int>("bunchSpacing");
-  }
   
-  _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize1_mean_50ns");
-  _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize2_mean_50ns");
-  _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize3_mean_50ns");
-  _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize1_mean_50ns");
-  _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize2_mean_50ns");
-  _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize3_mean_50ns");
 
-  _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize1_sigma_50ns");
-  _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize2_sigma_50ns");
-  _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize3_sigma_50ns");
-  _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize1_sigma_50ns");
-  _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize2_sigma_50ns");
-  _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize3_sigma_50ns");
-  
-  _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize1_mean_25ns");
-  _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize2_mean_25ns");
-  _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize3_mean_25ns");
-  _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize1_mean_25ns");
-  _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize2_mean_25ns");
-  _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize3_mean_25ns");
-
-  _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize1_sigma_25ns");
-  _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize2_sigma_25ns");
-  _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize3_sigma_25ns");
-  _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize1_sigma_25ns");
-  _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize2_sigma_25ns");
-  _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize3_sigma_25ns");  
   
 }
 
 
 void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt, const edm::EventSetup &es, const reco::PFCluster::EEtoPSAssociation &assoc, reco::PFClusterCollection& cs) {
 
+  //legacy corrections
+  if (!_applyMVACorrections) {
+    for (unsigned int idx = 0; idx<cs.size(); ++idx) {
+      reco::PFCluster &cluster = cs[idx];
+      bool iseb = cluster.layer() == PFLayer::ECAL_BARREL;
+      
+      //compute preshower energies for endcap clusters
+      double ePS1=0, ePS2=0;
+      if(!iseb) {
+        auto ee_key_val = std::make_pair(idx,edm::Ptr<reco::PFCluster>());
+        const auto clustops = std::equal_range(assoc.begin(),
+                                              assoc.end(),
+                                              ee_key_val,
+                                              sortByKey);
+        for( auto i_ps = clustops.first; i_ps != clustops.second; ++i_ps) {
+          edm::Ptr<reco::PFCluster> psclus(i_ps->second);
+          switch( psclus->layer() ) {
+          case PFLayer::PS1:
+            ePS1 += psclus->energy();
+            break;
+          case PFLayer::PS2:
+            ePS2 += psclus->energy();
+            break;
+          default:
+            break;
+          }
+        }
+      }
+      
+      double correctedEnergy = _calibrator->energyEm(cluster,ePS1,ePS2,_applyCrackCorrections);
+      cluster.setCorrectedEnergy(correctedEnergy);
+      
+    }
+    return;
+  }
+  
   int bunchspacing = 450;  
   
   if (autoDetectBunchSpacing_) {
@@ -135,6 +180,8 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt, const ed
     double eta = cluster.eta();
     double phi = cluster.phi();    
     
+    double invE = 1./e;
+    
     int size = lazyTool.n5x5(cluster);
     
     bool iseb = cluster.layer() == PFLayer::ECAL_BARREL;
@@ -186,28 +233,28 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt, const ed
     if (size==1) {
       eval[3] = nvtx;
       if (!iseb) {
-        eval[4] = ePS1/e;
-        eval[5] = ePS2/e;
+        eval[4] = ePS1*invE;
+        eval[5] = ePS2*invE;
       }
     }
     else if (size==2) {
-      eval[3] = e1x3/e;
+      eval[3] = e1x3*invE;
       eval[4] = nvtx;
       if (!iseb) {
-        eval[5] = ePS1/e;
-        eval[6] = ePS2/e;
+        eval[5] = ePS1*invE;
+        eval[6] = ePS2*invE;
       }
     }
     else if (size>2) {
-      eval[3] = e1x3/e;
-      eval[4] = e2x2/e;
-      eval[5] = e2x5max/e;
-      eval[6] = e3x3/e;
-      eval[7] = e5x5/e;
+      eval[3] = e1x3*invE;
+      eval[4] = e2x2*invE;
+      eval[5] = e2x5max*invE;
+      eval[6] = e3x3*invE;
+      eval[7] = e5x5*invE;
       eval[8] = nvtx;
       if (!iseb) {
-        eval[9] = ePS1/e;
-        eval[10] = ePS2/e;
+        eval[9] = ePS1*invE;
+        eval[10] = ePS2*invE;
       }
     }
     

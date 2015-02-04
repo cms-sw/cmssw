@@ -169,6 +169,8 @@ pfclusprefer = cms.ESPrefer(
 #energy corrector for corrected cluster producer
 _emEnergyCorrector = cms.PSet(
     algoName = cms.string("PFClusterEMEnergyCorrector"),
+    applyCrackCorrections = cms.bool(False),
+    applyMVACorrections = cms.bool(True),
     recHitsEBLabel = cms.InputTag('ecalRecHit', 'EcalRecHitsEB'),
     recHitsEELabel = cms.InputTag('ecalRecHit', 'EcalRecHitsEE'),
     verticesLabel = cms.InputTag('offlinePrimaryVertices'),    
