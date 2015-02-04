@@ -229,12 +229,20 @@
     ]]>
   </ioread>
 
- <class name="pat::PackedGenParticle" ClassVersion="10">>
-    <version ClassVersion="10" checksum="710447494"/>
+  <class name="pat::PackedGenParticle" ClassVersion="11">
+    <version ClassVersion="11" checksum="25552245"/>
+    <version ClassVersion="10" checksum="389883266"/>
     <field name="p4_" transient="true" />
     <field name="p4c_" transient="true" />
     <field name="unpacked_" transient="true" />
   </class>
+  <ioread sourceClass="pat::PackedGenParticle" source="int16_t packedEta_;int16_t packedPt_;int16_t packedM_;" version="[-10]" checksum="[389883266]" targetClass="pat::PackedGenParticle"
+  	 target="packedY_" embed="false" include="DataFormats/PatCandidates/interface/ioread_packedgen.h" >
+	<![CDATA[
+	packedY_ = convertPackedEtaToPackedY(onfile.packedPt_,onfile.packedEta_,onfile.packedM_);
+	]]>
+   </ioread>
+
   <ioread sourceClass="pat::PackedGenParticle"  version="[1-]" targetClass="pat::PackedGenParticle" source="" target="unpacked_">
     <![CDATA[unpacked_ = false;
     ]]>
