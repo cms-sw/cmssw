@@ -47,6 +47,7 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     edm::EDGetTokenT<reco::GsfTrackCollection> electronTrackCollection_;
     edm::EDGetTokenT<reco::ElectronSeedCollection> electronSeedCollection_;
     edm::EDGetTokenT<reco::GenJetCollection>  matchingObjectCollection_;
+    edm::EDGetTokenT<reco::VertexCollection> offlineVerticesCollection_;    // new 2015.04.02 
     edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
     bool readAOD_;
 
@@ -101,6 +102,8 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_recCoreNum_ ;
     MonitorElement *h1_recTrackNum_ ;
     MonitorElement *h1_recSeedNum_ ;
+    
+    MonitorElement *h1_recOfflineVertices_; // new 2015.04.02
 
     MonitorElement *h1_matchingObjectEta;
     MonitorElement *h1_matchingObjectAbsEta;
