@@ -13,6 +13,7 @@ class DS
 {
         public:
                 DS() : cnt_(0) {}
+                virtual ~DS();
                 virtual bool operator()(DetId id) = 0;
 
                 int cnt() { return cnt_; }
