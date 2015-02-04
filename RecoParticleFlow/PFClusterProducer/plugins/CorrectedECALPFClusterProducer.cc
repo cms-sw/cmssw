@@ -141,6 +141,8 @@ void CorrectedECALPFClusterProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<edm::InputTag>("inputPS",edm::InputTag("particleFlowClusterPS"));
   {
     edm::ParameterSetDescription psd0;
+    psd0.add<bool>("applyCrackCorrections",false);
+    psd0.add<bool>("applyMVACorrections",false);
     psd0.add<std::string>("algoName","PFClusterEMEnergyCorrector");
     psd0.add<edm::InputTag>("recHitsEBLabel",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
     psd0.add<edm::InputTag>("recHitsEELabel",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
