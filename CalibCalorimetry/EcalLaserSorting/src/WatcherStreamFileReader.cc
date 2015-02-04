@@ -215,7 +215,12 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 
   if(!cmdSet){
     cmd.str("");
-    cmd << "/bin/ls -rt " << inputDir_ << " | egrep '(";
+    //    cmd << "/bin/ls -rt " << inputDir_ << " | egrep '(";
+    //by default ls will sort the file alphabetically which will results
+    //in ordering the files in increasing LB number, which is the desired
+    //order.
+    //    cmd << "/bin/ls " << inputDir_ << " | egrep '(";
+    cmd << "/bin/find " << inputDir_ << " -maxdepth 2 -print | egrep '(";
     //TODO: validate patternDir (see ;, &&, ||) and escape special character
     if(filePatterns_.size()==0) return 0;
     if(getcwd(curDir, sizeof(curDir))==0){
@@ -231,7 +236,7 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
       //     }
       cmd << filePatterns_[i];
     }
-    cmd << ")'";
+    cmd << ")' | sort";
     
     cout << "[WatcherSource " << now() << "]" 
 	 << " Command to retrieve input files: "
@@ -270,14 +275,16 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 	  //remove end-of-line character:
 	  lineptr[len-1] = 0;
 	  string fileName;
-	  if(inputDir_.size()>0 && inputDir_[0] != '/'){//relative path
-	    fileName.assign(curDir);
+	  if(lineptr[0] != '/'){
+	    if(inputDir_.size()>0 && inputDir_[0] != '/'){//relative path
+	      fileName.assign(curDir);
+	      fileName.append("/");
+	      fileName.append(inputDir_);
+	    } else{
+	      fileName.assign(inputDir_);
+	    }
 	    fileName.append("/");
-	    fileName.append(inputDir_);
-	  } else{
-	    fileName.assign(inputDir_);
 	  }
-	  fileName.append("/");
 	  fileName.append(lineptr);
 	  filesInQueue_.push_back(fileName);
 	  if(verbosity_) cout << "[WatcherSource " << now() << "]" 
@@ -369,7 +376,13 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 			    << " Moving file "
 			    << fileName_ << " to " << dest << "\n";
 	
+	stringstream c;
+	c << "/bin/mv -f \"" << fileName_ << "\" \"" << dest
+	  << "/.\"";
+	
+
 	if(0!=rename(fileName_.c_str(), dest.c_str())){
+	  //if(0!=system(c.str().c_str())){
 	  throw cms::Exception("WatcherSource")
 	    << "Failed to move file '" << fileName_ << "' "
 	    << "to processing directory " << inprocessDir_

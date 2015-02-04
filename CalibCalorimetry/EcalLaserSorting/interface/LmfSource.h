@@ -14,8 +14,8 @@
 class LmfSource: public edm::ProducerSourceBase{
 private:
   struct IndexRecord{
-    int orbit;
-    std::streampos filePos;
+    uint32_t orbit;
+    uint32_t filePos;
     //    bool operator<(const IndexRecord& i) const { return orbit < i.orbit; }
   };
   
