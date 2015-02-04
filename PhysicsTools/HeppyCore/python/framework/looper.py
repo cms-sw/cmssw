@@ -89,14 +89,7 @@ class Looper(object):
         if len(self.cfg_comp.files)==0:
             errmsg = 'please provide at least an input file in the files attribute of this component\n' + str(self.cfg_comp)
             raise ValueError( errmsg )
-	if hasattr(config,"preprocessor") and config.preprocessor is not None :
-		self.cfg_comp = config.preprocessor.run(self.cfg_comp,self.outDir,firstEvent,nEvents)
-	if hasattr(self.cfg_comp,"options"):
-                print self.cfg_comp.files,self.cfg_comp.options
-	        self.events = config.events_class(self.cfg_comp.files, tree_name,options=self.cfg_comp.options)
-	else :
-	        self.events = config.events_class(self.cfg_comp.files, tree_name)
-
+        self.events = config.events_class(self.cfg_comp.files, tree_name)
         if hasattr(self.cfg_comp, 'fineSplit'):
             fineSplitIndex, fineSplitFactor = self.cfg_comp.fineSplit
             if fineSplitFactor > 1:
@@ -192,10 +185,19 @@ class Looper(object):
             allev = max([x['events'] for x in self.timeReport])
             warning = self.logger.warning
             warning("\n      ---- TimeReport (all times in ms; first evt is skipped) ---- ")
-            warning("%9s   %9s    %9s   %9s   %s" % ("processed","all evts","time/proc", " time/all", "analyer"))
-            warning("%9s   %9s    %9s   %9s   %s" % ("---------","--------","---------", "---------", "-------------"))
+            warning("%9s   %9s    %9s   %9s %6s   %s" % ("processed","all evts","time/proc", " time/all", "  [%] ", "analyer"))
+            warning("%9s   %9s    %9s   %9s %6s   %s" % ("---------","--------","---------", "---------", " -----", "-------------"))
+            sumtime = sum(rep['time'] for rep in self.timeReport)
+            passev  = self.timeReport[-1]['events']
             for ana,rep in zip(self.analyzers,self.timeReport):
-                warning( "%9d   %9d   %10.2f  %10.2f   %s" % ( rep['events'], allev, 1000*rep['time']/(rep['events']-1) if rep['events']>1 else 0, 1000*rep['time']/(allev-1) if allev > 1 else 0, ana.name))
+                timePerProcEv = rep['time']/(rep['events']-1) if rep['events'] > 1 else 0
+                timePerAllEv  = rep['time']/(allev-1)         if allev > 1         else 0
+                fracAllEv     = rep['time']/sumtime
+                warning( "%9d   %9d   %10.2f  %10.2f %5.1f%%   %s" % ( rep['events'], allev, 1000*timePerProcEv, 1000*timePerAllEv, 100.0*fracAllEv, ana.name))
+            totPerProcEv = sumtime/(passev-1) if passev > 1 else 0
+            totPerAllEv  = sumtime/(allev-1)  if allev > 1  else 0
+            warning("%9s   %9s    %9s   %9s   %s" % ("---------","--------","---------", "---------", "-------------"))
+            warning("%9d   %9d   %10.2f  %10.2f %5.1f%%   %s" % ( passev, allev, 1000*totPerProcEv, 1000*totPerAllEv, 100.0, "TOTAL"))
             warning("")
 
     def process(self, iEv ):
@@ -230,7 +232,6 @@ class Looper(object):
         for analyzer in self.analyzers:
             analyzer.write(self.setup)
         self.setup.close() 
-
 
 
 if __name__ == '__main__':
