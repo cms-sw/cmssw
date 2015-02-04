@@ -349,6 +349,10 @@ namespace evf {
     return run_dir_ + "/" + fffnaming::streamerDataChecksumFileNameWithInstance(run_,ls,stream,hostname_);
   }
 
+  std::string EvFDaqDirector::getOpenInitFilePath(std::string const& stream) const {
+    return run_dir_ + "/open/" + fffnaming::initFileNameWithPid(run_,0,stream);
+  }
+
   std::string EvFDaqDirector::getInitFilePath(std::string const& stream) const {
     return run_dir_ + "/" + fffnaming::initFileNameWithPid(run_,0,stream);
   }

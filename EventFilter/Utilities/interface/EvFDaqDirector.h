@@ -63,6 +63,7 @@ namespace evf{
       std::string getOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getMergedDatFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getMergedDatChecksumFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getOpenInitFilePath(std::string const& stream) const;
       std::string getInitFilePath(std::string const& stream) const;
       std::string getOpenProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
