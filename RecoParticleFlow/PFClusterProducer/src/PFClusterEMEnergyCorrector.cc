@@ -122,10 +122,10 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt, const ed
   const double meanoffset = meanlimlow + 0.5*(meanlimhigh-meanlimlow);
   const double meanscale = 0.5*(meanlimhigh-meanlimlow);
   
-//   const double sigmalimlow = 0.003;
-//   const double sigmalimhigh = 0.5;
-//   const double sigmaoffset = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
-//   const double sigmascale = 0.5*(sigmalimhigh-sigmalimlow);  
+  const double sigmalimlow = 0.003;
+  const double sigmalimhigh = 0.5;
+  const double sigmaoffset = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
+  const double sigmascale = 0.5*(sigmalimhigh-sigmalimlow);  
   
   for (unsigned int idx = 0; idx<cs.size(); ++idx) {
     
@@ -213,16 +213,15 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt, const ed
     
     //these are the actual BDT responses
     double rawmean = meanforest.GetResponse(eval.data());
-//     double rawsigma = sigmaforest.GetResponse(eval.data());
+    double rawsigma = sigmaforest.GetResponse(eval.data());
     
     //apply transformation to limited output range (matching the training)
     double mean = meanoffset + meanscale*vdt::fast_sin(rawmean);
-//     double sigma = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma);
+    double sigma = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma);
     
     cluster.setCorrectedEnergy(mean*e);
-    //cluster.setCorrectedEnergyUncertainty(sigma*e);
+    cluster.setCorrectedEnergyUncertainty(sigma*e);
     
-//     printf("energy = %e, eta = %5f, size = %i, cor = %5e, sigmacor = %5e\n",e,eta,int(size),mean, sigma/mean);
   }
   
 }
