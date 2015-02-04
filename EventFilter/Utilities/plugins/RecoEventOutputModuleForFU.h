@@ -150,10 +150,10 @@ namespace evf {
   void
   RecoEventOutputModuleForFU<Consumer>::start() const
   {
-    const std::string initFileName = edm::Service<evf::EvFDaqDirector>()->getInitFilePath(stream_label_);
+    const std::string openInitFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(stream_label_);
     edm::LogInfo("RecoEventOutputModuleForFU") << "start() method, initializing streams. init stream -: "  
-	                                       << initFileName;
-    c_->setInitMessageFile(initFileName);
+	                                       << openInitFileName;
+    c_->setInitMessageFile(openInitFileName);
     c_->start();
   }
   
@@ -169,6 +169,31 @@ namespace evf {
   RecoEventOutputModuleForFU<Consumer>::doOutputHeader(InitMsgBuilder const& init_message) const
   {
     c_->doOutputHeader(init_message);
+
+    const std::string openIniFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(stream_label_);
+    struct stat istat;
+    stat(openIniFileName.c_str(), &istat);
+    //read back file to check integrity of what was written
+    off_t readInput=0;
+    uint32_t adlera=1,adlerb=0;
+    FILE *src = fopen(openIniFileName.c_str(),"r");
+    while (readInput<istat.st_size)
+    {
+      size_t toRead=  readInput+1024*1024 < istat.st_size ? 1024*1024 : istat.st_size-readInput;
+      fread(outBuf_,toRead,1,src);
+      cms::Adler32((const char*)outBuf_,toRead,adlera,adlerb);
+      readInput+=toRead;
+    }
+    fclose(src);
+    uint32_t adler32c = (adlerb << 16) | adlera;
+    if (adler32c != c_->get_adler32_ini()) {
+      throw cms::Exception("RecoEventOutputModuleForFU") << "Checksum mismatch of ini file -: " << openIniFileName
+                           << " expected:" << c_->get_adler32_ini() << " obtained:" << adler32c;
+    }
+    else {
+      edm::LogWarning("RecoEventOutputModuleForFU") << "Ini file checksum -: "<< stream_label_ << " " << adler32c;
+      boost::filesystem::rename(openIniFileName,edm::Service<evf::EvFDaqDirector>()->getInitFilePath(stream_label_));
+    }
   }
    
   template<typename Consumer>
