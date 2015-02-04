@@ -35,7 +35,8 @@ SoftPFElectronTagInfoProducer::SoftPFElectronTagInfoProducer (const edm::Paramet
 	token_primaryVertex = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("primaryVertex"));
 	token_BeamSpot      = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
 	token_allConversions= consumes<reco::ConversionCollection>(edm::InputTag("allConversions"));
-
+	DeltaRElectronJet   = conf.getParameter<double>("DeltaRElectronJet");
+	MaxSip3D            = conf.getParameter<double>("MaxSip3D");
         produces<reco::CandSoftLeptonTagInfoCollection>();
 }
 
@@ -88,7 +89,7 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 				if(ConversionTools::hasMatchedConversion(*(recoelectron),hConversions,beamspot.position()))continue;
 			}
 			//Make sure that the electron is inside the jet
-			if(deltaR2((*recoelectron),(*jetRef))>0.25)continue;
+			if(deltaR2((*recoelectron),(*jetRef))>DeltaRElectronJet*DeltaRElectronJet)continue;
 			// Need a gsfTrack
 			if(recoelectron->gsfTrack().get()==NULL)continue;
 			reco::SoftLeptonProperties properties;
@@ -109,7 +110,7 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
   			properties.ratioRel = recoelectron->p4().Dot(jetRef->p4()) / pjet.Mag2();
   			properties.p0Par    = boostedPPar(recoelectron->momentum(), jetRef->momentum());
 			properties.elec_mva    = recoelectron->mva_e_pi();
-			 if(abs(properties.sip3d>200)) continue;
+			 if(abs(properties.sip3d>MaxSip3D)) continue;
 			// Fill the TagInfos
 			tagInfo.insert(lepPtr, properties );
 		}
