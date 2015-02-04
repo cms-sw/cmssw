@@ -19,6 +19,9 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -52,6 +55,10 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
       conf.getParameter<edm::InputTag>("electronTrackCollection"));
   electronSeedCollection_  = consumes<reco::ElectronSeedCollection> (
       conf.getParameter<edm::InputTag>("electronSeedCollection"));
+  /* ajout 03/02/2015 */
+  offlineVerticesCollection_ = consumes<reco::VertexCollection> (
+      conf.getParameter<edm::InputTag>("offlinePrimaryVertices"));
+  /* fin ajout */
   beamSpotTag_ = consumes<reco::BeamSpot> (
       conf.getParameter<edm::InputTag>("beamSpot"));
 
@@ -165,6 +172,9 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
   h1_recCoreNum = 0 ;
   h1_recTrackNum = 0 ;
   h1_recSeedNum = 0 ;
+  /* ajout 04/02/2015*/
+  h1_recOfflineVertices = 0 ;
+  /* fin ajout */
 
   h1_mc_Eta = 0 ;
   h1_mc_AbsEta = 0 ;
@@ -535,6 +545,9 @@ void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm
   h1_recCoreNum = bookH1(iBooker, "recCoreNum","# rec electron cores",21, -0.5,20.5,"N_{core}");
   h1_recTrackNum = bookH1(iBooker, "recTrackNum","# rec gsf tracks",41, -0.5,40.5,"N_{track}");
   h1_recSeedNum = bookH1(iBooker, "recSeedNum","# rec electron seeds",101, -0.5,100.5,"N_{seed}");
+  /* ajout 04/02/2015*/
+  h1_recOfflineVertices = bookH1(iBooker, "recOfflineVertices","# rec Offline Primary Vertices",101, -0.5,100.5,"N_{Vertices}");
+  /* fin ajout */
 
   // mc
   setBookPrefix("h_mc") ;
@@ -917,9 +930,9 @@ void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm
   h1_ele_fbrem = bookH1withSumw2(iBooker, "fbrem","ele brem fraction, mode of GSF components",100,0.,1.,"P_{in} - P_{out} / P_{in}");
   h1_ele_fbrem_barrel = bookH1withSumw2(iBooker, "fbrem_barrel","ele brem fraction for barrel, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
   h1_ele_fbrem_endcaps = bookH1withSumw2(iBooker, "fbrem_endcaps", "ele brem franction for endcaps, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
-  h1_ele_superclusterfbrem = bookH1withSumw2(iBooker, "superclusterfbrem","ele brem fraction, mode of GSF components",100,0.,1.,"P_{in} - P_{out} / P_{in}");
-  h1_ele_superclusterfbrem_barrel = bookH1withSumw2(iBooker, "superclusterfbrem_barrel","ele brem fraction for barrel, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
-  h1_ele_superclusterfbrem_endcaps = bookH1withSumw2(iBooker, "superclusterfbrem_endcaps", "ele brem franction for endcaps, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
+  h1_ele_superclusterfbrem = bookH1withSumw2(iBooker, "superclusterfbrem","supercluster brem fraction, mode of GSF components",100,0.,1.,"P_{in} - P_{out} / P_{in}");
+  h1_ele_superclusterfbrem_barrel = bookH1withSumw2(iBooker, "superclusterfbrem_barrel","supercluster brem fraction for barrel, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
+  h1_ele_superclusterfbrem_endcaps = bookH1withSumw2(iBooker, "superclusterfbrem_endcaps", "supercluster brem franction for endcaps, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
   p1_ele_fbremVsEta_mode  = bookP1(iBooker, "fbremvsEtamode","mean ele brem fraction vs eta, mode of GSF components",eta2D_nbin,eta_min,eta_max,0.,1.,"#eta","<P_{in} - P_{out} / P_{in}>");
   p1_ele_fbremVsEta_mean  = bookP1(iBooker, "fbremvsEtamean","mean ele brem fraction vs eta, mean of GSF components",eta2D_nbin,eta_min,eta_max,0.,1.,"#eta","<P_{in} - P_{out} / P_{in}>");
   h1_ele_chargeInfo = bookH1withSumw2(iBooker, "chargeInfo","chargeInfo",5,-2.,3.);
@@ -1011,6 +1024,25 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
   edm::Handle<edm::ValueMap<double> > isoFromDepsHcal04Handle;
   iEvent.getByToken( isoFromDepsHcal04Tag_, isoFromDepsHcal04Handle);
 
+  /* ajout 03/02/2015*/
+  edm::Handle<reco::VertexCollection> vertexCollectionHandle;
+  iEvent.getByToken(offlineVerticesCollection_, vertexCollectionHandle);
+//  int count = 0;
+  if(!vertexCollectionHandle.isValid()) 
+  {std::cout << "vertexCollectionHandle KO" << std::endl;}
+  else 
+  {
+      std::cout << "vertexCollectionHandle OK" << std::endl;
+      reco::VertexCollection::const_iterator verticesIter;
+      std::cout <<"Treating event "<< iEvent.id() <<" with "<< vertexCollectionHandle.product()->size() <<" vertices" << std::endl; ;
+/*      for ( verticesIter=vertexCollectionHandle->begin() ; verticesIter!=vertexCollectionHandle->end() ; verticesIter++ )
+      {
+          count++;
+      } */
+      std::cout <<"count = "<< vertexCollectionHandle.product()->size() << std::endl; ;
+  }
+  /* fin ajout */
+  
   edm::LogInfo("ElectronMcSignalValidator::analyze")
     <<"Treating event "<<iEvent.id()
     <<" with "<<gsfElectrons.product()->size()<<" electrons" ;
@@ -1018,6 +1050,9 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
   h1_recCoreNum->Fill((*gsfElectronCores).size());
   h1_recTrackNum->Fill((*gsfElectronTracks).size());
   h1_recSeedNum->Fill((*gsfElectronSeeds).size());
+  /* ajout 04/02/2015*/
+  h1_recOfflineVertices->Fill((*vertexCollectionHandle).size());
+  /* fin ajout */
 
 
   //===============================================
