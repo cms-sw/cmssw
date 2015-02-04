@@ -4,6 +4,7 @@ Collections sizes
 ElectronMcFakeValidator/h_recEleNum                               1 1 1 0
 ElectronMcFakeValidator/h_recCoreNum                              1 1 1 0
 ElectronMcFakeValidator/h_recTrackNum                             1 1 1 0
+ElectronMcFakeValidator/h_recOfflineVertices                      1 1 1 0
 ElectronMcFakeValidator/h_recSeedNum                              1 1 1 1
 
 Basic electron quantities
