@@ -282,6 +282,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   if (!srcPVs_.label().empty()) input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
   input_candidateview_token_ = consumes<reco::CandidateView>(src_);
   input_candidatefwdptr_token_ = consumes<std::vector<edm::FwdPtr<reco::PFCandidate> > >(src_);
+  input_packedcandidatefwdptr_token_ = consumes<std::vector<edm::FwdPtr<pat::PackedCandidate> > >(src_);
   
 }
 
@@ -340,6 +341,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   edm::Handle<reco::CandidateView> inputsHandle;
   
   edm::Handle< std::vector<edm::FwdPtr<reco::PFCandidate> > > pfinputsHandleAsFwdPtr; 
+  edm::Handle< std::vector<edm::FwdPtr<pat::PackedCandidate> > > packedinputsHandleAsFwdPtr; 
   
   bool isView = iEvent.getByToken(input_candidateview_token_, inputsHandle);
   if ( isView ) {
@@ -347,13 +349,25 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
       inputs_.push_back(inputsHandle->ptrAt(i));
     }
   } else {
-    iEvent.getByToken(input_candidatefwdptr_token_, pfinputsHandleAsFwdPtr);
-    for (size_t i = 0; i < pfinputsHandleAsFwdPtr->size(); ++i) {
-      if ( (*pfinputsHandleAsFwdPtr)[i].ptr().isAvailable() ) {
-	inputs_.push_back( (*pfinputsHandleAsFwdPtr)[i].ptr() );
+    bool isPF = iEvent.getByToken(input_candidatefwdptr_token_, pfinputsHandleAsFwdPtr);
+    if ( isPF ) {
+      for (size_t i = 0; i < pfinputsHandleAsFwdPtr->size(); ++i) {
+	if ( (*pfinputsHandleAsFwdPtr)[i].ptr().isAvailable() ) {
+	  inputs_.push_back( (*pfinputsHandleAsFwdPtr)[i].ptr() );
+	}
+	else if ( (*pfinputsHandleAsFwdPtr)[i].backPtr().isAvailable() ) {
+	  inputs_.push_back( (*pfinputsHandleAsFwdPtr)[i].backPtr() );
+	}
       }
-      else if ( (*pfinputsHandleAsFwdPtr)[i].backPtr().isAvailable() ) {
-	inputs_.push_back( (*pfinputsHandleAsFwdPtr)[i].backPtr() );
+    } else {
+      iEvent.getByToken(input_packedcandidatefwdptr_token_, packedinputsHandleAsFwdPtr);
+      for (size_t i = 0; i < packedinputsHandleAsFwdPtr->size(); ++i) {
+	if ( (*packedinputsHandleAsFwdPtr)[i].ptr().isAvailable() ) {
+	  inputs_.push_back( (*packedinputsHandleAsFwdPtr)[i].ptr() );
+	}
+	else if ( (*packedinputsHandleAsFwdPtr)[i].backPtr().isAvailable() ) {
+	  inputs_.push_back( (*packedinputsHandleAsFwdPtr)[i].backPtr() );
+	}
       }
     }
   }
