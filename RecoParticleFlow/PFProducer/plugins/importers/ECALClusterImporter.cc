@@ -133,10 +133,14 @@ importToBlock( const edm::Event& e,
 
     // ID charged hadrons by those that pass 
     // shower start cut but fail width and length
+    /*
     if( _emPreID->cutStartPosition(*tempref) && 
 	!( _emPreID->cutSigmaetaeta(*tempref) && 
 	   _emPreID->cutLengthCompatibility(*tempref) )  && 
-	the_type == reco::PFBlockElement::HGC_ECAL ) {    
+	the_type == reco::PFBlockElement::HGC_ECAL ) { 
+    */
+    if( !_emPreID->isEm(*tempref) && 
+	the_type == reco::PFBlockElement::HGC_ECAL) {
       the_type = reco::PFBlockElement::HGC_HCALF;
     }
     

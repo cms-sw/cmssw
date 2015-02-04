@@ -53,7 +53,7 @@ HGCALShowerBasedEmIdentification::HGCALShowerBasedEmIdentification (bool withPil
   corrlnalphalnt1_ = -0.0232;
     
   // cut values, to be moved as configurable parameters
-  cutStartPosition_ = 322.5;
+  cutStartPosition_ = 325.5;
   cutSigmaetaeta_ = 0.0055;
   if (withPileup_) cutSigmaetaeta_ = 0.00480;
   cutHoverem_ = 0.003;

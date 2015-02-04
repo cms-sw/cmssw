@@ -148,6 +148,13 @@ PFAlgo::setParameters(double nSigmaECAL,
 
 }
 
+void 
+PFAlgo::setHGCalParameters(double HGCalResolutionConst, 
+			   double HGCalResolutionStoch) {
+  HGCalResolutionConst_ = HGCalResolutionConst;
+  HGCalResolutionStoch_ = HGCalResolutionStoch;
+}
+
 
 PFMuonAlgo* PFAlgo::getPFMuonAlgo() {
   return pfmu_;
@@ -982,7 +989,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	double deficit = trackMomentum; 
 	double resol = neutralHadronEnergyResolution(trackMomentum,
-						     elements[iTrack].trackRef()->eta());
+						     elements[iTrack].trackRef()->eta(),
+						     PFBlockElement::NONE); // logically we might not have a connected cluster here
 	resol *= trackMomentum;
 
 	if ( !ecalElems.empty() ) { 
@@ -990,7 +998,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  reco::PFClusterRef clusterRef = elements[thisEcal].clusterRef();
 	  deficit -= clusterRef->energy();
 	  resol = neutralHadronEnergyResolution(trackMomentum,
-						clusterRef->positionREP().Eta());
+						clusterRef->positionREP().Eta(),
+						elements[thisEcal].type());
 	  resol *= trackMomentum;
 	}
 
@@ -1135,7 +1144,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	if ( !thatIsAMuon && trackRef->ptError() > ptError_) { 
 	  double deficit = trackMomentum + trackRef->p() - clusterRef->energy();
 	  double resol = nSigmaTRACK_*neutralHadronEnergyResolution(trackMomentum+trackRef->p(),
-								    clusterRef->positionREP().Eta());
+								    clusterRef->positionREP().Eta(),
+								    the_ecal_type);
 	  resol *= (trackMomentum+trackRef->p());
 	  if ( deficit > nSigmaTRACK_*resol ) { 
  	    rejectFake = true;
@@ -1360,7 +1370,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	*/
 	
 	// Add a photon is the energy excess is large enough
-	double resol = neutralHadronEnergyResolution(trackMomentum,pivotalRef->positionREP().Eta());
+	double resol = neutralHadronEnergyResolution(trackMomentum,pivotalRef->positionREP().Eta(),the_ecal_type);
 	resol *= trackMomentum;
 	if ( neutralEnergy > std::max(0.5,nSigmaECAL_*resol) ) {
 	  neutralEnergy /= slopeEcal;
@@ -2101,7 +2111,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     hadronDirection = hadronAtECAL.Unit();
 
     // Determine the expected calo resolution from the total charged momentum
-    double Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());    
+    double Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta(), the_hcal_type);    
     Caloresolution *= totalChargedMomentum;
     // Account for muons
     Caloresolution = std::sqrt(Caloresolution*Caloresolution + muonHCALError + muonECALError);
@@ -2287,7 +2297,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  //if ( totalChargedMomentum < caloEnergy ) break;	
 	}
 	// New calo resolution.
-	Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());    
+	Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta(), the_hcal_type);    
 	Caloresolution *= totalChargedMomentum;
 	Caloresolution = std::sqrt(Caloresolution*Caloresolution + muonHCALError + muonECALError);
       }
@@ -2369,7 +2379,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     }
 
     // New determination of the calo and track resolution avec track deletion/rescaling.
-    Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());    
+    Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta(), the_hcal_type);    
     Caloresolution *= totalChargedMomentum;
     Caloresolution = std::sqrt(Caloresolution*Caloresolution + muonHCALError + muonECALError);
 
@@ -2417,7 +2427,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     }
 
     // New determination of the calo and track resolution avec track deletion/rescaling.
-    Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());    
+    Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta(), the_hcal_type);    
     Caloresolution *= totalChargedMomentum;
     Caloresolution = std::sqrt(Caloresolution*Caloresolution + muonHCALError + muonECALError);
 
@@ -3396,7 +3406,16 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
 //GMA need the followign two for HO also
 
 double 
-PFAlgo::neutralHadronEnergyResolution(double clusterEnergyHCAL, double eta) const {
+PFAlgo::neutralHadronEnergyResolution(double clusterEnergyHCAL, double eta, PFBlockElement::Type the_cluster_type) const {
+
+  // Use configurable HGCal resolution
+  if (the_cluster_type == PFBlockElement::HGC_HCALF ||
+      the_cluster_type == PFBlockElement::HGC_HCALB ||
+      the_cluster_type == PFBlockElement::HGC_ECAL || 
+      (the_cluster_type == PFBlockElement::NONE && fabs(eta) > 1.48) ) { 
+    if (debug_) cout << "\t\t\tUsing configured HGCal resolution const=" << HGCalResolutionConst_ << " stoch=" << HGCalResolutionStoch_ << endl;
+    return sqrt( HGCalResolutionStoch_*HGCalResolutionStoch_/clusterEnergyHCAL + HGCalResolutionConst_*HGCalResolutionConst_ );
+  }
 
   // Add a protection
 
