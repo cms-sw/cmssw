@@ -137,9 +137,10 @@ void HcalDetDiagTimingMonitor::setup(DQMStore::IBooker &ib)
 
 void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  HcalBaseDQMonitor::analyze(iEvent, iSetup);
   if (!IsAllowedCalibType()) return;
   if (LumiInOrder(iEvent.luminosityBlock())==false) return;
-  HcalBaseDQMonitor::analyze(iEvent, iSetup);
+//  HcalBaseDQMonitor::analyze(iEvent, iSetup);
   
   int eta,phi,depth,nTS,BXinEVENT=1,TRIGGER=0;
   

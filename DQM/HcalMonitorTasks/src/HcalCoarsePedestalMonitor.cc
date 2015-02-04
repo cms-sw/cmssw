@@ -103,6 +103,7 @@ void HcalCoarsePedestalMonitor::bookHistograms(DQMStore::IBooker &ib, const edm:
 
 void HcalCoarsePedestalMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 {
+  HcalBaseDQMonitor::analyze(e,s);
   if (!IsAllowedCalibType()) return;
   if (LumiInOrder(e.luminosityBlock())==false) return;
 
@@ -138,7 +139,7 @@ void HcalCoarsePedestalMonitor::analyze(edm::Event const&e, edm::EventSetup cons
   // all objects grabbed; event is good
   if (debug_>1) std::cout <<"\t<HcalCoarsePedestalMonitor::analyze>  Processing good event! event # = "<<ievt_<<std::endl;
 
-  HcalBaseDQMonitor::analyze(e,s); // base class increments ievt_, etc. counters
+//  HcalBaseDQMonitor::analyze(e,s); // base class increments ievt_, etc. counters
 
   // Digi collection was grabbed successfully; process the Event
   processEvent(*hbhe_digi, *ho_digi, *hf_digi, *report);
