@@ -52,6 +52,7 @@ namespace evf {
 		),
     run_(pset.getUntrackedParameter<unsigned int> ("runNumber",0)),
     outputAdler32Recheck_(pset.getUntrackedParameter<bool>("outputAdler32Recheck",false)),
+    hltSourceDirectory_(pset.getUntrackedParameter<std::string>("hltSourceDirectory","")),
     hostname_(""),
     bu_readlock_fd_(-1),
     bu_writelock_fd_(-1),
@@ -178,10 +179,29 @@ namespace evf {
 	tryInitializeFuLockFile();
 	fflush(fu_rw_lock_stream);
 	close(fu_readwritelock_fd_);
+
+        if (hltSourceDirectory_.size())
+	{
+	  struct stat buf;
+	  if (stat(hltSourceDirectory_.c_str(),&buf)==0) {
+	    std::string hltdir=bu_run_dir_+"/hlt";
+	    std::string tmphltdir=bu_run_open_dir_+"/hlt";
+	    retval = mkdir(tmphltdir.c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+            boost::filesystem::copy_file(hltSourceDirectory_+"/HltConfig.py",tmphltdir+"/HltConfig.py");
+            boost::filesystem::copy_file(hltSourceDirectory_+"/CMSSW_VERSION",tmphltdir+"/CMSSW_VERSION");
+            boost::filesystem::copy_file(hltSourceDirectory_+"/SCRAM_ARCH",tmphltdir+"/SCRAM_ARCH");
+
+            boost::filesystem::rename(tmphltdir,hltdir);
+	  }
+          else
+	    throw cms::Exception("DaqDirector") << " Error looking for HLT configuration -: " << hltSourceDirectory_;
+	}
+        //else{}//no configuration specified
       }
     else
-      {
-	// for FU, check if bu base dir exists
+    {
+      // for FU, check if bu base dir exists
 
 	retval = mkdir(bu_base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	if (retval != 0 && errno != EEXIST) {
