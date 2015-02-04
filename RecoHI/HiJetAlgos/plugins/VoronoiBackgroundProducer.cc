@@ -116,11 +116,11 @@ VoronoiBackgroundProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	 const bool isData = iEvent.isRealData();
 	 const char *calibrationFile = NULL;
       if(isCalo_){
-        if(isData) calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_calo_data.txt";
-        if(!isData) calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_calo_mc.txt";
+        if(isData) calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_hermite_calo_data.txt";
+        if(!isData) calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_hermite_calo_mc.txt";
       }else{
-        if(isData) calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_pf_data.txt";
-        if(!isData) calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_pf_mc.txt";
+        if(isData) calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_hermite_pf_data.txt";
+        if(!isData) calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_hermite_pf_mc.txt";
       }
 	ue = new UECalibration(calibrationFile);
 	}
