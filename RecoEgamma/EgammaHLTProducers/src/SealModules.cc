@@ -33,7 +33,6 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/ESRecHitsMerger.h"
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTNxNClusterProducer.h"
-#include "RecoEgamma/EgammaHLTProducers/interface/HLTRechitInRegionsProducer.h"
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPFPhotonIsolationProducer.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPFChargedIsolationProducer.h"
@@ -70,11 +69,7 @@ DEFINE_FWK_MODULE(ESRecHitsMerger);
 DEFINE_FWK_MODULE(EgammaHLTNxNClusterProducer);
 DEFINE_FWK_MODULE(EgammaHLTCombinedIsolationProducer);
 DEFINE_FWK_MODULE(EgammaHLTElectronCombinedIsolationProducer);
-typedef HLTRechitInRegionsProducer<l1extra::L1EmParticle> EgammaHLTRechitInRegionsProducer;
-DEFINE_FWK_MODULE(EgammaHLTRechitInRegionsProducer);
 
-typedef HLTRechitInRegionsProducer<reco::RecoChargedCandidate> MuonHLTRechitInRegionsProducer;
-DEFINE_FWK_MODULE(MuonHLTRechitInRegionsProducer);
 
 
 DEFINE_FWK_MODULE(EgammaHLTPFPhotonIsolationProducer);
