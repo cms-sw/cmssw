@@ -257,19 +257,6 @@ namespace reco {
       else return reco::numberOf<T, Tag>( * this );
     }
 
-    template<typename S>
-      struct daughter_iterator GCC11_FINAL  {
-        typedef boost::filter_iterator<S, const_iterator> type;
-      };
-
-    template<typename S>
-      typename daughter_iterator<S>::type beginFilter( const S & s ) const {
-      return boost::make_filter_iterator(s, begin(), end());
-    }
-    template<typename S>
-      typename daughter_iterator<S>::type endFilter( const S & s ) const {
-      return boost::make_filter_iterator(s, end(), end());
-    }
 
 
     virtual bool isElectron() const;
