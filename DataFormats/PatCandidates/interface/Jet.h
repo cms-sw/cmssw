@@ -71,7 +71,7 @@ namespace pat {
   typedef std::vector<edm::FwdPtr<reco::BaseTagInfo> > TagInfoFwdPtrCollection;
   typedef std::vector<edm::FwdPtr<reco::PFCandidate> > PFCandidateFwdPtrCollection;
   typedef std::vector<edm::FwdPtr<CaloTower> > CaloTowerFwdPtrCollection;
-  typedef std::vector<edm::FwdPtr<pat::Jet> > JetFwdPtrCollection;
+  typedef std::vector<edm::Ptr<pat::Jet> > JetPtrCollection;
 
 
   class Jet : public PATObject<reco::Jet> {
@@ -485,14 +485,14 @@ namespace pat {
 
 
       /// Access to subjet list
-      pat::JetFwdPtrCollection const & subjets( unsigned int index = 0 ) const;
+      pat::JetPtrCollection const & subjets( unsigned int index = 0 ) const;
 
 
       /// String access to subjet list
-      pat::JetFwdPtrCollection const & subjets( std::string label ) const ;
+      pat::JetPtrCollection const & subjets( std::string label ) const ;
 
       /// Add new set of subjets
-      void addSubjets( pat::JetFwdPtrCollection const & pieces, std::string label = ""  );
+      void addSubjets( pat::JetPtrCollection const & pieces, std::string label = ""  );
 
       /// Check to see if the subjet collection exists
       bool hasSubjets( std::string label ) const { return find( subjetLabels_.begin(), subjetLabels_.end(), label) != subjetLabels_.end(); }
@@ -518,7 +518,7 @@ namespace pat {
 
 
       // ---- Jet Substructure ----
-      std::vector< pat::JetFwdPtrCollection> subjetCollections_;
+      std::vector< pat::JetPtrCollection> subjetCollections_;
       std::vector< std::string>          subjetLabels_; 
 
       // ---- MC info ----
