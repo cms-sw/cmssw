@@ -27,17 +27,17 @@ legacyBTagging = cms.Sequence(
 
         + ghostTrackVertexTagInfos *
         ghostTrackBJetTags
-      ) #+
+      ) +
 
       # soft lepton tag infos and algos
-      #softPFMuonsTagInfos *
-      #softPFMuonBJetTags
-      #+ softPFElectronsTagInfos *
-      #softPFElectronBJetTags
+      softPFMuonsTagInfos *
+      softPFMuonBJetTags
+      + softPFElectronsTagInfos *
+      softPFElectronBJetTags
     )
 
     # overall combined taggers
-    #* combinedMVABJetTags
+    * combinedMVABJetTags
 )
 
 # new candidate-based fwk, with PF inputs
@@ -60,35 +60,33 @@ pfBTagging = cms.Sequence(
         pfInclusiveSecondaryVertexFinderTagInfos *
         pfCombinedInclusiveSecondaryVertexV2BJetTags
 
-      ) #+
+      ) +
 
       # soft lepton tag infos and algos
-      #softPFMuonsTagInfos ##*
-      #softPFMuonBJetTags
-      #+ softPFElectronsTagInfos ##*
-      #softPFElectronBJetTags
-    ) #*
+      softPFMuonsTagInfos *
+      softPFMuonBJetTags
+      + softPFElectronsTagInfos *
+      softPFElectronBJetTags
+    ) *
 
     # overall combined taggers
-    #( #CSV + soft-lepton + jet probability discriminators combined
-    #  pfCombinedMVABJetTags
-    #
-    #  # CSV + soft-lepton variables combined (btagger)
-    #  + 
-    #  pfCombinedSecondaryVertexSoftLeptonBJetTags   
-    #)
+    ( #CSV + soft-lepton + jet probability discriminators combined
+      pfCombinedMVABJetTags
+
+      #CSV + soft-lepton variables combined (btagger)
+      #+ pfCombinedSecondaryVertexSoftLeptonBJetTags   
+    )
 )
 
-# new candidate-based ctagging sequence, requires its own IVF vertices (relaxed IVF reconstruction cuts) but IP and soft-lepton taginfos from btagging sequence can be recycled
+# new candidate-based ctagging sequence, requires its own IVF vertices (relaxed IVF reconstruction cuts) 
+# but IP and soft-lepton taginfos from btagging sequence can be recycled
 pfCTagging = cms.Sequence(
-        ( inclusiveCandidateVertexingCtagL *
-          pfInclusiveSecondaryVertexFinderCtagLTagInfos
-	) *
+    ( inclusiveCandidateVertexingCtagL *
+      pfInclusiveSecondaryVertexFinderCtagLTagInfos
+    ) *
 
-        # CSV + soft-lepton variables combined (ctagger optimized for c vs dusg)
-        pfCombinedSecondaryVertexSoftLeptonCtagLJetTags    
+    # CSV + soft-lepton variables combined (ctagger optimized for c vs dusg)
+    pfCombinedSecondaryVertexSoftLeptonCtagLJetTags
 )
 
-btagging = legacyBTagging + pfBTagging
-#btagging = legacyBTagging + pfBTagging * pfCTagging
-
+btagging = legacyBTagging + pfBTagging #* pfCTagging
