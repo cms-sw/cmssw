@@ -37,9 +37,8 @@
 //____________________________________________________________________________||
 namespace reco
 {
-  //typedef ROOT::Math::SMatrix<double,2> METCovMatrix;
-  typedef math::ErrorD<2>::type METCovMatrix;
-
+  typedef ROOT::Math::SMatrix<double,2> METCovMatrix;
+  
   class MET : public RecoCandidate
   {
   public:
