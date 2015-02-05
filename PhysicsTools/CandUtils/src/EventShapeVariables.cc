@@ -5,7 +5,7 @@
 /// constructor from reco::Candidates
 EventShapeVariables::EventShapeVariables(const edm::View<reco::Candidate>& inputVectors)
 {
-  std::cout << "inputVectors.size = " << inputVectors.size() << std::endl;
+  //std::cout << "inputVectors.size = " << inputVectors.size() << std::endl;
   inputVectors_.reserve( inputVectors.size() );
   for ( edm::View<reco::Candidate>::const_iterator vec = inputVectors.begin(); vec != inputVectors.end(); ++vec){
     inputVectors_.push_back(math::XYZVector(vec->px(), vec->py(), vec->pz()));
