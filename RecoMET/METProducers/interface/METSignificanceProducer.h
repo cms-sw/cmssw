@@ -36,16 +36,10 @@
 #include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 
-#include "RecoMET/METAlgorithms/src/METSignificance.cc"
+#include "RecoMET/METAlgorithms/interface/METSignificance.h"
 
-#include <string.h>
+#include <string>
 
-
-//____________________________________________________________________________||
-namespace metsig
-{
-    class SignAlgoResolutions;
-}
 
 //____________________________________________________________________________||
 namespace cms
