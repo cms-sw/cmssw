@@ -24,7 +24,7 @@ muonShowerInformation.muonCollection = "muons"
 
 #don't modify somebody else's sequence, create a new one if needed
 #standalone muon tracking is already done... so remove standalonemuontracking from muontracking
-muonreco_plus_isolation_PbPb = muonreco_plus_isolation.copyAndExclude(standalonemuontracking._seq._collection)
+muonreco_plus_isolation_PbPb = muonreco_plus_isolation.copyAndExclude(standalonemuontracking._seq._collection + displacedGlobalMuonTracking._seq._collection)
 muonreco_plus_isolation_PbPb.replace(muons1stStep, muons)
 
 
