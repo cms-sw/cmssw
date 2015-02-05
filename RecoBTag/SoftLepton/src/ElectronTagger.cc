@@ -5,7 +5,6 @@
 #include "RecoBTag/SoftLepton/interface/ElectronTagger.h"
 #include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
 #include <iostream>
-#include "TRandom3.h"
 
 /// b-tag a jet based on track-to-jet parameters in the extened info collection
 float ElectronTagger::discriminator(const TagInfoHelper & tagInfo) const {
@@ -16,7 +15,7 @@ float ElectronTagger::discriminator(const TagInfoHelper & tagInfo) const {
   for (unsigned int i = 0; i < info.leptons(); i++) {
     const reco::SoftLeptonProperties & properties = info.properties(i);
     if (m_selector(properties)) {
-	int theSeed=1+round(10000.0*fabs(properties.deltaR));
+	int theSeed=1+round(10000.0*std::abs(properties.deltaR));
 	random->SetSeed(theSeed);
 	float rndm = random->Uniform(0,1);
 	//for negative tagger, flip 50% of the negative signs to positive value

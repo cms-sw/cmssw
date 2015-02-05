@@ -80,7 +80,7 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
     // Loop on jet daughters
     for(unsigned int id=0, nd=jetRef->numberOfDaughters(); id<nd; ++id) {
       edm::Ptr<reco::Candidate> lepPtr = jetRef->daughterPtr(id);
-      if(abs(lepPtr->pdgId())!=13) continue;
+      if(std::abs(lepPtr->pdgId())!=13) continue;
       
       const reco::Muon* muon(NULL);
       // Step 1: try to access the muon from reco::PFCandidate
@@ -102,7 +102,7 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
           }
           // Step 3: try a match with dR and dpT if pat::Muon casting fails
           else {
-            if(deltaR(*recomuon, *lepPtr)<0.01 && fabs(recomuon->pt()-lepPtr->pt())/lepPtr->pt()<0.1) {
+            if(reco::deltaR(*recomuon, *lepPtr)<0.01 && std::abs(recomuon->pt()-lepPtr->pt())/lepPtr->pt()<0.1) {
               muon=theMuonCollection->refAt(im).get();
               break;
             }
@@ -120,7 +120,7 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
       reco::SoftLeptonProperties properties;
       properties.sip2d    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
       properties.sip3d    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
-      properties.deltaR   = deltaR(*jetRef, *muon);
+      properties.deltaR   = reco::deltaR(*jetRef, *muon);
       properties.ptRel    = ( (jetvect-muonvect).Cross(muonvect) ).R() / jetvect.R(); // | (Pj-Pu) X Pu | / | Pj |
       float mag = muonvect.R()*jetvect.R();
       float dot = muon->p4().Dot(jetRef->p4());
@@ -129,10 +129,10 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
       properties.ratioRel = muon->p4().Dot(jetRef->p4()) / jetvect.Mag2();
       properties.p0Par    = boostedPPar(muon->momentum(), jetRef->momentum());
       
-      if(fabs(properties.sip3d)>SIPcut) continue;
+      if(std::abs(properties.sip3d)>SIPcut) continue;
       
       // Filter leptons from W, Z decays
-      if(useFilter && ((fabs(properties.sip3d)<IPcut && properties.ratio>ratio1cut) || properties.ratio>ratio2cut)) continue;
+      if(useFilter && ((std::abs(properties.sip3d)<IPcut && properties.ratio>ratio1cut) || properties.ratio>ratio2cut)) continue;
       
       // Insert lepton properties
       tagInfo.insert(lepPtr, properties);

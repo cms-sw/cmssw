@@ -5,6 +5,7 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
 #include "RecoBTag/SoftLepton/interface/MvaSoftElectronEstimator.h"
+#include "TRandom3.h"
 
 /** \class ElectronTagger
  *
@@ -34,16 +35,13 @@ ElectronTagger::ElectronTagger(const edm::ParameterSet & configuration):
   {
 	uses("seTagInfos");
         random=new TRandom3();
-  	WeightFile=configuration.getParameter<edm::FileInPath>("weightFile");
+	WeightFile=configuration.getParameter<edm::FileInPath>("weightFile");
 	mvaID=new MvaSoftEleEstimator(WeightFile.fullPath());
-
-//  	path_mvaWeightFileEleID =edm::FileInPath("RecoBTag/SoftLepton/data/MVA_SE_BDT_weight.weights.xml" ).fullPath();
-//  	vecstr.push_back(path_mvaWeightFileEleID);
-//	mvaID_=new MvaSoftEleEstimator(vecstr);  
   }
 
 
 ElectronTagger::~ElectronTagger() {
+        delete random;
 	delete mvaID;
   }
 #endif

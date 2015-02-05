@@ -26,7 +26,6 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
 
 SoftPFElectronTagInfoProducer::SoftPFElectronTagInfoProducer (const edm::ParameterSet& conf)
 {
@@ -83,25 +82,25 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 			const reco::GsfElectron* recoelectron=theGEDGsfElectronCollection->refAt(ie).get();
 			const pat::Electron* patelec=dynamic_cast<const pat::Electron*>(recoelectron);
 			if(patelec){
-				if(patelec->passConversionVeto())continue;
+				if(patelec->passConversionVeto()) continue;
 			}
 			else{
-				if(ConversionTools::hasMatchedConversion(*(recoelectron),hConversions,beamspot.position()))continue;
+				if(ConversionTools::hasMatchedConversion(*(recoelectron),hConversions,beamspot.position())) continue;
 			}
 			//Make sure that the electron is inside the jet
-			if(deltaR2((*recoelectron),(*jetRef))>DeltaRElectronJet*DeltaRElectronJet)continue;
+			if(reco::deltaR2((*recoelectron),(*jetRef))>DeltaRElectronJet*DeltaRElectronJet) continue;
 			// Need a gsfTrack
-			if(recoelectron->gsfTrack().get()==NULL)continue;
+			if(recoelectron->gsfTrack().get()==NULL) continue;
 			reco::SoftLeptonProperties properties;
 			// reject if it has issues with the track
-			if(!isElecClean(iEvent,recoelectron) )continue;
+			if(!isElecClean(iEvent,recoelectron) ) continue;
 			//Compute the TagInfos members
 			math::XYZVector pel=recoelectron->p4().Vect();
   			math::XYZVector pjet=jetRef->p4().Vect();
   			reco::TransientTrack transientTrack=transientTrackBuilder->build(recoelectron->gsfTrack());
   			properties.sip2d    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
   			properties.sip3d    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
-  			properties.deltaR   = deltaR((*jetRef), (*recoelectron));
+  			properties.deltaR   = reco::deltaR((*jetRef), (*recoelectron));
   			properties.ptRel    = ( (pjet-pel).Cross(pel) ).R() / pjet.R();
   			float mag = pel.R()*pjet.R();
   			float dot = recoelectron->p4().Dot(jetRef->p4());
@@ -110,7 +109,7 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
   			properties.ratioRel = recoelectron->p4().Dot(jetRef->p4()) / pjet.Mag2();
   			properties.p0Par    = boostedPPar(recoelectron->momentum(), jetRef->momentum());
 			properties.elec_mva    = recoelectron->mva_e_pi();
-			 if(abs(properties.sip3d>MaxSip3D)) continue;
+			 if(std::abs(properties.sip3d>MaxSip3D)) continue;
 			// Fill the TagInfos
 			tagInfo.insert(lepPtr, properties );
 		}
