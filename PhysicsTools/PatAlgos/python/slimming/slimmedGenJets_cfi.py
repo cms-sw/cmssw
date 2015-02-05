@@ -7,3 +7,12 @@ slimmedGenJets = cms.EDProducer("PATGenJetSlimmer",
     clearDaughters = cms.bool(False), #False means rekeying
     dropSpecific = cms.bool(False),
 )
+
+
+slimmedGenJetsAK8 = cms.EDProducer("PATGenJetSlimmer",
+    src = cms.InputTag("ak8GenJets"),
+    packedGenParticles = cms.InputTag("packedGenParticles"),
+    cut = cms.string("pt > 8"),
+    clearDaughters = cms.bool(False), #False means rekeying
+    dropSpecific = cms.bool(False),
+)
