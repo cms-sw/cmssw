@@ -2,29 +2,29 @@ autoCond = {
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
-    'run1_design'       :   'DESRUN1_74_V0',
+    'run1_design'       :   'DESRUN1_74_V1',
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
-    'run1_mc'           :   'MCRUN1_74_V0',
+    'run1_mc'           :   'MCRUN1_74_V1',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'        :   'MCHI1_74_V0',
+    'run1_mc_hi'        :   'MCHI1_74_V1',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pa'        :   'MCPA1_74_V0',
+    'run1_mc_pa'        :   'MCPA1_74_V1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   'DESRUN2_74_V0',
+    'run2_design'       :   'DESRUN2_74_V1',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   'MCRUN2_74_V0',
+    'run2_mc_50ns'      :   'MCRUN2_74_V2',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   'MCRUN2_74_V1',
+    'run2_mc'           :   'MCRUN2_74_V3',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
-    'run2_mc_hi'        :   'MCHI2_74_V0',
+    'run2_mc_hi'        :   'MCHI2_74_V1',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   'GR_R_74_V0A',
+    'run1_data'         :   'GR_R_74_V2A',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   'GR_R_74_V1A',
+    'run2_data'         :   'GR_R_74_V3A',
     # GlobalTag for Run1 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
-    'run1_hlt'          :   'GR_H_V47A,frontier://FrontierProd/CMS_CONDITIONS,frontier://FrontierProd/',
+    'run1_hlt'          :   'GR_H_V49A,frontier://FrontierProd/CMS_CONDITIONS,frontier://FrontierProd/',
     # GlobalTag for Run2 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
-    'run2_hlt'          :   'GR_H_V48A,frontier://FrontierProd/CMS_CONDITIONS,frontier://FrontierProd/',
+    'run2_hlt'          :   'GR_H_V50A,frontier://FrontierProd/CMS_CONDITIONS,frontier://FrontierProd/',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
     'phase1_2017_design' :  'DES17_70_V2', # placeholder (GT not meant for standard RelVal)
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
