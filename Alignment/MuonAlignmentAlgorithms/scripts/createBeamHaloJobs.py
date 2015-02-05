@@ -19,7 +19,7 @@ dependencies.
 DIRNAME        directories will be named DIRNAME01, DIRNAME02, etc.
 PATTERN        a quoted combination of "phiy", "phipos", "phiz"
 INITIALGEOM    SQLite file containing muon geometry with tag names
-               CSCAlignmentRcd, CSCAlignmentErrorRcd
+               CSCAlignmentRcd, CSCAlignmentErrorExtendedRcd
 INPUTFILES     Python file defining 'fileNames', a list of input files as
                strings"""
 
@@ -359,9 +359,9 @@ process.MuonGeometryDBConverter.outputXML.suppressCSCLayers = True
 process.MuonGeometryDBConverter.getAPEs = True
 process.PoolDBESSource.toGet = cms.VPSet(
     cms.PSet(record = cms.string(\"DTAlignmentRcd\"), tag = cms.string(\"DTAlignmentRcd\")),
-    cms.PSet(record = cms.string(\"DTAlignmentErrorRcd\"), tag = cms.string(\"DTAlignmentErrorRcd\")),
+    cms.PSet(record = cms.string(\"DTAlignmentErrorExtendedRcd\"), tag = cms.string(\"DTAlignmentErrorExtendedRcd\")),
     cms.PSet(record = cms.string(\"CSCAlignmentRcd\"), tag = cms.string(\"CSCAlignmentRcd\")),
-    cms.PSet(record = cms.string(\"CSCAlignmentErrorRcd\"), tag = cms.string(\"CSCAlignmentErrorRcd\")),
+    cms.PSet(record = cms.string(\"CSCAlignmentErrorExtendedRcd\"), tag = cms.string(\"CSCAlignmentErrorExtendedRcd\")),
       )
 """ % vars())
 

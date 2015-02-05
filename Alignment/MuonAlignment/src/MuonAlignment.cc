@@ -14,7 +14,7 @@
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/MuonAlignment/interface/MuonAlignment.h"
@@ -31,13 +31,13 @@
 void MuonAlignment::init()
 {
    theDTAlignRecordName = "DTAlignmentRcd";
-   theDTErrorRecordName = "DTAlignmentErrorRcd";
+   theDTErrorRecordName = "DTAlignmentErrorExtendedRcd";
    theCSCAlignRecordName = "CSCAlignmentRcd";
-   theCSCErrorRecordName = "CSCAlignmentErrorRcd";
+   theCSCErrorRecordName = "CSCAlignmentErrorExtendedRcd";
    theDTSurveyRecordName = "DTSurveyRcd";
-   theDTSurveyErrorRecordName = "DTSurveyErrorRcd";
+   theDTSurveyErrorRecordName = "DTSurveyErrorExtendedRcd";
    theCSCSurveyRecordName = "CSCSurveyRcd";
-   theCSCSurveyErrorRecordName = "CSCSurveyErrorRcd";
+   theCSCSurveyErrorRecordName = "CSCSurveyErrorExtendedRcd";
    theAlignableMuon = NULL;
    theAlignableNavigator = NULL;
 }
@@ -142,26 +142,26 @@ void MuonAlignment::copyAlignmentToSurvey(double shiftErr, double angleErr) {
    recursiveMap(theAlignableMuon->CSCEndcaps(), alignableMap);
 
    // Set the survey error to the alignable error, expanding the matrix as needed
-   AlignmentErrors* dtAlignmentErrors = theAlignableMuon->dtAlignmentErrors();
-   AlignmentErrors* cscAlignmentErrors = theAlignableMuon->cscAlignmentErrors();
-   std::vector<AlignTransformError> alignmentErrors;
-   std::copy(dtAlignmentErrors->m_alignError.begin(), dtAlignmentErrors->m_alignError.end(), std::back_inserter(alignmentErrors));
-   std::copy(cscAlignmentErrors->m_alignError.begin(), cscAlignmentErrors->m_alignError.end(), std::back_inserter(alignmentErrors));
+   AlignmentErrorsExtended* dtAlignmentErrorsExtended = theAlignableMuon->dtAlignmentErrorsExtended();
+   AlignmentErrorsExtended* cscAlignmentErrorsExtended = theAlignableMuon->cscAlignmentErrorsExtended();
+   std::vector<AlignTransformErrorExtended> alignmentErrors;
+   std::copy(dtAlignmentErrorsExtended->m_alignError.begin(), dtAlignmentErrorsExtended->m_alignError.end(), std::back_inserter(alignmentErrors));
+   std::copy(cscAlignmentErrorsExtended->m_alignError.begin(), cscAlignmentErrorsExtended->m_alignError.end(), std::back_inserter(alignmentErrors));
 
-   for (std::vector<AlignTransformError>::const_iterator alignmentError = alignmentErrors.begin();
+   for (std::vector<AlignTransformErrorExtended>::const_iterator alignmentError = alignmentErrors.begin();
 	alignmentError != alignmentErrors.end();
 	++alignmentError) {
       align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
-      CLHEP::HepSymMatrix matrix3x3 = alignmentError->matrix();
+      CLHEP::HepSymMatrix matrix6x6new = alignmentError->matrix();
 
-      for (int i = 0;  i < 3;  i++) {
-	 for (int j = 0;  j < 3;  j++) {
-	    matrix6x6(i, j) = matrix3x3(i+1, j+1);
+      for (int i = 0;  i < 6;  i++) {
+	 for (int j = 0;  j < 6;  j++) {
+	    matrix6x6(i, j) = matrix6x6new(i, j);
 	 }
       }
-      matrix6x6(3,3) = angleErr;
-      matrix6x6(4,4) = angleErr;
-      matrix6x6(5,5) = angleErr;
+      //matrix6x6(3,3) = angleErr;
+      //matrix6x6(4,4) = angleErr;
+      //matrix6x6(5,5) = angleErr;
 
       Alignable *alignable = alignableMap[alignmentError->rawId()];
       alignable->setSurvey(new SurveyDet(alignable->surface(), matrix6x6));
@@ -212,15 +212,15 @@ void MuonAlignment::recursiveCopySurveyToAlignment(Alignable *alignable) {
       alignable->move(align::GlobalVector(pos.x(), pos.y(), pos.z()));
 
       align::ErrorMatrix matrix6x6 = survey->errors();  // start from 0,0
-      AlgebraicSymMatrix33 matrix3x3;                   // start from 0,0
-      for (int i = 0;  i < 3;  i++) {
+      AlgebraicSymMatrix66 matrix6x6new;                   // start from 0,0
+      for (int i = 0;  i < 6;  i++) {
 	 for (int j = 0;  j <= i;  j++) {
-	    matrix3x3(i, j) = matrix6x6(i, j);
+	    matrix6x6new(i, j) = matrix6x6(i, j);
 	 }
       }
 
       // this sets APEs at this level and (since 2nd argument is true) all lower levels
-      alignable->setAlignmentPositionError(AlignmentPositionError(GlobalError(matrix3x3)), true);
+      alignable->setAlignmentPositionError(AlignmentPositionError(GlobalErrorExtended(matrix6x6new)), true);
    }
 
    // do lower levels afterward to thwart the cumulative setting of APEs
@@ -320,11 +320,11 @@ void MuonAlignment::saveDTtoDB(void) {
 
   // Get alignments and errors
   Alignments*      dt_Alignments       = theAlignableMuon->dtAlignments() ;
-  AlignmentErrors* dt_AlignmentErrors  = theAlignableMuon->dtAlignmentErrors();
+  AlignmentErrorsExtended* dt_AlignmentErrorsExtended  = theAlignableMuon->dtAlignmentErrorsExtended();
 
   // Store DT alignments and errors
   poolDbService->writeOne<Alignments>( &(*dt_Alignments), poolDbService->currentTime(), theDTAlignRecordName);
-  poolDbService->writeOne<AlignmentErrors>( &(*dt_AlignmentErrors), poolDbService->currentTime(), theDTErrorRecordName);
+  poolDbService->writeOne<AlignmentErrorsExtended>( &(*dt_AlignmentErrorsExtended), poolDbService->currentTime(), theDTErrorRecordName);
 }
 
 void MuonAlignment::saveCSCtoDB(void) {
@@ -335,11 +335,11 @@ void MuonAlignment::saveCSCtoDB(void) {
 
   // Get alignments and errors
   Alignments*      csc_Alignments      = theAlignableMuon->cscAlignments();
-  AlignmentErrors* csc_AlignmentErrors = theAlignableMuon->cscAlignmentErrors();
+  AlignmentErrorsExtended* csc_AlignmentErrorsExtended = theAlignableMuon->cscAlignmentErrorsExtended();
 
   // Store CSC alignments and errors
   poolDbService->writeOne<Alignments>( &(*csc_Alignments), poolDbService->currentTime(), theCSCAlignRecordName);
-  poolDbService->writeOne<AlignmentErrors>( &(*csc_AlignmentErrors), poolDbService->currentTime(), theCSCErrorRecordName);
+  poolDbService->writeOne<AlignmentErrorsExtended>( &(*csc_AlignmentErrorsExtended), poolDbService->currentTime(), theCSCErrorRecordName);
 }
 
 void MuonAlignment::saveToDB(void) {

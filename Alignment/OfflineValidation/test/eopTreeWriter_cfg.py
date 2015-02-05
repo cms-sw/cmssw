@@ -23,7 +23,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # load configuration files
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.Geometry.GeometryDB_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'GR_R_42_V14::All'
 
@@ -73,8 +73,8 @@ process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
                                         toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
                                                                    tag = cms.string("TrackerAlignment_GR10_v4_offline")
                                                                    )## ,
-##                                                           cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
-##                                                                    tag = cms.string("TrackerAlignmentErrors_GR10_v2_offline")
+##                                                           cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"),
+##                                                                    tag = cms.string("TrackerAlignmentErrorsExtended_GR10_v2_offline")
 ##                                                                    ),
 ##                                                           cms.PSet(record = cms.string("TrackerSurfaceDeformationRcd"),
 ##                                                                    tag = cms.string("Deformations")
