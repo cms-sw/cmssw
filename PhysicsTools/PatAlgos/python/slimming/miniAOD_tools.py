@@ -84,11 +84,12 @@ def miniAOD_customizeCommon(process):
                      jetSource = cms.InputTag('ak8PFJetsCHS'),
                      algo= 'AK', rParam = 0.8,
                      jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-                     btagInfos = ['caTopTagInfosPAT']
+                     btagInfos = ['caTopTagInfosPAT'],
+                     genJetCollection = cms.InputTag('slimmedGenJetsAK8')
                      )
     process.patJetsAK8.userData.userFloats.src = [] # start with empty list of user floats
-    process.selectedPatJetsAK8.cut = cms.string("pt > 150")
-    process.patJetGenJetMatchAK8.matched =  'slimmedGenJets'
+    process.selectedPatJetsAK8.cut = cms.string("pt > 50")
+
 
 
     ## AK8 groomed masses
@@ -114,7 +115,6 @@ def miniAOD_customizeCommon(process):
     process.patJetsAK8.userData.userFloats.src += ['NjettinessAK8:tau1','NjettinessAK8:tau2','NjettinessAK8:tau3']
 
 
-
     ## PATify pruned fat jets
     addJetCollection(
         process,
@@ -136,10 +136,12 @@ def miniAOD_customizeCommon(process):
         jetCorrections = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'None'),
         explicitJTA = True,  # needed for subjet b tagging
         svClustering = True, # needed for subjet b tagging
+        genJetCollection = cms.InputTag('slimmedGenJets'), 
         fatJets=cms.InputTag('ak8PFJetsCHS'),             # needed for subjet flavor clustering
         groomedFatJets=cms.InputTag('ak8PFJetsCHSSoftDrop') # needed for subjet flavor clustering
     )
-
+    process.selectedPatJetsAK8PFCHSSoftDrop.cut = cms.string("pt > 200")
+    
     process.slimmedJetsAK8PFCHSSoftDropSubjets = cms.EDProducer("PATJetSlimmer",
         src = cms.InputTag("selectedPatJetsAK8PFCHSSoftDropSubjets"),
         packedPFCandidates = cms.InputTag("packedPFCandidates"),
@@ -149,9 +151,10 @@ def miniAOD_customizeCommon(process):
         dropSpecific = cms.string("1"),
         dropTagInfos = cms.string("1"),
     )
+
     
     ## Establish references between PATified fat jets and subjets using the BoostedJetMerger
-    process.selectedPatJetsAK8PFCHSSoftDropPacked = cms.EDProducer("BoostedJetMerger",
+    process.slimmedJetsAK8PFCHSSoftDropPacked = cms.EDProducer("BoostedJetMerger",
         jetSrc=cms.InputTag("selectedPatJetsAK8PFCHSSoftDrop"),
         subjetSrc=cms.InputTag("slimmedJetsAK8PFCHSSoftDropSubjets")
     )
@@ -162,25 +165,27 @@ def miniAOD_customizeCommon(process):
         jetSource = cms.InputTag('cmsTopTagPFJetsCHS'),
         jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
         btagDiscriminators = ['pfCombinedSecondaryVertexBJetTags', 'pfCombinedInclusiveSecondaryVertexV2BJetTags'],
+        genJetCollection = cms.InputTag('slimmedGenJetsAK8'), 
         getJetMCFlavour = False #
         )
     process.patJetsCMSTopTagCHS.addTagInfos = True
     process.patJetsCMSTopTagCHS.tagInfoSources = cms.VInputTag(
         cms.InputTag('caTopTagInfosPAT')
-        )    
+        )
+    process.selectedPatJetsCMSTopTagCHS.cut = cms.string("pt > 200")
 
     addJetCollection(
         process,
         labelName = 'CMSTopTagCHSSubjets',
         jetSource = cms.InputTag('cmsTopTagPFJetsCHS','caTopSubJets'),
-        algo = 'CA',  # needed for subjet flavor clustering
+        algo = 'AK',  # needed for subjet flavor clustering
         rParam = 0.8, # needed for subjet flavor clustering        
         btagDiscriminators = ['pfCombinedSecondaryVertexBJetTags', 'pfCombinedInclusiveSecondaryVertexV2BJetTags'],
         jetCorrections = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'None'),
-        genJetCollection = cms.InputTag('ak4GenJets'), # Using ak4GenJets for matching which is not entirely appropriate
+        genJetCollection = cms.InputTag('slimmedGenJets'), # Using ak4GenJets for matching which is not entirely appropriate
         explicitJTA = True,  # needed for subjet b tagging
         svClustering = True, # needed for subjet b tagging
-        fatJets=cms.InputTag('ca8PFJetsCHS'),             # needed for subjet flavor clustering
+        fatJets=cms.InputTag('ak8PFJetsCHS'),             # needed for subjet flavor clustering
         groomedFatJets=cms.InputTag('cmsTopTagPFJetsCHS') # needed for subjet flavor clustering
 
         )
@@ -196,33 +201,24 @@ def miniAOD_customizeCommon(process):
     )
     
     ## Establish references between PATified fat jets and subjets using the BoostedJetMerger
-    process.slimmedJetsAK8PFCHSPrunedPacked = cms.EDProducer("BoostedJetMerger",
+    process.slimmedJetsCMSTopTagCHSPacked = cms.EDProducer("BoostedJetMerger",
         jetSrc=cms.InputTag("selectedPatJetsCMSTopTagCHS"),
         subjetSrc=cms.InputTag("slimmedJetsCMSTopTagCHSSubjets")
     )
 
-    ## AK8 groomed jets
-    process.cmsTopTaggerMap = cms.EDProducer("TrivialDeltaRViewMatcher",
-                                    src = cms.InputTag("patJetsAK8"),
-                                    distMin = cms.double(0.8),
-                                    matched = cms.InputTag("patJetsCMSTopTagCHS"),
-                                    filter = cms.bool(True)
-                                )
 
-    process.ak8PFJetsCHSSoftDropMap = cms.EDProducer("TrivialDeltaRViewMatcher",
-                                        src = cms.InputTag("slimmedJetsAK8PFCHSPrunedPacked"),
-                                        distMin = cms.double(0.8),
-                                        matched = cms.InputTag("ak8PFJetsCHSSoftDrop")
-                                )
-
-
-
-    ## process.packedPatJetsAK8 = cms.EDProducer("JetSubstructurePacker",
-    ##     src = cms.InputTag("selectedPatJetsAK8"),
-    ##     groomingMaps = cms.VInputTag( cms.InputTag("ak8PFJetsCHSSoftDropMap"),
-    ##                                   cms.InputTag("cmsTopTaggerMap"),
-    ##                                   )
-    ##     )
+    process.packedPatJetsAK8 = cms.EDProducer("JetSubstructurePacker",
+            jetSrc = cms.InputTag("selectedPatJetsAK8"),
+            distMin = cms.double(0.8),
+            algoTags = cms.VInputTag(
+                cms.InputTag("slimmedJetsCMSTopTagCHSPacked"),
+                cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked"),
+            ),
+            algoLabels = cms.vstring(
+                'CMSTopTag',
+                'SoftDrop',
+                )
+    )
 
 
 
@@ -302,6 +298,7 @@ def miniAOD_customizeMC(process):
     process.patJetPartonMatch.matched = "prunedGenParticles"
     process.patJetPartonMatch.mcStatus = [ 3, 23 ]
     process.patJetGenJetMatch.matched = "slimmedGenJets"
+    process.patJetGenJetMatchAK8.matched =  "slimmedGenJetsAK8"
     process.patMuons.embedGenMatch = False
     process.patElectrons.embedGenMatch = False
     process.patPhotons.embedGenMatch = False
