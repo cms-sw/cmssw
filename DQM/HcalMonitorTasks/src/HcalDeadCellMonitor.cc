@@ -604,6 +604,7 @@ void HcalDeadCellMonitor::endJob()
 
 void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 {
+  HcalBaseDQMonitor::analyze(e,s);
   if (!IsAllowedCalibType()) return;
   endLumiProcessed_=false;
 
@@ -687,17 +688,10 @@ void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
       edm::LogWarning("HcalDeadCellMonitor")<< hoRechitLabel_<<" ho_rechit not available";
       return;
     }
-  if (!(e.getByToken(tok_gtEvm_, gtEvm_handle)))
-    {
-      edm::LogWarning("HcalDeadCellMonitor")<< "gtEvmDigis"<<" gtEvmDigis not available";
-      return;
-    }
-  L1GtfeExtWord gtfeEvmExtWord = gtEvm_handle.product()->gtfeWord();
 
   if (debug_>1) std::cout <<"\t<HcalDeadCellMonitor::analyze>  Processing good event! event # = "<<ievt_<<std::endl;
   // Good event found; increment counter (via base class analyze method)
   // This also runs the allowed calibration /lumi in order tests again;  remove?
-  HcalBaseDQMonitor::analyze(e,s);
   
   ++deadevt_; //increment local counter
   
@@ -731,13 +725,19 @@ void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 	    rbxlost[i] = 1;
 	  }
       
-      int intensity1_ = gtfeEvmExtWord.totalIntensityBeam1();
-      int intensity2_ = gtfeEvmExtWord.totalIntensityBeam2();
-      
-      is_stable_beam = gtfeEvmExtWord.beamMode() == 11 ? true : false; 
+	  //
+	  //  Modified: not to use gtfeEvmExtWord
+	  //  is_stable_beam = false for now! 
+	  //  Set beamMode to NOBEAM
+	  //  TODO: Obtain these values from TCDS Record
+	  //
+      int intensity1_ = 101;
+      int intensity2_ = 101;
+      is_stable_beam = false;
+	  int beamMode = 21;
       
       for (unsigned int i=132;i<156;++i)
-	if(occupancy_RBX[i] == 0 && gtfeEvmExtWord.beamMode() == 11) 
+	if(occupancy_RBX[i] == 0 && beamMode == 11) 
 	  if(intensity1_>100 && intensity2_>100)                     // only in stable beam mode (11) and with circulating beams, otherwise 
 	  {                                                          // this check is too sensitive in HF
 	    is_RBX_loss_ = 1;

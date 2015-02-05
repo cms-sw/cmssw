@@ -123,6 +123,7 @@ void HcalNZSMonitor::setup(DQMStore::IBooker &ib)
 
 void HcalNZSMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 {
+  HcalBaseDQMonitor::analyze(e,s);
   if (!IsAllowedCalibType()) return;
   if (LumiInOrder(e.luminosityBlock())==false) return;
   
@@ -143,7 +144,7 @@ void HcalNZSMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 
   const edm::TriggerNames & triggerNames = e.triggerNames(*hltRes);
   // Collections were found; increment counters
-  HcalBaseDQMonitor::analyze(e,s);
+//  HcalBaseDQMonitor::analyze(e,s);
 
   processEvent(*rawraw, *hltRes, e.bunchCrossing(), triggerNames);
 
