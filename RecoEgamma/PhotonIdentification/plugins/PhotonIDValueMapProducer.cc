@@ -89,13 +89,10 @@ PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& iCon
   //
   // Declare consummables
   //
-  if( dataFormat_ == "RECO" ){
-    // These are only needed for lazy tools for AOD
-    ebReducedRecHitCollection_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								("ebReducedRecHitCollection"));
-    eeReducedRecHitCollection_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								("eeReducedRecHitCollection"));
-  }  
+  ebReducedRecHitCollection_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
+							      ("ebReducedRecHitCollection"));
+  eeReducedRecHitCollection_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
+							      ("eeReducedRecHitCollection"));
 
   vtxToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"));
 
@@ -137,11 +134,8 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   const float dxyMax = 0.1;
   const float dzMax  = 0.2;
 
-  if( dataFormat_ == "RECO" ){
-    // Lazy tools work only for this format
-    lazyToolnoZS = new noZS::EcalClusterLazyTools(iEvent, iSetup, ebReducedRecHitCollection_, eeReducedRecHitCollection_); 
-  } 
-
+  lazyToolnoZS = new noZS::EcalClusterLazyTools(iEvent, iSetup, ebReducedRecHitCollection_, eeReducedRecHitCollection_); 
+  
   edm::Handle<edm::View<reco::Photon> > src;
   
   iEvent.getByToken(src_, src);
@@ -189,13 +183,8 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
     // retrieve the full5x5 directly from the object with ->full5x5_sigmaIetaIeta()
     // for both formats.
     float see = -999;
-    if( dataFormat_ == "RECO" ){
-      std::vector<float> vCov = lazyToolnoZS->localCovariances( theseed );
-      see = (isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
-    }
-    if( dataFormat_ == "PAT" ){
-      see = ( (const edm::Ptr<pat::Photon>)iPho)->userFloat("sigmaIetaIeta_NoZS");
-    }
+    std::vector<float> vCov = lazyToolnoZS->localCovariances( theseed );
+    see = (isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
     phoFull5x5SigmaIEtaIEta.push_back(see);
 
     // 
@@ -305,8 +294,7 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   writeValueMap(iEvent, src, phoNeutralHadronIsolation, phoNeutralHadronIsolation_);  
   writeValueMap(iEvent, src, phoPhotonIsolation, phoPhotonIsolation_);  
   
-  if( dataFormat_ == "RECO" )
-    delete lazyToolnoZS;
+  delete lazyToolnoZS;
 }
 
 void PhotonIDValueMapProducer::writeValueMap(edm::Event &iEvent,
