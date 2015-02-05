@@ -129,8 +129,9 @@ def miniAOD_customizeCommon(process):
         getJetMCFlavour = False # jet flavor needs to be disabled for groomed fat jets
     )
     ## Add CMS top tagger subjets
-    from RecoJets.Configuration.RecoPFJets_cff import ca8PFJetsCHS
-    process.ca8PFJetsCHS = ca8PFJetsCHS.clone(doAreaFastjet = cms.bool(False)) # needed for subjet flavor clustering
+    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSConstituents, ca8PFJetsCHS
+    process.ak8PFJetsCHSConstituents = ak8PFJetsCHSConstituents.clone() # needed for subjet flavor clustering
+    process.ca8PFJetsCHS = ca8PFJetsCHS.clone(src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents"), doAreaFastjet = cms.bool(False)) # needed for subjet flavor clustering
     addJetCollection(
         process,
         labelName = 'CMSTopTagPFJetsCHSSubjets',
