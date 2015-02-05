@@ -8,6 +8,7 @@
 <use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondCore/PopCon"/>
+<use   name="JetMETCorrections/Objects"/>
 <use   name="Geometry/CaloGeometry"/>
 
 <Flags CXXFLAGS="-frounding-math"/>
