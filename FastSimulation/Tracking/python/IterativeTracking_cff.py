@@ -7,9 +7,9 @@ from TrackingTools.TrackFitters.TrackFitters_cff import *
 from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
 
 from FastSimulation.Tracking.IterativeInitialStep_cff import *
+from FastSimulation.Tracking.IterativeDetachedTripletStep_cff import *
 from FastSimulation.Tracking.IterativeLowPtTripletStep_cff import *
 from FastSimulation.Tracking.IterativePixelPairStep_cff import *
-from FastSimulation.Tracking.IterativeDetachedTripletStep_cff import *
 from FastSimulation.Tracking.IterativeMixedTripletStep_cff import *
 from FastSimulation.Tracking.IterativePixelLessStep_cff import *
 from FastSimulation.Tracking.IterativeTobTecStep_cff import *
@@ -29,9 +29,9 @@ MeasurementTrackerEvent = RecoTracker.MeasurementDet.MeasurementTrackerEventProd
 iterativeTracking = cms.Sequence(
                                  MeasurementTrackerEvent 
                                  +iterativeInitialStep
+                                 +iterativeDetachedTripletStep
                                  +iterativeLowPtTripletStep
                                  +iterativePixelPairStep
-                                 +iterativeDetachedTripletStep
                                  +iterativeMixedTripletStep
                                  +iterativePixelLessStep
                                  +iterativeTobTecStep
