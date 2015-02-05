@@ -38,11 +38,11 @@
 
 // for watcher
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTSurveyErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorExtendedRcd.h"
 
 
 class Alignments;
@@ -132,7 +132,7 @@ class AlignmentProducer : public edm::ESProducerLooper
   /// (removes *globalCoordinates before writing if non-null...).
   /// Takes over ownership of alignments and alignmentErrrors.
   void writeDB(Alignments *alignments, const std::string &alignRcd,
-	       AlignmentErrors *alignmentErrors, const std::string &errRcd,
+	       AlignmentErrorsExtended *alignmentErrors, const std::string &errRcd,
 	       const AlignTransform *globalCoordinates,
 	       cond::Time_t time) const;
   /// Write surface deformations (bows & kinks) to DB for given record name
@@ -193,11 +193,11 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   // ESWatcher
   edm::ESWatcher<TrackerSurveyRcd> watchTkSurveyRcd_;
-  edm::ESWatcher<TrackerSurveyErrorRcd> watchTkSurveyErrRcd_;
+  edm::ESWatcher<TrackerSurveyErrorExtendedRcd> watchTkSurveyErrRcd_;
   edm::ESWatcher<DTSurveyRcd> watchDTSurveyRcd_;
-  edm::ESWatcher<DTSurveyErrorRcd> watchDTSurveyErrRcd_;
+  edm::ESWatcher<DTSurveyErrorExtendedRcd> watchDTSurveyErrRcd_;
   edm::ESWatcher<CSCSurveyRcd> watchCSCSurveyRcd_;
-  edm::ESWatcher<CSCSurveyErrorRcd> watchCSCSurveyErrRcd_;	
+  edm::ESWatcher<CSCSurveyErrorExtendedRcd> watchCSCSurveyErrRcd_;	
 
 };
 

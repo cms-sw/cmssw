@@ -15,6 +15,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/HcalAlignmentErrorExtendedRcd.h"
 #include "Geometry/Records/interface/PHcalRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "boost/mpl/vector.hpp"
@@ -27,6 +28,7 @@ class HcalGeometryRecord :
                 IdealGeometryRecord,
 		HcalAlignmentRcd, 
 		HcalAlignmentErrorRcd,
+                HcalAlignmentErrorExtendedRcd,
 		GlobalPositionRcd,
                 PHcalRcd               > > {};
 

@@ -120,7 +120,7 @@ dbOutputTemplate= """
         using CondDBSetup
         VPSet toPut = {
             { string record = "TrackerAlignmentRcd"  string tag = ".oO[tag]Oo." },
-            { string record = "TrackerAlignmentErrorRcd"  string tag = ".oO[errortag]Oo." }
+            { string record = "TrackerAlignmentErrorExtendedRcd"  string tag = ".oO[errortag]Oo." }
         }
                 # string connect = "sqlite_file:.oO[workdir]Oo./.oO[name]Oo.Common.oO[common]Oo..db"
                 string connect = "sqlite_file:.oO[name]Oo.Common.oO[common]Oo..db"
