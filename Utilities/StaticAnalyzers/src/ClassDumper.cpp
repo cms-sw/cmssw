@@ -14,10 +14,16 @@ namespace clangcms {
 
 void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR, std::string tname ) const {
-
-
+ 	const char *sfile=BR.getSourceManager().getPresumedLoc(RD->getLocation()).getFilename();
+ 	if (!support::isCmsLocalFile(sfile)) return;
+	
 	if (!RD->hasDefinition()) return;
 	std::string rname = RD->getQualifiedNameAsString();
+ 	const std::string anon_ns = "(anonymous namespace)";
+	if (rname.substr(0, anon_ns.size()) == anon_ns ) {
+ 		const std::string filename = BR.getSourceManager().getFilename(RD->getLocation()).str();
+		rname = rname.substr(0, anon_ns.size() - 1)+" in "+filename+")"+rname.substr(anon_ns.size());
+		}
 	clang::LangOptions LangOpts;
 	LangOpts.CPlusPlus = true;
 	clang::PrintingPolicy Policy(LangOpts);

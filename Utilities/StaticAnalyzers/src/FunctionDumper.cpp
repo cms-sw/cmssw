@@ -51,6 +51,7 @@ public:
   void VisitChildren(clang::Stmt *S );
   void VisitStmt( clang::Stmt *S) { VisitChildren(S); }
   void VisitCallExpr( CallExpr *CE ); 
+  void VisitCXXMemberCallExpr( CXXMemberCallExpr *CXE ); 
   void VisitCXXConstructExpr( CXXConstructExpr *CCE ); 
  
 };
@@ -78,10 +79,38 @@ void FDumper::VisitCXXConstructExpr( CXXConstructExpr *CCE ) {
 	std::string mname = support::getQualifiedName(*CCD);
 	std::string tname = "function-dumper.txt.unsorted";
 	std::string ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n";
-	support::writeLog(ostring,tname); 
+	support::writeLog(ostring,tname);
+	if ( mname == "ParameterSet::getParameter" || mname == "ParameterSet::getUntrackedParameter" ) {
+		ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n";
+		}
+ 
 	VisitChildren(CCE);
 }
 
+void FDumper::VisitCXXMemberCallExpr( CXXMemberCallExpr *CXE ) {
+	LangOptions LangOpts;
+	LangOpts.CPlusPlus = true;
+	PrintingPolicy Policy(LangOpts);
+	const Decl * D = AC->getDecl();
+	std::string mdname =""; 
+	if (const NamedDecl * ND = llvm::dyn_cast_or_null<NamedDecl>(D)) mdname = support::getQualifiedName(*ND);
+	CXXMethodDecl * MD = CXE->getMethodDecl();
+	if (!MD) return;
+ 	const char *sfile=BR.getSourceManager().getPresumedLoc(CXE->getExprLoc()).getFilename();
+	std::string sname(sfile);
+	if ( ! support::isInterestingLocation(sname) ) return;
+ 	std::string mname = support::getQualifiedName(*MD);
+	std::string tname = "function-dumper.txt.unsorted";
+	std::string ostring;
+	if ( MD->isVirtual()) ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n";
+	else ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
+	support::writeLog(ostring,tname);
+	if ( mname == "ParameterSet::getParameter" || mname == "ParameterSet::getUntrackedParameter" ) {
+		ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n";
+		}
+
+	VisitChildren(CXE);
+}
 
 void FDumper::VisitCallExpr( CallExpr *CE ) {
 	LangOptions LangOpts;
@@ -98,18 +127,9 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
  	std::string mname = support::getQualifiedName(*FD);
 	std::string tname = "function-dumper.txt.unsorted";
 	std::string ostring;
-	CXXMemberCallExpr * CXE = llvm::dyn_cast_or_null<CXXMemberCallExpr>(CE);
-	if (CXE) {
-		const CXXMethodDecl * CD = CXE->getMethodDecl();
-		const CXXRecordDecl * RD = CXE->getRecordDecl();
-		const CXXMethodDecl * AMD = llvm::dyn_cast_or_null<CXXMethodDecl>(D);
-		if ( AMD && CD && RD && CD->isVirtual() && RD == AMD->getParent() ) ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n";
-		else ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
-	} else {
-		if (FD->isVirtualAsWritten() || FD->isPure())
-			ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n";
-		else ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
-	}
+	if (FD->isVirtualAsWritten() || FD->isPure())
+		ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n";
+	else ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
 	support::writeLog(ostring,tname);
 	VisitChildren(CE);
 }
