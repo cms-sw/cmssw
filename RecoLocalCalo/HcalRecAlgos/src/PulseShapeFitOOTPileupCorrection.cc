@@ -54,7 +54,7 @@ namespace FitterFuncs{
     pedSig_             = iPedSig;
     noise_              = iNoise;
     timeShift_          = 100.;
-    if(iAddTimeSlew) timeShift_ += 13.;//Please note 13 is approximation for the time slew => we are trying to get BX 
+    timeShift_ += 12.5;//we are trying to get BX 
 
     inverttimeSig_ = 1./timeSig_;
     inverttimeSig2_ = inverttimeSig_*inverttimeSig_;
@@ -118,7 +118,7 @@ namespace FitterFuncs{
       //      std::array<float,HcalConst::maxSamples> pulse_shape_;
 
       if(addPulseJitter_) {
-	int time = (pars[0]+timeShift_)*HcalConst::invertnsPerBx;
+	int time = (pars[0]+timeShift_-timeMean_)*HcalConst::invertnsPerBx;
 	//Interpolate the fit (Quickly)
 	funcHPDShape(pulse_shape_, pars[0],pars[1],psFit_slew[time]);
 	for (j=0; j<nbins; ++j) {
@@ -128,7 +128,7 @@ namespace FitterFuncs{
 
 	i=1;
 	while (i<parBy2) {  
-	  time = (pars[i*2]+timeShift_)*HcalConst::invertnsPerBx;
+	  time = (pars[i*2]+timeShift_-timeMean_)*HcalConst::invertnsPerBx;
 	  //Interpolate the fit (Quickly)
 	  funcHPDShape(pulse_shape_, pars[i+2],pars[i*2+1],psFit_slew[time]);
 	  // add an uncertainty from the pulse (currently noise * pulse height =>Ecal uses full cov)
@@ -141,7 +141,7 @@ namespace FitterFuncs{
 	}
       }
       else{
-	int time = (pars[0]+timeShift_)*HcalConst::invertnsPerBx;
+	int time = (pars[0]+timeShift_-timeMean_)*HcalConst::invertnsPerBx;
 	//Interpolate the fit (Quickly)
 	funcHPDShape(pulse_shape_, pars[0],pars[1],psFit_slew[time]);
 	for(j=0; j<nbins; ++j)
@@ -149,7 +149,7 @@ namespace FitterFuncs{
 
 	i=1;
 	while (i<parBy2) {  
-	  time = (pars[i*2]+timeShift_)*HcalConst::invertnsPerBx;
+	  time = (pars[i*2]+timeShift_-timeMean_)*HcalConst::invertnsPerBx;
 	  //Interpolate the fit (Quickly)
 	  funcHPDShape(pulse_shape_, pars[i*2],pars[i*2+1],psFit_slew[time]);
 	  // add an uncertainty from the pulse (currently noise * pulse height =>Ecal uses full cov)
@@ -169,7 +169,7 @@ namespace FitterFuncs{
         //Add the time Constraint to chi2
       if(timeConstraint_) {
 	for(j=0; j< parBy2; ++j ){
-	  int time = (pars[j*2]+timeShift_)*(double)HcalConst::invertnsPerBx;
+	  int time = (pars[j*2]+timeShift_-timeMean_)*(double)HcalConst::invertnsPerBx;
 	  double time1 = -100.+time*HcalConst::nsPerBX;
 	  chisq += inverttimeSig2_*(pars[j*2] - timeMean_ - time1)*(pars[j*2] - timeMean_ - time1);
 	}
@@ -364,7 +364,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    }
    */
    //Fix back the timeslew
-   if(applyTimeSlew_) timevalfit+=HcalTimeSlew::delay(std::max(1.0,chargeArr[4]),slewFlavor_);
+   //if(applyTimeSlew_) timevalfit+=HcalTimeSlew::delay(std::max(1.0,chargeArr[4]),slewFlavor_);
    int outfitStatus = (fitStatus ? 1: 0 );
    fitParsVec.clear();
    fitParsVec.push_back(chargevalfit);
