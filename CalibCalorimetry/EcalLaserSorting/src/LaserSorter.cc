@@ -44,9 +44,9 @@ static const int ledTrigger   = 5;
 static const int tpTrigger    = 6;
 static const int pedTrigger   = 7;
 
-size_t LaserSorter::OutStreamRecord::indexReserve_ = 2000;
+const size_t LaserSorter::OutStreamRecord::indexReserve_ = 2000;
 
-static struct timeval nullTime = {0, 0};
+static const struct timeval nullTime = {0, 0};
 
 static const char* const detailedTrigNames[] = {
   "Inv0",//000
@@ -66,7 +66,7 @@ static const char* const colorNames[] = {
   "IR"
 };
 
-LaserSorter::stats_t LaserSorter::stats_init = {0, 0, 0, 0, 0};
+const LaserSorter::stats_t LaserSorter::stats_init = {0, 0, 0, 0, 0};
 const int LaserSorter::indexOffset32_ = 1;
 
 static std::string now(){
@@ -589,7 +589,7 @@ bool LaserSorter::writeFedBlock(std::ofstream& out,
   bool rc = false;
   if (data.size()>4){
     const uint32_t * pData
-      = reinterpret_cast<uint32_t*>(const_cast<unsigned char*> ( data.data()));
+      = reinterpret_cast<const uint32_t*>(data.data());
     
     uint32_t dccLen64 = pData[2] & 0x00FFFFFF; //in 32-byte unit
 
@@ -625,7 +625,8 @@ bool LaserSorter::renameAsBackup(const std::string& fileName,
                                  std::string& newFileName){
   int i = 0;
   int err;
-  static int maxTries = 100;
+  //  static int maxTries = 100;
+  int maxTries = 20;
   stringstream newFileName_;
   do{
     newFileName_.str("");
@@ -969,7 +970,7 @@ bool LaserSorter::isDccEventEmpty(const FEDRawData& data, size_t* dccLen,
     return true;
   }
   for(unsigned iWord32 = 0; iWord32 < nWord32; iWord32 += 2){
-    uint32_t* data32 = ((uint32_t*)(data.data())) + iWord32;
+    const uint32_t* data32 = ((const uint32_t*)(data.data())) + iWord32;
     int dataType = (data32[1] >>28) & 0xF;
     //     cout << hex << "0x" << setfill('0')
     //          << setw(8) << data32[1] << "'" << setw(8) << data32[0]
@@ -1047,7 +1048,7 @@ bool LaserSorter::writeIndexTable(std::ofstream& out,
   out.clear();
   out.write((char*)&nevts, sizeof(nevts));
   const uint32_t reserved = 0;
-  out.write((char*)&reserved, sizeof(reserved));
+  out.write((const char*)&reserved, sizeof(reserved));
   
   if(out.bad()) return false;
 

@@ -16,9 +16,9 @@
 using namespace edm;
 using namespace std;
 
-unsigned char LmfSource::minDataFormatVersion_ = 4;
-unsigned char LmfSource::maxDataFormatVersion_ = 5;
-unsigned LmfSource::fileHeaderSize = 2;
+const unsigned char LmfSource::minDataFormatVersion_ = 4;
+const unsigned char LmfSource::maxDataFormatVersion_ = 5;
+const unsigned LmfSource::fileHeaderSize = 2;
 
 
 LmfSource::LmfSource(const ParameterSet& pset,

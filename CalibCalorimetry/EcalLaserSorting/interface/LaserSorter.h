@@ -88,7 +88,7 @@ private:
     std::auto_ptr<std::ofstream> out_;
     std::string tmpFileName_;
     std::string finalFileName_;
-    static std::string emptyString_;
+    const static std::string emptyString_;
 
     /** Index table. This map is used to index the events in the file
      * according to their orbit id. An index table is stored at the end
@@ -108,7 +108,7 @@ private:
 
     /** Initial memory allocation for index table (see vector::reserve()).
      */
-    static size_t indexReserve_;
+    static const size_t indexReserve_;
 
   };
 
@@ -470,7 +470,7 @@ private:
     ///number of events whose DCC ID was restored based on FED block sizes
     double nRestoredDcc;
   } stats_;
-  static stats_t stats_init;
+  static const stats_t stats_init;
 
   /** Switch to recompute and overwrite the lumi block ID
    */

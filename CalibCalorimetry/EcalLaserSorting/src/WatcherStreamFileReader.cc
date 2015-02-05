@@ -19,7 +19,7 @@
 //using namespace edm;
 using namespace std;
 
-std::string WatcherStreamFileReader::fileName_;
+//std::string WatcherStreamFileReader::fileName_;
 
 
 #if !defined(__linux__) && !(defined(__APPLE__) && __DARWIN_C_LEVEL >= 200809L)
@@ -163,6 +163,40 @@ WatcherStreamFileReader::WatcherStreamFileReader(edm::ParameterSet const& pset):
       }
     }
   }
+
+    std::stringstream fileListCmdBuf;
+    fileListCmdBuf.str("");
+    //    fileListCmdBuf << "/bin/ls -rt " << inputDir_ << " | egrep '(";
+    //by default ls will sort the file alphabetically which will results
+    //in ordering the files in increasing LB number, which is the desired
+    //order.
+    //    fileListCmdBuf << "/bin/ls " << inputDir_ << " | egrep '(";
+    fileListCmdBuf << "/bin/find " << inputDir_ << " -maxdepth 2 -print | egrep '(";
+    //TODO: validate patternDir (see ;, &&, ||) and escape special character
+    if(filePatterns_.size()==0) throw cms::Exception("WacherSource", "filePatterns parameter is empty");
+    char curDir[PATH_MAX>0?PATH_MAX:4096];
+    if(getcwd(curDir, sizeof(curDir))==0){
+      throw cms::Exception("WatcherSource")
+	<< "Failed to retreived working directory path: "
+	<< strerror(errno);
+    }
+    curDir_ = curDir;
+    
+    for(unsigned i = 0 ; i < filePatterns_.size(); ++i){
+      if(i>0) fileListCmdBuf << "|";
+      //     if(filePatterns_[i].size()>0 && filePatterns_[0] != "/"){//relative path
+      //       fileListCmdBuf << curDir << "/";
+      //     }
+      fileListCmdBuf << filePatterns_[i];
+    }
+    fileListCmdBuf << ")' | sort";
+
+    fileListCmd_ = fileListCmdBuf.str();
+    
+    cout << "[WatcherSource " << now() << "]" 
+	 << " Command to retrieve input files: "
+	 << fileListCmd_ << "\n";
+
 }
 
 WatcherStreamFileReader::~WatcherStreamFileReader(){
@@ -209,40 +243,6 @@ const EventMsgView* WatcherStreamFileReader::getNextEvent(){
 edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
   char* lineptr = 0;
   size_t n = 0;
-  static stringstream cmd;
-  static bool cmdSet = false;
-  static char curDir[PATH_MAX>0?PATH_MAX:4096];
-
-  if(!cmdSet){
-    cmd.str("");
-    //    cmd << "/bin/ls -rt " << inputDir_ << " | egrep '(";
-    //by default ls will sort the file alphabetically which will results
-    //in ordering the files in increasing LB number, which is the desired
-    //order.
-    //    cmd << "/bin/ls " << inputDir_ << " | egrep '(";
-    cmd << "/bin/find " << inputDir_ << " -maxdepth 2 -print | egrep '(";
-    //TODO: validate patternDir (see ;, &&, ||) and escape special character
-    if(filePatterns_.size()==0) return 0;
-    if(getcwd(curDir, sizeof(curDir))==0){
-      throw cms::Exception("WatcherSource")
-	<< "Failed to retreived working directory path: "
-	<< strerror(errno);
-    }
-    
-    for(unsigned i = 0 ; i < filePatterns_.size(); ++i){
-      if(i>0) cmd << "|";
-      //     if(filePatterns_[i].size()>0 && filePatterns_[0] != "/"){//relative path
-      //       cmd << curDir << "/";
-      //     }
-      cmd << filePatterns_[i];
-    }
-    cmd << ")' | sort";
-    
-    cout << "[WatcherSource " << now() << "]" 
-	 << " Command to retrieve input files: "
-	 << cmd.str() << "\n";
-    cmdSet = true;
-  }
 
   struct stat buf;
   
@@ -263,7 +263,7 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 	end_ = true; 
 	break;
       }
-      FILE* s = popen(cmd.str().c_str(), "r");
+      FILE* s = popen(fileListCmd_.c_str(), "r");
       if(s==0){
 	throw cms::Exception("WatcherSource")
 	  << "Failed to retrieve list of input file: " << strerror(errno);
@@ -277,7 +277,7 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 	  string fileName;
 	  if(lineptr[0] != '/'){
 	    if(inputDir_.size()>0 && inputDir_[0] != '/'){//relative path
-	      fileName.assign(curDir);
+	      fileName.assign(curDir_);
 	      fileName.append("/");
 	      fileName.append(inputDir_);
 	    } else{
