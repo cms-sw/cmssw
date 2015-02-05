@@ -337,12 +337,9 @@ baseDataSetRelease=[
     'CMSSW_7_4_0_pre5-MCRUN2_73_V9_postLS1beamspot-v1',     # Run1 HI GEN-SIM (only MB = wf 140)
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1',              # for fastsim id test
     'CMSSW_7_1_0_pre5-START71_V1-v2',                       # 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
-                                                            # this an previous should be unified, when -v2 will be gone
-    #'CMSSW_7_3_0_pre1-PRE_LS172_V15-v1',                   # 4 - 13 TeV samples with GEN-SIM from 720_p4; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_7_4_0_pre5-MCRUN2_73_V9_postLS1beamspot-v1',     # 4 - 13 TeV samples with GEN-SIM from 740_p5; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1'             #  5 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    #'CMSSW_7_3_0_pre2-MCRUN2_73_V1-v1',                    # 6 - GEN-SIM for BPH trigger relvals made in 73pre2; to be uniformed to the other 13 TeV GEN-SIM, in 7_4
-    #'CMSSW_7_3_0_pre2-MCRUN2_73_V1-v1',                    # 6 - GEN-SIM for BPH trigger relvals made in 73pre2; to be uniformed to the other 13 TeV GEN-SIM, in 7_4
+                                                            # THIS ABOVE IS NOT USED, AT THE MOMENT
+    'CMSSW_7_4_0_pre6-MCRUN2_74_V1-v1',                     # 4 - 13 TeV samples with GEN-SIM from 740_p6; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
+    'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1'             # 5 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -836,7 +833,7 @@ steps['PREMIXUP15_PU50']=merge([PU50,Kby(100,100),premixUp2015Defaults50ns])
 digiPremixUp2015Defaults25ns = { 
     '--conditions'   : 'auto:run2_mc',
     '-s'             : 'DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
-   '--pileup_input'  :  'das:/RelValPREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[3],
+   '--pileup_input'  :  'das:/RelValPREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[4],
     '--eventcontent' : 'FEVTDEBUGHLT',
     '--datatier'     : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
     '--datamix'      : 'PreMix',
