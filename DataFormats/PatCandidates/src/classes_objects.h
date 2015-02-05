@@ -176,6 +176,12 @@ namespace DataFormats_PatCandidates {
   edm::Wrapper<edm::Association<std::vector<pat::PackedGenParticle> > > asso_pgp;
 
 
+  std::vector< edm::Ptr<pat::Jet> > vptr_jet;
+  std::vector< std::vector< edm::Ptr<pat::Jet> > > vvptr_jet;
+  edm::Wrapper< std::vector< edm::Ptr<pat::Jet> > > wvptr_jet; 
+  edm::Wrapper< std::vector< std::vector< edm::Ptr<pat::Jet> > > > wvvptr_jet;
+
+
   };
 
 }

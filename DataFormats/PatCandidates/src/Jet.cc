@@ -569,7 +569,7 @@ void Jet::cachePFCandidates() const {
 
 
 /// Access to subjet list
-pat::JetFwdPtrCollection const & Jet::subjets( unsigned int index) const { 
+pat::JetPtrCollection const & Jet::subjets( unsigned int index) const { 
   if ( index < subjetCollections_.size() ) 
     return subjetCollections_[index]; 
   else {
@@ -579,7 +579,7 @@ pat::JetFwdPtrCollection const & Jet::subjets( unsigned int index) const {
 
 
 /// String access to subjet list
-pat::JetFwdPtrCollection const & Jet::subjets( std::string label ) const { 
+pat::JetPtrCollection const & Jet::subjets( std::string label ) const { 
   auto found = find( subjetLabels_.begin(), subjetLabels_.end(), label );
   if ( found != subjetLabels_.end() ){
     auto index = std::distance( found , subjetLabels_.begin() );
@@ -591,7 +591,7 @@ pat::JetFwdPtrCollection const & Jet::subjets( std::string label ) const {
 }
 
 /// Add new set of subjets
-void Jet::addSubjets( pat::JetFwdPtrCollection const & pieces, std::string label  ) {
+void Jet::addSubjets( pat::JetPtrCollection const & pieces, std::string label  ) {
   subjetCollections_.push_back( pieces );
   subjetLabels_.push_back( label );
 }

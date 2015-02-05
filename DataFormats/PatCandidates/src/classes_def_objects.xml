@@ -132,8 +132,9 @@
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
 
-  <class name="pat::Jet"  ClassVersion="15">
-   <version ClassVersion="15" checksum="1195214614"/>
+  <class name="pat::Jet"  ClassVersion="16">
+   <version ClassVersion="16" checksum="727883729"/>
+   <version ClassVersion="15" checksum="3059757499"/>
    <version ClassVersion="14" checksum="1304049301"/>
    <version ClassVersion="13" checksum="130552029"/>
    <field name="caloTowersTemp_" transient="true"/>
@@ -391,6 +392,12 @@
   <class name="edm::RefProd<std::vector<pat::PackedGenParticle> >" />
   <class name="edm::Association<std::vector<pat::PackedGenParticle> >" />
   <class name="edm::Wrapper<edm::Association<std::vector<pat::PackedGenParticle> > >"/>
+
+  <!--- vectors of Ptrs -->
+  <class name="std::vector<edm::Ptr<pat::Jet> >" />
+  <class name="std::vector< std::vector<edm::Ptr<pat::Jet> > >" />
+  <class name="edm::Wrapper< std::vector<edm::Ptr<pat::Jet> > >" />
+  <class name="edm::Wrapper< std::vector< std::vector<edm::Ptr<pat::Jet> > > >" />
 
   </selection>
  <exclusion>
