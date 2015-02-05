@@ -243,6 +243,7 @@ namespace Phase2Tracker {
     return data;
   }
 
+  // read n bits starting at bit m (lsb to msb)
   inline uint64_t read_n_at_m(const uint8_t* buffer, int size, int pos_bit)
   {
     // 1) determine which 64 bit word to read
@@ -260,6 +261,26 @@ namespace Phase2Tracker {
     if(size < 64) { data &= (uint64_t)((1LL<<size)-1); }
     return data;
   }
+
+  // read n bits starting at bit m (msb to lsb)
+  inline uint64_t read_n_at_m_l2r(const uint8_t* buffer, int size, int pos_bit)
+  {
+    int iword = pos_bit/64;
+    uint64_t data = *(uint64_t*)(buffer+(iword*8));
+    int left_bit = (pos_bit^(0x3F)) + 1;
+    if (pos_bit%64 + size <= 64)
+    {
+      data >>= (left_bit - size) % 64;
+    }
+    else
+    {
+      data <<= (size - left_bit%64);
+      data  |= *(uint64_t*)(buffer+((iword+1)*8)) >> (128 - size + left_bit%64);
+    }
+    if(size < 64) { data  &= (uint64_t)((1LL<<size)-1); }
+    return data;
+  }
+
 
   // writes data at a certain bit position. 
   // data should be a 64 bit word, with relevant data at the beginning 
@@ -295,7 +316,40 @@ namespace Phase2Tracker {
     }
   }
 
-  inline void write_n_at_m(std::vector<uint64_t>& buffer, int size, int pos_bit, uint64_t data)
+  // same but write in reverse order (msb to lsb)
+  inline void write_n_at_m_l2r(uint8_t* buffer, int size, int pos_bit, uint64_t data)
+  {
+    if(size<64)
+    {
+      data &= ((1LL<<size)-1);
+    }
+    int left_bit  = (pos_bit^(0x3F)) + 1;
+    int right_bit = 0;
+    uint64_t mask = 0;
+    int iword = pos_bit/64;
+    uint64_t curr_data = *(uint64_t*)(buffer+(iword*8));
+    if (pos_bit%64 + size <= 64)
+    {
+      right_bit = left_bit - size;
+      mask = (size==64) ? 0LL : ~(((1LL<<size)-1)<<right_bit);
+      curr_data &= mask;
+      curr_data |= (data << right_bit);
+      memcpy(buffer+(iword*8),&curr_data, 8);
+    }
+    else
+    {
+      right_bit = left_bit + 128 - size ;
+      mask = ~((1LL<<(left_bit%64))-1);
+      curr_data &= mask;
+      curr_data |= (data >> (size - left_bit%64));
+      memcpy(buffer+(iword*8),&curr_data, 8);
+      int rsize = size - left_bit%64;
+      write_n_at_m_l2r(buffer,rsize,(iword+1)*64,data&((1LL<<rsize)-1));
+    }
+  }
+
+
+  inline void write_n_at_m(std::vector<uint64_t>& buffer, int size, int pos_bit, uint64_t data, bool l2r = true)
   {
     int iword  = pos_bit/64;
     // extend vector if necessary
@@ -310,7 +364,14 @@ namespace Phase2Tracker {
       temp[1] = buffer[iword+1];
     }
     uint8_t* tt = (uint8_t*)(temp);
-    write_n_at_m(tt,size,pos_bit%64,data);
+    if(l2r)
+    {
+      write_n_at_m_l2r(tt,size,pos_bit%64,data);
+    }
+    else
+    {
+      write_n_at_m(tt,size,pos_bit%64,data);
+    }
     buffer[iword] = *(uint64_t*)(tt);
     if(pos_bit%64 + size > 64)
     {

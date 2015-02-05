@@ -37,30 +37,6 @@ namespace Phase2Tracker {
     return cluster;
   }
 
-  std::map<std::string,int> stripFromRaw(int icbc, DET_TYPE dettype, int rawx, int rawy = 0)
-  {
-    std::map<std::string,int> strxy;
-    strxy["y"] = rawy;
-    switch(dettype)
-    {
-      case DET_Son2S:
-        if(icbc > 7) { strxy["y"] = 1; icbc -= 8; }
-        strxy["x"] = (int)(STRIPS_PER_CBC*icbc + rawx)/2;
-        break;
-      case DET_SonPS:
-        if(icbc > 7) { strxy["y"] = 1; icbc -= 8; }
-        strxy["x"] = (int)(PS_ROWS*icbc + rawx);
-        break;
-      case DET_PonPS:
-        if(icbc > 7) { strxy["y"] = rawy + PS_COLS/2; icbc -= 8; }
-        strxy["x"] = (int)(PS_ROWS*icbc + rawx); 
-        break;
-      case UNUSED:
-        return strxy;
-    }
-    return strxy;
-  }
-
   typedef Phase2TrackerDigi DummyClusterDigi;
 
   Phase2TrackerDigiProducer::Phase2TrackerDigiProducer( const edm::ParameterSet& pset ) :
@@ -123,6 +99,7 @@ namespace Phase2Tracker {
         // Skip FED if buffer is not a valid tracker FEDBuffer
         if(buffer->isValid() == 0) 
         { 
+          std::cout << "invalid buffer" << std::endl;
           continue; 
         }
 
@@ -257,6 +234,7 @@ namespace Phase2Tracker {
             // get fedid from cabling
             const Phase2TrackerModule mod = cabling_->findFedCh(std::make_pair(*fedIndex, ife));
             uint32_t detid = mod.getDetid();
+            std::cout << "=== FE " << detid << std::endl;
             // container for this module's digis
             std::vector<SiPixelCluster> clustersTop;
             std::vector<SiPixelCluster> clustersBottom;

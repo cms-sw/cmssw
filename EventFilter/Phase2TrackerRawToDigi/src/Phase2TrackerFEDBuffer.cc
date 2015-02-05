@@ -22,7 +22,6 @@ namespace Phase2Tracker
         << std::hex << std::setw(16) << std::setfill('0') << word << std::dec << std::endl;
       }
       LogTrace("Phase2TrackerFEDBuffer") << std::endl;
-
       // reserve all channels to avoid vector reservation updates (should be 16x16 in our case)
       channels_.reserve(MAX_FE_PER_FED*MAX_CBC_PER_FE);
       // first 64 bits word is for DAQ header
@@ -104,7 +103,7 @@ namespace Phase2Tracker
           // Read FE header : 
           // FE header is : P/S (1bit) + #P clusters (5bits if P, 0 otherwise) + #S clusters (5bits)
           // read type of module (2S/PS)
-          uint8_t mod_type = static_cast<uint8_t>(read_n_at_m(payloadPointer_,1,bitOffset));
+          uint8_t mod_type = static_cast<uint8_t>(read_n_at_m_l2r(payloadPointer_,1,bitOffset));
           // note the index of the next channel to fill
           int ichan = channels_.size();
           // add the proper number of channels for this FE (4 channels per module, 1 for each side of S and P) 
@@ -114,13 +113,13 @@ namespace Phase2Tracker
           if (mod_type == 0)
           {
               num_p = 0; 
-              num_s = static_cast<uint8_t>(read_n_at_m(payloadPointer_,6,bitOffset+1));
+              num_s = static_cast<uint8_t>(read_n_at_m_l2r(payloadPointer_,6,bitOffset+1));
               bitOffset += 7;
           }
           else
           {
-              num_p = static_cast<uint8_t>(read_n_at_m(payloadPointer_,6,bitOffset+1));
-              num_s = static_cast<uint8_t>(read_n_at_m(payloadPointer_,6,bitOffset+7));
+              num_p = static_cast<uint8_t>(read_n_at_m_l2r(payloadPointer_,6,bitOffset+1));
+              num_s = static_cast<uint8_t>(read_n_at_m_l2r(payloadPointer_,6,bitOffset+7));
               bitOffset += 13;
           }
           // start indexing
@@ -129,7 +128,7 @@ namespace Phase2Tracker
           int chansize_0 = 0, chansize_1 = 0, chansize_2 = 0, chansize_3 = 0;
           for (int i=0; i<num_p; i++)
           {
-              iCBC = static_cast<uint8_t>(read_n_at_m(payloadPointer_,4,bitOffset+14));
+              iCBC = static_cast<uint8_t>(read_n_at_m_l2r(payloadPointer_,4,bitOffset+14));
               if(iCBC < 8)
               {
                 chansize_2 += P_CLUSTER_SIZE_BITS;
@@ -142,7 +141,7 @@ namespace Phase2Tracker
           }
           for (int i=0; i<num_s; i++)
           {
-              iCBC = static_cast<uint8_t>(read_n_at_m(payloadPointer_,4,bitOffset+11));
+              iCBC = static_cast<uint8_t>(read_n_at_m_l2r(payloadPointer_,4,bitOffset+11));
               if(iCBC < 8)
               {
                 chansize_0 += S_CLUSTER_SIZE_BITS;
