@@ -28,7 +28,7 @@ namespace l1t {
 
     enum { Version = 1 };
 
-    CaloConfig() { version_= (int) Version; }
+    CaloConfig() { version_= (unsigned) Version; }
     ~CaloConfig() {}
     friend class CaloConfigHelper;
 
