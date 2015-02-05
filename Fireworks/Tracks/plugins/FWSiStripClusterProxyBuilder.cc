@@ -44,6 +44,8 @@ FWSiStripClusterProxyBuilder::clean()
 {
    // keep itemholders to restore configuration
 
+   cleanLocal();
+
    for (FWProxyBuilderBase::Product_it i = m_products.begin(); i != m_products.end(); ++i)
    {
       if ((*i)->m_elements)
@@ -53,8 +55,6 @@ FWSiStripClusterProxyBuilder::clean()
             (*it)->DestroyElements();
       }
    }
-
-   cleanLocal();
 }
 
 
@@ -63,7 +63,7 @@ void
 FWSiStripClusterProxyBuilder::cleanLocal()
 {
    for (TEveGeoShape* i : m_shapeMap)
-      i->Destroy();
+     i->Destroy();
 
    m_shapeMap.clear();
 }
