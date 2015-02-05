@@ -27,7 +27,7 @@
 
 // user include files
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include "CondFormats/Alignment/interface/AlignTransformError.h"
+#include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
 
 // forward declarations
 

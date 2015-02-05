@@ -25,7 +25,7 @@ idealForDigiTrackerGeometry.trackerGeometryConstants = cms.PSet(trackerGeometryC
 #                                          )
 #The follwoing to be converted as the above...
 #es_source fakeTrackerAlignmentErrorSource = EmptyESSource {
-#    string recordName = "TrackerAlignmentErrorRcd"
+#    string recordName = "TrackerAlignmentErrorExtendedRcd"
 #    vuint32 firstValid = {1}
 #    bool iovIsRunNotTime = true
 #}

@@ -9,7 +9,7 @@
  *   module uploader = SurveyDBUploader
  *   {
  *     string valueTag = "TrackerSurveyRcd"
- *     string errorTag = "TrackerSurveyErrorRcd"
+ *     string errorTag = "TrackerSurveyErrorExtendedRcd"
  *   }
  *
  *  $Date: 2007/04/09 01:16:13 $
@@ -53,7 +53,7 @@ class SurveyDBUploader:
 		     );
 
   std::string theValueRcd; // tag name of survey values record in DB
-  std::string theErrorRcd; // tag name of survey errors record in DB
+  std::string theErrorExtendedRcd; // tag name of survey errors record in DB
 
   SurveyValues* theValues; // survey values for all alignables in detector
   SurveyErrors* theErrors; // survey errors for all alignables in detector

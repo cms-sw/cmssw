@@ -25,10 +25,10 @@
 #include "CondFormats/Alignment/interface/AlignTransform.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignTransformError.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
+#include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
@@ -143,8 +143,8 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   // Retrieve DT alignment[Error]s from DBase
   edm::ESHandle<Alignments> dtAlignments;
   iSetup.get<DTAlignmentRcd>().get( dtAlignments );
-  edm::ESHandle<AlignmentErrors> dtAlignmentErrors;
-  iSetup.get<DTAlignmentErrorRcd>().get( dtAlignmentErrors );
+  edm::ESHandle<AlignmentErrorsExtended> dtAlignmentErrorsExtended;
+  iSetup.get<DTAlignmentErrorExtendedRcd>().get( dtAlignmentErrorsExtended );
 
   for ( std::vector<AlignTransform>::const_iterator it = dtAlignments->m_align.begin();
 		it != dtAlignments->m_align.end(); it++ )
@@ -166,8 +166,8 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 	}
   std::cout << std::endl << "----------------------" << std::endl;
 
-  for ( std::vector<AlignTransformError>::const_iterator it = dtAlignmentErrors->m_alignError.begin();
-		it != dtAlignmentErrors->m_alignError.end(); it++ )
+  for ( std::vector<AlignTransformErrorExtended>::const_iterator it = dtAlignmentErrorsExtended->m_alignError.begin();
+		it != dtAlignmentErrorsExtended->m_alignError.end(); it++ )
 	{
 	  CLHEP::HepSymMatrix error = (*it).matrix();
 	  std::cout << (*it).rawId() << " ";
@@ -182,8 +182,8 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   // Retrieve CSC alignment[Error]s from DBase
   edm::ESHandle<Alignments> cscAlignments;
   iSetup.get<CSCAlignmentRcd>().get( cscAlignments );
-  //edm::ESHandle<AlignmentErrors> cscAlignmentErrors;
-  //iSetup.get<CSCAlignmentErrorRcd>().get( cscAlignmentErrors );
+  //edm::ESHandle<AlignmentErrorsExtended> cscAlignmentErrorsExtended;
+  //iSetup.get<CSCAlignmentErrorExtendedRcd>().get( cscAlignmentErrorsExtended );
 
   //std::vector<Alignable*>::const_iterator csc_ideal = ideal_endcaps.begin();
   std::cout<<std::setprecision(3)<<std::fixed;
@@ -250,8 +250,8 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 /*
   std::cout << std::endl << "----------------------" << std::endl;
 
-  for ( std::vector<AlignTransformError>::const_iterator it = cscAlignmentErrors->m_alignError.begin();
-		it != cscAlignmentErrors->m_alignError.end(); it++ )
+  for ( std::vector<AlignTransformErrorExtended>::const_iterator it = cscAlignmentErrorsExtended->m_alignError.begin();
+		it != cscAlignmentErrorsExtended->m_alignError.end(); it++ )
 	{
 	  CLHEP::HepSymMatrix error = (*it).matrix();
 	  std::cout << (*it).rawId() << " ";

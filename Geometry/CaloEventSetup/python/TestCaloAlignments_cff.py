@@ -9,7 +9,7 @@ testEBAlignmentSource = cms.ESSource("EmptyESSource",
 )
 
 testEBAlignmentErrorSource = cms.ESSource("EmptyESSource",
-    recordName = cms.string('EBAlignmentErrorRcd'),
+    recordName = cms.string('EBAlignmentErrorExtendedRcd'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
@@ -21,7 +21,7 @@ testEEAlignmentSource = cms.ESSource("EmptyESSource",
 )
 
 testEEAlignmentErrorSource = cms.ESSource("EmptyESSource",
-    recordName = cms.string('EEAlignmentErrorRcd'),
+    recordName = cms.string('EEAlignmentErrorExtendedRcd'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
@@ -33,7 +33,7 @@ testESAlignmentSource = cms.ESSource("EmptyESSource",
 )
 
 testESAlignmentErrorSource = cms.ESSource("EmptyESSource",
-    recordName = cms.string('ESAlignmentErrorRcd'),
+    recordName = cms.string('ESAlignmentErrorExtendedRcd'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
@@ -45,7 +45,7 @@ testHBAlignmentSource = cms.ESSource("EmptyESSource",
 )
 
 testHBAlignmentErrorSource = cms.ESSource("EmptyESSource",
-    recordName = cms.string('HBAlignmentErrorRcd'),
+    recordName = cms.string('HBAlignmentErrorExtendedRcd'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
@@ -57,7 +57,7 @@ testHEAlignmentSource = cms.ESSource("EmptyESSource",
 )
 
 testHEAlignmentErrorSource = cms.ESSource("EmptyESSource",
-    recordName = cms.string('HEAlignmentErrorRcd'),
+    recordName = cms.string('HEAlignmentErrorExtendedRcd'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
@@ -69,7 +69,7 @@ testHOAlignmentSource = cms.ESSource("EmptyESSource",
 )
 
 testHOAlignmentErrorSource = cms.ESSource("EmptyESSource",
-    recordName = cms.string('HOAlignmentErrorRcd'),
+    recordName = cms.string('HOAlignmentErrorExtendedRcd'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
@@ -81,7 +81,7 @@ testHFAlignmentSource = cms.ESSource("EmptyESSource",
 )
 
 testHFAlignmentErrorSource = cms.ESSource("EmptyESSource",
-    recordName = cms.string('HFAlignmentErrorRcd'),
+    recordName = cms.string('HFAlignmentErrorExtendedRcd'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
@@ -93,7 +93,7 @@ testZDCAlignmentSource = cms.ESSource("EmptyESSource",
 )
 
 testZDCAlignmentErrorSource = cms.ESSource("EmptyESSource",
-    recordName = cms.string('ZDCAlignmentErrorRcd'),
+    recordName = cms.string('ZDCAlignmentErrorExtendedRcd'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
