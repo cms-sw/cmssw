@@ -114,6 +114,7 @@ combinatorialcosmicseedfinder = cms.EDProducer("CtfSpecialSeedGenerator",
     SeedsFromNegativeY = cms.bool(False),
     #***
     doClusterCheck = cms.bool(True),
+    DontCountDetsAboveNClusters = cms.uint32(20),
     CheckHitsAreOnDifferentLayers = cms.bool(False),
     SetMomentum = cms.bool(True),
     ClusterCollectionLabel = cms.InputTag("siStripClusters"),
