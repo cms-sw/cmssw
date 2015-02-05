@@ -40,16 +40,11 @@ metsig::METSignificance::METSignificance(const edm::ParameterSet& iConfig) {
   ptRes_  = new JetResolution(fpt.fullPath().c_str(),false);
   phiRes_ = new JetResolution(fphi.fullPath().c_str(),false);
 
-  fPtEta_ = std::unique_ptr<TF1>(nullptr);
-  fPhiEta_ = std::unique_ptr<TF1>(nullptr);
-
 }
 
 metsig::METSignificance::~METSignificance() {
   delete ptRes_;
   delete phiRes_;
-  // delete fPtEta_;
-  // delete fPhiEta_;
 }
 
 
@@ -95,12 +90,8 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 
       // jet energy resolutions
       double jeta_res = (std::abs(jeta) < 9.9) ? jeta : 9.89; // JetResolutions defined for |eta|<9.9
-      fPtEta_= std::unique_ptr<TF1>(ptRes_->parameterEta("sigma",jeta_res) );
-      fPhiEta_ = std::unique_ptr<TF1>(phiRes_-> parameterEta("sigma",jeta_res) );
-      double sigmapt = fPtEta_->Eval(jpt);
-      double sigmaphi = fPhiEta_->Eval(jpt);
-      // delete fPtEta_;
-      // delete fPhiEta_;
+      double sigmapt = ptRes_->parameterEtaEval("sigma",jeta_res,jpt);
+      double sigmaphi = phiRes_->parameterEtaEval("sigma",jeta_res,jpt);
 
       // split into high-pt and low-pt sector
       if( jpt > jetThreshold_ ){
