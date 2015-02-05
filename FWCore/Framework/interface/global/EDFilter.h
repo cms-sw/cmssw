@@ -29,15 +29,17 @@
 namespace edm {
   namespace global {
     template< typename... T>
-    class EDFilter : public filter::SpecializeAbilityToImplementor<
+    class EDFilter : 
+              public virtual EDFilterBase,
+              public filter::SpecializeAbilityToImplementor<
         CheckAbility<edm::module::Abilities::kRunSummaryCache,T...>::kHasIt & CheckAbility<edm::module::Abilities::kEndRunProducer,T...>::kHasIt,
         CheckAbility<edm::module::Abilities::kLuminosityBlockSummaryCache,T...>::kHasIt & CheckAbility<edm::module::Abilities::kEndLuminosityBlockProducer,T...>::kHasIt,
-        T>::Type...,
-                       public virtual EDFilterBase
+        T>::Type...
     {
       
     public:
       EDFilter() = default;
+      virtual ~EDFilter() = default;
       
       // ---------- const member functions ---------------------
       

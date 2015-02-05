@@ -35,6 +35,7 @@ namespace edm {
       
     public:
       EDAnalyzer() = default;
+      virtual ~EDAnalyzer() {}
       
       // ---------- const member functions ---------------------
       
