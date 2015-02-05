@@ -104,7 +104,7 @@ if 'COSMICS' !='<FLAG>':
     process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
     process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
     process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND (NOT 43)) OR (43 AND (NOT 42)))')
-  ##   process.load("RecoLocalTracker.SiStripRecHitConverter.OutOfTime_cff")
+##     process.load("RecoLocalTracker.SiStripRecHitConverter.OutOfTime_cff")
 ##     process.OutOfTime.TOBlateBP=0.071
 ##     process.OutOfTime.TIBlateBP=0.036
  
@@ -126,7 +126,7 @@ process.skimming = cms.EDFilter("PhysDecl",
 if 'MBVertex'=='<FLAG>':
    process.p = cms.Path(process.initialAlignmentTrackSelector*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
 elif 'COSMICS' =='<FLAG>':
-    process.p = cms.Path(process.skimming*process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
+    process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
 else :
     process.p = cms.Path(process.hltLevel1GTSeed*process.skimming*process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.ctfProducerCustomised*process.AlignmentTrackSelector*process.TrackRefitter2)
 
