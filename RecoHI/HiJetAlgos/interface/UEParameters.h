@@ -8,6 +8,8 @@ class UEParameters {
 private:
 	static const size_t nreduced_particle_flow_id = 3;
 	const std::vector<float> *v_;
+	int nn_;
+	int neta_;
 	boost::const_multi_array_ref<float, 4> *parameters_;
 
 public:

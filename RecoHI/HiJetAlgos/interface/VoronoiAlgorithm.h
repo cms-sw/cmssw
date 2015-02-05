@@ -83,7 +83,7 @@ protected:
 	void *_lp_environment;
 	void *_lp_problem;
 	// calibrations
-	UECalibration *ue;
+	const UECalibration *ue;
 private:
 	void initialize_geometry(void);
 	void allocate(void);
@@ -99,9 +99,8 @@ private:
 	void subtract_if_necessary(void);
 public:
 	VoronoiAlgorithm(
+		const UECalibration *ue,
 		const double dr_max,
-		const bool isRealData = true,
-		const bool isCalo = false,
 		const std::pair<double, double> equalization_threshold =
 		std::pair<double, double>(5.0, 35.0),
 		const bool remove_nonpositive = true);

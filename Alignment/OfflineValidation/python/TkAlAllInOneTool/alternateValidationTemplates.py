@@ -191,7 +191,7 @@ process.APE = cms.ESSource("PoolDBESSource",CondDBSetup,
                                         connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
                                         timetype = cms.string("runnumber"),
                                         toGet = cms.VPSet(
-                                                          cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
+                                                          cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
                                                                    tag = cms.string('TrackerIdealGeometryErrors210_mc')
                                                                    ))
                                         )
@@ -621,7 +621,7 @@ process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 ##
 ## Geometry
 ##
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 ##
 ## Magnetic Field
@@ -771,7 +771,7 @@ process.load("Configuration/StandardSequences/MagneticField_38T_cff")
  ##
  ## Geometry
  ##
-#process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.Geometry.GeometryRecoDB_cff")
  
 .oO[condLoad]Oo.
 

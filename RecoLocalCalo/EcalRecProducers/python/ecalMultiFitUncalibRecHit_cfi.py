@@ -13,12 +13,12 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     activeBXs = cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4),
     ampErrorCalculation = cms.bool(True),
     useLumiInfoRunHeader = cms.bool(True),
-    
+
     doPrefitEB = cms.bool(False),
     doPrefitEE = cms.bool(False),
     prefitMaxChiSqEB = cms.double(25.),
     prefitMaxChiSqEE = cms.double(10.),
-    
+
     # decide which algorithm to be use to calculate the jitter
     timealgo = cms.string("RatioMethod"),
 
@@ -35,6 +35,23 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     EBtimeConstantTerm= cms.double(.6),
     EEtimeConstantTerm= cms.double(1.0),
    
+    # for kOutOfTime flag
+    EBtimeNconst      = cms.double(28.5),
+    EEtimeNconst      = cms.double(31.8),
+    outOfTimeThresholdGain12pEB    = cms.double(5),      # times estimated precision
+    outOfTimeThresholdGain12mEB    = cms.double(5),      # times estimated precision
+    outOfTimeThresholdGain61pEB    = cms.double(5),      # times estimated precision
+    outOfTimeThresholdGain61mEB    = cms.double(5),      # times estimated precision
+    outOfTimeThresholdGain12pEE    = cms.double(1000),   # times estimated precision
+    outOfTimeThresholdGain12mEE    = cms.double(1000),   # times estimated precision
+    outOfTimeThresholdGain61pEE    = cms.double(1000),   # times estimated precision
+    outOfTimeThresholdGain61mEE    = cms.double(1000),   # times estimated precision
+    amplitudeThresholdEB    = cms.double(10),
+    amplitudeThresholdEE    = cms.double(10),
+
+    ebSpikeThreshold = cms.double(1.042),
+
+    # these are now taken from DB. Here the MC parameters for backward compatibility
     ebPulseShape = cms.vdouble( 5.2e-05,-5.26e-05 , 6.66e-05, 0.1168, 0.7575, 1.,  0.8876, 0.6732, 0.4741,  0.3194 ),
     eePulseShape = cms.vdouble( 5.2e-05,-5.26e-05 , 6.66e-05, 0.1168, 0.7575, 1.,  0.8876, 0.6732, 0.4741,  0.3194 ),   
 

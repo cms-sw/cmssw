@@ -16,7 +16,7 @@
 #include <vector>
 
 class GluedGeomDet;
-class AlignTransformError;
+class AlignTransformErrorExtended;
 class Bounds;
 class StripGeomDetType;
 
