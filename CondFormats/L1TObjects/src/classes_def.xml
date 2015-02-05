@@ -19,6 +19,7 @@
   <class name="l1t::CaloParams::EgParams"/>
   <class name="l1t::CaloParams::JetParams"/>
   <class name="l1t::CaloParams::TauParams"/>
+  <class name="l1t::CaloConfig"/>
   <class name="L1MuScale"/>
   <class name="L1MuBinnedScale">
     <field name="m_Scale" mapping="blob" />

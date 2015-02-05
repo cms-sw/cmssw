@@ -6,7 +6,6 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 # Choose Tracker Geometry
 process.load('Configuration.Geometry.GeometryExtended_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
 
 process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",

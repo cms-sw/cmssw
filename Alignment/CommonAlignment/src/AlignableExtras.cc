@@ -17,7 +17,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableBeamSpot.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/AlignmentSorter.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableExtras.h"
@@ -65,22 +65,22 @@ Alignments* AlignableExtras::alignments( void ) const
 }
 
 //__________________________________________________________________________________________________
-AlignmentErrors* AlignableExtras::alignmentErrors( void ) const
+AlignmentErrorsExtended* AlignableExtras::alignmentErrors( void ) const
 {
   align::Alignables comp = this->components();
-  AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
+  AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add components recursively
   for ( align::Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
     {
-	  AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
-      std::copy( tmpAlignmentErrors->m_alignError.begin(), tmpAlignmentErrors->m_alignError.end(), 
+	  AlignmentErrorsExtended* tmpAlignmentErrorsExtended = (*i)->alignmentErrors();
+      std::copy( tmpAlignmentErrorsExtended->m_alignError.begin(), tmpAlignmentErrorsExtended->m_alignError.end(), 
 		 std::back_inserter(m_alignmentErrors->m_alignError) );
-	  delete tmpAlignmentErrors;
+	  delete tmpAlignmentErrorsExtended;
     }
   
   std::sort( m_alignmentErrors->m_alignError.begin(), m_alignmentErrors->m_alignError.end(), 
-	     lessAlignmentDetId<AlignTransformError>() );
+	     lessAlignmentDetId<AlignTransformErrorExtended>() );
 
   return m_alignmentErrors;
 }

@@ -95,7 +95,7 @@ public:
   Alignments* alignments() const;
 
   /// Return alignment errors, sorted by DetId
-  AlignmentErrors* alignmentErrors() const;
+  AlignmentErrorsExtended* alignmentErrors() const;
 
   /// Returns tracker topology
   const TrackerTopology* trackerTopology() const { return tTopo_;}
