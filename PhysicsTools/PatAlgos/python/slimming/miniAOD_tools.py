@@ -161,21 +161,28 @@ def miniAOD_customizeCommon(process):
         labelName = 'CMSTopTagCHS',
         jetSource = cms.InputTag('cmsTopTagPFJetsCHS'),
         jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-        btagDiscriminators = ['pfCombinedSecondaryVertexBJetTags', 'pfCombinedInclusiveSecondaryVertexV2BJetTags']
+        btagDiscriminators = ['pfCombinedSecondaryVertexBJetTags', 'pfCombinedInclusiveSecondaryVertexV2BJetTags'],
+        getJetMCFlavour = False #
         )
     process.patJetsCMSTopTagCHS.addTagInfos = True
     process.patJetsCMSTopTagCHS.tagInfoSources = cms.VInputTag(
         cms.InputTag('caTopTagInfosPAT')
-        )
+        )    
 
     addJetCollection(
         process,
         labelName = 'CMSTopTagCHSSubjets',
         jetSource = cms.InputTag('cmsTopTagPFJetsCHS','caTopSubJets'),
+        algo = 'CA',  # needed for subjet flavor clustering
+        rParam = 0.8, # needed for subjet flavor clustering        
         btagDiscriminators = ['pfCombinedSecondaryVertexBJetTags', 'pfCombinedInclusiveSecondaryVertexV2BJetTags'],
         jetCorrections = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'None'),
+        genJetCollection = cms.InputTag('ak4GenJets'), # Using ak4GenJets for matching which is not entirely appropriate
         explicitJTA = True,  # needed for subjet b tagging
-        svClustering = True # needed for subjet b tagging
+        svClustering = True, # needed for subjet b tagging
+        fatJets=cms.InputTag('ca8PFJetsCHS'),             # needed for subjet flavor clustering
+        groomedFatJets=cms.InputTag('cmsTopTagPFJetsCHS') # needed for subjet flavor clustering
+
         )
 
     process.slimmedJetsCMSTopTagCHSSubjets = cms.EDProducer("PATJetSlimmer",
