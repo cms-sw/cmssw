@@ -20,7 +20,7 @@ using std::endl;
 
 
 DTRecoConditions::DTRecoConditions() : 
-  formula(0), 
+  formula(nullptr),
   formulaType(0),  
   expression("[0]")
 {}
@@ -43,7 +43,7 @@ DTRecoConditions::operator=(const DTRecoConditions& iOther)
 
 
 DTRecoConditions::~DTRecoConditions(){
-  delete formula;
+  delete formula.load();
 }
 
 
