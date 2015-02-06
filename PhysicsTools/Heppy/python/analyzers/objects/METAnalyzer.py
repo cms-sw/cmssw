@@ -78,6 +78,10 @@ class METAnalyzer( Analyzer ):
     def makeMETs(self, event):
         event.met = self.handles['met'].product()[0]
         event.metNoPU = self.handles['nopumet'].product()[0]
+
+        ###https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/DataFormats/PatCandidates/interface/MET.h
+        event.metraw = event.met.shiftedPt(12, 0)
+
         if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJetSmearing'):
             px,py = event.met.px()+event.deltaMetFromJetSmearing[0], event.met.py()+event.deltaMetFromJetSmearing[1]
             event.met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
