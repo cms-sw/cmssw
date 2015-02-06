@@ -23,7 +23,7 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedElectrons_*_*',
         'keep *_slimmedMuons*_*_*',
         'keep *_slimmedTaus*_*_*',
-        'keep *_slimmedJets*_*_*',
+        'keep *_slimmedJets_*_*',
         'keep *_slimmedMETs*_*_*',
         'keep *_slimmedSecondaryVertices*_*_*',
         'keep *_cmsTopTaggerMap_*_*',
