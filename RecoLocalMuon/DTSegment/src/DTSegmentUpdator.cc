@@ -227,15 +227,14 @@ bool DTSegmentUpdator::fit(DTSegmentCand* seg, bool allow3par, const bool fitdeb
   vector <int> lfit;
   vector <double> dist;
   int i=0;
-  
+
   x.reserve(8);
   y.reserve(8);
   sigy.reserve(8);
   lfit.reserve(8);
   dist.reserve(8);
 
-  DTSegmentCand::AssPointCont hits=seg->hits();
-  for (DTSegmentCand::AssPointCont::const_iterator iter=hits.begin(); iter!=hits.end(); ++iter) {
+  for (DTSegmentCand::AssPointCont::const_iterator iter=seg->hits().begin(); iter!=seg->hits().end(); ++iter) {
     LocalPoint pos = (*iter).first->localPosition((*iter).second);
     float xwire = (((*iter).first)->localPosition(DTEnums::Left).x() + ((*iter).first)->localPosition(DTEnums::Right).x()) /2.;
     float distance = pos.x() - xwire;
@@ -261,7 +260,8 @@ bool DTSegmentUpdator::fit(DTSegmentCand* seg, bool allow3par, const bool fitdeb
   fit(x,y,lfit,dist,sigy,pos,dir,cminf,vminf,covMat,chi2,allow3par);
   if (cminf!=0) t0_corr=-cminf/0.00543; // convert drift distance to time
 
-  if (debug && fitdebug) cout << "  DTcand chi2: " << chi2 << "/" << x.size() << "   t0: " << t0_corr << endl;
+  if (debug && fitdebug)
+    cout << "  DTcand chi2: " << chi2 << "/" << x.size() << "   t0: " << t0_corr << endl;
 
   seg->setPosition(pos);
   seg->setDirection(dir);
