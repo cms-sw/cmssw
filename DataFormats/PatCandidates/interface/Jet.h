@@ -500,6 +500,10 @@ namespace pat {
       /// Number of subjet collections
       unsigned int nSubjetCollections(  ) const { return  subjetCollections_.size(); }
       
+      /// Subjet collection names
+      std::vector<std::string> const & subjetCollectionNames() const { return subjetLabels_; }
+
+
 
     protected:
 
