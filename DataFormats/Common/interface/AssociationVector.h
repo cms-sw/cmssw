@@ -24,11 +24,14 @@
 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
+#include <type_traits>
 #endif
 #include <memory>
 #include "boost/static_assert.hpp"
 
 namespace edm {
+  template<class T> class Ptr;
+
   namespace helper {
 
     struct AssociationIdenticalKeyReference {
@@ -81,6 +84,11 @@ namespace edm {
     const_reference operator[](size_type n) const;
     typename CVal::const_reference operator[](KeyRef const& k) const;
     typename CVal::reference operator[](KeyRef const& k);
+
+    template< typename K>
+    typename CVal::const_reference operator[](edm::Ptr<K> const& k) const;
+    template< typename K>
+    typename CVal::const_reference operator[](edm::RefToBase<K> const& k) const;
 
     self& operator=(self const&);
 
@@ -165,6 +173,28 @@ namespace edm {
     KeyRef keyRef = KeyReferenceHelper::get(k, ref_.id());
     checkForWrongProduct(keyRef.id(), ref_.id());
     return data_[ keyRef.key() ];
+  }
+
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
+    template< typename K>
+    inline typename CVal::const_reference 
+    AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[](edm::Ptr<K> const& k) const {
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    static_assert(std::is_base_of<K,key_type>::value, "edm::Ptr's key type is not a base class of AssociationVector's item type");
+#endif
+    checkForWrongProduct(k.id(), ref_.id());
+    return data_[ k.key() ];
+  }
+
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
+    template< typename K>
+    typename CVal::const_reference 
+    AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[](edm::RefToBase<K> const& k) const {
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    static_assert(std::is_base_of<K,key_type>::value,"edm::RefToBase's key type is not a base class of AssociationVector's item type");
+#endif
+    checkForWrongProduct(k.id(), ref_.id());
+    return data_[ k.key() ];
   }
 
 
