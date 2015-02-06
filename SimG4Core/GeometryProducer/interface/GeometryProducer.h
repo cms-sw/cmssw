@@ -30,15 +30,22 @@ class GeometryProducer : public edm::EDProducer
 public:
     typedef std::vector<std::shared_ptr<SimProducer> > Producers;
     explicit GeometryProducer(edm::ParameterSet const & p);
-    virtual ~GeometryProducer();
-    virtual void beginJob();
-    virtual void endJob();
-    virtual void produce(edm::Event & e, const edm::EventSetup & c);
+//    virtual ~GeometryProducer();
+//    virtual void beginJob();
+//    virtual void endJob();
+//    virtual void produce(edm::Event & e, const edm::EventSetup & c);
+    virtual ~GeometryProducer() override;
+    void produce(edm::Event & e, const edm::EventSetup & c);
+    void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+   
     std::vector<std::shared_ptr<SimProducer> > producers() const
     { return m_producers; }
     std::vector<SensitiveTkDetector*>& sensTkDetectors() { return m_sensTkDets; }
     std::vector<SensitiveCaloDetector*>& sensCaloDetectors() { return m_sensCaloDets; }
 private:
+
+    void updateMagneticField( edm::EventSetup const& es );
+
     G4RunManagerKernel * m_kernel;
     bool m_pUseMagneticField;
     edm::ParameterSet m_pField;
@@ -52,6 +59,7 @@ private:
     std::vector<SensitiveTkDetector*> m_sensTkDets;
     std::vector<SensitiveCaloDetector*> m_sensCaloDets;
     edm::ParameterSet m_p;
+    bool m_firstRun;
 };
 
 #endif

@@ -57,14 +57,16 @@ DTResolutionAnalysisTask::~DTResolutionAnalysisTask(){
 
 }
 
-void DTResolutionAnalysisTask::beginRun(const Run& run, const EventSetup& setup) {
-
-  // Get the DQM needed services
-  theDbe = edm::Service<DQMStore>().operator->();
-  //   theDbe->setCurrentFolder("DT/02-Segments");
+void DTResolutionAnalysisTask::dqmBeginRun(const Run& run, const EventSetup& setup) {
 
   // Get the DT Geometry
   setup.get<MuonGeometryRecord>().get(dtGeom);
+
+}
+
+void DTResolutionAnalysisTask::bookHistograms(DQMStore::IBooker & ibooker,
+                                             edm::Run const & iRun,
+                                             edm::EventSetup const & /* iSetup */) {
 
   // Book the histograms
   vector<const DTChamber*> chambers = dtGeom->chambers();
@@ -74,7 +76,7 @@ void DTResolutionAnalysisTask::beginRun(const Run& run, const EventSetup& setup)
     for(int sl = 1; sl <= 3; ++sl) { // Loop over SLs
       if(dtChId.station() == 4 && sl == 2) continue;
       const  DTSuperLayerId dtSLId(dtChId,sl);
-      bookHistos(dtSLId);
+      bookHistos(ibooker,dtSLId);
     }
   }
 
@@ -100,15 +102,6 @@ void DTResolutionAnalysisTask::beginLuminosityBlock(const LuminosityBlock& lumiS
   }
 }
 
-
-void DTResolutionAnalysisTask::endJob(){
-
- edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] endjob called!"<<endl;
-
-}
-
-
-
 void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Analyze #Run: " << event.id().run()
@@ -129,9 +122,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
        ++chamberId) {
     // Get the range for the corresponding ChamerId
     DTRecSegment4DCollection::range  range = all4DSegments->get(*chamberId);
-    //     int nsegm = distance(range.first, range.second);
-    //edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "   Chamber: " << *chamberId << " has " << nsegm
-    //<< " 4D segments" << endl;
+
     // Get the chamber
     const DTChamber* chamber = dtGeom->chamber(*chamberId);
 
@@ -139,7 +130,6 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
     for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
 	 segment4D!=range.second;
 	 ++segment4D) {
-      //edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "   == RecSegment dimension: " << (*segment4D).dimension() << endl;
 
       // If Statio != 4 skip RecHits with dimension != 4
       // For the Station 4 consider 2D RecHits
@@ -166,21 +156,18 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 	vector<DTRecHit1D> phiRecHits = phiSeg->specificRecHits();
 
 	if(phiRecHits.size() < thePhiHitsCut) {
-	  //edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Phi segments has: " << phiRecHits.size()
-	  //<< " hits" << endl; // FIXME: info output
 	  continue;
 	}
 	copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D_S3));
       } else {
-	//edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] 4D segment has not phi component!" << endl;
+
       }
 
       if((*segment4D).hasZed()) {
 	const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();
 	vector<DTRecHit1D> zRecHits = zSeg->specificRecHits();
 	if(zRecHits.size() < theZHitsCut) {
-	  //edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Theta segments has: " << zRecHits.size()
-	  //<< " hits, skipping" << endl; // FIXME: info output
+
  	  continue;
 	}
 	copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits1D_S3));
@@ -229,11 +216,6 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 	// FIXME: Fill the histos
 	fillHistos(wireId.superlayerId(), distSegmToWire, residual);
 
-	//	edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "     Dist. segment extrapolation - wire (cm): " << distSegmToWire << endl;
-	//edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "     Dist. RecHit - wire (cm): " << distRecHitToWire << endl;
-	//edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "     Residual (cm): " << residual << endl;
-
-
       }// End of loop over 1D RecHit inside 4D segment
     }// End of loop over the rechits of this ChamerId
   }
@@ -242,7 +224,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 
 
 // Book a set of histograms for a given SL
-void DTResolutionAnalysisTask::bookHistos(DTSuperLayerId slId) {
+void DTResolutionAnalysisTask::bookHistos(DQMStore::IBooker & ibooker, DTSuperLayerId slId) {
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "   Booking histos for SL: " << slId << endl;
 
@@ -259,19 +241,15 @@ void DTResolutionAnalysisTask::bookHistos(DTSuperLayerId slId) {
     "_Sec" + sector.str() +
     "_SL" + superLayer.str();
 
-  theDbe->setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str() +
+  ibooker.setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str() +
 			   "/Sector" + sector.str() +
 			   "/Station" + station.str());
   // Create the monitor elements
   vector<MonitorElement *> histos;
-  // Note hte order matters
-  histos.push_back(theDbe->book1D("hResDist"+slHistoName,
+  // Note the order matters
+  histos.push_back(ibooker.book1D("hResDist"+slHistoName,
 				  "Residuals on the distance from wire (rec_hit - segm_extr) (cm)",
 				  200, -0.4, 0.4));
-  //FIXME: 2D plot removed to reduce the # of ME
-//   histos.push_back(theDbe->book2D("hResDistVsDist"+slHistoName,
-// 				  "Residuals on the distance (cm) from wire (rec_hit - segm_extr) vs distance  (cm)",
-// 				  100, 0, 2.5, 200, -0.4, 0.4));
   histosPerSL[slId] = histos;
 }
 
@@ -282,13 +260,7 @@ void DTResolutionAnalysisTask::fillHistos(DTSuperLayerId slId,
 				      float residual) {
   vector<MonitorElement *> histos =  histosPerSL[slId];
   histos[0]->Fill(residual);
-  //FIXME: 2D plot removed to reduce the # of ME
-  //   histos[1]->Fill(distExtr, residual);
-
 }
-
-
-
 
 // Local Variables:
 // show-trailing-whitespace: t

@@ -45,8 +45,8 @@ process.trackerAlignment = cms.ESSource( "PoolDBESSource",
       tag = cms.string( 'Alignments' )
     ), 
     cms.PSet(
-      record = cms.string( 'TrackerAlignmentErrorRcd' ),
-      tag = cms.string( 'AlignmentErrors' )
+      record = cms.string( 'TrackerAlignmentErrorExtendedRcd' ),
+      tag = cms.string( 'AlignmentErrorsExtended' )
     )
   ),
   #connect = cms.string( 'sqlite_file:/afs/cern.ch/user/o/olzem/cms/cmssw/CMSSW_2_2_12/src/Alignment/LaserAlignment/test/Alignments_S.db' )
@@ -72,8 +72,8 @@ process.PoolDBOutputService = cms.Service( "PoolDBOutputService",
       tag = cms.string( 'Alignments' )
     ), 
     cms.PSet(
-      record = cms.string( 'TrackerAlignmentErrorRcd' ),
-      tag = cms.string( 'AlignmentErrors' )
+      record = cms.string( 'TrackerAlignmentErrorExtendedRcd' ),
+      tag = cms.string( 'AlignmentErrorsExtended' )
     )
   )
 )

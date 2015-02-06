@@ -20,6 +20,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/TrackingRecHitLessFromGlobalPosition.h"
 
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderWithPropagator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit2DPosConstraint.h"
@@ -175,8 +176,19 @@ std::cout << algo_ << ": " <<  hits.size() <<'|' <<theTraj->measurements().size(
   
   LogDebug("TrackProducer") << "stateForProjectionToBeamLine=" << stateForProjectionToBeamLine;
   
-  TSCBLBuilderNoMaterial tscblBuilder;
-  TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
+//  TSCBLBuilderNoMaterial tscblBuilder;
+//  TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
+
+  TrajectoryStateClosestToBeamLine tscbl;
+  if (usePropagatorForPCA_){
+    //std::cout << "PROPAGATOR FOR PCA" << std::endl;
+    TSCBLBuilderWithPropagator tscblBuilder(*thePropagator);
+    tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
+  } else {
+    TSCBLBuilderNoMaterial tscblBuilder;
+    tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
+  }
+
   
   if unlikely(!tscbl.isValid()) {
     delete theTraj;
@@ -293,8 +305,18 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   
   LogDebug("GsfTrackProducer") << "stateForProjectionToBeamLine=" << stateForProjectionToBeamLine;
   
-  TSCBLBuilderNoMaterial tscblBuilder;
-  TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
+//  TSCBLBuilderNoMaterial tscblBuilder;
+//  TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
+
+  TrajectoryStateClosestToBeamLine tscbl;
+  if (usePropagatorForPCA_){
+    TSCBLBuilderWithPropagator tscblBuilder(*thePropagator);
+    tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);    
+  } else {
+    TSCBLBuilderNoMaterial tscblBuilder;
+    tscbl = tscblBuilder(stateForProjectionToBeamLine,bs);
+  }  
+
   
   if unlikely(tscbl.isValid()==false) {
       delete theTraj;

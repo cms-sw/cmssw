@@ -11,24 +11,33 @@ class TreeAnalyzerNumpy( Analyzer ):
 
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(TreeAnalyzerNumpy,self).__init__(cfg_ana, cfg_comp, looperName)
-        fileName = '/'.join([self.dirName,
+        self.outservicename = "outputfile"
+        if hasattr(cfg_ana,"outservicename") :
+            self.outservicename = cfg_ana.outservicename
+
+
+    def beginLoop(self, setup) :
+        super(TreeAnalyzerNumpy, self).beginLoop(setup)
+        print setup.services
+        if self.outservicename in setup.services:
+            print "Using outputfile given in", self.outservicename
+            self.file = setup.services[self.outservicename].file
+        else :
+            fileName = '/'.join([self.dirName,
                              'tree.root'])
-
-        isCompressed = self.cfg_ana.isCompressed if hasattr(cfg_ana,'isCompressed') else 1
-        print 'Compression', isCompressed
-
-        self.file = TFile( fileName, 'recreate', '', isCompressed )
+            isCompressed = self.cfg_ana.isCompressed if hasattr(self.cfg_ana,'isCompressed') else 1
+            print 'Compression', isCompressed
+            self.file = TFile( fileName, 'recreate', '', isCompressed )
         self.tree = Tree('tree', self.name)
-
-    def beginLoop(self) :
-        super(TreeAnalyzerNumpy, self).beginLoop()
-        self.declareVariables()
+        self.tree.setDefaultFloatType(getattr(self.cfg_ana, 'defaultFloatType','D')); # or 'F'
+        self.declareVariables(setup)
         
-    def declareVariables(self):
+    def declareVariables(self,setup):
         print 'TreeAnalyzerNumpy.declareVariables : overload this function.'
         pass
 
-    def write(self):
-        super(TreeAnalyzerNumpy, self).write()
-        self.file.Write() 
+    def write(self, setup):
+        super(TreeAnalyzerNumpy, self).write(setup)
+        if self.outservicename not in setup.services:
+            self.file.Write() 
 

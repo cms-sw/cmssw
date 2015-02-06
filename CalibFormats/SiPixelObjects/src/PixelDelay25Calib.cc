@@ -22,7 +22,6 @@ PixelDelay25Calib::PixelDelay25Calib(vector< vector<string> > &tableMat) :
   PixelConfigBase("","","")
 {
   std::string mthn = "[PixelDelay25Calib::PixelDelay25Calib()]\t\t\t    " ;
-  std::cout << __LINE__ << "]\t" << mthn << std::endl;
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
   /**
@@ -47,7 +46,7 @@ PixelDelay25Calib::PixelDelay25Calib(vector< vector<string> > &tableMat) :
   colNames.push_back("CALIB_TYPE"  	  );
   colNames.push_back("CALIB_OBJ_DATA_FILE");
   colNames.push_back("CALIB_OBJ_DATA_CLOB");
-  
+ 
   for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
     {
       for(unsigned int n=0; n<colNames.size(); n++)
@@ -134,6 +133,12 @@ PixelDelay25Calib::PixelDelay25Calib(vector< vector<string> > &tableMat) :
 
   //Number of steps in the grid
   gridSteps_ = range_/gridSize_;
+
+  // Added by Dario as a temporary patch for Debbie (this will disappear in the future)
+  calibFileContent_ = in.str() ;
+  //cout << __LINE__ << "] " << __PRETTY_FUNCTION__ << "\tcalibFileContent_\n " << calibFileContent_ << endl ;  
+  // End of temporary patch
+  
 }
 
 
@@ -220,6 +225,18 @@ PixelDelay25Calib::PixelDelay25Calib(std::string filename) :
   //Number of steps in the grid
   gridSteps_ = range_/gridSize_;
 
+  // Added by Dario as a temporary patch for Debbie (this will disappear in the future)
+  std::ifstream inTmp(filename.c_str());
+  calibFileContent_ = "" ;
+  while(!inTmp.eof())
+  {
+   std::string tmpString ;
+   getline (inTmp, tmpString);
+   calibFileContent_ += tmpString + "\n";
+   //cout << __LINE__ << "]\t" << "[PixelCalibConfiguration::~PixelCalibConfiguration()]\t\t" << calibFileContent_ << endl ;
+  }
+  inTmp.close() ;
+  // End of temporary patch
 }
 
 PixelDelay25Calib::~PixelDelay25Calib() {
@@ -362,6 +379,7 @@ void PixelDelay25Calib::writeXML( std::ofstream *outstream,
 {
   std::string mthn = "[PixelDelay25Calib::writeXML()]\t\t\t    " ;
   
+  std::cout  << __LINE__ << "]\t" << mthn << "Writing.." << std::endl ;
 
   *outstream << " "                                                                                       << std::endl ;
   *outstream << "  <DATA>"                                                                                << std::endl ;

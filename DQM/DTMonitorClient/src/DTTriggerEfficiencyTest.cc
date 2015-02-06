@@ -2,6 +2,9 @@
  *  See header file for a description of this class.
  *
  *  \author C. Battilana - CIEMAT
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  */
 
 
@@ -41,17 +44,11 @@ DTTriggerEfficiencyTest::DTTriggerEfficiencyTest(const edm::ParameterSet& ps){
   baseFolderDDU = "DT/04-LocalTrigger-DDU/";
   detailedPlots = ps.getUntrackedParameter<bool>("detailedAnalysis",true);
 
+  bookingdone = 0;
 }
 
 
 DTTriggerEfficiencyTest::~DTTriggerEfficiencyTest(){
-
-}
-
-
-void DTTriggerEfficiencyTest::beginJob(){
-
-  DTLocalTriggerBaseTest::beginJob();
 
 }
 
@@ -61,42 +58,13 @@ void DTTriggerEfficiencyTest::beginRun(const edm::Run& r,const edm::EventSetup& 
   DTLocalTriggerBaseTest::beginRun(r,c);
   trigGeomUtils = new DTTrigGeomUtils(muonGeom);
 
-  vector<string>::const_iterator iTr   = trigSources.begin();
-  vector<string>::const_iterator trEnd = trigSources.end();
-  vector<string>::const_iterator iHw   = hwSources.begin();
-  vector<string>::const_iterator hwEnd = hwSources.end();
-
-
-  //Booking
-  if(parameters.getUntrackedParameter<bool>("staticBooking", true)){
-    for (; iTr != trEnd; ++iTr){
-      trigSource = (*iTr);
-      for (; iHw != hwEnd; ++iHw){
-        hwSource = (*iHw);
-        // Loop over the TriggerUnits
-        bookHistos("TrigEffPhi","");
-        bookHistos("TrigEffCorrPhi","");
-        for (int wh=-2; wh<=2; ++wh){
-          if (detailedPlots) {
-            for (int sect=1; sect<=12; ++sect){
-              for (int stat=1; stat<=4; ++stat){
-                DTChamberId chId(wh,stat,sect);
-                bookChambHistos(chId,"TrigEffPosvsAnglePhi","Segment");
-                bookChambHistos(chId,"TrigEffPosvsAngleCorrPhi","Segment");
-              }
-            }
-          }
-          bookWheelHistos(wh,"TrigEffPhi","");  
-          bookWheelHistos(wh,"TrigEffCorrPhi","");  
-        }
-      }
-    }
-  }
-
 }
 
+void DTTriggerEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & c) {
+}
 
-void DTTriggerEfficiencyTest::runClientDiagnostic() {
+void DTTriggerEfficiencyTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   // Loop over Trig & Hw sources
   for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
@@ -105,20 +73,22 @@ void DTTriggerEfficiencyTest::runClientDiagnostic() {
       hwSource = (*iHw);
       // Loop over the TriggerUnits
       if( globalEffDistr.find(fullName("TrigEffPhi")) == globalEffDistr.end() ){
-        bookHistos("TrigEffPhi","");
-        bookHistos("TrigEffCorrPhi","");
+
+        bookHistos(ibooker,"TrigEffPhi","");
+        bookHistos(ibooker,"TrigEffCorrPhi","");
       }
       for (int wh=-2; wh<=2; ++wh){
 
-        TH2F * TrigEffDenum   = getHisto<TH2F>(dbe->get(getMEName("TrigEffDenum","Task",wh)));
-        TH2F * TrigEffNum     = getHisto<TH2F>(dbe->get(getMEName("TrigEffNum","Task",wh)));
-        TH2F * TrigEffCorrNum = getHisto<TH2F>(dbe->get(getMEName("TrigEffCorrNum","Task",wh)));
+        TH2F * TrigEffDenum   = getHisto<TH2F>(igetter.get(getMEName("TrigEffDenum","Task",wh)));
+        TH2F * TrigEffNum     = getHisto<TH2F>(igetter.get(getMEName("TrigEffNum","Task",wh)));
+        TH2F * TrigEffCorrNum = getHisto<TH2F>(igetter.get(getMEName("TrigEffCorrNum","Task",wh)));
 
         if (TrigEffDenum && TrigEffNum && TrigEffCorrNum && TrigEffDenum->GetEntries()>1) {
 
           if( whME[wh].find(fullName("TrigEffPhi")) == whME[wh].end() ){
-            bookWheelHistos(wh,"TrigEffPhi","");  
-            bookWheelHistos(wh,"TrigEffCorrPhi","");  
+
+            bookWheelHistos(ibooker,wh,"TrigEffPhi","");  
+            bookWheelHistos(ibooker,wh,"TrigEffCorrPhi","");  
           }
 
           MonitorElement* Eff1DAll_TrigEffPhi = (&globalEffDistr)->find(fullName("TrigEffPhi"))->second;
@@ -142,15 +112,16 @@ void DTTriggerEfficiencyTest::runClientDiagnostic() {
               uint32_t indexCh = chId.rawId();
 
               // Perform Efficiency analysis (Phi+Segments 2D)
-              TH2F * TrackPosvsAngle        = getHisto<TH2F>(dbe->get(getMEName("TrackPosvsAngle","Segment", chId)));
-              TH2F * TrackPosvsAngleAnyQual = getHisto<TH2F>(dbe->get(getMEName("TrackPosvsAngleAnyQual","Segment", chId)));
-              TH2F * TrackPosvsAngleCorr    = getHisto<TH2F>(dbe->get(getMEName("TrackPosvsAngleCorr","Segment", chId)));
+
+              TH2F * TrackPosvsAngle        = getHisto<TH2F>(igetter.get(getMEName("TrackPosvsAngle","Segment", chId)));
+              TH2F * TrackPosvsAngleAnyQual = getHisto<TH2F>(igetter.get(getMEName("TrackPosvsAngleAnyQual","Segment", chId)));
+              TH2F * TrackPosvsAngleCorr    = getHisto<TH2F>(igetter.get(getMEName("TrackPosvsAngleCorr","Segment", chId)));
 
               if (TrackPosvsAngle && TrackPosvsAngleAnyQual && TrackPosvsAngleCorr && TrackPosvsAngle->GetEntries()>1) {
 
                 if( chambME[indexCh].find(fullName("TrigEffAnglePhi")) == chambME[indexCh].end()){
-                  bookChambHistos(chId,"TrigEffPosvsAnglePhi","Segment");
-                  bookChambHistos(chId,"TrigEffPosvsAngleCorrPhi","Segment");
+                  bookChambHistos(ibooker,chId,"TrigEffPosvsAnglePhi","Segment");
+                  bookChambHistos(ibooker,chId,"TrigEffPosvsAngleCorrPhi","Segment");
                 }
 
                 std::map<std::string,MonitorElement*> *innerME = &(chambME[indexCh]);
@@ -236,7 +207,7 @@ string DTTriggerEfficiencyTest::getMEName(string histoTag, string folder, int wh
 
 }
 
-void DTTriggerEfficiencyTest::bookHistos(string hTag,string folder) {
+void DTTriggerEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker,string hTag,string folder) {
 
   string basedir;  
   bool isDCC = hwSource=="DCC" ;  
@@ -245,17 +216,18 @@ void DTTriggerEfficiencyTest::bookHistos(string hTag,string folder) {
   if (folder != "") {
     basedir += folder +"/" ;
   }
-  dbe->setCurrentFolder(basedir);
+
+  ibooker.setCurrentFolder(basedir);
 
   string fullTag = fullName(hTag);
   string hname = fullTag + "_All";
 
-  globalEffDistr[fullTag] = dbe->book1D(hname.c_str(),hname.c_str(),51,0.,1.02);
+  globalEffDistr[fullTag] = ibooker.book1D(hname.c_str(),hname.c_str(),51,0.,1.02);
   globalEffDistr[fullTag] ->setAxisTitle("Trig Eff",1);
 
 }
 
-void DTTriggerEfficiencyTest::bookWheelHistos(int wheel,string hTag,string folder) {
+void DTTriggerEfficiencyTest::bookWheelHistos(DQMStore::IBooker & ibooker,int wheel,string hTag,string folder) {
 
   stringstream wh; wh << wheel;
   string basedir;  
@@ -269,7 +241,8 @@ void DTTriggerEfficiencyTest::bookWheelHistos(int wheel,string hTag,string folde
   if (folder != "") {
     basedir += folder +"/" ;
   }
-  dbe->setCurrentFolder(basedir);
+
+  ibooker.setCurrentFolder(basedir);
 
   string fullTag = fullName(hTag);
   string hname    = fullTag+ "_W" + wh.str();
@@ -278,11 +251,12 @@ void DTTriggerEfficiencyTest::bookWheelHistos(int wheel,string hTag,string folde
 
   LogTrace(category()) << "[" << testName << "Test]: booking "<< basedir << hname;
 
-  (EffDistrPerWh[wheel])[fullTag] = dbe->book1D(hnameAll.c_str(),hnameAll.c_str(),51,0.,1.02);
+  (EffDistrPerWh[wheel])[fullTag] = ibooker.book1D(hnameAll.c_str(),hnameAll.c_str(),51,0.,1.02);
 
   if (hTag.find("Phi")!= string::npos ||
       hTag.find("Summary") != string::npos ){    
-    MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),12,1,13,4,1,5);
+
+    MonitorElement* me = ibooker.book2D(hname.c_str(),hname.c_str(),12,1,13,4,1,5);
 
     //     setLabelPh(me);
     me->setBinLabel(1,"MB1",2);
@@ -296,7 +270,8 @@ void DTTriggerEfficiencyTest::bookWheelHistos(int wheel,string hTag,string folde
   }
 
   if (hTag.find("Theta") != string::npos){
-    MonitorElement* me =dbe->book2D(hname.c_str(),hname.c_str(),12,1,13,3,1,4);
+
+    MonitorElement* me =ibooker.book2D(hname.c_str(),hname.c_str(),12,1,13,3,1,4);
 
     //     setLabelTh(me);
     me->setBinLabel(1,"MB1",2);
@@ -310,7 +285,8 @@ void DTTriggerEfficiencyTest::bookWheelHistos(int wheel,string hTag,string folde
 
 }
 
-void DTTriggerEfficiencyTest::bookChambHistos(DTChamberId chambId, string htype, string folder) {
+void DTTriggerEfficiencyTest::bookChambHistos(DQMStore::IBooker & ibooker,DTChamberId chambId, 
+                                                                      string htype, string folder) {
 
   stringstream wheel; wheel << chambId.wheel();
   stringstream station; station << chambId.station();	
@@ -320,7 +296,7 @@ void DTTriggerEfficiencyTest::bookChambHistos(DTChamberId chambId, string htype,
   bool isDCC = hwSource=="DCC" ;
   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
-  dbe->setCurrentFolder(topFolder(isDCC) + 
+  ibooker.setCurrentFolder(topFolder(isDCC) + 
       "Wheel" + wheel.str() +
       "/Sector" + sector.str() +
       "/Station" + station.str() + 
@@ -335,12 +311,58 @@ void DTTriggerEfficiencyTest::bookChambHistos(DTChamberId chambId, string htype,
   int nbins;
   trigGeomUtils->phiRange(chambId,min,max,nbins,20);
   if (htype.find("TrigEffPosvsAnglePhi") == 0 ){
-    chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency (any qual.) position vs angle (Phi)",12,-30.,30.,nbins,min,max);
+
+    chambME[indexChId][fullType] = ibooker.book2D(HistoName.c_str(),"Trigger efficiency (any qual.) position vs angle (Phi)",12,-30.,30.,nbins,min,max);
     return;
   }
   if (htype.find("TrigEffPosvsAngleCorrPhi") == 0 ){
-    chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency (correlated) pos vs angle (Phi)",12,-30.,30.,nbins,min,max);
+
+    chambME[indexChId][fullType] = ibooker.book2D(HistoName.c_str(),"Trigger efficiency (correlated) pos vs angle (Phi)",12,-30.,30.,nbins,min,max);
     return;
   }
 
 }
+
+
+void DTTriggerEfficiencyTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+
+
+  vector<string>::const_iterator iTr   = trigSources.begin();
+  vector<string>::const_iterator trEnd = trigSources.end();
+  vector<string>::const_iterator iHw   = hwSources.begin();
+  vector<string>::const_iterator hwEnd = hwSources.end();
+
+
+  //Booking
+  if(parameters.getUntrackedParameter<bool>("staticBooking", true)){
+    for (; iTr != trEnd; ++iTr){
+      trigSource = (*iTr);
+      for (; iHw != hwEnd; ++iHw){
+        hwSource = (*iHw);
+        // Loop over the TriggerUnits
+
+        bookHistos(ibooker,"TrigEffPhi","");
+        bookHistos(ibooker,"TrigEffCorrPhi","");
+        for (int wh=-2; wh<=2; ++wh){
+          if (detailedPlots) {
+            for (int sect=1; sect<=12; ++sect){
+              for (int stat=1; stat<=4; ++stat){
+                DTChamberId chId(wh,stat,sect);
+
+                bookChambHistos(ibooker,chId,"TrigEffPosvsAnglePhi","Segment");
+                bookChambHistos(ibooker,chId,"TrigEffPosvsAngleCorrPhi","Segment");
+              }
+            }
+          }
+
+          bookWheelHistos(ibooker,wh,"TrigEffPhi","");  
+          bookWheelHistos(ibooker,wh,"TrigEffCorrPhi","");  
+        }
+      }
+    }
+  }
+  bookingdone = 1;
+}
+
+
+

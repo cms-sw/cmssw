@@ -13,7 +13,6 @@
 #include "DataFormats/Candidate/interface/iterator.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Math/interface/Error.h"
-#include "boost/iterator/filter_iterator.hpp"
 
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -246,20 +245,6 @@ namespace reco {
     template<typename T, typename Tag> size_type numberOf() const { 
       if ( hasMasterClone() ) return masterClone()->numberOf<T, Tag>();
       else return reco::numberOf<T, Tag>( * this ); 
-    }
-
-    template<typename S> 
-      struct daughter_iterator {
-	typedef boost::filter_iterator<S, const_iterator> type;
-      };
-
-    template<typename S>
-      typename daughter_iterator<S>::type beginFilter( const S & s ) const {
-      return boost::make_filter_iterator(s, begin(), end());
-    }
-    template<typename S>
-      typename daughter_iterator<S>::type endFilter( const S & s ) const {
-      return boost::make_filter_iterator(s, end(), end());
     }
 
     virtual const Track * bestTrack() const {return nullptr;}	

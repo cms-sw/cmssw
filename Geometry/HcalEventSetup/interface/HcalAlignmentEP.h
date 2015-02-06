@@ -14,7 +14,7 @@
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/HcalAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/HcalAlignmentErrorExtendedRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 class HcalAlignmentEP : public edm::ESProducer {

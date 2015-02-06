@@ -19,8 +19,8 @@ namespace edm {
       try {
         return iFunc();
       }
-      catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+      catch (cms::Exception&)  { throw; }
+      catch(std::bad_alloc&) { convertException::badAllocToEDM(); }
       catch (std::exception& e) { convertException::stdToEDM(e); }
       catch(std::string& s) { convertException::stringToEDM(s); }
       catch(char const* c) { convertException::charPtrToEDM(c); }

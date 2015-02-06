@@ -203,3 +203,5 @@ EXOHSCPSkim_EventContent=cms.PSet(
       'keep recoBeamSpot_offlineBeamSpot__*',
       )
     )
+
+

@@ -29,6 +29,7 @@ namespace pos{
   public:
 
     PixelROCDACSettings();
+    virtual ~PixelROCDACSettings(){;};
 
     PixelROCDACSettings(const PixelROCName& rocid){rocid_= rocid;}
 

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <ConstantsSection  label="trackerParameters.xml" eval="true">
+  <Vector name="pxbPars" type="numeric" nEntries="6">
+    20, 12, 2, 0xF, 0xFF, 0x3FF
+  </Vector>
+  <Vector name="pxfPars" type="numeric" nEntries="10">
+    23, 18, 12, 10, 2, 0x3, 0xF, 0x3F, 0x3, 0xFF
+  </Vector>
+  <Vector name="tecPars" type="numeric" nEntries="14">
+    18, 14, 12, 8, 5, 2, 0, 0x3, 0xF, 0x3, 0xF, 0x7, 0x7, 0x3
+  </Vector>
+  <Vector name="tibPars" type="numeric" nEntries="12">
+    14, 12, 10, 4, 2, 0, 0x7, 0x3, 0x3, 0x3F, 0x3, 0x3
+  </Vector>
+  <Vector name="tidPars" type="numeric" nEntries="12">
+    23, 18, 12, 10, 2, 0, 0x3, 0xF, 0x3F, 0x3, 0xFF, 0x3
+  </Vector>
+  <Vector name="tobPars" type="numeric" nEntries="10">
+    20, 12, 12, 2, 0, 0xF, 0x0, 0xFF, 0x3FF, 0x3
+  </Vector>
+  <Vector name="detIdShifts" type="numeric" nEntries="36">
+    -1, 23, -1,
+    23, -1, 18,
+    
+    20, 18, 14,
+    18, 20, 14,
+    
+    12, 10,  4,
+    10, 12,  8,
+    
+     2,  2,  2,
+     2,  2,  5,
+    
+     0,  0,  0,
+     0,  0,  2,
+    
+    -1, -1, -1,
+    -1, -1,  0
+  </Vector>
+ </ConstantsSection>
+</DDDefinition>

@@ -33,7 +33,7 @@ class BasicReferenceCounted
 
    public:
       BasicReferenceCounted() : referenceCount_(0) {}
-      BasicReferenceCounted( const BasicReferenceCounted& iRHS ) : referenceCount_(0) {}
+      BasicReferenceCounted( const BasicReferenceCounted& /* iRHS */) : referenceCount_(0) {}
 
       const BasicReferenceCounted& operator=( const BasicReferenceCounted& ) {
 	return *this;

@@ -4,6 +4,9 @@ process = cms.Process("S2")
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring("file:patTuple_mini.root")
 )
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarPileUpMINIAODSIM
+process.source.fileNames = filesRelValProdTTbarPileUpMINIAODSIM
+
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
@@ -46,7 +49,8 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag =  'POSTLS172_V3::All'
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 
 
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
@@ -55,42 +59,31 @@ addJetCollection(
    postfix   = "",
    labelName = 'AK4PFCHS',
    jetSource = cms.InputTag('ak4PFJetsCHS'),
-   trackSource = cms.InputTag('unpackedTracksAndVertices'), 
-   pfCandidates = cms.InputTag('packedPFCandidates'), 
-   pvSource = cms.InputTag('unpackedTracksAndVertices'), 
+   pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+   pfCandidates = cms.InputTag('packedPFCandidates'),
+   svSource = cms.InputTag('slimmedSecondaryVertices'),
    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
-   btagDiscriminators = [      'pfCombinedSecondaryVertexBJetTags'     ],
-   genJetCollection=cms.InputTag('ak4GenJets')
+   btagDiscriminators = [ 'pfCombinedSecondaryVertexBJetTags', 'pfCombinedInclusiveSecondaryVertexV2BJetTags' ],
+   genJetCollection=cms.InputTag('ak4GenJets'),
+   genParticles=cms.InputTag('prunedGenParticles')
    )
 addJetCollection(
    process,
    postfix   = "",
    labelName = 'AK4PF',
    jetSource = cms.InputTag('ak4PFJets'),
-   trackSource = cms.InputTag('unpackedTracksAndVertices'),
-   pfCandidates = cms.InputTag('packedPFCandidates'), 
-   pvSource = cms.InputTag('unpackedTracksAndVertices'), 
+   pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+   pfCandidates = cms.InputTag('packedPFCandidates'),
+   svSource = cms.InputTag('slimmedSecondaryVertices'),
    jetCorrections = ('AK4PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
-   btagDiscriminators = [      'pfCombinedSecondaryVertexBJetTags'     ],
-   genJetCollection=cms.InputTag('ak4GenJets')
+   btagDiscriminators = [ 'pfCombinedSecondaryVertexBJetTags', 'pfCombinedInclusiveSecondaryVertexV2BJetTags' ],
+   genJetCollection=cms.InputTag('ak4GenJets'),
+   genParticles=cms.InputTag('prunedGenParticles')
    )
 
-#adjust MC matching
-process.patJetGenJetMatchAK4PF.matched = "slimmedGenJets"
-process.patJetGenJetMatchAK4PFCHS.matched = "slimmedGenJets"
-process.patJetPartonMatchAK4PFCHS.matched = "prunedGenParticles"
-process.patJetPartonMatchAK4PF.matched = "prunedGenParticles"
-process.patJetPartons.particles = "prunedGenParticles"
-process.patJetPartonsLegacy.src = "prunedGenParticles" # if using legacy jet flavour (not used by default)
+# if using legacy jet flavour (not used by default)
 process.patJetPartonsLegacy.skipFirstN = cms.uint32(0) # do not skip first 6 particles, we already pruned some!
 process.patJetPartonsLegacy.acceptNoDaughters = cms.bool(True) # as we drop intermediate stuff, we need to accept quarks with no siblings
-
-#adjust PV
-process.patJetCorrFactorsAK4PFCHS.primaryVertices = "offlineSlimmedPrimaryVertices"
-process.patJetCorrFactorsAK4PF.primaryVertices = "offlineSlimmedPrimaryVertices"
-
-#recreate tracks and pv for btagging
-process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
 
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")

@@ -22,7 +22,6 @@
 #include "TMath.h"
 
 SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
-  dbe(edm::Service<DQMStore>().operator->()),
   conf_(conf),
   tracksCollection_in_EventTree(true),
   firstEvent(-1),
@@ -86,15 +85,6 @@ void SiStripMonitorTrack::bookHistograms(DQMStore::IBooker & ibooker , const edm
   book(ibooker , tTopo);
 }
 
-//------------------------------------------------------------------------
-void SiStripMonitorTrack::endJob(void)
-{
-  if(conf_.getParameter<bool>("OutputMEsInRootFile")){
-    //dbe->showDirStructure();
-    dbe->save(conf_.getParameter<std::string>("OutputFileName"));
-  }
-}
-
 // ------------ method called to produce the data  ------------
 void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
@@ -107,10 +97,9 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   //initialization of global quantities
   LogDebug("SiStripMonitorTrack") << "[SiStripMonitorTrack::analyse]  " << "Run " << e.id().run() << " Event " << e.id().event() << std::endl;
   eventNb = e.id().event();
-//  vPSiStripCluster.clear();
   vPSiStripCluster.clear();
 
-  iOrbitSec = e.orbitNumber()/11223.0;
+  iLumisection = e.orbitNumber()/262144.0;
 
   // initialise # of clusters
   for (std::map<std::string, SubDetMEs>::iterator iSubDet = SubDetMEsMap.begin();
@@ -138,8 +127,8 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
     }
     fillME(subdet_mes.nClustersOffTrack, subdet_mes.totNClustersOffTrack);
     if (Trend_On_) {
-      fillME(subdet_mes.nClustersTrendOnTrack,iOrbitSec,subdet_mes.totNClustersOnTrack);
-      fillME(subdet_mes.nClustersTrendOffTrack,iOrbitSec,subdet_mes.totNClustersOffTrack);
+      fillME(subdet_mes.nClustersTrendOnTrack,iLumisection,subdet_mes.totNClustersOnTrack);
+      fillME(subdet_mes.nClustersTrendOffTrack,iLumisection,subdet_mes.totNClustersOffTrack);
     }
   }
 }
@@ -511,9 +500,9 @@ void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker & ibooker , std::strin
   if(Trend_On_){
     // TotalNumber of Cluster
     completeName = "Trend_TotalNumberOfClusters_OnTrack"  + subdet_tag;
-    theSubDetMEs.nClustersTrendOnTrack = bookMETrend(ibooker , "TH1nClustersOn", completeName.c_str());
+    theSubDetMEs.nClustersTrendOnTrack = bookMETrend(ibooker , completeName.c_str());
     completeName = "Trend_TotalNumberOfClusters_OffTrack"  + subdet_tag;
-    theSubDetMEs.nClustersTrendOffTrack = bookMETrend(ibooker , "TH1nClustersOff", completeName.c_str());
+    theSubDetMEs.nClustersTrendOffTrack = bookMETrend(ibooker , completeName.c_str());
   }
 
   //bookeeping
@@ -578,22 +567,18 @@ MonitorElement* SiStripMonitorTrack::bookMEProfile(DQMStore::IBooker & ibooker ,
 }
 
 //--------------------------------------------------------------------------------
-MonitorElement* SiStripMonitorTrack::bookMETrend(DQMStore::IBooker & ibooker , const char* ParameterSetLabel, const char* HistoName)
+MonitorElement* SiStripMonitorTrack::bookMETrend(DQMStore::IBooker & ibooker , const char* HistoName)
 {
-  Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   edm::ParameterSet ParametersTrend =  conf_.getParameter<edm::ParameterSet>("Trending");
   MonitorElement* me = ibooker.bookProfile(HistoName,HistoName,
-					ParametersTrend.getParameter<int32_t>("Nbins"),
-					0,
-					ParametersTrend.getParameter<int32_t>("Nbins"),
-					100, //that parameter should not be there !?
-					Parameters.getParameter<double>("xmin"),
-					Parameters.getParameter<double>("xmax"),
-					"" );
+					   ParametersTrend.getParameter<int32_t>("Nbins"),
+					   ParametersTrend.getParameter<double>("xmin"),
+					   ParametersTrend.getParameter<double>("xmax"),
+					   0 , 0 , "" );
   if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) me->getTH1()->SetBit(TH1::kCanRebin);
 
   if(!me) return me;
-  me->setAxisTitle("Event Time in Seconds",1);
+  me->setAxisTitle("Lumisection",1);
   return me;
 }
 
@@ -1128,16 +1113,5 @@ void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,uint32_t detid, co
       if(noise > 0.0) fillME(iSubdet->second.ClusterStoNOffTrack,StoN);
       fillME(iSubdet->second.ClusterChargePerCMfromOriginOffTrack,dQdx_fromOrigin);
     }
-  }
-}
-//
-// -- Get Subdetector Tag from the Folder name
-//
-/* mia: what am I supposed to do w/ thi function ? */
-void SiStripMonitorTrack::getSubDetTag(std::string& folder_name, std::string& tag){
-
-  tag =  folder_name.substr(folder_name.find("MechanicalView")+15);
-  if (tag.find("side_") != std::string::npos) {
-    tag.replace(tag.find_last_of("/"),1,"_");
   }
 }

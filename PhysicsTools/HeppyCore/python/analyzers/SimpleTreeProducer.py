@@ -4,8 +4,8 @@ from ROOT import TFile
 
 class SimpleTreeProducer(Analyzer):
 
-    def beginLoop(self):
-        super(SimpleTreeProducer, self).beginLoop()
+    def beginLoop(self, setup):
+        super(SimpleTreeProducer, self).beginLoop(setup)
         self.rootfile = TFile('/'.join([self.dirName,
                                         'simple_tree.root']),
                               'recreate')
@@ -17,7 +17,7 @@ class SimpleTreeProducer(Analyzer):
         self.tree.fill('test_variable', event.input.var1)
         self.tree.tree.Fill()
 
-    def write(self):
+    def write(self, setup):
         self.rootfile.Write()
         self.rootfile.Close()
         

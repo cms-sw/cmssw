@@ -20,19 +20,21 @@
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "FWCore/Framework/interface/Event.h"
 
-template < class T >
+template < class T, typename C = std::vector<typename T::ConstituentTypeFwdPtr> >
 class JetConstituentSelector : public edm::EDFilter {
 
 public:
 
   typedef std::vector<T> JetsOutput;
-  typedef std::vector<typename T::ConstituentTypeFwdPtr> ConstituentsOutput;
+  typedef C ConstituentsOutput;
 
   JetConstituentSelector ( edm::ParameterSet const & params ) :
       srcToken_( consumes< typename edm::View<T> >( params.getParameter<edm::InputTag>("src") ) ),
@@ -67,7 +69,7 @@ public:
 	  // Add the jets that pass to the output collection
 	  jets->push_back( *ijet );
 	  for ( unsigned int ida = 0; ida < ijet->numberOfDaughters(); ++ida ) {
-	    candsOut->push_back( typename ConstituentsOutput::value_type( ijet->getPFConstituent(ida), ijet->getPFConstituent(ida) ) );
+	    candsOut->push_back( typename ConstituentsOutput::value_type( ijet->daughterPtr(ida), ijet->daughterPtr(ida) ) );
 	  }
 	}
       }
@@ -93,5 +95,9 @@ public:
 };
 
 typedef JetConstituentSelector<reco::PFJet> PFJetConstituentSelector;
+typedef JetConstituentSelector<pat::Jet, std::vector< edm::FwdPtr<pat::PackedCandidate> > > PatJetConstituentSelector;
+typedef JetConstituentSelector<reco::PFJet, std::vector< edm::FwdPtr<pat::PackedCandidate> > > MiniAODJetConstituentSelector;
 
 DEFINE_FWK_MODULE( PFJetConstituentSelector );
+DEFINE_FWK_MODULE( PatJetConstituentSelector );
+DEFINE_FWK_MODULE( MiniAODJetConstituentSelector );
