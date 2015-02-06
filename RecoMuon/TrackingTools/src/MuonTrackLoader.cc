@@ -147,7 +147,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   if(theUpdatingAtVtx)  trackUpdatedCollectionRefProd = event.getRefBeforePut<reco::TrackCollection>(instance+"UpdatedAtVtx");
   
   // Association map between updated and non updated at vtx tracks
-  auto_ptr<reco:: TrackToTrackMap> trackToTrackmap(new reco::TrackToTrackMap);
+  auto_ptr<reco:: TrackToTrackMap> trackToTrackmap(new reco::TrackToTrackMap(trackCollectionRefProd, trackUpdatedCollectionRefProd));
   
   // the track extra collection, it will be loaded in the event  
   auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
@@ -484,7 +484,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 
 OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
-			    Event& event, const std::vector<std::pair<Trajectory*,reco::TrackRef> >& miniMap, const string& instance, bool reallyDoSmoothing) {
+			    Event& event, const std::vector<std::pair<Trajectory*,reco::TrackRef> >& miniMap, Handle<reco::TrackCollection> const& trackHandle, const string& instance, bool reallyDoSmoothing) {
   
   const bool doSmoothing = theSmoothingStep && reallyDoSmoothing;
   
@@ -498,8 +498,8 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   reco::TrackRefProd trackCollectionRefProd = event.getRefBeforePut<reco::TrackCollection>(instance);
     
   // Association map between GlobalMuons and TeVMuons
-  auto_ptr<reco:: TrackToTrackMap> trackToTrackmap(new reco::TrackToTrackMap);
-  
+  auto_ptr<reco:: TrackToTrackMap> trackToTrackmap(new reco::TrackToTrackMap(trackHandle,trackCollectionRefProd ));
+   
   // the track extra collection, it will be loaded in the event  
   auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
   // ... and its reference into the event
