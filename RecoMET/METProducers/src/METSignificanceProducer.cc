@@ -30,6 +30,7 @@ namespace cms
     metSigAlgo_ = new metsig::METSignificance(iConfig);
 
    produces<double>("METSignificance");
+   //produces<reco::METCovMatrix>("METCovarianceMatrix");
    produces<double>("CovarianceMatrix00");
    produces<double>("CovarianceMatrix01");
    produces<double>("CovarianceMatrix10");
@@ -45,7 +46,7 @@ namespace cms
    //
     edm::Handle<edm::View<reco::MET> > metHandle;
     event.getByToken(metToken_, metHandle);
-    reco::MET met = (*metHandle)[0];
+    const reco::MET& met = (*metHandle)[0];
     
     //
     // candidates
@@ -77,7 +78,7 @@ namespace cms
    //
    // compute the significance
    //
-   reco::METCovMatrix cov = metSigAlgo_->getCovariance( *jets, leptons, *pfCandidates);
+   const reco::METCovMatrix cov = metSigAlgo_->getCovariance( *jets, leptons, *pfCandidates);
    double sig  = metSigAlgo_->getSignificance(cov, met);
 
    std::auto_ptr<double> significance (new double);
@@ -91,13 +92,16 @@ namespace cms
    (*sigmatrix_10) = cov(0,1);
    std::auto_ptr<double> sigmatrix_11 (new double);
    (*sigmatrix_11) = cov(1,1);
+   
+   //std::auto_ptr<reco::METCovMatrix> outputCov(new reco::METCovMatrix);
+   //(*outputCov) = cov;
 
    event.put( significance, "METSignificance" );
    event.put( sigmatrix_00, "CovarianceMatrix00" );
    event.put( sigmatrix_01, "CovarianceMatrix01" );
    event.put( sigmatrix_10, "CovarianceMatrix10" );
    event.put( sigmatrix_11, "CovarianceMatrix11" );
-
+   //event.put( outputCov, "CovarianceMatrix" );
 
   }
 

@@ -33,17 +33,35 @@ class JetDeltaRValueMapProducer : public edm::EDProducer {
 
 public:
 
-  typedef std::vector<T> JetsInput;
-  typedef edm::ValueMap<float> JetValueMap; 
+  typedef edm::ValueMap<float> JetValueMap;
 
   JetDeltaRValueMapProducer ( edm::ParameterSet const & params ) :
       srcToken_( consumes< typename edm::View<T> >( params.getParameter<edm::InputTag>("src") ) ),
       matchedToken_( consumes< typename edm::View<T> >( params.getParameter<edm::InputTag>( "matched" ) ) ),
       distMax_( params.getParameter<double>( "distMax" ) ),
-      value_( params.getParameter<std::string>("value") ),
-      evaluation_( value_ )
+      value_( params.existsAs<std::string>("value") ? params.getParameter<std::string>("value") : "" ),
+      values_( params.existsAs<std::vector<std::string> >("values") ? params.getParameter<std::vector<std::string> >("values") : std::vector<std::string>() ),
+      valueLabels_( params.existsAs<std::vector<std::string> >("valueLabels") ? params.getParameter<std::vector<std::string> >("valueLabels") : std::vector<std::string>() ),
+      lazyParser_( params.existsAs<bool>("lazyParser") ? params.getParameter<bool>("lazyParser") : false ),
+      evaluation_( (value_!="" ? value_ : "dummy"), lazyParser_ )
   {
-        produces< JetValueMap >();
+    if( value_!="" )
+      produces< JetValueMap >();
+
+    if( valueLabels_.size()>0 || values_.size()>0 )
+    {
+      if( valueLabels_.size()==values_.size() )
+      {
+        multiValue_ = true;
+        for( size_t i=0; i<valueLabels_.size(); ++i)
+        {
+          evaluationMap_.insert( std::make_pair( valueLabels_[i], StringObjectFunction<T>( values_[i], lazyParser_ ) ) );
+          produces< JetValueMap >(valueLabels_[i]);
+        }
+      }
+      else
+        edm::LogWarning("ValueLabelMismatch") << "The number of value labels does not match the number of values. Values will not be evaluated.";
+    }
   }
 
   virtual ~JetDeltaRValueMapProducer() {}
@@ -55,16 +73,18 @@ private:
 
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
 
-    std::auto_ptr< JetValueMap > jetValueMap ( new JetValueMap() );
-    edm::ValueMap<float>::Filler filler(*jetValueMap);
-
-
     edm::Handle< typename edm::View<T> > h_jets1;
     iEvent.getByToken( srcToken_, h_jets1 );
     edm::Handle< typename edm::View<T> > h_jets2;
     iEvent.getByToken( matchedToken_, h_jets2 );
 
     std::vector<float> values( h_jets1->size(), -99999 );
+    std::map<std::string, std::vector<float> > valuesMap;
+    if( multiValue_ )
+    {
+      for( size_t i=0; i<valueLabels_.size(); ++i)
+        valuesMap.insert( std::make_pair( valueLabels_[i], std::vector<float>( h_jets1->size(), -99999 ) ) );
+    }
     std::vector<bool> jets1_locks( h_jets1->size(), false );
 
     for ( typename edm::View<T>::const_iterator ibegin = h_jets2->begin(),
@@ -97,23 +117,54 @@ private:
         else
         {
           jets1_locks.at(matched_index) = true;
-          values.at(matched_index) = evaluation_(*ijet);
+          if( value_!="" )
+            values.at(matched_index) = evaluation_(*ijet);
+          if( multiValue_ )
+          {
+            for( size_t i=0; i<valueLabels_.size(); ++i)
+              valuesMap.at(valueLabels_[i]).at(matched_index) = (evaluationMap_.at(valueLabels_[i]))(*ijet);
+          }
         }
       }
     }// end loop over matched jets
-    
-    filler.insert(h_jets1, values.begin(), values.end());
-    filler.fill();
 
-    // put  in Event
-    iEvent.put(jetValueMap);
+    if( value_!="" )
+    {
+      std::auto_ptr< JetValueMap > jetValueMap ( new JetValueMap() );
+
+      JetValueMap::Filler filler(*jetValueMap);
+      filler.insert(h_jets1, values.begin(), values.end());
+      filler.fill();
+
+      // put in Event
+      iEvent.put(jetValueMap);
+    }
+    if( multiValue_ )
+    {
+      for( size_t i=0; i<valueLabels_.size(); ++i)
+      {
+        std::auto_ptr< JetValueMap > jetValueMap ( new JetValueMap() );
+
+        JetValueMap::Filler filler(*jetValueMap);
+        filler.insert(h_jets1, valuesMap.at(valueLabels_[i]).begin(), valuesMap.at(valueLabels_[i]).end());
+        filler.fill();
+
+        // put in Event
+        iEvent.put(jetValueMap, valueLabels_[i]);
+      }
+    }
   }
 
   edm::EDGetTokenT< typename edm::View<T> >  srcToken_;
   edm::EDGetTokenT< typename edm::View<T> >  matchedToken_;
   double                                     distMax_;
   std::string                                value_;
+  std::vector<std::string>                   values_;
+  std::vector<std::string>                   valueLabels_;
+  bool                                       multiValue_;
+  bool                                       lazyParser_;
   StringObjectFunction<T>                    evaluation_;
+  std::map<std::string, StringObjectFunction<T> >  evaluationMap_;
 };
 
 typedef JetDeltaRValueMapProducer<reco::Jet> RecoJetDeltaRValueMapProducer;
