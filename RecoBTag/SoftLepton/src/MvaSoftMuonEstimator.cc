@@ -34,8 +34,8 @@ float MvaSoftMuonEstimator::mvaValue(float sip3d, float sip2d, float ptRel, floa
   mva_ratio = ratio;
   // Evaluate tagger
   float tag = TMVAReader->EvaluateMVA("BDT");
-  // Transform output between 0 and 1
-  tag = tag*0.8 + 0.45;
+  // Transform output between approximately 0 and 1
+  tag = (tag+1.)/2.;
   
   return tag;
 }
