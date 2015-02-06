@@ -73,10 +73,14 @@ public:
    virtual void saveImageTo(const std::string& iName) const;
    virtual void populateController(ViewerParameterGUI&) const;
 
-   TGLViewer*  viewerGL() const;
-   TEveViewer* viewer();
-   TEveScene*  eventScene()  { return m_eventScene;}
-   TEveScene*  geoScene()    { return m_geoScene; }
+   TGLViewer*    viewerGL()    const;
+   TEveViewer*   viewer();
+
+   FWTGLViewer*  fwViewerGL()  const;
+   FWTEveViewer* fwViewer()    { return m_viewer; }
+
+   TEveScene*    eventScene()  { return m_eventScene;}
+   TEveScene*    geoScene()    { return m_geoScene; }
 
    TEveElement*   ownedProducts()  { return m_ownedProducts; }
    FWViewContext* viewContext() { return m_viewContext.get(); }

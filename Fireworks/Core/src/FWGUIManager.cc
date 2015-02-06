@@ -18,6 +18,7 @@
 #include <iostream>
 #include <cstdio>
 #include <sstream>
+#include <thread>
 
 #include "TGButton.h"
 #include "TGLabel.h"
@@ -37,6 +38,7 @@
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
+#include "Fireworks/Core/interface/FWTEveViewer.h"
 
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
@@ -890,17 +892,17 @@ FWGUIManager::exportAllViews(const std::string& format, int height)
    // If several views shave the same name, they are post-fixed
    // with "_%d". They are sorted by view diagonal.
 
-   typedef std::list<TEveViewer*>           viewer_list_t;
-   typedef viewer_list_t::iterator          viewer_list_i;
+   typedef std::list<FWTEveViewer*>           viewer_list_t;
+   typedef viewer_list_t::iterator            viewer_list_i;
 
-   typedef std::map<TString, viewer_list_t> name_map_t;
-   typedef name_map_t::iterator             name_map_i;
+   typedef std::map<TString, viewer_list_t>   name_map_t;
+   typedef name_map_t::iterator               name_map_i;
 
    name_map_t vls;
 
    for (ViewMap_i i = m_viewMap.begin(); i != m_viewMap.end(); ++i)
    {
-      TEveViewer *ev = dynamic_cast<TEveViewer*>(i->first);
+      FWTEveViewer *ev = dynamic_cast<FWTEveViewer*>(i->first);
       if (ev)
       {
          TString name(ev->GetElementName());

@@ -202,6 +202,12 @@ FWEveView::viewer()
    return m_viewer;
 }
 
+FWTGLViewer* 
+FWEveView::fwViewerGL() const
+{
+   return  m_viewer->fwGlViewer();
+}
+
 void
 FWEveView::saveImageTo(const std::string& iName) const
 {

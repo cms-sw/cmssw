@@ -27,7 +27,7 @@
 // forward declarations
 
 class TGWindow;
-
+class TGLFBO;
 
 class FWTGLViewer : public TGLEmbeddedViewer
 {
@@ -41,6 +41,16 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
+
+   void    DrawHiLod(Bool_t swap_buffers);
+   void    JustSwap();
+
+   TGLFBO* MakeFbo();
+   TGLFBO* MakeFboWidth (Int_t width,   Bool_t pixel_object_scale);
+   TGLFBO* MakeFboHeight(Int_t height,  Bool_t pixel_object_scale);
+   TGLFBO* MakeFboScale (Float_t scale, Bool_t pixel_object_scale);
+
+   TGLFBO* GenerateFbo(Int_t w, Int_t h, Float_t pixel_object_scale);
 
 private:
    FWTGLViewer(const FWTGLViewer&); // stop default

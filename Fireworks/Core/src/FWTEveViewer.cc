@@ -12,6 +12,9 @@
 
 // system include files
 
+#include <thread>
+
+
 // user include files
 
 #include "Fireworks/Core/interface/FWTEveViewer.h"
@@ -29,9 +32,9 @@
 // constructors and destructor
 //
 FWTEveViewer::FWTEveViewer(const char* n, const char* t) :
-   TEveViewer(n, t)
-{
-}
+   TEveViewer(n, t),
+   m_fwGlViewer(0)
+{}
 
 // FWTEveViewer::FWTEveViewer(const FWTEveViewer& rhs)
 // {
@@ -39,8 +42,7 @@ FWTEveViewer::FWTEveViewer(const char* n, const char* t) :
 // }
 
 FWTEveViewer::~FWTEveViewer()
-{
-}
+{}
 
 //
 // assignment operators
@@ -62,8 +64,8 @@ FWTGLViewer* FWTEveViewer::SpawnFWTGLViewer()
 {
    TGCompositeFrame* cf = GetGUICompositeFrame();
 
-   FWTGLViewer* v = new FWTGLViewer(cf);
-   SetGLViewer(v, v->GetFrame());
+   m_fwGlViewer = new FWTGLViewer(cf);
+   SetGLViewer(m_fwGlViewer, m_fwGlViewer->GetFrame());
 
    cf->AddFrame(fGLViewerFrame, new TGLayoutHints(kLHintsNormal | kLHintsExpandX | kLHintsExpandY));
 
@@ -72,7 +74,7 @@ FWTGLViewer* FWTEveViewer::SpawnFWTGLViewer()
    if (fEveFrame == 0)
       PreUndock();
 
-   return v;
+   return m_fwGlViewer;
 }
 
 //

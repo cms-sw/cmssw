@@ -42,6 +42,8 @@ public:
 
    // ---------- member functions ---------------------------
 
+   FWTGLViewer* fwGlViewer() { return m_fwGlViewer; }
+
    FWTGLViewer* SpawnFWTGLViewer();
 
 private:
@@ -51,6 +53,7 @@ private:
 
    // ---------- member data --------------------------------
 
+   FWTGLViewer *m_fwGlViewer;
 };
 
 
