@@ -54,7 +54,6 @@ class IsoTrackAnalyzer( Analyzer ):
     #----------------------------------------
     def declareHandles(self):
         super(IsoTrackAnalyzer, self).declareHandles()
-        self.handles['cmgCand'] = AutoHandle(self.cfg_ana.candidates,self.cfg_ana.candidatesTypes) 
         self.handles['met'] = AutoHandle( 'slimmedMETs', 'std::vector<pat::MET>' )
         self.handles['packedCandidates'] = AutoHandle( 'packedPFCandidates', 'std::vector<pat::PackedCandidate>')
 
@@ -77,7 +76,6 @@ class IsoTrackAnalyzer( Analyzer ):
         event.selectedIsoCleanTrack = []
         #event.preIsoTrack = []
 
-        pfcands = self.handles['cmgCand'].product()
         patcands = self.handles['packedCandidates'].product()
 
         charged = [ p for p in patcands if ( p.charge() != 0 and abs(p.dz())<=self.cfg_ana.dzMax ) ]
