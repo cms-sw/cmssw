@@ -23,7 +23,7 @@
 // constructors , dectructors
 //
 FWCandidateTowerProxyBuilder::FWCandidateTowerProxyBuilder():
-m_towers(0)
+   m_helper(typeid(reco::Candidate))
 {
 }
 
@@ -36,14 +36,21 @@ FWCandidateTowerProxyBuilder::~FWCandidateTowerProxyBuilder()
 //
 
 
+void FWCandidateTowerProxyBuilder::itemChangedImp(const FWEventItem* iItem)
+{
+   if (iItem)
+   {
+      m_helper.itemChanged(iItem);
+   }
+}
 
 void
 FWCandidateTowerProxyBuilder::build(const FWEventItem* iItem, TEveElementList* el, const FWViewContext* ctx)
 {
-   m_towers=0;
-   if (iItem)
+   //  m_towers=0;
+   if (iItem )
    {
-      iItem->get(m_towers);
+      //      iItem->get(m_towers);
       FWCaloDataProxyBuilderBase::build(iItem, el, ctx);
    }
 }
@@ -52,7 +59,7 @@ FWCandidateTowerProxyBuilder::build(const FWEventItem* iItem, TEveElementList* e
 FWHistSliceSelector*
 FWCandidateTowerProxyBuilder::instantiateSliceSelector()
 {
-   FWCandidateTowerSliceSelector* ss = new FWCandidateTowerSliceSelector(m_hist, item());
+   FWCandidateTowerSliceSelector* ss = new FWCandidateTowerSliceSelector(m_hist, item(), &m_helper);
    return ss;
 }
 
@@ -61,14 +68,16 @@ FWCandidateTowerProxyBuilder::fillCaloData()
 {
     m_hist->Reset();
 
-    if (m_towers)
+    //  if (m_towers)
     {
         if(item()->defaultDisplayProperties().isVisible()) {
             // assert(item()->size() >= m_towers->size());
-            unsigned int index=0;
-            for( pat::PackedCandidateCollection::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower,++index) {
+           for (size_t index = 0; index < item()->size(); ++index) {
                 const FWEventItem::ModelInfo& info = item()->modelInfo(index);
                 if(info.displayProperties().isVisible()) {
+                   const void* modelData = item()->modelData((int)index);
+
+                   const reco::Candidate* tower = reinterpret_cast<const reco::Candidate*>(m_helper.offsetObject(modelData));
                    addEntryToTEveCaloData(tower->eta(), tower->phi(), getEt(*tower), info.isSelected());
                 }
             }
@@ -76,4 +85,7 @@ FWCandidateTowerProxyBuilder::fillCaloData()
     }
 }
 
-REGISTER_FWPROXYBUILDER(FWCandidateTowerProxyBuilder, pat::PackedCandidateCollection,"CaloTower",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kAllLegoBits);
+
+
+
+REGISTER_FWPROXYBUILDER(FWCandidateTowerProxyBuilder, reco::Candidate,"CaloTower",FWViewType::k3DBit|FWViewType::kAllRPZBits|FWViewType::kAllLegoBits);
