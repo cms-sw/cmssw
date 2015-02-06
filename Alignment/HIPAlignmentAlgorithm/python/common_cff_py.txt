@@ -13,9 +13,9 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 if 'COSMICS'=='<FLAG>':
-   process.GlobalTag.globaltag='GR_R_42_V21::All'
+   process.GlobalTag.globaltag='MCRUN2_71_V0::All'
 else :
-   process.GlobalTag.globaltag='GR_R_42_V21::All'
+   process.GlobalTag.globaltag='MCRUN2_71_V0::All'
  
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
@@ -44,7 +44,7 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 # process.ZeroAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
 #                                connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
 #                                timetype = cms.string("runnumber"),
-#                                toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
+#                                toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
 #                                                           tag = cms.string('TrackerIdealGeometryErrors210_mc')
 #                                                           )
 #                                                  )
@@ -65,17 +65,11 @@ process.GlobalTag.toGet = cms.VPSet(
             tag = cms.string('TrackerSurfaceDeformations_2011Realistic_v2_mc'),
             connect = cms.untracked.string('frontier://FrontierProd/CMS_COND_310X_ALIGN')
             ),
-   cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
+   cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
             tag = cms.string('TrackerAlignmentErrors_2015StartupPessimisticScenario_mc'),
             connect = cms.untracked.string('frontier://FrontierProd/CMS_COND_31X_ALIGNMENT')
             ),
    )
-
-process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
-process.MeasurementTrackerEvent.pixelClusterProducer = 'ALCARECOTkAlMinBias'
-process.MeasurementTrackerEvent.stripClusterProducer = 'ALCARECOTkAlMinBias'
-process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
-process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
 
 process.AlignmentProducer.applyDbAlignment = True
 
