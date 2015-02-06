@@ -1,7 +1,7 @@
 #include "DQM/SiStripMonitorSummary/plugins/SiStripCorrelateBadStripAndNoise.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 
 
@@ -49,7 +49,7 @@ SiStripCorrelateBadStripAndNoise::DoAnalysis(const edm::EventSetup& es){
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   //Loop on quality bad stirps

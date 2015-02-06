@@ -42,6 +42,7 @@ New det-id.
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" //
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 // for det id
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -289,7 +290,7 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
  
   //Retrieve tracker topology from geometry (for det id)
   edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  iSetup.get<TrackerTopologyRcd>().get(tTopo);
 
   // Get input data
   int totalNumOfSimHits = 0;

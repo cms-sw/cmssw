@@ -23,7 +23,6 @@
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedCleaner.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 
 

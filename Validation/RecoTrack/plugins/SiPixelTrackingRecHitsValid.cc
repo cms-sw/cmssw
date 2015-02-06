@@ -28,7 +28,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -1073,7 +1073,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  es.get<TrackerTopologyRcd>().get(tTopo);
 
 
   run = e.id().run();

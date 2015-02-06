@@ -8,6 +8,7 @@
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/TrackerMonitorTrack/interface/MonitorTrackResiduals.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -55,7 +56,7 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   Parameters = conf_.getParameter<edm::ParameterSet>("TH1ResModules");
@@ -154,7 +155,7 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   TrackerValidationVariables avalidator_(iSetup,conf_);

@@ -12,6 +12,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -37,20 +38,12 @@ namespace {
 }
 
 TrackerGeometry*
-TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::ParameterSet& pSet )
+TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTrackerParameters* ptp )
 {
-  bool upgradeGeometry = false;
-  int BIG_PIX_PER_ROC_X = 1;
-  int BIG_PIX_PER_ROC_Y = 2;
+  bool upgradeGeometry = (ptp->topology[0]==0)?false:true;
+  int BIG_PIX_PER_ROC_X = ptp->topology[3];
+  int BIG_PIX_PER_ROC_Y = ptp->topology[4];
   
-  if( pSet.exists( "trackerGeometryConstants" ))
-  {
-    const edm::ParameterSet tkGeomConsts( pSet.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
-    upgradeGeometry = tkGeomConsts.getParameter<bool>( "upgradeGeometry" );  
-    BIG_PIX_PER_ROC_X = tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" );
-    BIG_PIX_PER_ROC_Y = tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" );
-  }
-    
   thePixelDetTypeMap.clear();
   theStripDetTypeMap.clear();
    

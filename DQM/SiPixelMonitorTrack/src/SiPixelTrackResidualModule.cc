@@ -22,7 +22,7 @@
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelTrackResidualModule.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 // Data Formats
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
@@ -55,7 +55,7 @@ SiPixelTrackResidualModule::~SiPixelTrackResidualModule() {
 void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, edm::EventSetup const& iSetup, DQMStore::IBooker & iBooker, bool reducedSet, int type, bool isUpgrade) {
 
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology *pTT = tTopoHandle.product();
 
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);

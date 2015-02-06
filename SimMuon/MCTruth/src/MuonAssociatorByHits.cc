@@ -7,7 +7,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include "SimMuon/MCTruth/interface/TrackerMuonHitExtractor.h"
@@ -178,7 +178,7 @@ MuonAssociatorByHits::associateRecoToSim( const edm::RefToBaseVector<reco::Track
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  setup->get<IdealGeometryRecord>().get(tTopoHand);
+  setup->get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
 
@@ -224,7 +224,7 @@ MuonAssociatorByHits::associateSimToReco( const edm::RefToBaseVector<reco::Track
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  setup->get<IdealGeometryRecord>().get(tTopoHand);
+  setup->get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
   // Tracker hit association  

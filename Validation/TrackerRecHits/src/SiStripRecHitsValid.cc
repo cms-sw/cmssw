@@ -12,7 +12,7 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
-
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //--- for RecHit
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h" 
@@ -204,7 +204,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
     
   // Step A: Get Inputs 
@@ -616,7 +616,7 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
   
   // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
