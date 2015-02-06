@@ -44,18 +44,18 @@ MvaSoftEleEstimator::~MvaSoftEleEstimator()
 
 //--------------------------------------------------------------------------------------------------
 
-Double_t MvaSoftEleEstimator::mvaValue(Float_t sip2d, Float_t sip3d, Float_t ptRel, float deltaR, Float_t ratioRel, Float_t mva_e_pi) {
+Double_t MvaSoftEleEstimator::mvaValue(Float_t sip2d, Float_t sip3d, Float_t ptRel, float deltaR, Float_t ratio, Float_t mva_e_pi) {
   
   mva_sip3d = sip3d;
   mva_sip2d = sip2d;
   mva_ptRel = ptRel;
   mva_deltaR = deltaR;
-  mva_ratio = ratioRel;
+  mva_ratio = ratio;
   mva_e_pi = mva_e_pi;
 
   float tag = TMVAReader->EvaluateMVA("BDT");
   // Transform output between 0 and 1
-  tag = tag*0.8 + 0.45;
+  tag = (tag+1.0)/2.0;
 
   return tag;
 }

@@ -20,7 +20,7 @@ float ElectronTagger::discriminator(const TagInfoHelper & tagInfo) const {
 	float rndm = random->Uniform(0,1);
 	//for negative tagger, flip 50% of the negative signs to positive value
 	float sip3d = (m_selector.isNegative() && rndm<0.5) ? -properties.sip3d : properties.sip3d;
-	float tag = mvaID->mvaValue( properties.sip2d, sip3d, properties.ptRel, properties.deltaR, properties.ratioRel,properties.elec_mva);
+	float tag = mvaID->mvaValue( properties.sip2d, sip3d, properties.ptRel, properties.deltaR, properties.ratio,properties.elec_mva);
         if (tag > bestTag)
            bestTag = tag;
     }
