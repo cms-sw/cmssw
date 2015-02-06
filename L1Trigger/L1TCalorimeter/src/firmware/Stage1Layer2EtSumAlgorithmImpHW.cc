@@ -112,7 +112,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
 
   const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);
   l1t::EtSum etMiss(*&etLorentz,EtSum::EtSumType::kMissingEt,MET&0xfff,0,iPhiET,METqual);
-  l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHT&0xfff,0,iPhiHT,MHTqual);
+  l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHT&0x7f,0,iPhiHT,MHTqual);
   l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET&0xfff,0,0,ETTqual);
   l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT&0xfff,0,0,HTTqual);
 
@@ -190,12 +190,16 @@ l1t::Stage1Layer2EtSumAlgorithmImpHW::doSumAndMET(std::vector<SimpleRegion>& reg
 // 13 13 13 8 7 5
   std::array<int, 18> sumEtaPos{};
   std::array<int, 18> sumEtaNeg{};
+  bool inputOverflow(false);
   for (const auto& r : regionEt)
   {
     if ( r.ieta < 0 )
       sumEtaNeg[r.iphi] += r.et;
     else
       sumEtaPos[r.iphi] += r.et;
+    
+    if ( r.et >= (1<<10) )
+      inputOverflow = true;
   }
 
   std::array<int, 18> sumEta{};
@@ -206,7 +210,7 @@ l1t::Stage1Layer2EtSumAlgorithmImpHW::doSumAndMET(std::vector<SimpleRegion>& reg
     sumEta[i] = sumEtaPos[i] + sumEtaNeg[i];
     sumEt += sumEta[i];
   }
-  sumEt = (sumEt % (1<<12)) | ((sumEt >= (1<<12)) ? (1<<12):0);
+  sumEt = (sumEt % (1<<12)) | ((sumEt >= (1<<12) || inputOverflow) ? (1<<12):0);
   assert(sumEt>=0 && sumEt < (1<<13));
 
   // 0, 20, 40, 60, 80 degrees
