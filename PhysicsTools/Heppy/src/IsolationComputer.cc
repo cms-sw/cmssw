@@ -15,7 +15,7 @@ namespace {
         }
     };
 }
-void heppy::IsolationComputer::setPackedCandidates(const std::vector<pat::PackedCandidate> & all) 
+void heppy::IsolationComputer::setPackedCandidates(const std::vector<pat::PackedCandidate> & all, int fromPV_thresh, float dz_thresh, bool also_leptons) 
 {
     allcands_ = &all;
     charged_.clear(); neutral_.clear(); pileup_.clear();
@@ -23,12 +23,18 @@ void heppy::IsolationComputer::setPackedCandidates(const std::vector<pat::Packed
     for (const pat::PackedCandidate &p : all) {
         if (p.charge() == 0) {
             neutral_.push_back(&p);
-        } else if (abs(p.pdgId()) == 211) {
-            if (p.fromPV() > 1) {
+        } else { 
+
+          if ( (abs(p.pdgId()) == 211 ) || ( also_leptons && (abs(p.pdgId()) == 11 ) || (abs(p.pdgId()) == 13 ) ) )  {
+
+            if (p.fromPV() > fromPV_thresh && fabs(p.dz()) < dz_thresh ) {
                 charged_.push_back(&p);
             } else {
                 pileup_.push_back(&p);
             }
+
+          }
+
         }
     }
     if (weightCone_ > 0) weights_.resize(neutral_.size());
