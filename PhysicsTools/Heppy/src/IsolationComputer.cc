@@ -25,7 +25,7 @@ void heppy::IsolationComputer::setPackedCandidates(const std::vector<pat::Packed
             neutral_.push_back(&p);
         } else { 
 
-          if ( (abs(p.pdgId()) == 211 ) || ( also_leptons && (abs(p.pdgId()) == 11 ) || (abs(p.pdgId()) == 13 ) ) )  {
+          if ( (abs(p.pdgId()) == 211 ) || ( also_leptons && ((abs(p.pdgId()) == 11 ) || (abs(p.pdgId()) == 13 )) ) )  {
 
             if (p.fromPV() > fromPV_thresh && fabs(p.dz()) < dz_thresh ) {
                 charged_.push_back(&p);
