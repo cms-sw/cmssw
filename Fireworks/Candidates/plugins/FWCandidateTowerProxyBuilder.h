@@ -7,10 +7,11 @@
 #include <string>
 
 #include "Fireworks/Calo/interface/FWCaloDataHistProxyBuilder.h"
-//#include "DataFormats/Candidate/interface/CandidateFwd.h"
-//#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "Fireworks/Core/interface/FWSimpleProxyHelper.h"
 
 class FWHistSliceSelector;
 
@@ -19,8 +20,9 @@ class FWCandidateTowerProxyBuilder : public FWCaloDataHistProxyBuilder
 public:
    FWCandidateTowerProxyBuilder();
    virtual ~FWCandidateTowerProxyBuilder();
-
+   static std::string typeOfBuilder() { return std::string("simple#");}
    virtual double getEt(const reco::Candidate& cand) const { return cand.pt(); }
+
 
    REGISTER_PROXYBUILDER_METHODS();
 protected:
@@ -32,8 +34,9 @@ private:
    FWCandidateTowerProxyBuilder(const FWCandidateTowerProxyBuilder&); // stop default
    const FWCandidateTowerProxyBuilder& operator=(const FWCandidateTowerProxyBuilder&); // stop default
   
+   virtual void itemChangedImp(const FWEventItem*);
    // ---------- member data --------------------------------
-   const pat::PackedCandidateCollection* m_towers;
+   FWSimpleProxyHelper m_helper;
 };
 
 #endif
