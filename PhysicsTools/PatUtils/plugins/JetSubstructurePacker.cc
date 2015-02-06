@@ -51,7 +51,7 @@ JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
 	  for ( size_t ida = 0; ida < jjet.numberOfDaughters(); ++ida ) {
 
 	    edm::Ptr<reco::Candidate> candPtr =  jjet.daughterPtr( ida);
-	    nextSubjets.push_back( edm::Ptr<pat::Jet> ( candPtr.id(), candPtr.key(), candPtr.productGetter() ) );
+	    nextSubjets.push_back( edm::Ptr<pat::Jet> ( candPtr ) );
 	  }
 	}
 	break;
