@@ -155,13 +155,6 @@ def customiseRun2EraExtras(process):
                 process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.60)
             if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf2'):
                 process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.60)
-    if hasattr(process,'HLTSchedule'):
-        process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
-        process.hltCsc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
-        if hasattr(process,"CSCIndexerESProducer"):
-            process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
-        if hasattr(process,"CSCChannelMapperESProducer"):
-            process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
     if hasattr(process,'dqmoffline_step'):
         process.l1tCsctf.gangedME11a = cms.untracked.bool(False)
 
@@ -478,8 +471,6 @@ def customise_DigiToRaw(process):
 
 
 def customise_HLT(process):
-    from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_hlt
-    process = customise_csc_hlt(process)
     return process
 
 
