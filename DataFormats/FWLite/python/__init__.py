@@ -61,7 +61,12 @@ class Handle:
             print "Not deleting wrapper"
             del kwargs['noDelete']
         else:
-             ROOT.TClass.GetClass("edm::Wrapper<"+self._type+">").Destructor( self._wrapper )
+            self._nodel = True
+        self._type = typeString 
+        self._resetWrapper()
+        self._exception = RuntimeError ("getByLabel not called for '%s'", self)
+        # restore warning state
+        ROOT.gErrorIgnoreLevel = oldWarningLevel
         # Since we deleted the options as we used them, that means
         # that kwargs should be empty.  If it's not, that means that
         # somebody passed in an argument that we're not using and we
@@ -98,7 +103,7 @@ class Handle:
         # So, we've created it and grabbed the type info.  Since we
         # don't want a memory leak, we destroy it.
         if not self._nodel :
-            self._wrapper.IsA().Destructor( self._wrapper )
+            ROOT.TClass.GetClass("edm::Wrapper<"+self._type+">").Destructor( self._wrapper )
 
     def _typeInfoGetter (self):
         """(Internal) Return the type info"""
