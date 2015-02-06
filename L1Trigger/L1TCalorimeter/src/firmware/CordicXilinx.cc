@@ -83,7 +83,13 @@ void CordicXilinx::operator() ( int32_t xInput , int32_t yInput , int32_t& aPhi 
     // Debug tool
     auto printVals = [&x,&y,&rotation,this]
     {
-        printf("x: % 8d y: % 8d phi: % 8d outphi: % 8d float phi = % f\n", x, y, rotation, rotation/pow(2., internalBits_-3), (abs(rotation)>>(internalBits_-outputBits_)) * ((rotation>0) ? -1:1) );
+        printf("x: % 8d y: % 8d phi: % 8d outphi: % 8d float phi = % f\n",
+            x,
+            y,
+            rotation,
+            (abs(rotation)>>(internalBits_-outputBits_)) * ((rotation>0) ? -1:1),
+            rotation/pow(2., internalBits_-3)
+        );
     };
 
     // Convert to internal precision
