@@ -14,9 +14,13 @@
 
 #include "SimCalorimetry/HGCSimProducers/src/HGCFEElectronics.cc"
 
-typedef float HGCSimEn_t;
-typedef std::array<HGCSimEn_t,10> HGCSimHitData;
-typedef std::unordered_map<uint32_t, HGCSimHitData> HGCSimHitDataAccumulator;
+typedef float HGCSimData_t;
+
+//15 time samples: 9 pre-samples, 1 in-time, 5 post-samples
+typedef std::array<HGCSimData_t,15> HGCSimHitData;
+
+//1st array=energy, 2nd array=energy weighted time-of-flight
+typedef std::unordered_map<uint32_t, std::array<HGCSimHitData,2> > HGCSimHitDataAccumulator; 
 
 template <class D>
 class HGCDigitizerBase {
@@ -29,15 +33,16 @@ class HGCDigitizerBase {
    */
  HGCDigitizerBase(const edm::ParameterSet &ps) : simpleNoiseGen_(0)
   {
+    bxTime_        = ps.getParameter<double>("bxTime");
     myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg"); 
-    bxTime_        = ps.getParameter<int32_t>("bxTime");
     doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
     mipInKeV_      = myCfg_.getParameter<double>("mipInKeV");
+    if(myCfg_.exists("mipInfC")) mipInfC_ = myCfg_.getParameter<double>("mipInfC");
+    else                         mipInfC_ = 0;
     mip2noise_     = myCfg_.getParameter<double>("mip2noise");
-    adcThreshold_  = myCfg_.getParameter< uint32_t >("adcThreshold");
 
     edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
-    myFEelectronics_ = std::unique_ptr<HGCFEElectronics<D> >( new HGCFEElectronics<D>(feCfg, bxTime_) );
+    myFEelectronics_ = std::unique_ptr<HGCFEElectronics<D> >( new HGCFEElectronics<D>(feCfg) );
   }
   
   /**
@@ -53,7 +58,7 @@ class HGCDigitizerBase {
    */
   void run(std::auto_ptr<DColl> &digiColl,HGCSimHitDataAccumulator &simData,uint32_t digitizationType)
   {
-    if(digitizationType==0) runTrivial(digiColl,simData);
+    if(digitizationType==0) runSimple(digiColl,simData);
     else                    runDigitizer(digiColl,simData,digitizationType);
   }
 
@@ -61,39 +66,37 @@ class HGCDigitizerBase {
   /**
      @short a trivial digitization: sum energies and digitize without noise
    */
-  void runTrivial(std::auto_ptr<DColl> &coll,HGCSimHitDataAccumulator &simData)
+  void runSimple(std::auto_ptr<DColl> &coll,HGCSimHitDataAccumulator &simData)
   {
     for(HGCSimHitDataAccumulator::iterator it=simData.begin();
 	it!=simData.end();
 	it++)
       {
-
-	//create a new data frame
-	D rawDataFrame( it->first );
-
-	for(size_t i=0; i<it->second.size(); i++) 
+	std::vector<float> chargeColl( it->second[0].size(), 0 ),toa( it->second[0].size(), 0 );
+	for(size_t i=0; i<it->second[0].size(); i++) 
 	  {
-	    //convert total energy GeV->keV->ADC counts
-	    double totalEn=(it->second)[i]*1e6;
+	    //convert total energy GeV->keV counts
+	    double totalEn=(it->second)[0][i]*1e6;
+	    
+	    //time of arrival
+	    if(totalEn>0) toa[i]=(it->second)[1][i]*1e6/totalEn;
+	    
+	    ////bool debug(totalEn>0);
+	    ////if(debug) std::cout << "[" << i << "] " << totalEn << "keV ->";
 
 	    //add noise (in keV)
 	    double noiseEn=simpleNoiseGen_->fire();
 	    totalEn += noiseEn;
 	    if(totalEn<0) totalEn=0;
-	
-	    //round to integer (sample will saturate the value according to available bits)
-	    uint16_t totalEnInt = floor( totalEn/(mipInKeV_*myFEelectronics_->getLSB()) );
 
-	    //0 gain for the moment
-	    HGCSample singleSample;
-	    singleSample.set(0, totalEnInt);
-	    
-	    rawDataFrame.setSample(i, singleSample);
+	    //convert keV -> MIP -> fC
+	    chargeColl[i]= ((totalEn/mipInKeV_)* mipInfC_);
 	  }
 	
-	//run the shaper
-	myFEelectronics_->runShaper(rawDataFrame);
-
+	//run the shaper to create a new data frame
+	D rawDataFrame( it->first );
+	myFEelectronics_->runShaper(rawDataFrame,chargeColl,toa);
+	
 	//update the output according to the final shape
 	updateOutput(coll,rawDataFrame);
       }
@@ -110,11 +113,12 @@ class HGCDigitizerBase {
     //check if any of the samples is above threshold and save result
     if(doTimeSamples_)
       {
-	bool keep(false);
-	for(int it=0; it<rawDataFrame.size(); it++)	
-	  if(rawDataFrame[it].adc() >= adcThreshold_ ) 
-	    keep=true;
-	if(keep) coll->push_back(rawDataFrame);
+	//bool keep(false);
+	//for(int it=0; it<rawDataFrame.size(); it++)	
+	//  if(rawDataFrame[it].data() >= adcThreshold_ ) 
+	//keep=true;
+	//if(keep) coll->push_back(rawDataFrame);
+	coll->push_back(rawDataFrame);
       }
     //check if in-time sample is above threshold and put result into the event
     else
@@ -124,9 +128,12 @@ class HGCDigitizerBase {
 	singleRawDataFrame.resize(1);
 
 	HGCSample singleSample;
-	singleSample.set(rawDataFrame[itIdx].gain(),rawDataFrame[itIdx].adc());
+	singleSample.set(rawDataFrame[itIdx].threshold(),
+			 rawDataFrame[itIdx].mode(),
+			 rawDataFrame[itIdx].toa(),
+			 rawDataFrame[itIdx].data());
 	singleRawDataFrame.setSample(0, singleSample);
-	if(singleRawDataFrame[0].adc() < adcThreshold_ ) return;
+	//if(singleRawDataFrame[0].data() < adcThreshold_ ) return;
 	coll->push_back(singleRawDataFrame);
       }
   }
@@ -150,20 +157,17 @@ class HGCDigitizerBase {
   //baseline configuration
   edm::ParameterSet myCfg_;
 
-  //minimum ADC counts to produce DIGIs
-  uint32_t adcThreshold_;
-
   //a simple noise generator
   mutable CLHEP::RandGauss *simpleNoiseGen_;
   
   //parameters for the trivial digitization scheme
-  double mipInKeV_,  mip2noise_;
+  double mipInKeV_, mipInfC_,  mip2noise_;
   
   //front-end electronics model
   std::unique_ptr<HGCFEElectronics<D> > myFEelectronics_;
 
   //bunch time
-  int bxTime_;
+  double bxTime_;
   
   //if true will put both in time and out-of-time samples in the event
   bool doTimeSamples_;

@@ -43,13 +43,12 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
       it!=simData.end();
       it++)
     {
-      //init a new data frame
-      HGCHEDataFrame newDataFrame( it->first );
-
-      for(size_t i=0; i<it->second.size(); i++)
+      std::vector<float> chargeColl(it->second[0].size(),0),toa(it->second[0].size(),0);
+      for(size_t i=0; i<it->second[0].size(); i++)
 	{
 	  //convert total energy GeV->keV->ADC counts
-	  float totalEn( (it->second)[i]*1e6 );
+	  float totalEn( (it->second)[0][i]*1e6 );
+	  if(totalEn>0) toa[i]=(it->second)[1][i]*1e6/totalEn;
 	  
 	  //convert energy to MIP
 	  float totalIniMIPs = totalEn/mipInKeV_;
@@ -75,19 +74,12 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 	  //add noise (in MIPs)
 	  double noiseMIPs=simpleNoiseGen_->fire(0.,1./mip2noise_);
 	  totalMIPs=std::max(float(totalMIPs+noiseMIPs),float(0.));
-	  
-	  //round to integer (sample will saturate the value according to available bits)
-	  uint16_t totalEnInt = floor( totalMIPs / myFEelectronics_->getLSB() );
-	 	  
-	  //0 gain for the moment
-	  HGCSample singleSample;
-	  singleSample.set(0, totalEnInt );
-	  newDataFrame.setSample(i, singleSample);
-
+	  chargeColl[i]=totalMIPs;
 	}	
       
-      //run shaper
-      myFEelectronics_->runShaper(newDataFrame);
+      //init a new data frame and run shaper
+      HGCHEDataFrame newDataFrame( it->first );
+      myFEelectronics_->runShaper(newDataFrame,chargeColl,toa);
 
       //prepare the output
       updateOutput(digiColl,newDataFrame);

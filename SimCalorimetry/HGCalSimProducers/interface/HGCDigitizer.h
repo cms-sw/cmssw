@@ -8,13 +8,12 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-#include "SimCalorimetry/HGCalSimProducers/interface/HGCEEDigitizer.h"
-#include "SimCalorimetry/HGCalSimProducers/interface/HGCHEfrontDigitizer.h"
-#include "SimCalorimetry/HGCalSimProducers/interface/HGCHEbackDigitizer.h"
+#include "SimCalorimetry/HGCSimProducers/interface/HGCEEDigitizer.h"
+#include "SimCalorimetry/HGCSimProducers/interface/HGCHEfrontDigitizer.h"
+#include "SimCalorimetry/HGCSimProducers/interface/HGCHEbackDigitizer.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/FCalGeometry/interface/HGCalGeometry.h"
 
 #include <vector>
 #include <map>
@@ -23,33 +22,25 @@
 class PCaloHit;
 class PileUpEventPrincipal;
 
-namespace edm {
-  class ConsumesCollector;
-}
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
-class HGCDigitizer {
-
+class HGCDigitizer
+{
 public:
   
-  explicit HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
+  HGCDigitizer(const edm::ParameterSet& ps);
   ~HGCDigitizer() { }
 
   /**
      @short handle SimHit accumulation
    */
-  void accumulate(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine*);
-  void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine*);
-  void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const edm::ESHandle<HGCalGeometry> &geom, CLHEP::HepRandomEngine*);
+  void accumulate(edm::Event const& e, edm::EventSetup const& c);
+  void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c);
+  void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const edm::ESHandle<HGCalGeometry> &geom);
 
   /**
      @short actions at the start/end of event
    */
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
-  void finalizeEvent(edm::Event& e, edm::EventSetup const& c, CLHEP::HepRandomEngine*);
+  void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
 
   /**
    */
@@ -77,7 +68,7 @@ private :
 
   //handle sim hits
   int maxSimHitsAccTime_;
-  int bxTime_;
+  double bxTime_;
   std::unique_ptr<HGCSimHitDataAccumulator> simHitAccumulator_;  
   void resetSimHitDataAccumulator();
 
@@ -91,7 +82,7 @@ private :
 
   //misc switches
   bool useAllChannels_;
-  int  verbosity_;
+  uint32_t verbosity_;
 
   //reference speed to evaluate time of arrival at the sensititive detector, assuming the center of CMS
   float refSpeed_;
@@ -101,3 +92,6 @@ private :
 };
 
 #endif
+
+
+ 
