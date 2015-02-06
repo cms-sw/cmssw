@@ -1,5 +1,7 @@
 from PhysicsTools.Heppy.physicsobjects.PhysicsObject import *
 
+import ROOT
+
 class Photon(PhysicsObject ):
 
     '''                                                                                                                                                                                                                                                                return object from the photon 
