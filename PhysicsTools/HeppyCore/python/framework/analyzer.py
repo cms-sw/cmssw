@@ -3,7 +3,6 @@
 
 import os
 import logging
-logging.basicConfig(level=logging.INFO)
 
 from PhysicsTools.HeppyCore.statistics.counter import Counters
 from PhysicsTools.HeppyCore.statistics.average import Averages
