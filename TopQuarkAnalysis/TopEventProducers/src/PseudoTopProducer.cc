@@ -233,9 +233,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   // NOTE : A C++ trick, use do-while instead of long-nested if-statements.
   do
   {
-    // Note : we will do dilepton or semilepton channel only, no tau.
-    //        channels are identified from parton level information
-    //        I believe this is not MC dependent too much.
+    // Note : we will do dilepton or semilepton channel only
     const size_t nLepton = leptons->size();
 
     // Collect leptonic-decaying W's
@@ -245,7 +243,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       const size_t iLep = lep-leptons->begin();
       for ( auto nu = neutrinos->begin(); nu != neutrinos->end(); ++nu )
       {
-        if ( abs(lep->pdgId()+nu->pdgId()) != 1 ) continue; // Enforce to conserve flavour, this reduces combinatorial bkg
+        //if ( abs(lep->pdgId()+nu->pdgId()) != 1 ) continue; // Enforce to conserve flavour, this reduces combinatorial bkg
         const double m = (lep->p4()+nu->p4()).mass();
         if ( m > 300 ) continue; // Raw mass cut, reduce combinatorial background
 
