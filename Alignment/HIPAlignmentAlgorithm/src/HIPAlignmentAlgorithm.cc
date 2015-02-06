@@ -106,6 +106,7 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Initializing...";
 
   edm::ESHandle<Alignments> globalPositionRcd;
+  // FIXME! temporary solution to get highest possible run number
   const unsigned int MAX_VAL(std::numeric_limits<unsigned int>::max());
   edm::ValidityInterval iov(setup.get<GlobalPositionRcd>().validityInterval() );
   if (iov.first().eventID().run()!=1 || iov.last().eventID().run()!=MAX_VAL) {
