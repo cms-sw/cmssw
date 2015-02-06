@@ -65,22 +65,6 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   std::vector<double> regionPUSParams = params_->regionPUSParams();
   RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
 
-  // double towerLsb = params_->towerLsbSum();
-  // int jetSeedThreshold = floor( params_->jetSeedThreshold()/towerLsb + 0.5);
-  // // ----- cluster jets for repurposing of MHT phi (use if for angle between leading jet)
-  // std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
-  // std::vector<l1t::Jet> * unSortedJets = new std::vector<l1t::Jet>();
-  // std::vector<l1t::Jet> * SortedJets = new std::vector<l1t::Jet>();
-  // slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
-
-  //if jetCalibrationType is set to None in the config
-  // std::string jetCalibrationType = params_->jetCalibrationType();
-  // std::vector<double> jetCalibrationParams = params_->jetCalibrationParams();
-  // JetCalibration(unCorrJets, jetCalibrationParams, unSortedJets, jetCalibrationType, towerLsb);
-
-  // SortJets(unSortedJets, SortedJets);
-  // int dijet_phi=DiJetPhi(SortedJets);
-
   for(std::vector<CaloRegion>::const_iterator region = subRegions->begin(); region != subRegions->end(); region++) {
     if (region->hwEta() < etSumEtaMinEt || region->hwEta() > etSumEtaMaxEt) {
       continue;
@@ -193,21 +177,3 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   }
 }
 
-int l1t::Stage1Layer2EtSumAlgorithmImpHW::DiJetPhi(const std::vector<l1t::Jet> * jets)  const {
-
-  // cout << "Number of jets: " << jets->size() << endl;
-
-  int dphi = 10; // initialize to negative physical dphi value
-  if (jets->size()<2) return dphi; // size() not really reliable as we pad the size to 8 (4cen+4for) in the sorter
-  if ((*jets).at(0).hwPt() == 0) return dphi;
-  if ((*jets).at(1).hwPt() == 0) return dphi;
-
-
-  int iphi1 = (*jets).at(0).hwPhi();
-  int iphi2 = (*jets).at(1).hwPhi();
-
-  int difference=abs(iphi1-iphi2);
-
-  if ( difference > 8 ) difference= L1CaloRegionDetId::N_PHI - difference - 1; // make Physical dphi always positive
-  return difference;
-}
