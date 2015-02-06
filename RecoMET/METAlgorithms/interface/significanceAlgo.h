@@ -96,7 +96,7 @@ namespace metsig{
     reco::METCovMatrix getSignifMatrix() const {return signifmatrix_;}
     //    const std::vector<metsig::SigInputObj> eventVec(){return eventVec_;}
   private:
-    void rotateMatrix( Double_t theta, reco::METCovMatrix  &v);  
+    //void rotateMatrix( Double_t theta, reco::METCovMatrix  &v);  
 
     //    std::vector<metsig::SigInputObj> eventVec_;
     reco::METCovMatrix signifmatrix_;
