@@ -54,7 +54,7 @@ private:
     static void createInstance();
 
     static std::atomic<XrdSiteStatisticsInformation*> m_instance;
-    static std::mutex m_mutex;
+    std::mutex m_mutex;
     std::vector<std::shared_ptr<XrdSiteStatistics>> m_sites;
 };
 

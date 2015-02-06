@@ -15,7 +15,6 @@ using namespace XrdAdaptor;
 
 
 std::atomic<XrdSiteStatisticsInformation*> XrdSiteStatisticsInformation::m_instance;
-std::mutex XrdSiteStatisticsInformation::m_mutex;
 
 
 XrdStatisticsService::XrdStatisticsService(const edm::ParameterSet &iPS, edm::ActivityRegistry &iRegistry)
@@ -48,6 +47,7 @@ void XrdStatisticsService::postEndJob()
 std::shared_ptr<XrdSiteStatistics>
 XrdSiteStatisticsInformation::getStatisticsForSite(std::string const &site)
 {
+    std::lock_guard<std::mutex> lock(m_mutex);
     for (std::shared_ptr<XrdSiteStatistics> &stats : m_sites)
     {
         if (stats->site() == site) {return stats;}
@@ -60,12 +60,14 @@ XrdSiteStatisticsInformation::getStatisticsForSite(std::string const &site)
 void
 XrdSiteStatisticsInformation::createInstance()
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    XrdSiteStatisticsInformation *tmp = m_instance.load(std::memory_order_relaxed);
-    if (tmp == nullptr)
+    if (!m_instance)
     {
-        tmp = new XrdSiteStatisticsInformation();
-        m_instance.store(tmp, std::memory_order_relaxed);
+        std::unique_ptr<XrdSiteStatisticsInformation> tmp { new XrdSiteStatisticsInformation() };
+        XrdSiteStatisticsInformation* expected = nullptr;
+        if (m_instance.compare_exchange_strong(expected,tmp.get()))
+        {
+            tmp.release();
+        }
     }
 }
 
