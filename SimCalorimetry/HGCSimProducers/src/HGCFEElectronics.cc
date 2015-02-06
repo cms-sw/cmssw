@@ -126,7 +126,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	  //update charge integrated during ToT
 	  if(debug)
 	    {
-	      if(busyBxs==0) std::cout << "\t Intial busy estimate="<< integTime << " ns = " << busyBxs << " bxs" << std::endl;
+	      if(busyBxs==0) std::cout << "\t Intial busy estimate="<< integTime << " ns = " << newBusyBxs << " bxs" << std::endl;
 	      else             std::cout << "\t ...integrated charge overflows initial busy estimate, interating again" << std::endl;
 	    }
 
@@ -180,7 +180,6 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
       if(debug) std::cout << "\t Final busy estimate="<< integTime << " ns = " << busyBxs << " bxs" << std::endl
 			  << "\t Total integrated=" << totalCharge << " fC <toa>=" << toaFromToT[it] << " ns " << std::endl; 
       
-
       //last fC (tdcOnset) are dissipated trough pulse
       if(it+busyBxs<(int)(newCharge.size())) 
 	{
@@ -188,7 +187,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	  float tdcOnsetLeakage(tdcOnset_fC_*exp(-deltaT2nextBx/tdcChargeDrainParameterisation_[7]));
 	  if(debug) std::cout << "\t Leaking remainder of TDC onset " << tdcOnset_fC_ 
 			      << " fC, to be dissipated in " << deltaT2nextBx 
-			      << " ns, adds "  << tdcOnsetLeakage << " fC @ " << it+busyBxs << " bx" << std::endl;
+			      << " ns, adds "  << tdcOnsetLeakage << " fC @ " << it+busyBxs << " bx (first free bx)" << std::endl;
 	  newCharge[it+busyBxs] +=  tdcOnsetLeakage;
 	}
     }
