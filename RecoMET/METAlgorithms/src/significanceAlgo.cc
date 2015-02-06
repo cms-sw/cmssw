@@ -62,19 +62,19 @@ metsig::significanceAlgo::~significanceAlgo(){
 
 // //*** rotate a 2D matrix by angle theta **********************//
 
-void
-metsig::significanceAlgo::rotateMatrix( Double_t theta, reco::METCovMatrix &v)
-{
-  // I suggest not using this to rotate trivial matrices.
-  reco::METCovMatrix r;
-  reco::METCovMatrix rInv;
+// void
+// metsig::significanceAlgo::rotateMatrix( Double_t theta, reco::METCovMatrix &v)
+// {
+//   // I suggest not using this to rotate trivial matrices.
+//   reco::METCovMatrix r;
+//   reco::METCovMatrix rInv;
 
-  r(0,0) = cos(theta); r(0,1) = sin(theta); r(1,0) = -sin(theta); r(1,1) = cos(theta);
-  rInv = r;
-  rInv.Invert();
-  //-- Rotate v --//
-  v = rInv * v * r;
-}
+//   r(0,0) = cos(theta); r(0,1) = sin(theta); r(1,0) = -sin(theta); r(1,1) = cos(theta);
+//   rInv = r;
+//   rInv.Invert();
+//   //-- Rotate v --//
+//   v = rInv * v * r;
+// }
 //************************************************************//
 
 
