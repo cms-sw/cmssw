@@ -19,8 +19,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2EtSumAlgorithm.h"
-//#include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsStage1.h"
+#include "L1Trigger/L1TCalorimeter/interface/CordicXilinx.h"
+#include <array>
+#include <vector>
 
 
 namespace l1t {
@@ -53,9 +55,28 @@ namespace l1t {
   private:
     CaloParamsStage1* const params_;
 
-    std::vector<double> sinPhi;
-    std::vector<double> cosPhi;
+    struct SimpleRegion {
+      int ieta;
+      int iphi;
+      int et;
+    };
+    enum class ETSumType {
+      kHadronicSum,
+      kEmSum
+    };
+    std::tuple<int, int, int> doSumAndMET(std::vector<SimpleRegion>& regionEt, ETSumType sumType);
 
+    // Converts 3Q16 fixed-point phase from CORDIC
+    // to 0-71 appropriately
+    int cordicToMETPhi(int phase);
+    // Array used in above function
+    std::array<int, 73> cordicPhiValues;
+
+    CordicXilinx cordic{24, 19};
+
+    // for converting region et to x and y components
+    std::array<long, 5> cosines;
+    std::array<long, 5> sines;
   };
 
   /* class Stage1Layer2CentralityAlgorithm : public Stage1Layer2EtSumAlgorithm { */
