@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <ostream>
+#include <iostream>
 
 /**
    @class HGCDataFrame
@@ -21,8 +22,8 @@ public:
   /**
      @short CTOR
   */
-  HGCDataFrame() : id_(0), maxSampleSize_(10)                      { data_.resize(maxSampleSize_); }
-  explicit HGCDataFrame(const D& id) : id_(id), maxSampleSize_(10) { data_.resize(maxSampleSize_); }
+  HGCDataFrame() : id_(0), maxSampleSize_(15)                      { data_.resize(maxSampleSize_); }
+  explicit HGCDataFrame(const D& id) : id_(id), maxSampleSize_(15) { data_.resize(maxSampleSize_); }
 
   /**
     @short det id
@@ -45,6 +46,14 @@ public:
   const S& operator[](int i) const { return data_[i]; }
   const S& sample(int i)     const { return data_[i]; }
   void setSample(int i, const S &sample) { if(i<(int)data_.size()) data_[i]=sample; }
+  void print(std::ostream &out=std::cout)
+  {
+    for(size_t i=0; i<data_.size(); i++)
+      {
+	out << "[" << i << "] ";
+	data_[i].print(out); 
+      }
+  }
 
 
 private:

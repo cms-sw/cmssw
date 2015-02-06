@@ -68,7 +68,7 @@ private :
 
   //handle sim hits
   int maxSimHitsAccTime_;
-  int bxTime_;
+  double bxTime_;
   std::unique_ptr<HGCSimHitDataAccumulator> simHitAccumulator_;  
   void resetSimHitDataAccumulator();
 
@@ -82,7 +82,7 @@ private :
 
   //misc switches
   bool useAllChannels_;
-  int  verbosity_;
+  uint32_t verbosity_;
 
   //reference speed to evaluate time of arrival at the sensititive detector, assuming the center of CMS
   float refSpeed_;

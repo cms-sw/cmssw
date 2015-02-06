@@ -25,10 +25,10 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
   hitCollection_     = ps.getParameter< std::string >("hitCollection");
   digiCollection_    = ps.getParameter< std::string >("digiCollection");
   maxSimHitsAccTime_ = ps.getParameter< uint32_t >("maxSimHitsAccTime");
-  bxTime_            = ps.getParameter< int32_t >("bxTime");
+  bxTime_            = ps.getParameter< double >("bxTime");
   digitizationType_  = ps.getParameter< uint32_t >("digitizationType");
   useAllChannels_    = ps.getParameter< bool >("useAllChannels");
-  verbosity_         = ps.getUntrackedParameter< int32_t >("verbosity",0);
+  verbosity_         = ps.getUntrackedParameter< uint32_t >("verbosity",0);
   tofDelay_          = ps.getParameter< double >("tofDelay");  
 
   //get the random number generator
@@ -138,6 +138,11 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
   const HGCalTopology &topo=geom->topology();
   const HGCalDDDConstants &dddConst=topo.dddConstants();
 
+  //base time samples for each DetId, initialized to 0
+  std::array<HGCSimHitData,2> baseData;
+  baseData[0].fill(0.);  //energy
+  baseData[1].fill(0.);  //time-of-flight (energy weighted)
+
   for(edm::PCaloHitContainer::const_iterator hit_it = hits->begin(); hit_it != hits->end(); ++hit_it)
     {
       HGCalDetId simId( hit_it->id() );
@@ -165,7 +170,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
       float dist2center( geom->getPosition(id).mag() );
 
       //hit time: [time()]=ns  [centerDist]=cm [refSpeed_]=cm/ns + delay by 1ns
-      //accumulate in 10 buckets of 25ns (9 pre-samples, 1 in-time)
+      //accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
       float tof(hit_it->time()-dist2center/refSpeed_+tofDelay_);
       int itime=floor( tof/bxTime_ ) ;
       
@@ -173,31 +178,28 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
       //itime += bxCrossing;
       itime += 9;
       
-      if(itime<0 || itime>9) continue; 
+      if(itime<0 || itime>14) continue; 
       
       //energy deposited 
-      HGCSimEn_t ien( hit_it->energy() );
+      HGCSimData_t ien( hit_it->energy() );
       
       //check if already existing (perhaps could remove this in the future - 2nd event should have all defined)
       HGCSimHitDataAccumulator::iterator simHitIt=simHitAccumulator_->find(id);
       if(simHitIt==simHitAccumulator_->end())
 	{
-	  HGCSimHitData baseData;
-	  baseData.fill(0.);
 	  simHitAccumulator_->insert( std::make_pair(id,baseData) );
 	  simHitIt=simHitAccumulator_->find(id);
 	}
       
       //check if time index is ok and store energy
-      if(itime >= (int)simHitIt->second.size() ) continue;
-      (simHitIt->second)[itime] += ien;
+      if(itime >= (int)simHitIt->second[0].size() ) continue;
+      (simHitIt->second)[0][itime] += ien;
+      (simHitIt->second)[1][itime] += ien*tof;
     }
   
   //add base data for noise simulation
   if(!checkValidDetIds_) return;
   if(!geom.isValid()) return;
-  HGCSimHitData baseData;
-  baseData.fill(0.);
   const std::vector<DetId> &validIds=geom->getValidDetIds(); 
   int nadded(0);
   if (useAllChannels_) {
@@ -228,7 +230,11 @@ void HGCDigitizer::endRun()
 //
 void HGCDigitizer::resetSimHitDataAccumulator()
 {
-  for( HGCSimHitDataAccumulator::iterator it = simHitAccumulator_->begin(); it!=simHitAccumulator_->end(); it++)  it->second.fill(0.);
+  for( HGCSimHitDataAccumulator::iterator it = simHitAccumulator_->begin(); it!=simHitAccumulator_->end(); it++)
+    {
+      it->second[0].fill(0.);
+      it->second[1].fill(0.);
+    }
 }
 
 
