@@ -14,14 +14,14 @@ namespace clangcms {
 
 void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR, std::string tname ) const {
- 	const char *sfile=BR.getSourceManager().getPresumedLoc(RD->getLocation()).getFilename();
- 	if (!support::isCmsLocalFile(sfile)) return;
 	
 	if (!RD->hasDefinition()) return;
 	std::string rname = RD->getQualifiedNameAsString();
  	const std::string anon_ns = "(anonymous namespace)";
 	if (rname.substr(0, anon_ns.size()) == anon_ns ) {
- 		const std::string filename = BR.getSourceManager().getFilename(RD->getLocation()).str();
+ 		const char* fname = BR.getSourceManager().getPresumedLoc(RD->getLocation()).getFilename();
+		const char* sname = "/src/";
+		const char* filename = std::strstr(fname, sname);
 		rname = rname.substr(0, anon_ns.size() - 1)+" in "+filename+")"+rname.substr(anon_ns.size());
 		}
 	clang::LangOptions LangOpts;
@@ -181,7 +181,7 @@ void ClassDumperFT::checkASTDecl(const clang::FunctionTemplateDecl *TD,clang::en
 
 	std::string crname("class '");
 	std::string pname = "classes.txt.dumperft.unsorted";
-	if (TD->getTemplatedDecl()->getQualifiedNameAsString().find("typelookup::class") != std::string::npos ) {
+	if (TD->getTemplatedDecl()->getQualifiedNameAsString().find("typelookup::className") != std::string::npos ) {
 		for ( auto I = TD->spec_begin(),
 				E = TD->spec_end(); I != E; ++I) {
 			auto * SD = (*I); 
