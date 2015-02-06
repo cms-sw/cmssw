@@ -1,5 +1,6 @@
 #include <cxxabi.h>
 #include <cctype>
+#include <regex>
 #include <string>
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -24,6 +25,15 @@
 
 ********************************************************************/
 namespace {
+  void
+  reformatter(std::string& input, char const* exp, char const* format) {
+    std::regex regexp(exp, std::regex::egrep);
+    while(std::regex_match(input, regexp)) {
+      std::string newstring = std::regex_replace(input, regexp, format);
+      input.swap(newstring);
+    }
+  }
+
   void
   removeParameter(std::string& demangledName, std::string const& toRemove) {
     std::string::size_type const asize = toRemove.size();
@@ -113,6 +123,8 @@ namespace edm {
     constBeforeIdentifier(demangledName);
     // No two consecutive '>' 
     replaceString(demangledName, ">>", "> >");
+    // No u or l qualifiers for integers.
+    reformatter(demangledName, "(.*[<,][0-9]+)[ul]l*([,>].*)", "$1$2");
     // For ROOT 6 and beyond, replace 'unsigned long long' with 'ULong64_t'
     replaceString(demangledName, "unsigned long long", "ULong64_t");
     // For ROOT 6 and beyond, replace 'long long' with 'Long64_t'
