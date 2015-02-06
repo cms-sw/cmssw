@@ -55,9 +55,6 @@ namespace metsig {
          JetResolution* ptRes_;
          JetResolution* phiRes_;
 
-         TF1* fPtEta_;
-         TF1* fPhiEta_;
-
    };
 
 }

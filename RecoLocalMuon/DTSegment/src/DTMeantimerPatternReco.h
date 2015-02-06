@@ -83,23 +83,17 @@ class DTMeantimerPatternReco : public DTRecSegment2DBaseAlgo {
 					    const std::vector<std::shared_ptr<DTHitPairForFit>>& hits);
 
   // try adding more hits to a candidate
-  void addHits(const DTSuperLayer* sl, 
-               std::vector<DTSegmentCand::AssPoint>& assHits, 
-               const std::vector<std::shared_ptr<DTHitPairForFit>>& hits, 
+  void addHits(DTSegmentCand* segCand,
+               const std::vector<std::shared_ptr<DTHitPairForFit>>& hits,
                std::vector<DTSegmentCand*> &result);
 
   // fit a set of left/right hits, calculate t0 and chi^2
-  std::unique_ptr<DTSegmentCand> fitWithT0(const DTSuperLayer* sl,
-                                           const std::vector<DTSegmentCand::AssPoint> &assHits, 
-                                           double &chi2, 
-                                           double &t0_corr, 
-                                           const bool fitdebug);
+  DTSegmentCand* fitWithT0(DTSegmentCand* seg, const bool fitdebug);
 
   // check if two hist can be considered in one segment (come from different layers, not too far away etc.)
   bool geometryFilter( const DTWireId first, const DTWireId second ) const;
 
-  bool checkDoubleCandidates(std::vector<DTSegmentCand*>& segs,
-			     DTSegmentCand* seg);
+  bool checkDoubleCandidates(std::vector<DTSegmentCand*>& segs, DTSegmentCand* seg);
 
   void printPattern( std::vector<DTSegmentCand::AssPoint>& assHits, const DTHitPairForFit* hit);
 
