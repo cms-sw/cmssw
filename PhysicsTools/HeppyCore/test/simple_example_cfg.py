@@ -56,4 +56,4 @@ config = cfg.Config( components = selectedComponents,
                      services = services, 
                      events_class = Events )
 
-print config 
+# print config 
