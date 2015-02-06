@@ -91,6 +91,29 @@
    <field name="mShape" transient="true"/>
  </class>
 
+
+ <class name="HcalQIECoderExtended">
+   <field name="mQIEIndex" transient="true"/>
+ </class>
+
+ <class name="std::vector<HcalQIECoderExtended>"/>
+ <class name="std::pair<std::string, std::vector<HcalQIECoderExtended> >"/>
+ <class name="std::vector<std::pair<std::string, std::vector<HcalQIECoderExtended> > >"/>
+ <class name="HcalCondObjectContainer<HcalQIECoderExtended>">
+  <field name="HBcontainer" mapping="blob" />
+  <field name="HEcontainer" mapping="blob" />
+  <field name="HFcontainer" mapping="blob" />
+  <field name="HOcontainer" mapping="blob" />
+  <field name="HTcontainer" mapping="blob" />
+  <field name="ZDCcontainer" mapping="blob" />
+  <field name="CALIBcontainer" mapping="blob" />
+  <field name="CASTORcontainer" mapping="blob" />
+ </class>
+
+ <class name="HcalQIEDataExtended">
+   <field name="mShape" transient="true"/>
+ </class>
+
  <class name="HcalCalibrationQIECoder"/>
  <class name="std::vector<HcalCalibrationQIECoder>"/>
  <class name="std::pair<std::string, std::vector<HcalCalibrationQIECoder> >"/>
@@ -105,6 +128,7 @@
   <field name="CALIBcontainer" mapping="blob" />
   <field name="CASTORcontainer" mapping="blob" />
  </class>
+
  <class name="HcalCalibrationQIEData"/>
 
  <class name="HcalElectronicsMap">
