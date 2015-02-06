@@ -1,7 +1,9 @@
 ///
 /// \class l1t::Stage1Layer2EtSumAlgorithmImpHW
 ///
-/// Description: first iteration of stage 1 jet sums algo
+/// \author: Nick Smith (nick.smith@cern.ch)
+///
+/// Description: hardware emulation of et sum algorithm
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2EtSumAlgorithmImp.h"
