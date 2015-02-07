@@ -3,15 +3,13 @@
 //
 HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitizerBase(ps)
 {
-  try{
-    edm::ParameterSet caliceSpec =  ps.getParameter<edm::ParameterSet>("digiCfg").getParameter<edm::ParameterSet>("caliceSpecific");
-    nPEperMIP_ = caliceSpec.getParameter<double>("nPEperMIP");
-    nTotalPE_  = caliceSpec.getParameter<double>("nTotalPE");
-    xTalk_     = caliceSpec.getParameter<double>("xTalk");
-    sdPixels_  = caliceSpec.getParameter<double>("sdPixels");
-  }catch(std::exception &e){
-    //no need to propagate
-  }
+  edm::ParameterSet cfg = ps.getParameter<edm::ParameterSet>("digiCfg");
+  nPEperMIP_ = cfg.getParameter<double>("nPEperMIP");
+  nTotalPE_  = cfg.getParameter<double>("nTotalPE");
+  xTalk_     = cfg.getParameter<double>("xTalk");
+  sdPixels_  = cfg.getParameter<double>("sdPixels");
+  lsbInMIP_  = cfg.getParameter<double>("lsbInMIP");
+  myFEelectronics_->setADClsb(lsbInMIP_);
 }
 
 //
@@ -25,14 +23,7 @@ void HGCHEbackDigitizer::setRandomNumberEngine(CLHEP::HepRandomEngine& engine)
 //
 void HGCHEbackDigitizer::runDigitizer(std::auto_ptr<HGCHEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,uint32_t digitizationType)
 {
-  switch(digitizationType)
-    {
-    case 1: 
-      {
-	runCaliceLikeDigitizer(digiColl,simData);
-	break;
-      }
-    }
+  runCaliceLikeDigitizer(digiColl,simData);
 }
   
 //
@@ -43,12 +34,11 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
       it!=simData.end();
       it++)
     {
-      std::vector<float> chargeColl(it->second[0].size(),0),toa(it->second[0].size(),0);
+      std::vector<float> chargeColl(it->second[0].size(),0);
       for(size_t i=0; i<it->second[0].size(); i++)
 	{
 	  //convert total energy GeV->keV->ADC counts
 	  float totalEn( (it->second)[0][i]*1e6 );
-	  if(totalEn>0) toa[i]=(it->second)[1][i]*1e6/totalEn;
 	  
 	  //convert energy to MIP
 	  float totalIniMIPs = totalEn/mipInKeV_;
@@ -79,7 +69,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
       
       //init a new data frame and run shaper
       HGCHEDataFrame newDataFrame( it->first );
-      myFEelectronics_->runShaper(newDataFrame,chargeColl,toa);
+      myFEelectronics_->runTrivialShaper(newDataFrame,chargeColl);
 
       //prepare the output
       updateOutput(digiColl,newDataFrame);

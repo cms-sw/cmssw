@@ -107,35 +107,21 @@ class HGCDigitizerBase {
    */
   void updateOutput(std::auto_ptr<DColl> &coll,D rawDataFrame)
   {
-    int itIdx(rawDataFrame.size()-1);
-    if(itIdx<0) return;
-
-    //check if any of the samples is above threshold and save result
-    if(doTimeSamples_)
+    int itIdx(9);
+    if(rawDataFrame.size()<=itIdx+2) return;
+    
+    D dataFrame( rawDataFrame.id() );
+    dataFrame.resize(5);
+    for(int it=0;it<5; it++) 
       {
-	//bool keep(false);
-	//for(int it=0; it<rawDataFrame.size(); it++)	
-	//  if(rawDataFrame[it].data() >= adcThreshold_ ) 
-	//keep=true;
-	//if(keep) coll->push_back(rawDataFrame);
-	coll->push_back(rawDataFrame);
-      }
-    //check if in-time sample is above threshold and put result into the event
-    else
-      {
-	//create a new data frame containing only the in-time digi
-	D singleRawDataFrame( rawDataFrame.id() );
-	singleRawDataFrame.resize(1);
-
 	HGCSample singleSample;
-	singleSample.set(rawDataFrame[itIdx].threshold(),
-			 rawDataFrame[itIdx].mode(),
-			 rawDataFrame[itIdx].toa(),
-			 rawDataFrame[itIdx].data());
-	singleRawDataFrame.setSample(0, singleSample);
-	//if(singleRawDataFrame[0].data() < adcThreshold_ ) return;
-	coll->push_back(singleRawDataFrame);
+	singleSample.set(rawDataFrame[itIdx-2+it].threshold(),
+			 rawDataFrame[itIdx-2+it].mode(),
+			 rawDataFrame[itIdx-2+it].toa(),
+			 rawDataFrame[itIdx-2+it].data());
+	dataFrame.setSample(it, singleSample);
       }
+    coll->push_back(dataFrame);
   }
 
   /**

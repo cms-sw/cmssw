@@ -40,13 +40,7 @@ class HGCFEElectronics
   float getTDClsb()       { return tdcLSB_fC_;       }  
   float getADCThreshold() { return adcThreshold_fC_; }
   float getTDCOnset()     { return tdcOnset_fC_;     }
-  
-  /**
-     @short DTOR
-   */
-  ~HGCFEElectronics() {}
-
-private:
+  void setADClsb(float newLSB) { adcLSB_fC_=newLSB; }
 
   /**
      @short converts charge to digis without pulse shape
@@ -62,11 +56,18 @@ private:
      @short implements pulse shape and switch to time over threshold including deadtime
    */
   void runShaperWithToT(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa);
+  
+  /**
+     @short DTOR
+   */
+  ~HGCFEElectronics() {}
+
+ private:
 
   //private members
   uint32_t fwVersion_;
   std::vector<double> adcPulse_,tdcChargeDrainParameterisation_;
-  float adcLSB_fC_, tdcLSB_fC_, adcThreshold_fC_, tdcOnset_fC_, adcSaturation_fC_; 
+  float adcLSB_fC_, tdcLSB_fC_, adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_; 
 };
 
 //#include "SimCalorimetry/HGCSimProducers/src/HGCFEElectronics.cc"
