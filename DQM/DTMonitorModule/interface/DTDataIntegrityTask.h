@@ -38,7 +38,7 @@ class DTROS25Data;
 class DTDDUData;
 class DTTimeEvolutionHisto;
 
-class DTDataIntegrityTask: public DQMEDAnalyzer {
+class DTDataIntegrityTask: public thread_unsafe::DQMEDAnalyzer {
 
 public:
 
