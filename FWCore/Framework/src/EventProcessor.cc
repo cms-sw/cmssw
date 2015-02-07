@@ -639,6 +639,8 @@ namespace edm {
         c.call([this,i](){ this->subProcess_->doEndStream(i); } );
       }
     }
+    auto actReg = actReg_.get();
+    c.call([actReg](){actReg->preEndJobSignal_();});
     schedule_->endJob(c);
     if(hasSubProcess()) {
       c.call(std::bind(&SubProcess::doEndJob, subProcess_.get()));
@@ -647,7 +649,6 @@ namespace edm {
     if(looper_) {
       c.call(std::bind(&EDLooperBase::endOfJob, looper_));
     }
-    auto actReg = actReg_.get();
     c.call([actReg](){actReg->postEndJobSignal_();});
     if(c.hasThrown()) {
       c.rethrow();
