@@ -21,16 +21,20 @@ hgceeDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"),
                                                                    fwVersion         = cms.uint32(2),
                                                                    # leakage to bunches -2, -1, in-time, +1, +2, +3 (from J. Kaplon)
                                                                    adcPulse          = cms.vdouble(0.00,0.017,0.817,0.163,0.003,0.000), 
-                                                                   # LSB for ADC, assuming 10 bit dynamic range to 60 fC
-                                                                   adcLSB_fC         = cms.double(0.05865),      
+                                                                   # n bits for the ADC 
+                                                                   adcNbits          = cms.uint32(10),
+                                                                   # ADC saturation
+                                                                   adcSaturation_fC  = cms.double(100),
                                                                    # LSB for TDC, assuming 12 bit dynamic range to 10 pC
-                                                                   tdcLSB_fC         = cms.double(2.44198),      
+                                                                   tdcNbits          = cms.uint32(12),
+                                                                   # TDC saturation
+                                                                   tdcSaturation_fC  = cms.double(10000),
                                                                    # raise threshold flag (~MIP/2)
                                                                    adcThreshold_fC   = cms.double(1.175),
                                                                    # raise usage of TDC and mode flag (from J. Kaplon)
                                                                    tdcOnset_fC       = cms.double(60) ,
-                                                                   # signal ADC is saturated, charge drained from TDC only (from J. Kaplon)
-                                                                   adcSaturation_fC  = cms.double(150),
+                                                                   # LSB for time of arrival estimate from TDC in ns
+                                                                   toaLSB_ns         = cms.double(0.005),
                                                                    # TDC charge drain parameterisation (from J. Kaplon)
                                                                    tdcChargeDrainParameterisation = cms.vdouble(200.0,
                                                                                                                139.979, 0.779, 0.000,
@@ -56,19 +60,23 @@ hgchefrontDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"
                                                     mip2noise        = cms.double(7.0),
                                                     doTimeSamples    = cms.bool(False),                                         
                                                     feCfg   = cms.PSet( # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
-                                                                        fwVersion         = cms.uint32(0),
+                                                                        fwVersion         = cms.uint32(2),
                                                                         # leakage to bunches -2, -1, in-time, +1, +2, +3 (from J. Kaplon)
                                                                         adcPulse          = cms.vdouble(0.00,0.017,0.817,0.163,0.003,0.000), 
-                                                                        # LSB for ADC, assuming 10 bit dynamic range to 60 fC
-                                                                        adcLSB_fC         = cms.double(0.05865),      
+                                                                        # n bits for the ADC 
+                                                                        adcNbits          = cms.uint32(10),
+                                                                        # ADC saturation
+                                                                        adcSaturation_fC  = cms.double(100),
                                                                         # LSB for TDC, assuming 12 bit dynamic range to 10 pC
-                                                                        tdcLSB_fC         = cms.double(2.44198),      
+                                                                        tdcNbits          = cms.uint32(12),
+                                                                        # TDC saturation
+                                                                        tdcSaturation_fC  = cms.double(10000),
                                                                         # raise threshold flag (~MIP/2)
                                                                         adcThreshold_fC   = cms.double(1.76),
                                                                         # raise usage of TDC and mode flag (from J. Kaplon)
                                                                         tdcOnset_fC       = cms.double(60) ,
-                                                                        # signal ADC is saturated, charge drained from TDC only (from J. Kaplon)
-                                                                        adcSaturation_fC  = cms.double(150),
+                                                                        # LSB for time of arrival estimate from TDC in ns
+                                                                        toaLSB_ns         = cms.double(0.005),
                                                                         # TDC charge drain parameterisation (from J. Kaplon)
                                                                         tdcChargeDrainParameterisation = cms.vdouble(200.0,
                                                                                                                      139.979, 0.779, 0.000,
@@ -79,7 +87,7 @@ hgchefrontDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"
                                 )
 
 
-# HCAL back
+# HCAL back (CALICE-like version, no pulse shape)
 hgchebackDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"),
                                hitCollection = cms.string("HGCHitsHEback"),
                                digiCollection = cms.string("HGCDigisHEback"),
@@ -105,6 +113,7 @@ hgchebackDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer")
                                                                               sdPixels  = cms.double(3.0) )
                                                    )
                                )
+
 
 
 

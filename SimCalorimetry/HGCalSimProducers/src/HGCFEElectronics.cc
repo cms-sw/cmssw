@@ -10,10 +10,23 @@ HGCFEElectronics<D>::HGCFEElectronics(const edm::ParameterSet &ps)
   fwVersion_                      = ps.getParameter< uint32_t >("fwVersion");
   std::cout << "[HGCFEElectronics] running with version " << fwVersion_ << std::endl;
   if( ps.exists("adcPulse") )                       adcPulse_                       = ps.getParameter< std::vector<double> >("adcPulse");
-  if( ps.exists("adcLSB_fC") )                      adcLSB_fC_                      = ps.getParameter<double>("adcLSB_fC");
-  if( ps.exists("tdcLSB_fC") )                      tdcLSB_fC_                      = ps.getParameter<double>("tdcLSB_fC");
+  if( ps.exists("adcNbits") )
+    {
+      uint32_t adcNbits = ps.getParameter<uint32_t>("adcNbits");
+      double adcSaturation_fC = ps.getParameter<double>("adcSaturation_fC");
+      adcLSB_fC_=adcSaturation_fC/pow(2.,adcNbits);
+      cout << "[HGCFEElectronics] " << adcNbits << " bit ADC defined with LSB=" << adcLSB_fC_ << " fC" << endl;
+    }
+  if( ps.exists("tdcNbits") )
+    {
+      uint32_t tdcNbits = ps.getParameter<uint32_t>("tdcNbits");
+      double tdcSaturation_fC = ps.getParameter<double>("tdcSaturation_fC");
+      tdcLSB_fC_=tdcSaturation_fC/pow(2.,tdcNbits);
+      cout << "[HGCFEElectronics] " << tdcNbits << " bit TDC defined with LSB=" << tdcLSB_fC_ << " fC" << endl;
+    }
   if( ps.exists("adcThreshold_fC") )                adcThreshold_fC_                = ps.getParameter<double>("adcThreshold_fC");
   if( ps.exists("tdcOnset_fC") )                    tdcOnset_fC_                    = ps.getParameter<double>("tdcOnset_fC");
+  if( ps.exists("toaLSB_ns") )                      toaLSB_ns_                      = ps.getParameter<double>("toaLSB_ns");
   if( ps.exists("tdcChargeDrainParameterisation") ) tdcChargeDrainParameterisation_ = ps.getParameter< std::vector<double> >("tdcChargeDrainParameterisation");
 }
 
@@ -52,7 +65,7 @@ void HGCFEElectronics<D>::runSimpleShaper(D &dataFrame,std::vector<float> &charg
 
       ////to enable debug uncomment me
       ////debug|=(charge>2*adcThreshold_fC_);
-      if(debug) std::cout << "\t redistributing " << charge << " @ " << it;
+      if(debug) std::cout << "\t Redistributing SARS ADC" << charge << " @ " << it;
       
       for(int ipulse=-2; ipulse<(int)(adcPulse_.size())-2; ipulse++)
 	{
@@ -101,7 +114,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
       busyFlags[it]=true;
 
       ////to enable debug uncomment me
-      debug=true;
+      ////debug=true;
       if(debug) std::cout << "Charge=" << charge << " with <toa>=" << toa << " ns, triggers ToT @ " << it << std::endl;
 
       //compute total charge to be integrated and integration time 
@@ -195,29 +208,44 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
   //including the leakage from bunches in SARS ADC when not declared busy
   for(int it=0; it<(int)(chargeColl.size()); it++)
     {
+      //if busy, charge has been already integrated
       if(busyFlags[it]) continue;
       float charge(chargeColl[it]);
       if(charge==0) continue;
+
+      if(debug) std::cout << "\t redistributing SARS ADC" << charge << " @ " << it;
       for(int ipulse=-2; ipulse<(int)(adcPulse_.size())-2; ipulse++)
 	{
 	  if(it+ipulse<0) continue;
 	  if(it+ipulse>=(int)(newCharge.size())) continue;
+
+	  //notice that if the channel is already busy,
+	  //it has already been affected by the leakage of the SARS ADC
 	  if(busyFlags[it+ipulse]) continue;
-	  newCharge[it+ipulse]+=charge*adcPulse_[(ipulse+2)];
+	  float chargeLeak=charge*adcPulse_[(ipulse+2)];
+	  newCharge[it+ipulse]+=chargeLeak;
+	  if(debug) std::cout << " | " << it+ipulse << " " << chargeLeak;
 	}
+      
+      if(debug) std::cout << std::endl;
     }
   
 
   //set new ADCs and ToA
   for(int it=0; it<(int)(newCharge.size()); it++)
     {
-      ////  if(debug) std::cout << chargeColl[it] << " -> " << newCharge[it] << " ";
+      if(debug) std::cout << newCharge[it] << " ";
 
       HGCSample newSample;
       if(busyFlags[it])
 	{
 	  if(newCharge[it]==0) newSample.set(false,true,0,0);
-	  else                 newSample.set(true,true,toaFromToT[it],newCharge[it]/tdcLSB_fC_);
+	  else {
+	    float finalToA(toaFromToT[it]);
+	    while(finalToA<0)  finalToA+=25.;
+	    while(finalToA>25) finalToA-=25;
+	    newSample.set(true,true,finalToA/toaLSB_ns_,newCharge[it]/tdcLSB_fC_);
+	  }
 	}
       else
 	{
@@ -226,7 +254,6 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
       dataFrame.setSample(it,newSample);
     }
 
-  ////  if(debug) std::cout << std::endl;
-
+  if(debug) { std::cout << std::endl; dataFrame.print(std::cout); }
 }
 
