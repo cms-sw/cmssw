@@ -72,6 +72,10 @@ private:
   // ----------member data ---------------------------
   edm::EDGetToken m_towerToken;
   edm::EDGetToken m_clusterToken;
+  edm::EDGetToken m_mpEGToken;
+  edm::EDGetToken m_mpTauToken;
+  edm::EDGetToken m_mpJetToken;
+  edm::EDGetToken m_mpSumToken;
   edm::EDGetToken m_egToken;
   edm::EDGetToken m_tauToken;
   edm::EDGetToken m_jetToken;
@@ -79,6 +83,10 @@ private:
 
   bool m_doTowers;
   bool m_doClusters;
+  bool m_doMPEGs;
+  bool m_doMPTaus;
+  bool m_doMPJets;
+  bool m_doMPSums;
   bool m_doEGs;
   bool m_doTaus;
   bool m_doJets;
@@ -89,7 +97,11 @@ private:
 		  EG=0x3,
 		  Tau=0x4,
 		  Jet=0x5,
-		  Sum=0x6};
+		  Sum=0x6,
+		  MPEG=0x7,
+		  MPTau=0x8,
+		  MPJet=0x9,
+		  MPSum=0x10};
   
   std::vector< ObjectType > types_;
   std::vector< std::string > typeStr_;
@@ -132,6 +144,22 @@ L1TStage2CaloAnalyzer::L1TStage2CaloAnalyzer(const edm::ParameterSet& iConfig)
   m_clusterToken         = consumes<l1t::CaloClusterBxCollection>(clusterTag);
   m_doClusters           = !(clusterTag==nullTag);
 
+  edm::InputTag mpEGTag  = iConfig.getParameter<edm::InputTag>("mpEGToken");
+  m_mpEGToken          = consumes<l1t::EGammaBxCollection>(mpEGTag);
+  m_doMPEGs            = !(mpEGTag==nullTag);
+
+  edm::InputTag mpTauTag = iConfig.getParameter<edm::InputTag>("mpTauToken");
+  m_mpTauToken         = consumes<l1t::TauBxCollection>(mpTauTag);
+  m_doMPTaus           = !(mpTauTag==nullTag);
+
+  edm::InputTag mpJetTag = iConfig.getParameter<edm::InputTag>("mpJetToken");
+  m_mpJetToken         = consumes<l1t::JetBxCollection>(mpJetTag);
+  m_doMPJets           = !(mpJetTag==nullTag);  
+
+  edm::InputTag mpSumTag = iConfig.getParameter<edm::InputTag>("mpEtSumToken");
+  m_mpSumToken         = consumes<l1t::EtSumBxCollection>(mpSumTag);
+  m_doMPSums           = !(mpSumTag==nullTag);
+
   edm::InputTag egTag  = iConfig.getParameter<edm::InputTag>("egToken");
   m_egToken          = consumes<l1t::EGammaBxCollection>(egTag);
   m_doEGs            = !(egTag==nullTag);
@@ -150,6 +178,10 @@ L1TStage2CaloAnalyzer::L1TStage2CaloAnalyzer(const edm::ParameterSet& iConfig)
 
   types_.push_back( Tower );
   types_.push_back( Cluster );
+  types_.push_back( MPEG );
+  types_.push_back( MPTau );
+  types_.push_back( MPJet );
+  types_.push_back( MPSum );
   types_.push_back( EG );
   types_.push_back( Tau );
   types_.push_back( Jet );
@@ -157,6 +189,10 @@ L1TStage2CaloAnalyzer::L1TStage2CaloAnalyzer(const edm::ParameterSet& iConfig)
 
   typeStr_.push_back( "tower" );
   typeStr_.push_back( "cluster" );
+  typeStr_.push_back( "mpeg" );
+  typeStr_.push_back( "mptau" );
+  typeStr_.push_back( "mpjet" );
+  typeStr_.push_back( "mpsum" );
   typeStr_.push_back( "eg" );
   typeStr_.push_back( "tau" );
   typeStr_.push_back( "jet" );
@@ -195,11 +231,8 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     for ( int ibx=towers->getFirstBX(); ibx<=towers->getLastBX(); ++ibx) {
 
-      if (ibx>-6 && ibx<6) {
-	hbx_.at(Tower)->Fill( ibx );
-      }
-
       for ( auto itr = towers->begin(ibx); itr !=towers->end(ibx); ++itr ) {
+	hbx_.at(Tower)->Fill( ibx );
 	het_.at(Tower)->Fill( itr->hwPt() );
 	heta_.at(Tower)->Fill( itr->hwEta() );
 	hphi_.at(Tower)->Fill( itr->hwPhi() );
@@ -220,11 +253,8 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     for ( int ibx=clusters->getFirstBX(); ibx<=clusters->getLastBX(); ++ibx) {
 
-      if (ibx>-6 && ibx<6) {
-  	hbx_.at(Cluster)->Fill( ibx );
-      }
-    
       for ( auto itr = clusters->begin(ibx); itr !=clusters->end(ibx); ++itr ) {
+  	hbx_.at(Cluster)->Fill( ibx );
   	het_.at(Cluster)->Fill( itr->hwPt() );
   	heta_.at(Cluster)->Fill( itr->hwEta() );
   	hphi_.at(Cluster)->Fill( itr->hwPhi() );
@@ -235,18 +265,91 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     
   }
 
-    // get EG
+  // get EG
+  if (m_doMPEGs) {
+    Handle< BXVector<l1t::EGamma> > mpegs;
+    iEvent.getByToken(m_mpEGToken,mpegs);
+    
+    for ( int ibx=mpegs->getFirstBX(); ibx<=mpegs->getLastBX(); ++ibx) {
+
+      for ( auto itr = mpegs->begin(ibx); itr != mpegs->end(ibx); ++itr ) {
+        hbx_.at(MPEG)->Fill( ibx );
+	het_.at(MPEG)->Fill( itr->hwPt() );
+	heta_.at(MPEG)->Fill( itr->hwEta() );
+	hphi_.at(MPEG)->Fill( itr->hwPhi() );
+        hetaphi_.at(MPEG)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+      }
+      
+    }
+
+  }
+
+  // get tau
+  if (m_doMPTaus) {
+    Handle< BXVector<l1t::Tau> > mptaus;
+    iEvent.getByToken(m_mpTauToken,mptaus);
+    
+    for ( int ibx=mptaus->getFirstBX(); ibx<=mptaus->getLastBX(); ++ibx) {
+
+      for ( auto itr = mptaus->begin(ibx); itr != mptaus->end(ibx); ++itr ) {
+        hbx_.at(MPTau)->Fill( ibx );
+	het_.at(MPTau)->Fill( itr->hwPt() );
+	heta_.at(MPTau)->Fill( itr->hwEta() );
+	hphi_.at(MPTau)->Fill( itr->hwPhi() );
+        hetaphi_.at(MPTau)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+      }
+      
+    }
+    
+  }
+
+  // get jet
+  if (m_doMPJets) {
+    Handle< BXVector<l1t::Jet> > mpjets;
+    iEvent.getByToken(m_mpJetToken,mpjets);
+    
+    for ( int ibx=mpjets->getFirstBX(); ibx<=mpjets->getLastBX(); ++ibx) {
+
+      for ( auto itr = mpjets->begin(ibx); itr != mpjets->end(ibx); ++itr ) {
+        hbx_.at(MPJet)->Fill( ibx );
+	het_.at(MPJet)->Fill( itr->hwPt() );
+	heta_.at(MPJet)->Fill( itr->hwEta() );
+	hphi_.at(MPJet)->Fill( itr->hwPhi() );
+        hetaphi_.at(MPJet)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+      }
+      
+    }
+
+  }
+
+  // get sums
+  if (m_doMPSums) {
+    Handle< BXVector<l1t::EtSum> > mpsums;
+    iEvent.getByToken(m_mpSumToken,mpsums);
+    
+    for ( int ibx=mpsums->getFirstBX(); ibx<=mpsums->getLastBX(); ++ibx) {
+
+      for ( auto itr = mpsums->begin(ibx); itr != mpsums->end(ibx); ++itr ) {
+	hbx_.at(MPSum)->Fill( ibx );
+	het_.at(MPSum)->Fill( itr->hwPt() );
+	heta_.at(MPSum)->Fill( itr->hwEta() );
+	hphi_.at(MPSum)->Fill( itr->hwPhi() );
+        hetaphi_.at(MPSum)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+      }
+
+    }
+
+  }
+
+  // get EG
   if (m_doEGs) {
     Handle< BXVector<l1t::EGamma> > egs;
     iEvent.getByToken(m_egToken,egs);
     
     for ( int ibx=egs->getFirstBX(); ibx<=egs->getLastBX(); ++ibx) {
 
-      if (ibx>-6 && ibx<6) {
-        hbx_.at(EG)->Fill( ibx );
-      }
-      
       for ( auto itr = egs->begin(ibx); itr != egs->end(ibx); ++itr ) {
+        hbx_.at(EG)->Fill( ibx );
 	het_.at(EG)->Fill( itr->hwPt() );
 	heta_.at(EG)->Fill( itr->hwEta() );
 	hphi_.at(EG)->Fill( itr->hwPhi() );
@@ -264,11 +367,8 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     
     for ( int ibx=taus->getFirstBX(); ibx<=taus->getLastBX(); ++ibx) {
 
-      if (ibx>-6 && ibx<6) {
-        hbx_.at(Tau)->Fill( ibx );
-      }
-
       for ( auto itr = taus->begin(ibx); itr != taus->end(ibx); ++itr ) {
+        hbx_.at(Tau)->Fill( ibx );
 	het_.at(Tau)->Fill( itr->hwPt() );
 	heta_.at(Tau)->Fill( itr->hwEta() );
 	hphi_.at(Tau)->Fill( itr->hwPhi() );
@@ -286,11 +386,8 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     
     for ( int ibx=jets->getFirstBX(); ibx<=jets->getLastBX(); ++ibx) {
 
-      if (ibx>-6 && ibx<6) {
-        hbx_.at(Jet)->Fill( ibx );
-      }
-
       for ( auto itr = jets->begin(ibx); itr != jets->end(ibx); ++itr ) {
+        hbx_.at(Jet)->Fill( ibx );
 	het_.at(Jet)->Fill( itr->hwPt() );
 	heta_.at(Jet)->Fill( itr->hwEta() );
 	hphi_.at(Jet)->Fill( itr->hwPhi() );
@@ -308,11 +405,8 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     
     for ( int ibx=sums->getFirstBX(); ibx<=sums->getLastBX(); ++ibx) {
 
-      if (ibx>-6 && ibx<6) {
-        hbx_.at(Sum)->Fill( ibx );
-      }
-      
       for ( auto itr = sums->begin(ibx); itr != sums->end(ibx); ++itr ) {
+	hbx_.at(Sum)->Fill( ibx );
 	het_.at(Sum)->Fill( itr->hwPt() );
 	heta_.at(Sum)->Fill( itr->hwEta() );
 	hphi_.at(Sum)->Fill( itr->hwPhi() );
@@ -341,11 +435,21 @@ L1TStage2CaloAnalyzer::beginJob()
     dirs_.insert( std::pair< ObjectType, TFileDirectory >(*itr, fs->mkdir(*str) ) );
     
     het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 101, -0.5, 100.5) ));
-    heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "", 83, -41.5, 41.5) ));
-    hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 73, 0.5, 72.5) ));
+
     hbx_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("bx", "", 11, -5.5, 5.5) ));
-    hetaphi_.insert( std::pair< ObjectType, TH2F* >(*itr, dirs_.at(*itr).make<TH2F>("etaphi", "", 83, -41.5, 41.5, 72, .5, 72.5) ));
-    
+
+    if (*itr==EG || *itr==Jet || *itr==Tau || *itr==Sum) {
+      heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "", 227, -113.5, 113.5) ));
+      hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 144, -0.5, 143.5) ));
+      hetaphi_.insert( std::pair< ObjectType, TH2F* >(*itr, dirs_.at(*itr).make<TH2F>("etaphi", "", 227, -113.5, 113.5, 144, -0.5, 143.5) ));
+    }
+    else if (*itr==Tower || *itr==Cluster || *itr==MPEG || *itr==MPJet || *itr==MPTau || *itr==MPSum) {
+      heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "", 83, -41.5, 41.5) ));
+      hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 73, 0.5, 72.5) ));
+      hetaphi_.insert( std::pair< ObjectType, TH2F* >(*itr, dirs_.at(*itr).make<TH2F>("etaphi", "", 83, -41.5, 41.5, 72, .5, 72.5) ));
+
+    }
+
     if (*itr==Tower) {
       hem_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("em", "", 101, -0.5, 100.5) ));
       hhad_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("had", "", 101, -0.5, 100.5) ));
