@@ -36,19 +36,8 @@ process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 Source_Files = cms.untracked.vstring(
-    ## single muons PU=0
-    '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/NoPU/SingleMuon_DIGI_1.root',
-    '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/NoPU/SingleMuon_DIGI_2.root',
-    '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/NoPU/SingleMuon_DIGI_3.root',
-    '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/NoPU/SingleMuon_DIGI_4.root',
-    '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/NoPU/SingleMuon_DIGI_5.root',
-    '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/NoPU/SingleMuon_DIGI_6.root',
-    '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/NoPU/SingleMuon_DIGI_7.root',
-    '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/NoPU/SingleMuon_DIGI_8.root',
-    '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/NoPU/SingleMuon_DIGI_9.root',
-    '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/NoPU/SingleMuon_DIGI_10.root',
     ## single muons PU=140
-    #'/store/mc/TTI2023Upg14D/SingleMuMinusFlatPt0p2To150/GEN-SIM-DIGI-RAW/PU140bx25_PH2_1K_FB_V3-v2/00000/0097A61E-04E7-E311-824C-003048678F9C.root',
+    '/store/mc/TTI2023Upg14D/SingleMuMinusFlatPt0p2To150/GEN-SIM-DIGI-RAW/PU140bx25_PH2_1K_FB_V3-v2/00000/0097A61E-04E7-E311-824C-003048678F9C.root',
     )
 process.source = cms.Source("PoolSource", fileNames = Source_Files)
 
