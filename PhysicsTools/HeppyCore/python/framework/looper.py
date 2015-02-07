@@ -183,13 +183,13 @@ class Looper(object):
             analyzer.endLoop(self.setup)
         if self.timeReport:
             allev = max([x['events'] for x in self.timeReport])
-            info = self.logger.info
-            info("\n      ---- TimeReport (all times in ms; first evt is skipped) ---- ")
-            info("%9s   %9s    %9s   %9s   %s" % ("processed","all evts","time/proc", " time/all", "analyer"))
-            info("%9s   %9s    %9s   %9s   %s" % ("---------","--------","---------", "---------", "-------------"))
+            warning = self.logger.warning
+            warning("\n      ---- TimeReport (all times in ms; first evt is skipped) ---- ")
+            warning("%9s   %9s    %9s   %9s   %s" % ("processed","all evts","time/proc", " time/all", "analyer"))
+            warning("%9s   %9s    %9s   %9s   %s" % ("---------","--------","---------", "---------", "-------------"))
             for ana,rep in zip(self.analyzers,self.timeReport):
-                info( "%9d   %9d   %10.2f  %10.2f   %s" % ( rep['events'], allev, 1000*rep['time']/(rep['events']-1) if rep['events']>1 else 0, 1000*rep['time']/(allev-1) if allev > 1 else 0, ana.name))
-            info("")
+                warning( "%9d   %9d   %10.2f  %10.2f   %s" % ( rep['events'], allev, 1000*rep['time']/(rep['events']-1) if rep['events']>1 else 0, 1000*rep['time']/(allev-1) if allev > 1 else 0, ana.name))
+            warning("")
 
     def process(self, iEv ):
         """Run event processing for all analyzers in the sequence.
