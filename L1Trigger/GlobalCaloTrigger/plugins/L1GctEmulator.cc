@@ -39,7 +39,8 @@ using std::vector;
 L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   m_jetEtCalibLuts(),
   m_writeInternalData(ps.getParameter<bool>("writeInternalData")),
-  m_verbose(ps.getUntrackedParameter<bool>("verbose", false))
+  m_verbose(ps.getUntrackedParameter<bool>("verbose", false)),
+  m_conditionsLabel(ps.getParameter<std::string>("conditionsLabel"))
  {
 
   // list of products
@@ -136,15 +137,15 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c)
   if (success == 0) {
     // get data from EventSetup
     edm::ESHandle< L1GctJetFinderParams > jfPars ;
-    c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
+    c.get< L1GctJetFinderParamsRcd >().get( m_conditionsLabel, jfPars ) ; // which record?
     edm::ESHandle< L1GctChannelMask > chanMask ;
-    c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
+    c.get< L1GctChannelMaskRcd >().get( m_conditionsLabel, chanMask ) ; // which record?
     edm::ESHandle< L1CaloEtScale > etScale ;
-    c.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
+    c.get< L1JetEtScaleRcd >().get( m_conditionsLabel, etScale ) ; // which record?
     edm::ESHandle< L1CaloEtScale > htMissScale ;
-    c.get< L1HtMissScaleRcd >().get( htMissScale ) ; // which record?
+    c.get< L1HtMissScaleRcd >().get( m_conditionsLabel, htMissScale ) ; // which record?
     edm::ESHandle< L1CaloEtScale > hfRingEtScale ;
-    c.get< L1HfRingEtScaleRcd >().get( hfRingEtScale ) ; // which record?
+    c.get< L1HfRingEtScaleRcd >().get( m_conditionsLabel, hfRingEtScale ) ; // which record?
 
 
     if (jfPars.product() == 0) {

@@ -61,6 +61,9 @@ class L1GctEmulator : public edm::EDProducer {
   // untracked parameters
   bool m_verbose;
 
+  // label for conditions
+  std::string m_conditionsLabel;
+
   // tracked parameters
 
 };
