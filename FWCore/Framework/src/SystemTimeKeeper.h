@@ -26,6 +26,7 @@
 
 // user include files
 #include "FWCore/Utilities/interface/CPUTimer.h"
+#include "FWCore/Utilities/interface/WallclockTimer.h"
 
 // forward declarations
 
@@ -54,6 +55,9 @@ namespace edm {
     // ---------- static member functions --------------------
     
     // ---------- member functions ---------------------------
+    void startProcessingLoop();
+    void stopProcessingLoop();
+    
     void startEvent(StreamID);
     void stopEvent(StreamContext const&);
     
@@ -67,16 +71,15 @@ namespace edm {
     
     struct ModuleInPathTiming {
       double m_realTime = 0.;
-      double m_cpuTime = 0.;
       unsigned int m_timesVisited = 0;
     };
     struct PathTiming {
-      CPUTimer m_timer;
+      WallclockTimer m_timer;
       std::vector<ModuleInPathTiming> m_moduleTiming;
     };
 
     struct ModuleTiming {
-      CPUTimer m_timer;
+      WallclockTimer m_timer;
       unsigned int m_timesRun =0;
     };
 
@@ -89,7 +92,7 @@ namespace edm {
     PathTiming& pathTiming(StreamContext const&, PathContext const&);
     
     // ---------- member data --------------------------------
-    std::vector<CPUTimer> m_streamEventTimer;
+    std::vector<WallclockTimer> m_streamEventTimer;
     
     std::vector<std::vector<PathTiming>> m_streamPathTiming;
     
@@ -98,6 +101,8 @@ namespace edm {
     std::vector<const ModuleDescription*>  m_modules;
     std::vector<std::string> m_pathNames;
     std::vector<std::vector<std::string>> m_modulesOnPaths;
+
+    CPUTimer m_processingLoopTimer;
     
     unsigned int m_minModuleID;
     unsigned int m_endPathOffset;
