@@ -50,14 +50,6 @@ protected:
     REF getRef() const { return REF(ref_.toRefCore(),ref_.index()); }
 
 public:
-    /// first daughter const_iterator
-    virtual const_iterator begin() const;
-    /// last daughter const_iterator
-    virtual const_iterator end() const;
-    /// first daughter iterator
-    virtual iterator begin();
-    /// last daughter iterator
-    virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const GCC11_FINAL  { return 0; }
     /// return daughter at a given position (throws an exception)
@@ -192,27 +184,6 @@ public:
 
 
 
-  inline
-  Candidate::const_iterator LeafRefCandidateT::begin() const  { 
-    return const_iterator( new const_iterator_imp_specific ); 
-  }
-
-  inline
-  Candidate::const_iterator LeafRefCandidateT::end() const   { 
-    return  const_iterator( new const_iterator_imp_specific ); 
-  }
-
-  inline
-  Candidate::iterator LeafRefCandidateT::begin()   { 
-    return iterator( new iterator_imp_specific ); 
-  }
-  
-  inline
-  Candidate::iterator LeafRefCandidateT::end()   { 
-    return iterator( new iterator_imp_specific ); 
-  }
-  
-  
   inline
   bool LeafRefCandidateT::overlap( const Candidate & o ) const  { 
     return  p4() == o.p4() && vertex() == o.vertex() && charge() == o.charge();

@@ -38,14 +38,6 @@ namespace reco {
     virtual ~CompositePtrCandidate();
     /// returns a clone of the candidate
     virtual CompositePtrCandidate * clone() const;
-    /// first daughter const_iterator
-    virtual const_iterator begin() const;
-    /// last daughter const_iterator
-    virtual const_iterator end() const;
-    /// first daughter iterator
-    virtual iterator begin();
-    /// last daughter iterator
-    virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const;
     /// number of mothers

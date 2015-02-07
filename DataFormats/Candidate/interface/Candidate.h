@@ -10,14 +10,11 @@
  */
 #include "DataFormats/Candidate/interface/component.h"
 #include "DataFormats/Candidate/interface/const_iterator.h"
-#include "DataFormats/Candidate/interface/iterator.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Math/interface/Error.h"
 
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "Rtypes.h"
 
 #include "DataFormats/Candidate/interface/Particle.h"
 
@@ -144,13 +141,13 @@ namespace reco {
     /// returns a clone of the Candidate object
     virtual Candidate * clone() const = 0;
     /// first daughter const_iterator
-    virtual const_iterator begin() const = 0;
+    const_iterator begin() const { return const_iterator(this,0);} 
     /// last daughter const_iterator
-    virtual const_iterator end() const = 0;
+    const_iterator end() const  { return const_iterator(this,numberOfDaughters());}
     /// first daughter iterator
-    virtual iterator begin() = 0;
+    iterator begin()  { return iterator(this,0);}  
     /// last daughter iterator
-    virtual iterator end() = 0;
+    iterator end()  { return iterator(this,numberOfDaughters());}
     /// number of daughters
     virtual size_type numberOfDaughters() const = 0;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
@@ -273,6 +270,14 @@ namespace reco {
     friend class ShallowClonePtrCandidate;
 
   };
+
+namespace candidate {
+
+const_iterator::reference const_iterator::operator*() const { return *(me->daughter(i));}
+iterator::reference iterator::operator*() const { return *(me->daughter(i));}
+
+
+}
 
 }
 

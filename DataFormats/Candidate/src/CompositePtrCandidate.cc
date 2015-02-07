@@ -10,22 +10,6 @@ CompositePtrCandidate * CompositePtrCandidate::clone() const {
   return new CompositePtrCandidate( * this ); 
 }
 
-Candidate::const_iterator CompositePtrCandidate::begin() const { 
-  return const_iterator( new const_iterator_imp_specific( dau.begin() ) ); 
-}
-
-Candidate::const_iterator CompositePtrCandidate::end() const { 
-  return const_iterator( new const_iterator_imp_specific( dau.end() ) ); 
-}    
-
-Candidate::iterator CompositePtrCandidate::begin() { 
-  return iterator( new iterator_imp_specific ); 
-}
-
-Candidate::iterator CompositePtrCandidate::end() { 
-  return iterator( new iterator_imp_specific ); 
-}    
-
 const Candidate * CompositePtrCandidate::daughter( size_type i ) const { 
   return ( i < numberOfDaughters() ) ? & * dau[ i ] : 0; // i >= 0, since i is unsigned
 }
