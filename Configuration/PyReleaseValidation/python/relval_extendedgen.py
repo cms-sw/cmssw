@@ -38,7 +38,7 @@ workflows[525]=['',['WToLNutaupinu_13TeV_pythia8-tauola','HARVESTGEN']]
 workflows[526]=['DYTollJets_LO_Mad_13TeV_py8_Ta_taupinu',['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV','Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taupinu','HARVESTGEN2']]
 workflows[527]=['',['GGToHtaupinu_13TeV_pythia8-tauola','HARVESTGEN']]
 workflows[528]=['',['WToLNutaurhonu_13TeV_pythia8-tauola','HARVESTGEN']]
-workflows[529]=['DYTollJets_LO_Mad_13TeV_py8__Ta_taurhonu',['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV','Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taurhonu','HARVESTGEN2']]
+workflows[529]=['DYTollJets_LO_Mad_13TeV_py8_Ta_taurhonu',['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV','Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taurhonu','HARVESTGEN2']]
 workflows[530]=['',['GGToHtaurhonu_13TeV_pythia8-tauola','HARVESTGEN']]
 
 # Heavy Ion
