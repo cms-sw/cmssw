@@ -14,6 +14,8 @@ namespace l1t {
          event_.put(isotaus_, "isoTaus");
          event_.put(calospareHFBitCounts_,"HFBitCounts");
          event_.put(calospareHFRingSums_,"HFRingSums");
+         event_.put(caloEmCands_);
+         event_.put(caloRegions_);
       }
    }
 }
