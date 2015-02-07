@@ -57,7 +57,6 @@ private:
   std::vector<edm::InputTag> thirdTracks;
   std::vector<edm::InputTag> fourthTracks;
   std::vector<edm::InputTag> fifthTracks;
-  bool saveNU;
   std::vector<FSimEvent*> mySimEvent;
   std::string simModuleLabel_;
   // Histograms

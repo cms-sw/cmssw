@@ -53,7 +53,6 @@ class TrajectorySeedProducer: public edm::stream::EDProducer <>
         edm::InputTag theBeamSpot;
 
         bool seedCleaning;
-        bool rejectOverlaps;
         unsigned int absMinRecHits;
         unsigned int numberOfHits;
         
