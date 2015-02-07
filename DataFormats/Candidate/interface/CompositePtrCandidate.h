@@ -12,8 +12,6 @@
  *
  */
 
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
-
 namespace reco {
 
   class CompositePtrCandidate : public LeafCandidate {
@@ -69,10 +67,6 @@ namespace reco {
     virtual CandidatePtr sourceCandidatePtr( size_type i ) const;
 
   private:
-    /// const iterator implementation
-    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    /// iterator implementation
-    typedef candidate::iterator_imp_specific_dummy<daughters> iterator_imp_specific;
     /// collection of references to daughters
     daughters dau;
     /// check overlap with another candidate

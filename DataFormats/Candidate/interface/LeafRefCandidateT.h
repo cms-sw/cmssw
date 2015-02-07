@@ -12,8 +12,6 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Common/interface/RefCoreWithIndex.h"
 
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
-
 
 namespace reco {
   
@@ -153,11 +151,6 @@ public:
   protected:
     edm::RefCoreWithIndex ref_;
   private:
-    // const iterator implementation
-    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    // iterator implementation
-    typedef candidate::iterator_imp_specific<daughters> iterator_imp_specific;
-
 
     ///
     /// Hide these from all users:

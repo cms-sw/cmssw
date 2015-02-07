@@ -10,7 +10,6 @@
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 
 namespace reco {
   class ShallowClonePtrCandidate : public LeafCandidate {
@@ -63,10 +62,6 @@ namespace reco {
     virtual bool isConvertedPhoton() const;
     virtual bool isJet() const;
   private:
-    // const iterator implementation
-    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    // iterator implementation
-    typedef candidate::iterator_imp_specific<daughters> iterator_imp_specific;
     /// check overlap with another Candidate
     virtual bool overlap( const Candidate & c ) const { return masterClone_->overlap( c ); }
     /// CandidatePtrerence to master clone

@@ -12,8 +12,6 @@
  *
  */
 
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
-
 namespace reco {
 
   class CompositeRefCandidate : public LeafCandidate {
@@ -67,10 +65,6 @@ namespace reco {
     virtual const Candidate * mother( size_t i = 0 ) const;
 
   private:
-    /// const iterator implementation
-    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    /// iterator implementation
-    typedef candidate::iterator_imp_specific_dummy<daughters> iterator_imp_specific;
     /// collection of references to daughters
     daughters dau;
     /// collection of references to mothers
