@@ -45,28 +45,28 @@ public:
   FDumper(clang::ento::BugReporter &br, clang::AnalysisDeclContext *ac, const FunctionDecl * fd )
     : BR(br),
       AC(ac),
-	 AD(fd) {}
+      AD(fd) {}
 
 
   /// This method adds a CallExpr to the worklist 
   void setVisited(Expr * E) {
     Kind &K = VisitedExpr[E];
     if ( K = NotVisited ) {
-	VisitedExpr[E] = Visited;
-	return;
-	}
+     VisitedExpr[E] = Visited;
+     return;
+    }
   }
 
   bool wasVisited(Expr * E) {
     Kind &K = VisitedExpr[E];
     if ( K = Visited ) return true;
     return false;
-  }	
+  }
 
   const clang::Stmt * ParentStmt(const Stmt *S) {
-  	const Stmt * P = AC->getParentMap().getParentIgnoreParens(S);
-	if (!P) return 0;
-	return P;
+  const Stmt * P = AC->getParentMap().getParentIgnoreParens(S);
+  if (!P) return 0;
+  return P;
   }
 
   void VisitChildren(clang::Stmt *S );
@@ -85,129 +85,158 @@ void FDumper::VisitChildren( clang::Stmt *S) {
 }
 
 void FDumper::VisitCXXConstructExpr( CXXConstructExpr *CCE ) {
-	std::string buf;
-	llvm::raw_string_ostream os(buf);
-	LangOptions LangOpts;
-	LangOpts.CPlusPlus = true;
-	PrintingPolicy Policy(LangOpts);	
-	std::string mdname = support::getQualifiedName(*AD);
-	CXXConstructorDecl * CCD = CCE->getConstructor();
-	if (!CCD) return;
-	const char *sfile=BR.getSourceManager().getPresumedLoc(CCE->getExprLoc()).getFilename();
-	std::string sname(sfile);
-	if ( ! support::isInterestingLocation(sname) ) return;
-	std::string mname;
- 	mname = support::getQualifiedName(*CCD);
-	std::string tname = "function-dumper.txt.unsorted";
-	std::string ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n";
-	support::writeLog(ostring,tname);
-	if ( mname == "ParameterSet::getParameter" || mname == "ParameterSet::getUntrackedParameter" ) {
-		ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n";
-		}
+    std::string buf;
+    llvm::raw_string_ostream os(buf);
+    LangOptions LangOpts;
+    LangOpts.CPlusPlus = true;
+    PrintingPolicy Policy(LangOpts);
+    std::string mdname = support::getQualifiedName(*AD);
+    CXXConstructorDecl * CCD = CCE->getConstructor();
+    if (!CCD) return;
+    const char *sfile=BR.getSourceManager().getPresumedLoc(CCE->getExprLoc()).getFilename();
+    std::string sname(sfile);
+    if ( ! support::isInterestingLocation(sname) ) return;
+    std::string mname;
+    mname = support::getQualifiedName(*CCD);
+    std::string tname = "function-dumper.txt.unsorted";
+    std::string ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n";
+    support::writeLog(ostring,tname);
+    std::string gp = "ParameterSet::getParameter";
+    std::string gup = "ParameterSet::getUntrackedParameter";
+    if (mname.substr(0,gp.length()) == gp || mname.substr(0,gup.length()) == gup ) {
+      ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "' with args '";
+      for ( auto I=CCE->arg_begin(), E=CCE->arg_end(); I != E; ++I) {
+        std::string qt =(*I)->getType().getCanonicalType().getAsString();
+        ostring = ostring + qt + " ";
+        }
+      ostring = ostring + "'\n";
+      support::writeLog(ostring,tname);
+    }
  
-	VisitChildren(CCE);
+    VisitChildren(CCE);
 }
 
 void FDumper::VisitCXXMemberCallExpr( CXXMemberCallExpr *CXE ) {
-	std::string buf;
-	llvm::raw_string_ostream os(buf);
-	LangOptions LangOpts;
-	LangOpts.CPlusPlus = true;
-	PrintingPolicy Policy(LangOpts);
-	std::string mdname = support::getQualifiedName(*AD);
-	CXXMethodDecl * MD = CXE->getMethodDecl();
-	if (!MD) return;
- 	const char *sfile=BR.getSourceManager().getPresumedLoc(CXE->getExprLoc()).getFilename();
-	std::string sname(sfile);
-	if ( ! support::isInterestingLocation(sname) ) return;
- 	std::string mname;
-     mname = support::getQualifiedName(*MD);
-	std::string tname = "function-dumper.txt.unsorted";
-	std::string ostring;
-	if ( MD->isVirtual()) ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n";
-	else ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
-	support::writeLog(ostring,tname);
-	if ( mname == "ParameterSet::getParameter" || mname == "ParameterSet::getUntrackedParameter" ) {
-		ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n";
-		}
+    std::string buf;
+    llvm::raw_string_ostream os(buf);
+    LangOptions LangOpts;
+    LangOpts.CPlusPlus = true;
+    PrintingPolicy Policy(LangOpts);
+    std::string mdname = support::getQualifiedName(*AD);
+    CXXMethodDecl * MD = CXE->getMethodDecl();
+    if (!MD) return;
+    const char *sfile=BR.getSourceManager().getPresumedLoc(CXE->getExprLoc()).getFilename();
+    std::string sname(sfile);
+    if ( ! support::isInterestingLocation(sname) ) return;
+    std::string mname;
+    mname = support::getQualifiedName(*MD);
+    std::string tname = "function-dumper.txt.unsorted";
+    std::string ostring;
+    if ( MD->isVirtual()) ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n";
+    else ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
+    support::writeLog(ostring,tname);
+    std::string gp = "ParameterSet::getParameter";
+    std::string gup = "ParameterSet::getUntrackedParameter";
+    if (mname.substr(0,gp.length()) == gp || mname.substr(0,gup.length()) == gup ) {
+      ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "' with args '";
+      for ( auto I=CXE->arg_begin(), E=CXE->arg_end(); I != E; ++I) {
+        std::string qt =(*I)->getType().getCanonicalType().getAsString();
+        ostring = ostring + qt + " ";
+        }
+      ostring = ostring + "'\n";
+      support::writeLog(ostring,tname);
+    }
+ 
 
-	VisitChildren(CXE);
+    VisitChildren(CXE);
 }
 
 void FDumper::VisitCallExpr( CallExpr *CE ) {
-	std::string buf;
-	llvm::raw_string_ostream os(buf);
-	LangOptions LangOpts;
-	LangOpts.CPlusPlus = true;
-	PrintingPolicy Policy(LangOpts);
-	std::string mdname = support::getQualifiedName(*AD);
-	FunctionDecl * FD = CE->getDirectCallee();
-	if (!FD) return;
- 	const char *sfile=BR.getSourceManager().getPresumedLoc(CE->getExprLoc()).getFilename();
-	std::string sname(sfile);
-	if ( ! support::isInterestingLocation(sname) ) return;
- 	std::string mname;
-	mname = support::getQualifiedName(*FD);
-	std::string tname = "function-dumper.txt.unsorted";
-	std::string ostring;
-	if (FD->isVirtualAsWritten() || FD->isPure())
-		ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n";
-	else ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
-	support::writeLog(ostring,tname);
-	VisitChildren(CE);
+    std::string buf;
+    llvm::raw_string_ostream os(buf);
+    LangOptions LangOpts;
+    LangOpts.CPlusPlus = true;
+    PrintingPolicy Policy(LangOpts);
+    std::string mdname = support::getQualifiedName(*AD);
+    FunctionDecl * FD = CE->getDirectCallee();
+    if (!FD) return;
+    const char *sfile=BR.getSourceManager().getPresumedLoc(CE->getExprLoc()).getFilename();
+    std::string sname(sfile);
+    if ( ! support::isInterestingLocation(sname) ) return;
+    std::string mname;
+    mname = support::getQualifiedName(*FD);
+    std::string tname = "function-dumper.txt.unsorted";
+    std::string ostring;
+    if (FD->isVirtualAsWritten() || FD->isPure())
+        ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n";
+    else ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
+    support::writeLog(ostring,tname);
+    std::string gp = "ParameterSet::getParameter";
+    std::string gup = "ParameterSet::getUntrackedParameter";
+    if (mname.substr(0,gp.length()) == gp || mname.substr(0,gup.length()) == gup ) {
+      ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "' with args '";
+      for ( auto I=CE->arg_begin(), E=CE->arg_end(); I != E; ++I) {
+        std::string qt =(*I)->getType().getCanonicalType().getAsString();
+        ostring = ostring + qt + " ";
+        }
+      ostring = ostring + "'\n";
+      support::writeLog(ostring,tname);
+    }
+ 
+    VisitChildren(CE);
 }
 
 void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
                     BugReporter &BR) const {
-	if (MD->getLocation().isInvalid()) return;
- 	const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
-	std::string sname(sfile);
-	if ( ! support::isInterestingLocation(sname) ) return;
-	if ( ! support::isCmsLocalFile(sfile) ) return;
-	if (!MD->doesThisDeclarationHaveABody()) return;
-	FDumper walker(BR, mgr.getAnalysisDeclContext(MD), MD);
-	walker.Visit(MD->getBody());
+    if (MD->getLocation().isInvalid()) return;
+    const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
+    std::string sname(sfile);
+    if ( ! support::isInterestingLocation(sname) ) return;
+    if ( ! support::isCmsLocalFile(sfile) ) return;
+    if (!MD->doesThisDeclarationHaveABody()) return;
+    FDumper walker(BR, mgr.getAnalysisDeclContext(MD), MD);
+    walker.Visit(MD->getBody());
      std::string mname = support::getQualifiedName(*MD);
-	std::string tname = "function-dumper.txt.unsorted";
-	for (auto I = MD->begin_overridden_methods(), E = MD->end_overridden_methods(); I!=E; ++I) {
-		std::string oname = support::getQualifiedName(*(*I));
-		std::string ostring = "function '" +  mname + "' " + "overrides function '" + oname + " virtual'\n";
-		support::writeLog(ostring,tname);
-	}
-       	return;
+    std::string tname = "function-dumper.txt.unsorted";
+    for (auto I = MD->begin_overridden_methods(), E = MD->end_overridden_methods(); I!=E; ++I) {
+        std::string oname = support::getQualifiedName(*(*I));
+        std::string ostring = "function '" +  mname + "' " + "overrides function '" + oname + " virtual'\n";
+        support::writeLog(ostring,tname);
+    }
+           return;
 } 
 
 void FunctionDumper::checkASTDecl(const FunctionDecl *MD, AnalysisManager& mgr,
                     BugReporter &BR) const {
-	if (MD->getLocation().isInvalid()) return;
- 	const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
-	std::string sname(sfile);
-	if ( ! support::isInterestingLocation(sname) ) return;
-	if ( ! support::isCmsLocalFile(sfile) ) return;
-	if (!MD->doesThisDeclarationHaveABody()) return;
-	FDumper walker(BR, mgr.getAnalysisDeclContext(MD), MD);
-	walker.Visit(MD->getBody());
-       	return;
+    if (MD->getLocation().isInvalid()) return;
+    const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
+    std::string sname(sfile);
+    if ( ! support::isInterestingLocation(sname) ) return;
+    if ( ! support::isCmsLocalFile(sfile) ) return;
+    if (!MD->doesThisDeclarationHaveABody()) return;
+    FDumper walker(BR, mgr.getAnalysisDeclContext(MD), MD);
+    walker.Visit(MD->getBody());
+           return;
 } 
 
 
 
 void FunctionDumper::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManager& mgr,
                     BugReporter &BR) const {
-	if (TD->getLocation().isInvalid()) return;
-	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation ()).getFilename();
-	std::string sname(sfile);
-	if ( ! support::isInterestingLocation(sname) ) return;
-	if ( ! support::isCmsLocalFile(sfile) ) return;
-	for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
-			E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
-		{
-			if (I->doesThisDeclarationHaveABody()) {
-				FDumper walker(BR, mgr.getAnalysisDeclContext(*I), (*I));
-				walker.Visit(I->getBody());
-				}
-		}	
-	return;
+    if (TD->getLocation().isInvalid()) return;
+    const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation ()).getFilename();
+    std::string sname(sfile);
+    if ( ! support::isInterestingLocation(sname) ) return;
+    if ( ! support::isCmsLocalFile(sfile) ) return;
+    for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
+            E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
+        {
+            if (I->doesThisDeclarationHaveABody()) {
+                FDumper walker(BR, mgr.getAnalysisDeclContext(*I), (*I));
+                walker.Visit(I->getBody());
+                }
+        }
+    return;
 }
 
 
