@@ -16,9 +16,9 @@
 using namespace edm;
 using namespace std;
 
-unsigned char LmfSource::minDataFormatVersion_ = 4;
-unsigned char LmfSource::maxDataFormatVersion_ = 5;
-unsigned LmfSource::fileHeaderSize = 2;
+const unsigned char LmfSource::minDataFormatVersion_ = 4;
+const unsigned char LmfSource::maxDataFormatVersion_ = 5;
+const unsigned LmfSource::fileHeaderSize = 2;
 
 
 LmfSource::LmfSource(const ParameterSet& pset,
@@ -308,11 +308,17 @@ bool LmfSource::readEventWithinFile(bool doSkip){
   int activeFedId = activeFedId32[iv]>=0?
     header_[activeFedId32[iv]]:
     ((calibTrig_ & 0x3F) + 600);
-  nFeds_       = nFeds32<0?1:header_[nFeds32[iv]];
+  nFeds_       = nFeds32[iv] < 0 ? 1 : header_[nFeds32[iv]];
   
   if(verbosity_){
+    time_t t = time_t(timeStamp_ >>32);
+    div_t t_ms_us = div(timeStamp_ & 0xFFFFFFFF, 1000);
+    char tbuf[256];
+    strftime(tbuf, sizeof(tbuf), "%F %T", localtime(&t));
+    tbuf[sizeof(tbuf)-1] = 0;
     cout << "[LmfSource] "
-	 << "timeStamp:          " << /*toString(timeStamp_)*/ timeStamp_ << "\n"
+	 << "timeStamp:          " << /*toString(timeStamp_)*/ timeStamp_ 
+	 << " (" << tbuf << " " << t_ms_us.quot << " ms " << t_ms_us.rem   << " us)\n"
 	 << "lumiBlock:          " << lumiBlock_ << "\n"
 	 << "runNum:             " << runNum_ << "\n"
 	 << "orbitNum:           " << orbitNum_ << "\n"
@@ -321,6 +327,7 @@ bool LmfSource::readEventWithinFile(bool doSkip){
 	 << "activeFedId:        " << activeFedId << "\n"
          << "Calib trigger type: " << ((calibTrig_ >>8) & 0x3) << "\n"
          << "Color:              " << ((calibTrig_ >>6) & 0x3) << "\n"
+	 << "Side:               " << ((calibTrig_ >>11) & 0x1) << "\n"
          << "nFeds:              " << nFeds_ << "\n";
   }
 
