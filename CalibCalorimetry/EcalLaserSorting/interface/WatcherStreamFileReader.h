@@ -62,7 +62,7 @@ private:
    */
   std::auto_ptr<edm::StreamerInputFile> streamerInputFile_;
 
-  static std::string fileName_;
+  std::string fileName_;
 
   std::string tokenFile_;
 
@@ -73,6 +73,10 @@ private:
   bool end_;
   
   int verbosity_;
+
+  std::string fileListCmd_;
+
+  std::string curDir_;
 
 };
 
