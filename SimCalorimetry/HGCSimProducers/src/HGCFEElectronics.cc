@@ -96,7 +96,7 @@ void HGCFEElectronics<D>::runSimpleShaper(D &dataFrame,std::vector<float> &charg
 template<class D>
 void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toaColl)
 {
-  std::vector<bool>  busyFlags(chargeColl.size(),false);
+  std::vector<bool>  busyFlags(chargeColl.size(),false),totFlags(chargeColl.size(),false);
   std::vector<float> newCharge(chargeColl.size(),0);
   std::vector<float> toaFromToT(chargeColl.size(),0);
 
@@ -111,7 +111,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	  newCharge[it]=charge;
 	  continue;
 	}
-      busyFlags[it]=true;
+      totFlags[it]=true;
 
       ////to enable debug uncomment me
       ////debug=true;
@@ -153,7 +153,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	  //add leakage from previous bunches in SARS ADC mode
 	  for(int jt=0; jt<it; jt++)
 	    {
-	      if(busyFlags[jt]) continue;
+	      if(totFlags[jt] || busyFlags[jt]) continue;
 
 	      float chargeDep_jt(chargeColl[jt]);
 	      if(chargeDep_jt==0) continue;
@@ -205,11 +205,11 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	}
     }
   
-  //including the leakage from bunches in SARS ADC when not declared busy
+  //including the leakage from bunches in SARS ADC when not declared busy or in ToT
   for(int it=0; it<(int)(chargeColl.size()); it++)
     {
       //if busy, charge has been already integrated
-      if(busyFlags[it]) continue;
+      if(totFlags[it] || busyFlags[it]) continue;
       float charge(chargeColl[it]);
       if(charge==0) continue;
 
@@ -221,7 +221,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 
 	  //notice that if the channel is already busy,
 	  //it has already been affected by the leakage of the SARS ADC
-	  if(busyFlags[it+ipulse]) continue;
+	  if(totFlags[it] || busyFlags[it+ipulse]) continue;
 	  float chargeLeak=charge*adcPulse_[(ipulse+2)];
 	  newCharge[it+ipulse]+=chargeLeak;
 	  if(debug) std::cout << " | " << it+ipulse << " " << chargeLeak;
@@ -237,15 +237,19 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
       if(debug) std::cout << newCharge[it] << " ";
 
       HGCSample newSample;
-      if(busyFlags[it])
+      if(totFlags[it] || busyFlags[it])
 	{
-	  if(newCharge[it]==0) newSample.set(false,true,0,0);
-	  else {
-	    float finalToA(toaFromToT[it]);
-	    while(finalToA<0)  finalToA+=25.;
-	    while(finalToA>25) finalToA-=25;
-	    newSample.set(true,true,finalToA/toaLSB_ns_,newCharge[it]/tdcLSB_fC_);
-	  }
+	  if(totFlags[it]) 
+	    {
+	      float finalToA(toaFromToT[it]);
+	      while(finalToA<0)  finalToA+=25.;
+	      while(finalToA>25) finalToA-=25;
+	      newSample.set(true,true,finalToA/toaLSB_ns_,newCharge[it]/tdcLSB_fC_);
+	    }
+	  else
+	    {
+	      newSample.set(false,true,0,0);
+	    }
 	}
       else
 	{
