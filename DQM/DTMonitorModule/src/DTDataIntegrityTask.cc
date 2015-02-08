@@ -27,9 +27,6 @@
 
 using namespace std;
 using namespace edm;
-int FirstRos=0,nevents=0,n,m;
-const unsigned long long max_bx = 59793997824ULL;
-#include "ROSDebugUtility.h"
 
 DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(0) {
 
@@ -532,10 +529,6 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
      ROSSummary->Fill(10,code.getROS());
    }
 
-  // FIXME: what is this about???
-  if (neventsROS25 == 1) FirstRos = code.getROSID();
-  if (code.getROSID() == FirstRos) nevents++ ;
-
 
   for (vector<DTROSErrorWord>::const_iterator error_it = data.getROSErrors().begin();
        error_it != data.getROSErrors().end(); error_it++) { // Loop over ROS error words
@@ -569,9 +562,6 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 
 
   int ROSDebug_BunchNumber = -1;
-  int ROSDebug_BcntResCntLow = 0;
-  int ROSDebug_BcntResCntHigh = 0;
-  int ROSDebug_BcntResCnt = 0;
 
   for (vector<DTROSDebugWord>::const_iterator debug_it = data.getROSDebugs().begin();
        debug_it != data.getROSDebugs().end(); debug_it++) { // Loop over ROS debug words
@@ -585,9 +575,11 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     if ((*debug_it).debugType() == 0 ) {
       ROSDebug_BunchNumber = (*debug_it).debugMessage();
     } else if ((*debug_it).debugType() == 1 ) {
-      ROSDebug_BcntResCntLow = (*debug_it).debugMessage();
+      // not used
+      // ROSDebug_BcntResCntLow = (*debug_it).debugMessage();
     } else if ((*debug_it).debugType() == 2 ) {
-      ROSDebug_BcntResCntHigh = (*debug_it).debugMessage();
+      // not used
+      // ROSDebug_BcntResCntHigh = (*debug_it).debugMessage();
     } else if ((*debug_it).debugType() == 3) {
       if ((*debug_it).dontRead()){
 	debugROSSummary = 11;
@@ -627,11 +619,6 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     }
 
   }
-
-  ROSDebug_BcntResCnt = (ROSDebug_BcntResCntHigh << 15) + ROSDebug_BcntResCntLow;
-
-  // FIXME: what is this doing???
-  ROSWords_t(ResetCount_unfolded,code.getROS(),ROSDebug_BcntResCnt,nevents);
 
   // ROB Group Header
   // Check the BX of the ROB headers against the BX of the ROS
