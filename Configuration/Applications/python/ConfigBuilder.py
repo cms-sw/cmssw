@@ -1421,6 +1421,13 @@ class ConfigBuilder(object):
         if sequence == 'pdigi_valid':
             self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
 
+	if sequence != 'pdigi_nogen' and sequence != 'pdigi_valid_nogen':
+		if self._options.inputEventContent=='':
+			self._options.inputEventContent='REGEN'
+		else:
+			self._options.inputEventContent=self._options.inputEventContent+',REGEN'
+
+
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
 
