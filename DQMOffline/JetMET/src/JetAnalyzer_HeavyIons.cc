@@ -645,7 +645,7 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
   double edge_pseudorapidity[etaBins_ +1] = {-5.191, -2.650, -2.043, -1.740, -1.479, -1.131, -0.783, -0.522, 0.522, 0.783, 1.131, 1.479, 1.740, 2.043, 2.650, 5.191 };
   
   UEParameters vnUE(vn_.product(),fourierOrder_,etaBins_);
-//  const std::vector<float>& vue = vnUE.get_raw();
+  const std::vector<float>& vue = vnUE.get_raw();
   
   for(int ieta = 0;ieta<etaBins_;++ieta){
     sumpT[ieta] = vnUE.get_sum_pt(ieta);
