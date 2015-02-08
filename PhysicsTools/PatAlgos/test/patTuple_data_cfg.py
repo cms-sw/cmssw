@@ -13,7 +13,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #process.Tracer = cms.Service("Tracer")
 
 ## Conditions
-process.load( "Configuration.Geometry.GeometryIdeal_cff" )
+process.load( "Configuration.Geometry.GeometryRecoDB_cff" )
 process.load( "Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff" )
 process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
 from Configuration.AlCa.GlobalTag import GlobalTag
