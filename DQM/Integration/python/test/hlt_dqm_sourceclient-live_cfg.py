@@ -43,3 +43,7 @@ process.pp = cms.Path(process.dqmEnv+process.dqmSaver)
 process.dqmEnv.subSystemFolder = 'HLT'
 #process.hltResults.plotAll = True
 
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

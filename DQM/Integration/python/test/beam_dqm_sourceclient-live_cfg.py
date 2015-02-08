@@ -112,6 +112,10 @@ if ( process.runType.getRunType() == process.runType.cosmic_run):
     process.dqmBeamSpotProblemMonitor.AlarmOFFThreshold = 5       #Should be < AlalrmONThreshold 
 #-----------------------------------------------------------
 
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)
+
 
 #--------------------------
 # Proton-Proton Stuff
