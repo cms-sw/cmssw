@@ -70,3 +70,7 @@ process.dqmmodules = cms.Sequence(process.dqmEnv
 process.p = cms.Path(process.reconstruction_step *
                      process.dqmmodules)
 
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

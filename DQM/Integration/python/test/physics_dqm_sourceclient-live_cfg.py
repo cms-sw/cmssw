@@ -51,6 +51,11 @@ process.p = cms.Path(
 )
 
 process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)
+
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------

@@ -279,3 +279,8 @@ if (HEAVYION):
      process.hcalNoiseMonitor.RawDataLabel = cms.untracked.InputTag("rawDataRepacker")
      process.hcalDetDiagLaserMonitor.RawDataLabel = cms.untracked.InputTag("rawDataRepacker")
      process.hcalRawDataMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
+
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)
