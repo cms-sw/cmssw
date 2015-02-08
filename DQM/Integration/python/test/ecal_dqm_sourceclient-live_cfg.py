@@ -197,3 +197,8 @@ elif runTypeName == runType.hi_run:
 elif runTypeName == runType.hpu_run:
     process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_hpu.root')
     process.source.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('*'))
+
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)
