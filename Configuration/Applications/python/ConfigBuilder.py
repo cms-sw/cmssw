@@ -1421,7 +1421,7 @@ class ConfigBuilder(object):
         if sequence == 'pdigi_valid':
             self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
 
-	if sequence != 'pdigi_nogen' and sequence != 'pdigi_valid_nogen':
+	if sequence != 'pdigi_nogen' and sequence != 'pdigi_valid_nogen' and not self.process.source.type_()=='EmptySource':
 		if self._options.inputEventContent=='':
 			self._options.inputEventContent='REGEN'
 		else:
