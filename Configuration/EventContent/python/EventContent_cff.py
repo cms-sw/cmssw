@@ -719,6 +719,7 @@ REGENEventContent = cms.PSet(
       'drop *_iterativeCone5GenJets_*_*',
       'drop *_ak4GenJets_*_*',
       'drop *_ak7GenJets_*_*',
+      'drop *_ak8GenJets_*_*',
       'drop *_genCandidatesForMET_*_*',
       'drop *_genParticlesForMETAllVisible_*_*',
       'drop *_genMetCalo_*_*',

@@ -50,7 +50,7 @@ from RecoVertex.Configuration.RecoVertex_EventContent_cff import *
 # raw2digi that are already the final RECO/AOD products
 from EventFilter.ScalersRawToDigi.Scalers_EventContent_cff import *
 from Configuration.EventContent.AlCaRecoOutput_cff import *
-
+from Configuration.EventContent.EventContent_cff import REGENEventContent,RESIMEventContent,REDIGIEventContent
 
 #not in Cosmics 
 #include "TrackingTools/Configuration/data/TrackingTools_EventContent.cff"
