@@ -14,7 +14,7 @@ class SiStripFecCablingRcd : public edm::eventsetup::DependentRecordImplementati
   boost::mpl::vector<SiStripFedCablingRcd> > {};
 
 class SiStripDetCablingRcd : public edm::eventsetup::DependentRecordImplementation<SiStripDetCablingRcd,
-  boost::mpl::vector<SiStripFedCablingRcd> > {};
+  boost::mpl::vector<SiStripFedCablingRcd,IdealGeometryRecord> > {};
 
 class SiStripRegionCablingRcd : public edm::eventsetup::DependentRecordImplementation<SiStripRegionCablingRcd,
   boost::mpl::vector<SiStripDetCablingRcd,TrackerDigiGeometryRecord,IdealGeometryRecord> > {};
