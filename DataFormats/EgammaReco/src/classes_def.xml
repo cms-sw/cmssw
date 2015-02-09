@@ -18,7 +18,7 @@
   <class name="std::vector<edm::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
 
   <class name="reco::SuperCluster" ClassVersion="14">
-   <version ClassVersion="14" checksum="3271704787"/>
+   <version ClassVersion="14" checksum="705520405"/>
    <version ClassVersion="13" checksum="1878352437"/>
    <version ClassVersion="12" checksum="83023066"/>
    <version ClassVersion="11" checksum="83023066"/>
@@ -103,8 +103,9 @@
   <class name="edm::reftobase::Holder<reco::ElectronSeed,edm::Ref<std::vector<reco::ElectronSeed>,reco::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed> > >"/>
 
 
-  <class name="reco::PreshowerCluster" ClassVersion="13">
-   <version ClassVersion="13" checksum="614482937"/>
+  <class name="reco::PreshowerCluster" ClassVersion="14">
+   <version ClassVersion="14" checksum="3782728123"/>
+   <version ClassVersion="13" checksum="2894694325"/>
    <version ClassVersion="12" checksum="1992137647"/>
    <version ClassVersion="11" checksum="469230288"/>
    <version ClassVersion="10" checksum="469230288"/>
