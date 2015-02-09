@@ -28,7 +28,7 @@ electronMcSignalValidator = cms.EDAnalyzer("ElectronMcSignalValidator",
   OutputFile = cms.string(""),
   InputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
   OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
-  OutputMEsInRootFile = cms.bool(True),
+#  OutputMEsInRootFile = cms.bool(True),
     
   mcTruthCollection = cms.InputTag("genParticles"),
   electronCollection = cms.InputTag("gedGsfElectrons"),
