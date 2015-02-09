@@ -1,8 +1,9 @@
 <lcgdict>
 <selection>
 
-  <class name="reco::PFCluster" ClassVersion="15">
-   <version ClassVersion="15" checksum="2462532388"/>
+  <class name="reco::PFCluster" ClassVersion="16">
+   <version ClassVersion="16" checksum="1786894710"/>
+   <version ClassVersion="15" checksum="1837961152"/>
    <version ClassVersion="14" checksum="3610074122"/>
    <version ClassVersion="13" checksum="1305770681"/>
    <version ClassVersion="12" checksum="1218979136"/>
