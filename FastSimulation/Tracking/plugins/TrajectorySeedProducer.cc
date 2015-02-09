@@ -58,6 +58,8 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     // The name of the TrajectorySeed Collection
     produces<TrajectorySeedCollection>(outputSeedCollectionName);
 
+
+
     const edm::ParameterSet& simTrackSelectionConfig = conf.getParameter<edm::ParameterSet>("simTrackSelection");
     // The smallest pT,dxy,dz for a simtrack
     simTrack_pTMin = simTrackSelectionConfig.getParameter<double>("pTMin");
@@ -69,6 +71,9 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     {
         skipSimTrackIdTokens.push_back(consumes<std::vector<int> >(skipSimTrackTags[k]));
     }
+    // The smallest number of hits for a track candidate
+    simTrack_minLayersCrossed = simTrackSelectionConfig.getParameter<unsigned int>("minLayersCrossed");
+
 
 
     edm::InputTag beamSpotTag = conf.getParameter<edm::InputTag>("beamSpot");
@@ -83,23 +88,10 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
         testPrimaryVertexCompatibilty=true;
         recoVertexToken=consumes<reco::VertexCollection>(primaryVertexTag);
     }
-
-
-    // The smallest number of Rec Hits for a track candidate
-    minRecHits = conf.getParameter<unsigned int>("minRecHits");
-
-    //TODO: REMOVE
-    // Set the overall number hits to be checked
-    absMinRecHits = minRecHits;
-
-
     
     // The name of the hit producer
-    edm::InputTag hitProducerTag = conf.getParameter<edm::InputTag>("HitProducer");
+    edm::InputTag hitProducerTag = conf.getParameter<edm::InputTag>("hitProducer");
     recHitToken = consumes<SiTrackerGSMatchedRecHit2DCollection>(hitProducerTag);
-
-    // Number of hits needed for a seed
-    numberOfHits = conf.getParameter<unsigned int>("numberOfHits");
 
     // read Layers
     std::vector<std::string> layerStringList = conf.getParameter<std::vector<std::string>>("layerList");
@@ -430,7 +422,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
         TrajectorySeedHitCandidate previousTrackerHit;
         TrajectorySeedHitCandidate currentTrackerHit;
-        unsigned int numberOfNonEqualHits=0;
+        unsigned int layersCrossed=0;
 
         std::vector<TrajectorySeedHitCandidate> trackerRecHits;
         for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second; ++itRecHit)
@@ -442,7 +434,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
             if (!currentTrackerHit.isOnTheSameLayer(previousTrackerHit))
             {
-                ++numberOfNonEqualHits;
+                ++layersCrossed;
             }
             if (_seedingTree.getSingleSet().find(currentTrackerHit.getTrackingLayer())!=_seedingTree.getSingleSet().end())
             {
@@ -451,7 +443,11 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
             }
             
         }
-        if ( numberOfNonEqualHits < minRecHits) continue;
+
+        if ( layersCrossed < simTrack_minLayersCrossed)
+        {
+            continue;
+        }
 
         std::vector<int> hitIndicesInTree(_seedingTree.numberOfNodes(),-1);
         //A SeedingNode is associated by its index to this list. The list stores the indices of the hits in 'trackerRecHits'

@@ -13,19 +13,17 @@ iterativeTobTecSeeds.simTrackSelection.skipSimTrackIdTags = [
     cms.InputTag("pixelPairStepSimTrackIds"), 
     cms.InputTag("mixedTripletStepSimTrackIds"), 
     cms.InputTag("pixelLessStepSimTrackIds")]
-iterativeTobTecSeeds.outputSeedCollectionName = 'TobTecLayerPairs'
-iterativeTobTecSeeds.minRecHits = 4
+ cms.InputTag("mixedTripletStepIds"), cms.InputTag("pixelLessStepIds")]
+iterativeTobTecSeeds.simTrackSelection.minLayersCrossed = 4
 iterativeTobTecSeeds.simTrackSelection.pTMin = 0.3
 iterativeTobTecSeeds.simTrackSelection.maxD0 = 99.
 iterativeTobTecSeeds.simTrackSelection.maxZ0 = 99.
-iterativeTobTecSeeds.numberOfHits = 2
+iterativeTobTecSeeds.outputSeedCollectionName = 'TobTecLayerPairs'
 iterativeTobTecSeeds.originRadius = 6.0 # was 5.0
 iterativeTobTecSeeds.originHalfLength = 30.0 # was 10.0
 iterativeTobTecSeeds.originpTMin = 0.6 # was 0.5
-iterativeTobTecSeeds.zVertexConstraint = -1.0
-# skip compatiblity with PV/beamspot
-iterativeTobTecSeeds.skipPVCompatibility = True
-iterativeTobTecSeeds.primaryVertex = 'none'
+
+iterativeTobTecSeeds.primaryVertex = ''
 
 #iterativeTobTecSeeds.layerList = ['TOB1+TOB2', 
 #                                  'TOB1+TEC1_pos', 'TOB1+TEC1_neg', 
