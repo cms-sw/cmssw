@@ -25,46 +25,38 @@ using namespace edm;
 DTCertificationSummary::DTCertificationSummary(const ParameterSet& pset) {}
 
 
-
-
 DTCertificationSummary::~DTCertificationSummary() {}
 
 
 
-void DTCertificationSummary::beginJob(){
-  // get the DQMStore
-  theDbe = Service<DQMStore>().operator->();
+
+void DTCertificationSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+                                                    edm::LuminosityBlock const & lumiSeg, edm::EventSetup const& context){
+
+  //FR moved here from beginJob
   
   // book the ME
-  theDbe->setCurrentFolder("DT/EventInfo");
+  ibooker.setCurrentFolder("DT/EventInfo");
   // global fraction
-  totalCertFraction = theDbe->bookFloat("CertificationSummary");  
-  totalCertFraction->Fill(-1);
+  if (! igetter.get("CertificationSummary")) {
+    totalCertFraction = ibooker.bookFloat("CertificationSummary");  
+    totalCertFraction->Fill(-1);
 
-  // certification map
-  certMap = theDbe->book2D("CertificationSummaryMap","DT Certification Summary Map",12,1,13,5,-2,3);
-  certMap->setAxisTitle("sector",1);
-  certMap->setAxisTitle("wheel",2);
+    // certification map
+    certMap = ibooker.book2D("CertificationSummaryMap","DT Certification Summary Map",12,1,13,5,-2,3);
+    certMap->setAxisTitle("sector",1);
+    certMap->setAxisTitle("wheel",2);
 
-  theDbe->setCurrentFolder("DT/EventInfo/CertificationContents");
-  // Wheel "fractions" -> will be 0 or 1
-  for(int wheel = -2; wheel != 3; ++wheel) {
-    stringstream streams;
-    streams << "DT_Wheel" << wheel;
-    certFractions[wheel] = theDbe->bookFloat(streams.str());
-    certFractions[wheel]->Fill(-1);
+    ibooker.setCurrentFolder("DT/EventInfo/CertificationContents");
+    // Wheel "fractions" -> will be 0 or 1
+    for(int wheel = -2; wheel != 3; ++wheel) {
+      stringstream streams;
+      streams << "DT_Wheel" << wheel;
+      certFractions[wheel] = ibooker.bookFloat(streams.str());
+      certFractions[wheel]->Fill(-1);
+    }
   }
-
-  //
-
 }
-
-
-
-void DTCertificationSummary::beginLuminosityBlock(const LuminosityBlock& lumi, const  EventSetup& setup) {
-}
-
-
 
 
 void DTCertificationSummary::beginRun(const Run& run, const  EventSetup& setup) {
@@ -72,17 +64,16 @@ void DTCertificationSummary::beginRun(const Run& run, const  EventSetup& setup) 
 
 
 
+void DTCertificationSummary::endRun(const Run& run, const  EventSetup& setup){
 
-void DTCertificationSummary::endLuminosityBlock(const LuminosityBlock&  lumi, const  EventSetup& setup){
 }
 
+void DTCertificationSummary::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
 
-
-void DTCertificationSummary::endRun(const Run& run, const  EventSetup& setup){
-  // get the relevant summary histos
-  MonitorElement* effSummary = theDbe->get("DT/05-ChamberEff/EfficiencyGlbSummary");
-  MonitorElement* resSummary = theDbe->get("DT/02-Segments/ResidualsGlbSummary");
-  MonitorElement* segQualSummary = theDbe->get("DT/02-Segments/segmentSummary");
+ // get the relevant summary histos
+  MonitorElement* effSummary = igetter.get("DT/05-ChamberEff/EfficiencyGlbSummary");
+  MonitorElement* resSummary = igetter.get("DT/02-Segments/ResidualsGlbSummary");
+  MonitorElement* segQualSummary = igetter.get("DT/02-Segments/segmentSummary");
 
   // check that all needed histos are there
   if(effSummary == 0 || resSummary == 0 || segQualSummary == 0) {
@@ -126,11 +117,10 @@ void DTCertificationSummary::endRun(const Run& run, const  EventSetup& setup){
 
 
 
-void DTCertificationSummary::endJob() {}
 
 
 
-void DTCertificationSummary::analyze(const Event& event, const EventSetup& setup){}
+
 
 
 

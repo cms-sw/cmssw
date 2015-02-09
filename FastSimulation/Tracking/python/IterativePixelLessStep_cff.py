@@ -6,7 +6,12 @@ import FWCore.ParameterSet.Config as cms
 #from FastSimulation.Tracking.IterativeFourthSeedProducer_cff import *
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativePixelLessSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativePixelLessSeeds.skipSimTrackIdTags = [cms.InputTag("initialStepIds"), cms.InputTag("lowPtTripletStepIds"), cms.InputTag("pixelPairStepIds"), cms.InputTag("detachedTripletStepIds"),  cms.InputTag("mixedTripletStepIds")]
+iterativePixelLessSeeds.skipSimTrackIdTags = [
+    cms.InputTag("initialStepIds"), 
+    cms.InputTag("detachedTripletStepIds"), 
+    cms.InputTag("lowPtTripletStepIds"), 
+    cms.InputTag("pixelPairStepIds"),  
+    cms.InputTag("mixedTripletStepIds")]
 iterativePixelLessSeeds.outputSeedCollectionName = 'PixelLessPairs'
 iterativePixelLessSeeds.minRecHits = 3
 iterativePixelLessSeeds.pTMin = 0.3
@@ -48,7 +53,7 @@ iterativePixelLessTracks.TTRHBuilder = 'WithoutRefit'
 ##iterativePixelLessTracks.Fitter = 'KFFittingSmootherWithOutlierRejection'
 iterativePixelLessTracks.Fitter = 'KFFittingSmootherFourth'
 iterativePixelLessTracks.Propagator = 'PropagatorWithMaterial'
-iterativePixelLessTracks.trackAlgo = cms.untracked.uint32(9)
+iterativePixelLessTracks.AlgorithmName = cms.string('pixelLessStep')
 
 # simtrack id producer
 pixelLessStepIds = cms.EDProducer("SimTrackIdProducer",

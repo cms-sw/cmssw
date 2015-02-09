@@ -238,51 +238,6 @@ namespace pat {
       Ref masterRef() const { return masterClone().template castTo<Ref>(); }
     /// get a component
 
-    /* template<typename T> T get() const { */
-    /*   if ( hasMasterClone() ) return masterClone()->get<T>(); */
-    /*   else return reco::get<T>( * this ); */
-    /* } */
-    /* /// get a component                                                                                                 */
-    /* template<typename T, typename Tag> T get() const { */
-    /*   if ( hasMasterClone() ) return masterClone()->get<T, Tag>(); */
-    /*   else return reco::get<T, Tag>( * this ); */
-    /* } */
-    /* /// get a component                                                                                                 */
-    /* template<typename T> T get( size_type i ) const { */
-    /*   if ( hasMasterClone() ) return masterClone()->get<T>( i ); */
-    /*   else return reco::get<T>( * this, i ); */
-    /* } */
-    /* /// get a component                                                                                                 */
-    /* template<typename T, typename Tag> T get( size_type i ) const { */
-    /*   if ( hasMasterClone() ) return masterClone()->get<T, Tag>( i ); */
-    /*   else return reco::get<T, Tag>( * this, i ); */
-    /* } */
-    /* /// number of components                                                                                            */
-    /* template<typename T> size_type numberOf() const { */
-    /*   if ( hasMasterClone() ) return masterClone()->numberOf<T>(); */
-    /*   else return reco::numberOf<T>( * this ); */
-    /* } */
-    /* /// number of components                                                                                            */
-    /* template<typename T, typename Tag> size_type numberOf() const { */
-    /*   if ( hasMasterClone() ) return masterClone()->numberOf<T, Tag>(); */
-    /*   else return reco::numberOf<T, Tag>( * this ); */
-    /* } */
-
-    /* template<typename S> */
-    /*   struct daughter_iterator   { */
-    /*     typedef boost::filter_iterator<S, const_iterator> type; */
-    /*   }; */
-
-    /* template<typename S> */
-    /*   typename daughter_iterator<S>::type beginFilter( const S & s ) const { */
-    /*   return boost::make_filter_iterator(s, begin(), end()); */
-    /* } */
-    /* template<typename S> */
-    /*   typename daughter_iterator<S>::type endFilter( const S & s ) const { */
-    /*   return boost::make_filter_iterator(s, end(), end()); */
-    /* } */
-
-
     virtual bool isElectron() const;
     virtual bool isMuon() const;
     virtual bool isStandAloneMuon() const;

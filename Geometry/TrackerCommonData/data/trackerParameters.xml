@@ -19,5 +19,24 @@
   <Vector name="tobPars" type="numeric" nEntries="10">
     14, 12, 5, 2, 0, 0x7, 0x3, 0x7F, 0x7, 0x3
   </Vector>
+  <Vector name="detIdShifts" type="numeric" nEntries="36">
+    -1, 23, -1,
+    13, -1, 18,
+
+    16, 16, 14,
+    11, 14, 14,
+    
+     8,  8,  4,
+     9,  5,  8,
+
+     2,  2,  2,
+     2,  2,  5,
+
+     0,  0,  0,
+     0,  0,  2,
+
+    -1, -1, -1,
+    -1, -1,  0
+  </Vector>
  </ConstantsSection>
 </DDDefinition>

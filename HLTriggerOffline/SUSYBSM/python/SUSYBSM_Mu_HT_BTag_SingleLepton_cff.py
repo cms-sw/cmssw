@@ -16,7 +16,7 @@ SUSY_HLT_Mu_HT_BTag_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                   hltHt = cms.InputTag('hltPFHT','','HLT'),
                                                   hltMet = cms.InputTag(''),
                                                   hltJets = cms.InputTag('hltSelector4CentralJetsL1FastJet','','HLT'),
-                                                  hltJetTags = cms.InputTag('hltL3CombinedSecondaryVertexBJetTags','','HLT'),
+                                                  hltJetTags = cms.InputTag('hltCombinedSecondaryVertexBJetTagsCalo','','HLT'),
 
                                                   triggerResults = cms.InputTag('TriggerResults','','HLT'),
                                                   trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),

@@ -7,7 +7,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include <boost/algorithm/string.hpp>
@@ -72,7 +71,7 @@ MatacqProducer::MatacqProducer(const edm::ParameterSet& params):
   verbosity_(params.getUntrackedParameter<int>("verbosity", 0)),
   produceDigis_(params.getParameter<bool>("produceDigis")),
   produceRaw_(params.getParameter<bool>("produceRaw")),
-  inputRawCollection_(params.getParameter<InputTag>("inputRawCollection")),
+  inputRawCollection_(params.getParameter<edm::InputTag>("inputRawCollection")),
   mergeRaw_(params.getParameter<bool>("mergeRaw")),
   ignoreTriggerType_(params.getParameter<bool>("ignoreTriggerType")),
   matacq_(0, 0),
@@ -115,6 +114,9 @@ MatacqProducer::MatacqProducer(const edm::ParameterSet& params):
     throw cms::Exception("FileOpen") << "Failed to open file "
 				     << logFileName_ << " for logging.\n";
   }
+
+  inputRawCollectionToken_ = consumes<FEDRawDataCollection>(params.getParameter<InputTag>("inputRawCollection"));
+
 
   if(produceDigis_){
     if(verbosity_>0) cout << "[Matacq " << now() << "] registering new "
@@ -177,7 +179,7 @@ void
 MatacqProducer::addMatacqData(edm::Event& event){
 
   edm::Handle<FEDRawDataCollection> sourceColl;
-  event.getByLabel(inputRawCollection_, sourceColl);
+  event.getByToken(inputRawCollectionToken_, sourceColl);
 
   std::auto_ptr<FEDRawDataCollection> rawColl;
   if(produceRaw_){
@@ -216,8 +218,8 @@ MatacqProducer::addMatacqData(edm::Event& event){
 	    LogWarning("Matacq") << "Orbit offset not found for run "
 				 << runNumber
 				 << ". No orbit correction will be applied.";
-    }
-	}    
+	  }
+	}  
       
 	if(getMatacqFile(runNumber, orbitId, &fileChange)){
 	  //matacq file retrieval succeeded
@@ -603,7 +605,7 @@ uint32_t MatacqProducer::getOrbitId(edm::Event& ev) const{
   //return ev.orbitNumber();
   //we have to deal with what we have in current CMSSW releases:
   edm::Handle<FEDRawDataCollection> rawdata;
-  ev.getByLabel(inputRawCollection_, rawdata);
+  ev.getByToken(inputRawCollectionToken_, rawdata);
   if(!(rawdata.isValid())){
     throw cms::Exception("NotFound")
       << "No FED raw data collection found. ECAL raw data are "
@@ -641,10 +643,10 @@ uint32_t MatacqProducer::getOrbitId(edm::Event& ev) const{
   }
   return orbit;
 }
- 
+
 int MatacqProducer::getCalibTriggerType(edm::Event& ev) const{  
   edm::Handle<FEDRawDataCollection> rawdata;
-  ev.getByLabel(inputRawCollection_, rawdata);
+  ev.getByToken(inputRawCollectionToken_, rawdata);
   if(!(rawdata.isValid())){
     throw cms::Exception("NotFound")
       << "No FED raw data collection found. ECAL raw data are "

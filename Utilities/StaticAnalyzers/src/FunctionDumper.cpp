@@ -69,7 +69,7 @@ void FDumper::VisitCXXConstructExpr( CXXConstructExpr *CCE ) {
 	PrintingPolicy Policy(LangOpts);
 	const Decl * D = AC->getDecl();
 	std::string mdname =""; 
-	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(D)) mdname = support::getQualifiedName(*ND);
+	if (const NamedDecl * ND = llvm::dyn_cast_or_null<NamedDecl>(D)) mdname = support::getQualifiedName(*ND);
 	CXXConstructorDecl * CCD = CCE->getConstructor();
 	if (!CCD) return;
 	const char *sfile=BR.getSourceManager().getPresumedLoc(CCE->getExprLoc()).getFilename();
@@ -89,7 +89,7 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
 	PrintingPolicy Policy(LangOpts);
 	const Decl * D = AC->getDecl();
 	std::string mdname =""; 
-	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(D)) mdname = support::getQualifiedName(*ND);
+	if (const NamedDecl * ND = llvm::dyn_cast_or_null<NamedDecl>(D)) mdname = support::getQualifiedName(*ND);
 	FunctionDecl * FD = CE->getDirectCallee();
 	if (!FD) return;
  	const char *sfile=BR.getSourceManager().getPresumedLoc(CE->getExprLoc()).getFilename();
@@ -98,11 +98,11 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
  	std::string mname = support::getQualifiedName(*FD);
 	std::string tname = "function-dumper.txt.unsorted";
 	std::string ostring;
-	CXXMemberCallExpr * CXE = llvm::dyn_cast<CXXMemberCallExpr>(CE);
+	CXXMemberCallExpr * CXE = llvm::dyn_cast_or_null<CXXMemberCallExpr>(CE);
 	if (CXE) {
 		const CXXMethodDecl * CD = CXE->getMethodDecl();
 		const CXXRecordDecl * RD = CXE->getRecordDecl();
-		const CXXMethodDecl * AMD = llvm::dyn_cast<CXXMethodDecl>(D);
+		const CXXMethodDecl * AMD = llvm::dyn_cast_or_null<CXXMethodDecl>(D);
 		if ( AMD && CD && RD && CD->isVirtual() && RD == AMD->getParent() ) ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n";
 		else ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
 	} else {

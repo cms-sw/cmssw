@@ -42,7 +42,7 @@ iterativeInitialTracks.src = 'iterativeInitialTrackCandidates'
 iterativeInitialTracks.TTRHBuilder = 'WithoutRefit'
 iterativeInitialTracks.Fitter = 'KFFittingSmootherWithOutlierRejection'
 iterativeInitialTracks.Propagator = 'PropagatorWithMaterial'
-iterativeInitialTracks.trackAlgo = cms.untracked.uint32(4) # initialStep
+iterativeInitialTracks.AlgorithmName = cms.string('initialStep')
 
 #vertices
 import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi

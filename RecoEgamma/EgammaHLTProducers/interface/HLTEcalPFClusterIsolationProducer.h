@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,7 +25,7 @@ namespace edm {
 }
 
 template<typename T1>
-class HLTEcalPFClusterIsolationProducer : public edm::EDProducer {
+class HLTEcalPFClusterIsolationProducer : public edm::stream::EDProducer<> {
 
   typedef std::vector<T1> T1Collection;
   typedef edm::Ref<T1Collection> T1Ref;
@@ -35,31 +35,31 @@ class HLTEcalPFClusterIsolationProducer : public edm::EDProducer {
   explicit HLTEcalPFClusterIsolationProducer(const edm::ParameterSet&);
   ~HLTEcalPFClusterIsolationProducer();    
       
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
  private:
 
   bool computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu);
-
+  
   edm::EDGetTokenT<T1Collection> recoCandidateProducer_;
-  edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducer_;
-  edm::EDGetTokenT<double> rhoProducer_;
-
+  const edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducer_;
+  const edm::EDGetTokenT<double> rhoProducer_;
+  
   double drVeto2_;
-  double drMax_;
-  double drVetoBarrel_;
-  double drVetoEndcap_;
-  double etaStripBarrel_;
-  double etaStripEndcap_;
-  double energyBarrel_;
-  double energyEndcap_;
+  const double drMax_;
+  const double drVetoBarrel_;
+  const double drVetoEndcap_;
+  const double etaStripBarrel_;
+  const double etaStripEndcap_;
+  const double energyBarrel_;
+  const double energyEndcap_;
 
-  float effectiveAreaBarrel_;
-  float effectiveAreaEndcap_;
-  bool doRhoCorrection_;
-  float rhoScale_;
-  float rhoMax_;
+  const bool doRhoCorrection_;
+  const float rhoMax_;
+  const float rhoScale_;
+  const float effectiveAreaBarrel_;
+  const float effectiveAreaEndcap_;
 };
 
 #endif

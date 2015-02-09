@@ -27,22 +27,24 @@ public:
 
 protected:
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
-  /// Run client analysis
-  void runClientDiagnostic();
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
 
-  void fillGlobalSummary();
+  /// Run client analysis
+
+  void runClientDiagnostic(DQMStore::IBooker &,DQMStore::IGetter &);
+
+  void fillGlobalSummary(DQMStore::IGetter &);
+
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
 
  private:
 
   int nMinEvts;
 
-  
+  bool bookingdone;  
   
 
 };

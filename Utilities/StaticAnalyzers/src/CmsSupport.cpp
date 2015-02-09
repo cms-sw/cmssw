@@ -58,7 +58,7 @@ std::string support::getQualifiedName(const clang::NamedDecl &d) {
     ret = d.getQualifiedNameAsString();
   }
 
-  if (const FunctionDecl *fd = dyn_cast<FunctionDecl>(&d))
+  if (const FunctionDecl *fd = dyn_cast_or_null<FunctionDecl>(&d))
   {
     // This is a function. getQualifiedNameAsString will return a string
     // like "ANamespace::AFunction". To this we append the list of parameters
@@ -68,7 +68,7 @@ std::string support::getQualifiedName(const clang::NamedDecl &d) {
     // void ANamespace::AFunction(float);
     ret += "(";
     const FunctionType *ft = fd->getType()->castAs<FunctionType>();
-    if (const FunctionProtoType *fpt = dyn_cast<FunctionProtoType>(ft))
+    if (const FunctionProtoType *fpt = dyn_cast_or_null<FunctionProtoType>(ft))
     {
       unsigned num_params = fd->getNumParams();
       for (unsigned i = 0; i < num_params; ++i) {
@@ -116,7 +116,8 @@ bool support::isSafeClassName(const std::string &cname) {
     "cout", "cerr",
     "std::cout","std::cerr",
     "edm::RunningAverage","class edm::RunningAverage",
-    "TVirtualMutex", "class TVirtualMutex"
+    "TVirtualMutex", "class TVirtualMutex",
+    "boost::(anonymous namespace)::extents", "(anonymous namespace)::_1", "(anonymous namespace)::_2"
   };
   
   for (auto& name: names)

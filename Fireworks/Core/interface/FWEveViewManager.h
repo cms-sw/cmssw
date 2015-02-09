@@ -48,6 +48,8 @@ public:
       std::string m_name;
       int         m_viewBit;
 
+      void classType(std::string& , bool&) const;
+
       BuilderInfo(std::string name, int viewBit) :
          m_name(name),
          m_viewBit(viewBit)

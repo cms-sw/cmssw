@@ -26,8 +26,8 @@ using namespace l1extra ;
 
 EgammaHLTCaloTowerProducer::EgammaHLTCaloTowerProducer( const ParameterSet & p ) : towers_ (consumes<CaloTowerCollection>(p.getParameter<InputTag> ("towerCollection"))),
 										   cone_ (p.getParameter<double> ("useTowersInCone")),
-										   l1isoseeds_ (consumes<l1extra::L1EmParticleCollection>(p.getParameter< edm::InputTag > ("L1IsoCand"))),
-										   l1nonisoseeds_ (consumes<l1extra::L1EmParticleCollection>(p.getParameter< edm::InputTag > ("L1NonIsoCand"))),
+										   l1isoseeds_ (consumes<edm::View<reco::Candidate>>(p.getParameter< edm::InputTag > ("L1IsoCand"))),
+										   l1nonisoseeds_ (consumes<edm::View<reco::Candidate>>(p.getParameter< edm::InputTag > ("L1NonIsoCand"))),
 										   EtThreshold_ (p.getParameter<double> ("EtMin")),
 										   EThreshold_ (p.getParameter<double> ("EMin")) {
   
@@ -53,9 +53,9 @@ void EgammaHLTCaloTowerProducer::produce(edm::StreamID, edm::Event & evt, edm::E
   edm::Handle<CaloTowerCollection> caloTowers;
   evt.getByToken(towers_, caloTowers);
 
-  edm::Handle<l1extra::L1EmParticleCollection> emIsolColl;
+  edm::Handle<edm::View<reco::Candidate>> emIsolColl;
   evt.getByToken(l1isoseeds_, emIsolColl);
-  edm::Handle<l1extra::L1EmParticleCollection > emNonIsolColl;
+  edm::Handle<edm::View<reco::Candidate> > emNonIsolColl;
   evt.getByToken(l1nonisoseeds_, emNonIsolColl);
   std::auto_ptr<CaloTowerCollection> cands(new CaloTowerCollection);
   cands->reserve(caloTowers->size());
@@ -65,7 +65,7 @@ void EgammaHLTCaloTowerProducer::produce(edm::StreamID, edm::Event & evt, edm::E
     if (cal->et() >= EtThreshold_ && cal->energy() >= EThreshold_) {
       bool fill = false;
       math::PtEtaPhiELorentzVector p(cal->et(), cal->eta(), cal->phi(), cal->energy());
-      for (l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl->begin(); emItr != emIsolColl->end() ;++emItr) {
+      for (edm::View<reco::Candidate>::const_iterator emItr = emIsolColl->begin(); emItr != emIsolColl->end() ;++emItr) {
 	double delta  = ROOT::Math::VectorUtil::DeltaR((*emItr).p4().Vect(), p);
 	if(delta < cone_) {
 	  cands->push_back(*cal);
@@ -75,7 +75,7 @@ void EgammaHLTCaloTowerProducer::produce(edm::StreamID, edm::Event & evt, edm::E
       }
       
       if (!fill) {
-	for(l1extra::L1EmParticleCollection::const_iterator emItr = emNonIsolColl->begin(); emItr != emNonIsolColl->end() ;++emItr) {
+	for(edm::View<reco::Candidate>::const_iterator emItr = emNonIsolColl->begin(); emItr != emNonIsolColl->end() ;++emItr) {
 	  double delta  = ROOT::Math::VectorUtil::DeltaR((*emItr).p4().Vect(), p);
 	  if(delta < cone_) {
 	    cands->push_back(*cal);

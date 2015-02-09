@@ -133,6 +133,7 @@ namespace edm {
           m_nativeProtocolsPtr(nullptr),
           m_statisticsDestination(),
           m_statisticsAddrInfo(nullptr),
+          m_statisticsInfoAvail(false),
           m_siteName() {
 
         char* tmp = getenv("CMS_PATH");
@@ -153,9 +154,16 @@ namespace edm {
         overrideFromPSet("overrideSourceTTreeCacheSize", pset, m_ttreeCacheSize, m_ttreeCacheSizePtr);
         overrideFromPSet("overrideSourceTimeout", pset, m_timeout, m_timeoutPtr);
         overrideFromPSet("overridePrefetching", pset, m_enablePrefetching, m_enablePrefetchingPtr);
-        const std::string * tmpStringPtr = NULL;
+        const std::string * tmpStringPtr = nullptr;
         overrideFromPSet("overrideStatisticsDestination", pset, m_statisticsDestination, tmpStringPtr);
         this->computeStatisticsDestination();
+        std::vector<std::string> tmpStatisticsInfo; std::vector<std::string> const *tmpStatisticsInfoPtr = nullptr;
+        overrideFromPSet("overrideStatisticsInfo", pset, tmpStatisticsInfo, tmpStatisticsInfoPtr);
+        if (tmpStatisticsInfoPtr) {
+          m_statisticsInfoAvail = true;
+          m_statisticsInfo.clear();
+          for (auto &entry : tmpStatisticsInfo) {m_statisticsInfo.insert(std::move(entry));}
+        }
 
        if(pset.exists("debugLevel")) {
             m_debugLevel = pset.getUntrackedParameter<unsigned int>("debugLevel");
@@ -330,6 +338,11 @@ namespace edm {
        return m_statisticsAddrInfo;
     }
 
+    std::set<std::string> const*
+    SiteLocalConfigService::statisticsInfo() const {
+       return m_statisticsInfoAvail ? &m_statisticsInfo : nullptr;
+    }
+
     std::string const&
     SiteLocalConfigService::siteName() const {
        return m_siteName;
@@ -492,7 +505,13 @@ namespace edm {
 
               if (statsDestList->getLength() > 0) {
                 DOMElement *statsDest = static_cast<DOMElement *>(statsDestList->item(0));
-                m_statisticsDestination = _toString(statsDest->getAttribute(_toDOMS("name")));
+                m_statisticsDestination = _toString(statsDest->getAttribute(_toDOMS("endpoint")));
+                if (!m_statisticsDestination.size()) {
+                  m_statisticsDestination = _toString(statsDest->getAttribute(_toDOMS("name")));
+                }
+                std::string tmpStatisticsInfo = _toString(statsDest->getAttribute(_toDOMS("info")));
+                boost::split(m_statisticsInfo, tmpStatisticsInfo, boost::is_any_of("\t ,"));
+                m_statisticsInfoAvail = !tmpStatisticsInfo.empty();
               }
 
               DOMNodeList *prefetchingList = sourceConfig->getElementsByTagName(_toDOMS("prefetching"));
@@ -569,6 +588,8 @@ namespace edm {
         ->setComment("Request ROOT to asynchronously prefetch I/O during computation.");
       desc.addOptionalUntracked<std::string>("overrideStatisticsDestination")
         ->setComment("Provide an alternate network destination for I/O statistics (must be in the form of host:port).");
+      desc.addOptionalUntracked<std::vector<std::string> >("overrideStatisticsInfo")
+        ->setComment("Provide an alternate listing of statistics to send (comma separated list; current options are 'dn' or 'nodn').  If left blank, all information is snet (including DNs).");
 
       descriptions.add("SiteLocalConfigService", desc);
     }

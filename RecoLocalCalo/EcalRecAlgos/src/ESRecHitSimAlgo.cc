@@ -51,7 +51,7 @@ EcalRecHit::ESFlags ESRecHitSimAlgo::evalAmplitude(float * results, const ESData
 
   // A from analytical formula:
   constexpr float t1 = 20.;
-  #ifdef __clang__
+  #if defined(__clang__) || defined(__INTEL_COMPILER)
   const float A_1 = 1./( std::pow(w/n*(t1),n) * std::exp(n-w*(t1)) );
   #else
   constexpr float A_1 = 1./( std::pow(w/n*(t1),n) * std::exp(n-w*(t1)) );

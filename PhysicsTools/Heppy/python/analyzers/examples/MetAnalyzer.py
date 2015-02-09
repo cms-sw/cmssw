@@ -22,8 +22,8 @@ class MetAnalyzer( Analyzer ):
             )
 
 
-    def beginLoop(self):
-        super(MetAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(MetAnalyzer,self).beginLoop(setup)
 
        
     def process(self, iEvent, event):
@@ -78,5 +78,5 @@ class MetAnalyzer( Analyzer ):
 
 
 
-##     def write(self):
-##         super(MetAnalyzer, self).write()
+##     def write(self, setup):
+##         super(MetAnalyzer, self).write(setup)

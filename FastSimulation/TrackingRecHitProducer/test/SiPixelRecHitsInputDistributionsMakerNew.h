@@ -9,7 +9,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -20,9 +20,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //DWM histogram services
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+//#include "DQMServices/Core/interface/DQMStore.h"
+//#include "DQMServices/Core/interface/MonitorElement.h"
+//#include "FWCore/ServiceRegistry/interface/Service.h"
 
 //Simhit stuff
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -45,7 +45,7 @@
 
 #include <string>
 
-class SiPixelRecHitsInputDistributionsMakerNew : public edm::EDAnalyzer {
+class SiPixelRecHitsInputDistributionsMakerNew : public DQMEDAnalyzer {
 
    public:
 	//Constructor
@@ -56,13 +56,10 @@ class SiPixelRecHitsInputDistributionsMakerNew : public edm::EDAnalyzer {
 
    protected:
 
+	void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup &);
 	virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-	void beginJob();
-	void endJob();
 
    private:
-	DQMStore* dbe_;
-	std::string outputFile_;
 
 	edm::ParameterSet conf_;
 
@@ -131,8 +128,6 @@ class SiPixelRecHitsInputDistributionsMakerNew : public edm::EDAnalyzer {
 	MonitorElement* recHitResForwardSingleBY[cotAlphaBinsForward_][cotBetaBinsForward_];
 	MonitorElement* recHitResForwardSingleX[cotAlphaBinsForward_][cotBetaBinsForward_];
 	MonitorElement* recHitResForwardSingleY[cotAlphaBinsForward_][cotBetaBinsForward_];
-
-        std::vector<std::string> trackerContainers;
 
         edm::InputTag src_;
 

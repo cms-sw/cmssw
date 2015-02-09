@@ -54,9 +54,7 @@ particleFlowRecHitHF.producers[0].qualityTests =cms.VPSet(
 #particleFlow.usePFDecays = cms.bool(True)
 
 ### With the new mixing scheme, the label of the Trajectory collection for the primary event is different:
-from FastSimulation.Configuration.CommonInputs_cff import *
-if(CaloMode==3 and MixingMode=='DigiRecoMixing'):
-    trackerDrivenElectronSeeds.TkColList = cms.VInputTag(cms.InputTag("generalTracksBeforeMixing"))
+trackerDrivenElectronSeeds.TkColList = cms.VInputTag(cms.InputTag("generalTracksBeforeMixing"))
 
 
 famosParticleFlowSequence = cms.Sequence(
@@ -88,12 +86,6 @@ PFJetMet = cms.Sequence(
     recoPFJets+
     recoPFMET
 )
-
-
-
-# Tau tagging
-
-from FastSimulation.ParticleFlow.TauTaggingFastSimNeutralHadron_cff import *
 
 
 

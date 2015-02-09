@@ -150,9 +150,9 @@ FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker & booker, DQMStor
       continue;
     TH1F * counter = me_counter->getTH1F();
     TH1F * total   = me_total  ->getTH1F();
-    uint32_t bins = counter->GetXaxis()->GetNbins();
+    uint32_t bins = counter->GetXaxis()->GetNbins() - 1;
     double   min  = counter->GetXaxis()->GetXmin();
-    double   max  = counter->GetXaxis()->GetXmax();
+    double   max  = counter->GetXaxis()->GetXmax() - 1;
     booker.setCurrentFolder(current_path + "/Paths");
 
     TH1F * average;
@@ -163,7 +163,7 @@ FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker & booker, DQMStor
     me = getter.get( current_path + "/Paths/" + label + "_module_average" );
     if (me) {
       average = me->getTH1F();
-      assert( me->getTH1F()->GetXaxis()->GetNbins() == (int) bins );
+      //assert( me->getTH1F()->GetXaxis()->GetNbins() == (int) bins );
       assert( me->getTH1F()->GetXaxis()->GetXmin()  == min );
       assert( me->getTH1F()->GetXaxis()->GetXmax()  == max );
       average->Reset();
@@ -179,7 +179,7 @@ FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker & booker, DQMStor
     me = getter.get( current_path + "/Paths/" + label + "_module_running" );
     if (me) {
       running = me->getTH1F();
-      assert( me->getTH1F()->GetXaxis()->GetNbins() == (int) bins );
+      //assert( me->getTH1F()->GetXaxis()->GetNbins() == (int) bins );
       assert( me->getTH1F()->GetXaxis()->GetXmin()  == min );
       assert( me->getTH1F()->GetXaxis()->GetXmax()  == max );
       running->Reset();
@@ -195,7 +195,7 @@ FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker & booker, DQMStor
     me = getter.get( current_path + "/Paths/" + label + "_module_efficiency" );
     if (me) {
       efficiency = me->getTH1F();
-      assert( me->getTH1F()->GetXaxis()->GetNbins() == (int) bins );
+      //assert( me->getTH1F()->GetXaxis()->GetNbins() == (int) bins );
       assert( me->getTH1F()->GetXaxis()->GetXmin()  == min );
       assert( me->getTH1F()->GetXaxis()->GetXmax()  == max );
       efficiency->Reset();

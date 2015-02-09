@@ -148,6 +148,64 @@ std::pair<std::string,int32_t> SiStripFolderOrganizer::GetSubDetAndLayer(const u
   return std::make_pair(cSubDet,layer);
 }
 
+std::pair<std::string,int32_t> SiStripFolderOrganizer::GetSubDetAndLayerThickness(const uint32_t& detid, const TrackerTopology* tTopo, std::string & cThickness){
+  std::string cSubDet;
+  int32_t layer=0;
+  int32_t ring=0;
+  switch(StripSubdetector::SubDetector(StripSubdetector(detid).subdetId())) {
+  case StripSubdetector::TIB:
+    cSubDet="TIB";
+    layer=tTopo->tibLayer(detid);
+    cThickness = "THIN";
+    break;
+  case StripSubdetector::TOB:
+    cSubDet="TOB";
+    layer=tTopo->tobLayer(detid);
+    cThickness = "THICK";
+    break;
+  case StripSubdetector::TID:
+    cSubDet="TID";
+    layer=tTopo->tidWheel(detid) * ( tTopo->tidSide(detid)==1 ? -1 : +1);
+    cThickness = "THIN";
+    break;
+  case StripSubdetector::TEC:
+    cSubDet="TEC";
+    layer=tTopo->tecWheel(detid) * ( tTopo->tecSide(detid)==1 ? -1 : +1);
+    ring=tTopo->tecRing(detid) * ( tTopo->tecSide(detid)==1 ? -1 : +1);
+    if ( ring >= 1 && ring <= 4) cThickness = "THIN";
+    else cThickness = "THICK";
+    break;
+  default:
+    edm::LogWarning("SiStripMonitorTrack") << "WARNING!!! this detid does not belong to tracker" << std::endl;
+  }
+  return std::make_pair(cSubDet,layer);
+}
+
+std::pair<std::string,int32_t> SiStripFolderOrganizer::GetSubDetAndRing(const uint32_t& detid, const TrackerTopology* tTopo){
+  std::string cSubDet;
+  int32_t ring=0;
+  switch(StripSubdetector::SubDetector(StripSubdetector(detid).subdetId()))
+    {
+    case StripSubdetector::TIB:
+      cSubDet="TIB";
+      break;
+    case StripSubdetector::TOB:
+      cSubDet="TOB";
+      break;
+    case StripSubdetector::TID:
+      cSubDet="TID";
+      ring=tTopo->tidRing(detid) * ( tTopo->tidSide(detid)==1 ? -1 : +1);
+      break;
+    case StripSubdetector::TEC:
+      cSubDet="TEC";
+      ring=tTopo->tecRing(detid) * ( tTopo->tecSide(detid)==1 ? -1 : +1);
+      break;
+    default:
+      edm::LogWarning("SiStripMonitorTrack") << "WARNING!!! this detid does not belong to tracker" << std::endl;
+    }
+  return std::make_pair(cSubDet,ring);
+}
+
 
 void SiStripFolderOrganizer::setDetectorFolder(uint32_t rawdetid, const TrackerTopology* tTopo){
   std::string folder_name;

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #define HltBTagPostValidation for the b-tag DQM validation (efficiency and mistagrate plot)
 HltBTagPostValidation = cms.EDAnalyzer("HLTBTagHarvestingAnalyzer",
 	HLTPathNames = cms.vstring('HLT_PFMET120_NoiseCleaned_BTagCSV07_'),
-	histoName	= cms.vstring('hltL3CombinedSecondaryVertexBJetTags'),
+	histoName	= cms.vstring('hltCombinedSecondaryVertexBJetTagsCalo'),
 	minTag	= cms.double(0.6),
 	# MC stuff
 	mcFlavours = cms.PSet(

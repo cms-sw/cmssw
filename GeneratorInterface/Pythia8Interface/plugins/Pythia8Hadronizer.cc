@@ -185,7 +185,27 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if( params.exists( "SLHAFileForPythia8" ) ) {
     std::string slhafilenameshort = params.getParameter<string>("SLHAFileForPythia8");
     edm::FileInPath f1( slhafilenameshort );
-    slhafile_ = f1.fullPath();
+    
+    fMasterGen->settings.mode("SLHA:readFrom", 2);
+    fMasterGen->settings.word("SLHA:file", f1.fullPath());    
+    
+    for ( ParameterCollector::const_iterator line = fParameters.begin();
+          line != fParameters.end(); ++line ) {
+      if (line->find("SLHA:file") != std::string::npos)
+        throw cms::Exception("PythiaError") << "Attempted to set SLHA file name twice, "
+        << "using Pythia8 card SLHA:file and Pythia8Interface card SLHAFileForPythia8"
+        << std::endl;
+     }  
+  }
+  else if( params.exists( "SLHATableForPythia8" ) ) {
+    std::string slhatable = params.getParameter<string>("SLHATableForPythia8");
+        
+    char tempslhaname[] = "pythia8SLHAtableXXXXXX";
+    int fd = mkstemp(tempslhaname);
+    write(fd,slhatable.c_str(),slhatable.size());
+    close(fd);
+    
+    slhafile_ = tempslhaname;
     
     fMasterGen->settings.mode("SLHA:readFrom", 2);
     fMasterGen->settings.word("SLHA:file", slhafile_);    
@@ -194,7 +214,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
           line != fParameters.end(); ++line ) {
       if (line->find("SLHA:file") != std::string::npos)
         throw cms::Exception("PythiaError") << "Attempted to set SLHA file name twice, "
-        << "using Pythia8 card SLHA:file and Pythia8Interface card SLHAFileForPythia8"
+        << "using Pythia8 card SLHA:file and Pythia8Interface card SLHATableForPythia8"
         << std::endl;
      }  
   }
@@ -302,6 +322,12 @@ Pythia8Hadronizer::~Pythia8Hadronizer()
 // do we need to delete UserHooks/JetMatchingHook here ???
   if(fEmissionVetoHook) {delete fEmissionVetoHook; fEmissionVetoHook=0;}
   if(fEmissionVetoHook1) {delete fEmissionVetoHook1; fEmissionVetoHook1=0;}
+  
+  //clean up temp file
+  if (!slhafile_.empty()) {
+    std::remove(slhafile_.c_str());
+  }
+  
 }
 
 bool Pythia8Hadronizer::initializeForInternalPartons()
@@ -414,6 +440,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   } else {
 
     lhaUP.reset(new LHAupLesHouches());
+    lhaUP->setScalesFromLHEF(fMasterGen->settings.flag("Beams:setProductionScalesFromLHEF"));
     lhaUP->loadRunInfo(lheRunInfo());
     
     if ( fJetMatchingHook )
@@ -490,7 +517,11 @@ bool Pythia8Hadronizer::hadronize()
 
   bool py8next = fMasterGen->next();
 
-  double mergeweight = fMasterGen.get()->info.mergingWeight();
+  double mergeweight = fMasterGen.get()->info.mergingWeightNLO();
+  if (fMergingHook) {
+    mergeweight *= fMergingHook->getNormFactor();
+  }
+  
   
   //protect against 0-weight from ckkw or similar
   if (!py8next || std::abs(mergeweight)==0.)
@@ -522,9 +553,9 @@ bool Pythia8Hadronizer::hadronize()
     return false;
   }
   
-  //add ckkw merging weight
+  //add ckkw/umeps/unlops merging weight
   if (mergeweight!=1.) {
-    event()->weights().push_back(mergeweight);
+    event()->weights()[0] *= mergeweight;
   }
   
   if (fEmissionVetoHook) {
@@ -556,7 +587,7 @@ bool Pythia8Hadronizer::residualDecay()
 
     HepMC::GenParticle* part = event().get()->barcode_to_particle( ipart );
 
-    if ( part->status() == 1 )
+    if ( part->status() == 1 && (fDecayer->particleData).canDecay(part->pdg_id()) )
     {
       fDecayer->event.reset();
       Particle py8part(  part->pdg_id(), 93, 0, 0, 0, 0, 0, 0,
@@ -610,7 +641,8 @@ void Pythia8Hadronizer::finalizeEvent()
   //******** Verbosity ********
 
   if (maxEventsToPrint > 0 &&
-      (pythiaPylistVerbosity || pythiaHepMCVerbosity)) {
+      (pythiaPylistVerbosity || pythiaHepMCVerbosity ||
+                                pythiaHepMCVerbosityParticles) ) {
     maxEventsToPrint--;
     if (pythiaPylistVerbosity) {
       fMasterGen->info.list(std::cout); 
@@ -622,6 +654,12 @@ void Pythia8Hadronizer::finalizeEvent()
                 << fMasterGen->info.code() << "\n"
                 << "----------------------" << std::endl;
       event()->print();
+    }
+    if (pythiaHepMCVerbosityParticles) {
+      std::cout << "Event process = "
+                << fMasterGen->info.code() << "\n"
+                << "----------------------" << std::endl;
+      ascii_io->write_event(event().get());
     }
   }
 }

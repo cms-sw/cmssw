@@ -1,12 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # track associator settings
-import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi 
-TrackAssociatorByHitsRecoDenom = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone(
-    ComponentName = cms.string('TrackAssociatorByHitsRecoDenom'),  
-    SimToRecoDenominator = cms.string('reco'),
-    UseGrouped = cms.bool(False) 
-    )
+from Validation.RecoTrack.TrackValidation_cff import trackAssociatorByHitsRecoDenom
 
 # reco track quality cuts
 from Validation.RecoTrack.cuts_cff import *
@@ -48,4 +43,4 @@ hiTrackPrevalidation = cms.Sequence(
     )
 
 # track validation sequence
-hiTrackValidation = cms.Sequence( hiTrackValidator )
+hiTrackValidation = cms.Sequence( trackAssociatorByHitsRecoDenom * hiTrackValidator )

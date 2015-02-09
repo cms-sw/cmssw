@@ -7,7 +7,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
+#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"

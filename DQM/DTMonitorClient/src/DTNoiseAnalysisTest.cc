@@ -1,8 +1,10 @@
-
 /*
  *  See header file for a description of this class.
  *
  *  \author G. Mila - INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  */
 
 
@@ -37,8 +39,6 @@ using namespace std;
 DTNoiseAnalysisTest::DTNoiseAnalysisTest(const edm::ParameterSet& ps){
   LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest") << "[DTNoiseAnalysisTest]: Constructor";
 
-  dbe = edm::Service<DQMStore>().operator->();
-
   // get the cfi parameters
   noisyCellDef = ps.getUntrackedParameter<int>("noisyCellDef",500);
 
@@ -48,6 +48,10 @@ DTNoiseAnalysisTest::DTNoiseAnalysisTest(const edm::ParameterSet& ps){
   maxSynchNoiseRate =  ps.getUntrackedParameter<double>("maxSynchNoiseRate", 0.001);
   nMinEvts  = ps.getUntrackedParameter<int>("nEventsCert", 5000);
 
+  nevents = 0;
+
+  bookingdone = 0;
+
 }
 
 
@@ -55,16 +59,6 @@ DTNoiseAnalysisTest::~DTNoiseAnalysisTest(){
   LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest") << "DTNoiseAnalysisTest: analyzed " << nevents << " events";
 }
 
-
-void DTNoiseAnalysisTest::beginJob(){
-  LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest") <<"[DTNoiseAnalysisTest]: BeginJob"; 
-
-  nevents = 0;
-
-  // book the histos
-  bookHistos();
-
-}
 
 void DTNoiseAnalysisTest::beginRun(Run const& run, EventSetup const& context) {
 
@@ -74,21 +68,18 @@ void DTNoiseAnalysisTest::beginRun(Run const& run, EventSetup const& context) {
 }
 
 
-void DTNoiseAnalysisTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+  void DTNoiseAnalysisTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+                                  edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
 
-  LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest") <<"[DTNoiseAnalysisTest]: Begin of LS transition";
-}
+  float chRate;
+
+  if (!bookingdone) {
+    // book the histos
+  bookHistos(ibooker);
+  }
+  bookingdone = 1; 
 
 
-void DTNoiseAnalysisTest::analyze(const edm::Event& e, const edm::EventSetup& context){
-
-  nevents++;
-  if(nevents%1000 == 0) LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
-    << "[DTNoiseAnalysisTest]: "<<nevents<<" events";
-
-}
-
-void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   LogVerbatim ("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
     <<"[DTNoiseAnalysisTest]: End of LS transition, performing the DQM client operation";
 
@@ -116,7 +107,7 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
   for (; ch_it != ch_end; ++ch_it) { // loop over chambers
     DTChamberId chID = (*ch_it)->id();
 
-    MonitorElement * histo = dbe->get(getMEName(chID));
+    MonitorElement * histo = igetter.get(getMEName(chID));
 
     if(histo) { // check the pointer
 
@@ -181,13 +172,16 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
     glbSummarySynchNoiseHisto->Reset();
     for(int wheel = -2; wheel != 3; ++wheel) {
       // Get the histo produced by DTDigiTask
-      MonitorElement * histoNoiseSynch = dbe->get(getSynchNoiseMEName(wheel));
+
+      MonitorElement * histoNoiseSynch = igetter.get(getSynchNoiseMEName(wheel));
       if(histoNoiseSynch != 0) {
         for(int sect = 1; sect != 13; ++sect) { // loop over sectors
           TH2F * histo = histoNoiseSynch->getTH2F();
           float maxSectRate = 0;
           for(int sta = 1; sta != 5; ++sta) {
-            float chRate = histo->GetBinContent(sect, sta)/(float)nevents;
+            if (nevents>0) chRate = histo->GetBinContent(sect, sta)/(float)nevents;
+            else chRate = -1.0;
+                      // in case nevents 0 e.g. counting not done
             LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
               << "   Wheel: " << wheel << " sect: " << sect
               << " station: " << sta
@@ -210,7 +204,8 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
   }
 
   string nEvtsName = "DT/EventInfo/Counters/nProcessedEventsNoise";
-  MonitorElement * meProcEvts = dbe->get(nEvtsName);
+
+  MonitorElement * meProcEvts = igetter.get(nEvtsName);
 
   if (meProcEvts) {
     int nProcEvts = meProcEvts->getFloatValue();
@@ -235,7 +230,6 @@ string DTNoiseAnalysisTest::getMEName(const DTChamberId & chID) {
 
   string folderName = 
     "DT/05-Noise/Wheel" +  wheel.str() +
-    //     "/Station" + station.str() +
     "/Sector" + sector.str() + "/";
 
   string histoname = folderName + string("NoiseRate")  
@@ -247,21 +241,22 @@ string DTNoiseAnalysisTest::getMEName(const DTChamberId & chID) {
 
 }
 
+void DTNoiseAnalysisTest::bookHistos(DQMStore::IBooker & ibooker) {
 
-void DTNoiseAnalysisTest::bookHistos() {
-
-  dbe->setCurrentFolder("DT/05-Noise");
+  ibooker.setCurrentFolder("DT/05-Noise");
   string histoName;
 
   for(int wh=-2; wh<=2; wh++){
     stringstream wheel; wheel << wh;
     histoName =  "NoiseRateSummary_W" + wheel.str();
-    noiseHistos[wh] = dbe->book1D(histoName.c_str(),histoName.c_str(),100,0,2000);
+
+    noiseHistos[wh] = ibooker.book1D(histoName.c_str(),histoName.c_str(),100,0,2000);
     noiseHistos[wh]->setAxisTitle("rate (Hz)",1);
     noiseHistos[wh]->setAxisTitle("entries",2);
   }
   histoName =  "NoiseRateSummary";
-  noiseHistos[3] = dbe->book1D(histoName.c_str(),histoName.c_str(),100,0,2000);
+
+  noiseHistos[3] = ibooker.book1D(histoName.c_str(),histoName.c_str(),100,0,2000);
   noiseHistos[3]->setAxisTitle("rate (Hz)",1);
   noiseHistos[3]->setAxisTitle("entries",2);
 
@@ -269,7 +264,8 @@ void DTNoiseAnalysisTest::bookHistos() {
   for(int wh=-2; wh<=2; wh++){
     stringstream wheel; wheel << wh;
     histoName =  "NoiseSummary_W" + wheel.str();
-    noisyCellHistos[wh] = dbe->book2D(histoName.c_str(),"# of noisy channels",12,1,13,4,1,5);
+
+    noisyCellHistos[wh] = ibooker.book2D(histoName.c_str(),"# of noisy channels",12,1,13,4,1,5);
     noisyCellHistos[wh]->setBinLabel(1,"MB1",2);
     noisyCellHistos[wh]->setBinLabel(2,"MB2",2);
     noisyCellHistos[wh]->setBinLabel(3,"MB3",2);
@@ -278,25 +274,29 @@ void DTNoiseAnalysisTest::bookHistos() {
   }
 
   histoName =  "NoiseSummary";
-  summaryNoiseHisto =  dbe->book2D(histoName.c_str(),"# of noisy channels",12,1,13,5,-2,3);
+
+  summaryNoiseHisto =  ibooker.book2D(histoName.c_str(),"# of noisy channels",12,1,13,5,-2,3);
   summaryNoiseHisto->setAxisTitle("Sector",1);
   summaryNoiseHisto->setAxisTitle("Wheel",2);
 
   if(detailedAnalysis) {
     histoName = "NoisyChannels";
-    threshChannelsHisto = dbe->book1D(histoName.c_str(),"# of noisy channels vs threshold",15,500,2000);
+
+    threshChannelsHisto = ibooker.book1D(histoName.c_str(),"# of noisy channels vs threshold",15,500,2000);
     threshChannelsHisto->setAxisTitle("threshold",1);
     threshChannelsHisto->setAxisTitle("# noisy channels",2);
   }
 
   if(doSynchNoise) {
-    dbe->setCurrentFolder("DT/05-Noise/SynchNoise/");
+    ibooker.setCurrentFolder("DT/05-Noise/SynchNoise/");
     histoName =  "SynchNoiseSummary";
-    summarySynchNoiseHisto = dbe->book2D(histoName.c_str(),"Summary Synch. Noise",12,1,13,5,-2,3);
+
+    summarySynchNoiseHisto = ibooker.book2D(histoName.c_str(),"Summary Synch. Noise",12,1,13,5,-2,3);
     summarySynchNoiseHisto->setAxisTitle("Sector",1);
     summarySynchNoiseHisto->setAxisTitle("Wheel",2);
     histoName =  "SynchNoiseGlbSummary";
-    glbSummarySynchNoiseHisto = dbe->book2D(histoName.c_str(),"Summary Synch. Noise",12,1,13,5,-2,3);
+
+    glbSummarySynchNoiseHisto = ibooker.book2D(histoName.c_str(),"Summary Synch. Noise",12,1,13,5,-2,3);
     glbSummarySynchNoiseHisto->setAxisTitle("Sector",1);
     glbSummarySynchNoiseHisto->setAxisTitle("Wheel",2);
   }
@@ -317,3 +317,5 @@ string DTNoiseAnalysisTest::getSynchNoiseMEName(int wheelId) const {
 
 }
 
+
+void DTNoiseAnalysisTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {}

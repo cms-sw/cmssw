@@ -6,7 +6,13 @@ import FWCore.ParameterSet.Config as cms
 #from FastSimulation.Tracking.IterativeFifthSeedProducer_cff import *
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeTobTecSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeTobTecSeeds.skipSimTrackIdTags = [cms.InputTag("initialStepIds"), cms.InputTag("lowPtTripletStepIds"), cms.InputTag("pixelPairStepIds"), cms.InputTag("detachedTripletStepIds"), cms.InputTag("mixedTripletStepIds"), cms.InputTag("pixelLessStepIds")]
+iterativeTobTecSeeds.skipSimTrackIdTags = [
+    cms.InputTag("initialStepIds"), 
+    cms.InputTag("detachedTripletStepIds"), 
+    cms.InputTag("lowPtTripletStepIds"), 
+    cms.InputTag("pixelPairStepIds"), 
+    cms.InputTag("mixedTripletStepIds"), 
+    cms.InputTag("pixelLessStepIds")]
 iterativeTobTecSeeds.outputSeedCollectionName = 'TobTecLayerPairs'
 iterativeTobTecSeeds.minRecHits = 4
 iterativeTobTecSeeds.pTMin = 0.3
@@ -49,7 +55,7 @@ iterativeTobTecTracks.src = 'iterativeTobTecTrackCandidates'
 iterativeTobTecTracks.TTRHBuilder = 'WithoutRefit'
 iterativeTobTecTracks.Fitter = 'KFFittingSmootherFifth'
 iterativeTobTecTracks.Propagator = 'PropagatorWithMaterial'
-iterativeTobTecTracks.trackAlgo = cms.untracked.uint32(10) # tobTecStep
+iterativeTobTecTracks.AlgorithmName = cms.string('tobTecStep')
 
 # simtrack id producer
 tobTecStepIds = cms.EDProducer("SimTrackIdProducer",

@@ -16,3 +16,8 @@
 <flags ADD_SUBDIR="1"/>
 <flags CXXFLAGS="-O1"/>
 <flags REM_CXXFLAGS="-flto"/>
+<!-- Disable optimizer due to high memory usage by Clang
+     (3.6 RC1 and trunk, 2015 Jan 28) -->
+<release name=".*_CLANG_.*">
+  <flags CXXFLAGS="-O0"/>
+</release>

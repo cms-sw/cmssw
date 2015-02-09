@@ -14,9 +14,6 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     RawDigiProducer = cms.string('simSiStripDigis'),
     RawDigiLabel    = cms.string('VirginRaw'),
     
-    OutputMEsInRootFile = cms.bool(False),
-    OutputFileName = cms.string('test_monitortrackparameters_rs.root'),    
-    
     Cluster_src = cms.InputTag('siStripClusters'),
     
     ModulesToBeExcluded = cms.vuint32(),
@@ -25,7 +22,6 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     OffHisto_On   = cms.bool(True),
     Trend_On      = cms.bool(False),
     HistoFlag_On  = cms.bool(False),
-    RingFlag_On   = cms.bool(False),
     TkHistoMap_On = cms.bool(True),   
     
     ClusterConditions = cms.PSet( On       = cms.bool(False),
@@ -45,39 +41,59 @@ SiStripMonitorTrack = cms.EDAnalyzer(
                              xmax  = cms.double(3999.5)
                              ),
     
-    TH1ClusterCharge = cms.PSet( Nbinx = cms.int32(100),
-                                 xmin  = cms.double(-0.5),
-                                 xmax  = cms.double(999.5)
-                                 ),
+    TH1ClusterCharge = cms.PSet(
+        layerView = cms.bool(True),
+        ringView  = cms.bool(False),        
+        Nbinx = cms.int32(100),
+        xmin  = cms.double(-0.5),
+        xmax  = cms.double(999.5)
+    ),
     
-    TH1ClusterStoN = cms.PSet( Nbinx = cms.int32(100),
-                               xmin  = cms.double(-0.5),
-                               xmax  = cms.double(299.5)
-                               ),
+    TH1ClusterStoN = cms.PSet(
+        layerView = cms.bool(True),
+        ringView  = cms.bool(False),
+        Nbinx = cms.int32(100),
+        xmin  = cms.double(-0.5),
+        xmax  = cms.double(299.5)
+    ),
     
-    TH1ClusterChargeCorr = cms.PSet( Nbinx = cms.int32(100),
-                                     xmin  = cms.double(-0.5),
-                                     xmax  = cms.double(399.5)
-                                     ),
+    TH1ClusterChargeCorr = cms.PSet(
+        layerView = cms.bool(True),
+        ringView  = cms.bool(False),
+        Nbinx = cms.int32(100),
+        xmin  = cms.double(-0.5),
+        xmax  = cms.double(399.5)
+    ),
     
-    TH1ClusterStoNCorr = cms.PSet( Nbinx = cms.int32(200),
-                                   xmin  = cms.double(-0.5),
-                                   xmax  = cms.double(199.5)
-                                   ),
-    TH1ClusterStoNCorrMod = cms.PSet( Nbinx = cms.int32(50),
-                                   xmin  = cms.double(-0.5),
-                                   xmax  = cms.double(199.5)
-                                   ),
+    TH1ClusterStoNCorr = cms.PSet( 
+        layerView = cms.bool(True),
+        ringView  = cms.bool(False),
+        Nbinx = cms.int32(200),
+        xmin  = cms.double(-0.5),
+        xmax  = cms.double(199.5)
+     ),
+
+    TH1ClusterStoNCorrMod = cms.PSet(
+        Nbinx = cms.int32(50),
+        xmin  = cms.double(-0.5),
+        xmax  = cms.double(199.5)
+    ),
     
-    TH1ClusterNoise = cms.PSet( Nbinx = cms.int32(20),
-                                xmin  = cms.double(-0.5),
-                                xmax  = cms.double(9.5)
-                                ),
+    TH1ClusterNoise = cms.PSet(
+        layerView = cms.bool(True),
+        ringView  = cms.bool(False),
+        Nbinx = cms.int32(20),
+        xmin  = cms.double(-0.5),
+        xmax  = cms.double(9.5)
+    ),
     
-    TH1ClusterWidth = cms.PSet( Nbinx = cms.int32(20),
-                                xmin  = cms.double(-0.5),
-                                xmax  = cms.double(19.5)
-                                ),
+    TH1ClusterWidth = cms.PSet(
+        layerView = cms.bool(True),
+        ringView  = cms.bool(False),
+        Nbinx = cms.int32(20),
+        xmin  = cms.double(-0.5),
+        xmax  = cms.double(19.5)
+    ),
     
     TH1ClusterSymmEtaCC = cms.PSet( Nbinx = cms.int32(120),
                                     xmin  = cms.double(-0.1),
@@ -102,11 +118,20 @@ SiStripMonitorTrack = cms.EDAnalyzer(
                                    ymax = cms.double(1.2)
                                    ),
     
-    Trending = cms.PSet( Nbins      = cms.int32(10),
-                         Steps      = cms.int32(5),
-                         UpdateMode = cms.int32(1)
-                         ),
-
+    Trending = cms.PSet( 
+        Nbins = cms.int32(2400),
+        xmin = cms.double(0.0),
+        xmax = cms.double(150)
+        ),
+    
+    TH1ClusterChargePerCM = cms.PSet(
+        layerView = cms.bool(False),
+        ringView  = cms.bool(True),
+        Nbinx = cms.int32(100),
+        xmin  = cms.double(-0.5),
+        xmax  = cms.double(9999.5)
+    ),
+    
     UseDCSFiltering = cms.bool(True)
     
     )

@@ -1,7 +1,7 @@
 #ifndef FastSimulation_Tracking_TrajectorySeedProducer2_h
 #define FastSimulation_Tracking_TrajectorySeedProducer2_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -32,8 +32,7 @@ class MagneticFieldMap;
 class TrackerGeometry;
 class PropagatorWithMaterial;
 
-class TrajectorySeedProducer: 
-    public edm::EDProducer
+class TrajectorySeedProducer: public edm::stream::EDProducer <>
 {
     private:
         SeedingTree<TrackingLayer> _seedingTree;

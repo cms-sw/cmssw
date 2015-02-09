@@ -163,6 +163,8 @@ def switchToCustomL1Digis(process, customGmt, customGct, customGt):
     process.hltL1extraParticles.hfRingBitCountsSource = cms.InputTag( customGct )
   if 'hltL2MuonSeeds' in process.__dict__:
     process.hltL2MuonSeeds.GMTReadoutCollection = cms.InputTag( customGmt )
+  if 'hltL2CosmicMuonSeeds' in process.__dict__:
+    process.hltL2CosmicMuonSeeds.GMTReadoutCollection = cms.InputTag( customGmt )
 
   # automatic replacements to use "simGtDigis" and "simGctDigis" instead of "hltGtDigis" or "hltGctDigis"
   for module in process.__dict__.itervalues():

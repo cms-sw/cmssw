@@ -54,7 +54,7 @@ public:
   virtual ~MuonProducer();
 
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 
   typedef std::vector<edm::InputTag> InputTags;

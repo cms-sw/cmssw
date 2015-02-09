@@ -10,6 +10,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHENegativeFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
@@ -22,6 +23,8 @@
 
 #include "CondFormats/DataRecord/interface/HcalOOTPileupCorrectionRcd.h"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrectionColl.h"
+#include "CondFormats/HcalObjects/interface/OOTPileupCorrData.h"
+
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 //---------------------------------------------------------------------------
@@ -58,8 +61,8 @@ HBHENegativeFlagSetter::HBHENegativeFlagSetter(double minimumChargeThreshold,
    mFirst = first;
    mLast = last;
 
-   if(mLast < mFirst)   // sanity protection
-      std::swap(mFirst, mLast);
+   if (mFirst < 2 || mLast < mFirst)
+       throw cms::Exception("Invalid mFirst, mLast specification");
 
    mBunchCrossingInfo = NULL;
    mLengthBunchCrossingInfo = 0;
@@ -88,52 +91,38 @@ void HBHENegativeFlagSetter::setPulseShapeFlags(HBHERecHit &hbhe,
    // flags should be set.
    //
 
-   if(hbhePileupCorr_)
+   const OOTPileupCorrData* corrObj = dynamic_cast<OOTPileupCorrData*>(hbhePileupCorr_.get());
+   if (corrObj)
    {
       CaloSamples cs;
       coder.adc2fC(digi,cs);
       const int nRead = cs.size();
 
-      double inputCharge[CaloSamples::MAXSAMPLES];
-      double gains[CaloSamples::MAXSAMPLES];
-      double CorrectedEnergy[CaloSamples::MAXSAMPLES];
-
-      for(int i = 0; i < nRead; i++)
+      double ts[CaloSamples::MAXSAMPLES];
+      for (int i=0; i < nRead; i++)
       {
          const int capid = digi[i].capid();
-         inputCharge[i] = cs[i] - calib.pedestal(capid);
-         gains[i] = calib.respcorrgain(capid);
+         ts[i] = cs[i] - calib.pedestal(capid);
       }
 
-      double ChargeInWindow = 0;
+      double ChargeInWindow = 0.0;
       for(int i = mFirst; i <= mLast && i < CaloSamples::MAXSAMPLES; i++)
-         ChargeInWindow = ChargeInWindow + inputCharge[i];
+         ChargeInWindow += ts[i];
       if(ChargeInWindow < mMinimumChargeThreshold)
          return;
 
-      const bool UseGain = hbhePileupCorr_->inputIsEnergy();
-      if(UseGain == true)
-         for(int i = 0; i < nRead; i++)
-            inputCharge[i] = inputCharge[i] * gains[i];
+      const OOTPileupCorrDataFcn& fcn = corrObj->getCorrectionByID(hbhe.id());
+      const PiecewiseScalingPolynomial& a1 = fcn.getA1();
+      const PiecewiseScalingPolynomial& a2 = fcn.getA2();
 
-      bool pulseShapeCorrApplied = false;
-      bool leakCorrApplied = false;
-      bool readjustTiming = false;
-
-      int n = std::min(mLast + 1, CaloSamples::MAXSAMPLES) - mFirst;
-
-      hbhePileupCorr_->apply(digi.id(), inputCharge, nRead,
-            mBunchCrossingInfo, mLengthBunchCrossingInfo, mFirst, n,
-            CorrectedEnergy, CaloSamples::MAXSAMPLES,
-            &pulseShapeCorrApplied, &leakCorrApplied,
-            &readjustTiming);
-
-      for(int i = mFirst; i <= mLast; i++)
+      bool passes = true;
+      for (int i = mFirst; i <= mLast && passes; i++)
       {
-         bool decision = checkPassFilter(ChargeInWindow, CorrectedEnergy[i], mCut, -1);
-         if(decision == false)
-            hbhe.setFlagField(1, HcalCaloFlagLabels::HBHENegativeNoise);
+          const double ecorr = ts[i] - a1(ts[i-1]) - a2(ts[i-2]);
+          passes = checkPassFilter(ChargeInWindow, ecorr, mCut, -1);
       }
+      if (!passes)
+          hbhe.setFlagField(1, HcalCaloFlagLabels::HBHENegativeNoise);
    }
 }
 //---------------------------------------------------------------------------

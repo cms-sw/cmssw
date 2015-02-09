@@ -13,7 +13,6 @@
 #include "DataFormats/Candidate/interface/iterator.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Math/interface/Error.h"
-#include "boost/iterator/filter_iterator.hpp"
 
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -28,7 +27,7 @@
 class OverlapChecker;
 
 namespace reco {
-  class Track; 
+  class Track;
   class Candidate {
   public:
     typedef size_t size_type;
@@ -248,21 +247,12 @@ namespace reco {
       else return reco::numberOf<T, Tag>( * this ); 
     }
 
-    template<typename S> 
-      struct daughter_iterator {
-	typedef boost::filter_iterator<S, const_iterator> type;
-      };
-
-    template<typename S>
-      typename daughter_iterator<S>::type beginFilter( const S & s ) const {
-      return boost::make_filter_iterator(s, begin(), end());
-    }
-    template<typename S>
-      typename daughter_iterator<S>::type endFilter( const S & s ) const {
-      return boost::make_filter_iterator(s, end(), end());
-    }
-
     virtual const Track * bestTrack() const {return nullptr;}	
+ 
+    /// uncertainty on dz 
+    virtual float dzError() const {return 0;} // { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dzError(); else return 0; }
+    /// uncertainty on dxy
+    virtual float dxyError() const {return 0;} // { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dxyError(); else return 0; }
 
     virtual bool isElectron() const = 0;
     virtual bool isMuon() const = 0;

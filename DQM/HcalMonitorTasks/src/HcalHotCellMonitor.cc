@@ -375,7 +375,7 @@ void HcalHotCellMonitor::done()
 
 void HcalHotCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 {
-
+  HcalBaseDQMonitor::analyze(e,s);
   if (!IsAllowedCalibType()) return;
   if (LumiInOrder(e.luminosityBlock())==false) return;
 
@@ -403,7 +403,7 @@ void HcalHotCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 
   // Good event found; increment counter (via base class analyze method)
 
-  HcalBaseDQMonitor::analyze(e,s);
+//  HcalBaseDQMonitor::analyze(e,s);
   if (debug_>1) std::cout <<"\t<HcalHotCellMonitor::analyze>  Processing good event! event # = "<<ievt_<<std::endl;
 
   processEvent(*hbhe_rechit, *ho_rechit, *hf_rechit);

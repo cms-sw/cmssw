@@ -25,7 +25,7 @@ muonErrorMatrixAnalyzer = cms.EDAnalyzer("MuonErrorMatrixAnalyzer",
         action = cms.string('constructor'),
         rootFileName = cms.string('errorMatrix_Reported.root')
     ),
-    associatorName = cms.string('TrackAssociatorByPosition'),
+    associatorName = cms.string('trackAssociatorByPosition'),
     errorMatrix_Pull_pset = cms.PSet(
         errorMatrix_default,
         action = cms.string('constructor'),

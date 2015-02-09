@@ -115,7 +115,7 @@ class PTrackerParameters
   TIBItem tib;
   TIDItem tid;
   TOBItem tob;
-  
+
   COND_SERIALIZABLE;
 };
 

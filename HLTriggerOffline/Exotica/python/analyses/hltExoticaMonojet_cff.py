@@ -10,14 +10,17 @@ MonojetPSet = cms.PSet(
         #"HLT_PFCenJet150_PFMETNoMu150_PFMHTNoMu150_v",
         "HLT_MonoCentralPFJet140_PFMETNoMu100_PFMHTNoMu140_NoiseCleaned_v", 
         "HLT_MonoCentralPFJet140_PFMETNoMu140_PFMHTNoMu140_NoiseCleaned_v",
-        "HLT_MonoCentralPFJet150_PFMETNoMu150_PFMHTNoMu150_NoiseCleaned_v",
+        "HLT_MonoCentralPFJet150_PFMETNoMu150_PFMHTNoMu150_NoiseCleaned_v"
         #"HLT_CaloJet500_NoID_v",
         #"HLT_CaloJet500_NoJetID_v",
         #"HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v" # Run1
         ),
-    recPFJetLabel    = cms.InputTag("ak4PFJets"),
-    recPFMETLabel    = cms.InputTag("pfMet"),
+
     recCaloJetLabel  = cms.InputTag("ak4CaloJets"),
+    recPFJetLabel    = cms.InputTag("ak4PFJets"),
+    recPFMETLabel    = cms.InputTag("recoExoticaValidationMETNoMu"),
+    recPFMHTLabel    = cms.InputTag("recoExoticaValidationMHTNoMu"),
+
     # -- Analysis specific cuts
     minCandidates = cms.uint32(1),
     # -- Analysis specific binnings

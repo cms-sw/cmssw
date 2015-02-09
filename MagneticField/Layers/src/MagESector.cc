@@ -29,8 +29,8 @@ MagESector::~MagESector(){
 }
 
 
-MagVolume * MagESector::findVolume(const GlobalPoint & gp, double tolerance) const {
-  MagVolume * result = 0;
+const MagVolume * MagESector::findVolume(const GlobalPoint & gp, double tolerance) const {
+  const MagVolume * result = 0;
   float Z = gp.z();
 
   // FIXME : use a binfinder

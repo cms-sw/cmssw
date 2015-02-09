@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
 from GeneratorInterface.EvtGenInterface.EvtGenSetting_cff import *
-source = cms.Source("EmptySource")
+
 generator = cms.EDFilter("Pythia8GeneratorFilter",
                          comEnergy = cms.double(13000.0),
                          crossSection = cms.untracked.double(54000000000),
@@ -14,8 +14,8 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
         EvtGen130 = cms.untracked.PSet(
             decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_2010.DEC'),
             particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
-            user_decay_file = cms.untracked.bool(True),
-            user_decay_files = cms.vstring('GeneratorInterface/ExternalDecays/data/Bs_mumu.dec'),
+          #  user_decay_file = cms.untracked.bool(True),
+            user_decay_file = cms.vstring('GeneratorInterface/ExternalDecays/data/Bs_mumu.dec'),
             list_forced_decays = cms.vstring('MyB_s0','Myanti-B_s0'),
             operates_on_particles = cms.vint32()
             ),

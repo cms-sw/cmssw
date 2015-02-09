@@ -9,12 +9,16 @@
 
 #define update(a, b) do { (a) = (a) | (b); } while(0)
 
-TrackClassifier::TrackClassifier(edm::ParameterSet const & config) : TrackCategories(),
+TrackClassifier::TrackClassifier(edm::ParameterSet const & config,
+                                 edm::ConsumesCollector&& collector) : TrackCategories(),
         hepMCLabel_( config.getUntrackedParameter<edm::InputTag>("hepMC") ),
         beamSpotLabel_( config.getUntrackedParameter<edm::InputTag>("beamSpot") ),
-        tracer_(config),
+        tracer_(config,std::move(collector)),
         quality_(config)
 {
+    collector.consumes<edm::HepMCProduct>(hepMCLabel_);
+    collector.consumes<reco::BeamSpot>(beamSpotLabel_);
+
     // Set the history depth after hadronization
     tracer_.depth(-2);
 

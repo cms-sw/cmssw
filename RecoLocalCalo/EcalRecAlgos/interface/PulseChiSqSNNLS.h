@@ -27,11 +27,14 @@ class PulseChiSqSNNLS {
     
     double ChiSq() const { return _chisq; }
     void disableErrorCalculation() { _computeErrors = false; }
+    void setMaxIters(int n) { _maxiters = n;}
+    void setMaxIterWarnings(bool b) { _maxiterwarnings = b;}
 
   protected:
     
     bool Minimize(const SampleMatrix &samplecor, double pederr, const FullSampleMatrix &fullpulsecov);
     bool NNLS();
+    bool OnePulseMinimize();
     bool updateCov(const SampleMatrix &samplecor, double pederr, const FullSampleMatrix &fullpulsecov);
     double ComputeChiSq();
     double ComputeApproxUncertainty(unsigned int ipulse);
@@ -64,6 +67,8 @@ class PulseChiSqSNNLS {
     
     double _chisq;
     bool _computeErrors;
+    int _maxiters;
+    bool _maxiterwarnings;
 };
 
 #endif

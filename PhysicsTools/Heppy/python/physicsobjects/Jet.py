@@ -25,18 +25,35 @@ _btagWPs = {
     "CSVL": ("combinedSecondaryVertexBJetTags", 0.244),
     "CSVM": ("combinedSecondaryVertexBJetTags", 0.679),
     "CSVT": ("combinedSecondaryVertexBJetTags", 0.898),
+    "CSVv2IVFL": ("combinedInclusiveSecondaryVertexV2BJetTags", 0.423),
+    "CSVv2IVFM": ("combinedInclusiveSecondaryVertexV2BJetTags", 0.814),
+    "CSVv2IVFT": ("combinedInclusiveSecondaryVertexV2BJetTags", 0.941),
+    "CMVAL": ("combinedMVABJetTags", 0.630), # for same b-jet efficiency of CSVv2IVFL on ttbar MC, jet pt > 30
+    "CMVAM": ("combinedMVABJetTags", 0.732), # for same b-jet efficiency of CSVv2IVFM on ttbar MC, jet pt > 30
+    "CMVAT": ("combinedMVABJetTags", 0.813), # for same b-jet efficiency of CSVv2IVFT on ttbar MC, jet pt > 30
+
 }
 
 class Jet(PhysicsObject):   
+    def __init__(self, *args, **kwargs):
+        super(Jet, self).__init__(*args, **kwargs)
+        self._physObjInit()
+
+    def _physObjInit(self):
+        self._rawFactorMultiplier = 1.0
+        self._leadingTrack = None
+        self._leadingTrackSearched = False
+
     def jetID(self,name=""):
         if not self.isPFJet():
             raise RuntimeError, "jetID implemented only for PF Jets"
         eta = abs(self.eta());
-        chf = self.chargedHadronEnergyFraction();
-        nhf = self.neutralHadronEnergyFraction();
-        phf = self.neutralEmEnergyFraction();
-        muf = self.muonEnergyFraction();
-        elf = self.chargedEmEnergyFraction();
+        energy = (self.p4()*self.rawFactor()).energy();
+        chf = self.chargedHadronEnergy()/energy;
+        nhf = self.neutralHadronEnergy()/energy;
+        phf = self.neutralEmEnergy()/energy;
+        muf = self.muonEnergy()/energy;
+        elf = self.chargedEmEnergy()/energy;
         chm = self.chargedHadronMultiplicity();
         npr = self.chargedMultiplicity() + self.neutralMultiplicity();
         #if npr != self.nConstituents():
@@ -59,13 +76,13 @@ class Jet(PhysicsObject):
         '''PF Jet ID (loose operation point) [method provided for convenience only]'''
         return self.jetID("POG_PFID_Loose")
 
-    def puMva(self):
-        return self.userFloat("pileupJetId:fullDiscriminant")
+    def puMva(self, label="pileupJetId:fullDiscriminant"):
+        return self.userFloat(label)
 
-    def puJetId(self):
+    def puJetId(self, label="pileupJetId:fullDiscriminant"):
         '''Full mva PU jet id'''
 
-        puMva = self.puMva()
+        puMva = self.puMva(label)
         wp = loose_53X_WP
         eta = abs(self.eta())
         
@@ -75,7 +92,9 @@ class Jet(PhysicsObject):
             return puMva>cut
         
     def rawFactor(self):
-        return self.jecFactor('Uncorrected')
+        return self.jecFactor('Uncorrected') * self._rawFactorMultiplier
+    def setRawFactor(self, factor):
+        self._rawFactorMultiplier = factor/self.jecFactor('Uncorrected')
 
     def btag(self,name):
         return self.bDiscriminator(name) 
@@ -84,7 +103,22 @@ class Jet(PhysicsObject):
         global _btagWPs
         (disc,val) = _btagWPs[name]
         return self.bDiscriminator(disc) > val
-        
+
+    def leadingTrack(self):
+        if self._leadingTrackSearched :
+            return self._leadingTrack
+        self._leadingTrackSearched = True
+        self._leadingTrack =  max( self.daughterPtrVector() , key = lambda x : x.pt() if  x.charge()!=0 else 0. )
+        if self._leadingTrack.charge()==0: #in case of "all neutral"
+            self._leadingTrack = None
+        return self._leadingTrack
+
+    def leadTrackPt(self):
+        lt=self.leadingTrack()
+        if lt :
+             return lt.pt()
+        else :
+             return 0. 
 
 class GenJet( PhysicsObject):
     pass

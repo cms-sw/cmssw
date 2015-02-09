@@ -39,9 +39,13 @@ process.ecalGlobalUncalibRecHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncal
 # get uncalib rechits from multifit method / time from ratio
 import RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi
 process.ecalMultiFitUncalibRecHit =  RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi.ecalMultiFitUncalibRecHit.clone()
+process.ecalMultiFitUncalibRecHit.activeBXs = cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4)
+process.ecalMultiFitUncalibRecHit.useLumiInfoRunHeader = False
 # get uncalib rechits from multifit method / time from weights
 process.ecalMultiFit2UncalibRecHit =  RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi.ecalMultiFitUncalibRecHit.clone()
 process.ecalMultiFit2UncalibRecHit.timealgo = cms.string("WeightsMethod")
+process.ecalMultiFit2UncalibRecHit.activeBXs = cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4)
+process.ecalMultiFit2UncalibRecHit.useLumiInfoRunHeader = False
 
 # get the recovered digis
 if isMC:
@@ -75,7 +79,7 @@ process.ecalRecHitMultiFit2.EBrechitCollection = 'EcalRecHitsMultiFit2EB'
 process.ecalRecHitMultiFit2.EErechitCollection = 'EcalRecHitsMultiFit2EE'
 
 process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(1000) )
-path = '/store/group/comm_ecal/localreco/cmssw_720p4/photongun_pu25_ave40/'
+path = '/store/group/dpg_ecal/comm_ecal/localreco/cmssw_720p4/photongun_pu25_ave40/'
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(path+'photongun_pu25_ave40_lsfext2_990.root',

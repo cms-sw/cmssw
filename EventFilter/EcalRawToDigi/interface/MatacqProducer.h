@@ -17,10 +17,12 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "EventFilter/EcalRawToDigi/interface/MatacqRawEvent.h"
 #include "EventFilter/EcalRawToDigi/src/MatacqDataFormatter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include <string>
 #include <inttypes.h>
@@ -233,10 +235,16 @@ private:
    */
   bool produceRaw_;
 
-  /** Name of raw data collection the Matacq data must be merge to
+  /** Name of the raw data collection the Matacq data must be merge to
    * if merging is enabled.
    */
   edm::InputTag inputRawCollection_;
+
+
+  /** EDM token to access the raw data collection the Matacq data must be merge to
+   * if merging is enabled.
+   */
+  edm::EDGetTokenT<FEDRawDataCollection> inputRawCollectionToken_;
 
   /** Switch for merging Matacq raw data with existing raw data
    * collection.

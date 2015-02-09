@@ -575,6 +575,7 @@ void BeamMonitor::analyze(const Event& iEvent,
     for(int n=0; n < tmphisto->GetNbinsX(); n++)
       cutFlowTable->setBinLabel(n+1,tmphisto->GetXaxis()->GetBinLabel(n+1),1);
   cutFlowTable = dbe_->book1D(cutFlowTableName, tmphisto);
+  delete tmphisto;
 
   //----Reco tracks -------------------------------------
   Handle<reco::TrackCollection> TrackCollection;
@@ -952,6 +953,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       h_PVz[1]->update();
       h_PVz[1] = dbe_->book1D(tmpfile,h_PVz[0]->getTH1F());
       h_PVz[1]->getTH1()->Fit(fgaus.get(),"QLM");
+      delete tmphisto;
 
     }//check if found min Vertices
   }//do PVfit

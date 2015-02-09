@@ -200,10 +200,17 @@ void  RPCEfficiencySecond::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 	int sector = rpcId.sector();
 	int station = rpcId.station();
 	int geolayer = rpcId.layer();
+
+	RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); 
+	std::string folder = folderPath + "MuonSegEff/" + folderStr->folderStructure(rpcId);
+
+
 	if(region==0){//Barrel
 	  std::stringstream meIdRPC, meIdDT; //, bxDistroId;
-	  meIdRPC<<folderPath<<"MuonSegEff/RPCDataOccupancyFromDT_"<<rpcId.rawId();
-	  meIdDT<<folderPath<<"MuonSegEff/ExpectedOccupancyFromDT_"<<rpcId.rawId();
+
+
+	  meIdRPC<<folder<<"/RPCDataOccupancyFromDT_"<<rpcId.rawId();
+	  meIdDT<<folder<<"/ExpectedOccupancyFromDT_"<<rpcId.rawId();
 	  histoRPC = igetter.get(meIdRPC.str());
 	  histoDT = igetter.get(meIdDT.str());
 	  int NumberWithOutPrediction=0;
@@ -229,7 +236,7 @@ void  RPCEfficiencySecond::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 	      }else{
 		NumberWithOutPrediction++;
 	      }
-	      LogDebug("rpcefficiencysecond")<<"Strip="<<i<<" RPC="<<histoRPC->getBinContent(i)<<" DT="<<histoDT->getBinContent(i)<<" buffef="<<buffef<<" buffer="<<buffer<<" sumbuffef="<<sumbuffef<<" sumbuffer="<<sumbuffer<<" NumberStripsPointed="<<NumberStripsPointed<<" NumberWithOutPrediction"<<NumberWithOutPrediction;
+	      LogDebug("rpcefficiencysecond")<<"Strip="<<i<<" RPC="<<histoRPC->getBinContent(i)<<" DT="<<histoDT->getBinContent(i)<<" buffef="<<buffef<<" sumbuffef="<<sumbuffef<<" NumberStripsPointed="<<NumberStripsPointed<<" NumberWithOutPrediction"<<NumberWithOutPrediction;
 	    }
 	    p=histoDT->getTH1F()->Integral();
 	    o=histoRPC->getTH1F()->Integral();
@@ -271,12 +278,11 @@ void  RPCEfficiencySecond::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 	}else{//EndCap
 	  std::stringstream meIdRPC,meIdCSC; //, bxDistroId;
 	  std::string meIdPRO;
-	  meIdRPC<<folderPath<<"MuonSegEff/RPCDataOccupancyFromCSC_"<<rpcId.rawId();
-	  meIdCSC<<folderPath<<"MuonSegEff/ExpectedOccupancyFromCSC_"<<rpcId.rawId();
-	  meIdPRO = "Profile_"+ rpcsrv.name();
+	  meIdRPC<<folder<<"/RPCDataOccupancyFromCSC_"<<rpcId.rawId();
+	  meIdCSC<<folder<<"/ExpectedOccupancyFromCSC_"<<rpcId.rawId();
 	  histoRPC= igetter.get(meIdRPC.str());
 	  histoCSC= igetter.get(meIdCSC.str());
-	  //BXDistribution = dbe->get(bxDistroId.str());
+	  
 	  int NumberWithOutPrediction=0;
 	  double p = 0;
 	  double o = 0;
@@ -294,9 +300,7 @@ void  RPCEfficiencySecond::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 	      if(histoCSC->getBinContent(i)!=0){
 		LogDebug("rpcefficiencysecond")<<"Inside the If";
 		buffef = double(histoRPC->getBinContent(i))/double(histoCSC->getBinContent(i));
-		// meMap[meIdPRO]->setBinContent(i,buffef);
 		buffer = sqrt(buffef*(1.-buffef)/double(histoCSC->getBinContent(i)));
-		// meMap[meIdPRO]->setBinError(i,buffer);
 		sumbuffef=sumbuffef+buffef;
 		sumbuffer = sumbuffer + buffer*buffer;
 		NumberStripsPointed++;
@@ -349,8 +353,11 @@ void  RPCEfficiencySecond::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 	    EffGlobD[dIndex]->setBinLabel(indexDisk[dIndex],camera,1);
 	  }
 	}
+	delete folderStr;
       }
     }
+  
+
   }
   double eff,N,err;
   int k;
@@ -381,6 +388,7 @@ void  RPCEfficiencySecond::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
     EffGlobD[d]->setAxisRange(-4.,100.,2);
     EffGlobD[d]->setAxisTitle("%",2);
   }
+
 
 }
 

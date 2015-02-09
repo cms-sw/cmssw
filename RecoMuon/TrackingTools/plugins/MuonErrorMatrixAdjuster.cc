@@ -139,6 +139,7 @@ bool MuonErrorMatrixAdjuster::attachRecHits(const reco::Track & recotrack_orig,
 				       TrackingRecHitCollection& RHcol){
   //loop over the hits of the original track
   trackingRecHit_iterator recHit = recotrack_orig.recHitsBegin();
+  auto const firstHitIndex = theRHi;
   for (; recHit!=recotrack_orig.recHitsEnd();++recHit){
     //clone it. this is meandatory
     TrackingRecHit * hit = (*recHit)->clone();
@@ -147,10 +148,11 @@ bool MuonErrorMatrixAdjuster::attachRecHits(const reco::Track & recotrack_orig,
     recotrack.appendHitPattern(*hit);
     //copy them in the new collection
     RHcol.push_back(hit);
-    //do something with the trackextra 
-    trackextra.add(TrackingRecHitRef( theRefprodRH, theRHi++));
+    ++theRHi;
 
   }//loop over original rechits
+  //do something with the trackextra 
+  trackextra.setHits(theRefprodRH, firstHitIndex, theRHi-firstHitIndex);
   
   return true; //if nothing fails
 }

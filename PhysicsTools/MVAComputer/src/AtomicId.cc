@@ -23,13 +23,11 @@ namespace { // anonymous
 	    private:
 		typedef std::multiset<const char *, StringLess> IdSet;
 
-		IdSet				idSet;
-		static std::allocator<char>	stringAllocator;
-		mutable std::mutex		mutex;
+		IdSet			idSet;
+		std::allocator<char>	stringAllocator;
+                std::mutex	        mutex;
 	};
 } // anonymous namespace
-
-std::allocator<char> IdCache::stringAllocator;
 
 IdCache::~IdCache()
 {

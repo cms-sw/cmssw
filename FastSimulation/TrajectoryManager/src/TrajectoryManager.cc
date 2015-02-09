@@ -64,12 +64,10 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   use_hardcoded = matEff.getParameter<bool>("use_hardcoded_geometry");
 
   // Initialize Bthe stable particle decay engine 
-  if ( decays.getParameter<bool>("ActivateDecays") && ( decays.getParameter<std::string>("Decayer") == "pythia6" || decays.getParameter<std::string>("Decayer") == "pythia8" ) ) { 
-    decayer = decays.getParameter<std::string>("Decayer");
-    myDecayEngine = new PythiaDecays(decayer);
+  if ( decays.getParameter<bool>("ActivateDecays")) { 
+    myDecayEngine = new PythiaDecays();
     distCut = decays.getParameter<double>("DistCut");
-  } else if (! ( decays.getParameter<std::string>("Decayer") == "pythia6" || decays.getParameter<std::string>("Decayer") == "pythia8" ) )
-    std::cout << "No valid decayer has been selected! No decay performed..." << std::endl;
+  }
   // Initialize the Material Effects updator, if needed
   if ( matEff.getParameter<bool>("PairProduction") || 
        matEff.getParameter<bool>("Bremsstrahlung") ||
@@ -494,8 +492,7 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi, Random
     if ( !myDecayEngine ) return;
 
     // Invoke PYDECY (Pythia6) or Pythia8 to decay the particle and get the daughters
-    const DaughterParticleList& daughters = (decayer == "pythia6") ? myDecayEngine->particleDaughtersPy6(PP, &random->theEngine()) :
-                                                                     myDecayEngine->particleDaughtersPy8(PP, &random->theEngine());
+    const DaughterParticleList& daughters =  myDecayEngine->particleDaughters(PP, &random->theEngine());
 
     // Update the FSimEvent with an end vertex and with the daughters
     if ( daughters.size() ) { 
@@ -596,7 +593,7 @@ TrajectoryManager::makeTrajectoryState( const DetLayer* layer,
 {
   GlobalPoint  pos( pp.X(), pp.Y(), pp.Z());
   GlobalVector mom( pp.Px(), pp.Py(), pp.Pz());
-  ReferenceCountingPointer<TangentPlane> plane = layer->surface().tangentPlane(pos);
+  auto plane = layer->surface().tangentPlane(pos);
   return TrajectoryStateOnSurface
     (GlobalTrajectoryParameters( pos, mom, TrackCharge( pp.charge()), field), *plane);
 }

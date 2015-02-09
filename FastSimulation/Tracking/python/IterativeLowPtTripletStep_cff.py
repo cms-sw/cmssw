@@ -5,7 +5,9 @@ import FWCore.ParameterSet.Config as cms
 # seeding
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeLowPtTripletSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeLowPtTripletSeeds.skipSimTrackIdTags = [cms.InputTag("initialStepIds")]
+iterativeLowPtTripletSeeds.skipSimTrackIdTags = [
+    cms.InputTag("initialStepIds"),
+    cms.InputTag("detachedTripletStepIds")]
 iterativeLowPtTripletSeeds.outputSeedCollectionName = 'LowPtPixelTriplets'
 iterativeLowPtTripletSeeds.minRecHits = 3
 iterativeLowPtTripletSeeds.pTMin = 0.25
@@ -42,7 +44,7 @@ iterativeLowPtTripletTracksWithTriplets.src = 'iterativeLowPtTripletTrackCandida
 iterativeLowPtTripletTracksWithTriplets.TTRHBuilder = 'WithoutRefit'
 iterativeLowPtTripletTracksWithTriplets.Fitter = 'KFFittingSmootherSecond'
 iterativeLowPtTripletTracksWithTriplets.Propagator = 'PropagatorWithMaterial'
-iterativeLowPtTripletTracksWithTriplets.trackAlgo = cms.untracked.uint32(5) # lowPtTripletStep
+iterativeLowPtTripletTracksWithTriplets.AlgorithmName = cms.string('lowPtTripletStep')
 
 
 # simtrack id producer

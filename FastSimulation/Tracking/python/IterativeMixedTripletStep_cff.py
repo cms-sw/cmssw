@@ -6,7 +6,11 @@ import FWCore.ParameterSet.Config as cms
 #from FastSimulation.Tracking.IterativeMixedTripletStepSeedProducer_cff import *
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeMixedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeMixedTripletStepSeeds.skipSimTrackIdTags = [cms.InputTag("initialStepIds"), cms.InputTag("lowPtTripletStepIds"), cms.InputTag("pixelPairStepIds"), cms.InputTag("detachedTripletStepIds")]
+iterativeMixedTripletStepSeeds.skipSimTrackIdTags = [
+    cms.InputTag("initialStepIds"), 
+    cms.InputTag("detachedTripletStepIds"), 
+    cms.InputTag("lowPtTripletStepIds"), 
+    cms.InputTag("pixelPairStepIds")]
 iterativeMixedTripletStepSeeds.outputSeedCollectionName = 'MixedTriplets'
 iterativeMixedTripletStepSeeds.minRecHits = 3
 iterativeMixedTripletStepSeeds.pTMin = 0.15
@@ -45,7 +49,7 @@ iterativeMixedTripletStepTracks.TTRHBuilder = 'WithoutRefit'
 ##iterativeMixedTripletStepTracks.Fitter = 'KFFittingSmootherWithOutlierRejection'
 iterativeMixedTripletStepTracks.Fitter = 'KFFittingSmootherThird'
 iterativeMixedTripletStepTracks.Propagator = 'PropagatorWithMaterial'
-iterativeMixedTripletStepTracks.trackAlgo = cms.untracked.uint32(8)
+iterativeMixedTripletStepTracks.AlgorithmName = cms.string('mixedTripletStep')
 
 # simtrack id producer
 mixedTripletStepIds = cms.EDProducer("SimTrackIdProducer",

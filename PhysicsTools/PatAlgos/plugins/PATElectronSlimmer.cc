@@ -2,6 +2,7 @@
   \class    pat::PATElectronSlimmer PATElectronSlimmer.h "PhysicsTools/PatAlgos/interface/PATElectronSlimmer.h"
   \brief    Slimmer of PAT Electrons 
 */
+
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
@@ -93,6 +94,7 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
     auto_ptr<vector<pat::Electron> >  out(new vector<pat::Electron>());
     out->reserve(src->size());
 
+    std::vector<unsigned int> keys;
     for (View<pat::Electron>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         out->push_back(*it);
         pat::Electron & electron = out->back();
@@ -110,19 +112,19 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
         if (dropExtrapolations_(electron)) { electron.setTrackExtrapolations(reco::GsfElectron::TrackExtrapolations());  }
         if (dropClassifications_(electron)) { electron.setClassificationVariables(reco::GsfElectron::ClassificationVariables()); electron.setClassification(reco::GsfElectron::Classification()); }
         if (linkToPackedPF_) {
-            electron.setPackedPFCandidateCollection(edm::RefProd<pat::PackedCandidateCollection>(pc));
             //std::cout << " PAT  electron in  " << src.id() << " comes from " << electron.refToOrig_.id() << ", " << electron.refToOrig_.key() << std::endl;
-            edm::RefVector<pat::PackedCandidateCollection> origs;
-            for (const reco::PFCandidateRef & pf : (*reco2pf)[electron.refToOrig_]) {
-                if (pf2pc->contains(pf.id())) {
-                    origs.push_back((*pf2pc)[pf]);
-                } //else std::cerr << " Electron linked to a PFCand in " << pf.id() << " while we expect them in " << pf2pc->ids().front().first << "\n";
+            keys.clear();
+            for(auto const& pf: (*reco2pf)[electron.refToOrig_]) {
+              if( pf2pc->contains(pf.id()) ) {
+                keys.push_back( (*pf2pc)[pf].key());
+              }
             }
-            //std::cout << "Electron with pt " << electron.pt() << " associated to " << origs.size() << " PF Candidates\n";
-            electron.setAssociatedPackedPFCandidates(origs);
+            electron.setAssociatedPackedPFCandidates(edm::RefProd<pat::PackedCandidateCollection>(pc),
+                                                     keys.begin(), keys.end());
+            //std::cout << "Electron with pt " << electron.pt() << " associated to " << electron.associatedPackedFCandidateIndices_.size() << " PF Candidates\n";
             //if there's just one PF Cand then it's me, otherwise I have no univoque parent so my ref will be null 
-            if (origs.size() == 1) {
-                electron.refToOrig_ = refToPtr(origs[0]);
+            if (keys.size() == 1) {
+                electron.refToOrig_ = electron.sourceCandidatePtr(0);
             } else {
                 electron.refToOrig_ = reco::CandidatePtr(pc.id());
             }

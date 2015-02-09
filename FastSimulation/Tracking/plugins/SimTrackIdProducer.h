@@ -1,7 +1,7 @@
 #ifndef FastSimulation_Tracking_SimTrackIdProducer_h
 #define FastSimulation_Tracking_SimTrackIdProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -16,7 +16,7 @@ namespace edm {
   class EventSetup;
 }
 
-class SimTrackIdProducer : public edm::EDProducer
+class SimTrackIdProducer : public edm::stream::EDProducer <>
  {
    public:
 

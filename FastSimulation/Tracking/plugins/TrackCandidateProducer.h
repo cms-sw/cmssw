@@ -1,7 +1,7 @@
 #ifndef FastSimulation_Tracking_TrackCandidateProducer_h
 #define FastSimulation_Tracking_TrackCandidateProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -33,7 +33,7 @@ class TrackingRecHit;
 
 #include <vector>
 
-class TrackCandidateProducer : public edm::EDProducer
+class TrackCandidateProducer : public edm::stream::EDProducer <>
 {
  public:
   

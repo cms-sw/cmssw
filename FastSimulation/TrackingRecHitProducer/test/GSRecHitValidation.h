@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -34,7 +34,7 @@
 class TH1F;
 class TrackerTopology;
 
-class GSRecHitValidation : public edm::EDAnalyzer {
+class GSRecHitValidation : public edm::stream::EDAnalyzer <> {
 
   
  public:

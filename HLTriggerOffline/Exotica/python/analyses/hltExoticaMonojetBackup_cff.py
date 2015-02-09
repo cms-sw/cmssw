@@ -8,8 +8,8 @@ MonojetBackupPSet = cms.PSet(
         #"HLT_PFCenJet140_PFMETNoMu100_PFMHTNoMu140_v",
         #"HLT_PFCenJet140_PFMETNoMu140_PFMHTNoMu140_v",
         #"HLT_PFCenJet150_PFMETNoMu150_PFMHTNoMu150_v",
-        "HLT_CaloJet500_NoID_v",
-        "HLT_CaloJet500_NoJetID_v",
+        #"HLT_CaloJet500_NoID_v",
+        "HLT_CaloJet500_NoJetID_v"
         #"HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v" # Run1
         ),
     recPFJetLabel    = cms.InputTag("ak4PFJets"),

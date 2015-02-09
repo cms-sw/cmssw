@@ -9,7 +9,8 @@ from os.path import exists, basename, join
 from os import getenv
 from datetime import datetime
 from hashlib import sha1
-import urllib2, base64, json
+import urllib2, base64, json, re
+from socket import gethostname
 
 # This is used to report results of the runTheMatrix to the elasticsearch
 # instance used for IBs. This way we can track progress even if the logs are
@@ -26,8 +27,46 @@ def esReportWorkflow(**kwds):
   if "_201" in kwds["release"]:
     datepart = "201" + kwds["release"].split("_201")[1]
     d = datetime.strptime(datepart, "%Y-%m-%d-%H00")
-    payload["release_queque"] = kwds["release"].split("_201")[0]
+    payload["release_queue"] = kwds["release"].split("_201")[0]
   payload["release_date"] = d.strftime("%Y-%m-%d-%H00")
+  # Parse log file to look for exceptions, errors and warnings.
+  logFile = payload.pop("log_file", "")
+  exception = ""
+  error = ""
+  errors = []
+  inException = False
+  inError = False
+  if exists(logFile):
+    lines = file(logFile).read()
+    for l in lines.split("\n"):
+      if l.startswith("----- Begin Fatal Exception"):
+        inException = True
+        continue
+      if l.startswith("----- End Fatal Exception"):
+        inException = False
+        continue
+      if l.startswith("%MSG-e"):
+        inError = True
+        error = l
+        error_kind = re.split(" [0-9a-zA-Z-]* [0-9:]{8} CET", error)[0].replace("%MSG-e ", "")
+        continue
+      if inError == True and l.startswith("%MSG"):
+        inError = False
+        errors.append({"error": error, "kind": error_kind})
+        error = ""
+        error_kind = ""
+        continue
+      if inException:
+        exception += l + "\n"
+      if inError:
+        error += l + "\n"
+
+  if exception:
+    payload["exception"] = exception
+  if errors:
+    payload["errors"] = errors
+      
+  payload["hostname"] = gethostname()
   url = "https://%s/ib-matrix.%s/runTheMatrix-data/%s" % (es_hostname,
                                                           d.strftime("%Y.%m"),
                                                           sha1_id)
@@ -41,6 +80,10 @@ def esReportWorkflow(**kwds):
     result = urllib2.urlopen(request, data=data)
   except urllib2.HTTPError, e:
     print e
+    try:
+      print result.read()
+    except:
+      pass
 
 class WorkFlowRunner(Thread):
     def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True,dasOptions="",jobReport=False):
@@ -185,6 +228,7 @@ class WorkFlowRunner(Thread):
                 if self.jobReport:
                   cmd += ' --suffix "-j JobReport%s.xml " ' % istep
                 cmd+=closeCmd(istep,self.wf.nameId)            
+                
                 esReportWorkflow(workflow=self.wf.nameId,
                                  release=getenv("CMSSW_VERSION"),
                                  architecture=getenv("SCRAM_ARCH"),
@@ -229,7 +273,8 @@ class WorkFlowRunner(Thread):
                              start_time=realstarttime.isoformat(),
                              end_time=datetime.now().isoformat(),
                              delta_time=(datetime.now() - realstarttime).seconds,
-                             workflow_id=self.wf.numId)
+                             workflow_id=self.wf.numId,
+                             log_file="%s/step%d_%s.log" % (self.wfDir, istep, self.wf.nameId))
 
         os.chdir(startDir)
 

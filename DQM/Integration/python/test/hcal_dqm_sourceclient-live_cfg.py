@@ -269,7 +269,7 @@ process.qTester = cms.EDAnalyzer("QualityTester",
 
 process.p = cms.Path(process.hcalDigis
                      *process.valHcalTriggerPrimitiveDigis
-                     *process.gtEvmDigis#to unpack l1gtEvm
+                     #*process.gtEvmDigis#to unpack l1gtEvm
                      *process.l1GtUnpack
                      *process.horeco
                      *process.hfreco
@@ -342,3 +342,8 @@ if (HEAVYION):
     process.hcalRawDataMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
     process.hcalDigiMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
     process.zdcMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
+
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

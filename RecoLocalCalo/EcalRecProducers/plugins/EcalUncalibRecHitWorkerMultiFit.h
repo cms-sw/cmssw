@@ -25,6 +25,9 @@
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
+#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
 
 namespace edm {
@@ -46,14 +49,15 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
 
         protected:
 
-                edm::ParameterSet EcalPulseShapeParameters_;
-
                 double pedVec[3];
 		double pedRMSVec[3];
                 double gainRatios[3];
 
                 edm::ESHandle<EcalPedestals> peds;
                 edm::ESHandle<EcalGainRatios>  gains;
+                edm::ESHandle<EcalSamplesCorrelation> noisecovariances;
+                edm::ESHandle<EcalPulseShapes> pulseshapes;
+                edm::ESHandle<EcalPulseCovariances> pulsecovariances;
 
                 double timeCorrection(float ampli,
                     const std::vector<float>& amplitudeBins, const std::vector<float>& shiftBins);
@@ -90,6 +94,10 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 const EcalWeightSet::EcalWeightMatrix* weights[2];
                 EcalUncalibRecHitTimeWeightsAlgo<EBDataFrame> weightsMethod_barrel_;
                 EcalUncalibRecHitTimeWeightsAlgo<EEDataFrame> weightsMethod_endcap_;
+                bool doPrefitEB_;
+                bool doPrefitEE_;
+		double prefitMaxChiSqEB_;
+		double prefitMaxChiSqEE_;
 
                 // ratio method
                 std::vector<double> EBtimeFitParameters_; 
@@ -104,6 +112,19 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
 
                 double EBtimeConstantTerm_;
                 double EEtimeConstantTerm_;
+                double EBtimeNconst_;
+                double EEtimeNconst_;
+                double outOfTimeThreshG12pEB_;
+                double outOfTimeThreshG12mEB_;
+                double outOfTimeThreshG61pEB_;
+                double outOfTimeThreshG61mEB_;
+                double outOfTimeThreshG12pEE_;
+                double outOfTimeThreshG12mEE_;
+                double outOfTimeThreshG61pEE_;
+                double outOfTimeThreshG61mEE_;
+                double amplitudeThreshEB_;
+                double amplitudeThreshEE_;
+                double ebSpikeThresh_;
 
                 edm::ESHandle<EcalTimeBiasCorrections> timeCorrBias_;
 
@@ -122,9 +143,6 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 double chi2ThreshEB_;
                 double chi2ThreshEE_;
 
-
- private:
-                void fillInputs(const edm::ParameterSet& params);
 
 };
 

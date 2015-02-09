@@ -81,8 +81,8 @@ hbheprereco = cms.EDProducer(
                                   TS4TS5ChargeThreshold = cms.double(70),
                                   First = cms.int32(4),
                                   Last = cms.int32(6),
-                                  Threshold = cms.vdouble(100, 120, 160, 200, 300, 500),
-                                  Cut = cms.vdouble(-50, -100, -100, -100, -100, -100)),
+                                  Threshold = cms.vdouble(100, 120, 160, 200, 300, 500, 1.0e4),
+                                  Cut = cms.vdouble(-50, -100, -100, -100, -100, -100, -1.0e6)),
 
     # shaped cut parameters are triples of (energy, low time threshold, high time threshold) values.
     # The low and high thresholds must straddle zero (i.e., low<0, high>0); use win_offset to shift.
@@ -123,13 +123,13 @@ hbheprereco = cms.EDProducer(
     ts4Min                = cms.double(5.),   #fC
     ts4Max                = cms.double(500.),   #fC
     pulseJitter           = cms.double(1.),   #GeV/bin
-    meanTime              = cms.double(-2.5), #ns
+    meanTime              = cms.double(-5.5), #ns
     timeSigma             = cms.double(5.),  #ns
     meanPed               = cms.double(0.),   #GeV
     pedSigma              = cms.double(0.5),  #GeV
     noise                 = cms.double(1),    #fC
-    timeMin               = cms.double(-15),  #ns
-    timeMax               = cms.double( 10),  #ns
+    timeMin               = cms.double(-18),  #ns
+    timeMax               = cms.double( 7),  #ns
     ts3chi2               = cms.double(5.),   #chi2 (not used)
     ts4chi2               = cms.double(15.),  #chi2 for triple pulse 
     ts345chi2             = cms.double(100.), #chi2 (not used)

@@ -82,10 +82,10 @@ class TrackAssociatorByHits : public TrackAssociatorBase {
   
   int getShared(std::vector<SimHitIdpr>&, 
 		std::vector<SimHitIdpr>&,
-		TrackingParticleCollection::const_iterator) const;
+		TrackingParticle const& ) const;
 
   template<typename iter>
-  int getDoubleCount(iter,iter,TrackerHitAssociator*,TrackingParticleCollection::const_iterator) const;
+  int getDoubleCount(iter,iter,TrackerHitAssociator*,TrackingParticle const&) const;
 
  private:
   // ----- member data

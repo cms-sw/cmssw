@@ -4,7 +4,6 @@
  */
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -119,11 +118,6 @@ void L2MuonIsolationProducer::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<edm::ParameterSetDescription>("IsolatorPSet",isolatorPSet);
   desc.add<bool>("WriteIsolatorFloat",false);
   descriptions.add("hltL2MuonIsolations", desc);
-}
-
-///beginJob
-void L2MuonIsolationProducer::beginJob(){
-
 }
 
 /// build deposits

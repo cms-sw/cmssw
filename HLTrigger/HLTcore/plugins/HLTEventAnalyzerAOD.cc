@@ -53,6 +53,9 @@ HLTEventAnalyzerAOD::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 }
 
 void
+HLTEventAnalyzerAOD::endRun(edm::Run const & iRun, edm::EventSetup const& iSetup) {}
+
+void
 HLTEventAnalyzerAOD::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 {
   using namespace std;

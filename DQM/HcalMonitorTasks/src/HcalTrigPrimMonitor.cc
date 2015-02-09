@@ -170,7 +170,9 @@ void HcalTrigPrimMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& 
 } // void HcalTrigPrimMonitor::bookHistograms()
 
 void
-HcalTrigPrimMonitor::analyze (edm::Event const &e, edm::EventSetup const &s) {
+HcalTrigPrimMonitor::analyze (edm::Event const &e, edm::EventSetup const &s) 
+{
+   HcalBaseDQMonitor::analyze(e,s);
    if (!IsAllowedCalibType()) return;
    if (LumiInOrder(e.luminosityBlock())==false) return;
 
@@ -186,7 +188,7 @@ HcalTrigPrimMonitor::analyze (edm::Event const &e, edm::EventSetup const &s) {
       return;
    }
 
-   HcalBaseDQMonitor::analyze(e,s); // base class increments ievt_, etc. counters
+//   HcalBaseDQMonitor::analyze(e,s); // base class increments ievt_, etc. counters
    processEvent(data_tp_col, emul_tp_col);
 }
 
