@@ -50,7 +50,6 @@ private:
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
   edm::ParameterSet particleFilter_;
   std::vector<edm::InputTag> allTracks;
-  bool saveNU;
   std::vector<FSimEvent*> mySimEvent;
   std::string simModuleLabel_;
   // Histograms

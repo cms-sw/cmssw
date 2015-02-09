@@ -38,12 +38,6 @@ using namespace std;
 const int LaserSorter::ecalDccFedIdMin_ = 601;
 const int LaserSorter::ecalDccFedIdMax_ = 654;
 
-
-static const int laserTrigger = 4;
-static const int ledTrigger   = 5;
-static const int tpTrigger    = 6;
-static const int pedTrigger   = 7;
-
 const size_t LaserSorter::OutStreamRecord::indexReserve_ = 2000;
 
 static const struct timeval nullTime = {0, 0};
