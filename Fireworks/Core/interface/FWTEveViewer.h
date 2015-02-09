@@ -20,6 +20,9 @@
 
 // system include files
 
+#include <thread>
+
+
 // user include files
 
 #include "TEveViewer.h"
@@ -40,11 +43,16 @@ public:
 
    // ---------- static member functions --------------------
 
+   static bool SavePng(const TString& file, UChar_t* xx, int ww, int hh);
+   static bool SaveJpg(const TString& file, UChar_t* xx, int ww, int hh);
+
    // ---------- member functions ---------------------------
 
    FWTGLViewer* fwGlViewer() { return m_fwGlViewer; }
 
    FWTGLViewer* SpawnFWTGLViewer();
+
+   std::thread  CaptureAndSaveImage(const TString& file, int height=-1);
 
 private:
    FWTEveViewer(const FWTEveViewer&); // stop default

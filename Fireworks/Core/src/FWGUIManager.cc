@@ -915,6 +915,7 @@ FWGUIManager::exportAllViews(const std::string& format, int height)
       }
    }
 
+   std::vector<std::thread> workers;
    const edm::EventBase *event = getCurrentEvent();
    for (name_map_i i = vls.begin(); i != vls.end(); ++i)
    {
@@ -932,11 +933,20 @@ FWGUIManager::exportAllViews(const std::string& format, int height)
          file.Form(format.c_str(), event->id().run(), event->id().event(),
                    event->luminosityBlock(), view_name.Data());
 
-         if (height == -1)
-            (*j)->GetGLViewer()->SavePicture(file);
-         else 
-            (*j)->GetGLViewer()->SavePictureHeight(file, height);
+         // Multi-threaded save
+         workers.push_back((*j)->CaptureAndSaveImage(file, height));
+
+         // Single-threaded save
+         // if (height == -1)
+         //    (*j)->GetGLViewer()->SavePicture(file);
+         // else 
+         //    (*j)->GetGLViewer()->SavePictureHeight(file, height);
       }
+   }
+
+   for (auto &w : workers)
+   {
+      w.join();
    }
 }
 

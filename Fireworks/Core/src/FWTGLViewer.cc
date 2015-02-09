@@ -160,11 +160,11 @@ TGLFBO* FWTGLViewer::GenerateFbo(Int_t w, Int_t h, Float_t pixel_object_scale)
 
    if ( ! GLEW_EXT_framebuffer_object)
    {
-      Warning(eh, "Missing FBO support.");
+      ::Warning(eh, "Missing FBO support.");
    }
 
    if ( ! TakeLock(kDrawLock)) {
-      Error(eh, "viewer locked - try later.");
+      ::Error(eh, "viewer locked - try later.");
       return 0;
    }
 
@@ -179,7 +179,7 @@ TGLFBO* FWTGLViewer::GenerateFbo(Int_t w, Int_t h, Float_t pixel_object_scale)
    }
    catch (std::runtime_error& exc)
    {
-      Error(eh, "%s",exc.what());
+      ::Error(eh, "%s",exc.what());
       return 0;
    }
 
@@ -203,23 +203,6 @@ TGLFBO* FWTGLViewer::GenerateFbo(Int_t w, Int_t h, Float_t pixel_object_scale)
    fRnrCtx->SetGrabImage(kFALSE);
 
    fbo->Unbind();
-
-   /*
-   fbo->SetAsReadBuffer();
-
-   UChar_t* xx = new UChar_t[4 * fViewport.Width() * fViewport.Height()];
-   glPixelStorei(GL_PACK_ALIGNMENT, 1);
-   glReadPixels(0, 0, fViewport.Width(), fViewport.Height(),
-                GL_BGRA, GL_UNSIGNED_BYTE, xx);
-
-   std::auto_ptr<TImage> image(TImage::Create());
-   image->FromGLBuffer(xx, fViewport.Width(), fViewport.Height());
-   image->WriteImage(fileName);
-
-   delete [] xx;
-
-   delete fbo;
-   */
 
    if (pixel_object_scale != 0)
    {
