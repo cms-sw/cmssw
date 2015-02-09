@@ -30,7 +30,7 @@
 SimTrackIdProducer::SimTrackIdProducer(const edm::ParameterSet& conf)
 {
   //Main products
-  produces<std::vector<int> >(); 
+  produces<std::vector<unsigned int> >();
 
   // Input Tag
   edm::InputTag trackCollectionTag = conf.getParameter<edm::InputTag>("trackCollection"); 
@@ -43,7 +43,7 @@ void
 SimTrackIdProducer::produce(edm::Event& e, const edm::EventSetup& es)
 {     
   // The produced object
-  std::auto_ptr<std::vector<int> > SimTrackIds(new std::vector<int>());
+  std::auto_ptr<std::vector<unsigned int> > SimTrackIds(new std::vector<unsigned int>());
   
   // The input track collection handle
   edm::Handle<reco::TrackCollection> trackCollection;

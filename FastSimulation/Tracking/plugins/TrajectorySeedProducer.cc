@@ -69,7 +69,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     std::vector<edm::InputTag> skipSimTrackTags = simTrackSelectionConfig.getParameter<std::vector<edm::InputTag> >("skipSimTrackIdTags");
     for ( unsigned int k=0; k<skipSimTrackTags.size(); ++k)
     {
-        skipSimTrackIdTokens.push_back(consumes<std::vector<int> >(skipSimTrackTags[k]));
+        skipSimTrackIdTokens.push_back(consumes<std::vector<unsigned int> >(skipSimTrackTags[k]));
     }
     // The smallest number of hits for a track candidate
     simTrack_minLayersCrossed = simTrackSelectionConfig.getParameter<unsigned int>("minLayersCrossed");
@@ -347,15 +347,14 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     PTrajectoryStateOnDet initialState;
 
     // the tracks to be skipped
-    std::unordered_set<int> skipSimTrackIds;
+    std::unordered_set<unsigned int> skipSimTrackIds;
     for ( unsigned int i=0; i<skipSimTrackIdTokens.size(); ++i )
     {
-        edm::Handle<std::vector<int> > skipSimTrackIds_temp;
+        edm::Handle<std::vector<unsigned int> > skipSimTrackIds_temp;
         e.getByToken(skipSimTrackIdTokens[i],skipSimTrackIds_temp);
         for ( unsigned int j=0; j<skipSimTrackIds_temp->size(); ++j )
         {
-            int mySimTrackId = (*skipSimTrackIds_temp)[j];
-            skipSimTrackIds.insert(mySimTrackId);
+            skipSimTrackIds.insert((*skipSimTrackIds_temp)[j]);
         }
     }
 

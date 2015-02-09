@@ -70,7 +70,7 @@ class TrajectorySeedProducer:
         edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
         edm::EDGetTokenT<SiTrackerGSMatchedRecHit2DCollection> recHitToken;
         edm::EDGetTokenT<reco::VertexCollection> recoVertexToken;
-        std::vector<edm::EDGetTokenT<std::vector<int> > > skipSimTrackIdTokens;
+        std::vector<edm::EDGetTokenT<std::vector<unsigned int> > > skipSimTrackIdTokens;
 
     public:
 
