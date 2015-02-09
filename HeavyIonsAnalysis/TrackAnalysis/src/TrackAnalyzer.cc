@@ -847,14 +847,14 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
 	  if ((fabs(tmtr->dz(v1)/sqrt(tmtr->dzError()*tmtr->dzError()+pev_.zVtxErr[pev_.maxPtVtx]*pev_.zVtxErr[pev_.maxPtVtx])) < trackVtxMaxDistance_)&&
 	      (fabs( tmtr->dxy(v1)/sqrt(tmtr->dxyError()*tmtr->dxyError()+pev_.xVtxErr[pev_.maxPtVtx]*pev_.yVtxErr[pev_.maxPtVtx])) < trackVtxMaxDistance_)&&
 	      (tmtr->ptError()/tmtr->pt()<0.1)&&
-	      fabs(tmtr->ptError()/tmtr->eta() < 2.4)&&
+	      (fabs(tmtr->eta()) < 2.4) &&
 	      (tmtr->pt() > trackPtMin_)) nrec++;
 	}
 	else{
 	  if ((fabs(tmtr->dz(v2)/sqrt(tmtr->dzError()*tmtr->dzError()+pev_.zVtxErr[pev_.maxMultVtx]*pev_.zVtxErr[pev_.maxMultVtx])) < trackVtxMaxDistance_)&&
 	      (fabs( tmtr->dxy(v2)/sqrt(tmtr->dxyError()*tmtr->dxyError()+pev_.xVtxErr[pev_.maxMultVtx]*pev_.yVtxErr[pev_.maxMultVtx])) < trackVtxMaxDistance_)&&
 	      (tmtr->ptError()/tmtr->pt()<0.1)&&
-	      fabs(tmtr->ptError()/tmtr->eta() < 2.4)&&
+	      (fabs(tmtr->eta()) < 2.4)&&
 	      (tmtr->pt() > trackPtMin_)) nrec++;
 	}
       }
