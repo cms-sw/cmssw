@@ -68,17 +68,17 @@ public:
     XrdSiteStatistics &operator=(const XrdSiteStatistics&) = delete;
 
     std::string const &site() const {return m_site;}
-    std::map<std::string, std::string> const &fjrProperties() const {return m_props;}
 
-    void recomputeProperties();
+    // Note that, while this function is thread-safe, the numbers are only consistent if no other
+    // thread is reading data.
+    void recomputeProperties(std::map<std::string, std::string> &props);
 
     static std::shared_ptr<XrdReadStatistics> startRead(std::shared_ptr<XrdSiteStatistics> parent, std::shared_ptr<ClientRequest> req);
 
     void finishRead(XrdReadStatistics const &);
 
 private:
-    std::string m_site = "Unknown";
-    std::map<std::string, std::string> m_props;
+    const std::string m_site = "Unknown";
 
     std::atomic<unsigned> m_readvCount;
     std::atomic<unsigned> m_chunkCount;

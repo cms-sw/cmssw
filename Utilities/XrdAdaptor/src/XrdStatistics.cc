@@ -36,10 +36,11 @@ void XrdStatisticsService::postEndJob()
     XrdSiteStatisticsInformation *instance = XrdSiteStatisticsInformation::getInstance();
     if (!instance) {return;}
 
+    std::map<std::string, std::string> props;
     for (std::shared_ptr<XrdSiteStatistics> const &stats : instance->m_sites)
     {
-        stats->recomputeProperties();
-        reportSvc->reportPerformanceForModule(stats->site(), "XrdSiteStatistics", stats->fjrProperties());
+        stats->recomputeProperties(props);
+        reportSvc->reportPerformanceForModule(stats->site(), "XrdSiteStatistics", props);
     }
 }
 
@@ -127,18 +128,18 @@ d2str(double input)
 
 
 void
-XrdSiteStatistics::recomputeProperties()
+XrdSiteStatistics::recomputeProperties(std::map<std::string, std::string> &props)
 {
-    m_props.clear();
+    props.clear();
 
-    m_props["readv-numOperations"] = i2str(m_readvCount);
-    m_props["readv-numChunks"] = i2str(m_chunkCount);
-    m_props["readv-totalMegabytes"] = d2str(static_cast<float>(m_readvSize)/(1024.0*1024.0));
-    m_props["readv-totalMsecs"] = d2str(m_readvNS/1e6);
+    props["readv-numOperations"] = i2str(m_readvCount);
+    props["readv-numChunks"] = i2str(m_chunkCount);
+    props["readv-totalMegabytes"] = d2str(static_cast<float>(m_readvSize)/(1024.0*1024.0));
+    props["readv-totalMsecs"] = d2str(m_readvNS/1e6);
 
-    m_props["read-numOperations"] = i2str(m_readCount);
-    m_props["read-totalMegabytes"] = d2str(static_cast<float>(m_readSize)/(1024.0*1024.0));
-    m_props["read-totalMsecs"] = d2str(static_cast<float>(m_readNS)/1e6);
+    props["read-numOperations"] = i2str(m_readCount);
+    props["read-totalMegabytes"] = d2str(static_cast<float>(m_readSize)/(1024.0*1024.0));
+    props["read-totalMsecs"] = d2str(static_cast<float>(m_readNS)/1e6);
 }
 
 
