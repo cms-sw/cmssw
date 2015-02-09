@@ -314,8 +314,8 @@ process.castorMonitor.rawLabel = cms.InputTag("rawDataCollector")
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
 
-#####print "Running with run type = ", process.runType.getRunType()
+print "Running with run type = ", process.runType.getRunTypeName()
 
-#####if (process.runType.getRunType() == process.runType.hi_run):
-#####    process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
-#####    process.castorMonitor.rawLabel = cms.InputTag("rawDataRepacker")
+if (process.runType.getRunTypeName() == process.runType.hi_run):
+    process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.castorMonitor.rawLabel = cms.InputTag("rawDataRepacker")
