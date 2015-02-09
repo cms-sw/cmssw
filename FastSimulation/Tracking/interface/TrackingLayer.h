@@ -8,24 +8,30 @@
 
 class TrackingLayer
 {
-    private:
-        
     public:
-        struct hashfct
-        {
-            inline size_t operator()(const TrackingLayer &layerSpec) const 
-            {
-                return layerSpec.getSubDetNumber()*10000+layerSpec.getLayerNumber()*100+layerSpec.getSideNumber()+1;
-            }
-        };
-        struct eqfct
-        {
-            static const hashfct gethash;
-            inline bool operator()(const TrackingLayer &l1, const TrackingLayer &l2) const 
-            {
-                return l1.getSubDetNumber()==l2.getSubDetNumber() and l1.getLayerNumber()==l2.getLayerNumber() and l1.getSideNumber()==l2.getSideNumber();
-            }
-        };
+	struct hashfct
+	{
+	    hashfct() { };
+
+	    inline size_t operator()(const TrackingLayer &layerSpec) const
+	    {
+		return (layerSpec.getSubDetNumber() * 10000
+			+ layerSpec.getLayerNumber() * 100
+			+ layerSpec.getSideNumber() + 1);
+	    }
+	};
+
+	struct eqfct
+	{
+	    eqfct() { };
+
+	    inline bool operator()(const TrackingLayer &l1, const TrackingLayer &l2) const
+	    {
+		return (l1.getSubDetNumber() == l2.getSubDetNumber()
+			&& l1.getLayerNumber() == l2.getLayerNumber()
+			&& l1.getSideNumber() == l2.getSideNumber());
+	    }
+	};
         
         enum class Det { 
             UNKNOWN, 
