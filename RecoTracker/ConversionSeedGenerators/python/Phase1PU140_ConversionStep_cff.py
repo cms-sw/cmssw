@@ -40,7 +40,6 @@ import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 convCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     trajectoryFilter = cms.PSet(refToPSet_ = cms.string('convCkfTrajectoryFilter')),
     minNrOfHitsForRebuild = 3,
-    clustersToSkip = cms.InputTag('convClusters'),
     maxCand = 2
     )
 
