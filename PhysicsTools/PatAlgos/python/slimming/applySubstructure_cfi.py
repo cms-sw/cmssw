@@ -144,7 +144,7 @@ def applySubstructure( process ) :
 
     process.packedPatJetsAK8 = cms.EDProducer("JetSubstructurePacker",
             jetSrc = cms.InputTag("selectedPatJetsAK8"),
-            distMin = cms.double(0.8),
+            distMax = cms.double(0.8),
             algoTags = cms.VInputTag(
                 cms.InputTag("slimmedJetsCMSTopTagCHSPacked"),
                 cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked"),
