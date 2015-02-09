@@ -2,7 +2,6 @@
 
 const TrackingLayer::eqfct TrackingLayer::_eqfct;
 const TrackingLayer::hashfct TrackingLayer::_hashfct;
-const TrackingLayer::hashfct TrackingLayer::eqfct::gethash;
 
 TrackingLayer::TrackingLayer():
     _subDet(Det::UNKNOWN),
