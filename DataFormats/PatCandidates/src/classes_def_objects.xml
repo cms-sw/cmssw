@@ -132,7 +132,7 @@
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
 
-  <class name="pat::Jet"  ClassVersion="16">
+  <class name="pat::Jet"  ClassVersion="15">
    <version ClassVersion="15" checksum="727883729"/>
    <version ClassVersion="14" checksum="1304049301"/>
    <version ClassVersion="13" checksum="130552029"/>
