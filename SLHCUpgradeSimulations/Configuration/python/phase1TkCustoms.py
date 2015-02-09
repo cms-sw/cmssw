@@ -70,7 +70,7 @@ def customise_Digi(process):
 def customise_DQM(process,pileup):
     # We cut down the number of iterative tracking steps
     process.dqmoffline_step.remove(process.muonAnalyzer)
-    process.dqmoffline_step.remove(process.jetMETAnalyzer)
+    #process.dqmoffline_step.remove(process.jetMETAnalyzer)
 
     #put isUpgrade flag==true
     process.SiPixelRawDataErrorSource.isUpgrade = cms.untracked.bool(True)
@@ -172,7 +172,7 @@ def customise_Reco(process,pileup):
     process.MeasurementTracker.inactivePixelDetectorLabels = cms.VInputTag()
 
     # new layer list (3/4 pixel seeding) in InitialStep and pixelTracks
-    process.pixellayertriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
+    process.PixelLayerTriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
                                                         'BPix2+BPix3+BPix4',
                                                         'BPix1+BPix3+BPix4',
                                                         'BPix1+BPix2+BPix4',
@@ -199,6 +199,45 @@ def customise_Reco(process,pileup):
     process.globalreco.remove(process.iterTracking)
     process.globalreco.remove(process.electronSeedsSeq)
     process.reconstruction_fromRECO.remove(process.trackingGlobalReco)
+    process.reconstruction_fromRECO.remove(process.electronSeedsSeq)
+    process.reconstruction_fromRECO.remove(process.initialStepSeeds)
+    process.reconstruction_fromRECO.remove(process.initialStepSelector)
+    process.reconstruction_fromRECO.remove(initialStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(initialStepTracks)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepClusters)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepSeedLayers)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepSeeds)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepSelector)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepTracks)
+
+    process.reconstruction_fromRECO.remove(mixedTripletStep)
+    process.reconstruction_fromRECO.remove(mixedTripletStepClusters)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSeedLayersA)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSeedLayersB)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSeeds)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSeedsA)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSeedsB)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSelector)
+    process.reconstruction_fromRECO.remove(mixedTripletStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(mixedTripletStepTracks)
+
+    process.reconstruction_fromRECO.remove(pixelPairStepClusters)
+    process.reconstruction_fromRECO.remove(pixelPairStepSeeds)
+    process.reconstruction_fromRECO.remove(pixelPairStepSeedLayers)
+    process.reconstruction_fromRECO.remove(pixelPairStepSelector)
+    process.reconstruction_fromRECO.remove(pixelPairStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(pixelPairStepTracks)
+    
+    process.reconstruction_fromRECO.remove(tobTecStepClusters)
+    process.reconstruction_fromRECO.remove(tobTecStepSeeds)
+    #process.reconstruction_fromRECO.remove(tobTecStepSeedLayers)
+    process.reconstruction_fromRECO.remove(tobTecStepSelector)
+    process.reconstruction_fromRECO.remove(tobTecStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(tobTecStepTracks)
+    
+    process.InitialStepPreSplitting.remove(siPixelClusters)
+    
     del process.iterTracking
     del process.ckftracks
     del process.ckftracks_woBH
@@ -227,15 +266,15 @@ def customise_Reco(process,pileup):
 
     process.reconstruction.remove(process.castorreco)
     process.reconstruction.remove(process.CastorTowerReco)
-    process.reconstruction.remove(process.ak7BasicJets)
-    process.reconstruction.remove(process.ak7CastorJetID)
+    #process.reconstruction.remove(process.ak7BasicJets)
+    #process.reconstruction.remove(process.ak7CastorJetID)
 
     #the quadruplet merger configuration     
     process.load("RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff")
-    process.pixelseedmergerlayers.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.pixelseedmergerlayers.BPix.HitProducer = cms.string("siPixelRecHits" )
-    process.pixelseedmergerlayers.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.pixelseedmergerlayers.FPix.HitProducer = cms.string("siPixelRecHits" )    
+    process.PixelSeedMergerQuadruplets.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+    process.PixelSeedMergerQuadruplets.BPix.HitProducer = cms.string("siPixelRecHits" )
+    process.PixelSeedMergerQuadruplets.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+    process.PixelSeedMergerQuadruplets.FPix.HitProducer = cms.string("siPixelRecHits" )    
     
     # Need these until pixel templates are used
     process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
