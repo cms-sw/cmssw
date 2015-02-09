@@ -67,9 +67,10 @@ namespace edm {
     value_type const operator[](size_type idx) const {
       RefCore const& core = refVector_.refCore();
       key_type const& key = refVector_.keys()[idx];
-      if(!refVector_.members().empty() && refVector_.members()[idx] != nullptr) {
+      void const* memberPointer = refVector_.cachedMemberPointer(idx);
+      if(memberPointer) {
         RefCore newCore(core);
-        newCore.setProductPtr(refVector_.members()[idx]);
+        newCore.setProductPtr(memberPointer);
         return value_type(newCore, key);
       }
       return value_type(core, key);
@@ -78,10 +79,11 @@ namespace edm {
     /// Retrieve an element of the RefVector
     value_type const at(size_type idx) const {
       RefCore const& core = refVector_.refCore();
-      key_type const& key = refVector_.keys()[idx];
-      if(!refVector_.members().empty() && refVector_.members().at(idx) != nullptr) {
+      key_type const& key = refVector_.keys().at(idx);
+      void const* memberPointer = refVector_.cachedMemberPointer(idx);
+      if(memberPointer) {
         RefCore newCore(core);
-        newCore.setProductPtr(refVector_.members().at(idx));
+        newCore.setProductPtr(memberPointer);
         return value_type(newCore, key);
       }
       return value_type(core, key);

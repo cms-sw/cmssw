@@ -49,15 +49,17 @@
  <class name="edm::reftobase::RefHolderBase" ClassVersion="10">
   <version ClassVersion="10" checksum="133255391"/>
  </class>
- <class name="edm::RefVectorBase<unsigned int>">
-   <field name="members_" transient="true"/>
+ <class name="edm::RefVectorMemberPointersHolder" ClassVersion="2">
+   <version ClassVersion="2" checksum="3080604260"/>
+   <field name="memberPointers_" transient="true"/>
  </class>
- <class name="edm::RefVectorBase<unsigned long>">
-   <field name="members_" transient="true"/>
- </class>
- <class name="edm::RefVectorBase<int>">
-   <field name="members_" transient="true"/>
- </class>
+ <ioread sourceClass = "edm::RefVectorMemberPointersHolder" version="[1-]" targetClass="edm::RefVectorMemberPointersHolder" source = "" target="memberPointers_">
+    <![CDATA[memberPointers_.clear();
+    ]]>
+ </ioread>
+ <class name="edm::RefVectorBase<unsigned int>"/>
+ <class name="edm::RefVectorBase<unsigned long>"/>
+ <class name="edm::RefVectorBase<int>"/>
  <class name="edm::Ref<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> >"/>
  <class name="edm::RefVector<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> >"/>
  <class name="edm::RefToBaseVector<int>"/>
