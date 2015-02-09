@@ -1,5 +1,5 @@
-#ifndef FastSimulation_Tracking_TrajectorySeedProducer2_h
-#define FastSimulation_Tracking_TrajectorySeedProducer2_h
+#ifndef FastSimulation_Tracking_TrajectorySeedProducer_h
+#define FastSimulation_Tracking_TrajectorySeedProducer_h
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
