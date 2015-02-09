@@ -44,7 +44,7 @@ class JetSubstructurePacker : public edm::stream::EDProducer<> {
       // ----------member data ---------------------------
 
       // data labels
-      float                                        distMin_;      
+      float                                        distMax_;      
       edm::EDGetTokenT<edm::View<pat::Jet> >       jetToken_;
       std::vector<std::string>                     algoLabels_;
       std::vector<edm::InputTag>                   algoTags_;
