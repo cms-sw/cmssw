@@ -2,7 +2,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 JetSubstructurePacker::JetSubstructurePacker(const edm::ParameterSet& iConfig) :
-  distMin_( iConfig.getParameter<double>("distMin") ),
+  distMax_( iConfig.getParameter<double>("distMax") ),
   jetToken_(consumes<edm::View<pat::Jet> >( iConfig.getParameter<edm::InputTag>("jetSrc") )),
   algoLabels_( iConfig.getParameter< std::vector<std::string> > ("algoLabels") ),
   algoTags_ (iConfig.getParameter<std::vector<edm::InputTag> > ( "algoTags" ))
@@ -43,7 +43,7 @@ JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
     unsigned int index = 0;
     for ( auto const & ialgoHandle : algoHandles ) {      
       std::vector< edm::Ptr<pat::Jet> > nextSubjets;
-      float dRMin = distMin_;
+      float dRMin = distMax_;
 
       for ( auto const & jjet : *ialgoHandle ) {
 	
