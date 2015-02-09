@@ -7,19 +7,16 @@ import FWCore.ParameterSet.Config as cms
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativePixelLessSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
 iterativePixelLessSeeds.simTrackSelection.skipSimTrackIdTags = [cms.InputTag("initialStepIds"), cms.InputTag("lowPtTripletStepIds"), cms.InputTag("pixelPairStepIds"), cms.InputTag("detachedTripletStepIds"),  cms.InputTag("mixedTripletStepIds")]
-iterativePixelLessSeeds.outputSeedCollectionName = 'PixelLessPairs'
-iterativePixelLessSeeds.minRecHits = 3
+iterativePixelLessSeeds.simTrackSelection.minLayersCrossed = 3
 iterativePixelLessSeeds.simTrackSelection.pTMin = 0.3
 iterativePixelLessSeeds.simTrackSelection.maxD0 = 99.
 iterativePixelLessSeeds.simTrackSelection.maxZ0 = 99.
-iterativePixelLessSeeds.numberOfHits = 3
+iterativePixelLessSeeds.outputSeedCollectionName = 'PixelLessPairs'
 iterativePixelLessSeeds.originRadius = 1.0
 iterativePixelLessSeeds.originHalfLength = 12.0
 iterativePixelLessSeeds.originpTMin = 0.4 # was 0.6
-iterativePixelLessSeeds.zVertexConstraint = -1.0
-# skip compatiblity with PV/beamspot
-iterativePixelLessSeeds.skipPVCompatibility = True
-iterativePixelLessSeeds.primaryVertex = 'none'
+
+iterativePixelLessSeeds.primaryVertex = ''
 
 #iterativePixelLessSeeds.layerList = ['TIB1+TIB2',
 #                                     'TIB1+TID1_pos','TIB1+TID1_neg',

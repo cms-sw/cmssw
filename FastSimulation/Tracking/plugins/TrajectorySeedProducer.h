@@ -48,10 +48,7 @@ class TrajectorySeedProducer:
         double simTrack_pTMin;
         double simTrack_maxD0;
         double simTrack_maxZ0;
-        unsigned int minRecHits;
-
-        unsigned int absMinRecHits;
-        unsigned int numberOfHits;
+        unsigned int simTrack_minLayersCrossed;
         
         std::string outputSeedCollectionName;
 

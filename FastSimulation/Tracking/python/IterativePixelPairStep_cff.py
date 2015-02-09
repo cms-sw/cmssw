@@ -6,17 +6,17 @@ import FWCore.ParameterSet.Config as cms
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativePixelPairSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
 iterativePixelPairSeeds.simTrackSelection.skipSimTrackIdTags = [cms.InputTag("initialStepIds"), cms.InputTag("lowPtTripletStepIds")]
-iterativePixelPairSeeds.outputSeedCollectionName = 'PixelPair'
-iterativePixelPairSeeds.minRecHits =3
+iterativePixelPairSeeds.simTrackSelection.minLayersCrossed =3
 iterativePixelPairSeeds.simTrackSelection.pTMin = 0.3
 iterativePixelPairSeeds.simTrackSelection.maxD0 = 5.
 iterativePixelPairSeeds.simTrackSelection.maxZ0 = 50.
-iterativePixelPairSeeds.numberOfHits = 2
+iterativePixelPairSeeds.outputSeedCollectionName = 'PixelPair'
 iterativePixelPairSeeds.originRadius = 0.2
 iterativePixelPairSeeds.originHalfLength = 17.5
 iterativePixelPairSeeds.originpTMin = 0.6
-iterativePixelPairSeeds.zVertexConstraint = -1.0
-iterativePixelPairSeeds.primaryVertex = 'pixelVertices' # this is currently the only iteration why uses a PV instead of the BeamSpot 
+
+iterativePixelPairSeeds.beamSpot = ''
+iterativePixelPairSeeds.primaryVertex = 'firstStepPrimaryVertices' # vertices are generated from the initalStepTracks
 
 #iterativePixelPairSeeds.layerList = ['BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
 #                                     'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
