@@ -12,7 +12,7 @@ iterativeDetachedTripletSeeds.simTrackSelection.maxD0 = 30. # it was 5.
 iterativeDetachedTripletSeeds.simTrackSelection.maxZ0 = 50.
 iterativeDetachedTripletSeeds.outputSeedCollectionName = 'DetachedPixelTriplets'
 iterativeDetachedTripletSeeds.originRadius = 1.5
-iterativeDetachedTripletSeeds.originHalfLength = 15.
+iterativeDetachedTripletSeeds.maxZ = 15.
 iterativeDetachedTripletSeeds.originpTMin = 0.075
 iterativeDetachedTripletSeeds.primaryVertex = ''
 

@@ -114,8 +114,9 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     }
 
     originRadius = conf.getParameter<double>("originRadius");
-    originHalfLength = conf.getParameter<double>("originHalfLength");
+    maxZ = conf.getParameter<double>("maxZ");
     originpTMin = conf.getParameter<double>("originpTMin");
+    nSigmaZ = conf.getParameter<double>("nSigmaZ");
 
     simTrackToken = consumes<edm::SimTrackContainer>(edm::InputTag("famosSimHits"));
     simVertexToken = consumes<edm::SimVertexContainer>(edm::InputTag("famosSimHits"));
@@ -561,7 +562,8 @@ TrajectorySeedProducer::compatibleWithBeamSpot(
     }
 
     // 2. Z compatible with beam spot size
-    if ( fabs(myPart.Z()-beamSpot->position().Z()) > originHalfLength )
+    double zConstraint = std::min(maxZ,beamSpot->sigmaZ()*nSigmaZ);
+    if ( fabs(myPart.Z()-beamSpot->position().Z()) > zConstraint )
     {
         return false;
     }
@@ -578,7 +580,7 @@ TrajectorySeedProducer::compatibleWithPrimaryVertex(
 {
 
     unsigned int nVertices = primaryVertices->size();
-    if ( nVertices==0 || zVertexConstraint < 0. )
+    if ( nVertices==0 || maxZ < 0. )
     {
         return true;
     }
@@ -587,22 +589,26 @@ TrajectorySeedProducer::compatibleWithPrimaryVertex(
     for ( unsigned iv=0; iv<nVertices; ++iv ) 
     { 
         // Z position of the primary vertex
-        double xV = (*primaryVertices)[iv].x();
-        double yV = (*primaryVertices)[iv].y();
-        double zV = (*primaryVertices)[iv].z();
+        const reco::Vertex& vertex = (*primaryVertices)[iv];
+
+        double xV = vertex.x();
+        double yV = vertex.y();
+        double zV = vertex.z();
 
         // Radii of the two hits with respect to the vertex position
         double R1 = std::sqrt ( (gpos1.x()-xV)*(gpos1.x()-xV) + (gpos1.y()-yV)*(gpos1.y()-yV) );
         double R2 = std::sqrt ( (gpos2.x()-xV)*(gpos2.x()-xV) + (gpos2.y()-yV)*(gpos2.y()-yV) );
 
-        //inner hit must be within a pyramid using the outer hit
-        //and the cylinder around the PV
+        double zConstraint = std::min(maxZ,vertex.zError()*nSigmaZ);
+
+        //inner hit must be within a sort of pyramid using
+        //the outer hit and the cylinder around the PV
         double checkRZ1 = forward ?
-        (gpos1.z()-zV+zVertexConstraint) / (gpos2.z()-zV+zVertexConstraint) * R2 :
-        -zVertexConstraint + R1/R2*(gpos2.z()-zV+zVertexConstraint);
+        (gpos1.z()-zV+zConstraint) / (gpos2.z()-zV+zConstraint) * R2 :
+        -zConstraint + R1/R2*(gpos2.z()-zV+zConstraint);
         double checkRZ2 = forward ?
-        (gpos1.z()-zV-zVertexConstraint)/(gpos2.z()-zV-zVertexConstraint) * R2 :
-        +zVertexConstraint + R1/R2*(gpos2.z()-zV-zVertexConstraint);
+        (gpos1.z()-zV-zConstraint)/(gpos2.z()-zV-zConstraint) * R2 :
+        +zConstraint + R1/R2*(gpos2.z()-zV-zConstraint);
         double checkRZmin = std::min(checkRZ1,checkRZ2)-3.*error;
         double checkRZmax = std::max(checkRZ1,checkRZ2)+3.*error;
         // Check if the innerhit is within bounds
