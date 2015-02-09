@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 #from FastSimulation.Tracking.IterativeFifthSeedProducer_cff import *
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeTobTecSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeTobTecSeeds.skipSimTrackIdTags = [
+iterativeTobTecSeeds.simTrackSelection.skipSimTrackIdTags = [
     cms.InputTag("initialStepSimTrackIds"), 
     cms.InputTag("detachedTripletStepSimTrackIds"), 
     cms.InputTag("lowPtTripletStepSimTrackIds"), 
@@ -15,9 +15,9 @@ iterativeTobTecSeeds.skipSimTrackIdTags = [
     cms.InputTag("pixelLessStepSimTrackIds")]
 iterativeTobTecSeeds.outputSeedCollectionName = 'TobTecLayerPairs'
 iterativeTobTecSeeds.minRecHits = 4
-iterativeTobTecSeeds.pTMin = 0.3
-iterativeTobTecSeeds.maxD0 = 99.
-iterativeTobTecSeeds.maxZ0 = 99.
+iterativeTobTecSeeds.simTrackSelection.pTMin = 0.3
+iterativeTobTecSeeds.simTrackSelection.maxD0 = 99.
+iterativeTobTecSeeds.simTrackSelection.maxZ0 = 99.
 iterativeTobTecSeeds.numberOfHits = 2
 iterativeTobTecSeeds.originRadius = 6.0 # was 5.0
 iterativeTobTecSeeds.originHalfLength = 30.0 # was 10.0

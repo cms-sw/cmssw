@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 #from FastSimulation.Tracking.IterativeFourthSeedProducer_cff import *
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativePixelLessSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativePixelLessSeeds.skipSimTrackIdTags = [
+iterativePixelLessSeeds.simTrackSelection.skipSimTrackIdTags = [
     cms.InputTag("initialStepSimTrackIds"), 
     cms.InputTag("detachedTripletStepSimTrackIds"), 
     cms.InputTag("lowPtTripletStepSimTrackIds"), 
@@ -14,9 +14,9 @@ iterativePixelLessSeeds.skipSimTrackIdTags = [
     cms.InputTag("mixedTripletStepSimTrackIds")]
 iterativePixelLessSeeds.outputSeedCollectionName = 'PixelLessPairs'
 iterativePixelLessSeeds.minRecHits = 3
-iterativePixelLessSeeds.pTMin = 0.3
-iterativePixelLessSeeds.maxD0 = 99.
-iterativePixelLessSeeds.maxZ0 = 99.
+iterativePixelLessSeeds.simTrackSelection.pTMin = 0.3
+iterativePixelLessSeeds.simTrackSelection.maxD0 = 99.
+iterativePixelLessSeeds.simTrackSelection.maxZ0 = 99.
 iterativePixelLessSeeds.numberOfHits = 3
 iterativePixelLessSeeds.originRadius = 1.0
 iterativePixelLessSeeds.originHalfLength = 12.0

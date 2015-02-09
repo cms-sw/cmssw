@@ -51,18 +51,18 @@ SimTrackIdProducer::produce(edm::Event& e, const edm::EventSetup& es)
    
   reco::TrackCollection::const_iterator aTrack = trackCollection->begin();
   reco::TrackCollection::const_iterator lastTrack = trackCollection->end();
-  bool index = 0;
-  
-  for ( ; aTrack!=lastTrack; ++aTrack,++index ) {    
-     int SimTrackId = -1;
-    for( trackingRecHit_iterator hit = aTrack->recHitsBegin(); hit != aTrack->recHitsEnd(); ++ hit ) {
-      //   const SiTrackerGSMatchedRecHit2D * rechit = (const SiTrackerGSMatchedRecHit2D*) (hit->get());
-      const SiTrackerGSMatchedRecHit2D * rechit = (const SiTrackerGSMatchedRecHit2D*) (*hit);
-      SimTrackId = rechit->simtrackId();
-      break;
-    }	
-     SimTrackIds->push_back(SimTrackId); 
-    
+
+  for ( ; aTrack!=lastTrack; ++aTrack)
+  {
+      const TrackingRecHit* hit = *aTrack->recHitsBegin();
+      if (hit)
+      {
+          const SiTrackerGSMatchedRecHit2D* fsimhit = dynamic_cast<const SiTrackerGSMatchedRecHit2D*>(hit);
+          if (fsimhit)
+          {
+              SimTrackIds->push_back(fsimhit->simtrackId());
+          }
+      }
   }
   e.put(SimTrackIds);  
 }
