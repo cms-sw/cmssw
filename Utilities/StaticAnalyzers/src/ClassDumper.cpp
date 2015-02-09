@@ -50,7 +50,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 					auto TAD = tt->getPointeeCXXRecordDecl();
 					if (TAD) taname = TAD->getQualifiedNameAsString();
 					std::string sdname = SD->getQualifiedNameAsString();
-					std::string cfname = "templated data class '"+sdname+"' template type class '*"+taname+"'";
+					std::string cfname = "templated data class '"+sdname+"' template type class '"+taname+"'";
 					std::string cbname = "templated data class 'bare_ptr' template type class '"+taname+"'";
 					support::writeLog(crname+" "+cfname,tname);
 					support::writeLog(crname+" "+cbname,tname);
@@ -99,7 +99,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 										const clang::CXXRecordDecl * TAD = tt->getPointeeCXXRecordDecl();
 										if (TAD) taname = TAD->getQualifiedNameAsString();
 										std::string sdname = SD->getQualifiedNameAsString();
-										std::string cfname = "templated member data class '"+sdname+"' template type class '*"+taname+"'";
+										std::string cfname = "templated member data class '"+sdname+"' template type class '"+taname+"'";
 										std::string cbname = "templated member data class 'bare_ptr' template type class '"+taname+"'";
 										support::writeLog(crname+" "+cfname,tname);
 										support::writeLog(crname+" "+cbname,tname);
@@ -162,7 +162,7 @@ void ClassDumperCT::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ento:
 							ClassDumper dumper; dumper.checkASTDecl( E, mgr, BR,pname );
 							std::string taname = E->getQualifiedNameAsString();
 							std::string tdname = TD->getQualifiedNameAsString();
-							std::string cfname = "templated class '"+tdname+"' template type class '*"+taname+"'";
+							std::string cfname = "templated class '"+tdname+"' template type class '"+taname+"'";
 							support::writeLog(cfname,pname);
 							std::string cbname = "templated class 'bare_ptr' template type class '"+taname+"'";
 							support::writeLog(crname+" "+cbname,pname);
@@ -199,7 +199,7 @@ void ClassDumperFT::checkASTDecl(const clang::FunctionTemplateDecl *TD,clang::en
 					ClassDumper dumper; dumper.checkASTDecl( E, mgr, BR,pname );
 					std::string taname = E->getQualifiedNameAsString();
 					std::string sdname = SD->getQualifiedNameAsString();
-					std::string cfname = "templated function '"+sdname+"' template type class '*"+taname+"'";
+					std::string cfname = "templated function '"+sdname+"' template type class '"+taname+"'";
 					support::writeLog(cfname,pname);
 					std::string cbname = "templated function 'bare_ptr' template type class '"+taname+"'";
 					support::writeLog(crname+" "+cbname,pname);
