@@ -42,27 +42,20 @@ class TrajectorySeedProducer:
         const MagneticFieldMap* magneticFieldMap;
         const TrackerGeometry* trackerGeometry;
         const TrackerTopology* trackerTopology;
-        
+
         PropagatorWithMaterial* thePropagator;
 
         double simTrack_pTMin;
         double simTrack_maxD0;
         double simTrack_maxZ0;
         unsigned int minRecHits;
-        edm::InputTag hitProducer;
-        edm::InputTag theBeamSpot;
 
-        bool seedCleaning;
-        bool rejectOverlaps;
         unsigned int absMinRecHits;
         unsigned int numberOfHits;
         
         std::string outputSeedCollectionName;
 
-
         std::vector<std::vector<TrackingLayer>> seedingLayers;
-        
-        math::XYZPoint beamspotPosition;
 
         double originRadius;
         double originHalfLength;
@@ -70,10 +63,10 @@ class TrajectorySeedProducer:
 
         double zVertexConstraint;
         
-        bool skipPVCompatibility;
-
-        const reco::VertexCollection* vertices;
- 
+        bool testBeamspotCompatibility;
+        const reco::BeamSpot* beamSpot;
+        bool testPrimaryVertexCompatibilty;
+        const reco::VertexCollection* primaryVertices;
         // tokens
         edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
         edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
@@ -175,8 +168,17 @@ class TrajectorySeedProducer:
 
     /// Check that the seed is compatible with a track coming from within
     /// a cylinder of radius originRadius, with a decent pT.
-    bool compatibleWithBeamAxis(
+    bool compatibleWithBeamSpot(
             const GlobalPoint& gpos1, 
+            const GlobalPoint& gpos2,
+            double error,
+            bool forward
+    ) const;
+
+    /// Check that the seed is compatible with a track coming from within
+    /// a cylinder of radius originRadius, with a decent pT.
+    bool compatibleWithPrimaryVertex(
+            const GlobalPoint& gpos1,
             const GlobalPoint& gpos2,
             double error,
             bool forward
