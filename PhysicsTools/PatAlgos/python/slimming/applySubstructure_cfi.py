@@ -59,7 +59,7 @@ def applySubstructure( process ) :
         jetCorrections = ('AK8PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'None'),
         getJetMCFlavour = False # jet flavor disabled
     )
-    getattr(process,'patJetPartonMatchAK8PFCHSSoftDrop').matched = cms.InputTag('prunedGenParticles')
+    
     ## PATify soft drop subjets
     addJetCollection(
         process,
