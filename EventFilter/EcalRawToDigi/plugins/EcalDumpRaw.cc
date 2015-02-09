@@ -123,8 +123,7 @@ static const char* const ttsNames[] = {
 //          gain setting:     sat  12       6    1  //index 0->saturation
 //          gain setting:  1(sat)     12      6        1
 //index 0->saturation
-double mgpaGainFactors[] = {10.63, 1., 10.63/5.43, 10.63};
-double fppaGainFactors[] = {0, 1., 16./1.,  0.};
+static const double mgpaGainFactors[] = {10.63, 1., 10.63/5.43, 10.63};
 
 EcalDumpRaw::EcalDumpRaw(const edm::ParameterSet& ps):
   iEvent_(0),

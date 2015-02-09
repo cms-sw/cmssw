@@ -206,3 +206,7 @@ process.dqmOutputPath = cms.EndPath(process.dqmSaver)
 ### Schedule ###
 
 process.schedule = cms.Schedule(process.ecalLaserLedPath,process.ecalTestPulsePath,process.ecalPedestalPath,process.ecalClientPath,process.dqmEndPath,process.dqmOutputPath)
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

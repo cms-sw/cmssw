@@ -34,10 +34,10 @@ parser.add_option("--conditions",
                   default=None,
                   dest="conditions")
 
-parser.add_option("--useCondDBv1",
-                  help="use conditions DB V1",
+parser.add_option("--useCondDBv2",
+                  help="use conditions DB V2",
                   action="store_false",
-                  default=False,
+                  default=True,
                   dest="useCondDBv1")
 
 parser.add_option("--eventcontent",

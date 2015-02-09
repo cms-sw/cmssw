@@ -86,3 +86,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
     process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/dt_reference_hi.root'
 
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)
