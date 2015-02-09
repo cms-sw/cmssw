@@ -5,12 +5,12 @@ import FWCore.ParameterSet.Config as cms
 # seeding
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativePixelPairSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativePixelPairSeeds.skipSimTrackIdTags = [cms.InputTag("initialStepIds"), cms.InputTag("lowPtTripletStepIds")]
+iterativePixelPairSeeds.simTrackSelection.skipSimTrackIdTags = [cms.InputTag("initialStepIds"), cms.InputTag("lowPtTripletStepIds")]
 iterativePixelPairSeeds.outputSeedCollectionName = 'PixelPair'
 iterativePixelPairSeeds.minRecHits =3
-iterativePixelPairSeeds.pTMin = 0.3
-iterativePixelPairSeeds.maxD0 = 5.
-iterativePixelPairSeeds.maxZ0 = 50.
+iterativePixelPairSeeds.simTrackSelection.pTMin = 0.3
+iterativePixelPairSeeds.simTrackSelection.maxD0 = 5.
+iterativePixelPairSeeds.simTrackSelection.maxZ0 = 50.
 iterativePixelPairSeeds.numberOfHits = 2
 iterativePixelPairSeeds.originRadius = 0.2
 iterativePixelPairSeeds.originHalfLength = 17.5

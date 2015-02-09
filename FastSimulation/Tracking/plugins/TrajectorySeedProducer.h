@@ -32,11 +32,11 @@ class MagneticFieldMap;
 class TrackerGeometry;
 class PropagatorWithMaterial;
 
-class TrajectorySeedProducer: public edm::stream::EDProducer <>
+class TrajectorySeedProducer:
+    public edm::stream::EDProducer<>
 {
     private:
         SeedingTree<TrackingLayer> _seedingTree;
-
 
         const MagneticField* magneticField;
         const MagneticFieldMap* magneticFieldMap;
@@ -45,9 +45,9 @@ class TrajectorySeedProducer: public edm::stream::EDProducer <>
         
         PropagatorWithMaterial* thePropagator;
 
-        double pTMin;
-        double maxD0;
-        double maxZ0;
+        double simTrack_pTMin;
+        double simTrack_maxD0;
+        double simTrack_maxZ0;
         unsigned int minRecHits;
         edm::InputTag hitProducer;
         edm::InputTag theBeamSpot;
@@ -80,7 +80,7 @@ class TrajectorySeedProducer: public edm::stream::EDProducer <>
         edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
         edm::EDGetTokenT<SiTrackerGSMatchedRecHit2DCollection> recHitToken;
         edm::EDGetTokenT<reco::VertexCollection> recoVertexToken;
-	std::vector<edm::EDGetTokenT<std::vector<int> > > skipSimTrackIdTokens;
+        std::vector<edm::EDGetTokenT<std::vector<int> > > skipSimTrackIdTokens;
 
     public:
 

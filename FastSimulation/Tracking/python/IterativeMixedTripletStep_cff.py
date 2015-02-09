@@ -6,12 +6,12 @@ import FWCore.ParameterSet.Config as cms
 #from FastSimulation.Tracking.IterativeMixedTripletStepSeedProducer_cff import *
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeMixedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeMixedTripletStepSeeds.skipSimTrackIdTags = [cms.InputTag("initialStepIds"), cms.InputTag("lowPtTripletStepIds"), cms.InputTag("pixelPairStepIds"), cms.InputTag("detachedTripletStepIds")]
+iterativeMixedTripletStepSeeds.simTrackSelection.skipSimTrackIdTags = [cms.InputTag("initialStepIds"), cms.InputTag("lowPtTripletStepIds"), cms.InputTag("pixelPairStepIds"), cms.InputTag("detachedTripletStepIds")]
 iterativeMixedTripletStepSeeds.outputSeedCollectionName = 'MixedTriplets'
 iterativeMixedTripletStepSeeds.minRecHits = 3
-iterativeMixedTripletStepSeeds.pTMin = 0.15
-iterativeMixedTripletStepSeeds.maxD0 = 10.
-iterativeMixedTripletStepSeeds.maxZ0 = 30.
+iterativeMixedTripletStepSeeds.simTrackSelection.pTMin = 0.15
+iterativeMixedTripletStepSeeds.simTrackSelection.maxD0 = 10.
+iterativeMixedTripletStepSeeds.simTrackSelection.maxZ0 = 30.
 iterativeMixedTripletStepSeeds.numberOfHits = 3
 iterativeMixedTripletStepSeeds.originRadius = 2.0 # was 1.2
 iterativeMixedTripletStepSeeds.originHalfLength = 10.0 # was 7.0
