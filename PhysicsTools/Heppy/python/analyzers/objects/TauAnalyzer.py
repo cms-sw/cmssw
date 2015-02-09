@@ -1,19 +1,8 @@
-
-import operator 
-import itertools
-import copy
-import types
-
-from ROOT import TLorentzVector
-
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
-from PhysicsTools.HeppyCore.framework.event import Event
-from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
-from PhysicsTools.Heppy.physicsobjects.Lepton import Lepton
 from PhysicsTools.Heppy.physicsobjects.Tau import Tau
 
-from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi, bestMatch , matchObjectCollection3
+from PhysicsTools.HeppyCore.utils.deltar import deltaR, matchObjectCollection3
 
 import PhysicsTools.HeppyCore.framework.config as cfg
 
@@ -57,27 +46,45 @@ class TauAnalyzer( Analyzer ):
         for tau in alltaus:
             tau.associatedVertex = event.goodVertices[0]
             tau.lepVeto = False
+            tau.idDecayMode = tau.tauID("decayModeFinding")
+            tau.idDecayModeNewDMs = tau.tauID("decayModeFindingNewDMs")
+            if self.cfg_ana.decayMode and not tau.tauID(self.cfg_ana.decayMode):
+                continue
+
             if self.cfg_ana.vetoLeptons:
                 for lep in event.selectedLeptons:
                     if deltaR(lep.eta(), lep.phi(), tau.eta(), tau.phi()) < self.cfg_ana.leptonVetoDR:
                         tau.lepVeto = True
                 if tau.lepVeto: continue
             if self.cfg_ana.vetoLeptonsPOG:
-                if not tau.tauID("againstMuonTight"):
+                if not tau.tauID(self.cfg_ana.tauAntiMuonID):
                         tau.lepVeto = True
-                if not tau.tauID("againstElectronLoose"):
+                if not tau.tauID(self.cfg_ana.tauAntiElectronID):
                         tau.lepVeto = True
                 if tau.lepVeto: continue
+
             if tau.pt() < self.cfg_ana.ptMin: continue
             if abs(tau.eta()) > self.cfg_ana.etaMax: continue
-###            tau.dxy and tau.dz are zero
-###            if abs(tau.dxy()) > self.cfg_ana.dxyMax or abs(tau.dz()) > self.cfg_ana.dzMax: continue
+            if abs(tau.dxy()) > self.cfg_ana.dxyMax or abs(tau.dz()) > self.cfg_ana.dzMax: continue
+
             foundTau = True
             def id3(tau,X):
                 """Create an integer equal to 1-2-3 for (loose,medium,tight)"""
                 return tau.tauID(X%"Loose") + tau.tauID(X%"Medium") + tau.tauID(X%"Tight")
-            #tau.idMVA2   = id3(tau, "by%sIsolationMVA2")
+            def id5(tau,X):
+                """Create an integer equal to 1-2-3-4-5 for (very loose, 
+                    loose, medium, tight, very tight)"""
+                return id3(tau, X) + tau.tauID(X%"VLoose") + tau.tauID(X%"VTight")
+            def id6(tau,X):
+                """Create an integer equal to 1-2-3-4-5-6 for (very loose, 
+                    loose, medium, tight, very tight, very very tight)"""
+                return id5(tau, X) + tau.tauID(X%"VVTight")
+
+            tau.idMVA = id6(tau, "by%sIsolationMVA3oldDMwLT")
+            tau.idMVANewDM = id6(tau, "by%sIsolationMVA3newDMwLT")
             tau.idCI3hit = id3(tau, "by%sCombinedIsolationDeltaBetaCorr3Hits")
+            tau.idAntiMu = id3(tau, "againstMuon%sMVA")
+            tau.idAntiE = id5(tau, "againstElectron%sMVA5")
             #print "Tau pt %5.1f: idMVA2 %d, idCI3hit %d, %s, %s" % (tau.pt(), tau.idMVA2, tau.idCI3hit, tau.tauID(self.cfg_ana.tauID), tau.tauID(self.cfg_ana.tauLooseID))
             if tau.tauID(self.cfg_ana.tauID):
                 event.selectedTaus.append(tau)
@@ -114,6 +121,8 @@ class TauAnalyzer( Analyzer ):
         
         return True
 
+# Find the definitions of the tau ID strings here:
+# http://cmslxr.fnal.gov/lxr/source/PhysicsTools/PatAlgos/python/producersLayer1/tauProducer_cfi.py
 
 setattr(TauAnalyzer,"defaultConfig",cfg.Analyzer(
     class_object=TauAnalyzer,
@@ -123,8 +132,11 @@ setattr(TauAnalyzer,"defaultConfig",cfg.Analyzer(
     dzMax = 1.0,
     vetoLeptons = True,
     leptonVetoDR = 0.4,
-    vetoLeptonsPOG = False,
+    decayModeID = "decayModeFindingNewDMs", # ignored if not set or ""
     tauID = "byLooseCombinedIsolationDeltaBetaCorr3Hits",
+    vetoLeptonsPOG = False, # If True, the following two IDs are required
+    tauAntiMuonID = "againstMuonLooseMVA",
+    tauAntiElectronID = "againstElectronLooseMVA5",
     tauLooseID = "decayModeFinding",
   )
 )
