@@ -74,6 +74,9 @@ process.l1tDigiToRaw.TauInputLabel = cms.InputTag("simCaloStage1FinalDigis", "rl
 process.l1tDigiToRaw.IsoTauInputLabel = cms.InputTag("simCaloStage1FinalDigis", "isoTaus")
 process.l1tDigiToRaw.HFBitCountsInputLabel = cms.InputTag("simCaloStage1FinalDigis", "HFBitCounts")
 process.l1tDigiToRaw.HFRingSumsInputLabel = cms.InputTag("simCaloStage1FinalDigis", "HFRingSums")
+process.l1tDigiToRaw.RegionInputLabel = cms.InputTag("simRctDigis", "")
+process.l1tDigiToRaw.EmCandInputLabel = cms.InputTag("simRctDigis", "")
+
 process.load("EventFilter.L1TRawToDigi.l1tRawToDigi_cfi")
 process.l1tRawToDigi.Setup = cms.string("stage1::CaloSetup")
 

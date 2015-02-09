@@ -30,7 +30,7 @@ options.register('egLatency',
                  VarParsing.VarParsing.varType.int,
                  "EG board latency (frames)")
 options.register('jetLatency',
-                 0,
+                 40,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Jet board latency (frames)")
