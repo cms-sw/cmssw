@@ -166,6 +166,8 @@
   <class name="std::map<int, std::vector<L1GtObject> >"/>  
   <class name="std::map<int, std::vector<L1GtObject> >::value_type"/>  
   <class name="L1GtCondition"/>
+  <enum name="L1GtConditionCategory"/>
+  <enum name="L1GtConditionType"/>
   <class name="L1GtMuonTemplate"/>
   <class name="L1GtMuonTemplate::ObjectParameter"/>
   <class name="std::vector<L1GtMuonTemplate::ObjectParameter>"/>
