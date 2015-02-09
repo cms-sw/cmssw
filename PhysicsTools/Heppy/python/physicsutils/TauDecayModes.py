@@ -1,4 +1,3 @@
-print 'importing'
 
 class TauDecayModes( object ): 
 
@@ -9,6 +8,7 @@ class TauDecayModes( object ):
         '''Builds the internal dictionaries from the enum defined in 
         http://cmslxr.fnal.gov/lxr/source/DataFormats/TauReco/interface/PFTau.h'''
         tmp = [
+            'kNull',
             'kOneProng0PiZero',
             'kOneProng1PiZero',
             'kOneProng2PiZero',
@@ -26,7 +26,7 @@ class TauDecayModes( object ):
             'kThreeProngNPiZero',
             'kRareDecayMode'
             ]
-        self.decayModes = dict( (index, name) for index,name in enumerate( tmp ) )
+        self.decayModes = dict( (index-1, name) for index, name in enumerate( tmp ) )
         self.decayModeNames = dict( (value, key) for key, value \
                                     in self.decayModes.iteritems() )
 
