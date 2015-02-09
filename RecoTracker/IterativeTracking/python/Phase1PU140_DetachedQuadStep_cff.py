@@ -96,7 +96,6 @@ import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 detachedQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
     trajectoryFilter = cms.PSet(refToPSet_ = cms.string('detachedQuadStepTrajectoryFilter')),
-    clustersToSkip = cms.InputTag('detachedQuadStepClusters'),
     maxCand = 2,
     alwaysUseInvalidHits = False,
     estimator = cms.string('detachedQuadStepChi2Est'),
@@ -108,6 +107,7 @@ detachedQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 detachedQuadStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('detachedQuadStepSeeds'),
+    clustersToSkip = cms.InputTag('detachedQuadStepClusters'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),
