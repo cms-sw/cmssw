@@ -24,7 +24,7 @@ filesRelValProdTTbarAODSIM = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/MINIAODSIM/MCRUN2_74_V1-v1/00000/58D65E53-E5A8-E411-BC5E-002354EF3BDF.root'
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-RECO/MCRUN2_74_V1-v1/00000/2E97B200-D0A8-E411-BE99-0025905A60B8.root'
     )
 
 # /RelValProdTTbar_13/CMSSW_7_4_0_pre5-MCRUN2_73_V7-v1/GEN-SIM-RECO
