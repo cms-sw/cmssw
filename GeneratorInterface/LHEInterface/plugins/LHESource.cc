@@ -64,8 +64,11 @@ void LHESource::nextEvent()
 		return;
         }
 
-	bool newFileOpened = false;
-	partonLevel = reader->next(&newFileOpened);
+	bool newFileOpened;
+	do {
+		newFileOpened = false;
+		partonLevel = reader->next(&newFileOpened);
+	} while (newFileOpened && !partonLevel);
 
 	if (!partonLevel) {
 		return;
