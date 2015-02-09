@@ -16,7 +16,7 @@ verbose = False
 class BtagCalibConsistencyChecker(unittest.TestCase):
     def test_ops_tight(self):
         if check_op:
-            self.assertIn(0, data.ops, "OP_TIGHT is missing")
+            self.assertIn(2, data.ops, "OP_TIGHT is missing")
 
     def test_ops_medium(self):
         if check_op:
@@ -24,7 +24,7 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
 
     def test_ops_loose(self):
         if check_op:
-            self.assertIn(2, data.ops, "OP_LOOSE is missing")
+            self.assertIn(0, data.ops, "OP_LOOSE is missing")
 
     def test_flavs_b(self):
         if check_flavor:
