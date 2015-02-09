@@ -6,7 +6,7 @@
 
 namespace l1t {
   namespace stage1 {
-    class HFRingUnpacker : public Unpacker {
+    class CaloSpareHFUnpacker : public Unpacker {
       public:
         virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
     };
@@ -18,7 +18,7 @@ namespace l1t {
 namespace l1t {
   namespace stage1 {
     bool
-      HFRingUnpacker::unpack(const Block& block, UnpackerCollections *coll)
+      CaloSpareHFUnpacker::unpack(const Block& block, UnpackerCollections *coll)
       {
 
         LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
@@ -40,9 +40,6 @@ namespace l1t {
         auto resHFRingSums_ = static_cast<CaloCollections*>(coll)->getCaloSpareHFRingSums();
         resHFRingSums_->setBXRange(firstBX, lastBX);
         
-        auto reset_ = static_cast<CaloCollections*>(coll)->getEtSums();
-        reset_->setBXRange(firstBX, lastBX);
-
         LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
         // Initialise index
@@ -55,17 +52,12 @@ namespace l1t {
 
           /* if (raw_data0 == 0 || raw_data1==0) continue; */
 
-          uint16_t candbit[4];
+          uint16_t candbit[2];
           candbit[0] = raw_data0 & 0xFFFF;
-          candbit[1] = (raw_data0 >> 16) & 0xFFFF;
-          candbit[2] = raw_data1 & 0xFFFF;
-          candbit[3] = (raw_data1 >> 16) & 0xFFFF;
+          candbit[1] = raw_data1 & 0xFFFF;
 
           int hfbitcount=candbit[0] & 0xFFF;
-          int hfringsum=((candbit[0]>>12) & 0x7) | ((candbit[2] & 0x1FF) << 3);
-          int htmissphi=candbit[1] & 0x1F;
-          int htmiss=(candbit[1]>>5) & 0x7F;
-          int overflowhtmiss=(candbit[1]>>12) & 0x1;
+          int hfringsum=((candbit[0]>>12) & 0x7) | ((candbit[1] & 0x1FF) << 3);
           
           l1t::CaloSpare hfbc= l1t::CaloSpare();
           hfbc.setHwPt(hfbitcount);
@@ -79,16 +71,6 @@ namespace l1t {
           LogDebug("L1T") << "hfrs pT " << hfrs.hwPt();  
           resHFRingSums_->push_back(bx,hfrs);       
 
-          l1t::EtSum mht = l1t::EtSum();
-          mht.setHwPt(htmiss);
-          mht.setHwPhi(htmissphi);
-          mht.setType(l1t::EtSum::kMissingHt); 
-          int flaghtmiss=mht.hwQual();
-          flaghtmiss|= overflowhtmiss;
-          mht.setHwQual(flaghtmiss);       
-          LogDebug("L1T") << "MHT: pT " << mht.hwPt()<<"is overflow "<<overflowhtmiss<<std::endl;
-          reset_->push_back(bx,mht);       
-
         }
 
         return true;
@@ -97,4 +79,4 @@ namespace l1t {
   }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage1::HFRingUnpacker);
+DEFINE_L1T_UNPACKER(l1t::stage1::CaloSpareHFUnpacker);
