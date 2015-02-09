@@ -5,7 +5,6 @@
 
 #include "DQMOffline/Trigger/interface/EgHLTDebugFuncs.h"
 #include "DQMOffline/Trigger/interface/EgHLTDQMCut.h"
-#include "DQMOffline/Trigger/interface/EgHLTMonElemFuncs.h"
 #include "DQMOffline/Trigger/interface/EgHLTTrigTools.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -80,33 +79,35 @@ void EgHLTOfflineSource::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
 
   std::vector<std::string> hltFiltersUsed;
   getHLTFilterNamesUsed(hltFiltersUsed);
-  TrigCodes::setCodes(hltFiltersUsed);
+  trigCodes.reset(TrigCodes::makeCodes(hltFiltersUsed));
   
-  offEvtHelper_.setupTriggers(hltConfig,hltFiltersUsed);
+  offEvtHelper_.setupTriggers(hltConfig,hltFiltersUsed, *trigCodes);
+
+  MonElemFuncs monElemFuncs(iBooker, *trigCodes);
 
   //now book ME's
   iBooker.setCurrentFolder(dirName_+"/Source_Histos");
   //each trigger path with generate object distributions and efficiencies (BUT not trigger efficiencies...)
-  for(size_t i=0;i<eleHLTFilterNames_.size();i++){iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames_[i]);  addEleTrigPath(iBooker,eleHLTFilterNames_[i]);}
-  for(size_t i=0;i<phoHLTFilterNames_.size();i++){iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+phoHLTFilterNames_[i]);  addPhoTrigPath(iBooker,phoHLTFilterNames_[i]);}
+  for(size_t i=0;i<eleHLTFilterNames_.size();i++){iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames_[i]);  addEleTrigPath(monElemFuncs,eleHLTFilterNames_[i]);}
+  for(size_t i=0;i<phoHLTFilterNames_.size();i++){iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+phoHLTFilterNames_[i]);  addPhoTrigPath(monElemFuncs,phoHLTFilterNames_[i]);}
   //efficiencies of one trigger path relative to another
-  MonElemFuncs::initTightLooseTrigHists(iBooker,eleMonElems_,eleTightLooseTrigNames_,binData_,"gsfEle");
+  monElemFuncs.initTightLooseTrigHists(eleMonElems_,eleTightLooseTrigNames_,binData_,"gsfEle");
   //new EgHLTDQMVarCut<OffEle>(cutMasks_.stdEle,&OffEle::cutCode)); 
-  //MonElemFuncs::initTightLooseTrigHistsTrigCuts(iBooker,eleMonElems_,eleTightLooseTrigNames_,binData_);
+  //monElemFuncs.initTightLooseTrigHistsTrigCuts(eleMonElems_,eleTightLooseTrigNames_,binData_);
     
   
-  MonElemFuncs::initTightLooseTrigHists(iBooker,phoMonElems_,phoTightLooseTrigNames_,binData_,"pho");
+  monElemFuncs.initTightLooseTrigHists(phoMonElems_,phoTightLooseTrigNames_,binData_,"pho");
   //	new EgHLTDQMVarCut<OffPho>(cutMasks_.stdPho,&OffPho::cutCode)); 
-  //MonElemFuncs::initTightLooseTrigHistsTrigCuts(iBooker,phoMonElems_,phoTightLooseTrigNames_,binData_);
+  //monElemFuncs.initTightLooseTrigHistsTrigCuts(phoMonElems_,phoTightLooseTrigNames_,binData_);
     
   //di-object triggers
-  MonElemFuncs::initTightLooseTrigHists(iBooker,eleMonElems_,diEleTightLooseTrigNames_,binData_,"gsfEle");
+  monElemFuncs.initTightLooseTrigHists(eleMonElems_,diEleTightLooseTrigNames_,binData_,"gsfEle");
   //	new EgDiEleCut(cutMasks_.stdEle,&OffEle::cutCode));
-  MonElemFuncs::initTightLooseTrigHists(iBooker,phoMonElems_,diPhoTightLooseTrigNames_,binData_,"pho");
+  monElemFuncs.initTightLooseTrigHists(phoMonElems_,diPhoTightLooseTrigNames_,binData_,"pho");
   //				new EgDiPhoCut(cutMasks_.stdPho,&OffPho::cutCode));
   
-  MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(iBooker,eleMonElems_,diEleTightLooseTrigNames_,binData_);
-  MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(iBooker,phoMonElems_,diPhoTightLooseTrigNames_,binData_);
+  monElemFuncs.initTightLooseDiObjTrigHistsTrigCuts(eleMonElems_,diEleTightLooseTrigNames_,binData_);
+  monElemFuncs.initTightLooseDiObjTrigHistsTrigCuts(phoMonElems_,diPhoTightLooseTrigNames_,binData_);
 
   
   //tag and probe trigger efficiencies
@@ -116,20 +117,20 @@ void EgHLTOfflineSource::bookHistograms(DQMStore::IBooker &iBooker, edm::Run con
   if(doTrigTagProbeEff){
     for(size_t i=0;i<eleHLTFilterNames_.size();i++){
       iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames_[i]);
-      MonElemFuncs::initTrigTagProbeHist(iBooker,eleMonElems_,eleHLTFilterNames_[i],cutMasks_.trigTPEle,binData_);
+      monElemFuncs.initTrigTagProbeHist(eleMonElems_,eleHLTFilterNames_[i],cutMasks_.trigTPEle,binData_);
     }
     for(size_t i=0;i<phoHLTFilterNames_.size();i++){
       iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+phoHLTFilterNames_[i]);
-      MonElemFuncs::initTrigTagProbeHist(iBooker,phoMonElems_,phoHLTFilterNames_[i],cutMasks_.trigTPPho,binData_);
+      monElemFuncs.initTrigTagProbeHist(phoMonElems_,phoHLTFilterNames_[i],cutMasks_.trigTPPho,binData_);
     }
     for(size_t i=0;i<eleHLTFilterNames2Leg_.size();i++){
       iBooker.setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames2Leg_[i].substr(eleHLTFilterNames2Leg_[i].find("::")+2));
       //std::cout<<"FilterName: "<<eleHLTFilterNames2Leg_[i]<<std::endl;
       //std::cout<<"Folder: "<<eleHLTFilterNames2Leg_[i].substr(eleHLTFilterNames2Leg_[i].find("::")+2)<<std::endl;
-      MonElemFuncs::initTrigTagProbeHist_2Leg(iBooker,eleMonElems_,eleHLTFilterNames2Leg_[i],cutMasks_.trigTPEle,binData_);
+      monElemFuncs.initTrigTagProbeHist_2Leg(eleMonElems_,eleHLTFilterNames2Leg_[i],cutMasks_.trigTPEle,binData_);
     }
     //tag and probe not yet implimented for photons (attemping to see if it makes sense first)
-    // MonElemFuncs::initTrigTagProbeHists(iBooker,phoMonElems,phoHLTFilterNames_);
+    // monElemFuncs.initTrigTagProbeHists(phoMonElems,phoHLTFilterNames_);
   }
   
   iBooker.setCurrentFolder(dirName_);
@@ -140,7 +141,7 @@ void EgHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSetup&
   const double weight=1.; //we have the ability to weight but its disabled for now - maybe use this for prescales?
   nrEventsProcessed_++;
   nrEventsProcessedMonElem_->Fill(nrEventsProcessed_);
-  int errCode = offEvtHelper_.makeOffEvt(iEvent,iSetup,offEvt_);
+  int errCode = offEvtHelper_.makeOffEvt(iEvent,iSetup,offEvt_,*trigCodes);
   if(errCode!=0){
     dqmErrsMonElem_->Fill(errCode);
     return;
@@ -170,16 +171,16 @@ void EgHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSetup&
 }
 
 
-void EgHLTOfflineSource::addEleTrigPath(DQMStore::IBooker &iBooker,const std::string& name)
+void EgHLTOfflineSource::addEleTrigPath(MonElemFuncs& monElemFuncs,const std::string& name)
 {
-  EleHLTFilterMon* filterMon = new EleHLTFilterMon(iBooker,name,TrigCodes::getCode(name.c_str()),binData_,cutMasks_);  
+  EleHLTFilterMon* filterMon = new EleHLTFilterMon(monElemFuncs,name,trigCodes->getCode(name.c_str()),binData_,cutMasks_);  
   eleFilterMonHists_.push_back(filterMon);
   std::sort(eleFilterMonHists_.begin(),eleFilterMonHists_.end(),EleHLTFilterMon::ptrLess<EleHLTFilterMon>()); //takes a minor efficiency hit at initalisation to ensure that the vector is always sorted
 }
 
-void EgHLTOfflineSource::addPhoTrigPath(DQMStore::IBooker &iBooker,const std::string& name)
+void EgHLTOfflineSource::addPhoTrigPath(MonElemFuncs& monElemFuncs,const std::string& name)
 {
-  PhoHLTFilterMon* filterMon = new PhoHLTFilterMon(iBooker,name,TrigCodes::getCode(name.c_str()),binData_,cutMasks_);
+  PhoHLTFilterMon* filterMon = new PhoHLTFilterMon(monElemFuncs,name,trigCodes->getCode(name.c_str()),binData_,cutMasks_);
   phoFilterMonHists_.push_back(filterMon);
   std::sort(phoFilterMonHists_.begin(),phoFilterMonHists_.end(),PhoHLTFilterMon::ptrLess<PhoHLTFilterMon>()); //takes a minor efficiency hit at initalisation to ensure that the vector is always sorted
 }
