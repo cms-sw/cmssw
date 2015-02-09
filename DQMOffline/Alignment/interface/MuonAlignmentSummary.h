@@ -12,7 +12,6 @@
 #include <math.h>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -23,6 +22,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 namespace edm {
     class ParameterSet;
@@ -32,7 +32,7 @@ namespace edm {
 
 class TH1F;
 
-class MuonAlignmentSummary : public edm::EDAnalyzer {
+class MuonAlignmentSummary : public DQMEDAnalyzer {
 public:
 
     /// Constructor
@@ -40,9 +40,10 @@ public:
   
     /// Destructor
     virtual ~MuonAlignmentSummary();
-  
-    /// Inizialize parameters for histo binning
-    void beginRun(edm::Run const& run,edm::EventSetup const& iSetup);
+
+    //Book histograms
+    void bookHistograms(DQMStore::IBooker &,
+        edm::Run const &, edm::EventSetup const &) override;
 
     /// Get the analysis
     void analyze(const edm::Event& event, const edm::EventSetup& iSetup){}
