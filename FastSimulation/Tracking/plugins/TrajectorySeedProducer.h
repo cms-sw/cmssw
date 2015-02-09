@@ -55,10 +55,10 @@ class TrajectorySeedProducer:
         std::vector<std::vector<TrackingLayer>> seedingLayers;
 
         double originRadius;
-        double originHalfLength;
         double originpTMin;
 
-        double zVertexConstraint;
+        double maxZ;
+        double nSigmaZ;
         
         bool testBeamspotCompatibility;
         const reco::BeamSpot* beamSpot;

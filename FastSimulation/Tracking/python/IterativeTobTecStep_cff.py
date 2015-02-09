@@ -13,7 +13,7 @@ iterativeTobTecSeeds.simTrackSelection.maxD0 = 99.
 iterativeTobTecSeeds.simTrackSelection.maxZ0 = 99.
 iterativeTobTecSeeds.outputSeedCollectionName = 'TobTecLayerPairs'
 iterativeTobTecSeeds.originRadius = 6.0 # was 5.0
-iterativeTobTecSeeds.originHalfLength = 30.0 # was 10.0
+iterativeTobTecSeeds.maxZ = 30.0 # was 10.0
 iterativeTobTecSeeds.originpTMin = 0.6 # was 0.5
 
 iterativeTobTecSeeds.primaryVertex = ''

@@ -9,7 +9,7 @@ trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer",
          skipSimTrackIdTags = cms.VInputTag(),
          maxZ0 = cms.double(30.0),
          maxD0 = cms.double(1.0),
-         # The smallest number of layer crossed to create a track candidate
+         # minimum number of layer crossed (with hits on them) by the simtrack
          minLayersCrossed = cms.uint32(5)
     ),
     # the name of the output seeds
@@ -20,7 +20,10 @@ trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer",
     #if empty, PV compatibility is skipped
     primaryVertex = cms.InputTag(""),
     
-    originHalfLength = cms.double(15.9),
+    # seed producer will use min(nSigmaZ*sigmaZ(BS or PV),maxZ)
+    nSigmaZ = cms.double(10000.0),
+    maxZ = cms.double(15.9),
+    
     originRadius = cms.double(0.2),
     originpTMin = cms.double(1.0),
 

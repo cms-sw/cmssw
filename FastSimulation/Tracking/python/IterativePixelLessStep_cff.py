@@ -13,7 +13,7 @@ iterativePixelLessSeeds.simTrackSelection.maxD0 = 99.
 iterativePixelLessSeeds.simTrackSelection.maxZ0 = 99.
 iterativePixelLessSeeds.outputSeedCollectionName = 'PixelLessPairs'
 iterativePixelLessSeeds.originRadius = 1.0
-iterativePixelLessSeeds.originHalfLength = 12.0
+iterativePixelLessSeeds.maxZ = 12.0
 iterativePixelLessSeeds.originpTMin = 0.4 # was 0.6
 
 iterativePixelLessSeeds.primaryVertex = ''

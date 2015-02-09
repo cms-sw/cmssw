@@ -12,7 +12,7 @@ iterativeLowPtTripletSeeds.simTrackSelection.maxD0 = 5.
 iterativeLowPtTripletSeeds.simTrackSelection.maxZ0 = 50.
 iterativeLowPtTripletSeeds.outputSeedCollectionName = 'LowPtPixelTriplets'
 iterativeLowPtTripletSeeds.originRadius = 0.03
-iterativeLowPtTripletSeeds.originHalfLength = 17.5
+iterativeLowPtTripletSeeds.maxZ = 17.5
 iterativeLowPtTripletSeeds.originpTMin = 0.35
 iterativeLowPtTripletSeeds.primaryVertex = ''
 

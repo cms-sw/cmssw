@@ -12,7 +12,7 @@ iterativePixelPairSeeds.simTrackSelection.maxD0 = 5.
 iterativePixelPairSeeds.simTrackSelection.maxZ0 = 50.
 iterativePixelPairSeeds.outputSeedCollectionName = 'PixelPair'
 iterativePixelPairSeeds.originRadius = 0.2
-iterativePixelPairSeeds.originHalfLength = 17.5
+iterativePixelPairSeeds.maxZ = 17.5
 iterativePixelPairSeeds.originpTMin = 0.6
 
 iterativePixelPairSeeds.beamSpot = ''
