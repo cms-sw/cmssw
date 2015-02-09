@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_3_0/Fake/V30 (CMSSW_7_3_1_patch2_HLT3)
+# /dev/CMSSW_7_3_0/Fake/V32 (CMSSW_7_3_2_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/Fake/V30')
+  tableName = cms.string('/dev/CMSSW_7_3_0/Fake/V32')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -360,7 +360,10 @@ process.source = cms.Source( "PoolSource",
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# none for now
+# from CMSSW_7_4_0_pre7: Simplified TrackerTopologyEP config (PR #7589)
+if cmsswVersion >= "CMSSW_7_4":
+    if 'trackerTopologyConstants' in process.__dict__:
+        process.trackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
