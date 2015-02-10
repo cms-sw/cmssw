@@ -30,6 +30,8 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
         QualityMetricWatch qmw;
         m_qmw.swap(qmw);
     }
+    m_stats.reset();
+
     if ((!FAKE_ERROR_COUNTER || ((++g_fakeError % FAKE_ERROR_COUNTER) != 0)) && (status->IsOK() && resp))
     {
         if (m_into)

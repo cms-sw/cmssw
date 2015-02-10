@@ -17,6 +17,8 @@ class Source;
 
 class RequestManager;
 
+class XrdReadStatistics;
+
 class ClientRequest : boost::noncopyable, public XrdCl::ResponseHandler {
 
 friend class Source;
@@ -33,15 +35,26 @@ public:
     {
     }
 
-    ClientRequest(RequestManager &manager, std::shared_ptr<std::vector<IOPosBuffer> > iolist)
+    ClientRequest(RequestManager &manager, std::shared_ptr<std::vector<IOPosBuffer> > iolist, IOSize size=0)
         : m_failure_count(0),
           m_into(nullptr),
-          m_size(0),
+          m_size(size),
           m_off(0),
           m_iolist(iolist),
           m_manager(manager)
     {
-        // TODO: calculate size here.
+        if (m_iolist->size() && !m_size)
+        {
+            for (IOPosBuffer const & buf : *m_iolist)
+            {
+                m_size += buf.size();
+            }
+        }
+    }
+
+    void setStatistics(std::shared_ptr<XrdReadStatistics> stats)
+    {
+        m_stats = stats;
     }
 
     virtual ~ClientRequest();
@@ -58,6 +71,8 @@ public:
 
     IOSize getSize() const {return m_size;}
 
+    size_t getCount() const {return m_into ? 1 : m_iolist->size();}
+
     /**
      * Returns a pointer to the current source; may be nullptr
      * if there is no outstanding IO
@@ -72,6 +87,7 @@ private:
     std::shared_ptr<std::vector<IOPosBuffer> > m_iolist;
     RequestManager &m_manager;
     std::shared_ptr<Source> m_source;
+    std::shared_ptr<XrdReadStatistics> m_stats;
 
     // Some explanation is due here.  When an IO is outstanding,
     // Xrootd takes a raw pointer to this object.  Hence we cannot
