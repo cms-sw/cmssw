@@ -113,7 +113,8 @@ namespace {
     std::auto_ptr<StripMaskContainer> removedStripClusterMask(
          new StripMaskContainer(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedStrips));
       LogDebug("ClusterChargeMasker")<<"total strip to skip: "<<std::count(collectedStrips.begin(),collectedStrips.end(),true);
-      // std::cout << "ClusterChargeMasker " <<"total strip to skip: "<<std::count(collectedStrips_.begin(),collectedStrips_.end(),true) <<std::endl;
+      // std::cout << "ClusterChargeMasker " <<"total strip to skip: "<<std::count(collectedStrips.begin(),collectedStrips.end(),true) 
+      //          << " for CCC " << minGoodStripCharge_ <<std::endl;
        iEvent.put( removedStripClusterMask );
 
       std::auto_ptr<PixelMaskContainer> removedPixelClusterMask(
