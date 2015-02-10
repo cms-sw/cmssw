@@ -373,7 +373,6 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
     e.getByToken(recHitToken, theGSRecHits);
 
-    // Output - gets moved, no delete needed
     std::auto_ptr<TrajectorySeedCollection> output{new TrajectorySeedCollection()};
 
     //if no hits -> directly write empty collection
@@ -532,9 +531,14 @@ TrajectorySeedProducer::compatibleWithBeamSpot(
     // (The charge is determined in the next step)
     ParticlePropagator myPart(theMom2,thePos2,1.,magneticFieldMap);
 
-    /// Check that the seed is compatible with a track coming from within
-    /// a cylinder of radius originRadius, with a decent pT, and propagate
-    /// to the distance of closest approach, for the appropriate charge
+    /*
+    propagateToBeamCylinder does the following
+       - check there exists a track through the 2 hits and through a
+    cylinder with radius "originRadius" centered around the CMS axis
+       - if such tracks exists, pick the one with maximum pt
+       - track vertex z coordinate is z coordinate of closest approach of
+    track to (x,y) = (0,0)
+    */
     bool intersect = myPart.propagateToBeamCylinder(thePos1,originRadius*1.);
     if ( !intersect )
     {
