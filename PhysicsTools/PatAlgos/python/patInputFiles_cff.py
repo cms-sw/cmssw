@@ -11,7 +11,7 @@ filesRelValProdTTbarPileUpMINIAODSIM = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_7_4_0_pre5/RelValTTbar_13/MINIAODSIM/PU25ns_MCRUN2_73_V7-v1/00000/B626832E-D6A0-E411-B0D9-0025905938A8.root'
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/MINIAODSIM/PU25ns_MCRUN2_74_V1-v3/00000/28C3D04B-B6AB-E411-A0A3-0025905A613C.root'
     )
 
 # /RelValProdTTbar_13/CMSSW_7_4_0_pre5-MCRUN2_73_V7-v1/AODSIM
@@ -24,7 +24,7 @@ filesRelValProdTTbarAODSIM = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_7_4_0_pre5/RelValProdTTbar_13/AODSIM/MCRUN2_73_V7-v1/00000/621B749D-F19D-E411-896C-003048FFCBA4.root'
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-RECO/MCRUN2_74_V1-v1/00000/2E97B200-D0A8-E411-BE99-0025905A60B8.root'
     )
 
 # /RelValProdTTbar_13/CMSSW_7_4_0_pre5-MCRUN2_73_V7-v1/GEN-SIM-RECO
@@ -37,7 +37,7 @@ filesRelValProdTTbarGENSIMRECO = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_7_4_0_pre5/RelValProdTTbar_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/4EBA2C0B-EB9D-E411-810A-002618FDA248.root'
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-RECO/MCRUN2_74_V1-v1/00000/2E97B200-D0A8-E411-BE99-0025905A60B8.root'
     )
 
 # /RelValTTbar/CMSSW_7_4_0_pre5-PU_MCRUN1_73_V2_FastSim-v1/GEN-SIM-DIGI-RECO
@@ -50,7 +50,7 @@ filesRelValTTbarPileUpFastSimGENSIMDIGIRECO = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_7_4_0_pre5/RelValTTbar/GEN-SIM-DIGI-RECO/PU_MCRUN1_73_V2_FastSim-v1/00000/00024C55-D39D-E411-969A-0025905A60C6.root'
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13_AVE10/GEN-SIM-DIGI-RECO/PU25ns_MCRUN2_74_V1_FastSim-v1/00000/004A7A7A-AFA8-E411-9676-002618943913.root'
     )
 
 # /RelValTTbar_13/CMSSW_7_4_0_pre5-PU25ns_MCRUN2_73_V7-v1/GEN-SIM-RECO
@@ -63,7 +63,7 @@ filesRelValTTbarPileUpGENSIMRECO = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_7_4_0_pre5/RelValTTbar_13/GEN-SIM-RECO/PU25ns_MCRUN2_73_V7-v1/00000/0A054268-C9A0-E411-8CE6-0025905A6134.root'
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-RECO/PU25ns_MCRUN2_74_V1-v3/00000/067739D0-AFAB-E411-AC03-0025905A48D0.root'
     )
 
 # /SingleMu/CMSSW_7_4_0_pre5-GR_R_73_V0A_RelVal_mu2012D-v1/MINIAOD
@@ -76,7 +76,7 @@ filesRelValSingleMuMINIAOD = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_7_4_0_pre5/SingleMu/MINIAOD/GR_R_73_V0A_RelVal_mu2012D-v1/00000/0855341F-5C9E-E411-9A51-0025905A60CA.root'
+        '/store/relval/CMSSW_7_4_0_pre6/SingleMu/MINIAOD/GR_R_74_V0A_RelVal_mu2012D-v1/00000/2AAE1C10-43A9-E411-B7FF-0025905A611C.root'
     )
 
 # /SingleMu/CMSSW_7_4_0_pre5-GR_R_73_V0A_RelVal_mu2012D-v1/RECO
@@ -89,5 +89,5 @@ filesSingleMuRECO = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_7_4_0_pre5/SingleMu/RECO/GR_R_73_V0A_RelVal_mu2012D-v1/00000/00005DA8-EE9D-E411-A0B2-002618FDA277.root'
+        '/store/relval/CMSSW_7_4_0_pre6/SingleMu/RECO/GR_R_74_V0A_RelVal_mu2012D-v1/00000/000D5DD4-F0A8-E411-95AC-0025905B85AE.root'
     )
