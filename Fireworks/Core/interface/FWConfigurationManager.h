@@ -27,6 +27,7 @@
 // forward declarations
 class FWConfigurable;
 class FWConfiguration;
+class FWJobMetadataManager;
 
 class FWConfigurationManager
 {
@@ -41,6 +42,7 @@ public:
 
    void writeToFile(const std::string&) const;
    void readFromFile(const std::string&) const;
+   void guessAndReadFromFile(FWJobMetadataManager*) const;
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------

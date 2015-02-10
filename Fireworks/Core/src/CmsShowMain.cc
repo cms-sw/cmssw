@@ -255,9 +255,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    } else {
       if (vm.count(kNoConfigFileOpt)) {
          fwLog(fwlog::kInfo) << "No configuration is loaded, show everything.\n";
-         setConfigFilename("");
-      } else
-         setConfigFilename("default.fwc");
+         setConfigFilename("no-fwc-config");
+      } 
    }
    fwLog(fwlog::kInfo) << "Config "  <<  configFilename() << std::endl;
 
@@ -314,11 +313,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    startupTasks()->addTask(f);
    f=boost::bind(&CmsShowMainBase::setupViewManagers,this);
    startupTasks()->addTask(f);
-   f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
-   startupTasks()->addTask(f);
    f=boost::bind(&CmsShowMain::setupDataHandling,this);
    startupTasks()->addTask(f);
-
+   f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
+   startupTasks()->addTask(f);
+  
    if (vm.count(kLoopOpt))
       setPlayLoop();
 
