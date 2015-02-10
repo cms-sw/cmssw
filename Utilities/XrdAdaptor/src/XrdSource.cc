@@ -14,6 +14,7 @@
 #include "XrdSource.h"
 #include "XrdRequest.h"
 #include "QualityMetric.h"
+#include "XrdStatistics.h"
 
 #define MAX_REQUEST 256*1024
 #define XRD_CL_MAX_CHUNK 512*1024
@@ -80,7 +81,8 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string 
       m_id("(unknown)"),
       m_exclude(exclude),
       m_fh(std::move(fh)),
-      m_qm(QualityMetricFactory::get(now, m_id))
+      m_qm(QualityMetricFactory::get(now, m_id)),
+      m_stats(nullptr)
 #ifdef XRD_FAKE_SLOW
     , m_slow(++g_delayCount % XRD_SLOW_RATE == 0)
     //, m_slow(++g_delayCount >= XRD_SLOW_RATE)
@@ -103,6 +105,11 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string 
     setXrootdSite();
     assert(m_qm.get());
     assert(m_fh.get());
+    XrdSiteStatisticsInformation *statsService = XrdSiteStatisticsInformation::getInstance();
+    if (statsService)
+    {
+        m_stats = statsService->getStatisticsForSite(m_site);
+    }
 }
 
 
@@ -306,6 +313,11 @@ Source::handle(std::shared_ptr<ClientRequest> c)
     c->m_source = shared_from_this();
     c->m_self_reference = c;
     m_qm->startWatch(c->m_qmw);
+    if (m_stats)
+    {
+        std::shared_ptr<XrdReadStatistics> readStats = XrdSiteStatistics::startRead(m_stats, c);
+        c->setStatistics(readStats);
+    }
 #ifdef XRD_FAKE_SLOW
     if (m_slow) std::this_thread::sleep_for(std::chrono::milliseconds(XRD_DELAY));
 #endif
