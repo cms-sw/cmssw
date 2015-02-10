@@ -1,5 +1,5 @@
 #include "Validation/EventGenerator/interface/TTbarSpinCorrHepMCAnalyzer.h"
-
+#include "Validation/EventGenerator/interface/DQMHelper.h"
 //
 // constructors and destructor
 //
@@ -90,21 +90,21 @@ void TTbarSpinCorrHepMCAnalyzer::bookHistograms(DQMStore::IBooker &i, edm::Run c
     ///Setting the DQM top directories
     TString dir="Generator/";
     dir+="TTbarSpinCorr";
-    i.setCurrentFolder(dir.Data());
+    DQMHelper dqm(&i); i.setCurrentFolder(dir.Data());
 
     // Number of analyzed events
-    nEvt = i.book1D("nEvt", "n analyzed Events", 1, 0., 1.);
+    nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.);
     
-    _h_asym = i.book1D("TTbar_asym","Asymmetr", 2, -1., 1.);
+    _h_asym = dqm.book1dHisto("TTbar_asym","Asymmetr", 2, -1., 1.);
     _h_asym->setAxisTitle("Asymmetry");
 
-    _h_deltaPhi = i.book1D("TTbar_deltaPhi","#Delta#phi(ll)", 320, 0, 3.2);
+    _h_deltaPhi = dqm.book1dHisto("TTbar_deltaPhi","#Delta#phi(ll)", 320, 0, 3.2);
     _h_deltaPhi->setAxisTitle("#Delta#phi(ll)");
     
-    _h_llpairPt = i.book1D("TTbar_llpairPt","Lepton pair transverse momentum", 1000, 0, 1000);
+    _h_llpairPt = dqm.book1dHisto("TTbar_llpairPt","Lepton pair transverse momentum", 1000, 0, 1000);
     _h_llpairPt->setAxisTitle("p_{T}(ll)");
     
-    _h_llpairM  = i.book1D("TTbar_llpairM","Lepton pair invariant mass", 1000, 0, 1000);
+    _h_llpairM  = dqm.book1dHisto("TTbar_llpairM","Lepton pair invariant mass", 1000, 0, 1000);
     _h_llpairM->setAxisTitle("M(ll)");
 
 }
