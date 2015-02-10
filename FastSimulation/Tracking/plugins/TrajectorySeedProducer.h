@@ -23,6 +23,7 @@
 	 //#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 	 //#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include <memory>
 #include <vector>
 #include <sstream>
 
@@ -43,7 +44,7 @@ class TrajectorySeedProducer:
         const TrackerGeometry* trackerGeometry;
         const TrackerTopology* trackerTopology;
 
-        PropagatorWithMaterial* thePropagator;
+        std::shared_ptr<PropagatorWithMaterial> thePropagator;
 
         double simTrack_pTMin;
         double simTrack_maxD0;
@@ -76,7 +77,9 @@ class TrajectorySeedProducer:
 
     TrajectorySeedProducer(const edm::ParameterSet& conf);
     
-    virtual ~TrajectorySeedProducer();
+    virtual ~TrajectorySeedProducer()
+    {
+    }
 
     virtual void beginRun(edm::Run const& run, const edm::EventSetup & es);
     virtual void produce(edm::Event& e, const edm::EventSetup& es);
