@@ -386,8 +386,8 @@ FWConfigurationManager::guessAndReadFromFile( FWJobMetadataManager* dataMng) con
     };
 
     std::vector<CMatch> clist;
+    clist.push_back(CMatch("reco.fwc"));
     clist.push_back(CMatch("miniaod.fwc"));
-    clist.push_back(CMatch("default.fwc"));
     clist.push_back(CMatch("aod.fwc"));
     std::vector<FWJobMetadataManager::Data> & sdata = dataMng->usableData();
 
@@ -427,7 +427,7 @@ FWConfigurationManager::guessAndReadFromFile( FWJobMetadataManager* dataMng) con
                 }
             } 
         }
-        printf("%s file %d matches\n", iName.c_str(), c->cnt);
+        // printf("%s file %d matches\n", iName.c_str(), c->cnt);
     }
     std::sort(clist.begin(), clist.end());
     fwLog(fwlog::kInfo) << "Loading configuration file "  << clist.back().file << std::endl;

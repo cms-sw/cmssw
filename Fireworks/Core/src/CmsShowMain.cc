@@ -252,13 +252,14 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
          fwLog(fwlog::kError) << "Specified configuration file does not exist. Quitting.\n";
          exit(0);
       }
+
+      fwLog(fwlog::kInfo) << "Config "  <<  configFilename() << std::endl;
    } else {
       if (vm.count(kNoConfigFileOpt)) {
          fwLog(fwlog::kInfo) << "No configuration is loaded, show everything.\n";
          setConfigFilename("no-fwc-config");
       } 
    }
-   fwLog(fwlog::kInfo) << "Config "  <<  configFilename() << std::endl;
 
    // geometry
    if (vm.count(kGeomFileOpt)) {
