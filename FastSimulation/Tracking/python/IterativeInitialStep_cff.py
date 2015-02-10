@@ -14,7 +14,7 @@ iterativeInitialSeeds.simTrackSelection.maxD0 = 1.
 iterativeInitialSeeds.simTrackSelection.maxZ0 = 30.
 iterativeInitialSeeds.outputSeedCollectionName = 'InitialPixelTriplets'
 iterativeInitialSeeds.originRadius = 1.0 # note: standard tracking uses 0.03, but this value gives a much better agreement in rate and shape for iter0
-iterativeInitialSeeds.maxZ = 999 # it was 15.9 
+iterativeInitialSeeds.originHalfLength = 999 # it was 15.9 
 iterativeInitialSeeds.originpTMin = 0.6
 
 iterativeInitialSeeds.primaryVertex = ''

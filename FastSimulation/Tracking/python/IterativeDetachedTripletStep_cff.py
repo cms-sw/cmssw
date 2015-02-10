@@ -5,14 +5,14 @@ import FWCore.ParameterSet.Config as cms
 # seeding
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeDetachedTripletSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeDetachedTripletSeeds.simTrackSelection.skipSimTrackIdTags = [cms.InputTag("initialStepIds"), cms.InputTag("lowPtTripletStepIds"), cms.InputTag("pixelPairStepIds")]
+iterativeDetachedTripletSeeds.simTrackSelection.skipSimTrackIds = [cms.InputTag("initialStepIds"), cms.InputTag("lowPtTripletStepIds"), cms.InputTag("pixelPairStepIds")]
 iterativeDetachedTripletSeeds.simTrackSelection.minLayersCrossed = 3
 iterativeDetachedTripletSeeds.simTrackSelection.pTMin = 0.3
 iterativeDetachedTripletSeeds.simTrackSelection.maxD0 = 30. # it was 5.
 iterativeDetachedTripletSeeds.simTrackSelection.maxZ0 = 50.
 iterativeDetachedTripletSeeds.outputSeedCollectionName = 'DetachedPixelTriplets'
 iterativeDetachedTripletSeeds.originRadius = 1.5
-iterativeDetachedTripletSeeds.maxZ = 15.
+iterativeDetachedTripletSeeds.originHalfLength = 15.
 iterativeDetachedTripletSeeds.originpTMin = 0.075
 iterativeDetachedTripletSeeds.primaryVertex = ''
 
