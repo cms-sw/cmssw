@@ -7,7 +7,7 @@
 class FWPRCaloTowerProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
-    FWPRCaloTowerProxyBuilder( void ); 
+   FWPRCaloTowerProxyBuilder( void ) {} 
    virtual ~FWPRCaloTowerProxyBuilder( void ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
@@ -20,10 +20,6 @@ private:
    virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );	
 };
 
-FWPRCaloTowerProxyBuilder::FWPRCaloTowerProxyBuilder()
-{
-    printf("CAlled where ??? \n");
-}
 
 void FWPRCaloTowerProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
