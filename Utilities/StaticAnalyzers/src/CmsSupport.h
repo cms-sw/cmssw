@@ -7,11 +7,10 @@
 #ifndef LLVM_CLANG_STATICANALYZER_CMS_SUPPORT_H
 #define LLVM_CLANG_STATICANALYZER_CMS_SUPPORT_H
 
-#include <llvm/Support/Regex.h>
-
 #include <clang/AST/Type.h>
 #include <clang/AST/Decl.h>
 #include <clang/AST/DeclCXX.h>
+#include <string>
 
 namespace clangcms {
 
