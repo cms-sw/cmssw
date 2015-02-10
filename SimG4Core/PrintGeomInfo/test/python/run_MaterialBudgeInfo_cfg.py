@@ -3,9 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PrintMaterialBudget")
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load("Geometry.CMSCommonData.trackerSimGeometryXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load('Geometry.CMSCommonData.cmsExtendedGeometry2015XML_cfi')
+process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
 
 process.MessageLogger.destinations = cms.untracked.vstring("MatBudget.txt")
 

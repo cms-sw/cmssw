@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 def extractDatasets(database, config):
   # dump the Streams and Datasets from the HLT configuration
   proc = subprocess.Popen(
-    "edmConfigFromDB --%s --configName %s --nopsets --noedsources --noes --noservices --nooutput --nopaths" % (database, config),
+    "hltConfigFromDB --%s --configName %s --nopsets --noedsources --noes --noservices --nooutput --nopaths" % (database, config),
     shell  = True,
     stdin  = None,
     stdout = subprocess.PIPE,

@@ -43,8 +43,6 @@ BxTiming::BxTiming(const edm::ParameterSet& iConfig) {
     std::cout << "\n" << std::flush;
   }
 
-  nfed_ = FEDNumbering::MAXFEDID+1;
-
   nEvt_ = 0;
   
   if(verbose())
