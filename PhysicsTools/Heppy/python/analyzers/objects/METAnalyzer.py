@@ -74,6 +74,23 @@ class METAnalyzer( Analyzer ):
         px,py = event.metNoMuNoPU.px()-mupx, event.metNoMuNoPU.py()-mupy
         event.metNoMuNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
 
+    def makeMETNoPhoton(self, event):
+        event.metNoPhoton = copy.deepcopy(event.met)
+        event.metNoPhotonNoPU = copy.deepcopy(event.metNoPU)
+
+        phopx = 0
+        phopy = 0
+        #sum photon momentum                                                                                                                                                                                                                            
+        for pho in event.selectedPhotons:
+            phopx += pho.px()
+            phopy += pho.py()
+
+        #subtract photon momentum and construct met                                                                                                                                                                                                     
+        px,py = event.metNoPhoton.px()-phopx, event.metNoPhoton.py()-phopy
+        event.metNoPhoton.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        px,py = event.metNoPhotonNoPU.px()-phopx, event.metNoPhotonNoPU.py()-phopy
+        event.metNoPhotonNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+
 
     def makeMETs(self, event):
         event.met = self.handles['met'].product()[0]
@@ -96,6 +113,8 @@ class METAnalyzer( Analyzer ):
         if self.cfg_ana.doMetNoMu and hasattr(event, 'selectedMuons'):
             self.makeMETNoMu(event)
 
+        if self.cfg_ana.doMetNoPhoton and hasattr(event, 'selectedPhotons'):
+            self.makeMETNoPhoton(event)
 
     def process(self, event):
         self.readCollections( event.input)
@@ -117,6 +136,7 @@ setattr(METAnalyzer,"defaultConfig", cfg.Analyzer(
     recalibrate = True,
     doTkMet = False,
     doMetNoMu = False,  
+    doMetNoPhoton = False,  
     candidates='packedPFCandidates',
     candidatesTypes='std::vector<pat::PackedCandidate>',
     dzMax = 0.1,
