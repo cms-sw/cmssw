@@ -19,9 +19,9 @@ namespace edm {
 }
 
 namespace l1t {
-   // Mapping of AMC id to list of unpackers.  Different for each set of (FED, Firmware) ids.
-   typedef std::map<int, Packers> PackerMap;
-   // Mapping of block id to unpacker.  Different for each set of (FED, AMC, Firmware) ids.
+   // Mapping of board id to list of unpackers.  Different for each set of (FED, Firmware) ids.
+   typedef std::map<std::pair<int, int>, Packers> PackerMap;
+   // Mapping of block id to unpacker.  Different for each set of (FED, Board, AMC, Firmware) ids.
    typedef std::map<int, std::shared_ptr<Unpacker>> UnpackerMap;
 
    class PackingSetup {
@@ -30,11 +30,11 @@ namespace l1t {
          virtual std::unique_ptr<PackerTokens> registerConsumes(const edm::ParameterSet&, edm::ConsumesCollector&) = 0;
          virtual void registerProducts(edm::one::EDProducerBase&) = 0;
 
-         // Get a map of AMC ↔ list of packing functions for a specific FED, FW combination
-         virtual PackerMap getPackers(int, int) = 0;
+         // Get a map of (amc #, board id) ↔ list of packing functions for a specific FED, FW combination
+         virtual PackerMap getPackers(int fed, int fw) = 0;
 
-         // Get a map of Block IDs ↔ unpacker for a specific FED, AMC, FW combination
-         virtual UnpackerMap getUnpackers(int, int, int) = 0;
+         // Get a map of Block IDs ↔ unpacker for a specific FED, board, AMC, FW combination
+         virtual UnpackerMap getUnpackers(int fed, int board , int amc, int fw) = 0;
          virtual std::unique_ptr<UnpackerCollections> getCollections(edm::Event&) = 0;
    };
 

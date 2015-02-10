@@ -67,6 +67,12 @@ bool CustomPDGParser::s_isSbaryon(int pdg)
 
 }
 
+bool CustomPDGParser::s_isChargino( int pdg )
+{
+  int pdgAbs = abs(pdg);
+  return (pdgAbs == 1000024);  
+}
+
 
 double CustomPDGParser::s_charge(int pdg)
 {
@@ -82,6 +88,9 @@ double CustomPDGParser::s_charge(int pdg)
       	      return -sign;
 	}
 
+      if (s_isChargino(pdg)) {
+	return sign;
+      } 
       if(s_isRMeson(pdg))
       {
         std::vector<int> quarks = s_containedQuarks(pdg);

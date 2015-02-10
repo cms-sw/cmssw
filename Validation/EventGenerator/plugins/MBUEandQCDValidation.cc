@@ -13,7 +13,7 @@
 
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/ClusterSequence.hh"
-
+#include "Validation/EventGenerator/interface/DQMHelper.h"
 using namespace edm;
 
 MBUEandQCDValidation::MBUEandQCDValidation(const edm::ParameterSet& iPSet): 
@@ -50,173 +50,173 @@ void MBUEandQCDValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup&
 
 void MBUEandQCDValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
 	///Setting the DQM top directories
-	i.setCurrentFolder("Generator/MBUEandQCD");
+	DQMHelper dqm(&i); i.setCurrentFolder("Generator/MBUEandQCD");
 	
 	///Booking the ME's
     
     // Number of analyzed events
-    nEvt = i.book1D("nEvt", "n analyzed Events", 1, 0., 1.);
+    nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.);
 
     // Number of events with no forward trigger
-    nNoFwdTrig = i.book1D("nNoFwdTrig", "n Events no forward trigger", 1, 0., 1.);
+    nNoFwdTrig = dqm.book1dHisto("nNoFwdTrig", "n Events no forward trigger", 1, 0., 1.);
 	
     // Number of events with a single arm forward trigger
-    nSaFwdTrig = i.book1D("nSaFwdTrig", "n Events single arm forward trigger", 1, 0., 1.);
+    nSaFwdTrig = dqm.book1dHisto("nSaFwdTrig", "n Events single arm forward trigger", 1, 0., 1.);
 
     // Number of events with b quark
-    nbquark = i.book1D("nbquark", "n Events with b quark", 1, 0., 1.);
+    nbquark = dqm.book1dHisto("nbquark", "n Events with b quark", 1, 0., 1.);
     
     // Number of events with c and b quark
-    ncandbquark = i.book1D("ncandbquark", "n Events with c and b quark", 1, 0., 1.);
+    ncandbquark = dqm.book1dHisto("ncandbquark", "n Events with c and b quark", 1, 0., 1.);
     
     // Number of events with c and no b quark
-    ncnobquark = i.book1D("ncnobquark", "n Events with c and no b quark", 1, 0., 1.);
+    ncnobquark = dqm.book1dHisto("ncnobquark", "n Events with c and no b quark", 1, 0., 1.);
     
 
     // Number of selected events for QCD-09-010
-    nEvt1 = i.book1D("nEvt1", "n Events QCD-09-010", 1, 0., 1.);
+    nEvt1 = dqm.book1dHisto("nEvt1", "n Events QCD-09-010", 1, 0., 1.);
     // dNchdpt QCD-09-010
-	dNchdpt1 = i.book1D("dNchdpt1", "dNchdpt QCD-09-010", 30, 0., 6.); 
+	dNchdpt1 = dqm.book1dHisto("dNchdpt1", "dNchdpt QCD-09-010", 30, 0., 6.); 
     // dNchdeta QCD-09-010
-    dNchdeta1 = i.book1D("dNchdeta1", "dNchdeta QCD-09-010", 10, -2.5, 2.5);
+    dNchdeta1 = dqm.book1dHisto("dNchdeta1", "dNchdeta QCD-09-010", 10, -2.5, 2.5);
     // Number of selected events for QCD-10-001
 
-    nEvt2 = i.book1D("nEvt2", "n Events QCD-10-001", 1, 0., 1.);
+    nEvt2 = dqm.book1dHisto("nEvt2", "n Events QCD-10-001", 1, 0., 1.);
     // Leading track pt QCD-10-001
-    leadTrackpt = i.book1D("leadTrackpt", "leading track pt QCD-10-001", 200, 0., 100.);
+    leadTrackpt = dqm.book1dHisto("leadTrackpt", "leading track pt QCD-10-001", 200, 0., 100.);
     // Leading track eta QCD-10-001
-    leadTracketa = i.book1D("leadTracketa", "leading track eta QCD-10-001", 50., -2.5,2.5);
+    leadTracketa = dqm.book1dHisto("leadTracketa", "leading track eta QCD-10-001", 50., -2.5,2.5);
     // transverse charged particle density vs leading track pt
     nChaDenLpt = i.bookProfile("nChaDenLpt", "charged density vs leading pt", 200, 0., 100., 0., 100., " ");
     // transverse charged particle density vs leading track pt
     sptDenLpt = i.bookProfile("sptDenLpt", "sum pt density vs leading pt", 200, 0., 100., 0., 300., " ");
     // dNchdpt QCD-10-001 transverse
-	dNchdpt2 = i.book1D("dNchdpt2", "dNchdpt QCD-10-001", 200, 0., 100.); 
+	dNchdpt2 = dqm.book1dHisto("dNchdpt2", "dNchdpt QCD-10-001", 200, 0., 100.); 
     // dNchdeta QCD-10-001 transverse
-    dNchdeta2 = i.book1D("dNchdeta2", "dNchdeta QCD-10-001", 50, -2.5, 2.5);
+    dNchdeta2 = dqm.book1dHisto("dNchdeta2", "dNchdeta QCD-10-001", 50, -2.5, 2.5);
     // nCha QCD-10-001 transverse
-    nCha = i.book1D("nCha", "n charged QCD-10-001", 100, 0., 100.);
+    nCha = dqm.book1dHisto("nCha", "n charged QCD-10-001", 100, 0., 100.);
     // dNchdSpt transverse
-    dNchdSpt = i.book1D("dNchdSpt", "dNchdSpt QCD-10-001", 300, 0., 300.);
+    dNchdSpt = dqm.book1dHisto("dNchdSpt", "dNchdSpt QCD-10-001", 300, 0., 300.);
     // dNchdphi
     dNchdphi = i.bookProfile("dNchdphi", "dNchdphi QCD-10-001", nphiBin, -180., 180., 0., 30., " ");
     // dSptdphi
     dSptdphi = i.bookProfile("dSptdphi", "dSptdphi QCD-10-001", nphiBin, -180., 180., 0., 30., " ");
 
     // number of charged jets QCD-10-001
-    nChj = i.book1D("nChj", "n charged jets QCD-10-001", 30, 0, 30.);
+    nChj = dqm.book1dHisto("nChj", "n charged jets QCD-10-001", 30, 0, 30.);
     // dNchjdeta QCD-10-001
-    dNchjdeta = i.book1D("dNchjdeta", "dNchjdeta QCD-10-001", 50, -2.5, 2.5);
+    dNchjdeta = dqm.book1dHisto("dNchjdeta", "dNchjdeta QCD-10-001", 50, -2.5, 2.5);
     // dNchjdpt QCD-10-001
-    dNchjdpt = i.book1D("dNchjdpt", "dNchjdpt QCD-10-001", 100, 0., 100.);
+    dNchjdpt = dqm.book1dHisto("dNchjdpt", "dNchjdpt QCD-10-001", 100, 0., 100.);
     // leading charged jet pt QCD-10-001
-    leadChjpt = i.book1D("leadChjpt", "leadChjpt QCD-10-001", 100, 0., 100.);
+    leadChjpt = dqm.book1dHisto("leadChjpt", "leadChjpt QCD-10-001", 100, 0., 100.);
     // leading charged jet eta QCD-10-001
-    leadChjeta = i.book1D("leadChjeta", "leadChjeta QCD-10-001", 50, -2.5, 2.5);
+    leadChjeta = dqm.book1dHisto("leadChjeta", "leadChjeta QCD-10-001", 50, -2.5, 2.5);
     // (pt1+pt2)/ptot
     pt1pt2optotch = i.bookProfile("pt1pt2optotch", "sum 2 leading jets over ptot", 50, 0., 100., 0., 1., " ");
 
     // particle rates in tracker acceptance
-    nPPbar = i.book1D("nPPbar", "nPPbar QCD-10-001", 30, 0., 30.);
-    nKpm = i.book1D("nKpm", "nKpm QCD-10-001", 30, 0., 30.);
-    nK0s = i.book1D("nK0s", "nK0s QCD-10-001", 30, 0., 30.);
-    nL0 = i.book1D("nL0", "nL0 QCD-10-001", 30, 0., 30.);
-    nXim = i.book1D("nXim", "nXim QCD-10-001", 30, 0., 30.);
-    nOmega = i.book1D("nOmega", "nOmega QCD-10-001", 30, 0., 30.);
+    nPPbar = dqm.book1dHisto("nPPbar", "nPPbar QCD-10-001", 30, 0., 30.);
+    nKpm = dqm.book1dHisto("nKpm", "nKpm QCD-10-001", 30, 0., 30.);
+    nK0s = dqm.book1dHisto("nK0s", "nK0s QCD-10-001", 30, 0., 30.);
+    nL0 = dqm.book1dHisto("nL0", "nL0 QCD-10-001", 30, 0., 30.);
+    nXim = dqm.book1dHisto("nXim", "nXim QCD-10-001", 30, 0., 30.);
+    nOmega = dqm.book1dHisto("nOmega", "nOmega QCD-10-001", 30, 0., 30.);
 
-    pPPbar = i.book1D("pPPbar", "Log10(pt) PPbar QCD-10-001", 25, -2., 3.);
-    pKpm = i.book1D("pKpm", "Log10(pt) Kpm QCD-10-001", 25, -2., 3.);
-    pK0s = i.book1D("pK0s", "Log10(pt) K0s QCD-10-001", 25, -2., 3.);
-    pL0 = i.book1D("pL0", "Log10(pt) L0 QCD-10-001", 25, -2., 3.);
-    pXim = i.book1D("pXim", "Log10(pt) Xim QCD-10-001", 25, -2., 3.);
-    pOmega = i.book1D("pOmega", "Log10(pt) Omega QCD-10-001", 25, -2., 3.);
+    pPPbar = dqm.book1dHisto("pPPbar", "Log10(pt) PPbar QCD-10-001", 25, -2., 3.);
+    pKpm = dqm.book1dHisto("pKpm", "Log10(pt) Kpm QCD-10-001", 25, -2., 3.);
+    pK0s = dqm.book1dHisto("pK0s", "Log10(pt) K0s QCD-10-001", 25, -2., 3.);
+    pL0 = dqm.book1dHisto("pL0", "Log10(pt) L0 QCD-10-001", 25, -2., 3.);
+    pXim = dqm.book1dHisto("pXim", "Log10(pt) Xim QCD-10-001", 25, -2., 3.);
+    pOmega = dqm.book1dHisto("pOmega", "Log10(pt) Omega QCD-10-001", 25, -2., 3.);
 
     // neutral rate in the barrel + HF acceptance
-    nNNbar = i.book1D("nNNbar", "nNNbar QCD-10-001", 30, 0., 30.);
-    nGamma = i.book1D("nGamma", "nGamma QCD-10-001", 50, 0., 200.);
+    nNNbar = dqm.book1dHisto("nNNbar", "nNNbar QCD-10-001", 30, 0., 30.);
+    nGamma = dqm.book1dHisto("nGamma", "nGamma QCD-10-001", 50, 0., 200.);
 
-    pNNbar = i.book1D("pNNbar", "Log10(pt) NNbar QCD-10-001", 25, -2., 3.);
-    pGamma = i.book1D("pGamma", "Log10(pt) Gamma QCD-10-001", 25, -2., 3.);
+    pNNbar = dqm.book1dHisto("pNNbar", "Log10(pt) NNbar QCD-10-001", 25, -2., 3.);
+    pGamma = dqm.book1dHisto("pGamma", "Log10(pt) Gamma QCD-10-001", 25, -2., 3.);
 
     // highest pt electron spectrum
-    elePt = i.book1D("elePt", "highest pt electron Log10(pt)", 30, -2., 4.);
+    elePt = dqm.book1dHisto("elePt", "highest pt electron Log10(pt)", 30, -2., 4.);
 
     // highest pt muon spectrum
-    muoPt = i.book1D("muoPt", "highest pt muon Log10(pt)", 30, -2., 4.);
+    muoPt = dqm.book1dHisto("muoPt", "highest pt muon Log10(pt)", 30, -2., 4.);
 
 
     // number of selected di-jet events
-    nDijet = i.book1D("nDijet", "n Dijet Events", 1, 0., 1.);
+    nDijet = dqm.book1dHisto("nDijet", "n Dijet Events", 1, 0., 1.);
     // number of jets 
-    nj = i.book1D("nj", "n jets ", 30, 0, 30.);
+    nj = dqm.book1dHisto("nj", "n jets ", 30, 0, 30.);
     // dNjdeta 
-    dNjdeta = i.book1D("dNjdeta", "dNjdeta ", 50, -5., 5.);
+    dNjdeta = dqm.book1dHisto("dNjdeta", "dNjdeta ", 50, -5., 5.);
     // dNjdpt 
-    dNjdpt = i.book1D("dNjdpt", "dNjdpt ", 60, 0., 300.);
+    dNjdpt = dqm.book1dHisto("dNjdpt", "dNjdpt ", 60, 0., 300.);
     // (pt1+pt2)/ptot
     pt1pt2optot = i.bookProfile("pt1pt2optot", "sum 2 leading jets over Et tot ", 60, 0., 300., 0., 1., " ");
     // pt1-pt2
-    pt1pt2balance = i.book1D("pt1pt2balance", "2 leading jets pt difference ", 10, 0., 1.);
+    pt1pt2balance = dqm.book1dHisto("pt1pt2balance", "2 leading jets pt difference ", 10, 0., 1.);
     // pt1 pt2 Delta phi
-    pt1pt2Dphi = i.book1D("pt1pt2Dphi", "pt1 pt2 delta phi ", nphiBin, 0., 180.);
+    pt1pt2Dphi = dqm.book1dHisto("pt1pt2Dphi", "pt1 pt2 delta phi ", nphiBin, 0., 180.);
     // pt1 pt2 invariant mass
-    pt1pt2InvM = i.book1D("pt1pt2InvM", "pt1 pt2 invariant mass ", 60, 0., 600.);
+    pt1pt2InvM = dqm.book1dHisto("pt1pt2InvM", "pt1 pt2 invariant mass ", 60, 0., 600.);
     // pt3 fraction
-    pt3Frac = i.book1D("pt3Frac", "2 pt3 over pt1+pt2 ", 30, 0., 1.);
+    pt3Frac = dqm.book1dHisto("pt3Frac", "2 pt3 over pt1+pt2 ", 30, 0., 1.);
     // sum of jets Et
-    sumJEt = i.book1D("sumJEt", "sum Jet Et ", 60, 0., 300.);
+    sumJEt = dqm.book1dHisto("sumJEt", "sum Jet Et ", 60, 0., 300.);
     // fraction of missing Et over sum of jets Et
-    missEtosumJEt = i.book1D("missEtosumJEt", "missing Et over sumJet Et ", 30, 0., 1.);
+    missEtosumJEt = dqm.book1dHisto("missEtosumJEt", "missing Et over sumJet Et ", 30, 0., 1.);
     // sum of final state particle Pt
-    sumPt = i.book1D("sumPt", "sum particle Pt ", 60, 0., 600.);
+    sumPt = dqm.book1dHisto("sumPt", "sum particle Pt ", 60, 0., 600.);
     // sum of final state charged particle Pt
-    sumChPt = i.book1D("sumChPt", "sum charged particle Pt ", 60, 0., 300.);
+    sumChPt = dqm.book1dHisto("sumChPt", "sum charged particle Pt ", 60, 0., 300.);
 
     //Number of selected events for the HF energy flux analysis
-    nHFflow = i.book1D("nHFflow", "n HF flow events", 1, 0., 1.);
+    nHFflow = dqm.book1dHisto("nHFflow", "n HF flow events", 1, 0., 1.);
     //Forward energy flow for MinBias BSC selection
     dEdetaHFmb = i.bookProfile("dEdetaHFmb", "dEdeta HF MinBias", (int)CaloCellManager::nForwardEta, 0, (double)CaloCellManager::nForwardEta, 0., 300., " ");
     //Forward energy flow for QCD dijet selection
     dEdetaHFdj = i.bookProfile("dEdetaHFdj", "dEdeta HF QCD dijet", (int)CaloCellManager::nForwardEta, 0, (double)CaloCellManager::nForwardEta, 0., 300., " ");
 
     // FWD-10-001 like diffraction analysis
-    nHFSD = i.book1D("nHFSD","n single diffraction in HF", 1, 0., 1.);
+    nHFSD = dqm.book1dHisto("nHFSD","n single diffraction in HF", 1, 0., 1.);
     // E-pz HF-
-    EmpzHFm = i.book1D("EmpzHFm", "E-pz HF- SD", 40, 0., 200.);
+    EmpzHFm = dqm.book1dHisto("EmpzHFm", "E-pz HF- SD", 40, 0., 200.);
     // Number of cells above threshold
-    ntHFm = i.book1D("ntHFm", "number of HF- tower SD", 20, 0., 20.);
+    ntHFm = dqm.book1dHisto("ntHFm", "number of HF- tower SD", 20, 0., 20.);
     // Energy in HF-
-    eneHFmSel = i.book1D("eneHFmSel", "energy in HF-", 40, 0., 200.);
+    eneHFmSel = dqm.book1dHisto("eneHFmSel", "energy in HF-", 40, 0., 200.);
 
     // number of jets accepted in the 'Jet-Multiplicity' analysis
-    _JM25njets = i.book1D("JM25njets", "n jets", 15, 0, 15.);    
-    _JM25ht = i.book1D("JM25ht", "HT", 80, 0, 800.);    
-    _JM25pt1 = i.book1D("JM25pt1", "pt", 40, 0, 200.);    
-    _JM25pt2 = i.book1D("JM25pt2", "pt", 40, 0, 200.);    
-    _JM25pt3 = i.book1D("JM25pt3", "pt", 40, 0, 200.);    
-    _JM25pt4 = i.book1D("JM25pt4", "pt", 40, 0, 200.);    
+    _JM25njets = dqm.book1dHisto("JM25njets", "n jets", 15, 0, 15.);    
+    _JM25ht = dqm.book1dHisto("JM25ht", "HT", 80, 0, 800.);    
+    _JM25pt1 = dqm.book1dHisto("JM25pt1", "pt", 40, 0, 200.);    
+    _JM25pt2 = dqm.book1dHisto("JM25pt2", "pt", 40, 0, 200.);    
+    _JM25pt3 = dqm.book1dHisto("JM25pt3", "pt", 40, 0, 200.);    
+    _JM25pt4 = dqm.book1dHisto("JM25pt4", "pt", 40, 0, 200.);    
 
-    _JM80njets = i.book1D("JM80njets", "n jets", 15, 0, 15.);    
-    _JM80ht = i.book1D("JM80ht", "HT", 80, 300, 1100.);    
-    _JM80pt1 = i.book1D("JM80pt1", "pt", 40, 60, 260.);    
-    _JM80pt2 = i.book1D("JM80pt2", "pt", 40, 60, 260.);    
-    _JM80pt3 = i.book1D("JM80pt3", "pt", 40, 60, 260.);    
-    _JM80pt4 = i.book1D("JM80pt4", "pt", 40, 60, 260.);    
+    _JM80njets = dqm.book1dHisto("JM80njets", "n jets", 15, 0, 15.);    
+    _JM80ht = dqm.book1dHisto("JM80ht", "HT", 80, 300, 1100.);    
+    _JM80pt1 = dqm.book1dHisto("JM80pt1", "pt", 40, 60, 260.);    
+    _JM80pt2 = dqm.book1dHisto("JM80pt2", "pt", 40, 60, 260.);    
+    _JM80pt3 = dqm.book1dHisto("JM80pt3", "pt", 40, 60, 260.);    
+    _JM80pt4 = dqm.book1dHisto("JM80pt4", "pt", 40, 60, 260.);    
 
 
     // differential jet rates
-    djr10 = i.book1D("djr10", "Differential Jet Rate 1#rightarrow0", 60, -1., 5.);
-    djr21 = i.book1D("djr21", "Differential Jet Rate 2#rightarrow1", 60, -1., 5.);
-    djr32 = i.book1D("djr32", "Differential Jet Rate 3#rightarrow2", 60, -1., 5.);
-    djr43 = i.book1D("djr43", "Differential Jet Rate 4#rightarrow3", 60, -1., 5.);
+    djr10 = dqm.book1dHisto("djr10", "Differential Jet Rate 1#rightarrow0", 60, -1., 5.);
+    djr21 = dqm.book1dHisto("djr21", "Differential Jet Rate 2#rightarrow1", 60, -1., 5.);
+    djr32 = dqm.book1dHisto("djr32", "Differential Jet Rate 3#rightarrow2", 60, -1., 5.);
+    djr43 = dqm.book1dHisto("djr43", "Differential Jet Rate 4#rightarrow3", 60, -1., 5.);
 
     // sumET analysis
-    _sumEt = i.book1D("sumET", "Sum of stable particles Et", 150, 0, 600.);
-    _sumEt1 = i.book1D("sumET1", "Sum of stable particles Et (eta<0.5)", 150, 0, 200.);
-    _sumEt2 = i.book1D("sumET2", "Sum of stable particles Et (0.5<eta<1.0)", 150, 0, 200.);
-    _sumEt3 = i.book1D("sumET3", "Sum of stable particles Et (1.0<eta<1.5)", 150, 0, 200.);
-    _sumEt4 = i.book1D("sumET4", "Sum of stable particles Et (1.5<eta<2.0)", 150, 0, 200.);
-    _sumEt5 = i.book1D("sumET5", "Sum of stable particles Et (2.0<eta<5.0)", 150, 0, 200.);
+    _sumEt = dqm.book1dHisto("sumET", "Sum of stable particles Et", 150, 0, 600.);
+    _sumEt1 = dqm.book1dHisto("sumET1", "Sum of stable particles Et (eta<0.5)", 150, 0, 200.);
+    _sumEt2 = dqm.book1dHisto("sumET2", "Sum of stable particles Et (0.5<eta<1.0)", 150, 0, 200.);
+    _sumEt3 = dqm.book1dHisto("sumET3", "Sum of stable particles Et (1.0<eta<1.5)", 150, 0, 200.);
+    _sumEt4 = dqm.book1dHisto("sumET4", "Sum of stable particles Et (1.5<eta<2.0)", 150, 0, 200.);
+    _sumEt5 = dqm.book1dHisto("sumET5", "Sum of stable particles Et (2.0<eta<5.0)", 150, 0, 200.);
     
 
   return;

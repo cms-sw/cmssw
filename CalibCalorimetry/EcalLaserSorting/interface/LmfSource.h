@@ -14,8 +14,8 @@
 class LmfSource: public edm::ProducerSourceBase{
 private:
   struct IndexRecord{
-    int orbit;
-    std::streampos filePos;
+    uint32_t orbit;
+    uint32_t filePos;
     //    bool operator<(const IndexRecord& i) const { return orbit < i.orbit; }
   };
   
@@ -80,7 +80,7 @@ private:
    */
   std::vector<uint32_t> header_;
 
-  static unsigned fileHeaderSize;
+  static const unsigned fileHeaderSize;
   
   /** Buffer for file header readout
    */
@@ -89,11 +89,11 @@ private:
 
   /** Minimal LMF data format version supported.
    */
-  static unsigned char minDataFormatVersion_;
+  static const unsigned char minDataFormatVersion_;
   
   /** Maximal LMF data format version supported.
    */
-  static unsigned char maxDataFormatVersion_;
+  static const unsigned char maxDataFormatVersion_;
 
   /** Filtering events. Used for prescale.
    * @return true of event accepted, false if rejected

@@ -118,6 +118,14 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_0(watchPostBeginJob)
 
+      typedef signalslot::Signal<void()> PreEndJob;
+      ///signal is emitted before any modules have gotten their endJob called
+      PreEndJob preEndJobSignal_;
+      void watchPreEndJob(PreEndJob::slot_type const& iSlot) {
+         preEndJobSignal_.connect_front(iSlot);
+      }
+      AR_WATCH_USING_METHOD_0(watchPreEndJob)
+
       typedef signalslot::Signal<void()> PostEndJob;
       ///signal is emitted after all modules have gotten their endJob called
       PostEndJob postEndJobSignal_;
