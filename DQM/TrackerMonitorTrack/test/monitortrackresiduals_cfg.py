@@ -31,7 +31,7 @@ process.GlobalTag.globaltag = 'DESIGN_31X_V2::All'
 ##
 ## Geometry
 ##
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 
 ##

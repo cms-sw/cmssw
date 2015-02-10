@@ -35,7 +35,7 @@ process.GlobalTag.globaltag = "GR09_31X_V5P::All"
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 #Geometry
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 
 # Real data raw to digi
