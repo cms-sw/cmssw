@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
+
 DefaultClusterizer = cms.PSet(
     Algorithm = cms.string('ThreeThresholdAlgorithm'),
     ChannelThreshold = cms.double(2.0),
