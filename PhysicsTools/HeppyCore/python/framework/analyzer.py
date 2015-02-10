@@ -41,21 +41,22 @@ class Analyzer(object):
         # this is the main logger corresponding to the looper.
         # each analyzer could also declare its own logger
         self.mainLogger = logging.getLogger( looperName )
+        # print self.mainLogger.handlers
         self.beginLoopCalled = False
 
     def beginLoop(self, setup):
         """Automatically called by Looper, for all analyzers."""
         self.counters = Counters()
         self.averages = Averages()
-        self.mainLogger.warning( 'beginLoop ' + self.cfg_ana.name )
+        self.mainLogger.info( 'beginLoop ' + self.cfg_ana.name )
         self.beginLoopCalled = True
 
     def endLoop(self, setup):
         """Automatically called by Looper, for all analyzers."""
         #print self.cfg_ana
-        self.mainLogger.warning( '' )
-        self.mainLogger.warning( str(self) )
-        self.mainLogger.warning( '' )
+        self.mainLogger.info( '' )
+        self.mainLogger.info( str(self) )
+        self.mainLogger.info( '' )
 
     def process(self, event ):
         """Automatically called by Looper, for all analyzers.

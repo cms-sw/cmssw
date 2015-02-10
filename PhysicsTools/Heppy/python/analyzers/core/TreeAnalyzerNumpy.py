@@ -29,6 +29,7 @@ class TreeAnalyzerNumpy( Analyzer ):
             print 'Compression', isCompressed
             self.file = TFile( fileName, 'recreate', '', isCompressed )
         self.tree = Tree('tree', self.name)
+        self.tree.setDefaultFloatType(getattr(self.cfg_ana, 'defaultFloatType','D')); # or 'F'
         self.declareVariables(setup)
         
     def declareVariables(self,setup):

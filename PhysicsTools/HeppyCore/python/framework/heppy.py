@@ -49,12 +49,13 @@ def runLoop( comp, outDir, config, options):
                    config,
                    options.nevents, 0,
                    nPrint = options.nprint,
-                   timeReport = options.timeReport)
-    print loop
+                   timeReport = options.timeReport,
+                   quiet = options.quiet)
+    # print loop
     if options.iEvent is None:
         loop.loop()
         loop.write()
-        print loop
+        # print loop
     else:
         # loop.InitOutput()
         iEvent = int(options.iEvent)
@@ -145,8 +146,8 @@ def main( options, args ):
 
     selComps = [comp for comp in cfg.config.components if len(comp.files)>0]
     selComps = split(selComps)
-    for comp in selComps:
-        print comp
+    # for comp in selComps:
+    #    print comp
     if len(selComps)>10:
         print "WARNING: too many threads {tnum}, will just use a maximum of 10.".format(tnum=len(selComps))
     if not createOutputDir(outDir, selComps, options.force):
@@ -207,6 +208,11 @@ if __name__ == '__main__':
                       dest="timeReport",
                       action='store_true',
                       help="Make a report of the time used by each analyzer",
+                      default=False)
+    parser.add_option("-q", "--quiet",
+                      dest="quiet",
+                      action='store_true',
+                      help="do not print log messages to screen.",
                       default=False)
 
 
