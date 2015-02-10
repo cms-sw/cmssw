@@ -20,7 +20,7 @@ l1t::Stage1Layer2EtSumAlgorithmImpHW::Stage1Layer2EtSumAlgorithmImpHW(CaloParams
 {
   //now do what ever initialization is needed
   for(size_t i=0; i<cordicPhiValues.size(); ++i) {
-    cordicPhiValues[i] = static_cast<int>(pow(2.,16)*(i-36)*M_PI/36);
+    cordicPhiValues[i] = static_cast<int>(pow(2.,16)*(((float) i)-36)*M_PI/36);
   }
   for(size_t i=0; i<sines.size(); ++i) {
     sines[i] = static_cast<long>(pow(2,30)*sin(i*20*M_PI/180));
@@ -67,26 +67,32 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   std::vector<SimpleRegion> regionEtVect;
   std::vector<SimpleRegion> regionHtVect;
 
+  // FIXME: hwPt() is ambiguous as to Et/Ht, need to properly fill
+  // hwEtEm() and hwEtHad() and use approriate RegionCorrection()
+  // Also, need to confirm thresholds will be hardware values not physical
   for (auto& region : *subRegions) {
     if ( region.hwEta() >= etSumEtaMinEt && region.hwEta() <= etSumEtaMaxEt)
     {
-      if(region.etEm() >= etSumEtThresholdEt)
+      if(region.hwPt() >= etSumEtThresholdEt)
       {
         SimpleRegion r;
         r.ieta = region.hwEta();
         r.iphi = region.hwPhi();
-        r.et   = region.hwEtEm();
+        // I'd like to use hwEtEm, but RegionCorrection currently corrects hwPt
+        // r.et   = region.hwEtEm();
+        r.et   = region.hwPt();
         regionEtVect.push_back(r);
       }
     }
     if ( region.hwEta() >= etSumEtaMinHt && region.hwEta() <= etSumEtaMaxHt)
     {
-      if(region.etHad() >= etSumEtThresholdHt)
+      if(region.hwPt() >= etSumEtThresholdHt)
       {
         SimpleRegion r;
         r.ieta = region.hwEta();
         r.iphi = region.hwPhi();
-        r.et   = region.hwEtHad();
+        // r.et   = region.hwEtHad();
+        r.et   = region.hwPt();
         regionHtVect.push_back(r);
       }
     }
@@ -163,7 +169,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
 }
 
 std::tuple<int, int, int>
-l1t::Stage1Layer2EtSumAlgorithmImpHW::doSumAndMET(std::vector<SimpleRegion>& regionEt, ETSumType sumType)
+l1t::Stage1Layer2EtSumAlgorithmImpHW::doSumAndMET(const std::vector<SimpleRegion>& regionEt, ETSumType sumType)
 {
 // if any region et/ht has overflow bit, set sumET overflow bit
 // met/mht same, breakout to function
@@ -195,7 +201,7 @@ l1t::Stage1Layer2EtSumAlgorithmImpHW::doSumAndMET(std::vector<SimpleRegion>& reg
   bool inputOverflow(false);
   for (const auto& r : regionEt)
   {
-    if ( r.ieta < 0 )
+    if ( r.ieta < 11 )
       sumEtaNeg[r.iphi] += r.et;
     else
       sumEtaPos[r.iphi] += r.et;
