@@ -16,6 +16,8 @@
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
+#include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
+
 
 namespace {
 
@@ -28,10 +30,10 @@ public:
    *  to define acceptance of Plane and maximalLocalDisplacement.
    */
   explicit Chi2ChargeMeasurementEstimator(double maxChi2, double nSigma,
-	bool cutOnPixelCharge, bool cutOnStripCharge, float minGoodPixelCharge, float minGoodStripCharge,
+	float minGoodPixelCharge, float minGoodStripCharge,
 	float pTChargeCutThreshold) : 
-    Chi2MeasurementEstimator( maxChi2, nSigma), cutOnPixelCharge_(cutOnPixelCharge),
-    cutOnStripCharge_(cutOnStripCharge), minGoodPixelCharge_(minGoodPixelCharge),
+    Chi2MeasurementEstimator( maxChi2, nSigma),
+    minGoodPixelCharge_(minGoodPixelCharge),
     minGoodStripCharge_(minGoodStripCharge) {
       if (pTChargeCutThreshold>=0.) pTChargeCutThreshold2_=pTChargeCutThreshold*pTChargeCutThreshold;
       else pTChargeCutThreshold2_=std::numeric_limits<float>::max();
@@ -47,8 +49,6 @@ public:
   }
 private:
 
-  bool cutOnPixelCharge_;
-  bool cutOnStripCharge_;
   float minGoodPixelCharge_; 
   float minGoodStripCharge_;
   float pTChargeCutThreshold2_;
@@ -74,7 +74,7 @@ bool Chi2ChargeMeasurementEstimator::preFilter(const TrajectoryStateOnSurface& t
   DetId detid = clf.detId;
   uint32_t subdet = detid.subdetId();
 
-  if ( (subdet>2)&&cutOnStripCharge_) {
+  if (subdet>2) {
     return checkClusterCharge(detid, *clf.cluster[0],ts) && ( nullptr==clf.cluster[1] || checkClusterCharge(detid, *clf.cluster[1],ts) ) ; 
 
   }
@@ -110,8 +110,6 @@ class  Chi2ChargeMeasurementEstimatorESProducer: public edm::ESProducer{
 
   double maxChi2_;
   double nSigma_;
-  bool cutOnPixelCharge_;
-  bool cutOnStripCharge_;
   float minGoodPixelCharge_; 
   float minGoodStripCharge_;
   float pTChargeCutThreshold_;
@@ -125,10 +123,8 @@ Chi2ChargeMeasurementEstimatorESProducer::Chi2ChargeMeasurementEstimatorESProduc
 
   maxChi2_             = pset.getParameter<double>("MaxChi2");
   nSigma_              = pset.getParameter<double>("nSigma");
-  cutOnPixelCharge_    = pset.exists("minGoodPixelCharge");
-  cutOnStripCharge_    = pset.exists("minGoodStripCharge");
-  minGoodPixelCharge_  = (cutOnPixelCharge_ ? pset.getParameter<double>("minGoodPixelCharge") : 0); 
-  minGoodStripCharge_  = (cutOnStripCharge_ ? pset.getParameter<double>("minGoodStripCharge") : 0);
+  minGoodPixelCharge_  = 0;
+  minGoodStripCharge_  = clusterChargeCut(pset);
   pTChargeCutThreshold_= pset.getParameter<double>("pTChargeCutThreshold");
   
 
@@ -140,7 +136,7 @@ boost::shared_ptr<Chi2MeasurementEstimatorBase>
 Chi2ChargeMeasurementEstimatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
 
   _estimator = boost::shared_ptr<Chi2MeasurementEstimatorBase>(
-	new Chi2ChargeMeasurementEstimator(maxChi2_,nSigma_, cutOnPixelCharge_, cutOnStripCharge_, 
+	new Chi2ChargeMeasurementEstimator(maxChi2_,nSigma_, 
 		minGoodPixelCharge_, minGoodStripCharge_, pTChargeCutThreshold_));
   return _estimator;
 }
