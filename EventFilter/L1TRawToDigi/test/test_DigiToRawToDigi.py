@@ -69,11 +69,11 @@ process.MessageLogger = cms.Service(
 # user stuff
 process.load("EventFilter.L1TRawToDigi.l1tDigiToRaw_cfi")
 process.l1tDigiToRaw.Setup = cms.string("stage1::CaloSetup")
-process.l1tDigiToRaw.InputLabel = cms.InputTag("caloStage1FinalDigis", "")
-process.l1tDigiToRaw.TauInputLabel = cms.InputTag("caloStage1FinalDigis", "rlxTaus")
-process.l1tDigiToRaw.IsoTauInputLabel = cms.InputTag("caloStage1FinalDigis", "isoTaus")
-process.l1tDigiToRaw.HFBitCountsInputLabel = cms.InputTag("caloStage1FinalDigis", "HFBitCounts")
-process.l1tDigiToRaw.HFRingSumsInputLabel = cms.InputTag("caloStage1FinalDigis", "HFRingSums")
+process.l1tDigiToRaw.InputLabel = cms.InputTag("simCaloStage1FinalDigis", "")
+process.l1tDigiToRaw.TauInputLabel = cms.InputTag("simCaloStage1FinalDigis", "rlxTaus")
+process.l1tDigiToRaw.IsoTauInputLabel = cms.InputTag("simCaloStage1FinalDigis", "isoTaus")
+process.l1tDigiToRaw.HFBitCountsInputLabel = cms.InputTag("simCaloStage1FinalDigis", "HFBitCounts")
+process.l1tDigiToRaw.HFRingSumsInputLabel = cms.InputTag("simCaloStage1FinalDigis", "HFRingSums")
 process.load("EventFilter.L1TRawToDigi.l1tRawToDigi_cfi")
 process.l1tRawToDigi.Setup = cms.string("stage1::CaloSetup")
 
