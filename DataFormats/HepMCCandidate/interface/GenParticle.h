@@ -9,6 +9,7 @@
  */
 #include "DataFormats/Candidate/interface/CompositeRefCandidateT.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenStatusFlags.h"
 #include <vector>
 
 namespace HepMC {
@@ -37,10 +38,14 @@ namespace reco {
     void setCollisionId(int s) {collisionId_ = s;}
     int collisionId() const {return collisionId_;}
 
+    const GenStatusFlags &statusFlags() const { return statusFlags_; }
+    GenStatusFlags &statusFlags() { return statusFlags_; }
+    
   private:
     /// checp overlap with another candidate
     bool overlap(const Candidate &) const;
     int collisionId_;
+    GenStatusFlags statusFlags_;
  };
 
 }

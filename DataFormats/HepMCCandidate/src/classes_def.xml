@@ -1,6 +1,7 @@
 <lcgdict>
   <class name="reco::CompositeRefCandidateT<reco::GenParticleRefVector>" />
-  <class name="reco::GenParticle"  ClassVersion="12">
+  <class name="reco::GenParticle"  ClassVersion="13">
+   <version ClassVersion="13" checksum="1588260052"/>
    <version ClassVersion="12" checksum="3369685722"/>
    <version ClassVersion="11" checksum="446025970"/>
    <version ClassVersion="10" checksum="2736964676"/>
@@ -21,6 +22,9 @@
   <class name="edm::reftobase::RefHolder<reco::GenParticleRef>" />
   <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::GenParticleRefVector>" />
   <class name="edm::reftobase::RefVectorHolder<reco::GenParticleRefVector>" />
+  <class name="reco::GenStatusFlags"  ClassVersion="10">
+   <version ClassVersion="10" checksum="1579821223"/>
+  </class>    
   <class name="reco::PdfInfo"  ClassVersion="10">
    <version ClassVersion="10" checksum="1002280074"/>
   </class>

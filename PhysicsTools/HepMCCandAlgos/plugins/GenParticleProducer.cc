@@ -13,6 +13,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "PhysicsTools/HepMCCandAlgos/interface/MCTruthHelper.h"
 
 #include <vector>
 #include <string>
@@ -263,6 +264,11 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	if ( productionVertex != 0 ) fillDaughters(cands,part,d);
 	cands[d].setCollisionId(0);
      }
+  }
+  
+  //set gen status flags
+  for (reco::GenParticle &p : cands) {
+    MCTruthHelper::fillGenStatusFlags(p, p.statusFlags());
   }
 
   evt.put( candsPtr );
