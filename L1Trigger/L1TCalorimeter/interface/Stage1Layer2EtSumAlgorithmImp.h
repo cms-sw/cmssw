@@ -64,7 +64,7 @@ namespace l1t {
       kHadronicSum,
       kEmSum
     };
-    std::tuple<int, int, int> doSumAndMET(std::vector<SimpleRegion>& regionEt, ETSumType sumType);
+    std::tuple<int, int, int> doSumAndMET(const std::vector<SimpleRegion>& regionEt, ETSumType sumType);
 
     // Converts 3Q16 fixed-point phase from CORDIC
     // to 0-71 appropriately
