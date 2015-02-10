@@ -27,5 +27,5 @@ hltGetConfiguration $HLT --process HLTGRun --globaltag auto:startup_GRun   --ful
   DB=$(echo $HLT | cut -d: -f1 -s)
   true ${DB:=hltdev}
 
-  edmConfigFromDB --$DB --configName $TABLE | hltDumpStream 
+  hltConfigFromDB --$DB --configName $TABLE | hltDumpStream 
 } > streams.txt

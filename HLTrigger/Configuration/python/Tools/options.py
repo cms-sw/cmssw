@@ -55,6 +55,7 @@ class ConnectionHLTMenu(object):
       if ':' in self.value:
         (db, name) = self.value.split(':')
         if db == 'run':
+          self.db   = 'orcoff'
           self.run  = name
         elif db in ('hltdev', 'orcoff'):
           self.db   = db
