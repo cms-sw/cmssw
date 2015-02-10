@@ -9,7 +9,7 @@ eep = DSIsEndcapPlus()
 eem = DSIsEndcapMinus()
 
 rings = DRings()
-rings.setEERings("eerings.dat")
+rings.setEERings("../data/eerings.dat")
 
 ic1 = IC()
 ic2 = IC()
