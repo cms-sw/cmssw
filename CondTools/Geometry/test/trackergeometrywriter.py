@@ -4,9 +4,6 @@ process = cms.Process("TrackerGeometryWriter")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.load("Configuration.Geometry.GeometryExtended_cff")
 
-index = process.XMLIdealGeometryESSource.geomXMLFiles.index('Geometry/TrackerCommonData/data/pixfwdMaterials.xml')
-process.XMLIdealGeometryESSource.geomXMLFiles.insert(index, 'Geometry/TrackerCommonData/data/trackerParameters.xml')
-    
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
                             timetype = cms.string('runnumber'),

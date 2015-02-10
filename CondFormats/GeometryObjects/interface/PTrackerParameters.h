@@ -115,6 +115,9 @@ class PTrackerParameters
   TIBItem tib;
   TIDItem tid;
   TOBItem tob;
+  
+  // upgradeGeometry, BIG_PIX_PER_ROC_X, BIG_PIX_PER_ROC_Y,
+  std::vector<int> topology;
 
   COND_SERIALIZABLE;
 };
