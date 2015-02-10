@@ -213,6 +213,7 @@ L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
     //make local outputs
     std::vector<EGamma> *localEGammas = new std::vector<EGamma>();
     std::vector<Tau> *localTaus = new std::vector<Tau>();
+    std::vector<Tau> *localIsoTaus = new std::vector<Tau>();
     std::vector<Jet> *localJets = new std::vector<Jet>();
     std::vector<Jet> *localPreGtJets = new std::vector<Jet>();
     std::vector<EtSum> *localEtSums = new std::vector<EtSum>();
@@ -231,34 +232,22 @@ L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
     //run the firmware on one event
     m_fw->processEvent(*localEmCands, *localRegions,
-		       localEGammas, localTaus, localJets, localPreGtJets, localEtSums,
+		       localEGammas, localTaus, localIsoTaus, localJets, localPreGtJets, localEtSums,
 		       localHfSums, localHfCounts);
 
     // copy the output into the BXVector -> there must be a better way
     for(std::vector<EGamma>::const_iterator eg = localEGammas->begin(); eg != localEGammas->end(); ++eg)
       egammas->push_back(i, *eg);
-    for(std::vector<Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau){
+    for(std::vector<Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau)
       taus->push_back(i, *tau);
-      if (tau->hwIso()==1)isoTaus->push_back(i, *tau);
-    }
-    taus->resize(i,4); //FIXME proper tau handling with hardware sorting
-    //isoTaus->resize(i,4); //FIXME proper tau handling with hardware sorting
-    int itsize=isoTaus->size(i);
-    while (itsize < 4){
-	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
-	Tau theTau(*&tauLorentz, 0, 0, 0, 1, 1); // set hwIso=1 
-	isoTaus->push_back(i,theTau);
-	itsize++;
-    }
-
+    for(std::vector<Tau>::const_iterator isotau = localIsoTaus->begin(); isotau != localIsoTaus->end(); ++isotau)
+      isoTaus->push_back(i, *isotau);
     for(std::vector<Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
       jets->push_back(i, *jet);
     for(std::vector<Jet>::const_iterator jet = localPreGtJets->begin(); jet != localPreGtJets->end(); ++jet)
       preGtJets->push_back(i, *jet);
     for(std::vector<EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum)
       etsums->push_back(i, *etsum);
-    // for(std::vector<CaloSpare>::const_iterator calospare = localCaloSpares->begin(); calospare != localCaloSpares->end(); ++calospare)
-    //   calospares->push_back(i, *calospare);
     hfSums->push_back(i, *localHfSums);
     hfCounts->push_back(i, *localHfCounts);
 
@@ -266,10 +255,10 @@ L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
     delete localEmCands;
     delete localEGammas;
     delete localTaus;
+    delete localIsoTaus;
     delete localJets;
     delete localPreGtJets;
     delete localEtSums;
-    //delete localCaloSpares;
     delete localHfSums;
     delete localHfCounts;
   }
@@ -281,7 +270,6 @@ L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.put(jets);
   iEvent.put(preGtJets,"preGtJets");
   iEvent.put(etsums);
-  // iEvent.put(calospares);
   iEvent.put(hfSums,"HFRingSums");
   iEvent.put(hfCounts,"HFBitCounts");
 }
