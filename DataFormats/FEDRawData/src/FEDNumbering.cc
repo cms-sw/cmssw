@@ -148,6 +148,11 @@ void FEDNumbering::init()
       in_[i] = true;
       from_[i] = "SiPixel";
     }
+  for(i=MINTriggerUpgradeFEDID; i<=MAXTriggerUpgradeFEDID; i++)
+    {
+      in_[i] = true;
+      from_[i] = "L1T";
+    }
 
 
   init_ = false;
