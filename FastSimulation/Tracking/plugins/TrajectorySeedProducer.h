@@ -57,8 +57,7 @@ class TrajectorySeedProducer:
 
         double originRadius;
         double originpTMin;
-
-        double maxZ;
+        double originHalfLength;
         double nSigmaZ;
         
         bool testBeamspotCompatibility;

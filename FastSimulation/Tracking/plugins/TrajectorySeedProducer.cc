@@ -65,7 +65,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     simTrack_maxD0 = simTrackSelectionConfig.getParameter<double>("maxD0");
     simTrack_maxZ0 = simTrackSelectionConfig.getParameter<double>("maxZ0");
     //simtracks to skip (were processed in previous iterations)
-    std::vector<edm::InputTag> skipSimTrackTags = simTrackSelectionConfig.getParameter<std::vector<edm::InputTag> >("skipSimTrackIdTags");
+    std::vector<edm::InputTag> skipSimTrackTags = simTrackSelectionConfig.getParameter<std::vector<edm::InputTag> >("skipSimTrackIds");
     for ( unsigned int k=0; k<skipSimTrackTags.size(); ++k)
     {
         skipSimTrackIdTokens.push_back(consumes<std::vector<unsigned int> >(skipSimTrackTags[k]));
@@ -89,8 +89,8 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     }
     
     // The name of the hit producer
-    edm::InputTag hitProducerTag = conf.getParameter<edm::InputTag>("hitProducer");
-    recHitToken = consumes<SiTrackerGSMatchedRecHit2DCollection>(hitProducerTag);
+    edm::InputTag recHitTag = conf.getParameter<edm::InputTag>("recHits");
+    recHitToken = consumes<SiTrackerGSMatchedRecHit2DCollection>(recHitTag);
 
     // read Layers
     std::vector<std::string> layerStringList = conf.getParameter<std::vector<std::string>>("layerList");
@@ -113,7 +113,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     }
 
     originRadius = conf.getParameter<double>("originRadius");
-    maxZ = conf.getParameter<double>("maxZ");
+    originHalfLength = conf.getParameter<double>("originHalfLength");
     originpTMin = conf.getParameter<double>("originpTMin");
     nSigmaZ = conf.getParameter<double>("nSigmaZ");
 
@@ -549,7 +549,7 @@ TrajectorySeedProducer::compatibleWithBeamSpot(
     }
 
     // 2. Z compatible with beam spot size
-    double zConstraint = std::min(maxZ,beamSpot->sigmaZ()*nSigmaZ);
+    double zConstraint = std::min(originHalfLength,beamSpot->sigmaZ()*nSigmaZ);
     if ( fabs(myPart.Z()-beamSpot->position().Z()) > zConstraint )
     {
         return false;
@@ -567,7 +567,7 @@ TrajectorySeedProducer::compatibleWithPrimaryVertex(
 {
 
     unsigned int nVertices = primaryVertices->size();
-    if ( nVertices==0 || maxZ < 0. )
+    if ( nVertices==0 || originHalfLength < 0.0 || nSigmaZ < 0.0)
     {
         return true;
     }
@@ -586,7 +586,7 @@ TrajectorySeedProducer::compatibleWithPrimaryVertex(
         double R1 = std::sqrt ( (gpos1.x()-xV)*(gpos1.x()-xV) + (gpos1.y()-yV)*(gpos1.y()-yV) );
         double R2 = std::sqrt ( (gpos2.x()-xV)*(gpos2.x()-xV) + (gpos2.y()-yV)*(gpos2.y()-yV) );
 
-        double zConstraint = std::min(maxZ,vertex.zError()*nSigmaZ);
+        double zConstraint = std::min(originHalfLength,vertex.zError()*nSigmaZ);
 
         //inner hit must be within a sort of pyramid using
         //the outer hit and the cylinder around the PV
