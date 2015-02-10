@@ -1,9 +1,11 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "Utilities/XrdAdaptor/src/XrdStatistics.h"
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
 
 #include "XrdCl/XrdClDefaultEnv.hh"
@@ -141,3 +143,5 @@ private:
 };
 
 DEFINE_EDM_PLUGIN (StorageMakerFactory, XrdStorageMaker, "root");
+DEFINE_FWK_SERVICE (XrdAdaptor::XrdStatisticsService);
+

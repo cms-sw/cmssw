@@ -10,8 +10,10 @@
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Utilities/StorageFactory/interface/StatisticsSenderService.h"
 
+#include "XrdStatistics.h"
 #include "Utilities/XrdAdaptor/src/XrdRequestManager.h"
 #include "Utilities/XrdAdaptor/src/XrdHostHandler.hh"
 
