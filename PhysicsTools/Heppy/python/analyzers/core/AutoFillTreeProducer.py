@@ -33,8 +33,6 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 
     def beginLoop(self, setup) :
         super(AutoFillTreeProducer, self).beginLoop(setup)
-        ## Declare how we store floats by default
-        self.tree.setDefaultFloatType("F"); # otherwise it's "D"
 
     def declareHandles(self):
         super(AutoFillTreeProducer, self).declareHandles()

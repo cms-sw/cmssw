@@ -72,6 +72,8 @@ class Hemisphere {
   // RejectISRDRmax() max DeltaR below which objects can be included
   //   (default = 10.)
 
+  Hemisphere(){};
+  
   Hemisphere(std::vector<float> Px_vector, std::vector<float> Py_vector, std::vector<float> Pz_vector, std::vector<float> E_vector, int seed_method, int hemisphere_association_method);
 
   Hemisphere(std::vector<float> Px_vector, std::vector<float> Py_vector, std::vector<float> Pz_vector, std::vector<float> E_vector);
