@@ -41,6 +41,7 @@ hiMixedTripletSeedLayersA = cms.EDProducer("SeedingLayersEDProducer",
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     useRingSlector = cms.bool(True),
     TTRHBuilder = cms.string('WithTrackAngle'),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
     minRing = cms.int32(1),
     maxRing = cms.int32(1),
     skipClusters = cms.InputTag('hiMixedTripletClusters')
@@ -67,6 +68,7 @@ hiMixedTripletSeedsA.ClusterCheckPSet.MaxNumberOfCosmicClusters = 50000000
 
 
 # SEEDING LAYERS
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 hiMixedTripletSeedLayersB = cms.EDProducer("SeedingLayersEDProducer",
                                    layerList = cms.vstring(
     #'BPix1+BPix2+TIB1',
