@@ -78,49 +78,49 @@ run = [
         Test(
             'Checking spare rings',
             'BXVector<l1t::CaloSpare>',
-            ('caloStage1FinalDigis', 'HFRingSums'),
+            ('simCaloStage1FinalDigis', 'HFRingSums'),
             ('l1tRawToDigi', 'HFRingSums'),
             [test_type]
         ),
         Test(
             'Checking spare bits',
             'BXVector<l1t::CaloSpare>',
-            ('caloStage1FinalDigis', 'HFBitCounts'),
+            ('simCaloStage1FinalDigis', 'HFBitCounts'),
             ('l1tRawToDigi', 'HFBitCounts'),
             [test_type]
         ),
         Test(
             'Checking EG',
             'BXVector<l1t::EGamma>',
-            ('caloStage1FinalDigis',),
+            ('simCaloStage1FinalDigis',),
             ('l1tRawToDigi',),
             []
         ),
         Test(
             'Checking EtSum',
             'BXVector<l1t::EtSum>',
-            ('caloStage1FinalDigis',),
+            ('simCaloStage1FinalDigis',),
             ('l1tRawToDigi',),
             []
         ),
         Test(
             'Checking Jets',
             'BXVector<l1t::Jet>',
-            ('caloStage1FinalDigis',),
+            ('simCaloStage1FinalDigis',),
             ('l1tRawToDigi',),
             []
         ),
         Test(
             'Checking Taus',
             'BXVector<l1t::Tau>',
-            ('caloStage1FinalDigis', 'rlxTaus'),
+            ('simCaloStage1FinalDigis', 'rlxTaus'),
             ('l1tRawToDigi', 'rlxTaus'),
             []
         ),
         Test(
             'Checking Iso Taus',
             'BXVector<l1t::Tau>',
-            ('caloStage1FinalDigis', 'isoTaus'),
+            ('simCaloStage1FinalDigis', 'isoTaus'),
             ('l1tRawToDigi', 'isoTaus'),
             []
         )

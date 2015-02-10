@@ -91,8 +91,8 @@ namespace l1t {
       setup_ = PackingSetupFactory::get()->make(config.getParameter<std::string>("Setup"));
       tokens_ = setup_->registerConsumes(config, cc);
 
-      slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 16);
-      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 16);
+      slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 8);
+      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 8);
    }
 
 
@@ -112,7 +112,8 @@ namespace l1t {
 
       // Create all the AMC payloads to pack into the AMC13
       for (const auto& item: setup_->getPackers(fedId_, fwId_)) {
-         auto board = item.first;
+         auto amc_no = item.first.first;
+         auto board = item.first.second;
          auto packers = item.second;
 
          Blocks block_load;
@@ -142,7 +143,7 @@ namespace l1t {
             LogDebug("L1T") << s.str();
 #endif
 
-            load32.push_back(block.header().raw());
+            load32.push_back(block.header().raw(MP7));
             load32.insert(load32.end(), load.begin(), load.end());
          }
 
@@ -158,7 +159,7 @@ namespace l1t {
 
          LogDebug("L1T") << "Creating AMC packet";
 
-         amc13.add(board, load64);
+         amc13.add(amc_no, board, load64);
       }
 
       std::auto_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
