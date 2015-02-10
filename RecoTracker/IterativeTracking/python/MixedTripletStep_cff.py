@@ -9,7 +9,7 @@ chargeCut2069Clusters =  cms.EDProducer("ClusterChargeMasker",
     oldClusterRemovalInfo = cms.InputTag("pixelPairStepClusters"),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
-     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
 
 from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *

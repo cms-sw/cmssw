@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
-
 seedingLayersEDProducer = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring(),
     BPix = cms.PSet(),
@@ -14,5 +12,4 @@ seedingLayersEDProducer = cms.EDProducer("SeedingLayersEDProducer",
     MTID = cms.PSet(),
     MTOB = cms.PSet(),
     MTEC = cms.PSet(),
-    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
