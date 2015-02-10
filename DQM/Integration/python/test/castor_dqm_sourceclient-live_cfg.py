@@ -319,3 +319,8 @@ print "Running with run type = ", process.runType.getRunTypeName()
 if (process.runType.getRunTypeName() == process.runType.hi_run):
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.castorMonitor.rawLabel = cms.InputTag("rawDataRepacker")
+
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)
