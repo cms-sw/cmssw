@@ -57,6 +57,7 @@ void PrintMaterialBudgetInfo::update(const BeginOfRun* run) {
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
   // Physical Volume
   theTopPV = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
+  assert(theTopPV);
   // Logical Volume
   G4LogicalVolume*  lv = theTopPV->GetLogicalVolume();
   unsigned int leafDepth = 0;

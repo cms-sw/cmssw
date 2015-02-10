@@ -13,7 +13,7 @@ def extractBlock(config, blocks, target):
   #print
   commands = ','.join( block + '::outputCommands' for block in blocks )
   proc = subprocess.Popen(
-    "edmConfigFromDB --configName %s --noedsources --nopaths --noes --nopsets --noservices --cff --blocks %s --format python | sed -e'/^streams/,/^)/d' -e'/^datasets/,/^)/d' > %s" % (config, commands, target),
+    "hltConfigFromDB --configName %s --noedsources --nopaths --noes --nopsets --noservices --cff --blocks %s --format python | sed -e'/^streams/,/^)/d' -e'/^datasets/,/^)/d' > %s" % (config, commands, target),
     shell  = True,
     stdin  = None,
     stdout = None,
