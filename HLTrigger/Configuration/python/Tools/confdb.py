@@ -44,9 +44,9 @@ class HLTProcess(object):
     "HLT_GlobalRunHPDNoise_v*",
     "HLT_L1TrackerCosmics_v*",
     "HLT_HcalUTCA_v*",
-    
+
     # TODO: paths not supported by FastSim, but for which a recovery should be attempted
- 
+
     "HLT_DoubleMu33NoFiltersNoVtx_v*",
     "HLT_DoubleMu38NoFiltersNoVtx_v*",
     "HLT_Mu38NoFiltersNoVtx_Photon38_CaloIdL_v*",
@@ -102,6 +102,8 @@ class HLTProcess(object):
       self.labels['prescale'] = self.config.prescale
 
     # get the configuration from ConfdB
+    from confdbOfflineConverter import OfflineConverter
+    self.converter = OfflineConverter(database = self.config.menu.db)
     self.buildPathList()
     self.buildOptions()
     self.getRawConfigurationFromDB()
@@ -109,42 +111,48 @@ class HLTProcess(object):
 
 
   def getRawConfigurationFromDB(self):
-    url = 'http://cms-project-confdb-hltdev.web.cern.ch/cms-project-confdb-hltdev/get.jsp'
-    postdata = dict([ (key, ','.join(vals)) for key, vals in self.options.iteritems() if vals ])
-    postdata['noedsources'] = ''
-    if self.config.fragment:
-      postdata['cff'] = ''
     if self.config.menu.run:
-      postdata['runNumber'] = self.config.menu.run
+      args = ['--runNumber', self.config.menu.run]
     else:
-      postdata['dbName']    = self.config.menu.db
-      postdata['configName']= self.config.menu.name
+      args = ['--configName', self.config.menu.name ]
+    args.append('--noedsources')
+    if self.config.fragment:
+      args.append('--cff')
+    for key, vals in self.options.iteritems():
+      if vals:
+        args.extend(('--'+key, ','.join(vals)))
 
-    data = urllib2.urlopen(url, urllib.urlencode(postdata)).read()
-    if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
-      raise ImportError('%s is not a valid HLT menu' % self.config.menuConfig.value)
+    data, err = self.converter.query( *args )
+    if 'ERROR' in err or 'Exhausted Resultset' in err or 'CONFIG_NOT_FOUND' in err:
+        print "%s: error while retriving the HLT menu" % os.path.basename(sys.argv[0])
+        print
+        print err
+        print
+        sys.exit(1)
     self.data = data
 
 
   def getPathList(self):
-    url = 'http://cms-project-confdb-hltdev.web.cern.ch/cms-project-confdb-hltdev/get.jsp'
-    postdata = { 
-      'noedsources': '', 
-      'noes':        '',
-      'noservices':  '',
-      'nosequences': '',
-      'nomodules' :  '',
-      'cff':         '',
-    }
     if self.config.menu.run:
-      postdata['runNumber'] = self.config.menu.run
+      args = ['--runNumber', self.config.menu.run]
     else:
-      postdata['dbName']    = self.config.menu.db
-      postdata['configName']= self.config.menu.name
+      args = ['--configName', self.config.menu.name]
+    args.extend( (
+      '--cff',
+      '--noedsources',
+      '--noes',
+      '--noservices',
+      '--nosequences',
+      '--nomodules'
+    ) )
 
-    data = urllib2.urlopen(url, urllib.urlencode(postdata)).read()
-    if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
-      raise ImportError('%s is not a valid HLT menu' % self.config.menuConfig.value)
+    data, err = self.converter.query( *args )
+    if 'ERROR' in err or 'Exhausted Resultset' in err or 'CONFIG_NOT_FOUND' in err:
+        print "%s: error while retriving the list of paths from the HLT menu" % os.path.basename(sys.argv[0])
+        print
+        print err
+        print
+        sys.exit(1)
     filter = re.compile(r' *= *cms.(End)?Path.*')
     paths  = [ filter.sub('', line) for line in data.splitlines() if filter.search(line) ]
     return paths
@@ -265,7 +273,7 @@ cmsswVersion = os.environ['CMSSW_VERSION']
     self.releaseSpecificCustomize()
 
     if self.config.fragment:
-      
+
       self.data += """
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
@@ -535,7 +543,7 @@ if 'GlobalTag' in %(dict)s:
   iovIsRunNotTime = cms.bool(True),
   firstValid = cms.vuint32(1)
 )
-%%(process)ses_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml') 
+%%(process)ses_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
 """
       self.data += text % self.config.l1Xml.__dict__
 
@@ -916,7 +924,7 @@ if 'GlobalTag' in %%(dict)s:
       # 'full' removes all outputs (same as 'none') and then adds a single "keep *" output (see the overrideOutput method)
       if self.config.paths:
         # paths are removed by default
-        pass    
+        pass
       else:
         # drop all output endpaths
         paths.append( "-*Output" )
@@ -1082,7 +1090,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltCtfWithMaterialTracksJpsiTk" )
       self.options['modules'].append( "-hltMuTrackCkfTrackCandidatesOnia" )
       self.options['modules'].append( "-hltMuTrackCtfTracksOnia" )
-      
+
       self.options['modules'].append( "-hltFEDSelector" )
       self.options['modules'].append( "-hltL3TrajSeedOIHit" )
       self.options['modules'].append( "-hltL3TrajSeedIOHit" )
@@ -1111,13 +1119,13 @@ if 'GlobalTag' in %%(dict)s:
       # === hltFastJet
       self.options['modules'].append( "-hltDisplacedHT250L1FastJetRegionalPixelSeedGenerator" )
       self.options['modules'].append( "-hltDisplacedHT250L1FastJetRegionalCkfTrackCandidates" )
-      self.options['modules'].append( "-hltDisplacedHT250L1FastJetRegionalCtfWithMaterialTracks" )     
+      self.options['modules'].append( "-hltDisplacedHT250L1FastJetRegionalCtfWithMaterialTracks" )
       self.options['modules'].append( "-hltDisplacedHT300L1FastJetRegionalPixelSeedGenerator" )
       self.options['modules'].append( "-hltDisplacedHT300L1FastJetRegionalCkfTrackCandidates" )
-      self.options['modules'].append( "-hltDisplacedHT300L1FastJetRegionalCtfWithMaterialTracks" )     
+      self.options['modules'].append( "-hltDisplacedHT300L1FastJetRegionalCtfWithMaterialTracks" )
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorbbPhiL1FastJet" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesbbPhiL1FastJet" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJet" )     
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJet" )
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorHbbVBF" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesHbbVBF" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksHbbVBF" )
@@ -1149,7 +1157,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltFastPixelBLifetimeRegionalPixelSeedGeneratorHbb" )
       self.options['modules'].append( "-hltFastPixelBLifetimeRegionalCkfTrackCandidatesHbb" )
       self.options['modules'].append( "-hltFastPixelBLifetimeRegionalCtfWithMaterialTracksHbb" )
-     
+
       self.options['modules'].append( "-hltPixelTracksForMinBias" )
       self.options['modules'].append( "-hltPixelTracksForHighMult" )
       self.options['modules'].append( "-hltRegionalPixelTracks" )
@@ -1173,7 +1181,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltPixelLayerTripletsHITHB" )
       self.options['modules'].append( "-hltPixelLayerTripletsHITHE" )
       self.options['modules'].append( "-hltMixedLayerPairs" )
-      
+
       self.options['modules'].append( "-hltFastPrimaryVertexbbPhi")
       self.options['modules'].append( "-hltPixelTracksFastPVbbPhi")
       self.options['modules'].append( "-hltPixelTracksRecoverbbPhi" )
