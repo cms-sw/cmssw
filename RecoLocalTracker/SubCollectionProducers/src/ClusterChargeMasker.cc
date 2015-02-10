@@ -17,6 +17,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
 
 
 namespace {
@@ -49,7 +50,7 @@ namespace {
 
   ClusterChargeMasker::ClusterChargeMasker(const edm::ParameterSet& iConfig) :
     mergeOld_(iConfig.exists("oldClusterRemovalInfo")),
-    minGoodStripCharge_(iConfig.getParameter<double>("minGoodStripCharge"))
+    minGoodStripCharge_(clusterChargeCut(iConfig))
   {
     produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
     produces<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > >();
