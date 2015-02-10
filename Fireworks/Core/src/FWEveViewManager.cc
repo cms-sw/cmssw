@@ -32,6 +32,7 @@
 #include "TGListTree.h"
 #include "TGeoManager.h"
 #include "TExMap.h"
+#include "TEnv.h"
 
 #include "Fireworks/Core/interface/FWEveViewManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
@@ -669,7 +670,7 @@ FWEveViewManager::eventEnd()
    // To synchronize buffer swapping set swap_on_render to false.
    // Note that this costs 25-40% extra time with 4 views, depending on V-sync settings.
    // Tested with NVIDIA 343.22.
-   const bool swap_on_render = false;
+   const bool swap_on_render = gEnv->GetValue("CmsShow.GlSwapOnRender", 0);
 
    // Loop over viewers, swap buffers if swap_on_render is true.
    for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
