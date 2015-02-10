@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
+
+
 seedingLayersEDProducer = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring(),
     BPix = cms.PSet(),
