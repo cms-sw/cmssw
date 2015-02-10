@@ -5,7 +5,7 @@ namespace PhysicsTools {
 
 BitSet::size_t BitSet::bits() const
 {
-	static unsigned char byteBits[256] = {
+	static constexpr unsigned char byteBits[256] = {
 		0,  1,  1,  2,  1,  2,  2,  3,  1,  2,  2,  3,  2,  3,  3,    
 		4,  1,  2,  2,  3,  2,  3,  3,  4,  2,  3,  3,  4,  3,  4,
 		4,  5,  1,  2,  2,  3,  2,  3,  3,  4,  2,  3,  3,  4,  3,    
@@ -25,11 +25,11 @@ BitSet::size_t BitSet::bits() const
 		4,  5,  5,  6,  5,  6,  6,  7,  5,  6,  6,  7,  6,  7,  7,    
 		8
 	};
-	unsigned char *begin = (unsigned char*)store;
-	unsigned char *end   = (unsigned char*)(store + bitsToWords(bits_));
+	const unsigned char *begin = reinterpret_cast<const unsigned char*>(store);
+	const unsigned char *end   = reinterpret_cast<const unsigned char*>(store + bitsToWords(bits_));
 
 	size_t bits = 0;
-	for(unsigned char *p = begin; p < end; p++)
+	for(const unsigned char *p = begin; p < end; p++)
 		bits += byteBits[*p];
 
 	return bits;
