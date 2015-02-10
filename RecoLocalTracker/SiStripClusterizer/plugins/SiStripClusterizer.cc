@@ -7,6 +7,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
+
 SiStripClusterizer::
 SiStripClusterizer(const edm::ParameterSet& conf) 
   : confClusterizer_(conf.getParameter<edm::ParameterSet>("Clusterizer")),
