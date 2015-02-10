@@ -10,5 +10,5 @@ DefaultClusterizer = cms.PSet(
     MaxAdjacentBad = cms.uint32(0),
     QualityLabel = cms.string(""),
     RemoveApvShots     = cms.bool(True),
-    minGoodCharge = cms.double(-2069)
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
     )
