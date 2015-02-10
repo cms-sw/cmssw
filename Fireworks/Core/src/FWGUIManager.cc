@@ -23,6 +23,7 @@
 #include "TGButton.h"
 #include "TGLabel.h"
 #include "TSystem.h"
+#include "TGLIncludes.h"
 #include "TGLViewer.h"
 #include "TEveBrowser.h"
 #include "TEveManager.h"
@@ -933,14 +934,19 @@ FWGUIManager::exportAllViews(const std::string& format, int height)
          file.Form(format.c_str(), event->id().run(), event->id().event(),
                    event->luminosityBlock(), view_name.Data());
 
-         // Multi-threaded save
-         workers.push_back((*j)->CaptureAndSaveImage(file, height));
-
-         // Single-threaded save
-         // if (height == -1)
-         //    (*j)->GetGLViewer()->SavePicture(file);
-         // else 
-         //    (*j)->GetGLViewer()->SavePictureHeight(file, height);
+         if (GLEW_EXT_framebuffer_object)
+         {
+            // Multi-threaded save
+            workers.push_back((*j)->CaptureAndSaveImage(file, height));
+         }
+         else
+         {
+            // Single-threaded save
+            if (height == -1)
+               (*j)->GetGLViewer()->SavePicture(file);
+            else 
+               (*j)->GetGLViewer()->SavePictureHeight(file, height);
+         }
       }
    }
 
