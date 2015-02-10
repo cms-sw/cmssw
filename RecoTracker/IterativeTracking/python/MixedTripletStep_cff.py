@@ -9,7 +9,7 @@ chargeCut2069Clusters =  cms.EDProducer("ClusterChargeMasker",
     oldClusterRemovalInfo = cms.InputTag("pixelPairStepClusters"),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
-     minGoodStripCharge = cms.double(2069)
+     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
 
 from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
@@ -44,7 +44,7 @@ mixedTripletStepSeedLayersA = cms.EDProducer("SeedingLayersEDProducer",
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
         minRing = cms.int32(1),
         maxRing = cms.int32(1),
         skipClusters = cms.InputTag('mixedTripletStepClusters')
@@ -68,7 +68,7 @@ import RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cf
 mixedTripletStepClusterShapeHitFilter  = RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi.ClusterShapeHitFilterESProducer.clone(
 	ComponentName = cms.string('mixedTripletStepClusterShapeHitFilter'),
         PixelShapeFile= cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par'),
-	minGoodStripCharge = cms.double(2069)
+	clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 	)
 	
 mixedTripletStepSeedsA.SeedComparitorPSet = cms.PSet(
@@ -90,7 +90,7 @@ mixedTripletStepSeedLayersB = cms.EDProducer("SeedingLayersEDProducer",
     ),
     TIB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
         skipClusters = cms.InputTag('mixedTripletStepClusters')
     )
 )
@@ -153,7 +153,7 @@ mixedTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstima
     ComponentName = cms.string('mixedTripletStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(16.0),
-    minGoodStripCharge = cms.double(2069)
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
 
 # TRACK BUILDING
