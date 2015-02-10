@@ -44,7 +44,6 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     magneticFieldMap(nullptr),
     trackerGeometry(nullptr),
     trackerTopology(nullptr),
-    thePropagator(nullptr),
     testBeamspotCompatibility(false),
     beamSpot(nullptr),
     testPrimaryVertexCompatibilty(false),
@@ -120,17 +119,6 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
 
     simTrackToken = consumes<edm::SimTrackContainer>(edm::InputTag("famosSimHits"));
     simVertexToken = consumes<edm::SimVertexContainer>(edm::InputTag("famosSimHits"));
-
-
-} 
-
-// Virtual destructor needed.
-TrajectorySeedProducer::~TrajectorySeedProducer()
-{
-    if(thePropagator)
-    {
-        delete thePropagator;
-    }
 }
 
 void
@@ -151,7 +139,7 @@ TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es)
     magneticFieldMap = &(*magneticFieldMapHandle);
     trackerTopology = &(*trackerTopologyHandle);
 
-    thePropagator = new PropagatorWithMaterial(alongMomentum,0.105,magneticField); 
+    thePropagator = std::move(std::shared_ptr<PropagatorWithMaterial>(new PropagatorWithMaterial(alongMomentum,0.105,magneticField)));
 }
 
 bool
