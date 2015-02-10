@@ -37,7 +37,7 @@ PixelTripletLargeTipGenerator.extraHitRZtolerance = 0.0
 PixelTripletLargeTipGenerator.extraHitRPhitolerance = 0.0
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
-from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import PixelSeedMergerQuadruplets
+from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import *
 detachedQuadStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
     RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
         ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
@@ -48,7 +48,7 @@ detachedQuadStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.
             )
     ),
     SeedMergerPSet = cms.PSet(
-        layerList = PixelSeedMergerQuadruplets,
+        layerList = cms.PSet(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
 	addRemainingTriplets = cms.bool(False),
 	mergeTriplets = cms.bool(True),
 	ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')

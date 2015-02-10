@@ -300,7 +300,7 @@ def customise_Reco(process,pileup):
     
     # Make pixelTracks use quadruplets
     process.pixelTracks.SeedMergerPSet = cms.PSet(
-        layerListName = cms.string('PixelSeedMergerQuadruplets'),
+        layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
         addRemainingTriplets = cms.bool(False),
         mergeTriplets = cms.bool(True),
         ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
