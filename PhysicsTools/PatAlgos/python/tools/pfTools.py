@@ -316,10 +316,10 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK4', pos
     print "input collection: ", input
 
     if algo == 'AK4':
-        genJetCollection = cms.InputTag('ak4GenJetsNoNu'+postfix)
+        genJetCollection = cms.InputTag('ak4GenJets'+postfix)
         rParam=0.4
     elif algo == 'AK7':
-        genJetCollection = cms.InputTag('ak7GenJetsNoNu'+postfix)
+        genJetCollection = cms.InputTag('ak7GenJets'+postfix)
         rParam=0.7
     else:
         print 'bad jet algorithm:', algo, '! for now, only AK4 and AK7 are allowed. If you need other algorithms, please contact Colin'
