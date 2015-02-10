@@ -56,6 +56,8 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeDependentCorrections.h"
 #include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "CondFormats/EgammaObjects/interface/GBRForestD.h"
 #include "CondFormats/HcalObjects/interface/AbsOOTPileupCorrection.h"
