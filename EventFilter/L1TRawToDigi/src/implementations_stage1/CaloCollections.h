@@ -1,6 +1,8 @@
 #ifndef CaloCollections_h
 #define CaloCollections_h
 
+#include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
+#include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
@@ -23,7 +25,9 @@ namespace l1t {
                taus_(new TauBxCollection()),
                isotaus_(new TauBxCollection()),
                calospareHFBitCounts_(new CaloSpareBxCollection()),
-               calospareHFRingSums_(new CaloSpareBxCollection()) {};
+               calospareHFRingSums_(new CaloSpareBxCollection()),
+               caloEmCands_(new CaloEmCandBxCollection()),
+               caloRegions_(new CaloRegionBxCollection()) {};
 
             virtual ~CaloCollections();
 
@@ -35,7 +39,8 @@ namespace l1t {
             inline TauBxCollection* getIsoTaus() { return isotaus_.get(); };
             inline CaloSpareBxCollection* getCaloSpareHFBitCounts() { return calospareHFBitCounts_.get(); };
             inline CaloSpareBxCollection* getCaloSpareHFRingSums() { return calospareHFRingSums_.get(); };
-            
+            inline CaloEmCandBxCollection* getCaloEmCands() { return caloEmCands_.get(); };
+            inline CaloRegionBxCollection* getCaloRegions() { return caloRegions_.get(); };
 
          private:
             std::auto_ptr<CaloTowerBxCollection> towers_;
@@ -46,6 +51,8 @@ namespace l1t {
             std::auto_ptr<TauBxCollection> isotaus_;
             std::auto_ptr<CaloSpareBxCollection> calospareHFBitCounts_;
             std::auto_ptr<CaloSpareBxCollection> calospareHFRingSums_;
+            std::auto_ptr<CaloEmCandBxCollection> caloEmCands_;
+            std::auto_ptr<CaloRegionBxCollection> caloRegions_;
       };
    }
 }

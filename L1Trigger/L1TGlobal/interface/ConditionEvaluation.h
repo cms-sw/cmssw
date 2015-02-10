@@ -117,7 +117,8 @@ protected:
     /// check if a value is in a given range and outside of a veto range
     template<class Type1> const bool checkRangeEta(const unsigned int bitNumber, 
 						   const Type1& beginR, const Type1& endR, 
-						   const Type1& beginVetoR, const Type1& endVetoR ) const;
+						   const Type1& beginVetoR, const Type1& endVetoR,
+						   const unsigned int nEtaBits ) const;
 
     /// check if a value is in a given range and outside of a veto range
     template<class Type1> const bool checkRangePhi(const unsigned int bitNumber, 
@@ -127,7 +128,8 @@ protected:
 
     /// check if a value is in a given range 
     template<class Type1> const bool checkRangeDeltaEta(const unsigned int obj1Eta, const unsigned int obj2Eta, 
-							const Type1& lowerR, const Type1& upperR ) const;
+							const Type1& lowerR, const Type1& upperR,
+							const unsigned int nEtaBits ) const;
 
     /// check if a value is in a given range 
     template<class Type1> const bool checkRangeDeltaPhi(const unsigned int obj1Phi, const unsigned int obj2Phi,
@@ -223,9 +225,10 @@ template<class Type1> const bool ConditionEvaluation::checkBit(const Type1& mask
 
 
 /// check if a value is in a given range and outside of a veto range
-template<class Type1> const bool ConditionEvaluation::checkRangeEta(const unsigned int bitNumber, 
-									 const Type1& beginR, const Type1& endR, 
-									 const Type1& beginVetoR, const Type1& endVetoR ) const {
+ template<class Type1> const bool ConditionEvaluation::checkRangeEta(const unsigned int bitNumber, 
+								     const Type1& beginR, const Type1& endR, 
+								     const Type1& beginVetoR, const Type1& endVetoR,
+								     const unsigned int nEtaBits) const {
 
   // set condtion to true if beginR==endR = default -1
   if( beginR==endR && beginR==(Type1)-1 ){
@@ -236,9 +239,9 @@ template<class Type1> const bool ConditionEvaluation::checkRangeEta(const unsign
   unsigned int diff2 = bitNumber - beginR;
   unsigned int diff3 = endR - bitNumber;
 
-  bool cond1 = ( (diff1>>7) & 1 ) ? false : true;
-  bool cond2 = ( (diff2>>7) & 1 ) ? false : true;
-  bool cond3 = ( (diff3>>7) & 1 ) ? false : true;
+  bool cond1 = ( (diff1>>nEtaBits) & 1 ) ? false : true;
+  bool cond2 = ( (diff2>>nEtaBits) & 1 ) ? false : true;
+  bool cond3 = ( (diff3>>nEtaBits) & 1 ) ? false : true;
 
   LogDebug("l1t|Global")
     << "\n l1t::ConditionEvaluation"
@@ -272,9 +275,9 @@ template<class Type1> const bool ConditionEvaluation::checkRangeEta(const unsign
     unsigned int diffV2 = bitNumber - beginVetoR;
     unsigned int diffV3 = endVetoR - bitNumber;
 
-    bool condV1 = ( (diffV1>>7) & 1 ) ? false : true;
-    bool condV2 = ( (diffV2>>7) & 1 ) ? false : true;
-    bool condV3 = ( (diffV3>>7) & 1 ) ? false : true;
+    bool condV1 = ( (diffV1>>nEtaBits) & 1 ) ? false : true;
+    bool condV2 = ( (diffV2>>nEtaBits) & 1 ) ? false : true;
+    bool condV3 = ( (diffV3>>nEtaBits) & 1 ) ? false : true;
 
     if( condV1 && !(condV2 && condV3) ) return true;
     else if( !condV1 && !(condV2 || condV3) ) return true;
@@ -362,8 +365,9 @@ template<class Type1> const bool ConditionEvaluation::checkRangePhi(const unsign
 
  }
 
-template<class Type1> const bool ConditionEvaluation::checkRangeDeltaEta(const unsigned int obj1Eta, const unsigned int obj2Eta, 
-									      const Type1& lowerR, const Type1& upperR )  const {
+ template<class Type1> const bool ConditionEvaluation::checkRangeDeltaEta(const unsigned int obj1Eta, const unsigned int obj2Eta, 
+									  const Type1& lowerR, const Type1& upperR,
+									  const unsigned int nEtaBits )  const {
 
 /*   // set condtion to true if beginR==endR = default -1 */
 /*   if( beginR==endR && beginR==-1 ){ */
@@ -371,7 +375,7 @@ template<class Type1> const bool ConditionEvaluation::checkRangeDeltaEta(const u
 /*   } */
 
   unsigned int compare = obj1Eta - obj2Eta;
-  bool cond = ( (compare>>7) & 1 ) ? false : true;
+  bool cond = ( (compare>>nEtaBits) & 1 ) ? false : true;
 
   unsigned int larger, smaller;
   if( cond ){
@@ -389,9 +393,9 @@ template<class Type1> const bool ConditionEvaluation::checkRangeDeltaEta(const u
   unsigned int diff2 = diff - lowerR;
   unsigned int diff3 = upperR - diff;
 
-  bool cond1 = ( (diff1>>7) & 1 ) ? false : true;
-  bool cond2 = ( (diff2>>7) & 1 ) ? false : true;
-  bool cond3 = ( (diff3>>7) & 1 ) ? false : true;
+  bool cond1 = ( (diff1>>nEtaBits) & 1 ) ? false : true;
+  bool cond2 = ( (diff2>>nEtaBits) & 1 ) ? false : true;
+  bool cond3 = ( (diff3>>nEtaBits) & 1 ) ? false : true;
 
   LogDebug("l1t|Global")
     << "\n l1t::ConditionEvaluation"
