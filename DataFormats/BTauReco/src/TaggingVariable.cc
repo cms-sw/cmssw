@@ -100,6 +100,8 @@ const char* TaggingVariableDescription[] = {
   /* [leptonDeltaR]                             = */ "pseudo)angular distance of the soft lepton to jet axis",
   /* [leptonRatio],                             = */ "momentum of the soft lepton over jet energy",
   /* [leptonRatioRel]                           = */ "momentum of the soft lepton parallel to jet axis over jet energy",
+  /* [electronMVA]                              = */ "mva output of the electron ID",
+
 
   /* [algoDiscriminator]                        = */ "discriminator output of an algorithm",
 
@@ -199,6 +201,7 @@ const char* TaggingVariableTokens[] = {
   /* [leptonDeltaR]                             = */ "leptonDeltaR",
   /* [leptonRatio]                              = */ "leptonRatio",
   /* [leptonRatioRel],                          = */ "leptonRatioRel",
+  /* [electronMVA]                              = */ "electronMVA",
 
   /* [algoDiscriminator]                        = */ "algoDiscriminator",
 
