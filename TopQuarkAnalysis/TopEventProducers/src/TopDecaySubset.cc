@@ -189,7 +189,7 @@ const reco::GenParticle* TopDecaySubset::findPrimalW(
 /// this function would pick the top with status 62
 const reco::GenParticle* TopDecaySubset::findLastParticleInChain(
 		const reco::GenParticle* p) {
-	unsigned int particleID = std::abs(p->pdgId());
+	int particleID = std::abs(p->pdgId());
 	bool containsItself = false;
 	unsigned int d_idx = 0;
 	for (unsigned idx = 0; idx < p->numberOfDaughters(); ++idx) {

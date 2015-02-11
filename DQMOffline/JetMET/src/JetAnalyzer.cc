@@ -95,6 +95,12 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   mvaPUIDToken_ = consumes< edm::ValueMap<int> >(pSet.getParameter<edm::InputTag>("InputMVAPUIDValue"));
   mvaFullPUDiscriminantToken_ = consumes< edm::ValueMap<float> >(pSet.getParameter<edm::InputTag>("InputMVAPUIDDiscriminant"));
 
+  qgMultiplicityToken_= consumes< edm::ValueMap<int> >(pSet.getParameter<edm::InputTag>("InputQGMultiplicity"));
+  qgLikelihoodToken_= consumes< edm::ValueMap<float> >(pSet.getParameter<edm::InputTag>("InputQGLikelihood"));
+  qgptDToken_= consumes< edm::ValueMap<float> >(pSet.getParameter<edm::InputTag>("InputQGPtDToken"));
+  qgaxis2Token_= consumes< edm::ValueMap<float> >(pSet.getParameter<edm::InputTag>("InputQGAxis2"));
+
+  fill_CHS_histos= pSet.getParameter<bool>("fillCHShistos");
   
   JetIDQuality_  = pSet.getParameter<string>("JetIDQuality");
   JetIDVersion_  = pSet.getParameter<string>("JetIDVersion");
@@ -484,19 +490,86 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
   if(isPFJet_) {
     if(jetCleaningFlag_){ 
-      //gluon quark separation axis
-      mMinorAxis = ibooker.book1D("minorAxis","minorAxis #sigma_{2}",60,0.,0.14);
-      mMajorAxis = ibooker.book1D("majorAxis","majorAxis #sigma_{2}",60,0.,0.25);
-      mpTD= ibooker.book1D("pTD","fragmentation function p_{T}^{D}",50,0.15,1.00);
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"minorAxis" ,mMinorAxis));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"majorAxis" ,mMajorAxis));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"pTD" ,mpTD));
-      mMinorAxis_highPt = ibooker.book1D("minorAxis_highPt","minorAxis #sigma_{2} highPt",60,0.,0.14);
-      mMajorAxis_highPt = ibooker.book1D("majorAxis_highPt","majorAxis #sigma_{2} highPt",60,0.,0.25);
-      mpTD_highPt= ibooker.book1D("pTD_highPt","fragmentation function p_{T}^{D} highPt",50,0.15,1.00);
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"minorAxis_highPt" ,mMinorAxis_highPt));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"majorAxis_highPt" ,mMajorAxis_highPt));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"pTD_highPt" ,mpTD_highPt));
+      //gluon quark separation axis  
+      if(fill_CHS_histos){
+	mAxis2_lowPt_Barrel = ibooker.book1D("qg_Axis2_lowPt_Barrel","qg Axis2 #sigma_{2} lowPt Barrel",50,0.,0.20);
+	mpTD_lowPt_Barrel= ibooker.book1D("qg_pTD_lowPt_Barrel","qg fragmentation function p_{T}^{D} lowPt Barrel",50,0.15,1.05);
+	mMultiplicityQG_lowPt_Barrel= ibooker.book1D("qg_multiplicity_lowPt_Barrel","qg multiplicity lowPt Barrel",50,0,50);
+	mqgLikelihood_lowPt_Barrel= ibooker.book1D("qg_Likelihood_lowPt_Barrel","qg likelihood lowPt Barrel",50,-1.1,1.1);
+	mAxis2_lowPt_EndCap = ibooker.book1D("qg_Axis2_lowPt_EndCap","qg Axis2 #sigma_{2} lowPt EndCap",50,0.,0.20);
+	mpTD_lowPt_EndCap= ibooker.book1D("qg_pTD_lowPt_EndCap","qg fragmentation function p_{T}^{D} lowPt EndCap",50,0.15,1.05);
+	mMultiplicityQG_lowPt_EndCap= ibooker.book1D("qg_multiplicity_lowPt_EndCap","qg multiplicity lowPt EndCap",100,0,100);
+	mqgLikelihood_lowPt_EndCap= ibooker.book1D("qg_Likelihood_lowPt_EndCap","qg likelihood lowPt EndCap",50,-1.1,1.1);
+	mAxis2_lowPt_Forward = ibooker.book1D("qg_Axis2_lowPt_Forward","qg Axis2 #sigma_{2} lowPt Forward",50,0.,0.20);
+	mpTD_lowPt_Forward= ibooker.book1D("qg_pTD_lowPt_Forward","qg fragmentation function p_{T}^{D} lowPt Forward",50,0.15,1.05);
+	mMultiplicityQG_lowPt_Forward= ibooker.book1D("qg_multiplicity_lowPt_Forward","qg multiplicity lowPt Forward",100,0,100);
+	mqgLikelihood_lowPt_Forward= ibooker.book1D("qg_Likelihood_lowPt_Forward","qg likelihood lowPt Forward",50,-1.1,1.1);
+	
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Axis2_lowPt_Barrel" ,mAxis2_lowPt_Barrel));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_pTD_lowPt_Barrel" ,mpTD_lowPt_Barrel));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_multiplicity_lowPt_Barrel" ,mMultiplicityQG_lowPt_Barrel));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Likelihood_lowPt_Barrel" ,mqgLikelihood_lowPt_Barrel));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Axis2_lowPt_EndCap" ,mAxis2_lowPt_EndCap));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_pTD_lowPt_EndCap" ,mpTD_lowPt_EndCap));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_multiplicity_lowPt_EndCap" ,mMultiplicityQG_lowPt_EndCap));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Likelihood_lowPt_EndCap" ,mqgLikelihood_lowPt_EndCap));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Axis2_lowPt_Forward" ,mAxis2_lowPt_Forward));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_pTD_lowPt_Forward" ,mpTD_lowPt_Forward));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_multiplicity_lowPt_Forward" ,mMultiplicityQG_lowPt_Forward));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Likelihood_lowPt_Forward" ,mqgLikelihood_lowPt_Forward));
+
+	mAxis2_mediumPt_Barrel = ibooker.book1D("qg_Axis2_mediumPt_Barrel","qg Axis2 #sigma_{2} mediumPt Barrel",50,0.,0.20);
+	mpTD_mediumPt_Barrel= ibooker.book1D("qg_pTD_mediumPt_Barrel","qg fragmentation function p_{T}^{D} mediumPt Barrel",50,0.15,1.05);
+	mMultiplicityQG_mediumPt_Barrel= ibooker.book1D("qg_multiplicity_mediumPt_Barrel","qg multiplicity mediumPt Barrel",100,0,100);
+	mqgLikelihood_mediumPt_Barrel= ibooker.book1D("qg_Likelihood_mediumPt_Barrel","qg likelihood mediumPt Barrel",50,-1.1,1.1);
+	mAxis2_mediumPt_EndCap = ibooker.book1D("qg_Axis2_mediumPt_EndCap","qg Axis2 #sigma_{2} mediumPt EndCap",50,0.,0.20);
+	mpTD_mediumPt_EndCap= ibooker.book1D("qg_pTD_mediumPt_EndCap","qg fragmentation function p_{T}^{D} mediumPt EndCap",50,0.15,1.05);
+	mMultiplicityQG_mediumPt_EndCap= ibooker.book1D("qg_multiplicity_mediumPt_EndCap","qg multiplicity mediumPt EndCap",100,0,100);
+	mqgLikelihood_mediumPt_EndCap= ibooker.book1D("qg_Likelihood_mediumPt_EndCap","qg likelihood mediumPt EndCap",50,-1.1,1.1);
+	mAxis2_mediumPt_Forward = ibooker.book1D("qg_Axis2_mediumPt_Forward","qg Axis2 #sigma_{2} mediumPt Forward",50,0.,0.20);
+	mpTD_mediumPt_Forward= ibooker.book1D("qg_pTD_mediumPt_Forward","qg fragmentation function p_{T}^{D} mediumPt Forward",50,0.15,1.05);
+	mMultiplicityQG_mediumPt_Forward= ibooker.book1D("qg_multiplicity_mediumPt_Forward","qg multiplicity mediumPt Forward",100,0,100);
+	mqgLikelihood_mediumPt_Forward= ibooker.book1D("qg_Likelihood_mediumPt_Forward","qg likelihood mediumPt Forward",50,-1.1,1.1);
+	
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Axis2_mediumPt_Barrel" ,mAxis2_mediumPt_Barrel));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_pTD_mediumPt_Barrel" ,mpTD_mediumPt_Barrel));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_multiplicity_mediumPt_Barrel" ,mMultiplicityQG_mediumPt_Barrel));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Likelihood_mediumPt_Barrel" ,mqgLikelihood_mediumPt_Barrel));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Axis2_mediumPt_EndCap" ,mAxis2_mediumPt_EndCap));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_pTD_mediumPt_EndCap" ,mpTD_mediumPt_EndCap));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_multiplicity_mediumPt_EndCap" ,mMultiplicityQG_mediumPt_EndCap));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Likelihood_mediumPt_EndCap" ,mqgLikelihood_mediumPt_EndCap));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Axis2_mediumPt_Forward" ,mAxis2_mediumPt_Forward));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_pTD_mediumPt_Forward" ,mpTD_mediumPt_Forward));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_multiplicity_mediumPt_Forward" ,mMultiplicityQG_mediumPt_Forward));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Likelihood_mediumPt_Forward" ,mqgLikelihood_mediumPt_Forward));
+
+	mAxis2_highPt_Barrel = ibooker.book1D("qg_Axis2_highPt_Barrel","qg Axis2 #sigma_{2} highPt Barrel",50,0.,0.20);
+	mpTD_highPt_Barrel= ibooker.book1D("qg_pTD_highPt_Barrel","qg fragmentation function p_{T}^{D} highPt Barrel",50,0.15,1.05);
+	mMultiplicityQG_highPt_Barrel= ibooker.book1D("qg_multiplicity_highPt_Barrel","qg multiplicity highPt Barrel",100,0,100);
+	mqgLikelihood_highPt_Barrel= ibooker.book1D("qg_Likelihood_highPt_Barrel","qg likelihood highPt Barrel",50,-1.1,1.1);
+	mAxis2_highPt_EndCap = ibooker.book1D("qg_Axis2_highPt_EndCap","qg Axis2 #sigma_{2} highPt EndCap",50,0.,0.20);
+	mpTD_highPt_EndCap= ibooker.book1D("qg_pTD_highPt_EndCap","qg fragmentation function p_{T}^{D} highPt EndCap",50,0.15,1.05);
+	mMultiplicityQG_highPt_EndCap= ibooker.book1D("qg_multiplicity_highPt_EndCap","qg multiplicity highPt EndCap",100,0,100);
+	mqgLikelihood_highPt_EndCap= ibooker.book1D("qg_Likelihood_highPt_EndCap","qg likelihood highPt EndCap",50,-1.1,1.1);
+	mAxis2_highPt_Forward = ibooker.book1D("qg_Axis2_highPt_Forward","qg Axis2 #sigma_{2} highPt Forward",50,0.,0.20);
+	mpTD_highPt_Forward= ibooker.book1D("qg_pTD_highPt_Forward","qg fragmentation function p_{T}^{D} highPt Forward",50,0.15,1.05);
+	mMultiplicityQG_highPt_Forward= ibooker.book1D("qg_multiplicity_highPt_Forward","qg multiplicity highPt Forward",100,0,100);
+	mqgLikelihood_highPt_Forward= ibooker.book1D("qg_Likelihood_highPt_Forward","qg likelihood highPt Forward",50,-1.1,1.1);
+	
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Axis2_highPt_Barrel" ,mAxis2_highPt_Barrel));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_pTD_highPt_Barrel" ,mpTD_highPt_Barrel));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_multiplicity_highPt_Barrel" ,mMultiplicityQG_highPt_Barrel));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Likelihood_highPt_Barrel" ,mqgLikelihood_highPt_Barrel));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Axis2_highPt_EndCap" ,mAxis2_highPt_EndCap));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_pTD_highPt_EndCap" ,mpTD_highPt_EndCap));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_multiplicity_highPt_EndCap" ,mMultiplicityQG_highPt_EndCap));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Likelihood_highPt_EndCap" ,mqgLikelihood_highPt_EndCap));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Axis2_highPt_Forward" ,mAxis2_highPt_Forward));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_pTD_highPt_Forward" ,mpTD_highPt_Forward));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_multiplicity_highPt_Forward" ,mMultiplicityQG_highPt_Forward));
+	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Likelihood_highPt_Forward" ,mqgLikelihood_highPt_Forward));
+      }
     }
     //PFJet specific histograms
     mCHFracVSeta_lowPt= ibooker.bookProfile("CHFracVSeta_lowPt","CHFracVSeta_lowPt",etaBin_, etaMin_, etaMax_,0.,1.2);
@@ -539,7 +612,15 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     mMediumCutPUJIDPassFractionVSpt  = ibooker.bookProfile("MediumCutPUIDPassFractionVSpt","MediumCutPUIDPassFractionVSpt",ptBin_, ptMin_, ptMax_,0.,1.2);
     mTightCutPUJIDPassFractionVSeta  = ibooker.bookProfile("TightCutPUIDPassFractionVSeta","TightCutPUIDPassFractionVSeta",etaBin_, etaMin_, etaMax_,0.,1.2);
     mTightCutPUJIDPassFractionVSpt   = ibooker.bookProfile("TightCutPUIDPassFractionVSpt","TightCutPUIDPassFractionVSpt",ptBin_, ptMin_, ptMax_,0.,1.2);
-    mCutPUJIDDiscriminant   = ibooker.book1D("CutPUJIDDiscriminant","CutPUJIDDiscriminant",100, -1.00, 1.00);
+    mCutPUJIDDiscriminant_lowPt_Barrel   = ibooker.book1D("CutPUJIDDiscriminant_lowPt_Barrel","CutPUJIDDiscriminant_lowPt_Barrel",100, -1.00, 1.00);
+    mCutPUJIDDiscriminant_lowPt_EndCap   = ibooker.book1D("CutPUJIDDiscriminant_lowPt_EndCap","CutPUJIDDiscriminant_lowPt_EndCap",100, -1.00, 1.00);
+    mCutPUJIDDiscriminant_lowPt_Forward   = ibooker.book1D("CutPUJIDDiscriminant_lowPt_Forward","CutPUJIDDiscriminant_lowPt_Forward",100, -1.00, 1.00);
+    mCutPUJIDDiscriminant_mediumPt_Barrel   = ibooker.book1D("CutPUJIDDiscriminant_mediumPt_Barrel","CutPUJIDDiscriminant_mediumPt_Barrel",100, -1.00, 1.00);
+    mCutPUJIDDiscriminant_mediumPt_EndCap   = ibooker.book1D("CutPUJIDDiscriminant_mediumPt_EndCap","CutPUJIDDiscriminant_mediumPt_EndCap",100, -1.00, 1.00);
+    mCutPUJIDDiscriminant_mediumPt_Forward   = ibooker.book1D("CutPUJIDDiscriminant_mediumPt_Forward","CutPUJIDDiscriminant_mediumPt_Forward",100, -1.00, 1.00);
+    mCutPUJIDDiscriminant_highPt_Barrel   = ibooker.book1D("CutPUJIDDiscriminant_highPt_Barrel","CutPUJIDDiscriminant_highPt_Barrel",100, -1.00, 1.00);
+    mCutPUJIDDiscriminant_highPt_EndCap   = ibooker.book1D("CutPUJIDDiscriminant_highPt_EndCap","CutPUJIDDiscriminant_highPt_EndCap",100, -1.00, 1.00);
+    mCutPUJIDDiscriminant_highPt_Forward   = ibooker.book1D("CutPUJIDDiscriminant_highPt_Forward","CutPUJIDDiscriminant_highPt_Forward",100, -1.00, 1.00);
 
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"LooseCutPUIDPassFractionVSeta",mLooseCutPUJIDPassFractionVSeta));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"LooseCutPUIDPassFractionVSpt",mLooseCutPUJIDPassFractionVSpt));
@@ -547,7 +628,15 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MediumCutPUIDPassFractionVSpt",mMediumCutPUJIDPassFractionVSpt));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"TightCutPUIDPassFractionVSeta",mTightCutPUJIDPassFractionVSeta)); 
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"TightCutPUIDPassFractionVSpt",mTightCutPUJIDPassFractionVSpt));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CutPUJIDDiscriminant",mCutPUJIDDiscriminant));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CutPUJIDDiscriminant_lowPt_Barrel",mCutPUJIDDiscriminant_lowPt_Barrel));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CutPUJIDDiscriminant_lowPt_EndCap",mCutPUJIDDiscriminant_lowPt_EndCap));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CutPUJIDDiscriminant_lowPt_Forward",mCutPUJIDDiscriminant_lowPt_Forward));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CutPUJIDDiscriminant_mediumPt_Barrel",mCutPUJIDDiscriminant_mediumPt_Barrel));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CutPUJIDDiscriminant_mediumPt_EndCap",mCutPUJIDDiscriminant_mediumPt_EndCap));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CutPUJIDDiscriminant_mediumPt_Forward",mCutPUJIDDiscriminant_mediumPt_Forward));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CutPUJIDDiscriminant_highPt_Barrel",mCutPUJIDDiscriminant_highPt_Barrel));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CutPUJIDDiscriminant_highPt_EndCap",mCutPUJIDDiscriminant_highPt_EndCap));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CutPUJIDDiscriminant_highPt_Forward",mCutPUJIDDiscriminant_highPt_Forward));
     //barrel histograms for PFJets
     // energy fractions
     mCHFrac_lowPt_Barrel     = ibooker.book1D("CHFrac_lowPt_Barrel", "CHFrac_lowPt_Barrel", 120, -0.1, 1.1);
@@ -569,7 +658,28 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_highPt_Barrel" ,mCHFrac_highPt_Barrel));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFrac_highPt_Barrel" ,mNHFrac_highPt_Barrel));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFrac_highPt_Barrel" ,mPhFrac_highPt_Barrel));
-    
+   
+    mMass_lowPt_Barrel     = ibooker.book1D("JetMass_lowPt_Barrel", "JetMass_lowPt_Barrel", 50, 0, 150);
+    mMass_lowPt_EndCap     = ibooker.book1D("JetMass_lowPt_EndCap", "JetMass_lowPt_EndCap", 50, 0, 150);
+    mMass_lowPt_Forward     = ibooker.book1D("JetMass_lowPt_Forward", "JetMass_lowPt_Forward", 50, 0, 150);
+    mMass_mediumPt_Barrel     = ibooker.book1D("JetMass_mediumPt_Barrel", "JetMass_mediumPt_Barrel", 50, 0, 150);
+    mMass_mediumPt_EndCap     = ibooker.book1D("JetMass_mediumPt_EndCap", "JetMass_mediumPt_EndCap", 50, 0, 150);
+    mMass_mediumPt_Forward     = ibooker.book1D("JetMass_mediumPt_Forward", "JetMass_mediumPt_Forward", 75, 0, 150);
+    mMass_highPt_Barrel     = ibooker.book1D("JetMass_highPt_Barrel", "JetMass_highPt_Barrel", 50, 0, 150);
+    mMass_highPt_EndCap     = ibooker.book1D("JetMass_highPt_EndCap", "JetMass_highPt_EndCap", 50, 0, 150);
+    mMass_highPt_Forward     = ibooker.book1D("JetMass_highPt_Forward", "JetMass_highPt_Forward", 50, 0, 150);
+
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"JetMass_lowPt_Barrel" , mMass_lowPt_Barrel ));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"JetMass_lowPt_EndCap" , mMass_lowPt_EndCap ));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"JetMass_lowPt_Forward" , mMass_lowPt_Forward ));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"JetMass_mediumPt_Barrel" , mMass_mediumPt_Barrel ));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"JetMass_mediumPt_EndCap" , mMass_mediumPt_EndCap ));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"JetMass_mediumPt_Forward" , mMass_mediumPt_Forward ));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"JetMass_highPt_Barrel" , mMass_highPt_Barrel ));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"JetMass_highPt_EndCap" , mMass_highPt_EndCap ));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"JetMass_highPt_Forward" , mMass_highPt_Forward ));
+
+
     //energies
     mCHEn_lowPt_Barrel     = ibooker.book1D("CHEn_lowPt_Barrel", "CHEn_lowPt_Barrel", ptBin_, 0., ptMax_);
     mNHEn_lowPt_Barrel     = ibooker.book1D("NHEn_lowPt_Barrel", "NHEn_lowPt_Barrel", ptBin_, 0., ptMax_);
@@ -625,9 +735,26 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MuMultiplicity_highPt_Barrel" ,mMuMultiplicity_highPt_Barrel));
   }
   //
-  if(isMiniAODJet_ && isPFJet_){
-    mMVAPUJIDDiscriminant   = ibooker.book1D("MVAPUJIDDiscriminant","MVAPUJIDDiscriminant",100, -1.00, 1.00);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant",mMVAPUJIDDiscriminant));
+  if(isMiniAODJet_ || isPFJet_){
+    mMVAPUJIDDiscriminant_lowPt_Barrel   = ibooker.book1D("MVAPUJIDDiscriminant_lowPt_Barrel","MVAPUJIDDiscriminant_lowPt_Barrel",100, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_lowPt_EndCap   = ibooker.book1D("MVAPUJIDDiscriminant_lowPt_EndCap","MVAPUJIDDiscriminant_lowPt_EndCap",100, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_lowPt_Forward   = ibooker.book1D("MVAPUJIDDiscriminant_lowPt_Forward","MVAPUJIDDiscriminant_lowPt_Forward",100, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_mediumPt_Barrel   = ibooker.book1D("MVAPUJIDDiscriminant_mediumPt_Barrel","MVAPUJIDDiscriminant_mediumPt_Barrel",100, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_mediumPt_EndCap   = ibooker.book1D("MVAPUJIDDiscriminant_mediumPt_EndCap","MVAPUJIDDiscriminant_mediumPt_EndCap",100, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_mediumPt_Forward   = ibooker.book1D("MVAPUJIDDiscriminant_mediumPt_Forward","MVAPUJIDDiscriminant_mediumPt_Forward",100, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_highPt_Barrel   = ibooker.book1D("MVAPUJIDDiscriminant_highPt_Barrel","MVAPUJIDDiscriminant_highPt_Barrel",100, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_highPt_EndCap   = ibooker.book1D("MVAPUJIDDiscriminant_highPt_EndCap","MVAPUJIDDiscriminant_highPt_EndCap",100, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_highPt_Forward   = ibooker.book1D("MVAPUJIDDiscriminant_highPt_Forward","MVAPUJIDDiscriminant_highPt_Forward",100, -1.00, 1.00);
+
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_lowPt_Barrel",mMVAPUJIDDiscriminant_lowPt_Barrel));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_lowPt_EndCap",mMVAPUJIDDiscriminant_lowPt_EndCap));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_lowPt_Forward",mMVAPUJIDDiscriminant_lowPt_Forward));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_Barrel",mMVAPUJIDDiscriminant_mediumPt_Barrel));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_EndCap",mMVAPUJIDDiscriminant_mediumPt_EndCap));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_Forward",mMVAPUJIDDiscriminant_mediumPt_Forward));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_highPt_Barrel",mMVAPUJIDDiscriminant_highPt_Barrel));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_highPt_EndCap",mMVAPUJIDDiscriminant_highPt_EndCap));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_highPt_Forward",mMVAPUJIDDiscriminant_highPt_Forward));
 
     mCHFracVSpT_Barrel= ibooker.bookProfile("CHFracVSpT_Barrel","CHFracVSpT_Barrel",ptBin_, ptMin_, ptMax_,0.,1.2);
     mNHFracVSpT_Barrel= ibooker.bookProfile("NHFracVSpT_Barrel","NHFracVSpT_Barrel",ptBin_, ptMin_, ptMax_,0.,1.2);
@@ -712,36 +839,36 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     meCHFracBarrel_BXm2BXm1Filled = ibooker.book1D("CHFracBarrel_BXm2BXm1Filled", "CHFrac prev filled 2 bunches (Barrel)",         50, 0,    1);
     mePtBarrel_BXm2BXm1Empty                       = ibooker.book1D("PtBarrel_BXm2BXm1Empty",   "pT prev empty 2 bunches (Barrel)", ptBin_, ptMin_, ptMax_);
     mePtBarrel_BXm2BXm1Filled                     = ibooker.book1D("PtBarrel_BXm2BXm1Filled", "pT prev filled 2 bunches (Barrel)", ptBin_, ptMin_, ptMax_);
-    mePhFracEndcapPlus_BXm2BXm1Empty          = ibooker.book1D("PhFracEndcapPlus_BXm2BXm1Empty",        "PHFrac prev empty 2 bunches (EndcapPlus)",         50, 0,    1);
-    mePhFracEndcapPlus_BXm2BXm1Filled        = ibooker.book1D("PhFracEndcapPlus_BXm2BXm1Filled",      "PHFrac prev filled 2 bunches (EndcapPlus)",         50, 0,    1);
-    meNHFracEndcapPlus_BXm2BXm1Empty   = ibooker.book1D("NHFracEndcapPlus_BXm2BXm1Empty",   "NHFrac prev empty 2 bunches (EndcapPlus)",         50, 0,    1);
-    meNHFracEndcapPlus_BXm2BXm1Filled = ibooker.book1D("NHFracEndcapPlus_BXm2BXm1Filled", "NHFrac prev filled 2 bunches (EndcapPlus)",         50, 0,    1);
-    meCHFracEndcapPlus_BXm2BXm1Empty   = ibooker.book1D("CHFracEndcapPlus_BXm2BXm1Empty",   "CHFrac prev empty 2 bunches (EndcapPlus)",         50, 0,    1);
-    meCHFracEndcapPlus_BXm2BXm1Filled = ibooker.book1D("CHFracEndcapPlus_BXm2BXm1Filled", "CHFrac prev filled 2 bunches (EndcapPlus)",         50, 0,    1);
-    mePtEndcapPlus_BXm2BXm1Empty                       = ibooker.book1D("PtEndcapPlus_BXm2BXm1Empty",   "pT prev empty 2 bunches (EndcapPlus)", ptBin_, ptMin_, ptMax_);
-    mePtEndcapPlus_BXm2BXm1Filled                     = ibooker.book1D("PtEndcapPlus_BXm2BXm1Filled", "pT prev filled 2 bunches (EndcapPlus)", ptBin_, ptMin_, ptMax_);
-    meHFHFracPlus_BXm2BXm1Empty   = ibooker.book1D("HFHFracPlus_BXm2BXm1Empty",   "HFHFrac prev empty 2 bunches (EndcapPlus)",         50, 0,    1);
-    meHFHFracPlus_BXm2BXm1Filled = ibooker.book1D("HFHFracPlus_BXm2BXm1Filled", "HFHFrac prev filled 2 bunches (EndcapPlus)",         50, 0,    1);
-    meHFEMFracPlus_BXm2BXm1Empty   = ibooker.book1D("HFEMFracPlus_BXm2BXm1Empty",   "HFEMFrac prev empty 2 bunches (EndcapPlus)",         50, 0,    1);
-    meHFEMFracPlus_BXm2BXm1Filled = ibooker.book1D("HFEMFracPlus_BXm2BXm1Filled", "HFEMFrac prev filled 2 bunches (EndcapPlus)",         50, 0,    1);
+    mePhFracEndCapPlus_BXm2BXm1Empty          = ibooker.book1D("PhFracEndCapPlus_BXm2BXm1Empty",        "PHFrac prev empty 2 bunches (EndCapPlus)",         50, 0,    1);
+    mePhFracEndCapPlus_BXm2BXm1Filled        = ibooker.book1D("PhFracEndCapPlus_BXm2BXm1Filled",      "PHFrac prev filled 2 bunches (EndCapPlus)",         50, 0,    1);
+    meNHFracEndCapPlus_BXm2BXm1Empty   = ibooker.book1D("NHFracEndCapPlus_BXm2BXm1Empty",   "NHFrac prev empty 2 bunches (EndCapPlus)",         50, 0,    1);
+    meNHFracEndCapPlus_BXm2BXm1Filled = ibooker.book1D("NHFracEndCapPlus_BXm2BXm1Filled", "NHFrac prev filled 2 bunches (EndCapPlus)",         50, 0,    1);
+    meCHFracEndCapPlus_BXm2BXm1Empty   = ibooker.book1D("CHFracEndCapPlus_BXm2BXm1Empty",   "CHFrac prev empty 2 bunches (EndCapPlus)",         50, 0,    1);
+    meCHFracEndCapPlus_BXm2BXm1Filled = ibooker.book1D("CHFracEndCapPlus_BXm2BXm1Filled", "CHFrac prev filled 2 bunches (EndCapPlus)",         50, 0,    1);
+    mePtEndCapPlus_BXm2BXm1Empty                       = ibooker.book1D("PtEndCapPlus_BXm2BXm1Empty",   "pT prev empty 2 bunches (EndCapPlus)", ptBin_, ptMin_, ptMax_);
+    mePtEndCapPlus_BXm2BXm1Filled                     = ibooker.book1D("PtEndCapPlus_BXm2BXm1Filled", "pT prev filled 2 bunches (EndCapPlus)", ptBin_, ptMin_, ptMax_);
+    meHFHFracPlus_BXm2BXm1Empty   = ibooker.book1D("HFHFracPlus_BXm2BXm1Empty",   "HFHFrac prev empty 2 bunches (EndCapPlus)",         50, 0,    1);
+    meHFHFracPlus_BXm2BXm1Filled = ibooker.book1D("HFHFracPlus_BXm2BXm1Filled", "HFHFrac prev filled 2 bunches (EndCapPlus)",         50, 0,    1);
+    meHFEMFracPlus_BXm2BXm1Empty   = ibooker.book1D("HFEMFracPlus_BXm2BXm1Empty",   "HFEMFrac prev empty 2 bunches (EndCapPlus)",         50, 0,    1);
+    meHFEMFracPlus_BXm2BXm1Filled = ibooker.book1D("HFEMFracPlus_BXm2BXm1Filled", "HFEMFrac prev filled 2 bunches (EndCapPlus)",         50, 0,    1);
     mePtForwardPlus_BXm2BXm1Empty                       = ibooker.book1D("PtForwardPlus_BXm2BXm1Empty",   "pT prev empty 2 bunches (ForwardPlus)", ptBin_, ptMin_, ptMax_);
     mePtForwardPlus_BXm2BXm1Filled                     = ibooker.book1D("PtForwardPlus_BXm2BXm1Filled", "pT prev filled 2 bunches (ForwardPlus)", ptBin_, ptMin_, ptMax_);
-    mePhFracEndcapMinus_BXm2BXm1Empty          = ibooker.book1D("PhFracEndcapMinus_BXm2BXm1Empty",        "PHFrac prev empty 2 bunches (EndcapMinus)",         50, 0,    1);
-    mePhFracEndcapMinus_BXm2BXm1Filled        = ibooker.book1D("PhFracEndcapMinus_BXm2BXm1Filled",      "PHFrac prev filled 2 bunches (EndcapMinus)",         50, 0,    1);
-    meNHFracEndcapMinus_BXm2BXm1Empty   = ibooker.book1D("NHFracEndcapMinus_BXm2BXm1Empty",   "NHFrac prev empty 2 bunches (EndcapMinus)",         50, 0,    1);
-    meNHFracEndcapMinus_BXm2BXm1Filled = ibooker.book1D("NHFracEndcapMinus_BXm2BXm1Filled", "NHFrac prev filled 2 bunches (EndcapMinus)",         50, 0,    1);
-    meCHFracEndcapMinus_BXm2BXm1Empty   = ibooker.book1D("CHFracEndcapMinus_BXm2BXm1Empty",   "CHFrac prev empty 2 bunches (EndcapMinus)",         50, 0,    1);
-    meCHFracEndcapMinus_BXm2BXm1Filled = ibooker.book1D("CHFracEndcapMinus_BXm2BXm1Filled", "CHFrac prev filled 2 bunches (EndcapMinus)",         50, 0,    1);
-    mePtEndcapMinus_BXm2BXm1Empty                       = ibooker.book1D("PtEndcapMinus_BXm2BXm1Empty",   "pT prev empty 2 bunches (EndcapMinus)", ptBin_, ptMin_, ptMax_);
-    mePtEndcapMinus_BXm2BXm1Filled                     = ibooker.book1D("PtEndcapMinus_BXm2BXm1Filled", "pT prev filled 2 bunches (EndcapMinus)", ptBin_, ptMin_, ptMax_);
-    meCHFracEndcapMinus_BXm2BXm1Empty   = ibooker.book1D("CHFracEndcapMinus_BXm2BXm1Empty",   "CHFrac prev empty 2 bunches (EndcapMinus)",         50, 0,    1);
-    meCHFracEndcapMinus_BXm2BXm1Filled = ibooker.book1D("CHFracEndcapMinus_BXm2BXm1Filled", "CHFrac prev filled 2 bunches (EndcapMinus)",         50, 0,    1);
-    mePtEndcapMinus_BXm2BXm1Empty                       = ibooker.book1D("PtEndcapMinus_BXm2BXm1Empty",   "pT prev empty 2 bunches (EndcapMinus)", ptBin_, ptMin_, ptMax_);
-    mePtEndcapMinus_BXm2BXm1Filled                     = ibooker.book1D("PtEndcapMinus_BXm2BXm1Filled", "pT prev filled 2 bunches (EndcapMinus)", ptBin_, ptMin_, ptMax_);
-    meHFHFracMinus_BXm2BXm1Empty   = ibooker.book1D("HFHFracMinus_BXm2BXm1Empty",   "HFHFrac prev empty 2 bunches (EndcapMinus)",         50, 0,    1);
-    meHFHFracMinus_BXm2BXm1Filled = ibooker.book1D("HFHFracMinus_BXm2BXm1Filled", "HFHFrac prev filled 2 bunches (EndcapMinus)",         50, 0,    1);
-    meHFEMFracMinus_BXm2BXm1Empty   = ibooker.book1D("HFEMFracMinus_BXm2BXm1Empty",   "HFEMFrac prev empty 2 bunches (EndcapMinus)",         50, 0,    1);
-    meHFEMFracMinus_BXm2BXm1Filled = ibooker.book1D("HFEMFracMinus_BXm2BXm1Filled", "HFEMFrac prev filled 2 bunches (EndcapMinus)",         50, 0,    1);
+    mePhFracEndCapMinus_BXm2BXm1Empty          = ibooker.book1D("PhFracEndCapMinus_BXm2BXm1Empty",        "PHFrac prev empty 2 bunches (EndCapMinus)",         50, 0,    1);
+    mePhFracEndCapMinus_BXm2BXm1Filled        = ibooker.book1D("PhFracEndCapMinus_BXm2BXm1Filled",      "PHFrac prev filled 2 bunches (EndCapMinus)",         50, 0,    1);
+    meNHFracEndCapMinus_BXm2BXm1Empty   = ibooker.book1D("NHFracEndCapMinus_BXm2BXm1Empty",   "NHFrac prev empty 2 bunches (EndCapMinus)",         50, 0,    1);
+    meNHFracEndCapMinus_BXm2BXm1Filled = ibooker.book1D("NHFracEndCapMinus_BXm2BXm1Filled", "NHFrac prev filled 2 bunches (EndCapMinus)",         50, 0,    1);
+    meCHFracEndCapMinus_BXm2BXm1Empty   = ibooker.book1D("CHFracEndCapMinus_BXm2BXm1Empty",   "CHFrac prev empty 2 bunches (EndCapMinus)",         50, 0,    1);
+    meCHFracEndCapMinus_BXm2BXm1Filled = ibooker.book1D("CHFracEndCapMinus_BXm2BXm1Filled", "CHFrac prev filled 2 bunches (EndCapMinus)",         50, 0,    1);
+    mePtEndCapMinus_BXm2BXm1Empty                       = ibooker.book1D("PtEndCapMinus_BXm2BXm1Empty",   "pT prev empty 2 bunches (EndCapMinus)", ptBin_, ptMin_, ptMax_);
+    mePtEndCapMinus_BXm2BXm1Filled                     = ibooker.book1D("PtEndCapMinus_BXm2BXm1Filled", "pT prev filled 2 bunches (EndCapMinus)", ptBin_, ptMin_, ptMax_);
+    meCHFracEndCapMinus_BXm2BXm1Empty   = ibooker.book1D("CHFracEndCapMinus_BXm2BXm1Empty",   "CHFrac prev empty 2 bunches (EndCapMinus)",         50, 0,    1);
+    meCHFracEndCapMinus_BXm2BXm1Filled = ibooker.book1D("CHFracEndCapMinus_BXm2BXm1Filled", "CHFrac prev filled 2 bunches (EndCapMinus)",         50, 0,    1);
+    mePtEndCapMinus_BXm2BXm1Empty                       = ibooker.book1D("PtEndCapMinus_BXm2BXm1Empty",   "pT prev empty 2 bunches (EndCapMinus)", ptBin_, ptMin_, ptMax_);
+    mePtEndCapMinus_BXm2BXm1Filled                     = ibooker.book1D("PtEndCapMinus_BXm2BXm1Filled", "pT prev filled 2 bunches (EndCapMinus)", ptBin_, ptMin_, ptMax_);
+    meHFHFracMinus_BXm2BXm1Empty   = ibooker.book1D("HFHFracMinus_BXm2BXm1Empty",   "HFHFrac prev empty 2 bunches (EndCapMinus)",         50, 0,    1);
+    meHFHFracMinus_BXm2BXm1Filled = ibooker.book1D("HFHFracMinus_BXm2BXm1Filled", "HFHFrac prev filled 2 bunches (EndCapMinus)",         50, 0,    1);
+    meHFEMFracMinus_BXm2BXm1Empty   = ibooker.book1D("HFEMFracMinus_BXm2BXm1Empty",   "HFEMFrac prev empty 2 bunches (EndCapMinus)",         50, 0,    1);
+    meHFEMFracMinus_BXm2BXm1Filled = ibooker.book1D("HFEMFracMinus_BXm2BXm1Filled", "HFEMFrac prev filled 2 bunches (EndCapMinus)",         50, 0,    1);
     mePtForwardMinus_BXm2BXm1Empty                       = ibooker.book1D("PtForwardMinus_BXm2BXm1Empty",   "pT prev empty 2 bunches (ForwardMinus)", ptBin_, ptMin_, ptMax_);
     mePtForwardMinus_BXm2BXm1Filled                     = ibooker.book1D("PtForwardMinus_BXm2BXm1Filled", "pT prev filled 2 bunches (ForwardMinus)", ptBin_, ptMin_, ptMax_);
     meEta_BXm2BXm1Empty                     = ibooker.book1D("EtaBarrel_BXm2BXm1Empty",   "eta prev empty 2 bunches",  etaBin_, etaMin_, etaMax_);
@@ -755,28 +882,28 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracBarrel_BXm2BXm1Filled"      ,meCHFracBarrel_BXm2BXm1Filled));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtBarrel_BXm2BXm1Empty"    ,mePtBarrel_BXm2BXm1Empty));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtBarrel_BXm2BXm1Filled"  ,mePtBarrel_BXm2BXm1Filled));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFracEndcapPlus_BXm2BXm1Empty"       ,mePhFracEndcapPlus_BXm2BXm1Empty));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFracEndcapPlus_BXm2BXm1Filled"     ,mePhFracEndcapPlus_BXm2BXm1Filled));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracEndcapPlus_BXm2BXm1Empty"  ,meNHFracEndcapPlus_BXm2BXm1Empty));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracEndcapPlus_BXm2BXm1Filled"      ,meNHFracEndcapPlus_BXm2BXm1Filled));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracEndcapPlus_BXm2BXm1Empty"  ,meCHFracEndcapPlus_BXm2BXm1Empty));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracEndcapPlus_BXm2BXm1Filled"      ,meCHFracEndcapPlus_BXm2BXm1Filled));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtEndcapPlus_BXm2BXm1Empty"    ,mePtEndcapPlus_BXm2BXm1Empty));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtEndcapPlus_BXm2BXm1Filled"  ,mePtEndcapPlus_BXm2BXm1Filled));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFracEndCapPlus_BXm2BXm1Empty"       ,mePhFracEndCapPlus_BXm2BXm1Empty));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFracEndCapPlus_BXm2BXm1Filled"     ,mePhFracEndCapPlus_BXm2BXm1Filled));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracEndCapPlus_BXm2BXm1Empty"  ,meNHFracEndCapPlus_BXm2BXm1Empty));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracEndCapPlus_BXm2BXm1Filled"      ,meNHFracEndCapPlus_BXm2BXm1Filled));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracEndCapPlus_BXm2BXm1Empty"  ,meCHFracEndCapPlus_BXm2BXm1Empty));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracEndCapPlus_BXm2BXm1Filled"      ,meCHFracEndCapPlus_BXm2BXm1Filled));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtEndCapPlus_BXm2BXm1Empty"    ,mePtEndCapPlus_BXm2BXm1Empty));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtEndCapPlus_BXm2BXm1Filled"  ,mePtEndCapPlus_BXm2BXm1Filled));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFHFracPlus_BXm2BXm1Empty"  ,meHFHFracPlus_BXm2BXm1Empty));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFHFracPlus_BXm2BXm1Filled"      ,meHFHFracPlus_BXm2BXm1Filled));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFEMFracPlus_BXm2BXm1Empty"  ,meHFEMFracPlus_BXm2BXm1Empty));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFEMFracPlus_BXm2BXm1Filled"      ,meHFEMFracPlus_BXm2BXm1Filled));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtForwardPlus_BXm2BXm1Empty"    ,mePtForwardPlus_BXm2BXm1Empty));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtForwardPlus_BXm2BXm1Filled"  ,mePtForwardPlus_BXm2BXm1Filled));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFracEndcapMinus_BXm2BXm1Empty"       ,mePhFracEndcapMinus_BXm2BXm1Empty));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFracEndcapMinus_BXm2BXm1Filled"     ,mePhFracEndcapMinus_BXm2BXm1Filled));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracEndcapMinus_BXm2BXm1Empty"  ,meNHFracEndcapMinus_BXm2BXm1Empty));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracEndcapMinus_BXm2BXm1Filled"      ,meNHFracEndcapMinus_BXm2BXm1Filled));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracEndcapMinus_BXm2BXm1Empty"  ,meCHFracEndcapMinus_BXm2BXm1Empty));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracEndcapMinus_BXm2BXm1Filled"      ,meCHFracEndcapMinus_BXm2BXm1Filled));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtEndcapMinus_BXm2BXm1Empty"    ,mePtEndcapMinus_BXm2BXm1Empty));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtEndcapMinus_BXm2BXm1Filled"  ,mePtEndcapMinus_BXm2BXm1Filled));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFracEndCapMinus_BXm2BXm1Empty"       ,mePhFracEndCapMinus_BXm2BXm1Empty));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFracEndCapMinus_BXm2BXm1Filled"     ,mePhFracEndCapMinus_BXm2BXm1Filled));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracEndCapMinus_BXm2BXm1Empty"  ,meNHFracEndCapMinus_BXm2BXm1Empty));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracEndCapMinus_BXm2BXm1Filled"      ,meNHFracEndCapMinus_BXm2BXm1Filled));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracEndCapMinus_BXm2BXm1Empty"  ,meCHFracEndCapMinus_BXm2BXm1Empty));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracEndCapMinus_BXm2BXm1Filled"      ,meCHFracEndCapMinus_BXm2BXm1Filled));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtEndCapMinus_BXm2BXm1Empty"    ,mePtEndCapMinus_BXm2BXm1Empty));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtEndCapMinus_BXm2BXm1Filled"  ,mePtEndCapMinus_BXm2BXm1Filled));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFHFracMinus_BXm2BXm1Empty"  ,meHFHFracMinus_BXm2BXm1Empty));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFHFracMinus_BXm2BXm1Filled"      ,meHFHFracMinus_BXm2BXm1Filled));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFEMFracMinus_BXm2BXm1Empty"  ,meHFEMFracMinus_BXm2BXm1Empty));
@@ -794,36 +921,36 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     meCHFracBarrel_BXm1Filled = ibooker.book1D("CHFracBarrel_BXm1Filled", "CHFrac prev filled 1 bunch (Barrel)",         50, 0,    1);
     mePtBarrel_BXm1Empty                       = ibooker.book1D("PtBarrel_BXm1Empty",   "pT prev empty 1 bunch (Barrel)", ptBin_, ptMin_, ptMax_);
     mePtBarrel_BXm1Filled                     = ibooker.book1D("PtBarrel_BXm1Filled", "pT prev filled 1 bunch (Barrel)", ptBin_, ptMin_, ptMax_);
-    mePhFracEndcapPlus_BXm1Empty          = ibooker.book1D("PhFracEndcapPlus_BXm1Empty",        "PHFrac prev empty 1 bunch (EndcapPlus)",         50, 0,    1);
-    mePhFracEndcapPlus_BXm1Filled        = ibooker.book1D("PhFracEndcapPlus_BXm1Filled",      "PHFrac prev filled 1 bunch (EndcapPlus)",         50, 0,    1);
-    meNHFracEndcapPlus_BXm1Empty   = ibooker.book1D("NHFracEndcapPlus_BXm1Empty",   "NHFrac prev empty 1 bunch (EndcapPlus)",         50, 0,    1);
-    meNHFracEndcapPlus_BXm1Filled = ibooker.book1D("NHFracEndcapPlus_BXm1Filled", "NHFrac prev filled 1 bunch (EndcapPlus)",         50, 0,    1);
-    meCHFracEndcapPlus_BXm1Empty   = ibooker.book1D("CHFracEndcapPlus_BXm1Empty",   "CHFrac prev empty 1 bunch (EndcapPlus)",         50, 0,    1);
-    meCHFracEndcapPlus_BXm1Filled = ibooker.book1D("CHFracEndcapPlus_BXm1Filled", "CHFrac prev filled 1 bunch (EndcapPlus)",         50, 0,    1);
-    mePtEndcapPlus_BXm1Empty                       = ibooker.book1D("PtEndcapPlus_BXm1Empty",   "pT prev empty 1 bunch (EndcapPlus)", ptBin_, ptMin_, ptMax_);
-    mePtEndcapPlus_BXm1Filled                     = ibooker.book1D("PtEndcapPlus_BXm1Filled", "pT prev filled 1 bunch (EndcapPlus)", ptBin_, ptMin_, ptMax_);
-    meHFHFracPlus_BXm1Empty   = ibooker.book1D("HFHFracPlus_BXm1Empty",   "HFHFrac prev empty 1 bunch (EndcapPlus)",         50, 0,    1);
-    meHFHFracPlus_BXm1Filled = ibooker.book1D("HFHFracPlus_BXm1Filled", "HFHFrac prev filled 1 bunch (EndcapPlus)",         50, 0,    1);
-    meHFEMFracPlus_BXm1Empty   = ibooker.book1D("HFEMFracPlus_BXm1Empty",   "HFEMFrac prev empty 1 bunch (EndcapPlus)",         50, 0,    1);
-    meHFEMFracPlus_BXm1Filled = ibooker.book1D("HFEMFracPlus_BXm1Filled", "HFEMFrac prev filled 1 bunch (EndcapPlus)",         50, 0,    1);
+    mePhFracEndCapPlus_BXm1Empty          = ibooker.book1D("PhFracEndCapPlus_BXm1Empty",        "PHFrac prev empty 1 bunch (EndCapPlus)",         50, 0,    1);
+    mePhFracEndCapPlus_BXm1Filled        = ibooker.book1D("PhFracEndCapPlus_BXm1Filled",      "PHFrac prev filled 1 bunch (EndCapPlus)",         50, 0,    1);
+    meNHFracEndCapPlus_BXm1Empty   = ibooker.book1D("NHFracEndCapPlus_BXm1Empty",   "NHFrac prev empty 1 bunch (EndCapPlus)",         50, 0,    1);
+    meNHFracEndCapPlus_BXm1Filled = ibooker.book1D("NHFracEndCapPlus_BXm1Filled", "NHFrac prev filled 1 bunch (EndCapPlus)",         50, 0,    1);
+    meCHFracEndCapPlus_BXm1Empty   = ibooker.book1D("CHFracEndCapPlus_BXm1Empty",   "CHFrac prev empty 1 bunch (EndCapPlus)",         50, 0,    1);
+    meCHFracEndCapPlus_BXm1Filled = ibooker.book1D("CHFracEndCapPlus_BXm1Filled", "CHFrac prev filled 1 bunch (EndCapPlus)",         50, 0,    1);
+    mePtEndCapPlus_BXm1Empty                       = ibooker.book1D("PtEndCapPlus_BXm1Empty",   "pT prev empty 1 bunch (EndCapPlus)", ptBin_, ptMin_, ptMax_);
+    mePtEndCapPlus_BXm1Filled                     = ibooker.book1D("PtEndCapPlus_BXm1Filled", "pT prev filled 1 bunch (EndCapPlus)", ptBin_, ptMin_, ptMax_);
+    meHFHFracPlus_BXm1Empty   = ibooker.book1D("HFHFracPlus_BXm1Empty",   "HFHFrac prev empty 1 bunch (EndCapPlus)",         50, 0,    1);
+    meHFHFracPlus_BXm1Filled = ibooker.book1D("HFHFracPlus_BXm1Filled", "HFHFrac prev filled 1 bunch (EndCapPlus)",         50, 0,    1);
+    meHFEMFracPlus_BXm1Empty   = ibooker.book1D("HFEMFracPlus_BXm1Empty",   "HFEMFrac prev empty 1 bunch (EndCapPlus)",         50, 0,    1);
+    meHFEMFracPlus_BXm1Filled = ibooker.book1D("HFEMFracPlus_BXm1Filled", "HFEMFrac prev filled 1 bunch (EndCapPlus)",         50, 0,    1);
     mePtForwardPlus_BXm1Empty                       = ibooker.book1D("PtForwardPlus_BXm1Empty",   "pT prev empty 1 bunch (ForwardPlus)", ptBin_, ptMin_, ptMax_);
     mePtForwardPlus_BXm1Filled                     = ibooker.book1D("PtForwardPlus_BXm1Filled", "pT prev filled 1 bunch (ForwardPlus)", ptBin_, ptMin_, ptMax_);
-    mePhFracEndcapMinus_BXm1Empty          = ibooker.book1D("PhFracEndcapMinus_BXm1Empty",        "PHFrac prev empty 1 bunch (EndcapMinus)",         50, 0,    1);
-    mePhFracEndcapMinus_BXm1Filled        = ibooker.book1D("PhFracEndcapMinus_BXm1Filled",      "PHFrac prev filled 1 bunch (EndcapMinus)",         50, 0,    1);
-    meNHFracEndcapMinus_BXm1Empty   = ibooker.book1D("NHFracEndcapMinus_BXm1Empty",   "NHFrac prev empty 1 bunch (EndcapMinus)",         50, 0,    1);
-    meNHFracEndcapMinus_BXm1Filled = ibooker.book1D("NHFracEndcapMinus_BXm1Filled", "NHFrac prev filled 1 bunch (EndcapMinus)",         50, 0,    1);
-    meCHFracEndcapMinus_BXm1Empty   = ibooker.book1D("CHFracEndcapMinus_BXm1Empty",   "CHFrac prev empty 1 bunch (EndcapMinus)",         50, 0,    1);
-    meCHFracEndcapMinus_BXm1Filled = ibooker.book1D("CHFracEndcapMinus_BXm1Filled", "CHFrac prev filled 1 bunch (EndcapMinus)",         50, 0,    1);
-    mePtEndcapMinus_BXm1Empty                       = ibooker.book1D("PtEndcapMinus_BXm1Empty",   "pT prev empty 1 bunch (EndcapMinus)", ptBin_, ptMin_, ptMax_);
-    mePtEndcapMinus_BXm1Filled                     = ibooker.book1D("PtEndcapMinus_BXm1Filled", "pT prev filled 1 bunch (EndcapMinus)", ptBin_, ptMin_, ptMax_);
-    meCHFracEndcapMinus_BXm1Empty   = ibooker.book1D("CHFracEndcapMinus_BXm1Empty",   "CHFrac prev empty 1 bunch (EndcapMinus)",         50, 0,    1);
-    meCHFracEndcapMinus_BXm1Filled = ibooker.book1D("CHFracEndcapMinus_BXm1Filled", "CHFrac prev filled 1 bunch (EndcapMinus)",         50, 0,    1);
-    mePtEndcapMinus_BXm1Empty                       = ibooker.book1D("PtEndcapMinus_BXm1Empty",   "pT prev empty 1 bunch (EndcapMinus)", ptBin_, ptMin_, ptMax_);
-    mePtEndcapMinus_BXm1Filled                     = ibooker.book1D("PtEndcapMinus_BXm1Filled", "pT prev filled 1 bunch (EndcapMinus)", ptBin_, ptMin_, ptMax_);
-    meHFHFracMinus_BXm1Empty   = ibooker.book1D("HFHFracMinus_BXm1Empty",   "HFHFrac prev empty 1 bunch (EndcapMinus)",         50, 0,    1);
-    meHFHFracMinus_BXm1Filled = ibooker.book1D("HFHFracMinus_BXm1Filled", "HFHFrac prev filled 1 bunch (EndcapMinus)",         50, 0,    1);
-    meHFEMFracMinus_BXm1Empty   = ibooker.book1D("HFEMFracMinus_BXm1Empty",   "HFEMFrac prev empty 1 bunch (EndcapMinus)",         50, 0,    1);
-    meHFEMFracMinus_BXm1Filled = ibooker.book1D("HFEMFracMinus_BXm1Filled", "HFEMFrac prev filled 1 bunch (EndcapMinus)",         50, 0,    1);
+    mePhFracEndCapMinus_BXm1Empty          = ibooker.book1D("PhFracEndCapMinus_BXm1Empty",        "PHFrac prev empty 1 bunch (EndCapMinus)",         50, 0,    1);
+    mePhFracEndCapMinus_BXm1Filled        = ibooker.book1D("PhFracEndCapMinus_BXm1Filled",      "PHFrac prev filled 1 bunch (EndCapMinus)",         50, 0,    1);
+    meNHFracEndCapMinus_BXm1Empty   = ibooker.book1D("NHFracEndCapMinus_BXm1Empty",   "NHFrac prev empty 1 bunch (EndCapMinus)",         50, 0,    1);
+    meNHFracEndCapMinus_BXm1Filled = ibooker.book1D("NHFracEndCapMinus_BXm1Filled", "NHFrac prev filled 1 bunch (EndCapMinus)",         50, 0,    1);
+    meCHFracEndCapMinus_BXm1Empty   = ibooker.book1D("CHFracEndCapMinus_BXm1Empty",   "CHFrac prev empty 1 bunch (EndCapMinus)",         50, 0,    1);
+    meCHFracEndCapMinus_BXm1Filled = ibooker.book1D("CHFracEndCapMinus_BXm1Filled", "CHFrac prev filled 1 bunch (EndCapMinus)",         50, 0,    1);
+    mePtEndCapMinus_BXm1Empty                       = ibooker.book1D("PtEndCapMinus_BXm1Empty",   "pT prev empty 1 bunch (EndCapMinus)", ptBin_, ptMin_, ptMax_);
+    mePtEndCapMinus_BXm1Filled                     = ibooker.book1D("PtEndCapMinus_BXm1Filled", "pT prev filled 1 bunch (EndCapMinus)", ptBin_, ptMin_, ptMax_);
+    meCHFracEndCapMinus_BXm1Empty   = ibooker.book1D("CHFracEndCapMinus_BXm1Empty",   "CHFrac prev empty 1 bunch (EndCapMinus)",         50, 0,    1);
+    meCHFracEndCapMinus_BXm1Filled = ibooker.book1D("CHFracEndCapMinus_BXm1Filled", "CHFrac prev filled 1 bunch (EndCapMinus)",         50, 0,    1);
+    mePtEndCapMinus_BXm1Empty                       = ibooker.book1D("PtEndCapMinus_BXm1Empty",   "pT prev empty 1 bunch (EndCapMinus)", ptBin_, ptMin_, ptMax_);
+    mePtEndCapMinus_BXm1Filled                     = ibooker.book1D("PtEndCapMinus_BXm1Filled", "pT prev filled 1 bunch (EndCapMinus)", ptBin_, ptMin_, ptMax_);
+    meHFHFracMinus_BXm1Empty   = ibooker.book1D("HFHFracMinus_BXm1Empty",   "HFHFrac prev empty 1 bunch (EndCapMinus)",         50, 0,    1);
+    meHFHFracMinus_BXm1Filled = ibooker.book1D("HFHFracMinus_BXm1Filled", "HFHFrac prev filled 1 bunch (EndCapMinus)",         50, 0,    1);
+    meHFEMFracMinus_BXm1Empty   = ibooker.book1D("HFEMFracMinus_BXm1Empty",   "HFEMFrac prev empty 1 bunch (EndCapMinus)",         50, 0,    1);
+    meHFEMFracMinus_BXm1Filled = ibooker.book1D("HFEMFracMinus_BXm1Filled", "HFEMFrac prev filled 1 bunch (EndCapMinus)",         50, 0,    1);
     mePtForwardMinus_BXm1Empty                       = ibooker.book1D("PtForwardMinus_BXm1Empty",   "pT prev empty 1 bunch (ForwardMinus)", ptBin_, ptMin_, ptMax_);
     mePtForwardMinus_BXm1Filled                     = ibooker.book1D("PtForwardMinus_BXm1Filled", "pT prev filled 1 bunch (ForwardMinus)", ptBin_, ptMin_, ptMax_);
     meEta_BXm1Empty                     = ibooker.book1D("EtaBarrel_BXm1Empty",   "eta prev empty 1 bunch",  etaBin_, etaMin_, etaMax_);
@@ -837,28 +964,28 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracBarrel_BXm1Filled"      ,meCHFracBarrel_BXm1Filled));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtBarrel_BXm1Empty"    ,mePtBarrel_BXm1Empty));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtBarrel_BXm1Filled"  ,mePtBarrel_BXm1Filled));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFracEndcapPlus_BXm1Empty"       ,mePhFracEndcapPlus_BXm1Empty));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFracEndcapPlus_BXm1Filled"     ,mePhFracEndcapPlus_BXm1Filled));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracEndcapPlus_BXm1Empty"  ,meNHFracEndcapPlus_BXm1Empty));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracEndcapPlus_BXm1Filled"      ,meNHFracEndcapPlus_BXm1Filled));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracEndcapPlus_BXm1Empty"  ,meCHFracEndcapPlus_BXm1Empty));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracEndcapPlus_BXm1Filled"      ,meCHFracEndcapPlus_BXm1Filled));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtEndcapPlus_BXm1Empty"    ,mePtEndcapPlus_BXm1Empty));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtEndcapPlus_BXm1Filled"  ,mePtEndcapPlus_BXm1Filled));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFracEndCapPlus_BXm1Empty"       ,mePhFracEndCapPlus_BXm1Empty));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFracEndCapPlus_BXm1Filled"     ,mePhFracEndCapPlus_BXm1Filled));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracEndCapPlus_BXm1Empty"  ,meNHFracEndCapPlus_BXm1Empty));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracEndCapPlus_BXm1Filled"      ,meNHFracEndCapPlus_BXm1Filled));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracEndCapPlus_BXm1Empty"  ,meCHFracEndCapPlus_BXm1Empty));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracEndCapPlus_BXm1Filled"      ,meCHFracEndCapPlus_BXm1Filled));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtEndCapPlus_BXm1Empty"    ,mePtEndCapPlus_BXm1Empty));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtEndCapPlus_BXm1Filled"  ,mePtEndCapPlus_BXm1Filled));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFHFracPlus_BXm1Empty"  ,meHFHFracPlus_BXm1Empty));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFHFracPlus_BXm1Filled"      ,meHFHFracPlus_BXm1Filled));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFEMFracPlus_BXm1Empty"  ,meHFEMFracPlus_BXm1Empty));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFEMFracPlus_BXm1Filled"      ,meHFEMFracPlus_BXm1Filled));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtForwardPlus_BXm1Empty"    ,mePtForwardPlus_BXm1Empty));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtForwardPlus_BXm1Filled"  ,mePtForwardPlus_BXm1Filled));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFracEndcapMinus_BXm1Empty"       ,mePhFracEndcapMinus_BXm1Empty));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFracEndcapMinus_BXm1Filled"     ,mePhFracEndcapMinus_BXm1Filled));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracEndcapMinus_BXm1Empty"  ,meNHFracEndcapMinus_BXm1Empty));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracEndcapMinus_BXm1Filled"      ,meNHFracEndcapMinus_BXm1Filled));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracEndcapMinus_BXm1Empty"  ,meCHFracEndcapMinus_BXm1Empty));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracEndcapMinus_BXm1Filled"      ,meCHFracEndcapMinus_BXm1Filled));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtEndcapMinus_BXm1Empty"    ,mePtEndcapMinus_BXm1Empty));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtEndcapMinus_BXm1Filled"  ,mePtEndcapMinus_BXm1Filled));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFracEndCapMinus_BXm1Empty"       ,mePhFracEndCapMinus_BXm1Empty));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFracEndCapMinus_BXm1Filled"     ,mePhFracEndCapMinus_BXm1Filled));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracEndCapMinus_BXm1Empty"  ,meNHFracEndCapMinus_BXm1Empty));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracEndCapMinus_BXm1Filled"      ,meNHFracEndCapMinus_BXm1Filled));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracEndCapMinus_BXm1Empty"  ,meCHFracEndCapMinus_BXm1Empty));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracEndCapMinus_BXm1Filled"      ,meCHFracEndCapMinus_BXm1Filled));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtEndCapMinus_BXm1Empty"    ,mePtEndCapMinus_BXm1Empty));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PtEndCapMinus_BXm1Filled"  ,mePtEndCapMinus_BXm1Filled));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFHFracMinus_BXm1Empty"  ,meHFHFracMinus_BXm1Empty));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFHFracMinus_BXm1Filled"      ,meHFHFracMinus_BXm1Filled));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFEMFracMinus_BXm1Empty"  ,meHFEMFracMinus_BXm1Empty));
@@ -1088,7 +1215,7 @@ void JetAnalyzer::bookMESetSelection(std::string DirName, DQMStore::IBooker & ib
 
   }
 
-  if(isPFJet_&& isMiniAODJet_){ 
+  if(isPFJet_|| isMiniAODJet_){ 
     //barrel histograms for PFJets
     // energy fractions
     mCHFrac     = ibooker.book1D("CHFrac", "CHFrac", 120, -0.1, 1.1);
@@ -1214,6 +1341,18 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   Handle<ValueMap<float> > puJetId;
   Handle<ValueMap<int> > puJetIdFlag;
 
+  Handle<ValueMap<int> > qgMultiplicity;
+  Handle<ValueMap<float> > qgLikelihood;
+  Handle<ValueMap<float> > qgptD;
+  Handle<ValueMap<float> > qgaxis2;
+
+  //should insure we have a PFJet in with CHS
+  if(fill_CHS_histos){
+    iEvent.getByToken(qgMultiplicityToken_,qgMultiplicity);
+    iEvent.getByToken(qgLikelihoodToken_,qgLikelihood);
+    iEvent.getByToken(qgptDToken_,qgptD);
+    iEvent.getByToken(qgaxis2Token_,qgaxis2);
+  }
 
   if(!isMiniAODJet_){  
     iEvent.getByToken(mvaPUIDToken_,puJetIdFlagMva);
@@ -1503,16 +1642,42 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	mConstituents_uncor = map_of_MEs[DirName+"/"+"Constituents_uncor"]; if (mConstituents_uncor && mConstituents_uncor->getRootObject()) if (mConstituents_uncor) mConstituents_uncor->Fill ((*patJets)[ijet].nConstituents());
       }
       if(Thiscleaned && pass_corrected){
-	mMVAPUJIDDiscriminant=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant"]; if(mMVAPUJIDDiscriminant && mMVAPUJIDDiscriminant->getRootObject()) mMVAPUJIDDiscriminant->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); 
 	if(fabs(correctedJet.eta()) <= 1.3) {
+	  if(correctedJet.pt()<=50.){
+	    mMVAPUJIDDiscriminant_lowPt_Barrel=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_lowPt_Barrel"]; if(mMVAPUJIDDiscriminant_lowPt_Barrel && mMVAPUJIDDiscriminant_lowPt_Barrel->getRootObject()) mMVAPUJIDDiscriminant_lowPt_Barrel->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant"));  
+	  }
+	  if (correctedJet.pt()>50. && correctedJet.pt()<=140.) {
+	    mMVAPUJIDDiscriminant_mediumPt_Barrel=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_Barrel"]; if(mMVAPUJIDDiscriminant_mediumPt_Barrel && mMVAPUJIDDiscriminant_mediumPt_Barrel->getRootObject()) mMVAPUJIDDiscriminant_mediumPt_Barrel->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); 
+	  }
+	  if(correctedJet.pt()>140.){
+	    mMVAPUJIDDiscriminant_highPt_Barrel=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_highPt_Barrel"]; if(mMVAPUJIDDiscriminant_highPt_Barrel && mMVAPUJIDDiscriminant_highPt_Barrel->getRootObject()) mMVAPUJIDDiscriminant_highPt_Barrel->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); 
+	  }
 	  mCHFracVSpT_Barrel = map_of_MEs[DirName+"/"+"CHFracVSpT_Barrel"]; if(mCHFracVSpT_Barrel && mCHFracVSpT_Barrel->getRootObject()) mCHFracVSpT_Barrel->Fill(correctedJet.pt(),(*patJets)[ijet].chargedHadronEnergyFraction());
 	  mNHFracVSpT_Barrel = map_of_MEs[DirName+"/"+"NHFracVSpT_Barrel"];if (mNHFracVSpT_Barrel && mNHFracVSpT_Barrel->getRootObject()) mNHFracVSpT_Barrel->Fill(correctedJet.pt(),(*patJets)[ijet].neutralHadronEnergyFraction());
 	  mPhFracVSpT_Barrel = map_of_MEs[DirName+"/"+"PhFracVSpT_Barrel"];if (mPhFracVSpT_Barrel && mPhFracVSpT_Barrel->getRootObject()) mPhFracVSpT_Barrel->Fill(correctedJet.pt(),(*patJets)[ijet].neutralEmEnergyFraction());
 	}else if(fabs(correctedJet.eta()) <= 3) {
-	  mCHFracVSpT_Barrel = map_of_MEs[DirName+"/"+"CHFracVSpT_Barrel"]; if(mCHFracVSpT_Barrel && mCHFracVSpT_Barrel->getRootObject()) mCHFracVSpT_Barrel->Fill(correctedJet.pt(),(*patJets)[ijet].chargedHadronEnergyFraction());
-	  mNHFracVSpT_Barrel = map_of_MEs[DirName+"/"+"NHFracVSpT_Barrel"];if (mNHFracVSpT_Barrel && mNHFracVSpT_Barrel->getRootObject()) mNHFracVSpT_Barrel->Fill(correctedJet.pt(),(*patJets)[ijet].neutralHadronEnergyFraction());
-	  mPhFracVSpT_Barrel = map_of_MEs[DirName+"/"+"PhFracVSpT_Barrel"];if (mPhFracVSpT_Barrel && mPhFracVSpT_Barrel->getRootObject()) mPhFracVSpT_Barrel->Fill(correctedJet.pt(),(*patJets)[ijet].neutralEmEnergyFraction());
-	}else if(fabs(correctedJet.eta()) <= 3) {
+	  if(correctedJet.pt()<=50.){
+	    mMVAPUJIDDiscriminant_lowPt_EndCap=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_lowPt_EndCap"]; if(mMVAPUJIDDiscriminant_lowPt_EndCap && mMVAPUJIDDiscriminant_lowPt_EndCap->getRootObject()) mMVAPUJIDDiscriminant_lowPt_EndCap->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant"));  
+	  }
+	  if (correctedJet.pt()>50. && correctedJet.pt()<=140.) {
+	    mMVAPUJIDDiscriminant_mediumPt_EndCap=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_EndCap"]; if(mMVAPUJIDDiscriminant_mediumPt_EndCap && mMVAPUJIDDiscriminant_mediumPt_EndCap->getRootObject()) mMVAPUJIDDiscriminant_mediumPt_EndCap->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); 
+	  }
+	  if(correctedJet.pt()>140.){
+	    mMVAPUJIDDiscriminant_highPt_EndCap=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_highPt_EndCap"]; if(mMVAPUJIDDiscriminant_highPt_EndCap && mMVAPUJIDDiscriminant_highPt_EndCap->getRootObject()) mMVAPUJIDDiscriminant_highPt_EndCap->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); 
+	  }
+	  mCHFracVSpT_EndCap = map_of_MEs[DirName+"/"+"CHFracVSpT_EndCap"]; if(mCHFracVSpT_EndCap && mCHFracVSpT_EndCap->getRootObject()) mCHFracVSpT_EndCap->Fill(correctedJet.pt(),(*patJets)[ijet].chargedHadronEnergyFraction());
+	  mNHFracVSpT_EndCap = map_of_MEs[DirName+"/"+"NHFracVSpT_EndCap"];if (mNHFracVSpT_EndCap && mNHFracVSpT_EndCap->getRootObject()) mNHFracVSpT_EndCap->Fill(correctedJet.pt(),(*patJets)[ijet].neutralHadronEnergyFraction());
+	  mPhFracVSpT_EndCap = map_of_MEs[DirName+"/"+"PhFracVSpT_EndCap"];if (mPhFracVSpT_EndCap && mPhFracVSpT_EndCap->getRootObject()) mPhFracVSpT_EndCap->Fill(correctedJet.pt(),(*patJets)[ijet].neutralEmEnergyFraction());
+	}else if(fabs(correctedJet.eta()) <= 5) {
+	  if(correctedJet.pt()<=50.){
+	    mMVAPUJIDDiscriminant_lowPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_lowPt_Forward"]; if(mMVAPUJIDDiscriminant_lowPt_Forward && mMVAPUJIDDiscriminant_lowPt_Forward->getRootObject()) mMVAPUJIDDiscriminant_lowPt_Forward->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant"));  
+	  }
+	  if (correctedJet.pt()>50. && correctedJet.pt()<=140.) {
+	    mMVAPUJIDDiscriminant_mediumPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_Forward"]; if(mMVAPUJIDDiscriminant_mediumPt_Forward && mMVAPUJIDDiscriminant_mediumPt_Forward->getRootObject()) mMVAPUJIDDiscriminant_mediumPt_Forward->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); 
+	  }
+	  if(correctedJet.pt()>140.){
+	    mMVAPUJIDDiscriminant_highPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_highPt_Forward"]; if(mMVAPUJIDDiscriminant_highPt_Forward && mMVAPUJIDDiscriminant_highPt_Forward->getRootObject()) mMVAPUJIDDiscriminant_highPt_Forward->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); 
+	  }
 	  mHFHFracVSpT_Forward = map_of_MEs[DirName+"/"+"HFHFracVSpT_Forward"]; if (mHFHFracVSpT_Forward && mHFHFracVSpT_Forward->getRootObject())    mHFHFracVSpT_Forward->Fill(correctedJet.pt(),(*patJets)[ijet].HFHadronEnergyFraction ());	
 	  mHFEFracVSpT_Forward = map_of_MEs[DirName+"/"+"HFEFracVSpT_Forward"]; if (mHFEFracVSpT_Forward && mHFEFracVSpT_Forward->getRootObject())    mHFEFracVSpT_Forward->Fill (correctedJet.pt(),(*patJets)[ijet].HFEMEnergyFraction ());
 	}
@@ -1529,68 +1694,28 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       puidmvaflag=(*puJetIdFlagMva)[pfjetref];
       puidcutflag=(*puJetIdFlag)[pfjetref];
       jetpassid = pfjetIDFunctor((*pfJets)[ijet]);
+
+      int QGmulti=-1;
+      float QGLikelihood=-10;
+      float QGptD=-10;
+      float QGaxis2=-10;
+      if(fill_CHS_histos){
+	QGmulti=(*qgMultiplicity)[pfjetref];
+	QGLikelihood=(*qgLikelihood)[pfjetref];
+	QGptD=(*qgptD)[pfjetref];
+	QGaxis2=(*qgaxis2)[pfjetref];
+      }
       if(jetCleaningFlag_){
 	Thiscleaned = jetpassid;
 	JetIDWPU= (jetpassid && PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kLoose ));
       }
       if(Thiscleaned && pass_uncorrected){
-	mPt_uncor = map_of_MEs[DirName+"/"+"Pt_uncor"]; if (mPt_uncor && mPt_uncor->getRootObject()) if (mPt_uncor)   mPt_uncor->Fill ((*pfJets)[ijet].pt());
-	mEta_uncor = map_of_MEs[DirName+"/"+"Eta_uncor"]; if (mEta_uncor && mEta_uncor->getRootObject()) if (mEta_uncor)  mEta_uncor->Fill ((*pfJets)[ijet].eta());
-	mPhi_uncor = map_of_MEs[DirName+"/"+"Phi_uncor"]; if (mPhi_uncor && mPhi_uncor->getRootObject()) if (mPhi_uncor)  mPhi_uncor->Fill ((*pfJets)[ijet].phi());
-	mConstituents_uncor = map_of_MEs[DirName+"/"+"Constituents_uncor"]; if (mConstituents_uncor && mConstituents_uncor->getRootObject()) if (mConstituents_uncor) mConstituents_uncor->Fill ((*pfJets)[ijet].nConstituents());
+	mPt_uncor = map_of_MEs[DirName+"/"+"Pt_uncor"]; if (mPt_uncor && mPt_uncor->getRootObject())  mPt_uncor->Fill ((*pfJets)[ijet].pt());
+	mEta_uncor = map_of_MEs[DirName+"/"+"Eta_uncor"]; if (mEta_uncor && mEta_uncor->getRootObject()) mEta_uncor->Fill ((*pfJets)[ijet].eta());
+	mPhi_uncor = map_of_MEs[DirName+"/"+"Phi_uncor"]; if (mPhi_uncor && mPhi_uncor->getRootObject())  mPhi_uncor->Fill ((*pfJets)[ijet].phi());
+	mConstituents_uncor = map_of_MEs[DirName+"/"+"Constituents_uncor"]; if (mConstituents_uncor && mConstituents_uncor->getRootObject()) mConstituents_uncor->Fill ((*pfJets)[ijet].nConstituents());
       }
       if(Thiscleaned && pass_corrected){
-
-	if(jetCleaningFlag_){ 
-	  std::vector<reco::PFCandidatePtr> pfPartInJet=(*pfJets)[ijet].getPFConstituents () ;
-	  double sumPt=0;
-	  double sumPt2=0;
-	  double sum_deta=0;
-	  double sum_dphi=0;
-	  double sum_deta2=0;
-	  double sum_detadphi=0;
-	  double sum_dphi2=0;
-	  double ptD=0;
-	  for(unsigned int i=0;i<pfPartInJet.size() ;i++){
-	    float deta = pfPartInJet[i]->eta() - (*pfJets)[ijet].eta();
-	    float dphi = reco::deltaPhi(pfPartInJet[i]->phi(), (*pfJets)[ijet].phi());
-	    float partPt = pfPartInJet[i]->pt();
-	    float weightPt2 = partPt*partPt;
-	    sumPt2 += pfPartInJet[i]->pt()*pfPartInJet[i]->pt();
-	    sumPt +=pfPartInJet[i]->pt() ;
-	    sum_deta += deta*weightPt2;
-	    sum_dphi += dphi*weightPt2;
-	    sum_deta2 += deta*deta*weightPt2;
-	    sum_detadphi += deta*dphi*weightPt2;
-	    sum_dphi2 += dphi*dphi*weightPt2;
-	  }
-	  //Calculate axis2 and ptD
-	  float a = 0., b = 0., c = 0.;
-	  float ave_deta = 0., ave_dphi = 0., ave_deta2 = 0., ave_dphi2 = 0.;
-	  if(sumPt2 > 0){
-	    ptD = sqrt(sumPt2)/sumPt;
-	    ave_deta = sum_deta/sumPt2;
-	    ave_dphi = sum_dphi/sumPt2;
-	    ave_deta2 = sum_deta2/sumPt2;
-	    ave_dphi2 = sum_dphi2/sumPt2;
-	    a = ave_deta2 - ave_deta*ave_deta;
-	    b = ave_dphi2 - ave_dphi*ave_dphi;
-	    c = -(sum_detadphi/sumPt2 - ave_deta*ave_dphi);
-	  }
-	  double axis2=0;
-	  float delta = sqrt(fabs((a-b)*(a-b)+4*c*c));
-	  if(a+b-delta > 0) axis2 = sqrt(0.5*(a+b-delta));
-	  double axis1= sqrt(0.5*(a+b+delta));
-	  mMinorAxis=map_of_MEs[DirName+"/"+"minorAxis"]; if(mMinorAxis && mMinorAxis->getRootObject()) mMinorAxis->Fill(axis2);
-	  mMajorAxis=map_of_MEs[DirName+"/"+"majorAxis"]; if(mMajorAxis && mMajorAxis->getRootObject()) mMajorAxis->Fill(axis1);
-	  mpTD=map_of_MEs[DirName+"/"+"pTD"]; if(mpTD && mpTD->getRootObject()) mpTD->Fill(ptD);
-	  if (correctedJet.pt()>140.) {
-	    mMinorAxis_highPt=map_of_MEs[DirName+"/"+"minorAxis_highPt"]; if(mMinorAxis_highPt && mMinorAxis_highPt->getRootObject()) mMinorAxis_highPt->Fill(axis2);
-	    mMajorAxis_highPt=map_of_MEs[DirName+"/"+"majorAxis_highPt"]; if(mMajorAxis_highPt && mMajorAxis_highPt->getRootObject()) mMajorAxis_highPt->Fill(axis1);
-	    mpTD_highPt=map_of_MEs[DirName+"/"+"pTD_highPt"]; if(mpTD_highPt && mpTD_highPt->getRootObject()) mpTD_highPt->Fill(ptD);
-	  }
-	}
-	mCutPUJIDDiscriminant=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant"]; if(mCutPUJIDDiscriminant && mCutPUJIDDiscriminant->getRootObject()) mCutPUJIDDiscriminant->Fill(puidcut); 
 	if(PileupJetIdentifier::passJetId( puidcutflag, PileupJetIdentifier::kLoose )) {
 	  mLooseCutPUJIDPassFractionVSeta  = map_of_MEs[DirName+"/"+"LooseCutPUIDPassFractionVSeta"];if(mLooseCutPUJIDPassFractionVSeta && mLooseCutPUJIDPassFractionVSeta->getRootObject()) mLooseCutPUJIDPassFractionVSeta->Fill(correctedJet.eta(),1.);
 	  mLooseCutPUJIDPassFractionVSpt  = map_of_MEs[DirName+"/"+"LooseCutPUIDPassFractionVSpt"];if(mLooseCutPUJIDPassFractionVSpt && mLooseCutPUJIDPassFractionVSpt->getRootObject()) mLooseCutPUJIDPassFractionVSpt->Fill(correctedJet.pt(),1.);
@@ -1612,7 +1737,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  mTightCutPUJIDPassFractionVSeta  = map_of_MEs[DirName+"/"+"TightCutPUIDPassFractionVSeta"];if(mTightCutPUJIDPassFractionVSeta && mTightCutPUJIDPassFractionVSeta->getRootObject()) mTightCutPUJIDPassFractionVSeta->Fill(correctedJet.eta(),0.);
 	  mTightCutPUJIDPassFractionVSpt  = map_of_MEs[DirName+"/"+"TightCutPUIDPassFractionVSpt"];if(mTightCutPUJIDPassFractionVSpt && mTightCutPUJIDPassFractionVSpt->getRootObject()) mTightCutPUJIDPassFractionVSpt->Fill(correctedJet.pt(),0.);
 	}
-	mMVAPUJIDDiscriminant=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant"]; if(mMVAPUJIDDiscriminant && mMVAPUJIDDiscriminant->getRootObject()) mMVAPUJIDDiscriminant->Fill(puidmva); 
 	if(PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kLoose )) {
 	  mLooseMVAPUJIDPassFractionVSeta  = map_of_MEs[DirName+"/"+"LooseMVAPUIDPassFractionVSeta"];if(mLooseMVAPUJIDPassFractionVSeta && mLooseMVAPUJIDPassFractionVSeta->getRootObject()) mLooseMVAPUJIDPassFractionVSeta->Fill(correctedJet.eta(),1.);
 	  mLooseMVAPUJIDPassFractionVSpt  = map_of_MEs[DirName+"/"+"LooseMVAPUIDPassFractionVSpt"];if(mLooseMVAPUJIDPassFractionVSpt && mLooseMVAPUJIDPassFractionVSpt->getRootObject()) mLooseMVAPUJIDPassFractionVSpt->Fill(correctedJet.pt(),1.);
@@ -1652,6 +1776,13 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	if (fabs(correctedJet.eta()) <= 1.3) {
 	  //fractions for barrel
 	  if (correctedJet.pt()<=50.) {
+	    mAxis2_lowPt_Barrel = map_of_MEs[DirName+"/"+"qg_Axis2_lowPt_Barrel"];if(mAxis2_lowPt_Barrel && mAxis2_lowPt_Barrel->getRootObject()) mAxis2_lowPt_Barrel->Fill(QGaxis2);
+	    mpTD_lowPt_Barrel = map_of_MEs[DirName+"/"+"qg_pTD_lowPt_Barrel"]; if(mpTD_lowPt_Barrel && mpTD_lowPt_Barrel->getRootObject()) mpTD_lowPt_Barrel->Fill(QGptD);
+	    mMultiplicityQG_lowPt_Barrel = map_of_MEs[DirName+"/"+"qg_multiplicity_lowPt_Barrel"]; if(mMultiplicityQG_lowPt_Barrel && mMultiplicityQG_lowPt_Barrel->getRootObject()) mMultiplicityQG_lowPt_Barrel->Fill(QGmulti);
+	    mqgLikelihood_lowPt_Barrel = map_of_MEs[DirName+"/"+"qg_Likelihood_lowPt_Barrel"]; if(mqgLikelihood_lowPt_Barrel && mqgLikelihood_lowPt_Barrel->getRootObject()) mqgLikelihood_lowPt_Barrel->Fill(QGLikelihood);
+	    mMass_lowPt_Barrel=map_of_MEs[DirName+"/"+"JetMass_lowPt_Barrel"]; if(mMass_lowPt_Barrel && mMass_lowPt_Barrel->getRootObject())mMass_lowPt_Barrel->Fill((*pfJets)[ijet].mass());
+	    mMVAPUJIDDiscriminant_lowPt_Barrel=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_lowPt_Barrel"]; if(mMVAPUJIDDiscriminant_lowPt_Barrel && mMVAPUJIDDiscriminant_lowPt_Barrel->getRootObject()) mMVAPUJIDDiscriminant_lowPt_Barrel->Fill(puidmva); 
+	    mCutPUJIDDiscriminant_lowPt_Barrel=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant_lowPt_Barrel"]; if(mCutPUJIDDiscriminant_lowPt_Barrel && mCutPUJIDDiscriminant_lowPt_Barrel->getRootObject()) mCutPUJIDDiscriminant_lowPt_Barrel->Fill(puidcut); 
 	    mCHFrac_lowPt_Barrel = map_of_MEs[DirName+"/"+"CHFrac_lowPt_Barrel"]; if (mCHFrac_lowPt_Barrel &&  mCHFrac_lowPt_Barrel->getRootObject()) mCHFrac_lowPt_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
 	    mNHFrac_lowPt_Barrel = map_of_MEs[DirName+"/"+"NHFrac_lowPt_Barrel"]; if (mNHFrac_lowPt_Barrel &&  mNHFrac_lowPt_Barrel->getRootObject()) mNHFrac_lowPt_Barrel->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
 	    mPhFrac_lowPt_Barrel = map_of_MEs[DirName+"/"+"PhFrac_lowPt_Barrel"]; if (mPhFrac_lowPt_Barrel &&  mPhFrac_lowPt_Barrel->getRootObject()) mPhFrac_lowPt_Barrel->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
@@ -1665,6 +1796,13 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mMuMultiplicity_lowPt_Barrel = map_of_MEs[DirName+"/"+"MuMultiplicity_lowPt_Barrel"]; if(mMuMultiplicity_lowPt_Barrel && mMuMultiplicity_lowPt_Barrel->getRootObject())  mMuMultiplicity_lowPt_Barrel->Fill((*pfJets)[ijet].muonMultiplicity());
 	  }
 	  if (correctedJet.pt()>50. && correctedJet.pt()<=140.) {
+	    mAxis2_mediumPt_Barrel = map_of_MEs[DirName+"/"+"qg_Axis2_mediumPt_Barrel"];if(mAxis2_mediumPt_Barrel && mAxis2_mediumPt_Barrel->getRootObject()) mAxis2_mediumPt_Barrel->Fill(QGaxis2);
+	    mpTD_mediumPt_Barrel = map_of_MEs[DirName+"/"+"qg_pTD_mediumPt_Barrel"]; if(mpTD_mediumPt_Barrel && mpTD_mediumPt_Barrel->getRootObject()) mpTD_mediumPt_Barrel->Fill(QGptD);
+	    mMultiplicityQG_mediumPt_Barrel = map_of_MEs[DirName+"/"+"qg_multiplicity_mediumPt_Barrel"]; if(mMultiplicityQG_mediumPt_Barrel && mMultiplicityQG_mediumPt_Barrel->getRootObject()) mMultiplicityQG_mediumPt_Barrel->Fill(QGmulti);
+	    mqgLikelihood_mediumPt_Barrel = map_of_MEs[DirName+"/"+"qg_Likelihood_mediumPt_Barrel"]; if(mqgLikelihood_mediumPt_Barrel && mqgLikelihood_mediumPt_Barrel->getRootObject()) mqgLikelihood_mediumPt_Barrel->Fill(QGLikelihood);
+	    mMass_mediumPt_Barrel=map_of_MEs[DirName+"/"+"JetMass_mediumPt_Barrel"]; if(mMass_mediumPt_Barrel && mMass_mediumPt_Barrel->getRootObject())mMass_mediumPt_Barrel->Fill((*pfJets)[ijet].mass());
+	    mMVAPUJIDDiscriminant_mediumPt_Barrel=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_Barrel"]; if(mMVAPUJIDDiscriminant_mediumPt_Barrel && mMVAPUJIDDiscriminant_mediumPt_Barrel->getRootObject()) mMVAPUJIDDiscriminant_mediumPt_Barrel->Fill(puidmva); 
+	    mCutPUJIDDiscriminant_mediumPt_Barrel=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant_mediumPt_Barrel"]; if(mCutPUJIDDiscriminant_mediumPt_Barrel && mCutPUJIDDiscriminant_mediumPt_Barrel->getRootObject()) mCutPUJIDDiscriminant_mediumPt_Barrel->Fill(puidcut); 
 	    mCHFrac_mediumPt_Barrel = map_of_MEs[DirName+"/"+"CHFrac_mediumPt_Barrel"]; if (mCHFrac_mediumPt_Barrel &&  mCHFrac_mediumPt_Barrel->getRootObject()) mCHFrac_mediumPt_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
 	    mNHFrac_mediumPt_Barrel = map_of_MEs[DirName+"/"+"NHFrac_mediumPt_Barrel"]; if (mNHFrac_mediumPt_Barrel &&  mNHFrac_mediumPt_Barrel->getRootObject()) mNHFrac_mediumPt_Barrel->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
 	    mPhFrac_mediumPt_Barrel = map_of_MEs[DirName+"/"+"PhFrac_mediumPt_Barrel"]; if (mPhFrac_mediumPt_Barrel &&  mPhFrac_mediumPt_Barrel->getRootObject()) mPhFrac_mediumPt_Barrel->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
@@ -1678,6 +1816,13 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mMuMultiplicity_mediumPt_Barrel = map_of_MEs[DirName+"/"+"MuMultiplicity_mediumPt_Barrel"]; if(mMuMultiplicity_mediumPt_Barrel && mMuMultiplicity_mediumPt_Barrel->getRootObject())  mMuMultiplicity_mediumPt_Barrel->Fill((*pfJets)[ijet].muonMultiplicity());
 	  }
 	  if (correctedJet.pt()>140.) {
+	    mAxis2_highPt_Barrel = map_of_MEs[DirName+"/"+"qg_Axis2_highPt_Barrel"];if(mAxis2_highPt_Barrel && mAxis2_highPt_Barrel->getRootObject()) mAxis2_highPt_Barrel->Fill(QGaxis2);
+	    mpTD_highPt_Barrel = map_of_MEs[DirName+"/"+"qg_pTD_highPt_Barrel"]; if(mpTD_highPt_Barrel && mpTD_highPt_Barrel->getRootObject()) mpTD_highPt_Barrel->Fill(QGptD);
+	    mMultiplicityQG_highPt_Barrel = map_of_MEs[DirName+"/"+"qg_multiplicity_highPt_Barrel"]; if(mMultiplicityQG_highPt_Barrel && mMultiplicityQG_highPt_Barrel->getRootObject()) mMultiplicityQG_highPt_Barrel->Fill(QGmulti);
+	    mqgLikelihood_highPt_Barrel = map_of_MEs[DirName+"/"+"qg_Likelihood_highPt_Barrel"]; if(mqgLikelihood_highPt_Barrel && mqgLikelihood_highPt_Barrel->getRootObject()) mqgLikelihood_highPt_Barrel->Fill(QGLikelihood);
+	    mMass_highPt_Barrel=map_of_MEs[DirName+"/"+"JetMass_highPt_Barrel"]; if(mMass_highPt_Barrel && mMass_highPt_Barrel->getRootObject())mMass_highPt_Barrel->Fill((*pfJets)[ijet].mass());
+	    mMVAPUJIDDiscriminant_highPt_Barrel=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_highPt_Barrel"]; if(mMVAPUJIDDiscriminant_highPt_Barrel && mMVAPUJIDDiscriminant_highPt_Barrel->getRootObject()) mMVAPUJIDDiscriminant_highPt_Barrel->Fill(puidmva); 
+	    mCutPUJIDDiscriminant_highPt_Barrel=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant_highPt_Barrel"]; if(mCutPUJIDDiscriminant_highPt_Barrel && mCutPUJIDDiscriminant_highPt_Barrel->getRootObject()) mCutPUJIDDiscriminant_highPt_Barrel->Fill(puidcut); 
 	    mCHFrac_highPt_Barrel = map_of_MEs[DirName+"/"+"CHFrac_highPt_Barrel"]; if (mCHFrac_highPt_Barrel &&  mCHFrac_highPt_Barrel->getRootObject()) mCHFrac_highPt_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
 	    mNHFrac_highPt_Barrel = map_of_MEs[DirName+"/"+"NHFrac_highPt_Barrel"]; if (mNHFrac_highPt_Barrel &&  mNHFrac_highPt_Barrel->getRootObject()) mNHFrac_highPt_Barrel->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
 	    mPhFrac_highPt_Barrel = map_of_MEs[DirName+"/"+"PhFrac_highPt_Barrel"]; if (mPhFrac_highPt_Barrel &&  mPhFrac_highPt_Barrel->getRootObject()) mPhFrac_highPt_Barrel->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
@@ -1696,6 +1841,13 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	}else if(fabs(correctedJet.eta()) <= 3) {
 	  //fractions for endcap
 	  if (correctedJet.pt()<=50.) {
+	    mAxis2_lowPt_EndCap = map_of_MEs[DirName+"/"+"qg_Axis2_lowPt_EndCap"];if(mAxis2_lowPt_EndCap && mAxis2_lowPt_EndCap->getRootObject()) mAxis2_lowPt_EndCap->Fill(QGaxis2);
+	    mpTD_lowPt_EndCap = map_of_MEs[DirName+"/"+"qg_pTD_lowPt_EndCap"]; if(mpTD_lowPt_EndCap && mpTD_lowPt_EndCap->getRootObject()) mpTD_lowPt_EndCap->Fill(QGptD);
+	    mMultiplicityQG_lowPt_EndCap = map_of_MEs[DirName+"/"+"qg_multiplicity_lowPt_EndCap"]; if(mMultiplicityQG_lowPt_EndCap && mMultiplicityQG_lowPt_EndCap->getRootObject()) mMultiplicityQG_lowPt_EndCap->Fill(QGmulti);
+	    mqgLikelihood_lowPt_EndCap = map_of_MEs[DirName+"/"+"qg_Likelihood_lowPt_EndCap"]; if(mqgLikelihood_lowPt_EndCap && mqgLikelihood_lowPt_EndCap->getRootObject()) mqgLikelihood_lowPt_EndCap->Fill(QGLikelihood);
+	    mMass_lowPt_EndCap=map_of_MEs[DirName+"/"+"JetMass_lowPt_EndCap"]; if(mMass_lowPt_EndCap && mMass_lowPt_EndCap->getRootObject())mMass_lowPt_EndCap->Fill((*pfJets)[ijet].mass());
+	    mMVAPUJIDDiscriminant_lowPt_EndCap=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_lowPt_EndCap"]; if(mMVAPUJIDDiscriminant_lowPt_EndCap && mMVAPUJIDDiscriminant_lowPt_EndCap->getRootObject()) mMVAPUJIDDiscriminant_lowPt_EndCap->Fill(puidmva); 
+	    mCutPUJIDDiscriminant_lowPt_EndCap=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant_lowPt_EndCap"]; if(mCutPUJIDDiscriminant_lowPt_EndCap && mCutPUJIDDiscriminant_lowPt_EndCap->getRootObject()) mCutPUJIDDiscriminant_lowPt_EndCap->Fill(puidcut); 
 	    mCHFrac_lowPt_EndCap = map_of_MEs[DirName+"/"+"CHFrac_lowPt_EndCap"]; if (mCHFrac_lowPt_EndCap &&  mCHFrac_lowPt_EndCap->getRootObject()) mCHFrac_lowPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
 	    mNHFrac_lowPt_EndCap = map_of_MEs[DirName+"/"+"NHFrac_lowPt_EndCap"]; if (mNHFrac_lowPt_EndCap &&  mNHFrac_lowPt_EndCap->getRootObject()) mNHFrac_lowPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
 	    mPhFrac_lowPt_EndCap = map_of_MEs[DirName+"/"+"PhFrac_lowPt_EndCap"]; if (mPhFrac_lowPt_EndCap &&  mPhFrac_lowPt_EndCap->getRootObject()) mPhFrac_lowPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
@@ -1709,6 +1861,13 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mMuMultiplicity_lowPt_EndCap = map_of_MEs[DirName+"/"+"MuMultiplicity_lowPt_EndCap"]; if(mMuMultiplicity_lowPt_EndCap && mMuMultiplicity_lowPt_EndCap->getRootObject())  mMuMultiplicity_lowPt_EndCap->Fill((*pfJets)[ijet].muonMultiplicity());
 	  }
 	  if (correctedJet.pt()>50. && correctedJet.pt()<=140.) {
+	    mAxis2_mediumPt_EndCap = map_of_MEs[DirName+"/"+"qg_Axis2_mediumPt_EndCap"];if(mAxis2_mediumPt_EndCap && mAxis2_mediumPt_EndCap->getRootObject()) mAxis2_mediumPt_EndCap->Fill(QGaxis2);
+	    mpTD_mediumPt_EndCap = map_of_MEs[DirName+"/"+"qg_pTD_mediumPt_EndCap"]; if(mpTD_mediumPt_EndCap && mpTD_mediumPt_EndCap->getRootObject()) mpTD_mediumPt_EndCap->Fill(QGptD);
+	    mMultiplicityQG_mediumPt_EndCap = map_of_MEs[DirName+"/"+"qg_multiplicity_mediumPt_EndCap"]; if(mMultiplicityQG_mediumPt_EndCap && mMultiplicityQG_mediumPt_EndCap->getRootObject()) mMultiplicityQG_mediumPt_EndCap->Fill(QGmulti);
+	    mqgLikelihood_mediumPt_EndCap = map_of_MEs[DirName+"/"+"qg_Likelihood_mediumPt_EndCap"]; if(mqgLikelihood_mediumPt_EndCap && mqgLikelihood_mediumPt_EndCap->getRootObject()) mqgLikelihood_mediumPt_EndCap->Fill(QGLikelihood);
+	    mMass_mediumPt_EndCap=map_of_MEs[DirName+"/"+"JetMass_mediumPt_EndCap"]; if(mMass_mediumPt_EndCap && mMass_mediumPt_EndCap->getRootObject())mMass_mediumPt_EndCap->Fill((*pfJets)[ijet].mass());
+	    mMVAPUJIDDiscriminant_mediumPt_EndCap=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_EndCap"]; if(mMVAPUJIDDiscriminant_mediumPt_EndCap && mMVAPUJIDDiscriminant_mediumPt_EndCap->getRootObject()) mMVAPUJIDDiscriminant_mediumPt_EndCap->Fill(puidmva); 
+	    mCutPUJIDDiscriminant_mediumPt_EndCap=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant_mediumPt_EndCap"]; if(mCutPUJIDDiscriminant_mediumPt_EndCap && mCutPUJIDDiscriminant_mediumPt_EndCap->getRootObject()) mCutPUJIDDiscriminant_mediumPt_EndCap->Fill(puidcut); 
 	    mCHFrac_mediumPt_EndCap = map_of_MEs[DirName+"/"+"CHFrac_mediumPt_EndCap"]; if (mCHFrac_mediumPt_EndCap &&  mCHFrac_mediumPt_EndCap->getRootObject()) mCHFrac_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
 	    mNHFrac_mediumPt_EndCap = map_of_MEs[DirName+"/"+"NHFrac_mediumPt_EndCap"]; if (mNHFrac_mediumPt_EndCap &&  mNHFrac_mediumPt_EndCap->getRootObject()) mNHFrac_mediumPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
 	    mPhFrac_mediumPt_EndCap = map_of_MEs[DirName+"/"+"PhFrac_mediumPt_EndCap"]; if (mPhFrac_mediumPt_EndCap &&  mPhFrac_mediumPt_EndCap->getRootObject()) mPhFrac_mediumPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
@@ -1722,6 +1881,13 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mMuMultiplicity_mediumPt_EndCap = map_of_MEs[DirName+"/"+"MuMultiplicity_mediumPt_EndCap"]; if(mMuMultiplicity_mediumPt_EndCap && mMuMultiplicity_mediumPt_EndCap->getRootObject())  mMuMultiplicity_mediumPt_EndCap->Fill((*pfJets)[ijet].muonMultiplicity());
 	  }
 	  if (correctedJet.pt()>140.) {
+	    mAxis2_highPt_EndCap = map_of_MEs[DirName+"/"+"qg_Axis2_highPt_EndCap"];if(mAxis2_highPt_EndCap && mAxis2_highPt_EndCap->getRootObject()) mAxis2_highPt_EndCap->Fill(QGaxis2);
+	    mpTD_highPt_EndCap = map_of_MEs[DirName+"/"+"qg_pTD_highPt_EndCap"]; if(mpTD_highPt_EndCap && mpTD_highPt_EndCap->getRootObject()) mpTD_highPt_EndCap->Fill(QGptD);
+	    mMultiplicityQG_highPt_EndCap = map_of_MEs[DirName+"/"+"qg_multiplicity_highPt_EndCap"]; if(mMultiplicityQG_highPt_EndCap && mMultiplicityQG_highPt_EndCap->getRootObject()) mMultiplicityQG_highPt_EndCap->Fill(QGmulti);
+	    mqgLikelihood_highPt_EndCap = map_of_MEs[DirName+"/"+"qg_Likelihood_highPt_EndCap"]; if(mqgLikelihood_highPt_EndCap && mqgLikelihood_highPt_EndCap->getRootObject()) mqgLikelihood_highPt_EndCap->Fill(QGLikelihood);
+	    mMass_highPt_EndCap=map_of_MEs[DirName+"/"+"JetMass_highPt_EndCap"]; if(mMass_highPt_EndCap && mMass_highPt_EndCap->getRootObject())mMass_highPt_EndCap->Fill((*pfJets)[ijet].mass());
+	    mMVAPUJIDDiscriminant_highPt_EndCap=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_highPt_EndCap"]; if(mMVAPUJIDDiscriminant_highPt_EndCap && mMVAPUJIDDiscriminant_highPt_EndCap->getRootObject()) mMVAPUJIDDiscriminant_highPt_EndCap->Fill(puidmva); 
+	    mCutPUJIDDiscriminant_highPt_EndCap=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant_highPt_EndCap"]; if(mCutPUJIDDiscriminant_highPt_EndCap && mCutPUJIDDiscriminant_highPt_EndCap->getRootObject()) mCutPUJIDDiscriminant_highPt_EndCap->Fill(puidcut); 
 	    mCHFrac_highPt_EndCap = map_of_MEs[DirName+"/"+"CHFrac_highPt_EndCap"]; if (mCHFrac_highPt_EndCap &&  mCHFrac_highPt_EndCap->getRootObject()) mCHFrac_highPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
 	    mNHFrac_highPt_EndCap = map_of_MEs[DirName+"/"+"NHFrac_highPt_EndCap"]; if (mNHFrac_highPt_EndCap &&  mNHFrac_highPt_EndCap->getRootObject()) mNHFrac_highPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
 	    mPhFrac_highPt_EndCap = map_of_MEs[DirName+"/"+"PhFrac_highPt_EndCap"]; if (mPhFrac_highPt_EndCap &&  mPhFrac_highPt_EndCap->getRootObject()) mPhFrac_highPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
@@ -1742,6 +1908,13 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  mHFEFracVSpT_Forward = map_of_MEs[DirName+"/"+"HFEFracVSpT_Forward"]; if (mHFEFracVSpT_Forward && mHFEFracVSpT_Forward->getRootObject())    mHFEFracVSpT_Forward->Fill (correctedJet.pt(),(*pfJets)[ijet].HFEMEnergyFraction ());
 	  //fractions
 	  if (correctedJet.pt()<=50.) {
+	    mAxis2_lowPt_Forward = map_of_MEs[DirName+"/"+"qg_Axis2_lowPt_Forward"];if(mAxis2_lowPt_Forward && mAxis2_lowPt_Forward->getRootObject()) mAxis2_lowPt_Forward->Fill(QGaxis2);
+	    mpTD_lowPt_Forward = map_of_MEs[DirName+"/"+"qg_pTD_lowPt_Forward"]; if(mpTD_lowPt_Forward && mpTD_lowPt_Forward->getRootObject()) mpTD_lowPt_Forward->Fill(QGptD);
+	    mMultiplicityQG_lowPt_Forward = map_of_MEs[DirName+"/"+"qg_multiplicity_lowPt_Forward"]; if(mMultiplicityQG_lowPt_Forward && mMultiplicityQG_lowPt_Forward->getRootObject()) mMultiplicityQG_lowPt_Forward->Fill(QGmulti);
+	    mqgLikelihood_lowPt_Forward = map_of_MEs[DirName+"/"+"qg_Likelihood_lowPt_Forward"]; if(mqgLikelihood_lowPt_Forward && mqgLikelihood_lowPt_Forward->getRootObject()) mqgLikelihood_lowPt_Forward->Fill(QGLikelihood);
+	    mMass_lowPt_Forward=map_of_MEs[DirName+"/"+"JetMass_lowPt_Forward"]; if(mMass_lowPt_Forward && mMass_lowPt_Forward->getRootObject())mMass_lowPt_Forward->Fill((*pfJets)[ijet].mass());
+	    mMVAPUJIDDiscriminant_lowPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_lowPt_Forward"]; if(mMVAPUJIDDiscriminant_lowPt_Forward && mMVAPUJIDDiscriminant_lowPt_Forward->getRootObject()) mMVAPUJIDDiscriminant_lowPt_Forward->Fill(puidmva); 
+	    mCutPUJIDDiscriminant_lowPt_Forward=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant_lowPt_Forward"]; if(mCutPUJIDDiscriminant_lowPt_Forward && mCutPUJIDDiscriminant_lowPt_Forward->getRootObject()) mCutPUJIDDiscriminant_lowPt_Forward->Fill(puidcut); 
 	    mHFEFrac_lowPt_Forward = map_of_MEs[DirName+"/"+"HFEFrac_lowPt_Forward"]; if(mHFEFrac_lowPt_Forward && mHFEFrac_lowPt_Forward->getRootObject()) mHFEFrac_lowPt_Forward->Fill((*pfJets)[ijet].HFEMEnergyFraction());
 	    mHFEFrac_lowPt_Forward = map_of_MEs[DirName+"/"+"HFEFrac_lowPt_Forward"]; if(mHFHFrac_lowPt_Forward && mHFHFrac_lowPt_Forward->getRootObject()) mHFHFrac_lowPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
 	    mHFEEn_lowPt_Forward = map_of_MEs[DirName+"/"+"HFEEn_lowPt_Forward"];     if(mHFEEn_lowPt_Forward && mHFEEn_lowPt_Forward->getRootObject())     mHFEEn_lowPt_Forward->Fill((*pfJets)[ijet].HFEMEnergy());
@@ -1749,6 +1922,13 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mNeutMultiplicity_lowPt_Forward = map_of_MEs[DirName+"/"+"NeutMultiplicity_lowPt_Forward"]; if(mNeutMultiplicity_lowPt_Forward && mNeutMultiplicity_lowPt_Forward->getRootObject())  mNeutMultiplicity_lowPt_Forward->Fill((*pfJets)[ijet].neutralMultiplicity());
 	  }
 	  if (correctedJet.pt()>50. && correctedJet.pt()<=140.) {
+	    mAxis2_mediumPt_Forward = map_of_MEs[DirName+"/"+"qg_Axis2_mediumPt_Forward"];if(mAxis2_mediumPt_Forward && mAxis2_mediumPt_Forward->getRootObject()) mAxis2_mediumPt_Forward->Fill(QGaxis2);
+	    mpTD_mediumPt_Forward = map_of_MEs[DirName+"/"+"qg_pTD_mediumPt_Forward"]; if(mpTD_mediumPt_Forward && mpTD_mediumPt_Forward->getRootObject()) mpTD_mediumPt_Forward->Fill(QGptD);
+	    mMultiplicityQG_mediumPt_Forward = map_of_MEs[DirName+"/"+"qg_multiplicity_mediumPt_Forward"]; if(mMultiplicityQG_mediumPt_Forward && mMultiplicityQG_mediumPt_Forward->getRootObject()) mMultiplicityQG_mediumPt_Forward->Fill(QGmulti);
+	    mqgLikelihood_mediumPt_Forward = map_of_MEs[DirName+"/"+"qg_Likelihood_mediumPt_Forward"]; if(mqgLikelihood_mediumPt_Forward && mqgLikelihood_mediumPt_Forward->getRootObject()) mqgLikelihood_mediumPt_Forward->Fill(QGLikelihood);
+	    mMass_mediumPt_Forward=map_of_MEs[DirName+"/"+"JetMass_mediumPt_Forward"]; if(mMass_mediumPt_Forward && mMass_mediumPt_Forward->getRootObject())mMass_mediumPt_Forward->Fill((*pfJets)[ijet].mass());
+	    mMVAPUJIDDiscriminant_mediumPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_Forward"]; if(mMVAPUJIDDiscriminant_mediumPt_Forward && mMVAPUJIDDiscriminant_mediumPt_Forward->getRootObject()) mMVAPUJIDDiscriminant_mediumPt_Forward->Fill(puidmva); 
+	    mCutPUJIDDiscriminant_mediumPt_Forward=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant_mediumPt_Forward"]; if(mCutPUJIDDiscriminant_mediumPt_Forward && mCutPUJIDDiscriminant_mediumPt_Forward->getRootObject()) mCutPUJIDDiscriminant_mediumPt_Forward->Fill(puidcut); 
 	    mHFEFrac_mediumPt_Forward = map_of_MEs[DirName+"/"+"HFEFrac_mediumPt_Forward"]; if(mHFEFrac_mediumPt_Forward && mHFEFrac_mediumPt_Forward->getRootObject()) mHFEFrac_mediumPt_Forward->Fill((*pfJets)[ijet].HFEMEnergyFraction());
 	    mHFEFrac_mediumPt_Forward = map_of_MEs[DirName+"/"+"HFEFrac_mediumPt_Forward"]; if(mHFHFrac_mediumPt_Forward && mHFHFrac_mediumPt_Forward->getRootObject()) mHFHFrac_mediumPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
 	    mHFEEn_mediumPt_Forward = map_of_MEs[DirName+"/"+"HFEEn_mediumPt_Forward"];     if(mHFEEn_mediumPt_Forward && mHFEEn_mediumPt_Forward->getRootObject())     mHFEEn_mediumPt_Forward->Fill((*pfJets)[ijet].HFEMEnergy());
@@ -1756,6 +1936,13 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mNeutMultiplicity_mediumPt_Forward = map_of_MEs[DirName+"/"+"NeutMultiplicity_mediumPt_Forward"]; if(mNeutMultiplicity_mediumPt_Forward && mNeutMultiplicity_mediumPt_Forward->getRootObject())  mNeutMultiplicity_mediumPt_Forward->Fill((*pfJets)[ijet].neutralMultiplicity());
 	  }
 	  if (correctedJet.pt()>140.) {
+	    mAxis2_highPt_Forward = map_of_MEs[DirName+"/"+"qg_Axis2_highPt_Forward"];if(mAxis2_highPt_Forward && mAxis2_highPt_Forward->getRootObject()) mAxis2_highPt_Forward->Fill(QGaxis2);
+	    mpTD_highPt_Forward = map_of_MEs[DirName+"/"+"qg_pTD_highPt_Forward"]; if(mpTD_highPt_Forward && mpTD_highPt_Forward->getRootObject()) mpTD_highPt_Forward->Fill(QGptD);
+	    mMultiplicityQG_highPt_Forward = map_of_MEs[DirName+"/"+"qg_multiplicity_highPt_Forward"]; if(mMultiplicityQG_highPt_Forward && mMultiplicityQG_highPt_Forward->getRootObject()) mMultiplicityQG_highPt_Forward->Fill(QGmulti);
+	    mqgLikelihood_highPt_Forward = map_of_MEs[DirName+"/"+"qg_Likelihood_highPt_Forward"]; if(mqgLikelihood_highPt_Forward && mqgLikelihood_highPt_Forward->getRootObject()) mqgLikelihood_highPt_Forward->Fill(QGLikelihood);
+	    mMass_highPt_Forward=map_of_MEs[DirName+"/"+"JetMass_highPt_Forward"]; if(mMass_highPt_Forward && mMass_highPt_Forward->getRootObject())mMass_highPt_Forward->Fill((*pfJets)[ijet].mass());
+	    mMVAPUJIDDiscriminant_highPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_highPt_Forward"]; if(mMVAPUJIDDiscriminant_highPt_Forward && mMVAPUJIDDiscriminant_highPt_Forward->getRootObject()) mMVAPUJIDDiscriminant_highPt_Forward->Fill(puidmva); 
+	    mCutPUJIDDiscriminant_highPt_Forward=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant_highPt_Forward"]; if(mCutPUJIDDiscriminant_highPt_Forward && mCutPUJIDDiscriminant_highPt_Forward->getRootObject()) mCutPUJIDDiscriminant_highPt_Forward->Fill(puidcut); 
 	    mHFEFrac_highPt_Forward = map_of_MEs[DirName+"/"+"HFEFrac_highPt_Forward"]; if(mHFEFrac_highPt_Forward && mHFEFrac_highPt_Forward->getRootObject()) mHFEFrac_highPt_Forward->Fill((*pfJets)[ijet].HFEMEnergyFraction());
 	    mHFEFrac_highPt_Forward = map_of_MEs[DirName+"/"+"HFEFrac_highPt_Forward"]; if(mHFHFrac_highPt_Forward && mHFHFrac_highPt_Forward->getRootObject()) mHFHFrac_highPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
 	    mHFEEn_highPt_Forward = map_of_MEs[DirName+"/"+"HFEEn_highPt_Forward"];     if(mHFEEn_highPt_Forward && mHFEEn_highPt_Forward->getRootObject())     mHFEEn_highPt_Forward->Fill((*pfJets)[ijet].HFEMEnergy());
@@ -1772,15 +1959,15 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    meCHFracBarrel_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"CHFracBarrel_BXm2BXm1Filled"];     if (  meCHFracBarrel_BXm2BXm1Filled  && meCHFracBarrel_BXm2BXm1Filled ->getRootObject())  meCHFracBarrel_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
 	    mePtBarrel_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PtBarrel_BXm2BXm1Filled"];     if (  mePtBarrel_BXm2BXm1Filled  && mePtBarrel_BXm2BXm1Filled ->getRootObject())  mePtBarrel_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].pt());
 	  }else if (correctedJet.eta() > -3.0 && correctedJet.eta() <= -1.3) {
-	    mePhFracEndcapMinus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PhFracEndcapMinus_BXm2BXm1Filled"];     if (  mePhFracEndcapMinus_BXm2BXm1Filled  && mePhFracEndcapMinus_BXm2BXm1Filled ->getRootObject())  mePhFracEndcapMinus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].photonEnergyFraction());
-	    meNHFracEndcapMinus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"NHFracEndcapMinus_BXm2BXm1Filled"];     if (  meNHFracEndcapMinus_BXm2BXm1Filled  && meNHFracEndcapMinus_BXm2BXm1Filled ->getRootObject())  meNHFracEndcapMinus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	    meCHFracEndcapMinus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"CHFracEndcapMinus_BXm2BXm1Filled"];     if (  meCHFracEndcapMinus_BXm2BXm1Filled  && meCHFracEndcapMinus_BXm2BXm1Filled ->getRootObject())  meCHFracEndcapMinus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	    mePtEndcapMinus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PtEndcapMinus_BXm2BXm1Filled"];     if (  mePtEndcapMinus_BXm2BXm1Filled  && mePtEndcapMinus_BXm2BXm1Filled ->getRootObject())  mePtEndcapMinus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].pt());
+	    mePhFracEndCapMinus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PhFracEndCapMinus_BXm2BXm1Filled"];     if (  mePhFracEndCapMinus_BXm2BXm1Filled  && mePhFracEndCapMinus_BXm2BXm1Filled ->getRootObject())  mePhFracEndCapMinus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].photonEnergyFraction());
+	    meNHFracEndCapMinus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"NHFracEndCapMinus_BXm2BXm1Filled"];     if (  meNHFracEndCapMinus_BXm2BXm1Filled  && meNHFracEndCapMinus_BXm2BXm1Filled ->getRootObject())  meNHFracEndCapMinus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	    meCHFracEndCapMinus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"CHFracEndCapMinus_BXm2BXm1Filled"];     if (  meCHFracEndCapMinus_BXm2BXm1Filled  && meCHFracEndCapMinus_BXm2BXm1Filled ->getRootObject())  meCHFracEndCapMinus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	    mePtEndCapMinus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PtEndCapMinus_BXm2BXm1Filled"];     if (  mePtEndCapMinus_BXm2BXm1Filled  && mePtEndCapMinus_BXm2BXm1Filled ->getRootObject())  mePtEndCapMinus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].pt());
 	  }else if (correctedJet.eta() >= 1.3 && correctedJet.eta() < 3.0) {
-	    mePhFracEndcapPlus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PhFracEndcapPlus_BXm2BXm1Filled"];     if (  mePhFracEndcapPlus_BXm2BXm1Filled  && mePhFracEndcapPlus_BXm2BXm1Filled ->getRootObject())  mePhFracEndcapPlus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].photonEnergyFraction());
-	    meNHFracEndcapPlus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"NHFracEndcapPlus_BXm2BXm1Filled"];     if (  meNHFracEndcapPlus_BXm2BXm1Filled  && meNHFracEndcapPlus_BXm2BXm1Filled ->getRootObject())  meNHFracEndcapPlus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	    meCHFracEndcapPlus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"CHFracEndcapPlus_BXm2BXm1Filled"];     if (  meCHFracEndcapPlus_BXm2BXm1Filled  && meCHFracEndcapPlus_BXm2BXm1Filled ->getRootObject())  meCHFracEndcapPlus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	    mePtEndcapPlus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PtEndcapPlus_BXm2BXm1Filled"];     if (  mePtEndcapPlus_BXm2BXm1Filled  && mePtEndcapPlus_BXm2BXm1Filled ->getRootObject())  mePtEndcapPlus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].pt());
+	    mePhFracEndCapPlus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PhFracEndCapPlus_BXm2BXm1Filled"];     if (  mePhFracEndCapPlus_BXm2BXm1Filled  && mePhFracEndCapPlus_BXm2BXm1Filled ->getRootObject())  mePhFracEndCapPlus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].photonEnergyFraction());
+	    meNHFracEndCapPlus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"NHFracEndCapPlus_BXm2BXm1Filled"];     if (  meNHFracEndCapPlus_BXm2BXm1Filled  && meNHFracEndCapPlus_BXm2BXm1Filled ->getRootObject())  meNHFracEndCapPlus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	    meCHFracEndCapPlus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"CHFracEndCapPlus_BXm2BXm1Filled"];     if (  meCHFracEndCapPlus_BXm2BXm1Filled  && meCHFracEndCapPlus_BXm2BXm1Filled ->getRootObject())  meCHFracEndCapPlus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	    mePtEndCapPlus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PtEndCapPlus_BXm2BXm1Filled"];     if (  mePtEndCapPlus_BXm2BXm1Filled  && mePtEndCapPlus_BXm2BXm1Filled ->getRootObject())  mePtEndCapPlus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].pt());
 	  }else if (correctedJet.eta() > -5.0 && correctedJet.eta() <= -3.0) {
 	    mePtForwardMinus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PtForwardMinus_BXm2BXm1Filled"];     if (  mePtForwardMinus_BXm2BXm1Filled  && mePtForwardMinus_BXm2BXm1Filled ->getRootObject())  mePtForwardMinus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].pt());
 	    meHFHFracMinus_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"HFHFracMinus_BXm2BXm1Filled"];     if (  meHFHFracMinus_BXm2BXm1Filled  && meHFHFracMinus_BXm2BXm1Filled ->getRootObject())  meHFHFracMinus_BXm2BXm1Filled  ->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
@@ -1799,15 +1986,15 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    meCHFracBarrel_BXm1Filled    = map_of_MEs[DirName+"/"+"CHFracBarrel_BXm1Filled"];     if (  meCHFracBarrel_BXm1Filled  && meCHFracBarrel_BXm1Filled ->getRootObject())  meCHFracBarrel_BXm1Filled  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
 	    mePtBarrel_BXm1Filled    = map_of_MEs[DirName+"/"+"PtBarrel_BXm1Filled"];     if (  mePtBarrel_BXm1Filled  && mePtBarrel_BXm1Filled ->getRootObject())  mePtBarrel_BXm1Filled  ->Fill((*pfJets)[ijet].pt());
 	  }else if (correctedJet.eta() > -3.0 && correctedJet.eta() <= -1.3) {
-	    mePhFracEndcapMinus_BXm1Filled    = map_of_MEs[DirName+"/"+"PhFracEndcapMinus_BXm1Filled"];     if (  mePhFracEndcapMinus_BXm1Filled  && mePhFracEndcapMinus_BXm1Filled ->getRootObject())  mePhFracEndcapMinus_BXm1Filled  ->Fill((*pfJets)[ijet].photonEnergyFraction());
-	    meNHFracEndcapMinus_BXm1Filled    = map_of_MEs[DirName+"/"+"NHFracEndcapMinus_BXm1Filled"];     if (  meNHFracEndcapMinus_BXm1Filled  && meNHFracEndcapMinus_BXm1Filled ->getRootObject())  meNHFracEndcapMinus_BXm1Filled  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	    meCHFracEndcapMinus_BXm1Filled    = map_of_MEs[DirName+"/"+"CHFracEndcapMinus_BXm1Filled"];     if (  meCHFracEndcapMinus_BXm1Filled  && meCHFracEndcapMinus_BXm1Filled ->getRootObject())  meCHFracEndcapMinus_BXm1Filled  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	    mePtEndcapMinus_BXm1Filled    = map_of_MEs[DirName+"/"+"PtEndcapMinus_BXm1Filled"];     if (  mePtEndcapMinus_BXm1Filled  && mePtEndcapMinus_BXm1Filled ->getRootObject())  mePtEndcapMinus_BXm1Filled  ->Fill((*pfJets)[ijet].pt());
+	    mePhFracEndCapMinus_BXm1Filled    = map_of_MEs[DirName+"/"+"PhFracEndCapMinus_BXm1Filled"];     if (  mePhFracEndCapMinus_BXm1Filled  && mePhFracEndCapMinus_BXm1Filled ->getRootObject())  mePhFracEndCapMinus_BXm1Filled  ->Fill((*pfJets)[ijet].photonEnergyFraction());
+	    meNHFracEndCapMinus_BXm1Filled    = map_of_MEs[DirName+"/"+"NHFracEndCapMinus_BXm1Filled"];     if (  meNHFracEndCapMinus_BXm1Filled  && meNHFracEndCapMinus_BXm1Filled ->getRootObject())  meNHFracEndCapMinus_BXm1Filled  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	    meCHFracEndCapMinus_BXm1Filled    = map_of_MEs[DirName+"/"+"CHFracEndCapMinus_BXm1Filled"];     if (  meCHFracEndCapMinus_BXm1Filled  && meCHFracEndCapMinus_BXm1Filled ->getRootObject())  meCHFracEndCapMinus_BXm1Filled  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	    mePtEndCapMinus_BXm1Filled    = map_of_MEs[DirName+"/"+"PtEndCapMinus_BXm1Filled"];     if (  mePtEndCapMinus_BXm1Filled  && mePtEndCapMinus_BXm1Filled ->getRootObject())  mePtEndCapMinus_BXm1Filled  ->Fill((*pfJets)[ijet].pt());
 	  }else if (correctedJet.eta() >= 1.3 && correctedJet.eta() < 3.0) {
-	    mePhFracEndcapPlus_BXm1Filled    = map_of_MEs[DirName+"/"+"PhFracEndcapPlus_BXm1Filled"];     if (  mePhFracEndcapPlus_BXm1Filled  && mePhFracEndcapPlus_BXm1Filled ->getRootObject())  mePhFracEndcapPlus_BXm1Filled  ->Fill((*pfJets)[ijet].photonEnergyFraction());
-	    meNHFracEndcapPlus_BXm1Filled    = map_of_MEs[DirName+"/"+"NHFracEndcapPlus_BXm1Filled"];     if (  meNHFracEndcapPlus_BXm1Filled  && meNHFracEndcapPlus_BXm1Filled ->getRootObject())  meNHFracEndcapPlus_BXm1Filled  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	    meCHFracEndcapPlus_BXm1Filled    = map_of_MEs[DirName+"/"+"CHFracEndcapPlus_BXm1Filled"];     if (  meCHFracEndcapPlus_BXm1Filled  && meCHFracEndcapPlus_BXm1Filled ->getRootObject())  meCHFracEndcapPlus_BXm1Filled  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	    mePtEndcapPlus_BXm1Filled    = map_of_MEs[DirName+"/"+"PtEndcapPlus_BXm1Filled"];     if (  mePtEndcapPlus_BXm1Filled  && mePtEndcapPlus_BXm1Filled ->getRootObject())  mePtEndcapPlus_BXm1Filled  ->Fill((*pfJets)[ijet].pt());
+	    mePhFracEndCapPlus_BXm1Filled    = map_of_MEs[DirName+"/"+"PhFracEndCapPlus_BXm1Filled"];     if (  mePhFracEndCapPlus_BXm1Filled  && mePhFracEndCapPlus_BXm1Filled ->getRootObject())  mePhFracEndCapPlus_BXm1Filled  ->Fill((*pfJets)[ijet].photonEnergyFraction());
+	    meNHFracEndCapPlus_BXm1Filled    = map_of_MEs[DirName+"/"+"NHFracEndCapPlus_BXm1Filled"];     if (  meNHFracEndCapPlus_BXm1Filled  && meNHFracEndCapPlus_BXm1Filled ->getRootObject())  meNHFracEndCapPlus_BXm1Filled  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	    meCHFracEndCapPlus_BXm1Filled    = map_of_MEs[DirName+"/"+"CHFracEndCapPlus_BXm1Filled"];     if (  meCHFracEndCapPlus_BXm1Filled  && meCHFracEndCapPlus_BXm1Filled ->getRootObject())  meCHFracEndCapPlus_BXm1Filled  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	    mePtEndCapPlus_BXm1Filled    = map_of_MEs[DirName+"/"+"PtEndCapPlus_BXm1Filled"];     if (  mePtEndCapPlus_BXm1Filled  && mePtEndCapPlus_BXm1Filled ->getRootObject())  mePtEndCapPlus_BXm1Filled  ->Fill((*pfJets)[ijet].pt());
 	  }else if (correctedJet.eta() > -5.0 && correctedJet.eta() <= -3.0) {
 	    mePtForwardMinus_BXm1Filled    = map_of_MEs[DirName+"/"+"PtForwardMinus_BXm1Filled"];     if (  mePtForwardMinus_BXm1Filled  && mePtForwardMinus_BXm1Filled ->getRootObject())  mePtForwardMinus_BXm1Filled  ->Fill((*pfJets)[ijet].pt());
 	    meHFHFracMinus_BXm1Filled    = map_of_MEs[DirName+"/"+"HFHFracMinus_BXm1Filled"];     if (  meHFHFracMinus_BXm1Filled  && meHFHFracMinus_BXm1Filled ->getRootObject())  meHFHFracMinus_BXm1Filled  ->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
@@ -1826,15 +2013,15 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    meCHFracBarrel_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"CHFracBarrel_BXm2BXm1Empty"];     if (  meCHFracBarrel_BXm2BXm1Empty  && meCHFracBarrel_BXm2BXm1Empty ->getRootObject())  meCHFracBarrel_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
 	    mePtBarrel_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PtBarrel_BXm2BXm1Empty"];     if (  mePtBarrel_BXm2BXm1Empty  && mePtBarrel_BXm2BXm1Empty ->getRootObject())  mePtBarrel_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].pt());
 	  }else if (correctedJet.eta() > -3.0 && correctedJet.eta() <= -1.3) {
-	    mePhFracEndcapMinus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PhFracEndcapMinus_BXm2BXm1Empty"];     if (  mePhFracEndcapMinus_BXm2BXm1Empty  && mePhFracEndcapMinus_BXm2BXm1Empty ->getRootObject())  mePhFracEndcapMinus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].photonEnergyFraction());
-	    meNHFracEndcapMinus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"NHFracEndcapMinus_BXm2BXm1Empty"];     if (  meNHFracEndcapMinus_BXm2BXm1Empty  && meNHFracEndcapMinus_BXm2BXm1Empty ->getRootObject())  meNHFracEndcapMinus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	    meCHFracEndcapMinus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"CHFracEndcapMinus_BXm2BXm1Empty"];     if (  meCHFracEndcapMinus_BXm2BXm1Empty  && meCHFracEndcapMinus_BXm2BXm1Empty ->getRootObject())  meCHFracEndcapMinus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	    mePtEndcapMinus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PtEndcapMinus_BXm2BXm1Empty"];     if (  mePtEndcapMinus_BXm2BXm1Empty  && mePtEndcapMinus_BXm2BXm1Empty ->getRootObject())  mePtEndcapMinus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].pt());
+	    mePhFracEndCapMinus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PhFracEndCapMinus_BXm2BXm1Empty"];     if (  mePhFracEndCapMinus_BXm2BXm1Empty  && mePhFracEndCapMinus_BXm2BXm1Empty ->getRootObject())  mePhFracEndCapMinus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].photonEnergyFraction());
+	    meNHFracEndCapMinus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"NHFracEndCapMinus_BXm2BXm1Empty"];     if (  meNHFracEndCapMinus_BXm2BXm1Empty  && meNHFracEndCapMinus_BXm2BXm1Empty ->getRootObject())  meNHFracEndCapMinus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	    meCHFracEndCapMinus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"CHFracEndCapMinus_BXm2BXm1Empty"];     if (  meCHFracEndCapMinus_BXm2BXm1Empty  && meCHFracEndCapMinus_BXm2BXm1Empty ->getRootObject())  meCHFracEndCapMinus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	    mePtEndCapMinus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PtEndCapMinus_BXm2BXm1Empty"];     if (  mePtEndCapMinus_BXm2BXm1Empty  && mePtEndCapMinus_BXm2BXm1Empty ->getRootObject())  mePtEndCapMinus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].pt());
 	  }else if (correctedJet.eta() >= 1.3 && correctedJet.eta() < 3.0) {
-	    mePhFracEndcapPlus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PhFracEndcapPlus_BXm2BXm1Empty"];     if (  mePhFracEndcapPlus_BXm2BXm1Empty  && mePhFracEndcapPlus_BXm2BXm1Empty ->getRootObject())  mePhFracEndcapPlus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].photonEnergyFraction());
-	    meNHFracEndcapPlus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"NHFracEndcapPlus_BXm2BXm1Empty"];     if (  meNHFracEndcapPlus_BXm2BXm1Empty  && meNHFracEndcapPlus_BXm2BXm1Empty ->getRootObject())  meNHFracEndcapPlus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	    meCHFracEndcapPlus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"CHFracEndcapPlus_BXm2BXm1Empty"];     if (  meCHFracEndcapPlus_BXm2BXm1Empty  && meCHFracEndcapPlus_BXm2BXm1Empty ->getRootObject())  meCHFracEndcapPlus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	    mePtEndcapPlus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PtEndcapPlus_BXm2BXm1Empty"];     if (  mePtEndcapPlus_BXm2BXm1Empty  && mePtEndcapPlus_BXm2BXm1Empty ->getRootObject())  mePtEndcapPlus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].pt());
+	    mePhFracEndCapPlus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PhFracEndCapPlus_BXm2BXm1Empty"];     if (  mePhFracEndCapPlus_BXm2BXm1Empty  && mePhFracEndCapPlus_BXm2BXm1Empty ->getRootObject())  mePhFracEndCapPlus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].photonEnergyFraction());
+	    meNHFracEndCapPlus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"NHFracEndCapPlus_BXm2BXm1Empty"];     if (  meNHFracEndCapPlus_BXm2BXm1Empty  && meNHFracEndCapPlus_BXm2BXm1Empty ->getRootObject())  meNHFracEndCapPlus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	    meCHFracEndCapPlus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"CHFracEndCapPlus_BXm2BXm1Empty"];     if (  meCHFracEndCapPlus_BXm2BXm1Empty  && meCHFracEndCapPlus_BXm2BXm1Empty ->getRootObject())  meCHFracEndCapPlus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	    mePtEndCapPlus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PtEndCapPlus_BXm2BXm1Empty"];     if (  mePtEndCapPlus_BXm2BXm1Empty  && mePtEndCapPlus_BXm2BXm1Empty ->getRootObject())  mePtEndCapPlus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].pt());
 	  }else if (correctedJet.eta() > -5.0 && correctedJet.eta() <= -3.0) {
 	    mePtForwardMinus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PtForwardMinus_BXm2BXm1Empty"];     if (  mePtForwardMinus_BXm2BXm1Empty  && mePtForwardMinus_BXm2BXm1Empty ->getRootObject())  mePtForwardMinus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].pt());
 	    meHFHFracMinus_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"HFHFracMinus_BXm2BXm1Empty"];     if (  meHFHFracMinus_BXm2BXm1Empty  && meHFHFracMinus_BXm2BXm1Empty ->getRootObject())  meHFHFracMinus_BXm2BXm1Empty  ->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
@@ -1853,15 +2040,15 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    meCHFracBarrel_BXm1Empty    = map_of_MEs[DirName+"/"+"CHFracBarrel_BXm1Empty"];     if (  meCHFracBarrel_BXm1Empty  && meCHFracBarrel_BXm1Empty ->getRootObject())  meCHFracBarrel_BXm1Empty  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
 	    mePtBarrel_BXm1Empty    = map_of_MEs[DirName+"/"+"PtBarrel_BXm1Empty"];     if (  mePtBarrel_BXm1Empty  && mePtBarrel_BXm1Empty ->getRootObject())  mePtBarrel_BXm1Empty  ->Fill((*pfJets)[ijet].pt());
 	  }else if (correctedJet.eta() > -3.0 && correctedJet.eta() <= -1.3) {
-	    mePhFracEndcapMinus_BXm1Empty    = map_of_MEs[DirName+"/"+"PhFracEndcapMinus_BXm1Empty"];     if (  mePhFracEndcapMinus_BXm1Empty  && mePhFracEndcapMinus_BXm1Empty ->getRootObject())  mePhFracEndcapMinus_BXm1Empty  ->Fill((*pfJets)[ijet].photonEnergyFraction());
-	    meNHFracEndcapMinus_BXm1Empty    = map_of_MEs[DirName+"/"+"NHFracEndcapMinus_BXm1Empty"];     if (  meNHFracEndcapMinus_BXm1Empty  && meNHFracEndcapMinus_BXm1Empty ->getRootObject())  meNHFracEndcapMinus_BXm1Empty  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	    meCHFracEndcapMinus_BXm1Empty    = map_of_MEs[DirName+"/"+"CHFracEndcapMinus_BXm1Empty"];     if (  meCHFracEndcapMinus_BXm1Empty  && meCHFracEndcapMinus_BXm1Empty ->getRootObject())  meCHFracEndcapMinus_BXm1Empty  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	    mePtEndcapMinus_BXm1Empty    = map_of_MEs[DirName+"/"+"PtEndcapMinus_BXm1Empty"];     if (  mePtEndcapMinus_BXm1Empty  && mePtEndcapMinus_BXm1Empty ->getRootObject())  mePtEndcapMinus_BXm1Empty  ->Fill((*pfJets)[ijet].pt());
+	    mePhFracEndCapMinus_BXm1Empty    = map_of_MEs[DirName+"/"+"PhFracEndCapMinus_BXm1Empty"];     if (  mePhFracEndCapMinus_BXm1Empty  && mePhFracEndCapMinus_BXm1Empty ->getRootObject())  mePhFracEndCapMinus_BXm1Empty  ->Fill((*pfJets)[ijet].photonEnergyFraction());
+	    meNHFracEndCapMinus_BXm1Empty    = map_of_MEs[DirName+"/"+"NHFracEndCapMinus_BXm1Empty"];     if (  meNHFracEndCapMinus_BXm1Empty  && meNHFracEndCapMinus_BXm1Empty ->getRootObject())  meNHFracEndCapMinus_BXm1Empty  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	    meCHFracEndCapMinus_BXm1Empty    = map_of_MEs[DirName+"/"+"CHFracEndCapMinus_BXm1Empty"];     if (  meCHFracEndCapMinus_BXm1Empty  && meCHFracEndCapMinus_BXm1Empty ->getRootObject())  meCHFracEndCapMinus_BXm1Empty  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	    mePtEndCapMinus_BXm1Empty    = map_of_MEs[DirName+"/"+"PtEndCapMinus_BXm1Empty"];     if (  mePtEndCapMinus_BXm1Empty  && mePtEndCapMinus_BXm1Empty ->getRootObject())  mePtEndCapMinus_BXm1Empty  ->Fill((*pfJets)[ijet].pt());
 	  }else if (correctedJet.eta() >= 1.3 && correctedJet.eta() < 3.0) {
-	    mePhFracEndcapPlus_BXm1Empty    = map_of_MEs[DirName+"/"+"PhFracEndcapPlus_BXm1Empty"];     if (  mePhFracEndcapPlus_BXm1Empty  && mePhFracEndcapPlus_BXm1Empty ->getRootObject())  mePhFracEndcapPlus_BXm1Empty  ->Fill((*pfJets)[ijet].photonEnergyFraction());
-	    meNHFracEndcapPlus_BXm1Empty    = map_of_MEs[DirName+"/"+"NHFracEndcapPlus_BXm1Empty"];     if (  meNHFracEndcapPlus_BXm1Empty  && meNHFracEndcapPlus_BXm1Empty ->getRootObject())  meNHFracEndcapPlus_BXm1Empty  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	    meCHFracEndcapPlus_BXm1Empty    = map_of_MEs[DirName+"/"+"CHFracEndcapPlus_BXm1Empty"];     if (  meCHFracEndcapPlus_BXm1Empty  && meCHFracEndcapPlus_BXm1Empty ->getRootObject())  meCHFracEndcapPlus_BXm1Empty  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	    mePtEndcapPlus_BXm1Empty    = map_of_MEs[DirName+"/"+"PtEndcapPlus_BXm1Empty"];     if (  mePtEndcapPlus_BXm1Empty  && mePtEndcapPlus_BXm1Empty ->getRootObject())  mePtEndcapPlus_BXm1Empty  ->Fill((*pfJets)[ijet].pt());
+	    mePhFracEndCapPlus_BXm1Empty    = map_of_MEs[DirName+"/"+"PhFracEndCapPlus_BXm1Empty"];     if (  mePhFracEndCapPlus_BXm1Empty  && mePhFracEndCapPlus_BXm1Empty ->getRootObject())  mePhFracEndCapPlus_BXm1Empty  ->Fill((*pfJets)[ijet].photonEnergyFraction());
+	    meNHFracEndCapPlus_BXm1Empty    = map_of_MEs[DirName+"/"+"NHFracEndCapPlus_BXm1Empty"];     if (  meNHFracEndCapPlus_BXm1Empty  && meNHFracEndCapPlus_BXm1Empty ->getRootObject())  meNHFracEndCapPlus_BXm1Empty  ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	    meCHFracEndCapPlus_BXm1Empty    = map_of_MEs[DirName+"/"+"CHFracEndCapPlus_BXm1Empty"];     if (  meCHFracEndCapPlus_BXm1Empty  && meCHFracEndCapPlus_BXm1Empty ->getRootObject())  meCHFracEndCapPlus_BXm1Empty  ->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	    mePtEndCapPlus_BXm1Empty    = map_of_MEs[DirName+"/"+"PtEndCapPlus_BXm1Empty"];     if (  mePtEndCapPlus_BXm1Empty  && mePtEndCapPlus_BXm1Empty ->getRootObject())  mePtEndCapPlus_BXm1Empty  ->Fill((*pfJets)[ijet].pt());
 	  }else if (correctedJet.eta() > -5.0 && correctedJet.eta() <= -3.0) {
 	    mePtForwardMinus_BXm1Empty    = map_of_MEs[DirName+"/"+"PtForwardMinus_BXm1Empty"];     if (  mePtForwardMinus_BXm1Empty  && mePtForwardMinus_BXm1Empty ->getRootObject())  mePtForwardMinus_BXm1Empty  ->Fill((*pfJets)[ijet].pt());
 	    meHFHFracMinus_BXm1Empty    = map_of_MEs[DirName+"/"+"HFHFracMinus_BXm1Empty"];     if (  meHFHFracMinus_BXm1Empty  && meHFHFracMinus_BXm1Empty ->getRootObject())  meHFHFracMinus_BXm1Empty  ->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
