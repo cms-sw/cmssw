@@ -37,16 +37,16 @@ class Spline {
 	void set(unsigned int n, const double *vals);
 
 	/// compute y coordinate at x coordinate \a x
-	double eval(double x) const;
+	float eval(float x) const;
 
 	/// compute the derivate at x coordinate \a x
-	double deriv(double x) const;
+	float deriv(float x) const;
 
 	/// compute integral under curve between 0 and \a x
-	double integral(double x) const;
+	float integral(float x) const;
 
 	/// total area (integral between 0 and 1) under curve
-	double getArea() const { return area; }
+	float getArea() const { return area; }
 
 	/// return the number of entries
 	inline unsigned int numberOfEntries() const { return n + 1; }
@@ -54,17 +54,17 @@ class Spline {
     private:
 	/// internal class describing a "segment" (between two x points)
 	struct Segment {
-		double coeffs[4];
-		double area;
+		float coeffs[4];
+		float area;
 
-		double eval(double x) const;
-		double deriv(double x) const;
-		double integral(double x) const;
+		float eval(float x) const;
+		float deriv(float x) const;
+		float integral(float x) const;
 	};
 
 	unsigned int	n;
 	Segment		*segments;
-	double		area;
+	float		area;
 };
 
 } // namespace PhysicsTools
