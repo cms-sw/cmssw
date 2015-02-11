@@ -1,5 +1,4 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2Nav.h"
-#include <iostream>
 
 l1t::CaloStage2Nav::CaloStage2Nav():homePos_(0,0),currPos_(homePos_)
 {
