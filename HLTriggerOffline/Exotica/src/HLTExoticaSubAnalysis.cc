@@ -87,15 +87,17 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
     for (std::map<unsigned int, edm::InputTag>::const_iterator it = _recLabels.begin();
          it != _recLabels.end(); ++it) {
 	const std::string objStr = EVTColContainer::getTypeString(it->first);
-        _genCut[it->first] = pset.getParameter<std::string>(std::string(objStr + "_genCut").c_str());
-        _recCut[it->first] = pset.getParameter<std::string>(std::string(objStr + "_recCut").c_str());
-        if (pset.exists(std::string(objStr + "_genCut_leading"))) {
-          _genCut_leading[it->first] = pset.getParameter<std::string>(std::string(objStr + "_genCut_leading").c_str());
+        _genCut[it->first] = pset.getParameter<std::string>(objStr + "_genCut");
+        _recCut[it->first] = pset.getParameter<std::string>(objStr + "_recCut");
+        auto const genCutParam = objStr + "_genCut_leading";
+        if (pset.exists(genCutParam)) {
+          _genCut_leading[it->first] = pset.getParameter<std::string>(genCutParam);
         } else {
           _genCut_leading[it->first] = "pt>0"; // no cut
         }
-        if (pset.exists(std::string(objStr + "_recCut_leading"))) {
-          _recCut_leading[it->first] = pset.getParameter<std::string>(std::string(objStr + "_recCut_leading").c_str());
+        auto const recCutParam = objStr + "_recCut_leading";
+        if (pset.exists(recCutParam)) {
+          _recCut_leading[it->first] = pset.getParameter<std::string>(recCutParam);
         } else {
           _recCut_leading[it->first] = "pt>0"; // no cut
         }
@@ -106,13 +108,15 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
          it != _recLabels.end(); ++it) {
 	const std::string objStr = EVTColContainer::getTypeString(it->first);
 
-        try {
-            _genCut[it->first] = anpset.getUntrackedParameter<std::string>(std::string(objStr + "_genCut").c_str());
-        } catch (edm::Exception) {}
+        auto const genCutParam = objStr + "_genCut";
+        if(anpset.existsAs<std::string>(genCutParam,false) ) {
+            _genCut[it->first] = anpset.getUntrackedParameter<std::string>(genCutParam);
+        }
 
-        try {
-            _recCut[it->first] = anpset.getUntrackedParameter<std::string>(std::string(objStr + "_recCut").c_str());
-        } catch (edm::Exception) {}
+        auto const recCutParam = objStr + "_recCut";
+        if(anpset.existsAs<std::string>(recCutParam,false) ) {
+           _recCut[it->first] = anpset.getUntrackedParameter<std::string>(recCutParam);
+        } 
 
     }
 
