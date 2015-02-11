@@ -352,7 +352,7 @@ void
 CmsShowMainBase::setupConfiguration()
 {
    m_guiManager->updateStatus("Setting up configuration...");
-   if(m_configFileName == "no-fwc-config") {
+   if(m_configurationManager->getIgnore()) {
       fwLog(fwlog::kInfo) << "No configuration is loaded." << std::endl;
       m_guiManager->getMainFrame()->MapSubwindows();
       m_guiManager->getMainFrame()->Layout();

@@ -49,6 +49,9 @@ public:
    ///does not take ownership
    void add(const std::string& iName, FWConfigurable*);
 
+   void setIgnore() { m_ignore = false; }
+   bool getIgnore() const { return m_ignore; }
+
 private:
    FWConfigurationManager(const FWConfigurationManager&);    // stop default
 
@@ -57,6 +60,7 @@ private:
 
    // ---------- member data --------------------------------
    std::map<std::string, FWConfigurable*> m_configurables;
+   bool m_ignore;
 };
 
 

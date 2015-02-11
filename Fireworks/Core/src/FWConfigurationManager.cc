@@ -40,7 +40,7 @@
 //
 // constructors and destructor
 //
-FWConfigurationManager::FWConfigurationManager()
+FWConfigurationManager::FWConfigurationManager():m_ignore(false)
 {
 }
 
