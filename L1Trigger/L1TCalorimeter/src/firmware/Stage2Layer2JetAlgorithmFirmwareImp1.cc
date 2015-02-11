@@ -504,7 +504,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
     return;
 
   } else {
-    if(params_->jetCalibrationType() != "None" || params_->jetCalibrationType() != "none") 
+    if(params_->jetCalibrationType() != "None" && params_->jetCalibrationType() != "none") 
       edm::LogError("l1t|stage 2") << "Invalid calibration type in calo params. Not calibrating Stage 2 Jets" << std::endl;
     return;
   }
