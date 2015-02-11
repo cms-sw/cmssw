@@ -9,3 +9,8 @@ TrackerSimHitsBlock = cms.PSet(
     )
 )
 
+#
+# Modify for running in Run 2
+#
+from Configuration.StandardSequences.Eras import eras
+eras.run2.toModify( TrackerSimHitsBlock.TrackerSimHits, pTmin = 0.1 )
