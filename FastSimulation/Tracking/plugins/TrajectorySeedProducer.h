@@ -49,8 +49,9 @@ class TrajectorySeedProducer:
         double simTrack_pTMin;
         double simTrack_maxD0;
         double simTrack_maxZ0;
-        unsigned int simTrack_minLayersCrossed;
         
+        unsigned int minLayersCrossed;
+
         std::string outputSeedCollectionName;
 
         std::vector<std::vector<TrackingLayer>> seedingLayers;

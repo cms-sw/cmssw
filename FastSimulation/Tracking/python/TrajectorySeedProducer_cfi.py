@@ -9,9 +9,10 @@ trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer",
          skipSimTrackIds = cms.VInputTag(),
          maxZ0 = cms.double(30.0),
          maxD0 = cms.double(1.0),
-         # minimum number of layer crossed (with hits on them) by the simtrack
-         minLayersCrossed = cms.uint32(5)
     ),
+    # minimum number of layer crossed (with hits on them) by the simtrack
+    minLayersCrossed = cms.uint32(5),
+    
     # the name of the output seeds
     outputSeedCollectionName = cms.string("seeds"),
     

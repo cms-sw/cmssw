@@ -70,10 +70,10 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     {
         skipSimTrackIdTokens.push_back(consumes<std::vector<unsigned int> >(skipSimTrackTags[k]));
     }
+
+
     // The smallest number of hits for a track candidate
-    simTrack_minLayersCrossed = simTrackSelectionConfig.getParameter<unsigned int>("minLayersCrossed");
-
-
+    minLayersCrossed = conf.getParameter<unsigned int>("minLayersCrossed");
 
     edm::InputTag beamSpotTag = conf.getParameter<edm::InputTag>("beamSpot");
     if (beamSpotTag.label()!="")
@@ -428,10 +428,9 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
                 //add only the hits which are actually on the requested layers
                 trackerRecHits.push_back(std::move(currentTrackerHit));
             }
-            
         }
 
-        if ( layersCrossed < simTrack_minLayersCrossed)
+        if ( layersCrossed < minLayersCrossed)
         {
             continue;
         }
