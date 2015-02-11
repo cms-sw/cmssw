@@ -42,9 +42,9 @@ siStripQualityESProducerUnbiased.ListOfRecordToMerge = cms.VPSet(
 
 
 # Clusterizer #
-import RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi 
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import *
 
-calZeroBiasClusters = RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi.siStripClusters.clone()
+calZeroBiasClusters = siStripClusters.clone()
 calZeroBiasClusters.Clusterizer.QualityLabel = 'unbiased'
 
 # Not persistent collections needed by the filters in the AlCaReco DQM
