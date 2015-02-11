@@ -82,6 +82,12 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
         testPrimaryVertexCompatibilty=true;
         recoVertexToken=consumes<reco::VertexCollection>(primaryVertexTag);
     }
+
+    //make sure that only one test is performed
+    if (testBeamspotCompatibility && testPrimaryVertexCompatibilty)
+    {
+        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer","Either 'beamSpot' or 'primaryVertex' compatiblity should be configured; not both");
+    }
     
     // The name of the hit producer
     edm::InputTag recHitTag = conf.getParameter<edm::InputTag>("recHits");
@@ -112,6 +118,25 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     originpTMin = conf.getParameter<double>("originpTMin");
     nSigmaZ = conf.getParameter<double>("nSigmaZ");
 
+    //make sure that only one cut is configured
+    if (originHalfLength>0 && nSigmaZ>0)
+    {
+        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer","Either 'originHalfLength' or 'nSigmaZ' selection should be configured; not both. Deactivate one (or both) by setting it to <0.");
+    }
+
+    //make sure that performance cuts are not interfering with selection on reconstruction
+    if ((originpTMin>0 && simTrack_pTMin>0) && (originpTMin>simTrack_pTMin))
+    {
+        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer","Performance cut on SimTrack pT is lower than on pT estimate from seed.");
+    }
+    if ((originHalfLength>0 && simTrack_maxZ0>0) && (originHalfLength>simTrack_maxZ0))
+    {
+        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer","Performance cut on SimTrack dz is lower than on dz estimate from seed.");
+    }
+    if ((originRadius>0 && simTrack_maxD0>0) && (originRadius>simTrack_maxD0))
+    {
+        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer","Performance cut on SimTrack dxy is lower than on dxy estimate from seed.");
+    }
     simTrackToken = consumes<edm::SimTrackContainer>(edm::InputTag("famosSimHits"));
     simVertexToken = consumes<edm::SimVertexContainer>(edm::InputTag("famosSimHits"));
 }
@@ -141,7 +166,7 @@ bool
 TrajectorySeedProducer::passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex) const
 {
     //require min pT of the simtrack
-    if ( theSimTrack.momentum().Perp2() < simTrack_pTMin*simTrack_pTMin)
+    if ((simTrack_pTMin>0) && ( theSimTrack.momentum().Perp2() < simTrack_pTMin*simTrack_pTMin))
     {
         return false;
     }
@@ -179,18 +204,18 @@ TrajectorySeedProducer::passSimTrackQualityCuts(const SimTrack& theSimTrack, con
             origins.push_back(&(*primaryVertices)[iv].position());
         }
     }
-    if (origins.size()==0)
+    if (origins.size()==0 || ((simTrack_maxD0<0) && (simTrack_maxZ0<0)))
     {
         return true;
     }
     //only one possible origin is required to succeed
     for (unsigned int i = 0; i < origins.size(); ++i)
     {
-        if ( theParticle.xyImpactParameter(origins[i]->X(),origins[i]->Y()) > simTrack_maxD0 )
+        if ((simTrack_maxD0>0.0) && ( theParticle.xyImpactParameter(origins[i]->X(),origins[i]->Y()) > simTrack_maxD0 ))
         {
             continue;
         }
-        if ( fabs( theParticle.zImpactParameter(origins[i]->X(),origins[i]->Y()) - origins[i]->Z()) > simTrack_maxZ0)
+        if ((simTrack_maxZ0>0.0) && ( fabs( theParticle.zImpactParameter(origins[i]->X(),origins[i]->Y()) - origins[i]->Z()) > simTrack_maxZ0))
         {
             continue;
         }
@@ -533,22 +558,25 @@ TrajectorySeedProducer::compatibleWithBeamSpot(
        - track vertex z coordinate is z coordinate of closest approach of
     track to (x,y) = (0,0)
     */
-    bool intersect = myPart.propagateToBeamCylinder(thePos1,originRadius*1.);
-    if ( !intersect )
+    if (originRadius>0)
     {
-        return false;
+        bool intersect = myPart.propagateToBeamCylinder(thePos1,originRadius*1.);
+        if ( !intersect )
+        {
+            return false;
+        }
     }
 
     // Check if the constraints are satisfied
     // 1. pT at cylinder with radius originRadius
-    if ( myPart.Pt() < originpTMin )
+    if ((originpTMin>0) && ( myPart.Pt() < originpTMin ))
     {
         return false;
     }
 
     // 2. Z compatible with beam spot size
-    double zConstraint = std::min(originHalfLength,beamSpot->sigmaZ()*nSigmaZ);
-    if ( fabs(myPart.Z()-beamSpot->position().Z()) > zConstraint )
+    double zConstraint = std::max(originHalfLength,beamSpot->sigmaZ()*nSigmaZ);
+    if ((zConstraint>0) && ( fabs(myPart.Z()-beamSpot->position().Z()) > zConstraint ))
     {
         return false;
     }
@@ -565,7 +593,7 @@ TrajectorySeedProducer::compatibleWithPrimaryVertex(
 {
 
     unsigned int nVertices = primaryVertices->size();
-    if ( nVertices==0 || originHalfLength < 0.0 || nSigmaZ < 0.0)
+    if ( nVertices==0 || ((originHalfLength < 0.0) && (nSigmaZ < 0.0)))
     {
         return true;
     }
@@ -584,8 +612,7 @@ TrajectorySeedProducer::compatibleWithPrimaryVertex(
         double R1 = std::sqrt ( (gpos1.x()-xV)*(gpos1.x()-xV) + (gpos1.y()-yV)*(gpos1.y()-yV) );
         double R2 = std::sqrt ( (gpos2.x()-xV)*(gpos2.x()-xV) + (gpos2.y()-yV)*(gpos2.y()-yV) );
 
-        double zConstraint = std::min(originHalfLength,vertex.zError()*nSigmaZ);
-
+        double zConstraint = std::max(originHalfLength,vertex.zError()*nSigmaZ);
         //inner hit must be within a sort of pyramid using
         //the outer hit and the cylinder around the PV
         double checkRZ1 = forward ?
