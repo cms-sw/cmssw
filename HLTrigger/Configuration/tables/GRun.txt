@@ -45,7 +45,7 @@ HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_v*		# JIRA: CMSHLT-226 (only for 7e33)
 #HLT_CaloJet260_v*					# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun
 #HLT_HT650_v*						# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun
 
-HLT_PFJet40_v*						# JIRA: CMSHLT-123
+HLT_PFJet40_v*						# JIRA: CMSHLT-123, mod. CMSHLT-202
 HLT_PFJet60_v*						# JIRA: CMSHLT-123
 HLT_PFJet80_v*						# JIRA: CMSHLT-123
 HLT_PFJet140_v*						# JIRA: CMSHLT-123
@@ -194,7 +194,7 @@ HLT_PFMET120_NoiseCleaned_BTagCSV07_v*				# JIRA: CMSHLT-105
 
 HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v*				# JIRA: CMSHLT-121, mod. CMSHLT-179
 
-HLT_PFMET120_NoiseCleaned_Mu5_v*				# JIRA: CMSHLT-120
+HLT_PFMET120_NoiseCleaned_Mu5_v*				# JIRA: CMSHLT-120, mod. CMSHLT-190
 
 HLT_Mu8_TrkIsoVVL_v*						# JIRA: CMSHLT-129
 HLT_Mu17_TrkIsoVVL_v*						# JIRA: CMSHLT-129
@@ -389,6 +389,8 @@ HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_v*			# JIRA: CMSHLT-226 (only for 7e33)
 #HLT_PixelTracks_Multiplicity160_v* 				# JIRA: CMSHLT-150 (for low PU runs)
 
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
+
+HLT_Random_v*							# JIRA: CMSHLT-244
 
 HLT_Physics_v*							# skim
 
