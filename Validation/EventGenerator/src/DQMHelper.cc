@@ -10,11 +10,8 @@ DQMHelper::~DQMHelper(){
 }
 
 MonitorElement* DQMHelper::book1dHisto(const std::string &name,const std::string &title,int n,double xmin,double xmax){
-  std::cout << name << " " << title << std::endl;
   MonitorElement* dqm=ibooker->book1D(name,title,n,xmax,xmax);
-  std::cout <<"A" << std::endl;
   dqm->getTH1()->Sumw2();
-  std::cout <<"B" << std::endl;
   return dqm;
 }
 
