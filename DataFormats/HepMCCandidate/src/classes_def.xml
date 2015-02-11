@@ -23,7 +23,7 @@
   <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::GenParticleRefVector>" />
   <class name="edm::reftobase::RefVectorHolder<reco::GenParticleRefVector>" />
   <class name="reco::GenStatusFlags"  ClassVersion="10">
-   <version ClassVersion="10" checksum="1579821229"/>
+   <version ClassVersion="10" checksum="3329737097"/>
   </class>    
   <class name="reco::PdfInfo"  ClassVersion="10">
    <version ClassVersion="10" checksum="1002280074"/>
