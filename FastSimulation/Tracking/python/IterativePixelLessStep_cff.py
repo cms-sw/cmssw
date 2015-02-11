@@ -34,9 +34,8 @@ iterativePixelLessSeeds.primaryVertex = 'none'
 #                                     'TID1_neg+TID2_neg','TID2_neg+TID3_neg',
 #                                     'TEC1_neg+TEC2_neg','TEC2_neg+TEC3_neg','TEC3_neg+TEC4_neg','TEC3_neg+TEC5_neg','TEC4_neg+TEC5_neg']
 
-from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
-from RecoTracker.IterativeTracking.PixelLessStep_cff import pixelLessStepSeedLayers
-iterativePixelLessSeeds.layerList = pixelLessStepSeedLayers.layerList
+from RecoTracker.IterativeTracking.PixelLessStep_cff import pixelLessStepSeedLayers as _pixelLessStepSeedLayers
+iterativePixelLessSeeds.layerList = _pixelLessStepSeedLayers.layerList
 
 # candidate producer
 #from FastSimulation.Tracking.IterativeFourthCandidateProducer_cff import *
