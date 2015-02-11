@@ -198,19 +198,29 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
         for (size_t i = 0; i < sources.size(); i++) {
 	  std::string source = sources[i];
 
-	  if ( !( TString(objStr).Contains("MET") || TString(objStr).Contains("MHT") ) || source!="gen" ) {
-	    bookHist(iBooker, source, objStr, "MaxPt1");
-	  }
-
-	  if ( !( TString(objStr).Contains("MET") || TString(objStr).Contains("MHT") ) ) { 
-	    bookHist(iBooker, source, objStr, "Eta");
-	    bookHist(iBooker, source, objStr, "Phi");
-	    bookHist(iBooker, source, objStr, "MaxPt2");
-	  }
-	  else { // MET or MHT case
-	    if (source == "gen") continue; // gen {any kind of}MET doesn't make sense. 
-	    else bookHist(iBooker, source, objStr, "SumEt");
-	  }
+          if ( source == "gen" ) {
+            if ( TString(objStr).Contains("MET") ||
+                 TString(objStr).Contains("MHT") ||
+                 TString(objStr).Contains("Jet")    ) {
+              continue;
+            } else {
+              bookHist(iBooker, source, objStr, "MaxPt1");
+              bookHist(iBooker, source, objStr, "MaxPt2");
+              bookHist(iBooker, source, objStr, "Eta");
+              bookHist(iBooker, source, objStr, "Phi");
+            }
+          } else { // reco
+            if ( TString(objStr).Contains("MET") ||
+                 TString(objStr).Contains("MHT")    ) {
+              bookHist(iBooker, source, objStr, "MaxPt1");
+              bookHist(iBooker, source, objStr, "SumEt");
+            } else {
+              bookHist(iBooker, source, objStr, "MaxPt1");
+              bookHist(iBooker, source, objStr, "MaxPt2");
+              bookHist(iBooker, source, objStr, "Eta");
+              bookHist(iBooker, source, objStr, "Phi");
+            }
+          }
 
         }
     } // closes loop in _recLabels
@@ -332,6 +342,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 {
     LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::analyze()";
 
+    if(verbose>2) std::cerr << "### Category : " << _analysisname << std::endl;
     // Loop over _recLabels to make sure everything is alright.
     /*
     std::cout << "Now printing the _recLabels" << std::endl;
@@ -375,7 +386,9 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 
         const std::string objTypeStr = EVTColContainer::getTypeString(it->first);
         // genAnyMET doesn't make sense. No need their matchesGens
-        if ( TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ) continue;
+        if ( TString(objTypeStr).Contains("MET") || 
+             TString(objTypeStr).Contains("MHT") ||
+             TString(objTypeStr).Contains("Jet")   ) continue;
 
         // Now loop over the genParticles, and apply the operator() over each of them.
         // Fancy syntax: for objects X and Y, X.operator()(Y) is the same as X(Y).
@@ -437,8 +450,8 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
     //////////////// 
     /// GEN CASE ///
     //////////////// 
-    {
-      if(matchesGen.size() < _minCandidates) return; // FIXME: A bug is potentially here: what about the mixed channels?
+    if(verbose>2) std::cerr << "### matchesGen.size() = " << matchesGen.size() << std::endl;
+    if( matchesGen.size() >= _minCandidates) {  // FIXME: A bug is potentially here: what about the mixed channels?
       // Okay, there are enough candidates. Move on!
 
       // Filling the gen/reco objects (eff-denominators):
@@ -469,7 +482,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
         // Cut for the pt-leading object 
         StringCutObjectSelector<reco::LeafCandidate> select( _genCut_leading[objType] );
         if ( !select( matchesGen[j] ) ) { // No interest case
-          isPassedLeadingCut = false;     // Will skip the following matchesReco loop
+          isPassedLeadingCut = false;     // Will skip the following matchesGen loop
           matchesGen.clear();
           break;
         }
@@ -508,7 +521,6 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 
 	this->fillHist("gen", objTypeStr, "Eta", eta);
 	this->fillHist("gen", objTypeStr, "Phi", phi);
-	//this->fillHist("gen", objTypeStr, "SumEt", theSumEt);
 
       } // Closes loop in gen
 	
@@ -526,6 +538,8 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
     ///////////////// 
     /// RECO CASE ///
     ///////////////// 
+    if(verbose>2) std::cerr << "### matchesReco.size() = " << matchesReco.size() << std::endl;
+
     {
 	if(matchesReco.size() < _minCandidates) return; // FIXME: A bug is potentially here: what about the mixed channels?
 
@@ -574,7 +588,6 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	    
 	    float pt  = matchesReco[j].pt();
 
-	    //if ((*countobjects)[objType] == 0) {
 	    if (countobjects[objType] == 0) {
 		this->fillHist("rec", objTypeStr, "MaxPt1", pt);
 		++(countobjects[objType]);
