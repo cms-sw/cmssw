@@ -61,6 +61,13 @@ jetDQMAnalyzerAk4CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdProducer","cutbasedDiscriminant"),
     InputMVAPUIDValue = cms.InputTag("pileupJetIdProducer","fullId"),
     InputCutPUIDValue = cms.InputTag("pileupJetIdProducer","cutbasedId"),
+
+    InputQGMultiplicity = cms.InputTag("QGTagger", "mult"),
+    InputQGLikelihood = cms.InputTag("QGTagger", "qgLikelihood"),
+    InputQGPtDToken = cms.InputTag("QGTagger", "ptD"),
+    InputQGAxis2 = cms.InputTag("QGTagger", "axis2"),
+
+    fillCHShistos =cms.bool(False),
     #
     # For jetAnalysis
     #
@@ -131,6 +138,7 @@ jetDQMAnalyzerAk4PFCHSCleaned=jetDQMAnalyzerAk4PFCleaned.clone(
     InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdProducerChs","cutbasedDiscriminant"),
     InputMVAPUIDValue = cms.InputTag("pileupJetIdProducerChs","fullId"),
     InputCutPUIDValue = cms.InputTag("pileupJetIdProducerChs","cutbasedId"),
+    fillCHShistos =cms.bool(True),
 )
 
 jetDQMAnalyzerAk4PFCHSUncleanedMiniAOD=jetDQMAnalyzerAk4PFUncleaned.clone(

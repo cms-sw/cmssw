@@ -80,11 +80,11 @@ process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep
 process.TrackerTrackHitFilter.detsToIgnore = [
      # see https://hypernews.cern.ch/HyperNews/CMS/get/tracker-performance/484.html
     # TIB / TID
-    369136710, 369136714, 402668822,
+    #369136710, 369136714, 402668822,
     # TOB
-    436310989, 436310990, 436299301, 436299302,
+    #436310989, 436310990, 436299301, 436299302,
     # TEC
-    470340521, 470063045, 470063046, 470114669, 470114670, 470161093, 470161094, 470164333, 470164334, 470312005, 470312006, 470312009, 470067405, 470067406, 470128813
+    #470340521, 470063045, 470063046, 470114669, 470114670, 470161093, 470161094, 470164333, 470164334, 470312005, 470312006, 470312009, 470067405, 470067406, 470128813
 ]
 process.TrackerTrackHitFilter.replaceWithInactiveHits = True
 process.TrackerTrackHitFilter.stripAllInvalidHits = False
@@ -157,7 +157,7 @@ process.load("Configuration.Geometry.GeometryDB_cff")
  ##
  ## Magnetic Field
  ##
-process.load("Configuration/StandardSequences/MagneticField_38T_cff")
+process.load("Configuration/StandardSequences/MagneticField_.oO[magneticField]Oo._cff")
 
 .oO[condLoad]Oo.
 
@@ -206,20 +206,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("OfflineValidator") 
    
-process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
+.oO[datasetDefinition]Oo.
 
 process.options = cms.untracked.PSet(
    wantSummary = cms.untracked.bool(False),
    Rethrow = cms.untracked.vstring("ProductNotFound"), # make this exception fatal
-#   fileMode  =  cms.untracked.string('NOMERGE') # no ordering needed, but calls endRun/beginRun etc. at file boundaries
+   fileMode  =  cms.untracked.string('NOMERGE') # no ordering needed, but calls endRun/beginRun etc. at file boundaries
 )
-
- ##
- ## Maximum number of Events
- ##
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(.oO[nEvents]Oo.)
- )
 
  ##   
  ## Messages & Convenience
@@ -270,7 +263,7 @@ process.TrackerTrackHitFilter.stripAllInvalidHits = False
 process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits = True
-process.TrackerTrackHitFilter.TrackAngleCut = 0.1# in rads, starting from the module surface; small value since we have bows!
+process.TrackerTrackHitFilter.TrackAngleCut = 0.35 # in rads, starting from the module surface
 process.TrackerTrackHitFilter.usePixelQualityFlag = True #False
 
 #-- TrackProducer
@@ -310,7 +303,7 @@ process.load("Configuration.Geometry.GeometryDB_cff")
 ##
 ## Magnetic Field
 ##
-process.load("Configuration/StandardSequences/MagneticField_38T_cff")
+process.load("Configuration/StandardSequences/MagneticField_.oO[magneticField]Oo._cff")
 
 .oO[LorentzAngleTemplate]Oo.
   
@@ -357,20 +350,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("OfflineValidator") 
    
-process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
+.oO[datasetDefinition]Oo.
 
 process.options = cms.untracked.PSet(
    wantSummary = cms.untracked.bool(False),
    Rethrow = cms.untracked.vstring("ProductNotFound"), # make this exception fatal
    fileMode  =  cms.untracked.string('NOMERGE') # no ordering needed, but calls endRun/beginRun etc. at file boundaries
 )
-
- ##
- ## Maximum number of Events
- ## 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(.oO[nEvents]Oo.)
- )
 
  ##   
  ## Messages & Convenience
@@ -383,160 +369,6 @@ reportEvery = cms.untracked.int32(1000) # every 1000th only
 ))
 process.MessageLogger.statistics.append('cout')
 
-
-#-- Track hit filter
-# TrackerTrackHitFilter takes as input the tracks/trajectories coming out from TrackRefitter1
-process.load("RecoTracker.FinalTrackSelectors.TrackerTrackHitFilter_cff")
-process.TrackerTrackHitFilter.src = 'TrackRefitter1'
-
-#-- Alignment Track Selection
-process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
-process.AlignmentTrackSelector.src = 'HitFilteredTracks'
-process.AlignmentTrackSelector.filter = True
-
-.oO[TrackSelectionTemplate]Oo.
-# Override the pmin setting since not meaningful with B=0T
-process.AlignmentTrackSelector.pMin    = 4.
-
-#### momentum constraint for 0T
-# First momentum constraint
-process.load("RecoTracker.TrackProducer.MomentumConstraintProducer_cff")
-import RecoTracker.TrackProducer.MomentumConstraintProducer_cff
-process.AliMomConstraint1 = RecoTracker.TrackProducer.MomentumConstraintProducer_cff.MyMomConstraint.clone()
-process.AliMomConstraint1.src = '.oO[TrackCollection]Oo.'
-process.AliMomConstraint1.fixedMomentum = 5.0
-process.AliMomConstraint1.fixedMomentumError = 0.005
-
-# Second momentum constraint
-#process.load("RecoTracker.TrackProducer.MomentumConstraintProducer_cff")
-#import RecoTracker.TrackProducer.MomentumConstraintProducer_cff
-#process.AliMomConstraint2 = RecoTracker.TrackProducer.MomentumConstraintProducer_cff.MyMomConstraint.clone()
-#process.AliMomConstraint2.src = 'AlignmentTrackSelector'
-#process.AliMomConstraint2.fixedMomentum = 5.0
-#process.AliMomConstraint2.fixedMomentumError = 0.005
-   
-
-
-#now we give the TrackCandidate coming out of the TrackerTrackHitFilter to the track producer
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff
-process.HitFilteredTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone(
-    src = 'TrackerTrackHitFilter'
-###    ,
-###    TrajectoryInEvent = True,
-###    TTRHBuilder = "WithAngleAndTemplate"    
-)
-
- ##
- ## Load and Configure TrackRefitter1
- ##
-
-process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-
-#############
-# parameters for TrackRefitter
-#process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
-import RecoTracker.TrackProducer.TrackRefitters_cff
-process.TrackRefitter1 = process.TrackRefitterP5.clone(
-   src =  '.oO[TrackCollection]Oo.', #'AliMomConstraint1',
-   TrajectoryInEvent = True,
-   TTRHBuilder = "WithAngleAndTemplate",
-   NavigationSchool = "",
-   constraint = 'momentum', ### SPECIFIC FOR CRUZET
-   srcConstr='AliMomConstraint1' ### SPECIFIC FOR CRUZET$works only with tag V02-10-02 TrackingTools/PatternTools / or CMSSW >=31X
-)
-
-process.TrackRefitter2 = process.TrackRefitter1.clone(
-    src = 'AlignmentTrackSelector',
-    srcConstr='AliMomConstraint1',
-    constraint = 'momentum' ### SPECIFIC FOR CRUZET
-)
-
-
- ##
- ## Get the BeamSpot
- ##
-process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
- 
- ##
- ## GlobalTag Conditions (if needed)
- ##
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
-# process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
-
-.oO[LorentzAngleTemplate]Oo.
-  
- ##
- ## Geometry
- ##
-process.load("Configuration.Geometry.GeometryDB_cff")
- 
- ##
- ## Magnetic Field
- ##
-#process.load("Configuration/StandardSequences/MagneticField_38T_cff")
-process.load("Configuration.StandardSequences.MagneticField_0T_cff") # 0T runs
-
-.oO[condLoad]Oo.
-
-## to apply misalignments
-#TrackerDigiGeometryESModule.applyAlignment = True
-   
- ##
- ## Load and Configure OfflineValidation
- ##
-process.load("Alignment.OfflineValidation.TrackerOfflineValidation_.oO[offlineValidationMode]Oo._cff")
-process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..Tracks = 'TrackRefitter2'
-process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 'TrackRefitter2'
-process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = cms.bool(.oO[offlineModuleLevelHistsTransient]Oo.)
-process.TFileService.fileName = '.oO[outputFile]Oo.'
-
- ##
- ## PATH
- ##
-
-process.p = cms.Path(process.offlineBeamSpot*process.AliMomConstraint1*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
-                     *process.AlignmentTrackSelector*process.TrackRefitter2*process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo.)
-
-"""
-
-
-######################################################################
-######################################################################
-CosmicsAt0TParallelOfflineValidation="""
-import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("OfflineValidator") 
-   
-process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
-
-process.options = cms.untracked.PSet(
-   wantSummary = cms.untracked.bool(False),
-   Rethrow = cms.untracked.vstring("ProductNotFound"), # make this exception fatal
-   fileMode  =  cms.untracked.string('NOMERGE') # no ordering needed, but calls endRun/beginRun etc. at file boundaries
-)
-
- ##
- ## Maximum number of Events
- ## and number of events to be skipped
- ## in case of parallel job nIndex
- ## .oO[nIndex]Oo * .oO[nEvents]Oo/.oO[nJobs]Oo
- ## 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(.oO[nEvents]Oo./.oO[nJobs]Oo.)
- )
-process.source.skipEvents=cms.untracked.uint32(.oO[nIndex]Oo.*.oO[nEvents]Oo./.oO[nJobs]Oo.)
-
- ##   
- ## Messages & Convenience
- ##
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool(True))
-process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
-reportEvery = cms.untracked.int32(1000) # every 1000th only
-#    limit = cms.untracked.int32(10)       # or limit to 10 printouts...
-))
-process.MessageLogger.statistics.append('cout')
 
 #-- Track hit filter
 # TrackerTrackHitFilter takes as input the tracks/trajectories coming out from TrackRefitter1
@@ -568,21 +400,22 @@ process.AliMomConstraint1.fixedMomentumError = 0.005
 #process.AliMomConstraint2.src = 'AlignmentTrackSelector'
 #process.AliMomConstraint2.fixedMomentum = 5.0
 #process.AliMomConstraint2.fixedMomentumError = 0.005
+   
+
 
 #now we give the TrackCandidate coming out of the TrackerTrackHitFilter to the track producer
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff
 process.HitFilteredTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone(
-src = 'TrackerTrackHitFilter',
-NavigationSchool = cms.string(''),
-TTRHBuilder = "WithAngleAndTemplate"
-### ,
-### TrajectoryInEvent = True,
-### TTRHBuilder = "WithAngleAndTemplate"
+    src = 'TrackerTrackHitFilter',
+    NavigationSchool = "",
+###    TrajectoryInEvent = True,
+    TTRHBuilder = "WithAngleAndTemplate"    
 )
 
-##
-## Load and Configure TrackRefitter1
-##
+ ##
+ ## Load and Configure TrackRefitter1
+ ##
+
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 
 #############
@@ -590,217 +423,68 @@ process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 #process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
 import RecoTracker.TrackProducer.TrackRefitters_cff
 process.TrackRefitter1 = process.TrackRefitterP5.clone(
-src = '.oO[TrackCollection]Oo.', #'AliMomConstraint1',
-TrajectoryInEvent = True,
-TTRHBuilder = "WithAngleAndTemplate",
-NavigationSchool = "",
-constraint = 'momentum', ### SPECIFIC FOR CRUZET
-srcConstr='AliMomConstraint1' ### SPECIFIC FOR CRUZET$works only with tag V02-10-02 TrackingTools/PatternTools / or CMSSW >=31X
+   src =  '.oO[TrackCollection]Oo.', #'AliMomConstraint1',
+   TrajectoryInEvent = True,
+   TTRHBuilder = "WithAngleAndTemplate",
+   NavigationSchool = ""
+   #constraint = 'momentum', ### SPECIFIC FOR CRUZET
+   #srcConstr='AliMomConstraint1' ### SPECIFIC FOR CRUZET$works only with tag V02-10-02 TrackingTools/PatternTools / or CMSSW >=31X
 )
 
 process.TrackRefitter2 = process.TrackRefitter1.clone(
-src = 'AlignmentTrackSelector',
-srcConstr='AliMomConstraint1',
-constraint = 'momentum' ### SPECIFIC FOR CRUZET
+    src = 'AlignmentTrackSelector',
+    srcConstr='AliMomConstraint1',
+    #constraint = 'momentum' ### SPECIFIC FOR CRUZET
 )
 
-
-##
-## Get the BeamSpot
-##
-process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-
-##
-## GlobalTag Conditions (if needed)
-##
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
-# process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
-.oO[LorentzAngleTemplate]Oo.
-
-##
-## Geometry
-##
-process.load("Configuration.Geometry.GeometryRecoDB_cff")
-
-##
-## Magnetic Field
-##
-#process.load("Configuration/StandardSequences/MagneticField_38T_cff")
-process.load("Configuration.StandardSequences.MagneticField_0T_cff") # 0T runs
-.oO[condLoad]Oo.
-
-
-##
-## Load and Configure OfflineValidation
-##
-process.load("Alignment.OfflineValidation.TrackerOfflineValidation_.oO[offlineValidationMode]Oo._cff")
-process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..Tracks = 'TrackRefitter2'
-process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 'TrackRefitter2'
-process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = cms.bool(.oO[offlineModuleLevelHistsTransient]Oo.)
-process.TFileService.fileName = '.oO[outputFile]Oo.'
-
-##
-## PATH
-##
-process.p = cms.Path(process.offlineBeamSpot*process.AliMomConstraint1*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
-*process.AlignmentTrackSelector*process.TrackRefitter2*process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo.)
-"""
-
-
-######################################################################
-######################################################################
-CosmicsParallelOfflineValidation="""
-import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("OfflineValidator") 
-   
-process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
-
-process.options = cms.untracked.PSet(
-   wantSummary = cms.untracked.bool(False),
-   Rethrow = cms.untracked.vstring("ProductNotFound"), # make this exception fatal
-   fileMode  =  cms.untracked.string('NOMERGE') # no ordering needed, but calls endRun/beginRun etc. at file boundaries
-)
-
- ##
- ## Maximum number of Events
- ## and number of events to be skipped
- ## in case of parallel job nIndex
- ## .oO[nIndex]Oo * .oO[nEvents]Oo/.oO[nJobs]Oo
- ## 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(.oO[nEvents]Oo./.oO[nJobs]Oo.)
- )
-process.source.skipEvents=cms.untracked.uint32(.oO[nIndex]Oo.*.oO[nEvents]Oo./.oO[nJobs]Oo.)
-
- ##   
- ## Messages & Convenience
- ##
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool(True))
-process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
-reportEvery = cms.untracked.int32(1000) # every 1000th only
-#    limit = cms.untracked.int32(10)       # or limit to 10 printouts...
-))
-process.MessageLogger.statistics.append('cout')
 
  ##
  ## Get the BeamSpot
  ##
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-
- #-- Refitting
-process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-
-##-- Track hit filter
-## TrackerTrackHitFilter takes as input the tracks/trajectories coming out from TrackRefitter1
-#process.load("RecoTracker.FinalTrackSelectors.TrackerTrackHitFilter_cff")
-#process.TrackerTrackHitFilter.src = 'TrackRefitter1'
-
-#-- 1st refit from file
-process.TrackRefitter1 = process.TrackRefitterP5.clone(
-        src ='ALCARECOTkAlCosmicsCTF0T',
-        NavigationSchool = cms.string(''),
-        TrajectoryInEvent = True,
-        TTRHBuilder = "WithAngleAndTemplate" #default
-        )
-
-#-- 2nd fit for AlignmentProducer
-process.TrackRefitter2 = process.TrackRefitter1.clone(
-       src = 'AlignmentTrackSelector'
-       )
-                            
-#-- Filter bad hits
-process.load("RecoTracker.FinalTrackSelectors.TrackerTrackHitFilter_cff")
-process.TrackerTrackHitFilter.src = 'TrackRefitter1'
-process.TrackerTrackHitFilter.useTrajectories= True  # this is needed only if you require some selections; but it will work even if you don't ask for them
-process.TrackerTrackHitFilter.minimumHits = 8
-process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep TIB","keep TID","keep TOB","keep TEC")
-process.TrackerTrackHitFilter.detsToIgnore = []
-process.TrackerTrackHitFilter.replaceWithInactiveHits = True
-process.TrackerTrackHitFilter.stripAllInvalidHits = False
-process.TrackerTrackHitFilter.rejectBadStoNHits = True
-process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
-process.TrackerTrackHitFilter.rejectLowAngleHits = True
-process.TrackerTrackHitFilter.TrackAngleCut = 0.35# in rads, starting from the module surface
-process.TrackerTrackHitFilter.usePixelQualityFlag = True #False
-
-#-- TrackProducer
-## now we give the TrackCandidate coming out of the TrackerTrackHitFilter to the track producer
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff
-process.TrackCandidateFitter = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone(
-src = 'TrackerTrackHitFilter',
-     NavigationSchool = cms.string(''),
-     TTRHBuilder = "WithAngleAndTemplate"
-     )
-#-- Filter tracks for alignment
-process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
-process.AlignmentTrackSelector.src = 'TrackCandidateFitter'
-process.AlignmentTrackSelector.applyBasicCuts = True
-process.AlignmentTrackSelector.pMin = 4
-process.AlignmentTrackSelector.pMax = 9999.
-process.AlignmentTrackSelector.ptMin = 0
-process.AlignmentTrackSelector.etaMin = -999.
-process.AlignmentTrackSelector.etaMax = 999.
-process.AlignmentTrackSelector.nHitMin = 8
-process.AlignmentTrackSelector.nHitMin2D = 2
-process.AlignmentTrackSelector.chi2nMax = 99.
-process.AlignmentTrackSelector.applyMultiplicityFilter = True# False
-process.AlignmentTrackSelector.maxMultiplicity = 1
-
-## GlobalTag Conditions (if needed)
-##
+ 
+ ##
+ ## GlobalTag Conditions (if needed)
+ ##
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
+# process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
 
-
-##
-## Geometry
-##
-process.load("Configuration.StandardSequences.GeometryDB_cff")
-
-##
-## Magnetic Field
-##
-process.load("Configuration/StandardSequences/MagneticField_38T_cff")
-
-         
 .oO[LorentzAngleTemplate]Oo.
   
  ##
  ## Geometry
  ##
-#process.load("Configuration.Geometry.GeometryRecoDB_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
  
+ ##
+ ## Magnetic Field
+ ##
+process.load("Configuration.StandardSequences.MagneticField_.oO[magneticField]Oo._cff")
+
 .oO[condLoad]Oo.
 
+## to apply misalignments
+#TrackerDigiGeometryESModule.applyAlignment = True
+   
  ##
  ## Load and Configure OfflineValidation
  ##
-
 process.load("Alignment.OfflineValidation.TrackerOfflineValidation_.oO[offlineValidationMode]Oo._cff")
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..Tracks = 'TrackRefitter2'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 'TrackRefitter2'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = cms.bool(.oO[offlineModuleLevelHistsTransient]Oo.)
-process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelProfiles = cms.bool(.oO[offlineModuleLevelProfiles]Oo.)
 process.TFileService.fileName = '.oO[outputFile]Oo.'
 
  ##
  ## PATH
  ##
 
-process.p = cms.Path( process.offlineBeamSpot
-     *process.TrackRefitter1
-     *process.TrackerTrackHitFilter
-     *process.TrackCandidateFitter
-     *process.AlignmentTrackSelector
-     *process.TrackRefitter2
-     *process.seqTrackerOfflineValidationStandalone
-)
-
+process.p = cms.Path(process.offlineBeamSpot*process.AliMomConstraint1*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
+                     *process.AlignmentTrackSelector*process.TrackRefitter2*process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo.)
 
 """
+
 
 ######################################################################
 ######################################################################
@@ -1365,7 +1049,7 @@ process.load("Configuration.Geometry.GeometryDB_cff")
  ##
  ## Magnetic Field
  ##
-process.load("Configuration/StandardSequences/MagneticField_38T_cff")
+process.load("Configuration/StandardSequences/MagneticField_.oO[magneticField]Oo._cff")
 
 .oO[condLoad]Oo.
 
