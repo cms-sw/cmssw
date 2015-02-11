@@ -86,7 +86,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     //make sure that only one test is performed
     if (testBeamspotCompatibility && testPrimaryVertexCompatibilty)
     {
-        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer","Either 'beamSpot' or 'primaryVertex' compatiblity should be configured; not both");
+        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Either 'beamSpot' or 'primaryVertex' compatiblity should be configured; not both");
     }
     
     // The name of the hit producer
@@ -121,21 +121,21 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     //make sure that only one cut is configured
     if (originHalfLength>0 && nSigmaZ>0)
     {
-        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer","Either 'originHalfLength' or 'nSigmaZ' selection should be configured; not both. Deactivate one (or both) by setting it to <0.");
+        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Either 'originHalfLength' or 'nSigmaZ' selection should be configured; not both. Deactivate one (or both) by setting it to <0.");
     }
 
     //make sure that performance cuts are not interfering with selection on reconstruction
     if ((originpTMin>0 && simTrack_pTMin>0) && (originpTMin>simTrack_pTMin))
     {
-        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer","Performance cut on SimTrack pT is lower than on pT estimate from seed.");
+        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack pT is lower than on pT estimate from seed.");
     }
     if ((originHalfLength>0 && simTrack_maxZ0>0) && (originHalfLength>simTrack_maxZ0))
     {
-        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer","Performance cut on SimTrack dz is lower than on dz estimate from seed.");
+        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack dz is lower than on dz estimate from seed.");
     }
     if ((originRadius>0 && simTrack_maxD0>0) && (originRadius>simTrack_maxD0))
     {
-        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer","Performance cut on SimTrack dxy is lower than on dxy estimate from seed.");
+        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack dxy is lower than on dxy estimate from seed.");
     }
     simTrackToken = consumes<edm::SimTrackContainer>(edm::InputTag("famosSimHits"));
     simVertexToken = consumes<edm::SimVertexContainer>(edm::InputTag("famosSimHits"));
