@@ -286,8 +286,11 @@ G4DecayTable*  CustomParticleFactory::getDecayTable(std::ifstream *configFile, i
   while(getline(*configFile,line)) {
     
     line.erase(0, line.find_first_not_of(" \t"));         // remove leading whitespace
-    if (line.length()==0 || line.at(0) == '#') continue;  // skip blank lines and comments
-    if (ToLower(line).find("block") < line.npos) {
+    if (line.length()==0) continue;                       // skip blank lines 
+    if (line.at(0) == '#' && 
+	ToLower(line).find("br")  < line.npos &&
+	ToLower(line).find("nda") < line.npos) continue;  // skip a comment of the form:  # BR  NDA  ID1  ID2
+    if (line.at(0) == '#') {                              // other comments signal the end of the decay block  
       edm::LogInfo("CustomPhysics") << " Finished the Decay Table " << std::endl;
       break;
     }
