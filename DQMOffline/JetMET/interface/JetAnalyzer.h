@@ -116,6 +116,12 @@ class JetAnalyzer : public DQMEDAnalyzer {
   edm::EDGetTokenT< edm::ValueMap<int> >cutBasedPUIDToken_;
   edm::EDGetTokenT< edm::ValueMap<int> >mvaPUIDToken_;
 
+  edm::EDGetTokenT< edm::ValueMap<int> > qgMultiplicityToken_;
+  edm::EDGetTokenT< edm::ValueMap<float> > qgLikelihoodToken_;
+  edm::EDGetTokenT< edm::ValueMap<float> > qgptDToken_;
+  edm::EDGetTokenT< edm::ValueMap<float> > qgaxis2Token_;
+
+
   //edm::EDGetTokenT<reco::JPTJetCollection>        jptJetsToken_;
 
   edm::InputTag inputJetIDValueMap;
@@ -276,7 +282,15 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mMediumMVAPUJIDPassFractionVSpt;
   MonitorElement* mTightMVAPUJIDPassFractionVSeta;
   MonitorElement* mTightMVAPUJIDPassFractionVSpt;
-  MonitorElement* mMVAPUJIDDiscriminant;
+  MonitorElement* mMVAPUJIDDiscriminant_lowPt_Barrel;
+  MonitorElement* mMVAPUJIDDiscriminant_lowPt_EndCap;
+  MonitorElement* mMVAPUJIDDiscriminant_lowPt_Forward;
+  MonitorElement* mMVAPUJIDDiscriminant_mediumPt_Barrel;
+  MonitorElement* mMVAPUJIDDiscriminant_mediumPt_EndCap;
+  MonitorElement* mMVAPUJIDDiscriminant_mediumPt_Forward;
+  MonitorElement* mMVAPUJIDDiscriminant_highPt_Barrel;
+  MonitorElement* mMVAPUJIDDiscriminant_highPt_EndCap;
+  MonitorElement* mMVAPUJIDDiscriminant_highPt_Forward;
 
   MonitorElement* mLooseCutPUJIDPassFractionVSeta;
   MonitorElement* mLooseCutPUJIDPassFractionVSpt;
@@ -284,7 +298,15 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mMediumCutPUJIDPassFractionVSpt;
   MonitorElement* mTightCutPUJIDPassFractionVSeta;
   MonitorElement* mTightCutPUJIDPassFractionVSpt;
-  MonitorElement* mCutPUJIDDiscriminant;
+  MonitorElement* mCutPUJIDDiscriminant_lowPt_Barrel;
+  MonitorElement* mCutPUJIDDiscriminant_lowPt_EndCap;
+  MonitorElement* mCutPUJIDDiscriminant_lowPt_Forward;
+  MonitorElement* mCutPUJIDDiscriminant_mediumPt_Barrel;
+  MonitorElement* mCutPUJIDDiscriminant_mediumPt_EndCap;
+  MonitorElement* mCutPUJIDDiscriminant_mediumPt_Forward;
+  MonitorElement* mCutPUJIDDiscriminant_highPt_Barrel;
+  MonitorElement* mCutPUJIDDiscriminant_highPt_EndCap;
+  MonitorElement* mCutPUJIDDiscriminant_highPt_Forward;
 
 
   //dijet analysis quantities
@@ -419,6 +441,15 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mPhEn_highPt_EndCap;
   MonitorElement* mElEn_highPt_EndCap;
   MonitorElement* mMuEn_highPt_EndCap;
+  MonitorElement* mMass_lowPt_Barrel;
+  MonitorElement* mMass_lowPt_EndCap;
+  MonitorElement* mMass_lowPt_Forward;
+  MonitorElement* mMass_mediumPt_Barrel;
+  MonitorElement* mMass_mediumPt_EndCap;
+  MonitorElement* mMass_mediumPt_Forward;
+  MonitorElement* mMass_highPt_Barrel;
+  MonitorElement* mMass_highPt_EndCap;
+  MonitorElement* mMass_highPt_Forward;
 
   MonitorElement*   mChMultiplicity_lowPt_EndCap;
   MonitorElement*   mNeutMultiplicity_lowPt_EndCap;
@@ -456,13 +487,45 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mNeutralMultiplicity;
   MonitorElement* mMuonMultiplicity;
 
-  MonitorElement* mMinorAxis;
-  MonitorElement* mMajorAxis;
-  MonitorElement* mpTD;
+  //it is there for ak4PFCHS
+  MonitorElement* mAxis2_lowPt_Barrel;
+  MonitorElement* mpTD_lowPt_Barrel;
+  MonitorElement* mMultiplicityQG_lowPt_Barrel;
+  MonitorElement* mqgLikelihood_lowPt_Barrel;
+  MonitorElement* mAxis2_mediumPt_Barrel;
+  MonitorElement* mpTD_mediumPt_Barrel;
+  MonitorElement* mMultiplicityQG_mediumPt_Barrel;
+  MonitorElement* mqgLikelihood_mediumPt_Barrel;
+  MonitorElement* mAxis2_highPt_Barrel;
+  MonitorElement* mpTD_highPt_Barrel;
+  MonitorElement* mMultiplicityQG_highPt_Barrel;
+  MonitorElement* mqgLikelihood_highPt_Barrel;
 
-  MonitorElement* mMinorAxis_highPt;
-  MonitorElement* mMajorAxis_highPt;
-  MonitorElement* mpTD_highPt;
+  MonitorElement* mAxis2_lowPt_EndCap;
+  MonitorElement* mpTD_lowPt_EndCap;
+  MonitorElement* mMultiplicityQG_lowPt_EndCap;
+  MonitorElement* mqgLikelihood_lowPt_EndCap;
+  MonitorElement* mAxis2_mediumPt_EndCap;
+  MonitorElement* mpTD_mediumPt_EndCap;
+  MonitorElement* mMultiplicityQG_mediumPt_EndCap;
+  MonitorElement* mqgLikelihood_mediumPt_EndCap;
+  MonitorElement* mAxis2_highPt_EndCap;
+  MonitorElement* mpTD_highPt_EndCap;
+  MonitorElement* mMultiplicityQG_highPt_EndCap;
+  MonitorElement* mqgLikelihood_highPt_EndCap;
+
+  MonitorElement* mAxis2_lowPt_Forward;
+  MonitorElement* mpTD_lowPt_Forward;
+  MonitorElement* mMultiplicityQG_lowPt_Forward;
+  MonitorElement* mqgLikelihood_lowPt_Forward;
+  MonitorElement* mAxis2_mediumPt_Forward;
+  MonitorElement* mpTD_mediumPt_Forward;
+  MonitorElement* mMultiplicityQG_mediumPt_Forward;
+  MonitorElement* mqgLikelihood_mediumPt_Forward;
+  MonitorElement* mAxis2_highPt_Forward;
+  MonitorElement* mpTD_highPt_Forward;
+  MonitorElement* mMultiplicityQG_highPt_Forward;
+  MonitorElement* mqgLikelihood_highPt_Forward;
   
   //new Plots with Res./ Eff. as function of neutral, charged &  em fraction
 
@@ -504,14 +567,14 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meNHFracBarrel_BXm2BXm1Empty;
   MonitorElement* meCHFracBarrel_BXm2BXm1Empty;
   MonitorElement* mePtBarrel_BXm2BXm1Empty;
-  MonitorElement* mePhFracEndcapMinus_BXm2BXm1Empty;
-  MonitorElement* meNHFracEndcapMinus_BXm2BXm1Empty;
-  MonitorElement* meCHFracEndcapMinus_BXm2BXm1Empty;
-  MonitorElement* mePtEndcapMinus_BXm2BXm1Empty;
-  MonitorElement* mePhFracEndcapPlus_BXm2BXm1Empty;
-  MonitorElement* meNHFracEndcapPlus_BXm2BXm1Empty;
-  MonitorElement* meCHFracEndcapPlus_BXm2BXm1Empty;
-  MonitorElement* mePtEndcapPlus_BXm2BXm1Empty;
+  MonitorElement* mePhFracEndCapMinus_BXm2BXm1Empty;
+  MonitorElement* meNHFracEndCapMinus_BXm2BXm1Empty;
+  MonitorElement* meCHFracEndCapMinus_BXm2BXm1Empty;
+  MonitorElement* mePtEndCapMinus_BXm2BXm1Empty;
+  MonitorElement* mePhFracEndCapPlus_BXm2BXm1Empty;
+  MonitorElement* meNHFracEndCapPlus_BXm2BXm1Empty;
+  MonitorElement* meCHFracEndCapPlus_BXm2BXm1Empty;
+  MonitorElement* mePtEndCapPlus_BXm2BXm1Empty;
   MonitorElement* meHFHFracMinus_BXm2BXm1Empty;
   MonitorElement* meHFEMFracMinus_BXm2BXm1Empty;
   MonitorElement* mePtForwardMinus_BXm2BXm1Empty;
@@ -524,14 +587,14 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meNHFracBarrel_BXm1Empty;
   MonitorElement* meCHFracBarrel_BXm1Empty;
   MonitorElement* mePtBarrel_BXm1Empty;
-  MonitorElement* mePhFracEndcapMinus_BXm1Empty;
-  MonitorElement* meNHFracEndcapMinus_BXm1Empty;
-  MonitorElement* meCHFracEndcapMinus_BXm1Empty;
-  MonitorElement* mePtEndcapMinus_BXm1Empty;
-  MonitorElement* mePhFracEndcapPlus_BXm1Empty;
-  MonitorElement* meNHFracEndcapPlus_BXm1Empty;
-  MonitorElement* meCHFracEndcapPlus_BXm1Empty;
-  MonitorElement* mePtEndcapPlus_BXm1Empty;
+  MonitorElement* mePhFracEndCapMinus_BXm1Empty;
+  MonitorElement* meNHFracEndCapMinus_BXm1Empty;
+  MonitorElement* meCHFracEndCapMinus_BXm1Empty;
+  MonitorElement* mePtEndCapMinus_BXm1Empty;
+  MonitorElement* mePhFracEndCapPlus_BXm1Empty;
+  MonitorElement* meNHFracEndCapPlus_BXm1Empty;
+  MonitorElement* meCHFracEndCapPlus_BXm1Empty;
+  MonitorElement* mePtEndCapPlus_BXm1Empty;
   MonitorElement* meHFHFracMinus_BXm1Empty;
   MonitorElement* meHFEMFracMinus_BXm1Empty;
   MonitorElement* mePtForwardMinus_BXm1Empty;
@@ -544,14 +607,14 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meNHFracBarrel_BXm2BXm1Filled;
   MonitorElement* meCHFracBarrel_BXm2BXm1Filled;
   MonitorElement* mePtBarrel_BXm2BXm1Filled;
-  MonitorElement* mePhFracEndcapMinus_BXm2BXm1Filled;
-  MonitorElement* meNHFracEndcapMinus_BXm2BXm1Filled;
-  MonitorElement* meCHFracEndcapMinus_BXm2BXm1Filled;
-  MonitorElement* mePtEndcapMinus_BXm2BXm1Filled;
-  MonitorElement* mePhFracEndcapPlus_BXm2BXm1Filled;
-  MonitorElement* meNHFracEndcapPlus_BXm2BXm1Filled;
-  MonitorElement* meCHFracEndcapPlus_BXm2BXm1Filled;
-  MonitorElement* mePtEndcapPlus_BXm2BXm1Filled;
+  MonitorElement* mePhFracEndCapMinus_BXm2BXm1Filled;
+  MonitorElement* meNHFracEndCapMinus_BXm2BXm1Filled;
+  MonitorElement* meCHFracEndCapMinus_BXm2BXm1Filled;
+  MonitorElement* mePtEndCapMinus_BXm2BXm1Filled;
+  MonitorElement* mePhFracEndCapPlus_BXm2BXm1Filled;
+  MonitorElement* meNHFracEndCapPlus_BXm2BXm1Filled;
+  MonitorElement* meCHFracEndCapPlus_BXm2BXm1Filled;
+  MonitorElement* mePtEndCapPlus_BXm2BXm1Filled;
   MonitorElement* meHFHFracMinus_BXm2BXm1Filled;
   MonitorElement* meHFEMFracMinus_BXm2BXm1Filled;
   MonitorElement* mePtForwardMinus_BXm2BXm1Filled;
@@ -564,14 +627,14 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meNHFracBarrel_BXm1Filled;
   MonitorElement* meCHFracBarrel_BXm1Filled;
   MonitorElement* mePtBarrel_BXm1Filled;
-  MonitorElement* mePhFracEndcapMinus_BXm1Filled;
-  MonitorElement* meNHFracEndcapMinus_BXm1Filled;
-  MonitorElement* meCHFracEndcapMinus_BXm1Filled;
-  MonitorElement* mePtEndcapMinus_BXm1Filled;
-  MonitorElement* mePhFracEndcapPlus_BXm1Filled;
-  MonitorElement* meNHFracEndcapPlus_BXm1Filled;
-  MonitorElement* meCHFracEndcapPlus_BXm1Filled;
-  MonitorElement* mePtEndcapPlus_BXm1Filled;
+  MonitorElement* mePhFracEndCapMinus_BXm1Filled;
+  MonitorElement* meNHFracEndCapMinus_BXm1Filled;
+  MonitorElement* meCHFracEndCapMinus_BXm1Filled;
+  MonitorElement* mePtEndCapMinus_BXm1Filled;
+  MonitorElement* mePhFracEndCapPlus_BXm1Filled;
+  MonitorElement* meNHFracEndCapPlus_BXm1Filled;
+  MonitorElement* meCHFracEndCapPlus_BXm1Filled;
+  MonitorElement* mePtEndCapPlus_BXm1Filled;
   MonitorElement* meHFHFracMinus_BXm1Filled;
   MonitorElement* meHFEMFracMinus_BXm1Filled;
   MonitorElement* mePtForwardMinus_BXm1Filled;
@@ -587,6 +650,8 @@ class JetAnalyzer : public DQMEDAnalyzer {
   bool isMiniAODJet_;
 
   bool fill_jet_high_level_histo;
+
+  bool fill_CHS_histos;
 
 };
 #endif  
