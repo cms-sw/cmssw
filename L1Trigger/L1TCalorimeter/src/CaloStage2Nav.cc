@@ -1,4 +1,5 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2Nav.h"
+#include <iostream>
 
 l1t::CaloStage2Nav::CaloStage2Nav():homePos_(0,0),currPos_(homePos_)
 {
@@ -26,6 +27,6 @@ std::pair<int,int> l1t::CaloStage2Nav::offsetFromCurrPos(int iEtaOffset,int iPhi
 std::pair<int,int> l1t::CaloStage2Nav::move(int iEtaOffset,int iPhiOffset)
 {
   currPos_.first=offsetIEta(currPos_.first,iEtaOffset);
-  currPos_.second=offsetIEta(currPos_.second,iPhiOffset);
+  currPos_.second=offsetIPhi(currPos_.second,iPhiOffset);
   return currPos_;
 }
