@@ -775,8 +775,10 @@ FS_PU_INPUT_13TEV = "file:/afs/cern.ch/work/l/lveldere/minbias.root"
 PUFS={'--pileup':'GEN_2012_Summer_50ns_PoissonOOTPU'}
 PUFS2={'--pileup':'2012_Startup_50ns_PoissonOOTPU'}
 PUFSAVE10={'--pileup':'GEN_AVE_10_BX_25ns'}
-PUFSAVE10_DIGIRECOMIX_ITO={'--pileup':'AVE_10_BX_25ns',"--pileup_input":FS_PU_INPUT_13TEV,"--customise":"FastSimulation/Configuration/Customs.disableOOTPU,SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1"}
 PUFSAVE20={'--pileup':'GEN_AVE_20_BX_25ns'}
+PUFSAVE35={'--pileup':'GEN_AVE_35_BX_25ns'}
+PUFSAVE10_DIGIRECOMIX_ITO={'--pileup':'AVE_10_BX_25ns',"--pileup_input":FS_PU_INPUT_13TEV,"--customise":"FastSimulation/Configuration/Customs.disableOOTPU,SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1"}
+PUFSAVE35_DIGIRECOMIX_ITO={'--pileup':'AVE_35_BX_25ns',"--pileup_input":FS_PU_INPUT_13TEV,"--customise":"FastSimulation/Configuration/Customs.disableOOTPU,SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1"}
 PUFS25={'--pileup':'AVE_35_BX_25ns',"--pileup_input":FS_PU_INPUT_13TEV}
 
 #
@@ -784,9 +786,11 @@ steps['TTbarFSPU']=merge([PUFS,Kby(100,500),steps['TTbarFS']] )
 
 steps['FS_TTbar_13_PUAVE10']=merge([PUFSAVE10,Kby(100,500),steps['TTbarFS_13']] )
 steps['FS_TTbar_13_PUAVE20']=merge([PUFSAVE20,Kby(100,500),steps['TTbarFS_13']] )
+steps['FS_TTbar_13_PUAVE35']=merge([PUFSAVE35,Kby(100,500),steps['TTbarFS_13']] )
 steps['FS_TTbar_13_PU25']=merge([PUFS25,Kby(100,500),steps['TTbarFS_13']] )
 steps['FS_NuGun_UP15_PU25']=merge([PUFS25,Kby(100,500),steps['NuGunFS_UP15']] )
 steps['FS_TTbar_13_PUAVE10_DIGIRECOMIX_ITO']=merge([PUFSAVE10_DIGIRECOMIX_ITO,Kby(100,500),steps['TTbarFS_13']] )
+steps['FS_TTbar_13_PUAVE35_DIGIRECOMIX_ITO']=merge([PUFSAVE35_DIGIRECOMIX_ITO,Kby(100,500),steps['TTbarFS_13']] )
 
 # step2 
 step2Defaults = { '-s'            : 'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco',
