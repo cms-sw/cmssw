@@ -409,6 +409,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   } else {
 
     lhaUP.reset(new LHAupLesHouches());
+    lhaUP->setScalesFromLHEF(fMasterGen->settings.flag("Beams:setProductionScalesFromLHEF"));
     lhaUP->loadRunInfo(lheRunInfo());
     
     if ( fJetMatchingHook )
