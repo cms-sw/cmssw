@@ -83,7 +83,7 @@ class TauAnalyzer( Analyzer ):
             tau.idMVA = id6(tau, "by%sIsolationMVA3oldDMwLT")
             tau.idMVANewDM = id6(tau, "by%sIsolationMVA3newDMwLT")
             tau.idCI3hit = id3(tau, "by%sCombinedIsolationDeltaBetaCorr3Hits")
-            tau.idAntiMu = id3(tau, "againstMuon%sMVA")
+            tau.idAntiMu = tau.tauID("againstMuonLoose") + tau.tauID("againstMuonTight")
             tau.idAntiE = id5(tau, "againstElectron%sMVA5")
             #print "Tau pt %5.1f: idMVA2 %d, idCI3hit %d, %s, %s" % (tau.pt(), tau.idMVA2, tau.idCI3hit, tau.tauID(self.cfg_ana.tauID), tau.tauID(self.cfg_ana.tauLooseID))
             if tau.tauID(self.cfg_ana.tauID):
@@ -135,7 +135,7 @@ setattr(TauAnalyzer,"defaultConfig",cfg.Analyzer(
     decayModeID = "decayModeFindingNewDMs", # ignored if not set or ""
     tauID = "byLooseCombinedIsolationDeltaBetaCorr3Hits",
     vetoLeptonsPOG = False, # If True, the following two IDs are required
-    tauAntiMuonID = "againstMuonLooseMVA",
+    tauAntiMuonID = "againstMuonLoose3",
     tauAntiElectronID = "againstElectronLooseMVA5",
     tauLooseID = "decayModeFinding",
   )
