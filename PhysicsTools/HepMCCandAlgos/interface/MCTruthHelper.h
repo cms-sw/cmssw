@@ -257,15 +257,20 @@ namespace MCTruthHelper {
     //hard process codes for pythia8 are 21-29 inclusive (currently 21,22,23,24 are used)
     if (p.status()>20 && p.status()<30) return true;
     
-    //check if mother is a resonance decay in pythia8 but exclude FSR branchings
-    const P *um = uniqueMother(p);
-    if (um) {
-      bool fromResonanceDecay = firstCopy(*um)->status()==22;
-      
-      const P *umNext = nextCopy(*um);
-      bool fsrBranching = umNext && umNext->status()>50 && umNext->status()<60;
-      
-      if (fromResonanceDecay && !fsrBranching) return true;
+    //if this is a final state or decayed particle,
+    //check if direct mother is a resonance decay in pythia8 but exclude FSR branchings
+    //(In pythia8 if a resonance decay product did not undergo any further branchings
+    //it will be directly stored as status 1 or 2 without any status 23 copy)
+    if (p.status()==1 || p.status()==2) {
+      const P *um = mother(p);
+      if (um) {
+        bool fromResonanceDecay = firstCopy(*um)->status()==22;
+        
+        const P *umNext = nextCopy(*um);
+        bool fsrBranching = umNext && umNext->status()>50 && umNext->status()<60;
+        
+        if (fromResonanceDecay && !fsrBranching) return true;
+      }
     }
     
     return false;
