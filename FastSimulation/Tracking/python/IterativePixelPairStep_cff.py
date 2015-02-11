@@ -13,7 +13,6 @@ iterativePixelPairSeeds.simTrackSelection.pTMin = 0.3
 iterativePixelPairSeeds.simTrackSelection.maxD0 = 5.
 iterativePixelPairSeeds.simTrackSelection.maxZ0 = 50.
 iterativePixelPairSeeds.minLayersCrossed =3
-iterativePixelPairSeeds.outputSeedCollectionName = 'PixelPair'
 iterativePixelPairSeeds.originRadius = 0.2
 iterativePixelPairSeeds.originHalfLength = 17.5
 iterativePixelPairSeeds.originpTMin = 0.6
@@ -35,7 +34,7 @@ iterativePixelPairSeeds.layerList = pixelPairStepSeedLayers.layerList
 # candidate producer
 from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
 pixelPairStepTrackCandidates = trackCandidateProducer.clone(
-    SeedProducer = cms.InputTag("iterativePixelPairSeeds","PixelPair"),
+    SeedProducer = cms.InputTag("iterativePixelPairSeeds"),
     MinNumberOfCrossedLayers = 2 # ?
 )
 

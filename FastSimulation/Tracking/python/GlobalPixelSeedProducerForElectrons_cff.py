@@ -20,7 +20,6 @@ globalPixelSeedsForElectrons.layerList = cms.vstring(
     'FPix1_neg+FPix2_neg',
 )
 globalPixelSeedsForElectrons.simTrackSelection.skipSimTrackIds = [cms.InputTag("globalPixelStepIds")]
-globalPixelSeedsForElectrons.outputSeedCollectionName = 'GlobalPixel'
 #globalPixelSeedsForElectrons.zVertexConstraint = cms.double(0.5)
 globalPixelSeedsForElectrons.originRadius = cms.double(0.02)
 globalPixelSeedsForElectrons.originpTMin = cms.double(1.5)
@@ -45,7 +44,6 @@ globalPixelSeedsForPhotons.layerList = cms.vstring(
     'FPix1_neg+FPix2_neg',
 )
 globalPixelSeedsForPhotons.simTrackSelection.skipSimTrackIds = [cms.InputTag("globalPixelStepIds")]
-globalPixelSeedsForPhotons.outputSeedCollectionName = 'GlobalPixel'
 globalPixelSeedsForPhotons.originRadius = cms.double(0.02)
 globalPixelSeedsForPhotons.originpTMin = cms.double(1.5)
 

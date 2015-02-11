@@ -49,13 +49,8 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     testPrimaryVertexCompatibilty(false),
     primaryVertices(nullptr)
 {  
-    outputSeedCollectionName="seeds";
-    if (conf.exists("outputSeedCollectionName"))
-    {
-        outputSeedCollectionName=conf.getParameter<std::string>("outputSeedCollectionName");
-    }
     // The name of the TrajectorySeed Collection
-    produces<TrajectorySeedCollection>(outputSeedCollectionName);
+    produces<TrajectorySeedCollection>();
 
 
 
@@ -378,7 +373,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     //if no hits -> directly write empty collection
     if(theGSRecHits->size() == 0)
     {
-        e.put(output,outputSeedCollectionName);
+        e.put(output);
         return;
     }
     for (SiTrackerGSMatchedRecHit2DCollection::id_iterator itSimTrackId=theGSRecHits->id_begin();  itSimTrackId!=theGSRecHits->id_end(); ++itSimTrackId )
@@ -503,7 +498,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     } //end loop over simtracks
     
 
-    e.put(output,outputSeedCollectionName);
+    e.put(output);
 }
 
 

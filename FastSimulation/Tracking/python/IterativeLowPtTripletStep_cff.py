@@ -12,7 +12,6 @@ iterativeLowPtTripletSeeds.simTrackSelection.pTMin = 0.25
 iterativeLowPtTripletSeeds.simTrackSelection.maxD0 = 5.
 iterativeLowPtTripletSeeds.simTrackSelection.maxZ0 = 50.
 iterativeLowPtTripletSeeds.minLayersCrossed = 3
-iterativeLowPtTripletSeeds.outputSeedCollectionName = 'LowPtPixelTriplets'
 iterativeLowPtTripletSeeds.originRadius = 0.03
 iterativeLowPtTripletSeeds.originHalfLength = 17.5
 iterativeLowPtTripletSeeds.originpTMin = 0.35
@@ -30,7 +29,7 @@ iterativeLowPtTripletSeeds.layerList = PixelLayerTriplets.layerList
 
 from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
 lowPtTripletStepTrackCandidates = trackCandidateProducer.clone(
-    SeedProducer = cms.InputTag("iterativeLowPtTripletSeeds","LowPtPixelTriplets"),
+    SeedProducer = cms.InputTag("iterativeLowPtTripletSeeds"),
     MinNumberOfCrossedLayers = 3)
 
 # track producer

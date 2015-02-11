@@ -13,9 +13,6 @@ trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer",
     # minimum number of layer crossed (with hits on them) by the simtrack
     minLayersCrossed = cms.uint32(5),
     
-    # the name of the output seeds
-    outputSeedCollectionName = cms.string("seeds"),
-    
     #if empty, BS compatibility is skipped
     beamSpot = cms.InputTag("offlineBeamSpot"),
     #if empty, PV compatibility is skipped
