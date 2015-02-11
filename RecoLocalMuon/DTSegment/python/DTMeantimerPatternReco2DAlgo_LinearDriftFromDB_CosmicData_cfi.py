@@ -7,16 +7,17 @@ import FWCore.ParameterSet.Config as cms
 # The linear DriftFromDB algos is used.
 #
 # The reconstruction algo and its parameter set
-from RecoLocalMuon.DTRecHit.DTLinearDriftFromDBAlgo_cfi import *
-DTMeantimerPatternReco2DAlgo_LinearDriftFromDBLoose = cms.PSet(
+from RecoLocalMuon.DTRecHit.DTLinearDriftFromDBAlgo_CosmicData_cfi import *
+DTMeantimerPatternReco2DAlgo_LinearDriftFromDB_CosmicData = cms.PSet(
     Reco2DAlgoConfig = cms.PSet(
         # Parameters for the updator
         # this is the RecHit1D algo!!
-        DTLinearDriftFromDBAlgo,
+        DTLinearDriftFromDBAlgo_CosmicData,
         AlphaMaxPhi = cms.double(100.0),
         AlphaMaxTheta = cms.double(100.),
         MaxChi2 = cms.double(4.0),
         MaxAllowedHits = cms.uint32(50),
+        intime_cut = cms.double(-1.),
         debug = cms.untracked.bool(False),
 
         # Parameters for the cleaner
