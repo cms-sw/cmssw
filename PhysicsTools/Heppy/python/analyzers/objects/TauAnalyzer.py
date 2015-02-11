@@ -48,7 +48,7 @@ class TauAnalyzer( Analyzer ):
             tau.lepVeto = False
             tau.idDecayMode = tau.tauID("decayModeFinding")
             tau.idDecayModeNewDMs = tau.tauID("decayModeFindingNewDMs")
-            if self.cfg_ana.decayMode and not tau.tauID(self.cfg_ana.decayMode):
+            if hasattr(self.cfg_ana, 'decayModeID') and self.cfg_ana.decayModeID and not tau.tauID(self.cfg_ana.decayModeID):
                 continue
 
             if self.cfg_ana.vetoLeptons:
