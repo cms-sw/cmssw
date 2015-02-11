@@ -222,37 +222,36 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 		double npass  = proc->nPassPos() -proc->nPassNeg();
 		switch(idwtup){
 		case 3: case -3:
-		  fracAcc = ntotal > 1e-6? npass/ntotal: -1;
+		  fracAcc = ntotal > 0? npass/ntotal: -1;
 		    break;
 		default:
-		  fracAcc = proc->selected().sum() > 1e-6? proc->killed().sum() / proc->selected().sum():-1;
+		  fracAcc = proc->selected().sum() > 0? proc->killed().sum() / proc->selected().sum():-1;
 		  break;
 		}
 
-		if(fracAcc<1e-6)continue;
+		if(fracAcc<=0)continue;
 
 		double fracBr = proc->accepted().sum() > 0.0 ?
 		                proc->acceptedBr().sum() / proc->accepted().sum() : 1;
-		double sigmaFin = sigmaAvg * fracAcc * fracBr;
+		double sigmaFin = sigmaAvg * fracAcc ;
 		double sigmaFinBr = sigmaFin * fracBr;
 
 		double relErr = 1.0;
-		if (proc->killed().n() > 1) {
 
 			double efferr2=0;
 			switch(idwtup) {
 			case 3: case -3:
 			  {
 			    double ntotal_pos = proc->nTotalPos();
-			    double effp  = ntotal_pos > 1e-6?
+			    double effp  = ntotal_pos > 0?
 			      (double)proc->nPassPos()/ntotal_pos:0;
-			    double effp_err2 = ntotal_pos > 1e-6?
+			    double effp_err2 = ntotal_pos > 0?
 			      (1-effp)*effp/ntotal_pos: 0;
 
 			    double ntotal_neg = proc->nTotalNeg();
-			    double effn  = ntotal_neg > 1e-6?
+			    double effn  = ntotal_neg > 0?
 			      (double)proc->nPassNeg()/ntotal_neg:0;
-			    double effn_err2 = ntotal_neg > 1e-6?
+			    double effn_err2 = ntotal_neg > 0?
 			      (1-effn)*effn/ntotal_neg: 0;
 
 			    efferr2 = ntotal > 0 ? 
@@ -269,7 +268,7 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 			    double failw2      = proc->selected().sum2() - passw2;
 			    double numerator   = (passw2*failw*failw + failw2*passw*passw); 
 			    
-			    efferr2 = denominator>1e-6?
+			    efferr2 = denominator > 0?
 			      numerator/denominator:0;
 			    break;
 			  }
@@ -279,7 +278,7 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 			                   + sigma2Err / sigma2Sum;
 			relErr = (delta2Sum > 0.0 ?
 					std::sqrt(delta2Sum) : 0.0);
-		}
+
 		double deltaFin = sigmaFin * relErr;
 		double deltaFinBr = sigmaFinBr * relErr;
 
@@ -339,38 +338,37 @@ void LHERunInfo::statistics() const
 		double npass  = proc->nPassPos() -proc->nPassNeg();
 		switch(idwtup){
 		case 3: case -3:
-		  fracAcc = ntotal > 1e-6? npass/ntotal: -1;
+		  fracAcc = ntotal > 0? npass/ntotal: -1;
 		    break;
 		default:
-		  fracAcc = proc->selected().sum() > 1e-6? proc->killed().sum() / proc->selected().sum():-1;
+		  fracAcc = proc->selected().sum() > 0? proc->killed().sum() / proc->selected().sum():-1;
 		  break;
 		}
 
-		if(fracAcc<1e-6)continue;
 
 		double fracBr = proc->accepted().sum() > 0.0 ?
 		                proc->acceptedBr().sum() / proc->accepted().sum() : 1;
-		double sigmaFin = sigmaAvg * fracAcc;
+		double sigmaFin = fracAcc >0? sigmaAvg * fracAcc : 0;
 		double sigmaFinBr = sigmaFin * fracBr;
 
 		double relErr = 1.0;
 		double relAccErr = 1.0;
 		double efferr2=0;
 
-		if (proc->killed().n() > 1) {
+		if (proc->killed().n() > 0 && fracAcc > 0) {
 			switch(idwtup) {
 			case 3: case -3:
 			  {
 			    double ntotal_pos = proc->nTotalPos();
-			    double effp  = ntotal_pos > 1e-6?
+			    double effp  = ntotal_pos > 0?
 			      (double)proc->nPassPos()/ntotal_pos:0;
-			    double effp_err2 = ntotal_pos > 1e-6?
+			    double effp_err2 = ntotal_pos > 0?
 			      (1-effp)*effp/ntotal_pos: 0;
 
 			    double ntotal_neg = proc->nTotalNeg();
-			    double effn  = ntotal_neg > 1e-6?
+			    double effn  = ntotal_neg > 0?
 			      (double)proc->nPassNeg()/ntotal_neg:0;
-			    double effn_err2 = ntotal_neg > 1e-6?
+			    double effn_err2 = ntotal_neg > 0?
 			      (1-effn)*effn/ntotal_neg: 0;
 
 			    efferr2 = ntotal > 0 ? 
@@ -387,7 +385,7 @@ void LHERunInfo::statistics() const
 			    double failw2      = proc->selected().sum2() - passw2;
 			    double numerator   = (passw2*failw*failw + failw2*passw*passw); 
 			    
-			    efferr2 = denominator>1e-6?
+			    efferr2 = denominator>0?
 			      numerator/denominator:0;
 			    break;
 			  }
@@ -404,8 +402,8 @@ void LHERunInfo::statistics() const
 		double deltaFinBr = sigmaFinBr * relErr;
 		
 		double ntotal_proc = proc->nTotalPos()+proc->nTotalNeg();
-		double event_eff_proc = ntotal_proc>1e-6? (double)(proc->nPassPos()+ proc->nPassNeg())/ntotal_proc: -1;
-		double event_eff_err_proc = ntotal_proc>1e-6? std::sqrt((1-event_eff_proc)*event_eff_proc/ntotal_proc): -1;
+		double event_eff_proc = ntotal_proc>0? (double)(proc->nPassPos()+ proc->nPassNeg())/ntotal_proc: -1;
+		double event_eff_err_proc = ntotal_proc>0? std::sqrt((1-event_eff_proc)*event_eff_proc/ntotal_proc): -1;
 
 		std::cout << proc->process() << "\t\t"
 			  << std::scientific << std::setprecision(3)
@@ -442,8 +440,8 @@ void LHERunInfo::statistics() const
 	}
 
 	double ntotal_all = (nTried_pos+nTried_neg);
-	double event_eff_all = ntotal_all>1e-6? (double)(nAccepted_pos+nAccepted_neg)/ntotal_all: -1;
-	double event_eff_err_all = ntotal_all>1e-6? std::sqrt((1-event_eff_all)*event_eff_all/ntotal_all): -1;
+	double event_eff_all = ntotal_all>0? (double)(nAccepted_pos+nAccepted_neg)/ntotal_all: -1;
+	double event_eff_err_all = ntotal_all>0? std::sqrt((1-event_eff_all)*event_eff_all/ntotal_all): -1;
 
 	std::cout << "Total\t\t"
 	          << std::scientific << std::setprecision(3)
