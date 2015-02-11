@@ -24,6 +24,7 @@ hiMixedTripletClusters = cms.EDProducer("HITrackClusterRemover",
 
 
 # SEEDING LAYERS
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 hiMixedTripletSeedLayersA = cms.EDProducer("SeedingLayersEDProducer",
                                              layerList = cms.vstring('FPix1_pos+FPix2_pos+TEC1_pos', 'FPix1_neg+FPix2_neg+TEC1_neg'),
                                                                      #'FPix2_pos+TEC2_pos+TEC3_pos', 'FPix2_neg+TEC2_neg+TEC3_neg'),

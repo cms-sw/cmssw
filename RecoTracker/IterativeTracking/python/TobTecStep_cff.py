@@ -17,6 +17,7 @@ tobTecStepClusters = trackClusterRemover.clone(
 )
 
 # TRIPLET SEEDING LAYERS
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 tobTecStepSeedLayersTripl = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring(
     #TOB

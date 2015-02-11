@@ -35,6 +35,7 @@ iterativeTobTecSeeds.primaryVertex = 'none'
 #                                  'TEC1_neg+TEC2_neg', 'TEC2_neg+TEC3_neg', 
 #                                  'TEC3_neg+TEC4_neg', 'TEC4_neg+TEC5_neg', 
 #                                  'TEC5_neg+TEC6_neg', 'TEC6_neg+TEC7_neg']
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 from RecoTracker.IterativeTracking.TobTecStep_cff import tobTecStepSeedLayersPair
 iterativeTobTecSeeds.layerList = ['TOB1+TOB2']
 iterativeTobTecSeeds.layerList.extend(tobTecStepSeedLayersPair.layerList)
