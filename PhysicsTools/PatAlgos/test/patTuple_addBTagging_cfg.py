@@ -42,7 +42,6 @@ btagDiscriminators = [
     ,'combinedInclusiveSecondaryVertexV2BJetTags'
     ,'positiveCombinedInclusiveSecondaryVertexV2BJetTags'
     ,'negativeCombinedInclusiveSecondaryVertexV2BJetTags'
-    ,'combinedSecondaryVertexMVABJetTags'
     ,'softPFMuonBJetTags'
     ,'softPFMuonByPtBJetTags'
     ,'softPFMuonByIP3dBJetTags'

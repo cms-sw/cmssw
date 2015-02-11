@@ -4,6 +4,7 @@ Collections sizes
 ElectronMcFakeValidator/h_recEleNum                               1 1 1 0
 ElectronMcFakeValidator/h_recCoreNum                              1 1 1 0
 ElectronMcFakeValidator/h_recTrackNum                             1 1 1 0
+ElectronMcFakeValidator/h_recOfflineVertices                      1 1 1 0
 ElectronMcFakeValidator/h_recSeedNum                              1 1 1 1
 
 Basic electron quantities
@@ -165,17 +166,6 @@ ElectronMcFakeValidator/h_ele_hcalTowerSumEtBc_dr04_depth1_endcaps 1 1 1 0
 ElectronMcFakeValidator/h_ele_hcalTowerSumEtBc_dr04_depth2         1 1 0 0
 ElectronMcFakeValidator/h_ele_hcalTowerSumEtBc_dr04_depth2_barrel  1 1 0 0
 ElectronMcFakeValidator/h_ele_hcalTowerSumEtBc_dr04_depth2_endcaps 1 1 1 1
-
-Difference with isolation from deposits
-
-ElectronMcFakeValidator/h_ele_dIso_tkSumPt_dr03                        1 1 0 0
-ElectronMcFakeValidator/h_ele_dIso_tkSumPt_dr04                        1 1 1 0
-ElectronMcFakeValidator/h_ele_dIso_ecalFullRecHitSumEt_dr03            1 1 0 0
-ElectronMcFakeValidator/h_ele_dIso_ecalFullRecHitSumEt_dr04            1 1 1 0
-ElectronMcFakeValidator/h_ele_dIso_ecalReducedRecHitSumEt_dr03         1 1 0 0
-ElectronMcFakeValidator/h_ele_dIso_ecalReducedRecHitSumEt_dr04         1 1 1 0
-ElectronMcFakeValidator/h_ele_dIso_hcalTowerSumEt_dr03                 1 1 0 0
-ElectronMcFakeValidator/h_ele_dIso_hcalTowerSumEt_dr04                 1 1 1 1
 
 Distributions for all reconstructed electrons (i.e. not requiring a match with a reco jet)
 
