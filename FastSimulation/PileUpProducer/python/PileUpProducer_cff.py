@@ -37,3 +37,13 @@ famosPileUp = cms.EDProducer(
         Z0 = cms.double(0.4145)
         )
     )
+
+#
+# Modify for running in Run 2
+#
+from Configuration.StandardSequences.Eras import eras
+def _modifyFamosPileUpForRun2( module ) :
+    from FastSimulation.PileUpProducer.PileUpFiles_cff import fileNames_13TeV
+    module.fileNames = fileNames_13TeV
+
+eras.run2.toModify( famosPileUp.PileUpSimulatorBlock.PileUpSimulator, func = _modifyFamosPileUpForRun2 )
