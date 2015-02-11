@@ -28,6 +28,7 @@ iterativeMixedTripletStepSeeds.primaryVertex = 'none'
 #                                            'BPix1+BPix2+FPix1_neg',
 #                                            'BPix1+FPix1_pos+FPix2_pos',
 #                                            'BPix1+FPix1_neg+FPix2_neg']
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 from RecoTracker.IterativeTracking.MixedTripletStep_cff import mixedTripletStepSeedLayersA,mixedTripletStepSeedLayersB
 # combine both (A&B); Note: in FullSim, different cuts are applied for A & B seeds; in FastSim cuts are tuned (no need to corresponded to FullSim values)
 iterativeMixedTripletStepSeeds.layerList = mixedTripletStepSeedLayersA.layerList+mixedTripletStepSeedLayersB.layerList

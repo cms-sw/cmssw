@@ -17,6 +17,7 @@ pixelLessStepClusters = trackClusterRemover.clone(
 )
 
 # SEEDING LAYERS
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring(
     #TIB
