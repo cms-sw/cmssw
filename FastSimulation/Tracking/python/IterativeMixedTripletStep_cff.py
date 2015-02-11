@@ -11,10 +11,10 @@ iterativeMixedTripletStepSeeds.simTrackSelection.skipSimTrackIds = [
     cms.InputTag("detachedTripletStepSimTrackIds"), 
     cms.InputTag("lowPtTripletStepSimTrackIds"), 
     cms.InputTag("pixelPairStepSimTrackIds")]
-iterativeMixedTripletStepSeeds.simTrackSelection.minLayersCrossed = 3
 iterativeMixedTripletStepSeeds.simTrackSelection.pTMin = 0.15
 iterativeMixedTripletStepSeeds.simTrackSelection.maxD0 = 10.
 iterativeMixedTripletStepSeeds.simTrackSelection.maxZ0 = 30.
+iterativeMixedTripletStepSeeds.minLayersCrossed = 3
 iterativeMixedTripletStepSeeds.outputSeedCollectionName = 'MixedTriplets'
 iterativeMixedTripletStepSeeds.originRadius = 2.0 # was 1.2
 iterativeMixedTripletStepSeeds.originHalfLength = 10.0 # was 7.0

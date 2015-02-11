@@ -8,10 +8,10 @@ iterativeLowPtTripletSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.
 iterativeLowPtTripletSeeds.simTrackSelection.skipSimTrackIds = [
     cms.InputTag("initialStepSimTrackIds"),
     cms.InputTag("detachedTripletStepSimTrackIds")]
-iterativeLowPtTripletSeeds.simTrackSelection.minLayersCrossed = 3
 iterativeLowPtTripletSeeds.simTrackSelection.pTMin = 0.25
 iterativeLowPtTripletSeeds.simTrackSelection.maxD0 = 5.
 iterativeLowPtTripletSeeds.simTrackSelection.maxZ0 = 50.
+iterativeLowPtTripletSeeds.minLayersCrossed = 3
 iterativeLowPtTripletSeeds.outputSeedCollectionName = 'LowPtPixelTriplets'
 iterativeLowPtTripletSeeds.originRadius = 0.03
 iterativeLowPtTripletSeeds.originHalfLength = 17.5

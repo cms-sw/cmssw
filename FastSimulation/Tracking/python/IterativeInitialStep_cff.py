@@ -8,10 +8,10 @@ import FWCore.ParameterSet.Config as cms
 # seeding
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeInitialSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeInitialSeeds.simTrackSelection.minLayersCrossed = 3
 iterativeInitialSeeds.simTrackSelection.pTMin = 0.4 # it was 0.3
 iterativeInitialSeeds.simTrackSelection.maxD0 = 1.
 iterativeInitialSeeds.simTrackSelection.maxZ0 = 30.
+iterativeInitialSeeds.minLayersCrossed = 3
 iterativeInitialSeeds.outputSeedCollectionName = 'InitialPixelTriplets'
 iterativeInitialSeeds.originRadius = 1.0 # note: standard tracking uses 0.03, but this value gives a much better agreement in rate and shape for iter0
 iterativeInitialSeeds.originHalfLength = 999 # it was 15.9 

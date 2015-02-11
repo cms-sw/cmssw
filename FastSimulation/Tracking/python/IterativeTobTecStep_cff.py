@@ -13,10 +13,10 @@ iterativeTobTecSeeds.simTrackSelection.skipSimTrackIds = [
     cms.InputTag("pixelPairStepSimTrackIds"), 
     cms.InputTag("mixedTripletStepSimTrackIds"), 
     cms.InputTag("pixelLessStepSimTrackIds")]
-iterativeTobTecSeeds.simTrackSelection.minLayersCrossed = 4
 iterativeTobTecSeeds.simTrackSelection.pTMin = 0.3
 iterativeTobTecSeeds.simTrackSelection.maxD0 = 99.
 iterativeTobTecSeeds.simTrackSelection.maxZ0 = 99.
+iterativeTobTecSeeds.minLayersCrossed = 4
 iterativeTobTecSeeds.outputSeedCollectionName = 'TobTecLayerPairs'
 iterativeTobTecSeeds.originRadius = 6.0 # was 5.0
 iterativeTobTecSeeds.originHalfLength = 30.0 # was 10.0

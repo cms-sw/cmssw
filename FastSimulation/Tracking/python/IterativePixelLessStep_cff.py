@@ -12,10 +12,10 @@ iterativePixelLessSeeds.simTrackSelection.skipSimTrackIds = [
     cms.InputTag("lowPtTripletStepSimTrackIds"), 
     cms.InputTag("pixelPairStepSimTrackIds"),  
     cms.InputTag("mixedTripletStepSimTrackIds")]
-iterativePixelLessSeeds.simTrackSelection.minLayersCrossed = 3
 iterativePixelLessSeeds.simTrackSelection.pTMin = 0.3
 iterativePixelLessSeeds.simTrackSelection.maxD0 = 99.
 iterativePixelLessSeeds.simTrackSelection.maxZ0 = 99.
+iterativePixelLessSeeds.minLayersCrossed = 3
 iterativePixelLessSeeds.outputSeedCollectionName = 'PixelLessPairs'
 iterativePixelLessSeeds.originRadius = 1.0
 iterativePixelLessSeeds.originHalfLength = 12.0
