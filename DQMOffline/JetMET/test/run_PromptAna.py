@@ -5,15 +5,15 @@ process = cms.Process("JetMETDQMOffline")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
-from Configuration.Geometry.GeometryIdeal_cff import *
+from Configuration.Geometry.GeometryRecoDB_cff import *
 ### process.load("Configuration/StandardSequences/Geometry_cff") ### Deprecated
-process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 
 #for data in 720pre7
-process.GlobalTag.globaltag ='GR_R_73_V0A::All'
+process.GlobalTag.globaltag ='GR_R_74_V0A::All'
 
 # check # of bins
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -23,10 +23,7 @@ secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
        #for data
-       '/store/relval/CMSSW_7_3_0_pre1/JetHT/RECO/PRE_R_72_V10A_RelVal_jet2012C-v1/00000/04F00191-E359-E411-91F8-0025905A610C.root',
-       '/store/relval/CMSSW_7_3_0_pre1/JetHT/RECO/PRE_R_72_V10A_RelVal_jet2012C-v1/00000/06F034BB-F259-E411-AFC2-00261894384F.root',
-       '/store/relval/CMSSW_7_3_0_pre1/JetHT/RECO/PRE_R_72_V10A_RelVal_jet2012C-v1/00000/0A051B54-EC59-E411-95E5-002618FDA259.root',
-       '/store/relval/CMSSW_7_3_0_pre1/JetHT/RECO/PRE_R_72_V10A_RelVal_jet2012C-v1/00000/0A1AF8FF-F859-E411-A40F-0025905A6110.root'
+      #'/store/relval/CMSSW_7_4_0_pre6/JetHT/RECO/GR_R_74_V0A_RelVal_jet2012D-v1/00000/000FEFFF-CCA8-E411-BB29-003048FF9AC6.root',
        #for cosmics
        #'/store/data/Commissioning2014/Cosmics/RECO/PromptReco-v4/000/228/734/00000/10C180A7-2866-E411-B6F9-02163E010F8C.root',
        #for MC
@@ -40,7 +37,7 @@ readFiles.extend( [
        #'/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V16-v1/00000/E2A34427-E75E-E411-ABBA-02163E008DD3.root',
        #'/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V16-v1/00000/FCE96BE5-F15E-E411-BD38-02163E00D13A.root' 
        #for MINIAODtests 
-       #'/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/MINIAODSIM/PU50ns_PRE_LS172_V16-v1/00000/9886ACB4-F45E-E411-9E5D-02163E00F01E.root' 
+       '/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/MINIAODSIM/PU50ns_PRE_LS172_V16-v1/00000/9886ACB4-F45E-E411-9E5D-02163E00F01E.root' 
        #for HI tests       
        #'/store/relval/CMSSW_7_3_0_pre1/RelValQCD_Pt_80_120_13_HI/GEN-SIM-RECO/PRE_LS172_V15-v1/00000/5C15CC80-0B5A-E411-AF4B-02163E00ECD2.root',
        #'/store/relval/CMSSW_7_3_0_pre1/RelValQCD_Pt_80_120_13_HI/GEN-SIM-RECO/PRE_LS172_V15-v1/00000/FC51FED6-B559-E411-9131-02163E006D72.root'
@@ -55,7 +52,7 @@ secFiles.extend( [
 
 #
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32( -1 )
+    input = cms.untracked.int32( 1000)
 )
 
 process.load('Configuration/StandardSequences/EDMtoMEAtJobEnd_cff')
@@ -81,10 +78,10 @@ process.dqmSaver.workflow = Workflow
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.p = cms.Path(                    #process.dump*
-                     #process.jetMETDQMOfflineSourceMiniAOD*
+                     process.jetMETDQMOfflineSourceMiniAOD*
                      #for cosmic data and MC
                      #process.jetMETDQMOfflineSourceCosmic*
                      #for Data and MC pp and HI
-                     process.jetMETDQMOfflineSource*
+                     #process.jetMETDQMOfflineSource*
                      process.dqmSaver
                      )

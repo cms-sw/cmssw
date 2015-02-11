@@ -60,10 +60,10 @@ float getMedian(const TH1 *histo);
 //////////////////////////////////////////////////////////////////////////
 // master method
 //////////////////////////////////////////////////////////////////////////
-int hadd(const char *filesSeparatedByKommaOrEmpty = "", const char * outputFile = "") {
-//void merge_TrackerOfflineValidation(const char *filesSeparatedByKommaOrEmpty = "") {
+int hadd(const char *filesSeparatedByCommaOrEmpty = "", const char * outputFile = "") {
+//void merge_TrackerOfflineValidation(const char *filesSeparatedByCommaOrEmpty = "") {
 
-  TString fileNames(filesSeparatedByKommaOrEmpty);
+  TString fileNames(filesSeparatedByCommaOrEmpty);
   TObjArray *names = 0;
 
   if (fileNames.Length() == 0) {
@@ -85,7 +85,7 @@ int hadd(const char *filesSeparatedByKommaOrEmpty = "", const char * outputFile 
       names->Add(new TObjString((fileName += i) += ".root"));
     }
   } else {
-    // decode file name from komma separated list
+    // decode file name from comma separated list
     names = fileNames.Tokenize(","); // is already owner
   }
 

@@ -94,7 +94,7 @@
 
 
 
-class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
+class METAnalyzer : public DQMEDAnalyzer{
  public:
 
   /// Constructor
@@ -410,6 +410,9 @@ class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
   MonitorElement* meMET_BXm1Bxm2Filled;
   MonitorElement* meSumET_BXm1Bxm2Filled;
 
+  MonitorElement* meCHF_Barrel;
+  MonitorElement* meCHF_EndcapPlus;
+  MonitorElement* meCHF_EndcapMinus;
   MonitorElement* meCHF_Barrel_BXm1Empty;
   MonitorElement* meCHF_EndcapPlus_BXm1Empty;
   MonitorElement* meCHF_EndcapMinus_BXm1Empty;
@@ -423,6 +426,9 @@ class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
   MonitorElement* meCHF_EndcapPlus_BXm1BXm2Filled;
   MonitorElement* meCHF_EndcapMinus_BXm1BXm2Filled;
 
+  MonitorElement* meNHF_Barrel;
+  MonitorElement* meNHF_EndcapPlus;
+  MonitorElement* meNHF_EndcapMinus;
   MonitorElement* meNHF_Barrel_BXm1Empty;
   MonitorElement* meNHF_EndcapPlus_BXm1Empty;
   MonitorElement* meNHF_EndcapMinus_BXm1Empty;
@@ -436,6 +442,9 @@ class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
   MonitorElement* meNHF_EndcapPlus_BXm1BXm2Filled;
   MonitorElement* meNHF_EndcapMinus_BXm1BXm2Filled;
 
+  MonitorElement* mePhF_Barrel;
+  MonitorElement* mePhF_EndcapPlus;
+  MonitorElement* mePhF_EndcapMinus;
   MonitorElement* mePhF_Barrel_BXm1Empty;
   MonitorElement* mePhF_EndcapPlus_BXm1Empty;
   MonitorElement* mePhF_EndcapMinus_BXm1Empty;
@@ -449,6 +458,8 @@ class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
   MonitorElement* mePhF_EndcapPlus_BXm1BXm2Filled;
   MonitorElement* mePhF_EndcapMinus_BXm1BXm2Filled;
 
+  MonitorElement* meHFHadF_Plus;
+  MonitorElement* meHFHadF_Minus;
   MonitorElement* meHFHadF_Plus_BXm1Empty;
   MonitorElement* meHFHadF_Minus_BXm1Empty;
   MonitorElement* meHFHadF_Plus_BXm1BXm2Empty;
@@ -458,6 +469,8 @@ class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
   MonitorElement* meHFHadF_Plus_BXm1BXm2Filled;
   MonitorElement* meHFHadF_Minus_BXm1BXm2Filled;
 
+  MonitorElement* meHFEMF_Plus;
+  MonitorElement* meHFEMF_Minus;
   MonitorElement* meHFEMF_Plus_BXm1Empty;
   MonitorElement* meHFEMF_Minus_BXm1Empty;
   MonitorElement* meHFEMF_Plus_BXm1BXm2Empty;
