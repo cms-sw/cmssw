@@ -76,9 +76,9 @@ class PhotonAnalyzer( Analyzer ):
                 gamma.idCutBased = keepThisPhoton
                 # we're keeing sigmaietaieta sidebands, but the id is false for them:
                 
-                if abs(gamma.eta())< 1.479 and gamma.sigmaIetaIeta()>0.010 : 
+                if abs(gamma.eta())< 1.479 and gamma.full5x5_sigmaIetaIeta()>0.010 : 
                     gamma.idCutBased = False
-                if abs(gamma.eta())>=1.479 and gamma.sigmaIetaIeta()>0.0321 : 
+                if abs(gamma.eta())>=1.479 and gamma.full5x5_sigmaIetaIeta()>0.0321 : 
                     gamma.idCutBased = False
             else:
               keepThisPhoton = gamma.photonID(self.cfg_ana.gammaID)
@@ -152,8 +152,8 @@ class PhotonAnalyzer( Analyzer ):
             print 'gamma candidate phi: ',event.selectedPhotons[0].phi()
             print 'gamma candidate mass: ',event.selectedPhotons[0].mass()
             print 'gamma candidate HoE: ',event.selectedPhotons[0].hOVERe()
-            print 'gamma candidate r9: ',event.selectedPhotons[0].r9()
-            print 'gamma candidate sigmaIetaIeta: ',event.selectedPhotons[0].sigmaIetaIeta()
+            print 'gamma candidate r9: ',event.selectedPhotons[0].full5x5_r9()
+            print 'gamma candidate sigmaIetaIeta: ',event.selectedPhotons[0].full5x5_sigmaIetaIeta()
             print 'gamma candidate had iso: ',event.selectedPhotons[0].chargedHadronIso()
             print 'gamma candidate neu iso: ',event.selectedPhotons[0].neutralHadronIso()
             print 'gamma candidate gamma iso: ',event.selectedPhotons[0].photonIso()
