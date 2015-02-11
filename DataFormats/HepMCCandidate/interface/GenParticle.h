@@ -41,6 +41,50 @@ namespace reco {
     const GenStatusFlags &statusFlags() const { return statusFlags_; }
     GenStatusFlags &statusFlags() { return statusFlags_; }
     
+    /////////////////////////////////////////////////////////////////////////////
+    //basic set of gen status flags accessible directly here
+    //the rest accessible through statusFlags()
+    //(see GenStatusFlags.h for their meaning)
+    
+    /////////////////////////////////////////////////////////////////////////////
+    //these are robust, generator-independent functions for categorizing
+    //mainly final state particles, but also intermediate hadrons/taus
+    
+    //is particle prompt (not from hadron, muon, or tau decay) and final state
+    bool isPromptFinalState() const { return status()==1 && statusFlags_.isPrompt(); }
+    
+    //is particle prompt (not from hadron, muon, or tau decay) and decayed
+    //such as a prompt tau
+    bool isPromptDecayed() const { return status()==2 && statusFlags_.isPrompt(); }
+    
+    //this particle is a direct decay product of a prompt tau and is final state
+    //(eg an electron or muon from a leptonic decay of a prompt tau)
+    bool isDirectPromptTauDecayProductFinalState() const { return status()==1 && statusFlags_.isDirectPromptTauDecayProduct(); }
+    
+    /////////////////////////////////////////////////////////////////////////////
+    //these are generator history-dependent functions for tagging particles
+    //associated with the hard process
+    //Currently implemented for Pythia 6 and Pythia 8 status codes and history   
+    //and may not have 100% consistent meaning across all types of processes
+    
+    //this particle is part of the hard process
+    bool isHardProcess() const { return statusFlags_.isHardProcess(); }
+    
+    //this particle is the final state direct descendant of a hard process particle  
+    bool fromHardProcessFinalState() const { return status()==1 && statusFlags_.fromHardProcess(); }
+    
+    //this particle is the decayed direct descendant of a hard process particle
+    //such as a tau from the hard process    
+    bool fromHardProcessDecayed()    const { return status()==2 && statusFlags_.fromHardProcess(); }
+    
+    //this particle is a direct decay product of a hardprocess tau and is final state
+    //(eg an electron or muon from a leptonic decay of a tau from the hard process)
+    bool isDirectHardProcessTauDecayProductFinalState() const { return status()==1 && statusFlags_.isDirectHardProcessTauDecayProduct(); }
+    
+    //this particle is the last copy of the particle in the chain  with the same pdg id
+    //(and therefore is more likely, but not guaranteed, to carry the final physical momentum)    
+    bool isLastCopy() const { return statusFlags_.isLastCopy(); }
+    
   private:
     /// checp overlap with another candidate
     bool overlap(const Candidate &) const;

@@ -266,11 +266,6 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
      }
   }
   
-  //set gen status flags
-  for (reco::GenParticle &p : cands) {
-    MCTruthHelper::fillGenStatusFlags(p, p.statusFlags());
-  }
-
   evt.put( candsPtr );
   if(saveBarCodes_) evt.put( barCodeVector );
   //  if(doSubEvent_) evt.put(subsPtr); // For SubEventMap
@@ -294,6 +289,7 @@ bool GenParticleProducer::convertParticle(reco::GenParticle& cand, const HepMC::
    } else {
       cand.setVertex( Candidate::Point( 0, 0, 0 ) );
    }
+   MCTruthHelper::fillGenStatusFlags(*part, cand.statusFlags());
    return true;
 }
 
