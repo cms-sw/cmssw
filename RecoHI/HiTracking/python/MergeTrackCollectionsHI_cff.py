@@ -4,14 +4,14 @@ import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 hiGeneralTracksNoRegitMu = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = (cms.InputTag('hiGlobalPrimTracks'),
                       cms.InputTag('hiDetachedTripletStepTracks'),
-                      cms.InputTag('hiSecondPixelTripletGlobalPrimTracks'),
+                      cms.InputTag('hiLowPtTripletStepTracks'),
                       cms.InputTag('hiPixelPairGlobalPrimTracks')
                      ),
     hasSelector=cms.vint32(1,1,1,1),
     selectedTrackQuals = cms.VInputTag(
     cms.InputTag("hiInitialStepSelector","hiInitialStep"),
     cms.InputTag("hiDetachedTripletStepSelector","hiDetachedTripletStep"),
-    cms.InputTag("hiSecondPixelTripletStepSelector","hiSecondPixelTripletStep"),
+    cms.InputTag("hiLowPtTripletStepSelector","hiLowPtTripletStep"),
     cms.InputTag("hiPixelPairStepSelector","hiPixelPairStep"),
     ),                    
     setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3), pQual=cms.bool(True)),  # should this be False?
@@ -23,7 +23,7 @@ hiGeneralTracksNoRegitMu = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.t
 hiGeneralTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = (cms.InputTag('hiGlobalPrimTracks'),
                       cms.InputTag('hiDetachedTripletStepTracks'),
-                      cms.InputTag('hiSecondPixelTripletGlobalPrimTracks'),
+                      cms.InputTag('hiLowPtTripletStepTracks'),
                       cms.InputTag('hiPixelPairGlobalPrimTracks'),
                       cms.InputTag('hiRegitMuInitialStepTracks'),
                       cms.InputTag('hiRegitMuLowPtTripletStepTracks'),
@@ -37,7 +37,7 @@ hiGeneralTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListM
     selectedTrackQuals = cms.VInputTag(
     cms.InputTag("hiInitialStepSelector","hiInitialStep"),
     cms.InputTag("hiDetachedTripletStepSelector","hiDetachedTripletStep"),
-    cms.InputTag("hiSecondPixelTripletStepSelector","hiSecondPixelTripletStep"),
+    cms.InputTag("hiLowPtTripletStepSelector","hiLowPtTripletStep"),
     cms.InputTag("hiPixelPairStepSelector","hiPixelPairStep"),
     cms.InputTag("hiRegitMuInitialStepSelector","hiRegitMuInitialStepLoose"),
     cms.InputTag("hiRegitMuLowPtTripletStepSelector","hiRegitMuLowPtTripletStepLoose"),
