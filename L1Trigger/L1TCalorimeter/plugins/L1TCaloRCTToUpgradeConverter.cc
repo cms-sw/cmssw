@@ -100,16 +100,17 @@ L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventSetup&
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > p4(0,0,0,0);
 
 
-    // create new format  TODO: not filled with necessary information
+    // create new format
+    // several values here are stage 2 only, leave empty
     CaloRegion region(*&p4,           //  LorentzVector& p4,
-			   rgn->et(),                   //  etEm,             
-			   rgn->et(),                   //  etHad,            
-			   (int) rgn->et(),             //  pt,               
-			   (int) rgn->id().ieta(),      //  eta,              
-			   (int) rgn->id().iphi(),      //  phi,              
-			   hwQual,                      //  qual,             
-			   (int) rgn->et(),             //  hwEtEm,           
-			   0);                          //  hwEtHad           
+      0.,                          //  etEm,
+      0.,                          //  etHad,
+      (int) rgn->et(),             //  pt,
+      (int) rgn->id().ieta(),      //  eta,
+      (int) rgn->id().iphi(),      //  phi,
+      hwQual,                      //  qual,
+      0,                           //  hwEtEm,
+      0);                          //  hwEtHad
 
     // add to output
     regions->push_back( rgn->bx(), region );
