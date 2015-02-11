@@ -21,8 +21,8 @@ class Tau(Lepton):
         '''For a transparent treatment of electrons, muons and taus. Returns -99'''
         return -99
 
-    def dxy(self, vertex=None):
-        '''FIXME: Being checked with tau POG'''
+    def dxy_approx(self, vertex=None):
+        '''Returns standard dxy for an arbitrary passed vertex'''
         if vertex is None:
             vertex = self.associatedVertex
         vtx = self.leadChargedHadrCand().vertex()
@@ -30,7 +30,7 @@ class Tau(Lepton):
         return ( - (vtx.x()-vertex.position().x()) *  p4.y()
                  + (vtx.y()-vertex.position().y()) *  p4.x() ) /  p4.pt()
 
-    def dxy_pog(self, vertex=None):
+    def dxy(self, vertex=None):
         '''More precise dxy calculation as pre-calculated in the tau object
         for the primary vertex it was constructed with.
         Returns standard dxy calculation if the passed vertex differs from the
@@ -38,16 +38,14 @@ class Tau(Lepton):
         '''
         if vertex is None:
             vertex = self.associatedVertex
-        # Why are x/y/z saved in the tau object instead of a reference to the
-        # PV?
-        if vertex.x() == self.vertex().x():
+        # x/y/z are directly saved in the tau object instead of a reference to 
+        # the PV
+        if abs(vertex.z() == self.vertex().z()) < 0.0001:
             return self.physObj.dxy()
         else:
-            return self.dxy(vertex)
-
+            return self.dxy_approx(vertex)
 
     def dz(self, vertex=None):
-        '''FIXME: Being checked with tau POG'''
         if vertex is None:
             vertex = self.associatedVertex
         vtx = self.leadChargedHadrCand().vertex()
