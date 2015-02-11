@@ -7,8 +7,9 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
@@ -69,7 +70,8 @@ public:
   }
 
   virtual void produce(edm::Event& e, const edm::EventSetup& es);
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   const double _minimumPSEnergy;
   std::unique_ptr<PFClusterEMEnergyCorrector> _corrector;
@@ -132,6 +134,20 @@ produce(edm::Event& e, const edm::EventSetup& es) {
   
   e.put(association_out);
   e.put(clusters_out);
+}
+
+void CorrectedECALPFClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<double>("minimumPSEnergy",0.0);
+  desc.add<edm::InputTag>("inputPS",edm::InputTag("particleFlowClusterPS"));
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<bool>("applyCrackCorrections",false);
+    psd0.add<std::string>("algoName","PFClusterEMEnergyCorrector");
+    desc.add<edm::ParameterSetDescription>("energyCorrector",psd0);
+  }
+  desc.add<edm::InputTag>("inputECAL",edm::InputTag("particleFlowClusterECALUncorrected"));
+  descriptions.add("particleFlowClusterECAL",desc);
 }
 
 #endif
