@@ -96,7 +96,7 @@ TrackerParametersFromDD::build( const DDCompactView* cvp,
   ptp.tob.moduleMask = tobPars.at(8); // 0x7
   ptp.tob.sterMask = tobPars.at(9); // 0x3
 
-  ptp.topology = dbl_to_int( DDVectorGetter::get( "topologyPars" ));
+  ptp.vpars = dbl_to_int( DDVectorGetter::get( "vPars" ));
 
   return true;
 }
