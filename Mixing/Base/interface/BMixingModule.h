@@ -16,8 +16,7 @@
  ************************************************************/
 
 #include <vector>
-
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -94,7 +93,7 @@ namespace edm {
       unsigned int eventId_;
 
       // input, cosmics, beamhalo_plus, beamhalo_minus
-      std::vector<boost::shared_ptr<PileUp> > inputSources_;
+      std::vector<std::shared_ptr<PileUp> > inputSources_;
 
       void update(edm::EventSetup const&);
       edm::ESWatcher<MixingRcd> parameterWatcher_;

@@ -21,10 +21,10 @@ const unsigned int edm::BMixingModule::maxNbSources_ =4;
 
 namespace
 {
-  boost::shared_ptr<edm::PileUp>
+  std::shared_ptr<edm::PileUp>
   maybeMakePileUp(edm::ParameterSet const& ps,std::string sourceName, const int minb, const int maxb, const bool playback)
   { 
-    boost::shared_ptr<edm::PileUp> pileup; // value to be returned
+    std::shared_ptr<edm::PileUp> pileup; // value to be returned
     // Make sure we have a parameter named 'sourceName'
     if (ps.exists(sourceName))
       {

@@ -4,5 +4,5 @@
  <use name="boost"/>
  <use name="rootcintex"/>
  <use name="rootcore"/>
- <lib name="boost_unit_test_framework"/>
+ <use name="boost_test"/>
 </bin>

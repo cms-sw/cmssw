@@ -4,11 +4,12 @@
 //
 //--------------------------------------------
 
+#include <functional>
+#include <memory>
+
 #include "MixingModule.h"
 #include "MixingWorker.h"
 #include "Adjuster.h"
-
-#include "boost/bind.hpp"
 
 #include "CondFormats/RunInfo/interface/MixingModuleConfig.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -323,6 +324,8 @@ namespace edm {
   }
 
   void MixingModule::doPileUp(edm::Event &e, const edm::EventSetup& setup) {
+    using namespace std::placeholders;
+
     // Don't allocate because PileUp will do it for us.
     std::vector<edm::EventID> recordEventID;
     edm::Handle<CrossingFramePlaybackInfoExtended>  playbackInfo_H;
@@ -342,7 +345,7 @@ namespace edm {
     PileupList.clear();
     TrueNumInteractions_.clear();
 
-    boost::shared_ptr<PileUp> source0 = inputSources_[0];
+    std::shared_ptr<PileUp> source0 = inputSources_[0];
 
     if((source0 && source0->doPileUp() ) && !playback_) {
       //    if((!inputSources_[0] || !inputSources_[0]->doPileUp()) && !playback_ ) 
@@ -368,7 +371,7 @@ namespace edm {
       }
 
       for (size_t readSrcIdx=0; readSrcIdx<maxNbSources_; ++readSrcIdx) {
-        boost::shared_ptr<PileUp> source = inputSources_[readSrcIdx];   // this looks like we create
+        std::shared_ptr<PileUp> source = inputSources_[readSrcIdx];   // this looks like we create
                                                                         // new PileUp objects for each
                                                                         // source for each event?
                                                                         // Why?
@@ -392,8 +395,8 @@ namespace edm {
         ModuleCallingContext const* mcc = e.moduleCallingContext(); 
         if (!playback_) {
           inputSources_[readSrcIdx]->readPileUp(e.id(), recordEventID,
-                                                boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, mcc, bunchIdx,
-                                                            _2, vertexOffset, boost::ref(setup), boost::cref(e.streamID())), NumPU_Events, e.streamID()
+                                                std::bind(&MixingModule::pileAllWorkers, std::ref(*this), _1, mcc, bunchIdx,
+                                                            _2, vertexOffset, std::ref(setup), e.streamID()), NumPU_Events, e.streamID()
             );
           playbackInfo_->setStartEventId(recordEventID, readSrcIdx, bunchIdx, KeepTrackOfPileup);
           KeepTrackOfPileup+=NumPU_Events;
@@ -406,8 +409,8 @@ namespace edm {
           }
           inputSources_[readSrcIdx]->playPileUp(
             playEventID,
-            boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, mcc, bunchIdx,
-                        _2, vertexOffset, boost::ref(setup), boost::cref(e.streamID()))
+            std::bind(&MixingModule::pileAllWorkers, std::ref(*this), _1, mcc, bunchIdx,
+                        _2, vertexOffset, std::ref(setup), e.streamID())
             );
         }
       }
