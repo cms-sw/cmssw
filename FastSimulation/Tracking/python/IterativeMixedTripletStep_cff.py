@@ -11,7 +11,6 @@ iterativeMixedTripletStepSeeds.simTrackSelection.pTMin = 0.15
 iterativeMixedTripletStepSeeds.simTrackSelection.maxD0 = 10.
 iterativeMixedTripletStepSeeds.simTrackSelection.maxZ0 = 30.
 iterativeMixedTripletStepSeeds.minLayersCrossed = 3
-iterativeMixedTripletStepSeeds.outputSeedCollectionName = 'MixedTriplets'
 iterativeMixedTripletStepSeeds.originRadius = 2.0 # was 1.2
 iterativeMixedTripletStepSeeds.originHalfLength = 10.0 # was 7.0
 iterativeMixedTripletStepSeeds.originpTMin = 0.35 # we need to add another seed for endcaps only, with 0.5
@@ -30,7 +29,7 @@ iterativeMixedTripletStepSeeds.layerList = mixedTripletStepSeedLayersA.layerList
 #from FastSimulation.Tracking.IterativeThirdCandidateProducer_cff import *
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeMixedTripletStepCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativeMixedTripletStepCandidates.SeedProducer = cms.InputTag("iterativeMixedTripletStepSeeds","MixedTriplets")
+iterativeMixedTripletStepCandidates.SeedProducer = cms.InputTag("iterativeMixedTripletStepSeeds")
 iterativeMixedTripletStepCandidates.MinNumberOfCrossedLayers = 3
 
 

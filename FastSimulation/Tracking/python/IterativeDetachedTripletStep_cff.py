@@ -10,7 +10,6 @@ iterativeDetachedTripletSeeds.simTrackSelection.pTMin = 0.3
 iterativeDetachedTripletSeeds.simTrackSelection.maxD0 = 30. # it was 5.
 iterativeDetachedTripletSeeds.simTrackSelection.maxZ0 = 50.
 iterativeDetachedTripletSeeds.minLayersCrossed = 3
-iterativeDetachedTripletSeeds.outputSeedCollectionName = 'DetachedPixelTriplets'
 iterativeDetachedTripletSeeds.originRadius = 1.5
 iterativeDetachedTripletSeeds.originHalfLength = 15.
 iterativeDetachedTripletSeeds.originpTMin = 0.075
@@ -28,7 +27,7 @@ iterativeDetachedTripletSeeds.layerList = PixelLayerTriplets.layerList
 #from FastSimulation.Tracking.IterativeSecondCandidateProducer_cff import *
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeDetachedTripletTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativeDetachedTripletTrackCandidates.SeedProducer = cms.InputTag("iterativeDetachedTripletSeeds",'DetachedPixelTriplets')
+iterativeDetachedTripletTrackCandidates.SeedProducer = cms.InputTag("iterativeDetachedTripletSeeds")
 iterativeDetachedTripletTrackCandidates.MinNumberOfCrossedLayers = 3 
 
 # track producer

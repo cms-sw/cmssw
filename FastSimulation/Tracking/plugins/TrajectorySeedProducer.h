@@ -52,8 +52,6 @@ class TrajectorySeedProducer:
         
         unsigned int minLayersCrossed;
 
-        std::string outputSeedCollectionName;
-
         std::vector<std::vector<TrackingLayer>> seedingLayers;
 
         double originRadius;

@@ -11,7 +11,6 @@ iterativeTobTecSeeds.simTrackSelection.pTMin = 0.3
 iterativeTobTecSeeds.simTrackSelection.maxD0 = 99.
 iterativeTobTecSeeds.simTrackSelection.maxZ0 = 99.
 iterativeTobTecSeeds.minLayersCrossed = 4
-iterativeTobTecSeeds.outputSeedCollectionName = 'TobTecLayerPairs'
 iterativeTobTecSeeds.originRadius = 6.0 # was 5.0
 iterativeTobTecSeeds.originHalfLength = 30.0 # was 10.0
 iterativeTobTecSeeds.originpTMin = 0.6 # was 0.5
@@ -34,7 +33,7 @@ iterativeTobTecSeeds.layerList.extend(tobTecStepSeedLayersPair.layerList)
 #from FastSimulation.Tracking.IterativeFifthCandidateProducer_cff import *
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeTobTecTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativeTobTecTrackCandidates.SeedProducer = cms.InputTag("iterativeTobTecSeeds","TobTecLayerPairs")
+iterativeTobTecTrackCandidates.SeedProducer = cms.InputTag("iterativeTobTecSeeds")
 iterativeTobTecTrackCandidates.MinNumberOfCrossedLayers = 3
 
 
