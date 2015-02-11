@@ -42,8 +42,10 @@ famosPileUp = cms.EDProducer(
 # Modify for running in Run 2
 #
 from Configuration.StandardSequences.Eras import eras
-def _modifyFamosPileUpForRun2( module ) :
+def _modifyFamosPileUpForRun2( processObject ) :
     from FastSimulation.PileUpProducer.PileUpFiles_cff import fileNames_13TeV
-    module.fileNames = fileNames_13TeV
+    processObject.genMixPileUpFiles = cms.PSet(fileNames = fileNames_13TeV)
+    processObject.famosPileUp.PileUpSimulatorBlock.PileUpSimulator.fileNames = fileNames_13TeV
 
-eras.run2.toModify( famosPileUp.PileUpSimulatorBlock.PileUpSimulator, func = _modifyFamosPileUpForRun2 )
+# A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"
+modifyFastSimulationPileUpProducerPileUpProducerForRun2_ = eras.run2.makeProcessModifier( _modifyFamosPileUpForRun2 )
