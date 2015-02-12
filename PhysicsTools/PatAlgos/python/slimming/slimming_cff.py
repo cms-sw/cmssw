@@ -24,6 +24,7 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedMuons*_*_*',
         'keep *_slimmedTaus*_*_*',
         'keep *_slimmedJets_*_*',
+        'keep *_slimmedJetsAK8_*_*',
         'keep *_slimmedMETs*_*_*',
         'keep *_slimmedSecondaryVertices*_*_*',
         'keep *_cmsTopTaggerMap_*_*',
@@ -31,7 +32,7 @@ MicroEventContent = cms.PSet(
         #'keep *_slimmedJetsCMSTopTagCHSSubjets_*_*',
         'keep *_slimmedJetsAK8PFCHSSoftDropPacked_SubJets_*',
         'keep *_slimmedJetsCMSTopTagCHSPacked_SubJets_*',
-        'keep *_packedPatJetsAK8_*_*',
+        #'keep *_packedPatJetsAK8_*_*',
         ## add extra METs
 
         'keep recoPhotonCores_reducedEgamma_*_*',
