@@ -295,6 +295,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq460_v1', 
     'HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v1', 
     'HLT_QuadPFJet_VBF_v1', 
+    'HLT_Random_v1', 
     'HLT_Rsq0p36_v1', 
     'HLT_RsqMR260_Rsq0p09_MR200_4jet_v1', 
     'HLT_RsqMR260_Rsq0p09_MR200_v1', 

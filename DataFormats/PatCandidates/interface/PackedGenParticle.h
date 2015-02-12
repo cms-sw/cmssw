@@ -5,7 +5,6 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -40,14 +39,6 @@ namespace pat {
     
     /// destructor
     virtual ~PackedGenParticle();
-    /// first daughter const_iterator
-    virtual const_iterator begin() const;
-    /// last daughter const_iterator
-    virtual const_iterator end() const;
-    /// first daughter iterator
-    virtual iterator begin();
-    /// last daughter iterator
-    virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const;
     /// return daughter at a given position (throws an exception)
@@ -275,11 +266,6 @@ namespace pat {
     friend class ShallowCloneCandidate;
     friend class ShallowClonePtrCandidate;
 
-  private:
-    // const iterator implementation
-    typedef reco::candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    // iterator implementation
-    typedef reco::candidate::iterator_imp_specific<daughters> iterator_imp_specific;
   };
 
   typedef std::vector<pat::PackedGenParticle> PackedGenParticleCollection;

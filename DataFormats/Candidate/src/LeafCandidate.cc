@@ -4,22 +4,6 @@ using namespace reco;
 
 LeafCandidate::~LeafCandidate() { }
 
-Candidate::const_iterator LeafCandidate::begin() const { 
-  return const_iterator( new const_iterator_imp_specific ); 
-}
-
-Candidate::const_iterator LeafCandidate::end() const { 
-  return  const_iterator( new const_iterator_imp_specific ); 
-}
-
-Candidate::iterator LeafCandidate::begin() { 
-  return iterator( new iterator_imp_specific ); 
-}
-
-Candidate::iterator LeafCandidate::end() { 
-  return iterator( new iterator_imp_specific ); 
-}
-
 const CandidateBaseRef & LeafCandidate::masterClone() const {
   throw cms::Exception("Invalid Reference")
     << "this Candidate has no master clone reference."

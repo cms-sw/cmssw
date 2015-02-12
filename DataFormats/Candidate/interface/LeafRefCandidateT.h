@@ -12,8 +12,6 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Common/interface/RefCoreWithIndex.h"
 
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
-
 
 namespace reco {
   
@@ -50,14 +48,6 @@ protected:
     REF getRef() const { return REF(ref_.toRefCore(),ref_.index()); }
 
 public:
-    /// first daughter const_iterator
-    virtual const_iterator begin() const;
-    /// last daughter const_iterator
-    virtual const_iterator end() const;
-    /// first daughter iterator
-    virtual iterator begin();
-    /// last daughter iterator
-    virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const GCC11_FINAL  { return 0; }
     /// return daughter at a given position (throws an exception)
@@ -161,11 +151,6 @@ public:
   protected:
     edm::RefCoreWithIndex ref_;
   private:
-    // const iterator implementation
-    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    // iterator implementation
-    typedef candidate::iterator_imp_specific<daughters> iterator_imp_specific;
-
 
     ///
     /// Hide these from all users:
@@ -192,27 +177,6 @@ public:
 
 
 
-  inline
-  Candidate::const_iterator LeafRefCandidateT::begin() const  { 
-    return const_iterator( new const_iterator_imp_specific ); 
-  }
-
-  inline
-  Candidate::const_iterator LeafRefCandidateT::end() const   { 
-    return  const_iterator( new const_iterator_imp_specific ); 
-  }
-
-  inline
-  Candidate::iterator LeafRefCandidateT::begin()   { 
-    return iterator( new iterator_imp_specific ); 
-  }
-  
-  inline
-  Candidate::iterator LeafRefCandidateT::end()   { 
-    return iterator( new iterator_imp_specific ); 
-  }
-  
-  
   inline
   bool LeafRefCandidateT::overlap( const Candidate & o ) const  { 
     return  p4() == o.p4() && vertex() == o.vertex() && charge() == o.charge();

@@ -13,13 +13,8 @@ def customise_csc_PostLS1(process):
         process.csc2DRecHits.wireDigiTag  = cms.InputTag("mixData", "MuonCSCWireDigisDM")
         process.csc2DRecHits.stripDigiTag = cms.InputTag("mixData", "MuonCSCStripDigisDM")
 
-
-    return process
-
-def customise_csc_hlt(process):
-    process=muonCustoms.customise_csc_hlt(process)
-
-    process.hltCsc2DRecHits.wireDigiTag  = cms.InputTag("mixData","MuonCSCWireDigisDM")
-    process.hltCsc2DRecHits.stripDigiTag = cms.InputTag("mixData","MuonCSCStripDigisDM")
+    if hasattr(process,'hltCsc2DRecHits'):
+        process.hltCsc2DRecHits.wireDigiTag  = cms.InputTag("mixData","MuonCSCWireDigisDM")
+        process.hltCsc2DRecHits.stripDigiTag = cms.InputTag("mixData","MuonCSCStripDigisDM")
     
     return process
