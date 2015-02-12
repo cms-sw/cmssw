@@ -9,7 +9,6 @@ iterativeMixedTripletStepSeeds.simTrackSelection.skipSimTrackIds = [
     cms.InputTag("detachedTripletStepIds"), 
     cms.InputTag("lowPtTripletStepIds"), 
     cms.InputTag("pixelPairStepIds")]
-]
 iterativeMixedTripletStepSeeds.simTrackSelection.pTMin = 0.15
 iterativeMixedTripletStepSeeds.simTrackSelection.maxD0 = 10.
 iterativeMixedTripletStepSeeds.simTrackSelection.maxZ0 = 30.
