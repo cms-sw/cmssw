@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-fileNames_7TeV = cms.untracked.vstring(
+puFileNames_7TeV = cms.untracked.vstring(
     'MinBias7TeV_001.root', 
     'MinBias7TeV_002.root', 
     'MinBias7TeV_003.root', 
@@ -13,7 +13,7 @@ fileNames_7TeV = cms.untracked.vstring(
     'MinBias7TeV_010.root'
     )
 
-fileNames_8TeV = cms.untracked.vstring(
+puFileNames_8TeV = cms.untracked.vstring(
     'MinBias8TeV_001.root', 
     'MinBias8TeV_002.root', 
     'MinBias8TeV_003.root', 
@@ -26,7 +26,7 @@ fileNames_8TeV = cms.untracked.vstring(
     'MinBias8TeV_010.root'
     )
 
-fileNames_10TeV = cms.untracked.vstring(
+puFileNames_10TeV = cms.untracked.vstring(
     'MinBias10TeV_001.root', 
     'MinBias10TeV_002.root', 
     'MinBias10TeV_003.root', 
@@ -39,7 +39,7 @@ fileNames_10TeV = cms.untracked.vstring(
     'MinBias10TeV_010.root'
     )
 
-fileNames_13TeV = cms.untracked.vstring(
+puFileNames_13TeV = cms.untracked.vstring(
     'MinBias13TeV_001.root', 
     'MinBias13TeV_002.root', 
     'MinBias13TeV_003.root', 
@@ -52,7 +52,7 @@ fileNames_13TeV = cms.untracked.vstring(
     'MinBias13TeV_010.root'
     )
 
-fileNames_14TeV = cms.untracked.vstring(
+puFileNames_14TeV = cms.untracked.vstring(
     'MinBias14TeV_001.root', 
     'MinBias14TeV_002.root', 
     'MinBias14TeV_003.root', 
@@ -64,3 +64,12 @@ fileNames_14TeV = cms.untracked.vstring(
     'MinBias14TeV_009.root', 
     'MinBias14TeV_010.root'
     )
+
+puFileNames = cms.PSet(fileNames = puFileNames_8TeV)
+
+#
+# Modify for running in Run 2
+#
+from Configuration.StandardSequences.Eras import eras
+eras.run2.toModify(puFileNames,fileNames=puFileNames_13TeV)
+

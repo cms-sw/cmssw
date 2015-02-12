@@ -65,8 +65,8 @@ def get_PileUpSimulatorPSet_PileUpProducer(_input):
         raise
 
     # minbias files
-    from FastSimulation.PileUpProducer.PileUpFiles_cff import fileNames_8TeV
-    PileUpSimulator.fileNames = fileNames_8TeV
+    from FastSimulation.PileUpProducer.PileUpFiles_cff import puFileNames
+    PileUpSimulator.fileNames = puFileNames.fileNames
     
     # a purely technical, but required, setting
     PileUpSimulator.inputFile = cms.untracked.string('PileUpInputFile.txt')
@@ -115,10 +115,6 @@ def prepareGenMixing(process):
     pos = process.simulationSequence.index(process.famosSimHits)
     process.simulationSequence.insert(pos,process.famosPileUp)
 
-    # Adapt pileup files if needed (usualy needed for postLS1 customisation)
-    if hasattr(process,"genMixPileUpFiles"):
-        process.famosPileUp.PileUpSimulator.fileNames = process.genMixPileUpFiles.fileNames
-        
     # No track mixing when Gen-mixing
     del process.mix.digitizers.tracker
     del process.mix.mixObjects.mixRecoTracks
