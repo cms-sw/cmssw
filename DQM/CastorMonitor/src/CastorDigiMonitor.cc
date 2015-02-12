@@ -12,6 +12,11 @@
 //****************************************************//
 //---- critical revision 26.06.2014 (Vladimir Popov)
 //==================================================================//
+
+ static int TS_MAX = 6;
+ static float RatioThresh1 = 1.5;
+ static float RatioThresh2 = 1.2;
+
 //======================= Constructor ==============================//
 CastorDigiMonitor::CastorDigiMonitor(const edm::ParameterSet& ps)
 {
@@ -74,7 +79,14 @@ void CastorDigiMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   h2QmeantsvsCh->getTH2F()->GetXaxis()->SetTitle("Tile(=sector*14+module)");
       h2QmeantsvsCh->getTH2F()->GetYaxis()->SetTitle("TS");
       h2QmeantsvsCh->getTH2F()->SetOption("colz");
-    sprintf(s,"QmeanfC_map(allTS)");
+
+ sprintf(s,"CASTORreportSummaryMap");
+    h2reportMap = ibooker.book2D(s,s,14, 0,14, 16, 0,16);
+    h2reportMap->getTH2F()->GetXaxis()->SetTitle("moduleZ");
+    h2reportMap->getTH2F()->GetYaxis()->SetTitle("sectorPhi");
+    h2reportMap->getTH2F()->SetOption("colz");
+    
+ sprintf(s,"QmeanfC_map(allTS)");
       h2QmeanMap = ibooker.book2D(s,s,14,0.,14., 16,0.,16.);
       h2QmeanMap->getTH2F()->GetXaxis()->SetTitle("ModuleZ");
       h2QmeanMap->getTH2F()->GetYaxis()->SetTitle("SectorPhi");
@@ -130,7 +142,8 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis,
  } //end for(CastorDigiCollection::const_iterator ...
 
  ievt_++;
- if(ievt_ %100 == 0) {
+// if(ievt_ %100 == 0) {
+ if(ievt_ %100 != 0) return;
    float ModuleSum[14], SectorSum[16];
    for(int m=0; m<14; m++) ModuleSum[m]=0.;
    for(int s=0; s<16; s++) SectorSum[s]=0.;
@@ -153,8 +166,30 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis,
 	hModule->getTH1F()->SetBinContent(mod+1,ModuleSum[mod]);
    for(int sec=0; sec<16; sec++) 
 	hSector->getTH1F()->SetBinContent(sec+1,SectorSum[sec]);
- } //end if(ievt_ %100 == 0) {
 
-  if(fVerbosity>0) std::cout << "CastorDigiMonitor::processEvent (end)"<< std::endl;
+  int tsm = 0;
+  for(int ts=0; ts<TS_MAX; ts++) {
+   double s = 0., sm=0.;
+   for(int ind=0; ind<224; ind++)
+     s += h2QmeantsvsCh->getTH2F()->GetBinContent(ind+1,ts+1);
+   if(sm < s) {sm = s; tsm = ts;}
+  }
+
+  for(int mod=0; mod<14; mod++) for(int sec=0; sec<16;sec++) {
+    int ind = sec*14 + mod;
+    double am= h2QmeantsvsCh->getTH2F()->GetBinContent(ind+1,tsm+1);
+    double sum = 0.;
+    for(int ts=1; ts<=TS_MAX; ts++) if(ts != tsm)
+      sum += h2QmeantsvsCh->getTH2F()->GetBinContent(ind+1,ts);
+    float r = 0.;
+    if(am > 0.) r = sum/(TS_MAX-1)/am;
+    float statusTS = 0.87;
+    if(r > RatioThresh1) statusTS = 1.0;
+    else if(r > RatioThresh2) statusTS = 0.93;
+    h2reportMap->getTH2F()->SetBinContent(mod+1,sec+1,statusTS);
+  }
+
+// } //end if(ievt_ %100 == 0) {
+
   return;
  }
