@@ -1,0 +1,24 @@
+>> Local Products Rules ..... started
+>> Local Products Rules ..... done
+****WARNING: Invalid tool RecoCaloTools/MetaCollections. Please fix src/HeavyIonsAnalysis/PhotonAnalysis/BuildFile.xml file.
+>> Entering Package HeavyIonsAnalysis/JetAnalysis
+>> Creating project symlinks
+>> Compiling edm plugin /data/dgulhan/forest73x/CMSSW_7_3_X_2014-11-19-0200/src/HeavyIonsAnalysis/JetAnalysis/src/HiPFJetAnalyzer.cc 
+>> Building edm plugin tmp/slc6_amd64_gcc491/src/HeavyIonsAnalysis/JetAnalysis/src/HeavyIonsAnalysisJetAnalysis/libHeavyIonsAnalysisJetAnalysis.so
+Leaving library rule at HeavyIonsAnalysis/JetAnalysis
+@@@@ Running edmWriteConfigs for HeavyIonsAnalysisJetAnalysis
+--- Registered EDM Plugin: HeavyIonsAnalysisJetAnalysis
+>> Leaving Package HeavyIonsAnalysis/JetAnalysis
+>> Package HeavyIonsAnalysis/JetAnalysis built
+>> Local Products Rules ..... started
+>> Local Products Rules ..... done
+****WARNING: Invalid tool RecoCaloTools/MetaCollections. Please fix src/HeavyIonsAnalysis/PhotonAnalysis/BuildFile.xml file.
+gmake[1]: Entering directory `/data/dgulhan/forest73x/CMSSW_7_3_X_2014-11-19-0200'
+>> Creating project symlinks
+@@@@ Refreshing Plugins:edmPluginRefresh
+>> Done python_symlink
+>> Compiling python modules python
+>> Compiling python modules src/HeavyIonsAnalysis/JetAnalysis/python
+>> Pluging of all type refreshed.
+>> All python modules compiled
+gmake[1]: Leaving directory `/data/dgulhan/forest73x/CMSSW_7_3_X_2014-11-19-0200'
