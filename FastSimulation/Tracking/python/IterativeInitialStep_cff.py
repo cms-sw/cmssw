@@ -36,19 +36,8 @@ iterativeInitialTracks.Propagator = 'PropagatorWithMaterial'
 iterativeInitialTracks.AlgorithmName = cms.string('initialStep')
 
 #vertices
-
-import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
-firstStepPrimaryVertices=RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
+from RecoTracker.IterativeTracking.InitialStep_cff import firstStepPrimaryVertices
 firstStepPrimaryVertices.TrackLabel = cms.InputTag("iterativeInitialTracks")
-firstStepPrimaryVertices.vertexCollections = cms.VPSet(
-    [cms.PSet(label=cms.string(""),
-              algorithm=cms.string("AdaptiveVertexFitter"),
-              minNdof=cms.double(0.0),
-              useBeamConstraint = cms.bool(False),
-              maxDistanceToBeam = cms.double(1.0)
-              )
-     ]
-)
 
 # track identification
 # why not import the configurstion from the full initial step?
