@@ -35,7 +35,7 @@ MuonTrackLoaderForSTA = cms.PSet(
         DoSmoothing = cms.bool(False),
         VertexConstraint = cms.bool(True),
         beamSpot = cms.InputTag("offlineBeamSpot"),
-        TTRHBuilder = cms.string('WithTrackAngle')
+        TTRHBuilder = cms.string('WithAngleAndTemplate')
     )
 )
 MuonTrackLoaderForGLB = cms.PSet(
@@ -45,7 +45,7 @@ MuonTrackLoaderForGLB = cms.PSet(
         DoSmoothing = cms.bool(True),
         VertexConstraint = cms.bool(False),
         beamSpot = cms.InputTag("offlineBeamSpot"),
-        TTRHBuilder = cms.string('WithTrackAngle')
+        TTRHBuilder = cms.string('WithAngleAndTemplate')
     )
 )
 MuonTrackLoaderForL2 = cms.PSet(
@@ -55,7 +55,7 @@ MuonTrackLoaderForL2 = cms.PSet(
         DoSmoothing = cms.bool(False),
         VertexConstraint = cms.bool(True),
         beamSpot = cms.InputTag("hltOfflineBeamSpot"),
-        TTRHBuilder = cms.string('WithTrackAngle')
+        TTRHBuilder = cms.string('WithAngleAndTemplate')
     )
 )
 MuonTrackLoaderForL3 = cms.PSet(
@@ -68,7 +68,7 @@ MuonTrackLoaderForL3 = cms.PSet(
         VertexConstraint = cms.bool(False),
         DoSmoothing = cms.bool(True),
         beamSpot = cms.InputTag("hltOfflineBeamSpot"),
-        TTRHBuilder = cms.string('WithTrackAngle')
+        TTRHBuilder = cms.string('WithAngleAndTemplate')
     )
 )
 MuonTrackLoaderForCosmic = cms.PSet(
@@ -80,7 +80,7 @@ MuonTrackLoaderForCosmic = cms.PSet(
         Smoother = cms.string('KFSmootherForMuonTrackLoader'),
         DoSmoothing = cms.bool(False),
         beamSpot = cms.InputTag("offlineBeamSpot"),
-        TTRHBuilder = cms.string('WithTrackAngle')
+        TTRHBuilder = cms.string('WithAngleAndTemplate')
     )
 )
 
