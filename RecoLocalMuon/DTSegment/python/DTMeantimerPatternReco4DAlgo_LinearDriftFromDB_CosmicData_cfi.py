@@ -7,17 +7,18 @@ import FWCore.ParameterSet.Config as cms
 # The Parametrized DriftFromDB algos is used.
 #
 # this is the RecSegment2D algo include!
-from RecoLocalMuon.DTSegment.DTMeantimerPatternReco2DAlgo_LinearDriftFromDBLoose_cfi import *
+from RecoLocalMuon.DTSegment.DTMeantimerPatternReco2DAlgo_LinearDriftFromDB_CosmicData_cfi import *
 # this is the RecHit1D algo include!
-from RecoLocalMuon.DTRecHit.DTLinearDriftFromDBAlgo_cfi import *
-DTMeantimerPatternReco4DAlgo_LinearDriftFromDBLoose = cms.PSet(
+from RecoLocalMuon.DTRecHit.DTLinearDriftFromDBAlgo_CosmicData_cfi import *
+DTMeantimerPatternReco4DAlgo_LinearDriftFromDB_CosmicData = cms.PSet(
     Reco4DAlgoName = cms.string('DTMeantimerPatternReco4D'),
     Reco4DAlgoConfig = cms.PSet(
         # Parameters for the updator
         # this is the RecHit1D algo!!
-        DTLinearDriftFromDBAlgo,
+        DTLinearDriftFromDBAlgo_CosmicData,
         # this are the RecSegment2D algo parameters!
-        DTMeantimerPatternReco2DAlgo_LinearDriftFromDBLoose,
+        DTMeantimerPatternReco2DAlgo_LinearDriftFromDB_CosmicData,
+        intime_cut = cms.double(-1.),        
         debug = cms.untracked.bool(False),
 
         # Parameters for the cleaner
