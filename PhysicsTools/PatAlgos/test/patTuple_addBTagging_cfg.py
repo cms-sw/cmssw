@@ -93,8 +93,8 @@ btagDiscriminators = [
     ,'pfCombinedInclusiveSecondaryVertexV2BJetTags'
     ,'pfPositiveCombinedInclusiveSecondaryVertexV2BJetTags'
     ,'pfNegativeCombinedInclusiveSecondaryVertexV2BJetTags',
-		,'pfCombinedSecondaryVertexSoftLeptonBJetTags',
-		,'pfNegativeCombinedSecondaryVertexSoftLeptonBJetTags',
+    ,'pfCombinedSecondaryVertexSoftLeptonBJetTags',
+    ,'pfNegativeCombinedSecondaryVertexSoftLeptonBJetTags',
     ,'pfCombinedMVABJetTags'
     ,'pfPositiveCombinedMVABJetTags'
     ,'pfNegativeCombinedMVABJetTags'
