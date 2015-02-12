@@ -24,13 +24,10 @@ public:
   static const int cotTheta_Max=99999;
   
   SeedForPhotonConversion1Leg( const edm::ParameterSet & cfg):
-    thePropagatorLabel(cfg.getParameter<std::string>("propagator")),
-    theBOFFMomentum(cfg.existsAs<double>("SeedMomentumForBOFF") ? cfg.getParameter<double>("SeedMomentumForBOFF") : 5.0)
+    thePropagatorLabel (cfg.getParameter<std::string>("propagator"))
+    ,theBOFFMomentum   (cfg.getParameter<double>("SeedMomentumForBOFF"))
+    ,TTRHBuilder       (cfg.getParameter<std::string>("TTRHBuilder"))
       {}
-
-  SeedForPhotonConversion1Leg( 
-      const std::string & propagator = "PropagatorWithMaterial", double seedMomentumForBOFF = -5.0) 
-   : thePropagatorLabel(propagator), theBOFFMomentum(seedMomentumForBOFF) { }
 
   //dtor
   ~SeedForPhotonConversion1Leg(){}
@@ -75,6 +72,7 @@ public:
 protected:
   std::string thePropagatorLabel;
   double theBOFFMomentum;
+  std::string TTRHBuilder;
 
   // FIXME (well the whole class needs to be fixed!)      
   mutable  TkClonerImpl cloner;
