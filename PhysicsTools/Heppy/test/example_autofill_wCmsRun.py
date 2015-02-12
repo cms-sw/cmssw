@@ -17,8 +17,10 @@ treeProducer= cfg.Analyzer(
 		#standard dumping of objects
    	        "selectedLeptons" : NTupleCollection("leptons", leptonType, 8, help="Leptons after the preselection"),
                 "selectedTaus"    : NTupleCollection("TauGood", tauType, 3, help="Taus after the preselection"),
-	        "cleanJets"       : NTupleCollection("Jet",     jetType, 8, sortDescendingBy = lambda jet : jet.btag('combinedSecondaryVertexBJetTags'),
-					 help="Cental jets after full selection and cleaning, sorted by b-tag"),
+	        "cleanJets"       : NTupleCollection("Jet",     jetType, 8, sortDescendingBy = lambda jet : jet.btag('combinedSecondaryVertexBJetTags'), help="Cental jets after full selection and cleaning, sorted by b-tag"),
+                #read product of preprocessor-cmsRun
+	        "jetsAK5"       : ( AutoHandle( ("ak5PFJetsCHS",), "std::vector<reco::PFJet>" ),
+                                  NTupleCollection("JetAk5",     particleType, 8, help="AK5 jets")),
 		#dump of gen objects
                 "gentopquarks"    : NTupleCollection("GenTop",     genParticleType, 2, help="Generated top quarks from hard scattering"),
                 "genbquarks"      : NTupleCollection("GenBQuark",  genParticleType, 2, help="Generated bottom quarks from top quark decays"),
@@ -59,6 +61,10 @@ TrigAna= cfg.Analyzer(
 
 sequence = [VertexAna,LepAna,TauAna,PhoAna,JetAna,TrigAna,treeProducer]
 
+from PhysicsTools.Heppy.utils.cmsswPreprocessor import CmsswPreprocessor
+
+preprocessor = CmsswPreprocessor("makeAK5Jets.py")
+
 from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
 sample = cfg.Component(
      files = ["/scratch/arizzi/Hbb/CMSSW_7_2_2_patch2/src/VHbbAnalysis/Heppy/test/ZLL-8A345C56-6665-E411-9C25-1CC1DE04DF20.root"],
@@ -72,7 +78,8 @@ from PhysicsTools.HeppyCore.framework.eventsfwlite import Events
 config = cfg.Config( components = selectedComponents,
                      sequence = sequence,
                      services = [],  
-                     events_class = Events)
+                     events_class = Events,
+		     preprocessor=preprocessor)
 
 # and the following runs the process directly 
 if __name__ == '__main__':
