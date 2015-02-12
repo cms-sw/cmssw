@@ -53,14 +53,14 @@ pixelLessStepTracks = pixelLessStepTracks.clone(
 
 # simtrack id producer
 pixelLessStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
-                                          trackCollection = cms.InputTag("iterativePixelLessTracks"),
+                                          trackCollection = cms.InputTag("pixelLessStepTracks"),
                                           HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
                                           )
 
 # track selection
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-        src='pixelLessTracks',
+        src='pixelLessStepTracks',
             trackSelectors= cms.VPSet(
             RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
                 name = 'pixelLessStepLoose',

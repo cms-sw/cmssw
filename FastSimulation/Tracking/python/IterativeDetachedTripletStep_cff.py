@@ -35,7 +35,7 @@ detachedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProdu
 
 # track producer
 from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTripletStepTracks
-detachedTripletStepTrackCandidates = detachedTripletStepTracks.clone(
+detachedTripletStepTracks = detachedTripletStepTracks.clone(
     Fitter = 'KFFittingSmootherSecond',
     Propagator = 'PropagatorWithMaterial',
     TTRHBuilder = 'WithoutRefit'

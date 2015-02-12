@@ -7,10 +7,10 @@ import FWCore.ParameterSet.Config as cms
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeMixedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
 iterativeMixedTripletStepSeeds.skipSimTrackIdTags = [
-    cms.InputTag("initialStepIds"), 
-    cms.InputTag("detachedTripletStepIds"), 
-    cms.InputTag("lowPtTripletStepIds"), 
-    cms.InputTag("pixelPairStepIds")]
+    cms.InputTag("initialStepSimTrackIds"), 
+    cms.InputTag("detachedTripletStepSimTrackIds"), 
+    cms.InputTag("lowPtTripletStepSimTrackIds"), 
+    cms.InputTag("pixelPairStepSimTrackIds")]
 iterativeMixedTripletStepSeeds.outputSeedCollectionName = 'MixedTriplets'
 iterativeMixedTripletStepSeeds.minRecHits = 3
 iterativeMixedTripletStepSeeds.pTMin = 0.15

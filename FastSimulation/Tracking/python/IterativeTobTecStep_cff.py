@@ -54,7 +54,7 @@ tobTecStepTracks = tobTecStepTracks.clone(
 
 # simtrack id producer
 tobTecStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
-                                       trackCollection = cms.InputTag("iterativeTobTecTracks"),
+                                       trackCollection = cms.InputTag("tobTecStepTracks"),
                                        HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
                                        )
 
@@ -63,7 +63,7 @@ tobTecStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
 # track selection
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-        src='iterativeTobTecTracks',
+        src='tobTecStepTracks',
             trackSelectors= cms.VPSet(
             RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
                 name = 'tobTecStepLoose',
