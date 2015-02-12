@@ -1089,30 +1089,30 @@ void Vx3DHLTAnalyzer::beginRun (const Run& iRun, const EventSetup& iSetup)
       Vx_Z->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_Z->setAxisTitle("Entries [#]",2);
  
-      mXlumi = dbe->book1D("muX vs lumi", "\\mu_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      mYlumi = dbe->book1D("muY vs lumi", "\\mu_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      mZlumi = dbe->book1D("muZ vs lumi", "\\mu_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      mXlumi = dbe->book1D("muX vs lumi", "#mu_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      mYlumi = dbe->book1D("muY vs lumi", "#mu_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      mZlumi = dbe->book1D("muZ vs lumi", "#mu_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       mXlumi->setAxisTitle("Lumisection [#]",1);
-      mXlumi->setAxisTitle("\\mu_{x} [cm]",2);
+      mXlumi->setAxisTitle("#mu_{x} [cm]",2);
       mXlumi->getTH1()->SetOption("E1");
       mYlumi->setAxisTitle("Lumisection [#]",1);
-      mYlumi->setAxisTitle("\\mu_{y} [cm]",2);
+      mYlumi->setAxisTitle("#mu_{y} [cm]",2);
       mYlumi->getTH1()->SetOption("E1");
       mZlumi->setAxisTitle("Lumisection [#]",1);
-      mZlumi->setAxisTitle("\\mu_{z} [cm]",2);
+      mZlumi->setAxisTitle("#mu_{z} [cm]",2);
       mZlumi->getTH1()->SetOption("E1");
 
-      sXlumi = dbe->book1D("sigmaX vs lumi", "\\sigma_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      sYlumi = dbe->book1D("sigmaY vs lumi", "\\sigma_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
-      sZlumi = dbe->book1D("sigmaZ vs lumi", "\\sigma_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      sXlumi = dbe->book1D("sigmaX vs lumi", "#sigma_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      sYlumi = dbe->book1D("sigmaY vs lumi", "#sigma_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      sZlumi = dbe->book1D("sigmaZ vs lumi", "#sigma_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       sXlumi->setAxisTitle("Lumisection [#]",1);
-      sXlumi->setAxisTitle("\\sigma_{x} [cm]",2);
+      sXlumi->setAxisTitle("#sigma_{x} [cm]",2);
       sXlumi->getTH1()->SetOption("E1");
       sYlumi->setAxisTitle("Lumisection [#]",1);
-      sYlumi->setAxisTitle("\\sigma_{y} [cm]",2);
+      sYlumi->setAxisTitle("#sigma_{y} [cm]",2);
       sYlumi->getTH1()->SetOption("E1");
       sZlumi->setAxisTitle("Lumisection [#]",1);
-      sZlumi->setAxisTitle("\\sigma_{z} [cm]",2);
+      sZlumi->setAxisTitle("#sigma_{z} [cm]",2);
       sZlumi->getTH1()->SetOption("E1");
 
       dxdzlumi = dbe->book1D("dxdz vs lumi", "dX/dZ vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
@@ -1162,11 +1162,11 @@ void Vx3DHLTAnalyzer::beginRun (const Run& iRun, const EventSetup& iSetup)
       fitResults->setBinLabel(9, "X", 2);
       fitResults->setBinLabel(8, "Y", 2);
       fitResults->setBinLabel(7, "Z", 2);
-      fitResults->setBinLabel(6, "\\sigma_{Z}", 2);
+      fitResults->setBinLabel(6, "#sigma_{Z}", 2);
       fitResults->setBinLabel(5, "#frac{dX}{dZ}[rad]", 2);
       fitResults->setBinLabel(4, "#frac{dY}{dZ}[rad]", 2);
-      fitResults->setBinLabel(3, "\\sigma_{X}", 2);
-      fitResults->setBinLabel(2, "\\sigma_{Y}", 2);
+      fitResults->setBinLabel(3, "#sigma_{X}", 2);
+      fitResults->setBinLabel(2, "#sigma_{Y}", 2);
       fitResults->setBinLabel(1, "Vertices", 2);
       fitResults->setBinLabel(1, "Value", 1);
       fitResults->setBinLabel(2, "Stat. Error", 1);
