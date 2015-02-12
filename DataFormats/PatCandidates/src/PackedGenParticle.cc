@@ -37,22 +37,6 @@ float pat::PackedGenParticle::dz(const Point &p) const {
 
 //// Everything below is just trivial implementations of reco::Candidate methods
 
-pat::PackedGenParticle::const_iterator pat::PackedGenParticle::begin() const { 
-  return const_iterator( new const_iterator_imp_specific ); 
-}
-
-pat::PackedGenParticle::const_iterator pat::PackedGenParticle::end() const { 
-  return  const_iterator( new const_iterator_imp_specific ); 
-}
-
-pat::PackedGenParticle::iterator pat::PackedGenParticle::begin() { 
-  return iterator( new iterator_imp_specific ); 
-}
-
-pat::PackedGenParticle::iterator pat::PackedGenParticle::end() { 
-  return iterator( new iterator_imp_specific ); 
-}
-
 const reco::CandidateBaseRef & pat::PackedGenParticle::masterClone() const {
   throw cms::Exception("Invalid Reference")
     << "this Candidate has no master clone reference."

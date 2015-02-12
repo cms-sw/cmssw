@@ -134,50 +134,6 @@ def customiseL1Menu(process):
 
 ##############################################################################
 
-def customiseL1Menu_HI(process):
-
-    # replace the L1 menu from the global tag with one of the following alternatives
-
-    luminosityDirectory = "startup"
-    useXmlFile = 'L1Menu_CollisionsHeavyIons2011_v0_nobsc_notau_centrality_q2_singletrack.v1.xml'
-
-    print '   Retrieve L1 trigger menu only from XML file '
-    print '       ', useXmlFile
-    print '       '
-
-    process.load('L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuXml_cfi')
-    process.l1GtTriggerMenuXml.TriggerMenuLuminosity = luminosityDirectory
-    process.l1GtTriggerMenuXml.DefXmlFile = useXmlFile
-
-    process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMenuConfig_cff')
-    process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
-
-    return process
-
-##############################################################################
-
-def customiseL1Menu_HI(process):
-
-    # replace the L1 menu from the global tag with one of the following alternatives
-
-    luminosityDirectory = "startup"
-    useXmlFile = 'L1Menu_CollisionsHeavyIons2011_v0_nobsc_notau_centrality_q2_singletrack.v1.xml'
-
-    print '   Retrieve L1 trigger menu only from XML file '
-    print '       ', useXmlFile
-    print '       '
-
-    process.load('L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuXml_cfi')
-    process.l1GtTriggerMenuXml.TriggerMenuLuminosity = luminosityDirectory
-    process.l1GtTriggerMenuXml.DefXmlFile = useXmlFile
-
-    process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMenuConfig_cff')
-    process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
-
-    return process
-
-##############################################################################
-
 def customiseOutputCommands(process):
 
     # customization of output commands, on top of the output commands selected
