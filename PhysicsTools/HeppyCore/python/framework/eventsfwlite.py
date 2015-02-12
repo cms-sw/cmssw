@@ -1,9 +1,8 @@
 from DataFormats.FWLite import Events as FWLiteEvents
 
 class Events(object):
-    def __init__(self, files, tree_name,  **kwargs):
-	if "options" in kwargs :
-		options=kwargs["options"]
+    def __init__(self, files, tree_name,  options=None):
+	if options is not None :
 		if not hasattr(options,"inputFiles"):
 		 	options.inputFiles=files
 		if not hasattr(options,"maxEvents"):
