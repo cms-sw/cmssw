@@ -125,17 +125,17 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     }
 
     //make sure that performance cuts are not interfering with selection on reconstruction
-    if ((originpTMin>0 && simTrack_pTMin>0) && (originpTMin>simTrack_pTMin))
+    if ((originpTMin>0 && simTrack_pTMin>0) && (originpTMin<simTrack_pTMin))
     {
-        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack pT is lower than on pT estimate from seed.");
+        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack pT is tighter than cut on pT estimate from seed.");
     }
     if ((originHalfLength>0 && simTrack_maxZ0>0) && (originHalfLength>simTrack_maxZ0))
     {
-        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack dz is lower than on dz estimate from seed.");
+        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack dz is tighter than cut on dz estimate from seed.");
     }
     if ((originRadius>0 && simTrack_maxD0>0) && (originRadius>simTrack_maxD0))
     {
-        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack dxy is lower than on dxy estimate from seed.");
+        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack dxy is tighter than cut on dxy estimate from seed.");
     }
     simTrackToken = consumes<edm::SimTrackContainer>(edm::InputTag("famosSimHits"));
     simVertexToken = consumes<edm::SimVertexContainer>(edm::InputTag("famosSimHits"));

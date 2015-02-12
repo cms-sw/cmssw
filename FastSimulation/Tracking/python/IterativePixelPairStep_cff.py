@@ -15,7 +15,6 @@ iterativePixelPairSeeds.minLayersCrossed =3
 iterativePixelPairSeeds.originRadius = 0.2
 iterativePixelPairSeeds.originHalfLength = 17.5
 iterativePixelPairSeeds.originpTMin = 0.6
-
 iterativePixelPairSeeds.beamSpot = ''
 iterativePixelPairSeeds.primaryVertex = 'firstStepPrimaryVertices' # vertices are generated from the initalStepTracks
 from RecoTracker.IterativeTracking.PixelPairStep_cff import pixelPairStepSeedLayers

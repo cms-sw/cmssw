@@ -20,8 +20,8 @@ iterativeLowPtTripletSeeds.layerList = PixelLayerTriplets.layerList
 
 # track candidates
 
-from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
-lowPtTripletStepTrackCandidates = trackCandidateProducer.clone(
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
+lowPtTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
     SeedProducer = cms.InputTag("iterativeLowPtTripletSeeds"),
     MinNumberOfCrossedLayers = 3)
 

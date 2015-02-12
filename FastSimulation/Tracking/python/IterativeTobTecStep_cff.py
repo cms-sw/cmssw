@@ -15,9 +15,9 @@ iterativeTobTecSeeds.simTrackSelection.pTMin = 0.3
 iterativeTobTecSeeds.simTrackSelection.maxD0 = 99.
 iterativeTobTecSeeds.simTrackSelection.maxZ0 = 99.
 iterativeTobTecSeeds.minLayersCrossed = 4
-iterativeTobTecSeeds.originRadius = 6.0 # was 5.0
-iterativeTobTecSeeds.originHalfLength = 30.0 # was 10.0
-iterativeTobTecSeeds.originpTMin = 0.6 # was 0.5
+iterativeTobTecSeeds.originRadius = 6.0
+iterativeTobTecSeeds.originHalfLength = 30.0
+iterativeTobTecSeeds.originpTMin = 0.6
 
 iterativeTobTecSeeds.primaryVertex = ''
 
