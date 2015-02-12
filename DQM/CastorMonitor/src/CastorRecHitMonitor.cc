@@ -40,17 +40,43 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   std::cout<<"CastorRecHitMonitor::bookHistograms"<<std::endl;
  ibooker.setCurrentFolder(subsystemname + "/CastorRecHitMonitor");
 
- sprintf(s,"CastorRecHitSumInSectors");
-    //h2RHvsSec = ibooker.book2D(s,s, 16, 0,16, 20000, 0.,200000.);
-    //h2RHvsSec->getTH2F()->GetXaxis()->SetTitle("sectorPhi");
-    //h2RHvsSec->getTH2F()->GetYaxis()->SetTitle("RecHit");
-    //h2RHvsSec->getTH2F()->SetOption("colz");
+  const int N_Sec = 16;
+  const int nySec = 20;
+  static float ySec[nySec+1];
+  static float xSec[N_Sec+1];
+  double E0sec = 1./1024.;
+  ySec[0] = 0.; ySec[1] = E0sec;
+  double lnBsec = log(2.);
+//  for(int i=1; i<=nySec; i++) ySec[i+1]= E0sec*exp(i*lnBsec);
+  for(int j=1; j<=nySec; j++) ySec[j] = E0sec*exp(j*lnBsec);
+  for(int i=0; i<=N_Sec; i++) xSec[i]=i;
+
+  sprintf(s,"CastorRecHit Sectors");
+// sprintf(s,"CastorRecHitSumInSectors");
+    h2RHvsSec = ibooker.book2D(s,s, N_Sec, xSec, nySec, ySec);
+    h2RHvsSec->getTH2F()->GetXaxis()->SetTitle("sectorPhi");
+    h2RHvsSec->getTH2F()->GetYaxis()->SetTitle("RecHit / GeV");
+    h2RHvsSec->getTH2F()->SetOption("colz");
+
+
+ const int nxCh = 224;
+ const int nyE = 18;
+ static float xCh[nxCh+1];
+ float yErh[nyE+1];
+ for(int i=0; i<=nxCh; i++) xCh[i]=i;
+ double E0 = 1./1024.;
+ double lnA = log(2.); // log(50.)/double(nyE);
+ yErh[0] = 0.; yErh[1] = E0;
+ for(int j=1; j<=nyE; j++) yErh[j+1] = E0*exp(j*lnA);
+// for(int i=1; i<=nyE; i++) yErh[i+1]= E0*exp(i*lnA);
+// for(int i=0; i<=nyE; i++) printf(" [%d]%f",i,yErh[i]);
+// printf(":CastorRecHitMonitor\n");
 
   sprintf(s,"CastorTileRecHit");
-    //h2RHchan = ibooker.book2D(s,s, 224, 0,224, 5100, -1000,50000.);
-    //h2RHchan->getTH2F()->GetXaxis()->SetTitle("sector*14+module");
-    //h2RHchan->getTH2F()->GetYaxis()->SetTitle("RecHit");
-    //h2RHchan->getTH2F()->SetOption("colz");  
+    h2RHchan = ibooker.book2D(s,s, nxCh, xCh, nyE, yErh);
+    h2RHchan->getTH2F()->GetXaxis()->SetTitle("sector*14+module");
+    h2RHchan->getTH2F()->GetYaxis()->SetTitle("RecHit / GeV");
+    h2RHchan->getTH2F()->SetOption("colz");  
 
   sprintf(s,"CastorRecHitMap(cumulative)");
     h2RHmap = ibooker.book2D(s,s,14, 0,14, 16, 0,16);
@@ -115,15 +141,15 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
   for(int phi=0; phi<16; phi++) {
     double es = 0.;
     for (int z=0; z<14; z++) {
-      //int ind = phi*14 + z +1;
-      float rh = energyInEachChannel[z][phi];
-      //h2RHchan->Fill(ind,rh);
+      float rh = energyInEachChannel[z][phi]*0.001;
+      int ind = phi*14 + z +1;
+      h2RHchan->Fill(ind,rh);
       hallchan->Fill(rh);
       if(rh < 0.) continue;      
       h2RHmap->Fill(z,phi,rh); 
       es += rh;
     }
-    //h2RHvsSec->Fill(phi,es);
+    h2RHvsSec->Fill(phi,es);
   } // end for(int phi=0;
 
  if(ievt_ %100 == 0) 
