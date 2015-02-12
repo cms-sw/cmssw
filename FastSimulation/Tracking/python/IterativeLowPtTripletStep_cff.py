@@ -50,25 +50,8 @@ lowPtTripletStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
                                      HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
                                      )
 
-# Final selection
-import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-lowPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-        src='lowPtTripletStepTracks',
-            trackSelectors= cms.VPSet(
-            RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-                name = 'lowPtTripletStepLoose',
-                            ), #end of pset
-                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-                name = 'lowPtTripletStepTight',
-                            preFilterName = 'lowPtTripletStepLoose',
-                            ),
-                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-                name = 'lowPtTripletStep',
-                            preFilterName = 'lowPtTripletStepTight',
-                            ),
-                    ) #end of vpset
-            ) #end of clone
-
+# TRACK SELECTION AND QUALITY FLAG SETTING.
+from RecoTracker.IterativeTracking.LowPtTripletStep_cff import lowPtTripletStepSelector
 
 LowPtTripletStep = cms.Sequence(iterativeLowPtTripletSeeds+
                                 lowPtTripletStepTrackCandidates+

@@ -53,23 +53,7 @@ initialStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
                                         )
 
 # Final selection
-import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-        src='initialStepTracks',
-        trackSelectors= cms.VPSet(
-            RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-                name = 'initialStepLoose',
-                            ), #end of pset
-                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-                name = 'initialStepTight',
-                            preFilterName = 'initialStepLoose',
-                            ),
-                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-                name = 'initialStep',
-                            preFilterName = 'initialStepTight',
-                            ),
-            ) #end of vpset
-        ) #end of clone
+from RecoTracker.IterativeTracking.InitialStep_cff import initialStepSelector,initialStep
 
 # Final sequence
 InitialStep = cms.Sequence(iterativeInitialSeeds
@@ -77,6 +61,7 @@ InitialStep = cms.Sequence(iterativeInitialSeeds
                            +initialStepTracks                                    
                            +firstStepPrimaryVertices
                            +initialStepSelector
+                           +initialStep
                            +initialStepSimTrackIds)
 
 

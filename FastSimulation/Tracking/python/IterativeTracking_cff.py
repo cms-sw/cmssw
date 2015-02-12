@@ -35,4 +35,3 @@ iterTracking = cms.Sequence(
     +PixelLessStep
     +TobTecStep
     +generalTracksBeforeMixing)
-

@@ -58,55 +58,12 @@ pixelLessStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
                                           )
 
 # track selection
-import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-        src='pixelLessStepTracks',
-            trackSelectors= cms.VPSet(
-            RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-                name = 'pixelLessStepLoose',
-                            chi2n_par = 0.5,
-                            res_par = ( 0.003, 0.001 ),
-                            minNumberLayers = 5,
-                            maxNumberLostLayers = 1,
-                            minNumber3DLayers = 3,
-                            d0_par1 = ( 1.5, 4.0 ),
-                            dz_par1 = ( 1.5, 4.0 ),
-                            d0_par2 = ( 1.5, 4.0 ),
-                            dz_par2 = ( 1.5, 4.0 )
-                            ),
-                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-                name = 'pixelLessStepTight',
-                            preFilterName = 'pixelLessStepLoose',
-                            chi2n_par = 0.35,
-                            res_par = ( 0.003, 0.001 ),
-                            minNumberLayers = 5,
-                            maxNumberLostLayers = 0,
-                            minNumber3DLayers = 3,
-                            d0_par1 = ( 1.2, 4.0 ),
-                            dz_par1 = ( 1.2, 4.0 ),
-                            d0_par2 = ( 1.2, 4.0 ),
-                            dz_par2 = ( 1.2, 4.0 )
-                            ),
-                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-                name = 'pixelLessStep',
-                            preFilterName = 'pixelLessStepTight',
-                            chi2n_par = 0.25,
-                            res_par = ( 0.003, 0.001 ),
-                            minNumberLayers = 5,
-                            maxNumberLostLayers = 0,
-                            minNumber3DLayers = 3,
-                            d0_par1 = ( 1., 4.0 ),
-                            dz_par1 = ( 1., 4.0 ),
-                            d0_par2 = ( 1., 4.0 ),
-                            dz_par2 = ( 1., 4.0 )
-                            ),
-                    ) #end of vpset
-            ) #end of clone
-
+from RecoTracker.IterativeTracking.PixelLessStep_cff import pixelLessStepSelector,pixelLessStep
 
 # sequence
 PixelLessStep = cms.Sequence(iterativePixelLessSeeds+
                              pixelLessStepTrackCandidates+
                              pixelLessStepTracks+
                              pixelLessStepSimTrackIds+
-                             pixelLessStepSelector)
+                             pixelLessStepSelector+
+                             pixelLessStep)

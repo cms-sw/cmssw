@@ -54,23 +54,8 @@ pixelPairStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
                                           )
 
 # Final selection
-import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-pixelPairStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-        src='pixelPairStepTracks',
-            trackSelectors= cms.VPSet(
-            RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-                name = 'pixelPairStepLoose',
-                            ), #end of pset
-                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-                name = 'pixelPairStepTight',
-                            preFilterName = 'pixelPairStepLoose',
-                            ),
-                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-                name = 'pixelPairStep',
-                            preFilterName = 'pixelPairStepTight',
-                            ),
-                    ) #end of vpset
-            ) #end of clone
+from RecoTracker.IterativeTracking.PixelPairStep_cff import pixelPairStepSelector
+
 
 # sequence
 PixelPairStep = cms.Sequence(iterativePixelPairSeeds+

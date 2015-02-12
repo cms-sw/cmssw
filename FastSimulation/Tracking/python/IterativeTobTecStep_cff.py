@@ -61,50 +61,7 @@ tobTecStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
 
 
 # track selection
-import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-        src='tobTecStepTracks',
-            trackSelectors= cms.VPSet(
-            RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-                name = 'tobTecStepLoose',
-                            chi2n_par = 0.4,
-                            res_par = ( 0.003, 0.001 ),
-                            minNumberLayers = 5,
-                            maxNumberLostLayers = 1,
-                            minNumber3DLayers = 2,
-                            d0_par1 = ( 2.0, 4.0 ),
-                            dz_par1 = ( 1.8, 4.0 ),
-                            d0_par2 = ( 2.0, 4.0 ),
-                            dz_par2 = ( 1.8, 4.0 )
-                            ),
-                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-                name = 'tobTecStepTight',
-                            preFilterName = 'tobTecStepLoose',
-                            chi2n_par = 0.3,
-                            res_par = ( 0.003, 0.001 ),
-                            minNumberLayers = 5,
-                            maxNumberLostLayers = 0,
-                            minNumber3DLayers = 2,
-                            d0_par1 = ( 1.5, 4.0 ),
-                            dz_par1 = ( 1.4, 4.0 ),
-                            d0_par2 = ( 1.5, 4.0 ),
-                            dz_par2 = ( 1.4, 4.0 )
-                            ),
-                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-                name = 'tobTecStep',
-                            preFilterName = 'tobTecStepTight',
-                            chi2n_par = 0.2,
-                            res_par = ( 0.003, 0.001 ),
-                            minNumberLayers = 5,
-                            maxNumberLostLayers = 0,
-                            minNumber3DLayers = 2,
-                            d0_par1 = ( 1.4, 4.0 ),
-                            dz_par1 = ( 1.3, 4.0 ),
-                            d0_par2 = ( 1.4, 4.0 ),
-                            dz_par2 = ( 1.3, 4.0 )
-                            ),
-                    ) #end of vpset
-            ) #end of clone
+from RecoTracker.IterativeTracking.TobTecStep_cff import tobTecStepSelector
 
 # sequence
 TobTecStep = cms.Sequence(iterativeTobTecSeeds
