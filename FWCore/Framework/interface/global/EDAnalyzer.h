@@ -35,9 +35,12 @@ namespace edm {
       
     public:
       EDAnalyzer() = default;
- #ifdef __INTEL_COMPILER
+// We do this only in the case of the intel compiler as this might
+// end up creating a lot of code bloat due to inline symbols being generated 
+// in each DSO which uses this header.
+#ifdef __INTEL_COMPILER
       virtual ~EDAnalyzer() {}
- #endif
+#endif
       // ---------- const member functions ---------------------
       
       // ---------- static member functions --------------------
