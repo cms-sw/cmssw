@@ -118,6 +118,7 @@ class JetAnalyzer( Analyzer ):
 #            photons = [ g for g in event.selectedPhotons ]
             for g in event.selectedPhotons:
               photons.append( g )
+              break
         event.gamma_cleanJetsAll = cleanNearestJetOnly(event.cleanJetsAll, photons, self.jetGammaDR)
         event.gamma_cleanJets    = [j for j in event.gamma_cleanJetsAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
         event.gamma_cleanJetsFwd = [j for j in event.gamma_cleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
