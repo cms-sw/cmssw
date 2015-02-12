@@ -276,14 +276,3 @@ def customise_csc_PostLS1(process):
         process = customise_csc_Validation(process)
 
     return process
-
-def customise_csc_hlt(process):
-    
-    process.CSCGeometryESModule.useGangedStripsInME1a = False
-    
-    process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
-    process.hltCsc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
-    
-    process = customise_csc_Indexing(process)
-
-    return process

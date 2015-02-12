@@ -181,22 +181,6 @@ void pat::PackedCandidate::unpackTrk() const {
 
 //// Everything below is just trivial implementations of reco::Candidate methods
 
-pat::PackedCandidate::const_iterator pat::PackedCandidate::begin() const { 
-  return const_iterator( new const_iterator_imp_specific ); 
-}
-
-pat::PackedCandidate::const_iterator pat::PackedCandidate::end() const { 
-  return  const_iterator( new const_iterator_imp_specific ); 
-}
-
-pat::PackedCandidate::iterator pat::PackedCandidate::begin() { 
-  return iterator( new iterator_imp_specific ); 
-}
-
-pat::PackedCandidate::iterator pat::PackedCandidate::end() { 
-  return iterator( new iterator_imp_specific ); 
-}
-
 const reco::CandidateBaseRef & pat::PackedCandidate::masterClone() const {
   throw cms::Exception("Invalid Reference")
     << "this Candidate has no master clone reference."
