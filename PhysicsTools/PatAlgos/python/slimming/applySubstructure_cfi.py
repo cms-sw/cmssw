@@ -23,7 +23,7 @@ def applySubstructure( process ) :
                      genJetCollection = cms.InputTag('slimmedGenJetsAK8')
                      )
     process.patJetsAK8.userData.userFloats.src = [] # start with empty list of user floats
-    process.selectedPatJetsAK8.cut = cms.string("pt > 50")
+    process.selectedPatJetsAK8.cut = cms.string("pt > 200")
 
 
 
