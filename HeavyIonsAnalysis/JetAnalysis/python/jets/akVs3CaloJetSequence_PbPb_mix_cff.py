@@ -10,7 +10,7 @@ akVs3Calomatch = patJetGenJetMatch.clone(
     )
 
 akVs3Caloparton = patJetPartonMatch.clone(src = cms.InputTag("akVs3CaloJets"),
-                                                        matched = cms.InputTag("hiGenParticles")
+                                                        matched = cms.InputTag("genParticles")
                                                         )
 
 akVs3Calocorr = patJetCorrFactors.clone(
@@ -50,7 +50,7 @@ akVs3CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs3Ca
                                                              trackTag = cms.InputTag("hiGeneralTracks"),
                                                              fillGenJets = True,
                                                              isMC = True,
-                                                             genParticles = cms.untracked.InputTag("hiGenParticles"),
+                                                             genParticles = cms.untracked.InputTag("genParticles"),
 							     eventInfoTag = cms.InputTag("hiSignal")
                                                              )
 

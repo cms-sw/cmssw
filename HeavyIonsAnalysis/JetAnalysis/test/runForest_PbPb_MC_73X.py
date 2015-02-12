@@ -33,7 +33,9 @@ process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
     # "/store/user/istaslis/PyquenUnquenched_pthat80_73X_GEN-SIM/PyquenUnquenched_pthat80_73X_RECO/5d229172ba4d998b79858be1c5558681/step3_RAW2DIGI_L1Reco_RECO_PU_17_1_Rxk.root"
-    "/store/user/istaslis/PyquenUnquenched_pthat80_73X_GEN-SIM/PyquenUnquenched_pthat80_73X_RECO/5d229172ba4d998b79858be1c5558681/step3_RAW2DIGI_L1Reco_RECO_PU_10_1_pdT.root"
+    #"/store/user/istaslis/PyquenUnquenched_pthat80_73X_GEN-SIM/PyquenUnquenched_pthat80_73X_RECO/5d229172ba4d998b79858be1c5558681/step3_RAW2DIGI_L1Reco_RECO_PU_10_1_pdT.root"
+    #"/store/user/mnguyen/PyquenUnquenched_Dijet_pthat80_740pre6_GEN-SIM/PyquenUnquenched_Dijet_pthat80_740pre6_MCHI2_74_V0_RECO/35189fe3832afd77f4f2029b245352e2/step3_RAW2DIGI_L1Reco_RECO_100_1_0f3.root"
+    "root://xrootd.unl.edu//store/user/mnguyen/PyquenUnquenched_Dijet_pthat80_740pre6_GEN-SIM/PyquenUnquenched_Dijet_pthat80_740pre6_MCHI2_74_V0_RECO/35189fe3832afd77f4f2029b245352e2/step3_RAW2DIGI_L1Reco_RECO_17_1_mKD.root"
     ))
 
 # Number of events we want to process, -1 = all events
@@ -60,14 +62,21 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_HIon', '')
 
+process.GlobalTag.toGet.extend([
+    cms.PSet(record = cms.string("HeavyIonRcd"),
+             tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5_v740x01_mc"),
+             connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
+             label = cms.untracked.string("HFtowersHydjetDrum5")
+         ),
+])
+
 from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import *
 overrideGT_PbPb2760(process)
 
-process.HeavyIonGlobalParameters = cms.PSet(
-    centralityVariable = cms.string("HFtowers"),
-    nonDefaultGlauberModel = cms.string("Hydjet_Drum"),
-    centralitySrc = cms.InputTag("hiCentrality")
-    )
+process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
+process.centralityBin.Centrality = cms.InputTag("hiCentrality")
+process.centralityBin.centralityVariable = cms.string("HFtowers")
+process.centralityBin.nonDefaultGlauberModel = cms.string("HydjetDrum5")
 
 #####################################################################################
 # Define tree output
@@ -169,6 +178,9 @@ process.multiPhotonAnalyzer.HepMCProducer = cms.InputTag("generator")
 process.RandomNumberGeneratorService.multiPhotonAnalyzer = process.RandomNumberGeneratorService.generator.clone()
 process.load('HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi')
 
+process.photonMatch.matched = cms.InputTag("genParticles")
+process.multiPhotonAnalyzer.GenParticleProducer = cms.InputTag("genParticles")
+process.ggHiNtuplizer.genParticleSrc = cms.InputTag("genParticles")
 #####################
 # muons
 ######################
@@ -191,25 +203,28 @@ process.hiSelectGenJets = cms.Sequence(
     ak7HiGenJetsCleaned
 )
 
+process.HiGenParticleAna.genParticleSrc = cms.untracked.InputTag("genParticles")
+
 process.ana_step = cms.Path(process.heavyIon*
                             process.hltanalysis *
 #temp                            process.hltobject *
+                            process.centralityBin *
                             process.hiEvtAnalyzer*
                             process.HiGenParticleAna*
                             #process.hiGenJetsCleaned*
-                            process.tpRecoAssocGeneralTracks + #used in HiPFJetAnalyzer
+                            #process.tpRecoAssocGeneralTracks + #used in HiPFJetAnalyzer
                             process.hiSelectGenJets +
                             process.jetSequences +
                             process.photonStep_withReco +
-                            process.ggHiNtuplizer +
+                            #process.ggHiNtuplizer +
                             process.pfcandAnalyzer +
                             process.rechitAna +
 #temp                            process.hltMuTree +
                             process.HiForest +
                             # process.cutsTPForFak +
                             # process.cutsTPForEff +
-                            process.anaTrack +
-                            process.pixelTrack
+                            process.anaTrack
+                            #process.pixelTrack
                             )
 
 process.load('HeavyIonsAnalysis.JetAnalysis.EventSelection_cff')

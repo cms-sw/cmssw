@@ -10,7 +10,7 @@ akPu7PFmatch = patJetGenJetMatch.clone(
     )
 
 akPu7PFparton = patJetPartonMatch.clone(src = cms.InputTag("akPu7PFJets"),
-                                                        matched = cms.InputTag("hiGenParticles")
+                                                        matched = cms.InputTag("genParticles")
                                                         )
 
 akPu7PFcorr = patJetCorrFactors.clone(
@@ -50,7 +50,7 @@ akPu7PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu7PFpa
                                                              trackTag = cms.InputTag("hiGeneralTracks"),
                                                              fillGenJets = True,
                                                              isMC = True,
-                                                             genParticles = cms.untracked.InputTag("hiGenParticles"),
+                                                             genParticles = cms.untracked.InputTag("genParticles"),
 							     eventInfoTag = cms.InputTag("generator")
                                                              )
 

@@ -42,7 +42,7 @@ do
                             ismc="False"
                             corrlabel="_hiIterativeTracks"
                             domatch="True"
-                            genparticles="hiGenParticles"
+                            genparticles="genParticles"
                             tracks="hiGeneralTracks"
                             pflow="particleFlowTmp"
                             domatch="False"

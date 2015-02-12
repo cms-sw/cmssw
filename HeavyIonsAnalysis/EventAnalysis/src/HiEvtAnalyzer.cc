@@ -45,6 +45,7 @@ private:
   // ----------member data ---------------------------
   edm::InputTag CentralityTag_;
   edm::InputTag CentralityBinTag_;
+
   edm::InputTag EvtPlaneTag_;
   edm::InputTag EvtPlaneFlatTag_;
 
@@ -66,6 +67,8 @@ private:
   int nEvtPlanes;
   int HltEvtCnt;
   int hiBin;
+  int hiNpix, hiNpixelTracks, hiNtracks, hiNtracksPtCut, hiNtracksEtaCut, hiNtracksEtaPtCut;
+  float hiHF, hiHFplus, hiHFminus, hiHFplusEta4, hiHFminusEta4, hiHFhit, hiHFhitPlus, hiHFhitMinus, hiEB, hiET, hiEE, hiEEplus, hiEEminus, hiZDC, hiZDCplus, hiZDCminus;
 
   float fNpart;
   float fNcoll;
@@ -103,7 +106,8 @@ private:
 // constructors and destructor
 //
 HiEvtAnalyzer::HiEvtAnalyzer(const edm::ParameterSet& iConfig) :
-  CentralityBinTag_(iConfig.getParameter<edm::InputTag> ("CentralityBin")),
+  CentralityTag_(iConfig.getParameter<edm::InputTag> ("CentralitySrc")),
+  CentralityBinTag_(iConfig.getParameter<edm::InputTag> ("CentralityBinSrc")),
   EvtPlaneTag_(iConfig.getParameter<edm::InputTag> ("EvtPlane")),
   EvtPlaneFlatTag_(iConfig.getParameter<edm::InputTag> ("EvtPlaneFlat")),
   HiMCTag_(iConfig.getParameter<edm::InputTag> ("HiMC")),
@@ -114,6 +118,7 @@ HiEvtAnalyzer::HiEvtAnalyzer(const edm::ParameterSet& iConfig) :
   doMC_(iConfig.getParameter<bool> ("doMC")),
   doVertex_(iConfig.getParameter<bool>("doVertex"))
 {
+
 }
 
 HiEvtAnalyzer::~HiEvtAnalyzer()
@@ -134,8 +139,6 @@ void
 HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  //ESHandle<SetupData> pSetup;
-  //iSetup.get<SetupRecord>().get(pSetup);
 
   // Run info
   event = iEvent.id().event();
@@ -165,8 +168,41 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     proc_id =  hepmcevt->GetEvent()->signal_process_id();
   }
 
-  //iEvent.getByLabel(CentralityBinTag_,binHandle);
-  //hiBin = *binHandle;
+  if (doCentrality_) {
+
+    edm::Handle<int> cbin_;
+    iEvent.getByLabel(CentralityBinTag_,cbin_);
+    hiBin = *cbin_;
+
+    edm::Handle<reco::Centrality> centrality;
+    iEvent.getByLabel(CentralityTag_, centrality);
+
+    hiNpix = centrality->multiplicityPixel();
+    hiNpixelTracks = centrality->NpixelTracks();
+    hiNtracks = centrality->Ntracks();
+    hiNtracksPtCut = centrality->NtracksPtCut();
+    hiNtracksEtaCut = centrality->NtracksEtaCut();
+    hiNtracksEtaPtCut = centrality->NtracksEtaPtCut();
+
+    hiHF = centrality->EtHFtowerSum();
+    hiHFplus = centrality->EtHFtowerSumPlus();
+    hiHFminus = centrality->EtHFtowerSumMinus();
+    hiHFplusEta4 = centrality->EtHFtruncatedPlus();
+    hiHFminusEta4 = centrality->EtHFtruncatedMinus();
+    hiHFhit = centrality->EtHFhitSum();
+    hiHFhitPlus = centrality->EtHFhitSumPlus();
+    hiHFhitMinus = centrality->EtHFhitSumMinus();
+
+    hiZDC = centrality->zdcSum();
+    hiZDCplus = centrality->zdcSumPlus();
+    hiZDCminus = centrality->zdcSumMinus();
+
+    hiEEplus = centrality->EtEESumPlus();
+    hiEEminus = centrality->EtEESumMinus();
+    hiEE = centrality->EtEESum();
+    hiEB = centrality->EtEBSum();
+    hiET = centrality->EtMidRapiditySum();
+  }
 
   nEvtPlanes = 0;
   if (doEvtPlane_) {
@@ -264,6 +300,31 @@ HiEvtAnalyzer::beginJob()
   }
 
   thi_->Branch("hiBin",&hiBin,"hiBin/I");
+  thi_->Branch("hiHF",&hiHF,"hiHF/F");
+  thi_->Branch("hiHFplus",&hiHFplus,"hiHFplus/F");
+  thi_->Branch("hiHFminus",&hiHFminus,"hiHFminus/F");
+  thi_->Branch("hiHFplusEta4",&hiHFplusEta4,"hiHFplusEta4/F");
+  thi_->Branch("hiHFminusEta4",&hiHFminusEta4,"hiHFminusEta4/F");
+
+  thi_->Branch("hiZDC",&hiZDC,"hiZDC/F");
+  thi_->Branch("hiZDCplus",&hiZDCplus,"hiZDCplus/F");
+  thi_->Branch("hiZDCminus",&hiZDCminus,"hiZDCminus/F");
+
+  thi_->Branch("hiHFhit",&hiHFhit,"hiHFhit/F");
+  thi_->Branch("hiHFhitPlus",&hiHFhitPlus,"hiHFhitPlus/F");
+  thi_->Branch("hiHFhitMinus",&hiHFhitMinus,"hiHFhitMinus/F");
+
+  thi_->Branch("hiET",&hiET,"hiET/F");
+  thi_->Branch("hiEE",&hiEE,"hiEE/F");
+  thi_->Branch("hiEB",&hiEB,"hiEB/F");
+  thi_->Branch("hiEEplus",&hiEEplus,"hiEEplus/F");
+  thi_->Branch("hiEEminus",&hiEEminus,"hiEEminus/F");
+  thi_->Branch("hiNpix",&hiNpix,"hiNpix/I");
+  thi_->Branch("hiNpixelTracks",&hiNpixelTracks,"hiNpixelTracks/I");
+  thi_->Branch("hiNtracks",&hiNtracks,"hiNtracks/I");
+  thi_->Branch("hiNtracksPtCut",&hiNtracksPtCut,"hiNtracksPtCut/I");
+  thi_->Branch("hiNtracksEtaCut",&hiNtracksEtaCut,"hiNtracksEtaCut/I");
+  thi_->Branch("hiNtracksEtaPtCut",&hiNtracksEtaPtCut,"hiNtracksEtaPtCut/I");
 
   // Event plane
   if (doEvtPlane_) {

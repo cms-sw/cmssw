@@ -186,12 +186,12 @@ HiGenAnalyzer::HiGenAnalyzer(const edm::ParameterSet& iConfig)
   chargedOnly_ = iConfig.getUntrackedParameter<Bool_t>("chargedOnly", false);
   stableOnly_ = iConfig.getUntrackedParameter<Bool_t>("stableOnly", false);
   src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator"));
-  genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("genpSrc",edm::InputTag("hiGenParticles"));
+  genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("genParticleSrc",edm::InputTag("hiGenParticles"));
   genHIsrc_ = iConfig.getUntrackedParameter<edm::InputTag>("genHiSrc",edm::InputTag("heavyIon"));
   doParticles_ = iConfig.getUntrackedParameter<Bool_t>("doParticles", true);
   vector<int> defaultPDGs;
   motherDaughterPDGsToSave_ = iConfig.getUntrackedParameter<std::vector<int> >("motherDaughterPDGsToSave",defaultPDGs);
-  
+
   g4Label = iConfig.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
 
 }
@@ -210,7 +210,7 @@ HiGenAnalyzer::~HiGenAnalyzer()
 //
 
 vector<int> HiGenAnalyzer::getMotherIdx(edm::Handle<reco::GenParticleCollection> parts, const reco::GenParticle pin){
-    
+
     vector<int> motherArr;
     for(UInt_t i = 0; i < parts->size(); ++i){
         const reco::GenParticle& p = (*parts)[i];
@@ -245,12 +245,12 @@ vector<int> HiGenAnalyzer::getDaughterIdx(edm::Handle<reco::GenParticleCollectio
         bool saveFlag=false;
         for(unsigned int ipdg=0; ipdg<motherDaughterPDGsToSave_.size(); ipdg++){
             if(p.pdgId() == motherDaughterPDGsToSave_.at(ipdg)) saveFlag=true;
-        }           
+        }
         if(motherDaughterPDGsToSave_.size()>0 && saveFlag!=true) continue; //save all particles in vector unless vector is empty, then save all particles
         if (p.status()==3) continue; //don't match to the initial collision particles
         for(unsigned int idx=0; idx<p.numberOfMothers(); idx++){
             //if (p.mother(idx)->pt()*p.mother(idx)->eta()*p.mother(idx)->phi() == pin.pt()*pin.eta()*pin.phi()) daughterArr.push_back(i);
-            if(fabs(p.mother(idx)->pt()-pin.pt())<0.001 && fabs(p.mother(idx)->eta()-pin.eta())<0.001 && fabs(p.mother(idx)->phi()-pin.phi())<0.001) daughterArr.push_back(i); 
+            if(fabs(p.mother(idx)->pt()-pin.pt())<0.001 && fabs(p.mother(idx)->eta()-pin.eta())<0.001 && fabs(p.mother(idx)->phi()-pin.phi())<0.001) daughterArr.push_back(i);
         }
     }
     if(daughterArr.size()==0) daughterArr.push_back(-999);
