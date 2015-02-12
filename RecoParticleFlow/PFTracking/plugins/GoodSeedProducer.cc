@@ -158,7 +158,6 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       fitter_ = aFitter->clone();
       edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
       iSetup.get<TransientRecHitRecord>().get(trackerRecHitBuilderName_,theTrackerRecHitBuilder);
-      theTrackerRecHitBuilder.product();
       hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
       fitter_->setHitCloner(&hitCloner);
       smoother_->setHitCloner(&hitCloner);
