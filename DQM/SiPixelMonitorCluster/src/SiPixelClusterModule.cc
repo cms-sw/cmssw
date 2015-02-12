@@ -83,6 +83,18 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, DQMStore::IBoo
   edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
   if(type==0){
     SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
+    // Number of clusters
+    hid = theHistogramId->setHistoId("nclusters",id_);
+    meNClusters_ = iBooker.book1D(hid,"Number of Clusters",8,0.,8.);
+    meNClusters_->setAxisTitle("Number of Clusters",1);
+    // Total cluster charge in MeV
+    hid = theHistogramId->setHistoId("charge",id_);
+    meCharge_ = iBooker.book1D(hid,"Cluster charge",100,0.,200.);
+    meCharge_->setAxisTitle("Charge [kilo electrons]",1);
+    // Total cluster size (in pixels)
+    hid = theHistogramId->setHistoId("size",id_);
+    meSize_ = iBooker.book1D(hid,"Total cluster size",30,0.,30.);
+    meSize_->setAxisTitle("Cluster size [number of pixels]",1);
     if(!reducedSet){
       // Lowest cluster row
       hid = theHistogramId->setHistoId("minrow",id_);
@@ -511,7 +523,8 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
       const PixelTopology * topol = &(theGeomDet->specificTopology());
       LocalPoint clustlp = topol->localPosition( MeasurementPoint(x, y) );
       GlobalPoint clustgp = theGeomDet->surface().toGlobal( clustlp );
-
+      if(modon) meCharge_->Fill((float)charge);
+      if(modon) meSize_->Fill((float)size);
       if(barrel){
 	uint32_t DBlayer;
 	if (!isUpgrade) { DBlayer = PixelBarrelName(DetId(id_)).layerName(); }
@@ -701,7 +714,7 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
 	}
       }
     }
-    //if(modon) (meNClusters_)->Fill((float)numberOfClusters);
+    if(modon) (meNClusters_)->Fill((float)numberOfClusters);
     if(ladon && barrel) (meNClustersLad_)->Fill((float)numberOfClusters);
     if(layon && barrel) (meNClustersLay_)->Fill((float)numberOfClusters);
     if(phion && barrel) (meNClustersPhi_)->Fill((float)numberOfClusters);
@@ -709,8 +722,6 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
     if(diskon && endcap) (meNClustersDisk_)->Fill((float)numberOfClusters);
     if(ringon && endcap) (meNClustersRing_)->Fill((float)numberOfClusters);
 
-    //std::cout<<"number of clusters="<<numberOfClusters<<std::endl;
-      
 
   }
   
