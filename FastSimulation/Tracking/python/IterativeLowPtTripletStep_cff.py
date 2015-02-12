@@ -5,20 +5,18 @@ import FWCore.ParameterSet.Config as cms
 # seeding
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeLowPtTripletSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeLowPtTripletSeeds.skipSimTrackIdTags = [
+iterativeLowPtTripletSeeds.simTrackSelection.skipSimTrackIds = [    
     cms.InputTag("initialStepIds"),
     cms.InputTag("detachedTripletStepIds")]
-iterativeLowPtTripletSeeds.outputSeedCollectionName = 'LowPtPixelTriplets'
-iterativeLowPtTripletSeeds.minRecHits = 3
-iterativeLowPtTripletSeeds.pTMin = 0.25
-iterativeLowPtTripletSeeds.maxD0 = 5.
-iterativeLowPtTripletSeeds.maxZ0 = 50.
-iterativeLowPtTripletSeeds.numberOfHits = 3
+]
+iterativeLowPtTripletSeeds.simTrackSelection.pTMin = 0.25
+iterativeLowPtTripletSeeds.simTrackSelection.maxD0 = 5.
+iterativeLowPtTripletSeeds.simTrackSelection.maxZ0 = 50.
+iterativeLowPtTripletSeeds.minLayersCrossed = 3
 iterativeLowPtTripletSeeds.originRadius = 0.03
 iterativeLowPtTripletSeeds.originHalfLength = 17.5
 iterativeLowPtTripletSeeds.originpTMin = 0.35
-iterativeLowPtTripletSeeds.zVertexConstraint = -1.0
-iterativeLowPtTripletSeeds.primaryVertex = 'none'
+iterativeLowPtTripletSeeds.primaryVertex = ''
 
 #iterativeLowPtTripletSeeds.layerList = ['BPix1+BPix2+BPix3',
 #                                   'BPix1+BPix2+FPix1_pos',
@@ -33,7 +31,7 @@ iterativeLowPtTripletSeeds.layerList = PixelLayerTriplets.layerList
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeLowPtTripletTrackCandidatesWithTriplets = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 iterativeLowPtTripletTrackCandidates = cms.Sequence(iterativeLowPtTripletTrackCandidatesWithTriplets)
-iterativeLowPtTripletTrackCandidatesWithTriplets.SeedProducer = cms.InputTag("iterativeLowPtTripletSeeds","LowPtPixelTriplets")
+iterativeLowPtTripletTrackCandidatesWithTriplets.SeedProducer = cms.InputTag("iterativeLowPtTripletSeeds")
 iterativeLowPtTripletTrackCandidatesWithTriplets.MinNumberOfCrossedLayers = 3
 
 # track producer

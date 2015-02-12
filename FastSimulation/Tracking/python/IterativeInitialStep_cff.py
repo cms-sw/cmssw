@@ -8,18 +8,15 @@ import FWCore.ParameterSet.Config as cms
 # seeding
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeInitialSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-
-iterativeInitialSeeds.outputSeedCollectionName = 'InitialPixelTriplets'
-iterativeInitialSeeds.minRecHits = 3
-iterativeInitialSeeds.pTMin = 0.4 # it was 0.3
-iterativeInitialSeeds.maxD0 = 1.
-iterativeInitialSeeds.maxZ0 = 30.
-iterativeInitialSeeds.numberOfHits = 3
+iterativeInitialSeeds.simTrackSelection.pTMin = 0.4 # it was 0.3
+iterativeInitialSeeds.simTrackSelection.maxD0 = 1.
+iterativeInitialSeeds.simTrackSelection.maxZ0 = 30.
+iterativeInitialSeeds.minLayersCrossed = 3
 iterativeInitialSeeds.originRadius = 1.0 # note: standard tracking uses 0.03, but this value gives a much better agreement in rate and shape for iter0
 iterativeInitialSeeds.originHalfLength = 999 # it was 15.9 
 iterativeInitialSeeds.originpTMin = 0.6
-iterativeInitialSeeds.zVertexConstraint = -1.0
-iterativeInitialSeeds.primaryVertex = 'none'
+
+iterativeInitialSeeds.primaryVertex = ''
 
 #iterativeInitialSeeds.layerList = ['BPix1+BPix2+BPix3',
 #                                   'BPix1+BPix2+FPix1_pos',
@@ -32,7 +29,7 @@ iterativeInitialSeeds.layerList = PixelLayerTriplets.layerList
 # candidate producer
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeInitialTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativeInitialTrackCandidates.SeedProducer = cms.InputTag("iterativeInitialSeeds",'InitialPixelTriplets')
+iterativeInitialTrackCandidates.SeedProducer = cms.InputTag("iterativeInitialSeeds")
 iterativeInitialTrackCandidates.MinNumberOfCrossedLayers = 3
 
 # track producer

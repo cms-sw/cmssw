@@ -6,25 +6,22 @@ import FWCore.ParameterSet.Config as cms
 #from FastSimulation.Tracking.IterativeFourthSeedProducer_cff import *
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativePixelLessSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativePixelLessSeeds.skipSimTrackIdTags = [
+iterativePixelLessSeeds.simTrackSelection.skipSimTrackIds = [
     cms.InputTag("initialStepIds"), 
     cms.InputTag("detachedTripletStepIds"), 
     cms.InputTag("lowPtTripletStepIds"), 
     cms.InputTag("pixelPairStepIds"),  
-    cms.InputTag("mixedTripletStepIds")]
-iterativePixelLessSeeds.outputSeedCollectionName = 'PixelLessPairs'
-iterativePixelLessSeeds.minRecHits = 3
-iterativePixelLessSeeds.pTMin = 0.3
-iterativePixelLessSeeds.maxD0 = 99.
-iterativePixelLessSeeds.maxZ0 = 99.
-iterativePixelLessSeeds.numberOfHits = 3
+    cms.InputTag("mixedTripletStepIds")
+    ]
+iterativePixelLessSeeds.simTrackSelection.pTMin = 0.3
+iterativePixelLessSeeds.simTrackSelection.maxD0 = 99.
+iterativePixelLessSeeds.simTrackSelection.maxZ0 = 99.
+iterativePixelLessSeeds.minLayersCrossed = 3
 iterativePixelLessSeeds.originRadius = 1.0
 iterativePixelLessSeeds.originHalfLength = 12.0
 iterativePixelLessSeeds.originpTMin = 0.4 # was 0.6
-iterativePixelLessSeeds.zVertexConstraint = -1.0
-# skip compatiblity with PV/beamspot
-iterativePixelLessSeeds.skipPVCompatibility = True
-iterativePixelLessSeeds.primaryVertex = 'none'
+
+iterativePixelLessSeeds.primaryVertex = ''
 
 #iterativePixelLessSeeds.layerList = ['TIB1+TIB2',
 #                                     'TIB1+TID1_pos','TIB1+TID1_neg',
@@ -40,7 +37,7 @@ iterativePixelLessSeeds.layerList = pixelLessStepSeedLayers.layerList
 #from FastSimulation.Tracking.IterativeFourthCandidateProducer_cff import *
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativePixelLessTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativePixelLessTrackCandidates.SeedProducer = cms.InputTag("iterativePixelLessSeeds","PixelLessPairs")
+iterativePixelLessTrackCandidates.SeedProducer = cms.InputTag("iterativePixelLessSeeds")
 iterativePixelLessTrackCandidates.MinNumberOfCrossedLayers = 6 # was 5
 
 
