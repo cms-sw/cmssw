@@ -35,8 +35,9 @@ namespace edm {
       
     public:
       EDAnalyzer() = default;
+ #ifdef __INTEL_COMPILER
       virtual ~EDAnalyzer() {}
-      
+ #endif
       // ---------- const member functions ---------------------
       
       // ---------- static member functions --------------------
