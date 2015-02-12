@@ -28,6 +28,12 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
+#include "FWCore/Framework/interface/ValidityInterval.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPAlignmentAlgorithm.h"
 
 // using namespace std;
@@ -98,6 +104,19 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 				   AlignmentParameterStore* store )
 {
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Initializing...";
+
+  edm::ESHandle<Alignments> globalPositionRcd;
+  // FIXME! temporary solution to get highest possible run number
+  const unsigned int MAX_VAL(std::numeric_limits<unsigned int>::max());
+  edm::ValidityInterval iov(setup.get<GlobalPositionRcd>().validityInterval() );
+  if (iov.first().eventID().run()!=1 || iov.last().eventID().run()!=MAX_VAL) {
+    throw cms::Exception("DatabaseError")
+      << "@SUB=AlignmentProducer::applyDB"
+      << "\nTrying to apply "<< setup.get<GlobalPositionRcd>().key().name()
+      << " with multiple IOVs in tag.\n"
+      << "Validity range is "
+      << iov.first().eventID().run() << " - " << iov.last().eventID().run();
+  }
 	
   // accessor Det->AlignableDet
   if ( !muon )
@@ -692,6 +711,10 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
     m_P[itr]=-5.0;
     m_nhPXB[itr]=0;
     m_nhPXF[itr]=0;
+    m_nhTIB[itr]=0;
+    m_nhTOB[itr]=0;
+    m_nhTIB[itr]=0;
+    m_nhTEC[itr]=0;
     m_Eta[itr]=-99.0;
     m_Phi[itr]=-4.0;
     m_Chi2n[itr]=-11.0;
@@ -723,6 +746,10 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 
     int nhpxb   = track->hitPattern().numberOfValidPixelBarrelHits();
     int nhpxf   = track->hitPattern().numberOfValidPixelEndcapHits();
+    int nhtib   = track->hitPattern().numberOfValidStripTIBHits();
+    int nhtob   = track->hitPattern().numberOfValidStripTOBHits();
+    int nhtid   = track->hitPattern().numberOfValidStripTIDHits();
+    int nhtec   = track->hitPattern().numberOfValidStripTECHits();
 
     if (verbose) edm::LogInfo("Alignment") << "New track pt,eta,phi,chi2n,hits: "
 					   << pt << ","
@@ -747,6 +774,10 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
       m_Chi2n[itr]=chi2n;
       m_nhPXB[itr]=nhpxb;
       m_nhPXF[itr]=nhpxf;
+      m_nhTIB[itr]=nhtib;
+      m_nhTOB[itr]=nhtob;
+      m_nhTID[itr]=nhtid;
+      m_nhTEC[itr]=nhtec;
       m_d0[itr]=d0;
       m_dz[itr]=dz;
       itr++;
@@ -1047,7 +1078,11 @@ void HIPAlignmentAlgorithm::bookRoot(void)
   theTree->Branch("Ntracks", &m_Ntracks, "Ntracks/I");
   theTree->Branch("Nhits",    m_Nhits,   "Nhits[Ntracks]/I");       
   theTree->Branch("nhPXB",    m_nhPXB,   "nhPXB[Ntracks]/I");       
-  theTree->Branch("nhPXF",    m_nhPXF,   "nhPXF[Ntracks]/I");       
+  theTree->Branch("nhPXF",    m_nhPXF,   "nhPXF[Ntracks]/I");    
+  theTree->Branch("nhTIB",    m_nhTIB,   "nhTIB[Ntracks]/I");       
+  theTree->Branch("nhTOB",    m_nhTOB,   "nhTOB[Ntracks]/I");    
+  theTree->Branch("nhTID",    m_nhTID,   "nhTID[Ntracks]/I");       
+  theTree->Branch("nhTEC",    m_nhTEC,   "nhTEC[Ntracks]/I");  
   theTree->Branch("Pt",       m_Pt,      "Pt[Ntracks]/F");
   theTree->Branch("P",        m_P,       "P[Ntracks]/F");
   theTree->Branch("Eta",      m_Eta,     "Eta[Ntracks]/F");
@@ -1370,7 +1405,7 @@ int HIPAlignmentAlgorithm::fillEventwiseTree(const char* filename, int iter, int
   TTree *jobtree = (TTree*)jobfile->Get(treeName);
   //address and read the variables 
   static const int nmaxtrackperevent = 1000;
-  int jobNtracks, jobNhitspertrack[nmaxtrackperevent], jobnhPXB[nmaxtrackperevent], jobnhPXF[nmaxtrackperevent];
+  int jobNtracks, jobNhitspertrack[nmaxtrackperevent], jobnhPXB[nmaxtrackperevent], jobnhPXF[nmaxtrackperevent],jobnhTIB[nmaxtrackperevent], jobnhTOB[nmaxtrackperevent],jobnhTID[nmaxtrackperevent], jobnhTEC[nmaxtrackperevent];
   float jobP[nmaxtrackperevent], jobPt[nmaxtrackperevent], jobEta[nmaxtrackperevent] , jobPhi[nmaxtrackperevent];
   float jobd0[nmaxtrackperevent], jobdz[nmaxtrackperevent] , jobChi2n[nmaxtrackperevent];
 	
@@ -1378,6 +1413,10 @@ int HIPAlignmentAlgorithm::fillEventwiseTree(const char* filename, int iter, int
   jobtree->SetBranchAddress("Nhits",   jobNhitspertrack);
   jobtree->SetBranchAddress("nhPXB",   jobnhPXB);
   jobtree->SetBranchAddress("nhPXF",   jobnhPXF);
+  jobtree->SetBranchAddress("nhTIB",   jobnhTIB);
+  jobtree->SetBranchAddress("nhTOB",   jobnhTOB);
+  jobtree->SetBranchAddress("nhTID",   jobnhTID);
+  jobtree->SetBranchAddress("nhTEC",   jobnhTEC);
   jobtree->SetBranchAddress("Pt",      jobPt);
   jobtree->SetBranchAddress("P",       jobP);
   jobtree->SetBranchAddress("d0",      jobd0);
@@ -1402,6 +1441,10 @@ int HIPAlignmentAlgorithm::fillEventwiseTree(const char* filename, int iter, int
 	m_P[ntrk] = jobP[ntrk];
 	m_nhPXB[ntrk] = jobnhPXB[ntrk];
 	m_nhPXF[ntrk] = jobnhPXF[ntrk];
+	m_nhTIB[ntrk] = jobnhTIB[ntrk];
+	m_nhTOB[ntrk] = jobnhTOB[ntrk];
+	m_nhTID[ntrk] = jobnhTID[ntrk];
+	m_nhTEC[ntrk] = jobnhTEC[ntrk];
 	m_Eta[ntrk] = jobEta[ntrk];
 	m_Phi[ntrk] = jobPhi[ntrk];
 	m_Chi2n[ntrk] = jobChi2n[ntrk];
