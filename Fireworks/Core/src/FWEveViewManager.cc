@@ -12,14 +12,27 @@
 
 // system include files
 
+#include <boost/bind.hpp>
+
+
 // user include files
+
+// For optimized redraw of Eve views
+#define protected public
+#define private   public
 #include "TEveManager.h"
+#undef private
+#undef protected
+
 #include "TEveSelection.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"
 #include "TEveCalo.h"
+#include "TEveGedEditor.h"
+#include "TGListTree.h"
 #include "TGeoManager.h"
-#include "TGLViewer.h"
+#include "TExMap.h"
+#include "TEnv.h"
 
 #include "Fireworks/Core/interface/FWEveViewManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
@@ -47,7 +60,8 @@
 #include "Fireworks/Core/interface/FWHFView.h"
 #include "Fireworks/Core/interface/FWRPZView.h"
 
-#include <boost/bind.hpp>
+#include "Fireworks/Core/interface/FWTGLViewer.h"
+
 
 class FWViewContext;
 
@@ -626,6 +640,9 @@ FWEveViewManager::colorsChanged()
 void
 FWEveViewManager::eventBegin()
 {
+   // Prevent registration of redraw timer, full redraw is done in
+   // FWEveViewManager::eventEnd().
+   gEve->fTimerActive = kTRUE;
    gEve->DisableRedraw();
 
    context().resetMaxEtAndEnergy();
@@ -645,7 +662,77 @@ FWEveViewManager::eventEnd()
       for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)   
          (*i)->eventEnd();
    }
+
+   // What follows is a copy of TEveManager::DoRedraw3D() with the difference that
+   // we have full control over execution of GL view rendering. In particular:
+   // - optionally delay buffer swapping so they can all be swapped together;
+   // - we could render into FBO once and then use this to be put on screen
+   //   and saved into an image file.
+
+   {
+      TEveElement::List_t scenes;
+      Long64_t   key, value;
+      TExMapIter stamped_elements(gEve->fStampedElements);
+      while (stamped_elements.Next(key, value))
+      {
+         TEveElement *el = reinterpret_cast<TEveElement*>(key);
+         if (el->GetChangeBits() & TEveElement::kCBVisibility)
+         {
+            el->CollectSceneParents(scenes);
+         }
+      }
+      gEve->ScenesChanged(scenes);
+   }
+
+   // Process changes in scenes.
+   gEve->fScenes->ProcessSceneChanges(gEve->fDropLogicals, gEve->fStampedElements);
+
+   // To synchronize buffer swapping set swap_on_render to false.
+   // Note that this costs 25-40% extra time with 4 views, depending on V-sync settings.
+   // Tested with NVIDIA 343.22.
+   const bool swap_on_render = gEnv->GetValue("CmsShow.GlSwapOnRender", 0);
+
+   // Loop over viewers, swap buffers if swap_on_render is true.
+   for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
+   {
+      for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)   
+         (*i)->fwViewerGL()->DrawHiLod(swap_on_render);
+   }
+
+   // Swap buffers if they were not swapped before.
+   if ( ! swap_on_render)
+   {
+      for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
+      {
+         for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)   
+            (*i)->fwViewerGL()->JustSwap();
+      }
+   }
+
+   gEve->fViewers->RepaintChangedViewers(gEve->fResetCameras, gEve->fDropLogicals);
+
+   {
+      Long64_t   key, value;
+      TExMapIter stamped_elements(gEve->fStampedElements);
+      while (stamped_elements.Next(key, value))
+      {
+         TEveElement *el = reinterpret_cast<TEveElement*>(key);
+         if (gEve->GetEditor()->GetModel() == el->GetEditorObject("FWEveViewManager::eventEnd"))
+            gEve->EditElement(el);
+         TEveGedEditor::ElementChanged(el);
+
+         el->ClearStamps();
+      }
+   }
+   gEve->fStampedElements->Delete();
+
+   gEve->GetListTree()->ClearViewPort(); // Fix this when several list-trees can be added.
+
+   gEve->fResetCameras = kFALSE;
+   gEve->fDropLogicals = kFALSE;
+
    gEve->EnableRedraw();
+   gEve->fTimerActive = kFALSE;
 }
 
 //______________________________________________________________________________

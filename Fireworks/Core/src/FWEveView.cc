@@ -26,7 +26,6 @@
 #include "TGLCameraGuide.h"
 
 #include "TGLEmbeddedViewer.h"
-#include "TEveViewer.h"
 #include "TGLScenePad.h"
 #include "TEveManager.h"
 #include "TEveElement.h"
@@ -36,6 +35,9 @@
 #include "TEveCalo.h"
 #undef protected
 #include "TGLOverlay.h"
+
+#include "Fireworks/Core/interface/FWTEveViewer.h"
+#include "Fireworks/Core/interface/FWTGLViewer.h"
 
 #include "Fireworks/Core/interface/FWEveView.h"
 #include "Fireworks/Core/interface/FWViewType.h"
@@ -105,14 +107,9 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    m_localEnergyScale( new FWViewEnergyScale(FWViewType::idToName(type), version)),
    m_viewEnergyScaleEditor(0)
 {
-   m_viewer = new TEveViewer(typeName().c_str());
+   m_viewer = new FWTEveViewer(typeName().c_str());
 
-   TGLEmbeddedViewer* embeddedViewer;
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,4)
-   embeddedViewer =  m_viewer->SpawnGLEmbeddedViewer(0);
-#else
-   embeddedViewer =  m_viewer->SpawnGLEmbeddedViewer();
-#endif
+   FWTGLViewer *embeddedViewer = m_viewer->SpawnFWTGLViewer();
    iParent->ReplaceWindow(m_viewer);
    gEve->GetViewers()->AddElement(m_viewer);
 
@@ -197,6 +194,18 @@ TGLViewer*
 FWEveView::viewerGL() const
 {
    return  m_viewer->GetGLViewer();
+}
+
+TEveViewer*
+FWEveView::viewer()
+{
+   return m_viewer;
+}
+
+FWTGLViewer* 
+FWEveView::fwViewerGL() const
+{
+   return  m_viewer->fwGlViewer();
 }
 
 void
