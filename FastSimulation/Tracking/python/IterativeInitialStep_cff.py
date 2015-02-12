@@ -35,6 +35,7 @@ initialStepTracks = initialStepTracks.clone(
 import RecoTracker.IterativeTracking.InitialStep_cff
 firstStepPrimaryVerticesBeforeMixing =  RecoTracker.IterativeTracking.InitialStep_cff.firstStepPrimaryVertices.clone()
 
+
 # simtrack id producer
 initialStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
                                         trackCollection = cms.InputTag("initialStepTracks"),
