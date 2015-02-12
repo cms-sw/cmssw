@@ -29,5 +29,4 @@
 <use   name="Geometry/Records"/>
 <use   name="RecoTracker/Record"/>
 <use   name="HLTrigger/HLTcore"/>
-<use   name="RecoHI/HiCentralityAlgos"/>
 <flags   EDM_PLUGIN="1"/>

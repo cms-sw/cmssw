@@ -64,9 +64,6 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
-#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
-#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
-
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "TNtuple.h"
 
@@ -91,7 +88,6 @@ private:
   edm::Service<TFileService> fs;
 
   TH1D*  NoE ;
-  CentralityProvider *centrality_;
   TNtuple* nt;
 
   double hf;
@@ -139,14 +135,6 @@ evtCounter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   NoE->Fill(0);
 
-  centrality_ = new CentralityProvider(iSetup);
-  centrality_->newEvent(iEvent,iSetup);
-  const reco::Centrality *cent = centrality_->raw();
-  hf = cent->EtHFhitSum();
-  eb = cent->EtEBSum();
-  nPix = cent->multiplicityPixel();
-  nPixelTracks = cent->NpixelTracks();
-  cbin = centrality_->getBin();
   Float_t var[100];
   int idx = 0;
   var[idx] = hf;   idx++;
@@ -167,7 +155,6 @@ evtCounter::beginJob()
   NoE      = fs->make<TH1D>( "NoE"  , "", 1,  -100., 100. );
   nt       = fs->make<TNtuple>("cent", "centrality info",
 			       "hf:eb:nPix:nPixTrk:cbin");
-  centrality_ = 0;
   std::cout<<"done beginjob"<<std::endl;
 }
 

@@ -10,8 +10,6 @@
 #include <TLorentzVector.h>
 //#include "UserCode/HafHistogram/interface/HColumn.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
-#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TTree.h"
@@ -134,7 +132,6 @@ protected:
 
   // Flags for the fillers
   bool 	doStoreGeneral_; 	 // Store General information
-  bool 	doStoreCentrality_; 	 // Store Centrality information
   bool 	doStoreHLT_;     	 // Store HLT Trigger
   bool	doStoreL1Trigger_;	 // Store L1 Trigger
   bool 	doStoreHF_;		 // Store HF
@@ -148,10 +145,6 @@ protected:
   //  HTuple         *_ntupleMC;      // MC truth ntuple
 
   // heavy ion stuffs
-
-  const CentralityBins * cbins_;
-  CentralityProvider *centrality_;
-
 
   edm::Service<TFileService> fs;
   TTree *theTree;

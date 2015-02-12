@@ -7,7 +7,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
-#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
 #include "TNtuple.h"
 #include "TH2D.h"
@@ -78,7 +77,6 @@ private:
   edm::InputTag centTag_;
   edm::InputTag epTag_;
   edm::InputTag PatJetSrc_;
-  const CentralityBins* cbins_;
 
   TNtuple* ntTowers;
   TNtuple* ntJetTowers;
@@ -113,7 +111,6 @@ private:
 
   const CaloGeometry *geo;
   edm::Service<TFileService> f;
-  CentralityProvider * centrality_;
 };
 
 
@@ -193,8 +190,7 @@ JetAlgorithmAnalyzer::JetAlgorithmAnalyzer(const edm::ParameterSet& iConfig)
     etaMax_(3),
     iev_(0),
     cone_(1),
-    geo(0),
-    centrality_(0)
+    geo(0)
 {
 
   doAreaFastjet_ = false;
@@ -218,11 +214,8 @@ JetAlgorithmAnalyzer::JetAlgorithmAnalyzer(const edm::ParameterSet& iConfig)
 
   sumRecHits_  = iConfig.getParameter<bool>("sumRecHits");
 
-  centTag_  = iConfig.getParameter<InputTag>("centralityTag");
   epTag_  = iConfig.getParameter<InputTag>("evtPlaneTag");
   PatJetSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("patJetSrc",edm::InputTag("icPu5patJets"));
-
-  if(doAnalysis_) centBin_ = iConfig.getUntrackedParameter<int>("centrality",0);
 
   avoidNegative_  = iConfig.getParameter<bool>("avoidNegative");
 
@@ -421,9 +414,6 @@ void JetAlgorithmAnalyzer::fillBkgNtuple(const PileUpSubtractor* subtractor, int
 void JetAlgorithmAnalyzer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
 
-  if(!centrality_) centrality_ = new CentralityProvider(iSetup);
-  centrality_->newEvent(iEvent,iSetup);
-
   phi0_ = 0;
 
   if(!geo){
@@ -433,10 +423,6 @@ void JetAlgorithmAnalyzer::produce(edm::Event& iEvent,const edm::EventSetup& iSe
   }
 
   iEvent.getByLabel(PatJetSrc_,patjets);
-
-  hf_ = centrality_->centralityValue();
-  sumET_ = centrality_->raw()->Ntracks();
-  bin_ = centrality_->getBin();
 
   //   cout<<("VirtualJetProducer") << "Entered produce\n";
   //determine signal vertex

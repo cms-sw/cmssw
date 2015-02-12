@@ -17,8 +17,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"
-#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
@@ -76,7 +74,6 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
   }
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose",false);
 
-  useCentrality_ = iConfig.getUntrackedParameter<bool>("useCentrality",false);
   useVtx_ = iConfig.getUntrackedParameter<bool>("useVtx",false);
   useJEC_ = iConfig.getUntrackedParameter<bool>("useJEC",true);
   usePat_ = iConfig.getUntrackedParameter<bool>("usePAT",true);
@@ -161,8 +158,6 @@ HiInclusiveJetAnalyzer::beginRun(const edm::Run& run,
 void
 HiInclusiveJetAnalyzer::beginJob() {
 
-  centrality_ = 0;
-
   //string jetTagName = jetTag_.label()+"_tree";
   string jetTagTitle = jetTag_.label()+" Jet Analysis Tree";
   t = fs1->make<TTree>("t",jetTagTitle.c_str());
@@ -176,10 +171,6 @@ HiInclusiveJetAnalyzer::beginJob() {
     t->Branch("vx",&jets_.vx,"vx/F");
     t->Branch("vy",&jets_.vy,"vy/F");
     t->Branch("vz",&jets_.vz,"vz/F");
-  }
-  if (useCentrality_) {
-    t->Branch("hf",&jets_.hf,"hf/F");
-    t->Branch("bin",&jets_.bin,"bin/I");
   }
 
   t->Branch("nref",&jets_.nref,"nref/I");
@@ -430,17 +421,6 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
     edm::ESHandle<CaloGeometry> pGeo;
     iSetup.get<CaloGeometryRecord>().get(pGeo);
     geo = pGeo.product();
-  }
-  if(useCentrality_){
-    if(!centrality_) centrality_ = new CentralityProvider(iSetup);
-    centrality_->newEvent(iEvent,iSetup); // make sure you do this first in every event
-    //double c = centrality_->centralityValue();
-    const reco::Centrality *cent = centrality_->raw();
-
-    hf = cent->EtHFhitSum();
-
-    bin = centrality_->getBin();
-    b = centrality_->bMean();
   }
 
   // loop the events

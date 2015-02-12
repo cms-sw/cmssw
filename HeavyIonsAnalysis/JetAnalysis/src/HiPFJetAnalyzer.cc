@@ -18,10 +18,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 
-#include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"
-
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
@@ -85,7 +82,6 @@ HiPFJetAnalyzer::HiPFJetAnalyzer(const edm::ParameterSet& iConfig) {
 
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose",false);
 
-  useCentrality_ = iConfig.getUntrackedParameter<bool>("useCentrality",false);
   isMC_ = iConfig.getUntrackedParameter<bool>("isMC",false);
   genParticleThresh_ = iConfig.getParameter<double>("genParticleThresh");
 
@@ -147,9 +143,6 @@ HiPFJetAnalyzer::beginRun(const edm::Run& run,
 
 void
 HiPFJetAnalyzer::beginJob() {
-
-  centrality_ = 0;
-
 
   t = fs2->make<TTree>("t","Jet Analysis Tree");
 
@@ -440,39 +433,6 @@ HiPFJetAnalyzer::analyze(const Event& iEvent,
   double hf = 0.;
   double b = 999.;
 
-  if(useCentrality_){
-    //if(!isMC_){
-
-    if(!centrality_) centrality_ = new CentralityProvider(iSetup);
-    centrality_->newEvent(iEvent,iSetup); // make sure you do this first in every event
-    //double c = centrality_->centralityValue();
-    const reco::Centrality *cent = centrality_->raw();
-
-    hf = cent->EtHFhitSum();
-
-    bin = centrality_->getBin();
-    b = centrality_->bMean();
-    //}
-    /*
-      else{
-      TFile * centFile = new TFile("/net/hidsk0001/d00/scratch/mnguyen/CMSSW_3_9_1_patch1/src/macros/Hydjet_CentTable.root");
-
-      edm::Handle<reco::Centrality> cent;
-      iEvent.getByLabel(edm::InputTag("hiCentrality"),cent);
-      //cout<<" grabbed centrality "<<endl;
-      CentralityBins::RunMap cmap = getCentralityFromFile(centFile, "makeCentralityTableTFile", "HFhitsHydjet_2760GeV", 1, 1);
-
-      // Still getting cent from hits.  When tower tables become available, we need to switch
-      hf = cent->EtHFhitSum();
-      //cout<<" hf "<<hf<<endl;
-      bin = cmap[run]->getBin(hf);
-      b = cmap[run]->bMeanOfBin(bin);
-      }
-    */
-  }
-
-
-
   // not used, taking all jet
   //double jetPtMin = 35.;
 
@@ -535,7 +495,7 @@ HiPFJetAnalyzer::analyze(const Event& iEvent,
     // iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theAssociator);
     // theAssociatorByHits = (const TrackAssociatorByHits*) theAssociator.product();
     // recSimColl= theAssociatorByHits->associateRecoToSim(trackCollection,TPCollectionHfake,&iEvent);
-    
+
    iEvent.getByLabel(associatorMap_,recotosimCollectionH);
    recSimColl= *(recotosimCollectionH.product());
   }

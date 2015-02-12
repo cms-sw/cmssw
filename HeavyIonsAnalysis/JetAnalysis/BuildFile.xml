@@ -31,8 +31,4 @@
 <use name="CondFormats/JetMETObjects"/>
 <use name="CalibFormats/HcalObjects"/>
 <use name="RecoLocalCalo/HcalRecAlgos"/>
-<use name="RecoHI/HiCentralityAlgos"/>
 <flags EDM_PLUGIN="1"/>
-
-
-

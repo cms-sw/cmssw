@@ -35,8 +35,6 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
-#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -78,9 +76,6 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "HeavyIonsAnalysis/TrackAnalysis/interface/TrkAnalyzerUtils.h"
-
-// Heavyion
-#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 
 // Particle Flow
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -157,9 +152,6 @@ struct TrackEvent{
   float xVtxSim[MAXVTX];
   float yVtxSim[MAXVTX];
   float zVtxSim[MAXVTX];
-
-  // centrality
-  int cbin;
 
   // -- rec tracks --
   int nTrk;
@@ -247,7 +239,7 @@ struct TrackEvent{
   float mtrkDxy2[MAXTRACKS];
   float mtrkDxyError2[MAXTRACKS];
   float mtrkAlgo[MAXTRACKS];
-  
+
   // calo compatibility
   int mtrkPfType[MAXTRACKS];
   float mtrkPfCandPt[MAXTRACKS];
@@ -296,7 +288,6 @@ private:
   bool doSimVertex_;
   bool fillSimTrack_;
   bool doPFMatching_;
-  bool useCentrality_;
   bool useQuality_;
   bool doDeDx_;
   bool doDebug_;
@@ -325,7 +316,6 @@ private:
   edm::Service<TFileService> fs;
   edm::ESHandle < ParticleDataTable > pdt;
   edm::Handle<TrackingParticleCollection> trackingParticles;
-  CentralityProvider * centrality_;
 
   edm::InputTag beamSpotProducer_;
 
@@ -367,7 +357,6 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
 
   doPFMatching_             = iConfig.getUntrackedParameter<bool>  ("doPFMatching",false);
   doTrackVtxWImpPar_             = iConfig.getUntrackedParameter<bool>  ("doTrackVtxWImpPar",true);
-  useCentrality_ = iConfig.getUntrackedParameter<bool>("useCentrality",false);
   useQuality_ = iConfig.getUntrackedParameter<bool>("useQuality",false);
 
   trackPtMin_             = iConfig.getUntrackedParameter<double>  ("trackPtMin",0.4);
@@ -423,12 +412,6 @@ TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //cout <<"Fill Vtx"<<endl;
   fillVertices(iEvent);
-
-  if(useCentrality_){
-    if(!centrality_) centrality_ = new CentralityProvider(iSetup);
-    centrality_->newEvent(iEvent,iSetup); // make sure you do this first in every event
-    pev_.cbin = centrality_->getBin();
-  }
 
   //cout <<"Fill Tracks"<<endl;
   if (doTrack_) fillTracks(iEvent, iSetup);
@@ -574,7 +557,7 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel(trackSrc_, trackCollection);
   // ESHandle<TrackAssociatorBase> theAssociator;
   reco::RecoToSimCollection recSimColl;
-   
+
   edm::Handle<reco::RecoToSimCollection > recotosimCollectionH;
 
   Handle<DeDxDataValueMap> DeDxMap;
@@ -624,7 +607,7 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
     int count1dhits=0;
     for (trackingRecHit_iterator ith = etrk.recHitsBegin(); ith != edh; ++ith) {
       // const TrackingRecHit * hit = ith->get();
-    
+
       if ((*ith)->isValid()) {
 	if (typeid(*ith) == typeid(SiStripRecHit1D)) ++count1dhits;
       }
@@ -1123,8 +1106,6 @@ TrackAnalyzer::beginJob()
   trackTree_->Branch("yVtxSim",pev_.yVtxSim,"yVtx[nVtxSim]/F");
   trackTree_->Branch("zVtxSim",pev_.zVtxSim,"zVtx[nVtxSim]/F");
 
-  // centrality
-  if (useCentrality_) trackTree_->Branch("cbin",&pev_.cbin,"cbin/I");
   // Tracks
   trackTree_->Branch("trkPt",&pev_.trkPt,"trkPt[nTrk]/F");
   trackTree_->Branch("trkPtError",&pev_.trkPtError,"trkPtError[nTrk]/F");

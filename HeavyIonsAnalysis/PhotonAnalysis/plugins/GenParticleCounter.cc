@@ -61,9 +61,6 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
-#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
-#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
-
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "TNtuple.h"
 
@@ -93,14 +90,12 @@ private:
 
   edm::Service<TFileService> fs;
 
-  CentralityProvider *centrality_;
   TNtuple* nt;
   TTree* theTree;
 
   std::string mSrc;
   std::string vertexProducer_;      // vertecies producer
-  float hf;
-  int cBin, nPar;
+  int nPar;
   float recoVtxZ;
   float et[1000];
   float eta[1000];
@@ -109,8 +104,6 @@ private:
   int momId[1000];
   int status[1000];
   int collId[1000];
-  bool doCentrality;
-
 };
 
 //
@@ -128,7 +121,6 @@ GenParticleCounter::GenParticleCounter(const edm::ParameterSet& iConfig)
 
 {
   mSrc = iConfig.getUntrackedParameter<std::string>("src", "hiGenParticles");
-  doCentrality = iConfig.getUntrackedParameter<bool>("doCentrality", true);
   vertexProducer_  = iConfig.getUntrackedParameter<std::string>("VertexProducer","hiSelectedVertex");
 
 }
@@ -153,18 +145,6 @@ void
 GenParticleCounter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-
-  if ( doCentrality ) {
-    centrality_ = new CentralityProvider(iSetup);
-    centrality_->newEvent(iEvent,iSetup);
-    cBin = centrality_->getBin();
-    const reco::Centrality *cent = centrality_->raw();
-    hf = cent->EtHFhitSum();
-  }
-  else {
-    cBin = -10000;
-    hf = -10000;
-  }
 
   // Get the primary event vertex
   recoVtxZ = -100;
@@ -212,8 +192,6 @@ GenParticleCounter::beginJob()
 
   theTree  = fs->make<TTree>("photon","Tree of Rechits around photon");
 
-  theTree->Branch("cBin",&cBin,"cBin/I");
-  theTree->Branch("hf",&hf,"hf/F");
   theTree->Branch("nPar",&nPar,"nPar/I");
   theTree->Branch("recoVtxZ",&recoVtxZ,"recoVtxZ/F");
 
@@ -225,7 +203,6 @@ GenParticleCounter::beginJob()
   theTree->Branch("status",status,"status[nPar]/I");
   theTree->Branch("collId",collId,"collId[nPar]/I");
 
-  centrality_ = 0;
   std::cout<<"done beginjob"<<std::endl;
 }
 

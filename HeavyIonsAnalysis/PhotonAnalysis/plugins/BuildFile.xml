@@ -23,7 +23,6 @@
 <use   name="Geometry/EcalAlgo"/>
 <use   name="RecoHI/HiEgammaAlgos"/>
 <use   name="DataFormats/HeavyIonEvent"/>
-<use   name="RecoHI/HiCentralityAlgos"/>
 <use   name="HeavyIonsAnalysis/PhotonAnalysis"/>
 <use   name="CLHEP"/>
 <use   name="root"/>

@@ -233,12 +233,6 @@ HLTMuTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //Loop over reco::muon
   if (doReco) {
-    //Put centrality information
-    centrality = new CentralityProvider(iSetup);
-    centrality->newEvent(iEvent,iSetup);
-    cbin = centrality->getBin();
-//    cbin = -1;
-
     //Get vertex position
     edm::Handle< vector<reco::Vertex> > vertex;
     iEvent.getByLabel(tagVtx,vertex);
@@ -419,7 +413,6 @@ HLTMuTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     vx = -1;
     vy = -1;
     vz = -1;
-    cbin = -1;
   }
 
   // Fill a muon tree
@@ -437,7 +430,6 @@ HLTMuTree::beginJob()
   treeMu->Branch("Run",&run,"run/I");
   treeMu->Branch("Event",&event,"event/I");
   treeMu->Branch("Lumi",&lumi,"lumi/I");
-  treeMu->Branch("CentBin",&cbin,"cbin/I");
   treeMu->Branch("vx",&vx,"vx/F");
   treeMu->Branch("vy",&vy,"vy/F");
   treeMu->Branch("vz",&vz,"vz/F");

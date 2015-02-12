@@ -19,14 +19,13 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 //
 
-/**\class HiJPTJetAnalyzer 
+/**\class HiJPTJetAnalyzer
 
 \author Matt Nguyen
 \date   November 2010
@@ -41,7 +40,7 @@ class HiJPTJetAnalyzer : public edm::EDAnalyzer {
   explicit HiJPTJetAnalyzer(const edm::ParameterSet&);
 
   ~HiJPTJetAnalyzer();
-  
+
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
   virtual void beginRun(const edm::Run & r, const edm::EventSetup & c);
@@ -54,14 +53,14 @@ class HiJPTJetAnalyzer : public edm::EDAnalyzer {
 
   template <typename TYPE>
     void                          getProduct(const std::string name, edm::Handle<TYPE> &prod,
-					     const edm::Event &event) const;    
+					     const edm::Event &event) const;
   template <typename TYPE>
     bool                          getProductSafe(const std::string name, edm::Handle<TYPE> &prod,
 						 const edm::Event &event) const;
-  
+
 
  private:
-  
+
   int getPFJetMuon(const pat::Jet& pfJet, const reco::PFCandidateCollection *pfCandidateColl);
 
   double getPtRel(const reco::PFCandidate lep, const pat::Jet& jet );
@@ -71,7 +70,7 @@ class HiJPTJetAnalyzer : public edm::EDAnalyzer {
   double getEt(math::XYZPoint pos, double energy);
   math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx = reco::Vertex::Point(0,0,0));
 
-  edm::InputTag   jetTag_, vtxTag_, genjetTag_, eventInfoTag_, L1gtReadout_, pfCandidateLabel_, trackTag_, matchTag_; 
+  edm::InputTag   jetTag_, vtxTag_, genjetTag_, eventInfoTag_, L1gtReadout_, pfCandidateLabel_, trackTag_, matchTag_;
   edm::InputTag HcalRecHitHFSrc_;
   edm::InputTag HcalRecHitHBHESrc_;
   edm::InputTag EBSrc_;
@@ -110,7 +109,6 @@ class HiJPTJetAnalyzer : public edm::EDAnalyzer {
   TTree *t;
   edm::Service<TFileService> fs1;
 
-  CentralityProvider * centrality_;
   const CaloGeometry *geo;
 
   std::string                   hltResName_;         //HLT trigger results name
@@ -130,7 +128,7 @@ class HiJPTJetAnalyzer : public edm::EDAnalyzer {
   static const int MAXBFRAG = 500;
 
   struct JRA{
-    
+
     int nref;
     int ntrack;
     int run;
@@ -243,19 +241,19 @@ class HiJPTJetAnalyzer : public edm::EDAnalyzer {
     float discr_muByPt[MAXJETS];
     float discr_prob[MAXJETS];
     float discr_probb[MAXJETS];
-    float discr_tcHighEff[MAXJETS];    
+    float discr_tcHighEff[MAXJETS];
     float discr_tcHighPur[MAXJETS];
 
-    int nsvtx[MAXJETS];    
-    int svtxntrk[MAXJETS]; 
-    float svtxdl[MAXJETS];   
-    float svtxdls[MAXJETS];  
-    float svtxm[MAXJETS];    
-    float svtxpt[MAXJETS];   
+    int nsvtx[MAXJETS];
+    int svtxntrk[MAXJETS];
+    float svtxdl[MAXJETS];
+    float svtxdls[MAXJETS];
+    float svtxm[MAXJETS];
+    float svtxpt[MAXJETS];
 
     int nIPtrk[MAXJETS];
     int nselIPtrk[MAXJETS];
-    
+
     int nIP;
     int ipJetIndex[MAXTRACKS];
     float ipPt[MAXTRACKS];
@@ -269,14 +267,14 @@ class HiJPTJetAnalyzer : public edm::EDAnalyzer {
     float ipDist2JetSig[MAXTRACKS];
     float ipClosest2Jet[MAXTRACKS];
 
-    float mue[MAXJETS];     
-    float mupt[MAXJETS];    
-    float mueta[MAXJETS];   
-    float muphi[MAXJETS];   
-    float mudr[MAXJETS];    
-    float muptrel[MAXJETS]; 
-    int muchg[MAXJETS];   
-    
+    float mue[MAXJETS];
+    float mupt[MAXJETS];
+    float mueta[MAXJETS];
+    float muphi[MAXJETS];
+    float mudr[MAXJETS];
+    float muptrel[MAXJETS];
+    int muchg[MAXJETS];
+
     float discr_fr01[MAXJETS];
 
     float refpt[MAXJETS];

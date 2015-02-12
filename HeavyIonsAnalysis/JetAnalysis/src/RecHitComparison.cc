@@ -46,9 +46,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -127,7 +125,6 @@ private:
   bool doJetCone_;
 
   edm::Service<TFileService> fs;
-  CentralityProvider* centrality_;
   const CaloGeometry *geo;
 };
 
@@ -144,7 +141,6 @@ private:
 //
 RecHitComparison::RecHitComparison(const edm::ParameterSet& iConfig) :
   cone(0.5),
-  centrality_(0),
   geo(0)
 {
   //now do what ever initialization is needed
@@ -187,7 +183,6 @@ RecHitComparison::~RecHitComparison()
 void
 RecHitComparison::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 {
-  if(!centrality_) centrality_ = new CentralityProvider(iSetup);
   if(!geo){
     edm::ESHandle<CaloGeometry> pGeo;
     iSetup.get<CaloGeometryRecord>().get(pGeo);
@@ -211,11 +206,6 @@ RecHitComparison::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
     ev.getByLabel(BCSrc1_,bClusters1);
     ev.getByLabel(BCSrc2_,bClusters2);
   }
-
-  centrality_->newEvent(ev,iSetup);
-
-  double hf = centrality_->centralityValue();
-  int bin = centrality_->getBin();
 
   vector<double> fFull;
   vector<double> f05;
@@ -310,7 +300,7 @@ RecHitComparison::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
     double eta2 = pos2.eta();
     double phi2 = pos2.eta();
     double et2 = e2*sin(pos2.theta());
-    if(!jetsOnly_ ||  isjet) ntEB->Fill(e1,et1,e2,et2,eta2,phi2,hf,bin,jetpt,drjet);
+    if(!jetsOnly_ ||  isjet) ntEB->Fill(e1,et1,e2,et2,eta2,phi2,jetpt,drjet);
   }
 
   for(unsigned int i = 0; i < eeHits1->size(); ++i){
@@ -350,7 +340,7 @@ RecHitComparison::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
     double eta2 = pos2.eta();
     double phi2 = pos2.eta();
     double et2 = e2*sin(pos2.theta());
-    if(!jetsOnly_ || isjet) ntEE->Fill(e1,et1,e2,et2,eta2,phi2,hf,bin,jetpt,drjet);
+    if(!jetsOnly_ || isjet) ntEE->Fill(e1,et1,e2,et2,eta2,phi2,jetpt,drjet);
   }
 
   for(unsigned int i = 0; i < hbheHits1->size(); ++i){
@@ -390,7 +380,7 @@ RecHitComparison::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
     double eta2 = pos2.eta();
     double phi2 = pos2.eta();
     double et2 = e2*sin(pos2.theta());
-    if(!jetsOnly_ || isjet) ntHBHE->Fill(e1,et1,e2,et2,eta2,phi2,hf,bin,jetpt,drjet);
+    if(!jetsOnly_ || isjet) ntHBHE->Fill(e1,et1,e2,et2,eta2,phi2,jetpt,drjet);
   }
 
   for(unsigned int i = 0; i < hfHits1->size(); ++i){
@@ -429,7 +419,7 @@ RecHitComparison::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
     double eta2 = pos2.eta();
     double phi2 = pos2.eta();
     double et2 = e2*sin(pos2.theta());
-    if(!jetsOnly_ || isjet) ntHF->Fill(e1,et1,e2,et2,eta2,phi2,hf,bin,jetpt,drjet);
+    if(!jetsOnly_ || isjet) ntHF->Fill(e1,et1,e2,et2,eta2,phi2,jetpt,drjet);
   }
 
   if(doJetCone_){
@@ -439,7 +429,7 @@ RecHitComparison::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
       double emf = jet.emEnergyFraction();
       double pt = jet.pt();
       double eta = jet.eta();
-      ntjet->Fill(bin,pt,eta,fFull[j1],f05[j1],f1[j1],f15[j1],f2[j1],f25[j1],f3[j1],em,emf);
+      ntjet->Fill(pt,eta,fFull[j1],f05[j1],f1[j1],f15[j1],f2[j1],f25[j1],f3[j1],em,emf);
     }
   }
 
@@ -450,14 +440,14 @@ RecHitComparison::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 void
 RecHitComparison::beginJob()
 {
-  ntEB = fs->make<TNtuple>("ntEB","","e1:et1:e2:et2:eta:phi:hf:bin:ptjet:drjet");
-  ntEE = fs->make<TNtuple>("ntEE","","e1:et1:e2:et2:eta:phi:hf:bin:ptjet:drjet");
-  ntHBHE = fs->make<TNtuple>("ntHBHE","","e1:et1:e2:et2:eta:phi:hf:bin:ptjet:drjet");
-  ntHF = fs->make<TNtuple>("ntHF","","e1:et1:e2:et2:eta:phi:hf:bin:ptjet:drjet");
+  ntEB = fs->make<TNtuple>("ntEB","","e1:et1:e2:et2:eta:phi:ptjet:drjet");
+  ntEE = fs->make<TNtuple>("ntEE","","e1:et1:e2:et2:eta:phi:ptjet:drjet");
+  ntHBHE = fs->make<TNtuple>("ntHBHE","","e1:et1:e2:et2:eta:phi:ptjet:drjet");
+  ntHF = fs->make<TNtuple>("ntHF","","e1:et1:e2:et2:eta:phi:ptjet:drjet");
 
-  ntBC = fs->make<TNtuple>("ntBC","","e1:et1:e2:et2:eta:phi:hf:bin:ptjet:drjet");
+  ntBC = fs->make<TNtuple>("ntBC","","e1:et1:e2:et2:eta:phi:ptjet:drjet");
 
-  ntjet = fs->make<TNtuple>("ntjet","","bin:pt:eta:ethit:f05:f1:f15:f2:f25:f3:em:emf");
+  ntjet = fs->make<TNtuple>("ntjet","","pt:eta:ethit:f05:f1:f15:f2:f25:f3:em:emf");
 
 }
 

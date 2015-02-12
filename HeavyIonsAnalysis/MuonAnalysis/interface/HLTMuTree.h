@@ -38,8 +38,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
-#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 
@@ -93,8 +91,6 @@ private:
   Bool_t    doReco;
   Bool_t    doGen;
   Bool_t    doHLT;
-
-  CentralityProvider *centrality;
 
   TTree     *treeMu;
   edm::Service<TFileService>     foutput;

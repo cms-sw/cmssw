@@ -19,7 +19,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -84,7 +83,6 @@ private:
   /// verbose ?
   bool verbose_;
   bool doMatch_;
-  bool useCentrality_;
   bool useVtx_;
   bool useJEC_;
   bool usePat_;
@@ -111,7 +109,6 @@ private:
   TTree *t;
   edm::Service<TFileService> fs1;
 
-  CentralityProvider * centrality_;
   const CaloGeometry *geo;
 
   std::string                   hltResName_;         //HLT trigger results name

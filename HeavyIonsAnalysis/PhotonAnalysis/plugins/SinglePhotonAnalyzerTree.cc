@@ -127,8 +127,7 @@ bool operator < (const TLorentzVector & a, const TLorentzVector & b) { return a.
 bool operator < (const TVector3 & a,       const TVector3 & b      ) { return a.Pt() < b.Pt(); }
 
 
-SinglePhotonAnalyzerTree::SinglePhotonAnalyzerTree(const edm::ParameterSet& ps):
-  cbins_(0)
+SinglePhotonAnalyzerTree::SinglePhotonAnalyzerTree(const edm::ParameterSet& ps)
 {
 
   verbose_                         = ps.getUntrackedParameter<bool>("verbose", false);
@@ -199,7 +198,6 @@ SinglePhotonAnalyzerTree::SinglePhotonAnalyzerTree(const edm::ParameterSet& ps):
   etCutGenMatch_                   = ps.getUntrackedParameter<double>("etCutGenMatch",13);
   etaCutGenMatch_                  = ps.getUntrackedParameter<double>("etaCutGenMatch",3);
 
-  doStoreCentrality_                  = ps.getUntrackedParameter<bool>("doStoreCentrality",false);
   doStoreL1Trigger_                = ps.getUntrackedParameter<bool>("doStoreL1Trigger",false);
   doStoreHLT_                      = ps.getUntrackedParameter<bool>("doStoreHLT",false);
   doStoreHF_                       = ps.getUntrackedParameter<bool>("doStoreHF",false);
@@ -270,7 +268,6 @@ void SinglePhotonAnalyzerTree::analyze(const edm::Event& e, const edm::EventSetu
 }
 
 void SinglePhotonAnalyzerTree::beginJob() {
-  //   centrality_=0;
   theTree  = fs->make<TTree>("photon","v1");
   int run;
   //int evt;

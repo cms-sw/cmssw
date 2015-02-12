@@ -22,7 +22,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 //
@@ -96,8 +95,6 @@ private:
 
   TTree *t;
   edm::Service<TFileService> fs2;
-
-  CentralityProvider * centrality_;
 
   static const int MAXJETS = 25000;
   static const int MAXUNMATCH = 25000;
