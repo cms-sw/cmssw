@@ -42,7 +42,7 @@ patJets = cms.EDProducer("PATJetProducer",
         cms.InputTag("pfTrackCountingHighEffBJetTags"),
         cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
         cms.InputTag("pfSimpleSecondaryVertexHighPurBJetTags"),
-#        cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+        cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
 #        cms.InputTag("pfCombinedSecondaryVertexSoftLeptonBJetTags"),
         cms.InputTag("pfCombinedMVABJetTags")
     ),
