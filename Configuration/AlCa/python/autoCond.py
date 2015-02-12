@@ -49,7 +49,7 @@ autoCond['run1_mc_PIon']     = ( autoCond['run1_mc_pa'] )
 
 autoCond['run2_mc_FULL']     = ( autoCond['run2_mc'] )
 autoCond['run2_mc_GRun']     = ( autoCond['run2_mc'] )
-autoCond['run2_mc_HIon']     = ( autoCond['run2_mc'] )
+autoCond['run2_mc_HIon']     = ( autoCond['run2_mc_hi'] )
 autoCond['run2_mc_PIon']     = ( autoCond['run2_mc'] )
 
 # dedicated GlobalTags for running the fixed HLT menus on data
