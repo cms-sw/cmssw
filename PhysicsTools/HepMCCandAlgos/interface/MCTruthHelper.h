@@ -24,6 +24,13 @@ namespace MCTruthHelper {
   template<typename P>
   bool isPromptFinalState(const P &p);
 
+  //is particle decayed hadron, muon, or tau (does not include resonance decays like W,Z,Higgs,top,etc)
+  //This flag is equivalent to status 2 in the current HepMC standard
+  //but older generators (pythia6, herwig6) predate this and use status 2 also for other intermediate
+  //particles/states
+  template<typename P>
+  bool isDecayedLeptonHadron(const P &p);  
+  
   //is particle prompt and decayed  
   template<typename P>
   bool isPromptDecayed(const P &p);
@@ -92,10 +99,20 @@ namespace MCTruthHelper {
   template<typename P>
   bool isDirectHardProcessTauDecayProduct(const P &p);  
   
+  //this particle is the first copy of the particle in the chain with the same pdg id
+  template<typename P>
+  bool isFirstCopy(const P &p);  
+  
   //this particle is the last copy of the particle in the chain with the same pdg id
   //(and therefore is more likely, but not guaranteed, to carry the final physical momentum)
   template<typename P>
   bool isLastCopy(const P &p);
+  
+  //this particle is the last copy of the particle in the chain with the same pdg id
+  //before QED or QCD FSR
+  //(and therefore is more likely, but not guaranteed, to carry the momentum after ISR)
+  template<typename P>
+  bool isLastCopyBeforeFSR(const P &p);  
   
   /////////////////////////////////////////////////////////////////////////////
   //These are utility functions used by the above
@@ -111,14 +128,22 @@ namespace MCTruthHelper {
   //return last copy of particle in chain (may be the particle itself)
   template<typename P>
   const P *lastCopy(const P &p);
+
+  //return last copy of particle in chain before QED or QCD FSR (may be the particle itself)
+  template<typename P>
+  const P *lastCopyBeforeFSR(const P &p);
   
   //return next copy of particle in chain (0 in case this is already the last copy)
   template<typename P>
   const P *nextCopy(const P &p);
-  
-  //return mother matching requested abs(pdgid) and status
+
+  //return decayed mother (walk up the chain until found)
   template<typename P>
-  const P *findMother(const P &p, int abspdgid, int status);
+  const P *findDecayedMother(const P &p);
+  
+  //return decayed mother matching requested abs(pdgid) (walk up the chain until found)
+  template<typename P>
+  const P *findDecayedMother(const P &p, int abspdgid);
 
   /////////////////////////////////////////////////////////////////////////////
   //These are very basic utility functions to implement a common interface for reco::GenParticle
@@ -169,17 +194,10 @@ namespace MCTruthHelper {
   /////////////////////////////////////////////////////////////////////////////
   template<typename P>
   bool isPrompt(const P &p) {
-    const P *um = uniqueMother(p);
-    if (!um) return true;
-    
     //particle from hadron/muon/tau decay -> not prompt
-    int ampdg = absPdgId(*um);
-    if ( um->status() == 2 && (isHadron(*um) || ampdg==13 || ampdg==15) ) {
-      return false;
-    }
-    
-    return true;
-    
+    //checking all the way up the chain treats properly the radiated photon
+    //case as well
+    return findDecayedMother(p) == 0;
   }
   
   /////////////////////////////////////////////////////////////////////////////
@@ -189,20 +207,25 @@ namespace MCTruthHelper {
   }
   
   template<typename P>
+  bool isDecayedLeptonHadron(const P &p) {
+    return p.status()==2  && (isHadron(p) || absPdgId(p)==13 || absPdgId(p)==15) && isLastCopy(p);
+  }
+  
+  template<typename P>
   bool isPromptDecayed(const P &p) {
-    return p.status()==2 && isPrompt(p);
+    return isDecayedLeptonHadron(p) && isPrompt(p);
   }
   
   /////////////////////////////////////////////////////////////////////////////
   template<typename P>
   bool isTauDecayProduct(const P &p) {
-    return findMother(p,15,2) != 0;
+    return findDecayedMother(p,15) != 0;
   }
 
   /////////////////////////////////////////////////////////////////////////////
   template<typename P>
   bool isPromptTauDecayProduct(const P &p) {
-    const P *tau = findMother(p,15,2);
+    const P *tau = findDecayedMother(p,15);
     return tau && isPrompt(*tau);
   }
   
@@ -210,26 +233,26 @@ namespace MCTruthHelper {
   template<typename P>
   bool isDirectTauDecayProduct(const P &p) {
     const P *um = uniqueMother(p);
-    return um && absPdgId(*um)==15 && um->status()==2;
+    return um && absPdgId(*um)==15 && isDecayedLeptonHadron(*um);
   }
 
   /////////////////////////////////////////////////////////////////////////////
   template<typename P>
   bool isDirectPromptTauDecayProduct(const P &p) {
     const P *um = uniqueMother(p);
-    return um && absPdgId(*um)==15 && um->status()==2 && isPrompt(*um);
+    return um && absPdgId(*um)==15 && isDecayedLeptonHadron(*um) && isPrompt(*um);
   }
   
   /////////////////////////////////////////////////////////////////////////////
   template<typename P>
   bool isMuonDecayProduct(const P &p) {
-    return findMother(p,13,2) != 0;
+    return findDecayedMother(p,13) != 0;
   }
 
   /////////////////////////////////////////////////////////////////////////////
   template<typename P>
   bool isPromptMuonDecayProduct(const P &p) {
-    const P *mu = findMother(p,13,2);
+    const P *mu = findDecayedMother(p,13);
     return mu && isPrompt(*mu);
   }  
   
@@ -237,7 +260,7 @@ namespace MCTruthHelper {
   template<typename P>
   bool isDirectHadronDecayProduct(const P &p) {
     const P *um = uniqueMother(p);
-    return um && isHadron(*um) && um->status()==2;
+    return um && isHadron(*um) && isDecayedLeptonHadron(*um);
   }  
 
   /////////////////////////////////////////////////////////////////////////////
@@ -292,13 +315,13 @@ namespace MCTruthHelper {
   /////////////////////////////////////////////////////////////////////////////
   template<typename P>
   bool fromHardProcessDecayed(const P &p) {
-    return p.status()==2 && fromHardProcess(p);
+    return isDecayedLeptonHadron(p) && fromHardProcess(p);
   }
   
   /////////////////////////////////////////////////////////////////////////////  
   template<typename P>
   bool isHardProcessTauDecayProduct(const P &p) {
-    const P *tau = findMother(p,15,2);
+    const P *tau = findDecayedMother(p,15);
     return tau && fromHardProcessDecayed(*tau);    
   }
 
@@ -306,13 +329,19 @@ namespace MCTruthHelper {
   template<typename P>
   bool isDirectHardProcessTauDecayProduct(const P &p) {
     const P *um = uniqueMother(p);
-    return um && absPdgId(*um)==15 && um->status()==2 && fromHardProcess(*um);    
+    return um && absPdgId(*um)==15 && isDecayedLeptonHadron(*um) && fromHardProcess(*um);    
   }  
   
   /////////////////////////////////////////////////////////////////////////////
   template<typename P>
   bool isLastCopy(const P &p) {
     return &p == lastCopy(p);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+  template<typename P>
+  bool isLastCopyBeforeFSR(const P &p) {
+    return &p == lastCopyBeforeFSR(p);
   }  
   
   /////////////////////////////////////////////////////////////////////////////
@@ -357,6 +386,36 @@ namespace MCTruthHelper {
   
   /////////////////////////////////////////////////////////////////////////////
   template<typename P>
+  const P *lastCopyBeforeFSR(const P &p) {
+    //start with first copy and then walk down until there is FSR
+    const P *pcopy = firstCopy(p);
+    bool hasDaughterCopy = true;
+    while (hasDaughterCopy) {
+      hasDaughterCopy = false;
+      const unsigned int ndau = numberOfDaughters(*pcopy);
+      //look for FSR
+      for (unsigned int idau = 0; idau<ndau; ++idau) {
+        const P *dau = daughter(*pcopy,idau);
+        if (pdgId(*dau)==21 || pdgId(*dau)==22) {
+          //has fsr
+          return pcopy;
+        }        
+      }
+      //look for daughter copy
+      for (unsigned int idau = 0; idau<ndau; ++idau) {
+        const P *dau = daughter(*pcopy,idau);
+        if (pdgId(*dau)==pdgId(p)) {
+          pcopy = dau;
+          hasDaughterCopy = true;
+          break;
+        }
+      }
+    }
+    return pcopy;       
+  }
+  
+  /////////////////////////////////////////////////////////////////////////////
+  template<typename P>
   const P *nextCopy(const P &p) {
     
     const unsigned int ndau = numberOfDaughters(p);
@@ -372,9 +431,19 @@ namespace MCTruthHelper {
   
   /////////////////////////////////////////////////////////////////////////////
   template<typename P>
-  const P *findMother(const P &p, int abspdgid, int status) {
+  const P *findDecayedMother(const P &p) {
     const P *mo = mother(p);
-    while (mo && (absPdgId(*mo)!=abspdgid || mo->status()!=status) ) {
+    while (mo && !isDecayedLeptonHadron(*mo)) {
+      mo = mother(*mo);
+    }
+    return mo;
+  }  
+  
+  /////////////////////////////////////////////////////////////////////////////
+  template<typename P>
+  const P *findDecayedMother(const P &p, int abspdgid) {
+    const P *mo = mother(p);
+    while (mo && (absPdgId(*mo)!=abspdgid || !isDecayedLeptonHadron(*mo)) ) {
       mo = mother(*mo);
     }
     return mo;
