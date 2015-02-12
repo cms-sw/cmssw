@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # seeding
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeDetachedTripletSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeDetachedTripletSeeds.skipSimTrackIdTags = [cms.InputTag("initialStepIds")]
+iterativeDetachedTripletSeeds.skipSimTrackIdTags = [cms.InputTag("initialStepSimTrackIds")]
 iterativeDetachedTripletSeeds.outputSeedCollectionName = 'DetachedPixelTriplets'
 iterativeDetachedTripletSeeds.minRecHits = 3
 iterativeDetachedTripletSeeds.pTMin = 0.3
@@ -29,23 +29,21 @@ iterativeDetachedTripletSeeds.layerList = PixelLayerTriplets.layerList
 # candidate producer
 #from FastSimulation.Tracking.IterativeSecondCandidateProducer_cff import *
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
-iterativeDetachedTripletTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativeDetachedTripletTrackCandidates.SeedProducer = cms.InputTag("iterativeDetachedTripletSeeds",'DetachedPixelTriplets')
-iterativeDetachedTripletTrackCandidates.MinNumberOfCrossedLayers = 3 
+detachedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
+    SeedProducer = cms.InputTag("iterativeDetachedTripletSeeds",'DetachedPixelTriplets'),
+    MinNumberOfCrossedLayers = 3)
 
 # track producer
-#from FastSimulation.Tracking.IterativeSecondTrackProducer_cff import *
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-iterativeDetachedTripletTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-iterativeDetachedTripletTracks.src = 'iterativeDetachedTripletTrackCandidates'
-iterativeDetachedTripletTracks.TTRHBuilder = 'WithoutRefit'
-iterativeDetachedTripletTracks.Fitter = 'KFFittingSmootherSecond'
-iterativeDetachedTripletTracks.Propagator = 'PropagatorWithMaterial'
-iterativeDetachedTripletTracks.AlgorithmName = cms.string('detachedTripletStep')
+from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTripletStepTracks
+detachedTripletStepTrackCandidates = detachedTripletStepTracks.clone(
+    Fitter = 'KFFittingSmootherSecond',
+    Propagator = 'PropagatorWithMaterial',
+    TTRHBuilder = 'WithoutRefit'
+)
 
 # simtrack id producer
-detachedTripletStepIds = cms.EDProducer("SimTrackIdProducer",
-                                  trackCollection = cms.InputTag("iterativeDetachedTripletTracks"),
+detachedTripletStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
+                                  trackCollection = cms.InputTag("detachedTripletStepTracks"),
                                   HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
                                   )
 
@@ -53,7 +51,7 @@ detachedTripletStepIds = cms.EDProducer("SimTrackIdProducer",
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-        src='iterativeDetachedTripletTracks',
+        src='detachedTripletStepTracks',
         trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'detachedTripletStepVtxLoose',
@@ -133,8 +131,8 @@ detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 detachedTripletStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-        TrackProducers = cms.VInputTag(cms.InputTag('iterativeDetachedTripletTracks'),
-                                                                          cms.InputTag('iterativeDetachedTripletTracks')),
+        TrackProducers = cms.VInputTag(cms.InputTag('detachedTripletStepTracks'),
+                                       cms.InputTag('detachedTripletStepTracks')),
             hasSelector=cms.vint32(1,1),
             selectedTrackQuals = cms.VInputTag(cms.InputTag("detachedTripletStepSelector","detachedTripletStepVtx"),
                                                                                       cms.InputTag("detachedTripletStepSelector","detachedTripletStepTrk")),
@@ -145,9 +143,9 @@ detachedTripletStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackL
 
 
 # sequence
-iterativeDetachedTripletStep = cms.Sequence(iterativeDetachedTripletSeeds+
-                                            iterativeDetachedTripletTrackCandidates+
-                                            iterativeDetachedTripletTracks+
-                                            detachedTripletStepIds+
+DetachedTripletStep = cms.Sequence(iterativeDetachedTripletSeeds+
+                                            detachedTripletStepTrackCandidates+
+                                            detachedTripletStepTracks+
+                                            detachedTripletStepSimTrackIds+
                                             detachedTripletStepSelector+
                                             detachedTripletStep)

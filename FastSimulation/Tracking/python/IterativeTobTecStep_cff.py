@@ -7,12 +7,12 @@ import FWCore.ParameterSet.Config as cms
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeTobTecSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
 iterativeTobTecSeeds.skipSimTrackIdTags = [
-    cms.InputTag("initialStepIds"), 
-    cms.InputTag("detachedTripletStepIds"), 
-    cms.InputTag("lowPtTripletStepIds"), 
-    cms.InputTag("pixelPairStepIds"), 
-    cms.InputTag("mixedTripletStepIds"), 
-    cms.InputTag("pixelLessStepIds")]
+    cms.InputTag("initialStepSimTrackIds"), 
+    cms.InputTag("detachedTripletStepSimTrackIds"), 
+    cms.InputTag("lowPtTripletStepSimTrackIds"), 
+    cms.InputTag("pixelPairStepSimTrackIds"), 
+    cms.InputTag("mixedTripletStepSimTrackIds"), 
+    cms.InputTag("pixelLessStepSimTrackIds")]
 iterativeTobTecSeeds.outputSeedCollectionName = 'TobTecLayerPairs'
 iterativeTobTecSeeds.minRecHits = 4
 iterativeTobTecSeeds.pTMin = 0.3
@@ -40,28 +40,23 @@ iterativeTobTecSeeds.layerList = ['TOB1+TOB2']
 iterativeTobTecSeeds.layerList.extend(tobTecStepSeedLayersPair.layerList)
 
 # candidate producer
-#from FastSimulation.Tracking.IterativeFifthCandidateProducer_cff import *
-import FastSimulation.Tracking.TrackCandidateProducer_cfi
-iterativeTobTecTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativeTobTecTrackCandidates.SeedProducer = cms.InputTag("iterativeTobTecSeeds","TobTecLayerPairs")
-iterativeTobTecTrackCandidates.MinNumberOfCrossedLayers = 3
-
+from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
+tobTecStepTrackCandidates = trackCandidateProducer.clone(
+    SeedProducer = cms.InputTag("iterativeTobTecSeeds","TobTecLayerPairs"),
+    MinNumberOfCrossedLayers = 3)
 
 # track producer
-#from FastSimulation.Tracking.IterativeFifthTrackProducer_cff import *
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-iterativeTobTecTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-iterativeTobTecTracks.src = 'iterativeTobTecTrackCandidates'
-iterativeTobTecTracks.TTRHBuilder = 'WithoutRefit'
-iterativeTobTecTracks.Fitter = 'KFFittingSmootherFifth'
-iterativeTobTecTracks.Propagator = 'PropagatorWithMaterial'
-iterativeTobTecTracks.AlgorithmName = cms.string('tobTecStep')
+from RecoTracker.IterativeTracking.TobTecStep_cff import tobTecStepTracks
+tobTecStepTracks = tobTecStepTracks.clone(
+    TTRHBuilder = 'WithoutRefit',
+    Fitter = 'KFFittingSmootherFifth',
+    Propagator = 'PropagatorWithMaterial')
 
 # simtrack id producer
-tobTecStepIds = cms.EDProducer("SimTrackIdProducer",
-                                  trackCollection = cms.InputTag("iterativeTobTecTracks"),
-                                  HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
-                                  )
+tobTecStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
+                                       trackCollection = cms.InputTag("iterativeTobTecTracks"),
+                                       HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
+                                       )
 
 
 
@@ -112,9 +107,9 @@ tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mult
             ) #end of clone
 
 # sequence
-iterativeTobTecStep = cms.Sequence(iterativeTobTecSeeds
-                                      +iterativeTobTecTrackCandidates
-                                      +iterativeTobTecTracks
-                                      +tobTecStepSelector
-                                      +tobTecStepIds)
+TobTecStep = cms.Sequence(iterativeTobTecSeeds
+                          +tobTecStepTrackCandidates
+                          +tobTecStepTracks
+                          +tobTecStepSelector
+                          +tobTecStepSimTrackIds)
 

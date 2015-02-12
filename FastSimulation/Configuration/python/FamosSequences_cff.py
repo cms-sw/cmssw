@@ -274,7 +274,7 @@ simulationSequence = cms.Sequence(
     )
 trackReco = cms.Sequence(
     siTrackerGaussianSmearingRecHits+
-    iterativeTracking
+    iterTracking
     )
 
 doAllDigi = cms.Sequence(caloDigis+muonDigi)
@@ -339,7 +339,7 @@ reconstructionWithFamos = cms.Sequence(
 simulationWithSomeReconstruction = cms.Sequence(
     famosSimulationSequence+
     siTrackerGaussianSmearingRecHits+
-    iterativeTracking+
+    iterTracking+
     vertexreco+
     caloTowersSequence+
     particleFlowCluster+
@@ -379,13 +379,13 @@ famosWithTrackerHits = cms.Sequence(
 
 famosWithTracks = cms.Sequence(
     famosWithTrackerHits+
-    iterativeTracking
+    iterTracking
     )
 
 famosWithTracksAndMuonHits = cms.Sequence(
     famosSimulationSequence+
     siTrackerGaussianSmearingRecHits+
-    iterativeTracking+
+    iterTracking+
     vertexreco+
     famosMuonSequence
 )
@@ -393,7 +393,7 @@ famosWithTracksAndMuonHits = cms.Sequence(
 famosWithTracksAndMuons = cms.Sequence(
     famosSimulationSequence+
     siTrackerGaussianSmearingRecHits+
-    iterativeTracking+
+    iterTracking+
     vertexreco+
     famosMuonSequence+
     caloTowersSequence+

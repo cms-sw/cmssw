@@ -6,9 +6,9 @@ import FWCore.ParameterSet.Config as cms
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativePixelPairSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
 iterativePixelPairSeeds.skipSimTrackIdTags = [
-    cms.InputTag("initialStepIds"), 
-    cms.InputTag("detachedTripletStepIds"), 
-    cms.InputTag("lowPtTripletStepIds")]
+    cms.InputTag("initialStepSimTrackIds"), 
+    cms.InputTag("detachedTripletStepSimTrackIds"), 
+    cms.InputTag("lowPtTripletStepSimTrackIds")]
 iterativePixelPairSeeds.outputSeedCollectionName = 'PixelPair'
 iterativePixelPairSeeds.minRecHits =3
 iterativePixelPairSeeds.pTMin = 0.3
@@ -33,30 +33,30 @@ from RecoTracker.IterativeTracking.PixelPairStep_cff import pixelPairStepSeedLay
 iterativePixelPairSeeds.layerList = pixelPairStepSeedLayers.layerList
 
 # candidate producer
-import FastSimulation.Tracking.TrackCandidateProducer_cfi
-iterativePixelPairCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativePixelPairCandidates.SeedProducer = cms.InputTag("iterativePixelPairSeeds","PixelPair")
-iterativePixelPairCandidates.MinNumberOfCrossedLayers = 2 # ?
+from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
+pixelPairStepTrackCandidates = trackCandidateProducer.clone(
+    SeedProducer = cms.InputTag("iterativePixelPairSeeds","PixelPair"),
+    MinNumberOfCrossedLayers = 2 # ?
+)
 
 # track producer
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-iterativePixelPairTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-iterativePixelPairTracks.src = 'iterativePixelPairCandidates'
-iterativePixelPairTracks.TTRHBuilder = 'WithoutRefit'
-iterativePixelPairTracks.Fitter = 'KFFittingSmootherSecond'
-iterativePixelPairTracks.Propagator = 'PropagatorWithMaterial'
-iterativePixelPairTracks.AlgorithmName = cms.string('pixelPairStep')
+from RecoTracker.IterativeTracking.PixelPairStep_cff import pixelPairStepTracks
+pixelPairStepTracks = pixelPairStepTracks.clone(
+    TTRHBuilder = 'WithoutRefit',
+    Fitter = 'KFFittingSmootherSecond',
+    Propagator = 'PropagatorWithMaterial',
+)
 
 # simtrack id producer
-pixelPairStepIds = cms.EDProducer("SimTrackIdProducer",
-                                  trackCollection = cms.InputTag("iterativePixelPairTracks"),
-                                  HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
-                                  )
+pixelPairStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
+                                          trackCollection = cms.InputTag("pixelPairStepTracks"),
+                                          HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
+                                          )
 
 # Final selection
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 pixelPairStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-        src='iterativePixelPairTracks',
+        src='pixelPairStepTracks',
             trackSelectors= cms.VPSet(
             RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
                 name = 'pixelPairStepLoose',
@@ -73,8 +73,8 @@ pixelPairStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
             ) #end of clone
 
 # sequence
-iterativePixelPairStep = cms.Sequence(iterativePixelPairSeeds+
-                                      iterativePixelPairCandidates+
-                                      iterativePixelPairTracks+
-                                      pixelPairStepIds+
-                                      pixelPairStepSelector)
+PixelPairStep = cms.Sequence(iterativePixelPairSeeds+
+                             pixelPairStepTrackCandidates+
+                             pixelPairStepTracks+
+                             pixelPairStepSimTrackIds+
+                             pixelPairStepSelector)

@@ -33,35 +33,29 @@ from RecoTracker.IterativeTracking.MixedTripletStep_cff import mixedTripletStepS
 iterativeMixedTripletStepSeeds.layerList = mixedTripletStepSeedLayersA.layerList+mixedTripletStepSeedLayersB.layerList
 
 # candidate producer
-#from FastSimulation.Tracking.IterativeThirdCandidateProducer_cff import *
-import FastSimulation.Tracking.TrackCandidateProducer_cfi
-iterativeMixedTripletStepCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativeMixedTripletStepCandidates.SeedProducer = cms.InputTag("iterativeMixedTripletStepSeeds","MixedTriplets")
-iterativeMixedTripletStepCandidates.MinNumberOfCrossedLayers = 3
-
+from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
+mixedTripletStepTrackCandidates = trackCandidateProducer.clone(
+    SeedProducer = cms.InputTag("iterativeMixedTripletStepSeeds","MixedTriplets"),
+    MinNumberOfCrossedLayers = 3)
 
 # track producer
-#from FastSimulation.Tracking.IterativeThirdTrackProducer_cff import *
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-iterativeMixedTripletStepTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-iterativeMixedTripletStepTracks.src = 'iterativeMixedTripletStepCandidates'
-iterativeMixedTripletStepTracks.TTRHBuilder = 'WithoutRefit'
-##iterativeMixedTripletStepTracks.Fitter = 'KFFittingSmootherWithOutlierRejection'
-iterativeMixedTripletStepTracks.Fitter = 'KFFittingSmootherThird'
-iterativeMixedTripletStepTracks.Propagator = 'PropagatorWithMaterial'
-iterativeMixedTripletStepTracks.AlgorithmName = cms.string('mixedTripletStep')
+from RecoTracker.IterativeTracking.MixedTripletStep_cff import mixedTripletStepTracks
+mixedTripletStepTracks = mixedTripletStepTracks.clone(
+    TTRHBuilder = 'WithoutRefit',
+    Fitter = 'KFFittingSmootherThird',
+    Propagator = 'PropagatorWithMaterial')
 
 # simtrack id producer
-mixedTripletStepIds = cms.EDProducer("SimTrackIdProducer",
-                                  trackCollection = cms.InputTag("iterativeMixedTripletStepTracks"),
-                                  HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
-                                  )
+mixedTripletStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
+                                             trackCollection = cms.InputTag("mixedTripletStepTracks"),
+                                             HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
+                                             )
 
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-        src='iterativeMixedTripletStepTracks',
+        src='mixedTripletStepTracks',
             trackSelectors= cms.VPSet(
             RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
                 name = 'mixedTripletStepVtxLoose',
@@ -144,8 +138,8 @@ mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 mixedTripletStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = cms.VInputTag(cms.InputTag('iterativeMixedTripletStepTracks'),
-                                   cms.InputTag('iterativeMixedTripletStepTracks')),
+    TrackProducers = cms.VInputTag(cms.InputTag('mixedTripletStepTracks'),
+                                   cms.InputTag('mixedTripletStepTracks')),
     hasSelector=cms.vint32(1,1),
     selectedTrackQuals = cms.VInputTag(cms.InputTag("mixedTripletStepSelector","mixedTripletStepVtx"),
                                        cms.InputTag("mixedTripletStepSelector","mixedTripletStepTrk")),
@@ -154,10 +148,10 @@ mixedTripletStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackList
     )
 
 # sequence
-iterativeMixedTripletStep = cms.Sequence(iterativeMixedTripletStepSeeds+
-                                         iterativeMixedTripletStepCandidates+
-                                         iterativeMixedTripletStepTracks+
-                                         mixedTripletStepIds+
-                                         mixedTripletStepSelector+
-                                         mixedTripletStep)
+MixedTripletStep = cms.Sequence(iterativeMixedTripletStepSeeds+
+                                mixedTripletStepTrackCandidates+
+                                mixedTripletStepTracks+
+                                mixedTripletStepSimTrackIds+
+                                mixedTripletStepSelector+
+                                mixedTripletStep)
 

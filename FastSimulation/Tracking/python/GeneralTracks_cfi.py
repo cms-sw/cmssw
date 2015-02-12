@@ -2,13 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 generalTracksBase = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = (cms.InputTag('iterativeInitialTracks'),
-                      cms.InputTag('iterativeLowPtTripletTracksWithTriplets'),
-                      cms.InputTag('iterativePixelPairTracks'),
-                      cms.InputTag('iterativeDetachedTripletTracks'),
-                      cms.InputTag('iterativeMixedTripletStepTracks'),
-                      cms.InputTag('iterativePixelLessTracks'),
-                      cms.InputTag('iterativeTobTecTracks'),
+    TrackProducers = (cms.InputTag('initialStepTracks'),
+                      cms.InputTag('lowPtTripletStepTracks'),
+                      cms.InputTag('pixelPairStepTracks'),
+                      cms.InputTag('detachedTripletStepTracks'),
+                      cms.InputTag('mixedTripletStepTracks'),
+                      cms.InputTag('pixelLessStepTracks'),
+                      cms.InputTag('tobTecStepTracks'),
                       #### not validated yet                      cms.InputTag('muonSeededTracksOutIn'),
                       #### not validated yet                      cms.InputTag('muonSeededTracksInOut')
                       ),
