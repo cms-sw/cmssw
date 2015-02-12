@@ -26,8 +26,16 @@ class CmsswPreprocessor :
 			out = getattr(cmsswConfig.process,outName)
 			out.fileName = outfilename
 		if not hasattr(component,"options"):
-			component.options = CFG(inputFiles= component.files, name="postCmsrunOptions")
-		component.options.secondaryInputFiles=[outfilename]
+			component.options = CFG(name="postCmsrunOptions")
+                #use original as primary and new as secondary 
+                #component.options.inputFiles= component.files
+		#component.options.secondaryInputFiles=[outfilename]
+
+                #use new as primary and original as secondary
+                component.options.secondaryInputFiles= component.files
+		component.options.inputFiles=[outfilename]
+                component.files=[outfilename]
+
 		configfile=wd+"/cmsRun_config.py"
 		f = open(configfile, 'w')
 		f.write(cmsswConfig.process.dumpPython())

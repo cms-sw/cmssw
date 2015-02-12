@@ -67,8 +67,8 @@ preprocessor = CmsswPreprocessor("makeAK5Jets.py")
 
 from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
 sample = cfg.Component(
-     files = ["/scratch/arizzi/Hbb/CMSSW_7_2_2_patch2/src/VHbbAnalysis/Heppy/test/ZLL-8A345C56-6665-E411-9C25-1CC1DE04DF20.root"],
-    #files = miniAodFiles(),
+#     files = ["/scratch/arizzi/Hbb/CMSSW_7_2_2_patch2/src/VHbbAnalysis/Heppy/test/ZLL-8A345C56-6665-E411-9C25-1CC1DE04DF20.root"],
+    files = miniAodFiles(),
     name="ATEST", isMC=False,isEmbed=False
     )
 
