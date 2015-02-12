@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-# step 5
+# trajectory seeds
 
-# seeding
-#from FastSimulation.Tracking.IterativeFifthSeedProducer_cff import *
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeTobTecSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
 iterativeTobTecSeeds.simTrackSelection.skipSimTrackIds = [
@@ -23,14 +21,6 @@ iterativeTobTecSeeds.originpTMin = 0.6 # was 0.5
 
 iterativeTobTecSeeds.primaryVertex = ''
 
-#iterativeTobTecSeeds.layerList = ['TOB1+TOB2', 
-#                                  'TOB1+TEC1_pos', 'TOB1+TEC1_neg', 
-#                                  'TEC1_pos+TEC2_pos', 'TEC2_pos+TEC3_pos', 
-#                                  'TEC3_pos+TEC4_pos', 'TEC4_pos+TEC5_pos', 
-#                                  'TEC5_pos+TEC6_pos', 'TEC6_pos+TEC7_pos', 
-#                                  'TEC1_neg+TEC2_neg', 'TEC2_neg+TEC3_neg', 
-#                                  'TEC3_neg+TEC4_neg', 'TEC4_neg+TEC5_neg', 
-#                                  'TEC5_neg+TEC6_neg', 'TEC6_neg+TEC7_neg']
 from RecoTracker.IterativeTracking.TobTecStep_cff import tobTecStepSeedLayersPair as _tobTecStepSeedLayersPair
 iterativeTobTecSeeds.layerList = ['TOB1+TOB2']
 iterativeTobTecSeeds.layerList.extend(_tobTecStepSeedLayersPair.layerList)
@@ -66,4 +56,3 @@ TobTecStep = cms.Sequence(iterativeTobTecSeeds
                           +tobTecStepTracks
                           +tobTecStepSelector
                           +tobTecStepSimTrackIds)
-
