@@ -92,9 +92,9 @@ btagDiscriminators = [
     ,'pfNegativeCombinedInclusiveSecondaryVertexBJetTags'
     ,'pfCombinedInclusiveSecondaryVertexV2BJetTags'
     ,'pfPositiveCombinedInclusiveSecondaryVertexV2BJetTags'
-    ,'pfNegativeCombinedInclusiveSecondaryVertexV2BJetTags',
-    ,'pfCombinedSecondaryVertexSoftLeptonBJetTags',
-    ,'pfNegativeCombinedSecondaryVertexSoftLeptonBJetTags',
+    ,'pfNegativeCombinedInclusiveSecondaryVertexV2BJetTags'
+    ,'pfCombinedSecondaryVertexSoftLeptonBJetTags'
+    ,'pfNegativeCombinedSecondaryVertexSoftLeptonBJetTags'
     ,'pfCombinedMVABJetTags'
     ,'pfPositiveCombinedMVABJetTags'
     ,'pfNegativeCombinedMVABJetTags'
@@ -137,7 +137,7 @@ process.out.outputCommands.append( 'drop *_selectedPatJetsAK4PF_caloTowers_*' )
 #  parameters:
 ## ------------------------------------------------------
 #
-#   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
+#process.GlobalTag.globaltag =  'MCRUN1_74_V2::All'     ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
 ## switch to RECO input
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
