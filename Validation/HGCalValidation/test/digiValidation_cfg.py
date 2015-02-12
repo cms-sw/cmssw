@@ -10,8 +10,8 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023HGCalMuonReco_cff')
-process.load ('Configuration.Geometry.GeometryExtended2023HGCalMuon_cff')
+process.load('Configuration.Geometry.GeometryExtended2023HGCalV6MuonReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023HGCalV6Muon_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
@@ -64,10 +64,10 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
    PGunParameters = cms.PSet(
 	MaxPt  = cms.double(10.01),
 	MinPt  = cms.double(9.99),
-	PartID = cms.vint32(11),
-	MaxEta = cms.double(2.5),
+	PartID = cms.vint32(13),
+	MaxEta = cms.double(2.50),
 	MaxPhi = cms.double(3.14159265359),
-	MinEta = cms.double(-2.5),
+	MinEta = cms.double(1.75),
 	MinPhi = cms.double(-3.14159265359)
 	),
    Verbosity       = cms.untracked.int32(0),
@@ -98,15 +98,7 @@ process.load("DQMServices.Core.DQM_cfg")
 process.DQM.collectorHost = ''
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
-process.load("Validation.HGCalValidation.digiValidation_cfi")
-process.hgcalDigiValidationEE.Verbosity   = 0
-process.hgcalDigiValidationEE.SampleIndx  = 0 # 0 to 5
-process.hgcalDigiValidationHEF = process.hgcalDigiValidationEE.clone(
-	DetectorName = cms.string("HGCalHESiliconSensitive"),
-	DigiSource   = cms.string("HGCDigisHEfront"))
-process.hgcalDigiValidationHEB = process.hgcalDigiValidationEE.clone(
-	DetectorName = cms.string("HGCalHEScintillatorSensitive"),
-	DigiSource   = cms.string("HGCDigisHEback"))
+process.load("Validation.HGCalValidation.digiValidationV6_cff")
 
 ## path and endpath deffinition 
 process.p1 = cms.Path(process.hgcalDigiValidationEE+
@@ -127,11 +119,8 @@ for path in process.paths:
 	
 	# customisation of the process.
 	# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-	from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023HGCalMuon
+	from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023HGCalV6Muon
 	
 #call to customisation function cust_2023HGCalMuon imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023HGCalMuon(process)
+process = cust_2023HGCalV6Muon(process)
 
-# End of customisation functions
-#outfile = open("EdmDumpPyhon.py","w")
-#outfile.write(process.dumpPython())
