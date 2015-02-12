@@ -27,8 +27,8 @@ layerList = cms.vstring('TOB6+TOB5',
 from RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsCreator_cfi import SeedFromConsecutiveHitsCreator as _SeedFromConsecutiveHitsCreator
 CosmicSeedCreator = _SeedFromConsecutiveHitsCreator.clone()
 CosmicSeedCreator.ComponentName = cms.string('CosmicSeedCreator')
-# not there anymore....
-#CosmicSeedCreator.maxseeds = cms.int32(10000)
+# extra parameter specific to CosmicSeedCreator
+CosmicSeedCreator.maxseeds = cms.int32(10000)
  
 
 regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
