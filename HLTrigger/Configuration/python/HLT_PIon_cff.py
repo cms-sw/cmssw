@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_3_0/PIon/V49 (CMSSW_7_3_1_patch2_HLT3)
+# /dev/CMSSW_7_3_0/PIon/V51 (CMSSW_7_3_1_patch2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/PIon/V49')
+  tableName = cms.string('/dev/CMSSW_7_3_0/PIon/V51')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -7945,8 +7945,6 @@ HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
 HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_CaloJet260_v1, HLT_Ele27_eta2p1_WP75_Gsf_v1, HLT_Mu50_v1, HLT_PFJet260_v1, HLT_Photon20_CaloIdVL_IsoL_v1, HLT_Physics_v1, HLTriggerFinalPath, HLTAnalyzerEndpath ))
-
-
 
 
 # CMSSW version specific customizations
