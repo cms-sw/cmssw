@@ -66,21 +66,10 @@ namespace Phase2Tracker
       for (icon2 = iconn; icon2 != end && (*icon2)->getCh().first == fedid; icon2++)
       {
         int detid = (*icon2)->getDetid();
-        // DEBUG
-        // std::cout << "--- new FE , detid : " << detid << " ---" << std::endl; 
-        // ^
         edmNew::DetSetVector<SiPixelCluster>::const_iterator  digis;
         digis = digishandle_->find(detid);
         if (digis != digishandle_->end())
         {
-          // DEBUG
-          /*
-          for(auto dd = digis->begin(); dd != digis->end(); dd++) 
-          {
-            std::cout << "? chip: " << "??" << " digiX: " << dd->minPixelRow() << " raw sizeX: " << dd->sizeX() << " digiY: " << dd->minPixelCol() << std::endl;
-          }
-          */
-          // ^
           digis_t.push_back(*digis);
           festatus[(*icon2)->getCh().second] = true;
         }
@@ -88,15 +77,6 @@ namespace Phase2Tracker
         digis = digishandle_->find(stackMap_[detid]);
         if (digis != digishandle_->end())
         {
-          // DEBUG
-          /*
-          std::cout << "--- second plane on FE, detid : " << stackMap_[detid] << " ---" << std::endl;
-          for(auto dd = digis->begin(); dd != digis->end(); dd++) 
-          {
-            std::cout << "? chip: " << "??" << " digiX: " << dd->minPixelRow() << " raw sizeX: " << dd->sizeX() << " digiY: " << dd->minPixelCol() << std::endl;
-          }
-          */
-          // ^
           digis_t.push_back(*digis);
           festatus[(*icon2)->getCh().second] = true;
         }
@@ -187,9 +167,6 @@ namespace Phase2Tracker
       writeFeHeaderSparsified(fedbuffer, bitindex, moduletype, nums.second, nums.first);
       // - write the digis
       std::vector<stackedDigi>::iterator its;
-      // DEBUG
-      std::cout << "=== FE " << detid << std::endl;
-      // ^
       for(its = digs_mod.begin(); its != digs_mod.end(); its++)
       {
         writeCluster(fedbuffer, bitindex, *its);
@@ -246,7 +223,7 @@ namespace Phase2Tracker
 
   void Phase2TrackerDigiToRaw::writeSCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, stackedDigi digi)
   {
-    std::cout << "S chip: " << digi.getChipId() << " digiX: " << digi.getDigiX() << " raw sizeX: " << digi.getSizeX() << " digiY: " << digi.getDigiY() << " " << digi.getLayer() << std::endl; 
+    // std::cout << "S chip: " << digi.getChipId() << " digiX: " << digi.getDigiX() << " raw sizeX: " << digi.getSizeX() << " digiY: " << digi.getDigiY() << " " << digi.getLayer() << std::endl; 
     uint16_t scluster = (digi.getChipId() & 0x0F) << 11;
     scluster |= (digi.getRawX() & 0xFF) << 3;
     scluster |= ((digi.getSizeX()-1) & 0x07);
@@ -256,7 +233,7 @@ namespace Phase2Tracker
 
   void Phase2TrackerDigiToRaw::writePCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, stackedDigi digi)
   {
-    std::cout << "P chip: " << digi.getChipId() << " digiX: " << digi.getDigiX() << " raw sizeX: " << digi.getSizeX() << " digiY: " << digi.getDigiY() << std::endl; 
+    // std::cout << "P chip: " << digi.getChipId() << " digiX: " << digi.getDigiX() << " raw sizeX: " << digi.getSizeX() << " digiY: " << digi.getDigiY() << std::endl; 
     uint32_t pcluster = (digi.getChipId() & 0x0F) << 14;
     pcluster |= (digi.getRawX() & 0x7F) << 7;
     pcluster |= (digi.getRawY() & 0x0F) << 3;

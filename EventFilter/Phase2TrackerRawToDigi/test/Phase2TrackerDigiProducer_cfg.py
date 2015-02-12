@@ -23,7 +23,7 @@ process.source = cms.Source("PoolSource",
 #process.load('TestbeamCabling_cfi')
 process.load('DummyCablingTxt_cfi')
 process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerDigiProducer_cfi')
-process.Phase2TrackerDigitestproducer.ProductLabel = cms.InputTag("Phase2TrackerDigiToRawProducer")
+process.Phase2TrackerDigiProducer.ProductLabel = cms.InputTag("Phase2TrackerDigiToRawProducer")
 # process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerCommissioningDigiProducer_cfi')
 
 process.out = cms.OutputModule(
@@ -31,11 +31,11 @@ process.out = cms.OutputModule(
     fileName = cms.untracked.string('rawtodigi.root'),
     outputCommands = cms.untracked.vstring(
       'drop *',
-      'keep *_Phase2TrackerDigitestproducer_*_*'
+      'keep *_Phase2TrackerDigiProducer_*_*'
       )
     )
   
-process.p = cms.Path(process.Phase2TrackerDigitestproducer)
+process.p = cms.Path(process.Phase2TrackerDigiProducer)
 # process.p = cms.Path(process.Phase2TrackerDigitestproducer*process.Phase2TrackerDigiCondDataproducer)
 
 process.e = cms.EndPath(process.out)
