@@ -10,12 +10,12 @@ HLTgeneralTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackList
                       cms.InputTag('pixelLessStepTracks'),
                       cms.InputTag('tobTecStepTracks')),
     hasSelector=cms.vint32(1,1,1,1,1,1,1),
-    selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStepSelector","initialStep"),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStep"),
                                        cms.InputTag("lowPtTripletStepSelector","lowPtTripletStep"),
                                        cms.InputTag("pixelPairStepSelector","pixelPairStep"),
                                        cms.InputTag("detachedTripletStep"),
                                        cms.InputTag("mixedTripletStep"),
-                                       cms.InputTag("pixelLessStepSelector","pixelLessStep"),
+                                       cms.InputTag("pixelLessStep"),
                                        cms.InputTag("tobTecStepSelector","tobTecStep")
                                        ),
     setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6), pQual=cms.bool(True) )
