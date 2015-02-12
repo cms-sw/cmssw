@@ -88,7 +88,8 @@ public:
     : Checker(checker),
       BR(br),
       AC(ac),
-      visitingCallExpr(0), AD(fd) {}
+      AD(fd),
+      visitingCallExpr(0) {}
 
   bool hasWork() const { return !WList.empty(); }
 

@@ -4,7 +4,6 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 
-//#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -20,6 +19,9 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -43,12 +45,14 @@ using namespace reco;
 ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf )
  : ElectronDqmAnalyzerBase(conf)
  {
-  //outputFile_ = conf.getParameter<std::string>("outputFile");
   electronCollection_ = consumes<reco::GsfElectronCollection>(conf.getParameter<edm::InputTag>("electronCollection"));
   electronCoreCollection_ = consumes<reco::GsfElectronCoreCollection>(conf.getParameter<edm::InputTag>("electronCoreCollection"));
   electronTrackCollection_ = consumes<reco::GsfTrackCollection>(conf.getParameter<edm::InputTag>("electronTrackCollection"));
   electronSeedCollection_ = consumes<reco::ElectronSeedCollection>(conf.getParameter<edm::InputTag>("electronSeedCollection"));
   matchingObjectCollection_ = consumes<reco::GenJetCollection>(conf.getParameter<edm::InputTag>("matchingObjectCollection"));
+  /* new 03/02/2015 */
+  offlineVerticesCollection_ = consumes<reco::VertexCollection> (conf.getParameter<edm::InputTag>("offlinePrimaryVertices"));
+  /* fin new */
 
   beamSpotTag_ = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"));
   readAOD_ = conf.getParameter<bool>("readAOD");
@@ -145,6 +149,7 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
   h1_recCoreNum_ = 0 ;
   h1_recTrackNum_ = 0 ;
   h1_recSeedNum_ = 0 ;
+  h1_recOfflineVertices_ = 0 ;  // new 2015.04.02
 
   h1_matchingObjectEta = 0 ;
   h1_matchingObjectAbsEta = 0 ;
@@ -224,9 +229,6 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
   h1_scl_Eta_  = 0 ;
   h1_scl_Phi_  = 0 ;
 
-  //h1_scl_SigEtaEta_  = 0 ;
-  //h1_scl_SigEtaEta_barrel_  = 0 ;
-  //h1_scl_SigEtaEta_endcaps_  = 0 ;
   h1_scl_SigIEtaIEta_  = 0 ;
   h1_scl_SigIEtaIEta_barrel_  = 0 ;
   h1_scl_SigIEtaIEta_endcaps_  = 0 ;
@@ -285,36 +287,24 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
   h1_ele_EoP = 0 ;
   h1_ele_EoP_barrel = 0 ;
   h1_ele_EoP_endcaps = 0 ;
-//  h1_ele_EoP_eg = 0 ;
-//  h1_ele_EoP_eg_barrel = 0 ;
-//  h1_ele_EoP_eg_endcaps = 0 ;
   h2_ele_EoPVsEta = 0 ;
   h2_ele_EoPVsPhi = 0 ;
   h2_ele_EoPVsE = 0 ;
   h1_ele_EseedOP = 0 ;
   h1_ele_EseedOP_barrel = 0 ;
   h1_ele_EseedOP_endcaps = 0 ;
-//  h1_ele_EseedOP_eg = 0 ;
-//  h1_ele_EseedOP_eg_barrel = 0 ;
-//  h1_ele_EseedOP_eg_endcaps = 0 ;
   h2_ele_EseedOPVsEta = 0 ;
   h2_ele_EseedOPVsPhi = 0 ;
   h2_ele_EseedOPVsE = 0 ;
   h1_ele_EoPout = 0 ;
   h1_ele_EoPout_barrel = 0 ;
   h1_ele_EoPout_endcaps = 0 ;
-//  h1_ele_EoPout_eg = 0 ;
-//  h1_ele_EoPout_eg_barrel = 0 ;
-//  h1_ele_EoPout_eg_endcaps = 0 ;
   h2_ele_EoPoutVsEta = 0 ;
   h2_ele_EoPoutVsPhi = 0 ;
   h2_ele_EoPoutVsE = 0 ;
   h1_ele_EeleOPout = 0 ;
   h1_ele_EeleOPout_barrel = 0 ;
   h1_ele_EeleOPout_endcaps = 0 ;
-//  h1_ele_EeleOPout_eg = 0 ;
-//  h1_ele_EeleOPout_eg_barrel = 0 ;
-//  h1_ele_EeleOPout_eg_endcaps = 0 ;
   h2_ele_EeleOPoutVsEta = 0 ;
   h2_ele_EeleOPoutVsPhi = 0 ;
   h2_ele_EeleOPoutVsE = 0 ;
@@ -322,54 +312,36 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
   h1_ele_dEtaSc_propVtx = 0 ;
   h1_ele_dEtaSc_propVtx_barrel = 0 ;
   h1_ele_dEtaSc_propVtx_endcaps = 0 ;
-//  h1_ele_dEtaSc_propVtx_eg = 0 ;
-//  h1_ele_dEtaSc_propVtx_eg_barrel = 0 ;
-//  h1_ele_dEtaSc_propVtx_eg_endcaps = 0 ;
   h2_ele_dEtaScVsEta_propVtx = 0 ;
   h2_ele_dEtaScVsPhi_propVtx = 0 ;
   h2_ele_dEtaScVsPt_propVtx = 0 ;
   h1_ele_dPhiSc_propVtx = 0 ;
   h1_ele_dPhiSc_propVtx_barrel = 0 ;
   h1_ele_dPhiSc_propVtx_endcaps = 0 ;
-//  h1_ele_dPhiSc_propVtx_eg = 0 ;
-//  h1_ele_dPhiSc_propVtx_eg_barrel = 0 ;
-//  h1_ele_dPhiSc_propVtx_eg_endcaps = 0 ;
   h2_ele_dPhiScVsEta_propVtx = 0 ;
   h2_ele_dPhiScVsPhi_propVtx = 0 ;
   h2_ele_dPhiScVsPt_propVtx = 0 ;
   h1_ele_dEtaCl_propOut = 0 ;
   h1_ele_dEtaCl_propOut_barrel = 0 ;
   h1_ele_dEtaCl_propOut_endcaps = 0 ;
-//  h1_ele_dEtaCl_propOut_eg = 0 ;
-//  h1_ele_dEtaCl_propOut_eg_barrel = 0 ;
-//  h1_ele_dEtaCl_propOut_eg_endcaps = 0 ;
   h2_ele_dEtaClVsEta_propOut = 0 ;
   h2_ele_dEtaClVsPhi_propOut = 0 ;
   h2_ele_dEtaClVsPt_propOut = 0 ;
   h1_ele_dPhiCl_propOut = 0 ;
   h1_ele_dPhiCl_propOut_barrel = 0 ;
   h1_ele_dPhiCl_propOut_endcaps = 0 ;
-//  h1_ele_dPhiCl_propOut_eg = 0 ;
-//  h1_ele_dPhiCl_propOut_eg_barrel = 0 ;
-//  h1_ele_dPhiCl_propOut_eg_endcaps = 0 ;
   h2_ele_dPhiClVsEta_propOut = 0 ;
   h2_ele_dPhiClVsPhi_propOut = 0 ;
   h2_ele_dPhiClVsPt_propOut = 0 ;
   h1_ele_dEtaEleCl_propOut = 0 ;
   h1_ele_dEtaEleCl_propOut_barrel = 0 ;
   h1_ele_dEtaEleCl_propOut_endcaps = 0 ;
-//  h1_ele_dEtaEleCl_propOut_eg = 0 ;
-//  h1_ele_dEtaEleCl_propOut_eg_barrel = 0 ;
-//  h1_ele_dEtaEleCl_propOut_eg_endcaps = 0 ;
   h2_ele_dEtaEleClVsEta_propOut = 0 ;
   h2_ele_dEtaEleClVsPhi_propOut = 0 ;
   h2_ele_dEtaEleClVsPt_propOut = 0 ;
   h1_ele_dPhiEleCl_propOut = 0 ;
   h1_ele_dPhiEleCl_propOut_barrel = 0 ;
   h1_ele_dPhiEleCl_propOut_endcaps = 0 ;
-//  h1_ele_dPhiEleCl_propOut_eg = 0 ;
-//  h1_ele_dPhiEleCl_propOut_eg_barrel = 0 ;
-//  h1_ele_dPhiEleCl_propOut_eg_endcaps = 0 ;
   h2_ele_dPhiEleClVsEta_propOut = 0 ;
   h2_ele_dPhiEleClVsPhi_propOut = 0 ;
   h2_ele_dPhiEleClVsPt_propOut = 0 ;
@@ -402,9 +374,6 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
   h1_ele_HoE = 0 ;
   h1_ele_HoE_barrel = 0 ;
   h1_ele_HoE_endcaps = 0 ;
-//  h1_ele_HoE_eg = 0 ;
-//  h1_ele_HoE_eg_barrel = 0 ;
-//  h1_ele_HoE_eg_endcaps = 0 ;
   h1_ele_HoE_fiducial = 0 ;
   h2_ele_HoEVsEta = 0 ;
   h2_ele_HoEVsPhi = 0 ;
@@ -454,15 +423,6 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
   h1_ele_hcalTowerSumEt_dr04_depth1_endcaps = 0 ;
   h1_ele_hcalTowerSumEt_dr04_depth2 = 0 ;
 
-/*  h1_ele_dIso_tkSumPt_dr03 = 0 ;
-  h1_ele_dIso_tkSumPt_dr04 = 0 ;
-  h1_ele_dIso_ecalFullRecHitSumEt_dr03 = 0 ;
-  h1_ele_dIso_ecalFullRecHitSumEt_dr04 = 0 ;
-  h1_ele_dIso_ecalReducedRecHitSumEt_dr03 = 0 ;
-  h1_ele_dIso_ecalReducedRecHitSumEt_dr04 = 0 ;
-  h1_ele_dIso_hcalTowerSumEt_dr03 = 0 ;
-  h1_ele_dIso_hcalTowerSumEt_dr04 = 0 ;*/ // removed on 2014/12/02
-
   h1_ele_convFlags = 0 ;
   h1_ele_convFlags_all = 0 ;
   h1_ele_convDist = 0 ;
@@ -492,14 +452,11 @@ void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::
   h1_matchingObjectNum = bookH1withSumw2(iBooker, "matchingObjectNum",htitle,fhits_nbin,0.,fhits_max,xtitle) ;
 
   // rec event collections sizes
-//  h1_recEleNum_= bookH1(iBooker, "recEleNum","# rec electrons",11, -0.5,10.5,"N_{ele}"); // A.C.
-//  h1_recCoreNum_= bookH1(iBooker, "recCoreNum","# rec electron cores",21, -0.5,20.5,"N_{core}"); // A.C.
-//  h1_recTrackNum_= bookH1(iBooker, "recTrackNum","# rec gsf tracks",41, -0.5,40.5,"N_{track}"); // A.C.
-//  h1_recSeedNum_= bookH1(iBooker, "recSeedNum","# rec electron seeds",101, -0.5,100.5,"N_{seed}"); // A.C.
   h1_recEleNum_= bookH1(iBooker, "recEleNum","# rec electrons",11, -0.5,10.5,"N_{ele}"); 
   h1_recCoreNum_= bookH1(iBooker, "recCoreNum","# rec electron cores",21, -0.5,20.5,"N_{core}");
   h1_recTrackNum_= bookH1(iBooker, "recTrackNum","# rec gsf tracks",41, -0.5,40.5,"N_{track}"); 
   h1_recSeedNum_= bookH1(iBooker, "recSeedNum","# rec electron seeds",101, -0.5,100.5,"N_{seed}"); 
+  h1_recOfflineVertices_ = bookH1(iBooker, "recOfflineVertices","# rec Offline Primary Vertices",61, -0.5,60.5,"N_{Vertices}");  // new 2015.04.02
 
   // mc
   h1_matchingObjectEta = bookH1withSumw2(iBooker, "matchingObject_eta",matchingObjectType+" #eta",eta_nbin,eta_min,eta_max,"#eta");
@@ -531,14 +488,6 @@ void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::
   // duplicates
   h2_ele_E2mnE1vsMee_all = bookH2(iBooker, "E2mnE1vsMee_all","E2 - E1 vs ele pairs invariant mass, all electrons",mee_nbin, mee_min, mee_max, 100, -50., 50.,"m_{e^{+}e^{-}} (GeV/c^{2})","E2 - E1 (GeV)");
   h2_ele_E2mnE1vsMee_egeg_all = bookH2(iBooker, "E2mnE1vsMee_egeg_all","E2 - E1 vs ele pairs invariant mass, ecal driven pairs, all electrons",mee_nbin, mee_min, mee_max, 100, -50., 50.,"m_{e^{+}e^{-}} (GeV/c^{2})","E2 - E1 (GeV)");
-
-//  // charge ID
-//  h1_ele_ChargeMnChargeTrue = bookH1withSumw2(iBooker, "ChargeMnChargeTrue","ele charge - gen charge ",5,-1.,4.,"q_{rec} - q_{gen}");
-//  h1_ele_matchingObjectEta_matched_qmisid = bookH1withSumw2(iBooker, "eta_matched_qmisid","charge misid vs gen eta",eta_nbin,eta_min,eta_max);
-//  h1_ele_matchingObjectAbsEta_matched_qmisid = bookH1withSumw2(iBooker, "abseta_matched_qmisid","charge misid vs gen |eta|",eta_nbin/2,0.,eta_max);
-//  h1_ele_matchingObjectPt_matched_qmisid = bookH1withSumw2(iBooker, "Pt_matched_qmisid","charge misid vs gen transverse momentum",pteff_nbin,5.,pt_max);
-//  h1_ele_matchingObjectPhi_matched_qmisid = bookH1withSumw2(iBooker, "phi_matched_qmisid","charge misid vs gen phi",phi_nbin,phi_min,phi_max);
-//  h1_ele_matchingObjectZ_matched_qmisid = bookH1withSumw2(iBooker, "z_matched_qmisid","charge misid vs gen z",xyz_nbin, -25, 25 );
 
   // matched electrons
 
@@ -621,7 +570,6 @@ void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::
   h1_scl_E5x5_  = bookH1withSumw2(iBooker, "E5x5","ele supercluster energy in 5x5",p_nbin,0.,p_max,"E5x5 (GeV)","Events","ELE_LOGY E1 P");
   h1_scl_E5x5_barrel_  = bookH1withSumw2(iBooker, "E5x5_barrel","ele supercluster energy in 5x5 barrel",p_nbin,0.,p_max,"E5x5 (GeV)","Events","ELE_LOGY E1 P");
   h1_scl_E5x5_endcaps_  = bookH1withSumw2(iBooker, "E5x5_endcaps","ele supercluster energy in 5x5 endcaps",p_nbin,0.,p_max,"E5x5 (GeV)","Events","ELE_LOGY E1 P");
-//  h2_scl_EoEtruePfVsEg = bookH2(iBooker, "EoEtruePfVseg","ele supercluster energy / gen energy pflow vs eg",75,-0.1,1.4, 75, -0.1, 1.4,"E/E_{gen} (e/g)","E/E_{gen} (pflow)") ;
 
   // matched electron, gsf tracks
 
@@ -663,90 +611,60 @@ void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::
   h1_ele_EoP = bookH1withSumw2(iBooker, "EoP","ele E/P_{vertex}",eop_nbin,0.,eop_max,"E/P_{vertex}","Events","ELE_LOGY E1 P");
   h1_ele_EoP_barrel = bookH1withSumw2(iBooker, "EoP_barrel","ele E/P_{vertex} barrel",eop_nbin,0.,eop_max,"E/P_{vertex}","Events","ELE_LOGY E1 P");
   h1_ele_EoP_endcaps = bookH1withSumw2(iBooker, "EoP_endcaps","ele E/P_{vertex} endcaps",eop_nbin,0.,eop_max,"E/P_{vertex}","Events","ELE_LOGY E1 P");
-//  h1_ele_EoP_eg = bookH1withSumw2(iBooker, "EoP_eg","ele E/P_{vertex}, ecal driven",eop_nbin,0.,eop_max,"E/P_{vertex}","Events","ELE_LOGY E1 P");
-//  h1_ele_EoP_eg_barrel = bookH1withSumw2(iBooker, "EoP_eg_barrel","ele E/P_{vertex}, ecal driven barrel",eop_nbin,0.,eop_max,"E/P_{vertex}","Events","ELE_LOGY E1 P");
-//  h1_ele_EoP_eg_endcaps = bookH1withSumw2(iBooker, "EoP_eg_endcaps","ele E/P_{vertex}, ecal driven endcaps",eop_nbin,0.,eop_max,"E/P_{vertex}","Events","ELE_LOGY E1 P");
   h2_ele_EoPVsEta = bookH2(iBooker, "EoPVsEta","ele E/P_{vertex} vs eta",eta2D_nbin,eta_min,eta_max,eop2D_nbin,0.,eopmaxsht);
   h2_ele_EoPVsPhi = bookH2(iBooker, "EoPVsPhi","ele E/P_{vertex} vs phi",phi2D_nbin,phi_min,phi_max,eop2D_nbin,0.,eopmaxsht);
   h2_ele_EoPVsE = bookH2(iBooker, "EoPVsE","ele E/P_{vertex} vs E",  50,0.,p_max ,50,0.,5.);
   h1_ele_EseedOP = bookH1withSumw2(iBooker, "EseedOP","ele E_{seed}/P_{vertex}",eop_nbin,0.,eop_max,"E_{seed}/P_{vertex}","Events","ELE_LOGY E1 P");
   h1_ele_EseedOP_barrel = bookH1withSumw2(iBooker, "EseedOP_barrel","ele E_{seed}/P_{vertex} barrel",eop_nbin,0.,eop_max,"E_{seed}/P_{vertex}","Events","ELE_LOGY E1 P");
   h1_ele_EseedOP_endcaps = bookH1withSumw2(iBooker, "EseedOP_endcaps","ele E_{seed}/P_{vertex} endcaps",eop_nbin,0.,eop_max,"E_{seed}/P_{vertex}","Events","ELE_LOGY E1 P");
-//  h1_ele_EseedOP_eg = bookH1withSumw2(iBooker, "EseedOP_eg","ele E_{seed}/P_{vertex}, ecal driven",eop_nbin,0.,eop_max,"E_{seed}/P_{vertex}","Events","ELE_LOGY E1 P");
-//  h1_ele_EseedOP_eg_barrel = bookH1withSumw2(iBooker, "EseedOP_eg_barrel","ele E_{seed}/P_{vertex}, ecal driven barrel",eop_nbin,0.,eop_max,"E_{seed}/P_{vertex}","Events","ELE_LOGY E1 P");
-//  h1_ele_EseedOP_eg_endcaps = bookH1withSumw2(iBooker, "EseedOP_eg_endcaps","ele E_{seed}/P_{vertex}, ecal driven, endcaps",eop_nbin,0.,eop_max,"E_{seed}/P_{vertex}","Events","ELE_LOGY E1 P");
   h2_ele_EseedOPVsEta = bookH2(iBooker, "EseedOPVsEta","ele E_{seed}/P_{vertex} vs eta",eta2D_nbin,eta_min,eta_max,eop2D_nbin,0.,eopmaxsht);
   h2_ele_EseedOPVsPhi = bookH2(iBooker, "EseedOPVsPhi","ele E_{seed}/P_{vertex} vs phi",phi2D_nbin,phi_min,phi_max,eop2D_nbin,0.,eopmaxsht);
   h2_ele_EseedOPVsE = bookH2(iBooker, "EseedOPVsE","ele E_{seed}/P_{vertex} vs E",  50,0.,p_max ,50,0.,5.);
   h1_ele_EoPout = bookH1withSumw2(iBooker, "EoPout","ele E_{seed}/P_{out}",eop_nbin,0.,eop_max,"E_{seed}/P_{out}","Events","ELE_LOGY E1 P");
   h1_ele_EoPout_barrel = bookH1withSumw2(iBooker, "EoPout_barrel","ele E_{seed}/P_{out} barrel",eop_nbin,0.,eop_max,"E_{seed}/P_{out}","Events","ELE_LOGY E1 P");
   h1_ele_EoPout_endcaps = bookH1withSumw2(iBooker, "EoPout_endcaps","ele E_{seed}/P_{out} endcaps",eop_nbin,0.,eop_max,"E_{seed}/P_{out}","Events","ELE_LOGY E1 P");
-//  h1_ele_EoPout_eg = bookH1withSumw2(iBooker, "EoPout_eg","ele E_{seed}/P_{out}, ecal driven",eop_nbin,0.,eop_max,"E_{seed}/P_{out}","Events","ELE_LOGY E1 P");
-//  h1_ele_EoPout_eg_barrel = bookH1withSumw2(iBooker, "EoPout_eg_barrel","ele E_{seed}/P_{out}, ecal driven, barrel",eop_nbin,0.,eop_max,"E_{seed}/P_{out}","Events","ELE_LOGY E1 P");
-//  h1_ele_EoPout_eg_endcaps = bookH1withSumw2(iBooker, "EoPout_eg_endcaps","ele E_{seed}/P_{out}, ecal driven, endcaps",eop_nbin,0.,eop_max,"E_{seed}/P_{out}","Events","ELE_LOGY E1 P");
   h2_ele_EoPoutVsEta = bookH2(iBooker, "EoPoutVsEta","ele E_{seed}/P_{out} vs eta",eta2D_nbin,eta_min,eta_max,eop2D_nbin,0.,eopmaxsht);
   h2_ele_EoPoutVsPhi = bookH2(iBooker, "EoPoutVsPhi","ele E_{seed}/P_{out} vs phi",phi2D_nbin,phi_min,phi_max,eop2D_nbin,0.,eopmaxsht);
   h2_ele_EoPoutVsE = bookH2(iBooker, "EoPoutVsE","ele E_{seed}/P_{out} vs E",p2D_nbin,0.,p_max,eop2D_nbin,0.,eopmaxsht);
   h1_ele_EeleOPout = bookH1withSumw2(iBooker, "EeleOPout","ele E_{ele}/P_{out}",eop_nbin,0.,eop_max,"E_{ele}/P_{out}","Events","ELE_LOGY E1 P");
   h1_ele_EeleOPout_barrel = bookH1withSumw2(iBooker, "EeleOPout_barrel","ele E_{ele}/P_{out} barrel",eop_nbin,0.,eop_max,"E_{ele}/P_{out}","Events","ELE_LOGY E1 P");
   h1_ele_EeleOPout_endcaps = bookH1withSumw2(iBooker, "EeleOPout_endcaps","ele E_{ele}/P_{out} endcaps",eop_nbin,0.,eop_max,"E_{ele}/P_{out}","Events","ELE_LOGY E1 P");
-//  h1_ele_EeleOPout_eg = bookH1withSumw2(iBooker, "EeleOPout_eg","ele E_{ele}/P_{out}, ecal driven",eop_nbin,0.,eop_max,"E_{ele}/P_{out}","Events","ELE_LOGY E1 P");
-//  h1_ele_EeleOPout_eg_barrel = bookH1withSumw2(iBooker, "EeleOPout_eg_barrel","ele E_{ele}/P_{out}, ecal driven, barrel",eop_nbin,0.,eop_max,"E_{ele}/P_{out}","Events","ELE_LOGY E1 P");
-//  h1_ele_EeleOPout_eg_endcaps = bookH1withSumw2(iBooker, "EeleOPout_eg_endcaps","ele E_{ele}/P_{out}, ecal driven, endcaps",eop_nbin,0.,eop_max,"E_{ele}/P_{out}","Events","ELE_LOGY E1 P");
   h2_ele_EeleOPoutVsEta = bookH2(iBooker, "EeleOPoutVsEta","ele E_{ele}/P_{out} vs eta",eta2D_nbin,eta_min,eta_max,eop2D_nbin,0.,eopmaxsht);
   h2_ele_EeleOPoutVsPhi = bookH2(iBooker, "EeleOPoutVsPhi","ele E_{ele}/P_{out} vs phi",phi2D_nbin,phi_min,phi_max,eop2D_nbin,0.,eopmaxsht);
   h2_ele_EeleOPoutVsE = bookH2(iBooker, "EeleOPoutVsE","ele E_{ele}/P_{out} vs E",p2D_nbin,0.,p_max,eop2D_nbin,0.,eopmaxsht);
   h1_ele_dEtaSc_propVtx = bookH1withSumw2(iBooker, "dEtaSc_propVtx","ele #eta_{sc} - #eta_{tr}, prop from vertex",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{sc} - #eta_{tr}","Events","ELE_LOGY E1 P");
   h1_ele_dEtaSc_propVtx_barrel = bookH1withSumw2(iBooker, "dEtaSc_propVtx_barrel","ele #eta_{sc} - #eta_{tr}, prop from vertex, barrel",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{sc} - #eta_{tr}","Events","ELE_LOGY E1 P");
   h1_ele_dEtaSc_propVtx_endcaps = bookH1withSumw2(iBooker, "dEtaSc_propVtx_endcaps","ele #eta_{sc} - #eta_{tr}, prop from vertex, endcaps",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{sc} - #eta_{tr}","Events","ELE_LOGY E1 P");
-//  h1_ele_dEtaSc_propVtx_eg = bookH1withSumw2(iBooker, "dEtaSc_propVtx_eg","ele #eta_{sc} - #eta_{tr}, prop from vertex, ecal driven",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{sc} - #eta_{tr}","Events","ELE_LOGY E1 P");
-//  h1_ele_dEtaSc_propVtx_eg_barrel = bookH1withSumw2(iBooker, "dEtaSc_propVtx_eg_barrel","ele #eta_{sc} - #eta_{tr}, prop from vertex, ecal driven, barrel",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{sc} - #eta_{tr}","Events","ELE_LOGY E1 P");
-//  h1_ele_dEtaSc_propVtx_eg_endcaps = bookH1withSumw2(iBooker, "dEtaSc_propVtx_eg_endcaps","ele #eta_{sc} - #eta_{tr}, prop from vertex, ecal driven, endcaps",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{sc} - #eta_{tr}","Events","ELE_LOGY E1 P");
   h2_ele_dEtaScVsEta_propVtx = bookH2(iBooker, "dEtaScVsEta_propVtx","ele #eta_{sc} - #eta_{tr} vs eta, prop from vertex",eta2D_nbin,eta_min,eta_max,detamatch2D_nbin,detamatch_min,detamatch_max);
   h2_ele_dEtaScVsPhi_propVtx = bookH2(iBooker, "dEtaScVsPhi_propVtx","ele #eta_{sc} - #eta_{tr} vs phi, prop from vertex",phi2D_nbin,phi_min,phi_max,detamatch2D_nbin,detamatch_min,detamatch_max);
   h2_ele_dEtaScVsPt_propVtx = bookH2(iBooker, "dEtaScVsPt_propVtx","ele #eta_{sc} - #eta_{tr} vs pt, prop from vertex",pt2D_nbin,0.,pt_max,detamatch2D_nbin,detamatch_min,detamatch_max);
   h1_ele_dPhiSc_propVtx = bookH1withSumw2(iBooker, "dPhiSc_propVtx","ele #phi_{sc} - #phi_{tr}, prop from vertex",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{sc} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
   h1_ele_dPhiSc_propVtx_barrel = bookH1withSumw2(iBooker, "dPhiSc_propVtx_barrel","ele #phi_{sc} - #phi_{tr}, prop from vertex, barrel",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{sc} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
   h1_ele_dPhiSc_propVtx_endcaps = bookH1withSumw2(iBooker, "dPhiSc_propVtx_endcaps","ele #phi_{sc} - #phi_{tr}, prop from vertex, endcaps",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{sc} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
-//  h1_ele_dPhiSc_propVtx_eg = bookH1withSumw2(iBooker, "dPhiSc_propVtx_eg","ele #phi_{sc} - #phi_{tr}, prop from vertex, ecal driven",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{sc} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
-//  h1_ele_dPhiSc_propVtx_eg_barrel = bookH1withSumw2(iBooker, "dPhiSc_propVtx_eg_barrel","ele #phi_{sc} - #phi_{tr}, prop from vertex, ecal driven, barrel",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{sc} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
-//  h1_ele_dPhiSc_propVtx_eg_endcaps = bookH1withSumw2(iBooker, "dPhiSc_propVtx_eg_endcaps","ele #phi_{sc} - #phi_{tr}, prop from vertex, ecal driven, endcaps",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{sc} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
   h2_ele_dPhiScVsEta_propVtx = bookH2(iBooker, "dPhiScVsEta_propVtx","ele #phi_{sc} - #phi_{tr} vs eta, prop from vertex",eta2D_nbin,eta_min,eta_max,dphimatch2D_nbin,dphimatch_min,dphimatch_max);
   h2_ele_dPhiScVsPhi_propVtx = bookH2(iBooker, "dPhiScVsPhi_propVtx","ele #phi_{sc} - #phi_{tr} vs phi, prop from vertex",phi2D_nbin,phi_min,phi_max,dphimatch2D_nbin,dphimatch_min,dphimatch_max);
   h2_ele_dPhiScVsPt_propVtx = bookH2(iBooker, "dPhiScVsPt_propVtx","ele #phi_{sc} - #phi_{tr} vs pt, prop from vertex",pt2D_nbin,0.,pt_max,dphimatch2D_nbin,dphimatch_min,dphimatch_max);
   h1_ele_dEtaCl_propOut = bookH1withSumw2(iBooker, "dEtaCl_propOut","ele #eta_{cl} - #eta_{tr}, prop from outermost",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{seedcl} - #eta_{tr}","Events","ELE_LOGY E1 P");
   h1_ele_dEtaCl_propOut_barrel = bookH1withSumw2(iBooker, "dEtaCl_propOut_barrel","ele #eta_{cl} - #eta_{tr}, prop from outermost, barrel",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{seedcl} - #eta_{tr}","Events","ELE_LOGY E1 P");
   h1_ele_dEtaCl_propOut_endcaps = bookH1withSumw2(iBooker, "dEtaCl_propOut_endcaps","ele #eta_{cl} - #eta_{tr}, prop from outermost, endcaps",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{seedcl} - #eta_{tr}","Events","ELE_LOGY E1 P");
-//  h1_ele_dEtaCl_propOut_eg = bookH1withSumw2(iBooker, "dEtaCl_propOut_eg","ele #eta_{cl} - #eta_{tr}, prop from outermost, ecal driven",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{seedcl} - #eta_{tr}","Events","ELE_LOGY E1 P");
-//  h1_ele_dEtaCl_propOut_eg_barrel = bookH1withSumw2(iBooker, "dEtaCl_propOut_eg_barrel","ele #eta_{cl} - #eta_{tr}, prop from outermost, ecal driven, barrel",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{seedcl} - #eta_{tr}","Events","ELE_LOGY E1 P");
-//  h1_ele_dEtaCl_propOut_eg_endcaps = bookH1withSumw2(iBooker, "dEtaCl_propOut_eg_endcaps","ele #eta_{cl} - #eta_{tr}, prop from outermost, ecal driven, endcaps",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{seedcl} - #eta_{tr}","Events","ELE_LOGY E1 P");
   h2_ele_dEtaClVsEta_propOut = bookH2(iBooker, "dEtaClVsEta_propOut","ele #eta_{cl} - #eta_{tr} vs eta, prop from out",eta2D_nbin,eta_min,eta_max,detamatch2D_nbin,detamatch_min,detamatch_max);
   h2_ele_dEtaClVsPhi_propOut = bookH2(iBooker, "dEtaClVsPhi_propOut","ele #eta_{cl} - #eta_{tr} vs phi, prop from out",phi2D_nbin,phi_min,phi_max,detamatch2D_nbin,detamatch_min,detamatch_max);
   h2_ele_dEtaClVsPt_propOut = bookH2(iBooker, "dEtaScVsPt_propOut","ele #eta_{cl} - #eta_{tr} vs pt, prop from out",pt2D_nbin,0.,pt_max,detamatch2D_nbin,detamatch_min,detamatch_max);
   h1_ele_dPhiCl_propOut = bookH1withSumw2(iBooker, "dPhiCl_propOut","ele #phi_{cl} - #phi_{tr}, prop from outermost",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{seedcl} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
   h1_ele_dPhiCl_propOut_barrel = bookH1withSumw2(iBooker, "dPhiCl_propOut_barrel","ele #phi_{cl} - #phi_{tr}, prop from outermost, barrel",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{seedcl} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
   h1_ele_dPhiCl_propOut_endcaps = bookH1withSumw2(iBooker, "dPhiCl_propOut_endcaps","ele #phi_{cl} - #phi_{tr}, prop from outermost, endcaps",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{seedcl} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
-//  h1_ele_dPhiCl_propOut_eg = bookH1withSumw2(iBooker, "dPhiCl_propOut_eg","ele #phi_{cl} - #phi_{tr}, prop from outermost, ecal driven",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{seedcl} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
-//  h1_ele_dPhiCl_propOut_eg_barrel = bookH1withSumw2(iBooker, "dPhiCl_propOut_eg_barrel","ele #phi_{cl} - #phi_{tr}, prop from outermost, ecal driven, barrel",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{seedcl} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
-//  h1_ele_dPhiCl_propOut_eg_endcaps = bookH1withSumw2(iBooker, "dPhiCl_propOut_eg_endcaps","ele #phi_{cl} - #phi_{tr}, prop from outermost, ecal driven, endcaps",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{seedcl} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
   h2_ele_dPhiClVsEta_propOut = bookH2(iBooker, "dPhiClVsEta_propOut","ele #phi_{cl} - #phi_{tr} vs eta, prop from out",eta2D_nbin,eta_min,eta_max,dphimatch2D_nbin,dphimatch_min,dphimatch_max);
   h2_ele_dPhiClVsPhi_propOut = bookH2(iBooker, "dPhiClVsPhi_propOut","ele #phi_{cl} - #phi_{tr} vs phi, prop from out",phi2D_nbin,phi_min,phi_max,dphimatch2D_nbin,dphimatch_min,dphimatch_max);
   h2_ele_dPhiClVsPt_propOut = bookH2(iBooker, "dPhiSClsPt_propOut","ele #phi_{cl} - #phi_{tr} vs pt, prop from out",pt2D_nbin,0.,pt_max,dphimatch2D_nbin,dphimatch_min,dphimatch_max);
   h1_ele_dEtaEleCl_propOut = bookH1withSumw2(iBooker, "dEtaEleCl_propOut","ele #eta_{EleCl} - #eta_{tr}, prop from outermost",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{elecl} - #eta_{tr}","Events","ELE_LOGY E1 P");
   h1_ele_dEtaEleCl_propOut_barrel = bookH1withSumw2(iBooker, "dEtaEleCl_propOut_barrel","ele #eta_{EleCl} - #eta_{tr}, prop from outermost, barrel",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{elecl} - #eta_{tr}","Events","ELE_LOGY E1 P");
   h1_ele_dEtaEleCl_propOut_endcaps = bookH1withSumw2(iBooker, "dEtaEleCl_propOut_endcaps","ele #eta_{EleCl} - #eta_{tr}, prop from outermost, endcaps",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{elecl} - #eta_{tr}","Events","ELE_LOGY E1 P");
-//  h1_ele_dEtaEleCl_propOut_eg = bookH1withSumw2(iBooker, "dEtaEleCl_propOut_eg","ele #eta_{EleCl} - #eta_{tr}, prop from outermost, ecal driven",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{elecl} - #eta_{tr}","Events","ELE_LOGY E1 P");
-//  h1_ele_dEtaEleCl_propOut_eg_barrel = bookH1withSumw2(iBooker, "dEtaEleCl_propOut_eg_barrel","ele #eta_{EleCl} - #eta_{tr}, prop from outermost, ecal driven, barrel",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{elecl} - #eta_{tr}","Events","ELE_LOGY E1 P");
-//  h1_ele_dEtaEleCl_propOut_eg_endcaps = bookH1withSumw2(iBooker, "dEtaEleCl_propOut_eg_endcaps","ele #eta_{EleCl} - #eta_{tr}, prop from outermost, ecal driven, endcaps",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{elecl} - #eta_{tr}","Events","ELE_LOGY E1 P");
   h2_ele_dEtaEleClVsEta_propOut = bookH2(iBooker, "dEtaEleClVsEta_propOut","ele #eta_{EleCl} - #eta_{tr} vs eta, prop from out",eta2D_nbin,eta_min,eta_max,detamatch2D_nbin,detamatch_min,detamatch_max);
   h2_ele_dEtaEleClVsPhi_propOut = bookH2(iBooker, "dEtaEleClVsPhi_propOut","ele #eta_{EleCl} - #eta_{tr} vs phi, prop from out",phi2D_nbin,phi_min,phi_max,detamatch2D_nbin,detamatch_min,detamatch_max);
   h2_ele_dEtaEleClVsPt_propOut = bookH2(iBooker, "dEtaScVsPt_propOut","ele #eta_{EleCl} - #eta_{tr} vs pt, prop from out",pt2D_nbin,0.,pt_max,detamatch2D_nbin,detamatch_min,detamatch_max);
   h1_ele_dPhiEleCl_propOut = bookH1withSumw2(iBooker, "dPhiEleCl_propOut","ele #phi_{EleCl} - #phi_{tr}, prop from outermost",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{elecl} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
   h1_ele_dPhiEleCl_propOut_barrel = bookH1withSumw2(iBooker, "dPhiEleCl_propOut_barrel","ele #phi_{EleCl} - #phi_{tr}, prop from outermost, barrel",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{elecl} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
   h1_ele_dPhiEleCl_propOut_endcaps = bookH1withSumw2(iBooker, "dPhiEleCl_propOut_endcaps","ele #phi_{EleCl} - #phi_{tr}, prop from outermost, endcaps",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{elecl} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
-//  h1_ele_dPhiEleCl_propOut_eg = bookH1withSumw2(iBooker, "dPhiEleCl_propOut_eg","ele #phi_{EleCl} - #phi_{tr}, prop from outermost, ecal driven",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{elecl} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
-//  h1_ele_dPhiEleCl_propOut_eg_barrel = bookH1withSumw2(iBooker, "dPhiEleCl_propOut_eg_barrel","ele #phi_{EleCl} - #phi_{tr}, prop from outermost, ecal driven, barrel",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{elecl} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
-//  h1_ele_dPhiEleCl_propOut_eg_endcaps = bookH1withSumw2(iBooker, "dPhiEleCl_propOut_eg_endcaps","ele #phi_{EleCl} - #phi_{tr}, prop from outermost, ecal driven, endcaps",dphimatch_nbin,dphimatch_min,dphimatch_max,"#phi_{elecl} - #phi_{tr} (rad)","Events","ELE_LOGY E1 P");
   h2_ele_dPhiEleClVsEta_propOut = bookH2(iBooker, "dPhiEleClVsEta_propOut","ele #phi_{EleCl} - #phi_{tr} vs eta, prop from out",eta2D_nbin,eta_min,eta_max,dphimatch2D_nbin,dphimatch_min,dphimatch_max);
   h2_ele_dPhiEleClVsPhi_propOut = bookH2(iBooker, "dPhiEleClVsPhi_propOut","ele #phi_{EleCl} - #phi_{tr} vs phi, prop from out",phi2D_nbin,phi_min,phi_max,dphimatch2D_nbin,dphimatch_min,dphimatch_max);
   h2_ele_dPhiEleClVsPt_propOut = bookH2(iBooker, "dPhiSEleClsPt_propOut","ele #phi_{EleCl} - #phi_{tr} vs pt, prop from out",pt2D_nbin,0.,pt_max,dphimatch2D_nbin,dphimatch_min,dphimatch_max);
@@ -756,9 +674,6 @@ void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::
   h1_ele_HoE_bc = bookH1withSumw2(iBooker, "HoE_bc","ele hadronic energy / em energy behind cluster",hoe_nbin, hoe_min, hoe_max,"H/E","Events","ELE_LOGY E1 P") ;
   h1_ele_HoE_bc_barrel = bookH1withSumw2(iBooker, "HoE_bc_barrel","ele hadronic energy / em energy, behind cluster barrel",hoe_nbin, hoe_min, hoe_max,"H/E","Events","ELE_LOGY E1 P") ;
   h1_ele_HoE_bc_endcaps = bookH1withSumw2(iBooker, "HoE_bc_endcaps","ele hadronic energy / em energy, behind cluster, endcaps",hoe_nbin, hoe_min, hoe_max,"H/E","Events","ELE_LOGY E1 P") ;
-//  h1_ele_HoE_eg = bookH1withSumw2(iBooker, "HoE_eg","ele hadronic energy / em energy, ecal driven",hoe_nbin, hoe_min, hoe_max,"H/E","Events","ELE_LOGY E1 P") ;
-//  h1_ele_HoE_eg_barrel = bookH1withSumw2(iBooker, "HoE_eg_barrel","ele hadronic energy / em energy, ecal driven, barrel",hoe_nbin, hoe_min, hoe_max,"H/E","Events","ELE_LOGY E1 P") ;
-//  h1_ele_HoE_eg_endcaps = bookH1withSumw2(iBooker, "HoE_eg_endcaps","ele hadronic energy / em energy, ecal driven, endcaps",hoe_nbin, hoe_min, hoe_max,"H/E","Events","ELE_LOGY E1 P") ;
   h1_ele_hcalDepth1OverEcalBc = bookH1withSumw2(iBooker, "hcalDepth1OverEcalBc","hcalDepth1OverEcalBc",hoe_nbin, hoe_min, hoe_max,"H/E","Events","ELE_LOGY E1 P");
   h1_ele_hcalDepth1OverEcalBc_barrel = bookH1withSumw2(iBooker, "hcalDepth1OverEcalBc_barrel","hcalDepth1OverEcalBc_barrel",hoe_nbin, hoe_min, hoe_max,"H/E","Events","ELE_LOGY E1 P");
   h1_ele_hcalDepth1OverEcalBc_endcaps = bookH1withSumw2(iBooker, "hcalDepth1OverEcalBc_endcaps","hcalDepth1OverEcalBc_endcaps",hoe_nbin, hoe_min, hoe_max,"H/E","Events","ELE_LOGY E1 P");
@@ -794,7 +709,6 @@ void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::
   h1_ele_eta = bookH1withSumw2(iBooker, "eta","ele electron eta",eta_nbin/2,0.0,eta_max);
   h1_ele_eta_golden = bookH1withSumw2(iBooker, "eta_golden","ele electron eta golden",eta_nbin/2,0.0,eta_max);
   h1_ele_eta_bbrem = bookH1withSumw2(iBooker, "eta_bbrem","ele electron eta bbrem",eta_nbin/2,0.0,eta_max);
-  //h1_ele_eta_narrow = bookH1withSumw2(iBooker, "eta_narrow","ele electron eta narrow",eta_nbin/2,0.0,eta_max);
   h1_ele_eta_shower = bookH1withSumw2(iBooker, "eta_shower","ele electron eta showering",eta_nbin/2,0.0,eta_max);
   h2_ele_PinVsPoutGolden_mode = bookH2(iBooker, "PinVsPoutGolden_mode","ele track inner p vs outer p vs eta, golden, mode of GSF components" ,p2D_nbin,0.,p_max,50,0.,p_max);
   h2_ele_PinVsPoutShowering_mode = bookH2(iBooker, "PinVsPoutShowering_mode","ele track inner p vs outer p vs eta, showering, mode of GSF components" ,p2D_nbin,0.,p_max,50,0.,p_max);
@@ -833,15 +747,6 @@ void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::
   h1_ele_hcalTowerSumEt_dr04_depth1_endcaps = bookH1withSumw2(iBooker, "hcalTowerSumEt_dr04_depth1_endcaps","hcal depth1 isolation sum, dR=0.4, endcaps",100,0.0,20.,"Hcal1IsoSum, cone 0.4 (GeV)","Events","ELE_LOGY E1 P");
   h1_ele_hcalTowerSumEt_dr04_depth2 = bookH1withSumw2(iBooker, "hcalTowerSumEt_dr04_depth2","hcal depth2 isolation sum, dR=0.4",100,0.0,20.,"Hcal2IsoSum, cone 0.4 (GeV)","Events","ELE_LOGY E1 P");
 
-/*  h1_ele_dIso_tkSumPt_dr03 = bookH1withSumw2(iBooker, "dIso_tkSumPt_dr03","diff with iso from deposits, tk isolation sum, dR=0.3",21,-10.0,10.,"TkIsoSum diff, cone 0.3 (GeV/c)","Events","ELE_LOGY E1 P");
-  h1_ele_dIso_tkSumPt_dr04 = bookH1withSumw2(iBooker, "dIso_tkSumPt_dr04","diff with iso from deposits, tk isolation sum, dR=0.4",21,-10.0,10.,"TkIsoSum diff, cone 0.4 (GeV/c)","Events","ELE_LOGY E1 P");
-  h1_ele_dIso_ecalFullRecHitSumEt_dr03 = bookH1withSumw2(iBooker, "dIso_ecalFullRecHitSumEt_dr03","diff with iso from deposits, ecal isolation sum, dR=0.3",21,-10.0,10.,"EcalIsoSum diff, cone 0.3 (GeV)","Events","ELE_LOGY E1 P");
-  h1_ele_dIso_ecalFullRecHitSumEt_dr04 = bookH1withSumw2(iBooker, "dIso_ecalFullRecHitSumEt_dr04","diff with iso from deposits, ecal isolation sum, dR=0.4",21,-10.0,10.,"EcalIsoSum diff, cone 0.4 (GeV)","Events","ELE_LOGY E1 P");
-  h1_ele_dIso_ecalReducedRecHitSumEt_dr03 = bookH1withSumw2(iBooker, "dIso_ecalReducedRecHitSumEt_dr03","diff with iso from deposits, ecal isolation sum, dR=0.3",21,-10.0,10.,"EcalIsoSum diff, cone 0.3 (GeV)","Events","ELE_LOGY E1 P");
-  h1_ele_dIso_ecalReducedRecHitSumEt_dr04 = bookH1withSumw2(iBooker, "dIso_ecalReducedRecHitSumEt_dr04","diff with iso from deposits, ecal isolation sum, dR=0.4",21,-10.0,10.,"EcalIsoSum diff, cone 0.4 (GeV)","Events","ELE_LOGY E1 P");
-  h1_ele_dIso_hcalTowerSumEt_dr03 = bookH1withSumw2(iBooker, "dIso_hcalTowerSumEt_dr03","diff with iso from deposits, hcal depth1 isolation sum, dR=0.3",21,-10.0,10.,"Hcal1IsoSum diff, cone 0.3 (GeV)","Events","ELE_LOGY E1 P");
-  h1_ele_dIso_hcalTowerSumEt_dr04 = bookH1withSumw2(iBooker, "dIso_hcalTowerSumEt_dr04","diff with iso from deposits, hcal depth1 isolation sum, dR=0.4",21,-10.0,10.,"Hcal1IsoSum diff, cone 0.4 (GeV)","Events","ELE_LOGY E1 P");
-*/ // removed on 2014/12/02
   // newHCAL
   // isolation new hcal
   h1_ele_hcalTowerSumEtBc_dr03_depth1 = bookH1withSumw2(iBooker, "hcalTowerSumEtBc_dr03_depth1","hcal depth1 isolation sum behind cluster, dR=0.3",100,0.0,20.,"Hcal1IsoSum, cone 0.3 (GeV)","Events","ELE_LOGY E1 P");
@@ -866,9 +771,9 @@ void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::
   h1_ele_fbrem_endcaps = bookH1withSumw2(iBooker, "fbrem_endcaps", "ele brem franction for endcaps, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
   p1_ele_fbremVsEta_mode  = bookP1(iBooker, "fbremvsEtamode","mean ele brem fraction vs eta, mode of GSF components",eta2D_nbin,eta_min,eta_max,0.,1.,"#eta","<P_{in} - P_{out} / P_{in}>");
   p1_ele_fbremVsEta_mean  = bookP1(iBooker, "fbremvsEtamean","mean ele brem fraction vs eta, mean of GSF components",eta2D_nbin,eta_min,eta_max,0.,1.,"#eta","<P_{in} - P_{out} / P_{in}>");
-  h1_ele_superclusterfbrem = bookH1withSumw2(iBooker, "superclusterfbrem","ele brem fraction, mode of GSF components",100,0.,1.,"P_{in} - P_{out} / P_{in}");
-  h1_ele_superclusterfbrem_barrel = bookH1withSumw2(iBooker, "superclusterfbrem_barrel","ele brem fraction for barrel, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
-  h1_ele_superclusterfbrem_endcaps = bookH1withSumw2(iBooker, "superclusterfbrem_endcaps", "ele brem franction for endcaps, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
+  h1_ele_superclusterfbrem = bookH1withSumw2(iBooker, "superclusterfbrem","supercluster brem fraction, mode of GSF components",100,0.,1.,"P_{in} - P_{out} / P_{in}");
+  h1_ele_superclusterfbrem_barrel = bookH1withSumw2(iBooker, "superclusterfbrem_barrel","supercluster brem fraction for barrel, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
+  h1_ele_superclusterfbrem_endcaps = bookH1withSumw2(iBooker, "superclusterfbrem_endcaps", "supercluster brem franction for endcaps, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
   // e/g et pflow electrons
   h1_ele_mva = bookH1withSumw2(iBooker, "mva","ele identification mva",100,-1.,1.);
   h1_ele_mva_barrel = bookH1withSumw2(iBooker, "mva_barrel", "ele identification mva barrel",100,-1.,1.);
@@ -942,6 +847,17 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
   edm::Handle<edm::ValueMap<double> > isoFromDepsHcal03Handle        ;   iEvent.getByToken( isoFromDepsHcal03Tag_       , isoFromDepsHcal03Handle        ) ;
   edm::Handle<edm::ValueMap<double> > isoFromDepsHcal04Handle        ;   iEvent.getByToken( isoFromDepsHcal04Tag_       , isoFromDepsHcal04Handle        ) ;
 
+  /* new 2015.04.02 */
+  edm::Handle<reco::VertexCollection> vertexCollectionHandle;
+  iEvent.getByToken(offlineVerticesCollection_, vertexCollectionHandle);
+  if(!vertexCollectionHandle.isValid()) 
+  {edm::LogInfo("ElectronMcFakeValidator::analyze") << "vertexCollectionHandle KO" ;}
+  else 
+  {
+      edm::LogInfo("ElectronMcFakeValidator::analyze") << "vertexCollectionHandle OK" ;
+  }
+  /* fin new */
+
   // get gen jets
   edm::Handle<reco::GenJetCollection> genJets ;
   iEvent.getByToken(matchingObjectCollection_,genJets);
@@ -958,7 +874,7 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
   h1_recCoreNum_->Fill((*gsfElectronCores).size());
   h1_recTrackNum_->Fill((*gsfElectronTracks).size());
   h1_recSeedNum_->Fill((*gsfElectronSeeds).size());
-
+  h1_recOfflineVertices_->Fill((*vertexCollectionHandle).size());  // new 2015.04.02
 
   // all rec electrons
   reco::GsfElectronCollection::const_iterator gsfIter ;
@@ -1243,92 +1159,62 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
        }
       // match distributions
       h1_ele_EoP->Fill( bestGsfElectron.eSuperClusterOverP() );
-//      if (bestGsfElectron.ecalDrivenSeed()) h1_ele_EoP_eg->Fill( bestGsfElectron.eSuperClusterOverP() );
       if (bestGsfElectron.isEB()) h1_ele_EoP_barrel->Fill( bestGsfElectron.eSuperClusterOverP() );
-//      if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EoP_eg_barrel->Fill( bestGsfElectron.eSuperClusterOverP() );
       if (bestGsfElectron.isEE()) h1_ele_EoP_endcaps->Fill( bestGsfElectron.eSuperClusterOverP() );
-//      if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EoP_eg_endcaps->Fill( bestGsfElectron.eSuperClusterOverP() );
       h2_ele_EoPVsEta->Fill(bestGsfElectron.eta(),  bestGsfElectron.eSuperClusterOverP() );
       h2_ele_EoPVsPhi->Fill(bestGsfElectron.phi(),  bestGsfElectron.eSuperClusterOverP() );
       h2_ele_EoPVsE->Fill(bestGsfElectron.caloEnergy(),  bestGsfElectron.eSuperClusterOverP() );
       h1_ele_EseedOP->Fill( bestGsfElectron.eSeedClusterOverP() );
-//      if (bestGsfElectron.ecalDrivenSeed()) h1_ele_EseedOP_eg->Fill( bestGsfElectron.eSeedClusterOverP() );
       if (bestGsfElectron.isEB()) h1_ele_EseedOP_barrel->Fill( bestGsfElectron.eSeedClusterOverP() );
-//      if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EseedOP_eg_barrel->Fill( bestGsfElectron.eSeedClusterOverP() );
       if (bestGsfElectron.isEE()) h1_ele_EseedOP_endcaps->Fill( bestGsfElectron.eSeedClusterOverP() );
-//      if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EseedOP_eg_endcaps->Fill( bestGsfElectron.eSeedClusterOverP() );
       h2_ele_EseedOPVsEta->Fill(bestGsfElectron.eta(),  bestGsfElectron.eSeedClusterOverP() );
       h2_ele_EseedOPVsPhi->Fill(bestGsfElectron.phi(),  bestGsfElectron.eSeedClusterOverP() );
       h2_ele_EseedOPVsE->Fill(bestGsfElectron.caloEnergy(),  bestGsfElectron.eSeedClusterOverP() );
       h1_ele_EoPout->Fill( bestGsfElectron.eSeedClusterOverPout() );
-//      if (bestGsfElectron.ecalDrivenSeed()) h1_ele_EoPout_eg->Fill( bestGsfElectron.eSeedClusterOverPout() );
       if (bestGsfElectron.isEB()) h1_ele_EoPout_barrel->Fill( bestGsfElectron.eSeedClusterOverPout() );
-//      if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EoPout_eg_barrel->Fill( bestGsfElectron.eSeedClusterOverPout() );
       if (bestGsfElectron.isEE()) h1_ele_EoPout_endcaps->Fill( bestGsfElectron.eSeedClusterOverPout() );
-//      if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EoPout_eg_endcaps->Fill( bestGsfElectron.eSeedClusterOverPout() );
       h2_ele_EoPoutVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.eSeedClusterOverPout() );
       h2_ele_EoPoutVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.eSeedClusterOverPout() );
       h2_ele_EoPoutVsE->Fill( bestGsfElectron.caloEnergy(), bestGsfElectron.eSeedClusterOverPout() );
       h1_ele_EeleOPout->Fill( bestGsfElectron.eEleClusterOverPout() );
-//      if (bestGsfElectron.ecalDrivenSeed()) h1_ele_EeleOPout_eg->Fill( bestGsfElectron.eEleClusterOverPout() );
       if (bestGsfElectron.isEB()) h1_ele_EeleOPout_barrel->Fill( bestGsfElectron.eEleClusterOverPout() );
-//      if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EeleOPout_eg_barrel->Fill( bestGsfElectron.eEleClusterOverPout() );
       if (bestGsfElectron.isEE()) h1_ele_EeleOPout_endcaps->Fill( bestGsfElectron.eEleClusterOverPout() );
-//      if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EeleOPout_eg_endcaps->Fill( bestGsfElectron.eEleClusterOverPout() );
       h2_ele_EeleOPoutVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.eEleClusterOverPout() );
       h2_ele_EeleOPoutVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.eEleClusterOverPout() );
       h2_ele_EeleOPoutVsE->Fill( bestGsfElectron.caloEnergy(), bestGsfElectron.eEleClusterOverPout() );
       h1_ele_dEtaSc_propVtx->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-//      if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaSc_propVtx_eg->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
       if (bestGsfElectron.isEB()) h1_ele_dEtaSc_propVtx_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-//      if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaSc_propVtx_eg_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
       if (bestGsfElectron.isEE())h1_ele_dEtaSc_propVtx_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-//      if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaSc_propVtx_eg_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
       h2_ele_dEtaScVsEta_propVtx->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
       h2_ele_dEtaScVsPhi_propVtx->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
       h2_ele_dEtaScVsPt_propVtx->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
       h1_ele_dPhiSc_propVtx->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
-//      if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiSc_propVtx_eg->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
       if (bestGsfElectron.isEB()) h1_ele_dPhiSc_propVtx_barrel->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
-//      if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiSc_propVtx_eg_barrel->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
       if (bestGsfElectron.isEE())h1_ele_dPhiSc_propVtx_endcaps->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
-//      if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiSc_propVtx_eg_endcaps->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
       h2_ele_dPhiScVsEta_propVtx->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
       h2_ele_dPhiScVsPhi_propVtx->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
       h2_ele_dPhiScVsPt_propVtx->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
       h1_ele_dEtaCl_propOut->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
-//      if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaCl_propOut_eg->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
       if (bestGsfElectron.isEB()) h1_ele_dEtaCl_propOut_barrel->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
-//      if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaCl_propOut_eg_barrel->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
       if (bestGsfElectron.isEE()) h1_ele_dEtaCl_propOut_endcaps->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
-//      if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaCl_propOut_eg_endcaps->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
       h2_ele_dEtaClVsEta_propOut->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
       h2_ele_dEtaClVsPhi_propOut->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
       h2_ele_dEtaClVsPt_propOut->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
       h1_ele_dPhiCl_propOut->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-//      if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiCl_propOut_eg->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
       if (bestGsfElectron.isEB()) h1_ele_dPhiCl_propOut_barrel->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-//      if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiCl_propOut_eg_barrel->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
       if (bestGsfElectron.isEE()) h1_ele_dPhiCl_propOut_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-//      if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiCl_propOut_eg_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
       h2_ele_dPhiClVsEta_propOut->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
       h2_ele_dPhiClVsPhi_propOut->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
       h2_ele_dPhiClVsPt_propOut->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
       h1_ele_dEtaEleCl_propOut->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
-//      if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaEleCl_propOut_eg->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
       if (bestGsfElectron.isEB()) h1_ele_dEtaEleCl_propOut_barrel->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
-//      if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaEleCl_propOut_eg_barrel->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
       if (bestGsfElectron.isEE()) h1_ele_dEtaEleCl_propOut_endcaps->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
-//      if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaEleCl_propOut_eg_endcaps->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
       h2_ele_dEtaEleClVsEta_propOut->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
       h2_ele_dEtaEleClVsPhi_propOut->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
       h2_ele_dEtaEleClVsPt_propOut->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
       h1_ele_dPhiEleCl_propOut->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
-//      if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiEleCl_propOut_eg->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
       if (bestGsfElectron.isEB()) h1_ele_dPhiEleCl_propOut_barrel->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
-//      if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiEleCl_propOut_eg_barrel->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
       if (bestGsfElectron.isEE()) h1_ele_dPhiEleCl_propOut_endcaps->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
-//      if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiEleCl_propOut_eg_endcaps->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
       h2_ele_dPhiEleClVsEta_propOut->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
       h2_ele_dPhiEleClVsPhi_propOut->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
       h2_ele_dPhiEleClVsPt_propOut->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
@@ -1336,11 +1222,8 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
       h1_ele_HoE_bc->Fill(bestGsfElectron.hcalOverEcalBc());
       if (bestGsfElectron.isEB()) h1_ele_HoE_bc_barrel->Fill(bestGsfElectron.hcalOverEcalBc());
       if (bestGsfElectron.isEE()) h1_ele_HoE_bc_endcaps->Fill(bestGsfElectron.hcalOverEcalBc());
-//      if (bestGsfElectron.ecalDrivenSeed()) h1_ele_HoE_eg->Fill(bestGsfElectron.hadronicOverEm());
       if (bestGsfElectron.isEB()) h1_ele_HoE_barrel->Fill(bestGsfElectron.hadronicOverEm());
-//      if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_HoE_eg_barrel->Fill(bestGsfElectron.hadronicOverEm());
       if (bestGsfElectron.isEE()) h1_ele_HoE_endcaps->Fill(bestGsfElectron.hadronicOverEm());
-//      if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_HoE_eg_endcaps->Fill(bestGsfElectron.hadronicOverEm());
       if (!bestGsfElectron.isEBEtaGap() && !bestGsfElectron.isEBPhiGap()&& !bestGsfElectron.isEBEEGap() &&
           !bestGsfElectron.isEERingGap() && !bestGsfElectron.isEEDeeGap()) h1_ele_HoE_fiducial->Fill(bestGsfElectron.hadronicOverEm());
       h2_ele_HoEVsEta->Fill( bestGsfElectron.eta(),bestGsfElectron.hadronicOverEm());
@@ -1510,25 +1393,6 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
       if (bestGsfElectron.isEB()) h1_ele_hcalDepth2OverEcalBc_barrel->Fill(bestGsfElectron.hcalDepth2OverEcalBc());
       if (bestGsfElectron.isEE()) h1_ele_hcalDepth2OverEcalBc_endcaps->Fill(bestGsfElectron.hcalDepth2OverEcalBc());
 
-
-      // isolation : difference with iso deposits
-/*      if ( isoFromDepsTk03Handle.isValid() )
-	h1_ele_dIso_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt()-((*isoFromDepsTk03Handle)[bestGsfElectronRef])) ;
-      if ( isoFromDepsTk04Handle.isValid() )
-	h1_ele_dIso_tkSumPt_dr04->Fill(bestGsfElectron.dr04TkSumPt()-((*isoFromDepsTk04Handle)[bestGsfElectronRef])) ;
-      if ( isoFromDepsEcalFull03Handle.isValid() )
-	h1_ele_dIso_ecalFullRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt()-((*isoFromDepsEcalFull03Handle)[bestGsfElectronRef])) ;
-      if ( isoFromDepsEcalFull04Handle.isValid() )
-      h1_ele_dIso_ecalFullRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt()-((*isoFromDepsEcalFull04Handle)[bestGsfElectronRef])) ;
-      if ( isoFromDepsEcalReduced03Handle.isValid())
-	h1_ele_dIso_ecalReducedRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt()-((*isoFromDepsEcalReduced03Handle)[bestGsfElectronRef])) ;
-      if ( isoFromDepsEcalReduced04Handle.isValid())
-	h1_ele_dIso_ecalReducedRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt()-((*isoFromDepsEcalReduced04Handle)[bestGsfElectronRef])) ;
-      if ( isoFromDepsHcal03Handle.isValid())
-	h1_ele_dIso_hcalTowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt()-((*isoFromDepsHcal03Handle)[bestGsfElectronRef])) ;
-      if ( isoFromDepsHcal04Handle.isValid())
-	h1_ele_dIso_hcalTowerSumEt_dr04->Fill(bestGsfElectron.dr04HcalTowerSumEt()-((*isoFromDepsHcal04Handle)[bestGsfElectronRef])) ;
-*/ // removed on 2014/12/02
       // conversion rejection
       int flags = bestGsfElectron.convFlags() ;
       if (flags==-9999) { flags=-1 ; }
@@ -1541,10 +1405,6 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
        }
 
      } // gsf electron found
-
-//    } // matching object found
-
-//    }
 
    } // loop overmatching object
 

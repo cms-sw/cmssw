@@ -67,10 +67,26 @@ pfBTagging = cms.Sequence(
       softPFMuonBJetTags
       + softPFElectronsTagInfos *
       softPFElectronBJetTags
-    )
+    ) *
 
     # overall combined taggers
-    * pfCombinedMVABJetTags
+    ( #CSV + soft-lepton + jet probability discriminators combined
+      pfCombinedMVABJetTags
+
+      #CSV + soft-lepton variables combined (btagger)
+      #+ pfCombinedSecondaryVertexSoftLeptonBJetTags   
+    )
 )
 
-btagging = legacyBTagging + pfBTagging
+# new candidate-based ctagging sequence, requires its own IVF vertices (relaxed IVF reconstruction cuts) 
+# but IP and soft-lepton taginfos from btagging sequence can be recycled
+pfCTagging = cms.Sequence(
+    ( inclusiveCandidateVertexingCtagL *
+      pfInclusiveSecondaryVertexFinderCtagLTagInfos
+    ) *
+
+    # CSV + soft-lepton variables combined (ctagger optimized for c vs dusg)
+    pfCombinedSecondaryVertexSoftLeptonCtagLJetTags
+)
+
+btagging = legacyBTagging + pfBTagging #* pfCTagging

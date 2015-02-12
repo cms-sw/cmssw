@@ -57,20 +57,30 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker & iBooker,
         for (size_t i = 0; i < sources.size(); i++) {
             std::string source = sources[i];
 
-	    if ( !( TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ) || source!="gen" ) {
-	      bookHist(iBooker, source, objTypeStr, "MaxPt1");
-	    }
-	  
-            if ( !( TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ) ) {
-	      bookHist(iBooker, source, objTypeStr, "Eta");
-	      bookHist(iBooker, source, objTypeStr, "Phi");
-	      bookHist(iBooker, source, objTypeStr, "MaxPt2");
-	    }
+            if ( source == "gen" ) {
+              if ( TString(objTypeStr).Contains("MET") ||
+                   TString(objTypeStr).Contains("MHT") ||
+                   TString(objTypeStr).Contains("Jet")    ) {
+                continue;
+              } else {
+                bookHist(iBooker, source, objTypeStr, "MaxPt1");
+                bookHist(iBooker, source, objTypeStr, "MaxPt2");
+                bookHist(iBooker, source, objTypeStr, "Eta");
+                bookHist(iBooker, source, objTypeStr, "Phi");
+              }
+            } else { // reco
+              if ( TString(objTypeStr).Contains("MET") ||
+                   TString(objTypeStr).Contains("MHT")    ) {
+                bookHist(iBooker, source, objTypeStr, "MaxPt1");
+                bookHist(iBooker, source, objTypeStr, "SumEt");
+              } else {
+                bookHist(iBooker, source, objTypeStr, "MaxPt1");
+                bookHist(iBooker, source, objTypeStr, "MaxPt2");
+                bookHist(iBooker, source, objTypeStr, "Eta");
+                bookHist(iBooker, source, objTypeStr, "Phi");
+              }
+            }	    
 
-	    else if( source!="gen" ) {
-	      bookHist(iBooker, source, objTypeStr, "SumEt");
-	    }
-	    
         }
     }
 }
