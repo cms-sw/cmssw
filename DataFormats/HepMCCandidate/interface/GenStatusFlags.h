@@ -16,23 +16,36 @@ namespace reco {
     
     enum StatusBits {
       kIsPrompt = 0,
+      kIsDecayedLeptonHadron,
       kIsTauDecayProduct,
       kIsPromptTauDecayProduct,
       kIsDirectTauDecayProduct,
       kIsDirectPromptTauDecayProduct,
-      kIsMuonDecayProduct,
-      kIsPromptMuonDecayProduct,
       kIsDirectHadronDecayProduct,
       kIsHardProcess,
       kFromHardProcess,
       kIsHardProcessTauDecayProduct,
       kIsDirectHardProcessTauDecayProduct,
-      kIsLastCopy
+      kFromHardProcessBeforeFSR,
+      kIsFirstCopy,
+      kIsLastCopy,
+      kIsLastCopyBeforeFSR
     };
+    
+    /////////////////////////////////////////////////////////////////////////////
+    //these are robust, generator-independent functions for categorizing
+    //mainly final state particles, but also intermediate hadrons/taus    
     
     //is particle prompt (not from hadron, muon, or tau decay)
     bool isPrompt() const { return flags_[kIsPrompt]; }
     void setIsPrompt(bool b) { flags_[kIsPrompt] = b; }    
+    
+    //is particle a decayed hadron, muon, or tau (does not include resonance decays like W,Z,Higgs,top,etc)
+    //This flag is equivalent to status 2 in the current HepMC standard
+    //but older generators (pythia6, herwig6) predate this and use status 2 also for other intermediate
+    //particles/states    
+    bool isDecayedLeptonHadron() const { return flags_[kIsDecayedLeptonHadron]; }
+    void setIsDecayedLeptonHadron(bool b) { flags_[kIsDecayedLeptonHadron] = b; }        
     
     //this particle is a direct or indirect tau decay product
     bool isTauDecayProduct() const { return flags_[kIsTauDecayProduct]; }
@@ -50,17 +63,16 @@ namespace reco {
     bool isDirectPromptTauDecayProduct() const { return flags_[kIsDirectPromptTauDecayProduct]; }
     void setIsDirectPromptTauDecayProduct(bool b) { flags_[kIsDirectPromptTauDecayProduct] = b; }    
     
-    //this particle is a direct or indirect muon decay product
-    bool isMuonDecayProduct() const { return flags_[kIsMuonDecayProduct]; }
-    void setIsMuonDecayProduct(bool b) { flags_[kIsMuonDecayProduct] = b; }    
-    
-    //this particle is a direct or indirect decay product of a prompt muon
-    bool isPromptMuonDecayProduct() const { return flags_[kIsPromptMuonDecayProduct]; }
-    void setIsPromptMuonDecayProduct(bool b) { flags_[kIsPromptMuonDecayProduct] = b; }    
-    
     //this particle is a direct decay product from a hadron
     bool isDirectHadronDecayProduct() const { return flags_[kIsDirectHadronDecayProduct]; }
     void setIsDirectHadronDecayProduct(bool b) { flags_[kIsDirectHadronDecayProduct] = b; }    
+    
+    /////////////////////////////////////////////////////////////////////////////
+    //these are generator history-dependent functions for tagging particles
+    //associated with the hard process
+    //Currently implemented for Pythia 6 and Pythia 8 status codes and history   
+    //and may not have 100% consistent meaning across all types of processes
+    //Users are strongly encouraged to stick to the more robust flags above    
     
     //this particle is part of the hard process
     bool isHardProcess() const { return flags_[kIsHardProcess]; }
@@ -80,12 +92,28 @@ namespace reco {
     bool isDirectHardProcessTauDecayProduct() const { return flags_[kIsDirectHardProcessTauDecayProduct]; }
     void setIsDirectHardProcessTauDecayProduct(bool b) { flags_[kIsDirectHardProcessTauDecayProduct] = b; }     
     
+    //this particle is the direct descendant of a hard process particle of the same pdg id
+    //For outgoing particles the kinematics are those before QCD or QED FSR
+    //This corresponds roughly to status code 3 in pythia 6    
+    bool fromHardProcessBeforeFSR() const { return flags_[kFromHardProcessBeforeFSR]; }
+    void setFromHardProcessBeforeFSR(bool b) { flags_[kFromHardProcessBeforeFSR] = b; }    
+    
+    //this particle is the first copy of the particle in the chain with the same pdg id 
+    bool isFirstCopy() const { return flags_[kIsFirstCopy]; }
+    void setIsFirstCopy(bool b) { flags_[kIsFirstCopy] = b; }
+    
     //this particle is the last copy of the particle in the chain with the same pdg id
     //(and therefore is more likely, but not guaranteed, to carry the final physical momentum)    
     bool isLastCopy() const { return flags_[kIsLastCopy]; }
-    void setIsLastCopy(bool b) { flags_[kIsLastCopy] = b; }    
+    void setIsLastCopy(bool b) { flags_[kIsLastCopy] = b; }
     
-    std::bitset<13> flags_;
+    //this particle is the last copy of the particle in the chain with the same pdg id
+    //before QED or QCD FSR
+    //(and therefore is more likely, but not guaranteed, to carry the momentum after ISR)  
+    bool isLastCopyBeforeFSR() const { return flags_[kIsLastCopyBeforeFSR]; }
+    void setIsLastCopyBeforeFSR(bool b) { flags_[kIsLastCopyBeforeFSR] = b; }
+    
+    std::bitset<15> flags_;
   };
 
 }

@@ -24,7 +24,7 @@ namespace MCTruthHelper {
   template<typename P>
   bool isPromptFinalState(const P &p);
 
-  //is particle decayed hadron, muon, or tau (does not include resonance decays like W,Z,Higgs,top,etc)
+  //is particle a decayed hadron, muon, or tau (does not include resonance decays like W,Z,Higgs,top,etc)
   //This flag is equivalent to status 2 in the current HepMC standard
   //but older generators (pythia6, herwig6) predate this and use status 2 also for other intermediate
   //particles/states
@@ -99,6 +99,12 @@ namespace MCTruthHelper {
   template<typename P>
   bool isDirectHardProcessTauDecayProduct(const P &p);  
   
+  //this particle is the direct descendant of a hard process particle of the same pdg id
+  //For outgoing particles the kinematics are those before QCD or QED FSR
+  //This corresponds roughly to status code 3 in pythia 6
+  template<typename P>
+  bool fromHardProcessBeforeFSR(const P &p);  
+  
   //this particle is the first copy of the particle in the chain with the same pdg id
   template<typename P>
   bool isFirstCopy(const P &p);  
@@ -111,8 +117,9 @@ namespace MCTruthHelper {
   //this particle is the last copy of the particle in the chain with the same pdg id
   //before QED or QCD FSR
   //(and therefore is more likely, but not guaranteed, to carry the momentum after ISR)
+  //This flag only really makes sense for outgoing particles
   template<typename P>
-  bool isLastCopyBeforeFSR(const P &p);  
+  bool isLastCopyBeforeFSR(const P &p);    
   
   /////////////////////////////////////////////////////////////////////////////
   //These are utility functions used by the above
@@ -132,6 +139,14 @@ namespace MCTruthHelper {
   //return last copy of particle in chain before QED or QCD FSR (may be the particle itself)
   template<typename P>
   const P *lastCopyBeforeFSR(const P &p);
+  
+  //return last copy of particle in chain before QED or QCD FSR, starting from itself (may be the particle itself)
+  template<typename P>
+  const P *lastDaughterCopyBeforeFSR(const P &p);  
+  
+  //return mother copy which is a hard process particle
+  template<typename P>
+  const P *hardProcessMotherCopy(const P &p);  
   
   //return next copy of particle in chain (0 in case this is already the last copy)
   template<typename P>
@@ -287,12 +302,12 @@ namespace MCTruthHelper {
     if (p.status()==1 || p.status()==2) {
       const P *um = mother(p);
       if (um) {
-        bool fromResonanceDecay = firstCopy(*um)->status()==22;
+        bool fromResonance = firstCopy(*um)->status()==22;
         
         const P *umNext = nextCopy(*um);
         bool fsrBranching = umNext && umNext->status()>50 && umNext->status()<60;
         
-        if (fromResonanceDecay && !fsrBranching) return true;
+        if (fromResonance && !fsrBranching) return true;
       }
     }
     
@@ -303,7 +318,7 @@ namespace MCTruthHelper {
   /////////////////////////////////////////////////////////////////////////////
   template<typename P>
   bool fromHardProcess(const P &p) {
-    return isHardProcess(*firstCopy(p));
+    return hardProcessMotherCopy(p) != 0;
   }
   
   /////////////////////////////////////////////////////////////////////////////
@@ -330,6 +345,39 @@ namespace MCTruthHelper {
   bool isDirectHardProcessTauDecayProduct(const P &p) {
     const P *um = uniqueMother(p);
     return um && absPdgId(*um)==15 && isDecayedLeptonHadron(*um) && fromHardProcess(*um);    
+  }  
+  
+  template<typename P>
+  bool fromHardProcessBeforeFSR(const P &p) {
+    //pythia 6 documentation line roughly corresponds to this condition
+    if (p.status()==3) return true;
+    
+    //check hard process mother properties
+    const P *hpc = hardProcessMotherCopy(p);
+    if (!hpc) return false;
+        
+    //for incoming partons in pythia8, more useful information is not
+    //easily available, so take only the incoming parton itself
+    if (hpc->status()==21 && (&p)==hpc) return true;
+    
+    //for intermediate particles in pythia 8, just take the last copy
+    if (hpc->status()==22 && isLastCopy(p)) return true;
+    
+    //for outgoing particles in pythia 8, explicitly find the last copy
+    //before FSR starting from the hardProcess particle, and take only
+    //this one
+    if ( (hpc->status()==23 || hpc->status()==1) && (&p)==lastDaughterCopyBeforeFSR(*hpc) ) return true;
+    
+    
+    //didn't satisfy any of the conditions
+    return false;
+    
+  }
+  
+  /////////////////////////////////////////////////////////////////////////////
+  template<typename P>
+  bool isFirstCopy(const P &p) {
+    return &p == firstCopy(p);
   }  
   
   /////////////////////////////////////////////////////////////////////////////
@@ -397,7 +445,7 @@ namespace MCTruthHelper {
       for (unsigned int idau = 0; idau<ndau; ++idau) {
         const P *dau = daughter(*pcopy,idau);
         if (pdgId(*dau)==21 || pdgId(*dau)==22) {
-          //has fsr
+          //has fsr (or else decayed and is the last copy by construction)
           return pcopy;
         }        
       }
@@ -412,6 +460,51 @@ namespace MCTruthHelper {
       }
     }
     return pcopy;       
+  }
+  
+  /////////////////////////////////////////////////////////////////////////////
+  template<typename P>
+  const P *lastDaughterCopyBeforeFSR(const P &p) {
+    //start with this particle and then walk down until there is FSR
+    const P *pcopy = &p;
+    bool hasDaughterCopy = true;
+    while (hasDaughterCopy) {
+      hasDaughterCopy = false;
+      const unsigned int ndau = numberOfDaughters(*pcopy);
+      //look for FSR
+      for (unsigned int idau = 0; idau<ndau; ++idau) {
+        const P *dau = daughter(*pcopy,idau);
+        if (pdgId(*dau)==21 || pdgId(*dau)==22) {
+          //has fsr (or else decayed and is the last copy by construction)
+          return pcopy;
+        }        
+      }
+      //look for daughter copy
+      for (unsigned int idau = 0; idau<ndau; ++idau) {
+        const P *dau = daughter(*pcopy,idau);
+        if (pdgId(*dau)==pdgId(p)) {
+          pcopy = dau;
+          hasDaughterCopy = true;
+          break;
+        }
+      }
+    }
+    return pcopy;       
+  }  
+  
+  /////////////////////////////////////////////////////////////////////////////
+  template<typename P>
+  const P *hardProcessMotherCopy(const P &p) {
+    //is particle itself is hard process particle
+    if (isHardProcess(p)) return &p;
+    
+    //check if any other copies are hard process particles
+    const P *pcopy = &p;
+    while (mother(*pcopy) && pdgId(*mother(*pcopy))==pdgId(p)) {
+      pcopy = mother(*pcopy);
+      if (isHardProcess(*pcopy)) return pcopy;
+    }
+    return 0;
   }
   
   /////////////////////////////////////////////////////////////////////////////
@@ -503,18 +596,20 @@ namespace MCTruthHelper {
   template<typename P>
   void fillGenStatusFlags(const P &p, reco::GenStatusFlags &statusFlags) {
     statusFlags.setIsPrompt(isPrompt(p));
+    statusFlags.setIsDecayedLeptonHadron(isDecayedLeptonHadron(p));
     statusFlags.setIsTauDecayProduct(isTauDecayProduct(p));
     statusFlags.setIsPromptTauDecayProduct(isPromptTauDecayProduct(p));
     statusFlags.setIsDirectTauDecayProduct(isDirectTauDecayProduct(p));
     statusFlags.setIsDirectPromptTauDecayProduct(isDirectPromptTauDecayProduct(p));
-    statusFlags.setIsMuonDecayProduct(isMuonDecayProduct(p));
-    statusFlags.setIsPromptMuonDecayProduct(isPromptMuonDecayProduct(p));
     statusFlags.setIsDirectHadronDecayProduct(isDirectHadronDecayProduct(p));
     statusFlags.setIsHardProcess(isHardProcess(p));
     statusFlags.setFromHardProcess(fromHardProcess(p));
     statusFlags.setIsHardProcessTauDecayProduct(isHardProcessTauDecayProduct(p));
     statusFlags.setIsDirectHardProcessTauDecayProduct(isDirectHardProcessTauDecayProduct(p));
+    statusFlags.setFromHardProcessBeforeFSR(fromHardProcessBeforeFSR(p));
+    statusFlags.setIsFirstCopy(isFirstCopy(p));
     statusFlags.setIsLastCopy(isLastCopy(p));
+    statusFlags.setIsLastCopyBeforeFSR(isLastCopyBeforeFSR(p));
   }  
   
 }
