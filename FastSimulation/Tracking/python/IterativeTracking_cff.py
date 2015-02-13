@@ -16,7 +16,6 @@ from FastSimulation.Tracking.IterativeTobTecStep_cff import *
 
 #trackExtrapolator.trackSrc = cms.InputTag("generalTracksBeforeMixing")
 trackExtrapolator.trackSrc = cms.InputTag("generalTracks")
-lastTrackingSteps = cms.Sequence(generalTracksBeforeMixing)
         
 import RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi
 MeasurementTrackerEvent = RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi.MeasurementTrackerEvent.clone(
@@ -26,14 +25,13 @@ MeasurementTrackerEvent = RecoTracker.MeasurementDet.MeasurementTrackerEventProd
     inactiveStripDetectorLabels = cms.VInputTag(),
     switchOffPixelsIfEmpty = False
 )
-iterativeTracking = cms.Sequence(
-                                 MeasurementTrackerEvent 
-                                 +iterativeInitialStep
-                                 +iterativeDetachedTripletStep
-                                 +iterativeLowPtTripletStep
-                                 +iterativePixelPairStep
-                                 +iterativeMixedTripletStep
-                                 +iterativePixelLessStep
-                                 +iterativeTobTecStep
-                                 +lastTrackingSteps)
-
+iterTracking = cms.Sequence(
+    MeasurementTrackerEvent 
+    +InitialStep
+    +DetachedTripletStep
+    +LowPtTripletStep
+    +PixelPairStep
+    +MixedTripletStep
+    +PixelLessStep
+    +TobTecStep
+    +generalTracksBeforeMixing)

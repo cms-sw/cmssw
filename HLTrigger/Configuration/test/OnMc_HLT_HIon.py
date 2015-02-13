@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_3_0/HIon/V49 (CMSSW_7_3_1_patch2_HLT3)
+# /dev/CMSSW_7_3_0/HIon/V51 (CMSSW_7_3_1_patch2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/HIon/V49')
+  tableName = cms.string('/dev/CMSSW_7_3_0/HIon/V51')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -8473,8 +8473,6 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
 process.DQMOutput = cms.EndPath( process.dqmOutput )
 
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
-
-
 
 
 

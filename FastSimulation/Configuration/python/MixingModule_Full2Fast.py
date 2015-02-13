@@ -120,7 +120,7 @@ def prepareGenMixing(process):
     del process.mix.mixObjects.mixRecoTracks
     del process.generalTracks
     process.generalTracks = process.generalTracksBeforeMixing.clone()
-    process.lastTrackingSteps.replace(process.generalTracksBeforeMixing,process.generalTracks)
+    process.iterTracking.replace(process.generalTracksBeforeMixing,process.generalTracks)
     del process.generalTracksBeforeMixing
 
     # Use generalTracks where DIGI-RECO mixing requires preMixTracks
