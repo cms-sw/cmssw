@@ -78,7 +78,7 @@ namespace reco {
       size_t size = cands->size();
       if( size != 0 ) {
 	typename MatchMap::Filler filler(*matchMap);
-	::helper::MasterCollection<C1> master(cands);
+	::helper::MasterCollection<C1> master(cands, evt);
 	std::vector<int> indices(master.size(), -1);
 	for(size_t c = 0; c != size; ++ c) {
 	  const T1 & cand = (*cands)[c];

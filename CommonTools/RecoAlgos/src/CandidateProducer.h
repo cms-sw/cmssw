@@ -91,7 +91,7 @@ private:
     edm::Handle<TColl> src;
     evt.getByToken(srcToken_, src);
     Init::init(selector_, evt, es);
-    ::helper::MasterCollection<TColl> master(src);
+    ::helper::MasterCollection<TColl> master(src, evt);
     std::auto_ptr<CColl> cands(new CColl);
     if(src->size()!= 0) {
       size_t size = src->size();
