@@ -432,6 +432,7 @@ steps['SingleMuPt1_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1_UP
 steps['SingleMuPt10_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['SingleMuPt100_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['SingleMuPt1000_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+steps['NuGun_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValNuGun_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 
 #input for fast sim workflows to be added - TODO
 
@@ -768,7 +769,7 @@ PU50={'-n':10,'--pileup':'AVE_35_BX_50ns','--pileup_input':'das:/RelValMinBias_1
 FS_PU_INPUT_13TEV = "file:/afs/cern.ch/work/l/lveldere/minbias.root"
 PUFS={'--pileup':'GEN_2012_Summer_50ns_PoissonOOTPU'}
 PUFS2={'--pileup':'2012_Startup_50ns_PoissonOOTPU'}
-PUFSAVE10={'--pileup':'GEN_AVE_10_BX_25ns'}
+PUFSAVE10={'--pileup':'GEN_AVE_10_BX_25ns'} 
 PUFSAVE20={'--pileup':'GEN_AVE_20_BX_25ns'}
 PUFSAVE35={'--pileup':'GEN_AVE_35_BX_25ns'}
 PUFSAVE10_DIGIRECOMIX_ITO={'--pileup':'AVE_10_BX_25ns',"--pileup_input":FS_PU_INPUT_13TEV,"--customise":"FastSimulation/Configuration/Customs.disableOOTPU,SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1"}
