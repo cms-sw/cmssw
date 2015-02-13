@@ -65,21 +65,23 @@ BTagEntry::BTagEntry(const std::string &csvLine)
   }
 
   // make parameters
-  if (stoi(vec[0]) > 3) {
+  unsigned op = stoi(vec[0]);
+  if (op > 3) {
     throw cms::Exception("BTagCalibration")
           << "Invalid csv line; OperatingPoint > 3: "
           << csvLine;
   }
-  if (stoi(vec[3]) > 2) {
+  unsigned jf = stoi(vec[3]);
+  if (jf > 2) {
     throw cms::Exception("BTagCalibration")
           << "Invalid csv line; JetFlavor > 2: "
           << csvLine;
   }
   params = BTagEntry::Parameters(
-    BTagEntry::OperatingPoint(stoi(vec[0])),
+    BTagEntry::OperatingPoint(op),
     vec[1],
     vec[2],
-    BTagEntry::JetFlavor(stoi(vec[3])),
+    BTagEntry::JetFlavor(jf),
     stof(vec[4]),
     stof(vec[5]),
     stof(vec[6]),
