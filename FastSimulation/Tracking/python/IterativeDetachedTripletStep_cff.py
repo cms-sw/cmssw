@@ -3,25 +3,27 @@ import FWCore.ParameterSet.Config as cms
 ### ITERATIVE TRACKING: STEP 3 ###
 
 # seeding
-
-import FastSimulation.Tracking.TrajectorySeedProducer_cfi
-iterativeDetachedTripletSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeDetachedTripletSeeds.simTrackSelection.skipSimTrackIds = [cms.InputTag("initialStepSimTrackIds")]
-iterativeDetachedTripletSeeds.simTrackSelection.pTMin = 0.020
-iterativeDetachedTripletSeeds.simTrackSelection.maxD0 = 30.
-iterativeDetachedTripletSeeds.simTrackSelection.maxZ0 = 50.
-iterativeDetachedTripletSeeds.minLayersCrossed = 3
-iterativeDetachedTripletSeeds.originpTMin = 0.075
-iterativeDetachedTripletSeeds.originRadius = 1.5
-iterativeDetachedTripletSeeds.originHalfLength = 15.
-iterativeDetachedTripletSeeds.primaryVertex = ''
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import PixelLayerTriplets
-iterativeDetachedTripletSeeds.layerList = PixelLayerTriplets.layerList
+from FastSimulation.Tracking.TrajectorySeedProducer_cfi import trajectorySeedProducer
+detachedTripletStepSeeds = trajectorySeedProducer.clone(
+    simTrackSelection = trajectorySeedProducer.simTrackSelection.clone(
+        skipSimTrackIds = [cms.InputTag("initialStepSimTrackIds")],
+        pTMin = 0.020,
+        maxD0 = 30.,
+        maxZ0 = 50.
+        ),
+    minLayersCrossed = 3,
+    originpTMin = 0.075,
+    originRadius = 1.5,
+    originHalfLength = 15.,
+    primaryVertex = '',
+    layerList = PixelLayerTriplets.layerList
+    )
 
 # track candidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 detachedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
-    SeedProducer = cms.InputTag("iterativeDetachedTripletSeeds"),
+    SeedProducer = cms.InputTag("detachedTripletStepSeeds"),
     MinNumberOfCrossedLayers = 3)
 
 # track producer
@@ -44,9 +46,9 @@ from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTriple
 detachedTripletStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # sequence
-DetachedTripletStep = cms.Sequence(iterativeDetachedTripletSeeds+
-                                            detachedTripletStepTrackCandidates+
-                                            detachedTripletStepTracks+
-                                            detachedTripletStepSimTrackIds+
-                                            detachedTripletStepSelector+
-                                            detachedTripletStep)
+DetachedTripletStep = cms.Sequence(detachedTripletStepSeeds+
+                                   detachedTripletStepTrackCandidates+
+                                   detachedTripletStepTracks+
+                                   detachedTripletStepSimTrackIds+
+                                   detachedTripletStepSelector+
+                                   detachedTripletStep)

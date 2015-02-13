@@ -4,11 +4,10 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import PixelLayerTriplets
 from FastSimulation.Tracking.TrajectorySeedProducer_cfi import trajectorySeedProducer
 initialStepSeeds = trajectorySeedProducer.clone(
-    simTrackSelection = cms.PSet(
-        pTMin = cms.double(0.4),
-        maxD0 = cms.double(1.0),
-        maxZ0 = cms.double(999),
-        skipSimTrackIds = cms.VInputTag()
+    simTrackSelection = trajectorySeedProducer.simTrackSelection.clone(
+        pTMin = 0.4,
+        maxD0 = 1.0,
+        maxZ0 = 999,
         ),
     minLayersCrossed = 3,
     # note: standard tracking uses for originRadius 0.03, but this value 
