@@ -24,10 +24,10 @@ process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
 ))
 
 process.load("Calibration.HcalAlCaRecoProducers.alcadijets_cfi")
+process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalDijets_Output_cff")
 
 process.DiJetsRecos = cms.OutputModule("PoolOutputModule",
-#    outputCommands = cms.untracked.vstring('drop *', 
-#        'keep *_GammaJetProd_*_*'),
+    outputCommands = process.OutALCARECOHcalCalDijets.outputCommands,
     fileName = cms.untracked.string('dijets.root')
 )
 
