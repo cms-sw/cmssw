@@ -37,11 +37,17 @@ _globalTags = {
     "CMSSW_7_3_0_pre3": {"default": "MCRUN2_73_V5", "fullsim_50ns": "MCRUN2_73_V4"},
     "CMSSW_7_3_0": {"default": "MCRUN2_73_V7", "fullsim_50ns": "MCRUN2_73_V6"},
     "CMSSW_7_3_0_71XGENSIM": {"default": "MCRUN2_73_V7_71XGENSIM"},
+    "CMSSW_7_3_0_71XGENSIM_FIXGT": {"default": "MCRUN2_73_V9_71XGENSIM_FIXGT"},
+    "CMSSW_7_3_1_patch1": {"default": "MCRUN2_73_V9"}, # MCRUN2_73_V7 for FastSim
     "CMSSW_7_4_0_pre1": {"default": "MCRUN2_73_V5", "fullsim_50ns": "MCRUN2_73_V4"},
     "CMSSW_7_4_0_pre2": {"default": "MCRUN2_73_V7", "fullsim_50ns": "MCRUN2_73_V6"},
+    "CMSSW_7_4_0_pre2_73XGENSIM": {"default": "MCRUN2_73_V7_73XGENSIM_Pythia6", "fullsim_50ns": "MCRUN2_73_V6_73XGENSIM_Pythia6"},
+    "CMSSW_7_4_0_pre5": {"default": "MCRUN2_73_V7", "fullsim_50ns": "MCRUN2_73_V6"},
+    "CMSSW_7_4_0_pre5_BS": {"default": "MCRUN2_73_V9_postLS1beamspot", "fullsim_50ns": "MCRUN2_73_V8_postLS1beamspot"},
+    "CMSSW_7_4_0_pre6": {"default": "MCRUN2_74_V1", "fullsim_50ns": "MCRUN2_74_V0"},
 }
 
-_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_Premix", "_Fall14DR", "_71XGENSIM"]
+_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_Premix", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM", "_73XGENSIM", "_BS"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
         if pf in release:
@@ -60,6 +66,10 @@ def _getGlobalTag(sample, release):
         print "Release %s not found from globaltag map in validation.py" % release
         sys.exit(1)
     gtmap = _globalTags[release]
+    if sample.hasOverrideGlobalTag():
+        ogt = sample.overrideGlobalTag()
+        if release in ogt:
+            gtmap = _globalTags[ogt[release]]
     if sample.fullsim():
         if sample.hasScenario():
             return gtmap[sample.scenario()]
@@ -76,6 +86,7 @@ _relvalUrls = {
     "7_1_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_1_x/",
     "7_2_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_2_x/",
     "7_3_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_3_x/",
+    "7_4_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_4_x/",
 }
 
 def _getRelValUrl(release):
@@ -94,7 +105,7 @@ class Sample:
     """Represents a RelVal sample."""
     def __init__(self, sample, append=None, midfix=None, putype=None,
                  fastsim=False, fastsimCorrespondingFullsimPileup=None,
-                 version="v1", scenario=None):
+                 version="v1", scenario=None, overrideGlobalTag=None):
         """Constructor.
 
         Arguments:
@@ -107,6 +118,8 @@ class Sample:
         fastsim -- Bool indicating the FastSim status (default False)
         fastsimCorrespondingFullSimPileup -- String indicating what is the FullSim pileup sample corresponding this FastSim sample. Must be set if fastsim=True and putype!=None (default None)
         version -- String for dataset/DQM file version (default "v1")
+        scenario -- Geometry scenario for upgrade samples (default None)
+        overrideGlobalTag -- GlobalTag obtained from release information (in the form of {"release": "actualRelease"}; default None)
         """
         self._sample = sample
         self._append = append
@@ -116,6 +129,7 @@ class Sample:
         self._fastsimCorrespondingFullsimPileup = fastsimCorrespondingFullsimPileup
         self._version = version
         self._scenario = scenario
+        self._overrideGlobalTag = overrideGlobalTag
 
         if self._fastsim and self.hasPileup() and self._fastsimCorrespondingFullsimPileup is None:
             raise Exception("If fastsim=True and putype!=None, also fastsimCorrespondingFullsimPileup must be != None")
@@ -157,6 +171,12 @@ class Sample:
 
     def scenario(self):
         return self._scenario
+
+    def hasOverrideGlobalTag(self):
+        return self._overrideGlobalTag is not None
+
+    def overrideGlobalTag(self):
+        return self._overrideGlobalTag
 
     def fastsim(self):
         """Return True for FastSim sample"""
@@ -244,13 +264,15 @@ class Sample:
 
 class Validation:
     """Base class for Tracking/Vertex validation."""
-    def __init__(self, fullsimSamples, fastsimSamples, newRelease, newFileModifier=None):
+    def __init__(self, fullsimSamples, fastsimSamples, newRelease, newFileModifier=None, selectionName=""):
         """Constructor.
 
         Arguments:
         fullsimSamples -- List of Sample objects for FullSim samples (may be empty)
         fastsimSamples -- List of Sample objects for FastSim samples (may be empty)
         newRelease     -- CMSSW release to be validated
+        newFileModifier -- If given, a function to modify the names of the new files (function takes a string and returns a string)
+        selectionName  -- If given, use this string as the selection name (appended to GlobalTag for directory names)
         """
         try:
             self._newRelease = os.environ["CMSSW_VERSION"]
@@ -264,14 +286,13 @@ class Validation:
         if newRelease != "":
             self._newRelease = newRelease
         self._newFileModifier = newFileModifier
+        self._selectionName = selectionName
 
     def _getDirectoryName(self, *args, **kwargs):
-        #raise Exception("_getDirectoryName() must be implemented in a deriving class")
         return None
 
     def _getSelectionName(self, *args, **kwargs):
-        #raise Exception("_getSelectionName() must be implemented in a deriving class")
-        return ""
+        return self._selectionName
 
     def download(self):
         """Download DQM files. Requires grid certificate and asks your password for it."""
@@ -440,7 +461,7 @@ class Validation:
             sim="FullSim" if not sample.fastsim() else "FastSim",
             sample=sample.name(), algo=algo, quality=quality)
         self._plotter.create([refValFile, newValFile], [
-            "%s, %s %s" % (sample.name(), self._refRelease, refSelection),
+            "%s, %s %s" % (sample.name(), _stripRelease(self._refRelease), refSelection),
             "%s, %s %s" % (sample.name(), _stripRelease(self._newRelease), newSelection)
         ],
                              subdir = self._getDirectoryName(quality, algo))
@@ -491,8 +512,8 @@ class Validation:
         print "Comparing FullSim and FastSim {sample} {algo} {quality}".format(
             sample=fastSample.name(), algo=algo, quality=quality)
         self._plotter.create([fullValFile, fastValFile], [
-            "FullSim %s, %s %s" % (fullSample.name(), self._newRelease, fullSelection),
-            "FastSim %s, %s %s" % (fastSample.name(), self._newRelease, fastSelection),
+            "FullSim %s, %s %s" % (fullSample.name(), _stripRelease(self._newRelease), fullSelection),
+            "FastSim %s, %s %s" % (fastSample.name(), _stripRelease(self._newRelease), fastSelection),
         ],
                              subdir = self._getDirectoryName(quality, algo))
         fileList = self._plotter.draw(algo, **self._plotterDrawArgs)
@@ -539,8 +560,8 @@ class Validation:
         print "Comparing Old and New pileup {sample} {algo} {quality}".format(
             sample=sample.name(), algo=algo, quality=quality)
         self._plotter.create([refValFile, newValFile], [
-            "%d BX %s, %s %s" % ({"25ns": 10, "50ns": 20}[sample.pileupType(self._newRelease)], sample.name(), self._newRelease, refSelection),
-            "35 BX %s, %s %s" % (sample.name(), self._newRelease, newSelection),
+            "%d BX %s, %s %s" % ({"25ns": 10, "50ns": 20}[sample.pileupType(self._newRelease)], sample.name(), _stripRelease(self._newRelease), refSelection),
+            "35 BX %s, %s %s" % (sample.name(), _stripRelease(self._newRelease), newSelection),
         ],
                              subdir = self._getDirectoryName(quality, algo))
         fileList = self._plotter.draw(algo, **self._plotterDrawArgs)

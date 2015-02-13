@@ -805,28 +805,40 @@ class Plotter:
         Arguments:
         files  -- List of TFiles
         labels -- List of strings for legend labels corresponding the files
-        subdir -- Optional string for subdirectory inside the possibleDirs
+        subdir -- Optional string for subdirectory inside the possibleDirs; if list of strings, then each corresponds to a TFile
         """
         dirs = []
         self._labels = []
-        for f, l in zip(files, labels):
-            d = self._getDir(f, subdir)
-            dirs.append(d)
-            self._labels.append(l)
+        if isinstance(subdir, list):
+            for f, l, s in zip(files, labels, subdir):
+                d = self._getDir(f, s)
+                dirs.append(d)
+                self._labels.append(l)
+        else:
+            for f, l in zip(files, labels):
+                d = self._getDir(f, subdir)
+                dirs.append(d)
+                self._labels.append(l)
 
         for pg in self._plotGroups:
             pg.create(dirs)
 
-    def draw(self, algo, prefix=None, separate=False):
+    def draw(self, algo, prefix=None, separate=False, saveFormat=None):
         """Draw and save all plots using settings of a given algorithm.
 
         Arguments:
         algo     -- String for the algorithm
         prefix   -- Optional string for file name prefix (default None)
         separate -- Save the plots of a group to separate files instead of a file per group (default False)
+        saveFormat -- If given, overrides the saveFormat
         """
         ret = []
+
+        sf = self._saveFormat
+        if saveFormat is not None:
+            sf = saveFormat
+
         for pg in self._plotGroups:
-            ret.extend(pg.draw(algo, self._labels, prefix=prefix, separate=separate, saveFormat=self._saveFormat))
+            ret.extend(pg.draw(algo, self._labels, prefix=prefix, separate=separate, saveFormat=sf))
         return ret
 

@@ -75,11 +75,25 @@ _chargemisid = PlotGroup("chargemisid", [
 _hitsAndPt = PlotGroup("hitsAndPt", [
     Plot("missing_inner_layers", stat=True, normalizeToUnitArea=True, drawStyle="hist"),
     Plot("missing_outer_layers", stat=True, normalizeToUnitArea=True, drawStyle="hist"),
-    Plot("nhits_vs_eta", stat=True, statx=0.38, profileX=True, xtitle="#eta", ytitle="<hits> vs #eta", ymin=8, ymax=24),
+    Plot("nhits_vs_eta", stat=True, statx=0.38, profileX=True, xtitle="#eta", ytitle="<hits> vs #eta", ymin=8, ymax=24, statyadjust=[0,0,-0.15]),
     Plot("hits", stat=True, xtitle="hits", xmin=0, xmax=40, drawStyle="hist"),
     Plot("num_simul_pT", stat=True, normalizeToUnitArea=True, xtitle="p_{t}", xmin=0, xmax=10, drawStyle="hist"),
     Plot("num_reco_pT", stat=True, normalizeToUnitArea=True, xtitle="p_{t}", xmin=0, xmax=10, drawStyle="hist")
 ])
+_common = {"stat": True, "normalizeToUnitArea": True, "drawStyle": "hist"}
+_ntracks = PlotGroup("ntracks", [
+#    Plot("num_simul_eta", xtitle="#eta", **_common),
+#    Plot("num_reco_eta", xtitle="#eta", **_common),
+    Plot("num_simul_dr", xtitle="#DeltaR", **_common),
+    Plot("num_reco_dr", xtitle="#DeltaR", **_common),
+    Plot("num_simul_dxy", xtitle="dxy", **_common),
+    Plot("num_reco_dxy", xtitle="dxy", **_common),
+    Plot("num_simul_dz", xtitle="dz", **_common),
+    Plot("num_reco_dz", xtitle="dz", **_common),
+],
+#                     legendDy=-0.025
+                            legendDy=-0.02, legendDh=-0.01
+)
 _tuning = PlotGroup("tuning", [
     Plot("chi2", stat=True, normalizeToUnitArea=True, drawStyle="hist", xtitle="#chi^{2}"),
     Plot("chi2_prob", stat=True, normalizeToUnitArea=True, drawStyle="hist", xtitle="Prob(#chi^{2})"),
@@ -117,6 +131,7 @@ _resolutionsPt = PlotGroup("resolutionsPt", [
 ],
                             legendDy=-0.02, legendDh=-0.01
 )
+
 plotter = Plotter([
     "DQMData/Run 1/Tracking/Run summary/Track",
     "DQMData/Tracking/Track",
@@ -131,6 +146,7 @@ plotter = Plotter([
     _dedx,
     _chargemisid,
     _hitsAndPt,
+    _ntracks,
     _tuning,
     _pulls,
     _resolutionsEta,
@@ -250,6 +266,18 @@ timePlotter = Plotter([
 ]
 )
 
+_common = {"stat": True, "normalizeToUnitArea": True, "drawStyle": "hist"}
+_tplifetime = PlotGroup("tplifetime", [
+    Plot("TPlip", xtitle="TP lip", **_common),
+    Plot("TPtip", xtitle="TP tip", **_common),
+])
+
+tpPlotter = Plotter([
+    "DQMData/Run 1/Tracking/Run summary/TrackingMCTruth/TrackingParticle",
+    "DQMData/Tracking/TrackingMCTruth/TrackingParticle",
+], [
+    _tplifetime,
+])
 
 
 _tracks_map = {
