@@ -141,7 +141,11 @@ class JetAnalyzer( Analyzer ):
         ## Clean Jets from photons
         photons = []
         if hasattr(event, 'selectedPhotons'):
-            photons = [ g for g in event.selectedPhotons ]
+            if self.cfg_ana.cleanJetsFromFirstPhoton:
+                photons = event.selectedPhotons[:1]
+            else:
+                photons = [ g for g in event.selectedPhotons ] 
+
         event.gamma_cleanJetsAll = cleanNearestJetOnly(event.cleanJetsAll, photons, self.jetGammaDR)
         event.gamma_cleanJets    = [j for j in event.gamma_cleanJetsAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
         event.gamma_cleanJetsFwd = [j for j in event.gamma_cleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
@@ -356,6 +360,7 @@ setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     shiftJEC = 0, # set to +1 or -1 to get +/-1 sigma shifts
     smearJets = True,
     shiftJER = 0, # set to +1 or -1 to get +/-1 sigma shifts    
+    cleanJetsFromFirstPhoton = False,
     cleanJetsFromTaus = False,
     cleanJetsFromIsoTracks = False,
     jecPath = ""
