@@ -117,6 +117,67 @@ BTagEntry::BTagEntry(const TF1* func, BTagEntry::Parameters p):
 // Creates chained step functions like this:
 // "<prevous_bin> : x<bin_high_bound ? bin_value : <next_bin>"
 // e.g. "x<0 ? 1 : x<1 ? 2 : x<2 ? 3 : 4"
+std::string th1ToFormulaLin(const TH1* hist) {
+  int nbins = hist->GetNbinsX();
+  TAxis * axis = hist->GetXaxis();
+  std::stringstream buff;
+  buff << "x<" << axis->GetBinLowEdge(1) << " ? 0. : ";  // default value
+  for (int i=1; i<nbins+1; ++i) {
+    char tmp_buff[50];
+    sprintf(tmp_buff,
+            "x<%g ? %g : ",  // %g is the smaller one of %e or %f
+            axis->GetBinUpEdge(i),
+            hist->GetBinContent(i));
+    buff << tmp_buff;
+  }
+  buff << 0.;  // default value
+  return buff.str();
+}
+
+// Creates step functions making a binary search tree:
+// "x<mid_bin_bound ? (<left side tree>) : (<right side tree>)"
+// e.g. "x<2 ? (x<1 ? (x<0 ? 0:0.1) : (1)) : (x<4 ? (x<3 ? 2:3) : (0))"
+std::string th1ToFormulaBinTree(const TH1* hist, int start=0, int end=-1) {
+  if (end == -1) {                      // initialize
+    start = 0.;
+    end = hist->GetNbinsX()+1;
+    TH1* h2 = (TH1*) hist->Clone();
+    h2->SetBinContent(start, 0);  // kill underflow
+    h2->SetBinContent(end, 0);    // kill overflow
+    std::string res = th1ToFormulaBinTree(h2, start, end);
+    delete h2;
+    return res;
+  }
+  if (start == end) {                   // leave is reached
+    char tmp_buff[20];
+    sprintf(tmp_buff, "%g", hist->GetBinContent(start));
+    return std::string(tmp_buff);
+  }
+  if (start == end - 1) {               // no parenthesis for neighbors
+    char tmp_buff[70];
+    sprintf(tmp_buff,
+            "x<%g ? %g:%g",
+            hist->GetXaxis()->GetBinUpEdge(start),
+            hist->GetBinContent(start),
+            hist->GetBinContent(end));
+    return std::string(tmp_buff);
+  }
+
+  // top-down recursion
+  std::stringstream buff;
+  int mid = (end-start)/2 + start;
+  char tmp_buff[25];
+  sprintf(tmp_buff,
+          "x<%g ? (",
+          hist->GetXaxis()->GetBinUpEdge(mid));
+  buff << tmp_buff
+       << th1ToFormulaBinTree(hist, start, mid)
+       << ") : ("
+       << th1ToFormulaBinTree(hist, mid+1, end)
+       << ")";
+  return buff.str();
+}
+
 BTagEntry::BTagEntry(const TH1* hist, BTagEntry::Parameters p):
   params(p)
 {
@@ -132,18 +193,7 @@ BTagEntry::BTagEntry(const TH1* hist, BTagEntry::Parameters p):
     params.ptMax = axis->GetBinUpEdge(nbins);
   }
 
-  std::stringstream buff;
-  buff << "x<" << axis->GetBinLowEdge(1) << " ? 0. : ";  // default value
-  for (int i=1; i<nbins+1; ++i) {
-    char tmp_buff[100];
-    sprintf(tmp_buff,
-            "x<%g ? %g : ",  // %g is the smaller one of %e or %f
-            axis->GetBinUpEdge(i),
-            hist->GetBinContent(i));
-    buff << tmp_buff;
-  }
-  buff << 0.;  // default value
-  formula = buff.str();
+  formula = th1ToFormulaBinTree(hist);
 
   TF1 f1("", formula.c_str());  // compile formula to check validity
   if (f1.IsZombie()) {
