@@ -1,5 +1,4 @@
-In this package the `GeometricDet` tree of the `TrackerGeometry` object in the `TrackerDigiGeometryRecord` is created, the DetIds are assigned to the different components in the tree according to the schema which is defined in the configuration
-of `TrackerGeometricDetESModule`, and the `TrackerTopology` object is configured to be able to decode the DetIds using
+In this package the `GeometricDet` tree of the `TrackerGeometry` object in the `TrackerDigiGeometryRecord` is created, the DetIds are assigned to the different components in the tree according to the schema which is defined in the xml description of trackerParameters.xml for the `TrackerGeometricDetESModule`, and the configuration of the `TrackerTopology` object is configured to be able to decode the DetIds using
 the same schema.
 
 The graph of the `GeometricDet` tree can be found in [this file](doc/GeometricDetBuilder.png)
@@ -89,7 +88,8 @@ The Run 1 detector DetId schema profits of all the six available subdetectors (f
 
 A more detailed description of the SiStrip Tracker DetId schema can be found in this CMS Internal Note: [http://cms.cern.ch/iCMS/jsp/openfile.jsp?type=IN&year=2007&files=IN2007_020.pdf]
 
-The configuration names for this detid schema are `trackerNumberingGeometry_cfi` for `TrackerGeometricDetESModule` and `trackerTopologyConstants_cfi` for `TrackerTopology`
+The configuration names for this detid schema are `trackerNumberingGeometry_cfi` (to run on geometry built from xml files) or `trackerNumberingGeometryDB_cfi` (to run on geometry from DB) for `TrackerGeometricDetESModule` and `trackerTopologyConstants_cfi` for `TrackerTopology`
+The xml description of tracker parameters for this detid schema is in [Geometry/TrackerCommonData/data/trackerParameters.xml](../TrackerCommonData/data/trackerParameters.xml)
 
 ### Phase 1 Upgrade Detector DetId schema
 The phase 1 detector DetId schema differs from that of the Run 1 detector only in the first two subdetectors which
@@ -119,7 +119,8 @@ corresponds to the Pixel Barrel and Forward detector. Therefore only them will b
 
 Subdetectors 3 to 6 are as for the Run 1 detector since the SiStrip Tracker is the same in phase1.
 
-The configuration names for this detid schema are `trackerNumbering2017Geometry_cfi` for `TrackerGeometricDetESModule` and `trackerTopology2017Constants_cfi` for `TrackerTopology`
+The configuration names for this detid schema are `trackerNumberingGeometry_cfi` (to run on geometry built from xml files) or `trackerNumberingGeometryDB_cfi` (to run on geometry from DB) for `TrackerGeometricDetESModule` and `trackerTopology2017Constants_cfi` for `TrackerTopology`
+The xml description of tracker parameters for this detid schema is in [Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml](../TrackerCommonData/data/PhaseI/trackerParameters.xml)
 
 ### Phase 2 Upgrade Detector DetId schema
 The phase 2 detector DetId schema is identical to the one of the phase 1 detector for the inner pixel detector while for the outer tracker subdetector 5, for the barrel, and subdetector 4, for the endcap, are used. In some cases the name of the `TrackerTopology` methods is not so meaningful.
@@ -168,7 +169,8 @@ The phase 2 detector DetId schema is identical to the one of the phase 1 detecto
 | Module | 2 | 0xFF | 8 | tidModule(id) | increasing phi and modules in the same pt module are sorted by increasing abs(z) |
 | _not used_ | 0 | 0x3 | 2 | | |
 
-The configuration names for this detid schema are `trackerNumbering2023Geometry_cfi` for `TrackerGeometricDetESModule` and `trackerTopology2023Constants_cfi` for `TrackerTopology`
+The configuration names for this detid schema are `trackerNumberingGeometry_cfi` (to run on geometry built from xml files) or `trackerNumberingGeometryDB_cfi` (to run on geometry from DB) for `TrackerGeometricDetESModule` and `trackerTopology2023Constants_cfi` for `TrackerTopology`
+The xml description of tracker parameters for this detid schema is in [Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml](../TrackerCommonData/data/PhaseII/trackerParameters.xml)
 
 ### Subdetector `GeometricDet` Enumerators
 
