@@ -85,7 +85,7 @@ options = cms.untracked.PSet(
 
 # basic tracking stuff
 from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import *
-from FastSimulation.Tracking.IterativeTracking_cff import *
+from FastSimulation.Tracking.iterativeTk_cff import *
 
 # The hltbegin sequence (with L1 emulator)
 HLTBeginSequence = cms.Sequence(
