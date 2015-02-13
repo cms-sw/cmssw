@@ -42,7 +42,7 @@ generator.PythiaParameters.processParameters.extend(EvtGenExtraParticles)
 configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
     name = cms.untracked.string('$Source: Configuration/Generator/python/BuToKstarMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi.py $'),
-    annotation = cms.untracked.string('Summer14: Pythia8+EvtGen130 generation of Bu --> K* Mu+Mu-, 13TeV, Tune CUETP8M1')
+    annotation = cms.untracked.string('Summer14: Pythia8+EvtGen130 generation of lambda_b --> lambda mumu ->ppimumu, 13TeV, Tune CUETP8M1')
     )
 
 ###########
