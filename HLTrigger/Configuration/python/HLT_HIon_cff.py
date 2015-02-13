@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_3_0/HIon/V47 (CMSSW_7_3_1_patch2_HLT3)
+# /dev/CMSSW_7_3_0/HIon/V51 (CMSSW_7_3_1_patch2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/HIon/V47')
+  tableName = cms.string('/dev/CMSSW_7_3_0/HIon/V51')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -3405,7 +3405,7 @@ hltIter1ElectronsPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProd
       ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
       propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
     ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+    TTRHBuilder = cms.string( "(unused)" )
 )
 hltIter1ElectronsCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter1ElectronsPixelSeeds" ),
@@ -3661,7 +3661,7 @@ hltIter2ElectronsPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProd
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
     ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+    TTRHBuilder = cms.string( "(unused)" )
 )
 hltIter2ElectronsCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter2ElectronsPixelSeeds" ),
@@ -5681,7 +5681,7 @@ hltIter1PFlowPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
       ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
       propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
     ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+    TTRHBuilder = cms.string( "(unused)" )
 )
 hltIter1PFlowCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter1PFlowPixelSeeds" ),
@@ -6017,7 +6017,7 @@ hltIter2PFlowPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
     ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+    TTRHBuilder = cms.string( "(unused)" )
 )
 hltIter2PFlowCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter2PFlowPixelSeeds" ),
@@ -7462,7 +7462,7 @@ hltIter1PFlowPixelSeedsForPhotons = cms.EDProducer( "SeedGeneratorFromRegionHits
       ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
       propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
     ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+    TTRHBuilder = cms.string( "(unused)" )
 )
 hltIter1PFlowCkfTrackCandidatesForPhotons = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter1PFlowPixelSeedsForPhotons" ),
@@ -7718,7 +7718,7 @@ hltIter2PFlowPixelSeedsForPhotons = cms.EDProducer( "SeedGeneratorFromRegionHits
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
     ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+    TTRHBuilder = cms.string( "(unused)" )
 )
 hltIter2PFlowCkfTrackCandidatesForPhotons = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter2PFlowPixelSeedsForPhotons" ),
@@ -7945,8 +7945,6 @@ HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
 HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_CaloJet260_v1, HLT_Ele27_eta2p1_WP75_Gsf_v1, HLT_Mu50_v1, HLT_PFJet260_v1, HLT_Photon20_CaloIdVL_IsoL_v1, HLT_Physics_v1, HLTriggerFinalPath, HLTAnalyzerEndpath ))
-
-
 
 
 # CMSSW version specific customizations

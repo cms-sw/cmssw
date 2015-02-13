@@ -28,6 +28,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#define nfed_ FEDNumbering::MAXFEDID+1
 
 class BxTiming : public DQMEDAnalyzer {
 
@@ -87,13 +88,12 @@ class BxTiming : public DQMEDAnalyzer {
   enum nsys {NSYS=10};
   enum syslist {PS=0, ETP, HTP, GCT, CTP, CTF, DTP, DTF, RPC, GLT};
   std::pair<int,int> fedRange_[NSYS];
-  int nfed_;   // number of feds
   int fedRef_; // reference fed
 
   // bx spread counters
   static const int nspr_=3; // delta, min, max  
-  int nBxDiff[1500][nspr_];
-  int nBxOccy[1500][nspr_];
+  int nBxDiff[nfed_][nspr_];
+  int nBxOccy[nfed_][nspr_];
 
   /// histograms
   MonitorElement* hBxDiffAllFed;              // bx shift wrt reference fed, for all feds

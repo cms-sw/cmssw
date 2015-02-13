@@ -29,6 +29,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -44,9 +46,7 @@ class SoftKillerProducer : public edm::stream::EDProducer<> {
 public:
   typedef math::XYZTLorentzVector LorentzVector;
   typedef std::vector<LorentzVector> LorentzVectorCollection;
-  typedef std::vector< reco::PFCandidate >   PFInputCollection;
   typedef std::vector< reco::PFCandidate >   PFOutputCollection;
-  typedef edm::View<reco::PFCandidate>                   PFView;
 
   explicit SoftKillerProducer(const edm::ParameterSet&);
   ~SoftKillerProducer();
@@ -54,7 +54,7 @@ public:
 private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
-  edm::EDGetTokenT< PFInputCollection > tokenPFCandidates_;
+  edm::EDGetTokenT< reco::CandidateView > tokenPFCandidates_;
 
 
   double Rho_EtaMax_;
@@ -79,7 +79,7 @@ SoftKillerProducer::SoftKillerProducer(const edm::ParameterSet& iConfig) :
 {
 
   tokenPFCandidates_
-    = consumes<PFInputCollection>(iConfig.getParameter<edm::InputTag>("PFCandidates"));
+    = consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("PFCandidates"));
 
   produces<edm::ValueMap<LorentzVector> > ("SoftKillerP4s");
   produces< PFOutputCollection >();
@@ -105,7 +105,7 @@ SoftKillerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr< PFOutputCollection > pOutput( new PFOutputCollection );
 
   // get PF Candidates
-  edm::Handle<PFInputCollection> pfCandidates;
+  edm::Handle<reco::CandidateView> pfCandidates;
   iEvent.getByToken( tokenPFCandidates_, pfCandidates);
 
   std::vector<fastjet::PseudoJet> fjInputs;
@@ -126,11 +126,15 @@ SoftKillerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<edm::ValueMap<LorentzVector> > p4SKOut(new edm::ValueMap<LorentzVector>());
   LorentzVectorCollection skP4s;
 
+  static const reco::PFCandidate dummySinceTranslateIsNotStatic;
+
   // To satisfy the value map, the size of the "killed" collection needs to be the
   // same size as the input collection, so if the constituent is killed, just set E = 0
   for ( auto j = fjInputs.begin(), 
 	  jend = fjInputs.end(); j != jend; ++j ) {
-    PFInputCollection::value_type pCand( pfCandidates->at(j->user_index()) );
+    const reco::Candidate& cand = pfCandidates->at(j->user_index());
+    auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(cand.pdgId());
+    reco::PFCandidate pCand( cand.charge(), cand.p4(), id );
     auto val = j->user_index();
     auto skmatch = find_if( soft_killed_event.begin(), soft_killed_event.end(), [&val](fastjet::PseudoJet const & i){return i.user_index() == val;} );
     LorentzVector pVec;

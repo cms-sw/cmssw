@@ -9,9 +9,6 @@
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
-
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
-
 #include "ParticleState.h"
 
 namespace reco {
@@ -67,14 +64,6 @@ namespace reco {
 
     /// destructor
     virtual ~LeafCandidate();
-    /// first daughter const_iterator
-    virtual const_iterator begin() const;
-    /// last daughter const_iterator
-    virtual const_iterator end() const;
-    /// first daughter iterator
-    virtual iterator begin();
-    /// last daughter iterator
-    virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const;
     /// return daughter at a given position (throws an exception)
@@ -280,11 +269,6 @@ namespace reco {
     friend class ShallowCloneCandidate;
     friend class ShallowClonePtrCandidate;
 
-  private:
-    // const iterator implementation
-    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    // iterator implementation
-    typedef candidate::iterator_imp_specific<daughters> iterator_imp_specific;
   };
 
 }

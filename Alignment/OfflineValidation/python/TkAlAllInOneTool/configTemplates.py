@@ -34,13 +34,27 @@ process.prefer_conditionsIn.oO[rcdName]Oo. = cms.ESPrefer("PoolDBESSource", "con
 #batch job execution
 scriptTemplate="""
 #!/bin/bash
-CWD=`pwd -P`
+#init
+#ulimit -v 3072000
+#export STAGE_SVCCLASS=cmscafuser
+#save path to the LSF batch working directory  (/pool/lsf)
+export LSFWORKDIR=`pwd -P`
+echo LSF working directory is $LSFWORKDIR
 source /afs/cern.ch/cms/caf/setup.sh
 cd .oO[CMSSW_BASE]Oo./src
 export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scramv1 ru -sh`
-# rfmkdir -p .oO[workdir]Oo.
-# rfmkdir -p .oO[datadir]Oo.
+rfmkdir -p .oO[datadir]Oo. &>! /dev/null
+
+#remove possible result file from previous runs
+previous_results=$(cmsLs -l /store/caf/user/$USER/.oO[eosdir]Oo. | awk '{print $5}')
+for file in ${previous_results}
+do
+    if [ ${file} = /store/caf/user/$USER/.oO[eosdir]Oo./.oO[outputFile]Oo. ]
+    then
+        cmsStage -f ${file} ${file}.bak
+    fi
+done
 
 if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
 then
@@ -48,8 +62,8 @@ then
     rm -f .oO[workdir]Oo./*
     cd .oO[workdir]Oo.
 else
-    mkdir -p $CWD/TkAllInOneTool
-    cd $CWD/TkAllInOneTool
+    mkdir -p $LSFWORKDIR/TkAllInOneTool
+    cd $LSFWORKDIR/TkAllInOneTool
 fi
 
 # rm -f .oO[workdir]Oo./*
@@ -69,11 +83,16 @@ echo ""
 #retrieve
 rfmkdir -p .oO[logdir]Oo. >&! /dev/null
 gzip -f LOGFILE_*_.oO[name]Oo..log
-find .oO[workdir]Oo. -maxdepth 1 -name "LOGFILE*.oO[alignmentName]Oo.*" -print | xargs -I {} bash -c "rfcp {} .oO[logdir]Oo."
+find . -maxdepth 1 -name "LOGFILE*.oO[alignmentName]Oo.*" -print | xargs -I {} bash -c "rfcp {} .oO[logdir]Oo."
 
 #copy root files to eos
 cmsMkdir /store/caf/user/$USER/.oO[eosdir]Oo.
-root_files=$(ls --color=never -d *.oO[alignmentName]Oo.*.root)
+if [ .oO[parallelJobs]Oo. -eq 1 ]
+then
+    root_files=$(ls --color=never -d *.oO[alignmentName]Oo.*.root)
+else
+    root_files=$(ls --color=never -d *.oO[alignmentName]Oo._.oO[nIndex]Oo.*.root)
+fi
 echo ${root_files}
 
 for file in ${root_files}
@@ -87,79 +106,6 @@ if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
 then
     rm -rf .oO[workdir]Oo.
 fi
-echo "done."
-"""
-
-
-######################################################################
-######################################################################
-#batch job execution
-parallelScriptTemplate="""
-#!/bin/bash
-#init
-#ulimit -v 3072000
-#export STAGE_SVCCLASS=cmscafuser
-#save path to the LSF batch working directory  (/pool/lsf)
-export LSFWORKDIR=$PWD
-echo LSF working directory is $LSFWORKDIR
-source /afs/cern.ch/cms/caf/setup.sh
-# source /afs/cern.ch/cms/sw/cmsset_default.sh
-cd .oO[CMSSW_BASE]Oo./src
-# export SCRAM_ARCH=slc5_amd64_gcc462
-export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
-eval `scramv1 ru -sh`
-#rfmkdir -p ${LSFWORKDIR}
-
-# make rfmkdir silent in case directory already exists
-rfmkdir -p .oO[datadir]Oo. >&! /dev/null
-cmsMkdir /store/caf/user/$USER/.oO[eosdir]Oo.
-
-#remove possible result file from previous runs
-previous_results=$(cmsLs -l /store/caf/user/$USER/.oO[eosdir]Oo. | awk '{print $5}')
-for file in ${previous_results}
-do
-    # if [ ${file} = *.oO[datadir]Oo./*.oO[alignmentName]Oo.*.root ]
-    if [ ${file} = /store/caf/user/$USER/.oO[eosdir]Oo./.oO[outputFile]Oo. ]
-    then
-        cmsStage -f ${file} ${file}.bak
-    fi
-done
-
-#rm -f ${LSFWORKDIR}/*
-cd ${LSFWORKDIR}
-
-#run
-pwd
-df -h .
-.oO[CommandLine]Oo.
-echo "----"
-echo "List of files in $(pwd):"
-ls -ltr
-echo "----"
-echo ""
-
-
-#retrieve
-rfmkdir -p .oO[logdir]Oo. >&! /dev/null
-gzip LOGFILE_*_.oO[name]Oo..log
-find ${LSFWORKDIR} -maxdepth 1 -name "LOGFILE*.oO[alignmentName]Oo.*" -print | xargs -I {} bash -c "rfcp {} .oO[logdir]Oo."
-
-#copy root files to eos
-cmsMkdir /store/caf/user/$USER/.oO[eosdir]Oo.
-root_files=$(ls --color=never -d ${LSFWORKDIR}/*.oO[alignmentName]Oo._.oO[nIndex]Oo.*.root)
-echo "ls"
-ls
-echo "\${root_files}:"
-echo ${root_files}
-for file in ${root_files}
-do
-    # echo "cmsStage -f ${file} /store/caf/user/$USER/.oO[eosdir]Oo."
-    cmsStage -f ${file} /store/caf/user/$USER/.oO[eosdir]Oo.
-    # echo ${file}
-done
-
-#cleanup - do not remove workdir, since another parallel job might be running in the same node
-find ${LSFWORKDIR} -maxdepth 1 -name "*.oO[alignmentName]Oo._.oO[nIndex]Oo.*.root" -print | xargs -I {} bash -c "rm {}"
 echo "done."
 """
 
@@ -217,6 +163,24 @@ find . -name "*.stdout" -exec gzip -f {} \;
 
 ######################################################################
 ######################################################################
+mergeParallelResults="""
+
+#set directory to which TkAlOfflineJobsMerge.C saves the merged file
+# export OUTPUTDIR=.oO[datadir]Oo.
+export OUTPUTDIR=.
+.oO[copyMergeScripts]Oo.
+.oO[haddLoop]Oo.
+
+# create log file
+ls -al .oO[mergeParallelFilePrefixes]Oo. > .oO[datadir]Oo./log_rootfilelist.txt
+
+# Remove parallel job files
+.oO[rmUnmerged]Oo.
+"""
+
+
+######################################################################
+######################################################################
 compareAlignmentsExecution="""
 #merge for .oO[validationId]Oo. if it does not exist or is not up-to-date
 echo -e "\n\nComparing validations"
@@ -249,7 +213,7 @@ else
     mkdir -p ExtendedOfflineValidation_Images
 fi
 
-rfcp .oO[extendeValScriptPath]Oo. .
+rfcp .oO[extendedValScriptPath]Oo. .
 rfcp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C .
 root -x -b -q -l TkAlExtendedOfflineValidation.C
 rfmkdir -p .oO[datadir]Oo./ExtendedOfflineValidation_Images
@@ -339,12 +303,12 @@ queue = .oO[queue]Oo.
 
 
 def alternateTemplate( templateName, alternateTemplateName ):
-  
+
     if not templateName in globals().keys():
-        msg = "unkown template to replace %s"%templateName
-        raise AllInOneError(msg) 
+        msg = "unknown template to replace %s"%templateName
+        raise AllInOneError(msg)
     if not alternateTemplateName in globals().keys():
-        msg = "unkown template to replace %s"%alternateTemplateName
-        raise AllInOneError(msg) 
+        msg = "unknown template to replace %s"%alternateTemplateName
+        raise AllInOneError(msg)
     globals()[ templateName ] = globals()[ alternateTemplateName ]
     # = eval("configTemplates.%s"%"alternateTemplate")

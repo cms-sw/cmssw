@@ -16,6 +16,8 @@ namespace XrdAdaptor {
 
 class RequestList;
 class ClientRequest;
+class XrdSiteStatistics;
+class XrdStatisticsService;
 
 class Source : public std::enable_shared_from_this<Source>, boost::noncopyable {
 
@@ -69,6 +71,7 @@ private:
     std::shared_ptr<XrdCl::File> m_fh;
 
     std::unique_ptr<QualityMetricSource> m_qm;
+    std::shared_ptr<XrdSiteStatistics> m_stats;
 
 #ifdef XRD_FAKE_SLOW
     bool m_slow;

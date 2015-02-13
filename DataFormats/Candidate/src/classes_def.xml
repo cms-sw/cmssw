@@ -93,17 +93,13 @@
    <version ClassVersion="11" checksum="1100712875"/>
    <version ClassVersion="10" checksum="604924170"/>
   </class>
-  <class name="reco::candidate::iterator"  ClassVersion="10">
+  <class name="reco::candidate::iterator"  ClassVersion="11">
+   <version ClassVersion="11" checksum="2805432001"/>
    <version ClassVersion="10" checksum="547616838"/>
   </class>
-  <class name="reco::candidate::const_iterator"  ClassVersion="10">
+  <class name="reco::candidate::const_iterator"  ClassVersion="11">
+   <version ClassVersion="11" checksum="1840645481"/>
    <version ClassVersion="10" checksum="473157534"/>
-  </class>
-  <class name="reco::candidate::const_iterator_imp"  ClassVersion="10">
-   <version ClassVersion="10" checksum="3984591915"/>
-  </class>
-  <class name="reco::candidate::iterator_imp"  ClassVersion="10">
-   <version ClassVersion="10" checksum="3317687219"/>
   </class>
 
   <class name="reco::CandidateRef" />

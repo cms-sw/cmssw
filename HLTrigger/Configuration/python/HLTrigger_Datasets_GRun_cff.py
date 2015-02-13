@@ -260,13 +260,9 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_Photon22_v1', 
     'HLT_Photon250_NoHE_v1', 
     'HLT_Photon26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Eta2_Mass60_v1', 
-    'HLT_Photon28_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon14_AND_HE10_R9Id65_Mass50_Eta1p5_v1', 
     'HLT_Photon300_NoHE_v1', 
     'HLT_Photon30_R9Id90_HE10_IsoM_v1', 
     'HLT_Photon30_v1', 
-    'HLT_Photon36_R9Id85_AND_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_Mass30_v1', 
-    'HLT_Photon36_R9Id85_AND_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_v1', 
-    'HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_Mass70_v1', 
     'HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15_v1', 
     'HLT_Photon36_R9Id90_HE10_Iso40_EBOnly_PFMET40_v1', 
     'HLT_Photon36_R9Id90_HE10_Iso40_EBOnly_VBF_v1', 
@@ -295,6 +291,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPF
     'HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq460_v1', 
     'HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v1', 
     'HLT_QuadPFJet_VBF_v1', 
+    'HLT_Random_v1', 
     'HLT_Rsq0p36_v1', 
     'HLT_RsqMR260_Rsq0p09_MR200_4jet_v1', 
     'HLT_RsqMR260_Rsq0p09_MR200_v1', 
@@ -314,7 +311,5 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetTemplates_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetTemplates_selector.l1tResults = cms.InputTag('')
 streamA_datasetTemplates_selector.throw      = cms.bool(False)
-streamA_datasetTemplates_selector.triggerConditions = cms.vstring('HLT_IsoMu24_v1', 
-    'HLT_IsoTkMu24_v1', 
-    'HLT_ReducedIterativeTracking_v1')
+streamA_datasetTemplates_selector.triggerConditions = cms.vstring('HLT_ReducedIterativeTracking_v1')
 

@@ -55,6 +55,7 @@ class WalkAST : public clang::StmtVisitor<WalkAST> {
   const CheckerBase *Checker;
   clang::ento::BugReporter &BR;
   clang::AnalysisDeclContext *AC;
+  const FunctionDecl *AD;
   typedef const clang::CXXMemberCallExpr * WorkListUnit;
   typedef clang::SmallVector<WorkListUnit, 50> DFSWorkList;
 
@@ -83,10 +84,11 @@ class WalkAST : public clang::StmtVisitor<WalkAST> {
   const clang::CXXMemberCallExpr *visitingCallExpr;
 
 public:
-  WalkAST(const CheckerBase *checker, clang::ento::BugReporter &br, clang::AnalysisDeclContext *ac)
+  WalkAST(const CheckerBase *checker, clang::ento::BugReporter &br, clang::AnalysisDeclContext *ac, const FunctionDecl * fd)
     : Checker(checker),
       BR(br),
       AC(ac),
+      AD(fd),
       visitingCallExpr(0) {}
 
   bool hasWork() const { return !WList.empty(); }
@@ -298,7 +300,7 @@ void WalkAST::VisitCXXConstCastExpr(clang::CXXConstCastExpr *CCE) {
 	CmsException m_exception;
 	clang::ento::PathDiagnosticLocation CELoc = clang::ento::PathDiagnosticLocation::createBegin(CCE, BR.getSourceManager(),AC);
 	if (!m_exception.reportClass( CELoc, BR ) ) return;
-	const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
+	const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AD);
 	std::string buf;
 	llvm::raw_string_ostream os(buf);
 	os <<"const_cast used\n";
@@ -476,11 +478,11 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
   os << "Member data '";
   ME->printPretty(os,0,Policy);
   os << "' is directly or indirectly modified in const function\n";
-  const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
+  const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AD);
   std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: " + os.str();
   if (!m_exception.reportClass( CELoc, BR ) ) return;
   writeLog(tolog);
-  BR.EmitBasicReport(AC->getDecl(),Checker,"Member data modified in const function","Data Class Const Correctness",os.str(),CELoc);
+  BR.EmitBasicReport(AD,Checker,"Member data modified in const function","Data Class Const Correctness",os.str(),CELoc);
 }
 
 void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
@@ -503,7 +505,7 @@ void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
   os << "'";
   os<<"' is a non-const member function '"<<MD->getQualifiedNameAsString();
   os<<"' that could modify member data object of type '"<<RD->getQualifiedNameAsString()<<"'\n";
-  const clang::CXXMethodDecl * ACMD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl()); 
+  const clang::CXXMethodDecl * ACMD = llvm::cast<clang::CXXMethodDecl>(AD); 
   std::string tolog = "data class '"+ACMD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*ACMD) + "' Warning: "+os.str();
   clang::ento::PathDiagnosticLocation CELoc =
     clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
@@ -531,7 +533,7 @@ void WalkAST::ReportCast(const clang::ExplicitCastExpr *CE) {
  
   os << "Const qualifier of member data object";
   os <<" was removed via cast expression '";
-  const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
+  const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AD);
   std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: "+os.str();
   clang::ento::PathDiagnosticLocation CELoc =
     clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
@@ -561,7 +563,7 @@ void WalkAST::ReportCallArg(const clang::CXXMemberCallExpr *CE,const int i) {
   os << "' is passed to a non-const reference parameter";
   os <<" of CXX method '" << CMD->getQualifiedNameAsString() << "' in const function";
   os << "\n";
-  const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
+  const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AD);
   std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: "+os.str();
 
   clang::ento::PathDiagnosticLocation ELoc =
@@ -587,7 +589,7 @@ void WalkAST::ReportCallReturn(const clang::ReturnStmt * RS) {
   os << "in const function in statement '";
   RS->printPretty(os,0,Policy);
   os << "\n";
-  const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
+  const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AD);
   clang::ento::PathDiagnosticLocation CELoc =
     clang::ento::PathDiagnosticLocation::createBegin(RS, BR.getSourceManager(),AC);
   if (!m_exception.reportClass( CELoc, BR ) ) return;
@@ -666,7 +668,7 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 		if ( MD->hasAttr<CMSThreadGuardAttr>() || MD->hasAttr<CMSThreadSafeAttr>()) continue;
 				if ( MD->hasBody() ) {
 					clang::Stmt *Body = MD->getBody();
-					WalkAST walker(this,BR, mgr.getAnalysisDeclContext(MD));
+					WalkAST walker(this,BR, mgr.getAnalysisDeclContext(MD),MD);
 	       				walker.Visit(Body);
 					clang::QualType RQT = MD->getCallResultType();
 					clang::ASTContext &Ctx = BR.getContext();

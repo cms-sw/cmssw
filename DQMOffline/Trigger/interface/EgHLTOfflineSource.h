@@ -35,6 +35,7 @@
 #include "DQMOffline/Trigger/interface/EgHLTBinData.h"
 #include "DQMOffline/Trigger/interface/EgHLTCutMasks.h"
 #include "DQMOffline/Trigger/interface/EgHLTMonElemContainer.h"
+#include "DQMOffline/Trigger/interface/EgHLTMonElemFuncs.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffHelper.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffEvt.h"
 #include "DQMOffline/Trigger/interface/EgHLTTrigCodes.h"
@@ -54,7 +55,7 @@ namespace egHLT {
 
 // }
 
-class EgHLTOfflineSource : public thread_unsafe::DQMEDAnalyzer {
+class EgHLTOfflineSource : public DQMEDAnalyzer {
  
  private:
   MonitorElement* dqmErrsMonElem_; //monitors DQM errors (ie failing to get trigger info, etc)
@@ -70,6 +71,7 @@ class EgHLTOfflineSource : public thread_unsafe::DQMEDAnalyzer {
   
   egHLT::OffEvt offEvt_;
   egHLT::OffHelper offEvtHelper_;// this is where up wrap up nasty code which will be replaced by offical tools at some point
+  std::unique_ptr<egHLT::TrigCodes> trigCodes; // the only place instantiate them
   
   //note ele,pho does not refer to whether the trigger is electron or photon, it refers to what type
   //of object passing the trigger will be monitored, eg ele = offline gsf electrons 
@@ -88,8 +90,8 @@ class EgHLTOfflineSource : public thread_unsafe::DQMEDAnalyzer {
   std::string hltTag_;
 
   //disabling copying/assignment (copying this class would be bad, mkay)
-  EgHLTOfflineSource(const EgHLTOfflineSource& rhs){}
-  EgHLTOfflineSource& operator=(const EgHLTOfflineSource& rhs){return *this;}
+  EgHLTOfflineSource(const EgHLTOfflineSource& rhs) = delete;
+  EgHLTOfflineSource& operator=(const EgHLTOfflineSource& rhs) = delete;
 
  public:
   explicit EgHLTOfflineSource(const edm::ParameterSet& );
@@ -98,8 +100,8 @@ class EgHLTOfflineSource : public thread_unsafe::DQMEDAnalyzer {
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-  void addEleTrigPath(DQMStore::IBooker &iBooker,const std::string& name);
-  void addPhoTrigPath(DQMStore::IBooker &iBooker,const std::string& name);
+  void addEleTrigPath(egHLT::MonElemFuncs& monElemFuncs,const std::string& name);
+  void addPhoTrigPath(egHLT::MonElemFuncs& monElemFuncs,const std::string& name);
   void getHLTFilterNamesUsed(std::vector<std::string>& filterNames)const;
   void filterTriggers(const HLTConfigProvider& hltConfig);
 };

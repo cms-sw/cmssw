@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_3_0/PIon/V47 (CMSSW_7_3_1_patch2_HLT3)
+# /dev/CMSSW_7_3_0/PIon/V51 (CMSSW_7_3_1_patch2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/PIon/V47')
+  tableName = cms.string('/dev/CMSSW_7_3_0/PIon/V51')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -3900,7 +3900,7 @@ process.hltIter1ElectronsPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHi
       ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
       propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
     ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+    TTRHBuilder = cms.string( "(unused)" )
 )
 process.hltIter1ElectronsCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter1ElectronsPixelSeeds" ),
@@ -4156,7 +4156,7 @@ process.hltIter2ElectronsPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHi
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
     ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+    TTRHBuilder = cms.string( "(unused)" )
 )
 process.hltIter2ElectronsCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter2ElectronsPixelSeeds" ),
@@ -6176,7 +6176,7 @@ process.hltIter1PFlowPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsED
       ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
       propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
     ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+    TTRHBuilder = cms.string( "(unused)" )
 )
 process.hltIter1PFlowCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter1PFlowPixelSeeds" ),
@@ -6512,7 +6512,7 @@ process.hltIter2PFlowPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsED
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
     ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+    TTRHBuilder = cms.string( "(unused)" )
 )
 process.hltIter2PFlowCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter2PFlowPixelSeeds" ),
@@ -7957,7 +7957,7 @@ process.hltIter1PFlowPixelSeedsForPhotons = cms.EDProducer( "SeedGeneratorFromRe
       ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
       propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
     ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+    TTRHBuilder = cms.string( "(unused)" )
 )
 process.hltIter1PFlowCkfTrackCandidatesForPhotons = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter1PFlowPixelSeedsForPhotons" ),
@@ -8213,7 +8213,7 @@ process.hltIter2PFlowPixelSeedsForPhotons = cms.EDProducer( "SeedGeneratorFromRe
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
     ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+    TTRHBuilder = cms.string( "(unused)" )
 )
 process.hltIter2PFlowCkfTrackCandidatesForPhotons = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter2PFlowPixelSeedsForPhotons" ),
@@ -8392,7 +8392,6 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltL1GtObjectMap_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
-      'keep FEDRawDataCollection_source_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -8474,8 +8473,6 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
 process.DQMOutput = cms.EndPath( process.dqmOutput )
 
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
-
-
 
 
 

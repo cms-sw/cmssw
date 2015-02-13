@@ -39,6 +39,9 @@ electronMcSignalValidator = cms.EDAnalyzer("ElectronMcSignalValidator",
   electronCoreCollection = cms.InputTag("gedGsfElectronCores"),
   electronTrackCollection = cms.InputTag("electronGsfTracks"),
   electronSeedCollection = cms.InputTag("electronMergedSeeds"),
+  # ajout 04/02/2015
+  offlinePrimaryVertices = cms.InputTag("offlinePrimaryVertices"),
+  # fin ajout
   
   beamSpot = cms.InputTag("offlineBeamSpot"),
   readAOD = cms.bool(False),

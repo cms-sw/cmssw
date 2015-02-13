@@ -9,6 +9,7 @@ topfunc = re.compile("::(produce|analyze|filter|beginLuminosityBlock|beginRun)\(
 baseclass = re.compile("edm::(one::|stream::|global::)?ED(Producer|Filter|Analyzer)(Base)?")
 getfunc = re.compile("edm::eventsetup::EventSetupRecord::get\((.*)&\) const")
 handle = re.compile("(.*),?class edm::ES(.*)Handle<(.*)>")
+skip = re.compile("edm::serviceregistry::ServicesManager::MakerHolder::add() const")
 statics = set()
 toplevelfuncs = set()
 onefuncs = set()
@@ -69,6 +70,7 @@ f = open('db.txt')
 for line in f :
 	if not bfunc.search(line) : continue
 	fields = line.split("'")
+	if skip.search(fields[1]) or skip.search(fields[3]) : continue
 	if fields[2] == ' calls function ' :
 		G.add_edge(fields[1],fields[3],kind=' calls function ')
 		if getfunc.search(fields[3]) :
@@ -167,7 +169,7 @@ for dataclassfunc in sorted(dataclassfuncs):
 			p = re.sub("class ","",o)
 			dataclass = re.sub("struct ","",p)
 			for flaggedclass in sorted(flaggedclasses):
-				if re.search(flaggedclass,dataclass) :
+				if re.match(flaggedclass,dataclass) :
 					print "Flagged event setup data class '"+dataclass+"' is accessed in call stack '",
 					path = nx.shortest_path(G,tfunc,dataclassfunc)
 					for p in path:

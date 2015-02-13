@@ -6,8 +6,7 @@ process = cms.Process("HARVESTING")
 #### Histograms Source
 #----------------------------
 # for live online DQM in P5
-from DQMServices.StreamerIO.DQMProtobufReader_cff import DQMProtobufReader
-process.source = DQMProtobufReader
+process.load("DQM.Integration.test.pbsource_cfi")
 
 #----------------------------
 #### DQM Environment

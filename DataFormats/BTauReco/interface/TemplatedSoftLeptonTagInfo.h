@@ -22,7 +22,8 @@ public:
         etaRel(   std::numeric_limits<float>::quiet_NaN() ),
         deltaR(   std::numeric_limits<float>::quiet_NaN() ),
         ratio(    std::numeric_limits<float>::quiet_NaN() ),
-        ratioRel( std::numeric_limits<float>::quiet_NaN() )
+        ratioRel( std::numeric_limits<float>::quiet_NaN() ),
+        elec_mva( std::numeric_limits<float>::quiet_NaN() )
     { }
 
     float sip2d;                            // 2D signed impact parameter
@@ -34,6 +35,8 @@ public:
     float deltaR;                           // (pseudo)angular distance to jet axis
     float ratio;                            // momentum over jet energy
     float ratioRel;                         // momentum parallel to jet axis over jet energy
+
+    float elec_mva;
 
     struct Quality {
         static const float undef;
@@ -163,10 +166,11 @@ TaggingVariableList TemplatedSoftLeptonTagInfo<REF>::taggingVariables(void) cons
     list.insert( TaggingVariable(btau::trackSip2dSig,  data.sip2d),    true );
     list.insert( TaggingVariable(btau::trackSip3dSig,  data.sip3d),    true );
     list.insert( TaggingVariable(btau::trackPtRel,     data.ptRel),    true );
-    list.insert( TaggingVariable(btau::trackP0Par,     data.ptRel),    true );
+    list.insert( TaggingVariable(btau::trackP0Par,     data.p0Par),    true );
     list.insert( TaggingVariable(btau::trackEtaRel,    data.etaRel),   true );
     list.insert( TaggingVariable(btau::trackDeltaR,    data.deltaR),   true );
     list.insert( TaggingVariable(btau::trackPParRatio, data.ratioRel), true );
+    list.insert( TaggingVariable(btau::electronMVA,    data.elec_mva), true );
   }
 
   list.finalize();
