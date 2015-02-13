@@ -15,6 +15,20 @@ muonTPSet = cms.PSet(
     chargedOnly = cms.bool(True)
 )
 
+displacedMuonTPSet = cms.PSet(
+    src = cms.InputTag("mix", "MergedTrackTruth"),
+    pdgId = cms.vint32(13, -13),
+    tip = cms.double(85.),  # radius to have at least the 3 outermost TOB layers
+    lip = cms.double(210.), # z to have at least the 3 outermost TEC layers
+    minHit = cms.int32(0),
+    ptMin = cms.double(0.9),
+    minRapidity = cms.double(-2.4),
+    maxRapidity = cms.double(2.4),
+    signalOnly = cms.bool(True),
+    stableOnly = cms.bool(False),
+    chargedOnly = cms.bool(True)
+)
+
 #muonTP = cms.EDFilter("TrackingParticleSelector",
 #    muonTPSet
 #)
