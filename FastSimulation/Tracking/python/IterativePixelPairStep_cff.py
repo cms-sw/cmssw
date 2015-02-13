@@ -1,29 +1,31 @@
 import FWCore.ParameterSet.Config as cms
 
 # trajectory seeds
-
-import FastSimulation.Tracking.TrajectorySeedProducer_cfi
-iterativePixelPairSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativePixelPairSeeds.simTrackSelection.skipSimTrackIds = [
-    cms.InputTag("initialStepSimTrackIds"), 
-    cms.InputTag("detachedTripletStepSimTrackIds"), 
-    cms.InputTag("lowPtTripletStepSimTrackIds")]
-iterativePixelPairSeeds.simTrackSelection.pTMin = 0.3
-iterativePixelPairSeeds.simTrackSelection.maxD0 = 5.
-iterativePixelPairSeeds.simTrackSelection.maxZ0 = 50.
-iterativePixelPairSeeds.minLayersCrossed =3
-iterativePixelPairSeeds.originRadius = 0.2
-iterativePixelPairSeeds.originHalfLength = 17.5
-iterativePixelPairSeeds.originpTMin = 0.6
-iterativePixelPairSeeds.beamSpot = ''
-iterativePixelPairSeeds.primaryVertex = 'firstStepPrimaryVertices' # vertices are generated from the initalStepTracks
+from FastSimulation.Tracking.TrajectorySeedProducer_cfi import trajectorySeedProducer
 from RecoTracker.IterativeTracking.PixelPairStep_cff import pixelPairStepSeedLayers
-iterativePixelPairSeeds.layerList = pixelPairStepSeedLayers.layerList
+pixelPairStepSeeds = trajectorySeedProducer.clone(
+    simTrackSelection = trajectorySeedProducer.simTrackSelection.clone(
+        skipSimTrackIds = [
+            cms.InputTag("initialStepSimTrackIds"), 
+            cms.InputTag("detachedTripletStepSimTrackIds"), 
+            cms.InputTag("lowPtTripletStepSimTrackIds")],
+        pTMin = 0.3,
+        maxD0 = 5.,
+        maxZ0 = 50.
+        ),
+    minLayersCrossed =3,
+    originRadius = 0.2,
+    originHalfLength = 17.5,
+    originpTMin = 0.6,
+    beamSpot = '',
+    primaryVertex = 'firstStepPrimaryVertices', # vertices are generated from the initalStepTracks
+    layerList = pixelPairStepSeedLayers.layerList
+)
 
 # candidate producer
 from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
 pixelPairStepTrackCandidates = trackCandidateProducer.clone(
-    SeedProducer = cms.InputTag("iterativePixelPairSeeds"),
+    SeedProducer = cms.InputTag("pixelPairStepSeeds"),
     MinNumberOfCrossedLayers = 2 # ?
 )
 
@@ -46,7 +48,7 @@ from RecoTracker.IterativeTracking.PixelPairStep_cff import pixelPairStepSelecto
 
 
 # sequence
-PixelPairStep = cms.Sequence(iterativePixelPairSeeds+
+PixelPairStep = cms.Sequence(pixelPairStepSeeds+
                              pixelPairStepTrackCandidates+
                              pixelPairStepTracks+
                              pixelPairStepSimTrackIds+

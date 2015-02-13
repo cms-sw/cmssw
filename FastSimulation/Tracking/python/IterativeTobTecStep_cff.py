@@ -2,33 +2,33 @@ import FWCore.ParameterSet.Config as cms
 
 # trajectory seeds
 
-import FastSimulation.Tracking.TrajectorySeedProducer_cfi
-iterativeTobTecSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeTobTecSeeds.simTrackSelection.skipSimTrackIds = [
-    cms.InputTag("initialStepSimTrackIds"), 
-    cms.InputTag("detachedTripletStepSimTrackIds"), 
-    cms.InputTag("lowPtTripletStepSimTrackIds"), 
-    cms.InputTag("pixelPairStepSimTrackIds"), 
-    cms.InputTag("mixedTripletStepSimTrackIds"), 
-    cms.InputTag("pixelLessStepSimTrackIds")]
-iterativeTobTecSeeds.simTrackSelection.pTMin = 0.3
-iterativeTobTecSeeds.simTrackSelection.maxD0 = 99.
-iterativeTobTecSeeds.simTrackSelection.maxZ0 = 99.
-iterativeTobTecSeeds.minLayersCrossed = 4
-iterativeTobTecSeeds.originRadius = 6.0
-iterativeTobTecSeeds.originHalfLength = 30.0
-iterativeTobTecSeeds.originpTMin = 0.6
-
-iterativeTobTecSeeds.primaryVertex = ''
-
+from FastSimulation.Tracking.TrajectorySeedProducer_cfi import trajectorySeedProducer
 from RecoTracker.IterativeTracking.TobTecStep_cff import tobTecStepSeedLayersPair
-iterativeTobTecSeeds.layerList = ['TOB1+TOB2']
-iterativeTobTecSeeds.layerList.extend(tobTecStepSeedLayersPair.layerList)
+tobTecStepSeeds = trajectorySeedProducer.clone( 
+   simTrackSelection = trajectorySeedProducer.simTrackSelection.clone(
+        skipSimTrackIds = [
+            cms.InputTag("initialStepSimTrackIds"), 
+            cms.InputTag("detachedTripletStepSimTrackIds"), 
+            cms.InputTag("lowPtTripletStepSimTrackIds"), 
+            cms.InputTag("pixelPairStepSimTrackIds"), 
+            cms.InputTag("mixedTripletStepSimTrackIds"), 
+            cms.InputTag("pixelLessStepSimTrackIds")],
+        pTMin = 0.3,
+        maxD0 = 99.,
+        maxZ0 = 99.
+        ),
+   minLayersCrossed = 4,
+   originRadius = 6.0,
+   originHalfLength = 30.0,
+   originpTMin = 0.6,
+   layerList = tobTecStepSeedLayersPair.layerList
+)
+tobTecStepSeeds.layerList.extend(['TOB1+TOB2']) # why the extra entry?
 
 # candidate producer
 from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
 tobTecStepTrackCandidates = trackCandidateProducer.clone(
-    SeedProducer = cms.InputTag("iterativeTobTecSeeds"),
+    SeedProducer = cms.InputTag("tobTecStepSeeds"),
     MinNumberOfCrossedLayers = 3)
 
 # track producer
@@ -50,7 +50,7 @@ tobTecStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
 from RecoTracker.IterativeTracking.TobTecStep_cff import tobTecStepSelector
 
 # sequence
-TobTecStep = cms.Sequence(iterativeTobTecSeeds
+TobTecStep = cms.Sequence(tobTecStepSeeds
                           +tobTecStepTrackCandidates
                           +tobTecStepTracks
                           +tobTecStepSelector
