@@ -20,6 +20,27 @@ def cleanNearestJetOnly(jets,leptons,deltaR):
         if ibest != -1: good[ibest] = False
     return [ j for (i,j) in enumerate(jets) if good[i] == True ] 
 
+def cleanJetsAndLeptons(jets,leptons,deltaR,arbitration):
+    dr2 = deltaR**2
+    goodjet = [ True for j in jets ]
+    goodlep = [ True for l in leptons ]
+    for il, l in enumerate(leptons):
+        ibest, d2m = -1, dr2
+        for i,j in enumerate(jets):
+            d2i = deltaR2(l.eta(),l.phi(), j.eta(),j.phi())
+            if d2i < dr2:
+                if arbitration(j,l) == j:
+                   # if the two match, and we prefer the jet, then drop the lepton and be done
+                   goodlep[il] = False
+                   break 
+            if d2i < d2m:
+                ibest, d2m = i, d2i
+        # this lepton has been killed by a jet, then we clean the jet that best matches it
+        if not goodlep[il]: continue 
+        if ibest != -1: goodjet[ibest] = False
+    return ( [ j for (i ,j) in enumerate(jets)    if goodjet[i ] == True ], 
+             [ l for (il,l) in enumerate(leptons) if goodlep[il] == True ] )
+
 
 class JetAnalyzer( Analyzer ):
     """Taken from RootTools.JetAnalyzer, simplified, modified, added corrections    """
@@ -38,10 +59,11 @@ class JetAnalyzer( Analyzer ):
             self.jetReCalibrator = JetReCalibrator(mcGT,"AK4PFchs", False,cfg_ana.jecPath)
           else:
             self.jetReCalibrator = JetReCalibrator(dataGT,"AK4PFchs", True,cfg_ana.jecPath)
-        self.doPuId = self.cfg_ana.doPuId if hasattr(self.cfg_ana, 'doPuId') else True
-        self.jetLepDR = self.cfg_ana.jetLepDR  if hasattr(self.cfg_ana, 'jetLepDR') else 0.5
-        self.lepPtMin = self.cfg_ana.minLepPt  if hasattr(self.cfg_ana, 'minLepPt') else -1
-        self.jetGammaDR = self.cfg_ana.jetGammaDR  if hasattr(self.cfg_ana, 'jetGammaDR') else 0.4
+        self.doPuId = getattr(self.cfg_ana, 'doPuId', True)
+        self.jetLepDR = getattr(self.cfg_ana, 'jetLepDR', 0.4)
+        self.jetLepArbitration = getattr(self.cfg_ana, 'jetLepArbitration', lambda jet,lepton: lepton) 
+        self.lepPtMin = getattr(self.cfg_ana, 'minLepPt', -1)
+        self.jetGammaDR =  getattr(self.cfg_ana, 'jetGammaDR', 0.4)
         if(self.cfg_ana.doQG):
             self.qglcalc = QGLikelihoodCalculator("/afs/cern.ch/user/t/tomc/public/qgTagger/QGLikelihoodDBFiles/QGL_v1a/pdfQG_AK4chs_antib_13TeV_v1.root")
 
@@ -108,9 +130,13 @@ class JetAnalyzer( Analyzer ):
             leptons = leptons[:] + event.selectedTaus
         if self.cfg_ana.cleanJetsFromIsoTracks and hasattr(event, 'selectedIsoCleanTrack'):
             leptons = leptons[:] + event.selectedIsoCleanTrack
-        event.cleanJetsAll = cleanNearestJetOnly(event.jets, leptons, self.jetLepDR)
+        event.cleanJetsAll, cleanLeptons = cleanJetsAndLeptons(event.jets, leptons, self.jetLepDR, self.jetLepArbitration)
         event.cleanJets    = [j for j in event.cleanJetsAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
         event.cleanJetsFwd = [j for j in event.cleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
+        event.discardedJets = [j for j in event.jets if j not in event.cleanJetsAll]
+        if hasattr(event, 'selectedLeptons'):
+            event.discardedLeptons = [ l for l in leptons if l not in cleanLeptons ]
+            event.selectedLeptons  = [ l for l in event.selectedLeptons if l not in event.discardedLeptons ]
 
         ## Clean Jets from photons
         photons = []
@@ -142,7 +168,7 @@ class JetAnalyzer( Analyzer ):
                 if hasattr(j, 'deltaMetFromJetSmearing'):
                     event.deltaMetFromJetSmearing[0] += j.deltaMetFromJetSmearing[0]
                     event.deltaMetFromJetSmearing[1] += j.deltaMetFromJetSmearing[1]
-            event.cleanGenJets = cleanNearestJetOnly(event.genJets, event.selectedLeptons, 0.5)
+            event.cleanGenJets = cleanNearestJetOnly(event.genJets, leptons, self.jetLepDR)
             
             #event.nGenJets25 = 0
             #event.nGenJets25Cen = 0
@@ -321,6 +347,7 @@ setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     jetEta = 4.7,
     jetEtaCentral = 2.4,
     jetLepDR = 0.4,
+    jetLepArbitration = (lambda jet,lepton : lepton), # you can decide which to keep in case of overlaps; e.g. if the jet is b-tagged you might want to keep the jet
     minLepPt = 10,
     relaxJetId = False,  
     doPuId = False, # Not commissioned in 7.0.X
