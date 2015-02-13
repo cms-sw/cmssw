@@ -22,9 +22,21 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,
         processParameters = cms.vstring(
-            'HardQCD:gg2bbbar = on ',
-            'HardQCD:qqbar2bbbar = on ',
-            'HardQCD:hardbbbar = on',
+            'Bottomonium:states(3S1) = 300553', 
+            'Bottomonium:O(3S1)[3S1(1)] = 9.28',
+            'Bottomonium:O(3S1)[3S1(8)] = 0.15',
+            'Bottomonium:O(3S1)[1S0(8)] = 0.02',
+            'Bottomonium:O(3S1)[3P0(8)] = 0.02',
+            'Bottomonium:gg2bbbar(3S1)[3S1(1)]g = on',
+            'Bottomonium:gg2bbbar(3S1)[3S1(8)]g = on',
+            'Bottomonium:qg2bbbar(3S1)[3S1(8)]q = on',
+            'Bottomonium:qqbar2bbbar(3S1)[3S1(8)]g = on',
+            'Bottomonium:gg2bbbar(3S1)[1S0(8)]g = on',
+            'Bottomonium:qg2bbbar(3S1)[1S0(8)]q = on',
+            'Bottomonium:qqbar2bbbar(3S1)[1S0(8)]g = on',
+            'Bottomonium:gg2bbbar(3S1)[3PJ(8)]g = on',
+            'Bottomonium:qg2bbbar(3S1)[3PJ(8)]q = on',
+            'Bottomonium:qqbar2bbbar(3S1)[3PJ(8)]g = on',
             'PhaseSpace:pTHatMin = 20.',
             ),
         parameterSets = cms.vstring('pythia8CommonSettings',
@@ -39,7 +51,7 @@ generator.PythiaParameters.processParameters.extend(EvtGenExtraParticles)
 configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
     name = cms.untracked.string('$Source: Configuration/Generator/python/BuToKstarMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi.py $'),
-    annotation = cms.untracked.string('Summer14: Pythia8+EvtGen130 generation of Bu --> K* Mu+Mu-, 13TeV, Tune CUETP8M1')
+    annotation = cms.untracked.string('Summer14: Pythia8+EvtGen130 generation of Upsilon(4s) --> Bu --> K* Mu+Mu-, 13TeV, Tune CUETP8M1')
     )
 
 ###########
@@ -58,6 +70,5 @@ mumugenfilter = cms.EDFilter("MCParticlePairFilter",
                              ParticleID1 = cms.untracked.vint32(13,-13),
                              ParticleID2 = cms.untracked.vint32(13,-13)
                              )
-
 
 ProductionFilterSequence = cms.Sequence(generator*bufilter*mumugenfilter)
