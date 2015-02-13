@@ -37,11 +37,13 @@ process.intset = cms.EDProducer("IntSetProducer",
 
 process.intvec = cms.EDProducer("IntVectorProducer",
     count = cms.int32(9),
-    ivalue = cms.int32(11)
+    ivalue = cms.int32(11),
+    delta = cms.int32(1)
 )
 
 process.intvecrefvec = cms.EDProducer("IntVecRefVectorProducer",
-    target = cms.string('intvec')
+    target = cms.string('intvec'),
+    select = cms.int32(2)
 )
 
 process.intvecreftbvec = cms.EDProducer("IntVecRefToBaseVectorProducer",

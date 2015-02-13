@@ -41,15 +41,24 @@ namespace edmtest {
 
   public:
     explicit IntVecRefVectorProducer(edm::ParameterSet const& p) :
-        target_(p.getParameter<std::string>("target")) {
+        target_(p.getParameter<std::string>("target")),
+        select_(p.getParameter<int>("select")) {
       produces<product_type>();
       consumes<std::vector<int>>(edm::InputTag{target_});
     }
     virtual ~IntVecRefVectorProducer() {}
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<int>("select", 0);
+      desc.add<std::string>("target");
+      descriptions.addDefault(desc);
+    }
+
   private:
     std::string target_;
+    int select_;
   };
 
   void
@@ -63,8 +72,10 @@ namespace edmtest {
     std::unique_ptr<product_type> prod(new product_type());
 
     typedef product_type::value_type ref;
-    for(size_t i = 0, sz = input->size(); i != sz; ++i)
+    for(size_t i = 0, sz = input->size(); i != sz; ++i) {
+      if(select_ != 0 && (i % select_) == 0) continue;
       prod->push_back(ref(input, i));
+    }
 
     e.put(std::move(prod));
   }
@@ -79,7 +90,7 @@ namespace edmtest {
 
   public:
     explicit IntVecRefToBaseVectorProducer(edm::ParameterSet const& p) :
-        target_(p.getParameter<std::string>("target")) {
+      target_(p.getParameter<std::string>("target")) {
       produces<product_type>();
       consumes<edm::View<int>>(edm::InputTag{target_});
     }
@@ -99,8 +110,9 @@ namespace edmtest {
     assert(input.isValid());
 
     edm::RefToBaseVector<int> refVector;
-    for (size_t i = 0; i < input->size(); ++i)
+    for (size_t i = 0; i < input->size(); ++i) {
       refVector.push_back(input->refAt(i));
+    }
 
     std::unique_ptr<product_type> prod(new product_type(refVector));
     e.put(std::move(prod));

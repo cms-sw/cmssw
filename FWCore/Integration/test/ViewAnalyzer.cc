@@ -254,6 +254,13 @@ namespace edmtest
 	value_t const& product_item = **i_product;
 	value_t const& view_item = *i_view;
         assert(product_item == view_item);
+
+        edm::RefToBaseProd<int> refToBaseProd(hview);
+        // size_t index = hview->refAt(slot).key();
+        edm::RefToBase<int> refToBase(refToBaseProd, slot);
+        edm::Ref<std::vector<int> > ref = refToBase.castTo<edm::Ref<std::vector<int> > >();
+        int item_other = *ref;
+        assert(item_other == product_item);
 	++i_product; ++i_view; ++slot;
     }
   }

@@ -33,20 +33,35 @@ namespace edmtest {
   public:
     explicit IntVectorProducer(edm::ParameterSet const& p) :
       value_(p.getParameter<int>("ivalue")),
-      count_(p.getParameter<int>("count")) {
+      count_(p.getParameter<int>("count")),
+      delta_(p.getParameter<int>("delta")) {
       produces<std::vector<int> >();
     }
     virtual ~IntVectorProducer() {}
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<int>("ivalue", 0);
+      desc.add<int>("count", 0);
+      desc.add<int>("delta", 0);
+      descriptions.addDefault(desc);
+    }
   private:
     int    value_;
     size_t count_;
+    int delta_;
   };
 
   void
   IntVectorProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
     std::unique_ptr<std::vector<int> > p(new std::vector<int>(count_, value_));
+    if(delta_ != 0) {
+      for(unsigned int i = 0; i < p->size(); ++i) {
+        p->at(i) = value_ + i * delta_;
+      }
+    }
     e.put(std::move(p));
   }
 
