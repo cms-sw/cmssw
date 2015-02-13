@@ -100,7 +100,8 @@
    <version ClassVersion="11" checksum="2805432001"/>
    <version ClassVersion="10" checksum="547616838"/>
   </class>
-  <class name="reco::candidate::const_iterator"  ClassVersion="11">
+  <class name="reco::candidate::const_iterator"  ClassVersion="12">
+   <version ClassVersion="12" checksum="870110996"/>
    <version ClassVersion="11" checksum="1840645481"/>
    <version ClassVersion="10" checksum="473157534"/>
   </class>
