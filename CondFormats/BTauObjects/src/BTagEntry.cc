@@ -121,7 +121,7 @@ BTagEntry::BTagEntry(const TH1* hist, BTagEntry::Parameters p):
   params(p)
 {
   int nbins = hist->GetNbinsX();
-  auto axis = hist->GetXaxis();
+  TAxis * axis = hist->GetXaxis();
 
   // overwrite bounds with histo values
   if (params.operatingPoint == BTagEntry::OP_RESHAPING) {
