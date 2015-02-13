@@ -56,7 +56,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHW::processEvent(const std::vector<l1t::
     int eg_et = egCand->hwPt();
     int eg_eta = egCand->hwEta();
     int eg_phi = egCand->hwPhi();
-    int index = ((1-egCand->hwIso())*4 + egCand->hwQual()) ;
+    int index = (egCand->hwIso()*4 + egCand->hwQual()) ;
 
     //std::cout << "JetRankMax: " << params_->jetScale().rankScaleMax()<< " EmRankMax: " << params_->emScale().rankScaleMax()<< std::endl;
     //std::cout << "JetLinMax: " << params_->jetScale().linScaleMax()<< " EmLinMax: " << params_->emScale().linScaleMax()<< std::endl;
@@ -69,12 +69,12 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHW::processEvent(const std::vector<l1t::
     unsigned int lutAddress = isoLutIndex(eg_et,ijet_pt);
 
     // Combined Barrel/Endcap LUT uses upper bit to indicate Barrel / Endcap:
-    enum {MAX_LUT_ADDRESS = 0x7fff}; 
+    enum {MAX_LUT_ADDRESS = 0x7fff};
     enum {LUT_BARREL_OFFSET = 0x0, LUT_ENDCAP_OFFSET = 0x8000};
-   
+
     if (eg_et >0){
       if (lutAddress > MAX_LUT_ADDRESS) lutAddress = MAX_LUT_ADDRESS;
-      if (isinBarrel){	
+      if (isinBarrel){
     	isoFlag= params_->egIsolationLUT()->data(LUT_BARREL_OFFSET + lutAddress);
       } else{
     	isoFlag= params_->egIsolationLUT()->data(LUT_ENDCAP_OFFSET + lutAddress);
@@ -103,7 +103,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHW::processEvent(const std::vector<l1t::
   //   std::cout << itEGamma->hwPt() << " " << itEGamma->hwEta() << " " << itEGamma->hwPhi() << std::endl;
   // }
 
-  const bool verbose = false;
+  const bool verbose = true;
   if(verbose)
   {
     int cEGammas = 0;
