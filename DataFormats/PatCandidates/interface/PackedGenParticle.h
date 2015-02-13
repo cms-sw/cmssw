@@ -240,7 +240,7 @@ namespace pat {
     virtual bool isJet() const;
 
   protected:
-    uint16_t packedPt_, packedEta_, packedPhi_, packedM_;
+    uint16_t packedPt_, packedY_, packedPhi_, packedM_;
     void pack(bool unpackAfterwards=true) ;
     void unpack() const ;
  

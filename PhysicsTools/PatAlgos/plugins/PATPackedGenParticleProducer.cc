@@ -50,7 +50,7 @@ namespace pat {
             edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> >    Asso_;
             edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> >    AssoOriginal_;
             edm::EDGetTokenT<reco::VertexCollection>         PVs_;
-            double maxEta_;
+            double maxRapidity_;
     };
 }
 
@@ -60,7 +60,7 @@ pat::PATPackedGenParticleProducer::PATPackedGenParticleProducer(const edm::Param
   Asso_(consumes<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>("map"))),
   AssoOriginal_(consumes<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>("inputCollection"))),
   PVs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("inputVertices"))),
-  maxEta_(iConfig.getParameter<double>("maxEta"))
+  maxRapidity_(iConfig.getParameter<double>("maxRapidity"))
 {
   produces< std::vector<pat::PackedGenParticle> > ();
   produces< edm::Association< std::vector<pat::PackedGenParticle> > >();
@@ -110,7 +110,7 @@ void pat::PATPackedGenParticleProducer::produce(edm::Event& iEvent, const edm::E
     unsigned int packed=0;
     for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
         const reco::GenParticle &cand=(*cands)[ic];
-	if(cand.status() ==1 && std::abs(cand.eta()) < maxEta_)
+	if(cand.status() ==1 && std::abs(cand.y()) < maxRapidity_)
         {
 		// Obtain original gen particle collection reference from input reference and map
 		edm::Ref<reco::GenParticleCollection> inputRef = edm::Ref<reco::GenParticleCollection>(cands,ic);
