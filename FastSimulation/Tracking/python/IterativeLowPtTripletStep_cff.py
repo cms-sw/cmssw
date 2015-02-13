@@ -1,34 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
-# step 0.5
+# trajectory seeds
 
-# seeding
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeLowPtTripletSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeLowPtTripletSeeds.skipSimTrackIdTags = [
+iterativeLowPtTripletSeeds.simTrackSelection.skipSimTrackIds = [    
     cms.InputTag("initialStepSimTrackIds"),
     cms.InputTag("detachedTripletStepSimTrackIds")]
-iterativeLowPtTripletSeeds.outputSeedCollectionName = 'LowPtPixelTriplets'
-iterativeLowPtTripletSeeds.minRecHits = 3
-iterativeLowPtTripletSeeds.pTMin = 0.25
-iterativeLowPtTripletSeeds.maxD0 = 5.
-iterativeLowPtTripletSeeds.maxZ0 = 50.
-iterativeLowPtTripletSeeds.numberOfHits = 3
+iterativeLowPtTripletSeeds.simTrackSelection.pTMin = 0.25
+iterativeLowPtTripletSeeds.simTrackSelection.maxD0 = 5.
+iterativeLowPtTripletSeeds.simTrackSelection.maxZ0 = 50.
+iterativeLowPtTripletSeeds.minLayersCrossed = 3
 iterativeLowPtTripletSeeds.originRadius = 0.03
 iterativeLowPtTripletSeeds.originHalfLength = 17.5
 iterativeLowPtTripletSeeds.originpTMin = 0.35
-iterativeLowPtTripletSeeds.zVertexConstraint = -1.0
-iterativeLowPtTripletSeeds.primaryVertex = 'none'
-
-#iterativeLowPtTripletSeeds.layerList = ['BPix1+BPix2+BPix3',
-#                                   'BPix1+BPix2+FPix1_pos',
-#                                   'BPix1+BPix2+FPix1_neg',
-#                                   'BPix1+FPix1_pos+FPix2_pos',
-#                                   'BPix1+FPix1_neg+FPix2_neg']
+iterativeLowPtTripletSeeds.primaryVertex = ''
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import PixelLayerTriplets
 iterativeLowPtTripletSeeds.layerList = PixelLayerTriplets.layerList
 
-# candidate producer
+# track candidates
 
 from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
 lowPtTripletStepTrackCandidates = trackCandidateProducer.clone(

@@ -19,5 +19,4 @@ globalPixelSeeds.layerList = cms.vstring(
     'FPix1_neg+FPix2_neg',
 )
 
-globalPixelSeeds.outputSeedCollectionName = 'GlobalPixel'
 

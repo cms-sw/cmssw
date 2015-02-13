@@ -1,34 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
-# step 1
+# trajectory seeds
 
-# seeding
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativePixelPairSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativePixelPairSeeds.skipSimTrackIdTags = [
+iterativePixelPairSeeds.simTrackSelection.skipSimTrackIds = [
     cms.InputTag("initialStepSimTrackIds"), 
     cms.InputTag("detachedTripletStepSimTrackIds"), 
     cms.InputTag("lowPtTripletStepSimTrackIds")]
-iterativePixelPairSeeds.outputSeedCollectionName = 'PixelPair'
-iterativePixelPairSeeds.minRecHits =3
-iterativePixelPairSeeds.pTMin = 0.3
-iterativePixelPairSeeds.maxD0 = 5.
-iterativePixelPairSeeds.maxZ0 = 50.
-iterativePixelPairSeeds.numberOfHits = 2
+iterativePixelPairSeeds.simTrackSelection.pTMin = 0.3
+iterativePixelPairSeeds.simTrackSelection.maxD0 = 5.
+iterativePixelPairSeeds.simTrackSelection.maxZ0 = 50.
+iterativePixelPairSeeds.minLayersCrossed =3
 iterativePixelPairSeeds.originRadius = 0.2
 iterativePixelPairSeeds.originHalfLength = 17.5
 iterativePixelPairSeeds.originpTMin = 0.6
-iterativePixelPairSeeds.zVertexConstraint = -1.0
-iterativePixelPairSeeds.primaryVertex = 'pixelVertices' # this is currently the only iteration why uses a PV instead of the BeamSpot 
-
-#iterativePixelPairSeeds.layerList = ['BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
-#                                     'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
-#                                     'BPix1+FPix2_pos', 'BPix1+FPix2_neg', 
-#                                     'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
-#                                     'BPix2+FPix2_pos', 'BPix2+FPix2_neg', 
-#                                     'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg', 
-#                                     'FPix2_pos+TEC1_pos', 'FPix2_pos+TEC2_pos', 
-#                                     'FPix2_neg+TEC1_neg', 'FPix2_neg+TEC2_neg']
+iterativePixelPairSeeds.beamSpot = ''
+iterativePixelPairSeeds.primaryVertex = 'firstStepPrimaryVertices' # vertices are generated from the initalStepTracks
 from RecoTracker.IterativeTracking.PixelPairStep_cff import pixelPairStepSeedLayers
 iterativePixelPairSeeds.layerList = pixelPairStepSeedLayers.layerList
 

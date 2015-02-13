@@ -20,7 +20,6 @@ generalTracksBeforeMixing = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.
     selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStep"),
                                        cms.InputTag("lowPtTripletStepSelector","lowPtTripletStep"),
                                        cms.InputTag("pixelPairStepSelector","pixelPairStep"),
-                                       cms.InputTag("detachedTripletStep"),
                                        cms.InputTag("mixedTripletStep"),
                                        cms.InputTag("pixelLessStep"),
                                        cms.InputTag("tobTecStepSelector","tobTecStep"),
@@ -29,6 +28,3 @@ generalTracksBeforeMixing = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(False)
     )
-
-
-
