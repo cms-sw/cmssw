@@ -89,7 +89,7 @@ class Looper(object):
         if len(self.cfg_comp.files)==0:
             errmsg = 'please provide at least an input file in the files attribute of this component\n' + str(self.cfg_comp)
             raise ValueError( errmsg )
-	if hasattr(config,"preprocessor") :
+	if hasattr(config,"preprocessor") and config.preprocessor is not None :
 		self.cfg_comp = config.preprocessor.run(self.cfg_comp,self.outDir,firstEvent,nEvents)
 	if hasattr(self.cfg_comp,"options"):
                 print self.cfg_comp.files,self.cfg_comp.options
