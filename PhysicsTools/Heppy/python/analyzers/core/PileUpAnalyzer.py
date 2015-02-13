@@ -4,6 +4,8 @@ from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.HeppyCore.statistics.average import Average
 from PhysicsTools.Heppy.physicsutils.PileUpSummaryInfo import PileUpSummaryInfo
+import PhysicsTools.HeppyCore.framework.config as cfg
+
 from ROOT import TFile, TH1F
 
 class PileUpAnalyzer( Analyzer ):
@@ -57,7 +59,7 @@ class PileUpAnalyzer( Analyzer ):
           self.cfg_comp.puFileData = None
           
         if self.cfg_comp.isMC or self.cfg_comp.isEmbed:
-            if self.cfg_comp.puFileMC is None and self.cfg_comp.puFileData is None:
+            if not hasattr(self.cfg_comp,"puFileMC") or (self.cfg_comp.puFileMC is None and self.cfg_comp.puFileData is None):
                 self.enable = False
             else:
                 assert( os.path.isfile(self.cfg_comp.puFileMC) )
@@ -145,3 +147,12 @@ class PileUpAnalyzer( Analyzer ):
         super(PileUpAnalyzer, self).write(setup)
         if self.cfg_comp.isMC and self.doHists:
             self.rawmcpileup.write()
+
+
+setattr(PileUpAnalyzer,"defaultConfig", cfg.Analyzer(
+    class_object = PileUpAnalyzer,
+    true = True,  # use number of true interactions for reweighting
+    makeHists=False
+)
+)
+

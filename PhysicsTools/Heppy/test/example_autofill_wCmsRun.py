@@ -26,6 +26,10 @@ treeProducer= cfg.Analyzer(
                 #"slimmedElectron" : ( AutoHandle( ("slimmedElectrons",), "std::vector<pat::Electron>" ),
                 #           NTupleCollection("ele", particleType, 4, help="patElectron, directly from MINIAOD") ),
 
+                #read product of preprocessor-cmsRun
+                "jetsAK5"       : ( AutoHandle( ("ak5PFJetsCHS",), "std::vector<reco::PFJet>" ),
+                                  NTupleCollection("JetAk5",     particleType, 8, help="AK5 jets")),
+
 		#standard dumping of objects
    	        "selectedLeptons" : NTupleCollection("leptons", leptonType, 8, help="Leptons after the preselection"),
                 "selectedTaus"    : NTupleCollection("TauGood", tauType, 3, help="Taus after the preselection"),
@@ -111,12 +115,16 @@ sample = cfg.Component(
     name="SingleSample", isMC=False,isEmbed=False
     )
 
+from PhysicsTools.Heppy.utils.cmsswPreprocessor import CmsswPreprocessor
+preprocessor = CmsswPreprocessor("makeAK5Jets.py")
+
 # the following is declared in case this cfg is used in input to the heppy.py script
 from PhysicsTools.HeppyCore.framework.eventsfwlite import Events
 selectedComponents = [sample]
 config = cfg.Config( components = selectedComponents,
                      sequence = sequence,
                      services = [output_service],  
+                     preprocessor=preprocessor, #this would run cmsRun makeAK5Jets.py before running Heppy
                      events_class = Events)
 
 # and the following runs the process directly if running as with python filename.py  
