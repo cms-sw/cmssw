@@ -67,10 +67,10 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   } else {
     LogDebug("StripDigiInfo")<<"APVs running in deconvolution mode (good time resolution)";
   };
-  if(SingleStripNoise) std::cout<<"<SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm>: SingleStripNoise: ON"<<std::endl;
-  else std::cout<<"<SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm>: SingleStripNoise: OFF"<<std::endl;
-  if(CommonModeNoise) std::cout<<"<SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm>: CommonModeNoise: ON"<<std::endl;
-  else std::cout<<"<SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm>: CommonModeNoise: OFF"<<std::endl;
+  if(SingleStripNoise) LogDebug("SiStripDigitizerAlgorithm")<<" SingleStripNoise: ON";
+  else LogDebug("SiStripDigitizerAlgorithm")<<" SingleStripNoise: OFF";
+  if(CommonModeNoise) LogDebug("SiStripDigitizerAlgorithm")<<" CommonModeNoise: ON";
+  else LogDebug("SiStripDigitizerAlgorithm")<<" CommonModeNoise: OFF";
 }
 
 SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
@@ -170,8 +170,8 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
 					if(CLHEP::RandFlat::shoot(engine) < APVSaturationProb){
                                                 int FirstAPV = localFirstChannel/128;
 				 		int LastAPV = localLastChannel/128;
-						std::cout << "-------------------HIP--------------" << std::endl;
-						std::cout << "Killing APVs " << FirstAPV << " - " <<LastAPV << " " << detID <<std::endl;
+						//std::cout << "-------------------HIP--------------" << std::endl;
+						//std::cout << "Killing APVs " << FirstAPV << " - " <<LastAPV << " " << detID <<std::endl;
 				 		for(int strip = FirstAPV*128; strip < LastAPV*128 +128; ++strip) {
 							badChannels[strip] = true;
 						}
