@@ -104,52 +104,6 @@ def customiseRun2EraExtras(process):
     from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_25ns
     process = customiseSimL1EmulatorForPostLS1_25ns(process)
 
-    # deal with FastSim separately:
-    if hasattr(process,'famosSimHits'):
-        # enable 2015 HF shower library
-        process.famosSimHits.Calorimetry.HFShowerLibrary.useShowerLibrary = True
-
-        # change default parameters
-        process.famosSimHits.ParticleFilter.pTMin  = 0.1
-        process.famosSimHits.TrackerSimHits.pTmin  = 0.1
-        process.famosSimHits.ParticleFilter.etaMax = 5.300
-
-    from FastSimulation.PileUpProducer.PileUpFiles_cff import fileNames_13TeV
-    process.genMixPileUpFiles = cms.PSet(fileNames = fileNames_13TeV)
-    if hasattr(process,'famosPileUp'):
-        if hasattr(process.famosPileUp,"PileUpSimulator"):
-            process.famosPileUp.PileUpSimulator.fileNames = fileNames_13TeV
-
-    # all the rest:
-    if hasattr(process,'reconstruction'):
-        #lowering HO threshold with SiPM
-        for prod in process.particleFlowRecHitHO.producers:
-            prod.qualityTests = cms.VPSet(
-                cms.PSet(
-                    name = cms.string("PFRecHitQTestThreshold"),
-                    threshold = cms.double(0.05) # new threshold for SiPM HO
-                ),
-                cms.PSet(
-                    name = cms.string("PFRecHitQTestHCALChannel"),
-                    maxSeverities      = cms.vint32(11),
-                    cleaningThresholds = cms.vdouble(0.0),
-                    flags              = cms.vstring('Standard')
-                )
-            )
-        #Lower Thresholds also for Clusters!!!
-
-        for p in process.particleFlowClusterHO.seedFinder.thresholdsByDetector:
-            p.seedingThreshold = cms.double(0.08)
-
-        for p in process.particleFlowClusterHO.initialClusteringStep.thresholdsByDetector:
-            p.gatheringThreshold = cms.double(0.05)
-
-        for p in process.particleFlowClusterHO.pfClusterBuilder.recHitEnergyNorms:
-            p.recHitEnergyNorm = cms.double(0.05)
-
-        process.particleFlowClusterHO.pfClusterBuilder.positionCalc.logWeightDenominator = cms.double(0.05)
-        process.particleFlowClusterHO.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator = cms.double(0.05)
-
     if hasattr(process,'digitisation_step'):
         alist=['RAWSIM','RAWDEBUG','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT','PREMIX','PREMIXRAW']
         for a in alist:
@@ -157,17 +111,6 @@ def customiseRun2EraExtras(process):
             if hasattr(process,b):
                 getattr(process,b).outputCommands.append('keep *_simMuonCSCDigis_*_*')
                 getattr(process,b).outputCommands.append('keep *_simMuonRPCDigis_*_*')
-                getattr(process,b).outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*')
-        if hasattr(process,'mix') and hasattr(process.mix,'digitizers'):
-            if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'ho'):
-                process.mix.digitizers.hcal.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
-                process.mix.digitizers.hcal.ho.siPMCode = cms.int32(1)
-                process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
-                process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
-            if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf1'):
-                process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.60)
-            if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf2'):
-                process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.60)
     if hasattr(process,'dqmoffline_step'):
         process.l1tCsctf.gangedME11a = cms.untracked.bool(False)
 
