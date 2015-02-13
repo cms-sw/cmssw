@@ -169,8 +169,10 @@ tpToStaUpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssocia
 tpToGlbMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToStaRefitMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToStaRefitUpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToDisplacedTrkMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToDisplacedStaSeedAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToDisplacedStaMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToDisplacedGlbMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToStaSETMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToStaSETUpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToGlbSETMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
@@ -219,6 +221,11 @@ tpToStaRefitUpdMuonAssociation.tracksTag = 'refittedStandAloneMuons:UpdatedAtVtx
 tpToStaRefitUpdMuonAssociation.UseTracker = False
 tpToStaRefitUpdMuonAssociation.UseMuon = True
 
+tpToDisplacedTrkMuonAssociation.tpTag = 'mix:MergedTrackTruth'
+tpToDisplacedTrkMuonAssociation.tracksTag = 'displacedTracks'
+tpToDisplacedTrkMuonAssociation.UseTracker = True
+tpToDisplacedTrkMuonAssociation.UseMuon = False
+
 tpToDisplacedStaSeedAssociation.tpTag = 'mix:MergedTrackTruth'
 tpToDisplacedStaSeedAssociation.tracksTag = 'seedsOfDisplacedSTAmuons'
 tpToDisplacedStaSeedAssociation.UseTracker = False
@@ -228,6 +235,11 @@ tpToDisplacedStaMuonAssociation.tpTag = 'mix:MergedTrackTruth'
 tpToDisplacedStaMuonAssociation.tracksTag = 'displacedStandAloneMuons'
 tpToDisplacedStaMuonAssociation.UseTracker = False
 tpToDisplacedStaMuonAssociation.UseMuon = True
+
+tpToDisplacedGlbMuonAssociation.tpTag = 'mix:MergedTrackTruth'
+tpToDisplacedGlbMuonAssociation.tracksTag = 'displacedGlobalMuons'
+tpToDisplacedGlbMuonAssociation.UseTracker = True
+tpToDisplacedGlbMuonAssociation.UseMuon = True
 
 tpToStaSETMuonAssociation.tpTag = 'mix:MergedTrackTruth'
 tpToStaSETMuonAssociation.tracksTag = 'standAloneSETMuons'
@@ -350,6 +362,7 @@ muonAssociationTEV_seq = cms.Sequence(
 )
 muonAssociationDisplaced_seq = cms.Sequence(seedsOfDisplacedSTAmuons_seq
  +(tpToDisplacedStaSeedAssociation+tpToDisplacedStaMuonAssociation)
+ +(tpToDisplacedTrkMuonAssociation+tpToDisplacedGlbMuonAssociation)
 )
 muonAssociationRefit_seq = cms.Sequence(
     (tpToStaRefitMuonAssociation+tpToStaRefitUpdMuonAssociation)
