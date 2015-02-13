@@ -49,7 +49,10 @@ def matchObjectCollection3 ( objects, matchCollection, deltaRMax = 0.3, filter =
             return dict( zip(objects, [None]*len(objects)) )
     # build all possible combinations
 
-    allPairs = [(deltaR2 (object.eta(), object.phi(), match.eta(), match.phi()), (object, match)) for object in objects for match in matchCollection if filter(object,match) ]
+    objectCoords = [ (o.eta(),o.phi(),o) for o in objects ]
+    matchdCoords = [ (o.eta(),o.phi(),o) for o in matchCollection ]
+    allPairs = [(deltaR2 (oeta, ophi, meta, mphi), (object, match)) for (oeta,ophi,object) in objectCoords for (meta,mphi,match) in matchdCoords if abs(oeta-meta)<=deltaRMax and filter(object,match) ]
+    #allPairs = [(deltaR2 (object.eta(), object.phi(), match.eta(), match.phi()), (object, match)) for object in objects for match in matchCollection if filter(object,match) ]
     allPairs.sort ()
     #
     # to flag already matched objects
