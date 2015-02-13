@@ -19,7 +19,7 @@ iterativeDetachedTripletSeeds.layerList = PixelLayerTriplets.layerList
 # track candidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 detachedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
-    SeedProducer = cms.InputTag("iterativeDetachedTripletSeeds",'DetachedPixelTriplets'),
+    SeedProducer = cms.InputTag("iterativeDetachedTripletSeeds"),
     MinNumberOfCrossedLayers = 3)
 
 # track producer

@@ -24,7 +24,7 @@ iterativePixelLessSeeds.layerList = pixelLessStepSeedLayers.layerList
 # candidate producer
 from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
 pixelLessStepTrackCandidates = trackCandidateProducer.clone(
-    SeedProducer = cms.InputTag("iterativePixelPairSeeds","PixelPair"),
+    SeedProducer = cms.InputTag("iterativePixelPairSeeds"),
     MinNumberOfCrossedLayers = 6 # ?
 )
 

@@ -28,7 +28,7 @@ iterativeTobTecSeeds.layerList.extend(tobTecStepSeedLayersPair.layerList)
 # candidate producer
 from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
 tobTecStepTrackCandidates = trackCandidateProducer.clone(
-    SeedProducer = cms.InputTag("iterativeTobTecSeeds","TobTecLayerPairs"),
+    SeedProducer = cms.InputTag("iterativeTobTecSeeds"),
     MinNumberOfCrossedLayers = 3)
 
 # track producer

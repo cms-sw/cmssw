@@ -26,7 +26,7 @@ iterativeMixedTripletStepSeeds.layerList = mixedTripletStepSeedLayersA.layerList
 # candidate producer
 from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
 mixedTripletStepTrackCandidates = trackCandidateProducer.clone(
-    SeedProducer = cms.InputTag("iterativeMixedTripletStepSeeds","MixedTriplets"),
+    SeedProducer = cms.InputTag("iterativeMixedTripletStepSeeds"),
     MinNumberOfCrossedLayers = 3)
 
 # track producer

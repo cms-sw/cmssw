@@ -23,7 +23,7 @@ iterativePixelPairSeeds.layerList = pixelPairStepSeedLayers.layerList
 # candidate producer
 from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
 pixelPairStepTrackCandidates = trackCandidateProducer.clone(
-    SeedProducer = cms.InputTag("iterativePixelPairSeeds","PixelPair"),
+    SeedProducer = cms.InputTag("iterativePixelPairSeeds"),
     MinNumberOfCrossedLayers = 2 # ?
 )
 

@@ -208,7 +208,7 @@ electronGsfTracks.TrajectoryInEvent = True
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 
 iterativeTrackingBeginning = cms.Sequence(
-    iterativeInitialSeeds+
+    initialStepSeeds+
     iterativePixelPairSeeds+
     iterativeMixedTripletStepSeeds+
     iterativePixelLessSeeds
