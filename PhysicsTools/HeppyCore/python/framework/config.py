@@ -182,7 +182,8 @@ class MCComponent( Component ):
 class Config( object ):
     '''Main configuration object, holds a sequence of analyzers, and
     a list of components.'''
-    def __init__(self, components, sequence, services, events_class):
+    def __init__(self, components, sequence, services, events_class,preprocessor=None):
+        self.preprocessor = preprocessor
         self.components = components
         self.sequence = sequence
         self.services = services
