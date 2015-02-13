@@ -229,7 +229,8 @@
     ]]>
   </ioread>
 
- <class name="pat::PackedGenParticle">
+ <class name="pat::PackedGenParticle" ClassVersion="10">>
+    <version ClassVersion="10" checksum="710447494"/>
     <field name="p4_" transient="true" />
     <field name="p4c_" transient="true" />
     <field name="unpacked_" transient="true" />
