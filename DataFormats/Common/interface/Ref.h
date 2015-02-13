@@ -447,6 +447,7 @@ namespace edm {
   inline
   Ref<C, T, F>::Ref(Handle<C> const& handle, key_type itemKey, bool) :
     product_(handle.id(), nullptr, nullptr, false), index_(itemKey) {
+    if(itemKey == key_traits<key_type>::value) return;
     refitem::findRefItem<C, T, F, key_type>(product_, handle.product(), itemKey);
   }
 
@@ -455,6 +456,7 @@ namespace edm {
   inline
   Ref<REF_FOR_VECTOR_ARGS>::Ref(Handle<std::vector<E> > const& handle, key_type itemKey, bool) :
     product_(handle.id(), nullptr, nullptr, false, itemKey){
+    if(itemKey == key_traits<key_type>::value) return;
     refitem::findRefItem<product_type, value_type, finder_type, key_type>(product_.toRefCore(), handle.product(), itemKey);
   }
 
@@ -463,6 +465,7 @@ namespace edm {
   inline
   Ref<C, T, F>::Ref(OrphanHandle<C> const& handle, key_type itemKey, bool) :
     product_(handle.id(), nullptr, nullptr, false), index_(itemKey) {
+    if(itemKey == key_traits<key_type>::value) return;
     refitem::findRefItem<C, T, F, key_type>(product_, handle.product(), itemKey);
   }
 
@@ -471,6 +474,7 @@ namespace edm {
   inline
   Ref<REF_FOR_VECTOR_ARGS>::Ref(OrphanHandle<std::vector<E> > const& handle, key_type itemKey, bool) :
     product_(handle.id(), nullptr, nullptr, false, itemKey){
+    if(itemKey == key_traits<key_type>::value) return;
     refitem::findRefItem<product_type, value_type, finder_type, key_type>(product_.toRefCore(), handle.product(), itemKey);
   }
   
@@ -505,13 +509,15 @@ namespace edm {
   inline
   Ref<C, T, F>::Ref(TestHandle<C> const& handle, key_type itemKey, bool) :
     product_(handle.id(), nullptr, nullptr, true), index_(itemKey) {
+    if(itemKey == key_traits<key_type>::value) return;
     refitem::findRefItem<C, T, F, key_type>(product_, handle.product(), itemKey);
   }
 
   template <typename E>
   inline
-  Ref<REF_FOR_VECTOR_ARGS>::Ref(TestHandle<std::vector<E> > const& handle, key_type itemKey, bool setNow) :
+  Ref<REF_FOR_VECTOR_ARGS>::Ref(TestHandle<std::vector<E> > const& handle, key_type itemKey, bool) :
     product_(handle.id(), nullptr, nullptr, true, itemKey){
+    if(itemKey == key_traits<key_type>::value) return;
     refitem::findRefItem<product_type, value_type, finder_type, key_type>(product_.toRefCore(), handle.product(), itemKey);
   }
 
@@ -520,7 +526,7 @@ namespace edm {
   inline
   Ref<C, T, F>::Ref(RefProd<C> const& refProd, key_type itemKey) :
     product_(refProd.id(), nullptr, refProd.refCore().productGetter(), refProd.refCore().isTransient()), index_(itemKey) {
-    if(refProd.refCore().productPtr() != nullptr) {
+    if(refProd.refCore().productPtr() != nullptr && itemKey != key_traits<key_type>::value) {
       refitem::findRefItem<C, T, F, key_type>(product_, static_cast<product_type const*>(refProd.refCore().productPtr()), itemKey);
     }
   }
@@ -529,7 +535,7 @@ namespace edm {
   inline
   Ref<REF_FOR_VECTOR_ARGS>::Ref(RefProd<std::vector<E> > const& refProd, key_type itemKey) :
     product_(refProd.id(), nullptr, refProd.refCore().productGetter(), refProd.refCore().isTransient(), itemKey) {
-    if(refProd.refCore().productPtr() != nullptr) {
+    if(refProd.refCore().productPtr() != nullptr && itemKey != key_traits<key_type>::value) {
       refitem::findRefItem<product_type, value_type, finder_type, key_type>(product_.toRefCore(), static_cast<product_type const*>(refProd.refCore().productPtr()), itemKey);
     }
   }
