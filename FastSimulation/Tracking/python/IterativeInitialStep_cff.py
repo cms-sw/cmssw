@@ -30,66 +30,39 @@ from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import PixelLayerTriplet
 iterativeInitialSeeds.layerList = PixelLayerTriplets.layerList
 
 # candidate producer
-import FastSimulation.Tracking.TrackCandidateProducer_cfi
-iterativeInitialTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativeInitialTrackCandidates.SeedProducer = cms.InputTag("iterativeInitialSeeds",'InitialPixelTriplets')
-iterativeInitialTrackCandidates.MinNumberOfCrossedLayers = 3
+from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
+initialStepTrackCandidates = trackCandidateProducer.clone(
+    SeedProducer = cms.InputTag("iterativeInitialSeeds",'InitialPixelTriplets'),
+    MinNumberOfCrossedLayers = 3)
 
 # track producer
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-iterativeInitialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-iterativeInitialTracks.src = 'iterativeInitialTrackCandidates'
-iterativeInitialTracks.TTRHBuilder = 'WithoutRefit'
-iterativeInitialTracks.Fitter = 'KFFittingSmootherWithOutlierRejection'
-iterativeInitialTracks.Propagator = 'PropagatorWithMaterial'
-iterativeInitialTracks.AlgorithmName = cms.string('initialStep')
+from RecoTracker.IterativeTracking.InitialStep_cff import initialStepTracks
+initialStepTracks = initialStepTracks.clone(
+    Fitter = 'KFFittingSmootherWithOutlierRejection',
+    TTRHBuilder = 'WithoutRefit',
+    Propagator = 'PropagatorWithMaterial')
 
 #vertices
-import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
-firstStepPrimaryVertices=RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
-firstStepPrimaryVertices.TrackLabel = cms.InputTag("iterativeInitialTracks")
-firstStepPrimaryVertices.vertexCollections = cms.VPSet(
-    [cms.PSet(label=cms.string(""),
-              algorithm=cms.string("AdaptiveVertexFitter"),
-              minNdof=cms.double(0.0),
-              useBeamConstraint = cms.bool(False),
-              maxDistanceToBeam = cms.double(1.0)
-              )
-     ]
-)
+from RecoTracker.IterativeTracking.InitialStep_cff import firstStepPrimaryVertices
+firstStepPrimaryVertices = firstStepPrimaryVertices.clone()
 
 # simtrack id producer
-initialStepIds = cms.EDProducer("SimTrackIdProducer",
-                                trackCollection = cms.InputTag("iterativeInitialTracks"),
-                                HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
-                                )
+initialStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
+                                        trackCollection = cms.InputTag("initialStepTracks"),
+                                        HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
+                                        )
 
 # Final selection
-import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-        src='iterativeInitialTracks',
-        trackSelectors= cms.VPSet(
-            RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-                name = 'initialStepLoose',
-                            ), #end of pset
-                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-                name = 'initialStepTight',
-                            preFilterName = 'initialStepLoose',
-                            ),
-                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-                name = 'initialStep',
-                            preFilterName = 'initialStepTight',
-                            ),
-            ) #end of vpset
-        ) #end of clone
+from RecoTracker.IterativeTracking.InitialStep_cff import initialStepSelector,initialStep
 
 # Final sequence
-iterativeInitialStep = cms.Sequence(iterativeInitialSeeds
-                                    +iterativeInitialTrackCandidates
-                                    +iterativeInitialTracks                                    
-                                    +firstStepPrimaryVertices
-                                    +initialStepSelector
-                                    +initialStepIds)
+InitialStep = cms.Sequence(iterativeInitialSeeds
+                           +initialStepTrackCandidates
+                           +initialStepTracks                                    
+                           +firstStepPrimaryVertices
+                           +initialStepSelector
+                           +initialStep
+                           +initialStepSimTrackIds)
 
 
 
