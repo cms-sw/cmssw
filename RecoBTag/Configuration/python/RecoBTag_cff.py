@@ -74,7 +74,7 @@ pfBTagging = cms.Sequence(
       pfCombinedMVABJetTags
 
       #CSV + soft-lepton variables combined (btagger)
-      #+ pfCombinedSecondaryVertexSoftLeptonBJetTags   
+      + pfCombinedSecondaryVertexSoftLeptonBJetTags   
     )
 )
 

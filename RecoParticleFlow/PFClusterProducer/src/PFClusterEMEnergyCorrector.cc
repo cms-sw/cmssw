@@ -35,33 +35,33 @@ PFClusterEMEnergyCorrector::PFClusterEMEnergyCorrector(const edm::ParameterSet& 
       bunchSpacingManual_ = conf.getParameter<int>("bunchSpacing");
     }
     
-    _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize1_mean_50ns");
-    _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize2_mean_50ns");
-    _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize3_mean_50ns");
-    _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize1_mean_50ns");
-    _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize2_mean_50ns");
-    _condnames_mean_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize3_mean_50ns");
+    _condnames_mean_50ns.push_back("ecalPFClusterCor_EB_pfSize1_mean_50ns");
+    _condnames_mean_50ns.push_back("ecalPFClusterCor_EB_pfSize2_mean_50ns");
+    _condnames_mean_50ns.push_back("ecalPFClusterCor_EB_pfSize3_mean_50ns");
+    _condnames_mean_50ns.push_back("ecalPFClusterCor_EE_pfSize1_mean_50ns");
+    _condnames_mean_50ns.push_back("ecalPFClusterCor_EE_pfSize2_mean_50ns");
+    _condnames_mean_50ns.push_back("ecalPFClusterCor_EE_pfSize3_mean_50ns");
 
-    _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize1_sigma_50ns");
-    _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize2_sigma_50ns");
-    _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize3_sigma_50ns");
-    _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize1_sigma_50ns");
-    _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize2_sigma_50ns");
-    _condnames_sigma_50ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize3_sigma_50ns");
+    _condnames_sigma_50ns.push_back("ecalPFClusterCor_EB_pfSize1_sigma_50ns");
+    _condnames_sigma_50ns.push_back("ecalPFClusterCor_EB_pfSize2_sigma_50ns");
+    _condnames_sigma_50ns.push_back("ecalPFClusterCor_EB_pfSize3_sigma_50ns");
+    _condnames_sigma_50ns.push_back("ecalPFClusterCor_EE_pfSize1_sigma_50ns");
+    _condnames_sigma_50ns.push_back("ecalPFClusterCor_EE_pfSize2_sigma_50ns");
+    _condnames_sigma_50ns.push_back("ecalPFClusterCor_EE_pfSize3_sigma_50ns");
     
-    _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize1_mean_25ns");
-    _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize2_mean_25ns");
-    _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize3_mean_25ns");
-    _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize1_mean_25ns");
-    _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize2_mean_25ns");
-    _condnames_mean_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize3_mean_25ns");
+    _condnames_mean_25ns.push_back("ecalPFClusterCor_EB_pfSize1_mean_25ns");
+    _condnames_mean_25ns.push_back("ecalPFClusterCor_EB_pfSize2_mean_25ns");
+    _condnames_mean_25ns.push_back("ecalPFClusterCor_EB_pfSize3_mean_25ns");
+    _condnames_mean_25ns.push_back("ecalPFClusterCor_EE_pfSize1_mean_25ns");
+    _condnames_mean_25ns.push_back("ecalPFClusterCor_EE_pfSize2_mean_25ns");
+    _condnames_mean_25ns.push_back("ecalPFClusterCor_EE_pfSize3_mean_25ns");
 
-    _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize1_sigma_25ns");
-    _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize2_sigma_25ns");
-    _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EB_pfSize3_sigma_25ns");
-    _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize1_sigma_25ns");
-    _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize2_sigma_25ns");
-    _condnames_sigma_25ns.push_back("GBRForestD_ecalPFClusterCor_EE_pfSize3_sigma_25ns");      
+    _condnames_sigma_25ns.push_back("ecalPFClusterCor_EB_pfSize1_sigma_25ns");
+    _condnames_sigma_25ns.push_back("ecalPFClusterCor_EB_pfSize2_sigma_25ns");
+    _condnames_sigma_25ns.push_back("ecalPFClusterCor_EB_pfSize3_sigma_25ns");
+    _condnames_sigma_25ns.push_back("ecalPFClusterCor_EE_pfSize1_sigma_25ns");
+    _condnames_sigma_25ns.push_back("ecalPFClusterCor_EE_pfSize2_sigma_25ns");
+    _condnames_sigma_25ns.push_back("ecalPFClusterCor_EE_pfSize3_sigma_25ns");      
   }
   
 
