@@ -670,9 +670,9 @@ class ConfigBuilder(object):
 		# FastSim: transform cfg of MixingModule from FullSim to FastSim 
 		if self._options.fast:
 			if GEN_mixing:
-				self._options.customisation_file.append("FastSimulation/Configuration/MixingModule_Full2Fast.prepareGenMixing")
+				self._options.customisation_file.insert(0,"FastSimulation/Configuration/MixingModule_Full2Fast.prepareGenMixing")
 			else:   
-				self._options.customisation_file.append("FastSimulation/Configuration/MixingModule_Full2Fast.prepareDigiRecoMixing")
+				self._options.customisation_file.insert(0,"FastSimulation/Configuration/MixingModule_Full2Fast.prepareDigiRecoMixing")
 
 		mixingDict.pop('file')
 		if not "DATAMIX" in self.stepMap.keys(): # when DATAMIX is present, pileup_input refers to pre-mixed GEN-RAW
