@@ -63,6 +63,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 class IsoTrackCalibration : public edm::EDAnalyzer {
 
@@ -96,7 +97,7 @@ private:
   double                     pTrackMin_, eEcalMax_, eIsolation_;
   bool                       qcdMC;
   int                        nRun, nAll, nGood;
-  std::vector<bool> *t_trgbits; 
+  std::vector<bool>         *t_trgbits; 
   edm::InputTag              triggerEvent_, theTriggerResultsLabel;
   edm::EDGetTokenT<trigger::TriggerEvent>  tok_trigEvt;
   edm::EDGetTokenT<edm::TriggerResults>    tok_trigRes;
@@ -109,21 +110,23 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection>   tok_hbhe_;
   edm::EDGetTokenT<GenEventInfoProduct>    tok_ew_; 
   edm::EDGetTokenT<reco::GenJetCollection> tok_jets_;
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo> > tok_pu_;
 
   TTree                     *tree;
   int                        t_Run, t_Event, t_ieta; 
   double                     t_EventWeight, t_l1pt, t_l1eta, t_l1phi;
   double                     t_l3pt, t_l3eta, t_l3phi, t_p, t_mindR1;
   double                     t_mindR2, t_eMipDR, t_eHcal, t_hmaxNearP;
+  double                     t_npvtruth, t_npvObserved;
   bool                       t_selectTk,t_qltyFlag,t_qltyMissFlag,t_qltyPVFlag;
   std::vector<unsigned int> *t_DetIds;
-  std::vector<double>       *t_HitEnergies, pbin;
+  std::vector<double>       *t_HitEnergies, pbin, vbin;
   TProfile                  *h_RecHit_iEta, *h_RecHit_num;
-  TH1I                      *h_iEta, *h_tkEta0[5], *h_tkEta1[5], *h_tkEta2[5];
-  TH1I                      *h_tkEta3[5], *h_tkEta4[5], *h_tkEta5[5];
+  TH1I                      *h_iEta, *h_tketa0[5], *h_tketa1[5], *h_tketa2[5];
+  TH1I                      *h_tketa3[5], *h_tketa4[5], *h_tketa5[5];
   TH1F                      *h_Rechit_E, *h_jetp;
   TH1F 			    *h_jetpt[4];
-  TH1I                      *h_tketa0[6], *h_tketa1[6], *h_tketa2[6], *h_tketa3[6], *h_tketa4[6],*h_tketa5[6];
+  TH1I                      *h_tketav1[5][6], *h_tketav2[5][6];
   std::vector<std::string> trgnames;
 };
 
@@ -166,6 +169,7 @@ IsoTrackCalibration::IsoTrackCalibration(const edm::ParameterSet& iConfig) :
   tok_recVtx_   = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
   tok_bs_       = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
   tok_ew_       = consumes<GenEventInfoProduct>(edm::InputTag("generator")); 
+  tok_pu_       = consumes<std::vector<PileupSummaryInfo>>(iConfig.getParameter<edm::InputTag>("PUinfo"));
  
   if (isItAOD) {
     tok_EB_     = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
@@ -243,11 +247,34 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
   iEvent.getByToken(tok_genTrack_, trkCollection);
   reco::TrackCollection::const_iterator trkItr;
  
-  //event weight for FLAT sample
+  //event weight for FLAT sample and PU information
   t_EventWeight = 1.0;
   edm::Handle<GenEventInfoProduct> genEventInfo;
   iEvent.getByToken(tok_ew_, genEventInfo);
   if (genEventInfo.isValid()) t_EventWeight = genEventInfo->weight();  
+  t_npvtruth = t_npvObserved = 999;
+  edm::Handle<std::vector< PileupSummaryInfo > >  PupInfo;
+  iEvent.getByToken(tok_pu_, PupInfo);
+  if (PupInfo.isValid()) {
+    std::vector<PileupSummaryInfo>::const_iterator PVI;
+    for (PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+      int BX = PVI->getBunchCrossing();
+      if (BX==0) {
+	t_npvtruth    = PVI->getTrueNumInteractions();
+	t_npvObserved = PVI->getPU_NumInteractions();
+	break;
+      }
+    }
+  }
+  int ivtx = (int)(vbin.size()-2);
+  for (unsigned int iv=1; iv<vbin.size(); ++iv) {
+    if (t_npvtruth <= vbin[iv]) {
+      ivtx = iv-1; break;
+    }
+  }
+  if (verbosity == 0) 
+    std::cout << "PU Vertex " << t_npvtruth << "/" << t_npvObserved << " IV "
+	      << ivtx << std::endl;
 
   //=== genJet information
   edm::Handle<reco::GenJetCollection> genJets;
@@ -322,6 +349,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
       for (unsigned int k=1; k<pbin.size(); ++k) {
 	if (tk_p >= pbin[k-1] && tk_p < pbin[k]) {
 	  h_tketa0[k]->Fill(tk_ieta);
+	  h_tketav1[ivtx][k]->Fill(tk_ieta);
 	  break;
 	}
       }
@@ -550,6 +578,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 		    for (unsigned int k=1; k<pbin.size(); ++k) {
 		      if (t_p >= pbin[k-1] && t_p < pbin[k]) {
 			h_tketa5[k]->Fill(t_ieta);
+			h_tketav2[ivtx][k]->Fill(t_ieta);
 			break;
 		      }
 		    }
@@ -615,8 +644,10 @@ void IsoTrackCalibration::beginJob() {
   for (int k=0; k<5; ++k) pbin.push_back(prange[k]);
   std::string type[6] = {"All", "Trigger OK", "Tree Selected", 
 			 "Charge Isolation", "MIP Cut", "L1 Cut"};
+  double vrange[6] = {0, 10, 20, 30, 40, 1000};
+  for (int k=0; k<6; ++k) vbin.push_back(vrange[k]);
+  char name[20], namp[20], title[100];
   for (unsigned int k=0; k<pbin.size(); ++k) {
-    char name[20], namp[20], title[100];
     if (k == 0) sprintf (namp, "all momentum");
     else        sprintf (namp, "p = %4.0f:%4.0f GeV", pbin[k-1], pbin[k]);
     sprintf (name, "TrackEta0%d", k);
@@ -637,6 +668,16 @@ void IsoTrackCalibration::beginJob() {
     sprintf (name, "TrackEta5%d", k);
     sprintf (title, "Track #eta for tracks with %s (%s)",namp,type[5].c_str());
     h_tketa5[k] = fs->make<TH1I>(name, title, 60, -30, 30);
+    for (unsigned int l=0; l<vbin.size()-1; ++l) {
+      int v1 = (int)(vbin[l]);
+      int v2 = (int)(vbin[l+1]);
+      sprintf (name, "TrackEta1%dVtx%d", k, l);
+      sprintf (title, "Track #eta for tracks with %s (%s and PU %d:%d)",namp,type[0].c_str(),v1,v2);
+      h_tketav1[l][k] = fs->make<TH1I>(name, title, 60, -30, 30);
+      sprintf (name, "TrackEta2%dVtx%d", k, l);
+      sprintf (title, "Track #eta for tracks with %s (%s and PU %d:%d)",namp,type[5].c_str(),v1,v2);
+      h_tketav2[l][k] = fs->make<TH1I>(name, title, 60, -30, 30);
+    }
   }
   h_jetpt[0] = fs->make<TH1F>("Jetpt0","Jet p_T (All)", 500,0.,2500.);
   h_jetpt[1] = fs->make<TH1F>("Jetpt1","Jet p_T (All Weighted)", 500,0.,2500.);
@@ -649,6 +690,8 @@ void IsoTrackCalibration::beginJob() {
   tree->Branch("t_Event",       &t_Event,       "t_Event/I");
   tree->Branch("t_ieta",        &t_ieta,        "t_ieta/I");
   tree->Branch("t_EventWeight", &t_EventWeight, "t_EventWeight/D");
+  tree->Branch("t_npvtruth",    &t_npvtruth,    "t_npvtruth/D");
+  tree->Branch("t_npvObserved", &t_npvObserved, "t_npvObserved/D");
   tree->Branch("t_l1pt",        &t_l1pt,        "t_l1pt/D");
   tree->Branch("t_l1eta",       &t_l1eta,       "t_l1eta/D");
   tree->Branch("t_l1phi",       &t_l1phi,       "t_l1phi/D"); 

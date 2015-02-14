@@ -22,4 +22,5 @@ IsoTrackCalibration = cms.EDAnalyzer("IsoTrackCalibration",
                                      IsItQCDMC       = cms.untracked.bool(False),
                                      IsItAOD         = cms.untracked.bool(False),
                                      JetSource       = cms.InputTag("ak5GenJets"),
+                                     PUinfo          = cms.InputTag("addPileupInfo"),
 )
