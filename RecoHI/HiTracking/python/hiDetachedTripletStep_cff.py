@@ -1,7 +1,6 @@
 from RecoTracker.IterativeTracking.DetachedTripletStep_cff import *
 from HIPixelTripletSeeds_cff import *
 from HIPixel3PrimTracks_cfi import *
-from hiSecondPixelTripletStep_cff import *
 
 hiDetachedTripletStepClusters = cms.EDProducer("HITrackClusterRemover",
      clusterLessSolution = cms.bool(True),
