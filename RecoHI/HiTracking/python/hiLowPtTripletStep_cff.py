@@ -2,8 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 
 # NEW CLUSTERS (remove previously used clusters)
-hiSecondPixelTripletClusters = cms.EDProducer("HITrackClusterRemover",
+hiLowPtTripletStepClusters = cms.EDProducer("HITrackClusterRemover",
                                               clusterLessSolution= cms.bool(True),
+                                              oldClusterRemovalInfo = cms.InputTag("hiDetachedTripletStepClusters"),
                                               trajectories = cms.InputTag("hiDetachedTripletStepTracks"),
                                               overrideTrkQuals = cms.InputTag("hiDetachedTripletStepSelector","hiDetachedTripletStep"),
                                               TrackQuality = cms.string('highPurity'),
@@ -23,16 +24,16 @@ hiSecondPixelTripletClusters = cms.EDProducer("HITrackClusterRemover",
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
-hiSecondPixelTripletSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
-hiSecondPixelTripletSeedLayers.BPix.skipClusters = cms.InputTag('hiSecondPixelTripletClusters')
-hiSecondPixelTripletSeedLayers.FPix.skipClusters = cms.InputTag('hiSecondPixelTripletClusters')
+hiLowPtTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
+hiLowPtTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('hiLowPtTripletStepClusters')
+hiLowPtTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('hiLowPtTripletStepClusters')
 
 # SEEDS
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 from RecoHI.HiTracking.HIPixelTrackFilter_cfi import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
-hiSecondPixelTracks = cms.EDProducer("PixelTrackProducer",
+hiLowPtTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 
     passLabel  = cms.string('Pixel primary tracks with vertex constraint'),
 
@@ -89,72 +90,41 @@ hiSecondPixelTracks = cms.EDProducer("PixelTrackProducer",
     )
 )
 
-hiSecondPixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(5000000)
-hiSecondPixelTracks.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag('hiSecondPixelTripletSeedLayers')
+hiLowPtTripletStepPixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(5000000)
+hiLowPtTripletStepPixelTracks.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag('hiLowPtTripletStepSeedLayers')
 
-hiSecondPixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
+hiLowPtTripletStepPixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
 
 
 
 import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
-hiSecondPixelTrackSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone(
-        InputCollection = 'hiSecondPixelTracks'
+hiLowPtTripletStepSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone(
+        InputCollection = 'hiLowPtTripletStepPixelTracks'
   )
 
 
-
-import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
-from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
-hiSecondPixelTripletSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
-    RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
-    ComponentName = cms.string('GlobalTrackingRegionWithVerticesProducer'),
-	RegionPSet = cms.PSet(
-            precise = cms.bool(True),
-            beamSpot = cms.InputTag("offlineBeamSpot"),
-            useFixedError = cms.bool(False), #def value True
-            nSigmaZ = cms.double(4.0),
-            sigmaZVertex = cms.double(4.0), #def value 3
-            fixedError = cms.double(0.2),
-            VertexCollection = cms.InputTag("hiSelectedVertex"),
-            ptMin = cms.double(0.4),
-            useFoundVertices = cms.bool(True),
-            originRadius = cms.double(0.02)
-        )
-    )
-)
-
-hiSecondPixelTripletSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'hiSecondPixelTripletSeedLayers'
-hiSecondPixelTripletSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = 5000000
-hiSecondPixelTripletSeeds.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000000
-hiSecondPixelTripletSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 50000000
-del hiSecondPixelTripletSeeds.ClusterCheckPSet.cut
-
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
-hiSecondPixelTripletSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
-
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
-hiSecondPixelTripletTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
+hiLowPtTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     maxLostHits = 1,
     minimumNumberOfHits = 6,
     minPt = 0.4
     )
 
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-hiSecondPixelTripletChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
-        ComponentName = cms.string('hiSecondPixelTripletChi2Est'),
+hiLowPtTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+        ComponentName = cms.string('hiLowPtTripletStepChi2Est'),
             nSigma = cms.double(3.0),
             MaxChi2 = cms.double(9.0)
         )
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
-hiSecondPixelTripletTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
+hiLowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiSecondPixelTripletTrajectoryFilter')),
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiLowPtTripletStepTrajectoryFilter')),
     maxCand = 3,
-    estimator = cms.string('hiSecondPixelTripletChi2Est'),
+    estimator = cms.string('hiLowPtTripletStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
     # 0.63 GeV is the maximum pT for a charged particle to loop within the 1.1m radius
     # of the outermost Tracker barrel layer (with B=3.8T)  
@@ -163,21 +133,21 @@ hiSecondPixelTripletTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTraject
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-hiSecondPixelTripletTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
-    src = cms.InputTag('hiSecondPixelTrackSeeds'),
+hiLowPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+    src = cms.InputTag('hiLowPtTripletStepSeeds'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiSecondPixelTripletTrajectoryBuilder')),
-    clustersToSkip = cms.InputTag('hiSecondPixelTripletClusters'),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiLowPtTripletStepTrajectoryBuilder')),
+    clustersToSkip = cms.InputTag('hiLowPtTripletStepClusters'),
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
     )
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
-hiSecondPixelTripletGlobalPrimTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    src = 'hiSecondPixelTripletTrackCandidates',
+hiLowPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    src = 'hiLowPtTripletStepTrackCandidates',
     AlgorithmName = cms.string('lowPtTripletStep'),
     Fitter=cms.string('FlexibleKFFittingSmoother')
     )
@@ -186,19 +156,19 @@ hiSecondPixelTripletGlobalPrimTracks = RecoTracker.TrackProducer.TrackProducer_c
 
 # Final selection
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
-hiSecondPixelTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
-    src='hiSecondPixelTripletGlobalPrimTracks',
+hiLowPtTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
+    src='hiLowPtTripletStepTracks',
     trackSelectors= cms.VPSet(
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
-    name = 'hiSecondPixelTripletStepLoose',
+    name = 'hiLowPtTripletStepLoose',
     ), #end of pset
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
-    name = 'hiSecondPixelTripletStepTight',
-    preFilterName = 'hiSecondPixelTripletStepLoose',
+    name = 'hiLowPtTripletStepTight',
+    preFilterName = 'hiLowPtTripletStepLoose',
     ),
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
-    name = 'hiSecondPixelTripletStep',
-    preFilterName = 'hiSecondPixelTripletStepTight',
+    name = 'hiLowPtTripletStep',
+    preFilterName = 'hiLowPtTripletStepTight',
     # min_nhits = 14
     ),
     ) #end of vpset
@@ -206,10 +176,10 @@ hiSecondPixelTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hi
 
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
-hiSecondQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = cms.VInputTag(cms.InputTag('hiSecondPixelTripletGlobalPrimTracks')),
+hiLowPtTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = cms.VInputTag(cms.InputTag('hiLowPtTripletStepTracks')),
     hasSelector=cms.vint32(1),
-    selectedTrackQuals = cms.VInputTag(cms.InputTag("hiSecondPixelTripletStepSelector","hiSecondPixelTripletStep")),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("hiLowPtTripletStepSelector","hiLowPtTripletStep")),
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(False),
     #writeOnlyTrkQuals = True
@@ -217,11 +187,11 @@ hiSecondQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerg
 
 # Final sequence
 
-hiSecondPixelTripletStep = cms.Sequence(hiSecondPixelTripletClusters*
-                                        hiSecondPixelTripletSeedLayers*
-                                        hiSecondPixelTracks*hiSecondPixelTrackSeeds*
-                                        hiSecondPixelTripletTrackCandidates*
-                                        hiSecondPixelTripletGlobalPrimTracks*
-                                        hiSecondPixelTripletStepSelector
-                                        *hiSecondQual
+hiLowPtTripletStep = cms.Sequence(hiLowPtTripletStepClusters*
+                                        hiLowPtTripletStepSeedLayers*
+                                        hiLowPtTripletStepPixelTracks*hiLowPtTripletStepSeeds*
+                                        hiLowPtTripletStepTrackCandidates*
+                                        hiLowPtTripletStepTracks*
+                                        hiLowPtTripletStepSelector*
+                                        hiLowPtTripletStepQual
                                         )
