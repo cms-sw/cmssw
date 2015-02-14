@@ -53,7 +53,7 @@ process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 # DB condition for offline test
 #process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
 
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 

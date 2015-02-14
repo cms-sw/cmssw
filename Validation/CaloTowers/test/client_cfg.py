@@ -16,7 +16,7 @@ print "readFiles : \n", readFiles
 
 process = cms.Process("CONV")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond

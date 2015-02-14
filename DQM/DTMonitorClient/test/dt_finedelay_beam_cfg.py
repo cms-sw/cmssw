@@ -6,7 +6,7 @@ process = cms.Process("DTFineDelay")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 # Geometry & Calibration Tag
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "GR09_P_V1::All"
 

@@ -81,7 +81,7 @@ process.SiPixelHLTSource.saveFile = False
 process.SiPixelHLTSource.slowDown = False
 process.SiPixelHLTSource.DirName = cms.untracked.string('Pixel/FEDIntegrity_SM/')
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 # SiStrip DQM sequences
 process.load("DQM.SiStripMonitorHardware.siStripFEDCheck_cfi")

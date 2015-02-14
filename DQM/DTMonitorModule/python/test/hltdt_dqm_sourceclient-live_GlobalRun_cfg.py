@@ -38,7 +38,7 @@ process.dqmSaver.saveAtJobEnd = True
 
 
 # DT reco and DQM sequences
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 # filter on trigger type
 physicsEventsFilter = cms.EDFilter("HLTTriggerTypeFilter",

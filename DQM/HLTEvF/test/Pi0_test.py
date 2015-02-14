@@ -6,7 +6,7 @@ from Geometry.CaloEventSetup.CaloTopology_cfi import *
 
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
