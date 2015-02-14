@@ -193,9 +193,16 @@ BTagEntry::BTagEntry(const TH1* hist, BTagEntry::Parameters p):
     params.ptMax = axis->GetBinUpEdge(nbins);
   }
 
-  formula = th1ToFormulaBinTree(hist);
+  // balanced full binary tree height = ceil(log(2*n_leaves)/log(2))
+  // breakes even around 10, but lower values are more propable in pt-spectrum
+  if (nbins < 15) {
+    formula = th1ToFormulaLin(hist);
+  } else {
+    formula = th1ToFormulaBinTree(hist);
+  }
 
-  TF1 f1("", formula.c_str());  // compile formula to check validity
+  // compile formula to check validity
+  TF1 f1("", formula.c_str());
   if (f1.IsZombie()) {
     throw cms::Exception("BTagCalibration")
           << "Invalid histogram; formula does not compile (>150 bins?): "
