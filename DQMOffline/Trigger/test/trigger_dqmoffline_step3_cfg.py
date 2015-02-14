@@ -4,7 +4,7 @@ process = cms.Process("EDMtoMEConvert")
 
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #
 #  DQMOffline
 #

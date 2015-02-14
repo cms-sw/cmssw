@@ -9,7 +9,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "GR09_31X_V5P::All"
 process.prefer("GlobalTag")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #process.load("DQMOffline.Configuration.DQMOfflineCosmics_SecondStep_cff")
 process.load("DQM.DTMonitorClient.dtDQMOfflineClients_cff")

@@ -12,7 +12,7 @@ process.load("DQMServices.Core.DQM_cfg")
 #
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
@@ -21,7 +21,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 # import of standard configurations
 #process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 #process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.load('Configuration.StandardSequences.GeometryIdeal_cff')
+#process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 #process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 #process.load('DQMOffline.Configuration.DQMOffline_cff')
 #process.load('Configuration.StandardSequences.EndOfProcess_cff')

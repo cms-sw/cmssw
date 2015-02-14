@@ -16,7 +16,7 @@ process.load("DQM.Integration.test.inputsource_cfi")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 #process.DQMStore.referenceFileName = 'castor_reference.root'
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("DQM.Integration.test.environment_cfi")
 process.dqmEnv.subSystemFolder = "Castor"
