@@ -87,6 +87,10 @@ GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig) {
   hoRecHitName_        = iConfig.getParameter<std::string>("hoRecHitName");
   rootHistFilename_    = iConfig.getParameter<std::string>("rootHistFilename");
   pvCollName_          = iConfig.getParameter<std::string>("pvCollName");
+  prodProcess_         = "MYGAMMA";
+  if (iConfig.exists("prodProcess"))
+    prodProcess_ = iConfig.getUntrackedParameter<std::string>("prodProcess");
+
   allowNoPhoton_       = iConfig.getParameter<bool>("allowNoPhoton");
   photonPtMin_         = iConfig.getParameter<double>("photonPtMin");
   photonJetDPhiMin_    = iConfig.getParameter<double>("photonJetDPhiMin");
@@ -132,7 +136,11 @@ GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig) {
   } else {
     // FAST FIX
     const char* prod= "GammaJetProd";
-    const char* an= "MYGAMMAJET";
+    if (prodProcess_.size()==0) {
+      edm::LogError("GammaJetAnalysis") << "prodProcess needs to be defined";
+      throw edm::Exception(edm::errors::ProductNotFound);
+    }
+    const char* an= prodProcess_.c_str();
     edm::LogWarning("GammaJetAnalysis") << "FAST FIX: changing " << photonCollName_
 					<< " to" << edm::InputTag(prod,photonCollName_,an);
     tok_Photon_      = consumes<reco::PhotonCollection>(edm::InputTag(prod,photonCollName_,an));
@@ -156,7 +164,10 @@ GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig) {
     tok_PV_          = consumes<std::vector<reco::Vertex> >(edm::InputTag(prod,pvCollName_,an));
     tok_PFMET_       = consumes<reco::PFMETCollection>(edm::InputTag(prod,pfMETColl.label(),an));
     tok_PFType1MET_  = consumes<reco::PFMETCollection>(edm::InputTag(prod,pfType1METColl.label(),an));
-    tok_TrigRes_     = consumes<edm::TriggerResults>(edm::InputTag(prod,"TriggerResults::HLT",an));
+    TString HLTlabel = "TriggerResults::HLT";
+    if (prodProcess_.find("reRECO")!=std::string::npos)
+      HLTlabel.ReplaceAll("HLT","reHLT");
+    tok_TrigRes_     = consumes<edm::TriggerResults>(edm::InputTag(prod,HLTlabel.Data(),an));
   }
 }
 
@@ -492,6 +503,9 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
       edm::Ref<reco::PhotonCollection> photonRef(photons, photon_tag.idx());
       HERE(Form("got photon ref, photon_tag.idx()=%d",photon_tag.idx()));
+
+      //std::cout << "loosePhotonQual->at(photon_tag.idx())=" << loosePhotonQual->at(photon_tag.idx()) << std::endl;
+
       tagPho_idLoose_ = (loosePhotonQual.isValid()) ? (*loosePhotonQual)[photonRef] : -1;
       tagPho_idTight_ = (tightPhotonQual.isValid()) ? (*tightPhotonQual)[photonRef] : -1;
     }

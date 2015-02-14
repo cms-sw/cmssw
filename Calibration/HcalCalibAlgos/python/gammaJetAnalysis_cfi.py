@@ -18,6 +18,7 @@ GammaJetAnalysis = cms.EDAnalyzer('GammaJetAnalysis',
                                   hoRecHitName        = cms.string('horeco'),
                                   rootHistFilename    = cms.string('PhotonPlusJet_tree.root'),
                                   pvCollName = cms.string('offlinePrimaryVertices'),
+                                  prodProcess = cms.untracked.string('reRECO'),
                                   allowNoPhoton       = cms.bool(False),
                                   photonJetDPhiMin    = cms.double(2.0),  # 0.75 pi= 2.356, 0.7 pi=2.2
                                   photonPtMin         = cms.double(15.),

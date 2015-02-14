@@ -152,6 +152,7 @@ private:
   std::string hoRecHitName_;        // label for HORecHit collection
   std::string rootHistFilename_;    // name of the histogram file
   std::string pvCollName_;          // label for primary vertex collection
+  std::string prodProcess_;         // the producer process for AOD=2
 
   bool allowNoPhoton_; // whether module is used for dijet analysis
   double photonPtMin_;   // lowest value of the leading photon pT
@@ -320,4 +321,5 @@ private:
   };
 
 };
+
 #endif
