@@ -3,7 +3,7 @@ process = cms.Process("HLTBTAG")
 
 from PhysicsTools.PatAlgos.tools.coreTools import *	
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")

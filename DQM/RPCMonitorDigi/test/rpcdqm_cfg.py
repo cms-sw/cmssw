@@ -43,7 +43,7 @@ process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
 
 #process.load("Geometry.DTGeometry.dtGeometry_cfi")
 #process.load("Configuration.StandardSequences.MagneticField_cff")
-#process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 ############ RAW to DIGI ###################
 ## process.rpcunpacker = cms.EDFilter("RPCUnpackingModule",
