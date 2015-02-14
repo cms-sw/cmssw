@@ -60,7 +60,7 @@ process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff")
 #-------------------------------------------------
 # GEOMETRY
 #-------------------------------------------------
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #-----------------------------
 # Magnetic Field

@@ -1,7 +1,7 @@
 ##-- Starting
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("DQM")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration.EventContent.EventContent_cff')
 
 

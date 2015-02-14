@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("DTDigiAnalyzerFromDigi")
 
 # geometry
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.DTGeometryBuilder.dtGeometry_cfi")
 #process.load("Configuration.StandardSequences.FakeConditions_cff")

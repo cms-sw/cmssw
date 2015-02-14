@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
 process.source.fileNames.extend(electronDbsDiscovery.search())
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("DQMOffline.EGamma.egammaDQMOffline_cff")
 
 process.dqmElectronTagProbeAnalysis.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])

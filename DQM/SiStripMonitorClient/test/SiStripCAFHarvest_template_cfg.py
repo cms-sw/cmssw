@@ -24,7 +24,7 @@ process.MessageLogger = cms.Service( "MessageLogger",
 # Magnetic fiels #
 process.load( "Configuration.StandardSequences.MagneticField_xMAG_FIELDx_cff" )
 # Geometry #
-process.load( "Configuration.StandardSequences.Geometry_cff" )
+process.load( "Configuration.StandardSequences.GeometryRecoDB_cff" )
 # Calibration 
 process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
 # process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_21X_GLOBALTAG'

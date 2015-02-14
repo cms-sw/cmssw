@@ -77,7 +77,7 @@ process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 # We don't need to run raw to digi
 #
 
-#process.load('Configuration.StandardSequences.Geometry_cff')
+#process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 #process.load('Configuration/StandardSequences/RawToDigi_Data_cff')
 
 #process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")

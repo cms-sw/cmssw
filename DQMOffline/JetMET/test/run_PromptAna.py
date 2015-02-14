@@ -5,9 +5,8 @@ process = cms.Process("JetMETDQMOffline")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
-from Configuration.Geometry.GeometryRecoDB_cff import *
-### process.load("Configuration/StandardSequences/Geometry_cff") ### Deprecated
-process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+from Configuration.StandardSequences.GeometryRecoDB_cff import *
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")

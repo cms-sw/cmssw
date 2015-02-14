@@ -20,7 +20,7 @@ process.GlobalTag.globaltag = 'PRE_LS172_V16::All'
 #process.load("Configuration.StandardSequences.Simulation_cff")
 #process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
 #process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
-#process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
