@@ -27,7 +27,7 @@ process.dqmEnv.subSystemFolder = "BeamPixel"
 #----------------------------
 # Sub-system Configuration
 #----------------------------
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("DQM.Integration.test.FrontierCondition_GT_cfi")

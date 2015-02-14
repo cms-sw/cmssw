@@ -6,7 +6,7 @@ process.load("DQMServices.Core.DQM_cfg")
 # End of process
 process.load("Configuration.StandardSequences.EndOfProcess_cff")
 
-process.load("Configuration.StandardSequences.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load("Validation.EcalClusters.egammaBCAnalyzer_cfi")
 process.load("Validation.EcalClusters.egammaSCAnalyzer_cfi")

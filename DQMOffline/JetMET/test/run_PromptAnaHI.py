@@ -77,7 +77,7 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 ###for HI running
 #process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.StandardSequences.Geometry_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('RecoJets.JetAssociationProducers.trackExtrapolator_cfi')
 process.load('RecoJets.JetAssociationProducers.ak7JTA_cff') 

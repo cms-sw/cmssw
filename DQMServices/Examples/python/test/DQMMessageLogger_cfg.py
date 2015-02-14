@@ -9,7 +9,7 @@ process.DQM.collectorHost = ''
 process.load("FWCore.Modules.logErrorHarvester_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cff")
 process.load("Configuration/StandardSequences/RawToDigi_cff")
-process.load('Configuration/StandardSequences/GeometryIdeal_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration/StandardSequences/Reconstruction_cff")
