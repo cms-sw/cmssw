@@ -90,9 +90,6 @@ def customiseRun2EraExtras(process):
     from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_25ns
     process = customiseSimL1EmulatorForPostLS1_25ns(process)
 
-    if hasattr(process,'dqmoffline_step'):
-        process.l1tCsctf.gangedME11a = cms.untracked.bool(False)
-
     return process
 
 
