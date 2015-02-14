@@ -31,7 +31,7 @@ namespace evf{
                                    (edm::EventAuxiliary::ExperimentType)(FED_EVTY_EXTRACT(record->getFEDHeader().getData().header.eventid)),
 				   (int)record->getHeader().getData().header.bcid,
 				   edm::EventAuxiliary::invalidStoreNumber,
-				   (int)(orbitnr&0xefffffffU));//framework supports only 32-bit signed
+				   (int)(orbitnr&0x7fffffffU));//framework supports only 32-bit signed
       }
   }
 }
