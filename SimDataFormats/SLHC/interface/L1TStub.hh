@@ -58,11 +58,14 @@ public:
     out << "Stub: " 
 	<< layer_ << "\t" 
 	<< ladder_ << "\t" 
-	<< module_ << "\t" 
+	<< module_ << "\t"
+	<< -1 << "\t"
 	<< pt_ << "\t" 
 	<< x_ << "\t" 
 	<< y_ << "\t" 
 	<< z_ << "\t" << endl; 
+
+    /*
 
     for (unsigned int i=0;i<outerdigis_.size();i++){
       out << "OuterStackDigi: "<<outerdigis_[i].first<<"\t"
@@ -79,6 +82,8 @@ public:
 	  << innerdigisladdermodule_[i].second
 	  <<endl;
     }
+
+    */
 	
   }
 

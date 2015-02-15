@@ -70,8 +70,6 @@ process.BeamSpotFromSim =cms.EDProducer("BeamSpotFromSimProducer")
 
 process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
 
-# process.TTTracksFromPixelDigis.geometry = cms.untracked.string('BE5D')   # not needed (that's the default)
-
 	# ----
 	#
 	# 1. the following will re-create a collection of L1Tracks, with
@@ -80,6 +78,10 @@ process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
 
 # if you want to change the extrapolation window :
 #process.TTTracksFromPixelDigis.phiWindowSF = cms.untracked.double(2.0)   #  default is 1.0
+
+# Uncomment line below if you want to write out ASCII file for the standalone
+# tracklet simulation and emulation code
+#process.TTTracksFromPixelDigis.asciiFileName = cms.untracked.string("evlist.txt")   
 
 process.TT_step = cms.Path(process.TrackTriggerTTTracks)
 process.TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
