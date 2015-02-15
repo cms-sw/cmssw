@@ -45,7 +45,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <boost/cstdint.hpp>
@@ -68,6 +68,7 @@
     private:
        edm::ParameterSet conf_;
        edm::EDGetTokenT<edm::DetSetVector<SiPixelRawDataError> > src_;
+       edm::EDGetTokenT<FEDRawDataCollection> inputSourceToken_;
        bool saveFile;
        bool isPIB;
        bool slowDown;
@@ -82,6 +83,7 @@
        bool firstRun;
        MonitorElement* byLumiErrors; 
        MonitorElement* errorRate;
+       MonitorElement* fedcounter;
 
        MonitorElement* meErrorType_[40];
        MonitorElement* meNErrors_[40];

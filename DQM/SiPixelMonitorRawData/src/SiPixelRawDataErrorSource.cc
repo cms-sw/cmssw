@@ -64,6 +64,7 @@ SiPixelRawDataErrorSource::SiPixelRawDataErrorSource(const edm::ParameterSet& iC
 {
   firstRun = true;
   LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::SiPixelRawDataErrorSource: Got DQM BackEnd interface"<<endl;
+  inputSourceToken_ = consumes<FEDRawDataCollection>(conf_.getUntrackedParameter<string>("inputSource", "source"));
 }
 
 
@@ -100,7 +101,22 @@ void SiPixelRawDataErrorSource::bookHistograms(DQMStore::IBooker & iBooker, edm:
 void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   eventNo++;
-
+  //check feds in readout
+  if(eventNo==1){
+    // check if any Pixel FED is in readout:
+    edm::Handle<FEDRawDataCollection> rawDataHandle;
+    iEvent.getByToken(inputSourceToken_, rawDataHandle);
+    if(!rawDataHandle.isValid()){
+      std::cout << "inputsource is empty" << std::endl;
+      edm::LogInfo("SiPixelRawDataErrorSource") << "inputsource is empty";
+    }
+    else{
+      const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
+      for(int i = 0; i != 40; i++){
+        if(rawDataCollection.FEDData(i).size() && rawDataCollection.FEDData(i).data()) fedcounter->setBinContent(i+1,1);
+      }
+    }
+  }
   // get input data
   edm::Handle< DetSetVector<SiPixelRawDataError> >  input;
   iEvent.getByToken( src_, input );
@@ -250,7 +266,9 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 // Book MEs
 //------------------------------------------------------------------
 void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
-  //cout<<"Entering SiPixelRawDataErrorSource::bookMEs now: "<<endl;
+  iBooker.setCurrentFolder("Pixel/EventInfo/DAQContents");
+  char title0[80]; sprintf(title0, "FED isPresent;FED ID;isPresent");
+  fedcounter = iBooker.book1D("fedcounter",title0,40,-0.5,39.5);
   iBooker.setCurrentFolder("Pixel/AdditionalPixelErrors");
   char title[80]; sprintf(title, "By-LumiSection Error counters");
   byLumiErrors = iBooker.book1D("byLumiErrors",title,2,0.,2.);

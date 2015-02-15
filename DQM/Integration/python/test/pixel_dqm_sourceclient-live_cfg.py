@@ -109,9 +109,11 @@ process.qTester = cms.EDAnalyzer("QualityTester",
 
 process.sipixelEDAClientP5.inputSource = cms.untracked.string("rawDataCollector")
 process.sipixelDaqInfo.daqSource   = cms.untracked.string("rawDataCollector")
+process.SiPixelRawDataErrorSource.inputSource  = cms.untracked.string("rawDataCollector")
 if (process.runType.getRunType() == process.runType.hi_run):
         process.sipixelEDAClientP5.inputSource = cms.untracked.string("rawDataRepacker")
         process.sipixelDaqInfo.daqSource   = cms.untracked.string("rawDataRepacker")
+        process.SiPixelRawDataErrorSource.inputSource  = cms.untracked.string("rawDataRepacker")
 #--------------------------
 # Service
 #--------------------------
