@@ -29,7 +29,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 //#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 
@@ -71,7 +71,7 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
 {
    //Retrieve tracker topology from geometry
    edm::ESHandle<TrackerTopology> tTopoHandle;
-   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
    tTopo = tTopoHandle.product();
  
    eventSetupCopy_ = &iSetup;

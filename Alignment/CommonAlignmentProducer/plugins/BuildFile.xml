@@ -15,6 +15,7 @@
   <use   name="CondCore/DBOutputService"/>
   <use   name="CondFormats/Alignment"/>
   <use   name="CondFormats/AlignmentRecord"/>
+  <use   name="CondFormats/GeometryObjects"/>  
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="boost"/>
 </library>
@@ -50,6 +51,7 @@
   <use   name="TrackPropagation/RungeKutta"/>
   <use   name="CondFormats/AlignmentRecord"/>
   <use   name="CondFormats/Alignment"/>
+  <use   name="CondFormats/GeometryObjects"/>
   <use   name="CondCore/DBOutputService"/>
   <use   name="DataFormats/DetId"/>
   <use   name="DataFormats/TrackReco"/>

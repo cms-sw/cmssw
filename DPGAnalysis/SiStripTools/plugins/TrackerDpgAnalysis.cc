@@ -70,7 +70,7 @@
 #include <DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h>
 #include <DataFormats/SiStripDetId/interface/SiStripDetId.h>
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include <DataFormats/SiPixelCluster/interface/SiPixelCluster.h>
 #include <DataFormats/TrackReco/interface/TrackFwd.h>
 #include <DataFormats/TrackReco/interface/Track.h>
@@ -962,7 +962,7 @@ TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
 
    //Retrieve tracker topology from geometry
    edm::ESHandle<TrackerTopology> tTopoHandle;
-   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
    const TrackerTopology* const tTopo = tTopoHandle.product();
 
    //geometry

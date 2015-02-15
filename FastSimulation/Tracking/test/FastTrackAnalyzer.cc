@@ -25,7 +25,7 @@
 
 // Numbering scheme
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "TH1F.h"
 #include "TFile.h"
@@ -319,7 +319,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopoHand;
-    setup.get<IdealGeometryRecord>().get(tTopoHand);
+    setup.get<TrackerTopologyRcd>().get(tTopoHand);
     const TrackerTopology *tTopo=tTopoHand.product();
 
     std::cout << "\nEvent ID = "<< event.id() << std::endl ;

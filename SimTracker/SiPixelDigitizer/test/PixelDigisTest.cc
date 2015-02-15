@@ -39,6 +39,7 @@
 //#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -46,7 +47,6 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 
 // data formats
@@ -354,7 +354,7 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 			   const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  iSetup.get<TrackerTopologyRcd>().get(tTopo);
 
   using namespace edm;
   if(PRINT) cout<<" Analyze PixelDigisTest "<<endl;

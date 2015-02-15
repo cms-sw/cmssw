@@ -32,6 +32,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -179,7 +180,7 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
   edm::ESHandle<TrackerTopology> tTopoHandle;
 
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
 
   const TrackerTopology *pTT = tTopoHandle.product();
 

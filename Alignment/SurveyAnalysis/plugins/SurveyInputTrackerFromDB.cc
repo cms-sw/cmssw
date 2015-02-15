@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
 // Database
@@ -18,8 +20,7 @@
 #include "Alignment/SurveyAnalysis/plugins/SurveyInputTrackerFromDB.h"
 
 SurveyInputTrackerFromDB::SurveyInputTrackerFromDB(const edm::ParameterSet& cfg)
-  : textFileName( cfg.getParameter<std::string>("textFileName") ),
-    theParameterSet( cfg )
+  : textFileName( cfg.getParameter<std::string>("textFileName") )
 {}
 
 void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup& setup)
@@ -31,7 +32,7 @@ void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup&
 	
 	//Retrieve tracker topology from geometry
 	edm::ESHandle<TrackerTopology> tTopoHandle;
-	setup.get<IdealGeometryRecord>().get(tTopoHandle);
+	setup.get<TrackerTopologyRcd>().get(tTopoHandle);
 	const TrackerTopology* const tTopo = tTopoHandle.product();
 
 	//Get map from textreader
@@ -41,7 +42,11 @@ void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup&
 	
 	edm::ESHandle<GeometricDet>  geom;
 	setup.get<IdealGeometryRecord>().get(geom); 
-	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, theParameterSet);
+
+	edm::ESHandle<PTrackerParameters> ptp;
+	setup.get<PTrackerParametersRcd>().get( ptp );
+
+	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, &(*ptp));
 	
 	addComponent( new AlignableTracker( tracker, tTopo ) );
 	addSurveyInfo( detector() );

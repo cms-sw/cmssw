@@ -53,7 +53,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 
@@ -159,7 +159,7 @@ void GlobalTrajectoryBuilderBase::setEvent(const edm::Event& event) {
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  theService->eventSetup().get<IdealGeometryRecord>().get(tTopoHand);
+  theService->eventSetup().get<TrackerTopologyRcd>().get(tTopoHand);
   tTopo_=tTopoHand.product();
 
 }

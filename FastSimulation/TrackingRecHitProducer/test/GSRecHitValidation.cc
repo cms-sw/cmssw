@@ -8,7 +8,7 @@
 
 // Numbering scheme
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "FastSimulation/TrackingRecHitProducer/test/GSRecHitValidation.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -322,7 +322,7 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  setup.get<IdealGeometryRecord>().get(tTopoHand);
+  setup.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
   
