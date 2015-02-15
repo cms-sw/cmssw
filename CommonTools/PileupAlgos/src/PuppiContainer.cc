@@ -55,7 +55,8 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
     //if(fRecoParticle.id == 3) _chargedNoPV.push_back(curPseudoJet);
     if(fNPV < fRecoParticle.vtxId) fNPV = fRecoParticle.vtxId;
   }
-  fPVFrac = double(fChargedPV.size())/fPVFrac;
+  if (fPVFrac != 0) fPVFrac = double(fChargedPV.size())/fPVFrac;
+  else fPVFrac = 0;
 }
 PuppiContainer::~PuppiContainer(){}
 
@@ -97,8 +98,10 @@ void PuppiContainer::getRMSAvg(int iOpt,std::vector<fastjet::PseudoJet> const &i
     double pVal = -1;
     //Calculate the Puppi Algo to use
     int  pPupId   = getPuppiId(iConstits[i0].pt(),iConstits[i0].eta());
-    if(fPuppiAlgo[pPupId].numAlgos() <= iOpt) pPupId = -1;
-    if(pPupId == -1) {fVals.push_back(-1); continue;}
+    if(pPupId == -1 || fPuppiAlgo[pPupId].numAlgos() <= iOpt){
+      fVals.push_back(-1);
+      continue;
+    }
     //Get the Puppi Sub Algo (given iteration)
     int  pAlgo    = fPuppiAlgo[pPupId].algoId   (iOpt); 
     bool pCharged = fPuppiAlgo[pPupId].isCharged(iOpt);

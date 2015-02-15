@@ -63,11 +63,14 @@ void SiPixelDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore
     }   
     //Fill active fed fraction ME
     if(FedCountBarrel<=32){
+      MonitorElement * mefed = iGetter.get("Pixel/EventInfo/DAQContents/fedcounter");
       FedCountBarrel = 0; FedCountEndcap = 0; FedCount = 0; NumberOfFeds_ = 40;
-      for(int i=0; i!=40; i++){
-        if(i<=31 && FEDs_[i]>0) FedCountBarrel++;
-	if(i>=32 && FEDs_[i]>0) FedCountEndcap++;
-	if(FEDs_[i]>0) FedCount++;
+      if(mefed){
+        for(int i=0; i!=40; i++){
+          if(i<=31 && mefed->getBinContent(i+1)>0) FedCountBarrel++;
+          if(i>=32 && mefed->getBinContent(i+1)>0) FedCountEndcap++;
+          if(mefed->getBinContent(i+1)>0) FedCount++;
+        }
       }
     }
     if(NumberOfFeds_>0){

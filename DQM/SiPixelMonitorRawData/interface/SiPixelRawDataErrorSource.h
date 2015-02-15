@@ -45,7 +45,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <boost/cstdint.hpp>
@@ -61,15 +61,14 @@
        virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) ;
        virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-
        virtual void buildStructure(edm::EventSetup const&);
        virtual void bookMEs(DQMStore::IBooker &);
-
-       std::string topFolderName_;
 
     private:
        edm::ParameterSet conf_;
        edm::EDGetTokenT<edm::DetSetVector<SiPixelRawDataError> > src_;
+       edm::EDGetTokenT<FEDRawDataCollection> inputSourceToken_;
+       std::string topFolderName_;
        bool saveFile;
        bool isPIB;
        bool slowDown;
@@ -84,6 +83,7 @@
        bool firstRun;
        MonitorElement* byLumiErrors; 
        MonitorElement* errorRate;
+       MonitorElement* fedcounter;
 
        MonitorElement* meErrorType_[40];
        MonitorElement* meNErrors_[40];
