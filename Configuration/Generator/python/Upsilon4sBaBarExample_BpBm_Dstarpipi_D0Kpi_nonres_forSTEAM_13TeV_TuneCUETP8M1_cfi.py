@@ -60,15 +60,4 @@ configurationMetadata = cms.untracked.PSet(
 # Filter only pp events which produce a B+:
 bufilter = cms.EDFilter("PythiaFilter", ParticleID = cms.untracked.int32(521))
 
-# Filter on final state muons
-mumugenfilter = cms.EDFilter("MCParticlePairFilter",
-                             Status = cms.untracked.vint32(1, 1),
-                             MinPt = cms.untracked.vdouble(2.8, 2.8),
-                             MinP = cms.untracked.vdouble(2.8, 2.8),
-                             MaxEta = cms.untracked.vdouble(2.3, 2.3),
-                             MinEta = cms.untracked.vdouble(-2.3, -2.3),
-                             ParticleID1 = cms.untracked.vint32(13,-13),
-                             ParticleID2 = cms.untracked.vint32(13,-13)
-                             )
-
-ProductionFilterSequence = cms.Sequence(generator*bufilter*mumugenfilter)
+ProductionFilterSequence = cms.Sequence(generator*bufilter)

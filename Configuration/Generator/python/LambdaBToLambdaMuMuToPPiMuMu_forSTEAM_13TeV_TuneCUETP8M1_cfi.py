@@ -48,7 +48,7 @@ configurationMetadata = cms.untracked.PSet(
 ###########
 # Filters #
 ###########
-# Filter only pp events which produce a B+:
+# Filter only pp events which produce a lambda_b:
 lambdabfilter = cms.EDFilter("PythiaFilter", ParticleID = cms.untracked.int32(5122))
 
 # Filter on final state muons
