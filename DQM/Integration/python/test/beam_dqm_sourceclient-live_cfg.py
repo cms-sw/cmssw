@@ -179,6 +179,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                                process.offlineBeamSpot*
                                                process.siPixelClusters*
                                                process.siPixelRecHits*
+                                               process.siPixelClusterShapeCache*
+                                               process.PixelLayerTriplets*
 #                                               process.pixelTracks*
 #                                               process.pixelVertices
                                                process.recopixelvertexing
