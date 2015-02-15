@@ -2,6 +2,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+const int egHLT::TrigCodes::maxNrBits_;
+
 using namespace egHLT;
 
 TrigCodes* TrigCodes::makeCodes(std::vector<std::string>& filterNames)
