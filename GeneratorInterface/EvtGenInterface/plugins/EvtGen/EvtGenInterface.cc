@@ -62,7 +62,6 @@ void EvtGenInterface::SetDefault_m_PDGs(){
   //
   // Note: Pythia6's kc=43, 44, and 84 commented out because they're obsolete (per S.Mrenna)
   //
-  m_PDGs.push_back( 5 ) ;
   m_PDGs.push_back( 300553 ) ;
   m_PDGs.push_back( 511 ) ;
   m_PDGs.push_back( 521 ) ;
@@ -415,7 +414,6 @@ HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt ){
   CLHEP::RandFlat m_flat(*the_engine->engine(), 0., 1.);
   
   for (HepMC::GenEvent::particle_const_iterator p= evt->particles_begin(); p != evt->particles_end(); ++p){
-    if((*p)->pdg_id() ==300553 || (*p)->pdg_id() ==5122) std::cout << "found upsilon(4s) or lambda_b" << std::endl;
     if((*p)->status()==1){                                // all particles to be decays are set to status 1 by generator.hadronizer
       int idHep = (*p)->pdg_id();
       EvtId idEvt = EvtPDL::evtIdFromStdHep(idHep);

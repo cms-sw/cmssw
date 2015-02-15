@@ -7,15 +7,12 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          pythiaPylistVerbosity = cms.untracked.int32(0),
                          pythiaHepMCVerbosity = cms.untracked.bool(False),
                          comEnergy = cms.double(13000.0),
-                         crossSection = cms.untracked.double(54000000000), # Given by PYTHIA after running
-                         filterEfficiency = cms.untracked.double(0.004), # Given by PYTHIA after running
                          maxEventsToPrint = cms.untracked.int32(0),
                          ExternalDecays = cms.PSet(
         EvtGen130 = cms.untracked.PSet(
             decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_2010.DEC'),
             particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
-            #      user_decay_file = cms.untracked.bool(True),
-            user_decay_file = cms.vstring('GeneratorInterface/ExternalDecays/data/Bu_Psi2SKstar.dec'),
+            user_decay_file = cms.vstring('GeneratorInterface/EvtGenInterface/data/BaBar_2014/BpBm_Dstarpipi_D0Kpi_nonres.dec'),
             list_forced_decays = cms.vstring('MyB+','MyB-'),
             operates_on_particles = cms.vint32()
             ),
@@ -24,7 +21,24 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,
-        processParameters = cms.vstring('HardQCD:all = on'),
+        processParameters = cms.vstring(
+            'Bottomonium:states(3S1) = 300553', 
+            'Bottomonium:O(3S1)[3S1(1)] = 9.28',
+            'Bottomonium:O(3S1)[3S1(8)] = 0.15',
+            'Bottomonium:O(3S1)[1S0(8)] = 0.02',
+            'Bottomonium:O(3S1)[3P0(8)] = 0.02',
+            'Bottomonium:gg2bbbar(3S1)[3S1(1)]g = on',
+            'Bottomonium:gg2bbbar(3S1)[3S1(8)]g = on',
+            'Bottomonium:qg2bbbar(3S1)[3S1(8)]q = on',
+            'Bottomonium:qqbar2bbbar(3S1)[3S1(8)]g = on',
+            'Bottomonium:gg2bbbar(3S1)[1S0(8)]g = on',
+            'Bottomonium:qg2bbbar(3S1)[1S0(8)]q = on',
+            'Bottomonium:qqbar2bbbar(3S1)[1S0(8)]g = on',
+            'Bottomonium:gg2bbbar(3S1)[3PJ(8)]g = on',
+            'Bottomonium:qg2bbbar(3S1)[3PJ(8)]q = on',
+            'Bottomonium:qqbar2bbbar(3S1)[3PJ(8)]g = on',
+            'PhaseSpace:pTHatMin = 20.',
+            ),
         parameterSets = cms.vstring('pythia8CommonSettings',
                                     'pythia8CUEP8M1Settings',
                                     'processParameters',
@@ -34,12 +48,10 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
 
 generator.PythiaParameters.processParameters.extend(EvtGenExtraParticles)
 
-
-
 configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
     name = cms.untracked.string('$Source: Configuration/Generator/python/BuToKstarMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi.py $'),
-    annotation = cms.untracked.string('Summer14: Pythia8+EvtGen130 generation of Bu --> K* Mu+Mu-, 13TeV, Tune CUETP8M1')
+    annotation = cms.untracked.string('Summer14: Pythia8+EvtGen130 generation of Upsilon(4s) --> B --> Dstarpipi --> D0pi --> Kpi, 13TeV, Tune CUETP8M1')
     )
 
 ###########
@@ -52,11 +64,11 @@ bufilter = cms.EDFilter("PythiaFilter", ParticleID = cms.untracked.int32(521))
 mumugenfilter = cms.EDFilter("MCParticlePairFilter",
                              Status = cms.untracked.vint32(1, 1),
                              MinPt = cms.untracked.vdouble(2.8, 2.8),
+                             MinP = cms.untracked.vdouble(2.8, 2.8),
                              MaxEta = cms.untracked.vdouble(2.3, 2.3),
                              MinEta = cms.untracked.vdouble(-2.3, -2.3),
-                             ParticleCharge = cms.untracked.int32(-1),
-                             ParticleID1 = cms.untracked.vint32(13),
-                             ParticleID2 = cms.untracked.vint32(13)
+                             ParticleID1 = cms.untracked.vint32(13,-13),
+                             ParticleID2 = cms.untracked.vint32(13,-13)
                              )
 
 ProductionFilterSequence = cms.Sequence(generator*bufilter*mumugenfilter)
