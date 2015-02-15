@@ -40,7 +40,6 @@ namespace {
 TrackerGeometry*
 TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTrackerParameters* ptp )
 {
-  bool upgradeGeometry = (ptp->topology[0]==0)?false:true;
   int BIG_PIX_PER_ROC_X = ptp->topology[3];
   int BIG_PIX_PER_ROC_Y = ptp->topology[4];
   
@@ -84,37 +83,37 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTracke
   for(unsigned int i=0;i<6;++i) {
     if(gdsubdetmap[i] == GeometricDet::PixelBarrel) 
       buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::PixelBarrel,
-		 upgradeGeometry,
+		 false,
 		 BIG_PIX_PER_ROC_X,
 		 BIG_PIX_PER_ROC_Y); 
     if(gdsubdetmap[i] == GeometricDet::PixelPhase1Barrel) 
       buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P1PXB,
-		 upgradeGeometry,
+		 true,
 		 BIG_PIX_PER_ROC_X,
 		 BIG_PIX_PER_ROC_Y); 
     if(gdsubdetmap[i] == GeometricDet::PixelEndCap)
       buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::PixelEndcap,
-		 upgradeGeometry,
+		 false,
 		 BIG_PIX_PER_ROC_X,
 		 BIG_PIX_PER_ROC_Y); 
     if(gdsubdetmap[i] == GeometricDet::PixelPhase1EndCap)
       buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P1PXEC,
-		 upgradeGeometry,
+		 true,
 		 BIG_PIX_PER_ROC_X,
 		 BIG_PIX_PER_ROC_Y); 
     if(gdsubdetmap[i] == GeometricDet::PixelPhase2EndCap)
       buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P2PXEC,
-		 upgradeGeometry,
+		 true,
 		 BIG_PIX_PER_ROC_X,
 		 BIG_PIX_PER_ROC_Y); 
     if(gdsubdetmap[i] == GeometricDet::OTPhase2Barrel) 
       buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P2OTB,
-		 upgradeGeometry,
+		 true,
 		 BIG_PIX_PER_ROC_X,
 		 BIG_PIX_PER_ROC_Y); 
     if(gdsubdetmap[i] == GeometricDet::OTPhase2EndCap) 
       buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P2OTEC,
-		 upgradeGeometry,
+		 true,
 		 BIG_PIX_PER_ROC_X,
 		 BIG_PIX_PER_ROC_Y); 
   }
