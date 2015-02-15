@@ -86,33 +86,9 @@ def customiseRun2EraExtras(process):
             print "         This path has the following modules:"
             print "         ", getattr(process, path_name).moduleNames(),"\n"
 
-    # L1 stub emulator upgrade algorithm
-    if hasattr(process, 'simCscTriggerPrimitiveDigis'):
-        from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi import cscTriggerPrimitiveDigisPostLS1
-        process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS1
-        process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCComparatorDigi')
-        process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCWireDigi')
-
-    # CSCTF that can deal with unganged ME1a
-    if hasattr(process, 'simCsctfTrackDigis'):
-        from L1Trigger.CSCTrackFinder.csctfTrackDigisUngangedME1a_cfi import csctfTrackDigisUngangedME1a
-        process.simCsctfTrackDigis = csctfTrackDigisUngangedME1a
-        process.simCsctfTrackDigis.DTproducer = cms.untracked.InputTag("simDtTriggerPrimitiveDigis")
-        process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")
-
     # deal with L1 Emulation separately:
     from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_25ns
     process = customiseSimL1EmulatorForPostLS1_25ns(process)
-
-    if hasattr(process,'digitisation_step'):
-        alist=['RAWSIM','RAWDEBUG','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT','PREMIX','PREMIXRAW']
-        for a in alist:
-            b = a + 'output'
-            if hasattr(process,b):
-                getattr(process,b).outputCommands.append('keep *_simMuonCSCDigis_*_*')
-                getattr(process,b).outputCommands.append('keep *_simMuonRPCDigis_*_*')
-    if hasattr(process,'dqmoffline_step'):
-        process.l1tCsctf.gangedME11a = cms.untracked.bool(False)
 
     return process
 
