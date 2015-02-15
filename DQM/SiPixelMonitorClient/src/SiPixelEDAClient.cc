@@ -132,7 +132,6 @@ void SiPixelEDAClient::beginRun(Run const& run, edm::EventSetup const& eSetup) {
     
     summaryFrequency_ = -1;
     tkMapFrequency_ = -1;
-    actionOnLumiSec_ = false;
     actionOnRunEnd_ = true;
     evtOffsetForInit_ = -1;
 
@@ -185,33 +184,18 @@ void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMSto
     // Booking summary report ME's:
     sipixelDataQuality_->bookGlobalQualityFlag(iBooker, Tier0Flag_, nFEDs_);
 
-    /*    nEvents_++;  
     if(!Tier0Flag_){
-   
-      if(nEvents_==1){
-	// check if any Pixel FED is in readout:
-	edm::Handle<FEDRawDataCollection> rawDataHandle;
-	e.getByToken(inputSourceToken_, rawDataHandle);
-	if(!rawDataHandle.isValid()){
-	  edm::LogInfo("SiPixelEDAClient") << inputSource_ << " is empty";
-	  return;
-	} 
-	const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
-	nFEDs_ = 0;
-	for(int i = 0; i != 40; i++){
-	  if(rawDataCollection.FEDData(i).size() && rawDataCollection.FEDData(i).data()) nFEDs_++;
-	}
-      }
-      }*/
-
+      MonitorElement * mefed = iGetter.get("Pixel/EventInfo/DAQContents/fedcounter");
+      if(mefed){ for (int i = 0; i < mefed->getNbinsX(); ++i) nFEDs_ += mefed->getBinContent(i+1);}
+    }
     eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
 
     firstLumi = false;
   }
 
   edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of LS transition, performing the DQM client operation";
-
-  nLumiSecs_++;
+  //
+  nLumiSecs_ = lumiSeg.id().luminosityBlock() ;
   
   edm::LogInfo("SiPixelEDAClient") << "====================================================== " << endl << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << endl  << "====================================================== " << endl;
 
@@ -222,7 +206,6 @@ void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMSto
     sipixelActionExecutor_->createOccupancy(iBooker,iGetter);
     iBooker.cd();
     iGetter.cd();
-
     sipixelDataQuality_->computeGlobalQualityFlagByLumi(iGetter,init,nFEDs_,Tier0Flag_,nEvents_lastLS_,nErrorsBarrel_lastLS_,nErrorsEndcap_lastLS_);
     init=true;
     iBooker.cd();
