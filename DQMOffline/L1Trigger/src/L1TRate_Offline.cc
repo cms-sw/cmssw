@@ -464,8 +464,11 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
         if(gtFdlVectorData[i].bxInEvent()==0){indexFDL=i; break;}
       }
 
-      int CurrentPrescalesIndex  = gtFdlVectorData[indexFDL].gtPrescaleFactorIndexAlgo(); // <###### WE NEED TO STORE THIS
-      m_lsPrescaleIndex[eventLS] = CurrentPrescalesIndex;
+      if(gtFdlVectorData.size() != 0)
+        {
+	  int CurrentPrescalesIndex  = gtFdlVectorData[indexFDL].gtPrescaleFactorIndexAlgo(); // <###### WE NEED TO STORE THIS
+	  m_lsPrescaleIndex[eventLS] = CurrentPrescalesIndex;
+	}
 
     }
 
