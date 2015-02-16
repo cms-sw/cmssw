@@ -11,14 +11,12 @@ class TreeAnalyzerNumpy( Analyzer ):
 
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(TreeAnalyzerNumpy,self).__init__(cfg_ana, cfg_comp, looperName)
-        self.outservicename = "outputfile"
-        if hasattr(cfg_ana,"outservicename") :
-            self.outservicename = cfg_ana.outservicename
+        self.outservicename = getattr(cfg_ana,"outservicename","outputfile")
+        self.treename = getattr(cfg_ana,"treename","tree")
 
 
     def beginLoop(self, setup) :
         super(TreeAnalyzerNumpy, self).beginLoop(setup)
-        print setup.services
         if self.outservicename in setup.services:
             print "Using outputfile given in", self.outservicename
             self.file = setup.services[self.outservicename].file
@@ -29,7 +27,7 @@ class TreeAnalyzerNumpy( Analyzer ):
             print 'Compression', isCompressed
             self.file = TFile( fileName, 'recreate', '', isCompressed )
         self.file.cd()
-        self.tree = Tree('tree', self.name)
+        self.tree = Tree(self.treename, self.name)
         self.tree.setDefaultFloatType(getattr(self.cfg_ana, 'defaultFloatType','D')); # or 'F'
         self.declareVariables(setup)
         
