@@ -6,4 +6,3 @@ pixelLessSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySe
 from RecoTracker.TkSeedingLayers.PixelLessLayerPairs_cfi import *
 
 pixelLessSeeds.layerList = PixelLessLayerPairs.layerList
-pixelLessSeeds.outputSeedCollectionName = 'PixelLess'

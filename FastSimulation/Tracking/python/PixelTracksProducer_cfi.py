@@ -26,6 +26,6 @@ pixelTracks = cms.EDProducer("PixelTracksProducer",
             ptMin = cms.double(0.9)
         )
     ),
-    SeedProducer = cms.InputTag("pixelTripletSeeds","PixelTriplet")
+    SeedProducer = cms.InputTag("pixelTripletSeeds")
 )
 
