@@ -92,6 +92,10 @@ private:
   bool m_doJets;
   bool m_doSums;
   
+  bool doText_;
+  bool doHistos_;
+  bool doEvtDisp_;
+
   enum ObjectType{Tower=0x1,
 		  Cluster=0x2,
 		  EG=0x3,
@@ -116,6 +120,8 @@ private:
   std::map< ObjectType, TH1F* > hratio_;
   std::map< ObjectType, TH2F* > hetaphi_;
 
+  TFileDirectory evtDispDir_;
+
 };
 
 //
@@ -129,7 +135,9 @@ private:
 //
 // constructors and destructor
 //
-L1TStage2CaloAnalyzer::L1TStage2CaloAnalyzer(const edm::ParameterSet& iConfig)
+  L1TStage2CaloAnalyzer::L1TStage2CaloAnalyzer(const edm::ParameterSet& iConfig) :
+    doText_(iConfig.getUntrackedParameter<bool>("doText", true)),
+    doHistos_(iConfig.getUntrackedParameter<bool>("doHistos", true))
 {
    //now do what ever initialization is needed
 
@@ -219,7 +227,30 @@ void
 L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  
+
+  std::stringstream text;
+
+  TH2F* hEvtTow = new TH2F();
+  TH2F* hEvtMPEG = new TH2F();
+  TH2F* hEvtMPTau = new TH2F();
+  TH2F* hEvtMPJet = new TH2F();
+  TH2F* hEvtDemuxEG = new TH2F();
+  TH2F* hEvtDemuxTau = new TH2F();
+  TH2F* hEvtDemuxJet = new TH2F();
+
+  if (doEvtDisp_) {
+    std::stringstream ss;
+    ss << iEvent.run() << "-" << iEvent.id().event();
+    TFileDirectory dir = evtDispDir_.mkdir(ss.str());
+    hEvtTow = dir.make<TH2F>("Tower", "", 83, -41.5, 41.5, 72, .5, 72.5);
+    hEvtMPEG = dir.make<TH2F>("MPEG", "", 83, -41.5, 41.5, 72, .5, 72.5);
+    hEvtMPTau = dir.make<TH2F>("MPTau", "", 83, -41.5, 41.5, 72, .5, 72.5);
+    hEvtMPJet = dir.make<TH2F>("MPJet", "", 83, -41.5, 41.5, 72, .5, 72.5);
+    hEvtDemuxEG = dir.make<TH2F>("DemuxEG", "", 227, -113.5, 113.5, 144, -0.5, 143.5);
+    hEvtDemuxTau = dir.make<TH2F>("DemuxTau", "", 227, -113.5, 113.5, 144, -0.5, 143.5);
+    hEvtDemuxJet = dir.make<TH2F>("DemuxJet", "", 227, -113.5, 113.5, 144, -0.5, 143.5);
+  }
+
   // get TPs ?
   // get regions ?
   // get RCT clusters ?
@@ -240,6 +271,11 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	hhad_.at(Tower)->Fill( itr->hwEtHad() );
 	hratio_.at(Tower)->Fill( itr->hwEtRatio() );
         hetaphi_.at(Tower)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+
+	text << "Tower : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << " iem=" << itr->hwEtEm() << " ihad=" << itr->hwEtHad() << " iratio=" << itr->hwEtRatio() << std::endl;
+	
+	if (doEvtDisp_) hEvtTow->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+
       }
 
     }
@@ -259,6 +295,7 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   	heta_.at(Cluster)->Fill( itr->hwEta() );
   	hphi_.at(Cluster)->Fill( itr->hwPhi() );
         hetaphi_.at(Cluster)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+	text << "Cluster : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
       }
 
     }
@@ -278,6 +315,11 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	heta_.at(MPEG)->Fill( itr->hwEta() );
 	hphi_.at(MPEG)->Fill( itr->hwPhi() );
         hetaphi_.at(MPEG)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+
+	text << "MP EG : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;      
+
+	if (doEvtDisp_) hEvtMPEG->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+
       }
       
     }
@@ -297,6 +339,10 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	heta_.at(MPTau)->Fill( itr->hwEta() );
 	hphi_.at(MPTau)->Fill( itr->hwPhi() );
         hetaphi_.at(MPTau)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+
+	text << "MP Tau : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;      
+
+	if (doEvtDisp_) hEvtMPTau->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
       }
       
     }
@@ -316,6 +362,10 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	heta_.at(MPJet)->Fill( itr->hwEta() );
 	hphi_.at(MPJet)->Fill( itr->hwPhi() );
         hetaphi_.at(MPJet)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+
+	text << "MP Jet : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
+
+	if (doEvtDisp_) hEvtMPJet->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
       }
       
     }
@@ -335,6 +385,9 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	heta_.at(MPSum)->Fill( itr->hwEta() );
 	hphi_.at(MPSum)->Fill( itr->hwPhi() );
         hetaphi_.at(MPSum)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+
+	text << "MP Sum : " << " type=" << itr->getType() << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
+
       }
 
     }
@@ -354,6 +407,10 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	heta_.at(EG)->Fill( itr->hwEta() );
 	hphi_.at(EG)->Fill( itr->hwPhi() );
         hetaphi_.at(EG)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+
+	text << "EG : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
+
+	if (doEvtDisp_) hEvtDemuxEG->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
       }
       
     }
@@ -373,6 +430,10 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	heta_.at(Tau)->Fill( itr->hwEta() );
 	hphi_.at(Tau)->Fill( itr->hwPhi() );
         hetaphi_.at(Tau)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+
+	text << "Tau : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
+
+	if (doEvtDisp_) hEvtDemuxTau->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
       }
       
     }
@@ -392,6 +453,10 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	heta_.at(Jet)->Fill( itr->hwEta() );
 	hphi_.at(Jet)->Fill( itr->hwPhi() );
         hetaphi_.at(Jet)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+
+	text << "Jet : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
+
+	if (doEvtDisp_) hEvtDemuxJet->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
       }
       
     }
@@ -411,13 +476,17 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	heta_.at(Sum)->Fill( itr->hwEta() );
 	hphi_.at(Sum)->Fill( itr->hwPhi() );
         hetaphi_.at(Sum)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+	text << "Sum : " << " type=" << itr->getType() << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
       }
 
     }
 
   }
 
+  if (doText_) edm::LogInfo("L1T") << text.str();
+
 }
+
 
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -432,9 +501,12 @@ L1TStage2CaloAnalyzer::beginJob()
 
   for (; itr!=types_.end(); ++itr, ++str ) {
     
+    double etmax=99.5;
+    if (*itr==Jet || *itr==MPJet || *itr==Sum || *itr==MPSum) etmax=249.5;
+
     dirs_.insert( std::pair< ObjectType, TFileDirectory >(*itr, fs->mkdir(*str) ) );
     
-    het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 101, -0.5, 100.5) ));
+    het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 100, -0.5, etmax) ));
 
     hbx_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("bx", "", 11, -5.5, 5.5) ));
 
@@ -456,6 +528,10 @@ L1TStage2CaloAnalyzer::beginJob()
       hratio_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("ratio", "", 11, -0.5, 10.5) ));
     }
 
+  }
+
+  if (doEvtDisp_) {
+    evtDispDir_ = fs->mkdir("Events");
   }
 
 }
