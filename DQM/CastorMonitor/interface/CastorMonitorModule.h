@@ -115,6 +115,9 @@ private:
   edm::InputTag inputLabelDigi_;
   edm::InputTag inputLabelRecHitCASTOR_;
 
+  edm::InputTag inputLabelCastorTowers_;
+  typedef std::vector<reco::CastorTower> CastorTowerCollection;
+
   CastorRecHitMonitor*      RecHitMon_;
   CastorDigiMonitor*        DigiMon_;
   CastorLEDMonitor*         LedMon_;
