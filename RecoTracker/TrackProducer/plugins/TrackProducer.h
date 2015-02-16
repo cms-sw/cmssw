@@ -13,6 +13,10 @@
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class TrackProducer : public KfTrackProducerBase, public edm::stream::EDProducer<> {
 public:
 
@@ -24,6 +28,8 @@ public:
 
   /// Get Transient Tracks
   std::vector<reco::TransientTrack> getTransient(edm::Event&, const edm::EventSetup&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 //   /// Put produced collections in the event
 //   virtual void putInEvt(edm::Event&,

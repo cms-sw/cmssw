@@ -158,4 +158,21 @@ BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 }
 
+void
+BeamSpotOnlineProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("src",edm::InputTag("scalersRawToDigi"))->setComment("");
+  desc.add<edm::InputTag>("gtEvmLabel",edm::InputTag("gtEvmDigis"))->setComment("");
+  desc.add<double>("maxZ",40)->setComment("max z");
+  desc.add<double>("maxRadius",2)->setComment("max r");
+  desc.add<double>("setSigmaZ",-1)->setComment("sigma z (if > 0 it is overwritten)");
+  desc.add<bool>("changeToCMSCoordinates",false)->setComment("in case we need to switch to LHC reference frame");
+
+  descriptions.add("onlineBeamSpotProducer",desc);
+  descriptions.setComment("");
+}
+
+
+
 DEFINE_FWK_MODULE(BeamSpotOnlineProducer);

@@ -6,6 +6,9 @@
 #include "RecoPixelVertexing/PixelVertexFinding/interface/DivisiveVertexFinder.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include <memory>
 #include <string>
 #include <cmath>
@@ -168,6 +171,31 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   
   e.put(vertexes);
   
+}
+
+void
+PixelVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("TrackCollection",edm::InputTag("pixelTracks"))->setComment("");
+  desc.add<edm::InputTag>("beamSpot",edm::InputTag("offlineBeamSpot"))->setComment("");
+  desc.add<std::string>("Finder","DivisiveVertexFinder")->setComment("");
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("refToPSet_","pvClusterComparer")->setComment("");
+    desc.add<edm::ParameterSetDescription>("PVcomparer",psd0)->setComment("");
+  }
+  desc.add<int>("NTrkMin",2)->setComment("min number of tracks");
+  desc.add<double>("PtMin",1.0)->setComment("min track pT");
+  desc.add<double>("ZOffset",5.0)->setComment("");
+  desc.add<double>("ZSeparation",0.05)->setComment("");
+  desc.add<bool>("UseError",true)->setComment("");
+  desc.add<bool>("WtAverage",true)->setComment("");
+  desc.add<bool>("Method2",true)->setComment("");
+  desc.add<int>("Verbosity",0)->setComment("");
+
+  descriptions.add("pixelVertices",desc);
+  descriptions.setComment("");
 }
 
 

@@ -5,11 +5,17 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
  
 class DetectorStateFilter : public edm::stream::EDFilter<> {
  public:
  DetectorStateFilter( const edm::ParameterSet & );
  ~DetectorStateFilter();
+
+ static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
   private:
   bool filter( edm::Event &, edm::EventSetup const& ) override;
 

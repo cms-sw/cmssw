@@ -40,6 +40,7 @@ using namespace reco;
             explicit AnalyticalTrackSelector( const edm::ParameterSet & cfg ) ;
             /// destructor
             virtual ~AnalyticalTrackSelector() ;
+	    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
         private:
             typedef math::XYZPoint Point;
@@ -366,6 +367,84 @@ void AnalyticalTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) 
   }
 }
 
+void 
+AnalyticalTrackSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("src",edm::InputTag("generalTracks"))->setComment("track input collection");
+  desc.add<edm::InputTag>("beamspot",edm::InputTag("offlineBeamSpot"))->setComment("beam spot input collection");
+  desc.add<edm::InputTag>("vertices",edm::InputTag("firstStepPrimaryVertices"))->setComment("vertices input collection");
+
+  desc.add<bool>("useVertices",true)->setComment("");
+  desc.add<bool>("useVtxError",false)->setComment("");
+
+  desc.add<unsigned int>("minNumber3DLayers",3)->setComment("min number of layers w/ 3D measurements (pixel or strip double sided)");
+  desc.add<unsigned int>("minNumberLayers",3)->setComment("min number of layers");
+  desc.add<unsigned int>("maxNumberLostLayers",2)->setComment("max number of lost layers");
+  desc.add<int>("max_minMissHitOutOrIn",99)->setComment("max fraction of lost hits");
+  desc.add<double>("max_lostHitFraction",1.0)->setComment("min number of missing hits");
+
+  desc.add<bool>("applyAbsCutsIfNoPV",false)->setComment("");
+  desc.add<bool>("applyAdaptedPVCuts",true)->setComment("");
+
+  desc.add<std::string>("qualityBit","highPurity")->setComment("");
+  desc.add<double>("chi2n_par",0.7)->setComment("good: chi2n <= chi2n_par*nlayers");
+  desc.add<double>("nSigmaZ",4.0)->setComment("z0 within (n sigma + dzCut) of the beam spot z, if no good vertex is found");
+  {
+    std::vector<double> temp1;
+    temp1.reserve(2);
+    temp1.push_back(0.35);
+    temp1.push_back(4.0);
+    desc.add<std::vector<double> >("dz_par1",temp1)->setComment("");
+  }
+  {
+    std::vector<double> temp1;
+    temp1.reserve(2);
+    temp1.push_back(0.4);
+    temp1.push_back(4.0);
+    desc.add<std::vector<double> >("dz_par2",temp1)->setComment("");
+  }
+  desc.add<double>("max_z0",100.0)->setComment("");
+  desc.add<double>("max_z0NoPV",100.0)->setComment("");
+  {
+    std::vector<double> temp1;
+    temp1.reserve(2);
+    temp1.push_back(0.3);
+    temp1.push_back(4.0);
+    desc.add<std::vector<double> >("d0_par1",temp1)->setComment("");
+  }
+  {
+    std::vector<double> temp1;
+    temp1.reserve(2);
+    temp1.push_back(0.4);
+    temp1.push_back(4.0);
+    desc.add<std::vector<double> >("d0_par2",temp1)->setComment("");
+  }
+  desc.add<double>("max_d0",100.0)->setComment("");
+  desc.add<double>("max_d0NoPV",100.0)->setComment("");
+  desc.add<double>("min_eta",-9999.0)->setComment("min track eta");
+  desc.add<double>("max_eta",9999.0)->setComment("max track eta");
+  desc.add<int>("vtxNumber",-1)->setComment("");
+  desc.add<double>("max_relpterr",9999.0)->setComment("");
+  desc.add<std::string>("vertexCut","ndof>=2&!isFake")->setComment("");
+  desc.add<unsigned int>("min_nhits",0)->setComment("");
+  desc.add<double>("chi2n_no1Dmod_par",9999.0)->setComment("");
+  {
+    std::vector<double> temp1;
+    temp1.reserve(2);
+    temp1.push_back(0.003);
+    temp1.push_back(0.001);
+    desc.add<std::vector<double> >("res_par",temp1)->setComment("");
+  }
+  desc.add<unsigned int>("minHitsToBypassChecks",20)->setComment("");
+
+  desc.add<bool>("keepAllTracks",false)->setComment("");
+  desc.addUntracked<bool>("copyTrajectories",false)->setComment("");
+  desc.addUntracked<bool>("copyExtras",true)->setComment("");
+
+  descriptions.add("analyticalTrackSelector",desc);
+  descriptions.setComment("");
+}
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

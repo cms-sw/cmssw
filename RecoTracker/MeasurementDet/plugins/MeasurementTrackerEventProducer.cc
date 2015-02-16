@@ -1,5 +1,8 @@
 #include "MeasurementTrackerEventProducer.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -231,6 +234,28 @@ MeasurementTrackerEventProducer::getInactiveStrips(const edm::Event& event,std::
 
 }
 
+void
+MeasurementTrackerEventProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
 
+  desc.add<std::string>("measurementTracker","")->setComment("");
+  desc.add<std::string>("stripClusterProducer","siStripClusters")->setComment("");
+  desc.add<std::string>("pixelClusterProducer","siPixelClusters")->setComment("");
+  desc.add<edm::InputTag>("skipClusters",edm::InputTag(""))->setComment("");
+  {
+    std::vector<edm::InputTag> temp1;
+    temp1.push_back(edm::InputTag("siPixelDigis"));
+    desc.add<std::vector<edm::InputTag> >("inactivePixelDetectorLabels",temp1)->setComment("");
+  }
+  {
+    std::vector<edm::InputTag> temp1;
+    temp1.push_back(edm::InputTag("siStripDigis"));
+    desc.add<std::vector<edm::InputTag> >("inactiveStripDetectorLabels",temp1)->setComment("");
+  }
+  desc.add<bool>("switchOffPixelsIfEmpty",true)->setComment("");
+
+  descriptions.add("MeasurementTrackerEvent",desc);
+  descriptions.setComment("");
+}
 
 DEFINE_FWK_MODULE(MeasurementTrackerEventProducer);

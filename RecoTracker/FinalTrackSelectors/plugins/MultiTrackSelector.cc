@@ -1,5 +1,7 @@
 #include "MultiTrackSelector.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
@@ -624,6 +626,88 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
   evt.put(mvaValValueMap,"MVAVals");
 
 }
+
+void 
+MultiTrackSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("src",edm::InputTag("generalTracks"))->setComment("track input collection");
+  desc.add<edm::InputTag>("beamspot",edm::InputTag("offlineBeamSpot"))->setComment(" beam spot input collection");
+  desc.add<edm::InputTag>("vertices",edm::InputTag("firstStepPrimaryVertices"))->setComment("vertices input collection");
+  desc.add<bool>("useVertices",true)->setComment("");
+  desc.add<bool>("useVtxError",false)->setComment("");
+
+  {
+    edm::ParameterSetDescription vpsd1;
+    vpsd1.add<std::string>("preFilterName","")->setComment("");
+    vpsd1.add<std::string>("name","TrkLoose")->setComment("");
+    vpsd1.add<unsigned int>("minNumber3DLayers",0)->setComment("min number of layers w/ 3D measurements (pixel or strip double sided)");
+    vpsd1.add<unsigned int>("minNumberLayers",0)->setComment("min number of layers");
+    vpsd1.add<unsigned int>("maxNumberLostLayers",999)->setComment("max number of lost layers");
+    vpsd1.add<double>("max_lostHitFraction",1.0)->setComment("max fraction of lost hits");
+    vpsd1.add<int>("max_minMissHitOutOrIn",99)->setComment("min number of missing hits");
+    vpsd1.add<bool>("applyAbsCutsIfNoPV",false)->setComment("");
+    vpsd1.add<bool>("applyAdaptedPVCuts",true)->setComment("");
+    vpsd1.add<std::string>("qualityBit","loose")->setComment("quality bit");
+    vpsd1.add<double>("chi2n_par",1.6)->setComment("good: chi2n <= chi2n_par*nlayers");
+    vpsd1.add<double>("nSigmaZ",4.0)->setComment("z0 within (n sigma + dzCut) of the beam spot z, if no good vertex is found");
+    {
+      std::vector<double> temp1;
+      temp1.reserve(2);
+      temp1.push_back(0.65);
+      temp1.push_back(4.0);
+      vpsd1.add<std::vector<double> >("dz_par1",temp1)->setComment("");
+    }
+    {
+      std::vector<double> temp1;
+      temp1.reserve(2);
+      temp1.push_back(0.45);
+      temp1.push_back(4.0);
+      vpsd1.add<std::vector<double> >("dz_par2",temp1)->setComment("");
+    }
+    vpsd1.add<double>("max_z0",100.0)->setComment("");
+    {
+      std::vector<double> temp1;
+      temp1.reserve(2);
+      temp1.push_back(0.55);
+      temp1.push_back(4.0);
+      vpsd1.add<std::vector<double> >("d0_par1",temp1)->setComment("");
+    }
+    {
+      std::vector<double> temp1;
+      temp1.reserve(2);
+      temp1.push_back(0.55);
+      temp1.push_back(4.0);
+      vpsd1.add<std::vector<double> >("d0_par2",temp1)->setComment("");
+    }
+    vpsd1.add<double>("max_d0",100.0)->setComment("max track 2D impact parameter");
+    vpsd1.add<double>("min_eta",-9999.0)->setComment("min track eta");
+    vpsd1.add<double>("max_eta",9999.0)->setComment("max track eta");
+    vpsd1.add<int>("vtxNumber",-1)->setComment("");
+    vpsd1.add<double>("max_relpterr",9999.0)->setComment("max rel pTerr");
+    vpsd1.add<std::string>("vertexCut","ndof>=2&!isFake")->setComment("");
+    vpsd1.add<unsigned int>("min_nhits",0)->setComment("min number of track hits");
+    vpsd1.add<double>("chi2n_no1Dmod_par",9999)->setComment("");
+    {
+      std::vector<double> temp1;
+      temp1.reserve(2);
+      temp1.push_back(0.003);
+      temp1.push_back(0.01);
+      vpsd1.add<std::vector<double> >("res_par",temp1)->setComment("");
+    }
+    vpsd1.add<unsigned int>("minHitsToBypassChecks",20)->setComment("");
+
+    vpsd1.add<bool>("keepAllTracks",false)->setComment("");
+    vpsd1.addUntracked<bool>("copyTrajectories",false)->setComment("");
+    vpsd1.addUntracked<bool>("copyExtras",true)->setComment("");
+
+    desc.addVPSet("trackSelectors",vpsd1)->setComment("");
+  }
+
+  descriptions.add("multiTrackSelector",desc);
+  descriptions.setComment("");
+}
+
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
