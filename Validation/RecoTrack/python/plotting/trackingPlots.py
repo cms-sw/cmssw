@@ -100,7 +100,7 @@ _tuning = PlotGroup("tuning", [
     Plot("chi2_vs_eta", stat=True, profileX=True, title="", xtitle="#eta", ytitle="< #chi^{2} / ndf >", ymax=2.5),
     Plot("ptres_vs_eta_Mean", stat=True, scale=100, title="", xtitle="#eta", ytitle="< #delta p_{t} / p_{t} > [%]", ymin=-1.5, ymax=1.5)
 ])
-_common = {"stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "xmin": -10, "xmax": 10}
+_common = {"stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "xmin": -10, "xmax": 10, "ylog": True, "ymin": 5e-5, "ymax": [0.01, 0.05, 0.1, 0.2, 0.5]}
 _pulls = PlotGroup("pulls", [
     Plot("pullPt", **_common),
     Plot("pullQoverp", **_common),

@@ -11,7 +11,7 @@ _recovsgen = PlotGroup("recovsgen", [
     Plot("RecoVtx_vs_GenVtx", ytitle="Reco vertices", **_common),
     Plot("MatchedRecoVtx_vs_GenVtx", ytitle="Matched reco vertices", **_common),
     Plot("merged_vs_ClosestVertexInZ", xtitle="Closest distance in Z (cm)", ytitle="Merge rate", xlog=True),
-    Plot("TruePVLocationIndexCumulative", xtitle="Signal PV status in Reco collection", ytitle="Fraction of events", title="", drawStyle="hist", normalizeToUnitArea=True, xbinlabels=["Not reconstructed", "Reco and identified", "Reco, not identified"], xbinlabelsize=0.045, xbinlabeloption="h", xgrid=False)
+    Plot("TruePVLocationIndexCumulative", xtitle="Signal PV status in Reco collection", ytitle="Fraction of events", title="", drawStyle="hist", normalizeToUnitArea=True, xbinlabels=["Not reconstructed", "Reco and identified", "Reco, not identified"], xbinlabelsize=0.045, xbinlabeloption="h", xgrid=False, ylog=True, ymin=1e-4)
 ],
                        legendDy=-0.02, legendDh=-0.01
 )
