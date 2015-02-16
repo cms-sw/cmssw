@@ -1,6 +1,6 @@
 import itertools
 import ROOT
-ROOT.gSystem.Load('libCondFormatsBTagObjects')
+ROOT.gSystem.Load('libCondFormatsBTauObjects')
 
 
 separate_by_op   = False
