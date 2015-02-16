@@ -26,26 +26,20 @@ int main()
   );
   assert (b2.formula == string("2*x"));
 
-  // histo constructor linear formula
-  auto h1 = TH1F("h1", "", 2, 0., 2.);
-  h1.Fill(0.5, 1);
-  h1.Fill(1.5, 2);
-  auto b3 = BTagEntry(
-    &h1,
-    BTagEntry::Parameters(BTagEntry::OP_TIGHT, "comb", "up", BTagEntry::FLAV_C)
-  );
-  assert (b3.formula == string("x<0 ? 0. : x<1 ? 1 : x<2 ? 2 : 0"));
-
-  // histo constructor bin tree formula
-  auto h2 = TH1F("h2", "", 15, 0., 15.);
-  for (int i=-2; i<17; ++i) {
-    h2.Fill(i+.5, i+.5);
+  // histo constructor
+  auto h1 = TH1F("h1", "", 3, 0., 1.);  // lin.
+  auto h2 = TH1F("h2", "", 100, 0., 1.);  // bin. tree
+  auto sin = TF1("sin", "sin(x)");
+  for (float f=0.01f; f<1.f; f+=.01f) {
+    h1.Fill(f, sin.Eval(f)/30.);
+    h2.Fill(f, sin.Eval(f));
   }
-  auto b3_1 = BTagEntry(
-    &h2,
-    BTagEntry::Parameters(BTagEntry::OP_TIGHT, "comb", "up", BTagEntry::FLAV_C)
-  );
-  assert (b3_1.formula == string("x<8 ? (x<4 ? (x<2 ? (x<1 ? (x<0 ? 0:0.5) : (1.5)) : (x<3 ? 2.5:3.5)) : (x<6 ? (x<5 ? 4.5:5.5) : (x<7 ? 6.5:7.5))) : (x<12 ? (x<10 ? (x<9 ? 8.5:9.5) : (x<11 ? 10.5:11.5)) : (x<14 ? (x<13 ? 12.5:13.5) : (x<15 ? 14.5:0)))"));
+  auto f3_1 = TF1("", BTagEntry(&h1, par1).formula.c_str());
+  auto f3_2 = TF1("", BTagEntry(&h2, par1).formula.c_str());
+  for (float f=0.01f; f<1.f; f+=.01f) {
+    assert (fabs(h1.GetBinContent(h1.FindBin(f)) - f3_1.Eval(f)) < 1e-5);
+    assert (fabs(h2.GetBinContent(h2.FindBin(f)) - f3_2.Eval(f)) < 1e-5);
+  }
 
   // csv constructor
   string csv = "0, comb, up, 0, 1, 2, 3, 4, 5, 6, \"2*x\" \n";

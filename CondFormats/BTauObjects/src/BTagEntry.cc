@@ -257,4 +257,3 @@ std::string BTagEntry::trimStr(std::string str) {
   else
     return str.substr(s, e-s+1);
 }
-
