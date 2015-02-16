@@ -424,26 +424,15 @@ class Plot:
             dy -= 0.19
 
     def _normalize(self):
-        """If >= 2 histograms, normalize them to unit area."""
-        if len(self._histograms) < 2:
-            return
+        """Normalise histograms to unit area"""
 
-        integrals = []
-        n_nonzero = 0
         for h in self._histograms:
             if h is None:
                 continue
             i = h.Integral()
-            if i != 0:
-                n_nonzero += 1
-            integrals.append(i)
-
-        if n_nonzero >= 2:
-            for i, h in zip(integrals, self._histograms):
-                if h is None:
-                    continue
-                if i != 0:
-                    h.Scale(1.0/i)
+            if i == 0:
+                continue
+            h.Scale(1.0/i)
 
     def draw(self, algo):
         """Draw the histograms using values for a given algorithm."""
