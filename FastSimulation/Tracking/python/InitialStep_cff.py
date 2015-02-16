@@ -6,16 +6,16 @@ import RecoTracker.IterativeTracking.InitialStep_cff
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 initialStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    simTrackSelection = trajectorySeedProducer.simTrackSelection.clone(
+    simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
         pTMin = 0.4,
         maxD0 = 1.0,
         maxZ0 = 999,
         ),
     minLayersCrossed = 3,
-    nSigmaZ = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.nSigmaZ,
-    originpTMin = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.ptMin,
-    originRadius = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.originRadius,
-    layerList = RecoTracker.IterativeTracking.InitialStep_cff.initialstepseedlayers.layerList.clone()
+    nSigmaZ = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ,
+    originpTMin = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
+    originRadius = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
+    layerList = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeedLayers.layerList.value()
     )
 
 # track candidates
@@ -43,7 +43,7 @@ initialStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
 
 # final selection
 initialStepSelector = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSelector.clone()
-initialStep = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSelector.initialStep.clone()
+initialStep = RecoTracker.IterativeTracking.InitialStep_cff.initialStep.clone()
 
 # Final sequence
 InitialStep = cms.Sequence(initialStepSeeds
