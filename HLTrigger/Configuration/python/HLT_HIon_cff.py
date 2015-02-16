@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_3_0/HIon/V53 (CMSSW_7_3_1_patch2_HLT3)
+# /dev/CMSSW_7_3_0/HIon/V54 (CMSSW_7_3_1_patch2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/HIon/V53')
+  tableName = cms.string('/dev/CMSSW_7_3_0/HIon/V54')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -1627,10 +1627,10 @@ hltEcalUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
     EBtimeFitParameters = cms.vdouble( -2.015452, 3.130702, -12.3473, 41.88921, -82.83944, 91.01147, -50.35761, 11.05621 ),
     EEhitCollection = cms.string( "EcalUncalibRecHitsEE" ),
     EBtimeConstantTerm = cms.double( 0.6 ),
-    prefitMaxChiSqEB = cms.double( 100.0 ),
+    prefitMaxChiSqEB = cms.double( 25.0 ),
     UseDynamicPedestal = cms.bool( True ),
     EBamplitudeFitParameters = cms.vdouble( 1.138, 1.652 ),
-    ampErrorCalculation = cms.bool( False ),
+    ampErrorCalculation = cms.bool( True ),
     kPoorRecoFlagEB = cms.bool( True ),
     ebPulseShape = cms.vdouble( 5.2E-5, -5.26E-5, 6.66E-5, 0.1168, 0.7575, 1.0, 0.8876, 0.6732, 0.4741, 0.3194 ),
     EBtimeFitLimits_Lower = cms.double( 0.2 ),
@@ -1638,9 +1638,9 @@ hltEcalUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
     chi2ThreshEB_ = cms.double( 65.0 ),
     EBdigiCollection = cms.InputTag( 'hltEcalDigis','ebDigis' ),
     EEtimeFitParameters = cms.vdouble( -2.390548, 3.553628, -17.62341, 67.67538, -133.213, 140.7432, -75.41106, 16.20277 ),
-    useLumiInfoRunHeader = cms.bool( False ),
+    useLumiInfoRunHeader = cms.bool( True ),
     activeBXs = cms.vint32( -5, -4, -3, -2, -1, 0, 1, 2, 3, 4 ),
-    doPrefitEE = cms.bool( True ),
+    doPrefitEE = cms.bool( False ),
     AlphaBetaFilename = cms.untracked.string( "NOFILE" ),
     betaEB = cms.double( 1.655 ),
     MinAmplEndcap = cms.double( 14.0 ),
@@ -1650,15 +1650,15 @@ hltEcalUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
     prefitMaxChiSqEE = cms.double( 10.0 ),
     MinAmplBarrel = cms.double( 8.0 ),
     betaEE = cms.double( 1.4 ),
-    timealgo = cms.string( "None" ),
+    timealgo = cms.string( "RatioMethod" ),
     EEtimeConstantTerm = cms.double( 1.0 ),
     alphaEE = cms.double( 1.89 ),
     EBhitCollection = cms.string( "EcalUncalibRecHitsEB" ),
-    algo = cms.string( "EcalUncalibRecHitWorkerMultiFit" ),
+    algo = cms.string( "EcalUncalibRecHitWorkerWeights" ),
     alphaEB = cms.double( 1.138 ),
     chi2ThreshEE_ = cms.double( 50.0 ),
     EBtimeFitLimits_Upper = cms.double( 1.4 ),
-    doPrefitEB = cms.bool( True )
+    doPrefitEB = cms.bool( False )
 )
 hltEcalDetIdToBeRecovered = cms.EDProducer( "EcalDetIdToBeRecoveredProducer",
     ebIntegrityChIdErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityChIdErrors' ),

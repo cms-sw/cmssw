@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_3_0/50nsGRun/V4 (CMSSW_7_3_1_patch2_HLT3)
+# /dev/CMSSW_7_3_0/50nsGRun/V6 (CMSSW_7_3_1_patch2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT50nsGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/50nsGRun/V4')
+  tableName = cms.string('/dev/CMSSW_7_3_0/50nsGRun/V6')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -43211,7 +43211,6 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
 process.DQMOutput = cms.EndPath( process.dqmOutput )
 
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
-process.HLT_ModificationsForEGamma_v1 = cms.Path( process.HLTBeginSequence + process.hltEcalUncalibRecHit + process.HLTEndSequence )
 
 
 
