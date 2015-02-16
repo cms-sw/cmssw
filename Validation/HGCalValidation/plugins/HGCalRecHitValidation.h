@@ -32,16 +32,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-//#include "DetectorDescription/Core/interface/DDCompactView.h"
-//#include "FWCore/Framework/interface/ESTransientHandle.h"
-
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Geometry/FCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include <CLHEP/Geometry/Transform3D.h>
 
 #include <iostream>
 #include <fstream>
@@ -74,25 +68,23 @@ public:
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  //void FillHitsInfo(std::pair<HitsInfo,energysum> hit_, unsigned int itimeslice, double esum); 
-  void FillHitsInfo(); 
-  void FillHitsInfo(HitsInfo& hits); 
+  template<class T1, class T2>
+    void recHitValidation(DetId & detId, int layer, const T1* geom, T2 it);
+  void fillHitsInfo(); 
+  void fillHitsInfo(HitsInfo& hits); 
   void fillOccupancyMap(std::map<int, int>& OccupancyMap, int layer);
-  // static const int netaBins = 4;
-  
   
 private:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
-  //  bool defineGeometry(edm::ESTransientHandle<DDCompactView> &ddViewH);
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   
   // ----------member data ---------------------------
-  std::string           nameDetector_, HGCRecHitSource_;
+  std::string           nameDetector_;
+  edm::InputTag         recHitSource_;
   DQMStore              *dbe_;
-  HGCalDDDConstants     *hgcons_;
   int                   verbosity_;
   unsigned int          layers_;
   std::map<int, int>    OccupancyMap_plus;

@@ -26,7 +26,6 @@ void HcalGeometry::init() {
 			       << " HESize " << theTopology.getHESize() 
 			       << " HOSize " << theTopology.getHOSize() 
 			       << " HFSize " << theTopology.getHFSize();
-    
   m_hbCellVec = HBCellVec( theTopology.getHBSize() ) ;
   m_heCellVec = HECellVec( theTopology.getHESize() ) ;
   m_hoCellVec = HOCellVec( theTopology.getHOSize() ) ;
@@ -118,12 +117,9 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
     if (bc == HcalBarrel) pointrz = r.mag();
     else                  pointrz = std::abs(r.z());
     HcalDetId bestId;
-//    std::cout << "Current ID " << currentId << std::endl;
     for ( ; currentId != HcalDetId(); theTopology.incrementDepth(currentId)) {
-//      std::cout << "Incremented Current ID " << currentId << std::endl;
       const CaloCellGeometry * cell = getGeometry(currentId);
       if (cell == 0) {
-//	std::cout << "Cell 0 for " << currentId << " Best " << bestId << " dummy " << HcalDetId() << std::endl;
 	assert (bestId != HcalDetId());
 	break;
       } else {

@@ -16,19 +16,22 @@
 
 // system include files
 #include "Validation/HGCalValidation/plugins/HGCalRecHitValidation.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/FCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "TVector3.h"
@@ -38,7 +41,7 @@
 HGCalRecHitValidation::HGCalRecHitValidation(const edm::ParameterSet& iConfig){
   dbe_             = edm::Service<DQMStore>().operator->();
   nameDetector_    = iConfig.getParameter<std::string>("DetectorName");
-  HGCRecHitSource_ = iConfig.getParameter<std::string>("RecHitSource");
+  recHitSource_    = iConfig.getParameter<edm::InputTag>("RecHitSource");
   verbosity_       = iConfig.getUntrackedParameter<int>("Verbosity",0);
 }
 
@@ -50,66 +53,104 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent,
   OccupancyMap_plus.clear();
   OccupancyMap_minus.clear();
 
-  edm::ESHandle<HGCalGeometry> geom;
-  iSetup.get<IdealGeometryRecord>().get(nameDetector_,geom);
-  const HGCalGeometry& geom0 = *geom;
+  bool ok(true);
+  unsigned int ntot(0), nused(0);
+  if (nameDetector_ == "HCal") {
+    edm::ESHandle<CaloGeometry> geom;
+    iSetup.get<CaloGeometryRecord>().get(geom);
+    if (!geom.isValid()) edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
+    const CaloGeometry* geom0 = geom.product();
 
-  //get the HGC RecHit Collection
-  edm::Handle<HGCRecHitCollection> theRecHitContainers;
-  iEvent.getByLabel("HGCalRecHit", HGCRecHitSource_, theRecHitContainers);
-  if (theRecHitContainers.isValid()) {
-    if (verbosity_>0) std::cout << nameDetector_ << " with " << theRecHitContainers->size()
-				<< " HGCRecHit element(s)"<< std::endl;
+    edm::Handle<HBHERecHitCollection> hbhecoll;
+    iEvent.getByLabel(recHitSource_, hbhecoll);
+    if (hbhecoll.isValid()) {
+      if (verbosity_>0) 
+	edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
+					<< hbhecoll->size() << " element(s)";
+      for (HBHERecHitCollection::const_iterator it=hbhecoll->begin(); 
+	   it != hbhecoll->end(); ++it) {
+	DetId detId = it->id();
+	ntot++;
+	if (detId.subdetId() == HcalEndcap) {
+	  nused++;
+	  int   layer = HcalDetId(detId).depth();
+	  recHitValidation(detId, layer, geom0, it);
+	}
+      }
+    } else {
+      ok = false;
+      edm::LogWarning("HGCalValidation") << "HBHERecHitCollection Handle does not exist !!!";
+    }
+  } else {
+    edm::ESHandle<HGCalGeometry> geom;
+    iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
+    if (!geom.isValid()) edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
+    const HGCalGeometry* geom0 = geom.product();
 
-    for(HGCRecHitCollection::const_iterator it = theRecHitContainers->begin();
-	it !=theRecHitContainers->end(); ++it) {
-    
-      DetId detId = it->id();
-
-      int layer   = (detId.subdetId() == HGCEE) ? (HGCEEDetId(detId).layer()) : (HGCHEDetId(detId).layer());
-      layer = layer;
-
-      GlobalPoint global1 = geom0.getPosition(detId);
-      float globalx = global1.x();
-      float globaly = global1.y();
-      float globalz = global1.z();
-      
-      double energy = it->energy();
-      
-      HitsInfo   hinfo;
-      hinfo.energy = energy;
-      hinfo.x      = globalx;
-      hinfo.y      = globaly;
-      hinfo.z      = globalz;
-      hinfo.layer  = layer;
-      hinfo.phi    = global1.phi();
-      hinfo.eta    = global1.eta();
-      
-      if (verbosity_>1) std::cout << " --------------------------   gx = "
-				  << globalx << " gy = "  << globaly   << " gz = "
-				  << globalz << " phi = " << hinfo.phi << " eta = "
-				  << hinfo.eta  << std::endl;
-      
-      FillHitsInfo(hinfo);
-      
-      double eta = hinfo.eta;
-      if (eta > 0)  fillOccupancyMap(OccupancyMap_plus, layer -1);
-      else          fillOccupancyMap(OccupancyMap_minus, layer -1);
-      
-      
-    }// loop over hits ends here
-    
-    FillHitsInfo();
+    edm::Handle<HGCRecHitCollection> theRecHitContainers;
+    iEvent.getByLabel(recHitSource_, theRecHitContainers);
+    if (theRecHitContainers.isValid()) {
+      if (verbosity_>0) 
+	edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
+					<< theRecHitContainers->size()
+					<< " element(s)";
+      for (HGCRecHitCollection::const_iterator it=theRecHitContainers->begin();
+	   it !=theRecHitContainers->end(); ++it) {
+	ntot++; nused++;
+	DetId detId = it->id();
+	int layer   = (detId.subdetId() == HGCEE) ? (HGCEEDetId(detId).layer()) : (HGCHEDetId(detId).layer());
+	recHitValidation(detId, layer, geom0, it);
+      }
+    } else {
+      ok = false;
+      edm::LogWarning("HGCalValidation") << "HGCRecHitCollection Handle does not exist !!!";
+    }
   }
-  else if(verbosity_ > 0)
-    std::cout << "HGCRecHitCollection Handle does not exist !!!" <<std::endl;
+  if (ok) fillHitsInfo();
+  edm::LogWarning("HGCalValidation") << "Event " << iEvent.id().event()
+				     << " with " << ntot << " total and "
+				     << nused << " used recHits";
 }
+
+template<class T1, class T2>
+void HGCalRecHitValidation::recHitValidation(DetId & detId, int layer, 
+					     const T1* geom, T2 it) {
+
+  GlobalPoint global = geom->getPosition(detId);
+  double      energy = it->energy();
+
+  float globalx = global.x();
+  float globaly = global.y();
+  float globalz = global.z();
+      
+  HitsInfo   hinfo;
+  hinfo.energy = energy;
+  hinfo.x      = globalx;
+  hinfo.y      = globaly;
+  hinfo.z      = globalz;
+  hinfo.layer  = layer;
+  hinfo.phi    = global.phi();
+  hinfo.eta    = global.eta();
+      
+  if (verbosity_>1) 
+    edm::LogInfo("HGCalValidation") << " --------------------------   gx = "
+				    << globalx << " gy = "  << globaly   
+				    << " gz = " << globalz << " phi = " 
+				    << hinfo.phi << " eta = " << hinfo.eta;
+      
+  fillHitsInfo(hinfo);
+      
+  if (hinfo.eta > 0)  fillOccupancyMap(OccupancyMap_plus, layer -1);
+  else                fillOccupancyMap(OccupancyMap_minus, layer -1);
+      
+}      
+
 void HGCalRecHitValidation::fillOccupancyMap(std::map<int, int>& OccupancyMap, int layer){
   if (OccupancyMap.find(layer) != OccupancyMap.end()) OccupancyMap[layer]++;
   else                                                OccupancyMap[layer] = 1;
 }
 
-void HGCalRecHitValidation::FillHitsInfo() { 
+void HGCalRecHitValidation::fillHitsInfo() { 
 
   for (auto itr = OccupancyMap_plus.begin() ; itr != OccupancyMap_plus.end(); ++itr) {
     int layer      = (*itr).first;
@@ -125,7 +166,7 @@ void HGCalRecHitValidation::FillHitsInfo() {
   
 }
 
-void HGCalRecHitValidation::FillHitsInfo(HitsInfo& hits) {
+void HGCalRecHitValidation::fillHitsInfo(HitsInfo& hits) {
 
   unsigned int ilayer = hits.layer -1;
   energy_.at(ilayer)->Fill(hits.energy);
@@ -142,16 +183,22 @@ void HGCalRecHitValidation::endJob() { }
 void HGCalRecHitValidation::beginRun(edm::Run const& iRun, 
 				     edm::EventSetup const& iSetup) {
 
-  edm::ESTransientHandle<DDCompactView> pDD;
-  iSetup.get<IdealGeometryRecord>().get( pDD );
-  const DDCompactView & cview = *pDD;
-  hgcons_ = new HGCalDDDConstants(cview, nameDetector_);
-  
-  if (dbe_) {
+  if (nameDetector_ == "HCal") {
+    edm::ESHandle<HcalDDDRecConstants> pHRNDC;
+    iSetup.get<HcalRecNumberingRecord>().get( pHRNDC );
+    const HcalDDDRecConstants *hcons   = &(*pHRNDC);
+    layers_ = hcons->getMaxDepth(1);
+  } else {
+    edm::ESTransientHandle<DDCompactView> pDD;
+    iSetup.get<IdealGeometryRecord>().get( pDD );
+    const DDCompactView & cview = *pDD;
+    HGCalDDDConstants   *hgcons_ = new HGCalDDDConstants(cview, nameDetector_);
     layers_ = hgcons_->layers(true);
+  }
+
+  if (dbe_) {
     dbe_->setCurrentFolder("HGCalRecHitsV/"+nameDetector_);
     std::ostringstream histoname;
-
     for (unsigned int ilayer = 0; ilayer < layers_; ilayer++ ) {
       histoname.str(""); histoname << "HitOccupancy_Plus_layer_" << ilayer;
       HitOccupancy_Plus_.push_back(dbe_->book1D( histoname.str().c_str(), "RecHitOccupancy_Plus", 2000, 0, 10000));
@@ -175,7 +222,8 @@ void HGCalRecHitValidation::beginRun(edm::Run const& iRun,
 }
 
 void HGCalRecHitValidation::endRun(edm::Run const&, edm::EventSetup const&) {
-  for(int ilayer=0; ilayer < (int)layers_; ++ilayer) {
+
+  for (int ilayer=0; ilayer < (int)layers_; ++ilayer) {
     double meanVal = HitOccupancy_Plus_.at(ilayer)->getMean();
     MeanHitOccupancy_Plus_->setBinContent(ilayer+1, meanVal);
     meanVal = HitOccupancy_Minus_.at(ilayer)->getMean();

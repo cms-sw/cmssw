@@ -16,25 +16,34 @@
 
 // system include files
 #include "Validation/HGCalValidation/plugins/HGCalDigiValidation.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-/////
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-////
-#include "FWCore/Utilities/interface/InputTag.h" // included to header also, have to remove from here
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 
-#include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/FCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
+#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <cmath>
@@ -42,7 +51,7 @@
 HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig){
   dbe_           = edm::Service<DQMStore>().operator->();
   nameDetector_  = iConfig.getParameter<std::string>("DetectorName");
-  DigiSource_    = iConfig.getParameter<std::string>("DigiSource");
+  digiSource_    = iConfig.getParameter<edm::InputTag>("DigiSource");
   verbosity_     = iConfig.getUntrackedParameter<int>("Verbosity",0);
   SampleIndx_    = iConfig.getUntrackedParameter<int>("SampleIndx",5);
 }
@@ -54,90 +63,129 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 				  const edm::EventSetup& iSetup) { 
   OccupancyMap_plus_.clear();
   OccupancyMap_minus_.clear();
+  
+  const HGCalGeometry* geom0(0);
+  const CaloGeometry*  geom1(0);
+  if (nameDetector_ == "HCal") {
+    edm::ESHandle<CaloGeometry> geom;
+    iSetup.get<CaloGeometryRecord>().get(geom);
+    if (!geom.isValid()) edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
+    geom1 = geom.product();
+  } else {
+    edm::ESHandle<HGCalGeometry> geom;
+    iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
+    if (!geom.isValid()) edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
+    geom0 = geom.product();
+  }
 
-  edm::ESHandle<HGCalGeometry> geom;
-  iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
-  const HGCalGeometry& geom0 = *geom;
-
-  if (!geom.isValid())
-    std::cout << "Cannot get valid HGCalGeometry Object for " << nameDetector_ << std::endl;
-
+  unsigned int ntot(0), nused(0);
   if (nameDetector_ == "HGCalEESensitive") {
     //HGCalEE
     edm::Handle<HGCEEDigiCollection> theHGCEEDigiContainers;
-
+    iEvent.getByLabel(digiSource_, theHGCEEDigiContainers);
     if (theHGCEEDigiContainers.isValid()) {
-      if (verbosity_>0) std::cout << nameDetector_ << " with " 
-				  << theHGCEEDigiContainers->size() 
-				  << " element(s)" << std::endl;
+      if (verbosity_>0) 
+	edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
+					<< theHGCEEDigiContainers->size() 
+					<< " element(s)";
       
-      iEvent.getByLabel("mix", DigiSource_, theHGCEEDigiContainers);
-      for(HGCEEDigiCollection::const_iterator it =theHGCEEDigiContainers->begin();
-	  it !=theHGCEEDigiContainers->end(); ++it) {
-	HGCEEDetId detId = it->id();
-	HGCDigiValidation(detId, geom0, it);
+      for (HGCEEDigiCollection::const_iterator it =theHGCEEDigiContainers->begin();
+	   it !=theHGCEEDigiContainers->end(); ++it) {
+	ntot++; nused++;
+	HGCEEDetId detId     = (it->id());
+	int        layer     = detId.layer();
+	HGCSample  hgcSample = it->sample(SampleIndx_);
+	uint16_t   gain      = hgcSample.gain();
+	uint16_t   adc       = hgcSample.adc();
+	double     charge    = adc*gain;
+	digiValidation(detId, geom0, layer, adc, charge);
       }
-      FillDigiInfo();
-    } else if (verbosity_>0) {
-      std::cout << "HGCEEDigiCollection handle does not exist !!!"  << std::endl;
+      fillDigiInfo();
+    } else {
+      edm::LogWarning("HGCalValidation") << "HGCEEDigiCollection handle does not exist !!!";
     }
   } else if ((nameDetector_ == "HGCalHESiliconSensitive") || 
-	     (nameDetector_ == "HGCalHEScintillatorSensitive")){
+	     (nameDetector_ == "HGCalHEScintillatorSensitive")) {
     //HGCalHE
     edm::Handle<HGCHEDigiCollection> theHGCHEDigiContainers;
+    iEvent.getByLabel(digiSource_, theHGCHEDigiContainers);
     if (theHGCHEDigiContainers.isValid()) {
-      if (verbosity_>0) std::cout << nameDetector_ << " with " 
-				  << theHGCHEDigiContainers->size()
-                                  << " element(s)" << std::endl;
+      if (verbosity_>0) 
+	edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
+					<< theHGCHEDigiContainers->size()
+					<< " element(s)";
       
-      iEvent.getByLabel("mix", DigiSource_, theHGCHEDigiContainers);
-      for(HGCHEDigiCollection::const_iterator it =theHGCHEDigiContainers->begin();
-	  it !=theHGCHEDigiContainers->end(); ++it) {
-	HGCHEDetId detId = it->id();
-	HGCDigiValidation(detId, geom0, it);
+      for (HGCHEDigiCollection::const_iterator it =theHGCHEDigiContainers->begin();
+	   it !=theHGCHEDigiContainers->end(); ++it) {
+	ntot++; nused++;
+	HGCHEDetId detId     = (it->id());
+	int        layer     = detId.layer();
+	HGCSample  hgcSample = it->sample(SampleIndx_);
+	uint16_t   gain      = hgcSample.gain();
+	uint16_t   adc       = hgcSample.adc();
+	double     charge    = adc*gain;
+	digiValidation(detId, geom0, layer, adc, charge);
       }
-      FillDigiInfo();
-    } else if (verbosity_>0) {
-      std::cout << "HGCHEDigiCollection handle does not exist !!!"  << std::endl;
+      fillDigiInfo();
+    } else {
+      edm::LogWarning("HGCalValidation") << "HGCHEDigiCollection handle does not exist !!!";
+    }
+  } else if (nameDetector_ == "HCal") {
+    //HE
+    edm::Handle<edm::SortedCollection<HcalUpgradeDataFrame> >  theHEDigiContainers;
+    iEvent.getByLabel(digiSource_, theHEDigiContainers);
+    if (theHEDigiContainers.isValid()) {
+      if (verbosity_>0) 
+	edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
+					<< theHEDigiContainers->size()
+					<< " element(s)";
+      edm::ESHandle<HcalDbService> conditions;
+      iSetup.get<HcalDbRecord > ().get(conditions);
+
+      for (edm::SortedCollection<HcalUpgradeDataFrame>::const_iterator it =theHEDigiContainers->begin();
+	   it !=theHEDigiContainers->end(); ++it) {
+	HcalDetId detId  = (it->id());
+	ntot++;
+	if (detId.subdet() == HcalEndcap) {
+	  nused++;
+	  HcalCalibrations calibrations = conditions->getHcalCalibrations(detId);
+	  const HcalQIECoder* channelCoder = conditions->getHcalCoder(detId);
+	  const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
+	  HcalCoderDb coder(*channelCoder, *shape);
+	  CaloSamples tool;
+	  coder.adc2fC(*it, tool);
+	  int       layer  = detId.depth();
+	  uint16_t  adc    = (*it)[SampleIndx_].adc();
+	  int       capid  = (*it)[SampleIndx_].capid();
+	  double    charge = (tool[SampleIndx_] - calibrations.pedestal(capid));
+	  digiValidation(detId, geom1, layer, adc, charge);
+	}
+      }
+      fillDigiInfo();
+    } else {
+      edm::LogWarning("HGCalValidation") << "HGCHEDigiCollection handle does not exist !!!";
     }
   } else {
-    std::cout << "invalid detector name !!" << std::endl;
+    edm::LogWarning("HGCalValidation") << "invalid detector name !! " 
+				       << nameDetector_;
   }
+  edm::LogInfo("HGCalValidation") << "Event " << iEvent.id().event()
+				  << " with " << ntot << " total and "
+				  << nused << " used digis";
 }
 
-
 template<class T1, class T2>
-void HGCalDigiValidation::HGCDigiValidation(T1 detId, const HGCalGeometry& geom0, const T2 it) {
+void HGCalDigiValidation::digiValidation(const T1& detId, const T2* geom, 
+					 int layer, uint16_t adc, double charge) {
   
   //  std::vector<double> charges;
-  int    cell        =   detId.cell();
-  int    subsector   =   detId.subsector();
-  int    sector      =   detId.sector();
-  int    layer       =   detId.layer();
-  int    zside       =   detId.zside();
-  ForwardSubdetector subdet = detId.subdet();
+  if (verbosity_>1) edm::LogInfo("HGCalValidation") << detId;
+  DetId id1 = DetId(detId.rawId());
+  GlobalPoint global1 = geom->getPosition(id1);
   
-  DetId id1= ((subdet == HGCEE) ? (DetId)(HGCEEDetId(subdet,zside,layer,sector,subsector,cell))
-                                : (DetId)(HGCHEDetId(subdet,zside,layer,sector,subsector,cell)));
-  GlobalPoint global1 = geom0.getPosition(id1);
-  
-  std::cout<< " >>>>>>>> nameDetector : " << nameDetector_ << " >>>>>>>> subsector: " << subsector << std::endl;
-  if (verbosity_>1) std::cout << "cell = "        <<  cell
-			      << " subsector = "  <<  subsector
-			      << " sector = "     <<  sector
-			      << " layer = "      <<  layer
-			      << " zside = "      <<  zside << std::endl;
-  
-  HGCSample   hgcSample  =  it->sample(SampleIndx_);
-  uint16_t    gain       =  hgcSample.gain();
-  uint16_t    adc        =  hgcSample.adc();
-  int         charge     =  adc*gain;
-
-  if (verbosity_>1) std::cout << "nSample = "      <<  it->size()
-			      << " SampleIndx = "  <<  SampleIndx_
-			      << " gain = "        <<  gain
-			      << " adc = "         <<  adc
-			      << " charge = "      <<  charge << std::endl;
+  if (verbosity_>1) 
+    edm::LogInfo("HGCalValidation") << " adc = "         <<  adc
+				    << " charge = "      <<  charge;
   
   digiInfo   hinfo; 
   hinfo.x       =  global1.x();
@@ -147,15 +195,16 @@ void HGCalDigiValidation::HGCDigiValidation(T1 detId, const HGCalGeometry& geom0
   hinfo.charge  =  charge; //charges[0];
   hinfo.layer   =  layer;
   
-  if (verbosity_>1) std::cout << "gx =  "  << hinfo.x
-			      << " gy = "   << hinfo.y
-			      << " gz = "   << hinfo.z << std::endl;
+  if (verbosity_>1) 
+    edm::LogInfo("HGCalValidation") << "gx =  "  << hinfo.x
+				    << " gy = "  << hinfo.y
+				    << " gz = "  << hinfo.z;
   
-  FillDigiInfo(hinfo);
+  fillDigiInfo(hinfo);
 
   if (global1.eta() > 0)  fillOccupancyMap(OccupancyMap_plus_, layer -1);
   else                    fillOccupancyMap(OccupancyMap_minus_, layer -1);
-
+  
 }
 
 void HGCalDigiValidation::fillOccupancyMap(std::map<int, int>& OccupancyMap, int layer) {
@@ -163,14 +212,14 @@ void HGCalDigiValidation::fillOccupancyMap(std::map<int, int>& OccupancyMap, int
   else                                                OccupancyMap[layer] = 1;
 }
 
-void HGCalDigiValidation::FillDigiInfo(digiInfo&   hinfo) {
+void HGCalDigiValidation::fillDigiInfo(digiInfo& hinfo) {
   int ilayer = hinfo.layer -1;
   charge_.at(ilayer)->Fill(hinfo.charge);
   DigiOccupancy_XY_.at(ilayer)->Fill(hinfo.x, hinfo.y);
   ADC_.at(ilayer)->Fill(hinfo.adc);
 }
 
-void HGCalDigiValidation::FillDigiInfo() {
+void HGCalDigiValidation::fillDigiInfo() {
   if(!dbe_) return;
   for (auto itr = OccupancyMap_plus_.begin(); 
        itr != OccupancyMap_plus_.end(); ++itr) {
@@ -193,18 +242,26 @@ void HGCalDigiValidation::endJob() { }
 void HGCalDigiValidation::beginRun(edm::Run const& iRun, 
 				   edm::EventSetup const& iSetup) {
   
-  edm::ESTransientHandle<DDCompactView> pDD;
-  iSetup.get<IdealGeometryRecord>().get( pDD );
-  const DDCompactView & cview = *pDD;
-  hgcons_ = new HGCalDDDConstants(cview, nameDetector_);
+  if (nameDetector_ == "HCal") {
+    edm::ESHandle<HcalDDDRecConstants> pHRNDC;
+    iSetup.get<HcalRecNumberingRecord>().get( pHRNDC );
+    const HcalDDDRecConstants *hcons   = &(*pHRNDC);
+    layers_ = hcons->getMaxDepth(1);
+  } else {
+    edm::ESTransientHandle<DDCompactView> pDD;
+    iSetup.get<IdealGeometryRecord>().get( pDD );
+    const DDCompactView & cview = *pDD;
+    HGCalDDDConstants  *hgcons_ = new HGCalDDDConstants(cview, nameDetector_);
+    layers_ = hgcons_->layers(true);
+  }
   
   if (dbe_) {
-    layers_ = hgcons_->layers(true);
     dbe_->setCurrentFolder("HGCalDigiV/"+nameDetector_);
     
-    if (verbosity_>0) std::cout << "current DQM directory:  "
-				<< "HGCalDigiV/" << nameDetector_ 
-				<< "  layer = "<< layers_ << std::endl;
+    if (verbosity_>0) 
+      edm::LogInfo("HGCalValidation") << "current DQM directory:  "
+				      << "HGCalDigiV/" << nameDetector_ 
+				      << "  layer = "<< layers_;
     std::ostringstream histoname;
     for (int ilayer = 0; ilayer < layers_; ilayer++ ) {
       histoname.str(""); histoname << "charge_"<< "layer_" << ilayer;

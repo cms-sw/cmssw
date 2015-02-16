@@ -10,15 +10,15 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023HGCalMuonReco_cff')##
-process.load ('Configuration.Geometry.GeometryExtended2023HGCalMuon_cff')##
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')##
+process.load('Configuration.Geometry.GeometryExtended2023HGCalV6MuonReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023HGCalV6Muon_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')##
+process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
-process.load('Configuration.StandardSequences.Digi_cff')##
-process.load('Configuration.StandardSequences.SimL1Emulator_cff')##
+process.load('Configuration.StandardSequences.Digi_cff')
+process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')##
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -109,15 +109,7 @@ process.ValidationOutput = cms.OutputModule("PoolOutputModule",
 process.load("DQMServices.Core.DQM_cfg")
 process.DQM.collectorHost = ''
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
-process.load("Validation.HGCalValidation.rechitValidation_cfi")
-process.hgcalRecHitValidationEE.Verbosity     = 0
-###
-process.hgcalRecHitValidationHEF = process.hgcalRecHitValidationEE.clone(
-        DetectorName = cms.string("HGCalHESiliconSensitive"),
-        RecHitSource = cms.string("HGCHEFRecHits"))
-process.hgcalRecHitValidationHEB = process.hgcalRecHitValidationEE.clone(
-        DetectorName = cms.string("HGCalHEScintillatorSensitive"),
-        RecHitSource = cms.string("HGCHEBRecHits"))
+process.load("Validation.HGCalValidation.rechitValidationV6_cff")
 
 ## path and endpath deffinition 
 process.p1 = cms.Path(process.hgcalRecHitValidationEE+process.hgcalRecHitValidationHEF+process.hgcalRecHitValidationHEB)

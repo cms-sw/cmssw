@@ -22,28 +22,25 @@
 
 // system include files
 #include <memory>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <map>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
-#include "Geometry/FCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include <CLHEP/Geometry/Transform3D.h>
-
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <map>
-#include <string>
 
 class HGCalDigiValidation : public edm::EDAnalyzer {
 
@@ -61,11 +58,11 @@ public:
   ~HGCalDigiValidation();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  void FillDigiInfo(digiInfo&   hinfo);
-  void FillDigiInfo();
+  void fillDigiInfo(digiInfo&   hinfo);
+  void fillDigiInfo();
   void fillOccupancyMap(std::map<int, int>& OccupancyMap, int layer);
   template<class T1, class T2> 
-  void HGCDigiValidation(T1 detId, const HGCalGeometry& geom0, const T2 it);
+  void digiValidation(const T1& detId, const T2* geom, int, uint16_t, double);
 
 private:
   virtual void beginJob() override;
@@ -75,12 +72,12 @@ private:
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   
   // ----------member data ---------------------------
-  std::string       nameDetector_, DigiSource_;
+  std::string       nameDetector_;
+  edm::InputTag     digiSource_;
   int               verbosity_, SampleIndx_;
   DQMStore          *dbe_;
-  HGCalDDDConstants *hgcons_;
   int               layers_;
-
+ 
   std::map<int, int> OccupancyMap_plus_;
   std::map<int, int> OccupancyMap_minus_;
 

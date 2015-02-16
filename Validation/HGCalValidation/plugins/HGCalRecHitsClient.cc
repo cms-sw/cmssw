@@ -1,13 +1,17 @@
 #include "Validation/HGCalValidation/plugins/HGCalRecHitsClient.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include"DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 HGCalRecHitsClient::HGCalRecHitsClient(const edm::ParameterSet& iConfig) {
@@ -18,7 +22,7 @@ HGCalRecHitsClient::HGCalRecHitsClient(const edm::ParameterSet& iConfig) {
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
   
   if (!dbe_) {
-    edm::LogError("HGCalRecHitsClient") << "unable to get DQMStore service, upshot is no client histograms will be made";
+    edm::LogError("HGCalValidation") << "unable to get DQMStore service, upshot is no client histograms will be made";
   }
   if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
     if (dbe_) dbe_->setVerbose(0);
@@ -36,10 +40,18 @@ void HGCalRecHitsClient::endJob() {
 }
 
 void HGCalRecHitsClient::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) { 
-  edm::ESTransientHandle<DDCompactView> pDD;
-  iSetup.get<IdealGeometryRecord>().get( pDD );
-  const DDCompactView & cview = *pDD;
-  hgcons_ = new HGCalDDDConstants(cview, nameDetector_);
+  if (nameDetector_ == "HCal") {
+    edm::ESHandle<HcalDDDRecConstants> pHRNDC;
+    iSetup.get<HcalRecNumberingRecord>().get( pHRNDC );
+    const HcalDDDRecConstants *hcons  = &(*pHRNDC);
+    layers_ = hcons->getMaxDepth(1);
+  } else {
+    edm::ESTransientHandle<DDCompactView> pDD;
+    iSetup.get<IdealGeometryRecord>().get( pDD );
+    const DDCompactView & cview = *pDD;
+    HGCalDDDConstants *hgcons_ = new HGCalDDDConstants(cview, nameDetector_);
+    layers_ = hgcons_->layers(true);
+  }
 }
 
 void HGCalRecHitsClient::endRun(const edm::Run& , const edm::EventSetup& ) {
@@ -53,29 +65,33 @@ void HGCalRecHitsClient::endLuminosityBlock(const edm::LuminosityBlock&, const e
 void HGCalRecHitsClient::runClient_() {
   if (!dbe_) return; 
   dbe_->setCurrentFolder("/"); 
-  if (verbosity_>0) std::cout << "\nrunClient" << std::endl;
+  if (verbosity_>0) edm::LogInfo("HGCalValidation") << "\nrunClient";
   std::vector<MonitorElement*> hgcalMEs;
   std::vector<std::string> fullDirPath = dbe_->getSubdirs();
 
   for (unsigned int i=0; i<fullDirPath.size(); i++) {
-    if (verbosity_>0) std::cout << "\nfullPath: " << fullDirPath.at(i) << std::endl;
+    if (verbosity_>0) 
+      edm::LogInfo("HGCalValidation") << "\nfullPath: " << fullDirPath.at(i);
     dbe_->setCurrentFolder(fullDirPath.at(i));
     std::vector<std::string> fullSubDirPath = dbe_->getSubdirs();
 
     for (unsigned int j=0; j<fullSubDirPath.size(); j++) {
-      if (verbosity_>1) std::cout << "fullSubPath: " << fullSubDirPath.at(j) << std::endl;
+      if (verbosity_>1) 
+	edm::LogInfo("HGCalValidation") << "fullSubPath: " << fullSubDirPath.at(j);
       std::string nameDirectory = "HGCalRecHitsV/"+nameDetector_;
       if (strcmp(fullSubDirPath.at(j).c_str(), nameDirectory.c_str()) == 0) {
         hgcalMEs = dbe_->getContents(fullSubDirPath.at(j));
-        if (verbosity_>1) std::cout << "hgcalMES size : " << hgcalMEs.size() <<std::endl;
-        if( !RecHitsEndjob(hgcalMEs) ) std::cout<< "\nError in RecHitsEndjob!" << std::endl <<std::endl;
+        if (verbosity_>1) 
+	  edm::LogInfo("HGCalValidation") << "hgcalMES size : " << hgcalMEs.size();
+        if (!recHitsEndjob(hgcalMEs)) 
+	  edm::LogWarning("HGCalValidation") << "\nError in RecHitsEndjob!";
       }
     }
 
   }
 }
 
-int HGCalRecHitsClient::RecHitsEndjob(const std::vector<MonitorElement*>& hgcalMEs) {
+int HGCalRecHitsClient::recHitsEndjob(const std::vector<MonitorElement*>& hgcalMEs) {
   std::vector<MonitorElement*> energy_;
   std::vector<MonitorElement*> EtaPhi_Plus_;
   std::vector<MonitorElement*> EtaPhi_Minus_;
@@ -87,8 +103,6 @@ int HGCalRecHitsClient::RecHitsEndjob(const std::vector<MonitorElement*>& hgcalM
   std::ostringstream name;
   double nevent;
   int nbinsx, nbinsy;
-
-  unsigned int layers_ = hgcons_->layers(true);
 
   for (unsigned int ilayer = 0; ilayer < layers_; ilayer++ ){ 
     name.str(""); name << "energy_layer_" << ilayer;
