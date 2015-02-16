@@ -235,9 +235,10 @@ def customise_Reco(process,pileup):
     process.reconstruction_fromRECO.remove(tobTecStepSelector)
     process.reconstruction_fromRECO.remove(tobTecStepTrackCandidates)
     process.reconstruction_fromRECO.remove(tobTecStepTracks)
-    
+
+    # Needed to make the loading of recoFromSimDigis_cff below to work
     process.InitialStepPreSplitting.remove(siPixelClusters)
-    
+
     del process.iterTracking
     del process.ckftracks
     del process.ckftracks_woBH
@@ -297,6 +298,19 @@ def customise_Reco(process,pileup):
     process.regionalCosmicTracks.TTRHBuilder=cms.string('WithTrackAngle')
     process.cosmicsVetoTracksRaw.TTRHBuilder=cms.string('WithTrackAngle')
     # End of pixel template needed section
+
+    # Remove, for now, the pre-cluster-splitting clustering step
+    # To be enabled later together with or after the jet core step is enabled
+    # This snippet must be after the loading of recoFromSimDigis_cff
+    process.pixeltrackerlocalreco = cms.Sequence(
+        process.siPixelClusters +
+        process.siPixelRecHits
+    )
+    process.clusterSummaryProducer.pixelClusters = "siPixelClusters"
+    process.reconstruction.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
+    process.reconstruction.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
+    
+
     
     # Make pixelTracks use quadruplets
     process.pixelTracks.SeedMergerPSet = cms.PSet(
