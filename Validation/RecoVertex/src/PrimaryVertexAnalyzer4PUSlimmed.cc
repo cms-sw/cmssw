@@ -1061,12 +1061,12 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
     int num_total_reco_vertices_multiassoc2gen = 0;
     int num_total_reco_vertices_duplicate = 0;
     for (auto const& v : simpv) {
-      float mistag = 0.;
+      float mistag = 1.;
       // TODO(rovere) put selectors here in front of fill* methods.
       if (v.eventId.event() == 0) {
         if (std::find(v.rec_vertices.begin(), v.rec_vertices.end(),
                       &((*recVtxs.product())[0])) != v.rec_vertices.end()) {
-          mistag = 1.;
+          mistag = 0.;
           kind_of_signal_vertex =
               (kind_of_signal_vertex & ~(1<<IS_ASSOC2FIRST_RECO)) |
               (signal_is_highest_pt << IS_ASSOC2FIRST_RECO);
