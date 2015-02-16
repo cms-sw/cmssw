@@ -1,48 +1,38 @@
-
-
 import FWCore.ParameterSet.Config as cms
 
-### ITERATIVE TRACKING: STEP 0 ###
-
-
-# seeding
-import FastSimulation.Tracking.TrajectorySeedProducer_cfi
-iterativeInitialSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-
-iterativeInitialSeeds.outputSeedCollectionName = 'InitialPixelTriplets'
-iterativeInitialSeeds.minRecHits = 3
-iterativeInitialSeeds.pTMin = 0.4 # it was 0.3
-iterativeInitialSeeds.maxD0 = 1.
-iterativeInitialSeeds.maxZ0 = 30.
-iterativeInitialSeeds.numberOfHits = 3
-iterativeInitialSeeds.originRadius = 1.0 # note: standard tracking uses 0.03, but this value gives a much better agreement in rate and shape for iter0
-iterativeInitialSeeds.originHalfLength = 999 # it was 15.9 
-iterativeInitialSeeds.originpTMin = 0.6
-iterativeInitialSeeds.zVertexConstraint = -1.0
-iterativeInitialSeeds.primaryVertex = 'none'
-
-#iterativeInitialSeeds.layerList = ['BPix1+BPix2+BPix3',
-#                                   'BPix1+BPix2+FPix1_pos',
-#                                   'BPix1+BPix2+FPix1_neg',
-#                                   'BPix1+FPix1_pos+FPix2_pos',
-#                                   'BPix1+FPix1_neg+FPix2_neg']
+# trajectory seeds
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import PixelLayerTriplets
-iterativeInitialSeeds.layerList = PixelLayerTriplets.layerList
+from FastSimulation.Tracking.TrajectorySeedProducer_cfi import trajectorySeedProducer
+initialStepSeeds = trajectorySeedProducer.clone(
+    simTrackSelection = trajectorySeedProducer.simTrackSelection.clone(
+        pTMin = 0.4,
+        maxD0 = 1.0,
+        maxZ0 = 999,
+        ),
+    minLayersCrossed = 3,
+    # note: standard tracking uses for originRadius 0.03, but this value 
+    # gives a much better agreement in rate and shape for iter0
+    originpTMin = 0.6,
+    originRadius = 1.0, 
+    originHalfLength = 999,
+    layerList = PixelLayerTriplets.layerList
+)
 
-# candidate producer
+# track candidates
 from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
 initialStepTrackCandidates = trackCandidateProducer.clone(
-    SeedProducer = cms.InputTag("iterativeInitialSeeds",'InitialPixelTriplets'),
-    MinNumberOfCrossedLayers = 3)
+    SeedProducer = cms.InputTag("initialStepSeeds"),
+    MinNumberOfCrossedLayers = 3
+)
 
-# track producer
+# tracks
 from RecoTracker.IterativeTracking.InitialStep_cff import initialStepTracks
 initialStepTracks = initialStepTracks.clone(
     Fitter = 'KFFittingSmootherWithOutlierRejection',
     TTRHBuilder = 'WithoutRefit',
     Propagator = 'PropagatorWithMaterial')
 
-#vertices
+# vertices
 from RecoTracker.IterativeTracking.InitialStep_cff import firstStepPrimaryVertices
 firstStepPrimaryVertices = firstStepPrimaryVertices.clone()
 
@@ -52,18 +42,15 @@ initialStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
                                         HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
                                         )
 
-# Final selection
+# final selection
 from RecoTracker.IterativeTracking.InitialStep_cff import initialStepSelector,initialStep
 
 # Final sequence
-InitialStep = cms.Sequence(iterativeInitialSeeds
+InitialStep = cms.Sequence(initialStepSeeds
                            +initialStepTrackCandidates
                            +initialStepTracks                                    
                            +firstStepPrimaryVertices
                            +initialStepSelector
                            +initialStep
                            +initialStepSimTrackIds)
-
-
-
 
