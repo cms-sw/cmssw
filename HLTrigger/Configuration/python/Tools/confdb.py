@@ -212,13 +212,11 @@ class HLTProcess(object):
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# none for now
+# from CMSSW_7_4_0_pre7: Simplified TrackerTopologyEP config (PR #7589)
+if cmsswVersion >= "CMSSW_7_4":
+    if 'trackerTopologyConstants' in %(dict)s:
+        %(process)strackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
 """
-
-# from CMSSW_7_2_0_pre6: Use Legacy Errors in "StripCPEESProducer" for HLT (PRs 5286/5151)
-#if cmsswVersion >= "CMSSW_7_2":
-#    if 'hltESPStripCPEfromTrackAngle' in %(dict)s:
-#        %(process)shltESPStripCPEfromTrackAngle.useLegacyError = cms.bool(True)
 
   # customize the configuration according to the options
   def customize(self):

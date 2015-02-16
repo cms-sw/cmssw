@@ -8505,7 +8505,10 @@ process.source = cms.Source( "PoolSource",
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# none for now
+# from CMSSW_7_4_0_pre7: Simplified TrackerTopologyEP config (PR #7589)
+if cmsswVersion >= "CMSSW_7_4":
+    if 'trackerTopologyConstants' in process.__dict__:
+        process.trackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
 
 # load PostLS1 customisation
 from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1

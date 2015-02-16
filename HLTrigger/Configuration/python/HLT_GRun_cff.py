@@ -42136,7 +42136,10 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_AK8PFJet360TrimMod_Mass30_
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# none for now
+# from CMSSW_7_4_0_pre7: Simplified TrackerTopologyEP config (PR #7589)
+if cmsswVersion >= "CMSSW_7_4":
+    if 'trackerTopologyConstants' in locals():
+        trackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
 
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in locals() and 'HLTriggerFirstPath' in locals() :
