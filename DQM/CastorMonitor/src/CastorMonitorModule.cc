@@ -30,7 +30,7 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
   NBunchesOrbit		= ps.getUntrackedParameter<int>("nBunchesOrbit",3563);
   fVerbosity		= ps.getUntrackedParameter<int>("debug", 0);
   showTiming_ 		= ps.getUntrackedParameter<bool>("showTiming",false);
-//inputLabelCastorTowers_  = ps.getParameter<edm::InputTag>("CastorTowerLabel"); 
+  inputLabelCastorTowers_  = ps.getParameter<edm::InputTag>("CastorTowerLabel"); 
 //dump2database_   	= ps.getUntrackedParameter<bool>("dump2database",false);
 
   irun_=0; 
@@ -197,7 +197,13 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
       cpu_timer.reset(); cpu_timer.start();
     }
 
- if(rechitOK_) RecHitMon_->processEvent(*CastorHits);
+ if(rechitOK_) { 
+	RecHitMon_->processEvent(*CastorHits);
+   edm::Handle<reco::CastorTowerCollection> castorTowers;
+   iEvent.getByLabel(inputLabelCastorTowers_,castorTowers);
+	RecHitMon_->processEventTowers(*castorTowers);
+ }
+
  if (showTiming_){
       cpu_timer.stop();
       if (RecHitMon_!=NULL) std::cout <<"TIMER:: RECHIT MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
