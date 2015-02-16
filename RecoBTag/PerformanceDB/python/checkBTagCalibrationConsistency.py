@@ -14,6 +14,13 @@ verbose = False
 
 
 class BtagCalibConsistencyChecker(unittest.TestCase):
+    def test_lowercase(self):
+        for item in [data.meas_type] + list(data.syss):
+            self.assertEqual(
+                item, item.lower(),
+                "Item is not lowercase: %s" % item
+            )
+
     def test_ops_tight(self):
         if check_op:
             self.assertIn(2, data.ops, "OP_TIGHT is missing")
@@ -53,13 +60,13 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
 
     def test_systematics_doublesidedness(self):
         if check_sys:
-            for sys in data.syss:
-                if "up" in sys:
-                    other = sys.replace("up", "down")
+            for syst in data.syss:
+                if "up" in syst:
+                    other = syst.replace("up", "down")
                     self.assertIn(other, data.syss,
                                   "'%s' sys. uncert. is missing" % other)
-                elif "down" in sys:
-                    other = sys.replace("down", "up")
+                elif "down" in syst:
+                    other = syst.replace("down", "up")
                     self.assertIn(other, data.syss,
                                   "'%s' sys. uncert. is missing" % other)
 
@@ -83,15 +90,15 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
 
     def test_coverage(self):
         res = list(itertools.chain.from_iterable(
-            self._check_coverage(op, sys, flav)
+            self._check_coverage(op, syst, flav)
             for flav in data.flavs
-            for sys in data.syss
+            for syst in data.syss
             for op in data.ops
         ))
         self.assertFalse(bool(res), "\n"+"\n".join(res))
 
-    def _check_coverage(self, op, sys, flav):
-        region = "op=%d, %s, flav=%d" % (op, sys, flav)
+    def _check_coverage(self, op, syst, flav):
+        region = "op=%d, %s, flav=%d" % (op, syst, flav)
         if verbose:
             print "Checking coverage for", region
 
@@ -99,7 +106,7 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
         ens = filter(
             lambda e:
             e.params.operatingPoint == op and
-            e.params.sysType == sys and
+            e.params.sysType == syst and
             e.params.jetFlavor == flav,
             data.entries
         )
@@ -169,7 +176,8 @@ def run_check_data(data_loaders,
     check_op, check_sys, check_flavor = op, sys, flavor
 
     all_res = []
-    for data in data_loaders:
+    for dat in data_loaders:
+        data = dat
         print '\n\n'
         print '# Checking csv data for type / op / flavour:', \
             data.meas_type, data.op, data.flav
