@@ -1137,6 +1137,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
         // index -1.
         if (iv == (*recVtxs.product()).end()) {
           mes_[label]["TruePVLocationIndex"]->Fill(-1.);
+          mes_[label]["TruePVLocationIndexCumulative"]->Fill(-1.);
           if (signal_is_highest_pt)
             mes_[label]["TruePVLocationIndexSignalIsHighest"]->Fill(-1.);
           else
