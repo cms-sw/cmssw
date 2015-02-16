@@ -1,7 +1,16 @@
 import itertools
 import ROOT
-ROOT.gSystem.Load('libCondFormatsBTauObjects')
+try:
+    ROOT.BTagEntry
+except AttributeError:
+    ROOT.gROOT.ProcessLine('.L BTagCalibrationStandalone.cc+')
 
+try:
+    ROOT.BTagEntry
+except AttributeError:
+    print 'ROOT.BTagEntry is needed! Please copy ' \
+          'BTagCalibrationStandalone.[h|cc] to the working directory. Exit.'
+    exit(-1)
 
 separate_by_op   = False
 separate_by_flav = False
