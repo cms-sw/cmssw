@@ -8,10 +8,10 @@ import Validation.RecoTrack.plotting.validation as validation
 ########### User Defined Variables (BEGIN) ##############
 
 ### Reference release
-RefRelease='CMSSW_7_3_0_pre1'
+RefRelease='CMSSW_7_4_0_pre5_BS'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_7_3_0_pre2'
+NewRelease='CMSSW_7_4_0_pre6'
 
 #import Validation.RecoTrack.plotting.plotting as plotting
 #plotting.missingOk = True
@@ -23,6 +23,8 @@ startupsamples= [
     Sample('RelValQCD_Pt_3000_3500', midfix="13"),
     Sample('RelValQCD_Pt_600_800', midfix="13"),
     Sample('RelValQCD_FlatPt_15_3000', append="HS", midfix="13"),
+    Sample('RelValZMM', midfix="13"),
+    Sample('RelValWjet_Pt_3000_3500', midfix="13"),
     Sample('RelValSingleElectronPt35', midfix="UP15"),
     Sample('RelValSingleElectronPt10', midfix="UP15"),
     Sample('RelValSingleMuPt10', midfix="UP15"),
@@ -32,6 +34,8 @@ startupsamples= [
 pileupstartupsamples = [
     Sample('RelValTTbar', putype="25ns", midfix="13"),
     Sample('RelValTTbar', putype="50ns", midfix="13")
+    Sample('RelValZMM', putype="25ns", midfix="13"),
+    Sample('RelValZMM', putype="50ns", midfix="13")
 ]
 
 upgradesamples = [
@@ -52,7 +56,7 @@ upgradesamples = [
 ]
 
 fastsimstartupsamples = [
-    Sample('RelValTTbar', midfix="13", fastsim=True)
+    Sample('RelValTTbar', midfix="13", fastsim=True),
     Sample('RelValQCD_FlatPt_15_3000', midfix="13", fastsim=True),
     Sample('RelValSingleMuPt10', midfix="UP15", fastsim=True),
     Sample('RelValSingleMuPt100', midfix="UP15", fastsim=True)

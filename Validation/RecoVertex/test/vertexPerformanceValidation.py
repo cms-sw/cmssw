@@ -10,10 +10,10 @@ import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 #plotting.missingOk = True
 
 ### Reference release
-RefRelease='CMSSW_7_3_0_pre1'
+RefRelease='CMSSW_7_4_0_pre5_BS'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_7_3_0_pre2'
+NewRelease='CMSSW_7_4_0_pre6'
 
 ### This is the list of IDEAL-conditions relvals 
 startupsamples= [
@@ -30,6 +30,8 @@ startupsamples= [
 pileupstartupsamples = [
     Sample('RelValTTbar', putype="25ns", midfix="13"),
     Sample('RelValTTbar', putype="50ns", midfix="13")
+    Sample('RelValZMM', putype="25ns", midfix="13"),
+    Sample('RelValZMM', putype="50ns", midfix="13")
 ]
 
 ### Vertex collections
