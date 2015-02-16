@@ -200,6 +200,7 @@ def customise_Reco(process,pileup):
     process.globalreco.remove(process.electronSeedsSeq)
     process.reconstruction_fromRECO.remove(process.trackingGlobalReco)
     process.reconstruction_fromRECO.remove(process.electronSeedsSeq)
+    process.reconstruction_fromRECO.remove(process.initialStepSeedLayers)
     process.reconstruction_fromRECO.remove(process.initialStepSeeds)
     process.reconstruction_fromRECO.remove(process.initialStepSelector)
     process.reconstruction_fromRECO.remove(initialStepTrackCandidates)
@@ -309,8 +310,25 @@ def customise_Reco(process,pileup):
     process.clusterSummaryProducer.pixelClusters = "siPixelClusters"
     process.reconstruction.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
     process.reconstruction.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
-    
 
+    # Enable, for now, pixel tracks and vertices
+    # To be removed later together with the cluster splitting
+    process.reconstruction.replace(process.standalonemuontracking,
+                                   process.standalonemuontracking+process.recopixelvertexing)
+    process.initialStepSelector.vertices = "pixelVertices"
+    process.highPtTripletStepSelector.vertices = "pixelVertices"
+    process.lowPtQuadStepSelector.vertices = "pixelVertices"
+    process.lowPtTripletStepSelector.vertices = "pixelVertices"
+    process.detachedQuadStepSelector.vertices = "pixelVertices"
+    process.mixedTripletStepSelector.vertices = "pixelVertices"
+    process.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = "pixelVertices"
+    process.pixelPairStepSelector.vertices = "pixelVertices"
+    process.tobTecStepSelector.vertices = "pixelVertices"
+    process.muonSeededTracksInOutSelector.vertices = "pixelVertices"
+    process.muonSeededTracksOutInSelector.vertices = "pixelVertices"
+    process.duplicateTrackSelector.vertices = "pixelVertices"
+    process.convStepSelector.vertices = "pixelVertices"
+    process.ak4CaloJetsForTrk.srcPVs = "pixelVertices"
     
     # Make pixelTracks use quadruplets
     process.pixelTracks.SeedMergerPSet = cms.PSet(
