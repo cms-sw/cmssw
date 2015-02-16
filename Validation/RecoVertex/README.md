@@ -80,7 +80,28 @@ to the previous command, This command will produce and output file
 named step3_VertexValidation,root that will contain all the histograms
 produce by the Vertex Validation package. The internal format of the
 ROOT file follows the DQMIO rules, to have better performance while
-running,
+running harvesting.
+
+* RUN VERTEX VALIDATION WITHOUT RECO
+
+It is also possible to re-run only the validation without
+reconstruction (e.g. for developing the validation package itself).
+For that you need first the list of GEN-SIM-RECO files, i.e. e.g.
+
+```
+das_client.py --limit 0 --query='file dataset=/RelValTTbar_13/CMSSW_7_2_0_pre1-PU25ns_POSTLS172_V1-v1/GEN-SIM-RECO' --format=plain | sort -u > gen_sim_reco_files.txt 2>&1
+```
+
+The configuration can then be generated with
+
+```
+cmsDriver.py step3  --conditions auto:run2_mc -n 100 --eventcontent DQM -s VALIDATION:vertexAnalysisSequence --datatier DQMIO --filein filelist:gen_sim_reco_files.txt --secondfilein filelist:gen_sim_digi_raw_files.txt --fileout step3_VertexValidation.root --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --magField 38T_PostLS1 --no_exec
+```
+
+Note the `secondfilein` parameter for specifying the RAW files for the
+"2-files solution".
+
+
 
 * RUN FINAL HARVESTING TO PRODUCE EFFICIENCY, FAKE, MERGE AND DUPLICATE RATE PLOTS
 
@@ -91,7 +112,7 @@ sequence. Again, we think it is better to provide you with the
 cmsDriver command to do that:
 
 ```
-cmsDriver.py step4  --scenario pp --filetype DQM --conditions auto:run1_mc --mc  -s HARVESTING:postProcessorVertexStandAlone -n -1 --filein file:step3_VertexValidation.root
+cmsDriver.py step4  --scenario pp --filetype DQM --conditions auto:run2_mc --mc  -s HARVESTING:postProcessorVertexStandAlone -n -1 --filein file:step3_VertexValidation.root
 ```
 This command will create a final, plain, ROOT file named:
 DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root that will contain
