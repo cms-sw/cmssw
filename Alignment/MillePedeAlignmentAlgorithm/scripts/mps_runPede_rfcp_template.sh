@@ -31,6 +31,7 @@ clean_up () {
     cp -p *.log.gz $RUNDIR
     cp -p millePedeMonitor*root $RUNDIR
     cp -p millepede.res* $RUNDIR
+    cp -p millepede.end $RUNDIR
     cp -p millepede.his* $RUNDIR
     cp -p *.db $RUNDIR
     exit
