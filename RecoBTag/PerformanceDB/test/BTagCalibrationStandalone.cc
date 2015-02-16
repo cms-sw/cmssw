@@ -97,12 +97,27 @@ throw std::exception();
 BTagEntry::BTagEntry(const std::string &func, BTagEntry::Parameters p):
   formula(func),
   params(p)
-{}
+{
+  TF1 f1("", formula.c_str());  // compile formula to check validity
+  if (f1.IsZombie()) {
+std::cerr << "ERROR in BTagCalibration: "
+          << "Invalid func string; formula does not compile: "
+          << func;
+throw std::exception();
+  }
+}
 
 BTagEntry::BTagEntry(const TF1* func, BTagEntry::Parameters p):
   formula(std::string(func->GetExpFormula("p").Data())),
   params(p)
-{}
+{
+  if (func->IsZombie()) {
+std::cerr << "ERROR in BTagCalibration: "
+          << "Invalid TF1 function; function is zombie: "
+          << func->GetName();
+throw std::exception();
+  }
+}
 
 // Creates chained step functions like this:
 // "<prevous_bin> : x<bin_high_bound ? bin_value : <next_bin>"
@@ -134,6 +149,14 @@ BTagEntry::BTagEntry(const TH1* hist, BTagEntry::Parameters p):
   }
   buff << 0.;  // default value
   formula = buff.str();
+
+  TF1 f1("", formula.c_str());  // compile formula to check validity
+  if (f1.IsZombie()) {
+std::cerr << "ERROR in BTagCalibration: "
+          << "Invalid histogram; formula does not compile (>150 bins?): "
+          << hist->GetName();
+throw std::exception();
+  }
 }
 
 std::string BTagEntry::makeCSVHeader()
@@ -178,6 +201,7 @@ std::string BTagEntry::trimStr(std::string str) {
   else
     return str.substr(s, e-s+1);
 }
+
 
 #include <fstream>
 #include <sstream>
