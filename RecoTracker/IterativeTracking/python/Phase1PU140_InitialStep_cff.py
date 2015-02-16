@@ -6,6 +6,10 @@ import FWCore.ParameterSet.Config as cms
 from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import *
 from RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff import *
 
+# SEEDING LAYERS
+import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
+initialStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
+
 # seeding
 from RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff import *
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
@@ -26,6 +30,7 @@ initialStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globa
 	ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
     )
 )
+initialStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'initialStepSeedLayers'
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
@@ -124,7 +129,8 @@ initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mul
     ) #end of clone
 
 # Final sequence
-InitialStep = cms.Sequence(initialStepSeeds*
+InitialStep = cms.Sequence(initialStepSeedLayers*
+                           initialStepSeeds*
                            initialStepTrackCandidates*
                            initialStepTracks*
                            initialStepSelector)
