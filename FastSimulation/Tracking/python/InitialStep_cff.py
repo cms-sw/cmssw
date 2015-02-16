@@ -1,40 +1,39 @@
 import FWCore.ParameterSet.Config as cms
 
+# import the full tracking equivalent of this file
+import RecoTracker.IterativeTracking.InitialStep_cff
+
 # trajectory seeds
-from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import PixelLayerTriplets
-from FastSimulation.Tracking.TrajectorySeedProducer_cfi import trajectorySeedProducer
-initialStepSeeds = trajectorySeedProducer.clone(
+import FastSimulation.Tracking.TrajectorySeedProducer_cfi
+initialStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     simTrackSelection = trajectorySeedProducer.simTrackSelection.clone(
         pTMin = 0.4,
         maxD0 = 1.0,
         maxZ0 = 999,
         ),
     minLayersCrossed = 3,
-    # note: standard tracking uses for originRadius 0.03, but this value 
-    # gives a much better agreement in rate and shape for iter0
-    originpTMin = 0.6,
-    originRadius = 1.0, 
-    originHalfLength = 999,
-    layerList = PixelLayerTriplets.layerList
-)
+    nSigmaZ = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.nSigmaZ,
+    originpTMin = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.ptMin,
+    originRadius = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.originRadius,
+    layerList = RecoTracker.IterativeTracking.InitialStep_cff.initialstepseedlayers.layerList.clone()
+    )
 
 # track candidates
-from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer
-initialStepTrackCandidates = trackCandidateProducer.clone(
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
+initialStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
     SeedProducer = cms.InputTag("initialStepSeeds"),
     MinNumberOfCrossedLayers = 3
-)
+    )
 
 # tracks
-from RecoTracker.IterativeTracking.InitialStep_cff import initialStepTracks
-initialStepTracks = initialStepTracks.clone(
+initialStepTracks = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTracks.clone(
     Fitter = 'KFFittingSmootherWithOutlierRejection',
     TTRHBuilder = 'WithoutRefit',
-    Propagator = 'PropagatorWithMaterial')
+    Propagator = 'PropagatorWithMaterial'
+    )
 
 # vertices
-from RecoTracker.IterativeTracking.InitialStep_cff import firstStepPrimaryVertices
-firstStepPrimaryVertices = firstStepPrimaryVertices.clone()
+firstStepPrimaryVertices = RecoTracker.IterativeTracking.InitialStep_cff.firstStepPrimaryVertices.clone()
 
 # simtrack id producer
 initialStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
@@ -43,7 +42,8 @@ initialStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
                                         )
 
 # final selection
-from RecoTracker.IterativeTracking.InitialStep_cff import initialStepSelector,initialStep
+initialStepSelector = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSelector.clone()
+initialStep = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSelector.initialStep.clone()
 
 # Final sequence
 InitialStep = cms.Sequence(initialStepSeeds
@@ -52,5 +52,6 @@ InitialStep = cms.Sequence(initialStepSeeds
                            +firstStepPrimaryVertices
                            +initialStepSelector
                            +initialStep
-                           +initialStepSimTrackIds)
+                           +initialStepSimTrackIds
+                           )
 
