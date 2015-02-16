@@ -28,6 +28,7 @@ class TreeAnalyzerNumpy( Analyzer ):
             isCompressed = self.cfg_ana.isCompressed if hasattr(self.cfg_ana,'isCompressed') else 1
             print 'Compression', isCompressed
             self.file = TFile( fileName, 'recreate', '', isCompressed )
+        self.file.cd()
         self.tree = Tree('tree', self.name)
         self.tree.setDefaultFloatType(getattr(self.cfg_ana, 'defaultFloatType','D')); # or 'F'
         self.declareVariables(setup)
