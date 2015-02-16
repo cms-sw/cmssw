@@ -10,6 +10,10 @@ int main()
 {
   using namespace std;
 
+  auto par1 = BTagEntry::Parameters(BTagEntry::OP_TIGHT, "CoMb", "cEnTrAl_");
+  assert (par1.measurementType == std::string("comb"));
+  assert (par1.sysType == string("central_"));
+
   // default constructor
   auto b1 = BTagEntry();
 

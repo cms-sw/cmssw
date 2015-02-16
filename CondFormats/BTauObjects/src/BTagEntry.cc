@@ -4,6 +4,11 @@
 #include "CondFormats/BTauObjects/interface/BTagEntry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+std::string makeLowerCase(std::string data) {
+  std::transform(data.begin(), data.end(), data.begin(), ::tolower);
+  return data;
+}
+
 BTagEntry::Parameters::Parameters(
   OperatingPoint op,
   std::string measurement_type,
@@ -17,8 +22,8 @@ BTagEntry::Parameters::Parameters(
   float discr_max
 ):
   operatingPoint(op),
-  measurementType(measurement_type),
-  sysType(sys_type),
+  measurementType(makeLowerCase(measurement_type)),
+  sysType(makeLowerCase(sys_type)),
   jetFlavor(jf),
   etaMin(eta_min),
   etaMax(eta_max),
@@ -252,3 +257,4 @@ std::string BTagEntry::trimStr(std::string str) {
   else
     return str.substr(s, e-s+1);
 }
+

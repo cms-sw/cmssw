@@ -5,6 +5,11 @@
 #include <sstream>
 
 
+std::string makeLowerCase(std::string data) {
+  std::transform(data.begin(), data.end(), data.begin(), ::tolower);
+  return data;
+}
+
 BTagEntry::Parameters::Parameters(
   OperatingPoint op,
   std::string measurement_type,
@@ -18,8 +23,8 @@ BTagEntry::Parameters::Parameters(
   float discr_max
 ):
   operatingPoint(op),
-  measurementType(measurement_type),
-  sysType(sys_type),
+  measurementType(makeLowerCase(measurement_type)),
+  sysType(makeLowerCase(sys_type)),
   jetFlavor(jf),
   etaMin(eta_min),
   etaMax(eta_max),
