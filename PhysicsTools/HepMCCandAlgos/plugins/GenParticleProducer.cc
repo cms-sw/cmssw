@@ -160,14 +160,6 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	 totalSize += cfhepmcprod->getObject(icf).GetEvent()->particles_size();
       }
       LogDebug("GenParticleProducer")<<"totalSize : "<<totalSize<<endl;
-
-   }else if (doSubEvent_){
-      for(size_t i = 0; i < npiles; ++i){
-	 Handle<HepMCProduct> handle;
-	 heps.push_back(handle);
-	 evt.getByToken( vectorSrcTokens_[i], heps[i] );
-	 totalSize += heps[i]->GetEvent()->particles_size();
-      }
    }else{
       Handle<HepMCProduct> mcp;
       evt.getByToken( srcToken_, mcp );
