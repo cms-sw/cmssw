@@ -386,11 +386,11 @@ HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v*		# JIRA: CMSHLT-213 (only for
 
 HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_v*			# JIRA: CMSHLT-226 (only for 7e33)
 
-#HLT_PixelTracks_Multiplicity60_v* 				# JIRA: CMSHLT-150 (for low PU runs)
-#HLT_PixelTracks_Multiplicity85_v* 				# JIRA: CMSHLT-150 (for low PU runs)
-#HLT_PixelTracks_Multiplicity110_v* 				# JIRA: CMSHLT-150 (for low PU runs)
-#HLT_PixelTracks_Multiplicity135_v* 				# JIRA: CMSHLT-150 (for low PU runs)
-#HLT_PixelTracks_Multiplicity160_v* 				# JIRA: CMSHLT-150 (for low PU runs)
+HLT_PixelTracks_Multiplicity60_v* 				# JIRA: CMSHLT-150 (for low PU runs)
+HLT_PixelTracks_Multiplicity85_v* 				# JIRA: CMSHLT-150 (for low PU runs)
+HLT_PixelTracks_Multiplicity110_v* 				# JIRA: CMSHLT-150 (for low PU runs)
+HLT_PixelTracks_Multiplicity135_v* 				# JIRA: CMSHLT-150 (for low PU runs)
+HLT_PixelTracks_Multiplicity160_v* 				# JIRA: CMSHLT-150 (for low PU runs)
 
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 
