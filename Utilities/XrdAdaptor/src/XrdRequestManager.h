@@ -45,8 +45,6 @@ class RequestManager : boost::noncopyable {
 public:
     static const unsigned int XRD_DEFAULT_TIMEOUT = 3*60;
 
-    RequestManager(const std::string & filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms);
-
     ~RequestManager() = default;
 
     /**
@@ -78,6 +76,7 @@ public:
      * (primarily meant to enable meaningful log messages).
      */
     void getActiveSourceNames(std::vector<std::string> & sources);
+    void getPrettyActiveSourceNames(std::vector<std::string> & sources);
 
     /**
      * Retrieve the names of the disabled sources
@@ -101,7 +100,33 @@ public:
      */
     const std::string & getFilename() const {return m_name;}
 
+    /**
+     * Some of the callback handlers need a weak_ptr reference to the RequestManager.
+     * This allows the callback handler to know when it is OK to invoke RequestManager
+     * methods.
+     *
+     * Hence, all instances need to be created through this factory function.
+     */
+    static std::shared_ptr<RequestManager>
+    getInstance(const std::string &filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms)
+    {
+        std::shared_ptr<RequestManager> instance(new RequestManager(filename, flags, perms));
+        instance->initialize(instance);
+        return instance;
+    }
+
 private:
+
+    RequestManager(const std::string & filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms);
+
+    /**
+     * Some of the callback handlers (particularly, file-open one) will want to call back into
+     * the RequestManager.  However, the XrdFile may have already thrown away the reference.  Hence,
+     * we need a weak_ptr to the original object before we can initialize.  This way, callback knows
+     * to not reference the RequestManager.
+     */
+    void initialize(std::weak_ptr<RequestManager> selfref);
+
     /**
      * Handle the file-open response
      */
@@ -138,6 +163,12 @@ private:
     bool compareSources(const timespec &now, unsigned a, unsigned b);
 
     /**
+     * Anytime we potentially switch sources, update the internal site source list;
+     * alert the user if necessary.
+     */
+    void updateSiteInfo(std::string orig_site="");
+
+    /**
      * Picks a single source for the next operation.
      */
     std::shared_ptr<Source> pickSingleSource();
@@ -155,7 +186,9 @@ private:
     std::vector<std::shared_ptr<Source> > m_activeSources;
     std::vector<std::shared_ptr<Source> > m_inactiveSources;
     std::set<std::string> m_disabledSourceStrings;
+    std::set<std::string> m_disabledExcludeStrings;
     std::set<std::shared_ptr<Source> > m_disabledSources;
+    std::string m_activeSites;
 
     timespec m_lastSourceCheck;
     int m_timeout;
@@ -173,10 +206,20 @@ private:
     std::mt19937 m_generator;
     std::uniform_real_distribution<float> m_distribution;
 
+    std::atomic<unsigned> m_excluded_active_count;
+
     class OpenHandler : boost::noncopyable, public XrdCl::ResponseHandler {
 
     public:
-        OpenHandler(RequestManager & manager);
+
+        static std::shared_ptr<OpenHandler> getInstance(std::weak_ptr<RequestManager> manager)
+        {
+            OpenHandler *instance_ptr = new OpenHandler(manager);
+            std::shared_ptr<OpenHandler> instance(instance_ptr);
+            instance_ptr->m_self_weak = instance;
+            return instance;
+        }
+
         ~OpenHandler();
 
         /**
@@ -197,17 +240,24 @@ private:
         std::string current_source();
 
     private:
-        RequestManager & m_manager;
+
+        OpenHandler(std::weak_ptr<RequestManager> manager);
         std::shared_future<std::shared_ptr<Source> > m_shared_future;
         std::promise<std::shared_ptr<Source> > m_promise;
         // When this is not null, there is a file-open in process
         // Can only be touched when m_mutex is held.
         std::unique_ptr<XrdCl::File> m_file;
         std::recursive_mutex m_mutex;
-        std::atomic_flag m_ignore_response;
+        std::shared_ptr<OpenHandler> m_self;
+
+        // Always maintain a weak self-reference; when the open is in-progress,
+        // this is upgraded to a strong reference to prevent this object from
+        // deletion as long as XrdCl has not performed the callback.
+        std::weak_ptr<OpenHandler> m_self_weak;
+        std::weak_ptr<RequestManager> m_manager;
     };
 
-    OpenHandler m_open_handler;
+    std::shared_ptr<OpenHandler> m_open_handler;
 };
 
 }

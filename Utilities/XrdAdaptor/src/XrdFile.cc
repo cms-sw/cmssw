@@ -3,11 +3,11 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Likely.h"
-#include "FWCore/Utilities/interface/CPUTimer.h"
 #include <vector>
 #include <sstream>
 #include <iostream>
 #include <assert.h>
+#include <chrono>
 
 using namespace XrdAdaptor;
 
@@ -144,7 +144,7 @@ XrdFile::open (const char *name,
   modeflags |= (perms & S_IWOTH) ? XrdCl::Access::GW : XrdCl::Access::None;
   modeflags |= (perms & S_IXOTH) ? XrdCl::Access::GX : XrdCl::Access::None;
 
-  m_requestmanager.reset(new RequestManager(name, openflags, modeflags));
+  m_requestmanager = RequestManager::getInstance(name, openflags, modeflags);
   m_name = name;
 
   // Stat the file so we can keep track of the offset better.
@@ -213,7 +213,7 @@ XrdFile::close (void)
 void
 XrdFile::abort (void)
 {
-  m_requestmanager.reset(nullptr);
+  m_requestmanager.reset();
   m_close = false;
   m_offset = 0;
   m_size = -1;
@@ -293,6 +293,7 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
   cl->reserve(n > adjust ? adjust : n);
   IOSize idx = 0, last_idx = 0;
   IOSize final_result = 0;
+  std::vector<std::pair<std::future<IOSize>, IOSize>> readv_futures;
   while (idx < n)
   {
     cl->clear();
@@ -332,30 +333,70 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
         idx++;
       }
     }
-    edm::CPUTimer timer;
-    timer.start();
-    IOSize result;
+    try
+    {
+      readv_futures.emplace_back(m_requestmanager->handle(cl), size);
+    }
+    catch (edm::Exception& ex)
+    {
+      ex.addContext("Calling XrdFile::readv()");
+      throw;
+    }
+
+    // Assure that we have made some progress.
+    assert(last_idx < idx);
+    last_idx = idx;
+
+  }
+  std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+  start = std::chrono::high_resolution_clock::now();
+
+    // If there are multiple readv calls, wait until all return until looking
+    // at the results of any.  This guarantees that all readv's have finished
+    // by time we call .get() for the first time (in case one of the readv's
+    // result in an exception).
+    //
+    // We cannot have outstanding readv's on function exit as the XrdCl may
+    // write into the corresponding buffer at the same time as ROOT.
+  if (readv_futures.size() > 1)
+  {
+    for (auto & readv_result : readv_futures)
+    {
+      if (readv_result.first.valid())
+      {
+        readv_result.first.wait();
+      }
+    }
+  }
+
+  for (auto & readv_result : readv_futures)
+  {
+    IOSize result = 0;
     try
     {
       const int retry_count = 5;
       for (int retries=0; retries<retry_count; retries++)
       {
-      try
-      {
-        result = m_requestmanager->handle(cl).get();
-      }
-      catch (XrootdException& ex)
-      {
-        if ((retries != retry_count-1) && (ex.getCode() == XrdCl::errInvalidResponse))
+        try
         {
-          edm::LogWarning("XrdAdaptorInternal") << "Got an invalid response from Xrootd server; retrying" << std::endl;
-          result = m_requestmanager->handle(cl).get();
+          if (readv_result.first.valid())
+          {
+            result = readv_result.first.get();
+          }
         }
-        else
+        catch (XrootdException& ex)
         {
-          throw;
+          if ((retries != retry_count-1) && (ex.getCode() == XrdCl::errInvalidResponse))
+          {
+            edm::LogWarning("XrdAdaptorInternal") << "Got an invalid response from Xrootd server; retrying" << std::endl;
+            result = m_requestmanager->handle(cl).get();
+          }
+          else
+          {
+            throw;
+          }
         }
-      }
+        assert(result == readv_result.second);
       }
     }
     catch (edm::Exception& ex)
@@ -363,16 +404,19 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
       ex.addContext("Calling XrdFile::readv()");
       throw;
     }
-    timer.stop();
-    assert(result == size);
-    edm::LogVerbatim("XrdAdaptorInternal") << "[" << m_op_count.fetch_add(1) << "] Time for readv: " << static_cast<int>(1000*timer.realTime()) << std::endl;
-
-    // Assure that we have made some progress.
-    assert(last_idx < idx);
-    last_idx = idx;
-
+    catch (std::exception& ex)
+    {
+      edm::Exception newex(edm::errors::StdException);
+      newex << "A std::exception was thrown when processing an xrootd request: " << ex.what();
+      newex.addContext("Calling XrdFile::readv()");
+      throw newex;
+    }
     final_result += result;
   }
+  end = std::chrono::high_resolution_clock::now();
+
+  edm::LogVerbatim("XrdAdaptorInternal") << "[" << m_op_count.fetch_add(1) << "] Time for readv: " << static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()) << " (sub-readv requests: " << readv_futures.size() << ")" << std::endl;
+
   return final_result;
 }
 
