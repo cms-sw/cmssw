@@ -190,6 +190,7 @@ ls -lh
 cp -p *.root $RUNDIR
 cp -p *.gz $RUNDIR
 cp -p *.db $RUNDIR
+cp -p *.end $RUNDIR
 
 if [ -f chi2ndfperbinary.eps ]; then
     gzip -f chi2ndfperbinary.eps
