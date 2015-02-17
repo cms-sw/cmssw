@@ -64,6 +64,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 process.TTPatternsFromStub.inputBankFile = cms.string('/afs/cern.ch/work/s/sviret/testarea/PatternBanks/BE_5D/Eta7_Phi8/ss32_cov40/612_SLHC6_MUBANK_lowmidhig_sec35_ss32_cov40.pbk')
 process.TTPatternsFromStub.threshold     = cms.int32(5)
 process.TTPatternsFromStub.nbMissingHits = cms.int32(-1)
+process.TTPatternsFromStub.debugMode = cms.int32(0)
 
 # The name of the stub container over which the association is done, please note that the filtered cluster container is
 # not associated due to the lack of simPixelDigis in official samples

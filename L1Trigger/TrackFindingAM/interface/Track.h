@@ -16,6 +16,8 @@ class Track{
   double phi0;
   double eta0;
   double z0;
+  double w_xy;
+  double w_rz;
   vector<int> stub_ids;
 
  public:
@@ -30,8 +32,10 @@ class Track{
      \param p The PHI0 of the track
      \param p_a The Eta0 of the track
      \param p_b The Z0 of the track
+     \param w_xy The weight of the XY-retina maximum
+     \param w_rz The weight of the RZ-retina maximum
   **/
-  Track(double c, double d, double p, double p_a, double p_b);
+  Track(double c, double d, double p, double p_a, double p_b, double Wxy=-1., double Wrz=-1.);
   /**
      \brief Copy Constructor
   **/
@@ -62,6 +66,16 @@ class Track{
      \param z The Z0 of the track
   **/
   void setZ0(double z);
+  /**
+     \brief Set the weight of the XY-retina maximum
+     \param Wxy The weight of the XY-retina maximum
+  **/
+  void setWxy(double Wxy);
+  /**
+     \brief Set the weight of the RZ-retina maximum
+     \param Wrz The weight of the RZ-retina maximum
+  **/
+  void setWrz(double Wrz);
 
   /**
      \brief Add a stub to the list of stubs used to create the track
@@ -104,6 +118,16 @@ class Track{
      \return The Z0 of the track
   **/
   double getZ0();
+  /**
+     \brief Get the weight of the XY-retina maximum
+     \return The weight of the XY-retina maximum
+  **/
+  double getWxy();
+  /**
+     \brief Get the weight of the RZ-retina maximum
+     \return The weight of the RZ-retina maximum
+  **/
+  double getWrz();
 
 };
 #endif
