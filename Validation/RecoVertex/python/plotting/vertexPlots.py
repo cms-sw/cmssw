@@ -4,17 +4,17 @@ import Validation.RecoTrack.plotting.validation as validation
 _maxPU = 80
 _maxVtx = 60
 _maxEff = 1.025
-_maxFake = [0.2, 0.5, 1.025]
+_maxFake = [0.05, 0.1, 0.2, 0.5, 1.025]
 
 _common = {"xlabel": "Pileup interactions", "xmax": _maxPU, "ymax": _maxVtx}
 _recovsgen = PlotGroup("recovsgen", [
     Plot("RecoVtx_vs_GenVtx", ytitle="Reco vertices", **_common),
     Plot("MatchedRecoVtx_vs_GenVtx", ytitle="Matched reco vertices", **_common),
     Plot("merged_vs_ClosestVertexInZ", xtitle="Closest distance in Z (cm)", ytitle="Merge rate", xlog=True),
-    Plot("TruePVLocationIndexCumulative", xtitle="Signal PV status in Reco collection", ytitle="Fraction of events", title="", drawStyle="hist", normalizeToUnitArea=True, xbinlabels=["Not reconstructed", "Reco and identified", "Reco, not identified"], xbinlabelsize=0.045, xbinlabeloption="h", xgrid=False, ylog=True, ymin=1e-4)
-],
-                       legendDy=-0.02, legendDh=-0.01
-)
+    Plot("TruePVLocationIndexCumulative", xtitle="Signal PV status in Reco collection", ytitle="Fraction of events", title="", drawStyle="hist", normalizeToUnitArea=True, xbinlabels=["Not reconstructed", "Reco and identified", "Reco, not identified"], xbinlabelsize=0.045, xbinlabeloption="h", xgrid=False, ylog=True, ymin=1e-4),
+    Plot("MisTagRate_vs_PU", xtitle="PU", ytitle="Mistag rate vs. PU", xmax=_maxPU, ymax=_maxFake),
+    Plot("MisTagRate_vs_sum-pt2", xtitle="#Sigmap_{T}^{2}", ytitle="Mistag rate vs. #Sigmap_{T}^{2}", xlog=True, ymax=_maxFake)
+])
 _effandfake = PlotGroup("effandfake", [
     Plot("effic_vs_NumVertices", xtitle="Reco vertices", ytitle="Efficiency vs. N vertices", xmax=_maxVtx, ymax=_maxEff),
     Plot("fakerate_vs_PU", xtitle="Pileup interactions", ytitle="Fake rate vs. PU", xmax=_maxPU, ymax=_maxFake),
