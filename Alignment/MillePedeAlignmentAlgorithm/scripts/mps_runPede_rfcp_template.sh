@@ -168,4 +168,5 @@ cp -p *.root $RUNDIR
 cp -p *.gz $RUNDIR
 cp -p *.db $RUNDIR
 cp -p *.eps $RUNDIR
+cp -p *.end $RUNDIR
 cp -p chi2ndfperbinary.C $RUNDIR
