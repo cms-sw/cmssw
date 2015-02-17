@@ -82,7 +82,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         tree = self.tree
         self.declareCoreVariables(tree, isMC)
 
-        if not hasattr(self.cfg_ana,"ignoreAnalyzerBookings") or not self.cfg_ana.ignoreAnalyzerBooking :
+        if not hasattr(self.cfg_ana,"ignoreAnalyzerBookings") or not self.cfg_ana.ignoreAnalyzerBookings :
             #import variables declared by the analyzers
             if hasattr(setup,"globalVariables"):
                 self.globalVariables+=setup.globalVariables
@@ -137,6 +137,9 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
                     tr.vfill('pdfWeight_%s' % pdf, event.pdfWeights[pdf])
 
     def process(self, event):
+	if hasattr(self.cfg_ana,"filter") :	
+		if not self.cfg_ana.filter(event) :
+			return True #do not stop processing, just filter myself
         self.readCollections( event.input)
         self.fillTree(event)
          
