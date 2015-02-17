@@ -29,7 +29,8 @@
 //-------------------------------------------------------------------------
 TrackingMaterialAnalyser::TrackingMaterialAnalyser(const edm::ParameterSet& iPSet)
 {
-  m_material                = iPSet.getParameter<edm::InputTag>("MaterialAccounting");
+  m_materialToken           = consumes<std::vector<MaterialAccountingTrack> >(
+      iPSet.getParameter<edm::InputTag>("MaterialAccounting"));
   m_groupNames              = iPSet.getParameter<std::vector<std::string> >("Groups");
   const std::string & splitmode = iPSet.getParameter<std::string>("SplitMode");
   if (strcasecmp(splitmode.c_str(), "NearestLayer") == 0) {
@@ -142,14 +143,14 @@ void TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::Event
   for (unsigned int i = 0; i < m_groupNames.size(); ++i)
     m_groups.push_back( new MaterialAccountingGroup( m_groupNames[i], * hDDD) ); 
 
-  // INFO
-  std::cout << "TrackingMaterialAnalyser: List of the tracker groups: " << std::endl;
+  LogDebug("TrackingMaterialAnalyser")
+      << "TrackingMaterialAnalyser: List of the tracker groups: " << std::endl;
   for (unsigned int i = 0; i < m_groups.size(); ++i)
-    std::cout << '\t' << m_groups[i]->info() << std::endl;
-  std::cout << std::endl;
+    LogDebug("TrackingMaterialAnalyser")
+        << "TrackingMaterialAnalyser:\t" << m_groups[i]->info() << std::endl;
 
   edm::Handle< std::vector<MaterialAccountingTrack> > h_tracks;
-  event.getByLabel(m_material, h_tracks);
+  event.getByToken(m_materialToken, h_tracks);
 
   for (std::vector<MaterialAccountingTrack>::const_iterator t = h_tracks->begin(), end = h_tracks->end(); t != end; ++t) {
     MaterialAccountingTrack track(*t);
@@ -157,12 +158,14 @@ void TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::Event
   }
 }
 
-//-------------------------------------------------------------------------
-// split a track in segments, each associated to a sensitive detector in a DetLayer;
-// then, associate each step to one segment, splitting the steps across the segment boundaries
+//-------------------------------------------------------------------
+// split a track in segments, each associated to a sensitive detector
+// in a DetLayer; then, associate each step to one segment, splitting
+// the steps across the segment boundaries
 //
-// Nota Bene: this implementation assumes that the steps stored along each track are consecutive and adjacent,
-// and that no step can span across 3 layers, since all steps should split at layer boundaries
+// Nota Bene: this implementation assumes that the steps stored along
+// each track are consecutive and adjacent, and that no step can span
+// across 3 layers, since all steps should split at layer boundaries
 
 void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
 {
@@ -360,7 +363,7 @@ int TrackingMaterialAnalyser::findLayer( const MaterialAccountingDetector & dete
   }
   if (inside > 1) {
     index = 0;
-    std::cerr << "TrackingMaterialAnalyser::findLayer(...): ERROR: detector belongs to " << inside << "DetLayers" << std::endl;
+    std::cerr << "TrackingMaterialAnalyser::findLayer(...): ERROR: detector belongs to " << inside << " DetLayers" << std::endl;
     std::cerr << "TrackingMaterialAnalyser::findLayer(...): detector position: " << std::fixed
               << " (r: " << std::setprecision(1) << std::setw(5) << detector.position().perp()
               << ", z: " << std::setprecision(1) << std::setw(6) << detector.position().z()
