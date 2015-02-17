@@ -11,6 +11,7 @@
 #include "PhysicsTools/Heppy/interface/Hemisphere.h"
 #include "PhysicsTools/Heppy/interface/AlphaT.h"
 #include "PhysicsTools/Heppy/interface/ReclusterJets.h"
+#include "PhysicsTools/Heppy/interface/IsolationComputer.h"
 
 #include "EgammaAnalysis/ElectronTools/interface/SimpleElectron.h"
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEPcombinator.h"

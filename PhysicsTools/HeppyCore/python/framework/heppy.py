@@ -122,6 +122,11 @@ def split(comps):
     return splitComps
 
 
+_heppyGlobalOptions = {}
+
+def getHeppyOption(name,default=None):
+    global _heppyGlobalOptions
+    return _heppyGlobalOptions[name] if name in _heppyGlobalOptions else default
 
 def main( options, args ):
 
@@ -140,6 +145,21 @@ def main( options, args ):
         parser.print_help()
         print 'ERROR: second argument must be an existing file (your input cfg).'
         sys.exit(3)
+
+    if options.verbose:
+        import logging
+        logging.basicConfig(level=logging.INFO)
+
+    # Propagate global options to _heppyGlobalOptions within this module
+    # I have to import it explicitly, 'global' does not work since the
+    # module is not set when executing the main
+    from PhysicsTools.HeppyCore.framework.heppy import _heppyGlobalOptions
+    for opt in options.extraOptions:
+        if "=" in opt:
+            (key,val) = opt.split("=",1)
+            _heppyGlobalOptions[key] = val
+        else:
+            _heppyGlobalOptions[opt] = True
 
     file = open( cfgFileName, 'r' )
     cfg = imp.load_source( 'PhysicsTools.HeppyCore.__cfg_to_run__', cfgFileName, file)
@@ -209,13 +229,22 @@ if __name__ == '__main__':
                       action='store_true',
                       help="Make a report of the time used by each analyzer",
                       default=False)
+    parser.add_option("-v", "--verbose",
+                      dest="verbose",
+                      action='store_true',
+                      help="increase the verbosity of the output (from 'warning' to 'info' level)",
+                      default=False)
     parser.add_option("-q", "--quiet",
                       dest="quiet",
                       action='store_true',
                       help="do not print log messages to screen.",
                       default=False)
-
-
+    parser.add_option("-o", "--option",
+                      dest="extraOptions",
+                      type="string",
+                      action="append",
+                      default=[],
+                      help="Save one extra option (either a flag, or a key=value pair) that can be then accessed from the job config file")
 
     (options,args) = parser.parse_args()
 

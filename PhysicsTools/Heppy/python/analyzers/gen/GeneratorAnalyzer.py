@@ -64,7 +64,9 @@ class GeneratorAnalyzer( Analyzer ):
         verbose = getattr(self.cfg_ana, 'verbose', False)
         rawGenParticles = self.mchandles['genParticles'].product() 
         good = []; keymap = {};
+        allGenParticles = []
         for rawIndex,p in enumerate(rawGenParticles):
+            if self.makeAllGenParticles: allGenParticles.append(p)
             id     = abs(p.pdgId())
             status = p.status()
             # particles must be status > 2, except for prompt leptons, photons, neutralinos
@@ -134,7 +136,7 @@ class GeneratorAnalyzer( Analyzer ):
                         print "Error keying %d: motherIndex %d, ancestor.pdgId %d, good[gp.motherIndex].pdgId() %d " % (igp, gp.motherIndex, ancestor.pdgId(),  good[gp.motherIndex].pdgId())
                     break
                 ancestor = None if ancestor.numberOfMothers() == 0 else ancestor.motherRef(0)
-            if abs(gp.pdgId()) not in {1,2,3,4,5,11,12,13,14,15,16,21}:
+            if abs(gp.pdgId()) not in [1,2,3,4,5,11,12,13,14,15,16,21]:
                 gp.sourceId = gp.pdgId()
             if gp.motherIndex != -1:
                 ancestor = good[gp.motherIndex]
@@ -142,7 +144,7 @@ class GeneratorAnalyzer( Analyzer ):
                     gp.sourceId = ancestor.sourceId
         event.generatorSummary = good
         # add the ID of the mother to be able to recreate last decay chains
-        for ip,p in enumerate(event.generatorSummary):
+        for ip,p in enumerate(good):
             moms = realGenMothers(p)
             if len(moms)==0:
                 p.motherId = 0
@@ -164,15 +166,8 @@ class GeneratorAnalyzer( Analyzer ):
             print "\n\n"
 
         if self.makeAllGenParticles:
-            event.genParticles = []
-            for rawIndex,p in enumerate(rawGenParticles):
-                if rawIndex in keymap:
-                    gp = event.generatorSummary[keymap[rawIndex]]
-                else:
-                    gp = p
-                    gp.rawIndex = rawIndex 
-                    gp.genSummaryIndex = -1
-                event.genParticles.append(gp)
+            event.genParticles = allGenParticles
+
         if self.makeSplittedGenLists:
             event.genHiggsBosons = []
             event.genVBosons     = []
@@ -225,11 +220,11 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 setattr(GeneratorAnalyzer,"defaultConfig",
     cfg.Analyzer(GeneratorAnalyzer,
         # BSM particles that can appear with status <= 2 and should be kept
-        stableBSMParticleIds = { 1000022 }, 
+        stableBSMParticleIds = [ 1000022 ], 
         # Particles of which we want to save the pre-FSR momentum (a la status 3).
         # Note that for quarks and gluons the post-FSR doesn't make sense,
         # so those should always be in the list
-        savePreFSRParticleIds = { 1,2,3,4,5, 11,12,13,14,15,16, 21 },
+        savePreFSRParticleIds = [ 1,2,3,4,5, 11,12,13,14,15,16, 21 ],
         # Make also the list of all genParticles, for other analyzers to handle
         makeAllGenParticles = True,
         # Make also the splitted lists

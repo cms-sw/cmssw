@@ -1,13 +1,15 @@
 from PhysicsTools.Heppy.physicsobjects.PhysicsObject import *
 
+import ROOT
+
 class Photon(PhysicsObject ):
 
     '''                                                                                                                                                                                                                                                                return object from the photon 
     '''
     def hOVERe(self):
-#        return self.physObj.full5x5_hadTowOverEm()
-        hadTowDepth1O = self.physObj.hadTowDepth1OverEm() * (self.physObj.superCluster().energy()/self.physObj.e5x5() if self.physObj.e5x5() else 1)
-        hadTowDepth2O = self.physObj.hadTowDepth2OverEm() * (self.physObj.superCluster().energy()/self.physObj.e5x5() if self.physObj.e5x5() else 1)
+        #return self.physObj.hadronicOverEm() 
+        hadTowDepth1O = self.physObj.hadTowDepth1OverEm() * (self.physObj.superCluster().energy()/self.physObj.full5x5_e5x5() if self.physObj.full5x5_e5x5() else 1)
+        hadTowDepth2O = self.physObj.hadTowDepth2OverEm() * (self.physObj.superCluster().energy()/self.physObj.full5x5_e5x5() if self.physObj.full5x5_e5x5() else 1)
         return hadTowDepth1O + hadTowDepth2O
 
     def r9(self):
@@ -15,6 +17,12 @@ class Photon(PhysicsObject ):
 
     def sigmaIetaIeta(self):
         return self.physObj.sigmaIetaIeta()
+
+    def full5x5_r9(self):
+        return self.physObj.full5x5_r9()
+
+    def full5x5_sigmaIetaIeta(self):
+        return self.physObj.full5x5_sigmaIetaIeta()
 
     def chargedHadronIso(self):
         return self.physObj.chargedHadronIso()
@@ -29,11 +37,15 @@ class Photon(PhysicsObject ):
         keepThisPhoton = True
         if name == "PhotonCutBasedIDLoose_CSA14":
             if abs(self.physObj.eta())<1.479 :
-                if self.physObj.sigmaIetaIeta() > 0.012 : keepThisPhoton = False
+                if self.full5x5_sigmaIetaIeta() > 0.012 : keepThisPhoton = False
                 if self.hOVERe() > 0.0559       : keepThisPhoton = False
             else :
-                if self.physObj.sigmaIetaIeta() > 0.035 : keepThisPhoton = False
+                if self.full5x5_sigmaIetaIeta() > 0.035 : keepThisPhoton = False
                 if self.hOVERe() > 0.049        : keepThisPhoton = False
         return keepThisPhoton
                 
     pass
+
+setattr(ROOT.pat.Photon, "recoPhotonIso", ROOT.reco.Photon.photonIso)
+setattr(ROOT.pat.Photon, "recoNeutralHadronIso", ROOT.reco.Photon.neutralHadronIso)
+setattr(ROOT.pat.Photon, "recoChargedHadronIso", ROOT.reco.Photon.chargedHadronIso)
