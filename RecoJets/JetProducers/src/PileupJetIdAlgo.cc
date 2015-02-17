@@ -29,6 +29,7 @@ PileupJetIdAlgo::PileupJetIdAlgo(const edm::ParameterSet & ps)
 	    tmvaSpectators_      = ps.getParameter<std::vector<std::string> >("tmvaSpectators");
 	    version_             = ps.getParameter<int>("version");
 	  }
+        else version_ = USER;
 	reader_              = 0;
 	edm::ParameterSet jetConfig = ps.getParameter<edm::ParameterSet>("JetIdParams");
 	for(int i0 = 0; i0 < 3; i0++) { 
