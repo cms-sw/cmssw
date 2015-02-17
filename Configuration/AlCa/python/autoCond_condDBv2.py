@@ -76,7 +76,7 @@ autoCond['run1_data_PIon']    = ( autoCond['run1_data'] )
 
 autoCond['run2_data_FULL']    = ( autoCond['run2_data'] )
 autoCond['run2_data_GRun']    = ( autoCond['run2_data'] )
-autoCond['run2_data_25nsGRun']= ( autoCond['run2_data'] )
+autoCond['run2_data_50nsGRun']= ( autoCond['run2_data'] )
 autoCond['run2_data_HIon']    = ( autoCond['run2_data'] )
 autoCond['run2_data_PIon']    = ( autoCond['run2_data'] )
 
