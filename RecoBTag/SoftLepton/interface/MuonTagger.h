@@ -5,6 +5,7 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
 #include "RecoBTag/SoftLepton/src/MuonTaggerMLP.h"
+#include "TRandom3.h"
 
 /**  \class MuonTagger
  *
@@ -22,7 +23,8 @@ public:
   /// explicit ctor 
   explicit MuonTagger(const edm::ParameterSet & configuration) : 
     theNet(),
-    m_selector(configuration)
+    m_selector(configuration),
+    randomNumberGenerator_(0)
   { 
     uses("smTagInfos"); 
   }
@@ -38,7 +40,7 @@ private:
   mutable MuonTaggerMLP theNet;
 
   btag::LeptonSelector m_selector;
-
+  mutable TRandom3 randomNumberGenerator_;
 };
 
 #endif // RecoBTag_SoftLepton_MuonTagger_h
