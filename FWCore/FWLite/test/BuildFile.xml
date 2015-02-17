@@ -2,7 +2,7 @@
   <use   name="boost"/>
   <use   name="cppunit"/>
 </environment>
-<bin   name="testFWCoreFWLite" file="stdnamespaceadder_t.cppunit.cpp,ref_t.cppunit.cpp">
+<bin   name="testFWCoreFWLite" file="ref_t.cppunit.cpp">
   <use   name="FWCore/FWLite"/>
   <use   name="DataFormats/TestObjects"/>
 </bin>

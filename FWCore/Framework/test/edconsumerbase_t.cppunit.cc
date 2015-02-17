@@ -25,7 +25,6 @@
 
 #include "DataFormats/Provenance/interface/ProductHolderIndexHelper.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -54,17 +53,10 @@ public:
 
 };
 
-static bool s_alreadyCalledLoader = false;
-
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(TestEDConsumerBase);
 
 void TestEDConsumerBase::setUp() {
-  
-  if (!s_alreadyCalledLoader) {
-    edm::RootAutoLibraryLoader::enable();
-    s_alreadyCalledLoader = true;
-  }
 }
 
 namespace {

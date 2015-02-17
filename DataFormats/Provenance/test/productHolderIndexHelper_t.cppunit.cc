@@ -8,7 +8,6 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductHolderIndexHelper.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
@@ -16,8 +15,6 @@
 
 #include <iostream>
 #include <iomanip>
-
-static bool alreadyCalledLoader_productHolderIndexHelper_t = false;
 
 using namespace edm;
 
@@ -46,12 +43,6 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(TestProductHolderIndexHelper);
 
 void TestProductHolderIndexHelper::setUp() {
-
-  if (!alreadyCalledLoader_productHolderIndexHelper_t) {
-    edm::RootAutoLibraryLoader::enable();
-    alreadyCalledLoader_productHolderIndexHelper_t = true;
-  }
-
   typeID_ProductID = TypeID(typeid(ProductID));
   typeID_EventID = TypeID(typeid(EventID));
 }

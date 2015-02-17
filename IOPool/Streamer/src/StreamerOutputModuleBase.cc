@@ -3,7 +3,6 @@
 
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -96,8 +95,6 @@ namespace edm {
     int got_host = gethostname(host_name_, 255);
     if(got_host != 0) strncpy(host_name_, "noHostNameFoundOrTooLong", sizeof(host_name_));
     //loadExtraClasses();
-    // do the line below instead of loadExtraClasses() to avoid Root errors
-    RootAutoLibraryLoader::enable();
 
     // 25-Jan-2008, KAB - pull out the trigger selection request
     // which we need for the INIT message
