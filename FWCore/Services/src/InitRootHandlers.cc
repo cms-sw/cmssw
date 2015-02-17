@@ -5,7 +5,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
@@ -259,7 +258,6 @@ namespace edm {
 
       // Enable automatic Root library loading.
       if(autoLibraryLoader_) {
-        RootAutoLibraryLoader::enable();
         gInterpreter->SetClassAutoloading(1);
       }
 
