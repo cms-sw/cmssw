@@ -78,7 +78,7 @@ if __name__ == '__main__':
     parser.add_option('-t','--nThreads',
                       help='number of threads per process to use in cmsRun.',
                       dest='nThreads',
-                      default=4
+                      default=1
                      )
 
     parser.add_option('-n','--showMatrix',
