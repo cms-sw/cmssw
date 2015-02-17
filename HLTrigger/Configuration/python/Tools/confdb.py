@@ -286,14 +286,14 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 
     else:
 
-      if self.config.type not in ('2014','Fake',) :
-        if self.config.type in ('50nsGRun') :
+      if self.config.type not in ('Fake',) :
+        if self.config.type in ('50nsGRun',) :
           self.data += """
 # load PostLS1 customisation for 50ns
 from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1_50ns
 process = customisePostLS1_50ns(process)
 """
-        elif self.config.type in ('HIon') :
+        elif self.config.type in ('HIon',) :
           self.data += """
 # load PostLS1 customisation for HIon
 from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1_HI
