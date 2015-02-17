@@ -8514,9 +8514,9 @@ if cmsswVersion >= "CMSSW_7_4":
     if 'trackerTopologyConstants' in process.__dict__:
         process.trackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
 
-# load PostLS1 customisation
-from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
-process = customisePostLS1(process)
+# load PostLS1 customisation for HIon
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1_HI
+process = customisePostLS1_HI(process)
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:

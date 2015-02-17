@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_3_0/HLT/V123 (CMSSW_7_3_1_patch2_HLT3)
+# /dev/CMSSW_7_3_0/HLT/V124 (CMSSW_7_3_1_patch2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/HLT/V123')
+  tableName = cms.string('/dev/CMSSW_7_3_0/HLT/V124')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -46993,7 +46993,7 @@ if cmsswVersion >= "CMSSW_7_4":
     if 'trackerTopologyConstants' in process.__dict__:
         process.trackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
 
-# load PostLS1 customisation
+# load PostLS1 customisation for 25ns
 from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 process = customisePostLS1(process)
 
