@@ -177,6 +177,11 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   std::shared_ptr<LUT> tauCalibrationLUT( new LUT(tauCalibrationLUTStream) );
   m_params.setTauCalibrationLUT(*tauCalibrationLUT);
 
+  edm::FileInPath tauEtToHFRingEtLUTFile = conf.getParameter<edm::FileInPath>("tauEtToHFRingEtLUTFile");
+  std::ifstream tauEtToHFRingEtLUTStream(tauEtToHFRingEtLUTFile.fullPath());
+  std::shared_ptr<LUT> tauEtToHFRingEtLUT( new LUT(tauEtToHFRingEtLUTStream) );
+  m_params.setTauEtToHFRingEtLUT(*tauEtToHFRingEtLUT);
+
   m_params.setIsoTauEtaMin(conf.getParameter<int> ("isoTauEtaMin"));
   m_params.setIsoTauEtaMax(conf.getParameter<int> ("isoTauEtaMax"));
 
