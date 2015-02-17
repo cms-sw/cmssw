@@ -89,7 +89,7 @@ public:
   // member functions
   //
 public:
-  virtual void  produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  virtual void  produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   std::string   jetType() const { return jetType_; }
   
 protected:
