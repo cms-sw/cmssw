@@ -125,8 +125,8 @@ foreach gtag ( MC DATA )
     else if ( $table == 50nsGRun ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:50nsGRun
-      set GTAG = ${BASE2}_GRun
-      set RTAG = ${BASE2RD}_GRun
+      set GTAG = ${BASE2}_50nsGRun
+      set RTAG = ${BASE2RD}_50nsGRun
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun2
