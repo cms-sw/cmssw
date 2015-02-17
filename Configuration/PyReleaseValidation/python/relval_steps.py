@@ -861,7 +861,7 @@ digiPremixUp2015Defaults25ns = {
     }
 digiPremixUp2015Defaults50ns=merge([{'--conditions':'auto:run2_mc_50ns'},
                                     {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[6]},
-                                    {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},
+                                    # {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'}, # FIX FIX here we miss an equivalent versin of postLS1CustomsPreMixing for 50ns; keep the same custom here as in digiPremixUp2015Defaults25ns
                                     digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXUP15_PU50']=merge([digiPremixUp2015Defaults50ns])
