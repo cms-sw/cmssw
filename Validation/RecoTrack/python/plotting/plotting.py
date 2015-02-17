@@ -78,7 +78,10 @@ def _findBounds(th1s, xmin=None, xmax=None, ymin=None, ymax=None):
             ymax = 1.05*max(ymaxs)
         elif isinstance(ymax, list):
             ym = max(ymaxs)
-            ymax = min(filter(lambda y: y>ym, ymax))
+            ymaxs_above = filter(lambda y: y>ym, ymax)
+            if len(ymaxs_above) == 0:
+                raise Exception("Histogram maximum y %f is above all given ymax values %s" % (ym, str(ymax)))
+            ymax = min(ymaxs_above)
 
     for th1 in th1s:
         th1.GetXaxis().SetRangeUser(xmin, xmax)
