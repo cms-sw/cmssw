@@ -67,10 +67,18 @@ void getParamDumper::analyzerEval(const clang::CallExpr *CE, clang::ento::Checke
                      SOA->printPretty(os,0,Policy);
                  }
                  break;
+             case Stmt::CXXMemberCallExprClass:
+                 dyn_cast<CXXMemberCallExpr>(E)->getImplicitObjectArgument()->printPretty(os,0,Policy);
+                 break;
+             case Stmt::UnaryOperatorClass:
+                 dyn_cast<UnaryOperator>(E)->getSubExpr()->printPretty(os,0,Policy);
+                 break;
              default:
                  E->printPretty(os,0,Policy);
                  os << " unhandled expr class " <<E->getStmtClassName();
              }
+
+
          os<<"'\n";
 
          support::writeLog(os.str(),tname);
