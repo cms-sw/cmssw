@@ -67,6 +67,7 @@ treeProducer2= cfg.Analyzer(
 #create a copy of tree producer with the difference that it stores it in a separate file
 from copy import deepcopy 
 treeProducer3 = deepcopy(treeProducer2)
+treeProducer3.filter = lambda ev : len(getattr(ev,"genbquarks",[])) > 0 # select only events with b-quarks
 treeProducer3.outservicename="genonlyfile"
 
 
@@ -142,12 +143,13 @@ output_service2= cfg.Service(
 # they are not needed for running on your own samples
 from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
 testfiles=miniAodFiles()
+print "Running on test file %s" % testfiles
 
-sample = cfg.Component(
+sample = cfg.MCComponent(
 #specify the file you want to run on
 #    files = ["/scratch/arizzi/Hbb/CMSSW_7_2_2_patch2/src/VHbbAnalysis/Heppy/test/ZLL-8A345C56-6665-E411-9C25-1CC1DE04DF20.root"],
     files = testfiles,
-    name="SingleSample", isMC=False,isEmbed=False
+    name="SingleSample", isMC=True,isEmbed=False
     )
 
 # the following is declared in case this cfg is used in input to the heppy.py script
