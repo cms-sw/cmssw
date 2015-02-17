@@ -1,5 +1,6 @@
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/Common"/>
+<use   name="DataFormats/StdDictionaries"/>
 <use   name="root"/>
 <export>
   <lib   name="1"/>

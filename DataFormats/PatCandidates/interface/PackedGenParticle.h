@@ -3,6 +3,7 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenStatusFlags.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Common/interface/RefVector.h"
@@ -32,9 +33,11 @@ namespace pat {
   PackedGenParticle()
     : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0),  pdgId_(0), charge_(0), unpacked_(false) { }
   explicit PackedGenParticle( const reco::GenParticle & c)
-    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(0,0,0), pdgId_(c.pdgId()), charge_(c.charge()), mother_(c.motherRef(0)), unpacked_(true)  { pack(); }
+    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(0,0,0), pdgId_(c.pdgId()), charge_(c.charge()), mother_(c.motherRef(0)), unpacked_(true),
+      statusFlags_(c.statusFlags()) { pack(); }
   explicit PackedGenParticle( const reco::GenParticle & c, const edm::Ref<reco::GenParticleCollection> &  mother)
-    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(0,0,0), pdgId_(c.pdgId()), charge_(c.charge()), mother_(mother), unpacked_(true)  { pack(); }
+    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(0,0,0), pdgId_(c.pdgId()), charge_(c.charge()), mother_(mother), unpacked_(true),
+      statusFlags_(c.statusFlags()) { pack(); }
 
     
     /// destructor
@@ -238,9 +241,44 @@ namespace pat {
     virtual bool isPhoton() const;
     virtual bool isConvertedPhoton() const;
     virtual bool isJet() const;
+    
+    const reco::GenStatusFlags &statusFlags() const { return statusFlags_; }
+    reco::GenStatusFlags &statusFlags() { return statusFlags_; }
+    
+    /////////////////////////////////////////////////////////////////////////////
+    //basic set of gen status flags accessible directly here
+    //the rest accessible through statusFlags()
+    //(see GenStatusFlags.h for their meaning)
+    
+    /////////////////////////////////////////////////////////////////////////////
+    //these are robust, generator-independent functions for categorizing
+    //mainly final state particles, but also intermediate hadrons/taus
+    
+    //is particle prompt (not from hadron, muon, or tau decay) and final state
+    bool isPromptFinalState() const { return status()==1 && statusFlags_.isPrompt(); }
+        
+    //this particle is a direct decay product of a prompt tau and is final state
+    //(eg an electron or muon from a leptonic decay of a prompt tau)
+    bool isDirectPromptTauDecayProductFinalState() const { return status()==1 && statusFlags_.isDirectPromptTauDecayProduct(); }
+    
+    /////////////////////////////////////////////////////////////////////////////
+    //these are generator history-dependent functions for tagging particles
+    //associated with the hard process
+    //Currently implemented for Pythia 6 and Pythia 8 status codes and history   
+    //and may not have 100% consistent meaning across all types of processes
+    //Users are strongly encouraged to stick to the more robust flags above,
+    //as well as the expanded set available in GenStatusFlags.h
+    
+    //this particle is the final state direct descendant of a hard process particle  
+    bool fromHardProcessFinalState() const { return status()==1 && statusFlags_.fromHardProcess(); }
+        
+    //this particle is a direct decay product of a hardprocess tau and is final state
+    //(eg an electron or muon from a leptonic decay of a tau from the hard process)
+    bool isDirectHardProcessTauDecayProductFinalState() const { return status()==1 && statusFlags_.isDirectHardProcessTauDecayProduct(); }
+        
 
   protected:
-    uint16_t packedPt_, packedEta_, packedPhi_, packedM_;
+    uint16_t packedPt_, packedY_, packedPhi_, packedM_;
     void pack(bool unpackAfterwards=true) ;
     void unpack() const ;
  
@@ -258,6 +296,8 @@ namespace pat {
     reco::GenParticleRef mother_;
     // is the momentum p4 unpacked
     mutable bool unpacked_;
+    //status flags
+    reco::GenStatusFlags statusFlags_;
 
     /// check overlap with another Candidate                                              
     virtual bool overlap( const reco::Candidate & ) const;
