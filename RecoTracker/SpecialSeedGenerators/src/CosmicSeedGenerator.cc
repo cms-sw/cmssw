@@ -16,18 +16,18 @@
 
 using namespace std;
 CosmicSeedGenerator::CosmicSeedGenerator(edm::ParameterSet const& conf) : 
-  conf_(conf) ,cosmic_seed(conf),
+  cosmic_seed(conf),
   check(conf,consumesCollector())
 
  {
   edm::LogInfo ("CosmicSeedGenerator")<<"Enter the CosmicSeedGenerator";
   // get Inputs
   matchedrecHitsToken_ = consumes<SiStripMatchedRecHit2DCollection>(
-      conf_.getParameter<edm::InputTag>("matchedRecHits"));
+      conf.getParameter<edm::InputTag>("matchedRecHits"));
   rphirecHitsToken_ = consumes<SiStripRecHit2DCollection>(
-          conf_.getParameter<edm::InputTag>("rphirecHits"));
+          conf.getParameter<edm::InputTag>("rphirecHits"));
   stereorecHitsToken_ = consumes<SiStripRecHit2DCollection>(
-          conf_.getParameter<edm::InputTag>("stereorecHits"));
+          conf.getParameter<edm::InputTag>("stereorecHits"));
 
   produces<TrajectorySeedCollection>();
 }

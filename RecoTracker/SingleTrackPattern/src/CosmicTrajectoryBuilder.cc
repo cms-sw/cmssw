@@ -18,15 +18,16 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 using namespace std;
-CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet& conf) : conf_(conf) { 
+CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet& conf) {
   //minimum number of hits per tracks
 
-  theMinHits=conf_.getParameter<int>("MinHits");
+  theMinHits=conf.getParameter<int>("MinHits");
   //cut on chi2
-  chi2cut=conf_.getParameter<double>("Chi2Cut");
+  chi2cut=conf.getParameter<double>("Chi2Cut");
   edm::LogInfo("CosmicTrackFinder")<<"Minimum number of hits "<<theMinHits<<" Cut on Chi2= "<<chi2cut;
 
-  geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
+  geometry=conf.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
+  theBuilderName = conf.getParameter<std::string>("TTRHBuilder");
 }
 
 
@@ -59,8 +60,7 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus){
   
 
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
-  es.get<TransientRecHitRecord>().get(builderName,theBuilder);
+  es.get<TransientRecHitRecord>().get(theBuilderName,theBuilder);
   
 
   RHBuilder=   theBuilder.product();

@@ -31,7 +31,6 @@ class CosmicSeedGenerator : public edm::stream::EDProducer<>
   virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
  private:
-  edm::ParameterSet conf_;
   SeedGeneratorForCosmics  cosmic_seed;
   ClusterChecker check;
   // get Inputs

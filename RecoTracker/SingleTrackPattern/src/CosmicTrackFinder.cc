@@ -29,21 +29,20 @@ namespace cms
 
   CosmicTrackFinder::CosmicTrackFinder(edm::ParameterSet const& conf) : 
     cosmicTrajectoryBuilder_(conf) ,
-    crackTrajectoryBuilder_(conf) ,
-    conf_(conf)
+    crackTrajectoryBuilder_(conf)
   {
-    geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
+    geometry=conf.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
     useHitsSplitting_=conf.getParameter<bool>("useHitsSplitting");
     matchedrecHitsToken_ = consumes<SiStripMatchedRecHit2DCollection>(
-        conf_.getParameter<edm::InputTag>("matchedRecHits"));
+        conf.getParameter<edm::InputTag>("matchedRecHits"));
     rphirecHitsToken_ = consumes<SiStripRecHit2DCollection>(
-        conf_.getParameter<edm::InputTag>("rphirecHits"));
+        conf.getParameter<edm::InputTag>("rphirecHits"));
     stereorecHitsToken_ = consumes<SiStripRecHit2DCollection>(
-        conf_.getParameter<edm::InputTag>("stereorecHits"));
+        conf.getParameter<edm::InputTag>("stereorecHits"));
     pixelRecHitsToken_ = consumes<SiPixelRecHitCollection>(
-        conf_.getParameter<edm::InputTag>("pixelRecHits"));
+        conf.getParameter<edm::InputTag>("pixelRecHits"));
     seedToken_ = consumes<TrajectorySeedCollection>(
-        conf_.getParameter<edm::InputTag>("cosmicSeeds"));
+        conf.getParameter<edm::InputTag>("cosmicSeeds"));
 
     produces<TrackCandidateCollection>();
   }
