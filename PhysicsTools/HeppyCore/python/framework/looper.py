@@ -89,7 +89,13 @@ class Looper(object):
         if len(self.cfg_comp.files)==0:
             errmsg = 'please provide at least an input file in the files attribute of this component\n' + str(self.cfg_comp)
             raise ValueError( errmsg )
-        self.events = config.events_class(self.cfg_comp.files, tree_name)
+        if hasattr(config,"preprocessor") and config.preprocessor is not None :
+              self.cfg_comp = config.preprocessor.run(self.cfg_comp,self.outDir,firstEvent,nEvents)
+        if hasattr(self.cfg_comp,"options"):
+              print self.cfg_comp.files,self.cfg_comp.options
+              self.events = config.events_class(self.cfg_comp.files, tree_name,options=self.cfg_comp.options)
+        else :
+              self.events = config.events_class(self.cfg_comp.files, tree_name)
         if hasattr(self.cfg_comp, 'fineSplit'):
             fineSplitIndex, fineSplitFactor = self.cfg_comp.fineSplit
             if fineSplitFactor > 1:
