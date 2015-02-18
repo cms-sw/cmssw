@@ -232,7 +232,7 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
     //for (unsigned int i = 0; i < detectors; ++i)
     //  std::cout << "MaterialAccountingTrack::split(): detector region boundaries: [" << limits[i] << ", " << limits[i+1] << "] along track" << std::endl;
 
-    double begin = 0.;          // begginning of step, along the track
+    double begin = 0.;          // beginning of step, along the track
     double end   = 0.;          // end of step, along the track
     unsigned int i = 1;         // step conter
 
@@ -250,28 +250,6 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
       //std::cout << '.';
     }
     //std::cout << std::endl;
-
-    // optionally split a step across the first layer boundary
-    //std::cout << "first layer (0): " << limits[0] << ".." << limits[1] << std::endl;
-    if (begin < limits[0] and end > limits[0]) {
-      const MaterialAccountingStep & step = track.m_steps[i++];
-      end = begin + step.length();
-
-      double fraction = (limits[0] - begin) / (end - begin);
-      std::pair<MaterialAccountingStep, MaterialAccountingStep> parts = step.split(fraction);
-
-      //std::cout << '!' << std::endl;
-      track.m_detectors[0].account( parts.second, limits[1], end );
-
-      if (m_plotter) {
-        // step partially before first layer, keep first part as unassocated
-        m_plotter->plotSegmentUnassigned( parts.first );
-
-        // associate second part to first layer
-        m_plotter->plotSegmentInLayer( parts.second,  group[0] );
-      }
-      begin = end;
-    }
 
     unsigned int index = 0;     // which detector
     while (i < track.m_steps.size()) {
@@ -325,7 +303,9 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
         track.m_detectors[index].account( parts.first, begin, limits[index+1] );
         ++index;          // next layer
         //std::cout << '!' << std::endl;
-        //std::cout << "next layer (" << index << "): " << limits[index] << ".." << limits[index+1] << std::endl;
+        // std::cout << "next layer (" << index << "): "
+        //           << " old det: " << group[index-1] << " new det: " << group[index]
+        //           << " " << limits[index] << ".." << limits[index+1] << std::endl;
         if (index < detectors)
           track.m_detectors[index].account( parts.second, limits[index+1], end );
       }
@@ -375,6 +355,8 @@ int TrackingMaterialAnalyser::findLayer( const MaterialAccountingDetector & dete
               << std::endl;
   }
 
+  // if (index > 0)
+  //   std::cout << m_groups[index-1]->info() << " " << index << std::endl;
   return index;
 }
 
