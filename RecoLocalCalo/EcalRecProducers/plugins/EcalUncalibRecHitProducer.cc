@@ -1,5 +1,6 @@
 #include "RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -7,8 +8,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitFillDescriptionWorkerFactory.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/PluginManager/interface/PluginInfo.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 EcalUncalibRecHitProducer::EcalUncalibRecHitProducer(const edm::ParameterSet& ps)
 {
@@ -21,14 +30,37 @@ EcalUncalibRecHitProducer::EcalUncalibRecHitProducer(const edm::ParameterSet& ps
 	
 	eeDigiCollectionToken_ = consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigiCollection"));
 
-        std::string componentType = ps.getParameter<std::string>("algo");
+        componentType_ = ps.getParameter<std::string>("algo");
 	edm::ConsumesCollector c{consumesCollector()};
-        worker_ = EcalUncalibRecHitWorkerFactory::get()->create(componentType, ps, c);
+        worker_ = EcalUncalibRecHitWorkerFactory::get()->create(componentType_, ps, c);
 }
 
 EcalUncalibRecHitProducer::~EcalUncalibRecHitProducer()
 {
         delete worker_;
+}
+
+void EcalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  EcalUncalibRecHitFillDescriptionWorkerFactory* factory = EcalUncalibRecHitFillDescriptionWorkerFactory::get(); 
+  std::vector<edmplugin::PluginInfo> infos;
+
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
+  typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
+  CatToInfos const& catToInfos = edmplugin::PluginManager::get()->categoryToInfos();
+  
+  CatToInfos::const_iterator itPlugins = catToInfos.find(factory->category());
+  if(itPlugins == catToInfos.end())
+    edm::LogWarning("EcalUncalibRecHitProducer") << "[WARNING] No EcaUncalibRecHitFillDescriptionWorker plugin defined" << std::endl;
+
+  infos = itPlugins->second;
+
+  for (std::vector<edmplugin::PluginInfo>::const_iterator itInfos = infos.begin(); itInfos != infos.end(); itInfos++) {
+    EcalUncalibRecHitWorkerBaseClass* fdWorker = EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_); 
+    fdWorker->fillDescriptions(descriptions);
+       
+    delete fdWorker;
+  }
 }
 
 void

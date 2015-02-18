@@ -11,17 +11,20 @@ namespace edm {
         class ParameterSet;
         class EventSetup;
         class Event;
+	class ConfigurationDescription;
 }
 
 class EcalUncalibRecHitWorkerMaxSample : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
                 EcalUncalibRecHitWorkerMaxSample(const edm::ParameterSet& ps,edm::ConsumesCollector& c);
+                EcalUncalibRecHitWorkerMaxSample() {};
                 virtual ~EcalUncalibRecHitWorkerMaxSample() {};
 
                 void set(const edm::EventSetup& es);
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
 
+		void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
         private:
 
                 //std::string ebHitCollection_; // secondary name to be given to collection of hits
