@@ -421,17 +421,27 @@ HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt ){
 	if(idHep==ignore_pdgids[i])isignore=true;
       }
       if(!isignore){
+        bool isforced=false;
+        bool isDefaultEvtGen=false;
 	EvtId idEvt = EvtPDL::evtIdFromStdHep(idHep);
-	for(unsigned int i=0;i<forced_pdgids.size();i++){             // First check if part with forced decay in that case do not decay immediately 
-	  if(idHep == forced_pdgids[i]){
+	for(unsigned int i=0;i<forced_pdgids.size();i++){
+          if(idHep==forced_pdgids[i]){
 	    idEvt = forced_id[i];
+            isforced=true;
+            break;
+          }
+        }
+	for(unsigned int i=0;i<m_PDGs.size();i++){
+	  if(idHep==m_PDGs[i]){
+	    isDefaultEvtGen=true;
+	    break;
 	  }
 	}
 	int ipart = idEvt.getId();
-	if (ipart==-1) continue;                           // particle not known to EvtGen       
 	EvtDecayTable *evtDecayTable=EvtDecayTable::getInstance();
-	if (evtDecayTable->getNMode(ipart)==0) continue;   // particles stable for EvtGen
-	addToHepMC(*p,idEvt,evt);                     // generate decay
+	if((isforced || isDefaultEvtGen) && ipart!=-1 && evtDecayTable->getNMode(ipart)!=0){
+	  addToHepMC(*p,idEvt,evt);                                  // generate decay
+	}
       }
     }
   }
@@ -517,32 +527,39 @@ void EvtGenInterface::update_particles(HepMC::GenParticle* partHep,HepMC::GenEve
 	for(unsigned int i=0;i<ignore_pdgids.size();i++){
 	  if(daughter->pdg_id()==ignore_pdgids[i])skip=true;
 	}
-	// re-run is daughter is a forced decays
-	for(unsigned int i=0;i<forced_pdgids.size() && !skip;i++){
-	  if(daughter->pdg_id()==forced_pdgids[i]){
-	    isforced=true;
-	    addToHepMC(daughter,forced_id[i],theEvent);
-	    break;
-	  }
-	}
-	if(!isforced){
-	  // re-run is daughter is on EvtGen decay list (pythia8 does not return the event to EvtGen)
-	  for(unsigned int i=0;i<m_PDGs.size() && !skip;i++){
-	    if(daughter->pdg_id()==m_PDGs[i]){
-	      isDefaultEvtGen=true;
-	      addToHepMC(daughter,EvtPDL::evtIdFromStdHep(daughter->pdg_id()),theEvent);
+	int idHep = daughter->pdg_id();
+	EvtId idEvt = EvtPDL::evtIdFromStdHep(idHep);
+	if(!skip){
+	  // re-run is daughter is a forced decays
+	  for(unsigned int i=0;i<forced_pdgids.size();i++){
+	    if(idHep==forced_pdgids[i]){
+	      isforced=true;
+	      idEvt = forced_id[i];
 	      break;
 	    }
 	  }
-	  if(!isDefaultEvtGen){
-	    // Recursively add daughters
-	    if((*d)->end_vertex()) update_particles(daughter,theEvent,(*d));
+	  // re-run is daughter is on EvtGen decay list (pythia8 does not return the event to EvtGen)
+	  for(unsigned int i=0;i<m_PDGs.size();i++){
+	    if(idHep==m_PDGs[i]){
+	      isDefaultEvtGen=true;
+	      break;
+	    }
 	  }
+	}
+	int ipart = idEvt.getId();
+	EvtDecayTable *evtDecayTable=EvtDecayTable::getInstance();
+	if((isforced || isDefaultEvtGen) && ipart!=-1 && evtDecayTable->getNMode(ipart)!=0){
+	addToHepMC(daughter,idEvt,theEvent);  // re-run if required       
+	}
+	else{
+	  // Recursively add daughters without re-running
+	  if((*d)->end_vertex()) update_particles(daughter,theEvent,(*d));
 	}
       }
     }
   }
 }
+
 
 
 void EvtGenInterface::setRandomEngine(CLHEP::HepRandomEngine* v) {
