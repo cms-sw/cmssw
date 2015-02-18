@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,21 +39,19 @@
 // class decleration
 //
 
-class TrackMCQuality : public edm::EDProducer {
+class TrackMCQuality : public edm::global::EDProducer<> {
    public:
       explicit TrackMCQuality(const edm::ParameterSet&);
       ~TrackMCQuality();
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       
       // ----------member data ---------------------------
 
-  edm::InputTag label_tr;
-  edm::InputTag label_tp;
-  edm::InputTag label_associator;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> label_tr;
+  edm::EDGetTokenT<TrackingParticleCollection> label_tp;
+  edm::EDGetTokenT<edm::View<reco::Track> > label_associator;
 };
 
 //
@@ -69,14 +67,10 @@ class TrackMCQuality : public edm::EDProducer {
 // constructors and destructor
 //
 TrackMCQuality::TrackMCQuality(const edm::ParameterSet& pset):
-  label_tr(pset.getParameter< edm::InputTag >("label_tr")),
-  label_tp(pset.getParameter< edm::InputTag >("label_tp")),
-  label_associator(pset.getParameter< edm::InputTag >("associator"))
+  label_tr(consumes<reco::TrackToTrackingParticleAssociator>(pset.getParameter< edm::InputTag >("label_tr"))),
+  label_tp(consumes<TrackingParticleCollection>(pset.getParameter< edm::InputTag >("label_tp"))),
+  label_associator(consumes<edm::View<reco::Track> >(pset.getParameter< edm::InputTag >("associator")))
 {
-  consumes<reco::TrackToTrackingParticleAssociator>(label_associator);
-  consumes<TrackingParticleCollection>(label_tp);
-  consumes<edm::View<reco::Track> >(label_tr);
-  
   produces<reco::TrackCollection>();
 }
 
@@ -92,18 +86,18 @@ TrackMCQuality::~TrackMCQuality()
 
 // ------------ method called to produce the data  ------------
 void
-TrackMCQuality::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+TrackMCQuality::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
 
    using namespace edm;
    Handle<reco::TrackToTrackingParticleAssociator> associator;
-   iEvent.getByLabel(label_associator,associator);
+   iEvent.getByToken(label_associator,associator);
 
    Handle<TrackingParticleCollection>  TPCollection ;
-   iEvent.getByLabel(label_tp, TPCollection);
+   iEvent.getByToken(label_tp, TPCollection);
      
    Handle<edm::View<reco::Track> > trackCollection;
-   iEvent.getByLabel (label_tr, trackCollection );
+   iEvent.getByToken(label_tr, trackCollection );
 
    reco::RecoToSimCollection recSimColl=associator->associateRecoToSim(trackCollection,
                                                                        TPCollection);
@@ -132,17 +126,6 @@ TrackMCQuality::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    
    iEvent.put(outTracks);
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-TrackMCQuality::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TrackMCQuality::endJob() {
 }
 
 //define this as a plug-in
