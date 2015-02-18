@@ -34,6 +34,10 @@
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
+
 EcalUncalibRecHitWorkerAnalFit::EcalUncalibRecHitWorkerAnalFit(const edm::ParameterSet& ps, edm::ConsumesCollector& c) :
   EcalUncalibRecHitWorkerBaseClass( ps ,c)
 {
@@ -133,6 +137,20 @@ EcalUncalibRecHitWorkerAnalFit::run( const edm::Event& evt,
         return true;
 }
 
+void
+EcalUncalibRecHitWorkerAnalFit::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // ecalAnalFitUncalibRecHit
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis"));
+  desc.add<std::string>("EEhitCollection", "EcalUncalibRecHitsEE");
+  desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis"));
+  desc.add<std::string>("algo", "EcalUncalibRecHitWorkerAnalFit");
+  desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
+  descriptions.add("ecalAnalFitUncalibRecHit", desc);
+}
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
 DEFINE_EDM_PLUGIN( EcalUncalibRecHitWorkerFactory, EcalUncalibRecHitWorkerAnalFit, "EcalUncalibRecHitWorkerAnalFit" );
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitFillDescriptionWorkerFactory.h"
+DEFINE_EDM_PLUGIN( EcalUncalibRecHitFillDescriptionWorkerFactory, EcalUncalibRecHitWorkerAnalFit, "EcalUncalibRecHitWorkerAnalFit" );

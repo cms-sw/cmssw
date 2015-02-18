@@ -9,6 +9,9 @@
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 EcalUncalibRecHitWorkerWeights::EcalUncalibRecHitWorkerWeights(const edm::ParameterSet&ps, edm::ConsumesCollector& c) :
   EcalUncalibRecHitWorkerBaseClass(ps,c)
 {
@@ -96,6 +99,20 @@ EcalUncalibRecHitWorkerWeights::run( const edm::Event & evt,
         return true;
 }
 
+void
+EcalUncalibRecHitWorkerWeights::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // ecalWeightUncalibRecHit
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis"));
+  desc.add<std::string>("EEhitCollection", "EcalUncalibRecHitsEE");
+  desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis"));
+  desc.add<std::string>("algo", "EcalUncalibRecHitWorkerWeights");
+  desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
+  descriptions.add("ecalWeightUncalibRecHit", desc);
+}
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
 DEFINE_EDM_PLUGIN( EcalUncalibRecHitWorkerFactory, EcalUncalibRecHitWorkerWeights, "EcalUncalibRecHitWorkerWeights" );
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitFillDescriptionWorkerFactory.h"
+DEFINE_EDM_PLUGIN( EcalUncalibRecHitFillDescriptionWorkerFactory, EcalUncalibRecHitWorkerWeights, "EcalUncalibRecHitWorkerWeights");

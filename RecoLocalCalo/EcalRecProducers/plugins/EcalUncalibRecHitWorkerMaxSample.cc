@@ -16,6 +16,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -48,6 +51,21 @@ EcalUncalibRecHitWorkerMaxSample::run( const edm::Event & evt,
         return true;
 }
 
+void
+EcalUncalibRecHitWorkerMaxSample::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // ecalMaxSampleUncalibRecHit
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalEBunpacker","ebDigis"));
+  desc.add<std::string>("EEhitCollection", "EcalUncalibRecHitsEE");
+  desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalEBunpacker","eeDigis"));
+  desc.add<std::string>("algo", "EcalUncalibRecHitWorkerMaxSample");
+  desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
+  descriptions.add("ecalMaxSampleUncalibRecHit", desc);
+}
+
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
 DEFINE_EDM_PLUGIN( EcalUncalibRecHitWorkerFactory, EcalUncalibRecHitWorkerMaxSample, "EcalUncalibRecHitWorkerMaxSample" );
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitFillDescriptionWorkerFactory.h"
+DEFINE_EDM_PLUGIN( EcalUncalibRecHitFillDescriptionWorkerFactory, EcalUncalibRecHitWorkerMaxSample, "EcalUncalibRecHitWorkerMaxSample");
