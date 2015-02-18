@@ -9,7 +9,7 @@
 //                  to find TrackingSeeds.
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -20,7 +20,7 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 
 
-class CosmicSeedGenerator : public edm::EDProducer
+class CosmicSeedGenerator : public edm::stream::EDProducer<>
 {
  public:
 

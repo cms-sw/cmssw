@@ -18,7 +18,7 @@
 
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -38,15 +38,13 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
-class ConversionSeedFilter : public edm::EDProducer {
+class ConversionSeedFilter : public edm::stream::EDProducer<> {
 public:
   explicit ConversionSeedFilter(const edm::ParameterSet&);
   ~ConversionSeedFilter();
   
 private:
-  virtual void beginJob() override ;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
   bool isCompatible(double *vars1, double* vars2);
   void getKine(const TrajectoryStateOnSurface& tsos, double *vars);
   void SearchAmongSeeds(const TrajectorySeedCollection* pInPos,const TrajectorySeedCollection* pInNeg, TrajectorySeedCollection& selectedColl, std::vector<bool>& idxPosColl1, std::vector<bool>& idxPosColl2);
@@ -57,9 +55,9 @@ private:
   TrajectoryStateOnSurface getTSOS(const reco::Track& tk);
   TrajectoryStateOnSurface getTSOS(const Trajectory& tj, const TrajectorySeed& ts);
 
-  edm::InputTag inputCollTkPos, inputCollSeedPos;
-  edm::InputTag inputCollTkNeg, inputCollSeedNeg;
-  edm::InputTag inputTrajectory;
+  edm::EDGetTokenT<TrajectorySeedCollection> inputCollSeedPos;
+  edm::EDGetTokenT<TrajectorySeedCollection> inputCollSeedNeg;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> inputTrajectory;
   double deltaPhiCut, deltaCotThetaCut, deltaRCut, deltaZCut;
   
   edm::ESHandle<TrackerGeometry> theG;
@@ -70,10 +68,10 @@ private:
 
 ConversionSeedFilter::ConversionSeedFilter(const edm::ParameterSet& cfg): 
   //inputCollTkPos(cfg.getParameter<edm::InputTag>("tkCollectionPos")),
-  inputCollSeedPos(cfg.getParameter<edm::InputTag>("seedCollectionPos")),
+  inputCollSeedPos(consumes<TrajectorySeedCollection>(cfg.getParameter<edm::InputTag>("seedCollectionPos"))),
   //inputCollTkNeg(cfg.getParameter<edm::InputTag>("tkCollectionNeg")),
-  inputCollSeedNeg(cfg.getParameter<edm::InputTag>("seedCollectionNeg")),
-  inputTrajectory(cfg.getParameter<edm::InputTag>("inputTrajectory")),
+  inputCollSeedNeg(consumes<TrajectorySeedCollection>(cfg.getParameter<edm::InputTag>("seedCollectionNeg"))),
+  inputTrajectory(consumes<TrajTrackAssociationCollection>(cfg.getParameter<edm::InputTag>("inputTrajectory"))),
   deltaPhiCut(cfg.getParameter<double>("deltaPhiCut")),
   deltaCotThetaCut(cfg.getParameter<double>("deltaCotThetaCut")),
   deltaRCut(cfg.getParameter<double>("deltaRCut")),
@@ -91,13 +89,13 @@ ConversionSeedFilter::~ConversionSeedFilter() {}
 void ConversionSeedFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
    using namespace edm;
    using namespace std;
-   Handle<TrajectorySeedCollection> pInPos; iEvent.getByLabel(inputCollSeedPos,pInPos);
-   Handle<TrajectorySeedCollection> pInNeg; iEvent.getByLabel(inputCollSeedNeg,pInNeg);
+   Handle<TrajectorySeedCollection> pInPos; iEvent.getByToken(inputCollSeedPos,pInPos);
+   Handle<TrajectorySeedCollection> pInNeg; iEvent.getByToken(inputCollSeedNeg,pInNeg);
 
    // Handle<reco::TrackCollection> pInTkPos;  iEvent.getByLabel(inputCollTkPos,pInTkPos);
    // Handle<reco::TrackCollection> pInTkNeg;  iEvent.getByLabel(inputCollTkNeg,pInTkNeg);
 
-   edm::Handle<TrajTrackAssociationCollection> trajTrackAssociations; iEvent.getByLabel(inputTrajectory,trajTrackAssociations);
+   edm::Handle<TrajTrackAssociationCollection> trajTrackAssociations; iEvent.getByToken(inputTrajectory,trajTrackAssociations);
 
    iSetup.get<TrackerDigiGeometryRecord>().get(theG);
    iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
@@ -276,9 +274,5 @@ getKine(const TrajectoryStateOnSurface& tsos, double *vars){
   vars[2] = tsos.globalPosition().perp();         //R
   vars[3] = tsos.globalPosition().z();            //Z
 }
-
-void ConversionSeedFilter::beginJob(){}
-
-void ConversionSeedFilter::endJob() {}
 
 DEFINE_FWK_MODULE(ConversionSeedFilter);
