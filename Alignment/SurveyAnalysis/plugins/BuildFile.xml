@@ -5,6 +5,7 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondFormats/Alignment"/>
 <use   name="CondFormats/AlignmentRecord"/>
+<use   name="CondFormats/GeometryObjects"/>
 <use   name="DataFormats/DetId"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>

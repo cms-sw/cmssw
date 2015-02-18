@@ -11,8 +11,6 @@
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h" 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 // The following looks generic enough to use
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"

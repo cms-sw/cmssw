@@ -168,9 +168,6 @@ SimToRecoCollection
 TrackAssociatorByHitsImpl::associateSimToReco(const edm::RefToBaseVector<reco::Track>& tC, 
 					  const edm::RefVector<TrackingParticleCollection>& TPCollectionH) const {
 
-  //edm::ESHandle<TrackerTopology> tTopoHand;
-  //setup->get<IdealGeometryRecord>().get(tTopoHand);
-
 //  edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHitsImpl::associateSimToReco - #tracks="<<tC.size()<<" #TPs="<<TPCollectionH.size();
   float quality=0;//fraction or absolute number of shared hits
   int nshared = 0;

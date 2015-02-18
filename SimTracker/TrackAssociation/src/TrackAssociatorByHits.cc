@@ -27,7 +27,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 using namespace reco;
 using namespace std;
 
@@ -157,7 +157,7 @@ TrackAssociatorByHits::associateSimToReco(const edm::RefToBaseVector<reco::Track
                                           const edm::EventSetup *setup ) const{
 
   edm::ESHandle<TrackerTopology> tTopoHand;
-  setup->get<IdealGeometryRecord>().get(tTopoHand);
+  setup->get<TrackerTopologyRcd>().get(tTopoHand);
 
 //  edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateSimToReco - #tracks="<<tC.size()<<" #TPs="<<TPCollectionH.size();
   float quality=0;//fraction or absolute number of shared hits

@@ -32,7 +32,7 @@
 #include "SimMuon/MCTruth/interface/TrackerMuonHitExtractor.h"
 #include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociator.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MuonToTrackingParticleAssociatorByHitsImpl.h"
 
 //
@@ -244,7 +244,7 @@ MuonToTrackingParticleAssociatorEDProducer::produce(edm::Event& iEvent, const ed
 
    //Retrieve tracker topology from geometry
    edm::ESHandle<TrackerTopology> tTopoHand;
-   iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+   iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
    const TrackerTopology *tTopo=tTopoHand.product();
    
    bool printRtS = true;

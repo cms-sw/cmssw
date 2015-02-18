@@ -31,6 +31,7 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -213,7 +214,7 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<IdealGeometryRecord>().get(tTopoHandle);
+  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   // Just to be sure, set all APEs to zero ...

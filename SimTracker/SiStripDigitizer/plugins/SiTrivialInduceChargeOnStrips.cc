@@ -5,7 +5,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "DataFormats/Math/interface/approx_erf.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <algorithm>

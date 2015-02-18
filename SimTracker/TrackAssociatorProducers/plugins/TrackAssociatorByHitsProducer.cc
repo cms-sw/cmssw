@@ -34,7 +34,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "TrackAssociatorByHitsImpl.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
@@ -137,7 +137,7 @@ TrackAssociatorByHitsProducer::produce(edm::StreamID, edm::Event& iEvent, const 
    std::unique_ptr<TrackerHitAssociator> thAssoc( new TrackerHitAssociator(iEvent,conf_));
 
   edm::ESHandle<TrackerTopology> tTopoHand;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
 
   edm::Handle<SimHitTPAssociationList> simHitsTPAssoc;
   //warning: make sure the TP collection used in the map is the same used in the associator!

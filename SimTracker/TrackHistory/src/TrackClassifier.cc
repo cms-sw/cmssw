@@ -6,6 +6,7 @@
 #include "HepPDT/ParticleID.hh"
 
 #include "SimTracker/TrackHistory/interface/TrackClassifier.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #define update(a, b) do { (a) = (a) | (b); } while(0)
 
@@ -68,7 +69,7 @@ void TrackClassifier::newEvent ( edm::Event const & event, edm::EventSetup const
 
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopoHand;
-    setup.get<IdealGeometryRecord>().get(tTopoHand);
+    setup.get<TrackerTopologyRcd>().get(tTopoHand);
     tTopo_=tTopoHand.product();
 }
 
