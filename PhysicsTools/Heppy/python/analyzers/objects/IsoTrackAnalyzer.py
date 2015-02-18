@@ -99,7 +99,7 @@ class IsoTrackAnalyzer( Analyzer ):
 
 
 ## ===> Redundant:: require the Track Candidate with a  minimum dz
-            track.associatedVertex = event.goodVertices[0]
+            track.associatedVertex = event.goodVertices[0] if len(event.goodVertices)>0 else event.vertices[0]
 
 ## ===> compute the isolation and find the most isolated track
 
