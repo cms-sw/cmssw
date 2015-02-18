@@ -21,5 +21,14 @@ class Eras (object):
         self.Run2_25ns = cms.ModifierChain( self.run2_common, self.run2_25ns_specific, self.stage1L1Trigger )
         self.Run2_50ns = cms.ModifierChain( self.run2_common, self.run2_50ns_specific )
         self.Run2_HI = cms.ModifierChain( self.run2_common, self.run2_HI_specific, self.stage1L1Trigger )
+        
+        # The only thing this collection is used for is for cmsDriver to
+        # warn the user if they specify an era that is discouraged from being
+        # set directly. It also stops these eras being printed in the error
+        # message of available values when an invalid era is specified.
+        self.internalUseEras = [self.bunchspacing25ns, self.bunchspacing50ns,
+                                self.run2_common, self.run2_25ns_specific,
+                                self.run2_50ns_specific, self.run2_HI_specific,
+                                self.stage1L1Trigger]
 
 eras=Eras()
