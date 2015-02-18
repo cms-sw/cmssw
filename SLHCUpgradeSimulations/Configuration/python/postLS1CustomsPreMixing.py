@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from SLHCUpgradeSimulations.Configuration.muonCustomsPreMixing import customise_csc_PostLS1,customise_csc_hlt
+from SLHCUpgradeSimulations.Configuration.muonCustomsPreMixing import customise_csc_PostLS1
 import postLS1Customs
 
 
