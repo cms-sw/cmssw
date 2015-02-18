@@ -30,9 +30,9 @@ EcalUncalibRecHitProducer::EcalUncalibRecHitProducer(const edm::ParameterSet& ps
 	
 	eeDigiCollectionToken_ = consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigiCollection"));
 
-        componentType_ = ps.getParameter<std::string>("algo");
+	std::string componentType = ps.getParameter<std::string>("algo");
 	edm::ConsumesCollector c{consumesCollector()};
-        worker_ = EcalUncalibRecHitWorkerFactory::get()->create(componentType_, ps, c);
+        worker_ = EcalUncalibRecHitWorkerFactory::get()->create(componentType, ps, c);
 }
 
 EcalUncalibRecHitProducer::~EcalUncalibRecHitProducer()
@@ -43,23 +43,11 @@ EcalUncalibRecHitProducer::~EcalUncalibRecHitProducer()
 void EcalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   EcalUncalibRecHitFillDescriptionWorkerFactory* factory = EcalUncalibRecHitFillDescriptionWorkerFactory::get(); 
-  std::vector<edmplugin::PluginInfo> infos;
-
-  edmplugin::PluginManager::configure(edmplugin::standard::config());
-  typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
-  CatToInfos const& catToInfos = edmplugin::PluginManager::get()->categoryToInfos();
-  
-  CatToInfos::const_iterator itPlugins = catToInfos.find(factory->category());
-  if(itPlugins == catToInfos.end())
-    edm::LogWarning("EcalUncalibRecHitProducer") << "[WARNING] No EcaUncalibRecHitFillDescriptionWorker plugin defined" << std::endl;
-
-  infos = itPlugins->second;
+  std::vector<edmplugin::PluginInfo> infos = factory->available();
 
   for (std::vector<edmplugin::PluginInfo>::const_iterator itInfos = infos.begin(); itInfos != infos.end(); itInfos++) {
-    EcalUncalibRecHitWorkerBaseClass* fdWorker = EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_); 
-    fdWorker->fillDescriptions(descriptions);
-       
-    delete fdWorker;
+    std::unique_ptr<EcalUncalibRecHitWorkerBaseClass> fdWorker(EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)); 
+    fdWorker->fillDescriptions(descriptions);       
   }
 }
 
