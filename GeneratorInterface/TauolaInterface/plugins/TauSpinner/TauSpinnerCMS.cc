@@ -228,7 +228,7 @@ int TauSpinnerCMS::readParticlesfromReco(edm::Event& e,SimpleParticle &X,SimpleP
   return 1;
 }
 
-void TauSpinnerCMS::GetLastSelf(const reco::GenParticle *Particle){
+void TauSpinnerCMS::GetLastSelf(const reco::GenParticle* &Particle){
   for (unsigned int i=0; i< Particle->numberOfDaughters(); i++){
     const reco::GenParticle *dau=static_cast<const reco::GenParticle*>(Particle->daughter(i));
     if(Particle->pdgId()==dau->pdgId()){

@@ -12,7 +12,7 @@ process.MessageLogger.cerr = cms.untracked.PSet(
     DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(-1))
     )
 
-numberOfEvents = 1000
+numberOfEvents = 10
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
                                                    TauSpinnerReco = cms.PSet(
@@ -24,7 +24,7 @@ process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 
 process.GlobalTag.globaltag = 'MC_50_V13::All'
 
-process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/i/inugent/tmp/5C3DF315-CF96-E111-9323-0025B3E05BF4.root'))
+process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring('file:003320CA-478C-E411-8482-0025905A611E.root'))#0024383A-A989-E411-A5D2-0025905A60E4.root'))
 
 process.debugOutput = cms.OutputModule("PoolOutputModule",
                                        outputCommands = cms.untracked.vstring('keep *'),
