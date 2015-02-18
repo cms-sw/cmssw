@@ -31,10 +31,11 @@ namespace cms
 
    produces<double>("METSignificance");
    //produces<reco::METCovMatrix>("METCovarianceMatrix");
-   produces<double>("CovarianceMatrix00");
-   produces<double>("CovarianceMatrix01");
-   produces<double>("CovarianceMatrix10");
-   produces<double>("CovarianceMatrix11");
+   produces<math::Error<2>::type>("METCovariance");
+   // produces<double>("CovarianceMatrix00");
+   // produces<double>("CovarianceMatrix01");
+   // produces<double>("CovarianceMatrix10");
+   // produces<double>("CovarianceMatrix11");
 
   }
 
@@ -84,23 +85,31 @@ namespace cms
    std::auto_ptr<double> significance (new double);
    (*significance) = sig;
 
-   std::auto_ptr<double> sigmatrix_00 (new double);
-   (*sigmatrix_00) = cov(0,0);
-   std::auto_ptr<double> sigmatrix_01 (new double);
-   (*sigmatrix_01) = cov(1,0);
-   std::auto_ptr<double> sigmatrix_10 (new double);
-   (*sigmatrix_10) = cov(0,1);
-   std::auto_ptr<double> sigmatrix_11 (new double);
-   (*sigmatrix_11) = cov(1,1);
+   // std::auto_ptr<double> sigmatrix_00 (new double);
+   // (*sigmatrix_00) = cov(0,0);
+   // std::auto_ptr<double> sigmatrix_01 (new double);
+   // (*sigmatrix_01) = cov(1,0);
+   // std::auto_ptr<double> sigmatrix_10 (new double);
+   // (*sigmatrix_10) = cov(0,1);
+   // std::auto_ptr<double> sigmatrix_11 (new double);
+   // (*sigmatrix_11) = cov(1,1);
    
-   //std::auto_ptr<reco::METCovMatrix> outputCov(new reco::METCovMatrix);
-   //(*outputCov) = cov;
+   std::auto_ptr<math::Error<2>::type> covPtr(new math::Error<2>::type());
+   (*covPtr)(0,0) = cov(0,0);
+   (*covPtr)(1,0) = cov(1,0);
+   (*covPtr)(1,1) = cov(1,1);
+
+   event.put( covPtr, "METCovariance" );
+
+
+   // std::auto_ptr<reco::METCovMatrix> outputCov(new reco::METCovMatrix);
+   // (*outputCov) = cov;
 
    event.put( significance, "METSignificance" );
-   event.put( sigmatrix_00, "CovarianceMatrix00" );
-   event.put( sigmatrix_01, "CovarianceMatrix01" );
-   event.put( sigmatrix_10, "CovarianceMatrix10" );
-   event.put( sigmatrix_11, "CovarianceMatrix11" );
+   // event.put( sigmatrix_00, "CovarianceMatrix00" );
+   // event.put( sigmatrix_01, "CovarianceMatrix01" );
+   // event.put( sigmatrix_10, "CovarianceMatrix10" );
+   // event.put( sigmatrix_11, "CovarianceMatrix11" );
    //event.put( outputCov, "CovarianceMatrix" );
 
   }
