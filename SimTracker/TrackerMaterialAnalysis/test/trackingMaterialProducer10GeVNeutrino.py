@@ -34,7 +34,7 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(3000)
 )
 
 # Input source
@@ -77,4 +77,4 @@ def customizeMessageLogger(process):
 
     return process
 
-process = customizeMessageLogger(process)
+#process = customizeMessageLogger(process)

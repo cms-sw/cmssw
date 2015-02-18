@@ -97,7 +97,7 @@ TrackingMaterialPlotter::TrackingMaterialPlotter( float maxZ, float maxR, float 
 
   std::vector<double> max;
   max.push_back( 0.02 );
-  max.push_back( 0.04 );
+  max.push_back( 0.00004 );
   m_tracker = XHistogram( 2, rzBinsZ, rzBinsR, std::make_pair(rzMinZ, rzMaxZ), std::make_pair(rzMinR, rzMaxR), m_color.size(), max);
 
   TColor::InitializeColors();

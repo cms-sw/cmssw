@@ -149,9 +149,9 @@ void TrackingMaterialProducer::update(const G4Step* step)
   double length = step->GetStepLength() / cm;          // mm -> cm
   double X0 = material->GetRadlen() / cm;              // mm -> cm
   double Ne = material->GetElectronDensity() * cm3;    // 1/mm3 -> 1/cm3
-  double Xi = Ne / 6.0221415e23 * 0.307075 / 2.;       // MeV / cm
+  double Xi = Ne / 6.0221415e23 * 0.307075 / 2;        // MeV / cm
   double radiationLengths = length / X0;               //
-  double energyLoss       = length * Xi;               // MeV
+  double energyLoss       = length * Xi / 1000.;       // GeV
   //double energyLoss = step->GetDeltaEnergy()/MeV;  should we use this??
 
   G4ThreeVector globalPosPre  = step->GetPreStepPoint()->GetPosition();
