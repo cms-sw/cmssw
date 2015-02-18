@@ -23,11 +23,25 @@ process.source = cms.Source(
     fileNames = cms.untracked.vstring(options.inputFiles)
     )
 
+process.generalTracks = cms.EDAlias(
+    generalTracksBeforeMixing = cms.VPSet( 
+        cms.PSet(type=cms.string('floatedmValueMap')),
+        cms.PSet(type=cms.string('recoTracks')),
+        cms.PSet(type=cms.string('recoTrackExtras')),
+        cms.PSet(type=cms.string('TrackingRecHitsOwned')),
+        )
+    )
+
 process.output = cms.OutputModule(
     "PoolOutputModule",
     fileName = cms.untracked.string(options.outputFile),
-    outputCommands = cms.untracked.vstring( ('keep *_*_*_TRACKRERECO'))
+    outputCommands = cms.untracked.vstring( 
+        ('keep *_*_*_TRACKRECO'),
+        ('drop *_generalTracksBeforeMixing_*_*')
+        )
     )
+
 
 process.path = cms.Path(process.trackReco)
 process.endpath = cms.EndPath(process.output)
+process.schedule = cms.Schedule([process.path,process.endpath])
