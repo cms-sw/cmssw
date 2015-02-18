@@ -31,8 +31,6 @@ class EcalUncalibRecHitProducer : public edm::stream::EDProducer<> {
                 std::string ebHitCollection_; 
                 std::string eeHitCollection_; 
 		
-		std::string componentType_;
                 EcalUncalibRecHitWorkerBaseClass * worker_;
-                EcalUncalibRecHitWorkerBaseClass * fdWorker_;
 };
 #endif
