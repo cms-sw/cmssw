@@ -822,6 +822,17 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length)
 
       if( (buf0[0]&0xFFFF)==0xDB0C )
         {
+
+	  // =VB= Handles one of the OTMB corrupted data cases.
+	  //      Double TMB data block with 2nd TMB Header is found. 
+	  //      Set missing TMB Trailer error.
+	  if (fTMB_Header) {
+             fERROR[12]=true;        // TMB Trailer is missing
+             bERROR   |= 0x1000;
+             fCHAMB_ERR[12].insert(currentChamber);
+             bCHAMB_ERR[currentChamber] |= 0x1000;
+          }
+
           fTMB_Header              = true;
           fTMB_Format2007          = true;
           TMB_CRC                  = 0;
