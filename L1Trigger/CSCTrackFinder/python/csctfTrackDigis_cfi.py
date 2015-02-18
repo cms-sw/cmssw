@@ -127,5 +127,5 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 # If the run2 era is active, make the required changes
 #
 from Configuration.StandardSequences.Eras import eras
-eras.run2.toModify( csctfTrackDigis, _modifyCsctfTrackDigisForRun2 )
+eras.run2_common.toModify( csctfTrackDigis, _modifyCsctfTrackDigisForRun2 )
 
