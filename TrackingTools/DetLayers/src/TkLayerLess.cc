@@ -7,23 +7,23 @@ bool TkLayerLess::insideOutLess( const DetLayer* a, const DetLayer* b) const
   if (a == b) return false;
 
   const BarrelDetLayer* bla = 
-    dynamic_cast<BarrelDetLayer*>(const_cast<DetLayer*>(a));
+    dynamic_cast<const BarrelDetLayer*>(a);
   const BarrelDetLayer* blb = 
-    dynamic_cast<BarrelDetLayer*>(const_cast<DetLayer*>(b));
+    dynamic_cast<const BarrelDetLayer*>(b);
 
   if      ( bla!=0 && blb!=0) {  // barrel with barrel
     return bla->specificSurface().radius() < blb->specificSurface().radius();
   }
 
   const ForwardDetLayer* flb = 
-    dynamic_cast<ForwardDetLayer*>(const_cast<DetLayer*>(b));
+    dynamic_cast<const ForwardDetLayer*>(b);
 
   if ( bla!=0 && flb!=0) {  // barrel with forward
     return barrelForwardLess( bla, flb);
   }
 
   const ForwardDetLayer* fla = 
-    dynamic_cast<ForwardDetLayer*>(const_cast<DetLayer*>(a));
+    dynamic_cast<const ForwardDetLayer*>(a);
 
   if (fla!=0 && flb!=0) {  //  forward with forward
     return fabs( fla->position().z()) < fabs( flb->position().z());
@@ -48,23 +48,23 @@ bool TkLayerLess::insideOutLessSigned( const DetLayer* a, const DetLayer* b) con
   if (a == b) return false;
 
   const BarrelDetLayer* bla =
-    dynamic_cast<BarrelDetLayer*>(const_cast<DetLayer*>(a));
+    dynamic_cast<const BarrelDetLayer*>(a);
   const BarrelDetLayer* blb =
-    dynamic_cast<BarrelDetLayer*>(const_cast<DetLayer*>(b));
+    dynamic_cast<const BarrelDetLayer*>(b);
 
   if      ( bla!=0 && blb!=0) {  // barrel with barrel
     return bla->specificSurface().radius() < blb->specificSurface().radius();
   }
 
   const ForwardDetLayer* flb =
-    dynamic_cast<ForwardDetLayer*>(const_cast<DetLayer*>(b));
+    dynamic_cast<const ForwardDetLayer*>(b);
 
   if ( bla!=0 && flb!=0) {  // barrel with forward
     return barrelForwardLess( bla, flb);
   }
 
   const ForwardDetLayer* fla =
-    dynamic_cast<ForwardDetLayer*>(const_cast<DetLayer*>(a));
+    dynamic_cast<const ForwardDetLayer*>(a);
 
   if (fla!=0 && flb!=0) {  //  forward with forward
     if (fla->position().z()*flb->position().z() > 0) {// same z-sign
