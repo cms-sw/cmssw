@@ -30,6 +30,7 @@ PileupInformation::PileupInformation(const edm::ParameterSet & config)
     pTcut_2_                = config.getParameter<double>("pTcut_2");
 
     PileupInfoLabel_        = consumes<PileupMixingContent>(config.getParameter<edm::InputTag>("PileupMixingLabel"));
+    PileupVtxLabel_         = consumes<PileupVertexContent>(config.getParameter<edm::InputTag>("PileupMixingLabel"));
 
     LookAtTrackingTruth_    = config.getUntrackedParameter<bool>("doTrackTruth");
 
@@ -84,7 +85,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
       BunchCrossings.push_back(bunchCrossing[ib]);
       Interactions_Xing.push_back(interactions[ib]);
       TrueInteractions_Xing.push_back(TrueInteractions[ib]);
-
+      
       std::vector<edm::EventID> eventInfos;
       eventInfos.reserve( interactions[ib] );
       for ( int pu=0; pu< interactions[ib]; pu++) {
@@ -101,65 +102,53 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
                                                  "There must be some breakdown in the Simulation Chain.\n"
                                                  "You must run the MixingModule before calling this routine."; 
 
-    /**  The following code is not valid when there are no Crossing Frames, since all of the vertices 
-        will not be in memory at the same time
-
-    // Collect all the simvertex from the crossing frame                                            
-    edm::Handle<CrossingFrame<SimVertex> > cfSimVertexes;
-    if( event.getByToken(simHitToken_, cfSimVertexes) ) {
-
-      // Create a mix collection from one simvertex collection                                        
-      simVertexes_ = std::auto_ptr<MixCollection<SimVertex> >( new MixCollection<SimVertex>(cfSimVertexes.product()) );
-
-      int index = 0;
-      // Solution to the problem of not having vertexId
-      //    bool FirstL = true;
-      EncodedEventIdToIndex vertexId;
-      EncodedEventId oldEventId;
-      int oldBX = -1000;
-
-      std::vector<int> BunchCrossings2;
-      std::list<int> Interactions_Xing2;
-
-
-      // Loop for finding repeated vertexId (vertexId problem hack)                                   
-      for (MixCollection<SimVertex>::MixItr iterator = simVertexes_->begin(); iterator != simVertexes_->end(); ++iterator, ++index)
-	{
-	  //      std::cout << " SimVtx eventid, vertexid " << iterator->eventId().event() << " " << iterator->eventId().bunchCrossing() << std::endl;
-	  if (!index || iterator->eventId() != oldEventId)
-	    {
-	      if(iterator->eventId().bunchCrossing()==0 && iterator->eventId().event()==0){
-		continue;
-	      }
-	      if(iterator->eventId().bunchCrossing() != oldBX) {
-		BunchCrossings2.push_back(iterator->eventId().bunchCrossing());
-		Interactions_Xing2.push_back(iterator->eventId().event());
-		oldBX = iterator->eventId().bunchCrossing();
-	      }
-	      else { Interactions_Xing2.pop_back();
-		Interactions_Xing2.push_back(iterator->eventId().event());
-	      }
-
-
-	      oldEventId = iterator->eventId();
-	      continue;
-	    }
-
-	}
-
-      std::vector<int>::iterator viter;
-      std::list<int>::iterator liter = Interactions_Xing2.begin();
-
-      for(viter = BunchCrossings2.begin(); viter != BunchCrossings2.end(); ++viter, ++liter){
-	//std::cout << " bcr, nint from VTX " << (*viter) << " " << (*liter) << std::endl;
-	BunchCrossings.push_back((*viter));
-	Interactions_Xing.push_back((*liter));
-	TrueInteractions_Xing.push_back(-1.);  // no idea what the true number is
-      }
-
-    } // end of "did we find vertices?"
-   // end of look at SimVertices   **/  // end of cut
   }
+  
+  // store information from pileup vertices, if it's in the event. Have to loop on interactions again.
+
+  edm::Handle< PileupVertexContent > MixingPileupVtx;  // Get True pileup information from MixingModule
+  event.getByToken(PileupVtxLabel_, MixingPileupVtx);
+
+  const PileupVertexContent* MixVtxInfo = MixingPileupVtx.product();
+
+  std::vector< std::vector<float> > ptHatList_Xing;
+  std::vector< std::vector<float> > zPosList_Xing;
+
+  bool Have_pThats = false;
+
+  if(MixVtxInfo) {  // extract information - way easier than counting vertices
+
+
+    Have_pThats = true;
+
+    const std::vector<int> bunchCrossing = MixInfo->getMix_bunchCrossing();
+    const std::vector<int> interactions = MixInfo->getMix_Ninteractions();
+
+    const std::vector<float> PtHatInput = MixVtxInfo->getMix_pT_hats();
+    const std::vector<float> ZposInput = MixVtxInfo->getMix_z_Vtxs();
+
+    // store information from pileup vertices, if it's in the event:
+
+    unsigned int totalIntPU=0;
+
+    for(int ib=0; ib<(int)bunchCrossing.size(); ++ib){
+      //      std::cout << " bcr, nint " << bunchCrossing[ib] << " " << interactions[ib] << std::endl;
+      
+      std::vector<float> zposBX;
+      std::vector<float> pthatBX;
+      zposBX.reserve( interactions[ib] );
+      pthatBX.reserve( interactions[ib] );
+      for ( int pu=0; pu< interactions[ib]; pu++) {
+	zposBX.push_back(ZposInput[totalIntPU+pu]);
+	pthatBX.push_back(PtHatInput[totalIntPU+pu]);
+      }
+      totalIntPU+=(interactions[ib]);
+      zPosList_Xing.push_back(zposBX);
+      ptHatList_Xing.push_back(pthatBX);
+      
+    }
+  }  // end of VertexInfo block
+
 
   //Now, get information on valid particles that look like they could be in the tracking volume
 
@@ -204,6 +193,14 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
   std::vector<int>::iterator InteractionsIter = Interactions_Xing.begin();
   std::vector<float>::iterator TInteractionsIter = TrueInteractions_Xing.begin();
   std::vector< std::vector<edm::EventID> >::iterator TEventInfoIter = eventInfoList_Xing.begin();
+
+  std::vector< std::vector<float> >::iterator zPosIter;
+  std::vector< std::vector<float> >::iterator pThatIter;
+
+  if(Have_pThats) {
+    zPosIter = zPosList_Xing.begin();
+    pThatIter = ptHatList_Xing.begin();
+  }
 
   // loop over the bunch crossings and interactions we have extracted 
 
@@ -306,21 +303,47 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
     }
 
+    if(Have_pThats) {
 
-
-    PileupSummaryInfo	PSI_bunch = PileupSummaryInfo(
+      PileupSummaryInfo	PSI_bunch = PileupSummaryInfo(
 						      (*InteractionsIter),
-						      zpositions,
+						      (*zPosIter),
 						      sumpT_lowpT,
 						      sumpT_highpT,
 						      ntrks_lowpT,
 						      ntrks_highpT,
 						      (*TEventInfoIter),
+						      (*pThatIter),
+						      (*BXIter),
+						      (*TInteractionsIter),
+						      bunchSpacing
+						      );
+      PSIVector->push_back(PSI_bunch);
+
+      zPosIter++;
+      pThatIter++;
+    }
+    else{
+
+      std::vector<float> zposZeros( (*TEventInfoIter).size(), 0);
+      std::vector<float> pThatZeros( (*TEventInfoIter).size(), 0);
+
+      PileupSummaryInfo	PSI_bunch = PileupSummaryInfo(
+						      (*InteractionsIter),
+						      zposZeros,
+						      sumpT_lowpT,
+						      sumpT_highpT,
+						      ntrks_lowpT,
+						      ntrks_highpT,
+						      (*TEventInfoIter),
+						      pThatZeros,
 						      (*BXIter),
 						      (*TInteractionsIter),
 						      bunchSpacing
 						      );
 
+      PSIVector->push_back(PSI_bunch);
+    }
     //std::cout << " " << std::endl;
     //std::cout << "Adding Bunch Crossing, nint " << (*BXIter) << " " <<  (*InteractionsIter) << std::endl;
  
@@ -334,7 +357,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
     //std::cout << iv << " " << PSI_bunch.getPU_EventID()[iv] << std::endl;
     //}
 
-    PSIVector->push_back(PSI_bunch);
+
 
     // if(HaveTrackingParticles) lastBunchCrossing = iVtx->eventId().bunchCrossing();
 

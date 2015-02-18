@@ -80,6 +80,7 @@ PileupSummaryInfo::PileupSummaryInfo( const int num_PU_vertices,
                      std::vector<int>&   ntrks_lowpT,
 		     std::vector<int>&   ntrks_highpT,
 		     std::vector<edm::EventID>& eventInfo,
+                     std::vector<float>& pThats, 
 		     int bunchCrossing,
 		     float TrueNumInteractions,
  	             int bunchSpacing):
@@ -88,7 +89,8 @@ PileupSummaryInfo::PileupSummaryInfo( const int num_PU_vertices,
   sumpT_highpT_(sumpT_highpT),
   ntrks_lowpT_(ntrks_lowpT),
   ntrks_highpT_(ntrks_highpT),
-  eventInfo_(eventInfo)
+  eventInfo_(eventInfo),
+  pT_hats_(pThats)
 {
 
   num_PU_vertices_ =  num_PU_vertices;

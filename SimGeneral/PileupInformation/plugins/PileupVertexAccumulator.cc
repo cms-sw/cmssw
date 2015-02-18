@@ -119,8 +119,6 @@ namespace cms
     double pthat = myGenEvent->event_scale();
     float pt_hat = float(pthat);
 
-    std::cout << " vertex pt_hat " << pt_hat << std::endl;
-    
     pT_Hats_.push_back(pt_hat);
 
     HepMC::GenEvent::vertex_const_iterator viter;
@@ -136,8 +134,6 @@ namespace cms
       float zpos = v->position().z()/10.;
  
       z_posns_.push_back(zpos);
-
-      std::cout << " vertex z pos " << zpos << std::endl;
     }
 
     delete myGenEvent;
