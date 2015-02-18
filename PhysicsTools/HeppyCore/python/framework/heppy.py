@@ -204,6 +204,7 @@ if __name__ == '__main__':
 
     parser.add_option("-N", "--nevents",
                       dest="nevents",
+                      type="int",
                       help="number of events to process",
                       default=None)
     parser.add_option("-p", "--nprint",
