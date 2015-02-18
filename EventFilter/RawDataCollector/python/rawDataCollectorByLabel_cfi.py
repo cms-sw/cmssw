@@ -6,4 +6,8 @@ rawDataCollector = cms.EDProducer("RawDataCollectorByLabel",
                                        cms.InputTag('rawDataCollector'))
 )
 
-
+#
+# Make changes if using the Stage 1 trigger
+#
+from Configuration.StandardSequences.Eras import eras
+eras.stage1L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("l1tDigiToRaw")) )
