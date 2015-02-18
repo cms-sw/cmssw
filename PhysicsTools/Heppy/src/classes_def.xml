@@ -11,6 +11,7 @@
   <class name="heppy::CMGMuonCleanerBySegmentsAlgo" transient="true" />
   <class name="heppy::EGammaMvaEleEstimatorFWLite" transient="true" />
   <class name="heppy::AlphaT" transient="true" />
+  <class name="heppy::Apc" transient="true" />
   <class name="heppy::ReclusterJets"  transient="true"/>
   <class name="heppy::IsolationComputer"  transient="true"/>
 
