@@ -39,7 +39,7 @@ EcalUncalibRecHitWorkerFixedAlphaBetaFit::EcalUncalibRecHitWorkerFixedAlphaBetaF
         alphaEE_= ps.getParameter<double>("alphaEE");
         betaEE_= ps.getParameter<double>("betaEE");
 
-        alphabetaFilename_= ps.getParameter<std::string>("AlphaBetaFilename");
+        alphabetaFilename_= ps.getUntrackedParameter<std::string>("AlphaBetaFilename");
         useAlphaBetaArray_=setAlphaBeta(); // set crystalwise values of alpha and beta
         if ( !useAlphaBetaArray_ ) {
                 edm::LogInfo("EcalUncalibRecHitError") << " No alfa-beta file found. Using the deafult values.";
@@ -189,22 +189,16 @@ EcalUncalibRecHitWorkerFixedAlphaBetaFit::run(const edm::Event& evt,
         return true;
 }
 
-void
-EcalUncalibRecHitWorkerFixedAlphaBetaFit::fillDescriptions(edm::ParameterSetDescription& desc, std::string& moduleName) {
-
-  desc.ifValue(edm::ParameterDescription<std::string>("algo", "EcalUncalibRechitWorkerFixedAlphaBetaFit", true),
-	       "EcalUncalibRechitWorkerFixedAlphaBetaFit" >> (edm::ParameterDescription<double>("alphaEB", 1.138, true) and
-							      edm::ParameterDescription<double>("alphaEE", 1.89, true) and 
-							      edm::ParameterDescription<std::string>("AlphaBetaFilename", "NOFILE", true) and
-							      edm::ParameterDescription<double>("betaEB", 1.655, true) and
-							      edm::ParameterDescription<double>("MinAmplEndcap", 14.0, true) and
-							      edm::ParameterDescription<double>("MinAmplBarrel", 8.0, true) and
-							      edm::ParameterDescription<double>("betaEE", 1.4, true) and
-							      edm::ParameterDescription<bool>("UseDynamicPedestal", true, true)
-							      )
-	       );
-    
-  moduleName = "ecalFixedAlphaBetaFitUncalibRecHit";
+std::auto_ptr<edm::ParameterDescriptionNode>
+EcalUncalibRecHitWorkerFixedAlphaBetaFit::fillDescriptions() {
+    return (edm::ParameterDescription<double>("alphaEB", 1.138, true) and
+            edm::ParameterDescription<double>("alphaEE", 1.89, true) and 
+	    edm::ParameterDescription<std::string>("AlphaBetaFilename", "NOFILE", false) and
+	    edm::ParameterDescription<double>("betaEB", 1.655, true) and
+	    edm::ParameterDescription<double>("MinAmplEndcap", 14.0, true) and
+	    edm::ParameterDescription<double>("MinAmplBarrel", 8.0, true) and
+	    edm::ParameterDescription<double>("betaEE", 1.4, true) and
+	    edm::ParameterDescription<bool>("UseDynamicPedestal", true, true) );
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
