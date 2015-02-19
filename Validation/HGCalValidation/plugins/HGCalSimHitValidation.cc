@@ -135,8 +135,9 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
 
     HepGeom::Point3D<float> gcoord;
     if (heRebuild_) {
-      std::pair<double,double> etaphi = hcons->getEtaPhi(subdet,cell,sector);
-      double rz = hcons->getRZ(subdet,cell,layer);
+      std::pair<double,double> etaphi = hcons->getEtaPhi(subdet,zside*cell,sector);
+      double rz = hcons->getRZ(subdet,zside*cell,layer);
+//      std::cout << "i/p " << subdet << ":" << zside << ":" << cell << ":" << sector << ":" << layer << " o/p " << etaphi.first << ":" << etaphi.second << ":" << rz << std::endl;
       gcoord = HepGeom::Point3D<float>(rz*cos(etaphi.second)/cosh(etaphi.first),
 				       rz*sin(etaphi.second)/cosh(etaphi.first),
 				       rz*tanh(etaphi.first));
