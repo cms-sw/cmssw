@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_3_0/Fake/V30 (CMSSW_7_3_1_patch2_HLT3)
+# /dev/CMSSW_7_3_0/Fake/V32 (CMSSW_7_3_2_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/Fake/V30')
+  tableName = cms.string('/dev/CMSSW_7_3_0/Fake/V32')
 )
 
 streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -153,13 +153,14 @@ HLTriggerFinalPath = cms.Path( hltGtDigis + hltScalersRawToDigi + hltFEDSelector
 HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Physics_v1, HLT_Random_v1, HLT_ZeroBias_v1, HLTriggerFinalPath ))
 
 
-
-
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# none for now
+# from CMSSW_7_4_0_pre7: Simplified TrackerTopologyEP config (PR #7589)
+if cmsswVersion >= "CMSSW_7_4":
+    if 'trackerTopologyConstants' in locals():
+        trackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
 
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in locals() and 'HLTriggerFirstPath' in locals() :
