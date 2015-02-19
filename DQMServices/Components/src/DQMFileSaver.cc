@@ -98,6 +98,25 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi) con
 
   if (lumi == 0) // save for run
   {
+    // set run end flag
+    dbe_->cd();
+    dbe_->setCurrentFolder("Info/ProvInfo");
+    
+    // do this, because ProvInfo is not yet run in offline DQM
+    MonitorElement* me = dbe_->get("Info/ProvInfo/CMSSW"); 
+    if (!me) me = dbe_->bookString("CMSSW", edm::getReleaseVersion().c_str() );
+    
+    me = dbe_->get("Info/ProvInfo/runIsComplete");
+    if (!me) me = dbe_->bookFloat("runIsComplete");
+    
+    if (me)
+      { 
+	if (runIsComplete_)
+	  me->Fill(1.);
+	else
+	  me->Fill(0.);
+      }
+    
     dbe_->save(filename,
                "",
                "^(Reference/)?([^/]+)",
