@@ -17,6 +17,7 @@ namespace edm {
         class Event;
         class EventSetup;
         class ParameterSet;
+        class ParameterSetDescription;
 }
 
 class EcalUncalibRecHitWorkerFixedAlphaBetaFit : public EcalUncalibRecHitWorkerBaseClass {
@@ -29,7 +30,7 @@ class EcalUncalibRecHitWorkerFixedAlphaBetaFit : public EcalUncalibRecHitWorkerB
                 void set(const edm::EventSetup& es);
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
 
-		void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+		void fillDescriptions(edm::ParameterSetDescription& desc, std::string& moduleName);
         private:
 
                 double AmplThrEB_;
