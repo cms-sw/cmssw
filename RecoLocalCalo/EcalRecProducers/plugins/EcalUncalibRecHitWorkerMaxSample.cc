@@ -1,3 +1,4 @@
+
 /** \class EcalMaxSampleUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes 
  *
@@ -52,15 +53,9 @@ EcalUncalibRecHitWorkerMaxSample::run( const edm::Event & evt,
 }
 
 void
-EcalUncalibRecHitWorkerMaxSample::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // ecalMaxSampleUncalibRecHit
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalEBunpacker","ebDigis"));
-  desc.add<std::string>("EEhitCollection", "EcalUncalibRecHitsEE");
-  desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalEBunpacker","eeDigis"));
-  desc.add<std::string>("algo", "EcalUncalibRecHitWorkerMaxSample");
-  desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
-  descriptions.add("ecalMaxSampleUncalibRecHit", desc);
+EcalUncalibRecHitWorkerMaxSample::fillDescriptions(edm::ParameterSetDescription& desc, std::string& moduleName) {
+
+  moduleName = "ecalMaxSampleUncalibRecHit";
 }
 
 

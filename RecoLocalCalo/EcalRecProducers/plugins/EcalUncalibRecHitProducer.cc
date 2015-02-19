@@ -42,12 +42,54 @@ EcalUncalibRecHitProducer::~EcalUncalibRecHitProducer()
 
 void EcalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
+//  //std::vector<edm::ParameterSetDescription> 
+//
+//  EcalUncalibRecHitFillDescriptionWorkerFactory* factory = EcalUncalibRecHitFillDescriptionWorkerFactory::get(); 
+//  std::vector<edmplugin::PluginInfo> infos = factory->available();
+//  
+//  for (std::vector<edmplugin::PluginInfo>::const_iterator itInfos = infos.begin(); itInfos != infos.end(); itInfos++) {
+//    std::unique_ptr<EcalUncalibRecHitWorkerBaseClass> fdWorker(EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)); 
+//
+//    edm::ParameterSetDescription desc;
+//    desc.add<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis"));
+//    desc.add<std::string>("EEhitCollection", "EcalUncalibRecHitsEE");
+//    desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis"));
+//    desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
+//    desc.add<std::string>("algo", itInfos->name_);
+//    std::string moduleName("ecalUncalibRechit"); // default name overwritten by each worker fillDescriptions
+//    fdWorker->fillDescriptions(desc, moduleName);
+//    desc
+//    descriptions.add(moduleName, desc);
+//  }
+
+//  std::vector<edm::ParameterSetDescription> descs;
+//  std::vector<std::string> moduleNames;
+
   EcalUncalibRecHitFillDescriptionWorkerFactory* factory = EcalUncalibRecHitFillDescriptionWorkerFactory::get(); 
   std::vector<edmplugin::PluginInfo> infos = factory->available();
-
+  
   for (std::vector<edmplugin::PluginInfo>::const_iterator itInfos = infos.begin(); itInfos != infos.end(); itInfos++) {
     std::unique_ptr<EcalUncalibRecHitWorkerBaseClass> fdWorker(EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)); 
-    fdWorker->fillDescriptions(descriptions);       
+
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis"));
+    desc.add<std::string>("EEhitCollection", "EcalUncalibRecHitsEE");
+    desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis"));
+    desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
+    //desc.add<std::string>("algo", itInfos->name_);
+
+    std::string moduleName("ecalUncalibRechit"); // default name overwritten by each worker fillDescriptions
+
+    //desc.ifExists(edm::ParameterDescription<std::string>("algo", itInfos->name_),
+    //fdWorker->fillDescriptions(desc, moduleName));
+    
+    fdWorker->fillDescriptions(desc, moduleName);
+    //descs.push_back(desc);
+    //moduleNames.push_bakc(moduleName);
+    
+    //desc.ifExists(edm::ParameterDescription<std::string>("algo", itInfos->name_, true)
+    //edm::ParameterSetDescription<>("x", 100, true));
+    descriptions.add(moduleName, desc);
   }
 }
 

@@ -19,7 +19,7 @@ namespace edm {
         class Event;
         class EventSetup;
         class ParameterSet;
-	class ConfigurationDescription;
+	class ParameterSetDescription;
 }
 
 class EcalUncalibRecHitWorkerRatio : public EcalUncalibRecHitWorkerBaseClass {
@@ -32,7 +32,7 @@ class EcalUncalibRecHitWorkerRatio : public EcalUncalibRecHitWorkerBaseClass {
                 void set(const edm::EventSetup& es);
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
 
-		void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+		void fillDescriptions(edm::ParameterSetDescription& desc, std::string& moduleName);
 
         protected:
 

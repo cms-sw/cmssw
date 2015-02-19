@@ -11,7 +11,7 @@ namespace edm {
         class ParameterSet;
         class EventSetup;
         class Event;
-	class ConfigurationDescription;
+	class ParameterSetDescription;
 }
 
 class EcalUncalibRecHitWorkerMaxSample : public EcalUncalibRecHitWorkerBaseClass {
@@ -24,11 +24,8 @@ class EcalUncalibRecHitWorkerMaxSample : public EcalUncalibRecHitWorkerBaseClass
                 void set(const edm::EventSetup& es);
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
 
-		void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+		void fillDescriptions(edm::ParameterSetDescription& desc, std::string& moduleName);
         private:
-
-                //std::string ebHitCollection_; // secondary name to be given to collection of hits
-                //std::string eeHitCollection_; // secondary name to be given to collection of hits
 
                 EcalUncalibRecHitMaxSampleAlgo<EBDataFrame> ebAlgo_;
                 EcalUncalibRecHitMaxSampleAlgo<EEDataFrame> eeAlgo_;

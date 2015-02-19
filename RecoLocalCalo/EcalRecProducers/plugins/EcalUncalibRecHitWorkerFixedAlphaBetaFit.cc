@@ -39,7 +39,7 @@ EcalUncalibRecHitWorkerFixedAlphaBetaFit::EcalUncalibRecHitWorkerFixedAlphaBetaF
         alphaEE_= ps.getParameter<double>("alphaEE");
         betaEE_= ps.getParameter<double>("betaEE");
 
-        alphabetaFilename_= ps.getUntrackedParameter<std::string>("AlphaBetaFilename","NOFILE");
+        alphabetaFilename_= ps.getParameter<std::string>("AlphaBetaFilename");
         useAlphaBetaArray_=setAlphaBeta(); // set crystalwise values of alpha and beta
         if ( !useAlphaBetaArray_ ) {
                 edm::LogInfo("EcalUncalibRecHitError") << " No alfa-beta file found. Using the deafult values.";
@@ -190,23 +190,21 @@ EcalUncalibRecHitWorkerFixedAlphaBetaFit::run(const edm::Event& evt,
 }
 
 void
-EcalUncalibRecHitWorkerFixedAlphaBetaFit::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // ecalFixedAlphaBetaFitUncalibRecHit
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis"));
-  desc.add<double>("alphaEB", 1.138);
-  desc.add<double>("alphaEE", 1.89);
-  desc.add<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis"));
-  desc.add<std::string>("EEhitCollection", "EcalUncalibRecHitsEE");
-  desc.addUntracked<std::string>("AlphaBetaFilename", "NOFILE");
-  desc.add<double>("betaEB", 1.655);
-  desc.add<double>("MinAmplEndcap", 14.0);
-  desc.add<double>("MinAmplBarrel", 8.0);
-  desc.add<std::string>("algo", "EcalUncalibRecHitWorkerFixedAlphaBetaFit");
-  desc.add<double>("betaEE", 1.4);
-  desc.add<bool>("UseDynamicPedestal", true);
-  desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
-  descriptions.add("ecalFixedAlphaBetaFitUncalibRecHit", desc);
+EcalUncalibRecHitWorkerFixedAlphaBetaFit::fillDescriptions(edm::ParameterSetDescription& desc, std::string& moduleName) {
+
+  desc.ifValue(edm::ParameterDescription<std::string>("algo", "EcalUncalibRechitWorkerFixedAlphaBetaFit", true),
+	       "EcalUncalibRechitWorkerFixedAlphaBetaFit" >> (edm::ParameterDescription<double>("alphaEB", 1.138, true) and
+							      edm::ParameterDescription<double>("alphaEE", 1.89, true) and 
+							      edm::ParameterDescription<std::string>("AlphaBetaFilename", "NOFILE", true) and
+							      edm::ParameterDescription<double>("betaEB", 1.655, true) and
+							      edm::ParameterDescription<double>("MinAmplEndcap", 14.0, true) and
+							      edm::ParameterDescription<double>("MinAmplBarrel", 8.0, true) and
+							      edm::ParameterDescription<double>("betaEE", 1.4, true) and
+							      edm::ParameterDescription<bool>("UseDynamicPedestal", true, true)
+							      )
+	       );
+    
+  moduleName = "ecalFixedAlphaBetaFitUncalibRecHit";
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
