@@ -51,48 +51,6 @@ def customisePostLS1(process):
     return process
 
 
-def customiseRun2EraExtras(process):
-    """
-    This function should be used in addition to the "--era run2" cmsDriver
-    option so that it can perform the last few changes that the era hasn't
-    implemented yet.
-
-    As functionality is added to the run2 era the corresponding line will
-    be removed from this function until the whole function is removed.
-
-    Currently does exactly the same as "customisePostLS1", since the run2
-    era doesn't make any changes yet (coming in later pull requests).
-    """
-    # deal with CSC separately:
-    # a simple sanity check first
-    # list of (pathName, expected moduleName) tuples:
-    paths_modules = [
-        ('digitisation_step', 'simMuonCSCDigis'),
-        ('L1simulation_step', 'simCscTriggerPrimitiveDigis'),
-        ('L1simulation_step', 'simCsctfTrackDigis'),
-        ('raw2digi_step', 'muonCSCDigis'),
-        ('raw2digi_step', 'csctfDigis'),
-        ('digi2raw_step', 'cscpacker'),
-        ('digi2raw_step', 'csctfpacker'),
-        ('reconstruction', 'csc2DRecHits'),
-        ('dqmoffline_step', 'muonAnalyzer'),
-        #('dqmHarvesting', ''),
-        ('validation_step', 'relvalMuonBits')
-    ]
-    # verify:
-    for path_name, module_name in paths_modules:
-        if hasattr(process, path_name) and not hasattr(process, module_name):
-            print "WARNING: module %s is not in %s path!!!" % (module_name, path_name)
-            print "         This path has the following modules:"
-            print "         ", getattr(process, path_name).moduleNames(),"\n"
-
-    # deal with L1 Emulation separately:
-    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_25ns
-    process = customiseSimL1EmulatorForPostLS1_25ns(process)
-
-    return process
-
-
 def customisePostLS1_50ns(process):
 
     # deal with L1 Emulation separately
