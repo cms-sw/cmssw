@@ -86,7 +86,7 @@ class GeneratorAnalyzer( Analyzer ):
                     continue
             else:
                 # everything else, we want it after radiation, i.e. just before decay
-                if any((p.daughter(j).pdgId() == p.pdgId() and p.daughter(j).status > 2) for j in xrange(p.numberOfDaughters())):
+                if any((p.daughter(j).pdgId() == p.pdgId() and p.daughter(j).status() > 2) for j in xrange(p.numberOfDaughters())):
                     #print "    fail auto-decay"
                     continue
             # FIXME find a better criterion to discard there
@@ -109,6 +109,9 @@ class GeneratorAnalyzer( Analyzer ):
                     # exclude extra x from p -> p + x
                     if not any(mom.daughter(j2).pdgId() == mom.pdgId() for j2 in xrange(mom.numberOfDaughters())):
                         #print "         pass no-self-decay"
+                        ok = True
+                    # Account for generator feature with Higgs decaying to itself with same four-vector but no daughters
+                    elif mom.pdgId() == 25 and any(mom.daughter(j2).pdgId() == 25 and mom.daughter(j2).numberOfDaughters()==0 for j2 in range(mom.numberOfDaughters())):
                         ok = True
                 if abs(mom.pdgId()) == 15:
                     # if we're a tau daughter we're status 2
