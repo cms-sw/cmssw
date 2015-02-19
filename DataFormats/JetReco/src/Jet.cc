@@ -6,6 +6,7 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //Own header file
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -43,26 +44,26 @@ namespace {
   class CaloPointZ: private CaloPoint{
   public:
     CaloPointZ (double fZ, double fEta){
-      
+
       static const double ETA_MAX = 5.2;
-      
+
       if (fZ > Z_ENDCAP) fZ = Z_ENDCAP-1.;
       if (fZ < -Z_ENDCAP) fZ = -Z_ENDCAP+1; // sanity check
-      
+
       double tanThetaAbs = std::sqrt (std::cosh(fEta)*std::cosh(fEta) - 1.);
       double tanTheta = fEta >= 0 ? tanThetaAbs : -tanThetaAbs;
-      
-      double rEndcap = tanTheta == 0 ? 1.e10 : 
+
+      double rEndcap = tanTheta == 0 ? 1.e10 :
 	fEta > 0 ? (Z_ENDCAP - fZ) / tanTheta : (-Z_ENDCAP - fZ) / tanTheta;
       if (rEndcap > R_BARREL) { // barrel
 	mR = R_BARREL;
-	mZ = fZ + R_BARREL * tanTheta; 
+	mZ = fZ + R_BARREL * tanTheta;
       }
       else {
 	double zRef = Z_BIG; // very forward;
 	if (rEndcap > R_FORWARD) zRef = Z_ENDCAP; // endcap
 	else if (std::fabs (fEta) < ETA_MAX) zRef = Z_FORWARD; // forward
-	
+
 	mZ = fEta > 0 ? zRef : -zRef;
 	mR = std::fabs ((mZ - fZ) / tanTheta);
       }
@@ -85,7 +86,7 @@ namespace {
     double mR;
   };
 
-  //new implementation to derive CaloPoint for free 3d vertex. 
+  //new implementation to derive CaloPoint for free 3d vertex.
   //code provided thanks to Christophe Saout
   template<typename Point>
   class CaloPoint3D : private CaloPoint {
@@ -158,8 +159,8 @@ namespace {
 
 }
 
-Jet::Jet (const LorentzVector& fP4, 
-	  const Point& fVertex, 
+Jet::Jet (const LorentzVector& fP4,
+	  const Point& fVertex,
 	  const Constituents& fConstituents)
   :  CompositePtrCandidate (0, fP4, fVertex),
      mJetArea (0),
@@ -169,10 +170,10 @@ Jet::Jet (const LorentzVector& fP4,
   for (unsigned i = 0; i < fConstituents.size (); i++) {
     addDaughter (fConstituents [i]);
   }
-}  
+}
 
-Jet::Jet (const LorentzVector& fP4, 
-	  const Point& fVertex) 
+Jet::Jet (const LorentzVector& fP4,
+	  const Point& fVertex)
   :  CompositePtrCandidate (0, fP4, fVertex),
      mJetArea (0),
      mPileupEnergy (0),
@@ -358,7 +359,12 @@ Jet::Constituents Jet::getJetConstituents () const {
 std::vector<const Candidate*> Jet::getJetConstituentsQuick () const {
   std::vector<const Candidate*> result;
   int nDaughters = numberOfDaughters();
-  for (int i = 0; i < nDaughters; ++i) { 
+  for (int i = 0; i < nDaughters; ++i) {
+    if(!(this->sourceCandidatePtr(i).isNonnull() && this->sourceCandidatePtr(i).isAvailable()))
+    {
+        edm::LogInfo("JetConstituentPointer") << "Bad pointer to jet constituent found.  Check for possible dropped particle.";
+        continue;
+    }
     result.push_back (daughter (i));
   }
   return result;
@@ -430,9 +436,9 @@ std::string Jet::print () const {
   for (unsigned index = 0; index < numberOfDaughters(); index++) {
     Constituent constituent = daughterPtr (index); // deref
     if (constituent.isNonnull()) {
-      out << "      #" << index << " p/pt/eta/phi: " 
-	  << constituent->p() << '/' << constituent->pt() << '/' << constituent->eta() << '/' << constituent->phi() 
-	  << "    productId/index: " << constituent.id() << '/' << constituent.key() << std::endl; 
+      out << "      #" << index << " p/pt/eta/phi: "
+	  << constituent->p() << '/' << constituent->pt() << '/' << constituent->eta() << '/' << constituent->phi()
+	  << "    productId/index: " << constituent.id() << '/' << constituent.key() << std::endl;
     }
     else {
       out << "      #" << index << " constituent is not available in the event"  << std::endl;
