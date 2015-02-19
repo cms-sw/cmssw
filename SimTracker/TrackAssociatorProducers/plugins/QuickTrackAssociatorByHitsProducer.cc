@@ -125,7 +125,7 @@ QuickTrackAssociatorByHitsProducer::QuickTrackAssociatorByHitsProducer(const edm
   // warning if this isn't the case.
   if( !(useGrouped && useSplitting) )
     {
-      edm::LogWarning("QuickTrackAssociatorByHitsImpl") << "UseGrouped and/or UseSplitting has been set to false, but this associator ignores that setting.";
+      LogDebug("QuickTrackAssociatorByHitsImpl") << "UseGrouped and/or UseSplitting has been set to false, but this associator ignores that setting.";
     }
   
   //register your products
