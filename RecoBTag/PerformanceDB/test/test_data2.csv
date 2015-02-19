@@ -1,4 +1,4 @@
-testTagger2/OperatingPoint, measurementType, sysType, jetFlavor, etaMin, etaMax, ptMin, ptMax, discrMin, discrMax, formula
+testTagger2;OperatingPoint, measurementType, sysType, jetFlavor, etaMin, etaMax, ptMin, ptMax, discrMin, discrMax, formula
 0, softmu, up,        0, 0, 2.4, 100, 1000, 0, 1, "3.0*x"
 0, softmu, central,   0, 0, 2.4, 100, 1000, 0, 1, "2.0*x"
 0, softmu, down,      0, 0, 2.4, 100, 1000, 0, 1, "1.0*x"

@@ -330,7 +330,7 @@ void BTagCalibration::readCSV(istream &s)
 
 void BTagCalibration::makeCSV(ostream &s) const
 { 
-  s << tagger_ << "/" << BTagEntry::makeCSVHeader();
+  s << tagger_ << ";" << BTagEntry::makeCSVHeader();
   for (std::map<std::string, std::vector<BTagEntry> >::const_iterator i 
            = data_.cbegin(); i != data_.cend(); ++i) {
     const std::vector<BTagEntry> &vec = i->second;
