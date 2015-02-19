@@ -55,6 +55,9 @@ double convertPhiFromHW( int hwPhi, double step );
 TH1D* h_l1mu_pt_;
 TH1D* h_l1mu_eta_;
 TH1D* h_l1mu_phi_;
+TH1D* h_l1mu_charge_;
+TH1D* h_l1mu_quality_;
+TH1D* h_l1mu_isolation_;
 TH1D* h_l1mu_num_;
 
 TH1D* h_l1jet_pt_;
@@ -187,6 +190,9 @@ int main( int argc, char** argv ){
   h_l1mu_pt_  = new TH1D("h_l1mu_pt", ";L1 #mu p_{T}", int((MaxLepPt_+PtStep_)/(PtStep_) + 1.001), 0, MaxLepPt_+PtStep_ );
   h_l1mu_eta_ = new TH1D("h_l1mu_eta",";L1 #mu #eta",  int(EtaStepMuon_/2+0.0001), -MaxMuonEta_, MaxMuonEta_ );
   h_l1mu_phi_ = new TH1D("h_l1mu_phi",";L1 #mu #phi",  PhiStepMuon_+1, 0, 2*M_PI );
+  h_l1mu_charge_ = new TH1D("h_l1mu_charge_",";L1 #mu charge",  2, 0, 2 );
+  h_l1mu_quality_ = new TH1D("h_l1mu_quality_",";L1 #mu quality",  16, 0, 16 );
+  h_l1mu_isolation_ = new TH1D("h_l1mu_isolation_",";L1 #mu isolation",  4, 0, 4 );
   h_l1mu_num_ = new TH1D("h_l1mu_num",";L1 Number of #mu",  10, 0, 10 );
 
   h_l1jet_pt_  = new TH1D("h_l1jet_pt", ";L1 jet p_{T}", int((MaxJetPt_+PtStep_)/(4*PtStep_) + 1.001), 0, MaxJetPt_+PtStep_ );
@@ -259,7 +265,7 @@ int main( int argc, char** argv ){
     if( dumpEvents ){
       printf("    == Algos ==\n");
       if( finOR ){
-	printf(" Triggers with nono-zero accepts\n");
+	printf(" Triggers with non-zero accepts\n");
 	if( readXML && l1tnames.size()>0 ) printf("\t bit\t L1A\t Name\n");
 	else                               printf("\t bit\t L1A\n");
 
@@ -282,7 +288,7 @@ int main( int argc, char** argv ){
 
   printf(" =========== Summary of results ==========\n");
   printf(" There were %d L1A out of %d events (%.1f%%)\n", l1a, evt, float(l1a)/float(evt)*100);
-  printf("\n Triggers with nono-zero accepts\n");
+  printf("\n Triggers with non-zero accepts\n");
   if( readXML && l1tnames.size()>0 ) printf("\t bit\t L1A\t Name\n");
   else                               printf("\t bit\t L1A\n");
 
@@ -319,11 +325,20 @@ void parseMuons( std::vector<std::string> muons, bool verbose ){
     double eta = convertEtaFromHW( mu.hwEta(), MaxMuonEta_, EtaStepMuon_, 0x1ff );
     double phi = convertPhiFromHW( mu.hwPhi(), PhiStepMuon_ );
 
+    int iso = mu.hwIso();
+    int qual = mu.hwQual();
+    int charge = mu.hwCharge();
+    int chargeValid = mu.hwChargeValid();
+
     h_l1mu_pt_->Fill( pt );
     h_l1mu_eta_->Fill( eta );
     h_l1mu_phi_->Fill( phi );
+    h_l1mu_charge_->Fill( charge );
 
-    if( verbose) printf(" l1t::Muon %d:\t pt = %d (%.1f),\t eta = %d (%+.2f),\t phi = %d (%.2f)\n", i, mu.hwPt(), pt, mu.hwEta(), eta, mu.hwPhi(), phi);
+    h_l1mu_quality_->Fill( qual );
+    h_l1mu_isolation_->Fill( iso );
+
+    if( verbose) printf(" l1t::Muon %d:\t pt = %d (%.1f),\t eta = %d (%+.2f),\t phi = %d (%.2f),\t iso = %d,\t qual = %d,\t charge = %d,\t chargeValid = %d\n", i, mu.hwPt(), pt, mu.hwEta(), eta, mu.hwPhi(), phi, iso, qual, charge, chargeValid);
   }
   h_l1mu_num_->Fill(nmu);
 
@@ -483,8 +498,8 @@ l1t::Muon unpackMuons( std::string imu ){
   int pt  = (packedVal>>10) & 0x1ff;
   int eta = (packedVal>>23) & 0x1ff;
   int phi = (packedVal>>0)  & 0x3ff;
-  int iso = (packedVal>>32) & 0x1;
-  int qual= (packedVal>>19) & 0x1;
+  int iso = (packedVal>>32) & 0x3;
+  int qual= (packedVal>>19) & 0xf;
   int charge = (packedVal>>34) & 0x1;
   int chargeValid = (packedVal>>35) & 0x1;
   int mip = 1;
@@ -563,7 +578,7 @@ l1t::EtSum unpackEtSums( std::string ietsum, l1t::EtSum::EtSumType type ){
 
 // Conversion into physical coordinates from HW
 double convertPtFromHW( int hwPt, double max, double step ){
-  double pt = double(hwPt)/step;
+  double pt = double(hwPt) * step;
   if( pt>max ) pt = max;
   return pt;
 }

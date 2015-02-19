@@ -14,6 +14,7 @@ namespace amc {
 
    class Header {
       public:
+         Header() : data_(0) {};
          Header(const uint64_t *data) : data_(data[0]) {};
          // size is the total size of the AMC payload, not just of the
          // block
@@ -134,7 +135,7 @@ namespace amc13 {
          unsigned int blocks() const;
          unsigned int size() const;
 
-         void add(unsigned int board, const std::vector<uint64_t>& load);
+         void add(unsigned int amc_no, unsigned int board, const std::vector<uint64_t>& load);
          bool parse(const uint64_t*, unsigned int);
          bool write(const edm::Event& ev, unsigned char * ptr, unsigned int size) const;
 

@@ -45,43 +45,43 @@ namespace l1t {
     class TowerParams{
     public:
       /* Towers */
-      
+
       // LSB of HCAL scale
       double lsbH_;
-      
+
       // LSB of ECAL scale
       double lsbE_;
-      
+
       // LSB of ECAL+HCAL sum scale
       double lsbSum_;
-      
+
       // number of bits for HCAL encoding
       int nBitsH_;
-      
+
       // number of bits for ECAL encoding
       int nBitsE_;
-      
+
       // number of bits for ECAL+HCAL sum encoding
       int nBitsSum_;
-      
+
       // number of bits for ECAL/HCAL ratio encoding
       int nBitsRatio_;
-      
+
       // bitmask for storing HCAL Et in  object
       int maskH_;
-      
+
       // bitmask for storing ECAL ET in  object
       int maskE_;
-      
+
       // bitmask for storing ECAL+HCAL sum in  object
       int maskSum_;
-      
+
       // bitmask for storing ECAL/HCAL ratio in  object
       int maskRatio_;
 
       // turn encoding on/off
       bool doEncoding_;
-      
+
       COND_SERIALIZABLE;
     };
 
@@ -89,36 +89,36 @@ namespace l1t {
     public:
       // EG LSB
       double lsb_;
-      
+
       // Et threshold on EG seed tower
       double seedThreshold_;
-      
+
       // Et threshold on EG neighbour tower(s)
       double neighbourThreshold_;
-      
+
       // Et threshold on HCAL for H/E computation
       double hcalThreshold_;
-      
+
       // EG maximum value of HCAL Et
       double maxHcalEt_;
-      
+
       // Et threshold to remove the H/E cut from the EGammas
       double maxPtHOverE_;
-      
+
       // Range of jet isolation for EG (in rank!) (Stage1Layer2)
       int minPtJetIsolation_;
       int maxPtJetIsolation_;
-      
+
       // Range of 3x3 HoE isolation for EG (in rank!) (Stage1Layer2)
       int minPtHOverEIsolation_;
       int maxPtHOverEIsolation_;
-      
+
       // isolation area in eta is seed tower +/- <=egIsoAreaNrTowersPhi
       unsigned isoAreaNrTowersEta_;
 
       // isolation area in phi is seed tower +/- <=egIsoAreaNrTowersPhi
       unsigned isoAreaNrTowersPhi_;
-      
+
       // veto region is seed tower +/- <=egIsoVetoNrTowersPhi
       unsigned isoVetoNrTowersPhi_;
 
@@ -133,10 +133,10 @@ namespace l1t {
 
       // Et threshold on tau seed tower
       double seedThreshold_;
-      
+
       // Et threshold on tau neighbour towers
       double neighbourThreshold_;
-      
+
       // Et limit when to switch off tau veto requirement
       double maxPtTauVeto_;
 
@@ -152,7 +152,7 @@ namespace l1t {
       // Eta min and max for Iso-Tau collections (Stage1Layer2)
       int isoEtaMin_;
       int isoEtaMax_;
-    
+
       // isolation area in eta is seed tower +/- <=tauIsoAreaNrTowersEta
       unsigned isoAreaNrTowersEta_;
 
@@ -163,7 +163,7 @@ namespace l1t {
       unsigned isoVetoNrTowersPhi_;
 
       COND_SERIALIZABLE;
-    };    
+    };
 
     class JetParams {
     public:
@@ -179,16 +179,16 @@ namespace l1t {
       COND_SERIALIZABLE;
     };
 
-    
+
     // DO NOT ADD ENTRIES ANYWHERE BUT DIRECTLY BEFORE "NUM_CALOPARAMNODES"
-    enum { regionPUS=0, 
+    enum { regionPUS=0,
 	   egTrimming=1, egMaxHOverE=2, egCompressShapes=3, egShapeId=4, egCalibration=5, egPUS=6, egIsolation=7,
 	   tauCalibration=8, tauPUS=9, tauIsolation=10,
 	   jetPUS=11, jetCalibration=12,
 	   hiCentrality=13, hiQ2=14,
 	   NUM_CALOPARAMNODES=15
     };
-    
+
     CaloParams() { version_=Version; pnode_.resize(NUM_CALOPARAMNODES); }
     ~CaloParams() {}
 
@@ -244,12 +244,12 @@ namespace l1t {
     unsigned egIsoAreaNrTowersEta()const{return egp_.isoAreaNrTowersEta_;}
     unsigned egIsoAreaNrTowersPhi()const{return egp_.isoAreaNrTowersPhi_;}
     unsigned egIsoVetoNrTowersPhi()const{return egp_.isoVetoNrTowersPhi_;}
-    const std::string & egPUSType() const { return pnode_[egPUS].type_; }    
+    const std::string & egPUSType() const { return pnode_[egPUS].type_; }
     const std::vector<double> & egPUSParams() const { return pnode_[egPUS].dparams_; }
     double egPUSParam(int ipar) const { return pnode_[egPUS].dparams_.at(ipar); }
-    
-    
-    
+
+
+
     l1t::LUT* egIsolationLUT() { return &pnode_[egIsolation].LUT_; }
     std::string egCalibrationType() const { return pnode_[egCalibration].type_; }
     std::vector<double> egCalibrationParams() { return pnode_[egCalibration].dparams_; }
@@ -334,6 +334,7 @@ namespace l1t {
     std::vector<double> jetPUSParams() { return pnode_[jetPUS].dparams_; }
     std::string jetCalibrationType() const { return pnode_[jetCalibration].type_; }
     std::vector<double> jetCalibrationParams() { return pnode_[jetCalibration].dparams_; }
+    l1t::LUT* jetCalibrationLUT() { return &pnode_[jetCalibration].LUT_; }
 
     void setJetLsb(double lsb) { jetp_.lsb_ = lsb; }
     void setJetSeedThreshold(double thresh) { jetp_.seedThreshold_ = thresh; }
@@ -342,7 +343,7 @@ namespace l1t {
     void setJetPUSParams(std::vector<double> params) { pnode_[jetPUS].dparams_ = params; }
     void setJetCalibrationType(std::string type) { pnode_[jetCalibration].type_ = type; }
     void setJetCalibrationParams(std::vector<double> params) { pnode_[jetCalibration].dparams_ = params; }
-
+    void setJetCalibrationLUT(const l1t::LUT & lut) { pnode_[jetCalibration].LUT_ = lut; }
 
     // sums
     double etSumLsb() const { return etSumLsb_; }
@@ -373,7 +374,7 @@ namespace l1t {
 
     std::vector<Node> pnode_;
 
-    TowerParams towerp_; 
+    TowerParams towerp_;
 
     // Region LSB
     double regionLsb_;
