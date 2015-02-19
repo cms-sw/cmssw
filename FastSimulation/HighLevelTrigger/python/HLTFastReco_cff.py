@@ -18,11 +18,7 @@ from FastSimulation.HighLevelTrigger.HLTFastRecoForXchannel_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForSpecial_cff import *
 
 # L1 emulator - using directly L1Trigger.Configuration.SimL1Emulator_cff
-# for everithing but simRctDigis that is taken from CaloRecHits_cff for 
-# CaloMode = 3
-#
-# For CaloMode = 0 simRctDigis is taken from SimL1Emulator_cff as well:
-# this a hack to make things work, a better solution has to be implemented
+# for everithing but simRctDigis that is taken from CaloRecHits_cff
 #
 # GT digis and L1 extra have different module label naming  w.r.t.
 # FullSim as they are used as input to HLT w.o. any packing/unpacking
@@ -32,27 +28,16 @@ from FastSimulation.HighLevelTrigger.HLTFastRecoForSpecial_cff import *
 from L1Trigger.Configuration.SimL1Emulator_cff import simGctDigis,             \
     simDtTriggerPrimitiveDigis, L1DTConfigFromDB, simCscTriggerPrimitiveDigis, \
     simCsctfTrackDigis, simDttfDigis, simCsctfDigis,                           \
-    simRpcTriggerDigis, RPCConeBuilder, simGmtDigis,                           \
+    simRpcTriggerDigis, RPCConeBuilder, simGmtDigis, simGtDigis,               \
     SimL1MuTriggerPrimitives, SimL1MuTrackFinders
 
-from L1Trigger.GlobalTrigger.gtDigis_cfi import *
-
 # The calorimeter emulator requires doDigis=true
-# In CMSSW > 61X CaloMode can be updated with the following import
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
-if(CaloMode==0 or CaloMode==2):
-    ecalRecHit.doDigis = True
-if(CaloMode==0 or CaloMode==1):
-    hbhereco.doDigis = True
-    hfreco.doDigis = True
-    horeco.doDigis = True
-if(CaloMode==0) :
-    from L1Trigger.Configuration.SimL1Emulator_cff import simRctDigis
 
 # GT emulator
-gtDigis.EmulateBxInEvent = 1
-gtDigis.GmtInputTag = cms.InputTag("simGmtDigis") 
-gtDigis.GctInputTag = cms.InputTag("simGctDigis")
+simGtDigis.EmulateBxInEvent = 1
+simGtDigis.GmtInputTag = cms.InputTag("simGmtDigis") 
+simGtDigis.GctInputTag = cms.InputTag("simGctDigis")
 
 # Emulator sequence
 L1Emulator = cms.Sequence(simRctDigis + 
@@ -61,7 +46,7 @@ L1Emulator = cms.Sequence(simRctDigis +
                           SimL1MuTrackFinders + 
                           simRpcTriggerDigis + 
                           simGmtDigis +
-                          gtDigis)
+                          simGtDigis)
 
 # L1Extra - provides 4-vector representation of L1 trigger objects - not needed by HLT
 # The muon extra particles are done here, but could be done also by L1ParamMuons.
@@ -72,6 +57,7 @@ l1extraParticles.nonIsolatedEmSource = cms.InputTag("simGctDigis","nonIsoEm")
 
 l1extraParticles.centralJetSource = cms.InputTag("simGctDigis","cenJets")
 l1extraParticles.tauJetSource     = cms.InputTag("simGctDigis","tauJets")
+l1extraParticles.isoTauJetSource  = cms.InputTag("simGctDigis","isoTauJets")
 l1extraParticles.forwardJetSource = cms.InputTag("simGctDigis","forJets")
 
 l1extraParticles.muonSource = cms.InputTag('simGmtDigis')
@@ -90,6 +76,7 @@ import L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi
 hltL1GtTrigReport = L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi.l1GtTrigReport.clone()
 hltL1GtTrigReport.PrintVerbosity = 1
 hltL1GtTrigReport.PrintOutput = 2
+hltL1GtTrigReport.L1GtRecordInputTag = cms.InputTag("simGtDigis")
 
 # HLT Report
 options = cms.untracked.PSet(
@@ -103,7 +90,8 @@ from FastSimulation.Tracking.IterativeTracking_cff import *
 # The hltbegin sequence (with L1 emulator)
 HLTBeginSequence = cms.Sequence(
     siTrackerGaussianSmearingRecHits+ # repetition if RECO is executed; needed by the next line
-    iterativeTracking               + # repetition if RECO is executed; needed by the next line
+    iterTracking                    + # repetition if RECO is executed; needed by the next line
+    trackExtrapolator               +
     caloRecHits                     + # repetition if RECO is executed; needed to allow -s GEN,SIM,HLT without RECO
     L1Emulator                      +
     l1extraParticles                +

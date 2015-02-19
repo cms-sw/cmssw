@@ -25,7 +25,7 @@ process.prefer("VolumeBasedMagneticFieldESProducer")
 #-------------------------------------------------
 # Geometry
 #-------------------------------------------------
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #-------------------------------------------------
 # CALIBRATION

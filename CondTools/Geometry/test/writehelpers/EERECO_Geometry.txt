@@ -1,0 +1,12 @@
+{
+    "destinationDatabase": "oracle://cms_orcon_prod/CMS_COND_GEOMETRY_000", 
+    "destinationTags": {
+        "EERECO_Geometry_TagXX": {
+            "dependencies": {}, 
+            "synchronizeTo": "offline"
+        }
+    }, 
+    "inputTag": "EERECO_Geometry_TagXX", 
+    "since": null, 
+    "userText": "Ecal endcap geometry payload config TagXX"
+}

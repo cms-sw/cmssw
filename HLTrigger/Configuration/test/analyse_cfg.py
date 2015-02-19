@@ -14,7 +14,7 @@ process.MessageLogger.categories.append('HLTConfigProvider')
 
 from Configuration.AlCa.autoCond import autoCond
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = autoCond['startup'].split(',')[0]
+process.GlobalTag.globaltag = autoCond['run2_mc_FULL']
 
 # process.Timing = cms.Service("Timing")
 
@@ -28,7 +28,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:RelVal_HLT_GRun_STARTUP.root')
+    fileNames = cms.untracked.vstring('file:RelVal_HLT_FULL_MC.root')
 )
 
 process.options = cms.untracked.PSet(

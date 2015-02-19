@@ -36,6 +36,7 @@ private:
   std::unique_ptr<OrderedHitsGenerator> theGenerator;
   std::unique_ptr<TrackingRegionProducer> theRegionProducer;
   std::unique_ptr<QuadrupletSeedMerger> theMerger_;
+  bool useClusterShape;
 };
 #endif
 

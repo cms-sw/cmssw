@@ -31,20 +31,24 @@ DQMOfflineCosmics_SecondStepDPG = cms.Sequence( dqmRefHistoRootFileGetter *
                                                 DQMOfflineCosmics_SecondStep_PreDPG *
                                                 DQMMessageLoggerClientSeq )
 
+
 from DQMOffline.Muon.muonQualityTests_cff import *
 from DQMOffline.EGamma.photonOfflineDQMClient_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_Client_cff import *
 from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
 from DQMOffline.JetMET.SusyPostProcessor_cff import *
+from DQM.TrackingMonitorClient.TrackingClientConfig_Tier0_Cosmic_cff import *
 
-DQMOfflineCosmics_SecondStep_PrePOG = cms.Sequence( cosmicMuonQualityTests *
+DQMOfflineCosmics_SecondStep_PrePOG = cms.Sequence( TrackingCosmicDQMClient *
+                                                    cosmicMuonQualityTests *
                                                     photonOfflineDQMClient *
 #                                                    l1TriggerDqmOfflineClient * 
                                                     triggerOfflineDQMClient *
                                                     hltOfflineDQMClient *
                                                     SusyPostProcessorSequence )
  
+DQMOfflineCosmics_SecondStep_PrePOG.remove(fsqClient)
 DQMOfflineCosmics_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                                 DQMOfflineCosmics_SecondStep_PrePOG *
                                                 DQMMessageLoggerClientSeq *

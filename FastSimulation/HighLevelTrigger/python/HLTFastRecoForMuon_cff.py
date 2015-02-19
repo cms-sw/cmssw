@@ -59,39 +59,27 @@ hltL3TrackCandidateFromL2NoVtx.SeedProducer = "hltL3TrajectorySeedNoVtx"
 # Paths that need a regional pixel seed (which accesses Pixel RecHits in its usual implementation)
 hltJpsiTkPixelSeedFromL3Candidate = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltCkfTrackCandidatesJpsiTk = cms.Sequence(globalPixelTracking)
-# Take all pixel tracks (pTMin>1GeV, nHits>=8)
-hltCtfWithMaterialTracksJpsiTk = cms.EDProducer("FastTrackMerger",
-    SaveTracksOnly = cms.untracked.bool(True),
-    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
-                                   cms.InputTag("globalPixelTrackCandidates")),
-    ptMin = cms.untracked.double(1.0),
-    minHits = cms.untracked.uint32(8)
-)
 
 # CKFTrackCandidateMaker
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 
 hltMuCkfTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 hltMuCkfTrackCandidates.SeedProducer = cms.InputTag("hltMuTrackSeeds")
-hltMuCkfTrackCandidates.TrackProducers = []
 hltMuCkfTrackCandidates.SeedCleaning = True
 hltMuCkfTrackCandidates.SplitHits = False
 
 hltMuTrackJpsiCkfTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 hltMuTrackJpsiCkfTrackCandidates.SeedProducer = cms.InputTag("hltMuTrackJpsiTrackSeeds")
-hltMuTrackJpsiCkfTrackCandidates.TrackProducers = []
 hltMuTrackJpsiCkfTrackCandidates.SeedCleaning = True
 hltMuTrackJpsiCkfTrackCandidates.SplitHits = False
 
 hltMuTrackJpsiEffCkfTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 hltMuTrackJpsiEffCkfTrackCandidates.SeedProducer = cms.InputTag("hltMuTrackJpsiTrackSeeds")
-hltMuTrackJpsiEffCkfTrackCandidates.TrackProducers = []
 hltMuTrackJpsiEffCkfTrackCandidates.SeedCleaning = True
 hltMuTrackJpsiEffCkfTrackCandidates.SplitHits = False
 
 hltMuTrackCkfTrackCandidatesOnia = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 hltMuTrackCkfTrackCandidatesOnia.SeedProducer = cms.InputTag("hltMuTrackTrackSeedsOnia")
-hltMuTrackCkfTrackCandidatesOnia.TrackProducers = []
 hltMuTrackCkfTrackCandidatesOnia.SeedCleaning = True
 hltMuTrackCkfTrackCandidatesOnia.SplitHits = False
 

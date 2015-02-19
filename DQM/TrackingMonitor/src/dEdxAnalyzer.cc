@@ -82,6 +82,7 @@ void dEdxAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     // get binning from the configuration
     TrackHitMin  = conf_.getParameter<double>("TrackHitMin");
     HIPdEdxMin   = conf_.getParameter<double>("HIPdEdxMin");
+    HighPtThreshold =  conf_.getParameter<double>("HighPtThreshold");
 
     dEdxK      = conf_.getParameter<double>("dEdxK");
     dEdxC      = conf_.getParameter<double>("dEdxC");
@@ -138,6 +139,15 @@ void dEdxAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
          dEdxMEsVector[i].ME_HipDeDxMass->setAxisTitle("dEdx Mass of each HIP Track (GeV/c^{2})");
          dEdxMEsVector[i].ME_HipDeDxMass->setAxisTitle("Number of Tracks", 2);
 
+         histname = "MIPOfHighPt_dEdxPerTrack_";
+         dEdxMEsVector[i].ME_MipHighPtDeDx = ibooker.book1D(histname, histname, dEdxBin, dEdxMin, dEdxMax);
+         dEdxMEsVector[i].ME_MipHighPtDeDx->setAxisTitle("dEdx of each MIP (of High pT) Track (MeV/cm)");
+         dEdxMEsVector[i].ME_MipHighPtDeDx->setAxisTitle("Number of Tracks", 2);
+
+         histname =  "MIPOfHighPt_NumberOfdEdxHitsPerTrack_";
+         dEdxMEsVector[i].ME_MipHighPtDeDxNHits = ibooker.book1D(histname, histname, dEdxNHitBin, dEdxNHitMin, dEdxNHitMax);
+         dEdxMEsVector[i].ME_MipHighPtDeDxNHits->setAxisTitle("Number of dEdxHits of each MIP (of High pT) Track");
+         dEdxMEsVector[i].ME_MipHighPtDeDxNHits->setAxisTitle("Number of Tracks", 2);
        }
     }
 
@@ -186,6 +196,12 @@ void dEdxAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		 if (dEdxColl[track].numberOfMeasurements()!=0)
 		   dEdxMEsVector[i].ME_MipDeDxNSatHits->Fill((1.0*dEdxColl[track].numberOfSaturatedMeasurements())/dEdxColl[track].numberOfMeasurements());
                  dEdxMEsVector[i].ME_MipDeDxMass    ->Fill(mass(track->p(), dEdxColl[track].dEdx()));
+
+
+                 if(track->pt() >= HighPtThreshold){
+                    dEdxMEsVector[i].ME_MipHighPtDeDx        ->Fill(dEdxColl[track].dEdx());
+                    dEdxMEsVector[i].ME_MipHighPtDeDxNHits   ->Fill(dEdxColl[track].numberOfMeasurements());
+                 }
 
               //HighlyIonizing particles
               }else if(track->pt()<2 && dEdxColl[track].dEdx()>HIPdEdxMin){

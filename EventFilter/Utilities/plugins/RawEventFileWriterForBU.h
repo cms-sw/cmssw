@@ -34,7 +34,7 @@ class RawEventFileWriterForBU
   uint32 adler32() const { return (adlerb_ << 16) | adlera_; }
 
   void start(){}
-  void stop() {}
+  void stop();
   void initialize(std::string const& destinationDir, std::string const& name, int ls);
   void endOfLS(int ls);
   bool sharedMode() const {return false;}

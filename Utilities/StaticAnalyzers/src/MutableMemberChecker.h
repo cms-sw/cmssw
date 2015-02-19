@@ -16,7 +16,7 @@
 
 namespace clangcms {
 class MutableMemberChecker : public clang::ento::Checker< clang::ento::check::ASTDecl< clang::FieldDecl> > {
-  mutable clang::OwningPtr< clang::ento::BuiltinBug> BT;
+  mutable std::unique_ptr< clang::ento::BuiltinBug> BT;
 
 public:
   void checkASTDecl(const clang::FieldDecl *D,

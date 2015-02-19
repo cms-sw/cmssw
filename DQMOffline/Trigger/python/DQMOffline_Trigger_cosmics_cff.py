@@ -35,8 +35,6 @@ import FWCore.ParameterSet.Config as cms
 
 
 # HLT Offline -----------------------------------
-# FourVector
-#from DQMOffline.Trigger.FourVectorHLTOffline_cfi import *
 from DQMOffline.Trigger.HLTGeneralOffline_cfi import *
 # EGamma
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *

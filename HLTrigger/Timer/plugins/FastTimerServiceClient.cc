@@ -33,10 +33,9 @@ public:
 private:
   std::string m_dqm_path;
 
-  void dqmEndLuminosityBlock(DQMStore::IGetter & getter, edm::LuminosityBlock const & lumi, edm::EventSetup const & setup);
-  void dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter & getter);
+  void dqmEndLuminosityBlock(DQMStore::IBooker & booker, DQMStore::IGetter & getter, edm::LuminosityBlock const &, edm::EventSetup const&) override;
+  void dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter & getter) override;
 
-private:
   void fillSummaryPlots(        DQMStore::IBooker & booker, DQMStore::IGetter & getter);
   void fillProcessSummaryPlots( DQMStore::IBooker & booker, DQMStore::IGetter & getter, std::string const & path);
   void fillPathSummaryPlots(    DQMStore::IBooker & booker, DQMStore::IGetter & getter, double events, std::string const & path);
@@ -59,9 +58,9 @@ FastTimerServiceClient::dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter 
 }
 
 void
-FastTimerServiceClient::dqmEndLuminosityBlock(DQMStore::IGetter & getter, edm::LuminosityBlock const & lumi, edm::EventSetup const & setup)
+FastTimerServiceClient::dqmEndLuminosityBlock(DQMStore::IBooker & booker, DQMStore::IGetter & getter, edm::LuminosityBlock const & lumi, edm::EventSetup const & setup)
 {
-  // fillSummaryPlots(getter);
+  fillSummaryPlots(booker, getter);
 }
 
 void
@@ -151,25 +150,70 @@ FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker & booker, DQMStor
       continue;
     TH1F * counter = me_counter->getTH1F();
     TH1F * total   = me_total  ->getTH1F();
-    uint32_t bins = counter->GetXaxis()->GetNbins();
+    uint32_t bins = counter->GetXaxis()->GetNbins() - 1;
     double   min  = counter->GetXaxis()->GetXmin();
-    double   max  = counter->GetXaxis()->GetXmax();
-    TH1F * average    = booker.book1D(label + "_module_average",    label + " module average",    bins, min, max)->getTH1F();
-    average   ->SetYTitle("processing time [ms]");
-    TH1F * running    = booker.book1D(label + "_module_running",    label + " module running",    bins, min, max)->getTH1F();
-    running   ->SetYTitle("processing time [ms]");
-    TH1F * efficiency = booker.book1D(label + "_module_efficiency", label + " module efficiency", bins, min, max)->getTH1F();
-    efficiency->SetYTitle("filter efficiency");
-    efficiency->SetMaximum(1.05);
+    double   max  = counter->GetXaxis()->GetXmax() - 1;
+    booker.setCurrentFolder(current_path + "/Paths");
+
+    TH1F * average;
+    TH1F * running;
+    TH1F * efficiency;
+    MonitorElement * me;
+
+    me = getter.get( current_path + "/Paths/" + label + "_module_average" );
+    if (me) {
+      average = me->getTH1F();
+      //assert( me->getTH1F()->GetXaxis()->GetNbins() == (int) bins );
+      assert( me->getTH1F()->GetXaxis()->GetXmin()  == min );
+      assert( me->getTH1F()->GetXaxis()->GetXmax()  == max );
+      average->Reset();
+    } else {
+      average = booker.book1D(label + "_module_average", label + " module average", bins, min, max)->getTH1F();
+      average->SetYTitle("processing time [ms]");
+      for (uint32_t i = 1; i <= bins; ++i) {
+        const char * module = counter->GetXaxis()->GetBinLabel(i);
+        average->GetXaxis()->SetBinLabel(i, module);
+      }
+    }
+
+    me = getter.get( current_path + "/Paths/" + label + "_module_running" );
+    if (me) {
+      running = me->getTH1F();
+      //assert( me->getTH1F()->GetXaxis()->GetNbins() == (int) bins );
+      assert( me->getTH1F()->GetXaxis()->GetXmin()  == min );
+      assert( me->getTH1F()->GetXaxis()->GetXmax()  == max );
+      running->Reset();
+    } else {
+      running = booker.book1D(label + "_module_running", label + " module running", bins, min, max)->getTH1F();
+      running->SetYTitle("processing time [ms]");
+      for (uint32_t i = 1; i <= bins; ++i) {
+        const char * module = counter->GetXaxis()->GetBinLabel(i);
+        running->GetXaxis()->SetBinLabel(i, module);
+      }
+    }
+
+    me = getter.get( current_path + "/Paths/" + label + "_module_efficiency" );
+    if (me) {
+      efficiency = me->getTH1F();
+      //assert( me->getTH1F()->GetXaxis()->GetNbins() == (int) bins );
+      assert( me->getTH1F()->GetXaxis()->GetXmin()  == min );
+      assert( me->getTH1F()->GetXaxis()->GetXmax()  == max );
+      efficiency->Reset();
+    } else {
+      efficiency = booker.book1D(label + "_module_efficiency", label + " module efficiency", bins, min, max)->getTH1F();
+      efficiency->SetYTitle("filter efficiency");
+      efficiency->SetMaximum(1.05);
+      for (uint32_t i = 1; i <= bins; ++i) {
+        const char * module = counter->GetXaxis()->GetBinLabel(i);
+        efficiency->GetXaxis()->SetBinLabel(i, module);
+      }
+    }
+
     for (uint32_t i = 1; i <= bins; ++i) {
-      const char * module = counter->GetXaxis()->GetBinLabel(i);
-      average   ->GetXaxis()->SetBinLabel(i, module);
-      running   ->GetXaxis()->SetBinLabel(i, module);
-      efficiency->GetXaxis()->SetBinLabel(i, module);
       double t = total  ->GetBinContent(i);
       double n = counter->GetBinContent(i);
       double p = counter->GetBinContent(i+1);
-      average   ->SetBinContent(i, t / events);
+      average ->SetBinContent(i, t / events);
       if (n) {
         running   ->SetBinContent(i, t / n);
         efficiency->SetBinContent(i, p / n);

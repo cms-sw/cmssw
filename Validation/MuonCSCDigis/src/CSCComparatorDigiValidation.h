@@ -13,11 +13,11 @@
 class CSCComparatorDigiValidation : public CSCBaseValidation
 {
 public:
-  CSCComparatorDigiValidation(DQMStore* dbe,
-                              const edm::InputTag & inputTag,
+  CSCComparatorDigiValidation(const edm::InputTag & inputTag,
                               const edm::InputTag & stripDigiInputTag,
                               edm::ConsumesCollector && iC);
   ~CSCComparatorDigiValidation();
+  void bookHistograms(DQMStore::IBooker &);
   void analyze(const edm::Event&, const edm::EventSetup&);
 
  private:
@@ -30,9 +30,6 @@ public:
   MonitorElement* the3StripPlots[10];
 
   MonitorElement* theNDigisPerEventPlot;
-
-
 };
 
 #endif
-

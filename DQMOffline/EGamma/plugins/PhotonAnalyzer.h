@@ -51,29 +51,26 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-//
+
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
 #include "TVector3.h"
 #include "TProfile.h"
-//
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-//
 //DQM services
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 //
 
@@ -101,40 +98,37 @@ class SimVertex;
 class SimTrack;
 
 
-class PhotonAnalyzer : public edm::EDAnalyzer
+class PhotonAnalyzer : public DQMEDAnalyzer
 {
-
-
  public:
-   
-  //
-  explicit PhotonAnalyzer( const edm::ParameterSet& ) ;
+  explicit PhotonAnalyzer( const edm::ParameterSet& );
   virtual ~PhotonAnalyzer();
-                                   
-      
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-  virtual void beginJob() ;
-  virtual void endJob() ;
-  virtual void endRun(const edm::Run& , const edm::EventSetup& ) ;
-
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;      
+  virtual void analyze( const edm::Event&, const edm::EventSetup& );
  
  private:
-  //
-  bool  photonSelection (  const reco::PhotonRef & p );
-  float  phiNormalization( float& a);
+  void bookHistogramsForHistogramCounts(DQMStore::IBooker &);
 
-  MonitorElement* bookHisto(std::string histoName, std::string title, int bin, double min, double max);
+  void bookHistogramsEfficiency(DQMStore::IBooker &);
+  void bookHistogramsInvMass(DQMStore::IBooker &);
+  void bookHistogramsPhotons(DQMStore::IBooker &);  
+  void bookHistogramsConversions(DQMStore::IBooker &);
 
-  void book2DHistoVector(std::vector<std::vector<MonitorElement*> > & toFill,
-			 std::string histoType, std::string histoName, std::string title,			 
-							       int xbin, double xmin, double xmax,
-							       int ybin=1,double ymin=1, double ymax=2);
-
-  void book3DHistoVector( std::vector<std::vector<std::vector<MonitorElement*> > > & toFill,
-			  std::string histoType, std::string histoName, std::string title, 
-							       int xbin, double xmin, double xmax,
-							       int ybin=1,double ymin=1, double ymax=2);
-
+  void fillHistogramsForHistogramCounts(DQMStore::IBooker &);
+  
+  MonitorElement* bookHisto(DQMStore::IBooker &,
+                            std::string histoName, std::string title,
+                            int bin, double min, double max);
+  void book2DHistoVector(DQMStore::IBooker &,
+                         std::vector<std::vector<MonitorElement*> > & toFill,
+                         std::string histoType, std::string histoName, std::string title,			 
+                         int xbin, double xmin, double xmax,
+                         int ybin=1,double ymin=1, double ymax=2);
+  void book3DHistoVector(DQMStore::IBooker &,
+                         std::vector<std::vector<std::vector<MonitorElement*> > > & toFill,
+                         std::string histoType, std::string histoName, std::string title, 
+                         int xbin, double xmin, double xmax,
+                         int ybin=1,double ymin=1, double ymax=2);
 
   void fill2DHistoVector(std::vector<std::vector<MonitorElement*> >& histoVector,double x, int cut, int type);
   void fill2DHistoVector(std::vector<std::vector<MonitorElement*> >& histoVector,double x, double y, int cut, int type);
@@ -142,27 +136,21 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   void fill3DHistoVector(std::vector<std::vector<std::vector<MonitorElement*> > >& histoVector,double x, int cut, int type, int part);
   void fill3DHistoVector(std::vector<std::vector<std::vector<MonitorElement*> > >& histoVector,double x, double y, int cut, int type, int part);
 
-
+  bool photonSelection(const reco::PhotonRef & p);
+  float phiNormalization(float& a);
 
   //////////
 
   std::string fName_;
-  int verbosity_;
 
   unsigned int prescaleFactor_;
 
   edm::EDGetTokenT<std::vector<reco::Photon> > photon_token_;
-
   edm::EDGetTokenT<edm::ValueMap<bool> > PhotonIDLoose_token_;
-
   edm::EDGetTokenT<edm::ValueMap<bool> > PhotonIDTight_token_;
-  
   edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > barrelRecHit_token_;
-
   edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > endcapRecHit_token_;
-  
   edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent_token_;
-
   edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
   
   double minPhoEtCut_;
@@ -175,7 +163,6 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   bool useBinning_;
   bool useTriggerFiltering_;
   bool standAlone_;
-  std::string outputFileName_;
   
   bool minimalSetOfHistos_;
   bool excludeBkgHistos_;
@@ -183,12 +170,9 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   int isolationStrength_; 
 
   bool isHeavyIon_;
-
-  edm::ParameterSet parameters_;
            
   ////////
 
-  DQMStore *dbe_;
   std::stringstream currentFolder_;
 
   int histo_index_photons_;
@@ -196,14 +180,86 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   int histo_index_efficiency_;
   int histo_index_invMass_;
 
-
   int nEvt_;
-  int nEntry_;
 
   std::vector<std::string> types_;
   std::vector<std::string> parts_;
 
   //////////
+  
+  // Histogram parameters
+  int    etaBin_;
+  double etaMin_;
+  double etaMax_;
+  
+  int    etBin_;
+  double etMin_;
+  double etMax_;
+
+  int    phiBin_;
+  double phiMin_;
+  double phiMax_;
+
+  int    eBin_;
+  double eMin_;
+  double eMax_;
+
+  int    numberBin_;
+  double numberMin_;
+  double numberMax_;
+
+  int    r9Bin_;
+  double r9Min_;
+  double r9Max_;
+
+  int    sigmaIetaBin_;
+  double sigmaIetaMin_;
+  double sigmaIetaMax_;
+
+  int    sumBin_;
+  double sumMin_;
+  double sumMax_;
+  
+  int    hOverEBin_;
+  double hOverEMin_;
+  double hOverEMax_;
+
+  int    eOverPBin_;
+  double eOverPMin_;
+  double eOverPMax_;
+
+  int    dPhiTracksBin_;
+  double dPhiTracksMin_;
+  double dPhiTracksMax_;
+  
+  int    dEtaTracksBin_;
+  double dEtaTracksMin_;
+  double dEtaTracksMax_;
+
+  int    chi2Bin_;
+  double chi2Min_;
+  double chi2Max_;
+
+  int    zBin_;
+  double zMin_;
+  double zMax_;
+
+  int    rBin_;
+  double rMin_;
+  double rMax_;
+
+  int    xBin_;
+  double xMin_;
+  double xMax_;
+
+  int    yBin_;
+  double yMin_;
+  double yMax_;
+
+  int reducedEtBin_;
+  int reducedEtaBin_;
+  int reducedR9Bin_;
+  int reducedSumBin_;
 
   MonitorElement* totalNumberOfHistos_efficiencyFolder;
   MonitorElement* totalNumberOfHistos_invMassFolder;
@@ -227,7 +283,6 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   MonitorElement* h_convEt_Loose_;
   MonitorElement* h_convEt_Tight_;
 
-
   MonitorElement* h_phoEta_Vertex_;
 
   MonitorElement* h_invMassTwoWithTracks_;
@@ -237,8 +292,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   MonitorElement* h_invMassPhotonsEBarrel_;
   MonitorElement* h_invMassPhotonsEEndcap_;
 
- ////////2D vectors of histograms
-
+  ////////2D vectors of histograms
 
   std::vector<std::vector<MonitorElement*> > h_nTrackIsolSolidVsEta_;
   std::vector<std::vector<MonitorElement*> > h_trackPtSumSolidVsEta_;
@@ -247,14 +301,12 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > h_ecalSumVsEta_;
   std::vector<std::vector<MonitorElement*> > h_hcalSumVsEta_;
 
-
   std::vector<std::vector<MonitorElement*> > h_nTrackIsolSolidVsEt_;
   std::vector<std::vector<MonitorElement*> > h_trackPtSumSolidVsEt_;
   std::vector<std::vector<MonitorElement*> > h_nTrackIsolHollowVsEt_;
   std::vector<std::vector<MonitorElement*> > h_trackPtSumHollowVsEt_;
   std::vector<std::vector<MonitorElement*> > h_ecalSumVsEt_;
   std::vector<std::vector<MonitorElement*> > h_hcalSumVsEt_;
-
 
   std::vector<std::vector<MonitorElement*> > h_nTrackIsolSolid_;
   std::vector<std::vector<MonitorElement*> > h_trackPtSumSolid_;
@@ -274,7 +326,6 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > h_nHadIsoBarrel_;
   std::vector<std::vector<MonitorElement*> > h_nHadIsoEndcap_;
 
-
   std::vector<std::vector<MonitorElement*> > p_nTrackIsolSolidVsEta_;
   std::vector<std::vector<MonitorElement*> > p_trackPtSumSolidVsEta_;
   std::vector<std::vector<MonitorElement*> > p_nTrackIsolHollowVsEta_;
@@ -286,9 +337,6 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > p_trackPtSumSolidVsEt_;
   std::vector<std::vector<MonitorElement*> > p_nTrackIsolHollowVsEt_;
   std::vector<std::vector<MonitorElement*> > p_trackPtSumHollowVsEt_;
-
-  
-
 
   std::vector<std::vector<MonitorElement*> > p_r9VsEt_;
   std::vector<std::vector<MonitorElement*> > p_r9VsEta_;
@@ -318,7 +366,6 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > h_phoEta_;
   std::vector<std::vector<MonitorElement*> > h_scEta_;
 
-
   std::vector<std::vector<MonitorElement*> > h_phoConvEtaForEfficiency_;
 
   std::vector<std::vector<MonitorElement*> > h_phoEta_BadChannels_;
@@ -335,7 +382,6 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
   std::vector<std::vector<MonitorElement*> > h_r9VsEt_;
   std::vector<std::vector<MonitorElement*> > h_r9VsEta_;
-
 
   std::vector<std::vector<MonitorElement*> > h_e1x5VsEt_;
   std::vector<std::vector<MonitorElement*> > h_e1x5VsEta_;
@@ -362,7 +408,6 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
   std::vector<std::vector<MonitorElement*> > p_tkChi2VsEta_;
 
-
   ////////3D std::vectors of histograms
 
   std::vector<std::vector<std::vector<MonitorElement*> > > p_ecalSumVsEt_;
@@ -377,8 +422,6 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<std::vector<MonitorElement*> > > h_scPhi_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_phoConvPhiForEfficiency_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_phoConvPhi_;
-
-
 
   std::vector<std::vector<std::vector<MonitorElement*> > > h_hOverE_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_h1OverE_;
@@ -403,15 +446,6 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<std::vector<MonitorElement*> > > h_dPhiTracksAtEcal_;
 
   std::vector<std::vector<std::vector<MonitorElement*> > > h_dEtaTracksAtEcal_;
-
 };
 
-
-
-
-
 #endif
-
-
-
-

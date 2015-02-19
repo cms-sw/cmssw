@@ -55,7 +55,7 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet& i
     if (addRunLumiInfo_) {
          tree_->Branch("run",  &run_,  "run/i");
          tree_->Branch("lumi", &lumi_, "lumi/i");
-         tree_->Branch("event", &event_, "event/i");
+         tree_->Branch("event", &event_, "event/l");
     }
     addEventVariablesInfo_ = iConfig.existsAs<bool>("addEventVariablesInfo") ? iConfig.getParameter<bool>("addEventVariablesInfo") : false;
     if (addEventVariablesInfo_) {

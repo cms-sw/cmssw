@@ -2,7 +2,20 @@
 
 using namespace reco;
 
+IsolatedPixelTrackCandidate::IsolatedPixelTrackCandidate(const IsolatedPixelTrackCandidate& right) : RecoCandidate(right), track_(right.track_), l1tauJet_(right.l1tauJet_) {
+  maxPtPxl_  = right.maxPtPxl_;
+  sumPtPxl_  = right.sumPtPxl_;
+  enIn_      = right.enIn_;
+  enOut_     = right.enOut_;
+  nhitIn_    = right.nhitIn_;
+  nhitOut_   = right.nhitOut_;
+  etaPhiEcal_= right.etaPhiEcal_;
+  etaEcal_   = right.etaEcal_; 
+  phiEcal_   = right.phiEcal_;  
+}
+
 IsolatedPixelTrackCandidate::~IsolatedPixelTrackCandidate() { }
+
 
 IsolatedPixelTrackCandidate * IsolatedPixelTrackCandidate::clone() const { 
   return new IsolatedPixelTrackCandidate( * this ); 

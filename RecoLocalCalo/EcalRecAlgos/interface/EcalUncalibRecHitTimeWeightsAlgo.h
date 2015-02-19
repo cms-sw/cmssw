@@ -17,6 +17,9 @@
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 
+#include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
+
+
 #include "TVectorD.h"
 #include <vector>
 
@@ -28,7 +31,7 @@ template<class C> class EcalUncalibRecHitTimeWeightsAlgo
   virtual ~EcalUncalibRecHitTimeWeightsAlgo<C>() { };
 
   /// Compute time
-  double time(const C& dataFrame, const std::vector<double> &amplitudes, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const TVectorD &fullpulse, const EcalWeightSet::EcalWeightMatrix** weights) {
+  double time(const C& dataFrame, const std::vector<double> &amplitudes, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const FullSampleVector &fullpulse, const EcalWeightSet::EcalWeightMatrix** weights) {
   
     const unsigned int nsample = EcalDataFrame::MAXSAMPLES;
   
@@ -84,7 +87,7 @@ template<class C> class EcalUncalibRecHitTimeWeightsAlgo
       int ipulse = std::distance(amplitudes.begin(),amplit);
       int bx = ipulse - 5;
       int firstsamplet = std::max(0,bx + 3);
-      int offset = -3-bx;
+      int offset = 7-3-bx;
 
       TVectorD pulse;
       pulse.ResizeTo(nsample);

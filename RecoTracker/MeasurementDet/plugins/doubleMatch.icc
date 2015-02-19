@@ -86,10 +86,11 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, cons
   bool emptyMono = false;
   bool emptyStereo = false;
 
-  // mono does require "projection" for precise estimate
-  if (collector.filter()) {
+  // FIXME  clean this and optimize the rest of the code once understood and validated
+  if (true) { // collector.filter()) {
     emptyMono = theMonoDet->empty(data);
     if likely(!emptyMono) {
+        // mono does require "projection" for precise estimate
 	TrajectoryStateOnSurface mts = fastProp(ts,geomDet().surface(),theMonoDet->geomDet().surface());
 	theMonoDet->simpleRecHits(mts,collector.estimator(),data,monoHits);
       }

@@ -40,7 +40,9 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   runFrontEndFormatError_(ps.getParameter<bool>("FrontEndFormatError"))
 {
   // register for data access
-  tok_raw_ = consumes<FEDRawDataCollection>(inputTagFEDRaw_);
+  if (runFrontEndFormatError_) {
+    tok_raw_ = consumes<FEDRawDataCollection>(inputTagFEDRaw_);
+  }
   tok_hbhe_ = consumes<HBHEDigiCollection>(inputLabel_[0]);
   tok_hf_ = consumes<HFDigiCollection>(inputLabel_[1]);
 
@@ -57,7 +59,6 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   edm::ESHandle<CaloTPGTranscoder> outTranscoder;
   eventSetup.get<CaloTPGRecord>().get(outTranscoder);
-  outTranscoder->setup(eventSetup,CaloTPGTranscoder::HcalTPG);
 
   edm::ESHandle<HcalLutMetadata> lutMetadata;
   eventSetup.get<HcalLutMetadataRcd>().get(lutMetadata);
@@ -88,8 +89,6 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
       // put empty HcalTrigPrimDigiCollection in the event
       iEvent.put(result);
 
-      outTranscoder->releaseSetup();
-
       return;
   }
 
@@ -102,8 +101,6 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
       // put empty HcalTrigPrimDigiCollection in the event
       iEvent.put(result);
-
-      outTranscoder->releaseSetup();
 
       return;
   }
@@ -138,8 +135,6 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
             iEvent.put(emptyResult);
 
-            outTranscoder->releaseSetup();
-
             return;
         }
 
@@ -151,8 +146,6 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   // Step D: Put outputs into event
   iEvent.put(result);
-
-  outTranscoder->releaseSetup();
 }
 
 

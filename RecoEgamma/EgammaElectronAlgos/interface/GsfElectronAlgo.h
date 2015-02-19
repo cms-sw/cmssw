@@ -253,6 +253,10 @@ class GsfElectronAlgo {
 
     // associations
     const reco::SuperClusterRef getTrSuperCluster( const reco::GsfTrackRef & trackRef ) ;
+    
+    // Pixel match variables
+    void setPixelMatchInfomation(reco::GsfElectron*) ;
+    
  } ;
 
 #endif // GsfElectronAlgo_H

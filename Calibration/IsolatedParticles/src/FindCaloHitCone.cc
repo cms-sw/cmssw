@@ -1,4 +1,5 @@
 #include "Calibration/IsolatedParticles/interface/FindCaloHitCone.h"
+#include "Calibration/IsolatedParticles/interface/FindDistCone.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include <iostream>
 
@@ -6,7 +7,7 @@ namespace spr {
 
 
   //Ecal Endcap OR Barrel RecHits
-  std::vector<EcalRecHitCollection::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<EcalRecHitCollection>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom) {
+  std::vector<EcalRecHitCollection::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<EcalRecHitCollection>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, bool debug) {
   
     std::vector<EcalRecHitCollection::const_iterator> hit;
   
@@ -18,11 +19,11 @@ namespace spr {
       if (j->id().subdetId() == EcalEndcap) {
 	EEDetId EEid = EEDetId(j->id());
 	const GlobalPoint rechitPoint = geo->getPosition(EEid);
-	if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint)<dR) keepHit = true;
+	if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint, debug) < dR) keepHit = true;
       } else if (j->id().subdetId() == EcalBarrel) {
 	EBDetId EBid = EBDetId(j->id());
 	const GlobalPoint rechitPoint = geo->getPosition(EBid);
-	if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint)<dR) keepHit = true;
+	if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint, debug) < dR) keepHit = true;
       }
 
       if (keepHit) hit.push_back(j);
@@ -31,7 +32,7 @@ namespace spr {
   }
 
   // Ecal Endcap AND Barrel RecHits
-  std::vector<EcalRecHitCollection::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<EcalRecHitCollection>& barrelhits, edm::Handle<EcalRecHitCollection>& endcaphits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom) {
+  std::vector<EcalRecHitCollection::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<EcalRecHitCollection>& barrelhits, edm::Handle<EcalRecHitCollection>& endcaphits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, bool debug) {
   
     std::vector<EcalRecHitCollection::const_iterator> hit;
   
@@ -50,7 +51,7 @@ namespace spr {
 	if (j->id().subdetId() == EcalBarrel) {
 	  EBDetId EBid = EBDetId(j->id());
 	  const GlobalPoint rechitPoint = geo->getPosition(EBid);
-	  if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint)<dR) keepHit = true;
+	  if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint, debug) < dR) keepHit = true;
 	} else {
 	  std::cout << "PROBLEM : Endcap RecHits in Barrel Collection!?" 
 		    << std::endl;
@@ -69,7 +70,7 @@ namespace spr {
 	if (j->id().subdetId() == EcalEndcap) {
 	  EEDetId EEid = EEDetId(j->id());
 	  const GlobalPoint rechitPoint = geo->getPosition(EEid);
-	  if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint)<dR) keepHit = true;
+	  if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint, debug) < dR) keepHit = true;
 	} else {
 	  std::cout << "PROBLEM : Barrel RecHits in Endcap Collection!?" 
 		    << std::endl;
@@ -83,7 +84,7 @@ namespace spr {
 
 
   //HBHE RecHits
-  std::vector<HBHERecHitCollection::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<HBHERecHitCollection>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom) {
+  std::vector<HBHERecHitCollection::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<HBHERecHitCollection>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, bool debug) {
 
     std::vector<HBHERecHitCollection::const_iterator> hit;
     // Loop over Hcal RecHits
@@ -91,20 +92,20 @@ namespace spr {
 	 j!=hits->end(); j++) {   
       DetId detId(j->id());
       const GlobalPoint rechitPoint = geo->getPosition(detId);
-      if (spr::getDistInPlaneTrackDir(hpoint1, trackMom, rechitPoint)<dR) hit.push_back(j);
+      if (spr::getDistInPlaneTrackDir(hpoint1, trackMom, rechitPoint, debug) < dR) hit.push_back(j);
     }  
     return hit;
   }
 
   // PCalo SimHits
-  std::vector<edm::PCaloHitContainer::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<edm::PCaloHitContainer>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom) {
+  std::vector<edm::PCaloHitContainer::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<edm::PCaloHitContainer>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, bool debug) {
 
     std::vector<edm::PCaloHitContainer::const_iterator> hit;  
     edm::PCaloHitContainer::const_iterator ihit;
     for (ihit=hits->begin(); ihit!=hits->end(); ihit++) {
       DetId detId(ihit->id());
       const GlobalPoint rechitPoint = geo->getPosition(detId);
-      if (spr::getDistInPlaneTrackDir(hpoint1, trackMom, rechitPoint)<dR) {
+      if (spr::getDistInPlaneTrackDir(hpoint1, trackMom, rechitPoint, debug) < dR) {
 	hit.push_back(ihit);
       }
     }

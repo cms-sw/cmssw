@@ -263,7 +263,7 @@ void RPCRecHitReader::analyze(const edm::Event & event, const edm::EventSetup& e
   if(_mapTrig.size() == 0) return;
 
   char folder[128];
-  sprintf(folder,"HistoXYFit_%d",event.id().event());
+  sprintf(folder,"HistoXYFit_%llu",event.id().event());
   TH1F* histoXYFit = new TH1F(folder,folder,300,-300,300);
 
   for(unsigned int i = 0; i < globalX.size(); ++i){

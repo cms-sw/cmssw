@@ -54,69 +54,41 @@
 #include <string>
 #include <fstream>
 
-
 class dso_hidden V0Fitter {
- public:
-  V0Fitter(const edm::ParameterSet& theParams,
-	   edm::ConsumesCollector && iC);
-  ~V0Fitter();
 
-  // Switching to L. Lista's reco::Candidate infrastructure for V0 storage
-  void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
-              reco::VertexCompositeCandidateCollection & k, 
-              reco::VertexCompositeCandidateCollection & l);
+   public:
+      V0Fitter(const edm::ParameterSet& theParams, edm::ConsumesCollector && iC);
+      // Switching to L. Lista's reco::Candidate infrastructure for V0 storage
+      void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
+         reco::VertexCompositeCandidateCollection & k, reco::VertexCompositeCandidateCollection & l);
 
- private:
+   private:
 
-  // Tracker geometry for discerning hit positions
-  const TrackerGeometry* trackerGeom;
+      bool vertexFitter_;
+      bool useRefTracks_;
+      bool doKShorts_;
+      bool doLambdas_;
 
-  const MagneticField* magField;
+      // cuts on initial track selection
+      double tkChi2Cut_;
+      int tkNHitsCut_;
+      double tkPtCut_;
+      double tkIPSigCut_;
+      // cuts on the vertex
+      double vtxChi2Cut_;
+      double vtxDecayRSigCut_;
+      // miscellaneous cuts
+      double tkDCACut_;
+      double mPiPiCut_;
+      double innerHitPosCut_;
+      double v0CosThetaCut_;
+      // cuts on the V0 candidate mass
+      double kShortMassCut_;
+      double lambdaMassCut_;
 
-  bool useRefTrax;
-  //  bool storeRefTrax;
-  bool doKshorts;
-  bool doLambdas;
-
-  /*bool doPostFitCuts;
-    bool doTkQualCuts;*/
-
-  // Cuts
-  double chi2Cut;
-  double tkChi2Cut;
-  int tkNhitsCut;
-  double rVtxCut;
-  double vtxSigCut;
-  //  double vtxSigCut3D;
-  double collinCut;
-  double kShortMassCut;
-  double lambdaMassCut;
-  double impactParameterSigCut;
-  double mPiPiCut;
-  double tkDCACut;
-  double innerHitPosCut;
-
-  std::vector<reco::TrackBase::TrackQuality> qualities;
-
-  edm::EDGetTokenT<reco::TrackCollection>	 token_tracks; 
-  edm::EDGetTokenT<reco::BeamSpot> 	 token_beamSpot; 
-  edm::InputTag vtxFitter;
-
-  // Helper method that does the actual fitting using the KalmanVertexFitter
-  double findV0MassError(const GlobalPoint &vtxPos, const std::vector<reco::TransientTrack> &dauTracks);
-
-  // Applies cuts to the VertexCompositeCandidates after they are fitted/created.
-  //void applyPostFitCuts();
-
-  // Stuff for debug file output.
-  std::ofstream mPiPiMassOut;
-
-  inline void initFileOutput() {
-    mPiPiMassOut.open("mPiPi.txt", std::ios::app);
-  }
-  inline void cleanupFileOutput() {
-    mPiPiMassOut.close();
-  }
+      edm::EDGetTokenT<reco::TrackCollection> token_tracks;
+      edm::EDGetTokenT<reco::BeamSpot> token_beamSpot;
 };
 
 #endif
+

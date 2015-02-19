@@ -47,20 +47,22 @@ HcalCoarsePedestalClient::HcalCoarsePedestalClient(std::string myname, const edm
   minevents_    = ps.getUntrackedParameter<int>("CoarsePedestal_minevents",
 						ps.getUntrackedParameter<int>("minevents",1));
 
+  CoarsePedestalsByDepth=0;
   ProblemCellsByDepth=0;
 
+  doCoarseSetup_ = true;
 }
 
-void HcalCoarsePedestalClient::analyze()
+void HcalCoarsePedestalClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
   if (debug_>2) std::cout <<"\tHcalCoarsePedestalClient::analyze()"<<std::endl;
-  calculateProblems();
+  if ( doCoarseSetup_ ) setupCoarsePedestal(ib,ig);
+  calculateProblems(ib,ig);
 } // void HcalCoarsePedestalClient::analyze()
 
-void HcalCoarsePedestalClient::calculateProblems()
+void HcalCoarsePedestalClient::calculateProblems(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
  if (debug_>2) std::cout <<"\t\tHcalCoarsePedestalClient::calculateProblems()"<<std::endl;
-  if(!dqmStore_) return;
   //int totalevents=0; // events checked on a channel-by-channel basis
   int etabins=0, phibins=0, zside=0;
   double problemvalue=0;
@@ -97,7 +99,7 @@ void HcalCoarsePedestalClient::calculateProblems()
   for (int i=0;i<4;++i)
     {
       std::string s=subdir_+"CoarsePedestalSumPlots/"+name[i]+"Coarse Pedestal Summed Map";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me==0) 
 	{
 	  gothistos=false;
@@ -106,7 +108,7 @@ void HcalCoarsePedestalClient::calculateProblems()
       CoarsePedestalsSumByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, CoarsePedestalsSumByDepth[i], debug_);
 
       s=subdir_+"CoarsePedestalSumPlots/"+name[i]+"Coarse Pedestal Occupancy Map";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me==0) 
 	{
 	  gothistos=false;
@@ -212,43 +214,33 @@ void HcalCoarsePedestalClient::calculateProblems()
 }
 
 
-void HcalCoarsePedestalClient::beginJob()
-{
-  dqmStore_ = edm::Service<DQMStore>().operator->();
-  if (debug_>0) 
-    {
-      std::cout <<"<HcalCoarsePedestalClient::beginJob()>  Displaying dqmStore directory structure:"<<std::endl;
-      dqmStore_->showDirStructure();
-    }
-}
-
 void HcalCoarsePedestalClient::endJob(){}
 
 void HcalCoarsePedestalClient::beginRun(void)
 {
   enoughevents_=false;
-  if (!dqmStore_) 
-    {
-      if (debug_>0) std::cout <<"<HcalCoarsePedestalClient::beginRun> dqmStore does not exist!"<<std::endl;
-      return;
-    }
-  dqmStore_->setCurrentFolder(subdir_);
-  CoarsePedestalsByDepth = new EtaPhiHists();
-  CoarsePedestalsByDepth->setup(dqmStore_," Coarse Pedestal Map");
+} // void HcalCoarsePedestalClient::beginRun()
 
-  CoarsePedDiff=dqmStore_->book1D("PedRefDiff","(Pedestal-Reference)",200,-10,10);
+void HcalCoarsePedestalClient::setupCoarsePedestal(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
+{
+
+  ib.setCurrentFolder(subdir_);
+  CoarsePedestalsByDepth = new EtaPhiHists();
+  CoarsePedestalsByDepth->setup(ib," Coarse Pedestal Map");
+
+  CoarsePedDiff=ib.book1D("PedRefDiff","(Pedestal-Reference)",200,-10,10);
 
   problemnames_.clear();
-  ProblemCells=dqmStore_->book2D(" ProblemCoarsePedestals",
+  ProblemCells=ib.book2D(" ProblemCoarsePedestals",
 				 " Problem Coarse Pedestal Rate for all HCAL;ieta;iphi",
 				 85,-42.5,42.5,
 				 72,0.5,72.5);
   problemnames_.push_back(ProblemCells->getName());
   if (debug_>1)
     std::cout << "Tried to create ProblemCells Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCells==0)<<std::endl;
-  dqmStore_->setCurrentFolder(subdir_+"problem_coarsepedestals");
+  ib.setCurrentFolder(subdir_+"problem_coarsepedestals");
   ProblemCellsByDepth = new EtaPhiHists();
-  ProblemCellsByDepth->setup(dqmStore_," Problem Coarse Pedestal Rate");
+  ProblemCellsByDepth->setup(ib," Problem Coarse Pedestal Rate");
   for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
     problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
   nevts_=0;
@@ -258,7 +250,7 @@ void HcalCoarsePedestalClient::beginRun(void)
   for (int i=0;i<4;++i)
     {
       std::string s=prefixME_+"HcalInfo/PedestalsFromCondDB/"+name[i]+"ADC Pedestals From Conditions DB";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me==0) 
 	{
 	  if (debug_>0) std::cout <<"<HcalCoarsePedestalClient::beginRun> Could not get histogram with name "<<s<<std::endl;
@@ -266,7 +258,7 @@ void HcalCoarsePedestalClient::beginRun(void)
       DatabasePedestalsADCByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, DatabasePedestalsADCByDepth[i], debug_);
     }
   std::string s=subdir_+"CoarsePedestal_parameters/ADCdiff_Problem_Threshold";
-  me=dqmStore_->get(s.c_str());
+  me=ig.get(s.c_str());
   if (me==0)
     {
       if (debug_>0) 
@@ -276,7 +268,7 @@ void HcalCoarsePedestalClient::beginRun(void)
     ADCDiffThresh_=me->getFloatValue();
   s=subdir_+"CoarsePedestal_parameters/minEventsNeededForPedestalCalculation";
 
-  me=dqmStore_->get(s.c_str());
+  me=ig.get(s.c_str());
   int temp = 0;
   if (me==0) 
     {
@@ -293,9 +285,12 @@ void HcalCoarsePedestalClient::beginRun(void)
 	std::cout <<"<HcalCoarsePedestalClient::beginRun>  Specified client 'minevents' value of "<<minevents_<<"  is less than minimum task 'minevents' value of "<<temp<<"\n\t  Setting client 'minevents' to "<<temp<<std::endl;
       minevents_=temp;
     }
-} // void HcalCoarsePedestalClient::beginRun()
 
-void HcalCoarsePedestalClient::endRun(void){analyze();}
+  doCoarseSetup_ = false;
+
+}
+
+//void HcalCoarsePedestalClient::endRun(void){analyze();}
 
 void HcalCoarsePedestalClient::setup(void){}
 void HcalCoarsePedestalClient::cleanup(void){}
@@ -345,4 +340,9 @@ void HcalCoarsePedestalClient::updateChannelStatus(std::map<HcalDetId, unsigned 
 } //void HcalCoarsePedestalClient::updateChannelStatus
 
 HcalCoarsePedestalClient::~HcalCoarsePedestalClient()
-{}
+{
+
+  if ( CoarsePedestalsByDepth ) delete CoarsePedestalsByDepth;
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+
+}

@@ -51,6 +51,8 @@ namespace CondFormats_DTObjects {
     
     std::pair<uint32_t, std::vector<float> > p_payload;
     std::map<uint32_t, std::vector<float> > payload;
+    std::pair<uint32_t, std::vector<double> > p_payloadD;
+    std::map<uint32_t, std::vector<double> > payloadD;
 
   };
 }

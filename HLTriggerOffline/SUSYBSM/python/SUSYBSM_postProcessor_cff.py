@@ -1,22 +1,87 @@
-import FWCore.ParameterSet.Config as cms
-import HLTriggerOffline.SUSYBSM.SUSYBSM_triggerValidation_cff as dir_source
+from HLTriggerOffline.SUSYBSM.SUSYBSM_HT_MET_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_MET_BTAG_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_inclusiveHT_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_inclusiveMET_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_MET_MUON_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_inclusiveHT_aux350_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_inclusiveHT_aux600_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_Mu_HT_SingleLepton_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_Mu_HT_MET_SingleLepton_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_Mu_HT_BTag_SingleLepton_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_Mu_HT_Control_SingleLepton_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_Ele_HT_SingleLepton_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_Ele_HT_MET_SingleLepton_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_Ele_HT_BTag_SingleLepton_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_Ele_HT_Control_SingleLepton_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_MET_MUON_ER_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_MET_HT_MUON_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_MET_HT_MUON_ER_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_MET_HT_MUON_BTAG_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_Razor_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_caloHT_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_PhotonHT_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_HT_DoubleMuon_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_HT_DoubleElectron_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_HT_MuEle_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_Muon_BJet_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_Electron_BJet_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_alphaT_cff import *
 
-SusyExoPostVal_fastsim = cms.EDAnalyzer("HltSusyExoPostProcessor",
-   subDir = dir_source.HLTSusyExoVal.dirname,
-   mc_flag = dir_source.HLTSusyExoVal.mc_flag,
-   reco_parametersets = dir_source.HLTSusyExoVal.reco_parametersets,
-   mc_parametersets = dir_source.HLTSusyExoVal.mc_parametersets
-   )
 
-SusyExoPostVal = cms.EDAnalyzer("DQMGenericClient",
-  subDirs = cms.untracked.vstring("HLTriggerOffline/SUSYBSM/HLT_PFHT900_v1",
-                                  "HLTriggerOffline/SUSYBSM/HLT_PFHT350_PFMET120_NoiseCleaned_v1",
-                                  "HLTriggerOffline/SUSYBSM/HLT_PFMET170_NoiseCleaned_v1",
-                                  "HLTriggerOffline/SUSYBSM/HLT_PFMET120_NoiseCleaned_BTagCSV07_v1"
-                                 ),
-  efficiency = cms.vstring(
-    "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
-    "pfHTTurnOn_eff 'Efficiency vs PFHT' pfHTTurnOn_num pfHTTurnOn_den"
-    ),
-  resolution = cms.vstring("")
-)
+SusyExoPostVal = cms.Sequence(SUSY_HLT_HT_MET_POSTPROCESSING +
+                              SUSY_HLT_InclusiveHT_POSTPROCESSING +
+                              SUSY_HLT_InclusiveMET_POSTPROCESSING +
+                              SUSY_HLT_MET_BTAG_POSTPROCESSING + 
+                              SUSY_HLT_MET_MUON_POSTPROCESSING +
+                              SUSY_HLT_InclusiveHT_aux350_POSTPROCESSING +
+                              SUSY_HLT_InclusiveHT_aux600_POSTPROCESSING +
+                              SUSY_HLT_MET_MUON_ER_POSTPROCESSING +
+                              SUSY_HLT_MET_HT_MUON_POSTPROCESSING +
+                              SUSY_HLT_MET_HT_MUON_ER_POSTPROCESSING +
+                              SUSY_HLT_MET_HT_MUON_BTAG_POSTPROCESSING + 
+                              SUSY_HLT_Razor_PostVal_POSTPROCESSING + 
+                              SUSY_HLT_CaloHT_POSTPROCESSING + 
+                              SUSY_HLT_PhotonHT_POSTPROCESSING +                             
+                              SUSY_HLT_HT_DoubleMuon_POSTPROCESSING +
+                              SUSY_HLT_HT_DoubleEle_POSTPROCESSING +
+                              SUSY_HLT_HT_MuEle_POSTPROCESSING +
+                              SUSY_HLT_Muon_BJet_POSTPROCESSING +
+                              SUSY_HLT_Electron_BJet_POSTPROCESSING +
+                              SUSY_HLT_Mu_HT_SingleLepton_POSTPROCESSING +
+                              SUSY_HLT_Mu_HT_MET_SingleLepton_POSTPROCESSING +
+                              SUSY_HLT_Mu_HT_BTag_SingleLepton_POSTPROCESSING +
+                              SUSY_HLT_Mu_HT_Control_SingleLepton_POSTPROCESSING +
+                              SUSY_HLT_Ele_HT_SingleLepton_POSTPROCESSING +
+                              SUSY_HLT_Ele_HT_MET_SingleLepton_POSTPROCESSING +
+                              SUSY_HLT_Ele_HT_BTag_SingleLepton_POSTPROCESSING +
+                              SUSY_HLT_Ele_HT_Control_SingleLepton_POSTPROCESSING+
+                              SUSY_HLT_alphaT_POSTPROCESSING)
+
+SusyExoPostVal_fastsim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_InclusiveHT_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_InclusiveMET_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_MET_BTAG_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_MET_MUON_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_Mu_HT_SingleLepton_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_Mu_HT_MET_SingleLepton_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_Mu_HT_BTag_SingleLepton_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_Mu_HT_Control_SingleLepton_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_Ele_HT_SingleLepton_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_Ele_HT_MET_SingleLepton_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_Ele_HT_BTag_SingleLepton_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_Ele_HT_Control_SingleLepton_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_InclusiveHT_aux350_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_InclusiveHT_aux600_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_MET_MUON_ER_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_MET_HT_MUON_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_MET_HT_MUON_ER_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_MET_HT_MUON_BTAG_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_Razor_PostVal_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_CaloHT_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_PhotonHT_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_HT_DoubleMuon_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_HT_DoubleEle_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_HT_MuEle_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_Muon_BJet_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_Electron_BJet_FASTSIM_POSTPROCESSING)
+

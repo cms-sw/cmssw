@@ -1,72 +1,74 @@
 #ifndef PulseChiSqSNNLS_h
 #define PulseChiSqSNNLS_h
 
-#include "TMatrixD.h"
-#include "TVectorD.h"
-#include "TMatrixDSym.h"
-#include "Math/Minimizer.h"
-#include "Math/IFunction.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/TDecompCholFast.h"
+#define EIGEN_NO_DEBUG // kill throws in eigen code
+#include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
 
 #include <set>
 #include <array>
 
 class PulseChiSqSNNLS {
   public:
+    
+    typedef BXVector::Index Index;
+    
     PulseChiSqSNNLS();
     ~PulseChiSqSNNLS();
     
     
-    bool DoFit(const std::vector<double> &samples, const TMatrixDSym &samplecor, double pederr, const std::set<int> &bxs, const TVectorD &fullpulse, const TMatrixDSym &fullpulsecov);
+    bool DoFit(const SampleVector &samples, const SampleMatrix &samplecor, double pederr, const BXVector &bxs, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov);
     
-    const TMatrixD &pulsemat() const { return _pulsemat; }
-    const TMatrixDSym &invcov() const { return _invcov; }
+    const SamplePulseMatrix &pulsemat() const { return _pulsemat; }
+    const SampleMatrix &invcov() const { return _invcov; }
     
-    const TVectorD &X() const { return _ampvecmin; }
-    const TVectorD &Errors() const { return _errvec; }
+    const PulseVector &X() const { return _ampvecmin; }
+    const PulseVector &Errors() const { return _errvec; }
+    const BXVector &BXs() const { return _bxsmin; }
     
     double ChiSq() const { return _chisq; }
     void disableErrorCalculation() { _computeErrors = false; }
+    void setMaxIters(int n) { _maxiters = n;}
+    void setMaxIterWarnings(bool b) { _maxiterwarnings = b;}
 
   protected:
     
-    bool Minimize(const TMatrixDSym &samplecor, double pederr, const std::set<int> &bxs, const TMatrixDSym &fullpulsecov);
+    bool Minimize(const SampleMatrix &samplecor, double pederr, const FullSampleMatrix &fullpulsecov);
     bool NNLS();
-    bool updateCov(const TMatrixDSym &samplecor, double pederr, const std::set<int> &bxs, const TMatrixDSym &fullpulsecov);
+    bool OnePulseMinimize();
+    bool updateCov(const SampleMatrix &samplecor, double pederr, const FullSampleMatrix &fullpulsecov);
     double ComputeChiSq();
+    double ComputeApproxUncertainty(unsigned int ipulse);
     
-    TVectorD _sampvec;
-    TMatrixDSym _invcov;
-    TVectorD _workvec;
-    TMatrixD _pulsemat;
-    TVectorD _ampvec;
-    TVectorD _ampvecmin;
-    TVectorD _errvec;
-    TMatrixD _workmat;
-    TMatrixD _aTamat;
-    TVectorD _wvec;
-    TVectorD _aTbvec;
-    TVectorD _aTbcorvec;
-    TMatrixDSym _aPmat;
-    TVectorD _sPvec;
-    TDecompCholFast _decompP;
-    std::array<double,10*10> _pulsematstorage;
-    std::array<double,10> _ampvecstorage;
-    std::array<double,10> _ampvecminstorage;
-    std::array<double,10> _errvecstorage;
-    std::array<double,10*10> _workmatstorage;
-    std::array<double,10*10> _aTamatstorage;
-    std::array<double,10> _wvecstorage;
-    std::array<double,10> _aTbvecstorage;
-    std::array<double,10> _aTbcorvecstorage;
-    std::array<double,10*10> _aPstorage;
-    std::array<double,10> _sPstorage;
-    std::array<double,10*10> _decompPstorage;
-    std::set<unsigned int> _idxsP;
-    std::set<unsigned int> _idxsFixed;
+    
+    SampleVector _sampvec;
+    SampleMatrix _invcov;
+    SamplePulseMatrix _pulsemat;
+    PulseVector _ampvec;
+    PulseVector _errvec;
+    PulseVector _ampvecmin;
+    
+    SampleDecompLLT _covdecomp;
+    SampleMatrix _covdecompLinv;
+    PulseMatrix _topleft_work;
+    PulseDecompLDLT _pulsedecomp;
+
+    BXVector _bxs;
+    BXVector _bxsmin;
+    unsigned int _npulsetot;
+    unsigned int _nP;
+    
+    SamplePulseMatrix invcovp;
+    PulseMatrix aTamat;
+    PulseVector aTbvec;
+    PulseVector wvec;
+    PulseVector updatework;
+    
+    PulseVector ampvecpermtest;
     
     double _chisq;
     bool _computeErrors;
+    int _maxiters;
+    bool _maxiterwarnings;
 };
 
 #endif

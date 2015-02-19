@@ -271,13 +271,13 @@ namespace pos{
       assert(theKey<=getConfig().size());
     
       unsigned int last=path.find_last_of("/");
-      assert(last!=std::string::npos);
+      assert(last!=(unsigned int)std::string::npos);
     
       std::string base=path.substr(0,last);
       std::string ext=path.substr(last+1);
     
       unsigned int slashpos=base.find_last_of("/");
-      if (slashpos==std::string::npos) {
+      if (slashpos==(unsigned int)std::string::npos) {
 	std::cout << "[pos::PixelConfigFile::getPath()]\t\t\tOn path:"                <<path               <<std::endl;
 	std::cout << "[pos::PixelConfigFile::getPath()]\t\t\tRecall that you need a trailing /"            <<std::endl;
 	::abort();
@@ -324,13 +324,13 @@ namespace pos{
       assert(theKey<=configList().size());
     
       unsigned int last=path.find_last_of("/");
-      assert(last!=std::string::npos);
+      assert(last!=(unsigned int)std::string::npos);
     
       std::string base=path.substr(0,last);
       std::string ext=path.substr(last+1);
     
       unsigned int slashpos=base.find_last_of("/");
-      if (slashpos==std::string::npos) {
+      if (slashpos==(unsigned int)std::string::npos) {
 	std::cout << "[pos::PixelConfigFile::get()]\t\t\tAsking for data of type:"<<typeid(data).name()<<std::endl;
 	std::cout << "[pos::PixelConfigFile::get()]\t\t\tOn path:"                <<path               <<std::endl;
 	std::cout << "[pos::PixelConfigFile::get()]\t\t\tRecall that you need a trailing /"            <<std::endl;
@@ -343,7 +343,7 @@ namespace pos{
 //      std::cout << "[pos::PixelConfigFile::get()]\t\t\tExtracted base:"<<base<<std::endl;
 //      std::cout << "[pos::PixelConfigFile::get()]\t\t\tExtracted ext :"<<ext <<std::endl;
     
-      unsigned int version;
+      unsigned int version=0;
       int err=configList()[theKey].find(dir,version);   
       // assert(err==0);
       if(0!=err) 
@@ -508,13 +508,13 @@ namespace pos{
       
     
       unsigned int last=path.find_last_of("/");
-      assert(last!=std::string::npos);
+      assert(last!=(unsigned int)std::string::npos);
     
       std::string base=path.substr(0,last);
       std::string ext=path.substr(last+1);
     
       unsigned int slashpos=base.find_last_of("/");
-      if (slashpos==std::string::npos) {
+      if (slashpos==(unsigned int)std::string::npos) {
 	std::cout << __LINE__ << mthn << "Asking for data of type:"          << typeid(data).name() <<std::endl;
 	std::cout << __LINE__ << mthn << "On path:" 	                 << path		<<std::endl;
 	std::cout << __LINE__ << mthn << "Recall that you need a trailing /"	                <<std::endl;
@@ -527,7 +527,7 @@ namespace pos{
 //      std::cout << __LINE__ << mthn << "Extracted base:" << base <<std::endl;
 //      std::cout << __LINE__ << mthn << "Extracted ext :" << ext  <<std::endl;
     
-      unsigned int version;
+      unsigned int version=0;
       int err=configList()[theKey].find(dir,version);   
       // assert(err==0);
       if(0!=err) 
@@ -652,7 +652,7 @@ namespace pos{
       std::string mthn = "]\t[pos::PixelConfigFile::get()]\t\t\t\t    " ;
 
       unsigned int last=path.find_last_of("/");
-      assert(last!=std::string::npos);
+      assert(last!=(unsigned int)std::string::npos);
     
       std::string base=path.substr(0,last);
       std::string ext=path.substr(last+1);
@@ -880,7 +880,7 @@ namespace pos{
       static bool forceConfigReload = false; 
       return forceConfigReload;
     }
-  
+    
  };
 
 }

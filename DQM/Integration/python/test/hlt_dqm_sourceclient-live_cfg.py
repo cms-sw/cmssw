@@ -13,7 +13,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 process.load("DQM.Integration.test.environment_cfi")
 process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/hlt_reference.root"
-process.dqmSaver.dirName = '.'
+#process.dqmSaver.dirName = '.'
 
 process.load("Configuration.StandardSequences.GeometryPilot2_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -43,3 +43,7 @@ process.pp = cms.Path(process.dqmEnv+process.dqmSaver)
 process.dqmEnv.subSystemFolder = 'HLT'
 #process.hltResults.plotAll = True
 
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

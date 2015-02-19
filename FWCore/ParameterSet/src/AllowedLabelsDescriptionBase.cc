@@ -5,8 +5,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
-#include "boost/ref.hpp"
-
 #include <iomanip>
 #include <ostream>
 
@@ -54,7 +52,7 @@ namespace edm {
         allowedLabels = pset.getUntrackedParameter<std::vector<std::string> >(parameterHoldingLabels_.label());
       }
       for_all(allowedLabels, std::bind(&AllowedLabelsDescriptionBase::validateAllowedLabel_,
-                                         boost::cref(this),
+                                         this,
                                          std::placeholders::_1,
                                          std::ref(pset),
                                          std::ref(validatedLabels)));

@@ -58,6 +58,18 @@ class ppRun2(Reco):
                 
         return process
 
+    def visualizationProcessing(self, globalTag, **args):
+        """
+        _visualizationProcessing_
+
+        Proton collision data taking visualization processing
+
+        """
+        process = Reco.visualizationProcessing(self,globalTag, **args)
+        
+        customiseExpressRun2(process)
+                
+        return process
 
     def alcaHarvesting(self, globalTag, datasetName, **args):
         """
@@ -66,7 +78,9 @@ class ppRun2(Reco):
         Proton collisions data taking AlCa Harvesting
 
         """
-        if not 'skims' in args:
+
+
+        if not 'skims' in args and not 'alcapromptdataset' in args:
             args['skims']=['BeamSpotByRun',
                            'BeamSpotByLumi',
                            'SiStripQuality']

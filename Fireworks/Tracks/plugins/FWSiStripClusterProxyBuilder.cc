@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-
+#include <vector>
 #include "TEveGeoNode.h"
 #include "TEveStraightLineSet.h"
 #include "TEveCompound.h"
@@ -23,6 +23,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
    virtual void clean() override;
+   virtual void cleanLocal() override;
+   
 
 protected:
    using FWProxyBuilderBase::build;
@@ -31,7 +33,9 @@ protected:
 				   FWViewType::EType viewType, const FWViewContext* vc ) override;
 private:
    FWSiStripClusterProxyBuilder( const FWSiStripClusterProxyBuilder& );
-   const FWSiStripClusterProxyBuilder& operator=( const FWSiStripClusterProxyBuilder& );              
+   const FWSiStripClusterProxyBuilder& operator=( const FWSiStripClusterProxyBuilder& );
+
+   std::vector<TEveGeoShape*> m_shapeMap;            
 };
 
 
@@ -39,6 +43,8 @@ void
 FWSiStripClusterProxyBuilder::clean()
 {
    // keep itemholders to restore configuration
+
+   cleanLocal();
 
    for (FWProxyBuilderBase::Product_it i = m_products.begin(); i != m_products.end(); ++i)
    {
@@ -49,9 +55,19 @@ FWSiStripClusterProxyBuilder::clean()
             (*it)->DestroyElements();
       }
    }
-
-   cleanLocal();
 }
+
+
+
+void
+FWSiStripClusterProxyBuilder::cleanLocal()
+{
+   for (TEveGeoShape* i : m_shapeMap)
+     i->Destroy();
+
+   m_shapeMap.clear();
+}
+
 void
 FWSiStripClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )
 {
@@ -64,12 +80,12 @@ FWSiStripClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
         set != setEnd; ++set) {
       unsigned int id = set->detId();
 
-      
       TEveGeoShape* shape = item()->getGeom()->getEveShape( id );
       if (shape) 
       {
          shape->SetMainTransparency( 75 );    
          shape->SetElementName( "Det" );
+         m_shapeMap.push_back(shape);
       }
       else      
       {
@@ -77,7 +93,8 @@ FWSiStripClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
             << "failed to get shape of SiStripCluster with detid: "
             << id << std::endl;
       }  
-
+       
+  
       for( edmNew::DetSet<SiStripCluster>::const_iterator ic = set->begin (), icEnd = set->end (); ic != icEnd; ++ic ) 
       {
          TEveCompound* itemHolder = 0;
@@ -93,7 +110,7 @@ FWSiStripClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
             setupAddElement( itemHolder, product );
          }
 
-         // add common shape
+  // add common shape
          if (shape) 
          {
             setupAddElement( shape, itemHolder );
@@ -108,6 +125,8 @@ FWSiStripClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
                << id << std::endl;
             continue;
          }
+
+    
 
          TEveStraightLineSet *lineSet = new TEveStraightLineSet( "strip" );
          setupAddElement( lineSet, itemHolder ); 

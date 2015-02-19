@@ -1,75 +1,105 @@
 <lcgdict>
 <selection>
-  <class name="reco::Particle" ClassVersion="11">
+  <class name="reco::ParticleState" ClassVersion="10">
+    <version ClassVersion="10" checksum="1573518497"/>
    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
-   <field name="p4Polar_" transient="true" />
+   <field name="p4Polar_" iotype="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<Double32_t> >" />
    <field name="p4Cartesian_" transient="true" />
+  </class>
+  <ioread sourceClass = "reco::ParticleState" version="[1-]" targetClass="reco::ParticleState" source="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > p4Polar_" target="p4Cartesian_">
+   <![CDATA[newObj->setCartesian();]]>
+  </ioread>
+
+  <class name="reco::Particle" ClassVersion="12">
+   <version ClassVersion="12" checksum="2719909518"/>
    <version ClassVersion="11" checksum="2698562380"/>
    <version ClassVersion="10" checksum="2605909260"/>
   </class>
-  <ioread sourceClass = "reco::Particle" version="[1-]" targetClass="reco::Particle" source = "" target="p4Polar_">
-   <![CDATA[delete p4Polar_; p4Polar_=nullptr;]]>
+  <ioread sourceClass = "reco::Particle" version="[1-11]" targetClass="reco::Particle"
+	  source="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>  vertex_; float pt_; float eta_; float phi_; float mass_; int qx3_; int pdgId_; int status_;" 
+          target="m_state">
+    <![CDATA[
+	     newObj->construct(onfile.qx3_, onfile.pt_,onfile.eta_,onfile.phi_,onfile.mass_,onfile.vertex_, onfile.pdgId_, onfile.status_);
+    ]]>
   </ioread>
-  <ioread sourceClass = "reco::Particle" version="[1-]" targetClass="reco::Particle" source = "" target="p4Cartesian_">
-   <![CDATA[delete p4Cartesian_; p4Cartesian_=nullptr;]]>
-  </ioread>
+
+
   <class name="reco::Candidate" ClassVersion="10">
    <version ClassVersion="10" checksum="783896264"/>
-    <!-- <field name="mothers_" transient="true"/> -->
   </class>
-  <class name="reco::LeafCandidate"  ClassVersion="11">
-   <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
-   <field name="p4Polar_" transient="true" />
-   <field name="p4Cartesian_" transient="true" />
-   <field name="cachePolarFixed_" transient="true" />
-   <field name="cacheCartesianFixed_" transient="true" />
+
+  <class name="reco::LeafCandidate"  ClassVersion="13">
+   <version ClassVersion="13" checksum="286262695"/>
+   <version ClassVersion="12" checksum="3932037675"/>
    <version ClassVersion="11" checksum="1947948955"/>
    <version ClassVersion="10" checksum="4128105563"/>
   </class>
-  <ioread sourceClass = "reco::LeafCandidate" version="[1-]" targetClass="reco::LeafCandidate" source = "" target="cachePolarFixed_">
-    <![CDATA[cachePolarFixed_ = false;]]>
+  <ioread sourceClass = "reco::LeafCandidate" version="[1-12]" targetClass="reco::LeafCandidate" 
+	  source="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>  vertex_; float pt_; float eta_; float phi_; float mass_; int qx3_; int pdgId_; int status_;" 
+          target="m_state">
+    <![CDATA[
+	     newObj->construct(onfile.qx3_, onfile.pt_,onfile.eta_,onfile.phi_,onfile.mass_,onfile.vertex_, onfile.pdgId_, onfile.status_);
+    ]]>
   </ioread>
-  <ioread sourceClass = "reco::LeafCandidate" version="[1-]" targetClass="reco::LeafCandidate" source = "" target="cacheCartesianFixed_">
-    <![CDATA[cacheCartesianFixed_ = false;]]>
-  </ioread>
-  <class name="reco::CompositeCandidate" ClassVersion="10">
+
+  <class name="reco::CompositeCandidate" ClassVersion="12">
+   <version ClassVersion="12" checksum="1318508193"/>
+   <version ClassVersion="11" checksum="1985736233"/>
    <version ClassVersion="10" checksum="2953566340"/>
   </class>
-  <class name="reco::VertexCompositePtrCandidate" ClassVersion="10">
+
+  <class name="reco::LeafRefCandidateT" ClassVersion="11">
+    <version ClassVersion="11" checksum="2417932556"/>
+    <version ClassVersion="10" checksum="2404784677"/>
+   </class>
+
+  <class name="reco::VertexCompositePtrCandidate" ClassVersion="12">
+   <version ClassVersion="12" checksum="3253990857"/>
+   <version ClassVersion="11" checksum="2070976353"/>
    <version ClassVersion="10" checksum="955269040"/>
   </class>
-  <class name="reco::VertexCompositeCandidate" ClassVersion="10">
+  <class name="reco::VertexCompositeCandidate" ClassVersion="12">
+   <version ClassVersion="12" checksum="1204062111"/>
+   <version ClassVersion="11" checksum="2801258535"/>
    <version ClassVersion="10" checksum="4177206274"/>
   </class>
-  <class name="reco::CompositeRefCandidate"  ClassVersion="10">
+  <class name="reco::CompositeRefCandidate"  ClassVersion="12">
+   <version ClassVersion="12" checksum="2573277496"/>
+   <version ClassVersion="11" checksum="3325042432"/>
    <version ClassVersion="10" checksum="502055765"/>
   </class>
-  <class name="reco::CompositePtrCandidate"  ClassVersion="10">
+  <class name="reco::CompositePtrCandidate"  ClassVersion="12">
+   <version ClassVersion="12" checksum="1693316545"/>
+   <version ClassVersion="11" checksum="900138073"/>
    <version ClassVersion="10" checksum="240358262"/>
   </class>
-  <class name="reco::CompositeRefBaseCandidate"  ClassVersion="10">
+  <class name="reco::CompositeRefBaseCandidate"  ClassVersion="12">
+   <version ClassVersion="12" checksum="419605458"/>
+   <version ClassVersion="11" checksum="2013084330"/>
    <version ClassVersion="10" checksum="382235387"/>
   </class>
-  <class name="reco::ShallowCloneCandidate"  ClassVersion="10">
+  <class name="reco::ShallowCloneCandidate"  ClassVersion="12">
+   <version ClassVersion="12" checksum="3760837537"/>
+   <version ClassVersion="11" checksum="1059349113"/>
    <version ClassVersion="10" checksum="4127213986"/>
   </class>
-  <class name="reco::ShallowClonePtrCandidate"  ClassVersion="10">
+  <class name="reco::ShallowClonePtrCandidate"  ClassVersion="12">
+   <version ClassVersion="12" checksum="917739380"/>
+   <version ClassVersion="11" checksum="124560908"/>
    <version ClassVersion="10" checksum="2575892329"/>
   </class>
-  <class name="reco::NamedCompositeCandidate" ClassVersion="10">
+  <class name="reco::NamedCompositeCandidate" ClassVersion="12">
+   <version ClassVersion="12" checksum="1682589651"/>
+   <version ClassVersion="11" checksum="1100712875"/>
    <version ClassVersion="10" checksum="604924170"/>
   </class>
-  <class name="reco::candidate::iterator"  ClassVersion="10">
+  <class name="reco::candidate::iterator"  ClassVersion="11">
+   <version ClassVersion="11" checksum="2805432001"/>
    <version ClassVersion="10" checksum="547616838"/>
   </class>
-  <class name="reco::candidate::const_iterator"  ClassVersion="10">
+  <class name="reco::candidate::const_iterator"  ClassVersion="11">
+   <version ClassVersion="11" checksum="1840645481"/>
    <version ClassVersion="10" checksum="473157534"/>
-  </class>
-  <class name="reco::candidate::const_iterator_imp"  ClassVersion="10">
-   <version ClassVersion="10" checksum="3984591915"/>
-  </class>
-  <class name="reco::candidate::iterator_imp"  ClassVersion="10">
-   <version ClassVersion="10" checksum="3317687219"/>
   </class>
 
   <class name="reco::CandidateRef" />

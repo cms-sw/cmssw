@@ -50,7 +50,6 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -135,24 +134,29 @@ namespace cms
   SiPixelDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits,
 					size_t globalSimHitIndex,
 					const unsigned int tofBin,
-					CLHEP::HepRandomEngine* engine) {
+					CLHEP::HepRandomEngine* engine,
+					edm::EventSetup const& iSetup) {
     if(hSimHits.isValid()) {
        std::set<unsigned int> detIds;
        std::vector<PSimHit> const& simHits = *hSimHits.product();
+       edm::ESHandle<TrackerTopology> tTopoHand;
+       iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+       const TrackerTopology *tTopo=tTopoHand.product();
        for(std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it, ++globalSimHitIndex) {
          unsigned int detId = (*it).detUnitId();
          if(detIds.insert(detId).second) {
            // The insert succeeded, so this detector element has not yet been processed.
-           unsigned int isub = DetId(detId).subdetId();
-           if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {
+	   assert(detectorUnits[detId]);
+	   if(detectorUnits[detId] && detectorUnits[detId]->type().isTrackerPixel()) { // this test could be avoided and changed into a check of pixdet!=0
 	     std::map<unsigned int, PixelGeomDetUnit const *>::iterator itDet = detectorUnits.find(detId);	     
 	     if (itDet == detectorUnits.end()) continue;
              auto pixdet = itDet->second;
+	     assert(pixdet !=0);
              //access to magnetic field in global coordinates
              GlobalVector bfield = pSetup->inTesla(pixdet->surface().position());
              LogDebug ("PixelDigitizer ") << "B-field(T) at " << pixdet->surface().position() << "(cm): " 
                                           << pSetup->inTesla(pixdet->surface().position());
-             _pixeldigialgo->accumulateSimHits(it, itEnd, globalSimHitIndex, tofBin, pixdet, bfield, engine);
+             _pixeldigialgo->accumulateSimHits(it, itEnd, globalSimHitIndex, tofBin, pixdet, bfield, tTopo, engine);
            }
          }
        }
@@ -183,13 +187,11 @@ namespace cms
       detectorUnits.clear();
       for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); ++iu) {
         unsigned int detId = (*iu)->geographicalId().rawId();
-        DetId idet=DetId(detId);
-        unsigned int isub=idet.subdetId();
-        if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {  
+	if((*iu)->type().isTrackerPixel()) {
           auto pixdet = dynamic_cast<const PixelGeomDetUnit*>((*iu));
           assert(pixdet != 0);
-	  if (isub==PixelSubdetector::PixelEndcap) {
-	    unsigned int disk = tTopo->pxfDisk(detId);
+	  if ((*iu)->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap) { // true ONLY for the phase 0 pixel deetctor
+	    unsigned int disk = tTopo->layer(detId); // using the generic layer method
 	    //if using pilot blades, then allowing it for current detector only
 	    if ((disk == 3)&&((!pilotBlades)&&(NumberOfEndcapDisks == 2))) continue;
 	  }
@@ -209,7 +211,7 @@ namespace cms
       iEvent.getByLabel(tag, simHits);
       unsigned int tofBin = PixelDigiSimLink::LowTof;
       if ((*i).find(std::string("HighTof")) != std::string::npos) tofBin = PixelDigiSimLink::HighTof;
-      accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin, randomEngine(iEvent.streamID()));
+      accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin, randomEngine(iEvent.streamID()), iSetup);
       // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
       // the global counter. Next time accumulateStripHits() is called it will count the sim hits
       // as though they were on the end of this collection.
@@ -229,7 +231,7 @@ namespace cms
       iEvent.getByLabel(tag, simHits);
       unsigned int tofBin = PixelDigiSimLink::LowTof;
       if ((*i).find(std::string("HighTof")) != std::string::npos) tofBin = PixelDigiSimLink::HighTof;
-      accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin, randomEngine(streamID));
+      accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin, randomEngine(streamID), iSetup);
       // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
       // the global counter. Next time accumulateStripHits() is called it will count the sim hits
       // as though they were on the end of this collection.
@@ -257,10 +259,8 @@ namespace cms
     _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);   
 
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
-      DetId idet=DetId((*iu)->geographicalId().rawId());
-      unsigned int isub=idet.subdetId();
       
-      if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {
+      if((*iu)->type().isTrackerPixel()) {
 
 	//
 

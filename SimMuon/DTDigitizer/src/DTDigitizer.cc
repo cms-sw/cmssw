@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -58,7 +59,7 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   // Set verbose output
   debug=conf_.getUntrackedParameter<bool>("debug"); 
     
-  if (debug) cout<<"Creating a DTDigitizer"<<endl;
+  if (debug) LogPrint("DTDigitizer")<<"Creating a DTDigitizer"<<endl;
   
   //register the Producer with a label
   //produces<DTDigiCollection>("MuonDTDigis"); // FIXME: Do I pass it by ParameterSet?
@@ -88,7 +89,7 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
 
   // Sync Algo
   syncName = conf_.getParameter<string>("SyncName");
-  theSync = DTDigiSyncFactory::get()->create(syncName,conf_.getParameter<ParameterSet>("pset"));
+  theSync.reset( DTDigiSyncFactory::get()->create(syncName,conf_.getParameter<ParameterSet>("pset")) );
 
   // Debug flag to switch to the Ideal model
   // it uses a constant drift velocity and doesn't set any external delay
@@ -122,10 +123,6 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
 
 }
 
-// Destructor
-DTDigitizer::~DTDigitizer(){
-}
-
 // method called to produce the data
 void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
 
@@ -133,7 +130,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
 
   if(debug)
-    cout << "--- Run: " << iEvent.id().run()
+    LogPrint("DTDigitizer") << "--- Run: " << iEvent.id().run()
 	 << " Event: " << iEvent.id().event() << endl;
   
   //************ 1 ***************
@@ -207,7 +204,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
 	if (time.second) {
 	  tdCont.push_back(make_pair((*hit),time.first));
 	} else {
-	  if (debug) cout << "hit discarded" << endl;
+	  if (debug) LogPrint("DTDigitizer") << "hit discarded" << endl;
 	}
       }
 
@@ -241,14 +238,14 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &
 
   // Pay attention: in CMSSW the rf of the SimHit is in the layer's rf
   
-  if(debug)  cout<<"Hit local entry point: "<<entryP<<endl
+  if(debug)  LogPrint("DTDigitizer")<<"Hit local entry point: "<<entryP<<endl
 		 <<"Hit local exit point: "<<exitP<<endl;
 
   float xwire = topo.wirePosition(wireId.wire()); 
   float xEntry = entryP.x() - xwire;
   float xExit  = exitP.x() - xwire;
 
-  if(debug) cout<<"wire position: "<<xwire
+  if(debug) LogPrint("DTDigitizer")<<"wire position: "<<xwire
 		<<" x entry in cell rf: "<<xEntry
 		<<" x exit in cell rf: "<<xExit<<endl;
   
@@ -265,7 +262,7 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &
   // muon hit. 
 
   if (partType == 11 && entrySide == DTTopology::none) {
-     if (debug) cout << "    e- hit in gas; discarding " << endl;
+     if (debug) LogPrint("DTDigitizer") << "    e- hit in gas; discarding " << endl;
     return driftTime;
   }
 
@@ -299,7 +296,7 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &
   // cos(delta), delta= angle between direction at entry and hit segment
   // (just for printing)
   float delta = pHat.dot(d.unit());
-  if (debug) cout << "   delta                 = " << delta  << endl
+  if (debug) LogPrint("DTDigitizer") << "   delta                 = " << delta  << endl
 		  << "   cosAlpha              = " << cosAlpha << endl
 		  << "   sinAlpha              = " << sinAlpha << endl
 		  << "   pMag                  = " << pT.mag() << endl
@@ -323,7 +320,7 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &
   // with TM algo. 
   if ( delta < 0.99996 // Track is not straight. FIXME: use sagitta?
        && (noParametrisation == false)) {
-    if (debug) cout << "*** WARNING: hit is not straight, type = " << partType << endl;
+    if (debug) LogPrint("DTDigitizer") << "*** WARNING: hit is not straight, type = " << partType << endl;
   }
 
   //************ 5A ***************
@@ -379,7 +376,7 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
   // FIXME: Current parametrisation can extrapolate above 21 mm,
   // however a detailed study is needed before using this.
    if (fabs(x) > 21.) {
-     if (debug) cout << "*** WARNING: parametrisation: x out of range = "
+     if (debug) LogPrint("DTDigitizer") << "*** WARNING: parametrisation: x out of range = "
 		     << x << ", skipping" << endl;
      return pair<float,bool>(0.f,false);
   }
@@ -394,17 +391,17 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
   // Parametrisation uses interpolation up to |theta|=45 deg,
   // |Bwire|=0.4, |Bnorm|=0.75; extrapolation above.
   if (fabs(theta_par)>45.) {
-    if (debug) cout << "*** WARNING: extrapolating theta > 45: "
+    if (debug) LogPrint("DTDigitizer") << "*** WARNING: extrapolating theta > 45: "
 		    << theta << endl;
     // theta_par = min(fabs(theta_par),45.f)*((theta_par<0.)?-1.:1.);
   }
   if (fabs(By_par)>0.75) {
-    if (debug) cout << "*** WARNING: extrapolating Bnorm > 0.75: "
+    if (debug) LogPrint("DTDigitizer") << "*** WARNING: extrapolating Bnorm > 0.75: "
 		    << By_par << endl;
     // By_par = min(fabs(By_par),0.75f)*((By_par<0.)?-1.:1.);
   }
   if (fabs(Bz_par)>0.4) {
-    if (debug) cout << "*** WARNING: extrapolating Bwire >0.4: "
+    if (debug) LogPrint("DTDigitizer") << "*** WARNING: extrapolating Bwire >0.4: "
 		    << Bz_par << endl;
     // Bz_par = min(fabs(Bz_par),0.4)*((Bz_par<0.)?-1.:1.);
   }
@@ -414,13 +411,13 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
   unsigned short flag = par.MB_DT_drift_time (x, theta_par, By_par, Bz_par, 0, &DT, interpolate);
 
   if (debug) {
-    cout << "    Parametrisation: x, theta, Bnorm, Bwire = "
+    LogPrint("DTDigitizer") << "    Parametrisation: x, theta, Bnorm, Bwire = "
 	 << x << " " <<  theta_par << " " << By_par << " " << Bz_par << endl
 	 << "  time=" << DT.t_drift
 	 << "  sigma_m=" <<  DT.t_width_m
 	 << "  sigma_p=" <<  DT.t_width_p << endl;
     if (flag!=1) {
-      cout << "*** WARNING: call to parametrisation failed" << endl;
+      LogPrint("DTDigitizer") << "*** WARNING: call to parametrisation failed" << endl;
       return pair<float,bool>(0.f,false); 
     }
   }
@@ -437,7 +434,7 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
   double u = CLHEP::RandGaussQ::shoot(engine, 0., smearing);
   time += u;
 
-  if (debug) cout << "  drift time = " << time << endl;
+  if (debug) LogPrint("DTDigitizer") << "  drift time = " << time << endl;
   
   return pair<float,bool>(time,true); 
 }
@@ -460,7 +457,7 @@ float DTDigitizer::asymGausSmear(double mean, double sigmaLeft, double sigmaRigh
 
 pair<float,bool> DTDigitizer::driftTimeFromTimeMap() const {
   // FIXME: not yet implemented.
-  if (debug) cout << "   TimeMap " << endl;
+  if (debug) LogPrint("DTDigitizer") << "   TimeMap " << endl;
   return pair<float,bool>(0.,false);
 }
 
@@ -487,7 +484,7 @@ float DTDigitizer::externalDelays(const DTLayer* layer,
 
 
   if (debug) {
-    cout << "    propDelay =" << propDelay
+    LogPrint("DTDigitizer") << "    propDelay =" << propDelay
 	 << "; TOF=" << tof
 	 << "; sync= " << sync
 	 << endl;
@@ -536,10 +533,10 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
       DTDigiSimLink digisimLink(wireN, digiN, time, SimTrackId, evId);
 
       if(debug) {
-	cout<<endl<<"---- DTDigitizer ----"<<endl;
-	cout<<"wireId: "<<wireId<<endl;
-	cout<<"sim. time = "<<time<<endl;
-	cout<<"digi number = "<< digi.number()<<", digi time = "<<digi.time()
+	LogPrint("DTDigitizer")<<endl<<"---- DTDigitizer ----"<<endl;
+	LogPrint("DTDigitizer")<<"wireId: "<<wireId<<endl;
+	LogPrint("DTDigitizer")<<"sim. time = "<<time<<endl;
+	LogPrint("DTDigitizer")<<"digi number = "<< digi.number()<<", digi time = "<<digi.time()
 	    <<", linked to SimTrack Id = "<<SimTrackId<<endl;
       }
 
@@ -564,7 +561,7 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
       outputLinks.insertDigi(layerID, digisimLink);
 
       if(debug) { 
-	cout<<"\nAdded multiple link: \n"
+	LogPrint("DTDigitizer")<<"\nAdded multiple link: \n"
 	    <<"digi number = "<<digi.number()<<", digi time = "<<digi.time()<<" (sim. time = "<<time<<")"
 	    <<", linked to SimTrack Id = "<<SimTrackId<<endl;
       }
@@ -584,7 +581,7 @@ void DTDigitizer::dumpHit(const PSimHit * hit,
   DTTopology::Side exitSide  = topo.onWhichBorder(xExit,exitP.y(),exitP.z());
   //  ProcessTypeEnumerator pTypes;
   
-  cout << endl
+  LogPrint("DTDigitizer") << endl
        << "------- SimHit: " << endl
        << "   Particle type         = " << hit->particleType() << endl
        << "   process type          = " << hit->processType() << endl

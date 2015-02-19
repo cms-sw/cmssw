@@ -29,7 +29,7 @@ public:
 explicit HcalTBSource(const edm::ParameterSet & pset, edm::InputSourceDescription const& desc);
 virtual ~HcalTBSource();
 private:
-  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time);
+  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType&);
   virtual void produce(edm::Event & e);
   void unpackSetup(const std::vector<std::string>& params);
   void openFile(const std::string& filename);

@@ -16,8 +16,6 @@ process.load("DQM.Integration.test.inputsource_cfi")
 #----------------------------
 process.load("DQM.Integration.test.environment_cfi")
 process.dqmEnv.subSystemFolder = 'Info'
-process.dqmSaver.saveByRun = 1
-process.dqmSaver.dirName = '.'
 #-----------------------------
 process.load("DQMServices.Components.DQMProvInfo_cfi")
 
@@ -30,9 +28,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # Global tag
 # Condition for P5 cluster
-#process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 # Condition for lxplus
-process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
 
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG"
@@ -117,3 +115,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
     process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
+
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

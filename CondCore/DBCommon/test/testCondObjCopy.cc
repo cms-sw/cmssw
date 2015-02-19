@@ -51,9 +51,13 @@ int main(){
     std::cout<<"committed"<<std::endl;
   }catch(cond::Exception& er){
     std::cout<<er.what()<<std::endl;
+    return -1;
   }catch(std::exception& er){
     std::cout<<er.what()<<std::endl;
+    return -1;
   }catch(...){
     std::cout<<"Funny error"<<std::endl;
+    return -1;
   }
+  return 0;
 }

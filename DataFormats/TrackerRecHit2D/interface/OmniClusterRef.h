@@ -13,13 +13,17 @@ class OmniClusterRef {
   static const unsigned int kIsStrip = 0x20000000; // bit 29 on
   static const unsigned int kIsRegional = 0x60000000; // bit 30 and 29 on  (will become fastsim???)
 
+  static const unsigned int indexMask = 0xFFFFFF;
+  static const unsigned	int subClusMask = 0xF000000;
+  static const unsigned int subClusShift = 24;
+
 public:
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster > ClusterPixelRef;
   typedef edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster > ClusterStripRef;
   
   OmniClusterRef() : me(edm::RefCore(),kInvalid) {}
-  explicit OmniClusterRef(ClusterPixelRef const & ref) : me(ref.refCore(), (ref.isNonnull() ? ref.key() : kInvalid) ){}
-  explicit OmniClusterRef(ClusterStripRef const & ref) : me(ref.refCore(), (ref.isNonnull() ? ref.key() | kIsStrip : kInvalid) ){}
+  explicit OmniClusterRef(ClusterPixelRef const & ref, unsigned int subClus=0) : me(ref.refCore(), (ref.isNonnull() ? ref.key()               | (subClus<<subClusShift)   : kInvalid) ){  }
+  explicit OmniClusterRef(ClusterStripRef const & ref, unsigned int subClus=0) : me(ref.refCore(), (ref.isNonnull() ? (ref.key() | kIsStrip ) | (subClus<<subClusShift) : kInvalid) ){ }
   
   ClusterPixelRef cluster_pixel()  const { 
     return (isPixel() && isValid()) ?  ClusterPixelRef(me.toRefCore(),index()) : ClusterPixelRef();
@@ -52,8 +56,9 @@ public:
 
   unsigned int rawIndex() const { return me.index();}
   
-  unsigned int index() const { return rawIndex() & (~kIsRegional);}
+  unsigned int index() const { return rawIndex() & indexMask;}
   
+  unsigned int subCluster() const { return (rawIndex() & subClusMask)>>subClusShift; }
 
   bool isValid() const { return !(rawIndex() & kInvalid); }
   bool isPixel() const { return !isStrip(); } //NOTE: non-valid will also show up as a pixel
@@ -61,10 +66,8 @@ public:
   // bool isRegional() const { return (rawIndex() & kIsRegional)==kIsRegional; }
   // bool isNonRegionalStrip() const {return (rawIndex() & kIsRegional)==kIsStrip;}
 
+private:
   edm::RefCoreWithIndex me;
- 
-  
 };
 
 #endif // TrackerRecHit2D_OmniClusterRef_H
-

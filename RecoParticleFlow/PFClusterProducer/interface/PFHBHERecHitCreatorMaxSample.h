@@ -27,6 +27,8 @@
 
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
+
+
 class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 
  public:  
@@ -35,6 +37,11 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
     {
       recHitToken_ = iC.consumes<edm::SortedCollection<HBHERecHit> >(iConfig.getParameter<edm::InputTag>("src"));
     }
+
+
+  ~PFHBHERecHitCreatorMaxSample() {
+  }
+
 
     void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&out,std::auto_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
 
@@ -60,21 +67,17 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	const HcalDetId& detid = (HcalDetId)erh.detid();
 	HcalSubdetector esd=(HcalSubdetector)detid.subdetId();
 	
-	double energy = erh.energy();
-	double time = erh.time();
-
-
+	
 	//CUSTOM ENERGY AND TIME RECO
+
 	CaloSamples tool;
 	const HcalCalibrations& calibrations = conditions->getHcalCalibrations(detid);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder(detid);
 	const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
 	HcalCoderDb coder(*channelCoder, *shape);
-
 	int auxwd1 = erh.auxHBHE();  // TS = 0,1,2,3 info
 	int auxwd2 = erh.aux();      // TS = 4,5,6,7 info 	
 
-	
 	int adc[8];
 	int capid[8];
 
@@ -106,82 +109,59 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	  HcalQIESample s (adc[ii], capid[ii], 0, 0);
 	  digi.setSample(ii,s);
 	} 
-	
-
-	// Convert/linearize ADC to fC 
 	coder.adc2fC(digi, tool); 
-
-
-	// Get gain (GeV/fC)
-
 	HcalGenericDetId hcalGenDetId(erh.id());
-	//	const HcalPedestal* pedestal = conditions->getPedestal(hcalGenDetId);
-	//	const HcalGain* gain = conditions->getGain(hcalGenDetId);
-
-	// Convert all 8 TS from fC to GeV (also subtractibg pedestal)
-
 	std::array<double,8> samples;
 
-	unsigned int maxSample = -1;
-	double maxGain=-1e+18;
+
+	//store the samples over thresholds
 	for (int ii = 0; ii < 8; ii++) {
-	  double gain = calibrations.respcorrgain(capid[ii]) *
+	  double sampleE = calibrations.respcorrgain(capid[ii]) *
 	    (tool[ii] - calibrations.pedestal(capid[ii]));
-	  samples[ii] = gain;
-	  if (gain>maxGain) {
-	    maxSample=ii;
-	    maxGain=gain;
-	  } 
+	  if (sampleE>sampleCut_)
+	    samples[ii] = sampleE;
+	  else
+	    samples[ii] = 0.0;
 
-	  //	  printf("SAMPLE %d ,%f\n",ii,calibrations.respcorrgain(capid[ii]) *
-	  //		 (tool[ii] - calibrations.pedestal(capid[ii])));
-	} 
-
-	/////////////////////////////
-	/////////////////////////////
-
-	//NAIVE ALGO By michalis -> Find the maximum and assign the maximum energy
-
-	energy  = samples[maxSample];
-	time = -100. + maxSample*25.0;
-
-	//if possible add the highest neighbour
-	double e2=0.0;
-	double t2=0.0; 
-	if (maxSample==0) {
-	  if (samples[1]>0) {
-	    e2 = samples[1];
-	    t2 = -75.0;
-	  }
 	}
-	else if (maxSample==samples.size()-1) {
-	  if (samples[samples.size()-2]>0) {
-	    e2 = samples[samples.size()-2];
-	    t2 = -100.+(samples.size()-2)*25.0;
-	  }
-	}
-	else {
-	  double eprev=0.0;
-	  double enext=0.0;
-	  eprev=samples[maxSample-1];
-	  enext=samples[maxSample+1];
-	  if (std::max(eprev,enext)>0.0) {
-	    if (eprev>enext) {
-	      e2=eprev;
-	      t2=-100.+(maxSample-1)*25.;
+
+	
+	//run the algorithm
+	double energy=0.0;
+	double energy2=0.0;
+	double time=0.0;
+	double s2=0.0;
+	std::vector<double> hitEnergies;	  
+	std::vector<double> hitTimes;	  
+
+	for (int ii = 0; ii < 8; ii++) {
+	  energy=energy+samples[ii];
+	  s2=samples[ii]*samples[ii];
+	  time = time+(-100. + ii*25.0)*s2;
+	  energy2=energy2+s2;
+
+	  if (ii>0 && ii<7) {
+	    if (samples[ii]<=samples[ii-1] && samples[ii]<samples[ii+1] && energy>0) {
+	      hitEnergies.push_back(energy);
+	      hitTimes.push_back(time/energy2);
+	      energy=0.0;
+	      energy2=0.0;
+	      time=0.0;
 	    }
-	    else {
-	      e2=enext;
-	      t2=-100.+(maxSample+1)*25.;
-	    }
+	      
 	  }
-	}
-	if (e2>0) {
-	  time = (energy*energy*time+e2*e2*t2)/(energy*energy+e2*e2);
-	  energy+=e2;
-	}
-	  
+	  else if (ii==7 && energy>0) {
+	      hitEnergies.push_back(energy);
+	      hitTimes.push_back(time/energy2);
+	      energy=0.0;
+	      energy2=0.0;
+	      time=0.0;
+	  }
 
+	}	    
+
+	if (hitEnergies.size()==0)
+	  continue;
 
 	int depth = detid.depth();
 	math::XYZVector position;
@@ -216,13 +196,16 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	position.SetCoordinates ( point.x(),
 				  point.y(),
 				  point.z() );
-  
+
+
 	reco::PFRecHit rh( detid.rawId(),layer,
 			   energy, 
 			   position.x(), position.y(), position.z(), 
 			   0,0,0);
-	rh.setTime(time); //Mike: This we will use later
+
 	rh.setDepth(depth);
+
+
 	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
 	assert( corners.size() == 8 );
 
@@ -231,15 +214,28 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	rh.setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z());
 	rh.setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z());
 	
+	//	for (unsigned int i=0;i<hitEnergies.size();++i)
+	//	  printf(" %f / %f ,",hitEnergies[i],hitTimes[i]);
+	
+	//now find the best hit	
+	auto best_hit = std::min_element(hitTimes.begin(),hitTimes.end(),
+				      [](const double& a, 
+					 const double& b){
+					   return fabs(a) < fabs(b);
+				      });
 
+
+	rh.setTime(*best_hit);
+	rh.setEnergy(hitEnergies[std::distance(hitTimes.begin(),best_hit)]);
+	//	printf("Best = %f %f\n",rh.energy(),rh.time());
+
+	//Apply Q tests
 	bool rcleaned = false;
 	bool keep=true;
 
-	//Apply Q tests
 	for( const auto& qtest : qualityTests_ ) {
 	  if (!qtest->test(rh,erh,rcleaned)) {
 	    keep = false;
-	    
 	  }
 	}
 	  
@@ -252,12 +248,13 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
     }
 
 
-
  protected:
     edm::EDGetTokenT<edm::SortedCollection<HBHERecHit> > recHitToken_;
-
+    const double sampleCut_ = 0.6; // minimalistic threshold just to reduce the iterations 
 
 };
+
+
 
 
 

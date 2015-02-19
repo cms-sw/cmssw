@@ -1,7 +1,7 @@
 #ifndef RecoMuon_TrackerSeedGenerator_TSGFromL2Muon_H
 #define RecoMuon_TrackerSeedGenerator_TSGFromL2Muon_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -38,7 +38,7 @@ class TrackerSeedCleaner;
 // generate seeds corresponding to L2 muons
 //
 
-class TSGFromL2Muon : public edm::EDProducer {
+class TSGFromL2Muon : public edm::stream::EDProducer<> {
 public:
   TSGFromL2Muon(const edm::ParameterSet& cfg);
   virtual ~TSGFromL2Muon();

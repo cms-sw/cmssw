@@ -15,34 +15,37 @@ HELP="Run the integration tests over all paths in a given HLT menu.
 
 Usage:
   $NAME -h|--help
-  $NAME [-d|--dir WORKDIR] [-s|--setup SETUP] [-i|--input RAW] [-j|--jobs JOBS] [-x|--extra OPTIONS] [--mc] 
+  $NAME [-d|--dir WORKDIR] [-s|--setup SETUP] [-i|--input RAW] [-j|--jobs JOBS]
+        [--streams STREAMS] [--threads THREADS] [-x|--extra OPTIONS] [--mc]
         [ [-n|--size EVENTS] [-k|--skip EVENTS] | [-e|--events EVENTS] ] MENU
 
-  MENU is the HLT menu to test. 
-  
-  -s | --setup SETUP        Use the Services and EventSetup modules from a different menu 
-                            (usefull when testing a ConfDB area with only some new paths)
-  -d | --dir    WORKDIR     Create all files and run all tests inside WORKDIR (defauls: ./hltintegration)
-  -i | --input  INPUT       Use the specified RAW data file as input
-  -n | --size   EVENTS      Run on EVENTS events (-1 for all, default is 100)
-  -k | --skip   EVENTS      Skip the first EVENTS (default is 0)
-  -e | --events EVENTS      Run on a comma-separated list of EVENTS, a VEventRange
-  -j | --jobs   JOBS        Run JOBS jobs in parallel (default is 4)
-  -x | --extra  OPTIONS     Pass OPTIONS directly to hltGetConfiguration
-       --mc                 Run over MC instead of data (the default)
-  -h | --help               Print this help message and exit.
+  MENU is the HLT menu to test.
+
+  -s | --setup SETUP          Use the Services and EventSetup modules from a different menu
+                              (usefull when testing a ConfDB area with only some new paths)
+  -d | --dir      WORKDIR     Create all files and run all tests inside WORKDIR (defauls: ./hltintegration)
+  -i | --input    INPUT       Use the specified RAW data file as input
+  -n | --size     EVENTS      Run on EVENTS events (-1 for all, default is 100)
+  -k | --skip     EVENTS      Skip the first EVENTS (default is 0)
+  -e | --events   EVENTS      Run on a comma-separated list of EVENTS, a VEventRange
+  -j | --jobs     JOBS        Run JOBS single trigger jobs in parallel (defaults to the number of CPUs)
+       --streams  STREAMS     Run with STREAMS parallel streams (i.e. events) (default 0 means as many streams as threads)
+       --threads  THREADS     Run with THREADS threads when running the whole HLT (defaults to the number of CPUs)
+  -x | --extra    OPTIONS     Pass OPTIONS directly to hltGetConfiguration
+       --mc                   Run over MC instead of data (the default)
+  -h | --help                 Print this help message and exit.
 
 
   The supported formats for both menu specifications are:
     - [hltdev:]/path/to/configuration[/Vn]
     - orcoff:/path/to/configuration[/Vn]
     - run:runnumber
-  The possible databases are \"hltdev\" (default, used for offline development) and \"orcoff\" 
+  The possible databases are \"hltdev\" (default, used for offline development) and \"orcoff\"
   (used for online menus). If no version is specified, the latest one is automatically used.
   If \"run:\" is used instead, the actual HLT menu for the given run number is looked up and used.
 
   It's possible to pass arbitrary command line options to hltGetConfiguration, using \"-x --option\".
-  To pass multiple options, enclose them in quotes, or use \"-x\" more than once. 
+  To pass multiple options, enclose them in quotes, or use \"-x\" more than once.
 
   Note: '--events' is not supported together with '--size' or '--skip'.
 
@@ -61,21 +64,24 @@ Exmples:
 
   $NAME /users/fwyzard/physics/HLT/V6 -s orcoff:/cdaq/physics/Run2011/1e33/v1.3/HLT/V6
 
-      will test the paths from /users/fwyzard/physics/HLT/V6, using the environment from the 
+      will test the paths from /users/fwyzard/physics/HLT/V6, using the environment from the
       online menu \"1e33\" v1.3 V6
 
 "
 
 # parse command line argument and options
-OPTS=$(getopt -n "$NAME" -o "s:d:i:j:n:k:e:x:h" -l "setup:,dir:,input:,jobs:,size:,skip:,events:,mc,extra:,help" -- "$@")
+OPTS=$(getopt -n "$NAME" -o "s:d:i:j:n:k:e:x:h" -l "setup:,dir:,input:,jobs:,size:,skip:,streams:,threads:,events:,mc,extra:,help" -- "$@")
 
 # invalid options
-if [ $? != 0 ]; then 
+if [ $? != 0 ]; then
   exit 1
 fi
 
 # reload the parsed options into the environment
 eval set -- "$OPTS"
+
+# check how many CPUs are available
+CPUS=`getconf _NPROCESSORS_ONLN`
 
 MENU=""
 SETUP=""
@@ -83,7 +89,9 @@ INPUT=""
 SIZE=100
 SKIP=0
 EVENTS=""
-JOBS=4
+JOBS=$CPUS
+THREADS=$CPUS
+STREAMS=0
 WORKDIR="hltintegration"
 EXTRA=""
 DATA="--data"
@@ -156,6 +164,14 @@ while true; do
       fi
       shift 2
       ;;
+    "--streams" )
+      STREAMS=$2
+      shift 2
+      ;;
+    "--threads" )
+      THREADS=$2
+      shift 2
+      ;;
     "-x" | "--extra" )
       EXTRA="$EXTRA $2"
       shift 2
@@ -217,7 +233,7 @@ process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
 process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
 )
-process.HLTriggerFinalPath = cms.Path( process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW ) 
+process.HLTriggerFinalPath = cms.Path( process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW )
 
 @EOF
 fi
@@ -234,6 +250,14 @@ elif (( $SKIP > 0 )); then
 process.source.skipEvents = cms.untracked.uint32( $SKIP )
 @EOF
 fi
+
+# set the number of threads and streams for the whole hlt job
+cat >> hlt.py << @EOF
+# configure multithreading, and allocate 10 MB of stack space per thread
+process.options.numberOfThreads = cms.untracked.uint32( $THREADS )
+process.options.numberOfStreams = cms.untracked.uint32( $STREAMS )
+process.options.sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
+@EOF
 
 # dump the menu name, and its release template
 log "HLT menu: $(head -n1 hlt.py | cut -c 3-)"
@@ -264,7 +288,7 @@ done
 # if a separate setup is requested, create the setup_cff.py file and patch all dumps to use it
 if [ "$SETUP" ]; then
   log "Extracting setup_cff dump"
-  edmConfigFromDB --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService,-PrescaleService > setup_cff.py
+  hltConfigFromDB --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService,-PrescaleService > setup_cff.py
   sed -i -e's/process = cms.Process(.*)/&\nprocess.load("setup_cff")/' hlt.py $(for TRIGGER in $TRIGGERS; do echo "$TRIGGER".py; done)
 fi
 
@@ -297,7 +321,14 @@ hlt.done: hlt.py
 @EOF
 
 log "Running..."
-make -f .makefile -j$JOBS -k
+# if the whole hlt job runs with multithreading, run it by itself
+# otherwise, run it in parallel with the single-trigger jobs
+if ((THREADS > 0)); then
+  make -f .makefile hlt
+  make -f .makefile -j$JOBS -k $TRIGGERS
+else
+  make -f .makefile -j$JOBS -k
+fi
 
 
 # compare HLT results

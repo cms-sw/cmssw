@@ -12,6 +12,7 @@ namespace DataFormats_StdDictionaries {
   std::pair<const int,std::pair<double,double> > newDummy01;
   std::pair<const int,std::pair<unsigned int,unsigned int> > newDummy02;
   std::pair<const int,std::pair<unsigned long,unsigned long> > newDummy03;
+  std::pair<const int,std::pair<std::basic_string<char>, int> > dummyppsi;
   std::pair<const int,unsigned int> newDummy04;
   std::pair<const short,short> newDummy05;
   std::pair<const short,unsigned int> newDummy06;

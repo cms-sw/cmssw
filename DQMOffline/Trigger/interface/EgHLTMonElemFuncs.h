@@ -23,10 +23,19 @@
 
 namespace egHLT {
 
-  class CutMasks;
+  struct CutMasks;
 
-  namespace MonElemFuncs {
-    
+  class MonElemFuncs {
+   private:
+    DQMStore::IBooker& iBooker;
+    const TrigCodes& trigCodes;
+
+   public:
+    MonElemFuncs(DQMStore::IBooker& i, const TrigCodes& c): iBooker(i), trigCodes(c) {};
+    ~MonElemFuncs() {};
+    DQMStore::IBooker& getIB() { return iBooker; };
+
+   public:  
     
     void initStdEleHists(std::vector<MonElemManagerBase<OffEle>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins); 
     void initStdPhoHists(std::vector<MonElemManagerBase<OffPho>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins); 
@@ -42,25 +51,25 @@ namespace egHLT {
 
     
   
-    void initTightLooseTrigHists(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins,EgHLTDQMCut<OffEle>* eleCut);
-    void initTightLooseTrigHists(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins,EgHLTDQMCut<OffPho>* phoCut);
+    void initTightLooseTrigHists( std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins,EgHLTDQMCut<OffEle>* eleCut);
+    void initTightLooseTrigHists( std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins,EgHLTDQMCut<OffPho>* phoCut);
     
-    void initTightLooseTrigHistsTrigCuts(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins);  
-    void initTightLooseTrigHistsTrigCuts(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins);
+    void initTightLooseTrigHistsTrigCuts( std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins);  
+    void initTightLooseTrigHistsTrigCuts( std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins);
     
-    void addTightLooseTrigHist(std::vector<MonElemContainer<OffEle>*>& eleMonElems,
+    void addTightLooseTrigHist( std::vector<MonElemContainer<OffEle>*>& eleMonElems,
 			       const std::string& tightTrig,const std::string& looseTrig,
 			       EgHLTDQMCut<OffEle>* eleCut,const std::string& histId,const BinData& bins);
 
 
-    void addTightLooseTrigHist(std::vector<MonElemContainer<OffPho>*>& phoMonElems,
+    void addTightLooseTrigHist( std::vector<MonElemContainer<OffPho>*>& phoMonElems,
 			       const std::string& tightTrig,const std::string& looseTrig,
 			       EgHLTDQMCut<OffPho>* phoCut,const std::string& histId,const BinData& bins);
     
 
     
-    void initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins);
-    void initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins);
+    void initTightLooseDiObjTrigHistsTrigCuts( std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins);
+    void initTightLooseDiObjTrigHistsTrigCuts( std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins);
 
     //ele only (Now for pho also!)
     void initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string> filterNames,int cutMask,const BinData& bins);
@@ -70,15 +79,15 @@ namespace egHLT {
     void initTrigTagProbeHist_2Leg(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string filterName,int cutMask,const BinData& bins);
   
 
-    template<class T,typename varType> void addStdHist(std::vector<MonElemManagerBase<T>*>& histVec,const std::string& name,const std::string& title,
+    template<class T,typename varType> void addStdHist( std::vector<MonElemManagerBase<T>*>& histVec,const std::string& name,const std::string& title,
 						       const BinData::Data1D& binData,varType (T::*varFunc)()const){
-      histVec.push_back(new MonElemMgrEBEE<T,varType>(name,title,binData.nr,binData.min,binData.max,varFunc));
+      histVec.push_back(new MonElemMgrEBEE<T,varType>(iBooker, name,title,binData.nr,binData.min,binData.max,varFunc));
     }
 
     //this function is special in that it figures out the Et cut from the trigger name
     //it then passes the cut as normal into the other addTightLooseTrigHist functions
     //it also makes an uncut et distribution
-    template<class T> void addTightLooseTrigHist(std::vector<MonElemContainer<T>*>& monElems,
+    template<class T> void addTightLooseTrigHist( std::vector<MonElemContainer<T>*>& monElems,
 					 const std::string& tightTrig,const std::string& looseTrig,
 					 const std::string& histId,const BinData& bins)
     {
@@ -91,12 +100,12 @@ namespace egHLT {
       //now make the new mon elems without the et cut (have to be placed in containers even though each container just has one monelem)
       MonElemContainer<T>* passEtMonElem;
       passEtMonElem = new MonElemContainer<T>(tightTrig+"_"+looseTrig+"_"+histId+"_passTrig","",
-					      new EgObjTrigCut<T>(TrigCodes::getCode(tightTrig+":"+looseTrig),EgObjTrigCut<T>::AND));
+					      new EgObjTrigCut<T>(trigCodes.getCode(tightTrig+":"+looseTrig),EgObjTrigCut<T>::AND));
       addStdHist<T,float>(passEtMonElem->monElems(),passEtMonElem->name()+"_etUnCut",passEtMonElem->name()+" E_{T} (Uncut);E_{T} (GeV)",bins.et,&T::et);
       
       MonElemContainer<T>* failEtMonElem;
       failEtMonElem = new MonElemContainer<T>(tightTrig+"_"+looseTrig+"_"+histId+"_failTrig","",
-					      new EgObjTrigCut<T>(TrigCodes::getCode(looseTrig),EgObjTrigCut<T>::AND,TrigCodes::getCode(tightTrig)));
+					      new EgObjTrigCut<T>(trigCodes.getCode(looseTrig),EgObjTrigCut<T>::AND,trigCodes.getCode(tightTrig)));
       addStdHist<T,float>(failEtMonElem->monElems(),failEtMonElem->name()+"_etUnCut",failEtMonElem->name()+" E_{T} (Uncut);E_{T} (GeV)",bins.et,&T::et);
 
       monElems.push_back(passEtMonElem);
@@ -124,6 +133,6 @@ namespace egHLT {
       }
     
 
-  }//end namespace
+  }; // end of class
 }
 #endif

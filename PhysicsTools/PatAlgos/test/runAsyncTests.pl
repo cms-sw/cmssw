@@ -12,11 +12,10 @@ my $fake   :shared = 0;
 my $repdef :shared = "";
 
 use Getopt::Long;
-my ($help,$base,$one,$extra,$all,$shy,$obj);
+my ($help,$base,$extra,$all,$shy,$obj);
 my @summary :shared;
-GetOptions( 'h|?|help' => \$help, 
+GetOptions( 'h|?|help' => \$help,
             'n|dry-run' => \$fake,
-            '1|one' => \$one,
             'b|base' => \$base,
             'o|obj' => \$obj,
             'a|all' => \$all,
@@ -29,11 +28,10 @@ if ($help) {
     print "Usage: perl $name [-n|--dry-run] [cfg.pys]\n" .
           "   -n or --dry-run: just read the output, don't run cmsRun\n".
           "   -h or --help:    print this help\n".
-          "   -1 or --one:     add patLayer1_fromAOD_full to the jobs to run\n".   
-          "   -b or --base:    add base standard PAT config files to the jobs to run\n".   
-          "   -o or --obj:     add PAT config files for single physics objecs to the jobs to run\n".   
-          "   -e or --extra:   add the extra standard PAT config files to the jobs to run (that is, those not in base)\n".   
-          "   -a or --all:     add all standard PAT config files to the jobs to run\n". 
+          "   -b or --base:    add base standard PAT config files to the jobs to run\n".
+          "   -o or --obj:     add PAT config files for single physics objecs to the jobs to run\n".
+          "   -e or --extra:   add the extra standard PAT config files to the jobs to run (that is, those not in base)\n".
+          "   -a or --all:     add all standard PAT config files to the jobs to run\n".
           "   -s or --summary: print summary table of objects (argument can be 'aod', 'allLayer1', 'selectedLayer1', ...)\n".
           "   -q or --quiet:   print summary tables only if there are warnings/errors in that table.\n";
     exit(0);
@@ -46,10 +44,9 @@ my @CFGs = map({$_ =~ /\.py$|\*$/ ? $_ : "*$_*"}   @ARGV);
 
 
 my @anyCFGs    = glob("pat*[._]cfg.py");
-my @baseCFGs   = grep($_ =~ /fromAOD_(full|fast|noLayer1Cleaning)|fromScratch_fast/, @anyCFGs);
-my @objCFGs   = grep($_ =~ /fromAOD_(electron|muon|tau|photon|met|jet_)/, @anyCFGs);
-my @extraCFGs  = grep($_ !~ /fromAOD_(full|fast|noLayer1Cleaning|electron|muon|tau|photon|jet_)|fromScratch_fast/, @anyCFGs);
-if ($one )  { push @CFGs, grep(m/fromAOD_full/, @anyCFGs);  }
+my @baseCFGs   = grep($_ =~ /standard|fastSim|data|PF2PAT/, @anyCFGs);
+my @objCFGs   = grep($_ =~ /only/, @anyCFGs);
+my @extraCFGs  = grep($_ =~ /add|metUncertainties|userData/, @anyCFGs);
 if ($base ) { push @CFGs, @baseCFGs;  }
 if ($obj )  { push @CFGs, @objCFGs;  }
 if ($all  ) { push @CFGs, @anyCFGs;   }
@@ -57,7 +54,7 @@ if ($extra) { push @CFGs, @extraCFGs; }
 if (@CFGs) {
     #pass through a hash, to remove duplicates
     my %allCFGs = ();
-    foreach my $cfg (@CFGs) { 
+    foreach my $cfg (@CFGs) {
         foreach my $cfgfile (grep(/cfg\.py$/, glob($cfg))) { $allCFGs{$cfgfile} = 1; }
     }
     @CFGs = sort(keys(%allCFGs));
@@ -67,8 +64,8 @@ if (@CFGs) {
 
 print "Will run " . scalar(@CFGs) . " config files: " . join(' ', @CFGs) . "\n\n";
 
-foreach my $cfg (@CFGs) { 
-    unless (-f $cfg) {  die "Config file $cfg does not exist in $dir\n"; } 
+foreach my $cfg (@CFGs) {
+    unless (-f $cfg) {  die "Config file $cfg does not exist in $dir\n"; }
 }
 
 sub cmsRun {
@@ -90,9 +87,13 @@ foreach my $f (@CFGs) {
 
     my $max = -1;
     open CFG, $f;
-    foreach(<CFG>) { 
+    foreach(<CFG>) {
         m/maxEvents\s*=\s*cms\.untracked\.PSet/ and $max = 0;
         if ($max == 0) { m/input\s*=\s*cms\.untracked\.int32\(\s*(\d+)\s*\)/ and $max = $1; }
+        if ($max == -1) {
+          m/process\.maxEvents\.input\s*=\s*/ and $max = 0;
+          if ($max == 0) { m/process\.maxEvents\.input\s*=\s*(\d+)/ and $max = $1; }
+        }
     }
     close CFG;
 
@@ -107,15 +108,15 @@ sub printDone {
     my $lines = 0; my $last = 0;
     my ($excep, $exbody) = (0,"");
     open LOG, $info{$f}->{'out'};
-    while (<LOG>) { 
-        $lines++; 
+    while (<LOG>) {
+        $lines++;
         m/Begin processing the (\d+)\S* record\./ and $last = $1;
         if (m/---- (.*?) BEGIN/) {
             my $exname = $1;
-            $excep++; 
+            $excep++;
             if ($excep == 1) { $exbody .= "\t" . $_; }
-            while ($_ = <LOG>) { 
-                $lines++; 
+            while ($_ = <LOG>) {
+                $lines++;
                 if ($excep == 1) { $exbody .= "\t" . $_; }
                 last if (m/---- $exname END/);
             }
@@ -138,15 +139,15 @@ sub printRunning {
     my $lines = 0; my $last = 0;
     my ($excep, $exbody) = (0,"");
     open LOG, $info{$f}->{'out'};
-    while (<LOG>) { 
-        $lines++; 
+    while (<LOG>) {
+        $lines++;
         m/Begin processing the (\d+)\S* record\./ and $last = $1;
         if (m/---- (.*?) BEGIN/) {
             my $exname = $1;
-            $excep++; 
+            $excep++;
             if ($excep == 1) { $exbody .= "\t" . $_; }
-            while ($_ = <LOG>) { 
-                $lines++; 
+            while ($_ = <LOG>) {
+                $lines++;
                 if ($excep == 1) { $exbody .= "\t" . $_; }
                 last if (m/---- $exname END/);
             }
@@ -160,7 +161,7 @@ sub printRunning {
     $info{$f}->{'lines'} = $lines;
     $info{$f}->{'excep'} = $excep;
     $info{$f}->{'exbody'}= $exbody;
-    return "\e[32;1m$f\e[37;0m: event $last/" . $info{$f}->{'max'} ." (time ${secs}s, ${lines} output lines, " . 
+    return "\e[32;1m$f\e[37;0m: event $last/" . $info{$f}->{'max'} ." (time ${secs}s, ${lines} output lines, " .
         ($excep ? "\e[1;31m$excep exceptions\e[0m" : "\e[32mno exceptions yet\e[0m" ) . ")...";
 }
 
@@ -172,7 +173,7 @@ while (scalar(keys(%done)) < scalar(@CFGs)) {
     my @run = (); my @done = ();
     foreach my $f (@CFGs) {
         if (defined($done{$f}) and defined($info{$f}->{'last'})) {
-           push @done, "   " . printDone($f); 
+           push @done, "   " . printDone($f);
         } else {
            push @run,  "   " . printRunning($f);
         }
@@ -202,7 +203,7 @@ foreach my $f (@CFGs) {
             $info =~ s/^    (.*present\s+\d+\s+\(\s*(\d+\.?\d*)\s*%\).*)$/redIf($1,$2 ne '100')/meg;
             $info =~ s/^    (.*total\s+0\s.*)$/\e[1;31m E> $1\e[0m/mg;
             if (!$shy or ($info =~ /\e\[1;31m E>/)) {
-                print "  ".$info; 
+                print "  ".$info;
             }
         }
     }

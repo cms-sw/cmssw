@@ -6,6 +6,8 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+class TrackerTopology;
+
 /** GeometricSearchTrackerBuilder implementation
  *  
  */
@@ -17,7 +19,8 @@ class GeometricSearchTrackerBuilder {
   ~GeometricSearchTrackerBuilder() {}
   
   GeometricSearchTracker* build(const GeometricDet* theGeometricTracker,
-				const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
+				const TrackerGeometry* theGeomDetGeometry,
+				const TrackerTopology* tTopo) __attribute__ ((cold));
 };
 
 

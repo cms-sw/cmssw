@@ -874,17 +874,17 @@ FWGUIManager::exportImagesOfAllViews()
             name += ext;
          // now add format trailing before the extension
          name.insert(name.rfind('.'), "-%u_%u_%u_%s");
-         exportAllViews(name);
+         exportAllViews(name, -1);
       }
    }
    catch (std::runtime_error &e) { std::cout << e.what() << std::endl; }
 }
 
 void
-FWGUIManager::exportAllViews(const std::string& format)
+FWGUIManager::exportAllViews(const std::string& format, int height)
 {
    // Save all GL views.
-   // Expects format to have "%d %d %d %s" which are replaced with
+   // Expects format to have "%u %u %llu %s" which are replaced with
    //   run-number, event number, lumi block and view-name.
    // Blanks in view-name are removed.
    // If several views shave the same name, they are post-fixed
@@ -929,7 +929,11 @@ FWGUIManager::exportAllViews(const std::string& format)
          TString file;
          file.Form(format.c_str(), event->id().run(), event->id().event(),
                    event->luminosityBlock(), view_name.Data());
-         (*j)->GetGLViewer()->SavePicture(file);
+
+         if (height == -1)
+            (*j)->GetGLViewer()->SavePicture(file);
+         else 
+            (*j)->GetGLViewer()->SavePictureHeight(file, height);
       }
    }
 }
@@ -1331,21 +1335,36 @@ FWGUIManager::setDelayBetweenEvents(Float_t val)
 
 void FWGUIManager::runIdChanged()
 {
+   if (m_cmsShowMainFrame->m_runEntry->GetUIntNumber() == edm::invalidRunNumber)
+   {
+      m_cmsShowMainFrame->m_runEntry->SetUIntNumber(1);
+   }
+
    m_cmsShowMainFrame->m_lumiEntry->SetText("", kFALSE);
    m_cmsShowMainFrame->m_lumiEntry->SetFocus();
 }
 
 void FWGUIManager::lumiIdChanged()
 {
+   if (m_cmsShowMainFrame->m_lumiEntry->GetUIntNumber() == edm::invalidLuminosityBlockNumber)
+   {
+      m_cmsShowMainFrame->m_lumiEntry->SetUIntNumber(1);
+   }
+
    m_cmsShowMainFrame->m_eventEntry->SetText("", kFALSE);
    m_cmsShowMainFrame->m_eventEntry->SetFocus();
 }
 
 void FWGUIManager::eventIdChanged()
 {
+   if (m_cmsShowMainFrame->m_eventEntry->GetUIntNumber() == edm::invalidEventNumber)
+   {
+      m_cmsShowMainFrame->m_eventEntry->SetULong64Number(1);
+   }
+
    changedEventId_.emit(m_cmsShowMainFrame->m_runEntry->GetUIntNumber(),
                         m_cmsShowMainFrame->m_lumiEntry->GetUIntNumber(),
-                        m_cmsShowMainFrame->m_eventEntry->GetUIntNumber());
+                        m_cmsShowMainFrame->m_eventEntry->GetULong64Number());
 }
 
 void

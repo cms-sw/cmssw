@@ -7,6 +7,7 @@
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 //
 // class declaration
@@ -14,11 +15,10 @@
 
 class TH1F;
 class TH2F;
-class DQMStore;
 class MonitorElement;
 
 
-class L1TDTTFClient: public edm::EDAnalyzer {
+class L1TDTTFClient: public DQMEDHarvester {
 
 public:
 
@@ -30,29 +30,11 @@ public:
  
 protected:
 
-  /// BeginJob
-  void beginJob(void);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&);  //performed in the endLumi
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
-  /// BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void book(DQMStore::IBooker &ibooker);
 
-  /// Fake Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
-
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                            const edm::EventSetup& context) ;
-
-  /// DQM Client Diagnostic
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c);
-
-  /// EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
-
-  /// Endjob
-  void endJob();
-
-  void makeSummary();
 
 private:
   
@@ -63,7 +45,6 @@ private:
   int resetafterlumi_;
   int counterLS_;      ///counter
   TH2F * occupancy_r_;
-  DQMStore * dbe_;
 
   std::string wheel_[6];
   std::string wheelpath_[6];
@@ -121,23 +102,25 @@ private:
   MonitorElement* dttf_bx_wheel_summary_2ndTrack[6];
   MonitorElement* dttf_bx_wheel_integ_2ndTrack[6];
 
-  TH1F * getTH1F(const char * hname);
-  TH2F * getTH2F(const char * hname);
+  TH1F * getTH1F(DQMStore::IGetter &igetter, const char * hname);
+  TH2F * getTH2F(DQMStore::IGetter &igetter, const char * hname);
 
   void setMapLabel(MonitorElement *me);
 
-  void buildHighQualityPlot( TH2F * occupancySummary,
+  void buildHighQualityPlot( DQMStore::IGetter &igetter,TH2F * occupancySummary,
 			     MonitorElement * highQual_Summary,
 			     const std::string & path );
 
-  void buildPhiEtaPlotOFC( MonitorElement * phi_eta_fine_integ,
+  void buildPhiEtaPlotOFC( DQMStore::IGetter &igetter,
+			   MonitorElement * phi_eta_fine_integ,
 			   MonitorElement * phi_eta_coarse_integ,
 			   MonitorElement * phi_eta_integ,
 			   const std::string & path_fine,
 			   const std::string & path_coarse,
 			   int wh );
 
-  void buildPhiEtaPlotO( MonitorElement * phi_eta_integ,
+  void buildPhiEtaPlotO( DQMStore::IGetter &igetter,
+			 MonitorElement * phi_eta_integ,
 			 const std::string & path,
 			 int wh );
 
@@ -152,8 +135,9 @@ private:
 /* 			  const std::string & path_coarse, */
 /* 			  int wh ); */
 
-  void buildSummaries();
-  void setGMTsummary();
+  void makeSummary(DQMStore::IGetter &igetter);
+  void buildSummaries(DQMStore::IGetter &igetter);
+  void setGMTsummary(DQMStore::IGetter &igetter);
 
   void setWheelLabel(MonitorElement *me);
   void setQualLabel(MonitorElement *me, int axis);

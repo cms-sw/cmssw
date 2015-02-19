@@ -22,14 +22,6 @@ L1TRPCTPG::L1TRPCTPG(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TRPCTPG: constructor...." << endl;
 
-
-  dbe = NULL;
-  if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
-  {
-    dbe = Service<DQMStore>().operator->();
-    dbe->setVerbose(0);
-  }
-
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
@@ -39,71 +31,57 @@ L1TRPCTPG::L1TRPCTPG(const ParameterSet& ps)
   if(disable){
     outputFile_="";
   }
-
-
-  if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1T/L1TRPCTPG");
-  }
-
-
 }
 
 L1TRPCTPG::~L1TRPCTPG()
 {
 }
 
-void L1TRPCTPG::beginJob(void)
-{
-  nev_ = 0;
+void L1TRPCTPG::dqmBeginRun(edm::Run const& r, edm::EventSetup const& c){
+  //
+  //runId_->Fill(r.id().run());
 }
 
-void L1TRPCTPG::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) 
+void L1TRPCTPG::beginLuminosityBlock(edm::LuminosityBlock const& l, edm::EventSetup const& c){
+  //
+  //lumisecId_->Fill(l.id().luminosityBlock());
+}
+
+
+void L1TRPCTPG::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) 
 {
-  if ( dbe ) {
-    dbe->setCurrentFolder("L1T/L1TRPCTPG");
-    dbe->rmdir("L1T/L1TRPCTPG");
-  }
 
-
-  if ( dbe ) 
-  {
-    dbe->setCurrentFolder("L1T/L1TRPCTPG");
-    rpctpgbx = dbe->book1D("RPCTPG_bx", 
+  nev_ = 0;
+  
+  ibooker.setCurrentFolder("L1T/L1TRPCTPG");
+  runId_=ibooker.bookInt("iRun");
+  lumisecId_=ibooker.bookInt("iLumi");
+  
+  rpctpgbx = ibooker.book1D("RPCTPG_bx", 
        "RPC digis bx - all events", 9, -4.5, 4.5 ) ;
     
-    rpctpgndigi[1] = dbe->book1D("RPCTPG_ndigi", 
+  rpctpgndigi[1] = ibooker.book1D("RPCTPG_ndigi", 
        "RPCTPG nDigi bx 0", 100, -0.5, 99.5 ) ;
-    rpctpgndigi[2] = dbe->book1D("RPCTPG_ndigi_+1", 
+  rpctpgndigi[2] = ibooker.book1D("RPCTPG_ndigi_+1", 
        "RPCTPG nDigi bx +1", 100, -0.5, 99.5 ) ;
-    rpctpgndigi[0] = dbe->book1D("RPCTPG_ndigi_-1", 
+  rpctpgndigi[0] = ibooker.book1D("RPCTPG_ndigi_-1", 
        "RPCTPG nDigi bx -1", 100, -0.5, 99.5 ) ;
 
 
 
-    m_digiBxRPCBar = dbe->book1D("RPCDigiRPCBmu_noDTmu_bx",
+  m_digiBxRPCBar = ibooker.book1D("RPCDigiRPCBmu_noDTmu_bx",
        "RPC digis bx - RPC, !DT", 9, -4.5, 4.5 ) ;
 
-    m_digiBxRPCEnd = dbe->book1D("RPCDigiRPCEmu_noCSCmu_bx",
+  m_digiBxRPCEnd = ibooker.book1D("RPCDigiRPCEmu_noCSCmu_bx",
          "RPC digis bx - RPC, !CSC", 9, -4.5, 4.5 ) ;
 
-    m_digiBxDT = dbe->book1D("RPCDigiDTmu_noRPCBmu_bx",
+  m_digiBxDT = ibooker.book1D("RPCDigiDTmu_noRPCBmu_bx",
          "RPC digis bx - !RPC, DT", 9, -4.5, 4.5 ) ;
 
-    m_digiBxCSC = dbe->book1D("RPCDigiCSCmu_noRPCEmu_bx",
+  m_digiBxCSC = ibooker.book1D("RPCDigiCSCmu_noRPCEmu_bx",
          "RPC digis bx - !RPC, CSC", 9, -4.5, 4.5 ) ;
-   }  
 }
 
-
-void L1TRPCTPG::endJob(void)
-{
-  if(verbose_) cout << "L1TRPCTPG: end job...." << endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
-
- if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
-
- return;
-}
 
 void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
 {
@@ -145,7 +123,7 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
   vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
   vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
   
-  static int nRPCTrackBarrel, nRPCTrackEndcap , nDTTrack, nCSCTrack;
+  int nRPCTrackBarrel, nRPCTrackEndcap , nDTTrack, nCSCTrack;
   nRPCTrackBarrel = 0;
   nRPCTrackEndcap = 0;
   nDTTrack = 0;
@@ -201,79 +179,62 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
   RPCDigiCollection::DigiRangeIterator collectionItr;
   for(collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
 
-    /*RPCDetId detId=(*collectionItr ).first; 
-
-    
-    uint32_t id=detId();
-    char detUnitLabel[328];
-    RPCGeomServ RPCname(detId);
-    std::string nameRoll = RPCname.name();
-    sprintf(detUnitLabel ,"%s",nameRoll.c_str());
-    sprintf(layerLabel ,"%s",nameRoll.c_str());
-    std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = rpctpgmeCollection.find(id);
-    if (meItr == rpctpgmeCollection.end() || (rpctpgmeCollection.size()==0)) {
-      rpctpgmeCollection[id]=L1TRPCBookME(detId);
-    }
-    std::map<std::string, MonitorElement*> meMap=rpctpgmeCollection[id];*/
-    
-
-//      std::vector<int> strips;
-//      std::vector<int> bxs;
-//      strips.clear(); 
-//      bxs.clear();
-     RPCDigiCollection::const_iterator digiItr; 
-     for (digiItr = ((*collectionItr ).second).first;
-	  digiItr!=((*collectionItr).second).second; ++digiItr){
+  RPCDigiCollection::const_iterator digiItr; 
+  for (digiItr = ((*collectionItr ).second).first;
+       digiItr!=((*collectionItr).second).second; ++digiItr){
        
        // strips is a list of hit strips (regardless of bx) for this roll
 //        int strip= (*digiItr).strip();
 //        strips.push_back(strip);
-       int bx=(*digiItr).bx();
-       rpctpgbx->Fill(bx);
+      int bx=(*digiItr).bx();
+      rpctpgbx->Fill(bx);
        //
 
-       if ( nRPCTrackBarrel == 0 &&  nDTTrack != 0) {
+      if ( nRPCTrackBarrel == 0 &&  nDTTrack != 0) {
           m_digiBxDT->Fill(bx);
-       } else if ( nRPCTrackBarrel != 0 &&  nDTTrack == 0) {
+      } else if ( nRPCTrackBarrel != 0 &&  nDTTrack == 0) {
           m_digiBxRPCBar->Fill(bx);
-       }
+      }
 
-       if ( nRPCTrackEndcap == 0 &&  nCSCTrack != 0) {
+      if ( nRPCTrackEndcap == 0 &&  nCSCTrack != 0) {
           m_digiBxCSC->Fill(bx);
-       } else if ( nRPCTrackEndcap != 0 &&  nCSCTrack == 0) {
+      } else if ( nRPCTrackEndcap != 0 &&  nCSCTrack == 0) {
           m_digiBxRPCEnd->Fill(bx);
-       }
+      }
 
 
 
 
        
-       if (bx == -1) 
-       {
-        numberofDigi[0]++;
-       }
-       if (bx == 0) 
-       { 
+      if (bx == -1) 
+      {
+       numberofDigi[0]++;
+      }
+      if (bx == 0) 
+      { 
 //         sprintf(meId,"Occupancy_%s",detUnitLabel);
 // 	meMap[meId]->Fill(strip);
-        numberofDigi[1]++;
-       }
-       if (bx == 2) 
-       {
-        numberofDigi[2]++;
-       }
+       numberofDigi[1]++;
+      }
+      if (bx == 2) 
+      {
+       numberofDigi[2]++;
+      }
        
 //        sprintf(meId,"BXN_%s",detUnitLabel);
 //        meMap[meId]->Fill(bx);
 //        sprintf(meId,"BXN_vs_strip_%s",detUnitLabel);
 //        meMap[meId]->Fill(strip,bx);
       
-     }
+    }
   }
 
-      rpctpgndigi[0]->Fill(numberofDigi[0]);
-      rpctpgndigi[1]->Fill(numberofDigi[1]);
-      rpctpgndigi[2]->Fill(numberofDigi[2]);
+  rpctpgndigi[0]->Fill(numberofDigi[0]);
+  rpctpgndigi[1]->Fill(numberofDigi[1]);
+  rpctpgndigi[2]->Fill(numberofDigi[2]);
 
+
+  if(verbose_) cout << "L1TRPCTPG: end job...." << endl;
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 }
 

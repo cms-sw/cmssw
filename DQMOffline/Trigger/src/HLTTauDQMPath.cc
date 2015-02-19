@@ -46,7 +46,7 @@ namespace {
           continue;
         if(type == "HLTTriggerTypeFilter" || type == "HLTBool")
           continue;
-        if(type == "HLT2ElectronPFTau" || type == "HLT2MuonPFTau" || type == "HLT2ElectronTau" || type == "HLT2MuonTau")
+        if(type == "HLT2PhotonPFTau" || type == "HLT2ElectronPFTau" || type == "HLT2MuonPFTau" || type == "HLT2PhotonTau" || type == "HLT2ElectronTau" || type == "HLT2MuonTau")
           leptonTauFilters.emplace_back(*iLabel);
         else if(type.find("Electron") != std::string::npos || type.find("Egamma") != std::string::npos || type.find("Muon") != std::string::npos)
           continue;
@@ -142,14 +142,24 @@ namespace {
     TauLeptonMultiplicity n;
 
     if(moduleType == "HLTLevel1GTSeed") {
-      if(filterName.find("SingleMu") != std::string::npos) {
-        n.muon = 1;
+      if(filterName.find("Single") != std::string::npos) {
+	if(filterName.find("Mu") != std::string::npos) {
+	  n.muon = 1;
+	}
+	else if(filterName.find("EG") != std::string::npos) {
+	  n.electron = 1;
+	}
       }
-      else if(filterName.find("SingleEG") != std::string::npos) {
-        n.electron = 1;
-      }
-      else if(filterName.find("DoubleTau") != std::string::npos) {
+      else if(filterName.find("Double") != std::string::npos && filterName.find("Tau") != std::string::npos) {
         n.tau = 2;
+      }
+      else if(filterName.find("Mu") != std::string::npos && filterName.find("Tau") != std::string::npos) { 
+	n.muon = 1;
+	//n.tau = 1;
+      }
+      else if(filterName.find("EG") != std::string::npos && filterName.find("Tau") != std::string::npos) { 
+	n.electron = 1;
+	//n.tau = 1;
       }
     }
     else if(moduleType == "HLT1CaloJet" || moduleType == "HLT1PFJet") {
@@ -175,14 +185,15 @@ namespace {
     else if(moduleType == "HLTPFTauPairDzMatchFilter") {
       n.tau = 2;
     }
-    else if(moduleType == "HLTElectronGenericFilter") {
+    else if(moduleType == "HLTElectronGenericFilter" || moduleType == "HLTEgammaGenericFilter") {
       //n.electron = HLTCP.modulePSet(filterName).getParameter<int>("ncandcut");
       n.electron = getParameterSafe(HLTCP, filterName, "ncandcut");
     }
     else if(moduleType == "HLTMuonIsoFilter" || moduleType == "HLTMuonL3PreFilter") {
-      n.muon = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
+      //n.muon = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
+      n.muon = getParameterSafe(HLTCP, filterName, "MinN");
     }
-    else if(moduleType == "HLT2ElectronTau" || moduleType == "HLT2ElectronPFTau") {
+    else if(moduleType == "HLT2ElectronTau" || moduleType == "HLT2ElectronPFTau" || moduleType == "HLT2PhotonTau" || moduleType == "HLT2PhotonPFTau") {
       //int num = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
       int num = getParameterSafe(HLTCP, filterName, "MinN");
       n.tau = num;
@@ -392,7 +403,7 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
     for(const Object& trgObj: triggerObjects) {
       //std::cout << "trigger object id " << trgObj.id << std::endl;
       if(! ((isL1 && (trgObj.id == trigger::TriggerL1NoIsoEG || trgObj.id == trigger::TriggerL1IsoEG))
-            || trgObj.id == trigger::TriggerElectron) )
+            || trgObj.id == trigger::TriggerElectron || trgObj.id == trigger::TriggerPhoton) )
         continue;
       if(deltaRmatch(trgObj.object, offlineObjects.electrons, dR, offlineMask, matchedOfflineObjects.electrons)) {
         ++matchedObjects;

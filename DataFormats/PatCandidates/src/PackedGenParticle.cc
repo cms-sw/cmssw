@@ -37,22 +37,6 @@ float pat::PackedGenParticle::dz(const Point &p) const {
 
 //// Everything below is just trivial implementations of reco::Candidate methods
 
-pat::PackedGenParticle::const_iterator pat::PackedGenParticle::begin() const { 
-  return const_iterator( new const_iterator_imp_specific ); 
-}
-
-pat::PackedGenParticle::const_iterator pat::PackedGenParticle::end() const { 
-  return  const_iterator( new const_iterator_imp_specific ); 
-}
-
-pat::PackedGenParticle::iterator pat::PackedGenParticle::begin() { 
-  return iterator( new iterator_imp_specific ); 
-}
-
-pat::PackedGenParticle::iterator pat::PackedGenParticle::end() { 
-  return iterator( new iterator_imp_specific ); 
-}
-
 const reco::CandidateBaseRef & pat::PackedGenParticle::masterClone() const {
   throw cms::Exception("Invalid Reference")
     << "this Candidate has no master clone reference."
@@ -79,7 +63,8 @@ size_t pat::PackedGenParticle::numberOfDaughters() const {
 }
 
 size_t pat::PackedGenParticle::numberOfMothers() const { 
-  return 0; 
+  if(mother_.isNonnull())   return 1; 
+  return 0;
 }
 
 bool pat::PackedGenParticle::overlap( const reco::Candidate & o ) const { 

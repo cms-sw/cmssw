@@ -1,57 +1,16 @@
-# Auto generated configuration file
-# using: 
-# Revision: 1.149 
-# Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: Configuration/GenProduction/testThePEGGeneratorFilter -s GEN --datatier GEN -n 100 --eventcontent RAWSIM --conditions FrontierConditions_GlobalTag,MC_31X_V9::All --no_exec --mc --customise=Configuration/GenProduction/custom
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('GEN')
 
-# import of standard configurations
-process.load('Configuration/StandardSequences/Services_cff')
-process.load('FWCore/MessageService/MessageLogger_cfi')
-process.load('Configuration/StandardSequences/MixingNoPileUp_cff')
-process.load('Configuration/StandardSequences/GeometryExtended_cff')
-process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-process.load('Configuration/StandardSequences/Generator_cff')
-process.load('Configuration/StandardSequences/VtxSmearedEarly10TeVCollision_cff')
-process.load('Configuration/StandardSequences/EndOfProcess_cff')
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.load('Configuration/EventContent/EventContent_cff')
+process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 
-process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
-    annotation = cms.untracked.string('Herwig++ example - QCD validation'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/ThePEGInterface/test/testThePEGGeneratorFilter.py,v $')
-)
+process.source = cms.Source("EmptySource")
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
-process.options = cms.untracked.PSet(
-    Rethrow = cms.untracked.vstring('ProductNotFound')
-)
-# Input source
-process.source = cms.Source("EmptySource")
 
-# Output definition
-process.output = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    outputCommands = process.RAWSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('testThePEGGeneratorFilter_GEN.root'),
-    dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('GEN'),
-        filterName = cms.untracked.string('')
-    ),
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('generation_step')
-    )
-)
-
-# Additional output definition
-
-# Other statements
-process.GlobalTag.globaltag = 'MC_31X_V9::All'
-process.generator = cms.EDProducer("ThePEGGeneratorFilter",
+process.generator = cms.EDFilter("ThePEGGeneratorFilter",
     cm10TeV = cms.vstring('set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 10000.0', 
         'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.1*GeV'),
     run = cms.string('LHC'),
@@ -59,13 +18,6 @@ process.generator = cms.EDProducer("ThePEGGeneratorFilter",
     cm14TeV = cms.vstring('set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 14000.0', 
         'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.2*GeV'),
     dataLocation = cms.string('${HERWIGPATH}'),
-    pdfCTEQ5L = cms.vstring('mkdir /LHAPDF', 
-        'cd /LHAPDF', 
-        'create ThePEG::LHAPDF CTEQ5L', 
-        'set CTEQ5L:PDFName cteq5l.LHgrid', 
-        'set CTEQ5L:RemnantHandler /Herwig/Partons/HadronRemnants', 
-        'cp CTEQ5L /cmsPDFSet', 
-        'cd /'),
     lheDefaults = cms.vstring('cd /Herwig/Cuts', 
         'create ThePEG::Cuts NoCuts', 
         'cd /Herwig/EventHandlers', 
@@ -84,7 +36,8 @@ process.generator = cms.EDProducer("ThePEGGeneratorFilter",
         'set Evolver:HardVetoScaleSource Read', 
         'set Evolver:MECorrMode No', 
         'cd /'),
-    cmsDefaults = cms.vstring('+pdfMRST2001', 
+    cmsDefaults = cms.vstring(
+        '+pdfCTEQ6LL',
         '+basicSetup', 
         '+cm14TeV', 
         '+setParticlesStableForDetector'),
@@ -92,7 +45,6 @@ process.generator = cms.EDProducer("ThePEGGeneratorFilter",
         'set LHEReader:PDFA /cmsPDFSet', 
         'set LHEReader:PDFB /cmsPDFSet', 
         'cd /'),
-    pdfMRST2001 = cms.vstring('cp /Herwig/Partons/MRST /cmsPDFSet'),
     reweightPthat = cms.vstring('mkdir /Herwig/Weights', 
         'cd /Herwig/Weights', 
         'create ThePEG::ReweightMinPT reweightMinPT ReweightMinPT.so', 
@@ -108,11 +60,7 @@ process.generator = cms.EDProducer("ThePEGGeneratorFilter",
         'set LHCGenerator:NumberOfEvents 10000000', 
         'set LHCGenerator:DebugLevel 1', 
         'set LHCGenerator:PrintEvent 0', 
-        'set LHCGenerator:MaxErrors 10000', 
-        'cd /Herwig/Particles', 
-        'set p+:PDF /cmsPDFSet', 
-        'set pbar-:PDF /cmsPDFSet', 
-        'cd /'),
+        'set LHCGenerator:MaxErrors 10000'),
     setParticlesStableForDetector = cms.vstring('cd /Herwig/Particles', 
         'set mu-:Stable Stable', 
         'set mu+:Stable Stable', 
@@ -135,12 +83,21 @@ process.generator = cms.EDProducer("ThePEGGeneratorFilter",
         'set K_S0:Stable Stable', 
         'set K_L0:Stable Stable', 
         'cd /'),
-    pdfCTEQ6L1 = cms.vstring('mkdir /LHAPDF', 
-        'cd /LHAPDF', 
-        'create ThePEG::LHAPDF CTEQ6L1', 
-        'set CTEQ6L1:PDFName cteq6ll.LHpdf', 
-        'set CTEQ6L1:RemnantHandler /Herwig/Partons/HadronRemnants', 
-        'cp CTEQ6L1 /cmsPDFSet', 
+    pdfCTEQ6LL = cms.vstring(
+        'cd /Herwig/Partons',
+        'create ThePEG::LHAPDF myPDFset ThePEGLHAPDF.so',
+        'set myPDFset:PDFName cteq6ll',
+        'set myPDFset:RemnantHandler HadronRemnants',
+        'set /Herwig/Particles/p+:PDF myPDFset',
+        'set /Herwig/Particles/pbar-:PDF myPDFset',
+        'cd /'),
+    pdfCT10 = cms.vstring(
+        'cd /Herwig/Partons',
+        'create ThePEG::LHAPDF myPDFset ThePEGLHAPDF.so',
+        'set myPDFset:PDFName CT10',
+        'set myPDFset:RemnantHandler HadronRemnants',
+        'set /Herwig/Particles/p+:PDF myPDFset',
+        'set /Herwig/Particles/pbar-:PDF myPDFset',
         'cd /'),
     cm7TeV = cms.vstring('set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 7000.0', 
         'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.0*GeV'),
@@ -157,8 +114,7 @@ process.generator = cms.EDProducer("ThePEGGeneratorFilter",
         'insert SimpleQCD:MatrixElements[0] MEQCD2to2', 
         'cd /', 
         'set /Herwig/Cuts/JetKtCut:MinKT 50*GeV', 
-        'set /Herwig/Cuts/JetKtCut:MaxKT 100*GeV', 
-        'set /Herwig/UnderlyingEvent/MPIHandler:Algorithm 1'),
+        'set /Herwig/Cuts/JetKtCut:MaxKT 100*GeV'),
     validationMSSM = cms.vstring('cd /Herwig/NewPhysics', 
         'set HPConstructor:IncludeEW No', 
         'set TwoBodyDC:CreateDecayModes No', 
@@ -175,27 +131,28 @@ process.generator = cms.EDProducer("ThePEGGeneratorFilter",
         'validationQCD')
 )
 
-# Path and EndPath definitions
-process.generation_step = cms.Path(process.pgen)
-process.endjob_step = cms.Path(process.endOfProcess)
-process.out_step = cms.EndPath(process.output)
 
-# Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.endjob_step,process.out_step)
+process.MessageLogger = cms.Service("MessageLogger",
+    cout = cms.untracked.PSet(
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(2)
+        )
+    ),
+    destinations = cms.untracked.vstring('cout')
+)
 
-# special treatment in case of production filter sequence  
-for path in process.paths: 
-    getattr(process,path)._seq = process.generator*getattr(process,path)._seq
-
-
-# Automatic addition of the customisation function
-
-def customise(process):
-	process.genParticles.abortOnUnknownPDGCode = False
-
-	return process
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+    generator = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+    )
+)
 
 
-# End of customisation function definition
+process.GEN = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('testThePEGGeneratorFilter_GEN.root')
+)
 
-process = customise(process)
+process.p = cms.Path(process.generator)
+process.outpath = cms.EndPath(process.GEN)
+
+process.schedule = cms.Schedule(process.p, process.outpath)

@@ -76,7 +76,7 @@ process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
 #-------------------------------------------------
 # GEOMETRY
 #-------------------------------------------------
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #-----------------------------
 # Magnetic Field

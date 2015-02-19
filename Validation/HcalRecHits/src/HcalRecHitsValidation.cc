@@ -536,7 +536,7 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
       sevLvl_HE = ib.book1D(histo, histo, 25, -0.5, 24.5); 
       
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HE" ) ;
-      meRecHitsEnergyHE = ib.book1D(histo, histo, 510, -10., 500.); 
+      meRecHitsEnergyHE = ib.book1D(histo, histo, 2010, -10., 2000.);
       
       sprintf (histo, "HcalRecHitTask_timing_HE" ) ;
       meTimeHE = ib.book1D(histo, histo, 70, -48., 92.); 
@@ -545,13 +545,13 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
       meTE_Low_HE = ib.book2D(histo, histo, 80, -5., 75.,  70, -48., 92.);
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HE" ) ;
-      meTE_HE = ib.book2D(histo, histo, 200, -5., 395.,  70, -48., 92.);
+      meTE_HE = ib.book2D(histo, histo, 200, -5., 2995.,  70, -48., 92.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_Low_HE" ) ;
       meTEprofileHE_Low = ib.bookProfile(histo, histo, 80, -5., 75., 70, -48., 92.); 
 
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HE" ) ;
-      meTEprofileHE = ib.bookProfile(histo, histo, 200, -5., 395., 70, -48., 92.); 
+      meTEprofileHE = ib.bookProfile(histo, histo, 200, -5., 2995., 70, -48., 92.); 
 
       //Timing by depth and rechits vs simhits are not drawn
       if (useAllHistos_){
@@ -597,7 +597,7 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
       sevLvl_HO = ib.book1D(histo, histo, 25, -0.5, 24.5); 
 
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HO" ) ;
-      meRecHitsEnergyHO = ib.book1D(histo, histo, 510 , -10. , 500.); 
+      meRecHitsEnergyHO = ib.book1D(histo, histo, 2010 , -10. , 2000.);
       
       sprintf (histo, "HcalRecHitTask_timing_HO" ) ;
       meTimeHO = ib.book1D(histo, histo, 70, -48., 92.); 
@@ -654,7 +654,7 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
       sevLvl_HF = ib.book1D(histo, histo, 25, -0.5, 24.5); 
 
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HF" ) ;
-      meRecHitsEnergyHF = ib.book1D(histo, histo, 1010 , -10. , 1000.); 
+      meRecHitsEnergyHF = ib.book1D(histo, histo, 2010 , -10. , 2000.); 
 
       sprintf (histo, "HcalRecHitTask_timing_HF" ) ;
       meTimeHF = ib.book1D(histo, histo, 70, -48., 92.); 
@@ -784,14 +784,9 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
   // HCAL channel status map ****************************************
   edm::ESHandle<HcalChannelQuality> hcalChStatus;
-  c.get<HcalChannelQualityRcd>().get( hcalChStatus );
-
-  edm::ESHandle<HcalTopology> topo;
-  c.get<IdealGeometryRecord>().get(topo);
+  c.get<HcalChannelQualityRcd>().get( "withTopo", hcalChStatus );
 
   theHcalChStatus = hcalChStatus.product();
-
-  if( !theHcalChStatus->topo() ) theHcalChStatus->setTopo(topo.product());
 
   // Assignment of severity levels **********************************
   edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;

@@ -45,9 +45,9 @@ private:
   Shape hpdShape_v2, hpdShapeMC_v2;
   Shape hpdShape_v3, hpdShapeMC_v3;
   Shape hpdBV30Shape_v2, hpdBV30ShapeMC_v2;
-  const HcalMCParams * theMCParams;
+  HcalMCParams * theMCParams;
   const HcalTopology * theTopology;
-  const HcalRecoParams * theRecoParams;
+  HcalRecoParams * theRecoParams;
   typedef std::map<int, const Shape *> ShapeMap;
   ShapeMap theShapes;
 

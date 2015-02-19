@@ -151,6 +151,9 @@ namespace sistrip {
     case READOUT_MODE_SPY:
       os << "Spy channel";
       break;
+    case READOUT_MODE_PREMIX_RAW:
+      os << "PreMix raw";
+      break;
     case READOUT_MODE_INVALID:
       os << "Invalid";
       break;
@@ -363,6 +366,11 @@ namespace sistrip {
          (readoutModeString == "ZERO_SUPPRESSED_LITE") ||
          (readoutModeString == "Zero suppressed lite") ) {
       return READOUT_MODE_ZERO_SUPPRESSED_LITE;
+    }
+    if ( (readoutModeString == "READOUT_MODE_PREMIX_RAW") ||
+         (readoutModeString == "PREMIX_RAW") ||
+         (readoutModeString == "PreMix Raw") ) {
+      return READOUT_MODE_PREMIX_RAW;
     }
     if ( (readoutModeString == "READOUT_MODE_SPY") ||
          (readoutModeString == "SPY") ||
@@ -650,6 +658,8 @@ namespace sistrip {
     const uint8_t eventTypeNibble = trackerEventTypeNibble();
     //if it is scope mode then return as is (it cannot be fake data)
     if (eventTypeNibble == READOUT_MODE_SCOPE) return FEDReadoutMode(eventTypeNibble);
+    //if it is premix then return as is: stripping last bit would make it spy data !
+    if (eventTypeNibble == READOUT_MODE_PREMIX_RAW) return FEDReadoutMode(eventTypeNibble);
     //if not then ignore the last bit which indicates if it is real or fake
     else {
       const uint8_t mode = (eventTypeNibble & 0xE);
@@ -734,6 +744,11 @@ namespace sistrip {
     case READOUT_MODE_ZERO_SUPPRESSED_LITE:
     case READOUT_MODE_SPY:
       setReadoutModeBits(readoutMode);
+      break;
+    case READOUT_MODE_PREMIX_RAW:
+      //special mode for simulation
+      setReadoutModeBits(readoutMode);
+      setDataTypeBit(true);
       break;
     default:
       std::ostringstream ss;

@@ -6,6 +6,9 @@
  *  DQM Test Client
  *
  *  \author  M. Zanetti CERN
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  *   
  */
 
@@ -23,6 +26,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
+
+
 #include <memory>
 #include <iostream>
 #include <fstream>
@@ -36,7 +42,8 @@ class DTSuperLayerId;
 class DTTtrig;
 class DTTimeBoxFitter;
 
-class DTtTrigCalibrationTest: public edm::EDAnalyzer{
+
+class DTtTrigCalibrationTest: public DQMEDHarvester {
 
 public:
 
@@ -48,33 +55,25 @@ public:
 
 protected:
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  /// Endjob
-  void endJob();
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
 
   /// book the new ME
-  void bookHistos(const DTChamberId & ch);
+
+  void bookHistos(DQMStore::IBooker &,const DTChamberId & ch);
 
   /// book the summary histograms
-  void bookHistos(const DTChamberId & ch, int wh);
+
+  void bookHistos(DQMStore::IBooker &,const DTChamberId & ch, int wh);
 
   /// Get the ME name
   std::string getMEName(const DTSuperLayerId & slID);
 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
   /// DQM Client Diagnostic
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
-
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
 
 
 private:
@@ -84,8 +83,6 @@ private:
   int prescaleFactor;
   int run;
   int percentual;
-
-  DQMStore* dbe;
 
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;

@@ -6,17 +6,16 @@ import FWCore.ParameterSet.Config as cms
 
 # REMOVE HITS ASSIGNED TO GOOD TRACKS FROM PREVIOUS ITERATIONS
 
-detachedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
-    clusterLessSolution = cms.bool(True),
-    trajectories = cms.InputTag("initialStepTracks"),
-    overrideTrkQuals = cms.InputTag('initialStep'),
-    TrackQuality = cms.string('highPurity'),
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+detachedTripletStepClusters = trackClusterRemover.clone(
+    maxChi2                                  = cms.double(9.0),
+    trajectories                             = cms.InputTag("initialStepTracks"),
+    pixelClusters                            = cms.InputTag("siPixelClusters"),
+    stripClusters                            = cms.InputTag("siStripClusters"),
+    oldClusterRemovalInfo                    = cms.InputTag(""),
+    overrideTrkQuals                         = cms.InputTag('initialStep'),
+    TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
-    Common = cms.PSet(
-        maxChi2 = cms.double(9.0),
-    )
 )
 
 # SEEDING LAYERS
@@ -49,15 +48,24 @@ detachedTripletStepSeeds.SeedComparitorPSet = cms.PSet(
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
-detachedTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
+detachedTripletStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     maxLostHitsFraction = cms.double(1./10.),
     constantValueForLostHitsFractionFilter = cms.double(0.701),
     minimumNumberOfHits = 3,
     minPt = 0.075
     )
+import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
+detachedTripletStepTrajectoryFilterShape = RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()
+detachedTripletStepTrajectoryFilter = cms.PSet(
+    ComponentType = cms.string('CompositeTrajectoryFilter'),
+    filters = cms.VPSet(
+        cms.PSet( refToPSet_ = cms.string('detachedTripletStepTrajectoryFilterBase')),
+        cms.PSet( refToPSet_ = cms.string('detachedTripletStepTrajectoryFilterShape'))),
+)
 
-import TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi
-detachedTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
+
+import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi
+detachedTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName = cms.string('detachedTripletStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(9.0),
@@ -101,7 +109,7 @@ detachedTripletStepTrackCandidates.TrajectoryCleaner = 'detachedTripletStepTraje
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 detachedTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    AlgorithmName = cms.string('iter3'),
+    AlgorithmName = cms.string('detachedTripletStep'),
     src = 'detachedTripletStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )

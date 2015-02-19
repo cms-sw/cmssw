@@ -10,6 +10,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <memory>
 #include <iostream>
@@ -23,7 +24,7 @@
 #include <TF1.h>
 #include <TProfile2D.h>
 
-class L1TTestsSummary: public edm::EDAnalyzer {
+class L1TTestsSummary: public DQMEDHarvester {
 
   public:
 
@@ -35,23 +36,13 @@ class L1TTestsSummary: public edm::EDAnalyzer {
  
   protected:
 
-    // Job methods
-    void beginJob(void);
-    void endJob();
+    virtual void dqmEndLuminosityBlock  (DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);     // DQM Client Diagnostic
 
-    // Run methods
-    void beginRun(const edm::Run& r, const edm::EventSetup& c);
-    void endRun(const edm::Run& r, const edm::EventSetup& c);
-
-    // Luminosity Block methods
-    void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& context);
-    void endLuminosityBlock  (const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);       // DQM Client Diagnostic
-
-    void analyze(const edm::Event& e, const edm::EventSetup& c) ;
-
+    virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)override;
+    virtual void book(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
+    
   private:
 
-    DQMStore*         mDBE;        //store service
     edm::ParameterSet mParameters; //parameter set from python
 
     // bool
@@ -80,10 +71,10 @@ class L1TTestsSummary: public edm::EDAnalyzer {
   // Private Functions
   private:
 
-    void updateL1TRateMonitor();
-    void updateL1TSyncMonitor();
-    void updateL1TOccupancyMonitor();
-    void updateL1TSummary();
+    void updateL1TRateMonitor(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
+    void updateL1TSyncMonitor(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
+    void updateL1TOccupancyMonitor(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
+    void updateL1TSummary(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
 };
 
 #endif

@@ -12,7 +12,6 @@
  *
  */
 
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidateFwd.h"
 #include <string>
 #include <map>

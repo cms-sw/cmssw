@@ -6,7 +6,6 @@ from JetMETCorrections.Type1MET.correctionTermsCaloMet_cff import *
 from JetMETCorrections.Type1MET.correctedMet_cff import *
 #from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
 
-from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import *
 #from JetMETCorrections.Type1MET.pfMETCorrections_cff import *
 
 ## for scheduled mode

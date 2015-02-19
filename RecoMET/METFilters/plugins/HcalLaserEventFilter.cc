@@ -41,6 +41,7 @@ It also allows users to remove events in which the number of HBHE rechits exceed
 
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 //
 // class declaration
 //
@@ -64,7 +65,7 @@ class HcalLaserEventFilter : public edm::EDFilter {
 
   // Filter option 1:  veto events by run, event number
   const bool vetoByRunEventNumber_;
-  std::vector<std::pair<unsigned int,unsigned int> > RunEventData_;
+  std::vector<std::pair<edm::RunNumber_t,edm::EventNumber_t> > RunEventData_;
 
   // Filter option 2:  veto events by HBHE occupancy
   const bool vetoByHBHEOccupancy_;
@@ -135,8 +136,8 @@ HcalLaserEventFilter::HcalLaserEventFilter(const edm::ParameterSet& iConfig)
   // Make this a map for better search performance?
   for (unsigned int i=0;i+1<temprunevt.size();i+=2)
     {
-      unsigned int run=temprunevt[i];
-      unsigned int evt=temprunevt[i+1];
+      edm::RunNumber_t run=temprunevt[i];
+      edm::EventNumber_t evt=temprunevt[i+1];
       RunEventData_.push_back(std::make_pair(run,evt));
     }
   errorcount=0;

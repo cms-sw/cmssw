@@ -6,9 +6,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimTracker/TrackHistory/interface/HistoryBase.h"
 #include "SimTracker/TrackHistory/interface/Utils.h"
 
@@ -23,7 +24,8 @@ public:
 
        /param[in] pset with the configuration values
     */
-    TrackHistory(const edm::ParameterSet &);
+    TrackHistory(const edm::ParameterSet &,
+                 edm::ConsumesCollector&& );
 
     //! Pre-process event information (for accessing reconstruction information)
     void newEvent(const edm::Event &, const edm::EventSetup &);
@@ -81,7 +83,7 @@ private:
 
     edm::InputTag trackingTruth_;
 
-    std::string trackAssociator_;
+    edm::InputTag trackAssociator_;
 
     reco::TrackBaseRef recotrack_;
 

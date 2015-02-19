@@ -82,12 +82,12 @@ private:
   edm::ParameterSet m_pStackingAction;
   edm::ParameterSet m_pTrackingAction;
   edm::ParameterSet m_pSteppingAction;
+  edm::ParameterSet m_pCustomUIsession;
   edm::ParameterSet m_p;
 
   struct TLSData;
   static thread_local TLSData *m_tls;
 
-  std::unique_ptr<G4Event> m_currentEvent;
   std::unique_ptr<G4SimEvent> m_simEvent;
 };
 

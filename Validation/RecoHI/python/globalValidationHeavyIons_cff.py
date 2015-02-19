@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.Configuration.globalValidation_cff import *
 from Validation.RecoHI.TrackValidationHeavyIons_cff import *
-from Validation.RecoHI.JetValidationHeavyIons_cff import *
+from Validation.RecoJets.JetValidationHeavyIons_cff import *
 from Validation.RecoHI.muonValidationHeavyIons_cff import *
 
 # change track label for rechits
-hiTracks = 'hiSelectedTracks'
+hiTracks = 'hiGeneralTracks'
 PixelTrackingRecHitsValid.src = hiTracks
 StripTrackingRecHitsValid.trajectoryInput = hiTracks
 
@@ -47,7 +47,7 @@ globalValidationHI = cms.Sequence(
     + hcalRecHitsValidationSequence
     + calotowersValidationSequence
     
-    + hiTrackValidation         # validation of 'hiSelectedTracks'
+    + hiTrackValidation         # validation of 'hiGeneralTracks'
     + hiJetValidation           # validation of pileup jet finders
     + hiRecoMuonValidation      # validation of offline muon reco
    

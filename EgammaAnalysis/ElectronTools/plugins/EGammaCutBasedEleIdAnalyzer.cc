@@ -227,7 +227,7 @@ EGammaCutBasedEleIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
         //
 
         if (printDebug_) {
-            printf("%u %u %u : ",       iEvent.id().run(), iEvent.luminosityBlock(), iEvent.id().event());
+            printf("%u %u %llu : ",       iEvent.id().run(), iEvent.luminosityBlock(), iEvent.id().event());
             printf("veto(%i), ",        veto);
             printf("loose(%i), ",       loose);
             printf("medium(%i), ",      medium);

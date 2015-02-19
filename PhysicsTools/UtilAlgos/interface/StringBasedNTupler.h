@@ -41,7 +41,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
- 
+
 // LHE Event
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
@@ -56,14 +56,14 @@ class TreeBranch {
       if (SE!="") branchTitle_+=" selecting on "+SE;
       edm::LogInfo("TreeBranch")<<"the branch with alias: "<<branchAlias_<<" corresponds to: "<<branchTitle_;
     }
-    
+
   const std::string & className() const { return class_;}
   const edm::InputTag & src() const { return src_;}
   const std::string & expr() const { return expr_;}
   const std::string & order() const { return order_;}
   const std::string & selection() const { return selection_;}
   const std::string & maxIndexName() const { return maxIndexName_;}
-  const std::string branchName()const{ 
+  const std::string branchName()const{
 	std::string name(branchAlias_);
 	std::replace(name.begin(), name.end(), '_','0');
 	return std::string(name.c_str());}
@@ -140,7 +140,7 @@ public:
 
       //empty vector if product not found
       if (oH.failedToGet()){
-	if(!(iEvent.isRealData() && B.className()=="reco::GenParticle") ) {  //don't output genparticle error in data 
+	if(!(iEvent.isRealData() && B.className()=="reco::GenParticle") ) {  //don't output genparticle error in data
   	  edm::LogError("StringBranchHelper")<<"cannot open: "<<B.src()<<"  "<<B.className();
         }
         value_.reset(new std::vector<float>());
@@ -163,19 +163,19 @@ public:
 	if (B.order()!=""){
 	  StringObjectFunction<Object> order(B.order());
 	  // allocate a vector of pointers (we are using view) to be sorted
-	  std::vector<const Object*> copyToSort(oH->size()); 
+	  std::vector<const Object*> copyToSort(oH->size());
 	  for (uint i=0;i!=i_end;++i)  copyToSort[i]= &(*oH)[i];
-	  std::sort(copyToSort.begin(), copyToSort.end(), sortByStringFunction<Object>(&order)); 
+	  std::sort(copyToSort.begin(), copyToSort.end(), sortByStringFunction<Object>(&order));
 	  //then loop and fill
 	  for (uint i=0;i!=i_end;++i) {
 	    //try and catch is necessary because ...
-	    try{ 
+	    try{
 	      if (selection && !((*selection)(*(copyToSort)[i]))) continue;
 	      value_->push_back((expr)(*(copyToSort)[i]));
-	    }catch(...){ 
+	    }catch(...){
 	      LogDebug("StringBranchHelper")<<"with sorting. could not evaluate expression: "<<B.expr()<<" on class: "<<B.className();
 	      value_->push_back(defaultValue);//push a default value to not change the indexing
-	    } 
+	    }
 	  }
 	}
 	else{
@@ -184,11 +184,11 @@ public:
 	    //try and catch is necessary because ...
 	    try {
 	      if (selection && !((*selection)((*oH)[i]))) continue;
-	      value_->push_back((expr)((*oH)[i])); 
-	    }catch(...){ 
-	      LogDebug("StringBranchHelper")<<"could not evaluate expression: "<<B.expr()<<" on class: "<<B.className(); 
+	      value_->push_back((expr)((*oH)[i]));
+	    }catch(...){
+	      LogDebug("StringBranchHelper")<<"could not evaluate expression: "<<B.expr()<<" on class: "<<B.className();
 	      value_->push_back(defaultValue);//push a default value to not change the indexing
-	    } 
+	    }
 	  }
 	}
 	if (selection) delete selection;
@@ -231,11 +231,11 @@ class StringBasedNTupler : public NTupler {
       for (uint l=0;l!=leaves.size();++l){
 	std::string leave_expr=leavesPSet.getParameter<std::string>(leaves[l]);
 	std::string branchAlias=branches[b]+"_"+leaves[l];
-	
+
 	//add a branch manager for this expression on this collection
 	branches_[maxName].push_back(TreeBranch(className, src, leave_expr, order, selection, maxName, branchAlias));
       }//loop the provided leaves
-      
+
       //do it once with configuration [vstring vars = { "x:x" ,... } ] where ":"=separator
       if (leavesPSet.exists("vars")){
 	std::vector<std::string> leavesS = leavesPSet.getParameter<std::vector<std::string> >("vars");
@@ -263,7 +263,7 @@ class StringBasedNTupler : public NTupler {
 
 
 
-    ev_ = new uint;
+    ev_ = new uint64_t;
     run_ = new uint;
     lumiblock_ = new uint;
     experimentType_ = new uint;
@@ -274,7 +274,7 @@ class StringBasedNTupler : public NTupler {
 
 
     if (branchesPSet.exists("useTFileService"))
-      useTFileService_=branchesPSet.getParameter<bool>("useTFileService");         
+      useTFileService_=branchesPSet.getParameter<bool>("useTFileService");
     else
       useTFileService_=iConfig.getParameter<bool>("useTFileService");
 
@@ -296,7 +296,7 @@ class StringBasedNTupler : public NTupler {
     uint nLeaves=0;
 
     if (useTFileService_){
-      edm::Service<TFileService> fs;      
+      edm::Service<TFileService> fs;
       if (ownTheTree_){
 	ownTheTree_=true;
 	tree_=fs->make<TTree>(treeName_.c_str(),"StringBasedNTupler tree");
@@ -315,8 +315,8 @@ class StringBasedNTupler : public NTupler {
 	  else	  ownTheTree_=false;
 	}
       }
-      
-      //reserve memory for the indexes      
+
+      //reserve memory for the indexes
       indexDataHolder_ = new uint[branches_.size()];
       // loop the automated leafer
       Branches::iterator iB=branches_.begin();
@@ -339,7 +339,7 @@ class StringBasedNTupler : public NTupler {
 
       //extra leaves for event info.
       tree_->Branch("run",run_,"run/i");
-      tree_->Branch("event",ev_,"event/i");
+      tree_->Branch("event",ev_,"event/l");
       tree_->Branch("lumiblock",lumiblock_,"lumiblock/i");
       tree_->Branch("experimentType",experimentType_,"experimentType/i");
       tree_->Branch("bunchCrossing",bunchCrossing_,"bunchCrossing/i");
@@ -406,7 +406,7 @@ class StringBasedNTupler : public NTupler {
       *orbitNumber_ = iEvent.orbitNumber();
 
       *weight_ = 1;
-      if(!iEvent.isRealData()) { 
+      if(!iEvent.isRealData()) {
         edm::Handle<GenEventInfoProduct> wgeneventinfo;
         iEvent.getByLabel("generator", wgeneventinfo);
         *weight_ = wgeneventinfo->weight();
@@ -417,17 +417,17 @@ class StringBasedNTupler : public NTupler {
 
       edm::Handle<LHEEventProduct> product;
       *model_params_ = "NULL";
-      if(iEvent.getByLabel("source", product)) { 
+      if(iEvent.getByLabel("source", product)) {
         comments_const_iterator c_begin = product->comments_begin();
         comments_const_iterator c_end = product->comments_end();
 
         for( comments_const_iterator cit=c_begin; cit!=c_end; ++cit) {
           size_t found = (*cit).find("model");
           if( found != std::string::npos)   {
-             //std::cout << *cit << std::endl;  
+             //std::cout << *cit << std::endl;
              *model_params_ = *cit;
           }
-        } 
+        }
       }
 
 
@@ -453,7 +453,7 @@ class StringBasedNTupler : public NTupler {
     }
   }
 
-  void callBack() 
+  void callBack()
   {
     if (useTFileService_){
       Branches::iterator iB=branches_.begin();
@@ -481,7 +481,7 @@ class StringBasedNTupler : public NTupler {
     delete weight_;
     delete model_params_;
   }
-    
+
  protected:
   typedef std::map<std::string, std::vector<TreeBranch> > Branches;
   Branches branches_;
@@ -491,7 +491,7 @@ class StringBasedNTupler : public NTupler {
   uint * indexDataHolder_;
 
   //event info
-  uint * ev_;
+  uint64_t * ev_;
   uint * run_;
   uint * lumiblock_;
   uint * experimentType_;

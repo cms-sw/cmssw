@@ -40,24 +40,14 @@ DTDeadChannelTest::DTDeadChannelTest(const edm::ParameterSet& ps){
 
   parameters = ps;
 
-  dbe = edm::Service<DQMStore>().operator->();
-
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
+  nevents = 0;
 
 }
 
 DTDeadChannelTest::~DTDeadChannelTest(){
 
   edm::LogVerbatim ("deadChannel") << "DTDeadChannelTest: analyzed " << nevents << " events";
-
-}
-
-
-void DTDeadChannelTest::beginJob(){
-
-  edm::LogVerbatim ("deadChannel") << "[DTDeadChannelTest]: BeginJob";
-
-  nevents = 0;
 
 }
 
@@ -81,7 +71,6 @@ void DTDeadChannelTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 }
 
 
-
 void DTDeadChannelTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 
   nevents++;
@@ -90,17 +79,9 @@ void DTDeadChannelTest::analyze(const edm::Event& e, const edm::EventSetup& cont
 }
 
 
-
-void DTDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+void DTDeadChannelTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, 
+                                              LuminosityBlock const& lumiSeg, EventSetup const& context) {
   
-  // counts number of updats (online mode) or number of events (standalone mode)
-  //nevents++;
-  // if running in standalone perform diagnostic only after a reasonalbe amount of events
-  //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
-  //     nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
-  //edm::LogVerbatim ("deadChannel") << "[DTDeadChannelTest]: "<<nevents<<" updates";
-
-
   edm::LogVerbatim ("deadChannel") <<"[DTDeadChannelTest]: End of LS transition, performing the DQM client operation";
 
   // counts number of lumiSegs 
@@ -132,8 +113,8 @@ void DTDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
     string HistoName = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str(); 
 
     // Get the ME produced by DigiTask Source
-    MonitorElement * noise_histo = dbe->get(getMEName("OccupancyNoise_perCh", chID));	
-    MonitorElement * hitInTime_histo = dbe->get(getMEName("OccupancyInTimeHits_perCh", chID));
+    MonitorElement * noise_histo = igetter.get(getMEName("OccupancyNoise_perCh", chID));	
+    MonitorElement * hitInTime_histo = igetter.get(getMEName("OccupancyInTimeHits_perCh", chID));
 
     // ME -> TH2F
     if(noise_histo && hitInTime_histo) {	  
@@ -157,7 +138,8 @@ void DTDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 	  //Parameters to fill histos
 	  stringstream superLayer; superLayer << slID.superlayer();
 	  stringstream layer; layer << lID.layer();
-	  string HistoNameTest = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() +  "_SL" + superLayer.str() +  "_L" + layer.str();
+	  string HistoNameTest = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() +  "_SL" + superLayer.str() 
+                                     +  "_L" + layer.str();
 
 	  const int firstWire = muonGeom->layer(lID)->specificTopology().firstChannel();
 	  const int lastWire = muonGeom->layer(lID)->specificTopology().lastChannel();
@@ -171,7 +153,7 @@ void DTDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 
 	  // Loop over the TH2F bin and fill the ME to be used for the Quality Test
 	  for(int bin=firstWire; bin <= lastWire; bin++) {
-	    if (OccupancyDiffHistos.find(HistoNameTest) == OccupancyDiffHistos.end()) bookHistos(lID, firstWire, lastWire);
+	    if (OccupancyDiffHistos.find(HistoNameTest) == OccupancyDiffHistos.end()) bookHistos(ibooker,lID, firstWire, lastWire);
 	    // tMax default value
 	    float tMax = 450.0;
 
@@ -195,20 +177,9 @@ void DTDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
 	edm::LogError ("deadChannel") << "Layer : "<<(*hOccDiff).first<<" Bad occupancy difference channels: "<<(*channel).getBin()<<" Contents : "<<(*channel).getContents();
-      }
-      // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
-      // edm::LogWarning("deadChannel")<< "-------- Layer : "<<(*hOccDiff).first<<"  "<<theOccupancyDiffQReport->getMessage()<<" ------- "<<theOccupancyDiffQReport->getStatus(); 
+      } 
     }
   }
-
-}
-
-
-void DTDeadChannelTest::endJob(){
-
-  edm::LogVerbatim ("deadChannel") << "[DTDeadChannelTest] endjob called!";
-
-  dbe->rmdir("DT/Tests/DTDeadChannel");
 
 }
 
@@ -235,7 +206,7 @@ string DTDeadChannelTest::getMEName(string histoTag, const DTChamberId & chId) {
 }
 
 
-void DTDeadChannelTest::bookHistos(const DTLayerId & lId, int firstWire, int lastWire) {
+void DTDeadChannelTest::bookHistos(DQMStore::IBooker & ibooker, const DTLayerId & lId, int firstWire, int lastWire) {
 
   stringstream wheel; wheel << lId.superlayerId().wheel();
   stringstream station; station << lId.superlayerId().station();	
@@ -246,10 +217,10 @@ void DTDeadChannelTest::bookHistos(const DTLayerId & lId, int firstWire, int las
   string HistoName = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() +  "_SL" + superLayer.str() +  "_L" + layer.str();
   string OccupancyDiffHistoName =  "OccupancyDiff_" + HistoName; 
 
-  dbe->setCurrentFolder("DT/Tests/DTDeadChannel/Wheel" + wheel.str() +
+  ibooker.setCurrentFolder("DT/Tests/DTDeadChannel/Wheel" + wheel.str() +
 			   "/Station" + station.str() +
 			   "/Sector" + sector.str());
 
-  OccupancyDiffHistos[HistoName] = dbe->book1D(OccupancyDiffHistoName.c_str(),OccupancyDiffHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
+  OccupancyDiffHistos[HistoName] = ibooker.book1D(OccupancyDiffHistoName.c_str(),OccupancyDiffHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
 
 }

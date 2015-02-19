@@ -19,6 +19,9 @@
 #include "CondFormats/DataRecord/interface/HcalOOTPileupCorrectionMapCollRcd.h"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrectionMapColl.h"
 
+#include "CondFormats/DataRecord/interface/HcalInterpolatedPulseCollRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalInterpolatedPulseColl.h"
+
 //
 #include "CondCore/CondDB/interface/Serialization.h"
 
@@ -55,9 +58,11 @@ REGISTER_PLUGIN(HcalCholeskyMatricesRcd,HcalCholeskyMatrices);
 REGISTER_PLUGIN(HcalCovarianceMatricesRcd,HcalCovarianceMatrices);
 REGISTER_PLUGIN(HcalRecoParamsRcd,HcalRecoParams);
 REGISTER_PLUGIN(HcalLongRecoParamsRcd,HcalLongRecoParams);
+REGISTER_PLUGIN(HcalZDCLowGainFractionsRcd,HcalZDCLowGainFractions);
 REGISTER_PLUGIN(HcalMCParamsRcd,HcalMCParams);
 REGISTER_PLUGIN(HcalFlagHFDigiTimeParamsRcd,HcalFlagHFDigiTimeParams);
 REGISTER_PLUGIN(HcalTimingParamsRcd,HcalTimingParams);
 REGISTER_PLUGIN(HcalOOTPileupCorrectionRcd,OOTPileupCorrectionColl);
 REGISTER_PLUGIN(HcalOOTPileupCompatibilityRcd,OOTPileupCorrectionBuffer);
 REGISTER_PLUGIN(HcalOOTPileupCorrectionMapCollRcd,OOTPileupCorrectionMapColl);
+REGISTER_PLUGIN(HcalInterpolatedPulseCollRcd,HcalInterpolatedPulseColl);

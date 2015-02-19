@@ -17,6 +17,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -79,6 +80,7 @@ private:
   edm::ProcessConfiguration m_procConfig;
   std::shared_ptr<edm::ProductRegistry> m_prodReg;
   std::shared_ptr<edm::BranchIDListHelper> m_idHelper;
+  std::shared_ptr<edm::ThinnedAssociationsHelper> m_associationsHelper;
   std::unique_ptr<edm::EventPrincipal> m_ep;
   edm::HistoryAppender historyAppender_;
   std::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
@@ -94,7 +96,7 @@ private:
   edm::ServiceToken serviceToken_;
   
   template<typename T>
-  void testTransitions(T* iMod, Expectations const& iExpect);
+  void testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect);
   
   class BasicOutputModule : public edm::one::OutputModule<> {
   public:
@@ -230,6 +232,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testOneOutputModule);
 testOneOutputModule::testOneOutputModule():
 m_prodReg(new edm::ProductRegistry{}),
 m_idHelper(new edm::BranchIDListHelper{}),
+m_associationsHelper(new edm::ThinnedAssociationsHelper{}),
 m_ep()
 {
   //Setup the principals
@@ -248,6 +251,7 @@ m_ep()
 
   m_ep.reset(new edm::EventPrincipal(m_prodReg,
                                      m_idHelper,
+                                     m_associationsHelper,
                                      m_procConfig,nullptr));
   edm::ProcessHistoryRegistry phr;
   m_ep->fillEventPrincipal(eventAux, phr);
@@ -327,7 +331,7 @@ m_ep()
 namespace {
   template<typename T>
   void
-  testTransition(T* iMod, edm::Worker* iWorker, edm::OutputModuleCommunicator* iComm, testOneOutputModule::Trans iTrans, testOneOutputModule::Expectations const& iExpect, std::function<void(edm::Worker*, edm::OutputModuleCommunicator*)> iFunc) {
+  testTransition(std::shared_ptr<T> iMod, edm::Worker* iWorker, edm::OutputModuleCommunicator* iComm, testOneOutputModule::Trans iTrans, testOneOutputModule::Expectations const& iExpect, std::function<void(edm::Worker*, edm::OutputModuleCommunicator*)> iFunc) {
     assert(0==iMod->m_count);
     iFunc(iWorker,iComm);
     auto count = std::count(iExpect.begin(),iExpect.end(),iTrans);
@@ -342,9 +346,9 @@ namespace {
 
 template<typename T>
 void
-testOneOutputModule::testTransitions(T* iMod, Expectations const& iExpect) {
+testOneOutputModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
   edm::WorkerT<edm::one::OutputModuleBase> w{iMod,m_desc,m_params.actions_};
-  edm::OutputModuleCommunicatorT<edm::one::OutputModuleBase> comm(iMod);
+  edm::OutputModuleCommunicatorT<edm::one::OutputModuleBase> comm(iMod.get());
   for(auto& keyVal: m_transToFunc) {
     testTransition(iMod,&w,&comm,keyVal.first,iExpect,keyVal.second);
   }
@@ -357,10 +361,10 @@ void testOneOutputModule::basicTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
 
   edm::ParameterSet pset;
-  std::unique_ptr<BasicOutputModule> testProd{ new BasicOutputModule(pset) };
+  std::shared_ptr<BasicOutputModule> testProd{ new BasicOutputModule(pset) };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kEvent,Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
+  testTransitions(testProd, {Trans::kEvent,Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
 }
 
 void testOneOutputModule::runTest()
@@ -369,10 +373,10 @@ void testOneOutputModule::runTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
 
   edm::ParameterSet pset;
-  std::unique_ptr<RunOutputModule> testProd{ new RunOutputModule(pset) };
+  std::shared_ptr<RunOutputModule> testProd{ new RunOutputModule(pset) };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun, Trans::kGlobalEndRun});
+  testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun, Trans::kGlobalEndRun});
 }
 
 void testOneOutputModule::lumiTest()
@@ -381,10 +385,10 @@ void testOneOutputModule::lumiTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
 
   edm::ParameterSet pset;
-  std::unique_ptr<LumiOutputModule> testProd{ new LumiOutputModule(pset) };
+  std::shared_ptr<LumiOutputModule> testProd{ new LumiOutputModule(pset) };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
+  testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
 }
 
 void testOneOutputModule::fileTest()
@@ -393,10 +397,10 @@ void testOneOutputModule::fileTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
   
   edm::ParameterSet pset;
-  std::unique_ptr<FileOutputModule> testProd{ new FileOutputModule(pset) };
+  std::shared_ptr<FileOutputModule> testProd{ new FileOutputModule(pset) };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalOpenInputFile, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun, Trans::kGlobalCloseInputFile});
+  testTransitions(testProd, {Trans::kGlobalOpenInputFile, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun, Trans::kGlobalCloseInputFile});
 }
 
 void testOneOutputModule::resourceTest()
@@ -405,9 +409,9 @@ void testOneOutputModule::resourceTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
   
   edm::ParameterSet pset;
-  std::unique_ptr<ResourceOutputModule> testProd{ new ResourceOutputModule(pset) };
+  std::shared_ptr<ResourceOutputModule> testProd{ new ResourceOutputModule(pset) };
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kEvent,Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
+  testTransitions(testProd, {Trans::kEvent,Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
 }
 

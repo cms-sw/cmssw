@@ -50,6 +50,8 @@ public:
       kVisSelfOff,
       kVisChldOn,
       kVisChldOff,
+      kApplyChldCol,
+      kApplyChldColRec,
       kCamera,
       kPrintMaterial,
       kPrintPath,

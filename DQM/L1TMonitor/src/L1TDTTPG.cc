@@ -103,14 +103,6 @@ L1TDTTPG::L1TDTTPG(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TDTTPG: constructor...." << endl;
 
-
-  dbe = NULL;
-  if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
-    {
-      dbe = Service<DQMStore>().operator->();
-      dbe->setVerbose(0);
-    }
-  
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
@@ -120,82 +112,66 @@ L1TDTTPG::L1TDTTPG(const ParameterSet& ps)
   if(disable){
     outputFile_="";
   }
-
-
-  if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1T/L1TDTTPG");
-  }
-
-
 }
 
 L1TDTTPG::~L1TDTTPG()
 {
 }
 
-void L1TDTTPG::beginJob(void)
+
+void L1TDTTPG::dqmBeginRun(const edm::Run &r, const edm::EventSetup &c){
+  //empty
+  //runId_->Fill(r.id().run());
+}
+
+void L1TDTTPG::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c){
+  //empty
+  //lumisecId_->Fill(l.id().luminosityBlock());
+}
+
+void L1TDTTPG::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) 
 {
   nev_ = 0;
-}
+  ibooker.setCurrentFolder("L1T/L1TDTTPG");
+
+  runId_=ibooker.bookInt("iRun");
+  lumisecId_=ibooker.bookInt("iLumi");
 
 
-void L1TDTTPG::endJob(void)
-{
-  if(verbose_) cout << "L1TDTTPG: end job...." << endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
-
-  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
-
-  return;
-}
-
-void L1TDTTPG::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) 
-{
-  if ( dbe ) {
-    dbe->setCurrentFolder("L1T/L1TDTTPG");
-    dbe->rmdir("L1T/L1TDTTPG");
-  }
-
-
-  if ( dbe ) 
-    {
-      dbe->setCurrentFolder("L1T/L1TDTTPG");
-
-
-      //hist1[0]
-      dttpgphbx[0] = dbe->book1D("BxEncoding_PHI",
+  //hist1[0]
+  dttpgphbx[0] = ibooker.book1D("BxEncoding_PHI",
 				 "Bunch encoding DTTF Phi",11,0,11);
-      //hist1[1]
-      dttpgphbx[1] = dbe->book1D("BxEncoding_OUT",
+  //hist1[1]
+  dttpgphbx[1] = ibooker.book1D("BxEncoding_OUT",
 				 "Bunch encoding DTTF Output",11,0,11);
 
       //hist1[2]
-      dttpgphbx[2] = dbe->book1D("NumberOfSegmentsPHI_BunchNeg1",
+  dttpgphbx[2] = ibooker.book1D("NumberOfSegmentsPHI_BunchNeg1",
 				 "Number of segments for bunch -1 Dttf Phi",
 				 20,0,20);
       //hist1[3]
-      dttpgphbx[3] = dbe->book1D("NumberOfSegmentsPHI_Bunch0",
+  dttpgphbx[3] = ibooker.book1D("NumberOfSegmentsPHI_Bunch0",
 				 "Number of segments for bunch 0 Dttf Phi",
 				 20,0,20);
       //hist1[4]
-      dttpgphbx[4] = dbe->book1D("NumberOfSegmentsPHI_Bunch1",
+  dttpgphbx[4] = ibooker.book1D("NumberOfSegmentsPHI_Bunch1",
 				 "Number of segments for bunch 1 Dttf Phi",
 				 20,0,20);
 
       //hist1[5]
-      dttpgphbx[5] = dbe->book1D("NumberOfSegmentsOUT_BunchNeg1",
+  dttpgphbx[5] = ibooker.book1D("NumberOfSegmentsOUT_BunchNeg1",
 				 "Number of segments for bunch -1 Dttf Output",
 				 20,0,20);
       //hist1[6] 
-      dttpgphbx[6] = dbe->book1D("NumberOfSegmentsOUT_Bunch0",
+  dttpgphbx[6] = ibooker.book1D("NumberOfSegmentsOUT_Bunch0",
 				 "Number of segments for bunch 0 Dttf Output",
 				 20,0,20);
       //hist1[7]
-      dttpgphbx[7] = dbe->book1D("NumberOfSegmentsOUT_Bunch1",
+  dttpgphbx[7] = ibooker.book1D("NumberOfSegmentsOUT_Bunch1",
 				 "Number of segments for bunch 1 Dttf Output",
 				 20,0,20);
 
-      for(int i=0;i<2;i++){
+  for(int i=0;i<2;i++){
 	dttpgphbx[i]->setBinLabel(1,"None");
 	dttpgphbx[i]->setBinLabel(3,"Only bx=-1");
 	dttpgphbx[i]->setBinLabel(4,"Only bx= 0");
@@ -206,118 +182,114 @@ void L1TDTTPG::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 	dttpgphbx[i]->setBinLabel(11,"All bx");
       }
    
-      dttpgphbxcomp = dbe->book2D("BxEncoding_PHI_OUT",
+  dttpgphbxcomp = ibooker.book2D("BxEncoding_PHI_OUT",
 				  "Bunch encoding: DTTF Phi vs. Output",
 				  11,0,11,11,0,11);
-      dttpgphbxcomp->setAxisTitle("DTTF (output)",1);
-      dttpgphbxcomp->setAxisTitle("PHI-TF",2);
-      for(int i=1;i<=2;i++){
-	dttpgphbxcomp->setBinLabel(1,"None",i);
-	dttpgphbxcomp->setBinLabel(3,"Only bx=-1",i);
-	dttpgphbxcomp->setBinLabel(4,"Only bx= 0",i);
-	dttpgphbxcomp->setBinLabel(5,"Only bx=+1",i);
-	dttpgphbxcomp->setBinLabel(7,"Bx=-1,0",i);
-	dttpgphbxcomp->setBinLabel(8,"Bx=-1,1",i);
-	dttpgphbxcomp->setBinLabel(9,"Bx= 0,1",i);
-	dttpgphbxcomp->setBinLabel(11,"All bx",i);
-      }
+  dttpgphbxcomp->setAxisTitle("DTTF (output)",1);
+  dttpgphbxcomp->setAxisTitle("PHI-TF",2);
+  for(int i=1;i<=2;i++){
+    dttpgphbxcomp->setBinLabel(1,"None",i);
+    dttpgphbxcomp->setBinLabel(3,"Only bx=-1",i);
+    dttpgphbxcomp->setBinLabel(4,"Only bx= 0",i);
+    dttpgphbxcomp->setBinLabel(5,"Only bx=+1",i);
+    dttpgphbxcomp->setBinLabel(7,"Bx=-1,0",i);
+    dttpgphbxcomp->setBinLabel(8,"Bx=-1,1",i);
+    dttpgphbxcomp->setBinLabel(9,"Bx= 0,1",i);
+    dttpgphbxcomp->setBinLabel(11,"All bx",i);
+  }
 
-      dttpgphntrack = dbe->book1D("DT_TPG_phi_ntrack", 
+  dttpgphntrack = ibooker.book1D("DT_TPG_phi_ntrack", 
 				  "DT TPG phi ntrack", 20, -0.5, 19.5 ) ;  
-      dttpgthntrack = dbe->book1D("DT_TPG_theta_ntrack", 
+  dttpgthntrack = ibooker.book1D("DT_TPG_theta_ntrack", 
 				  "DT TPG theta ntrack", 20, -0.5, 19.5 ) ;  
 
-      for (int ibx=0 ; ibx<=2; ibx++) {
+  for (int ibx=0 ; ibx<=2; ibx++) {
 	
-	ostringstream bxnum;
-	bxnum << ibx-1;
-	string bxn;
-	if (ibx<2)
-	  bxn = bxnum.str();
-	else
-	  bxn = "+" + bxnum.str();
+    ostringstream bxnum;
+    bxnum << ibx-1;
+    string bxn;
+    if (ibx<2)
+      bxn = bxnum.str();
+    else
+      bxn = "+" + bxnum.str();
 	
-	// Phi
-	dttpgphwheel[ibx] = dbe->book1D("DT_TPG_phi_wheel_number_"+bxn, 
+    // Phi
+    dttpgphwheel[ibx] = ibooker.book1D("DT_TPG_phi_wheel_number_"+bxn, 
 					    "DT TPG phi wheel number "+bxn, 5, -2.5, 2.5 ) ;  
-	dttpgphsector[ibx] = dbe->book1D("DT_TPG_phi_sector_number_"+bxn, 
+    dttpgphsector[ibx] = ibooker.book1D("DT_TPG_phi_sector_number_"+bxn, 
 					 "DT TPG phi sector number "+bxn, 12, -0.5, 11.5 );  
-	dttpgphstation[ibx] = dbe->book1D("DT_TPG_phi_station_number_"+bxn, 
+    dttpgphstation[ibx] = ibooker.book1D("DT_TPG_phi_station_number_"+bxn, 
 					  "DT TPG phi station number "+bxn, 5, 0.5, 4.5 ) ;
 // 	dttpgphphi[ibx] = dbe->book1D("DT_TPG_phi_"+bxn, 
 // 				      "DT TPG phi "+bxn, 100, -2100., 2100. ) ;  
 // 	dttpgphphiB[ibx] = dbe->book1D("DT_TPG_phiB_"+bxn, 
 // 				       "DT TPG phiB "+bxn, 100, -550., 550. ) ;  
-	dttpgphquality[ibx] = dbe->book1D("DT_TPG_phi_quality_"+bxn, 
+    dttpgphquality[ibx] = ibooker.book1D("DT_TPG_phi_quality_"+bxn, 
 					  "DT TPG phi quality "+bxn, 8, -0.5, 7.5 ) ;  
-	dttpgphts2tag[ibx] = dbe->book1D("DT_TPG_phi_Ts2Tag_"+bxn, 
+    dttpgphts2tag[ibx] = ibooker.book1D("DT_TPG_phi_Ts2Tag_"+bxn, 
 					 "DT TPG phi Ts2Tag "+bxn, 2, -0.5, 1.5 ) ;  
 // 	dttpgphbxcnt[ibx] = dbe->book1D("DT_TPG_phi_BxCnt_"+bxn, 
 // 					"DT TPG phi BxCnt "+bxn, 10, -0.5, 9.5 ) ;  
-	dttpgphmapbx[ibx] = dbe->book2D("DT_TPG_phi_map_bx"+bxn,
+    dttpgphmapbx[ibx] = ibooker.book2D("DT_TPG_phi_map_bx"+bxn,
 				      "Map of triggers per station (BX="+bxn+")",20,1,21,12,0,12);
-	setMapPhLabel(dttpgphmapbx[ibx]);
+    setMapPhLabel(dttpgphmapbx[ibx]);
 
-	//Theta
-	dttpgthbx[ibx] = dbe->book1D("DT_TPG_theta_bx_"+bxn, 
+    //Theta
+    dttpgthbx[ibx] = ibooker.book1D("DT_TPG_theta_bx_"+bxn, 
 				     "DT TPG theta bx "+bxn, 50, -24.5, 24.5 ) ;  
-	dttpgthwheel[ibx] = dbe->book1D("DT_TPG_theta_wheel_number_"+bxn, 
+    dttpgthwheel[ibx] = ibooker.book1D("DT_TPG_theta_wheel_number_"+bxn, 
 					"DT TPG theta wheel number "+bxn, 5, -2.5, 2.5 ) ;  
-	dttpgthsector[ibx] = dbe->book1D("DT_TPG_theta_sector_number_"+bxn, 
+    dttpgthsector[ibx] = ibooker.book1D("DT_TPG_theta_sector_number_"+bxn, 
 					 "DT TPG theta sector number "+bxn, 12, -0.5, 11.5 ) ;  
-	dttpgthstation[ibx] = dbe->book1D("DT_TPG_theta_station_number_"+bxn, 
+    dttpgthstation[ibx] = ibooker.book1D("DT_TPG_theta_station_number_"+bxn, 
 					  "DT TPG theta station number "+bxn, 5, -0.5, 4.5 ) ;  
-	dttpgththeta[ibx] = dbe->book1D("DT_TPG_theta_"+bxn, 
+    dttpgththeta[ibx] = ibooker.book1D("DT_TPG_theta_"+bxn, 
 					"DT TPG theta "+bxn, 20, -0.5, 19.5 ) ;  
-	dttpgthquality[ibx] = dbe->book1D("DT_TPG_theta_quality_"+bxn, 
+    dttpgthquality[ibx] = ibooker.book1D("DT_TPG_theta_quality_"+bxn, 
 					  "DT TPG theta quality "+bxn, 8, -0.5, 7.5 ) ;  
-	dttpgthmapbx[ibx] = dbe->book2D("DT_TPG_theta_map_bx_"+bxn,
+    dttpgthmapbx[ibx] = ibooker.book2D("DT_TPG_theta_map_bx_"+bxn,
 					"Map of triggers per station (BX="+bxn+")",15,1,16,12,0,12);
-	setMapThLabel(dttpgthmapbx[ibx]);
+    setMapThLabel(dttpgthmapbx[ibx]);
 
-	// Phi output
-	dttf_p_phi[ibx] = dbe->book1D("dttf_p_phi_"+bxn, "dttf phi output #phi "+bxn, 256, 
+    // Phi output
+    dttf_p_phi[ibx] = ibooker.book1D("dttf_p_phi_"+bxn, "dttf phi output #phi "+bxn, 256, 
 				      -0.5, 255.5);
-	dttf_p_qual[ibx] = dbe->book1D("dttf_p_qual_"+bxn, "dttf phi output qual "+bxn, 8, -0.5, 7.5);
-	dttf_p_q[ibx] = dbe->book1D("dttf_p_q_"+bxn, "dttf phi output q "+bxn, 2, -0.5, 1.5);
-	dttf_p_pt[ibx] = dbe->book1D("dttf_p_pt_"+bxn, "dttf phi output p_{t} "+bxn, 32, -0.5, 31.5);
+    dttf_p_qual[ibx] = ibooker.book1D("dttf_p_qual_"+bxn, "dttf phi output qual "+bxn, 8, -0.5, 7.5);
+    dttf_p_q[ibx] = ibooker.book1D("dttf_p_q_"+bxn, "dttf phi output q "+bxn, 2, -0.5, 1.5);
+    dttf_p_pt[ibx] = ibooker.book1D("dttf_p_pt_"+bxn, "dttf phi output p_{t} "+bxn, 32, -0.5, 31.5);
       
-      }
+  }
 
-      dttpgphmap = dbe->book2D("DT_TPG_phi_map",
+  dttpgphmap = ibooker.book2D("DT_TPG_phi_map",
 			       "Map of triggers per station",20,1,21,12,0,12);
-      dttpgphmapcorr = dbe->book2D("DT_TPG_phi_map_corr",
+  dttpgphmapcorr = ibooker.book2D("DT_TPG_phi_map_corr",
 				   "Map of correlated triggers per station",20,1,21,12,0,12);
-      dttpgphmap2nd = dbe->book2D("DT_TPG_phi_map_2nd",
+  dttpgphmap2nd = ibooker.book2D("DT_TPG_phi_map_2nd",
 				  "Map of second tracks per station",20,1,21,12,0,12);
-      dttpgphbestmap = dbe->book2D("DT_TPG_phi_best_map",
+  dttpgphbestmap = ibooker.book2D("DT_TPG_phi_best_map",
 				   "Map of best triggers per station",20,1,21,12,0,12);
-      dttpgphbestmapcorr = dbe->book2D("DT_TPG_phi_best_map_corr",
+  dttpgphbestmapcorr = ibooker.book2D("DT_TPG_phi_best_map_corr",
 				       "Map of correlated best triggers per station",20,1,21,12,0,12);
-      setMapPhLabel(dttpgphmap);
-      setMapPhLabel(dttpgphmapcorr);
-      setMapPhLabel(dttpgphmap2nd);
-      setMapPhLabel(dttpgphbestmap);
-      setMapPhLabel(dttpgphbestmapcorr);
+  setMapPhLabel(dttpgphmap);
+  setMapPhLabel(dttpgphmapcorr);
+  setMapPhLabel(dttpgphmap2nd);
+  setMapPhLabel(dttpgphbestmap);
+  setMapPhLabel(dttpgphbestmapcorr);
       
 
 
-      dttpgthmap = dbe->book2D("DT_TPG_theta_map",
+  dttpgthmap = ibooker.book2D("DT_TPG_theta_map",
 			       "Map of triggers per station",15,1,16,12,0,12);
-      dttpgthmaph = dbe->book2D("DT_TPG_theta_map_h",
+  dttpgthmaph = ibooker.book2D("DT_TPG_theta_map_h",
 				"Map of H quality triggers per station",15,1,16,12,0,12);
-      dttpgthbestmap = dbe->book2D("DT_TPG_theta_best_map",
+  dttpgthbestmap = ibooker.book2D("DT_TPG_theta_best_map",
 				   "Map of besttriggers per station",15,1,16,12,0,12);
-      dttpgthbestmaph = dbe->book2D("DT_TPG_theta_best_map_h",
+  dttpgthbestmaph = ibooker.book2D("DT_TPG_theta_best_map_h",
 				    "Map of H quality best triggers per station",15,1,16,12,0,12);
-      setMapThLabel(dttpgthmap);
-      setMapThLabel(dttpgthmaph);
-      setMapThLabel(dttpgthbestmap);
-      setMapThLabel(dttpgthbestmaph);
-
-
-    }
-
+  setMapThLabel(dttpgthmap);
+  setMapThLabel(dttpgthmaph);
+  setMapThLabel(dttpgthbestmap);
+  setMapThLabel(dttpgthbestmaph);
 }
 
 void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
@@ -429,16 +401,6 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
 	{
 	  cout << "DTTPG phi sector number " << DTPhDigiItr->scNum() << endl;
 	}
-//       dttpgphphi[bxindex]->Fill(DTPhDigiItr->phi());
-//       if (verbose_)
-// 	{
-// 	  cout << "DTTPG phi phi " << DTPhDigiItr->phi() << endl;
-// 	}
-//       dttpgphphiB[bxindex]->Fill(DTPhDigiItr->phiB());
-//       if (verbose_)
-// 	{
-// 	  cout << "DTTPG phi phiB " << DTPhDigiItr->phiB() << endl;
-// 	}
       dttpgphquality[bxindex]->Fill(DTPhDigiItr->code());
       if (verbose_)
 	{
@@ -449,12 +411,6 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
 	{
 	  cout << "DTTPG phi ts2tag " << DTPhDigiItr->Ts2Tag() << endl;
 	}
-//       dttpgphbxcnt[bxindex]->Fill(DTPhDigiItr->BxCnt());
-//       if (verbose_)
-// 	{
-// 	  cout << "DTTPG phi bxcnt " << DTPhDigiItr->BxCnt() << endl;
-// 	}
-    
       int ypos = DTPhDigiItr->scNum();
       int xpos = DTPhDigiItr->stNum()+4*(DTPhDigiItr->whNum()+2);
       dttpgphmap->Fill(xpos,ypos);

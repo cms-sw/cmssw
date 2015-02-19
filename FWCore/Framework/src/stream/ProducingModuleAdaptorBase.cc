@@ -11,6 +11,7 @@
 //
 
 // system include files
+#include <cassert>
 
 // user include files
 #include "FWCore/Framework/interface/stream/ProducingModuleAdaptorBase.h"
@@ -109,6 +110,23 @@ namespace edm {
                                                         std::vector<const char*>& oModuleLabels) const {
       assert(not m_streamModules.empty());
       return m_streamModules[0]->modulesDependentUpon(iProcessName, oModuleLabels);
+    }
+
+    template< typename T>
+    void
+    ProducingModuleAdaptorBase<T>::modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+                                                                   ProductRegistry const& preg,
+                                                                   std::map<std::string, ModuleDescription const*> const& labelsToDesc,
+                                                                   std::string const& processName) const {
+      assert(not m_streamModules.empty());
+      return m_streamModules[0]->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, processName);
+    }
+
+    template< typename T>
+    std::vector<edm::ConsumesInfo>
+    ProducingModuleAdaptorBase<T>::consumesInfo() const {
+      assert(not m_streamModules.empty());
+      return m_streamModules[0]->consumesInfo();
     }
 
     template< typename T>
@@ -213,6 +231,15 @@ namespace edm {
       for(auto m: m_streamModules) {
         m->postForkReacquireResources(iChildIndex,iNumberOfChildren);
       }
+    }
+
+    template< typename T>
+    void
+    ProducingModuleAdaptorBase<T>::doRegisterThinnedAssociations(ProductRegistry const& registry,
+                                                                 ThinnedAssociationsHelper& helper) {
+      assert(not m_streamModules.empty());
+      auto mod = m_streamModules[0];
+      mod->registerThinnedAssociations(registry, helper);
     }
   }
 }

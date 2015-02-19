@@ -7,7 +7,7 @@ numev=3
 step=a
 DQMSEQUENCE=DQM
 
-cmsDriver.py SingleMuPt10.cfi -s GEN,SIM,DIGI:pdigi_valid,L1,DIGI2RAW,HLT:GRun -n ${numev} --eventcontent FEVTDEBUGHLT --datatier FEVTDEBUGHLT --conditions auto:startup_GRun --mc --no_exec --python_filename=test_${tnum}_${step}_1.py
+cmsDriver.py SingleMuPt10.cfi -s GEN,SIM,DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake -n ${numev} --eventcontent FEVTDEBUGHLT --datatier FEVTDEBUGHLT --conditions auto:startup_GRun --mc --no_exec --python_filename=test_${tnum}_${step}_1.py
 
 cmsRun -e test_${tnum}_${step}_1.py >& p3.0.log
 
@@ -36,7 +36,7 @@ mv FrameworkJobReport{,_3_${step}_1}.xml
 #	return 1
 #fi
 
-cmsDriver.py step2_MC1_4 -s RAW2DIGI,RECO,VALIDATION,${DQMSEQUENCE} -n ${numev} --filein file:SingleMuPt10_cfi_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root --eventcontent RECOSIM,DQM --datatier RECOSIM,DQMIO --conditions auto:mc --mc --customise DQMServices/Components/test/customRecoSim.py --no_exec  --python_filename=test_${tnum}_${step}_2.py
+cmsDriver.py step2_MC1_4 -s RAW2DIGI,L1Reco,RECO,VALIDATION,${DQMSEQUENCE} -n ${numev} --filein file:SingleMuPt10_cfi_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root --eventcontent RECOSIM,DQM --datatier RECOSIM,DQMIO --conditions auto:mc --mc --customise DQMServices/Components/test/customRecoSim.py --no_exec  --python_filename=test_${tnum}_${step}_2.py
 #mv memory.out smemory_p.3.4.log
 #mv checkMem.log p${tnum}.4.log
 

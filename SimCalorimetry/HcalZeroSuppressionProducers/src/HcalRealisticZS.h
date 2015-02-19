@@ -1,7 +1,7 @@
 #ifndef HCALSIMPLEREALISTICZS_H
 #define HCALSIMPLEREALISTICZS_H 1
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -17,13 +17,13 @@
 	
 \author J. Mans - Minnesota
 */
-class HcalRealisticZS : public edm::EDProducer {
+class HcalRealisticZS : public edm::stream::EDProducer<> {
 public:
   explicit HcalRealisticZS(const edm::ParameterSet& ps);
   virtual ~HcalRealisticZS();
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 private:
-  std::auto_ptr<HcalZSAlgoRealistic> algo_;
+  std::unique_ptr<HcalZSAlgoRealistic> algo_;
   std::string inputLabel_;
   edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
   edm::EDGetTokenT<HODigiCollection> tok_ho_;

@@ -54,9 +54,9 @@ class EventWithHistoryProducerFromL1ABC : public edm::EDProducer {
 
   edm::EDGetTokenT<L1AcceptBunchCrossingCollection> _l1abccollectionToken;
   const bool _forceNoOffset;
-  std::map<unsigned int, long long> _offsets;
+  std::map<edm::EventNumber_t, long long> _offsets;
   long long _curroffset;
-  unsigned int _curroffevent;
+  edm::EventNumber_t _curroffevent;
 };
 
 //
@@ -180,7 +180,7 @@ EventWithHistoryProducerFromL1ABC::endRun(const edm::Run&, const edm::EventSetup
   // summary of absolute bx offset vector
 
   edm::LogInfo("AbsoluteBXOffsetSummary") << "Absolute BX offset summary:";
-  for(std::map<unsigned int, long long>::const_iterator offset=_offsets.begin();offset!=_offsets.end();++offset) {
+  for(std::map<edm::EventNumber_t, long long>::const_iterator offset=_offsets.begin();offset!=_offsets.end();++offset) {
     edm::LogVerbatim("AbsoluteBXOffsetSummary") << offset->first << " " << offset->second;
   }
 

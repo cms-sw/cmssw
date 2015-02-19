@@ -75,14 +75,18 @@ void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker,
 
   //Static Contents
   processId_= ibooker.bookInt("processID");
-  processId_->Fill(gSystem->GetPid());
+  processId_->Fill(getpid());
   processStartTimeStamp_ = ibooker.bookFloat("processStartTimeStamp");
   processStartTimeStamp_->Fill(currentTime_);
   runStartTimeStamp_ = ibooker.bookFloat("runStartTimeStamp");
   runStartTimeStamp_->Fill(stampToReal(iRun.beginTime()));
-  hostName_= ibooker.bookString("hostName",gSystem->HostName());
+  char hostname[33];
+  gethostname(hostname,32);
+  hostName_= ibooker.bookString("hostName",hostname);
   processName_= ibooker.bookString("processName",subsystemname_);
-  workingDir_= ibooker.bookString("workingDir",gSystem->pwd());
+  char* pwd = getcwd(NULL, 0);
+  workingDir_= ibooker.bookString("workingDir",pwd);
+  free(pwd);
   cmsswVer_= ibooker.bookString("CMSSW_Version",edm::getReleaseVersion());
 
   // Folder to be populated by sub-systems' code
@@ -115,7 +119,7 @@ void DQMEventInfo::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm
 
 void DQMEventInfo::analyze(const edm::Event& e, const edm::EventSetup& c){
 
-  eventId_->Fill(int64_t(e.id().event()));
+  eventId_->Fill(e.id().event()); // Handing edm::EventNumber_t to Fill method which will handle further casting
   eventTimeStamp_->Fill(stampToReal(e.time()));
 
   pEvent_++;

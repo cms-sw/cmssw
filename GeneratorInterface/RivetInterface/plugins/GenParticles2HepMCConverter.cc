@@ -127,7 +127,9 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
     hepmc_particle->suggest_barcode(i+1);
 
     // Assign particle's generated mass from the standard particle data table
-    double particleMass = pTable_->particle(p->pdgId())->mass();
+    double particleMass;
+    if ( pTable_->particle(p->pdgId()) ) particleMass = pTable_->particle(p->pdgId())->mass();
+    else particleMass = p->mass();
 //    // Re-assign generated mass from LHE, find particle among the LHE
 //    for ( unsigned int j=0, m=lhe_meIndex.size(); j<m; ++j )
 //    {

@@ -28,7 +28,8 @@ class PileupMixingContent {
 
   PileupMixingContent( std::vector<int>& bunchCrossing,
 		       std::vector<int>& n_interactions, 
-		       std::vector<float>& True_interactions ) 
+		       std::vector<float>& True_interactions,
+		       int bunchSpacing): bunchSpacing_(bunchSpacing)
  {
 
     bunchCrossing_.reserve(bunchCrossing.size());
@@ -67,6 +68,7 @@ class PileupMixingContent {
   const std::vector<int>& getMix_Ninteractions() const { return n_interactions_; }
   const std::vector<float>& getMix_TrueInteractions() const { return n_TrueInteractions_; }
   const std::vector<int>& getMix_bunchCrossing() const { return bunchCrossing_; }
+  const int & getMix_bunchSpacing() const { return bunchSpacing_; }
 
  private:
 
@@ -76,7 +78,7 @@ class PileupMixingContent {
   std::vector<int> bunchCrossing_;
   std::vector<int> n_interactions_;
   std::vector<float> n_TrueInteractions_;
-
+  int bunchSpacing_;
 
 };
 

@@ -15,7 +15,7 @@
 #include <memory>
 #include <algorithm>
 #include <map>
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -32,7 +32,7 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
-    class dso_hidden MultiTrackSelector : public edm::global::EDProducer<> {
+    class dso_hidden MultiTrackSelector : public edm::stream::EDProducer<> {
         private:
         public:
             /// constructor 
@@ -42,7 +42,7 @@
             virtual ~MultiTrackSelector() ;
 
         protected:
-            void beginJob() final;
+            void beginStream(edm::StreamID) override final;
  
             // void streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const final {
             //  init();
@@ -52,14 +52,15 @@
 
             typedef math::XYZPoint Point;
             /// process one event
-            void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es ) const final {
+            void produce(edm::Event& evt, const edm::EventSetup& es ) override final {
                run(evt,es);
             }
             virtual void run( edm::Event& evt, const edm::EventSetup& es ) const;
 
             /// return class, or -1 if rejected
             bool select (unsigned tsNum,
-			 const reco::BeamSpot &vertexBeamSpot, 
+			 const reco::BeamSpot &vertexBeamSpot,
+                         const TrackingRecHitCollection & recHits,
 			 const reco::Track &tk, 
 			 const std::vector<Point> &points,
 			 std::vector<float> &vterr,
@@ -75,6 +76,7 @@
 
             /// source collection label
             edm::EDGetTokenT<reco::TrackCollection> src_;
+            edm::EDGetTokenT<TrackingRecHitCollection> hSrc_;
             edm::EDGetTokenT<reco::BeamSpot> beamspot_;
             bool          useVertices_;
             bool          useVtxError_;
@@ -87,6 +89,7 @@
 
             /// vertex cuts
 	    std::vector<int32_t> vtxNumber_;
+	    //StringCutObjectSelector is not const thread safe
 	    std::vector<StringCutObjectSelector<reco::Vertex> > vertexCut_;
 
 	    //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility

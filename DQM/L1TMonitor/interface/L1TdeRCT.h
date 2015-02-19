@@ -39,23 +39,20 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 
 // Trigger Headers
-
-
-
-
-
 //
 // class declaration
 //
 
-class L1TdeRCT : public edm::EDAnalyzer {
+class L1TdeRCT : public DQMEDAnalyzer {
 
 public:
 
 // Constructor
-  L1TdeRCT(const edm::ParameterSet& ps);
+ L1TdeRCT(const edm::ParameterSet& ps);
 
 // Destructor
  virtual ~L1TdeRCT();
@@ -63,24 +60,15 @@ public:
 protected:
 // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
-  
-  // BeginJob
-  void beginJob(void);
 
-  //For FED vector monitoring 
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+//For FED vector monitoring 
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
   void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
   void readFEDVector(MonitorElement*,const edm::EventSetup&); 
 
-
-
-
-// EndJob
-void endJob(void);
-
 private:
   // ----------member data ---------------------------
-  DQMStore * dbe;
 
   // begin GT decision information
   MonitorElement *triggerAlgoNumbers_;

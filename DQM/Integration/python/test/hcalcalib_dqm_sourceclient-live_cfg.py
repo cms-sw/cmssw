@@ -57,9 +57,9 @@ process.load("DQM.Integration.test.fileinputsource_cfi")
 # Hcal Conditions: from Global Conditions Tag 
 #-----------------------------
 # DB Condition for online cluster
-#process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 # DB condition for offline test
-process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -279,3 +279,8 @@ if (HEAVYION):
      process.hcalNoiseMonitor.RawDataLabel = cms.untracked.InputTag("rawDataRepacker")
      process.hcalDetDiagLaserMonitor.RawDataLabel = cms.untracked.InputTag("rawDataRepacker")
      process.hcalRawDataMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
+
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

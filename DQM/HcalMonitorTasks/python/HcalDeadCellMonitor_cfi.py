@@ -29,6 +29,7 @@ hcalDeadCellMonitor=cms.EDAnalyzer("HcalDeadCellMonitor",
                                    #booleans for dead cell tests
                                    test_digis             = cms.untracked.bool(True), # test for recent missing digis
                                    test_rechits           = cms.untracked.bool(True), # test for missing rechits
-                                   MissingRechitEnergyThreshold = cms.untracked.double(-99.)
+                                   MissingRechitEnergyThreshold = cms.untracked.double(-99.),
+                             	   FEDRawDataCollection=cms.untracked.InputTag("rawDataCollector")
 
                                    )

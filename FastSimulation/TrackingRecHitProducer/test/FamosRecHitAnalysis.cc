@@ -669,12 +669,6 @@ void FamosRecHitAnalysis::write(std::vector<TH1F*> histos) {
 }
 //
 
-// Virtual destructor needed.
-FamosRecHitAnalysis::~FamosRecHitAnalysis() { 
-#ifdef rrDEBUG
-  std::cout << "End Famos RecHit Analysis" << std::endl;
-#endif
-}  
 
 // Functions that gets called by framework every event
 void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup& setup)
@@ -924,7 +918,8 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
   
 }
 
-void FamosRecHitAnalysis::endJob() {
+// Virtual destructor needed.
+FamosRecHitAnalysis::~FamosRecHitAnalysis() { 
   //
   theRootFile->cd();
   // before closing file do root macro

@@ -11,7 +11,6 @@
 
 #include "IOPool/Common/interface/getWrapperBasePtr.h"
 
-#include "TROOT.h"
 #include "TBranch.h"
 #include "TClass.h"
 
@@ -28,7 +27,7 @@ namespace edm {
    nextReader_(),
    resourceAcquirer_(inputType == InputType::Primary ? new SharedResourcesAcquirer(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) : static_cast<SharedResourcesAcquirer*>(nullptr)),
    inputType_(inputType),
-   wrapperBaseTClass_(gROOT->GetClass("edm::WrapperBase")) {
+   wrapperBaseTClass_(TClass::GetClass("edm::WrapperBase")) {
   }
 
   RootDelayedReader::~RootDelayedReader() {
@@ -62,7 +61,7 @@ namespace edm {
     setRefCoreStreamer(ep);
     TClass* cp = branchInfo.classCache_;
     if(nullptr == cp) {
-      branchInfo.classCache_ = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());
+      branchInfo.classCache_ = TClass::GetClass(branchInfo.branchDescription_.wrappedName().c_str());
       cp = branchInfo.classCache_;
       branchInfo.offsetToWrapperBase_ = cp->GetBaseClassOffset(wrapperBaseTClass_);
     }

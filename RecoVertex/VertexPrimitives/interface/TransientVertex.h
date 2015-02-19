@@ -7,6 +7,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "RecoVertex/VertexPrimitives/interface/TTtoTTmap.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 
 #include <vector>
 #include <map>
@@ -208,6 +209,7 @@ public:
   void tkToTkCovariance(const TTtoTTmap &covMap);
 
   operator reco::Vertex() const;
+  operator reco::VertexCompositePtrCandidate() const;
 
 private:
 

@@ -58,6 +58,7 @@ int main(){
     std::cout << "Session is correctly open."<<std::endl;
   } catch ( const cond::Exception& exc ){
     std::cout << "ERROR: "<<exc.what()<<std::endl;
+    return -1;
   }
     std::cout << "######### test 6"<<std::endl;
   s.close();
@@ -73,6 +74,7 @@ int main(){
     s2.transaction().commit();    
   } catch ( const cond::Exception& exc ){
     std::cout << "ERROR: "<<exc.what()<<std::endl;
+    return -1;
   }
     std::cout << "######### test 8"<<std::endl;
   // closing connection...
@@ -89,5 +91,6 @@ int main(){
   } catch ( const ora::Exception& exc ){
     std::cout << "Expected error: "<<exc.what()<<std::endl;
   }
+  return 0;
   
 }

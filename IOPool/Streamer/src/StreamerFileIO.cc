@@ -6,10 +6,6 @@
 
   OutputFile::OutputFile(const std::string& name):
     current_offset_(1), 
-    first_event_offset_(0),
-    last_event_offset_(0),
-    events_(0),
-    run_(0),
     do_adler_(0),
     adlera_(1),
     adlerb_(0),

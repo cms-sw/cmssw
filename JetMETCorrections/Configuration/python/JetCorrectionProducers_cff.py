@@ -32,7 +32,7 @@ ak4TrackJetsL1 = cms.EDProducer(
 
 
 
-# L2L3 Correction Producers
+# L2 Correction Producers
 ak4CaloJetsL2 = ak4CaloJetsL1.clone(correctors = ['ak4CaloL2Relative'])
 ak4PFJetsL2 = ak4PFJetsL1.clone(correctors = ['ak4PFL2Relative'])
 ak4PFCHSJetsL2 = ak4PFCHSJetsL1.clone(correctors = ['ak4PFCHSL2Relative'])

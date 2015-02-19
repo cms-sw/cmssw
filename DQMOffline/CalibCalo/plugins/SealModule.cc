@@ -4,9 +4,8 @@
 #include "DQMOffline/CalibCalo/src/DQMHcalPhiSymAlCaReco.h"
 #include "DQMOffline/CalibCalo/src/DQMSourcePi0.h"
 #include "DQMOffline/CalibCalo/interface/DQMSourceEleCalib.h"
-#include "DQMOffline/CalibCalo/src/DQMHcalIsoTrackAlCaReco.cc"
+#include "DQMOffline/CalibCalo/src/DQMHcalIsoTrackAlCaReco.h"
 #include "DQMOffline/CalibCalo/src/DQMHcalDiJetsAlCaReco.h"
-#include "DQMOffline/CalibCalo/src/DQMHcalDiJetsAlCaReco.cc"
 #include "DQMOffline/CalibCalo/src/DQMHOAlCaRecoStream.h"
 
 

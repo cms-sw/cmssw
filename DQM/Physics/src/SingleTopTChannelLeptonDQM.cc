@@ -199,59 +199,56 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
       verbosity_ = STANDARD;
   }
   // and don't forget to do the histogram booking
-  book(cfg.getParameter<std::string>("directory"));
+  directory_ = cfg.getParameter<std::string>("directory");
 }
 
-void MonitorEnsemble::book(std::string directory) {
+void MonitorEnsemble::book(DQMStore::IBooker & ibooker) {
   // set up the current directory path
-  std::string current(directory);
+  std::string current(directory_);
   current += label_;
-  store_ = edm::Service<DQMStore>().operator->();
-  store_->setCurrentFolder(current);
+  ibooker.setCurrentFolder(current);
 
   // determine number of bins for trigger monitoring
   unsigned int nPaths = triggerPaths_.size();
 
   // --- [STANDARD] --- //
   // number of selected primary vertices
-  hists_["pvMult_"] = store_->book1D("PvMult", "N_{pvs}", 100, 0., 100.);
+  hists_["pvMult_"] = ibooker.book1D("PvMult", "N_{pvs}", 100, 0., 100.);
   // pt of the leading muon
-  hists_["muonPt_"] = store_->book1D("MuonPt", "pt(#mu)", 50, 0., 250.);
+  hists_["muonPt_"] = ibooker.book1D("MuonPt", "pt(#mu)", 50, 0., 250.);
   // muon multiplicity before std isolation
-  hists_["muonMult_"] = store_->book1D("MuonMult", "N_{20}(#mu)", 10, 0., 10.);
+  hists_["muonMult_"] = ibooker.book1D("MuonMult", "N_{20}(#mu)", 10, 0., 10.);
   // muon multiplicity after  std isolation
-  hists_["muonMultIso_"] =
-      store_->book1D("MuonMultIso", "N_{Iso}(#mu)", 10, 0., 10.);
+  hists_["muonMultIso_"] = ibooker.book1D("MuonMultIso", "N_{Iso}(#mu)", 10, 0., 10.);
   // pt of the leading electron
-  hists_["elecPt_"] = store_->book1D("ElecPt", "pt(e)", 50, 0., 250.);
+  hists_["elecPt_"] = ibooker.book1D("ElecPt", "pt(e)", 50, 0., 250.);
   // electron multiplicity before std isolation
-  hists_["elecMult_"] = store_->book1D("ElecMult", "N_{30}(e)", 10, 0., 10.);
+  hists_["elecMult_"] = ibooker.book1D("ElecMult", "N_{30}(e)", 10, 0., 10.);
   // electron multiplicity after  std isolation
-  hists_["elecMultIso_"] =
-      store_->book1D("ElecMultIso", "N_{Iso}(e)", 10, 0., 10.);
+  hists_["elecMultIso_"] = ibooker.book1D("ElecMultIso", "N_{Iso}(e)", 10, 0., 10.);
   // multiplicity of jets with pt>20 (corrected to L2+L3)
-  hists_["jetMult_"] = store_->book1D("JetMult", "N_{30}(jet)", 10, 0., 10.);
+  hists_["jetMult_"] = ibooker.book1D("JetMult", "N_{30}(jet)", 10, 0., 10.);
   // trigger efficiency estimates for single lepton triggers
-  hists_["triggerEff_"] =
-      store_->book1D("TriggerEff", "Eff(trigger)", nPaths, 0., nPaths);
+  hists_["triggerEff_"] = ibooker.book1D("TriggerEff",
+      "Eff(trigger)", nPaths, 0., nPaths);
   // monitored trigger occupancy for single lepton triggers
-  hists_["triggerMon_"] =
-      store_->book1D("TriggerMon", "Mon(trigger)", nPaths, 0., nPaths);
+  hists_["triggerMon_"] = ibooker.book1D("TriggerMon",
+      "Mon(trigger)", nPaths, 0., nPaths);
   // MET (calo)
-  hists_["metCalo_"] = store_->book1D("METCalo", "MET_{Calo}", 50, 0., 200.);
+  hists_["metCalo_"] = ibooker.book1D("METCalo", "MET_{Calo}", 50, 0., 200.);
   // W mass estimate
-  hists_["massW_"] = store_->book1D("MassW", "M(W)", 60, 0., 300.);
+  hists_["massW_"] = ibooker.book1D("MassW", "M(W)", 60, 0., 300.);
   // Top mass estimate
-  hists_["massTop_"] = store_->book1D("MassTop", "M(Top)", 50, 0., 500.);
+  hists_["massTop_"] = ibooker.book1D("MassTop", "M(Top)", 50, 0., 500.);
   // W mass transverse estimate mu
-  hists_["MTWm_"] = store_->book1D("MTWm", "M_{T}^{W}(#mu)", 60, 0., 300.);
+  hists_["MTWm_"] = ibooker.book1D("MTWm", "M_{T}^{W}(#mu)", 60, 0., 300.);
   // Top mass transverse estimate mu
-  hists_["mMTT_"] = store_->book1D("mMTT", "M_{T}^{t}(#mu)", 50, 0., 500.);
+  hists_["mMTT_"] = ibooker.book1D("mMTT", "M_{T}^{t}(#mu)", 50, 0., 500.);
 
   // W mass transverse estimate e
-  hists_["MTWe_"] = store_->book1D("MTWe", "M_{T}^{W}(e)", 60, 0., 300.);
+  hists_["MTWe_"] = ibooker.book1D("MTWe", "M_{T}^{W}(e)", 60, 0., 300.);
   // Top mass transverse estimate e
-  hists_["eMTT_"] = store_->book1D("eMTT", "M_{T}^{t}(e)", 50, 0., 500.);
+  hists_["eMTT_"] = ibooker.book1D("eMTT", "M_{T}^{t}(e)", 50, 0., 500.);
 
   // set bin labels for trigger monitoring
   triggerBinLabels(std::string("trigger"), triggerPaths_);
@@ -261,78 +258,73 @@ void MonitorEnsemble::book(std::string directory) {
   // --- [VERBOSE] --- //
 
   // eta of the leading muon
-  hists_["muonEta_"] = store_->book1D("MuonEta", "#eta(#mu)", 30, -3., 3.);
+  hists_["muonEta_"] = ibooker.book1D("MuonEta", "#eta(#mu)", 30, -3., 3.);
   // std isolation variable of the leading muon
-  hists_["muonPFRelIso_"] =
-      store_->book1D("MuonPFRelIso", "PFIso_{Rel}(#mu)", 50, 0., 1.);
-  hists_["muonRelIso_"] =
-      store_->book1D("MuonRelIso", "Iso_{Rel}(#mu)", 50, 0., 1.);
+  hists_["muonPFRelIso_"] = ibooker.book1D("MuonPFRelIso",
+      "PFIso_{Rel}(#mu)", 50, 0., 1.);
+  hists_["muonRelIso_"] = ibooker.book1D("MuonRelIso", "Iso_{Rel}(#mu)", 50, 0., 1.);
 
   // eta of the leading electron
-  hists_["elecEta_"] = store_->book1D("ElecEta", "#eta(e)", 30, -3., 3.);
+  hists_["elecEta_"] = ibooker.book1D("ElecEta", "#eta(e)", 30, -3., 3.);
   // std isolation variable of the leading electron
-  hists_["elecRelIso_"] =
-      store_->book1D("ElecRelIso", "Iso_{Rel}(e)", 50, 0., 1.);
-  hists_["elecPFRelIso_"] =
-      store_->book1D("ElecPFRelIso", "PFIso_{Rel}(e)", 50, 0., 1.);
+  hists_["elecRelIso_"] = ibooker.book1D("ElecRelIso", "Iso_{Rel}(e)", 50, 0., 1.);
+  hists_["elecPFRelIso_"] = ibooker.book1D("ElecPFRelIso",
+      "PFIso_{Rel}(e)", 50, 0., 1.);
 
   // multiplicity of btagged jets (for track counting high efficiency) with
   // pt(L2L3)>30
-  hists_["jetMultBEff_"] =
-      store_->book1D("JetMultBEff", "N_{30}(b/eff)", 10, 0., 10.);
+  hists_["jetMultBEff_"] = ibooker.book1D("JetMultBEff",
+      "N_{30}(b/eff)", 10, 0., 10.);
   // btag discriminator for track counting high efficiency for jets with
   // pt(L2L3)>30
-  hists_["jetBDiscEff_"] =
-      store_->book1D("JetBDiscEff", "Disc_{b/eff}(jet)", 100, 0., 10.);
+  hists_["jetBDiscEff_"] = ibooker.book1D("JetBDiscEff",
+      "Disc_{b/eff}(jet)", 100, 0., 10.);
 
   // eta of the 1. leading jet
-  hists_["jet1Eta_"] = store_->book1D("Jet1Eta", "#eta (jet1)", 50, -5., 5.);
+  hists_["jet1Eta_"] = ibooker.book1D("Jet1Eta", "#eta (jet1)", 50, -5., 5.);
   // eta of the 2. leading jet
-  hists_["jet2Eta_"] = store_->book1D("Jet2Eta", "#eta (jet2)", 50, -5., 5.);
+  hists_["jet2Eta_"] = ibooker.book1D("Jet2Eta", "#eta (jet2)", 50, -5., 5.);
 
   // pt of the 1. leading jet (corrected to L2+L3)
-  hists_["jet1Pt_"] = store_->book1D("Jet1Pt", "pt_{L2L3}(jet1)", 60, 0., 300.);
+  hists_["jet1Pt_"] = ibooker.book1D("Jet1Pt", "pt_{L2L3}(jet1)", 60, 0., 300.);
   // pt of the 2. leading jet (corrected to L2+L3)
-  hists_["jet2Pt_"] = store_->book1D("Jet2Pt", "pt_{L2L3}(jet2)", 60, 0., 300.);
+  hists_["jet2Pt_"] = ibooker.book1D("Jet2Pt", "pt_{L2L3}(jet2)", 60, 0., 300.);
 
   // eta and pt of the b-tagged jet (filled only when nJets==2)
-  hists_["TaggedJetEta_"] =
-      store_->book1D("TaggedJetEta", "#eta (Tagged jet)", 50, -5., 5.);
-  hists_["TaggedJetPt_"] =
-      store_->book1D("TaggedJetPt", "pt_{L2L3}(Tagged jet)", 60, 0., 300.);
+  hists_["TaggedJetEta_"] = ibooker.book1D("TaggedJetEta",
+      "#eta (Tagged jet)", 50, -5., 5.);
+  hists_["TaggedJetPt_"] = ibooker.book1D("TaggedJetPt",
+      "pt_{L2L3}(Tagged jet)", 60, 0., 300.);
 
   // eta and pt of the jet not passing b-tag (filled only when nJets==2)
-  hists_["UnTaggedJetEta_"] =
-      store_->book1D("UnTaggedJetEta", "#eta (UnTagged jet)", 50, -5., 5.);
-  hists_["UnTaggedJetPt_"] =
-      store_->book1D("UnTaggedJetPt", "pt_{L2L3}(UnTagged jet)", 60, 0., 300.);
+  hists_["UnTaggedJetEta_"] = ibooker.book1D("UnTaggedJetEta",
+      "#eta (UnTagged jet)", 50, -5., 5.);
+  hists_["UnTaggedJetPt_"] = ibooker.book1D("UnTaggedJetPt",
+      "pt_{L2L3}(UnTagged jet)", 60, 0., 300.);
 
   // eta and pt of the most forward jet in the event with nJets==2
-  hists_["FwdJetEta_"] =
-      store_->book1D("FwdJetEta", "#eta (Fwd jet)", 50, -5., 5.);
-  hists_["FwdJetPt_"] =
-      store_->book1D("FwdJetPt", "pt_{L2L3}(Fwd jet)", 60, 0., 300.);
+  hists_["FwdJetEta_"] = ibooker.book1D("FwdJetEta", "#eta (Fwd jet)", 50, -5., 5.);
+  hists_["FwdJetPt_"] = ibooker.book1D("FwdJetPt",
+      "pt_{L2L3}(Fwd jet)", 60, 0., 300.);
 
   // 2D histogram (pt,eta) of the b-tagged jet (filled only when nJets==2)
-  hists_["TaggedJetPtEta_"] =
-      store_->book2D("TaggedJetPt_Eta", "(pt vs #eta)_{L2L3}(Tagged jet)", 60,
-                     0., 300., 50, -5., 5.);
+  hists_["TaggedJetPtEta_"] = ibooker.book2D("TaggedJetPt_Eta",
+      "(pt vs #eta)_{L2L3}(Tagged jet)", 60, 0., 300., 50, -5., 5.);
 
   // 2D histogram (pt,eta) of the not-b tagged jet (filled only when nJets==2)
-  hists_["UnTaggedJetPtEta_"] =
-      store_->book2D("UnTaggedJetPt_Eta", "(pt vs #eta)_{L2L3}(UnTagged jet)",
-                     60, 0., 300., 50, -5., 5.);
+  hists_["UnTaggedJetPtEta_"] = ibooker.book2D("UnTaggedJetPt_Eta",
+    "(pt vs #eta)_{L2L3}(UnTagged jet)", 60, 0., 300., 50, -5., 5.);
 
   // MET (tc)
-  hists_["metTC_"] = store_->book1D("METTC", "MET_{TC}", 50, 0., 200.);
+  hists_["metTC_"] = ibooker.book1D("METTC", "MET_{TC}", 50, 0., 200.);
   // MET (pflow)
-  hists_["metPflow_"] = store_->book1D("METPflow", "MET_{Pflow}", 50, 0., 200.);
+  hists_["metPflow_"] = ibooker.book1D("METPflow", "MET_{Pflow}", 50, 0., 200.);
 
   // dz for muons (to suppress cosmis)
-  hists_["muonDelZ_"] = store_->book1D("MuonDelZ", "d_{z}(#mu)", 50, -25., 25.);
+  hists_["muonDelZ_"] = ibooker.book1D("MuonDelZ", "d_{z}(#mu)", 50, -25., 25.);
   // dxy for muons (to suppress cosmics)
-  hists_["muonDelXY_"] =
-      store_->book2D("MuonDelXY", "d_{xy}(#mu)", 50, -0.1, 0.1, 50, -0.1, 0.1);
+  hists_["muonDelXY_"] = ibooker.book2D("MuonDelXY",
+      "d_{xy}(#mu)", 50, -0.1, 0.1, 50, -0.1, 0.1);
 
   // set axes titles for dxy for muons
   hists_["muonDelXY_"]->setAxisTitle("x [cm]", 1);
@@ -343,70 +335,66 @@ void MonitorEnsemble::book(std::string directory) {
   // --- [DEBUG] --- //
 
   // relative muon isolation from charged hadrons  for the leading muon
-  hists_["muonChHadIso_"] =
-      store_->book1D("MuonChHadIso", "Iso_{ChHad}(#mu)", 100, 0., 1.);
+  hists_["muonChHadIso_"] = ibooker.book1D("MuonChHadIso",
+      "Iso_{ChHad}(#mu)", 100, 0., 1.);
   // relative muon isolation from neutral hadrons for the leading muon
-  hists_["muonNeuHadIso_"] =
-      store_->book1D("MuonNeuHadIso", "Iso_{NeuHad}(#mu)", 100, 0., 1.);
+  hists_["muonNeuHadIso_"] = ibooker.book1D("MuonNeuHadIso",
+      "Iso_{NeuHad}(#mu)", 100, 0., 1.);
   // relative muon isolation from photons for the leading muon
-  hists_["muonPhIso_"] =
-      store_->book1D("MuonPhIso", "Iso_{Ph}(#mu)", 100, 0., 1.);
+  hists_["muonPhIso_"] = ibooker.book1D("MuonPhIso", "Iso_{Ph}(#mu)", 100, 0., 1.);
 
   // relative electron isolation from charged hadrons for the leading electron
-  hists_["elecChHadIso_"] =
-      store_->book1D("ElecChHadIso", "Iso_{ChHad}(e)", 100, 0., 1.);
+  hists_["elecChHadIso_"] = ibooker.book1D("ElecChHadIso",
+      "Iso_{ChHad}(e)", 100, 0., 1.);
   // relative electron isolation from neutral hadrons for the leading electron
-  hists_["elecNeuHadIso_"] =
-      store_->book1D("ElecNeuHadIso", "Iso_{NeuHad}(e)", 100, 0., 1.);
+  hists_["elecNeuHadIso_"] = ibooker.book1D("ElecNeuHadIso",
+      "Iso_{NeuHad}(e)", 100, 0., 1.);
   // relative electron isolation from photons for the leading electron
-  hists_["elecPhIso_"] =
-      store_->book1D("ElecPhIso", "Iso_{Ph}(e)", 100, 0., 1.);
+  hists_["elecPhIso_"] = ibooker.book1D("ElecPhIso", "Iso_{Ph}(e)", 100, 0., 1.);
 
   // multiplicity of btagged jets (for track counting high purity) with
   // pt(L2L3)>30
-  hists_["jetMultBPur_"] =
-      store_->book1D("JetMultBPur", "N_{30}(b/pur)", 10, 0., 10.);
+  hists_["jetMultBPur_"] = ibooker.book1D("JetMultBPur",
+      "N_{30}(b/pur)", 10, 0., 10.);
   // btag discriminator for track counting high purity
-  hists_["jetBDiscPur_"] =
-      store_->book1D("JetBDiscPur", "Disc_{b/pur}(Jet)", 200, -10., 10.);
+  hists_["jetBDiscPur_"] = ibooker.book1D("JetBDiscPur",
+      "Disc_{b/pur}(Jet)", 200, -10., 10.);
   // btag discriminator for track counting high purity for 1. leading jet
-  hists_["jet1BDiscPur_"] =
-      store_->book1D("Jet1BDiscPur", "Disc_{b/pur}(Jet1)", 200, -10., 10.);
+  hists_["jet1BDiscPur_"] = ibooker.book1D("Jet1BDiscPur",
+      "Disc_{b/pur}(Jet1)", 200, -10., 10.);
   // btag discriminator for track counting high purity for 2. leading jet
-  hists_["jet2BDiscPur_"] =
-      store_->book1D("Jet2BDiscPur", "Disc_{b/pur}(Jet2)", 200, -10., 10.);
+  hists_["jet2BDiscPur_"] = ibooker.book1D("Jet2BDiscPur",
+      "Disc_{b/pur}(Jet2)", 200, -10., 10.);
 
   // multiplicity of btagged jets (for simple secondary vertex) with pt(L2L3)>30
-  hists_["jetMultBVtx_"] =
-      store_->book1D("JetMultBVtx", "N_{30}(b/vtx)", 10, 0., 10.);
+  hists_["jetMultBVtx_"] = ibooker.book1D("JetMultBVtx",
+      "N_{30}(b/vtx)", 10, 0., 10.);
   // btag discriminator for simple secondary vertex
-  hists_["jetBDiscVtx_"] =
-      store_->book1D("JetBDiscVtx", "Disc_{b/vtx}(Jet)", 35, -1., 6.);
+  hists_["jetBDiscVtx_"] = ibooker.book1D("JetBDiscVtx",
+      "Disc_{b/vtx}(Jet)", 35, -1., 6.);
 
   // multiplicity of btagged jets (for combined secondary vertex) with
   // pt(L2L3)>30
-  hists_["jetMultBCombVtx_"] =
-      store_->book1D("JetMultBCombVtx", "N_{30}(b/CSV)", 10, 0., 10.);
+  hists_["jetMultBCombVtx_"] = ibooker.book1D("JetMultBCombVtx",
+      "N_{30}(b/CSV)", 10, 0., 10.);
   // btag discriminator for combined secondary vertex
-  hists_["jetBDiscCombVtx_"] =
-      store_->book1D("JetBDiscCombVtx", "Disc_{b/CSV}(Jet)", 60, -1., 2.);
+  hists_["jetBDiscCombVtx_"] = ibooker.book1D("JetBDiscCombVtx",
+      "Disc_{b/CSV}(Jet)", 60, -1., 2.);
   // btag discriminator for combined secondary vertex for 1. leading jet
-  hists_["jet1BDiscCombVtx_"] =
-      store_->book1D("Jet1BDiscCombVtx", "Disc_{b/CSV}(Jet1)", 60, -1., 2.);
+  hists_["jet1BDiscCombVtx_"] = ibooker.book1D("Jet1BDiscCombVtx",
+      "Disc_{b/CSV}(Jet1)", 60, -1., 2.);
   // btag discriminator for combined secondary vertex for 2. leading jet
-  hists_["jet2BDiscCombVtx_"] =
-      store_->book1D("Jet2BDiscCombVtx", "Disc_{b/CSV}(Jet2)", 60, -1., 2.);
+  hists_["jet2BDiscCombVtx_"] = ibooker.book1D("Jet2BDiscCombVtx",
+      "Disc_{b/CSV}(Jet2)", 60, -1., 2.);
 
   // pt of the 1. leading jet (uncorrected)
-  hists_["jet1PtRaw_"] =
-      store_->book1D("Jet1PtRaw", "pt_{Raw}(jet1)", 60, 0., 300.);
+  hists_["jet1PtRaw_"] = ibooker.book1D("Jet1PtRaw", "pt_{Raw}(jet1)", 60, 0., 300.);
   // pt of the 2. leading jet (uncorrected)
-  hists_["jet2PtRaw_"] =
-      store_->book1D("Jet2PtRaw", "pt_{Raw}(jet2)", 60, 0., 300.);
+  hists_["jet2PtRaw_"] = ibooker.book1D("Jet2PtRaw", "pt_{Raw}(jet2)", 60, 0., 300.);
 
   // selected events
-  hists_["eventLogger_"] =
-      store_->book2D("EventLogger", "Logged Events", 9, 0., 9., 10, 0., 10.);
+  hists_["eventLogger_"] = ibooker.book2D("EventLogger",
+      "Logged Events", 9, 0., 9., 10, 0., 10.);
 
   // set axes titles for selected events
   hists_["eventLogger_"]->getTH1()->SetOption("TEXT");
@@ -938,19 +926,19 @@ SingleTopTChannelLeptonDQM::SingleTopTChannelLeptonDQM(
         beamspot.getParameter<std::string>("select")));
   }
   // conifgure the selection
-  std::vector<edm::ParameterSet> sel =
+   std::vector<edm::ParameterSet> sel = 
       cfg.getParameter<std::vector<edm::ParameterSet>>("selection");
+
   for (unsigned int i = 0; i < sel.size(); ++i) {
     selectionOrder_.push_back(sel.at(i).getParameter<std::string>("label"));
-
     selection_[selectionStep(selectionOrder_.back())] = std::make_pair(
         sel.at(i),
         std::unique_ptr<SingleTopTChannelLepton::MonitorEnsemble>(
-            new SingleTopTChannelLepton::MonitorEnsemble(
-                selectionStep(selectionOrder_.back()).c_str(),
-                cfg.getParameter<edm::ParameterSet>("setup"),
-                cfg.getParameter<std::vector<edm::ParameterSet>>("selection"),
-                consumesCollector())));
+        new SingleTopTChannelLepton::MonitorEnsemble(
+            selectionStep(selectionOrder_.back()).c_str(),
+            cfg.getParameter<edm::ParameterSet>("setup"),
+            cfg.getParameter<std::vector<edm::ParameterSet>>("selection"),
+            consumesCollector())));
   }
   for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin();
        selIt != selectionOrder_.end(); ++selIt) {
@@ -1000,7 +988,13 @@ SingleTopTChannelLeptonDQM::SingleTopTChannelLeptonDQM(
     }
   }
 }
+void SingleTopTChannelLeptonDQM::bookHistograms(DQMStore::IBooker & ibooker,
+  edm::Run const &, edm::EventSetup const & ){
 
+  for (auto selIt = selection_.begin(); selIt != selection_.end(); ++selIt) {
+    selIt->second.second->book(ibooker);
+  }
+}
 void SingleTopTChannelLeptonDQM::analyze(const edm::Event& event,
                                          const edm::EventSetup& setup) {
   if (!triggerTable__.isUninitialized()) {

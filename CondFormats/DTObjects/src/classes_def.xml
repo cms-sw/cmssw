@@ -90,6 +90,12 @@
   <class name="DTRecoUncertainties" class_version="10">
     <field name="payload" mapping="blob" />
   </class>
+  <class name="std::map<uint32_t, std::vector<double> >"/> 
+  <class name="DTRecoConditions">
+    <field name="formulaType" transient="true"/>
+    <field name="formula" transient="true"/>
+    <field name="payload" mapping="blob" />
+  </class>
 <!-- comment -->
 </lcgdict>
 

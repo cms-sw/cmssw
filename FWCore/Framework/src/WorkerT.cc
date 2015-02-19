@@ -101,7 +101,7 @@ namespace edm{
 
   template<typename T>
   inline
-  WorkerT<T>::WorkerT(T* ed, ModuleDescription const& md, ExceptionToActionTable const* actions) :
+  WorkerT<T>::WorkerT(std::shared_ptr<T> ed, ModuleDescription const& md, ExceptionToActionTable const* actions) :
   Worker(md, actions),
   module_(ed) {
     assert(module_ != 0);
@@ -321,6 +321,15 @@ namespace edm{
   WorkerT<T>::implPostForkReacquireResources(unsigned int iChildIndex,
                                              unsigned int iNumberOfChildren) {
     module_->doPostForkReacquireResources(iChildIndex, iNumberOfChildren);
+  }
+
+
+  template<typename T>
+  inline
+  void
+  WorkerT<T>::implRegisterThinnedAssociations(ProductRegistry const& registry,
+                                               ThinnedAssociationsHelper& helper) {
+    module_->doRegisterThinnedAssociations(registry, helper);
   }
 
   template<typename T>

@@ -101,10 +101,13 @@ namespace HcalUnpacker_impl {
 	ncurr++;
       }
       digi.setSize(ntaken);
+    } else {
+      edm::LogWarning("Bad Data") << "Invalid flavor " << flavor;
+      qie_work=limit;
     }
     return qie_work;
   }
-
+  
   template <class DigiClass>
   void unpack_compact(HcalUHTRData::const_iterator& i, const HcalUHTRData::const_iterator& iend, DigiClass& digi, 
 		      int presamples, const HcalElectronicsId& eid, int startSample, int endSample) {

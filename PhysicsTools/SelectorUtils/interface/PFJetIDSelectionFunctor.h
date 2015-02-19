@@ -203,7 +203,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     if ( patJet != 0 ) {
       if ( patJet->isPFJet() ) {
 	chf = patJet->chargedHadronEnergyFraction();
-	nhf = ( patJet->neutralHadronEnergy() + patJet->HFHadronEnergy() ) / patJet->energy();
+	nhf = patJet->neutralHadronEnergyFraction();
 	cef = patJet->chargedEmEnergyFraction();
 	nef = patJet->neutralEmEnergyFraction();
 	nch = patJet->chargedMultiplicity();
@@ -224,7 +224,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 	      isub != iend; ++isub ) {
 	  reco::PFJet const * pfsub = dynamic_cast<reco::PFJet const *>( &*isub );
 	  e_chf += pfsub->chargedHadronEnergy();
-	  e_nhf += (pfsub->neutralHadronEnergy() + pfsub->HFHadronEnergy());
+	  e_nhf += pfsub->neutralHadronEnergy();
 	  e_cef += pfsub->chargedEmEnergy();
 	  e_nef += pfsub->neutralEmEnergy();
 	  nch += pfsub->chargedMultiplicity();
@@ -249,11 +249,10 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
        + pfJet->photonEnergy()
        + pfJet->electronEnergy()
        + pfJet->muonEnergy()
-       + pfJet->HFHadronEnergy()
        + pfJet->HFEMEnergy();
       if ( jetEnergyUncorrected > 0. ) {
 	chf = pfJet->chargedHadronEnergy() / jetEnergyUncorrected;
-        nhf = ( pfJet->neutralHadronEnergy() + pfJet->HFHadronEnergy() ) / jetEnergyUncorrected;
+        nhf = pfJet->neutralHadronEnergy() / jetEnergyUncorrected;
         cef = pfJet->chargedEmEnergy() / jetEnergyUncorrected;
         nef = pfJet->neutralEmEnergy() / jetEnergyUncorrected;
       }
@@ -269,13 +268,12 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       double e_nef = 0.0;
       nch = 0;
       nconstituents = 0;
-
       for ( reco::Jet::const_iterator ibegin = basicJet->begin(),
 	      iend = patJet->end(), isub = ibegin;
 	    isub != iend; ++isub ) {
 	reco::PFJet const * pfsub = dynamic_cast<reco::PFJet const *>( &*isub );
 	e_chf += pfsub->chargedHadronEnergy();
-	e_nhf += (pfsub->neutralHadronEnergy() + pfsub->HFHadronEnergy());
+	e_nhf += pfsub->neutralHadronEnergy();
 	e_cef += pfsub->chargedEmEnergy();
 	e_nef += pfsub->neutralEmEnergy();
 	nch += pfsub->chargedMultiplicity();

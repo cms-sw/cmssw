@@ -120,3 +120,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.rpcunpacker.InputLabel = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
     process.rpcEventSummary.MinimumRPCEvents  = cms.untracked.int32(100000)
+
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

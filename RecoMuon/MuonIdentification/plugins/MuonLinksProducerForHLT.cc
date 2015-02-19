@@ -9,7 +9,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -39,7 +38,7 @@ MuonLinksProducerForHLT::~MuonLinksProducerForHLT()
 {
 }
 
-void MuonLinksProducerForHLT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void MuonLinksProducerForHLT::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    std::auto_ptr<reco::MuonTrackLinksCollection> output(new reco::MuonTrackLinksCollection());
 
@@ -53,22 +52,22 @@ void MuonLinksProducerForHLT::produce(edm::Event& iEvent, const edm::EventSetup&
        link != links->end(); ++link){
      bool found = false;
      unsigned int trackIndex = 0;
-     unsigned int muonTrackHits = link->trackerTrack()->extra()->recHits().size();
+     unsigned int muonTrackHits = link->trackerTrack()->extra()->recHitsSize();
      for(reco::TrackCollection::const_iterator track = incTracks->begin();
 	 track != incTracks->end(); ++track, ++trackIndex){      
        if ( track->pt() < ptMin ) continue;
        if ( track->p() < pMin ) continue;
        //std::cout << "pt (muon/track) " << link->trackerTrack()->pt() << " " << track->pt() << std::endl;
-       unsigned trackHits = track->extra()->recHits().size();
+       unsigned trackHits = track->extra()->recHitsSize();
        //std::cout << "hits (muon/track) " << muonTrackHits  << " " << trackHits() << std::endl;
        unsigned int smallestNumberOfHits = trackHits < muonTrackHits ? trackHits : muonTrackHits;
        int numberOfCommonDetIds = 0;
-       for ( TrackingRecHitRefVector::const_iterator hit = track->extra()->recHitsBegin();
+       for ( auto hit = track->extra()->recHitsBegin();
 	     hit != track->extra()->recHitsEnd(); ++hit ) {
-	 for ( TrackingRecHitRefVector::const_iterator mit = link->trackerTrack()->extra()->recHitsBegin();
+	 for ( auto mit = link->trackerTrack()->extra()->recHitsBegin();
 	     mit != link->trackerTrack()->extra()->recHitsEnd(); ++mit ) {
-	   if ( hit->get()->geographicalId() == mit->get()->geographicalId() && 
-		hit->get()->sharesInput(mit->get(),TrackingRecHit::some) ) { 
+	   if ( (*hit)->geographicalId() == (*mit)->geographicalId() && 
+		(*hit)->sharesInput((*mit),TrackingRecHit::some) ) { 
 	     numberOfCommonDetIds++;
 	     break;
 	   }

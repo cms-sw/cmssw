@@ -1,6 +1,4 @@
 <use   name="boost"/>
-<use   name="oracle"/>
-<use   name="oracleocci"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Concurrency"/>
 <use   name="DataFormats/HcalDetId"/>

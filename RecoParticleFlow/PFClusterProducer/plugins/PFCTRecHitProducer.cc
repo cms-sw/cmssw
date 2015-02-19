@@ -829,7 +829,7 @@ PFCTRecHitProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi,
   // Get cleaned channels in the HCAL and HF 
   // HCAL channel status map ****************************************
   edm::ESHandle<HcalChannelQuality> hcalChStatus;    
-  es.get<HcalChannelQualityRcd>().get( hcalChStatus );
+  es.get<HcalChannelQualityRcd>().get( "withTopo", hcalChStatus );
   theHcalChStatus = hcalChStatus.product();
 
   // Retrieve the good/bad ECAL channels from the DB

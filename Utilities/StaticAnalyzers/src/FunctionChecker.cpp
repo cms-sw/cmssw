@@ -28,12 +28,14 @@ using namespace llvm;
 namespace clangcms {
 
 class FWalker : public clang::StmtVisitor<FWalker> {
+  const CheckerBase *Checker;
   clang::ento::BugReporter &BR;
   clang::AnalysisDeclContext *AC;
 
 public:
-  FWalker(clang::ento::BugReporter &br, clang::AnalysisDeclContext *ac )
-    : BR(br),
+  FWalker(const CheckerBase * checker, clang::ento::BugReporter &br, clang::AnalysisDeclContext *ac )
+    : Checker(checker),
+      BR(br),
       AC(ac) {}
 
   const clang::Stmt * ParentStmt(const Stmt *S) {
@@ -59,30 +61,27 @@ void FWalker::VisitChildren( clang::Stmt *S) {
 
 
 void FWalker::VisitDeclRefExpr( clang::DeclRefExpr * DRE) {
-  if (const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl()) ) {
-	if ( support::isSafeClassName(D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
+  if (const clang::VarDecl * D = llvm::dyn_cast_or_null<clang::VarDecl>(DRE->getDecl()) ) {
+	if ( D && support::isSafeClassName(D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
 	ReportDeclRef(DRE);
   }
 }
 
 void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
   
-        const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl());
-	if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
+        const clang::VarDecl * D = llvm::dyn_cast_or_null<clang::VarDecl>(DRE->getDecl());
+	if ( D && ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>())) return;
 	if ( support::isSafeClassName( D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(D->getLocation()).getFilename();
 	std::string fname(sfile);
-	if ( fname.find("stdio.h") != std::string::npos
-		|| fname.find("iostream") != std::string::npos
-		|| fname.find("placeholders.hpp") != std::string::npos) return;
-
+	if (!support::isInterestingLocation(fname)) return;
 	clang::QualType t =  D->getType();  
 	if ( support::isSafeClassName( t.getCanonicalType().getAsString() ) ) return;
 	const Decl * PD = AC->getDecl();
 	std::string dname =""; 
 	std::string sdname =""; 
-	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(PD)) {
+	if (const NamedDecl * ND = llvm::dyn_cast_or_null<NamedDecl>(PD)) {
 		sdname = support::getQualifiedName(*ND);
 		dname = ND->getQualifiedNameAsString();
 	}
@@ -95,10 +94,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 	} else 
 		DLoc = clang::ento::PathDiagnosticLocation::createBegin(DRE, BR.getSourceManager(), AC);
 
-	const char * pPath = std::getenv("LOCALRT");
-	std::string tname = ""; 
-	if ( pPath != NULL ) tname += std::string(pPath);
-	tname+="/tmp/function-checker.txt.unsorted";
+	std::string tname ="function-checker.txt.unsorted";
 
 	std::string vname = support::getQualifiedName(*D);
 	std::string svname = D->getNameAsString();
@@ -108,10 +104,9 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 		std::string buf;
 	    	llvm::raw_string_ostream os(buf);
 		os << "function '"<<dname << "' accesses or modifies non-const static local variable '" << svname<< "'.\n";
-//		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
+//		BR.EmitBasicReport(D, Checker, "non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
 		std::string ostring =  "function '"+ sdname + "' static variable '" + vname + "'.\n";
-		std::ofstream file(tname.c_str(),std::ios::app);
-		file<<ostring;
+		support::writeLog(ostring,tname);
 		return;
 	}
 
@@ -120,10 +115,9 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 	    	std::string buf;
 	    	llvm::raw_string_ostream os(buf);
 		os << "function '"<<dname<< "' accesses or modifies non-const static member data variable '" << svname << "'.\n";
-//		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
+//		BR.EmitBasicReport(D, Checker, "non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
 		std::string ostring =  "function '" + sdname + "' static variable '" + vname + "'.\n";
-		std::ofstream file(tname.c_str(),std::ios::app);
-		file<<ostring;
+		support::writeLog(ostring,tname);
 	    return;
 	}
 
@@ -136,10 +130,9 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 	    	std::string buf;
 	    	llvm::raw_string_ostream os(buf);
 		os << "function '"<<dname << "' accesses or modifies non-const global static variable '" << svname << "'.\n";
-//		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
+//		BR.EmitBasicReport(D, Checker, "non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
 		std::string ostring =  "function '" + sdname + "' static variable '" + vname + "'.\n";
-		std::ofstream file(tname.c_str(),std::ios::app);
-		file<<ostring;
+		support::writeLog(ostring,tname);
 	    return;
 	
 	}
@@ -154,9 +147,9 @@ void FunctionChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr
  	const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
  	if (!support::isCmsLocalFile(sfile)) return;
 	std::string fname(sfile);
-	if ( fname.find("/test/") != std::string::npos) return;
+	if ( !support::isInterestingLocation(fname) ) return;
       	if (!MD->doesThisDeclarationHaveABody()) return;
-	FWalker walker(BR, mgr.getAnalysisDeclContext(MD));
+	FWalker walker(this, BR, mgr.getAnalysisDeclContext(MD));
 	walker.Visit(MD->getBody());
        	return;
 } 
@@ -167,26 +160,23 @@ void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager& mgr,
         if (FD-> isInExternCContext()) {
                 std::string buf;
                 std::string dname = FD->getQualifiedNameAsString();
-                if ( dname.compare(dname.size()-1,1,"_") != 0 ) return;
+                if ( dname.compare(dname.size()-1,1,"_") == 0 ) {
                 llvm::raw_string_ostream os(buf);
                 os << "function '"<< dname << "' is in an extern \"C\" context and most likely accesses or modifies fortran variables in a 'COMMONBLOCK'.\n";
                 clang::ento::PathDiagnosticLocation::createBegin(FD, BR.getSourceManager());
-//		BR.EmitBasicReport(FD, "FunctionChecker : COMMONBLOCK variable accessed or modified","ThreadSafety",os.str(), FDLoc);
+//		BR.EmitBasicReport(FD, "COMMONBLOCK variable accessed or modified","ThreadSafety",os.str(), FDLoc);
                 std::string ostring =  "function '" + dname + "' static variable 'COMMONBLOCK'.\n";
-		const char * pPath = std::getenv("LOCALRT");
-		std::string tname = ""; 
-		if ( pPath != NULL ) tname += std::string(pPath);
-		tname+="/tmp/function-checker.txt.unsorted";
-		std::ofstream file(tname.c_str(),std::ios::app);
-		file<<ostring;
+		std::string tname = "function-checker.txt.unsorted";
+		support::writeLog(ostring,tname);
+		}
         }
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(FD->getLocation ()).getFilename();
    	if (!support::isCmsLocalFile(sfile)) return;
 	std::string fname(sfile);
-	if ( fname.find("/test/") != std::string::npos) return;
+	if ( !support::isInterestingLocation(fname) ) return;
 	if (FD->doesThisDeclarationHaveABody()) {
-		FWalker walker(BR, mgr.getAnalysisDeclContext(FD));
+		FWalker walker(this, BR, mgr.getAnalysisDeclContext(FD));
 		walker.Visit(FD->getBody());
 		}
 }
@@ -198,12 +188,12 @@ void FunctionChecker::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManag
  	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation ()).getFilename();
    	if (!support::isCmsLocalFile(sfile)) return;
 	std::string fname(sfile);
-	if ( fname.find("/test/") != std::string::npos) return;
+	if ( !support::isInterestingLocation(fname) ) return;
 	for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
 			E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
 		{
 			if (I->doesThisDeclarationHaveABody()) {
-				FWalker walker(BR, mgr.getAnalysisDeclContext(*I));
+				FWalker walker(this,BR, mgr.getAnalysisDeclContext(*I));
 				walker.Visit(I->getBody());
 				}
 		}

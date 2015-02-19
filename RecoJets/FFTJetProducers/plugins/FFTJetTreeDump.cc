@@ -40,6 +40,8 @@
 // functions which manipulate storable trees
 #include "RecoJets/FFTJetAlgorithms/interface/clusteringTreeConverters.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 using namespace fftjetcms;
 
 //
@@ -179,8 +181,8 @@ void FFTJetTreeDump::processTreeData(const edm::Event& iEvent,
                                      std::ofstream& file)
 {
     // Get the event number
-    const unsigned long runNum = iEvent.id().run();
-    const unsigned long evNum = iEvent.id().event();
+    edm::RunNumber_t const  runNum = iEvent.id().run();
+    edm::EventNumber_t const evNum = iEvent.id().event();
 
     // Get the input
     edm::Handle<StoredTree> input;

@@ -36,8 +36,6 @@ class ShiftedParticleMETcorrInputProducer : public edm::EDProducer
 
   void produce(edm::Event&, const edm::EventSetup&);
 
-  std::string moduleLabel_;
-
   edm::EDGetTokenT<CandidateView> srcOriginalToken_;
   edm::EDGetTokenT<CandidateView> srcShiftedToken_;
 };

@@ -1,3 +1,5 @@
+<use   name="DataFormats/BeamSpot"/>
+<use   name="DataFormats/BTauReco"/>
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/EgammaCandidates"/>
@@ -6,13 +8,18 @@
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/L1Trigger"/>
+<use   name="DataFormats/Math"/>
 <use   name="DataFormats/METReco"/>
 <use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/VertexReco"/>
 <use   name="DQMServices/Core"/>
+<use   name="FWCore/Common"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="HLTrigger/HLTcore"/>
+<use   name="HLTrigger/JetMET"/>
+<use   name="RecoEgamma/EgammaTools"/>
 <use   name="rootgraphics"/>
 <flags   EDM_PLUGIN="1"/>

@@ -24,8 +24,10 @@
 // l1 dataformats, d|e record includes
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class L1TDEMON : public edm::EDAnalyzer {
+
+class L1TDEMON : public DQMEDAnalyzer {
 
  public:
 
@@ -34,10 +36,12 @@ class L1TDEMON : public edm::EDAnalyzer {
 
  protected:
 
-  virtual void beginJob(void) ;
+  //virtual void beginJob(void) ;
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-
+    
  private:
 
   // input d|e record
@@ -55,7 +59,6 @@ class L1TDEMON : public edm::EDAnalyzer {
   std::string histFolder_;
 
   // dqm common
-  DQMStore* dbe;
   bool monitorDaemon_;
  
   // running in filter farm? (use reduced set of me's)

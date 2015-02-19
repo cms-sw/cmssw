@@ -1,18 +1,16 @@
 #ifndef RPCMonitorClient_RPCDCSSummary_H
 #define RPCMonitorClient_RPCDCSSummary_H
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include <map>
 
-class DQMStore;
-class MonitorElement;
 
-class RPCDCSSummary : public edm::EDAnalyzer {
+class RPCDCSSummary : public DQMEDHarvester {
 public:
   /// Constructor
-  RPCDCSSummary(const edm::ParameterSet& pset);
+  RPCDCSSummary(const edm::ParameterSet&);
 
   /// Destructor
   virtual ~RPCDCSSummary();
@@ -20,16 +18,20 @@ public:
   // Operations
 
 protected:
+ void beginJob();
+ void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&); //performed in the endLumi
+ void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
+
   
 private:
-  virtual void beginJob();
-  void beginRun(const edm::Run& , const edm::EventSetup& );
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
-  virtual void endJob() ;
+  void myBooker(DQMStore::IBooker &);
+  void checkDCSbit(edm::EventSetup const&);
   
-  DQMStore *theDbe;  
+  bool init_;
+  double defaultValue_;
+
+  bool offlineDQM_;
+
   MonitorElement*    DCSMap_;
   MonitorElement*  totalDCSFraction;
   MonitorElement* dcsWheelFractions[5];

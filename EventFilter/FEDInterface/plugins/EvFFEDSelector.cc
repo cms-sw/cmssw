@@ -1,30 +1,44 @@
+#include <memory>
+
 #include "EvFFEDSelector.h"
 
-namespace evf{
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
-  EvFFEDSelector::EvFFEDSelector( const edm::ParameterSet& ps)
-    : label_(ps.getParameter<edm::InputTag>("inputTag"))
-    , fedlist_(ps.getParameter<std::vector<unsigned int> >("fedList")) 
+namespace evf {
+
+  EvFFEDSelector::EvFFEDSelector(edm::ParameterSet const & config) :
+    token_( consumes<FEDRawDataCollection>( config.getParameter<edm::InputTag>("inputTag")) ),
+    fedlist_( config.getParameter<std::vector<unsigned int> >("fedList") )
   {
-    token_ = consumes<FEDRawDataCollection>(label_);
     produces<FEDRawDataCollection>();
   }
-  void EvFFEDSelector::produce(edm::Event & e, const edm::EventSetup& c)
+
+  void EvFFEDSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("inputTag",edm::InputTag("source"));
+    {
+      std::vector<unsigned int> temp1;
+      temp1.reserve(2);
+      temp1.push_back(812);
+      temp1.push_back(1023);
+      desc.add<std::vector<unsigned int> >("fedList",temp1);
+    }
+    descriptions.add("EvFFEDSelector",desc);
+  }
+
+  void EvFFEDSelector::produce(edm::StreamID sid, edm::Event & event, edm::EventSetup const & setup) const
   {
     edm::Handle<FEDRawDataCollection> rawdata;
-    FEDRawDataCollection *fedcoll = new FEDRawDataCollection();
-    e.getByToken(token_,rawdata);
-    std::vector<unsigned int>::iterator it = fedlist_.begin();
-    for(;it!=fedlist_.end();it++)
-      {
-	const FEDRawData& data = rawdata->FEDData(*it);
-	if(data.size()>0){
-	  FEDRawData& fedData=fedcoll->FEDData(*it);
-	  fedData.resize(data.size());
-	  memcpy(fedData.data(),data.data(),data.size());
-	} 
-      }
-    std::auto_ptr<FEDRawDataCollection> bare_product(fedcoll);
-    e.put(bare_product);
+    event.getByToken(token_, rawdata);
+
+    std::unique_ptr<FEDRawDataCollection> fedcoll( new FEDRawDataCollection() );
+
+    for (unsigned int i : fedlist_)
+      if (rawdata->FEDData(i).size() > 0)
+        fedcoll->FEDData(i) = rawdata->FEDData(i);
+
+    event.put(std::move(fedcoll));
   }
-}
+
+} // namespace evf

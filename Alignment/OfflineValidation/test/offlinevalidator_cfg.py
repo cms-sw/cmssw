@@ -35,7 +35,8 @@ process.GlobalTag.globaltag = "MC_31X_V9::All"
 ##################################################################
 ## Geometry
 ##################################################################
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
+
 
 ###############################################################
 ## Magnetic Field
@@ -75,7 +76,7 @@ process.myTrackerAlignmentErr = poolDBESSource.clone(
     connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
     toGet = cms.VPSet(
       cms.PSet(
-       record = cms.string('TrackerAlignmentErrorRcd'),
+       record = cms.string('TrackerAlignmentErrorExtendedRcd'),
         tag = cms.string('TrackerIdealGeometryErrors210_mc')
        )
       )

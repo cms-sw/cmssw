@@ -12,13 +12,14 @@ Original Author: John Paul Chou (Brown University)
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/JetReco/interface/TrackExtrapolation.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include "RecoMET/METAlgorithms/interface/HcalHPDRBXMap.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 
 HBHEIsolatedNoiseReflagger::HBHEIsolatedNoiseReflagger(const edm::ParameterSet& iConfig) :
   
@@ -78,8 +79,9 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
   const EcalChannelStatus* dbEcalChStatus = ecalChStatus.product();
 
   // get the HCAL channel status map
+
   edm::ESHandle<HcalChannelQuality> hcalChStatus;    
-  evSetup.get<HcalChannelQualityRcd>().get( hcalChStatus );
+  evSetup.get<HcalChannelQualityRcd>().get( "withTopo", hcalChStatus );
   const HcalChannelQuality* dbHcalChStatus = hcalChStatus.product();
 
   // get the severity level computers

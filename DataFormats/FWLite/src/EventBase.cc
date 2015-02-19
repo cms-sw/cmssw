@@ -12,10 +12,14 @@
 
 // system include files
 #include <iostream>
+#include <memory>
 
 // user include files
 #include "DataFormats/FWLite/interface/EventBase.h"
+#include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/FunctorHandleExceptionFactory.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -60,6 +64,26 @@ namespace fwlite
          return failed;
       }
 
+      edm::BasicHandle value(prod, &s_prov);
+      return value;
+   }
+
+   edm::BasicHandle
+   EventBase::getImpl(std::type_info const& iProductInfo, const edm::ProductID& pid) const {
+      edm::WrapperBase const* prod = getByProductID(pid);
+      if(prod == nullptr || !prod->isPresent()) {
+         edm::TypeID productType(iProductInfo);
+
+         edm::BasicHandle failed(edm::makeHandleExceptionFactory([=]()->std::shared_ptr<cms::Exception>{
+            std::shared_ptr<cms::Exception> whyFailed(std::make_shared<edm::Exception>(edm::errors::ProductNotFound));
+            *whyFailed
+              << "EventBase::getImpl: getByProductID found no product with the\n"
+              << "requested ProductID " << pid << "\n"
+              << "Expected type: " << productType << "\n";
+            return whyFailed;
+         }));
+         return failed;
+      }
       edm::BasicHandle value(prod, &s_prov);
       return value;
    }

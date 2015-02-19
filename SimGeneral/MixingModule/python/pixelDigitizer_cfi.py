@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 pixelDigitizer = cms.PSet(
+    DoPixelAging = cms.bool(False),
     accumulatorType = cms.string("SiPixelDigitizer"),
     hitsProducer = cms.string('g4SimHits'),
     makeDigiSimLinks = cms.untracked.bool(True),
@@ -41,20 +42,19 @@ pixelDigitizer = cms.PSet(
     TanLorentzAnglePerTesla_BPix = cms.double(0.106),
     AddNoisyPixels = cms.bool(True),
     Alpha2Order = cms.bool(True),
-    AddPixelInefficiency = cms.int32(0), # deprecated, use next option
     AddPixelInefficiencyFromPython = cms.bool(True),
     AddNoise = cms.bool(True),
     ChargeVCALSmearing = cms.bool(True),
     GainSmearing = cms.double(0.0),
     GeometryType = cms.string('idealForDigi'),                           
-    useDB = cms.bool(True),
+    useDB = cms.bool(False),
     LorentzAngle_DB = cms.bool(True),
     DeadModules_DB = cms.bool(True),
-##    killModules = cms.bool(False),
-##    DeadModules_DB = cms.bool(False),
     killModules = cms.bool(True),
     NumPixelBarrel = cms.int32(3),
     NumPixelEndcap = cms.int32(2),
+    theInstLumiScaleFactor = cms.double(221.95),
+    bunchScaleAt25 = cms.double(1.0), #for 25ns case
     thePixelColEfficiency_BPix1 = cms.double(1.0), 	# Only used when AddPixelInefficiency = true
     thePixelColEfficiency_BPix2 = cms.double(1.0),
     thePixelColEfficiency_BPix3 = cms.double(1.0),
@@ -176,19 +176,19 @@ pixelDigitizer = cms.PSet(
         1.00361,
         0.999371,
         0.961242,
-        0.952364
+	0.953582 
         ),
     theModuleEfficiency_BPix2 = cms.vdouble(
         1.00069,
         0.999792,
         0.99562,
-        0.955627
+	1.00341
         ),
     theModuleEfficiency_BPix3 = cms.vdouble(
         1.00006,
         0.999744,
         0.998147,
-        1.00314
+        1.00039
         ),
     thePUEfficiency_BPix1 = cms.vdouble(
         1.0181,
@@ -204,6 +204,16 @@ pixelDigitizer = cms.PSet(
         1.0032,
         -1.96206e-08,
         -1.99009e-10
+        ),
+    theInnerEfficiency_FPix1 = cms.double(1.0),
+    theInnerEfficiency_FPix2 = cms.double(1.0),
+    theOuterEfficiency_FPix1 = cms.double(1.0),
+    theOuterEfficiency_FPix2 = cms.double(1.0),
+    thePUEfficiency_FPix_Inner = cms.vdouble(
+        1.0
+        ),
+    thePUEfficiency_FPix_Outer = cms.vdouble(
+        1.0
         ),
 DeadModules = cms.VPSet(
  cms.PSet(Dead_detID = cms.int32(302055940), Module = cms.string("tbmB"))
@@ -275,6 +285,61 @@ DeadModules = cms.VPSet(
 
 ###    DeadModules = cms.VPSet()
 )
+
+##
+## Make changes for running in the Run 2 scenario
+##
+from Configuration.StandardSequences.Eras import eras
+
+def modifyPixelDigitizerForRun2Bunchspacing25( digitizer ) :
+    """
+    Function that modifies the pixel digitiser for Run 2 with 25ns bunchspacing.
+    First argument is the pixelDigitizer object (generally
+    "process.mix.digitizers.pixel" when this function is called).
+    """
+    # DynamicInefficency - 13TeV - 25ns case
+    digitizer.theInstLumiScaleFactor = cms.double(364)
+    digitizer.theLadderEfficiency_BPix1 = cms.vdouble( [1]*20 ) # this syntax makes an array with 20 copies of "1"
+    digitizer.theLadderEfficiency_BPix2 = cms.vdouble( [1]*32 )
+    digitizer.theLadderEfficiency_BPix3 = cms.vdouble( [1]*44 )
+    digitizer.theModuleEfficiency_BPix1 = cms.vdouble( 1, 1, 1, 1, )
+    digitizer.theModuleEfficiency_BPix2 = cms.vdouble( 1, 1, 1, 1, )
+    digitizer.theModuleEfficiency_BPix3 = cms.vdouble( 1, 1, 1, 1 )
+    digitizer.thePUEfficiency_BPix1 = cms.vdouble( 1.00023, -3.18350e-06, 5.08503e-10, -6.79785e-14 )
+    digitizer.thePUEfficiency_BPix2 = cms.vdouble( 9.99974e-01, -8.91313e-07, 5.29196e-12, -2.28725e-15 )
+    digitizer.thePUEfficiency_BPix3 = cms.vdouble( 1.00005, -6.59249e-07, 2.75277e-11, -1.62683e-15 )
+
+def modifyPixelDigitizerForRun2Bunchspacing50( digitizer ) :
+    """
+    Function that modifies the pixel digitiser for Run 2 with 50ns bunchspacing.
+    
+    First argument is the pixelDigitizer object (generally
+    "process.mix.digitizers.pixel" when this function is called).
+    """
+    # DynamicInefficency - 13TeV - 50ns case
+    digitizer.theInstLumiScaleFactor = cms.double(246.4)
+    digitizer.theLadderEfficiency_BPix1 = cms.vdouble( [0.979259,0.976677]*10 ) # This syntax makes a 20 element array of alternating numbers
+    digitizer.theLadderEfficiency_BPix2 = cms.vdouble( [0.994321,0.993944]*16 )
+    digitizer.theLadderEfficiency_BPix3 = cms.vdouble( [0.996787,0.996945]*22 )
+
+def _modifyPixelDigitizerForRun2( digitiserInstance ) :
+    """
+    Either delegates to modifyPixelDigitizerForRun2Bunchspacing25 or
+    modifyPixelDigitizerForRun2Bunchspacing50 depending on which bunch
+    spacing era is active.
+    Can't simply use the bunchspacing era because I only want it enacted
+    if this is also Run 2 (i.e. eras.run2 AND eras.bunchspacingXns active). 
+    """
+    if eras.bunchspacing25ns.isChosen() and eras.bunchspacing50ns.isChosen() :
+        raise Exception( "ERROR: both the 25ns and 50ns bunch crossing eras are active. Take one of them out of the cms.Process constructor.")
+
+    if eras.bunchspacing25ns.isChosen() :
+        modifyPixelDigitizerForRun2Bunchspacing25( digitiserInstance )
+    elif eras.bunchspacing50ns.isChosen() :
+        modifyPixelDigitizerForRun2Bunchspacing50( digitiserInstance )
+
+eras.run2.toModify( pixelDigitizer, func=_modifyPixelDigitizerForRun2 )
+
 
 # Threshold in electrons are the Official CRAFT09 numbers:
 # FPix(smearing)/BPix(smearing) = 2480(160)/2730(200)

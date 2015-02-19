@@ -3,13 +3,13 @@ import string # use for setting flag masks based on boolean bits
 
 hfreco = cms.EDProducer("HcalHitReconstructor",
                         correctForPhaseContainment = cms.bool(False),
-                        correctionPhaseNS = cms.double(13.0), 
+                        correctionPhaseNS = cms.double(13.0),
                         digiLabel = cms.InputTag("hcalDigis"),
                         Subdetector = cms.string('HF'),
                         correctForTimeslew = cms.bool(False),
                         dropZSmarkedPassed = cms.bool(True),
    		        firstSample = cms.int32(2),
-                        samplesToAdd = cms.int32(1),	
+                        samplesToAdd = cms.int32(1),
                         tsFromDB = cms.bool(True),
                         recoParamsFromDB = cms.bool(True),
                         useLeakCorrection = cms.bool(False),
@@ -17,9 +17,10 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         dataOOTCorrectionCategory = cms.string("Data"),
                         mcOOTCorrectionName = cms.string(""),
                         mcOOTCorrectionCategory = cms.string("MC"),
-	
+                        puCorrMethod = cms.int32(0),
+
                         correctTiming = cms.bool(True),
-                        # Set time slice for first digi to be stored in aux word 
+                        # Set time slice for first digi to be stored in aux word
                         firstAuxTS = cms.int32(1),
 
                         # Tags for calculating status flags
@@ -29,6 +30,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         setSaturationFlags = cms.bool(True),
                         setTimingTrustFlags = cms.bool(True),
                         setPulseShapeFlags = cms.bool(False),  # not yet defined for HF
+                        setNegativeFlags          = cms.bool(False),  # only in HBHE
 
                         digistat= cms.PSet(HFdigiflagFirstSample     = cms.int32(1),  # These may be different from samples used for reconstruction
                                            HFdigiflagSamplesToAdd    = cms.int32(3),  # Use 3 TS for 75-ns running
@@ -84,7 +86,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                                            0,0,0,0,
                                            0,0,0,0,0]),
 
-    HcalAcceptSeverityLevel          = cms.int32(9), # allow hits with severity up to AND INCLUDING 9 
+    HcalAcceptSeverityLevel          = cms.int32(9), # allow hits with severity up to AND INCLUDING 9
     isS8S1                   = cms.bool(False),
     ),
 
@@ -121,7 +123,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                                            0,0,0,0,
                                            0,0,0,0,0]),
 
-    HcalAcceptSeverityLevel             = cms.int32(9), # allow hits with severity up to AND INCLUDING 9  
+    HcalAcceptSeverityLevel             = cms.int32(9), # allow hits with severity up to AND INCLUDING 9
     isS8S1                   = cms.bool(True),
     ),
 

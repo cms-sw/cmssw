@@ -32,13 +32,13 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 
 class FakeAlignmentProducer : public edm::ESProducer {
@@ -55,14 +55,14 @@ public:
   std::auto_ptr<Alignments>
   produceGlobals(const GlobalPositionRcd&) {return std::auto_ptr<Alignments>(new Alignments);}
 
-  std::auto_ptr<AlignmentErrors> produceTkAliErr(const TrackerAlignmentErrorRcd&) {
-    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  std::auto_ptr<AlignmentErrorsExtended> produceTkAliErr(const TrackerAlignmentErrorExtendedRcd&) {
+    return std::auto_ptr<AlignmentErrorsExtended>(new AlignmentErrorsExtended);
   }
-  std::auto_ptr<AlignmentErrors> produceDTAliErr(const DTAlignmentErrorRcd&) {
-    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  std::auto_ptr<AlignmentErrorsExtended> produceDTAliErr(const DTAlignmentErrorExtendedRcd&) {
+    return std::auto_ptr<AlignmentErrorsExtended>(new AlignmentErrorsExtended);
   }
-  std::auto_ptr<AlignmentErrors> produceCSCAliErr(const CSCAlignmentErrorRcd&) {
-    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  std::auto_ptr<AlignmentErrorsExtended> produceCSCAliErr(const CSCAlignmentErrorExtendedRcd&) {
+    return std::auto_ptr<AlignmentErrorsExtended>(new AlignmentErrorsExtended);
   }
 
 };

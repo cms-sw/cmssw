@@ -19,6 +19,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
@@ -91,6 +92,7 @@ private:
   edm::ProcessConfiguration m_procConfig;
   std::shared_ptr<edm::ProductRegistry> m_prodReg;
   std::shared_ptr<edm::BranchIDListHelper> m_idHelper;
+  std::shared_ptr<edm::ThinnedAssociationsHelper> m_associationsHelper;
   std::unique_ptr<edm::EventPrincipal> m_ep;
   edm::HistoryAppender historyAppender_;
   std::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
@@ -100,7 +102,7 @@ private:
   edm::ModuleDescription m_desc = {"Dummy","dummy"};
   
   template<typename T, typename U>
-  void testTransitions(U* iMod, Expectations const& iExpect);
+  void testTransitions(std::shared_ptr<U> iMod, Expectations const& iExpect);
   
   template<typename T>
   void runTest(Expectations const& iExpect);
@@ -366,6 +368,7 @@ static const edm::StreamID s_streamID0 = makeID();
 testStreamModule::testStreamModule():
 m_prodReg(new edm::ProductRegistry{}),
 m_idHelper(new edm::BranchIDListHelper{}),
+m_associationsHelper(new edm::ThinnedAssociationsHelper{}),
 m_ep()
 {
   //Setup the principals
@@ -390,6 +393,7 @@ m_ep()
   
   m_ep.reset(new edm::EventPrincipal(m_prodReg,
                                      m_idHelper,
+                                     m_associationsHelper,
                                      m_procConfig,nullptr,*pID));
   edm::ProcessHistoryRegistry phr;
   m_ep->fillEventPrincipal(eventAux, phr);
@@ -454,12 +458,11 @@ m_ep()
 
 namespace {
   template<typename T>
-  std::unique_ptr<edm::stream::EDProducerAdaptorBase> createModule() {
+  std::shared_ptr<edm::stream::EDProducerAdaptorBase> createModule() {
     edm::ParameterSet pset;
-    std::unique_ptr<edm::stream::EDProducerAdaptorBase> retValue(new edm::stream::EDProducerAdaptor<T>(pset));
-    edm::maker::ModuleHolderT<edm::stream::EDProducerAdaptorBase> h(retValue.get(),nullptr);
+    std::shared_ptr<edm::stream::EDProducerAdaptorBase> retValue(new edm::stream::EDProducerAdaptor<T>(pset));
+    edm::maker::ModuleHolderT<edm::stream::EDProducerAdaptorBase> h(retValue,nullptr);
     h.preallocate(edm::PreallocationConfiguration{});
-    h.release();
     return retValue;
   }
   template<typename T>
@@ -479,7 +482,7 @@ namespace {
 
 template<typename T, typename U>
 void
-testStreamModule::testTransitions(U* iMod, Expectations const& iExpect) {
+testStreamModule::testTransitions(std::shared_ptr<U> iMod, Expectations const& iExpect) {
   edm::WorkerT<edm::stream::EDProducerAdaptorBase> w{iMod,m_desc,nullptr};
   for(auto& keyVal: m_transToFunc) {
     testTransition<T>(&w,keyVal.first,iExpect,keyVal.second);
@@ -490,7 +493,7 @@ void
 testStreamModule::runTest(Expectations const& iExpect) {
   auto mod = createModule<T>();
   CPPUNIT_ASSERT(0 == T::m_count);
-  testTransitions<T>(mod.get(),iExpect);
+  testTransitions<T>(mod,iExpect);
 }
 
 

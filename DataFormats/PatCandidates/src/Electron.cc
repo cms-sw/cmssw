@@ -395,7 +395,7 @@ reco::CandidatePtr Electron::sourceCandidatePtr( size_type i ) const {
     if (i >= associatedPackedFCandidateIndices_.size()) {
         return reco::CandidatePtr();
     } else {
-        return reco::CandidatePtr(edm::refToPtr(edm::Ref<pat::PackedCandidateCollection>(packedPFCandidates_, i)));
+        return reco::CandidatePtr(edm::refToPtr(edm::Ref<pat::PackedCandidateCollection>(packedPFCandidates_, associatedPackedFCandidateIndices_[i])));
     }
 }
 
@@ -474,11 +474,6 @@ void Electron::setMvaVariables( double sigmaIetaIphi, double ip3d){
   ip3d_ = ip3d;
 } 
 
-void Electron::setPackedPFCandidateCollection(const edm::RefProd<pat::PackedCandidateCollection> & refprod) {
-    if (!associatedPackedFCandidateIndices_.empty()) throw cms::Exception("Unsupported", "You can't call setPackedPFCandidateCollection _after_ having called setAssociatedPackedPFCandidates");
-    packedPFCandidates_ = refprod;
-}
-
 edm::RefVector<pat::PackedCandidateCollection> Electron::associatedPackedPFCandidates() const {
     edm::RefVector<pat::PackedCandidateCollection> ret(packedPFCandidates_.id());
     for (uint16_t idx : associatedPackedFCandidateIndices_) {
@@ -487,17 +482,4 @@ edm::RefVector<pat::PackedCandidateCollection> Electron::associatedPackedPFCandi
     return ret;
 }
 
-void Electron::setAssociatedPackedPFCandidates(const edm::RefVector<pat::PackedCandidateCollection> &refvector) {
-    if (packedPFCandidates_.isNonnull()) {
-        if (refvector.id().isValid() && refvector.id() != packedPFCandidates_.id()) {
-            throw cms::Exception("Unsupported", "setAssociatedPackedPFCandidates pointing to a collection other than the one from setPackedPFCandidateCollection");
-        }
-    } else {
-        packedPFCandidates_ = edm::RefProd<pat::PackedCandidateCollection>(refvector);
-    }
-    associatedPackedFCandidateIndices_.clear();
-    for (const edm::Ref<pat::PackedCandidateCollection> & ref : refvector) {
-        associatedPackedFCandidateIndices_.push_back(ref.key());
-    }
-}
 

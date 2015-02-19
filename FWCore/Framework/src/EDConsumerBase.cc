@@ -11,16 +11,20 @@
 //
 
 // system include files
+#include <algorithm>
 #include <cassert>
-#include <utility>
 #include <cstring>
+#include <set>
+#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Provenance/interface/ProductHolderIndexHelper.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 using namespace edm;
 
@@ -376,9 +380,7 @@ namespace {
 
 void
 EDConsumerBase::modulesDependentUpon(const std::string& iProcessName,
-                                     std::vector<const char*>& oModuleLabels
-                                     ) const
-{
+                                     std::vector<const char*>& oModuleLabels) const {
   std::set<const char*, CharStarComp> uniqueModules;
   for(unsigned int index=0, iEnd=m_tokenInfo.size();index <iEnd; ++index) {
     auto const& info = m_tokenInfo.get<kLookupInfo>(index);
@@ -396,6 +398,142 @@ EDConsumerBase::modulesDependentUpon(const std::string& iProcessName,
   oModuleLabels = std::vector<const char*>(uniqueModules.begin(),uniqueModules.end());
 }
 
-//
-// static member functions
-//
+
+namespace {
+  void
+  insertFoundModuleLabel(const char* consumedModuleLabel,
+                         std::vector<ModuleDescription const*>& modules,
+                         std::set<std::string>& alreadyFound,
+                         std::map<std::string, ModuleDescription const*> const& labelsToDesc,
+                         ProductRegistry const& preg) {
+    // Convert from label string to module description, eliminate duplicates,
+    // then insert into the vector of modules
+    auto it = labelsToDesc.find(consumedModuleLabel);
+    if(it != labelsToDesc.end()) {
+      if(alreadyFound.insert(consumedModuleLabel).second) {
+        modules.push_back(it->second);
+      }
+      return;
+    }
+    // Deal with EDAlias's by converting to the original module label first
+    std::vector<std::pair<std::string, std::string> > const& aliasToOriginal = preg.aliasToOriginal();
+    std::pair<std::string, std::string> target(consumedModuleLabel, std::string());
+    auto iter = std::lower_bound(aliasToOriginal.begin(), aliasToOriginal.end(), target);
+    if(iter != aliasToOriginal.end() && iter->first == consumedModuleLabel) {
+
+      std::string const& originalModuleLabel = iter->second;
+      auto iter2 = labelsToDesc.find(originalModuleLabel);
+      if(iter2 != labelsToDesc.end()) {
+        if(alreadyFound.insert(originalModuleLabel).second) {
+          modules.push_back(iter2->second);
+        }
+        return;
+      }
+    }
+    // Ignore the source products, we are only interested in module products.
+    // As far as I know, it should never be anything else so throw if something
+    // unknown gets passed in.
+    if(std::string(consumedModuleLabel) != "source") {
+      throw cms::Exception("EDConsumerBase", "insertFoundModuleLabel")
+        << "Couldn't find ModuleDescription for the consumed module label: "
+        << std::string(consumedModuleLabel) << "\n";
+    }
+  }
+}
+
+void
+EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+                                                ProductRegistry const& preg,
+                                                std::map<std::string, ModuleDescription const*> const& labelsToDesc,
+                                                std::string const& processName) const {
+
+  ProductHolderIndexHelper const& iHelper = *preg.productLookup(InEvent);
+
+  std::set<std::string> alreadyFound;
+
+  auto itKind = m_tokenInfo.begin<kKind>();
+  auto itLabels = m_tokenInfo.begin<kLabels>();
+  for(auto itInfo = m_tokenInfo.begin<kLookupInfo>(),itEnd = m_tokenInfo.end<kLookupInfo>();
+      itInfo != itEnd; ++itInfo,++itKind,++itLabels) {
+
+    if(itInfo->m_branchType == InEvent) {
+
+      const unsigned int labelStart = itLabels->m_startOfModuleLabel;
+      const char* consumedModuleLabel = &(m_tokenLabels[labelStart]);
+      const char* consumedProcessName = consumedModuleLabel+itLabels->m_deltaToProcessName;
+
+      if(*consumedModuleLabel != '\0') { // not a consumesMany
+        if(*consumedProcessName != '\0') { // process name is specified in consumes call
+          if (processName == consumedProcessName &&
+              iHelper.index(*itKind,
+                            itInfo->m_type,
+                            consumedModuleLabel,
+                            consumedModuleLabel+itLabels->m_deltaToProductInstance,
+                            consumedModuleLabel+itLabels->m_deltaToProcessName) != ProductHolderIndexInvalid) {
+            insertFoundModuleLabel(consumedModuleLabel, modules, alreadyFound, labelsToDesc, preg);
+          }
+        } else { // process name was empty
+          auto matches = iHelper.relatedIndexes(*itKind,
+                                                itInfo->m_type,
+                                                consumedModuleLabel,
+                                                consumedModuleLabel+itLabels->m_deltaToProductInstance);
+          for(unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
+            if(processName == matches.processName(j)) {
+              insertFoundModuleLabel(consumedModuleLabel, modules, alreadyFound, labelsToDesc, preg);
+            }
+          }
+        }
+      // consumesMany case
+      } else if(itInfo->m_index.productHolderIndex() == ProductHolderIndexInvalid) {
+        auto matches = iHelper.relatedIndexes(*itKind,
+                                              itInfo->m_type);
+        for(unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
+          if(processName == matches.processName(j)) {
+            insertFoundModuleLabel(matches.moduleLabel(j), modules, alreadyFound, labelsToDesc, preg);
+          }
+        }
+      }
+    }
+  }
+}
+
+std::vector<ConsumesInfo>
+EDConsumerBase::consumesInfo() const {
+
+  // Use this to eliminate duplicate entries related
+  // to consumesMany items where only the type was specified
+  // and the there are multiple matches. In these cases the
+  // label, instance, and process will be empty.
+  std::set<edm::TypeID> alreadySeenTypes;
+
+  std::vector<ConsumesInfo> result;
+  auto itAlways = m_tokenInfo.begin<kAlwaysGets>();
+  auto itKind = m_tokenInfo.begin<kKind>();
+  auto itLabels = m_tokenInfo.begin<kLabels>();
+  for(auto itInfo = m_tokenInfo.begin<kLookupInfo>(),itEnd = m_tokenInfo.end<kLookupInfo>();
+      itInfo != itEnd; ++itInfo,++itKind,++itLabels, ++itAlways) {
+
+    const unsigned int labelStart = itLabels->m_startOfModuleLabel;
+    const char* consumedModuleLabel = &(m_tokenLabels[labelStart]);
+    const char* consumedInstance = consumedModuleLabel+itLabels->m_deltaToProductInstance;
+    const char* consumedProcessName = consumedModuleLabel+itLabels->m_deltaToProcessName;
+
+    // consumesMany case
+    if(*consumedModuleLabel == '\0') {
+      if(!alreadySeenTypes.insert(itInfo->m_type).second) {
+        continue;
+      }
+    }
+
+    // Just copy the information into the ConsumesInfo data structure
+    result.emplace_back(itInfo->m_type,
+                        consumedModuleLabel,
+                        consumedInstance,
+                        consumedProcessName,
+                        itInfo->m_branchType,
+                        *itKind,
+                        *itAlways,
+                        itInfo->m_index.skipCurrentProcess());
+  }
+  return result;
+}

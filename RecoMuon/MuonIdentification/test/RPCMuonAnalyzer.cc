@@ -16,6 +16,8 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #include "TTree.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -43,7 +45,9 @@ private:
   double minPtTrk_;
   double maxEtaTrk_;
 
-  Int_t runNumber, eventNumber, nMuon;
+  edm::RunNumber_t runNumber;
+  edm::EventNumber_t eventNumber;
+  Int_t nMuon;
   Int_t nGlbMuon, nStaMuon, nTrkMuon;
   Int_t nRPCMuon, nRPCMuTight;
   Int_t nTrkMuTight, nTrkMuTight2;

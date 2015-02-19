@@ -12,9 +12,10 @@
 class CSCRecHit2DValidation : public CSCBaseValidation
 {
 public:
-  CSCRecHit2DValidation(DQMStore* dbe, const edm::InputTag & inputTag, edm::ConsumesCollector && iC);
-
+  CSCRecHit2DValidation(const edm::InputTag & inputTag,
+                        edm::ConsumesCollector && iC);
   virtual ~CSCRecHit2DValidation();
+  void bookHistograms(DQMStore::IBooker &);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
  private:

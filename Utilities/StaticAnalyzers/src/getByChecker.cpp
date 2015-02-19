@@ -6,12 +6,14 @@ using namespace llvm;
 namespace clangcms {
 
 class Walker : public clang::StmtVisitor<Walker> {
+  const CheckerBase *Checker;
   clang::ento::BugReporter &BR;
   clang::AnalysisDeclContext *AC;
 
 public:
-  Walker(clang::ento::BugReporter &br, clang::AnalysisDeclContext *ac )
-    : BR(br),
+  Walker( const CheckerBase *checker, clang::ento::BugReporter &br, clang::AnalysisDeclContext *ac )
+    : Checker(checker),
+      BR(br),
       AC(ac) {}
 
   void VisitChildren(clang::Stmt *S );
@@ -35,7 +37,7 @@ void Walker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 	PrintingPolicy Policy(LangOpts);
 	const Decl * D = AC->getDecl();
 	std::string dname =""; 
-	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(D)) dname = ND->getQualifiedNameAsString();
+	if (const NamedDecl * ND = llvm::dyn_cast_or_null<NamedDecl>(D)) dname = ND->getQualifiedNameAsString();
 	CXXMethodDecl * MD = CE->getMethodDecl();
 	if (!MD) return;
 	std::string mname = MD->getQualifiedNameAsString();
@@ -48,7 +50,7 @@ void Walker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 	llvm::SmallString<100> buf;
 	llvm::raw_svector_ostream os(buf);
 	if ( mname == "edm::Event::getByLabel" || mname == "edm::Event::getManyByType" ) {
-//			if (const CXXRecordDecl * RD = llvm::dyn_cast<CXXMethodDecl>(D)->getParent() ) {
+//			if (const CXXRecordDecl * RD = llvm::dyn_cast_or_null<CXXMethodDecl>(D)->getParent() ) {
 //				llvm::errs()<<"class "<<RD->getQualifiedNameAsString()<<"\n";
 //				llvm::errs()<<"\n";
 //				}
@@ -105,7 +107,7 @@ void Walker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 //			llvm::errs()<<os.str()<<"\n";
 			PathDiagnosticLocation CELoc = 
 				PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
-			BugType * BT = new BugType("edm::getByLabel or edm::getManyByType called","optional") ;
+			BugType * BT = new BugType(Checker,"edm::getByLabel or edm::getManyByType called","optional") ;
 			BugReport * R = new BugReport(*BT,os.str(),CELoc);
 			R->addRange(CE->getSourceRange());
 			BR.emitReport(R);
@@ -130,7 +132,7 @@ void Walker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 //				llvm::errs()<<" "<<qtname<<"\n";
 				PathDiagnosticLocation CELoc = 
 					PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
- 				BugType * BT = new BugType("function call with argument of type edm::Event","optional");
+ 				BugType * BT = new BugType(Checker,"function call with argument of type edm::Event","optional");
 				BugReport * R = new BugReport(*BT,os.str(),CELoc);
 				R->addRange(CE->getSourceRange());
 				BR.emitReport(R);
@@ -147,7 +149,7 @@ void getByChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
        	PathDiagnosticLocation DLoc =PathDiagnosticLocation::createBegin( MD, SM );
 	if ( SM.isInSystemHeader(DLoc.asLocation()) || SM.isInExternCSystemHeader(DLoc.asLocation()) ) return;
        	if (!MD->doesThisDeclarationHaveABody()) return;
-	clangcms::Walker walker(BR, mgr.getAnalysisDeclContext(MD));
+	clangcms::Walker walker(this,BR, mgr.getAnalysisDeclContext(MD));
 	walker.Visit(MD->getBody());
        	return;
 } 
@@ -162,7 +164,7 @@ void getByChecker::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManager&
 			E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
 		{
 			if (I->doesThisDeclarationHaveABody()) {
-				clangcms::Walker walker(BR, mgr.getAnalysisDeclContext(*I));
+				clangcms::Walker walker(this,BR, mgr.getAnalysisDeclContext(*I));
 				walker.Visit(I->getBody());
 				}
 		}	

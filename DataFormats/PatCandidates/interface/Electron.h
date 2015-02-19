@@ -234,12 +234,19 @@ namespace pat {
       bool passConversionVeto() const { return passConversionVeto_; }
       void setPassConversionVeto( bool flag ) { passConversionVeto_ = flag; }
 
-      /// References to PFCandidates (e.g. to recompute isolation)
-      void setPackedPFCandidateCollection(const edm::RefProd<pat::PackedCandidateCollection> & refprod) ; 
       /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
       edm::RefVector<pat::PackedCandidateCollection> associatedPackedPFCandidates() const ;
       /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
-      void setAssociatedPackedPFCandidates(const edm::RefVector<pat::PackedCandidateCollection> &refvector) ;
+      template<typename T>
+      void setAssociatedPackedPFCandidates(const edm::RefProd<pat::PackedCandidateCollection> & refprod,
+                                           T beginIndexItr,
+                                           T endIndexItr) {
+        packedPFCandidates_ = refprod;
+        associatedPackedFCandidateIndices_.clear();
+        associatedPackedFCandidateIndices_.insert(associatedPackedFCandidateIndices_.end(),
+                                                  beginIndexItr,
+                                                  endIndexItr);
+      }
 
       friend class PATElectronSlimmer;
 

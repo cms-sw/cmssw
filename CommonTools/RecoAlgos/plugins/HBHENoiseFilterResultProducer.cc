@@ -57,6 +57,8 @@ class HBHENoiseFilterResultProducer : public edm::EDProducer {
       double minIsolatedNoiseSumE_, minIsolatedNoiseSumEt_;
 
       bool useTS4TS5_;
+      bool useRBXRechitR45Loose_;
+      bool useRBXRechitR45Tight_;
 
       bool IgnoreTS4TS5ifJetInLowBVRegion_;
       edm::InputTag jetlabel_;
@@ -87,6 +89,8 @@ HBHENoiseFilterResultProducer::HBHENoiseFilterResultProducer(const edm::Paramete
   minIsolatedNoiseSumE_ = iConfig.getParameter<double>("minIsolatedNoiseSumE");
   minIsolatedNoiseSumEt_ = iConfig.getParameter<double>("minIsolatedNoiseSumEt");
   useTS4TS5_ = iConfig.getParameter<bool>("useTS4TS5");
+  useRBXRechitR45Loose_ = iConfig.getParameter<bool>("useRBXRechitR45Loose");
+  useRBXRechitR45Tight_ = iConfig.getParameter<bool>("useRBXRechitR45Tight");
 
   IgnoreTS4TS5ifJetInLowBVRegion_ = iConfig.getParameter<bool>("IgnoreTS4TS5ifJetInLowBVRegion");
   jetlabel_ =  iConfig.getParameter<edm::InputTag>("jetlabel");
@@ -170,7 +174,9 @@ HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::EventSetup
   if(summary.numIsolatedNoiseChannels()>=minNumIsolatedNoiseChannels_) result=false;
   if(summary.isolatedNoiseSumE()>=minIsolatedNoiseSumE_) result=false;
   if(summary.isolatedNoiseSumEt()>=minIsolatedNoiseSumEt_) result=false;
-  if(useTS4TS5_ == true && summary.HasBadRBXTS4TS5() == true && goodJetFoundInLowBVRegion==false) result = false;
+  if(useTS4TS5_ && summary.HasBadRBXTS4TS5() == true && !goodJetFoundInLowBVRegion) result = false;
+  if(useRBXRechitR45Loose_ && summary.HasBadRBXRechitR45Loose() == true && !goodJetFoundInLowBVRegion) result = false;
+  if(useRBXRechitR45Tight_ && summary.HasBadRBXRechitR45Tight() == true && !goodJetFoundInLowBVRegion) result = false;
 
   std::auto_ptr<bool> pOut(new bool);
   *pOut=result;

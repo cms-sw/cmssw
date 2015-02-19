@@ -9,7 +9,7 @@
 
 namespace edm {
 
-   typedef unsigned int EventNumber_t;
+   typedef unsigned long long EventNumber_t;
    typedef unsigned int LuminosityBlockNumber_t;
    typedef unsigned int RunNumber_t;
 

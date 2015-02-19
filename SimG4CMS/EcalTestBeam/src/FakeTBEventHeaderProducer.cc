@@ -40,7 +40,9 @@ FakeTBEventHeaderProducer::~FakeTBEventHeaderProducer()
   if (!theEcalTBInfo)
     return;
   
-  product->setEventNumber(event.id().event());
+  // 64 bits event ID in CMSSW converted to EcalTBEventHeader ID
+  int evtid = (int)event.id().event();
+  product->setEventNumber(evtid);
   product->setRunNumber(event.id().run());
   product->setBurstNumber(1);
   product->setTriggerMask(0x1);

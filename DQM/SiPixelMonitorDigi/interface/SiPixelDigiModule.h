@@ -31,6 +31,17 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <boost/cstdint.hpp>
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+
 class SiPixelDigiModule {        
 
  public:
@@ -47,15 +58,15 @@ class SiPixelDigiModule {
   typedef edm::DetSet<PixelDigi>::const_iterator    DigiIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet& iConfig, DQMStore::IBooker & iBooker, int type=0, bool twoD=true, bool hiRes=false, bool reducedSet=false, bool additInfo=false, bool isUpgrade=false);
+  void book(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup, DQMStore::IBooker & iBooker, int type=0, bool twoD=true, bool hiRes=false, bool reducedSet=false, bool additInfo=false, bool isUpgrade=false);
   /// Fill histograms
 //  int fill(const edm::DetSetVector<PixelDigi> & input, bool modon=true, 
 //						 bool ladon=false, bool layon=false, bool phion=false, 
 //						 bool bladeon=false, bool diskon=false, bool ringon=false, 
 //						 bool twoD=true, bool reducedSet=false, bool twoDimModOn = true, bool twoDimOnlyLayDisk = false,
 //						 int &nDigisA, int &nDigisB);
-  int fill(const edm::DetSetVector<PixelDigi> & input, 
-	   MonitorElement* combBarrel, MonitorElement* chanBarrel, MonitorElement* chanBarrelL1,MonitorElement* chanBarrelL2, MonitorElement* chanBarrelL3, MonitorElement* chanBarrelL4, MonitorElement* combEndcap,
+  int fill(const edm::DetSetVector<PixelDigi>& input, const edm::EventSetup& iSetup,
+      MonitorElement* combBarrel, MonitorElement* chanBarrel, std::vector<MonitorElement*>& chanBarrelL, MonitorElement* combEndcap,
 	   const bool modon, const bool ladon, const bool layon, const bool phion, 
 	   const bool bladeon, const bool diskon, const bool ringon, 
 	   const bool twoD, const bool reducedSet, const bool twoDimModOn, const bool twoDimOnlyLayDisk,
@@ -83,8 +94,8 @@ class SiPixelDigiModule {
   MonitorElement* meNDigisLay_;
   MonitorElement* meADCLay_;
   MonitorElement* mePixDigisLay_;
-  MonitorElement* mePixRocsLay_;
-  MonitorElement* meZeroOccRocsLay_;
+  MonitorElement* mePixRocsLay_ = NULL;
+  MonitorElement* meZeroOccRocsLay_ = NULL;
   MonitorElement* mePixDigisLay_px_;
   MonitorElement* mePixDigisLay_py_;
 
@@ -101,8 +112,8 @@ class SiPixelDigiModule {
   MonitorElement* meNDigisDisk_;
   MonitorElement* meADCDisk_;
   MonitorElement* mePixDigisDisk_;
-  MonitorElement* mePixRocsDisk_;
-  MonitorElement* meZeroOccRocsDisk_;
+  MonitorElement* mePixRocsDisk_ = NULL;
+  MonitorElement* meZeroOccRocsDisk_ = NULL;
 
   MonitorElement* meNDigisRing_;
   MonitorElement* meADCRing_;

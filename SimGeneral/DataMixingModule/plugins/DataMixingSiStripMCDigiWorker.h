@@ -49,8 +49,7 @@
 namespace edm
 {
   class ModuleCallingContext;
-  class ConsumesCollector;
- 
+  class ConsumesCollector; 
   class DataMixingSiStripMCDigiWorker
     {
     public:
@@ -59,7 +58,6 @@ namespace edm
 
      /** standard constructor*/
       explicit DataMixingSiStripMCDigiWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC);
-
       /**Default destructor*/
       virtual ~DataMixingSiStripMCDigiWorker();
 
@@ -82,18 +80,23 @@ namespace edm
 
       // 
 
+      typedef float Amplitude;
+      typedef std::pair<uint16_t, Amplitude> RawDigi;  // Replacement for SiStripDigi with pulse height instead of integer ADC
       typedef std::vector<SiStripDigi> OneDetectorMap;   // maps by strip ID for later combination - can have duplicate strips
+      typedef std::vector<RawDigi> OneDetectorRawMap;   // maps by strip ID for later combination - can have duplicate strips
       typedef std::map<uint32_t, OneDetectorMap> SiGlobalIndex; // map to all data for each detector ID
+      typedef std::map<uint32_t, OneDetectorRawMap> SiGlobalRawIndex; // map to all data for each detector ID
+
       typedef SiDigitalConverter::DigitalVecType DigitalVecType;
 
       SiGlobalIndex SiHitStorage_;
-
+      SiGlobalRawIndex SiRawDigis_;
 
       //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
 
       // variables for temporary storage of mixed hits:
 
-      typedef float Amplitude;
+
       typedef std::map<int, Amplitude>  SignalMapType;
       typedef std::map<uint32_t, SignalMapType>  signalMaps;
 
@@ -122,7 +125,6 @@ namespace edm
       std::unique_ptr<SiStripFedZeroSuppression> theSiZeroSuppress;
       std::unique_ptr<SiTrivialDigitalConverter> theSiDigitalConverter;
 
-
       edm::ESHandle<TrackerGeometry> pDD;
 
       // bad channels for each detector ID
@@ -138,6 +140,10 @@ namespace edm
 	bool operator() (SiStripDigi i,SiStripDigi j) const {return i.strip() < j.strip();}
       };
 
+      class StrictWeakRawOrdering{
+      public:
+	bool operator() (RawDigi i,RawDigi j) const {return i.first < j.first;}
+      };
 
     };
 }//edm

@@ -38,7 +38,7 @@ class LHERunInfoProduct;
 	virtual void endJob() override;
 	virtual void beginRun(edm::Run &run) override;
 	virtual void endRun(edm::Run &run) override;
- 	virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&) override;
+ 	virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override;
 	virtual void readRun_(edm::RunPrincipal& runPrincipal) override;
 	virtual void readLuminosityBlock_(edm::LuminosityBlockPrincipal& lumiPrincipal) override;
 	virtual void readEvent_(edm::EventPrincipal& eventPrincipal) override;

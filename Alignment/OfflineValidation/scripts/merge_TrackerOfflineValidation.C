@@ -60,10 +60,10 @@ float getMedian(const TH1 *histo);
 //////////////////////////////////////////////////////////////////////////
 // master method
 //////////////////////////////////////////////////////////////////////////
-void hadd(const char *filesSeparatedByKommaOrEmpty = "", const char * outputFile = "") {
-//void merge_TrackerOfflineValidation(const char *filesSeparatedByKommaOrEmpty = "") {
+int hadd(const char *filesSeparatedByCommaOrEmpty = "", const char * outputFile = "") {
+//void merge_TrackerOfflineValidation(const char *filesSeparatedByCommaOrEmpty = "") {
 
-  TString fileNames(filesSeparatedByKommaOrEmpty);
+  TString fileNames(filesSeparatedByCommaOrEmpty);
   TObjArray *names = 0;
 
   if (fileNames.Length() == 0) {
@@ -85,7 +85,7 @@ void hadd(const char *filesSeparatedByKommaOrEmpty = "", const char * outputFile
       names->Add(new TObjString((fileName += i) += ".root"));
     }
   } else {
-    // decode file name from komma separated list
+    // decode file name from comma separated list
     names = fileNames.Tokenize(","); // is already owner
   }
 
@@ -109,7 +109,7 @@ void hadd(const char *filesSeparatedByKommaOrEmpty = "", const char * outputFile
     } else {
       cout << "File " << names->At(iFile)->GetName() << " does not exist!" << endl;
       delete names; names = 0;
-      return;
+      return 1;
     }
   }
   delete names;
@@ -162,10 +162,12 @@ void hadd(const char *filesSeparatedByKommaOrEmpty = "", const char * outputFile
   // The abort() command is ugly, but much quicker than the clean return()
   // Use of return() can take 90 minutes, while abort() takes 10 minutes
   // (merging 20 jobs with 1M events in total)
-  abort();
+  // BUT abort creates an error signal and incorrect functioning
+  // at higher level
+  // abort();
 
   std::cout << "Now returning from merge_TrackerOfflineValidation.C" << std::endl;
-  return;
+  return 0;
 } 
 
 /////////////////////////////////////////////////////////////////////////

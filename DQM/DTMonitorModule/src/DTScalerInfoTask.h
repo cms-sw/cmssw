@@ -23,6 +23,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
@@ -33,7 +35,7 @@
 
 class DTTimeEvolutionHisto;
 
-class DTScalerInfoTask: public edm::EDAnalyzer{
+class DTScalerInfoTask: public DQMEDAnalyzer{
 
   friend class DTMonitorModule;
 
@@ -47,11 +49,11 @@ class DTScalerInfoTask: public edm::EDAnalyzer{
 
  protected:
 
-  // BeginJob
-  void beginJob();
+  // Book the histograms
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   ///Beginrun
-  void beginRun(const edm::Run& , const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -62,18 +64,11 @@ class DTScalerInfoTask: public edm::EDAnalyzer{
   /// Perform trend plot operations
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
 
-  /// EndJob
-  void endJob(void);
-
  private:
-
-  /// Book the histograms
-  void bookHistos();
 
   int nEvents;
   int nEventsInLS;
 
-  DQMStore* theDQMStore;
   edm::ParameterSet theParams;
 
   edm::EDGetTokenT<LumiScalersCollection> scalerToken_;

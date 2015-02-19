@@ -1,4 +1,5 @@
 <use   name="DataFormats/Common"/>
+<use   name="DataFormats/BTauReco"/>
 <use   name="DataFormats/HLTReco"/>
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="DataFormats/JetReco"/>
@@ -16,4 +17,6 @@
 <use   name="RecoJets/JetProducers"/>
 <use   name="TrackingTools/IPTools"/>
 <use   name="TrackingTools/TransientTrack"/>
-<flags   EDM_PLUGIN="1"/>
+<export>
+  <lib name="1"/>
+</export>

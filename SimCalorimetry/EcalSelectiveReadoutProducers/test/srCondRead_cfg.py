@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-global_tag='START39_V8::All'
+global_tag='START53_V29B::All'
+
 #customize tag for SR. Empty string to use Global tag default:
 #use cmscond_list_iov -c frontier://FrontierProd/CMS_COND_34X_ECAL -P/afs/cern.ch/cms/DB/conddb -a | grep EcalSRSettings
 #and cmscond_list_iov -c frontier://FrontierPrep/CMS_COND_ECAL -P/afs/cern.ch/cms/DB/conddb -a | grep EcalSRSettings
@@ -11,7 +12,8 @@ global_tag='START39_V8::All'
 #sr_tag = 'EcalSRSettings_fullreadout_v01_mc'   #full readout / 2010 heavy ion setting
 #sr_tag  = 'EcalSRSettings_beam7TeV_v01_mc'      #thresholds of beam09/beam10 but with "optimized" weights
 #sr_tag = 'EcalSRSettings_lumi1e33_v01_mc'      #setting used in MC before June 2010 (settings estimated for 2.e33cm-2s-1)
-sr_tag = 'EcalSRSettings_beam7TeV_v02_mc'       #optimized weights with 300MeV threshold in EE, 80MeV in EB. Candidate for beam11 run
+#sr_tag = 'EcalSRSettings_beam7TeV_v02_mc'       #optimized weights with 300MeV threshold in EE, 80MeV in EB. Candidate for beam11 run
+sr_tag = 'EcalSRSettings_beam2012_option1_v00_mc' #optimized weights with 360MeV threshold in EE, 96.25MeV in EB. Candidate for beam11 run
 
 process = cms.Process("ProcessOne")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -31,14 +33,17 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 # Conditions
-process.GlobalTag.globaltag = global_tag
+#process.GlobalTag.globaltag = global_tag
+from Configuration.AlCa.GlobalTag import *
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
+
 
 if sr_tag != '' :
     process.GlobalTag.toGet = cms.VPSet(
         cms.PSet(record = cms.string("EcalSRSettingsRcd"),
              tag = cms.string(sr_tag),
-#             connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
-              connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
+             connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
+#              connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
 #             connect = cms.untracked.string('sqlite_file:' + sr_tag + '.db')
     ))
 

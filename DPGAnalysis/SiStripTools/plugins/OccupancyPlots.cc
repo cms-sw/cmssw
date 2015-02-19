@@ -231,6 +231,21 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   edm::ESHandle<TrackerGeometry> trkgeo;
   iSetup.get<TrackerDigiGeometryRecord>().get("",trkgeo);
 
+  // Test new TrackerGeometry features
+  LogDebug("IsThereTest") << "Test of TrackerGeometry::isThere";
+  LogTrace("IsThereTest") << " is there PixelBarrel: " << trkgeo->isThere(GeomDetEnumerators::PixelBarrel);
+  LogTrace("IsThereTest") << " is there PixelEndcap: " << trkgeo->isThere(GeomDetEnumerators::PixelEndcap);
+  LogTrace("IsThereTest") << " is there P1PXB: " << trkgeo->isThere(GeomDetEnumerators::P1PXB);
+  LogTrace("IsThereTest") << " is there P1PXEC: " << trkgeo->isThere(GeomDetEnumerators::P1PXEC);
+  LogTrace("IsThereTest") << " is there P2PXEC: " << trkgeo->isThere(GeomDetEnumerators::P2PXEC);
+  LogTrace("IsThereTest") << " is there TIB: " << trkgeo->isThere(GeomDetEnumerators::TIB);
+  LogTrace("IsThereTest") << " is there TID: " << trkgeo->isThere(GeomDetEnumerators::TID);
+  LogTrace("IsThereTest") << " is there TOB: " << trkgeo->isThere(GeomDetEnumerators::TOB);
+  LogTrace("IsThereTest") << " is there TEC: " << trkgeo->isThere(GeomDetEnumerators::TEC);
+  LogTrace("IsThereTest") << " is there P2OTB: " << trkgeo->isThere(GeomDetEnumerators::P2OTB);
+  LogTrace("IsThereTest") << " is there P2OTEC: " << trkgeo->isThere(GeomDetEnumerators::P2OTEC);
+
+
   const Local2DPoint center(0.,0.);
   const Local3DPoint locz(0.,0.,1.);
   const Local3DPoint locx(1.,0.,0.);

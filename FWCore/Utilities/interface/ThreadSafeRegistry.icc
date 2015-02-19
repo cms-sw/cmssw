@@ -3,6 +3,7 @@
 #include <mutex>
 
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edm {
   namespace detail {
@@ -10,7 +11,7 @@ namespace edm {
     template <typename KEY, typename T>
     ThreadSafeRegistry<KEY,T>*
     ThreadSafeRegistry<KEY,T>::instance() {
-      static ThreadSafeRegistry<KEY,T> me;
+      CMS_THREAD_SAFE static ThreadSafeRegistry<KEY,T> me;
       return &me;
     }
 

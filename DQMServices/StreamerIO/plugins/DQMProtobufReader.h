@@ -8,17 +8,17 @@
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
 
 #include "DQMFileIterator.h"
+#include "DQMMonitoringService.h"
 
-#include <memory>
+namespace dqmservices {
 
-namespace edm {
-class DQMProtobufReader : public InputSource {
+class DQMProtobufReader : public edm::InputSource {
 
  public:
-  explicit DQMProtobufReader(ParameterSet const&,
-                             InputSourceDescription const&);
+  explicit DQMProtobufReader(edm::ParameterSet const&,
+                             edm::InputSourceDescription const&);
   ~DQMProtobufReader();
-  static void fillDescriptions(ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
   virtual edm::InputSource::ItemType getNextItemType() override;
@@ -39,6 +39,8 @@ class DQMProtobufReader : public InputSource {
 
   std::unique_ptr<double> streamReader_;
   DQMFileIterator fiterator_;
+  DQMFileIterator::LumiEntry currentLumi_;
+
 
   InputSource::ItemType nextItemType;
 };

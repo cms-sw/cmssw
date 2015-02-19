@@ -38,7 +38,7 @@ public:
     if( genPair != 0 ) {
       tree->Branch("genEvent", "GenMuonPair", &genMuonPair);
       // tree->Branch("genEvent", "MuonPair", &genMuonPair);
-      
+
       if( savedPair->size() != genPair->size() ) {
 	std::cout << "Error: savedPair size ("
 	<< savedPair->size() <<") and genPair size ("
@@ -85,7 +85,7 @@ public:
   // void readTree( const int maxEvents, const TString & fileName, MuonPairVector * savedPair,
   //           	    const int muonType, MuonPairVector * genPair = 0 )
   void readTree( const int maxEvents, const TString & fileName, MuonPairVector * savedPair,
-		 const int muonType, std::vector<std::pair<int, int>  > * evtRun, MuonPairVector * genPair = 0 )
+		 const int muonType, std::vector<std::pair<unsigned int, unsigned long long>  > * evtRun, MuonPairVector * genPair = 0 )
   {
     TFile * file = TFile::Open(fileName, "READ");
     if( file->IsOpen() ) {

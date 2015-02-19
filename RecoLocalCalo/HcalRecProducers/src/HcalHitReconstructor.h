@@ -1,6 +1,8 @@
 #ifndef HCALHITRECONSTRUCTOR_H 
 #define HCALHITRECONSTRUCTOR_H 1
 
+#include <memory>
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -24,12 +26,14 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimeProfileStatusBitSetter.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimingShapedFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEPulseShapeFlag.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HBHENegativeFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalADCSaturationFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFTimingTrustFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_S9S1algorithm.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_PETalgorithm.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
     /** \class HcalHitReconstructor
 	
@@ -46,10 +50,11 @@ class HcalTopology;
 
       virtual void beginRun(edm::Run const&r, edm::EventSetup const & es) override final;
       virtual void endRun(edm::Run const&r, edm::EventSetup const & es) override final;
-      virtual void produce(edm::Event& e, const edm::EventSetup& c);
+      virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
     private:      
       typedef void (HcalSimpleRecAlgo::*SetCorrectionFcn)(boost::shared_ptr<AbsOOTPileupCorrection>);
+      typedef void (HBHENegativeFlagSetter::*SetCorrectionFcnForNegative)(boost::shared_ptr<AbsOOTPileupCorrection>);
 
       HcalSimpleRecAlgo reco_;
       HcalADCSaturationFlag* saturationFlagSetter_;
@@ -58,6 +63,7 @@ class HcalTopology;
       HBHETimeProfileStatusBitSetter* hbheHSCPFlagSetter_;
       HBHETimingShapedFlagSetter* hbheTimingShapedFlagSetter_;
       HBHEPulseShapeFlagSetter *hbhePulseShapeFlagSetter_;
+      HBHENegativeFlagSetter *hbheNegativeFlagSetter_;
       HcalHFStatusBitFromDigis*   hfdigibit_;
       HcalHF_S9S1algorithm*       hfS9S1_;
       HcalHF_S9S1algorithm*       hfS8S1_;
@@ -78,6 +84,7 @@ class HcalTopology;
       bool setSaturationFlags_; // turn on/off flag indicating ADC saturation
       bool setTimingTrustFlags_; // turn on/off HF timing uncertainty flag 
       bool setPulseShapeFlags_; //  turn on/off HBHE fit-based noise flags
+      bool setNegativeFlags_;   // turn on/off HBHE negative noise flags
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
 
       int firstAuxTS_;
@@ -99,11 +106,15 @@ class HcalTopology;
       std::string mcOOTCorrectionName_;
       std::string mcOOTCorrectionCategory_;
       SetCorrectionFcn setPileupCorrection_;
+      SetCorrectionFcnForNegative setPileupCorrectionForNegative_;
 
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
-      const HcalFlagHFDigiTimeParams* HFDigiTimeParams; // HF DigiTime parameters
+      std::unique_ptr<HcalFlagHFDigiTimeParams> HFDigiTimeParams; // HF DigiTime parameters
 
-      HcalTopology *theTopology;
+      int puCorrMethod_;
+      int cntprtCorrMethod_;
+      bool first_;
+      std::string corrName_,cat_;
     };
 
 #endif

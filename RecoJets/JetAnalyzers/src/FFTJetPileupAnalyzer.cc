@@ -42,6 +42,8 @@
 
 #include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #define init_param(type, varname) varname (ps.getParameter< type >( #varname ))
 
 //
@@ -289,8 +291,8 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
     totalNpu = -1;
     totalNPV = -1;
 
-    const long runnumber = iEvent.id().run();
-    const long eventnumber = iEvent.id().event();
+    edm::RunNumber_t const runnumber = iEvent.id().run();
+    edm::EventNumber_t const eventnumber = iEvent.id().event();
     ntupleData.push_back(runnumber);
     ntupleData.push_back(eventnumber);
 

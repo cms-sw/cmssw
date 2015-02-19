@@ -1,8 +1,8 @@
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
 # loading magnetic field and geometry
-process.load('Configuration.StandardSequences.GeometryExtended_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 # loading the alignment producer
 process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
@@ -13,9 +13,9 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 if 'COSMICS'=='<FLAG>':
-   process.GlobalTag.globaltag='GR_R_42_V21::All'
+   process.GlobalTag.globaltag='MCRUN2_71_V0::All'
 else :
-   process.GlobalTag.globaltag='GR_R_42_V21::All'
+   process.GlobalTag.globaltag='MCRUN2_71_V0::All'
  
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
@@ -26,61 +26,50 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 # configure the database file - use survey one for default
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
-#### for ideal geometry
-## process.trackerAlignment = cms.ESSource("PoolDBESSource",
-##                                         CondDBSetup,
-##                                         timetype = cms.string('runnumber'),
-##                                         toGet = cms.VPSet(cms.PSet(
-##                                                 record = cms.string('TrackerAlignmentRcd'),
-##                                                 tag = cms.string('TrackerIdealGeometry210_mc')
-##                                                 )),
-##                                         connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X')
-##                                         )
-
-### end for ideal geometry
-
-### for global tag geometry 
-process.trackerAlignment = cms.ESSource("PoolDBESSource",
-                                        CondDBSetup,
-                                        timetype = cms.string('runnumber'),
-                                        toGet = cms.VPSet(cms.PSet(
-                                                record = cms.string('TrackerAlignmentRcd'),
-                                                tag = cms.string('Alignments')
-                                                )),
-
-					connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/covarell/CMSSW_4_2_2/src/Alignment/HIPAlignmentAlgorithm/payloads/GR_42.db')
-                                        )
-
-process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
-
-
-############ Load APE separately
-
-######## Zero APE
-from CondCore.DBCommon.CondDBSetup_cfi import *
-process.ZeroAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
-                                        connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
-                                        timetype = cms.string("runnumber"),
-                                        toGet = cms.VPSet(
-                                                          cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
-                                                                   tag = cms.string('TrackerIdealGeometryErrors210_mc')
-                                                                   ))
-                                        )
-process.es_prefer_ZeroAPE = cms.ESPrefer("PoolDBESSource", "ZeroAPE")
-
-
-####### CRAFT10 APE
-# process.trackerAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
-# 		                  connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/PayLoads/CRAFT09/TrackerAlignmentErr_2009_v2_prompt/131425-infty/TrackerAlignmentErr_2009_v2_prompt.db'),
-# 
-#                                   timetype = cms.string("runnumber"),
-#                                   toGet = cms.VPSet(
-#                                         cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
-#                                                  tag = cms.string('AlignmentErrors')
-#                                                 ))
+# ########## Ideal Alignment 
+# process.trackerAlignment = cms.ESSource("PoolDBESSource",
+#                                         CondDBSetup,	
+#                                         timetype = cms.string('runnumber'),
+#                                         toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
+#                                                                    tag = cms.string('TrackerIdealGeometry210_mc')
+#                                                                    )
+#                                                           ),
+#                                         connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X')
 #                                         )
-# process.es_prefer_TrackerAPE = cms.ESPrefer("PoolDBESSource", "trackerAPE")
 
+# process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
+
+# ########## Zero APE
+# from CondCore.DBCommon.CondDBSetup_cfi import *
+# process.ZeroAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
+#                                connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
+#                                timetype = cms.string("runnumber"),
+#                                toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
+#                                                           tag = cms.string('TrackerIdealGeometryErrors210_mc')
+#                                                           )
+#                                                  )
+#                                )
+
+# process.es_prefer_ZeroAPE = cms.ESPrefer("PoolDBESSource", "ZeroAPE")
+
+# For global tag geometry 
+# !!!! Pass only  "unlimited Interval Of Validity (IOV)" DB objects for
+# conditions as described in https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHIPAlgorithm#Run_HIP
+
+process.GlobalTag.toGet = cms.VPSet(
+   cms.PSet(record = cms.string('TrackerAlignmentRcd'),
+            tag = cms.string('TrackerAlignment_2015StartupPessimisticScenario_mc'),
+            connect = cms.untracked.string('frontier://FrontierProd/CMS_COND_31X_ALIGNMENT')
+            ),
+   cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
+            tag = cms.string('TrackerSurfaceDeformations_2011Realistic_v2_mc'),
+            connect = cms.untracked.string('frontier://FrontierProd/CMS_COND_310X_ALIGN')
+            ),
+   cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
+            tag = cms.string('TrackerAlignmentErrors_2015StartupPessimisticScenario_mc'),
+            connect = cms.untracked.string('frontier://FrontierProd/CMS_COND_31X_ALIGNMENT')
+            ),
+   )
 
 process.AlignmentProducer.applyDbAlignment = True
 

@@ -235,7 +235,7 @@ namespace pat {
       double segmentCompatibility(reco::Muon::ArbitrationType arbitrationType = reco::Muon::SegmentAndTrackArbitration) const ;
 
       /// pipe operator (introduced to use pat::Muon with PFTopProjectors)
-      friend std::ostream& reco::operator<<(std::ostream& out, const Muon& obj);
+      friend std::ostream& reco::operator<<(std::ostream& out, const pat::Muon& obj);
 
       friend class PATMuonSlimmer;
 

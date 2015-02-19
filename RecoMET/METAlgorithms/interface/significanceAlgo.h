@@ -77,6 +77,7 @@
 #include <sstream>
 
 #include "DataFormats/METReco/interface/SigInputObj.h"
+#include "DataFormats/METReco/interface/MET.h"
 #include "TMatrixTBase.h"
 #include "TMatrixD.h"
 #include "TVectorD.h"
@@ -87,18 +88,18 @@ namespace metsig{
     significanceAlgo();
     ~significanceAlgo();
 
-    const void addSignifMatrix(const TMatrixD &input);
-    const void setSignifMatrix(const TMatrixD &input,const double &met_r, const double &met_phi, const double &met_set);
+    const void addSignifMatrix(const reco::METCovMatrix &input);
+    const void setSignifMatrix(const reco::METCovMatrix &input,const double &met_r, const double &met_phi, const double &met_set);
     const double significance(double& met_r, double& met_phi, double& met_set);
     const void addObjects(const std::vector<metsig::SigInputObj>& EventVec);
     const void subtractObjects(const std::vector<metsig::SigInputObj>& EventVec);
-    TMatrixD getSignifMatrix() const {return signifmatrix_;}
+    reco::METCovMatrix getSignifMatrix() const {return signifmatrix_;}
     //    const std::vector<metsig::SigInputObj> eventVec(){return eventVec_;}
   private:
-    void rotateMatrix( Double_t theta, TMatrixD &v);  
+    //void rotateMatrix( Double_t theta, reco::METCovMatrix  &v);  
 
     //    std::vector<metsig::SigInputObj> eventVec_;
-    TMatrixD signifmatrix_;
+    reco::METCovMatrix signifmatrix_;
     // workers:
     double set_worker_;
     double xmet_;

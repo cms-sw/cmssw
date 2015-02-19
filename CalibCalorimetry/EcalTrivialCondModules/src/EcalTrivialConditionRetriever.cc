@@ -105,6 +105,13 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   EEtimeCorrAmplitudeBins_ = ps.getUntrackedParameter< std::vector<double> >("EEtimeCorrAmplitudeBins", std::vector<double>() );
   EEtimeCorrShiftBins_ = ps.getUntrackedParameter< std::vector<double> >("EEtimeCorrShiftBins", std::vector<double>() );
 
+  EBG12samplesCorrelation_ = ps.getUntrackedParameter< std::vector<double> >("EBG12samplesCorrelation", std::vector<double>() );
+  EBG6samplesCorrelation_ = ps.getUntrackedParameter< std::vector<double> >("EBG6samplesCorrelation", std::vector<double>() );
+  EBG1samplesCorrelation_ = ps.getUntrackedParameter< std::vector<double> >("EBG1samplesCorrelation", std::vector<double>() );
+  EEG12samplesCorrelation_ = ps.getUntrackedParameter< std::vector<double> >("EEG12samplesCorrelation", std::vector<double>() );
+  EEG6samplesCorrelation_ = ps.getUntrackedParameter< std::vector<double> >("EEG6samplesCorrelation", std::vector<double>() );
+  EEG1samplesCorrelation_ = ps.getUntrackedParameter< std::vector<double> >("EEG1samplesCorrelation", std::vector<double>() );
+
   nTDCbins_ = 1;
 
   weightsForAsynchronousRunning_ = ps.getUntrackedParameter<bool>("weightsForTB",false);
@@ -430,6 +437,15 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   if (producedEcalTimeBiasCorrections_) {
     setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalTimeBiasCorrections );
     findingRecord<EcalTimeBiasCorrectionsRcd>();
+  }
+  producedEcalSamplesCorrelation_ = ps.getUntrackedParameter<bool>("producedEcalSamplesCorrelation", false);
+  if (producedEcalSamplesCorrelation_) {
+    setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalSamplesCorrelation );
+    findingRecord<EcalSamplesCorrelationRcd>();
+    getSamplesCorrelationFromFile_ = ps.getUntrackedParameter<bool>("getSamplesCorrelationFromFile",false);
+    if(getSamplesCorrelationFromFile_) {
+      SamplesCorrelationFile_ = ps.getUntrackedParameter<std::string>("SamplesCorrelationFile","EcalSamplesCorrelation.txt");
+    }
   }
 }
 
@@ -3151,5 +3167,53 @@ EcalTrivialConditionRetriever::produceEcalTimeBiasCorrections( const EcalTimeBia
        back_inserter(ipar->EETimeCorrAmplitudeBins));
   copy(EEtimeCorrShiftBins_.begin(), EEtimeCorrShiftBins_.end(),
        back_inserter(ipar->EETimeCorrShiftBins));
+  return ipar;
+}
+
+std::auto_ptr<EcalSamplesCorrelation>
+EcalTrivialConditionRetriever::produceEcalSamplesCorrelation( const EcalSamplesCorrelationRcd &) {
+  if(getSamplesCorrelationFromFile_) {
+    std::ifstream f;
+    f.open(edm::FileInPath(SamplesCorrelationFile_).fullPath().c_str());
+    float ww;
+    for(int j = 0; j < 10; ++j) {
+      f >> ww;
+      EBG12samplesCorrelation_.push_back(ww);
+    }
+    for(int j = 0; j < 10; ++j) {
+      f >> ww;
+      EBG6samplesCorrelation_.push_back(ww);
+    }
+    for(int j = 0; j < 10; ++j) {
+      f >> ww;
+      EBG1samplesCorrelation_.push_back(ww);
+    }
+    for(int j = 0; j < 10; ++j) {
+      f >> ww;
+      EEG12samplesCorrelation_.push_back(ww);
+    }
+    for(int j = 0; j < 10; ++j) {
+      f >> ww;
+      EEG6samplesCorrelation_.push_back(ww);
+    }
+    for(int j = 0; j < 10; ++j) {
+      f >> ww;
+      EEG1samplesCorrelation_.push_back(ww);
+    }
+   f.close();
+  }
+  std::auto_ptr<EcalSamplesCorrelation> ipar = std::auto_ptr<EcalSamplesCorrelation>( new EcalSamplesCorrelation() );
+  copy(EBG12samplesCorrelation_.begin(), EBG12samplesCorrelation_.end(),
+       back_inserter(ipar->EBG12SamplesCorrelation));
+  copy(EBG6samplesCorrelation_.begin(), EBG6samplesCorrelation_.end(),
+       back_inserter(ipar->EBG6SamplesCorrelation));
+  copy(EBG1samplesCorrelation_.begin(), EBG1samplesCorrelation_.end(),
+       back_inserter(ipar->EBG1SamplesCorrelation));
+  copy(EEG12samplesCorrelation_.begin(), EEG12samplesCorrelation_.end(),
+       back_inserter(ipar->EEG12SamplesCorrelation));
+  copy(EEG6samplesCorrelation_.begin(), EEG6samplesCorrelation_.end(),
+       back_inserter(ipar->EEG6SamplesCorrelation));
+  copy(EEG1samplesCorrelation_.begin(), EEG1samplesCorrelation_.end(),
+       back_inserter(ipar->EEG1SamplesCorrelation));
   return ipar;
 }

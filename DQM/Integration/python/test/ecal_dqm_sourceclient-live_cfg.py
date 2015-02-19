@@ -1,21 +1,5 @@
 ### AUTO-GENERATED CMSRUN CONFIGURATION FOR ECAL DQM ###
-from FWCore.ParameterSet.VarParsing import VarParsing
-
-options = VarParsing('analysis')
-options.register('runkey', default = 'pp_run', mult = VarParsing.multiplicity.singleton, mytype = VarParsing.varType.string, info = 'Run Keys of CMS')
-options.register('runNumber', default = 194533, mult = VarParsing.multiplicity.singleton, mytype = VarParsing.varType.int, info = "Run number.")
-options.register('runInputDir', default = '/fff/BU0/test', mult = VarParsing.multiplicity.singleton, mytype = VarParsing.varType.string, info = "Directory where the DQM files will appear.")
-options.register('skipFirstLumis', default = False, mult = VarParsing.multiplicity.singleton, mytype = VarParsing.varType.bool, info = "Skip (and ignore the minEventsPerLumi parameter) for the files which have been available at the begining of the processing.")
-
-options.parseArguments()
-
-
-from DQM.Integration.test.dqmPythonTypes import *
-runType = RunType(['pp_run','cosmic_run','hi_run','hpu_run'])
-if not options.runkey.strip():
-    options.runkey = 'pp_run'
-
-runType.setRunType(options.runkey.strip())
+import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("process")
 
@@ -27,7 +11,7 @@ process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
-process.load("RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi")
+process.load("RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi")
 process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
 process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
@@ -40,6 +24,7 @@ process.load("DQM.EcalMonitorClient.EcalMonitorClient_cfi")
 process.load("DQM.Integration.test.environment_cfi")
 process.load("FWCore.Modules.preScaler_cfi")
 process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.test.inputsource_cfi")
 
 ### Individual module setups ###
 
@@ -95,7 +80,8 @@ process.ecalDigis = cms.EDProducer("EcalRawToDigi",
 )
 
 process.ecalPhysicsFilter = cms.EDFilter("EcalMonitorPrescaler",
-    clusterPrescaleFactor = cms.untracked.int32(1),
+    cosmics = cms.untracked.uint32(1),
+    physics = cms.untracked.uint32(1),
     EcalRawDataCollection = cms.InputTag("ecalDigis")
 )
 
@@ -104,32 +90,36 @@ process.MessageLogger = cms.Service("MessageLogger",
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-        threshold = cms.untracked.string('WARNING'),
+        EcalLaserDbService = cms.untracked.PSet(
+            limit = cms.untracked.int32(10)
+        ),
         noTimeStamps = cms.untracked.bool(True),
+        threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
     ),
-    destinations = cms.untracked.vstring('cerr')
-)
-
-process.source = cms.Source("DQMStreamerReader",
-    streamLabel = cms.untracked.string('_streamDQM_StorageManager'),
-    delayMillis = cms.untracked.uint32(500),
-    runNumber = cms.untracked.uint32(0),
-    endOfRunKills = cms.untracked.bool(True),
-    runInputDir = cms.untracked.string(''),
-    minEventsPerLumi = cms.untracked.int32(1),
-    deleteDatFiles = cms.untracked.bool(False),
-    SelectEvents = cms.untracked.vstring('*'),
-    skipFirstLumis = cms.untracked.bool(False)
+    cout = cms.untracked.PSet(
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        EcalDQM = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        threshold = cms.untracked.string('INFO')
+    ),
+    categories = cms.untracked.vstring('EcalDQM', 
+        'EcalLaserDbService'),
+    destinations = cms.untracked.vstring('cerr', 
+        'cout')
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-process.simEcalTriggerPrimitiveDigis.InstanceEB = "ebDigis"
-process.simEcalTriggerPrimitiveDigis.InstanceEE = "eeDigis"
-process.simEcalTriggerPrimitiveDigis.Label = "ecalDigis"
+process.ecalMonitorClient.verbosity = 0
+process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'SummaryClient']
+process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'Timing', 'HotCell']
+process.ecalMonitorClient.commonParameters.onlineMode = True
 
 process.GlobalTag.toGet = cms.VPSet(cms.PSet(
     record = cms.string('EcalDQMChannelStatusRcd'),
@@ -148,19 +138,25 @@ process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecal_reference.root
 
 process.dqmEnv.subSystemFolder = cms.untracked.string('Ecal')
 
-process.ecalMonitorClient.verbosity = 0
-process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'SummaryClient']
-process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'Timing', 'HotCell']
-process.ecalMonitorClient.commonParameters.onlineMode = True
+process.dqmSaver.convention = cms.untracked.string('Online')
+
+process.simEcalTriggerPrimitiveDigis.InstanceEB = "ebDigis"
+process.simEcalTriggerPrimitiveDigis.InstanceEE = "eeDigis"
+process.simEcalTriggerPrimitiveDigis.Label = "ecalDigis"
+
+process.ecalRecHit.EEuncalibRecHitCollection = "ecalGlobalUncalibRecHit:EcalUncalibRecHitsEE"
+process.ecalRecHit.EBuncalibRecHitCollection = "ecalGlobalUncalibRecHit:EcalUncalibRecHitsEB"
 
 process.ecalMonitorTask.workers = ['ClusterTask', 'EnergyTask', 'IntegrityTask', 'OccupancyTask', 'RawDataTask', 'TimingTask', 'TrigPrimTask', 'PresampleTask', 'SelectiveReadoutTask']
 process.ecalMonitorTask.verbosity = 0
+process.ecalMonitorTask.collectionTags.EEUncalibRecHit = "ecalGlobalUncalibRecHit:EcalUncalibRecHitsEE"
 process.ecalMonitorTask.collectionTags.EESuperCluster = "multi5x5SuperClusters:multi5x5EndcapSuperClusters"
 process.ecalMonitorTask.collectionTags.EBBasicCluster = "hybridSuperClusters:hybridBarrelBasicClusters"
 process.ecalMonitorTask.collectionTags.EEBasicCluster = "multi5x5SuperClusters:multi5x5EndcapBasicClusters"
 process.ecalMonitorTask.collectionTags.Source = "rawDataCollector"
 process.ecalMonitorTask.collectionTags.EBSuperCluster = "correctedHybridSuperClusters"
 process.ecalMonitorTask.collectionTags.TrigPrimEmulDigi = "simEcalTriggerPrimitiveDigis"
+process.ecalMonitorTask.collectionTags.EBUncalibRecHit = "ecalGlobalUncalibRecHit:EcalUncalibRecHitsEB"
 process.ecalMonitorTask.workerParameters.TrigPrimTask.params.runOnEmul = True
 process.ecalMonitorTask.commonParameters.willConvertToEDM = False
 process.ecalMonitorTask.commonParameters.onlineMode = True
@@ -168,7 +164,7 @@ process.ecalMonitorTask.commonParameters.onlineMode = True
 ### Sequences ###
 
 process.ecalPreRecoSequence = cms.Sequence(process.ecalDigis)
-process.ecalRecoSequence = cms.Sequence((process.ecalMultiFitUncalibRecHit+process.ecalDetIdToBeRecovered+process.ecalRecHit)+(process.simEcalTriggerPrimitiveDigis+process.gtDigis)+(process.hybridClusteringSequence+process.multi5x5ClusteringSequence))
+process.ecalRecoSequence = cms.Sequence((process.ecalGlobalUncalibRecHit+process.ecalDetIdToBeRecovered+process.ecalRecHit)+(process.simEcalTriggerPrimitiveDigis+process.gtDigis)+(process.hybridClusteringSequence+process.multi5x5ClusteringSequence))
 process.multi5x5ClusteringSequence = cms.Sequence(process.multi5x5BasicClustersCleaned+process.multi5x5SuperClustersCleaned+process.multi5x5BasicClustersUncleaned+process.multi5x5SuperClustersUncleaned+process.multi5x5SuperClusters)
 process.hybridClusteringSequence = cms.Sequence(process.cleanedHybridSuperClusters+process.uncleanedHybridSuperClusters+process.hybridSuperClusters+process.correctedHybridSuperClusters+process.uncleanedOnlyCorrectedHybridSuperClusters)
 
@@ -184,24 +180,25 @@ process.dqmOutputPath = cms.EndPath(process.dqmSaver)
 
 process.schedule = cms.Schedule(process.ecalMonitorPath,process.ecalClientPath,process.dqmEndPath,process.dqmOutputPath)
 
-### Setup source ###
-process.source.runNumber = options.runNumber
-process.source.runInputDir = options.runInputDir
-process.source.skipFirstLumis = options.skipFirstLumis
-
 ### Run type specific ###
 
 referenceFileName = process.DQMStore.referenceFileName.pythonValue()
-if runType.getRunType() == runType.pp_run:
+runTypeName = process.runType.getRunTypeName()
+if runTypeName == 'pp_run':
     process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_pp.root')
-elif runType.getRunType() == runType.cosmic_run:
+elif runTypeName == 'cosmic_run':
     process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_cosmic.root')
 #    process.dqmEndPath.remove(process.dqmQTest)
-    process.ecalMonitorTask.workers = ['EnergyTask', 'IntegrityTask', 'OccupancyTask', 'RawDataTask', 'TrigPrimTask', 'PresampleTask', 'SelectiveReadoutTask']
-    process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'SummaryClient']
-    process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'HotCell']
-elif runType.getRunType() == runType.hi_run:
+    process.ecalMonitorTask.workers = ['EnergyTask', 'IntegrityTask', 'OccupancyTask', 'RawDataTask', 'TimingTask', 'TrigPrimTask', 'PresampleTask', 'SelectiveReadoutTask']
+    process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'SummaryClient']
+    process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'Timing', 'HotCell']
+elif runTypeName == runType.hi_run:
     process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_hi.root')
-elif runType.getRunType() == runType.hpu_run:
+elif runTypeName == runType.hpu_run:
     process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_hpu.root')
     process.source.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('*'))
+
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

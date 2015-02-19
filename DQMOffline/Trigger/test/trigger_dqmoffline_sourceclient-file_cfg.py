@@ -15,7 +15,7 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 #process.load("Configuration.GlobalRuns.ReconstructionGR_cff")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #process.load("L1Trigger.Configuration.L1Config_cff")
 process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff")
@@ -28,7 +28,6 @@ process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1030.L1Menu2008
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-process.load("DQMOffline.Trigger.FourVectorHLTOffline_cfi")
 process.load("DQMOffline.Trigger.L1TMonitor_dqmoffline_cff")
 process.load("DQMOffline.Trigger.Tau.HLTTauDQMOffline_cff")
 process.load("DQMOffline.Trigger.EgammaHLTOffline_cfi")

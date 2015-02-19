@@ -45,7 +45,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 #process.MessageLogger.cerr.threshold = 'Debug'
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
 )
 
 process.TFileService = cms.Service("TFileService",
@@ -54,8 +54,9 @@ process.TFileService = cms.Service("TFileService",
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(                          
-
-##  "/store/data/Run2012A/AlCaLumiPixels/RAW/v1/000/191/271/00016516-0587-E111-9884-003048D2BBF0.root",
+#    "file:../../../../../CMSSW_7_1_3/src/DPGAnalysis-SiPixelTools/HitAnalyzer/test/raw.root"
+#    "file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/raw/raw2.root"
+  "/store/data/Run2012A/AlCaLumiPixels/RAW/v1/000/191/271/00016516-0587-E111-9884-003048D2BBF0.root",
 ##  "/store/data/Run2012A/AlCaLumiPixels/RAW/v1/000/191/271/022D9994-1087-E111-8772-001D09F28D4A.root",
 ##  "/store/data/Run2012A/AlCaLumiPixels/RAW/v1/000/191/271/044649F6-0B87-E111-AE83-0025B32036D2.root",
 ##  "/store/data/Run2012A/AlCaLumiPixels/RAW/v1/000/191/271/081DAD76-0B87-E111-90EB-0030486730C6.root",
@@ -253,9 +254,8 @@ process.source = cms.Source("PoolSource",
 #  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/1285A278-E41B-E211-BD9A-0019B9F72F97.root",
 #  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/1289B6A0-F91B-E211-BC25-001D09F24682.root",
 
-  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/208/686/A88F66A0-393F-E211-9287-002481E0D524.root",
-
-  
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/208/686/A88F66A0-393F-E211-9287-002481E0D524.root",
+ 
     )
 
 )
@@ -277,7 +277,9 @@ process.d = cms.EDAnalyzer("SiPixelRawDumper",
     Timing = cms.untracked.bool(False),
     IncludeErrors = cms.untracked.bool(True),
 #   In 2012, label = rawDataCollector, extension = _LHC                                
-    InputLabel = cms.untracked.string('rawDataCollector'),
+#    InputLabel = cms.untracked.string('rawDataCollector'),
+# for MC
+    InputLabel = cms.untracked.string('siPixelRawData'),
 #   For PixelLumi stream                           
 #    InputLabel = cms.untracked.string('hltFEDSelectorLumiPixels'),
 # old

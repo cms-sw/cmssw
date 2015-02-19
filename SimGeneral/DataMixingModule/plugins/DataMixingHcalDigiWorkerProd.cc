@@ -65,7 +65,6 @@ namespace edm {
   }  
 
   void DataMixingHcalDigiWorkerProd::beginRun(const edm::Run& run, const edm::EventSetup& ES) {
-
     myHcalDigitizer_->beginRun(run, ES); 
   }
 

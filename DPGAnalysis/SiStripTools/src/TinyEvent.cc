@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DPGAnalysis/SiStripTools/interface/TinyEvent.h"
 
 

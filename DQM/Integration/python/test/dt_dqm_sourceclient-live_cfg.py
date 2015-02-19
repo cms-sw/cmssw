@@ -28,7 +28,7 @@ process.dqmSaver.dirName = "."
 
 
 # DT reco and DQM sequences
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("DQM.DTMonitorModule.dt_dqm_sourceclient_common_cff")
 #---- for P5 (online) DB access
 process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
@@ -86,3 +86,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
     process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/dt_reference_hi.root'
 
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

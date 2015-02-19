@@ -40,6 +40,10 @@
 #include "CondCore/CondDB/interface/KeyListProxy.h"
 #include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
 #include "CondFormats/DataRecord/interface/DTRecoUncertaintiesRcd.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsTtrigRcd.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsUncertRcd.h"
 
 //
 #include "CondCore/CondDB/interface/Serialization.h"
@@ -116,6 +120,9 @@ REGISTER_PLUGIN_INIT(DTLVStatusRcd,DTLVStatus,InitDTLVStatus);
 REGISTER_PLUGIN(DTKeyedConfigContainerRcd, cond::BaseKeyed);
 REGISTER_KEYLIST_PLUGIN(DTKeyedConfigListRcd,cond::persistency::KeyList,DTKeyedConfigContainerRcd);
 REGISTER_PLUGIN(DTRecoUncertaintiesRcd, DTRecoUncertainties);
-
+//New flexyble payloads for ttrig, vdrift, uncertainty
+REGISTER_PLUGIN(DTRecoConditionsTtrigRcd, DTRecoConditions);
+REGISTER_PLUGIN(DTRecoConditionsVdriftRcd, DTRecoConditions);
+REGISTER_PLUGIN(DTRecoConditionsUncertRcd, DTRecoConditions);
 
 

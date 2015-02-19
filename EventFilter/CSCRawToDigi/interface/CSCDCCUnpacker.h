@@ -21,6 +21,8 @@ class CSCDCCUnpacker: public edm::stream::EDProducer<> {
   
   /// Destructor
   virtual ~CSCDCCUnpacker();
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   /// Produce digis out of raw data
   void produce(edm::Event & e, const edm::EventSetup& c);

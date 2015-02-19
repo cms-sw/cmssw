@@ -74,8 +74,8 @@ MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig){
   InitStatics();
   
   
+
   //------"allocate" space for the data vectors-------
- 
   h_1D.resize(NUM_VARS);
   h_2D.resize(NUM_VARS_2D);
   h_1D_NVTX.resize(NUM_VARS_NVTX);
@@ -676,6 +676,12 @@ void MuonIsolationDQM::RecordData(const reco::Muon&  muon){
 void MuonIsolationDQM::bookHistograms(DQMStore::IBooker & ibooker,
 				      edm::Run const & /*iRun*/,
 				      edm::EventSetup const & /* iSetup */){
+  
+  ibooker.cd();
+  ibooker.setCurrentFolder(dirName.c_str());
+
+  ibooker.cd();
+  ibooker.setCurrentFolder(dirName.c_str());
 
   //---initialize number of muons histogram---
   h_nMuons = ibooker.book1D("nMuons", title_sam + "Number of Muons", 20, 0., 20.);

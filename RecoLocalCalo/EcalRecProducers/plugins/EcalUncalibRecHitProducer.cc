@@ -54,6 +54,7 @@ EcalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
         // tranparently get things from event setup
         worker_->set(es);
+        worker_->set(evt);
 
         // prepare output
         std::auto_ptr< EBUncalibratedRecHitCollection > ebUncalibRechits( new EBUncalibratedRecHitCollection );

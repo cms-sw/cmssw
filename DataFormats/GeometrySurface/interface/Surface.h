@@ -139,10 +139,10 @@ public:
    * The return type is a ReferenceCountingPointer, so the plane 
    * will be deleted automatically when no longer needed.
    */
-  virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const = 0;
+  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const = 0;
   /** Tangent plane to surface from local point.
    */
-  virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const = 0;
+  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const = 0;
 
 protected:
   MediumProperties theMediumProperties;

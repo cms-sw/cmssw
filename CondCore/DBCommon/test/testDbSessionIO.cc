@@ -91,5 +91,7 @@ int main(){
     s0.transaction().commit();    
   } catch ( const cond::Exception& exc ){
     std::cout << "ERROR: "<<exc.what()<<std::endl;
+    return -1;
   } 
+  return 0;
 }

@@ -76,13 +76,9 @@ EwkMuLumiMonitorDQM::EwkMuLumiMonitorDQM(const ParameterSet& cfg)
   // just to initialize
   isValidHltConfig_ = false;
 
-  // dqm service & histograms
-  theDbe = Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("Physics/EwkMuLumiMonitorDQM");
-  init_histograms();
 }
 
-void EwkMuLumiMonitorDQM::beginRun(const Run& r, const EventSetup& iSetup) {
+void EwkMuLumiMonitorDQM::dqmBeginRun(const Run& r, const EventSetup& iSetup) {
   nall = 0;
   nEvWithHighPtMu = 0;
   nInKinRange = 0;
@@ -107,62 +103,33 @@ void EwkMuLumiMonitorDQM::beginRun(const Run& r, const EventSetup& iSetup) {
   // std::endl;
 }
 
-void EwkMuLumiMonitorDQM::beginJob() {}
+void EwkMuLumiMonitorDQM::bookHistograms(DQMStore::IBooker & ibooker,
+  edm::Run const &, edm::EventSetup const & ){
 
-void EwkMuLumiMonitorDQM::init_histograms() {
+  ibooker.setCurrentFolder("Physics/EwkMuLumiMonitorDQM");
 
-  mass2HLT_ =
-      theDbe->book1D("Z_2HLT_MASS", "Z mass [GeV/c^{2}]", 200, 0., 200.);
-  mass1HLT_ =
-      theDbe->book1D("Z_1HLT_MASS", "Z mass [GeV/c^{2}]", 200, 0., 200.);
-  massNotIso_ =
-      theDbe->book1D("Z_NOTISO_MASS", "Z mass [GeV/c^{2}]", 200, 0., 200.);
-  massGlbSta_ =
-      theDbe->book1D("Z_GLBSTA_MASS", "Z mass [GeV/c^{2}]", 200, 0., 200.);
-  massGlbTrk_ =
-      theDbe->book1D("Z_GLBTRK_MASS", "Z mass [GeV/c^{2}]", 200, 0., 200.);
-  massIsBothGlbTrkThanW_ = theDbe->book1D("Z_ISBOTHGLBTRKTHANW_MASS",
-                                          "Z mass [GeV/c^{2}]", 200, 0., 200.);
+  mass2HLT_ = ibooker.book1D("Z_2HLT_MASS", "Z mass [GeV/c^{2}]", 200, 0., 200.);
+  mass1HLT_ = ibooker.book1D("Z_1HLT_MASS", "Z mass [GeV/c^{2}]", 200, 0., 200.);
+  massNotIso_ = ibooker.book1D("Z_NOTISO_MASS", "Z mass [GeV/c^{2}]", 200, 0., 200.);
+  massGlbSta_ = ibooker.book1D("Z_GLBSTA_MASS", "Z mass [GeV/c^{2}]", 200, 0., 200.);
+  massGlbTrk_ = ibooker.book1D("Z_GLBTRK_MASS", "Z mass [GeV/c^{2}]", 200, 0., 200.);
+  massIsBothGlbTrkThanW_ = ibooker.book1D("Z_ISBOTHGLBTRKTHANW_MASS",
+      "Z mass [GeV/c^{2}]", 200, 0., 200.);
 
-  highMass2HLT_ = theDbe->book1D("Z_2HLT_HIGHMASS", "Z high mass [GeV/c^{2}]",
-                                 2000, 0., 2000.);
-  highMass1HLT_ = theDbe->book1D("Z_1HLT_HIGHMASS", "Z high mass [GeV/c^{2}]",
-                                 2000, 0., 2000.);
-  highMassNotIso_ = theDbe->book1D("Z_NOTISO_HIGHMASS",
-                                   "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
-  highMassGlbSta_ = theDbe->book1D("Z_GLBSTA_HIGHMASS",
-                                   "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
-  highMassGlbTrk_ = theDbe->book1D("Z_GLBTRK_HIGHMASS",
-                                   "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
-  highMassIsBothGlbTrkThanW_ =
-      theDbe->book1D("Z_ISBOTHGLBTRKTHANW_HIGHMASS", "Z high mass [GeV/c^{2}]",
-                     2000, 0., 2000.);
+  highMass2HLT_ = ibooker.book1D("Z_2HLT_HIGHMASS",
+      "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
+  highMass1HLT_ = ibooker.book1D("Z_1HLT_HIGHMASS",
+      "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
+  highMassNotIso_ = ibooker.book1D("Z_NOTISO_HIGHMASS",
+      "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
+  highMassGlbSta_ = ibooker.book1D("Z_GLBSTA_HIGHMASS",
+      "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
+  highMassGlbTrk_ = ibooker.book1D("Z_GLBTRK_HIGHMASS",
+      "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
+  highMassIsBothGlbTrkThanW_ = ibooker.book1D("Z_ISBOTHGLBTRKTHANW_HIGHMASS",
+      "Z high mass [GeV/c^{2}]", 2000, 0., 2000.);
 
-  /*
-    highest_mupt2HLT_ = theDbe->book1D("HIGHEST_MU_PT_2HLT","Highest muon
-    p_{t}[GeV/c]",200,0.,200.);
-    highest_mupt1HLT_ = theDbe->book1D("HIGHEST_MU_PT_1HLT","Highest muon
-    p_{t}[GeV/c]",200,0.,200.);
-    highest_muptNotIso_ = theDbe->book1D("HIGHEST_MU_PT_NOTISO","Highest muon
-    p_{t}[GeV/c]",200,0.,200.);
-    highest_muptGlbSta_ = theDbe->book1D("HIGHEST_MU_PT_GLBSTA","Highest muon
-    p_{t}[GeV/c]",200,0.,200.);
-    highest_muptGlbTrk_ = theDbe->book1D("HIGHEST_MU_PT_GLBTRK","Highest muon
-    p_{t}[GeV/c]",200,0.,200.);
-
-    lowest_mupt2HLT_ = theDbe->book1D("LOWEST_MU_PT_2HLT","Lowest muon p_{t}
-    [GeV/c]",200,0.,200.);
-    lowest_mupt1HLT_ = theDbe->book1D("LOWEST_MU_PT_1HLT","Lowest muon p_{t}
-    [GeV/c]",200,0.,200.);
-    lowest_muptNotIso_ = theDbe->book1D("LOWEST_MU_PT_NOTISO","Lowest muon p_{t}
-    [GeV/c]",200,0.,200.);
-    lowest_muptGlbSta_ = theDbe->book1D("LOWEST_MU_PT_GLBSTA","Lowest muon p_{t}
-    [GeV/c]",200,0.,200.);
-    lowest_muptGlbTrk_ = theDbe->book1D("LOWEST_MU_PT_GLBTRK","Lowest muon p_{t}
-    [GeV/c]",200,0.,200.);
-  */
-
-  TMass_ = theDbe->book1D("TMASS", "Transverse mass [GeV]", 300, 0., 300.);
+  TMass_ = ibooker.book1D("TMASS", "Transverse mass [GeV]", 300, 0., 300.);
 }
 
 double EwkMuLumiMonitorDQM::muIso(const reco::Muon& mu) {
@@ -226,8 +193,6 @@ bool EwkMuLumiMonitorDQM::IsMuMatchedToHLTMu(
   }
   return (nPass > 0);
 }
-
-void EwkMuLumiMonitorDQM::endJob() {}
 
 void EwkMuLumiMonitorDQM::endRun(const Run& r, const EventSetup&) {
 

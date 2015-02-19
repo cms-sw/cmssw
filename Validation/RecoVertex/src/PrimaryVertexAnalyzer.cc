@@ -82,12 +82,7 @@ PrimaryVertexAnalyzer::~PrimaryVertexAnalyzer()
     // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
    delete rootFile_;
-   /*for(std::map<std::string,TH1*>::const_iterator hist=h.begin(); hist!=h.end(); hist++){
-    delete hist->second;
-    }*/
-   
 }
-
 
 
 //
@@ -144,7 +139,6 @@ void PrimaryVertexAnalyzer::beginJob(){
     h["zdistancetag"+ *isuffix] = new TH1F(TString("zdistancetag"+ *isuffix),"z-distance between tagged and generated",100, -0.1, 0.1);
     h["puritytag"+ *isuffix]    = new TH1F(TString("puritytag"+ *isuffix),"purity of primary vertex tags",2, -0.5, 1.5);
   }
-
 }
 
 
@@ -401,8 +395,6 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
    }//simTrack loop
    return simpv;
 }
-
-
 
 
 // ------------ method called to produce the data  ------------

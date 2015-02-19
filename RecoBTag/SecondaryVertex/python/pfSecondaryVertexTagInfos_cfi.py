@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoBTag.SecondaryVertex.vertexTrackSelection_cfi import *
-from RecoBTag.SecondaryVertex.vertexReco_cfi import *
-from RecoBTag.SecondaryVertex.vertexCuts_cfi import *
-from RecoBTag.SecondaryVertex.vertexSelection_cfi import *
+from RecoBTag.SecondaryVertex.vertexTrackSelection_cff import *
+from RecoBTag.SecondaryVertex.vertexReco_cff import *
+from RecoBTag.SecondaryVertex.vertexCuts_cff import *
+from RecoBTag.SecondaryVertex.vertexSelection_cff import *
 
 pfSecondaryVertexTagInfos = cms.EDProducer("CandSecondaryVertexProducer",
 	vertexTrackSelectionBlock,
@@ -19,5 +19,4 @@ pfSecondaryVertexTagInfos = cms.EDProducer("CandSecondaryVertexProducer",
         useExternalSV       = cms.bool(False),
         extSVCollection     = cms.InputTag('secondaryVertices'),
         extSVDeltaRToJet    = cms.double(0.3)
-
 )

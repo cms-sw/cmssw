@@ -37,7 +37,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.testThrow = cms.EDAnalyzer("TestFailuresAnalyzer",
     whichFailure = cms.int32(5),
-    eventToThrow = cms.untracked.uint32(2)
+    eventToThrow = cms.untracked.uint64(2)
 )
 
 process.p = cms.Path(process.testThrow)

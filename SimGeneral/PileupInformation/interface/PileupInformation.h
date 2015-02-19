@@ -5,7 +5,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -24,7 +24,7 @@
 
 #include "SimGeneral/TrackingAnalysis/interface/EncodedTruthId.h"
 
-class PileupInformation : public edm::EDProducer
+class PileupInformation : public edm::stream::EDProducer<>
 {
 
 public:
@@ -33,7 +33,7 @@ public:
 
 private:
 
-    void produce( edm::Event &, const edm::EventSetup & );
+    void produce( edm::Event &, const edm::EventSetup & ) override;
 
     edm::ParameterSet conf_;
 

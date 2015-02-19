@@ -22,14 +22,13 @@
 //
 // class declaration
 //
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-
-class DQMStore;
 class MonitorElement;
 class L1MuDTTrackCand;
 class L1MuRegionalCand;
 
-class L1TDTTF : public edm::EDAnalyzer {
+class L1TDTTF : public DQMEDAnalyzer {
 
  public:
 
@@ -44,22 +43,13 @@ class L1TDTTF : public edm::EDAnalyzer {
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   // BeginJob
-  void beginJob(void);
-
-  // EndJob
-  void endJob(void);
-
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-			    edm::EventSetup const& context){};
-
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-			  edm::EventSetup const& context){};
+  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
  private:
 
-
-  void fillMEs( std::vector<L1MuDTTrackCand> const* trackContainer,
-		std::vector<L1MuRegionalCand>& gmtDttfCands );
+  void fillMEs( std::vector<L1MuDTTrackCand> const* trackContainer, std::vector<L1MuRegionalCand>& gmtDttfCands );
   void setWheelLabel(MonitorElement *me);
   void setQualLabel(MonitorElement *me, int axis);
   void bookEta( int wh, int & nbins, float & start, float & stop );
@@ -71,7 +61,6 @@ class L1TDTTF : public edm::EDAnalyzer {
   std::string l1tsubsystemfolder_;
   bool online_;
   bool verbose_;
-  DQMStore * dbe_;
   std::string outputFile_; //file name for ROOT ouput
   edm::InputTag trackInputTag_;
 
@@ -102,6 +91,8 @@ class L1TDTTF : public edm::EDAnalyzer {
   MonitorElement* dttf_gmt_match;
   MonitorElement* dttf_gmt_missed;
   MonitorElement* dttf_gmt_ghost;
+  MonitorElement* runId_;
+  MonitorElement* lumisecId_;
   // MonitorElement* dttf_gmt_ghost_phys;
 
   int nev_; // Number of events processed

@@ -26,9 +26,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 // For ROOT
@@ -93,14 +91,6 @@ void TPNtuplizer::beginRun(Run const&, EventSetup const& es)
   tptree_->Branch("tpart", &tp_, 
     "tpn/I:bcross:tevt:charge:stable:status:pdgid:mathit:signal:llived:sel:gpsz:gpstat:pt/F:eta:tip:lip:p:e:phi:theta:rap:qual", bufsize);
   
-  // in beginRun in MTV
-  if (UseAssociators_) {
-    edm::ESHandle<TrackAssociatorBase> theAssociator;
-    for (unsigned int w=0;w<associators_.size();w++) {
-      es.get<TrackAssociatorRecord>().get(associators_[w],theAssociator);
-      associator_.push_back( theAssociator.product() );
-    }
-  }
 }
 
 // Functions that gets called by framework every event
@@ -115,6 +105,14 @@ void TPNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& es)
   edm::Handle<TrackingParticleCollection>  TPCollectionHfake ;
   event.getByLabel(label_tp_fake_,TPCollectionHfake);
   const TrackingParticleCollection tPCfake = *(TPCollectionHfake.product());
+
+  if (UseAssociators_) {
+    edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
+    for (unsigned int w=0;w<associators_.size();w++) {
+      event.getByLabel(associators_[w],theAssociator);
+      associator_.push_back( theAssociator.product() );
+    }
+  }
 
   for (unsigned int ww=0;ww<associators_.size();ww++){
     // get some numbers for this event - very inefficient!
@@ -136,8 +134,8 @@ void TPNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& es)
       reco::SimToRecoCollection simRecColl;
       // only handle doing association in job at the mo
       if(UseAssociators_){
-	recSimColl=associator_[ww]->associateRecoToSim(trackCollection, TPCollectionHfake, &event,&es);
-         simRecColl=associator_[ww]->associateSimToReco(trackCollection, TPCollectionHeff, &event,&es);
+	recSimColl=associator_[ww]->associateRecoToSim(trackCollection, TPCollectionHfake);
+         simRecColl=associator_[ww]->associateSimToReco(trackCollection, TPCollectionHeff);
       }
       // get number for this event and this track collection - very inefficient!
       int num_found=0;

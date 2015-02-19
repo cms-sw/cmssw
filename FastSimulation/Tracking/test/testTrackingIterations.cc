@@ -1,6 +1,4 @@
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -27,9 +25,9 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
-#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
+#include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <vector>
@@ -40,14 +38,15 @@
 
 #define DEBUG false
 
-class testTrackingIterations : public edm::EDProducer {
+class testTrackingIterations : public DQMEDAnalyzer {
 
 public :
   explicit testTrackingIterations(const edm::ParameterSet&);
   ~testTrackingIterations();
 
-  virtual void produce(edm::Event&, const edm::EventSetup& ) override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const& ) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup& ) override;
+  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const& ) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
@@ -58,11 +57,9 @@ private:
   std::vector<edm::InputTag> thirdTracks;
   std::vector<edm::InputTag> fourthTracks;
   std::vector<edm::InputTag> fifthTracks;
-  bool saveNU;
   std::vector<FSimEvent*> mySimEvent;
   std::string simModuleLabel_;
   // Histograms
-  DQMStore * dbe;
   std::vector<MonitorElement*> h0;
   MonitorElement* genTracksvsEtaP;
   std::vector<MonitorElement*> SimTracksvsEtaP;
@@ -110,7 +107,6 @@ private:
   std::vector<MonitorElement*> fourthNum;
   std::vector<MonitorElement*> fifthNum;
 
-  std::string outputFileName;
   std::string TheSample(unsigned ievt);
 
   int totalNEvt;
@@ -190,9 +186,6 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   totalNEvt(0)
 {
   
-  // This producer produce a vector of SimTracks
-  produces<edm::SimTrackContainer>();
-
   // Let's just initialize the SimEvent's
   particleFilter_ = p.getParameter<edm::ParameterSet>
     ( "TestParticleFilter" );   
@@ -215,104 +208,111 @@ testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
   // For the fast sim
   mySimEvent[1] = new FSimEvent(particleFilter_);
 
-  outputFileName = 
-    p.getUntrackedParameter<std::string>("OutputFile","testTrackingIterations.root");
-    
+  num0fast = num1fast = num2fast = num3fast = num4fast= num5fast = 0;
+  num0full = num1full = num2full = num3full = num4full= num5full = 0;
+
+}
+
+void testTrackingIterations::bookHistograms(DQMStore::IBooker & ibooker,
+				    edm::Run const & iRun,
+				    edm::EventSetup const & iSetup)
+{
   // ... and the histograms
-  dbe = edm::Service<DQMStore>().operator->();
-  h0[0] = dbe->book1D("generatedEta", "Generated Eta", 300, -3., 3. );
-  h0[1] = dbe->book1D("generatedMom", "Generated momentum", 100, 0., 10. );
-  SimTracksvsEtaP[0] = dbe->book2D("SimFull","SimTrack Full",28,-2.8,2.8,100,0,10.);
-  SimTracksvsEtaP[1] = dbe->book2D("SimFast","SimTrack Fast",28,-2.8,2.8,100,0,10.);
-  genTracksvsEtaP = dbe->book2D("genEtaP","Generated eta vs p",28,-2.8,2.8,100,0,10.);
-  zeroTracksvsEtaP[0] = dbe->book2D("eff0Full","Efficiency 0th Full",28,-2.8,2.8,100,0,10.);
-  zeroTracksvsEtaP[1] = dbe->book2D("eff0Fast","Efficiency 0th Fast",28,-2.8,2.8,100,0,10.);
-  firstTracksvsEtaP[0] = dbe->book2D("eff1Full","Efficiency 1st Full",28,-2.8,2.8,100,0,10.);
-  firstTracksvsEtaP[1] = dbe->book2D("eff1Fast","Efficiency 1st Fast",28,-2.8,2.8,100,0,10.);
-  first1TracksvsEtaP[0] = dbe->book2D("eff1Full1","Efficiency 1st Full 1",28,-2.8,2.8,100,0,10.);
-  first1TracksvsEtaP[1] = dbe->book2D("eff1Fast1","Efficiency 1st Fast 1",28,-2.8,2.8,100,0,10.);
-  first2TracksvsEtaP[0] = dbe->book2D("eff1Full2","Efficiency 1st Full 2",28,-2.8,2.8,100,0,10.);
-  first2TracksvsEtaP[1] = dbe->book2D("eff1Fast2","Efficiency 1st Fast 2",28,-2.8,2.8,100,0,10.);
-  secondTracksvsEtaP[0] = dbe->book2D("eff2Full","Efficiency 2nd Full",28,-2.8,2.8,100,0,10.);
-  secondTracksvsEtaP[1] = dbe->book2D("eff2Fast","Efficiency 2nd Fast",28,-2.8,2.8,100,0,10.);
-  thirdTracksvsEtaP[0] = dbe->book2D("eff3Full","Efficiency 3rd Full",28,-2.8,2.8,100,0,10.);
-  thirdTracksvsEtaP[1] = dbe->book2D("eff3Fast","Efficiency 3rd Fast",28,-2.8,2.8,100,0,10.);
-  fourthTracksvsEtaP[0] = dbe->book2D("eff4Full","Efficiency 4th Full",28,-2.8,2.8,100,0,10.);
-  fourthTracksvsEtaP[1] = dbe->book2D("eff4Fast","Efficiency 4th Fast",28,-2.8,2.8,100,0,10.);
-  fifthTracksvsEtaP[0] = dbe->book2D("eff5Full","Efficiency 5th Full",28,-2.8,2.8,100,0,10.);
-  fifthTracksvsEtaP[1] = dbe->book2D("eff5Fast","Efficiency 5th Fast",28,-2.8,2.8,100,0,10.);
+  ibooker.setCurrentFolder("testTrackingIterations");
+  
+  h0[0] = ibooker.book1D("generatedEta", "Generated Eta", 300, -3., 3. );
+  h0[1] = ibooker.book1D("generatedMom", "Generated momentum", 100, 0., 10. );
+  SimTracksvsEtaP[0] = ibooker.book2D("SimFull","SimTrack Full",28,-2.8,2.8,100,0,10.);
+  SimTracksvsEtaP[1] = ibooker.book2D("SimFast","SimTrack Fast",28,-2.8,2.8,100,0,10.);
+  genTracksvsEtaP = ibooker.book2D("genEtaP","Generated eta vs p",28,-2.8,2.8,100,0,10.);
+  zeroTracksvsEtaP[0] = ibooker.book2D("eff0Full","Efficiency 0th Full",28,-2.8,2.8,100,0,10.);
+  zeroTracksvsEtaP[1] = ibooker.book2D("eff0Fast","Efficiency 0th Fast",28,-2.8,2.8,100,0,10.);
+  firstTracksvsEtaP[0] = ibooker.book2D("eff1Full","Efficiency 1st Full",28,-2.8,2.8,100,0,10.);
+  firstTracksvsEtaP[1] = ibooker.book2D("eff1Fast","Efficiency 1st Fast",28,-2.8,2.8,100,0,10.);
+  first1TracksvsEtaP[0] = ibooker.book2D("eff1Full1","Efficiency 1st Full 1",28,-2.8,2.8,100,0,10.);
+  first1TracksvsEtaP[1] = ibooker.book2D("eff1Fast1","Efficiency 1st Fast 1",28,-2.8,2.8,100,0,10.);
+  first2TracksvsEtaP[0] = ibooker.book2D("eff1Full2","Efficiency 1st Full 2",28,-2.8,2.8,100,0,10.);
+  first2TracksvsEtaP[1] = ibooker.book2D("eff1Fast2","Efficiency 1st Fast 2",28,-2.8,2.8,100,0,10.);
+  secondTracksvsEtaP[0] = ibooker.book2D("eff2Full","Efficiency 2nd Full",28,-2.8,2.8,100,0,10.);
+  secondTracksvsEtaP[1] = ibooker.book2D("eff2Fast","Efficiency 2nd Fast",28,-2.8,2.8,100,0,10.);
+  thirdTracksvsEtaP[0] = ibooker.book2D("eff3Full","Efficiency 3rd Full",28,-2.8,2.8,100,0,10.);
+  thirdTracksvsEtaP[1] = ibooker.book2D("eff3Fast","Efficiency 3rd Fast",28,-2.8,2.8,100,0,10.);
+  fourthTracksvsEtaP[0] = ibooker.book2D("eff4Full","Efficiency 4th Full",28,-2.8,2.8,100,0,10.);
+  fourthTracksvsEtaP[1] = ibooker.book2D("eff4Fast","Efficiency 4th Fast",28,-2.8,2.8,100,0,10.);
+  fifthTracksvsEtaP[0] = ibooker.book2D("eff5Full","Efficiency 5th Full",28,-2.8,2.8,100,0,10.);
+  fifthTracksvsEtaP[1] = ibooker.book2D("eff5Fast","Efficiency 5th Fast",28,-2.8,2.8,100,0,10.);
 
-  zeroHitsvsP[0] = dbe->book2D("Hits0PFull","Hits vs P 0th Full",100,0.,10.,30,0,30.);
-  zeroHitsvsP[1] = dbe->book2D("Hits0PFast","Hits vs P 0th Fast",100,0.,10.,30,0,30.);
-  firstHitsvsP[0] = dbe->book2D("Hits1PFull","Hits vs P 1st Full",100,0.,10.,30,0,30.);
-  firstHitsvsP[1] = dbe->book2D("Hits1PFast","Hits vs P 1st Fast",100,0.,10.,30,0,30.);
-  secondHitsvsP[0] = dbe->book2D("Hits2PFull","Hits vs P 2nd Full",100,0.,10.,30,0,30.);
-  secondHitsvsP[1] = dbe->book2D("Hits2PFast","Hits vs P 2nd Fast",100,0.,10.,30,0,30.);
-  thirdHitsvsP[0] = dbe->book2D("Hits3PFull","Hits vs P 3rd Full",100,0.,10.,30,0,30.);
-  thirdHitsvsP[1] = dbe->book2D("Hits3PFast","Hits vs P 3rd Fast",100,0.,10.,30,0,30.);
-  fourthHitsvsP[0] = dbe->book2D("Hits4PFull","Hits vs P 4th Full",100,0.,10.,30,0,30.);
-  fourthHitsvsP[1] = dbe->book2D("Hits4PFast","Hits vs P 4th Fast",100,0.,10.,30,0,30.);
-  fifthHitsvsP[0] = dbe->book2D("Hits5PFull","Hits vs P 5th Full",100,0.,10.,30,0,30.);
-  fifthHitsvsP[1] = dbe->book2D("Hits5PFast","Hits vs P 5th Fast",100,0.,10.,30,0,30.);
-  zeroHitsvsEta[0] = dbe->book2D("Hits0EtaFull","Hits vs Eta 0th Full",28,-2.8,2.8,30,0,30.);
-  zeroHitsvsEta[1] = dbe->book2D("Hits0EtaFast","Hits vs Eta 0th Fast",28,-2.8,2.8,30,0,30.);
-  firstHitsvsEta[0] = dbe->book2D("Hits1EtaFull","Hits vs Eta 1st Full",28,-2.8,2.8,30,0,30.);
-  firstHitsvsEta[1] = dbe->book2D("Hits1EtaFast","Hits vs Eta 1st Fast",28,-2.8,2.8,30,0,30.);
-  secondHitsvsEta[0] = dbe->book2D("Hits2EtaFull","Hits vs Eta 2nd Full",28,-2.8,2.8,30,0,30.);
-  secondHitsvsEta[1] = dbe->book2D("Hits2EtaFast","Hits vs Eta 2nd Fast",28,-2.8,2.8,30,0,30.);
-  thirdHitsvsEta[0] = dbe->book2D("Hits3EtaFull","Hits vs Eta 3rd Full",28,-2.8,2.8,30,0,30.);
-  thirdHitsvsEta[1] = dbe->book2D("Hits3EtaFast","Hits vs Eta 3rd Fast",28,-2.8,2.8,30,0,30.);
-  fourthHitsvsEta[0] = dbe->book2D("Hits4EtaFull","Hits vs Eta 4th Full",28,-2.8,2.8,30,0,30.);
-  fourthHitsvsEta[1] = dbe->book2D("Hits4EtaFast","Hits vs Eta 4th Fast",28,-2.8,2.8,30,0,30.);
-  fifthHitsvsEta[0] = dbe->book2D("Hits5EtaFull","Hits vs Eta 5th Full",28,-2.8,2.8,30,0,30.);
-  fifthHitsvsEta[1] = dbe->book2D("Hits5EtaFast","Hits vs Eta 5th Fast",28,-2.8,2.8,30,0,30.);
-  zeroLayersvsP[0] = dbe->book2D("Layers0PFull","Layers vs P 0th Full",100,0.,10.,30,0,30.);
-  zeroLayersvsP[1] = dbe->book2D("Layers0PFast","Layers vs P 0th Fast",100,0.,10.,30,0,30.);
-  firstLayersvsP[0] = dbe->book2D("Layers1PFull","Layers vs P 1st Full",100,0.,10.,30,0,30.);
-  firstLayersvsP[1] = dbe->book2D("Layers1PFast","Layers vs P 1st Fast",100,0.,10.,30,0,30.);
-  secondLayersvsP[0] = dbe->book2D("Layers2PFull","Layers vs P 2nd Full",100,0.,10.,30,0,30.);
-  secondLayersvsP[1] = dbe->book2D("Layers2PFast","Layers vs P 2nd Fast",100,0.,10.,30,0,30.);
-  thirdLayersvsP[0] = dbe->book2D("Layers3PFull","Layers vs P 3rd Full",100,0.,10.,30,0,30.);
-  thirdLayersvsP[1] = dbe->book2D("Layers3PFast","Layers vs P 3rd Fast",100,0.,10.,30,0,30.);
-  fourthLayersvsP[0] = dbe->book2D("Layers4PFull","Layers vs P 4th Full",100,0.,10.,30,0,30.);
-  fourthLayersvsP[1] = dbe->book2D("Layers4PFast","Layers vs P 4th Fast",100,0.,10.,30,0,30.);
-  fifthLayersvsP[0] = dbe->book2D("Layers5PFull","Layers vs P 5th Full",100,0.,10.,30,0,30.);
-  fifthLayersvsP[1] = dbe->book2D("Layers5PFast","Layers vs P 5th Fast",100,0.,10.,30,0,30.);
-  zeroLayersvsEta[0] = dbe->book2D("Layers0EtaFull","Layers vs Eta 0th Full",28,-2.8,2.8,30,0,30.);
-  zeroLayersvsEta[1] = dbe->book2D("Layers0EtaFast","Layers vs Eta 0th Fast",28,-2.8,2.8,30,0,30.);
-  firstLayersvsEta[0] = dbe->book2D("Layers1EtaFull","Layers vs Eta 1st Full",28,-2.8,2.8,30,0,30.);
-  firstLayersvsEta[1] = dbe->book2D("Layers1EtaFast","Layers vs Eta 1st Fast",28,-2.8,2.8,30,0,30.);
-  secondLayersvsEta[0] = dbe->book2D("Layers2EtaFull","Layers vs Eta 2nd Full",28,-2.8,2.8,30,0,30.);
-  secondLayersvsEta[1] = dbe->book2D("Layers2EtaFast","Layers vs Eta 2nd Fast",28,-2.8,2.8,30,0,30.);
-  thirdLayersvsEta[0] = dbe->book2D("Layers3EtaFull","Layers vs Eta 3rd Full",28,-2.8,2.8,30,0,30.);
-  thirdLayersvsEta[1] = dbe->book2D("Layers3EtaFast","Layers vs Eta 3rd Fast",28,-2.8,2.8,30,0,30.);
-  fourthLayersvsEta[0] = dbe->book2D("Layers4EtaFull","Layers vs Eta 4th Full",28,-2.8,2.8,30,0,30.);
-  fourthLayersvsEta[1] = dbe->book2D("Layers4EtaFast","Layers vs Eta 4th Fast",28,-2.8,2.8,30,0,30.);
-  fifthLayersvsEta[0] = dbe->book2D("Layers5EtaFull","Layers vs Eta 5th Full",28,-2.8,2.8,30,0,30.);
-  fifthLayersvsEta[1] = dbe->book2D("Layers5EtaFast","Layers vs Eta 5th Fast",28,-2.8,2.8,30,0,30.);
+  zeroHitsvsP[0] = ibooker.book2D("Hits0PFull","Hits vs P 0th Full",100,0.,10.,30,0,30.);
+  zeroHitsvsP[1] = ibooker.book2D("Hits0PFast","Hits vs P 0th Fast",100,0.,10.,30,0,30.);
+  firstHitsvsP[0] = ibooker.book2D("Hits1PFull","Hits vs P 1st Full",100,0.,10.,30,0,30.);
+  firstHitsvsP[1] = ibooker.book2D("Hits1PFast","Hits vs P 1st Fast",100,0.,10.,30,0,30.);
+  secondHitsvsP[0] = ibooker.book2D("Hits2PFull","Hits vs P 2nd Full",100,0.,10.,30,0,30.);
+  secondHitsvsP[1] = ibooker.book2D("Hits2PFast","Hits vs P 2nd Fast",100,0.,10.,30,0,30.);
+  thirdHitsvsP[0] = ibooker.book2D("Hits3PFull","Hits vs P 3rd Full",100,0.,10.,30,0,30.);
+  thirdHitsvsP[1] = ibooker.book2D("Hits3PFast","Hits vs P 3rd Fast",100,0.,10.,30,0,30.);
+  fourthHitsvsP[0] = ibooker.book2D("Hits4PFull","Hits vs P 4th Full",100,0.,10.,30,0,30.);
+  fourthHitsvsP[1] = ibooker.book2D("Hits4PFast","Hits vs P 4th Fast",100,0.,10.,30,0,30.);
+  fifthHitsvsP[0] = ibooker.book2D("Hits5PFull","Hits vs P 5th Full",100,0.,10.,30,0,30.);
+  fifthHitsvsP[1] = ibooker.book2D("Hits5PFast","Hits vs P 5th Fast",100,0.,10.,30,0,30.);
+  zeroHitsvsEta[0] = ibooker.book2D("Hits0EtaFull","Hits vs Eta 0th Full",28,-2.8,2.8,30,0,30.);
+  zeroHitsvsEta[1] = ibooker.book2D("Hits0EtaFast","Hits vs Eta 0th Fast",28,-2.8,2.8,30,0,30.);
+  firstHitsvsEta[0] = ibooker.book2D("Hits1EtaFull","Hits vs Eta 1st Full",28,-2.8,2.8,30,0,30.);
+  firstHitsvsEta[1] = ibooker.book2D("Hits1EtaFast","Hits vs Eta 1st Fast",28,-2.8,2.8,30,0,30.);
+  secondHitsvsEta[0] = ibooker.book2D("Hits2EtaFull","Hits vs Eta 2nd Full",28,-2.8,2.8,30,0,30.);
+  secondHitsvsEta[1] = ibooker.book2D("Hits2EtaFast","Hits vs Eta 2nd Fast",28,-2.8,2.8,30,0,30.);
+  thirdHitsvsEta[0] = ibooker.book2D("Hits3EtaFull","Hits vs Eta 3rd Full",28,-2.8,2.8,30,0,30.);
+  thirdHitsvsEta[1] = ibooker.book2D("Hits3EtaFast","Hits vs Eta 3rd Fast",28,-2.8,2.8,30,0,30.);
+  fourthHitsvsEta[0] = ibooker.book2D("Hits4EtaFull","Hits vs Eta 4th Full",28,-2.8,2.8,30,0,30.);
+  fourthHitsvsEta[1] = ibooker.book2D("Hits4EtaFast","Hits vs Eta 4th Fast",28,-2.8,2.8,30,0,30.);
+  fifthHitsvsEta[0] = ibooker.book2D("Hits5EtaFull","Hits vs Eta 5th Full",28,-2.8,2.8,30,0,30.);
+  fifthHitsvsEta[1] = ibooker.book2D("Hits5EtaFast","Hits vs Eta 5th Fast",28,-2.8,2.8,30,0,30.);
+  zeroLayersvsP[0] = ibooker.book2D("Layers0PFull","Layers vs P 0th Full",100,0.,10.,30,0,30.);
+  zeroLayersvsP[1] = ibooker.book2D("Layers0PFast","Layers vs P 0th Fast",100,0.,10.,30,0,30.);
+  firstLayersvsP[0] = ibooker.book2D("Layers1PFull","Layers vs P 1st Full",100,0.,10.,30,0,30.);
+  firstLayersvsP[1] = ibooker.book2D("Layers1PFast","Layers vs P 1st Fast",100,0.,10.,30,0,30.);
+  secondLayersvsP[0] = ibooker.book2D("Layers2PFull","Layers vs P 2nd Full",100,0.,10.,30,0,30.);
+  secondLayersvsP[1] = ibooker.book2D("Layers2PFast","Layers vs P 2nd Fast",100,0.,10.,30,0,30.);
+  thirdLayersvsP[0] = ibooker.book2D("Layers3PFull","Layers vs P 3rd Full",100,0.,10.,30,0,30.);
+  thirdLayersvsP[1] = ibooker.book2D("Layers3PFast","Layers vs P 3rd Fast",100,0.,10.,30,0,30.);
+  fourthLayersvsP[0] = ibooker.book2D("Layers4PFull","Layers vs P 4th Full",100,0.,10.,30,0,30.);
+  fourthLayersvsP[1] = ibooker.book2D("Layers4PFast","Layers vs P 4th Fast",100,0.,10.,30,0,30.);
+  fifthLayersvsP[0] = ibooker.book2D("Layers5PFull","Layers vs P 5th Full",100,0.,10.,30,0,30.);
+  fifthLayersvsP[1] = ibooker.book2D("Layers5PFast","Layers vs P 5th Fast",100,0.,10.,30,0,30.);
+  zeroLayersvsEta[0] = ibooker.book2D("Layers0EtaFull","Layers vs Eta 0th Full",28,-2.8,2.8,30,0,30.);
+  zeroLayersvsEta[1] = ibooker.book2D("Layers0EtaFast","Layers vs Eta 0th Fast",28,-2.8,2.8,30,0,30.);
+  firstLayersvsEta[0] = ibooker.book2D("Layers1EtaFull","Layers vs Eta 1st Full",28,-2.8,2.8,30,0,30.);
+  firstLayersvsEta[1] = ibooker.book2D("Layers1EtaFast","Layers vs Eta 1st Fast",28,-2.8,2.8,30,0,30.);
+  secondLayersvsEta[0] = ibooker.book2D("Layers2EtaFull","Layers vs Eta 2nd Full",28,-2.8,2.8,30,0,30.);
+  secondLayersvsEta[1] = ibooker.book2D("Layers2EtaFast","Layers vs Eta 2nd Fast",28,-2.8,2.8,30,0,30.);
+  thirdLayersvsEta[0] = ibooker.book2D("Layers3EtaFull","Layers vs Eta 3rd Full",28,-2.8,2.8,30,0,30.);
+  thirdLayersvsEta[1] = ibooker.book2D("Layers3EtaFast","Layers vs Eta 3rd Fast",28,-2.8,2.8,30,0,30.);
+  fourthLayersvsEta[0] = ibooker.book2D("Layers4EtaFull","Layers vs Eta 4th Full",28,-2.8,2.8,30,0,30.);
+  fourthLayersvsEta[1] = ibooker.book2D("Layers4EtaFast","Layers vs Eta 4th Fast",28,-2.8,2.8,30,0,30.);
+  fifthLayersvsEta[0] = ibooker.book2D("Layers5EtaFull","Layers vs Eta 5th Full",28,-2.8,2.8,30,0,30.);
+  fifthLayersvsEta[1] = ibooker.book2D("Layers5EtaFast","Layers vs Eta 5th Fast",28,-2.8,2.8,30,0,30.);
 
-  thirdSeedvsP[0] = dbe->book2D("Seed3PFull","Seed vs P 3rd Full",100,0.,10.,10,0,10.);
-  thirdSeedvsP[1] = dbe->book2D("Seed3PFast","Seed vs P 3rd Fast",100,0.,10.,10,0,10.);
-  thirdSeedvsEta[0] = dbe->book2D("Seed3EtaFull","Seed vs Eta 3rd Full",28,-2.8,2.8,10,0,10.);
-  thirdSeedvsEta[1] = dbe->book2D("Seed3EtaFast","Seed vs Eta 3rd Fast",28,-2.8,2.8,10,0,10.);
-  fifthSeedvsP[0] = dbe->book2D("Seed5PFull","Seed vs P 5th Full",100,0.,10.,10,0,10.);
-  fifthSeedvsP[1] = dbe->book2D("Seed5PFast","Seed vs P 5th Fast",100,0.,10.,10,0,10.);
-  fifthSeedvsEta[0] = dbe->book2D("Seed5EtaFull","Seed vs Eta 5th Full",28,-2.8,2.8,10,0,10.);
-  fifthSeedvsEta[1] = dbe->book2D("Seed5EtaFast","Seed vs Eta 5th Fast",28,-2.8,2.8,10,0,10.);
+  thirdSeedvsP[0] = ibooker.book2D("Seed3PFull","Seed vs P 3rd Full",100,0.,10.,10,0,10.);
+  thirdSeedvsP[1] = ibooker.book2D("Seed3PFast","Seed vs P 3rd Fast",100,0.,10.,10,0,10.);
+  thirdSeedvsEta[0] = ibooker.book2D("Seed3EtaFull","Seed vs Eta 3rd Full",28,-2.8,2.8,10,0,10.);
+  thirdSeedvsEta[1] = ibooker.book2D("Seed3EtaFast","Seed vs Eta 3rd Fast",28,-2.8,2.8,10,0,10.);
+  fifthSeedvsP[0] = ibooker.book2D("Seed5PFull","Seed vs P 5th Full",100,0.,10.,10,0,10.);
+  fifthSeedvsP[1] = ibooker.book2D("Seed5PFast","Seed vs P 5th Fast",100,0.,10.,10,0,10.);
+  fifthSeedvsEta[0] = ibooker.book2D("Seed5EtaFull","Seed vs Eta 5th Full",28,-2.8,2.8,10,0,10.);
+  fifthSeedvsEta[1] = ibooker.book2D("Seed5EtaFast","Seed vs Eta 5th Fast",28,-2.8,2.8,10,0,10.);
 
 
-  zeroNum[0]  = dbe->book1D("Num0Full","Num 0th Full",10, 0., 10.);
-  zeroNum[1]  = dbe->book1D("Num0Fast","Num 0th Fast",10, 0., 10.);
-  firstNum[0]  = dbe->book1D("Num1Full","Num 1st Full",10, 0., 10.);
-  firstNum[1]  = dbe->book1D("Num1Fast","Num 1st Fast",10, 0., 10.);
-  secondNum[0] = dbe->book1D("Num2Full","Num 2nd Full",10, 0., 10.);
-  secondNum[1] = dbe->book1D("Num2Fast","Num 2nd Fast",10, 0., 10.);
-  thirdNum[0]  = dbe->book1D("Num3Full","Num 3rd Full",10, 0., 10.);
-  thirdNum[1]  = dbe->book1D("Num3Fast","Num 3rd Fast",10, 0., 10.);
-  fourthNum[0] = dbe->book1D("Num4Full","Num 4th Full",10, 0., 10.);
-  fourthNum[1] = dbe->book1D("Num4Fast","Num 4th Fast",10, 0., 10.);
-  fifthNum[0]  = dbe->book1D("Num5Full","Num 5th Full",10, 0., 10.);
-  fifthNum[1]  = dbe->book1D("Num5Fast","Num 5th Fast",10, 0., 10.);
+  zeroNum[0]  = ibooker.book1D("Num0Full","Num 0th Full",10, 0., 10.);
+  zeroNum[1]  = ibooker.book1D("Num0Fast","Num 0th Fast",10, 0., 10.);
+  firstNum[0]  = ibooker.book1D("Num1Full","Num 1st Full",10, 0., 10.);
+  firstNum[1]  = ibooker.book1D("Num1Fast","Num 1st Fast",10, 0., 10.);
+  secondNum[0] = ibooker.book1D("Num2Full","Num 2nd Full",10, 0., 10.);
+  secondNum[1] = ibooker.book1D("Num2Fast","Num 2nd Fast",10, 0., 10.);
+  thirdNum[0]  = ibooker.book1D("Num3Full","Num 3rd Full",10, 0., 10.);
+  thirdNum[1]  = ibooker.book1D("Num3Fast","Num 3rd Fast",10, 0., 10.);
+  fourthNum[0] = ibooker.book1D("Num4Full","Num 4th Full",10, 0., 10.);
+  fourthNum[1] = ibooker.book1D("Num4Fast","Num 4th Fast",10, 0., 10.);
+  fifthNum[0]  = ibooker.book1D("Num5Full","Num 5th Full",10, 0., 10.);
+  fifthNum[1]  = ibooker.book1D("Num5Fast","Num 5th Fast",10, 0., 10.);
 
 }
 
@@ -323,11 +323,9 @@ testTrackingIterations::~testTrackingIterations()
   std::cout << "\tFULL\t" <<  num0full << "\t"<< num1full << "\t" << num2full <<"\t" << num3full << "\t" << num4full <<  "\t" << num5full << std::endl;
   std::cout << "\tFAST\t" <<  num0fast <<"\t"<< num1fast << "\t" << num2fast << "\t" << num3fast << "\t" << num4fast << "\t" << num5fast << std::endl;
 
-  dbe->save(outputFileName);
-
 }
 
-void testTrackingIterations::beginRun(edm::Run const&, edm::EventSetup const& es)
+void testTrackingIterations::dqmBeginRun(edm::Run const&, edm::EventSetup const& es)
 {
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
@@ -340,13 +338,10 @@ void testTrackingIterations::beginRun(edm::Run const&, edm::EventSetup const& es
   es.get<TrackerDigiGeometryRecord>().get(geometry);
   theGeometry = &(*geometry);
 
-  num0fast = num1fast = num2fast = num3fast = num4fast= num5fast = 0;
-  num0full = num1full = num2full = num3full = num4full= num5full = 0;
-
 }
 
 void
-testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetup )
+testTrackingIterations::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   ParticleTable::Sentry ptable(mySimEvent[0]->theTable());
 
@@ -386,7 +381,7 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   //  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
   edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
   iEvent.getByLabel("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits", theGSRecHits);
-  TrackerRecHit theFirstSeedingTrackerRecHit;
+  TrajectorySeedHitCandidate theFirstSeedingTrackerRecHit;
 
 
   if ( !mySimEvent[1]->nVertices() ) return;
@@ -589,12 +584,12 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  std::cout <<"counting: "<< theRecHitRangeIteratorEnd-theRecHitRangeIteratorBegin <<" hits to be considered "<< std::endl;
 	  
 	  int hitnum=0;
-	  TrackerRecHit theCurrentRecHit;
+	  TrajectorySeedHitCandidate theCurrentRecHit;
 	  for ( iterRecHit = theRecHitRangeIteratorBegin; 
 		iterRecHit != theRecHitRangeIteratorEnd; 
 		++iterRecHit) {
 	    
-	    theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry,tTopo);
+	    theCurrentRecHit = TrajectorySeedHitCandidate(&(*iterRecHit),theGeometry,tTopo);
 	    std::cout << hitnum << " Hit DetID = " <<   theCurrentRecHit.subDetId() << "\tLayer = " << theCurrentRecHit.layerNumber() << std::endl;	
 	    hitnum++;
 	  }
@@ -702,12 +697,12 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  std::cout <<"counting: "<< theRecHitRangeIteratorEnd-theRecHitRangeIteratorBegin <<" hits to be considered "<< std::endl;
 	  
 	  int hitnum=0;
-	  TrackerRecHit theCurrentRecHit;
+	  TrajectorySeedHitCandidate theCurrentRecHit;
 	  for ( iterRecHit = theRecHitRangeIteratorBegin; 
 		iterRecHit != theRecHitRangeIteratorEnd; 
 		++iterRecHit) {
 	    
-	    theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry,tTopo);
+	    theCurrentRecHit = TrajectorySeedHitCandidate(&(*iterRecHit),theGeometry,tTopo);
 	    std::cout << hitnum << " Hit DetID = " <<   theCurrentRecHit.subDetId() << "\tLayer = " << theCurrentRecHit.layerNumber() << std::endl;	
 	    hitnum++;
 	    

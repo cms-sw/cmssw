@@ -274,7 +274,6 @@ HcalLuttoDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iSetup.get<HcalTPGRecord>().get(inputCoder);
   edm::ESHandle<CaloTPGTranscoder> outTranscoder;
   iSetup.get<CaloTPGRecord>().get(outTranscoder);
-  outTranscoder->setup(iSetup,CaloTPGTranscoder::HcalTPG);
 
   std::vector<HcalElectronicsId> allEID = Map_->allElectronicsId();
   std::vector<HcalElectronicsId>::iterator itreid;
@@ -318,7 +317,6 @@ HcalLuttoDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   *oc_ << "</CFGBrick>\n";
   delete oc_;
 
-  outTranscoder->releaseSetup();
 }
 
 

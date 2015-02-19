@@ -19,7 +19,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
-#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -81,7 +80,7 @@ std::vector< std::pair<FastPixelHitMatcher::ConstRecHitPointer,
 FastPixelHitMatcher::compatibleHits(const GlobalPoint& thePos,
 				  const GlobalPoint& theVertex,
 				  float energy,
-				  std::vector<TrackerRecHit>& theHits) { 
+				  std::vector<TrajectorySeedHitCandidate>& theHits) { 
   
   std::vector< std::pair<FastPixelHitMatcher::ConstRecHitPointer, 
     FastPixelHitMatcher::ConstRecHitPointer> > result;
@@ -153,8 +152,8 @@ bool FastPixelHitMatcher::isASeed(const ParticlePropagator& myElec,
 				const GlobalPoint& theVertex,
 				double rCluster,
 				double zCluster,
-				const TrackerRecHit& hit1,
-				const TrackerRecHit& hit2) {
+				const TrajectorySeedHitCandidate& hit1,
+				const TrajectorySeedHitCandidate& hit2) {
   
   // Check that the two hits are not on the same layer
   if ( hit2.isOnTheSameLayer(hit1) ) return false;

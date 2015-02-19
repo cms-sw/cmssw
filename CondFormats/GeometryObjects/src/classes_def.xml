@@ -34,5 +34,20 @@
    <field name="pChamberType" mapping="blob"/>
    <field name="pfupars" mapping="blob"/>
  </class>
+ 
+ <class name="PTrackerParameters" class_version="0"> 
+   <field name="pxb" mapping="blob"/>
+   <field name="pxf" mapping="blob"/>
+   <field name="tec" mapping="blob"/>
+   <field name="tib" mapping="blob"/>
+   <field name="tid" mapping="blob"/>
+   <field name="tob" mapping="blob"/>
+ </class>
+ <class name="PTrackerParameters::PxbItem"/>
+ <class name="PTrackerParameters::PxfItem"/>
+ <class name="PTrackerParameters::TECItem"/>
+ <class name="PTrackerParameters::TIBItem"/>
+ <class name="PTrackerParameters::TIDItem"/>
+ <class name="PTrackerParameters::TOBItem"/>
 
 </lcgdict> 

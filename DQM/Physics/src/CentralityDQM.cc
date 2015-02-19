@@ -9,14 +9,13 @@
 
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Centrality
-#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
-#include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 

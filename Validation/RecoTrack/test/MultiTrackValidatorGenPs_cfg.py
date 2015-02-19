@@ -48,7 +48,7 @@ process.GlobalTag.globaltag = 'START61_V4::All'
 
 ### standard includes
 process.load('Configuration/StandardSequences/Services_cff')
-process.load('Configuration.StandardSequences.GeometryPilot2_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
@@ -82,7 +82,7 @@ process.load("Validation.RecoTrack.cuts_cff")
 process.cutsRecoTracks.quality = cms.vstring('highPurity')
 #process.cutsRecoTracks.min3DHit = cms.int32(3)
 #process.cutsRecoTracks.minPixHit = cms.int32(0)
-#process.cutsRecoTracks.algorithm = cms.vstring('iter6')
+#process.cutsRecoTracks.algorithm = cms.vstring('tobTecStep')
 #process.cutsRecoTracks.maxChi2 = 10
 #process.cutsRecoTracks.minHit   = cms.int32(10)
 #process.cutsRecoTracks.src = cms.InputTag("TrackRefitter")

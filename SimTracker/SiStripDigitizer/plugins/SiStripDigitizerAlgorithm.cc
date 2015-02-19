@@ -51,10 +51,11 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   cosmicShift(conf.getUntrackedParameter<double>("CosmicDelayShift")),
   inefficiency(conf.getParameter<double>("Inefficiency")),
   pedOffset((unsigned int)conf.getParameter<double>("PedestalsOffset")),
+  PreMixing_(conf.getParameter<bool>("PreMixingMode")),
   theSiHitDigitizer(new SiHitDigitizer(conf)),
   theSiPileUpSignals(new SiPileUpSignals()),
   theSiNoiseAdder(new SiGaussianTailNoiseAdder(theThreshold)),
-  theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC)),
+  theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC, PreMixing_)),
   theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)) {
 
   if (peakMode) {

@@ -56,3 +56,15 @@ void FWNumberEntryField::SetUIntNumber(UInt_t n)
 {
    SetText(Form("%u", n), kFALSE);
 }
+
+//______________________________________________________________________________
+ULong64_t FWNumberEntryField::GetULong64Number()
+{
+   return static_cast<ULong64_t>(strtoull(GetText(), 0, 10));
+}
+
+//______________________________________________________________________________
+void FWNumberEntryField::SetULong64Number(ULong64_t n)
+{
+   SetText(Form("%llu", n), kFALSE);
+}

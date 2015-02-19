@@ -73,10 +73,10 @@ public:
       return 9999; 
   }   
   double get_ped_ho(int eta,int phi,int depth,int cup){
-      if(nHO[eta+50][phi][depth][cup]<10) return 2.5; 
+      if(nHO[eta+50][phi][depth][cup]<10) return 8.5; 
       if(nHO[eta+50][phi][depth][cup]!=0){
          double ped=HO[eta+50][phi][depth][cup]/nHO[eta+50][phi][depth][cup];
-         if(ped>1.5 && ped<4.5) return ped;
+         if(ped>5 && ped<15) return ped;
       }
       return 9999; 
   }   
@@ -103,12 +103,11 @@ public:
   double occSum;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////  
-  void setup();
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void setup(DQMStore::IBooker &);
+  void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c);
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void done();
   void reset();
-  void cleanup(); 
   
 private:
   edm::InputTag inputLabelDigi_;
@@ -128,6 +127,8 @@ private:
   int  GCTTriggerBit5_; 
   bool CosmicsCorr_; 
   
+  MonitorElement *HBHEShape;
+  MonitorElement *HOShape;
   MonitorElement *HBTimeDT; 
   MonitorElement *HBTimeRPC; 
   MonitorElement *HBTimeGCT; 

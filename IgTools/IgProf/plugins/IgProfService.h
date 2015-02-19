@@ -8,6 +8,7 @@
 //  Peter Elmer, Princeton University                        18 Nov, 2008
 //
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
@@ -51,6 +52,8 @@ namespace edm {
       void makeDump(const std::string &format);
       static std::string replace(const std::string &s, 
                                  const char *pat, int val);
+      static std::string replaceU64(const std::string &s, 
+                                    const char *pat, unsigned long long val);
 
       void (*dump_)(const char *);
 
@@ -71,9 +74,9 @@ namespace edm {
       int mineventrecord_;
       int prescale_;
       int nrecord_;      // counter
-      int nevent_;
-      int nrun_;
-      int nlumi_;
+      edm::EventNumber_t nevent_;
+      edm::RunNumber_t nrun_;
+      edm::LuminosityBlockNumber_t nlumi_;
       int nfileopened_;  // counter of files opened thus far
       int nfileclosed_;  // counter of files closed thus far
 

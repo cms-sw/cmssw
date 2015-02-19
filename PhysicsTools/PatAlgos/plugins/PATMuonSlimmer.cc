@@ -17,28 +17,31 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
 namespace pat {
-
+  
   class PATMuonSlimmer : public edm::EDProducer {
-    public:
-      explicit PATMuonSlimmer(const edm::ParameterSet & iConfig);
-      virtual ~PATMuonSlimmer() { }
-
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
-
-    private:
-      edm::EDGetTokenT<pat::MuonCollection> src_;
-      edm::EDGetTokenT<reco::PFCandidateCollection> pf_;
-      edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
-      bool linkToPackedPF_;
+  public:
+    explicit PATMuonSlimmer(const edm::ParameterSet & iConfig);
+    virtual ~PATMuonSlimmer() { }
+    
+    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    
+  private:
+    edm::EDGetTokenT<pat::MuonCollection> src_;
+    edm::EDGetTokenT<reco::PFCandidateCollection> pf_;
+    edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
+    bool linkToPackedPF_;
+    StringCutObjectSelector<pat::Muon> saveTeVMuons_;
   };
 
 } // namespace
 
 pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet & iConfig) :
     src_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("src"))),
-    linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates"))
+    linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
+    saveTeVMuons_(iConfig.getParameter<std::string>("saveTeVMuons"))
 {
     produces<std::vector<pat::Muon> >();
     if (linkToPackedPF_) {
@@ -73,7 +76,8 @@ pat::PATMuonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     for (vector<pat::Muon>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         out->push_back(*it);
         pat::Muon & mu = out->back();
-        if (linkToPackedPF_) {
+	if (saveTeVMuons_(mu)){mu.embedPickyMuon(); mu.embedTpfmsMuon(); mu.embedDytMuon();}
+	if (linkToPackedPF_) {
             mu.refToOrig_ = refToPtr(mu2pc[mu.refToOrig_]);
         }
     }

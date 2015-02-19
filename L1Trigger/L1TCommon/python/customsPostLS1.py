@@ -1,0 +1,137 @@
+
+import FWCore.ParameterSet.Config as cms
+
+
+# customize to use upgrade L1 emulation
+
+from L1Trigger.Configuration.L1Trigger_custom import customiseL1Menu
+
+# customization of run L1 emulator for 2015 Stage 1 configuration
+def customiseSimL1EmulatorForStage1(process):
+
+    process.load("L1Trigger.L1TCommon.l1tDigiToRaw_cfi")
+    process.load("L1Trigger.L1TCommon.l1tRawToDigi_cfi")
+    process.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
+
+    process.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
+    process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
+
+    if hasattr(process, 'simGtDigis'):
+        process.simGtDigis.GmtInputTag = 'simGmtDigis'
+        process.simGtDigis.GctInputTag = 'simCaloStage1LegacyFormatDigis'
+        process.simGtDigis.TechnicalTriggersInputTags = cms.VInputTag( )
+    if hasattr(process, 'gctDigiToRaw'):
+        process.gctDigiToRaw.gctInputLabel = 'simCaloStage1LegacyFormatDigis'
+
+    if hasattr(process, 'simGctDigis'):
+        for sequence in process.sequences:
+            getattr(process,sequence).replace(process.simGctDigis,process.L1TCaloStage1)
+        for path in process.paths:
+            getattr(process,path).replace(process.simGctDigis,process.L1TCaloStage1)
+
+    if hasattr(process, 'DigiToRaw'):
+        process.l1tDigiToRaw.InputLabel = cms.InputTag("simCaloStage1FinalDigis", "")
+        process.l1tDigiToRaw.TauInputLabel = cms.InputTag("simCaloStage1FinalDigis", "rlxTaus")
+        process.l1tDigiToRaw.IsoTauInputLabel = cms.InputTag("simCaloStage1FinalDigis", "isoTaus")
+        process.l1tDigiToRaw.HFBitCountsInputLabel = cms.InputTag("simCaloStage1FinalDigis", "HFBitCounts")
+        process.l1tDigiToRaw.HFRingSumsInputLabel = cms.InputTag("simCaloStage1FinalDigis", "HFRingSums")
+        process.l1tDigiToRawSeq = cms.Sequence(process.gctDigiToRaw + process.l1tDigiToRaw);
+        process.DigiToRaw.replace(process.gctDigiToRaw, process.l1tDigiToRawSeq)
+        if hasattr(process, 'rawDataCollector'):
+            process.rawDataCollector.RawCollectionList.append(cms.InputTag("l1tDigiToRaw"))
+    if hasattr(process, 'RawToDigi'):
+        process.L1RawToDigiSeq = cms.Sequence(process.gctDigis+process.caloStage1Digis+process.caloStage1LegacyFormatDigis)
+        process.RawToDigi.replace(process.gctDigis, process.L1RawToDigiSeq)
+
+    if hasattr(process, 'HLTL1UnpackerSequence'):
+
+        # extend sequence to add Layer 1 unpacking and conversion back to legacy format
+        process.hltCaloStage1Digis = process.caloStage1Digis.clone()
+        process.hltCaloStage1LegacyFormatDigis = process.caloStage1LegacyFormatDigis.clone()
+        process.hltCaloStage1LegacyFormatDigis.InputCollection = cms.InputTag("hltCaloStage1Digis")
+        process.hltCaloStage1LegacyFormatDigis.InputRlxTauCollection = cms.InputTag("hltCaloStage1Digis:rlxTaus")
+        process.hltCaloStage1LegacyFormatDigis.InputIsoTauCollection = cms.InputTag("hltCaloStage1Digis:isoTaus")
+        process.hltCaloStage1LegacyFormatDigis.InputHFSumsCollection = cms.InputTag("hltCaloStage1Digis:HFRingSums")
+        process.hltCaloStage1LegacyFormatDigis.InputHFCountsCollection = cms.InputTag("hltCaloStage1Digis:HFBitCounts")
+        #process.hltL1RawToDigiSeq = cms.Sequence(process.hltGctDigis+process.hltCaloStage1 + process.hltCaloStage1LegacyFormatDigis)
+        process.hltL1RawToDigiSeq = cms.Sequence(process.hltCaloStage1Digis + process.hltCaloStage1LegacyFormatDigis)
+        process.HLTL1UnpackerSequence.replace(process.hltGctDigis, process.hltL1RawToDigiSeq)
+
+    alist=['hltL1GtObjectMap']
+    for a in alist:
+        if hasattr(process,a):
+            getattr(process, a).GctInputTag = cms.InputTag("hltCaloStage1LegacyFormatDigis")
+
+    alist=['hltL1extraParticles']
+    for a in alist:
+        if hasattr(process,a):
+            getattr(process, a).etTotalSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
+            getattr(process, a).nonIsolatedEmSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","nonIsoEm")
+            getattr(process, a).etMissSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
+            getattr(process, a).htMissSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
+            getattr(process, a).forwardJetSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","forJets")
+            getattr(process, a).centralJetSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","cenJets")
+            getattr(process, a).tauJetSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","tauJets")
+            getattr(process, a).isoTauJetSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","isoTauJets")
+            getattr(process, a).isolatedEmSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","isoEm")
+            getattr(process, a).etHadSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
+            getattr(process, a).hfRingEtSumsSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
+            getattr(process, a).hfRingBitCountsSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
+
+    blist=['l1extraParticles','recoL1extraParticles','dqmL1ExtraParticles']
+    for b in blist:
+        if hasattr(process,b):
+            if (getattr(process, b).centralJetSource == cms.InputTag("simGctDigis","cenJets")):
+                getattr(process, b).etTotalSource = cms.InputTag("simCaloStage1LegacyFormatDigis")
+                getattr(process, b).nonIsolatedEmSource = cms.InputTag("simCaloStage1LegacyFormatDigis","nonIsoEm")
+                getattr(process, b).etMissSource = cms.InputTag("simCaloStage1LegacyFormatDigis")
+                getattr(process, b).htMissSource = cms.InputTag("simCaloStage1LegacyFormatDigis")
+                getattr(process, b).forwardJetSource = cms.InputTag("simCaloStage1LegacyFormatDigis","forJets")
+                getattr(process, b).centralJetSource = cms.InputTag("simCaloStage1LegacyFormatDigis","cenJets")
+                getattr(process, b).tauJetSource = cms.InputTag("simCaloStage1LegacyFormatDigis","tauJets")
+                getattr(process, b).isoTauJetSource = cms.InputTag("simCaloStage1LegacyFormatDigis","isoTauJets")
+                getattr(process, b).isolatedEmSource = cms.InputTag("simCaloStage1LegacyFormatDigis","isoEm")
+                getattr(process, b).etHadSource = cms.InputTag("simCaloStage1LegacyFormatDigis")
+                getattr(process, b).hfRingEtSumsSource = cms.InputTag("simCaloStage1LegacyFormatDigis")
+                getattr(process, b).hfRingBitCountsSource = cms.InputTag("simCaloStage1LegacyFormatDigis")
+            else:
+                getattr(process, b).etTotalSource = cms.InputTag("caloStage1LegacyFormatDigis")
+                getattr(process, b).nonIsolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","nonIsoEm")
+                getattr(process, b).etMissSource = cms.InputTag("caloStage1LegacyFormatDigis")
+                getattr(process, b).htMissSource = cms.InputTag("caloStage1LegacyFormatDigis")
+                getattr(process, b).forwardJetSource = cms.InputTag("caloStage1LegacyFormatDigis","forJets")
+                getattr(process, b).centralJetSource = cms.InputTag("caloStage1LegacyFormatDigis","cenJets")
+                getattr(process, b).tauJetSource = cms.InputTag("caloStage1LegacyFormatDigis","tauJets")
+                getattr(process, b).isoTauJetSource = cms.InputTag("caloStage1LegacyFormatDigis","isoTauJets")
+                getattr(process, b).isolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","isoEm")
+                getattr(process, b).etHadSource = cms.InputTag("caloStage1LegacyFormatDigis")
+                getattr(process, b).hfRingEtSumsSource = cms.InputTag("caloStage1LegacyFormatDigis")
+                getattr(process, b).hfRingBitCountsSource = cms.InputTag("caloStage1LegacyFormatDigis")
+
+    return process
+
+
+from L1Trigger.Configuration.customise_overwriteL1Menu import *
+
+def customiseSimL1EmulatorForPostLS1_50ns(process):
+    # move to the 50ns v0 L1 menu once the HLT has been updated accordingly
+    #process = L1Menu_Collisions2015_50ns_v0(process)
+    process = L1Menu_Collisions2015_25ns_v2(process)
+    return process
+
+def customiseSimL1EmulatorForPostLS1_25ns(process):
+    # load the Stage 1 configuration
+    process = customiseSimL1EmulatorForStage1(process)
+    # load the 25ns v2 L1 menu
+    process = L1Menu_Collisions2015_25ns_v2(process)
+    return process
+
+def customiseSimL1EmulatorForPostLS1_HI(process):
+    # load the Stage 1 configuration
+    process = customiseSimL1EmulatorForStage1(process)
+    # set the Stage 1 heavy ions-specific parameters
+    process.simCaloStage1Digis.FirmwareVersion = cms.uint32(1)
+    # move to the heavy ions draft L1 menu once the HLT has been updated accordingly
+    #process = L1Menu_CollisionsHeavyIons2015_v0(process)
+    process = L1Menu_Collisions2015_25ns_v2(process)
+    return process

@@ -10,7 +10,10 @@ float EcalClusterEnergyUncertainty::getValue( const reco::SuperCluster & superCl
 	float en = superCluster.energy(); 
 	float eta = fabs(superCluster.eta()); 
 	float et = en/cosh(eta); 
-	float brem = superCluster.phiWidth()/superCluster.etaWidth(); 
+	//fixing divide by zero issue for brem varible, this is the case for single crystal superclusters
+	//as these "superclusters" are likely noise or spikes so setting value to 0 as the uncertainties 
+	//will be incorrect regardless so doesnt matter what it is
+	float brem = superCluster.etaWidth()!=0 ? superCluster.phiWidth()/superCluster.etaWidth() : 0;
 	
 	int offset = 0; 
 	

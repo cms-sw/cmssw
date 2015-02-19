@@ -24,7 +24,7 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 process.load("DQM.Integration.test.environment_cfi")
 process.dqmEnv.subSystemFolder = 'BeamMonitor'
 # uncomment for running local test
-process.dqmSaver.dirName     = '.'
+#process.dqmSaver.dirName     = '.'
 
 import DQMServices.Components.DQMEnvironment_cfi
 process.dqmEnvPixelLess = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
@@ -42,7 +42,7 @@ process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff")
 
 
 ####  SETUP TRACKING RECONSTRUCTION ####
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
@@ -112,6 +112,10 @@ if ( process.runType.getRunType() == process.runType.cosmic_run):
     process.dqmBeamSpotProblemMonitor.AlarmOFFThreshold = 5       #Should be < AlalrmONThreshold 
 #-----------------------------------------------------------
 
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)
+
 
 #--------------------------
 # Proton-Proton Stuff
@@ -165,6 +169,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
 
     #pixel  track/vertices reco
+    process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+
     process.pixelVertices.TkFilterParameters.minPt = process.pixelTracks.RegionFactoryPSet.RegionPSet.ptMin
 
     process.offlinePrimaryVertices.TrackLabel = cms.InputTag("pixelTracks")
@@ -173,8 +179,11 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                                process.offlineBeamSpot*
                                                process.siPixelClusters*
                                                process.siPixelRecHits*
-                                               process.pixelTracks*
-                                               process.pixelVertices
+                                               process.siPixelClusterShapeCache*
+                                               process.PixelLayerTriplets*
+#                                               process.pixelTracks*
+#                                               process.pixelVertices
+                                               process.recopixelvertexing
                                            )
 
     #--pixel tracking ends here-----

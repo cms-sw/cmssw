@@ -4,6 +4,9 @@
 namespace CondFormats_HcalObjects {
   struct dictionary {
 
+    HcalZDCLowGainFractions myfracs();
+    std::vector<HcalZDCLowGainFraction> myfracsVec;
+    
     HcalPedestals mypeds();
     std::vector<HcalPedestal> mypedsVec;
  
@@ -93,6 +96,12 @@ namespace CondFormats_HcalObjects {
     DummyOOTPileupCorrection myDummyOOTPileupCorrection;
     OOTPileupCorrectionMapColl myOOTPileupCorrectionMapColl;
     OOTPileupCorrectionBuffer myOOTPileupCorrectionBuffer;
+
+    // QIE8 input pulse representation objects
+    HcalInterpolatedPulse myHcalInterpolatedPulse;
+    std::vector<HcalInterpolatedPulse> myHcalInterpolatedPulseVec;
+    HBHEChannelGroups myHBHEChannelGroups;
+    HcalInterpolatedPulseColl myHcalInterpolatedPulseColl;
   };
 }
 

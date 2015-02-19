@@ -27,10 +27,6 @@ public:
   virtual ~CaloTPGTranscoder(); 
 
   enum Mode { All=0, RCT=1, HcalTPG=2, EcalTPG=3 };
-  /// Obtain any needed objects from the EventSetup.  Note that any member variables which are changed must be mutable.
-  virtual void setup(const edm::EventSetup& es, Mode mode=All) const;
-  /// Release any objects obtained from the EventSetup
-  virtual void releaseSetup() const;
   /** \brief Compression from linear samples+fine grain in the HTR */
   virtual HcalTriggerPrimitiveSample hcalCompress(const HcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const = 0;
   /** \brief Compression from linear samples+fine grain in the ECAL */
@@ -47,11 +43,11 @@ public:
   virtual double hcaletValue(const int& ieta, const int& compET) const = 0;  
   virtual double hcaletValue(const int& ieta, const int& iphi, const int& compressedValue) const = 0;
   virtual double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const = 0; 
-  boost::shared_ptr<HcalTPGCompressor> getHcalCompressor() const { return hccompress_; }
-  boost::shared_ptr<EcalTPGCompressor> getEcalCompressor() const { return eccompress_; }
+  boost::shared_ptr<const HcalTPGCompressor> getHcalCompressor() const { return hccompress_; }
+  boost::shared_ptr<const EcalTPGCompressor> getEcalCompressor() const { return eccompress_; }
 private:
-  boost::shared_ptr<HcalTPGCompressor> hccompress_;
-  boost::shared_ptr<EcalTPGCompressor> eccompress_;
+  boost::shared_ptr<const HcalTPGCompressor> hccompress_;
+  boost::shared_ptr<const EcalTPGCompressor> eccompress_;
 };
 
 #endif

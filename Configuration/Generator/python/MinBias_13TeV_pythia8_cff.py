@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
+from Configuration.Generator.Pythia8CommonSettings_cfi import *
+from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
+
+
 
 generator = cms.EDFilter("Pythia8GeneratorFilter",
     crossSection = cms.untracked.double(71.39e+09),
@@ -9,19 +12,19 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(13000.0),
-    PythiaParameters = cms.PSet(
+                         PythiaParameters = cms.PSet(
+        pythia8CommonSettingsBlock,
+        pythia8CUEP8M1SettingsBlock,
         processParameters = cms.vstring(
-'Main:timesAllowErrors = 10000',
-            'ParticleDecays:limitTau0 = on',
-'ParticleDecays:tauMax = 10',
             'SoftQCD:nonDiffractive = on',
             'SoftQCD:singleDiffractive = on',
-            'SoftQCD:doubleDiffractive = on',
-            'Tune:pp 2',
-            'Tune:ee 3'),
-        parameterSets = cms.vstring('processParameters')
-    )
-)
+            'SoftQCD:doubleDiffractive = on'),
+        parameterSets = cms.vstring('pythia8CommonSettings',
+                                    'pythia8CUEP8M1Settings',
+                                    'processParameters',
+                                    )
+        )
+                         )
 
 ProductionFilterSequence = cms.Sequence(generator)
 

@@ -137,6 +137,9 @@ namespace evf{
       void postSourceEvent(edm::StreamID);
       void preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
       void postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
+      void preStreamEarlyTermination(edm::StreamContext const&, edm::TerminationOrigin);
+      void preGlobalEarlyTermination(edm::GlobalContext const&, edm::TerminationOrigin);
+      void preSourceEarlyTermination(edm::TerminationOrigin);
 
       //this is still needed for use in special functions like DQM which are in turn framework services
       void setMicroState(MicroStateService::Microstate);
@@ -249,6 +252,8 @@ namespace evf{
       bool pathLegendWritten_ = false;
 
       std::atomic<bool> monInit_;
+      bool exception_detected_ = false;
+      std::vector<unsigned int> exceptionInLS_;
     };
 
 }

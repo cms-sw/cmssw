@@ -3,7 +3,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-//
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -53,31 +53,26 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-//
+
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
 #include "TVector3.h"
 #include "TProfile.h"
-//
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-//
 //DQM services
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include <vector>
 #include <string>
@@ -93,7 +88,6 @@
  **     
  ***/
 
-
 // forward declarations
 class TFile;
 class TH1F;
@@ -103,23 +97,14 @@ class TTree;
 class SimVertex;
 class SimTrack;
 
-
-class ZToMuMuGammaAnalyzer  : public edm::EDAnalyzer
+class ZToMuMuGammaAnalyzer : public DQMEDAnalyzer
 {
-
-
  public:
-   
-  //
-  explicit ZToMuMuGammaAnalyzer( const edm::ParameterSet& ) ;
+  explicit ZToMuMuGammaAnalyzer(const edm::ParameterSet&);
   virtual ~ZToMuMuGammaAnalyzer();
-                                   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-  virtual void beginJob() ;
-  virtual void endJob() ;
-  virtual void endRun(const edm::Run& , const edm::EventSetup& ) ;
-  
-      
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;                                
+  virtual void analyze( const edm::Event&, const edm::EventSetup&);
+
  private:
   edm::EDGetTokenT<std::vector<reco::Photon> > photon_token_;
   edm::EDGetTokenT<std::vector<reco::Muon> > muon_token_;
@@ -132,25 +117,13 @@ class ZToMuMuGammaAnalyzer  : public edm::EDAnalyzer
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
   edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
   edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > photonIsoValmap_token_;
-    
 
   std::string fName_;
-  int verbosity_;
-
-  bool useTriggerFiltering_;
-  bool splitHistosEBEE_;
   bool use2DHistos_;
   bool makeProfiles_;
   unsigned int prescaleFactor_;
-  bool standAlone_;
-  std::string outputFileName_;
-  edm::ParameterSet parameters_;
-  bool isHeavyIon_;
-  DQMStore *dbe_;
   std::stringstream currentFolder_;
   int nEvt_;
-  int nEntry_;
-
 
   // muon selection
   float muonMinPt_;
@@ -179,12 +152,53 @@ class ZToMuMuGammaAnalyzer  : public edm::EDAnalyzer
   float minMumuGammaInvMass_;
   float maxMumuGammaInvMass_;
 
+  // Histogram parameters
+  double eMin_;
+  double eMax_;
+  int    eBin_;
+
+  double etMin_;
+  double etMax_;
+  int    etBin_;
+
+  double sumMin_;
+  double sumMax_;
+  int    sumBin_;
+
+  double etaMin_;
+  double etaMax_;
+  int    etaBin_;
+
+  double phiMin_;
+  double phiMax_;
+  int    phiBin_;
+
+  double r9Min_;
+  double r9Max_;
+  int    r9Bin_;
+
+  double hOverEMin_;
+  double hOverEMax_;
+  int    hOverEBin_;
+
+  double numberMin_;
+  double numberMax_;
+  int    numberBin_;
+
+  double sigmaIetaMin_;
+  double sigmaIetaMax_;
+  int    sigmaIetaBin_;
+
+  int reducedEtBin_;
+  int reducedEtaBin_;
+  int reducedSumBin_;
+  int reducedR9Bin_;
+
   float mumuInvMass( const reco::Muon & m1,const reco::Muon & m2 ) ;
   float mumuGammaInvMass(const reco::Muon & mu1,const reco::Muon & mu2, const reco::PhotonRef& pho );
   bool  basicMuonSelection (  const reco::Muon & m );
   bool  muonSelection (  const reco::Muon & m,  const reco::BeamSpot& bs );
   bool  photonSelection (  const reco::PhotonRef & p );
-
 
   MonitorElement* h_nRecoVtx_;
   ///photon histos
@@ -304,19 +318,6 @@ class ZToMuMuGammaAnalyzer  : public edm::EDAnalyzer
   MonitorElement* h_SumPtOverPhoPt_ChHad_unCleaned_[3];
   MonitorElement* h_SumPtOverPhoPt_NeuHad_unCleaned_[3];
   MonitorElement* h_SumPtOverPhoPt_Pho_unCleaned_[3];
-
-
-  
-
-
 };
 
-
-
-
-
 #endif
-
-
-
-

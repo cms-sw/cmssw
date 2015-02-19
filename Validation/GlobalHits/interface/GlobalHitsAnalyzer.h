@@ -69,8 +69,9 @@
 
 #include "TString.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class GlobalHitsAnalyzer : public edm::EDAnalyzer
+class GlobalHitsAnalyzer : public DQMEDAnalyzer
 {
   
  public:
@@ -79,9 +80,10 @@ class GlobalHitsAnalyzer : public edm::EDAnalyzer
 
   explicit GlobalHitsAnalyzer(const edm::ParameterSet&);
   virtual ~GlobalHitsAnalyzer();
-  virtual void beginJob( void );
-  virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+ protected:
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
  private:
 
@@ -126,8 +128,6 @@ class GlobalHitsAnalyzer : public edm::EDAnalyzer
   bool validEE;
   bool validPresh;
   bool validHcal;
-
-  DQMStore *dbe;
 
   // G4MC info
   MonitorElement *meMCRGP[2];

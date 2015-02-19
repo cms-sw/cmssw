@@ -1,38 +1,28 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.RecoAlgos.HBHENoiseFilter_cfi import *
-# s. https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1196.html
-HBHENoiseFilter.minIsolatedNoiseSumE        = 999999.
-HBHENoiseFilter.minNumIsolatedNoiseChannels = 999999
-HBHENoiseFilter.minIsolatedNoiseSumEt       = 999999.
-
-from RecoMET.METAnalyzers.CSCHaloFilter_cfi import *
-
-from RecoMET.METFilters.hcalLaserEventFilter_cfi import *
-hcalLaserEventFilter.vetoByRunEventNumber = cms.untracked.bool( False )
-hcalLaserEventFilter.vetoByHBHEOccupancy = cms.untracked.bool( True )
-
-from RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi import *
-EcalDeadCellTriggerPrimitiveFilter.tpDigiCollection = cms.InputTag( 'ecalTPSkimNA' )
-
-from RecoMET.METFilters.eeBadScFilter_cfi import *
-
-from RecoMET.METFilters.trackingFailureFilter_cfi import *
-
-from TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cfi import scrapingFilter
+from DPGAnalysis.Skims.goodvertexSkim_cff import noscraping
 
 eventCleaningData = cms.Sequence(
-  scrapingFilter
+  noscraping
+)
+eventCleaningMiniAODData = cms.Sequence(
 )
 
 eventCleaningMC = cms.Sequence(
 )
 
+eventCleaningMiniAODMC = cms.Sequence(
+)
+
+#from RecoMET.METFilters.metFilters_cff import * # FIXME: enable after filter sequence has been fixed upstream (e.g. missing 'TobTecFakesFilter')
+from RecoMET.METFilters.metFilters_cff import metFilters, HBHENoiseFilter, CSCTightHaloFilter, hcalLaserEventFilter, EcalDeadCellTriggerPrimitiveFilter, goodVertices, trackingFailureFilter, eeBadScFilter, ecalLaserCorrFilter, manystripclus53X, toomanystripclus53X, logErrorTooManyClusters
+
 eventCleaning = cms.Sequence(
-  HBHENoiseFilter
-+ CSCTightHaloFilter
-+ hcalLaserEventFilter
-+ EcalDeadCellTriggerPrimitiveFilter
-+ eeBadScFilter
-+ trackingFailureFilter
+  metFilters
+)
+
+from TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cfi import metFiltersMiniAOD
+
+eventCleaningMiniAOD = cms.Sequence(
+  metFiltersMiniAOD
 )

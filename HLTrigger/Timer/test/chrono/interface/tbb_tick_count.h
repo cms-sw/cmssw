@@ -1,3 +1,5 @@
+#ifdef HAVE_TBB
+
 #ifndef tbb_tick_count_h
 #define tbb_tick_count_h
 
@@ -59,3 +61,5 @@ namespace std {
 }
 
 #endif // tbb_tick_count_h
+
+#endif // HAVE_TBB

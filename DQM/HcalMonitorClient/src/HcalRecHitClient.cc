@@ -48,11 +48,22 @@ HcalRecHitClient::HcalRecHitClient(std::string myname, const edm::ParameterSet& 
 
   ProblemCells=0;
   ProblemCellsByDepth=0;
+
+  meEnergyByDepth=0;
+  meEnergyThreshByDepth=0;
+  meTimeByDepth=0;
+  meTimeThreshByDepth=0;
+  meSqrtSumEnergy2ByDepth=0;
+  meSqrtSumEnergy2ThreshByDepth=0;
+
+  doProblemCellSetup_ = true;
 }
 
-void HcalRecHitClient::analyze()
+void HcalRecHitClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
   if (debug_>2) std::cout <<"\tHcalRecHitClient::analyze()"<<std::endl;
+
+  if ( doProblemCellSetup_ ) setupProblemCells(ib,ig);
  
   TH2F* OccupancyByDepth[4];
   TH2F* SumEnergyByDepth[4];
@@ -72,37 +83,37 @@ void HcalRecHitClient::analyze()
   for (int i=0;i<4;++i)
     {
       std::string s=subdir_+"Distributions_AllRecHits/"+name[i]+"RecHit Occupancy";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<std::endl; gotHistos=false; break;}
       OccupancyByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, OccupancyByDepth[i], debug_);
       s=subdir_+"Distributions_AllRecHits/sumplots/"+name[i]+"RecHit Summed Energy GeV";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<std::endl; gotHistos=false; break;}
       SumEnergyByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, SumEnergyByDepth[i], debug_);
       s=subdir_+"Distributions_AllRecHits/sumplots/"+name[i]+"RecHit Summed Time nS";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<std::endl; gotHistos=false; break;}
       SumTimeByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, SumTimeByDepth[i], debug_);
       s=subdir_+"Distributions_AllRecHits/sumplots/"+name[i]+"RecHit Sqrt Summed Energy2 GeV";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<std::endl; gotHistos=false; break;}
       SqrtSumEnergy2ByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, SqrtSumEnergy2ByDepth[i], debug_);
 
       // Threshold histograms
       s=subdir_+"Distributions_PassedMinBias/"+name[i]+"Above Threshold RecHit Occupancy";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<std::endl; gotHistos=false; break;}
       OccupancyThreshByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, OccupancyThreshByDepth[i], debug_);
       s=subdir_+"Distributions_PassedMinBias/sumplots/"+name[i]+"Above Threshold RecHit Summed Energy GeV";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<std::endl; gotHistos=false; break;}
       SumEnergyThreshByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, SumEnergyThreshByDepth[i], debug_);
       s=subdir_+"Distributions_PassedMinBias/sumplots/"+name[i]+"Above Threshold RecHit Summed Time nS";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<std::endl; gotHistos=false; break;}
       SumTimeThreshByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, SumTimeThreshByDepth[i], debug_);
       s=subdir_+"Distributions_PassedMinBias/sumplots/"+name[i]+"Above Threshold RecHit Sqrt Summed Energy2 GeV";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<std::endl; gotHistos=false; break;}
       SqrtSumEnergy2ThreshByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, SqrtSumEnergy2ThreshByDepth[i], debug_);
     }
@@ -239,13 +250,12 @@ void HcalRecHitClient::analyze()
   FillUnphysicalHEHFBins(*meEnergyThreshByDepth);
   FillUnphysicalHEHFBins(*meTimeThreshByDepth);
 
-  calculateProblems();
+  calculateProblems(ib,ig);
 }
 
-void HcalRecHitClient::calculateProblems()
+void HcalRecHitClient::calculateProblems(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
  if (debug_>2) std::cout <<"\t\tHcalRecHitClient::calculateProblems()"<<std::endl;
-  if(!dqmStore_) return;
   double totalevents=0;
   int etabins=0, phibins=0, zside=0;
   double problemvalue=0;
@@ -350,48 +360,32 @@ void HcalRecHitClient::calculateProblems()
 
 }
 
-void HcalRecHitClient::beginJob()
-{
-  dqmStore_ = edm::Service<DQMStore>().operator->();
-  if (debug_>0) 
-    {
-      std::cout <<"<HcalRecHitClient::beginJob()>  Displaying dqmStore directory structure:"<<std::endl;
-      dqmStore_->showDirStructure();
-    }
-}
 void HcalRecHitClient::endJob(){}
 
-void HcalRecHitClient::beginRun(void)
+void HcalRecHitClient::setupProblemCells(DQMStore::IBooker &ib, DQMStore::IGetter &ig) 
 {
-  if (debug_>1)  std::cout <<"<HcalRecHitClient::endRun>"<<std::endl;
-
-  if (!dqmStore_) 
-    {
-      if (debug_>0) std::cout <<"<HcalRecHitClient::beginRun> dqmStore does not exist!"<<std::endl;
-      return;
-    }
-  dqmStore_->setCurrentFolder(subdir_);
+  ib.setCurrentFolder(subdir_);
   problemnames_.clear();
-  ProblemCells=dqmStore_->book2D(" ProblemRecHits",
+  ProblemCells=ib.book2D(" ProblemRecHits",
 				 "Problem RecHit Rate for all HCAL;ieta;iphi",
 				 85,-42.5,42.5,
 				 72,0.5,72.5);
   problemnames_.push_back(ProblemCells->getName());
   if (debug_>1)
     std::cout << "Tried to create ProblemCells Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCells==0)<<std::endl;
-  dqmStore_->setCurrentFolder(subdir_+"problem_rechits");
+  ib.setCurrentFolder(subdir_+"problem_rechits");
   ProblemCellsByDepth=new EtaPhiHists();
-  ProblemCellsByDepth->setup(dqmStore_," Problem RecHit Rate");
+  ProblemCellsByDepth->setup(ib," Problem RecHit Rate");
   for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
     problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
 
   nevts_=0;
 
-  dqmStore_->setCurrentFolder(subdir_+"Distributions_AllRecHits");
+  ib.setCurrentFolder(subdir_+"Distributions_AllRecHits");
   meEnergyByDepth = new EtaPhiHists();
-  meEnergyByDepth->setup(dqmStore_,"RecHit Average Energy","GeV");
+  meEnergyByDepth->setup(ib,"RecHit Average Energy","GeV");
   meTimeByDepth = new EtaPhiHists();
-  meTimeByDepth->setup(dqmStore_,"RecHit Average Time","nS");
+  meTimeByDepth->setup(ib,"RecHit Average Time","nS");
   // set all average times to -1000 by default (so that they don't show up on plots
   for (unsigned int i=0;i<meTimeByDepth->depth.size();++i)
     {
@@ -404,11 +398,11 @@ void HcalRecHitClient::beginRun(void)
 	  meTimeByDepth->depth[i]->setBinContent(x,y,-1000);
     }
 
-  dqmStore_->setCurrentFolder(subdir_+"Distributions_PassedMinBias");
+  ib.setCurrentFolder(subdir_+"Distributions_PassedMinBias");
   meEnergyThreshByDepth = new EtaPhiHists();
-  meEnergyThreshByDepth->setup(dqmStore_,"Above Threshold RecHit Average Energy","GeV");
+  meEnergyThreshByDepth->setup(ib,"Above Threshold RecHit Average Energy","GeV");
   meTimeThreshByDepth = new EtaPhiHists();
-  meTimeThreshByDepth->setup(dqmStore_,"Above Threshold RecHit Average Time","nS");
+  meTimeThreshByDepth->setup(ib,"Above Threshold RecHit Average Time","nS");
  // set all average times to -1000 by default (so that they don't show up on plots
   for (unsigned int i=0;i<meTimeThreshByDepth->depth.size();++i)
     {
@@ -421,34 +415,43 @@ void HcalRecHitClient::beginRun(void)
 	  meTimeThreshByDepth->depth[i]->setBinContent(x,y,-1000);
     }
 
-  dqmStore_->setCurrentFolder(subdir_+"Distributions_AllRecHits/rechit_1D_plots/");
-  meHBEnergy_1D=dqmStore_->book1D("HB_energy_1D","HB Average Energy Per RecHit;Energy (GeV)",200,-5,15);
-  meHEEnergy_1D=dqmStore_->book1D("HE_energy_1D","HE Average Energy Per RecHit;Energy (GeV)",200,-5,15);
-  meHOEnergy_1D=dqmStore_->book1D("HO_energy_1D","HO Average Energy Per RecHit;Energy (GeV)",200,-10,20);
-  meHFEnergy_1D=dqmStore_->book1D("HF_energy_1D","HF Average Energy Per RecHit;Energy (GeV)",200,-5,15);
+  ib.setCurrentFolder(subdir_+"Distributions_AllRecHits/rechit_1D_plots/");
+  meHBEnergy_1D=ib.book1D("HB_energy_1D","HB Average Energy Per RecHit;Energy (GeV)",200,-5,15);
+  meHEEnergy_1D=ib.book1D("HE_energy_1D","HE Average Energy Per RecHit;Energy (GeV)",200,-5,15);
+  meHOEnergy_1D=ib.book1D("HO_energy_1D","HO Average Energy Per RecHit;Energy (GeV)",200,-10,20);
+  meHFEnergy_1D=ib.book1D("HF_energy_1D","HF Average Energy Per RecHit;Energy (GeV)",200,-5,15);
 
-  meHBEnergyRMS_1D=dqmStore_->book1D("HB_energy_RMS_1D","HB Energy RMS Per RecHit;Energy (GeV)",250,0,5);
-  meHEEnergyRMS_1D=dqmStore_->book1D("HE_energy_RMS_1D","HE Energy RMS Per RecHit;Energy (GeV)",250,0,5);
-  meHOEnergyRMS_1D=dqmStore_->book1D("HO_energy_RMS_1D","HO Energy RMS Per RecHit;Energy (GeV)",250,0,5);
-  meHFEnergyRMS_1D=dqmStore_->book1D("HF_energy_RMS_1D","HF Energy RMS Per RecHit;Energy (GeV)",250,0,5);
+  meHBEnergyRMS_1D=ib.book1D("HB_energy_RMS_1D","HB Energy RMS Per RecHit;Energy (GeV)",250,0,5);
+  meHEEnergyRMS_1D=ib.book1D("HE_energy_RMS_1D","HE Energy RMS Per RecHit;Energy (GeV)",250,0,5);
+  meHOEnergyRMS_1D=ib.book1D("HO_energy_RMS_1D","HO Energy RMS Per RecHit;Energy (GeV)",250,0,5);
+  meHFEnergyRMS_1D=ib.book1D("HF_energy_RMS_1D","HF Energy RMS Per RecHit;Energy (GeV)",250,0,5);
 
-  dqmStore_->setCurrentFolder(subdir_+"Distributions_PassedMinBias/rechit_1D_plots/");
-  meHBEnergyThresh_1D=dqmStore_->book1D("HB_energyThresh_1D","HB Average Energy Per RecHit Above Threshold;Energy (GeV)",200,-5,35);
-  meHEEnergyThresh_1D=dqmStore_->book1D("HE_energyThresh_1D","HE Average Energy Per RecHit Above Threshold;Energy (GeV)",200,-5,35);
-  meHOEnergyThresh_1D=dqmStore_->book1D("HO_energyThresh_1D","HO Average Energy Per RecHit Above Threshold;Energy (GeV)",300,-10,50);
-  meHFEnergyThresh_1D=dqmStore_->book1D("HF_energyThresh_1D","HF Average Energy Per RecHit Above Threshold;Energy (GeV)",200,-5,95);
+  ib.setCurrentFolder(subdir_+"Distributions_PassedMinBias/rechit_1D_plots/");
+  meHBEnergyThresh_1D=ib.book1D("HB_energyThresh_1D","HB Average Energy Per RecHit Above Threshold;Energy (GeV)",200,-5,35);
+  meHEEnergyThresh_1D=ib.book1D("HE_energyThresh_1D","HE Average Energy Per RecHit Above Threshold;Energy (GeV)",200,-5,35);
+  meHOEnergyThresh_1D=ib.book1D("HO_energyThresh_1D","HO Average Energy Per RecHit Above Threshold;Energy (GeV)",300,-10,50);
+  meHFEnergyThresh_1D=ib.book1D("HF_energyThresh_1D","HF Average Energy Per RecHit Above Threshold;Energy (GeV)",200,-5,95);
 
-  meHBEnergyRMSThresh_1D=dqmStore_->book1D("HB_energy_RMSThresh_1D","HB Energy RMS Per RecHit Above Threshold;Energy (GeV)",200,0,10);
-  meHEEnergyRMSThresh_1D=dqmStore_->book1D("HE_energy_RMSThresh_1D","HE Energy RMS Per RecHit Above Threshold;Energy (GeV)",200,0,10);
-  meHOEnergyRMSThresh_1D=dqmStore_->book1D("HO_energy_RMSThresh_1D","HO Energy RMS Per RecHit Above Threshold;Energy (GeV)",200,0,10);
-  meHFEnergyRMSThresh_1D=dqmStore_->book1D("HF_energy_RMSThresh_1D","HF Energy RMS Per RecHit Above Threshold;Energy (GeV)",200,0,20);
+  meHBEnergyRMSThresh_1D=ib.book1D("HB_energy_RMSThresh_1D","HB Energy RMS Per RecHit Above Threshold;Energy (GeV)",200,0,10);
+  meHEEnergyRMSThresh_1D=ib.book1D("HE_energy_RMSThresh_1D","HE Energy RMS Per RecHit Above Threshold;Energy (GeV)",200,0,10);
+  meHOEnergyRMSThresh_1D=ib.book1D("HO_energy_RMSThresh_1D","HO Energy RMS Per RecHit Above Threshold;Energy (GeV)",200,0,10);
+  meHFEnergyRMSThresh_1D=ib.book1D("HF_energy_RMSThresh_1D","HF Energy RMS Per RecHit Above Threshold;Energy (GeV)",200,0,20);
+
+  doProblemCellSetup_ = false;
+
 }
 
-void HcalRecHitClient::endRun(void)
+void HcalRecHitClient::beginRun(void)
+{
+  if (debug_>1)  std::cout <<"<HcalRecHitClient::endRun>"<<std::endl;
+
+}
+
+/*void HcalRecHitClient::endRun(void)
 {
   if (debug_>1)  std::cout <<"<HcalRecHitClient::endRun>"<<std::endl;
   analyze();
-}
+}*/
 
 void HcalRecHitClient::setup(void){}
 void HcalRecHitClient::cleanup(void){}
@@ -500,4 +503,13 @@ void HcalRecHitClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& my
 } //void HcalRecHitClient::updateChannelStatus
 
 HcalRecHitClient::~HcalRecHitClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+  if ( meEnergyByDepth ) delete meEnergyByDepth;
+  if ( meEnergyThreshByDepth ) delete meEnergyThreshByDepth;
+  if ( meTimeByDepth ) delete meTimeByDepth;
+  if ( meTimeThreshByDepth ) delete meTimeThreshByDepth;
+  if ( meSqrtSumEnergy2ByDepth ) delete meSqrtSumEnergy2ByDepth;
+  if ( meSqrtSumEnergy2ThreshByDepth ) delete meSqrtSumEnergy2ThreshByDepth;
+
+}

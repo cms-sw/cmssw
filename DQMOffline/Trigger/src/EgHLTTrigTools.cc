@@ -7,12 +7,16 @@
 #include <boost/algorithm/string.hpp>
 using namespace egHLT;
 
-TrigCodes::TrigBitSet trigTools::getFiltersPassed(const std::vector<std::pair<std::string,int> >& filters,const trigger::TriggerEvent* trigEvt,const std::string& hltTag)
+TrigCodes::TrigBitSet trigTools::getFiltersPassed(
+    const std::vector<std::pair<std::string,int> >& filters,
+    const trigger::TriggerEvent* trigEvt,
+    const std::string& hltTag,
+    const TrigCodes& trigCodes)
 {
   TrigCodes::TrigBitSet evtTrigs;
   for(size_t filterNrInVec=0;filterNrInVec<filters.size();filterNrInVec++){
     size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(filters[filterNrInVec].first,"",hltTag).encode());
-    const TrigCodes::TrigBitSet filterCode = TrigCodes::getCode(filters[filterNrInVec].first.c_str());
+    const TrigCodes::TrigBitSet filterCode = trigCodes.getCode(filters[filterNrInVec].first.c_str());
     if(filterNrInEvt<trigEvt->sizeFilters()){ //filter found in event, however this only means that something passed the previous filter
       const trigger::Keys& trigKeys = trigEvt->filterKeys(filterNrInEvt);
       if(static_cast<int>(trigKeys.size())>=filters[filterNrInVec].second){

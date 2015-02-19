@@ -14,6 +14,9 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 using namespace std;
 
 bool CSCEfficiency::filter(edm::Event & event, const edm::EventSetup& eventSetup){
@@ -25,11 +28,11 @@ bool CSCEfficiency::filter(edm::Event & event, const edm::EventSetup& eventSetup
   nEventsAnalyzed++;
   // printalot debug output
   printalot = (nEventsAnalyzed < int(printout_NEvents)); // 
-  int iRun   = event.id().run();
-  int iEvent = event.id().event();
+  edm::RunNumber_t const iRun = event.id().run();
+  edm::EventNumber_t const iEvent = event.id().event();
   if(0==fmod(double (nEventsAnalyzed) ,double(1000) )){
     if(printalot){
-      printf("\n==enter==CSCEfficiency===== run %i\tevent %i\tn Analyzed %i\n",iRun,iEvent,nEventsAnalyzed);
+      printf("\n==enter==CSCEfficiency===== run %u\tevent %llu\tn Analyzed %i\n",iRun,iEvent,nEventsAnalyzed);
     }
   }
   theService->update(eventSetup);  
@@ -527,7 +530,7 @@ bool CSCEfficiency::filter(edm::Event & event, const edm::EventSetup& eventSetup
     }
   }
   //---- End
-  if (printalot) printf("==exit===CSCEfficiency===== run %i\tevent %i\n\n",iRun,iEvent);
+  if (printalot) printf("==exit===CSCEfficiency===== run %u\tevent %llu\n\n",iRun,iEvent);
   return passTheEvent;
 }
 

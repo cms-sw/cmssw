@@ -195,7 +195,11 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //build map of ConversionTracks ordered in eta
   std::multimap<float, edm::Ptr<reco::ConversionTrack> > convTrackMap;
-  for (edm::PtrVector<reco::ConversionTrack>::const_iterator tk_ref = trackCollectionHandle->ptrVector().begin(); tk_ref != trackCollectionHandle->ptrVector().end(); ++tk_ref ){
+  edm::PtrVector<reco::ConversionTrack> trackPtrVector;
+  for (size_t i = 0; i < trackCollectionHandle->size(); ++i)
+    trackPtrVector.push_back(trackCollectionHandle->ptrAt(i));
+
+  for (edm::PtrVector<reco::ConversionTrack>::const_iterator tk_ref = trackPtrVector.begin(); tk_ref != trackPtrVector.end(); ++tk_ref ){
     convTrackMap.insert(std::make_pair((*tk_ref)->track()->eta(),*tk_ref));
   }
 

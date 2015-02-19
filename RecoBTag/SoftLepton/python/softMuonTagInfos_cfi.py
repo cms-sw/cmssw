@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-import RecoBTag.SoftLepton.muonSelection
+import RecoBTag.SoftLepton.muonSelection_cff as muonSelection
 
 # SoftLeptonTagInfo producer for tagging caloJets with global muons
 softMuonTagInfos = cms.EDProducer("SoftLepton",
@@ -14,5 +14,5 @@ softMuonTagInfos = cms.EDProducer("SoftLepton",
     leptonDeltaRCut = cms.double(0.4),      # lepton distance from jet axis
     leptonChi2Cut = cms.double(9999.0),     # no cut on lepton's track's chi2/ndof
 
-    muonSelection = RecoBTag.SoftLepton.muonSelection.AllGlobalMuons
+    muonSelection = muonSelection.AllGlobalMuons
 )

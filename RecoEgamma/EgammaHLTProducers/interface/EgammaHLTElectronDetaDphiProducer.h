@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,25 +34,26 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTElectronDetaDphiProducer : public edm::EDProducer {
+class EgammaHLTElectronDetaDphiProducer : public edm::stream::EDProducer<> {
 public:
   explicit EgammaHLTElectronDetaDphiProducer(const edm::ParameterSet&);
   ~EgammaHLTElectronDetaDphiProducer();
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
   std::pair<float,float> calDEtaDPhiSCTrk(reco::ElectronRef& eleref, const reco::BeamSpot::Point& BSPosition,const MagneticField *magField);
   static reco::ElectronRef getEleRef(const reco::RecoEcalCandidateRef& recoEcalCandRef,const edm::Handle<reco::ElectronCollection>& electronHandle);
   
-  edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;
-  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
-  edm::EDGetTokenT<reco::BeamSpot> bsProducer_;
+  const edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;
+  const edm::EDGetTokenT<reco::BeamSpot> bsProducer_;
+  const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   
-  bool useSCRefs_;
-  bool useTrackProjectionToEcal_;
-  bool variablesAtVtx_;
+  const bool useSCRefs_;
+  const bool useTrackProjectionToEcal_;
+  const bool variablesAtVtx_;
+
   const MagneticField* magField_;
 };
 

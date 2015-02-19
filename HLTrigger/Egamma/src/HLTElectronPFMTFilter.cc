@@ -1,16 +1,8 @@
-/** \class HLTElectronPFMTFilter
- *
- *
- *  \author Gheorghe Lungu
- *
- */
-
 #include "HLTrigger/Egamma/interface/HLTElectronPFMTFilter.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
-//
-// constructors and destructor
-//
-HLTElectronPFMTFilter::HLTElectronPFMTFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
+template <typename T> 
+HLTElectronPFMTFilter<T>::HLTElectronPFMTFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   // MHT parameters
   inputMetTag_ = iConfig.getParameter< edm::InputTag > ("inputMetTag");
@@ -28,9 +20,11 @@ HLTElectronPFMTFilter::HLTElectronPFMTFilter(const edm::ParameterSet& iConfig) :
   inputEleToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(inputEleTag_);
 }
 
-HLTElectronPFMTFilter::~HLTElectronPFMTFilter(){}
+template <typename T> 
+HLTElectronPFMTFilter<T>::~HLTElectronPFMTFilter(){}
 
-void HLTElectronPFMTFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template <typename T> 
+void HLTElectronPFMTFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputMetTag",edm::InputTag("hltPFMHT"));
@@ -42,14 +36,11 @@ void HLTElectronPFMTFilter::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<double>("minMht",0.0);
   desc.add<double>("lowerMTCut",0.0);
   desc.add<double>("upperMTCut",9999.0);
-  descriptions.add("hltElectronPFMTFilter",desc);
+  descriptions.add(defaultModuleLabel<HLTElectronPFMTFilter<T>>(), desc);
 }
 
-
-
-// ------------ method called to produce the data  ------------
-bool
-    HLTElectronPFMTFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+template <typename T> 
+bool  HLTElectronPFMTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;
@@ -67,10 +58,8 @@ bool
   iEvent.getByToken(inputMetToken_,pfMHT);
 
   // Sanity check:
-  if(!pfMHT.isValid()) {
-    
-    edm::LogError("HLTElectronPFMTFilter") << "missing input Met collection!";
-    
+  if(!pfMHT.isValid()) {    
+    edm::LogError("HLTElectronPFMTFilter") << "missing input Met collection!";    
   }
   
   const METCollection *metcol = pfMHT.product();
@@ -81,32 +70,37 @@ bool
   iEvent.getByToken (inputEleToken_,PrevFilterOutput); 
    
   int nW = 0;
-    
-  Ref< ElectronCollection > refele;
-    
-  vector< Ref< ElectronCollection > > electrons;
-  PrevFilterOutput->getObjects(TriggerElectron, electrons);
+  
+  vector< Ref< vector<T> > > refEleCollection ;
 
-  TLorentzVector pMET(met->px(), met->py(),0.0,sqrt(met->px()*met->px() + met->py()*met->py()));
-    
-  for (unsigned int i=0; i<electrons.size(); i++) {
-    
-    refele = electrons[i];
-    TLorentzVector pThisEle(refele->px(), refele->py(), 
-                            0.0, refele->et() );
-    TLorentzVector pTot = pMET + pThisEle;
-    double mass = pTot.M();
-       
-    if(mass>=lowerMTCut_ && mass<=upperMTCut_ && pMET.E()>= minMht_)
-    {
-      nW++;
-      refele = electrons[i];
-      filterproduct.addObject(TriggerElectron, refele);
+  PrevFilterOutput->getObjects(TriggerElectron,refEleCollection);
+  int trigger_type = trigger::TriggerElectron;
+  if(refEleCollection.empty()){
+    PrevFilterOutput->getObjects(TriggerCluster,refEleCollection);
+    trigger_type = trigger::TriggerCluster;    
+    if(refEleCollection.empty()){
+     PrevFilterOutput->getObjects(TriggerPhoton,refEleCollection);
+     trigger_type = trigger::TriggerPhoton;
     }
-  }
+  }    
 
+     
+  TLorentzVector pMET(met->px(), met->py(),0.0,sqrt(met->px()*met->px() + met->py()*met->py()));
+
+  for (unsigned int i=0; i<refEleCollection.size(); i++) {    
+     TLorentzVector pThisEle(refEleCollection.at(i)->px(), refEleCollection.at(i)->py(), 
+			     0.0, refEleCollection.at(i)->et() );
+     TLorentzVector pTot = pMET + pThisEle;
+     double mass = pTot.M();
+       
+     if(mass>=lowerMTCut_ && mass<=upperMTCut_ && pMET.E()>= minMht_){
+      nW++;
+      filterproduct.addObject(trigger_type, refEleCollection.at(i));
+     }
+   }
+   
   // filter decision
-  const bool accept(nW>=minN_);
-
+  const bool accept(nW>=minN_);  
   return accept;
+
 }

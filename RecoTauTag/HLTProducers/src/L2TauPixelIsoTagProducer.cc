@@ -14,29 +14,25 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
 
-L2TauPixelIsoTagProducer::L2TauPixelIsoTagProducer(const edm::ParameterSet& conf)
+L2TauPixelIsoTagProducer::L2TauPixelIsoTagProducer(const edm::ParameterSet& conf):
+  m_jetSrc_token( consumes<edm::View<reco::Jet> >(conf.getParameter<edm::InputTag>("JetSrc") ) ),
+  m_vertexSrc_token( consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("VertexSrc") ) ),
+  m_trackSrc_token( consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackSrc") ) ),  // for future use (now tracks are taken directly from PV)
+  m_beamSpotSrc_token( consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("BeamSpotSrc") ) ),
+  m_maxNumberPV( conf.getParameter<int>("MaxNumberPV") ), // for future use, now is assumed to be = 1
+  m_trackMinPt( conf.getParameter<double>("TrackMinPt") ),
+  m_trackMaxDxy( conf.getParameter<double>("TrackMaxDxy") ),
+  m_trackMaxNChi2( conf.getParameter<double>("TrackMaxNChi2") ),
+  m_trackMinNHits( conf.getParameter<int>("TrackMinNHits") ),
+  m_trackPVMaxDZ( conf.getParameter<double>("TrackPVMaxDZ") ), // for future use with tracks not from PV
+  m_isoCone2Min( std::pow(conf.getParameter<double>("IsoConeMin"), 2) ),
+  m_isoCone2Max( std::pow(conf.getParameter<double>("IsoConeMax"), 2) )
 {
-  m_jetSrc_token      = consumes<edm::View<reco::Jet> >(conf.getParameter<edm::InputTag>("JetSrc") );
-  m_vertexSrc_token   = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("VertexSrc") );
-  m_trackSrc_token    = consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackSrc") );  // for future use (now tracks are taken directly from PV)
-  m_beamSpotSrc_token = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("BeamSpotSrc") );
-
-  m_maxNumberPV = conf.getParameter<int>("MaxNumberPV"); // for future use, now is assumed to be = 1
-
-  m_trackMinPt    = conf.getParameter<double>("TrackMinPt");
-  m_trackMaxDxy   = conf.getParameter<double>("TrackMaxDxy");
-  m_trackMaxNChi2 = conf.getParameter<double>("TrackMaxNChi2");
-  m_trackMinNHits = conf.getParameter<int>("TrackMinNHits");
-  m_trackPVMaxDZ  = conf.getParameter<double>("TrackPVMaxDZ"); // for future use with tracks not from PV
-
-  m_isoCone2Min  = std::pow(conf.getParameter<double>("IsoConeMin"), 2);
-  m_isoCone2Max  = std::pow(conf.getParameter<double>("IsoConeMax"), 2);
-
   produces<reco::JetTagCollection>(); 
 }
 
 
-void L2TauPixelIsoTagProducer::produce(edm::Event& ev, const edm::EventSetup& es)
+void L2TauPixelIsoTagProducer::produce(edm::StreamID sid, edm::Event& ev, const edm::EventSetup& es) const
 {
   using namespace reco;
   using namespace std;
@@ -110,4 +106,24 @@ void L2TauPixelIsoTagProducer::produce(edm::Event& ev, const edm::EventSetup& es
   }
 
   ev.put(jetTagCollection);
+}
+
+void L2TauPixelIsoTagProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
+{
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("JetSrc",edm::InputTag("hltL2DiTauCaloJets"))->setComment("Jet source collection");
+  desc.add<edm::InputTag>("BeamSpotSrc",edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<edm::InputTag>("VertexSrc",edm::InputTag("hltPixelVertices"))->setComment("Collection of vertices where isolation tracks come from");
+  desc.add<int>("MaxNumberPV",1)->setComment("No. of considered vertices (not used yet)");
+  desc.add<double>("IsoConeMax",0.4)->setComment("Outer radius of isolation annulus");
+  desc.add<double>("IsoConeMin",0.2)->setComment("Inner radius of isolation annulus");
+  desc.add<double>("TrackMinPt",1.6)->setComment("Isolation track quality: min. pT");
+  desc.add<int>("TrackMinNHits",3)->setComment("Isolation track quality: min. no. of hits");
+  desc.add<double>("TrackMaxNChi2",100.0)->setComment("Isolation track quality: max. chi2/ndof");
+  desc.add<double>("TrackPVMaxDZ",0.1)->setComment("Isolation track quality: max. dz");;
+  desc.add<double>("TrackMaxDxy",0.2)->setComment("Isolation track quality: max. dxy");;
+  desc.add<edm::InputTag>("TrackSrc",edm::InputTag(""))->setComment("Not used yet");
+  descriptions.setComment("Produces isolation tag for caloJets/L2Taus");
+  descriptions.add("L2TauPixelIsoTagProducer",desc);
+
 }

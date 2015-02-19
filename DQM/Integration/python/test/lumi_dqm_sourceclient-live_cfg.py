@@ -39,7 +39,7 @@ process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 process.GlobalTag.DBParameters.authenticationPath  = process.DBService.authPath
 ### @@@@@@ Comment when running locally @@@@@@ ###
 process.load("Configuration.StandardSequences.Services_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.EndOfProcess_cff")
@@ -70,3 +70,7 @@ process.dqmmodules = cms.Sequence(process.dqmEnv
 process.p = cms.Path(process.reconstruction_step *
                      process.dqmmodules)
 
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

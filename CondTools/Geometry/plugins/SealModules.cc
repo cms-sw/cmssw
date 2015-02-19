@@ -1,7 +1,5 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 
 #include "CondTools/Geometry/plugins/XMLGeometryBuilder.h"
 DEFINE_FWK_MODULE(XMLGeometryBuilder);
@@ -23,3 +21,6 @@ DEFINE_FWK_MODULE(DTRecoIdealDBLoader);
 
 #include "CondTools/Geometry/plugins/RPCRecoIdealDBLoader.h"
 DEFINE_FWK_MODULE(RPCRecoIdealDBLoader);
+
+#include "CondTools/Geometry/plugins/PTrackerParametersDBBuilder.h"
+DEFINE_FWK_MODULE(PTrackerParametersDBBuilder);

@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -14,8 +15,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -30,6 +29,10 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 //
 // class decleration
@@ -76,7 +79,7 @@ class SeedClusterRemover : public edm::stream::EDProducer<> {
         std::vector<uint8_t> pixels, strips;                // avoid unneed alloc/dealloc of this
         edm::ProductID pixelSourceProdID, stripSourceProdID; // ProdIDs refs must point to (for consistency tests)
 
-        inline void process(const TrackingRecHit *hit, float chi2);
+        inline void process(const TrackingRecHit *hit, float chi2, const TrackerGeometry* tg);
         inline void process(const OmniClusterRef & cluRef, uint32_t subdet);
 
 
@@ -252,7 +255,7 @@ void SeedClusterRemover::process(OmniClusterRef const & ocluster, uint32_t subde
 }
 
 
-void SeedClusterRemover::process(const TrackingRecHit *hit, float chi2) {
+void SeedClusterRemover::process(const TrackingRecHit *hit, float chi2, const TrackerGeometry* tg) {
     DetId detid = hit->geographicalId(); 
     uint32_t subdet = detid.subdetId();
 
@@ -261,7 +264,7 @@ void SeedClusterRemover::process(const TrackingRecHit *hit, float chi2) {
     // chi2 cut
     if (chi2 > pblocks_[subdet-1].maxChi2_) return;
 
-    if ((subdet == PixelSubdetector::PixelBarrel) || (subdet == PixelSubdetector::PixelEndcap)) {
+    if(GeomDetEnumerators::isTrackerPixel(tg->geomDetSubDetector(subdet))) {
         if (!doPixel_) return;
         // this is a pixel, and i *know* it is
         const SiPixelRecHit *pixelHit = static_cast<const SiPixelRecHit *>(hit);
@@ -325,6 +328,9 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 {
     ProductID pixelOldProdID, stripOldProdID;
 
+    edm::ESHandle<TrackerGeometry> tgh;
+    iSetup.get<TrackerDigiGeometryRecord>().get("",tgh);  //is it correct to use "" ?
+
     Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
     if (doPixel_) {
         iEvent.getByToken(pixelClusters_, pixelClusters);
@@ -386,9 +392,11 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       LogDebug("SeedClusterRemover")<<"to merge in, "<<oldStrMask->size()<<" strp and "<<oldPxlMask->size()<<" pxl";
       oldStrMask->copyMaskTo(collectedStrips_);
       oldPxlMask->copyMaskTo(collectedPixels_);
+      assert(stripClusters->dataSize()>=collectedStrips_.size());
+      collectedStrips_.resize(stripClusters->dataSize(),false);  // for ondemand
     }else {
-      collectedStrips_.resize(stripClusters->dataSize()); fill(collectedStrips_.begin(), collectedStrips_.end(), false);
-      collectedPixels_.resize(pixelClusters->dataSize()); fill(collectedPixels_.begin(), collectedPixels_.end(), false);
+      collectedStrips_.resize(stripClusters->dataSize(), false);
+      collectedPixels_.resize(pixelClusters->dataSize(), false);
     } 
 
 
@@ -402,7 +410,7 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       TrajectorySeed::const_iterator hit=hits.first;
       for (;hit!=hits.second;++hit){
 	if (!hit->isValid()) continue;
-	process( &(*hit), 0. );
+	process( &(*hit), 0. , tgh.product());
       }
     }
       
@@ -447,7 +455,8 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       iEvent.put( removedPixelClusterMask );
       
     }
-    
+    collectedStrips_.clear();
+    collectedPixels_.clear();    
 
 }
 

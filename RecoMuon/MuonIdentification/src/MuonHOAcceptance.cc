@@ -166,8 +166,8 @@ void MuonHOAcceptance::initIds(edm::EventSetup const& eSetup) {
   deadIds.clear();
 
   edm::ESHandle<HcalChannelQuality> p;
-  eSetup.get<HcalChannelQualityRcd>().get(p);
-  HcalChannelQuality *myqual = new HcalChannelQuality(*p.product());
+  eSetup.get<HcalChannelQualityRcd>().get("withTopo",p);
+  const HcalChannelQuality *myqual = p.product();
 
   edm::ESHandle<HcalSeverityLevelComputer> mycomputer;
   eSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
@@ -212,7 +212,6 @@ void MuonHOAcceptance::initIds(edm::EventSetup const& eSetup) {
   buildDeadAreas();
   buildSiPMAreas();
   inited = true;
-  delete myqual;
 }
 
 void MuonHOAcceptance::buildDeadAreas() {

@@ -82,7 +82,7 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es)
     : read_pt_lut(true),
       isBinary(false)
 {
-	pt_method = 32;
+	pt_method = 34;
         //std::cout << "pt_method from 4 " << std::endl; 
 	lowQualityFlag = 4;
 	isBeamStartConf = true;

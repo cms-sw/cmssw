@@ -450,12 +450,12 @@ void TrackDetectorAssociator::fillHcal( const edm::Event& iEvent,
       idsInRegion = hcalDetIdAssociator_->getDetIdsCloseToAPoint(coreTrajectory[0], mapRange);
    } else idsInRegion = hcalDetIdAssociator_->getDetIdsCloseToAPoint(coreTrajectory[0], parameters.dRHcalPreselection);
    
-   LogTrace("TrackAssociator") << "HCAL hits in the region: " << idsInRegion.size() << "\n" << DetIdInfo::info(idsInRegion);
+   LogTrace("TrackAssociator") << "HCAL hits in the region: " << idsInRegion.size() << "\n" << DetIdInfo::info(idsInRegion,0);
    std::set<DetId> idsInACone = hcalDetIdAssociator_->getDetIdsInACone(idsInRegion, coreTrajectory, parameters.dRHcal);
-   LogTrace("TrackAssociator") << "HCAL hits in the cone: " << idsInACone.size() << "\n" << DetIdInfo::info(idsInACone);
+   LogTrace("TrackAssociator") << "HCAL hits in the cone: " << idsInACone.size() << "\n" << DetIdInfo::info(idsInACone,0);
    std::vector<DetId> crossedIds = 
      hcalDetIdAssociator_->getCrossedDetIds(idsInRegion, coreTrajectory);
-   LogTrace("TrackAssociator") << "HCAL hits crossed: " << crossedIds.size() << "\n" << DetIdInfo::info(crossedIds);
+   LogTrace("TrackAssociator") << "HCAL hits crossed: " << crossedIds.size() << "\n" << DetIdInfo::info(crossedIds,0);
    
    info.crossedHcalIds = crossedIds;
    // add Hcal
@@ -650,7 +650,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
       TrajectoryStateOnSurface stateOnSurface = cachedTrajectory_.propagate( &geomDet->surface() );
       if (! stateOnSurface.isValid()) {
          LogTrace("TrackAssociator") << "Failed to propagate the track; moving on\n\t"<<
-	   "Element is not crosssed: " << DetIdInfo::info(*detId) << "\n";
+	   "Element is not crosssed: " << DetIdInfo::info(*detId,0) << "\n";
          continue;
       }
       LocalPoint localPoint = geomDet->surface().toLocal(stateOnSurface.freeState()->position());
@@ -702,7 +702,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
       }
       if ( (distanceX < parameters.muonMaxDistanceX && distanceY < parameters.muonMaxDistanceY) ||
 	   (sigmaX < parameters.muonMaxDistanceSigmaX && sigmaY < parameters.muonMaxDistanceSigmaY) ) {
-	LogTrace("TrackAssociator") << "found a match: " << DetIdInfo::info(*detId) << "\n";
+	LogTrace("TrackAssociator") << "found a match: " << DetIdInfo::info(*detId,0) << "\n";
          TAMuonChamberMatch match;
          match.tState = stateOnSurface;
          match.localDistanceX = distanceX;
@@ -711,7 +711,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
          matches.push_back(match);
       } else {
 	LogTrace("TrackAssociator") << "chamber is too far: " << 
-	  DetIdInfo::info(*detId) << "\n\tdistanceX: " << distanceX << "\t distanceY: " << distanceY <<
+	  DetIdInfo::info(*detId,0) << "\n\tdistanceX: " << distanceX << "\t distanceY: " << distanceY <<
 	  "\t sigmaX: " << sigmaX << "\t sigmaY: " << sigmaY << "\n";
       }	
    }

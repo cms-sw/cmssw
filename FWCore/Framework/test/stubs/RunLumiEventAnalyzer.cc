@@ -17,8 +17,8 @@
 namespace edmtest {
 
   RunLumiEventAnalyzer::RunLumiEventAnalyzer(edm::ParameterSet const& pset) :
-    expectedRunLumisEvents0_(pset.getUntrackedParameter<std::vector<unsigned int> >("expectedRunLumiEvents", std::vector<unsigned int>())),
-    expectedRunLumisEvents1_(pset.getUntrackedParameter<std::vector<unsigned int> >("expectedRunLumiEvents1", std::vector<unsigned int>())),
+    expectedRunLumisEvents0_(),
+    expectedRunLumisEvents1_(),
     expectedRunLumisEvents_(&expectedRunLumisEvents0_),
     index_(0),
     verbose_(pset.getUntrackedParameter<bool>("verbose", false)),
@@ -26,6 +26,21 @@ namespace edmtest {
     expectedEndingIndex0_(pset.getUntrackedParameter<int>("expectedEndingIndex", -1)),
     expectedEndingIndex1_(pset.getUntrackedParameter<int>("expectedEndingIndex1", -1)),
     expectedEndingIndex_(expectedEndingIndex0_) {
+
+    if(pset.existsAs<std::vector<unsigned int> >("expectedRunLumiEvents", false)) {
+      std::vector<unsigned int> temp = pset.getUntrackedParameter<std::vector<unsigned int> >("expectedRunLumiEvents");
+      expectedRunLumisEvents0_.assign(temp.begin(), temp.end());
+    } else {
+      expectedRunLumisEvents0_ = pset.getUntrackedParameter<std::vector<unsigned long long> >("expectedRunLumiEvents", std::vector<unsigned long long>());
+    }
+
+    if(pset.existsAs<std::vector<unsigned int> >("expectedRunLumiEvents1", false)) {
+      std::vector<unsigned int> temp = pset.getUntrackedParameter<std::vector<unsigned int> >("expectedRunLumiEvents1");
+      expectedRunLumisEvents1_.assign(temp.begin(), temp.end());
+    } else {
+      expectedRunLumisEvents1_ = pset.getUntrackedParameter<std::vector<unsigned long long> >("expectedRunLumiEvents1", std::vector<unsigned long long>());
+    }
+
   }
 
   void RunLumiEventAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&) {

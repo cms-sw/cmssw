@@ -44,9 +44,19 @@
 #include "CondFormats/L1TObjects/interface/L1RPCBxOrConfig.h"
 #include "CondFormats/L1TObjects/interface/L1RPCHsbConfig.h"
 
+#include "CondFormats/L1TObjects/interface/LUT.h"
+#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "CondFormats/L1TObjects/interface/CaloConfig.h"
+
 
 namespace CondFormats_L1TObjects {
   struct dictionary {
+    std::vector<l1t::CaloParams::Node> dummy1a;
+    l1t::CaloParams dummy1b;
+    l1t::LUT dummy1c;
+
+    l1t::CaloConfig dummy2;
+
     std::vector<L1MuDTExtLut::LUT> dummy3 ;
     std::vector<L1GtMuonTemplate> dummy4 ;
     std::vector<L1GtCaloTemplate> dummy5 ;

@@ -122,7 +122,7 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     unclean.clear();
     tripl.clear();
     vector<int> gc;
-    TrackingRecHitRefVector gsfRecHits=pft->gsfTrackRef()->extra()->recHits();
+    auto const &  gsfRecHits = *pft->gsfTrackRef();
     float pfoutenergy=sqrt((pfmass*pfmass)+pft->gsfTrackRef()->outerMomentum().Mag2());
     XYZTLorentzVector mom =XYZTLorentzVector(pft->gsfTrackRef()->outerMomentum().x(),
 					     pft->gsfTrackRef()->outerMomentum().y(),
@@ -544,14 +544,14 @@ ConvBremSeedProducer::makeTrajectoryState( const DetLayer* layer,
   GlobalPoint  pos( pp.X(), pp.Y(), pp.Z());
   GlobalVector mom( pp.Px(), pp.Py(), pp.Pz());
 
-  ReferenceCountingPointer<TangentPlane> plane = layer->surface().tangentPlane(pos);
+  auto plane = layer->surface().tangentPlane(pos);
 
   return TrajectoryStateOnSurface
     (GlobalTrajectoryParameters( pos, mom, TrackCharge( pp.charge()), field), *plane);
 }
-bool ConvBremSeedProducer::isGsfTrack(const TrackingRecHitRefVector& tkv, const TrackingRecHit *h ){
-  trackingRecHit_iterator ib=tkv.begin();
-  trackingRecHit_iterator ie=tkv.end();
+bool ConvBremSeedProducer::isGsfTrack(const reco::Track & tkv, const TrackingRecHit *h ){
+  auto ib=tkv.recHitsBegin();
+  auto ie=tkv.recHitsEnd();
   bool istaken=false;
   //  for (;ib!=ie-2;++ib){
     for (;ib!=ie;++ib){

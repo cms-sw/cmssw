@@ -401,17 +401,17 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
   theParameterMap->setDbService(conditions.product());
 
   edm::ESHandle<HcalCholeskyMatrices> refCholesky;
-  eventSetup.get<HcalCholeskyMatricesRcd>().get(refCholesky);
-  const HcalCholeskyMatrices * myCholesky = refCholesky.product();
-
+  if (eventSetup.find(edm::eventsetup::EventSetupRecordKey::makeKey<HcalCholeskyMatricesRcd>())) {
+    eventSetup.get<HcalCholeskyMatricesRcd>().get(refCholesky);
+    const HcalCholeskyMatrices * myCholesky = refCholesky.product();
+    theHBHEAmplifier->setCholesky(myCholesky);
+    theHFAmplifier->setCholesky(myCholesky);
+    theHOAmplifier->setCholesky(myCholesky);
+  }
   edm::ESHandle<HcalPedestals> pedshandle;
   eventSetup.get<HcalPedestalsRcd>().get(pedshandle);
   const HcalPedestals *  myADCPedestals = pedshandle.product();
 
-  theHBHEAmplifier->setCholesky(myCholesky);
-  theHFAmplifier->setCholesky(myCholesky);
-  theHOAmplifier->setCholesky(myCholesky);
-  
   theHBHEAmplifier->setADCPeds(myADCPedestals);
   theHFAmplifier->setADCPeds(myADCPedestals);
   theHOAmplifier->setADCPeds(myADCPedestals);

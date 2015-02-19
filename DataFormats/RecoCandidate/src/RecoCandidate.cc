@@ -80,3 +80,20 @@ RecoCandidate::TrackType RecoCandidate::bestTrackType() const {
     return gsfTrackType;
   return noTrackType;
 }
+
+float RecoCandidate::dzError() const 
+{
+  const Track * tr=bestTrack(); 
+  if(tr!=nullptr) 
+    return tr->dzError(); 
+  else 
+    return 0; 
+}
+float RecoCandidate::dxyError() const 
+{
+  const Track * tr=bestTrack(); 
+  if(tr!=nullptr) 
+    return tr->dxyError(); 
+  else 
+    return 0; 
+}

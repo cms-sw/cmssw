@@ -48,6 +48,7 @@ PileupInformation::PileupInformation(const edm::ParameterSet & config)
 
 
     produces< std::vector<PileupSummaryInfo> >();
+    produces<int>("bunchSpacing");
     //produces<PileupSummaryInfo>();
 }
 
@@ -64,6 +65,8 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
   std::vector<int> Interactions_Xing;
   std::vector<float> TrueInteractions_Xing;
 
+  int bunchSpacing;
+
   const PileupMixingContent* MixInfo = MixingPileup.product();
 
   if(MixInfo) {  // extract information - way easier than counting vertices
@@ -72,6 +75,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
     const std::vector<int> interactions = MixInfo->getMix_Ninteractions();
     const std::vector<float> TrueInteractions = MixInfo->getMix_TrueInteractions();
 
+    bunchSpacing = MixInfo->getMix_bunchSpacing();
 
     for(int ib=0; ib<(int)bunchCrossing.size(); ++ib){
       //      std::cout << " bcr, nint " << bunchCrossing[ib] << " " << interactions[ib] << std::endl;
@@ -298,7 +302,8 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 						      ntrks_lowpT,
 						      ntrks_highpT,
 						      (*BXIter),
-						      (*TInteractionsIter)
+						      (*TInteractionsIter),
+						      bunchSpacing
 						      );
 
     //std::cout << " " << std::endl;
@@ -333,6 +338,9 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
   event.put(PSIVector);
 
+  //add bunch spacing to the event as a seperate integer for use by downstream modules
+  std::auto_ptr<int> bunchSpacingP(new int(bunchSpacing));
+  event.put(bunchSpacingP,"bunchSpacing");
 
 }
 

@@ -9,7 +9,9 @@ from Configuration.StandardSequences.DigiNZS_cff import *
 #simMuonCSCDigis.strips.doNoise = False
 #simMuonCSCDigis.wires.doNoise = False
 #simMuonDTDigis.onlyMuHits = True
+
 simMuonRPCDigis.doBkgNoise = False
+
 
 # Note: the other noise is turned of in the DigitizersNoNoise sequence defined in the MixingModule
 # because the MM holds/controls all of the other digitizers.
@@ -18,4 +20,3 @@ simMuonRPCDigis.doBkgNoise = False
 simEcalDigis.UseFullReadout = cms.bool(True)
 # This is extra, since the configuration skips it anyway.  Belts and suspenders.
 pdigi.remove(simEcalPreshowerDigis)
-

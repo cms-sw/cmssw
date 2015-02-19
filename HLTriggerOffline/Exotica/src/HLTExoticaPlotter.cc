@@ -56,18 +56,39 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker & iBooker,
 
         for (size_t i = 0; i < sources.size(); i++) {
             std::string source = sources[i];
-            bookHist(iBooker, source, objTypeStr, "Eta");
-            bookHist(iBooker, source, objTypeStr, "Phi");
-            bookHist(iBooker, source, objTypeStr, "MaxPt1");
-            bookHist(iBooker, source, objTypeStr, "MaxPt2");
-            bookHist(iBooker, source, objTypeStr, "SumEt");
+
+            if ( source == "gen" ) {
+              if ( TString(objTypeStr).Contains("MET") ||
+                   TString(objTypeStr).Contains("MHT") ||
+                   TString(objTypeStr).Contains("Jet")    ) {
+                continue;
+              } else {
+                bookHist(iBooker, source, objTypeStr, "MaxPt1");
+                bookHist(iBooker, source, objTypeStr, "MaxPt2");
+                bookHist(iBooker, source, objTypeStr, "Eta");
+                bookHist(iBooker, source, objTypeStr, "Phi");
+              }
+            } else { // reco
+              if ( TString(objTypeStr).Contains("MET") ||
+                   TString(objTypeStr).Contains("MHT")    ) {
+                bookHist(iBooker, source, objTypeStr, "MaxPt1");
+                bookHist(iBooker, source, objTypeStr, "SumEt");
+              } else {
+                bookHist(iBooker, source, objTypeStr, "MaxPt1");
+                bookHist(iBooker, source, objTypeStr, "MaxPt2");
+                bookHist(iBooker, source, objTypeStr, "Eta");
+                bookHist(iBooker, source, objTypeStr, "Phi");
+              }
+            }	    
+
         }
     }
 }
 
 void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
                                 const std::string & source,
-                                const std::vector<reco::LeafCandidate> & matches)
+                                const std::vector<reco::LeafCandidate> & matches,
+				std::map<int,double> theSumEt)
 {
     LogDebug("ExoticaValidation") << "In HLTExoticaPlotter::analyze()";
     if (!isPassTrigger) {
@@ -96,27 +117,40 @@ void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
         float pt  =   matches[j].pt();
         float eta =   matches[j].eta();
         float phi =   matches[j].phi();
-	float sumEt = 0;//matches[j].sumEt;
-        this->fillHist(isPassTrigger, source, objTypeStr, "Eta", eta);
-        this->fillHist(isPassTrigger, source, objTypeStr, "Phi", phi);
-	this->fillHist(isPassTrigger, source, objTypeStr, "SumEt", sumEt);
+
+	if ( !( TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ) ) {
+          this->fillHist(isPassTrigger, source, objTypeStr, "Eta", eta);
+          this->fillHist(isPassTrigger, source, objTypeStr, "Phi", phi);
+	}
+	else if( source!="gen" ) {
+	  if(theSumEt[objType]>=0 && countobjects[objType] == 0) {
+	    this->fillHist(isPassTrigger, source, objTypeStr, "SumEt", theSumEt[objType]);
+	  }
+	}
 
         if (countobjects[objType] == 0) {
+	  if ( !( TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ) || source!="gen" ) {
             this->fillHist(isPassTrigger, source, objTypeStr, "MaxPt1", pt);
-            // Filled the high pt ...
-            ++(countobjects[objType]);
-            ++counttotal;
-        } else if (countobjects[objType] == 1) {
+	  }
+	  // Filled the high pt ...
+	  ++(countobjects[objType]);
+	  ++counttotal;
+        } 
+	else if (countobjects[objType] == 1) {
+	  if( !( TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ) ) {
             this->fillHist(isPassTrigger, source, objTypeStr, "MaxPt2", pt);
-            // Filled the second high pt ...
-            ++(countobjects[objType]);
-            ++counttotal;
-        } else {
-            if (counttotal == totalobjectssize2) {
-                break;
-            }
+	  }
+	  // Filled the second high pt ...
+	  ++(countobjects[objType]);
+	  ++counttotal;
+        } 
+	else {
+	  if (counttotal == totalobjectssize2) {
+	    break;
+	  }
         }
-    }
+
+    } // end loop over matches
 }
 
 
@@ -141,6 +175,7 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker & iBooker,
         h = new TH1F(name.c_str(), title.c_str(), nBins, edges);
         delete[] edges;
     }
+
     else if (variable.find("MaxPt") != std::string::npos) {
         std::string desc = (variable == "MaxPt1") ? "Leading" : "Next-to-Leading";
         std::string title = "pT of " + desc + " " + sourceUpper + " " + objType + " "
@@ -152,7 +187,9 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker & iBooker,
         }
         h = new TH1F(name.c_str(), title.c_str(), nBins, edges);
         delete [] edges;
-    } else {
+    } 
+
+    else {
         std::string symbol = (variable == "Eta") ? "#eta" : "#phi";
         std::string title  = symbol + " of " + sourceUpper + " " + objType + " " +
                              "where event pass the " + _hltPath;
@@ -163,6 +200,7 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker & iBooker,
         double max   = params[2];
         h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
     }
+
     h->Sumw2();
     _elements[name] = iBooker.book1D(name, h);
     //    LogDebug("ExoticaValidation") << "                        booked histo with name " << name << "\n"

@@ -26,6 +26,8 @@
 #include "DataFormats/FWLite/interface/InternalDataKey.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 
+#include "Rtypes.h"
+
 // system include files
 #include <cstring>
 #include <map>
@@ -38,6 +40,15 @@
 // forward declarations
 class TTreeCache;
 class TTree;
+
+namespace edm {
+    class BranchDescription;
+    class BranchID;
+    class ObjectWithDict;
+    class ProductID;
+    class ThinnedAssociation;
+    class WrapperBase;
+}
 
 namespace fwlite {
     class DataGetterHelper {
@@ -59,10 +70,15 @@ namespace fwlite {
 
             // This function should only be called by fwlite::Handle<>
             virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*, Long_t) const;
-            edm::WrapperBase const* getByProductID(edm::ProductID const&, Long_t) const;
+
+            edm::WrapperBase const* getByProductID(edm::ProductID const& pid, Long_t eventEntry) const;
+            edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key, Long_t eventEntry) const;
+            void getThinnedProducts(edm::ProductID const& pid,
+                                    std::vector<edm::WrapperBase const*>& foundContainers,
+                                    std::vector<unsigned int>& keys,
+                                    Long_t eventEntry) const;
 
             // ---------- static member functions --------------------
-            static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
 
             // ---------- member functions ---------------------------
 
@@ -75,21 +91,28 @@ namespace fwlite {
             }
 
         private:
-            DataGetterHelper(const DataGetterHelper&); // stop default
 
+            DataGetterHelper(const DataGetterHelper&); // stop default
             const DataGetterHelper& operator=(const DataGetterHelper&); // stop default
+
+            typedef std::map<internal::DataKey, std::shared_ptr<internal::Data> > KeyToDataMap;
+
             internal::Data& getBranchDataFor(std::type_info const&, char const*, char const*, char const*) const;
             void getBranchData(edm::EDProductGetter*, Long64_t, internal::Data&) const;
+            bool getByBranchDescription(edm::BranchDescription const&, Long_t eventEntry, KeyToDataMap::iterator&) const;
+            edm::WrapperBase const* getByBranchID(edm::BranchID const& bid, Long_t eventEntry) const;
+            edm::WrapperBase const* wrapperBasePtr(edm::ObjectWithDict const&) const;
+            edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID, Long_t eventEntry) const;
 
             // ---------- member data --------------------------------
             TTree* tree_;
             mutable std::shared_ptr<BranchMapReader> branchMap_;
-            typedef std::map<internal::DataKey, std::shared_ptr<internal::Data> > KeyToDataMap;
             mutable KeyToDataMap data_;
             mutable std::vector<char const*> labels_;
             const edm::ProcessHistory& history() const;
 
             mutable std::map<std::pair<edm::ProductID, edm::BranchListIndex>,std::shared_ptr<internal::Data> > idToData_;
+            mutable std::map<edm::BranchID, std::shared_ptr<internal::Data> > bidToData_;
             std::shared_ptr<fwlite::HistoryGetterBase> historyGetter_;
             std::shared_ptr<edm::EDProductGetter> getter_;
             mutable bool tcTrained_;

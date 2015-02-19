@@ -66,7 +66,7 @@ class HLTElectronPixelMatchFilter : public HLTFilter {
   float sR2I_ ;
   float sR2F_ ;
   
-  
+  bool isPixelVeto_;
   bool useS_ ;
 };
 

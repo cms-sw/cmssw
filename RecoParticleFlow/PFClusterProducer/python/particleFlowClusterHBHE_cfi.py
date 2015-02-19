@@ -10,7 +10,7 @@ particleFlowClusterHBHE = cms.EDProducer(
         algoName = cms.string("LocalMaximumSeedFinder"),
         thresholdsByDetector = cms.VPSet(
               cms.PSet( detector = cms.string("HCAL_BARREL1"),
-                        seedingThreshold = cms.double(0.8),
+                        seedingThreshold = cms.double(1.0),
                         seedingThresholdPt = cms.double(0.0)
                         ),
               cms.PSet( detector = cms.string("HCAL_ENDCAP"),
@@ -36,7 +36,7 @@ particleFlowClusterHBHE = cms.EDProducer(
     ),
     
     pfClusterBuilder = cms.PSet(
-           algoName = cms.string("PFlow2DClusterizerWithTime"),
+           algoName = cms.string("Basic2DGenericPFlowClusterizer"),
            #pf clustering parameters
            minFractionToKeep = cms.double(1e-7),
            positionCalc = cms.PSet(

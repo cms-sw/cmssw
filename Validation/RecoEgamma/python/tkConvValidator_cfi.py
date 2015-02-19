@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 from Validation.RecoEgamma.tpSelection_cfi import *
 
-from SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi import *
-import SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi
-trackAssociatorByHitsForConversionValidation = SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
-trackAssociatorByHitsForConversionValidation.ComponentName = cms.string('trackAssociatorByHitsForConversionValidation')
+from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
+import SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi
+trackAssociatorByHitsForConversionValidation = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
 trackAssociatorByHitsForConversionValidation.SimToRecoDenominator = 'reco'
 trackAssociatorByHitsForConversionValidation.Quality_SimToReco = 0.5
 trackAssociatorByHitsForConversionValidation.Purity_SimToReco = 0.5

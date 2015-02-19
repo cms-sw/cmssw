@@ -64,6 +64,8 @@ SiPixelRawDataErrorSource::SiPixelRawDataErrorSource(const edm::ParameterSet& iC
 {
   firstRun = true;
   LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::SiPixelRawDataErrorSource: Got DQM BackEnd interface"<<endl;
+  topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
+  inputSourceToken_ = consumes<FEDRawDataCollection>(conf_.getUntrackedParameter<string>("inputSource", "source"));
 }
 
 
@@ -100,7 +102,22 @@ void SiPixelRawDataErrorSource::bookHistograms(DQMStore::IBooker & iBooker, edm:
 void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   eventNo++;
-
+  //check feds in readout
+  if(eventNo==1){
+    // check if any Pixel FED is in readout:
+    edm::Handle<FEDRawDataCollection> rawDataHandle;
+    iEvent.getByToken(inputSourceToken_, rawDataHandle);
+    if(!rawDataHandle.isValid()){
+      std::cout << "inputsource is empty" << std::endl;
+      edm::LogInfo("SiPixelRawDataErrorSource") << "inputsource is empty";
+    }
+    else{
+      const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
+      for(int i = 0; i != 40; i++){
+        if(rawDataCollection.FEDData(i).size() && rawDataCollection.FEDData(i).data()) fedcounter->setBinContent(i+1,1);
+      }
+    }
+  }
   // get input data
   edm::Handle< DetSetVector<SiPixelRawDataError> >  input;
   iEvent.getByToken( src_, input );
@@ -153,8 +170,16 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::Eve
 void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 
   LogInfo ("PixelDQM") <<" SiPixelRawDataErrorSource::buildStructure" ;
+
+
   edm::ESHandle<TrackerGeometry> pDD;
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+
+  const TrackerTopology *pTT = tTopoHandle.product();
+
 
   LogVerbatim ("PixelDQM") << " *** Geometry node for TrackerGeom is  "<<&(*pDD)<<std::endl;
   LogVerbatim ("PixelDQM") << " *** I have " << pDD->dets().size() <<" detectors"<<std::endl;
@@ -162,7 +187,8 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 
   for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
 
-    if( ((*it)->subDetector()==GeomDetEnumerators::PixelBarrel) || ((*it)->subDetector()==GeomDetEnumerators::PixelEndcap) ){
+    if( GeomDetEnumerators::isTrackerPixel((*it)->subDetector())) {
+
       DetId detId = (*it)->geographicalId();
       const GeomDetUnit      * geoUnit = pDD->idToDetUnit( detId );
       const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
@@ -176,16 +202,16 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 	SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
 	thePixelStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
 
-      }	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (!isUpgrade)) {
+      }	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) ) {
 	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
 	SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
 	
-        PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id)).halfCylinder();
-        int disk   = PixelEndcapName(DetId(id)).diskName();
-        int blade  = PixelEndcapName(DetId(id)).bladeName();
-        int panel  = PixelEndcapName(DetId(id)).pannelName();
-        int module = PixelEndcapName(DetId(id)).plaquetteName();
+        PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id), pTT, isUpgrade).halfCylinder();
+        int disk   = PixelEndcapName(DetId(id), pTT, isUpgrade).diskName();
+        int blade  = PixelEndcapName(DetId(id), pTT, isUpgrade).bladeName();
+        int panel  = PixelEndcapName(DetId(id), pTT, isUpgrade).pannelName();
+        int module = PixelEndcapName(DetId(id), pTT, isUpgrade).plaquetteName();
 
         char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
         char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
@@ -203,45 +229,24 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 	if(isPIB && mask) continue;
 		
 	thePixelStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
-      }	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (isUpgrade)) {
-	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
-	uint32_t id = detId();
-	SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
-	
-        PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId(id)).halfCylinder();
-        int disk   = PixelEndcapNameUpgrade(DetId(id)).diskName();
-        int blade  = PixelEndcapNameUpgrade(DetId(id)).bladeName();
-        int panel  = PixelEndcapNameUpgrade(DetId(id)).pannelName();
-        int module = PixelEndcapNameUpgrade(DetId(id)).plaquetteName();
 
-        char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
-        char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
-        char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
-        char spanel[80]; sprintf(spanel, "Panel_%i",panel);
-        char smodule[80];sprintf(smodule,"Module_%i",module);
-        std::string side_str = sside;
-	std::string disk_str = sdisk;
-	bool mask = side_str.find("HalfCylinder_1")!=string::npos||
-	            side_str.find("HalfCylinder_2")!=string::npos||
-		    side_str.find("HalfCylinder_4")!=string::npos||
-		    disk_str.find("Disk_2")!=string::npos;
-	// clutch to take all of FPIX, but no BPIX:
-	mask = false;
-	if(isPIB && mask) continue;
-		
-	thePixelStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
-      }//endif(isUpgrade)
-    }
-  }
+      }	
+    }//MAIN_IF
+  }//FOR_LOOP
+
   LogDebug ("PixelDQM") << " ---> Adding Module for Additional Errors " << endl;
   pair<int,int> fedIds (FEDNumbering::MINSiPixelFEDID, FEDNumbering::MAXSiPixelFEDID);
+
   fedIds.first = 0;
   fedIds.second = 39;
+
   for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
+
     //std::cout<<"Adding FED module: "<<fedId<<std::endl;
     uint32_t id = static_cast<uint32_t> (fedId);
     SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id);
     theFEDStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
+
   }
   
   LogInfo ("PixelDQM") << " *** Pixel Structure Size " << thePixelStructure.size() << endl;
@@ -250,8 +255,10 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 // Book MEs
 //------------------------------------------------------------------
 void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
-  //cout<<"Entering SiPixelRawDataErrorSource::bookMEs now: "<<endl;
-  iBooker.setCurrentFolder("Pixel/AdditionalPixelErrors");
+  iBooker.setCurrentFolder(topFolderName_+"/EventInfo/DAQContents");
+  char title0[80]; sprintf(title0, "FED isPresent;FED ID;isPresent");
+  fedcounter = iBooker.book1D("fedcounter",title0,40,-0.5,39.5);
+  iBooker.setCurrentFolder(topFolderName_+"/AdditionalPixelErrors");
   char title[80]; sprintf(title, "By-LumiSection Error counters");
   byLumiErrors = iBooker.book1D("byLumiErrors",title,2,0.,2.);
   byLumiErrors->setLumiFlag();
@@ -305,7 +312,7 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
 
   for (uint32_t id = 0; id < 40; id++){
     char temp [50];
-    sprintf( temp, "Pixel/AdditionalPixelErrors/FED_%d",id);
+    sprintf( temp, (topFolderName_+"/AdditionalPixelErrors/FED_%d").c_str(),id);
     iBooker.cd(temp);
     // Types of errors
     hid = theHistogramId->setHistoId("errorType",id);

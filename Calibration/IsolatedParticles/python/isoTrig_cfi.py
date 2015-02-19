@@ -1,9 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
 IsoTrigHB = cms.EDAnalyzer("IsoTrig",
-                           Det           = cms.string("HB"),
-                           Verbosity     = cms.untracked.int32( 0 ),
-                         
+                           Triggers        = cms.untracked.vstring("HLT_IsoTrackHB"),
+                           PixcandTag      = cms.InputTag(" "),
+                           L1candTag       = cms.InputTag(" "),
+                           L2candTag       = cms.InputTag("isolEcalPixelTrackProd"),
+                           DoL2L3          = cms.untracked.bool(False),
+                           DoTimingTree    = cms.untracked.bool(False),
+                           DoMipCutTree    = cms.untracked.bool(False),
+                           DoTrkResTree    = cms.untracked.bool(True),
+                           DoChgIsolTree   = cms.untracked.bool(False),
+                           DoStudyIsol     = cms.untracked.bool(False),
+                           Verbosity       = cms.untracked.int32( 0 ),
+                           ProcessName     = cms.untracked.string("HLT"),
                            TrackQuality    = cms.untracked.string("highPurity"),
                            MinTrackPt      = cms.untracked.double(10.0),
                            MaxDxyPV        = cms.untracked.double(0.02),
@@ -23,5 +32,12 @@ IsoTrigHB = cms.EDAnalyzer("IsoTrig",
                            ChargeIsolation = cms.untracked.double(2.0),
                            NeutralIsolation= cms.untracked.double(2.0),
                            minRun          =cms.untracked.int32(190456),
-                           maxRun          =cms.untracked.int32(203002)
+                           maxRun          =cms.untracked.int32(203002),
+                           PixelTracksSources = cms.untracked.VInputTag("hltHITPixelTracksHB", "hltHITPixelTracksHE"),
+                           PixelIsolationConeSizeAtEC = cms.untracked.vdouble([35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 63.9, 70.0]),
+                           MinPTrackValue  = cms.untracked.double(0.0),
+                           VertexCutSeed   = cms.untracked.double(101.0),
+                           VertexCutIsol   = cms.untracked.double(101.0),
+                           TauUnbiasCone   = cms.untracked.double(1.2),
+                           PrelimCone      = cms.untracked.double(1.0)
 )

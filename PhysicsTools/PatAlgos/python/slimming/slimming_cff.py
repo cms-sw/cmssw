@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.PatAlgos.slimming.packedPFCandidates_cfi import *
+from PhysicsTools.PatAlgos.slimming.packedPFCandidates_cff import *
 from PhysicsTools.PatAlgos.slimming.lostTracks_cfi import *
 from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVertices_cfi import *
 from PhysicsTools.PatAlgos.slimming.genParticles_cff import *
@@ -34,7 +34,7 @@ MicroEventContent = cms.PSet(
         'keep recoSuperClusters_reducedEgamma_*_*',
         'keep recoCaloClusters_reducedEgamma_*_*',
         'keep EcalRecHitsSorted_reducedEgamma_*_*',
-        
+
 
         'drop *_*_caloTowers_*',
         'drop *_*_pfCandidates_*',
@@ -44,16 +44,17 @@ MicroEventContent = cms.PSet(
         'keep *_offlineSlimmedPrimaryVertices_*_*',
         'keep patPackedCandidates_packedPFCandidates_*_*',
 
-        'keep double_fixedGridRho*__*', 
+        'keep double_fixedGridRho*__*',
 
-        'keep *_selectedPatTrigger_*_PAT',
-        'keep patPackedTriggerPrescales_patTrigger__PAT',
-        'keep *_l1extraParticles_*_HLT',
-        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_HLT',
+        'keep *_selectedPatTrigger_*_*',
+        'keep patPackedTriggerPrescales_patTrigger__*',
+        'keep *_l1extraParticles_*_*',
+        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep *_TriggerResults_*_HLT',
         'keep *_TriggerResults_*_PAT', # for MET filters
-	'keep patPackedCandidates_lostTracks_*_PAT',
-	'keep HcalNoiseSummary_hcalnoise__*'
+	'keep patPackedCandidates_lostTracks_*_*',
+        'keep HcalNoiseSummary_hcalnoise__*',
+        'keep *_caTopTagInfosPAT_*_*'
     )
 )
 MicroEventContentMC = cms.PSet(
@@ -61,7 +62,7 @@ MicroEventContentMC = cms.PSet(
 )
 MicroEventContentMC.outputCommands += [
         'keep *_slimmedGenJets_*_*',
-        'keep *_packedGenParticles_*_*',
+        'keep patPackedGenParticles_packedGenParticles_*_*',
         'keep recoGenParticles_prunedGenParticles_*_*',
         'keep LHEEventProduct_*_*_*',
         'keep PileupSummaryInfos_*_*_*',

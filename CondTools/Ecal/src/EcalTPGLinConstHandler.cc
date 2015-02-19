@@ -292,6 +292,7 @@ void  popcon::EcalTPGLinConstHandler::readFromFile(const char* inputFile) {
   inpFile = fopen(inputFile,"r");
   if(!inpFile) {
     edm::LogError("EcalTPGLinConstHandler")<<"*** Can not open file: "<<inputFile;
+    return;
   }
 
   char line[256];

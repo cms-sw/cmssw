@@ -96,10 +96,12 @@ void GEDGsfElectronFinalizer::produce( edm::Event & event, const edm::EventSetup
        if(itcheck!=gsfPFMap.end()) {
 	 // it means that there is a PFCandidate with the same GsfTrack
 	 myMvaOutput.status = 3; //as defined in PFCandidateEGammaExtra.h
+	 newElectron.setPassPflowPreselection(true); //this is currently fully redundant with mvaOutput.stats so candidate for removal
        }
-       else
+       else{
 	 myMvaOutput.status = 4 ; //
-       
+	 newElectron.setPassPflowPreselection(false);//this is currently fully redundant with mvaOutput.stats so candidate for removal	 
+       }
        newElectron.setMvaOutput(myMvaOutput);
      }
      outputElectrons_p->push_back(newElectron);

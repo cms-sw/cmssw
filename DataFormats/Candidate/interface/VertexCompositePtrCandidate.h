@@ -60,6 +60,11 @@ namespace reco {
     /// set covariance matrix
     void setCovariance(const CovarianceMatrix &m);
 
+    /// the following functions are implemented to have a more consistent interface with the one of reco::Vertex
+    typedef math::Error<dimension>::type Error;  
+    const Point & position() const {return vertex();} 	
+    Error  error() const { Error m; fillVertexCovariance( m ); return m; }
+
   private:
     /// chi-sqared
     Double32_t chi2_;

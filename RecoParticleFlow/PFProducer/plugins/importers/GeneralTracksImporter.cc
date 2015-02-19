@@ -153,25 +153,39 @@ goodPtResolution( const reco::TrackRef& trackref) const {
   unsigned int Algo = 0; 
   switch (trackref->algo()) {
   case reco::TrackBase::ctf:
-  case reco::TrackBase::iter0:
-  case reco::TrackBase::iter1:
-  case reco::TrackBase::iter2:
-  case reco::TrackBase::iter7:
-  case reco::TrackBase::iter9:
-  case reco::TrackBase::iter10:
+  case reco::TrackBase::initialStep:
+  case reco::TrackBase::lowPtTripletStep:
+  case reco::TrackBase::pixelPairStep:
+  case reco::TrackBase::jetCoreRegionalStep:
+  case reco::TrackBase::muonSeededStepInOut:
+  case reco::TrackBase::muonSeededStepOutIn:
     Algo = 0;
     break;
-  case reco::TrackBase::iter3:
+  case reco::TrackBase::detachedTripletStep:
     Algo = 1;
     break;
-  case reco::TrackBase::iter4:
+  case reco::TrackBase::mixedTripletStep:
     Algo = 2;
     break;
-  case reco::TrackBase::iter5:
+  case reco::TrackBase::pixelLessStep:
     Algo = 3;
     break;
-  case reco::TrackBase::iter6:
+  case reco::TrackBase::tobTecStep:
     Algo = 4;
+    break;
+  case reco::TrackBase::hltIter0:
+  case reco::TrackBase::hltIter1:
+  case reco::TrackBase::hltIter2:
+    Algo = _useIterTracking ? 0 : 0;
+    break;
+  case reco::TrackBase::hltIter3:
+    Algo = _useIterTracking ? 1 : 0;
+    break;
+  case reco::TrackBase::hltIter4:
+    Algo = _useIterTracking ? 2 : 0;
+    break;
+  case reco::TrackBase::hltIterX:
+    Algo = _useIterTracking ? 0 : 0;
     break;
   default:
     Algo = _useIterTracking ? 5 : 0;

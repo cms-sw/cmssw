@@ -16,7 +16,7 @@ int main(){
     connection.configuration().setPoolAutomaticCleanUp( false );
     connection.configure();
     cond::DbSession pooldb = connection.createSession();
-    pooldb.open("sqlite_file:mytest.db"); 
+    pooldb.open("sqlite_file:testIOVDelete.db"); 
     cond::IOVEditor editor( pooldb );
     pooldb.transaction().start(false);
     editor.createIOVContainerIfNecessary();
@@ -42,7 +42,10 @@ int main(){
     pooldb.transaction().commit();
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
+    return -1;
   }catch(const std::exception& er){
     std::cout<<"std error "<<er.what()<<std::endl;
+    return -1;
   }
+  return 0;
 }

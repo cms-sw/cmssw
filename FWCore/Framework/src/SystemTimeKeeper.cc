@@ -172,8 +172,7 @@ void SystemTimeKeeper::stopModuleEvent(StreamContext const& iStream,
     auto place = iModule.placeInPathContext();
     
     auto& modTiming = pathTiming(iStream,*(place->pathContext())).m_moduleTiming[place->placeInPath()];
-    modTiming.m_cpuTime += times.cpu_;
-    modTiming.m_realTime += times.real_;
+    modTiming.m_realTime += times;
   }
 
 }
@@ -187,8 +186,7 @@ void SystemTimeKeeper::pauseModuleEvent(StreamContext const& iStream,
     auto place = iModule.placeInPathContext();
     
     auto& modTiming = pathTiming(iStream,*(place->pathContext())).m_moduleTiming[place->placeInPath()];
-    modTiming.m_cpuTime += times.cpu_;
-    modTiming.m_realTime += times.real_;
+    modTiming.m_realTime += times;
   }
 
 }
@@ -199,6 +197,17 @@ SystemTimeKeeper::restartModuleEvent(StreamContext const& iStream,
   m_streamModuleTiming[iStream.streamID().value()][iModule.moduleDescription()->id()-m_minModuleID];
   mod.m_timer.start();
 }
+
+void
+SystemTimeKeeper::startProcessingLoop() {
+  m_processingLoopTimer.start();
+}
+
+void
+SystemTimeKeeper::stopProcessingLoop() {
+  m_processingLoopTimer.stop();
+}
+
 
 static void
 fillPathSummary(unsigned int iStartIndex,
@@ -219,7 +228,6 @@ fillPathSummary(unsigned int iStartIndex,
         it->timesRun += pathTiming.m_moduleTiming[0].m_timesVisited;
       }
       it->realTime += pathTiming.m_timer.realTime();
-      it->cpuTime += pathTiming.m_timer.cpuTime();
       if(it->moduleInPathSummaries.empty()) {
         it->moduleInPathSummaries.resize(pathTiming.m_moduleTiming.size());
       }
@@ -231,7 +239,6 @@ fillPathSummary(unsigned int iStartIndex,
         }
         modSummary.timesVisited += modTiming.m_timesVisited;
         modSummary.realTime += modTiming.m_realTime;
-        modSummary.cpuTime += modTiming.m_cpuTime;
       }
     }
   }
@@ -241,14 +248,13 @@ void
 SystemTimeKeeper::fillTriggerTimingReport( TriggerTimingReport& rep) {
   {
     rep.eventSummary.totalEvents = m_numberOfEvents;
-    double cpuTime = 0.;
-    double realTime = 0.;
+    double sumEventTime = 0.;
     for(auto const& stream: m_streamEventTimer) {
-      realTime += stream.realTime();
-      cpuTime += stream.cpuTime();
+      sumEventTime += stream.realTime();
     }
-    rep.eventSummary.realTime = realTime;
-    rep.eventSummary.cpuTime = cpuTime;
+    rep.eventSummary.realTime = m_processingLoopTimer.realTime();
+    rep.eventSummary.cpuTime = m_processingLoopTimer.cpuTime();
+    rep.eventSummary.sumStreamRealTime = sumEventTime;
   }
   
   //Per module summary
@@ -274,13 +280,11 @@ SystemTimeKeeper::fillTriggerTimingReport( TriggerTimingReport& rep) {
       auto& outMod = summary[modIndex];
       outMod.moduleLabel = mod->moduleLabel();
       outMod.realTime = 0.;
-      outMod.cpuTime = 0.;
       
       auto moduleId =mod->id()-m_minModuleID;
       for(auto const& stream: m_streamModuleTiming) {
         auto const& timing = stream[moduleId];
         outMod.realTime += timing.m_timer.realTime();
-        outMod.cpuTime += timing.m_timer.cpuTime();
         outMod.timesRun += timing.m_timesRun;
       }
       outMod.timesVisited = visited[mod->moduleLabel()];

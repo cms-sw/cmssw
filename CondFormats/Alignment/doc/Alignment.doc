@@ -22,7 +22,7 @@
 
 - AlignTransform
 - AlignTransformError
-- AlignmentErrors
+- AlignmentErrorsExtended
 - AlignmentSorter
 - AlignmentSurfaceDeformations
 - Alignments

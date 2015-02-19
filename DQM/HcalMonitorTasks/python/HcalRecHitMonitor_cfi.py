@@ -35,5 +35,6 @@ hcalRecHitMonitor=cms.EDAnalyzer("HcalRecHitMonitor",
                                  HF_energyThreshold           = cms.untracked.double(3.),
                                  HF_ETThreshold               = cms.untracked.double(0.),
                                  HO_energyThreshold           = cms.untracked.double(5.),
-                                 collisiontimediffThresh      = cms.untracked.double(10.) # max time diff between HF+, HF- weighted times for some plot filling
+                                 collisiontimediffThresh      = cms.untracked.double(10.), # max time diff between HF+, HF- weighted times for some plot filling
+                                 FEDRawDataCollection=cms.untracked.InputTag("rawDataCollector")
                                  )

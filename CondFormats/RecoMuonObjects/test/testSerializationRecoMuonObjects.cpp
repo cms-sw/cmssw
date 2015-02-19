@@ -5,6 +5,7 @@
 int main()
 {
     testSerialization<MuScleFitDBobject>();
+    testSerialization<DYTParamsObject>();
     testSerialization<DYTThrObject>();
     return 0;
 }

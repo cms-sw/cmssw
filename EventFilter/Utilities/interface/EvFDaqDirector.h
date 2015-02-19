@@ -39,7 +39,7 @@ namespace evf{
     {
     public:
 
-      enum FileStatus { noFile, sameFile, newFile, newLumi, runEnded };
+      enum FileStatus { noFile, sameFile, newFile, newLumi, runEnded, runAbort };
 
       explicit EvFDaqDirector( const edm::ParameterSet &pset, edm::ActivityRegistry& reg );
       ~EvFDaqDirector();
@@ -62,6 +62,7 @@ namespace evf{
       std::string getOpenOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getMergedDatFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getMergedDatChecksumFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getInitFilePath(std::string const& stream) const;
       std::string getOpenProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
@@ -74,6 +75,7 @@ namespace evf{
       std::string getEoRFilePath() const;
       std::string getEoRFilePathOnFU() const;
       std::string getRunOpenDirPath() const {return run_dir_ +"/open";}
+      bool outputAdler32Recheck() const {return outputAdler32Recheck_;}
       void removeFile(unsigned int ls, unsigned int index);
       void removeFile(std::string );
 
@@ -97,6 +99,7 @@ namespace evf{
       void lockFULocal2();
       void unlockFULocal2();
       void createRunOpendirMaybe();
+      int readLastLSEntry(std::string const& file);
       void setDeleteTracking( std::mutex* fileDeleteLock,std::list<std::pair<int,InputFile*>> *filesToDelete) {
         fileDeleteLockPtr_=fileDeleteLock;
         filesToDeletePtr_ = filesToDelete;
@@ -106,7 +109,7 @@ namespace evf{
     private:
       //bool bulock();
       //bool fulock();
-      bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize);
+      bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, int maxLS);
       void openFULockfileStream(std::string& fuLockFilePath, bool create);
       std::string inputFileNameStem(const unsigned int ls, const unsigned int index) const;
       std::string outputFileNameStem(const unsigned int ls, std::string const& stream) const;
@@ -114,12 +117,14 @@ namespace evf{
       std::string initFileName(std::string const& stream) const;
       std::string eolsFileName(const unsigned int ls) const;
       std::string eorFileName() const;
+      int getNFilesFromEoLS(std::string BUEoLSFile);
 
       bool testModeNoBuilderUnit_;
       std::string base_dir_;
       std::string bu_base_dir_;
       bool directorBu_;
       unsigned int run_;
+      bool outputAdler32Recheck_;
 
       std::string hostname_;
       std::string run_string_;
@@ -171,6 +176,9 @@ namespace evf{
       unsigned int nStreams_=0;
       unsigned int nThreads_=0;
 
+      bool readEolsDefinition_ = true;
+      unsigned int eolsNFilesIndex_ = 1;
+      std::string stopFilePath_;
   };
 }
 

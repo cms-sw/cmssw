@@ -25,13 +25,13 @@ class L1TOccupancyClientHistogramService {
   public:
   
     L1TOccupancyClientHistogramService(); 
-    L1TOccupancyClientHistogramService(const edm::ParameterSet& iParameters, DQMStore* iDBE, bool iVerbose);
+    L1TOccupancyClientHistogramService(const edm::ParameterSet& iParameters, DQMStore::IBooker &ibooker, bool iVerbose);
   
     //loads the histo of test into histos_
-    TH2F* loadHisto  (std::string test,std::string histo); 
+    TH2F* loadHisto  (DQMStore::IGetter &igetter, std::string test,std::string histo); 
 
     //updates histo (i.e. calculates differential to previous LS and adds it to cumulatice histo)
-    void updateHistogramEndLS (std::string test,std::string histo,int iLS); 
+    void updateHistogramEndLS (DQMStore::IGetter &igetter, std::string test,std::string histo,int iLS); 
     void updateHistogramEndRun(std::string iHistName);
     
     //resets the cumulative histo (after performing the test in L1TOccupancyClient)
@@ -49,13 +49,13 @@ class L1TOccupancyClientHistogramService {
     unsigned int  getNBinsMasked   (std::string test);        // Get number of masked bins in test
     unsigned int  getNBinsHistogram(std::string test);        // Get actual number of bins in test (i.e. nBins-nMaskedBins)
     TH2F* getDifferentialHistogram(std::string test); // Get cumulative histogram
-    TH2F* getRebinnedHistogram(std::string iHistName, std::string iHistLocation); // Get rebinned version of the hist
+    TH2F* getRebinnedHistogram(DQMStore::IGetter &igetter, std::string iHistName, std::string iHistLocation); // Get rebinned version of the hist
 
     std::vector<int> getLSCertification(std::string iHistName); // Get list of tested LS for test iHistName
     
   private:
 
-    DQMStore*         mDBE;        // storage service
+    //DQMStore*         mDBE;        // storage service
     bool              mVerbose;    // verbose mode
     edm::ParameterSet mParameters; // Copy of the parameters
 

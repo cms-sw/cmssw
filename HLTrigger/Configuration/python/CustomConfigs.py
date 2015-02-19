@@ -40,7 +40,10 @@ def L1T(process):
 #   modifications when running L1T only
 
     process.load('L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi')
-    process.l1GtTrigReport.L1GtRecordInputTag = cms.InputTag( "simGtDigis" )
+    labels = ['gtDigis','simGtDigis','newGtDigis','hltGtDigis']
+    for label in labels:
+        if label in process.__dict__:
+            process.l1GtTrigReport.L1GtRecordInputTag = cms.InputTag( label )
 
     process.L1AnalyzerEndpath = cms.EndPath( process.l1GtTrigReport )
     process.schedule.append(process.L1AnalyzerEndpath)
@@ -69,7 +72,7 @@ def FASTSIM(process):
 #   modifications when running L1T+HLT
 
     process=L1THLT(process)
-    process.hltL1GtTrigReport.L1GtRecordInputTag = cms.InputTag("gtDigis")
+    process.hltL1GtTrigReport.L1GtRecordInputTag = cms.InputTag("simGtDigis")
 
     return(process)
 
@@ -86,3 +89,29 @@ def HLTDropPrevious(process):
     process=Base(process)
     
     return(process)
+
+
+def MassReplaceInputTag(process,old="rawDataCollector",new="rawDataRepacker"):
+#   replace InputTag values (adapted from Configuration/Applications/python/ConfigBuilder.py)
+    from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
+    for s in process.paths_().keys():
+        massSearchReplaceAnyInputTag(getattr(process,s),old,new)
+    return(process)
+
+
+def L1REPACK(process):
+#   Replace only the L1 parts and keep the rest
+    if 'DigiToRaw' in process.__dict__:
+        process.DigiToRaw = cms.Sequence(process.l1tDigiToRawSeq + process.l1GtPack + process.l1GtEvmPack + process.rawDataCollector)
+    if 'rawDataCollector' in process.__dict__:
+        process.rawDataCollector.RawCollectionList = cms.VInputTag(
+            cms.InputTag('gctDigiToRaw'),
+            cms.InputTag('l1tDigiToRaw'),
+            cms.InputTag('l1GtPack'),
+            cms.InputTag('l1GtEvmPack'),
+            cms.InputTag('rawDataCollector', processName=cms.InputTag.skipCurrentProcess())
+        )
+
+    process=L1T(process)
+
+    return process

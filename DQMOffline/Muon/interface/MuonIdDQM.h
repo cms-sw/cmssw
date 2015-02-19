@@ -47,7 +47,7 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
-class MuonIdDQM : public thread_unsafe::DQMEDAnalyzer {
+class MuonIdDQM : public DQMEDAnalyzer {
    public:
       explicit MuonIdDQM(const edm::ParameterSet&);
       ~MuonIdDQM();

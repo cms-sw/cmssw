@@ -23,7 +23,7 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "TLorentzVector.h"
 
-#include "Validation/EventGenerator/interface/WeightManager.h"
+//#include "Validation/EventGenerator/interface/WeightManager.h"
 
 class TauValidation : public DQMEDAnalyzer
 {
@@ -61,7 +61,7 @@ class TauValidation : public DQMEDAnalyzer
 	virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
 	virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
     private:
-	  WeightManager wmanager_;
+	//	  WeightManager wmanager_;
 
 	int tauMother(const reco::GenParticle*, double weight);
 	int tauProngs(const reco::GenParticle*, double weight);
@@ -86,7 +86,6 @@ class TauValidation : public DQMEDAnalyzer
 			    int &pi0Count,int &piCount,int &rhoCount,int &a1Count,int &KCount,int &KstarCount);
 
     	edm::InputTag genparticleCollection_;
-	edm::InputTag hepmcCollection_;
 
   	/// PDT table
   	edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
@@ -104,15 +103,14 @@ class TauValidation : public DQMEDAnalyzer
 	  *TauSpinEffectsH_pipiAcoplanarity,*TauSpinEffectsH_pipiAcollinearity,*TauSpinEffectsH_pipiAcollinearityzoom, *DecayLength,
 	  *LifeTime;
 
-	unsigned int NJAKID;
-	MonitorElement *JAKID;
-	std::vector<std::vector<MonitorElement *> > JAKInvMass;
+	unsigned int NMODEID;
+	MonitorElement *MODEID;
+	std::vector<std::vector<MonitorElement *> > MODEInvMass;
 
 	int zsbins;
 	double zsmin,zsmax;
 
 	edm::EDGetTokenT<reco::GenParticleCollection> genparticleCollectionToken_;
-	edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
 };
 
 #endif

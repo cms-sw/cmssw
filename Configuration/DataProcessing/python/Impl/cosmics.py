@@ -52,6 +52,20 @@ class cosmics(Reco):
         customiseCosmicData(process)  
         return process
 
+    def visualizationProcessing(self, globalTag, **args):
+        """
+        _visualizationProcessing_
+
+        Cosmic data taking visualization processing
+
+        """
+
+        process = Reco.visualizationProcessing(self,globalTag, **args)
+
+        customiseCosmicData(process)  
+        process.reconstructionCosmics.remove(process.lumiProducer)
+
+        return process
 
     def alcaHarvesting(self, globalTag, datasetName, **args):
         """
@@ -60,7 +74,7 @@ class cosmics(Reco):
         Proton collisions data taking AlCa Harvesting
 
         """
-        if not 'skims' in args:
+        if not 'skims' in args and not 'alcapromptdataset' in args:
             args['skims']=['SiStripQuality']
             
         return Reco.alcaHarvesting(self, globalTag, datasetName, **args)

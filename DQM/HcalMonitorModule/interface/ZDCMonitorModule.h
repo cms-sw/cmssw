@@ -22,6 +22,8 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #include "DQM/HcalMonitorTasks/interface/HcalZDCMonitor.h"
 
 #include "FWCore/Utilities/interface/CPUTimer.h"
@@ -32,7 +34,7 @@ class  HcalZDCMonitor;
 #include <iostream>
 #include <fstream>
 
-class ZDCMonitorModule : public thread_unsafe::DQMEDAnalyzer {
+class ZDCMonitorModule : public DQMEDAnalyzer {
 
 public:
   
@@ -117,7 +119,9 @@ public:
   } psTime_;    
 
   // environment variables
-  int irun_,ievent_,itime_;
+  edm::RunNumber_t irun_;
+  edm::EventNumber_t ievent_;
+  int itime_;
   unsigned int ilumisec;
   bool Online_;
   std::string rootFolder_;

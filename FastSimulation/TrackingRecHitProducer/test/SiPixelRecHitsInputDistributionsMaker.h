@@ -9,7 +9,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -20,9 +20,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //DWM histogram services
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
+//#include "FWCore/ServiceRegistry/interface/Service.h"
 
 //Simhit stuff
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -45,23 +45,26 @@
 
 #include <string>
 
-class SiPixelRecHitsInputDistributionsMaker : public edm::EDAnalyzer {
+class SiPixelRecHitsInputDistributionsMaker : public DQMEDAnalyzer {
 
    public:
 	//Constructor
-	SiPixelRecHitsInputDistributionsMaker(const edm::ParameterSet& conf);
-
-	//Destructor
-	~SiPixelRecHitsInputDistributionsMaker();
+  
+  SiPixelRecHitsInputDistributionsMaker(const edm::ParameterSet& conf);
+  
+  //Destructor
+  ~SiPixelRecHitsInputDistributionsMaker();
 
    protected:
 
-	virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+	void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override; 
+	virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 	void beginJob();
 	void endJob();
+	void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){};
 
    private:
-	DQMStore* dbe_;
+
 	std::string outputFile_;
 
 	edm::ParameterSet conf_;

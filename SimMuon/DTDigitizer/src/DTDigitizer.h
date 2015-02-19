@@ -9,7 +9,7 @@
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
@@ -26,6 +26,7 @@
 
 
 #include <vector>
+#include <memory>
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -41,13 +42,13 @@ class DTDigiSyncBase;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class DTDigitizer : public edm::EDProducer {
+class DTDigitizer : public edm::stream::EDProducer<> {
   
  public:
 
   explicit DTDigitizer(const edm::ParameterSet&);
-  ~DTDigitizer();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
   typedef std::pair<const PSimHit*,float> hitAndT; // hit & corresponding time
@@ -112,7 +113,7 @@ class DTDigitizer : public edm::EDProducer {
   bool onlyMuHits;
 
   std::string syncName;
-  DTDigiSyncBase *theSync;
+  std::unique_ptr<DTDigiSyncBase> theSync;
 
   std::string geometryType;
 

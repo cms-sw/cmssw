@@ -161,7 +161,7 @@ void LHESource::endRun(edm::Run&)
 	runPrincipal_ = nullptr;
 }
 
-bool LHESource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&)
+bool LHESource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&)
 {
 	nextEvent();
 	if (!partonLevel) {

@@ -1020,3 +1020,148 @@ void PlotDebugFPIX_XYMap(TFile* ff, const char* module, const unsigned int ioffs
 
   }
 }
+
+void PlotTrackerXsect(TFile* ff, const char* module, const int color) {
+
+  gROOT->SetStyle("Plain");
+
+  if(ff->cd(module)) {
+
+    TProfile* averadius = (TProfile*)gDirectory->Get("averadius"); 
+    TProfile* avez = (TProfile*)gDirectory->Get("avez"); 
+
+    std::cout << "pointers " << averadius << " " << avez << std::endl;
+
+    if(averadius && avez) {
+
+      // Loop on bins and creation of boxes
+
+      TList modulesoccu;
+
+      for(int i=1;i<averadius->GetNbinsX();++i) {
+
+	if(averadius->GetBinEntries(i)*avez->GetBinEntries(i)) {
+
+	  double dz = 2.;
+	  double dr = 1.;
+	  // determine module size
+	  
+	  if(i > 100 && i < 200) { dz=3.33;dr=0.4;}  // BPIX
+
+	  if(i > 200 && i < 1000 && ( i%10 == 1 || i%10 == 7)) { dz=0.8;dr=0.4;}  // FPIX
+	  if(i > 200 && i < 1000 && !( i%10 == 1 || i%10 == 7)) { dz=0.8;dr=0.8;}
+
+	  if(i > 1000 && i < 2000) { dz=5.948;dr=0.4;}  // TIB
+
+	  if(i > 3000 && i < 4000) { dz=9.440;dr=0.4;}  // TOB
+
+	  if(i > 2000 && i < 3000  && (i%1000)/100 == 1) { dz=0.8;dr=5.647;} // TID
+	  if(i > 2000 && i < 3000  && (i%1000)/100 == 2) { dz=0.8;dr=4.512;} 
+	  if(i > 2000 && i < 3000  && (i%1000)/100 == 3) { dz=0.8;dr=5.637;} 
+
+	  if(i > 4000 && i < 6000  && (i%1000)/100 == 1) { dz=0.8;dr=4.362;} // TEC
+	  if(i > 4000 && i < 6000  && (i%1000)/100 == 2) { dz=0.8;dr=4.512;} 
+	  if(i > 4000 && i < 6000  && (i%1000)/100 == 3) { dz=0.8;dr=5.637;} 
+	  if(i > 4000 && i < 6000  && (i%1000)/100 == 4) { dz=0.8;dr=5.862;} 
+	  if(i > 4000 && i < 6000  && (i%1000)/100 == 5) { dz=0.8;dr=7.501;} 
+	  if(i > 4000 && i < 6000  && (i%1000)/100 == 6) { dz=0.8;dr=9.336;} 
+	  if(i > 4000 && i < 6000  && (i%1000)/100 == 7) { dz=0.8;dr=10.373;} 
+	
+	  {  
+	    TBox* modoccu = new TBox(avez->GetBinContent(i)-dz,averadius->GetBinContent(i)-dr,avez->GetBinContent(i)+dz,averadius->GetBinContent(i)+dr);
+	    modoccu->SetFillStyle(1001);
+	    modoccu->SetFillColor(kBlack);
+	    modulesoccu.Add(modoccu);
+	  }
+	}
+
+      }
+      // eta boundaries lines
+      double etavalext[] = {3.,2.8,2.6,2.4,2.2,2.0,1.8,1.6};
+      double etavalint[] = {-1.4,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.,0.2,0.4,0.6,0.8,1.0,1.2,1.4};
+      TList etalines;
+      TList etalabels;
+      TList paperlabels;
+      for(int i=0;i<8;++i) {
+	//	double eta = 3.0-i*0.2;
+	double eta = etavalext[i];
+	TLine* lin = new TLine(295,2*295/(exp(eta)-exp(-eta)),305,2*305/(exp(eta)-exp(-eta)));
+	etalines.Add(lin);
+	char lab[100];
+	sprintf(lab,"%3.1f",eta);
+	TText* label = new TText(285,2*285/(exp(eta)-exp(-eta)),lab);
+	label->SetTextSize(.03);
+	label->SetTextAlign(22);
+	etalabels.Add(label);
+      }
+      for(int i=0;i<8;++i) {
+	//	double eta = -3.0+i*0.2;
+	double eta = -1*etavalext[i];
+	TLine* lin = new TLine(-295,-2*295/(exp(eta)-exp(-eta)),-305,-2*305/(exp(eta)-exp(-eta)));
+	etalines.Add(lin);
+	char lab[100];
+	sprintf(lab,"%3.1f",eta);
+	TText* label = new TText(-285,-2*285/(exp(eta)-exp(-eta)),lab);
+	label->SetTextSize(.03);
+	label->SetTextAlign(22);
+	etalabels.Add(label);
+      }
+      for(int i=0;i<15;++i) {
+	//	double eta = -1.4+i*0.2;
+	double eta = etavalint[i];
+	TLine* lin = new TLine(130.*(exp(eta)-exp(-eta))/2.,130,138.*(exp(eta)-exp(-eta))/2.,138);
+	etalines.Add(lin);
+	char lab[100];
+	sprintf(lab,"%3.1f",eta);
+	TText* label = new TText(125.*(exp(eta)-exp(-eta))/2.,125,lab);
+	label->SetTextSize(.03);
+	label->SetTextAlign(22);
+	etalabels.Add(label);
+      }
+      TLatex* etalab = new  TLatex(0,115,"#eta");
+      etalab->SetTextSize(.03);
+      etalab->SetTextAlign(22);
+      etalabels.Add(etalab);
+
+      // CMS label
+      TLatex *cmslab = new TLatex(0.15,0.965,"CMS");
+      cmslab->SetNDC();
+      cmslab->SetTextSize(0.04);
+      cmslab->SetTextAlign(31);
+      paperlabels.Add(cmslab);
+      TLatex *enelab = new TLatex(0.92,0.965,"#sqrt{s} = 7 TeV");
+      enelab->SetNDC();
+      enelab->SetTextSize(0.04);
+      enelab->SetTextAlign(31);
+      paperlabels.Add(enelab);
+      /*
+      TLatex *lumilab = new TLatex(0.6,0.965,Form("L = %.1f  fb^{-1}",19.7));
+      lumilab->SetNDC();
+      lumilab->SetTextSize(0.04);
+      lumilab->SetTextAlign(31);
+      paperlabels.Add(lumilab);
+      */
+
+      TGaxis *raxis = new TGaxis(-310,0,-310,140,0,140,10,"S");
+      TGaxis *zaxis = new TGaxis(-310,0,310,0,-310,310,10,"S");
+      raxis->SetTickSize(.01);      zaxis->SetTickSize(.01);
+      raxis->SetTitle("r (cm)"); zaxis->SetTitle("z (cm)");
+
+      TCanvas* cc1 = new TCanvas("occumap","occumap",1000,500);
+      cc1->Range(-370.,-20.,390.,150.);
+      TFrame* fr1 = new TFrame(-310,0,310,140);
+      fr1->UseCurrentStyle();
+      fr1->Draw();
+      raxis->Draw(); zaxis->Draw();
+      std::cout << modulesoccu.GetSize() << std::endl;
+      etalines.Draw();
+      etalabels.Draw();
+      paperlabels.Draw();
+      modulesoccu.Draw();
+
+    }
+
+
+  }
+
+}

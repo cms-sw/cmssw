@@ -51,6 +51,7 @@ class SUSY_HLT_InclusiveHT: public DQMEDAnalyzer{
   edm::EDGetTokenT<trigger::TriggerEvent> theTrigSummary_;
 
   std::string triggerPath_;
+  std::string triggerPathAuxiliaryForHadronic_;
   edm::InputTag triggerFilter_;
   double ptThrJet_;
   double etaThrJet_;

@@ -7,15 +7,6 @@
  * to the HLT, hopefully this class can be used or upgraded to handle those
  * events as well.
  *
- * 08-Aug-2008 - KAB  - Initial Implementation
- * 06-Oct-2008 - KAB  - Added lumi block number
- *
- * Format:
- *   uint32 - run number
- *   uint32 - lumi number
- *   uint32 - event number
- *   1024 * uint32 - size values for all 1024 FED buffers
- *   variable size - FED data
  */
 
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
@@ -65,9 +56,22 @@ FRDEventMsgView::FRDEventMsgView(void* buf)
   }
 
   // event number
-  event_ = *bufPtr;
-  size_ += sizeof(uint32);
-  ++bufPtr;
+  if (version_ >= 4) {
+    uint64 eventLow =  *bufPtr;
+    size_ += sizeof(uint32);
+    ++bufPtr;
+
+    uint64 eventHigh =  *bufPtr;
+    size_ += sizeof(uint32);
+    ++bufPtr;
+
+    event_ = (eventHigh << 32) | eventLow;
+
+  } else {
+    event_ = *bufPtr;
+    size_ += sizeof(uint32);
+    ++bufPtr;
+  }
 
   if (version_ >= 3) {
       // event size

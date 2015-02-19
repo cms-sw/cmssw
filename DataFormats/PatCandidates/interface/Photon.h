@@ -296,13 +296,20 @@ namespace pat {
       /// pipe operator (introduced to use pat::Photon with PFTopProjectors)
       friend std::ostream& reco::operator<<(std::ostream& out, const pat::Photon& obj);
 
-      /// References to PFCandidates (e.g. to recompute isolation)
-      void setPackedPFCandidateCollection(const edm::RefProd<pat::PackedCandidateCollection> & refprod) ; 
       /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
       edm::RefVector<pat::PackedCandidateCollection> associatedPackedPFCandidates() const ;
       /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
-      void setAssociatedPackedPFCandidates(const edm::RefVector<pat::PackedCandidateCollection> &refvector) ;
-
+      template<typename T>
+      void setAssociatedPackedPFCandidates(const edm::RefProd<pat::PackedCandidateCollection> & refprod,
+                                           T beginIndexItr,
+                                           T endIndexItr) {
+        packedPFCandidates_ = refprod;
+        associatedPackedFCandidateIndices_.clear();
+        associatedPackedFCandidateIndices_.insert(associatedPackedFCandidateIndices_.begin(),
+                                                  beginIndexItr,
+                                                  endIndexItr);
+      }
+ 
       /// get the number of non-null PFCandidates
       size_t numberOfSourceCandidatePtrs() const { return associatedPackedFCandidateIndices_.size(); }
       /// get the source candidate pointer with index i

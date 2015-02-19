@@ -34,9 +34,12 @@ namespace l1t {
 			      const std::vector<CaloRegion> &,
 			      std::vector<EGamma> * egammas,
 			      std::vector<Tau> * taus,
+			      std::vector<Tau> * isoTaus,
 			      std::vector<Jet> * jets,
+			      std::vector<Jet> * preGtJets,
 			      std::vector<EtSum> * etsums,
-			      std::vector<CaloSpare> * calospares) = 0;
+			      CaloSpare * hfSums,
+			      CaloSpare *hfCounts) = 0;
 
     virtual ~Stage1Layer2MainProcessor(){};
   };

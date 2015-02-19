@@ -14,7 +14,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+//#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -317,6 +317,7 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
    reco::Muon::MuonTrackTypePair chosenTrack;
    reco::TrackRef tpfmsRef;
    reco::TrackRef pickyRef;
+   reco::TrackRef dytRef;
    bool useSigmaSwitch = false;
 
    if (tpfmsCollectionHandle_.isValid() && !tpfmsCollectionHandle_.failedToGet() &&
@@ -324,8 +325,9 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
 
      tpfmsRef = muon::getTevRefitTrack(links.globalTrack(), *tpfmsCollectionHandle_);
      pickyRef = muon::getTevRefitTrack(links.globalTrack(), *pickyCollectionHandle_);
+     dytRef = muon::getTevRefitTrack(links.globalTrack(), *dytCollectionHandle_);
 
-     if (tpfmsRef.isNull() && pickyRef.isNull()){
+     if (tpfmsRef.isNull() && pickyRef.isNull() && dytRef.isNull()){
        edm::LogWarning("MakeMuonWithTEV")<<"Failed to get  TEV refits, fall back to sigma switch.";
        useSigmaSwitch = true;
      }
@@ -339,7 +341,7 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
 				      ptThresholdToFillCandidateP4WithGlobalFit_);
    } else {
      chosenTrack = muon::tevOptimized( links.globalTrack(), links.trackerTrack(),
-				       tpfmsRef, pickyRef,
+				       tpfmsRef, pickyRef, dytRef,
 				       ptThresholdToFillCandidateP4WithGlobalFit_);
    }
    aMuon = makeMuon(*chosenTrack.first);
@@ -416,7 +418,7 @@ int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track)
    int numberOfCommonDetIds = 0;
    if ( ! muon.isMatchesValid() ||
 	track.extra().isNull() ||
-	track.extra()->recHits().isNull() ) return numberOfCommonDetIds;
+	track.extra()->recHitsSize()==0 ) return numberOfCommonDetIds;
    const std::vector<reco::MuonChamberMatch>& matches( muon.matches() );
    for ( std::vector<reco::MuonChamberMatch>::const_iterator match = matches.begin();
 	 match != matches.end(); ++match )
@@ -424,14 +426,14 @@ int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track)
 	if ( match->segmentMatches.empty() ) continue;
 	bool foundCommonDetId = false;
 
-	for ( TrackingRecHitRefVector::const_iterator hit = track.extra()->recHitsBegin();
+	for ( auto hit = track.extra()->recHitsBegin();
 	      hit != track.extra()->recHitsEnd(); ++hit )
 	  {
 	     // LogTrace("MuonIdentification") << "hit DetId: " << std::hex << hit->get()->geographicalId().rawId() <<
 	     //  "\t hit chamber DetId: " << getChamberId(hit->get()->geographicalId()) <<
 	     //  "\t segment DetId: " << match->id.rawId() << std::dec;
 
-	     if ( chamberId(hit->get()->geographicalId()) == match->id.rawId() ) {
+	     if ( chamberId((*hit)->geographicalId()) == match->id.rawId() ) {
 		foundCommonDetId = true;
 		break;
 	     }

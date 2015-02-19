@@ -461,10 +461,8 @@ PFMuonAlgo::isIsolatedMuon( const reco::MuonRef& muonRef ){
     }
      
   double sumPtR03 = muonRef->isolationR03().sumPt;
-  double emEtR03 = muonRef->isolationR03().emEt;
-  double hadEtR03 = muonRef->isolationR03().hadEt;
   
-  double relIso = (sumPtR03 + emEtR03 + hadEtR03)/smallestMuPt;
+  double relIso = sumPtR03/smallestMuPt;
 
   if(relIso<0.1) return true;
   else return false;
@@ -643,27 +641,43 @@ std::vector<reco::Muon::MuonTrackTypePair> PFMuonAlgo::muonTracks(const reco::Mu
   std::vector<reco::Muon::MuonTrackTypePair> out;
 
   
-  if(muon->globalTrack().isNonnull()) 
+  if(muon->globalTrack().isNonnull() && muon->globalTrack()->pt()>0) 
     if(muon->globalTrack()->ptError()/muon->globalTrack()->pt()<dpt)
       out.push_back(std::make_pair(muon->globalTrack(),reco::Muon::CombinedTrack));
 
-  if(muon->innerTrack().isNonnull()) 
+  if(muon->innerTrack().isNonnull() && muon->innerTrack()->pt()>0) 
     if(muon->innerTrack()->ptError()/muon->innerTrack()->pt()<dpt)//Here Loose!@
       out.push_back(std::make_pair(muon->innerTrack(),reco::Muon::InnerTrack));
 
   bool pickyExists=false; 
-  if(muon->pickyTrack().isNonnull()) {
-    if(muon->pickyTrack()->ptError()/muon->pickyTrack()->pt()<dpt) 
+  double pickyDpt=99999.; 
+  if(muon->pickyTrack().isNonnull() && muon->pickyTrack()->pt()>0) {
+    pickyDpt = muon->pickyTrack()->ptError()/muon->pickyTrack()->pt(); 
+    if(pickyDpt<dpt) 
       out.push_back(std::make_pair(muon->pickyTrack(),reco::Muon::Picky));
     pickyExists=true;
+  }
+
+  bool dytExists=false; 
+  double dytDpt=99999.; 
+  if(muon->dytTrack().isNonnull() && muon->dytTrack()->pt()>0) {
+    dytDpt = muon->dytTrack()->ptError()/muon->dytTrack()->pt(); 
+    if(dytDpt<dpt) 
+      out.push_back(std::make_pair(muon->dytTrack(),reco::Muon::DYT));
+    dytExists=true;
   }
 
   //Magic: TPFMS is not a really good track especially under misalignment
   //IT is kind of crap because if mu system is displaced it can make a change
   //So allow TPFMS if there is no picky or the error of tpfms is better than picky
-  if(muon->tpfmsTrack().isNonnull() && ((pickyExists && muon->tpfmsTrack()->ptError()/muon->tpfmsTrack()->pt()<muon->pickyTrack()->ptError()/muon->pickyTrack()->pt())||(!pickyExists)) ) 
-    if(muon->tpfmsTrack()->ptError()/muon->tpfmsTrack()->pt()<dpt)
+  //AND if there is no DYT or the error of tpfms is better than DYT
+  if(muon->tpfmsTrack().isNonnull() && muon->tpfmsTrack()->pt()>0) { 
+    double tpfmsDpt = muon->tpfmsTrack()->ptError()/muon->tpfmsTrack()->pt(); 
+    if( ( (pickyExists && tpfmsDpt<pickyDpt) || (!pickyExists) ) && 
+	( (dytExists   && tpfmsDpt<dytDpt)   || (!dytExists)   ) && 
+	tpfmsDpt<dpt )
       out.push_back(std::make_pair(muon->tpfmsTrack(),reco::Muon::TPFMS));
+  }
 
   if(includeSA && muon->outerTrack().isNonnull())
     if(muon->outerTrack()->ptError()/muon->outerTrack()->pt()<dpt)
@@ -759,7 +773,7 @@ void  PFMuonAlgo::changeTrack(reco::PFCandidate& candidate,const MuonTrackTypePa
     double px = bestTrack->px();
     double py = bestTrack->py();
     double pz = bestTrack->pz();
-    double energy = sqrt(bestTrack->p()*bestTrack->p() + 0.13957*0.13957);
+    double energy = sqrt(bestTrack->p()*bestTrack->p() + 0.1057*0.1057);
 
     candidate.setCharge(bestTrack->charge()>0 ? 1 : -1);
     candidate.setP4(math::XYZTLorentzVector(px,py,pz,energy));
@@ -774,6 +788,8 @@ void  PFMuonAlgo::changeTrack(reco::PFCandidate& candidate,const MuonTrackTypePa
       candidate.setVertexSource( PFCandidate::kTPFMSMuonVertex );
     else if(trackType == reco::Muon::Picky)
       candidate.setVertexSource( PFCandidate::kPickyMuonVertex );
+    else if(trackType == reco::Muon::DYT)
+      candidate.setVertexSource( PFCandidate::kDYTMuonVertex );
   }
 
 
@@ -789,56 +805,19 @@ PFMuonAlgo::getTrackWithSmallestError(const std::vector<reco::Muon::MuonTrackTyp
 
 void PFMuonAlgo::estimateEventQuantities(const reco::PFCandidateCollection* pfc)
 {
-  //SUM ET from PU
+  //SUM ET 
   sumetPU_ = 0.0;
   METX_=0.;
   METY_=0.;
-  for (unsigned short i=1 ;i<vertices_->size();++i ) {
-    if ( !vertices_->at(i).isValid() || vertices_->at(i).isFake() ) continue; 
-    vertices_->at(i);
-    for ( reco::Vertex::trackRef_iterator itr = vertices_->at(i).tracks_begin();
-	  itr <  vertices_->at(i).tracks_end(); ++itr ) { 
-      sumetPU_ += (*itr)->pt();
-    }
-  }
-  sumetPU_ /= 0.65;
-  //SUM ET and MET
   sumet_=0.0;
-  double METXCh=0.0;
-  double METYCh=0.0;
-  double METXNeut=0.0;
-  double METYNeut=0.0;
-
-
   for(reco::PFCandidateCollection::const_iterator i = pfc->begin();i!=pfc->end();++i) {
     sumet_+=i->pt();
-
-    if (vertices_->size()>0 && vertices_->at(0).isValid()&& !vertices_->at(0).isFake()) {
-      //If charged and from PV or muon
-      if( (i->charge() !=0 && i->trackRef().isNonnull() && vertices_->size()>0&& i->trackRef()->dz(vertices_->at(0).position())<dzPV_)||(abs(i->pdgId())==13)) {
-	METXCh+=i->px();
-	METYCh+=i->py();
-      }
-      //If charged and not from PV(assume there is a neutral balancing it)
-      else if( i->charge() !=0 && i->trackRef().isNonnull() && i->trackRef()->dz(vertices_->at(0).position())>dzPV_) {
-	METXNeut-=i->px();
-	METYNeut-=i->py();
-      }
-      //Neutral
-      else if( !(i->charge() !=0 && i->trackRef().isNonnull())) {
-	METXNeut+=i->px();
-	METYNeut+=i->py();
-      }
-    } //else if we dont have a vertex make standard PFMET
-    else {
-	METXCh+=i->px();
-	METYCh+=i->py();
-    }
-    METX_ = (METXCh+METXNeut);
-    METY_ = (METYCh+METYNeut);
+    METX_+=i->px();
+    METY_+=i->py();
   }
 
 }
+
 
 
 
@@ -891,10 +870,19 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection*  cands) {
   std::vector<int> muons;
   std::vector<int> cosmics;
   //get the muons
-  for(unsigned int i=0;i<cands->size();++i) 
-    if ( cands->at(i).particleId() == reco::PFCandidate::mu )
+  for(unsigned int i=0;i<cands->size();++i)  {
+    const reco::PFCandidate& cand = (*cands)[i];
+    if ( cand.particleId() == reco::PFCandidate::mu )
       muons.push_back(i);
-
+    else if ( cand.particleId() == reco::PFCandidate::h && cand.muonRef().isNonnull()) {
+    //MET cleaning for muons that are not high purity and became charged hadrons 
+      if (cand.pt()>100.0 &&  (!cand.trackRef()->quality(trackQuality_)) && cand.muonRef()->isGlobalMuon() && cand.rawHcalEnergy()<0.05*cand.p()) {
+      maskedIndices_.push_back(i);
+      pfPunchThroughMuonCleanedCandidates_->push_back(cand);
+      }
+    }
+      
+  }
   //Then sort the muon indicess by decsending pt
 
   IndexPtComparator comparator(cands);
@@ -922,13 +910,13 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection*  cands) {
   double MET2Cosmics = METXCosmics*METXCosmics+METYCosmics*METYCosmics;
 
   if ( SUMETCosmics > (sumet_-sumetPU_)/eventFactorCosmics_ && MET2Cosmics < METX_*METX_+ METY_*METY_)
-    for(unsigned int i=0;i<cosmics.size();++i)
-      pfCosmicsMuonCleanedCandidates_->push_back(cands->at(muons[i]));
-
+    for(unsigned int i=0;i<cosmics.size();++i) {
+      maskedIndices_.push_back(cosmics[i]);
+      pfCosmicsMuonCleanedCandidates_->push_back(cands->at(cosmics[i]));
+    }
 
   //Loop on the muons candidates and clean
-  for(unsigned int i=0;i<muons.size();++i) {
-    
+  for(unsigned int i=0;i<muons.size();++i) {  
     if( cleanMismeasured(cands->at(muons[i]),muons[i]))
       continue;
     cleanPunchThroughAndFakes(cands->at(muons[i]),cands,muons[i]);
@@ -1203,10 +1191,8 @@ bool PFMuonAlgo::cleanPunchThroughAndFakes(reco::PFCandidate&pfc,reco::PFCandida
     if ( eleInBlocks.size() ) { 
       PFBlockRef blockRefMuon = eleInBlocks[0].first;
       unsigned indexMuon = eleInBlocks[0].second;
-      for ( unsigned iele = 1; iele < eleInBlocks.size(); ++iele ) { 
-	indexMuon = eleInBlocks[iele].second;
-	break;
-      }
+      if (eleInBlocks.size()>1)
+	indexMuon = eleInBlocks[1].second;
 	  
       // Check if the muon gave rise to a neutral hadron
       double iHad = 1E9;

@@ -15,7 +15,7 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 #process.load("Configuration.GlobalRuns.ReconstructionGR_cff")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("L1Trigger.Configuration.L1Config_cff")
 
@@ -23,8 +23,6 @@ process.load("L1Trigger.Configuration.L1Config_cff")
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-#process.load("DQMOffline.Trigger.FourVectorHLTOffline_cfi")
-#process.load("DQMOffline.Trigger.FourVectorHLTOfflineClient_cfi")
 #process.load("DQMOffline.Trigger.HLTEventInfoClient_cfi")
 process.load("DQMOffline.Trigger.HLT_DQM_Offline_cff")
 #process.load("DQMOffline.Trigger.L1TMonitor_dqmoffline_cff")
@@ -32,7 +30,6 @@ process.load("DQMOffline.Trigger.HLT_DQM_Offline_cff")
 #process.load("DQMOffline.Trigger.EgammaHLTOffline_cfi")
 #process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
-#from DQMOffline.Trigger.FourVectorHLTOffline_cfi import *
 #process.hltmonitor = cms.Sequence(hltResults)
 #hltResults.triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT")
 #hltResults.triggerResultsLabel = cms.InputTag("TriggerResults","","HLT")
@@ -40,11 +37,6 @@ process.load("DQMOffline.Trigger.HLT_DQM_Offline_cff")
 #from DQMOffline.Trigger.HLTEventInfoClient_cfi import *
 #process.hltEInfoclient = cms.Sequence(hltEventInfoClient)
 #
-#from DQMOffline.Trigger.FourVectorHLTOfflineClient_cfi import *
-#process.hltclient = cms.Sequence(hltFourVectorClient)
-##hltFourVectorClient.prescaleLS = cms.untracked.int32(-1)
-##hltFourVectorClient.monitorDir = cms.untracked.string('')
-##hltFourVectorClient.prescaleEvt = cms.untracked.int32(1)
 
 
 

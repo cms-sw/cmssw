@@ -124,14 +124,9 @@ EwkElecDQM::EwkElecDQM(const ParameterSet& cfg)
       //       caloJetCollection_(cfg.getUntrackedParameter<edm:InputTag>("CaloJetCollection","sisCone5CaloJets"))
 {
   isValidHltConfig_ = false;
-
-  // access to dbe
-  theDbe = Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("Physics/EwkElecDQM");
-  init_histograms();
 }
 
-void EwkElecDQM::beginRun(const Run& iRun, const EventSetup& iSet) {
+void EwkElecDQM::dqmBeginRun(const Run& iRun, const EventSetup& iSet) {
   nall = 0;
   nsel = 0;
 
@@ -151,244 +146,125 @@ void EwkElecDQM::beginRun(const Run& iRun, const EventSetup& iSet) {
   LogTrace("") << "isValidHltConfig_=" << isValidHltConfig_ << "\n";
 }
 
-void EwkElecDQM::beginJob() {}
+void EwkElecDQM::bookHistograms(DQMStore::IBooker & ibooker,
+  edm::Run const &, edm::EventSetup const &) {
 
-void EwkElecDQM::init_histograms() {
+  ibooker.setCurrentFolder("Physics/EwkElecDQM");
 
   char chtitle[256] = "";
-  //             pt_before_ = theDbe->book1D("PT_BEFORECUTS","Muon transverse
-  // momentum (global muon) [GeV],100,0.,100.);
-  //             pt_after_ = theDbe->book1D("PT_LASTCUT","Muon transverse
-  // momentum (global muon) [GeV],100,0.,100.);
 
-  pt_before_ = theDbe->book1D(
-      "PT_BEFORECUTS", "Electron transverse momentum [GeV]", 100, 0., 100.);
-  pt_after_ = theDbe->book1D("PT_LASTCUT", "Electron transverse momentum [GeV]",
-                             100, 0., 100.);
+  pt_before_ = ibooker.book1D("PT_BEFORECUTS",
+      "Electron transverse momentum [GeV]", 100, 0., 100.);
+  pt_after_ = ibooker.book1D("PT_LASTCUT",
+    "Electron transverse momentum [GeV]", 100, 0., 100.);
 
-  eta_before_ = theDbe->book1D("ETA_BEFORECUTS", "Electron pseudo-rapidity", 50,
-                               -2.5, 2.5);
-  eta_after_ =
-      theDbe->book1D("ETA_LASTCUT", "Electron pseudo-rapidity", 50, -2.5, 2.5);
+  eta_before_ = ibooker.book1D("ETA_BEFORECUTS",
+    "Electron pseudo-rapidity", 50, -2.5, 2.5);
+  eta_after_ = ibooker.book1D("ETA_LASTCUT",
+    "Electron pseudo-rapidity", 50, -2.5, 2.5);
 
-  sieiebarrel_before_ =
-      theDbe->book1D("SIEIEBARREL_BEFORECUTS",
-                     "Electron #sigma_{i#etai#eta} (barrel)", 70, 0., 0.07);
-  sieiebarrel_after_ =
-      theDbe->book1D("SIEIEBARREL_LASTCUT",
-                     "Electron #sigma_{i#etai#eta} (barrel)", 70, 0., 0.07);
+  sieiebarrel_before_ = ibooker.book1D("SIEIEBARREL_BEFORECUTS",
+      "Electron #sigma_{i#etai#eta} (barrel)", 70, 0., 0.07);
+  sieiebarrel_after_ = ibooker.book1D("SIEIEBARREL_LASTCUT",
+      "Electron #sigma_{i#etai#eta} (barrel)", 70, 0., 0.07);
 
-  sieieendcap_before_ =
-      theDbe->book1D("SIEIEENDCAP_BEFORECUTS",
-                     "Electron #sigma_{i#etai#eta} (endcap)", 70, 0., 0.07);
-  sieieendcap_after_ =
-      theDbe->book1D("SIEIEENDCAP_LASTCUT",
-                     "Electron #sigma_{i#etai#eta} (endcap)", 70, 0., 0.07);
+  sieieendcap_before_ = ibooker.book1D("SIEIEENDCAP_BEFORECUTS",
+      "Electron #sigma_{i#etai#eta} (endcap)", 70, 0., 0.07);
+  sieieendcap_after_ = ibooker.book1D("SIEIEENDCAP_LASTCUT",
+      "Electron #sigma_{i#etai#eta} (endcap)", 70, 0., 0.07);
 
-  detainbarrel_before_ =
-      theDbe->book1D("DETAINBARREL_BEFORECUTS",
-                     "Electron #Delta#eta_{in} (barrel)", 40, -0.02, 0.02);
-  detainbarrel_after_ =
-      theDbe->book1D("DETAINBARREL_LASTCUT",
-                     "Electron #Delta#eta_{in} (barrel)", 40, -0.02, 0.02);
+  detainbarrel_before_ = ibooker.book1D("DETAINBARREL_BEFORECUTS",
+      "Electron #Delta#eta_{in} (barrel)", 40, -0.02, 0.02);
+  detainbarrel_after_ = ibooker.book1D("DETAINBARREL_LASTCUT",
+      "Electron #Delta#eta_{in} (barrel)", 40, -0.02, 0.02);
 
-  detainendcap_before_ =
-      theDbe->book1D("DETAINENDCAP_BEFORECUTS",
-                     "Electron #Delta#eta_{in} (endcap)", 40, -0.02, 0.02);
-  detainendcap_after_ =
-      theDbe->book1D("DETAINENDCAP_LASTCUT",
-                     "Electron #Delta#eta_{in} (endcap)", 40, -0.02, 0.02);
+  detainendcap_before_ = ibooker.book1D("DETAINENDCAP_BEFORECUTS",
+      "Electron #Delta#eta_{in} (endcap)", 40, -0.02, 0.02);
+  detainendcap_after_ = ibooker.book1D("DETAINENDCAP_LASTCUT",
+      "Electron #Delta#eta_{in} (endcap)", 40, -0.02, 0.02);
 
-  //             dxy_before_ = theDbe->book1D("DXY_BEFORECUTS","Muon transverse
-  // distance to beam spot [cm]",100,-0.5,0.5);
-  //             dxy_after_ = theDbe->book1D("DXY_LASTCUT","Muon transverse
-  // distance to beam spot [cm]",100,-0.5,0.5);
-
-  //             chi2_before_ = theDbe->book1D("CHI2_BEFORECUTS","Normalized
-  // Chi2, inner track fit",100,0.,100.);
-  //             chi2_after_ = theDbe->book1D("CHI2_LASTCUT","Normalized Chi2,
-  // inner track fit",100,0.,100.);
-
-  //             nhits_before_ = theDbe->book1D("NHITS_BEFORECUTS","Number of
-  // hits, inner track",40,-0.5,39.5);
-  //             nhits_after_ = theDbe->book1D("NHITS_LASTCUT","Number of hits,
-  // inner track",40,-0.5,39.5);
-
-  //             tkmu_before_ = theDbe->book1D("TKMU_BEFORECUTS","Tracker-muon
-  // flag (for global muons)",2,-0.5,1.5);
-  //             tkmu_after_ = theDbe->book1D("TKMU_LASTCUT","Tracker-muon flag
-  // (for global muons)",2,-0.5,1.5);
-
-  //             if (isRelativeIso_) {
-  //               if (isCombinedIso_) {
-  //                 snprintf(chtitle, 255, "Relative (combined) isolation
-  // variable");
-  //                 iso_before_ = theDbe->book1D("ISO_BEFORECUTS","Relative
-  // (combined) isolation variable",100, 0., 1.);
-  //                 iso_after_ = theDbe->book1D("ISO_LASTCUT","Relative
-  // (combined) isolation variable",100, 0., 1.);
-  //               } else {
-  //                 snprintf(chtitle, 255, "Relative (tracker) isolation
-  // variable");
-  //                 iso_before_ = theDbe->book1D("ISO_BEFORECUTS","Relative
-  // (tracker) isolation variable",100, 0., 1.);
-  //                 iso_after_ = theDbe->book1D("ISO_LASTCUT","Relative
-  // (tracker) isolation variable",100, 0., 1.);
-  //               }
-  //             } else {
-  //               if (isCombinedIso_) {
-  //                 iso_before_ = theDbe->book1D("ISO_BEFORECUTS","Absolute
-  // (combined) isolation variable [GeV]",100, 0., 20.);
-  //                 iso_after_ = theDbe->book1D("ISO_LASTCUT","Absolute
-  // (combined) isolation variable [GeV]",100, 0., 20.);
-  //               } else {
-  //                 iso_before_ = theDbe->book1D("ISO_BEFORECUTS","Absolute
-  // (tracker) isolation variable [GeV]",100, 0., 20.);
-  //                 iso_after_ = theDbe->book1D("ISO_LASTCUT","Absolute
-  // (tracker) isolation variable [GeV]",100, 0., 20.);
-  //               }
-  //             }
-
-  ecalisobarrel_before_ = theDbe->book1D(
-      "ECALISOBARREL_BEFORECUTS",
+  ecalisobarrel_before_ = ibooker.book1D("ECALISOBARREL_BEFORECUTS",
       "Absolute electron ECAL isolation variable (barrel) [GeV]", 50, 0., 50.);
-  ecalisobarrel_after_ = theDbe->book1D(
-      "ECALISOBARREL_LASTCUT",
+  ecalisobarrel_after_ = ibooker.book1D("ECALISOBARREL_LASTCUT",
       "Absolute electron ECAL isolation variable (barrel) [GeV]", 50, 0., 50.);
 
-  ecalisoendcap_before_ = theDbe->book1D(
-      "ECALISOENDCAP_BEFORECUTS",
+  ecalisoendcap_before_ = ibooker.book1D("ECALISOENDCAP_BEFORECUTS",
       "Absolute electron ECAL isolation variable (endcap) [GeV]", 50, 0., 50.);
-  ecalisoendcap_after_ = theDbe->book1D(
-      "ECALISOENDCAP_LASTCUT",
+  ecalisoendcap_after_ = ibooker.book1D("ECALISOENDCAP_LASTCUT",
       "Absolute electron ECAL isolation variable (endcap) [GeV]", 50, 0., 50.);
 
-  hcalisobarrel_before_ = theDbe->book1D(
-      "HCALISOBARREL_BEFORECUTS",
+  hcalisobarrel_before_ = ibooker.book1D("HCALISOBARREL_BEFORECUTS",
       "Absolute electron HCAL isolation variable (barrel) [GeV]", 50, 0., 50.);
-  hcalisobarrel_after_ = theDbe->book1D(
-      "HCALISOBARREL_LASTCUT",
+  hcalisobarrel_after_ = ibooker.book1D("HCALISOBARREL_LASTCUT",
       "Absolute electron HCAL isolation variable (barrel) [GeV]", 50, 0., 50.);
 
-  hcalisoendcap_before_ = theDbe->book1D(
-      "HCALISOENDCAP_BEFORECUTS",
+  hcalisoendcap_before_ = ibooker.book1D("HCALISOENDCAP_BEFORECUTS",
       "Absolute electron HCAL isolation variable (endcap) [GeV]", 50, 0., 50.);
-  hcalisoendcap_after_ = theDbe->book1D(
-      "HCALISOENDCAP_LASTCUT",
+  hcalisoendcap_after_ = ibooker.book1D("HCALISOENDCAP_LASTCUT",
       "Absolute electron HCAL isolation variable (endcap) [GeV]", 50, 0., 50.);
 
-  trkisobarrel_before_ = theDbe->book1D(
-      "TRKISOBARREL_BEFORECUTS",
+  trkisobarrel_before_ = ibooker.book1D("TRKISOBARREL_BEFORECUTS",
       "Absolute electron track isolation variable (barrel) [GeV]", 50, 0., 50.);
-  trkisobarrel_after_ = theDbe->book1D(
-      "TRKISOBARREL_LASTCUT",
+  trkisobarrel_after_ = ibooker.book1D("TRKISOBARREL_LASTCUT",
       "Absolute electron track isolation variable (barrel) [GeV]", 50, 0., 50.);
 
-  trkisoendcap_before_ = theDbe->book1D(
-      "TRKISOENDCAP_BEFORECUTS",
+  trkisoendcap_before_ = ibooker.book1D("TRKISOENDCAP_BEFORECUTS",
       "Absolute electron track isolation variable (endcap) [GeV]", 50, 0., 50.);
-  trkisoendcap_after_ = theDbe->book1D(
-      "TRKISOENDCAP_LASTCUT",
+  trkisoendcap_after_ = ibooker.book1D("TRKISOENDCAP_LASTCUT",
       "Absolute electron track isolation variable (endcap) [GeV]", 50, 0., 50.);
 
-  //             snprintf(chtitle, 255, "Trigger response (bit %s)",
-  // muonTrig_.data());
-  //             trig_before_ =
-  // theDbe->book1D("TRIG_BEFORECUTS",chtitle,2,-0.5,1.5);
-  //             trig_after_ =
-  // theDbe->book1D("TRIG_LASTCUT",chtitle,2,-0.5,1.5);
+  trig_before_ = ibooker.book1D("TRIG_BEFORECUTS", "Trigger response", 2, -0.5,
+      1.5);  // elecTrig_ is now a vector of strings!
+  trig_after_ = ibooker.book1D("TRIG_LASTCUT", "Trigger response", 2, -0.5, 1.5);
 
-  // snprintf(chtitle, 255, "Trigger response (bit %s)", elecTrig_.data());
-  trig_before_ = theDbe->book1D("TRIG_BEFORECUTS", "Trigger response", 2, -0.5,
-                                1.5);  // elecTrig_ is now a vector of strings!
-  trig_after_ =
-      theDbe->book1D("TRIG_LASTCUT", "Trigger response", 2, -0.5, 1.5);
+  invmass_before_ = ibooker.book1D("INVMASS_BEFORECUTS",
+      "Di-electron invariant mass [GeV]", 100, 0., 200.);
+  invmass_after_ = ibooker.book1D("INVMASS_AFTERCUTS",
+      "Di-electron invariant mass [GeV]", 100, 0., 200.);
 
-  invmass_before_ = theDbe->book1D(
-      "INVMASS_BEFORECUTS", "Di-electron invariant mass [GeV]", 100, 0., 200.);
-  invmass_after_ = theDbe->book1D(
-      "INVMASS_AFTERCUTS", "Di-electron invariant mass [GeV]", 100, 0., 200.);
-
-  invmassPU_before_ = theDbe->book2D(
-      "INVMASS_PU_BEFORECUTS",
+  invmassPU_before_ = ibooker.book2D("INVMASS_PU_BEFORECUTS",
       "Di-electron invariant mass [GeV] vs PU; mass [GeV]; PU count", 100, 0.,
       200., PUBinCount_, -0.5, PUMax_ + 0.5);
-  invmassPU_afterZ_ = theDbe->book2D(
-      "INVMASS_PU_AFTERZCUTS",
+  invmassPU_afterZ_ = ibooker.book2D("INVMASS_PU_AFTERZCUTS",
       "Di-electron invariant mass [GeV] vs PU; mass [GeV]; PU count", 100, 0.,
       200., PUBinCount_, -0.5, PUMax_ + 0.5);
 
-  npvs_before_ = theDbe->book1D("NPVs_BEFORECUTS",
-                                "Number of Valid Primary Vertices; nGoodPVs",
-                                PUMax_ + 1, -0.5, PUMax_ + 0.5);
-  // npvs_afterW_ = theDbe->book1D("NPVs_AFTERWCUTS","Number of Valid Primary
-  // Vertices",PUMax_+1,-0.5,PUMax_+0.5);
-  npvs_afterZ_ = theDbe->book1D("NPVs_AFTERZCUTS",
-                                "Number of Valid Primary Vertices; nGoodPVs",
-                                PUMax_ + 1, -0.5, PUMax_ + 0.5);
+  npvs_before_ = ibooker.book1D("NPVs_BEFORECUTS",
+      "Number of Valid Primary Vertices; nGoodPVs", PUMax_ + 1, -0.5, PUMax_ + 0.5);
 
-  nelectrons_before_ = theDbe->book1D(
-      "NELECTRONS_BEFORECUTS", "Number of electrons in event", 10, -0.5, 9.5);
-  nelectrons_after_ = theDbe->book1D(
-      "NELECTRONS_AFTERCUTS", "Number of electrons in event", 10, -0.5, 9.5);
+  npvs_afterZ_ = ibooker.book1D("NPVs_AFTERZCUTS",
+      "Number of Valid Primary Vertices; nGoodPVs", PUMax_ + 1, -0.5, PUMax_ + 0.5);
+
+  nelectrons_before_ = ibooker.book1D("NELECTRONS_BEFORECUTS",
+      "Number of electrons in event", 10, -0.5, 9.5);
+  nelectrons_after_ = ibooker.book1D("NELECTRONS_AFTERCUTS",
+      "Number of electrons in event", 10, -0.5, 9.5);
 
   snprintf(chtitle, 255, "Transverse mass (%s) [GeV]", metTag_.label().data());
-  mt_before_ = theDbe->book1D("MT_BEFORECUTS", chtitle, 150, 0., 300.);
-  mt_after_ = theDbe->book1D("MT_LASTCUT", chtitle, 150, 0., 300.);
+  mt_before_ = ibooker.book1D("MT_BEFORECUTS", chtitle, 150, 0., 300.);
+  mt_after_ = ibooker.book1D("MT_LASTCUT", chtitle, 150, 0., 300.);
 
-  //             snprintf(chtitle, 255, "Transverse mass (%s) [GeV]",
-  // metTag_.label().data());
-  //             mt_before_ =
-  // theDbe->book1D("MT_BEFORECUTS",chtitle,150,0.,300.);
-  //             mt_after_ = theDbe->book1D("MT_LASTCUT",chtitle,150,0.,300.);
 
   snprintf(chtitle, 255, "Missing transverse energy (%s) [GeV]",
-           metTag_.label().data());
-  met_before_ = theDbe->book1D("MET_BEFORECUTS", chtitle, 100, 0., 200.);
-  met_after_ = theDbe->book1D("MET_LASTCUT", chtitle, 100, 0., 200.);
-
-  //             snprintf(chtitle, 255, "MU-MET (%s) acoplanarity",
-  // metTag_.label().data());
-  //             acop_before_ =
-  // theDbe->book1D("ACOP_BEFORECUTS",chtitle,50,0.,M_PI);
-  //             acop_after_ =
-  // theDbe->book1D("ACOP_LASTCUT",chtitle,50,0.,M_PI);
-
-  //             snprintf(chtitle, 255, "Z rejection: number of muons above %.2f
-  // GeV", ptThrForZ1_);
-  //             nz1_before_ =
-  // theDbe->book1D("NZ1_BEFORECUTS",chtitle,10,-0.5,9.5);
-  //             nz1_after_ = theDbe->book1D("NZ1_LASTCUT",chtitle,10,-0.5,9.5);
-
-  //             snprintf(chtitle, 255, "Z rejection: number of muons above %.2f
-  // GeV", ptThrForZ2_);
-  //             nz2_before_ =
-  // theDbe->book1D("NZ2_BEFORECUTS",chtitle,10,-0.5,9.5);
-  //             nz2_after_ = theDbe->book1D("NZ2_LASTCUT",chtitle,10,-0.5,9.5);
+      metTag_.label().data());
+  met_before_ = ibooker.book1D("MET_BEFORECUTS", chtitle, 100, 0., 200.);
+  met_after_ = ibooker.book1D("MET_LASTCUT", chtitle, 100, 0., 200.);
 
   snprintf(chtitle, 255, "Number of jets (%s) above %.2f GeV",
-           jetTag_.label().data(), eJetMin_);
-  njets_before_ = theDbe->book1D("NJETS_BEFORECUTS", chtitle, 10, -0.5, 9.5);
-  njets_after_ = theDbe->book1D("NJETS_LASTCUT", chtitle, 10, -0.5, 9.5);
+      jetTag_.label().data(), eJetMin_);
+  njets_before_ = ibooker.book1D("NJETS_BEFORECUTS", chtitle, 10, -0.5, 9.5);
+  njets_after_ = ibooker.book1D("NJETS_LASTCUT", chtitle, 10, -0.5, 9.5);
 
   snprintf(chtitle, 255, "Jet with highest E_{T} (%s)", jetTag_.label().data());
-  jet_et_before_ = theDbe->book1D("JETET1_BEFORECUTS", chtitle, 20, 0., 200.0);
-  jet_et_after_ = theDbe->book1D("JETET1_AFTERCUTS", chtitle, 20, 0., 200.0);
+  jet_et_before_ = ibooker.book1D("JETET1_BEFORECUTS", chtitle, 20, 0., 200.0);
+  jet_et_after_ = ibooker.book1D("JETET1_AFTERCUTS", chtitle, 20, 0., 200.0);
 
   snprintf(chtitle, 255, "Eta of Jet with highest E_{T} (%s)",
-           jetTag_.label().data());
-  jet_eta_before_ = theDbe->book1D("JETETA1_BEFORECUTS", chtitle, 20, -5, 5);
-  jet_eta_after_ = theDbe->book1D("JETETA1_AFTERCUTS", chtitle, 20, -5, 5);
+      jetTag_.label().data());
+  jet_eta_before_ = ibooker.book1D("JETETA1_BEFORECUTS", chtitle, 20, -5, 5);
+  jet_eta_after_ = ibooker.book1D("JETETA1_AFTERCUTS", chtitle, 20, -5, 5);
 
-  // 	     snprintf(chtitle, 255, "Jet with 2nd highest E_{T} (%s)",
-  // jetTag_.label().data());
-  // 	     jet2_et_before      = theDbe->book1D("JETET2_BEFORECUTS",chtitle,
-  // 20, 0., 200.0);
-  // 	     jet2_et_after       = theDbe->book1D("JETET2_AFTERCUTS",chtitle,
-  // 20, 0., 200.0);
 }
-
-void EwkElecDQM::endJob() {}
 
 void EwkElecDQM::endRun(const Run& r, const EventSetup&) {
 

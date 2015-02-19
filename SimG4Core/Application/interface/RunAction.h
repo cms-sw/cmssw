@@ -11,6 +11,7 @@
 class SimRunInterface;
 class BeginOfRun;
 class EndOfRun;
+class G4Timer;
 
 class RunAction: public G4UserRunAction
 {
@@ -21,9 +22,11 @@ public:
     
     SimActivityRegistry::BeginOfRunSignal m_beginOfRunSignal;
     SimActivityRegistry::EndOfRunSignal m_endOfRunSignal; 
+
 private:
     SimRunInterface* m_runInterface;
     std::string m_stopFile;
+    G4Timer* m_timer;
 };
 
 #endif

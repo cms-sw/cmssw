@@ -87,6 +87,8 @@ BeamHaloProducer::BeamHaloProducer( const ParameterSet & pset) :
   produces<GenEventInfoProduct>();
   produces<GenRunInfoProduct, InRun>();
 
+  usesResource("BeamHaloProducer");
+
   cout << "BeamHaloProducer: starting event generation ... " << endl;
 }
 

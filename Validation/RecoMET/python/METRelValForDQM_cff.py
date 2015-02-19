@@ -14,10 +14,18 @@ from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT0pc,pfMetT0pcT1,pf
 from JetMETCorrections.Type1MET.correctionTermsPfMetType0PFCandidate_cff import *
 from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
 
+from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFL1FastL2L3CorrectorChain,ak4PFL1FastL2L3Corrector,ak4PFL3AbsoluteCorrector,ak4PFL2RelativeCorrector,ak4PFL1FastjetCorrector
 
-from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL1FastL2L3,ak4PFL1Fastjet,ak4PFL2Relative,ak4PFL3Absolute
-newAK4PFL1FastL2L3 = ak4PFL1FastL2L3.clone()
-corrPfMetType1.jetCorrLabel = cms.string('newAK4PFL1FastL2L3')
+newAK4PFL1FastL2L3Corrector = ak4PFL1FastL2L3Corrector.clone()
+newAK4PFL1FastL2L3CorrectorChain = cms.Sequence(
+    #ak4PFL1FastjetCorrector * ak4PFL2RelativeCorrector * ak4PFL3AbsoluteCorrector * 
+    newAK4PFL1FastL2L3Corrector
+    )
+
+metPreValidSeq=cms.Sequence(ak4PFL1FastjetCorrector * ak4PFL2RelativeCorrector * ak4PFL3AbsoluteCorrector)
+
+
+corrPfMetType1.jetCorrLabel = cms.InputTag('newAK4PFL1FastL2L3Corrector')
 
 METRelValSequence = cms.Sequence(
     metAnalyzer*
@@ -34,7 +42,8 @@ METRelValSequence = cms.Sequence(
     genMetTrueAnalyzer*
     #genMetCaloAnalyzer*
     #genMetCaloAndNonPromptAnalyzer
-    correctionTermsPfMetType0PFCandidate*
+    correctionTermsPfMetType0PFCandidateForValidation*
+    newAK4PFL1FastL2L3CorrectorChain*
     corrPfMetType1*
     #pfchsMETcorr*
     pfMetT0pc*
@@ -61,7 +70,8 @@ METValidation = cms.Sequence(
     genMetTrueAnalyzer*#*
     #genMetCaloAnalyzer*
     #genMetCaloAndNonPromptAnalyzer
-    correctionTermsPfMetType0PFCandidate*
+    correctionTermsPfMetType0PFCandidateForValidation*
+    newAK4PFL1FastL2L3CorrectorChain*
     corrPfMetType1*
     #pfchsMETcorr*
     pfMetT0pc*
@@ -72,6 +82,4 @@ METValidation = cms.Sequence(
     pfType01CorrectedMetAnalyzer
     )
 
-
-
-
+METValidationMiniAOD = cms.Sequence(pfType1CorrectedMetAnalyzerMiniAOD)

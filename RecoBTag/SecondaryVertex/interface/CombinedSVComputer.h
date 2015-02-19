@@ -50,11 +50,6 @@ class CombinedSVComputer {
 	operator () (const reco::CandIPTagInfo &ipInfo,
 	             const reco::CandSecondaryVertexTagInfo &svInfo) const;
 	
-	inline void clearTaggingVariables() { taggingVariables.clear(); }
-	inline void sortTaggingVariables() { std::sort(taggingVariables.begin(), taggingVariables.end()); }
-	inline void useTaggingVariable(reco::btau::TaggingVariableName var) { taggingVariables.push_back(var); }
-	inline bool isUsed(reco::btau::TaggingVariableName var) const { return std::binary_search(taggingVariables.begin(), taggingVariables.end(), var); }
-	
 	struct IterationRange {
 	        int begin, end, increment;
 	};
@@ -116,13 +111,13 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
         btag::Vertices::VertexType vtxType = btag::Vertices::NoVertex;
 
 
-        if( isUsed(btau::jetPt) )  vars.insert(btau::jetPt, jet->pt(), true);
-        if( isUsed(btau::jetEta) ) vars.insert(btau::jetEta, jet->eta(), true);
+        vars.insert(btau::jetPt, jet->pt(), true);
+        vars.insert(btau::jetEta, jet->eta(), true);
 
         if (ipInfo.selectedTracks().size() < trackMultiplicityMin)
                 return;
 
-	if( isUsed(btau::jetNTracks) ) vars.insert(btau::jetNTracks, ipInfo.selectedTracks().size(), true);
+	vars.insert(btau::jetNTracks, ipInfo.selectedTracks().size(), true);
 	
         TrackKinematics allKinematics;
 	TrackKinematics trackJetKinematics;
@@ -139,12 +134,12 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 	if (vtx >= 0) {
 		vtxType = btag::Vertices::RecoVertex;
 		
-		if( isUsed(btau::flightDistance2dVal) )   vars.insert(btau::flightDistance2dVal,flipValue(svInfo.flightDistance(vtx, true).value(),true),true);
-		if( isUsed(btau::flightDistance2dSig) )   vars.insert(btau::flightDistance2dSig,flipValue(svInfo.flightDistance(vtx, true).significance(),true),true);
-		if( isUsed(btau::flightDistance3dVal) )   vars.insert(btau::flightDistance3dVal,flipValue(svInfo.flightDistance(vtx, false).value(),true),true);
-		if( isUsed(btau::flightDistance3dSig) )   vars.insert(btau::flightDistance3dSig,flipValue(svInfo.flightDistance(vtx, false).significance(),true),true);
-		if( isUsed(btau::vertexJetDeltaR) )       vars.insert(btau::vertexJetDeltaR,Geom::deltaR(svInfo.flightDirection(vtx), jetDir),true);
-		if( isUsed(btau::jetNSecondaryVertices) ) vars.insert(btau::jetNSecondaryVertices, svInfo.nVertices(), true);
+		vars.insert(btau::flightDistance2dVal,flipValue(svInfo.flightDistance(vtx, true).value(),true),true);
+		vars.insert(btau::flightDistance2dSig,flipValue(svInfo.flightDistance(vtx, true).significance(),true),true);
+		vars.insert(btau::flightDistance3dVal,flipValue(svInfo.flightDistance(vtx, false).value(),true),true);
+		vars.insert(btau::flightDistance3dSig,flipValue(svInfo.flightDistance(vtx, false).significance(),true),true);
+		vars.insert(btau::vertexJetDeltaR,Geom::deltaR(svInfo.flightDirection(vtx), jetDir),true);
+		vars.insert(btau::jetNSecondaryVertices, svInfo.nVertices(), true);
 	}
 
 	std::vector<std::size_t> indices = ipInfo.sortedIndexes(sortCriterium);
@@ -209,25 +204,25 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
                 math::XYZVector trackMom = track.momentum();
                 double trackMag = std::sqrt(trackMom.Mag2());
 
-                if( isUsed(btau::trackSip3dVal) )   vars.insert(btau::trackSip3dVal, flipValue(data.ip3d.value(), false), true);
-                if( isUsed(btau::trackSip3dSig) )   vars.insert(btau::trackSip3dSig, flipValue(data.ip3d.significance(), false), true);
-                if( isUsed(btau::trackSip2dVal) )   vars.insert(btau::trackSip2dVal, flipValue(data.ip2d.value(), false), true);
-                if( isUsed(btau::trackSip2dSig) )   vars.insert(btau::trackSip2dSig, flipValue(data.ip2d.significance(), false), true);
-                if( isUsed(btau::trackJetDistVal) ) vars.insert(btau::trackJetDistVal, data.distanceToJetAxis.value(), true);
-//              if( isUsed(btau::trackJetDistSig) )     vars.insert(btau::trackJetDistSig, data.distanceToJetAxis.significance(), true);
-//              if( isUsed(btau::trackFirstTrackDist) ) vars.insert(btau::trackFirstTrackDist, data.distanceToFirstTrack, true);
-//              if( isUsed(btau::trackGhostTrackVal) )  vars.insert(btau::trackGhostTrackVal, data.distanceToGhostTrack.value(), true);
-//              if( isUsed(btau::trackGhostTrackSig) )  vars.insert(btau::trackGhostTrackSig, data.distanceToGhostTrack.significance(), true);
-                if( isUsed(btau::trackDecayLenVal) )    vars.insert(btau::trackDecayLenVal, havePv ? (data.closestToJetAxis - pv).mag() : -1.0, true);
+                vars.insert(btau::trackSip3dVal, flipValue(data.ip3d.value(), false), true);
+                vars.insert(btau::trackSip3dSig, flipValue(data.ip3d.significance(), false), true);
+                vars.insert(btau::trackSip2dVal, flipValue(data.ip2d.value(), false), true);
+                vars.insert(btau::trackSip2dSig, flipValue(data.ip2d.significance(), false), true);
+                vars.insert(btau::trackJetDistVal, data.distanceToJetAxis.value(), true);
+//              vars.insert(btau::trackJetDistSig, data.distanceToJetAxis.significance(), true);
+//              vars.insert(btau::trackFirstTrackDist, data.distanceToFirstTrack, true);
+//              vars.insert(btau::trackGhostTrackVal, data.distanceToGhostTrack.value(), true);
+//              vars.insert(btau::trackGhostTrackSig, data.distanceToGhostTrack.significance(), true);
+                vars.insert(btau::trackDecayLenVal, havePv ? (data.closestToJetAxis - pv).mag() : -1.0, true);
 
-                if( isUsed(btau::trackMomentum) ) vars.insert(btau::trackMomentum, trackMag, true);
-                if( isUsed(btau::trackEta) )      vars.insert(btau::trackEta, trackMom.Eta(), true);
+                vars.insert(btau::trackMomentum, trackMag, true);
+                vars.insert(btau::trackEta, trackMom.Eta(), true);
 
-                if( isUsed(btau::trackPtRel) )     vars.insert(btau::trackPtRel, VectorUtil::Perp(trackMom, jetDir), true);
-                if( isUsed(btau::trackPPar) )      vars.insert(btau::trackPPar, jetDir.Dot(trackMom), true);
-                if( isUsed(btau::trackDeltaR) )    vars.insert(btau::trackDeltaR, VectorUtil::DeltaR(trackMom, jetDir), true);
-                if( isUsed(btau::trackPtRatio) )   vars.insert(btau::trackPtRatio, VectorUtil::Perp(trackMom, jetDir) / trackMag, true);
-                if( isUsed(btau::trackPParRatio) ) vars.insert(btau::trackPParRatio, jetDir.Dot(trackMom) / trackMag, true);
+                vars.insert(btau::trackPtRel, VectorUtil::Perp(trackMom, jetDir), true);
+                vars.insert(btau::trackPPar, jetDir.Dot(trackMom), true);
+                vars.insert(btau::trackDeltaR, VectorUtil::DeltaR(trackMom, jetDir), true);
+                vars.insert(btau::trackPtRatio, VectorUtil::Perp(trackMom, jetDir) / trackMag, true);
+                vars.insert(btau::trackPParRatio, jetDir.Dot(trackMom) / trackMag, true);
         }
 
         if (vtxType == btag::Vertices::NoVertex && vertexKinematics.numberOfTracks() >= pseudoMultiplicityMin && pseudoVertexV0Filter(pseudoVertexTracks))
@@ -235,22 +230,22 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
                 vtxType = btag::Vertices::PseudoVertex;
                 for(std::vector<const Track *>::const_iterator track = pseudoVertexTracks.begin(); track != pseudoVertexTracks.end(); ++track)
                 {
-                        if( isUsed(btau::trackEtaRel) ) vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,(*track)->momentum()), true);
+                        vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,(*track)->momentum()), true);
                         vtx_track_ptSum += std::sqrt((*track)->momentum().Perp2());
                         vtx_track_ESum  += std::sqrt((*track)->momentum().Mag2() + ROOT::Math::Square(ParticleMasses::piPlus));
                 }
         }
 
-	if( isUsed(btau::vertexCategory) ) vars.insert(btau::vertexCategory, vtxType, true);
+	vars.insert(btau::vertexCategory, vtxType, true);
 	
-	if( isUsed(btau::trackJetPt) )         vars.insert(btau::trackJetPt, trackJetKinematics.vectorSum().Pt(), true);
-	if( isUsed(btau::trackSumJetDeltaR) )  vars.insert(btau::trackSumJetDeltaR,VectorUtil::DeltaR(allKinematics.vectorSum(), jetDir), true);
-	if( isUsed(btau::trackSumJetEtRatio) ) vars.insert(btau::trackSumJetEtRatio,allKinematics.vectorSum().Et() / ipInfo.jet()->et(), true);
+	vars.insert(btau::trackJetPt, trackJetKinematics.vectorSum().Pt(), true);
+	vars.insert(btau::trackSumJetDeltaR,VectorUtil::DeltaR(allKinematics.vectorSum(), jetDir), true);
+	vars.insert(btau::trackSumJetEtRatio,allKinematics.vectorSum().Et() / ipInfo.jet()->et(), true);
 	
-	if( isUsed(btau::trackSip3dSigAboveCharm) ) vars.insert(btau::trackSip3dSigAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv).ip3d.significance(),false),true);
-	if( isUsed(btau::trackSip3dValAboveCharm) ) vars.insert(btau::trackSip3dValAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv).ip3d.value(),false),true);
-	if( isUsed(btau::trackSip2dSigAboveCharm) ) vars.insert(btau::trackSip2dSigAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv).ip2d.significance(),false),true);
-	if( isUsed(btau::trackSip2dValAboveCharm) ) vars.insert(btau::trackSip2dValAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv).ip2d.value(),false),true);
+	vars.insert(btau::trackSip3dSigAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv).ip3d.significance(),false),true);
+	vars.insert(btau::trackSip3dValAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv).ip3d.value(),false),true);
+	vars.insert(btau::trackSip2dSigAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv).ip2d.significance(),false),true);
+	vars.insert(btau::trackSip2dValAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv).ip2d.value(),false),true);
 
         if (vtxType != btag::Vertices::NoVertex) {
                 math::XYZTLorentzVector allSum = useTrackWeights
@@ -261,8 +256,8 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
                         : vertexKinematics.vectorSum();
 
                 if (vtxType != btag::Vertices::RecoVertex) {
-                        if( isUsed(btau::vertexNTracks) )   vars.insert(btau::vertexNTracks,vertexKinematics.numberOfTracks(), true);
-                        if( isUsed(btau::vertexJetDeltaR) ) vars.insert(btau::vertexJetDeltaR,VectorUtil::DeltaR(vertexSum, jetDir), true);
+                        vars.insert(btau::vertexNTracks,vertexKinematics.numberOfTracks(), true);
+                        vars.insert(btau::vertexJetDeltaR,VectorUtil::DeltaR(vertexSum, jetDir), true);
                 }
 
                 double vertexMass = vertexSum.M();
@@ -272,18 +267,18 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
                         double vertexPt2 = math::XYZVector(dir.x(), dir.y(), dir.z()).Cross(vertexSum).Mag2() / dir.mag2();
                         vertexMass = std::sqrt(vertexMass * vertexMass + vertexPt2) + std::sqrt(vertexPt2);
                 }
-                if( isUsed(btau::vertexMass) ) vars.insert(btau::vertexMass, vertexMass, true);
+                vars.insert(btau::vertexMass, vertexMass, true);
 
                 double varPi = (vertexMass/5.2794) * (vtx_track_ESum /jet_track_ESum); // 5.2794 should be the average B meson mass of PDG! CHECK!!!
-                if( isUsed(btau::massVertexEnergyFraction) ) vars.insert(btau::massVertexEnergyFraction, varPi, true);
+                vars.insert(btau::massVertexEnergyFraction, varPi, true);
                 double varB  = (std::sqrt(5.2794) * vtx_track_ptSum) / ( vertexMass * std::sqrt(jet->pt()));
-                if( isUsed(btau::vertexBoostOverSqrtJetPt) ) vars.insert(btau::vertexBoostOverSqrtJetPt,varB*varB/(varB*varB + 10.), true);
+                vars.insert(btau::vertexBoostOverSqrtJetPt,varB*varB/(varB*varB + 10.), true);
 
                 if (allKinematics.numberOfTracks()) {
-                        if( isUsed(btau::vertexEnergyRatio) ) vars.insert(btau::vertexEnergyRatio, vertexSum.E() / allSum.E(), true);
+                        vars.insert(btau::vertexEnergyRatio, vertexSum.E() / allSum.E(), true);
                 }
                 else {
-                        if( isUsed(btau::vertexEnergyRatio) ) vars.insert(btau::vertexEnergyRatio, 1, true);
+                        vars.insert(btau::vertexEnergyRatio, 1, true);
                 }
         }
 
@@ -291,53 +286,53 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 	pat::Jet const * patJet = dynamic_cast<pat::Jet const *>( &* jet ) ;
 	if ( pfJet != 0 ) 
 	{
-		if( isUsed(btau::chargedHadronEnergyFraction) ) vars.insert(btau::chargedHadronEnergyFraction,pfJet->chargedHadronEnergyFraction(), true);
-		if( isUsed(btau::neutralHadronEnergyFraction) ) vars.insert(btau::neutralHadronEnergyFraction,pfJet->neutralHadronEnergyFraction(), true);
-		if( isUsed(btau::photonEnergyFraction) )        vars.insert(btau::photonEnergyFraction,pfJet->photonEnergyFraction(), true);
-		if( isUsed(btau::electronEnergyFraction) )      vars.insert(btau::electronEnergyFraction,pfJet->electronEnergyFraction(), true);
-		if( isUsed(btau::muonEnergyFraction) )          vars.insert(btau::muonEnergyFraction,pfJet->muonEnergyFraction(), true);
-		if( isUsed(btau::chargedHadronMultiplicity) )   vars.insert(btau::chargedHadronMultiplicity,pfJet->chargedHadronMultiplicity(), true);
-		if( isUsed(btau::neutralHadronMultiplicity) )   vars.insert(btau::neutralHadronMultiplicity,pfJet->neutralHadronMultiplicity(), true);
-		if( isUsed(btau::photonMultiplicity) )          vars.insert(btau::photonMultiplicity,pfJet->photonMultiplicity(), true);
-		if( isUsed(btau::electronMultiplicity) )        vars.insert(btau::electronMultiplicity,pfJet->electronMultiplicity(), true);
-		if( isUsed(btau::muonMultiplicity) )            vars.insert(btau::muonMultiplicity,pfJet->muonMultiplicity(), true);
-		if( isUsed(btau::hadronMultiplicity) )          vars.insert(btau::hadronMultiplicity,pfJet->chargedHadronMultiplicity()+pfJet->neutralHadronMultiplicity(), true);
-		if( isUsed(btau::hadronPhotonMultiplicity) )    vars.insert(btau::hadronPhotonMultiplicity,pfJet->chargedHadronMultiplicity()+pfJet->neutralHadronMultiplicity()+pfJet->photonMultiplicity(), true);
-		if( isUsed(btau::totalMultiplicity) )           vars.insert(btau::totalMultiplicity,pfJet->chargedHadronMultiplicity()+pfJet->neutralHadronMultiplicity()+pfJet->photonMultiplicity()+pfJet->electronMultiplicity()+pfJet->muonMultiplicity(), true);
+		vars.insert(btau::chargedHadronEnergyFraction,pfJet->chargedHadronEnergyFraction(), true);
+		vars.insert(btau::neutralHadronEnergyFraction,pfJet->neutralHadronEnergyFraction(), true);
+		vars.insert(btau::photonEnergyFraction,pfJet->photonEnergyFraction(), true);
+		vars.insert(btau::electronEnergyFraction,pfJet->electronEnergyFraction(), true);
+		vars.insert(btau::muonEnergyFraction,pfJet->muonEnergyFraction(), true);
+		vars.insert(btau::chargedHadronMultiplicity,pfJet->chargedHadronMultiplicity(), true);
+		vars.insert(btau::neutralHadronMultiplicity,pfJet->neutralHadronMultiplicity(), true);
+		vars.insert(btau::photonMultiplicity,pfJet->photonMultiplicity(), true);
+		vars.insert(btau::electronMultiplicity,pfJet->electronMultiplicity(), true);
+		vars.insert(btau::muonMultiplicity,pfJet->muonMultiplicity(), true);
+		vars.insert(btau::hadronMultiplicity,pfJet->chargedHadronMultiplicity()+pfJet->neutralHadronMultiplicity(), true);
+		vars.insert(btau::hadronPhotonMultiplicity,pfJet->chargedHadronMultiplicity()+pfJet->neutralHadronMultiplicity()+pfJet->photonMultiplicity(), true);
+		vars.insert(btau::totalMultiplicity,pfJet->chargedHadronMultiplicity()+pfJet->neutralHadronMultiplicity()+pfJet->photonMultiplicity()+pfJet->electronMultiplicity()+pfJet->muonMultiplicity(), true);
 
 	}
 	else if( patJet != 0 && patJet->isPFJet() )
 	{
-		if( isUsed(btau::chargedHadronEnergyFraction) ) vars.insert(btau::chargedHadronEnergyFraction,patJet->chargedHadronEnergyFraction(), true);
-		if( isUsed(btau::neutralHadronEnergyFraction) ) vars.insert(btau::neutralHadronEnergyFraction,patJet->neutralHadronEnergyFraction(), true);
-		if( isUsed(btau::photonEnergyFraction) )        vars.insert(btau::photonEnergyFraction,patJet->photonEnergyFraction(), true);
-		if( isUsed(btau::electronEnergyFraction) )      vars.insert(btau::electronEnergyFraction,patJet->electronEnergyFraction(), true);
-		if( isUsed(btau::muonEnergyFraction) )          vars.insert(btau::muonEnergyFraction,patJet->muonEnergyFraction(), true);
-		if( isUsed(btau::chargedHadronMultiplicity) )   vars.insert(btau::chargedHadronMultiplicity,patJet->chargedHadronMultiplicity(), true);
-		if( isUsed(btau::neutralHadronMultiplicity) )   vars.insert(btau::neutralHadronMultiplicity,patJet->neutralHadronMultiplicity(), true);
-		if( isUsed(btau::photonMultiplicity) )          vars.insert(btau::photonMultiplicity,patJet->photonMultiplicity(), true);
-		if( isUsed(btau::electronMultiplicity) )        vars.insert(btau::electronMultiplicity,patJet->electronMultiplicity(), true);
-		if( isUsed(btau::muonMultiplicity) )            vars.insert(btau::muonMultiplicity,patJet->muonMultiplicity(), true);
-		if( isUsed(btau::hadronMultiplicity) )          vars.insert(btau::hadronMultiplicity,patJet->chargedHadronMultiplicity()+patJet->neutralHadronMultiplicity(), true);
-		if( isUsed(btau::hadronPhotonMultiplicity) )    vars.insert(btau::hadronPhotonMultiplicity,patJet->chargedHadronMultiplicity()+patJet->neutralHadronMultiplicity()+patJet->photonMultiplicity(), true);
-		if( isUsed(btau::totalMultiplicity) )           vars.insert(btau::totalMultiplicity,patJet->chargedHadronMultiplicity()+patJet->neutralHadronMultiplicity()+patJet->photonMultiplicity()+patJet->electronMultiplicity()+patJet->muonMultiplicity(), true);
+		vars.insert(btau::chargedHadronEnergyFraction,patJet->chargedHadronEnergyFraction(), true);
+		vars.insert(btau::neutralHadronEnergyFraction,patJet->neutralHadronEnergyFraction(), true);
+		vars.insert(btau::photonEnergyFraction,patJet->photonEnergyFraction(), true);
+		vars.insert(btau::electronEnergyFraction,patJet->electronEnergyFraction(), true);
+		vars.insert(btau::muonEnergyFraction,patJet->muonEnergyFraction(), true);
+		vars.insert(btau::chargedHadronMultiplicity,patJet->chargedHadronMultiplicity(), true);
+		vars.insert(btau::neutralHadronMultiplicity,patJet->neutralHadronMultiplicity(), true);
+		vars.insert(btau::photonMultiplicity,patJet->photonMultiplicity(), true);
+		vars.insert(btau::electronMultiplicity,patJet->electronMultiplicity(), true);
+		vars.insert(btau::muonMultiplicity,patJet->muonMultiplicity(), true);
+		vars.insert(btau::hadronMultiplicity,patJet->chargedHadronMultiplicity()+patJet->neutralHadronMultiplicity(), true);
+		vars.insert(btau::hadronPhotonMultiplicity,patJet->chargedHadronMultiplicity()+patJet->neutralHadronMultiplicity()+patJet->photonMultiplicity(), true);
+		vars.insert(btau::totalMultiplicity,patJet->chargedHadronMultiplicity()+patJet->neutralHadronMultiplicity()+patJet->photonMultiplicity()+patJet->electronMultiplicity()+patJet->muonMultiplicity(), true);
 	
 	}
 	else
 	{
-		if( isUsed(btau::chargedHadronEnergyFraction) ) vars.insert(btau::chargedHadronEnergyFraction,0., true);
-		if( isUsed(btau::neutralHadronEnergyFraction) ) vars.insert(btau::neutralHadronEnergyFraction,0., true);
-		if( isUsed(btau::photonEnergyFraction) )        vars.insert(btau::photonEnergyFraction,0., true);
-		if( isUsed(btau::electronEnergyFraction) )      vars.insert(btau::electronEnergyFraction,0., true);
-		if( isUsed(btau::muonEnergyFraction) )          vars.insert(btau::muonEnergyFraction,0., true);
-		if( isUsed(btau::chargedHadronMultiplicity) )   vars.insert(btau::chargedHadronMultiplicity,0, true);
-		if( isUsed(btau::neutralHadronMultiplicity) )   vars.insert(btau::neutralHadronMultiplicity,0, true);
-		if( isUsed(btau::photonMultiplicity) )          vars.insert(btau::photonMultiplicity,0, true);
-		if( isUsed(btau::electronMultiplicity) )        vars.insert(btau::electronMultiplicity,0, true);
-		if( isUsed(btau::muonMultiplicity) )            vars.insert(btau::muonMultiplicity,0, true);
-		if( isUsed(btau::hadronMultiplicity) )          vars.insert(btau::hadronMultiplicity,0, true);
-		if( isUsed(btau::hadronPhotonMultiplicity) )    vars.insert(btau::hadronPhotonMultiplicity,0, true);
-		if( isUsed(btau::totalMultiplicity) )           vars.insert(btau::totalMultiplicity,0, true);
+		vars.insert(btau::chargedHadronEnergyFraction,0., true);
+		vars.insert(btau::neutralHadronEnergyFraction,0., true);
+		vars.insert(btau::photonEnergyFraction,0., true);
+		vars.insert(btau::electronEnergyFraction,0., true);
+		vars.insert(btau::muonEnergyFraction,0., true);
+		vars.insert(btau::chargedHadronMultiplicity,0, true);
+		vars.insert(btau::neutralHadronMultiplicity,0, true);
+		vars.insert(btau::photonMultiplicity,0, true);
+		vars.insert(btau::electronMultiplicity,0, true);
+		vars.insert(btau::muonMultiplicity,0, true);
+		vars.insert(btau::hadronMultiplicity,0, true);
+		vars.insert(btau::hadronPhotonMultiplicity,0, true);
+		vars.insert(btau::totalMultiplicity,0, true);
 	}
 }
 

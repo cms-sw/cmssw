@@ -210,7 +210,12 @@ namespace edm {
     void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductProvenance& prov, ProductHolderBase* productHolder);
 
   private:
-    virtual WrapperBase const* getIt(ProductID const&) const;
+
+    virtual WrapperBase const* getIt(ProductID const&) const override;
+    virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;
+    virtual void getThinnedProducts(ProductID const&,
+                                    std::vector<WrapperBase const*>&,
+                                    std::vector<unsigned int>&) const override;
 
     void findProducts(std::vector<ProductHolderBase const*> const& holders,
                       TypeID const& typeID,
@@ -231,7 +236,7 @@ namespace edm {
                                           EDConsumerBase const* consumer,
                                           ModuleCallingContext const* mcc) const;
 
-    virtual void readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const {}
+    virtual void readFromSource_(ProductHolderBase const& /* phb */, ModuleCallingContext const* /* mcc */) const {}
 
     virtual bool isComplete_() const {return true;}
 

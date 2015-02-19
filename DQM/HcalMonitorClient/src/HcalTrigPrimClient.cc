@@ -46,18 +46,22 @@ HcalTrigPrimClient::HcalTrigPrimClient(std::string myname, const edm::ParameterS
 
   ProblemCells=0;
   ProblemCellsByDepth=0;
+  ProblemsByDepthZS_  = 0;
+  ProblemsByDepthNZS_ = 0;
+
+  doProblemCellSetup_ = true;
 }
 
-void HcalTrigPrimClient::analyze()
+void HcalTrigPrimClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
   if (debug_>2) std::cout <<"\tHcalTrigPrimClient::analyze()"<<std::endl;
-  calculateProblems();
+  if ( doProblemCellSetup_ ) setupProblemCells(ib,ig);
+  calculateProblems(ib,ig);
 }
 
-void HcalTrigPrimClient::calculateProblems()
+void HcalTrigPrimClient::calculateProblems(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
  if (debug_>2) std::cout <<"\t\tHcalTrigPrimClient::calculateProblems()"<<std::endl;
-  if(!dqmStore_) return;
   double totalevents=0;
   int etabins=0, phibins=0;
   double problemvalue=0;
@@ -114,22 +118,22 @@ void HcalTrigPrimClient::calculateProblems()
   TH2F* goodNZS=0;
   TH2F* badNZS=0;
 
-  me=dqmStore_->get(subdir_+"Good TPs_ZS");
+  me=ig.get(subdir_+"Good TPs_ZS");
   if (!me && debug_>0)
     std::cout <<"<HcalTrigPrimClient::calculateProblems>  Could not get histogram named '"<<subdir_<<"Good TPs_ZS'"<<std::endl;
   else goodZS = HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, goodZS, debug_);
 
-  me=dqmStore_->get(subdir_+"Bad TPs_ZS");
+  me=ig.get(subdir_+"Bad TPs_ZS");
   if (!me && debug_>0)
     std::cout <<"<HcalTrigPrimClient::calculateProblems>  Could not get histogram named '"<<subdir_<<"Bad TPs_ZS'"<<std::endl;
   else badZS = HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, badZS, debug_);
 
-  me=dqmStore_->get(subdir_+"noZS/Good TPs_noZS");
+  me=ig.get(subdir_+"noZS/Good TPs_noZS");
   if (!me && debug_>0)
     std::cout <<"<HcalTrigPrimClient::calculateProblems>  Could not get histogram named '"<<subdir_<<"noZS/Good TPs_noZS'"<<std::endl;
   else goodNZS = HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, goodNZS, debug_);
 
-  me=dqmStore_->get(subdir_+"noZS/Bad TPs_noZS");
+  me=ig.get(subdir_+"noZS/Bad TPs_noZS");
   if (!me && debug_>0)
     std::cout <<"<HcalTrigPrimClient::calculateProblems>  Could not get histogram named '"<<subdir_<<"noZS/Bad TPs_noZS'"<<std::endl;
   else badNZS = HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, badNZS, debug_);
@@ -306,52 +310,45 @@ void HcalTrigPrimClient::calculateProblems()
   return;
 }
 
-void HcalTrigPrimClient::beginJob()
-{
-  dqmStore_ = edm::Service<DQMStore>().operator->();
-  if (debug_>0) 
-    {
-      std::cout <<"<HcalTrigPrimClient::beginJob()>  Displaying dqmStore directory structure:"<<std::endl;
-      dqmStore_->showDirStructure();
-    }
-}
 void HcalTrigPrimClient::endJob(){}
 
-void HcalTrigPrimClient::beginRun(void)
+void HcalTrigPrimClient::setupProblemCells(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
-  enoughevents_=false;
-  if (!dqmStore_) 
-    {
-      if (debug_>0) std::cout <<"<HcalTrigPrimClient::beginRun> dqmStore does not exist!"<<std::endl;
-      return;
-    }
-  dqmStore_->setCurrentFolder(subdir_);
+
+  ib.setCurrentFolder(subdir_);
   problemnames_.clear();
 
   // Put the appropriate name of your problem summary here
-  ProblemCells=dqmStore_->book2D(" ProblemTriggerPrimitives",
+  ProblemCells=ib.book2D(" ProblemTriggerPrimitives",
 				 " Problem Trigger Primitive Rate for all HCAL;ieta;iphi",
 				 85,-42.5,42.5,
 				 72,0.5,72.5);
   problemnames_.push_back(ProblemCells->getName());
   if (debug_>1)
     std::cout << "Tried to create ProblemCells Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCells==0)<<std::endl;
-  dqmStore_->setCurrentFolder(subdir_+"problem_triggerprimitives");
+  ib.setCurrentFolder(subdir_+"problem_triggerprimitives");
   ProblemCellsByDepth = new EtaPhiHists();
-  ProblemCellsByDepth->setup(dqmStore_," Problem Trigger Primitive Rate");
+  ProblemCellsByDepth->setup(ib," Problem Trigger Primitive Rate");
   for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
     problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
   nevts_=0;
 
-  dqmStore_->setCurrentFolder(subdir_+"problem_ZS");
+  ib.setCurrentFolder(subdir_+"problem_ZS");
   ProblemsByDepthZS_  = new EtaPhiHists();
-  ProblemsByDepthZS_->setup(dqmStore_,"ZS Problem Trigger Primitive Rate");
-  dqmStore_->setCurrentFolder(subdir_+"problem_NZS");
+  ProblemsByDepthZS_->setup(ib,"ZS Problem Trigger Primitive Rate");
+  ib.setCurrentFolder(subdir_+"problem_NZS");
   ProblemsByDepthNZS_ = new EtaPhiHists();
-  ProblemsByDepthNZS_->setup(dqmStore_,"NZS Problem Trigger Primitive Rate");
+  ProblemsByDepthNZS_->setup(ib,"NZS Problem Trigger Primitive Rate");
+
+  doProblemCellSetup_ = false;
 }
 
-void HcalTrigPrimClient::endRun(void){analyze();}
+void HcalTrigPrimClient::beginRun(void)
+{
+  enoughevents_=false;
+}
+
+//void HcalTrigPrimClient::endRun(void){analyze();}
 
 void HcalTrigPrimClient::setup(void){}
 void HcalTrigPrimClient::cleanup(void){}
@@ -403,4 +400,8 @@ void HcalTrigPrimClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& 
 } //void HcalTrigPrimClient::updateChannelStatus
 
 HcalTrigPrimClient::~HcalTrigPrimClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+  if ( ProblemsByDepthZS_ ) delete ProblemsByDepthZS_;
+  if ( ProblemsByDepthNZS_ ) delete ProblemsByDepthNZS_;
+}

@@ -12,9 +12,6 @@
 #include <map>
 #include <string>
 
-#define EDM_MAP_ENTRY(map, ns, name) map[ns::name]=#name
-#define EDM_MAP_ENTRY_NONS(map, name) map[name]=#name
-
 namespace edm {
   namespace errors {
 
@@ -95,9 +92,7 @@ namespace edm {
 
     Code categoryCode() const { return category_; }
 
-    static std::string codeToString(Code);
-
-    typedef std::map<Code, std::string> CodeMap; 
+    static const std::string& codeToString(Code);
 
     static void throwThis(Code category,
                           char const* message0 = "",

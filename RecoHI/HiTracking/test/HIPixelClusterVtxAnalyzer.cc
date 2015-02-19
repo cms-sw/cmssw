@@ -14,12 +14,12 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 #include <fstream>
 #include <iostream>
@@ -28,7 +28,7 @@
 
 /*****************************************************************************/
 HIPixelClusterVtxAnalyzer::HIPixelClusterVtxAnalyzer(const edm::ParameterSet& ps)
-  : srcPixels_(ps.getParameter<edm::InputTag>("pixelRecHits")),
+  : srcPixels_(consumes<SiPixelRecHitCollection>(ps.getParameter<edm::InputTag>("pixelRecHits"))),
     minZ_(ps.getParameter<double>("minZ")),
     maxZ_(ps.getParameter<double>("maxZ")),
     zStep_(ps.getParameter<double>("zStep")),
@@ -56,8 +56,8 @@ void HIPixelClusterVtxAnalyzer::analyze(const edm::Event& ev, const edm::EventSe
   std::cout << "counter = " << counter << std::endl;
   counter++;
 
-  int evtnum = ev.id().event();
-  TH1D *hClusterVtx = fs->make<TH1D>(Form("hClusterVtx_%d",evtnum),"compatibility of pixel cluster length with vertex hypothesis; z [cm]",(int)((maxZ_-minZ_)/zStep_),minZ_,maxZ_);
+  edm::EventNumber_t evtnum  = ev.id().event();
+  TH1D *hClusterVtx = fs->make<TH1D>(Form("hClusterVtx_%llu",evtnum),"compatibility of pixel cluster length with vertex hypothesis; z [cm]",(int)((maxZ_-minZ_)/zStep_),minZ_,maxZ_);
 
   // new vertex collection
   std::auto_ptr<reco::VertexCollection> vertices(new reco::VertexCollection);
@@ -65,7 +65,7 @@ void HIPixelClusterVtxAnalyzer::analyze(const edm::Event& ev, const edm::EventSe
   // get pixel rechits
   edm::Handle<SiPixelRecHitCollection> hRecHits;
   try {
-    ev.getByLabel(srcPixels_,hRecHits);
+    ev.getByToken(srcPixels_,hRecHits);
   } catch (...) {}
 
   // get tracker geometry

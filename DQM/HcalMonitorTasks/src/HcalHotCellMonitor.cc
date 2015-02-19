@@ -2,7 +2,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalHotCellMonitor.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
-HcalHotCellMonitor::HcalHotCellMonitor(const edm::ParameterSet& ps)
+HcalHotCellMonitor::HcalHotCellMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps)
 {
   // Standard information, inherited from base class
   Online_                = ps.getUntrackedParameter<bool>("online",false);
@@ -112,42 +112,42 @@ HcalHotCellMonitor::~HcalHotCellMonitor()
 
 /* ------------------------------------ */ 
 
-void HcalHotCellMonitor::setup()
+void HcalHotCellMonitor::setup(DQMStore::IBooker &ib)
 {
   if (setupDone_)
     return;
   setupDone_ = true;
   // Call base class setup
-  HcalBaseDQMonitor::setup();
+  HcalBaseDQMonitor::setup(ib);
 
   if (debug_>1)
     std::cout <<"<HcalHotCellMonitor::setup>  Setting up histograms"<<std::endl;
 
-  dbe_->setCurrentFolder(subdir_);
+  ib.setCurrentFolder(subdir_);
 
   MonitorElement* me;
-  me=dbe_->bookFloat("minErrorFractionPerLumiSection");
+  me=ib.bookFloat("minErrorFractionPerLumiSection");
   me->Fill(minErrorFlag_);
   // Create plots of problems vs LB
 
   // 1D plots count number of bad cells vs. luminosity block
-  ProblemsVsLB=dbe_->bookProfile("TotalHotCells_HCAL_vs_LS",
+  ProblemsVsLB=ib.bookProfile("TotalHotCells_HCAL_vs_LS",
 				 "Total Number of Hot Hcal Cells vs lumi section", 
 				 NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
 
-  ProblemsVsLB_HB=dbe_->bookProfile("TotalHotCells_HB_vs_LS",
+  ProblemsVsLB_HB=ib.bookProfile("TotalHotCells_HB_vs_LS",
 				    "Total Number of Hot HB Cells vs lumi section",
 				    NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,3000);
-  ProblemsVsLB_HE=dbe_->bookProfile("TotalHotCells_HE_vs_LS",
+  ProblemsVsLB_HE=ib.bookProfile("TotalHotCells_HE_vs_LS",
 				    "Total Number of Hot HE Cells vs lumi section",
 				    NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,3000);
-  ProblemsVsLB_HO=dbe_->bookProfile("TotalHotCells_HO_vs_LS",
+  ProblemsVsLB_HO=ib.bookProfile("TotalHotCells_HO_vs_LS",
 				    "Total Number of Hot HO Cells vs lumi section",
 				    NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,3000);
-  ProblemsVsLB_HF=dbe_->bookProfile("TotalHotCells_HF_vs_LS",
+  ProblemsVsLB_HF=ib.bookProfile("TotalHotCells_HF_vs_LS",
 				    "Total Number of Hot HF Cells vs lumi section",
 				    NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,2000);
-  ProblemsVsLB_HBHEHF=dbe_->bookProfile("TotalHotCells_HBHEHF_vs_LS",
+  ProblemsVsLB_HBHEHF=ib.bookProfile("TotalHotCells_HBHEHF_vs_LS",
 				    "Total Number of Hot HBHEHF Cells vs lumi section",
 				    NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,2000);
  
@@ -161,14 +161,14 @@ void HcalHotCellMonitor::setup()
   // Set up plots for each failure mode of hot cells
   std::stringstream units; // We'll need to set the titles individually, rather than passing units to SetupEtaPhiHists (since this also would affect the name of the histograms)
 
-  dbe_->setCurrentFolder(subdir_+"hot_rechit_above_threshold");
-  me=dbe_->bookInt("HotCellAboveThresholdTestEnabled");
+  ib.setCurrentFolder(subdir_+"hot_rechit_above_threshold");
+  me=ib.bookInt("HotCellAboveThresholdTestEnabled");
   me->Fill(0);
   
   if (test_energy_)
     {
       me->Fill(1);
-      SetupEtaPhiHists(AboveEnergyThresholdCellsByDepth,
+      SetupEtaPhiHists(ib,AboveEnergyThresholdCellsByDepth,
 		       "Hot Cells Above Energy Threshold","");
       //setMinMaxHists2D(AboveEnergyThresholdCellsByDepth,0.,1.);
       
@@ -190,7 +190,7 @@ void HcalHotCellMonitor::setup()
   if (test_et_)
     {
       me->Fill(1);
-      SetupEtaPhiHists(AboveETThresholdCellsByDepth,
+      SetupEtaPhiHists(ib,AboveETThresholdCellsByDepth,
 		       "Hot Cells Above ET Threshold","");
       //setMinMaxHists2D(AboveETThresholdCellsByDepth,0.,1.);
       
@@ -210,17 +210,17 @@ void HcalHotCellMonitor::setup()
       units.str("");
     }
   
-  dbe_->setCurrentFolder(subdir_+"hot_rechit_always_above_threshold");
-  me=dbe_->bookInt("PersistentHotCellTestEnabled");
+  ib.setCurrentFolder(subdir_+"hot_rechit_always_above_threshold");
+  me=ib.bookInt("PersistentHotCellTestEnabled");
   me->Fill(0);
   if (test_persistent_)
     {
       me->Fill(1);
-      me=dbe_->bookInt("minEventsPerLS");
+      me=ib.bookInt("minEventsPerLS");
       me->Fill(minEvents_);
 
       if (test_energy_) {
-	SetupEtaPhiHists(AbovePersistentThresholdCellsByDepth,
+	SetupEtaPhiHists(ib,AbovePersistentThresholdCellsByDepth,
 			 "Hot Cells Persistently Above Energy Threshold","");
 	//setMinMaxHists2D(AbovePersistentThresholdCellsByDepth,0.,1.);
 	
@@ -241,7 +241,7 @@ void HcalHotCellMonitor::setup()
       }
   
       if (test_et_) {
-	SetupEtaPhiHists(AbovePersistentETThresholdCellsByDepth,
+	SetupEtaPhiHists(ib,AbovePersistentETThresholdCellsByDepth,
 			 "Hot Cells Persistently Above ET Threshold","");
 	//setMinMaxHists2D(AbovePersistentThresholdCellsByDepth,0.,1.);
 	
@@ -262,37 +262,37 @@ void HcalHotCellMonitor::setup()
       }
     }
   
-  dbe_->setCurrentFolder(subdir_+"hot_neighbortest");
-  me=dbe_->bookInt("NeighborTestEnabled");
+  ib.setCurrentFolder(subdir_+"hot_neighbortest");
+  me=ib.bookInt("NeighborTestEnabled");
   me->Fill(0);
   if (test_neighbor_)
     me->Fill(1);
   if (test_neighbor_ || makeDiagnostics_)
     {
-      SetupEtaPhiHists(AboveNeighborsHotCellsByDepth,"Hot Cells Failing Neighbor Test","");
+      SetupEtaPhiHists(ib,AboveNeighborsHotCellsByDepth,"Hot Cells Failing Neighbor Test","");
       if (makeDiagnostics_)
 	{
-	  d_HBenergyVsNeighbor=dbe_->book1D("NeighborSumOverEnergyHB","HB Neighbor Sum Energy/Cell Energy;sum(neighbors)/E_cell",500,0,10);
-	  d_HEenergyVsNeighbor=dbe_->book1D("NeighborSumOverEnergyHE","HE Neighbor Sum Energy/Cell Energy;sum(neighbors)/E_cell",500,0,10);
-	  d_HOenergyVsNeighbor=dbe_->book1D("NeighborSumOverEnergyHO","HO Neighbor Sum Energy/Cell Energy;sum(neighbors)/E_cell",500,0,10);
-	  d_HFenergyVsNeighbor=dbe_->book1D("NeighborSumOverEnergyHF","HF Neighbor Sum Energy/Cell Energy;sum(neighbors)/E_cell",500,0,10);
+	  d_HBenergyVsNeighbor=ib.book1D("NeighborSumOverEnergyHB","HB Neighbor Sum Energy/Cell Energy;sum(neighbors)/E_cell",500,0,10);
+	  d_HEenergyVsNeighbor=ib.book1D("NeighborSumOverEnergyHE","HE Neighbor Sum Energy/Cell Energy;sum(neighbors)/E_cell",500,0,10);
+	  d_HOenergyVsNeighbor=ib.book1D("NeighborSumOverEnergyHO","HO Neighbor Sum Energy/Cell Energy;sum(neighbors)/E_cell",500,0,10);
+	  d_HFenergyVsNeighbor=ib.book1D("NeighborSumOverEnergyHF","HF Neighbor Sum Energy/Cell Energy;sum(neighbors)/E_cell",500,0,10);
 	}
     } // if (test_neighbor_ || makeDiagnostics_)
   
   this->reset();
 } // void HcalHotCellMonitor::setup(...)
 
-void HcalHotCellMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
+void HcalHotCellMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c)
 {
-  if (debug_>1) std::cout <<"HcalHotCellMonitor::beginRun"<<std::endl;
-  HcalBaseDQMonitor::beginRun(run,c);
+  if (debug_>1) std::cout <<"HcalHotCellMonitor::bookHistograms"<<std::endl;
+  HcalBaseDQMonitor::bookHistograms(ib,run,c);
 
-  if (tevt_==0) this->setup(); // set up histograms if they have not been created before
+  if (tevt_==0) this->setup(ib); // set up histograms if they have not been created before
   if (mergeRuns_==false)
     this->reset();
 
   return;
-} //void HcalHotCellMonitor::beginRun(...)
+} //void HcalHotCellMonitor::bookHistograms(...)
 
 
 /* --------------------------- */
@@ -375,7 +375,7 @@ void HcalHotCellMonitor::done()
 
 void HcalHotCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 {
-
+  HcalBaseDQMonitor::analyze(e,s);
   if (!IsAllowedCalibType()) return;
   if (LumiInOrder(e.luminosityBlock())==false) return;
 
@@ -403,7 +403,7 @@ void HcalHotCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 
   // Good event found; increment counter (via base class analyze method)
 
-  HcalBaseDQMonitor::analyze(e,s);
+//  HcalBaseDQMonitor::analyze(e,s);
   if (debug_>1) std::cout <<"\t<HcalHotCellMonitor::analyze>  Processing good event! event # = "<<ievt_<<std::endl;
 
   processEvent(*hbhe_rechit, *ho_rechit, *hf_rechit);
@@ -1145,7 +1145,7 @@ void HcalHotCellMonitor::endJob()
   if (enableCleanup_) cleanup(); // when do we force cleanup?
 }
 
-void HcalHotCellMonitor::cleanup()
+/*void HcalHotCellMonitor::cleanup()
 {
   if (debug_>0) std::cout <<"HcalHotCellMonitor::cleanup()"<<std::endl;
   if (!enableCleanup_) return;
@@ -1163,7 +1163,7 @@ void HcalHotCellMonitor::cleanup()
       dbe_->setCurrentFolder(subdir_+"LSvalues");
       dbe_->removeContents();
     }
-} // cleanup
+}*/ // cleanup
 
 void HcalHotCellMonitor::periodicReset()
 {

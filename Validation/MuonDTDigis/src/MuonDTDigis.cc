@@ -28,58 +28,20 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
   // the name of the Digi collection
   DigiToken_ = consumes<DTDigiCollection> (pset.getParameter<edm::InputTag>(("DigiLabel")));
 
-  // ----------------------
-  // DQM ROOT output
-  outputFile_ =  pset.getUntrackedParameter<std::string>("outputFile", "");
-  if ( outputFile_.size() != 0 ) {
-    LogInfo("OutputInfo") << " DT Muon Digis Task histograms will be saved to '"
-                          << outputFile_.c_str() << "'";
-  } else {
-    LogInfo("OutputInfo") << " DT Muon Digis Task histograms will NOT be saved";
-  }
-
-  string::size_type loc = outputFile_.find( ".root", 0 );
-  std::string outputFile_more_plots_;
-  if( loc != string::npos ) {
-    outputFile_more_plots_ = outputFile_.substr(0,loc)+"_more_plots.root";
-  } else {
-    outputFile_more_plots_ = " DTDigis_more_plots.root";
-  }
-
-  //    Please, uncomment next lines if you want a secong root file with additional histos
-
-  //  file_more_plots = new TFile(outputFile_more_plots_.c_str(),"RECREATE");
-  //  file_more_plots->cd();
-  //  if(file_more_plots->IsOpen()) cout<<"File for additional plots: " << outputFile_more_plots_ << "  open!"<<endl;
-  //  else cout<<"*** Error in opening file for additional plots ***"<<endl;
-
   hDigis_global = new hDigis("Global");
   hDigis_W0 = new hDigis("Wheel0");
   hDigis_W1 = new hDigis("Wheel1");
   hDigis_W2 = new hDigis("Wheel2");
   hAllHits = new hHits("AllHits");
+}
 
-  // End of comment . See more in Destructor (~MuonDTDigis) method
+MuonDTDigis::~MuonDTDigis(){
+  if(verbose_)
+    cout << "[MuonDTDigis] Destructor called" << endl;
+}
 
-
-
-  // ----------------------
-  // get hold of back-end interface
-  dbe_ = 0;
-  dbe_ = Service<DQMStore>().operator->();
-  if ( dbe_ ) {
-    if ( verbose_ ) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-  if ( dbe_ ) {
-    if ( verbose_ ) dbe_->showDirStructure();
-  }
-
-  // ----------------------
-
+void MuonDTDigis::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const & iRun, edm::EventSetup const & /* iSetup */)
+{
   meDigiTimeBox_          = 0;
   meDigiTimeBox_wheel2m_  = 0;
   meDigiTimeBox_wheel1m_  = 0;
@@ -101,9 +63,7 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
   meMB4_sim_occup_        = 0;
   meMB4_digi_occup_       = 0;
 
-  //meDigiTimeBox_SL_       = 0;
   meDigiHisto_            = 0;
-
 
   // ----------------------
   // We go
@@ -112,141 +72,92 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
   Char_t histo_n[100];
   Char_t histo_t[100];
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("MuonDTDigisV/DTDigiValidationTask");
+  iBooker.setCurrentFolder("MuonDTDigisV/DTDigiValidationTask");
 
-    sprintf (histo_n, "DigiTimeBox" );
-    sprintf (histo_t, "Digi Time Box" );
-    meDigiTimeBox_ = dbe_->book1D(histo_n, histo_t, 1536,0,1200);
+  sprintf (histo_n, "DigiTimeBox" );
+  sprintf (histo_t, "Digi Time Box" );
+  meDigiTimeBox_ = iBooker.book1D(histo_n, histo_t, 1536,0,1200);
 
-    sprintf (histo_n, "DigiTimeBox_wheel2m" );
-    sprintf (histo_t, "Digi Time Box wheel -2" );
-    meDigiTimeBox_wheel2m_ = dbe_->book1D(histo_n, histo_t, 384,0,1200);
+  sprintf (histo_n, "DigiTimeBox_wheel2m" );
+  sprintf (histo_t, "Digi Time Box wheel -2" );
+  meDigiTimeBox_wheel2m_ = iBooker.book1D(histo_n, histo_t, 384,0,1200);
 
-    sprintf (histo_n, "DigiTimeBox_wheel1m" );
-    sprintf (histo_t, "Digi Time Box wheel -1" );
-    meDigiTimeBox_wheel1m_ = dbe_->book1D(histo_n, histo_t, 384,0,1200);
+  sprintf (histo_n, "DigiTimeBox_wheel1m" );
+  sprintf (histo_t, "Digi Time Box wheel -1" );
+  meDigiTimeBox_wheel1m_ = iBooker.book1D(histo_n, histo_t, 384,0,1200);
 
-    sprintf (histo_n, "DigiTimeBox_wheel0" );
-    sprintf (histo_t, "Digi Time Box wheel 0" );
-    meDigiTimeBox_wheel0_ = dbe_->book1D(histo_n, histo_t, 384,0,1200);
+  sprintf (histo_n, "DigiTimeBox_wheel0" );
+  sprintf (histo_t, "Digi Time Box wheel 0" );
+  meDigiTimeBox_wheel0_ = iBooker.book1D(histo_n, histo_t, 384,0,1200);
 
-    sprintf (histo_n, "DigiTimeBox_wheel1p" );
-    sprintf (histo_t, "Digi Time Box wheel 1" );
-    meDigiTimeBox_wheel1p_ = dbe_->book1D(histo_n, histo_t, 384,0,1200);
+  sprintf (histo_n, "DigiTimeBox_wheel1p" );
+  sprintf (histo_t, "Digi Time Box wheel 1" );
+  meDigiTimeBox_wheel1p_ = iBooker.book1D(histo_n, histo_t, 384,0,1200);
 
-    sprintf (histo_n, "DigiTimeBox_wheel2p" );
-    sprintf (histo_t, "Digi Time Box wheel 2" );
-    meDigiTimeBox_wheel2p_ = dbe_->book1D(histo_n, histo_t, 384,0,1200);
+  sprintf (histo_n, "DigiTimeBox_wheel2p" );
+  sprintf (histo_t, "Digi Time Box wheel 2" );
+  meDigiTimeBox_wheel2p_ = iBooker.book1D(histo_n, histo_t, 384,0,1200);
 
-    sprintf (histo_n, "DigiEfficiencyMu" );
-    sprintf (histo_t, "Ratio (#Digis Mu)/(#SimHits Mu)" );
-    meDigiEfficiencyMu_ = dbe_->book1D(histo_n, histo_t, 100, 0., 5.);
+  sprintf (histo_n, "DigiEfficiencyMu" );
+  sprintf (histo_t, "Ratio (#Digis Mu)/(#SimHits Mu)" );
+  meDigiEfficiencyMu_ = iBooker.book1D(histo_n, histo_t, 100, 0., 5.);
 
-    sprintf (histo_n, "DigiEfficiency" );
-    sprintf (histo_t, "Ratio (#Digis)/(#SimHits)" );
-    meDigiEfficiency_ = dbe_->book1D(histo_n, histo_t, 100, 0., 5.);
+  sprintf (histo_n, "DigiEfficiency" );
+  sprintf (histo_t, "Ratio (#Digis)/(#SimHits)" );
+  meDigiEfficiency_ = iBooker.book1D(histo_n, histo_t, 100, 0., 5.);
 
-    sprintf (histo_n, "Number_Digi_per_layer" );
-    sprintf (histo_t, "Number_Digi_per_layer" );
-    meDoubleDigi_ = dbe_->book1D(histo_n, histo_t, 10,0.,10.);
+  sprintf (histo_n, "Number_Digi_per_layer" );
+  sprintf (histo_t, "Number_Digi_per_layer" );
+  meDoubleDigi_ = iBooker.book1D(histo_n, histo_t, 10,0.,10.);
 
-    sprintf (histo_n, "Number_simhit_vs_digi" );
-    sprintf (histo_t, "Number_simhit_vs_digi" );
-    meSimvsDigi_ = dbe_->book2D(histo_n, histo_t, 100, 0., 140., 100, 0., 140.);
+  sprintf (histo_n, "Number_simhit_vs_digi" );
+  sprintf (histo_t, "Number_simhit_vs_digi" );
+  meSimvsDigi_ = iBooker.book2D(histo_n, histo_t, 100, 0., 140., 100, 0., 140.);
 
-    sprintf (histo_n, "Wire_Number_with_double_Digi" );
-    sprintf (histo_t, "Wire_Number_with_double_Digi" );
-    meWire_DoubleDigi_ = dbe_->book1D(histo_n, histo_t, 100,0.,100.);
+  sprintf (histo_n, "Wire_Number_with_double_Digi" );
+  sprintf (histo_t, "Wire_Number_with_double_Digi" );
+  meWire_DoubleDigi_ = iBooker.book1D(histo_n, histo_t, 100,0.,100.);
 
-    sprintf (histo_n, "Simhit_occupancy_MB1" );
-    sprintf (histo_t, "Simhit_occupancy_MB1" );
-    meMB1_sim_occup_ = dbe_->book1D(histo_n, histo_t, 55, 0., 55. );
+  sprintf (histo_n, "Simhit_occupancy_MB1" );
+  sprintf (histo_t, "Simhit_occupancy_MB1" );
+  meMB1_sim_occup_ = iBooker.book1D(histo_n, histo_t, 55, 0., 55. );
 
-    sprintf (histo_n, "Digi_occupancy_MB1" );
-    sprintf (histo_t, "Digi_occupancy_MB1" );
-    meMB1_digi_occup_ = dbe_->book1D(histo_n, histo_t, 55, 0., 55. );
+  sprintf (histo_n, "Digi_occupancy_MB1" );
+  sprintf (histo_t, "Digi_occupancy_MB1" );
+  meMB1_digi_occup_ = iBooker.book1D(histo_n, histo_t, 55, 0., 55. );
 
-    sprintf (histo_n, "Simhit_occupancy_MB2" );
-    sprintf (histo_t, "Simhit_occupancy_MB2" );
-    meMB2_sim_occup_ = dbe_->book1D(histo_n, histo_t, 63, 0., 63. );
+  sprintf (histo_n, "Simhit_occupancy_MB2" );
+  sprintf (histo_t, "Simhit_occupancy_MB2" );
+  meMB2_sim_occup_ = iBooker.book1D(histo_n, histo_t, 63, 0., 63. );
 
-    sprintf (histo_n, "Digi_occupancy_MB2" );
-    sprintf (histo_t, "Digi_occupancy_MB2" );
-    meMB2_digi_occup_ = dbe_->book1D(histo_n, histo_t, 63, 0., 63. );
+  sprintf (histo_n, "Digi_occupancy_MB2" );
+  sprintf (histo_t, "Digi_occupancy_MB2" );
+  meMB2_digi_occup_ = iBooker.book1D(histo_n, histo_t, 63, 0., 63. );
 
-    sprintf (histo_n, "Simhit_occupancy_MB3" );
-    sprintf (histo_t, "Simhit_occupancy_MB3" );
-    meMB3_sim_occup_ = dbe_->book1D(histo_n, histo_t, 75, 0., 75. );
+  sprintf (histo_n, "Simhit_occupancy_MB3" );
+  sprintf (histo_t, "Simhit_occupancy_MB3" );
+  meMB3_sim_occup_ = iBooker.book1D(histo_n, histo_t, 75, 0., 75. );
 
-    sprintf (histo_n, "Digi_occupancy_MB3" );
-    sprintf (histo_t, "Digi_occupancy_MB3" );
-    meMB3_digi_occup_ = dbe_->book1D(histo_n, histo_t, 75, 0., 75. );
+  sprintf (histo_n, "Digi_occupancy_MB3" );
+  sprintf (histo_t, "Digi_occupancy_MB3" );
+  meMB3_digi_occup_ = iBooker.book1D(histo_n, histo_t, 75, 0., 75. );
 
-    sprintf (histo_n, "Simhit_occupancy_MB4" );
-    sprintf (histo_t, "Simhit_occupancy_MB4" );
-    meMB4_sim_occup_ = dbe_->book1D(histo_n, histo_t, 99, 0., 99. );
+  sprintf (histo_n, "Simhit_occupancy_MB4" );
+  sprintf (histo_t, "Simhit_occupancy_MB4" );
+  meMB4_sim_occup_ = iBooker.book1D(histo_n, histo_t, 99, 0., 99. );
 
-    sprintf (histo_n, "Digi_occupancy_MB4" );
-    sprintf (histo_t, "Digi_occupancy_MB4" );
-    meMB4_digi_occup_ = dbe_->book1D(histo_n, histo_t, 99, 0., 99. );
+  sprintf (histo_n, "Digi_occupancy_MB4" );
+  sprintf (histo_t, "Digi_occupancy_MB4" );
+  meMB4_digi_occup_ = iBooker.book1D(histo_n, histo_t, 99, 0., 99. );
 
-    //    sprintf (histo_n, "" );
-    //    sprintf (histo_t, "" );
-
-    /*
-    //  Other option
-    string histoTag = "DigiTimeBox_slid_";
-    for ( int wheel = -2; wheel <= +2; ++wheel ) {
-    for ( int station = 1; station <= 4; ++station )  {
-    for ( int superLayer = 1; superLayer <= 3; ++superLayer ) {
-    string histoName = histoTag
-    + "_W" + wheel.str()
-    + "_St" + station.str()
-    + "_SL" + superLayer.str();
-    // the booking is not yet done
-    }
-    }
-    }
-    */
-    // Begona's option
-    char stringcham[40];
-    for ( int slnum = 1; slnum < 62; ++slnum ) {
-      sprintf(stringcham, "DigiTimeBox_slid_%d", slnum) ;
-      meDigiHisto_ =  dbe_->book1D(stringcham, stringcham, 100,0,1200);
-      meDigiTimeBox_SL_.push_back(meDigiHisto_);
-    }
-  }
-
+  // Begona's option
+  char stringcham[40];
+  for ( int slnum = 1; slnum < 62; ++slnum ) {
+    sprintf(stringcham, "DigiTimeBox_slid_%d", slnum) ;
+    meDigiHisto_ =  iBooker.book1D(stringcham, stringcham, 100,0,1200);
+    meDigiTimeBox_SL_.push_back(meDigiHisto_);
+  }  
 }
-
-MuonDTDigis::~MuonDTDigis(){
-
-  // Uncomment these next lines if you want additional plots in a second .root file
-
-  //  file_more_plots->cd();
-
-  // hDigis_global->Write();
-
-  //  hDigis_W0->Write();
-  //  hDigis_W1->Write();
-  //  hDigis_W2->Write();
-  //  hAllHits->Write();
-
-  //  file_more_plots->Close();
-
-  // End of comment.
-
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-
-  if(verbose_)
-    cout << "[MuonDTDigis] Destructor called" << endl;
-
-}
-
-//void  MuonDTDigis::endJob(void){
-
-//}
 
 void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
 

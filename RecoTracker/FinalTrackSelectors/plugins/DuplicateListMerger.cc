@@ -192,9 +192,6 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::auto_ptr<TrajectorySeedCollection> outputSeeds;
   edm::RefProd< TrajectorySeedCollection > refTrajSeeds;
 
-  const int rSize = (int)originalHandle->size();
-  edm::RefToBase<TrajectorySeed> seedsRefs[rSize];
-
   edm::Handle<edm::ValueMap<float> > originalMVAStore;
   edm::Handle<edm::ValueMap<float> > mergedMVAStore;
 
@@ -337,17 +334,17 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 						   track.outerStateCovariance(), track.outerDetId(),
 						   track.innerStateCovariance(), track.innerDetId(),
 						   track.seedDirection(), origSeedRef ) );
-      seedsRefs[(*matchIter0).first]=origSeedRef;
       out_generalTracks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
       reco::TrackExtra & tx = outputTrkExtras->back();
       tx.setResiduals(track.residuals());
       // fill TrackingRecHits
       unsigned nh1=track.recHitsSize();
+      auto const firstTrackIndex = outputTrkHits->size();
       for ( unsigned ih=0; ih<nh1; ++ih ) { 
 	  //const TrackingRecHit*hit=&((*(track->recHit(ih))));
 	outputTrkHits->push_back( track.recHit(ih)->clone() );
-	tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
       }
+      tx.setHits(  refTrkHits, firstTrackIndex, outputTrkHits->size() - firstTrackIndex );
     }
     edm::Ref< std::vector<Trajectory> > trajRef(mergedTrajHandle, (*matchIter0).first);
     TrajTrackAssociationCollection::const_iterator match = mergedTrajTrackHandle->find(trajRef);
@@ -435,17 +432,15 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 						     track.outerStateCovariance(), track.outerDetId(),
 						     track.innerStateCovariance(), track.innerDetId(),
 						     track.seedDirection(), origSeedRef ) );
-	seedsRefs[i]=origSeedRef;
 	out_generalTracks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
 	reco::TrackExtra & tx = outputTrkExtras->back();
 	tx.setResiduals(track.residuals());
 	
 	// fill TrackingRecHits
 	unsigned nh1=track.recHitsSize();
-	for ( unsigned ih=0; ih<nh1; ++ih ) { 
-	  //const TrackingRecHit*hit=&((*(track->recHit(ih))));
-	  outputTrkHits->push_back( track.recHit(ih)->clone() );
-	  tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
+       	tx.setHits(refTrkHits,outputTrkHits->size(),nh1);
+	for (auto hh = track.recHitsBegin(), eh=track.recHitsEnd(); hh!=eh; ++hh ) { 
+	  outputTrkHits->push_back( (*hh)->clone() );
 	}
 	
       }
@@ -497,14 +492,14 @@ int DuplicateListMerger::matchCandidateToTrack(TrackCandidate candidate, edm::Ha
  
 
   for(int i = 0; i < (int)tracks->size() && track < 0;i++){
-    if((tracks->at(i)).seedRef() != candidate.seedRef())continue;
+    if( (*tracks)[i].seedRef() != candidate.seedRef())continue;
     int match = 0;
-    trackingRecHit_iterator trackRecBegin = tracks->at(i).recHitsBegin();
-    trackingRecHit_iterator trackRecEnd = tracks->at(i).recHitsEnd();
+    trackingRecHit_iterator trackRecBegin = (*tracks)[i].recHitsBegin();
+    trackingRecHit_iterator trackRecEnd = (*tracks)[i].recHitsEnd();
     for(;trackRecBegin != trackRecEnd; trackRecBegin++){
-      if(std::find(rawIds.begin(),rawIds.end(),(*(trackRecBegin)).get()->rawId()) != rawIds.end())match++;
+      if(std::find(rawIds.begin(),rawIds.end(),(*(trackRecBegin))->rawId()) != rawIds.end()) match++;
     }
-    if(match != (int)tracks->at(i).recHitsSize())continue;
+    if(match != (int)( (*tracks)[i].recHitsSize() ) ) continue;
     track = i;
   }
 

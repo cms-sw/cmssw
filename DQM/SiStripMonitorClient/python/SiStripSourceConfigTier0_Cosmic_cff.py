@@ -43,7 +43,8 @@ SiStripMonitorDigi.TProfGlobalNShots.globalswitchon = True
 from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
 SiStripMonitorCluster.Mod_On = False
 SiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon = True
-SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True
+SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True 
+SiStripMonitorCluster.TrendVsLS = True
 SiStripMonitorCluster.TH2CStripVsCpixel.globalswitchon=False
 SiStripMonitorCluster.TH1MultiplicityRegions.globalswitchon=False
 SiStripMonitorCluster.TH1MainDiagonalPosition.globalswitchon=False

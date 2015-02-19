@@ -30,3 +30,4 @@ class SiGaussianTailNoiseAdder : public SiNoiseAdder{
   std::unique_ptr<GaussianTailNoiseGenerator> genNoise;
 };
 #endif
+ 

@@ -213,7 +213,7 @@ void L2MuonIsolationAnalyzer::analyze(const Event & event, const EventSetup& eve
       }
     }
   }
-  Puts("L2MuonIsolationAnalyzer>>> Run: %ld, Event %ld, number of muons %d"
+  Puts("L2MuonIsolationAnalyzer>>> Run: %llu, Event %llu, number of muons %d"
        , event.id().run(), event.id().event(), depMap->size());
 }
 

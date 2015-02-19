@@ -3,6 +3,7 @@
  <class name="std::pair<const int,std::pair<double,double> >"/>
  <class name="std::pair<const int,std::pair<unsigned int,unsigned int> >"/>
  <class name="std::pair<const int,std::pair<unsigned long,unsigned long> >"/>
+ <class name="std::pair<const int,std::pair<std::basic_string<char>, int> >"/>
  <class name="std::pair<const int,unsigned int>"/>
  <class name="std::pair<const short,short>"/>
  <class name="std::pair<const short,unsigned int>"/>

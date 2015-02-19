@@ -92,7 +92,7 @@ ErrorsPropagationAnalyzer::~ErrorsPropagationAnalyzer()
   drawHistograms(sigmaMassOverMassVsPt_, sigmaMassOverMassVsPtPlusErr_, sigmaMassOverMassVsPtMinusErr_, "sigmaMassOverMassVsPt", "#sigma(M)/M");
 
   sigmaPtVsPtDiff_->Write();
-  sigmaPtVsEtaDiff_->Write();  
+  sigmaPtVsEtaDiff_->Write();
 
   outputFile->Write();
   outputFile->Close();
@@ -290,7 +290,7 @@ void ErrorsPropagationAnalyzer::fillHistograms()
 
   typedef std::vector<std::pair<lorentzVector,lorentzVector> > MuonPairVector;
   MuonPairVector savedPair;
-  std::vector<std::pair<int, int> > evtRun;
+  std::vector<std::pair<unsigned int, unsigned long long> > evtRun;
   rootTreeHandler.readTree(maxEvents_, treeFileName_, &savedPair, 0, &evtRun);
   // rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &savedPair, &(MuScleFitUtils::genPair));
 
@@ -345,7 +345,7 @@ void ErrorsPropagationAnalyzer::fillHistograms()
     double sigmaMassMinusErr = massResolution( it->first, it->second, parameters_, sigmaPtMinusErr1, sigmaPtMinusErr2 );
 
     double mass = (it->first + it->second).mass();
-    
+
     if( debug_ ) {
       std::cout << "sigmaPt1 = " << sigmaPt1 << " + " << sigmaPtPlusErr1 << " - " << sigmaPtMinusErr1 << std::endl;
       std::cout << "sigmaPt2 = " << sigmaPt2 << " + " << sigmaPtPlusErr2 << " - " << sigmaPtMinusErr2 << std::endl;

@@ -48,6 +48,13 @@ namespace edmtest {
     cms_int32_t value;
   };
 
+  struct UInt64Product {
+    explicit UInt64Product(unsigned long long i = 0) : value(i) {}
+    ~UInt64Product() {}
+
+    unsigned long long value;
+  };
+
   struct TransientIntProduct {
     explicit TransientIntProduct(int i = 0) : value(i) {}
     ~TransientIntProduct() {}

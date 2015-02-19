@@ -3,7 +3,6 @@
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -44,14 +43,6 @@ namespace pat {
     
     /// destructor
     virtual ~PackedCandidate();
-    /// first daughter const_iterator
-    virtual const_iterator begin() const;
-    /// last daughter const_iterator
-    virtual const_iterator end() const;
-    /// first daughter iterator
-    virtual iterator begin();
-    /// last daughter iterator
-    virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const;
     /// return daughter at a given position (throws an exception)
@@ -105,12 +96,14 @@ namespace pat {
     virtual double p() const { if (!unpacked_) unpack(); return p4c_.P(); }
     /// energy                                                                            
     virtual double energy() const { if (!unpacked_) unpack(); return p4c_.E(); }
-    /// transverse energy                                                                 
-    virtual double et() const { if (!unpacked_) unpack(); return p4_.Et(); }
+   /// transverse energy 
+    double et() const { return (pt()<=0) ? 0 : p4c_.Et(); }  
+    /// transverse energy squared (use this for cuts)!
+    double et2() const { return (pt()<=0) ? 0 : p4c_.Et2(); }   
     /// mass                                                                              
-    virtual float mass() const { if (!unpacked_) unpack(); return p4_.M(); }
+    virtual double mass() const { if (!unpacked_) unpack(); return p4_.M(); }
     /// mass squared                                                                      
-    virtual float massSqr() const { if (!unpacked_) unpack(); return p4_.M()*p4_.M(); }
+    virtual double massSqr() const { if (!unpacked_) unpack(); return p4_.M()*p4_.M(); }
 
     /// transverse mass                                                                   
     virtual double mt() const { if (!unpacked_) unpack(); return p4_.Mt(); }
@@ -123,9 +116,9 @@ namespace pat {
     /// z coordinate of momentum vector                                                   
     virtual double pz() const { if (!unpacked_) unpack(); return p4c_.Pz(); }
     /// transverse momentum                                                               
-    virtual float pt() const { if (!unpacked_) unpack(); return p4_.Pt();}
+    virtual double pt() const { if (!unpacked_) unpack(); return p4_.Pt();}
     /// momentum azimuthal angle                                                          
-    virtual float phi() const { if (!unpacked_) unpack(); return p4_.Phi(); }
+    virtual double phi() const { if (!unpacked_) unpack(); return p4_.Phi(); }
     /// momentum azimuthal angle from the track (normally identical to phi())
     virtual float phiAtVtx() const { 
         maybeUnpackBoth(); 
@@ -137,7 +130,7 @@ namespace pat {
     /// momentum polar angle                                                              
     virtual double theta() const { if (!unpacked_) unpack(); return p4_.Theta(); }
     /// momentum pseudorapidity                                                           
-    virtual float eta() const { if (!unpacked_) unpack(); return p4_.Eta(); }
+    virtual double eta() const { if (!unpacked_) unpack(); return p4_.Eta(); }
     /// rapidity                                                                          
     virtual double rapidity() const { if (!unpacked_) unpack(); return p4_.Rapidity(); }
     /// rapidity                                                                          
@@ -327,52 +320,6 @@ namespace pat {
     /// cast master clone reference to a concrete type
     template<typename Ref>
       Ref masterRef() const { return masterClone().template castTo<Ref>(); }
-    /// get a component
-
-    /* template<typename T> T get() const { */
-    /*   if ( hasMasterClone() ) return masterClone()->get<T>(); */
-    /*   else return reco::get<T>( * this ); */
-    /* } */
-    /* /// get a component                                                                                                 */
-    /* template<typename T, typename Tag> T get() const { */
-    /*   if ( hasMasterClone() ) return masterClone()->get<T, Tag>(); */
-    /*   else return reco::get<T, Tag>( * this ); */
-    /* } */
-    /* /// get a component                                                                                                 */
-    /* template<typename T> T get( size_type i ) const { */
-    /*   if ( hasMasterClone() ) return masterClone()->get<T>( i ); */
-    /*   else return reco::get<T>( * this, i ); */
-    /* } */
-    /* /// get a component                                                                                                 */
-    /* template<typename T, typename Tag> T get( size_type i ) const { */
-    /*   if ( hasMasterClone() ) return masterClone()->get<T, Tag>( i ); */
-    /*   else return reco::get<T, Tag>( * this, i ); */
-    /* } */
-    /* /// number of components                                                                                            */
-    /* template<typename T> size_type numberOf() const { */
-    /*   if ( hasMasterClone() ) return masterClone()->numberOf<T>(); */
-    /*   else return reco::numberOf<T>( * this ); */
-    /* } */
-    /* /// number of components                                                                                            */
-    /* template<typename T, typename Tag> size_type numberOf() const { */
-    /*   if ( hasMasterClone() ) return masterClone()->numberOf<T, Tag>(); */
-    /*   else return reco::numberOf<T, Tag>( * this ); */
-    /* } */
-
-    /* template<typename S> */
-    /*   struct daughter_iterator   { */
-    /*     typedef boost::filter_iterator<S, const_iterator> type; */
-    /*   }; */
-
-    /* template<typename S> */
-    /*   typename daughter_iterator<S>::type beginFilter( const S & s ) const { */
-    /*   return boost::make_filter_iterator(s, begin(), end()); */
-    /* } */
-    /* template<typename S> */
-    /*   typename daughter_iterator<S>::type endFilter( const S & s ) const { */
-    /*   return boost::make_filter_iterator(s, end(), end()); */
-    /* } */
-
 
     virtual bool isElectron() const { return false; }
     virtual bool isMuon() const { return false; }
@@ -438,11 +385,6 @@ namespace pat {
         lostInnerHitsMask = 0x18, lostInnerHitsShift=3,
         muonFlagsMask = 0x0300, muonFlagsShift=8
     };
-  private:
-    // const iterator implementation
-    typedef reco::candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    // iterator implementation
-    typedef reco::candidate::iterator_imp_specific<daughters> iterator_imp_specific;
   };
 
   typedef std::vector<pat::PackedCandidate> PackedCandidateCollection;

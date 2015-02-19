@@ -10,5 +10,6 @@ workflows = Matrix()
 # the name of step1 will be used
 
 # 50 ns at 8 TeV
-workflows[10025] = ['', ['TTbar','DIGI','RECOUNSCH','HARVEST','ALCATT']]
+#needs a new GT to work
+#workflows[10025] = ['', ['TTbar','DIGI','RECOUNSCH','HARVEST','ALCATT']]
 workflows[11325] = ['', ['TTbar_13','DIGIUP15','RECOUP15UNSCH','HARVESTUP15','ALCATT']]

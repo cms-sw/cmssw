@@ -3,10 +3,11 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TauTest")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.load("Validation.EventGenerator.TauValidation_cfi")
+#process.load("Validation.EventGenerator.TauValidation_cfi")
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration/StandardSequences/EndOfProcess_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('Configuration.StandardSequences.Validation_cff')
 
 process.maxEvents = cms.untracked.PSet(
 #    input = cms.untracked.int32(100)
@@ -15,24 +16,39 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-#	'file:gen.root'
-#	'/store/relval/CMSSW_3_6_0_pre5/RelValHiggs200ChargedTaus/GEN-SIM-DIGI-RAW-HLTDEBUG/START36_V3-v1/0010/E09B3F44-E13D-DF11-995D-00304867BFA8.root'
-	'rfio:/castor/cern.ch/user/s/slehti/HiggsAnalysisData/test_H120_100_1_08t_RAW_RECO.root'
-#	'rfio:/castor/cern.ch/user/s/slehti/testData/DYToTauTau_M_20_TuneZ2_7TeV_pythia6_tauola_Fall10_START38_V12_v2_GEN_SIM_RECO_100ev.root'
+	'file:/afs/cern.ch/user/i/inugent/tmp/CMSSW_7_4_X_2015-02-03-0200/src/00A47D7F-B88D-E411-A4A1-0025905B85D0.root'
     ) 
 )
 
 ANALYSISEventContent = cms.PSet(
 #    outputCommands = cms.untracked.vstring('drop *')
-    outputCommands = cms.untracked.vstring('keep *_*_*_TauTest')
+    outputCommands = cms.untracked.vstring('keep *')
 )
 #ANALYSISEventContent.outputCommands.extend(process.MEtoEDMConverterFEVT.outputCommands)
 
-process.out = cms.OutputModule("PoolOutputModule",
-    verbose = cms.untracked.bool(False),
-    fileName = cms.untracked.string('output.root'),
-    outputCommands = ANALYSISEventContent.outputCommands
+#process.out = cms.OutputModule("PoolOutputModule",
+#    verbose = cms.untracked.bool(False),
+#    fileName = cms.untracked.string('output.root'),
+#    outputCommands = ANALYSISEventContent.outputCommands
+#)
+
+process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string('DQMIO'),
+        filterName = cms.untracked.string('')
+    ),
+    fileName = cms.untracked.string('file:step1_inDQM.root'),
+    outputCommands = process.DQMEventContent.outputCommands,
+    splitLevel = cms.untracked.int32(0)
 )
+
+
+process.debugOutput = cms.OutputModule("PoolOutputModule",
+                                       fileName = cms.untracked.string("Test_DYJetsToLL_M-50_TuneCUETP8M1_8TeV-amcatnloFXFX-pythia8.root"),
+                                       outputCommands = cms.untracked.vstring('keep *'),
+                                       )
+process.out_step = cms.EndPath(process.debugOutput)
+
 
 #Adding SimpleMemoryCheck service:
 process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck",
@@ -48,8 +64,21 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )    
 
-process.p = cms.Path(process.tauValidation+process.endOfProcess+process.out)
+#process.schedule = cms.Schedule(process.tauValidation+process.endOfProcess+process.out_step)
 
+#GenEventInfoProduct                   "generator"                 ""                "SIM"
+process.tauValidation = cms.EDAnalyzer("TauValidation",
+                                       genparticleCollection = cms.InputTag("genParticles",""),
+                                       tauEtCutForRtau = cms.double(50),
+                                       UseWeightFromHepMC = cms.bool(False)
+                                       )
 
+process.validation_step = cms.EndPath(process.tauValidation_seq)
+process.out_step = cms.EndPath(process.debugOutput)
+#process.validation_step = cms.EndPath(process.tauValidation)
+process.DQMoutput_step = cms.EndPath(process.DQMoutput)
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+#process.schedule = cms.Schedule(process.validation_step)
+#process.schedule.append(process.out_step)
 
-
+process.schedule = cms.Schedule(process.validation_step,process.DQMoutput_step)

@@ -2,29 +2,37 @@ import FWCore.ParameterSet.Config as cms
 
 
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
-		
+        
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau"),
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej"), 
+    histDirectory  = cms.string("HLT/Higgs"),
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
+    
+    # -- The instance name of the reco::GenJets collection
+    genJetLabel = cms.string("ak4GenJets"),
 
-    # -- The nomber of interactions in the event
+    # -- The instance name of the reco::PFJetCollection collection
+    recoHtJetLabel = cms.untracked.string("ak4PFJetsCHS"),
+
+    # -- The number of interactions in the event
     pileUpInfoLabel  = cms.string("addPileupInfo"),
 
     # -- The binning of the Pt efficiency plots
     parametersTurnOn = cms.vdouble(0,
-                                   1, 8, 9, 10,
-                                   11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-                                   22, 24, 26, 28, 30, 32, 34, 36, 38, 40,
-                                   45, 50, 55, 60, 65, 70,
-                                   80, 100,
-                                   ),
+                                1, 8, 9, 10,
+                                11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+                                22, 24, 26, 28, 30, 32, 34, 36, 38, 40,
+                                45, 50, 55, 60, 65, 70,
+                                80, 100,
+                                ),
 
     # -- (NBins, minVal, maxValue) for the Eta,Phi and nInterations efficiency plots
     parametersEta      = cms.vdouble(48, -2.400, 2.400),
     parametersPhi      = cms.vdouble(50, -3.142, 3.142),
     parametersPu       = cms.vdouble(10, 0, 20),
+    parametersHt       = cms.untracked.vdouble(100, 0, 1000),
 
     # TO BE DEPRECATED --------------------------------------------
     cutsDr = cms.vdouble(0.4, 0.4, 0.015), # TO BE DEPRECATED
@@ -52,10 +60,10 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     # --- Photons
     Photon_genCut     = cms.string("abs(pdgId) == 22 && status == 1"),
     Photon_recCut     = cms.string("pt > 20 && abs(eta) < 2.4 && hadronicOverEm < 0.1 && ( r9 < 0.85 || ("+\
-		    " ( abs(eta) < 1.479 && sigmaIetaIeta < 0.014  || "+\
-		    "   abs(eta) > 1.479 && sigmaIetaIeta < 0.0035 ) && "+\
-		    " ecalRecHitSumEtConeDR03 < (5.0+0.012*et) && hcalTowerSumEtConeDR03 < (5.0+0.0005*et )  && trkSumPtSolidConeDR03 < (5.0 + 0.0002*et)"+\
-		    " )"+")" ),
+            " ( abs(eta) < 1.479 && sigmaIetaIeta < 0.014  || "+\
+            "   abs(eta) > 1.479 && sigmaIetaIeta < 0.0035 ) && "+\
+            " ecalRecHitSumEtConeDR03 < (5.0+0.012*et) && hcalTowerSumEtConeDR03 < (5.0+0.0005*et )  && trkSumPtSolidConeDR03 < (5.0 + 0.0002*et)"+\
+            " )"+")" ),
     Photon_cutMinPt   = cms.double(20), # TO BE DEPRECATED
     Photon_cutMaxEta  = cms.double(2.4),# TO BE DEPRECATED
 
@@ -70,6 +78,20 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     MET_recCut      = cms.string("pt > 75."),  
     MET_cutMinPt    = cms.double(75), # TO BE DEPRECATED
     MET_cutMaxEta   = cms.double(0),  # TO BE DEPRECATED
+    
+    # --- PFMET    
+    PFMET_genCut      = cms.string("(abs(pdgId) == 12 || abs(pdgId)==14 || abs(pdgId) == 16 ) && status == 1"),
+    PFMET_recCut      = cms.string("pt > 75."),  
+    PFMET_cutMinPt    = cms.double(75), # TO BE DEPRECATED
+    PFMET_cutMaxEta   = cms.double(0),  # TO BE DEPRECATED
+    
+    # --- Jets: 
+    Jet_genCut      = cms.string("pt > 10"),
+    Jet_recCut      = cms.string("pt > 10"),  
+    Jet_cutMinPt    = cms.double(0), # TO BE DEPRECATED
+    Jet_cutMaxEta   = cms.double(0),  # TO BE DEPRECATED
+    
+    
 
     # The specific parameters per analysis: the name of the parameter set has to be 
     # the same as the defined ones in the 'analysis' datamember. Each analysis is a PSet
@@ -77,7 +99,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     #    - hltPathsToCheck (cms.vstring) : a list of all the trigger pats to be checked 
     #                 in this analysis. Up to the version number _v, but not including 
     #                 the number in order to avoid this version dependence. Example: HLT_Mu18_v
-    #    - recVarLabel (cms.string): where Var can be Muon, Elec, Photon, CaloMET, PFTau. This 
+    #    - recVarLabel (cms.string): where Var can be Muon, Elec, Photon, CaloMET, PFTau, Jet. This 
     #                 attribute is the name of the INSTANCE LABEL for each RECO collection to 
     #                 be considered in the analysis. Note that the trigger paths rely on some 
     #                 objects which need to be defined here, otherwise the code will complain. 
@@ -87,70 +109,213 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     #    * Var_genCut, Var_recCut (cms.string): where Var=Mu, Ele, Photon, MET, PFTau (see above)
 
     HWW = cms.PSet( 
-	    hltPathsToCheck = cms.vstring(
-		    "HLT_Mu17_Mu8_v",
-		    "HLT_Mu17_TkMu8_v",
-		    "HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
-		    "HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
-		    "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
-		    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
-                    "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
-                    "HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v",
-                    "HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v",
-                    "HLT_Ele23_Ele12_CaloId_TrackId_Iso_v"
-		    ),
-	    recMuonLabel  = cms.string("muons"),
-	    recElecLabel  = cms.string("gedGsfElectrons"),
-	    # -- Analysis specific cuts
-	    minCandidates = cms.uint32(2),
-	    ),
+        hltPathsToCheck = cms.vstring(
+              #dileptons for Hww and Hzz
+              "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
+              "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v",
+              "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+              "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
+              "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
+              #dilepton path for the 7e33 menu at 25ns
+              "HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
+              "HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v",
+              "HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+              #prescaled control paths
+              "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+              "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
+              "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
+              "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v",
+              "HLT_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+              "HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_v"  
+        ),
+        recMuonLabel  = cms.string("muons"),
+        recElecLabel  = cms.string("gedGsfElectrons"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(2),
+        ),
     HZZ = cms.PSet( 
-	    hltPathsToCheck = cms.vstring(
-		    "HLT_Mu17_TkMu8_v",
-		    "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
-            "HLT_Ele17_Ele12_Ele10_CaloId_TrackId_v"
-		    ),
-	    recMuonLabel  = cms.string("muons"),
-	    recElecLabel  = cms.string("gedGsfElectrons"),
-	    #recTrackLabel = cms.string("globalMuons"),
-	    # -- Analysis specific cuts
-	    minCandidates = cms.uint32(4), 
-	    ),
+        hltPathsToCheck = cms.vstring(
+        #tri-leptons for Hzz
+            "HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL_v",
+            "HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v",
+            "HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v",
+            "HLT_TripleMu_12_10_5_1PairDZ_v",
+            "HLT_TripleMu_12_10_5_v"
+        ),
+        recMuonLabel  = cms.string("muons"),
+        recElecLabel  = cms.string("gedGsfElectrons"),
+        #recTrackLabel = cms.string("globalMuons"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(4), 
+        ),
     Hgg = cms.PSet( 
-	    hltPathsToCheck = cms.vstring(
-		    "HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v",
-		    "HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v",
-		    "HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon10_R9Id85_OR_CaloId10_Iso50_Mass80_v",
-  	 	    "HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_Mass95_v",
-		    "HLT_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_v"
-		    ),
-	    recPhotonLabel  = cms.string("photons"),
-	    # -- Analysis specific cuts
-	    minCandidates = cms.uint32(2), 
-	    ),
-    Htaunu = cms.PSet( 
-	    hltPathsToCheck = cms.vstring(
-		    "HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v",
-		    "HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v",
-                    "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v"
-		    ),
-	    recPFTauLabel   = cms.string("hpsPFTauProducer"),
-	    recCaloMETLabel = cms.string("caloMet"),
-	    # -- Analysis specific cuts
-	    minCandidates = cms.uint32(2), 
-	    ),
+        hltPathsToCheck = cms.vstring(
+            "HLT_Diphoton36_18_R9Id85_OR_Iso50T80LCaloId24b40e_AND_HE10P5_R9Id50b80e_Mass95_v",
+            "HLT_Diphoton42_22_R9Id85_OR_Iso50T80LCaloId24b40e_AND_HE10P5_R9Id50b80e_v",
+            "HLT_Photon28_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon14_AND_HE10_R9Id65_Mass50_Eta1p5_v",
+            "HLT_Photon36_R9Id85_AND_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_v",
+            "HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_Mass70_v",
+            "HLT_Photon30_R9Id85_AND_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_Mass30_Solid_v",
+            "HLT_Photon30_R9Id85_AND_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65SinglePV_v",
+            "HLT_Photon30_R9Id85_AND_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65DoublePV_v"
+        ),
+        recPhotonLabel  = cms.string("photons"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(2), 
+        ),
+     DoubleHinTaus = cms.PSet(
+        hltPathsToCheck = cms.vstring(
+            "HLT_Mu17_Mu8_SameSign_v",
+            "HLT_Mu17_Mu8_SameSign_DPhi_v"
+        ),
+        recMuonLabel  = cms.string("muons"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(2),
+        ),
+     HiggsDalitz = cms.PSet(
+        hltPathsToCheck = cms.vstring(
+            "HLT_Mu12_Photon25_CaloIdL_v",
+            "HLT_Mu12_Photon25_CaloIdL_L1ISO_v",
+            "HLT_Mu12_Photon25_CaloIdL_L1OR_v"
+        ),
+        recMuonLabel  = cms.string("muons"),
+        recPhotonLabel  = cms.string("photons"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(2),
+        ),
+     Htaunu = cms.PSet(
+        hltPathsToCheck = cms.vstring(
+#            "HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v",
+#            "HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v",
+            "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_v",
+            "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v",
+            # monitoring triggers for efficiency measurement
+            "HLT_LooseIsoPFTau50_Trk30_eta2p1_v",
+            "HLT_IsoMu16_eta2p1_CaloMET30_LooseIsoPFTau50_Trk30_eta2p1_v",
+            "HLT_IsoMu16_eta2p1_CaloMET30_v"
+            ),
+        recPFTauLabel   = cms.string("hpsPFTauProducer"),
+        recCaloMETLabel = cms.string("caloMet"),
+        recMuonLabel  = cms.string("muons"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(1), 
+        parametersTurnOn = cms.vdouble(0,
+                                1, 8, 9, 10,
+                                11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+                                22, 24, 26, 28, 30, 32, 34, 36, 38, 40,
+                                45, 50, 55, 60, 65, 70, 
+                                80, 100, 120, 140, 160, 180, 200,
+                                ),
+        ),
     H2tau  = cms.PSet( 
-	    hltPathsToCheck = cms.vstring(
-		    "HLT_Ele22_eta2p1_WP90Rho_LooseIsoPFTau20_v",#?
-                    "HLT_Ele22_eta2p1_WP90Rho_Gsf_LooseIsoPFTau20_v",
-#		    "HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v",
-		    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v",
-                    "HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v"
-		    ),
-	    recPFTauLabel  = cms.string("hpsPFTauProducer"),
-	    recMuonLabel   = cms.string("muons"),
-	    recElecLabel   = cms.string("gedGsfElectrons"),
-	    # -- Analysis specific cuts
-	    minCandidates = cms.uint32(2), 
-	    ),
+        hltPathsToCheck = cms.vstring(
+            #"HLT_Ele22_eta2p1_WP90Rho_LooseIsoPFTau20_v",#?
+            #"HLT_Ele22_eta2p1_WP90Rho_Gsf_LooseIsoPFTau20_v",
+            #"HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v",
+            "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v",
+            "HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v",
+            #"HLT_IsoMu24_eta2p1_IterTrk02_LooseIsoPFTau20_v",
+            "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_v",
+            "HLT_IsoMu17_eta2p1_MediumIsoPFTau40_Trk1_eta2p1_Reg_v",
+            "HLT_IsoMu17_eta2p1_v",
+            "HLT_DoubleIsoMu17_eta2p1_v",
+            "HLT_IsoMu16_eta2p1_CaloMET30_v",
+            "HLT_Mu16_eta2p1_CaloMET30_v",
+            "HLT_Ele27_eta2p1_WP75_Gsf_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v",
+            "HLT_Ele32_eta2p1_WP75_Gsf_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v",
+            "HLT_Ele27_eta2p1_WP75_Gsf_LooseIsoPFTau20_v",
+            "HLT_Ele32_eta2p1_WP75_Gsf_LooseIsoPFTau20_v",
+            "HLT_Ele22_eta2p1_WP75_Gsf_v",
+            "HLT_DoubleEle24_22_eta2p1_WP75_Gsf_v",
+            "HLT_IsoMu24_eta2p1_LooseIsoPFTau20_v",
+            "HLT_IsoMu24_eta2p1_IterTrk02_v",
+            "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
+            "HLT_Ele22_eta2p1_WP75_Gsf_LooseIsoPFTau20_v",
+            "HLT_Ele27_eta2p1_WP75_Gsf_v",
+            "HLT_Ele32_eta2p1_WP75_Gsf_v",
+            "HLT_Ele17_Ele8_Gsf_v"
+            ),
+        recPFTauLabel  = cms.string("hpsPFTauProducer"),
+        recMuonLabel   = cms.string("muons"),
+        recElecLabel   = cms.string("gedGsfElectrons"),
+        recCaloMETLabel = cms.string("caloMet"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(2), 
+        ),
+    VBFHbb_0btag  = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_QuadPFJet_VBF_v",
+            "HLT_L1_TripleJet_VBF_v"
+            ),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(4), 
+        NminOneCuts = cms.untracked.vdouble(2.5, 240, 2.1, 0, 0, 0, 0, 0, 0, 95, 85, 70, 40), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        ),
+    VBFHbb_2btag  = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200_v",
+            "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq240_v",
+            ),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(4), 
+        NminOneCuts = cms.untracked.vdouble(2.5, 240, 2.1, 0.8, 0.5, 0, 0, 0, 0, 95, 85, 70, 40), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        ),
+    VBFHbb_1btag  = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq460_v",
+            "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v",
+            ),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(4), 
+        NminOneCuts = cms.untracked.vdouble(5, 550, 1.0, 0.8, 0, 0, 0, 0, 0, 95, 85, 70, 40), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        ),
+    ZnnHbb = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_BTagCSV0p7_v",
+            "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_v"
+            "HLT_PFMET120_PFMHT120_IDLoose_v",
+            "HLT_PFMET110_PFMHT110_IDLoose_v",
+            "HLT_PFMET100_PFMHT100_IDLoose_v",
+            "HLT_PFMET90_PFMHT90_IDLoose_v",
+            ),
+        Jet_recCut   = cms.string("pt > 10 && abs(eta) < 2.6"),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        recPFMETLabel = cms.string("pfMet"),  
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(1), 
+        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.9, 0, 0, 8, 30, 100, 70), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        ),
+    X4b  = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_DoubleJet90_Double30_TripleCSV0p5_v",
+            "HLT_DoubleJet90_Double30_DoubleCSV0p5_v",
+            "HLT_QuadJet45_TripleCSV0p5_v",
+            "HLT_QuadJet45_DoubleCSV0p5_v",
+            ),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(4), 
+        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.5, 0.5 , 0.5, 0, 0, 0, 0, 90, 0, 45), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        ),
+    TTHbbej  = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_Ele27_WP85_Gsf_v",
+            "HLT_Ele27_eta2p1_WP85_Gsf_HT200_v"
+            ),
+        recElecLabel   = cms.string("gedGsfElectrons"),
+        #recJetLabel  = cms.string("ak4PFJetsCHS"),
+        #jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        ## -- Analysis specific cuts
+        minCandidates = cms.uint32(1),
+        HtJetPtMin = cms.untracked.double(30),
+        HtJetEtaMax = cms.untracked.double(3.0),
+        ),
 )

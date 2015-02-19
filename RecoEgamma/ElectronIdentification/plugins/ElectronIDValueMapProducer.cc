@@ -99,7 +99,7 @@ void ElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
   iEvent.getByToken(src_, src);
   
   if( dataFormat_ == "PAT" && src->size() ) {
-    edm::Ptr<pat::Electron> test(src->ptrVector()[0]);
+    edm::Ptr<pat::Electron> test(src->ptrAt(0));
     if( test.isNull() || !test.isAvailable() ) {
       throw cms::Exception("InvalidConfiguration")
 	<<"DataFormat set to \"PAT\" but cannot cast to pat::Electron!";
@@ -112,8 +112,8 @@ void ElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
   std::vector<float> eleFull5x5E1x5,eleFull5x5E2x5,eleFull5x5E5x5;
   
   // reco::GsfElectron::superCluster() is virtual so we can exploit polymorphism
-  for (const auto& iEle : src->ptrVector()){
-    
+  for (size_t i = 0; i < src->size(); ++i){
+    auto iEle = src->ptrAt(i);
     const auto& theseed = *(iEle->superCluster()->seed());
 
     std::vector<float> vCov = lazyToolnoZS->localCovariances( theseed );

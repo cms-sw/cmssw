@@ -282,7 +282,7 @@ namespace sistrip {
 	    
 	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
             
-	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
+	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc())); unpacker++;}
           } catch (const cms::Exception& e) {
             if ( edm::isDebugEnabled() ) {
               edm::LogWarning(sistrip::mlRawToDigi_)
@@ -332,6 +332,38 @@ namespace sistrip {
 	    
 	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
 	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
+	  } catch (const cms::Exception& e) {
+            if ( edm::isDebugEnabled() ) {
+              edm::LogWarning(sistrip::mlRawToDigi_)
+                << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
+                << " Clusters are not ordered for FED "
+                << *ifed << " channel " << iconn->fedCh()
+                << ": " << e.what();
+            }
+            detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
+            continue;
+          }  
+
+	  regItem.length = zs_work_digis_.size() - regItem.index;
+	  if (regItem.length > 0) {
+	    regItem.first = zs_work_digis_[regItem.index].strip();
+	    zs_work_registry_.push_back(regItem);
+	  }
+          
+
+	} 
+     
+	else if (mode == sistrip::READOUT_MODE_PREMIX_RAW ) { 
+
+	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
+	
+	  try {
+
+            /// create unpacker
+	    sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::preMixRawModeUnpacker(buffer->channel(iconn->fedCh()));
+	    
+	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
+	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adcPreMix()));unpacker++;}
 	  } catch (const cms::Exception& e) {
             if ( edm::isDebugEnabled() ) {
               edm::LogWarning(sistrip::mlRawToDigi_)

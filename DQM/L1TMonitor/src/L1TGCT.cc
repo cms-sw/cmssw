@@ -73,13 +73,6 @@ L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
   if (verbose_)
     edm::LogInfo("L1TGCT") << "L1TGCT: constructor...." << std::endl;
 
-
-  dbe = NULL;
-  if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {
-    dbe = edm::Service < DQMStore > ().operator->();
-    dbe->setVerbose(0);
-  }
-
   outputFile_ = ps.getUntrackedParameter < std::string > ("outputFile", "");
   if (outputFile_.size() != 0) {
     edm::LogInfo("L1TGCT") << "L1T Monitoring histograms will be saved to "
@@ -89,11 +82,6 @@ L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
   if(disable){
     outputFile_="";
-  }
-
-
-  if (dbe != NULL) {
-    dbe->setCurrentFolder("L1T/L1TGCT");
   }
 
   //set Token(-s)
@@ -114,140 +102,92 @@ L1TGCT::~L1TGCT()
 {
 }
 
-void L1TGCT::beginJob(void)
+void L1TGCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&)
 {
 
   nev_ = 0;
 
-  // get hold of back-end interface
-  DQMStore *dbe = 0;
-  dbe = edm::Service < DQMStore > ().operator->();
+  ibooker.setCurrentFolder("L1T/L1TGCT");
 
-  if (dbe) {
-    dbe->setCurrentFolder("L1T/L1TGCT");
-    dbe->rmdir("L1T/L1TGCT");
-  }
-
-
-  if (dbe) {
-
-    dbe->setCurrentFolder("L1T/L1TGCT");
-
-    triggerType_ =
-      dbe->book1D("TriggerType", "TriggerType", 17, -0.5, 16.5);
-
-    l1GctAllJetsEtEtaPhi_ = dbe->book2D("AllJetsEtEtaPhi", "CENTRAL AND FORWARD JET E_{T}",
-					JETETABINS, JETETAMIN, JETETAMAX,
-                                        PHIBINS, PHIMIN, PHIMAX);
-    l1GctCenJetsEtEtaPhi_ = dbe->book2D("CenJetsEtEtaPhi", "CENTRAL JET E_{T}",
-					JETETABINS, JETETAMIN, JETETAMAX,
-                                        PHIBINS, PHIMIN, PHIMAX); 
-    l1GctForJetsEtEtaPhi_ = dbe->book2D("ForJetsEtEtaPhi", "FORWARD JET E_{T}",
-					JETETABINS, JETETAMIN, JETETAMAX,
-					PHIBINS, PHIMIN, PHIMAX); 
-    l1GctTauJetsEtEtaPhi_ = dbe->book2D("TauJetsEtEtaPhi", "TAU JET E_{T}", 
-					EMETABINS, EMETAMIN, EMETAMAX,
-					PHIBINS, PHIMIN, PHIMAX); 
-    l1GctIsoEmRankEtaPhi_ = dbe->book2D("IsoEmRankEtaPhi", "ISO EM E_{T}", 
-					EMETABINS, EMETAMIN, EMETAMAX,
-                                        PHIBINS, PHIMIN, PHIMAX); 		    
-    l1GctNonIsoEmRankEtaPhi_ = dbe->book2D("NonIsoEmRankEtaPhi", "NON-ISO EM E_{T}",
-                                           EMETABINS, EMETAMIN, EMETAMAX,
-                                           PHIBINS, PHIMIN, PHIMAX); 
-    l1GctAllJetsOccEtaPhi_ = dbe->book2D("AllJetsOccEtaPhi", "CENTRAL AND FORWARD JET OCCUPANCY",
-					JETETABINS, JETETAMIN, JETETAMAX,
-                                        PHIBINS, PHIMIN, PHIMAX);
-    l1GctCenJetsOccEtaPhi_ = dbe->book2D("CenJetsOccEtaPhi", "CENTRAL JET OCCUPANCY",
-					 JETETABINS, JETETAMIN, JETETAMAX,
-                                         PHIBINS, PHIMIN, PHIMAX); 
-    l1GctForJetsOccEtaPhi_ = dbe->book2D("ForJetsOccEtaPhi", "FORWARD JET OCCUPANCY",
-					 JETETABINS, JETETAMIN, JETETAMAX,
-					 PHIBINS, PHIMIN, PHIMAX);
-    l1GctTauJetsOccEtaPhi_ = dbe->book2D("TauJetsOccEtaPhi", "TAU JET OCCUPANCY",
-                                         EMETABINS, EMETAMIN, EMETAMAX,
-					 PHIBINS, PHIMIN, PHIMAX); 
-    l1GctIsoEmOccEtaPhi_ = dbe->book2D("IsoEmOccEtaPhi", "ISO EM OCCUPANCY",
-                                       EMETABINS, EMETAMIN, EMETAMAX,
-				       PHIBINS, PHIMIN, PHIMAX); 
-    l1GctNonIsoEmOccEtaPhi_ = dbe->book2D("NonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",
-                                          EMETABINS, EMETAMIN, EMETAMAX,
-					  PHIBINS, PHIMIN, PHIMAX); 
+  runId_     = ibooker.bookInt("iRun");
+  runId_->Fill(-1);
+  lumisecId_ = ibooker.bookInt("iLumiSection");
+  lumisecId_->Fill(-1);
   
-    l1GctHFRing1PosEtaNegEta_ = dbe->book2D("HFRing1Corr", "HF RING1 E_{T} CORRELATION +/-  #eta",
-                                            R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX); 
-    l1GctHFRing2PosEtaNegEta_ = dbe->book2D("HFRing2Corr", "HF RING2 E_{T} CORRELATION +/-  #eta",
-                                            R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
-    l1GctHFRing1TowerCountPosEtaNegEta_ = dbe->book2D("HFRing1TowerCountCorr", "HF RING1 TOWER COUNT CORRELATION +/-  #eta",
-                                                      R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2TowerCountPosEtaNegEta_ = dbe->book2D("HFRing2TowerCountCorr", "HF RING2 TOWER COUNT CORRELATION +/-  #eta",
-                                                      R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
+  triggerType_ =ibooker.book1D("TriggerType", "TriggerType", 17, -0.5, 16.5);
+
+  l1GctAllJetsEtEtaPhi_ = ibooker.book2D("AllJetsEtEtaPhi", "CENTRAL AND FORWARD JET E_{T}",JETETABINS, JETETAMIN, JETETAMAX,PHIBINS, PHIMIN, PHIMAX);
+  l1GctCenJetsEtEtaPhi_ = ibooker.book2D("CenJetsEtEtaPhi", "CENTRAL JET E_{T}",JETETABINS, JETETAMIN, JETETAMAX, PHIBINS, PHIMIN, PHIMAX); 
+  l1GctForJetsEtEtaPhi_ = ibooker.book2D("ForJetsEtEtaPhi", "FORWARD JET E_{T}", JETETABINS, JETETAMIN, JETETAMAX, PHIBINS, PHIMIN, PHIMAX); 
+  l1GctTauJetsEtEtaPhi_ = ibooker.book2D("TauJetsEtEtaPhi", "TAU JET E_{T}", EMETABINS, EMETAMIN, EMETAMAX,	PHIBINS, PHIMIN, PHIMAX); 
+  l1GctIsoEmRankEtaPhi_ = ibooker.book2D("IsoEmRankEtaPhi", "ISO EM E_{T}", EMETABINS, EMETAMIN, EMETAMAX, PHIBINS, PHIMIN, PHIMAX); 		    
+  l1GctNonIsoEmRankEtaPhi_ = ibooker.book2D("NonIsoEmRankEtaPhi", "NON-ISO EM E_{T}", EMETABINS, EMETAMIN, EMETAMAX,PHIBINS, PHIMIN, PHIMAX); 
+  l1GctAllJetsOccEtaPhi_ = ibooker.book2D("AllJetsOccEtaPhi", "CENTRAL AND FORWARD JET OCCUPANCY", JETETABINS, JETETAMIN, JETETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  l1GctCenJetsOccEtaPhi_ = ibooker.book2D("CenJetsOccEtaPhi", "CENTRAL JET OCCUPANCY", JETETABINS, JETETAMIN, JETETAMAX, PHIBINS, PHIMIN, PHIMAX); 
+  l1GctForJetsOccEtaPhi_ = ibooker.book2D("ForJetsOccEtaPhi", "FORWARD JET OCCUPANCY",JETETABINS, JETETAMIN, JETETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  l1GctTauJetsOccEtaPhi_ = ibooker.book2D("TauJetsOccEtaPhi", "TAU JET OCCUPANCY", EMETABINS, EMETAMIN, EMETAMAX, PHIBINS, PHIMIN, PHIMAX); 
+  l1GctIsoEmOccEtaPhi_ = ibooker.book2D("IsoEmOccEtaPhi", "ISO EM OCCUPANCY", EMETABINS, EMETAMIN, EMETAMAX, PHIBINS, PHIMIN, PHIMAX); 
+  l1GctNonIsoEmOccEtaPhi_ = ibooker.book2D("NonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY", EMETABINS, EMETAMIN, EMETAMAX, PHIBINS, PHIMIN, PHIMAX); 
+  
+  l1GctHFRing1PosEtaNegEta_ = ibooker.book2D("HFRing1Corr", "HF RING1 E_{T} CORRELATION +/-  #eta",  R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX); 
+  l1GctHFRing2PosEtaNegEta_ = ibooker.book2D("HFRing2Corr", "HF RING2 E_{T} CORRELATION +/-  #eta", R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
+  l1GctHFRing1TowerCountPosEtaNegEta_ = ibooker.book2D("HFRing1TowerCountCorr", "HF RING1 TOWER COUNT CORRELATION +/-  #eta", R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
+  l1GctHFRing2TowerCountPosEtaNegEta_ = ibooker.book2D("HFRing2TowerCountCorr", "HF RING2 TOWER COUNT CORRELATION +/-  #eta", R3BINS, R3MIN, R3MAX, R3BINS, R3MIN, R3MAX);
 
     //HF Ring stuff
-    l1GctHFRing1TowerCountPosEta_ = dbe->book1D("HFRing1TowerCountPosEta", "HF RING1 TOWER COUNT  #eta  +", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing1TowerCountNegEta_ = dbe->book1D("HFRing1TowerCountNegEta", "HF RING1 TOWER COUNT  #eta  -", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2TowerCountPosEta_ = dbe->book1D("HFRing2TowerCountPosEta", "HF RING2 TOWER COUNT  #eta  +", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2TowerCountNegEta_ = dbe->book1D("HFRing2TowerCountNegEta", "HF RING2 TOWER COUNT  #eta  -", R3BINS, R3MIN, R3MAX);
+  l1GctHFRing1TowerCountPosEta_ = ibooker.book1D("HFRing1TowerCountPosEta", "HF RING1 TOWER COUNT  #eta  +", R3BINS, R3MIN, R3MAX);
+  l1GctHFRing1TowerCountNegEta_ = ibooker.book1D("HFRing1TowerCountNegEta", "HF RING1 TOWER COUNT  #eta  -", R3BINS, R3MIN, R3MAX);
+  l1GctHFRing2TowerCountPosEta_ = ibooker.book1D("HFRing2TowerCountPosEta", "HF RING2 TOWER COUNT  #eta  +", R3BINS, R3MIN, R3MAX);
+  l1GctHFRing2TowerCountNegEta_ = ibooker.book1D("HFRing2TowerCountNegEta", "HF RING2 TOWER COUNT  #eta  -", R3BINS, R3MIN, R3MAX);
 
-    l1GctHFRing1ETSumPosEta_ = dbe->book1D("HFRing1ETSumPosEta", "HF RING1 E_{T}  #eta  +", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing1ETSumNegEta_ = dbe->book1D("HFRing1ETSumNegEta", "HF RING1 E_{T}  #eta  -", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2ETSumPosEta_ = dbe->book1D("HFRing2ETSumPosEta", "HF RING2 E_{T}  #eta  +", R3BINS, R3MIN, R3MAX);
-    l1GctHFRing2ETSumNegEta_ = dbe->book1D("HFRing2ETSumNegEta", "HF RING2 E_{T}  #eta  -", R3BINS, R3MIN, R3MAX);
-    l1GctHFRingRatioPosEta_  = dbe->book1D("HFRingRatioPosEta", "HF RING E_{T} RATIO  #eta  +", R5BINS, R5MIN, R5MAX);
-    l1GctHFRingRatioNegEta_  = dbe->book1D("HFRingRatioNegEta", "HF RING E_{T} RATIO  #eta  -", R5BINS, R5MIN, R5MAX);
+  l1GctHFRing1ETSumPosEta_ = ibooker.book1D("HFRing1ETSumPosEta", "HF RING1 E_{T}  #eta  +", R3BINS, R3MIN, R3MAX);
+  l1GctHFRing1ETSumNegEta_ = ibooker.book1D("HFRing1ETSumNegEta", "HF RING1 E_{T}  #eta  -", R3BINS, R3MIN, R3MAX);
+  l1GctHFRing2ETSumPosEta_ = ibooker.book1D("HFRing2ETSumPosEta", "HF RING2 E_{T}  #eta  +", R3BINS, R3MIN, R3MAX);
+  l1GctHFRing2ETSumNegEta_ = ibooker.book1D("HFRing2ETSumNegEta", "HF RING2 E_{T}  #eta  -", R3BINS, R3MIN, R3MAX);
+  l1GctHFRingRatioPosEta_  = ibooker.book1D("HFRingRatioPosEta", "HF RING E_{T} RATIO  #eta  +", R5BINS, R5MIN, R5MAX);
+  l1GctHFRingRatioNegEta_  = ibooker.book1D("HFRingRatioNegEta", "HF RING E_{T} RATIO  #eta  -", R5BINS, R5MIN, R5MAX);
 
-    l1GctHFRingTowerCountOccBx_ = dbe->book2D("HFRingTowerCountOccBx", "HF RING TOWER COUNT PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
-    l1GctHFRingETSumOccBx_ = dbe->book2D("HFRingETSumOccBx", "HF RING E_{T} PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
+  l1GctHFRingTowerCountOccBx_ = ibooker.book2D("HFRingTowerCountOccBx", "HF RING TOWER COUNT PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
+  l1GctHFRingETSumOccBx_ = ibooker.book2D("HFRingETSumOccBx", "HF RING E_{T} PER BX",BXBINS, BXMIN, BXMAX, R3BINS, R3MIN, R3MAX);
     
     // Rank histograms
-    l1GctCenJetsRank_  = dbe->book1D("CenJetsRank", "CENTRAL JET E_{T}", R6BINS, R6MIN, R6MAX);
-    l1GctForJetsRank_  = dbe->book1D("ForJetsRank", "FORWARD JET E_{T}", R6BINS, R6MIN, R6MAX);
-    l1GctTauJetsRank_  = dbe->book1D("TauJetsRank", "TAU JET E_{T}", R6BINS, R6MIN, R6MAX);
-    l1GctIsoEmRank_    = dbe->book1D("IsoEmRank", "ISO EM E_{T}", R6BINS, R6MIN, R6MAX);
-    l1GctNonIsoEmRank_ = dbe->book1D("NonIsoEmRank", "NON-ISO EM E_{T}", R6BINS, R6MIN, R6MAX);
+  l1GctCenJetsRank_  = ibooker.book1D("CenJetsRank", "CENTRAL JET E_{T}", R6BINS, R6MIN, R6MAX);
+  l1GctForJetsRank_  = ibooker.book1D("ForJetsRank", "FORWARD JET E_{T}", R6BINS, R6MIN, R6MAX);
+  l1GctTauJetsRank_  = ibooker.book1D("TauJetsRank", "TAU JET E_{T}", R6BINS, R6MIN, R6MAX);
+  l1GctIsoEmRank_    = ibooker.book1D("IsoEmRank", "ISO EM E_{T}", R6BINS, R6MIN, R6MAX);
+  l1GctNonIsoEmRank_ = ibooker.book1D("NonIsoEmRank", "NON-ISO EM E_{T}", R6BINS, R6MIN, R6MAX);
 
-    l1GctAllJetsOccRankBx_ = dbe->book2D("AllJetsOccRankBx","ALL JETS E_{T} PER BX",BXBINS,BXMIN,BXMAX,R6BINS,R6MIN,R6MAX);
-    l1GctAllEmOccRankBx_   = dbe->book2D("AllEmOccRankBx","ALL EM E_{T} PER BX",BXBINS,BXMIN,BXMAX,R6BINS,R6MIN,R6MAX);
+  l1GctAllJetsOccRankBx_ = ibooker.book2D("AllJetsOccRankBx","ALL JETS E_{T} PER BX",BXBINS,BXMIN,BXMAX,R6BINS,R6MIN,R6MAX);
+  l1GctAllEmOccRankBx_   = ibooker.book2D("AllEmOccRankBx","ALL EM E_{T} PER BX",BXBINS,BXMIN,BXMAX,R6BINS,R6MIN,R6MAX);
 
     // Energy sums
-    l1GctEtMiss_    = dbe->book1D("EtMiss", "MET", R12BINS, R12MIN, R12MAX);
-    l1GctEtMissPhi_ = dbe->book1D("EtMissPhi", "MET  #phi", METPHIBINS, METPHIMIN, METPHIMAX);
-    l1GctEtMissOf_  = dbe->book1D("EtMissOf", "MET OVERFLOW", OFBINS, OFMIN, OFMAX);
-    l1GctEtMissOccBx_ = dbe->book2D("EtMissOccBx","MET PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
-    l1GctHtMiss_    = dbe->book1D("HtMiss", "MHT", R7BINS, R7MIN, R7MAX);
-    l1GctHtMissPhi_ = dbe->book1D("HtMissPhi", "MHT  #phi", MHTPHIBINS, MHTPHIMIN, MHTPHIMAX);
-    l1GctHtMissOf_  = dbe->book1D("HtMissOf", "MHT OVERFLOW", OFBINS, OFMIN, OFMAX);
-    l1GctHtMissOccBx_ = dbe->book2D("HtMissOccBx","MHT PER BX",BXBINS,BXMIN,BXMAX,R7BINS,R7MIN,R7MAX);
-    l1GctEtMissHtMissCorr_ = dbe->book2D("EtMissHtMissCorr", "MET MHT CORRELATION",
-                                         R6BINS, R12MIN, R12MAX,
-                                         R6BINS, R7MIN, R7MAX); 
-    l1GctEtMissHtMissCorrPhi_ = dbe->book2D("EtMissHtMissPhiCorr", "MET MHT  #phi  CORRELATION",
-                                            METPHIBINS, METPHIMIN, METPHIMAX,
-                                            MHTPHIBINS, MHTPHIMIN, MHTPHIMAX);
-    l1GctEtTotal_   = dbe->book1D("EtTotal", "SUM E_{T}", R12BINS, R12MIN, R12MAX);
-    l1GctEtTotalOf_ = dbe->book1D("EtTotalOf", "SUM E_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
-    l1GctEtTotalOccBx_ = dbe->book2D("EtTotalOccBx","SUM E_{T} PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
-    l1GctEtHad_     = dbe->book1D("EtHad", "H_{T}", R12BINS, R12MIN, R12MAX);
-    l1GctEtHadOf_   = dbe->book1D("EtHadOf", "H_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
-    l1GctEtHadOccBx_ = dbe->book2D("EtHadOccBx","H_{T} PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
-    l1GctEtTotalEtHadCorr_ = dbe->book2D("EtTotalEtHadCorr", "Sum E_{T} H_{T} CORRELATION",
-                                         R6BINS, R12MIN, R12MAX,
-                                         R6BINS, R12MIN, R12MAX); 
-  }
-
+  l1GctEtMiss_    = ibooker.book1D("EtMiss", "MET", R12BINS, R12MIN, R12MAX);
+  l1GctEtMissPhi_ = ibooker.book1D("EtMissPhi", "MET  #phi", METPHIBINS, METPHIMIN, METPHIMAX);
+  l1GctEtMissOf_  = ibooker.book1D("EtMissOf", "MET OVERFLOW", OFBINS, OFMIN, OFMAX);
+  l1GctEtMissOccBx_ = ibooker.book2D("EtMissOccBx","MET PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
+  l1GctHtMiss_    = ibooker.book1D("HtMiss", "MHT", R7BINS, R7MIN, R7MAX);
+  l1GctHtMissPhi_ = ibooker.book1D("HtMissPhi", "MHT  #phi", MHTPHIBINS, MHTPHIMIN, MHTPHIMAX);
+  l1GctHtMissOf_  = ibooker.book1D("HtMissOf", "MHT OVERFLOW", OFBINS, OFMIN, OFMAX);
+  l1GctHtMissOccBx_ = ibooker.book2D("HtMissOccBx","MHT PER BX",BXBINS,BXMIN,BXMAX,R7BINS,R7MIN,R7MAX);
+  l1GctEtMissHtMissCorr_ = ibooker.book2D("EtMissHtMissCorr", "MET MHT CORRELATION", R6BINS, R12MIN, R12MAX, R6BINS, R7MIN, R7MAX); 
+  l1GctEtMissHtMissCorrPhi_ = ibooker.book2D("EtMissHtMissPhiCorr", "MET MHT  #phi  CORRELATION", METPHIBINS, METPHIMIN, METPHIMAX, MHTPHIBINS, MHTPHIMIN, MHTPHIMAX);
+  l1GctEtTotal_   = ibooker.book1D("EtTotal", "SUM E_{T}", R12BINS, R12MIN, R12MAX);
+  l1GctEtTotalOf_ = ibooker.book1D("EtTotalOf", "SUM E_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
+  l1GctEtTotalOccBx_ = ibooker.book2D("EtTotalOccBx","SUM E_{T} PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
+  l1GctEtHad_     = ibooker.book1D("EtHad", "H_{T}", R12BINS, R12MIN, R12MAX);
+  l1GctEtHadOf_   = ibooker.book1D("EtHadOf", "H_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
+  l1GctEtHadOccBx_ = ibooker.book2D("EtHadOccBx","H_{T} PER BX",BXBINS,BXMIN,BXMAX,R12BINS,R12MIN,R12MAX);
+  l1GctEtTotalEtHadCorr_ = ibooker.book2D("EtTotalEtHadCorr", "Sum E_{T} H_{T} CORRELATION", R6BINS, R12MIN, R12MAX, R6BINS, R12MIN, R12MAX); 
+  //}
 }
 
 
-void L1TGCT::endJob(void)
-{
-  if (verbose_)
-    edm::LogInfo("L1TGCT") << "L1TGCT: end job...." << std::endl;
-  edm::LogInfo("EndJob") << "analyzed " << nev_ << " events";
+void L1TGCT::dqmBeginRun(edm::Run const& iRrun, edm::EventSetup const& evSetup) {
+  //runId_->Fill(iRrun.id().run());
+}
 
-  if (outputFile_.size() != 0 && dbe) {
-    dbe->save(outputFile_);
-  }
-
-  return;
+void L1TGCT::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& evSetup) {
+  //lumisecId_->Fill(iLumi.id().luminosityBlock());
 }
 
 void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
@@ -558,7 +498,9 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
     }
   } else {
     edm::LogWarning("DataNotFound") << " Could not find l1NonIsoEm label was " << gctNonIsoEmSource_ ;
-  }     
+  }
+  edm::LogInfo("L1TGCT") << "L1TGCT: end job...." << std::endl;
+  edm::LogInfo("EndJob") << "analyzed " << nev_ << " events";
 }
 
   

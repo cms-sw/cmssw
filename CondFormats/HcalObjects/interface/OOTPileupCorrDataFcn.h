@@ -31,11 +31,15 @@ public:
         double ts321 = ts30 - ts22 > 0 ? a1_(ts30 - ts22) : 0; 
         ts[tsTrig] -= (ts321 + ts21); // ts[4] after pu correction
   
-        // ts5 correction with functions a2(x) and a3(x)
-        double ts52 = ts20 > 0 ? a3_(ts20) : 0;
-        double ts51 = ts30 - ts22 > 0 ? a2_(ts30 - ts22) : 0; 
-        ts[tsTrig+1] -= (ts51 + ts52); // ts[5] after pu correction 
+        // ts5 estimation from ts4
+        ts[tsTrig+1] = a1_(ts[tsTrig]);
     }
+
+    // Access the correction functions
+    inline const PiecewiseScalingPolynomial& getA1() const {return a1_;}
+    inline const PiecewiseScalingPolynomial& getA2() const {return a2_;}
+    inline const PiecewiseScalingPolynomial& getA3() const {return a3_;}
+    inline const ScalingExponential& getA_1() const {return a_1_;}
 
 private:
     PiecewiseScalingPolynomial a1_, a2_, a3_;

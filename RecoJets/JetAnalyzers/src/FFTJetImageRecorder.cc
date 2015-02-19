@@ -37,6 +37,8 @@
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #define init_param(type, varname) varname (ps.getParameter< type >( #varname ))
 
 //
@@ -95,8 +97,8 @@ void FFTJetImageRecorder::beginJob()
 void FFTJetImageRecorder::analyze(const edm::Event& iEvent,
                                   const edm::EventSetup& iSetup)
 {
-    const long runnumber = iEvent.id().run();
-    const long eventnumber = iEvent.id().event();
+    edm::RunNumber_t const runnumber = iEvent.id().run();
+    edm::EventNumber_t const eventnumber = iEvent.id().event();
 
     edm::Handle<TH3F> input;
     iEvent.getByToken(histoToken, input);

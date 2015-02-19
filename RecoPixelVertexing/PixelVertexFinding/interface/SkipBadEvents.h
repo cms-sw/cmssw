@@ -12,6 +12,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #include <map>
 #include <set>
 
@@ -22,6 +25,6 @@ class SkipBadEvents: public edm::EDFilter {
   virtual bool filter(edm::Event& e, const edm::EventSetup& s);
   
  private:
-  std::map<int,std::set<int> > skip_; // Skip these run, event pairs
+  std::map<edm::RunNumber_t,std::set<edm::EventNumber_t> > skip_; // Skip these run, event pairs
 };
 #endif

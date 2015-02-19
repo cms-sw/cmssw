@@ -45,12 +45,13 @@ class EcalRawToDigi : public edm::stream::EDProducer<>{
    * Class constructor
    */
   explicit EcalRawToDigi(const edm::ParameterSet& ps);
-  
+
   /**
    * Functions that are called by framework at each event
    */
   virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   // function called at start of each run
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
   

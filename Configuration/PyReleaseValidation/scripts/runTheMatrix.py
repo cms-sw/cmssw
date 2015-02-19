@@ -52,11 +52,12 @@ if __name__ == '__main__':
                      8, #BH/Cosmic MC
                      25, #MC ttbar
                      4.22, #cosmic data
-                     4.291, #hlt data
                      1000, #data+prompt
                      1001, #data+express
-                     4.53, #HI data
-                     40, #HI MC
+                     4.53, #2012B Photon data
+                     140.53, #2011 HI data
+                     1330, #Run2 MC Zmm
+                     135.4 #Run 2 Zee ttbar
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
@@ -168,6 +169,12 @@ if __name__ == '__main__':
                       action='store_true',
                       dest='dryRun',
                       default=False
+                      )
+    parser.add_option('--testbed',
+                      help='workflow injection to cmswebtest (you need dedicated rqmgr account)',
+                      dest='testbed',
+                      default=False,
+                      action='store_true'
                       )
     parser.add_option('--noCafVeto',
                       help='Run from any source, ignoring the CAF label',

@@ -38,6 +38,8 @@ namespace edm {
    class ModuleCallingContext;
    class ModuleDescription;
    class PathContext;
+   class PathsAndConsumesOfModulesBase;
+   class ProcessContext;
    class Run;
    class StreamContext;
 
@@ -50,6 +52,7 @@ namespace edm {
 
          void preallocate(service::SystemBounds const&);
 
+         void preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
          void postBeginJob();
          void postEndJob();
          
@@ -145,6 +148,7 @@ namespace edm {
          std::string indention_;
          std::set<std::string> dumpContextForLabels_;
          bool dumpNonModuleContext_;
+         bool dumpPathsAndConsumes_;
          bool printTimestamps_;
       };
    }

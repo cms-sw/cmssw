@@ -1,63 +1,55 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#define FILLENTRY( name ) {name, #name }
+
 namespace edm {
   namespace errors {
-    struct FilledMap {
-      FilledMap();
-      Exception::CodeMap trans_;
+    static const std::map<ErrorCodes, std::string> codeMap =
+    {
+      FILLENTRY(CommandLineProcessing),
+      FILLENTRY(ConfigFileNotFound),
+      FILLENTRY(ConfigFileReadError),
+      FILLENTRY(OtherCMS),
+      FILLENTRY(StdException),
+      FILLENTRY(Unknown),
+      FILLENTRY(BadAlloc),
+      FILLENTRY(BadExceptionType),
+      FILLENTRY(ProductNotFound),
+      FILLENTRY(DictionaryNotFound),
+      FILLENTRY(NoProductSpecified),
+      FILLENTRY(InsertFailure),
+      FILLENTRY(Configuration),
+      FILLENTRY(LogicError),
+      FILLENTRY(UnimplementedFeature),
+      FILLENTRY(InvalidReference),
+      FILLENTRY(NullPointerError),
+      FILLENTRY(EventTimeout),
+      FILLENTRY(EventCorruption),
+      FILLENTRY(ScheduleExecutionFailure),
+      FILLENTRY(EventProcessorFailure),
+      FILLENTRY(FileInPathError),
+      FILLENTRY(FileOpenError),
+      FILLENTRY(FileReadError),
+      FILLENTRY(FatalRootError),
+      FILLENTRY(MismatchedInputFiles),
+      FILLENTRY(ProductDoesNotSupportViews),
+      FILLENTRY(ProductDoesNotSupportPtr),
+      FILLENTRY(NotFound),
+      FILLENTRY(FormatIncompatibility),
+      FILLENTRY(FallbackFileOpenError),
+      FILLENTRY(ExceededResourceVSize),
+      FILLENTRY(ExceededResourceRSS),
+      FILLENTRY(ExceededResourceTime),
+      FILLENTRY(CaughtSignal)
     };
-    FilledMap::FilledMap() : trans_() {
-      EDM_MAP_ENTRY_NONS(trans_, CommandLineProcessing);
-      EDM_MAP_ENTRY_NONS(trans_, ConfigFileNotFound);
-      EDM_MAP_ENTRY_NONS(trans_, ConfigFileReadError);
-      EDM_MAP_ENTRY_NONS(trans_, OtherCMS);
-      EDM_MAP_ENTRY_NONS(trans_, StdException);
-      EDM_MAP_ENTRY_NONS(trans_, Unknown);
-      EDM_MAP_ENTRY_NONS(trans_, BadAlloc);
-      EDM_MAP_ENTRY_NONS(trans_, BadExceptionType);
-      EDM_MAP_ENTRY_NONS(trans_, ProductNotFound);
-      EDM_MAP_ENTRY_NONS(trans_, DictionaryNotFound);
-      EDM_MAP_ENTRY_NONS(trans_, NoProductSpecified);
-      EDM_MAP_ENTRY_NONS(trans_, InsertFailure);
-      EDM_MAP_ENTRY_NONS(trans_, Configuration);
-      EDM_MAP_ENTRY_NONS(trans_, LogicError);
-      EDM_MAP_ENTRY_NONS(trans_, UnimplementedFeature);
-      EDM_MAP_ENTRY_NONS(trans_, InvalidReference);
-      EDM_MAP_ENTRY_NONS(trans_, NullPointerError);
-      EDM_MAP_ENTRY_NONS(trans_, EventTimeout);
-      EDM_MAP_ENTRY_NONS(trans_, EventCorruption);
-      EDM_MAP_ENTRY_NONS(trans_, ScheduleExecutionFailure);
-      EDM_MAP_ENTRY_NONS(trans_, EventProcessorFailure);
-      EDM_MAP_ENTRY_NONS(trans_, FileInPathError);
-      EDM_MAP_ENTRY_NONS(trans_, FileOpenError);
-      EDM_MAP_ENTRY_NONS(trans_, FileReadError);
-      EDM_MAP_ENTRY_NONS(trans_, FatalRootError);
-      EDM_MAP_ENTRY_NONS(trans_, MismatchedInputFiles);
-      EDM_MAP_ENTRY_NONS(trans_, ProductDoesNotSupportViews);
-      EDM_MAP_ENTRY_NONS(trans_, ProductDoesNotSupportPtr);
-      EDM_MAP_ENTRY_NONS(trans_, NotFound);
-      EDM_MAP_ENTRY_NONS(trans_, FormatIncompatibility);
-      EDM_MAP_ENTRY_NONS(trans_, FallbackFileOpenError);
-      EDM_MAP_ENTRY_NONS(trans_, ExceededResourceVSize);
-      EDM_MAP_ENTRY_NONS(trans_, ExceededResourceRSS);
-      EDM_MAP_ENTRY_NONS(trans_, ExceededResourceTime);
-    }
+    static const std::string kUnknownCode("unknownCode");
   }
-
-  void getCodeTable(Exception::CodeMap*& setme) {
-    static errors::FilledMap fm;
-    setme = &fm.trans_;
-  }
-
   /// -------------- implementation details ------------------
 
-  std::string Exception::codeToString(errors::ErrorCodes c) {
-    extern void getCodeTable(CodeMap*&);
-    CodeMap* trans;
-    getCodeTable(trans);
-    CodeMap::const_iterator i(trans->find(c));
-    return i!=trans->end() ? i->second : std::string("UnknownCode");
+  const std::string& Exception::codeToString(errors::ErrorCodes c) {
+    auto i(errors::codeMap.find(c));
+    return i!=errors::codeMap.end() ? i->second : errors::kUnknownCode;
   }
 
   Exception::Exception(errors::ErrorCodes aCategory):

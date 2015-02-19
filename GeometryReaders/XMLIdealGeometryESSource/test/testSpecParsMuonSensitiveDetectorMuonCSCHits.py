@@ -1,10 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DBGeometryTest")
-#process.load("DetectorDescription.OfflineDBLoader.test.cmsIdealGeometryForWrite_cfi")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-#process.XMLIdealGeometryESSource.geomXMLFiles = cms.vstring("runB/fred.xml")
-#process.XMLIdealGeometryESSource.userControlledNamespace = cms.untracked.bool(True)
+process.load('Geometry.CMSCommonData.cmsIdealGeometry2015XML_cfi')
 
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(1)
@@ -15,10 +12,9 @@ process.source = cms.Source("EmptySource")
 process.myprint = cms.OutputModule("AsciiOutputModule")
 
 #MuonSensitiveDetector  ReadOutName MuonCSCHits
-process.prod = cms.EDAnalyzer("TestSpecParAnalyzer"
-                                  , specName = cms.string("ReadOutName")
-                                  , specStrValue = cms.untracked.string("MuonCSCHits")
-                                  #, specDblValue = cms.untracked.double(0.0)
+process.prod = cms.EDAnalyzer("TestSpecParAnalyzer",
+                              specName = cms.string('ReadOutName'),
+                              specStrValue = cms.untracked.string('MuonCSCHits')
                               )
 
 process.Timing = cms.Service("Timing")

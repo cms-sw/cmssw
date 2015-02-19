@@ -7,6 +7,7 @@
 #include <limits>
 #include <iostream>
 #include <iomanip>
+#include <mutex>
 #include <string>
 #include <sstream>
 #include <unordered_set>
@@ -14,6 +15,9 @@
 
 // boost headers
 #include <boost/format.hpp>
+
+// tbb headers
+#include <tbb/concurrent_vector.h>
 
 // CMSSW headers
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,15 +36,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "HLTrigger/Timer/interface/FastTimerService.h"
-
-
-// file-static methods to fill a vector of strings with "(dup.) (...)" entries
-static
-void fill_dups(std::vector<std::string> & dups, unsigned int size) {
-  dups.reserve(size);
-  for (unsigned int i = dups.size(); i < size; ++i)
-    dups.push_back( (boost::format("(dup.) (%d)") % i).str() );
-}
 
 
 FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::ActivityRegistry & registry) :
@@ -356,6 +351,7 @@ void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
         stream.dqm_paths[pid].exclusive_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
         stream.dqm_paths[pid].interpaths     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
       }
+      stream.dqm_paths[pid].interpaths       ->GetXaxis()->SetBinLabel(size+1, "");
     }
 
     // plots vs. instantaneous luminosity
@@ -462,9 +458,30 @@ void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
                                                      ((id = tns.findEndPath(pathname))  != tns.getEndPaths().size())  ? tns.getEndPathModules(id)  :
                                                      std::vector<std::string>();
 
-          static std::vector<std::string> dup;
-          if (modules.size() > dup.size())
-            fill_dups(dup, modules.size());
+          // use a mutex to prevent two threads from assigning to the same element at the same time 
+          static std::mutex                          dup_mutex;
+          // use a tbb::concurrent_vector because growing does not invalidate existing iterators and pointers
+          static tbb::concurrent_vector<std::string> dup;
+          // lock, and fill the first 32 elements
+          if (dup.empty()) {
+            std::lock_guard<std::mutex> lock(dup_mutex);
+            if (dup.empty()) {
+              dup.resize(32);
+              for (unsigned int i = 0; i < 32; ++i)
+                dup[i] = (boost::format("(dup.) (%d)") % i).str();
+            }
+          }
+          // lock, and fill as many elements as needed
+          if (modules.size() > dup.size()) {
+            std::lock_guard<std::mutex> lock(dup_mutex);
+            unsigned int old_size = dup.size();
+            unsigned int new_size = modules.size();
+            if (new_size > old_size) {
+              dup.resize(new_size);
+              for (unsigned int i = old_size; i < new_size; ++i)
+                dup[i] = (boost::format("(dup.) (%d)") % i).str();
+            }
+          }
 
           std::vector<const char *> labels(modules.size(), nullptr);
           for (uint32_t i = 0; i < modules.size(); ++i)
@@ -472,11 +489,11 @@ void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
 
           // book counter histograms
           if (m_enable_dqm_bypath_counters) {
-            pathinfo.dqm_module_counter = booker.book1D(pathname + "_module_counter", pathname + " module counter", modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
+            pathinfo.dqm_module_counter = booker.book1D(pathname + "_module_counter", pathname + " module counter", modules.size() + 1, -0.5, modules.size() + 0.5)->getTH1F();
             // find module labels
-            for (uint32_t i = 0; i < modules.size(); ++i) {
+            for (uint32_t i = 0; i < modules.size(); ++i)
               pathinfo.dqm_module_counter->GetXaxis()->SetBinLabel( i+1, labels[i] );
-            }
+            pathinfo.dqm_module_counter->GetXaxis()->SetBinLabel( modules.size() + 1, "" );
           }
           // book detailed timing histograms
           if (m_enable_dqm_bypath_details) {

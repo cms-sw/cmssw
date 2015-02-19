@@ -1,14 +1,15 @@
 /*
- *  plugin.cc
- *  CMSSW
- *
- *  Created by Frederic Ronga on June 7, 2006
- *
- */
+*  plugin.cc
+*  CMSSW
+*
+*  Created by Frederic Ronga on June 7, 2006
+*
+*/
 
 #include "CondCore/ESSources/interface/registration_macros.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
@@ -43,9 +44,20 @@
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorRcd.h"
 
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/EBAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/EEAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/ESAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/HBAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/HEAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/HOAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/HFAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorExtendedRcd.h"
+
 REGISTER_PLUGIN(GlobalPositionRcd,Alignments);
 REGISTER_PLUGIN(TrackerAlignmentRcd,Alignments);
-REGISTER_PLUGIN(TrackerAlignmentErrorRcd,AlignmentErrors);
 REGISTER_PLUGIN(TrackerSurfaceDeformationRcd,AlignmentSurfaceDeformations);
 REGISTER_PLUGIN(DTAlignmentRcd,Alignments);
 REGISTER_PLUGIN(DTAlignmentErrorRcd,AlignmentErrors);
@@ -74,3 +86,15 @@ REGISTER_PLUGIN(HFAlignmentRcd,Alignments);
 REGISTER_PLUGIN(HFAlignmentErrorRcd,AlignmentErrors);
 REGISTER_PLUGIN(ZDCAlignmentRcd,Alignments);
 REGISTER_PLUGIN(ZDCAlignmentErrorRcd,AlignmentErrors);
+REGISTER_PLUGIN(TrackerAlignmentErrorRcd,AlignmentErrors);
+REGISTER_PLUGIN(TrackerAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
+REGISTER_PLUGIN(DTAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
+REGISTER_PLUGIN(CSCAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
+REGISTER_PLUGIN(EBAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
+REGISTER_PLUGIN(EEAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
+REGISTER_PLUGIN(ESAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
+REGISTER_PLUGIN(HBAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
+REGISTER_PLUGIN(HEAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
+REGISTER_PLUGIN(HOAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
+REGISTER_PLUGIN(HFAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
+REGISTER_PLUGIN(ZDCAlignmentErrorExtendedRcd,AlignmentErrorsExtended);

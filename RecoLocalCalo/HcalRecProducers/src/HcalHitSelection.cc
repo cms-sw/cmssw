@@ -148,7 +148,7 @@ HcalHitSelection::~HcalHitSelection()
 void
 HcalHitSelection::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  iSetup.get<HcalChannelQualityRcd>().get(theHcalChStatus);
+  iSetup.get<HcalChannelQualityRcd>().get("withTopo", theHcalChStatus);
   iSetup.get<HcalSeverityLevelComputerRcd>().get(theHcalSevLvlComputer);
 
   edm::Handle<HBHERecHitCollection> hbhe;

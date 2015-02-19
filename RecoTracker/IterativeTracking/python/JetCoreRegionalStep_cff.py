@@ -4,17 +4,11 @@ import FWCore.ParameterSet.Config as cms
 
 # run only if there are high pT jets
 from RecoJets.JetProducers.TracksForJets_cff import trackRefsForJets
-iter0TrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('initialStepTracks'))
-from RecoJets.JetProducers.ak4CaloJets_cfi import ak4CaloJets
-from RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi import calotowermaker
-caloTowerForTrk = calotowermaker.clone(hbheInput=cms.InputTag('hbheprereco'))
-ak4CaloJetsForTrk = ak4CaloJets.clone(srcPVs = cms.InputTag('pixelVertices'), src= cms.InputTag('caloTowerForTrk'))
+initialStepTrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('initialStepTracks'))
+from RecoJets.JetProducers.caloJetsForTrk_cff import *
 jetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJetsForTrk"), cut = cms.string("pt > 100 && abs(eta) < 2.5"))
 
 # care only at tracks from main PV
-import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
-firstStepPrimaryVertices=RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
-firstStepPrimaryVertices.TrackLabel = cms.InputTag("initialStepTracks")
 firstStepGoodPrimaryVertices = cms.EDFilter("PrimaryVertexObjectFilter",
      filterParams = cms.PSet(
      	     minNdof = cms.double(25.0),
@@ -34,13 +28,13 @@ jetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
                             'BPix3+TIB1','BPix3+TIB2'),
     TIB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        TTRHBuilder = cms.string('WithTrackAngle')
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(-2069)
     ),
     BPix = cms.PSet(
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0027),
         hitErrorRZ = cms.double(0.006),
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
+        TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
         #skipClusters = cms.InputTag('jetCoreRegionalStepClusters')
     ),
@@ -48,7 +42,7 @@ jetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0051),
         hitErrorRZ = cms.double(0.0036),
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
+        TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
         #skipClusters = cms.InputTag('jetCoreRegionalStepClusters')
     )
@@ -126,7 +120,7 @@ jetCoreRegionalStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_c
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 jetCoreRegionalStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    AlgorithmName = cms.string('iter7'),
+    AlgorithmName = cms.string('jetCoreRegionalStep'),
     src = 'jetCoreRegionalStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )
@@ -152,8 +146,7 @@ jetCoreRegionalStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
     ) #end of clone
 
 # Final sequence
-JetCoreRegionalStep = cms.Sequence(iter0TrackRefsForJets*caloTowerForTrk*ak4CaloJetsForTrk*jetsForCoreTracking*
-                                   firstStepPrimaryVertices*
+JetCoreRegionalStep = cms.Sequence(initialStepTrackRefsForJets*caloJetsForTrk*jetsForCoreTracking*
                                    firstStepGoodPrimaryVertices*
                                    #jetCoreRegionalStepClusters*
                                    jetCoreRegionalStepSeedLayers*

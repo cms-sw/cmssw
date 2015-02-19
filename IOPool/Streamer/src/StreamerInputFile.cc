@@ -256,7 +256,7 @@ namespace edm {
       eventRead = true;
       if(eventSkipperByID_) {
         EventHeader *evh = (EventHeader *)(&eventBuf_[0]);
-        if(eventSkipperByID_->skipIt(convert32(evh->run_), convert32(evh->lumi_), convert32(evh->event_))) {
+        if(eventSkipperByID_->skipIt(convert32(evh->run_), convert32(evh->lumi_), convert64(evh->event_))) {
           eventRead = false;
         }
       }

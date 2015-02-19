@@ -5,14 +5,13 @@
 *
 */
 
-#include "HLTrigger/JetMET/interface/HLTFatJetMassFilter.h"
+#include <vector>
 
+#include "HLTrigger/JetMET/interface/HLTFatJetMassFilter.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,10 +19,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include <vector>
-
-#include <typeinfo>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 
 //
@@ -66,7 +62,7 @@ HLTFatJetMassFilter<jetType>::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<double>("maxJetEta",3.0);
   desc.add<double>("minJetPt",30.0);
   desc.add<int>("triggerType",trigger::TriggerJet);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTFatJetMassFilter<jetType>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTFatJetMassFilter<jetType>>(), desc);
 }
 
 // ------------ method called to produce the data  ------------

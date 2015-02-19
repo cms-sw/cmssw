@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-CaloTPGTranscoder = cms.ESSource("CaloTPGTranscoderULUTs",
+CaloTPGTranscoder = cms.ESProducer("CaloTPGTranscoderULUTs",
     hcalLUT1 = cms.FileInPath('CalibCalorimetry/CaloTPG/data/outputLUTtranscoder_physics.dat'),
     hcalLUT2 = cms.FileInPath('CalibCalorimetry/CaloTPG/data/TPGcalcDecompress2.txt'),
     read_Ascii_Compression_LUTs = cms.bool(False),

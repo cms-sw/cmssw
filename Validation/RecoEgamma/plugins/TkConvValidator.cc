@@ -148,10 +148,10 @@ TkConvValidator::TkConvValidator( const edm::ParameterSet& pset )
         edm::InputTag("tpSelecForFakeRate"));
     hepMC_Token_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
     genjets_Token_ = consumes<reco::GenJetCollection>(
-        edm::InputTag("iterativeCone5GenJets"));
+        edm::InputTag("ak4GenJets"));
+
+    trackAssociator_Token_ = consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByHitsForConversionValidation"));
   }
-
-
 
 
 
@@ -788,14 +788,6 @@ void  TkConvValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::Run con
   edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field" << "\n";
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);
 
-
-  edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
-  theEventSetup.get<TrackAssociatorRecord>().get("trackAssociatorByHitsForConversionValidation",theHitsAssociator);
-  theTrackAssociator_ = (TrackAssociatorBase *) theHitsAssociator.product();
-
-
-
-
   thePhotonMCTruthFinder_ = new PhotonMCTruthFinder();
 
 }
@@ -819,6 +811,9 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   const float END_HI = 2.5;
   // Electron mass
   //  const Float_t mElec= 0.000511; // unused
+
+  Handle<reco::TrackToTrackingParticleAssociator> theTrackAssociator;
+  e.getByToken(trackAssociator_Token_,theTrackAssociator);
 
 
   nEvt_++;
@@ -1074,8 +1069,8 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	tc1.push_back(tfrb1);
 	tc2.push_back(tfrb2);
 	bool isAssociated = false;
-	reco::SimToRecoCollection q1 = theTrackAssociator_->associateSimToReco(tc1,theConvTP_,&e,&esup);
-	reco::SimToRecoCollection q2 = theTrackAssociator_->associateSimToReco(tc2,theConvTP_,&e,&esup);
+	reco::SimToRecoCollection q1 = theTrackAssociator->associateSimToReco(tc1,theConvTP_);
+	reco::SimToRecoCollection q2 = theTrackAssociator->associateSimToReco(tc2,theConvTP_);
 	//try {
 	  std::vector<std::pair<RefToBase<reco::Track>, double> > trackV1, trackV2;
 
@@ -1444,8 +1439,8 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       if ( theConvTP_.size() < 2 )   continue;
 
       //associated = false;
-      reco::RecoToSimCollection p1 =  theTrackAssociator_->associateRecoToSim(tc1,theConvTP_,&e,&esup);
-      reco::RecoToSimCollection p2 =  theTrackAssociator_->associateRecoToSim(tc2,theConvTP_,&e,&esup);
+      reco::RecoToSimCollection p1 =  theTrackAssociator->associateRecoToSim(tc1,theConvTP_);
+      reco::RecoToSimCollection p2 =  theTrackAssociator->associateRecoToSim(tc2,theConvTP_);
       try{
 	std::vector<std::pair<TrackingParticleRef, double> > tp1 = p1[tk1];
 	std::vector<std::pair<TrackingParticleRef, double> > tp2 = p2[tk2];
@@ -1490,8 +1485,8 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
           TrackingParticleRef tp (TPHandleForFakeRate,i);
             theConvTP_.push_back( tp );
         }
-        reco::RecoToSimCollection p1incl =  theTrackAssociator_->associateRecoToSim(tc1,theConvTP_,&e,&esup);
-        reco::RecoToSimCollection p2incl =  theTrackAssociator_->associateRecoToSim(tc2,theConvTP_,&e,&esup);
+        reco::RecoToSimCollection p1incl =  theTrackAssociator->associateRecoToSim(tc1,theConvTP_);
+        reco::RecoToSimCollection p2incl =  theTrackAssociator->associateRecoToSim(tc2,theConvTP_);
 
 
       for ( std::vector<PhotonMCTruth>::const_iterator mcPho=mcPhotons.begin(); mcPho !=mcPhotons.end(); mcPho++) {
@@ -1534,8 +1529,8 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
         if ( theConvTP_.size() < 2 )   continue;
 
         //associated = false;
-        reco::RecoToSimCollection p1 =  theTrackAssociator_->associateRecoToSim(tc1,theConvTP_,&e,&esup);
-        reco::RecoToSimCollection p2 =  theTrackAssociator_->associateRecoToSim(tc2,theConvTP_,&e,&esup);
+        reco::RecoToSimCollection p1 =  theTrackAssociator->associateRecoToSim(tc1,theConvTP_);
+        reco::RecoToSimCollection p2 =  theTrackAssociator->associateRecoToSim(tc2,theConvTP_);
 
 
 

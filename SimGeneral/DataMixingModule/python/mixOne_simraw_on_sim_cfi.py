@@ -15,7 +15,6 @@ from SimCalorimetry.EcalSimProducers.esElectronicsSim_cff import *
 from SimCalorimetry.EcalSimProducers.ecalNotContainmentSim_cff import *
 from SimCalorimetry.EcalSimProducers.ecalCosmicsSim_cff import *
 
-
 import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
 import EventFilter.ESRawToDigi.esRawToDigi_cfi
 import EventFilter.HcalRawToDigi.HcalRawToDigi_cfi
@@ -33,12 +32,11 @@ ecalPreshowerDigis = EventFilter.ESRawToDigi.esRawToDigi_cfi.esRawToDigi.clone()
 
 hcalDigis = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()
 
-#muonCSCDigis = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone()
+muonCSCDigis = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone()
 
 muonDTDigis = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone()
 
 #muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
-
 #castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone( FEDs = cms.untracked.vint32(690,691,692) )
 
 siStripDigis = EventFilter.SiStripRawToDigi.SiStripDigis_cfi.siStripDigis.clone()
@@ -49,7 +47,7 @@ siPixelDigis.InputLabel = 'rawDataCollector'
 ecalDigis.InputLabel = 'rawDataCollector'
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
-#muonCSCDigis.InputObjects = 'rawDataCollector'
+muonCSCDigis.InputObjects = 'rawDataCollector'
 muonDTDigis.inputLabel = 'rawDataCollector'
 #muonRPCDigis.InputLabel = 'rawDataCollector'
 #castorDigis.InputLabel = 'rawDataCollector'
@@ -74,7 +72,7 @@ mixData = cms.EDProducer("DataMixingModule",
                                              hcalDigis = hcalDigis,
                                              muonDTDigis = muonDTDigis,
                                              #muonRPCDigis = muonRPCDigis,
-                                             #muonCSCDigis = muonCSCDigis,
+                                             muonCSCDigis = muonCSCDigis,
                                              siStripDigis = siStripDigis,
                                              siPixelDigis = siPixelDigis,
                              )),
@@ -157,6 +155,7 @@ mixData = cms.EDProducer("DataMixingModule",
     EBPileInputTag = cms.InputTag("ecalDigis","ebDigis","@MIXING"),
     EEPileInputTag = cms.InputTag("ecalDigis","eeDigis","@MIXING"),
     ESPileInputTag = cms.InputTag("ecalPreshowerDigis","","@MIXING"),
+    #ESPileInputTag = cms.InputTag("esRawToDigi","","@MIXING"),
     HBHEPileInputTag = cms.InputTag("hcalDigis","","@MIXING"),
     HOPileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),
     HFPileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),
@@ -182,7 +181,6 @@ mixData = cms.EDProducer("DataMixingModule",
 #    CSCWirePileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCWireDigi","@MIXING"),
 #    CSCStripPileInputTag  = cms.InputTag("muonCSCDigis","MuonCSCStripDigi","@MIXING"),
 #    CSCCompPileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi","@MIXING"),
-
                    #
     #
     #  Outputs

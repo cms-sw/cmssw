@@ -34,7 +34,7 @@ process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 # Condition for lxplus
 #process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
 
-process.load('Configuration/StandardSequences/GeometryIdeal_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
 process.load('DQM/Physics/qcdLowPtDQM_cfi')
 
@@ -51,6 +51,11 @@ process.p = cms.Path(
 )
 
 process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)
+
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------

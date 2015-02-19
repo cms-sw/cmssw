@@ -12,10 +12,12 @@
 static const IOOffset CHUNK_SIZE = 128*1024*1024;
 
 static void
-nowrite(const char *why)
+nowrite(const std::string &why)
 {
-  throw cms::Exception("LocalCacheFile")
-    << "Cannot change file but operation '" << why << "' was called";
+  cms::Exception ex("LocalCacheFile");
+  ex << "Cannot change file but operation '" << why << "' was called";
+  ex.addContext("LocalCacheFile::" + why + "()");
+  throw ex;
 }
 
 
@@ -40,9 +42,12 @@ LocalCacheFile::LocalCacheFile(Storage *base, const std::string &tmpdir /* = "" 
   std::vector<char> temp(pattern.c_str(), pattern.c_str()+pattern.size()+1);
   int fd = mkstemp(&temp[0]);
   if (fd == -1)
-    throw cms::Exception("LocalCacheFile")
-      << "Cannot create temporary file '" << pattern << "': "
+  {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "Cannot create temporary file '" << pattern << "': "
       << strerror(errno) << " (error " << errno << ")";
+    ex.addContext("LocalCacheFile::LocalCacheFile");
+  }
 
   unlink(&temp[0]);
   file_ = new File(fd);
@@ -71,9 +76,13 @@ LocalCacheFile::cache(IOOffset start, IOOffset end)
     {
       void *window = mmap(0, len, PROT_READ | PROT_WRITE, MAP_SHARED, file_->fd(), start);
       if (window == MAP_FAILED)
-        throw cms::Exception("LocalCacheFile")
-	  << "Unable to map a window of local cache file: "
-	  << strerror(errno) << " (error " << errno << ")";
+      {
+        edm::Exception ex(edm::errors::FileReadError);
+        ex << "Unable to map a window of local cache file: "
+	   << strerror(errno) << " (error " << errno << ")";
+        ex.addContext("LocalCacheFile::cache()");
+        throw ex;
+      }
 
       try
       {
@@ -84,15 +93,21 @@ LocalCacheFile::cache(IOOffset start, IOOffset end)
         munmap(window, len);
 	std::ostringstream ost;
         ost << "Unable to cache " << len << " byte file segment at " << start << ": ";
-        throw cms::Exception("LocalCacheFile", ost.str(), e);
+        edm::Exception ex(edm::errors::FileReadError, ost.str(), e);
+        ex.addContext("LocalCacheFile::cache()");
+        throw ex;
       }
 
       munmap(window, len);
 
       if (nread != len)
-        throw cms::Exception("LocalCacheFile")
-          << "Unable to cache " << len << " byte file segment at " << start
-	  << ": got only " << nread << " bytes back";
+      {
+        edm::Exception ex(edm::errors::FileReadError);
+        ex << "Unable to cache " << len << " byte file segment at " << start
+	   << ": got only " << nread << " bytes back";
+        ex.addContext("LocalCacheFile::cache()");
+        throw ex;
+      }
 
       present_[index] = 1;
       ++cacheCount_;

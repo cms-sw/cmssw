@@ -19,120 +19,7 @@
 
 // system include files
 #include <memory>
-
-// user include files
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
-
-#include "DataFormats/Math/interface/deltaR.h"
-
-#include <fstream>
-
-#include "TH1F.h"
-
-class DQMHcalIsoTrackAlCaReco : public edm::EDAnalyzer {
-public:
-  explicit DQMHcalIsoTrackAlCaReco(const edm::ParameterSet&);
-  ~DQMHcalIsoTrackAlCaReco();
-  
-  
-private:
-
-  DQMStore* dbe_;  
-
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
-
-  std::string folderName_;
-  bool saveToFile_;
-  std::string outRootFileName_;
-  edm::EDGetTokenT<trigger::TriggerEvent> hltEventTag_;
-  std::string l1FilterTag_;
-  std::vector<std::string> hltFilterTag_;
-  edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> arITrLabel_;
-  edm::InputTag recoTrLabel_;
-  double pThr_;
-  double heLow_;
-  double heUp_;
-  
-  MonitorElement* hl3Pt;
-  MonitorElement* hl3eta;
-  MonitorElement* hl3AbsEta;
-  MonitorElement* hl3phi;
-  MonitorElement* hOffL3TrackMatch;
-  MonitorElement* hOffL3TrackPtRat;
-
-  MonitorElement* hOffP_0005;
-  MonitorElement* hOffP_0510;
-  MonitorElement* hOffP_1015;
-  MonitorElement* hOffP_1520;
-
-  MonitorElement* hOffP;
-
-  MonitorElement* hTracksSumP;
-  MonitorElement* hTracksMaxP;
-
-  MonitorElement* hDeposEcalInnerEB;
-  MonitorElement* hDeposEcalOuterEB;
-  MonitorElement* hDeposEcalInnerEE;
-  MonitorElement* hDeposEcalOuterEE;
-  
-  MonitorElement* hL1jetMatch;
-
-  MonitorElement* hOffEtaFP;
-  MonitorElement* hOffAbsEta;
-  MonitorElement* hOffPhiFP;
-
-  MonitorElement* hOffEta;
-  MonitorElement* hOffPhi;
-  
-  MonitorElement* hOccupancyFull;
-  MonitorElement* hOccupancyHighEn;
-
-  MonitorElement* hPurityEta;
-  MonitorElement* hPurityPhi;
-
-  int nTotal;
-  int nHLTL3accepts;
-  int nameLength_;
-  int l1nameLength_;
-  
-  std::pair<int, int> towerIndex(double eta, double phi);
-
-};
+#include "DQMHcalIsoTrackAlCaReco.h"
 
 std::pair<int,int> DQMHcalIsoTrackAlCaReco::towerIndex(double eta, double phi) 
 {
@@ -172,8 +59,6 @@ DQMHcalIsoTrackAlCaReco::DQMHcalIsoTrackAlCaReco(const edm::ParameterSet& iConfi
 
 {
   folderName_ = iConfig.getParameter<std::string>("folderName");
-  saveToFile_=iConfig.getParameter<bool>("saveToFile");
-  outRootFileName_=iConfig.getParameter<std::string>("outputRootFileName");
   hltEventTag_= consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("hltTriggerEventLabel"));
   l1FilterTag_=iConfig.getParameter<std::string>("l1FilterLabel");
   hltFilterTag_=iConfig.getParameter<std::vector<std::string> >("hltL3FilterLabels");
@@ -329,75 +214,66 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm::Event
       
 }
 
-void DQMHcalIsoTrackAlCaReco::beginJob()
-{
-  dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder(folderName_);
+void DQMHcalIsoTrackAlCaReco::bookHistograms(DQMStore::IBooker &iBooker,
+  edm::Run const &, edm::EventSetup const & ) {
 
-  hl3Pt=dbe_->book1D("hl3Pt","pT of hlt L3 objects",1000,0,1000);
+  iBooker.setCurrentFolder(folderName_);
+
+  hl3Pt=iBooker.book1D("hl3Pt","pT of hlt L3 objects",1000,0,1000);
   hl3Pt->setAxisTitle("pT(GeV)",1);
 
-  hl3eta=dbe_->book1D("hl3eta","eta of hlt L3 objects",16,-2,2);
+  hl3eta=iBooker.book1D("hl3eta","eta of hlt L3 objects",16,-2,2);
   hl3eta->setAxisTitle("eta",1);
-  hl3AbsEta=dbe_->book1D("hl3AbsEta","|eta| of hlt L3 objects",8,0,2);
+  hl3AbsEta=iBooker.book1D("hl3AbsEta","|eta| of hlt L3 objects",8,0,2);
   hl3AbsEta->setAxisTitle("eta",1);
-  hl3phi=dbe_->book1D("hl3phi","phi of hlt L3 objects",16,-3.2,3.2);
+  hl3phi=iBooker.book1D("hl3phi","phi of hlt L3 objects",16,-3.2,3.2);
   hl3phi->setAxisTitle("phi",1);
-  hOffEta=dbe_->book1D("hOffEta","eta of alcareco objects",100,-2,2);
+  hOffEta=iBooker.book1D("hOffEta","eta of alcareco objects",100,-2,2);
   hOffEta->setAxisTitle("eta",1);
-  hOffPhi=dbe_->book1D("hOffPhi","phi of alcareco objects",100,-3.2,3.2);
+  hOffPhi=iBooker.book1D("hOffPhi","phi of alcareco objects",100,-3.2,3.2);
   hOffPhi->setAxisTitle("phi",1);
-  hOffP=dbe_->book1D("hOffP","p of alcareco objects",1000,0,1000);
+  hOffP=iBooker.book1D("hOffP","p of alcareco objects",1000,0,1000);
   hOffP->setAxisTitle("E(GeV)",1);
-  hOffP_0005=dbe_->book1D("hOffP_0005","p of alcareco objects, |eta|<0.5",1000,0,1000);
+  hOffP_0005=iBooker.book1D("hOffP_0005","p of alcareco objects, |eta|<0.5",1000,0,1000);
   hOffP_0005->setAxisTitle("E(GeV)",1);
-  hOffP_0510=dbe_->book1D("hOffP_0510","p of alcareco objects, 0.5<|eta|<1.0",1000,0,1000);
+  hOffP_0510=iBooker.book1D("hOffP_0510","p of alcareco objects, 0.5<|eta|<1.0",1000,0,1000);
   hOffP_0510->setAxisTitle("E(GeV)",1);
-  hOffP_1015=dbe_->book1D("hOffP_1015","p of alcareco objects, 1.0<|eta|<1.5",1000,0,1000);
+  hOffP_1015=iBooker.book1D("hOffP_1015","p of alcareco objects, 1.0<|eta|<1.5",1000,0,1000);
   hOffP_1015->setAxisTitle("E(GeV)",1);
-  hOffP_1520=dbe_->book1D("hOffP_1520","p of alcareco objects, 1.5<|eta|<2.0",1000,0,1000);
+  hOffP_1520=iBooker.book1D("hOffP_1520","p of alcareco objects, 1.5<|eta|<2.0",1000,0,1000);
   hOffP_1520->setAxisTitle("E(GeV)",1);
-  hOffEtaFP=dbe_->book1D("hOffEtaFP","eta of alcareco objects, FP",16,-2,2);
+  hOffEtaFP=iBooker.book1D("hOffEtaFP","eta of alcareco objects, FP",16,-2,2);
   hOffEtaFP->setAxisTitle("eta",1);
-  hOffAbsEta=dbe_->book1D("hOffAbsEta","|eta| of alcareco objects",8,0,2);
+  hOffAbsEta=iBooker.book1D("hOffAbsEta","|eta| of alcareco objects",8,0,2);
   hOffAbsEta->setAxisTitle("|eta|",1);
-  hOffPhiFP=dbe_->book1D("hOffPhiFP","phi of alcareco objects, FP",16,-3.2,3.2);
+  hOffPhiFP=iBooker.book1D("hOffPhiFP","phi of alcareco objects, FP",16,-3.2,3.2);
   hOffPhiFP->setAxisTitle("phi",1);
-  hTracksSumP=dbe_->book1D("hTracksSumP","summary p of tracks in the isolation cone",100,0,20);
+  hTracksSumP=iBooker.book1D("hTracksSumP","summary p of tracks in the isolation cone",100,0,20);
   hTracksSumP->setAxisTitle("E(GeV)");
-  hTracksMaxP=dbe_->book1D("hTracksMaxP","maximum p among tracks in the isolation cone",100,0,20);
+  hTracksMaxP=iBooker.book1D("hTracksMaxP","maximum p among tracks in the isolation cone",100,0,20);
   hTracksMaxP->setAxisTitle("E(GeV)");
-  hDeposEcalInnerEE=dbe_->book1D("hDeposEcalInnerEE","ecal energy deposition in inner cone around track, EE",20,0,20);
+  hDeposEcalInnerEE=iBooker.book1D("hDeposEcalInnerEE","ecal energy deposition in inner cone around track, EE",20,0,20);
   hDeposEcalInnerEE->setAxisTitle("E(GeV)");
-  hDeposEcalOuterEE=dbe_->book1D("hDeposEcalOuterEE","ecal energy deposition in outer cone around track, EE",100,0,100);
-  hDeposEcalInnerEB=dbe_->book1D("hDeposEcalInnerEB","ecal energy deposition in inner cone around track, EB",20,0,20);
+  hDeposEcalOuterEE=iBooker.book1D("hDeposEcalOuterEE","ecal energy deposition in outer cone around track, EE",100,0,100);
+  hDeposEcalInnerEB=iBooker.book1D("hDeposEcalInnerEB","ecal energy deposition in inner cone around track, EB",20,0,20);
   hDeposEcalInnerEB->setAxisTitle("E(GeV)");
-  hDeposEcalOuterEB=dbe_->book1D("hDeposEcalOuterEB","ecal energy deposition in outer cone around track, EB",100,0,100);
+  hDeposEcalOuterEB=iBooker.book1D("hDeposEcalOuterEB","ecal energy deposition in outer cone around track, EB",100,0,100);
   hDeposEcalOuterEB->setAxisTitle("E(GeV)");
-  hOccupancyFull=dbe_->book2D("hOccupancyFull","number of tracks per tower, full energy range",48,-25,25,73,0,73);
+  hOccupancyFull=iBooker.book2D("hOccupancyFull","number of tracks per tower, full energy range",48,-25,25,73,0,73);
   hOccupancyFull->setAxisTitle("ieta",1);
   hOccupancyFull->setAxisTitle("iphi",2);
   hOccupancyFull->getTH2F()->SetOption("colz");
   hOccupancyFull->getTH2F()->SetStats(kFALSE);
-  hOccupancyHighEn=dbe_->book2D("hOccupancyHighEn","number of tracks per tower, high energy tracks",48,-25,25,73,0,73);
+  hOccupancyHighEn=iBooker.book2D("hOccupancyHighEn","number of tracks per tower, high energy tracks",48,-25,25,73,0,73);
   hOccupancyHighEn->setAxisTitle("ieta",1);
   hOccupancyHighEn->setAxisTitle("iphi",2);
   hOccupancyHighEn->getTH2F()->SetOption("colz");
   hOccupancyHighEn->getTH2F()->SetStats(kFALSE);
-  hOffL3TrackMatch=dbe_->book1D("hOffL3TrackMatch","Distance from L3 object to offline track",40,0,0.2);
+  hOffL3TrackMatch=iBooker.book1D("hOffL3TrackMatch","Distance from L3 object to offline track",40,0,0.2);
   hOffL3TrackMatch->setAxisTitle("R(eta,phi)",1);
-  hOffL3TrackPtRat=dbe_->book1D("hOffL3TrackPtRat","Ratio of pT: L3/offline",500,0,3);
+  hOffL3TrackPtRat=iBooker.book1D("hOffL3TrackPtRat","Ratio of pT: L3/offline",500,0,3);
   hOffL3TrackPtRat->setAxisTitle("ratio L3/offline",1);
 
-  hL1jetMatch=dbe_->book1D("hL1jetMatch","dR(eta,phi) from leading L1 jet to offline track",100,0,5);
+  hL1jetMatch=iBooker.book1D("hL1jetMatch","dR(eta,phi) from leading L1 jet to offline track",100,0,5);
 
 }
-
-void DQMHcalIsoTrackAlCaReco::endJob() {
-
-if(dbe_) 
-  {
-    if (saveToFile_) dbe_->save(outRootFileName_);
-  }
-}
-

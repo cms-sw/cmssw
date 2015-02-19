@@ -1,6 +1,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Calibration/HcalIsolatedTrackReco/interface/IsolatedPixelTrackCandidateProducer.h"
+#include "Calibration/HcalIsolatedTrackReco/interface/IsolatedEcalPixelTrackCandidateProducer.h"
 #include "Calibration/HcalIsolatedTrackReco/interface/EcalIsolatedParticleCandidateProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h" 	 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h" 	 
@@ -14,6 +15,7 @@
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, HITRegionalPixelSeedGenerator, "HITRegionalPixelSeedGenerator"); 
 //
 DEFINE_FWK_MODULE(IsolatedPixelTrackCandidateProducer);
+DEFINE_FWK_MODULE(IsolatedEcalPixelTrackCandidateProducer);
 DEFINE_FWK_MODULE(EcalIsolatedParticleCandidateProducer);
 DEFINE_FWK_MODULE(SiStripRegFEDSelector);
 DEFINE_FWK_MODULE(ECALRegFEDSelector);

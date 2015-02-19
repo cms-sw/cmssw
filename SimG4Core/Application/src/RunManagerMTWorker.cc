@@ -8,6 +8,8 @@
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/Application/interface/CustomUIsession.h"
+#include "SimG4Core/Application/interface/CustomUIsessionThreadPrefix.h"
+#include "SimG4Core/Application/interface/CustomUIsessionToFile.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -69,7 +71,8 @@ namespace {
   void createWatchers(const edm::ParameterSet& iP,
                       SimActivityRegistry& iReg,
                       std::vector<std::shared_ptr<SimWatcher> >& oWatchers,
-                      std::vector<std::shared_ptr<SimProducer> >& oProds
+                      std::vector<std::shared_ptr<SimProducer> >& oProds,
+                      int thisThreadID
                       )
   {
     using namespace std;
@@ -78,6 +81,10 @@ namespace {
       return;
 
     vector<ParameterSet> watchers = iP.getParameter<vector<ParameterSet> >("Watchers");
+
+    if(!watchers.empty() && thisThreadID > 0) {
+      throw cms::Exception("Unsupported") << "SimWatchers are not supported for more than 1 thread. If this use case is needed, RunManagerMTWorker has to be updated, and SimWatchers and SimProducers have to be made thread safe.";
+    }
 
     for(vector<ParameterSet>::iterator itWatcher = watchers.begin();
         itWatcher != watchers.end();
@@ -112,6 +119,7 @@ struct RunManagerMTWorker::TLSData {
   std::vector<std::shared_ptr<SimProducer> > producers;
   std::unique_ptr<sim::FieldBuilder> fieldBuilder;
   std::unique_ptr<G4Run> currentRun;
+  std::unique_ptr<G4Event> currentEvent;
   edm::RunNumber_t currentRunNumber = 0;
   bool threadInitialized = false;
   bool runTerminated = false;
@@ -132,6 +140,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
   m_pStackingAction(iConfig.getParameter<edm::ParameterSet>("StackingAction")),
   m_pTrackingAction(iConfig.getParameter<edm::ParameterSet>("TrackingAction")),
   m_pSteppingAction(iConfig.getParameter<edm::ParameterSet>("SteppingAction")),
+  m_pCustomUIsession(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomUIsession")),
   m_p(iConfig)
 {
   initializeTLS();
@@ -156,11 +165,15 @@ void RunManagerMTWorker::initializeTLS() {
   edm::Service<SimActivityRegistry> otherRegistry;
   //Look for an outside SimActivityRegistry
   // this is used by the visualization code
+  int thisID = getThreadIndex();
   if(otherRegistry){
     m_tls->registry.connect(*otherRegistry);
+    if(thisID > 0) {
+      throw cms::Exception("Unsupported") << "SimActivityRegistry service (i.e. visualization) is not supported for more than 1 thread. If this use case is needed, RunManagerMTWorker has to be updated.";
+    }
   }
 
-  createWatchers(m_p, m_tls->registry, m_tls->watchers, m_tls->producers);
+  createWatchers(m_p, m_tls->registry, m_tls->watchers, m_tls->producers, thisID);
 }
 
 void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, const edm::EventSetup& es) {
@@ -172,7 +185,19 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, 
   // Initialize per-thread output
   G4Threading::G4SetThreadId( thisID );
   G4UImanager::GetUIpointer()->SetUpForAThread( thisID );
-  m_tls->UIsession.reset(new CustomUIsession());
+  const std::string& uitype = m_pCustomUIsession.getUntrackedParameter<std::string>("Type");
+  if(uitype == "MessageLogger") {
+    m_tls->UIsession.reset(new CustomUIsession());
+  }
+  else if(uitype == "MessageLoggerThreadPrefix") {
+    m_tls->UIsession.reset(new CustomUIsessionThreadPrefix(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadPrefix"), thisID));
+  }
+  else if(uitype == "FilePerThread") {
+    m_tls->UIsession.reset(new CustomUIsessionToFile(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadFile"), thisID));
+  }
+  else {
+    throw cms::Exception("Configuration") << "Invalid value of CustomUIsession.Type '" << uitype << "', valid are MessageLogger, MessageLoggerThreadPrefix, FilePerThread";
+  }
 
   // Initialize worker part of shared resources (geometry, physics)
   G4WorkerThread::BuildGeometryAndPhysicsVector();
@@ -204,7 +229,8 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, 
       G4TransportationManager * tM =
 	G4TransportationManager::GetTransportationManager();
       m_tls->fieldBuilder->build( tM->GetFieldManager(),
-                                  tM->GetPropagatorInField());
+                                  tM->GetPropagatorInField(),
+                                  runManagerMaster.chordFinderSetterForWorker());
     }
 
 
@@ -339,7 +365,7 @@ void RunManagerMTWorker::terminateRun() {
 
   G4RunManagerKernel *kernel = G4WorkerRunManagerKernel::GetRunManagerKernel();
   if(!kernel && !m_tls->runTerminated) {
-    m_currentEvent.reset();
+    m_tls->currentEvent.reset();
     m_simEvent.reset();
     kernel->RunTermination();
     m_tls->runTerminated = true;
@@ -372,7 +398,7 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
   m_tls->runInterface->setRunManagerMTWorker(this); // For UserActions
 
 
-  m_currentEvent.reset(generateEvent(inpevt));
+  m_tls->currentEvent.reset(generateEvent(inpevt));
 
   m_simEvent.reset(new G4SimEvent());
   m_simEvent->hepEvent(m_generator.genEvent());
@@ -385,7 +411,7 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
 			       genVertex->z()/centimeter,
 			       genVertex->t()/second));
   }
-  if (m_currentEvent->GetNumberOfPrimaryVertex()==0) {
+  if (m_tls->currentEvent->GetNumberOfPrimaryVertex()==0) {
     edm::LogError("SimG4CoreApplication") 
       << " RunManagerMT::produce event " << inpevt.id().event()
       << " with no G4PrimaryVertices \n  Aborting Run" ;
@@ -398,7 +424,7 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
       ss << "No G4WorkerRunManagerKernel yet for thread index" << getThreadIndex() << ", id " << std::hex << std::this_thread::get_id();
       throw SimG4Exception(ss.str());
     }
-    kernel->GetEventManager()->ProcessOneEvent(m_currentEvent.get());
+    kernel->GetEventManager()->ProcessOneEvent(m_tls->currentEvent.get());
   }
     
   edm::LogInfo("SimG4CoreApplication")
@@ -423,7 +449,7 @@ void RunManagerMTWorker::abortEvent() {
     static_cast<TrackingAction *>(kernel->GetEventManager()->GetUserTrackingAction());
   uta->PostUserTrackingAction(t) ;
 
-  m_currentEvent->SetEventAborted();
+  m_tls->currentEvent->SetEventAborted();
 
   // do NOT call this method for now
   // because it'll set abortRequested=true (withing G4EventManager)
@@ -450,10 +476,13 @@ void RunManagerMTWorker::abortRun(bool softAbort) {
 }
 
 G4Event * RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
-  m_currentEvent.reset();
+  m_tls->currentEvent.reset();
   m_simEvent.reset();
 
-  G4Event * evt = new G4Event(inpevt.id().event());
+  // 64 bits event ID in CMSSW converted into Geant4 event ID
+  G4int evtid = (G4int)inpevt.id().event();
+  G4Event * evt = new G4Event(evtid);
+
   edm::Handle<edm::HepMCProduct> HepMCEvt;
 
   inpevt.getByToken(m_InToken, HepMCEvt);

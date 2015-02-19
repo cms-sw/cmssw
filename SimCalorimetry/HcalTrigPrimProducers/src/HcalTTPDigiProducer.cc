@@ -79,10 +79,6 @@ HcalTTPDigiProducer::HcalTTPDigiProducer(const edm::ParameterSet& ps)
     produces<HcalTTPDigiCollection>();
 }
 
-
-HcalTTPDigiProducer::~HcalTTPDigiProducer() {
-}
-
 bool HcalTTPDigiProducer::isMasked(HcalDetId id) {
 
     for ( unsigned int i=0; i<maskedChannels_.size(); i++ ) 

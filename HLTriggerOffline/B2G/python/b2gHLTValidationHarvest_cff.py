@@ -35,10 +35,21 @@ b2gSingleJetHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
         resolution = cms.vstring(""),
         )
 
+b2gDiJetHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
+        subDirs = cms.untracked.vstring("HLT/B2GHLTValidation/B2G/DiJet"),
+        efficiency = cms.vstring(
+            "hEffLastJetEta 'Efficiency vs Eta Last Jet' EtaLastJetSel EtaLastJetAll",
+            "hEffLastJetPt 'Efficiency vs Pt Last Jet' PtLastJetSel PtLastJetAll",
+            "hTriggerMon 'Efficiency per trigger bit' TriggerMonSel TriggerMonAll"
+            ),
+        resolution = cms.vstring(""),
+        )
+
 
 b2gHLTriggerValidationHarvest = cms.Sequence(  
     b2gSingleMuonHLTValidationHarvest
     *b2gSingleElectronHLTValidationHarvest
     *b2gSingleJetHLTValidationHarvest
+    *b2gDiJetHLTValidationHarvest
     )
 

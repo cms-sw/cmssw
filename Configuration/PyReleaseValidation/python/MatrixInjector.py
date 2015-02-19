@@ -54,7 +54,12 @@ class MatrixInjector(object):
         if not self.wmagent:
             self.wmagent=os.getenv('WMAGENT_REQMGR')
         if not self.wmagent:
-            self.wmagent = 'cmsweb.cern.ch'
+            if not opt.testbed :
+                self.wmagent = 'cmsweb.cern.ch'
+                self.DbsUrl = "https://"+self.wmagent+"/dbs/prod/global/DBSReader"
+            else :
+                self.wmagent = 'cmsweb-testbed.cern.ch'
+                self.DbsUrl = "https://"+self.wmagent+"/dbs/int/global/DBSReader"
 
         if not self.dqmgui:
             self.dqmgui="https://cmsweb.cern.ch/dqm/relval"
@@ -79,7 +84,9 @@ class MatrixInjector(object):
             print '\n\tFound wmclient\n'
             
         self.defaultChain={
-            "RequestType" :   "TaskChain",                    #this is how we handle relvals
+            "RequestType" :    "TaskChain",                    #this is how we handle relvals
+            "SubRequestType" : "RelVal",                       #this is how we handle relvals, now that TaskChain is also used for central MC production
+            "RequestPriority": 500000,
             "Requestor": self.user,                           #Person responsible
             "Group": self.group,                              #group for the request
             "CMSSWVersion": os.getenv('CMSSW_VERSION'),       #CMSSW Version (used for all tasks in chain)
@@ -89,7 +96,7 @@ class MatrixInjector(object):
             "GlobalTag": None,                                #Global Tag (overridden per task)
             "CouchURL": self.couch,                           #URL of CouchDB containing Config Cache
             "ConfigCacheURL": self.couch,                     #URL of CouchDB containing Config Cache
-            "DbsUrl": "https://cmsweb.cern.ch/dbs/prod/global/DBSReader",
+            "DbsUrl": self.DbsUrl,
             #- Will contain all configs for all Tasks
             #"SiteWhitelist" : ["T2_CH_CERN", "T1_US_FNAL"],   #Site whitelist
             "TaskChain" : None,                                  #Define number of tasks in chain.
@@ -162,10 +169,10 @@ class MatrixInjector(object):
             wmsplit['RECOUP15_PU25']=1
             wmsplit['DIGIHISt3']=5
             wmsplit['RECODSplit']=1
-            wmsplit['SingleMuPt10_ID']=1
-            wmsplit['DIGI_ID']=1
-            wmsplit['RECO_ID']=1
-            wmsplit['TTbar_ID']=1
+            wmsplit['SingleMuPt10_UP15_ID']=1
+            wmsplit['DIGIUP15_ID']=1
+            wmsplit['RECOUP15_ID']=1
+            wmsplit['TTbar_13_ID']=1
             wmsplit['SingleMuPt10FS_ID']=1
             wmsplit['TTbarFS_ID']=1
                                     
@@ -189,6 +196,8 @@ class MatrixInjector(object):
                     index=0
                     splitForThisWf=None
                     thisLabel=self.speciallabel
+                    if 'HARVESTGEN' in s[3]:
+                        thisLabel=thisLabel+"_gen"
                     processStrPrefix=''
                     setPrimaryDs=None
                     for step in s[3]:

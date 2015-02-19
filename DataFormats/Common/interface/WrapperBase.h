@@ -8,12 +8,13 @@ WrapperBase: The base class of all things that will be inserted into the Event.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
+#include "DataFormats/Provenance/interface/ViewTypeChecker.h"
 
 #include <typeinfo>
 #include <vector>
 
 namespace edm {
-  class WrapperBase {
+  class WrapperBase : public ViewTypeChecker {
   public:
     WrapperBase();
     virtual ~WrapperBase();
@@ -60,9 +61,9 @@ namespace edm {
 
 #ifndef __GCCXML__
     virtual bool isMergeable_() const { return true; }
-    virtual bool mergeProduct_(WrapperBase const* newProduct) { return true; }
+    virtual bool mergeProduct_(WrapperBase const* /* newProduct */) { return true; }
     virtual bool hasIsProductEqual_() const { return true; }
-    virtual bool isProductEqual_(WrapperBase const* newProduct) const { return true; }
+    virtual bool isProductEqual_(WrapperBase const* /* newProduct */) const { return true; }
 #endif
 
     virtual void do_fillView(ProductID const& id,

@@ -4,7 +4,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include <TDirectory.h>
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -44,7 +43,6 @@ void TestTrackHits::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
   iSetup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
   iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
   iSetup.get<TrackingComponentsRecord>().get(updatorName,theUpdator);
-  iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",trackAssociator);
 
   file = new TFile(out.c_str(),"recreate");
   for (int i=0; i!=6; i++)
@@ -266,11 +264,13 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   LogTrace("TestTrackHits") << "Tr collection size=" << trackCollectionHandle->size();
   LogTrace("TestTrackHits") << "TP collection size=" << trackingParticleCollectionHandle->size();
 
+  iEvent.getByLabel("trackAssociatorByHits",trackAssociator);
+
+
   hitAssociator = new TrackerHitAssociator(iEvent);
   
   reco::RecoToSimCollection recSimColl=trackAssociator->associateRecoToSim(trackCollectionHandle,
-									   trackingParticleCollectionHandle,
-									   &iEvent,&iSetup);
+									   trackingParticleCollectionHandle);
   
   TrajectoryStateCombiner combiner;
 

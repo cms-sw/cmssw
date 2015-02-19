@@ -1,5 +1,5 @@
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -14,19 +14,20 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <vector>
 #include <string>
 
-class testEvent : public edm::EDAnalyzer {
+class testEvent : public DQMEDAnalyzer {
 public :
   explicit testEvent(const edm::ParameterSet&);
-  ~testEvent();
+  ~testEvent(){};
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&  );
+  virtual void analyze(const edm::Event&, const edm::EventSetup& ) override;
+  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&  ) override;
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
@@ -35,7 +36,6 @@ private:
   std::vector<FSimEvent*> mySimEvent;
 
   // Histograms
-  DQMStore * dbe;
   std::vector<MonitorElement*> PIDs;
   std::vector<MonitorElement*> Energies;
 
@@ -55,21 +55,22 @@ testEvent::testEvent(const edm::ParameterSet& p) :
   if ( isGeant) mySimEvent[0] = new FSimEvent(particleFilter_);
   // For the fast sim
   mySimEvent[1] = new FSimEvent(particleFilter_);
-  
-  dbe = edm::Service<DQMStore>().operator->();
-  PIDs[0] = dbe->book1D("PIDFull", "Particle ID distribution (full)",6000,-6000.,6000.);
-  PIDs[1] = dbe->book1D("PIDFast", "Particle ID distribution (fast)",6000,-6000.,6000.);
-  Energies[0] = dbe->book1D("EneFull", "Energy distribution (full)",20,0.,20.);
-  Energies[1] = dbe->book1D("EneFast", "Energy distribution (fast)",20,0.,20.);
-								
 }
 
-testEvent::~testEvent()
+
+void testEvent::bookHistograms(DQMStore::IBooker & ibooker,
+			  edm::Run const & iRun,
+			  edm::EventSetup const & iSetup)
 {
-  dbe->save("testEvent.root");
+  ibooker.setCurrentFolder("testEvent");
+
+  PIDs[0] = ibooker.book1D("PIDFull", "Particle ID distribution (full)",6000,-6000.,6000.);
+  PIDs[1] = ibooker.book1D("PIDFast", "Particle ID distribution (fast)",6000,-6000.,6000.);
+  Energies[0] = ibooker.book1D("EneFull", "Energy distribution (full)",20,0.,20.);
+  Energies[1] = ibooker.book1D("EneFast", "Energy distribution (fast)",20,0.,20.);								
 }
 
-void testEvent::beginRun(edm::Run const&, edm::EventSetup const& es)
+void testEvent::dqmBeginRun(edm::Run const&, edm::EventSetup const& es)
 {
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;

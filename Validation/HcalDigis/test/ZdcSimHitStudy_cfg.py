@@ -4,6 +4,7 @@ import os
 process = cms.Process("HcalValid")
 process.load("DQMServices.Core.DQM_cfg")
 
+process.load('Configuration.StandardSequences.EDMtoMEAtRunEnd_cff')
 #Magnetic Field 		
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -37,12 +38,20 @@ process.source = cms.Source("PoolSource",
        fileNames = cms.untracked.vstring('file:simevent.root')
 )
 
+# load DQM
+process.load("DQMServices.Core.DQM_cfg")
+process.load("DQMServices.Components.DQMEnvironment_cfi")
+process.dqmsave_step = cms.Path(process.DQMSaver)
 
 print process.ZDCDigiStudy.Verbose
 process.p1 = cms.Path(
                      process.ZDCDigiStudy
                      *process.zdcSimHitStudy)
-process.DQM.collectorHost = ''
+
+process.schedule = cms.Schedule(process.p1,
+                                process.dqmsave_step)
+
+#process.DQM.collectorHost = ''
 process.zdcSimHitStudy.outputFile = 'zdcStudy.root'
 process.ZDCDigiStudy.outputFile='zdcStudy.root'
 

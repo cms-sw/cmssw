@@ -10,7 +10,7 @@ from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 from RecoTracker.IterativeTracking.PixelPairStep_cff import *
 
 # NEW CLUSTERS (remove previously used clusters)
-hiRegitPixelPairStepClusters = cms.EDProducer("TrackClusterRemover",
+hiRegitPixelPairStepClusters = cms.EDProducer("HITrackClusterRemover",
                                      clusterLessSolution= cms.bool(True),
                                      oldClusterRemovalInfo = cms.InputTag("hiRegitLowPtTripletStepClusters"),
                                      trajectories = cms.InputTag("hiRegitLowPtTripletStepTracks"),
@@ -45,7 +45,7 @@ hiRegitPixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.2
 
 
 # building: feed the new-named seeds
-hiRegitPixelPairStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilter.clone()
+hiRegitPixelPairStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilterBase.clone()
 
 hiRegitPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryBuilder.clone(
     trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitPixelPairStepTrajectoryFilter')),
@@ -62,8 +62,7 @@ hiRegitPixelPairStepTrackCandidates        =  RecoTracker.IterativeTracking.Pixe
 # fitting: feed new-names
 hiRegitPixelPairStepTracks                 = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTracks.clone(
     src                 = 'hiRegitPixelPairStepTrackCandidates',
-    #AlgorithmName = cms.string('iter6'),
-    AlgorithmName = cms.string('iter2'),
+    AlgorithmName = cms.string('pixelPairStep'),
     )
 
 

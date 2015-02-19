@@ -1,21 +1,21 @@
 #include "Validation/MuonRPCDigis/interface/RPCDigiValid.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+
 #include <cmath>
 
 using namespace std;
 using namespace edm;
 
-RPCDigiValid::RPCDigiValid(const ParameterSet& ps) :
-  dbe_(0)
+RPCDigiValid::RPCDigiValid(const ParameterSet& ps)
 {
 
 //  Init the tokens for run data retrieval - stanislav
@@ -26,7 +26,6 @@ RPCDigiValid::RPCDigiValid(const ParameterSet& ps) :
   rpcDigiToken    = consumes<RPCDigiCollection>(ps.getUntrackedParameter<edm::InputTag>("rpcDigiTag", edm::InputTag("simMuonRPCDigis")));
 
   outputFile_ = ps.getUntrackedParameter<string> ("outputFile", "rpcDigiValidPlots.root");
-  dbe_ = Service<DQMStore> ().operator->();
 }
 
 RPCDigiValid::~RPCDigiValid()
@@ -275,97 +274,79 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
   }
 }
 
-void RPCDigiValid::beginJob()
+void RPCDigiValid::bookHistograms(DQMStore::IBooker& booker, edm::Run const& run, edm::EventSetup const& eSetup)
 {
+  booker.setCurrentFolder("RPCDigisV/RPCDigis");
+
+  xyview = booker.book2D("X_Vs_Y_View", "X_Vs_Y_View", 155, -775., 775., 155, -775., 775.);
+
+  xyvDplu4 = booker.book2D("Dplu4_XvsY", "Dplu4_XvsY", 155, -775., 775., 155, -775., 775.);
+  xyvDmin4 = booker.book2D("Dmin4_XvsY", "Dmin4_XvsY", 155, -775., 775., 155, -775., 775.);
+
+  rzview = booker.book2D("R_Vs_Z_View", "R_Vs_Z_View", 216, -1080., 1080., 52, 260., 780.);
+  Res = booker.book1D("Digi_SimHit_difference", "Digi_SimHit_difference", 300, -8, 8);
+  ResWmin2 = booker.book1D("W_Min2_Residuals", "W_Min2_Residuals", 400, -8, 8);
+  ResWmin1 = booker.book1D("W_Min1_Residuals", "W_Min1_Residuals", 400, -8, 8);
+  ResWzer0 = booker.book1D("W_Zer0_Residuals", "W_Zer0_Residuals", 400, -8, 8);
+  ResWplu1 = booker.book1D("W_Plu1_Residuals", "W_Plu1_Residuals", 400, -8, 8);
+  ResWplu2 = booker.book1D("W_Plu2_Residuals", "W_Plu2_Residuals", 400, -8, 8);
+
+  ResLayer1_barrel = booker.book1D("ResLayer1_barrel", "ResLayer1_barrel", 400, -8, 8);
+  ResLayer2_barrel = booker.book1D("ResLayer2_barrel", "ResLayer2_barrel", 400, -8, 8);
+  ResLayer3_barrel = booker.book1D("ResLayer3_barrel", "ResLayer3_barrel", 400, -8, 8);
+  ResLayer4_barrel = booker.book1D("ResLayer4_barrel", "ResLayer4_barrel", 400, -8, 8);
+  ResLayer5_barrel = booker.book1D("ResLayer5_barrel", "ResLayer5_barrel", 400, -8, 8);
+  ResLayer6_barrel = booker.book1D("ResLayer6_barrel", "ResLayer6_barrel", 400, -8, 8);
+
+  BxDist = booker.book1D("Bunch_Crossing", "Bunch_Crossing", 20, -10., 10.);
+  StripProf = booker.book1D("Strip_Profile", "Strip_Profile", 100, 0, 100);
+
+  BxDisc_4Plus = booker.book1D("BxDisc_4Plus", "BxDisc_4Plus", 20, -10., 10.);
+  BxDisc_4Min = booker.book1D("BxDisc_4Min", "BxDisc_4Min", 20, -10., 10.);
+
+  //cls histos
+  noiseCLS = booker.book1D("noiseCLS", "noiseCLS", 10, 0.5, 10.5);
+  noiseCLSBarrel = booker.book1D("noiseCLSBarrel", "noiseCLSBarrel", 10, 0.5, 10.5);
+  noiseCLSEndcaps = booker.book1D("noiseCLSEndcaps", "noiseCLSEndcaps", 10, 0.5, 10.5);
+
+  clsBarrel = booker.book1D("clsBarrel", "clsBarrel", 10, 0.5, 10.5);
+
+  //endcap CLS
+  CLS_Endcap_1_Ring2_A = booker.book1D("CLS_Endcap_1_1Ring2_A", "CLS_Endcap_1_Ring2_A", 10, 0.5, 10.5);
+  CLS_Endcap_1_Ring2_B = booker.book1D("CLS_Endcap_1_1Ring2_B", "CLS_Endcap_1_Ring2_B", 10, 0.5, 10.5);
+  CLS_Endcap_1_Ring2_C = booker.book1D("CLS_Endcap_1_1Ring2_C", "CLS_Endcap_1_Ring2_C", 10, 0.5, 10.5);
+
+  CLS_Endcap_23_Ring2_A = booker.book1D("CLS_Endcap_23_Ring2_A", "CLS_Endcap_23_Ring2_A", 10, 0.5, 10.5);
+  CLS_Endcap_23_Ring2_B = booker.book1D("CLS_Endcap_23_Ring2_B", "CLS_Endcap_23_Ring2_B", 10, 0.5, 10.5);
+  CLS_Endcap_23_Ring2_C = booker.book1D("CLS_Endcap_23_Ring2_C", "CLS_Endcap_23_Ring2_C", 10, 0.5, 10.5);
+
+  CLS_Endcap_123_Ring3_A = booker.book1D("CLS_Endcap_123_Ring3_A", "CLS_Endcap_123_Ring3_A", 10, 0.5, 10.5);
+  CLS_Endcap_123_Ring3_B = booker.book1D("CLS_Endcap_123_Ring3_B", "CLS_Endcap_123_Ring3_B", 10, 0.5, 10.5);
+  CLS_Endcap_123_Ring3_C = booker.book1D("CLS_Endcap_123_Ring3_C", "CLS_Endcap_123_Ring3_C", 10, 0.5, 10.5);
+
+  CLS_Endcap_4 = booker.book1D("CLS_Endcap_4", "CLS_Endcap_4", 10, 0.5, 10.5);
+
+  //endcap residuals
+  ResDmin1 = booker.book1D("Disk_Min1_Residuals", "Disk_Min1_Residuals", 400, -8, 8);
+  ResDmin2 = booker.book1D("Disk_Min2_Residuals", "Disk_Min2_Residuals", 400, -8, 8);
+  ResDmin3 = booker.book1D("Disk_Min3_Residuals", "Disk_Min3_Residuals", 400, -8, 8);
+  ResDplu1 = booker.book1D("Disk_Plu1_Residuals", "Disk_Plu1_Residuals", 400, -8, 8);
+  ResDplu2 = booker.book1D("Disk_Plu2_Residuals", "Disk_Plu2_Residuals", 400, -8, 8);
+  ResDplu3 = booker.book1D("Disk_Plu3_Residuals", "Disk_Plu3_Residuals", 400, -8, 8);
+
+  ResDmin4 = booker.book1D("Disk_Min4_Residuals", "Disk_Min4_Residuals", 400, -8, 8);
+  ResDplu4 = booker.book1D("Disk_Plu4_Residuals", "Disk_Plu4_Residuals", 400, -8, 8);
+
+  Res_Endcap1_Ring2_A = booker.book1D("Res_Endcap1_Ring2_A", "Res_Endcap1_Ring2_A", 400, -8, 8);
+  Res_Endcap1_Ring2_B = booker.book1D("Res_Endcap1_Ring2_B", "Res_Endcap1_Ring2_B", 400, -8, 8);
+  Res_Endcap1_Ring2_C = booker.book1D("Res_Endcap1_Ring2_C", "Res_Endcap1_Ring2_C", 400, -8, 8);
+
+  Res_Endcap23_Ring2_A = booker.book1D("Res_Endcap23_Ring2_A", "Res_Endcap23_Ring2_A", 400, -8, 8);
+  Res_Endcap23_Ring2_B = booker.book1D("Res_Endcap23_Ring2_B", "Res_Endcap23_Ring2_B", 400, -8, 8);
+  Res_Endcap23_Ring2_C = booker.book1D("Res_Endcap23_Ring2_C", "Res_Endcap23_Ring2_C", 400, -8, 8);
+
+  Res_Endcap123_Ring3_A = booker.book1D("Res_Endcap123_Ring3_A", "Res_Endcap123_Ring3_A", 400, -8, 8);
+  Res_Endcap123_Ring3_B = booker.book1D("Res_Endcap123_Ring3_B", "Res_Endcap123_Ring3_B", 400, -8, 8);
+  Res_Endcap123_Ring3_C = booker.book1D("Res_Endcap123_Ring3_C", "Res_Endcap123_Ring3_C", 400, -8, 8);
 }
 
-void RPCDigiValid::endJob()
-{
-  if (outputFile_.size() != 0 && dbe_)
-    dbe_->save(outputFile_);
-
-}
-
-void RPCDigiValid::beginRun(edm::Run const& run, edm::EventSetup const& eSetup)
-{
-  if (dbe_)
-  {
-    dbe_->setCurrentFolder("RPCDigisV/RPCDigis");
-
-    xyview = dbe_->book2D("X_Vs_Y_View", "X_Vs_Y_View", 155, -775., 775., 155, -775., 775.);
-
-    xyvDplu4 = dbe_->book2D("Dplu4_XvsY", "Dplu4_XvsY", 155, -775., 775., 155, -775., 775.);
-    xyvDmin4 = dbe_->book2D("Dmin4_XvsY", "Dmin4_XvsY", 155, -775., 775., 155, -775., 775.);
-
-    rzview = dbe_->book2D("R_Vs_Z_View", "R_Vs_Z_View", 216, -1080., 1080., 52, 260., 780.);
-    Res = dbe_->book1D("Digi_SimHit_difference", "Digi_SimHit_difference", 300, -8, 8);
-    ResWmin2 = dbe_->book1D("W_Min2_Residuals", "W_Min2_Residuals", 400, -8, 8);
-    ResWmin1 = dbe_->book1D("W_Min1_Residuals", "W_Min1_Residuals", 400, -8, 8);
-    ResWzer0 = dbe_->book1D("W_Zer0_Residuals", "W_Zer0_Residuals", 400, -8, 8);
-    ResWplu1 = dbe_->book1D("W_Plu1_Residuals", "W_Plu1_Residuals", 400, -8, 8);
-    ResWplu2 = dbe_->book1D("W_Plu2_Residuals", "W_Plu2_Residuals", 400, -8, 8);
-
-    ResLayer1_barrel = dbe_->book1D("ResLayer1_barrel", "ResLayer1_barrel", 400, -8, 8);
-    ResLayer2_barrel = dbe_->book1D("ResLayer2_barrel", "ResLayer2_barrel", 400, -8, 8);
-    ResLayer3_barrel = dbe_->book1D("ResLayer3_barrel", "ResLayer3_barrel", 400, -8, 8);
-    ResLayer4_barrel = dbe_->book1D("ResLayer4_barrel", "ResLayer4_barrel", 400, -8, 8);
-    ResLayer5_barrel = dbe_->book1D("ResLayer5_barrel", "ResLayer5_barrel", 400, -8, 8);
-    ResLayer6_barrel = dbe_->book1D("ResLayer6_barrel", "ResLayer6_barrel", 400, -8, 8);
-
-    BxDist = dbe_->book1D("Bunch_Crossing", "Bunch_Crossing", 20, -10., 10.);
-    StripProf = dbe_->book1D("Strip_Profile", "Strip_Profile", 100, 0, 100);
-
-    BxDisc_4Plus = dbe_->book1D("BxDisc_4Plus", "BxDisc_4Plus", 20, -10., 10.);
-    BxDisc_4Min = dbe_->book1D("BxDisc_4Min", "BxDisc_4Min", 20, -10., 10.);
-
-    //cls histos
-    noiseCLS = dbe_->book1D("noiseCLS", "noiseCLS", 10, 0.5, 10.5);
-    noiseCLSBarrel = dbe_->book1D("noiseCLSBarrel", "noiseCLSBarrel", 10, 0.5, 10.5);
-    noiseCLSEndcaps = dbe_->book1D("noiseCLSEndcaps", "noiseCLSEndcaps", 10, 0.5, 10.5);
-
-    clsBarrel = dbe_->book1D("clsBarrel", "clsBarrel", 10, 0.5, 10.5);
-
-    //endcap CLS
-    CLS_Endcap_1_Ring2_A = dbe_->book1D("CLS_Endcap_1_1Ring2_A", "CLS_Endcap_1_Ring2_A", 10, 0.5, 10.5);
-    CLS_Endcap_1_Ring2_B = dbe_->book1D("CLS_Endcap_1_1Ring2_B", "CLS_Endcap_1_Ring2_B", 10, 0.5, 10.5);
-    CLS_Endcap_1_Ring2_C = dbe_->book1D("CLS_Endcap_1_1Ring2_C", "CLS_Endcap_1_Ring2_C", 10, 0.5, 10.5);
-
-    CLS_Endcap_23_Ring2_A = dbe_->book1D("CLS_Endcap_23_Ring2_A", "CLS_Endcap_23_Ring2_A", 10, 0.5, 10.5);
-    CLS_Endcap_23_Ring2_B = dbe_->book1D("CLS_Endcap_23_Ring2_B", "CLS_Endcap_23_Ring2_B", 10, 0.5, 10.5);
-    CLS_Endcap_23_Ring2_C = dbe_->book1D("CLS_Endcap_23_Ring2_C", "CLS_Endcap_23_Ring2_C", 10, 0.5, 10.5);
-
-    CLS_Endcap_123_Ring3_A = dbe_->book1D("CLS_Endcap_123_Ring3_A", "CLS_Endcap_123_Ring3_A", 10, 0.5, 10.5);
-    CLS_Endcap_123_Ring3_B = dbe_->book1D("CLS_Endcap_123_Ring3_B", "CLS_Endcap_123_Ring3_B", 10, 0.5, 10.5);
-    CLS_Endcap_123_Ring3_C = dbe_->book1D("CLS_Endcap_123_Ring3_C", "CLS_Endcap_123_Ring3_C", 10, 0.5, 10.5);
-
-    CLS_Endcap_4 = dbe_->book1D("CLS_Endcap_4", "CLS_Endcap_4", 10, 0.5, 10.5);
-
-    //endcap residuals
-    ResDmin1 = dbe_->book1D("Disk_Min1_Residuals", "Disk_Min1_Residuals", 400, -8, 8);
-    ResDmin2 = dbe_->book1D("Disk_Min2_Residuals", "Disk_Min2_Residuals", 400, -8, 8);
-    ResDmin3 = dbe_->book1D("Disk_Min3_Residuals", "Disk_Min3_Residuals", 400, -8, 8);
-    ResDplu1 = dbe_->book1D("Disk_Plu1_Residuals", "Disk_Plu1_Residuals", 400, -8, 8);
-    ResDplu2 = dbe_->book1D("Disk_Plu2_Residuals", "Disk_Plu2_Residuals", 400, -8, 8);
-    ResDplu3 = dbe_->book1D("Disk_Plu3_Residuals", "Disk_Plu3_Residuals", 400, -8, 8);
-
-    ResDmin4 = dbe_->book1D("Disk_Min4_Residuals", "Disk_Min4_Residuals", 400, -8, 8);
-    ResDplu4 = dbe_->book1D("Disk_Plu4_Residuals", "Disk_Plu4_Residuals", 400, -8, 8);
-
-    Res_Endcap1_Ring2_A = dbe_->book1D("Res_Endcap1_Ring2_A", "Res_Endcap1_Ring2_A", 400, -8, 8);
-    Res_Endcap1_Ring2_B = dbe_->book1D("Res_Endcap1_Ring2_B", "Res_Endcap1_Ring2_B", 400, -8, 8);
-    Res_Endcap1_Ring2_C = dbe_->book1D("Res_Endcap1_Ring2_C", "Res_Endcap1_Ring2_C", 400, -8, 8);
-
-    Res_Endcap23_Ring2_A = dbe_->book1D("Res_Endcap23_Ring2_A", "Res_Endcap23_Ring2_A", 400, -8, 8);
-    Res_Endcap23_Ring2_B = dbe_->book1D("Res_Endcap23_Ring2_B", "Res_Endcap23_Ring2_B", 400, -8, 8);
-    Res_Endcap23_Ring2_C = dbe_->book1D("Res_Endcap23_Ring2_C", "Res_Endcap23_Ring2_C", 400, -8, 8);
-
-    Res_Endcap123_Ring3_A = dbe_->book1D("Res_Endcap123_Ring3_A", "Res_Endcap123_Ring3_A", 400, -8, 8);
-    Res_Endcap123_Ring3_B = dbe_->book1D("Res_Endcap123_Ring3_B", "Res_Endcap123_Ring3_B", 400, -8, 8);
-    Res_Endcap123_Ring3_C = dbe_->book1D("Res_Endcap123_Ring3_C", "Res_Endcap123_Ring3_C", 400, -8, 8);
-
-  }//end dbe
-}
-
-void RPCDigiValid::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
-{
-}

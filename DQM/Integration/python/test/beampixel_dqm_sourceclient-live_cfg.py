@@ -9,45 +9,28 @@ process = cms.Process("BeamPixel")
 ### @@@@@@ Comment when running locally @@@@@@ ###
 process.load("DQM.Integration.test.inputsource_cfi")
 
-# for testing in lxplus
-#process.load("DQM.Integration.test.fileinputsource_cfi")
 
 #----------------------------
 # HLT Filter
 #----------------------------
 # 0=random, 1=physics, 2=calibration, 3=technical
-process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
-    SelectedTriggerType = cms.int32(1)
-)
+process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",SelectedTriggerType = cms.int32(1))
+
 
 #----------------------------
 # DQM Environment
 #----------------------------
 process.load("DQM.Integration.test.environment_cfi")
-### @@@@@@ Un-comment when running locally @@@@@@ ###
-#process.DQM.collectorHost = ''
-#process.DQM.collectorPort = 8160
-### @@@@@@ Un-comment when running locally @@@@@@ ###
 process.dqmEnv.subSystemFolder = "BeamPixel"
 
 
 #----------------------------
 # Sub-system Configuration
 #----------------------------
-### @@@@@@ Comment when running locally @@@@@@ ###
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
-# Condition for lxplus
-#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
-### @@@@@@ Comment when running locally @@@@@@ ###
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("Configuration.StandardSequences.Services_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
-process.load("Configuration.StandardSequences.EndOfProcess_cff")
-process.load("Configuration.EventContent.EventContent_cff")
-process.load("RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi")
-process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi")
+process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 
 
 #----------------------------
@@ -57,13 +40,16 @@ process.dqmmodules  = cms.Sequence(process.dqmEnv + process.dqmSaver)
 process.phystrigger = cms.Sequence(process.hltTriggerTypeFilter)
 
 
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)
 
 
 #----------------------------
 # Proton-Proton Specific Part
 #----------------------------
 if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.hpu_run):
-    print "Running pp "
+    print "[beampixel_dqm_sourceclient-live_cfg]::running pp"
 
     process.castorDigis.InputLabel           = cms.InputTag("rawDataCollector")
     process.csctfDigis.producer              = cms.InputTag("rawDataCollector")
@@ -88,8 +74,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     # pixelVertexDQM Configuration
     #----------------------------
     process.pixelVertexDQM = cms.EDAnalyzer("Vx3DHLTAnalyzer",
-                                            vertexCollection   = cms.InputTag("pixelVertices"),
-                                            pixelHitCollection = cms.InputTag("siPixelRecHits"),
+                                            vertexCollection   = cms.untracked.InputTag("pixelVertices"),
+                                            pixelHitCollection = cms.untracked.InputTag("siPixelRecHits"),
                                             debugMode          = cms.bool(True),
                                             nLumiReset         = cms.uint32(2),
                                             dataFromFit        = cms.bool(True),
@@ -124,14 +110,16 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                                process.offlineBeamSpot*
                                                process.siPixelClusters*
                                                process.siPixelRecHits*
+                                               process.siPixelClusterShapeCache*
+                                               process.PixelLayerTriplets*
                                                process.pixelTracks*
-                                               process.pixelVertices*
-                                               process.pixelVertexDQM)
+                                               process.pixelVertices)
+
 
     #----------------------------
     # Define Path
     #----------------------------
-    process.p = cms.Path(process.phystrigger*process.reconstruction_step*process.dqmmodules)
+    process.p = cms.Path(process.phystrigger*process.reconstruction_step*process.pixelVertexDQM*process.dqmmodules)
 
 
 
@@ -140,8 +128,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
 # Heavy Ion Specific Part
 #----------------------------
 if (process.runType.getRunType() == process.runType.hi_run):
-    print "Running HI "
-    
+    print "[beampixel_dqm_sourceclient-live_cfg]::running HI"
+
     process.castorDigis.InputLabel           = cms.InputTag("rawDataRepacker")
     process.csctfDigis.producer              = cms.InputTag("rawDataRepacker")
     process.dttfDigis.DTTF_FED_Source        = cms.InputTag("rawDataRepacker")
@@ -165,8 +153,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
     # pixelVertexDQM Configuration
     #----------------------------
     process.pixelVertexDQM = cms.EDAnalyzer("Vx3DHLTAnalyzer",
-                                            vertexCollection   = cms.InputTag("hiSelectedVertex"),
-                                            pixelHitCollection = cms.InputTag("siPixelRecHits"),
+                                            vertexCollection   = cms.untracked.InputTag("hiSelectedVertex"),
+                                            pixelHitCollection = cms.untracked.InputTag("siPixelRecHits"),
                                             debugMode          = cms.bool(True),
                                             nLumiReset         = cms.uint32(5),
                                             dataFromFit        = cms.bool(True),
@@ -180,7 +168,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                             yStep              = cms.double(0.001),
                                             zRange             = cms.double(30.0),
                                             zStep              = cms.double(0.05),
-                                            VxErrCorr          = cms.double(1.3),
+                                            VxErrCorr          = cms.double(1.3),  # Keep checking this with later release
                                             fileName           = cms.string("/nfshome0/yumiceva/BeamMonitorDQM/BeamPixelResults.txt"))
     if process.dqmSaver.producer.value() is "Playback":
        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
@@ -195,12 +183,15 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                                process.offlineBeamSpot*
                                                process.siPixelClusters*
                                                process.siPixelRecHits*
-                                               process.offlineBeamSpot*
                                                process.hiPixelVertices*
-                                               process.pixelVertexDQM)
+                                               process.siPixelClusterShapeCache*
+                                               process.PixelLayerTriplets*
+                                               process.pixelTracks*
+                                               process.pixelVertices)
 
 
     #----------------------------
     # Define Path
     #----------------------------
-    process.p = cms.Path(process.phystrigger*process.reconstruction_step*process.dqmmodules)
+    process.p = cms.Path(process.phystrigger*process.reconstruction_step*process.pixelVertexDQM*process.dqmmodules)
+    

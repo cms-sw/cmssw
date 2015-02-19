@@ -46,8 +46,6 @@ void CaloVNoiseSignalGenerator::fillDetIds()
 
     theDetIds.push_back(sampleItr->id().rawId());
 
-    //    std::cout << "Noise DetId " << sampleItr->id().rawId() << std::endl;
-
   }
   edm::sort_all(theDetIds);
 }

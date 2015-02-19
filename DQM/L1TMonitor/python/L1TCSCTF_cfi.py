@@ -7,10 +7,15 @@ l1tCsctf = cms.EDAnalyzer("L1TCSCTF",
     outputFile = cms.untracked.string(''),
     lctProducer = cms.InputTag("csctfDigis"),
     verbose = cms.untracked.bool(False),
+    gangedME11a = cms.untracked.bool(True),
     trackProducer = cms.InputTag("csctfDigis"),
     mbProducer = cms.InputTag("csctfDigis:DT"),
     DQMStore = cms.untracked.bool(True),
     disableROOToutput = cms.untracked.bool(True)
 )
 
-
+#
+# Make changes for running in Run 2
+#
+from Configuration.StandardSequences.Eras import eras
+eras.run2.toModify( l1tCsctf, gangedME11a = False )

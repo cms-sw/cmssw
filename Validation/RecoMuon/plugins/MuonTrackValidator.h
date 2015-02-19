@@ -8,13 +8,14 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "Validation/RecoMuon/plugins/MuonTrackValidatorBase.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class MuonTrackValidator : public thread_unsafe::DQMEDAnalyzer, protected MuonTrackValidatorBase {
+class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBase {
  public:
   /// Constructor
   MuonTrackValidator(const edm::ParameterSet& pset):MuonTrackValidatorBase(pset){
@@ -67,6 +68,10 @@ class MuonTrackValidator : public thread_unsafe::DQMEDAnalyzer, protected MuonTr
       associators.clear();
       associators.push_back(associatormap.label());
       edm::LogVerbatim("MuonTrackValidator") << "--> associators reset to: " <<associators[0];
+    } else {
+      for (auto const& associator :associators) {
+        consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag(associator));
+      }
     }
     
     // inform on which SimHits will be counted

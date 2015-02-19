@@ -51,6 +51,17 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  :
   if(doPixel_) e.getByLabel("simSiPixelDigis", pixeldigisimlink);
 }
 
+TrackerHitAssociator::TrackerHitAssociator(const edm::ParameterSet& conf, edm::ConsumesCollector && iC) :
+  doPixel_( conf.getParameter<bool>("associatePixel") ),
+  doStrip_( conf.getParameter<bool>("associateStrip") ),
+  doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ) {
+
+  assocHitbySimTrack_ = conf.existsAs<bool>("associateHitbySimTrack") ? conf.getParameter<bool>("associateHitbySimTrack") : false;
+
+  if(doStrip_) iC.consumes<edm::DetSetVector<StripDigiSimLink> >(edm::InputTag("simSiStripDigis"));
+  if(doPixel_) iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(edm::InputTag("simSiPixelDigis"));
+ }
+
 //
 // Constructor with configurables
 //
@@ -326,6 +337,32 @@ void TrackerHitAssociator::associateSiStripRecHit(const T *simplerechit, std::ve
 {
   const SiStripCluster* clust = &(*simplerechit->cluster());
   associateSimpleRecHitCluster(clust, simplerechit->geographicalId(), simtrackid, simhitCFPos);
+}
+
+//
+//  Method for obtaining simTracks and simHits from a cluster
+//
+void TrackerHitAssociator::associateCluster(const SiStripCluster* clust,
+					    const DetId& detid,
+					    std::vector<SimHitIdpr>& simtrackid,
+					    std::vector<PSimHit>& simhit) const {
+  std::vector<simhitAddr> simhitCFPos;
+  associateSimpleRecHitCluster(clust, detid, simtrackid, &simhitCFPos);
+
+  for(size_t i=0; i<simhitCFPos.size(); i++) {
+    simhitAddr theSimHitAddr = simhitCFPos[i];
+    simHitCollectionID theSimHitCollID = theSimHitAddr.first;
+    simhit_collectionMap::const_iterator it = SimHitCollMap.find(theSimHitCollID);
+    if (it!= SimHitCollMap.end()) {
+      unsigned int theSimHitIndex = theSimHitAddr.second;
+      if (theSimHitIndex < (it->second).size()) simhit.push_back((it->second)[theSimHitIndex]);
+      // const PSimHit& theSimHit = (it->second)[theSimHitIndex];
+      // std::cout << "For cluster, simHit detId =  " << theSimHit.detUnitId() << " address = (" << (theSimHitAddr.first).first
+      // 		<< ", " << (theSimHitAddr.first).second << ", " << theSimHitIndex
+      // 		<< "), process = " << theSimHit.processType() << " (" << theSimHit.eventId().bunchCrossing()
+      // 		<< ", " << theSimHit.eventId().event() << ", " << theSimHit.trackId() << ")" << std::endl;
+    }
+  }
 }
 
 void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* clust,

@@ -16,7 +16,7 @@ namespace edm {
     ~IntSource();
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
   private:
-    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time);
+    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType);
     virtual void produce(Event &);
   };
 
@@ -29,7 +29,7 @@ namespace edm {
   }
 
   bool
-  IntSource::setRunAndEventInfo(EventID&, TimeValue_t&) {
+  IntSource::setRunAndEventInfo(EventID&, TimeValue_t&, edm::EventAuxiliary::ExperimentType&) {
     return true;
   }
 

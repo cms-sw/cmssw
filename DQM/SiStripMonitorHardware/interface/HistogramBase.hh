@@ -77,7 +77,7 @@ public:
 			     );
 
   //book an individual hiostogram if enabled in config
-  void bookHistogram(HistogramConfig & aConfig,
+  void bookHistogram(DQMStore::IBooker & , HistogramConfig & aConfig,
 		     const std::string& name, 
 		     const std::string& title,
 		     const unsigned int nBins, 
@@ -87,7 +87,7 @@ public:
 		     );
 
   //book an individual hiostogram if enabled in config
-  void bookHistogram(HistogramConfig & aConfig,
+  void bookHistogram(DQMStore::IBooker & , HistogramConfig & aConfig,
 		     MonitorElement* & aHist,
 		     const std::string& name, 
 		     const std::string& title,
@@ -98,7 +98,7 @@ public:
 		     );
 
   //book an individual hiostogram if enabled in config
-  void book2DHistogram(HistogramConfig & aConfig,
+  void book2DHistogram(DQMStore::IBooker & , HistogramConfig & aConfig,
 		       const std::string& name, 
 		       const std::string& title,
 		       const unsigned int nBins, 
@@ -112,7 +112,7 @@ public:
 		       );
 
   //book an individual hiostogram if enabled in config
-  void book2DHistogram(HistogramConfig & aConfig,
+  void book2DHistogram(DQMStore::IBooker & , HistogramConfig & aConfig,
 		       MonitorElement* & aHist,
 		       const std::string& name, 
 		       const std::string& title,
@@ -127,13 +127,13 @@ public:
 		       );
 
   //same but using binning from config
-  void bookHistogram(HistogramConfig & aConfig,
+  void bookHistogram(DQMStore::IBooker & , HistogramConfig & aConfig,
 		     const std::string& name, 
 		     const std::string& title, 
 		     const std::string& xAxisTitle
 		     );
 
-  void bookProfile(HistogramConfig & aConfig,
+  void bookProfile(DQMStore::IBooker & , HistogramConfig & aConfig,
 		   const std::string& name,
 		   const std::string& title,
 		   const unsigned int nBins, 
@@ -145,7 +145,7 @@ public:
 		   const std::string& yAxisTitle
 		   );
 
-  void bookProfile(HistogramConfig & aConfig,
+  void bookProfile(DQMStore::IBooker & , HistogramConfig & aConfig,
 		   const std::string& name,
 		   const std::string& title,
 		   const double minY, 

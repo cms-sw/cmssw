@@ -100,6 +100,8 @@ class DigiSimLinkAlgorithm {
   double cosmicShift;
   double inefficiency;
   double pedOffset;
+  bool PreMixing_;
+
 
   size_t firstChannelWithSignal;
   size_t lastChannelWithSignal;

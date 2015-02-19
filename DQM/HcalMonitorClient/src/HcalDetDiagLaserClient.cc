@@ -20,7 +20,7 @@ typedef struct{
 int eta;
 int phi;
 }Raddam_ch;
-Raddam_ch RADDAM_CH[56]={{-30,15},{-32,15},{-34,15},{-36,15},{-38,15},{-40,15},{-41,15},
+static const Raddam_ch RADDAM_CH[56]={{-30,15},{-32,15},{-34,15},{-36,15},{-38,15},{-40,15},{-41,15},
                          {-30,35},{-32,35},{-34,35},{-36,35},{-38,35},{-40,35},{-41,35},
                          {-30,51},{-32,51},{-34,51},{-36,51},{-38,51},{-40,51},{-41,51},
                          {-30,71},{-32,71},{-34,71},{-36,71},{-38,71},{-40,71},{-41,71},
@@ -64,18 +64,20 @@ HcalDetDiagLaserClient::HcalDetDiagLaserClient(std::string myname, const edm::Pa
   ProblemCells=0;
   ProblemCellsByDepth=0;
   needLogicalMap_=true;
+
+  doProblemCellSetup_ = true;
 }
 
-void HcalDetDiagLaserClient::analyze()
+void HcalDetDiagLaserClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
   if (debug_>2) std::cout <<"\tHcalDetDiagLaserClient::analyze()"<<std::endl;
-  calculateProblems();
+  if ( doProblemCellSetup_ ) setupProblemCells(ib,ig);
+  calculateProblems(ib,ig);
 }
 
-void HcalDetDiagLaserClient::calculateProblems()
+void HcalDetDiagLaserClient::calculateProblems(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
  if (debug_>2) std::cout <<"\t\tHcalDetDiagLaserClient::calculateProblems()"<<std::endl;
-  if(!dqmStore_) return;
   double totalevents=0;
   int etabins=0, phibins=0, zside=0;
   double problemvalue=0;
@@ -111,11 +113,11 @@ void HcalDetDiagLaserClient::calculateProblems()
       BadTiming[i]=0;
       BadEnergy[i]=0;
       string s=subdir_+name[i]+" Problem Bad Laser Timing";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me!=0) BadTiming[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, BadTiming[i], debug_);
       else if (debug_>0) std::cout <<"<HcalDetDiagLaserClient::calculateProblems> could not get histogram '"<<s<<"'"<<std::endl;
       s=subdir_+name[i]+" Problem Bad Laser Energy";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me!=0) BadEnergy[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, BadEnergy[i], debug_);
       else if (debug_>0) std::cout <<"<HcalDetDiagLaserClient::calculateProblems> could not get histogram '"<<s<<"'"<<std::endl;
     }      
@@ -198,45 +200,38 @@ void HcalDetDiagLaserClient::calculateProblems()
   return;
 }
 
-void HcalDetDiagLaserClient::beginJob()
-{
-  dqmStore_ = Service<DQMStore>().operator->();
-  if (debug_>0) 
-    {
-      std::cout <<"<HcalDetDiagLaserClient::beginJob()>  Displaying dqmStore directory structure:"<<std::endl;
-      dqmStore_->showDirStructure();
-    }
-}
 void HcalDetDiagLaserClient::endJob(){}
 
-void HcalDetDiagLaserClient::beginRun(void)
+void HcalDetDiagLaserClient::setupProblemCells(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
-  enoughevents_=false;
-  if (!dqmStore_) 
-    {
-      if (debug_>0) std::cout <<"<HcalDetDiagLaserClient::beginRun> dqmStore does not exist!"<<std::endl;
-      return;
-    }
-  dqmStore_->setCurrentFolder(subdir_);
+  ib.setCurrentFolder(subdir_);
   problemnames_.clear();
 
   // Put the appropriate name of your problem summary here
-  ProblemCells=dqmStore_->book2D(" ProblemDetDiagLaser",
+  ProblemCells=ib.book2D(" ProblemDetDiagLaser",
 				 " Problem DetDiagLaser Rate for all HCAL;ieta;iphi",
 				 85,-42.5,42.5,
 				 72,0.5,72.5);
   problemnames_.push_back(ProblemCells->getName());
   if (debug_>1)
     std::cout << "Tried to create ProblemCells Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCells==0)<<std::endl;
-  dqmStore_->setCurrentFolder(subdir_+"problem_DetDiagLaser");
+  ib.setCurrentFolder(subdir_+"problem_DetDiagLaser");
   ProblemCellsByDepth = new EtaPhiHists();
-  ProblemCellsByDepth->setup(dqmStore_," Problem DetDiagLaser Rate");
+  ProblemCellsByDepth->setup(ib," Problem DetDiagLaser Rate");
   for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
     problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
+
+  doProblemCellSetup_ = false;
+
+}
+
+void HcalDetDiagLaserClient::beginRun(void)
+{
+  enoughevents_=false;
   nevts_=0;
 }
 
-void HcalDetDiagLaserClient::endRun(void){analyze();}
+//void HcalDetDiagLaserClient::endRun(void){analyze();}
 
 void HcalDetDiagLaserClient::setup(void){}
 void HcalDetDiagLaserClient::cleanup(void){}
@@ -363,9 +358,9 @@ static void printTableTail(std::ofstream& file){
      file << "</html>"<< endl;
 }
 
-bool HcalDetDiagLaserClient::validHtmlOutput(){
+bool HcalDetDiagLaserClient::validHtmlOutput(DQMStore::IBooker &ib, DQMStore::IGetter &ig){
   string s=subdir_+"HcalDetDiagLaserMonitor Event Number";
-  MonitorElement *me = dqmStore_->get(s.c_str());
+  MonitorElement *me = ig.get(s.c_str());
   int n=0;
   if ( me ) {
     s = me->valueString();
@@ -374,11 +369,8 @@ bool HcalDetDiagLaserClient::validHtmlOutput(){
   if(n<100) return false;
   return true;
 }
-void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
-  if(dqmStore_==0){
-      if (debug_>0) std::cout <<"<HcalDetDiagLaserClient::htmlOutput> dqmStore object does not exist!"<<std::endl;
-      return;
-  }
+void HcalDetDiagLaserClient::htmlOutput(DQMStore::IBooker &ib, DQMStore::IGetter &ig, string htmlDir){
+
   if(debug_>2) std::cout <<"\t<HcalDetDiagLaserClient::htmlOutput>  Preparing html for task: "<<name_<<std::endl;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -414,71 +406,71 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
   int HBpresent_=0,HEpresent_=0,HOpresent_=0,HFpresent_=0;
 
  
-  me=dqmStore_->get(prefixME_+"HcalInfo/HBpresent");
+  me=ig.get(prefixME_+"HcalInfo/HBpresent");
   if(me!=0) HBpresent_=me->getIntValue();
-  me=dqmStore_->get(prefixME_+"HcalInfo/HEpresent");
+  me=ig.get(prefixME_+"HcalInfo/HEpresent");
   if(me!=0) HEpresent_=me->getIntValue();
-  me=dqmStore_->get(prefixME_+"HcalInfo/HOpresent");
+  me=ig.get(prefixME_+"HcalInfo/HOpresent");
   if(me!=0) HOpresent_=me->getIntValue();
-  me=dqmStore_->get(prefixME_+"HcalInfo/HFpresent");
+  me=ig.get(prefixME_+"HcalInfo/HFpresent");
   if(me!=0) HFpresent_=me->getIntValue();
 
-  s=subdir_+"Summary Plots/HBHE Laser Energy Distribution"; me=dqmStore_->get(s.c_str()); 
+  s=subdir_+"Summary Plots/HBHE Laser Energy Distribution"; me=ig.get(s.c_str()); 
   if(me!=0) hbheEnergy=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, hbheEnergy, debug_);  else return;
-  s=subdir_+"Summary Plots/HBHE Laser Timing Distribution"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HBHE Laser Timing Distribution"; me=ig.get(s.c_str());
   if(me!=0) hbheTiming=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, hbheTiming, debug_); else return;
-  s=subdir_+"Summary Plots/HBHE Laser Energy RMS_div_Energy Distribution"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HBHE Laser Energy RMS_div_Energy Distribution"; me=ig.get(s.c_str());
   if(me!=0) hbheEnergyRMS= HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, hbheEnergyRMS, debug_); else return;
-  s=subdir_+"Summary Plots/HBHE Laser Timing RMS Distribution"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HBHE Laser Timing RMS Distribution"; me=ig.get(s.c_str());
   if(me!=0) hbheTimingRMS= HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, hbheTimingRMS, debug_); else return;
-  s=subdir_+"Summary Plots/HO Laser Energy Distribution"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HO Laser Energy Distribution"; me=ig.get(s.c_str());
   if(me!=0) hoEnergy = HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, hoEnergy, debug_); else return;
-  s=subdir_+"Summary Plots/HO Laser Timing Distribution"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HO Laser Timing Distribution"; me=ig.get(s.c_str());
   if(me!=0) hoTiming = HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, hoTiming, debug_); else return;
-  s=subdir_+"Summary Plots/HO Laser Energy RMS_div_Energy Distribution"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HO Laser Energy RMS_div_Energy Distribution"; me=ig.get(s.c_str());
   if(me!=0) hoEnergyRMS = HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, hoEnergyRMS, debug_); else return;
-  s=subdir_+"Summary Plots/HO Laser Timing RMS Distribution"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HO Laser Timing RMS Distribution"; me=ig.get(s.c_str());
   if(me!=0) hoTimingRMS  = HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, hoTimingRMS, debug_); else return;
-  s=subdir_+"Summary Plots/HF Laser Energy Distribution"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HF Laser Energy Distribution"; me=ig.get(s.c_str());
   if(me!=0) hfEnergy  = HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, hfEnergy, debug_); else return;
-  s=subdir_+"Summary Plots/HF Laser Timing Distribution"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HF Laser Timing Distribution"; me=ig.get(s.c_str());
   if(me!=0) hfTiming  = HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, hfTiming, debug_); else return;
-  s=subdir_+"Summary Plots/HF Laser Energy RMS_div_Energy Distribution"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HF Laser Energy RMS_div_Energy Distribution"; me=ig.get(s.c_str());
   if(me!=0) hfEnergyRMS = HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, hfEnergyRMS, debug_); else return;
-  s=subdir_+"Summary Plots/HF Laser Timing RMS Distribution"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HF Laser Timing RMS Distribution"; me=ig.get(s.c_str());
   if(me!=0) hfTimingRMS = HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, hfTimingRMS, debug_); else return;
 
-  s=subdir_+"Summary Plots/HB RBX average Time-Ref"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HB RBX average Time-Ref"; me=ig.get(s.c_str());
   if(me!=0) hb     = HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, hb, debug_); else return;
-  s=subdir_+"Summary Plots/HE RBX average Time-Ref"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HE RBX average Time-Ref"; me=ig.get(s.c_str());
   if(me!=0) he     = HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, he, debug_); else return;
-  s=subdir_+"Summary Plots/HO RBX average Time-Ref"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HO RBX average Time-Ref"; me=ig.get(s.c_str());
   if(me!=0) ho     = HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, ho, debug_); else return;
-  s=subdir_+"Summary Plots/HF RoBox average Time-Ref"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HF RoBox average Time-Ref"; me=ig.get(s.c_str());
   if(me!=0) hf     = HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, hf, debug_); else return;
 
-  s=subdir_+"Summary Plots/Laser Timing HBHEHF"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/Laser Timing HBHEHF"; me=ig.get(s.c_str());
   if(me!=0) Time2Dhbhehf  = HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, Time2Dhbhehf, debug_); else return;
-  s=subdir_+"Summary Plots/Laser Timing HO"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/Laser Timing HO"; me=ig.get(s.c_str());
   if(me!=0) Time2Dho      = HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, Time2Dho, debug_); else return;
-  s=subdir_+"Summary Plots/Laser Energy HBHEHF"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/Laser Energy HBHEHF"; me=ig.get(s.c_str());
   if(me!=0) Energy2Dhbhehf= HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, Energy2Dhbhehf, debug_); else return;
-  s=subdir_+"Summary Plots/Laser Energy HO"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/Laser Energy HO"; me=ig.get(s.c_str());
   if(me!=0) Energy2Dho    = HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, Energy2Dho, debug_); else return;
-  s=subdir_+"Summary Plots/HBHEHF Laser (Timing-Ref)+1"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HBHEHF Laser (Timing-Ref)+1"; me=ig.get(s.c_str());
   if(me!=0) refTime2Dhbhehf  = HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, refTime2Dhbhehf, debug_); else return;
-  s=subdir_+"Summary Plots/HO Laser (Timing-Ref)+1"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HO Laser (Timing-Ref)+1"; me=ig.get(s.c_str());
   if(me!=0) refTime2Dho      = HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, refTime2Dho, debug_); else return;
-  s=subdir_+"Summary Plots/HBHEHF Laser Energy_div_Ref"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HBHEHF Laser Energy_div_Ref"; me=ig.get(s.c_str());
   if(me!=0) refEnergy2Dhbhehf= HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, refEnergy2Dhbhehf, debug_); else return;
-  s=subdir_+"Summary Plots/HO Laser Energy_div_Ref"; me=dqmStore_->get(s.c_str());
+  s=subdir_+"Summary Plots/HO Laser Energy_div_Ref"; me=ig.get(s.c_str());
   if(me!=0) refEnergy2Dho    = HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, refEnergy2Dho, debug_); else return;
 
   TH1F *Raddam[56];
   char str[100];
   for(int i=0;i<56;i++){  
        sprintf(str,"RADDAM (%i %i)",RADDAM_CH[i].eta,RADDAM_CH[i].phi);
-       s=subdir_+"Raddam Plots/"+str; me=dqmStore_->get(s.c_str());
+       s=subdir_+"Raddam Plots/"+str; me=ig.get(s.c_str());
        if(me!=0) Raddam[i] = HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, Raddam[i], debug_);
        Raddam[i]->SetXTitle("TS");
        Raddam[i]->SetTitle(str);
@@ -486,19 +478,19 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
   
   int ievt_ = -1,runNo=-1;
   s=subdir_+"HcalDetDiagLaserMonitor Event Number";
-  me = dqmStore_->get(s.c_str());
+  me = ig.get(s.c_str());
   if ( me ) {
     s = me->valueString();
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
   }
   s=subdir_+"HcalDetDiagLaserMonitor Run Number";
-  me = dqmStore_->get(s.c_str());
+  me = ig.get(s.c_str());
   if ( me ) {
     s = me->valueString();
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &runNo);
   }
   s=subdir_+"HcalDetDiagLaserMonitor Reference Run";
-  me = dqmStore_->get(s.c_str());
+  me = ig.get(s.c_str());
   if(me) {
     string s=me->valueString();
     char str[200]; 
@@ -530,10 +522,10 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
       BadTiming_val[i]=0;
       BadEnergy_val[i]=0;
       string s=subdir_+"Plots for client/"+name[i]+" Laser Timing difference";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me!=0) BadTiming_val[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, BadTiming_val[i], debug_); else return;
       s=subdir_+"Plots for client/"+name[i]+" Laser Energy difference";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me!=0) BadEnergy_val[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, BadEnergy_val[i], debug_); else return;
   }
 
@@ -1111,10 +1103,13 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
   can->Close();
+  delete can;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   htmlFile.close();
   return;
 }
 
 HcalDetDiagLaserClient::~HcalDetDiagLaserClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+}

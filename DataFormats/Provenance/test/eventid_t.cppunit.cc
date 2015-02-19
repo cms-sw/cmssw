@@ -22,7 +22,7 @@ class testEventID: public CppUnit::TestFixture
    
    CPPUNIT_TEST_SUITE_END();
 public:
-      void setUp(){}
+   void setUp(){}
    void tearDown(){}
    
    void constructTest();
@@ -35,16 +35,25 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEventID);
 
 
 void testEventID::constructTest()
-{
-   const EventNumber_t et = 1;
-   const LuminosityBlockNumber_t lt = 1;
-   const RunNumber_t rt = 2;
+ {
+   EventID eventID;
+   CPPUNIT_ASSERT(eventID.run() == 0U);
+   CPPUNIT_ASSERT(eventID.luminosityBlock() == 0U);
+   CPPUNIT_ASSERT(eventID.event() == 0U);
+
+   const RunNumber_t rt = 3;
+   const LuminosityBlockNumber_t lt = 2;
+   const EventNumber_t et = 10123456789;
 
    EventID temp(rt, lt, et);
    
    CPPUNIT_ASSERT(temp.run() == rt);
    CPPUNIT_ASSERT(temp.luminosityBlock() == lt);
    CPPUNIT_ASSERT(temp.event() == et);
+
+   CPPUNIT_ASSERT(EventID::maxRunNumber() == 0xFFFFFFFF);
+   CPPUNIT_ASSERT(EventID::maxLuminosityBlockNumber() == 0xFFFFFFFF);
+   CPPUNIT_ASSERT(EventID::maxEventNumber() == 0xFFFFFFFFFFFFFFFF);
 }
 
 void testEventID::comparisonTest()
@@ -53,14 +62,22 @@ void testEventID::comparisonTest()
    const EventID med(2, 3, 2);
    const EventID med2(2, 3, 2);
    const EventID large(3, 1, 3);
+   const EventID larger(3, 2, 1);
    const EventID largest(3, 2, 2);
    
    CPPUNIT_ASSERT(small < med);
+   CPPUNIT_ASSERT(!(med < small));
    CPPUNIT_ASSERT(small <= med);
    CPPUNIT_ASSERT(!(small == med));
    CPPUNIT_ASSERT(small != med);
    CPPUNIT_ASSERT(!(small > med));
    CPPUNIT_ASSERT(!(small >= med));
+
+   CPPUNIT_ASSERT(!(med <= small));
+   CPPUNIT_ASSERT(!(med == small));
+   CPPUNIT_ASSERT(med != small);
+   CPPUNIT_ASSERT(med > small);
+   CPPUNIT_ASSERT(med >= small);
 
    CPPUNIT_ASSERT(med2 == med);
    CPPUNIT_ASSERT(med2 <= med);
@@ -75,15 +92,17 @@ void testEventID::comparisonTest()
    CPPUNIT_ASSERT(med != large);
    CPPUNIT_ASSERT(!(med > large));
    CPPUNIT_ASSERT(!(med >= large));
-   
-   
+
    CPPUNIT_ASSERT(large < largest);
+   CPPUNIT_ASSERT(!(largest < large));
    CPPUNIT_ASSERT(large <= largest);
    CPPUNIT_ASSERT(!(large == largest));
    CPPUNIT_ASSERT(large != largest);
    CPPUNIT_ASSERT(!(large > largest));
    CPPUNIT_ASSERT(!(large >= largest));
-   
+
+   CPPUNIT_ASSERT(larger < largest);
+   CPPUNIT_ASSERT(!(largest < larger));
 }
 
 void testEventID::iterationTest()

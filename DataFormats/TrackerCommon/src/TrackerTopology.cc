@@ -16,6 +16,25 @@ TrackerTopology::TrackerTopology( const PixelBarrelValues& pxb, const PixelEndca
 }
 
 
+unsigned int TrackerTopology::side(const DetId &id) const {
+  uint32_t subdet=id.subdetId();
+  if ( subdet == PixelSubdetector::PixelBarrel )
+    return 0;
+  if ( subdet == PixelSubdetector::PixelEndcap )
+    return pxfSide(id);
+  if ( subdet == StripSubdetector::TIB )
+    return 0;
+  if ( subdet == StripSubdetector::TID )
+    return tidSide(id);
+  if ( subdet == StripSubdetector::TOB )
+    return 0;
+  if ( subdet == StripSubdetector::TEC )
+    return tecSide(id);
+
+  throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::side";
+  return 0;
+}
+
 
 unsigned int TrackerTopology::layer(const DetId &id) const {
   uint32_t subdet=id.subdetId();
@@ -161,5 +180,28 @@ std::string TrackerTopology::print(DetId id) const {
 
   throw cms::Exception("Invalid DetId") << "Unsupported DetId in TrackerTopology::module";
   return strstr.str();
+}
+
+
+SiStripDetId::ModuleGeometry TrackerTopology::moduleGeometry(const DetId &id) const {
+  switch(id.subdetId()) {
+  case StripSubdetector::TIB: return tibLayer(id)<3? SiStripDetId::IB1 : SiStripDetId::IB2;
+  case StripSubdetector::TOB: return tobLayer(id)<5? SiStripDetId::OB2 : SiStripDetId::OB1;
+  case StripSubdetector::TID: switch (tidRing(id)) {
+    case 1: return SiStripDetId::W1A;
+    case 2: return SiStripDetId::W2A;
+    case 3: return SiStripDetId::W3A;
+    }
+  case StripSubdetector::TEC: switch (tecRing(id)) {
+    case 1: return SiStripDetId::W1B;
+    case 2: return SiStripDetId::W2B;
+    case 3: return SiStripDetId::W3B;
+    case 4: return SiStripDetId::W4;
+    case 5: return SiStripDetId::W5;
+    case 6: return SiStripDetId::W6;
+    case 7: return SiStripDetId::W7;
+    }
+  }
+  return SiStripDetId::UNKNOWNGEOMETRY;
 }
 

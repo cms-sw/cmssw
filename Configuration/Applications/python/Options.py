@@ -34,10 +34,10 @@ parser.add_option("--conditions",
                   default=None,
                   dest="conditions")
 
-parser.add_option("--useCondDBv2",
+parser.add_option("--useCondDBv1",
                   help="use conditions DB V1",
                   action="store_false",
-                  default=True,
+                  default=False,
                   dest="useCondDBv1")
 
 parser.add_option("--eventcontent",
@@ -59,7 +59,7 @@ parser.add_option("--filetype",
                   help="The type of the infile (EDM, LHE or MCDB).",
                   default=defaultOptions.filetype,
                   dest="filetype",
-                  choices=['EDM','DAT','LHE','MDCB','DQM']
+                  choices=['EDM','DAT','LHE','MDCB','DQM','DQMDAQ']
                   )
 
 parser.add_option("-n", "--number",
@@ -217,12 +217,6 @@ expertSettings.add_option("--gflash",
                   default=defaultOptions.gflash,
                   dest="gflash")
 
-expertSettings.add_option("--himix",
-                 help="Run the Heavy Ions signal mixing.",
-                 action="store_true",
-                 default=defaultOptions.himix,
-                 dest="himix")
-                                                    
 expertSettings.add_option("--python_filename",
                           help="Change the name of the created config file ",
                           default='',
@@ -352,6 +346,11 @@ expertSettings.add_option("--slhc",
                           default=None,
                           dest="slhc")
 
+expertSettings.add_option("--era",
+                          help="Specify which era to use (e.g. \"run2\")",
+                          default=None,
+                          dest="era")
+
 expertSettings.add_option("--evt_type",
                           help="specify the gen fragment",
                           default=None,
@@ -371,4 +370,16 @@ expertSettings.add_option("--lumiToProcess",
                           help="specify a certification json file in input to run on certified data",
                           default=None,
                           dest='lumiToProcess'
+                          )
+
+expertSettings.add_option("--timeoutOutput",
+                          help="use a TimeoutPoolOutputModule instead of a PoolOutputModule (needed for evt. display)",
+                          default=False,
+                          dest='timeoutOutput'
+                          )
+
+expertSettings.add_option("--nThreads",
+                          help="How many threads should CMSSW use (default is 1)",
+                          default="1",
+                          dest='nThreads'
                           )

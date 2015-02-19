@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 
-import importlib
+#keep python2.6 compatibility for computing
+#import importlib
 
 #general simple tools for various object types
 def setupVIDSelection(vidproducer,cutflow):
@@ -28,7 +29,8 @@ def addVIDSelectionToPATProducer(patProducer,idProducer,idName):
     print '\t--- %s:%s added to %s'%(idProducer,idName,patProducer.label())
 
 def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None):
-    idmod = importlib.import_module(id_module_name)
+#    idmod = importlib.import_module(id_module_name)
+    idmod= __import__(id_module_name, globals(), locals(), ['idName','cutFlow'])
     for name in dir(idmod):
         item = getattr(idmod,name)
         if hasattr(item,'idName') and hasattr(item,'cutFlow'):

@@ -44,6 +44,7 @@ namespace ora {
 	serializer.release();
       }catch ( const std::exception& exc ){
 	std::cout << "### TEST "<<m_testName<<" ERROR: "<<exc.what()<<std::endl;      
+        exit(-1);
       }
     }
 

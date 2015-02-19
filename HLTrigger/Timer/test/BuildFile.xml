@@ -11,6 +11,6 @@
   <use   name="boost"/>
   <use   name="tbb"/>
   <use   name="sockets"/>       <!-- imply -lrt on Linux -->
-  <flags CXXFLAGS="-I${CMSSW_BASE}/src/HLTrigger/Timer/test/chrono -I${CMSSW_RELEASE_BASE}/src/HLTrigger/Timer/test/chrono -fopenmp -lboost_timer"/>
+  <flags CXXFLAGS="-I${CMSSW_BASE}/src/HLTrigger/Timer/test/chrono -I${CMSSW_RELEASE_BASE}/src/HLTrigger/Timer/test/chrono -fopenmp -DHAVE_TBB"/>
   <flags NO_TESTRUN="1"/>
 </bin>

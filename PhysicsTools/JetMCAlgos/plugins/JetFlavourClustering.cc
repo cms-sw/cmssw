@@ -362,10 +362,28 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        // set an empty JetFlavourInfo for this jet
        (*jetFlavourInfos)[jets->refAt(i)] = reco::JetFlavourInfo(clusteredbHadrons, clusteredcHadrons, clusteredPartons, clusteredLeptons, 0, 0);
      }
+     else if( jets->at(i).pt() == 0 )
+     {
+       edm::LogWarning("NullTransverseMomentum") << "The original jet " << i << " has Pt=0. This is not expected so the jet will be skipped.";
+
+       // set an empty JetFlavourInfo for this jet
+       (*jetFlavourInfos)[jets->refAt(i)] = reco::JetFlavourInfo(clusteredbHadrons, clusteredcHadrons, clusteredPartons, clusteredLeptons, 0, 0);
+
+       // if subjets are used
+       if( useSubjets_ && subjetIndices.at(i).size()>0 )
+       {
+         // loop over subjets
+         for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
+         {
+           // set an empty JetFlavourInfo for this subjet
+           (*subjetFlavourInfos)[subjets->refAt(subjetIndices.at(i).at(sj))] = reco::JetFlavourInfo(reco::GenParticleRefVector(), reco::GenParticleRefVector(), reco::GenParticleRefVector(), reco::GenParticleRefVector(), 0, 0);
+         }
+       }
+     }
      else
      {
        // since the "ghosts" are extremely soft, the configuration and ordering of the reclustered and original jets should in principle stay the same
-       if( ( fabs( inclusiveJets.at(reclusteredIndices.at(i)).pt() - jets->at(i).pt() ) / jets->at(i).pt() ) > relPtTolerance_ )
+       if( ( std::abs( inclusiveJets.at(reclusteredIndices.at(i)).pt() - jets->at(i).pt() ) / jets->at(i).pt() ) > relPtTolerance_ )
        {
          if( jets->at(i).pt() < 10. )  // special handling for low-Pt jets (Pt<10 GeV)
            edm::LogWarning("JetPtMismatchAtLowPt") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively).\n"
@@ -629,14 +647,14 @@ JetFlavourClustering::setFlavours(const reco::GenParticleRefVector& clusteredbHa
          hardestLightParton = (*it);
      }
      // c flavour
-     if( flavourParton.isNull() && ( abs( (*it)->pdgId() ) == 4 ) )
+     if( flavourParton.isNull() && ( std::abs( (*it)->pdgId() ) == 4 ) )
        flavourParton = (*it);
      // b flavour gets priority
-     if( abs( (*it)->pdgId() ) == 5 )
+     if( std::abs( (*it)->pdgId() ) == 5 )
      {
        if( flavourParton.isNull() )
          flavourParton = (*it);
-       else if( abs( flavourParton->pdgId() ) != 5 )
+       else if( std::abs( flavourParton->pdgId() ) != 5 )
          flavourParton = (*it);
      }
    }
@@ -657,9 +675,9 @@ JetFlavourClustering::setFlavours(const reco::GenParticleRefVector& clusteredbHa
    // if enabled, check for conflicts between hadron- and parton-based flavours and give priority to the hadron-based flavour
    if( hadronFlavourHasPriority_ )
    {
-     if( hadronFlavour==0 && (abs(partonFlavour)==4 || abs(partonFlavour)==5) )
+     if( hadronFlavour==0 && (std::abs(partonFlavour)==4 || std::abs(partonFlavour)==5) )
        partonFlavour = ( hardestLightParton.isNonnull() ? hardestLightParton->pdgId() : 0 );
-     else if( hadronFlavour!=0 && abs(partonFlavour)!=hadronFlavour )
+     else if( hadronFlavour!=0 && std::abs(partonFlavour)!=hadronFlavour )
        partonFlavour = hadronFlavour;
    }
 }

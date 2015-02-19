@@ -78,6 +78,8 @@
 
 #define HISTOS
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 using namespace std;
 
 //=============================================================================
@@ -395,10 +397,10 @@ void ReadPixClusters::analyze(const edm::Event& e,
 
 
   countAllEvents++;
-  int run       = e.id().run();
-  int event     = e.id().event();
+  RunNumber_t const run       = e.id().run();
+  EventNumber_t const event     = e.id().event();
+  LuminosityBlockNumber_t const lumiBlock = e.luminosityBlock();
 
-  int lumiBlock = e.luminosityBlock();
   int bx        = e.bunchCrossing();
   int orbit     = e.orbitNumber();
 

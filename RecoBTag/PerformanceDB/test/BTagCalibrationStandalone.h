@@ -118,9 +118,9 @@ public:
   void addEntry(const BTagEntry &entry);
   const std::vector<BTagEntry>& getEntries(const BTagEntry::Parameters &par) const;
 
-  void readCSV(istream &s);
+  void readCSV(std::istream &s);
   void readCSV(const std::string &s);
-  void makeCSV(ostream &s) const;
+  void makeCSV(std::ostream &s) const;
   std::string makeCSV() const;
 
 protected:
@@ -132,6 +132,7 @@ protected:
 };
 
 #endif  // BTagCalibration_H
+
 
 #ifndef BTagCalibrationReader_H
 #define BTagCalibrationReader_H

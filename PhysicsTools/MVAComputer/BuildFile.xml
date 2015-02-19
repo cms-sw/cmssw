@@ -5,6 +5,7 @@
 <use name="rootcore"/>
 <use name="boost"/>
 <use name="zlib"/>
+<use name="tbb"/>
 <export>
    <lib name="1"/>
 </export>

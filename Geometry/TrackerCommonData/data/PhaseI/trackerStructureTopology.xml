@@ -19,7 +19,7 @@ July 2009
 
     <SpecPar name="PixelBarrelSubDetPar">
       <PartSelector path="//PixelBarrel" />
-      <Parameter name="TkDDDStructure" value="PixelBarrel"/>
+      <Parameter name="TkDDDStructure" value="PixelPhase1Barrel"/>
     </SpecPar>
 
 
@@ -48,17 +48,17 @@ July 2009
       <Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
     </SpecPar>
 
-   <SpecPar name="PixelEndcapSubDetPar">
+   <SpecPar name="PixelPhase1EndcapSubDetPar">
       <PartSelector path="//PixelForward" />
   
-      <Parameter name="TkDDDStructure" value="PixelEndcapSubDet"/>
+      <Parameter name="TkDDDStructure" value="PixelPhase1EndcapSubDet"/>
     </SpecPar>
 
-    <SpecPar name="PixelEndcapDiskPar">
+    <SpecPar name="PixelPhase1EndcapDiskPar">
        <PartSelector path="//PixelForwardDisk1"/>
        <PartSelector path="//PixelForwardDisk2"/>
        <PartSelector path="//PixelForwardDisk3"/>
-      <Parameter name="TkDDDStructure" value="PixelEndcapDisk"/>
+      <Parameter name="TkDDDStructure" value="PixelPhase1EndcapDisk"/>
     </SpecPar>
 
      <SpecPar name="PixelEndcapPanelPar">

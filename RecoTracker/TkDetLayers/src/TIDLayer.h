@@ -4,8 +4,8 @@
 
 #include "TrackingTools/DetLayers/interface/RingedForwardLayer.h"
 #include "TIDRing.h"
-#include<array>
-
+#include <array>
+#include <atomic>
 
 /** A concrete implementation for TID layer 
  *  built out of TIDRings
@@ -16,6 +16,10 @@ class TIDLayer GCC11_FINAL : public RingedForwardLayer {
  public:
   TIDLayer(std::vector<const TIDRing*>& rings)  __attribute__ ((cold));
   ~TIDLayer()  __attribute__ ((cold));
+
+  //default implementations would not manage memory correctly
+  TIDLayer(const TIDLayer&) = delete;
+  TIDLayer& operator=(const TIDLayer&) = delete;
   
   // GeometricSearchDet interface
   
@@ -29,7 +33,7 @@ class TIDLayer GCC11_FINAL : public RingedForwardLayer {
 			       std::vector<DetGroup> & result) const __attribute__ ((hot));
 
   // DetLayer interface
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::TID;}
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::TID];}
 
 
  private:
@@ -57,6 +61,7 @@ class TIDLayer GCC11_FINAL : public RingedForwardLayer {
 
  private:
   std::vector<GeomDet const*> theBasicComps;
+  mutable std::atomic<std::vector<const GeometricSearchDet*>*> theComponents;
   const TIDRing* theComps[3];
   struct RingPar { float theRingR, thetaRingMin, thetaRingMax;};
   RingPar ringPars[3];

@@ -10,41 +10,39 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
 
     ## HLT paths passing any one of these regular expressions will be included
     hltPathsToCheck = cms.vstring(
-      "HLT_IsoMu20_eta2p1_v",
-      "HLT_IsoMu24_eta2p1_v",
-      "HLT_IsoMu24_v",
-      "HLT_IsoMu30_eta2p1_v",
-      "HLT_IsoMu30_v",
-      "HLT_IsoMu34_eta2p1_v",
-      "HLT_IsoMu40_eta2p1_v",
-      "HLT_L1SingleMu12_v",
-      "HLT_Mu12_v",
-      "HLT_Mu15_eta2p1_v",
-      "HLT_Mu17_v",
-      "HLT_Mu24_eta2p1_v",
-      "HLT_Mu30_eta2p1_v",
-      "HLT_Mu40_eta2p1_v",
-      "HLT_Mu50_eta2p1_v",
-      "HLT_Mu5_v",
-      "HLT_Mu8_v",
-      "HLT_RelIso1p0Mu17_v",
-      "HLT_RelIso1p0Mu5_v",
-      "HLT_DoubleMu5_IsoMu5_v",
-      "HLT_Mu13_Mu8_v",
-      "HLT_Mu22_TkMu22_v",
-      "HLT_Mu22_TkMu8_v",
-      "HLT_TripleMu5_v",
-      "HLT_DoubleMu11_Acoplanarity03_v", #Added for forward physics
-      "HLT_Mu40_eta2p1_Track50_dEdx3p6_v", #Exotica
-      "HLT_Mu40_eta2p1_Track60_dEdx3p7_v"
-      "HLT_Mu17_NoFilters_v",
       "HLT_Mu40_v",
       "HLT_IsoMu24_IterTrk02_v",
       "HLT_IsoTkMu24_IterTrk02_v",
-      "HLT_Mu17_Mu8_v",
-      "HLT_Mu17_TkMu8_v",
+      "HLT_Mu17_Mu8_DZ_v",
+      "HLT_Mu17_TkMu8_DZ_v",
       "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
-      "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"
+      "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
+      "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
+      "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
+      "HLT_IsoMu20_eta2p1_IterTrk02_v",
+      "HLT_IsoTkMu20_eta2p1_IterTrk02_v",
+      "HLT_IsoMu24_eta2p1_IterTrk02_v",
+      "HLT_IsoTkMu24_eta2p1_IterTrk02_v"
+      "HLT_Mu24_eta2p1_v",
+      "HLT_TkMu24_eta2p1_v",
+      "HLT_IsoMu27_IterTrk02_v",
+      "HLT_IsoTkMu27_IterTrk02_v",
+      "HLT_Mu27_v",
+      "HLT_TkMu27_v",
+      "HLT_IsoMu20_v1",
+      "HLT_Mu20_v1",
+      "HLT_IsoTkMu20_v1",
+      "HLT_TkMu20_v1",
+      "HLT_HIL1DoubleMuOpen", #for HI
+      "HLT_HIL2Mu3", #for HI
+      "HLT_HIL2Mu7", #for HI
+      "HLT_HIL2Mu15", #for HI
+      "HLT_HIL2Mu3_NHitQ", #for HI
+      "HLT_HIL2DoubleMu0", #for HI
+      "HLT_HIL2DoubleMu0_NHitQ", #for HI
+      "HLT_HIL2DoubleMu3", #for HI
+      "HLT_HIL3Mu3", #for HI
+      "HLT_HIL3DoubleMuOpen" #for HI
     ),
 
 #HLT_Mu15_eta2p1_TriCentral_40_20_20_BTagIP3D1stTrack_v3 matches HLT_Mu15_eta2p1_v

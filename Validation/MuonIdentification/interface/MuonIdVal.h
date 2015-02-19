@@ -54,7 +54,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 //class MuonIdVal : public edm::EDAnalyzer {
-class MuonIdVal : public thread_unsafe::DQMEDAnalyzer {
+class MuonIdVal : public DQMEDAnalyzer {
    public:
       explicit MuonIdVal(const edm::ParameterSet&);
       ~MuonIdVal();

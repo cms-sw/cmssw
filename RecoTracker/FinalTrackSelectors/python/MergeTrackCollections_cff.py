@@ -6,13 +6,14 @@ duplicateTrackCandidates = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_
     source=cms.InputTag("preDuplicateMergingGeneralTracks"),
     useInnermostState  = cms.bool(True),
     ttrhBuilderName    = cms.string("WithAngleAndTemplate")
-    )
-                                      
+    ) 
+                                     
 import RecoTracker.TrackProducer.TrackProducer_cfi
 mergedDuplicateTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = cms.InputTag("duplicateTrackCandidates","candidates"),
     )
 
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 duplicateTrackSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='mergedDuplicateTracks',
     trackSelectors= cms.VPSet(
@@ -38,6 +39,7 @@ generalTracksSequence = cms.Sequence(
     generalTracks
     )
 
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 conversionStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = cms.VInputTag(cms.InputTag('convStepTracks')),
     hasSelector=cms.vint32(1),

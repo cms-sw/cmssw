@@ -28,22 +28,26 @@ namespace {
   constexpr int DCOL_bits = 5;
   constexpr int PXID_bits = 8;
   constexpr int ADC_bits  = 8;
-  
-  constexpr int ADC_shift  = 0;
-  constexpr int PXID_shift = ADC_shift + ADC_bits;
-  constexpr int DCOL_shift = PXID_shift + PXID_bits;
-  constexpr int ROC_shift  = DCOL_shift + DCOL_bits;
-  constexpr int LINK_shift = ROC_shift + ROC_bits;
-  
-  constexpr PixelDataFormatter::Word32 LINK_mask = ~(~PixelDataFormatter::Word32(0) << LINK_bits);
-  constexpr PixelDataFormatter::Word32 ROC_mask  = ~(~PixelDataFormatter::Word32(0) << ROC_bits);
-  constexpr PixelDataFormatter::Word32 DCOL_mask = ~(~PixelDataFormatter::Word32(0) << DCOL_bits);
-  constexpr PixelDataFormatter::Word32 PXID_mask = ~(~PixelDataFormatter::Word32(0) << PXID_bits);
-  constexpr PixelDataFormatter::Word32 ADC_mask  = ~(~PixelDataFormatter::Word32(0) << ADC_bits);
+
+  // For phase1  
+  constexpr int LINK_bits1 = 7;
+  constexpr int ROC_bits1  = 4;
+
+  // Moved to the header file, keep commented out unti the final version is done/ 
+  // constexpr int ADC_shift  = 0;
+  // constexpr int PXID_shift = ADC_shift + ADC_bits;
+  // constexpr int DCOL_shift = PXID_shift + PXID_bits;
+  // constexpr int ROC_shift  = DCOL_shift + DCOL_bits;
+  // constexpr int LINK_shift = ROC_shift + ROC_bits;
+  // constexpr PixelDataFormatter::Word32 LINK_mask = ~(~PixelDataFormatter::Word32(0) << LINK_bits);
+  // constexpr PixelDataFormatter::Word32 ROC_mask  = ~(~PixelDataFormatter::Word32(0) << ROC_bits);
+  // constexpr PixelDataFormatter::Word32 DCOL_mask = ~(~PixelDataFormatter::Word32(0) << DCOL_bits);
+  // constexpr PixelDataFormatter::Word32 PXID_mask = ~(~PixelDataFormatter::Word32(0) << PXID_bits);
+  // constexpr PixelDataFormatter::Word32 ADC_mask  = ~(~PixelDataFormatter::Word32(0) << ADC_bits);
 
 }
 
-PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map)
+PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map, bool phase1)
   : theDigiCounter(0), theWordCounter(0), theCablingTree(map), badPixelInfo(0), modulesToUnpack(0)
 {
   int s32 = sizeof(Word32);
@@ -61,6 +65,29 @@ PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map)
   useQualityInfo = false;
   allDetDigis = 0;
   hasDetDigis = 0;
+
+  ADC_shift  = 0;
+  PXID_shift = ADC_shift + ADC_bits;
+  DCOL_shift = PXID_shift + PXID_bits;
+  ROC_shift  = DCOL_shift + DCOL_bits;
+
+  if(phase1) {  // for phase 1
+    LINK_shift = ROC_shift + ROC_bits1;
+    LINK_mask = ~(~PixelDataFormatter::Word32(0) << LINK_bits1);
+    ROC_mask  = ~(~PixelDataFormatter::Word32(0) << ROC_bits1);
+    maxROCIndex=8;
+  } else {  // for phase 0
+    LINK_shift = ROC_shift + ROC_bits;
+    LINK_mask = ~(~PixelDataFormatter::Word32(0) << LINK_bits);
+    ROC_mask  = ~(~PixelDataFormatter::Word32(0) << ROC_bits);
+    maxROCIndex=25;
+  }
+
+
+  DCOL_mask = ~(~PixelDataFormatter::Word32(0) << DCOL_bits);
+  PXID_mask = ~(~PixelDataFormatter::Word32(0) << PXID_bits);
+  ADC_mask  = ~(~PixelDataFormatter::Word32(0) << ADC_bits);
+
 }
 
 void PixelDataFormatter::setErrorStatus(bool ErrorStatus)
@@ -142,7 +169,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
     
     if ( (nlink!=link) | (nroc!=roc) ) {  // new roc
       link = nlink; roc=nroc;
-      skipROC = likely(roc<25) ? false : !errorcheck.checkROC(errorsInEvent, fedId, &converter, ww, errors);
+      skipROC = likely(roc<maxROCIndex) ? false : !errorcheck.checkROC(errorsInEvent, fedId, &converter, ww, errors);
       if (skipROC) continue;
       rocp = converter.toRoc(link,roc);
       if unlikely(!rocp) {
@@ -188,21 +215,23 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 
 }
 
-void doVectorize(int const * __restrict__ w, int * __restrict__ row, int * __restrict__ col, int * __restrict__ valid, int N, PixelROC const * rocp) {
-  for (int i=0; i<N; ++i) {
-    auto ww = w[i];
-    int dcol = (ww >> DCOL_shift) & DCOL_mask;
-    int pxid = (ww >> PXID_shift) & PXID_mask;
-    // int adc  = (ww >> ADC_shift) & ADC_mask;
+// I do not know what this was for or if it is needed? d.k. 10.14
+// Keep it commented out until we are sure that it is not needed.
+// void doVectorize(int const * __restrict__ w, int * __restrict__ row, int * __restrict__ col, int * __restrict__ valid, int N, PixelROC const * rocp) {
+//   for (int i=0; i<N; ++i) {
+//     auto ww = w[i];
+//     int dcol = (ww >> DCOL_shift) & DCOL_mask;
+//     int pxid = (ww >> PXID_shift) & PXID_mask;
+//     // int adc  = (ww >> ADC_shift) & ADC_mask;
     
-    LocalPixel::DcolPxid local = { dcol, pxid };
-    valid[i] = local.valid();
-    GlobalPixel global = rocp->toGlobal( LocalPixel(local) );
-    row[i]=global.row; col[i]=global.col;
+//     LocalPixel::DcolPxid local = { dcol, pxid };
+//     valid[i] = local.valid();
+//     GlobalPixel global = rocp->toGlobal( LocalPixel(local) );
+//     row[i]=global.row; col[i]=global.col;
 
-  }
+//   }
 
-}
+// }
 
 
 void PixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis) 

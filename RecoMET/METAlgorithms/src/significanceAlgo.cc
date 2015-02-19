@@ -26,7 +26,6 @@
 
 metsig::significanceAlgo::significanceAlgo():
   //  eventVec_(0),
-  signifmatrix_(2,2),
   set_worker_(0),
   xmet_(0),
   ymet_(0)
@@ -39,25 +38,20 @@ metsig::significanceAlgo::significanceAlgo():
 
 //******* Add an existing significance matrix to the algo, so that the vector sum can be continued. Only makes sense if matrix is empty or you want to purposefully increase uncertainties (for example in systematic studies)!
 const void
-metsig::significanceAlgo::addSignifMatrix(const TMatrixD &input){
-  // check that the matrix is size 2:
-  if(input.GetNrows()==2 && input.GetNcols()==2) {
-    signifmatrix_+=input;
-  }
+metsig::significanceAlgo::addSignifMatrix(const reco::METCovMatrix& input){
+  signifmatrix_+=input;
   return;
 }
 ////////////////////////
 /// reset the signficance matrix (this is the most likely case), so that the vector sum can be continued
 
 const void
-metsig::significanceAlgo::setSignifMatrix(const TMatrixD &input,const double &met_r, const double &met_phi, const double &met_set){
-  // check that the matrix is size 2:
-  if(input.GetNrows()==2 && input.GetNcols()==2) {
-    signifmatrix_=input;
-    set_worker_=met_set;
-    xmet_=met_r*cos(met_phi);
-    ymet_=met_r*sin(met_phi);
-  }
+metsig::significanceAlgo::setSignifMatrix(const reco::METCovMatrix &input,const double &met_r, const double &met_phi, const double &met_set){
+  signifmatrix_=input;
+  set_worker_=met_set;
+  xmet_=met_r*cos(met_phi);
+  ymet_=met_r*sin(met_phi);
+  
   return;
 }
 
@@ -68,26 +62,26 @@ metsig::significanceAlgo::~significanceAlgo(){
 
 // //*** rotate a 2D matrix by angle theta **********************//
 
-void
-metsig::significanceAlgo::rotateMatrix( Double_t theta, TMatrixD &v)
-{
-  // I suggest not using this to rotate trivial matrices.
-  TMatrixD r(2,2);
-  TMatrixD rInv(2,2);
+// void
+// metsig::significanceAlgo::rotateMatrix( Double_t theta, reco::METCovMatrix &v)
+// {
+//   // I suggest not using this to rotate trivial matrices.
+//   reco::METCovMatrix r;
+//   reco::METCovMatrix rInv;
 
-  r(0,0) = cos(theta); r(0,1) = sin(theta); r(1,0) = -sin(theta); r(1,1) = cos(theta);
-  rInv = r;
-  rInv.Invert();
-  //-- Rotate v --//
-  v = rInv * v * r;
-}
+//   r(0,0) = cos(theta); r(0,1) = sin(theta); r(1,0) = -sin(theta); r(1,1) = cos(theta);
+//   rInv = r;
+//   rInv.Invert();
+//   //-- Rotate v --//
+//   v = rInv * v * r;
+// }
 //************************************************************//
 
 
 const void 
 metsig::significanceAlgo::subtractObjects(const std::vector<metsig::SigInputObj>& eventVec)
 { 
-  TMatrixD v_tot = signifmatrix_;
+  reco::METCovMatrix v_tot = signifmatrix_;
   //--- Loop over physics objects in the event ---//
   //  for(unsigned int objnum=1; objnum < EventVec.size(); objnum++ ) {
   for(std::vector<SigInputObj>::const_iterator obj = eventVec.begin(); obj!= eventVec.end(); ++obj){
@@ -121,7 +115,7 @@ metsig::significanceAlgo::subtractObjects(const std::vector<metsig::SigInputObj>
 const void 
 metsig::significanceAlgo::addObjects(const std::vector<metsig::SigInputObj>& eventVec)
 { 
-  TMatrixD v_tot = signifmatrix_;
+  reco::METCovMatrix v_tot = signifmatrix_;
   //--- Loop over physics objects in the event ---//
   //  for(unsigned int objnum=1; objnum < EventVec.size(); objnum++ ) {
   for(std::vector<SigInputObj>::const_iterator obj = eventVec.begin(); obj!= eventVec.end(); ++obj){
@@ -162,8 +156,8 @@ metsig::significanceAlgo::significance(double &met_r, double &met_phi, double &m
 
   //--- Temporary variables ---//
  
-  TMatrixD v_tot(2,2);
-  TVectorD metvec(2);
+  reco::METCovMatrix v_tot;
+  ROOT::Math::SVector<double, 2> metvec;
 
  //--- Initialize sum of rotated covariance matrices ---//  
   v_tot=signifmatrix_;
@@ -178,7 +172,9 @@ metsig::significanceAlgo::significance(double &met_r, double &met_phi, double &m
 
   // one other option: if particles cancel there could be small numbers.
   // this check fixes this, added by F.Blekman
-  if(fabs(v_tot.Determinant())<0.000001)
+  double det=0;
+  v_tot.Det(det);
+  if(fabs(det)<0.000001)
     return -1;
 
 
@@ -190,7 +186,7 @@ metsig::significanceAlgo::significance(double &met_r, double &met_phi, double &m
 
 
   metvec(0) = xmet_; metvec(1) = ymet_;
-  double lnSignificance = metvec * (v_tot * metvec);
+  double lnSignificance = ROOT::Math::Dot(metvec, (v_tot * metvec) );
 
   //  v_tot.Invert();
   //  std::cout << "INVERTED AGAIN:\n"<< v_tot(0,0) << "," << v_tot(0,1) << "\n" << v_tot(1,0) << "," << v_tot(1,1) << std::endl;

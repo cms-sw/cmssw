@@ -33,6 +33,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -128,6 +129,13 @@ namespace edm {
       reg_(new ProductRegistry()),
       phreg_(new ProcessHistoryRegistry()),
       branchIDListHelper_(new BranchIDListHelper()),
+      // Note that thinned collections are not supported yet, the next
+      // line just makes it compile but when the Ref or Ptr tries to
+      // find the thinned collection it will report them not found.
+      // More work needed here if this is needed (we think no one
+      // is using TFWLiteSelector anymore and intend to implement
+      // this properly if it turns out we are wrong)
+      thinnedAssociationsHelper_(new ThinnedAssociationsHelper()),
       processNames_(),
       reader_(new FWLiteDelayedReader),
       prov_(),
@@ -143,6 +151,7 @@ namespace edm {
       std::shared_ptr<ProductRegistry> reg_;
       std::shared_ptr<ProcessHistoryRegistry> phreg_;
       std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
+      std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
       ProcessHistory processNames_;
       std::shared_ptr<FWLiteDelayedReader> reader_;
       std::vector<EventEntryDescription> prov_;
@@ -466,7 +475,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   }
   m_->branchIDListHelper_->updateFromInput(*branchIDListsPtr);
   m_->reg_->setFrozen();
-  m_->ep_.reset(new edm::EventPrincipal(m_->reg_, m_->branchIDListHelper_, m_->pc_, nullptr));
+  m_->ep_.reset(new edm::EventPrincipal(m_->reg_, m_->branchIDListHelper_, m_->thinnedAssociationsHelper_, m_->pc_, nullptr));
   everythingOK_ = true;
 }
 

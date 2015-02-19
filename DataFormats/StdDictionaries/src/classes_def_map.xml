@@ -3,6 +3,7 @@
  <class name="std::map<int,std::pair<double,double> >"/>
  <class name="std::map<int,std::pair<unsigned int,unsigned int> >"/>
  <class name="std::map<int,std::pair<unsigned long,unsigned long> >"/>
+ <class name="std::map<int,std::pair<std::basic_string<char>,int> >"/>
  <class name="std::map<int,unsigned int>"/>
  <class name="std::map<short,short>"/>
  <class name="std::map<short,unsigned int>"/>

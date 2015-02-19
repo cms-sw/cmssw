@@ -19,7 +19,7 @@ namespace edmtest {
   ThingExtSource::~ThingExtSource() { }  
 
   // Functions that gets called by framework every event
-  bool ThingExtSource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&) {
+  bool ThingExtSource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) {
     // Fake running out of data.
     if (event() > 2) return false;
     return true;

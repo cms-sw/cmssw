@@ -43,7 +43,7 @@
 #include <utility>
 #include <vector>
 
-//#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
+#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
 
 #if 0
 /** \class PixelCPEGeneric
@@ -84,10 +84,10 @@ class PixelCPEGeneric : public PixelCPEBase
 
 #ifdef NEW_CPEERROR
   PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, 
-		  const TrackerGeometry&, const SiPixelLorentzAngle *, 
+		  const TrackerGeometry&, const TrackerTopology&, const SiPixelLorentzAngle *, 
 		  const SiPixelGenErrorDBObject *, const SiPixelLorentzAngle *);
 #else
-  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&,
+  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&, const TrackerTopology&,
 		  const SiPixelLorentzAngle *, const SiPixelGenErrorDBObject *, 
 		  const SiPixelTemplateDBObject *,const SiPixelLorentzAngle *);
 #endif

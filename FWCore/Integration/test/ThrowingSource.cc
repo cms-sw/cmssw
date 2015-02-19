@@ -41,7 +41,7 @@ namespace edm {
       kCloseFile = 13,
       kDestructor = 14
     };
-    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time);
+    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType);
     virtual void produce(Event &);
 
     // To test exception throws from sources
@@ -60,7 +60,7 @@ namespace edm {
   }
 
   bool
-  ThrowingSource::setRunAndEventInfo(EventID&, TimeValue_t&) {
+  ThrowingSource::setRunAndEventInfo(EventID&, TimeValue_t&, edm::EventAuxiliary::ExperimentType&) {
     return true;
   }
 

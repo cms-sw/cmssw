@@ -7,10 +7,11 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <string>
 
-class L1TCSCTFClient: public edm::EDAnalyzer {
+class L1TCSCTFClient: public DQMEDHarvester {
 public:
 
   /// Constructor
@@ -21,37 +22,17 @@ public:
 
 protected:
 
-  /// BeginJob
-  void beginJob(void);
-
-  /// BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
-
-  /// Fake Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
-
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-                            const edm::EventSetup& context) ;
-
-  /// DQM Client Diagnostic
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-                          const edm::EventSetup& c);
-
-  /// EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
-
-  /// Endjob
-  void endJob();
+  void dqmEndLuminosityBlock(DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&);  //performed in the endLumi
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
 private:
 
   void initialize();
 
-  void processHistograms();
+  void processHistograms(DQMStore::IGetter &);
 
   edm::ParameterSet parameters;
 
-  DQMStore* dbe;
   std::string input_dir, output_dir;
   int counterLS;      ///counter
   int counterEvt;     ///counter
@@ -62,8 +43,6 @@ private:
   bool m_runInEndLumi;
   bool m_runInEndRun;
   bool m_runInEndJob;
-
-
 
   // -------- member data --------
   MonitorElement *csctferrors_;

@@ -309,7 +309,7 @@ void BTagCalibration::readCSV(const std::string &s)
   readCSV(buff);
 }
 
-void BTagCalibration::readCSV(istream &s)
+void BTagCalibration::readCSV(std::istream &s)
 {
   std::string line;
 
@@ -356,7 +356,6 @@ std::string BTagCalibration::token(const BTagEntry::Parameters &par)
        << par.sysType;
   return buff.str();
 }
-
 
 
 

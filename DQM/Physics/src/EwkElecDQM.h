@@ -11,11 +11,12 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 
 namespace reco {
 class Jet;
@@ -25,18 +26,17 @@ class BeamSpot;
 
 class DQMStore;
 class MonitorElement;
-class EwkElecDQM : public edm::EDAnalyzer {
+class EwkElecDQM : public DQMEDAnalyzer {
  public:
   EwkElecDQM(const edm::ParameterSet&);
+  //Book histograms
+  void bookHistograms(DQMStore::IBooker &,
+    edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
   double calcDeltaPhi(double phi1, double phi2);
-
-  void init_histograms();
 
  private:
   //  edm::InputTag muonTag_;
@@ -103,8 +103,6 @@ class EwkElecDQM : public edm::EDAnalyzer {
 
   //  unsigned int nRecoElectrons;
   unsigned int nGoodElectrons;
-
-  DQMStore* theDbe;
 
   MonitorElement* pt_before_;
   MonitorElement* pt_after_;

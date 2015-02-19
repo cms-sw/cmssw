@@ -110,13 +110,12 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
     detrawid     = detid;
     APV.detrawId = detrawid;
     subdetid     = detectorId.subdetId();
-    if (SiStripDetId(detrawid).stereo() !=0 ) isstereo = 1; // It's a stereo module
-    else                                      isstereo = 0; // It's an rphi module
     switch (detectorId.subdetId())
       {
       case StripSubdetector::TIB :
 	layer_ring = tTopo->tibLayer(detrawid);
 	disc       = -1;
+	isstereo   = tTopo->tibIsStereo(detrawid);
 	isback     = -1;
 	if (tTopo->tibIsExternalString(detrawid)) isexternalstring = 1;
 	else                                       isexternalstring = 0;
@@ -135,6 +134,7 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
       case StripSubdetector::TID :
 	layer_ring = tTopo->tidRing(detrawid);
 	disc       = tTopo->tidWheel(detrawid);
+	isstereo   = tTopo->tidIsStereo(detrawid);
 	if (tTopo->tidIsBackRing(detrawid)) isback = 1;
 	else                                 isback = 0;
 	if (tTopo->tidIsZMinusSide(detrawid)) iszminusside = 1;
@@ -161,6 +161,7 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
       case StripSubdetector::TOB :
 	layer_ring = tTopo->tobLayer(detrawid);
 	disc       = -1;
+	isstereo   = tTopo->tobIsStereo(detrawid);
 	isback     = -1;
 	if (tTopo->tobIsZMinusSide(detrawid)) iszminusside = 1;
 	else                                   iszminusside = 0;
@@ -180,6 +181,7 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
       case StripSubdetector::TEC :
 	layer_ring = tTopo->tecRing(detrawid);
 	disc       = tTopo->tecWheel(detrawid);
+	isstereo   = tTopo->tecIsStereo(detrawid);
 	if (tTopo->tecIsBackPetal(detrawid)) isback = 1;
 	else                                  isback = 0;
 	if (tTopo->tecIsZMinusSide(detrawid)) iszminusside = 1;

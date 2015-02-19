@@ -288,7 +288,7 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   const TrackerTopology *tTopo=tTopoHand.product();
 
   edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
-  if ( (int) e.id().event() % 1000 == 0 )
+  if (e.id().event() % 1000 == 0)
     std::cout << " Run = " << e.id().run() << " Event = " << e.id().event() << std::endl;
   
   //Get RecHits
@@ -352,7 +352,7 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 
 		  if ( dist < closest ) 
 		    {
-		      closest = x_res;
+		      closest = dist;
 		      closestit = m;
 		    }
 		} // end sim hit loop

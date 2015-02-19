@@ -14,6 +14,8 @@ namespace CondFormats_EgammaObjects {
     GBRForest e2;
     GBRTree2D e3;
     GBRForest2D e4;
+    GBRTreeD e5;
+    GBRForestD e6;    
     
   };
 }

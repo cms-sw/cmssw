@@ -10,8 +10,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/QuickTrackAssociatorByHits.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -57,6 +56,11 @@ TrackerSeedValidator::TrackerSeedValidator(const edm::ParameterSet& pset):MultiT
   runStandalone = pset.getParameter<bool>("runStandalone");
 
   builderName = pset.getParameter<std::string>("TTRHBuilder");
+
+  for (auto const& associator: associators) {
+    consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag(associator));
+  }
+
 }
 
 TrackerSeedValidator::~TrackerSeedValidator(){delete histoProducerAlgo_;}
@@ -105,11 +109,6 @@ void TrackerSeedValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run con
       histoProducerAlgo_->bookRecoHistos(ibook);
       if (runStandalone) histoProducerAlgo_->bookRecoHistosForStandaloneRunning(ibook);
     }//end loop www
-    edm::ESHandle<TrackAssociatorBase> theAssociator;
-    for (unsigned int w=0;w<associators.size();w++) {
-      setup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
-      associator.push_back( theAssociator.product() );
-    }//end loop w
   }// end loop ww
 }
 
@@ -119,6 +118,13 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
   edm::LogInfo("TrackValidator") << "\n====================================================" << "\n"
 				 << "Analyzing new event" << "\n"
 				 << "====================================================\n" << "\n";
+
+  std::vector<const reco::TrackToTrackingParticleAssociator*> associator;
+  edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
+  for (auto const& associatorName: associators) {
+    event.getByLabel(associatorName,theAssociator);
+    associator.push_back( theAssociator.product() );
+  }
 
   edm::ESHandle<ParametersDefinerForTP> parametersDefinerTP;
   setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTP);
@@ -174,12 +180,10 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
       //associate seeds
       LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
       reco::RecoToSimCollectionSeed recSimColl=associator[ww]->associateRecoToSim(seedCollection,
-										  TPCollectionHfake,
-										  &event,&setup);
+										  TPCollectionHfake);
       LogTrace("TrackValidator") << "Calling associateSimToReco method" << "\n";
       reco::SimToRecoCollectionSeed simRecColl=associator[ww]->associateSimToReco(seedCollection,
-										  TPCollectionHeff,
-										  &event,&setup);
+										  TPCollectionHeff);
 
       //
       //fill simulation histograms

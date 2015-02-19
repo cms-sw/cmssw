@@ -17,7 +17,7 @@ MessageLogger = cms.Service("MessageLogger",
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('Configuration.StandardSequences.Geometry_cff')
+process.load("Configuration.Geometry.GeometryDB_cff")
 
 # including global tag
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -63,7 +63,7 @@ process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 
 
 # magnetic field
-process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+process.load("Configuration.StandardSequences.MagneticField_.oO[magneticField]Oo._cff")
 
 # adding geometries
 from CondCore.DBCommon.CondDBSetup_cfi import *
@@ -131,7 +131,8 @@ process.load("RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff")
 process.HitFilteredTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone(
      src = 'cosmicTrackSplitter',
      TrajectoryInEvent = True,
-     TTRHBuilder = "WithTrackAngle"
+     TTRHBuilder = "WithTrackAngle",
+     NavigationSchool = ""
 )
 # second refit
 process.TrackRefitter2 = process.TrackRefitter1.clone(

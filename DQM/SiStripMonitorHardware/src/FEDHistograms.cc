@@ -8,8 +8,6 @@
 
 FEDHistograms::FEDHistograms()
 {
-  dqm_ = 0;
-  
 }
 
 FEDHistograms::~FEDHistograms()
@@ -212,10 +210,13 @@ void FEDHistograms::fillFEHistograms(const unsigned int aFedId,
 				     const FEDErrors::FELevelErrors & aFeLevelErrors, const FEDErrors::EventProperties & aEventProp )
 {
   const unsigned short lFeId = aFeLevelErrors.FeID;
+  /*
   if ( (feOverflowDetailed_.enabled && aFeLevelErrors.Overflow) ||
        (badMajorityAddressDetailed_.enabled && aFeLevelErrors.BadMajorityAddress) ||
        (feMissingDetailed_.enabled && aFeLevelErrors.Missing)
-       ) bookFEDHistograms(aFedId);
+       ) 
+    bookFEDHistograms(aFedId);
+  */  
   if (aFeLevelErrors.Overflow) fillHistogram(feOverflowDetailedMap_[aFedId],lFeId);
   else if (aFeLevelErrors.Missing) fillHistogram(feMissingDetailedMap_[aFedId],lFeId);
   else if (aFeLevelErrors.BadMajorityAddress) fillHistogram(badMajorityAddressDetailedMap_[aFedId],lFeId);
@@ -242,11 +243,12 @@ void FEDHistograms::fillChannelsHistograms(const unsigned int aFedId,
 					   bool fullDebug)
 {
   unsigned int lChId = aChErr.ChannelID;
-
+  /*
   if ( (unlockedDetailed_.enabled && aChErr.Unlocked) ||
        (outOfSyncDetailed_.enabled && aChErr.OutOfSync)
-       ) bookFEDHistograms(aFedId,fullDebug);
-
+       ) 
+    bookFEDHistograms(aFedId,fullDebug);
+  */
   if (aChErr.Unlocked) {
     fillHistogram(unlockedDetailedMap_[aFedId],lChId);
   }
@@ -261,11 +263,12 @@ void FEDHistograms::fillAPVsHistograms(const unsigned int aFedId,
 				       bool fullDebug)
 {
   unsigned int lChId = aAPVErr.APVID;
-
-if ( (badStatusBitsDetailed_.enabled && aAPVErr.APVStatusBit) ||
-     (apvErrorDetailed_.enabled && aAPVErr.APVError) ||
-     (apvAddressErrorDetailed_.enabled && aAPVErr.APVAddressError)
-     ) bookFEDHistograms(aFedId,fullDebug);
+  /*
+  if ( (badStatusBitsDetailed_.enabled && aAPVErr.APVStatusBit) ||
+       (apvErrorDetailed_.enabled && aAPVErr.APVError) ||
+       (apvAddressErrorDetailed_.enabled && aAPVErr.APVAddressError)
+       ) bookFEDHistograms(aFedId,fullDebug);
+  */
 
  if (aAPVErr.APVStatusBit) fillHistogram(badStatusBitsDetailedMap_[aFedId],lChId);
  if (aAPVErr.APVError) fillHistogram(apvErrorDetailedMap_[aFedId],lChId);
@@ -320,21 +323,18 @@ MonitorElement * FEDHistograms::getFedvsAPVpointer()
   return fedIdVsApvId_.monitorEle;
 }
 
-void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderName)
+void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker , std::string topFolderName)
 {
   //get FED IDs
   const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
   const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
-
-  //get the pointer to the dqm object
-  dqm_ = dqm;
 
   //book FED level histograms
   histosBooked_.resize(siStripFedIdMax+1,false);
   debugHistosBooked_.resize(siStripFedIdMax+1,false);
 
   //book histos
-  bookProfile(fedEventSize_,
+  bookProfile(ibooker , fedEventSize_,
 	      "FedEventSize",
 	      "Average FED buffer Size (B) per Event",
 	      siStripFedIdMax-siStripFedIdMin+1,
@@ -346,22 +346,22 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderN
 	      );
 
 
-  bookHistogram(dataPresent_,"DataPresent",
+  bookHistogram(ibooker , dataPresent_,"DataPresent",
 		"Number of events where the data from a FED is seen",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  bookHistogram(nTotalBadChannels_,
+  bookHistogram(ibooker , nTotalBadChannels_,
 		"nTotalBadChannels",
 		"Number of channels with any error",
 		"Total # bad enabled channels");
 
-  bookHistogram(nTotalBadActiveChannels_,
+  bookHistogram(ibooker , nTotalBadActiveChannels_,
 		"nTotalBadActiveChannels",
 		"Number of active channels with any error",
 		"Total # bad active channels");
 
-  book2DHistogram(fedIdVsApvId_,
+  book2DHistogram(ibooker , fedIdVsApvId_,
 		"FedIdVsApvId",
 		"Any error per APV per event",
 		  192, 0 , 192,
@@ -369,255 +369,248 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderN
 		  "APV-ID",
 		  "FED-ID");
 
-  //dqm_->setCurrentFolder(fedKey.path());
+  const std::string lBaseDir = ibooker.pwd();
 
-  //std::ostringstream lDirName;
-  //lDirName << fedKey.path();
-  //lDirName << 
+  ibooker.setCurrentFolder(lBaseDir+"/FED");
 
-  const std::string lBaseDir = dqm_->pwd();
-  //  std::cout << "[FEDHistograms::bookTopLevelHistograms] lBaseDir: " << lBaseDir << std::endl;
-
-  dqm_->setCurrentFolder(lBaseDir+"/FED");
-
-  bookHistogram(nFEDErrors_,
+  bookHistogram(ibooker , nFEDErrors_,
 		"nFEDErrors",
 		"Number of FEDs with errors (FED or FE Level) per event",
 		"# FEDErrors");
 
-  bookHistogram(nFEDDAQProblems_,
+  bookHistogram(ibooker , nFEDDAQProblems_,
 		"nFEDDAQProblems",
 		"Number of FEDs with DAQ problems per event",
 		"# FEDDAQProblems");
 
-  bookHistogram(nFEDsWithFEProblems_,
+  bookHistogram(ibooker , nFEDsWithFEProblems_,
 		"nFEDsWithFEProblems",
 		"Number of FEDs with FE problems per event",
 		"# FEDs with FE problems");
 
-  bookHistogram(nFEDCorruptBuffers_,
+  bookHistogram(ibooker , nFEDCorruptBuffers_,
 		"nFEDCorruptBuffers",
 		"Number of FEDs with corrupt buffers per event",
 		"# FEDs with corrupt buffer");
 
 
-  dqm_->setCurrentFolder(lBaseDir+"/FED/VsId");
+  ibooker.setCurrentFolder(lBaseDir+"/FED/VsId");
 
-  bookHistogram(dataMissing_,"DataMissing",
+  bookHistogram(ibooker , dataMissing_,"DataMissing",
 		"Number of events where the data from a FED with cabled channels is missing",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  bookHistogram(anyFEDErrors_,"AnyFEDErrors",
+  bookHistogram(ibooker , anyFEDErrors_,"AnyFEDErrors",
 		"Number of buffers with any FED error (excluding bad channel status bits, FE problems except overflows) per FED",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  bookHistogram(corruptBuffers_,"CorruptBuffers",
+  bookHistogram(ibooker , corruptBuffers_,"CorruptBuffers",
 		"Number of corrupt FED buffers per FED",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  bookHistogram(invalidBuffers_,"InvalidBuffers",
+  bookHistogram(ibooker , invalidBuffers_,"InvalidBuffers",
 		"Number of invalid FED buffers per FED",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  bookHistogram(anyDAQProblems_,"AnyDAQProblems",
+  bookHistogram(ibooker , anyDAQProblems_,"AnyDAQProblems",
 		"Number of buffers with any problems flagged in DAQ header (including CRC)",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  bookHistogram(badIDs_,"BadIDs",
+  bookHistogram(ibooker , badIDs_,"BadIDs",
 		"Number of buffers with non-SiStrip source IDs in DAQ header",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  bookHistogram(badDAQCRCs_,"BadDAQCRCs",
+  bookHistogram(ibooker , badDAQCRCs_,"BadDAQCRCs",
 		"Number of buffers with bad CRCs from the DAQ",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  bookHistogram(badFEDCRCs_,"BadFEDCRCs",
+  bookHistogram(ibooker , badFEDCRCs_,"BadFEDCRCs",
 		"Number of buffers with bad CRCs from the FED",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  bookHistogram(badDAQPacket_,"BadDAQPacket",
+  bookHistogram(ibooker , badDAQPacket_,"BadDAQPacket",
 		"Number of buffers with (non-CRC) problems flagged in DAQ header/trailer",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  dqm_->setCurrentFolder(lBaseDir+"/FE");
+  ibooker.setCurrentFolder(lBaseDir+"/FE");
 
-  bookHistogram(nFEDsWithFEOverflows_,
+  bookHistogram(ibooker , nFEDsWithFEOverflows_,
 		"nFEDsWithFEOverflows",
 		"Number FEDs with FE units which overflowed per event",
 		"# FEDs with FE overflows");
 
-  bookHistogram(nFEDsWithFEBadMajorityAddresses_,
+  bookHistogram(ibooker , nFEDsWithFEBadMajorityAddresses_,
 		"nFEDsWithFEBadMajorityAddresses",
 		"Number of FEDs with FE units with a bad majority address per event",
 		"# FEDs with bad address");
 
-  bookHistogram(nFEDsWithMissingFEs_,
+  bookHistogram(ibooker , nFEDsWithMissingFEs_,
 		"nFEDsWithMissingFEs",
 		"Number of FEDs with missing FE unit payloads per event",
 		"# FEDs with missing FEs");
 
-  bookHistogram(feMajFracTIB_,"FeMajFracTIB",
+  bookHistogram(ibooker , feMajFracTIB_,"FeMajFracTIB",
 		"Fraction of FEs matching majority address in TIB partition",
 		101,0,1.01,"n(majAddrFE)/n(totFE)");
 
-  bookHistogram(feMajFracTOB_,"FeMajFracTOB",
+  bookHistogram(ibooker , feMajFracTOB_,"FeMajFracTOB",
 		"Fraction of FEs matching majority address in TOB partition",
 		101,0,1.01,"n(majAddrFE)/n(totFE)");
 
-  bookHistogram(feMajFracTECB_,"FeMajFracTECB",
+  bookHistogram(ibooker , feMajFracTECB_,"FeMajFracTECB",
 		"Fraction of FEs matching majority address in TECB partition",
 		101,0,1.01,"n(majAddrFE)/n(totFE)");
 
-  bookHistogram(feMajFracTECF_,"FeMajFracTECF",
+  bookHistogram(ibooker , feMajFracTECF_,"FeMajFracTECF",
 		"Fraction of FEs matching majority address in TECF partition",
 		101,0,1.01,"n(majAddrFE)/n(totFE)");
 
 
-  dqm_->setCurrentFolder(lBaseDir+"/FE/APVe");
+  ibooker.setCurrentFolder(lBaseDir+"/FE/APVe");
 
-  bookHistogram(feTimeDiffTIB_,"FETimeDiffTIB",
+  bookHistogram(ibooker , feTimeDiffTIB_,"FETimeDiffTIB",
 		"(TimeLoc FE - TimeLoc APVe) for TIB/TID, when different",
 		401,
 		-200,201,"#Delta_{TimeLoc}(FE-APVe)");
 
-  bookHistogram(feTimeDiffTOB_,"FETimeDiffTOB",
+  bookHistogram(ibooker , feTimeDiffTOB_,"FETimeDiffTOB",
 		"(TimeLoc FE - TimeLoc APVe) for TOB, when different",
 		401,
 		-200,201,"#Delta_{TimeLoc}(FE-APVe)");
 
-  bookHistogram(feTimeDiffTECB_,"FETimeDiffTECB",
+  bookHistogram(ibooker , feTimeDiffTECB_,"FETimeDiffTECB",
 		"(TimeLoc FE - TimeLoc APVe) for TECB, when different",
 		401,
 		-200,201,"#Delta_{TimeLoc}(FE-APVe)");
 
-  bookHistogram(feTimeDiffTECF_,"FETimeDiffTECF",
+  bookHistogram(ibooker , feTimeDiffTECF_,"FETimeDiffTECF",
 		"(TimeLoc FE - TimeLoc APVe) for TECF, when different",
 		401,
 		-200,201,"#Delta_{TimeLoc}(FE-APVe)");
 
-  book2DHistogram(feTimeDiffvsDBX_,"FETimeDiffvsDBX",
+  book2DHistogram( ibooker , feTimeDiffvsDBX_,"FETimeDiffvsDBX",
 		"(TimeLoc FE - TimeLoc APVe) vs DBX, when different",
 		  2000,-0.5, 1999.5,
 		  201,
 		  0,201,"DeltaBX","#Delta_{TimeLoc}(FE-APVe)");
 
 
-  bookHistogram(apveAddress_,"ApveAddress",
+  bookHistogram(ibooker , apveAddress_,"ApveAddress",
 		"apve Address",
 		256,0,256,
 		"apveAddress");
 
-  bookHistogram(feMajAddress_,"FeMajAddress",
+  bookHistogram(ibooker , feMajAddress_,"FeMajAddress",
 		"FE Majority Address",
 		256,0,256,
 		"feMajAddress");
 
 
-  dqm_->setCurrentFolder(lBaseDir+"/FE/VsId");
+  ibooker.setCurrentFolder(lBaseDir+"/FE/VsId");
 
-  bookHistogram(anyFEProblems_,"AnyFEProblems",
+  bookHistogram(ibooker , anyFEProblems_,"AnyFEProblems",
 		"Number of buffers with any FE unit problems",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
   
-  bookHistogram(feOverflows_,"FEOverflows",
+  bookHistogram(ibooker , feOverflows_,"FEOverflows",
 		"Number of buffers with one or more FE overflow",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  bookHistogram(badMajorityAddresses_,"BadMajorityAddresses",
+  bookHistogram(ibooker , badMajorityAddresses_,"BadMajorityAddresses",
 		"Number of buffers with one or more FE with a bad majority APV address",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  bookHistogram(badMajorityInPartition_,"BadMajorityInPartition",
+  bookHistogram(ibooker , badMajorityInPartition_,"BadMajorityInPartition",
 		"Number of buffers with >=1 FE with FEaddress != majority in partition",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  bookHistogram(feMissing_,"FEMissing",
+  bookHistogram(ibooker , feMissing_,"FEMissing",
 		"Number of buffers with one or more FE unit payload missing",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
   
 
-  dqm_->setCurrentFolder(lBaseDir+"/Fiber");
+  ibooker.setCurrentFolder(lBaseDir+"/Fiber");
 
-  bookHistogram(nBadChannelStatusBits_,
+  bookHistogram(ibooker , nBadChannelStatusBits_,
 		"nBadChannelStatusBits",
 		"Number of channels with bad status bits per event",
 		"# bad enabled channels");
 
-  bookHistogram(nBadActiveChannelStatusBits_,
+  bookHistogram(ibooker , nBadActiveChannelStatusBits_,
 		"nBadActiveChannelStatusBits",
 		"Number of active channels with bad status bits per event",
 		"# bad active channels");
 
-  bookHistogram(nUnlocked_,
+  bookHistogram(ibooker , nUnlocked_,
 		"nUnlocked",
 		"Number of channels Unlocked per event",
 		"# channels unlocked");
 
-  bookHistogram(nOutOfSync_,
+  bookHistogram(ibooker , nOutOfSync_,
 		"nOutOfSync",
 		"Number of channels OutOfSync per event",
 		"# channels out-of-sync");
 
-  bookHistogram(nUnconnectedChannels_,
+  bookHistogram(ibooker , nUnconnectedChannels_,
 		"nUnconnectedChannels",
 		"Number of channels not connected per event",
 		"# unconnected channels");
 
-  dqm_->setCurrentFolder(lBaseDir+"/Fiber/VsId");
+  ibooker.setCurrentFolder(lBaseDir+"/Fiber/VsId");
 
-  bookHistogram(badChannelStatusBits_,"BadChannelStatusBits",
+  bookHistogram(ibooker , badChannelStatusBits_,"BadChannelStatusBits",
 		"Number of buffers with one or more enabled channel with bad status bits",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  bookHistogram(badActiveChannelStatusBits_,"BadActiveChannelStatusBits",
+  bookHistogram(ibooker , badActiveChannelStatusBits_,"BadActiveChannelStatusBits",
 		"Number of buffers with one or more active channel with bad status bits",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  dqm_->setCurrentFolder(lBaseDir+"/APV");
+  ibooker.setCurrentFolder(lBaseDir+"/APV");
 
-  bookHistogram(medianAPV0_,"MedianAPV0",
+  bookHistogram(ibooker , medianAPV0_,"MedianAPV0",
 		"Median APV0",
 		"medianAPV0");
   
-  bookHistogram(medianAPV1_,"MedianAPV1",
+  bookHistogram(ibooker , medianAPV1_,"MedianAPV1",
 		"Median APV1",
 		"MedianAPV1");
   
-  bookHistogram(nAPVStatusBit_,
+  bookHistogram(ibooker , nAPVStatusBit_,
 		"nAPVStatusBit",
 		"Number of APVs with APVStatusBit error per event",
 		"# APVs with APVStatusBit error");
 
-  bookHistogram(nAPVError_,
+  bookHistogram(ibooker , nAPVError_,
 		"nAPVError",
 		"Number of APVs with APVError per event",
 		"#APVs with APVError");
 
-  bookHistogram(nAPVAddressError_,
+  bookHistogram(ibooker , nAPVAddressError_,
 		"nAPVAddressError",
 		"Number of APVs with APVAddressError per event",
 		"#APVs with APVAddressError");
 
 
-  dqm_->setCurrentFolder(lBaseDir+"/Trends");
+  ibooker.setCurrentFolder(lBaseDir+"/Trends");
 
-  bookProfile(fedMaxEventSizevsTime_,
+  bookProfile( ibooker , fedMaxEventSizevsTime_,
 	      "FedMaxEventSizevsTime",
 	      "Max FED buffer Size (B) per Event vs time",
 	      0,
@@ -626,7 +619,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderN
 	      "Max FED buffer Size (B)"
 	      );
 
-  bookProfile(nTotalBadChannelsvsTime_,
+  bookProfile( ibooker , nTotalBadChannelsvsTime_,
 	      "nTotalBadChannelsvsTime",
 	      "Number of channels with any error vs time",
 	      0,
@@ -636,7 +629,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderN
 	      );
 
 
-  bookProfile(nTotalBadActiveChannelsvsTime_,
+  bookProfile( ibooker , nTotalBadActiveChannelsvsTime_,
 	      "nTotalBadActiveChannelsvsTime",
 	      "Number of active channels with any error vs time",
 	      0,
@@ -645,9 +638,9 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderN
 	      "Total # bad active channels"
 	      );
 
-  dqm_->setCurrentFolder(lBaseDir+"/Trends/FED");
+  ibooker.setCurrentFolder(lBaseDir+"/Trends/FED");
 
-  bookProfile(nFEDErrorsvsTime_,
+  bookProfile( ibooker , nFEDErrorsvsTime_,
 	      "nFEDErrorsvsTime",
 	      "Number of FEDs with any error vs time",
 	      0,
@@ -656,7 +649,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderN
 	      "# FEDErrors"
 	      );
 
-  bookProfile(nFEDCorruptBuffersvsTime_,
+  bookProfile( ibooker , nFEDCorruptBuffersvsTime_,
 	      "nFEDCorruptBuffersvsTime",
 	      "Number of FEDs with corrupt buffer vs time",
 	      0,
@@ -665,9 +658,9 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderN
 	      "# FEDCorruptBuffer"
 	      );
 
-  dqm_->setCurrentFolder(lBaseDir+"/Trends/FE");
+  ibooker.setCurrentFolder(lBaseDir+"/Trends/FE");
 
-  bookProfile(nFEDsWithFEProblemsvsTime_,
+  bookProfile( ibooker , nFEDsWithFEProblemsvsTime_,
 	      "nFEDsWithFEProblemsvsTime",
 	      "Number of FEDs with any FE error vs time",
 	      0,
@@ -676,9 +669,9 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderN
 	      "# FEDsWithFEProblems"
 	      );
 
-  dqm_->setCurrentFolder(lBaseDir+"/Trends/Fiber");
+  ibooker.setCurrentFolder(lBaseDir+"/Trends/Fiber");
 
-  bookProfile(nUnlockedvsTime_,
+  bookProfile( ibooker , nUnlockedvsTime_,
 	      "nUnlockedvsTime",
 	      "Number of channels Unlocked vs time",
 	      0,
@@ -687,7 +680,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderN
 	      "# channels unlocked "
 	      );
 
-  bookProfile(nOutOfSyncvsTime_,
+  bookProfile( ibooker , nOutOfSyncvsTime_,
 	      "nOutOfSyncvsTime",
 	      "Number of channels OutOfSync vs time",
 	      0,
@@ -696,9 +689,9 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderN
 	      "# channels out-of-sync"
 	      );
 
-  dqm_->setCurrentFolder(lBaseDir+"/Trends/APV");
+  ibooker.setCurrentFolder(lBaseDir+"/Trends/APV");
 
-  bookProfile(nAPVStatusBitvsTime_,
+  bookProfile( ibooker , nAPVStatusBitvsTime_,
 	      "nAPVStatusBitvsTime",
 	      "Number of APVs with APVStatusBit error vs time",
 	      0,
@@ -707,7 +700,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderN
 	      "# APVs with APVStatusBit error"
 	      );
 
-  bookProfile(nAPVErrorvsTime_,
+  bookProfile( ibooker , nAPVErrorvsTime_,
 	      "nAPVErrorvsTime",
 	      "Number of APVs with APVError vs time",
 	      0,
@@ -716,7 +709,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderN
 	      "# APVs with APVError"
 	      );
 
-  bookProfile(nAPVAddressErrorvsTime_,
+  bookProfile( ibooker , nAPVAddressErrorvsTime_,
 	      "nAPVAddressErrorvsTime",
 	      "Number of APVs with APVAddressError vs time",
 	      0,
@@ -725,9 +718,9 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderN
 	      "# APVs with APVAddressError"
 	      );
 
-  dqm_->setCurrentFolder(lBaseDir+"/PerLumiSection");
+  ibooker.setCurrentFolder(lBaseDir+"/PerLumiSection");
 
-  bookHistogram(lumiErrorFraction_,
+  bookHistogram(ibooker , lumiErrorFraction_,
 		"lumiErrorFraction",
 		"Fraction of error per lumi section vs subdetector",
 		6,0.5,6.5,
@@ -746,14 +739,13 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm, std::string topFolderN
 
   //book map after, as it creates a new folder...
   if (tkMapConfig_.enabled){
-    //const std::string dqmPath = dqm_->pwd();
     tkmapFED_ = new TkHistoMap(topFolderName,"TkHMap_FractionOfBadChannels",0.,true);
   }
   else tkmapFED_ = 0;
 
 }
 
-void FEDHistograms::bookFEDHistograms(unsigned int fedId,
+void FEDHistograms::bookFEDHistograms(DQMStore::IBooker & ibooker , unsigned int fedId,
 				      bool fullDebugMode
 				      )
 {
@@ -766,26 +758,27 @@ void FEDHistograms::bookFEDHistograms(unsigned int fedId,
     SiStripFedKey fedKey(fedId,0,0,0);
     std::stringstream fedIdStream;
     fedIdStream << fedId;
-    dqm_->setCurrentFolder(fedKey.path());
-    bookHistogram(feOverflowDetailed_,
+    ibooker.setCurrentFolder(fedKey.path());
+
+    bookHistogram(ibooker , feOverflowDetailed_,
 		  feOverflowDetailedMap_[fedId],
 		  "FEOverflowsForFED"+fedIdStream.str(),
 		  "FE overflows per FE unit for FED ID "+fedIdStream.str(),
 		  sistrip::FEUNITS_PER_FED,0,sistrip::FEUNITS_PER_FED,
 		  "FE-Index");
-    bookHistogram(badMajorityAddressDetailed_,
+    bookHistogram(ibooker , badMajorityAddressDetailed_,
 		  badMajorityAddressDetailedMap_[fedId],
 		  "BadMajorityAddressesForFED"+fedIdStream.str(),
 		  "Bad majority APV addresses per FE unit for FED ID "+fedIdStream.str(),
 		  sistrip::FEUNITS_PER_FED,0,sistrip::FEUNITS_PER_FED,
 		  "FE-Index");
-    bookHistogram(feMissingDetailed_,
+    bookHistogram(ibooker , feMissingDetailed_,
 		  feMissingDetailedMap_[fedId],
 		  "FEMissingForFED"+fedIdStream.str(),
 		  "Buffers with FE Unit payload missing per FE unit for FED ID "+fedIdStream.str(),
 		  sistrip::FEUNITS_PER_FED,0,sistrip::FEUNITS_PER_FED,
 		  "FE-Index");
-    bookHistogram(badStatusBitsDetailed_,
+    bookHistogram(ibooker , badStatusBitsDetailed_,
 		  badStatusBitsDetailedMap_[fedId],
 		  "BadAPVStatusBitsForFED"+fedIdStream.str(),
 		  "Bad apv status bits for FED ID "+fedIdStream.str(),
@@ -798,27 +791,27 @@ void FEDHistograms::bookFEDHistograms(unsigned int fedId,
     SiStripFedKey fedKey(fedId,0,0,0);
     std::stringstream fedIdStream;
     fedIdStream << fedId;
-    dqm_->setCurrentFolder(fedKey.path());
+    ibooker.setCurrentFolder(fedKey.path());
 
-    bookHistogram(apvErrorDetailed_,
+    bookHistogram(ibooker , apvErrorDetailed_,
 		  apvErrorDetailedMap_[fedId],
 		  "APVErrorBitsForFED"+fedIdStream.str(),
 		  "APV errors for FED ID "+fedIdStream.str(),
 		  sistrip::APVS_PER_FED,0,sistrip::APVS_PER_FED,
 		  "APV-Index");
-    bookHistogram(apvAddressErrorDetailed_,
+    bookHistogram(ibooker , apvAddressErrorDetailed_,
 		  apvAddressErrorDetailedMap_[fedId],
 		  "APVAddressErrorBitsForFED"+fedIdStream.str(),
 		  "Wrong APV address errors for FED ID "+fedIdStream.str(),
 		  sistrip::APVS_PER_FED,0,sistrip::APVS_PER_FED,
 		  "APV-Index");
-    bookHistogram(unlockedDetailed_,
+    bookHistogram(ibooker , unlockedDetailed_,
 		  unlockedDetailedMap_[fedId],
 		  "UnlockedBitsForFED"+fedIdStream.str(),
 		  "Unlocked channels for FED ID "+fedIdStream.str(),
 		  sistrip::FEDCH_PER_FED,0,sistrip::FEDCH_PER_FED,
 		  "Channel-Index");
-    bookHistogram(outOfSyncDetailed_,
+    bookHistogram(ibooker , outOfSyncDetailed_,
 		  outOfSyncDetailedMap_[fedId],
 		  "OOSBitsForFED"+fedIdStream.str(),
 		  "Out of sync channels for FED ID "+fedIdStream.str(),
@@ -828,15 +821,14 @@ void FEDHistograms::bookFEDHistograms(unsigned int fedId,
   }
 }
 
-void FEDHistograms::bookAllFEDHistograms()
+void FEDHistograms::bookAllFEDHistograms(DQMStore::IBooker & ibooker , bool fullDebugMode )
 {
   //get FED IDs
   const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
   const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
   //book them
-  for (unsigned int iFed = siStripFedIdMin; iFed <= siStripFedIdMax; iFed++) {
-    bookFEDHistograms(iFed,true);
-  }
+  for (unsigned int iFed = siStripFedIdMin; iFed <= siStripFedIdMax; iFed++) 
+    bookFEDHistograms(ibooker , iFed, fullDebugMode);
 }
 
 bool FEDHistograms::tkHistoMapEnabled(unsigned int aIndex){

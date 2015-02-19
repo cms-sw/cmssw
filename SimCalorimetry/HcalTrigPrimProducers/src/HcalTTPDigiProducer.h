@@ -1,21 +1,21 @@
 #ifndef HcalTrigPrimProducers_HcalTTPDigiProducer_h
 #define HcalTrigPrimProducers_HcalTTPDigiProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-class HcalTTPDigiProducer : public edm::EDProducer
+class HcalTTPDigiProducer : public edm::stream::EDProducer<>
 {
 public:
 
   explicit HcalTTPDigiProducer(const edm::ParameterSet& ps);
-  virtual ~HcalTTPDigiProducer();
+  ~HcalTTPDigiProducer() = default;
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
 

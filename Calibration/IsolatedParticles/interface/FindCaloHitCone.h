@@ -33,23 +33,23 @@ namespace spr {
 
   // One Hit Collection
   template <typename T>
-  std::vector<typename T::const_iterator> findHitCone(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom);
+  std::vector<typename T::const_iterator> findHitCone(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, bool debug=false);
  
   // Two Hit Collections - needed for looping over Ecal Endcap/Barrel Hits
   template <typename T>
-  std::vector<typename T::const_iterator> findHitCone(const CaloGeometry* geo, edm::Handle<T>& barrelhits, edm::Handle<T>& endcaphits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom);
+  std::vector<typename T::const_iterator> findHitCone(const CaloGeometry* geo, edm::Handle<T>& barrelhits, edm::Handle<T>& endcaphits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, bool debug=false);
   
   //Ecal Endcap OR Barrel RecHits
-  std::vector<EcalRecHitCollection::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<EcalRecHitCollection>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR);
+  std::vector<EcalRecHitCollection::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<EcalRecHitCollection>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, bool debug=false);
 
   // Ecal Endcap AND Barrel RecHits
-  std::vector<EcalRecHitCollection::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<EcalRecHitCollection>& barrelhits, edm::Handle<EcalRecHitCollection>& endcaphits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom);
+  std::vector<EcalRecHitCollection::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<EcalRecHitCollection>& barrelhits, edm::Handle<EcalRecHitCollection>& endcaphits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, bool debug=false);
 
   //HBHE RecHits
-  std::vector<HBHERecHitCollection::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<HBHERecHitCollection>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom);
+  std::vector<HBHERecHitCollection::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<HBHERecHitCollection>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, bool debug=false);
   
   // PCalo SimHits
-  std::vector<edm::PCaloHitContainer::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<edm::PCaloHitContainer>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom);
+  std::vector<edm::PCaloHitContainer::const_iterator> findCone(const CaloGeometry* geo, edm::Handle<edm::PCaloHitContainer>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, bool debug=false);
 
 }
 

@@ -12,8 +12,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet & ps)
-  : dbe_( edm::Service<DQMStore>().operator->() ),
-    outputFile_( ps.getParameter<std::string>("outputFile") ),
+  : doSim_(ps.getParameter<bool>("doSim")),
     theSimHitMap(ps.getParameter<edm::InputTag>("simHitsTag"), consumesCollector()),
     theCSCGeometry(0),
     theStripDigiValidation(0),
@@ -22,29 +21,20 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet & ps)
     theALCTDigiValidation(0),
     theCLCTDigiValidation(0)
 {
-  dbe_->setCurrentFolder("MuonCSCDigisV/CSCDigiTask");
-  bool doSim = ps.getParameter<bool>("doSim");
-
-  theStripDigiValidation = new CSCStripDigiValidation(dbe_,
-                                                      ps.getParameter<edm::InputTag>("stripDigiTag"),
-                                                      consumesCollector(),
-                                                      doSim);
-  theWireDigiValidation  = new CSCWireDigiValidation(dbe_,
-                                                     ps.getParameter<edm::InputTag>("wireDigiTag"),
+  theStripDigiValidation = new CSCStripDigiValidation(ps.getParameter<edm::InputTag>("stripDigiTag"),
+                                                      consumesCollector());
+  theWireDigiValidation  = new CSCWireDigiValidation(ps.getParameter<edm::InputTag>("wireDigiTag"),
                                                      consumesCollector(),
-                                                     doSim);
-  theComparatorDigiValidation  = new CSCComparatorDigiValidation(dbe_,
-                                                                 ps.getParameter<edm::InputTag>("comparatorDigiTag"),
+                                                     doSim_);
+  theComparatorDigiValidation  = new CSCComparatorDigiValidation(ps.getParameter<edm::InputTag>("comparatorDigiTag"),
                                                                  ps.getParameter<edm::InputTag>("stripDigiTag"),
                                                                  consumesCollector());
-  theALCTDigiValidation = new CSCALCTDigiValidation(dbe_,
-                                                    ps.getParameter<edm::InputTag>("alctDigiTag"),
+  theALCTDigiValidation = new CSCALCTDigiValidation(ps.getParameter<edm::InputTag>("alctDigiTag"),
                                                     consumesCollector());
-  theCLCTDigiValidation = new CSCCLCTDigiValidation(dbe_,
-                                                    ps.getParameter<edm::InputTag>("clctDigiTag"),
+  theCLCTDigiValidation = new CSCCLCTDigiValidation(ps.getParameter<edm::InputTag>("clctDigiTag"),
                                                     consumesCollector());
 
-  if(doSim)
+  if(doSim_)
   {
     theStripDigiValidation->setSimHitMap(&theSimHitMap);
     theWireDigiValidation->setSimHitMap(&theSimHitMap);
@@ -52,10 +42,8 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet & ps)
   }
 }
 
-
 CSCDigiValidation::~CSCDigiValidation()
 {
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
   delete theStripDigiValidation;
   delete theWireDigiValidation;
   delete theComparatorDigiValidation;
@@ -63,11 +51,15 @@ CSCDigiValidation::~CSCDigiValidation()
   delete theCLCTDigiValidation;
 }
 
-
-void CSCDigiValidation::endJob() {
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+void CSCDigiValidation::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const & iRun, edm::EventSetup const & /* iSetup */)
+{
+  iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTask");
+  theStripDigiValidation->bookHistograms(iBooker, doSim_);
+  theWireDigiValidation->bookHistograms(iBooker);
+  theComparatorDigiValidation->bookHistograms(iBooker);
+  theALCTDigiValidation->bookHistograms(iBooker);
+  theCLCTDigiValidation->bookHistograms(iBooker);
 }
-
 
 void CSCDigiValidation::analyze(const edm::Event&e, const edm::EventSetup& eventSetup)
 {

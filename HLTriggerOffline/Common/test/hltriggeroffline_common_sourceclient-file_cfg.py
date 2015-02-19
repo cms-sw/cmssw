@@ -9,7 +9,7 @@ process.options = cms.untracked.PSet(
 
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #
 #  DQM SERVICES
 #
@@ -19,10 +19,6 @@ process.load("DQMServices.Core.DQM_cfg")
 #  DQM SOURCES
 #
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-
-process.load("HLTriggerOffline.Common.FourVectorHLTriggerOffline_cfi")
-process.load("HLTriggerOffline.Common.FourVectorHLTriggerOfflineClient_cfi")
-
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -69,7 +65,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout')
 )
 
-process.psource = cms.Path(process.hltriggerResults*process.hltriggerFourVectorClient)
+process.psource = cms.Path(process.hltriggerResults)
 process.p = cms.EndPath(process.dqmSaver)
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = ''

@@ -10,15 +10,11 @@
  */
 #include "DataFormats/Candidate/interface/component.h"
 #include "DataFormats/Candidate/interface/const_iterator.h"
-#include "DataFormats/Candidate/interface/iterator.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Math/interface/Error.h"
-#include "boost/iterator/filter_iterator.hpp"
 
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "Rtypes.h"
 
 #include "DataFormats/Candidate/interface/Particle.h"
 
@@ -28,7 +24,7 @@
 class OverlapChecker;
 
 namespace reco {
-  class Track; 
+  class Track;
   class Candidate {
   public:
     typedef size_t size_type;
@@ -81,10 +77,12 @@ namespace reco {
     virtual double energy() const = 0;
     /// transverse energy 
     virtual double et() const = 0;
+    /// transverse energy squared (use this for cut!)                                                                 
+    virtual double et2() const = 0;
     /// mass
-    virtual float mass() const = 0;
+    virtual double mass() const = 0;
     /// mass squared
-    virtual float massSqr() const = 0;
+    virtual double massSqr() const = 0;
     /// transverse mass
     virtual double mt() const = 0;
     /// transverse mass squared
@@ -96,13 +94,13 @@ namespace reco {
     /// z coordinate of momentum vector
     virtual double pz() const = 0;
     /// transverse momentum
-    virtual float pt() const = 0;
+    virtual double pt() const = 0;
     /// momentum azimuthal angle
-    virtual float phi() const = 0;
+    virtual double phi() const = 0;
     /// momentum polar angle
     virtual double theta() const = 0;
     /// momentum pseudorapidity
-    virtual float eta() const = 0;
+    virtual double eta() const = 0;
     /// rapidity
     virtual double rapidity() const = 0;
     /// rapidity
@@ -143,13 +141,13 @@ namespace reco {
     /// returns a clone of the Candidate object
     virtual Candidate * clone() const = 0;
     /// first daughter const_iterator
-    virtual const_iterator begin() const = 0;
+    const_iterator begin() const { return const_iterator(this,0);} 
     /// last daughter const_iterator
-    virtual const_iterator end() const = 0;
+    const_iterator end() const  { return const_iterator(this,numberOfDaughters());}
     /// first daughter iterator
-    virtual iterator begin() = 0;
+    iterator begin()  { return iterator(this,0);}  
     /// last daughter iterator
-    virtual iterator end() = 0;
+    iterator end()  { return iterator(this,numberOfDaughters());}
     /// number of daughters
     virtual size_type numberOfDaughters() const = 0;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
@@ -246,21 +244,12 @@ namespace reco {
       else return reco::numberOf<T, Tag>( * this ); 
     }
 
-    template<typename S> 
-      struct daughter_iterator {
-	typedef boost::filter_iterator<S, const_iterator> type;
-      };
-
-    template<typename S>
-      typename daughter_iterator<S>::type beginFilter( const S & s ) const {
-      return boost::make_filter_iterator(s, begin(), end());
-    }
-    template<typename S>
-      typename daughter_iterator<S>::type endFilter( const S & s ) const {
-      return boost::make_filter_iterator(s, end(), end());
-    }
-
     virtual const Track * bestTrack() const {return nullptr;}	
+ 
+    /// uncertainty on dz 
+    virtual float dzError() const {return 0;} // { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dzError(); else return 0; }
+    /// uncertainty on dxy
+    virtual float dxyError() const {return 0;} // { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dxyError(); else return 0; }
 
     virtual bool isElectron() const = 0;
     virtual bool isMuon() const = 0;
@@ -281,6 +270,14 @@ namespace reco {
     friend class ShallowClonePtrCandidate;
 
   };
+
+namespace candidate {
+
+const_iterator::reference const_iterator::operator*() const { return *(me->daughter(i));}
+iterator::reference iterator::operator*() const { return *(me->daughter(i));}
+
+
+}
 
 }
 

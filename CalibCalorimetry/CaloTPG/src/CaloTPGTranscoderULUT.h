@@ -1,11 +1,11 @@
 #ifndef CALOTPGTRANSCODERULUT_H
 #define CALOTPGTRANSCODERULUT_H 1
 
+#include <memory>
 #include <vector>
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 
 // tmp
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
 
 
@@ -35,9 +35,8 @@ public:
   virtual double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const;
   virtual bool HTvalid(const int ieta, const int iphi) const;
   virtual std::vector<unsigned char> getCompressionLUT(HcalTrigTowerDetId id) const;
-  virtual void setup(const edm::EventSetup& es, Mode) const;
+  virtual void setup(HcalLutMetadata const&, HcalTrigTowerGeometry const&);
   virtual int getOutputLUTId(const int ieta, const int iphi) const;
-  void printDecompression() const;
 
  private:
   // Typedef
@@ -52,17 +51,16 @@ public:
   static const bool newHFphi = true;
 
   // Member functions
-  void loadHCALCompress(void) const; //Analytical compression tables
-  void loadHCALCompress(const std::string& filename) const; //Compression tables from file
-  void loadHCALUncompress(void) const; //Analytical decompression
-  void loadHCALUncompress(const std::string& filename) const; //Decompression tables from file
+  void loadHCALCompress(HcalLutMetadata const&, HcalTrigTowerGeometry const&) ; //Analytical compression tables
+  void loadHCALCompress(const std::string& filename, HcalLutMetadata const&, HcalTrigTowerGeometry const&) ; //Compression tables from file
+  void loadHCALUncompress(HcalLutMetadata const&, HcalTrigTowerGeometry const&) ; //Analytical decompression
+  void loadHCALUncompress(const std::string& filename, HcalLutMetadata const&, HcalTrigTowerGeometry const&) ; //Decompression tables from file
   //int getLutGranularity(const DetId& id) const;
   //int getLutThreshold(const DetId& id) const;
 
   // Member Variables
-  mutable bool isLoaded_;
-  mutable double nominal_gain_;
-  mutable double rctlsb_factor_;
+  double nominal_gain_;
+  double rctlsb_factor_;
   std::string compressionFile_;
   std::string decompressionFile_;
   std::vector<int> ietal;
@@ -70,9 +68,7 @@ public:
   std::vector<int> ZS;
   std::vector<int> LUTfactor;
 
-  mutable LUT *outputLUT_[NOUTLUTS];
-  mutable std::vector<RCTdecompression> hcaluncomp_;
-  mutable edm::ESHandle<HcalLutMetadata> lutMetadata_;
-  mutable edm::ESHandle<HcalTrigTowerGeometry> theTrigTowerGeometry;
+  LUT *outputLUT_[NOUTLUTS];
+  std::vector<RCTdecompression> hcaluncomp_;
 };
 #endif

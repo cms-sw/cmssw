@@ -28,7 +28,7 @@ namespace edm
                  InputSourceDescription const& desc);
     virtual ~StreamerInputModule();
   private:
-    virtual void closeFile_() {
+    virtual void genuineCloseFile() override {
       if(pr_.get() != nullptr) pr_->closeFile();
     }
 

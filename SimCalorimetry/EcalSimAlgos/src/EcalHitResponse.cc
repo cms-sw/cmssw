@@ -28,7 +28,7 @@ EcalHitResponse::EcalHitResponse( const CaloVSimParameterMap* parameterMap ,
    m_hitFilter       ( 0            ) ,
    m_geometry        ( 0            ) ,
    m_lasercals       ( 0            ) ,
-   m_minBunch        ( -10          ) ,
+   m_minBunch        ( -32          ) ,
    m_maxBunch        (  10          ) ,
    m_phaseShift      ( 1            ) ,
    m_iTime           ( 0            ) ,
@@ -135,9 +135,7 @@ void
 EcalHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
 {
   if (!edm::isNotFinite( hit.time() ) && ( 0 == m_hitFilter || m_hitFilter->accepts( hit ) ) ) {
-
     putAnalogSignal( hit, engine ) ;
-
   }
 }
 

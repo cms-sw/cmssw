@@ -15,36 +15,36 @@
 // Original Author:  Ian Tomalin
 //
 
+#include <string>
+#include <vector>
+
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
-#include <typeinfo>
-#include <string>
-#include <vector>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 //
 // class declaration
 //
 
 template <typename T> 
-class HLTCollectionProducer : public edm::EDProducer {
+class HLTCollectionProducer : public edm::global::EDProducer<> {
 
   public:
     explicit HLTCollectionProducer(const edm::ParameterSet&);
     virtual ~HLTCollectionProducer();
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
   private:
-    edm::InputTag                                          hltObjectTag_;
-    edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> hltObjectToken_;
-    std::vector<int> triggerTypes_;
+    const edm::InputTag                                          hltObjectTag_;
+    const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> hltObjectToken_;
+    const std::vector<int> triggerTypes_;
 };
 
 
@@ -70,7 +70,7 @@ HLTCollectionProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag> ("HLTObject", edm::InputTag("TriggerFilterObjectWithRefs"));
   std::vector<int> triggerTypes;
   desc.add<std::vector<int> > ("TriggerTypes",triggerTypes);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTCollectionProducer<T>).name()), desc);
+  descriptions.add(defaultModuleLabel<HLTCollectionProducer<T>>(), desc);
 }
 
 //
@@ -80,7 +80,7 @@ HLTCollectionProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descr
 // ------------ method called to produce the data  ------------
 template <typename T>
 void
-HLTCollectionProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTCollectionProducer<T>::produce(edm::StreamID iStreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
 
   std::auto_ptr<std::vector<T> > collection ( new std::vector<T>() );

@@ -23,7 +23,7 @@ class testEventRange: public CppUnit::TestFixture {
 
    CPPUNIT_TEST_SUITE_END();
 public:
-      void setUp(){}
+   void setUp(){}
    void tearDown(){}
 
    void constructTest();
@@ -39,19 +39,18 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEventRange);
 void testEventRange::constructTest() {
    RunNumber_t const rb = 1;
    RunNumber_t const re = 2;
-   EventNumber_t const lb = 3;
-   EventNumber_t const le = 4;
+   EventNumber_t const lb { 30123456789ull };
+   EventNumber_t const le { 40123456789ull };
 
    EventRange normal(rb, 1, lb, re, 1, le);
    EventRange maxed(rb, 1, 0, re, 1, 0);
-   EventID    dummy;
 
    CPPUNIT_ASSERT(normal.startRun() == rb);
    CPPUNIT_ASSERT(normal.endRun()   == re);
    CPPUNIT_ASSERT(normal.startEvent() == lb);
    CPPUNIT_ASSERT(normal.endEvent()   == le);
-   CPPUNIT_ASSERT(maxed.startEventID().event() == dummy.maxEventNumber());
-   CPPUNIT_ASSERT(maxed.endEventID().event() == dummy.maxEventNumber());
+   CPPUNIT_ASSERT(maxed.startEventID().event() == EventID::maxEventNumber());
+   CPPUNIT_ASSERT(maxed.endEventID().event() == EventID::maxEventNumber());
 }
 
 void testEventRange::comparisonTest() {

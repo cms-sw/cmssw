@@ -63,8 +63,8 @@ class EcalTDigitizer
       EcalHitResponse* m_hitResponse    ;
       ElectronicsSim*  m_electronicsSim ;
       bool             m_addNoise       ;
-      EcalBaseSignalGenerator * theNoiseSignalGenerator;
 
+      EcalBaseSignalGenerator * theNoiseSignalGenerator;
 
 };
 

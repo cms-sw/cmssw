@@ -75,6 +75,7 @@ class L1RCTProducer : public edm::EDProducer
   bool getFedsFromOmds;
   unsigned int queryDelayInLS;
   unsigned int queryIntervalInLS;
+  std::string conditionsLabel;
 
   //Create a channel mask object to be updated at every Run....
   L1RCTChannelMask* fedUpdatedMask;

@@ -51,18 +51,18 @@ bool CandViewRefRandomSelector::filter(edm::Event& evt,
   std::auto_ptr<reco::CandidateBaseRefVector> output(
       new reco::CandidateBaseRefVector(cands));
   // If we don't have enough elements to select, just copy what we have
-  const reco::CandidateBaseRefVector &inputRefs = cands->refVector();
-  if (inputRefs.size() <= choose_) {
-    *output = inputRefs;
+  if (cands->size() <= choose_) {
+    for (size_t i = 0; i < cands->size(); ++i)
+        output->push_back(cands->refAt(i));
   } else {
-    for (size_t i = 0; i < inputRefs.size() && output->size() < choose_; ++i) {
+    for (size_t i = 0; i < cands->size() && output->size() < choose_; ++i) {
       // based on http://stackoverflow.com/questions/48087/
       // select-a-random-n-elements-from-listt-in-c/48089#48089
       double selectionProb =
-          (choose_ - output->size())*1.0/(inputRefs.size() - i);
+          (choose_ - output->size())*1.0/(cands->size() - i);
       // throw a number to see if we select this element
       if (randy_.Rndm() < selectionProb)
-        output->push_back(inputRefs[i]);
+        output->push_back(cands->refAt(i));
     }
   }
   size_t outputSize = output->size();

@@ -1,8 +1,10 @@
-
 /*
  * \file DTDataIntegrityTest.cc
  * 
  * \author S. Bolognesi - CERN
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah ncpp-um-my
+ *
  *
  */
 
@@ -31,8 +33,9 @@ DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps) : nevents(0) {
 
   // prescale on the # of LS to update the test
   prescaleFactor = ps.getUntrackedParameter<int>("diagnosticPrescale", 1);
-
-
+ 
+  bookingdone = 0;
+ 
 }
 
 
@@ -42,65 +45,41 @@ DTDataIntegrityTest::~DTDataIntegrityTest(){
 
 }
 
+  void DTDataIntegrityTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+                                          edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
 
-void DTDataIntegrityTest::beginJob(){
 
-  LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") << "[DTDataIntegrityTest]: BeginJob";
-
+  if (!bookingdone) {
+  
   //nSTAEvents = 0;
   nupdates = 0;
   run=0;
-
-  dbe = Service<DQMStore>().operator->();
   
   // book the summary histogram
-  dbe->setCurrentFolder("DT/00-DataIntegrity");
-  summaryHisto = dbe->book2D("DataIntegritySummary","Summary Data Integrity",12,1,13,5,-2,3);
+
+  ibooker.setCurrentFolder("DT/00-DataIntegrity");
+
+  summaryHisto = ibooker.book2D("DataIntegritySummary","Summary Data Integrity",12,1,13,5,-2,3);
   summaryHisto->setAxisTitle("Sector",1);
   summaryHisto->setAxisTitle("Wheel",2);
 
-  dbe->setCurrentFolder("DT/00-DataIntegrity");
-  summaryTDCHisto = dbe->book2D("DataIntegrityTDCSummary","TDC Summary Data Integrity",12,1,13,5,-2,3);
+  ibooker.setCurrentFolder("DT/00-DataIntegrity");
+
+  summaryTDCHisto = ibooker.book2D("DataIntegrityTDCSummary","TDC Summary Data Integrity",12,1,13,5,-2,3);
   summaryTDCHisto->setAxisTitle("Sector",1);
   summaryTDCHisto->setAxisTitle("Wheel",2);
 
-  dbe->setCurrentFolder("DT/00-DataIntegrity");
-  glbSummaryHisto = dbe->book2D("DataIntegrityGlbSummary","Summary Data Integrity",12,1,13,5,-2,3);
+  ibooker.setCurrentFolder("DT/00-DataIntegrity");
+
+  glbSummaryHisto = ibooker.book2D("DataIntegrityGlbSummary","Summary Data Integrity",12,1,13,5,-2,3);
   glbSummaryHisto->setAxisTitle("Sector",1);
   glbSummaryHisto->setAxisTitle("Wheel",2);
 
-}
-
-void DTDataIntegrityTest::beginRun(const Run& run, const EventSetup& context){
-
   context.get<DTReadOutMappingRcd>().get(mapping);
 
-}
+  }
+  bookingdone = 1; 
 
-
-
-void DTDataIntegrityTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-
-  LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]: Begin of LS transition";
-
-  // Get the run number
-  run = lumiSeg.run();
-
-}
-
-
-
-void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
-  // count the analyzed events
-  nevents++;
-  if(nevents%1000 == 0)
-    LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest")
-      << "[DTDataIntegrityTest]: "<<nevents<<" events";
-}
-
-
-
-void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
@@ -132,21 +111,21 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
     
     //Check if the list of ROS is compatible with the channels enabled
     string rosStatusName = "DT/00-DataIntegrity/FED" + dduId_s.str() + "/FED" + dduId_s.str() + "_ROSStatus";
-    MonitorElement * FED_ROSStatus = dbe->get(rosStatusName);
+    MonitorElement * FED_ROSStatus = igetter.get(rosStatusName);
      
     // Get the error summary histo
     string fedSummaryName = "DT/00-DataIntegrity/FED" + dduId_s.str() + "_ROSSummary";
-    MonitorElement * FED_ROSSummary = dbe->get(fedSummaryName);
+    MonitorElement * FED_ROSSummary = igetter.get(fedSummaryName);
 
     // Get the event lenght plot (used to counr # of processed evts)
     string fedEvLenName = "DT/00-DataIntegrity/FED" + dduId_s.str() + "/FED" + dduId_s.str() + "_EventLenght";
-    MonitorElement * FED_EvLenght = dbe->get(fedEvLenName);
+    MonitorElement * FED_EvLenght = igetter.get(fedEvLenName);
 
     // Get the histos for FED integrity
     string fedIntegrityFolder = "DT/FEDIntegrity/";
-    MonitorElement * hFEDEntry = dbe->get(fedIntegrityFolder+"FEDEntries");
-    MonitorElement * hFEDFatal = dbe->get(fedIntegrityFolder+"FEDFatal");
-    MonitorElement * hFEDNonFatal = dbe->get(fedIntegrityFolder+"FEDNonFatal");
+    MonitorElement * hFEDEntry = igetter.get(fedIntegrityFolder+"FEDEntries");
+    MonitorElement * hFEDFatal = igetter.get(fedIntegrityFolder+"FEDFatal");
+    MonitorElement * hFEDNonFatal = igetter.get(fedIntegrityFolder+"FEDNonFatal");
 
     if(hFEDEntry && hFEDFatal && hFEDNonFatal) {
 
@@ -209,16 +188,10 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
   
 }
 
-
-
-void DTDataIntegrityTest::endJob(){
+void DTDataIntegrityTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest] endjob called!";
-
-//   dbe->rmdir("DT/DTDataIntegrity");
 }
-
-
 
 string DTDataIntegrityTest::getMEName(string histoType, int FEDId){
   //Use the DDU name to find the ME
@@ -230,11 +203,10 @@ string DTDataIntegrityTest::getMEName(string histoType, int FEDId){
   return histoName;
 }
 
-
-
-void DTDataIntegrityTest::bookHistos(string histoType, int dduId){
+void DTDataIntegrityTest::bookHistos(DQMStore::IBooker & ibooker, string histoType, int dduId){
   stringstream dduId_s; dduId_s << dduId;
-  dbe->setCurrentFolder("DT/00-DataIntegrity/FED" + dduId_s.str());
+
+  ibooker.setCurrentFolder("DT/00-DataIntegrity/FED" + dduId_s.str());
   string histoName;
 
 }

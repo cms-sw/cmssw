@@ -9,7 +9,6 @@
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -23,6 +22,7 @@
 //#include "DataFormats/DetId/interface/DetId.h"
 
 //DQM services
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -71,19 +71,18 @@
 #include "TString.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-class GlobalHitsHistogrammer : public edm::EDAnalyzer
-{
-  
+class GlobalHitsHistogrammer : public DQMEDAnalyzer {
+
  public:
 
   //typedef std::vector<float> FloatVector;
 
   explicit GlobalHitsHistogrammer(const edm::ParameterSet&);
   virtual ~GlobalHitsHistogrammer();
-  virtual void beginJob( void );
-  virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  
+  void bookHistograms(DQMStore::IBooker &,
+      edm::Run const &, edm::EventSetup const &) override;
+
  private:
 
   //  parameter information
@@ -95,7 +94,6 @@ class GlobalHitsHistogrammer : public edm::EDAnalyzer
   bool getAllProvenances;
   bool printProvenanceInfo;
 
-  DQMStore *dbe;
   std::string outputfile;
   bool doOutput;
 

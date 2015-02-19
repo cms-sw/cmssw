@@ -43,6 +43,7 @@ namespace ecaldqm {
 
     int emptyLS_;
     int emptyLSLimit_;
+    int maxPedestal_;
   };
 
   inline bool LaserTask::analyze(void const* _p, Collections _collection){

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 	<SolidSection label="muonYoke.xml">
 		<Cone name="YN12_a" dz="0.245*m" rMin1="0.9243*m" rMax1="2.6300*m" rMin2="0.8900*m" rMax2="2.6300*m" startPhi="75*deg" deltaPhi="30*deg"/>
 		<Tubs name="YN12_b" rMin="0.7250*m" rMax="2.6300*m" dz="0.0500*m" startPhi="75*deg" deltaPhi="30*deg"/>

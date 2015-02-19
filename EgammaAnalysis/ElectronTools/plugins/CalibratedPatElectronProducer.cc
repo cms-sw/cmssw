@@ -194,7 +194,11 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
             double trackMomentum = ele->trackMomentumAtVtx().R();
             double trackMomentumError = ele->trackMomentumError();
             double combinedMomentum = ele->p();
-            double combinedMomentumError = ele->p4Error(ele->candidateP4Kind());
+            double combinedMomentumError = 0;
+            if ( ele->candidateP4Kind() != GsfElectron::P4_UNKNOWN )
+            {
+              combinedMomentumError = ele->p4Error(ele->candidateP4Kind());
+            }
             // FIXME : p4Error not filled for pure tracker electrons
             // Recompute it using the parametrization implemented in
             // RecoEgamma/EgammaElectronAlgos/src/ElectronEnergyCorrector.cc::simpleParameterizationUncertainty()
@@ -297,7 +301,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
                    oldMomentum.z()*mySimpleElectron.getCombinedMomentum()/oldMomentum.t(),
                    mySimpleElectron.getCombinedMomentum() ) ;
 
-                ele->correctMomentum
+                 ele->correctMomentum
                     (
                         newMomentum_,
                         mySimpleElectron.getTrackerMomentumError(),

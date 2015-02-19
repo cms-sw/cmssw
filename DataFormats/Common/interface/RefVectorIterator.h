@@ -38,9 +38,18 @@ namespace edm {
       key_type const& key = iter_[n];
       return value_type(product_, key);
     }
-    std::auto_ptr<value_type> operator->() const {
+
+    class RefProxy {
+    public:
+      RefProxy(value_type const& ref) : ref_(ref) { }
+      value_type const* operator->() const { return &ref_; }
+    private:
+      value_type ref_;
+    };
+
+    RefProxy operator->() const {
       key_type const& key = *iter_;
-      return std::auto_ptr<value_type>(new value_type(product_, key));
+      return RefProxy(value_type(product_, key));
     }
     iterator & operator++() {++iter_; return *this;}
     iterator & operator--() {--iter_; return *this;}
@@ -60,6 +69,8 @@ namespace edm {
     bool operator>(iterator const& rhs) const {return this->iter_ > rhs.iter_;}
     bool operator<=(iterator const& rhs) const {return this->iter_ <= rhs.iter_;}
     bool operator>=(iterator const& rhs) const {return this->iter_ >= rhs.iter_;}
+
+    key_type  key() const { return *iter_;}
 
   private:
     RefCore product_;

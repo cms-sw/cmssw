@@ -17,6 +17,7 @@ looseMTS = cms.PSet(
     chi2n_par = cms.double(1.6),
     chi2n_no1Dmod_par = cms.double(9999),
     res_par = cms.vdouble(0.003, 0.01),
+#   second param is actually an	int
     d0_par1 = cms.vdouble(0.55, 4.0),
     dz_par1 = cms.vdouble(0.65, 4.0),
     d0_par2 = cms.vdouble(0.55, 4.0),
@@ -54,6 +55,7 @@ looseMTS = cms.PSet(
 
 tightMTS=looseMTS.clone(
     preFilterName='TrkLoose',
+#   second param is actually an int
     d0_par1 = cms.vdouble(0.3, 4.0),
     dz_par1 = cms.vdouble(0.35,4.0),
     d0_par2 = cms.vdouble(0.4, 4.0),
@@ -82,7 +84,7 @@ multiTrackSelector = cms.EDProducer("MultiTrackSelector",
    beamspot = cms.InputTag("offlineBeamSpot"),
    useVertices = cms.bool(True),
    useVtxError = cms.bool(False),
-   vertices    = cms.InputTag("pixelVertices"),
+   vertices    = cms.InputTag("firstStepPrimaryVertices"),
    trackSelectors = cms.VPSet( looseMTS,
                                tightMTS,
                                highpurityMTS)

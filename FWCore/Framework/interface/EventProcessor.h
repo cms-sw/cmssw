@@ -15,6 +15,7 @@ configured in the user's main() function, and is set running.
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/IEventProcessor.h"
 #include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
@@ -46,6 +47,7 @@ namespace edm {
 
   class ExceptionToActionTable;
   class BranchIDListHelper;
+  class ThinnedAssociationsHelper;
   class EDLooperBase;
   class HistoryAppender;
   class ProcessDesc;
@@ -255,6 +257,7 @@ namespace edm {
     std::shared_ptr<ActivityRegistry>           actReg_;
     std::shared_ptr<ProductRegistry const>      preg_;
     std::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
+    std::shared_ptr<ThinnedAssociationsHelper>  thinnedAssociationsHelper_;
     ServiceToken                                  serviceToken_;
     std::unique_ptr<InputSource>                  input_;
     std::unique_ptr<eventsetup::EventSetupsController> espController_;
@@ -262,6 +265,7 @@ namespace edm {
     std::unique_ptr<ExceptionToActionTable const>          act_table_;
     std::shared_ptr<ProcessConfiguration const>       processConfiguration_;
     ProcessContext                                processContext_;
+    PathsAndConsumesOfModules                     pathsAndConsumesOfModules_;
     std::auto_ptr<Schedule>                       schedule_;
     std::auto_ptr<SubProcess>                     subProcess_;
     std::unique_ptr<HistoryAppender>            historyAppender_;

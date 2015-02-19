@@ -6,10 +6,11 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <string>
 
-class L1TGMTClient: public edm::EDAnalyzer {
+class L1TGMTClient: public DQMEDHarvester {
 
 public:
 
@@ -21,50 +22,24 @@ public:
 
 protected:
 
-    /// BeginJob
-    void beginJob();
-
-    /// BeginRun
-    void beginRun(const edm::Run&, const edm::EventSetup&);
-
-    /// Fake Analyze
-    void analyze(const edm::Event&, const edm::EventSetup&);
-
-    void beginLuminosityBlock(const edm::LuminosityBlock&,
-            const edm::EventSetup&);
-
-    /// DQM Client Diagnostic
-    void
-    endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-
-    /// EndRun
-    void endRun(const edm::Run&, const edm::EventSetup&);
-
-    /// Endjob
-    void endJob();
+    virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)override;
+    virtual void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup);
 
 private:
 
     void initialize();
-    void processHistograms();
-    void makeRatio1D(MonitorElement* mer, std::string h1Name,
-            std::string h2Name);
-    void makeEfficiency1D(MonitorElement *meeff, std::string heName,
-            std::string hiName);
-    void makeEfficiency2D(MonitorElement *meeff, std::string heName,
-            std::string hiName);
-    TH1F * get1DHisto(std::string meName, DQMStore* dbi);
-    TH2F * get2DHisto(std::string meName, DQMStore* dbi);
+    void processHistograms(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
+    void makeRatio1D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, MonitorElement* mer, std::string h1Name, std::string h2Name);
+    void makeEfficiency1D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, MonitorElement *meeff, std::string heName, std::string hiName);
+    void makeEfficiency2D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, MonitorElement *meeff, std::string heName, std::string hiName);
+    TH1F * get1DHisto(std::string meName, DQMStore::IGetter &igetter);
+    TH2F * get2DHisto(std::string meName, DQMStore::IGetter &igetter);
 
-    MonitorElement* bookClone1D(const std::string& name,
-            const std::string& title, const std::string& hrefName);
-    MonitorElement* bookClone1DVB(const std::string& name,
-            const std::string& title, const std::string& hrefName);
-    MonitorElement* bookClone2D(const std::string& name,
-            const std::string& title, const std::string& hrefName);
+    MonitorElement* bookClone1D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const std::string& name, const std::string& title, const std::string& hrefName);
+    MonitorElement* bookClone1DVB(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const std::string& name, const std::string& title, const std::string& hrefName);
+    MonitorElement* bookClone2D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const std::string& name, const std::string& title, const std::string& hrefName);
 
     edm::ParameterSet parameters_;
-    DQMStore* dbe_;
     std::string monitorName_;
     std::string input_dir_;
     std::string output_dir_;

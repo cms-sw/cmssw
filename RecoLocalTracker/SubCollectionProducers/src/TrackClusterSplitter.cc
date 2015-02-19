@@ -431,7 +431,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                     }
                 }  
 
-	      const TrackingRecHit *hit = it_hit->get();
+	      const TrackingRecHit *hit = *it_hit;
 	      if ( hit == 0 || !hit->isValid() )
 		continue;
 	      
@@ -466,7 +466,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  trackingRecHit_iterator it_hit = track.recHitsBegin(), ed_hit = track.recHitsEnd();
 	  for (; it_hit != ed_hit; ++it_hit) 
 	    {
-	      const TrackingRecHit *hit = it_hit->get();
+	      const TrackingRecHit *hit = *it_hit;
 	      if ( hit == 0 || !hit->isValid() ) 
 		continue;
 	      
@@ -613,7 +613,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 
       size_t splittableClusterSize = 0;
       splittableClusterSize = associatedIdpr.size();
-      std::vector<uint8_t> amp = clust->amplitudes();
+      auto const & amp = clust->amplitudes();
       int clusiz = amp.size();
       associatedIdpr.clear();
 

@@ -45,7 +45,7 @@ ALCARECOCalibrationTracks = AlignmentTrackSelector.clone(
 # FIXME: the beam-spot should be kept in the AlCaReco (if not already there) and dropped from here
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
-from RecoTracker.TrackProducer.TrackRefitters_cff import *
+from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 ALCARECOCalibrationTracksRefit = TrackRefitter.clone(src = cms.InputTag("ALCARECOCalibrationTracks"))
 
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *

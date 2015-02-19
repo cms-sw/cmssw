@@ -41,7 +41,7 @@ process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
 # Condition for lxplus
 #process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
 
-#process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #-------------------------------------
@@ -125,7 +125,8 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 # remove module(s) or system sequence from l1tMonitorPath
 #        quality test disabled also
 #
-#process.l1tMonitorOnline.remove(process.bxTiming)
+process.l1tMonitorOnline.remove(process.bxTiming)
+process.l1tMonitorOnline.remove(process.l1tBPTX)
 
 #process.l1tMonitorOnline.remove(process.l1tLtc)
 
@@ -141,7 +142,7 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 
 #process.l1tMonitorOnline.remove(process.l1ExtraDqmSeq)
 
-#process.l1tMonitorOnline.remove(process.l1tRate)
+process.l1tMonitorOnline.remove(process.l1tRate)
 
 #process.l1tMonitorOnline.remove(process.l1tRctSeq)
 
@@ -154,7 +155,7 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 #process.l1tMonitorEndPathSeq.remove(process.l1tscalers)
 
 #
-#process.schedule.remove(process.l1tSyncPath)
+process.schedule.remove(process.l1tSyncPath)
 
 # 
 # un-comment next lines in case you use the file for private tests on the playback server
@@ -205,3 +206,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.bxTiming.FedSource = cms.untracked.InputTag("rawDataRepacker")
     process.l1s.fedRawData = cms.InputTag("rawDataRepacker")
+
+### process customizations included here
+from DQM.Integration.test.online_customizations_cfi import *
+process = customise(process)

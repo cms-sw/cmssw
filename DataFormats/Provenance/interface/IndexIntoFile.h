@@ -110,9 +110,7 @@ hold the information giving the event numbers and
 event entry numbers.
 
 eventNumbers_ is a std::vector containing EventNumber_t's.
-Each element is a 4 byte int.  eventEntries_ is a
-std::vector containing EventEntry's.  Each EventEntry
-contains a 4 byte event number and an 8 byte entry number.
+eventEntries_ is a std::vector containing EventEntry's.
 If filled, both vectors contain the same number of
 entries with identical event numbers sorted in the
 same order.  The only difference is that one includes
@@ -924,7 +922,7 @@ namespace edm {
       /// pointer to its base class.
       void setEventFinder(std::shared_ptr<EventFinder> ptr) const {transient_.eventFinder_ = ptr;}
 
-      /// Fills a vector of 4 byte event numbers.
+      /// Fills a vector of event numbers.
       /// Not filling it reduces the memory used by IndexIntoFile.
       /// As long as the event finder is still pointing at an open file
       /// this will automatically be called on demand (when the event
@@ -939,8 +937,8 @@ namespace edm {
       /// in the current file without reading them.
       void fillEventNumbers() const;
 
-      /// Fills a vector of objects that contain a 4 byte event number and
-      /// the corresponding TTree entry number (8 bytes) for the event.
+      /// Fills a vector of objects that contain an event number and
+      /// the corresponding TTree entry number for the event.
       /// Not filling it reduces the memory used by IndexIntoFile.
       /// As long as the event finder is still pointing at an open file
       /// this will automatically be called on demand (when the event

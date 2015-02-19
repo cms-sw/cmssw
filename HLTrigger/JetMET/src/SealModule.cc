@@ -24,6 +24,7 @@
 
 //Work with all jet collections without changing the module name
 #include "HLTrigger/JetMET/interface/HLTHtMhtProducer.h"
+#include "HLTrigger/JetMET/interface/HLTCaloTowerHtMhtProducer.h"
 #include "HLTrigger/JetMET/interface/HLTMhtProducer.h"
 #include "HLTrigger/JetMET/interface/HLTTrackMETProducer.h"
 #include "HLTrigger/JetMET/interface/HLTMinDPhiMETFilter.h"
@@ -40,6 +41,15 @@
 //
 #include "HLTrigger/JetMET/interface/HLTDiJetAveFilter.h"
 #include "HLTrigger/JetMET/src/HLTDiJetAveFilter.cc"
+//
+#include "HLTrigger/JetMET/interface/HLTDiJetAveEtaFilter.h"
+#include "HLTrigger/JetMET/src/HLTDiJetAveEtaFilter.cc"
+//
+#include "HLTrigger/JetMET/interface/HLTDiJetEtaTopologyFilter.h"
+#include "HLTrigger/JetMET/src/HLTDiJetEtaTopologyFilter.cc"
+//
+#include "HLTrigger/JetMET/interface/HLTJetEtaTopologyFilter.h"
+#include "HLTrigger/JetMET/src/HLTJetEtaTopologyFilter.cc"
 //
 #include "HLTrigger/JetMET/interface/HLTJetSortedVBFFilter.h"
 #include "HLTrigger/JetMET/src/HLTJetSortedVBFFilter.cc"
@@ -91,6 +101,15 @@ typedef HLTAlphaTFilter<  PFJet> HLTAlphaTPFJetFilter;
 
 typedef HLTDiJetAveFilter<CaloJet> HLTDiCaloJetAveFilter;
 typedef HLTDiJetAveFilter<  PFJet> HLTDiPFJetAveFilter;
+
+typedef HLTDiJetAveEtaFilter<CaloJet> HLTDiCaloJetAveEtaFilter;
+typedef HLTDiJetAveEtaFilter<  PFJet> HLTDiPFJetAveEtaFilter;
+
+typedef HLTDiJetEtaTopologyFilter<CaloJet> HLTDiCaloJetEtaTopologyFilter;
+typedef HLTDiJetEtaTopologyFilter<  PFJet> HLTDiPFJetEtaTopologyFilter;
+
+typedef HLTJetEtaTopologyFilter<CaloJet> HLTCaloJetEtaTopologyFilter;
+typedef HLTJetEtaTopologyFilter<  PFJet> HLTPFJetEtaTopologyFilter;
 
 typedef HLTJetSortedVBFFilter<CaloJet> HLTCaloJetSortedVBFFilter;
 typedef HLTJetSortedVBFFilter<  PFJet> HLTPFJetSortedVBFFilter;
@@ -157,6 +176,7 @@ DEFINE_FWK_MODULE(HLTMETCleanerUsingJetID);
 //Work with all jet collections without changing the module name
 DEFINE_FWK_MODULE(HLTMhtProducer);
 DEFINE_FWK_MODULE(HLTHtMhtProducer);
+DEFINE_FWK_MODULE(HLTCaloTowerHtMhtProducer);
 DEFINE_FWK_MODULE(HLTTrackMETProducer);
 DEFINE_FWK_MODULE(HLTMinDPhiMETFilter);
 
@@ -193,6 +213,15 @@ DEFINE_FWK_MODULE(HLTPFJetsCleanedFromLeadingLeptons);
 
 DEFINE_FWK_MODULE(HLTDiCaloJetAveFilter);
 DEFINE_FWK_MODULE(HLTDiPFJetAveFilter);
+
+DEFINE_FWK_MODULE(HLTDiCaloJetAveEtaFilter);
+DEFINE_FWK_MODULE(HLTDiPFJetAveEtaFilter);
+
+DEFINE_FWK_MODULE(HLTDiCaloJetEtaTopologyFilter);
+DEFINE_FWK_MODULE(HLTDiPFJetEtaTopologyFilter);
+
+DEFINE_FWK_MODULE(HLTCaloJetEtaTopologyFilter);
+DEFINE_FWK_MODULE(HLTPFJetEtaTopologyFilter);
 
 DEFINE_FWK_MODULE(HLTCaloJetL1MatchProducer);
 DEFINE_FWK_MODULE(HLTPFJetL1MatchProducer);

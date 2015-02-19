@@ -4,6 +4,7 @@ Collections sizes
 ElectronMcSignalValidator/h_recEleNum                       1 1 1 0
 ElectronMcSignalValidator/h_recCoreNum                      1 1 1 0
 ElectronMcSignalValidator/h_recTrackNum                     1 1 1 0
+ElectronMcSignalValidator/h_recOfflineVertices              1 1 1 0
 ElectronMcSignalValidator/h_recSeedNum                      1 1 1 1
 
 Basic electron quantities
@@ -113,6 +114,9 @@ ElectronMcSignalValidator/h_ele_HoE_fiducial                1 1 1 0
 ElectronMcSignalValidator/h_scl_sigietaieta                 1 1 0 0
 ElectronMcSignalValidator/h_scl_sigietaieta_barrel          1 1 0 0
 ElectronMcSignalValidator/h_scl_sigietaieta_endcaps         1 1 1 0
+ElectronMcSignalValidator/h_scl_full5x5_sigietaieta                 1 1 0 0
+ElectronMcSignalValidator/h_scl_full5x5_sigietaieta_barrel          1 1 0 0
+ElectronMcSignalValidator/h_scl_full5x5_sigietaieta_endcaps         1 1 1 0
 ElectronMcSignalValidator/h_scl_E1x5                        1 1 0 0
 ElectronMcSignalValidator/h_scl_E1x5_barrel                 1 1 0 0
 ElectronMcSignalValidator/h_scl_E1x5_endcaps                1 1 1 0
@@ -166,6 +170,9 @@ ElectronMcSignalValidator/h_ele_PinMnPout_mode              1 1 1 0
 ElectronMcSignalValidator/h_ele_fbrem                       1 1 0 0
 ElectronMcSignalValidator/h_ele_fbrem_barrel                1 1 0 0
 ElectronMcSignalValidator/h_ele_fbrem_endcaps               1 1 1 0
+ElectronMcSignalValidator/h_ele_superclusterfbrem                               1 1 0 0
+ElectronMcSignalValidator/h_ele_superclusterfbrem_barrel                        1 1 0 0
+ElectronMcSignalValidator/h_ele_superclusterfbrem_endcaps                       1 1 1 0
 ElectronMcSignalValidator/h_ele_classes                     1 1 1 0
 ElectronMcSignalValidator/h_ele_eta_goldenFrac              0 0 1 0 0 ElectronMcSignalValidator/h_ele_eta_golden ElectronMcSignalValidator/h_ele_eta
 ElectronMcSignalValidator/h_ele_eta_bbremFrac               0 0 1 0 0 ElectronMcSignalValidator/h_ele_eta_bbrem  ElectronMcSignalValidator/h_ele_eta
@@ -212,17 +219,6 @@ ElectronMcSignalValidator/h_ele_hcalTowerSumEtBc_dr04_depth2         1 1 0 0
 ElectronMcSignalValidator/h_ele_hcalTowerSumEtBc_dr04_depth2_barrel  1 1 0 0
 ElectronMcSignalValidator/h_ele_hcalTowerSumEtBc_dr04_depth2_endcaps 1 1 1 1
 
-Difference with isolation from deposits
-
-ElectronMcSignalValidator/h_ele_dIso_tkSumPt_dr03                        1 1 0 0
-ElectronMcSignalValidator/h_ele_dIso_tkSumPt_dr04                        1 1 1 0
-ElectronMcSignalValidator/h_ele_dIso_ecalFullRecHitSumEt_dr03            1 1 0 0
-ElectronMcSignalValidator/h_ele_dIso_ecalFullRecHitSumEt_dr04            1 1 1 0
-ElectronMcSignalValidator/h_ele_dIso_ecalReducedRecHitSumEt_dr03         1 1 0 0
-ElectronMcSignalValidator/h_ele_dIso_ecalReducedRecHitSumEt_dr04         1 1 1 0
-ElectronMcSignalValidator/h_ele_dIso_hcalTowerSumEt_dr03                 1 1 0 0
-ElectronMcSignalValidator/h_ele_dIso_hcalTowerSumEt_dr04                 1 1 1 1
-
 Distributions for all reconstructed electrons (i.e. not requiring a match with mc truth)
 
 ElectronMcSignalValidator/h_ele_EoverP_all          1 1 1 0
@@ -247,7 +243,7 @@ ElectronMcSignalValidator/h_ele_ptQmisid      0 1 1 0 0 ElectronMcSignalValidato
 ElectronMcSignalValidator/h_ele_zQmisid       0 1 1 0 0 ElectronMcSignalValidator/h_mc_Z_matched_qmisid      ElectronMcSignalValidator/h_mc_Z
 ElectronMcSignalValidator/h_ele_chargeInfo    1 1 1 1 0
 
-Provenance and pflow data
+Provenance
 
 ElectronMcSignalValidator/h_ele_provenance                  1 1 0 0
 ElectronMcSignalValidator/h_ele_provenance_barrel           1 1 0 0
@@ -255,6 +251,12 @@ ElectronMcSignalValidator/h_ele_provenance_endcaps          1 1 1 0
 ElectronMcSignalValidator/h_ele_mva                         1 1 0 0
 ElectronMcSignalValidator/h_ele_mva_barrel                  1 1 0 0
 ElectronMcSignalValidator/h_ele_mva_endcaps                 1 1 1 0
+ElectronMcSignalValidator/h_ele_mva_isolated                1 1 0 0
+ElectronMcSignalValidator/h_ele_mva_isolated_barrel         1 1 0 0
+ElectronMcSignalValidator/h_ele_mva_isolated_endcaps        1 1 1 1
+
+pflow variables
+
 ElectronMcSignalValidator/h_ele_chargedHadronIso           1 1 0 0
 ElectronMcSignalValidator/h_ele_chargedHadronIso_barrel    1 1 0 0
 ElectronMcSignalValidator/h_ele_chargedHadronIso_endcaps   1 1 1 0

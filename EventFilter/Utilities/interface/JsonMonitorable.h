@@ -14,6 +14,7 @@
 #include <memory>
 //#include "EventFilter/Utilities/interface/Utils.h"
 #include <iostream>
+#include "json.h"
 
 namespace jsoncollector {
 
@@ -221,6 +222,13 @@ public:
 		ss << "]";
 		return ss.str();
 	}
+	virtual Json::Value toJsonValue() const { //TODO
+                Json::Value jsonValue(Json::arrayValue);
+		for (unsigned int i = 0; i < histo_.size(); i++) {
+                  jsonValue.append(histo_[i]);
+                }
+                return jsonValue;
+        }
 	virtual void resetValue() {
 		histo_.clear();
 		histo_.reserve(expectedSize_);

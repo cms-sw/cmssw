@@ -1,6 +1,4 @@
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -26,9 +24,9 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
-#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
+//#include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <vector>
@@ -37,24 +35,24 @@
 //#include "TTree.h"
 //#include "TProcessID.h"
 
-class testGeneralTracks : public edm::EDProducer {
+class testGeneralTracks : public DQMEDAnalyzer {
 
 public :
   explicit testGeneralTracks(const edm::ParameterSet&);
   ~testGeneralTracks();
 
-  virtual void produce(edm::Event&, const edm::EventSetup& ) override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const& ) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup& ) override;
+  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const& ) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
   edm::ParameterSet particleFilter_;
   std::vector<edm::InputTag> allTracks;
-  bool saveNU;
   std::vector<FSimEvent*> mySimEvent;
   std::string simModuleLabel_;
   // Histograms
-  DQMStore * dbe;
   std::vector<MonitorElement*> h0;
   MonitorElement* genTracksvsEtaP;
   std::vector<MonitorElement*> TracksvsEtaP;
@@ -64,8 +62,6 @@ private:
   std::vector<MonitorElement*> LayersvsEta;
 
   std::vector<MonitorElement*> Num;
-
-  std::string outputFileName;
 
   int totalNEvt;
 
@@ -95,8 +91,6 @@ testGeneralTracks::testGeneralTracks(const edm::ParameterSet& p) :
   totalNEvt(0)
 {
   
-  // This producer produce a vector of SimTracks
-  produces<edm::SimTrackContainer>();
 
   // Let's just initialize the SimEvent's
   particleFilter_ = p.getParameter<edm::ParameterSet>
@@ -110,25 +104,33 @@ testGeneralTracks::testGeneralTracks(const edm::ParameterSet& p) :
   // For the fast sim
   mySimEvent[1] = new FSimEvent(particleFilter_);
 
-  outputFileName = 
-    p.getUntrackedParameter<std::string>("OutputFile","testGeneralTracks.root");
+  numfast = numfull = 0;
+  numfastHP = numfullHP = 0;
+  _trackQuality = reco::TrackBase::qualityByName("highPurity");
+
+}
+
+void testGeneralTracks::bookHistograms(DQMStore::IBooker & ibooker,
+				    edm::Run const & iRun,
+				    edm::EventSetup const & iSetup)
+{
+  ibooker.setCurrentFolder("testGeneralTracks") ;
     
   // ... and the histograms
-  dbe = edm::Service<DQMStore>().operator->();
-  h0[0] = dbe->book1D("generatedEta", "Generated Eta", 300, -3., 3. );
-  h0[1] = dbe->book1D("generatedMom", "Generated momentum", 100, 0., 10. );
+  h0[0] = ibooker.book1D("generatedEta", "Generated Eta", 300, -3., 3. );
+  h0[1] = ibooker.book1D("generatedMom", "Generated momentum", 100, 0., 10. );
 
-  genTracksvsEtaP = dbe->book2D("genEtaP","Generated eta vs p",28,-2.8,2.8,100,0,10.);
-  TracksvsEtaP[0] = dbe->book2D("eff0Full","Efficiency 0th Full",28,-2.8,2.8,100,0,10.);
-  TracksvsEtaP[1] = dbe->book2D("eff0Fast","Efficiency 0th Fast",28,-2.8,2.8,100,0,10.);
-  HitsvsP[0]      = dbe->book2D("Hits0PFull","Hits vs P 0th Full",100,0.,10.,30,0,30.);
-  HitsvsP[1]      = dbe->book2D("Hits0PFast","Hits vs P 0th Fast",100,0.,10.,30,0,30.);
-  HitsvsEta[0]    = dbe->book2D("Hits0EtaFull","Hits vs Eta 0th Full",28,-2.8,2.8,30,0,30.);
-  HitsvsEta[1]    = dbe->book2D("Hits0EtaFast","Hits vs Eta 0th Fast",28,-2.8,2.8,30,0,30.);
-  LayersvsP[0]    = dbe->book2D("Layers0PFull","Layers vs P 0th Full",100,0.,10.,30,0,30.);
-  LayersvsP[1]    = dbe->book2D("Layers0PFast","Layers vs P 0th Fast",100,0.,10.,30,0,30.);
-  LayersvsEta[0]  = dbe->book2D("Layers0EtaFull","Layers vs Eta 0th Full",28,-2.8,2.8,30,0,30.);
-  LayersvsEta[1]  = dbe->book2D("Layers0EtaFast","Layers vs Eta 0th Fast",28,-2.8,2.8,30,0,30.);
+  genTracksvsEtaP = ibooker.book2D("genEtaP","Generated eta vs p",28,-2.8,2.8,100,0,10.);
+  TracksvsEtaP[0] = ibooker.book2D("eff0Full","Efficiency 0th Full",28,-2.8,2.8,100,0,10.);
+  TracksvsEtaP[1] = ibooker.book2D("eff0Fast","Efficiency 0th Fast",28,-2.8,2.8,100,0,10.);
+  HitsvsP[0]      = ibooker.book2D("Hits0PFull","Hits vs P 0th Full",100,0.,10.,30,0,30.);
+  HitsvsP[1]      = ibooker.book2D("Hits0PFast","Hits vs P 0th Fast",100,0.,10.,30,0,30.);
+  HitsvsEta[0]    = ibooker.book2D("Hits0EtaFull","Hits vs Eta 0th Full",28,-2.8,2.8,30,0,30.);
+  HitsvsEta[1]    = ibooker.book2D("Hits0EtaFast","Hits vs Eta 0th Fast",28,-2.8,2.8,30,0,30.);
+  LayersvsP[0]    = ibooker.book2D("Layers0PFull","Layers vs P 0th Full",100,0.,10.,30,0,30.);
+  LayersvsP[1]    = ibooker.book2D("Layers0PFast","Layers vs P 0th Fast",100,0.,10.,30,0,30.);
+  LayersvsEta[0]  = ibooker.book2D("Layers0EtaFull","Layers vs Eta 0th Full",28,-2.8,2.8,30,0,30.);
+  LayersvsEta[1]  = ibooker.book2D("Layers0EtaFast","Layers vs Eta 0th Fast",28,-2.8,2.8,30,0,30.);
 
 }
 
@@ -139,11 +141,9 @@ testGeneralTracks::~testGeneralTracks()
   std::cout << "\tFULL\t" <<  numfull << "\t HP= " << numfullHP << std::endl;
   std::cout << "\tFAST\t" <<  numfast << "\t HP= " << numfastHP << std::endl;
 
-  dbe->save(outputFileName);
-
 }
 
-void testGeneralTracks::beginRun(edm::Run const&, edm::EventSetup const& es)
+void testGeneralTracks::dqmBeginRun(edm::Run const&, edm::EventSetup const& es)
 {
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
@@ -156,14 +156,10 @@ void testGeneralTracks::beginRun(edm::Run const&, edm::EventSetup const& es)
   es.get<TrackerDigiGeometryRecord>().get(geometry);
   theGeometry = &(*geometry);
 
-  numfast = numfull = 0;
-  numfastHP = numfullHP = 0;
-  _trackQuality = reco::TrackBase::qualityByName("highPurity");
-
 }
 
 void
-testGeneralTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSetup )
+testGeneralTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   ParticleTable::Sentry ptable(mySimEvent[0]->theTable());
 

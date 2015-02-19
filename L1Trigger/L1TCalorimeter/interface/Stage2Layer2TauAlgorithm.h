@@ -14,6 +14,7 @@
 #define Stage2Layer2TauAlgorithm_h
 
 #include "DataFormats/L1TCalorimeter/interface/CaloCluster.h"
+#include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 
 #include "DataFormats/L1Trigger/interface/Tau.h"
 
@@ -25,7 +26,8 @@ namespace l1t {
   class Stage2Layer2TauAlgorithm { 
   public:
     virtual void processEvent(const std::vector<l1t::CaloCluster> & clusters,
-			      std::vector<l1t::Tau> & taus) = 0;    
+    						  const std::vector<l1t::CaloTower>& towers,
+			      			  std::vector<l1t::Tau> & taus) = 0;    
 
     virtual ~Stage2Layer2TauAlgorithm(){};
   }; 

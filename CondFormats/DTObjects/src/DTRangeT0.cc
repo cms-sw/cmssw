@@ -92,7 +92,9 @@ int DTRangeT0::get( int   wheelId,
   chanKey.push_back(  sectorId );
   chanKey.push_back(      slId );
   int ientry;
-  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
+  //Guarantee const correctness for thread-safety
+  const DTBufferTree<int,int>* constDBuf = dBuf;
+  int searchStatus = constDBuf->find( chanKey.begin(), chanKey.end(), ientry );
   if ( !searchStatus ) {
     const DTRangeT0Data& data( dataList[ientry].second );
     t0min = data.t0min;

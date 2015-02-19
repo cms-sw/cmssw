@@ -357,7 +357,10 @@ G4Event * RunManager::generateEvent(edm::Event & inpevt)
   m_currentEvent = 0;
   if (m_simEvent!=0) { delete m_simEvent; }
   m_simEvent = 0;
-  G4Event * evt = new G4Event(inpevt.id().event());
+
+  // 64 bits event ID in CMSSW converted into Geant4 event ID
+  G4int evtid = (G4int)inpevt.id().event();
+  G4Event * evt = new G4Event(evtid);
   
   edm::Handle<edm::HepMCProduct> HepMCEvt;
   

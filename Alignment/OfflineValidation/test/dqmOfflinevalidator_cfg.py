@@ -39,7 +39,8 @@ process.GlobalTag.globaltag = 'CRAFT09_R_V4::All' #'DESIGN_31X_V7::All'
 ##
 ## Geometry
 ##
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
+
 
 
 ##
@@ -76,7 +77,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 #    connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
 #    toGet = cms.VPSet(
 #      cms.PSet(
-#        record = cms.string('TrackerAlignmentErrorRcd'),
+#        record = cms.string('TrackerAlignmentErrorExtendedRcd'),
 #        tag = cms.string('TrackerIdealGeometryErrors210_mc')
 #        )
 #      )

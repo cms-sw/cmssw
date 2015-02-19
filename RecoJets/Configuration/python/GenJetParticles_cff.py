@@ -16,18 +16,15 @@ genParticlesForJets = cms.EDProducer("InputGenJetsParticleSelector",
          9900012, 9900014, 9900016,
          39),
     partonicFinalState = cms.bool(False),
-    excludeResonances = cms.bool(True),
+    excludeResonances = cms.bool(False),
     excludeFromResonancePids = cms.vuint32(12, 13, 14, 16),
     tausAsJets = cms.bool(False)
 )
-
-genJetParticles = cms.Sequence(genParticlesForJets)
-
-hiGenParticlesForJets = genParticlesForJets.clone()
-hiGenParticlesForJets.src = cms.InputTag("hiGenParticles")
 
 genParticlesForJetsNoNu = genParticlesForJets.clone()
 genParticlesForJetsNoNu.ignoreParticleIDs += cms.vuint32( 12,14,16)
 
 genParticlesForJetsNoMuNoNu = genParticlesForJets.clone()
 genParticlesForJetsNoMuNoNu.ignoreParticleIDs += cms.vuint32( 12,13,14,16)
+
+genJetParticles = cms.Sequence(genParticlesForJets+genParticlesForJetsNoNu)

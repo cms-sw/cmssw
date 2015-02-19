@@ -4,18 +4,16 @@ import FWCore.ParameterSet.Config as cms
 # Very large impact parameter tracking using TOB + TEC ring 5 seeding #
 #######################################################################
 
-tobTecStepClusters = cms.EDProducer("TrackClusterRemover",
-    clusterLessSolution = cms.bool(True),
-    oldClusterRemovalInfo = cms.InputTag("pixelLessStepClusters"),
-    trajectories = cms.InputTag("pixelLessStepTracks"),
-    overrideTrkQuals = cms.InputTag('pixelLessStep'),
-    TrackQuality = cms.string('highPurity'),
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+tobTecStepClusters = trackClusterRemover.clone(
+    maxChi2                                  = cms.double(9.0),
+    trajectories                             = cms.InputTag("pixelLessStepTracks"),
+    pixelClusters                            = cms.InputTag("siPixelClusters"),
+    stripClusters                            = cms.InputTag("siStripClusters"),
+    oldClusterRemovalInfo                    = cms.InputTag("pixelLessStepClusters"),
+    overrideTrkQuals                         = cms.InputTag('pixelLessStep'),
+    TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
-    Common = cms.PSet(
-        maxChi2 = cms.double(9.0)
-    )
 )
 
 # TRIPLET SEEDING LAYERS
@@ -27,12 +25,12 @@ tobTecStepSeedLayersTripl = cms.EDProducer("SeedingLayersEDProducer",
     'TOB1+TOB2+MTEC1_pos','TOB1+TOB2+MTEC1_neg',
     ),
     TOB = cms.PSet(
-         TTRHBuilder    = cms.string('WithTrackAngle'),
+         TTRHBuilder    = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
          matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
          skipClusters   = cms.InputTag('tobTecStepClusters')
     ),
     MTOB = cms.PSet(
-         TTRHBuilder    = cms.string('WithTrackAngle'),
+         TTRHBuilder    = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
          skipClusters   = cms.InputTag('tobTecStepClusters'),
          rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
     ),
@@ -40,7 +38,7 @@ tobTecStepSeedLayersTripl = cms.EDProducer("SeedingLayersEDProducer",
         rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         skipClusters = cms.InputTag('tobTecStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
         minRing = cms.int32(6),
         maxRing = cms.int32(7)
     )
@@ -63,14 +61,22 @@ tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.originRadius = 3.5
 tobTecStepSeedsTripl.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsCreator' #empirically better than 'SeedFromConsecutiveHitsTripletOnlyCreator'
 tobTecStepSeedsTripl.SeedCreatorPSet.OriginTransverseErrorMultiplier = 1.0
 #SeedComparitor
+import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi
 
 tobTecStepSeedsTripl.SeedComparitorPSet = cms.PSet(
+   ComponentName = cms.string('CombinedSeedComparitor'),
+   mode = cms.string("and"),
+   comparitors = cms.VPSet(
+     cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
         FilterAtHelixStage = cms.bool(True),
         FilterPixelHits = cms.bool(False),
         FilterStripHits = cms.bool(True),
         ClusterShapeHitFilterName = cms.string('tobTecStepClusterShapeHitFilter'),
         ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
+    ),
+    RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi.StripSubClusterShapeSeedFilter.clone()
+  )
 )
 # PAIR SEEDING LAYERS
 tobTecStepSeedLayersPair = cms.EDProducer("SeedingLayersEDProducer",
@@ -82,7 +88,7 @@ tobTecStepSeedLayersPair = cms.EDProducer("SeedingLayersEDProducer",
                             'TEC5_pos+TEC6_pos','TEC5_neg+TEC6_neg', 
                             'TEC6_pos+TEC7_pos','TEC6_neg+TEC7_neg'),
     TOB = cms.PSet(
-         TTRHBuilder    = cms.string('WithTrackAngle'),
+         TTRHBuilder    = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
          matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
          skipClusters   = cms.InputTag('tobTecStepClusters')
     ),
@@ -90,7 +96,7 @@ tobTecStepSeedLayersPair = cms.EDProducer("SeedingLayersEDProducer",
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('tobTecStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
         minRing = cms.int32(5),
         maxRing = cms.int32(5)
     )
@@ -117,12 +123,19 @@ tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.originRadius = 6.0
 tobTecStepSeedsPair.SeedCreatorPSet.OriginTransverseErrorMultiplier = 1.0
 #SeedComparitor
 tobTecStepSeedsPair.SeedComparitorPSet = cms.PSet(
+   ComponentName = cms.string('CombinedSeedComparitor'),
+   mode = cms.string("and"),
+   comparitors = cms.VPSet(
+     cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
         FilterAtHelixStage = cms.bool(True),
         FilterPixelHits = cms.bool(False),
         FilterStripHits = cms.bool(True),
         ClusterShapeHitFilterName = cms.string('tobTecStepClusterShapeHitFilter'),
         ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
+    ),
+    RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi.StripSubClusterShapeSeedFilter.clone()
+  )
 )
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
 tobTecStepSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
@@ -145,8 +158,8 @@ tobTecStepInOutTrajectoryFilter = tobTecStepTrajectoryFilter.clone(
     minHitsMinPt = 3
     )
 
-import TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi
-tobTecStepChi2Est = TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
+import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi
+tobTecStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName = cms.string('tobTecStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(16.0),
@@ -240,7 +253,7 @@ tobTecFlexibleKFFittingSmoother = TrackingTools.TrackFitters.FlexibleKFFittingSm
 import RecoTracker.TrackProducer.TrackProducer_cfi
 tobTecStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'tobTecStepTrackCandidates',
-    AlgorithmName = cms.string('iter6'),
+    AlgorithmName = cms.string('tobTecStep'),
     #Fitter = 'tobTecStepFitterSmoother',
     Fitter = 'tobTecFlexibleKFFittingSmoother',
     )

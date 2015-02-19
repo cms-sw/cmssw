@@ -8,6 +8,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -138,7 +139,7 @@ ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper( const ParameterSet & cfg ) {
     beta_.push_back(beta);
     relativeIsolation_.push_back(relativeIsolation);
     hltPath_.push_back(hltPath);
-    produces<vector<unsigned int> >( alias = zName + "EventNumber" ).setBranchAlias( alias );
+    produces<vector<edm::EventNumber_t> >( alias = zName + "EventNumber" ).setBranchAlias( alias );
     produces<vector<unsigned int> >( alias = zName + "RunNumber" ).setBranchAlias( alias );
     produces<vector<unsigned int> >( alias = zName + "LumiBlock" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Mass" ).setBranchAlias( alias );
@@ -230,7 +231,7 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
       isMCMatchTrue=true;
     }
     unsigned int zSize = zColl->size();
-    auto_ptr<vector<unsigned int> > event( new vector<unsigned int> );
+    auto_ptr<vector<edm::EventNumber_t> > event( new vector<edm::EventNumber_t> );
     auto_ptr<vector<unsigned int> > run( new vector<unsigned int> );
     auto_ptr<vector<unsigned int> > lumi( new vector<unsigned int > );
     auto_ptr<vector<float> > zMass( new vector<float> );

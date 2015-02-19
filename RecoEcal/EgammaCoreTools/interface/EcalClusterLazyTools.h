@@ -34,6 +34,7 @@ class CaloSubdetectorTopology;
 class EcalClusterLazyToolsBase {
  public:
   EcalClusterLazyToolsBase( const edm::Event &ev, const edm::EventSetup &es, edm::EDGetTokenT<EcalRecHitCollection> token1, edm::EDGetTokenT<EcalRecHitCollection> token2);
+  EcalClusterLazyToolsBase( const edm::Event &ev, const edm::EventSetup &es, edm::EDGetTokenT<EcalRecHitCollection> token1, edm::EDGetTokenT<EcalRecHitCollection> token2, edm::EDGetTokenT<EcalRecHitCollection> token3);
   ~EcalClusterLazyToolsBase();
   
 
@@ -89,13 +90,24 @@ class EcalClusterLazyToolsBase {
   //  std::vector<int> flagsexcl_;
   //  std::vector<int> severitiesexcl_;
 
+ public:
+  inline const EcalRecHitCollection *getEcalEBRecHitCollection(void){return ebRecHits_;};
+  inline const EcalRecHitCollection *getEcalEERecHitCollection(void){return eeRecHits_;};
+  inline const EcalRecHitCollection *getEcalESRecHitCollection(void){return esRecHits_;};
+  inline const EcalIntercalibConstants& getEcalIntercalibConstants(void){return icalMap;};
+  inline const edm::ESHandle<EcalLaserDbService>& getLaserHandle(void){return laser;};
+  
 }; // class EcalClusterLazyToolsBase
 
 template<class EcalClusterToolsImpl> 
 class EcalClusterLazyToolsT : public EcalClusterLazyToolsBase {
     public:
-        EcalClusterLazyToolsT( const edm::Event &ev, const edm::EventSetup &es, edm::EDGetTokenT<EcalRecHitCollection> token1, edm::EDGetTokenT<EcalRecHitCollection> token2):
-            EcalClusterLazyToolsBase(ev,es,token1,token2) {}
+
+ EcalClusterLazyToolsT( const edm::Event &ev, const edm::EventSetup &es, edm::EDGetTokenT<EcalRecHitCollection> token1, edm::EDGetTokenT<EcalRecHitCollection> token2):
+  EcalClusterLazyToolsBase(ev,es,token1,token2) {}
+
+ EcalClusterLazyToolsT( const edm::Event &ev, const edm::EventSetup &es, edm::EDGetTokenT<EcalRecHitCollection> token1, edm::EDGetTokenT<EcalRecHitCollection> token2, edm::EDGetTokenT<EcalRecHitCollection> token3):
+  EcalClusterLazyToolsBase(ev,es,token1,token2,token3) {}
         ~EcalClusterLazyToolsT() {}
 
         // various energies in the matrix nxn surrounding the maximum energy crystal of the input cluster  
@@ -123,6 +135,7 @@ class EcalClusterLazyToolsT : public EcalClusterLazyToolsBase {
         float e4x4( const reco::BasicCluster &cluster );
 
         float e5x5( const reco::BasicCluster &cluster );
+        int   n5x5( const reco::BasicCluster &cluster );
         // energy in the 2x5 strip right of the max crystal (does not contain max crystal)
         // 2 crystals wide in eta, 5 wide in phi.
         float e2x5Right( const reco::BasicCluster &cluster );
@@ -240,6 +253,12 @@ template<class EcalClusterToolsImpl>
 float EcalClusterLazyToolsT<EcalClusterToolsImpl>::e5x5( const reco::BasicCluster &cluster )
 {
         return EcalClusterToolsImpl::e5x5( cluster, getEcalRecHitCollection(cluster), topology_ );
+}
+
+template<class EcalClusterToolsImpl>
+int EcalClusterLazyToolsT<EcalClusterToolsImpl>::n5x5( const reco::BasicCluster &cluster )
+{
+        return EcalClusterToolsImpl::n5x5( cluster, getEcalRecHitCollection(cluster), topology_ );
 }
 
 template<class EcalClusterToolsImpl>

@@ -181,8 +181,12 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
      }
    
    // Loop over the candidate collection
-   const edm::PtrVector<object>& ptrVect = candHandle->ptrVector();
-   const edm::RefToBaseVector<object>& refs = candHandle->refVector();
+   edm::PtrVector<object> ptrVect;
+   edm::RefToBaseVector<object> refs;
+   for (size_t i = 0; i < candHandle->size(); ++i) {
+     ptrVect.push_back(candHandle->ptrAt(i));
+     refs.push_back(candHandle->refAt(i));
+   }
    // find how many objects there are
    unsigned int counter=0;
    for( typename edm::View< object>::const_iterator j = candHandle->begin(); 

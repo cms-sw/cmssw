@@ -192,9 +192,8 @@ ElectronIDValidationAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
    iEvent.getByToken(convToken_, convs);
    iEvent.getByToken(beamToken_, thebs);
 
-   const auto& ele_refs = collection->refVector();
- 
-   for( const auto& el : ele_refs ) {
+   for( size_t i = 0; i < collection->size(); ++i ) {
+     auto el = collection->refAt(i);
      pt_ = el->pt();
      etaSC_ = el->superCluster()->eta();
 

@@ -118,6 +118,8 @@ namespace edm {
           m_cacheMinFreePtr(nullptr),
           m_cacheHint(),
           m_cacheHintPtr(nullptr),
+          m_cloneCacheHint(),
+          m_cloneCacheHintPtr(nullptr),
           m_readHint(),
           m_readHintPtr(nullptr),
           m_ttreeCacheSize(0U),
@@ -131,6 +133,7 @@ namespace edm {
           m_nativeProtocolsPtr(nullptr),
           m_statisticsDestination(),
           m_statisticsAddrInfo(nullptr),
+          m_statisticsInfoAvail(false),
           m_siteName() {
 
         char* tmp = getenv("CMS_PATH");
@@ -145,14 +148,22 @@ namespace edm {
         overrideFromPSet("overrideSourceCacheTempDir", pset, m_cacheTempDir, m_cacheTempDirPtr);
         overrideFromPSet("overrideSourceCacheMinFree", pset, m_cacheMinFree, m_cacheMinFreePtr);
         overrideFromPSet("overrideSourceCacheHintDir", pset, m_cacheHint, m_cacheHintPtr);
+        overrideFromPSet("overrideSourceCloneCacheHintDir", pset, m_cloneCacheHint, m_cloneCacheHintPtr);
         overrideFromPSet("overrideSourceReadHint", pset, m_readHint, m_readHintPtr);
         overrideFromPSet("overrideSourceNativeProtocols", pset, m_nativeProtocols, m_nativeProtocolsPtr);
         overrideFromPSet("overrideSourceTTreeCacheSize", pset, m_ttreeCacheSize, m_ttreeCacheSizePtr);
         overrideFromPSet("overrideSourceTimeout", pset, m_timeout, m_timeoutPtr);
         overrideFromPSet("overridePrefetching", pset, m_enablePrefetching, m_enablePrefetchingPtr);
-        const std::string * tmpStringPtr = NULL;
+        const std::string * tmpStringPtr = nullptr;
         overrideFromPSet("overrideStatisticsDestination", pset, m_statisticsDestination, tmpStringPtr);
         this->computeStatisticsDestination();
+        std::vector<std::string> tmpStatisticsInfo; std::vector<std::string> const *tmpStatisticsInfoPtr = nullptr;
+        overrideFromPSet("overrideStatisticsInfo", pset, tmpStatisticsInfo, tmpStatisticsInfoPtr);
+        if (tmpStatisticsInfoPtr) {
+          m_statisticsInfoAvail = true;
+          m_statisticsInfo.clear();
+          for (auto &entry : tmpStatisticsInfo) {m_statisticsInfo.insert(std::move(entry));}
+        }
 
        if(pset.exists("debugLevel")) {
             m_debugLevel = pset.getUntrackedParameter<unsigned int>("debugLevel");
@@ -288,6 +299,11 @@ namespace edm {
     }
 
     std::string const*
+    SiteLocalConfigService::sourceCloneCacheHint() const {
+       return m_cloneCacheHintPtr;
+    }
+
+    std::string const*
     SiteLocalConfigService::sourceReadHint() const {
        return m_readHintPtr;
     }
@@ -320,6 +336,11 @@ namespace edm {
     struct addrinfo const*
     SiteLocalConfigService::statisticsDestination() const {
        return m_statisticsAddrInfo;
+    }
+
+    std::set<std::string> const*
+    SiteLocalConfigService::statisticsInfo() const {
+       return m_statisticsInfoAvail ? &m_statisticsInfo : nullptr;
     }
 
     std::string const&
@@ -448,6 +469,14 @@ namespace edm {
                 m_cacheHintPtr = &m_cacheHint;
               }
 
+              DOMNodeList *cloneCacheHintList = sourceConfig->getElementsByTagName(_toDOMS("clone-cache-hint"));
+
+              if (cloneCacheHintList->getLength() > 0) {
+                DOMElement *cloneCacheHint = static_cast<DOMElement *>(cloneCacheHintList->item(0));
+                m_cloneCacheHint = _toString(cloneCacheHint->getAttribute(_toDOMS("value")));
+                m_cloneCacheHintPtr = &m_cloneCacheHint;
+              }
+
               DOMNodeList *readHintList = sourceConfig->getElementsByTagName(_toDOMS("read-hint"));
 
               if (readHintList->getLength() > 0) {
@@ -476,7 +505,13 @@ namespace edm {
 
               if (statsDestList->getLength() > 0) {
                 DOMElement *statsDest = static_cast<DOMElement *>(statsDestList->item(0));
-                m_statisticsDestination = _toString(statsDest->getAttribute(_toDOMS("name")));
+                m_statisticsDestination = _toString(statsDest->getAttribute(_toDOMS("endpoint")));
+                if (!m_statisticsDestination.size()) {
+                  m_statisticsDestination = _toString(statsDest->getAttribute(_toDOMS("name")));
+                }
+                std::string tmpStatisticsInfo = _toString(statsDest->getAttribute(_toDOMS("info")));
+                boost::split(m_statisticsInfo, tmpStatisticsInfo, boost::is_any_of("\t ,"));
+                m_statisticsInfoAvail = !tmpStatisticsInfo.empty();
               }
 
               DOMNodeList *prefetchingList = sourceConfig->getElementsByTagName(_toDOMS("prefetching"));
@@ -542,6 +577,8 @@ namespace edm {
       desc.addOptionalUntracked<std::string>("overrideSourceCacheTempDir");
       desc.addOptionalUntracked<double>("overrideSourceCacheMinFree");
       desc.addOptionalUntracked<std::string>("overrideSourceCacheHintDir");
+      desc.addOptionalUntracked<std::string>("overrideSourceCloneCacheHintDir")
+        ->setComment("Provide an alternate cache hint for fast cloning.");
       desc.addOptionalUntracked<std::string>("overrideSourceReadHint");
       desc.addOptionalUntracked<std::vector<std::string> >("overrideSourceNativeProtocols");
       desc.addOptionalUntracked<unsigned int>("overrideSourceTTreeCacheSize");
@@ -551,6 +588,8 @@ namespace edm {
         ->setComment("Request ROOT to asynchronously prefetch I/O during computation.");
       desc.addOptionalUntracked<std::string>("overrideStatisticsDestination")
         ->setComment("Provide an alternate network destination for I/O statistics (must be in the form of host:port).");
+      desc.addOptionalUntracked<std::vector<std::string> >("overrideStatisticsInfo")
+        ->setComment("Provide an alternate listing of statistics to send (comma separated list; current options are 'dn' or 'nodn').  If left blank, all information is snet (including DNs).");
 
       descriptions.add("SiteLocalConfigService", desc);
     }

@@ -38,7 +38,7 @@ namespace {
 
 constexpr double nSigmaRZ = 3.4641016151377544; // sqrt(12.)
 constexpr double nSigmaPhi = 3.;
-static float fnSigmaRZ = std::sqrt(12.f);
+static const float fnSigmaRZ = std::sqrt(12.f);
 
 PixelTripletLargeTipGenerator::PixelTripletLargeTipGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
   : thePairGenerator(0),
@@ -107,12 +107,17 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
   std::vector<NodeInfo > layerTree; // re-used throughout
   std::vector<unsigned int> foundNodes; // re-used throughout
   foundNodes.reserve(100);
+  #ifdef __clang__
+  std::vector<KDTreeLinkerAlgo<unsigned int>> hitTree(size);
+  std::vector<LayerRZPredictions> mapPred(size);
+  #else
   KDTreeLinkerAlgo<unsigned int> hitTree[size];
+  LayerRZPredictions mapPred[size];
+  #endif
 
   float rzError[size]; //save maximum errors
   float maxphi = Geom::ftwoPi(), minphi = -maxphi; //increase to cater for any range
 
-  LayerRZPredictions mapPred[size];
 
   const RecHitsSortedInPhi * thirdHitMap[size];
 

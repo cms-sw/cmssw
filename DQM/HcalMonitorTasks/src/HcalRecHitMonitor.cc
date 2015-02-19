@@ -13,7 +13,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cmath>
 
-HcalRecHitMonitor::HcalRecHitMonitor(const edm::ParameterSet& ps)
+HcalRecHitMonitor::HcalRecHitMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps)
 {
   // Common Base Class parameters
   Online_                = ps.getUntrackedParameter<bool>("online",false);
@@ -74,7 +74,7 @@ HcalRecHitMonitor::~HcalRecHitMonitor()
 /* ------------------------------------ */ 
 
 
-void HcalRecHitMonitor::setup()
+void HcalRecHitMonitor::setup(DQMStore::IBooker &ib)
 {
 
   if (setupDone_)
@@ -90,7 +90,7 @@ void HcalRecHitMonitor::setup()
   else
     setupDone_=true;
 
-  HcalBaseDQMonitor::setup();
+  HcalBaseDQMonitor::setup(ib);
 
 
   if (debug_>0)
@@ -101,238 +101,238 @@ void HcalRecHitMonitor::setup()
   if (debug_>1)
     std::cout <<"<HcalRecHitMonitor::setup>  Creating Histograms"<<std::endl;
 
-  dbe_->setCurrentFolder(subdir_);
-  h_TriggeredEvents=dbe_->book1D("EventTriggers","EventTriggers",3,-0.5,2.5);
+  ib.setCurrentFolder(subdir_);
+  h_TriggeredEvents=ib.book1D("EventTriggers","EventTriggers",3,-0.5,2.5);
   h_TriggeredEvents->setBinLabel(1,"AllEvents");
   h_TriggeredEvents->setBinLabel(2,"HLT_Minbias");
   h_TriggeredEvents->setBinLabel(3,"HLT_Hcal");
 
-  dbe_->setCurrentFolder(subdir_+"rechit_parameters");
+  ib.setCurrentFolder(subdir_+"rechit_parameters");
   MonitorElement* THR;
-  dbe_->setCurrentFolder(subdir_+"rechit_parameters/thresholds");
-  THR=dbe_->bookFloat("HB_Rechit_Energy_Threshold");
+  ib.setCurrentFolder(subdir_+"rechit_parameters/thresholds");
+  THR=ib.bookFloat("HB_Rechit_Energy_Threshold");
   THR->Fill(HBenergyThreshold_);
-  THR=dbe_->bookFloat("HE_Rechit_Energy_Threshold");
+  THR=ib.bookFloat("HE_Rechit_Energy_Threshold");
   THR->Fill(HEenergyThreshold_);
-  THR=dbe_->bookFloat("HO_Rechit_Energy_Threshold");
+  THR=ib.bookFloat("HO_Rechit_Energy_Threshold");
   THR->Fill(HOenergyThreshold_);
-  THR=dbe_->bookFloat("HF_Rechit_Energy_Threshold");
+  THR=ib.bookFloat("HF_Rechit_Energy_Threshold");
   THR->Fill(HFenergyThreshold_);
-  THR=dbe_->bookFloat("HB_Rechit_ET_Threshold");
+  THR=ib.bookFloat("HB_Rechit_ET_Threshold");
   THR->Fill(HBETThreshold_);
-  THR=dbe_->bookFloat("HE_Rechit_ET_Threshold");
+  THR=ib.bookFloat("HE_Rechit_ET_Threshold");
   THR->Fill(HEETThreshold_);
-  THR=dbe_->bookFloat("HO_Rechit_ET_Threshold");
+  THR=ib.bookFloat("HO_Rechit_ET_Threshold");
   THR->Fill(HOETThreshold_);
-  THR=dbe_->bookFloat("HF_Rechit_ET_Threshold");
+  THR=ib.bookFloat("HF_Rechit_ET_Threshold");
   THR->Fill(HFETThreshold_);
-  THR=dbe_->bookFloat("Maximum_HFM_HFP_time_difference_for_luminosityplots");
+  THR=ib.bookFloat("Maximum_HFM_HFP_time_difference_for_luminosityplots");
   THR->Fill(timediffThresh_);
 
   
   // Set up histograms that are filled by all rechits
-  dbe_->setCurrentFolder(subdir_+"Distributions_AllRecHits");
-  SetupEtaPhiHists(OccupancyByDepth,"RecHit Occupancy","");
-  h_rechitieta = dbe_->book1D("HcalRecHitIeta",
+  ib.setCurrentFolder(subdir_+"Distributions_AllRecHits");
+  SetupEtaPhiHists(ib,OccupancyByDepth,"RecHit Occupancy","");
+  h_rechitieta = ib.book1D("HcalRecHitIeta",
 			      "Hcal RecHit ieta",
 			      83,-41.5,41.5);
-  h_rechitiphi = dbe_->book1D("HcalRecHitIphi",
+  h_rechitiphi = ib.book1D("HcalRecHitIphi",
 			      "Hcal RecHit iphi",
 			      72,0.5,72.5);
 
-  h_rechitieta_05 = dbe_->book1D("HcalRecHitIeta05",
+  h_rechitieta_05 = ib.book1D("HcalRecHitIeta05",
 				 "Hcal RecHit ieta E>0.5 GeV",
 				 83,-41.5,41.5);
-  h_rechitiphi_05 = dbe_->book1D("HcalRecHitIphi05",
+  h_rechitiphi_05 = ib.book1D("HcalRecHitIphi05",
 				 "Hcal RecHit iphi E>0.5 GeV",
 				 72,0.5,72.5);
-  h_rechitieta_10 = dbe_->book1D("HcalRecHitIeta10",
+  h_rechitieta_10 = ib.book1D("HcalRecHitIeta10",
 				 "Hcal RecHit ieta E>1.0 GeV",
 				 83,-41.5,41.5);
-  h_rechitiphi_10 = dbe_->book1D("HcalRecHitIphi10",
+  h_rechitiphi_10 = ib.book1D("HcalRecHitIphi10",
 				 "Hcal RecHit iphi E>1.0 GeV",
 				 72,0.5,72.5);
-  h_rechitieta_25 = dbe_->book1D("HcalRecHitIeta25",
+  h_rechitieta_25 = ib.book1D("HcalRecHitIeta25",
 				 "Hcal RecHit ieta E>2.5 GeV",
 				 83,-41.5,41.5);
-  h_rechitiphi_25 = dbe_->book1D("HcalRecHitIphi25",
+  h_rechitiphi_25 = ib.book1D("HcalRecHitIphi25",
 				 "Hcal RecHit iphi E>2.5 GeV",
 				 72,0.5,72.5);
-  h_rechitieta_100 = dbe_->book1D("HcalRecHitIeta100",
+  h_rechitieta_100 = ib.book1D("HcalRecHitIeta100",
 				  "Hcal RecHit ieta E>10.0 GeV",
 				  83,-41.5,41.5);
-  h_rechitiphi_100 = dbe_->book1D("HcalRecHitIphi100",
+  h_rechitiphi_100 = ib.book1D("HcalRecHitIphi100",
 				  "Hcal RecHit iphi E>10.0 GeV",
 				  72,0.5,72.5);
 
 
 
-  h_LumiPlot_LS_allevents = dbe_->book1D("AllEventsPerLS",
+  h_LumiPlot_LS_allevents = ib.book1D("AllEventsPerLS",
 					 "LS # of all events",
 					 NLumiBlocks_,0.5,NLumiBlocks_+0.5);
-  h_LumiPlot_BX_allevents = dbe_->book1D("BX_allevents",
+  h_LumiPlot_BX_allevents = ib.book1D("BX_allevents",
 					 "BX # of all events",
 					 3600,0,3600);
-  h_LumiPlot_MinTime_vs_MinHT = dbe_->book2D("MinTime_vs_MinSumET",
+  h_LumiPlot_MinTime_vs_MinHT = ib.book2D("MinTime_vs_MinSumET",
 					     "Energy-Weighted Time vs Min (HF+,HF-) Scalar Sum ET;min Sum ET(GeV);time(ns)",
 					     100,0,10,80,-40,40);
 
-  h_LumiPlot_timeHT_HFM = dbe_->book2D("HFM_Time_vs_SumET",
+  h_LumiPlot_timeHT_HFM = ib.book2D("HFM_Time_vs_SumET",
 				       "Energy-Weighted Time vs HFMinus Scalar Sum ET;Sum ET(GeV);time(ns)",
 				       100,0,10,80,-40,40);
   
-  h_LumiPlot_timeHT_HFP = dbe_->book2D("HFP_Time_vs_SumET",
+  h_LumiPlot_timeHT_HFP = ib.book2D("HFP_Time_vs_SumET",
 				       "Energy-Weighted Time vs HFPlus Scalar Sum ET;Sum ET(GeV);time(ns)",
 				       100,0,10,80,-40,40);
 
 
-  dbe_->setCurrentFolder(subdir_+"Distributions_AllRecHits/sumplots");
-  SetupEtaPhiHists(SumEnergyByDepth,"RecHit Summed Energy","GeV");
-  SetupEtaPhiHists(SqrtSumEnergy2ByDepth,"RecHit Sqrt Summed Energy2","GeV");
-  SetupEtaPhiHists(SumTimeByDepth,"RecHit Summed Time","nS");
+  ib.setCurrentFolder(subdir_+"Distributions_AllRecHits/sumplots");
+  SetupEtaPhiHists(ib,SumEnergyByDepth,"RecHit Summed Energy","GeV");
+  SetupEtaPhiHists(ib,SqrtSumEnergy2ByDepth,"RecHit Sqrt Summed Energy2","GeV");
+  SetupEtaPhiHists(ib,SumTimeByDepth,"RecHit Summed Time","nS");
 
   // Histograms for events that passed MinBias triggers
-  dbe_->setCurrentFolder(subdir_+"Distributions_PassedMinBias");
+  ib.setCurrentFolder(subdir_+"Distributions_PassedMinBias");
 
-  h_HBP_weightedTime = dbe_->book1D("WeightedTime_HBP","Weighted Time for HBP",
+  h_HBP_weightedTime = ib.book1D("WeightedTime_HBP","Weighted Time for HBP",
 				    300,-150,150);
-  h_HBM_weightedTime = dbe_->book1D("WeightedTime_HBM","Weighted Time for HBM",
+  h_HBM_weightedTime = ib.book1D("WeightedTime_HBM","Weighted Time for HBM",
 				    300,-150,150);
-  h_HEP_weightedTime = dbe_->book1D("WeightedTime_HEP","Weighted Time for HEP",
+  h_HEP_weightedTime = ib.book1D("WeightedTime_HEP","Weighted Time for HEP",
 				    300,-150,150);
-  h_HEM_weightedTime = dbe_->book1D("WeightedTime_HEM","Weighted Time for HEM",
+  h_HEM_weightedTime = ib.book1D("WeightedTime_HEM","Weighted Time for HEM",
 				    300,-150,150);
-  h_HFP_weightedTime = dbe_->book1D("WeightedTime_HFP","Weighted Time for HFP",
+  h_HFP_weightedTime = ib.book1D("WeightedTime_HFP","Weighted Time for HFP",
 				    300,-150,150);
-  h_HFM_weightedTime = dbe_->book1D("WeightedTime_HFM","Weighted Time for HFM",
+  h_HFM_weightedTime = ib.book1D("WeightedTime_HFM","Weighted Time for HFM",
 				    300,-150,150);
 
-  h_HFtimedifference = dbe_->book1D("HFweightedtimeDifference",
+  h_HFtimedifference = ib.book1D("HFweightedtimeDifference",
 				    "Energy-Weighted time difference between HF+ and HF- passing MinBias (no HT cut)",
 				    251,-250.5,250.5);
-  h_HEtimedifference = dbe_->book1D("HEweightedtimeDifference",
+  h_HEtimedifference = ib.book1D("HEweightedtimeDifference",
 				    "Energy-Weighted time difference between HE+ and HE- passing MinBias (no HT cut)",
 				    251,-250.5,250.5);
   
-  HFP_HFM_Energy = dbe_->book2D("HFP_HFM_Energy",
+  HFP_HFM_Energy = ib.book2D("HFP_HFM_Energy",
 				"HFP VS HFM Energy; Total Energy in HFMinus (TeV); Total Energy in HFPlus (TeV)",
 				100,0,100, 100,0,100);
   
   // Would these work better as 2D plots?
-  h_HFenergydifference = dbe_->book1D("HFenergyDifference",
+  h_HFenergydifference = ib.book1D("HFenergyDifference",
 				      "Sum(E_HFPlus - E_HFMinus)/Sum(E_HFPlus + E_HFMinus)",
 				      200,-1,1);
-  h_HEenergydifference = dbe_->book1D("HEenergyDifference",
+  h_HEenergydifference = ib.book1D("HEenergyDifference",
 				      "Sum(E_HEPlus - E_HEMinus)/Sum(E_HEPlus + E_HEMinus)",
 				      200,-1,1);
 
-  h_LumiPlot_LS_MinBiasEvents=dbe_->book1D("MinBiasEventsPerLS",
+  h_LumiPlot_LS_MinBiasEvents=ib.book1D("MinBiasEventsPerLS",
 					   "Number of MinBias Events vs LS (HT cut and HFM-HFP time cut)",
 					   NLumiBlocks_/10,0.5,NLumiBlocks_+0.5); 
-  h_LumiPlot_LS_MinBiasEvents_notimecut=dbe_->book1D("MinBiasEventsPerLS_notimecut",
+  h_LumiPlot_LS_MinBiasEvents_notimecut=ib.book1D("MinBiasEventsPerLS_notimecut",
 						     "Number of Events with MinBias vs LS (HFM,HFP HT>1,no time cut)",
 						     NLumiBlocks_/10,0.5,NLumiBlocks_+0.5); 
 
-  h_LumiPlot_SumHT_HFPlus_vs_HFMinus = dbe_->book2D("SumHT_plus_minus",
+  h_LumiPlot_SumHT_HFPlus_vs_HFMinus = ib.book2D("SumHT_plus_minus",
 						    "HF+ Sum HT vs HF- Sum HT",60,0,30,60,0,30);
-  h_LumiPlot_SumEnergy_HFPlus_vs_HFMinus = dbe_->book2D("SumEnergy_plus_minus",
+  h_LumiPlot_SumEnergy_HFPlus_vs_HFMinus = ib.book2D("SumEnergy_plus_minus",
 							"HF+ Sum Energy  vs HF- Sum Energy",
 							60,0,150,60,0,150);
-  h_LumiPlot_timeHFPlus_vs_timeHFMinus = dbe_->book2D("timeHFplus_vs_timeHFminus",
+  h_LumiPlot_timeHFPlus_vs_timeHFMinus = ib.book2D("timeHFplus_vs_timeHFminus",
 						      "Energy-weighted time average of HF+ vs HF-",
 						      60,-60,60,60,-60,60);
-  h_LumiPlot_BX_MinBiasEvents = dbe_->book1D("BX_MinBias_Events_TimeCut",
+  h_LumiPlot_BX_MinBiasEvents = ib.book1D("BX_MinBias_Events_TimeCut",
 					  "BX # of MinBias events (HFM & HFP HT>1 & HFM-HFP time cut)",
 					  3600,0,3600);
-  h_LumiPlot_BX_MinBiasEvents_notimecut = dbe_->book1D("BX_MinBias_Events_notimecut",
+  h_LumiPlot_BX_MinBiasEvents_notimecut = ib.book1D("BX_MinBias_Events_notimecut",
 						       "BX # of MinBias events (HFM,HFP HT>1, no time cut)",
 						       3600,0,3600);
   // threshold plots must pass MinBias Trigger
-  SetupEtaPhiHists(OccupancyThreshByDepth,"Above Threshold RecHit Occupancy","");
-  h_rechitieta_thresh = dbe_->book1D("HcalRecHitIeta_thresh",
+  SetupEtaPhiHists(ib,OccupancyThreshByDepth,"Above Threshold RecHit Occupancy","");
+  h_rechitieta_thresh = ib.book1D("HcalRecHitIeta_thresh",
 			      "Hcal RecHit ieta above energy and ET threshold",
 			      83,-41.5,41.5);
-  h_rechitiphi_thresh = dbe_->book1D("HcalRecHitIphi_thresh",
+  h_rechitiphi_thresh = ib.book1D("HcalRecHitIphi_thresh",
 			      "Hcal RecHit iphi above energy and ET threshold",
 			      72,0.5,72.5);
 
-  dbe_->setCurrentFolder(subdir_+"Distributions_PassedMinBias/sumplots");
-  SetupEtaPhiHists(SumEnergyThreshByDepth,"Above Threshold RecHit Summed Energy","GeV");
-  SetupEtaPhiHists(SumTimeThreshByDepth,"Above Threshold RecHit Summed Time","nS");
-  SetupEtaPhiHists(SqrtSumEnergy2ThreshByDepth,"Above Threshold RecHit Sqrt Summed Energy2","GeV");
+  ib.setCurrentFolder(subdir_+"Distributions_PassedMinBias/sumplots");
+  SetupEtaPhiHists(ib,SumEnergyThreshByDepth,"Above Threshold RecHit Summed Energy","GeV");
+  SetupEtaPhiHists(ib,SumTimeThreshByDepth,"Above Threshold RecHit Summed Time","nS");
+  SetupEtaPhiHists(ib,SqrtSumEnergy2ThreshByDepth,"Above Threshold RecHit Sqrt Summed Energy2","GeV");
 
-  dbe_->setCurrentFolder(subdir_+"Distributions_PassedMinBias/rechit_1D_plots");
-  h_HBThreshTime=dbe_->book1D("HB_time_thresh", 
+  ib.setCurrentFolder(subdir_+"Distributions_PassedMinBias/rechit_1D_plots");
+  h_HBThreshTime=ib.book1D("HB_time_thresh", 
 			      "HB RecHit Time Above Threshold",
 			      int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
-  h_HBThreshOccupancy=dbe_->book1D("HB_occupancy_thresh",
+  h_HBThreshOccupancy=ib.book1D("HB_occupancy_thresh",
 				   "HB RecHit Occupancy Above Threshold",260,-0.5,2599.5);
-  h_HEThreshTime=dbe_->book1D("HE_time_thresh", 
+  h_HEThreshTime=ib.book1D("HE_time_thresh", 
 			      "HE RecHit Time Above Threshold",
 			      int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
-  h_HEThreshOccupancy=dbe_->book1D("HE_occupancy_thresh",
+  h_HEThreshOccupancy=ib.book1D("HE_occupancy_thresh",
 				   "HE RecHit Occupancy Above Threshold",260,-0.5,2599.5);
-  h_HOThreshTime=dbe_->book1D("HO_time_thresh", 
+  h_HOThreshTime=ib.book1D("HO_time_thresh", 
 			      "HO RecHit Time Above Threshold",
 			      int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
-  h_HOThreshOccupancy=dbe_->book1D("HO_occupancy_thresh",
+  h_HOThreshOccupancy=ib.book1D("HO_occupancy_thresh",
 				   "HO RecHit Occupancy Above Threshold",217,-0.5,2169.5);
-  h_HFThreshTime=dbe_->book1D("HF_time_thresh", 
+  h_HFThreshTime=ib.book1D("HF_time_thresh", 
 			      "HF RecHit Time Above Threshold",
 			      int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
-  h_HFThreshOccupancy=dbe_->book1D("HF_occupancy_thresh",
+  h_HFThreshOccupancy=ib.book1D("HF_occupancy_thresh",
 				   "HF RecHit Occupancy Above Threshold",
 				   173,-0.5,1729.5);
 
   // Histograms for events that did passed Hcal-specfied HLT triggers
-  dbe_->setCurrentFolder(subdir_+"Distributions_PassedHcalHLTriggers");
+  ib.setCurrentFolder(subdir_+"Distributions_PassedHcalHLTriggers");
   
-  h_LumiPlot_BX_HcalHLTEvents = dbe_->book1D("BX_HcalHLT_Events_TimeCut",
+  h_LumiPlot_BX_HcalHLTEvents = ib.book1D("BX_HcalHLT_Events_TimeCut",
 					  "BX # of HcalHLT events (HFM & HFP HT>1 & HFM-HFP time cut)",
 					  3600,0,3600);
-  h_LumiPlot_BX_HcalHLTEvents_notimecut = dbe_->book1D("BX_HcalHLT_Events_notimecut",
+  h_LumiPlot_BX_HcalHLTEvents_notimecut = ib.book1D("BX_HcalHLT_Events_notimecut",
 						       "BX # of HcalHLT events (HFM,HFP HT>1, no time cut)",
 						       3600,0,3600);
-  h_LumiPlot_LS_HcalHLTEvents=dbe_->book1D("HcalHLTEventsPerLS",
+  h_LumiPlot_LS_HcalHLTEvents=ib.book1D("HcalHLTEventsPerLS",
 					   "Number of HcalHLT Events vs LS (HT cut and HFM-HFP time cut)",
 					   NLumiBlocks_/10,0.5,NLumiBlocks_+0.5); 
-  h_LumiPlot_LS_HcalHLTEvents_notimecut=dbe_->book1D("HcalHLTEventsPerLS_notimecut",
+  h_LumiPlot_LS_HcalHLTEvents_notimecut=ib.book1D("HcalHLTEventsPerLS_notimecut",
 						     "Number of Events with HcalHLT vs LS (HFM,HFP HT>1,no time cut)",
 						     NLumiBlocks_/10,0.5,NLumiBlocks_+0.5); 
   
 
-  dbe_->setCurrentFolder(subdir_+"Distributions_PassedHcalHLTriggers/");
-  h_HF_HcalHLT_weightedtimedifference = dbe_->book1D("HF_HcalHLT_weightedtimeDifference",
+  ib.setCurrentFolder(subdir_+"Distributions_PassedHcalHLTriggers/");
+  h_HF_HcalHLT_weightedtimedifference = ib.book1D("HF_HcalHLT_weightedtimeDifference",
 					     "Energy-Weighted time difference between HF+ and HF- Hcal HLT",
 					     251,-250.5,250.5);
-  h_HE_HcalHLT_weightedtimedifference = dbe_->book1D("HE_HcalHLT_weightedtimeDifference",
+  h_HE_HcalHLT_weightedtimedifference = ib.book1D("HE_HcalHLT_weightedtimeDifference",
 					     "Energy-Weighted time difference between HE+ and HE- Hcal HLT",
 					     251,-250.5,250.5);
-  h_HF_HcalHLT_energydifference = dbe_->book1D("HF_HcalHLT_energyDifference",
+  h_HF_HcalHLT_energydifference = ib.book1D("HF_HcalHLT_energyDifference",
 					     "Sum(E_HFPlus - E_HFMinus)/Sum(E_HFPlus + E_HFMinus)",
 					     200,-1,1);
-  h_HE_HcalHLT_energydifference = dbe_->book1D("HE_HcalHLT_energyDifference",
+  h_HE_HcalHLT_energydifference = ib.book1D("HE_HcalHLT_energyDifference",
 					     "Sum(E_HEPlus - E_HEMinus)/Sum(E_HEPlus + E_HEMinus)",
 					     200,-1,1);
 
   // Do we want separate directories for Minbias, other flags at some point?
-  dbe_->setCurrentFolder(subdir_+"AnomalousCellFlags");// HB Flag Histograms
+  ib.setCurrentFolder(subdir_+"AnomalousCellFlags");// HB Flag Histograms
 
 
-  h_HFLongShort_vs_LS=dbe_->book1D("HFLongShort_vs_LS",
+  h_HFLongShort_vs_LS=ib.book1D("HFLongShort_vs_LS",
 				   "HFLongShort Flags vs Lumi Section",
 				   NLumiBlocks_/10,0.5,0.5+NLumiBlocks_);
-  h_HFDigiTime_vs_LS=dbe_->book1D("HFDigiTime_vs_LS",
+  h_HFDigiTime_vs_LS=ib.book1D("HFDigiTime_vs_LS",
 				  "HFDigiTime Flags vs Lumi Section",
 				  NLumiBlocks_/10,0.5,0.5+NLumiBlocks_);
-  h_HBHEHPDMult_vs_LS=dbe_->book1D("HBHEHPDMult_vs_LS",
+  h_HBHEHPDMult_vs_LS=ib.book1D("HBHEHPDMult_vs_LS",
 				   "HBHEHPDMult Flags vs Lumi Section",
 				   NLumiBlocks_/10,0.5,0.5+NLumiBlocks_);
-  h_HBHEPulseShape_vs_LS=dbe_->book1D("HBHEPulseShape_vs_LS",
+  h_HBHEPulseShape_vs_LS=ib.book1D("HBHEPulseShape_vs_LS",
 				      "HBHEPulseShape Flags vs Lumi Section",
 				      NLumiBlocks_/10,0.5,0.5+NLumiBlocks_);
 
-  h_HF_FlagCorr=dbe_->book2D("HF_FlagCorrelation",
+  h_HF_FlagCorr=ib.book2D("HF_FlagCorrelation",
 			     "HF LongShort vs. DigiTime flags; DigiTime; LongShort", 
 			     2,-0.5,1.5,2,-0.5,1.5);
   h_HF_FlagCorr->setBinLabel(1,"OFF",1);
@@ -340,7 +340,7 @@ void HcalRecHitMonitor::setup()
   h_HF_FlagCorr->setBinLabel(1,"OFF",2);
   h_HF_FlagCorr->setBinLabel(2,"ON",2);
 
-  h_HBHE_FlagCorr=dbe_->book2D("HBHE_FlagCorrelation",
+  h_HBHE_FlagCorr=ib.book2D("HBHE_FlagCorrelation",
 			       "HBHE HpdHitMultiplicity vs. PulseShape flags; PulseShape; HpdHitMultiplicity", 
 			       2,-0.5,1.5,2,-0.5,1.5);
   h_HBHE_FlagCorr->setBinLabel(1,"OFF",1);
@@ -348,30 +348,30 @@ void HcalRecHitMonitor::setup()
   h_HBHE_FlagCorr->setBinLabel(1,"OFF",2);
   h_HBHE_FlagCorr->setBinLabel(2,"ON",2);
 
-  h_FlagMap_HPDMULT=dbe_->book2D("FlagMap_HPDMULT",
+  h_FlagMap_HPDMULT=ib.book2D("FlagMap_HPDMULT",
 				 "RBX Map of HBHEHpdHitMultiplicity Flags;RBX;RM",
 				  72,-0.5,71.5,4,0.5,4.5);
-  h_FlagMap_PULSESHAPE=dbe_->book2D("FlagMap_PULSESHAPE",
+  h_FlagMap_PULSESHAPE=ib.book2D("FlagMap_PULSESHAPE",
 				    "RBX Map of HBHEPulseShape Flags;RBX;RM",
 				  72,-0.5,71.5,4,0.5,4.5);
-  h_FlagMap_DIGITIME=dbe_->book2D("FlagMap_DIGITIME",
+  h_FlagMap_DIGITIME=ib.book2D("FlagMap_DIGITIME",
 				  "RBX Map of HFDigiTime Flags;RBX;RM",
 				  24,131.5,155.5,4,0.5,4.5);
-  h_FlagMap_LONGSHORT=dbe_->book2D("FlagMap_LONGSHORT",
+  h_FlagMap_LONGSHORT=ib.book2D("FlagMap_LONGSHORT",
 				   "RBX Map of HFLongShort Flags;RBX;RM",
 				   24,131.5,155.5,4,0.5,4.5);
 
-  h_FlagMap_TIMEADD=dbe_->book2D("FlagMap_TIMEADD",
+  h_FlagMap_TIMEADD=ib.book2D("FlagMap_TIMEADD",
 				 "RBX Map of Timing Added Flags;RBX;RM",
 				   156,-0.5,155.5,4,0.5,4.5);
-  h_FlagMap_TIMESUBTRACT=dbe_->book2D("FlagMap_TIMESUBTRACT",
+  h_FlagMap_TIMESUBTRACT=ib.book2D("FlagMap_TIMESUBTRACT",
 				      "RBX Map of Timing Subtracted Flags;RBX;RM",
 				   156,-0.5,155.5,4,0.5,4.5);
-  h_FlagMap_TIMEERROR=dbe_->book2D("FlagMap_TIMEERROR",
+  h_FlagMap_TIMEERROR=ib.book2D("FlagMap_TIMEERROR",
 				   "RBX Map of Timing Error Flags;RBX;RM",
 				   156,-0.5,155.5,4,0.5,4.5);
 
-  h_HBflagcounter=dbe_->book1D("HBflags","HB flags",32,-0.5,31.5);
+  h_HBflagcounter=ib.book1D("HBflags","HB flags",32,-0.5,31.5);
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHEHpdHitMultiplicity, "HpdHitMult",1);
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHEPulseShape, "PulseShape",1);
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_R1R2, "HSCP R1R2",1);
@@ -394,7 +394,7 @@ void HcalRecHitMonitor::setup()
   h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::Fraction2TS,"Frac2TS",1);
 
   // HE Flag Histograms
-  h_HEflagcounter=dbe_->book1D("HEflags","HE flags",32,-0.5,31.5);
+  h_HEflagcounter=ib.book1D("HEflags","HE flags",32,-0.5,31.5);
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHEHpdHitMultiplicity, "HpdHitMult",1);
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHEPulseShape, "PulseShape",1);
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_R1R2, "HSCP R1R2",1);
@@ -415,7 +415,7 @@ void HcalRecHitMonitor::setup()
   h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::Fraction2TS,"Frac2TS",1);
 
   // HO Flag Histograms
-  h_HOflagcounter=dbe_->book1D("HOflags","HO flags",32,-0.5,31.5);
+  h_HOflagcounter=ib.book1D("HOflags","HO flags",32,-0.5,31.5);
   h_HOflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingSubtractedBit, "Subtracted",1);
   h_HOflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingAddedBit, "Added",1);
   h_HOflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingErrorBit, "TimingError",1);
@@ -423,7 +423,7 @@ void HcalRecHitMonitor::setup()
   h_HOflagcounter->setBinLabel(1+HcalCaloFlagLabels::Fraction2TS,"Frac2TS",1);
 
   // HF Flag Histograms
-  h_HFflagcounter=dbe_->book1D("HFflags","HF flags",32,-0.5,31.5);
+  h_HFflagcounter=ib.book1D("HFflags","HF flags",32,-0.5,31.5);
   h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::HFLongShort, "LongShort",1);
   h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::HFDigiTime, "DigiTime",1);
   h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::HFTimingTrustBits,"TimingTrust1",1);
@@ -441,91 +441,91 @@ void HcalRecHitMonitor::setup()
 
   // Diagnostic plots are currently filled for all rechits (no trigger/threshold requirement)
   // hb
-  dbe_->setCurrentFolder(subdir_+"diagnostics/hb");
+  ib.setCurrentFolder(subdir_+"diagnostics/hb");
   
-  h_HBTimeVsEnergy=dbe_->book2D("HBTimeVsEnergy","HB Time Vs Energy (All RecHits);Energy (GeV); time(nS)",100,0,500,40,-100,100);
+  h_HBTimeVsEnergy=ib.book2D("HBTimeVsEnergy","HB Time Vs Energy (All RecHits);Energy (GeV); time(nS)",100,0,500,40,-100,100);
 
-  h_HBsizeVsLS=dbe_->bookProfile("HBRecHitsVsLB","HB RecHits vs Luminosity Block",
+  h_HBsizeVsLS=ib.bookProfile("HBRecHitsVsLB","HB RecHits vs Luminosity Block",
 				 NLumiBlocks_,0.5,NLumiBlocks_+0.5,
 				 100,0,10000);
 
-  h_HBTime=dbe_->book1D("HB_time","HB RecHit Time",
+  h_HBTime=ib.book1D("HB_time","HB RecHit Time",
 			int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
-  h_HBOccupancy=dbe_->book1D("HB_occupancy",
+  h_HBOccupancy=ib.book1D("HB_occupancy",
 			     "HB RecHit Occupancy",260,-0.5,2599.5);
   
   //he
-  dbe_->setCurrentFolder(subdir_+"diagnostics/he");
+  ib.setCurrentFolder(subdir_+"diagnostics/he");
 
-  h_HETimeVsEnergy=dbe_->book2D("HETimeVsEnergy","HE Time Vs Energy (All RecHits);Energy (GeV); time(nS)",100,0,500,40,-100,100);
+  h_HETimeVsEnergy=ib.book2D("HETimeVsEnergy","HE Time Vs Energy (All RecHits);Energy (GeV); time(nS)",100,0,500,40,-100,100);
 
-  h_HEsizeVsLS=dbe_->bookProfile("HERecHitsVsLB","HE RecHits vs Luminosity Block",
+  h_HEsizeVsLS=ib.bookProfile("HERecHitsVsLB","HE RecHits vs Luminosity Block",
 				 NLumiBlocks_,0.5,NLumiBlocks_+0.5,
 				 100,0,10000);
 	
-  h_HETime=dbe_->book1D("HE_time","HE RecHit Time",
+  h_HETime=ib.book1D("HE_time","HE RecHit Time",
 			int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
-  h_HEOccupancy=dbe_->book1D("HE_occupancy","HE RecHit Occupancy",260,-0.5,2599.5);
+  h_HEOccupancy=ib.book1D("HE_occupancy","HE RecHit Occupancy",260,-0.5,2599.5);
    
   // ho
-  dbe_->setCurrentFolder(subdir_+"diagnostics/ho");	
+  ib.setCurrentFolder(subdir_+"diagnostics/ho");	
 
-  h_HOTimeVsEnergy=dbe_->book2D("HOTimeVsEnergy","HO Time Vs Energy (All RecHits);Energy (GeV); time(nS)",100,0,500,40,-100,100);
+  h_HOTimeVsEnergy=ib.book2D("HOTimeVsEnergy","HO Time Vs Energy (All RecHits);Energy (GeV); time(nS)",100,0,500,40,-100,100);
 
-  h_HOsizeVsLS=dbe_->bookProfile("HORecHitsVsLB","HO RecHits vs Luminosity Block",
+  h_HOsizeVsLS=ib.bookProfile("HORecHitsVsLB","HO RecHits vs Luminosity Block",
 				 NLumiBlocks_,0.5,NLumiBlocks_+0.5,
 				 100,0,10000);
-  h_HOTime=dbe_->book1D("HO_time",
+  h_HOTime=ib.book1D("HO_time",
 			"HO RecHit Time",
 			int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
-  h_HOOccupancy=dbe_->book1D("HO_occupancy",
+  h_HOOccupancy=ib.book1D("HO_occupancy",
 			     "HO RecHit Occupancy",217,-0.5,2169.5);
   
   // hf
-  dbe_->setCurrentFolder(subdir_+"diagnostics/hf");
+  ib.setCurrentFolder(subdir_+"diagnostics/hf");
 
-  h_HFTimeVsEnergy=dbe_->book2D("HFTimeVsEnergy","HF Time Vs Energy (All RecHits);Energy (GeV); time(nS)",100,0,500,40,-100,100);
+  h_HFTimeVsEnergy=ib.book2D("HFTimeVsEnergy","HF Time Vs Energy (All RecHits);Energy (GeV); time(nS)",100,0,500,40,-100,100);
 
-  h_HFsizeVsLS=dbe_->bookProfile("HFRecHitsVsLB",
+  h_HFsizeVsLS=ib.bookProfile("HFRecHitsVsLB",
 				 "HF RecHits vs Luminosity Block",
 				 NLumiBlocks_,0.5,NLumiBlocks_+0.5,
 				 100, 0,10000);	
-  h_HFTime=dbe_->book1D("HF_time","HF RecHit Time",
+  h_HFTime=ib.book1D("HF_time","HF RecHit Time",
 			int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
-  h_HFOccupancy=dbe_->book1D("HF_occupancy","HF RecHit Occupancy",173,-0.5,1729.5);
+  h_HFOccupancy=ib.book1D("HF_occupancy","HF RecHit Occupancy",173,-0.5,1729.5);
 
   return;
 } //void HcalRecHitMonitor::setup(...)
 
-void HcalRecHitMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
+void HcalRecHitMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c)
 {
 
-  if (debug_>0) std::cout <<"HcalRecHitMonitor::beginRun():  task =  '"<<subdir_<<"'"<<std::endl;
-  HcalBaseDQMonitor::beginRun(run, c);
+  if (debug_>0) std::cout <<"HcalRecHitMonitor::bookHistograms():  task =  '"<<subdir_<<"'"<<std::endl;
+  HcalBaseDQMonitor::bookHistograms(ib,run, c);
   if (tevt_==0) // create histograms, if they haven't been created already
-    this->setup();
+    this->setup(ib);
   // Clear histograms at the start of each run if not merging runs
   if (mergeRuns_==false)
     this->reset();
 
   if (tevt_!=0) return;
   // create histograms displaying trigger parameters?  Specify names?
-  dbe_->setCurrentFolder(subdir_+"rechit_parameters");
+  ib.setCurrentFolder(subdir_+"rechit_parameters");
   std::string tnames="";
   if (HcalHLTBits_.size()>0)
     tnames=HcalHLTBits_[0];
   for (unsigned int i=1;i<HcalHLTBits_.size();++i)
     tnames=tnames + " OR " + HcalHLTBits_[i];
-  dbe_->bookString("HcalHLTriggerRequirements",tnames);
+  ib.bookString("HcalHLTriggerRequirements",tnames);
   tnames="";
   if (MinBiasHLTBits_.size()>0)
     tnames=MinBiasHLTBits_[0];
   for (unsigned int i=1;i<MinBiasHLTBits_.size();++i)
     tnames=tnames + " OR " + MinBiasHLTBits_[i];
-  dbe_->bookString("MinBiasHLTriggerRequirements",tnames);
+  ib.bookString("MinBiasHLTriggerRequirements",tnames);
   return;
   
-} //void HcalRecHitMonitor::beginRun(...)
+} //void HcalRecHitMonitor::bookHistograms(...)
 
 
 void HcalRecHitMonitor::endRun(const edm::Run& run, const edm::EventSetup& c)
@@ -540,14 +540,123 @@ void HcalRecHitMonitor::endRun(const edm::Run& run, const edm::EventSetup& c)
 
 void HcalRecHitMonitor::reset()
 {
-  std::vector<MonitorElement*> hists = dbe_->getAllContents(subdir_);
+   // REIMPLEMENT FUNCTIONALITY WITHOUT USING GETTER
+  /*std::vector<MonitorElement*> hists = dbe_->getAllContents(subdir_);
   for (unsigned int i=0;i<hists.size();++i)
     {
       if (hists[i]->kind()==MonitorElement::DQM_KIND_TH1F ||
 	  hists[i]->kind()==MonitorElement::DQM_KIND_TH2F ||
 	  hists[i]->kind()==MonitorElement::DQM_KIND_TPROFILE)
 	hists[i]->Reset();
-    }
+    }*/
+
+   h_rechitieta->Reset();
+   h_rechitiphi->Reset();
+
+   h_rechitieta_05->Reset();
+   h_rechitieta_10->Reset();
+   h_rechitieta_25->Reset();
+   h_rechitieta_100->Reset();
+   h_rechitiphi_05->Reset();
+   h_rechitiphi_10->Reset();
+   h_rechitiphi_25->Reset();
+   h_rechitiphi_100->Reset();
+
+   h_rechitieta_thresh->Reset();
+   h_rechitiphi_thresh->Reset();
+
+   h_HBsizeVsLS->Reset();
+   h_HEsizeVsLS->Reset();
+   h_HOsizeVsLS->Reset();
+   h_HFsizeVsLS->Reset();
+
+   h_HBTime->Reset();
+   h_HBThreshTime->Reset();
+   h_HBOccupancy->Reset();
+   h_HBThreshOccupancy->Reset();
+
+   h_HETime->Reset();
+   h_HEThreshTime->Reset();
+   h_HEOccupancy->Reset();
+   h_HEThreshOccupancy->Reset();
+
+   h_HOTime->Reset();
+   h_HOThreshTime->Reset();
+   h_HOOccupancy->Reset();
+   h_HOThreshOccupancy->Reset();
+
+   h_HFTime->Reset();
+   h_HFThreshTime->Reset();
+   h_HFOccupancy->Reset();
+   h_HFThreshOccupancy->Reset();
+
+   h_HBflagcounter->Reset();
+   h_HEflagcounter->Reset();
+   h_HOflagcounter->Reset();
+   h_HFflagcounter->Reset();
+  
+   h_FlagMap_HPDMULT->Reset();
+   h_FlagMap_PULSESHAPE->Reset();
+   h_FlagMap_DIGITIME->Reset();
+   h_FlagMap_LONGSHORT->Reset();
+   h_FlagMap_TIMEADD->Reset();
+   h_FlagMap_TIMESUBTRACT->Reset();
+   h_FlagMap_TIMEERROR->Reset();
+                 
+   h_HFLongShort_vs_LS->Reset();
+   h_HFDigiTime_vs_LS->Reset();
+   h_HBHEHPDMult_vs_LS->Reset();
+   h_HBHEPulseShape_vs_LS->Reset();
+
+   h_HF_FlagCorr->Reset();
+   h_HBHE_FlagCorr->Reset();
+
+   h_HFtimedifference->Reset();
+   h_HFenergydifference->Reset();
+   h_HEtimedifference->Reset();
+   h_HEenergydifference->Reset();
+
+   h_HF_HcalHLT_weightedtimedifference->Reset();
+   h_HF_HcalHLT_energydifference->Reset();
+   h_HE_HcalHLT_weightedtimedifference->Reset();
+   h_HE_HcalHLT_energydifference->Reset();
+
+   h_LumiPlot_LS_allevents->Reset();
+   h_LumiPlot_LS_MinBiasEvents->Reset();
+   h_LumiPlot_LS_MinBiasEvents_notimecut->Reset();
+   h_LumiPlot_LS_HcalHLTEvents->Reset();
+   h_LumiPlot_LS_HcalHLTEvents_notimecut->Reset();
+
+   h_LumiPlot_SumHT_HFPlus_vs_HFMinus->Reset();
+   h_LumiPlot_timeHFPlus_vs_timeHFMinus->Reset();
+
+   h_LumiPlot_SumEnergy_HFPlus_vs_HFMinus->Reset();
+  
+   h_LumiPlot_BX_allevents->Reset();
+   h_LumiPlot_BX_MinBiasEvents->Reset();
+   h_LumiPlot_BX_MinBiasEvents_notimecut->Reset();
+   h_LumiPlot_BX_HcalHLTEvents->Reset();
+   h_LumiPlot_BX_HcalHLTEvents_notimecut->Reset();
+
+   h_LumiPlot_MinTime_vs_MinHT->Reset();
+   h_LumiPlot_timeHT_HFM->Reset();
+   h_LumiPlot_timeHT_HFP->Reset();
+
+   h_TriggeredEvents->Reset();
+   h_HFP_weightedTime->Reset();
+   h_HFM_weightedTime->Reset();
+   h_HEP_weightedTime->Reset();
+   h_HEM_weightedTime->Reset();
+   h_HBP_weightedTime->Reset();
+   h_HBM_weightedTime->Reset();
+
+   h_HBTimeVsEnergy->Reset();
+   h_HETimeVsEnergy->Reset();
+   h_HOTimeVsEnergy->Reset();
+   h_HFTimeVsEnergy->Reset();
+   HFP_HFM_Energy->Reset();
+
+
 }  
 
 void HcalRecHitMonitor::endJob()
@@ -560,7 +669,7 @@ void HcalRecHitMonitor::endJob()
 
 /* --------------------------------- */
 
-void HcalRecHitMonitor::cleanup()
+/*void HcalRecHitMonitor::cleanup()
 {
   //Add code to clean out subdirectories
   if (!enableCleanup_) return;
@@ -583,7 +692,7 @@ void HcalRecHitMonitor::cleanup()
       dbe_->setCurrentFolder(subdir_+"diagnostics/hf"); dbe_->removeContents();
     }
   return;
-} // void HcalRecHitMonitor::cleanup()
+} */ // void HcalRecHitMonitor::cleanup()
 
 /* -------------------------------- */
 
@@ -592,6 +701,7 @@ void HcalRecHitMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   getLogicalMap(s);
   if (debug_>0)  std::cout <<"HcalRecHitMonitor::analyze; debug = "<<debug_<<std::endl;
 
+  HcalBaseDQMonitor::analyze(e,s);
   if (!IsAllowedCalibType()) return;
   if (LumiInOrder(e.luminosityBlock())==false) return;
 
@@ -623,7 +733,7 @@ void HcalRecHitMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   h_LumiPlot_BX_allevents->Fill(e.bunchCrossing());
   processEvent(*hbhe_rechit, *ho_rechit, *hf_rechit, e.bunchCrossing(), e);
 
-  HcalBaseDQMonitor::analyze(e,s);
+//  HcalBaseDQMonitor::analyze(e,s);
 } // void HcalRecHitMonitor::analyze()
 
 

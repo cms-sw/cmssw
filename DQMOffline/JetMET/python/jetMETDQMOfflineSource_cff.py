@@ -4,12 +4,53 @@ from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import *
 
 from DQMOffline.JetMET.metDQMConfig_cff     import *
 from DQMOffline.JetMET.jetAnalyzer_cff   import *
-from DQMOffline.JetMET.caloTowers_cff       import *
-from DQMOffline.JetMET.BeamHaloAnalyzer_cfi import *
 from DQMOffline.JetMET.SUSYDQMAnalyzer_cfi  import *
 from DQMOffline.JetMET.goodOfflinePrimaryVerticesDQM_cfi import *
-AnalyzeBeamHalo.StandardDQM = cms.bool(True)
+from RecoJets.JetProducers.PileupJetID_cfi  import *
+from RecoJets.JetProducers.QGTagger_cfi  import *
 
-towerSchemeBAnalyzer.AllHist = cms.untracked.bool(False)
+pileupJetIdProducer.jets = cms.InputTag("ak4PFJets")
+pileupJetIdProducer.algos = cms.VPSet(full_5x_chs,cutbased)
 
-jetMETDQMOfflineSource = cms.Sequence(HBHENoiseFilterResultProducer*goodOfflinePrimaryVerticesDQM*analyzecaloTowersDQM*AnalyzeSUSYDQM*jetDQMAnalyzerSequence*METDQMAnalyzerSequence)
+pileupJetIdProducerChs.jets = cms.InputTag("ak4PFJetsCHS")
+
+from JetMETCorrections.Configuration.JetCorrectors_cff import ak4CaloL2L3ResidualCorrectorChain,ak4CaloL2L3ResidualCorrector,ak4CaloResidualCorrector,ak4CaloL2L3Corrector,ak4CaloL3AbsoluteCorrector,ak4CaloL2RelativeCorrector
+
+dqmAk4CaloL2L3ResidualCorrector = ak4CaloL2L3ResidualCorrector.clone()
+dqmAk4CaloL2L3ResidualCorrectorChain = cms.Sequence(
+    #ak4CaloL2RelativeCorrector*ak4CaloL3AbsoluteCorrector*ak4CaloResidualCorrector*
+    dqmAk4CaloL2L3ResidualCorrector
+)
+
+from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFL1FastL2L3ResidualCorrectorChain,ak4PFL1FastL2L3ResidualCorrector,ak4PFResidualCorrector,ak4PFL3AbsoluteCorrector,ak4PFL2RelativeCorrector,ak4PFL1FastjetCorrector
+
+dqmAk4PFL1FastL2L3ResidualCorrector = ak4PFL1FastL2L3ResidualCorrector.clone()
+dqmAk4PFL1FastL2L3ResidualCorrectorChain = cms.Sequence(
+    #ak4PFL1FastjetCorrector*ak4PFL2RelativeCorrector*ak4PFL3AbsoluteCorrector*ak4PFResidualCorrector*
+    dqmAk4PFL1FastL2L3ResidualCorrector
+)
+
+from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFCHSL1FastL2L3ResidualCorrectorChain,ak4PFCHSL1FastL2L3ResidualCorrector,ak4PFCHSResidualCorrector,ak4PFCHSL3AbsoluteCorrector,ak4PFCHSL2RelativeCorrector,ak4PFCHSL1FastjetCorrector
+
+dqmAk4PFCHSL1FastL2L3ResidualCorrector = ak4PFCHSL1FastL2L3ResidualCorrector.clone()
+dqmAk4PFCHSL1FastL2L3ResidualCorrectorChain = cms.Sequence(
+    #ak4PFCHSL1FastjetCorrector*ak4PFCHSL2RelativeCorrector*ak4PFCHSL3AbsoluteCorrector*ak4PFCHSResidualCorrector
+    dqmAk4PFCHSL1FastL2L3ResidualCorrector
+)
+
+jetPreDQMSeq=cms.Sequence(ak4CaloL2RelativeCorrector*ak4CaloL3AbsoluteCorrector*ak4CaloResidualCorrector*
+                          ak4PFL1FastjetCorrector*ak4PFL2RelativeCorrector*ak4PFL3AbsoluteCorrector*ak4PFResidualCorrector*
+                          ak4PFCHSL1FastjetCorrector*ak4PFCHSL2RelativeCorrector*ak4PFCHSL3AbsoluteCorrector*ak4PFCHSResidualCorrector)
+
+from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
+from JetMETCorrections.Type1MET.correctionTermsPfMetType0PFCandidate_cff import *
+from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
+
+corrPfMetType1.jetCorrLabel = cms.InputTag('dqmAk4PFL1FastL2L3ResidualCorrector')
+
+jetMETDQMOfflineSource = cms.Sequence(HBHENoiseFilterResultProducer*goodOfflinePrimaryVerticesDQM*AnalyzeSUSYDQM*pileupJetIdProducer*pileupJetIdProducerChs*QGTagger*
+                                      jetPreDQMSeq*
+                                      dqmAk4CaloL2L3ResidualCorrectorChain*dqmAk4PFL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3ResidualCorrectorChain*
+                                      corrPfMetType1*pfMetT1*
+                                      jetDQMAnalyzerSequence*METDQMAnalyzerSequence)
+jetMETDQMOfflineSourceMiniAOD = cms.Sequence(goodOfflinePrimaryVerticesDQMforMiniAOD*jetDQMAnalyzerSequenceMiniAOD*METDQMAnalyzerSequenceMiniAOD)

@@ -81,6 +81,7 @@ Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
         and /proc/meminfo files and Memory statistics
 */
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/Utilities/interface/InputType.h"
 
 #include <atomic>
@@ -317,14 +318,14 @@ namespace edm {
       /// the file identified by the given Token.
       // CMS-THREADING Current implementation requires an instance of an
       // OuputModule run on only one thread at a time.
-      void eventWrittenToFile(Token fileToken, unsigned int run, unsigned int event);
+      void eventWrittenToFile(Token fileToken, RunNumber_t run, EventNumber_t event);
 
       /// Report that the output file identified by the given Token has
       /// been closed. An exception will be thrown if the given Token
       /// was not obtained from outputFileOpened.
       void outputFileClosed(Token fileToken);
 
-      void reportSkippedEvent(unsigned int run, unsigned int event);
+      void reportSkippedEvent(RunNumber_t run, EventNumber_t event);
 
       /// API for reporting a Run to the job report.
       /// for output files, call only if Run is written to

@@ -101,10 +101,11 @@
 
 #include "TString.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 class PGlobalDigi;
 
-class GlobalDigisAnalyzer : public edm::EDAnalyzer
+class GlobalDigisAnalyzer : public DQMEDAnalyzer
 {
 
  public:
@@ -115,9 +116,10 @@ class GlobalDigisAnalyzer : public edm::EDAnalyzer
 
   explicit GlobalDigisAnalyzer(const edm::ParameterSet&);
   virtual ~GlobalDigisAnalyzer();
-  virtual void beginJob( void );
-  virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+ protected:
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
  private:
 
@@ -143,8 +145,6 @@ class GlobalDigisAnalyzer : public edm::EDAnalyzer
   bool getAllProvenances;
   bool printProvenanceInfo;
   std::string hitsProducer;
-
-  DQMStore *dbe;
 
   // Electromagnetic info
   // ECal info

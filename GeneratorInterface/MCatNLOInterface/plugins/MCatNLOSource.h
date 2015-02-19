@@ -50,7 +50,7 @@ public:
 private:
   virtual void endJob();
   virtual void beginRun(edm::Run &run);
-  virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&);
+  virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&);
   virtual void produce(edm::Event &event);
   
   void nextEvent();

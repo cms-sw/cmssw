@@ -17,7 +17,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -45,23 +45,14 @@
 #include <vector>
 #include <string>
 
-class HLTInclusiveVBFSource : public edm::EDAnalyzer {
+class HLTInclusiveVBFSource : public DQMEDAnalyzer {
  public:
   explicit HLTInclusiveVBFSource(const edm::ParameterSet&);
   ~HLTInclusiveVBFSource();
-  
- private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  void endRun(const edm::Run& run, const edm::EventSetup& c);
 
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
-  //void histobooking( const edm::EventSetup& c);
-  
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
+ private:
   virtual bool isBarrel(double eta);
   virtual bool isEndCap(double eta); 
   virtual bool isForward(double eta);
@@ -71,12 +62,8 @@ class HLTInclusiveVBFSource : public edm::EDAnalyzer {
   //virtual double TriggerPosition(std::string trigName);
   
   // ----------member data --------------------------- 
-  int nev_;
   int nCount_;
-  DQMStore * dbe;
       
-  MonitorElement* total_;
-
   std::vector<int>  prescUsed_;
   
   std::string dirname_;
@@ -85,7 +72,6 @@ class HLTInclusiveVBFSource : public edm::EDAnalyzer {
   std::vector<std::string> path_;
   
   bool debug_;
-  bool isSetup_; 
 
   double minPtHigh_;
   double minPtLow_;
@@ -185,13 +171,10 @@ class HLTInclusiveVBFSource : public edm::EDAnalyzer {
   double hlt_deltaphijet;
   double hlt_invmassjet;
   
-  // data across paths
-  MonitorElement* scalersSelect;
   // helper class to store the data path
   
   class PathInfo {
     PathInfo():
-      pathIndex_(-1), 
       prescaleUsed_(-1), 
       pathName_("unset"), 
       filterName_("unset"), 
@@ -293,7 +276,6 @@ class HLTInclusiveVBFSource : public edm::EDAnalyzer {
       }
       
   private:
-      int pathIndex_;
       int prescaleUsed_;
       std::string pathName_;
       std::string filterName_;

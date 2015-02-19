@@ -259,8 +259,6 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
    bool firedHLT = (trgIndex < trgNames.size()) && (pTrgResults->accept(trgIndex));
 
    // Loop over the candidate collection
-   // const edm::PtrVector<object>& ptrVect = candHandle->ptrVector();
-   const edm::RefToBaseVector<object>& refs = candHandle->refVector();
    unsigned int counter=0;
 
    for( typename edm::View< object>::const_iterator j = candHandle->begin();
@@ -279,8 +277,8 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
      }
 
      if(hltTrigger && firedHLT) {
-       outColRef->push_back( refs[counter] );
-       //outColPtr->push_back( ptrVect[counter] );
+       outColRef->push_back( candHandle->refAt(counter) );
+       //outColPtr->push_back( candHandle->ptrAt(counter) );
      }
    }
 

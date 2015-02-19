@@ -35,7 +35,7 @@ Implementation:
 
 #include "JetMETCorrections/TauJet/interface/TauJetCorrector.h"
 //#include "JetMETCorrections/TauJet/interface/JetCalibratorTauJet.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -75,12 +75,10 @@ private:
 #endif
   std::string jetname;
   edm::EDGetTokenT<reco::IsolatedTauTagInfoCollection> tautoken;
-  std::string tauCorrectorname;
+  edm::EDGetTokenT<reco::JetCorrector> tauCorrectortoken;
 
   int nEvt;// used to count the number of events
   int njets;
-
-  JetCorrector* taucorrector;
 
 };
 
@@ -105,8 +103,8 @@ TauJetCorrectorExample::TauJetCorrectorExample(const edm::ParameterSet& iConfig)
 #endif
   jetname(iConfig.getUntrackedParameter<std::string>("JetHandle","iterativeCone5CaloJets")),
   tautoken(consumes<reco::IsolatedTauTagInfoCollection>(edm::InputTag(iConfig.getUntrackedParameter<std::string>("TauHandle","coneIsolation")))),
-  tauCorrectorname(iConfig.getUntrackedParameter<std::string>("tauCorrHandle", "TauJetCorrectorIcone5")),
-  nEvt(0), njets(0), taucorrector(0)
+  tauCorrectortoken(consumes<reco::JetCorrector>(iConfig.getUntrackedParameter<std::string>("tauCorrHandle", "TauJetCorrectorIcone5"))),
+  nEvt(0), njets(0)
 {
   //now do what ever initialization is needed
 
@@ -130,9 +128,10 @@ TauJetCorrectorExample::~TauJetCorrectorExample()
 void
 TauJetCorrectorExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  taucorrector = const_cast<JetCorrector*>(JetCorrector::getJetCorrector(tauCorrectorname, iSetup));
-
   using namespace edm;
+
+  Handle<reco::JetCorrector> taucorrector;
+  iEvent.getByToken(tauCorrectortoken, taucorrector);
 
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
   Handle<ExampleData> pIn;
@@ -143,7 +142,6 @@ TauJetCorrectorExample::analyze(const edm::Event& iEvent, const edm::EventSetup&
   ESHandle<SetupData> pSetup;
   iSetup.get<SetupRecord>().get(pSetup);
 #endif
-  using namespace edm;
 
   // this analyzer produces a small root file with basic candidates and some MC information
   // some additional print statements
@@ -155,9 +153,6 @@ TauJetCorrectorExample::analyze(const edm::Event& iEvent, const edm::EventSetup&
   Handle<reco::IsolatedTauTagInfoCollection> tauTagInfoHandle;
   iEvent.getByToken(tautoken,tauTagInfoHandle);
   reco::IsolatedTauTagInfoCollection::const_iterator tau=tauTagInfoHandle->begin();
-
-  //get tau jet corrector
-  //const JetCorrector* taucorrector = JetCorrector::getJetCorrector(tauCorrectorname, iSetup);
 
   //  std::cout << "setting everything to 0 just before tau loop" << std::endl;
   njets=0;
@@ -188,9 +183,6 @@ void
 //TauJetCorrectorExample::beginJob(const edm::EventSetup& iSetup)
 TauJetCorrectorExample::beginJob()
 {
-
-//	taucorrector = const_cast<JetCorrector*>(JetCorrector::getJetCorrector(tauCorrectorname, iSetup));
-
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

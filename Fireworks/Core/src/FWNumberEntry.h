@@ -27,8 +27,10 @@ public:
    virtual Bool_t HandleFocusChange(Event_t* event);
    virtual void   ReturnPressed();
 
-   virtual UInt_t GetUIntNumber();
-   virtual void   SetUIntNumber(UInt_t n);
+   virtual UInt_t    GetUIntNumber();
+   virtual void      SetUIntNumber(UInt_t n);
+   virtual ULong64_t GetULong64Number();
+   virtual void      SetULong64Number(ULong64_t n);
 
    ClassDef(FWNumberEntryField, 0);
 

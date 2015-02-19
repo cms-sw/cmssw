@@ -952,17 +952,6 @@ void GsfElectronAlgo::addPflowInfo()
      el != eventData_->electrons->end() ;
      el++ )
    {
-//    // MVA
-//    // we check that the value is never inferior to the no-cut value
-//    // we generally use in the configuration file for minMVA.
-//    GsfTrackRef gsfTrackRef = (*el)->gsfTrack() ;
-//    float mva = (*eventData_->pfMva.product())[gsfTrackRef] ;
-//    if (mva<noCutMin) { throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue")<<"unexpected MVA value: "<<mva ; }
-//
-//    // Mva Output
-//    GsfElectron::MvaOutput mvaOutput ;
-//    mvaOutput.mva = mva ;
-//    (*el)->setMvaOutput(mvaOutput) ;
 
     // Retreive info from pflow electrons
     found = false ;
@@ -1035,41 +1024,15 @@ void GsfElectronAlgo::addPflowInfo()
     // Preselection
     setPflowPreselectionFlag(*el) ;
 
-    // Shower Shape of pflow cluster
-    if (!((*el)->parentSuperCluster().isNull()))
-     {
-      reco::GsfElectron::ShowerShape pflowShowerShape ;
-      calculateShowerShape((*el)->parentSuperCluster(),true,pflowShowerShape) ;
-      (*el)->setPfShowerShape(pflowShowerShape) ;
-     }
-    else if ((*el)->passingPflowPreselection())
-     { edm::LogError("GsfElectronCoreProducer")<<"Preselected tracker driven GsfTrack with no associated pflow SuperCluster." ; }
-
-    // PfBrem
-    SuperClusterRef sc = (*el)->parentSuperCluster() ;
-    if (!(sc.isNull()))
-     {
-
-      if (sc->clustersSize()>1)
-       {
-        CaloCluster_iterator first = sc->clustersBegin() ;
-        (*el)->setPfSuperClusterFbrem((sc->energy()-(*first)->energy())/sc->energy()) ;
-       }
-      else
-       { (*el)->setPfSuperClusterFbrem(0.) ; }
-      ElectronClassification theClassifier ;
-      theClassifier.refineWithPflow(**el) ;
-     }
    }
  }
 
 bool GsfElectronAlgo::isPreselected( GsfElectron * ele )
  {
-	float mvaValue=generalData_->sElectronMVAEstimator->mva( *(ele),*(eventData_->event));
 	bool passCutBased=ele->passingCutBasedPreselection();
-	bool passPF=ele->passingPflowPreselection();
+	bool passPF=ele->passingPflowPreselection(); //it is worth nothing for gedGsfElectrons, this does nothing as its not set till GedGsfElectron finaliser, this is always false
 	if(generalData_->strategyCfg.gedElectronMode){
-		bool passmva=mvaValue>generalData_->strategyCfg.PreSelectMVA;
+         	bool passmva=ele->passingMvaPreselection();
 		if(!ele->ecalDrivenSeed()){
 		  if(ele->pt() > generalData_->strategyCfg.MaxElePtForOnlyMVA) 
 		    return passmva && passCutBased;
@@ -1203,21 +1166,6 @@ void GsfElectronAlgo::setPflowPreselectionFlag( GsfElectron * ele )
 
   ele->setPassPflowPreselection(ele->passingMvaPreselection()) ;
 
-//  ele->setPassPflowPreselection(false) ;
-//  if (ele->core()->ecalDrivenSeed())
-//   {
-//    if ((ele->mvaOutput().mva>=generalData_->cutsCfg.minMVA) ||
-//        (ele->mvaOutput().mvaByPassForIsolated>=generalData_->cutsCfg.minMvaByPassForIsolated))
-//      ele->setPassPflowPreselection(true) ;
-//   }
-//  else
-//   {
-//    if ((ele->mvaOutput().mva>=generalData_->cutsCfgPflow.minMVA) ||
-//        (ele->mvaOutput().mvaByPassForIsolated>=generalData_->cutsCfgPflow.minMvaByPassForIsolated))
-//      ele->setPassPflowPreselection(true) ;
-//   }
-//  if (ele->passingPflowPreselection())
-//   { LogTrace("GsfElectronAlgo") << "Mva criteria are satisfied" ; }
  }
 
 void GsfElectronAlgo::setMVAInputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaInput> & mvaInputs) 
@@ -1446,12 +1394,10 @@ void GsfElectronAlgo::createElectron()
      { 
        float pf_fbrem =( sc->energy() - cl->energy() ) / sc->energy();
        ele->setSuperClusterFbrem( pf_fbrem ) ;
-       ele->setPfSuperClusterFbrem( pf_fbrem) ;
      }
     else
       { 
 	ele->setSuperClusterFbrem(0) ; 
-	ele->setPfSuperClusterFbrem(0);
       }
    }
 
@@ -1525,6 +1471,17 @@ void GsfElectronAlgo::createElectron()
   //====================================================
 
   setCutBasedPreselectionFlag(ele,*eventData_->beamspot) ;
+  //setting mva flag, currently GedGsfElectron and GsfElectron pre-selection flags have desynced
+  //this is for GedGsfElectrons, GsfElectrons (ie old pre 7X std reco) resets this later on
+  //in the function "addPfInfo"
+  //yes this is awful, we'll fix it once we work out how to...
+  float mvaValue=generalData_->sElectronMVAEstimator->mva( *(ele),*(eventData_->event));
+  ele->setPassMvaPreselection(mvaValue>generalData_->strategyCfg.PreSelectMVA);
+
+  //====================================================
+  // Pixel match variables
+  //====================================================
+  setPixelMatchInfomation(ele) ;
 
   LogTrace("GsfElectronAlgo")<<"Constructed new electron with energy  "<< ele->p4().e() ;
 
@@ -1676,3 +1633,31 @@ void GsfElectronAlgo::removeAmbiguousElectrons()
  }
 
 
+// Pixel match variables
+void GsfElectronAlgo::setPixelMatchInfomation(reco::GsfElectron* ele){
+  int sd1     = 0 ;
+  int sd2     = 0 ;
+  float dPhi1 = 0 ;
+  float dPhi2 = 0 ;
+  float dRz1  = 0 ;
+  float dRz2  = 0 ;
+  edm::RefToBase<TrajectorySeed> seed = ele->gsfTrack()->extra()->seedRef();
+  ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>();
+  if(seed.isNull()){}
+  else{
+    if(elseed.isNull()){}
+    else{
+      sd1     = elseed->subDet1() ;
+      sd2     = elseed->subDet2() ;
+      dPhi1 = elseed->dPhi1() ;
+      dPhi2 = elseed->dPhi2() ;
+      dRz1  = elseed->dRz1 () ;
+      dRz2  = elseed->dRz2 () ;
+    }
+  }
+  ele->setPixelMatchSubdetectors(sd1,sd2) ;
+  ele->setPixelMatchDPhi1(dPhi1) ;
+  ele->setPixelMatchDPhi2(dPhi2) ;
+  ele->setPixelMatchDRz1 (dRz1 ) ;
+  ele->setPixelMatchDRz2 (dRz2 ) ;
+}

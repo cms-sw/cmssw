@@ -2,6 +2,8 @@
 #include "EventFilter/EcalRawToDigi/interface/EcalElectronicsMapper.h"
 #include "EventFilter/EcalRawToDigi/interface/DCCDataUnpacker.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -9,6 +11,9 @@
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
   
@@ -234,6 +239,48 @@ void printStatusRecords(const DCCDataUnpacker* unpacker,
   }
   std::cout << "<=== BARREL" << std::endl;
 }
+
+void EcalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("tccUnpacking",true);
+  desc.add<edm::InputTag>("FedLabel",edm::InputTag("listfeds"));
+  desc.add<bool>("srpUnpacking",true);
+  desc.add<bool>("syncCheck",true);
+  desc.add<bool>("feIdCheck",true);
+  desc.addUntracked<bool>("silentMode",true);
+  desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
+  {
+    std::vector<int> temp1;
+    unsigned int nvec = 54;
+    temp1.reserve(nvec);
+    for (unsigned int i=0; i<nvec; i++) temp1.push_back(601+i);
+    desc.add<std::vector<int> >("orderedFedList",temp1);
+  }
+  desc.add<bool>("eventPut",true);
+  desc.add<int>("numbTriggerTSamples",1);
+  desc.add<int>("numbXtalTSamples",10);
+  {
+    std::vector<int> temp1;
+    unsigned int nvec = 54;
+    temp1.reserve(nvec);
+    for (unsigned int i=0; i<nvec; i++) temp1.push_back(1+i);
+    desc.add<std::vector<int> >("orderedDCCIdList",temp1);
+  }
+  {
+    std::vector<int> temp1;
+    unsigned int nvec = 54;
+    temp1.reserve(nvec);
+    for (unsigned int i=0; i<nvec; i++) temp1.push_back(601+i);
+    desc.add<std::vector<int> >("FEDs",temp1);
+  }
+  desc.add<bool>("DoRegional",false);
+  desc.add<bool>("feUnpacking",true);
+  desc.add<bool>("forceToKeepFRData",false);
+  desc.add<bool>("headerUnpacking",true);
+  desc.add<bool>("memUnpacking",true);
+  descriptions.add("ecalRawToDigi",desc);
+}
+
 
 void EcalRawToDigi::beginRun(const edm::Run&, const edm::EventSetup& es)
 {

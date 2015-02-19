@@ -19,8 +19,10 @@
 // $Id$
 //
 
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/HcalLutMetadataRcd.h"
 
-class CaloTPGRecord : public edm::eventsetup::EventSetupRecordImplementation<CaloTPGRecord> {};
+class CaloTPGRecord : public edm::eventsetup::DependentRecordImplementation<CaloTPGRecord, boost::mpl::vector<HcalLutMetadataRcd,CaloGeometryRecord> > {};
 
 #endif

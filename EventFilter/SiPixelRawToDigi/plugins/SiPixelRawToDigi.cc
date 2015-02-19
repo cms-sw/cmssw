@@ -1,6 +1,7 @@
+// Skip FED40 pilot-blade
 // Include parameter driven interface to SiPixelQuality for study purposes
 // exclude ROC(raw) based on bad ROC list in SiPixelQuality
-// enabled by: process.siPixelDigis.UseQualityInfo = True
+// enabled by: process.siPixelDigis.UseQualityInfo = True (BY DEFAULT NOT USED)
 // 20-10-2010 Andrew York (Tennessee)
 
 #include "SiPixelRawToDigi.h"
@@ -8,6 +9,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -80,6 +83,21 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
     hCPU = new TH1D ("hCPU","hCPU",100,0.,0.050);
     hDigi = new TH1D("hDigi","hDigi",50,0.,15000.);
   }
+
+  // Control the usage of pilot-blade data, FED=40
+  usePilotBlade = false; 
+  if (config_.exists("UsePilotBlade")) {
+    usePilotBlade = config_.getParameter<bool> ("UsePilotBlade");
+    if(usePilotBlade) edm::LogInfo("SiPixelRawToDigi")  << " Use pilot blade data (FED 40)";
+  }
+
+  // Control the usage of phase1
+  usePhase1 = false;
+  if (config_.exists("UsePhase1")) {
+    usePhase1 = config_.getParameter<bool> ("UsePhase1");
+    if(usePhase1) edm::LogInfo("SiPixelRawToDigi")  << " Use pilot blade data (FED 40)";
+  }
+
 }
 
 
@@ -97,6 +115,38 @@ SiPixelRawToDigi::~SiPixelRawToDigi() {
 
 }
 
+void
+SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("IncludeErrors",true);
+  desc.add<bool>("UseQualityInfo",false);
+  {
+    std::vector<int> temp1;
+    temp1.reserve(1);
+    temp1.push_back(29);
+    desc.add<std::vector<int> >("ErrorList",temp1)->setComment("## ErrorList: list of error codes used by tracking to invalidate modules");
+  }
+  {
+    std::vector<int> temp1;
+    temp1.reserve(1);
+    temp1.push_back(40);
+    desc.add<std::vector<int> >("UserErrorList",temp1)->setComment("## UserErrorList: list of error codes used by Pixel experts for investigation");
+  }
+  desc.add<edm::InputTag>("InputLabel",edm::InputTag("siPixelRawData"));
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.addOptional<std::vector<edm::InputTag>>("inputs");
+    psd0.addOptional<std::vector<double>>("deltaPhi");
+    psd0.addOptional<std::vector<double>>("maxZ");
+    psd0.addOptional<edm::InputTag>("beamSpot");
+    desc.add<edm::ParameterSetDescription>("Regions",psd0)->setComment("## Empty Regions PSet means complete unpacking");
+  }
+  desc.addUntracked<bool>("Timing",false);
+  desc.add<bool>("UsePilotBlade",false)->setComment("##  Use pilot blades");
+  desc.add<bool>("UsePhase1",false)->setComment("##  Use phase1");
+  desc.addOptional<bool>("CheckPixelOrder");  // never used, kept for back-compatibility
+  descriptions.add("siPixelRawToDigi",desc);
+}
 
 // -----------------------------------------------------------------------------
 
@@ -129,7 +179,6 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   }
 
   edm::Handle<FEDRawDataCollection> buffers;
-  label = config_.getParameter<edm::InputTag>("InputLabel");
   ev.getByToken(tFEDRawDataCollection, buffers);
 
 // create product (digis & errors)
@@ -139,7 +188,9 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   std::auto_ptr< DetIdCollection > tkerror_detidcollection(new DetIdCollection());
   std::auto_ptr< DetIdCollection > usererror_detidcollection(new DetIdCollection());
 
-  PixelDataFormatter formatter(cabling_.get());
+  //PixelDataFormatter formatter(cabling_.get()); // phase 0 only
+  PixelDataFormatter formatter(cabling_.get(), usePhase1); // for phase 1 & 0
+
   formatter.setErrorStatus(includeErrors);
 
   if (useQuality) formatter.setQualityStatus(useQuality, badPixelInfo_);
@@ -157,6 +208,8 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
   for (auto aFed = fedIds.begin(); aFed != fedIds.end(); ++aFed) {
     int fedId = *aFed;
+
+    if(!usePilotBlade && (fedId==40) ) continue; // skip pilot blade data
 
     if (regions_ && !regions_->mayUnpackFED(fedId)) continue;
 

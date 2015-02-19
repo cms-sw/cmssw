@@ -26,44 +26,7 @@ CombinedSVComputer::CombinedSVComputer(const edm::ParameterSet &params) :
 	pseudoVertexV0Filter(params.getParameter<edm::ParameterSet>("pseudoVertexV0Filter")),
 	trackPairV0Filter(params.getParameter<edm::ParameterSet>("trackPairV0Filter"))
 {
-	clearTaggingVariables();
 
-	// define used TaggingVariables
-	useTaggingVariable(btau::jetPt);
-	useTaggingVariable(btau::jetEta);
-	
-	useTaggingVariable(btau::trackSip3dVal);
-	useTaggingVariable(btau::trackSip3dSig);
-	useTaggingVariable(btau::trackSip2dVal);
-	useTaggingVariable(btau::trackSip2dSig);
-	useTaggingVariable(btau::trackJetDistVal);
-	useTaggingVariable(btau::trackDecayLenVal);
-	useTaggingVariable(btau::trackMomentum);
-	useTaggingVariable(btau::trackEta);
-	useTaggingVariable(btau::trackPtRel);
-	useTaggingVariable(btau::trackPPar);
-	useTaggingVariable(btau::trackDeltaR);
-	useTaggingVariable(btau::trackPtRatio);
-	useTaggingVariable(btau::trackPParRatio);
-	useTaggingVariable(btau::trackSumJetDeltaR);
-	useTaggingVariable(btau::trackSumJetEtRatio);
-	useTaggingVariable(btau::trackSip3dSigAboveCharm);
-	useTaggingVariable(btau::trackSip2dSigAboveCharm);
-	
-	useTaggingVariable(btau::vertexCategory);
-	useTaggingVariable(btau::trackEtaRel);
-	useTaggingVariable(btau::vertexJetDeltaR);
-	useTaggingVariable(btau::jetNSecondaryVertices);
-	useTaggingVariable(btau::vertexNTracks);
-	useTaggingVariable(btau::vertexMass);
-	useTaggingVariable(btau::vertexEnergyRatio);
-	useTaggingVariable(btau::flightDistance2dVal);
-	useTaggingVariable(btau::flightDistance2dSig);
-	useTaggingVariable(btau::flightDistance3dVal);
-	useTaggingVariable(btau::flightDistance3dSig);
-	
-	// sort TaggingVariables for faster lookup later
-	sortTaggingVariables();
 }
 
 inline double CombinedSVComputer::flipValue(double value, bool vertex) const
@@ -200,7 +163,7 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 			if (hasRefittedTracks) {
 				const Track actualTrack = vertex.refittedTrack(*track);
 				vertexKinematics.add(actualTrack, w);
-				if( isUsed(btau::trackEtaRel) ) vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,actualTrack.momentum()), true);
+				vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,actualTrack.momentum()), true);
 				if(vtx < 0) // calculate this only for the first vertex
 				{
 					vtx_track_ptSum += std::sqrt(actualTrack.momentum().Perp2());
@@ -208,7 +171,7 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 				}
 			} else {
 				vertexKinematics.add(**track, w);
-				if( isUsed(btau::trackEtaRel) ) vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,(*track)->momentum()), true);
+				vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,(*track)->momentum()), true);
 				if(vtx < 0) // calculate this only for the first vertex
 				{
 					vtx_track_ptSum += std::sqrt((*track)->momentum().Perp2());
@@ -220,8 +183,8 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 		if (vtx < 0) vtx = i;
         }
 	if(vtx>=0){
-		if( isUsed(btau::vertexNTracks) ) vars.insert(btau::vertexNTracks, numberofvertextracks, true);
-		if( isUsed(btau::vertexFitProb) ) vars.insert(btau::vertexFitProb,(svInfo.secondaryVertex(vtx)).normalizedChi2(), true);
+		vars.insert(btau::vertexNTracks, numberofvertextracks, true);
+		vars.insert(btau::vertexFitProb,(svInfo.secondaryVertex(vtx)).normalizedChi2(), true);
 	}
 
 	// after we collected vertex information we let the common code complete the job
@@ -259,7 +222,7 @@ CombinedSVComputer::operator () (const CandIPTagInfo &ipInfo,
 		const std::vector<CandidatePtr> tracks = vertex.daughterPtrVector();
 		for(std::vector<CandidatePtr>::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
 			vertexKinematics.add(*(*track)->bestTrack(), 1.0);
-			if( isUsed(btau::trackEtaRel) ) vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,(*track)->momentum()), true);
+			vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,(*track)->momentum()), true);
 			if(vtx < 0) // calculate this only for the first vertex
 			{
 				vtx_track_ptSum += std::sqrt((*track)->momentum().Perp2());
@@ -270,8 +233,8 @@ CombinedSVComputer::operator () (const CandIPTagInfo &ipInfo,
 		if (vtx < 0) vtx = i;
 	}
 	if(vtx>=0){
-		if( isUsed(btau::vertexNTracks) ) vars.insert(btau::vertexNTracks, numberofvertextracks, true);
-		if( isUsed(btau::vertexFitProb) ) vars.insert(btau::vertexFitProb,(svInfo.secondaryVertex(vtx)).vertexNormalizedChi2(), true);
+		vars.insert(btau::vertexNTracks, numberofvertextracks, true);
+		vars.insert(btau::vertexFitProb,(svInfo.secondaryVertex(vtx)).vertexNormalizedChi2(), true);
 	}
 	
 	// after we collected vertex information we let the common code complete the job

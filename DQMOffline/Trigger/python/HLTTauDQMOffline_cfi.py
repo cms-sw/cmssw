@@ -2,13 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 hltTauDQMofflineProcess = "HLT"
 
-#Ref Pbjects-------------------------------------------------------------------------------------------------------
+#Ref Objects-------------------------------------------------------------------------------------------------------
 TauRefProducer = cms.EDProducer("HLTTauRefProducer",
 
                     PFTaus = cms.untracked.PSet(
                             PFTauDiscriminators = cms.untracked.VInputTag(
-                            						cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
-                                                    cms.InputTag("hpsPFTauDiscriminationByLooseIsolation")
+                                    cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
+                                    cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),
+                                    cms.InputTag("hpsPFTauDiscriminationByLooseMuonRejection2")
                             ),
                             doPFTaus = cms.untracked.bool(True),
                             ptMin = cms.untracked.double(15.0),
@@ -22,37 +23,37 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                             doElectrons = cms.untracked.bool(True),
                             TrackCollection = cms.untracked.InputTag("generalTracks"),
                             OuterConeDR = cms.untracked.double(0.6),
-                            ptMin = cms.untracked.double(10.0),
+                            ptMin = cms.untracked.double(15.0),
                             doTrackIso = cms.untracked.bool(True),
                             ptMinTrack = cms.untracked.double(1.5),
                             lipMinTrack = cms.untracked.double(0.2),
                             IdCollection = cms.untracked.InputTag("elecIDext")
                             ),
                    Jets = cms.untracked.PSet(
-                            JetCollection = cms.untracked.InputTag("iterativeCone5CaloJets"),
-                            etMin = cms.untracked.double(10.0),
-                            doJets = cms.untracked.bool(True)
+                            JetCollection = cms.untracked.InputTag("ak4PFJetsCHS"),
+                            etMin = cms.untracked.double(15.0),
+                            doJets = cms.untracked.bool(False)
                             ),
                    Towers = cms.untracked.PSet(
                             TowerCollection = cms.untracked.InputTag("towerMaker"),
                             etMin = cms.untracked.double(10.0),
-                            doTowers = cms.untracked.bool(True),
+                            doTowers = cms.untracked.bool(False),
                             towerIsolation = cms.untracked.double(5.0)
                             ),
 
                    Muons = cms.untracked.PSet(
                             doMuons = cms.untracked.bool(True),
                             MuonCollection = cms.untracked.InputTag("muons"),
-                            ptMin = cms.untracked.double(10.0)
+                            ptMin = cms.untracked.double(15.0)
                             ),
 
                    Photons = cms.untracked.PSet(
-                            doPhotons = cms.untracked.bool(True),
+                            doPhotons = cms.untracked.bool(False),
                             PhotonCollection = cms.untracked.InputTag("gedPhotons"),
-                            etMin = cms.untracked.double(10.0),
+                            etMin = cms.untracked.double(15.0),
                             ECALIso = cms.untracked.double(3.0)
                             ),
-                  EtaMax = cms.untracked.double(2.5)
+                  EtaMax = cms.untracked.double(2.3)
                   )
 
 #----------------------------------MONITORS--------------------------------------------------------------------------

@@ -2,7 +2,7 @@
 #define EventFilter_SiStripRawToDigi_ExcludedFEDListProducer_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -22,7 +22,7 @@
 
 namespace sistrip {
 
-  class ExcludedFEDListProducer : public edm::EDProducer
+  class ExcludedFEDListProducer : public edm::stream::EDProducer<>
   {
   public:
     /// constructor
@@ -30,13 +30,15 @@ namespace sistrip {
     /// default constructor
     ~ExcludedFEDListProducer();
     void beginRun( const edm::Run & run, const edm::EventSetup & es) override;
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     void produce( edm::Event& event, const edm::EventSetup& es ) override;
     
   private:
     unsigned int runNumber_;
-    edm::EDGetTokenT<FEDRawDataCollection> token_;
-    const SiStripFedCabling * cabling_;
     uint32_t cacheId_;
+    const SiStripFedCabling * cabling_;
+    const edm::EDGetTokenT<FEDRawDataCollection> token_;
+
     DetIdCollection detids_;
   };
 }

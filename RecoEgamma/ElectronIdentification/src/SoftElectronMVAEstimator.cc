@@ -71,8 +71,8 @@ SoftElectronMVAEstimator::SoftElectronMVAEstimator(const Configuration & cfg):cf
     tmvaReader_->BookMVA("BDT",weightsfiles[i]);
     fmvaReader.push_back(tmvaReader_);
 //    delete tmvaReader_;
-  }
 
+  }
 }
 
 
@@ -114,7 +114,7 @@ UInt_t SoftElectronMVAEstimator::GetMVABin(int pu, double eta, double pt) const 
 double SoftElectronMVAEstimator::mva(const reco::GsfElectron& myElectron,const edm::Event & evt)  {
 
  edm::Handle<reco::VertexCollection> FullprimaryVertexCollection;
- evt.getByLabel("offlinePrimaryVertices", FullprimaryVertexCollection);
+ evt.getByToken(cfg_.vtxCollection, FullprimaryVertexCollection);
  const reco::VertexCollection pvc = *(FullprimaryVertexCollection.product());
  
   fbrem                 	=myElectron.fbrem();

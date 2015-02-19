@@ -36,13 +36,15 @@ patJets = cms.EDProducer("PATJetProducer",
     addBTagInfo          = cms.bool(True),   ## master switch
     addDiscriminators    = cms.bool(True),   ## addition btag discriminators
     discriminatorSources = cms.VInputTag(
-        cms.InputTag("jetBProbabilityBJetTags"),
-        cms.InputTag("jetProbabilityBJetTags"),
-        cms.InputTag("trackCountingHighPurBJetTags"),
-        cms.InputTag("trackCountingHighEffBJetTags"),
-        cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
-        cms.InputTag("simpleSecondaryVertexHighPurBJetTags"),
-        cms.InputTag("combinedSecondaryVertexBJetTags")
+        cms.InputTag("pfJetBProbabilityBJetTags"),
+        cms.InputTag("pfJetProbabilityBJetTags"),
+        cms.InputTag("pfTrackCountingHighPurBJetTags"),
+        cms.InputTag("pfTrackCountingHighEffBJetTags"),
+        cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
+        cms.InputTag("pfSimpleSecondaryVertexHighPurBJetTags"),
+        cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+#        cms.InputTag("pfCombinedSecondaryVertexSoftLeptonBJetTags"),
+        cms.InputTag("pfCombinedMVABJetTags")
     ),
     # clone tag infos ATTENTION: these take lots of space!
     # usually the discriminators from the default algos

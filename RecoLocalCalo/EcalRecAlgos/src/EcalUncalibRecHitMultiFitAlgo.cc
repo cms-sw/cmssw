@@ -6,11 +6,21 @@
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 
 EcalUncalibRecHitMultiFitAlgo::EcalUncalibRecHitMultiFitAlgo() : 
-  _computeErrors(true) { 
+  _computeErrors(true),
+  _doPrefit(false),
+  _prefitMaxChiSq(1.0) { 
+    
+  _singlebx.resize(1);
+  _singlebx << 0;
+  
+  _pulsefuncSingle.disableErrorCalculation();
+  _pulsefuncSingle.setMaxIters(1);
+  _pulsefuncSingle.setMaxIterWarnings(false);
+    
 }
 
 /// compute rechits
-EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataFrame& dataFrame, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const TMatrixDSym &noisecor, const TVectorD &fullpulse, const TMatrixDSym &fullpulsecov, const std::set<int> &activeBX) {
+EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataFrame& dataFrame, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const SampleMatrix &noisecor, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov, const BXVector &activeBX) {
 
   uint32_t flags = 0;
   
@@ -21,7 +31,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   double pedval = 0.;
   double pedrms = 0.;
   
-  std::vector<double> amplitudes(nsample);
+  SampleVector amplitudes;
   for(unsigned int iSample = 0; iSample < nsample; iSample++) {
     
     const EcalMGPASample &sample = dataFrame.sample(iSample);
@@ -66,38 +76,63 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
     }    
         
   }
+  
+  double amplitude, amperr, chisq;
+  bool status = false;
+  
+  //optimized one-pulse fit for hlt
+  bool usePrefit = false;
+  if (_doPrefit) {
+    status = _pulsefuncSingle.DoFit(amplitudes,noisecor,pedrms,_singlebx,fullpulse,fullpulsecov);
+    amplitude = status ? _pulsefuncSingle.X()[0] : 0.;
+    amperr = status ? _pulsefuncSingle.Errors()[0] : 0.;
+    chisq = _pulsefuncSingle.ChiSq();
     
-  
-  std::vector<double> fitvals;
-  std::vector<double> fiterrs;
-  
-  if(!_computeErrors) _pulsefunc.disableErrorCalculation();
-  bool status = _pulsefunc.DoFit(amplitudes,noisecor,pedrms,activeBX,fullpulse,fullpulsecov);
-  double chisq = _pulsefunc.ChiSq();
-  
-  if (!status) {
-    edm::LogWarning("EcalUncalibRecHitMultiFitAlgo::makeRecHit") << "Failed Fit" << std::endl;
+    if (chisq < _prefitMaxChiSq) {
+      usePrefit = true;
+    }
   }
+  
+  if (!usePrefit) {
+  
+    if(!_computeErrors) _pulsefunc.disableErrorCalculation();
+    status = _pulsefunc.DoFit(amplitudes,noisecor,pedrms,activeBX,fullpulse,fullpulsecov);
+    chisq = _pulsefunc.ChiSq();
+    
+    if (!status) {
+      edm::LogWarning("EcalUncalibRecHitMultiFitAlgo::makeRecHit") << "Failed Fit" << std::endl;
+    }
 
-  unsigned int ipulseintime = std::distance(activeBX.begin(),activeBX.find(0));
-  double amplitude = status ? _pulsefunc.X()[ipulseintime] : 0.;
-  double amperr = status ? _pulsefunc.Errors()[ipulseintime] : 0.;
+    unsigned int ipulseintime = 0;
+    for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
+      if (_pulsefunc.BXs().coeff(ipulse)==0) {
+        ipulseintime = ipulse;
+        break;
+      }
+    }
+    
+    amplitude = status ? _pulsefunc.X()[ipulseintime] : 0.;
+    amperr = status ? _pulsefunc.Errors()[ipulseintime] : 0.;
+  
+  }
   
   double jitter = 0.;
   
+  //printf("status = %i\n",int(status));
   //printf("amplitude = %5f +- %5f, chisq = %5f\n",amplitude,amperr,chisq);
   
   EcalUncalibratedRecHit rh( dataFrame.id(), amplitude , pedval, jitter, chisq, flags );
   rh.setAmplitudeError(amperr);
-  for (std::set<int>::const_iterator bxit = activeBX.begin(); bxit!=activeBX.end(); ++bxit) {
-    int ipulse = std::distance(activeBX.begin(),bxit);
-    if(*bxit==0) {
-      rh.setOutOfTimeAmplitude(*bxit+5,0.);
-    } else {
-      rh.setOutOfTimeAmplitude(*bxit+5, status ? _pulsefunc.X()[ipulse] : 0.);
+  
+  if (!usePrefit) {
+    for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
+      int bx = _pulsefunc.BXs().coeff(ipulse);
+      if (bx!=0) {
+        rh.setOutOfTimeAmplitude(bx+5, status ? _pulsefunc.X().coeff(ipulse) : 0.);
+      }
     }
   }
-
+  
   return rh;
 }
 

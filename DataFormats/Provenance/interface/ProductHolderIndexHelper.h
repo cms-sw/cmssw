@@ -62,7 +62,24 @@ ProductRegistry is frozen.
 #include <vector>
 
 namespace edm {
-  class TypeWithDict;
+
+  namespace productholderindexhelper {
+    // The next function supports views. For the given wrapped type,
+    // which must be Wrapper<T>,
+    // this function returns the type of the contained type of T.
+    // If the type is not a recongnized container, it returns
+    // a TypeID(typeid(void)).
+    TypeID getContainedTypeFromWrapper(TypeID const& wrappedtypeID, std::string const& className);
+
+    // The next function supports views. For the given type T,
+    // this function returns the type of the contained type of T.
+    // If the type is not a recongnized container, it returns
+    // a TypeID(typeid(void)).
+    // This calls getContainedTypefromWrapped internally
+    // If the TypeID for the wrapped type is already available,
+    // it is faster to call getContainedTypeFromWrapper directly.
+    TypeID getContainedType(TypeID const& typeID);
+  }
 
   class ProductHolderIndexHelper {
   public:
@@ -108,6 +125,8 @@ namespace edm {
       ProductHolderIndex index(unsigned int i) const;
       unsigned int numberOfMatches() const { return numberOfMatches_; }
       bool isFullyResolved(unsigned int i) const;
+      char const* moduleLabel(unsigned int i) const;
+      char const* processName(unsigned int i) const;
     private:
       ProductHolderIndexHelper const* productHolderIndexHelper_;
       unsigned int startInIndexAndNames_;
@@ -152,10 +171,19 @@ namespace edm {
     // entry with a new ProductHolderIndex for the case
     // which searches for the most recent process.
     ProductHolderIndex
-    insert(TypeWithDict const& typeWithDict,
+    insert(TypeID const& typeID,
            char const* moduleLabel,
            char const* instance,
-           char const* process);
+           char const* process,
+           TypeID const& containedTypeID);
+
+    ProductHolderIndex
+    insert(TypeID const& typeID,
+           char const* moduleLabel,
+           char const* instance,
+           char const* process) {
+      return insert(typeID, moduleLabel, instance, process, productholderindexhelper::getContainedType(typeID));
+    }
 
     // Before the object is frozen the accessors above will
     // fail to find a match. Once frozen, no more new entries

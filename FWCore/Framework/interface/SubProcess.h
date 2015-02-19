@@ -1,7 +1,9 @@
 #ifndef FWCore_Framework_SubProcess_h
 #define FWCore_Framework_SubProcess_h
 
+#include "DataFormats/Provenance/interface/BranchID.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Framework/interface/ScheduleItems.h"
 #include "FWCore/Framework/interface/Schedule.h"
@@ -19,15 +21,19 @@
 
 #include <map>
 #include <memory>
+#include <set>
 
 namespace edm {
+  class ActivityRegistry;
+  class BranchDescription;
   class BranchIDListHelper;
   class HistoryAppender;
   class IOVSyncValue;
   class ParameterSet;
   class ProductRegistry;
   class PreallocationConfiguration;
-  
+  class ThinnedAssociationsHelper;
+
   namespace eventsetup {
     class EventSetupsController;
   }
@@ -37,6 +43,7 @@ namespace edm {
                ParameterSet const& topLevelParameterSet,
                std::shared_ptr<ProductRegistry const> parentProductRegistry,
                std::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
+               ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
                eventsetup::EventSetupsController& esController,
                ActivityRegistry& parentActReg,
                ServiceToken const& token,
@@ -50,7 +57,10 @@ namespace edm {
     SubProcess& operator=(SubProcess const&) = delete; // Disallow copying and moving
     
     //From OutputModule
-    void selectProducts(ProductRegistry const& preg);
+    void selectProducts(ProductRegistry const& preg, 
+                        ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
+                        std::map<BranchID, bool>& keepAssociation);
+
     SelectedProductsForBranchType const& keptProducts() const {return keptProducts_;}
 
     void doBeginJob();
@@ -212,19 +222,25 @@ namespace edm {
 
     void propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const;
     void fixBranchIDListsForEDAliases(std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);
+    void keepThisBranch(BranchDescription const& desc,
+                        std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
+                        std::set<BranchID>& keptProductsInEvent);
 
     std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID() {
       return droppedBranchIDToKeptBranchID_;
     }
 
     
+    std::shared_ptr<ActivityRegistry>             actReg_;
     ServiceToken                                  serviceToken_;
-    std::shared_ptr<ProductRegistry const>      parentPreg_;
-    std::shared_ptr<ProductRegistry const>	    preg_;
-    std::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
+    std::shared_ptr<ProductRegistry const>        parentPreg_;
+    std::shared_ptr<ProductRegistry const>        preg_;
+    std::shared_ptr<BranchIDListHelper>           branchIDListHelper_;
+    std::shared_ptr<ThinnedAssociationsHelper>    thinnedAssociationsHelper_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;
-    std::shared_ptr<ProcessConfiguration const> processConfiguration_;
+    std::shared_ptr<ProcessConfiguration const>   processConfiguration_;
     ProcessContext                                processContext_;
+    PathsAndConsumesOfModules                     pathsAndConsumesOfModules_;
     //We require 1 history for each Run, Lumi and Stream
     // The vectors first hold Stream info, then Lumi then Run
     unsigned int                                  historyLumiOffset_;

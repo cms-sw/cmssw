@@ -11,22 +11,23 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 ### standard includes
-process.load('Configuration/StandardSequences/GeometryPilot2_cff')
+process.load('Configuration.Geometry.GeometryPilot2_cff')
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.MagneticField_.oO[magneticField]Oo._cff")
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 
 ### conditions
 process.load("Alignment.OfflineValidation.GlobalTag_cff")
 process.GlobalTag.globaltag = '.oO[GlobalTag]Oo.'
+process.es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource", "GlobalTag")
 
 .oO[condLoad]Oo.
 
 
 ### validation-specific includes
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
@@ -34,7 +35,7 @@ process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 ### configuration MultiTrackValidator ###
 process.multiTrackValidator.outputFile = '.oO[outputFile]Oo.'
 
-process.multiTrackValidator.associators = ['TrackAssociatorByHits']
+process.multiTrackValidator.associators = ['trackAssociatorByHits']
 process.multiTrackValidator.UseAssociators = cms.bool(True)
 process.multiTrackValidator.label = ['generalTracks']
 
@@ -51,12 +52,14 @@ process.re_tracking_and_TP = cms.Sequence(process.mix*process.trackingParticles*
                                    process.siPixelRecHits*process.siStripMatchedRecHits*
                                    process.ckftracks*
                                    process.cutsRecoTracks*
+                                   process.trackAssociatorByHits*
                                    process.multiTrackValidator
                                    )
 
 process.re_tracking = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecHits*
                                    process.ckftracks*
                                    process.cutsRecoTracks*
+                                   process.trackAssociatorByHits*
                                    process.multiTrackValidator
                                    )
 

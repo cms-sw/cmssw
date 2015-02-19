@@ -9,9 +9,9 @@
 #include "RecoBTau/JetTagComputer/interface/GenericMVAJetTagComputerWrapper.h"
 
 #include "RecoBTag/SecondaryVertex/interface/CombinedSVComputer.h"
-#include "RecoBTag/SecondaryVertex/interface/CombinedSVComputerV2.h"
 #include "RecoBTag/SecondaryVertex/interface/CombinedSVSoftLeptonComputer.h"
 #include "RecoBTag/SecondaryVertex/interface/GhostTrackComputer.h"
+#include "RecoBTag/SecondaryVertex/interface/CandidateSimpleSecondaryVertexComputer.h"
 #include "RecoBTag/SecondaryVertex/interface/SimpleSecondaryVertexComputer.h"
 
 namespace { // C++ template pointer want "external" linkage, so here we go
@@ -29,20 +29,28 @@ typedef GenericMVAJetTagComputerWrapper<CombinedSVComputer,
 	reco::CandIPTagInfo,         ipTagInfos,
 	reco::CandSecondaryVertexTagInfo, svTagInfos> CandidateCombinedSVJetTagComputer;
 
-typedef GenericMVAJetTagComputerWrapper<CombinedSVComputerV2,
-	reco::TrackIPTagInfo,         ipTagInfos,
-	reco::SecondaryVertexTagInfo, svTagInfos> CombinedSVJetTagComputerV2;
-
+//this one is actually not fully non-candidate based anymore (no backward compatibility with old SL taginfos for the moment)
 typedef GenericMVAJetTagComputerWrapper<CombinedSVSoftLeptonComputer,
 	reco::TrackIPTagInfo,         ipTagInfos,
 	reco::SecondaryVertexTagInfo, svTagInfos,
-	reco::SoftLeptonTagInfo, muonTagInfos,
-	reco::SoftLeptonTagInfo, elecTagInfos> CombinedSVSoftLeptonJetTagComputer;
+	reco::CandSoftLeptonTagInfo, muonTagInfos,
+	reco::CandSoftLeptonTagInfo, elecTagInfos> CombinedSVSoftLeptonJetTagComputer;
+		
+typedef GenericMVAJetTagComputerWrapper<CombinedSVSoftLeptonComputer,
+	reco::CandIPTagInfo,         ipTagInfos,
+	reco::CandSecondaryVertexTagInfo, svTagInfos,
+	reco::CandSoftLeptonTagInfo, muonTagInfos,
+	reco::CandSoftLeptonTagInfo, elecTagInfos> CandidateCombinedSVSoftLeptonJetTagComputer;
 
 typedef GenericMVAJetTagComputerWrapper<GhostTrackComputer,
 	reco::TrackIPTagInfo,         ipTagInfos,
 	reco::SecondaryVertexTagInfo, svTagInfos> GhostTrackJetTagComputer;
 
+typedef GenericMVAJetTagComputerWrapper<CombinedSVSoftLeptonComputer,
+	reco::CandIPTagInfo,         ipTagInfos,
+	reco::CandSecondaryVertexTagInfo, svTagInfos,
+	reco::CandSoftLeptonTagInfo, muonTagInfos,
+	reco::CandSoftLeptonTagInfo, elecTagInfos> CandidateCombinedSVSoftLeptonCtagLJetTagComputer;
 
 typedef JetTagComputerESProducer<CandidateCombinedSVJetTagComputer> CandidateCombinedSecondaryVertexESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(CandidateCombinedSecondaryVertexESProducer);
@@ -50,8 +58,8 @@ DEFINE_FWK_EVENTSETUP_MODULE(CandidateCombinedSecondaryVertexESProducer);
 typedef JetTagComputerESProducer<CombinedSVJetTagComputer> CombinedSecondaryVertexESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(CombinedSecondaryVertexESProducer);
 
-typedef JetTagComputerESProducer<CombinedSVJetTagComputerV2> CombinedSecondaryVertexESProducerV2;
-DEFINE_FWK_EVENTSETUP_MODULE(CombinedSecondaryVertexESProducerV2);
+typedef JetTagComputerESProducer<CandidateCombinedSVSoftLeptonJetTagComputer> CandidateCombinedSecondaryVertexSoftLeptonESProducer;
+DEFINE_FWK_EVENTSETUP_MODULE(CandidateCombinedSecondaryVertexSoftLeptonESProducer);
 
 typedef JetTagComputerESProducer<CombinedSVSoftLeptonJetTagComputer> CombinedSecondaryVertexSoftLeptonESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(CombinedSecondaryVertexSoftLeptonESProducer);
@@ -59,5 +67,11 @@ DEFINE_FWK_EVENTSETUP_MODULE(CombinedSecondaryVertexSoftLeptonESProducer);
 typedef JetTagComputerESProducer<GhostTrackJetTagComputer> GhostTrackESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(GhostTrackESProducer);
 
+typedef JetTagComputerESProducer<CandidateSimpleSecondaryVertexComputer> CandidateSimpleSecondaryVertexESProducer;
+DEFINE_FWK_EVENTSETUP_MODULE(CandidateSimpleSecondaryVertexESProducer);
+
 typedef JetTagComputerESProducer<SimpleSecondaryVertexComputer> SimpleSecondaryVertexESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(SimpleSecondaryVertexESProducer);
+
+typedef JetTagComputerESProducer<CandidateCombinedSVSoftLeptonJetTagComputer> CandidateCombinedSecondaryVertexSoftLeptonCtagLESProducer;
+DEFINE_FWK_EVENTSETUP_MODULE(CandidateCombinedSecondaryVertexSoftLeptonCtagLESProducer);

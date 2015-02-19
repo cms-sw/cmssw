@@ -7,11 +7,10 @@
 #ifndef LLVM_CLANG_STATICANALYZER_CMS_SUPPORT_H
 #define LLVM_CLANG_STATICANALYZER_CMS_SUPPORT_H
 
-#include <llvm/Support/Regex.h>
-
 #include <clang/AST/Type.h>
 #include <clang/AST/Decl.h>
 #include <clang/AST/DeclCXX.h>
+#include <string>
 
 namespace clangcms {
 
@@ -48,6 +47,9 @@ bool isCmsLocalFile(const char* file);
 std::string getQualifiedName(const clang::NamedDecl &d);
 bool isSafeClassName(const std::string &d);
 bool isDataClass(const std::string &d);
+bool isInterestingLocation(const std::string &d);
+bool isKnownThrUnsafeFunc(const std::string &name );
+void writeLog(const std::string &ostring,const std::string &tfstring); 
 }
 } 
 

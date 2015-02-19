@@ -1,16 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    HiEvtPlaneFlatCalib
-// Class:      HiEvtPlaneFlatCalib
-// 
-/**\class HiEvtPlaneFlatCalib HiEvtPlaneFlatCalib.cc HiEvtPlaneFlatten/HiEvtPlaneFlatCalib/src/HiEvtPlaneFlatCalib.cc
-
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
@@ -29,7 +16,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
+
 #include "Math/Vector3D.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -86,9 +73,10 @@ class HiEvtPlaneFlatCalib : public edm::EDAnalyzer {
       virtual void endJob() override ;
       
       // ----------member data ---------------------------
+  edm::EDGetTokenT <reco::VertexCollection> vtxCollection_;
   edm::Service<TFileService> fs;
-  //  const CentralityBins * cbins_;
-  CentralityProvider * centrality_;
+  edm::Handle<int> cbin_;
+  edm::EDGetTokenT<int> ctag_;
   int vs_sell;   // vertex collection size
   float vzr_sell;
   float vzErr_sell;
@@ -131,6 +119,8 @@ class HiEvtPlaneFlatCalib : public edm::EDAnalyzer {
 HiEvtPlaneFlatCalib::HiEvtPlaneFlatCalib(const edm::ParameterSet& iConfig)
 {
   genFlatPsi_ = iConfig.getUntrackedParameter<bool>("genFlatPsi_",true);
+  ctag_ = consumes<int>(iConfig.getParameter<edm::InputTag>("centralityBinLabel"));
+  vtxCollection_  = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxCollection_"));
 
   //  NumCentBins=9;
   wcent[0] = 0;
@@ -145,8 +135,7 @@ HiEvtPlaneFlatCalib::HiEvtPlaneFlatCalib(const edm::ParameterSet& iConfig)
   wcent[9] = 100;
 
   //now do what ever other initialization is needed
-  //  cbins_ = 0;
-  centrality_ = 0;
+
   hcent = fs->make<TH1D>("cent","cent",41,0,40);
   hvtx = fs->make<TH1D>("vtx","vtx",1000,-50,50);
   //setting before 8:35 CDT on 11Jan2011
@@ -205,17 +194,16 @@ HiEvtPlaneFlatCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //
   //Get Centrality
   //
-  if(!centrality_) centrality_ = new CentralityProvider(iSetup);
+  iEvent.getByToken(ctag_,cbin_);
 
-   centrality_->newEvent(iEvent,iSetup); // make sure you do this first in every event
-   int bin = centrality_->getBin();
+  int bin = *cbin_;
   double centval = 2.5*bin+1.25;
   hcent->Fill(bin);
   //
   //Get Vertex
   //
   edm::Handle<reco::VertexCollection> vertexCollection3;
-  iEvent.getByLabel("hiSelectedVertex",vertexCollection3);
+  iEvent.getByToken(vtxCollection_,vertexCollection3);
   const reco::VertexCollection * vertices3 = vertexCollection3.product();
   vs_sell = vertices3->size();
   if(vs_sell>0) {

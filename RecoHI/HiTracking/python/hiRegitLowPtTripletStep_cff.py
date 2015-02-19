@@ -10,7 +10,7 @@ from RecoTracker.IterativeTracking.LowPtTripletStep_cff import *
 
 
 # NEW CLUSTERS (remove previously used clusters)
-hiRegitLowPtTripletStepClusters = cms.EDProducer("TrackClusterRemover",
+hiRegitLowPtTripletStepClusters = cms.EDProducer("HITrackClusterRemover",
                                      clusterLessSolution= cms.bool(True),
                                      oldClusterRemovalInfo = cms.InputTag("hiRegitInitialStepClusters"),
                                      trajectories = cms.InputTag("hiRegitInitialStepTracks"),
@@ -64,8 +64,8 @@ hiRegitLowPtTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.L
 # fitting: feed new-names
 hiRegitLowPtTripletStepTracks                 = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepTracks.clone(
     src                 = 'hiRegitLowPtTripletStepTrackCandidates',
-    #AlgorithmName = cms.string('iter5')
-    AlgorithmName = cms.string('iter1')
+    #AlgorithmName = cms.string('pixelLessStep')
+    AlgorithmName = cms.string('lowPtTripletStep')
 )
 
 
