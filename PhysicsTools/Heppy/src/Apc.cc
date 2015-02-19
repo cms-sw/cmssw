@@ -61,7 +61,7 @@ namespace heppy {
     }
     
   
-    if (ht != 0) return apcjetmetmin;
+    if (ht != 0) return apcjetmetmin / ht;
     else return -1.;
 
   }
