@@ -24,12 +24,12 @@ TrackerParametersAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSe
    iSetup.get<PTrackerParametersRcd>().get( ptp );
    
    for( std::vector<PTrackerParameters::Item>::const_iterator it = ptp->vitems.begin(); it != ptp->vitems.end(); ++it )
-     {
-       std::cout << it->id << " has " << it->vpars.size() << ": " << std::endl;
-       for(  std::vector<int>::const_iterator in = it->vpars.begin(); in !=  it->vpars.end(); ++in )
-	 std::cout << in << "; ";
-       std::cout << std::endl;
-     }
+   {
+     std::cout << "Subdetector " << it->id << " has " << it->vpars.size() << ": " << std::endl;
+     for(  std::vector<int>::const_iterator in = it->vpars.begin(); in !=  it->vpars.end(); ++in )
+       std::cout << in << "; ";
+     std::cout << std::endl;
+   }
 }
 
 DEFINE_FWK_MODULE(TrackerParametersAnalyzer);

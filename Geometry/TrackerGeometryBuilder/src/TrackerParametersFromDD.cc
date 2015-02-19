@@ -1,5 +1,4 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerParametersFromDD.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"
@@ -9,35 +8,30 @@ bool
 TrackerParametersFromDD::build( const DDCompactView* cvp,
 				PTrackerParameters& ptp)
 {
-  std::vector<int> pxbPars = dbl_to_int( DDVectorGetter::get( "pxbPars" ));
-  putOne( GeometricDet::PixelBarrel, pxbPars, ptp );
-
-  std::vector<int> pxfPars = dbl_to_int( DDVectorGetter::get( "pxfPars" ));
-  putOne( GeometricDet::PixelEndCap, pxfPars, ptp );
-
-  std::vector<int> tecPars = dbl_to_int( DDVectorGetter::get( "tecPars" ));
-  putOne( GeometricDet::TEC, tecPars, ptp );
-
-  std::vector<int> tibPars = dbl_to_int( DDVectorGetter::get( "tibPars" ));
-  putOne( GeometricDet::TIB, tibPars, ptp );
-
-  std::vector<int> tidPars = dbl_to_int( DDVectorGetter::get( "tidPars" ));
-  putOne( GeometricDet::TID, tidPars, ptp );
-
-  std::vector<int> tobPars = dbl_to_int( DDVectorGetter::get( "tobPars" ));
-  putOne( GeometricDet::TOB, tobPars, ptp );
+  for( int subdet = 1; subdet <= 6; ++subdet )
+  {
+    std::stringstream sstm;
+    sstm << "Subdetector" << subdet;
+    std::string name = sstm.str();
+    
+    if( DDVectorGetter::check( name ))
+    {
+      std::vector<int> subdetPars = dbl_to_int( DDVectorGetter::get( name ));
+      putOne( subdet, subdetPars, ptp );
+    }
+  }
 
   std::vector<int> vpars  = dbl_to_int( DDVectorGetter::get( "vPars" ));
-  putOne( GeometricDet::Tracker, vpars, ptp );
+  putOne( -1, vpars, ptp );
 
   return true;
 }
 
 void
-TrackerParametersFromDD::putOne( GeometricDet::GeometricEnumType det, std::vector<int> & vpars, PTrackerParameters& ptp )
+TrackerParametersFromDD::putOne( int subdet, std::vector<int> & vpars, PTrackerParameters& ptp )
 {
   PTrackerParameters::Item item;
-  item.id = det;
+  item.id = subdet;
   item.vpars = vpars;
   ptp.vitems.push_back( item );
 }
