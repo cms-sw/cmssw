@@ -104,6 +104,9 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
   bool debug(false);
   for(int it=0; it<(int)(chargeColl.size()); it++)
     {
+      //if already flagged as busy it can't be re-used to trigger the ToT
+      if(busyFlags[it]) continue;
+
       float charge = chargeColl[it];
       float toa    = toaColl[it];
       if(charge < tdcOnset_fC_) 
@@ -114,7 +117,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
       totFlags[it]=true;
 
       ////to enable debug uncomment me
-      ////debug=true;
+      //debug=true;
       if(debug) std::cout << "Charge=" << charge << " with <toa>=" << toa << " ns, triggers ToT @ " << it << std::endl;
 
       //compute total charge to be integrated and integration time 
@@ -125,10 +128,14 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	{
 	  //compute integration time in ns and # bunches
 	  float newIntegTime(0);
-	  if(charge<tdcChargeDrainParameterisation_[0]) 
-	    newIntegTime=tdcChargeDrainParameterisation_[1]*pow(totalCharge*1e-3,tdcChargeDrainParameterisation_[2])+tdcChargeDrainParameterisation_[3];
-	  else                                          
-	    newIntegTime=tdcChargeDrainParameterisation_[4]*pow(totalCharge*1e-3,tdcChargeDrainParameterisation_[5])+tdcChargeDrainParameterisation_[6];	  
+	  float charge_kfC(charge*1e-3);
+	  if(charge_kfC<tdcChargeDrainParameterisation_[3]) 
+	    newIntegTime=tdcChargeDrainParameterisation_[0]*pow(charge_kfC,2)+tdcChargeDrainParameterisation_[1]*charge_kfC+tdcChargeDrainParameterisation_[2];
+	  else if(charge_kfC<tdcChargeDrainParameterisation_[7])
+	    newIntegTime=tdcChargeDrainParameterisation_[4]*pow(charge_kfC-tdcChargeDrainParameterisation_[3],2)+tdcChargeDrainParameterisation_[5]*(charge_kfC-tdcChargeDrainParameterisation_[3])+tdcChargeDrainParameterisation_[6];
+	  else
+	    newIntegTime=tdcChargeDrainParameterisation_[8]*pow(charge_kfC-tdcChargeDrainParameterisation_[7],2)+tdcChargeDrainParameterisation_[9]*(charge_kfC-tdcChargeDrainParameterisation_[7])+tdcChargeDrainParameterisation_[10];
+
 	  int newBusyBxs=floor(newIntegTime/25.)+1;      
 
 	  //if no update is needed regarding the number of bunches,
@@ -197,7 +204,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
       if(it+busyBxs<(int)(newCharge.size())) 
 	{
 	  float deltaT2nextBx((busyBxs*25-integTime));
-	  float tdcOnsetLeakage(tdcOnset_fC_*exp(-deltaT2nextBx/tdcChargeDrainParameterisation_[7]));
+	  float tdcOnsetLeakage(tdcOnset_fC_*exp(-deltaT2nextBx/tdcChargeDrainParameterisation_[11]));
 	  if(debug) std::cout << "\t Leaking remainder of TDC onset " << tdcOnset_fC_ 
 			      << " fC, to be dissipated in " << deltaT2nextBx 
 			      << " ns, adds "  << tdcOnsetLeakage << " fC @ " << it+busyBxs << " bx (first free bx)" << std::endl;
