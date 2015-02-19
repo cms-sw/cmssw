@@ -47,7 +47,7 @@ void SUSY_HLT_Electron_BJet::dqmBeginRun(edm::Run const &run, edm::EventSetup co
     }
     
     if(!pathFound) {
-        edm::LogWarning("SUSY_HLT_Electron_BJet") << "Path not found" << "\n";
+        LogDebug("SUSY_HLT_Electron_BJet") << "Path not found" << "\n";
         return;
     }
     

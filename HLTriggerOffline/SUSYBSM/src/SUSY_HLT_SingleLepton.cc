@@ -232,7 +232,7 @@ void SUSY_HLT_SingleLepton::dqmBeginRun(const edm::Run &run, const edm::EventSet
   }
 
   if(!pathFound){
-    edm::LogWarning("SUSY_HLT_SingleLepton") << "Path not found: " << triggerPath_ << '\n';
+    LogDebug("SUSY_HLT_SingleLepton") << "Path not found: " << triggerPath_ << '\n';
     return;
   }
 
