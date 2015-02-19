@@ -57,6 +57,7 @@ namespace edm
 
 
       edm::InputTag PileupInfoInputTag_ ;     // InputTag for PileupSummaryInfo
+      edm::InputTag BunchSpacingInputTag_ ;     // InputTag for bunch spacing int
       edm::InputTag CFPlaybackInputTag_   ;   // InputTag for CrossingFrame Playback information
 
    

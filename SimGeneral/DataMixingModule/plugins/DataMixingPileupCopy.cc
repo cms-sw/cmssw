@@ -36,10 +36,11 @@ namespace edm
     // Pileup/Playback information
 
     PileupInfoInputTag_ = ps.getParameter<edm::InputTag>("PileupInfoInputTag");
+    BunchSpacingInputTag_ = ps.getParameter<edm::InputTag>("BunchSpacingInputTag");
     CFPlaybackInputTag_ = ps.getParameter<edm::InputTag>("CFPlaybackInputTag");
 
     iC.consumes<std::vector<PileupSummaryInfo>>(PileupInfoInputTag_);
-    iC.consumes<int>(PileupInfoInputTag_);
+    iC.consumes<int>(BunchSpacingInputTag_);
     iC.consumes<CrossingFramePlaybackInfoExtended>(CFPlaybackInputTag_);
   }
 	       
@@ -61,7 +62,7 @@ namespace edm
       getProductByTag<std::vector<PileupSummaryInfo>>(*ep,PileupInfoInputTag_, mcc);
 
     std::shared_ptr<Wrapper< int >  const> bsPTR =
-      getProductByTag<int>(*ep,PileupInfoInputTag_, mcc);
+      getProductByTag<int>(*ep,BunchSpacingInputTag_, mcc);
 
     if(PileupInfoPTR ) {
 
@@ -74,7 +75,9 @@ namespace edm
     if(bsPTR ) {
       bsStorage_ = *(bsPTR->product()) ;
     }
-
+    else {
+      bsStorage_=10000;
+    }
 
     // Playback
 
@@ -123,7 +126,7 @@ namespace edm
     }
 
     e.put(PSIVector);
-    e.put(bsInt);
+    e.put(bsInt,"bunchSpacing");
 
     // clear local storage after this event
     PileupSummaryStorage_.clear();
