@@ -869,9 +869,9 @@ void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   bool changed(true);
   if (hltConfig_.init(iRun,iSetup,triggerResultsLabel_.process(),changed)) {
     if (changed) {
-      hltConfig_.dump("ProcessName");
-      hltConfig_.dump("GlobalTag");
-      hltConfig_.dump("TableName");
+      //hltConfig_.dump("ProcessName");
+      //hltConfig_.dump("GlobalTag");
+      //hltConfig_.dump("TableName");
 //      hltConfig_.dump("Streams");
 //      hltConfig_.dump("Datasets");
 //      hltConfig_.dump("PrescaleTable");
