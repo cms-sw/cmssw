@@ -287,6 +287,10 @@ EvtGenInterface::~EvtGenInterface(){
 }
 
 void EvtGenInterface::init(){
+  // flags for pythia8
+  fSpecialSettings.push_back("Pythia8:ParticleDecays:mixB = off");
+  //
+
   edm::FileInPath decay_table(fPSet->getParameter<std::string>("decay_table"));
   edm::FileInPath pdt(fPSet->getParameter<edm::FileInPath>("particle_property_file"));
 
@@ -298,7 +302,8 @@ void EvtGenInterface::init(){
   bool convertPythiaCodes=fPSet->getUntrackedParameter<bool>("convertPythiaCodes",true); // Specify if we want to use Pythia 6 physics codes for decays
   std::string pythiaDir = getenv ("PYTHIA8DATA"); // Specify the pythia xml data directory to use the default PYTHIA8DATA location
   if(pythiaDir==NULL){ 
-    std::cout << "EvtGenInterface::init() PYTHIA8DATA not defined. Terminating program " << std::endl; exit(0);
+    edm::LogError("EvtGenInterface::~EvtGenInterface") << "EvtGenInterface::init() PYTHIA8DATA not defined. Terminating program "; 
+    exit(0);
   }
   std::string photonType("gamma");                // Specify the photon type for Photos
   bool useEvtGenRandom(true);                     // Specify if we want to use the EvtGen random number engine for these generators
@@ -325,7 +330,7 @@ void EvtGenInterface::init(){
     std::list<EvtDecayBase*>::iterator it = userModels.begin();
     std::advance(it,i);
     TString name=(*it)->getName();
-    std::cout<<" Adding user model: "<<name<<std::endl;
+    edm::LogInfo("EvtGenInterface::~EvtGenInterface") << "Adding user model: "<<name;
     myExtraModels.push_back(*it);
   }
   
@@ -363,10 +368,8 @@ void EvtGenInterface::init(){
   }
   else SetDefault_m_PDGs();
 
-
-
   for(unsigned int i=0;i<m_PDGs.size();i++){
-    std::cout << "EvtGenInterface::init() Particles to Operate on: " << m_PDGs[i] << std::endl;
+    edm::LogInfo("EvtGenInterface::~EvtGenInterface") << "EvtGenInterface::init() Particles to Operate on: " << m_PDGs[i];
   }
 
   // Obtain information to set polarization of particles 
