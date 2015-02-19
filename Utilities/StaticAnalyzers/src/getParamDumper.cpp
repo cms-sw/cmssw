@@ -35,6 +35,10 @@ const std::string getArgumentValueString(const CallExpr *CE, CheckerContext &C, 
        argVal.dumpToStream(os);
        return os.str();
      }
+
+     std::string buf("");
+     return buf;
+     
 }
 
 
