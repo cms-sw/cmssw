@@ -134,7 +134,7 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
   auto_ptr<JetTagCollection> jetTagCollection;
   if (tagInfoHandle.product()->size() > 0) {
     RefToBase<Jet> jj = tagInfoHandle->begin()->jet();
-    jetTagCollection.reset(new JetTagCollection(RefToBaseProd<Jet>(edm::makeRefToBaseProdFrom(jj, iEvent))));
+    jetTagCollection.reset(new JetTagCollection(edm::makeRefToBaseProdFrom(jj, iEvent)));
   } else
     jetTagCollection.reset(new JetTagCollection());
 

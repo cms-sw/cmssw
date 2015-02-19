@@ -155,7 +155,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
 
   if ( pfJets.size() ) {
     edm::Handle<reco::PFJetCollection> pfJetCollectionHandle;
-    evt.get(jets.id(), pfJetCollectionHandle);
+    evt.get(pfJets.id(), pfJetCollectionHandle);
     pfJetChargedHadronAssociations.reset(new reco::PFJetChargedHadronAssociation(reco::PFJetRefProd(pfJetCollectionHandle)));
   } else {
     pfJetChargedHadronAssociations.reset(new reco::PFJetChargedHadronAssociation);

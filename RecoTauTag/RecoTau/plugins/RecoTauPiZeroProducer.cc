@@ -140,7 +140,7 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
   if (jetRefs.size()) {
     edm::Handle<reco::PFJetCollection> pfJetCollectionHandle;
-    evt.get(jetView.id(), pfJetCollectionHandle);
+    evt.get(jetRefs.id(), pfJetCollectionHandle);
     association.reset(
         new reco::JetPiZeroAssociation(reco::PFJetRefProd(pfJetCollectionHandle)));
   } else {

@@ -431,8 +431,8 @@ namespace edm {
     // Compile time check that the argument is a C* or C const*
     // or derived from it.
     void checkTypeAtCompileTime(product_type const*) {}
-    
-    mutable RefCoreWithIndex product_;    
+
+    mutable RefCoreWithIndex product_;
   };
 }
 

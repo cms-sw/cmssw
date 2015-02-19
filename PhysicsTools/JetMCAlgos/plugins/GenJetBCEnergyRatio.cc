@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -89,8 +90,9 @@ void GenJetBCEnergyRatio::produce( Event& iEvent, const EventSetup& iEs )
   JetBCEnergyRatioCollection * jtc2;
 
   if (genjets.product()->size() > 0) {
-    jtc1 = new JetBCEnergyRatioCollection(RefToBaseProd<Jet>(genjets));
-    jtc2 = new JetBCEnergyRatioCollection(RefToBaseProd<Jet>(genjets));
+    const JetRef jj = genjets->refAt(0);
+    jtc1 = new JetBCEnergyRatioCollection(edm::makeRefToBaseProdFrom(jj, iEvent));
+    jtc2 = new JetBCEnergyRatioCollection(edm::makeRefToBaseProdFrom(jj, iEvent));
   } else {
     jtc1 = new JetBCEnergyRatioCollection();
     jtc2 = new JetBCEnergyRatioCollection();
