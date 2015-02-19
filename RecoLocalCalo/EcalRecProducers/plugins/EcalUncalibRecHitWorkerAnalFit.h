@@ -21,16 +21,20 @@ namespace edm {
         class Event;
         class EventSetup;
         class ParameterSet;
+	class ConfigurationDescription;
 }
 
 class EcalUncalibRecHitWorkerAnalFit : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
                 EcalUncalibRecHitWorkerAnalFit(const edm::ParameterSet& ps,edm::ConsumesCollector& c);
+                EcalUncalibRecHitWorkerAnalFit() {};
                 ~EcalUncalibRecHitWorkerAnalFit() {};
 
                 void set(const edm::EventSetup& es);
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
+		
+		void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
         private:
                 EcalUncalibRecHitRecAnalFitAlgo<EBDataFrame> algoEB_;

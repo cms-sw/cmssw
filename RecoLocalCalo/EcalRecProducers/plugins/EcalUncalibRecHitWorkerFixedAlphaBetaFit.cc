@@ -24,6 +24,9 @@
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include <iostream>
 #include <cmath>
 #include <fstream>
@@ -186,6 +189,28 @@ EcalUncalibRecHitWorkerFixedAlphaBetaFit::run(const edm::Event& evt,
         return true;
 }
 
+void
+EcalUncalibRecHitWorkerFixedAlphaBetaFit::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // ecalFixedAlphaBetaFitUncalibRecHit
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis"));
+  desc.add<double>("alphaEB", 1.138);
+  desc.add<double>("alphaEE", 1.89);
+  desc.add<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis"));
+  desc.add<std::string>("EEhitCollection", "EcalUncalibRecHitsEE");
+  desc.addUntracked<std::string>("AlphaBetaFilename", "NOFILE");
+  desc.add<double>("betaEB", 1.655);
+  desc.add<double>("MinAmplEndcap", 14.0);
+  desc.add<double>("MinAmplBarrel", 8.0);
+  desc.add<std::string>("algo", "EcalUncalibRecHitWorkerFixedAlphaBetaFit");
+  desc.add<double>("betaEE", 1.4);
+  desc.add<bool>("UseDynamicPedestal", true);
+  desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
+  descriptions.add("ecalFixedAlphaBetaFitUncalibRecHit", desc);
+}
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
 DEFINE_EDM_PLUGIN( EcalUncalibRecHitWorkerFactory, EcalUncalibRecHitWorkerFixedAlphaBetaFit, "EcalUncalibRecHitWorkerFixedAlphaBetaFit" );
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitFillDescriptionWorkerFactory.h"
+DEFINE_EDM_PLUGIN( EcalUncalibRecHitFillDescriptionWorkerFactory, EcalUncalibRecHitWorkerFixedAlphaBetaFit, "EcalUncalibRecHitWorkerFixedAlphaBetaFit");
