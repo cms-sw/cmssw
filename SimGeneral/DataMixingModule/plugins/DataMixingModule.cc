@@ -266,6 +266,7 @@ namespace edm
 
     if(MergePileup_) {
       produces< std::vector<PileupSummaryInfo> >();
+      produces< int >();
       produces<CrossingFramePlaybackInfoExtended>();
 
       PUWorker_ = new DataMixingPileupCopy(ps, consumesCollector());
