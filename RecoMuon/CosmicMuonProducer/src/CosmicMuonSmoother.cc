@@ -177,11 +177,15 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
       LogTrace(category_)<< "Error: invalid hit.";
       continue;
     }
-   if (currTsos.isValid())  {
+    if (currTsos.isValid() && currTsos.globalMomentum().mag2() > 1e-18f)  {
      LogTrace(category_)<<"current pos "<<currTsos.globalPosition()
                        <<"mom "<<currTsos.globalMomentum();
     } else {
-      LogTrace(category_)<<"current state invalid";
+      LogTrace(category_)<<"current state invalid or momentum is too low";
+      //logically, there's no way out: can't expect a valid result out of an invalid state
+      LogTrace(category_)
+	<<"Input state is not valid. This loop over hits is doomed: breaking out";
+      break;
     }
 
     predTsos = propagatorAlong()->propagate(currTsos, (**ihit).det()->surface());
