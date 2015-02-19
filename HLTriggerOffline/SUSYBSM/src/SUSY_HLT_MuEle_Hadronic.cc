@@ -49,7 +49,7 @@ void SUSY_HLT_MuEle_Hadronic::dqmBeginRun(edm::Run const &run, edm::EventSetup c
     }
     
     if(!pathFound) {
-        edm::LogWarning("SUSY_HLT_MuEle_Hadronic") << "Path not found" << "\n";
+        LogDebug("SUSY_HLT_MuEle_Hadronic") << "Path not found" << "\n";
         return;
     }
     //std::vector<std::string> filtertags = fHltConfig.moduleLabels( triggerPath_ );
