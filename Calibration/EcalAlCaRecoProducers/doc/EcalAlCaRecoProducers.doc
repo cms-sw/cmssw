@@ -13,9 +13,74 @@
 </center>
 
 \section desc Description
-<!-- Short description of what this package is supposed to provide -->
+This module contains all the plugins and classes used to produce ECAL alcarecos.
+
+\section streamList AlCaRecoStream list
+ - AlCaCalElectron
+ - AlCaUncalElectron
+ - AlCaESAlign
+
+\subsection AlCaESAlign AlCaESAlign
+The aim of this alcareco is to have a reduced dataset with all the information used for ES Alignment.
+
+The event content is defined in ALCARECOEcalESAlign_Output_cff.py
+
+The generalTrack collection (and trackExtras) are reduced by the EcalESAlignTrackReducer plugin in order to save tracks in the ES acceptance
+
+In order to test this alcareco:
+\code 
+      cmsDriver.py testES -s ALCA:EcalESAlign --conditions=MCRUN2_74_V1 --filein=root://eoscms//eos/cms/store/relval/CMSSW_7_4_0_pre6/RelValZEE_13/GEN-SIM-RECO/PU25ns_MCRUN2_74_V1-v3/00000/04445CDB-7AAB-E411-8E6E-0025905A605E.root -n 100
+\endcode
+
+\subsection 
 
 (THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+
+\section testInstructions EcalCalElectron and EcalUncalElectron test instructions
+
+\subsection rawToRecoInstructions RAW to RECO production
+\verbatim
+mkdir {Single,Double}Electron-Run2012D/
+SingleElectronRAWFile=/store/data/Run2012D/SingleElectron/RAW/v1/000/208/307/0085A34B-BD3A-E211-B6E9-003048D2BC4C.root
+DoubleElectronRAWFile=/store/data/Run2012D/DoubleElectron/RAW/v1/000/208/686/4A4E42F9-3F3F-E211-A942-003048F118AA.root
+cmsDriver.py reco -s RAW2DIGI,RECO -n 100 --filein=${SingleElectronRAWFile} --data --conditions=auto:run2_data --nThreads=4 --dirout=SingleElectron-Run2012D/
+cmsDriver.py reco -s RAW2DIGI,RECO -n 100 --filein=${DoubleElectronRAWFile} --data --conditions=auto:run2_data --nThreads=4 --dirout=DoubleElectron-Run2012D/
+\endverbatim
+
+\subsection EcalUncalWElectron EcalUncalWElectron production from RAW and RECO files
+\verbatim
+SingleElectronRECOFile=files://$PWD/SingleElectron-Run2012D/reco_RAW2DIGI_RECO.root 
+cmsDriver.py reco -s ALCA:EcalUncalWElectron -n 100 --data --conditions=auto:run2_data --nThreads=4 --filein=${SingleElectronRECOFile} --secondfilein=${SingleElectronRAWFile} --dirout=SingleElectron-Run2012D/ --customise_commands="process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))"   
+\endverbatim
+
+\subsection EcalUncalZElectron EcalUncalZElectron production from RAW and RECO files
+\verbatim
+DoubleElectronRECOFile=files://$PWD/DoubleElectron-Run2012D/reco_RAW2DIGI_RECO.root 
+cmsDriver.py reco -s ALCA:EcalUncalZElectron -n 100 --data --conditions=auto:run2_data --nThreads=4 --filein=${DoubleElectronRECOFile} --secondfilein=${DoubleElectronRAWFile} --dirout=DoubleElectron-Run2012D/ --customise_commands="process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))"   
+\endverbatim
+
+
+\subsection EcalCalWElectron EcalCalWElectron production from RAW and RECO files
+\verbatim
+SingleElectronRECOFile=files://$PWD/SingleElectron-Run2012D/reco_RAW2DIGI_RECO.root 
+cmsDriver.py reco -s ALCA:EcalCalWElectron -n 100 --data --conditions=auto:run2_data --nThreads=4 --filein=${SingleElectronRECOFile} --secondfilein=${SingleElectronRAWFile} --dirout=SingleElectron-Run2012D/ --customise_commands="process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))"   
+\endverbatim
+
+\subsection EcalCalZElectron EcalCalZElectron production from RAW and RECO files
+\verbatim
+DoubleElectronRECOFile=files://$PWD/DoubleElectron-Run2012D/reco_RAW2DIGI_RECO.root 
+cmsDriver.py reco -s ALCA:EcalCalZElectron -n 100 --data --conditions=auto:run2_data --nThreads=4 --filein=${DoubleElectronRECOFile} --secondfilein=${DoubleElectronRAWFile} --dirout=DoubleElectron-Run2012D/ --customise_commands="process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))"   
+\endverbatim
+
+\subsection rereco ECALELF rereco: EcalRecalElectron production from EcalUncalElectron files
+\verbatim
+EcalUncalWElectronFile=files://$PWD/SingleElectron-Run2012D/EcalUncalWElectron.root
+cmsDriver.py reco -s ALCA:EcalRecalElectron -n 100 --data --conditions=auto:run2_data --nThreads=4 --filein=${EcalUncalWElectronFile} --dirout=SingleElectron-Run2012D/ --customise_commands="process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))"   --process=RERECO --customise Calibration/EcalAlCaRecoProducers/customRereco.EcalRecal
+
+EcalUncalZElectronFile=files://$PWD/SingleElectron-Run2012D/EcalUncalZElectron.root
+cmsDriver.py reco -s ALCA:EcalRecalElectron -n 100 --data --conditions=auto:run2_data --nThreads=4 --filein=${EcalUncalWElectronFile --dirout=DoubleElectron-Run2012D/ --customise_commands="process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))"   --process=RERECO --customise Calibration/EcalAlCaRecoProducers/customRereco.EcalRecal
+
+\endverbatim
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
@@ -25,6 +90,7 @@
 
 \subsection pluginai Plugins
 <!-- List the plugins that are provided for use in other packages (if any) -->
+
 
 
 
