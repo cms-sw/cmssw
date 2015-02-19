@@ -47,6 +47,9 @@ theDigitizersValid = cms.PSet(
   castor  = cms.PSet(
     castorDigitizer
   ),
+  puVtx = cms.PSet(
+    pileupVtxDigitizer
+  ),
   mergedtruth = cms.PSet(
     trackingParticles
   )
