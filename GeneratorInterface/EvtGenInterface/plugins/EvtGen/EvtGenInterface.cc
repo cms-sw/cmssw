@@ -498,7 +498,7 @@ void EvtGenInterface::addToHepMC(HepMC::GenParticle* partHep,const EvtId &idEvt,
 }        
 
 //Recursivley add EvtGen decay to to Event Decy tree
-void EvtGenInterface::update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p){
+void EvtGenInterface::update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p, bool allowMixing){
   if(p->end_vertex()){
     if(!partHep->end_vertex()){
       HepMC::GenVertex* vtx = new HepMC::GenVertex(p->end_vertex()->position());
@@ -514,22 +514,27 @@ void EvtGenInterface::update_particles(HepMC::GenParticle* partHep,HepMC::GenEve
         partHep->end_vertex()->add_particle_out(daughter);
 
         // Ensure forced decays are done with the alias
-        bool skip=false;
+        bool ignore=false;
         bool isforced=false;
 	bool isDefaultEvtGen=false;
-	// check for mixing... skip if there is mixing...
+	bool hasmixing=false;
+	// check for mixing... skip if there is mixing it is not allowed
 	if((*d)->end_vertex()){
 	  if((*d)->end_vertex()->particles_out_size()==1){
-	    if((*((*d)->end_vertex()->particles_out_const_begin()))->pdg_id()==daughter->pdg_id())skip=true;
+	    if(abs((*((*d)->end_vertex()->particles_out_const_begin()))->pdg_id())==abs(daughter->pdg_id())){
+	      if(allowMixing){
+		hasmixing=true;
+	      }
+	    }
 	  }
 	}
 	// check to see if particle is on list of particles not be decayed by EvtGen
 	for(unsigned int i=0;i<ignore_pdgids.size();i++){
-	  if(daughter->pdg_id()==ignore_pdgids[i])skip=true;
+	  if(daughter->pdg_id()==ignore_pdgids[i])ignore=true;
 	}
 	int idHep = daughter->pdg_id();
 	EvtId idEvt = EvtPDL::evtIdFromStdHep(idHep);
-	if(!skip){
+	if(!(hasmixing || ignore)){
 	  // re-run is daughter is a forced decays
 	  for(unsigned int i=0;i<forced_pdgids.size();i++){
 	    if(idHep==forced_pdgids[i]){
@@ -553,7 +558,7 @@ void EvtGenInterface::update_particles(HepMC::GenParticle* partHep,HepMC::GenEve
 	}
 	else{
 	  // Recursively add daughters without re-running
-	  if((*d)->end_vertex()) update_particles(daughter,theEvent,(*d));
+	  if((*d)->end_vertex()) update_particles(daughter,theEvent,(*d),hasmixing);
 	}
       }
     }

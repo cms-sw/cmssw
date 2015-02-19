@@ -40,5 +40,6 @@ workflows[541]=['',['BuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1','HARVESTGE
 workflows[542]=['',['Upsilon4swithBuToKstarJPsiToMuMu_forSTEAM_13TeV_TuneCUETP8M1','HARVESTGEN']]
 workflows[543]=['',['Upsilon4sBaBarExample_BpBm_Dstarpipi_D0Kpi_nonres_forSTEAM_13TeV_TuneCUETP8M1','HARVESTGEN']]
 workflows[544]=['',['LambdaBToLambdaMuMuToPPiMuMu_forSTEAM_13TeV_TuneCUETP8M1','HARVESTGEN']]
+workflows[545]=['',['BsToMuMu_forSTEAM_13TeV_TuneCUETP8M1','HARVESTGEN']]
 
 # Miscellaneous
