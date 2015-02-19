@@ -214,10 +214,10 @@ namespace edm {
     
     template< typename T>
     void
-    ProducingModuleAdaptorBase<T>::doRespondToOpenInputFile(FileBlock const& fb){}
+    ProducingModuleAdaptorBase<T>::doRespondToOpenInputFile(FileBlock const&){}
     template< typename T>
     void
-    ProducingModuleAdaptorBase<T>::doRespondToCloseInputFile(FileBlock const& fb){}
+    ProducingModuleAdaptorBase<T>::doRespondToCloseInputFile(FileBlock const&){}
     template< typename T>
     void
     ProducingModuleAdaptorBase<T>::doPreForkReleaseResources(){

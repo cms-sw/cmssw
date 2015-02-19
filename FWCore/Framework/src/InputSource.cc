@@ -299,7 +299,7 @@ namespace edm {
   }
 
   void
-  InputSource::readRun(RunPrincipal& runPrincipal, HistoryAppender& historyAppender) {
+  InputSource::readRun(RunPrincipal& runPrincipal, HistoryAppender& ) {
     RunSourceSentry sentry(*this);
     callWithTryCatchAndPrint<void>( [this,&runPrincipal](){ readRun_(runPrincipal); }, "Calling InputSource::readRun_" );
   }
@@ -311,7 +311,7 @@ namespace edm {
   }
 
   void
-  InputSource::readLuminosityBlock(LuminosityBlockPrincipal& lumiPrincipal, HistoryAppender& historyAppender) {
+  InputSource::readLuminosityBlock(LuminosityBlockPrincipal& lumiPrincipal, HistoryAppender& ) {
     LumiSourceSentry sentry(*this);
     callWithTryCatchAndPrint<void>( [this,&lumiPrincipal](){ readLuminosityBlock_(lumiPrincipal); }, "Calling InputSource::readLuminosityBlock_" );
     if(remainingLumis_ > 0) {
@@ -486,14 +486,14 @@ namespace edm {
   }
 
   void
-  InputSource::doBeginRun(RunPrincipal& rp, ProcessContext const* processContext) {
+  InputSource::doBeginRun(RunPrincipal& rp, ProcessContext const* ) {
     Run run(rp, moduleDescription(), nullptr);
     callWithTryCatchAndPrint<void>( [this,&run](){ beginRun(run); }, "Calling InputSource::beginRun" );
     run.commit_();
   }
 
   void
-  InputSource::doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const* processContext) {
+  InputSource::doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const* ) {
     rp.setEndTime(time_);
     rp.setComplete();
     Run run(rp, moduleDescription(), nullptr);
@@ -502,14 +502,14 @@ namespace edm {
   }
 
   void
-  InputSource::doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const* processContext) {
+  InputSource::doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const* ) {
     LuminosityBlock lb(lbp, moduleDescription(), nullptr);
     callWithTryCatchAndPrint<void>( [this,&lb](){ beginLuminosityBlock(lb); }, "Calling InputSource::beginLuminosityBlock" );
     lb.commit_();
   }
 
   void
-  InputSource::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const* processContext) {
+  InputSource::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const* ) {
     lbp.setEndTime(time_);
     lbp.setComplete();
     LuminosityBlock lb(lbp, moduleDescription(), nullptr);
