@@ -208,14 +208,21 @@ class HLTProcess(object):
   def releaseSpecificCustomize(self):
     # version specific customizations
     self.data += """
+
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# from CMSSW_7_4_0_pre7: Simplified TrackerTopologyEP config (PR #7589)
-if cmsswVersion >= "CMSSW_7_4":
+# from CMSSW_7_5_0_pre0: Simplified TrackerTopologyEP config (PR #7589/#7802)
+if cmsswVersion >= "CMSSW_7_5":
     if 'trackerTopologyConstants' in %(dict)s:
         %(process)strackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
+
+# from CMSSW_7_5_0_pre0: Removal of upgradeGeometry from TrackerDigiGeometryESModule (PR #7794)
+if cmsswVersion >= "CMSSW_7_5":
+    if 'TrackerDigiGeometryESModule' in %(dict)s:
+        del %(process)sTrackerDigiGeometryESModule.trackerGeometryConstants.upgradeGeometry
+
 """
 
   # customize the configuration according to the options

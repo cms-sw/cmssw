@@ -7985,14 +7985,21 @@ HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_CaloJet260_v1, HLT_Ele27_eta2p1_WP75_Gsf_v1, HLT_Mu50_v1, HLT_PFJet260_v1, HLT_Photon20_CaloIdVL_IsoL_v1, HLT_Physics_v1, HLTriggerFinalPath, HLTAnalyzerEndpath ))
 
 
+
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# from CMSSW_7_4_0_pre7: Simplified TrackerTopologyEP config (PR #7589)
-if cmsswVersion >= "CMSSW_7_4":
+# from CMSSW_7_5_0_pre0: Simplified TrackerTopologyEP config (PR #7589/#7802)
+if cmsswVersion >= "CMSSW_7_5":
     if 'trackerTopologyConstants' in locals():
         trackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
+
+# from CMSSW_7_5_0_pre0: Removal of upgradeGeometry from TrackerDigiGeometryESModule (PR #7794)
+if cmsswVersion >= "CMSSW_7_5":
+    if 'TrackerDigiGeometryESModule' in locals():
+        del TrackerDigiGeometryESModule.trackerGeometryConstants.upgradeGeometry
+
 
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in locals() and 'HLTriggerFirstPath' in locals() :

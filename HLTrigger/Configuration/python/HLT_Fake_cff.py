@@ -153,14 +153,21 @@ HLTriggerFinalPath = cms.Path( hltGtDigis + hltScalersRawToDigi + hltFEDSelector
 HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Physics_v1, HLT_Random_v1, HLT_ZeroBias_v1, HLTriggerFinalPath ))
 
 
+
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# from CMSSW_7_4_0_pre7: Simplified TrackerTopologyEP config (PR #7589)
-if cmsswVersion >= "CMSSW_7_4":
+# from CMSSW_7_5_0_pre0: Simplified TrackerTopologyEP config (PR #7589/#7802)
+if cmsswVersion >= "CMSSW_7_5":
     if 'trackerTopologyConstants' in locals():
         trackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
+
+# from CMSSW_7_5_0_pre0: Removal of upgradeGeometry from TrackerDigiGeometryESModule (PR #7794)
+if cmsswVersion >= "CMSSW_7_5":
+    if 'TrackerDigiGeometryESModule' in locals():
+        del TrackerDigiGeometryESModule.trackerGeometryConstants.upgradeGeometry
+
 
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in locals() and 'HLTriggerFirstPath' in locals() :
