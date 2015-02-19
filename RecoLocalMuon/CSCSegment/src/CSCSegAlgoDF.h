@@ -43,6 +43,7 @@
 
 class CSCSegAlgoPreClustering;
 class CSCSegAlgoShowering;
+class CSCSegFit;
 
 class CSCSegAlgoDF : public CSCSegmentAlgorithm {
 
@@ -102,28 +103,14 @@ private:
   /** 
    * Prune bad segment from the worse hit based on residuals
    */
-  void pruneFromResidual();
+  void pruneFromResidual(void);
 
-
-  /** 
-   * Order the hits on the 2nd layer for seed building
-   */
-  void orderSecondSeed( GlobalPoint gp1, 
-                                  const ChamberHitContainerCIt i1,
-                                  const ChamberHitContainerCIt i2,
-	                          const ChamberHitContainer& rechits,
-                                  const LayerIndex& layerIndex );
-
-	
   bool isHitNearSegment(const CSCRecHit2D* h) const;
   bool addHit(const CSCRecHit2D* hit, int layer);
   void updateParameters(void);
   bool hasHitOnLayer(int layer) const;
   void compareProtoSegment(const CSCRecHit2D* h, int layer);
-  CLHEP::HepMatrix derivativeMatrix(void) const;
-  AlgebraicSymMatrix weightMatrix(void) const;
-  AlgebraicSymMatrix calculateError(void) const;
-  void flipErrors(AlgebraicSymMatrix&) const;
+  void dumpSegment( const CSCSegment& seg ) const;
 
   // Member variables
   const std::string myName; 
@@ -134,11 +121,6 @@ private:
 
   ChamberHitContainer protoSegment;
   ChamberHitContainer secondSeedHits;
-  float       protoSlope_u;
-  float       protoSlope_v;
-  LocalPoint  protoIntercept;		
-  double      protoChi2;
-  LocalVector protoDirection;
 
   // input from .cfi file
   bool   debug;
@@ -160,6 +142,7 @@ private:
 
   CSCSegAlgoPreClustering* preCluster_;
   CSCSegAlgoShowering* showering_;
+  CSCSegFit* sfit_;
 
 };
 
