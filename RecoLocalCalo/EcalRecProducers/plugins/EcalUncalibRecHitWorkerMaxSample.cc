@@ -19,6 +19,7 @@
 
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+#include <FWCore/ParameterSet/interface/EmptyGroupDescription.h>
 
 #include <cmath>
 #include <iomanip>
@@ -52,10 +53,9 @@ EcalUncalibRecHitWorkerMaxSample::run( const edm::Event & evt,
         return true;
 }
 
-void
-EcalUncalibRecHitWorkerMaxSample::fillDescriptions(edm::ParameterSetDescription& desc, std::string& moduleName) {
-
-  moduleName = "ecalMaxSampleUncalibRecHit";
+std::auto_ptr<edm::ParameterDescriptionNode>
+EcalUncalibRecHitWorkerMaxSample::fillDescriptions() {
+	return std::auto_ptr<edm::ParameterDescriptionNode>(new edm::EmptyGroupDescription());
 }
 
 

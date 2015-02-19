@@ -30,7 +30,7 @@ class EcalUncalibRecHitWorkerFixedAlphaBetaFit : public EcalUncalibRecHitWorkerB
                 void set(const edm::EventSetup& es);
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
 
-		void fillDescriptions(edm::ParameterSetDescription& desc, std::string& moduleName);
+		std::auto_ptr<edm::ParameterDescriptionNode> fillDescriptions();
         private:
 
                 double AmplThrEB_;
