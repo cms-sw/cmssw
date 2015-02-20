@@ -36,6 +36,7 @@ patJets = cms.EDProducer("PATJetProducer",
     addBTagInfo          = cms.bool(True),   ## master switch
     addDiscriminators    = cms.bool(True),   ## addition btag discriminators
     discriminatorSources = cms.VInputTag(
+        cms.InputTag("combinedSecondaryVertexBJetTags"),
         cms.InputTag("pfJetBProbabilityBJetTags"),
         cms.InputTag("pfJetProbabilityBJetTags"),
         cms.InputTag("pfTrackCountingHighPurBJetTags"),
