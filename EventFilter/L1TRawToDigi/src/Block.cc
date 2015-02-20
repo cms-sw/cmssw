@@ -9,10 +9,10 @@ namespace l1t {
    BlockHeader::raw(block_t type) const
    {
       if (type_ == MP7) {
-         edm::LogWarning("L1T") << "Writing MP7 link header";
+         LogDebug("L1T") << "Writing MP7 link header";
          return ((id_ & ID_mask) << ID_shift) | ((size_ & size_mask) << size_shift);
       }
-      edm::LogWarning("L1T") << "Writing CTP7 link header";
+      LogDebug("L1T") << "Writing CTP7 link header";
       return ((id_ & CTP7_mask) << CTP7_shift);
    }
 
@@ -30,7 +30,7 @@ namespace l1t {
          return std::auto_ptr<Block>();
       }
 
-      edm::LogWarning("L1T") << "Creating block with size " << header.getSize();
+      LogDebug("L1T") << "Creating block with size " << header.getSize();
 
       auto res = std::auto_ptr<Block>(new Block(header, data_, data_ + header.getSize()));
       data_ += header.getSize();
@@ -41,14 +41,14 @@ namespace l1t {
    {
       // FIXME extract firmware version here
       // skip header for now
-      edm::LogWarning("L1T") << "Skipping " << std::hex << *data_;
+      edm::LogInfo("L1T") << "Skipping " << std::hex << *data_;
       ++data_;
    }
 
    BlockHeader
    MP7Payload::getHeader()
    {
-      edm::LogWarning("L1T") << "Getting header from " << std::hex << *data_;
+      LogDebug("L1T") << "Getting header from " << std::hex << *data_;
       return BlockHeader(data_++);
    }
 
