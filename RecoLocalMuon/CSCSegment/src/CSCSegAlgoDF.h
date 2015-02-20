@@ -24,7 +24,7 @@
  * built from wire or strip only hits to be used in segment reconstruction.<BR>
  *
  * Also, only a certain muonsPerChamberMax maximum number of segments can be produced in the 
- * chamber. <BR>
+ * chamber. [Seems to be hardwired rather than using this variable?] <BR>
  *
  * Alternative algorithms can be used for the segment building
  * by writing classes like this, and then selecting which one is actually
@@ -126,13 +126,13 @@ private:
   bool   debug;
   bool   preClustering;
   int    minHitsForPreClustering;
-  bool   testSeg;
+  //  bool   testSeg;
   bool   Pruning;
   int    minLayersApart;
   int    nHitsPerClusterIsShower;
-  float  nSigmaFromSegment;
+  //  float  nSigmaFromSegment;
   int    minHitsPerSegment;
-  int    muonsPerChamberMax;
+  //  int    muonsPerChamberMax;
   double dRPhiFineMax;
   double dPhiFineMax;
   float tanPhiMax;
