@@ -31,9 +31,9 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
     'run2_design'       :   'DESIGN71_V6::All',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   'POSTLS171_V18::All',
+    'run2_mc_50ns'      :   'MCRUN2_71_V0::All',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   'POSTLS171_V17::All',
+    'run2_mc'           :   'MCRUN2_71_V1::All',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   'GR_R_71_V7::All',
     # GlobalTag for Run2 data reprocessing
