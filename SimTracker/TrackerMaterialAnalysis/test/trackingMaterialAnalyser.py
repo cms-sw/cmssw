@@ -4,28 +4,60 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MaterialAnalyser")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout')
-)
 
 # Configuration and Conditions
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_V9::All'
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.load('FWCore.MessageService.MessageLogger_cfi')
+#Global Tag
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+
 
 # Analyze and plot the tracking material
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialAnalyser_cff")
 process.trackingMaterialAnalyser.SplitMode         = "NearestLayer"
 process.trackingMaterialAnalyser.SaveParameters    = True
 process.trackingMaterialAnalyser.SaveXML           = True
-process.trackingMaterialAnalyser.SaveDetailedPlots = True
+process.trackingMaterialAnalyser.SaveDetailedPlots = False
   
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:material.root')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(-1)
 )
 
 process.path = cms.Path(process.trackingMaterialAnalyser)
+
+
+def customizeMessageLogger(process):
+    ### Easy customisation of MessageLogger ###
+    # 1. Extend MessageLogger to monitor all modules: the * means any
+    #    label for all defined python modules
+    process.MessageLogger.debugModules.extend(['*'])
+    # 2. Define destination and its default logging properties
+    destination = 'debugTrackingMaterialAnalyzer'
+    how_to_debug = cms.untracked.PSet(threshold = cms.untracked.string("DEBUG"),
+                                      DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+                                      default = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+                                      )
+    # 3. Attach destination and its logging properties to the main process
+    process.MessageLogger.destinations.extend([destination])
+    process.MessageLogger._Parameterizable__addParameter(destination, how_to_debug)
+    # 4. Define and extend the categories we would like to monitor
+    log_debug_categories = ['TrackingMaterialAnalyser']
+    process.MessageLogger.categories.extend(log_debug_categories)
+
+    # 5. Extend the configuration of the configured destination so that it
+    #    will trace all messages coming from the list of specified
+    #    categories.
+    unlimit_debug = cms.untracked.PSet(limit = cms.untracked.int32(-1))
+    for val in log_debug_categories:
+        process.MessageLogger.debugTrackingMaterialAnalyzer._Parameterizable__addParameter(val, unlimit_debug)
+
+    return process
+
+
+process = customizeMessageLogger(process)
