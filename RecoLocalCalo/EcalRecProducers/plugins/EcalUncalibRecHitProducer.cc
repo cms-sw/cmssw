@@ -59,10 +59,10 @@ void EcalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
 
     std::auto_ptr<edm::ParameterDescriptionCases<std::string>> s;
     {
-      s = itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPset", EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)->getAlgoDescription(), true);
+      s = itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPSet", EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)->getAlgoDescription(), true);
     }
     for (++itInfos; itInfos != infos.end(); ++itInfos)
-      s = s or itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPset", EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)->getAlgoDescription(), true);
+      s = s or itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPSet", EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)->getAlgoDescription(), true);
     desc.ifValue(edm::ParameterDescription<std::string>("algo", "EcalUncalibRecHitWorkerWeights", true), s);
 
     descriptions.addDefault(desc);
