@@ -10,7 +10,7 @@ namespace edm {
         class EventSetup;
         class ParameterSet;
 	class ParameterSetDescription;
-	class ParameterDescriptionNode;
+	//class ParameterDescriptionNode;
 }
 
 class EcalUncalibRecHitWorkerBaseClass {
@@ -23,7 +23,7 @@ class EcalUncalibRecHitWorkerBaseClass {
   virtual void set(const edm::EventSetup& es) = 0;
   virtual void set(const edm::Event& evt) {}
   virtual bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) = 0;
-  virtual std::auto_ptr<edm::ParameterDescriptionNode> fillDescriptions() = 0;
+  virtual edm::ParameterSetDescription getAlgoDescription() = 0;
 };
 
 #endif

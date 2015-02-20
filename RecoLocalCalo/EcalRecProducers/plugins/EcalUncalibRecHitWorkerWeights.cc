@@ -99,16 +99,17 @@ EcalUncalibRecHitWorkerWeights::run( const edm::Event & evt,
         return true;
 }
 
-void
-EcalUncalibRecHitWorkerWeights::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // ecalWeightUncalibRecHit
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis"));
-  desc.add<std::string>("EEhitCollection", "EcalUncalibRecHitsEE");
-  desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis"));
-  desc.add<std::string>("algo", "EcalUncalibRecHitWorkerWeights");
-  desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
-  descriptions.add("ecalWeightUncalibRecHit", desc);
+edm::ParameterSetDescription
+EcalUncalibRecHitWorkerWeights::getAlgoDescription() {
+
+  edm::ParameterSetDescription pset;
+//pset.addNode(edm::ParameterSet<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis")) and
+//	       edm::ParameterSet<std::string>("EEhitCollection", "EcalUncalibRecHitsEE") and
+//	       edm::ParameterSet<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis")) and
+//	       edm::ParameterSet<std::string>("algo", "EcalUncalibRecHitWorkerWeights") and
+//	       edm::ParameterSet<std::string>("EBhitCollection", "EcalUncalibRecHitsEB"));
+//
+  return pset;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

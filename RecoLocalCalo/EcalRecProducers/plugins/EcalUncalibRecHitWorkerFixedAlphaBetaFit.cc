@@ -189,16 +189,21 @@ EcalUncalibRecHitWorkerFixedAlphaBetaFit::run(const edm::Event& evt,
         return true;
 }
 
-std::auto_ptr<edm::ParameterDescriptionNode>
-EcalUncalibRecHitWorkerFixedAlphaBetaFit::fillDescriptions() {
-    return (edm::ParameterDescription<double>("alphaEB", 1.138, true) and
-            edm::ParameterDescription<double>("alphaEE", 1.89, true) and 
-	    edm::ParameterDescription<std::string>("AlphaBetaFilename", "NOFILE", false) and
-	    edm::ParameterDescription<double>("betaEB", 1.655, true) and
-	    edm::ParameterDescription<double>("MinAmplEndcap", 14.0, true) and
-	    edm::ParameterDescription<double>("MinAmplBarrel", 8.0, true) and
-	    edm::ParameterDescription<double>("betaEE", 1.4, true) and
-	    edm::ParameterDescription<bool>("UseDynamicPedestal", true, true) );
+edm::ParameterSetDescription
+EcalUncalibRecHitWorkerFixedAlphaBetaFit::getAlgoDescription() {
+
+  edm::ParameterSetDescription pset;
+  
+  pset.addNode(edm::ParameterDescription<double>("alphaEB", 1.138, true) and
+	       edm::ParameterDescription<double>("alphaEE", 1.89, true) and 
+	       edm::ParameterDescription<std::string>("AlphaBetaFilename", "NOFILE", false) and
+	       edm::ParameterDescription<double>("betaEB", 1.655, true) and
+	       edm::ParameterDescription<double>("MinAmplEndcap", 14.0, true) and
+	       edm::ParameterDescription<double>("MinAmplBarrel", 8.0, true) and
+	       edm::ParameterDescription<double>("betaEE", 1.4, true) and
+	       edm::ParameterDescription<bool>("UseDynamicPedestal", true, true) );
+
+  return pset;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
