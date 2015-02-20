@@ -39,10 +39,10 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
+#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
 
-#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
 #include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -582,7 +582,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
   
   
   /// Stub properties compared to TParticles
-  dqmStore_->setCurrentFolder(topFolderName_+"/TStubVSTPart/");
+  dqmStore_->setCurrentFolder(topFolderName_+"/TTStubVSTPart/");
    
   // InvpT
   edm::ParameterSet psStub_InvPt =  conf_.getParameter<edm::ParameterSet>("TH2Stub_InvPt");
