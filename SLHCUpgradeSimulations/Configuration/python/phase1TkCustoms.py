@@ -139,6 +139,7 @@ def customise_condOverRides(process):
 #    process.trackerTopologyConstants.pxf_bladeStartBit = cms.uint32(12)
 #    process.trackerTopologyConstants.pxf_panelStartBit = cms.uint32(10)
 #    process.trackerTopologyConstants.pxf_moduleMask = cms.uint32(255)
+    process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_cff')
     return process
 
 def add_detailed_pixel_dqm(process):
