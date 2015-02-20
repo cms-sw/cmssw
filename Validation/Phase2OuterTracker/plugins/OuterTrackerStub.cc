@@ -201,7 +201,7 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStubStacks.getParameter<int32_t>("Nbinsx"),
       psTTStubStacks.getParameter<double>("xmin"),
       psTTStubStacks.getParameter<double>("xmax"));
-  Stub_Gen_Barrel->setAxisTitle("Barrel layer", 1);
+  Stub_Gen_Barrel->setAxisTitle("Barrel Layer", 1);
   Stub_Gen_Barrel->setAxisTitle("# TTStubs", 2);
   
   HistoName = "NStubs_Unkn_Barrel";
@@ -209,7 +209,7 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStubStacks.getParameter<int32_t>("Nbinsx"),
       psTTStubStacks.getParameter<double>("xmin"),
       psTTStubStacks.getParameter<double>("xmax"));
-  Stub_Unkn_Barrel->setAxisTitle("Barrel layer", 1);
+  Stub_Unkn_Barrel->setAxisTitle("Barrel Layer", 1);
   Stub_Unkn_Barrel->setAxisTitle("# TTStubs", 2);
   
   HistoName = "NStubs_Comb_Barrel";
@@ -217,7 +217,7 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStubStacks.getParameter<int32_t>("Nbinsx"),
       psTTStubStacks.getParameter<double>("xmin"),
       psTTStubStacks.getParameter<double>("xmax"));
-  Stub_Comb_Barrel->setAxisTitle("Barrel layer", 1);
+  Stub_Comb_Barrel->setAxisTitle("Barrel Layer", 1);
   Stub_Comb_Barrel->setAxisTitle("# TTStubs", 2);
   
   HistoName = "NStubs_Gen_Endcap";
@@ -225,7 +225,7 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStubStacks.getParameter<int32_t>("Nbinsx"),
       psTTStubStacks.getParameter<double>("xmin"),
       psTTStubStacks.getParameter<double>("xmax"));
-  Stub_Gen_Endcap->setAxisTitle("Endcap disk", 1);
+  Stub_Gen_Endcap->setAxisTitle("Endcap Disc", 1);
   Stub_Gen_Endcap->setAxisTitle("# TTStubs", 2);
   
   HistoName = "NStubs_Unkn_Endcap";
@@ -233,7 +233,7 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStubStacks.getParameter<int32_t>("Nbinsx"),
       psTTStubStacks.getParameter<double>("xmin"),
       psTTStubStacks.getParameter<double>("xmax"));
-  Stub_Unkn_Endcap->setAxisTitle("Endcap disk", 1);
+  Stub_Unkn_Endcap->setAxisTitle("Endcap Disc", 1);
   Stub_Unkn_Endcap->setAxisTitle("# TTStubs", 2);
   
   HistoName = "NStubs_Comb_Endcap";
@@ -241,7 +241,7 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStubStacks.getParameter<int32_t>("Nbinsx"),
       psTTStubStacks.getParameter<double>("xmin"),
       psTTStubStacks.getParameter<double>("xmax"));
-  Stub_Comb_Endcap->setAxisTitle("Encap disk", 1);
+  Stub_Comb_Endcap->setAxisTitle("Encap Disc", 1);
   Stub_Comb_Endcap->setAxisTitle("# TTStubs", 2);
   
   edm::ParameterSet psTTStubEta =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Eta");

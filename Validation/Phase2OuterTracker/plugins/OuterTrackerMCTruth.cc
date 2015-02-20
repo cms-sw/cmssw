@@ -415,7 +415,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTPart_Pt.getParameter<int32_t>("Nbinsx"),
       psTPart_Pt.getParameter<double>("xmin"),
       psTPart_Pt.getParameter<double>("xmax"));
-  TPart_Pt->setAxisTitle("TPart_Pt", 1);
+  TPart_Pt->setAxisTitle("TPart Pt", 1);
   TPart_Pt->setAxisTitle("# TParticles", 2);
   
   edm::ParameterSet psTPart_Angle_Pt10 =  conf_.getParameter<edm::ParameterSet>("TH1TPart_Angle_Pt10");
@@ -424,7 +424,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
       psTPart_Angle_Pt10.getParameter<double>("xmin"),
       psTPart_Angle_Pt10.getParameter<double>("xmax"));
-  TPart_Eta_Pt10->setAxisTitle("TPart_Eta_Pt10", 1);
+  TPart_Eta_Pt10->setAxisTitle("TPart Eta (when Pt>10)", 1);
   TPart_Eta_Pt10->setAxisTitle("# TParticles", 2);
   
   HistoName = "TPart_Phi_Pt10";
@@ -432,7 +432,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
       psTPart_Angle_Pt10.getParameter<double>("xmin"),
       psTPart_Angle_Pt10.getParameter<double>("xmax"));
-  TPart_Phi_Pt10->setAxisTitle("TPart_Phi_Pt10", 1);
+  TPart_Phi_Pt10->setAxisTitle("TPart Phi (when Pt>10)", 1);
   TPart_Phi_Pt10->setAxisTitle("# TParticles", 2);
   
   edm::ParameterSet psSimVtx_XY =  conf_.getParameter<edm::ParameterSet>("TH2SimVtx_XY");

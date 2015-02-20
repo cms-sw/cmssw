@@ -52,9 +52,6 @@ OuterTrackerMonitorL1Track::OuterTrackerMonitorL1Track(const edm::ParameterSet& 
 : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig)
 {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
-  
-  
-  
 }
 
 OuterTrackerMonitorL1Track::~OuterTrackerMonitorL1Track()
@@ -189,7 +186,7 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_NStubs_PhiSectorOrEtaWedge.getParameter<double>("ymin"),
   psL1Track_NStubs_PhiSectorOrEtaWedge.getParameter<double>("ymax"));
   L1Track_NStubs_PhiSector->setAxisTitle("#phi sector of the L1 track", 1);
-  L1Track_NStubs_PhiSector->setAxisTitle("#stubs", 2);
+  L1Track_NStubs_PhiSector->setAxisTitle("# TTStubs", 2);
   
   
   //EtaWedge vs nb of stubs
@@ -202,7 +199,7 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_NStubs_PhiSectorOrEtaWedge.getParameter<double>("ymin"),
   psL1Track_NStubs_PhiSectorOrEtaWedge.getParameter<double>("ymax"));
   L1Track_NStubs_EtaWedge->setAxisTitle("#eta wedge of the L1 track", 1);
-  L1Track_NStubs_EtaWedge->setAxisTitle("#stubs", 2);;
+  L1Track_NStubs_EtaWedge->setAxisTitle("# TTStubs", 2);;
   
   
   
@@ -238,8 +235,8 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_NStubs.getParameter<int32_t>("Nbinsx"),
   psL1Track_NStubs.getParameter<double>("xmin"),
   psL1Track_NStubs.getParameter<double>("xmax"));
-  L1Track_NStubs->setAxisTitle("# Stubs in each L1 track", 1);
-  L1Track_NStubs->setAxisTitle("# events", 2);
+  L1Track_NStubs->setAxisTitle("# Stubs per L1 track", 1);
+  L1Track_NStubs->setAxisTitle("# L1 tracks", 2);
   
   
   //Nb of tracks
@@ -264,7 +261,7 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_NTracks.getParameter<int32_t>("Nbinsx"),
   psL1Track_NTracks.getParameter<double>("xmin"),
   psL1Track_NTracks.getParameter<double>("xmax"));
-  L1Track_2Stubs_NTracks->setAxisTitle("# L1Tracks from at most 2 stubs", 1);
+  L1Track_2Stubs_NTracks->setAxisTitle("# L1Tracks from at most 2 TTStubs", 1);
   L1Track_2Stubs_NTracks->setAxisTitle("# events", 2);
   
   //Pt of the tracks
@@ -274,8 +271,8 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_Pt.getParameter<int32_t>("Nbinsx"),
   psL1Track_Pt.getParameter<double>("xmin"),
   psL1Track_Pt.getParameter<double>("xmax"));
-  L1Track_2Stubs_Pt->setAxisTitle("p_T of L1Tracks from at most 2 stubs", 1);
-  L1Track_2Stubs_Pt->setAxisTitle("# events", 2);
+  L1Track_2Stubs_Pt->setAxisTitle("p_{T} of L1Tracks from at most 2 TTStubs", 1);
+  L1Track_2Stubs_Pt->setAxisTitle("# L1Tracks", 2);
   
   //Phi
   edm::ParameterSet psL1Track_Phi =  conf_.getParameter<edm::ParameterSet>("TH1_L1Track_Phi");
@@ -284,8 +281,8 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_Phi.getParameter<int32_t>("Nbinsx"),
   psL1Track_Phi.getParameter<double>("xmin"),
   psL1Track_Phi.getParameter<double>("xmax"));
-  L1Track_2Stubs_Phi->setAxisTitle("#phi of L1Tracks from at most 2 stubs", 1);
-  L1Track_2Stubs_Phi->setAxisTitle("# events", 2);
+  L1Track_2Stubs_Phi->setAxisTitle("#phi of L1Tracks from at most 2 TTStubs", 1);
+  L1Track_2Stubs_Phi->setAxisTitle("# L1Tracks", 2);
   
   
   //Eta
@@ -295,8 +292,8 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_Eta.getParameter<int32_t>("Nbinsx"),
   psL1Track_Eta.getParameter<double>("xmin"),
   psL1Track_Eta.getParameter<double>("xmax"));
-  L1Track_2Stubs_Eta->setAxisTitle("#eta of L1Tracks from at most 2 stubs", 1);
-  L1Track_2Stubs_Eta->setAxisTitle("# events", 2);
+  L1Track_2Stubs_Eta->setAxisTitle("#eta of L1Tracks from at most 2 TTStubs", 1);
+  L1Track_2Stubs_Eta->setAxisTitle("# L1Tracks", 2);
   
   
   //VtxZ0
@@ -306,8 +303,8 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_VtxZ0.getParameter<int32_t>("Nbinsx"),
   psL1Track_VtxZ0.getParameter<double>("xmin"),
   psL1Track_VtxZ0.getParameter<double>("xmax"));
-  L1Track_2Stubs_VtxZ0->setAxisTitle("VtxZ0 of L1Tracks from at most 2 stubs", 1);
-  L1Track_2Stubs_VtxZ0->setAxisTitle("# events", 2);
+  L1Track_2Stubs_VtxZ0->setAxisTitle("VtxZ0 of L1Tracks from at most 2 TTStubs", 1);
+  L1Track_2Stubs_VtxZ0->setAxisTitle("# L1Tracks", 2);
   
   
   //chi2
@@ -317,8 +314,8 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_Chi2.getParameter<int32_t>("Nbinsx"),
   psL1Track_Chi2.getParameter<double>("xmin"),
   psL1Track_Chi2.getParameter<double>("xmax"));
-  L1Track_2Stubs_Chi2->setAxisTitle("#chi^2 of L1Tracks from at most 2 stubs", 1);
-  L1Track_2Stubs_Chi2->setAxisTitle("# events", 2);
+  L1Track_2Stubs_Chi2->setAxisTitle("#chi^{2} of L1Tracks from at most 2 TTStubs", 1);
+  L1Track_2Stubs_Chi2->setAxisTitle("# L1Tracks", 2);
   
   //chi2Red
   edm::ParameterSet psL1Track_Chi2R =  conf_.getParameter<edm::ParameterSet>("TH1_L1Track_Chi2R");
@@ -327,8 +324,8 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_Chi2R.getParameter<int32_t>("Nbinsx"),
   psL1Track_Chi2R.getParameter<double>("xmin"),
   psL1Track_Chi2R.getParameter<double>("xmax"));
-  L1Track_2Stubs_Chi2R->setAxisTitle("#chi^2/dof of L1Tracks from at most 2 stubs", 1);
-  L1Track_2Stubs_Chi2R->setAxisTitle("# events", 2);
+  L1Track_2Stubs_Chi2R->setAxisTitle("#chi^{2}/dof of L1Tracks from at most 2 TTStubs", 1);
+  L1Track_2Stubs_Chi2R->setAxisTitle("# L1Tracks", 2);
   
   edm::ParameterSet psL1Track_Chi2_NStubs =  conf_.getParameter<edm::ParameterSet>("TH2_L1Track_Chi2_NStubs");
   HistoName = "L1Track_2Stubs_Chi2_N";
@@ -339,8 +336,8 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_Chi2_NStubs.getParameter<int32_t>("Nbinsy"),
   psL1Track_Chi2_NStubs.getParameter<double>("ymin"),
   psL1Track_Chi2_NStubs.getParameter<double>("ymax"));
-  L1Track_2Stubs_Chi2_NStubs->setAxisTitle("#chi^2 of L1Tracks from at most 2 stubs", 2);
-  L1Track_2Stubs_Chi2_NStubs->setAxisTitle("#stubs", 1);
+  L1Track_2Stubs_Chi2_NStubs->setAxisTitle("# TTStubs", 1);
+  L1Track_2Stubs_Chi2_NStubs->setAxisTitle("#chi^{2} of L1Tracks from at most 2 TTStubs", 2);
   
   edm::ParameterSet psL1Track_Chi2R_NStubs =  conf_.getParameter<edm::ParameterSet>("TH2_L1Track_Chi2R_NStubs");
   HistoName = "L1Track_2Stubs_Chi2R_NStubs";
@@ -351,8 +348,9 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_Chi2R_NStubs.getParameter<int32_t>("Nbinsy"),
   psL1Track_Chi2R_NStubs.getParameter<double>("ymin"),
   psL1Track_Chi2R_NStubs.getParameter<double>("ymax"));
-  L1Track_2Stubs_Chi2R_NStubs->setAxisTitle("#chi^2/dof of L1Tracks from at most 2 stubs", 2);
-  L1Track_2Stubs_Chi2R_NStubs->setAxisTitle("#stubs", 1);
+  L1Track_2Stubs_Chi2R_NStubs->setAxisTitle("# TTStubs", 1);
+  L1Track_2Stubs_Chi2R_NStubs->setAxisTitle("#chi^2/dof of L1Tracks from at most 2 TTStubs", 2);
+  
   
   
   //all tracks with more than 2 stubs
@@ -364,7 +362,7 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_NTracks.getParameter<int32_t>("Nbinsx"),
   psL1Track_NTracks.getParameter<double>("xmin"),
   psL1Track_NTracks.getParameter<double>("xmax"));
-  L1Track_3Stubs_NTracks->setAxisTitle("# L1Tracks from at least 3 stubs", 1);
+  L1Track_3Stubs_NTracks->setAxisTitle("# L1Tracks from at least 3 TTStubs", 1);
   L1Track_3Stubs_NTracks->setAxisTitle("# events", 2);
   
   //Pt of the tracks
@@ -373,8 +371,8 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_Pt.getParameter<int32_t>("Nbinsx"),
   psL1Track_Pt.getParameter<double>("xmin"),
   psL1Track_Pt.getParameter<double>("xmax"));
-  L1Track_3Stubs_Pt->setAxisTitle("p_T of L1Tracks from at least 3 stubs", 1);
-  L1Track_3Stubs_Pt->setAxisTitle("# events", 2);
+  L1Track_3Stubs_Pt->setAxisTitle("p_{T} of L1Tracks from at least 3 TTStubs", 1);
+  L1Track_3Stubs_Pt->setAxisTitle("# L1Tracks", 2);
   
   //Phi
   HistoName = "L1Track_3Stubs_Phi";
@@ -382,8 +380,8 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_Phi.getParameter<int32_t>("Nbinsx"),
   psL1Track_Phi.getParameter<double>("xmin"),
   psL1Track_Phi.getParameter<double>("xmax"));
-  L1Track_3Stubs_Phi->setAxisTitle("#phi of L1Tracks from at least 3 stubs", 1);
-  L1Track_3Stubs_Phi->setAxisTitle("# events", 2);
+  L1Track_3Stubs_Phi->setAxisTitle("#phi of L1Tracks from at least 3 TTStubs", 1);
+  L1Track_3Stubs_Phi->setAxisTitle("# L1Tracks", 2);
   
   
   //Eta
@@ -392,8 +390,8 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_Eta.getParameter<int32_t>("Nbinsx"),
   psL1Track_Eta.getParameter<double>("xmin"),
   psL1Track_Eta.getParameter<double>("xmax"));
-  L1Track_3Stubs_Eta->setAxisTitle("#eta of L1Tracks from at least 3 stubs", 1);
-  L1Track_3Stubs_Eta->setAxisTitle("# events", 2);
+  L1Track_3Stubs_Eta->setAxisTitle("#eta of L1Tracks from at least 3 TTStubs", 1);
+  L1Track_3Stubs_Eta->setAxisTitle("# L1Tracks", 2);
   
   
   //VtxZ0
@@ -402,8 +400,8 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_VtxZ0.getParameter<int32_t>("Nbinsx"),
   psL1Track_VtxZ0.getParameter<double>("xmin"),
   psL1Track_VtxZ0.getParameter<double>("xmax"));
-  L1Track_3Stubs_VtxZ0->setAxisTitle("VtxZ0 of L1Tracks from at least 3 stubs", 1);
-  L1Track_3Stubs_VtxZ0->setAxisTitle("# events", 2);
+  L1Track_3Stubs_VtxZ0->setAxisTitle("VtxZ0 of L1Tracks from at least 3 TTStubs", 1);
+  L1Track_3Stubs_VtxZ0->setAxisTitle("# L1Tracks", 2);
   
   
   //chi2
@@ -412,8 +410,8 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_Chi2.getParameter<int32_t>("Nbinsx"),
   psL1Track_Chi2.getParameter<double>("xmin"),
   psL1Track_Chi2.getParameter<double>("xmax"));
-  L1Track_3Stubs_Chi2->setAxisTitle("#chi^2 of L1Tracks from at least 3 stubs", 1);
-  L1Track_3Stubs_Chi2->setAxisTitle("# events", 2);
+  L1Track_3Stubs_Chi2->setAxisTitle("#chi^{2} of L1Tracks from at least 3 TTStubs", 1);
+  L1Track_3Stubs_Chi2->setAxisTitle("# L1Tracks", 2);
   
   //chi2Red
   HistoName = "L1Track_3Stubs_Chi2R";
@@ -421,8 +419,8 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_Chi2R.getParameter<int32_t>("Nbinsx"),
   psL1Track_Chi2R.getParameter<double>("xmin"),
   psL1Track_Chi2R.getParameter<double>("xmax"));
-  L1Track_3Stubs_Chi2R->setAxisTitle("#chi^2/dof of L1Tracks from at least 3 stubs", 1);
-  L1Track_3Stubs_Chi2R->setAxisTitle("# events", 2);
+  L1Track_3Stubs_Chi2R->setAxisTitle("#chi^{2}/dof of L1Tracks from at least 3 TTStubs", 1);
+  L1Track_3Stubs_Chi2R->setAxisTitle("# L1Tracks", 2);
   
   HistoName = "L1Track_3Stubs_Chi2_NStubs";
   L1Track_3Stubs_Chi2_NStubs = dqmStore_->book2D(HistoName, HistoName,
@@ -432,8 +430,8 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_Chi2_NStubs.getParameter<int32_t>("Nbinsy"),
   psL1Track_Chi2_NStubs.getParameter<double>("ymin"),
   psL1Track_Chi2_NStubs.getParameter<double>("ymax"));
-  L1Track_3Stubs_Chi2_NStubs->setAxisTitle("#chi^2 of L1Tracks from at least 3 stubs", 2);
-  L1Track_3Stubs_Chi2_NStubs->setAxisTitle("#stubs", 1);
+  L1Track_3Stubs_Chi2_NStubs->setAxisTitle("# TTStubs", 1);
+  L1Track_3Stubs_Chi2_NStubs->setAxisTitle("#chi^{2} of L1Tracks from at least 3 TTStubs", 2);
   
   HistoName = "L1Track_3Stubs_Chi2R_NStubs";
   L1Track_3Stubs_Chi2R_NStubs = dqmStore_->book2D(HistoName, HistoName,
@@ -443,8 +441,8 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   psL1Track_Chi2R_NStubs.getParameter<int32_t>("Nbinsy"),
   psL1Track_Chi2R_NStubs.getParameter<double>("ymin"),
   psL1Track_Chi2R_NStubs.getParameter<double>("ymax"));
-  L1Track_3Stubs_Chi2R_NStubs->setAxisTitle("#chi^2/dof of L1Tracks from at least 3 stubs", 2);
-  L1Track_3Stubs_Chi2R_NStubs->setAxisTitle("#stubs", 1);;
+  L1Track_3Stubs_Chi2R_NStubs->setAxisTitle("# TTStubs", 1);
+  L1Track_3Stubs_Chi2R_NStubs->setAxisTitle("#chi^{2}/dof of L1Tracks from at least 3 TTStubs", 2);
   
   
   

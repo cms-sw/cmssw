@@ -194,7 +194,7 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
       psTTClusterStacks.getParameter<double>("xmin"),
       psTTClusterStacks.getParameter<double>("xmax"));
-  Cluster_Gen_Barrel->setAxisTitle("Barrel layer", 1);
+  Cluster_Gen_Barrel->setAxisTitle("Barrel Layer", 1);
   Cluster_Gen_Barrel->setAxisTitle("# Clusters", 2);
   
   HistoName = "NClusters_Unkn_Barrel";
@@ -202,7 +202,7 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
       psTTClusterStacks.getParameter<double>("xmin"),
       psTTClusterStacks.getParameter<double>("xmax"));
-  Cluster_Unkn_Barrel->setAxisTitle("Barrel layer", 1);
+  Cluster_Unkn_Barrel->setAxisTitle("Barrel Layer", 1);
   Cluster_Unkn_Barrel->setAxisTitle("# Clusters", 2);
   
   HistoName = "NClusters_Comb_Barrel";
@@ -210,7 +210,7 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
       psTTClusterStacks.getParameter<double>("xmin"),
       psTTClusterStacks.getParameter<double>("xmax"));
-  Cluster_Comb_Barrel->setAxisTitle("Barrel layer", 1);
+  Cluster_Comb_Barrel->setAxisTitle("Barrel Layer", 1);
   Cluster_Comb_Barrel->setAxisTitle("# Clusters", 2);
   
   HistoName = "NClusters_Gen_Endcap";
@@ -218,7 +218,7 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
       psTTClusterStacks.getParameter<double>("xmin"),
       psTTClusterStacks.getParameter<double>("xmax"));
-  Cluster_Gen_Endcap->setAxisTitle("Endcap disk", 1);
+  Cluster_Gen_Endcap->setAxisTitle("Endcap Disc", 1);
   Cluster_Gen_Endcap->setAxisTitle("# Clusters", 2);
   
   HistoName = "NClusters_Unkn_Endcap";
@@ -226,7 +226,7 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
       psTTClusterStacks.getParameter<double>("xmin"),
       psTTClusterStacks.getParameter<double>("xmax"));
-  Cluster_Unkn_Endcap->setAxisTitle("Endcap disk", 1);
+  Cluster_Unkn_Endcap->setAxisTitle("Endcap Disc", 1);
   Cluster_Unkn_Endcap->setAxisTitle("# Clusters", 2);
   
   HistoName = "NClusters_Comb_Endcap";
@@ -234,7 +234,7 @@ OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
       psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
       psTTClusterStacks.getParameter<double>("xmin"),
       psTTClusterStacks.getParameter<double>("xmax"));
-  Cluster_Comb_Endcap->setAxisTitle("Endcap disk", 1);
+  Cluster_Comb_Endcap->setAxisTitle("Endcap Disc", 1);
   Cluster_Comb_Endcap->setAxisTitle("# Clusters", 2);
   
   edm::ParameterSet psTTClusterEta =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Eta");

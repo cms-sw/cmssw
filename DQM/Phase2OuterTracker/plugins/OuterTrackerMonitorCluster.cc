@@ -145,7 +145,7 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
 	    psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
 	    psTTClusterStacks.getParameter<double>("xmin"),
 	    psTTClusterStacks.getParameter<double>("xmax"));
-	Cluster_IMem_Barrel->setAxisTitle("Layer", 1);
+	Cluster_IMem_Barrel->setAxisTitle("Barrel Layer", 1);
 	Cluster_IMem_Barrel->setAxisTitle("# TTClusters", 2);
 	
 	HistoName = "NClusters_IMem_Endcap";
@@ -153,7 +153,7 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
 	    psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
 	    psTTClusterStacks.getParameter<double>("xmin"),
 	    psTTClusterStacks.getParameter<double>("xmax"));
-	Cluster_IMem_Endcap->setAxisTitle("Disc", 1);
+	Cluster_IMem_Endcap->setAxisTitle("Endcap Disc", 1);
 	Cluster_IMem_Endcap->setAxisTitle("# TTClusters", 2);
 	
 	HistoName = "NClusters_OMem_Barrel";
@@ -161,7 +161,7 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
 	    psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
 	    psTTClusterStacks.getParameter<double>("xmin"),
 	    psTTClusterStacks.getParameter<double>("xmax"));
-	Cluster_OMem_Barrel->setAxisTitle("Layer", 1);
+	Cluster_OMem_Barrel->setAxisTitle("Barrel Layer", 1);
 	Cluster_OMem_Barrel->setAxisTitle("# TTClusters", 2);
 	
 	HistoName = "NClusters_OMem_Endcap";
@@ -169,7 +169,7 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
 	    psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
 	    psTTClusterStacks.getParameter<double>("xmin"),
 	    psTTClusterStacks.getParameter<double>("xmax"));
-	Cluster_OMem_Endcap->setAxisTitle("Disc", 1);
+	Cluster_OMem_Endcap->setAxisTitle("Endcap Disc", 1);
 	Cluster_OMem_Endcap->setAxisTitle("# TTClusters", 2);
         
   //Cluster Width
