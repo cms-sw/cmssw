@@ -63,8 +63,8 @@ void EcalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
     }
     for (++itInfos; itInfos != infos.end(); ++itInfos)
       s = s or itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPSet", EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)->getAlgoDescription(), true);
-    desc.ifValue(edm::ParameterDescription<std::string>("algo", "EcalUncalibRecHitWorkerWeights", true), s);
-
+    desc.ifValue(edm::ParameterDescription<std::string>("algo", "EcalUncalibRecHitWorkerMultiFit", true), s);
+    
     descriptions.addDefault(desc);
   }
 
@@ -78,7 +78,7 @@ void EcalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
     desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
     desc.add<std::string>("algo", itInfos->name_);
     desc.add<edm::ParameterSetDescription>("algoPSet", fdWorker->getAlgoDescription()); 
-
+    
     std::string algoName = itInfos->name_.substr(itInfos->name_.find("Worker")+6, itInfos->name_.length());
     descriptions.add("ecal"+algoName+"UncalibRecHit", desc);
   }

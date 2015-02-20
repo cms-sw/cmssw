@@ -513,8 +513,8 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 edm::ParameterSetDescription
 EcalUncalibRecHitWorkerGlobal::getAlgoDescription() {
 
-  edm::ParameterSetDescription pset;
-  pset.addNode(edm::ParameterDescription<std::vector<double>>("eePulseShape", {5.2e-05,-5.26e-05,6.66e-05,0.1168,0.7575,1.0,0.8876,0.6732,0.4741,0.3194}, true) and
+  edm::ParameterSetDescription psd;
+  psd.addNode(edm::ParameterDescription<std::vector<double>>("eePulseShape", {5.2e-05,-5.26e-05,6.66e-05,0.1168,0.7575,1.0,0.8876,0.6732,0.4741,0.3194}, true) and
 	       edm::ParameterDescription<std::vector<double>>("EBtimeFitParameters", {-2.015452,3.130702,-12.3473,41.88921,-82.83944,91.01147,-50.35761,11.05621}, true) and
 	       edm::ParameterDescription<double>("outOfTimeThresholdGain61pEB", 5, true) and
 	       edm::ParameterDescription<double>("amplitudeThresholdEE", 10, true) and
@@ -546,7 +546,7 @@ EcalUncalibRecHitWorkerGlobal::getAlgoDescription() {
 	       edm::ParameterDescription<double>("chi2ThreshEE_", 95.0, true) and
 	       edm::ParameterDescription<double>("EBtimeFitLimits_Upper", 1.4, true));
 
-  return pset;
+  return psd;
 }
 
 
