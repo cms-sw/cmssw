@@ -95,25 +95,20 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 	//get triggerResults
 	Handle<TriggerResults> TriggerResulsHandler;
 	Handle<reco::JetFlavourMatchingCollection> h_mcPartons;
-	Exception excp(errors::LogicError);
 	if ( hlTriggerResults_Label == "" || hlTriggerResults_Label == "NULL" ) 
 	{
-		excp << "TriggerResults ==> Empty";
-		excp.raise();
+		edm::LogInfo("NoTriggerResults") << "TriggerResults ==> Empty";
+		return;
 	}
-	try {
-		iEvent.getByToken(hlTriggerResults_, TriggerResulsHandler);
-		if (TriggerResulsHandler.isValid())   trigRes=true;
-	}  catch (...) {	}
-	if ( !trigRes ) {    excp << "TriggerResults ==> not readable";            excp.raise(); }
+	iEvent.getByToken(hlTriggerResults_, TriggerResulsHandler);
+	if (TriggerResulsHandler.isValid())   trigRes=true;
+	if ( !trigRes ) { edm::LogInfo("NoTriggerResults") << "TriggerResults ==> not readable"; return;}
 	const TriggerResults & triggerResults = *(TriggerResulsHandler.product());
 
 	//get partons
 	if (m_mcMatching &&  m_mcPartons_Label!= "" && m_mcPartons_Label != "NULL" ) {
 		iEvent.getByToken(m_mcPartons, h_mcPartons);
-		try {
-			if (h_mcPartons.isValid()) MCOK=true;
-		} catch(...) { }
+		if (h_mcPartons.isValid()) MCOK=true;
 	}
 
 	//fill the 1D and 2D DQM plot
@@ -127,10 +122,8 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 		//get JetTagCollection
 		if (JetTagCollection_Label[ind] != "" && JetTagCollection_Label[ind] != "NULL" )
 		{
-			try {
-				iEvent.getByToken(JetTagCollection_[ind], JetTagHandler);
-				if (JetTagHandler.isValid())   BtagOK=true;						
-			}  catch (...) { }			
+			iEvent.getByToken(JetTagCollection_[ind], JetTagHandler);
+			if (JetTagHandler.isValid())   BtagOK=true;
 		}
 		
 		//fill JetTag map
@@ -139,8 +132,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 			JetTag.insert(JetTagMap::value_type(iter->first, iter->second));
 		}
 		else {
-			excp << "Collections ==> not found";            
-			excp.raise(); 
+		    edm::LogInfo("NoCollection") << "Collection " << JetTagCollection_Label[ind] <<  " ==> not found"; return;
 		}
 
 		for (auto & BtagJT: JetTag) {
