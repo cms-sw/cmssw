@@ -137,16 +137,17 @@ EcalUncalibRecHitWorkerAnalFit::run( const edm::Event& evt,
         return true;
 }
 
-void
-EcalUncalibRecHitWorkerAnalFit::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // ecalAnalFitUncalibRecHit
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis"));
-  desc.add<std::string>("EEhitCollection", "EcalUncalibRecHitsEE");
-  desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis"));
-  desc.add<std::string>("algo", "EcalUncalibRecHitWorkerAnalFit");
-  desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
-  descriptions.add("ecalAnalFitUncalibRecHit", desc);
+edm::ParameterSetDescription
+EcalUncalibRecHitWorkerAnalFit::getAlgoDescription() {
+
+  edm::ParameterSetDescription pset;
+//pset.addNode(edm::ParameterSet<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis")) and
+//	       edm::ParameterSet<std::string>("EEhitCollection", "EcalUncalibRecHitsEE") and
+//	       edm::ParameterSet<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis")) and
+//	       edm::ParameterSet<std::string>("algo", "EcalUncalibRecHitWorkerAnalFit") and
+//	       edm::ParameterSet<std::string>("EBhitCollection", "EcalUncalibRecHitsEB"));
+//
+  return pset;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -16,18 +16,18 @@ namespace edm {
 
 class EcalUncalibRecHitWorkerMaxSample : public EcalUncalibRecHitWorkerBaseClass {
 
-        public:
-                EcalUncalibRecHitWorkerMaxSample(const edm::ParameterSet& ps,edm::ConsumesCollector& c);
-                EcalUncalibRecHitWorkerMaxSample() {};
-                virtual ~EcalUncalibRecHitWorkerMaxSample() {};
-
-                void set(const edm::EventSetup& es);
-                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
-
-		std::auto_ptr<edm::ParameterDescriptionNode> fillDescriptions();
-        private:
-
-                EcalUncalibRecHitMaxSampleAlgo<EBDataFrame> ebAlgo_;
-                EcalUncalibRecHitMaxSampleAlgo<EEDataFrame> eeAlgo_;
+ public:
+  EcalUncalibRecHitWorkerMaxSample(const edm::ParameterSet& ps,edm::ConsumesCollector& c);
+  EcalUncalibRecHitWorkerMaxSample() {};
+  virtual ~EcalUncalibRecHitWorkerMaxSample() {};
+  
+  void set(const edm::EventSetup& es);
+  bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
+  
+  edm::ParameterSetDescription getAlgoDescription();
+ private:
+  
+  EcalUncalibRecHitMaxSampleAlgo<EBDataFrame> ebAlgo_;
+  EcalUncalibRecHitMaxSampleAlgo<EEDataFrame> eeAlgo_;
 };
 #endif

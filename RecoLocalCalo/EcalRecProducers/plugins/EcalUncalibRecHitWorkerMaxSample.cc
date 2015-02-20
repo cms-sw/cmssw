@@ -53,9 +53,11 @@ EcalUncalibRecHitWorkerMaxSample::run( const edm::Event & evt,
         return true;
 }
 
-std::auto_ptr<edm::ParameterDescriptionNode>
-EcalUncalibRecHitWorkerMaxSample::fillDescriptions() {
-	return std::auto_ptr<edm::ParameterDescriptionNode>(new edm::EmptyGroupDescription());
+edm::ParameterSetDescription
+EcalUncalibRecHitWorkerMaxSample::getAlgoDescription() {
+
+  edm::ParameterSetDescription pset;
+  return pset;//.addNode(std::auto_ptr<edm::ParameterDescriptionNode>(new edm::EmptyGroupDescription()));
 }
 
 

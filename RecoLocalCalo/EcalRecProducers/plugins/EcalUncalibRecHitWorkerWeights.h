@@ -25,7 +25,7 @@ namespace edm {
         class Event;
         class EventSetup;
         class ParameterSet;
-	class ConfigurationDescription;
+	class ParameterSetDescription;
 }
 
 class EcalUncalibRecHitWorkerWeights : public EcalUncalibRecHitWorkerBaseClass {
@@ -38,7 +38,7 @@ class EcalUncalibRecHitWorkerWeights : public EcalUncalibRecHitWorkerBaseClass {
                 void set(const edm::EventSetup& es);
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
 
-		void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+		edm::ParameterSetDescription getAlgoDescription();
 
         protected:
 

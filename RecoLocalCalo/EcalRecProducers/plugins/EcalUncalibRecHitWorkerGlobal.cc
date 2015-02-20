@@ -510,103 +510,43 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
         return true;
 }
 
-void
-EcalUncalibRecHitWorkerGlobal::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // ecalGlobalUncalibRecHit
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis"));
-  desc.add<std::vector<double>>("eePulseShape", {
-    5.2e-05,
-    -5.26e-05,
-    6.66e-05,
-    0.1168,
-    0.7575,
-    1.0,
-    0.8876,
-    0.6732,
-    0.4741,
-    0.3194,
-  });
-  desc.add<std::vector<double>>("EBtimeFitParameters", {
-    -2.015452,
-    3.130702,
-    -12.3473,
-    41.88921,
-    -82.83944,
-    91.01147,
-    -50.35761,
-    11.05621,
-  });
-  desc.add<std::string>("EEhitCollection", "EcalUncalibRecHitsEE");
-  desc.add<double>("outOfTimeThresholdGain61pEB", 5);
-  desc.add<double>("amplitudeThresholdEE", 10);
-  desc.add<double>("EBtimeConstantTerm", 0.6);
-  desc.add<double>("outOfTimeThresholdGain61pEE", 1000);
-  desc.add<double>("ebSpikeThreshold", 1.042);
-  desc.add<double>("EBtimeNconst", 28.5);
-  desc.add<bool>("kPoorRecoFlagEB", true);
-  desc.add<std::vector<double>>("ebPulseShape", {
-    5.2e-05,
-    -5.26e-05,
-    6.66e-05,
-    0.1168,
-    0.7575,
-    1.0,
-    0.8876,
-    0.6732,
-    0.4741,
-    0.3194,
-  });
-  desc.add<double>("EBtimeFitLimits_Lower", 0.2);
-  desc.add<bool>("kPoorRecoFlagEE", false);
-  desc.add<double>("chi2ThreshEB_", 36.0);
-  desc.add<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis"));
-  desc.add<std::vector<double>>("EEtimeFitParameters", {
-    -2.390548,
-    3.553628,
-    -17.62341,
-    67.67538,
-    -133.213,
-    140.7432,
-    -75.41106,
-    16.20277,
-  });
-  desc.add<double>("outOfTimeThresholdGain61mEE", 1000);
-  desc.add<std::vector<double>>("EEchi2Parameters", {
-    2.122,
-    0.022,
-    2.122,
-    0.022,
-  });
-  desc.add<double>("outOfTimeThresholdGain12mEE", 1000);
-  desc.add<double>("outOfTimeThresholdGain12mEB", 5);
-  desc.add<double>("EEtimeFitLimits_Upper", 1.4);
-  desc.add<double>("EEtimeFitLimits_Lower", 0.2);
-  desc.add<std::vector<double>>("EEamplitudeFitParameters", {
-    1.89,
-    1.4,
-  });
-  desc.add<std::vector<double>>("EBamplitudeFitParameters", {
-    1.138,
-    1.652,
-  });
-  desc.add<double>("amplitudeThresholdEB", 10);
-  desc.add<double>("outOfTimeThresholdGain12pEE", 1000);
-  desc.add<double>("outOfTimeThresholdGain12pEB", 5);
-  desc.add<double>("EEtimeNconst", 31.8);
-  desc.add<double>("outOfTimeThresholdGain61mEB", 5);
-  desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
-  desc.add<std::vector<double>>("EBchi2Parameters", {
-    2.122,
-    0.022,
-    2.122,
-    0.022,
-  });
-  desc.add<double>("EEtimeConstantTerm", 1.0);
-  desc.add<std::string>("algo", "EcalUncalibRecHitWorkerGlobal");
-  desc.add<double>("chi2ThreshEE_", 95.0);
-  desc.add<double>("EBtimeFitLimits_Upper", 1.4);
-  descriptions.add("ecalGlobalUncalibRecHit", desc);
+edm::ParameterSetDescription
+EcalUncalibRecHitWorkerGlobal::getAlgoDescription() {
+
+  edm::ParameterSetDescription pset;
+  pset.addNode(edm::ParameterDescription<std::vector<double>>("eePulseShape", {5.2e-05,-5.26e-05,6.66e-05,0.1168,0.7575,1.0,0.8876,0.6732,0.4741,0.3194}, true) and
+	       edm::ParameterDescription<std::vector<double>>("EBtimeFitParameters", {-2.015452,3.130702,-12.3473,41.88921,-82.83944,91.01147,-50.35761,11.05621}, true) and
+	       edm::ParameterDescription<double>("outOfTimeThresholdGain61pEB", 5, true) and
+	       edm::ParameterDescription<double>("amplitudeThresholdEE", 10, true) and
+	       edm::ParameterDescription<double>("EBtimeConstantTerm", 0.6, true) and
+	       edm::ParameterDescription<double>("outOfTimeThresholdGain61pEE", 1000, true) and
+	       edm::ParameterDescription<double>("ebSpikeThreshold", 1.042, true) and
+	       edm::ParameterDescription<double>("EBtimeNconst", 28.5, true) and
+	       edm::ParameterDescription<bool>("kPoorRecoFlagEB", true, true) and
+	       edm::ParameterDescription<std::vector<double>>("ebPulseShape", {5.2e-05,-5.26e-05,6.66e-05,0.1168,0.7575,1.0,0.8876,0.6732,0.4741,0.3194}, true) and
+	       edm::ParameterDescription<double>("EBtimeFitLimits_Lower", 0.2, true) and
+	       edm::ParameterDescription<bool>("kPoorRecoFlagEE", false, true) and
+	       edm::ParameterDescription<double>("chi2ThreshEB_", 36.0, true) and
+	       edm::ParameterDescription<std::vector<double>>("EEtimeFitParameters", {-2.390548,3.553628,-17.62341,67.67538,-133.213,140.7432,-75.41106,16.20277}, true) and
+	       edm::ParameterDescription<double>("outOfTimeThresholdGain61mEE", 1000, true) and
+	       edm::ParameterDescription<std::vector<double>>("EEchi2Parameters", {2.122,0.022,2.122,0.022}, true) and
+	       edm::ParameterDescription<double>("outOfTimeThresholdGain12mEE", 1000, true) and
+	       edm::ParameterDescription<double>("outOfTimeThresholdGain12mEB", 5, true) and
+	       edm::ParameterDescription<double>("EEtimeFitLimits_Upper", 1.4, true) and
+	       edm::ParameterDescription<double>("EEtimeFitLimits_Lower", 0.2, true) and
+	       edm::ParameterDescription<std::vector<double>>("EEamplitudeFitParameters", {1.89,1.4}, true) and
+	       edm::ParameterDescription<std::vector<double>>("EBamplitudeFitParameters", {1.138,1.652}, true) and
+	       edm::ParameterDescription<double>("amplitudeThresholdEB", 10, true) and
+	       edm::ParameterDescription<double>("outOfTimeThresholdGain12pEE", 1000, true) and
+	       edm::ParameterDescription<double>("outOfTimeThresholdGain12pEB", 5, true) and
+	       edm::ParameterDescription<double>("EEtimeNconst", 31.8, true) and
+	       edm::ParameterDescription<double>("outOfTimeThresholdGain61mEB", 5, true) and
+	       edm::ParameterDescription<std::vector<double>>("EBchi2Parameters", {2.122,0.022,2.122,0.022}, true) and
+	       edm::ParameterDescription<double>("EEtimeConstantTerm", 1.0, true) and
+	       edm::ParameterDescription<double>("chi2ThreshEE_", 95.0, true) and
+	       edm::ParameterDescription<double>("EBtimeFitLimits_Upper", 1.4, true));
+
+  return pset;
 }
 
 

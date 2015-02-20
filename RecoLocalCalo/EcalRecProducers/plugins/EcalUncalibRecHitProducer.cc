@@ -31,8 +31,10 @@ EcalUncalibRecHitProducer::EcalUncalibRecHitProducer(const edm::ParameterSet& ps
 	eeDigiCollectionToken_ = consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigiCollection"));
 
 	std::string componentType = ps.getParameter<std::string>("algo");
+	edm::ParameterSet algoConf = ps.getParameter<edm::ParameterSet>("algoPSet");
+
 	edm::ConsumesCollector c{consumesCollector()};
-        worker_ = EcalUncalibRecHitWorkerFactory::get()->create(componentType, ps, c);
+        worker_ = EcalUncalibRecHitWorkerFactory::get()->create(componentType, algoConf, c);
 }
 
 EcalUncalibRecHitProducer::~EcalUncalibRecHitProducer()
@@ -54,14 +56,14 @@ void EcalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
 
     auto itInfos = infos.begin();
     assert(itInfos != infos.end());
+
     std::auto_ptr<edm::ParameterDescriptionCases<std::string>> s;
-    s = (itInfos->name_ >> EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)->fillDescriptions());
+    {
+      s = itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPset", EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)->getAlgoDescription(), true);
+    }
     for (++itInfos; itInfos != infos.end(); ++itInfos)
-      s = s or itInfos->name_ >> EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)->fillDescriptions();
-    
-    edm::ParameterSetDescription ps0;
-    ps0.ifValue( edm::ParameterDescription<std::string>("algo", "EcalUncalibRecHitWorkerRatio", true), s);
-    desc.add<edm::ParameterSetDescription>("algoPset", ps0); 
+      s = s or itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPset", EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)->getAlgoDescription(), true);
+    desc.ifValue(edm::ParameterDescription<std::string>("algo", "EcalUncalibRecHitWorkerWeights", true), s);
 
     descriptions.addDefault(desc);
   }
@@ -75,12 +77,10 @@ void EcalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
     desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis"));
     desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
     desc.add<std::string>("algo", itInfos->name_);
+    desc.add<edm::ParameterSetDescription>("algoPSet", fdWorker->getAlgoDescription()); 
 
-    edm::ParameterSetDescription ps0;
-    ps0.addNode(fdWorker->fillDescriptions());
-    desc.add<edm::ParameterSetDescription>("algoPset", ps0); 
-
-    descriptions.add("ecal"+itInfos->name_, desc);
+    std::string algoName = itInfos->name_.substr(itInfos->name_.find("Worker")+6, itInfos->name_.length());
+    descriptions.add("ecal"+algoName+"UncalibRecHit", desc);
   }
 }
 

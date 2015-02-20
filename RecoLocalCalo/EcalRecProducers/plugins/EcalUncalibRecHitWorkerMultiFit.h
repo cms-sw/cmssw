@@ -35,6 +35,7 @@ namespace edm {
         class Event;
         class EventSetup;
         class ParameterSet;
+        class ParameterSetDescription;
 }
 
 class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass {
@@ -48,8 +49,7 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 void set(const edm::Event& evt) override;
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
 		
-		void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
+		edm::ParameterSetDescription getAlgoDescription();
         protected:
 
                 double pedVec[3];

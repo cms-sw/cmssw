@@ -31,8 +31,8 @@ class EcalUncalibRecHitWorkerRatio : public EcalUncalibRecHitWorkerBaseClass {
 
                 void set(const edm::EventSetup& es);
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
-
-		std::auto_ptr<edm::ParameterDescriptionNode> fillDescriptions();
+		
+		edm::ParameterSetDescription getAlgoDescription();
 
         protected:
 
