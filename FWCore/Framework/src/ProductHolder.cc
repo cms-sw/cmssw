@@ -329,7 +329,7 @@ namespace edm {
     return true;
   }
 
-  void ProducedProductHolder::setPrincipal_(Principal* principal) {
+  void ProducedProductHolder::setPrincipal_(Principal*) {
     throw Exception(errors::LogicError)
       << "ProducedProductHolder::setPrincipal__() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
@@ -444,7 +444,7 @@ namespace edm {
     return true;
   }
 
-  void AliasProductHolder::setPrincipal_(Principal* principal) {
+  void AliasProductHolder::setPrincipal_(Principal*) {
   }
 
   void NoProcessProductHolder::swap_(ProductHolderBase& rhs) {
@@ -457,10 +457,10 @@ namespace edm {
   void NoProcessProductHolder::resetStatus_() {
   }
 
-  void NoProcessProductHolder::setProvenance_(std::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+  void NoProcessProductHolder::setProvenance_(std::shared_ptr<ProductProvenanceRetriever> , ProcessHistory const& , ProductID const& ) {
   }
 
-  void NoProcessProductHolder::setProcessHistory_(ProcessHistory const& ph) {
+  void NoProcessProductHolder::setProcessHistory_(ProcessHistory const& ) {
   }
 
   ProductProvenance* NoProcessProductHolder::productProvenancePtr_() const {
@@ -474,7 +474,7 @@ namespace edm {
     return false;
   }
 
-  void NoProcessProductHolder::setPrincipal_(Principal* principal) {
+  void NoProcessProductHolder::setPrincipal_(Principal* ) {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::setPrincipal__() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
@@ -498,25 +498,25 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> edp, ProductProvenance const& productProvenance) {
+  void NoProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> , ProductProvenance const& ) {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::putProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> edp) const {
+  void NoProcessProductHolder::putProduct_(std::unique_ptr<WrapperBase> ) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::putProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase>  edp, ProductProvenance& productProvenance) {
+  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> , ProductProvenance& ) {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::mergeProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase> edp) const {
+  void NoProcessProductHolder::mergeProduct_(std::unique_ptr<WrapperBase>) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::mergeProduct_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
@@ -528,7 +528,7 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::checkType_(WrapperBase const& prod) const {
+  void NoProcessProductHolder::checkType_(WrapperBase const&) const {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::checkType_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
@@ -546,7 +546,7 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) {
+  void NoProcessProductHolder::resetBranchDescription_(std::shared_ptr<BranchDescription const>) {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::resetBranchDescription_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
