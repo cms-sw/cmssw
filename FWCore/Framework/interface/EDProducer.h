@@ -79,8 +79,8 @@ namespace edm {
     virtual void beginJob() {}
     virtual void endJob(){}
 
-    virtual void beginRun(Run const&iR, EventSetup const&iE){}
-    virtual void endRun(Run const& iR, EventSetup const& iE){}
+    virtual void beginRun(Run const& /* iR */, EventSetup const& /* iE */){}
+    virtual void endRun(Run const& /* iR */, EventSetup const& /* iE */){}
     virtual void beginLuminosityBlock(LuminosityBlock const& /* iL */, EventSetup const& /* iE */){}
     virtual void endLuminosityBlock(LuminosityBlock const& /* iL */, EventSetup const& /* iE */){}
     virtual void respondToOpenInputFile(FileBlock const&) {}

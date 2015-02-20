@@ -126,9 +126,9 @@ namespace edm {
     static void postScheduleSignal(ActivityRegistry *a, StreamContext const* streamContext) {
       a->postStreamBeginRunSignal_(*streamContext);
     }
-    static void prePathSignal(ActivityRegistry *a, PathContext const* pathContext) {
+    static void prePathSignal(ActivityRegistry *, PathContext const* ) {
     }
-    static void postPathSignal(ActivityRegistry * /* a */, HLTPathStatus const& status, PathContext const* /* pathContext */) {
+    static void postPathSignal(ActivityRegistry *, HLTPathStatus const& , PathContext const*) {
     }
     static void preModuleSignal(ActivityRegistry *a, StreamContext const* streamContext, ModuleCallingContext const*  moduleCallingContext) {
       a->preModuleStreamBeginRunSignal_(*streamContext, *moduleCallingContext);
@@ -161,9 +161,9 @@ namespace edm {
     static void postScheduleSignal(ActivityRegistry *a, StreamContext const* streamContext) {
       a->postStreamEndRunSignal_(*streamContext);
     }
-    static void prePathSignal(ActivityRegistry *a, PathContext const* pathContext) {
+    static void prePathSignal(ActivityRegistry *, PathContext const* ) {
     }
-    static void postPathSignal(ActivityRegistry *a, HLTPathStatus const& status, PathContext const* pathContext) {
+    static void postPathSignal(ActivityRegistry *, HLTPathStatus const& , PathContext const* ) {
     }
     static void preModuleSignal(ActivityRegistry *a, StreamContext const* streamContext, ModuleCallingContext const*  moduleCallingContext) {
       a->preModuleStreamEndRunSignal_(*streamContext, *moduleCallingContext);
@@ -197,9 +197,9 @@ namespace edm {
     static void postScheduleSignal(ActivityRegistry *a, GlobalContext const* globalContext) {
       a->postGlobalEndRunSignal_(*globalContext);
     }
-    static void prePathSignal(ActivityRegistry *a, PathContext const* pathContext) {
+    static void prePathSignal(ActivityRegistry *, PathContext const*) {
     }
-    static void postPathSignal(ActivityRegistry *a, HLTPathStatus const& status, PathContext const* pathContext) {
+    static void postPathSignal(ActivityRegistry *, HLTPathStatus const& , PathContext const* ) {
     }
     static void preModuleSignal(ActivityRegistry *a, GlobalContext const* globalContext, ModuleCallingContext const*  moduleCallingContext) {
       a->preModuleGlobalEndRunSignal_(*globalContext, *moduleCallingContext);
@@ -233,9 +233,9 @@ namespace edm {
     static void postScheduleSignal(ActivityRegistry *a, GlobalContext const* globalContext) {
       a->postGlobalBeginLumiSignal_(*globalContext);
     }
-    static void prePathSignal(ActivityRegistry *a, PathContext const* pathContext) {
+    static void prePathSignal(ActivityRegistry *, PathContext const*) {
     }
-    static void postPathSignal(ActivityRegistry *a, HLTPathStatus const& status, PathContext const* pathContext) {
+    static void postPathSignal(ActivityRegistry *, HLTPathStatus const&, PathContext const*) {
     }
     static void preModuleSignal(ActivityRegistry *a, GlobalContext const* globalContext, ModuleCallingContext const*  moduleCallingContext) {
       a->preModuleGlobalBeginLumiSignal_(*globalContext, *moduleCallingContext);
@@ -268,9 +268,9 @@ namespace edm {
     static void postScheduleSignal(ActivityRegistry *a, StreamContext const* streamContext) {
       a->postStreamBeginLumiSignal_(*streamContext);
     }
-    static void prePathSignal(ActivityRegistry *a, PathContext const* pathContext) {
+    static void prePathSignal(ActivityRegistry *, PathContext const*) {
     }
-    static void postPathSignal(ActivityRegistry *a, HLTPathStatus const& status, PathContext const* pathContext) {
+    static void postPathSignal(ActivityRegistry *, HLTPathStatus const&, PathContext const*) {
     }
     static void preModuleSignal(ActivityRegistry *a, StreamContext const* streamContext, ModuleCallingContext const*  moduleCallingContext) {
       a->preModuleStreamBeginLumiSignal_(*streamContext, *moduleCallingContext);
@@ -289,7 +289,7 @@ namespace edm {
     static bool const begin_ = false;
     static bool const isEvent_ = false;
 
-    static StreamContext const* context(StreamContext const* s, GlobalContext const* g) { return s; }
+    static StreamContext const* context(StreamContext const* s, GlobalContext const*) { return s; }
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kEndLuminosityBlock);
@@ -305,9 +305,9 @@ namespace edm {
     static void postScheduleSignal(ActivityRegistry *a, StreamContext const* streamContext) {
       a->postStreamEndLumiSignal_(*streamContext);
     }
-    static void prePathSignal(ActivityRegistry *a, PathContext const* pathContext) {
+    static void prePathSignal(ActivityRegistry *, PathContext const* ) {
     }
-    static void postPathSignal(ActivityRegistry *a, HLTPathStatus const& status, PathContext const* pathContext) {
+    static void postPathSignal(ActivityRegistry *, HLTPathStatus const&, PathContext const*) {
     }
     static void preModuleSignal(ActivityRegistry *a, StreamContext const* streamContext, ModuleCallingContext const*  moduleCallingContext) {
       a->preModuleStreamEndLumiSignal_(*streamContext, *moduleCallingContext);
@@ -341,9 +341,9 @@ namespace edm {
     static void postScheduleSignal(ActivityRegistry *a, GlobalContext const* globalContext) {
       a->postGlobalEndLumiSignal_(*globalContext);
     }
-    static void prePathSignal(ActivityRegistry *a, PathContext const* pathContext) {
+    static void prePathSignal(ActivityRegistry *, PathContext const*) {
     }
-    static void postPathSignal(ActivityRegistry *a, HLTPathStatus const& status, PathContext const* pathContext) {
+    static void postPathSignal(ActivityRegistry *, HLTPathStatus const& , PathContext const* ) {
     }
     static void preModuleSignal(ActivityRegistry *a, GlobalContext const* globalContext, ModuleCallingContext const*  moduleCallingContext) {
       a->preModuleGlobalEndLumiSignal_(*globalContext, *moduleCallingContext);

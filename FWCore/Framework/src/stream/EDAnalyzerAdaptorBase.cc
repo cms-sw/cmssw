@@ -216,9 +216,9 @@ EDAnalyzerAdaptorBase::doStreamEndLuminosityBlock(StreamID id,
 }
 
 void
-EDAnalyzerAdaptorBase::doRespondToOpenInputFile(FileBlock const& fb){}
+EDAnalyzerAdaptorBase::doRespondToOpenInputFile(FileBlock const&){}
 void
-EDAnalyzerAdaptorBase::doRespondToCloseInputFile(FileBlock const& fb){}
+EDAnalyzerAdaptorBase::doRespondToCloseInputFile(FileBlock const&){}
 void
 EDAnalyzerAdaptorBase::doPreForkReleaseResources()
 {

@@ -530,7 +530,7 @@ namespace edm
           return false;
         }
       }
-      catch (edm::Exception const& excpt)
+      catch (edm::Exception const&)
       {
         return false;
       }
@@ -664,7 +664,7 @@ namespace edm
       }
 
     }
-    catch (edm::Exception const& excpt)
+    catch (edm::Exception const&)
     {
       return evtSel::InvalidSelection;
     }

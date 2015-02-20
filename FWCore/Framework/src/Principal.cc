@@ -476,8 +476,8 @@ namespace edm {
   }
 
   BasicHandle
-  Principal::getByToken(KindOfType kindOfType,
-                        TypeID const& typeID,
+  Principal::getByToken(KindOfType,
+                        TypeID const&,
                         ProductHolderIndex index,
                         bool skipCurrentProcess,
                         bool& ambiguous,
@@ -580,7 +580,7 @@ namespace edm {
 
   void
   Principal::findProducts(std::vector<ProductHolderBase const*> const& holders,
-                          TypeID const& typeID,
+                          TypeID const&,
                           BasicHandleVec& results,
                           ModuleCallingContext const* mcc) const {
 
