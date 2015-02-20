@@ -177,9 +177,14 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   std::shared_ptr<LUT> tauCalibrationLUT( new LUT(tauCalibrationLUTStream) );
   m_params.setTauCalibrationLUT(*tauCalibrationLUT);
 
+  edm::FileInPath tauEtToHFRingEtLUTFile = conf.getParameter<edm::FileInPath>("tauEtToHFRingEtLUTFile");
+  std::ifstream tauEtToHFRingEtLUTStream(tauEtToHFRingEtLUTFile.fullPath());
+  std::shared_ptr<LUT> tauEtToHFRingEtLUT( new LUT(tauEtToHFRingEtLUTStream) );
+  m_params.setTauEtToHFRingEtLUT(*tauEtToHFRingEtLUT);
+
   m_params.setIsoTauEtaMin(conf.getParameter<int> ("isoTauEtaMin"));
   m_params.setIsoTauEtaMax(conf.getParameter<int> ("isoTauEtaMax"));
-  
+
   m_params.setTauPUSParams(conf.getParameter<std::vector<double>>("tauPUSParams"));
 
   // jets
@@ -189,6 +194,10 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setJetPUSType(conf.getParameter<std::string>("jetPUSType"));
   m_params.setJetCalibrationType(conf.getParameter<std::string>("jetCalibrationType"));
   m_params.setJetCalibrationParams(conf.getParameter<std::vector<double> >("jetCalibrationParams"));
+  edm::FileInPath jetCalibrationLUTFile = conf.getParameter<edm::FileInPath>("jetCalibrationLUTFile");
+  std::ifstream jetCalibrationLUTStream(jetCalibrationLUTFile.fullPath());
+  std::shared_ptr<LUT> jetCalibrationLUT( new LUT(jetCalibrationLUTStream) );
+  m_params.setJetCalibrationLUT(*jetCalibrationLUT);
 
   // sums
   m_params.setEtSumLsb(conf.getParameter<double>("etSumLsb"));

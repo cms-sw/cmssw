@@ -33,7 +33,7 @@ class FEDNumbering {
 
    enum {
      NOT_A_FEDID = -1,
-     MAXFEDID = 1350, // must be larger than largest used FED id
+     MAXFEDID = 1410, // must be larger than largest used FED id
      MINSiPixelFEDID = 0,
      MAXSiPixelFEDID = 40,  // increase from 39 for the pilot blade fed
      MINSiStripFEDID = 50,
@@ -101,7 +101,9 @@ class FEDNumbering {
      MINHCALuTCAFEDID = 1100,
      MAXHCALuTCAFEDID = 1199,
      MINSiPixeluTCAFEDID = 1200,
-     MAXSiPixeluTCAFEDID = 1349
+     MAXSiPixeluTCAFEDID = 1349,
+     MINL1TuTCAFEDID = 1350,
+     MAXL1TuTCAFEDID = 1409
    };
  private:
   static std::vector<std::string> from_;

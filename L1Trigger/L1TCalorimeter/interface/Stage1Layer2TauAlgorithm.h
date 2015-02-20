@@ -18,7 +18,6 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 
 #include "DataFormats/L1Trigger/interface/Tau.h"
-#include "DataFormats/L1Trigger/interface/Jet.h"
 
 #include <vector>
 
@@ -29,7 +28,7 @@ namespace l1t {
     virtual void processEvent(//const std::vector<l1t::CaloStage1> & clusters,
 			      const std::vector<l1t::CaloEmCand> & clusters,
 			      const std::vector<l1t::CaloRegion> & regions,
-			      const std::vector<l1t::Jet> * jets,
+			      std::vector<l1t::Tau> * isoTaus,
 			      std::vector<l1t::Tau> * taus) = 0;
 
     virtual ~Stage1Layer2TauAlgorithm(){};
