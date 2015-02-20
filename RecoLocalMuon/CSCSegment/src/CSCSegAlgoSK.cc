@@ -242,11 +242,9 @@ void CSCSegAlgoSK::tryAddingHitsToSegment(const ChamberHitContainer& rechits,
 }
 
 bool CSCSegAlgoSK::areHitsCloseInLocalX(const CSCRecHit2D* h1, const CSCRecHit2D* h2) const {
-  float h1x = h1->localPosition().x();
-  float h2x = h2->localPosition().x();
-  float deltaX = (h1->localPosition()-h2->localPosition()).x();
-  LogDebug("CSC") << "    Hits at local x= " << h1x << ", " 
-		  << h2x << " have separation= " << deltaX;
+  float deltaX = ( h1->localPosition() - h2->localPosition() ).x();
+  LogDebug("CSC") << "    Hits at local x= " << h1->localPosition().x() << ", " 
+		  << h2->localPosition().x() << " have separation= " << deltaX;
   return (fabs(deltaX) < (dRPhiMax * windowScale))? true:false;   // +v
 }
 
@@ -442,6 +440,7 @@ void CSCSegAlgoSK::compareProtoSegment(const CSCRecHit2D* h, int layer) {
   
   if ( ( sfit_->chi2() < oldfit->chi2() ) && ok ) {
     LogDebug("CSC")  << "    segment with replaced hit is better.\n";
+    delete oldfit;  // new fit is better 
   }
   else {
     // keep original fit
@@ -468,6 +467,7 @@ void CSCSegAlgoSK::increaseProtoSegment(const CSCRecHit2D* h, int layer) {
   //@@ TEST ON ndof<=0 IS JUST TO ACCEPT nhits=2 CASE??  
   if ( ok && ( (sfit_->ndof() <= 0) || (sfit_->chi2()/sfit_->ndof() < chi2Max)) ) {
     LogDebug("CSCSegment") << "    segment with added hit is good.\n" ; 
+    delete oldfit;  // new fit is better 
   }	
   else {
     // reset to original fit
