@@ -21,8 +21,7 @@ TrackerParametersFromDD::build( const DDCompactView* cvp,
     }
   }
 
-  std::vector<int> vpars  = dbl_to_int( DDVectorGetter::get( "vPars" ));
-  putOne( -1, vpars, ptp );
+  ptp.vpars = dbl_to_int( DDVectorGetter::get( "vPars" ));
 
   return true;
 }

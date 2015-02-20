@@ -37,6 +37,7 @@
  
  <class name="PTrackerParameters" class_version="0"> 
    <field name="vitems" mapping="blob"/>
+   <field name="vpars" mapping="blob"/>
  </class>
  <class name="PTrackerParameters::Item"/>
  <class name="std::vector<PTrackerParameters::Item>"/>

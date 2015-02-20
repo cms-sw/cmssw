@@ -35,8 +35,7 @@ TrackerParametersAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSe
    GeometricDet const *gd = pDD->trackerDet();
    GeometricDet::ConstGeometricDetContainer subdetgd = gd->components();
 
-   CmsTrackerStringToEnum trackerStringToEnum;
- 
+    
    for( GeometricDet::ConstGeometricDetContainer::const_iterator git = subdetgd.begin(); git != subdetgd.end(); ++git )
    {
      std::cout << (*git)->name() << ": " << (*git)->type() << std::endl;
@@ -44,10 +43,14 @@ TrackerParametersAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSe
    
    for( std::vector<PTrackerParameters::Item>::const_iterator it = ptp->vitems.begin(); it != ptp->vitems.end(); ++it )
    {
-     std::cout << it->id << " is GeomDetType::SubDetector " << trackerStringToEnum.name((GeometricDet::GeometricEnumType)(it->id)) << " has " << it->vpars.size() << ": " << std::endl;
+     std::cout << it->id << " is GeomDetType::SubDetector " << pDD->geomDetSubDetector(it->id) << " has " << it->vpars.size() << ": " << std::endl;
      for(  std::vector<int>::const_iterator in = it->vpars.begin(); in !=  it->vpars.end(); ++in )
        std::cout << *in << "; ";
      std::cout << std::endl;
+   }
+   for( std::vector<int>::const_iterator pit = ptp->vpars.begin(); pit != ptp->vpars.end(); ++pit )
+   {
+     std::cout << *pit << "; ";
    }
 }
 
