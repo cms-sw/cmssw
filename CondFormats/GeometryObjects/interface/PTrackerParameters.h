@@ -18,7 +18,8 @@ class PTrackerParameters
   };
 
   std::vector<Item> vitems;
-
+  std::vector<int> vpars;
+  
   COND_SERIALIZABLE;
 };
 
