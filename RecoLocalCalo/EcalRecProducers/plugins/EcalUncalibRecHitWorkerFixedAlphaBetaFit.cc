@@ -192,9 +192,9 @@ EcalUncalibRecHitWorkerFixedAlphaBetaFit::run(const edm::Event& evt,
 edm::ParameterSetDescription
 EcalUncalibRecHitWorkerFixedAlphaBetaFit::getAlgoDescription() {
 
-  edm::ParameterSetDescription pset;
+  edm::ParameterSetDescription psd;
   
-  pset.addNode(edm::ParameterDescription<double>("alphaEB", 1.138, true) and
+  psd.addNode(edm::ParameterDescription<double>("alphaEB", 1.138, true) and
 	       edm::ParameterDescription<double>("alphaEE", 1.89, true) and 
 	       edm::ParameterDescription<std::string>("AlphaBetaFilename", "NOFILE", false) and
 	       edm::ParameterDescription<double>("betaEB", 1.655, true) and
@@ -203,7 +203,7 @@ EcalUncalibRecHitWorkerFixedAlphaBetaFit::getAlgoDescription() {
 	       edm::ParameterDescription<double>("betaEE", 1.4, true) and
 	       edm::ParameterDescription<bool>("UseDynamicPedestal", true, true) );
 
-  return pset;
+  return psd;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
