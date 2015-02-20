@@ -76,6 +76,9 @@ hltExoticaValidator = cms.EDAnalyzer(
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
 
+    # -- The instance name of the reco::BeamSpot collection
+    beamSpotLabel = cms.string("offlineBeamSpot"),
+
     # -- The binning of the Pt efficiency plots
     # NOTICE: these DEFINITELY should be tuned for the different analyses.
     # What we have there is a generic, 0-100 GeV uniform binning.
@@ -89,6 +92,7 @@ hltExoticaValidator = cms.EDAnalyzer(
     # -- (NBins, minVal, maxValue) for the Eta and Phi efficiency plots
     parametersEta      = cms.vdouble(48, -2.400, 2.400),
     parametersPhi      = cms.vdouble(50, -3.142, 3.142),
+    parametersDxy      = cms.vdouble(50, -0.015, 0.015),
 
     # Definition of generic cuts on generated and reconstructed objects (note that
     # these cuts can be overloaded inside a particular analysis)
