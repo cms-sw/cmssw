@@ -24,36 +24,37 @@ public:
   virtual void endJob() ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
  
-  MonitorElement* L1Track_Track_3Stubs_N = 0;
+  MonitorElement* L1Track_3Stubs_NTracks = 0;
   
-  MonitorElement* L1Track_Track_3Stubs_Pt = 0; 
-  MonitorElement* L1Track_Track_3Stubs_Phi = 0; 
-  MonitorElement* L1Track_Track_3Stubs_Eta = 0; 
-  MonitorElement* L1Track_Track_3Stubs_Theta = 0; 
-  MonitorElement* L1Track_Track_3Stubs_VtxZ0 = 0; 
-  MonitorElement* L1Track_Track_3Stubs_Chi2 = 0; 
-  MonitorElement* L1Track_Track_3Stubs_Chi2R = 0;
+  MonitorElement* L1Track_3Stubs_Pt = 0; 
+  MonitorElement* L1Track_3Stubs_Phi = 0; 
+  MonitorElement* L1Track_3Stubs_Eta = 0;
+  MonitorElement* L1Track_3Stubs_VtxZ0 = 0; 
+  MonitorElement* L1Track_3Stubs_Chi2 = 0; 
+  MonitorElement* L1Track_3Stubs_Chi2R = 0;
   
-  MonitorElement* L1Track_Track_3Stubs_Chi2_N = 0;
-  MonitorElement* L1Track_Track_3Stubs_Chi2R_N = 0;
+  MonitorElement* L1Track_3Stubs_Chi2_NStubs = 0;
+  MonitorElement* L1Track_3Stubs_Chi2R_NStubs = 0;
   
-  MonitorElement* L1Track_Track_2Stubs_N = 0;
+  MonitorElement* L1Track_2Stubs_NTracks = 0;
   
-  MonitorElement* L1Track_Track_2Stubs_Pt = 0; 
-  MonitorElement* L1Track_Track_2Stubs_Phi = 0; 
-  MonitorElement* L1Track_Track_2Stubs_Eta = 0; 
-  MonitorElement* L1Track_Track_2Stubs_Theta = 0; 
-  MonitorElement* L1Track_Track_2Stubs_VtxZ0 = 0; 
-  MonitorElement* L1Track_Track_2Stubs_Chi2 = 0; 
-  MonitorElement* L1Track_Track_2Stubs_Chi2R = 0; 
+  MonitorElement* L1Track_2Stubs_Pt = 0; 
+  MonitorElement* L1Track_2Stubs_Phi = 0; 
+  MonitorElement* L1Track_2Stubs_Eta = 0; 
+  MonitorElement* L1Track_2Stubs_Theta = 0; 
+  MonitorElement* L1Track_2Stubs_VtxZ0 = 0; 
+  MonitorElement* L1Track_2Stubs_Chi2 = 0; 
+  MonitorElement* L1Track_2Stubs_Chi2R = 0; 
   
-  MonitorElement* L1Track_Track_2Stubs_Chi2_N = 0;
-  MonitorElement* L1Track_Track_2Stubs_Chi2R_N = 0;
+  MonitorElement* L1Track_2Stubs_Chi2_NStubs = 0;
+  MonitorElement* L1Track_2Stubs_Chi2R_NStubs = 0;
   
-  MonitorElement* L1Track_N_PhiSector = 0; 
-  MonitorElement* L1Track_N_EtaWedge = 0; 
-  MonitorElement* L1Track_PhiSector_Track_Phi = 0; 
-  MonitorElement* L1Track_EtaWedge_Track_Eta = 0; 
+  MonitorElement* L1Track_NStubs_PhiSector = 0; 
+  MonitorElement* L1Track_NStubs_EtaWedge = 0; 
+  MonitorElement* L1Track_PhiSector_L1Track_Phi = 0; 
+  MonitorElement* L1Track_EtaWedge_L1Track_Eta = 0; 
+  MonitorElement* L1Track_NStubs = 0; 
+  MonitorElement* L1Track_NTracks = 0; 
 
 
  private:
