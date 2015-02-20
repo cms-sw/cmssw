@@ -6,6 +6,11 @@
 
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
 
 class TrackerParametersAnalyzer : public edm::EDAnalyzer
 {
@@ -23,14 +28,27 @@ TrackerParametersAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSe
 
    edm::ESHandle<PTrackerParameters> ptp;
    iSetup.get<PTrackerParametersRcd>().get( ptp );
+
+   edm::ESHandle<TrackerGeometry> pDD;
+   iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
+
+   GeometricDet const *gd = pDD->trackerDet();
+   GeometricDet::ConstGeometricDetContainer subdetgd = gd->components();
+
+   CmsTrackerStringToEnum trackerStringToEnum;
+ 
+   for( GeometricDet::ConstGeometricDetContainer::const_iterator git = subdetgd.begin(); git != subdetgd.end(); ++git )
+   {
+     std::cout << (*git)->name() << ": " << (*git)->type() << std::endl;
+   }
    
    for( std::vector<PTrackerParameters::Item>::const_iterator it = ptp->vitems.begin(); it != ptp->vitems.end(); ++it )
-     {
-       std::cout << it->id << " has " << it->vpars.size() << ": " << std::endl;
-       for(  std::vector<int>::const_iterator in = it->vpars.begin(); in !=  it->vpars.end(); ++in )
-	 std::cout << *in << "; ";
-       std::cout << std::endl;
-     }
+   {
+     std::cout << it->id << " is GeomDetType::SubDetector " << trackerStringToEnum.name((GeometricDet::GeometricEnumType)(it->id)) << " has " << it->vpars.size() << ": " << std::endl;
+     for(  std::vector<int>::const_iterator in = it->vpars.begin(); in !=  it->vpars.end(); ++in )
+       std::cout << *in << "; ";
+     std::cout << std::endl;
+   }
 }
 
 DEFINE_FWK_MODULE(TrackerParametersAnalyzer);
