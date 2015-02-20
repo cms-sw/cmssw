@@ -49,6 +49,11 @@ options.register('dump',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Print RAW data")
+options.register('debug',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Enable debug data")
 options.register('doMP',
                  True,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -109,16 +114,23 @@ process.TFileService.fileName = cms.string('l1tCalo_2016_histos.root')
 
 
 # enable debug message logging for our modules
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    threshold  = cms.untracked.string('DEBUG'),
-    categories = cms.untracked.vstring('L1T'),
-    debugModules = cms.untracked.vstring('*')
-#        'mp7BufferDumpToRaw',
-#        'l1tDigis',
-#        'caloStage1Digis'
-#    )
-)
+process.MessageLogger.categories.append('L1TCaloEvents')
+
+process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
+
+if (options.dump):
+    process.MessageLogger.infos.placeholder = cms.untracked.bool(False)
+    process.MessageLogger.infos.INFO = cms.untracked.PSet(limit = cms.untracked.int32(0))
+    process.MessageLogger.infos.L1TCaloEvents = cms.untracked.PSet(
+      optionalPSet = cms.untracked.bool(True),
+      limit = cms.untracked.int32(10000)
+    )
+
+if (options.debug):
+#    process.MessageLogger.debugModules = cms.untracked.vstring('L1TRawToDigi:caloStage2Digis', 'MP7BufferDumpToRaw:stage2MPRaw', 'MP7BufferDumpToRaw:stage2DemuxRaw')
+    process.MessageLogger.debugModules = cms.untracked.vstring('*')
+    process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
+
 
 
 # Other statements
@@ -174,7 +186,7 @@ process.dumpRaw = cms.EDAnalyzer(
     "DumpFEDRawDataProduct",
     label = cms.untracked.string("rawDataCollector"),
     feds = cms.untracked.vint32 ( 1360, 1366 ),
-    dumpPayload = cms.untracked.bool ( options.dump )
+    dumpPayload = cms.untracked.bool ( False )
 )
 
 # raw to digi
