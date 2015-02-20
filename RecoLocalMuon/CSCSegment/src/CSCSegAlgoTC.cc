@@ -363,11 +363,9 @@ void CSCSegAlgoTC::increaseProtoSegment(const CSCRecHit2D* h, int layer) {
 }		
 
 bool CSCSegAlgoTC::areHitsCloseInLocalX(const CSCRecHit2D* h1, const CSCRecHit2D* h2) const {
-  float h1x = h1->localPosition().x();
-  float h2x = h2->localPosition().x();
   float deltaX = (h1->localPosition()-h2->localPosition()).x();
-  LogDebug("CSC") << "    Hits at local x= " << h1x << ", " 
-		  << h2x << " have separation= " << deltaX;
+  LogDebug("CSC") << "    Hits at local x= " << h1->localPosition().x() << ", " 
+		  << h2->localPosition().x() << " have separation= " << deltaX;
   return (fabs(deltaX) < (dRPhiMax))? true:false;   // +v
 }
 
