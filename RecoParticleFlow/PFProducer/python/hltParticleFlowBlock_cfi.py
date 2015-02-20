@@ -8,19 +8,19 @@ hltParticleFlowBlock = cms.EDProducer("PFBlockProducer",
     verbose = cms.untracked.bool(False),
     elementImporters = cms.VPSet(
         cms.PSet(
-            source = cms.InputTag("hltParticleFlowClusterECAL"),
+            source = cms.InputTag("particleFlowClusterECALUncorrected"),
             importerName = cms.string('GenericClusterImporter')
         ), 
         cms.PSet(
-            source = cms.InputTag("hltParticleFlowClusterHCAL"),
+            source = cms.InputTag("particleFlowClusterHCAL"),
             importerName = cms.string('GenericClusterImporter')
         ), 
         cms.PSet(
-            source = cms.InputTag("hltParticleFlowClusterHO"),
+            source = cms.InputTag("particleFlowClusterHO"),
             importerName = cms.string('GenericClusterImporter')
         ), 
         cms.PSet(
-            source = cms.InputTag("hltParticleFlowClusterHF"),
+            source = cms.InputTag("particleFlowClusterHF"),
             importerName = cms.string('GenericClusterImporter')
         ) 
     ),

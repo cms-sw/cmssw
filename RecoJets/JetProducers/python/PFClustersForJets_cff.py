@@ -17,8 +17,14 @@ pfClusterRefsForJetsHF = cms.EDProducer("PFClusterRefCandidateProducer",
     particleType = cms.string('pi+')
 )
 
+pfClusterRefsForJetsHO = cms.EDProducer("PFClusterRefCandidateProducer",
+    src          = cms.InputTag('particleFlowClusterHO'),
+    particleType = cms.string('pi+')
+)
+
+
 pfClusterRefsForJets = cms.EDProducer("PFClusterRefCandidateMerger",
-    src = cms.VInputTag("pfClusterRefsForJetsHCAL", "pfClusterRefsForJetsECAL")
+    src = cms.VInputTag("pfClusterRefsForJetsHCAL", "pfClusterRefsForJetsECAL", "pfClusterRefsForJetsHF", "pfClusterRefsForJetsHO")
 #    src = cms.VInputTag("pfClusterRefsForJetsHCAL", "pfClusterRefsForJetsECAL","pfClusterRefsForJetsHF")
 )
 
