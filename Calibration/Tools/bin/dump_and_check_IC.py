@@ -1,4 +1,5 @@
 import sys
+from fileInPath import *
 
 if len(sys.argv) < 2:
         print "Usage: %s <IC file> [reference IC file]" % sys.argv[0]
@@ -53,7 +54,7 @@ dir = "dumps_" + bn + "/"
 os.system("mkdir -p " + dir)
 
 rings = DRings()
-rings.setEERings("../data/eerings.dat")
+rings.setEERings(findFileInPath("Calibration/Tools/data/eerings.dat"))
 
 ic = IC()
 #IC.readTextFile(file, ic)

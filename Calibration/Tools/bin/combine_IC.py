@@ -1,4 +1,7 @@
 from ROOT import *
+from FWCore.ParameterSet.Config import FileInPath
+from fileInPath import *
+
 gSystem.Load("libFWCoreFWLite.so")
 AutoLibraryLoader.enable()
 gSystem.Load("libCalibrationTools.so")
@@ -9,7 +12,7 @@ eep = DSIsEndcapPlus()
 eem = DSIsEndcapMinus()
 
 rings = DRings()
-rings.setEERings("../data/eerings.dat")
+rings.setEERings(findFileInPath("Calibration/Tools/data/eerings.dat"))
 
 ic1 = IC()
 ic2 = IC()

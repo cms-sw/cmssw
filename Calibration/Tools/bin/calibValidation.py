@@ -1,4 +1,6 @@
 from ROOT import *
+from fileInPath import *
+
 gSystem.Load("libFWCoreFWLite.so")
 AutoLibraryLoader.enable()
 gSystem.Load("libCalibrationTools.so")
@@ -11,7 +13,7 @@ for l in open("dati_pred.dat"):
         recovery_ring[int(float(v[1]))] = float(v[2])
 
 rings = DRings()
-rings.setEERings("../data/eerings.dat");
+rings.setEERings(findFileInPath("eerings.dat"))
 
 EcalBarrel = 1
 EcalEndcap = 2
