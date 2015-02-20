@@ -150,7 +150,7 @@ namespace edm {
   TypeWithDict::print(std::ostream& os) const {
     try {
       os << name();
-    } catch (cms::Exception const& e) {
+    } catch (cms::Exception const&) {
       os << typeInfo().name();
     }
   }
