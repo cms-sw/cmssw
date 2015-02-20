@@ -215,10 +215,14 @@ void VertexClassifier::processesAtSimulation()
 
 	// Geant4 process type is selected using first Geant4 vertex assigned to 
         // the TrackingVertex
-	unsigned short process = 0;
+	unsigned int processG4 = 0;
+	
         if((*ivertex)->nG4Vertices() > 0) {
-	  process = (*(*ivertex)->g4Vertices_begin()).processType();
+	  processG4 = (*(*ivertex)->g4Vertices_begin()).processType();
 	}
+	
+	unsigned short process = mapG4toCMSProcType(processG4);
+	
 	// Flagging all the different processes
 	update(
 	       flags_[KnownProcess],

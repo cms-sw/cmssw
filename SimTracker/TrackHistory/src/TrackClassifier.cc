@@ -387,12 +387,14 @@ void TrackClassifier::processesAtSimulation()
                 pdgid = 0;
         }
 
-        unsigned short process = 0;
+        unsigned int processG4 = 0;
 
 	// Check existence of SimVerteces assigned
         if(parentVertex->nG4Vertices() > 0) {
-	  process = (*(parentVertex->g4Vertices_begin())).processType();
+	  processG4 = (*(parentVertex->g4Vertices_begin())).processType();
 	}
+	
+	unsigned short process = mapG4toCMSProcType(processG4);
 
         // Flagging all the different processes
         update(

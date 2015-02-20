@@ -1,6 +1,9 @@
 #ifndef Utils_h
 #define Utils_h
 
+#include <utility>
+#include <vector>
+
 //! Generic matching function
 template<typename Reference, typename Association>
 std::pair<typename Association::data_type::first_type, double> match (Reference key, Association association, bool bestMatchByMaxValue)
@@ -24,5 +27,7 @@ std::pair<typename Association::data_type::first_type, double> match (Reference 
 
     return std::pair<typename Association::data_type::first_type, double> (value, q);
 }
+
+unsigned short mapG4toCMSProcType(unsigned int i);
 
 #endif
