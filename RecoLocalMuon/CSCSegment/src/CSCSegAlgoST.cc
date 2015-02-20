@@ -1,6 +1,6 @@
 
 /**
- * \file CSCSegAlgoST.cc
+ * \File CSCSegAlgoST.cc
  *
  *  \authors: S. Stoynev - NU
  *            I. Bloch    - FNAL
@@ -232,14 +232,11 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
 	  
  	  //float z_at_target ;
 	  //float radius      ;
-	  float loc_x_at_target ;
-	  //float loc_y_at_target ;
-	  //float loc_z_at_target ;
+	  float loc_x_at_target;
+	  //float loc_y_at_target;
+	  //float loc_z_at_target;
 
 	  //z_at_target  = 0.;
-	  loc_x_at_target  = 0.;
-	  //loc_y_at_target  = 0.;
-	  //loc_z_at_target  = 0.;
 	  //radius       = 0.;
 	  
 	  // set the z target in CMS global coordinates:
