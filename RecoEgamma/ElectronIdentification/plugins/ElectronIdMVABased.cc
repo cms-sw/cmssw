@@ -39,7 +39,7 @@
 
 using namespace std;
 using namespace reco;
-class ElectronIdMVABased : public edm::stream::EDFilter {
+class ElectronIdMVABased : public edm::stream::EDFilter<> {
 	public:
 		explicit ElectronIdMVABased(const edm::ParameterSet&);
 		~ElectronIdMVABased();
