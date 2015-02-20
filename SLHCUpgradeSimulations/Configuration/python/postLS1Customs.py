@@ -31,6 +31,8 @@ def customisePostLS1_Common(process):
         process = customise_harvesting(process)
     if hasattr(process,'validation_step'):
         process = customise_Validation(process)
+    if hasattr(process,'datamixing_step'):
+        process = customise_DataMix(process)
 
     return process
 
@@ -168,6 +170,19 @@ def customise_Digi_Common(process):
             process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.60)
         if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf2'):
             process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.60)
+    return process
+
+def customise_DataMix(process):
+    if hasattr(process,'mixData'):
+        if hasattr(process.mixData,'ho'):
+            process.mixData.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
+            process.mixData.ho.siPMCode = cms.int32(1)
+            process.mixData.ho.pixels = cms.int32(2500)
+            process.mixData.ho.doSiPMSmearing = cms.bool(False)
+        if hasattr(process.mixData,'hf1'):
+            process.mixData.hf1.samplingFactor = cms.double(0.60)
+        if hasattr(process.mixData,'hf2'):
+            process.mixData.hf2.samplingFactor = cms.double(0.60)
     return process
 
 
