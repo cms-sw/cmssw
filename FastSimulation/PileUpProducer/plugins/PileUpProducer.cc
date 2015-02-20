@@ -266,8 +266,10 @@ void PileUpProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
   
   std::vector<float> trueInteractionList;
   trueInteractionList.push_back(truePUevts);
+
+  std::vector<edm::EventID> eventInfoList;
   
-  PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent(bunchCrossingList,numInteractionList,trueInteractionList,450)); // it shouldn't matter what the assumed bunchspacing is if there is no OOT PU. Add argument for compatibility.
+  PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent(bunchCrossingList,numInteractionList,trueInteractionList,eventInfoList,450)); // it shouldn't matter what the assumed bunchspacing is if there is no OOT PU. Add argument for compatibility.
   iEvent.put(PileupMixing_);
 
   // Get N events from random files
