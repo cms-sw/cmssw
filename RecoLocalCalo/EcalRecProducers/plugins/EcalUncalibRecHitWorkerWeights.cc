@@ -102,14 +102,8 @@ EcalUncalibRecHitWorkerWeights::run( const edm::Event & evt,
 edm::ParameterSetDescription
 EcalUncalibRecHitWorkerWeights::getAlgoDescription() {
 
-  edm::ParameterSetDescription pset;
-//pset.addNode(edm::ParameterSet<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis")) and
-//	       edm::ParameterSet<std::string>("EEhitCollection", "EcalUncalibRecHitsEE") and
-//	       edm::ParameterSet<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis")) and
-//	       edm::ParameterSet<std::string>("algo", "EcalUncalibRecHitWorkerWeights") and
-//	       edm::ParameterSet<std::string>("EBhitCollection", "EcalUncalibRecHitsEB"));
-//
-  return pset;
+  edm::ParameterSetDescription psd;
+  return psd;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

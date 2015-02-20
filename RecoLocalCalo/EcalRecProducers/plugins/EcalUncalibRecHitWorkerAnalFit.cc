@@ -140,14 +140,14 @@ EcalUncalibRecHitWorkerAnalFit::run( const edm::Event& evt,
 edm::ParameterSetDescription
 EcalUncalibRecHitWorkerAnalFit::getAlgoDescription() {
 
-  edm::ParameterSetDescription pset;
-//pset.addNode(edm::ParameterSet<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis")) and
+  edm::ParameterSetDescription psd;
+//psd.addNode(edm::ParameterSet<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis")) and
 //	       edm::ParameterSet<std::string>("EEhitCollection", "EcalUncalibRecHitsEE") and
 //	       edm::ParameterSet<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis")) and
 //	       edm::ParameterSet<std::string>("algo", "EcalUncalibRecHitWorkerAnalFit") and
 //	       edm::ParameterSet<std::string>("EBhitCollection", "EcalUncalibRecHitsEB"));
 //
-  return pset;
+  return psd;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
