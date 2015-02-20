@@ -9,6 +9,7 @@ namespace DDVectorGetter
 {
   bool		      	check( const std::string & );
   std::vector<double>   get( const std::string & );
+  void                  beginWith( const std::string &, std::vector<std::string> & );
 
   inline bool
   check( const std::string & str )
@@ -51,6 +52,23 @@ namespace DDVectorGetter
     }
   
     throw cms::Exception( "DDException" ) << "DDVectorGetter: cannot get array " << str;
+  }
+
+  inline void
+  beginWith( const std::string & str, std::vector<std::string>& vstring )
+  {
+    DDVector::iterator<DDVector> vit;
+    DDVector::iterator<DDVector> ved( DDVector::end());
+
+    for(; vit != ved; ++vit )
+    {
+      if( vit->isDefined().second )
+      {
+	DDName vname( vit->name());
+	if( vname.name().compare( 0, str.size(), str ) == 0 )
+	  vstring.push_back( vname.name());
+      }
+    }
   }
 };
 
