@@ -109,11 +109,7 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   std::auto_ptr<L1GctInternHtMissCollection>  internalHtMissResult(new L1GctInternHtMissCollection ( ));
 
 
-  // Assume BX is the same for all collections
-  int firstBX = EGamma->getFirstBX();
-  int lastBX = EGamma->getLastBX();
-
-  for(int itBX=firstBX; itBX!=lastBX+1; ++itBX){
+  for(int itBX=EGamma->getFirstBX(); itBX<=EGamma->getLastBX(); ++itBX){
 
     //looping over EGamma elments with a specific BX
     int nonIsoCount = 0;
@@ -144,6 +140,9 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     }
     isoEmResult->resize(4);
     nonIsoEmResult->resize(4);
+  }
+
+  for(int itBX=RlxTau->getFirstBX(); itBX<=RlxTau->getLastBX(); ++itBX){
 
     //looping over Tau elments with a specific BX
     int tauCount = 0; //max 4
@@ -162,7 +161,9 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
       }
     }
     tauJetResult->resize(4);
+  }
 
+  for(int itBX=IsoTau->getFirstBX(); itBX<=IsoTau->getLastBX(); ++itBX){
 
     //looping over Iso Tau elments with a specific BX
     int isoTauCount = 0; //max 4
@@ -181,8 +182,9 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
       }
     }
     isoTauJetResult->resize(4);
+  }
 
-
+  for(int itBX=Jet->getFirstBX(); itBX<=Jet->getLastBX(); ++itBX){
     //looping over Jet elments with a specific BX
     int forCount = 0; //max 4
     int cenCount = 0; //max 4
@@ -209,6 +211,9 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     }
     forJetResult->resize(4);
     cenJetResult->resize(4);
+  }
+
+  for(int itBX=EtSum->getFirstBX(); itBX<=EtSum->getLastBX(); ++itBX){
 
     //looping over EtSum elments with a specific BX
     for (EtSumBxCollection::const_iterator itEtSum = EtSum->begin(itBX);
@@ -234,6 +239,9 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     htMissResult->resize(1);
     etTotResult->resize(1);
     etHadResult->resize(1);
+  }
+
+  for(int itBX=HfSums->getFirstBX(); itBX<=HfSums->getLastBX(); ++itBX){
 
     L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromGctEmulator(itBX,
 							       0,
