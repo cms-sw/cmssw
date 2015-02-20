@@ -312,8 +312,6 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
     }
 
     //--------fill AlgoBits/TechBits vs Bx Histogram-----------
-
-    const std::vector<L1GtFdlWord> &m_gtFdlWord(gtReadoutRecord->gtFdlVector());
     
     // algorithm trigger bits
     if (!isInit){
