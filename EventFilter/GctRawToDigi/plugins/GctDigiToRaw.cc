@@ -51,6 +51,25 @@ GctDigiToRaw::GctDigiToRaw(const edm::ParameterSet& iConfig) :
 
   //register the products
   produces<FEDRawDataCollection>();
+  const std::string gctInputLabelStr = gctInputLabel_.label();
+  consumes<L1GctEmCandCollection>(edm::InputTag(gctInputLabelStr, "isoEm"));
+  consumes<L1GctEmCandCollection>(edm::InputTag(gctInputLabelStr, "nonIsoEm"));
+  consumes<L1GctJetCandCollection>(edm::InputTag(gctInputLabelStr, "cenJets"));
+  consumes<L1GctJetCandCollection>(edm::InputTag(gctInputLabelStr, "forJets"));
+  consumes<L1GctJetCandCollection>(edm::InputTag(gctInputLabelStr, "tauJets"));
+  consumes<L1GctEtTotalCollection>(gctInputLabel_);
+  consumes<L1GctEtHadCollection>(gctInputLabel_);
+  consumes<L1GctEtMissCollection>(gctInputLabel_);
+  consumes<L1GctHFRingEtSumsCollection>(gctInputLabel_);
+  consumes<L1GctHFBitCountsCollection>(gctInputLabel_);
+  consumes<L1GctHtMissCollection>(gctInputLabel_);
+  consumes<L1GctJetCountsCollection>(gctInputLabel_);
+  if(packRctEm_) {
+    consumes<L1CaloEmCollection>(rctInputLabel_);
+  }
+  if(packRctCalo_) {
+    consumes<L1CaloRegionCollection>(rctInputLabel_);
+  }
 }
 
 
