@@ -25,6 +25,7 @@ from Configuration.StandardSequences.Generator_cff import *
 
 doAllDigi = cms.Sequence(calDigi+muonDigi)
 pdigi = cms.Sequence(fixGenInfo*cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi)
+pdigi_valid = cms.Sequence(pdigi)
 # for PreMixing, to first approximation, allow noise in Muon system
 
 # remove unnecessary modules from 'pdigi' sequence - run after DataMixing
