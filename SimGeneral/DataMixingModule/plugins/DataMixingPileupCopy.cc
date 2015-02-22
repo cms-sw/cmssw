@@ -36,9 +36,11 @@ namespace edm
     // Pileup/Playback information
 
     PileupInfoInputTag_ = ps.getParameter<edm::InputTag>("PileupInfoInputTag");
+    BunchSpacingInputTag_ = ps.getParameter<edm::InputTag>("BunchSpacingInputTag");
     CFPlaybackInputTag_ = ps.getParameter<edm::InputTag>("CFPlaybackInputTag");
 
     iC.consumes<std::vector<PileupSummaryInfo>>(PileupInfoInputTag_);
+    iC.consumes<int>(BunchSpacingInputTag_);
     iC.consumes<CrossingFramePlaybackInfoExtended>(CFPlaybackInputTag_);
   }
 	       
@@ -59,12 +61,22 @@ namespace edm
     std::shared_ptr<Wrapper< std::vector<PileupSummaryInfo> >  const> PileupInfoPTR =
       getProductByTag<std::vector<PileupSummaryInfo>>(*ep,PileupInfoInputTag_, mcc);
 
+    std::shared_ptr<Wrapper< int >  const> bsPTR =
+      getProductByTag<int>(*ep,BunchSpacingInputTag_, mcc);
+
     if(PileupInfoPTR ) {
 
       PileupSummaryStorage_ = *(PileupInfoPTR->product()) ;
 
       LogDebug("DataMixingEMWorker") << "PileupInfo Size: " << PileupSummaryStorage_.size();
 
+    }
+
+    if(bsPTR ) {
+      bsStorage_ = *(bsPTR->product()) ;
+    }
+    else {
+      bsStorage_=10000;
     }
 
     // Playback
@@ -87,6 +99,7 @@ namespace edm
   void DataMixingPileupCopy::putPileupInfo(edm::Event &e) {
 
     std::auto_ptr<std::vector<PileupSummaryInfo> > PSIVector(new std::vector<PileupSummaryInfo>);
+    std::auto_ptr<int> bsInt(new int);
 
     std::vector<PileupSummaryInfo>::const_iterator PSiter;
 
@@ -95,6 +108,8 @@ namespace edm
       PSIVector->push_back(*PSiter);
 
     }
+
+    *bsInt=bsStorage_;
 
     if(FoundPlayback_ ) {
 
@@ -111,7 +126,7 @@ namespace edm
     }
 
     e.put(PSIVector);
-
+    e.put(bsInt,"bunchSpacing");
 
     // clear local storage after this event
     PileupSummaryStorage_.clear();
