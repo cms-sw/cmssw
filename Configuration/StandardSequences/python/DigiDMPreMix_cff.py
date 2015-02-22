@@ -1,31 +1,31 @@
 import FWCore.ParameterSet.Config as cms
 
-# Start with Standard Digitization:
+#                                                    
+# Full-scale Digitization of the simulated hits      
+# in all CMS subdets : Tracker, ECAL, HCAl, Muon's;  
+# MixingModule (at least in zero-pileup mode) needs  
+# to be included to make Digi's operational, since   
+# it's required for ECAL/HCAL & Muon's                
+# Defined in a separate fragment
+#                                                    
+# Tracker Digis (Pixel + SiStrips) are now made in the mixing
+# module, so the old "trDigi" sequence has been taken out.
+#
 
-from Configuration.StandardSequences.Digi_cff import *
+# Calorimetry Digis (Ecal + Hcal) - * unsuppressed *
+# returns sequence "calDigi"
+from SimCalorimetry.Configuration.SimCalorimetry_cff import *
+# Muon Digis (CSC + DT + RPC)
+# returns sequence "muonDigi"
+#
+from SimMuon.Configuration.SimMuon_cff import *
 
-#from SimGeneral.MixingModule.mixNoPU_cfi import *
+# add updating the GEN information by default
+from Configuration.StandardSequences.Generator_cff import *
 
-# If we are going to run this with the DataMixer to follow adding
-# detector noise, turn this off for now:
-
-##### #turn off noise in all subdetectors
-#simHcalUnsuppressedDigis.doNoise = False
-#mix.digitizers.hcal.doNoise = False
-#simEcalUnsuppressedDigis.doNoise = False
-#mix.digitizers.ecal.doNoise = False
-#simEcalUnsuppressedDigis.doESNoise = False
-#simSiPixelDigis.AddNoise = False
-#mix.digitizers.pixel.AddNoise = False
-#simSiStripDigis.Noise = False
-#mix.digitizers.strip.AddNoise = False
-#simMuonCSCDigis.strips.doNoise = False
-#simMuonCSCDigis.wires.doNoise = False
-#DTs are strange - no noise flag - only use true hits?
-#simMuonDTDigis.IdealModel = True
-#simMuonDTDigis.onlyMuHits = True
-#simMuonRPCDigis.Noise = False
-
+doAllDigi = cms.Sequence(calDigi+muonDigi)
+pdigi = cms.Sequence(fixGenInfo*cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi)
+pdigi_valid = cms.Sequence(pdigi)
 # for PreMixing, to first approximation, allow noise in Muon system
 
 # remove unnecessary modules from 'pdigi' sequence - run after DataMixing
@@ -35,3 +35,4 @@ pdigi.remove(simEcalDigis)  # does zero suppression
 pdigi.remove(simEcalPreshowerDigis)  # does zero suppression
 pdigi.remove(simHcalDigis)
 pdigi.remove(simHcalTTPDigis)
+
