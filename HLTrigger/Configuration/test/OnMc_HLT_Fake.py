@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_3_0/Fake/V32 (CMSSW_7_3_2_HLT1)
+# /dev/CMSSW_7_4_0/Fake/V2 (CMSSW_7_4_0_pre7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/Fake/V32')
+  tableName = cms.string('/dev/CMSSW_7_4_0/Fake/V2')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -33,7 +33,8 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     RefreshAlways = cms.untracked.bool( False ),
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_CONDITIONS" ),
     ReconnectEachRun = cms.untracked.bool( True ),
-    BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" )
+    BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
+    DumpStat = cms.untracked.bool( False )
 )
 
 process.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
@@ -192,11 +193,13 @@ process.hltTriggerType = cms.EDFilter( "HLTTriggerTypeFilter",
 )
 process.hltGtDigis = cms.EDProducer( "L1GlobalTriggerRawToDigi",
     DaqGtFedId = cms.untracked.int32( 813 ),
-    DaqGtInputTag = cms.InputTag( "rawDataCollector" ),
+    Verbosity = cms.untracked.int32( 0 ),
     UnpackBxInEvent = cms.int32( 5 ),
-    ActiveBoardsMask = cms.uint32( 0xffff )
+    ActiveBoardsMask = cms.uint32( 0xffff ),
+    DaqGtInputTag = cms.InputTag( "rawDataCollector" )
 )
 process.hltGctDigis = cms.EDProducer( "GctRawToDigi",
+    checkHeaders = cms.untracked.bool( False ),
     unpackSharedRegions = cms.bool( False ),
     numberOfGctSamplesToUnpack = cms.uint32( 1 ),
     verbose = cms.untracked.bool( False ),

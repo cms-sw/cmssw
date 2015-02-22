@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_3_0/Fake/V32 (CMSSW_7_3_2_HLT1)
+# /dev/CMSSW_7_4_0/Fake/V2 (CMSSW_7_4_0_pre7)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/Fake/V32')
+  tableName = cms.string('/dev/CMSSW_7_4_0/Fake/V2')
 )
 
 streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -32,11 +32,13 @@ hltTriggerType = cms.EDFilter( "HLTTriggerTypeFilter",
 )
 hltGtDigis = cms.EDProducer( "L1GlobalTriggerRawToDigi",
     DaqGtFedId = cms.untracked.int32( 813 ),
-    DaqGtInputTag = cms.InputTag( "rawDataCollector" ),
+    Verbosity = cms.untracked.int32( 0 ),
     UnpackBxInEvent = cms.int32( 5 ),
-    ActiveBoardsMask = cms.uint32( 0xffff )
+    ActiveBoardsMask = cms.uint32( 0xffff ),
+    DaqGtInputTag = cms.InputTag( "rawDataCollector" )
 )
 hltGctDigis = cms.EDProducer( "GctRawToDigi",
+    checkHeaders = cms.untracked.bool( False ),
     unpackSharedRegions = cms.bool( False ),
     numberOfGctSamplesToUnpack = cms.uint32( 1 ),
     verbose = cms.untracked.bool( False ),
