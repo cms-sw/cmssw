@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #pileupSummary = cms.EDProducer("PileupInformation",
 addPileupInfo = cms.EDProducer("PileupInformation",
-
+    isPreMixed = cms.bool(False),
     TrackingParticlesLabel = cms.InputTag('mergedtruth'),
     PileupMixingLabel = cms.InputTag('mix'),
     simHitLabel = cms.string('g4SimHits'),
