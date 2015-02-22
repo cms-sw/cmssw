@@ -57,13 +57,14 @@ namespace edm
 
 
       edm::InputTag PileupInfoInputTag_ ;     // InputTag for PileupSummaryInfo
+      edm::InputTag BunchSpacingInputTag_ ;     // InputTag for bunch spacing int
       edm::InputTag CFPlaybackInputTag_   ;   // InputTag for CrossingFrame Playback information
 
    
       CrossingFramePlaybackInfoExtended CrossingFramePlaybackStorage_;
 
       std::vector<PileupSummaryInfo> PileupSummaryStorage_;
-
+      int bsStorage_;
 
       //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
 
