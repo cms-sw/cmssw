@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_3_0/Fake/V30 (CMSSW_7_3_1_patch2_HLT3)
+# /dev/CMSSW_7_3_0/Fake/V32 (CMSSW_7_3_2_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/Fake/V30')
+  tableName = cms.string('/dev/CMSSW_7_3_0/Fake/V32')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -345,8 +345,6 @@ process.DQMOutput = cms.EndPath( process.dqmOutput )
 
 
 
-
-
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
         'file:RelVal_Raw_Fake_DATA.root',
@@ -356,11 +354,21 @@ process.source = cms.Source( "PoolSource",
     )
 )
 
+
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# none for now
+# from CMSSW_7_5_0_pre0: Simplified TrackerTopologyEP config (PR #7589/#7802)
+if cmsswVersion >= "CMSSW_7_5":
+    if 'trackerTopologyConstants' in process.__dict__:
+        process.trackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
+
+# from CMSSW_7_5_0_pre0: Removal of upgradeGeometry from TrackerDigiGeometryESModule (PR #7794)
+if cmsswVersion >= "CMSSW_7_5":
+    if 'TrackerDigiGeometryESModule' in process.__dict__:
+        del process.TrackerDigiGeometryESModule.trackerGeometryConstants.upgradeGeometry
+
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
