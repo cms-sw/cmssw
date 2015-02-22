@@ -53,10 +53,14 @@ private:
     double                   volumeZ_;
     double                   pTcut_1_;
     double                   pTcut_2_;
+    bool isPreMixed_;
+
 
     edm::EDGetTokenT<TrackingParticleCollection>     trackingTruthT_;
     edm::EDGetTokenT<TrackingVertexCollection>     trackingTruthV_;
     edm::EDGetTokenT<PileupMixingContent>            PileupInfoLabel_;
+    edm::EDGetTokenT<int> bunchSpacingToken_;
+    edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupSummaryToken_;
 
     bool LookAtTrackingTruth_ ;
 
