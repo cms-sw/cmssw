@@ -263,6 +263,7 @@ class Plot:
         xbinlabelsize -- Size of x axis bin labels (default None)
         xbinlabeloption -- Option string for x axis bin labels (default None)
         drawStyle    -- If "hist", draw as line instead of points (default None)
+        drawCommand  -- Deliver this to Draw() (default: None for same as drawStyle)
         lineWidth    -- If drawStyle=="hist", the width of line (default 2)
         legendDx     -- Float for moving TLegend in x direction for separate=True (default None)
         legendDy     -- Float for moving TLegend in y direction for separate=True (default None)
@@ -307,6 +308,7 @@ class Plot:
         _set("xbinlabeloption", None)
 
         _set("drawStyle", None)
+        _set("drawCommand", None)
         _set("lineWidth", 2)
 
         _set("legendDx", None)
@@ -536,8 +538,13 @@ class Plot:
 
         # Draw histograms
         opt = "sames" # s for statbox or something?
+        ds = ""
         if self._drawStyle is not None:
-            opt += " "+self._drawStyle
+            ds = self._drawStyle
+        if self._drawCommand is not None:
+            ds = self._drawCommand
+        if len(ds) > 0:
+            opt += " "+ds
         for h in histos:
             h.Draw(opt)
 
