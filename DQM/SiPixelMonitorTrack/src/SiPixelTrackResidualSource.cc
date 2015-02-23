@@ -1034,15 +1034,19 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		meClSizeOnTrack_bpix->Fill((*clust).size());
 		meClSizeXOnTrack_bpix->Fill((*clust).sizeX());
 		meClSizeYOnTrack_bpix->Fill((*clust).sizeY());
+		int DBlayer;
+		DBlayer = PixelBarrelName(DetId((*hit).geographicalId()), tTopo, isUpgrade).layerName();
 		float phi = clustgp.phi(); 
 		float z = clustgp.z();
 		for (int i = 0; i < noOfLayers; i++)
 		  {
-		    meClPosLayersOnTrack.at(i)->Fill(z,phi);
-		    meClChargeOnTrack_layers.at(i)->Fill(corrCharge);
-		    meClSizeOnTrack_layers.at(i)->Fill((*clust).size());
-		    meClSizeXOnTrack_layers.at(i)->Fill((*clust).sizeX());
-		    meClSizeYOnTrack_layers.at(i)->Fill((*clust).sizeY());
+          if (DBlayer == i + 1) {
+             meClPosLayersOnTrack.at(i)->Fill(z,phi);
+             meClChargeOnTrack_layers.at(i)->Fill(corrCharge);
+             meClSizeOnTrack_layers.at(i)->Fill((*clust).size());
+             meClSizeXOnTrack_layers.at(i)->Fill((*clust).sizeX());
+             meClSizeYOnTrack_layers.at(i)->Fill((*clust).sizeY());
+          }
 		  }
 	      }
 	      if(endcap) {
@@ -1052,27 +1056,33 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		meClSizeOnTrack_fpix->Fill((*clust).size());
 		meClSizeXOnTrack_fpix->Fill((*clust).sizeX());
 		meClSizeYOnTrack_fpix->Fill((*clust).sizeY());
+		int DBdisk = 0;
+		DBdisk = PixelEndcapName(DetId((*hit).geographicalId()), tTopo, isUpgrade).diskName();
 		float x = clustgp.x(); 
 		float y = clustgp.y(); 
 		float z = clustgp.z();
 		if(z>0){
         for (int i = 0; i < noOfDisks; i++)
         {
-            meClPosDiskspzOnTrack.at(i)->Fill(x,y);
-            meClChargeOnTrack_diskps.at(i)->Fill(corrCharge);
-            meClSizeOnTrack_diskps.at(i)->Fill((*clust).size());
-            meClSizeXOnTrack_diskps.at(i)->Fill((*clust).sizeX());
-            meClSizeYOnTrack_diskps.at(i)->Fill((*clust).sizeY());
+            if (DBdisk == i + 1) {
+               meClPosDiskspzOnTrack.at(i)->Fill(x,y);
+               meClChargeOnTrack_diskps.at(i)->Fill(corrCharge);
+               meClSizeOnTrack_diskps.at(i)->Fill((*clust).size());
+               meClSizeXOnTrack_diskps.at(i)->Fill((*clust).sizeX());
+               meClSizeYOnTrack_diskps.at(i)->Fill((*clust).sizeY());
+            }
         }
 		}
 		else{
         for (int i = 0; i < noOfDisks; i++)
         {
-          meClPosDisksmzOnTrack.at(i)->Fill(x,y);
-          meClChargeOnTrack_diskms.at(i)->Fill(corrCharge);
-          meClSizeOnTrack_diskms.at(i)->Fill((*clust).size());
-          meClSizeXOnTrack_diskms.at(i)->Fill((*clust).sizeX());
-          meClSizeYOnTrack_diskms.at(i)->Fill((*clust).sizeY());
+          if (DBdisk == i + 1) {
+             meClPosDisksmzOnTrack.at(i)->Fill(x,y);
+             meClChargeOnTrack_diskms.at(i)->Fill(corrCharge);
+             meClSizeOnTrack_diskms.at(i)->Fill((*clust).size());
+             meClSizeXOnTrack_diskms.at(i)->Fill((*clust).sizeX());
+             meClSizeYOnTrack_diskms.at(i)->Fill((*clust).sizeY());
+          }
         }
 		} 
 	      }
@@ -1155,17 +1165,19 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      meClSizeYNotOnTrack_bpix->Fill((*di).sizeY());
 	      meClChargeNotOnTrack_bpix->Fill((*di).charge()/1000);
 	      barrelotherclusters++;
-	      //DBlayer = PixelBarrelName(DetId(detId)).layerName();
+	      int DBlayer = PixelBarrelName(DetId(detId), tTopo, isUpgrade).layerName();
 	      float phi = clustgp.phi(); 
 	      //float r = clustgp.perp();
 	      z = clustgp.z();
          for (int i = 0; i < noOfLayers; i++)
          {
-           meClPosLayersNotOnTrack.at(i)->Fill(z,phi);
-           meClSizeNotOnTrack_layers.at(i)->Fill((*di).size());
-           meClSizeXNotOnTrack_layers.at(i)->Fill((*di).sizeX());
-           meClSizeYNotOnTrack_layers.at(i)->Fill((*di).sizeY());
-           meClChargeNotOnTrack_layers.at(i)->Fill((*di).charge()/1000);
+           if (DBlayer == i - 1) {
+              meClPosLayersNotOnTrack.at(i)->Fill(z,phi);
+              meClSizeNotOnTrack_layers.at(i)->Fill((*di).size());
+              meClSizeXNotOnTrack_layers.at(i)->Fill((*di).sizeX());
+              meClSizeYNotOnTrack_layers.at(i)->Fill((*di).sizeY());
+              meClChargeNotOnTrack_layers.at(i)->Fill((*di).charge()/1000);
+           }
          }
 	    }
 	    //endcap
@@ -1175,28 +1187,32 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      meClSizeYNotOnTrack_fpix->Fill((*di).sizeY());
 	      meClChargeNotOnTrack_fpix->Fill((*di).charge()/1000);
 	      endcapotherclusters++;
-	      //DBdisk = PixelEndcapName(DetId(detId )).diskName();
+	      int DBdisk = PixelEndcapName(DetId(detId), tTopo, isUpgrade).diskName();
 	      float x = clustgp.x(); 
 	      float y = clustgp.y(); 
 	      z = clustgp.z();
 	      if(z>0){
            for (int i = 0; i < noOfDisks; i++)
            {
-             meClPosDiskspzNotOnTrack.at(i)->Fill(x,y);
-             meClSizeNotOnTrack_diskps.at(i)->Fill((*di).size());
-             meClSizeXNotOnTrack_diskps.at(i)->Fill((*di).sizeX());
-             meClSizeYNotOnTrack_diskps.at(i)->Fill((*di).sizeY());
-             meClChargeNotOnTrack_diskps.at(i)->Fill((*di).charge()/1000);
+             if (DBdisk == i + 1) {
+                meClPosDiskspzNotOnTrack.at(i)->Fill(x,y);
+                meClSizeNotOnTrack_diskps.at(i)->Fill((*di).size());
+                meClSizeXNotOnTrack_diskps.at(i)->Fill((*di).sizeX());
+                meClSizeYNotOnTrack_diskps.at(i)->Fill((*di).sizeY());
+                meClChargeNotOnTrack_diskps.at(i)->Fill((*di).charge()/1000);
+             }
            }
 	      }
 	      else{
            for (int i = 0; i < noOfDisks; i++)
            {
-             meClPosDisksmzNotOnTrack.at(i)->Fill(x,y);
-             meClSizeNotOnTrack_diskms.at(i)->Fill((*di).size());
-             meClSizeXNotOnTrack_diskms.at(i)->Fill((*di).sizeX());
-             meClSizeYNotOnTrack_diskms.at(i)->Fill((*di).sizeY());
-             meClChargeNotOnTrack_diskms.at(i)->Fill((*di).charge()/1000);
+             if (DBdisk == i + 1) {
+                meClPosDisksmzNotOnTrack.at(i)->Fill(x,y);
+                meClSizeNotOnTrack_diskms.at(i)->Fill((*di).size());
+                meClSizeXNotOnTrack_diskms.at(i)->Fill((*di).sizeX());
+                meClSizeYNotOnTrack_diskms.at(i)->Fill((*di).sizeY());
+                meClChargeNotOnTrack_diskms.at(i)->Fill((*di).charge()/1000);
+             }
            }
 	      } 
 
@@ -1236,31 +1252,37 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
       if(DetId(detId).subdetId() == 1){
 	if(nofclOnTrack!=0) meNClustersOnTrack_bpix->Fill(nofclOnTrack); 
 	if(nofclOffTrack!=0) meNClustersNotOnTrack_bpix->Fill(nofclOffTrack); 
-	//DBlayer = PixelBarrelName(DetId(detId)).layerName();
+	int DBlayer = PixelBarrelName(DetId(detId), tTopo, isUpgrade).layerName();
         for (int i = 0; i < noOfLayers; i++)
         {
-          if(nofclOnTrack!=0) meNClustersOnTrack_layers.at(i)->Fill(nofclOnTrack);
-          if(nofclOffTrack!=0) meNClustersNotOnTrack_layers.at(i)->Fill(nofclOffTrack);
+          if (DBlayer == i + 1) {
+             if(nofclOnTrack!=0) meNClustersOnTrack_layers.at(i)->Fill(nofclOnTrack);
+             if(nofclOffTrack!=0) meNClustersNotOnTrack_layers.at(i)->Fill(nofclOffTrack);
+          }
         }
       }//end barrel
       //endcap
       if(DetId(detId).subdetId() == 2) {
-	//DBdisk = PixelEndcapName(DetId(detId )).diskName();
+	int DBdisk = PixelEndcapName(DetId(detId )).diskName();
 	//z = clustgp.z();
 	if(nofclOnTrack!=0) meNClustersOnTrack_fpix->Fill(nofclOnTrack); 
 	if(nofclOffTrack!=0) meNClustersNotOnTrack_fpix->Fill(nofclOffTrack);
 	if(z>0){
      for (int i = 0; i < noOfDisks; i++)
      {
-       if(nofclOnTrack!=0) meNClustersOnTrack_diskps.at(i)->Fill(nofclOnTrack);
-       if(nofclOffTrack!=0) meNClustersNotOnTrack_diskps.at(i)->Fill(nofclOffTrack);
+       if (DBdisk == i + 1) {
+          if(nofclOnTrack!=0) meNClustersOnTrack_diskps.at(i)->Fill(nofclOnTrack);
+          if(nofclOffTrack!=0) meNClustersNotOnTrack_diskps.at(i)->Fill(nofclOffTrack);
+       }
      }
 	}
 	if(z<0){
      for (int i = 0; i < noOfDisks; i++)
      {
-       if(nofclOnTrack!=0) meNClustersOnTrack_diskms.at(i)->Fill(nofclOnTrack);
-       if(nofclOffTrack!=0) meNClustersNotOnTrack_diskms.at(i)->Fill(nofclOffTrack);
+       if (DBdisk == i + 1) {
+         if(nofclOnTrack!=0) meNClustersOnTrack_diskms.at(i)->Fill(nofclOnTrack);
+         if(nofclOffTrack!=0) meNClustersNotOnTrack_diskms.at(i)->Fill(nofclOffTrack);
+       }
      }
 	}
       }
