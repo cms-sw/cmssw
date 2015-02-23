@@ -61,12 +61,10 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
    // for lepton and jet subtraction
    std::vector<reco::CandidatePtr> footprint;
 
-   std::cout << "Leptons: ";
    // subtract leptons out of sumPt
    for ( std::vector< edm::Handle<reco::CandidateView> >::const_iterator lep_i = leptons.begin();
          lep_i != leptons.end(); ++lep_i ) {
       for( reco::CandidateView::const_iterator lep = (*lep_i)->begin(); lep != (*lep_i)->end(); lep++ ){
-         std::cout << lep->pt() << " ";
          if( lep->pt() > 10 ){
             for( unsigned int n=0; n < lep->numberOfSourceCandidatePtrs(); n++ ){
                if( lep->sourceCandidatePtr(n).isNonnull() and lep->sourceCandidatePtr(n).isAvailable() ){
@@ -76,7 +74,6 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
          }
       }
    }
-   std::cout << std::endl;
    // subtract jets out of sumPt
    for(edm::View<reco::Jet>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
 
@@ -97,25 +94,19 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
          cand != pfCandidates.end(); ++cand){
 
       // check if candidate exists in a lepton or jet
-      //unsigned int iter = cand - pfCandidates.begin();
-      //if (std::find(footprint.begin(), footprint.end(),
-      //         reco::CandidatePtr(&pfCandidates,iter)) != footprint.end()) {
-      //   continue;
-      //}
       bool cleancand = true;
       for(unsigned int i=0; i < footprint.size(); i++){
          if( footprint[i]->p4() == cand->p4() ){
             cleancand = false;
          }
       }
-
+      // if not, add to sumPt
       if( cleancand ){
          sumPt += cand->pt();
       }
 
    }
 
-   std::cout << "Jets: ";
    // add jets to metsig covariance matrix and subtract them from sumPt
    for(edm::View<reco::Jet>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
      
@@ -127,7 +118,6 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
       double feta = std::abs(jeta);
       double c = jet->px()/jet->pt();
       double s = jet->py()/jet->pt();
-     std::cout << jpt << " ";
 
       // jet energy resolutions
       double jeta_res = (std::abs(jeta) < 9.9) ? jeta : 9.89; // JetResolutions defined for |eta|<9.9
@@ -152,26 +142,15 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
          cov_xy += (dpt*dpt-dph*dph)*c*s;
          cov_yy += dph*dph*c*c + dpt*dpt*s*s;
 
-         // subtract the pf constituents in each jet out of the sumPt
-         //for(unsigned int i=0; i < jet->numberOfDaughters(); i++){
-         //   sumPt -= jet->daughter(i)->pt();
-         //}
-
       } else {
 
-         // subtract the pf constituents in each jet out of the sumPt
-         for(unsigned int i=0; i < jet->numberOfDaughters(); i++){
-            //sumPt -= jet->daughter(i)->pt();
-         }
          // add the (corrected) jet to the sumPt
          sumPt += jpt;
 
       }
 
    }
-   std::cout << std::endl;
 
-   std::cout << "sumPt: " << sumPt << std::endl;
 
    //protection against unphysical events
    if(sumPt<0) sumPt=0;
@@ -209,8 +188,6 @@ metsig::METSignificance::getSignificance(const reco::METCovMatrix& cov, const re
 bool
 metsig::METSignificance::cleanJet(const reco::Jet& jet, 
       const std::vector< edm::Handle<reco::CandidateView> >& leptons ){
-  
-  if ( jet.pt() < jetThreshold_ ) return false;
 
   for ( std::vector< edm::Handle<reco::CandidateView> >::const_iterator lep_i = leptons.begin();
         lep_i != leptons.end(); ++lep_i ) {
@@ -218,7 +195,7 @@ metsig::METSignificance::cleanJet(const reco::Jet& jet,
         if ( reco::deltaR2(*lep, jet) < dR2match_ ) {
            return false;
         }
-    }
+     }
   }
   return true;
 }
