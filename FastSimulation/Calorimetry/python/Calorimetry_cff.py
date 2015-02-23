@@ -294,4 +294,4 @@ FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
 #
 # Modify for running in Run 2
 #
-eras.run2.toModify( FamosCalorimetryBlock.Calorimetry.HFShowerLibrary, useShowerLibrary=True )
+eras.run2_common.toModify( FamosCalorimetryBlock.Calorimetry.HFShowerLibrary, useShowerLibrary=True )

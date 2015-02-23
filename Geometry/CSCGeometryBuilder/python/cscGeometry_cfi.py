@@ -22,4 +22,4 @@ CSCGeometryESModule = cms.ESProducer("CSCGeometryESModule",
 # Modify for running in run 2
 #
 from Configuration.StandardSequences.Eras import eras
-eras.run2.toModify( CSCGeometryESModule, useGangedStripsInME1a=False )
+eras.run2_common.toModify( CSCGeometryESModule, useGangedStripsInME1a=False )

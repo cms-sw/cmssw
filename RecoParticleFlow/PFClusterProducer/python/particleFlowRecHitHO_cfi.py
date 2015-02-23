@@ -53,4 +53,4 @@ def _modifyParticleFlowRecHitHOForRun2( object ) :
             )
         )
 
-eras.run2.toModify( particleFlowRecHitHO, func=_modifyParticleFlowRecHitHOForRun2 )
+eras.run2_common.toModify( particleFlowRecHitHO, func=_modifyParticleFlowRecHitHOForRun2 )

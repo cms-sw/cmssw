@@ -25,8 +25,8 @@ SimMuonRAW = cms.PSet(
 # Add extra collections if running in Run 2. Not sure why but these
 # collections were added to pretty much all event content in the old
 # customisation function.
-eras.run2.toModify( SimMuonRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simMuonCSCDigis_*_*') )
-eras.run2.toModify( SimMuonRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simMuonRPCDigis_*_*') )
+eras.run2_common.toModify( SimMuonRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simMuonCSCDigis_*_*') )
+eras.run2_common.toModify( SimMuonRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simMuonRPCDigis_*_*') )
 
 #RECO content
 SimMuonRECO = cms.PSet(
