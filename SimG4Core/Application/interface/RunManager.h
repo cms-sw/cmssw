@@ -1,27 +1,25 @@
 #ifndef SimG4Core_RunManager_H
 #define SimG4Core_RunManager_H
 
-#include <memory>
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
-
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
-#include <memory>
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "FWCore/Framework/interface/ESWatcher.h"
+#include <memory>
 
 namespace CLHEP {
   class HepJamesRandom;
@@ -55,13 +53,11 @@ class G4Field;
 class RunAction;
 
 class SimRunInterface;
-//class ExceptionHandler;
 
 class RunManager
 {
 public:
 
-  //RunManager(edm::ParameterSet const & p, edm::ConsumesCollector && iC);
   RunManager(edm::ParameterSet const & p);
   ~RunManager();
   void initG4(const edm::EventSetup & es);
@@ -141,7 +137,6 @@ private:
   edm::ParameterSet m_pSteppingAction;
   std::vector<std::string> m_G4Commands;
   edm::ParameterSet m_p;
-  //ExceptionHandler* m_CustomExceptionHandler ;
 
   AttachSD * m_attach;
   std::vector<SensitiveTkDetector*> m_sensTkDets;
@@ -162,6 +157,7 @@ private:
 
   std::string m_FieldFile;
   std::string m_WriteFile;
+  std::string m_RegionFile;
 };
 
 #endif
