@@ -18,5 +18,5 @@ ParticleFilterBlock = cms.PSet(
 # Modify for running in Run 2
 #
 from Configuration.StandardSequences.Eras import eras
-eras.run2.toModify( ParticleFilterBlock.ParticleFilter, pTMin = 0.1 )
-eras.run2.toModify( ParticleFilterBlock.ParticleFilter, etaMax = 5.300 )
+eras.run2_common.toModify( ParticleFilterBlock.ParticleFilter, pTMin = 0.1 )
+eras.run2_common.toModify( ParticleFilterBlock.ParticleFilter, etaMax = 5.300 )

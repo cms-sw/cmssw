@@ -338,4 +338,4 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 # If the run2 era is active, make the required changes
 #
 from Configuration.StandardSequences.Eras import eras
-eras.run2.toModify( cscTriggerPrimitiveDigis, _modifyCscTriggerPrimitiveDigisForRun2 )
+eras.run2_common.toModify( cscTriggerPrimitiveDigis, _modifyCscTriggerPrimitiveDigisForRun2 )
