@@ -21,6 +21,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupVertexContent.h"
 
 #include "SimGeneral/TrackingAnalysis/interface/EncodedTruthId.h"
 
@@ -57,6 +58,7 @@ private:
     edm::EDGetTokenT<TrackingParticleCollection>     trackingTruthT_;
     edm::EDGetTokenT<TrackingVertexCollection>     trackingTruthV_;
     edm::EDGetTokenT<PileupMixingContent>            PileupInfoLabel_;
+    edm::EDGetTokenT<PileupVertexContent>            PileupVtxLabel_;
 
     bool LookAtTrackingTruth_ ;
 
