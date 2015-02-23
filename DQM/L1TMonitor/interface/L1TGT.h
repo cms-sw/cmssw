@@ -43,11 +43,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
-#include <map>
-#include <iostream>
-#include <fstream>
-#include <TROOT.h>
-//
+
 // class declaration
 //
 
