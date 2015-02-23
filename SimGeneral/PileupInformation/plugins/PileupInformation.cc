@@ -24,28 +24,36 @@ PileupInformation::PileupInformation(const edm::ParameterSet & config)
 
     pTcut_1_                = 0.1;
     pTcut_2_                = 0.5; // defaults                                                       
-    distanceCut_            = config.getParameter<double>("vertexDistanceCut");
-    volumeRadius_           = config.getParameter<double>("volumeRadius");
-    volumeZ_                = config.getParameter<double>("volumeZ");
-    pTcut_1_                = config.getParameter<double>("pTcut_1");
-    pTcut_2_                = config.getParameter<double>("pTcut_2");
 
-    PileupInfoLabel_        = consumes<PileupMixingContent>(config.getParameter<edm::InputTag>("PileupMixingLabel"));
+    isPreMixed_             = config.getParameter<bool>("isPreMixed");
 
-    LookAtTrackingTruth_    = config.getUntrackedParameter<bool>("doTrackTruth");
-
-    trackingTruthT_          = mayConsume<TrackingParticleCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
-    trackingTruthV_          = mayConsume<TrackingVertexCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
-
-    MessageCategory_        = "PileupInformation";
-
-    edm::LogInfo (MessageCategory_) << "Setting up PileupInformation";
-    edm::LogInfo (MessageCategory_) << "Vertex distance cut set to " << distanceCut_  << " mm";
-    edm::LogInfo (MessageCategory_) << "Volume radius set to "       << volumeRadius_ << " mm";
-    edm::LogInfo (MessageCategory_) << "Volume Z      set to "       << volumeZ_      << " mm";
-    edm::LogInfo (MessageCategory_) << "Lower pT Threshold set to "       << pTcut_1_      << " GeV";
-    edm::LogInfo (MessageCategory_) << "Upper pT Threshold set to "       << pTcut_2_      << " GeV";
-
+    if ( !isPreMixed_ ) {
+      distanceCut_            = config.getParameter<double>("vertexDistanceCut");
+      volumeRadius_           = config.getParameter<double>("volumeRadius");
+      volumeZ_                = config.getParameter<double>("volumeZ");
+      pTcut_1_                = config.getParameter<double>("pTcut_1");
+      pTcut_2_                = config.getParameter<double>("pTcut_2");
+      
+      PileupInfoLabel_        = consumes<PileupMixingContent>(config.getParameter<edm::InputTag>("PileupMixingLabel"));
+      
+      LookAtTrackingTruth_    = config.getUntrackedParameter<bool>("doTrackTruth");
+      
+      trackingTruthT_          = mayConsume<TrackingParticleCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
+      trackingTruthV_          = mayConsume<TrackingVertexCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
+      
+      MessageCategory_        = "PileupInformation";
+      
+      edm::LogInfo (MessageCategory_) << "Setting up PileupInformation";
+      edm::LogInfo (MessageCategory_) << "Vertex distance cut set to " << distanceCut_  << " mm";
+      edm::LogInfo (MessageCategory_) << "Volume radius set to "       << volumeRadius_ << " mm";
+      edm::LogInfo (MessageCategory_) << "Volume Z      set to "       << volumeZ_      << " mm";
+      edm::LogInfo (MessageCategory_) << "Lower pT Threshold set to "       << pTcut_1_      << " GeV";
+      edm::LogInfo (MessageCategory_) << "Upper pT Threshold set to "       << pTcut_2_      << " GeV";
+    }
+    else{
+      pileupSummaryToken_=consumes<std::vector<PileupSummaryInfo> >(config.getParameter<edm::InputTag>("PileupSummaryInfoInputTag"));
+      bunchSpacingToken_=consumes<int>(config.getParameter<edm::InputTag>("BunchSpacingInputTag"));
+    }  
 
     produces< std::vector<PileupSummaryInfo> >();
     produces<int>("bunchSpacing");
@@ -57,6 +65,31 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 {
 
   std::auto_ptr<std::vector<PileupSummaryInfo> > PSIVector(new std::vector<PileupSummaryInfo>);
+
+  if ( isPreMixed_ ) {
+    edm::Handle< std::vector<PileupSummaryInfo> > psiInput;  
+    event.getByToken(pileupSummaryToken_,psiInput);
+
+    std::vector<PileupSummaryInfo>::const_iterator PSiter;
+
+    for(PSiter = psiInput.product()->begin(); PSiter != psiInput.product()->end(); PSiter++){
+
+      PSIVector->push_back(*PSiter);
+    }
+
+
+    edm::Handle< int> bsInput;
+    event.getByToken(bunchSpacingToken_,bsInput);
+    int bunchSpacing=*(bsInput.product());
+
+    event.put(PSIVector);
+    
+    //add bunch spacing to the event as a seperate integer for use by downstream modules
+    std::auto_ptr<int> bunchSpacingP(new int(bunchSpacing));
+    event.put(bunchSpacingP,"bunchSpacing");
+    
+    return;
+  }
 
   edm::Handle< PileupMixingContent > MixingPileup;  // Get True pileup information from MixingModule
   event.getByToken(PileupInfoLabel_, MixingPileup);

@@ -34,6 +34,7 @@ mixData = cms.EDProducer("DataMixingModule",
     #
 
     PileupInfoInputTag = cms.InputTag("addPileupInfo"),
+    BunchSpacingInputTag = cms.InputTag("addPileupInfo","bunchSpacing"),
     CFPlaybackInputTag = cms.InputTag("mix"),
     #
     SistripLabelSig = cms.InputTag("simSiStripDigis","ZeroSuppressed"),
