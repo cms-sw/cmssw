@@ -1,10 +1,10 @@
 #include "RecoTrackAccumulator.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
-  InputSignal_(conf.getParameter<edm::InputTag>("InputSignal")),
-  InputPileup_(conf.getParameter<edm::InputTag>("InputPileup")),
+  Input_(conf.getParameter<edm::InputTag>("Input")),
   GeneralTrackOutput_(conf.getParameter<std::string>("GeneralTrackOutput")),
   HitOutput_(conf.getParameter<std::string>("HitOutput")),
   GeneralTrackExtraOutput_(conf.getParameter<std::string>("GeneralTrackExtraOutput"))
@@ -14,9 +14,9 @@ RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf, edm::o
   mixMod.produces<TrackingRecHitCollection>(HitOutput_);
   mixMod.produces<reco::TrackExtraCollection>(GeneralTrackExtraOutput_);
 
-  iC.consumes<reco::TrackCollection>(InputSignal_);
-  iC.consumes<TrackingRecHitCollection>(InputSignal_);
-  iC.consumes<reco::TrackExtraCollection>(InputSignal_);
+  iC.consumes<reco::TrackCollection>(Input_);
+  iC.consumes<TrackingRecHitCollection>(Input_);
+  iC.consumes<reco::TrackExtraCollection>(Input_);
 }
   
 RecoTrackAccumulator::~RecoTrackAccumulator() {
@@ -36,33 +36,12 @@ void RecoTrackAccumulator::initializeEvent(edm::Event const& e, edm::EventSetup 
 }
   
 void RecoTrackAccumulator::accumulate(edm::Event const& e, edm::EventSetup const& iSetup) {
-  
-
-  edm::Handle<reco::TrackCollection> tracks;
-  edm::Handle<TrackingRecHitCollection> hits;
-  edm::Handle<reco::TrackExtraCollection> trackExtras;
-  e.getByLabel(InputSignal_, tracks);
-  e.getByLabel(InputSignal_, hits);
-  e.getByLabel(InputSignal_, trackExtras);
-
-  // Call the templated version that does the same for both signal and pileup events
-  accumulateEvent( e, iSetup, tracks, trackExtras, hits );
-
+    accumulateEvent( e, iSetup);
 }
 
 void RecoTrackAccumulator::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& iSetup, edm::StreamID const&) {
-
   if (e.bunchCrossing()==0) {
-    edm::Handle<reco::TrackCollection> tracks;
-    edm::Handle<TrackingRecHitCollection> hits;
-    edm::Handle<reco::TrackExtraCollection> trackExtras;
-    e.getByLabel(InputPileup_, tracks);
-    e.getByLabel(InputPileup_, hits);
-    e.getByLabel(InputPileup_, trackExtras);
-    
-    // Call the templated version that does the same for both signal and pileup events
-    accumulateEvent( e, iSetup, tracks, trackExtras, hits );
-
+    accumulateEvent( e, iSetup);
   }
 }
 
@@ -75,34 +54,41 @@ void RecoTrackAccumulator::finalizeEvent(edm::Event& e, const edm::EventSetup& i
 }
 
 
-template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::EventSetup const& iSetup, edm::Handle<reco::TrackCollection> tracks, edm::Handle<reco::TrackExtraCollection> tracksExtras, edm::Handle<TrackingRecHitCollection> hits) {
+template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::EventSetup const& iSetup) {
 
-  if (tracks.isValid()) {
-    for (auto const& track : *tracks) {
-      NewTrackList_->push_back(track);
-      // track extras:
-      auto const& extra = tracksExtras->at(track.extra().key());
-      NewTrackExtraList_->emplace_back(extra.outerPosition(), extra.outerMomentum(), extra.outerOk(),
-				       extra.innerPosition(),extra.innerMomentum(), extra.innerOk(),
-				       extra.outerStateCovariance(), extra.outerDetId(),
-				       extra.innerStateCovariance(), extra.innerDetId(),
-				       extra.seedDirection(),
-				       //If TrajectorySeeds are needed, then their list must be gotten from the
-				       // secondary event directly and looked up similarly to TrackExtras.
-				       //We can't use a default constructed RefToBase due to a bug in RefToBase
-				       // which causes an seg fault when calling isAvailable on a default constructed one.
-				       edm::RefToBase<TrajectorySeed>{edm::Ref<std::vector<TrajectorySeed>>{}});
-      NewTrackList_->back().setExtra( reco::TrackExtraRef( rTrackExtras, NewTrackExtraList_->size() - 1) );
-      //reco::TrackExtra & tx = NewTrackExtraList_->back();
-      //tx.setResiduals(track.residuals());
-      // rechits:
-      auto & newExtra = NewTrackExtraList_->back();
-      auto const firstTrackIndex = NewHitList_->size();
-      for( trackingRecHit_iterator hit = extra.recHitsBegin(); hit != extra.recHitsEnd(); ++ hit ) {
-	NewHitList_->push_back( **hit );
-      }
-      newExtra.setHits( rHits, firstTrackIndex, NewHitList_->size() - firstTrackIndex);
+  edm::Handle<reco::TrackCollection> tracks;
+  edm::Handle<TrackingRecHitCollection> hits;
+  edm::Handle<reco::TrackExtraCollection> trackExtras;
+  if(!(e.getByLabel(Input_, tracks) and e.getByLabel(Input_, hits) and e.getByLabel(Input_, trackExtras))){
+    edm::LogError ("Failed to find track, hit or trackExtra collections");
+    exit(1);
+  }
+  // check validaity here
+
+  for (auto const& track : *tracks) {
+    NewTrackList_->push_back(track);
+    // track extras:
+    auto const& extra = trackExtras->at(track.extra().key());
+    NewTrackExtraList_->emplace_back(extra.outerPosition(), extra.outerMomentum(), extra.outerOk(),
+				     extra.innerPosition(),extra.innerMomentum(), extra.innerOk(),
+				     extra.outerStateCovariance(), extra.outerDetId(),
+				     extra.innerStateCovariance(), extra.innerDetId(),
+				     extra.seedDirection(),
+				     //If TrajectorySeeds are needed, then their list must be gotten from the
+				     // secondary event directly and looked up similarly to TrackExtras.
+				     //We can't use a default constructed RefToBase due to a bug in RefToBase
+				     // which causes an seg fault when calling isAvailable on a default constructed one.
+				     edm::RefToBase<TrajectorySeed>{edm::Ref<std::vector<TrajectorySeed>>{}});
+    NewTrackList_->back().setExtra( reco::TrackExtraRef( rTrackExtras, NewTrackExtraList_->size() - 1) );
+    // rechits:
+    // note: extra.recHit(i) does not work for pileup events
+    // probably the Ref does not know its product id applies on a pileup event
+    auto & newExtra = NewTrackExtraList_->back();
+    auto const firstTrackIndex = NewHitList_->size();
+    for(unsigned int i = 0;i<extra.recHitsSize();i++){
+      NewHitList_->push_back( (*hits)[extra.recHit(i).key()] );
     }
+    newExtra.setHits( rHits, firstTrackIndex, NewHitList_->size() - firstTrackIndex);
   }
 
 }
