@@ -1,10 +1,14 @@
 // File: SiStripDigitizerAlgorithm.cc
 // Description:  Steering class for digitization.
-
 // Modified 15/May/2013 mark.grimes@bristol.ac.uk - Modified so that the digi-sim link has the correct
 // index for the sim hits stored. It was previously always set to zero (I won't mention that it was
 // me who originally wrote that).
-
+// Modified on Feb 11, 2015: prolay.kumar.mal@cern.ch & Jean-Laurent.Agram@cern.ch
+//                           Added/Modified the individual strip noise in zero suppression
+//                           mode from the conditions DB; previously, the digitizer used to
+//                           consider the noise value for individual strips inside a module from
+//                           the central strip noise value.
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include <vector>
 #include <algorithm>
 #include <iostream>
@@ -63,6 +67,10 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   } else {
     LogDebug("StripDigiInfo")<<"APVs running in deconvolution mode (good time resolution)";
   };
+  if(SingleStripNoise) LogDebug("SiStripDigitizerAlgorithm")<<" SingleStripNoise: ON";
+  else LogDebug("SiStripDigitizerAlgorithm")<<" SingleStripNoise: OFF";
+  if(CommonModeNoise) LogDebug("SiStripDigitizerAlgorithm")<<" CommonModeNoise: ON";
+  else LogDebug("SiStripDigitizerAlgorithm")<<" CommonModeNoise: OFF";
 }
 
 SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
@@ -162,8 +170,8 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
 					if(CLHEP::RandFlat::shoot(engine) < APVSaturationProb){
                                                 int FirstAPV = localFirstChannel/128;
 				 		int LastAPV = localLastChannel/128;
-						std::cout << "-------------------HIP--------------" << std::endl;
-						std::cout << "Killing APVs " << FirstAPV << " - " <<LastAPV << " " << detID <<std::endl;
+						//std::cout << "-------------------HIP--------------" << std::endl;
+						//std::cout << "Killing APVs " << FirstAPV << " - " <<LastAPV << " " << detID <<std::endl;
 				 		for(int strip = FirstAPV*128; strip < LastAPV*128 +128; ++strip) {
 							badChannels[strip] = true;
 						}
@@ -248,17 +256,38 @@ SiStripDigitizerAlgorithm::digitize(
   auto iAssociationInfoByChannel=associationInfoForDetId_.find(detID); // Use an iterator so that I can easily remove it once finished
 
   if(zeroSuppression){
-    if(noise){
-	  int RefStrip = int(numStrips/2.);
-	  while(RefStrip<numStrips&&badChannels[RefStrip]){ //if the refstrip is bad, I move up to when I don't find it
-	  	RefStrip++;
-	  }
-	  if(RefStrip<numStrips){
-	 	float noiseRMS = noiseHandle->getNoise(RefStrip,detNoiseRange);
-		float gainValue = gainHandle->getStripGain(RefStrip, detGainRange);
-		theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC/gainValue, engine);
+
+    //Adding the strip noise
+    //------------------------------------------------------  
+    if(noise){ 
+                         
+      if(SingleStripNoise){
+	std::vector<float> noiseRMSv; 
+	noiseRMSv.clear(); 
+	noiseRMSv.insert(noiseRMSv.begin(),numStrips,0.); 
+	for(int strip=0; strip< numStrips; ++strip){ 
+	  if(!badChannels[strip]){
+	    float gainValue = gainHandle->getStripGain(strip, detGainRange); 
+	    noiseRMSv[strip] = (noiseHandle->getNoise(strip,detNoiseRange))* theElectronPerADC/gainValue;
+	    //std::cout<<"<SiStripDigitizerAlgorithm::digitize>: gainValue: "<<gainValue<<"\tnoiseRMSv["<<strip<<"]: "<<noiseRMSv[strip]<<std::endl;
 	  }
 	}
+	theSiNoiseAdder->addNoiseVR(detAmpl, noiseRMSv, engine);
+      } else {
+	int RefStrip = int(numStrips/2.);
+	while(RefStrip<numStrips&&badChannels[RefStrip]){ //if the refstrip is bad, I move up to when I don't find it 
+	  RefStrip++;
+	} 
+	if(RefStrip<numStrips){
+	  float RefgainValue = gainHandle->getStripGain(RefStrip, detGainRange);
+	  float RefnoiseRMS = noiseHandle->getNoise(RefStrip,detNoiseRange) *theElectronPerADC/RefgainValue; 
+	
+	  theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,RefnoiseRMS, engine);
+	  //std::cout<<"<SiStripDigitizerAlgorithm::digitize>: RefgainValue: "<<RefgainValue<<"\tRefnoiseRMS: "<<RefnoiseRMS<<std::endl;
+	}
+      }
+    }//if noise
+
     DigitalVecType digis;
     theSiZeroSuppress->suppress(theSiDigitalConverter->convert(detAmpl, gainHandle, detID), digis, detID,noiseHandle,thresholdHandle);
     // Now do the association to truth. Note that if truth association was turned off in the configuration this map
@@ -281,9 +310,8 @@ SiStripDigitizerAlgorithm::digitize(
       } // end of loop over the digis
     } // end of check that iAssociationInfoByChannel is a valid iterator
     outdigi.data = digis;
-  }
-  
-  
+  }//if zeroSuppression
+
   if(!zeroSuppression){
     //if(noise){
       // the constant pedestal offset is needed because

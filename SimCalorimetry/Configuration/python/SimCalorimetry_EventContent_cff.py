@@ -26,5 +26,5 @@ SimCalorimetryAOD = cms.PSet(
 #
 # Add extra event content if running in Run 2
 #
-eras.run2.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*') )
-eras.run2.toModify( SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*') )
+eras.run2_common.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*') )
+eras.run2_common.toModify( SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*') )

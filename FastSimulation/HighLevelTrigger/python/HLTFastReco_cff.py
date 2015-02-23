@@ -47,6 +47,24 @@ L1Emulator = cms.Sequence(simRctDigis +
                           simRpcTriggerDigis + 
                           simGmtDigis +
                           simGtDigis)
+##
+## Make changes for Run 2
+##
+def _extendForStage1Trigger( theProcess ) :
+    """
+    ProcessModifier that loads config fragments required for Run 2 into the process object.
+    Also switches the GCT digis for the Stage1 digis in the SimL1Emulator sequence
+    """
+    theProcess.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
+    # Note that this function is applied before the objects in this file are added
+    # to the process. So things declared in this file should be used "bare", i.e.
+    # not with "theProcess." in front of them. L1TCaloStage1 is an exception because
+    # it is not declared in this file but loaded into the process in one of the "load"
+    # statements above.
+    L1Emulator.replace( simGctDigis, theProcess.L1TCaloStage1 )
+
+# A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"
+modifyFastSimulationHighLevelTriggerHLTFastRecoForRun2_ = eras.stage1L1Trigger.makeProcessModifier( _extendForStage1Trigger )
 
 # L1Extra - provides 4-vector representation of L1 trigger objects - not needed by HLT
 # The muon extra particles are done here, but could be done also by L1ParamMuons.
