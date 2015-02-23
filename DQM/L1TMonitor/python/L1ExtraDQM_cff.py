@@ -41,3 +41,22 @@ dqmL1ExtraParticles.hfRingEtSumsSource = 'dqmGctDigis'
 dqmL1ExtraParticles.hfRingBitCountsSource = 'dqmGctDigis'
 #
 dqmL1ExtraParticles.centralBxOnly = cms.bool(False)
+
+#
+# Modify for running with the Stage 1 trigger. Note that these changes are already
+# applied to l1extraParticles before it is cloned, but the changes are overwritten
+# in the commands above. So we need to write back the correct Run 2 values.
+#
+from Configuration.StandardSequences.Eras import eras
+eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, etTotalSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, nonIsolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","nonIsoEm") )
+eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, etMissSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, htMissSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, forwardJetSource = cms.InputTag("caloStage1LegacyFormatDigis","forJets") )
+eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, centralJetSource = cms.InputTag("caloStage1LegacyFormatDigis","cenJets") )
+eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, tauJetSource = cms.InputTag("caloStage1LegacyFormatDigis","tauJets") )
+eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, isoTauJetSource = cms.InputTag("caloStage1LegacyFormatDigis","isoTauJets") )
+eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, isolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","isoEm") )
+eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, etHadSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, hfRingEtSumsSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, hfRingBitCountsSource = cms.InputTag("caloStage1LegacyFormatDigis") )

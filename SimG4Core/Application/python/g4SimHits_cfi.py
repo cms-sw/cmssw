@@ -418,4 +418,4 @@ g4SimHits = cms.EDProducer("OscarProducer",
 ##
 ## Change the HFShowerLibrary file used for Run 2
 ##
-eras.run2.toModify( g4SimHits.HFShowerLibrary, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root' )
+eras.run2_common.toModify( g4SimHits.HFShowerLibrary, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root' )

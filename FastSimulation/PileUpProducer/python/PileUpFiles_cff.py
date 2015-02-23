@@ -71,5 +71,5 @@ puFileNames = cms.PSet(fileNames = puFileNames_8TeV)
 # Modify for running in Run 2
 #
 from Configuration.StandardSequences.Eras import eras
-eras.run2.toModify(puFileNames,fileNames=puFileNames_13TeV)
+eras.run2_common.toModify(puFileNames,fileNames=puFileNames_13TeV)
 

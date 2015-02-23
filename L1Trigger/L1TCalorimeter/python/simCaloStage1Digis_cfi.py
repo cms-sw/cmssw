@@ -11,5 +11,8 @@ simCaloStage1Digis = cms.EDProducer(
     conditionsLabel = cms.string("")
 )
 
-
-
+#
+# Make changes for Run 2 Heavy Ions
+#
+from Configuration.StandardSequences.Eras import eras
+eras.run2_HI_specific.toModify( simCaloStage1Digis, FirmwareVersion = 1 )

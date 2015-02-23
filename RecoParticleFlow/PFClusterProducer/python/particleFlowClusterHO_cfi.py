@@ -106,4 +106,4 @@ def _modifyParticleFlowClusterHOForRun2( object ) :
     object.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator = cms.double(0.05)
 
 # Call the function above to modify particleFlowClusterHO only if the run2 era is active
-eras.run2.toModify( particleFlowClusterHO, func=_modifyParticleFlowClusterHOForRun2 )
+eras.run2_common.toModify( particleFlowClusterHO, func=_modifyParticleFlowClusterHOForRun2 )
