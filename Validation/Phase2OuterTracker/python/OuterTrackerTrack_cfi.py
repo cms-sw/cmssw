@@ -20,51 +20,72 @@ OuterTrackerTrack = cms.EDAnalyzer('OuterTrackerTrack',
 
 # Track Pt
     TH1TTTrack_Pt = cms.PSet(
-        Nbinsx = cms.int32(200),
+        Nbinsx = cms.int32(100),
         xmax = cms.double(100),
         xmin = cms.double(0)
         ),
 
 # Track Eta
     TH1TTTrack_Eta = cms.PSet(
-        Nbinsx = cms.int32(180),
+        Nbinsx = cms.int32(90),
         xmax = cms.double(3.1416),
         xmin = cms.double(-3.1416)
         ),
 
 # Track Phi
     TH1TTTrack_Phi = cms.PSet(
-        Nbinsx = cms.int32(180),
+        Nbinsx = cms.int32(90),
         xmax = cms.double(3.1416),
         xmin = cms.double(-3.1416)
         ),
 
-# Track Chi2
+#Track Vertex Position in z
+    TH1TTTrack_VtxZ0 = cms.PSet(
+        Nbinsx = cms.int32(150),
+        xmax = cms.double(25),                      
+        xmin = cms.double(-25)
+        ),
+
+#Track Chi2
+    TH1TTTrack_Chi2 = cms.PSet(
+        Nbinsx = cms.int32(100),
+        xmax = cms.double(50),                      
+        xmin = cms.double(0)
+        ),
+
+#Track Chi2/ndf
+    TH1TTTrack_Chi2Red = cms.PSet(
+        Nbinsx = cms.int32(100),
+        xmax = cms.double(10),                      
+        xmin = cms.double(0)
+        ),
+
+# Track Chi2 vs NStubs
     TH2TTTrack_Chi2 = cms.PSet(
         Nbinsx = cms.int32(20),
         xmax = cms.double(19.5),
         xmin = cms.double(-0.5),
-        Nbinsy = cms.int32(200),
+        Nbinsy = cms.int32(100),
         ymax = cms.double(50),
         ymin = cms.double(0)
         ),
 
-# Track Chi2/ndf
+# Track Chi2/ndf vs NStubs
     TH2TTTrack_Chi2Red = cms.PSet(
         Nbinsx = cms.int32(20),
         xmax = cms.double(19.5),
         xmin = cms.double(-0.5),
-        Nbinsy = cms.int32(200),
+        Nbinsy = cms.int32(100),
         ymax = cms.double(10),
         ymin = cms.double(0)
         ),
 
 # Track Pt vs TPart Pt
     TH2TTTrack_Sim_Pt = cms.PSet(
-        Nbinsx = cms.int32(200),
+        Nbinsx = cms.int32(100),
         xmax = cms.double(100),
         xmin = cms.double(0),
-        Nbinsy = cms.int32(200),
+        Nbinsy = cms.int32(100),
         ymax = cms.double(100),
         ymin = cms.double(0)
         ),
@@ -81,11 +102,11 @@ OuterTrackerTrack = cms.EDAnalyzer('OuterTrackerTrack',
 
 # Track InvPt vs TPart InvPt
     TH2TTTrack_Sim_InvPt = cms.PSet(
-        Nbinsx = cms.int32(200),
-        xmax = cms.double(0.8),
+        Nbinsx = cms.int32(150),
+        xmax = cms.double(0.6),
         xmin = cms.double(0),
-        Nbinsy = cms.int32(200),
-        ymax = cms.double(0.8),
+        Nbinsy = cms.int32(150),
+        ymax = cms.double(0.6),
         ymin = cms.double(0)
         ),
 
@@ -101,10 +122,10 @@ OuterTrackerTrack = cms.EDAnalyzer('OuterTrackerTrack',
 
 # Track Phi vs TPart Phi
     TH2TTTrack_Sim_Phi = cms.PSet(
-        Nbinsx = cms.int32(180),
+        Nbinsx = cms.int32(90),
         xmax = cms.double(3.1416),
         xmin = cms.double(-3.1416),
-        Nbinsy = cms.int32(180),
+        Nbinsy = cms.int32(90),
         ymax = cms.double(3.1416),
         ymin = cms.double(-3.1416)
         ),
@@ -121,10 +142,10 @@ OuterTrackerTrack = cms.EDAnalyzer('OuterTrackerTrack',
 
 # Track Eta vs TPart Eta
     TH2TTTrack_Sim_Eta = cms.PSet(
-        Nbinsx = cms.int32(180),
+        Nbinsx = cms.int32(90),
         xmax = cms.double(3.1416),
         xmin = cms.double(-3.1416),
-        Nbinsy = cms.int32(180),
+        Nbinsy = cms.int32(90),
         ymax = cms.double(3.1416),
         ymin = cms.double(-3.1416)
         ),
@@ -141,12 +162,12 @@ OuterTrackerTrack = cms.EDAnalyzer('OuterTrackerTrack',
 
 # Track Vtx vs TPart Vtx
     TH2TTTrack_Sim_Vtx = cms.PSet(
-        Nbinsx = cms.int32(180),
-        xmax = cms.double(30),
-        xmin = cms.double(-30),
-        Nbinsy = cms.int32(180),
-        ymax = cms.double(30),
-        ymin = cms.double(-30)
+        Nbinsx = cms.int32(150),
+        xmax = cms.double(25),
+        xmin = cms.double(-25),
+        Nbinsy = cms.int32(150),
+        ymax = cms.double(25),
+        ymin = cms.double(-25)
         ),
 
 # Track VtxRes vs TPart Eta

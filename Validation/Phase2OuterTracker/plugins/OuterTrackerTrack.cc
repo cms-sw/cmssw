@@ -159,6 +159,9 @@ OuterTrackerTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         Track_3Stubs_Pt->Fill( trackPt );
         Track_3Stubs_Eta->Fill( trackEta );
         Track_3Stubs_Phi->Fill( trackPhi );
+        Track_3Stubs_VtxZ0->Fill( trackVtxZ0 );
+        Track_3Stubs_Chi2->Fill( trackChi2 );
+        Track_3Stubs_Chi2Red->Fill( trackChi2R );
         
         num3Stubs++;
         Track_3Stubs_Pt_TPart_Pt->Fill( tpPt, trackPt );
@@ -181,6 +184,9 @@ OuterTrackerTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         Track_2Stubs_Pt->Fill( trackPt );
         Track_2Stubs_Eta->Fill( trackEta );
         Track_2Stubs_Phi->Fill( trackPhi );
+        Track_2Stubs_VtxZ0->Fill( trackVtxZ0 );
+        Track_2Stubs_Chi2->Fill( trackChi2 );
+        Track_2Stubs_Chi2Red->Fill( trackChi2R );
         
         num2Stubs++;
         Track_2Stubs_Pt_TPart_Pt->Fill( tpPt, trackPt );
@@ -275,29 +281,59 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
   Track_2Stubs_Phi->setAxisTitle("TTTrack Phi", 1);
   Track_2Stubs_Phi->setAxisTitle("# TTTracks", 2);
   
-  // TTTrack Chi2 vs Nstubs
-  edm::ParameterSet psTrack_Chi2 =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Chi2");
-  HistoName = "Track_2Stubs_Chi2_NStubs";
-  Track_2Stubs_Chi2_NStubs = dqmStore_->book2D(HistoName, HistoName,
+  // VtxZ0
+  edm::ParameterSet psTrack_VtxZ0 =  conf_.getParameter<edm::ParameterSet>("TH1TTTrack_VtxZ0");
+  HistoName = "Track_2Stubs_VtxZ0";
+  Track_2Stubs_VtxZ0 = dqmStore_->book1D(HistoName, HistoName,
+      psTrack_VtxZ0.getParameter<int32_t>("Nbinsx"),
+      psTrack_VtxZ0.getParameter<double>("xmin"),
+      psTrack_VtxZ0.getParameter<double>("xmax"));
+  Track_2Stubs_VtxZ0->setAxisTitle("TTTrack Vertex Position in z", 1);
+  Track_2Stubs_VtxZ0->setAxisTitle("# TTTracks", 2);
+  
+  // TTTrack Chi2
+  edm::ParameterSet psTrack_Chi2 =  conf_.getParameter<edm::ParameterSet>("TH1TTTrack_Chi2");
+  HistoName = "Track_2Stubs_Chi2";
+  Track_2Stubs_Chi2 = dqmStore_->book1D(HistoName, HistoName,
       psTrack_Chi2.getParameter<int32_t>("Nbinsx"),
       psTrack_Chi2.getParameter<double>("xmin"),
-      psTrack_Chi2.getParameter<double>("xmax"),
-      psTrack_Chi2.getParameter<int32_t>("Nbinsy"),
-      psTrack_Chi2.getParameter<double>("ymin"),
-      psTrack_Chi2.getParameter<double>("ymax"));
+      psTrack_Chi2.getParameter<double>("xmax"));
+  Track_2Stubs_Chi2->setAxisTitle("TTTrack #chi^{2}", 1);
+  Track_2Stubs_Chi2->setAxisTitle("# TTTracks", 2);
+  
+  // TTTrack Chi2/ndf
+  edm::ParameterSet psTrack_Chi2Red =  conf_.getParameter<edm::ParameterSet>("TH1TTTrack_Chi2Red");
+  HistoName = "Track_2Stubs_Chi2Red";
+  Track_2Stubs_Chi2Red = dqmStore_->book1D(HistoName, HistoName,
+      psTrack_Chi2Red.getParameter<int32_t>("Nbinsx"),
+      psTrack_Chi2Red.getParameter<double>("xmin"),
+      psTrack_Chi2Red.getParameter<double>("xmax"));
+  Track_2Stubs_Chi2Red->setAxisTitle("TTTrack #chi^{2}/ndf", 1);
+  Track_2Stubs_Chi2Red->setAxisTitle("# TTTracks", 2);
+  
+  // TTTrack Chi2 vs Nstubs
+  edm::ParameterSet psTrack_Chi2_NStubs =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Chi2");
+  HistoName = "Track_2Stubs_Chi2_NStubs";
+  Track_2Stubs_Chi2_NStubs = dqmStore_->book2D(HistoName, HistoName,
+      psTrack_Chi2_NStubs.getParameter<int32_t>("Nbinsx"),
+      psTrack_Chi2_NStubs.getParameter<double>("xmin"),
+      psTrack_Chi2_NStubs.getParameter<double>("xmax"),
+      psTrack_Chi2_NStubs.getParameter<int32_t>("Nbinsy"),
+      psTrack_Chi2_NStubs.getParameter<double>("ymin"),
+      psTrack_Chi2_NStubs.getParameter<double>("ymax"));
   Track_2Stubs_Chi2_NStubs->setAxisTitle("# TTStubs", 1);
   Track_2Stubs_Chi2_NStubs->setAxisTitle("TTTrack #chi^{2}", 2);
   
   // TTTrack Chi2/ndf vs Nstubs
-  edm::ParameterSet psTrack_Chi2Red =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Chi2Red");
-  HistoName = "Track_2Stubs_Chi2_NStubs";
+  edm::ParameterSet psTrack_Chi2Red_NStubs =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Chi2Red");
+  HistoName = "Track_2Stubs_Chi2Red_NStubs";
   Track_2Stubs_Chi2Red_NStubs = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Chi2Red.getParameter<int32_t>("Nbinsx"),
-      psTrack_Chi2Red.getParameter<double>("xmin"),
-      psTrack_Chi2Red.getParameter<double>("xmax"),
-      psTrack_Chi2Red.getParameter<int32_t>("Nbinsy"),
-      psTrack_Chi2Red.getParameter<double>("ymin"),
-      psTrack_Chi2Red.getParameter<double>("ymax"));
+      psTrack_Chi2Red_NStubs.getParameter<int32_t>("Nbinsx"),
+      psTrack_Chi2Red_NStubs.getParameter<double>("xmin"),
+      psTrack_Chi2Red_NStubs.getParameter<double>("xmax"),
+      psTrack_Chi2Red_NStubs.getParameter<int32_t>("Nbinsy"),
+      psTrack_Chi2Red_NStubs.getParameter<double>("ymin"),
+      psTrack_Chi2Red_NStubs.getParameter<double>("ymax"));
   Track_2Stubs_Chi2Red_NStubs->setAxisTitle("# TTStubs", 1);
   Track_2Stubs_Chi2Red_NStubs->setAxisTitle("TTTrack #chi^{2}/ndf", 2);
   
@@ -343,27 +379,54 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
   Track_3Stubs_Phi->setAxisTitle("TTTrack Phi", 1);
   Track_3Stubs_Phi->setAxisTitle("# TTTracks", 2);
   
+  // VtxZ0
+  HistoName = "Track_3Stubs_VtxZ0";
+  Track_3Stubs_VtxZ0 = dqmStore_->book1D(HistoName, HistoName,
+      psTrack_VtxZ0.getParameter<int32_t>("Nbinsx"),
+      psTrack_VtxZ0.getParameter<double>("xmin"),
+      psTrack_VtxZ0.getParameter<double>("xmax"));
+  Track_3Stubs_VtxZ0->setAxisTitle("TTTrack Vertex Position in z", 1);
+  Track_3Stubs_VtxZ0->setAxisTitle("# TTTracks", 2);
+  
+  // TTTrack Chi2
+  HistoName = "Track_3Stubs_Chi2";
+  Track_3Stubs_Chi2 = dqmStore_->book1D(HistoName, HistoName,
+      psTrack_Chi2.getParameter<int32_t>("Nbinsx"),
+      psTrack_Chi2.getParameter<double>("xmin"),
+      psTrack_Chi2.getParameter<double>("xmax"));
+  Track_3Stubs_Chi2->setAxisTitle("TTTrack #chi^{2}", 1);
+  Track_3Stubs_Chi2->setAxisTitle("# TTTracks", 2);
+  
+  // TTTrack Chi2/ndf
+  HistoName = "Track_3Stubs_Chi2Red";
+  Track_3Stubs_Chi2Red = dqmStore_->book1D(HistoName, HistoName,
+      psTrack_Chi2Red.getParameter<int32_t>("Nbinsx"),
+      psTrack_Chi2Red.getParameter<double>("xmin"),
+      psTrack_Chi2Red.getParameter<double>("xmax"));
+  Track_3Stubs_Chi2Red->setAxisTitle("TTTrack #chi^{2}/ndf", 1);
+  Track_3Stubs_Chi2Red->setAxisTitle("# TTTracks", 2);
+  
   // TTTrack Chi2 vs Nstubs
   HistoName = "Track_3Stubs_Chi2_NStubs";
   Track_3Stubs_Chi2_NStubs = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Chi2.getParameter<int32_t>("Nbinsx"),
-      psTrack_Chi2.getParameter<double>("xmin"),
-      psTrack_Chi2.getParameter<double>("xmax"),
-      psTrack_Chi2.getParameter<int32_t>("Nbinsy"),
-      psTrack_Chi2.getParameter<double>("ymin"),
-      psTrack_Chi2.getParameter<double>("ymax"));
+      psTrack_Chi2_NStubs.getParameter<int32_t>("Nbinsx"),
+      psTrack_Chi2_NStubs.getParameter<double>("xmin"),
+      psTrack_Chi2_NStubs.getParameter<double>("xmax"),
+      psTrack_Chi2_NStubs.getParameter<int32_t>("Nbinsy"),
+      psTrack_Chi2_NStubs.getParameter<double>("ymin"),
+      psTrack_Chi2_NStubs.getParameter<double>("ymax"));
   Track_3Stubs_Chi2_NStubs->setAxisTitle("# TTStubs", 1);
   Track_3Stubs_Chi2_NStubs->setAxisTitle("TTTrack #chi^{2}", 2);
   
   // TTTrack Chi2/ndf vs Nstubs
-  HistoName = "Track_3Stubs_Chi2_NStubs";
+  HistoName = "Track_3Stubs_Chi2Red_NStubs";
   Track_3Stubs_Chi2Red_NStubs = dqmStore_->book2D(HistoName, HistoName,
-      psTrack_Chi2Red.getParameter<int32_t>("Nbinsx"),
-      psTrack_Chi2Red.getParameter<double>("xmin"),
-      psTrack_Chi2Red.getParameter<double>("xmax"),
-      psTrack_Chi2Red.getParameter<int32_t>("Nbinsy"),
-     	psTrack_Chi2Red.getParameter<double>("ymin"),
-      psTrack_Chi2Red.getParameter<double>("ymax"));
+      psTrack_Chi2Red_NStubs.getParameter<int32_t>("Nbinsx"),
+      psTrack_Chi2Red_NStubs.getParameter<double>("xmin"),
+      psTrack_Chi2Red_NStubs.getParameter<double>("xmax"),
+      psTrack_Chi2Red_NStubs.getParameter<int32_t>("Nbinsy"),
+     	psTrack_Chi2Red_NStubs.getParameter<double>("ymin"),
+      psTrack_Chi2Red_NStubs.getParameter<double>("ymax"));
   Track_3Stubs_Chi2Red_NStubs->setAxisTitle("# TTStubs", 1);
   Track_3Stubs_Chi2Red_NStubs->setAxisTitle("TTTrack #chi^{2}/ndf", 2);
   
@@ -488,7 +551,7 @@ OuterTrackerTrack::beginRun(edm::Run const&, edm::EventSetup const&)
       psTrack_Sim_Vtx.getParameter<double>("ymin"),
       psTrack_Sim_Vtx.getParameter<double>("ymax"));
   Track_2Stubs_VtxZ0_TPart_VtxZ0->setAxisTitle("TPart Vertex Position in z", 1);
-  Track_2Stubs_VtxZ0_TPart_VtxZ0->setAxisTitle("TTTrack Eta Vertex Position in z", 2);
+  Track_2Stubs_VtxZ0_TPart_VtxZ0->setAxisTitle("TTTrack Vertex Position in z", 2);
   
   // Vertex position in z
   edm::ParameterSet psTrack_Sim_VtxRes =  conf_.getParameter<edm::ParameterSet>("TH2TTTrack_Sim_VtxRes");

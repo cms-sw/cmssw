@@ -316,7 +316,7 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_Endcap.getParameter<double>("xmin"), 
       psTTStub_Endcap.getParameter<double>("xmax")); 
   //SetTitle
-  Stub_Endcap->setAxisTitle("Endcap disc",1); 
+  Stub_Endcap->setAxisTitle("Endcap Disc",1); 
   Stub_Endcap->setAxisTitle("# TTStubs ",2);
   
   //TTStub Endcap stack
@@ -327,7 +327,7 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_Endcap_Fw.getParameter<double>("xmin"), 
       psTTStub_Endcap_Fw.getParameter<double>("xmax")); 
   //SetTitle
-  Stub_Endcap_Fw->setAxisTitle("Forward Endcap disc",1); 
+  Stub_Endcap_Fw->setAxisTitle("Forward Endcap Disc",1); 
   Stub_Endcap_Fw->setAxisTitle("# TTStubs ",2);
   
   //TTStub Endcap stack
@@ -338,7 +338,7 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
       psTTStub_Endcap_Bw.getParameter<double>("xmin"), 
       psTTStub_Endcap_Bw.getParameter<double>("xmax")); 
   //SetTitle
-  Stub_Endcap_Bw->setAxisTitle("Backward Endcap disc",1); 
+  Stub_Endcap_Bw->setAxisTitle("Backward Endcap Disc",1); 
   Stub_Endcap_Bw->setAxisTitle("# TTStubs ",2);
   
   //TTStub displ/offset

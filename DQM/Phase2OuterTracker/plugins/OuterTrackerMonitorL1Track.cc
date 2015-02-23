@@ -287,7 +287,7 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   
   //Eta
   edm::ParameterSet psL1Track_Eta =  conf_.getParameter<edm::ParameterSet>("TH1_L1Track_Eta");
-  HistoName = "L1Track_Track_2Stubs_Eta";
+  HistoName = "L1Track_2Stubs_Eta";
   L1Track_2Stubs_Eta = dqmStore_->book1D(HistoName, HistoName,
   psL1Track_Eta.getParameter<int32_t>("Nbinsx"),
   psL1Track_Eta.getParameter<double>("xmin"),
@@ -385,7 +385,7 @@ OuterTrackerMonitorL1Track::beginRun(const edm::Run& run, const edm::EventSetup&
   
   
   //Eta
-  HistoName = "L1Track_Track_3Stubs_Eta";
+  HistoName = "L1Track_3Stubs_Eta";
   L1Track_3Stubs_Eta = dqmStore_->book1D(HistoName, HistoName,
   psL1Track_Eta.getParameter<int32_t>("Nbinsx"),
   psL1Track_Eta.getParameter<double>("xmin"),

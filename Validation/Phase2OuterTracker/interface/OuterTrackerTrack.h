@@ -33,6 +33,9 @@ public:
 	MonitorElement* Track_2Stubs_Pt = 0;
 	MonitorElement* Track_2Stubs_Eta = 0;
 	MonitorElement* Track_2Stubs_Phi = 0;
+  MonitorElement* Track_2Stubs_VtxZ0 = 0;
+  MonitorElement* Track_2Stubs_Chi2 = 0;
+  MonitorElement* Track_2Stubs_Chi2Red = 0;
   MonitorElement* Track_2Stubs_Chi2_NStubs = 0;
 	//MonitorElement* Track_2Stubs_Chi2_TPart_Eta = 0;
 	MonitorElement* Track_2Stubs_Chi2Red_NStubs = 0;
@@ -54,6 +57,9 @@ public:
 	MonitorElement* Track_3Stubs_Pt = 0;
 	MonitorElement* Track_3Stubs_Eta = 0;
 	MonitorElement* Track_3Stubs_Phi = 0;
+  MonitorElement* Track_3Stubs_VtxZ0 = 0;
+  MonitorElement* Track_3Stubs_Chi2 = 0;
+  MonitorElement* Track_3Stubs_Chi2Red = 0;
   MonitorElement* Track_3Stubs_Chi2_NStubs = 0;
 	//MonitorElement* Track_3Stubs_Chi2_TPart_Eta = 0;
 	MonitorElement* Track_3Stubs_Chi2Red_NStubs = 0;
