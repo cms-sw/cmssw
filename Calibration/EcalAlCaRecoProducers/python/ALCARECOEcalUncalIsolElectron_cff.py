@@ -4,11 +4,11 @@ import FWCore.ParameterSet.Config as cms
 # create uncalib recHit collections
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_cff import *
 from Configuration.StandardSequences.RawToDigi_Data_cff import *
-from RecoLocalCalo.Configuration.RecoLocalCalo_cff import *
+from RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff import *
 
 from RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi import *
 ecalUncalibRecHitSequence53X = cms.Sequence(ecalGlobalUncalibRecHit * ecalDetIdToBeRecovered)
-        
+
 uncalibRecHitSeq = cms.Sequence( (ecalDigis + ecalPreshowerDigis) * ecalUncalibRecHitSequence)
 
 ALCARECOEcalUncalElectronECALSeq = cms.Sequence( uncalibRecHitSeq )

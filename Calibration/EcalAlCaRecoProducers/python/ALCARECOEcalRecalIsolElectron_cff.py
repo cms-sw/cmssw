@@ -4,7 +4,7 @@ from Configuration.StandardSequences.Reconstruction_Data_cff import ecalLocalRec
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_cff import *
 
 #ecal rechits
-from RecoLocalCalo.Configuration.RecoLocalCalo_cff import *
+from RecoLocalCalo.Configuration.RecoLocalCalo_cff import ecalLocalRecoSequence
 recoECALSeq = cms.Sequence( ecalLocalRecoSequence)
 
 from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
