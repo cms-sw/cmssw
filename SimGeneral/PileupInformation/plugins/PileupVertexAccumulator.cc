@@ -102,8 +102,6 @@ namespace cms
     const edm::InputTag Mtag("generator");
     iEvent.getByLabel(Mtag, MCevt);
 
-
-
     // don't do anything for hard-scatter signal events
   }
 
