@@ -1,5 +1,6 @@
 #include "RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -7,8 +8,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitFillDescriptionWorkerFactory.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/PluginManager/interface/PluginInfo.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 EcalUncalibRecHitProducer::EcalUncalibRecHitProducer(const edm::ParameterSet& ps)
 {
@@ -21,14 +30,58 @@ EcalUncalibRecHitProducer::EcalUncalibRecHitProducer(const edm::ParameterSet& ps
 	
 	eeDigiCollectionToken_ = consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigiCollection"));
 
-        std::string componentType = ps.getParameter<std::string>("algo");
+	std::string componentType = ps.getParameter<std::string>("algo");
+	edm::ParameterSet algoConf = ps.getParameter<edm::ParameterSet>("algoPSet");
+
 	edm::ConsumesCollector c{consumesCollector()};
-        worker_ = EcalUncalibRecHitWorkerFactory::get()->create(componentType, ps, c);
+        worker_ = EcalUncalibRecHitWorkerFactory::get()->create(componentType, algoConf, c);
 }
 
 EcalUncalibRecHitProducer::~EcalUncalibRecHitProducer()
 {
         delete worker_;
+}
+
+void EcalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  EcalUncalibRecHitFillDescriptionWorkerFactory* factory = EcalUncalibRecHitFillDescriptionWorkerFactory::get(); 
+  std::vector<edmplugin::PluginInfo> infos = factory->available();
+ 
+  {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis"));
+    desc.add<std::string>("EEhitCollection", "EcalUncalibRecHitsEE");
+    desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis"));
+    desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
+
+    auto itInfos = infos.begin();
+    assert(itInfos != infos.end());
+
+    std::auto_ptr<edm::ParameterDescriptionCases<std::string>> s;
+    {
+      s = itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPSet", EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)->getAlgoDescription(), true);
+    }
+    for (++itInfos; itInfos != infos.end(); ++itInfos)
+      s = s or itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPSet", EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)->getAlgoDescription(), true);
+    desc.ifValue(edm::ParameterDescription<std::string>("algo", "EcalUncalibRecHitWorkerMultiFit", true), s);
+    
+    descriptions.addDefault(desc);
+  }
+
+  for (std::vector<edmplugin::PluginInfo>::const_iterator itInfos = infos.begin(); itInfos != infos.end(); itInfos++) {
+    std::unique_ptr<EcalUncalibRecHitWorkerBaseClass> fdWorker(EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)); 
+
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis"));
+    desc.add<std::string>("EEhitCollection", "EcalUncalibRecHitsEE");
+    desc.add<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis"));
+    desc.add<std::string>("EBhitCollection", "EcalUncalibRecHitsEB");
+    desc.add<std::string>("algo", itInfos->name_);
+    desc.add<edm::ParameterSetDescription>("algoPSet", fdWorker->getAlgoDescription()); 
+    
+    std::string algoName = itInfos->name_.substr(itInfos->name_.find("Worker")+6, itInfos->name_.length());
+    descriptions.add("ecal"+algoName+"UncalibRecHit", desc);
+  }
 }
 
 void
