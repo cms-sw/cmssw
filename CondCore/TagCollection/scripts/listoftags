@@ -15,7 +15,7 @@ fi
 
 CONNECT=$1
 TREE=$2
-cmscond_tagtree_list -c $CONNECT -P /afs/cern.ch/cms/DB/conddb/authentication.xml -T $TREE \
+cmscond_tagtree_list -c $CONNECT -P /afs/cern.ch/cms/DB/conddb -T $TREE \
   | grep 'leafnode' \
   | awk '{print $4,$6,$1,$3}' \
   | sed -e 's/\<record://' -e's/ *\<label:None//' -e's/ *\<label:/#/' -e's/\<leafnode://' -e's/\<tag://' \
