@@ -338,7 +338,7 @@ def _modifyPixelDigitizerForRun2( digitiserInstance ) :
     elif eras.bunchspacing50ns.isChosen() :
         modifyPixelDigitizerForRun2Bunchspacing50( digitiserInstance )
 
-eras.run2.toModify( pixelDigitizer, func=_modifyPixelDigitizerForRun2 )
+eras.run2_common.toModify( pixelDigitizer, func=_modifyPixelDigitizerForRun2 )
 
 
 # Threshold in electrons are the Official CRAFT09 numbers:
