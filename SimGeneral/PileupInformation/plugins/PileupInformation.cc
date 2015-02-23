@@ -23,28 +23,38 @@ PileupInformation::PileupInformation(const edm::ParameterSet & config)
 
     pTcut_1_                = 0.1;
     pTcut_2_                = 0.5; // defaults                                                       
-    distanceCut_            = config.getParameter<double>("vertexDistanceCut");
-    volumeRadius_           = config.getParameter<double>("volumeRadius");
-    volumeZ_                = config.getParameter<double>("volumeZ");
-    pTcut_1_                = config.getParameter<double>("pTcut_1");
-    pTcut_2_                = config.getParameter<double>("pTcut_2");
 
-    PileupInfoLabel_        = consumes<PileupMixingContent>(config.getParameter<edm::InputTag>("PileupMixingLabel"));
-    PileupVtxLabel_         = consumes<PileupVertexContent>(config.getParameter<edm::InputTag>("PileupMixingLabel"));
+    isPreMixed_             = config.getParameter<bool>("isPreMixed");
 
-    LookAtTrackingTruth_    = config.getUntrackedParameter<bool>("doTrackTruth");
+    if ( !isPreMixed_ ) {
+      distanceCut_            = config.getParameter<double>("vertexDistanceCut");
+      volumeRadius_           = config.getParameter<double>("volumeRadius");
+      volumeZ_                = config.getParameter<double>("volumeZ");
+      pTcut_1_                = config.getParameter<double>("pTcut_1");
+      pTcut_2_                = config.getParameter<double>("pTcut_2");
+      
+      PileupInfoLabel_        = consumes<PileupMixingContent>(config.getParameter<edm::InputTag>("PileupMixingLabel"));
+      
+      PileupVtxLabel_         = consumes<PileupVertexContent>(config.getParameter<edm::InputTag>("PileupMixingLabel"));
 
-    trackingTruthT_          = mayConsume<TrackingParticleCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
-    trackingTruthV_          = mayConsume<TrackingVertexCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
-
-    MessageCategory_        = "PileupInformation";
-
-    edm::LogInfo (MessageCategory_) << "Setting up PileupInformation";
-    edm::LogInfo (MessageCategory_) << "Vertex distance cut set to " << distanceCut_  << " mm";
-    edm::LogInfo (MessageCategory_) << "Volume radius set to "       << volumeRadius_ << " mm";
-    edm::LogInfo (MessageCategory_) << "Volume Z      set to "       << volumeZ_      << " mm";
-    edm::LogInfo (MessageCategory_) << "Lower pT Threshold set to "       << pTcut_1_      << " GeV";
-    edm::LogInfo (MessageCategory_) << "Upper pT Threshold set to "       << pTcut_2_      << " GeV";
+      LookAtTrackingTruth_    = config.getUntrackedParameter<bool>("doTrackTruth");
+      
+      trackingTruthT_          = mayConsume<TrackingParticleCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
+      trackingTruthV_          = mayConsume<TrackingVertexCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
+      
+      MessageCategory_        = "PileupInformation";
+      
+      edm::LogInfo (MessageCategory_) << "Setting up PileupInformation";
+      edm::LogInfo (MessageCategory_) << "Vertex distance cut set to " << distanceCut_  << " mm";
+      edm::LogInfo (MessageCategory_) << "Volume radius set to "       << volumeRadius_ << " mm";
+      edm::LogInfo (MessageCategory_) << "Volume Z      set to "       << volumeZ_      << " mm";
+      edm::LogInfo (MessageCategory_) << "Lower pT Threshold set to "       << pTcut_1_      << " GeV";
+      edm::LogInfo (MessageCategory_) << "Upper pT Threshold set to "       << pTcut_2_      << " GeV";
+    }
+    else{
+      pileupSummaryToken_=consumes<std::vector<PileupSummaryInfo> >(config.getParameter<edm::InputTag>("PileupSummaryInfoInputTag"));
+      bunchSpacingToken_=consumes<int>(config.getParameter<edm::InputTag>("BunchSpacingInputTag"));
+    }  
 
 
     produces< std::vector<PileupSummaryInfo> >();
