@@ -34,6 +34,8 @@ PileupInformation::PileupInformation(const edm::ParameterSet & config)
       
       PileupInfoLabel_        = consumes<PileupMixingContent>(config.getParameter<edm::InputTag>("PileupMixingLabel"));
       
+      PileupVtxLabel_         = consumes<PileupVertexContent>(config.getParameter<edm::InputTag>("PileupMixingLabel"));
+
       LookAtTrackingTruth_    = config.getUntrackedParameter<bool>("doTrackTruth");
       
       trackingTruthT_          = mayConsume<TrackingParticleCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
