@@ -103,12 +103,14 @@ FastSimRecoTrackerFEVT = cms.PSet(
 
 #RECO content
 FastSimRecoTrackerRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_iterativeGSWithMaterialTracks_*_*')
+    outputCommands = cms.untracked.vstring('keep *_iterativeGSWithMaterialTracks_*_*',
+                                           'keep *_generalTracksBeforeMixing_*_*')
 )
 
 #AOD content
 FastSimRecoTrackerAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoTracks_iterativeGSWithMaterialTracks_*_*')
+    outputCommands = cms.untracked.vstring('keep recoTracks_iterativeGSWithMaterialTracks_*_*',
+                                           'keep *_generalTracksBeforeMixing_*_*')
 )
 
 
