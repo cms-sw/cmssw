@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+
+#Note: legacy validation code of this producer was removed between CMSSW74->CMSSW75
+
 siTrackerGaussianSmearingRecHits = cms.EDProducer("SiTrackerGaussianSmearingRecHitConverter",
 
 #    ROUList = cms.VInputTag(cms.InputTag("mix","famosSimHitsTrackerHits")),
@@ -58,6 +61,7 @@ siTrackerGaussianSmearingRecHits = cms.EDProducer("SiTrackerGaussianSmearingRecH
     UseCMSSWPixelParametrization = cms.bool(True),
 
     # Pixel CMSSW Parametrization
+    # the pixel parametrization is found using pixelAV templates like in FullSim/reco
     templateIdBarrel = cms.int32( 40 ),
     templateIdForward  = cms.int32( 41 ),
     PixelMultiplicityFile40T = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelData40T.root'),
@@ -105,6 +109,9 @@ siTrackerGaussianSmearingRecHits = cms.EDProducer("SiTrackerGaussianSmearingRecH
     HitFindingProbability_TEC6 = cms.double(1.0),
     HitFindingProbability_TEC7 = cms.double(1.0),
 
+
+    # the strip parametrization is approximated by Gaussian distributions
+    
     # TIB
     TIB1x = cms.double(0.00195),
     TIB1y = cms.double(3.3775), ## 11.7/sqrt(12.)
