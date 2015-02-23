@@ -334,7 +334,7 @@ baseDataSetRelease=[
     'CMSSW_7_1_0_pre5-START71_V1-v1',   # 8 TeV , for the one sample which is part of the routine relval production (MinBias)
     'CMSSW_7_1_0_pre5-START71_V1-v2',   # 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                         # this an previous should be unified, when -v2 will be gone
-    'CMSSW_7_1_0_pre8-PRE_LS171_V9-v1', # 13 TeV samples with GEN-SIM from 710pre8;
+    'CMSSW_7_1_14-MCRUN2_71_V1-v1', # 13 TeV samples with GEN-SIM from 710pre8;
     'CMSSW_7_1_0_pre8-PRE_LS171_V9_finesplit-v2', #SingleMu GEN-SIM from 710pre8
     ]
 
