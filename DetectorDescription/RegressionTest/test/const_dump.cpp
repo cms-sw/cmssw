@@ -6,6 +6,7 @@
 #include "DetectorDescription/Core/src/DDCheck.h"
 #include "DetectorDescription/Core/interface/DDConstant.h"
 #include "DetectorDescription/Core/interface/DDVector.h"
+#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 
 using namespace std;
@@ -74,6 +75,14 @@ int main(int argc, char *argv[])
 	std::cout << std::endl;
       }
     }
+
+    std::vector<string> vnames;
+    DDVectorGetter::beginWith( "Subdetector", vnames );
+    for( std::vector<string>::const_iterator sit = vnames.begin(); sit != vnames.end(); ++sit )
+    {
+      std::cout << sit->c_str() << std::endl;
+    }
+    
     return 0;
   }
   //  Deal with any exceptions that may have been thrown.

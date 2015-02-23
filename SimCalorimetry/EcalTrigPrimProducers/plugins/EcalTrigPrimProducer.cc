@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
@@ -71,6 +72,10 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
   fillBinOfMaximumFromHistory_(-1==binOfMaximum_)
 {  
   //register your products
+  edm::InputTag ebtag(label_, instanceNameEB_);
+  edm::InputTag eetag(label_, instanceNameEE_);
+  consumes <EBDigiCollection>(ebtag);
+  consumes <EEDigiCollection>(eetag);
   produces <EcalTrigPrimDigiCollection >();
   if (tcpFormat_) produces <EcalTrigPrimDigiCollection >("formatTCP");
 }

@@ -4,8 +4,8 @@ if [ $# -eq 0 ] ;then J=$(getconf _NPROCESSORS_ONLN); else J=$1; fi
 
 eval `scram runtime -sh`
 for file in `cmsglimpse -l -F src/classes.*.h$ include`;do 
-	dir=`dirname $file`;
-	echo \#include \<$file\> >${LOCALRT}/src/$dir/`basename $file`.cc ; 
+     dir=`dirname $file`;
+     echo \#include \<$file\> >${LOCALRT}/src/$dir/`basename $file`.cc ; 
 done
 cd ${LOCALRT}/tmp/
 touch dump-start
@@ -32,6 +32,7 @@ sort -u < function-dumper.txt.unsorted > function-calls-db.txt
 class-composition.py >classes.txt.inherits.unsorted
 sort -u classes.txt.inherits.unsorted | grep -e"^class" | grep -v \'\' >classes.txt.inherits
 sort -u classes.txt.inherits.unsorted | grep -v -e"^class" >classes.txt.inherits.extra
+sort -u getparam-dumper.txt.unsorted | awk '{print $0"\n"}' >getparam-dumper.txt
 cat classes.txt.inherits classes.txt.dumperft classes.txt.dumperct | grep -e"^class" | grep -v \'\' | sort -u >classes.txt
 rm *.txt.*unsorted
 classname-blmflt.py
