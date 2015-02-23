@@ -32,6 +32,7 @@
 <lib name="GuiHtml"/>
 <lib name="GX11"/>
 <lib name="RGL"/>
+<lib name="GLEW"/>
 <export>
   <lib name="1"/>
 </export>
