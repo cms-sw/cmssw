@@ -112,7 +112,8 @@ std::pair<double,double> HcalDDDRecConstants::getEtaPhi(int subdet, int ieta,
     eta         = 0.5*(etaTableHF[ietaAbs-1]+etaTableHF[ietaAbs]);
     phi         = foff + (kphi-0.5)*phibinHF[ietaAbs-1];
   }
-  if (ieta < 0) eta = -eta;
+  if (ieta < 0)   eta  = -eta;
+  if (phi > M_PI) phi -= (2*M_PI);
 #ifdef DebugLog
   std::cout << "getEtaPhi: subdet|ieta|iphi " << subdet << "|" << ieta << "|"
 	    << iphi << " eta|phi " << eta << "|" << phi << std::endl;
