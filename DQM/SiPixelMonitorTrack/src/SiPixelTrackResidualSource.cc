@@ -81,7 +81,7 @@ SiPixelTrackResidualSource::SiPixelTrackResidualSource(const edm::ParameterSet& 
    ptminres_= pSet.getUntrackedParameter<double>("PtMinRes",4.0) ;
    beamSpotToken_ = consumes<reco::BeamSpot>(std::string("offlineBeamSpot"));
    offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
-   generalTracksToken_ = consumes<reco::TrackCollection>(std::string("generalTracks"));
+   generalTracksToken_ = consumes<reco::TrackCollection>(pSet_.getParameter<edm::InputTag>("tracksrc"));
    tracksrcToken_ = consumes<std::vector<Trajectory> >(pSet_.getParameter<edm::InputTag>("trajectoryInput"));
    trackToken_ = consumes<std::vector<reco::Track> >(pSet_.getParameter<edm::InputTag>("trajectoryInput"));
    trackAssociationToken_ = consumes<TrajTrackAssociationCollection>(pSet_.getParameter<edm::InputTag>("trajectoryInput"));
@@ -688,8 +688,8 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   math::XYZPoint vtxN = math::XYZPoint(0,0,0);
   math::XYZPoint vtxP = math::XYZPoint(0,0,0);
   
-  double bestNdof = 0;
-  double maxSumPt = 0;
+  double bestNdof = 0.0;
+  double maxSumPt = 0.0;
   reco::Vertex bestPvx;
   for(reco::VertexCollection::const_iterator iVertex = vertices->begin();
       iVertex != vertices->end(); ++iVertex ) {
@@ -704,10 +704,8 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
     }//sumpt
     
   }//vertex
-  
-  if( maxSumPt < 1 ) return;
-  
-  if( maxSumPt < 1 ) vtxP = vtxN;
+
+  if( maxSumPt < 1.0 ) vtxP = vtxN;
   
   //---------------------------------------------
   //get Tracks
