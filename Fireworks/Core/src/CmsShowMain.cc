@@ -254,14 +254,14 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
          fwLog(fwlog::kError) << "Specified configuration file does not exist. Quitting.\n";
          exit(1);
       }
+
+      fwLog(fwlog::kInfo) << "Config "  <<  configFilename() << std::endl;
    } else {
       if (vm.count(kNoConfigFileOpt)) {
-         fwLog(fwlog::kInfo) << "No configuration is loaded, show everything.\n";
-         setConfigFilename("");
-      } else
-         setConfigFilename("default.fwc");
+         fwLog(fwlog::kInfo) << "No configuration is loaded.\n";
+         configurationManager()->setIgnore();
+      } 
    }
-   fwLog(fwlog::kInfo) << "Config "  <<  configFilename() << std::endl;
 
    // geometry
    if (vm.count(kGeomFileOpt)) {
@@ -316,11 +316,20 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    startupTasks()->addTask(f);
    f=boost::bind(&CmsShowMainBase::setupViewManagers,this);
    startupTasks()->addTask(f);
-   f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
-   startupTasks()->addTask(f);
-   f=boost::bind(&CmsShowMain::setupDataHandling,this);
-   startupTasks()->addTask(f);
 
+   if ( m_inputFiles.empty()) {
+      f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
+      startupTasks()->addTask(f);
+      f=boost::bind(&CmsShowMain::setupDataHandling,this);
+      startupTasks()->addTask(f);
+   }
+   else {
+      f=boost::bind(&CmsShowMain::setupDataHandling,this);
+      startupTasks()->addTask(f);
+      f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
+      startupTasks()->addTask(f);
+   }
+  
    if (vm.count(kLoopOpt))
       setPlayLoop();
 
@@ -671,7 +680,7 @@ CmsShowMain::setupDataHandling()
       checkPosition();
       draw();
    }
-   else if (m_monitor.get() == 0 && (eiManager()->begin() != eiManager()->end()) )
+   else if (m_monitor.get() == 0 && (configurationManager()->getIgnore() == false) )
    {
       if (m_inputFiles.empty())
          openDataViaURL();
