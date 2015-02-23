@@ -33,6 +33,7 @@ namespace l1t {
     virtual ~Stage1Layer2EtSumAlgorithmImpPP();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
+			      const std::vector<l1t::Jet> * jets,
 			      std::vector<l1t::EtSum> * sums);
 
   private:
@@ -50,10 +51,13 @@ namespace l1t {
     virtual ~Stage1Layer2EtSumAlgorithmImpHW();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
+			      const std::vector<l1t::Jet> * jets,
 			      std::vector<l1t::EtSum> * sums);
 
   private:
     CaloParamsStage1* const params_;
+
+    int DiJetPhi(const std::vector<l1t::Jet> * jets) const;
 
     struct SimpleRegion {
       int ieta;

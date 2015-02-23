@@ -36,6 +36,7 @@ l1t::Stage1Layer2EtSumAlgorithmImpHW::~Stage1Layer2EtSumAlgorithmImpHW() {
 
 void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::CaloRegion> & regions,
 							const std::vector<l1t::CaloEmCand> & EMCands,
+							const std::vector<l1t::Jet> * jets,
 							      std::vector<l1t::EtSum> * etsums) {
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
@@ -96,6 +97,9 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
 
   int sumHT, MHT, iPhiHT;
   std::tie(sumHT, MHT, iPhiHT) = doSumAndMET(regionHtVect, ETSumType::kHadronicSum);
+
+  //iPhiHt is replaced by the dPhi between two most energetic jets
+  iPhiHT = DiJetPhi(jets);
 
   // Set quality (i.e. overflow) bits appropriately
   int METqual = 0;
@@ -175,7 +179,7 @@ l1t::Stage1Layer2EtSumAlgorithmImpHW::doSumAndMET(const std::vector<SimpleRegion
       sumEtaNeg[r.iphi] += r.et;
     else
       sumEtaPos[r.iphi] += r.et;
-    
+
     if ( r.et >= (1<<10) )
       inputOverflow = true;
   }
@@ -259,4 +263,23 @@ l1t::Stage1Layer2EtSumAlgorithmImpHW::cordicToMETPhi(int phase)
     if ( phase >= cordicPhiValues[i] && phase < cordicPhiValues[i+1] )
       return i;
   return -1;
+}
+
+int l1t::Stage1Layer2EtSumAlgorithmImpHW::DiJetPhi(const std::vector<l1t::Jet> * jets)  const {
+
+  // cout << "Number of jets: " << jets->size() << endl;
+
+  int dphi = 10; // initialize to negative physical dphi value
+  if (jets->size()<2) return dphi; // size() not really reliable as we pad the size to 8 (4cen+4for) in the sorter
+  if ((*jets).at(0).hwPt() == 0) return dphi;
+  if ((*jets).at(1).hwPt() == 0) return dphi;
+
+
+  int iphi1 = (*jets).at(0).hwPhi();
+  int iphi2 = (*jets).at(1).hwPhi();
+
+  int difference=abs(iphi1-iphi2);
+
+  if ( difference > 9 ) difference= L1CaloRegionDetId::N_PHI - difference ; // make Physical dphi always positive
+  return difference;
 }

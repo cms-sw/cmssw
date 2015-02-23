@@ -37,6 +37,7 @@ l1t::Stage1Layer2EtSumAlgorithmImpPP::~Stage1Layer2EtSumAlgorithmImpPP() {
 
 void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegion> & regions,
 							const std::vector<l1t::CaloEmCand> & EMCands,
+							const std::vector<l1t::Jet> * jets,
 							      std::vector<l1t::EtSum> * etsums) {
 
   unsigned int sumET = 0;
@@ -210,6 +211,6 @@ int l1t::Stage1Layer2EtSumAlgorithmImpPP::DiJetPhi(const std::vector<l1t::Jet> *
 
   int difference=abs(iphi1-iphi2);
 
-  if ( difference > 9 ) difference= L1CaloRegionDetId::N_PHI - difference ; // make Physical dphi always positive 
+  if ( difference > 9 ) difference= L1CaloRegionDetId::N_PHI - difference ; // make Physical dphi always positive
   return difference;
 }
