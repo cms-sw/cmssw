@@ -1,3 +1,4 @@
+<use   name="DataFormats/TrackerCommon"/>
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/SiStripObjects"/>
