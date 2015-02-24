@@ -1,4 +1,4 @@
-<library   name="LumiAnalyzerPlugin" file="*.cc">
+<library   name="PCCNTuplerPlugin" file="*.cc">
   <use   name="Alignment/CommonAlignment"/>
   <use   name="Alignment/OfflineValidation"/>
   <use   name="CondFormats/DataRecord"/>

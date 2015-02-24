@@ -1,9 +1,9 @@
-#ifndef LumiAnalyzer_h
-#define LumiAnalyzer_h
+#ifndef PCCNTupler_h
+#define PCCNTupler_h
 
-/** \class LumiAnalyzer
+/** \class PCCNTupler
  * ----------------------------------------------------------------------
- * LumiAnalyzer
+ * PCCNTupler
  * ---------
  * Summary: The full pixel information, including tracks and cross references
  *          A lot has been copied from 
@@ -21,27 +21,12 @@
 
 #include <map>
 
-#include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
-
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-
-#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-
-#include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
-#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "TObject.h"
@@ -55,11 +40,11 @@ class TFile;
 class RectangularPixelTopology;
 class DetId; 
 
-class LumiAnalyzer : public edm::EDAnalyzer {
+class PCCNTupler : public edm::EDAnalyzer {
  public:
   
-  explicit LumiAnalyzer(const edm::ParameterSet& ps);
-  virtual ~LumiAnalyzer();
+  explicit PCCNTupler(const edm::ParameterSet& ps);
+  virtual ~PCCNTupler();
   virtual void beginJob();
   virtual void beginRun(const edm::Run &, const edm::EventSetup &);
   virtual void endRun(edm::Run const&, edm::EventSetup const&);
@@ -90,18 +75,13 @@ class LumiAnalyzer : public edm::EDAnalyzer {
   edm::InputTag   fPrimaryVertexCollectionLabel;
   edm::InputTag   fMuonCollectionLabel, fTrackCollectionLabel, fTrajectoryInputLabel, fPixelClusterLabel, fPixelRecHitLabel;
   std::string     fHLTProcessName; 
-  edm::InputTag   fL1GTReadoutRecordLabel, fL1GTmapLabel, fHLTResultsLabel, fL1MuGMTLabel; 
-  edm::ESHandle<SiPixelFedCablingMap> fCablingMap;
 
   bool fAccessSimHitInfo;
 
   TFile *fFile; 
-  TH1D  *fL1Thist, *fL1TThist, *fHLThist; 
   TTree *fTree;
 
-  int                    fInit; 
   std::map<int, int>     fFEDID; 
-  SiPixelFrameConverter *fPFC[40]; 
 
   // -- general stuff
   unsigned int fRun, fEvent, fLumiBlock; 
@@ -115,18 +95,17 @@ class LumiAnalyzer : public edm::EDAnalyzer {
   static const int CLUSTERMAX = 100000; 
   static const int DGPERCLMAX = 100;  
   static const int TKPERCLMAX = 100;  
-  int          fClN;
 
   // dead modules
   int nDeadModules;
   uint32_t  deadModules[6]; 
-   int nDeadPrint; 
+  int nDeadPrint; 
 
   HLTConfigProvider fHltConfig;  
   bool fValidHLTConfig;
 
    // Lumi stuff
-  TTree * tHF;
+  TTree * tree;
   int runNo, LSNo, eventNo, BXNo;
   bool includeVertexInformation, includeTracks, includePixels;
   int nVtx, nGoodVtx, nTrk, ndof;

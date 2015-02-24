@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// LumiAnalyzer
+// PCCNTupler
 // ---------
 // Summary: The full pixel information, including tracks and cross references
 //          A lot has been copied from 
@@ -19,94 +19,24 @@
 #include <vector>
 #include <bitset>
 
-#include "LumiAnalyzer.h"
+#include "PCCNTupler.h"
 
 #include "CondFormats/Alignment/interface/Definitions.h"
-#include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
-
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
-
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
-#include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-
-#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
-
-#include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
-
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonTime.h"
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
-#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-#include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
-
-#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include <DataFormats/VertexReco/interface/VertexFwd.h>
 
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"  
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
-
-#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 
@@ -122,17 +52,15 @@ using namespace edm;
 using namespace reco;
 
 // ----------------------------------------------------------------------
-LumiAnalyzer::LumiAnalyzer(edm::ParameterSet const& iConfig): 
+PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig): 
   fVerbose(iConfig.getUntrackedParameter<int>("verbose", 0)),
   fPixelClusterLabel(iConfig.getUntrackedParameter<InputTag>("pixelClusterLabel", edm::InputTag("siPixelClusters"))), 
   fPixelRecHitLabel(iConfig.getUntrackedParameter<InputTag>("pixelRecHitLabel", edm::InputTag("siPixelRecHits"))), 
-  fHLTProcessName(iConfig.getUntrackedParameter<string>("HLTProcessName")),
-  fInit(0)
+  fHLTProcessName(iConfig.getUntrackedParameter<string>("HLTProcessName"))
 {
   cout << "----------------------------------------------------------------------" << endl;
-  cout << "--- LumiAnalyzer constructor" << endl;
+  cout << "--- PCCNTupler constructor" << endl;
 
-  fClN = 0; 
   nPrint = 0;
   edm::Service<TFileService> fs;
 
@@ -140,36 +68,36 @@ LumiAnalyzer::LumiAnalyzer(edm::ParameterSet const& iConfig):
   includeTracks = true;
   includePixels = true;
 
-  tHF = fs->make<TTree>("tHF","HF Info");
-  tHF->Branch("runNo",&runNo,"runNo/I");
-  tHF->Branch("LSNo",&LSNo,"LSNo/I");
-  tHF->Branch("eventNo",&eventNo,"eventNo/I");
-  tHF->Branch("BXNo",&BXNo,"BXNo/I");
-  tHF->Branch("timeStamp",&timeStamp,"timeStamp/i");  
-  tHF->Branch("orbitN",&orbitN,"orbitN/i");  
+  tree = fs->make<TTree>("tree","HF Info");
+  tree->Branch("runNo",&runNo,"runNo/I");
+  tree->Branch("LSNo",&LSNo,"LSNo/I");
+  tree->Branch("eventNo",&eventNo,"eventNo/I");
+  tree->Branch("BXNo",&BXNo,"BXNo/I");
+  tree->Branch("timeStamp",&timeStamp,"timeStamp/i");  
+  tree->Branch("orbitN",&orbitN,"orbitN/i");  
   
   if(includeVertexInformation){
-     tHF->Branch("nGoodVtx",&nGoodVtx,"nGoodVtx/I"); 
-     tHF->Branch("x_Vertex_um",&xV,"xV/F"); 
-     tHF->Branch("y_Vertex_um",&yV,"yV/F"); 
-     tHF->Branch("z_Vertex_mm",&zV,"zV/F");
-     tHF->Branch("num_Trks",&nTrk,"nTrk/I");
-     tHF->Branch("chi_squared",&chi2,"chi2/F");
-     tHF->Branch("ndof",&ndof,"ndof/I");
+     tree->Branch("nGoodVtx",&nGoodVtx,"nGoodVtx/I"); 
+     tree->Branch("x_Vertex_um",&xV,"xV/F"); 
+     tree->Branch("y_Vertex_um",&yV,"yV/F"); 
+     tree->Branch("z_Vertex_mm",&zV,"zV/F");
+     tree->Branch("num_Trks",&nTrk,"nTrk/I");
+     tree->Branch("chi_squared",&chi2,"chi2/F");
+     tree->Branch("ndof",&ndof,"ndof/I");
   }
 
   if(includeTracks){
-     tHF->Branch("n1GeV",&n1GeV,"n1GeV/I");
-     tHF->Branch("n2GeV",&n2GeV,"n2GeV/I");
+     tree->Branch("n1GeV",&n1GeV,"n1GeV/I");
+     tree->Branch("n2GeV",&n2GeV,"n2GeV/I");
   }
 
   if(includePixels){
-     tHF->Branch("nPixelClusters",&nPixelClusters,"nPixelClusters/I");
-     tHF->Branch("nB1",&nB1,"nB1/I");
-     tHF->Branch("nB2",&nB2,"nB2/I");
-     tHF->Branch("nB3",&nB3,"nB3/I");
-     tHF->Branch("nF1",&nF1,"nF1/I");
-     tHF->Branch("nF2",&nF2,"nF2/I");
+     tree->Branch("nPixelClusters",&nPixelClusters,"nPixelClusters/I");
+     tree->Branch("nB1",&nB1,"nB1/I");
+     tree->Branch("nB2",&nB2,"nB2/I");
+     tree->Branch("nB3",&nB3,"nB3/I");
+     tree->Branch("nF1",&nF1,"nF1/I");
+     tree->Branch("nF2",&nF2,"nF2/I");
      // dead modules
      nDeadModules = 6;
      nDeadPrint = 0;
@@ -183,34 +111,34 @@ LumiAnalyzer::LumiAnalyzer(edm::ParameterSet const& iConfig):
 }
 
 // ----------------------------------------------------------------------
-LumiAnalyzer::~LumiAnalyzer() { }  
+PCCNTupler::~PCCNTupler() { }  
 
 // ----------------------------------------------------------------------
-void LumiAnalyzer::endJob() { 
-  cout << "==>LumiAnalyzer> Succesfully gracefully ended job" << endl;
+void PCCNTupler::endJob() { 
+  cout << "==>PCCNTupler> Succesfully gracefully ended job" << endl;
 }
 
 // ----------------------------------------------------------------------
-void LumiAnalyzer::beginJob() {
+void PCCNTupler::beginJob() {
   
 }
 
 
 // ----------------------------------------------------------------------
-void  LumiAnalyzer::beginRun(const Run &run, const EventSetup &iSetup) {
+void  PCCNTupler::beginRun(const Run &run, const EventSetup &iSetup) {
   bool hasChanged;
   fValidHLTConfig = fHltConfig.init(run,iSetup,fHLTProcessName,hasChanged);
 }
 
 // ----------------------------------------------------------------------
-void LumiAnalyzer::endRun(Run const&run, EventSetup const&iSetup) {
+void PCCNTupler::endRun(Run const&run, EventSetup const&iSetup) {
   fValidHLTConfig = false;
 } 
 
 
 
 // ----------------------------------------------------------------------
-void LumiAnalyzer::analyze(const edm::Event& iEvent, 
+void PCCNTupler::analyze(const edm::Event& iEvent, 
 			const edm::EventSetup& iSetup)  {
 
    using namespace edm;
@@ -287,36 +215,6 @@ void LumiAnalyzer::analyze(const edm::Event& iEvent,
    }
 
 
-  if (0 == fInit) {
-    fInit = 1; 
-    // -- Setup cabling map and its map to detIDs
-    iSetup.get<SiPixelFedCablingMapRcd>().get(fCablingMap);
-    for (int i = 0; i < 40; ++i) {
-      fPFC[i] = new SiPixelFrameConverter(fCablingMap.product(), i);
-    }
-    
-    
-    edm::ESHandle<TrackerGeometry> pDD;
-    iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-
-    for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-      if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
-	DetId detId = (*it)->geographicalId();
-	uint32_t newDetId = detId;
-	
-	for (int fedid = 0; fedid < 40; ++fedid) {
-	  if (fPFC[fedid]->hasDetUnit(newDetId)) {
-	    fFEDID.insert(make_pair(newDetId, fedid)); 
-	    break;
-	  }
-	}
-      }
-    }
-
-  }
-
-  fClN = 0;
-
   // -- Does this belong into beginJob()?
   ESHandle<TrackerGeometry> TG;
   iSetup.get<TrackerDigiGeometryRecord>().get(TG);
@@ -377,7 +275,6 @@ void LumiAnalyzer::analyze(const edm::Event& iEvent,
       if (isearch != clustColl.end()) {  // Not an empty iterator
 	edmNew::DetSet<SiPixelCluster>::const_iterator  di;
 	for (di = isearch->begin(); di != isearch->end(); ++di) {
-	  if (fClN > CLUSTERMAX - 1) break;
 	  nPixelClusters++;
 	}
 
@@ -407,10 +304,10 @@ void LumiAnalyzer::analyze(const edm::Event& iEvent,
   if(qPrint)cout << "nPixelClusters=" << nPixelClusters << " nC2=" << nC2 << 
 	       " nB1=" << nB1 << " nB2=" << nB2 << " nB3=" << nB3 << " nF1=" << nF1 << " nF2=" << nF2 << endl;
 
-  tHF->Fill();
+  tree->Fill();
 } 
 
 // define this as a plug-in
-DEFINE_FWK_MODULE(LumiAnalyzer);
+DEFINE_FWK_MODULE(PCCNTupler);
 
 
