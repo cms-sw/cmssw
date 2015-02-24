@@ -22,6 +22,8 @@
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
+#include "SimG4Core/Application/interface/G4RegionReporter.h"
+#include "SimG4Core/Application/interface/CMSGDMLWriteStructure.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
@@ -80,7 +82,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
   m_FieldFile = p.getUntrackedParameter<std::string>("FileNameField","");
-  if("" != m_FieldFile) { m_FieldFile += ".txt"; } 
+  m_RegionFile = p.getUntrackedParameter<std::string>("FileNameRegions","");
 }
 
 RunManagerMT::~RunManagerMT() 
@@ -99,11 +101,6 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   G4LogicalVolumeToDDLogicalPartMap map_;
   m_world.reset(new DDDWorld(pDD, map_, m_catalog, m_check));
   m_registry.dddWorldSignal_(m_world.get());
-
-  if("" != m_WriteFile) {
-    G4GDMLParser gdml;
-    gdml.Write(m_WriteFile, m_world->GetWorldVolume());
-  }
 
   // setup the magnetic field
   if (m_pUseMagneticField)
@@ -178,6 +175,16 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
     edm::LogInfo("SimG4CoreApplication") << "RunManagerMT:: Requests UI: "
                                          << m_G4Commands[it];
     G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
+  }
+
+  if("" != m_WriteFile) {
+    G4GDMLParser gdml(new G4GDMLReadStructure(), new CMSGDMLWriteStructure());
+    gdml.Write(m_WriteFile, m_world->GetWorldVolume(), false);
+  }
+
+  if("" != m_RegionFile) {
+    G4RegionReporter rrep;
+    rrep.ReportRegions(m_RegionFile);
   }
 
   // If the Geant4 particle table is needed, decomment the lines below
