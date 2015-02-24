@@ -19,7 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
@@ -31,7 +31,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include <map>
 #include <vector>
@@ -64,6 +64,8 @@ namespace edm
       void putSiPixel(edm::Event &e, edm::EventSetup const& iSetup) ;
       void addSiPixelSignals(const edm::Event &e); 
       void addSiPixelPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId, ModuleCallingContext const*);
+
+      void setPileupInfo(const std::vector<PileupSummaryInfo> &ps, const int &bs); //this sets pu_scale
 
 
     private:

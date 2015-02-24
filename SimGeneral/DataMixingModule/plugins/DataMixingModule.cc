@@ -415,8 +415,25 @@ namespace edm
 
     LogDebug("DataMixingModule") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
 
+
     // Note:  setupPileUpEvent may modify the run and lumi numbers of the EventPrincipal to match that of the primary event.
     setupPileUpEvent(ES);
+
+    // check and see if we need to copy the pileup information from 
+    // secondary stream to the output stream  
+    // We only have the pileup event here, so pick the first time and store the info
+
+    std::vector<PileupSummaryInfo> ps;
+    int bunchSpacing=10000;
+
+    if(MergePileup_ && !AddedPileup_){
+      
+      PUWorker_->addPileupInfo(&ep, eventNr, &moduleCallingContext);
+
+      PUWorker_->getPileupInfo(ps,bunchSpacing);
+
+      AddedPileup_ = true;
+    }
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
@@ -450,19 +467,10 @@ namespace edm
       else SiStripWorker_->addSiStripPileups(bcr, &ep, eventNr, &moduleCallingContext);
       
       // SiPixels
+      //whoops this should be for the MC worker ????? SiPixelWorker_->setPileupInfo(ps,bunchSpacing);
       SiPixelWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
     }
 
-    // check and see if we need to copy the pileup information from 
-    // secondary stream to the output stream  
-    // We only have the pileup event here, so pick the first time and store the info
-
-    if(MergePileup_ && !AddedPileup_){
-      
-      PUWorker_->addPileupInfo(&ep, eventNr, &moduleCallingContext);
-
-      AddedPileup_ = true;
-    }
 
   }
 

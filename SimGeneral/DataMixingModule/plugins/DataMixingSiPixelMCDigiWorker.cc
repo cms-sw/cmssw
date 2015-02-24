@@ -22,8 +22,8 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
-
+#include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
+#include "CLHEP/Random/RandFlat.h"
 
 #include "DataMixingSiPixelMCDigiWorker.h"
 
@@ -79,10 +79,10 @@ namespace edm
 
   void DataMixingSiPixelMCDigiWorker::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {	
 
-    iSetup.get<TrackerDigiGeometryRecord>().get(geometryType_, pDD); 
-    edm::ESHandle<TrackerTopology> tTopoHand;
-    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
-    const TrackerTopology *tTopo=tTopoHand.product();
+    //iSetup.get<TrackerDigiGeometryRecord>().get(geometryType_, pDD); 
+    //edm::ESHandle<TrackerTopology> tTopoHand;
+    //iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+    //const TrackerTopology *tTopo=tTopoHand.product();
 
   }					   
 
@@ -526,7 +526,7 @@ namespace edm
 	    if( chips[chipIndex]==0 || columns[dColInDet]==0
 		|| rand>pixelEfficiency ) {
 	      // make pixel amplitude =0, pixel will be lost at clusterization
-	      i->second.set(0.); // reset amplitude,
+	      i->second=(0.); // reset amplitude,????????????
 	    } // end if
 	    //Make a new Digi:
 
@@ -551,5 +551,30 @@ namespace edm
     // clear local storage for this event
     SiHitStorage_.clear();
   }
+
+void DataMixingSiPixelMCDigiWorker::setPileupInfo(const std::vector<PileupSummaryInfo> &ps, const int &bunchSpacing) {
+
+  double bunchScale=1.0;
+  if (bunchSpacing==25) bunchScale=bunchScaleAt25;
+  
+  int p = -1;
+  for ( unsigned int i=0; i<ps.size(); i++) 
+    if ( ps[i].getBunchCrossing() == 0 ) 
+      p=i;
+    
+  if ( p>=0 ) {
+    for (size_t i=0; i<5; i++) {
+      double instlumi = ps[p].getTrueNumInteractions()*theInstLumiScaleFactor*bunchScale;
+      double instlumi_pow=1.;
+      _pu_scale[i] = 0;
+      for  (size_t j=0; j<pixelEff_.thePUEfficiency[i].size(); j++){
+	_pu_scale[i]+=instlumi_pow*pixelEff_.thePUEfficiency[i][j];
+	instlumi_pow*=instlumi;
+      }
+    }
+  }
+
+
+} //this sets pu_scale
 
 } //edm
