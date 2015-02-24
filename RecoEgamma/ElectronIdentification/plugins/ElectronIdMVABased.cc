@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,7 +39,7 @@
 
 using namespace std;
 using namespace reco;
-class ElectronIdMVABased : public edm::EDFilter {
+class ElectronIdMVABased : public edm::stream::EDFilter<> {
 	public:
 		explicit ElectronIdMVABased(const edm::ParameterSet&);
 		~ElectronIdMVABased();
