@@ -95,8 +95,8 @@ namespace cms
     first(true),
     _pixeldigialgo(),
     hitsProducer(iConfig.getParameter<std::string>("hitsProducer")),
-    trackerContainers(iConfig.getParameter<std::vector<std::string> >("ROUList")),
-    geometryType(iConfig.getParameter<std::string>("GeometryType")),
+    trackerContainers(iConfig.getParameter<std::vector<std::string> >("RoutList")),
+    geometryType(iConfig.getParameter<std::string>("PixGeometryType")),
     pilotBlades(iConfig.exists("enablePilotBlades")?iConfig.getParameter<bool>("enablePilotBlades"):false),
     NumberOfEndcapDisks(iConfig.exists("NumPixelEndcap")?iConfig.getParameter<int>("NumPixelEndcap"):2)
   {
