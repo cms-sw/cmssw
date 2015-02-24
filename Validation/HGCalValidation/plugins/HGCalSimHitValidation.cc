@@ -27,6 +27,7 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Vector3D.h"
@@ -48,6 +49,26 @@ HGCalSimHitValidation::~HGCalSimHitValidation() {}
 
 void HGCalSimHitValidation::analyze(const edm::Event& iEvent, 
 				    const edm::EventSetup& iSetup) {
+
+  //Generator input
+  edm::Handle<edm::HepMCProduct> evtMC;
+  iEvent.getByLabel("generator",evtMC); 
+  if (!evtMC.isValid()) {
+    edm::LogWarning("HGCalValidation") << "no HepMCProduct found";
+  } else { 
+    const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
+    unsigned int k(0);
+    for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
+	 p != myGenEvent->particles_end(); ++p, ++k) {
+      edm::LogInfo("HGCalValidation") << "Particle[" << k << "] with pt "
+				      << (*p)->momentum().perp() << " eta "
+				      << (*p)->momentum().eta() << " phi "
+				      << (*p)->momentum().phi();
+//    std::cout << "Particle[" << k << "] with pt " << (*p)->momentum().perp() << " eta " << (*p)->momentum().eta() << " phi " << (*p)->momentum().phi() << std::endl;
+    }
+  }
+
+  //Now the hits
   edm::Handle<edm::PCaloHitContainer> theCaloHitContainers;
   iEvent.getByLabel("g4SimHits", caloHitSource_, theCaloHitContainers);
   if (theCaloHitContainers.isValid()) {
@@ -135,8 +156,9 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
 
     HepGeom::Point3D<float> gcoord;
     if (heRebuild_) {
-      std::pair<double,double> etaphi = hcons->getEtaPhi(subdet,cell,sector);
-      double rz = hcons->getRZ(subdet,cell,layer);
+      std::pair<double,double> etaphi = hcons->getEtaPhi(subdet,zside*cell,sector);
+      double rz = hcons->getRZ(subdet,zside*cell,layer);
+//    std::cout << "i/p " << subdet << ":" << zside << ":" << cell << ":" << sector << ":" << layer << " o/p " << etaphi.first << ":" << etaphi.second << ":" << rz << std::endl;
       gcoord = HepGeom::Point3D<float>(rz*cos(etaphi.second)/cosh(etaphi.first),
 				       rz*sin(etaphi.second)/cosh(etaphi.first),
 				       rz*tanh(etaphi.first));

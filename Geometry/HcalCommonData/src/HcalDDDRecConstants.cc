@@ -112,6 +112,8 @@ std::pair<double,double> HcalDDDRecConstants::getEtaPhi(int subdet, int ieta,
     eta         = 0.5*(etaTableHF[ietaAbs-1]+etaTableHF[ietaAbs]);
     phi         = foff + (kphi-0.5)*phibinHF[ietaAbs-1];
   }
+  if (ieta < 0)   eta  = -eta;
+  if (phi > M_PI) phi -= (2*M_PI);
 #ifdef DebugLog
   std::cout << "getEtaPhi: subdet|ieta|iphi " << subdet << "|" << ieta << "|"
 	    << iphi << " eta|phi " << eta << "|" << phi << std::endl;
@@ -170,17 +172,24 @@ HcalDDDRecConstants::getHCID(int subdet,int ieta, int iphi, int lay,
 double HcalDDDRecConstants::getRZ(int subdet, int ieta, int depth) const {
 
   int ietaAbs = (ieta > 0) ? ieta : -ieta;
-  int lay(0);
+  double rz(0);
+#ifdef DebugLog
+  int    lay(0);
+#endif
   if (ietaAbs < nEta) {
     for (unsigned int k=0; k< layerGroup[ietaAbs-1].size(); ++k) {
       if (depth == layerGroup[ietaAbs-1][k]) {
-	lay = k;
-	break;
+	rz = ((subdet == static_cast<int>(HcalBarrel)) ? (gconsHB[k].first) :
+	      (gconsHE[k].first));
+	if (rz > 10.) {
+#ifdef DebugLog
+	  lay = k;
+#endif
+	  break;
+	}
       }
     }
   }
-  double rz = ((subdet == static_cast<int>(HcalBarrel)) ? (gconsHB[lay].first) :
-	       (gconsHE[lay].first));
 #ifdef DebugLog
   std::cout << "getRZ: subdet|ieta|depth " << subdet << "|" << ieta << "|"
 	    << depth << " lay|rz " << lay << "|" << rz << std::endl;
