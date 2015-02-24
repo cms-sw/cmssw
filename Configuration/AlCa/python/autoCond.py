@@ -2,23 +2,23 @@ autoCond = {
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
-    'run1_design'       :   'DESRUN1_73_V2::All',
+    'run1_design'       :   'DESRUN1_73_V4::All',
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
-    'run1_mc'           :   'MCRUN1_73_V2::All',
+    'run1_mc'           :   'MCRUN1_73_V4::All',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'        :   'MCHI1_73_V2::All',
+    'run1_mc_hi'        :   'MCHI1_73_V4::All',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pa'        :   'MCPA1_73_V2::All',
+    'run1_mc_pa'        :   'MCPA1_73_V4::All',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   'DESRUN2_73_V3::All',
+    'run2_design'       :   'DESRUN2_73_V6::All',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   'MCRUN2_73_V6::All',
+    'run2_mc_50ns'      :   'MCRUN2_73_V12::All',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   'MCRUN2_73_V7::All',
+    'run2_mc'           :   'MCRUN2_73_V13::All',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   'GR_R_73_V0A::All',
+    'run1_data'         :   'GR_R_73_V2A::All',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   'GR_R_73_V1A::All',
+    'run2_data'         :   'GR_R_73_V3A::All',
     # GlobalTag for Run1 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
     'run1_hlt'          :   'GR_H_V43A::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
     # GlobalTag for Run2 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
