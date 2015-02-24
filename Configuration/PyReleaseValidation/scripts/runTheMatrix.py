@@ -212,7 +212,6 @@ if __name__ == '__main__':
                       action='store_true')
     
     opt,args = parser.parse_args()
-    print opt.nThreads
     if opt.restricted:
         print 'Deprecated, please use -l limited'
         if opt.testList:            opt.testList+=',limited'
