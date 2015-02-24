@@ -52,6 +52,7 @@ combinatorialcosmicseedingpairsTECposP5 = cms.EDProducer("SeedingLayersEDProduce
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
+        clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         maxRing = cms.int32(7)
     )
@@ -70,6 +71,7 @@ combinatorialcosmicseedingpairsTECnegP5 = cms.EDProducer("SeedingLayersEDProduce
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
+        clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         maxRing = cms.int32(7)
     )

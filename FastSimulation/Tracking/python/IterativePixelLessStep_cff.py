@@ -33,8 +33,9 @@ iterativePixelLessSeeds.primaryVertex = 'none'
 #                                     'TEC1_pos+TEC2_pos','TEC2_pos+TEC3_pos','TEC3_pos+TEC4_pos','TEC3_pos+TEC5_pos','TEC4_pos+TEC5_pos',
 #                                     'TID1_neg+TID2_neg','TID2_neg+TID3_neg',
 #                                     'TEC1_neg+TEC2_neg','TEC2_neg+TEC3_neg','TEC3_neg+TEC4_neg','TEC3_neg+TEC5_neg','TEC4_neg+TEC5_neg']
-from RecoTracker.IterativeTracking.PixelLessStep_cff import pixelLessStepSeedLayers
-iterativePixelLessSeeds.layerList = pixelLessStepSeedLayers.layerList
+
+from RecoTracker.IterativeTracking.PixelLessStep_cff import pixelLessStepSeedLayers as _pixelLessStepSeedLayers
+iterativePixelLessSeeds.layerList = _pixelLessStepSeedLayers.layerList
 
 # candidate producer
 from FastSimulation.Tracking.TrackCandidateProducer_cfi import trackCandidateProducer

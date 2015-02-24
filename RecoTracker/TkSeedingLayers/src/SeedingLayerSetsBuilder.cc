@@ -14,6 +14,8 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 
+#include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
+
 #include "HitExtractorPIX.h"
 #include "HitExtractorSTRP.h"
 
@@ -127,7 +129,7 @@ SeedingLayerSetsBuilder::LayerSpec::LayerSpec(unsigned short index, const std::s
     extractor = std::make_shared<HitExtractorPIX>(side, idLayer, pixelHitProducer, iC);
   }
   else if(subdet != GeomDetEnumerators::invalidDet) { // strip
-    std::shared_ptr<HitExtractorSTRP> extr = std::make_shared<HitExtractorSTRP>(subdet, side, idLayer, cfgLayer.exists("minGoodCharge") ? cfgLayer.getParameter<double>("minGoodCharge") : 0);
+    std::shared_ptr<HitExtractorSTRP> extr = std::make_shared<HitExtractorSTRP>(subdet, side, idLayer, clusterChargeCut(cfgLayer) );
     if (cfgLayer.exists("matchedRecHits")) {
       extr->useMatchedHits(cfgLayer.getParameter<edm::InputTag>("matchedRecHits"), iC);
     }

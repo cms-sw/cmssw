@@ -50,7 +50,7 @@ initialStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorES
     ComponentName = cms.string('initialStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(30.0),
-    minGoodStripCharge = cms.double(1724),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose')),
     pTChargeCutThreshold = cms.double(15.)
 )
 

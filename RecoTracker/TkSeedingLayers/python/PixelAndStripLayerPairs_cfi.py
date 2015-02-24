@@ -31,7 +31,7 @@ PixelAndStripLayerPairs.layerList = cms.vstring(
 PixelAndStripLayerPairs.TIB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         TTRHBuilder = cms.string('WithTrackAngle')
-        ,minGoodCharge = cms.double(-2069.)
+        ,clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 PixelAndStripLayerPairs.TID = cms.PSet(
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
@@ -39,7 +39,7 @@ PixelAndStripLayerPairs.TID = cms.PSet(
     TTRHBuilder = cms.string('WithTrackAngle'),
     minRing = cms.int32(1),
     maxRing = cms.int32(1)
-   ,minGoodCharge = cms.double(-2069.)
+   ,clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 PixelAndStripLayerPairs.TEC = cms.PSet(
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
@@ -47,7 +47,7 @@ PixelAndStripLayerPairs.TEC = cms.PSet(
     TTRHBuilder = cms.string('WithTrackAngle'),
     minRing = cms.int32(1),
     maxRing = cms.int32(1)
-   ,minGoodCharge = cms.double(-2069.)
+   ,clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 PixelAndStripLayerPairs.BPix = cms.PSet(
     TTRHBuilder = cms.string('WithTrackAngle'),
