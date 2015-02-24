@@ -46,7 +46,7 @@
 #include "TEveBrowser.h"
 #include "TGeoManager.h"
 
-
+const edm::EventSetup* FWFFLooper::m_setup = 0;
 namespace
 {
    class CmsEveMagField : public TEveMagField
@@ -299,8 +299,11 @@ FWFFLooper::stopPlaying()
 void
 FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
+   //   gEve->GetBrowser()->MapWindow();
    // Check DisplayGeomRecord changes.
    try {
+      printf("GET beginRun Run \n");
+      m_setup = &iSetup;
       m_geomWatcher.check(iSetup);
    }
    catch (...) {}
@@ -381,6 +384,7 @@ FWFFLooper::duringLoop(const edm::Event &event,
                        const edm::EventSetup&es, 
                        edm::ProcessingController &controller)
 {
+   printf("amt during loop \n");
    // Check DisplayGeomRecord changes.
    try { 
       m_geomWatcher.check(es);

@@ -80,7 +80,7 @@ public:
    void requestChanges(const std::string &, const edm::ParameterSet &);
 
    void remakeGeometry(const DisplayGeomRecord& dgRec);
-
+   static const edm::EventSetup* m_setup;
 private:
    FWFFLooper(const FWFFLooper&);                  // stop default
    const FWFFLooper& operator=(const FWFFLooper&); // stop default
@@ -108,6 +108,7 @@ private:
    bool          m_autoReload;
    bool          m_isFirstEvent;
    bool          m_isLastEvent;
+
 
    edm::ESWatcher<DisplayGeomRecord> m_geomWatcher;
 };
