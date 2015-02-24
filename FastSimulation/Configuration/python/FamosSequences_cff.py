@@ -16,9 +16,6 @@ from FastSimulation.EventProducer.FamosSimHits_cff import *
 # Gaussian Smearing RecHit producer
 from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import *
 
-# Rec Hit Tranlator to the Full map with DeTId'
-from FastSimulation.TrackingRecHitProducer.TrackingRecHitTranslator_cfi import *
-
 # CTF and Iterative tracking (contains pixelTracks and pixelVertices)
 
 # 1) Common algorithms and configuration taken from full reconstruction

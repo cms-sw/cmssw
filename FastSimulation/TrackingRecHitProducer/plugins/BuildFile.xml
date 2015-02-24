@@ -28,9 +28,8 @@
 <use   name="SimDataFormats/CrossingFrame"/>
 <use   name="SimDataFormats/EncodedEventId"/>
 <use   name="SimDataFormats/TrackingHit"/>
+<use   name="FastSimulation/TrackingRecHitProducer"/>
 <use   name="boost"/>
 <use   name="clhep"/>
 <use   name="gsl"/>
-<export>
-    <lib   name="1"/>
-</export>
+<flags EDM_PLUGIN="1"/>

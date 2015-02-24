@@ -13,10 +13,10 @@
 #include "SiTrackerGaussianSmearingRecHitConverter.h"
 
 // SiPixel Gaussian Smearing
-#include "SiPixelGaussianSmearingRecHitConverterAlgorithm.h"
+#include "FastSimulation/TrackingRecHitProducer/interface/SiPixelGaussianSmearingRecHitConverterAlgorithm.h"
 
 // SiStripGaussianSmearing
-#include "SiStripGaussianSmearingRecHitConverterAlgorithm.h"
+#include "FastSimulation/TrackingRecHitProducer/interface/SiStripGaussianSmearingRecHitConverterAlgorithm.h"
 
 // Geometry and magnetic field
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -52,7 +52,7 @@
 // topology
 
 // the rec hit matcher
-#include "GSRecHitMatcher.h"
+#include "FastSimulation/TrackingRecHitProducer/interface/GSRecHitMatcher.h"
 
 // STL
 #include <memory>

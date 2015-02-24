@@ -1,4 +1,4 @@
-#include "GSRecHitMatcher.h"
+#include "FastSimulation/TrackingRecHitProducer/interface/GSRecHitMatcher.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
