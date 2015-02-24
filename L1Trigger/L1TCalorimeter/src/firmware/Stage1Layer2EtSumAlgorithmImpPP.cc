@@ -142,13 +142,18 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   double mtmp = ((double) MHT / (double) sumHT);
   int rank=params_->HtMissScale().rank(mtmp);
 
+
+  short itmp=MHToverHT(MHT,sumHT);
+  if ( abs(mtmp - float(itmp)/128.) > 0.006) 
+    std::cout << MHT << "\t" << sumHT << "\tRatio: " << mtmp << "\t" << float(itmp)/128. << std::endl;
+
   // if (mtmp>.95)std::cout << " MHT: " << MHT << " sumHT " << sumHT << " rat: " << mtmp << " rank " << rank << std::endl;
 
   MHT=rank;
   iPhiHT=dijet_phi;
 
   l1t::EtSum etMiss(*&etLorentz,EtSum::EtSumType::kMissingEt,MET,0,iPhiET,0);
-  l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHT&0xfff,0,iPhiHT,HTTqual);
+  l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,itmp&0x7f,0,iPhiHT,HTTqual);
   l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET&0xfff,0,0,ETTqual);
   l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT&0xfff,0,0,HTTqual);
 
@@ -213,4 +218,22 @@ int l1t::Stage1Layer2EtSumAlgorithmImpPP::DiJetPhi(const std::vector<l1t::Jet> *
 
   if ( difference > 9 ) difference= L1CaloRegionDetId::N_PHI - difference ; // make Physical dphi always positive
   return difference;
+}
+
+uint16_t l1t::Stage1Layer2EtSumAlgorithmImpPP::MHToverHT(uint16_t num,uint16_t den)  const {
+
+  uint16_t result;
+  uint32_t numerator(num),denominator(den);
+  
+  if(numerator == denominator)
+    result = 0x7f;
+  else
+    {
+      numerator = numerator << 7;
+      result = numerator/denominator;
+      result = result & 0x7f;
+    }
+  // cout << "Result: " << result << endl;
+  
+  return result;
 }

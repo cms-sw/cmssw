@@ -40,6 +40,7 @@ namespace l1t {
     CaloParamsStage1* const params_;
 
     int DiJetPhi(const std::vector<l1t::Jet> * jets) const;
+    uint16_t MHToverHT(uint16_t,uint16_t) const;
     std::vector<double> sinPhi;
     std::vector<double> cosPhi;
 
