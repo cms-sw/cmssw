@@ -140,7 +140,7 @@
   <Branch>recoGenParticles_genParticles__SIM.</Branch>
   <Branch>csctfTrackStubCSCTriggerContainer_simCsctfTrackDigis__HLT.</Branch>
   <Branch>csctfTrackStubCSCTriggerContainer_csctfDigis_DT_HLT.</Branch>
-  <Branch>CrossingFramePlaybackInfoExtended_mix__HLT.</Branch>
+  <Branch>CrossingFramePlaybackInfoNew_mix__HLT.</Branch>
   <Branch>EBDigiCollection_simEcalDigis_ebDigis_HLT.</Branch>
   <Branch>EEDigiCollection_simEcalDigis_eeDigis_HLT.</Branch>
   <Branch>ESDigiCollection_simEcalPreshowerDigis__HLT.</Branch>

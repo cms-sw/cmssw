@@ -41,6 +41,7 @@ namespace edm {
     poisson_(type_ == "poisson"),
     fixed_(type_ == "fixed"),
     none_(type_ == "none"),
+    fileNameHash_(0U),
     productRegistry_(new SignallingProductRegistry),
     input_(VectorInputSourceFactory::get()->makeVectorInputSource(pset, InputSourceDescription(
                                                                    ModuleDescription(),

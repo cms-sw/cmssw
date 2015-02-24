@@ -86,8 +86,9 @@ namespace sistrip {
 
   void SpyEventMatcher::initialize()
   {
+    size_t fileNameHash = 0U;
     //add spy events to the map until there are none left
-    source_->loopSequential(*eventPrincipal_,std::numeric_limits<size_t>::max(),boost::bind(&SpyEventMatcher::addNextEventToMap,this,_1));
+    source_->loopSequential(*eventPrincipal_,fileNameHash,std::numeric_limits<size_t>::max(),boost::bind(&SpyEventMatcher::addNextEventToMap,this,_1));
     //debug
     std::ostringstream ss;
     ss << "Events with possible matches (eventID,apvAddress): ";
@@ -229,9 +230,10 @@ namespace sistrip {
                                               SpyDataCollections& collectionsToCreate)
   {
     if (!matchingEvents) return;
+    size_t fileNameHash = 0U;
     FEDRawDataCollection outputRawData;
     MatchingOutput mo(outputRawData);
-    source_->loopSpecified(*eventPrincipal_,*matchingEvents,boost::bind(&SpyEventMatcher::getCollections,this,_1,
+    source_->loopSpecified(*eventPrincipal_,fileNameHash,matchingEvents->begin(),matchingEvents->end(),boost::bind(&SpyEventMatcher::getCollections,this,_1,
                                                        eventId,apvAddress,boost::cref(cabling),boost::ref(mo)));
     SpyDataCollections collections(mo.outputRawData_,mo.outputTotalEventCounters_,mo.outputL1ACounters_,mo.outputAPVAddresses_,
                                    mo.outputScopeDigisVector_.get(),mo.outputPayloadDigisVector_.get(),

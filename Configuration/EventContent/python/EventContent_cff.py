@@ -512,12 +512,11 @@ GENRAWEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 
 PREMIXEventContent.outputCommands.extend(GENRAWEventContent.outputCommands)
 PREMIXEventContent.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_simMuonRPCDigis_*_*')
-PREMIXEventContent.outputCommands.append('keep CrossingFramePlaybackInfoExtended_*_*_*')
+PREMIXEventContent.outputCommands.append('keep CrossingFramePlaybackInfoNew_*_*_*')
 
 PREMIXRAWEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
-PREMIXRAWEventContent.outputCommands.append('keep CrossingFramePlaybackInfoExtended_*_*_*')
-PREMIXRAWEventContent.outputCommands.append('drop CrossingFramePlaybackInfoExtended_mix_*_*')
-
+PREMIXRAWEventContent.outputCommands.append('keep CrossingFramePlaybackInfoNew_*_*_*')
+PREMIXRAWEventContent.outputCommands.append('drop CrossingFramePlaybackInfoNew_mix_*_*')
 
 REPACKRAWSIMEventContent.outputCommands.extend(REPACKRAWEventContent.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)

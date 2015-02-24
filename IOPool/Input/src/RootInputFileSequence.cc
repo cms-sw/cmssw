@@ -36,6 +36,8 @@ namespace edm {
     catalog_(catalog),
     firstFile_(true),
     lfn_("unknown"),
+    lfnHash_(0U),
+    findFileForSpecifiedID_(nullptr),
     fileIterBegin_(fileCatalogItems().begin()),
     fileIterEnd_(fileCatalogItems().end()),
     fileIter_(fileIterEnd_),
@@ -189,6 +191,7 @@ namespace edm {
     }
 
     lfn_ = fileIter_->logicalFileName().empty() ? fileIter_->fileName() : fileIter_->logicalFileName();
+    lfnHash_ = std::hash<std::string>()(lfn_);
     usedFallback_ = false;
 
     // Determine whether we have a fallback URL specified; if so, prepare it;
@@ -546,11 +549,44 @@ namespace edm {
   }
 
   bool
+  RootInputFileSequence::skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, size_t fileNameHash) {
+    // Look for item in files not yet opened. We have a hash of the logical file name
+    assert(fileNameHash != 0U);
+    // If the lookup table is not yet filled in, fill it. 
+    if(!findFileForSpecifiedID_) {
+      // We use a multimap because there may be hash collisions (Two different LFNs could have the same hash).
+      // We map the hash of the LFN to the index into the list of files.
+      findFileForSpecifiedID_.reset(new std::unordered_multimap<size_t, size_t>);
+      auto hasher = std::hash<std::string>();
+      for(auto fileIter = fileIterBegin_; fileIter != fileIterEnd_; ++fileIter) {
+        findFileForSpecifiedID_->insert(std::make_pair(hasher(fileIter->logicalFileName()), fileIter - fileIterBegin_));
+      }
+    }
+    // Look up the logical file name in the table
+    auto range = findFileForSpecifiedID_->equal_range(fileNameHash);
+    for(auto iter = range.first; iter != range.second; ++iter) {
+      // Don't look in files previously opened, because those have already been searched.
+      if(!indexesIntoFiles_[iter->second]) {
+        fileIter_ = fileIterBegin_ + iter->second;
+        initFile(false);
+        assert(rootFile_);
+        bool found = rootFile_->setEntryAtItem(run, lumi, event);
+        if(found) {
+          return true;
+        }
+      }
+    }
+    // Not found
+    return false;
+  }
+
+  bool
   RootInputFileSequence::skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) {
-    // Look for item in files not yet opened.
+    // Look for item in files not yet opened.  We do not have a valid hash of the logical file name.
     typedef std::vector<std::shared_ptr<IndexIntoFile> >::const_iterator Iter;
     for(Iter it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
       if(!*it) {
+        // File not yet opened.
         fileIter_ = fileIterBegin_ + (it - indexesIntoFiles_.begin());
         initFile(false);
         assert(rootFile_);
@@ -565,7 +601,7 @@ namespace edm {
   }
 
   bool
-  RootInputFileSequence::skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool currentFileFirst) {
+  RootInputFileSequence::skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, size_t fileNameHash, bool currentFileFirst) {
     // Attempt to find item in currently open input file.
     bool found = currentFileFirst && rootFile_ && rootFile_->setEntryAtItem(run, lumi, event);
     if(!found) {
@@ -590,8 +626,7 @@ namespace edm {
           return true;
         }
       }
-      // Look for item in files not yet opened.
-      return skipToItemInNewFile(run, lumi, event);
+      return (fileNameHash != 0U && skipToItemInNewFile(run, lumi, event, fileNameHash)) || skipToItemInNewFile(run, lumi, event);
     }
     return true;
   }
@@ -645,7 +680,7 @@ namespace edm {
   }
 
   bool
-  RootInputFileSequence::readOneSequential(EventPrincipal& cache) {
+  RootInputFileSequence::readOneSequential(EventPrincipal& cache, size_t& fileNameHash) {
     skipBadFiles_ = false;
     if(fileIter_ == fileIterEnd_ || !rootFile_) {
       if(fileIterEnd_ == fileIterBegin_) {
@@ -667,13 +702,14 @@ namespace edm {
       initFile(false);
       assert(rootFile_);
       rootFile_->setAtEventEntry(IndexIntoFile::invalidEntry);
-      return readOneSequential(cache);
+      return readOneSequential(cache, fileNameHash);
     }
+    fileNameHash = lfnHash_;
     return true;
   }
 
   bool
-  RootInputFileSequence::readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& id) {
+  RootInputFileSequence::readOneSequentialWithID(EventPrincipal& cache, size_t& fileNameHash, LuminosityBlockID const& id) {
     if(fileIterEnd_ == fileIterBegin_) {
       throw Exception(errors::Configuration) << "RootInputFileSequence::readOneSequentialWithID(): no input files specified for secondary input source.\n";
     }
@@ -681,7 +717,7 @@ namespace edm {
     if(fileIter_ == fileIterEnd_ || !rootFile_ ||
         rootFile_->indexIntoFileIter().run() != id.run() ||
         rootFile_->indexIntoFileIter().lumi() != id.luminosityBlock()) {
-      bool found = skipToItem(id.run(), id.luminosityBlock(), 0, false);
+      bool found = skipToItem(id.run(), id.luminosityBlock(), 0, 0, false);
       if(!found) {
         return false;
       }
@@ -696,18 +732,20 @@ namespace edm {
       if(!found) {
         return false;
       }
-      return readOneSequentialWithID(cache, id);
+      return readOneSequentialWithID(cache, fileNameHash, id);
     }
+    fileNameHash = lfnHash_;
     return true;
   }
 
   void
-  RootInputFileSequence::readOneSpecified(EventPrincipal& cache, EventID const& id) {
+  RootInputFileSequence::readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, SecondaryEventIDAndFileInfo const& idx) {
     if(fileIterEnd_ == fileIterBegin_) {
       throw Exception(errors::Configuration) << "RootInputFileSequence::readOneSpecified(): no input files specified for secondary input source.\n";
     }
     skipBadFiles_ = false;
-    bool found = skipToItem(id.run(), id.luminosityBlock(), id.event());
+    EventID const& id = idx.eventID();
+    bool found = skipToItem(id.run(), id.luminosityBlock(), id.event(), idx.fileNameHash());
     if(!found) {
        throw Exception(errors::NotFound) <<
          "RootInputFileSequence::readOneSpecified(): Secondary Input files" <<
@@ -716,10 +754,14 @@ namespace edm {
     assert(rootFile_);
     found = rootFile_->readCurrentEvent(cache);
     assert(found);
+    fileNameHash = idx.fileNameHash();
+    if(fileNameHash == 0U)  {
+      fileNameHash = lfnHash_;
+    }
   }
 
   void
-  RootInputFileSequence::readOneRandom(EventPrincipal& cache, CLHEP::HepRandomEngine* engine) {
+  RootInputFileSequence::readOneRandom(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine* engine) {
     if(fileIterEnd_ == fileIterBegin_) {
       throw Exception(errors::Configuration) << "RootInputFileSequence::readOneRandom(): no input files specified for secondary input source.\n";
     }
@@ -749,13 +791,14 @@ namespace edm {
       bool found = rootFile_->readCurrentEvent(cache);
       assert(found);
     }
+    fileNameHash = lfnHash_;
     --eventsRemainingInFile_;
   }
 
   // bool RootFile::setEntryAtNextEventInLumi(RunNumber_t run, LuminosityBlockNumber_t lumi) {
 
   bool
-  RootInputFileSequence::readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id, CLHEP::HepRandomEngine* engine) {
+  RootInputFileSequence::readOneRandomWithID(EventPrincipal& cache, size_t& fileNameHash, LuminosityBlockID const& id, CLHEP::HepRandomEngine* engine) {
     if(fileIterEnd_ == fileIterBegin_) {
       throw Exception(errors::Configuration) << "RootInputFileSequence::readOneRandomWithID(): no input files specified for secondary input source.\n";
     }
@@ -788,8 +831,9 @@ namespace edm {
       if(!found) {
         return false;
       }
-      return readOneRandomWithID(cache, id, engine);
+      return readOneRandomWithID(cache, fileNameHash, id, engine);
     }
+    fileNameHash = lfnHash_;
     return true;
   }
 
