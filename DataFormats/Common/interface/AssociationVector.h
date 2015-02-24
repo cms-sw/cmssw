@@ -100,7 +100,7 @@ namespace edm {
     void setValue(size_type i, typename CVal::value_type const& val);
     void fillView(ProductID const& id,
 		  std::vector<void const*>& pointers,
-		  helper_vector& helpers) const;
+		  FillViewHelperVector& helpers) const;
 
     typedef typename transient_vector_type::const_iterator const_iterator;
 
@@ -279,7 +279,7 @@ namespace edm {
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::fillView(ProductID const& id,
 											  std::vector<void const*>& pointers,
-											  helper_vector& helpers) const
+											  FillViewHelperVector& helpers) const
   {
     detail::reallyFillView(*this, id, pointers, helpers);
 //     pointers.reserve(this->size());
@@ -305,7 +305,7 @@ namespace edm {
   fillView(AssociationVector<KeyRefProd,CVal, KeyRef, SizeType, KeyReferenceHelper> const& obj,
 	   ProductID const& id,
 	   std::vector<void const*>& pointers,
-	   helper_vector& helpers) {
+	   FillViewHelperVector& helpers) {
     obj.fillView(id, pointers, helpers);
   }
 

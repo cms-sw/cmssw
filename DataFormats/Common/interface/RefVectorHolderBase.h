@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
+#include "DataFormats/Common/interface/FillViewHelperVector.h"
 
 #include <memory>
 
@@ -156,7 +157,7 @@ namespace edm {
       virtual const_iterator begin() const = 0;
       virtual const_iterator end() const = 0;
       template<typename T> RefToBase<T> getRef(size_t idx) const;
-      virtual void reallyFillView(void const*, ProductID const&, std::vector<void const*>&) = 0;
+      virtual void reallyFillView(void const*, ProductID const&, std::vector<void const*>&, FillViewHelperVector&) = 0;
       virtual size_t keyForIndex(size_t idx) const = 0;
 
       /// Checks if product collection is in memory or available

@@ -217,45 +217,7 @@ namespace edm {
   }
 }
 
-#include "DataFormats/Common/interface/HolderToVectorTrait.h"
-
-namespace edm {
-  namespace reftobase {
-
-    template<typename T>
-    struct RefProdHolderToVector {
-      static  std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() {
-        Exception::throwThis(errors::InvalidReference, "attempting to make a BaseVectorHolder<T> from a RefProd<C>.\n");
-        return std::auto_ptr<BaseVectorHolder<T> >();
-      }
-      static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
-        Exception::throwThis(errors::InvalidReference, "attempting to make a RefVectorHolderBase from a RefProd<C>.\n");
-        return std::auto_ptr<RefVectorHolderBase>();
-      }
-    };
-
-    template<typename C, typename T>
-    struct HolderToVectorTrait<T, RefProd<C> > {
-      typedef RefProdHolderToVector<T> type;
-    };
-
-    struct RefProdRefHolderToRefVector {
-      static std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
-        Exception::throwThis(errors::InvalidReference, "attempting to make a BaseVectorHolder<T> from a RefProd<C>.\n");
-        return std::auto_ptr<RefVectorHolderBase>();
-      }
-      static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
-        Exception::throwThis(errors::InvalidReference, "attempting to make a RefVectorHolderBase from a RefProd<C>.\n");
-        return std::auto_ptr<RefVectorHolderBase>();
-      }
-    };
-
-    template<typename C>
-    struct RefHolderToRefVectorTrait<RefProd<C> > {
-      typedef RefProdRefHolderToRefVector type;
-    };
-
-  }
-}
+//Handle specialization here
+#include "DataFormats/Common/interface/HolderToVectorTrait_RefProd_specialization.h"
 
 #endif

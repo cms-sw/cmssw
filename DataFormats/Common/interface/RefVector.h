@@ -154,7 +154,7 @@ namespace edm {
 
     void fillView(ProductID const& id,
                   std::vector<void const*>& pointers,
-                  helper_vector& helpers) const;
+                  FillViewHelperVector& helpers) const;
 
     //Needed for ROOT storage
     CMS_CLASS_VERSION(10)
@@ -187,11 +187,12 @@ namespace edm {
     a.swap(b);
   }
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
   template<typename C, typename T, typename F>
   void
   RefVector<C,T,F>::fillView(ProductID const&,
                              std::vector<void const*>& pointers,
-                             helper_vector& helpers) const {
+                             FillViewHelperVector& helpers) const {
     typedef Ref<C,T,F>                     ref_type;
     typedef reftobase::RefHolder<ref_type> holder_type;
 
@@ -202,10 +203,10 @@ namespace edm {
     for(const_iterator i=begin(), e=end(); i!=e; ++i, ++key) {
       member_type const* address = i->isNull() ? 0 : &**i;
       pointers.push_back(address);
-      holder_type h(ref_type(i->id(), address, i->key()));
-      helpers.push_back(&h);
+      helpers.emplace_back(i->id(),i->key());
     }
   }
+#endif
 
   template<typename C, typename T, typename F>
   inline
@@ -213,7 +214,7 @@ namespace edm {
   fillView(RefVector<C,T,F> const& obj,
            ProductID const& id,
            std::vector<void const*>& pointers,
-           helper_vector& helpers) {
+           FillViewHelperVector& helpers) {
     obj.fillView(id, pointers, helpers);
   }
 

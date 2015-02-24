@@ -80,6 +80,9 @@ namespace edm {
     template <typename T1>
     explicit RefToBase(RefToBase<T1> const & r );
     RefToBase(std::shared_ptr<reftobase::RefHolderBase> p);
+#ifndef __GCCXML__
+    RefToBase(std::unique_ptr<reftobase::BaseHolder<value_type>>);
+#endif
     ~RefToBase();
 
     RefToBase& operator= (RefToBase const& rhs);
@@ -171,6 +174,14 @@ namespace edm {
   RefToBase<T>::RefToBase(std::shared_ptr<reftobase::RefHolderBase> p) :
     holder_(new reftobase::IndirectHolder<T>(p))
   { }
+
+#ifndef __GCCXML__
+  template <class T>
+  inline
+  RefToBase<T>::RefToBase(std::unique_ptr<reftobase::BaseHolder<value_type>> p):
+    holder_(p.release())
+  {}
+#endif
 
   template <class T>
   inline

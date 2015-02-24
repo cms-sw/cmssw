@@ -3,6 +3,7 @@
 #include <iterator>
 #include <iostream>
 #include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/Common/interface/Ptr.h"
 
 class testOwnVector : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testOwnVector);

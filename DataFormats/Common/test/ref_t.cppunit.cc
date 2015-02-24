@@ -232,5 +232,6 @@ void testRef::getTest() {
    //std::cerr << ">>> checking View element #0" << std::endl;
    CPPUNIT_ASSERT(vw[0].value_ == ref0->value_);
    //std::cerr << ">>> checking View element #1" << std::endl;
-   CPPUNIT_ASSERT(vw[1].value_ == ref1-> value_);
+   CPPUNIT_ASSERT(vw[1].value_ == ref1->value_);
+   //std::cerr << ">>> RefToBaseProd from View" << std::endl;
 }

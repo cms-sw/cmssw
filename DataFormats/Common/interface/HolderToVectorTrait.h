@@ -62,4 +62,9 @@ namespace edm {
   }
 }
 
+//Handle specialization here
+#include "DataFormats/Common/interface/HolderToVectorTrait_Ref_specialization.h"
+#include "DataFormats/Common/interface/HolderToVectorTrait_Ptr_specialization.h"
+#include "DataFormats/Common/interface/HolderToVectorTrait_RefProd_specialization.h"
+
 #endif

@@ -277,7 +277,34 @@ namespace edm {
     /// a collection will be identical to the ordering of the referenced objects in the collection.
     return (lhs.refCore() == rhs.refCore() ? lhs.key() < rhs.key() : lhs.refCore() < rhs.refCore());
   }
-
 }
+
+//The following is needed to get RefToBase to work with an edm::Ptr
+//Handle specialization here
+#include "DataFormats/Common/interface/HolderToVectorTrait_Ptr_specialization.h"
+#include <vector>
+
+#ifndef __GCCXML__
+namespace edm {
+  template <typename T>
+  inline
+  void
+  fillView(std::vector<edm::Ptr<T> > const& obj,
+           ProductID const& id,
+           std::vector<void const*>& pointers,
+           FillViewHelperVector& helpers) {
+    pointers.reserve(obj.size());
+    helpers.reserve(obj.size());
+    for (auto const& p: obj) {
+      if(p.isAvailable()) {
+        pointers.push_back(p.get());
+      }else {
+        pointers.push_back(nullptr);
+      }
+      helpers.emplace_back(p.id(),p.key());
+    }
+  }
+}
+#endif
 
 #endif
