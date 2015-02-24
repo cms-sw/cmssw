@@ -49,6 +49,11 @@ namespace edm {
     return dynamic_cast<EventPrincipal const&>(provRecorder_.principal());
   }
 
+  EDProductGetter const&
+  Event::productGetter() const {
+    return provRecorder_.principal();
+  }
+
   ProductID
   Event::makeProductID(BranchDescription const& desc) const {
     return eventPrincipal().branchIDToProductID(desc.originalBranchID());

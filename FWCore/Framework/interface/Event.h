@@ -51,6 +51,7 @@ namespace edm {
   class TriggerResults;
   class TriggerNames;
   class EDConsumerBase;
+  class EDProductGetter;
   class ProducerBase;
   namespace stream {
     template< typename T> class ProducingModuleAdaptorBase;
@@ -224,6 +225,9 @@ namespace edm {
 
     EventPrincipal&
     eventPrincipal();
+
+    EDProductGetter const&
+    productGetter() const;
 
     ProductID
     makeProductID(BranchDescription const& desc) const;
@@ -545,7 +549,7 @@ namespace edm {
     //  fill the helper vector
     bh.wrapper()->fillView(bh.id(), pointersToElements, helpers);
 
-    auto newview = std::make_shared<View<ELEMENT> >(pointersToElements, helpers, &(eventPrincipal()));
+    auto newview = std::make_shared<View<ELEMENT> >(pointersToElements, helpers, &(productGetter()));
 
     addToGotBranchIDs(*bh.provenance());
     gotViews_.push_back(newview);
