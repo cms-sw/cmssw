@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import sys
 
 from Configuration.PyReleaseValidation.MatrixReader import MatrixReader
@@ -27,7 +26,7 @@ def runSelected(opt):
         mrd.show(opt.testList,opt.extended)
         if opt.testList : print 'testListected items:', opt.testList
     else:
-        mRunnerHi = MatrixRunner(mrd.workFlows, opt.nThreads)
+        mRunnerHi = MatrixRunner(mrd.workFlows, opt.nProcs, opt.nThreads)
         ret = mRunnerHi.runTests(opt)
 
     if opt.wmcontrol:
@@ -71,10 +70,16 @@ if __name__ == '__main__':
     parser = optparse.OptionParser(usage)
 
     parser.add_option('-j','--nproc',
-                      help='number of threads. 0 Will use 4 threads, not execute anything but create the wfs',
-                      dest='nThreads',
+                      help='number of processes. 0 Will use 4 processes, not execute anything but create the wfs',
+                      dest='nProcs',
                       default=4
                      )
+    parser.add_option('-t','--nThreads',
+                      help='number of threads per process to use in cmsRun.',
+                      dest='nThreads',
+                      default=1
+                     )
+
     parser.add_option('-n','--showMatrix',
                       help='Only show the worflows. Use --ext to show more',
                       dest='show',
@@ -244,6 +249,7 @@ if __name__ == '__main__':
 
     if opt.useInput: opt.useInput = opt.useInput.split(',')
     if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
+    if opt.nProcs: opt.nProcs=int(opt.nProcs)
     if opt.nThreads: opt.nThreads=int(opt.nThreads)
 
     if opt.wmcontrol:
