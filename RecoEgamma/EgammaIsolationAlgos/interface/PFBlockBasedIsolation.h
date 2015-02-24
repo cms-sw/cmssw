@@ -5,8 +5,8 @@
 //--------------------------------------------------------------------------------------------------
 
 
-#ifndef PfBlockBasedIsolation_H
-#define PfBlockBasedIsolation_H
+#ifndef PFBlockBasedIsolation_H
+#define PFBlockBasedIsolation_H
 
 
 #include "FWCore/Framework/interface/Event.h"
@@ -33,12 +33,12 @@ namespace reco{
   class PFBlockElementCluster;
 }
 
-class PfBlockBasedIsolation{
+class PFBlockBasedIsolation{
  public:
-  PfBlockBasedIsolation();
+  PFBlockBasedIsolation();
 
 
-  ~PfBlockBasedIsolation();
+  ~PFBlockBasedIsolation();
 
 
 
@@ -54,7 +54,8 @@ class PfBlockBasedIsolation{
 		 const reco::PFCandidateRef pfEGCand,
 		 const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle);
 
-  
+
+private:  
   const reco::PFBlockElementCluster* getHighestEtECALCluster(const reco::PFCandidate& pfCand);
   bool passesCleaningPhoton(const  reco::PFCandidateRef& pfCand,const reco::PFCandidateRef& pfEGCand);
   bool passesCleaningNeutralHadron(const  reco::PFCandidateRef& pfCand,const reco::PFCandidateRef& pfEGCand);

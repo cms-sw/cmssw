@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaIsolationAlgos/interface/PfBlockBasedIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/PFBlockBasedIsolation.h"
 #include <cmath>
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -21,7 +21,7 @@
 
 //--------------------------------------------------------------------------------------------------
 
-PfBlockBasedIsolation::PfBlockBasedIsolation() {
+PFBlockBasedIsolation::PFBlockBasedIsolation() {
   // Default Constructor.
 }
 
@@ -29,20 +29,20 @@ PfBlockBasedIsolation::PfBlockBasedIsolation() {
 
 
 //--------------------------------------------------------------------------------------------------
-PfBlockBasedIsolation::~PfBlockBasedIsolation()
+PFBlockBasedIsolation::~PFBlockBasedIsolation()
 {
 
 }
 
 
-void  PfBlockBasedIsolation::setup ( const edm::ParameterSet& conf ) {
+void  PFBlockBasedIsolation::setup ( const edm::ParameterSet& conf ) {
 
   coneSize_             = conf.getParameter<double>("coneSize");  
 
 }
 
 
-std::vector<reco::PFCandidateRef>  PfBlockBasedIsolation::calculate(math::XYZTLorentzVectorD p4, const reco::PFCandidateRef pfEGCand, const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle) {
+std::vector<reco::PFCandidateRef>  PFBlockBasedIsolation::calculate(math::XYZTLorentzVectorD p4, const reco::PFCandidateRef pfEGCand, const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle) {
   
   std::vector<reco::PFCandidateRef> myVec;
   
@@ -99,7 +99,7 @@ std::vector<reco::PFCandidateRef>  PfBlockBasedIsolation::calculate(math::XYZTLo
  }
 
 
-bool PfBlockBasedIsolation::elementPassesCleaning(const reco::PFCandidateRef& pfCand,const reco::PFCandidateRef& pfEGCand)
+bool PFBlockBasedIsolation::elementPassesCleaning(const reco::PFCandidateRef& pfCand,const reco::PFCandidateRef& pfEGCand)
 {
   if(pfCand->particleId()==reco::PFCandidate::h) return passesCleaningChargedHadron(pfCand,pfEGCand);
   else if(pfCand->particleId()==reco::PFCandidate::h0) return passesCleaningNeutralHadron(pfCand,pfEGCand);
@@ -108,7 +108,7 @@ bool PfBlockBasedIsolation::elementPassesCleaning(const reco::PFCandidateRef& pf
 }
 
 //currently the record of which candidates came from the charged hadron is acceptable, no further cleaning is needed
-bool PfBlockBasedIsolation::passesCleaningChargedHadron(const reco::PFCandidateRef& pfCand,const reco::PFCandidateRef& pfEGCand)
+bool PFBlockBasedIsolation::passesCleaningChargedHadron(const reco::PFCandidateRef& pfCand,const reco::PFCandidateRef& pfEGCand)
 {
   return true;
 }
@@ -116,13 +116,13 @@ bool PfBlockBasedIsolation::passesCleaningChargedHadron(const reco::PFCandidateR
 //neutral hadrons are not part of the PF E/gamma reco, therefore they cant currently come from an electron/photon and so should be rejected
 //but we still think there may be some useful info here and given we can easily
 //fix this at AOD level, we will auto accept them for now and clean later
-bool PfBlockBasedIsolation::passesCleaningNeutralHadron(const  reco::PFCandidateRef& pfCand,const reco::PFCandidateRef& pfEGCand)
+bool PFBlockBasedIsolation::passesCleaningNeutralHadron(const  reco::PFCandidateRef& pfCand,const reco::PFCandidateRef& pfEGCand)
 {
   return true;
 }
 
 //the highest et ECAL element of the photon must match to the electron superclusters or one of its sub clusters
-bool PfBlockBasedIsolation::passesCleaningPhoton(const  reco::PFCandidateRef& pfCand,const reco::PFCandidateRef& pfEGCand)
+bool PFBlockBasedIsolation::passesCleaningPhoton(const  reco::PFCandidateRef& pfCand,const reco::PFCandidateRef& pfEGCand)
 {
   bool passesCleaning=false;
   const reco::PFBlockElementCluster* ecalClusWithMaxEt = getHighestEtECALCluster(*pfCand);
@@ -146,7 +146,7 @@ bool PfBlockBasedIsolation::passesCleaningPhoton(const  reco::PFCandidateRef& pf
 }
 
 
-const reco::PFBlockElementCluster* PfBlockBasedIsolation::getHighestEtECALCluster(const reco::PFCandidate& pfCand)
+const reco::PFBlockElementCluster* PFBlockBasedIsolation::getHighestEtECALCluster(const reco::PFCandidate& pfCand)
 {
   float maxECALEt =-1;
   const reco::PFBlockElement* maxEtECALCluster=nullptr;
