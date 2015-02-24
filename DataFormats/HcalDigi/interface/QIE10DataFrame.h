@@ -36,6 +36,8 @@ public:
   DetId detid() const { return DetId(id()); }
   /// total number of samples in the digi
   int samples() const { return (size()-1)/2; }
+  /// get the flavor of the frame
+  int flavor() const { return ((edm::DataFrame::operator[](0)>>12)&0x7); }
   /// was there a link error?
   bool linkError() const { return edm::DataFrame::operator[](0)&0x800; } 
   /// was this a mark-and-pass ZS event?  
@@ -44,7 +46,7 @@ public:
   inline Sample operator[](edm::DataFrame::size_type i) const { return Sample(*this,i*2+1); }
   /// set the sample contents
   void setSample(edm::DataFrame::size_type isample, int adc, int le_tdc, int fe_tdc, int capid, bool soi=false, bool ok=true);
-
+  
 };
 
 std::ostream& operator<<(std::ostream&, const QIE10DataFrame&);
