@@ -668,7 +668,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	       ++i);
 	}
       } else if (i.flavor()==0x4) { // TP digis
-	int ilink=((i.channelid()>>4)&0x7);
+	int ilink=((i.channelid()>>4)&0xF);
 	int itower=(i.channelid()&0xF);
 	HcalElectronicsId eid(crate,slot,ilink,itower,true);
 	DetId did=emap.lookupTrigger(eid);
