@@ -10,11 +10,11 @@ def performInjectionOptionTest(opt):
         sys.exit(-1)
     if opt.wmcontrol=='init':
         #init means it'll be in test mode
-        opt.nThreads=0
+        opt.nProcs=0
     if opt.wmcontrol=='test':
         #means the wf were created already, and we just dryRun it.
         opt.dryRun=True
-    if opt.wmcontrol=='submit' and opt.nThreads==0:
+    if opt.wmcontrol=='submit' and opt.nProcs==0:
         print 'Not injecting to wmagent in -j 0 mode. Need to run the worklfows.'
         sys.exit(-1)
     if opt.wmcontrol=='force':
@@ -104,6 +104,7 @@ class MatrixInjector(object):
             "unmergedLFNBase" : "/store/unmerged",
             "mergedLFNBase" : "/store/relval",
             "dashboardActivity" : "relval",
+            "Multicore" : opt.nThreads,
             "Memory" : 2400,
             "SizePerEvent" : 1234,
             "TimePerEvent" : 20
