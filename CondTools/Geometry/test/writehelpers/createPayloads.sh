@@ -39,7 +39,7 @@ cmsRun geometrywriter.py
 sed -i '{s/Extended/Ideal/g}' geometryxmlwriter.py
 sed -i '{s/\/ge/\/gi/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
-sed -i '{s/IdealGeometry/ExtendedGeometryZeroMaterial/g}' geometryxmlwriter.py
+sed -i '{s/Ideal/ExtendedZeroMaterial/g}' geometryxmlwriter.py
 sed -i '{s/\/gi/\/gez/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
 
