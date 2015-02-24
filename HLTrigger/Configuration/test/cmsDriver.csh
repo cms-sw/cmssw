@@ -38,6 +38,8 @@ set NNHIRD = 25
 
 set CustomRun1 = " "
 set CustomRun2 = "SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1"
+set CustomRun2pp50ns = "SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns"
+set CustomRun2HI     = "SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_HI"
  
 set XL1T    = "" # syntax: tag,record[,connect,label]
 set XL1TPP1 = "" # "L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS"
@@ -82,7 +84,7 @@ foreach gtag ( MC DATA )
     continue
   endif
 
-  foreach table ( FULL Fake GRun HIon PIon )
+  foreach table ( FULL Fake GRun HIon PIon 50nsGRun )
 
     set name = ${table}_${gtag}  
 
@@ -122,6 +124,18 @@ foreach gtag ( MC DATA )
       set Custom1 = $CustomRun2
       set Custom2 = " "
       set L1REPACK = L1REPACK:GCTGT
+    else if ( $table == 50nsGRun ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:50nsGRun
+      set GTAG = ${BASE2}_50nsGRun
+      set RTAG = ${BASE2RD}_50nsGRun
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun2
+      set InputLHCRaw = $InputLHCRawGRun
+      set Custom1 = $CustomRun2pp50ns
+      set Custom2 = " "
+      set L1REPACK = L1REPACK:GCTGT
     else if ( $table == HIon ) then
       set XL1T = $XL1THI
       set XHLT = HLT:HIon
@@ -131,7 +145,7 @@ foreach gtag ( MC DATA )
       set SCEN = HeavyIons
       set InputGenSim = $InputGenSimHIon
       set InputLHCRaw = $InputLHCRawHIon
-      set Custom1 = $CustomRun2
+      set Custom1 = $CustomRun2HI
       set Custom2 = " "
       set L1REPACK = L1REPACK:GCTGT
     else if ( $table == PIon ) then

@@ -21,7 +21,7 @@
 int GeometryComparisonPlotter::canvas_index = 0;
 
 
-void comparisonScript (TString inFile="mp1510_vs_mp1509.Comparison_commonTracker.root",
+void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTracker.root",
                        TString outDir="outputDir/")
 {
     // the output directory is created if it does not exist
@@ -38,39 +38,44 @@ void comparisonScript (TString inFile="mp1510_vs_mp1509.Comparison_commonTracker
     // -> every combination possible will be performed
     // /!\ always give units (otherwise, unexpected bug from root...)
     vector<TString> x,y;
-    x.push_back("r");                                           cp->SetBranchUnits("r",     "cm");
+    x.push_back("r");                                           cp->SetBranchUnits("r",     "cm");  
     x.push_back("phi");                                         cp->SetBranchUnits("phi",   "rad");
-    x.push_back("z");                                           cp->SetBranchUnits("z",     "cm");
-    y.push_back("dr");		cp->SetBranchSF("dr", 	10000);     cp->SetBranchUnits("dr",    "#mu m");
-    y.push_back("dz");		cp->SetBranchSF("dz", 	10000);     cp->SetBranchUnits("dz",    "#mu m");
-    y.push_back("rdphi");	cp->SetBranchSF("rdphi",10000);     cp->SetBranchUnits("rdphi", "#mu m rad");
-    y.push_back("dx");		cp->SetBranchSF("dx", 	10000);     cp->SetBranchUnits("dx",    "#mu m");
-    y.push_back("dy");		cp->SetBranchSF("dy", 	10000);     cp->SetBranchUnits("dy",    "#mu m");
-    cp->SetPrintOption("png");
-    cp->MakePlots(x, y);
+    x.push_back("z");                                           cp->SetBranchUnits("z",     "cm");      //cp->SetBranchMax("z", 100); cp->SetBranchMin("z", -100);
+    y.push_back("dr");		cp->SetBranchSF("dr", 	10000);     cp->SetBranchUnits("dr",    "#mum");
+    y.push_back("dz");		cp->SetBranchSF("dz", 	10000);     cp->SetBranchUnits("dz",    "#mum");
+    y.push_back("rdphi");	cp->SetBranchSF("rdphi",10000);     cp->SetBranchUnits("rdphi", "#mum rad");
+    y.push_back("dx");		cp->SetBranchSF("dx", 	10000);     cp->SetBranchUnits("dx",    "#mum");    //cp->SetBranchMax("dx", 10); cp->SetBranchMin("dx", -10);
+    y.push_back("dy");		cp->SetBranchSF("dy", 	10000);     cp->SetBranchUnits("dy",    "#mum");    //cp->SetBranchMax("dy", 10); cp->SetBranchMin("dy", -10);
+    cp->MakePlots(x, y); // default output is pdf, but png gives a nicer result, so we use it as well
     // remark: what takes the more time is the creation of the output files,
-    // not the looping on the tree (because the code is perfect, of course :p)
-    cp->SetPrintOption("pdf");
+    //         not the looping on the tree (because the code is perfect, of course :p)
+    cp->SetGrid(1,1);
+    cp->SetPrintOption("png");
     cp->MakePlots(x, y);
 
     // now the same object can be reused with other specifications/cuts
-    //SetPrint               (const bool);      // option to produce output files
-    //SetWrite               (const bool);      // option to also produce a root file
-    //Set1dModule            (const bool);      // "false" cuts on 1d modules
-    //Set2dModule            (const bool);      // id for 2d
-    //SetLevelCut            (const int);       // corresponds to the branch level
-    //SetBatchMode           (const bool);      // display option
-    //SetBranchMax           (const TString,    // set fixed maximum
-    //                        const float);     
-    //SetBranchMin           (const TString,    // id for min
-    //                        const float);
-    //SetBranchUnits         (const TString,    // set branch units
-    //                        const float);
-    //SetBranchSF            (const TString,    // rescaling factor (i.e change units)
-    //                        const float);
-    //SetOutputDirectoryName (const TString);   // change the destination
-    //SetOutputFileName      (const TString);   // change the output filename
-    //SetPrintOption         (const Option_t *);// see TPad::Print() for possible options
+    //void SetPrint               (const bool);           // activates the printing of the individual and global pdf
+    //void SetLegend              (const bool);           // activates the legends
+    //void SetWrite               (const bool);           // activates the writing into a Root file
+    //void Set1dModule            (const bool);           // cut to include 1D modules
+    //void Set2dModule            (const bool);           // cut to include 2D modules
+    //void SetLevelCut            (const int);            // module level: level=1 (default)
+    //void SetBatchMode           (const bool);           // activates the display of the canvases
+    //void SetGrid                (const int,             // activates the display of the grids
+    //                             const int);
+    //void SetBranchMax           (const TString,         // sets a max value for the variable
+    //                             const float);          // by giving the name and the value
+    //void SetBranchMin           (const TString,         // sets a min value for the variable
+    //                             const float);          // by giving the name and the value
+    //void SetBranchSF            (const TString,         // sets a rescaling factor for the variable
+    //                             const float);          // by giving the name and the value
+    //void SetBranchUnits         (const TString,         // writes de units next on the axis
+    //                             const TString);
+    //void SetOutputDirectoryName (const TString);        // sets the output name of the directory
+    //void SetOutputFileName      (const TString);        // sets the name of the root file (if applicable)
+    //void SetPrintOption         (const Option_t *);     // litteraly the print option of the TPad::Print()
+    //void SetCanvasSize          (const int window_width  = DEFAULT_WINDOW_WIDTH,
+    //                             const int window_height = DEFAULT_WINDOW_HEIGHT);
 }
 
 // the following line is necessary for standalone applications

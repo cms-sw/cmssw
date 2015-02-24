@@ -10,8 +10,5 @@ DefaultClusterizer = cms.PSet(
     MaxAdjacentBad = cms.uint32(0),
     QualityLabel = cms.string(""),
     RemoveApvShots     = cms.bool(True),
-    minGoodCharge = cms.double(-2069),
-    doRefineCluster = cms.bool(False),
-    occupancyThreshold = cms.double(0.05),
-    widthThreshold = cms.uint32(4)
+    minGoodCharge = cms.double(-2069)
     )
