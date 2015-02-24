@@ -15,7 +15,9 @@
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
-
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 
 //--------------------------------------------------------------------------------------------------
 
@@ -72,9 +74,10 @@ std::vector<reco::PFCandidateRef>  PfBlockBasedIsolation::calculate(math::XYZTLo
 
 	  for (ieg = theElementsInpfEGcand.begin(); ieg<theElementsInpfEGcand.end(); ++ieg) {
 	    if ( ipf->second == ieg->second && !elementFound  ) {
-	      elementFound=true;
-	      myVec.push_back(pfCandRef);    
-	       
+	      if(elementPassesCleaning(pfCandRef,pfEGCand)){
+		myVec.push_back(pfCandRef);    
+		elementFound=true;
+	      }
 	    }
 	  }
 	
@@ -96,5 +99,66 @@ std::vector<reco::PFCandidateRef>  PfBlockBasedIsolation::calculate(math::XYZTLo
  }
 
 
+bool PfBlockBasedIsolation::elementPassesCleaning(const reco::PFCandidateRef& pfCand,const reco::PFCandidateRef& pfEGCand)
+{
+  if(pfCand->particleId()==reco::PFCandidate::h) return passesCleaningChargedHadron(pfCand,pfEGCand);
+  else if(pfCand->particleId()==reco::PFCandidate::h0) return passesCleaningNeutralHadron(pfCand,pfEGCand);
+  else if(pfCand->particleId()==reco::PFCandidate::gamma) return passesCleaningPhoton(pfCand,pfEGCand);
+  else return true; //doesnt really matter here as if its not a photon,neutral or charged it wont be included in isolation
+}
+
+//currently the record of which candidates came from the charged hadron is acceptable, no further cleaning is needed
+bool PfBlockBasedIsolation::passesCleaningChargedHadron(const reco::PFCandidateRef& pfCand,const reco::PFCandidateRef& pfEGCand)
+{
+  return true;
+}
+
+//neutral hadrons are not part of the PF E/gamma reco, therefore they cant currently come from an electron/photon and so should be rejected
+//but we still think there may be some useful info here and given we can easily
+//fix this at AOD level, we will auto accept them for now and clean later
+bool PfBlockBasedIsolation::passesCleaningNeutralHadron(const  reco::PFCandidateRef& pfCand,const reco::PFCandidateRef& pfEGCand)
+{
+  return true;
+}
+
+//the highest et ECAL element of the photon must match to the electron superclusters or one of its sub clusters
+bool PfBlockBasedIsolation::passesCleaningPhoton(const  reco::PFCandidateRef& pfCand,const reco::PFCandidateRef& pfEGCand)
+{
+  bool passesCleaning=false;
+  const reco::PFBlockElementCluster* ecalClusWithMaxEt = getHighestEtECALCluster(*pfCand);
+  if(ecalClusWithMaxEt){
+    if(ecalClusWithMaxEt->superClusterRef().isNonnull() && 
+       ecalClusWithMaxEt->superClusterRef()->seed()->seed()==pfEGCand->superClusterRef()->seed()->seed()){ //being sure to match, some concerned about different collections, shouldnt be but to be safe
+      passesCleaning=true;
+    }else{
+      for(auto cluster : pfEGCand->superClusterRef()->clusters()){
+	//the PF clusters there are in two different collections so cant reference match
+	//but we can match on the seed id, no clusters can share a seed so if the seeds are 
+	//equal, it must be the same cluster
+	if(ecalClusWithMaxEt->clusterRef()->seed()==cluster->seed()) {
+	  passesCleaning=true;
+	}
+      }//end of loop over clusters
+    }
+  }//end of null check for highest ecal cluster
+  return passesCleaning;
+
+}
 
 
+const reco::PFBlockElementCluster* PfBlockBasedIsolation::getHighestEtECALCluster(const reco::PFCandidate& pfCand)
+{
+  float maxECALEt =-1;
+  const reco::PFBlockElement* maxEtECALCluster=nullptr;
+  const reco::PFCandidate::ElementsInBlocks& elementsInPFCand = pfCand.elementsInBlocks();
+  for(auto& elemIndx : elementsInPFCand){
+    const reco::PFBlockElement* elem = elemIndx.second<elemIndx.first->elements().size() ? &elemIndx.first->elements()[elemIndx.second] : nullptr;
+    if(elem && elem->type()==reco::PFBlockElement::ECAL && elem->clusterRef()->pt()>maxECALEt){
+      maxECALEt = elem->clusterRef()->pt();
+      maxEtECALCluster = elem;
+    }
+    
+  }
+  return dynamic_cast<const reco::PFBlockElementCluster*>(maxEtECALCluster);
+	
+}
