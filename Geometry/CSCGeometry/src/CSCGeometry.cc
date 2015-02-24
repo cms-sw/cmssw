@@ -42,7 +42,7 @@ void CSCGeometry::addChamber(CSCChamber* ch){
 void CSCGeometry::addLayer(CSCLayer* l) {
   theDetUnits.push_back(l);
   theLayers.push_back(l);
-  theDetTypes.push_back(const_cast<GeomDetType*>(&(l->type()))); //@@ FIXME drop const_cast asap!
+  theDetTypes.push_back(l->chamber()->specs());
   theDetUnitIds.push_back(l->geographicalId());
   addDet(l);
 }

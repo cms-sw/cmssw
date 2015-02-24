@@ -17,11 +17,11 @@ public:
     typedef AbsFFTJetScaleCalculator<jet_type, adjustable_type> AbsScaler;
     typedef AbsFFTJetAdjuster<jet_type, adjustable_type> AbsAdjuster;
 
-    inline FFTJetCorrector(boost::shared_ptr<AbsAdjuster> adjuster,
-                           const std::vector<boost::shared_ptr<AbsScaler> >& scalers,
+    inline FFTJetCorrector(boost::shared_ptr<const AbsAdjuster> adjuster,
+                           const std::vector<boost::shared_ptr<const AbsScaler> >& scalers,
                            const unsigned i_level, const FFTJetCorrectorApp a)
         : adjuster_(adjuster), scalers_(scalers),
-          buffer_(scalers.size()), level_(i_level), app_(a) {}
+          level_(i_level), app_(a) {}
 
     inline void correct(const Jet& jet, const bool isMC,
                         const Adjustable& in, Adjustable* out) const
@@ -33,8 +33,19 @@ public:
             *out = in;
         else
         {
-            const unsigned nAdj = buffer_.size();
-            double* buf = nAdj ? &buffer_[0] : static_cast<double*>(0);
+            const unsigned nAdj = scalers_.size();
+            //If we only need a small buffer, use one on the stack
+            // else we will use a std::vector
+            constexpr size_t kStaticBufferSize = 10;
+            double staticBuffer[kStaticBufferSize];
+            std::vector<double> dynamicBuffer;
+            double* buf = nullptr;
+            if(nAdj<=kStaticBufferSize) {
+                buf = &(staticBuffer[0]);
+            } else {
+                dynamicBuffer.resize(nAdj);
+                buf = &(dynamicBuffer[0]);
+            }
             for (unsigned i=0; i<nAdj; ++i)
                 buf[i] = scalers_[i]->scale(jet, in);
             adjuster_->adjust(jet, in, buf, nAdj, out);
@@ -45,9 +56,8 @@ public:
     inline FFTJetCorrectorApp app() const {return app_;}
 
 private:
-    boost::shared_ptr<AbsAdjuster> adjuster_;
-    std::vector<boost::shared_ptr<AbsScaler> > scalers_;
-    mutable std::vector<double> buffer_;
+    boost::shared_ptr<const AbsAdjuster> adjuster_;
+    std::vector<boost::shared_ptr<const AbsScaler> > scalers_;
     unsigned level_;
     FFTJetCorrectorApp app_;
 };
