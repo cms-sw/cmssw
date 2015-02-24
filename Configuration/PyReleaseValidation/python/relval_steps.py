@@ -553,7 +553,7 @@ steps['QCD_Pt_170_230']=genS('QCD_Pt_170_230_8TeV_TuneCUETP8M1_cfi',Kby(25,100))
 
 
 ## pPb tests
-step1PPbDefaults={'--beamspot':'Realistic8TeVCollisionPPbBoost'}
+step1PPbDefaults={'--beamspot':'Realistic5TeVPPbBoost'}
 steps['AMPT_PPb_5020GeV_MinimumBias']=merge([{'-n':10},step1PPbDefaults,genS('AMPT_PPb_5020GeV_MinimumBias_cfi',Kby(9,100))])
 # GF to be uncommented when GEN-SIM becomes available
 # steps['AMPT_PPb_5020GeV_MinimumBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValAMPT_PPb_5020GeV_MinimumBias/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
