@@ -139,21 +139,15 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
 
   // scale MHT by sumHT
   // int mtmp = floor (((double) MHT / (double) sumHT)*100 + 0.5);
-  double mtmp = ((double) MHT / (double) sumHT);
-  int rank=params_->HtMissScale().rank(mtmp);
+  // double mtmp = ((double) MHT / (double) sumHT);
+  // int rank=params_->HtMissScale().rank(mtmp);
+  // MHT=rank;
 
-
-  short itmp=MHToverHT(MHT,sumHT);
-  if ( abs(mtmp - float(itmp)/128.) > 0.006) 
-    std::cout << MHT << "\t" << sumHT << "\tRatio: " << mtmp << "\t" << float(itmp)/128. << std::endl;
-
-  // if (mtmp>.95)std::cout << " MHT: " << MHT << " sumHT " << sumHT << " rat: " << mtmp << " rank " << rank << std::endl;
-
-  MHT=rank;
+  uint16_t MHToHT=MHToverHT(MHT,sumHT);
   iPhiHT=dijet_phi;
 
   l1t::EtSum etMiss(*&etLorentz,EtSum::EtSumType::kMissingEt,MET,0,iPhiET,0);
-  l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,itmp&0x7f,0,iPhiHT,HTTqual);
+  l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHToHT&0x7f,0,iPhiHT,HTTqual);
   l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET&0xfff,0,0,ETTqual);
   l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT&0xfff,0,0,HTTqual);
 
