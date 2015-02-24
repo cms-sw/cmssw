@@ -87,7 +87,7 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   theEvent.getByToken(mteSrc_, mte);
 
 
-  //declare and get TrackColection 
+  //declare and get TrackCollection 
   AlgoProductCollection algoResults;
   reco::BeamSpot bs;
   TrajAnnealingCollection trajannResults;
@@ -127,8 +127,6 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
            outputRHCollAfterDAF, outputTCollAfterDAF, outputTECollAfterDAF, 
            outputTrajectoryCollAfterDAF, algoResultsAfterDAF, theBuilder.product(), 2);
 
-//std::cout << "outputTCollBeforeDAF.size()" << outputTCollBeforeDAF->size() << std::endl;
-//std::cout << "outputTCollAfterDAF.size()" << outputTCollAfterDAF->size() << std::endl;
   LogDebug("DAFTrackProducer") << "end the DAF algorithm." << "\n";
 }
 //----------------------------------------------------------------------------------------------------------//
@@ -156,45 +154,4 @@ void DAFTrackProducer::putInEvtTrajAnn(edm::Event& theEvent, TrajAnnealingCollec
   }
 
   theEvent.put( outputTrajAnnColl );
-}
-//----------------------------------------------------------------------------------------------------------//
-void DAFTrackProducer::putInEvtTrackDAF(edm::Event& theEvent,
-					std::auto_ptr<reco::TrackCollection>& selTracks,
-                                   	std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
-					AlgoProductCollection& algoResults,
-					bool before	){
-/*  selTracks->reserve(algoResults.size());
-  selTrackExtras->reserve(algoResults.size());
-  for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
-
-    //put the Track
-    reco::Track * theTrack = (*i).second.first;
-    selTracks->push_back(std::move(*theTrack));
-    delete theTrack;
-
-    //build the TrackExtra
-    GlobalPoint v = outertsos.globalParameters().position();
-    GlobalVector p = outertsos.globalParameters().momentum();
-    math::XYZVector outmom( p.x(), p.y(), p.z() );
-    math::XYZPoint  outpos( v.x(), v.y(), v.z() );
-    v = innertsos.globalParameters().position();
-    p = innertsos.globalParameters().momentum();
-    math::XYZVector inmom( p.x(), p.y(), p.z() );
-    math::XYZPoint  inpos( v.x(), v.y(), v.z() );
-
-  }
-
-  //ERICA :: why?
-  selTracks->shrink_to_fit();
-  selTrackExtras->shrink_to_fit();
-
-  if( before == true ) { 
-    theEvent.put( selTracks , "beforeDAF"); 
-    theEvent.put( selTrackExtras , "beforeDAF");
-  }
-  else { 
-    theEvent.put( selTracks , "afterDAF"); 
-    theEvent.put( selTrackExtras , "afterDAF");
-  }
-*/
 }

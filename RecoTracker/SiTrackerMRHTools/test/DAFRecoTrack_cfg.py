@@ -22,9 +22,9 @@ process.GlobalTag.globaltag = 'START71_V1::All'#POSTLS171_V1::All'
 ### Track Refitter
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 process.load("RecoTracker.TrackProducer.CTFFinalFitWithMaterialDAF_cff")
-process.ctfWithMaterialTracksDAF.TrajectoryInEvent = True
-process.ctfWithMaterialTracksDAF.src = 'TrackRefitter'
-process.ctfWithMaterialTracksDAF.TrajAnnealingSaving = False
+process.TracksDAF.TrajectoryInEvent = True
+process.TracksDAF.src = 'TrackRefitter'
+process.TracksDAF.TrajAnnealingSaving = False
 process.MRHFittingSmoother.EstimateCut = -1
 process.MRHFittingSmoother.MinNumberOfHits = 3
 
@@ -32,8 +32,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring()
 ) 
 process.PoolSource.fileNames = [
-"/store/relval/CMSSW_7_2_0_pre5/RelValZpTT_1500_13TeV_Tauola/GEN-SIM-RECO/POSTLS172_V3-v1/00000/1A27E3AC-9530-E411-BFF8-0025905A6122.root",
-"/store/relval/CMSSW_7_2_0_pre5/RelValZpTT_1500_13TeV_Tauola/GEN-SIM-RECO/POSTLS172_V3-v1/00000/383D930D-A130-E411-8305-00259059642E.root",
+"file:reco_trk_SingleMuPt10_UP15_10evts.root",
 ]
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
@@ -53,7 +52,7 @@ process.out = cms.OutputModule("PoolOutputModule",
                                fileName = cms.untracked.string('refit_DAF.root')
                                )
 
-process.p = cms.Path(process.MeasurementTrackerEvent*process.TrackRefitter*process.ctfWithMaterialTracksDAF)
+process.p = cms.Path(process.MeasurementTrackerEvent*process.TrackRefitter*process.TracksDAF)
 process.o = cms.EndPath(process.out)
 
 ## debug(DAFTrackProducerAlgorithm)

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ctfWithMaterialTracksDAF = cms.EDProducer("DAFTrackProducer",
+TracksDAF = cms.EDProducer("DAFTrackProducer",
     src = cms.InputTag("DAFTrackCandidateMaker"),
     UpdatorName = cms.string('SiTrackerMultiRecHitUpdator'),
     beamSpot = cms.InputTag("offlineBeamSpot"),
