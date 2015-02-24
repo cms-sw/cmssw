@@ -1,5 +1,5 @@
 #ifndef DataMixingSiPixelMCDigiWorker_h
-#define SimDataMixingSiPixelMCDigiWorker_h
+#define DataMixingSiPixelMCDigiWorker_h
 
 /** \class DataMixingSiPixelMCDigiWorker
  *
@@ -27,6 +27,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -61,7 +62,7 @@ namespace edm
 
       virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c); // override?
 
-      void putSiPixel(edm::Event &e, edm::EventSetup const& iSetup) ;
+      void putSiPixel(edm::Event &e, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> &ps, int &bs) ;
       void addSiPixelSignals(const edm::Event &e); 
       void addSiPixelPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId, ModuleCallingContext const*);
 

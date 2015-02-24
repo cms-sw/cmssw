@@ -234,8 +234,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   
   // delta cutoff in MeV, has to be same as in OSCAR(0.030/cmsim=1.0 MeV
   //tMax(0.030), // In MeV.
-  //tMax(conf.getUntrackedParameter<double>("DeltaProductionCut",0.030)),
-  tMax(conf.getParameter<double>("DeltaProductionCut")),
+  //tMax(conf.getUntrackedParameter<double>("deltaProductionCut",0.030)),
+  tMax(conf.getParameter<double>("deltaProductionCut")),
 
   fluctuate(fluctuateCharge ? new SiG4UniversalFluctuation() : 0),
   theNoiser(addNoise ? new GaussianTailNoiseGenerator() : 0),

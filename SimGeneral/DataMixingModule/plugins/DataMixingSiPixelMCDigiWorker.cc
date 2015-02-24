@@ -79,11 +79,10 @@ namespace edm
 
   void DataMixingSiPixelMCDigiWorker::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {	
 
-    //iSetup.get<TrackerDigiGeometryRecord>().get(geometryType_, pDD); 
+    iSetup.get<TrackerDigiGeometryRecord>().get(geometryType_, pDD); 
     //edm::ESHandle<TrackerTopology> tTopoHand;
     //iSetup.get<IdealGeometryRecord>().get(tTopoHand);
     //const TrackerTopology *tTopo=tTopoHand.product();
-
   }					   
 
 
@@ -291,7 +290,7 @@ namespace edm
 
 
  
-  void DataMixingSiPixelMCDigiWorker::putSiPixel(edm::Event &e, edm::EventSetup const& iSetup) {
+  void DataMixingSiPixelMCDigiWorker::putSiPixel(edm::Event &e, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> &ps, int &bs) {
 
     // collection of Digis to put in the event
 
@@ -359,7 +358,7 @@ namespace edm
     } // end of big loop over all detector IDs
 
     // put the collection of digis in the event   
-    LogInfo("DataMixingSiPixelMCDigiWorker") << "total # Merged Pixels: " << vPixelDigi.size() ;
+    LogInfo("DataMixingSiPixelMCDigiWorker") << "total # Merged Pixels: " << _signal.size() ;
 
     // Now, we have to run Lumi-Dependent efficiency calculation on the merged pixels.
     // This is the only place where we have the PreMixed pileup information so that we can calculate
@@ -372,32 +371,26 @@ namespace edm
     iSetup.get<IdealGeometryRecord>().get(tTopoHand);
     const TrackerTopology *tTopo=tTopoHand.product();
 
-    // need pileup information.
+    // set pileup information.
 
-    //PileupInfo_ = getEventPileupInfo();
-    //_pixeldigialgo->calculateInstlumiFactor(PileupInfo_);   
+    setPileupInfo(ps, bs);
 
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
       
       if((*iu)->type().isTrackerPixel()) {
 
 	//
-
 	const PixelGeomDetUnit* pixdet = dynamic_cast<const PixelGeomDetUnit*>((*iu));
-
 	uint32_t detID = pixdet->geographicalId().rawId();
 
 	// fetch merged hits for this detID
 
 	signal_map_type& theSignal = _signal[detID];
 
-	edm::DetSet<PixelDigi> SPD(detID);  // make empty vector with this detID so we can push back digis at the end 
-
 	// if we have some hits...
 	if(theSignal.size()>0) {
 
-
-
+	  edm::DetSet<PixelDigi> SPD(detID);  // make empty vector with this detID so we can push back digis at the end 
 
 	  const PixelTopology* topol=&pixdet->specificTopology();
 	  int numColumns = topol->ncolumns();  // det module number of cols&rows
@@ -526,17 +519,17 @@ namespace edm
 	    if( chips[chipIndex]==0 || columns[dColInDet]==0
 		|| rand>pixelEfficiency ) {
 	      // make pixel amplitude =0, pixel will be lost at clusterization
-	      i->second=(0.); // reset amplitude,????????????
+	      i->second=(0.); // reset amplitude
 	    } // end if
 	    //Make a new Digi:
 
 	    SPD.push_back( PixelDigi(i->first, i->second) );     
 
 	  } // end pixel loop
+	  // push back vector here of one detID
+	  
+	  vPixelDigi.push_back(SPD);
 	}
-	// push back vector here of one detID
-
-	vPixelDigi.push_back(SPD);
       }
     }// end of loop over detectors
 
