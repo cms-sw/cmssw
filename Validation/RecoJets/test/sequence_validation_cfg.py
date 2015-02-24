@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("JETVALIDATION")
 
-#process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #process.load("Configuration.StandardSequences.Reconstruction_cff")
 #process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
@@ -14,7 +14,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = 'START42_V17::All'
 ##process.GlobalTag.globaltag = 'MC_38Y_V14::All'
 ## for 6_2_0 QCD
-process.GlobalTag.globaltag = 'PRE_LS172_V16::All'
+process.GlobalTag.globaltag = 'GR_R_74_V0A::All'
 
 #process.load("Configuration.StandardSequences.Services_cff")
 #process.load("Configuration.StandardSequences.Simulation_cff")
@@ -48,6 +48,7 @@ readFiles.extend( [
 
 # Validation module
 process.load("Validation.RecoJets.JetValidation_cff")
+process.load("Validation.RecoJets.JetPostProcessor_cff")
 #process.load("Validation.RecoHI.JetValidationHeavyIons_cff")
 
 process.maxEvents = cms.untracked.PSet(
@@ -70,6 +71,7 @@ process.p1 = cms.Path(
                       process.JetValidation
                       #for MiniAOD
                       #process.JetValidationMiniAOD
+                      *process.JetPostProcessor
                       *process.dqmSaver
 )
 

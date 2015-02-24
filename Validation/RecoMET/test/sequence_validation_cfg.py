@@ -3,9 +3,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("METVALIDATION")
 
-process.load("Configuration.StandardSequences.GeometryDB_cff")
-#process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-#process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+from Configuration.StandardSequences.GeometryRecoDB_cff import *
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
@@ -13,7 +12,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = 'START42_V17::All'
 ##process.GlobalTag.globaltag = 'MC_38Y_V14::All'
 ## for 6_2_0 QCD
-process.GlobalTag.globaltag = 'PRE_LS172_V16::All'
+process.GlobalTag.globaltag = 'GR_R_74_V0A::All'
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
@@ -23,6 +22,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 #
 
 process.load("Validation.RecoMET.METRelValForDQM_cff")
+process.load("Validation.RecoMET.METPostProcessor_cff")
 
 
 readFiles = cms.untracked.vstring()
@@ -49,14 +49,15 @@ process.dqmSaver.referenceHandling = cms.untracked.string('all')
 cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
 Workflow = '/JetMET/'+str(cmssw_version)+'/METValidation'
 process.dqmSaver.workflow = Workflow
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 
 process.p = cms.Path(#for RECO
                      process.metPreValidSeq*
-                     process.METValidation
+                     process.METValidation*
                      #for MiniAOD
-                     #process.METValidationMiniAOD
+                     #process.METValidationMiniAOD*
+                     process.METPostProcessor
                      *process.dqmSaver
 )
 
