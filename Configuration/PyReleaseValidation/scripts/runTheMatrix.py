@@ -26,7 +26,6 @@ def runSelected(opt):
         mrd.show(opt.testList,opt.extended)
         if opt.testList : print 'testListected items:', opt.testList
     else:
-        print opt.nThreads
         mRunnerHi = MatrixRunner(mrd.workFlows, opt.nProcs, opt.nThreads)
         ret = mRunnerHi.runTests(opt)
 
