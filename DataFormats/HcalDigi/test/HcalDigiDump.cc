@@ -33,6 +33,7 @@ HcalDigiDump::HcalDigiDump(edm::ParameterSet const& conf) {
   consumesMany<HcalTTPDigiCollection>();
   consumesMany<HcalUpgradeDigiCollection>();
   consumesMany<QIE10DigiCollection>();
+  consumesMany<QIE11DigiCollection>();
 }
 
 void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
@@ -49,6 +50,7 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   std::vector<edm::Handle<HcalTTPDigiCollection> > ttp;
   std::vector<edm::Handle<HcalUpgradeDigiCollection> > hup;
   std::vector<edm::Handle<QIE10DigiCollection> > qie10s;
+  std::vector<edm::Handle<QIE11DigiCollection> > qie11s;
 
   try {
     e.getManyByType(hbhe);
@@ -211,6 +213,18 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
     std::vector<edm::Handle<QIE10DigiCollection> >::iterator i;
     for (i=qie10s.begin(); i!=qie10s.end(); i++) {
       const QIE10DigiCollection& c=*(*i);
+      
+      for (int j=0; j < c.size(); j++)
+	cout << c[j] << std::endl;
+    }
+  } catch (...) {
+  }
+
+  try {
+    e.getManyByType(qie11s);
+    std::vector<edm::Handle<QIE11DigiCollection> >::iterator i;
+    for (i=qie11s.begin(); i!=qie11s.end(); i++) {
+      const QIE11DigiCollection& c=*(*i);
       
       for (int j=0; j < c.size(); j++)
 	cout << c[j] << std::endl;
