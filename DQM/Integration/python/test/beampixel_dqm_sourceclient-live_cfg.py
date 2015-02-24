@@ -40,7 +40,9 @@ process.dqmmodules  = cms.Sequence(process.dqmEnv + process.dqmSaver)
 process.phystrigger = cms.Sequence(process.hltTriggerTypeFilter)
 
 
-### process customizations included here
+#----------------------------
+# Process Customizations
+#----------------------------
 from DQM.Integration.test.online_customizations_cfi import *
 process = customise(process)
 
@@ -83,13 +85,13 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                             # If the histogram has at least "minNentries" then extract Mean and RMS,
                                             # or, if we are performing the fit, the number of vertices must be greater
                                             # than minNentries otherwise it waits for other nLumiReset
-                                            xRange             = cms.double(2.0),
+                                            xRange             = cms.double(1.0),
                                             xStep              = cms.double(0.001),
-                                            yRange             = cms.double(2.0),
+                                            yRange             = cms.double(1.0),
                                             yStep              = cms.double(0.001),
                                             zRange             = cms.double(30.0),
                                             zStep              = cms.double(0.05),
-                                            VxErrCorr          = cms.double(1.3),  # Keep checking this with later release
+                                            VxErrCorr          = cms.double(1.3), # Keep checking this with later release
                                             fileName           = cms.string("/nfshome0/yumiceva/BeamMonitorDQM/BeamPixelResults.txt"))
     if process.dqmSaver.producer.value() is "Playback":
        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
@@ -162,13 +164,13 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                             # If the histogram has at least "minNentries" then extract Mean and RMS,
                                             # or, if we are performing the fit, the number of vertices must be greater
                                             # than minNentries otherwise it waits for other nLumiReset
-                                            xRange             = cms.double(2.0),
+                                            xRange             = cms.double(1.0),
                                             xStep              = cms.double(0.001),
-                                            yRange             = cms.double(2.0),
+                                            yRange             = cms.double(1.0),
                                             yStep              = cms.double(0.001),
                                             zRange             = cms.double(30.0),
                                             zStep              = cms.double(0.05),
-                                            VxErrCorr          = cms.double(1.3),  # Keep checking this with later release
+                                            VxErrCorr          = cms.double(1.3), # Keep checking this with later release
                                             fileName           = cms.string("/nfshome0/yumiceva/BeamMonitorDQM/BeamPixelResults.txt"))
     if process.dqmSaver.producer.value() is "Playback":
        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
@@ -194,4 +196,3 @@ if (process.runType.getRunType() == process.runType.hi_run):
     # Define Path
     #----------------------------
     process.p = cms.Path(process.phystrigger*process.reconstruction_step*process.pixelVertexDQM*process.dqmmodules)
-    
