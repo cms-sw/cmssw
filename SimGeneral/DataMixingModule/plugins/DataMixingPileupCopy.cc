@@ -39,9 +39,11 @@ namespace edm
     BunchSpacingInputTag_ = ps.getParameter<edm::InputTag>("BunchSpacingInputTag");
     CFPlaybackInputTag_ = ps.getParameter<edm::InputTag>("CFPlaybackInputTag");
 
-    iC.consumes<std::vector<PileupSummaryInfo>>(PileupInfoInputTag_);
-    iC.consumes<int>(BunchSpacingInputTag_);
-    iC.consumes<CrossingFramePlaybackInfoExtended>(CFPlaybackInputTag_);
+
+    // apparently, we don't need consumes from Secondary input stream
+    //iC.consumes<std::vector<PileupSummaryInfo>>(PileupInfoInputTag_);
+    //iC.consumes<int>(BunchSpacingInputTag_);
+    //iC.consumes<CrossingFramePlaybackInfoExtended>(CFPlaybackInputTag_);
   }
 	       
   // Virtual destructor needed.

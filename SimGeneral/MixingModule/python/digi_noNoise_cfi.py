@@ -41,6 +41,7 @@ theDigitizersNoNoise.hcal.doTimeSlew = cms.bool(False)
 theDigitizersNoNoise.ecal.doENoise = cms.bool(False)
 theDigitizersNoNoise.pixel.AddNoise = cms.bool(True)
 theDigitizersNoNoise.pixel.addNoisyPixels = cms.bool(False)
+theDigitizersNoNoise.pixel.AddPixelInefficiencyFromPython = cms.bool(False) #done in second step
 theDigitizersNoNoise.strip.Noise = cms.bool(False)
 theDigitizersNoNoise.strip.PreMixingMode = cms.bool(True)
 theDigitizersNoNoise.strip.FedAlgorithm = cms.int32(5) # special ZS mode: accept adc>0
