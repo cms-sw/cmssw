@@ -50,6 +50,7 @@ namespace edm
       void addPileupInfo(const edm::EventPrincipal*,unsigned int EventId,
                          ModuleCallingContext const* mcc);
 
+      void getPileupInfo(std::vector<PileupSummaryInfo> &ps, int &bs) { ps=PileupSummaryStorage_; bs=bsStorage_;}
 
     private:
 
