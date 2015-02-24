@@ -13,7 +13,7 @@ for l in open("dati_pred.dat"):
         recovery_ring[int(float(v[1]))] = float(v[2])
 
 rings = DRings()
-rings.setEERings(findFileInPath("eerings.dat"))
+rings.setEERings(findFileInPath("Calibration/Tools/data/eerings.dat"))
 
 EcalBarrel = 1
 EcalEndcap = 2
