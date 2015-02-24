@@ -256,9 +256,14 @@ namespace edm
 
     produces< edm::DetSetVector<PixelDigi> > (PixelDigiCollectionDM_);
 
-    SiPixelWorker_ = new DataMixingSiPixelWorker(ps, consumesCollector());
-
+    if( addMCDigiNoise_ ) {
+      SiPixelMCDigiWorker_ = new DataMixingSiPixelMCDigiWorker(ps, consumesCollector());
     }
+    else {
+      SiPixelWorker_ = new DataMixingSiPixelWorker(ps, consumesCollector());
+    }
+
+    } // end of Fast/Full switch
 
     // Pileup Information: if doing pre-mixing, we have to save the pileup information from the Secondary stream
 
@@ -315,6 +320,7 @@ namespace edm
 
     if( addMCDigiNoise_ ) {
       SiStripMCDigiWorker_->initializeEvent( e, ES );
+      SiPixelMCDigiWorker_->initializeEvent( e, ES );
       EcalDigiWorkerProd_->initializeEvent( e, ES );
     }
     if( addMCDigiNoise_ && MergeHcalDigisProd_) {
@@ -357,7 +363,8 @@ namespace edm
 	delete SiStripRawWorker_;
       else if(addMCDigiNoise_ ) delete SiStripMCDigiWorker_;
       else delete SiStripWorker_;
-      delete SiPixelWorker_;
+      if(addMCDigiNoise_ ) delete SiPixelMCDigiWorker_;
+      else delete SiPixelWorker_;
     }
     if(MergePileup_) { delete PUWorker_;}
   }
@@ -397,7 +404,8 @@ namespace edm
     else SiStripWorker_->addSiStripSignals(e);
 
     // SiPixels
-    SiPixelWorker_->addSiPixelSignals(e);
+    if(addMCDigiNoise_ ) SiPixelMCDigiWorker_->addSiPixelSignals(e);
+    else SiPixelWorker_->addSiPixelSignals(e);
     }    
     AddedPileup_ = false;
 
@@ -415,8 +423,21 @@ namespace edm
 
     LogDebug("DataMixingModule") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
 
+
     // Note:  setupPileUpEvent may modify the run and lumi numbers of the EventPrincipal to match that of the primary event.
     setupPileUpEvent(ES);
+
+    // check and see if we need to copy the pileup information from 
+    // secondary stream to the output stream  
+    // We only have the pileup event here, so pick the first time and store the info
+
+
+    if(MergePileup_ && !AddedPileup_){
+      
+      PUWorker_->addPileupInfo(&ep, eventNr, &moduleCallingContext);
+
+      AddedPileup_ = true;
+    }
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
@@ -450,19 +471,11 @@ namespace edm
       else SiStripWorker_->addSiStripPileups(bcr, &ep, eventNr, &moduleCallingContext);
       
       // SiPixels
-      SiPixelWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
+      //whoops this should be for the MC worker ????? SiPixelWorker_->setPileupInfo(ps,bunchSpacing);
+      if(addMCDigiNoise_ ) SiPixelMCDigiWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
+      else SiPixelWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
     }
 
-    // check and see if we need to copy the pileup information from 
-    // secondary stream to the output stream  
-    // We only have the pileup event here, so pick the first time and store the info
-
-    if(MergePileup_ && !AddedPileup_){
-      
-      PUWorker_->addPileupInfo(&ep, eventNr, &moduleCallingContext);
-
-      AddedPileup_ = true;
-    }
 
   }
 
@@ -514,6 +527,16 @@ namespace edm
 
     // individual workers...
 
+    // move pileup first so we have access to the information for the put step
+
+    std::vector<PileupSummaryInfo> ps;
+    int bunchSpacing=10000;
+
+    if(MergePileup_) { 
+      PUWorker_->getPileupInfo(ps,bunchSpacing);      
+      PUWorker_->putPileupInfo(e);
+    }
+
     // Ecal
     if(MergeEMDigis_) {
       if(addMCDigiNoise_ ) {EcalDigiWorkerProd_->putEcal(e,ES);}
@@ -544,10 +567,9 @@ namespace edm
       else SiStripWorker_->putSiStrip(e);
        
        // SiPixels
-       SiPixelWorker_->putSiPixel(e);
+      if(addMCDigiNoise_ ) SiPixelMCDigiWorker_->putSiPixel(e, ES, ps, bunchSpacing); 
+      else SiPixelWorker_->putSiPixel(e);
     }
-
-    if(MergePileup_) { PUWorker_->putPileupInfo(e);}
 
 
   }

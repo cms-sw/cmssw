@@ -7,6 +7,7 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import hcalSimBlock
 from SimGeneral.MixingModule.SiStripSimParameters_cfi import SiStripSimBlock
+from SimGeneral.MixingModule.SiPixelSimParameters_cfi import SiPixelSimBlock
 from SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff import *
 from SimCalorimetry.EcalSimProducers.apdSimParameters_cff import *
 from SimCalorimetry.EcalSimProducers.ecalSimParameterMap_cff import *
@@ -58,6 +59,7 @@ hcalSimBlock.HcalPreMixStage2 = cms.bool(True)
 mixData = cms.EDProducer("DataMixingModule",
           hcalSimBlock,
           SiStripSimBlock,
+          SiPixelSimBlock,
           ecal_digi_parameters,
           apd_sim_parameters,
           ecal_electronics_sim,
