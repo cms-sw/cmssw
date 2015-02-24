@@ -108,6 +108,13 @@
             std::vector<double> max_z0_;
             std::vector<double> nSigmaZ_;
 
+            // Boolean indicating if HIon related cuts are to be applied
+            std::vector<bool> applyHIonCuts_;
+
+            // parameters for HIon pT dependent chi2 cuts
+            std::vector<std::vector<double> > hIon_pTMinCut_;
+            std::vector<std::vector<double> > hIon_pTMaxCut_;
+
             /// Cuts on numbers of layers with hits/3D hits/lost hits. 
 	    std::vector<uint32_t> min_layers_;
 	    std::vector<uint32_t> min_3Dlayers_;
