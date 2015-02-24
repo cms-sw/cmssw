@@ -90,4 +90,12 @@ void l1t::Stage1Layer2DiTauAlgorithm::processEvent(const std::vector<l1t::CaloRe
   spares->setHwPt(raw);
 
   delete isoTaus;
+
+
+  const bool verbose = false;
+  if(verbose)
+  {
+    std::cout << "HF Ring Sums (Isolated Taus)" << std::endl;
+    std::cout << bitset<12>(spares->hwPt()).to_string() << std::endl;
+  }
 }
