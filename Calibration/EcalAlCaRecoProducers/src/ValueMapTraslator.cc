@@ -24,6 +24,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -62,8 +63,10 @@ class ValueMapTraslator : public edm::EDProducer {
   edm::InputTag referenceCollectionTAG,oldreferenceCollectionTAG;
   edm::InputTag inputCollectionTAG;
   std::string outputCollectionName;
-  edm::Handle<reco::GsfElectronCollection> referenceHandle,oldreferenceHandle;
-  edm::Handle<Map_t> inputHandle;
+  
+  edm::EDGetTokenT<reco::GsfElectronCollection> referenceToken_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> oldreferenceToken_;
+  edm::EDGetTokenT<Map_t> inputToken_;
 };
 
 //
@@ -85,6 +88,9 @@ ValueMapTraslator::ValueMapTraslator(const edm::ParameterSet& iConfig):
   outputCollectionName(iConfig.getParameter<std::string>("outputCollection"))
 {
    //now do what ever other initialization is needed
+  referenceToken_    = consumes<reco::GsfElectronCollection>(referenceCollectionTAG);
+  oldreferenceToken_ = consumes<reco::GsfElectronCollection>(oldreferenceCollectionTAG);  
+  inputToken_        = consumes< Map_t >(inputCollectionTAG);
   /// \todo outputCollectionName = inputCollection+postfix
   produces< Map_t >(outputCollectionName);
   
@@ -113,9 +119,13 @@ ValueMapTraslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::auto_ptr<Map_t> valueVectorPtr(new Map_t());
 
    //------------------------------ 
-   iEvent.getByLabel(referenceCollectionTAG, referenceHandle);
-   iEvent.getByLabel(oldreferenceCollectionTAG, oldreferenceHandle);
-   iEvent.getByLabel(inputCollectionTAG, inputHandle);
+   Handle< reco::GsfElectronCollection > referenceHandle;
+   Handle< reco::GsfElectronCollection > oldreferenceHandle;
+   Handle< Map_t > inputHandle;
+
+   iEvent.getByToken( referenceToken_, referenceHandle);
+   iEvent.getByToken( oldreferenceToken_, oldreferenceHandle);
+   iEvent.getByToken( inputToken_, inputHandle); 
 
    for(Map_t::const_iterator valueMap_itr = inputHandle->begin();
        valueMap_itr != inputHandle->end();
