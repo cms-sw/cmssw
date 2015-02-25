@@ -16,8 +16,6 @@ public:
   void checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR) const ;
 
-private:
-  CmsException m_exception;
 };
 
 }

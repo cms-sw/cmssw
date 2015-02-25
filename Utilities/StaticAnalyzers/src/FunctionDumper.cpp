@@ -47,7 +47,6 @@ public:
       AC(ac),
       AD(fd) {}
 
-
   /// This method adds a CallExpr to the worklist 
   void setVisited(Expr * E) {
       Kind &K = VisitedExpr[E];
@@ -68,6 +67,18 @@ public:
   if (!P) return 0;
   return P;
   }
+
+  void fixAnonNS(std::string & name) {
+      const std::string anon_ns = "(anonymous namespace)";
+      if (name.substr(0, anon_ns.size()) == anon_ns ) {
+          const char* fname = BR.getSourceManager().getPresumedLoc(AD->getLocation()).getFilename();
+          const char* sname = "/src/";
+          const char* filename = std::strstr(fname, sname);
+          if (filename != NULL) name = name.substr(0, anon_ns.size() - 1)+" in "+filename+")"+name.substr(anon_ns.size());
+          }
+      return;
+  }
+
 
   void VisitChildren(clang::Stmt *S );
   void VisitStmt( clang::Stmt *S) { VisitChildren(S); }
@@ -91,6 +102,7 @@ void FDumper::VisitCXXConstructExpr( CXXConstructExpr *CCE ) {
      LangOpts.CPlusPlus = true;
      PrintingPolicy Policy(LangOpts);
      std::string mdname = support::getQualifiedName(*AD);
+     fixAnonNS(mdname);
      CXXConstructorDecl * CCD = CCE->getConstructor();
      if (!CCD) return;
      const char *sfile=BR.getSourceManager().getPresumedLoc(CCE->getExprLoc()).getFilename();
@@ -98,6 +110,7 @@ void FDumper::VisitCXXConstructExpr( CXXConstructExpr *CCE ) {
      if ( ! support::isInterestingLocation(sname) ) return;
      std::string mname;
      mname = support::getQualifiedName(*CCD);
+     fixAnonNS(mname);
      std::string tname = "function-dumper.txt.unsorted";
      std::string ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n";
      support::writeLog(ostring,tname);
@@ -112,6 +125,7 @@ void FDumper::VisitCXXMemberCallExpr( CXXMemberCallExpr *CXE ) {
      LangOpts.CPlusPlus = true;
      PrintingPolicy Policy(LangOpts);
      std::string mdname = support::getQualifiedName(*AD);
+     fixAnonNS(mdname);
      CXXMethodDecl * MD = CXE->getMethodDecl();
      if (!MD) return;
      const char *sfile=BR.getSourceManager().getPresumedLoc(CXE->getExprLoc()).getFilename();
@@ -119,6 +133,7 @@ void FDumper::VisitCXXMemberCallExpr( CXXMemberCallExpr *CXE ) {
      if ( ! support::isInterestingLocation(sname) ) return;
      std::string mname;
      mname = support::getQualifiedName(*MD);
+     fixAnonNS(mname);
      std::string tname = "function-dumper.txt.unsorted";
      std::string ostring;
      if ( MD->isVirtual()) ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n";
@@ -135,12 +150,14 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
      LangOpts.CPlusPlus = true;
      PrintingPolicy Policy(LangOpts);
      std::string mdname = support::getQualifiedName(*AD);
+     fixAnonNS(mdname);
      FunctionDecl * FD = CE->getDirectCallee();
      if (!FD) return;
      const char *sfile=BR.getSourceManager().getPresumedLoc(CE->getExprLoc()).getFilename();
      std::string sname(sfile);
      if ( ! support::isInterestingLocation(sname) ) return;
      std::string mname;
+     fixAnonNS(mname);
      mname = support::getQualifiedName(*FD);
      std::string tname = "function-dumper.txt.unsorted";
      std::string ostring;
@@ -163,9 +180,11 @@ void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
       FDumper walker(BR, mgr.getAnalysisDeclContext(MD), MD);
       walker.Visit(MD->getBody());
       std::string mname = support::getQualifiedName(*MD);
+      walker.fixAnonNS(mname);
       std::string tname = "function-dumper.txt.unsorted";
       for (auto I = MD->begin_overridden_methods(), E = MD->end_overridden_methods(); I!=E; ++I) {
           std::string oname = support::getQualifiedName(*(*I));
+          walker.fixAnonNS(oname);
           std::string ostring = "function '" +  mname + "' " + "overrides function '" + oname + " virtual'\n";
           support::writeLog(ostring,tname);
       }

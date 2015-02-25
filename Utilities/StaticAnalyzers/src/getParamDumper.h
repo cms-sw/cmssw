@@ -7,16 +7,19 @@
 
 namespace clangcms {
 
-class getParamDumper : public clang::ento::Checker< clang::ento::eval::Call> 
-{
+class getParamDumper : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl>, 
+                                                clang::ento::eval::Call   > {
 
- void analyzerEval(const clang::CallExpr *CE, clang::ento::CheckerContext &C) const;
+  void analyzerEval(const clang::CallExpr *CE, clang::ento::CheckerContext &C) const;
 
- typedef void (getParamDumper::*FnCheck)(const clang::CallExpr *, clang::ento::CheckerContext &C) const;
+  typedef void (getParamDumper::*FnCheck)(const clang::CallExpr *, clang::ento::CheckerContext &C) const;
 
- public:
+public:
 
   bool evalCall(const clang::CallExpr *CE, clang::ento::CheckerContext &C) const;
+
+  void checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
+                    clang::ento::BugReporter &BR) const ;
 
 };
 
