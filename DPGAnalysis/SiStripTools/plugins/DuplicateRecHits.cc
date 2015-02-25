@@ -151,7 +151,7 @@ DuplicateRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if(clusters.find(pxrh->cluster().index())!=clusters.end()) {
 	    nduplicate++;
 	    std::stringstream detidstr;
-	    detidstr << ttrh->det()->geographicalId();
+	    detidstr << ttrh->det()->geographicalId().rawId();
 	    m_nduplmod->Fill(detidstr.str().c_str(),1.);
 	    LogDebug("DuplicateHitFinder") << "Track with " << it->recHitsSize() << " RecHits";
 	    LogTrace("DuplicateHitFinder") << "Duplicate found " << ttrh->det()->geographicalId() << " " << pxrh->cluster().index();
