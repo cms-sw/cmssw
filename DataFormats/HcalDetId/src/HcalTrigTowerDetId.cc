@@ -21,6 +21,13 @@ HcalTrigTowerDetId::HcalTrigTowerDetId(int ieta, int iphi, int depth) : DetId(Hc
     (iphi&0x7F);
 }
 
+HcalTrigTowerDetId::HcalTrigTowerDetId(int ieta, int iphi, int depth, int version) : DetId(Hcal,HcalTriggerTower) {
+  id_|=((depth&0x7)<<14) |
+    ((ieta>0)?(0x2000|(ieta<<7)):((-ieta)<<7)) |
+    (iphi&0x7F);
+  id_|=((version&0x7)<<17);
+}
+ 
 HcalTrigTowerDetId::HcalTrigTowerDetId(const DetId& gen) {
   if (!gen.null() && (gen.det()!=Hcal || gen.subdetId()!=HcalTriggerTower)) {
     throw cms::Exception("Invalid DetId") << "Cannot initialize HcalTrigTowerDetId from " << std::hex << gen.rawId() << std::dec; 
