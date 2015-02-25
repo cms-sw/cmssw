@@ -51,7 +51,7 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.add<int>("select", 0);
-      desc.add<std::string>("target");
+      desc.add<edm::InputTag>("target");
       descriptions.addDefault(desc);
     }
 
