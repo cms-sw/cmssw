@@ -2,13 +2,13 @@ autoCond = {
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
-    'run1_design'       :   'DESRUN1_73_V4',
+    'run1_design'       :   'DESRUN1_73_V5',
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
-    'run1_mc'           :   'MCRUN1_73_V4',
+    'run1_mc'           :   'MCRUN1_73_V5',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'        :   'MCHI1_73_V4',
+    'run1_mc_hi'        :   'MCHI1_73_V5',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pa'        :   'MCPA1_73_V4',
+    'run1_mc_pa'        :   'MCPA1_73_V5',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
     'run2_design'       :   'DESRUN2_73_V6',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
