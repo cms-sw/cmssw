@@ -39,6 +39,7 @@ class SiStripThreshold;
 class DcuDetIdMap;
 class SiStripApvGain;
 class SiStripLatency;
+class TrackerTopology;
 
 class SiStripCondObjBuilderFromDb {
   
@@ -59,6 +60,8 @@ class SiStripCondObjBuilderFromDb {
 			      const edm::ActivityRegistry&);
   virtual ~SiStripCondObjBuilderFromDb();
   
+  TrackerTopology * buildTrackerTopology();
+
   /** Returns database connection parameters. */
   inline const SiStripDbParams& dbParams() const {return db_->dbParams();} 
 
@@ -148,6 +151,7 @@ class SiStripCondObjBuilderFromDb {
   bool m_debug;
 
   //Data containers
+  TrackerTopology * tTopo;
   SiStripPedestals::InputVector inputPedestals;
   SiStripNoises::InputVector inputNoises;
   SiStripThreshold::InputVector inputThreshold;
