@@ -44,15 +44,18 @@ RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps):
   eolJsonDef_.addLegendItem("NEvents","integer",DataPointDefinition::SUM);
   eolJsonDef_.addLegendItem("NFiles","integer",DataPointDefinition::SUM);
   eolJsonDef_.addLegendItem("TotalEvents","integer",DataPointDefinition::SUM);
+  eolJsonDef_.addLegendItem("NLostEvents","integer",DataPointDefinition::SUM);
 
   perLumiEventCount_.setName("NEvents");
   perLumiFileCount_.setName("NFiles");
   perLumiTotalEventCount_.setName("TotalEvents");
+  perLumiLostEventCount_.setName("NLostEvents");
 
   lumiMon_ = new FastMonitor(&eolJsonDef_,false);
   lumiMon_->registerGlobalMonitorable(&perLumiEventCount_,false,nullptr);
   lumiMon_->registerGlobalMonitorable(&perLumiFileCount_,false,nullptr);
   lumiMon_->registerGlobalMonitorable(&perLumiTotalEventCount_,false,nullptr);
+  lumiMon_->registerGlobalMonitorable(&perLumiLostEventCount_,false,nullptr);
   lumiMon_->commit(nullptr);
 
 
@@ -61,15 +64,18 @@ RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps):
   eorJsonDef_.addLegendItem("NEvents","integer",DataPointDefinition::SUM);
   eorJsonDef_.addLegendItem("NFiles","integer",DataPointDefinition::SUM);
   eorJsonDef_.addLegendItem("NLumis","integer",DataPointDefinition::SUM);
+  eorJsonDef_.addLegendItem("LastLumi","integer",DataPointDefinition::SUM);
 
   perRunEventCount_.setName("NEvents");
   perRunFileCount_.setName("NFiles");
   perRunLumiCount_.setName("NLumis");
+  perRunLastLumi_.setName("LastLumi");
  
   runMon_ = new FastMonitor(&eorJsonDef_,false);
   runMon_->registerGlobalMonitorable(&perRunEventCount_,false,nullptr);
   runMon_->registerGlobalMonitorable(&perRunFileCount_,false,nullptr);
   runMon_->registerGlobalMonitorable(&perRunLumiCount_,false,nullptr);
+  runMon_->registerGlobalMonitorable(&perRunLastLumi_,false,nullptr);
   runMon_->commit(nullptr);
 
   instance = this;
@@ -266,6 +272,7 @@ void RawEventFileWriterForBU::endOfLS(int ls)
   perRunEventCount_.value() += perLumiEventCount_.value();
   perRunFileCount_.value() += perLumiFileCount_.value();
   perRunLumiCount_.value() += 1;
+  perRunLastLumi_.value() = ls;
 
   perLumiEventCount_ = 0;
   perLumiFileCount_ = 0;
