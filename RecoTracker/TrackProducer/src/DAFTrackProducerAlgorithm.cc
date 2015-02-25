@@ -242,16 +242,12 @@ bool DAFTrackProducerAlgorithm::buildTrack (const Trajectory vtraj,
 					    const reco::BeamSpot& bs,
 					    const reco::TrackRef* BeforeDAFTrack) const
 {
-  //variable declarations
-  reco::Track * theTrack;
-  Trajectory * theTraj; 
-      
   LogDebug("DAFTrackProducerAlgorithm") <<" BUILDER " << std::endl;;
   TrajectoryStateOnSurface innertsos;
   
   if ( vtraj.isValid() ){
 
-    theTraj = new Trajectory( vtraj );
+    std::unique_ptr<Trajectory> theTraj(new Trajectory( vtraj ));
     
     if (vtraj.direction() == alongMomentum) {
     //if (theTraj->direction() == oppositeToMomentum) {
@@ -273,13 +269,13 @@ bool DAFTrackProducerAlgorithm::buildTrack (const Trajectory vtraj,
     //    LogDebug("TrackProducer") <<v<<p<<std::endl;
 
     auto algo = (*BeforeDAFTrack)->algo();
-    theTrack = new reco::Track(vtraj.chiSquared(),
-			       ndof, //in the DAF the ndof is not-integer
-			       pos, mom, tscbl.trackStateAtPCA().charge(), 
-			       tscbl.trackStateAtPCA().curvilinearError(), algo);
+    std::unique_ptr<reco::Track> theTrack(new reco::Track(vtraj.chiSquared(),
+                                                          ndof, //in the DAF the ndof is not-integer
+                                                          pos, mom, tscbl.trackStateAtPCA().charge(),
+                                                          tscbl.trackStateAtPCA().curvilinearError(), algo));
     theTrack->setQualityMask((*BeforeDAFTrack)->qualityMask());
 
-    AlgoProduct aProduct(theTraj,std::make_pair(theTrack,vtraj.direction()));
+    AlgoProduct aProduct(theTraj.release(), std::make_pair(theTrack.release(), vtraj.direction()));
     algoResults.push_back(aProduct);
 
     return true;
