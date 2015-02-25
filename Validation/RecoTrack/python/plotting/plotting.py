@@ -225,8 +225,8 @@ class AggregateHistos:
         return res
 
 # Plot styles
-_plotStylesColor = [4, 2, ROOT.kOrange+7, ROOT.kMagenta-3]
-_plotStylesMarker = [21, 20, 22, 34]
+_plotStylesColor = [4, 2, ROOT.kBlack, ROOT.kOrange+7, ROOT.kMagenta-3]
+_plotStylesMarker = [21, 20, 22, 34, 33]
 
 class Plot:
     """Represents one plot, comparing one or more histograms."""
