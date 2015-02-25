@@ -140,6 +140,12 @@ return 0;
 
 double CustomPDGParser::s_spin(int pdg)
 {
+  // The PDG numbering is described in the Review of Particle Physics: 
+  // "3. In composite quark systems (diquarks, mesons, and baryons) ...
+  // the rightmost digit nJ = 2J + 1 gives the system's spin."  
+  // Since this does not apply to SUSY / exotic particles, 
+  // if the spin is important for the simulation 
+  // it should be hard-coded based on PDG ID in this function.  
  int pdgAbs=abs(pdg);
  return pdgAbs % 10;    
 }

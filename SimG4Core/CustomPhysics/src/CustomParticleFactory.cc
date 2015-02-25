@@ -37,7 +37,7 @@ void CustomParticleFactory::loadCustomParticles(const std::string & filePath){
   std::ifstream configFile(filePath.c_str());
 
   std::string line;
-  edm::LogInfo("CustomPhysics") << "Reading Custom Particle and G4DecayTable from " << filePath << std::endl;
+  edm::LogInfo("CustomPhysics") << "Reading Custom Particle and G4DecayTable from " << filePath; 
   // This should be compatible IMO to SLHA 
   G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
   while(getline(configFile,line)){
@@ -45,7 +45,7 @@ void CustomParticleFactory::loadCustomParticles(const std::string & filePath){
     if (line.length()==0 || line.at(0) == '#') continue;  // Skip blank lines and comments.  
     if (ToLower(line).find("block") < line.npos &&        // The mass table begins with a line containing "BLOCK MASS".  
 	ToLower(line).find("mass")  < line.npos) {
-      edm::LogInfo("CustomPhysics") << " Retrieving mass table." << std::endl; 
+      edm::LogInfo("CustomPhysics") << " Retrieving mass table."; 
       getMassTable(&configFile);
     }
     if(line.find("DECAY")<line.npos){
@@ -54,7 +54,7 @@ void CustomParticleFactory::loadCustomParticles(const std::string & filePath){
       std::string tmpString;
       std::stringstream lineStream(line);
       lineStream >> tmpString >> pdgId >> width; // assume SLHA format, e.g.: DECAY  1000021  5.50675438E+00   # gluino decays
-      edm::LogInfo("CustomPhysics") << "G4DecayTable: pdgID, width " << pdgId << ",  " << width << std::endl;
+      edm::LogInfo("CustomPhysics") << "G4DecayTable: pdgID, width " << pdgId << ",  " << width; 
       G4DecayTable* aDecayTable = getDecayTable(&configFile, pdgId);      
       G4ParticleDefinition *aParticle     = theParticleTable->FindParticle(pdgId);
       G4ParticleDefinition *aAntiParticle = theParticleTable->FindAntiParticle(pdgId);
@@ -63,7 +63,7 @@ void CustomParticleFactory::loadCustomParticles(const std::string & filePath){
       aParticle->SetPDGStable(false);
       aParticle->SetPDGLifeTime(1.0/(width*GeV)*6.582122e-22*MeV*s);      
       if(aAntiParticle && aAntiParticle->GetPDGEncoding()!=pdgId){	
-	//aAntiParticle->SetDecayTable(getAntiDecayTable(pdgId,aDecayTable));  // Why is this commented out??
+	aAntiParticle->SetDecayTable(getAntiDecayTable(pdgId,aDecayTable)); 
 	aAntiParticle->SetPDGStable(false);
 	aAntiParticle->SetPDGLifeTime(1.0/(width*GeV)*6.582122e-22*MeV*s);
       }         
@@ -75,7 +75,7 @@ void CustomParticleFactory::loadCustomParticles(const std::string & filePath){
 void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const std::string & name){
   
   if(abs(pdgCode)%100 <14 && abs(pdgCode) / 1000000 == 0){
-    edm::LogError("") << "Pdg code too low " << pdgCode << " "<<abs(pdgCode) / 1000000  << std::endl;
+    edm::LogError("") << "Pdg code too low " << pdgCode << " "<<abs(pdgCode) / 1000000; 
     return;
   }
   
@@ -142,12 +142,11 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
     
     edm::LogInfo("CustomPhysics")<<name<<" being assigned "
 				 <<particle->GetCloud()->GetParticleName()
-				 <<" and "<<particle->GetSpectator()->GetParticleName()<<std::endl;
+				 <<" and "<<particle->GetSpectator()->GetParticleName(); 
     edm::LogInfo("CustomPhysics")<<"Masses: "
 				 <<particle->GetPDGMass()/GeV<<" Gev, "
 				 <<particle->GetCloud()->GetPDGMass()/GeV<<" GeV and "
-				 <<particle->GetSpectator()->GetPDGMass()/GeV<<" GeV."
-				 <<std::endl;
+				 <<particle->GetSpectator()->GetPDGMass()/GeV<<" GeV."; 
   } else if(pType == "mesonino" || pType == "sbaryon") {
     int sign=1;
     if(pdgCode < 0 ) sign=-1;
@@ -178,12 +177,11 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
 
     edm::LogInfo("CustomPhysics")<<name<<" being assigned "
 				 <<particle->GetCloud()->GetParticleName()
-				 <<" and "<<particle->GetSpectator()->GetParticleName()<<std::endl;
+				 <<" and "<<particle->GetSpectator()->GetParticleName(); 
     edm::LogInfo("CustomPhysics")<<"Masses: "
 				 <<particle->GetPDGMass()/GeV<<" Gev, "
 				 <<particle->GetCloud()->GetPDGMass()/GeV<<" GeV and "
-				 <<particle->GetSpectator()->GetPDGMass()/GeV<<" GeV."
-				 <<std::endl;
+				 <<particle->GetSpectator()->GetPDGMass()/GeV<<" GeV."; 
   }
   else{
     particle->SetCloud(0);
@@ -203,15 +201,14 @@ void  CustomParticleFactory::getMassTable(std::ifstream *configFile) {
     line.erase(0, line.find_first_not_of(" \t"));         // remove leading whitespace
     if (line.length()==0 || line.at(0) == '#') continue;  // skip blank lines and comments
     if (ToLower(line).find("block") < line.npos) {
-      edm::LogInfo("CustomPhysics") << " Finished the Mass Table " << std::endl;
+      edm::LogInfo("CustomPhysics") << " Finished the Mass Table "; 
       break;
     }
     std::stringstream sstr(line);
     sstr >> pdgId >> mass >> tmp >> name;  // Assume SLHA format, e.g.: 1000001 5.68441109E+02 # ~d_L 
 
     edm::LogInfo("CustomPhysics") << "Calling addCustomParticle for pdgId: " << pdgId 
-				  << ", mass " << mass << ", name " << name
-				  << std::endl;
+				  << ", mass " << mass << ", name " << name; 
     addCustomParticle(pdgId, fabs(mass), name);
     ////Find SM particle partner and check for the antiparticle.
     int pdgIdPartner = pdgId%100;
@@ -222,8 +219,7 @@ void  CustomParticleFactory::getMassTable(std::ifstream *configFile) {
 				  << ", pdgId = " << pdgId
 				  << ", pdgIdPartner = " << pdgIdPartner  
 				  << ", CustomPDGParser::s_isRHadron(pdgId) = " << CustomPDGParser::s_isRHadron(pdgId)    
-				  << ", CustomPDGParser::s_isstopHadron(pdgId) = " << CustomPDGParser::s_isstopHadron(pdgId) 
-				  << std::endl;
+				  << ", CustomPDGParser::s_isstopHadron(pdgId) = " << CustomPDGParser::s_isstopHadron(pdgId); 
     
     if (aParticle && 
 	!CustomPDGParser::s_isRHadron(pdgId)    && 
@@ -237,20 +233,17 @@ void  CustomParticleFactory::getMassTable(std::ifstream *configFile) {
       int sign = aParticle->GetAntiPDGEncoding()/pdgIdPartner;   
       edm::LogInfo("CustomPhysics") << "Found sign = " << sign 
 				    << ", aParticle->GetAntiPDGEncoding() " << aParticle->GetAntiPDGEncoding() 
-				    << ", pdgIdPartner = " << pdgIdPartner  
-				    << std::endl;
+				    << ", pdgIdPartner = " << pdgIdPartner;   
       if(abs(sign)!=1) {
 	edm::LogInfo("CustomPhysics")<<"sgn: "<<sign<<" a "
 				     <<aParticle->GetAntiPDGEncoding()
-				     <<" b "<<pdgIdPartner
-				     <<std::endl;
+				     <<" b "<<pdgIdPartner; 
 	aParticle->DumpTable();
       }
       if(sign==-1 && pdgId!=25 && pdgId!=35 && pdgId!=36 && pdgId!=37 && pdgId!=1000039){
 	tmp = "anti_"+name;
 	edm::LogInfo("CustomPhysics") << "Calling addCustomParticle for antiparticle with pdgId: " << -pdgId 
-				      << ", mass " << mass << ", name " << tmp
-				      << std::endl;
+				      << ", mass " << mass << ", name " << tmp; 
 	addCustomParticle(-pdgId, mass, tmp);
 	theParticleTable->FindParticle(pdgId)->SetAntiPDGEncoding(-pdgId);
       }
@@ -261,8 +254,7 @@ void  CustomParticleFactory::getMassTable(std::ifstream *configFile) {
     if(pdgId==1000024 || pdgId==1000037 || pdgId==37) {   
       tmp = "anti_"+name;
       edm::LogInfo("CustomPhysics") << "Calling addCustomParticle for antiparticle (2) with pdgId: " << -pdgId 
-				    << ", mass " << mass << ", name " << tmp
-				    << std::endl;
+				    << ", mass " << mass << ", name " << tmp; 
       addCustomParticle(-pdgId, mass, tmp);
       theParticleTable->FindParticle(pdgId)->SetAntiPDGEncoding(-pdgId);
     }
@@ -291,7 +283,7 @@ G4DecayTable*  CustomParticleFactory::getDecayTable(std::ifstream *configFile, i
 	ToLower(line).find("br")  < line.npos &&
 	ToLower(line).find("nda") < line.npos) continue;  // skip a comment of the form:  # BR  NDA  ID1  ID2
     if (line.at(0) == '#') {                              // other comments signal the end of the decay block  
-      edm::LogInfo("CustomPhysics") << " Finished the Decay Table " << std::endl;
+      edm::LogInfo("CustomPhysics") << " Finished the Decay Table "; 
       break;
     }
     
@@ -300,9 +292,9 @@ G4DecayTable*  CustomParticleFactory::getDecayTable(std::ifstream *configFile, i
 
     std::stringstream sstr(line);  
     sstr >> br >> nDaughters;  // assume SLHA format, e.g.:  1.49435135E-01  2  -15  16  # BR(H+ -> tau+ nu_tau)
-    edm::LogInfo("CustomPhysics") << " Branching Ratio: " << br << ", Number of Daughters: " << nDaughters << std::endl;
+    edm::LogInfo("CustomPhysics") << " Branching Ratio: " << br << ", Number of Daughters: " << nDaughters; 
     if (nDaughters > 4) {
-      edm::LogError("CustomPhysics") << "Number of daughters is too large (max = 4): " << nDaughters << " for pdgId: " << pdgId << std::endl;  
+      edm::LogError("CustomPhysics") << "Number of daughters is too large (max = 4): " << nDaughters << " for pdgId: " << pdgId; 
       break; 
     }
     for(int i=0; i<nDaughters; i++) {
@@ -311,7 +303,7 @@ G4DecayTable*  CustomParticleFactory::getDecayTable(std::ifstream *configFile, i
     } 
     for (int i=0;i<nDaughters;i++) {
       if (!theParticleTable->FindParticle(pdg[i])) {
-	edm::LogWarning("CustomPhysics")<<pdg[i]<<" CustomParticleFactory::getDecayTable():  not found in the table!"<<std::endl;
+	edm::LogWarning("CustomPhysics")<<pdg[i]<<" CustomParticleFactory::getDecayTable():  not found in the table!"; 
 	continue;
       }
       name[i] =  theParticleTable->FindParticle(pdg[i])->GetParticleName();
