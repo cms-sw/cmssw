@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CaloGeometryWriter")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.load('Configuration/StandardSequences/GeometryExtended_cff')
-process.load('Geometry/CaloEventSetup/CaloGeometryDBWriter_cfi')
+process.load('CondCore.DBCommon.CondDBCommon_cfi')
+process.load('Configuration.StandardSequences.GeometryExtended_cff')
+process.load('Geometry.CaloEventSetup.CaloGeometryDBWriter_cfi')
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
                             timetype = cms.string('runnumber'),
@@ -33,4 +33,3 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.p1 = cms.Path(process.CaloGeometryWriter)
-

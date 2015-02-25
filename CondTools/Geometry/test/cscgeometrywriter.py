@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CSCGeometryWriter")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.load('Configuration/StandardSequences/GeometryExtended_cff')
-
+process.load('CondCore.DBCommon.CondDBCommon_cfi')
+process.load('Configuration.StandardSequences.GeometryExtended_cff')
+process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -11,7 +11,6 @@ process.source = cms.Source("EmptyIOVSource",
                             firstValue = cms.uint64(1),
                             interval = cms.uint64(1)
                             )
-
 
 process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader")
 
@@ -29,4 +28,3 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.p1 = cms.Path(process.CSCGeometryWriter)
-

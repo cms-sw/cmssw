@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.AlCa.autoCond import autoCond
 
 process = cms.Process("GeometryTest")
 
@@ -9,10 +10,9 @@ process.source = cms.Source("EmptyIOVSource",
                             interval = cms.uint64(1)
                             )
 
-process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = autoCond['run1_mc']
 
-#process.GlobalTag.DumpStat=cms.untracked.bool(True)
-#process.GlobalTag.DBParameters.messageLevel = 3
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string("PCastorRcd"),
              tag = cms.string("CASTORRECO_Geometry_TagXX"),
@@ -42,16 +42,6 @@ process.GlobalTag.toGet = cms.VPSet(
              tag = cms.string("EBRECO_Geometry_TagXX"),
              connect = cms.untracked.string("sqlite_file:myfile.db")
              ),
-#    cms.PSet(record = cms.string("GeometryFileRcd"),
-#             tag = cms.string("XMLFILE_Geometry_IdealGFlash_TagXX"),
-#             connect = cms.untracked.string("sqlite_file:myfile.db"),
-#             label = cms.untracked.string("IdealGFlash")
-#             ),
-#    cms.PSet(record = cms.string("GeometryFileRcd"),
-#             tag = cms.string("XMLFILE_Geometry_Ideal_TagXX"),
-#             connect = cms.untracked.string("sqlite_file:myfile.db"),
-#             label = cms.untracked.string("Ideal")
-#             ),
     cms.PSet(record = cms.string("RPCRecoGeometryRcd"),
              tag = cms.string("RPCRECO_Geometry_TagXX"),
              connect = cms.untracked.string("sqlite_file:myfile.db")
@@ -64,11 +54,6 @@ process.GlobalTag.toGet = cms.VPSet(
              tag = cms.string("EPRECO_Geometry_TagXX"),
              connect = cms.untracked.string("sqlite_file:myfile.db")
              ),
-#    cms.PSet(record = cms.string("GeometryFileRcd"),
-#             tag = cms.string("XMLFILE_Geometry_ExtendedGFlash_TagXX"),
-#             connect = cms.untracked.string("sqlite_file:myfile.db"),
-#             label = cms.untracked.string("ExtendedGFlash")
-#             ),
     cms.PSet(record = cms.string("GeometryFileRcd"),
              tag = cms.string("XMLFILE_Geometry_Extended_TagXX"),
              connect = cms.untracked.string("sqlite_file:myfile.db"),
@@ -81,6 +66,10 @@ process.GlobalTag.toGet = cms.VPSet(
              ),
     cms.PSet(record = cms.string("IdealGeometryRecord"),
              tag = cms.string("TKRECO_Geometry_TagXX"),
+             connect = cms.untracked.string("sqlite_file:myfile.db")
+             ),
+    cms.PSet(record = cms.string('PTrackerParametersRcd'),
+             tag = cms.string('TKParameters_Geometry_TagXX'),
              connect = cms.untracked.string("sqlite_file:myfile.db")
              ),
     cms.PSet(record = cms.string("PHcalRcd"),
@@ -114,14 +103,7 @@ process.GlobalTag.toGet = cms.VPSet(
 #                                      )
 
 process.MessageLogger = cms.Service("MessageLogger")
-#014
-#015 process.WhatsItESProducer = cms.ESProducer("WhatsItESProducer")
-#016
-#017 process.DoodadESSource = cms.ESSource("DoodadESSource")
-#018
 process.demo = cms.EDAnalyzer("PrintEventSetupContent")
-#020
-#021 process.p = cms.Path(process.demo)
 
 process.GeometryTester = cms.EDAnalyzer("GeometryTester",
                                         XMLTest = cms.untracked.bool(True),
