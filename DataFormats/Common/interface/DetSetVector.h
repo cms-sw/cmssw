@@ -186,7 +186,7 @@ namespace edm {
 
     void fillView(ProductID const& id,
 		  std::vector<void const*>& pointers,
-		  helper_vector& helpers) const;
+		  FillViewHelperVector& helpers) const;
 
     //Used by ROOT storage
     CMS_CLASS_VERSION(10)
@@ -419,7 +419,7 @@ namespace edm {
   template<class T>
   void DetSetVector<T>::fillView(ProductID const& id,
 				 std::vector<void const*>& pointers,
-				 helper_vector& helpers) const
+				 FillViewHelperVector& helpers) const
   {
     detail::reallyFillView(*this, id, pointers, helpers);
   }
@@ -434,7 +434,7 @@ namespace edm {
   fillView(DetSetVector<T> const& obj,
 	   ProductID const& id,
 	   std::vector<void const*>& pointers,
-	   helper_vector& helpers)
+	   FillViewHelperVector& helpers)
   {
     obj.fillView(id, pointers, helpers);
   }

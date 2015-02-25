@@ -59,7 +59,7 @@ namespace edm {
     // defined in DataFormats/Common/interface/RefToPtr.h
     // to construct a Ptr<T> from a Ref<C>, where T is C::value_type.
 
-    // Constructor for ref to object that is not in an event.
+    // Constructors for ref to object that is not in an event.
     // An exception will be thrown if an attempt is made to persistify
     // any object containing this Ptr.  Also, in the future work will
     // be done to throw an exception if an attempt is made to put any object
@@ -68,6 +68,10 @@ namespace edm {
     Ptr(C const* iProduct, key_type iItemKey, bool /*setNow*/ = true):
     core_(ProductID(), iProduct != 0 ? getItem_(iProduct,iItemKey) : 0, 0, true),
     key_(iProduct != 0 ? iItemKey : key_traits<key_type>::value) {}
+
+    Ptr(T const* item, T const*, key_type iItemKey, bool /*setNow*/ = true):
+    core_(ProductID(), item != 0 ? item : 0, 0, true),
+    key_(item != 0 ? iItemKey : key_traits<key_type>::value) {}
 
     // Constructor from test handle.
     // An exception will be thrown if an attempt is made to persistify
@@ -273,7 +277,34 @@ namespace edm {
     /// a collection will be identical to the ordering of the referenced objects in the collection.
     return (lhs.refCore() == rhs.refCore() ? lhs.key() < rhs.key() : lhs.refCore() < rhs.refCore());
   }
-
 }
+
+//The following is needed to get RefToBase to work with an edm::Ptr
+//Handle specialization here
+#include "DataFormats/Common/interface/HolderToVectorTrait_Ptr_specialization.h"
+#include <vector>
+
+#ifndef __GCCXML__
+namespace edm {
+  template <typename T>
+  inline
+  void
+  fillView(std::vector<edm::Ptr<T> > const& obj,
+           ProductID const& id,
+           std::vector<void const*>& pointers,
+           FillViewHelperVector& helpers) {
+    pointers.reserve(obj.size());
+    helpers.reserve(obj.size());
+    for (auto const& p: obj) {
+      if(p.isAvailable()) {
+        pointers.push_back(p.get());
+      }else {
+        pointers.push_back(nullptr);
+      }
+      helpers.emplace_back(p.id(),p.key());
+    }
+  }
+}
+#endif
 
 #endif

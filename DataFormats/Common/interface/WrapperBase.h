@@ -8,6 +8,7 @@ WrapperBase: The base class of all things that will be inserted into the Event.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
+#include "DataFormats/Common/interface/FillViewHelperVector.h"
 #include "DataFormats/Provenance/interface/ViewTypeChecker.h"
 
 #include <typeinfo>
@@ -24,7 +25,7 @@ namespace edm {
     // of the WrapperBase class.
     void fillView(ProductID const& id,
                   std::vector<void const*>& view,
-                  helper_vector_ptr& helpers) const;
+                  FillViewHelperVector& helpers) const;
 
     void setPtr(std::type_info const& iToType,
                 unsigned long iIndex,
@@ -68,7 +69,7 @@ namespace edm {
 
     virtual void do_fillView(ProductID const& id,
                              std::vector<void const*>& pointers,
-                             helper_vector_ptr & helpers) const = 0;
+                             FillViewHelperVector & helpers) const = 0;
     virtual void do_setPtr(std::type_info const& iToType,
                            unsigned long iIndex,
                            void const*& oPtr) const = 0;

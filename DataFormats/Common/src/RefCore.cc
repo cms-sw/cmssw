@@ -217,5 +217,41 @@ namespace edm {
       setProductGetter(productToBeInserted.productGetter());
     }
   }
-  
+
+  void
+  RefCore::pushBackRefItem(RefCore const& productToBeInserted) {
+    if (productToBeInserted.isNull() && !productToBeInserted.isTransient()) {
+      throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	<< "RefCore::pushBackRefItem: Ref has invalid (zero) product ID, so it cannot be added to RefVector."
+	<< "id should be (" << id() << ")\n";
+    }
+    if (isNonnull() || isTransient()) {
+      if (isTransient() != productToBeInserted.isTransient()) {
+        if (productToBeInserted.isTransient()) {
+	  throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	    << "RefCore::pushBackRefItem: Transient Ref cannot be added to persistable RefVector. "
+	    << "id should be (" << id() << ")\n";
+        } else {
+	  throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	    << "RefCore::pushBackRefItem: Persistable Ref cannot be added to transient RefVector. "
+	    << "id is (" << productToBeInserted.id() << ")\n";
+        }
+      }
+      if (!productToBeInserted.isTransient() && id() != productToBeInserted.id()) {
+        throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	  << "RefCore::pushBackRefItem: Ref is inconsistent with RefVector"
+	  << "id = (" << productToBeInserted.id() << ") should be (" << id() << ")\n";
+      }
+    } else {
+      if (productToBeInserted.isTransient()) {
+        setTransient();
+      }
+      if (productToBeInserted.isNonnull()) {
+        setId(productToBeInserted.id());
+      }
+    }
+    if (productGetter() == 0 && productToBeInserted.productGetter() != 0) {
+      setProductGetter(productToBeInserted.productGetter());
+    }
+  }
 }

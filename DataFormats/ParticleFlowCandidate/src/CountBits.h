@@ -4663,7 +4663,7 @@ enum PFRefMasks {
   if(getRefInfo(_mask_, _bit_, prodID, index, aIndex) ) { \
     if (refsCollectionCache_.size()==0 || refsCollectionCache_[aIndex]==0) return RefType(prodID, index, getter_); \
     else { \
-      const vector<_class_> *t=reinterpret_cast< const vector<_class_>* >(refsCollectionCache_[aIndex]);\
-      return RefType(prodID, &((*t)[aIndex]),index,t);\
+      _class_ const* t = reinterpret_cast<_class_ const*>(refsCollectionCache_[aIndex]); \
+      return RefType(prodID, t, index);\
     } } \
   return RefType() 

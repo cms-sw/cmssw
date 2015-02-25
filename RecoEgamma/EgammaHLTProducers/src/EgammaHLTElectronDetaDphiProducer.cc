@@ -73,10 +73,8 @@ void EgammaHLTElectronDetaDphiProducer::produce(edm::Event& iEvent, const edm::E
   edm::ESHandle<MagneticField> theMagField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
-  reco::ElectronIsolationMap detaMap;
-  reco::ElectronIsolationMap dphiMap;
-  reco::RecoEcalCandidateIsolationMap detaCandMap;
-  reco::RecoEcalCandidateIsolationMap dphiCandMap;
+  reco::ElectronIsolationMap detaMap(electronHandle);
+  reco::ElectronIsolationMap dphiMap(electronHandle);
   
   if(!useSCRefs_){
 
@@ -91,6 +89,9 @@ void EgammaHLTElectronDetaDphiProducer::produce(edm::Event& iEvent, const edm::E
   }else { //we loop over reco ecal candidates
      edm::Handle<reco::RecoEcalCandidateCollection> recoEcalCandHandle;
      iEvent.getByToken(recoEcalCandidateProducer_,recoEcalCandHandle);
+     reco::RecoEcalCandidateIsolationMap detaCandMap(recoEcalCandHandle);
+     reco::RecoEcalCandidateIsolationMap dphiCandMap(recoEcalCandHandle);
+
      for(reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand = recoEcalCandHandle->begin(); iRecoEcalCand != recoEcalCandHandle->end(); iRecoEcalCand++){
     
        reco::RecoEcalCandidateRef recoEcalCandRef(recoEcalCandHandle,iRecoEcalCand-recoEcalCandHandle->begin());
@@ -101,6 +102,12 @@ void EgammaHLTElectronDetaDphiProducer::produce(edm::Event& iEvent, const edm::E
        detaCandMap.insert(recoEcalCandRef, dEtaDPhi.first);
        dphiCandMap.insert(recoEcalCandRef, dEtaDPhi.second);
      }//end loop over reco ecal candidates
+
+    std::auto_ptr<reco::RecoEcalCandidateIsolationMap> detaCandMapForEvent(new reco::RecoEcalCandidateIsolationMap(detaCandMap));
+    std::auto_ptr<reco::RecoEcalCandidateIsolationMap> dphiCandMapForEvent(new reco::RecoEcalCandidateIsolationMap(dphiCandMap));
+    iEvent.put(detaCandMapForEvent, "Deta" );
+    iEvent.put(dphiCandMapForEvent, "Dphi" );
+
   }//end if between electrons or reco ecal candidates
 
   if(!useSCRefs_){
@@ -108,12 +115,7 @@ void EgammaHLTElectronDetaDphiProducer::produce(edm::Event& iEvent, const edm::E
     std::auto_ptr<reco::ElectronIsolationMap> dphMap(new reco::ElectronIsolationMap(dphiMap));
     iEvent.put(detMap, "Deta" );
     iEvent.put(dphMap, "Dphi" );
-  }else{
-    std::auto_ptr<reco::RecoEcalCandidateIsolationMap> detaCandMapForEvent(new reco::RecoEcalCandidateIsolationMap(detaCandMap));
-    std::auto_ptr<reco::RecoEcalCandidateIsolationMap> dphiCandMapForEvent(new reco::RecoEcalCandidateIsolationMap(dphiCandMap));
-    iEvent.put(detaCandMapForEvent, "Deta" );
-    iEvent.put(dphiCandMapForEvent, "Dphi" );
-  }     
+  }
 }
 
 std::pair<float,float> EgammaHLTElectronDetaDphiProducer::calDEtaDPhiSCTrk(reco::ElectronRef& eleref, const reco::BeamSpot::Point& bsPosition,const MagneticField *magField) {

@@ -40,8 +40,6 @@ namespace edm {
 
       virtual std::auto_ptr<RefVectorHolderBase> makeVectorHolder() const = 0;
       virtual EDProductGetter const* productGetter() const = 0;
-      virtual bool hasProductCache() const = 0;
-      virtual void const * product() const = 0;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.

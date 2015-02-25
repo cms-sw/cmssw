@@ -34,7 +34,7 @@ namespace edm {
       virtual RefVectorHolder<REFV> * clone() const;
       virtual RefVectorHolder<REFV> * cloneEmpty() const;
       void setRefs(REFV const& refs);
-      virtual void reallyFillView(void const*, ProductID const&, std::vector<void const*> &);
+      virtual void reallyFillView(void const*, ProductID const&, std::vector<void const*> &, FillViewHelperVector&);
       virtual size_t keyForIndex(size_t idx) const;
 
       //Needed for ROOT storage
@@ -82,9 +82,6 @@ namespace edm {
       }
       const_iterator end() const {
 	return const_iterator(new const_iterator_imp_specific(refs_.end()));
-      }
-      virtual void const* product() const {
-	return refs_.product();
       }
 
       /// Checks if product collection is in memory or available
@@ -235,7 +232,7 @@ namespace edm {
   namespace reftobase {
     template<typename REFV>
     struct RefVectorHolderNoFillView {
-      static void reallyFillView(RefVectorHolder<REFV>&, void const*, ProductID const&, std::vector<void const*>&) {
+      static void reallyFillView(RefVectorHolder<REFV>&, void const*, ProductID const&, std::vector<void const*>&, FillViewHelperVector&) {
 	Exception::throwThis(errors::ProductDoesNotSupportViews,
 	  "The product type ",
 	  typeid(typename REFV::collection_type).name(),
@@ -245,22 +242,23 @@ namespace edm {
 
     template<typename REFV>
     struct RefVectorHolderDoFillView {
-      static void reallyFillView(RefVectorHolder<REFV>& rvh, void const* prod, ProductID const& id , std::vector<void const*> & pointers) {
+      static void reallyFillView(RefVectorHolder<REFV>& rvh, void const* prod, ProductID const& id , std::vector<void const*> & pointers, FillViewHelperVector& oHelpers) {
 	typedef typename REFV::collection_type collection;
 	collection const* product = static_cast<collection const*>(prod);
-	detail::reallyFillView(*product, id, pointers, rvh);
+	detail::reallyFillView(*product, id, pointers, oHelpers);
       }
     };
 
     template<typename REFV>
-    void RefVectorHolder<REFV>::reallyFillView(void const* iProd, ProductID const& iId , std::vector<void const*> & oPointers) {
+    void RefVectorHolder<REFV>::reallyFillView(void const* iProd, ProductID const& iId , std::vector<void const*> & oPointers, FillViewHelperVector& oHelpers) {
       typedef
 	typename boost::mpl::if_c<has_fillView<typename REFV::collection_type>::value,
 	RefVectorHolderDoFillView<REFV>,
 	RefVectorHolderNoFillView<REFV> >::type maybe_filler;
-      maybe_filler::reallyFillView(*this, iProd, iId, oPointers);
+      maybe_filler::reallyFillView(*this, iProd, iId, oPointers,oHelpers);
     }
   }
+ 
 }
 
 #endif

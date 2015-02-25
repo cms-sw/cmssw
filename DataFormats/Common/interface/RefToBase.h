@@ -14,7 +14,7 @@ Using an edm:RefToBase<T> allows one to hold references to items in different co
 within the edm::Event where those objects are only related by a base class, T.
 
 \code
-edm::Ref<Foo> foo(...);
+edm::Ref<FooCollection> foo(...);
 std::vector<edm::RefToBase<Bar> > bars;
 bars.push_back(edm::RefToBase<Bar>(foo));
 \endcode
@@ -80,6 +80,9 @@ namespace edm {
     template <typename T1>
     explicit RefToBase(RefToBase<T1> const & r );
     RefToBase(std::shared_ptr<reftobase::RefHolderBase> p);
+#ifndef __GCCXML__
+    RefToBase(std::unique_ptr<reftobase::BaseHolder<value_type>>);
+#endif
     ~RefToBase();
 
     RefToBase& operator= (RefToBase const& rhs);
@@ -105,8 +108,6 @@ namespace edm {
     std::auto_ptr<reftobase::RefHolderBase> holder() const;
 
     EDProductGetter const* productGetter() const;
-    bool hasProductCache() const;
-    void const * product() const;
 
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
@@ -173,6 +174,14 @@ namespace edm {
   RefToBase<T>::RefToBase(std::shared_ptr<reftobase::RefHolderBase> p) :
     holder_(new reftobase::IndirectHolder<T>(p))
   { }
+
+#ifndef __GCCXML__
+  template <class T>
+  inline
+  RefToBase<T>::RefToBase(std::unique_ptr<reftobase::BaseHolder<value_type>> p):
+    holder_(p.release())
+  {}
+#endif
 
   template <class T>
   inline
@@ -321,18 +330,6 @@ namespace edm {
   inline
   EDProductGetter const* RefToBase<T>::productGetter() const {
     return holder_? holder_->productGetter():nullptr;
-  }
-
-  template <class T>
-  inline
-  bool RefToBase<T>::hasProductCache() const {
-    return holder_?holder_->hasProductCache():false;
-  }
-
-  template <class T>
-  inline
-  void const * RefToBase<T>::product() const {
-    return holder_?holder_->product():nullptr;
   }
 
   template <class T>

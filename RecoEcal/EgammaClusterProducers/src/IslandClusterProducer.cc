@@ -169,7 +169,7 @@ void IslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
 
 
   // BasicClusterShapeAssociationMap
-  std::auto_ptr<reco::BasicClusterShapeAssociationCollection> shapeAssocs_p(new reco::BasicClusterShapeAssociationCollection);
+  std::auto_ptr<reco::BasicClusterShapeAssociationCollection> shapeAssocs_p(new reco::BasicClusterShapeAssociationCollection(bccHandle, clusHandle));
   for (unsigned int i = 0; i < clusHandle->size(); i++){
     shapeAssocs_p->insert(edm::Ref<reco::BasicClusterCollection>(bccHandle,i),edm::Ref<reco::ClusterShapeCollection>(clusHandle,i));
   }  

@@ -33,8 +33,6 @@ namespace edm {
       void setRef(REF const& r);
       virtual std::auto_ptr<RefVectorHolderBase> makeVectorHolder() const;
       virtual EDProductGetter const* productGetter() const;
-      virtual bool hasProductCache() const;
-      virtual void const * product() const;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
@@ -112,16 +110,6 @@ namespace edm {
     template<class REF>
     EDProductGetter const* RefHolder<REF>::productGetter() const {
       return ref_.productGetter();
-    }
-
-    template<class REF>
-    bool RefHolder<REF>::hasProductCache() const {
-      return ref_.hasProductCache();
-    }
-
-    template<class REF>
-    void const * RefHolder<REF>::product() const {
-      return ref_.product();
     }
 
     template <class REF>

@@ -7,7 +7,7 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"
-
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #include "Calibration/Tools/plugins/ElectronSqPtTkIsolationProducer.h"
 #include "Calibration/Tools/plugins/ElectronSqPtTkIsolation.h"
@@ -46,7 +46,7 @@ void ElectronSqPtTkIsolationProducer::produce(edm::Event& iEvent, const edm::Eve
   iEvent.getByLabel(trackProducer_,tracks);
   const reco::TrackCollection* trackCollection = tracks.product();
   
-  reco::CandViewDoubleAssociations* isoMap = new reco::CandViewDoubleAssociations(reco::GsfElectronRefProd( electronHandle ));
+  reco::CandViewDoubleAssociations* isoMap = new reco::CandViewDoubleAssociations(reco::CandidateBaseRefProd(reco::GsfElectronRefProd( electronHandle )));
   
   ElectronSqPtTkIsolation myTkIsolation (extRadius_,intRadius_,ptMin_,maxVtxDist_,trackCollection) ;
   

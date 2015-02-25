@@ -66,7 +66,7 @@ EgammaHLTPhotonTrackIsolationProducersRegional::produce(edm::StreamID sid, edm::
   iEvent.getByToken(trackProducer_, trackHandle);
   const reco::TrackCollection* trackCollection = trackHandle.product();
 
-  reco::RecoEcalCandidateIsolationMap isoMap;
+  reco::RecoEcalCandidateIsolationMap isoMap(recoecalcandHandle);
   
   for(unsigned int iRecoEcalCand=0; iRecoEcalCand<recoecalcandHandle->size(); iRecoEcalCand++) {
     

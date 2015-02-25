@@ -181,10 +181,6 @@ namespace edm {
       else return backRef_.productGetter();
     }
 
-    /// Accessor for product collection
-    // Accessor must get the product if necessary
-    C const* product() const;
-
     /// Accessor for product ID.
     ProductID id() const {return ref_.isNonnull() ? ref_.id() : backRef_.id();}
 
@@ -213,18 +209,6 @@ namespace edm {
 #include "DataFormats/Common/interface/RefProd.h"
 
 namespace edm {
-
-
-  /// Accessor for product collection
-  // Accessor must get the product if necessary
-  template <typename C, typename T, typename F>
-  inline
-  C const*
-  FwdRef<C, T, F>::product() const {
-    return ref_.isNonnull() && ref_.isAvailable() ? 
-      ref_.product() :
-      backRef_.product();
-  }
 
   /// Dereference operator
   template <typename C, typename T, typename F>

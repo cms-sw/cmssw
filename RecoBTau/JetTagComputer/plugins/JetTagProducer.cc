@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -133,7 +134,7 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
   auto_ptr<JetTagCollection> jetTagCollection;
   if (tagInfoHandle.product()->size() > 0) {
     RefToBase<Jet> jj = tagInfoHandle->begin()->jet();
-    jetTagCollection.reset(new JetTagCollection(RefToBaseProd<Jet>(jj)));
+    jetTagCollection.reset(new JetTagCollection(edm::makeRefToBaseProdFrom(jj, iEvent)));
   } else
     jetTagCollection.reset(new JetTagCollection());
 

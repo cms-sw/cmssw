@@ -29,6 +29,10 @@ namespace edm {
       // sure if use of auto_ptr here causes any troubles elsewhere.
       IndirectHolder() : BaseHolder<T>(), helper_( 0 ) { }
       IndirectHolder(std::shared_ptr<RefHolderBase> p);
+#ifndef __GCCXML__
+      template< typename U>
+      IndirectHolder(std::unique_ptr<U> p): helper_(p.release()) {}
+#endif
       IndirectHolder(IndirectHolder const& other);
       IndirectHolder& operator= (IndirectHolder const& rhs);
       void swap(IndirectHolder& other);
@@ -46,8 +50,6 @@ namespace edm {
       virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const;
       virtual std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() const;
       virtual EDProductGetter const* productGetter() const;
-      virtual bool hasProductCache() const;
-      virtual void const * product() const;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
@@ -133,18 +135,6 @@ namespace edm {
     inline
     EDProductGetter const* IndirectHolder<T>::productGetter() const {
       return helper_->productGetter();
-    }
-
-    template <typename T>
-    inline
-    bool IndirectHolder<T>::hasProductCache() const {
-      return helper_->hasProductCache();
-    }
-
-    template <typename T>
-    inline
-    void const * IndirectHolder<T>::product() const {
-      return helper_->product();
     }
 
     template <typename T>
