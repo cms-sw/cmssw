@@ -1,7 +1,7 @@
-#ifndef fastHFFibre_H
-#define fastHFFibre_H
+#ifndef FastHFFibre_H
+#define FastHFFibre_H
 ///////////////////////////////////////////////////////////////////////////////
-// File: fastHFFibre.h 
+// File: FastHFFibre.h 
 // Description: Calculates attenuation length
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -16,13 +16,13 @@
 
 class DDCompactView;    
 
-class fastHFFibre {
+class FastHFFibre {
   
 public:
   
   //Constructor and Destructor
-  fastHFFibre(std::string & name, const DDCompactView & cpv, double cFibre);
-  ~fastHFFibre();
+  FastHFFibre(std::string & name, const DDCompactView & cpv, double cFibre);
+  ~FastHFFibre();
 
   double              attLength(double lambda);
   double              tShift(const G4ThreeVector& point, int depth, 

@@ -1,7 +1,7 @@
-#ifndef fastHFShowerLibrary_H
-#define fastHFShowerLibrary_H
+#ifndef FastHFShowerLibrary_H
+#define FastHFShowerLibrary_H
 ///////////////////////////////////////////////////////////////////////////////
-// File: fastHFShowerLibrary.h
+// File: FastHFShowerLibrary.h
 // Description: Gets information from a shower library
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FastSimulation/Particle/interface/RawParticle.h"
-#include "FastSimulation/ShowerDevelopment/interface/fastHFFibre.h"
+#include "FastSimulation/ShowerDevelopment/interface/FastHFFibre.h"
 #include "FastSimulation/Utilities/interface/FamosDebug.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
@@ -35,13 +35,13 @@ class DDCompactView;
 class FSimEvent;
 class FSimTrack;
 
-class fastHFShowerLibrary {
+class FastHFShowerLibrary {
   
 public:
 
 // Constructor and Destructor
-  fastHFShowerLibrary(edm::ParameterSet const & p);
-  ~fastHFShowerLibrary();
+  FastHFShowerLibrary(edm::ParameterSet const & p);
+  ~FastHFShowerLibrary();
 
 public:
 
@@ -74,7 +74,7 @@ protected:
 
 private:
 
-  fastHFFibre *       fibre;
+  FastHFFibre *       fibre;
   TFile *             hf;
   TBranch             *emBranch, *hadBranch;
 
