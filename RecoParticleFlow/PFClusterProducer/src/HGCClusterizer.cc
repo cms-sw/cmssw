@@ -814,15 +814,16 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 					 temp);
 		    //std::cout << " afterburner done!" << std::endl;
 		  }
-		  
+		  /*
 		  std::cout << "adding cluster at: (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") " 
 			    <<  the_cluster.pt() << ' ' << pos.eta() << " to had-supercluster! nhits_trk = " 
 			    <<  hits_of_cluster_on_track[clus_idx] 
 			    << " nhits = " << the_cluster.recHitFractions().size()
 			    << std::endl;
+		  */
 		  
 		}  else {
-		  
+		  /*
 		  std::cout << "rejected cluster at : (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") nhits_trk = " 
 			    << hits_of_cluster_on_track[clus_idx] << " pt = " 
 			    <<  the_cluster.pt() << " eta = "  
@@ -843,8 +844,9 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 		    std::cout << " because cluster doesn't point along track! "; 
 		  }
 		  std::cout << std::endl;
-		  
-		  } 
+		  */
+		  }
+		   
 		
 	      }
 	    }
