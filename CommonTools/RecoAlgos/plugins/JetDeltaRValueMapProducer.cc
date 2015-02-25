@@ -42,11 +42,13 @@ public:
       value_( params.existsAs<std::string>("value") ? params.getParameter<std::string>("value") : "" ),
       values_( params.existsAs<std::vector<std::string> >("values") ? params.getParameter<std::vector<std::string> >("values") : std::vector<std::string>() ),
       valueLabels_( params.existsAs<std::vector<std::string> >("valueLabels") ? params.getParameter<std::vector<std::string> >("valueLabels") : std::vector<std::string>() ),
-      lazyParser_( params.existsAs<bool>("lazyParser") ? params.getParameter<bool>("lazyParser") : false ),
-      evaluation_( (value_!="" ? value_ : "dummy"), lazyParser_ )
+      lazyParser_( params.existsAs<bool>("lazyParser") ? params.getParameter<bool>("lazyParser") : false )
   {
     if( value_!="" )
+    {
+      evaluationMap_.insert( std::make_pair( value_, StringObjectFunction<T>( value_, lazyParser_ ) ) );
       produces< JetValueMap >();
+    }
 
     if( valueLabels_.size()>0 || values_.size()>0 )
     {
@@ -118,7 +120,7 @@ private:
         {
           jets1_locks.at(matched_index) = true;
           if( value_!="" )
-            values.at(matched_index) = evaluation_(*ijet);
+            values.at(matched_index) = (evaluationMap_.at(value_))(*ijet);
           if( multiValue_ )
           {
             for( size_t i=0; i<valueLabels_.size(); ++i)
@@ -155,15 +157,14 @@ private:
     }
   }
 
-  edm::EDGetTokenT< typename edm::View<T> >  srcToken_;
-  edm::EDGetTokenT< typename edm::View<T> >  matchedToken_;
-  double                                     distMax_;
-  std::string                                value_;
-  std::vector<std::string>                   values_;
-  std::vector<std::string>                   valueLabels_;
-  bool                                       multiValue_;
-  bool                                       lazyParser_;
-  StringObjectFunction<T>                    evaluation_;
+  const edm::EDGetTokenT< typename edm::View<T> >  srcToken_;
+  const edm::EDGetTokenT< typename edm::View<T> >  matchedToken_;
+  const double                                     distMax_;
+  const std::string                                value_;
+  const std::vector<std::string>                   values_;
+  const std::vector<std::string>                   valueLabels_;
+  const bool                                       lazyParser_;
+  bool                                             multiValue_;
   std::map<std::string, StringObjectFunction<T> >  evaluationMap_;
 };
 
