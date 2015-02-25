@@ -73,20 +73,12 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
     )
 )
 
-#process.load( "RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff")
-
 
 process.load( "RecoParticleFlow.PFProducer.hltParticleFlowForJets_cfi" )
 process.load( "RecoJets.JetProducers.ak4PFCaloJets_cfi" )
 
 process.load( "RecoJets.JetProducers.PFClustersForJets_cff" )
 process.load( "RecoJets.JetProducers.ak4PFClusterJets_cfi" )
-
-
-
-
-
-
 
 process.PFClusterJet = cms.Path(
     process.pfClusterRefsForJets_step*
@@ -98,7 +90,6 @@ process.PFCaloJet = cms.Path(
     process.ak4PFCaloJets
 )
 
-############################Ended  Yongjie    ##############################################################
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
