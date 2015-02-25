@@ -56,10 +56,12 @@ class RawEventFileWriterForBU
   IntJ perRunEventCount_;
   IntJ perRunFileCount_;
   IntJ perRunLumiCount_;
+  IntJ perRunLastLumi_;
 
   IntJ perLumiEventCount_;
   IntJ perLumiFileCount_;
   IntJ perLumiTotalEventCount_;
+  IntJ perLumiLostEventCount_;
 
   IntJ perFileEventCount_;
 
