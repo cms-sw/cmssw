@@ -48,6 +48,7 @@ def miniAOD_customizeCommon(process):
     process.patPhotons.embedPreshowerClusters         = False  ## process.patPhotons.embed in AOD externally stored the photon's preshower clusters
     process.patPhotons.embedRecHits         = False  ## process.patPhotons.embed in AOD externally stored the RecHits - can be called from the PATPhotonProducer
     process.patPhotons.photonSource = cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.patPhotons.electronSource = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
     process.patPhotons.photonIDSources = cms.PSet(
                 PhotonCutBasedIDLoose = cms.InputTag('reducedEgamma',
                                                       'PhotonCutBasedIDLoose'),
