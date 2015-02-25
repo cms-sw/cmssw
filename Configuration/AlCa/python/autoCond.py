@@ -1,39 +1,39 @@
 autoCond = { 
     # GlobalTag for MC production with perfectly aligned and calibrated detector                                                                                                                              
-    'mc'                :   'MC_71_V8::All',
+    'mc'                :   'DESRUN1_71_V0::All',
     # GlobalTag for MC production with realistic alignment and calibrations
-    'startup'           :   'START71_V8::All',
+    'startup'           :   'MCRUN1_71_V0::All',
     # GlobalTag for MC production of Heavy Ions events with realistic alignment and calibrations
-    'starthi'           :   'STARTHI71_V15::All',
+    'starthi'           :   'MCHI1_71_V0::All',
     # GlobalTag for MC production of p-Pb events with realistic alignment and calibrations
-    'startpa'           :   'STARTHI71_V16::All',
+    'startpa'           :   'MCPA1_71_V0::All',
     # GlobalTag for data reprocessing: this should always be the GR_R tag
     'com10'             :   'GR_R_71_V7::All',
     # GlobalTag for running HLT on recent data: this should be the GR_P (prompt reco) global tag until a compatible GR_H tag is available, 
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
     'hltonline'         :   'GR_H_V37::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
     # GlobalTag for POSTLS1 upgrade studies:
-    'upgradePLS1'       :   'POSTLS171_V17::All',
-    'upgradePLS150ns'   :   'POSTLS171_V18::All',
+    'upgradePLS1'       :   'MCRUN2_71_V1::All',
+    'upgradePLS150ns'   :   'MCRUN2_71_V0::All',
     'upgrade2017'       :   'DES17_70_V2::All', # placeholder (GT not meant for standard RelVal)
     'upgrade2019'       :   'DES19_70_V2::All', # placeholder (GT not meant for standard RelVal)
     'upgradePLS3'       :   'POSTLS262_V1::All', # placeholder (GT not meant for standard RelVal)
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
-    'run1_design'       :   'MC_71_V8::All',
+    'run1_design'       :   'DESRUN1_71_V0::All',
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
-    'run1_mc'           :   'START71_V8::All',
+    'run1_mc'           :   'MCRUN1_71_V0::All',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'        :   'STARTHI71_V15::All',
+    'run1_mc_hi'        :   'MCHI1_71_V0::All',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pPb'       :   'STARTHI71_V16::All',
+    'run1_mc_pPb'       :   'MCPA1_71_V0::All',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   'DESIGN71_V6::All',
+    'run2_design'       :   'DESRUN2_71_V0::All',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   'POSTLS171_V18::All',
+    'run2_mc_50ns'      :   'MCRUN2_71_V0::All',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   'POSTLS171_V17::All',
+    'run2_mc'           :   'MCRUN2_71_V1::All',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   'GR_R_71_V7::All',
     # GlobalTag for Run2 data reprocessing
