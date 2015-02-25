@@ -18,7 +18,7 @@ dqmHarvestingPOG = cms.Path(DQMOffline_SecondStep_PrePOG)
 
 dqmHarvestingPOGMC = cms.Path( DQMOffline_SecondStep_PrePOGMC )
 
-validationHarvesting = cms.Path(postValidation*hltpostvalidation*postValidation_gen)
+validationHarvesting = cms.Path(postValidation*hltpostvalidation*postValidation_gen*METPostProcessor)
 
 validationpreprodHarvesting = cms.Path(postValidation_preprod*hltpostvalidation_preprod*postValidation_gen)
 
