@@ -1,35 +1,38 @@
 import FWCore.ParameterSet.Config as cms
+# import the full tracking equivalent of this file
+import RecoTracker.IterativeTracking.DetachedTripletStep_cff
 
-# seeding
-from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import PixelLayerTriplets
-from FastSimulation.Tracking.TrajectorySeedProducer_cfi import trajectorySeedProducer
-detachedTripletStepSeeds = trajectorySeedProducer.clone(
-    simTrackSelection = trajectorySeedProducer.simTrackSelection.clone(
+# trajectory seeds
+import FastSimulation.Tracking.TrajectorySeedProducer_cfi
+detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
+    simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
         skipSimTrackIds = [cms.InputTag("initialStepSimTrackIds")],
-        pTMin = 0.020,
-        maxD0 = 30.,
-        maxZ0 = 50.
+        pTMin = 0.02,
+        maxD0 = 30.0,
+        maxZ0 = 50
         ),
     minLayersCrossed = 3,
-    originpTMin = 0.075,
-    originRadius = 1.5,
-    originHalfLength = 15.,
-    primaryVertex = '',
-    layerList = PixelLayerTriplets.layerList
+    originpTMin = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
+    originHalfLength = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength,
+    originRadius = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
+    layerList = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeedLayers.layerList.value()
     )
 
 # track candidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 detachedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
     SeedProducer = cms.InputTag("detachedTripletStepSeeds"),
-    MinNumberOfCrossedLayers = 3)
+    MinNumberOfCrossedLayers = 3
+    )
 
-# track producer
-from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTripletStepTracks
-detachedTripletStepTracks = detachedTripletStepTracks.clone(
+
+
+# tracks 
+detachedTripletStepTracks = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTracks.clone(
     Fitter = 'KFFittingSmootherSecond',
-    Propagator = 'PropagatorWithMaterial',
-    TTRHBuilder = 'WithoutRefit'
+    TTRHBuilder = 'WithoutRefit',
+    Propagator = 'PropagatorWithMaterial'
+
 )
 
 # simtrack id producer
@@ -38,14 +41,15 @@ detachedTripletStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
                                   HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
                                   )
 
+#final selection
+detachedTripletStepSelector = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSelector.clone()
+detachedTripletStep = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStep.clone() 
 
-# TRACK SELECTION AND QUALITY FLAG SETTING.
-from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTripletStepSelector,detachedTripletStep
-
-# sequence
-DetachedTripletStep = cms.Sequence(detachedTripletStepSeeds+
-                                   detachedTripletStepTrackCandidates+
-                                   detachedTripletStepTracks+
-                                   detachedTripletStepSimTrackIds+
-                                   detachedTripletStepSelector+
-                                   detachedTripletStep)
+# Final sequence 
+DetachedTripletStep = cms.Sequence(detachedTripletStepSeeds
+                                   +detachedTripletStepTrackCandidates
+                                   +detachedTripletStepTracks
+                                   +detachedTripletStepSelector
+                                   +detachedTripletStep
+                                   +detachedTripletStepSimTrackIds
+)
