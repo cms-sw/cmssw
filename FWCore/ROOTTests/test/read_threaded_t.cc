@@ -10,8 +10,7 @@
 #include "TObjString.h"
 #include "TH1F.h"
 
-
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 
 #include <memory>
 #include <cassert>
@@ -98,7 +97,7 @@ int main(int argc, char** argv) {
 
 
  
-  edm::RootAutoLibraryLoader::enable();
+  AutoLibraryLoader::enable();
 
   //Tell Root we want to be multi-threaded
   TThread::Initialize();

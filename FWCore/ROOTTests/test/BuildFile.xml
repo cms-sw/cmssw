@@ -3,7 +3,7 @@
 </bin>
 <bin file="read_threaded_t.cc" name="root_threaded_read_test">
   <use name="roothistmatrix"/>
-  <use name="FWCore/RootAutoLibraryLoader"/>
+  <use name="FWCore/FWLite"/>
 </bin>
 <bin file="tclass_methods_threaded_t.cc" name="root_threaded_tclass_methods_test">
   <use name="rootcore"/>
