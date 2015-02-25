@@ -110,7 +110,7 @@ bool TrackCleaner::isCompatible(const DetId & i1,
     if(tTopo->pxbLayer(i1) != tTopo->pxbLayer(i2)) return true;
 
     int dphi = abs(int(tTopo->pxbLadder(i1) - tTopo->pxbLadder(i2)));
-    static int max[3] = {20, 32, 44};
+    constexpr int max[3] = {20, 32, 44};
     if(dphi > max[tTopo->pxbLayer(i1)-1] / 2) dphi = max[tTopo->pxbLayer(i1)-1] - dphi;
 
     int dz   = abs(int(tTopo->pxbModule(i1) - tTopo->pxbModule(i2)));
@@ -124,7 +124,7 @@ bool TrackCleaner::isCompatible(const DetId & i1,
        tTopo->pxfDisk(i1) != tTopo->pxfDisk(i2)) return true;
 
     int dphi = abs(int(tTopo->pxfBlade(i1) - tTopo->pxfBlade(i2)));
-    static int max = 24;
+    constexpr int max = 24;
     if(dphi > max / 2) dphi = max - dphi;
 
     int dr   = abs(int( ((tTopo->pxfModule(i1)-1) * 2 + (tTopo->pxfPanel(i1)-1)) -

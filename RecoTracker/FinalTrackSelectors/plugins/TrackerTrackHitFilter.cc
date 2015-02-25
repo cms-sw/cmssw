@@ -163,7 +163,7 @@ namespace reco {
 
 
 TrackerTrackHitFilter::Rule::Rule(const std::string &str) {
-    static boost::regex rule("(keep|drop)\\s+([A-Z]+)(\\s+(\\d+))?");
+    static const boost::regex rule("(keep|drop)\\s+([A-Z]+)(\\s+(\\d+))?");
     boost::cmatch match;
     std::string match_1;
     std::string match_2;
@@ -208,9 +208,9 @@ void TrackerTrackHitFilter::parseStoN(const std::string &str) {
   //followed b an arbitrary number of blanks, one or more digits (not necessary, they cannot also be,
   // another set of blank spaces and, again another *eventual* digit
   // static boost::regex rule("\\s+([A-Z]+)(\\s+(\\d+)(\\.)?(\\d+))?(\\s+(\\d+)(\\.)?(\\d+))?");
- static boost::regex rule("([A-Z]+)"
-			  "\\s*(\\d+\\.*\\d*)?"
-			  "\\s*(\\d+\\.*\\d*)?");
+ static const boost::regex rule("([A-Z]+)"
+                                "\\s*(\\d+\\.*\\d*)?"
+                                "\\s*(\\d+\\.*\\d*)?");
 
 
   boost::cmatch match;
