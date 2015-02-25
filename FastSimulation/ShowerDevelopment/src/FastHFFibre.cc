@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////
-// File: fastHFFibre.cc
+// File: FastHFFibre.cc
 // Description: Loads the table for attenuation length and calculates it
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "FastSimulation/ShowerDevelopment/interface/fastHFFibre.h"
+#include "FastSimulation/ShowerDevelopment/interface/FastHFFibre.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
@@ -15,7 +15,7 @@
 
 //#define DebugLog
 
-fastHFFibre::fastHFFibre(std::string & name, const DDCompactView & cpv, double cLight) { 
+FastHFFibre::FastHFFibre(std::string & name, const DDCompactView & cpv, double cLight) { 
 
   cFibre = cLight;
   edm::LogInfo("FastCalorimetry") << "HFFibre:: Speed of light in fibre " << cFibre
@@ -105,9 +105,9 @@ fastHFFibre::fastHFFibre(std::string & name, const DDCompactView & cpv, double c
   }
 }
 
-fastHFFibre::~fastHFFibre() {}
+FastHFFibre::~FastHFFibre() {}
 
-double fastHFFibre::attLength(double lambda) {
+double FastHFFibre::attLength(double lambda) {
 
   int i = int(nBinAtt*(lambda - lambLim[0])/(lambLim[1]-lambLim[0]));
 
@@ -125,7 +125,7 @@ double fastHFFibre::attLength(double lambda) {
   return att;
 }
 
-double fastHFFibre::tShift(const G4ThreeVector& point, int depth, int fromEndAbs) {
+double FastHFFibre::tShift(const G4ThreeVector& point, int depth, int fromEndAbs) {
 
   double zFibre = zShift(point, depth, fromEndAbs);
   double time   = zFibre/cFibre;
@@ -137,7 +137,7 @@ double fastHFFibre::tShift(const G4ThreeVector& point, int depth, int fromEndAbs
   return time;
 }
 
-double fastHFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) { // point is z-local
+double FastHFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) { // point is z-local
 
   double zFibre = 0;
   double hR     = sqrt((point.x())*(point.x())+(point.y())*(point.y()));
@@ -174,7 +174,7 @@ double fastHFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs
   return zFibre;
 }
 
-std::vector<double> fastHFFibre::getDDDArray(const std::string & str, 
+std::vector<double> FastHFFibre::getDDDArray(const std::string & str, 
 			     		 const DDsvalues_type & sv, 
 					 int & nmin) {
 
