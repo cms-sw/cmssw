@@ -26,7 +26,6 @@ class SimTrackIdProducer : public edm::stream::EDProducer <>
 
       virtual void produce(edm::Event& e, const edm::EventSetup& es) override;
 
-      std::vector<int> SimTrackIds;
 
 private:
 

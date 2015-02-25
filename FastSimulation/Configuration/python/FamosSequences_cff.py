@@ -36,7 +36,12 @@ from FastSimulation.Tracking.GSTrackFinalFitCommon_cff import *
 # this one is added before 340pre3 to cope with adding SiPixelTemplateDBObjectESProducer and corresponding objects to the ConfDB (MC_3XY_V11, STARTUP3X_V10)
 from CalibTracker.SiPixelESProducers.SiPixelTemplateDBObjectESProducer_cfi import *
 from FastSimulation.Tracking.GlobalPixelTracking_cff import *
-from FastSimulation.Tracking.IterativeTracking_cff import *
+
+from FastSimulation.Tracking.RecoTracker_cff import *
+
+from FastSimulation.Tracking.PixelTracksProducer_cff import *
+from FastSimulation.Tracking.PixelVerticesProducer_cff import *
+
 
 # Calo RecHits producer (with no HCAL miscalibration by default)
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
@@ -207,11 +212,12 @@ electronGsfTracks.TrajectoryInEvent = True
 # PF related electron sequences defined in FastSimulation.ParticleFlow.ParticleFlowFastSim_cff
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 
+
 iterativeTrackingBeginning = cms.Sequence(
-    iterativeInitialSeeds+
-    iterativePixelPairSeeds+
-    iterativeMixedTripletStepSeeds+
-    iterativePixelLessSeeds
+    initialStepSeeds+
+    pixelPairStepSeeds+
+    mixedTripletStepSeeds+
+    pixelLessStepSeeds
     )
 
 famosGsfTrackSequence = cms.Sequence(
@@ -274,6 +280,7 @@ simulationSequence = cms.Sequence(
     )
 trackReco = cms.Sequence(
     siTrackerGaussianSmearingRecHits+
+    MeasurementTrackerEvent+
     iterTracking
     )
 

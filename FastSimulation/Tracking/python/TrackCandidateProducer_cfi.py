@@ -6,7 +6,7 @@ trackCandidateProducer = cms.EDProducer("TrackCandidateProducer",
     MinNumberOfCrossedLayers = cms.uint32(5),
     # The number of crossed layers needed before stopping tracking
     MaxNumberOfCrossedLayers = cms.uint32(999),
-    SeedProducer = cms.InputTag("globalPixelSeeds","GlobalPixel"),
+    SeedProducer = cms.InputTag("globalPixelSeeds"),
 
     # Reject overlapping hits? (GroupedTracking from 170pre2 onwards)
     OverlapCleaning = cms.bool(False),
