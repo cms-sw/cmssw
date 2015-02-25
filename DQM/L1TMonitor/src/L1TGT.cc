@@ -37,7 +37,7 @@ L1TGT::~L1TGT() {
 
 
 
-void L1TGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) {
+void L1TGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const& evSetup) {
 
     runId_=ibooker.bookInt("iRun");
     runId_->Fill(-1);
@@ -258,6 +258,57 @@ void L1TGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::Eve
     // clear bookkeeping for prescale factor change
     m_pairLsNumberPfIndex.clear();
 
+    ibooker.setCurrentFolder(m_histFolder + "/PlotTrigsBx");
+
+    //--------book AlgoBits/TechBits vs Bx Histogram-----------
+
+    edm::ESHandle<L1GtTriggerMenu> menuRcd;
+    evSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
+
+    const L1GtTriggerMenu* menu = menuRcd.product();
+    
+    h_L1AlgoBX1 = ibooker.book2D("h_L1AlgoBX1", "L1 Algo Trigger BX (algo bit 0 to 31)", 32, -0.5, 31.5, 5, -2.5, 2.5);
+    h_L1AlgoBX2 = ibooker.book2D("h_L1AlgoBX2", "L1 Algo Trigger BX (algo bit 32 to 63)", 32, 31.5, 63.5, 5, -2.5, 2.5);
+    h_L1AlgoBX3 = ibooker.book2D("h_L1AlgoBX3", "L1 Algo Trigger BX (algo bit 64 to 95)", 32, 63.5, 95.5, 5, -2.5, 2.5);
+    h_L1AlgoBX4 = ibooker.book2D("h_L1AlgoBX4", "L1 Algo Trigger BX (algo bit 96 to 127)", 32, 95.5, 127.5, 5, -2.5, 2.5);
+    h_L1TechBX = ibooker.book2D("h_L1TechBX", "L1 Tech Trigger BX", 64, -0.5, 63.5, 5, -2.5, 2.5);
+    
+    for (CItAlgo algo = menu->gtAlgorithmMap().begin(); algo!=menu->gtAlgorithmMap().end(); ++algo) {
+      int itrig = (algo->second).algoBitNumber();
+      //algoBitToName[itrig] = TString( (algo->second).algoName() );
+      //const char* trigName =  (algo->second).algoName().c_str();
+      if (itrig < 32) {
+        //h_L1AlgoBX1->setBinLabel(itrig+1,trigName);
+        h_L1AlgoBX1->setBinLabel(itrig+1, std::to_string(itrig));
+        h_L1AlgoBX1->setAxisTitle("Algorithm trigger bits", 1);
+        h_L1AlgoBX1->setAxisTitle("BX (0=L1A)", 2);  
+      } else if (itrig < 64) {
+        //h_L1AlgoBX2->setBinLabel(itrig+1-32,trigName);
+        h_L1AlgoBX2->setBinLabel(itrig+1-32,std::to_string(itrig));
+        h_L1AlgoBX2->setAxisTitle("Algorithm trigger bits", 1);
+        h_L1AlgoBX2->setAxisTitle("BX (0=L1A)", 2);
+      } else if (itrig < 96) {
+        //h_L1AlgoBX3->setBinLabel(itrig+1-64,trigName);
+        h_L1AlgoBX3->setBinLabel(itrig+1-64,std::to_string(itrig));
+        h_L1AlgoBX3->setAxisTitle("Algorithm trigger bits", 1);
+        h_L1AlgoBX3->setAxisTitle("BX (0=L1A)", 2);
+      } else if (itrig < 128) {
+        //h_L1AlgoBX4->setBinLabel(itrig+1-96,trigName);
+        h_L1AlgoBX4->setBinLabel(itrig+1-96,std::to_string(itrig));
+        h_L1AlgoBX4->setAxisTitle("Algorithm trigger bits", 1);
+        h_L1AlgoBX4->setAxisTitle("BX (0=L1A)", 2);
+      }
+    }
+    
+    // technical trigger bits
+    for (CItAlgo techTrig = menu->gtTechnicalTriggerMap().begin(); techTrig != menu->gtTechnicalTriggerMap().end(); ++techTrig) {
+      int itrig = (techTrig->second).algoBitNumber();
+      //techBitToName[itrig] = TString( (techTrig->second).algoName() );
+      //const char* trigName =  (techTrig->second).algoName().c_str();
+      h_L1TechBX->setBinLabel(itrig+1,std::to_string(itrig));
+      h_L1TechBX->setAxisTitle("Technical trigger bits", 1);
+      h_L1TechBX->setAxisTitle("BX (0=L1A)", 2);
+    }
 }
 
 void L1TGT::dqmBeginRun(edm::Run const& iRrun, edm::EventSetup const& evSetup) {
@@ -293,7 +344,7 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
 
     // get once only the LS block number, to be used in many histograms
     const int lsNumber = iEvent.luminosityBlock();
-
+    
     // open EVM readout record if available
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
     iEvent.getByToken(gtEvmSource_, gtEvmReadoutRecord);
@@ -305,178 +356,247 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
 
         // get all info from the EVM record if available and fill the histograms
 
-        const L1GtfeWord& gtfeEvmWord = gtEvmReadoutRecord->gtfeWord();
-        const L1GtfeExtWord& gtfeEvmExtWord = gtEvmReadoutRecord->gtfeWord();
+      const L1GtfeWord& gtfeEvmWord = gtEvmReadoutRecord->gtfeWord();
+      const L1GtfeExtWord& gtfeEvmExtWord = gtEvmReadoutRecord->gtfeWord();
+      
+      gtfeEvmBx = gtfeEvmWord.bxNr();
+      int gtfeEvmActiveBoards = gtfeEvmWord.activeBoards();
 
-        gtfeEvmBx = gtfeEvmWord.bxNr();
-        int gtfeEvmActiveBoards = gtfeEvmWord.activeBoards();
+      if (isActive(gtfeEvmActiveBoards, TCS)) {
+	// if TCS present in the record
 
-        if (isActive(gtfeEvmActiveBoards, TCS)) { // if TCS present in the record
+        const L1TcsWord& tcsWord = gtEvmReadoutRecord->tcsWord();
 
-            const L1TcsWord& tcsWord = gtEvmReadoutRecord->tcsWord();
+        tcsBx = tcsWord.bxNr();
+        orbitTcs = tcsWord.orbitNr();
+        lsTcs = tcsWord.luminositySegmentNr();
 
-            tcsBx = tcsWord.bxNr();
-            orbitTcs = tcsWord.orbitNr();
-            lsTcs = tcsWord.luminositySegmentNr();
+        event_type->Fill(tcsWord.triggerType());
+        orbit_lumi->Fill(lsNumber, orbitTcs);
 
-            event_type->Fill(tcsWord.triggerType());
-            orbit_lumi->Fill(lsNumber, orbitTcs);
+        trigger_number->Fill(tcsWord.partTrigNr());
+        event_number->Fill(tcsWord.eventNr());
 
-            trigger_number->Fill(tcsWord.partTrigNr());
-            event_number->Fill(tcsWord.eventNr());
+        trigger_lumi->Fill(lsNumber, tcsWord.partTrigNr());
+        event_lumi->Fill(lsNumber, tcsWord.eventNr());
+        evnum_trignum_lumi->Fill(lsNumber,
+                  static_cast<double>(tcsWord.eventNr()) / static_cast<double>(tcsWord.partTrigNr()));
+	
+        boost::uint16_t master = gtfeEvmExtWord.bstMasterStatus();
+        boost::uint32_t turnCount = gtfeEvmExtWord.turnCountNumber();
+        boost::uint32_t lhcFill = gtfeEvmExtWord.lhcFillNumber();
+        boost::uint16_t beam = gtfeEvmExtWord.beamMode();
+        boost::uint16_t momentum = gtfeEvmExtWord.beamMomentum();
+        boost::uint32_t intensity1 = gtfeEvmExtWord.totalIntensityBeam1();
+        boost::uint32_t intensity2 = gtfeEvmExtWord.totalIntensityBeam2();
 
-            trigger_lumi->Fill(lsNumber, tcsWord.partTrigNr());
-            event_lumi->Fill(lsNumber, tcsWord.eventNr());
-            evnum_trignum_lumi->Fill(lsNumber,
-                    static_cast<double>(tcsWord.eventNr()) / static_cast<double>(tcsWord.partTrigNr()));
+        BST_MasterStatus->Fill(lsNumber, static_cast<double>(master));
+        BST_turnCountNumber->Fill(lsNumber, static_cast<double>(turnCount));
+        BST_lhcFillNumber->Fill(static_cast<double>(lhcFill % 1000));
+        BST_beamMode->Fill(lsNumber, static_cast<double>(beam));
 
-            boost::uint16_t master = gtfeEvmExtWord.bstMasterStatus();
-            boost::uint32_t turnCount = gtfeEvmExtWord.turnCountNumber();
-            boost::uint32_t lhcFill = gtfeEvmExtWord.lhcFillNumber();
-            boost::uint16_t beam = gtfeEvmExtWord.beamMode();
-            boost::uint16_t momentum = gtfeEvmExtWord.beamMomentum();
-            boost::uint32_t intensity1 = gtfeEvmExtWord.totalIntensityBeam1();
-            boost::uint32_t intensity2 = gtfeEvmExtWord.totalIntensityBeam2();
-
-            BST_MasterStatus->Fill(lsNumber, static_cast<double>(master));
-            BST_turnCountNumber->Fill(lsNumber, static_cast<double>(turnCount));
-            BST_lhcFillNumber->Fill(static_cast<double>(lhcFill % 1000));
-            BST_beamMode->Fill(lsNumber, static_cast<double>(beam));
-
-            BST_beamMomentum->Fill(lsNumber, static_cast<double>(momentum));
-            BST_intensityBeam1->Fill(lsNumber, static_cast<double>(intensity1));
-            BST_intensityBeam2->Fill(lsNumber, static_cast<double>(intensity2));
-
-            if (verbose_) {
-                edm::LogInfo("L1TGT") << " check mode = " << beam << "    momentum " << momentum
+        BST_beamMomentum->Fill(lsNumber, static_cast<double>(momentum));
+        BST_intensityBeam1->Fill(lsNumber, static_cast<double>(intensity1));
+        BST_intensityBeam2->Fill(lsNumber, static_cast<double>(intensity2));
+	
+        if (verbose_) {
+            edm::LogInfo("L1TGT") << " check mode = " << beam << "    momentum " << momentum
                         << " int2 " << intensity2 << std::endl;
-            }
+        }
+	
+        boost::uint64_t gpsr = gtfeEvmExtWord.gpsTime();
+        boost::uint64_t gpshi = (gpsr >> 32) & 0xffffffff;
+        boost::uint64_t gpslo = gpsr & 0xffffffff;
+        boost::uint64_t gps = gpshi * 1000000 + gpslo;
+        //  edm::LogInfo("L1TGT") << "  gpsr = " << std::hex << gpsr << " hi=" << gpshi << " lo=" << gpslo << " gps=" << gps << std::endl;
 
-            boost::uint64_t gpsr = gtfeEvmExtWord.gpsTime();
-            boost::uint64_t gpshi = (gpsr >> 32) & 0xffffffff;
-            boost::uint64_t gpslo = gpsr & 0xffffffff;
-            boost::uint64_t gps = gpshi * 1000000 + gpslo;
-            //  edm::LogInfo("L1TGT") << "  gpsr = " << std::hex << gpsr << " hi=" << gpshi << " lo=" << gpslo << " gps=" << gps << std::endl;
+        Long64_t delorb = orbitTcs - preOrb_;
+        Long64_t delgps = gps - preGps_;
+        Double_t freq = -1.;
+        
+        if (delgps > 0) {
+            freq = ((Double_t)(delorb)) * 3564. / ((Double_t)(delgps));
+        }
 
-            Long64_t delorb = orbitTcs - preOrb_;
-            Long64_t delgps = gps - preGps_;
-            Double_t freq = -1.;
-
-            if (delgps > 0) {
-                freq = ((Double_t)(delorb)) * 3564. / ((Double_t)(delgps));
-            }
-
-            if (delorb > 0) {
-                gpsfreq->Fill(freq);
-                gpsfreqwide->Fill(freq);
-                gpsfreqlum->Fill(lsNumber, freq);
-                if (verbose_) {
-                    if (freq > 200.) {
-                        edm::LogInfo("L1TGT") << " preOrb_ = " << preOrb_ << " orbitTcs=" << orbitTcs
+        if (delorb > 0) {
+            gpsfreq->Fill(freq);
+            gpsfreqwide->Fill(freq);
+            gpsfreqlum->Fill(lsNumber, freq);
+            if (verbose_) {
+              if (freq > 200.) {
+                edm::LogInfo("L1TGT") << " preOrb_ = " << preOrb_ << " orbitTcs=" << orbitTcs
                                 << " delorb=" << delorb << std::hex << " preGps_="
                                 << preGps_ << " gps=" << gps << std::dec
                                 << " delgps=" << delgps << " freq=" << freq
                                 << std::endl;
 
-                    }
-                }
+              }
             }
-
-            preGps_ = gps;
-            preOrb_ = orbitTcs;
-
         }
 
-        // get info from FDL if active
-        if (isActive(gtfeEvmActiveBoards, FDL)) {
-            const L1GtFdlWord& fdlWord = gtEvmReadoutRecord->gtFdlWord();
+        preGps_ = gps;
+        preOrb_ = orbitTcs;
 
-            orbitEvmFdl = fdlWord.orbitNr();
-            lsEvmFdl = fdlWord.lumiSegmentNr();
-        }
+      }
+      
+      // get info from FDL if active
+      if (isActive(gtfeEvmActiveBoards, FDL)) {
+        const L1GtFdlWord& fdlWord = gtEvmReadoutRecord->gtFdlWord();
 
-        if ((orbitTcs >= 0) && (orbitEvmFdl >= 0)) {
+        orbitEvmFdl = fdlWord.orbitNr();
+        lsEvmFdl = fdlWord.lumiSegmentNr();
+      }
 
-            int diffOrbit = static_cast<float> (orbitTcs - orbitEvmFdl);
-            edm::LogInfo("L1TGT") << "\n orbitTcs = " << orbitTcs << " orbitEvmFdl = "
+      if ((orbitTcs >= 0) && (orbitEvmFdl >= 0)) {
+
+        int diffOrbit = static_cast<float> (orbitTcs - orbitEvmFdl);
+        edm::LogInfo("L1TGT") << "\n orbitTcs = " << orbitTcs << " orbitEvmFdl = "
                     << orbitEvmFdl << " diffOrbit = " << diffOrbit
                     << " orbitEvent = " << iEvent.orbitNumber() << std::endl;
 
-            if (diffOrbit >= MaxOrbitNrDiffTcsFdlEvm) {
-                m_monOrbitNrDiffTcsFdlEvm->Fill(MaxOrbitNrDiffTcsFdlEvm);
+        if (diffOrbit >= MaxOrbitNrDiffTcsFdlEvm) {
+          m_monOrbitNrDiffTcsFdlEvm->Fill(MaxOrbitNrDiffTcsFdlEvm);
 
-            } else if (diffOrbit <= -MaxOrbitNrDiffTcsFdlEvm) {
-                m_monOrbitNrDiffTcsFdlEvm->Fill(-MaxOrbitNrDiffTcsFdlEvm);
-
-            } else {
-                m_monOrbitNrDiffTcsFdlEvm->Fill(diffOrbit);
-                m_monOrbitNrDiffTcsFdlEvmLs->Fill(lsNumber,
-                        diffOrbit);
-
-            }
+        } else if (diffOrbit <= -MaxOrbitNrDiffTcsFdlEvm) {
+          m_monOrbitNrDiffTcsFdlEvm->Fill(-MaxOrbitNrDiffTcsFdlEvm);
 
         } else {
+          m_monOrbitNrDiffTcsFdlEvm->Fill(diffOrbit);
+          m_monOrbitNrDiffTcsFdlEvmLs->Fill(lsNumber, diffOrbit);
 
-            if (orbitTcs >= 0) {
-                // EVM_FDL error
-                m_monOrbitNrDiffTcsFdlEvm->Fill(MaxOrbitNrDiffTcsFdlEvm);
-            } else if (orbitEvmFdl >= 0) {
-                // TCS error
-                m_monOrbitNrDiffTcsFdlEvm->Fill(-MaxOrbitNrDiffTcsFdlEvm);
-
-            } else {
-                // TCS and EVM_FDL error
-                m_monOrbitNrDiffTcsFdlEvm->Fill(-MaxOrbitNrDiffTcsFdlEvm);
-                m_monOrbitNrDiffTcsFdlEvm->Fill(MaxOrbitNrDiffTcsFdlEvm);
-            }
         }
 
-        if ((lsTcs >= 0) && (lsEvmFdl >= 0)) {
+      } else {
 
-            int diffLs = static_cast<float> (lsTcs - lsEvmFdl);
-            edm::LogInfo("L1TGT") << "\n lsTcs = " << lsTcs << " lsEvmFdl = " << lsEvmFdl
+        if (orbitTcs >= 0) {
+          // EVM_FDL error
+          m_monOrbitNrDiffTcsFdlEvm->Fill(MaxOrbitNrDiffTcsFdlEvm);
+        } else if (orbitEvmFdl >= 0) {
+          // TCS error
+          m_monOrbitNrDiffTcsFdlEvm->Fill(-MaxOrbitNrDiffTcsFdlEvm);
+
+        } else {
+          // TCS and EVM_FDL error
+          m_monOrbitNrDiffTcsFdlEvm->Fill(-MaxOrbitNrDiffTcsFdlEvm);
+          m_monOrbitNrDiffTcsFdlEvm->Fill(MaxOrbitNrDiffTcsFdlEvm);
+        }
+      }
+      
+      if ((lsTcs >= 0) && (lsEvmFdl >= 0)) {
+
+        int diffLs = static_cast<float> (lsTcs - lsEvmFdl);
+        edm::LogInfo("L1TGT") << "\n lsTcs = " << lsTcs << " lsEvmFdl = " << lsEvmFdl
                     << " diffLs = " << diffLs << " lsEvent = "
                     << lsNumber << std::endl;
 
-            if (diffLs >= MaxLsNrDiffTcsFdlEvm) {
-                m_monLsNrDiffTcsFdlEvm->Fill(MaxLsNrDiffTcsFdlEvm);
+        if (diffLs >= MaxLsNrDiffTcsFdlEvm) {
+          m_monLsNrDiffTcsFdlEvm->Fill(MaxLsNrDiffTcsFdlEvm);
 
-            } else if (diffLs <= -MaxLsNrDiffTcsFdlEvm) {
-                m_monLsNrDiffTcsFdlEvm->Fill(-MaxLsNrDiffTcsFdlEvm);
-
-            } else {
-                m_monLsNrDiffTcsFdlEvm->Fill(diffLs);
-                m_monLsNrDiffTcsFdlEvmLs->Fill(lsNumber, diffLs);
-
-            }
+        } else if (diffLs <= -MaxLsNrDiffTcsFdlEvm) {
+          m_monLsNrDiffTcsFdlEvm->Fill(-MaxLsNrDiffTcsFdlEvm);
 
         } else {
+          m_monLsNrDiffTcsFdlEvm->Fill(diffLs);
+          m_monLsNrDiffTcsFdlEvmLs->Fill(lsNumber, diffLs);
 
-            if (lsTcs >= 0) {
-                // EVM_FDL error
-                m_monLsNrDiffTcsFdlEvm->Fill(MaxLsNrDiffTcsFdlEvm);
-            } else if (lsEvmFdl >= 0) {
-                // TCS error
-                m_monLsNrDiffTcsFdlEvm->Fill(-MaxLsNrDiffTcsFdlEvm);
-
-            } else {
-                // TCS and EVM_FDL error
-                m_monLsNrDiffTcsFdlEvm->Fill(-MaxLsNrDiffTcsFdlEvm);
-                m_monLsNrDiffTcsFdlEvm->Fill(MaxLsNrDiffTcsFdlEvm);
-            }
         }
 
-    }
+      } else {
 
+        if (lsTcs >= 0) {
+          // EVM_FDL error
+          m_monLsNrDiffTcsFdlEvm->Fill(MaxLsNrDiffTcsFdlEvm);
+        } else if (lsEvmFdl >= 0) {
+          // TCS error
+          m_monLsNrDiffTcsFdlEvm->Fill(-MaxLsNrDiffTcsFdlEvm);
+
+        } else {
+          // TCS and EVM_FDL error
+          m_monLsNrDiffTcsFdlEvm->Fill(-MaxLsNrDiffTcsFdlEvm);
+          m_monLsNrDiffTcsFdlEvm->Fill(MaxLsNrDiffTcsFdlEvm);
+        }
+      }
+    }
+    
     // open GT DAQ readout record - exit if failed
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
     iEvent.getByToken(gtSource_L1GT_, gtReadoutRecord);
 
+    //edm::ESHandle<L1GtTriggerMenu> menuRcd;
+    //evSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
+
+    //const L1GtTriggerMenu* menu = menuRcd.product();
+       
     if (!gtReadoutRecord.isValid()) {
         edm::LogInfo("L1TGT")
                 << "can't find L1GlobalTriggerReadoutRecord";
         return;
     }
+
+    if(gtReadoutRecord.isValid()) {
+      
+      unsigned int NmaxL1AlgoBit = gtReadoutRecord->decisionWord().size();
+      unsigned int NmaxL1TechBit = gtReadoutRecord->technicalTriggerWord().size();
+
+      const DecisionWord dWord = gtReadoutRecord->decisionWord();
+      const TechnicalTriggerWord technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
+      
+      const std::vector<L1GtFdlWord> &m_gtFdlWord(gtReadoutRecord->gtFdlVector());
+      int numberBxInEvent=m_gtFdlWord.size();
+      int minBxInEvent = (numberBxInEvent + 1)/2 - numberBxInEvent;
+      
+      for (unsigned int iBit = 0; iBit < NmaxL1AlgoBit; ++iBit) {
+	bool accept = dWord[iBit];
+	
+        typedef std::map<std::string,bool>::value_type valType;
+        trig_iter=l1TriggerDecision.find(algoBitToName[iBit]);
+        if (trig_iter==l1TriggerDecision.end()){
+          l1TriggerDecision.insert(valType(algoBitToName[iBit],accept));
+        }else{
+          trig_iter->second=accept;
+        }
+
+	int ibx=0;
+        for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
+	  
+          const DecisionWord dWordBX = (*itBx).gtDecisionWord();  
+          bool accept = dWordBX[iBit];
+          if (accept) {
+	    if (iBit < 32)
+	      h_L1AlgoBX1->Fill(iBit, minBxInEvent+ibx);
+	    else if (iBit < 64)
+	      h_L1AlgoBX2->Fill(iBit, minBxInEvent+ibx);
+	    else if (iBit < 96)
+	      h_L1AlgoBX3->Fill(iBit, minBxInEvent+ibx);
+	    else if (iBit < 128)
+	      h_L1AlgoBX4->Fill(iBit, minBxInEvent+ibx);
+	  }
+          ibx++;			   
+       }
+     }
+    
+     for (unsigned int iBit = 0; iBit < NmaxL1TechBit; ++iBit) {
+       bool accept = technicalTriggerWordBeforeMask[iBit];
+       
+       typedef std::map<std::string,bool>::value_type valType;
+       trig_iter=l1TechTriggerDecision.find(techBitToName[iBit]);
+       if (trig_iter==l1TechTriggerDecision.end())
+          l1TechTriggerDecision.insert(valType(techBitToName[iBit],accept));
+       else
+          trig_iter->second=accept;
+        
+
+       int ibx=0;
+       for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
+	 itBx != m_gtFdlWord.end(); ++itBx) {
+         
+         const DecisionWord dWordBX = (*itBx).gtTechnicalTriggerWord();  
+         bool accept = dWordBX[iBit];
+         if (accept) h_L1TechBX->Fill(iBit,minBxInEvent+ibx);
+         ibx++;			   
+       }
+     }
+   }        
 
     // initialize bx's to invalid value
     int gtfeBx = -1;
