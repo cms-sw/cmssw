@@ -303,7 +303,6 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
     evSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
 
     const L1GtTriggerMenu* menu = menuRcd.product();
-    //const L1GtTriggerMenu& menu(menuRcd->product());
     
     if (!gtReadoutRecord.isValid()) {
         edm::LogInfo("L1TGT")
@@ -318,25 +317,39 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
       isInit = true;
       for (CItAlgo algo = menu->gtAlgorithmMap().begin(); algo!=menu->gtAlgorithmMap().end(); ++algo) {
         int itrig = (algo->second).algoBitNumber();
-        algoBitToName[itrig] = TString( (algo->second).algoName() );
-        const char* trigName =  (algo->second).algoName().c_str();
+        //algoBitToName[itrig] = TString( (algo->second).algoName() );
+        //const char* trigName =  (algo->second).algoName().c_str();
 	if (itrig < 32) {
-          h_L1AlgoBX1->setBinLabel(itrig+1,trigName);
+          //h_L1AlgoBX1->setBinLabel(itrig+1,trigName);
+	  h_L1AlgoBX1->setBinLabel(itrig+1, std::to_string(itrig));
+	  h_L1AlgoBX1->setAxisTitle("Algorithm trigger bits", 1);
+	  h_L1AlgoBX1->setAxisTitle("BX (0=L1A)", 2);  
 	} else if (itrig < 64) {
-	  h_L1AlgoBX2->setBinLabel(itrig+1-32,trigName);
+	  //h_L1AlgoBX2->setBinLabel(itrig+1-32,trigName);
+	  h_L1AlgoBX2->setBinLabel(itrig+1-32,std::to_string(itrig));
+	  h_L1AlgoBX2->setAxisTitle("Algorithm trigger bits", 1);
+	  h_L1AlgoBX2->setAxisTitle("BX (0=L1A)", 2);
 	} else if (itrig < 96) {
-	  h_L1AlgoBX3->setBinLabel(itrig+1-64,trigName);
+	  //h_L1AlgoBX3->setBinLabel(itrig+1-64,trigName);
+	  h_L1AlgoBX3->setBinLabel(itrig+1-64,std::to_string(itrig));
+	  h_L1AlgoBX3->setAxisTitle("Algorithm trigger bits", 1);
+	  h_L1AlgoBX3->setAxisTitle("BX (0=L1A)", 2);
 	} else if (itrig < 128) {
-	  h_L1AlgoBX4->setBinLabel(itrig+1-96,trigName);
+	  //h_L1AlgoBX4->setBinLabel(itrig+1-96,trigName);
+	  h_L1AlgoBX4->setBinLabel(itrig+1-96,std::to_string(itrig));
+	  h_L1AlgoBX4->setAxisTitle("Algorithm trigger bits", 1);
+	  h_L1AlgoBX4->setAxisTitle("BX (0=L1A)", 2);
 	}
       }
      
     // technical trigger bits
       for (CItAlgo techTrig = menu->gtTechnicalTriggerMap().begin(); techTrig != menu->gtTechnicalTriggerMap().end(); ++techTrig) {
         int itrig = (techTrig->second).algoBitNumber();
-        techBitToName[itrig] = TString( (techTrig->second).algoName() );
-        const char* trigName =  (techTrig->second).algoName().c_str();
-        h_L1TechBX->setBinLabel(itrig+1,trigName);
+        //techBitToName[itrig] = TString( (techTrig->second).algoName() );
+        //const char* trigName =  (techTrig->second).algoName().c_str();
+        h_L1TechBX->setBinLabel(itrig+1,std::to_string(itrig));
+	h_L1TechBX->setAxisTitle("Technical trigger bits", 1);
+	h_L1TechBX->setAxisTitle("BX (0=L1A)", 2);
       }
     }
     
@@ -841,10 +854,10 @@ void L1TGT::bookHistograms() {
 
 	//--------book AlgoBits/TechBits vs Bx Histogram-----------
 
-        h_L1AlgoBX1 = m_dbe->book2D("h_L1AlgoBX1", "L1 Algo Trigger BX", 32, -0.5, 31.5, 5, -2.5, 2.5);
-	h_L1AlgoBX2 = m_dbe->book2D("h_L1AlgoBX2", "L1 Algo Trigger BX", 32, 31.5, 63.5, 5, -2.5, 2.5);
-	h_L1AlgoBX3 = m_dbe->book2D("h_L1AlgoBX3", "L1 Algo Trigger BX", 32, 63.5, 95.5, 5, -2.5, 2.5);
-	h_L1AlgoBX4 = m_dbe->book2D("h_L1AlgoBX4", "L1 Algo Trigger BX", 32, 95.5, 127.5, 5, -2.5, 2.5);
+        h_L1AlgoBX1 = m_dbe->book2D("h_L1AlgoBX1", "L1 Algo Trigger BX (algo bit 0 to 31)", 32, -0.5, 31.5, 5, -2.5, 2.5);
+	h_L1AlgoBX2 = m_dbe->book2D("h_L1AlgoBX2", "L1 Algo Trigger BX (algo bit 32 to 63)", 32, 31.5, 63.5, 5, -2.5, 2.5);
+	h_L1AlgoBX3 = m_dbe->book2D("h_L1AlgoBX3", "L1 Algo Trigger BX (algo bit 64 to 95)", 32, 63.5, 95.5, 5, -2.5, 2.5);
+	h_L1AlgoBX4 = m_dbe->book2D("h_L1AlgoBX4", "L1 Algo Trigger BX (algo bit 96 to 127)", 32, 95.5, 127.5, 5, -2.5, 2.5);
 	h_L1TechBX = m_dbe->book2D("h_L1TechBX", "L1 Tech Trigger BX", 64, -0.5, 63.5, 5, -2.5, 2.5);
    }
 }
