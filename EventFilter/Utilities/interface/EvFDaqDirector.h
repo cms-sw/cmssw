@@ -112,8 +112,7 @@ namespace evf{
         filesToDeletePtr_ = filesToDelete;
       }
       void checkTransferSystemPSet();
-      std::string getStreamDestination(std::string const& stream) const;
-      //void writeTransferSystemJsonMaybe(std::string const& stream) const;
+      std::string getStreamDestinations(std::string const& stream) const;
 
 
     private:
@@ -136,6 +135,7 @@ namespace evf{
       unsigned int run_;
       bool outputAdler32Recheck_;
       bool requireTSPSet_;
+      std::string selectedTransferMode_;
       std::string hltSourceDirectory_;
 
       std::string hostname_;
@@ -192,7 +192,6 @@ namespace evf{
       unsigned int eolsNFilesIndex_ = 1;
       std::string stopFilePath_;
 
-      std::string selectedTransferMode_;
       std::shared_ptr<Json::Value> transferSystemJson_;
   };
 }

@@ -54,6 +54,7 @@ namespace evf {
     run_(pset.getUntrackedParameter<unsigned int> ("runNumber",0)),
     outputAdler32Recheck_(pset.getUntrackedParameter<bool>("outputAdler32Recheck",false)),
     requireTSPSet_(pset.getUntrackedParameter<bool>("requireTransfersPSet",false)),
+    selectedTransferMode_(pset.getUntrackedParameter<std::string>("selectedTransferMode","")),
     hltSourceDirectory_(pset.getUntrackedParameter<std::string>("hltSourceDirectory","")),
     hostname_(""),
     bu_readlock_fd_(-1),
@@ -223,6 +224,7 @@ namespace evf {
     pthread_mutex_init(&init_lock_,NULL);
 
     stopFilePath_ = run_dir_+"/CMSSW_STOP";
+    checkTransferSystemPSet();//TODO - see other locations we can call before ini file
   }
 
   EvFDaqDirector::~EvFDaqDirector()
@@ -260,7 +262,6 @@ namespace evf {
   void EvFDaqDirector::preBeginRun(edm::GlobalContext const& globalContext) {
 
     //assert(run_ == id.run());
-    checkTransferSystemPSet();
 
     // check if the requested run is the latest one - issue a warning if it isn't
     if (dirManager_.findHighestRunDir() != run_dir_) {
@@ -826,62 +827,61 @@ namespace evf {
 
   }
 
-  //TODO:read selected destination from ramdisk
+  //if transferSystem PSet is present in the menu, we require it to be complete and consistent for all specified streams
   void EvFDaqDirector::checkTransferSystemPSet()
   {
-      transferSystemJson_.reset(new Json::Value);
-      if (edm::getProcessParameterSet().existsAs<edm::ParameterSet>("transferSystem",true))
-      {
-        const edm::ParameterSet& tsPset(edm::getProcessParameterSet().getParameterSet("transferSystem"));
+    transferSystemJson_.reset(new Json::Value);
+    if (edm::getProcessParameterSet().existsAs<edm::ParameterSet>("transferSystem",true))
+    {
+      const edm::ParameterSet& tsPset(edm::getProcessParameterSet().getParameterSet("transferSystem"));
 
-        Json::Value destinationsVal(Json::arrayValue);
-        std::vector<std::string> destinations = tsPset.getParameter<std::vector<std::string>>("destinations");
-        for (auto & dest: destinations) destinationsVal.append(dest);
-        (*transferSystemJson_)["destinations"]=destinationsVal;
+      Json::Value destinationsVal(Json::arrayValue);
+      std::vector<std::string> destinations = tsPset.getParameter<std::vector<std::string>>("destinations");
+      for (auto & dest: destinations) destinationsVal.append(dest);
+      (*transferSystemJson_)["destinations"]=destinationsVal;
 
-        Json::Value modesVal(Json::arrayValue);
-        std::vector<std::string> modes = tsPset.getParameter< std::vector<std::string> >("transferModes");
-        for (auto & mode: modes) modesVal.append(mode);
-        (*transferSystemJson_)["transferModes"]=modesVal;
+      Json::Value modesVal(Json::arrayValue);
+      std::vector<std::string> modes = tsPset.getParameter< std::vector<std::string> >("transferModes");
+      for (auto & mode: modes) modesVal.append(mode);
+      (*transferSystemJson_)["transferModes"]=modesVal;
 
-        for (auto psKeyItr =tsPset.psetTable().begin();psKeyItr!=tsPset.psetTable().end(); ++ psKeyItr) {
-          if (psKeyItr->first!="destinations" && psKeyItr->first!="transferModes") {
-            const edm::ParameterSet & streamDef = tsPset.getParameterSet(psKeyItr->first);
-            Json::Value streamVal;
-            for (auto & mode : modes) {
-              //validation
-              if (!streamDef.existsAs<std::vector<std::string>>(mode,true))
-                throw cms::Exception("EvFDaqDirector") << " Missing transfer system specification for -:" << psKeyItr->first << " (transferMode " << mode << ")";
-              std::vector<std::string> streamDestinations =  streamDef.getParameter<std::vector<std::string>>(mode);
+      for (auto psKeyItr =tsPset.psetTable().begin();psKeyItr!=tsPset.psetTable().end(); ++ psKeyItr) {
+        if (psKeyItr->first!="destinations" && psKeyItr->first!="transferModes") {
+          const edm::ParameterSet & streamDef = tsPset.getParameterSet(psKeyItr->first);
+          Json::Value streamVal;
+          for (auto & mode : modes) {
+            //validation
+            if (!streamDef.existsAs<std::vector<std::string>>(mode,true))
+              throw cms::Exception("EvFDaqDirector") << " Missing transfer system specification for -:" << psKeyItr->first << " (transferMode " << mode << ")";
+            std::vector<std::string> streamDestinations =  streamDef.getParameter<std::vector<std::string>>(mode);
 
-              Json::Value sDestsValue(Json::arrayValue);
+            Json::Value sDestsValue(Json::arrayValue);
 
-              if (!streamDestinations.size())
-                throw cms::Exception("EvFDaqDirector") << " Missing transter system destination for -: "<< psKeyItr->first << ", mode:" << mode;
+            if (!streamDestinations.size())
+              throw cms::Exception("EvFDaqDirector") << " Missing transter system destination(s) for -: "<< psKeyItr->first << ", mode:" << mode;
 
-              for (auto & sdest:streamDestinations) {
-                bool sDestValid=false;
-                sDestsValue.append(sdest);
-                for (auto & dest: destinations) {
-                  if (dest==sdest) sDestValid=true;
-                }
-                if (!sDestValid)
-                  throw cms::Exception("EvFDaqDirector") << " Invalid transter system destination specified for -: "<< psKeyItr->first << ", mode:" << mode << ", dest:"<<sdest;
+            for (auto & sdest:streamDestinations) {
+              bool sDestValid=false;
+              sDestsValue.append(sdest);
+              for (auto & dest: destinations) {
+                if (dest==sdest) sDestValid=true;
               }
-              streamVal[mode]=sDestsValue;
+              if (!sDestValid)
+                throw cms::Exception("EvFDaqDirector") << " Invalid transter system destination specified for -: "<< psKeyItr->first << ", mode:" << mode << ", dest:"<<sdest;
             }
-            (*transferSystemJson_)[psKeyItr->first] = streamVal;
+            streamVal[mode]=sDestsValue;
           }
+          (*transferSystemJson_)[psKeyItr->first] = streamVal;
         }
       }
-      else {
-        if (requireTSPSet_)
-          throw cms::Exception("EvFDaqDirector") << "transferSystem PSet not found";
-      }
+    }
+    else {
+      if (requireTSPSet_)
+        throw cms::Exception("EvFDaqDirector") << "transferSystem PSet not found";
     }
   }
 
-  std::string EvFDaqDirector::getStreamDestinations(std::string const& stream) const;
+  std::string EvFDaqDirector::getStreamDestinations(std::string const& stream) const
   {
     std::string streamRequestName;
     if (transferSystemJson_->isMember(stream.c_str()))
@@ -890,25 +890,40 @@ namespace evf {
       if (transferSystemJson_->isMember("default"))
         streamRequestName = "default";
       else {
+        std::stringstream msg;
+        msg << "Transfer system mode definitions missing for -: " << stream;
         if (requireTSPSet_)
-          throw cms::Exception("EvFDaqDirector") << "Transfer system mode definitions missing for -: " << stream << "!";
+          throw cms::Exception("EvFDaqDirector") << msg.str();
         else 
-          edm::LogWarning("EvFDaqDirector") << "(PERMISSIVE) Transfer system mode definition missing for -: " << stream << " !";
+          edm::LogWarning("EvFDaqDirector") << msg.str() << " (permissive mode)";
           return std::string();
       }
     }
+    //return empty if strict check parameter is not on
+    if (!requireTSPSet_ && selectedTransferMode_=="") {
+      edm::LogWarning("EvFDaqDirector") << "Selected mode string is not provided as DaqDirector parameter."
+                                        << "Switch on requireTSPSet parameter to enforce this requirement. Setting mode to empty string.";
+      return std::string();
+    }
+    //check if stream has properly listed transfer stream
     if  (!transferSystemJson_->get(streamRequestName, "").isMember(selectedTransferMode_.c_str()))
     {
-         throw cms::Exception("EvFDaqDirector") << "Transfer mode" << selectedTransferMode_ << " is not specified for stream " << streamRequestName;
+         std::stringstream msg;
+         msg << "Selected transfer mode" << selectedTransferMode_ << " is not specified for stream " << streamRequestName;
+         if (requireTSPSet_)
+           throw cms::Exception("EvFDaqDirector") << msg.str();
+         else
+           edm::LogWarning("EvFDaqDirector") << msg.str() << " (permissive mode)"; 
+           return std::string();
     }
     Json::Value destsVec = transferSystemJson_->get(streamRequestName, "").get(selectedTransferMode_,"");
 
-    //flatten into strnig json::Array std::string
+    //flatten string json::Array into CSV std::string
     std::string ret;
-    for (json::Value::const_iterator it = destsVec.begin(); it!=destsVec.end(); it++)
+    for (Json::Value::iterator it = destsVec.begin(); it!=destsVec.end(); it++)
     {
       if (ret!="") ret +=",";
-      ret+=it->asString();
+      ret+=(*it).asString();
     }
     return ret;
   }

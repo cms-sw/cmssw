@@ -146,6 +146,10 @@ namespace evf {
     jsonMonitor_->registerGlobalMonitorable(&fileAdler32_,false);
     jsonMonitor_->registerGlobalMonitorable(&transferDestination_,false);
     jsonMonitor_->commit(nullptr);
+
+    //get stream transfer destination
+    transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(stream_label_);
+
   }
   
   template<typename Consumer>
@@ -174,7 +178,6 @@ namespace evf {
   void
   RecoEventOutputModuleForFU<Consumer>::doOutputHeader(InitMsgBuilder const& init_message) const
   {
-    transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestination(stream_label_);
     c_->doOutputHeader(init_message);
 
     const std::string openIniFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(stream_label_);
