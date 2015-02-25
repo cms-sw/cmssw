@@ -5,6 +5,7 @@
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "CommonTools/TrackerMap/interface/TmApvPair.h"
 #include "CommonTools/TrackerMap/interface/TmCcu.h"
 #include "CommonTools/TrackerMap/interface/TmPsu.h"
@@ -28,7 +29,7 @@ The filling of the values for each module is done later
 when the user starts to fill it.
 **********************************************************/
 
-TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabling* tkFed) {
+TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabling* tkFed,const TrackerTopology* const topology) {
 
  psetAvailable=true;
   xsize=340;ysize=200;
@@ -222,7 +223,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
  if(enableLVProcessing || enableHVProcessing){
 
    SiStripDetCabling* detCabling = 0;
-   if(enableFedProcessing) detCabling = new SiStripDetCabling( *tkFed );
+   if(enableFedProcessing) detCabling = new SiStripDetCabling( *tkFed,topology );
 
 
    int npsu=0; int nmod,nmodHV2,nmodHV3;

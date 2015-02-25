@@ -67,13 +67,14 @@ class TmApvPair;
 class EventSetup;
 class TmCcu;
 class TmPsu;
+class TrackerTopology;
 
 class TrackerMap {
  public:
   //TrackerMap(){TrackerMap(" ");};   //!< default constructor
   TrackerMap(std::string s=" ",int xsize1=340,int ysize1=200);
   TrackerMap(const edm::ParameterSet & iConfig);
-  TrackerMap(const edm::ParameterSet & iConfig,const SiStripFedCabling* tkFed);
+  TrackerMap(const edm::ParameterSet & iConfig,const SiStripFedCabling* tkFed,const TrackerTopology* const topology);
   ~TrackerMap();  //!< default destructor
   
   void build();
