@@ -11,8 +11,8 @@
 l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::Stage2Layer2JetSumAlgorithmFirmwareImp1(CaloParams* params) :
   params_(params)
 {
-  etSumEtThresholdHwEt_ = floor(params_->etSumEtThreshold(1)/params_->jetLsb());
-  etSumEtThresholdHwMet_ = floor(params_->etSumEtThreshold(3)/params_->jetLsb());
+  etSumEtThresholdHwEt_ = 30;//floor(params_->etSumEtThreshold(1)/params_->jetLsb());
+  etSumEtThresholdHwMet_ = 30;//floor(params_->etSumEtThreshold(3)/params_->jetLsb());
 
   etSumEtaMinEt_ = params_->etSumEtaMin(1);
   etSumEtaMaxEt_ = params_->etSumEtaMax(1);
@@ -31,31 +31,57 @@ l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::~Stage2Layer2JetSumAlgorithmFirmwa
 void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::Jet> & jets,
 							      std::vector<l1t::EtSum> & etsums) 
 {
-   int32_t ht(0), hx(0), hy(0); 
+   int32_t ht_poseta(0), hx_poseta(0), hy_poseta(0); 
+   int32_t ht_negeta(0), hx_negeta(0), hy_negeta(0);
 
    for(std::vector<l1t::Jet>::const_iterator lIt = jets.begin() ; lIt != jets.end() ; ++lIt )
-   {
-     if (lIt->hwPt()>etSumEtThresholdHwMet_ && lIt->hwEta() >= etSumEtaMinMet_ && lIt->hwEta() <= etSumEtaMaxMet_){
-       hy += (int32_t) ( lIt->hwPt() * std::trunc ( 511. * cos ( 6.28318530717958647693 * (72 - ( lIt->hwPhi() - 1 )) / 72.0 ) )) >> 9;
-       hx += (int32_t) ( lIt->hwPt() * std::trunc ( 511. * sin ( 6.28318530717958647693 * ( lIt->hwPhi() - 1 ) / 72.0 ) )) >> 9;
-     }
-     if (lIt->hwPt()>etSumEtThresholdHwEt_ && lIt->hwEta() >= etSumEtaMinEt_ && lIt->hwEta() <= etSumEtaMaxEt_){
-         ht += lIt->hwPt();
-     }
-   }
+     {
 
-   //   hx >>=5;
-   //   hy >>=5;
-   //   ht >>=5;
+       // Positive eta
+       if (lIt->hwEta()>0) { 
+	 if (lIt->hwPt()>etSumEtThresholdHwMet_ && lIt->hwEta() >= etSumEtaMinMet_ && lIt->hwEta() <= etSumEtaMaxMet_){
+	   hy_poseta += (int32_t) ( lIt->hwPt() * std::trunc ( 511. * cos ( 6.28318530717958647693 * (72 - ( lIt->hwPhi() - 1 )) / 72.0 ) )) >> 9;
+	   hx_poseta += (int32_t) ( lIt->hwPt() * std::trunc ( 511. * sin ( 6.28318530717958647693 * ( lIt->hwPhi() - 1 ) / 72.0 ) )) >> 9;
+	 }
+	 if (lIt->hwPt()>etSumEtThresholdHwEt_ && lIt->hwEta() >= etSumEtaMinEt_ && lIt->hwEta() <= etSumEtaMaxEt_){
+	   ht_poseta += lIt->hwPt();
+	 }
+       } 
+       
+       // Negative eta
+       else {              
+	 if (lIt->hwPt()>etSumEtThresholdHwMet_ && lIt->hwEta() >= etSumEtaMinMet_ && lIt->hwEta() <= etSumEtaMaxMet_){
+	   hy_negeta += (int32_t) ( lIt->hwPt() * std::trunc ( 511. * cos ( 6.28318530717958647693 * (72 - ( lIt->hwPhi() - 1 )) / 72.0 ) )) >> 9;
+	   hx_negeta += (int32_t) ( lIt->hwPt() * std::trunc ( 511. * sin ( 6.28318530717958647693 * ( lIt->hwPhi() - 1 ) / 72.0 ) )) >> 9;
+	 }
+	 if (lIt->hwPt()>etSumEtThresholdHwEt_ && lIt->hwEta() >= etSumEtaMinEt_ && lIt->hwEta() <= etSumEtaMaxEt_){
+	   ht_negeta += lIt->hwPt();
+	 }
+       }
 
+     }
+
+   hx_poseta >>=5;
+   hy_poseta >>=5;
+   ht_poseta >>=5;
+   hx_negeta >>=5;
+   hy_negeta >>=5;
+   ht_negeta >>=5;
+   
    math::XYZTLorentzVector p4;
+   
+   l1t::EtSum htSumhtPosEta( p4 , l1t::EtSum::EtSumType::kTotalHt ,ht_poseta,0,0,0);
+   l1t::EtSum htSumhtNegEta( p4 , l1t::EtSum::EtSumType::kTotalHt ,ht_negeta,0,0,0);
+   l1t::EtSum htSumMissingHtxPosEta( p4 , l1t::EtSum::EtSumType::kTotalHtx ,hx_poseta,0,0,0);
+   l1t::EtSum htSumMissingHtxNegEta( p4 , l1t::EtSum::EtSumType::kTotalHtx ,hx_negeta,0,0,0);
+   l1t::EtSum htSumMissingHtyPosEta( p4 , l1t::EtSum::EtSumType::kTotalHty ,hy_poseta,0,0,0);
+   l1t::EtSum htSumMissingHtyNegEta( p4 , l1t::EtSum::EtSumType::kTotalHty ,hy_negeta,0,0,0);
 
-   l1t::EtSum htSumht( p4 , l1t::EtSum::EtSumType::kTotalHt ,ht,0,0,0);
-   l1t::EtSum htSumMissingHtx( p4 , l1t::EtSum::EtSumType::kTotalHtx ,hx,0,0,0);
-   l1t::EtSum htSumMissingHty( p4 , l1t::EtSum::EtSumType::kTotalHty ,hy,0,0,0);
-
-   etsums.push_back(htSumht);
-   etsums.push_back(htSumMissingHtx);
-   etsums.push_back(htSumMissingHty);
+   etsums.push_back(htSumhtPosEta);
+   etsums.push_back(htSumhtNegEta);
+   etsums.push_back(htSumMissingHtxPosEta);
+   etsums.push_back(htSumMissingHtxNegEta);
+   etsums.push_back(htSumMissingHtyPosEta);
+   etsums.push_back(htSumMissingHtyNegEta);
 }
 
