@@ -1066,10 +1066,10 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
         if (std::find(v.rec_vertices.begin(), v.rec_vertices.end(),
                       &((*recVtxs.product())[0])) != v.rec_vertices.end()) {
           mistag = 0.;
-          kind_of_signal_vertex |= (signal_is_highest_pt << IS_ASSOC2FIRST_RECO);
+          kind_of_signal_vertex |= (1 << IS_ASSOC2FIRST_RECO);
         } else {
           if (v.rec_vertices.size()) {
-            kind_of_signal_vertex |= (signal_is_highest_pt << IS_ASSOC2ANY_RECO);
+            kind_of_signal_vertex |= (1 << IS_ASSOC2ANY_RECO);
           }
         }
         mes_[label]["KindOfSignalPV"]->Fill(kind_of_signal_vertex);
