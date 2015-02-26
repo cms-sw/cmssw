@@ -96,6 +96,11 @@ ObjectViewCleaner<T>::ObjectViewCleaner(const edm::ParameterSet& iConfig)
   , nObjectsClean_(0)
 {
   produces<edm::RefToBaseVector<T> >();
+  edm::Handle<edm::View<T> > candidates;
+  consumes<edm::View<T> >(srcCands_);
+  for (auto const& object : srcObjects_) {
+    consumes<edm::View<reco::Candidate> >(object);
+  }
 }
 
 
@@ -125,9 +130,9 @@ void ObjectViewCleaner<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSe
   bool* isClean = new bool[candidates->size()];
   for (unsigned int iObject=0;iObject<candidates->size();iObject++) isClean[iObject] = true;
   
-  for (unsigned int iSrc=0;iSrc<srcObjects_.size();iSrc++) {
+  for (auto const& object : srcObjects_) {
     edm::Handle<edm::View<reco::Candidate> > objects;
-    iEvent.getByLabel(srcObjects_[iSrc],objects);
+    iEvent.getByLabel(object,objects);
     
     for (unsigned int iObject=0;iObject<candidates->size();iObject++) {
       const T& candidate = candidates->at(iObject);
