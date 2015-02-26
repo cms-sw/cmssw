@@ -8,11 +8,9 @@ pandorapfanew = cms.EDProducer('PandoraCMSPFCandProducer',
     generaltracks = cms.InputTag("HGCalTrackCollection","TracksInHGCal"),
     tPRecoTrackAsssociation= cms.InputTag("trackingParticleRecoTrackAsssociation"),
     genParticles= cms.InputTag("genParticles"),
-#    inputconfigfile = cms.string('PandoraSettingsDefault_WithoutMonitoring.xml'),
-#    inputconfigfile = cms.string('PandoraSettingsDefault.xml'),
-#    inputconfigfile = cms.string('PandoraSettingsBasic.xml'),
-    inputconfigfile = cms.FileInPath('RecoParticleFlow/PandoraTranslator/data/PandoraSettingsBasic_cms.xml'),
-#    inputconfigfile = cms.string('PandoraSettingsMuon.xml')
+    # use slow algorithms until fast algoritms are available in the CMSSW external pandora library
+    inputconfigfile = cms.FileInPath('RecoParticleFlow/PandoraTranslator/data/PandoraSettingsBasic_cms_slow.xml'),
+#    inputconfigfile = cms.FileInPath('RecoParticleFlow/PandoraTranslator/data/PandoraSettingsBasic_cms.xml'),
 
     energyCorrMethod = cms.string('ABSCORR'),
 #   absorber thickness correction
