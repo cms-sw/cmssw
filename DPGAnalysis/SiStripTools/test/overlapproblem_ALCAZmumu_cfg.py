@@ -33,7 +33,7 @@ process.source.fileNames = cms.untracked.vstring(
     "rfio:/castor/cern.ch/cms/store/mc/Fall10/DYToMuMu_M-20_TuneZ2_7TeV-pythia6/ALCARECO/START38_V12_TkAlZMuMu-v1/0001/86BB9127-E5D9-DF11-A995-00215E2222E0.root")    
 
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 
 process.load("DPGAnalysis.SiStripTools.tkAlTrackRefitSequence_cff")
