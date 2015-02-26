@@ -24,7 +24,8 @@ DAFTrackProducer::DAFTrackProducer(const edm::ParameterSet& iConfig):
   setSrc( consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>( "src" )),
           consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )),
           consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>( "MeasurementTrackerEvent") ));
-  src_ = consumes<TrajectoryCollection>(iConfig.getParameter<edm::InputTag>( "src" ));
+  srcT_ = consumes<TrajectoryCollection>(iConfig.getParameter<edm::InputTag>( "src" ));
+  srcTT_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>( "src" ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
 
   //register your products
@@ -100,6 +101,9 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
     edm::Handle<std::vector<Trajectory> > theTrajectoryCollection;
     getFromEvt(theEvent,theTrajectoryCollection,bs);
 
+    edm::Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
+    theEvent.getByToken(srcTT_,trajTrackAssociationHandle);
+
     //run the algorithm  
     LogDebug("DAFTrackProducer") << "run the DAF algorithm" << "\n";
     theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTrajectoryCollection, &*mte,
@@ -135,7 +139,10 @@ void DAFTrackProducer::getFromEvt(edm::Event& theEvent,edm::Handle<TrajectoryCol
 
   //get the TrajectoryCollection from the event
   //WARNING: src has always to be redefined in cfg file
-  theEvent.getByToken(src_,theTrajectoryCollection );
+  theEvent.getByToken(srcT_,theTrajectoryCollection );
+
+  //get the TrajectoryCollection from the event
+  //FIXME theEvent.getByToken(srcT_,theTrajectoryCollection );
 
   //get the BeamSpot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;

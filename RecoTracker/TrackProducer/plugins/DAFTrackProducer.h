@@ -30,7 +30,8 @@ private:
                 std::auto_ptr<TrajAnnealingCollection>& selTrajAnn);
 
   bool TrajAnnSaving_;
-  edm::EDGetToken src_;
+  edm::EDGetToken srcT_;
+  edm::EDGetToken srcTT_;
   
 };
 
