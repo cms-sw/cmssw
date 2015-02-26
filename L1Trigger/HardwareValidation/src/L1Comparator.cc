@@ -119,6 +119,78 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
   /// create d|e record product
   produces<L1DataEmulRecord>().setBranchAlias("L1DataEmulRecord");  
 
+  // -- RCT [regional calorimeter trigger]
+  if(m_doSys[RCT]) {
+    consumes<L1CaloEmCollection>(m_DEsource[RCT][0]);
+    consumes<L1CaloEmCollection>(m_DEsource[RCT][1]);
+    consumes<L1CaloRegionCollection>(m_DEsource[RCT][0]);
+    consumes<L1CaloRegionCollection>(m_DEsource[RCT][1]);
+  }
+
+  // -- GCT [global calorimeter trigger]
+  if(m_doSys[GCT]) {
+   consumes<L1GctEmCandCollection>(edm::InputTag(m_DEsource[GCT][0].label(),"isoEm"));
+   consumes<L1GctEmCandCollection>(edm::InputTag(m_DEsource[GCT][1].label(),"isoEm"));
+   consumes<L1GctEmCandCollection>(edm::InputTag(m_DEsource[GCT][0].label(),"nonIsoEm"));
+   consumes<L1GctEmCandCollection>(edm::InputTag(m_DEsource[GCT][1].label(),"nonIsoEm"));
+   consumes<L1GctJetCandCollection>(edm::InputTag(m_DEsource[GCT][0].label(),"cenJets"));
+   consumes<L1GctJetCandCollection>(edm::InputTag(m_DEsource[GCT][1].label(),"cenJets"));
+   consumes<L1GctJetCandCollection>(edm::InputTag(m_DEsource[GCT][0].label(),"forJets"));
+   consumes<L1GctJetCandCollection>(edm::InputTag(m_DEsource[GCT][1].label(),"forJets"));
+   consumes<L1GctJetCandCollection>(edm::InputTag(m_DEsource[GCT][0].label(),"tauJets"));
+   consumes<L1GctJetCandCollection>(edm::InputTag(m_DEsource[GCT][1].label(),"tauJets"));
+   consumes<L1GctEtHadCollection>(m_DEsource[GCT][0]);
+   consumes<L1GctEtHadCollection>(m_DEsource[GCT][1]);
+   consumes<L1GctEtMissCollection>(m_DEsource[GCT][0]);
+   consumes<L1GctEtMissCollection>(m_DEsource[GCT][1]);
+   consumes<L1GctEtTotalCollection>(m_DEsource[GCT][0]);
+   consumes<L1GctEtTotalCollection>(m_DEsource[GCT][1]);
+   consumes<L1GctHtMissCollection>(m_DEsource[GCT][0]);
+   consumes<L1GctHtMissCollection>(m_DEsource[GCT][1]);
+   consumes<L1GctHFRingEtSumsCollection>(m_DEsource[GCT][0]);
+   consumes<L1GctHFRingEtSumsCollection>(m_DEsource[GCT][1]);
+   consumes<L1GctHFBitCountsCollection>(m_DEsource[GCT][0]);
+   consumes<L1GctHFBitCountsCollection>(m_DEsource[GCT][1]);
+   consumes<L1GctJetCountsCollection>(m_DEsource[GCT][0]);
+   consumes<L1GctJetCountsCollection>(m_DEsource[GCT][1]);
+  }
+
+  // -- DTP [drift tube trigger primitive]
+  if(m_doSys[DTP]) {
+    consumes<L1MuDTChambPhContainer>(m_DEsource[DTP][0]);
+    consumes<L1MuDTChambPhContainer>(m_DEsource[DTP][1]);
+    consumes<L1MuDTChambThContainer>(m_DEsource[DTP][0]);
+    consumes<L1MuDTChambThContainer>(m_DEsource[DTP][1]);
+  }
+
+  // -- DTF [drift tube track finder]
+  if(m_doSys[DTF]) {
+    consumes<L1MuDTTrackContainer>(edm::InputTag(m_DEsource[DTF][0].label(),"DATA"));
+    consumes<L1MuDTTrackContainer>(edm::InputTag(m_DEsource[DTF][1].label(),"DTTF"));
+  }
+
+  // -- RPC [resistive plate chambers regional trigger]
+  if(m_doSys[RPC]) {
+    consumes<L1MuRegionalCandCollection>(edm::InputTag(m_DEsource[RPC][0].label(),"RPCb"));
+    consumes<L1MuRegionalCandCollection>(edm::InputTag(m_DEsource[RPC][1].label(),"RPCb"));
+    consumes<L1MuRegionalCandCollection>(edm::InputTag(m_DEsource[RPC][0].label(),"RPCf"));
+    consumes<L1MuRegionalCandCollection>(edm::InputTag(m_DEsource[RPC][1].label(),"RPCf"));
+  }
+
+  // -- LTC [local trigger controller]
+  if(m_doSys[LTC]) {
+    consumes<LTCDigiCollection>(m_DEsource[LTC][0]);
+    consumes<LTCDigiCollection>(m_DEsource[LTC][1]);
+  }
+
+  // -- GMT [global muon trigger]
+  if(m_doSys[GMT]) {
+    consumes<L1MuGMTCandCollection>(m_DEsource[GMT][0]);
+    consumes<L1MuGMTCandCollection>(m_DEsource[GMT][1]);
+    consumes<L1MuGMTReadoutCollection>(m_DEsource[GMT][0]);
+    consumes<L1MuGMTReadoutCollection>(m_DEsource[GMT][1]);
+  }
+
   if(verbose())
     std::cout << "\nL1Comparator constructor...done.\n" << std::flush;
 }
