@@ -75,7 +75,8 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     RcutFactor_(-1.0),
     csRho_EtaMax_(-1.0),
     csRParam_(-1.0),
-    beta_(-1.0)
+    beta_(-1.0),
+    R0_(-1.0)
 {
 
   if ( iConfig.exists("UseOnlyVertexTracks") )
@@ -142,6 +143,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     csRho_EtaMax_ = -1.0;
     csRParam_ = -1.0;
     beta_ = -1.0;
+    R0_ = -1.0;
     useExplicitGhosts_ = true;
 
     if ( iConfig.exists("useMassDropTagger") ) {
@@ -207,6 +209,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
       useSoftDrop_ = iConfig.getParameter<bool>("useSoftDrop");
       zCut_ = iConfig.getParameter<double>("zcut");
       beta_ = iConfig.getParameter<double>("beta");
+      R0_ = iConfig.getParameter<double>("R0");
     }
 
   }
@@ -455,7 +458,7 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
     }
 
     if ( useSoftDrop_ ) {
-      fastjet::contrib::SoftDrop * sd = new fastjet::contrib::SoftDrop(beta_, zCut_ );
+      fastjet::contrib::SoftDrop * sd = new fastjet::contrib::SoftDrop(beta_, zCut_, R0_ );
       transformers.push_back( transformer_ptr(sd) );
     }
 

@@ -96,6 +96,7 @@ protected:
   double csRho_EtaMax_;       /// for constituent subtraction : maximum rapidity for ghosts
   double csRParam_;           /// for constituent subtraction : R parameter for KT alg in jet median background estimator
   double beta_;               /// for soft drop : beta (angular exponent)
+  double R0_;                 /// for soft drop : R0 (angular distance normalization - should be set to jet radius in most cases)
 
 
   double subjetPtMin_;        /// for CMSBoostedTauSeedingAlgorithm : subjet pt min
