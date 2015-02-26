@@ -1,0 +1,17 @@
+
+layerSet_EE 0.5 2.5 11.5 21.5 31.5
+# layer nb:   1 2--11 12--22 22-32
+energyWeight_EM_EE 0.0559 0.0078 0.0090 0.0145
+energyWeight_Had_EE 0.0060 0.0113 0.0075 0.0168
+
+layerSet_HEF 0.5 12.5
+energyWeight_EM_HEF 0.0672
+energyWeight_Had_HEF 0.0902
+
+layerSet_HEB 0.5 10.5
+energyWeight_EM_HEB 0.3264
+energyWeight_Had_HEB 0.1051
+
+offSet_EM 2.095
+offSet_Had 6.8727
+
