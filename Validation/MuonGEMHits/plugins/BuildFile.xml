@@ -1,0 +1,6 @@
+<library file="Module.cc" name="ValidationMuonGEMHitsPlugin">
+  <use name="FWCore/Framework"/>
+  <use name="Validation/MuonGEMHits"/>
+  <use name="DQMServices/Core"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
