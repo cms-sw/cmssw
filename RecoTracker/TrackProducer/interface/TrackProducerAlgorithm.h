@@ -130,6 +130,7 @@ public:
 		  int qualityMask=0,
 		  signed char nLoops=0);
 
+
  private:
   edm::ParameterSet conf_;  
   std::string algoName_;

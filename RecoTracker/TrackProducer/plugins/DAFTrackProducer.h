@@ -25,12 +25,11 @@ public:
 
 private:
   DAFTrackProducerAlgorithm theAlgo;
-  void getFromEvt(edm::Event&, edm::Handle<TrajectoryCollection>&, reco::BeamSpot&);
+  void getFromEvt(edm::Event&, edm::Handle<TrajTrackAssociationCollection>&, reco::BeamSpot&);
   void putInEvtTrajAnn(edm::Event& theEvent, TrajAnnealingCollection & trajannResults,
                 std::auto_ptr<TrajAnnealingCollection>& selTrajAnn);
 
   bool TrajAnnSaving_;
-  edm::EDGetToken srcT_;
   edm::EDGetToken srcTT_;
   
 };

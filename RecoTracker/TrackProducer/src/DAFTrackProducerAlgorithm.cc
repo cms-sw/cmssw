@@ -32,7 +32,7 @@ DAFTrackProducerAlgorithm::DAFTrackProducerAlgorithm(const edm::ParameterSet& co
 
 void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 					         const MagneticField * theMF,
-						 const std::vector<Trajectory>& theTrajectoryCollection,
+						 const TrajTrackAssociationCollection& TTmap,
 						 const MeasurementTrackerEvent *measTk,
 					         const TrajectoryFitter * theFitter,
 					         const TransientTrackingRecHitBuilder* builder,
@@ -45,53 +45,52 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 						 AlgoProductCollection& algoResultsBeforeDAF, 
 						 AlgoProductCollection& algoResultsAfterDAF) const
 {
-  LogDebug("DAFTrackProducerAlgorithm") << "Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
+  LogDebug("DAFTrackProducerAlgorithm") << "Size of map: " << TTmap.size() << "\n";
+
   int cont = 0;
   int nTracksChanged = 0;
 
-  //running on src trajectory collection
-  for (std::vector<Trajectory>::const_iterator ivtraj = theTrajectoryCollection.begin(); 
-       ivtraj != theTrajectoryCollection.end(); ivtraj++)
-  {
+  for (TrajTrackAssociationCollection::const_iterator itTTmap = TTmap.begin(); itTTmap != TTmap.end(); itTTmap++){
+
+    const edm::Ref<std::vector<Trajectory> > BeforeDAFTraj  = itTTmap->key;
+    std::vector<TrajectoryMeasurement> BeforeDAFTrajMeas = BeforeDAFTraj->measurements();
+    const reco::TrackRef BeforeDAFTrack = itTTmap->val;
 
     float ndof = 0;
-    Trajectory currentTraj;
+    Trajectory CurrentTraj;
 
-    //getting trajectory
-    //no need to have std::vector<Trajectory> vtraj !
-    if ( (*ivtraj).isValid() ){
-
+    if(BeforeDAFTraj->isValid()){
       LogDebug("DAFTrackProducerAlgorithm") << "The trajectory #" << cont+1 << " is valid. \n";
 
       //getting the MultiRecHit collection and the trajectory with a first fit-smooth round
-      std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> hits = 
-							collectHits(*ivtraj, measurementCollector, &*measTk);
-      
-      currentTraj = fit(hits, theFitter, *ivtraj);
+      std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> hits = collectHits(*BeforeDAFTraj, measurementCollector, &*measTk);
+
+      //new initial fit
+      CurrentTraj = fit(hits, theFitter, *BeforeDAFTraj);
 
       //starting the annealing program
       for (std::vector<double>::const_iterator ian = updator->getAnnealingProgram().begin(); 
            ian != updator->getAnnealingProgram().end(); ian++){
 
-        if (currentTraj.isValid()){
+        if (CurrentTraj.isValid()){
 
-	  LogDebug("DAFTrackProducerAlgorithm") << "Seed direction is " << currentTraj.seed().direction() 
-	 	                                << ".Traj direction is " << currentTraj.direction();
+	  LogDebug("DAFTrackProducerAlgorithm") << "Seed direction is " << CurrentTraj.seed().direction() 
+	 	                                << ".Traj direction is " << CurrentTraj.direction() << std::endl;
 
           //updating MultiRecHits and fit-smooth again 
 	  std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> curiterationhits = 
-									updateHits(currentTraj, updator, &*measTk, *ian);
+									updateHits(CurrentTraj, updator, &*measTk, *ian);
           if( curiterationhits.first.size() < 3 ){
-            LogDebug("DAFTrackProducerAlgorithm") << "Rejecting trajectory with "
-                                                  << curiterationhits.first.size() <<" hits";
-            currentTraj = Trajectory();
+            LogDebug("DAFTrackProducerAlgorithm") << "Rejecting trajectory with " << curiterationhits.first.size() <<" hits" << std::endl;
+            CurrentTraj = Trajectory();
             break;
           }
-	  currentTraj = fit(curiterationhits, theFitter, currentTraj);
+
+	  CurrentTraj = fit(curiterationhits, theFitter, CurrentTraj);
 
  	  //saving trajectory for each annealing cycle ...
 	  if(TrajAnnSaving_){
-            TrajAnnealing temp(currentTraj, *ian);
+            TrajAnnealing temp(CurrentTraj, *ian);
 	    trajann.push_back(temp);
           }
 
@@ -99,42 +98,36 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 
 	} 
         else break;
+      } //end annealing cycle
 
-
-      } //end of annealing program
-
-      int percOfHitsUnchangedAfterDAF = (1.*checkHits(*ivtraj, currentTraj)/(1.*(*ivtraj).measurements().size()))*100.; 
+      int percOfHitsUnchangedAfterDAF = (1.*checkHits(*BeforeDAFTraj, CurrentTraj)/(1.*BeforeDAFTrajMeas.size()))*100.; 
       LogDebug("DAFTrackProducerAlgorithm") << "Ended annealing program with " << percOfHitsUnchangedAfterDAF << " unchanged." << std::endl;
-
+ 
       //computing the ndof keeping into account the weights
-      ndof = calculateNdof(currentTraj);
-
+      ndof = calculateNdof(CurrentTraj);
+ 
       //checking if the trajectory has the minimum number of valid hits ( weight (>1e-6) )
       //in order to remove tracks with too many outliers.
-
-      int goodHits = countingGoodHits(currentTraj);
+      int goodHits = countingGoodHits(CurrentTraj);
 
       if( goodHits >= minHits_) {
-
-        bool ok = buildTrack(currentTraj, algoResults, ndof, bs) ;
-	// or filtered?
+        bool ok = buildTrack(CurrentTraj, algoResults, ndof, bs, &BeforeDAFTrack);
+        // or filtered?
         if(ok) cont++;
-
- 	//saving tracks before and after DAF 
- 	if( (100. - percOfHitsUnchangedAfterDAF) > 0.){
-  	  bool okBefore = buildTrack(*ivtraj, algoResultsBeforeDAF, ndof, bs) ;
-  	  bool okAfter  = buildTrack(currentTraj, algoResultsAfterDAF, ndof, bs) ;
-	  if( okBefore && okAfter ) nTracksChanged++;
+ 
+        //saving tracks before and after DAF 
+        if( (100. - percOfHitsUnchangedAfterDAF) > 0.){
+          bool okBefore = buildTrack(*BeforeDAFTraj, algoResultsBeforeDAF, ndof, bs, &BeforeDAFTrack);
+          bool okAfter  = buildTrack(CurrentTraj, algoResultsAfterDAF, ndof, bs, &BeforeDAFTrack);
+          if( okBefore && okAfter ) nTracksChanged++;
         }
+      } else {
+        LogDebug("DAFTrackProducerAlgorithm") << "Rejecting trajectory with " << CurrentTraj.foundHits()<<" hits"; 
       }
-      else{
-        LogDebug("DAFTrackProducerAlgorithm")  << "Rejecting trajectory with " 
- 					       << currentTraj.foundHits()<<" hits"; 
-      }
-    }
-    else 
+    } //end run on track collection
+    else {
       LogDebug("DAFTrackProducerAlgorithm") << "Rejecting empty trajectory" << std::endl;
-
+    }
   } //end run on track collection
 
   LogDebug("DAFTrackProducerAlgorithm") << "Number of Tracks found:   " << cont << "\n";
@@ -246,7 +239,8 @@ Trajectory DAFTrackProducerAlgorithm::fit(const std::pair<TransientTrackingRecHi
 bool DAFTrackProducerAlgorithm::buildTrack (const Trajectory vtraj,
 					    AlgoProductCollection& algoResults,
 					    float ndof,
-					    const reco::BeamSpot& bs) const
+					    const reco::BeamSpot& bs,
+					    const reco::TrackRef* BeforeDAFTrack) const
 {
   //variable declarations
   reco::Track * theTrack;
@@ -278,10 +272,12 @@ bool DAFTrackProducerAlgorithm::buildTrack (const Trajectory vtraj,
 
     //    LogDebug("TrackProducer") <<v<<p<<std::endl;
 
+    auto algo = (*BeforeDAFTrack)->algo();
     theTrack = new reco::Track(vtraj.chiSquared(),
 			       ndof, //in the DAF the ndof is not-integer
 			       pos, mom, tscbl.trackStateAtPCA().charge(), 
-			       tscbl.trackStateAtPCA().curvilinearError());
+			       tscbl.trackStateAtPCA().curvilinearError(), algo);
+    theTrack->setQualityMask((*BeforeDAFTrack)->qualityMask());
 
     AlgoProduct aProduct(theTraj,std::make_pair(theTrack,vtraj.direction()));
     algoResults.push_back(aProduct);

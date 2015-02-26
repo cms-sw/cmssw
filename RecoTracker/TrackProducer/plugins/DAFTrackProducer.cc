@@ -24,7 +24,6 @@ DAFTrackProducer::DAFTrackProducer(const edm::ParameterSet& iConfig):
   setSrc( consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>( "src" )),
           consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )),
           consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>( "MeasurementTrackerEvent") ));
-  srcT_ = consumes<TrajectoryCollection>(iConfig.getParameter<edm::InputTag>( "src" ));
   srcTT_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>( "src" ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
 
@@ -98,15 +97,15 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   AlgoProductCollection algoResultsAfterDAF;
   try{
 
-    edm::Handle<std::vector<Trajectory> > theTrajectoryCollection;
-    getFromEvt(theEvent,theTrajectoryCollection,bs);
-
     edm::Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
-    theEvent.getByToken(srcTT_,trajTrackAssociationHandle);
+    getFromEvt(theEvent,trajTrackAssociationHandle,bs);
+
 
     //run the algorithm  
     LogDebug("DAFTrackProducer") << "run the DAF algorithm" << "\n";
-    theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTrajectoryCollection, &*mte,
+    theAlgo.runWithCandidate(theG.product(), theMF.product(),  
+			     *trajTrackAssociationHandle, 
+			     &*mte,
                              theFitter.product(), theBuilder.product(), 
 			     measurementCollectorHandle.product(), updatorHandle.product(), bs, 
 			     algoResults, trajannResults, TrajAnnSaving_,
@@ -134,15 +133,12 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   LogDebug("DAFTrackProducer") << "end the DAF algorithm." << "\n";
 }
 //----------------------------------------------------------------------------------------------------------//
-void DAFTrackProducer::getFromEvt(edm::Event& theEvent,edm::Handle<TrajectoryCollection>& theTrajectoryCollection, reco::BeamSpot& bs)
+void DAFTrackProducer::getFromEvt(edm::Event& theEvent,edm::Handle<TrajTrackAssociationCollection>& trajTrackAssociationHandle, reco::BeamSpot& bs)
 {
 
-  //get the TrajectoryCollection from the event
+  //get the TrajTrackMap from the event
   //WARNING: src has always to be redefined in cfg file
-  theEvent.getByToken(srcT_,theTrajectoryCollection );
-
-  //get the TrajectoryCollection from the event
-  //FIXME theEvent.getByToken(srcT_,theTrajectoryCollection );
+  theEvent.getByToken(srcTT_,trajTrackAssociationHandle);
 
   //get the BeamSpot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
