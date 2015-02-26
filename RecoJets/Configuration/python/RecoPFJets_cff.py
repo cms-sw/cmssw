@@ -134,7 +134,7 @@ ak8PFJetsCHSTrimmed = ak5PFJetsCHSTrimmed.clone(
 ak8PFJetsCHSSoftDrop = ak5PFJetsCHSSoftDrop.clone(
     rParam = 0.8,
     jetPtMin = 100.0,
-    R0 = 100.0
+    R0 = 0.8
     )
 
 
