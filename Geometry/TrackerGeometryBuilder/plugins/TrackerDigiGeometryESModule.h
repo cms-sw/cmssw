@@ -28,7 +28,6 @@ class  TrackerDigiGeometryESModule: public edm::ESProducer{
   const std::string myLabel_;
   const edm::ParameterSet m_pSet;
   bool applyAlignment_; // Switch to apply alignment corrections
-  bool fromDDD_;
 };
 
 
