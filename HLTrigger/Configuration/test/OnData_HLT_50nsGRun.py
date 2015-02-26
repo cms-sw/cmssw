@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/50nsGRun/V11 (CMSSW_7_4_0_pre7_HLT1)
+# /dev/CMSSW_7_4_0/50nsGRun/V15 (CMSSW_7_4_0_pre7_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT50nsGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V11')
+  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V15')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -44760,9 +44760,12 @@ if cmsswVersion >= "CMSSW_7_5":
         del process.TrackerDigiGeometryESModule.trackerGeometryConstants.upgradeGeometry
 
 
-# load PostLS1 customisation for 50ns
-from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1_50ns
-process = customisePostLS1_50ns(process)
+# load 2015 Run-2 L1 Menu for 50ns
+# move to the 50ns v0 L1 menu once the 50ns HLT has been updated accordingly
+# from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v0 as loadL1Menu
+# until then use the 25ns L1 menu
+from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1Menu
+process = loadL1Menu(process)
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
