@@ -132,6 +132,5 @@ def customiseSimL1EmulatorForPostLS1_HI(process):
     # set the Stage 1 heavy ions-specific parameters
     process.simCaloStage1Digis.FirmwareVersion = cms.uint32(1)
     # move to the heavy ions draft L1 menu once the HLT has been updated accordingly
-    #process = L1Menu_CollisionsHeavyIons2015_v0(process)
-    process = L1Menu_Collisions2015_25ns_v2(process)
+    process = L1Menu_CollisionsHeavyIons2015_v0(process)
     return process
