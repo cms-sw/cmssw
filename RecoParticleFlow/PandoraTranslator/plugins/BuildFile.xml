@@ -1,0 +1,44 @@
+<use name="pandora"/>
+<use name="RecoParticleFlow/PandoraTranslator"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/Math"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/CaloTopology"/>
+<use name="Geometry/EcalAlgo"/>
+<use name="Geometry/HcalTowerAlgo"/>
+<use name="Geometry/FCalGeometry"/>
+<use name="Geometry/Records"/>
+<use name="CondFormats/DataRecord"/>
+<use name="DataFormats/CaloTowers"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/HGCRecHit"/>
+<use name="DataFormats/ForwardDetId"/>
+<use name="FastSimulation/BaseParticlePropagator"/>
+<use name="MagneticField/Records"/>
+<use name="MagneticField/Engine"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="SimTracker/TrackAssociation"/>
+<use name="DQMServices/Core"/>
+<use name="TrackingTools/MaterialEffects"/>
+<use name="DataFormats/ParticleFlowReco"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
+<use name="root"/>
+<use name="rootmathcore"/>
+<use name="rootcore"/>
+<use name="rootinteractive"/>
+<use name="opengl"/>
+<use name="rootcintex"/>
+<use name="rootgraphics"/>
+<lib name="GX11"/>
+<lib name="RGL"/>
+<lib name="GeomPainter"/>
+<lib name="Geom"/>
+<lib name="Eve"/>
+<use name="FWCore/RootAutoLibraryLoader"/>
+<use name="rootcint"/>
+
+<library file="*.cc" name="HGCalPandoraTranslatorPlugins">
+   <flags EDM_PLUGIN="1"/>
+</library>
