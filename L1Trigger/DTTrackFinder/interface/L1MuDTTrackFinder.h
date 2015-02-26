@@ -68,7 +68,7 @@ class L1MuDTTrackFinder {
     virtual ~L1MuDTTrackFinder();
 
     /// build the structure of the barrel MTTF
-    void setup();
+    void setup(edm::ConsumesCollector&& iC);
 
     /// run the barrel MTTF
     void run(const edm::Event& e, const edm::EventSetup& c);

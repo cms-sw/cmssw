@@ -32,9 +32,10 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
 class L1MuDTSectorProcessor;
 class L1MuDTTFParameters;
 class L1MuDTTFMasks;
@@ -48,7 +49,7 @@ class L1MuDTSectorReceiver {
   public:
 
     /// constructor
-    L1MuDTSectorReceiver(L1MuDTSectorProcessor& );
+    L1MuDTSectorReceiver(L1MuDTSectorProcessor&, edm::ConsumesCollector&& iC);
 
     /// destructor
     virtual ~L1MuDTSectorReceiver();

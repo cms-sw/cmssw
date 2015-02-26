@@ -60,8 +60,9 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuDTEtaProcessor::L1MuDTEtaProcessor(const L1MuDTTrackFinder& tf, int id) :
+L1MuDTEtaProcessor::L1MuDTEtaProcessor(const L1MuDTTrackFinder& tf, int id, edm::ConsumesCollector&& iC) :
       m_tf(tf), m_epid(id), m_foundPattern(0), m_tseta(15) {
+  iC.consumes<L1MuDTChambThContainer>(L1MuDTTFConfig::getDTDigiInputTag());
 
   m_tseta.reserve(15);
   

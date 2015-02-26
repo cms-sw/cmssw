@@ -52,9 +52,12 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-L1MuDTSectorReceiver::L1MuDTSectorReceiver(L1MuDTSectorProcessor& sp) : 
+L1MuDTSectorReceiver::L1MuDTSectorReceiver(L1MuDTSectorProcessor& sp, edm::ConsumesCollector && iC) : 
         m_sp(sp) {
-
+   iC.consumes<L1MuDTChambPhContainer>(L1MuDTTFConfig::getDTDigiInputTag());
+   if ((L1MuDTTFConfig::getCSCTrSInputTag()).label() != "none" ) {
+     iC.consumes<CSCTriggerContainer<csctf::TrackStub> >(L1MuDTTFConfig::getCSCTrSInputTag());
+   }
 }
 
 
