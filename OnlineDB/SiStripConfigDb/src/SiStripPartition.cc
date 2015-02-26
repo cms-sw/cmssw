@@ -10,7 +10,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-std::string SiStripPartition::defaultPartitionName_ = "DefaultPartition";
+const std::string SiStripPartition::defaultPartitionName_ = "DefaultPartition";
 
 // -----------------------------------------------------------------------------
 // 
