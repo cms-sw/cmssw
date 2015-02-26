@@ -2,7 +2,7 @@
 #include "RecoParticleFlow/PandoraTranslator/interface/CMSBFieldPlugin.h"
 #include "RecoParticleFlow/PandoraTranslator/interface/CMSPseudoLayerPlugin.h"
 #include "LCContent.h"
-//#include "LCContent/include/LCContentFast.h"
+#include "LCContent/include/LCContentFast.h"
 #include "RecoParticleFlow/PandoraTranslator/interface/CMSTemplateAlgorithm.h"
 //#include "PandoraMonitoringApi.h"
 
@@ -138,7 +138,7 @@ PandoraCMSPFCandProducer::PandoraCMSPFCandProducer(const edm::ParameterSet& iCon
   
   PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContent::RegisterAlgorithms(*m_pPandora));
 
-//  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContentFast::RegisterAlgorithms(*m_pPandora));
+  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContentFast::RegisterAlgorithms(*m_pPandora));
 
   PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, cms_content::RegisterBasicPlugins(*m_pPandora));
 
