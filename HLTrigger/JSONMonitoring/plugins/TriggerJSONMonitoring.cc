@@ -555,7 +555,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFilesize_.value());
     hltDaqJsn[DataPoint::DATA].append(hltJsnInputFiles_.value());
     hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFileAdler32_.value());
-    hltDaqJsn[DataPoint::DATA].append(iSummary_->streamHLTDestination);
+    hltDaqJsn[DataPoint::DATA].append(iSummary->streamHLTDestination);
 
     result = writer.write(hltDaqJsn);
 
@@ -591,7 +591,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFilesize_.value());
     l1DaqJsn[DataPoint::DATA].append(l1JsnInputFiles_.value());
     l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFileAdler32_.value());
-    l1DaqJsn[DataPoint::DATA].append(iSummary_->streamL1Destination);
+    l1DaqJsn[DataPoint::DATA].append(iSummary->streamL1Destination);
 
     result = writer.write(l1DaqJsn);
 
