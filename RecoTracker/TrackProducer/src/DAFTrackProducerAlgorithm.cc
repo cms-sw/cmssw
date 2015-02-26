@@ -218,9 +218,9 @@ DAFTrackProducerAlgorithm::updateHits(const Trajectory vtraj,
 }
 /*------------------------------------------------------------------------------------------------------*/
 Trajectory DAFTrackProducerAlgorithm::fit(const std::pair<TransientTrackingRecHit::RecHitContainer,
-                                    TrajectoryStateOnSurface>& hits,
-                                    const TrajectoryFitter * theFitter,
-                                    Trajectory vtraj) const {
+        	                          TrajectoryStateOnSurface>& hits,
+                                          const TrajectoryFitter * theFitter,
+                                          Trajectory vtraj) const {
 
   //creating a new trajectory starting from the direction of the seed of the input one and the hits
   Trajectory newVec = theFitter->fitOne(TrajectorySeed(PTrajectoryStateOnDet(),
@@ -358,22 +358,24 @@ void  DAFTrackProducerAlgorithm::filter(const TrajectoryFitter* fitter, std::vec
   }
 
 
-	LogDebug("DAFTrackProducerAlgorithm") << "Original number of valid hits " << input[0].foundHits() << "; after filtering " << ngoodhits;
-	//debug
-	if (ngoodhits>input[0].foundHits()) edm::LogError("DAFTrackProducerAlgorithm") << "Something wrong: the number of good hits from DAFTrackProducerAlgorithm::filter " << ngoodhits << " is higher than the original one " << input[0].foundHits();
-	
-	if (ngoodhits < minhits) return;	
+  LogDebug("DAFTrackProducerAlgorithm") << "Original number of valid hits " << input[0].foundHits() << "; after filtering " << ngoodhits;
+  if (ngoodhits>input[0].foundHits()) 
+    LogError("DAFTrackProducerAlgorithm") << "Something wrong: the number of good hits from DAFTrackProducerAlgorithm::filter " 
+					  << ngoodhits << " is higher than the original one " << input[0].foundHits();
 
-	TrajectoryStateOnSurface curstartingTSOS = input.front().lastMeasurement().updatedState();
-	LogDebug("DAFTrackProducerAlgorithm") << "starting tsos for final refitting " << curstartingTSOS ;
-        //curstartingTSOS.rescaleError(100);
+  if (ngoodhits < minhits) return;	
 
-	output = fitter->fit(TrajectorySeed(PTrajectoryStateOnDet(),
-                                                BasicTrajectorySeed::recHitContainer(),
-                                                input.front().seed().direction()),
-                                hits,
-                                TrajectoryStateWithArbitraryError()(curstartingTSOS));
-	LogDebug("DAFTrackProducerAlgorithm") << "After filtering " << output.size() << " trajectories";
+  TrajectoryStateOnSurface curstartingTSOS = input.front().lastMeasurement().updatedState();
+  LogDebug("DAFTrackProducerAlgorithm") << "starting tsos for final refitting " << curstartingTSOS ;
+  //curstartingTSOS.rescaleError(100);
+
+  output = fitter->fit(TrajectorySeed(PTrajectoryStateOnDet(),
+                                      BasicTrajectorySeed::recHitContainer(),
+                                      input.front().seed().direction()),
+  	                              hits,
+        	                      TrajectoryStateWithArbitraryError()(curstartingTSOS));
+
+  LogDebug("DAFTrackProducerAlgorithm") << "After filtering " << output.size() << " trajectories";
 
 }
 /*------------------------------------------------------------------------------------------------------*/
@@ -384,6 +386,7 @@ float DAFTrackProducerAlgorithm::calculateNdof(const Trajectory vtraj) const
   float ndof = 0;
   const std::vector<TrajectoryMeasurement>& meas = vtraj.measurements();
   for (std::vector<TrajectoryMeasurement>::const_iterator iter = meas.begin(); iter != meas.end(); iter++){
+
     if (iter->recHit()->isValid()){
       SiTrackerMultiRecHit const & mHit = dynamic_cast<SiTrackerMultiRecHit const &>(*iter->recHit());
       std::vector<const TrackingRecHit*> components = mHit.recHits();
@@ -414,7 +417,8 @@ int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory
   }
 
   if( initmeasurements.size() != finalmeasurements.size() ) {
-    LogDebug("DAFTrackProducerAlgorithm") << "Initial Trajectory size(" << initmeasurements.size() << " hits) different to final traj size (" << finalmeasurements.size() << ")! No checkHits possible! ";
+    LogDebug("DAFTrackProducerAlgorithm") << "Initial Trajectory size(" << initmeasurements.size() << " hits) "
+					  << "is different to final traj size (" << finalmeasurements.size() << ")! No checkHits possible! ";
     return 0;
   }
           
@@ -480,18 +484,17 @@ int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory
 
 void DAFTrackProducerAlgorithm::PrintHit(const TrackingRecHit* const& hit, TrajectoryStateOnSurface& tsos) const
 {
-    if (hit->isValid()){
+  if (hit->isValid()){
 
-      LogTrace("DAFTrackProducerAlgorithm") << "  Valid Hit with DetId " << hit->geographicalId().rawId() << " and dim:" << hit->dimension()
-                      //<< " type " << typeid(hit).name()
+    LogTrace("DAFTrackProducerAlgorithm") << "  Valid Hit with DetId " << hit->geographicalId().rawId() << " and dim:" << hit->dimension()
                         << " local position " << hit->localPosition()
                         << " global position " << hit->globalPosition()
                         << " and r " << hit->globalPosition().perp() ;
     if(tsos.isValid())  LogTrace("DAFTrackProducerAlgorithm") << "  TSOS combtsos " << tsos.localPosition() ;
 
-    } else {
-      LogTrace("DAFTrackProducerAlgorithm") << "  Invalid Hit with DetId " << hit->geographicalId().rawId();
-    }
+  } else {
+    LogTrace("DAFTrackProducerAlgorithm") << "  Invalid Hit with DetId " << hit->geographicalId().rawId();
+  }
 
 }
 
