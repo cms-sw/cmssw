@@ -45,6 +45,8 @@ class AddJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'explicitJTA', False, "Use explicit jet-track association")
         self.addParameter(self._defaultParameters,'pvSource',cms.InputTag('offlinePrimaryVertices'), "Label of the input collection for primary vertices used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'svSource',cms.InputTag('inclusiveCandidateSecondaryVertices'), "Label of the input collection for IVF vertices used in b-tagging", cms.InputTag)
+        self.addParameter(self._defaultParameters,'elSource',cms.InputTag('gedGsfElectrons'), "Label of the input collection for electrons used in b-tagging", cms.InputTag)
+        self.addParameter(self._defaultParameters,'muSource',cms.InputTag('muons'), "Label of the input collection for muons used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'runIVF', False, "Re-run IVF secondary vertex reconstruction")
         self.addParameter(self._defaultParameters,'svClustering', False, "Secondary vertices ghost-associated to jets using jet clustering (mostly intended for subjets)")
         self.addParameter(self._defaultParameters,'fatJets', cms.InputTag(''), "Fat jet collection used for secondary vertex clustering", cms.InputTag)
@@ -89,7 +91,7 @@ class AddJetCollection(ConfigToolBase):
         """
         return self._defaultParameters
 
-    def __call__(self,process,labelName=None,postfix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,runIVF=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,getJetMCFlavour=None,genJetCollection=None,genParticles=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None,jetTrackAssociation=None,outputModules=None):
+    def __call__(self,process,labelName=None,postfix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,getJetMCFlavour=None,genJetCollection=None,genParticles=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None,jetTrackAssociation=None,outputModules=None):
         """
         Function call wrapper. This will check the parameters and call the actual implementation that
         can be found in toolCode via the base class function apply.
@@ -115,6 +117,12 @@ class AddJetCollection(ConfigToolBase):
         if svSource is None:
             svSource=self._defaultParameters['svSource'].value
         self.setParameter('svSource', svSource)
+        if elSource is None:
+            elSource=self._defaultParameters['elSource'].value
+        self.setParameter('elSource', elSource)
+        if muSource is None:
+            muSource=self._defaultParameters['muSource'].value
+        self.setParameter('muSource', muSource)
         if runIVF is None:
             runIVF=self._defaultParameters['runIVF'].value
         self.setParameter('runIVF', runIVF)
@@ -171,6 +179,8 @@ class AddJetCollection(ConfigToolBase):
         explicitJTA=self._parameters['explicitJTA'].value
         pvSource=self._parameters['pvSource'].value
         svSource=self._parameters['svSource'].value
+        elSource=self._parameters['elSource'].value
+        muSource=self._parameters['muSource'].value
         runIVF=self._parameters['runIVF'].value
         svClustering=self._parameters['svClustering'].value
         fatJets=self._parameters['fatJets'].value
@@ -202,9 +212,11 @@ class AddJetCollection(ConfigToolBase):
         infos = 0
         for info in btagInfos:
             if info.startswith('pf'): infos = infos + 1
+            if 'softpf' in info.lower(): infos = infos + 1
         tags = 0
         for tag in btagDiscriminators:
             if tag.startswith('pf'): tags = tags + 1
+            if 'softpf' in tag.lower(): tags = tags + 1
         bTaggingLegacy=(len(btagDiscriminators)>tags or len(btagInfos)>infos)
         ## construct postfix label for auxiliary modules; this postfix
         ## label will start with a capitalized first letter following
@@ -215,7 +227,7 @@ class AddJetCollection(ConfigToolBase):
          ## supported algo types are ak, ca, and kt
         _algo=''
         for x in ["ak", "ca", "kt"]:
-            if algo.lower().find(x)>-1:
+            if x in algo.lower():
                 _algo=supportedJetAlgos[x]
                 break
         if _algo=='':
@@ -446,9 +458,9 @@ class AddJetCollection(ConfigToolBase):
                     if btagInfo == 'softMuonTagInfos':
                         setattr(process, btagInfo+_labelName+postfix, btag.softMuonTagInfos.clone(jets = jetSource, primaryVertex=pvSource))
                     if btagInfo == 'softPFMuonsTagInfos':
-                        setattr(process, btagInfo+_labelName+postfix, btag.softPFMuonsTagInfos.clone(jets = jetSource, primaryVertex=pvSource))
+                        setattr(process, btagInfo+_labelName+postfix, btag.softPFMuonsTagInfos.clone(jets = jetSource, primaryVertex=pvSource, muons=muSource))
                     if btagInfo == 'softPFElectronsTagInfos':
-                        setattr(process, btagInfo+_labelName+postfix, btag.softPFElectronsTagInfos.clone(jets = jetSource, primaryVertex=pvSource))
+                        setattr(process, btagInfo+_labelName+postfix, btag.softPFElectronsTagInfos.clone(jets = jetSource, primaryVertex=pvSource, electrons=elSource))
                     acceptedTagInfos.append(btagInfo)
                 elif hasattr(toptag, btagInfo) :
                     acceptedTagInfos.append(btagInfo)
@@ -663,6 +675,8 @@ class SwitchJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'explicitJTA', False, "Use explicit jet-track association")
         self.addParameter(self._defaultParameters,'pvSource',cms.InputTag('offlinePrimaryVertices'), "Label of the input collection for primary vertices used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'svSource',cms.InputTag('inclusiveCandidateSecondaryVertices'), "Label of the input collection for IVF vertices used in b-tagging", cms.InputTag)
+        self.addParameter(self._defaultParameters,'elSource',cms.InputTag('gedGsfElectrons'), "Label of the input collection for electrons used in b-tagging", cms.InputTag)
+        self.addParameter(self._defaultParameters,'muSource',cms.InputTag('muons'), "Label of the input collection for muons used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'runIVF', False, "Re-run IVF secondary vertex reconstruction")
         self.addParameter(self._defaultParameters,'svClustering', False, "Secondary vertices ghost-associated to jets using jet clustering (mostly intended for subjets)")
         self.addParameter(self._defaultParameters,'fatJets', cms.InputTag(''), "Fat jet collection used for secondary vertex clustering", cms.InputTag)
@@ -704,7 +718,7 @@ class SwitchJetCollection(ConfigToolBase):
         """
         return self._defaultParameters
 
-    def __call__(self,process,postfix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,runIVF=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,getJetMCFlavour=None,genJetCollection=None,genParticles=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None,jetTrackAssociation=None,outputModules=None):
+    def __call__(self,process,postfix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,getJetMCFlavour=None,genJetCollection=None,genParticles=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None,jetTrackAssociation=None,outputModules=None):
         """
         Function call wrapper. This will check the parameters and call the actual implementation that
         can be found in toolCode via the base class function apply.
@@ -727,6 +741,12 @@ class SwitchJetCollection(ConfigToolBase):
         if svSource is None:
             svSource=self._defaultParameters['svSource'].value
         self.setParameter('svSource', svSource)
+        if elSource is None:
+            elSource=self._defaultParameters['elSource'].value
+        self.setParameter('elSource', elSource)
+        if muSource is None:
+            muSource=self._defaultParameters['muSource'].value
+        self.setParameter('muSource', muSource)
         if runIVF is None:
             runIVF=self._defaultParameters['runIVF'].value
         self.setParameter('runIVF', runIVF)
@@ -782,6 +802,8 @@ class SwitchJetCollection(ConfigToolBase):
         explicitJTA=self._parameters['explicitJTA'].value
         pvSource=self._parameters['pvSource'].value
         svSource=self._parameters['svSource'].value
+        elSource=self._parameters['elSource'].value
+        muSource=self._parameters['muSource'].value
         runIVF=self._parameters['runIVF'].value
         svClustering=self._parameters['svClustering'].value
         fatJets=self._parameters['fatJets'].value
@@ -807,6 +829,8 @@ class SwitchJetCollection(ConfigToolBase):
             explicitJTA=explicitJTA,
             pvSource=pvSource,
             svSource=svSource,
+            elSource=elSource,
+            muSource=muSource,
             runIVF=runIVF,
             svClustering=svClustering,
             fatJets=fatJets,
