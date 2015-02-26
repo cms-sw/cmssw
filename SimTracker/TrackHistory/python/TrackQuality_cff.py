@@ -3,7 +3,7 @@ import copy
 
 from Configuration.StandardSequences.MagneticField_cff import *
 
-import SimTracker.TrackAssociatorProducer.trackAssociatorByHits_cfi as tabh
+import SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi as tabh
 
 # Track quality parameters
 trackQuality = cms.PSet(
