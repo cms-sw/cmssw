@@ -116,6 +116,8 @@ public:
 
    const VersionInfo& versionInfo() const { return m_versionInfo; }
 
+   TGeoShape* getShape( const GeomDetInfo& info ) const;
+
 private:
    mutable std::map<unsigned int, TGeoMatrix*> m_idToMatrix;
 
@@ -125,7 +127,6 @@ private:
 
    VersionInfo  m_versionInfo;
 
-   TGeoShape* getShape( const GeomDetInfo& info ) const;
 };
 
 #endif
