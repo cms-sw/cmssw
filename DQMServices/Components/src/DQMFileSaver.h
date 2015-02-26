@@ -21,7 +21,7 @@ public:
   // used by the JsonWritingTimedPoolOutputModule,
   // fms will be nullptr in such case
   static boost::property_tree::ptree fillJson(
-      int run, int lumi, const std::string &dataFilePathName,
+      int run, int lumi, const std::string &dataFilePathName, const std::string transferDestinationStr,
       evf::FastMonitoringService *fms);
 
   
