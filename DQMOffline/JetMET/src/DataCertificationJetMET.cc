@@ -18,6 +18,22 @@
 DataCertificationJetMET::DataCertificationJetMET(const edm::ParameterSet& iConfig):conf_(iConfig)
 {
   // now do what ever initialization is needed
+  inputMETLabelRECO_=iConfig.getParameter<edm::InputTag>("METTypeRECO");
+  inputMETLabelMiniAOD_=iConfig.getParameter<edm::InputTag>("METTypeMiniAOD");
+  inputJetLabelRECO_=iConfig.getParameter<edm::InputTag>("JetTypeRECO");
+  inputJetLabelMiniAOD_=iConfig.getParameter<edm::InputTag>("JetTypeMiniAOD");
+
+  nbinsPV_ = iConfig.getParameter<int>("pVBin");
+  nPVMin_  = iConfig.getParameter<double>("pVMin");
+  nPVMax_  = iConfig.getParameter<double>("pVMax");
+
+  etaBin_ = iConfig.getParameter<int>("etaBin");
+  etaMin_ = iConfig.getParameter<double>("etaMin");
+  etaMax_ = iConfig.getParameter<double>("etaMax");
+
+  ptBin_ = iConfig.getParameter<int>("ptBin");
+  ptMin_ = iConfig.getParameter<double>("ptMin");
+  ptMax_ = iConfig.getParameter<double>("ptMax");
 
   // -----------------------------------------
   // verbose_ 0: suppress printouts
@@ -64,13 +80,535 @@ DataCertificationJetMET::~DataCertificationJetMET()
 void 
 DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& iget_)
 {
+
+  //put RECO vs MiniAODDir first ->first MET
+  std::vector<std::string> subDirVecMET;
+  std::string RunDirMET="JetMET/MET/";
+  iget_.setCurrentFolder(RunDirMET);
+  subDirVecMET=iget_.getSubdirs();
+  bool found_METreco_dir=false;
+  bool found_METminiaod_dir=false;
+  //check if proper directories are inside the files
+  for (int i=0; i<int(subDirVecMET.size()); i++) {
+    ibook_.setCurrentFolder(subDirVecMET[i]);  
+    if((subDirVecMET[i]+"/Cleaned")==(RunDirMET+inputMETLabelRECO_.label()+"/Cleaned")){
+      found_METreco_dir=true;
+    }
+    if((subDirVecMET[i]+"/Cleaned")==(RunDirMET+inputMETLabelMiniAOD_.label()+"/Cleaned")){
+      found_METminiaod_dir=true;
+    }
+  }
+  if(found_METreco_dir && found_METminiaod_dir){
+    std::string rundirMET_reco=RunDirMET+inputMETLabelRECO_.label()+"/Cleaned";
+    std::string rundirMET_miniaod=RunDirMET+inputMETLabelMiniAOD_.label()+"/Cleaned";
+    MonitorElement* mMET_Reco=iget_.get(rundirMET_reco+"/"+"MET");
+    MonitorElement* mMEy_Reco=iget_.get(rundirMET_reco+"/"+"MEy");
+    MonitorElement* mSumET_Reco=iget_.get(rundirMET_reco+"/"+"SumET");
+    MonitorElement* mMETPhi_Reco=iget_.get(rundirMET_reco+"/"+"METPhi");
+    MonitorElement* mMET_logx_Reco=iget_.get(rundirMET_reco+"/"+"MET_logx");
+    MonitorElement* mSumET_logx_Reco=iget_.get(rundirMET_reco+"/"+"SumET_logx");
+    MonitorElement* mChargedHadronEtFraction_Reco=iget_.get(rundirMET_reco+"/"+"PfChargedHadronEtFraction");
+    MonitorElement* mNeutralHadronEtFraction_Reco=iget_.get(rundirMET_reco+"/"+"PfNeutralHadronEtFraction");
+    MonitorElement* mPhotonEtFraction_Reco=iget_.get(rundirMET_reco+"/"+"PfPhotonEtFraction");
+    MonitorElement* mHFHadronEtFraction_Reco=iget_.get(rundirMET_reco+"/"+"PfHFHadronEtFraction");
+    MonitorElement* mHFEMEtFraction_Reco=iget_.get(rundirMET_reco+"/"+"PfHFEMEtFraction");
+    MonitorElement* mMET_nVtx_profile_Reco=iget_.get(rundirMET_reco+"/"+"MET_profile");
+    MonitorElement* mSumET_nVtx_profile_Reco=iget_.get(rundirMET_reco+"/"+"SumET_profile");
+    MonitorElement* mChargedHadronEtFraction_nVtx_profile_Reco=iget_.get(rundirMET_reco+"/"+"PfChargedHadronEtFraction_profile");
+    MonitorElement* mNeutralHadronEtFraction_nVtx_profile_Reco=iget_.get(rundirMET_reco+"/"+"PfNeutralHadronEtFraction_profile");
+    MonitorElement* mPhotonEtFraction_nVtx_profile_Reco=iget_.get(rundirMET_reco+"/"+"PfPhotonEtFraction_profile");
+
+    MonitorElement* mMET_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"MET");
+    MonitorElement* mMEy_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"MEy");
+    MonitorElement* mSumET_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"SumET");
+    MonitorElement* mMETPhi_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"METPhi");
+    MonitorElement* mMET_logx_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"MET_logx");
+    MonitorElement* mSumET_logx_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"SumET_logx");
+    MonitorElement* mChargedHadronEtFraction_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"PfChargedHadronEtFraction");
+    MonitorElement* mNeutralHadronEtFraction_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"PfNeutralHadronEtFraction");
+    MonitorElement* mPhotonEtFraction_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"PfPhotonEtFraction");
+    MonitorElement* mHFHadronEtFraction_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"PfHFHadronEtFraction");
+    MonitorElement* mHFEMEtFraction_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"PfHFEMEtFraction");
+    MonitorElement* mMET_nVtx_profile_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"MET_profile");
+    MonitorElement* mSumET_nVtx_profile_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"SumET_profile");
+    MonitorElement* mChargedHadronEtFraction_nVtx_profile_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"PfChargedHadronEtFraction_profile");
+    MonitorElement* mNeutralHadronEtFraction_nVtx_profile_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"PfNeutralHadronEtFraction_profile");
+    MonitorElement* mPhotonEtFraction_nVtx_profile_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"PfPhotonEtFraction_profile");
+
+    ibook_.setCurrentFolder(RunDirMET+"MiniAOD_over_RECO");
+    mMET_MiniAOD_over_Reco=ibook_.book1D("MET_MiniAOD_over_RECO",(TH1F*)mMET_Reco->getRootObject());
+    mMEy_MiniAOD_over_Reco=ibook_.book1D("MEy_MiniAOD_over_RECO",(TH1F*)mMEy_Reco->getRootObject());
+    mSumET_MiniAOD_over_Reco=ibook_.book1D("SumET_MiniAOD_over_RECO",(TH1F*)mSumET_Reco->getRootObject());
+    mMETPhi_MiniAOD_over_Reco=ibook_.book1D("METPhi_MiniAOD_over_RECO",(TH1F*)mMETPhi_Reco->getRootObject());
+    mMET_logx_MiniAOD_over_Reco=ibook_.book1D("MET_logx_MiniAOD_over_RECO",(TH1F*)mMET_logx_Reco->getRootObject());
+    mSumET_logx_MiniAOD_over_Reco=ibook_.book1D("SumET_logx_MiniAOD_over_RECO",(TH1F*)mSumET_logx_Reco->getRootObject());
+    mChargedHadronEtFraction_MiniAOD_over_Reco=ibook_.book1D("PfChargedHadronEtFraction_MiniAOD_over_RECO",(TH1F*)mChargedHadronEtFraction_Reco->getRootObject());
+    mNeutralHadronEtFraction_MiniAOD_over_Reco=ibook_.book1D("PfNeutralHadronEtFraction_MiniAOD_over_RECO",(TH1F*)mNeutralHadronEtFraction_Reco->getRootObject());
+    mPhotonEtFraction_MiniAOD_over_Reco=ibook_.book1D("PfPhotonEtFraction_MiniAOD_over_RECO",(TH1F*)mPhotonEtFraction_Reco->getRootObject());
+    mHFHadronEtFraction_MiniAOD_over_Reco=ibook_.book1D("PfHFHadronEtFraction_MiniAOD_over_RECO",(TH1F*)mHFHadronEtFraction_Reco->getRootObject());
+    mHFEMEtFraction_MiniAOD_over_Reco=ibook_.book1D("PfHFEMEtFraction_MiniAOD_over_RECO",(TH1F*)mHFEMEtFraction_Reco->getRootObject());
+    //use same parameters defining X-Axis of the profiles
+    mMET_nVtx_profile_MiniAOD_over_Reco=ibook_.book1D("MET_profile_MiniAOD_over_RECO","MET_vs_nVtx",nbinsPV_, nPVMin_, nPVMax_);
+    mSumET_nVtx_profile_MiniAOD_over_Reco=ibook_.book1D("SumET_profile_MiniAOD_over_RECO","SumME_vs_nVtx",nbinsPV_, nPVMin_, nPVMax_);
+    mChargedHadronEtFraction_nVtx_profile_MiniAOD_over_Reco=ibook_.book1D("PfChargedHadronEtFraction_profile_MiniAOD_over_RECO","PfChargedHadronEtFraction_vs_nVtx",nbinsPV_, nPVMin_, nPVMax_);
+    mNeutralHadronEtFraction_nVtx_profile_MiniAOD_over_Reco=ibook_.book1D("PfNeutralHadronEtFraction_profile_MiniAOD_over_RECO","PfNeutralHadronEtFraction_vs_nVtx",nbinsPV_, nPVMin_, nPVMax_);
+    mPhotonEtFraction_nVtx_profile_MiniAOD_over_Reco=ibook_.book1D("PfPhotonEtFraction_profile_MiniAOD_over_RECO","PfPhotonEtFraction_vs_nVtx",nbinsPV_, nPVMin_, nPVMax_);
+
+    for(int i=0;i<=(mMET_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mMET_Reco->getBinContent(i)!=0){
+	mMET_MiniAOD_over_Reco->setBinContent(i,mMET_MiniAOD->getBinContent(i)/mMET_Reco->getBinContent(i));
+      }else if(mMET_MiniAOD->getBinContent(i)!=0){
+	mMET_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mMEy_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mMEy_Reco->getBinContent(i)!=0){
+	mMEy_MiniAOD_over_Reco->setBinContent(i,mMEy_MiniAOD->getBinContent(i)/mMEy_Reco->getBinContent(i));
+      }else if(mMEy_MiniAOD->getBinContent(i)!=0){
+	mMEy_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mSumET_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mSumET_Reco->getBinContent(i)!=0){
+	mSumET_MiniAOD_over_Reco->setBinContent(i,mSumET_MiniAOD->getBinContent(i)/mSumET_Reco->getBinContent(i));
+      }else if(mSumET_MiniAOD->getBinContent(i)!=0){
+	mSumET_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mMETPhi_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mMETPhi_Reco->getBinContent(i)!=0){
+	mMETPhi_MiniAOD_over_Reco->setBinContent(i,mMETPhi_MiniAOD->getBinContent(i)/mMETPhi_Reco->getBinContent(i));
+      }else if(mMETPhi_MiniAOD->getBinContent(i)!=0){
+	mMETPhi_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mMET_logx_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mMET_logx_Reco->getBinContent(i)!=0){
+	mMET_logx_MiniAOD_over_Reco->setBinContent(i,mMET_logx_MiniAOD->getBinContent(i)/mMET_logx_Reco->getBinContent(i));
+      }else if(mMET_logx_MiniAOD->getBinContent(i)!=0){
+	mMET_logx_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mSumET_logx_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mSumET_logx_Reco->getBinContent(i)!=0){
+	mSumET_logx_MiniAOD_over_Reco->setBinContent(i,mSumET_logx_MiniAOD->getBinContent(i)/mSumET_logx_Reco->getBinContent(i));
+      }else if(mSumET_logx_MiniAOD->getBinContent(i)!=0){
+	mSumET_logx_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mChargedHadronEtFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mChargedHadronEtFraction_Reco->getBinContent(i)!=0){
+	mChargedHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,mChargedHadronEtFraction_MiniAOD->getBinContent(i)/mChargedHadronEtFraction_Reco->getBinContent(i));
+      }else if(mChargedHadronEtFraction_MiniAOD->getBinContent(i)!=0){
+	mChargedHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    } 
+    for(int i=0;i<=(mNeutralHadronEtFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mNeutralHadronEtFraction_Reco->getBinContent(i)!=0){
+	mNeutralHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,mNeutralHadronEtFraction_MiniAOD->getBinContent(i)/mNeutralHadronEtFraction_Reco->getBinContent(i));
+      }else if(mNeutralHadronEtFraction_MiniAOD->getBinContent(i)!=0){
+	mNeutralHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mPhotonEtFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mPhotonEtFraction_Reco->getBinContent(i)!=0){
+	mPhotonEtFraction_MiniAOD_over_Reco->setBinContent(i,mPhotonEtFraction_MiniAOD->getBinContent(i)/mPhotonEtFraction_Reco->getBinContent(i));
+      }else if(mPhotonEtFraction_MiniAOD->getBinContent(i)!=0){
+	mPhotonEtFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mHFHadronEtFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mHFHadronEtFraction_Reco->getBinContent(i)!=0){
+	mHFHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,mHFHadronEtFraction_MiniAOD->getBinContent(i)/mHFHadronEtFraction_Reco->getBinContent(i));
+      }else if(mHFHadronEtFraction_MiniAOD->getBinContent(i)!=0){
+	mHFHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mHFEMEtFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mHFEMEtFraction_Reco->getBinContent(i)!=0){
+	mHFEMEtFraction_MiniAOD_over_Reco->setBinContent(i,mHFEMEtFraction_MiniAOD->getBinContent(i)/mHFEMEtFraction_Reco->getBinContent(i));
+      }else if(mHFEMEtFraction_MiniAOD->getBinContent(i)!=0){
+	mHFEMEtFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mMET_nVtx_profile_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mMET_nVtx_profile_Reco->getBinContent(i)!=0){
+	mMET_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,mMET_nVtx_profile_MiniAOD->getBinContent(i)/mMET_nVtx_profile_Reco->getBinContent(i));
+      }else if(mMET_nVtx_profile_MiniAOD->getBinContent(i)!=0){
+	mMET_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mSumET_nVtx_profile_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mSumET_nVtx_profile_Reco->getBinContent(i)!=0){
+	mSumET_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,mSumET_nVtx_profile_MiniAOD->getBinContent(i)/mSumET_nVtx_profile_Reco->getBinContent(i));
+      }else if(mSumET_nVtx_profile_MiniAOD->getBinContent(i)!=0){
+	mSumET_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mChargedHadronEtFraction_nVtx_profile_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mChargedHadronEtFraction_nVtx_profile_Reco->getBinContent(i)!=0){
+	mChargedHadronEtFraction_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,mChargedHadronEtFraction_nVtx_profile_MiniAOD->getBinContent(i)/mChargedHadronEtFraction_nVtx_profile_Reco->getBinContent(i));
+      }else if(mChargedHadronEtFraction_nVtx_profile_MiniAOD->getBinContent(i)!=0){
+	mChargedHadronEtFraction_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mNeutralHadronEtFraction_nVtx_profile_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mNeutralHadronEtFraction_nVtx_profile_Reco->getBinContent(i)!=0){
+	mNeutralHadronEtFraction_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,mNeutralHadronEtFraction_nVtx_profile_MiniAOD->getBinContent(i)/mNeutralHadronEtFraction_nVtx_profile_Reco->getBinContent(i));
+      }else if(mNeutralHadronEtFraction_nVtx_profile_MiniAOD->getBinContent(i)!=0){
+	mNeutralHadronEtFraction_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mPhotonEtFraction_nVtx_profile_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mPhotonEtFraction_nVtx_profile_Reco->getBinContent(i)!=0){
+	mPhotonEtFraction_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,mPhotonEtFraction_nVtx_profile_MiniAOD->getBinContent(i)/mPhotonEtFraction_nVtx_profile_Reco->getBinContent(i));
+      }else if(mPhotonEtFraction_nVtx_profile_MiniAOD->getBinContent(i)!=0){
+	mPhotonEtFraction_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+  }
+
+
+
+  //put RECO vs MiniAODDir first ->second Jets
+  std::vector<std::string> subDirVecJet;
+  //go only for cleaned directory
+  std::string RunDirJet="JetMET/Jet/";
+  iget_.setCurrentFolder(RunDirJet);
+  subDirVecJet=iget_.getSubdirs();
+  bool found_Jetreco_dir=false;
+  bool found_Jetminiaod_dir=false;
+  for (int i=0; i<int(subDirVecJet.size()); i++) {
+    ibook_.setCurrentFolder(subDirVecJet[i]);  
+    if(subDirVecJet[i]==(RunDirJet+"Cleaned"+inputJetLabelRECO_.label())){
+      found_Jetreco_dir=true;
+    }
+    if(subDirVecJet[i]==(RunDirJet+"Cleaned"+inputJetLabelMiniAOD_.label())){
+      found_Jetminiaod_dir=true;
+    }
+  }
+  if(found_Jetreco_dir && found_Jetminiaod_dir){
+    std::string rundirJet_reco=RunDirJet+"Cleaned"+inputJetLabelRECO_.label();
+    std::string rundirJet_miniaod=RunDirJet+"Cleaned"+inputJetLabelMiniAOD_.label();
+
+    MonitorElement* mPt_Reco=iget_.get(rundirJet_reco+"/"+"Pt");
+    MonitorElement* mEta_Reco=iget_.get(rundirJet_reco+"/"+"Eta");
+    MonitorElement* mPhi_Reco=iget_.get(rundirJet_reco+"/"+"Phi");
+    MonitorElement* mNjets_Reco=iget_.get(rundirJet_reco+"/"+"NJets");
+    MonitorElement* mPt_uncor_Reco=iget_.get(rundirJet_reco+"/"+"Pt_uncor");
+    MonitorElement* mEta_uncor_Reco=iget_.get(rundirJet_reco+"/"+"Eta_uncor");
+    MonitorElement* mPhi_uncor_Reco=iget_.get(rundirJet_reco+"/"+"Phi_uncor");
+    MonitorElement* mJetEnergyCorr_Reco=iget_.get(rundirJet_reco+"/"+"JetEnergyCorr");
+    MonitorElement* mJetEnergyCorrVSeta_Reco=iget_.get(rundirJet_reco+"/"+"JetEnergyCorrVSEta");
+    MonitorElement* mDPhi_Reco=iget_.get(rundirJet_reco+"/"+"DPhi");
+    MonitorElement* mLooseJIDPassFractionVSeta_Reco=iget_.get(rundirJet_reco+"/"+"JetIDPassFractionVSeta");
+    MonitorElement* mPt_Barrel_Reco=iget_.get(rundirJet_reco+"/"+"Pt_Barrel");
+    MonitorElement* mPt_EndCap_Reco=iget_.get(rundirJet_reco+"/"+"Pt_EndCap");
+    MonitorElement* mPt_Forward_Reco=iget_.get(rundirJet_reco+"/"+"Pt_Forward");
+    MonitorElement* mMVAPUJIDDiscriminant_lowPt_Barrel_Reco=iget_.get(rundirJet_reco+"/"+"MVAPUJIDDiscriminant_lowPt_Barrel");
+    MonitorElement* mMVAPUJIDDiscriminant_lowPt_EndCap_Reco=iget_.get(rundirJet_reco+"/"+"MVAPUJIDDiscriminant_lowPt_EndCap");
+    MonitorElement* mMVAPUJIDDiscriminant_lowPt_Forward_Reco=iget_.get(rundirJet_reco+"/"+"MVAPUJIDDiscriminant_lowPt_Forward");
+    MonitorElement* mMVAPUJIDDiscriminant_mediumPt_EndCap_Reco=iget_.get(rundirJet_reco+"/"+"MVAPUJIDDiscriminant_mediumPt_EndCap");
+    MonitorElement* mMVAPUJIDDiscriminant_highPt_Barrel_Reco=iget_.get(rundirJet_reco+"/"+"MVAPUJIDDiscriminant_highPt_Barrel");
+    MonitorElement* mCHFracVSpT_Barrel_Reco=iget_.get(rundirJet_reco+"/"+"CHFracVSpT_Barrel");
+    MonitorElement* mNHFracVSpT_EndCap_Reco=iget_.get(rundirJet_reco+"/"+"NHFracVSpT_EndCap");
+    MonitorElement* mPhFracVSpT_Barrel_Reco=iget_.get(rundirJet_reco+"/"+"PhFracVSpT_Barrel");
+    MonitorElement* mHFHFracVSpT_Forward_Reco=iget_.get(rundirJet_reco+"/"+"HFHFracVSpT_Forward");
+    MonitorElement* mHFEFracVSpT_Forward_Reco=iget_.get(rundirJet_reco+"/"+"HFEFracVSpT_Forward");
+    MonitorElement* mCHFrac_Reco=iget_.get(rundirJet_reco+"/DiJet/"+"CHFrac");
+    MonitorElement* mNHFrac_Reco=iget_.get(rundirJet_reco+"/DiJet/"+"NHFrac");
+    MonitorElement* mPhFrac_Reco=iget_.get(rundirJet_reco+"/DiJet/"+"PhFrac");
+    MonitorElement* mChargedMultiplicity_Reco=iget_.get(rundirJet_reco+"/DiJet/"+"ChargedMultiplicity");
+    MonitorElement* mNeutralMultiplicity_Reco=iget_.get(rundirJet_reco+"/DiJet/"+"NeutralMultiplicity");
+    MonitorElement* mMuonMultiplicity_Reco=iget_.get(rundirJet_reco+"/DiJet/"+"MuonMultiplicity");
+    MonitorElement* mNeutralFraction_Reco=iget_.get(rundirJet_reco+"/DiJet/"+"NeutralConstituentsFraction");    
+    MonitorElement* mPt_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"Pt");
+    MonitorElement* mEta_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"Eta");
+    MonitorElement* mPhi_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"Phi");
+    MonitorElement* mNjets_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"NJets");
+    MonitorElement* mPt_uncor_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"Pt_uncor");
+    MonitorElement* mEta_uncor_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"Eta_uncor");
+    MonitorElement* mPhi_uncor_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"Phi_uncor");
+    MonitorElement* mJetEnergyCorr_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"JetEnergyCorr");
+    MonitorElement* mJetEnergyCorrVSeta_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"JetEnergyCorrVSEta");
+    MonitorElement* mDPhi_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"DPhi");
+    MonitorElement* mLooseJIDPassFractionVSeta_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"JetIDPassFractionVSeta");
+    MonitorElement* mPt_Barrel_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"Pt_Barrel");
+    MonitorElement* mPt_EndCap_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"Pt_EndCap");
+    MonitorElement* mPt_Forward_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"Pt_Forward");
+    MonitorElement* mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"MVAPUJIDDiscriminant_lowPt_Barrel");
+    MonitorElement* mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"MVAPUJIDDiscriminant_lowPt_EndCap");
+    MonitorElement* mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"MVAPUJIDDiscriminant_lowPt_Forward");
+    MonitorElement* mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"MVAPUJIDDiscriminant_mediumPt_EndCap");
+    MonitorElement* mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"MVAPUJIDDiscriminant_highPt_Barrel");
+    MonitorElement* mCHFracVSpT_Barrel_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"CHFracVSpT_Barrel");
+    MonitorElement* mNHFracVSpT_EndCap_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"NHFracVSpT_EndCap");
+    MonitorElement* mPhFracVSpT_Barrel_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"PhFracVSpT_Barrel");
+    MonitorElement* mHFHFracVSpT_Forward_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"HFHFracVSpT_Forward");
+    MonitorElement* mHFEFracVSpT_Forward_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"HFEFracVSpT_Forward");
+    MonitorElement* mCHFrac_MiniAOD=iget_.get(rundirJet_miniaod+"/DiJet/"+"CHFrac");
+    MonitorElement* mNHFrac_MiniAOD=iget_.get(rundirJet_miniaod+"/DiJet/"+"NHFrac");
+    MonitorElement* mPhFrac_MiniAOD=iget_.get(rundirJet_miniaod+"/DiJet/"+"PhFrac");
+    MonitorElement* mChargedMultiplicity_MiniAOD=iget_.get(rundirJet_miniaod+"/DiJet/"+"ChargedMultiplicity");
+    MonitorElement* mNeutralMultiplicity_MiniAOD=iget_.get(rundirJet_miniaod+"/DiJet/"+"NeutralMultiplicity");
+    MonitorElement* mMuonMultiplicity_MiniAOD=iget_.get(rundirJet_miniaod+"/DiJet/"+"MuonMultiplicity");
+    MonitorElement* mNeutralFraction_MiniAOD=iget_.get(rundirJet_miniaod+"/DiJet/"+"NeutralConstituentsFraction");    
+    ibook_.setCurrentFolder(RunDirJet+"MiniAOD_over_RECO");
+    mPt_MiniAOD_over_Reco=ibook_.book1D("Pt_MiniAOD_over_RECO",(TH1F*)mPt_Reco->getRootObject());
+    mEta_MiniAOD_over_Reco=ibook_.book1D("Eta_MiniAOD_over_RECO",(TH1F*)mEta_Reco->getRootObject());
+    mPhi_MiniAOD_over_Reco=ibook_.book1D("Phi_MiniAOD_over_RECO",(TH1F*)mPhi_Reco->getRootObject());
+    mNjets_MiniAOD_over_Reco=ibook_.book1D("NJets_MiniAOD_over_RECO",(TH1F*)mNjets_Reco->getRootObject());
+    mPt_uncor_MiniAOD_over_Reco=ibook_.book1D("Pt_uncor_MiniAOD_over_RECO",(TH1F*)mPt_uncor_Reco->getRootObject());
+    mEta_uncor_MiniAOD_over_Reco=ibook_.book1D("Eta_uncor_MiniAOD_over_RECO",(TH1F*)mEta_uncor_Reco->getRootObject());
+    mPhi_uncor_MiniAOD_over_Reco=ibook_.book1D("Phi_uncor_MiniAOD_over_RECO",(TH1F*)mPhi_uncor_Reco->getRootObject());
+    mJetEnergyCorr_MiniAOD_over_Reco=ibook_.book1D("JetEnergyCorr_MiniAOD_over_RECO",(TH1F*)mJetEnergyCorr_Reco->getRootObject());
+    mJetEnergyCorrVSeta_MiniAOD_over_Reco=ibook_.book1D("JetEnergyCorrVSEta_MiniAOD_over_RECO",  "jet energy correction factor VS eta", etaBin_, etaMin_,etaMax_);
+    mDPhi_MiniAOD_over_Reco=ibook_.book1D("DPhi_MiniAOD_over_RECO",(TH1F*)mDPhi_Reco->getRootObject());
+    mLooseJIDPassFractionVSeta_MiniAOD_over_Reco=ibook_.book1D("JetIDPassFractionVSeta_MiniAOD_over_RECO","JetIDPassFractionVSeta", etaBin_, etaMin_,etaMax_);
+    mPt_Barrel_MiniAOD_over_Reco=ibook_.book1D("Pt_Barrel_MiniAOD_over_RECO",(TH1F*)mPt_Barrel_Reco->getRootObject());
+    mPt_EndCap_MiniAOD_over_Reco=ibook_.book1D("Pt_EndCap_MiniAOD_over_RECO",(TH1F*)mPt_EndCap_Reco->getRootObject());
+    mPt_Forward_MiniAOD_over_Reco=ibook_.book1D("Pt_Forward_MiniAOD_over_RECO",(TH1F*)mPt_Forward_Reco->getRootObject());
+    mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD_over_Reco=ibook_.book1D("MVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD_over_RECO",(TH1F*)mMVAPUJIDDiscriminant_lowPt_Barrel_Reco->getRootObject());
+    mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD_over_Reco=ibook_.book1D("MVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD_over_RECO",(TH1F*)mMVAPUJIDDiscriminant_lowPt_EndCap_Reco->getRootObject());
+    mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD_over_Reco=ibook_.book1D("MVAPUJIDDiscriminant_lowPt_Forward_MiniAOD_over_RECO",(TH1F*)mMVAPUJIDDiscriminant_lowPt_Forward_Reco->getRootObject());
+    mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_Reco=ibook_.book1D("MVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_RECO",(TH1F*)mMVAPUJIDDiscriminant_mediumPt_EndCap_Reco->getRootObject());
+    mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD_over_Reco=ibook_.book1D("MVAPUJIDDiscriminant_highPt_Barrel_MiniAOD_over_RECO",(TH1F*)mMVAPUJIDDiscriminant_highPt_Barrel_Reco->getRootObject());
+    mCHFracVSpT_Barrel_MiniAOD_over_Reco=ibook_.book1D("CHFracVSpT_Barrel_MiniAOD_over_RECO","CHFracVSpT_Barrel", ptBin_, ptMin_,ptMax_);
+    mNHFracVSpT_EndCap_MiniAOD_over_Reco=ibook_.book1D("NHFracVSpT_EndCap_MiniAOD_over_RECO","NHFracVSpT_EndCap", ptBin_, ptMin_,ptMax_);
+    mPhFracVSpT_Barrel_MiniAOD_over_Reco=ibook_.book1D("PhFracVSpT_Barrel_MiniAOD_over_RECO","PhFracVSpT_Barrel", ptBin_, ptMin_,ptMax_);
+    mHFHFracVSpT_Forward_MiniAOD_over_Reco=ibook_.book1D("HFHFracVSpT_Forward_MiniAOD_over_RECO","HFHFracVSpT_Forward", ptBin_, ptMin_,ptMax_);
+    mHFEFracVSpT_Forward_MiniAOD_over_Reco=ibook_.book1D("HFEFracVSpT_Forward_MiniAOD_over_RECO","HFEFracVSpT_Forward", ptBin_, ptMin_,ptMax_);
+    mCHFrac_MiniAOD_over_Reco=ibook_.book1D("CHFrac_MiniAOD_over_RECO",(TH1F*)mCHFrac_Reco->getRootObject());
+    mNHFrac_MiniAOD_over_Reco=ibook_.book1D("NHFrac_MiniAOD_over_RECO",(TH1F*)mNHFrac_Reco->getRootObject());
+    mPhFrac_MiniAOD_over_Reco=ibook_.book1D("PhFrac_MiniAOD_over_RECO",(TH1F*)mPhFrac_Reco->getRootObject());
+    mChargedMultiplicity_MiniAOD_over_Reco=ibook_.book1D("ChargedMultiplicity_MiniAOD_over_RECO",(TH1F*)mChargedMultiplicity_Reco->getRootObject());
+    mNeutralMultiplicity_MiniAOD_over_Reco=ibook_.book1D("NeutralMultiplicity_MiniAOD_over_RECO",(TH1F*)mNeutralMultiplicity_Reco->getRootObject());
+    mMuonMultiplicity_MiniAOD_over_Reco=ibook_.book1D("MuonMultiplicity_MiniAOD_over_RECO",(TH1F*)mMuonMultiplicity_Reco->getRootObject());
+    mNeutralFraction_MiniAOD_over_Reco=ibook_.book1D("NeutralConstituentsFraction_MiniAOD_over_RECO",(TH1F*)mNeutralFraction_Reco->getRootObject());
+    for(int i=0;i<=(mPt_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mPt_Reco->getBinContent(i)!=0){
+	mPt_MiniAOD_over_Reco->setBinContent(i,mPt_MiniAOD->getBinContent(i)/mPt_Reco->getBinContent(i));
+      }else if(mPt_MiniAOD->getBinContent(i)!=0){
+	mPt_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mEta_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mEta_Reco->getBinContent(i)!=0){
+	mEta_MiniAOD_over_Reco->setBinContent(i,mEta_MiniAOD->getBinContent(i)/mEta_Reco->getBinContent(i));
+      }else if(mEta_MiniAOD->getBinContent(i)!=0){
+	mEta_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mPhi_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mPhi_Reco->getBinContent(i)!=0){
+	mPhi_MiniAOD_over_Reco->setBinContent(i,mPhi_MiniAOD->getBinContent(i)/mPhi_Reco->getBinContent(i));
+      }else if(mPhi_MiniAOD->getBinContent(i)!=0){
+	mPhi_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mNjets_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mNjets_Reco->getBinContent(i)!=0){
+	mNjets_MiniAOD_over_Reco->setBinContent(i,mNjets_MiniAOD->getBinContent(i)/mNjets_Reco->getBinContent(i));
+      }else if(mNjets_MiniAOD->getBinContent(i)!=0){
+	mNjets_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mPt_uncor_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mPt_uncor_Reco->getBinContent(i)!=0){
+	mPt_uncor_MiniAOD_over_Reco->setBinContent(i,mPt_uncor_MiniAOD->getBinContent(i)/mPt_uncor_Reco->getBinContent(i));
+      }else if(mPt_uncor_MiniAOD->getBinContent(i)!=0){
+	mPt_uncor_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mEta_uncor_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mEta_uncor_Reco->getBinContent(i)!=0){
+	mEta_uncor_MiniAOD_over_Reco->setBinContent(i,mEta_uncor_MiniAOD->getBinContent(i)/mEta_uncor_Reco->getBinContent(i));
+      }else if(mEta_uncor_MiniAOD->getBinContent(i)!=0){
+	mEta_uncor_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mPhi_uncor_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mPhi_uncor_Reco->getBinContent(i)!=0){
+	mPhi_uncor_MiniAOD_over_Reco->setBinContent(i,mPhi_uncor_MiniAOD->getBinContent(i)/mPhi_uncor_Reco->getBinContent(i));
+      }else if(mPhi_uncor_MiniAOD->getBinContent(i)!=0){
+	mPhi_uncor_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mJetEnergyCorr_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mJetEnergyCorr_Reco->getBinContent(i)!=0){
+	mJetEnergyCorr_MiniAOD_over_Reco->setBinContent(i,mJetEnergyCorr_MiniAOD->getBinContent(i)/mJetEnergyCorr_Reco->getBinContent(i));
+      }else if(mJetEnergyCorr_MiniAOD->getBinContent(i)!=0){
+	mJetEnergyCorr_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mJetEnergyCorrVSeta_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mJetEnergyCorrVSeta_Reco->getBinContent(i)!=0){
+	mJetEnergyCorrVSeta_MiniAOD_over_Reco->setBinContent(i,mJetEnergyCorrVSeta_MiniAOD->getBinContent(i)/mJetEnergyCorrVSeta_Reco->getBinContent(i));
+      }else if(mJetEnergyCorrVSeta_MiniAOD->getBinContent(i)!=0){
+	mJetEnergyCorrVSeta_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mDPhi_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mDPhi_Reco->getBinContent(i)!=0){
+	mDPhi_MiniAOD_over_Reco->setBinContent(i,mDPhi_MiniAOD->getBinContent(i)/mDPhi_Reco->getBinContent(i));
+      }else if(mDPhi_MiniAOD->getBinContent(i)!=0){
+	mDPhi_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mLooseJIDPassFractionVSeta_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mLooseJIDPassFractionVSeta_Reco->getBinContent(i)!=0){
+	mLooseJIDPassFractionVSeta_MiniAOD_over_Reco->setBinContent(i,mLooseJIDPassFractionVSeta_MiniAOD->getBinContent(i)/mLooseJIDPassFractionVSeta_Reco->getBinContent(i));
+      }else if(mLooseJIDPassFractionVSeta_MiniAOD_over_Reco->getBinContent(i)!=0){
+	mLooseJIDPassFractionVSeta_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mPt_Barrel_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mPt_Barrel_Reco->getBinContent(i)!=0){
+	mPt_Barrel_MiniAOD_over_Reco->setBinContent(i,mPt_Barrel_MiniAOD->getBinContent(i)/mPt_Barrel_Reco->getBinContent(i));
+      }else if(mPt_Barrel_MiniAOD->getBinContent(i)!=0){
+	mPt_Barrel_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mPt_EndCap_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mPt_EndCap_Reco->getBinContent(i)!=0){
+	mPt_EndCap_MiniAOD_over_Reco->setBinContent(i,mPt_EndCap_MiniAOD->getBinContent(i)/mPt_EndCap_Reco->getBinContent(i));
+      }else if(mPt_EndCap_MiniAOD->getBinContent(i)!=0){
+	mPt_EndCap_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mPt_Forward_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mPt_Forward_Reco->getBinContent(i)!=0){
+	mPt_Forward_MiniAOD_over_Reco->setBinContent(i,mPt_Forward_MiniAOD->getBinContent(i)/mPt_Forward_Reco->getBinContent(i));
+      }else if(mPt_Forward_MiniAOD->getBinContent(i)!=0){
+	mPt_Forward_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mMVAPUJIDDiscriminant_lowPt_Barrel_Reco->getBinContent(i)!=0){
+	mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD_over_Reco->setBinContent(i,mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD->getBinContent(i)/mMVAPUJIDDiscriminant_lowPt_Barrel_Reco->getBinContent(i));
+      }else if(mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD->getBinContent(i)!=0){
+	mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mMVAPUJIDDiscriminant_lowPt_EndCap_Reco->getBinContent(i)!=0){
+	mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD_over_Reco->setBinContent(i,mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD->getBinContent(i)/mMVAPUJIDDiscriminant_lowPt_EndCap_Reco->getBinContent(i));
+      }else if(mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD->getBinContent(i)!=0){
+	mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mMVAPUJIDDiscriminant_lowPt_Forward_Reco->getBinContent(i)!=0){
+	mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD_over_Reco->setBinContent(i,mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD->getBinContent(i)/mMVAPUJIDDiscriminant_lowPt_Forward_Reco->getBinContent(i));
+      }else if(mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD->getBinContent(i)!=0){
+	mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mMVAPUJIDDiscriminant_mediumPt_EndCap_Reco->getBinContent(i)!=0){
+	mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_Reco->setBinContent(i,mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD->getBinContent(i)/mMVAPUJIDDiscriminant_mediumPt_EndCap_Reco->getBinContent(i));
+      }else if(mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD->getBinContent(i)!=0){
+	mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mMVAPUJIDDiscriminant_highPt_Barrel_Reco->getBinContent(i)!=0){
+	mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD_over_Reco->setBinContent(i,mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD->getBinContent(i)/mMVAPUJIDDiscriminant_highPt_Barrel_Reco->getBinContent(i));
+      }else if(mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD->getBinContent(i)!=0){
+	mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mCHFracVSpT_Barrel_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mCHFracVSpT_Barrel_Reco->getBinContent(i)!=0){
+	mCHFracVSpT_Barrel_MiniAOD_over_Reco->setBinContent(i,mCHFracVSpT_Barrel_MiniAOD->getBinContent(i)/mCHFracVSpT_Barrel_Reco->getBinContent(i));
+      }else if(mCHFracVSpT_Barrel_MiniAOD->getBinContent(i)!=0){
+	mCHFracVSpT_Barrel_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mNHFracVSpT_EndCap_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mNHFracVSpT_EndCap_Reco->getBinContent(i)!=0){
+	mNHFracVSpT_EndCap_MiniAOD_over_Reco->setBinContent(i,mNHFracVSpT_EndCap_MiniAOD->getBinContent(i)/mNHFracVSpT_EndCap_Reco->getBinContent(i));
+      }else if(mNHFracVSpT_EndCap_MiniAOD->getBinContent(i)!=0){
+	mNHFracVSpT_EndCap_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mPhFracVSpT_Barrel_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mPhFracVSpT_Barrel_Reco->getBinContent(i)!=0){
+	mPhFracVSpT_Barrel_MiniAOD_over_Reco->setBinContent(i,mPhFracVSpT_Barrel_MiniAOD->getBinContent(i)/mPhFracVSpT_Barrel_Reco->getBinContent(i));
+      }else if(mPhFracVSpT_Barrel_MiniAOD->getBinContent(i)!=0){
+	mPhFracVSpT_Barrel_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    } 
+    for(int i=0;i<=(mHFHFracVSpT_Forward_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mHFHFracVSpT_Forward_Reco->getBinContent(i)!=0){
+	mHFHFracVSpT_Forward_MiniAOD_over_Reco->setBinContent(i,mHFHFracVSpT_Forward_MiniAOD->getBinContent(i)/mHFHFracVSpT_Forward_Reco->getBinContent(i));
+      }else if(mHFHFracVSpT_Forward_MiniAOD->getBinContent(i)!=0){
+	mHFHFracVSpT_Forward_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mHFEFracVSpT_Forward_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mHFEFracVSpT_Forward_Reco->getBinContent(i)!=0){
+	mHFEFracVSpT_Forward_MiniAOD_over_Reco->setBinContent(i,mHFEFracVSpT_Forward_MiniAOD->getBinContent(i)/mHFEFracVSpT_Forward_Reco->getBinContent(i));
+      }else if(mHFEFracVSpT_Forward_MiniAOD->getBinContent(i)!=0){
+	mHFEFracVSpT_Forward_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mCHFrac_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mCHFrac_Reco->getBinContent(i)!=0){
+	mCHFrac_MiniAOD_over_Reco->setBinContent(i,mCHFrac_MiniAOD->getBinContent(i)/mCHFrac_Reco->getBinContent(i));
+      }else if(mCHFrac_MiniAOD->getBinContent(i)!=0){
+	mCHFrac_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mNHFrac_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mNHFrac_Reco->getBinContent(i)!=0){
+	mNHFrac_MiniAOD_over_Reco->setBinContent(i,mNHFrac_MiniAOD->getBinContent(i)/mNHFrac_Reco->getBinContent(i));
+      }else if(mNHFrac_MiniAOD->getBinContent(i)!=0){
+	mNHFrac_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mPhFrac_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mPhFrac_Reco->getBinContent(i)!=0){
+	mPhFrac_MiniAOD_over_Reco->setBinContent(i,mPhFrac_MiniAOD->getBinContent(i)/mPhFrac_Reco->getBinContent(i));
+      }else if(mPhFrac_MiniAOD->getBinContent(i)!=0){
+	mPhFrac_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mChargedMultiplicity_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mChargedMultiplicity_Reco->getBinContent(i)!=0){
+	mChargedMultiplicity_MiniAOD_over_Reco->setBinContent(i,mChargedMultiplicity_MiniAOD->getBinContent(i)/mChargedMultiplicity_Reco->getBinContent(i));
+      }else if(mChargedMultiplicity_MiniAOD->getBinContent(i)!=0){
+	mChargedMultiplicity_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mNeutralMultiplicity_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mNeutralMultiplicity_Reco->getBinContent(i)!=0){
+	mNeutralMultiplicity_MiniAOD_over_Reco->setBinContent(i,mNeutralMultiplicity_MiniAOD->getBinContent(i)/mNeutralMultiplicity_Reco->getBinContent(i));
+      }else if(mNeutralMultiplicity_MiniAOD->getBinContent(i)!=0){
+	mNeutralMultiplicity_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mMuonMultiplicity_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mMuonMultiplicity_Reco->getBinContent(i)!=0){
+	mMuonMultiplicity_MiniAOD_over_Reco->setBinContent(i,mMuonMultiplicity_MiniAOD->getBinContent(i)/mMuonMultiplicity_Reco->getBinContent(i));
+      }else if(mMuonMultiplicity_MiniAOD->getBinContent(i)!=0){
+	mMuonMultiplicity_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+    for(int i=0;i<=(mNeutralFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
+      if(mNeutralFraction_Reco->getBinContent(i)!=0){
+	mNeutralFraction_MiniAOD_over_Reco->setBinContent(i,mNeutralFraction_MiniAOD->getBinContent(i)/mNeutralFraction_Reco->getBinContent(i));
+      }else if(mNeutralFraction_MiniAOD->getBinContent(i)!=0){
+	mNeutralFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
+      }
+    }
+  }
+
   if (verbose_) std::cout << ">>> EndRun (DataCertificationJetMET) <<<" << std::endl;
 
   std::vector<std::string> subDirVec;
   std::string RunDir;
-  std::string RunNum;
 
-  std::string RefRunDir;
 
   if (verbose_) std::cout << "InMemory_           = " << InMemory_    << std::endl;
 

@@ -276,11 +276,11 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
 
     
   if(isCaloMet_){
-    hCaloHadEtInHB          = ibooker.book1D("CaloHadEtInHB","CaloHadEtInHB",100,0,2000);
+    hCaloHadEtInHB          = ibooker.book1D("CaloHadEtInHB","CaloHadEtInHB",50,0,2000);
     hCaloHadEtInHB->setAxisTitle("Had Et [GeV]",1);
     hCaloHadEtInHO          = ibooker.book1D("CaloHadEtInHO","CaloHadEtInHO",25,0,500);
     hCaloHadEtInHO->setAxisTitle("Had Et [GeV]",1);
-    hCaloHadEtInHE          = ibooker.book1D("CaloHadEtInHE","CaloHadEtInHE",100,0,2000);
+    hCaloHadEtInHE          = ibooker.book1D("CaloHadEtInHE","CaloHadEtInHE",50,0,2000);
     hCaloHadEtInHE->setAxisTitle("Had Et [GeV]",1);
     hCaloHadEtInHF          = ibooker.book1D("CaloHadEtInHF","CaloHadEtInHF",50,0,1000);
     hCaloHadEtInHF->setAxisTitle("Had Et [GeV]",1);
@@ -288,7 +288,7 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
     hCaloEmEtInHF->setAxisTitle("EM Et [GeV]",1);
     hCaloEmEtInEE           = ibooker.book1D("CaloEmEtInEE" ,"CaloEmEtInEE" ,50,0,1000);
     hCaloEmEtInEE->setAxisTitle("EM Et [GeV]",1);
-    hCaloEmEtInEB           = ibooker.book1D("CaloEmEtInEB" ,"CaloEmEtInEB" ,100,0,2000);
+    hCaloEmEtInEB           = ibooker.book1D("CaloEmEtInEB" ,"CaloEmEtInEB" ,50,0,2000);
     hCaloEmEtInEB->setAxisTitle("EM Et [GeV]",1);
 
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CaloHadEtInHO",hCaloHadEtInHO));
@@ -302,12 +302,12 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
     hCaloMETPhi020  = ibooker.book1D("CaloMETPhi020",  "CaloMETPhi020",   60, -M_PI,  M_PI);
     hCaloMETPhi020 ->setAxisTitle("METPhi [rad] (MET>20 GeV)", 1);
 
-    hCaloEtFractionHadronic = ibooker.book1D("CaloEtFractionHadronic","CaloEtFractionHadronic",100,0,1);
+    hCaloEtFractionHadronic = ibooker.book1D("CaloEtFractionHadronic","CaloEtFractionHadronic",50,0,1);
     hCaloEtFractionHadronic->setAxisTitle("Hadronic Et Fraction",1);
-    hCaloEmEtFraction       = ibooker.book1D("CaloEmEtFraction",      "CaloEmEtFraction"      ,100,0,1);
+    hCaloEmEtFraction       = ibooker.book1D("CaloEmEtFraction",      "CaloEmEtFraction"      ,50,0,1);
     hCaloEmEtFraction->setAxisTitle("EM Et Fraction",1);
     
-    hCaloEmEtFraction020    = ibooker.book1D("CaloEmEtFraction020",   "CaloEmEtFraction020"      ,100,0,1);
+    hCaloEmEtFraction020    = ibooker.book1D("CaloEmEtFraction020",   "CaloEmEtFraction020"      ,50,0,1);
     hCaloEmEtFraction020->setAxisTitle("EM Et Fraction (MET>20 GeV)",1);
 
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CaloMETPhi020",hCaloMETPhi020));
@@ -645,13 +645,13 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
       map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFEGammasPlus"                ,meMETPhiHFEGammasPlus));
       map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METPhiHFEGammasMinus"               ,meMETPhiHFEGammasMinus));
     }
-    mePhotonEt                = ibooker.book1D("PfPhotonEt",                "photonEt()",                100, 0, 1000);
-    meNeutralHadronEt         = ibooker.book1D("PfNeutralHadronEt",         "neutralHadronEt()",         100, 0, 1000);
-    meElectronEt              = ibooker.book1D("PfElectronEt",              "electronEt()",              100, 0, 100);
-    meChargedHadronEt         = ibooker.book1D("PfChargedHadronEt",         "chargedHadronEt()",         100, 0, 1000);
-    meMuonEt                  = ibooker.book1D("PfMuonEt",                  "muonEt()",                  100, 0, 100);
-    meHFHadronEt              = ibooker.book1D("PfHFHadronEt",              "HFHadronEt()",              100, 0, 1000);
-    meHFEMEt                  = ibooker.book1D("PfHFEMEt",                  "HFEMEt()",                  100, 0, 1000);
+    mePhotonEt                = ibooker.book1D("PfPhotonEt",                "photonEt()",                50, 0, 1000);
+    meNeutralHadronEt         = ibooker.book1D("PfNeutralHadronEt",         "neutralHadronEt()",         50, 0, 1000);
+    meElectronEt              = ibooker.book1D("PfElectronEt",              "electronEt()",              50, 0, 100);
+    meChargedHadronEt         = ibooker.book1D("PfChargedHadronEt",         "chargedHadronEt()",         50, 0, 1000);
+    meMuonEt                  = ibooker.book1D("PfMuonEt",                  "muonEt()",                  50, 0, 100);
+    meHFHadronEt              = ibooker.book1D("PfHFHadronEt",              "HFHadronEt()",              50, 0, 1000);
+    meHFEMEt                  = ibooker.book1D("PfHFEMEt",                  "HFEMEt()",                  50, 0, 1000);
 
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEt"               ,mePhotonEt));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralHadronEt"        ,meNeutralHadronEt));
@@ -661,11 +661,11 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFHadronEt"             ,meHFHadronEt));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFEMEt"                 ,meHFEMEt));
 
-    mePhotonEt_profile                = ibooker.bookProfile("PfPhotonEt_profile",                "photonEt()",                nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
-    meNeutralHadronEt_profile         = ibooker.bookProfile("PfNeutralHadronEt_profile",         "neutralHadronEt()",         nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
-    meChargedHadronEt_profile         = ibooker.bookProfile("PfChargedHadronEt_profile",         "chargedHadronEt()",         nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
-    meHFHadronEt_profile              = ibooker.bookProfile("PfHFHadronEt_profile",              "HFHadronEt()",              nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
-    meHFEMEt_profile                  = ibooker.bookProfile("PfHFEMEt_profile",                  "HFEMEt()",                  nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
+    mePhotonEt_profile                = ibooker.bookProfile("PfPhotonEt_profile",                "photonEt()",                nbinsPV_, nPVMin_, nPVMax_, 50, 0, 1000);
+    meNeutralHadronEt_profile         = ibooker.bookProfile("PfNeutralHadronEt_profile",         "neutralHadronEt()",         nbinsPV_, nPVMin_, nPVMax_, 50, 0, 1000);
+    meChargedHadronEt_profile         = ibooker.bookProfile("PfChargedHadronEt_profile",         "chargedHadronEt()",         nbinsPV_, nPVMin_, nPVMax_, 50, 0, 1000);
+    meHFHadronEt_profile              = ibooker.bookProfile("PfHFHadronEt_profile",              "HFHadronEt()",              nbinsPV_, nPVMin_, nPVMax_, 50, 0, 1000);
+    meHFEMEt_profile                  = ibooker.bookProfile("PfHFEMEt_profile",                  "HFEMEt()",                  nbinsPV_, nPVMin_, nPVMax_, 50, 0, 1000);
     
     mePhotonEt_profile               ->setAxisTitle("nvtx", 1);
     meNeutralHadronEt_profile        ->setAxisTitle("nvtx", 1);
