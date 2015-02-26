@@ -30,23 +30,26 @@
 #include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
 
+
 namespace edm {
         class Event;
         class EventSetup;
         class ParameterSet;
+        class ParameterSetDescription;
 }
 
 class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
                 EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&, edm::ConsumesCollector& c);
-				//EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&);
+		EcalUncalibRecHitWorkerMultiFit() {};
                 virtual ~EcalUncalibRecHitWorkerMultiFit() {};
 
                 void set(const edm::EventSetup& es) override;
                 void set(const edm::Event& evt) override;
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
-
+		
+		edm::ParameterSetDescription getAlgoDescription();
         protected:
 
                 double pedVec[3];

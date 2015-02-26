@@ -25,16 +25,20 @@ namespace edm {
         class Event;
         class EventSetup;
         class ParameterSet;
+	class ParameterSetDescription;
 }
 
 class EcalUncalibRecHitWorkerWeights : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
                 EcalUncalibRecHitWorkerWeights(const edm::ParameterSet&, edm::ConsumesCollector& c);
+		EcalUncalibRecHitWorkerWeights() {};
                 virtual ~EcalUncalibRecHitWorkerWeights() {};
 
                 void set(const edm::EventSetup& es);
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
+
+		edm::ParameterSetDescription getAlgoDescription();
 
         protected:
 
