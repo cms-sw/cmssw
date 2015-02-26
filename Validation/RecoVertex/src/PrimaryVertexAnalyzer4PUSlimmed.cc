@@ -1027,8 +1027,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
                                                   const simPrimaryVertex& rhs) {
                                                  return lhs.ptsq < rhs.ptsq;
                                                }) == simpv.begin();
-  kind_of_signal_vertex = (kind_of_signal_vertex & ~(1<<HIGHEST_PT)) |
-      (signal_is_highest_pt << HIGHEST_PT);
+  kind_of_signal_vertex |= (signal_is_highest_pt << HIGHEST_PT);
   mes_["root_folder"]["SignalIsHighestPt2"]->Fill(
       signal_is_highest_pt ? 1. : 0.);
   computePairDistance(simpv,
@@ -1067,14 +1066,10 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
         if (std::find(v.rec_vertices.begin(), v.rec_vertices.end(),
                       &((*recVtxs.product())[0])) != v.rec_vertices.end()) {
           mistag = 0.;
-          kind_of_signal_vertex =
-              (kind_of_signal_vertex & ~(1<<IS_ASSOC2FIRST_RECO)) |
-              (signal_is_highest_pt << IS_ASSOC2FIRST_RECO);
+          kind_of_signal_vertex |= (signal_is_highest_pt << IS_ASSOC2FIRST_RECO);
         } else {
           if (v.rec_vertices.size()) {
-            kind_of_signal_vertex =
-                (kind_of_signal_vertex & ~(1<<IS_ASSOC2ANY_RECO)) |
-                (signal_is_highest_pt << IS_ASSOC2ANY_RECO);
+            kind_of_signal_vertex |= (signal_is_highest_pt << IS_ASSOC2ANY_RECO);
           }
         }
         mes_[label]["KindOfSignalPV"]->Fill(kind_of_signal_vertex);
