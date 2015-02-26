@@ -32,7 +32,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring()
 ) 
 process.PoolSource.fileNames = [
-"file:reco_trk_SingleMuPt10_UP15_10evts.root",
+  "file:reco_trk.root",
 ]
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
