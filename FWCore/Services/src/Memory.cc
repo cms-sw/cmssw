@@ -696,8 +696,7 @@ namespace edm {
             << "MemoryCheck: " << type << " "
             << mdname << ":" << mdlabel
             << " VSIZE " << current_->vsize << " " << deltaVSIZE
-            << " RSS " << current_->rss << " " << deltaRSS
-            << "\n";
+            << " RSS " << current_->rss << " " << deltaRSS;
           } else {
 #ifdef __linux__
             struct mallinfo minfo = mallinfo();
@@ -716,7 +715,7 @@ namespace edm {
             << " HEAP-USED-BYTES " << minfo.uordblks
             << " HEAP-UNUSED-BYTES " << minfo.fordblks
 #endif
-            << "\n";
+            ;
           }
         }
       }
