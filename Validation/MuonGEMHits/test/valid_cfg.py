@@ -18,6 +18,9 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.Validation_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Validation.MuonGEMHits.MuonGEMHits_cfi')
+
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
@@ -54,6 +57,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 )
 
 # Additional output definition
+process.genvalid_all += (process.gemHitsValidation)
 
 # Other statements
 process.mix.playback = True

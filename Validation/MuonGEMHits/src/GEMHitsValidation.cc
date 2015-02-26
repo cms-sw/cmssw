@@ -5,6 +5,7 @@
 
 GEMHitsValidation::GEMHitsValidation(const edm::ParameterSet& cfg):  GEMBaseValidation(cfg)
 {
+  InputTagToken_ = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("simInputLabel"));
 }
 
 void GEMHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
@@ -101,7 +102,7 @@ void GEMHitsValidation::analyze(const edm::Event& e,
 {
 
   edm::Handle<edm::PSimHitContainer> GEMHits;
-  e.getByToken(inputToken_, GEMHits);
+  e.getByToken(InputTagToken_, GEMHits);
   if (!GEMHits.isValid()) {
     edm::LogError("GEMHitsValidation") << "Cannot get GEMHits by Token simInputTagToken";
     return ;
@@ -164,3 +165,4 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     gem_sh_xy_st_ch[hist_name.str()]->Fill( g_x, g_y); 
    }
 }
+

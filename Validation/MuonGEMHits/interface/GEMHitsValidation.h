@@ -25,6 +25,7 @@ public:
   MonitorElement* gem_sh_elossMu[2][3][2];
 
   Int_t npart;
+  edm::EDGetToken InputTagToken_;
 
 };
 
