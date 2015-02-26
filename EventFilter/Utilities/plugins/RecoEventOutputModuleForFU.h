@@ -41,7 +41,8 @@ namespace evf {
     virtual void stop() const;
     virtual void doOutputHeader(InitMsgBuilder const& init_message) const;
     virtual void doOutputEvent(EventMsgBuilder const& msg) const;
-    //    virtual void beginRun(edm::RunPrincipal const&);
+    //virtual void beginRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*);
+    virtual void beginJob();
     virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*);
     virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*);
 
@@ -147,9 +148,6 @@ namespace evf {
     jsonMonitor_->registerGlobalMonitorable(&transferDestination_,false);
     jsonMonitor_->commit(nullptr);
 
-    //get stream transfer destination
-    transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(stream_label_);
-
   }
   
   template<typename Consumer>
@@ -221,6 +219,14 @@ namespace evf {
     Consumer::fillDescription(desc);
     descriptions.add("streamerOutput", desc);
   }
+
+  template<typename Consumer>
+  void RecoEventOutputModuleForFU<Consumer>::beginJob()
+  {
+    //get stream transfer destination
+    transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(stream_label_);
+  }
+
 
   template<typename Consumer>
   void RecoEventOutputModuleForFU<Consumer>::beginLuminosityBlock(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*)

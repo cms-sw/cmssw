@@ -224,7 +224,6 @@ namespace evf {
     pthread_mutex_init(&init_lock_,NULL);
 
     stopFilePath_ = run_dir_+"/CMSSW_STOP";
-    checkTransferSystemPSet();//TODO - see other locations we can call before ini file
   }
 
   EvFDaqDirector::~EvFDaqDirector()
@@ -257,6 +256,8 @@ namespace evf {
     }
     nThreads_=bounds.maxNumberOfStreams();
     nStreams_=bounds.maxNumberOfThreads();
+
+    checkTransferSystemPSet();
   }
 
   void EvFDaqDirector::preBeginRun(edm::GlobalContext const& globalContext) {
@@ -900,16 +901,19 @@ namespace evf {
       }
     }
     //return empty if strict check parameter is not on
-    if (!requireTSPSet_ && selectedTransferMode_=="") {
+    if (!requireTSPSet_ && (selectedTransferMode_=="" || selectedTransferMode_=="null")) {
       edm::LogWarning("EvFDaqDirector") << "Selected mode string is not provided as DaqDirector parameter."
                                         << "Switch on requireTSPSet parameter to enforce this requirement. Setting mode to empty string.";
       return std::string();
+    }
+    if (requireTSPSet_ && (selectedTransferMode_=="" || selectedTransferMode_=="null")) {
+      throw cms::Exception("EvFDaqDirector") << "Selected mode string is not provided as DaqDirector parameter.";
     }
     //check if stream has properly listed transfer stream
     if  (!transferSystemJson_->get(streamRequestName, "").isMember(selectedTransferMode_.c_str()))
     {
          std::stringstream msg;
-         msg << "Selected transfer mode" << selectedTransferMode_ << " is not specified for stream " << streamRequestName;
+         msg << "Selected transfer mode " << selectedTransferMode_ << " is not specified for stream " << streamRequestName;
          if (requireTSPSet_)
            throw cms::Exception("EvFDaqDirector") << msg.str();
          else
