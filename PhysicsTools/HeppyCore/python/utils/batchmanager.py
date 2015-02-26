@@ -58,13 +58,18 @@ class BatchManager:
             if "psi.ch" in self.remoteOutputDir_: # T3 @ PSI:
                 # overwriting protection to be improved
                 if self.remoteOutputDir_.startswith("/pnfs/psi.ch"):
+                    ld_lib_path = os.environ.get('LD_LIBRARY_PATH')
+                    if ld_lib_path != "None":
+                        os.environ['LD_LIBRARY_PATH'] = "/usr/lib64/:"+ld_lib_path  # to solve gfal conflict with CMSSW
                     os.system("gfal-mkdir srm://t3se01.psi.ch/"+self.remoteOutputDir_)
-                    outputDir = self.options_.outputDir
+                    outputDir = self.options_.outputDir.rstrip("/").split("/")[-1]
                     if outputDir==None:
                         today = datetime.today()
                         outputDir = 'OutCmsBatch_%s' % today.strftime("%d%h%y_%H%M")
                     self.remoteOutputDir_+="/"+outputDir
                     os.system("gfal-mkdir srm://t3se01.psi.ch/"+self.remoteOutputDir_)
+                    if ld_lib_path != "None":
+                        os.environ['LD_LIBRARY_PATH'] = ld_lib_path  # back to original to avoid conflicts
                 else:
                     print "remote directory must start with /pnfs/psi.ch to send to the tier3 at PSI"
                     print self.remoteOutputDir_, "not valid"
