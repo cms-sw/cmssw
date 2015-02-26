@@ -19,6 +19,10 @@ SimHitTPAssociationProducer::SimHitTPAssociationProducer(const edm::ParameterSet
     _trackingParticleSrc(cfg.getParameter<edm::InputTag>("trackingParticleSrc"))
 {
   produces<SimHitTPAssociationList>();
+  consumes<TrackingParticleCollection>(_trackingParticleSrc);
+  for(auto const& psit : _simHitSrc) {
+    consumes<edm::PSimHitContainer>(psit);
+  }
 }
 
 SimHitTPAssociationProducer::~SimHitTPAssociationProducer() {
@@ -44,9 +48,9 @@ void SimHitTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventSe
   }
 
   // PSimHits
-  for (auto psit=_simHitSrc.begin();psit<_simHitSrc.end();++psit) {
+  for (auto const& psit : _simHitSrc ) {
     edm::Handle<edm::PSimHitContainer>  PSimHitCollectionH;
-    iEvent.getByLabel(*psit,  PSimHitCollectionH);
+    iEvent.getByLabel(psit,  PSimHitCollectionH);
     for (unsigned int psimHit = 0;psimHit != PSimHitCollectionH->size();++psimHit) {
       TrackPSimHitRef pSimHitRef(PSimHitCollectionH,psimHit);
       std::pair<uint32_t, EncodedEventId> simTkIds(pSimHitRef->trackId(),pSimHitRef->eventId()); 
