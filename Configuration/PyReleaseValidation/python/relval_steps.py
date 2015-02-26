@@ -114,6 +114,7 @@ step1Defaults = {'--relval'      : None, # need to be explicitly set
 step1Up2015Defaults = {'-s' : 'GEN,SIM',
                              '-n'            : 10,
                              '--conditions'  : 'auto:run2_mc',
+                             '--beamspot'    : 'NominalCollision2015',
                              '--datatier'    : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
                              '--magField'    : '38T_PostLS1',
@@ -333,7 +334,7 @@ baseDataSetRelease=[
     'CMSSW_7_1_0_pre5-START71_V1-v1',   # 8 TeV , for the one sample which is part of the routine relval production (MinBias)
     'CMSSW_7_1_0_pre5-START71_V1-v2',   # 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                         # this an previous should be unified, when -v2 will be gone
-    'CMSSW_7_1_0_pre8-PRE_LS171_V9-v1', # 13 TeV samples with GEN-SIM from 710pre8;
+    'CMSSW_7_1_14-MCRUN2_71_V1-v1', # 13 TeV samples with GEN-SIM from 7_1_14;
     'CMSSW_7_1_0_pre8-PRE_LS171_V9_finesplit-v2', #SingleMu GEN-SIM from 710pre8
     ]
 
@@ -824,6 +825,7 @@ step1FastDefaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
 step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
                            '--fast':'',
                            '--conditions'  :'auto:run2_mc',
+                           '--conditions'  :'NominalCollision2015',
                            '--magField'    :'38T_PostLS1',
                            '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
