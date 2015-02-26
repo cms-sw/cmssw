@@ -26,16 +26,16 @@
 Vx3DHLTAnalyzer::Vx3DHLTAnalyzer (const ParameterSet& iConfig)
 {
   debugMode   = true;
-  nLumiReset  = 1;     // Number of integrated lumis to perform the fit
+  nLumiReset  = 2;     // Number of integrated lumis to perform the fit
   dataFromFit = true;  // The Beam Spot data can be either taken from the histograms or from the fit results
-  minNentries = 35;    // Minimum number of good vertices to perform the fit
-  xRange      = 2.;    // [cm]
+  minNentries = 20;    // Minimum number of good vertices to perform the fit
+  xRange      = 1.;    // [cm]
   xStep       = 0.001; // [cm]
-  yRange      = 2.;    // [cm]
+  yRange      = 1.;    // [cm]
   yStep       = 0.001; // [cm]
   zRange      = 30.;   // [cm]
   zStep       = 0.05;  // [cm]
-  VxErrCorr   = 1.5;
+  VxErrCorr   = 1.3;
   fileName    = "BeamPixelResults.txt";
 
   vertexCollection   = consumes<VertexCollection>       (iConfig.getUntrackedParameter<InputTag>("vertexCollection",   InputTag("pixelVertices")));
@@ -1026,13 +1026,30 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       myLinFit->SetParameter(1, 0.0);
       goodVxCounter->getTH1()->Fit(myLinFit,"QR");
 
+      delete myLinFit;
+
+      // Exponential fit to the historical plots
+      TF1* myExpFit = new TF1("myExpFit", "[0]*exp(-x/[1])", hitCountHistory->getTH1()->GetXaxis()->GetXmin(), hitCountHistory->getTH1()->GetXaxis()->GetXmax());
+      myExpFit->SetLineColor(2);
+      myExpFit->SetLineWidth(2);
+      myExpFit->SetParName(0,"Amplitude");
+      myExpFit->SetParName(1,"#tau");
+
+      myExpFit->SetParameter(0, hitCountHistory->getTH1()->GetBinContent(1));
+      myExpFit->SetParameter(1, nBinsWholeHistory/2);
+      hitCountHistory->getTH1()->Fit(myExpFit,"QR");
+
       if (lastLumiOfFit % prescaleHistory == 0)
 	{
 	  goodVxCountHistory->getTH1()->SetBinContent(lastLumiOfFit, (double)counterVx);
 	  goodVxCountHistory->getTH1()->SetBinError(lastLumiOfFit, std::sqrt((double)counterVx));
+	  
+	  myExpFit->SetParameter(0, goodVxCountHistory->getTH1()->GetBinContent(1));
+	  myExpFit->SetParameter(1, nBinsWholeHistory/2);
+	  goodVxCountHistory->getTH1()->Fit(myExpFit,"QR");
 	}
 
-      delete myLinFit;
+      delete myExpFit;
 
       vals.clear();
     }
