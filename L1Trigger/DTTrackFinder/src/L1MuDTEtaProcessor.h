@@ -38,7 +38,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTAddressArray.h"
+class L1MuDTChambThContainer;
 class L1MuDTTrackSegEta;
 class L1MuDTTrackFinder;
 class L1MuDTTrack;
@@ -118,6 +120,7 @@ class L1MuDTEtaProcessor {
     L1MuDTTrack*                              m_TrackCand[12];    
     L1MuDTTrack*                              m_TracKCand[12];    
     std::vector<const L1MuDTTrackSegEta*>     m_tseta;
+    edm::EDGetTokenT<L1MuDTChambThContainer>  m_DTDigiToken;
     
     edm::ESHandle< L1MuDTEtaPatternLut >  theEtaPatternLUT;  // ETF look-up table
     edm::ESHandle< L1MuDTQualPatternLut > theQualPatternLUT; // EMU look-up tables

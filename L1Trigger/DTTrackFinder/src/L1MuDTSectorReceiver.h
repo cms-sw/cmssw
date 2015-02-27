@@ -36,9 +36,15 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+class L1MuDTChambPhContainer;
 class L1MuDTSectorProcessor;
 class L1MuDTTFParameters;
 class L1MuDTTFMasks;
+template<typename T> class CSCTriggerContainer;
+namespace csctf {
+  class TrackStub;
+}
 
 //              ---------------------
 //              -- Class Interface --
@@ -77,6 +83,8 @@ class L1MuDTSectorReceiver {
   private:
 
     L1MuDTSectorProcessor& m_sp;
+    edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
+    edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > m_CSCTrSToken;
 
     edm::ESHandle< L1MuDTTFParameters > pars;
     edm::ESHandle< L1MuDTTFMasks >      msks;

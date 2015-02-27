@@ -69,7 +69,7 @@ L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet & ps,edm::ConsumesC
   _cache.reserve(4*17);
   _cache0.reserve(144*17);
 
-  iC.consumes<L1MuDTChambPhContainer>(L1MuDTTFConfig::getDTDigiInputTag());
+  m_DTDigiToken = iC.consumes<L1MuDTChambPhContainer>(L1MuDTTFConfig::getDTDigiInputTag());
 }
 
 
@@ -154,7 +154,7 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
   // run the barrel Muon Trigger Track Finder
 
   edm::Handle<L1MuDTChambPhContainer> dttrig;
-  e.getByLabel(L1MuDTTFConfig::getDTDigiInputTag(),dttrig);
+  e.getByToken(m_DTDigiToken,dttrig);
   if ( dttrig->getContainer()->size() == 0 ) return;
 
   if ( L1MuDTTFConfig::Debug(2) ) cout << endl;
