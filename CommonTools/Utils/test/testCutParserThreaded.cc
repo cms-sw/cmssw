@@ -7,6 +7,8 @@
 #include "TObject.h"
 #include "TVirtualStreamerInfo.h"
 
+#include "Cintex/Cintex.h"
+
 #include <thread>
 #include <atomic>
 #include <iostream>
@@ -38,6 +40,8 @@ int main() {
   std::atomic<int> canStartEval{kNThreads};
   std::atomic<bool> failed{false};
   std::vector<std::thread> threads;
+
+  ROOT::Cintex::Cintex::Enable();
 
   TThread::Initialize();
   //When threading, also have to keep ROOT from logging all TObjects into a list

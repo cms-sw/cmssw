@@ -229,7 +229,7 @@ void testCutParser::checkAll() {
   CPPUNIT_ASSERT_THROW((*sel)(o), reco::parser::Exception);                     // it throws wen called
 
   sel.reset();
-  CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("quality('notAnEnum')",sel, false), edm::Exception);
+  CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("quality('notAnEnum')",sel, false), cms::Exception);
 
   // check hits (for re-implemented virtual functions and exception handling)
   CPPUNIT_ASSERT(hitOk.hasPositionAndError());
