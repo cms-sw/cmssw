@@ -43,6 +43,8 @@ namespace edm {
       /// in the Event. No type checking is done.
       virtual bool isAvailable() const { return ref_.isAvailable(); }
 
+      virtual bool isTransient() const { return ref_.isTransient(); }
+
       //Used by ROOT storage
       CMS_CLASS_VERSION(10)
 

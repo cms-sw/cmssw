@@ -66,6 +66,8 @@ namespace edm {
       /// in the Event. No type checking is done.
       virtual bool isAvailable() const = 0;
 
+      virtual bool isTransient() const = 0;
+
       //Used by ROOT storage
       CMS_CLASS_VERSION(10)
 

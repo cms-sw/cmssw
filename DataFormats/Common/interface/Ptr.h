@@ -99,6 +99,11 @@ namespace edm {
     key_(item_key) {
     }
 
+    Ptr(ProductID const& productID, T const* item, key_type item_key, bool transient) :
+    core_(productID, item, 0, transient),
+    key_(item_key) {
+    }
+
     /** Constructor that creates an invalid ("null") Ptr that is
      associated with a given product (denoted by that product's
      ProductID). */

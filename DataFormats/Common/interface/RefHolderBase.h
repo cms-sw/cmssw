@@ -45,6 +45,8 @@ namespace edm {
       /// in the Event. No type checking is done.
       virtual bool isAvailable() const = 0;
 
+      virtual bool isTransient() const = 0;
+
     private:
       // "cast" the real type of the element (the T of contained Ref),
       // and cast it to the type specified by toType.

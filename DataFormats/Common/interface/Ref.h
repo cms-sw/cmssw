@@ -206,8 +206,13 @@ namespace edm {
     Ref(ProductID const& iProductID, T const* item, key_type itemKey, C const* /* iProduct */) :
       product_(iProductID, item, 0, false), index_(itemKey)
     { }
+
     Ref(ProductID const& iProductID, T const* item, key_type itemKey) :
       product_(iProductID, item, 0, false), index_(itemKey)
+    { }
+
+    Ref(ProductID const& iProductID, T const* item, key_type itemKey, bool transient) :
+      product_(iProductID, item, 0, transient), index_(itemKey)
     { }
 
     /// Constructor that creates an invalid ("null") Ref that is
@@ -355,10 +360,15 @@ namespace edm {
     Ref(ProductID const& iProductID, T const* item, key_type itemKey, product_type const* /* iProduct */) :
     product_(iProductID, item, 0, false, itemKey)
     { }
+
     Ref(ProductID const& iProductID, T const* item, key_type itemKey) :
     product_(iProductID, item, 0, false, itemKey)
     { }
-    
+
+    Ref(ProductID const& iProductID, T const* item, key_type itemKey, bool transient) :
+    product_(iProductID, item, 0, transient, itemKey)
+    { }
+
     /// Constructor that creates an invalid ("null") Ref that is
     /// associated with a given product (denoted by that product's
     /// ProductID).

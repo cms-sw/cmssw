@@ -11,7 +11,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
@@ -116,13 +118,11 @@ namespace edmtest
     tester<std::deque<int> >::call(this, e, "intdeque");
     tester<std::set<int> >::call(this, e, "intset");
 
-
     tester<SCSimpleProduct>::call(this, e, "simple");
     tester<OVSimpleProduct>::call(this, e, "ovsimple");
 
     // This is commented out because it causes a missing dictionary failure
     tester<AVSimpleProduct>::call(this, e, "avsimple");
-
 
     testDSVProduct(e, "dsvsimple");
     testProductWithBaseClass(e, "ovsimple");
@@ -246,6 +246,8 @@ namespace edmtest
     
     assert(hprod->size() == hview->size());
 
+    unsigned slot = 0;
+
     sequence_t::const_iterator i_prod = hprod->begin();
     sequence_t::const_iterator e_prod = hprod->end();
     view_t::const_iterator     i_view = hview->begin();
@@ -256,7 +258,21 @@ namespace edmtest
 	Simple const& view = *i_view;
         assert(prod == view);
 
+        // Tack on a test of RefToBase::castTo here
+
+        edm::RefToBaseProd<Simple> refToBaseProd(hview);
+        edm::RefToBase<Simple> refToBase(refToBaseProd, slot);
+
+        edm::Ptr<SimpleDerived> ptr = refToBase.castTo<edm::Ptr<SimpleDerived> >();
+        SimpleDerived const& valueFromPtr = *ptr;
+        assert(valueFromPtr == view);
+
+        edm::Ref<edm::OwnVector<SimpleDerived>  > ref = refToBase.castTo<edm::Ref<edm::OwnVector<SimpleDerived> > >();
+        SimpleDerived const& valueFromRef = *ref;
+        assert(valueFromRef == view);
+
 	++i_prod; ++i_view;
+        ++slot;
     }
   }
 
@@ -290,12 +306,18 @@ namespace edmtest
 	value_t const& view_item = *i_view;
         assert(product_item == view_item);
 
+         // Tack on a test of RefToBase::castTo here
         edm::RefToBaseProd<int> refToBaseProd(hview);
-        // size_t index = hview->refAt(slot).key();
         edm::RefToBase<int> refToBase(refToBaseProd, slot);
-        edm::Ref<std::vector<int> > ref = refToBase.castTo<edm::Ref<std::vector<int> > >();
+
+        edm::Ptr<int> ref = refToBase.castTo<edm::Ptr<int> >();
         int item_other = *ref;
         assert(item_other == product_item);
+
+        edm::Ref<std::vector<int> > ref2 = refToBase.castTo<edm::Ref<std::vector<int> > >();
+        int item_other2 = *ref2;
+        assert(item_other2 == product_item);
+
 	++i_product; ++i_view; ++slot;
     }
   }
