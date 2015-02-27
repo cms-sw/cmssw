@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
@@ -26,7 +27,7 @@ public:
 private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
-  std::vector<edm::InputTag> _simHitSrc;
-  edm::InputTag _trackingParticleSrc;
+  std::vector<edm::EDGetTokenT<edm::PSimHitContainer> > _simHitSrc;
+  edm::EDGetTokenT<TrackingParticleCollection> _trackingParticleSrc;
 };
 #endif
