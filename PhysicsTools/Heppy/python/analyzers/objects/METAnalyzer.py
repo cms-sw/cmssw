@@ -14,6 +14,8 @@ from ROOT import TLorentzVector, TVectorD
 import ROOT
 import math
 
+from copy import deepcopy
+
 class METAnalyzer( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(METAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
@@ -95,6 +97,20 @@ class METAnalyzer( Analyzer ):
     def makeMETs(self, event):
         event.met = self.handles['met'].product()[0]
         event.metNoPU = self.handles['nopumet'].product()[0]
+
+        #Shifted METs
+        #Uncertainties defined in https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/DataFormats/PatCandidates/interface/MET.h#L168
+        #event.met_shifted = []
+        for i in range(14):
+            m = deepcopy(event.met)
+            px  = m.shiftedPx(i);
+            py  = m.shiftedPy(i);
+            m.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+            #event.met_shifted += [m]
+            setattr(event, "met_shifted_{0}".format(i), m)
+        event.met_sig = event.met.significance()
+        event.met_sumet = event.met.sumEt()
+        #event.met_sigm = event.met.getSignificanceMatrix()
 
         ###https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/DataFormats/PatCandidates/interface/MET.h
         event.metraw = event.met.shiftedPt(12, 0)

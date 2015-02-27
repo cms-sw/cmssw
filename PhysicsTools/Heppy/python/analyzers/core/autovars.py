@@ -146,4 +146,32 @@ class NTupleCollection:
     def __repr__(self):
         return "<NTupleCollection[%s]>" % self.name
 
+    def get_cpp_declaration(self, isMC):
+        s = []
+        for v in self.objectType.allVars(isMC):
+            s += ["{0} {1}__{2}[{3}];".format(v.type.__name__, self.name, v.name, self.maxlen)]
+        return "\n".join(s)
+
+    def get_cpp_wrapper_class(self, isMC):
+        s = "class %s {\n" % self.name
+        s += "public:\n"
+        for v in self.objectType.allVars(isMC):
+            s += "    {0} {1};\n".format(v.type.__name__, v.name)
+        s += "};\n"
+        return s
+
+    def get_py_wrapper_class(self, isMC):
+        s = "class %s:\n" % self.name
+        s += "    def __init__(self, tree, n):\n"
+        for v in self.objectType.allVars(isMC):
+            if len(v.name)>0:
+                s += "        self.{0} = tree.{1}_{2}[n];\n".format(v.name, self.name, v.name)
+            else:
+                s += "        self.{0} = tree.{0}[n];\n".format(self.name)
+
+        s += "    @staticmethod\n"
+        s += "    def make_array(event):\n"
+        s += "        return [{0}(event.input, i) for i in range(event.input.n{0})]\n".format(self.name)
+        return s
+
 
