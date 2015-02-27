@@ -188,22 +188,22 @@ pfMetMultCorr = cms.EDProducer(
     "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
-        cms.InputTag("corrPfMetMult",  "e"),
-        cms.InputTag("corrPfMetMult",  "egammaHFInnerMostRingsMinus"),
-        cms.InputTag("corrPfMetMult",  "egammaHFInnerMostRingsPlus"),
+#        cms.InputTag("corrPfMetMult",  "e"), #Not in phys14 parametrization
+#        cms.InputTag("corrPfMetMult",  "egammaHFInnerMostRingsMinus"),#Not in phys14 parametrization
+#        cms.InputTag("corrPfMetMult",  "egammaHFInnerMostRingsPlus"),#Not in phys14 parametrization
         cms.InputTag("corrPfMetMult",  "egammaHFMinus"),
         cms.InputTag("corrPfMetMult",  "egammaHFPlus"),
         cms.InputTag("corrPfMetMult",  "gammaBarrel"),
         cms.InputTag("corrPfMetMult",  "gammaEndcapMinus"),
         cms.InputTag("corrPfMetMult",  "gammaEndcapPlus"),
-        cms.InputTag("corrPfMetMult",  "gammaForwardMinus"),
-        cms.InputTag("corrPfMetMult",  "gammaForwardPlus"),
+#        cms.InputTag("corrPfMetMult",  "gammaForwardMinus"),#Not in phys14 parametrization
+#        cms.InputTag("corrPfMetMult",  "gammaForwardPlus"),#Not in phys14 parametrization
         cms.InputTag("corrPfMetMult",  "h"),
         cms.InputTag("corrPfMetMult",  "h0Barrel"),
         cms.InputTag("corrPfMetMult",  "h0EndcapMinus"),
         cms.InputTag("corrPfMetMult",  "h0EndcapPlus"),
-        cms.InputTag("corrPfMetMult",  "hHFInnerMostRingsMinus"),
-        cms.InputTag("corrPfMetMult",  "hHFInnerMostRingsPlus"),
+#        cms.InputTag("corrPfMetMult",  "hHFInnerMostRingsMinus"),#Not in phys14 parametrization
+#        cms.InputTag("corrPfMetMult",  "hHFInnerMostRingsPlus"),#Not in phys14 parametrization
         cms.InputTag("corrPfMetMult",  "hHFMinus"),
         cms.InputTag("corrPfMetMult",  "hHFPlus")
     )

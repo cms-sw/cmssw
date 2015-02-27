@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -38,14 +39,18 @@ class MultShiftMETcorrInputProducer : public edm::EDProducer
  private:
 
   void produce(edm::Event&, const edm::EventSetup&);
+  static int translateTypeToAbsPdgId( reco::PFCandidate::ParticleType type );
 
+
+  edm::InputTag pflow_;
+  edm::InputTag vertices_;
   std::string moduleLabel_;
 
-//  edm::EDGetTokenT<edm::View<reco::MET> > token_;
-  edm::EDGetTokenT<std::vector<reco::PFCandidate> > pflowToken_;
+  std::vector<edm::ParameterSet> cfgCorrParameters_;
 
   std::vector<double> etaMin_, etaMax_;
-  std::vector<int> type_, counts_;
+  std::vector<int> type_, counts_, varType_;
+  std::vector<double> sumPt_;
   std::vector<TF1*> formula_x_;
   std::vector<TF1*> formula_y_;
 };
