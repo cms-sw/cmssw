@@ -85,5 +85,8 @@ class RawEventFileWriterForBU
 
   static RawEventFileWriterForBU* instance;
 
+  unsigned int lumiOpen_ = 0;
+  unsigned int lumiClosed_ = 0;
+
 };
 #endif

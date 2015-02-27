@@ -69,7 +69,6 @@ namespace evf{
       std::string getMergedDatChecksumFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getOpenInitFilePath(std::string const& stream) const;
       std::string getInitFilePath(std::string const& stream) const;
-      std::string getTransferFilePath(std::string const& stream) const;
       std::string getOpenProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getMergedProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
