@@ -40,6 +40,7 @@ class GeneratorAnalyzer( Analyzer ):
             event.genwzquarks   = [] # quarks from W,Z decays
             event.genbquarksFromTop = []
             event.genbquarksFromH   = []
+            event.genlepsFromTop = [] #mu/ele that have a t->W chain as ancestor, also contained in event.genleps
        event.genwzquarks and event.genbquarks, might have overlaps 
        event.genbquarksFromTop and event.genbquarksFromH are all contained in event.genbquarks
        
@@ -183,6 +184,7 @@ class GeneratorAnalyzer( Analyzer ):
             event.genwzquarks    = []
             event.genbquarksFromTop = []
             event.genbquarksFromH   = []
+            event.genlepsFromTop = []
             for p in event.generatorSummary:
                 id = abs(p.pdgId())
                 if id == 25: 
@@ -192,10 +194,23 @@ class GeneratorAnalyzer( Analyzer ):
                 elif id in {12,14,16}:
                     event.gennus.append(p)
                 elif id in {11,13}:
+                    #taus to separate vector
                     if abs(p.motherId) == 15:
                         event.gentauleps.append(p)
+                    #all muons and electrons
                     else:
                         event.genleps.append(p)
+                        momids = [(m, abs(m.pdgId())) for m in realGenMothers(p)]
+
+                        #have a look at the lepton mothers
+                        for mom, momid in momids:
+                            #lepton from W
+                            if momid == 24:
+                                wmomids = [abs(m.pdgId()) for m in realGenMothers(mom)]
+                                #W from t
+                                if 6 in wmomids:
+                                    #save mu,e from t->W->mu/e
+                                    event.genlepsFromTop.append(p)
                 elif id == 15:
                     if self.allGenTaus or not any([abs(d.pdgId()) in {11,13} for d in realGenDaughters(p)]):
                         event.gentaus.append(p)
