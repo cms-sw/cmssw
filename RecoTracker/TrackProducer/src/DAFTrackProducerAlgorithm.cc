@@ -360,7 +360,7 @@ void  DAFTrackProducerAlgorithm::filter(const TrajectoryFitter* fitter, std::vec
 
   LogDebug("DAFTrackProducerAlgorithm") << "Original number of valid hits " << input[0].foundHits() << "; after filtering " << ngoodhits;
   if (ngoodhits>input[0].foundHits()) 
-    LogError("DAFTrackProducerAlgorithm") << "Something wrong: the number of good hits from DAFTrackProducerAlgorithm::filter " 
+    edm::LogError("DAFTrackProducerAlgorithm") << "Something wrong: the number of good hits from DAFTrackProducerAlgorithm::filter " 
 					  << ngoodhits << " is higher than the original one " << input[0].foundHits();
 
   if (ngoodhits < minhits) return;	
