@@ -2,12 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 #--------------------------------------------------------------------------------
 # parametrization of MET x/y shift vs. sumEt
-from multPhiCorr_dy53X_cfi import multPhiCorr_dy53X as params
+from multPhiCorr_phys14_cfi import multPhiCorr_phys14 as params
 
 
 pfMEtMultShiftCorr = cms.EDProducer("MultShiftMETcorrInputProducer",
-#    src = cms.InputTag('pfMet'), # "raw"/uncorrected PFMEt, needed to access sumEt
     srcPFlow = cms.InputTag('particleFlow', ''),
+    vertexCollection = cms.InputTag('offlinePrimaryVertices'),
     parameters = params 
 )
 
