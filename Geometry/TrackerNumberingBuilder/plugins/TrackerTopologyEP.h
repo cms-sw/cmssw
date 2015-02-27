@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -23,6 +24,8 @@ public:
   ReturnType produce( const TrackerTopologyRcd & );
 
 private:
+  void fillParameters( const PTrackerParameters& );
+    
   TrackerTopology::PixelBarrelValues pxbVals_;
   TrackerTopology::PixelEndcapValues pxfVals_;
   TrackerTopology::TECValues tecVals_;
