@@ -24,9 +24,9 @@
 
 CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
 {
-  input_module = pset.getUntrackedParameter<edm::InputTag>("SectorReceiverInput");
-  dt_producer  = pset.getUntrackedParameter<edm::InputTag>("DTproducer");
-  directProd   = pset.getUntrackedParameter<edm::InputTag>("DtDirectProd");
+  input_module = consumes<CSCCorrelatedLCTDigiCollection>(pset.getUntrackedParameter<edm::InputTag>("SectorReceiverInput"));
+  dt_producer  = consumes<L1MuDTChambPhContainer>(pset.getUntrackedParameter<edm::InputTag>("DTproducer"));
+  directProd   = consumes<CSCTriggerContainer<csctf::TrackStub> >(pset.getUntrackedParameter<edm::InputTag>("DtDirectProd"));
   sp_pset = pset.getParameter<edm::ParameterSet>("SectorProcessor");
   useDT = pset.getParameter<bool>("useDT");
   readDtDirect = pset.getParameter<bool>("readDtDirect");
@@ -37,8 +37,6 @@ CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
   my_builder = 0 ;
   produces<L1CSCTrackCollection>();
   produces<CSCTriggerContainer<csctf::TrackStub> >();
-  consumes<CSCCorrelatedLCTDigiCollection>(input_module);
-  consumes<L1MuDTChambPhContainer>(dt_producer);
 }
 
 CSCTFTrackProducer::~CSCTFTrackProducer()
@@ -85,7 +83,7 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
 
   edm::Handle<CSCCorrelatedLCTDigiCollection> LCTs;
   std::auto_ptr<L1CSCTrackCollection> track_product(new L1CSCTrackCollection);
-  e.getByLabel(input_module.label(),input_module.instance(), LCTs);
+  e.getByToken(input_module, LCTs);
   std::auto_ptr<CSCTriggerContainer<csctf::TrackStub> > dt_stubs(new CSCTriggerContainer<csctf::TrackStub>);
  
   // Either emulate or directly read in DT stubs based on switch
@@ -94,12 +92,12 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
   if(readDtDirect == false)
   {
     edm::Handle<L1MuDTChambPhContainer> dttrig;
-	e.getByLabel(dt_producer.label(),dt_producer.instance(), dttrig);
+	e.getByToken(dt_producer, dttrig);
 	emulStub = my_dtrc->process(dttrig.product());
   } else {
     edm::Handle<CSCTriggerContainer<csctf::TrackStub> > stubsFromDaq;
     //e.getByLabel("csctfunpacker","DT",stubsFromDaq);
-	e.getByLabel(directProd.label(),directProd.instance(), stubsFromDaq);
+	e.getByToken(directProd, stubsFromDaq);
 	const CSCTriggerContainer<csctf::TrackStub>* stubPointer = stubsFromDaq.product();
 	emulStub.push_many(*stubPointer);
   } 
