@@ -366,12 +366,6 @@ namespace evf {
     return run_dir_ + "/" + fffnaming::initFileNameWithPid(run_,0,stream);
   }
 
-  std::string EvFDaqDirector::getTransferFilePath(std::string const& stream) const {
-    assert(stream.size() && stream.substr(0,6)=="stream");
-    std::string streamUpper = "Stream"+stream.substr(6,std::string::npos);
-    return run_dir_ + "/" + fffnaming::transferFileName(run_,0,streamUpper);
-  }
-
   std::string EvFDaqDirector::getOpenProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const {
     return run_dir_ + "/open/" + fffnaming::protocolBufferHistogramFileNameWithPid(run_,ls,stream);
   }
