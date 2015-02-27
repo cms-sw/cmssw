@@ -27,7 +27,9 @@ upgradeKeys=['2017',
              'Extended2023HGCalV4',
              'Extended2023HGCalMuonPU',
              'Extended2023SHCalNoTaperPU',
-             '2019WithGEMAgingPU'
+             '2019WithGEMAgingPU',
+             'Extended2023HGCalMuonPandora',
+             'Extended2023HGCalMuonPandoraPU'
          ]
 
 
@@ -55,7 +57,8 @@ upgradeGeoms={ '2017' : 'Extended2017',
                'Extended2023SHCalNoTaper4Eta' : 'Extended2023SHCalNoTaper4Eta,Extended2023SHCalNoTaper4EtaReco',
                'Extended2023HGCal' : 'Extended2023HGCal,Extended2023HGCalReco',
                'Extended2023HGCalMuon4Eta' : 'Extended2023HGCalMuon4Eta,Extended2023HGCalMuon4EtaReco',
-               'Extended2023HGCalV4' : 'Extended2023HGCalV4Muon,Extended2023HGCalV4MuonReco'
+               'Extended2023HGCalV4' : 'Extended2023HGCalV4Muon,Extended2023HGCalV4MuonReco',
+               'Extended2023HGCalMuonPandora' : 'Extended2023HGCalMuon,Extended2023HGCalMuonReco'
                }
 upgradeGTs={ '2017' : 'auto:upgrade2017',
              '2019' : 'auto:upgrade2019',
@@ -81,7 +84,8 @@ upgradeGTs={ '2017' : 'auto:upgrade2017',
              'Extended2023SHCalNoTaper4Eta' : 'auto:upgradePLS3',
              'Extended2023HGCal' : 'auto:upgradePLS3',
              'Extended2023HGCalMuon4Eta' : 'auto:upgradePLS3',
-             'Extended2023HGCalV4' : 'auto:upgradePLS3'
+             'Extended2023HGCalV4' : 'auto:upgradePLS3',
+             'Extended2023HGCalMuonPandora' : 'PH2_1K_FB_V6::All' #EB aged at 1000fb-1
              }
 upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
                  '2019' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019',
@@ -107,7 +111,8 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
                  'Extended2023SHCalNoTaper4Eta' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023SHCal',
                  'Extended2023HGCal' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCal',
                  'Extended2023HGCalMuon4Eta' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon',
-                 'Extended2023HGCalV4' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon'
+                 'Extended2023HGCalV4' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon',
+                 'Extended2023HGCalMuonPandora' : 'RecoParticleFlow/PandoraTranslator/customizeHGCalPandora_cff.cust_2023HGCalPandoraMuon'
                  }
 
 upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
@@ -182,7 +187,9 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalV4' : ['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalMuonPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL'],
                    'Extended2023SHCalNoTaperPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
-                   '2019WithGEMAgingPU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+                   '2019WithGEMAgingPU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
+                   'Extended2023HGCalMuonPandora':['GenSimHLBeamSpotFull','DigiFull','RecoFullHGCAL'],
+                   'Extended2023HGCalMuonPandoraPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL']
                    }
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
