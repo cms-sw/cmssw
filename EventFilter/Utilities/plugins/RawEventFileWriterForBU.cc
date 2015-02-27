@@ -114,9 +114,6 @@ void RawEventFileWriterForBU::doOutputEvent(FRDEventMsgView const& msg)
 
   // throttle event output
   usleep(microSleep_);
-
-  perLumiEventCount_.value()++;
-  perLumiTotalEventCount_.value()++;
   perFileEventCount_.value()++;
 
   //  cms::Adler32((const char*) msg.startAddress(), msg.size(), adlera_, adlerb_);
@@ -185,7 +182,6 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
   }
 
   perFileEventCount_.value() = 0;
-  perLumiFileCount_.value()++;
 
 
   adlera_ = 1;
@@ -245,6 +241,12 @@ void RawEventFileWriterForBU::finishFileWrite(int ls)
 
     //move the json file from open
     rename(path.c_str(),(destinationDir_+path.substr(path.rfind("/"))).c_str());
+    //there is a small chance that script gets interrupted while this isn't consistent (non-atomic)
+    perLumiFileCount_.value()++;
+    perLumiEventCount_.value()+=perFileEventCount_.value();
+    perLumiTotalEventCount_.value()+=perFileEventCount_.value();
+    //update open lumi value when first file is completed
+    lumiOpen_ =  ls;
 
     edm::LogInfo("RawEventFileWriterForBU") << "Wrote JSON input file: " << path 
 					    << " with perFileEventCount = " << perFileEventCount_.value();
@@ -277,6 +279,7 @@ void RawEventFileWriterForBU::endOfLS(int ls)
   perLumiEventCount_ = 0;
   perLumiFileCount_ = 0;
   perLumiTotalEventCount_ = 0;
+  lumiClosed_ =  ls;
 }
 
 void RawEventFileWriterForBU::stop()
@@ -290,6 +293,7 @@ void RawEventFileWriterForBU::stop()
 // runs on SIGINT and terminates the process
 void RawEventFileWriterForBU::handler(int s)
 {
+  if (lumiOpen_>lumiClosed_)  endOfLS(lumiOpen_);
   printf("Caught signal %d. Writing EOR file!\n",s);
   if (destinationDir_.size() > 0)
     {

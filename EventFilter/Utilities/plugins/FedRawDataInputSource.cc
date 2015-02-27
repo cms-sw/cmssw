@@ -194,22 +194,16 @@ bool FedRawDataInputSource::checkNextEvent()
       //maybe create EoL file in working directory before ending run
       struct stat buf;
       if ( currentLumiSection_ > 0 ) {
-        unsigned int retriesLeft=3;
-        while (retriesLeft-->0) {
-          bool eolFound = (stat(daqDirector_->getEoLSFilePathOnBU(currentLumiSection_).c_str(), &buf) == 0);
-          if (eolFound) {
-            const std::string fuEoLS = daqDirector_->getEoLSFilePathOnFU(currentLumiSection_);
-            bool found = (stat(fuEoLS.c_str(), &buf) == 0);
-            if ( !found ) {
-              daqDirector_->lockFULocal2();
-              int eol_fd = open(fuEoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
-              close(eol_fd);
-              daqDirector_->lockFULocal2();
-            }
-            break;
+        bool eolFound = (stat(daqDirector_->getEoLSFilePathOnBU(currentLumiSection_).c_str(), &buf) == 0);
+        if (eolFound) {
+          const std::string fuEoLS = daqDirector_->getEoLSFilePathOnFU(currentLumiSection_);
+          bool found = (stat(fuEoLS.c_str(), &buf) == 0);
+          if ( !found ) {
+            daqDirector_->lockFULocal2();
+            int eol_fd = open(fuEoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+            close(eol_fd);
+            daqDirector_->lockFULocal2();
           }
-          //sleep and retry in case EoR appears slightly before EoL
-          usleep(100000);
         }
       }
       //also create EoR file in FU data directory
@@ -886,8 +880,15 @@ void FedRawDataInputSource::readSupervisor()
 	stop=true;
 	break;
       }
-      else
-	status = daqDirector_->updateFuLock(ls,nextFile,fileSize);
+      
+      status = daqDirector_->updateFuLock(ls,nextFile,fileSize);
+
+      //check again for any remaining index/EoLS files after EoR file is seen
+      if ( status == evf::EvFDaqDirector::runEnded) {
+        usleep(100000);
+        //now all files should have appeared in ramdisk, check again if any raw files were left behind
+        status = daqDirector_->updateFuLock(ls,nextFile,fileSize);
+      }
 
       if ( status == evf::EvFDaqDirector::runEnded) {
 	fileQueue_.push(new InputFile(evf::EvFDaqDirector::runEnded));
