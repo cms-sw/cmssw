@@ -180,7 +180,7 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt, const ed
     double eta = cluster.eta();
     double phi = cluster.phi();    
     
-    double invE = 1./e;
+    double invE = (e == 0.) ? 0. : 1./e; //guard against dividing by 0.
     
     int size = lazyTool.n5x5(cluster);
     
