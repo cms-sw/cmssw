@@ -20,7 +20,7 @@
 
 //____________________________________________________________________________||
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -33,7 +33,7 @@
 //____________________________________________________________________________||
 namespace cms
 {
-  class GenMETProducer: public edm::EDProducer
+  class GenMETProducer: public edm::stream::EDProducer<>
     {
     public:
       explicit GenMETProducer(const edm::ParameterSet&);
