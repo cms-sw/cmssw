@@ -157,4 +157,8 @@
   <version ClassVersion="11" checksum="2661728085"/>
   <version ClassVersion="10" checksum="3452516682"/>
  </class>
+ <class name="edm::SecondaryEventIDAndFileInfo" ClassVersion="2">
+  <version ClassVersion="2" checksum="3900813088"/>
+ </class>
+ <class name="std::vector<edm::SecondaryEventIDAndFileInfo>"/>
 </lcgdict>

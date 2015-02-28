@@ -21,7 +21,7 @@ Input file root://eoscms//eos/cms/store/relval/CMSSW_5_0_0_pre6/RelValProdMinBia
 <ModuleLabel>RAWSIMoutput</ModuleLabel>
 <GUID>324FFE4A-A471-E111-A726-003048CB9882</GUID>
 <Branches>
-  <Branch>CrossingFramePlaybackInfoExtended_mix__HLT.</Branch>
+  <Branch>CrossingFramePlaybackInfoNew_mix__HLT.</Branch>
   <Branch>FEDRawDataCollection_rawDataCollector__HLT.</Branch>
   <Branch>GenEventInfoProduct_generator__HLT.</Branch>
   <Branch>L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT.</Branch>

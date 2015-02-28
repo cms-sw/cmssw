@@ -60,7 +60,7 @@ namespace edm {
     bool dataStep2_;
     edm::InputTag label_;
       
-    std::vector<std::vector<edm::EventID> > vectorEventIDs_;
+    std::vector<std::vector<edm::SecondaryEventIDAndFileInfo> > vectorEventIDs_;
 
     std::shared_ptr<PileUp> input_;
     std::vector< float > TrueNumInteractions_[5];
