@@ -14,7 +14,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,7 +27,7 @@
 
 #include <string>
 
-class PFCandMETcorrInputProducer : public edm::EDProducer  
+class PFCandMETcorrInputProducer : public edm::stream::EDProducer<>  
 {
  public:
 
