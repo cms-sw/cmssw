@@ -98,7 +98,7 @@ void HBHENegativeFlagSetter::setPulseShapeFlags(HBHERecHit &hbhe,
       coder.adc2fC(digi,cs);
       const int nRead = cs.size();
 
-      double ts[CaloSamples::MAXSAMPLES];
+      double ts[CaloSamples::MAXSAMPLES] {};
       for (int i=0; i < nRead; i++)
       {
          const int capid = digi[i].capid();
