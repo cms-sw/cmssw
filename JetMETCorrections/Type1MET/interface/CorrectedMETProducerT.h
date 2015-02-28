@@ -52,6 +52,7 @@ namespace CorrectedMETProducer_namespace
   class CorrectedMETFactoryT
   {
     public:
+     explicit CorrectedMETFactoryT() {}
 
      T operator()(const T&, const CorrMETData&) const
      {
