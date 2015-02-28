@@ -52,7 +52,6 @@ namespace CorrectedMETProducer_namespace
   class CorrectedMETFactoryT
   {
     public:
-     explicit CorrectedMETFactoryT() {}
 
      T operator()(const T&, const CorrMETData&) const
      {
@@ -96,7 +95,7 @@ class CorrectedMETProducerT : public edm::EDProducer
 	  rawMEt != rawMEtCollection->end(); ++rawMEt ) {
       CorrMETData correction = algorithm_->compMETCorrection(evt, es);
       
-      static const CorrectedMETProducer_namespace::CorrectedMETFactoryT<T> correctedMET_factory;
+      static const CorrectedMETProducer_namespace::CorrectedMETFactoryT<T> correctedMET_factory {};
       T correctedMEt = correctedMET_factory(*rawMEt, correction);
 
       correctedMEtCollection->push_back(correctedMEt);
