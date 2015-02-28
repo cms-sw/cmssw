@@ -96,7 +96,7 @@ bool WtoLNuSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
       if (eiso > 0.3) continue;
 
       TLorentzVector le;
-      le.SetPxPyPzE(ele.pt(), ele.eta(), ele.phi(), ele.energy());
+      le.SetPtEtaPhiE(ele.pt(), ele.eta(), ele.phi(), ele.energy());
       eleList.push_back(le);
     }
   }
@@ -158,7 +158,7 @@ bool WtoLNuSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
           && absiso/mu.pt() < 0.3)
         {
           TLorentzVector lm;
-          lm.SetPxPyPzE(mu.pt(), mu.eta(), mu.phi(), mu.energy());
+          lm.SetPtEtaPhiE(mu.pt(), mu.eta(), mu.phi(), mu.energy());
           muList.push_back(lm);
         }
     }
