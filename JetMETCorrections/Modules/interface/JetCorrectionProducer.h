@@ -9,7 +9,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -28,7 +28,7 @@ class JetCorrector;
 namespace cms
 {
   template<class T>
-  class JetCorrectionProducer : public edm::EDProducer
+  class JetCorrectionProducer : public edm::stream::EDProducer<>
   {
   public:
     typedef std::vector<T> JetCollection;
