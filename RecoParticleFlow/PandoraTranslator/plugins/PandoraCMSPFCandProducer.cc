@@ -116,9 +116,6 @@ PandoraCMSPFCandProducer::PandoraCMSPFCandProducer(const edm::ParameterSet& iCon
   //    produces<reco::PFCandidateElectronExtraCollection>(electronExtraOutputCol_);
   //    produces<reco::PFCandidatePhotonExtraCollection>(photonExtraOutputCol_);
   
-  //now do what ever initialization is needed
-  m_pPandora.reset( new pandora::Pandora() );
-  
   inputTagHGCrechit_ = iConfig.getParameter<InputTag>("HGCrechitCollection");
   inputTagGeneralTracks_ = iConfig.getParameter<InputTag>("generaltracks");
   inputTagtPRecoTrackAsssociation_ = iConfig.getParameter<InputTag>("tPRecoTrackAsssociation");
@@ -136,19 +133,6 @@ PandoraCMSPFCandProducer::PandoraCMSPFCandProducer(const edm::ParameterSet& iCon
   stm = new steerManager(m_energyWeightingFilename.fullPath().c_str());
   
   speedoflight = (CLHEP::c_light/CLHEP::cm)/CLHEP::ns;
-  
-// NS // SHOWER PROFILE CALCULATOR
-  
-  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContent::RegisterAlgorithms(*m_pPandora));
-
-  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContentFast::RegisterAlgorithms(*m_pPandora));
-
-  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, cms_content::RegisterBasicPlugins(*m_pPandora));
-
-  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetBFieldPlugin(*m_pPandora, new CMSBFieldPlugin()));    
-  
-  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::RegisterAlgorithmFactory(*m_pPandora, "Template", new CMSTemplateAlgorithm::Factory));
-
 }
 
 PandoraCMSPFCandProducer::~PandoraCMSPFCandProducer()
@@ -1857,21 +1841,27 @@ PandoraCMSPFCandProducer::beginLuminosityBlock(edm::LuminosityBlock const& iLumi
 
   PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::RegisterAlgorithmFactory(*m_pPandora, "Template", new CMSTemplateAlgorithm::Factory));
 
-  //rebuild pandora 
-  if( pandora::STATUS_CODE_SUCCESS != PandoraApi::ReadSettings(*m_pPandora, m_pandoraSettingsXmlFile.fullPath()) ) {
-    throw cms::Exception("InvalidXMLConfig")
-      << "Unable to parse pandora configuration file";
-  }
-
-  //prepare geom at the beginning of each lumi block
-  prepareGeometry() ;
-    
   // reset all the calibration info since it depends on the geometry
   m_calibEE  = CalibHGC(ForwardSubdetector::HGCEE,"EE",debugPrint);
   m_calibHEF = CalibHGC(ForwardSubdetector::HGCHEF,"HEF",debugPrint);
   m_calibHEB = CalibHGC(ForwardSubdetector::HGCHEB,"HEB",debugPrint);
+  // read in calibration parameters
+  m_calibEE.m_energyCorrMethod = m_calibHEF.m_energyCorrMethod = m_calibHEB.m_energyCorrMethod = m_energyCorrMethod;
+  m_calibEE.m_stm = m_calibHEF.m_stm = m_calibHEB.m_stm = stm;
+  initPandoraCalibrParameters();
+  readCalibrParameterFile();
+  if (m_energyCorrMethod == "WEIGHTING")
+    readEnergyWeight();
   calibInitialized = false;
-    
+  
+  // prepare the geometry
+  prepareGeometry();
+
+  //rebuild pandora
+  if( pandora::STATUS_CODE_SUCCESS != PandoraApi::ReadSettings(*m_pPandora, m_pandoraSettingsXmlFile.fullPath()) ) {
+    throw cms::Exception("InvalidXMLConfig")
+      << "Unable to parse pandora configuration file";
+  }    
   //PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::ReadSettings(*m_pPandora, m_pandoraSettingsXmlFile.fullPath()));
 }
 
