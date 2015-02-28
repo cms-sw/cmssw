@@ -97,7 +97,7 @@ namespace cms_content {
   }
 }
 
-pandora::Pandora * PandoraCMSPFCandProducer::m_pPandora = NULL;
+//pandora::Pandora * PandoraCMSPFCandProducer::m_pPandora = NULL;
 //
 // constructors and destructor
 //
@@ -117,7 +117,7 @@ PandoraCMSPFCandProducer::PandoraCMSPFCandProducer(const edm::ParameterSet& iCon
   //    produces<reco::PFCandidatePhotonExtraCollection>(photonExtraOutputCol_);
   
   //now do what ever initialization is needed
-  m_pPandora = new pandora::Pandora();
+  m_pPandora.reset( new pandora::Pandora() );
   
   inputTagHGCrechit_ = iConfig.getParameter<InputTag>("HGCrechitCollection");
   inputTagGeneralTracks_ = iConfig.getParameter<InputTag>("generaltracks");
@@ -1844,14 +1844,34 @@ PandoraCMSPFCandProducer::beginLuminosityBlock(edm::LuminosityBlock const& iLumi
   //get the magnetic field
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
   
-  //prepare geom at the beginning of each lumi block
-  prepareGeometry() ;
-  
+  // reset the pandora instance
+  m_pPandora.reset( new pandora::Pandora() );
+
+  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContent::RegisterAlgorithms(*m_pPandora));
+
+  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContentFast::RegisterAlgorithms(*m_pPandora));
+
+  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, cms_content::RegisterBasicPlugins(*m_pPandora));
+
+  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetBFieldPlugin(*m_pPandora, new CMSBFieldPlugin()));
+
+  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::RegisterAlgorithmFactory(*m_pPandora, "Template", new CMSTemplateAlgorithm::Factory));
+
   //rebuild pandora 
   if( pandora::STATUS_CODE_SUCCESS != PandoraApi::ReadSettings(*m_pPandora, m_pandoraSettingsXmlFile.fullPath()) ) {
     throw cms::Exception("InvalidXMLConfig")
       << "Unable to parse pandora configuration file";
   }
+
+  //prepare geom at the beginning of each lumi block
+  prepareGeometry() ;
+    
+  // reset all the calibration info since it depends on the geometry
+  m_calibEE  = CalibHGC(ForwardSubdetector::HGCEE,"EE",debugPrint);
+  m_calibHEF = CalibHGC(ForwardSubdetector::HGCHEF,"HEF",debugPrint);
+  m_calibHEB = CalibHGC(ForwardSubdetector::HGCHEB,"HEB",debugPrint);
+  calibInitialized = false;
+    
   //PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::ReadSettings(*m_pPandora, m_pandoraSettingsXmlFile.fullPath()));
 }
 
