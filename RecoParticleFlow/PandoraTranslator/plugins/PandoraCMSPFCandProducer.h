@@ -1,22 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    PFCal/runPandora
-// Class:      runPandora
-// 
-/**\class runPandora runPandora.cc PFCal/runPandora/plugins/runPandora.cc
-
-   Description: [one line class summary]
-
-   Implementation:
-   [Notes on implementation]
-*/
-//
-// Original Author:  Andreas Psallidas
-//         Created:  Mon, 11 Nov 2013 15:11:14 GMT
-//
-//
-
-
 // system include files
 #include <memory>
 #include <vector>
@@ -229,7 +210,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  static pandora::Pandora        *m_pPandora;
+  std::unique_ptr<pandora::Pandora>        m_pPandora;
 
   void prepareTrack(edm::Event& iEvent);
   void prepareHits(edm::Event& iEvent);
