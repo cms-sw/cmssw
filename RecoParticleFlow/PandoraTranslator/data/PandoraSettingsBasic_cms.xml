@@ -7,7 +7,7 @@
     <ShouldCollapseMCParticlesToPfoTarget>true</ShouldCollapseMCParticlesToPfoTarget>
 
     <!-- PLUGIN SETTINGS -->
-    <HadronicEnergyCorrectionPlugins>CleanClusters CMSGlobalHadronCompensation ScaleHotHadrons</HadronicEnergyCorrectionPlugins>
+    <HadronicEnergyCorrectionPlugins>CleanClusters ScaleHotHadrons</HadronicEnergyCorrectionPlugins>
     <EmShowerPlugin>
       LCEmShowerId
       <RmsCutEnergy>70.0</RmsCutEnergy>
