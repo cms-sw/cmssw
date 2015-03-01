@@ -1,5 +1,36 @@
-<use name="FWCore/Framework"/>
-<use name="DataFormats/Luminosity"/>
+<use   name="FWCore/Framework"/>
+<use   name="DataFormats/Luminosity"/>
+
+<bin file="analysis/plugins/*.cc" name="PCCNtupler">
+    <use   name="FWCore/PluginManager"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="DataFormats/VertexReco"/>
+    <use   name="DataFormats/DetId"/>
+    <use   name="Geometry/TrackerGeometryBuilder"/>
+    <!-- <use   name="Geometry/TrackerNumberingBuilder"/> 
+    <use   name="Geometry/Records"/>
+    <use   name="DataFormats/FEDRawData"/>
+    <use   name="DataFormats/SiStripCluster"/>
+    <use   name="CondFormats/DataRecord"/>
+    <use   name="DataFormats/DTDigi"/>
+    <use   name="DataFormats/TrajectorySeed"/>
+    <use   name="DataFormats/SiStripDetId"/> -->
+    <use   name="DataFormats/SiPixelDetId"/>
+    <use   name="DataFormats/TrackerRecHit2D"/>
+    <use   name="DataFormats/TrackingRecHit"/>
+    <use   name="HLTrigger/HLTcore"/>
+    <use   name="Alignment/OfflineValidation"/>
+    <use   name="CondFormats/SiPixelObjects"/>
+    <use   name="CondFormats/RunInfo"/>
+    <use   name="clhep"/>
+    <use   name="boost"/>
+    <use   name="root"/>
+    <use   name="rootrflx"/>
+    <export>
+      <lib   name="1"/>
+    </export>
+</bin>
+
 
 <bin file="TestIntegration.cpp" name="TestLumiProd">
   <flags NO_TESTRUN="1"/>
