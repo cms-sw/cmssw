@@ -247,15 +247,17 @@ namespace MCTruthHelper {
   /////////////////////////////////////////////////////////////////////////////
   template<typename P>
   bool isDirectTauDecayProduct(const P &p) {
-    const P *um = uniqueMother(p);
-    return um && absPdgId(*um)==15 && isDecayedLeptonHadron(*um);
+    const P *tau = findDecayedMother(p,15);
+    const P *dm = findDecayedMother(p);
+    return tau && tau==dm;
   }
 
   /////////////////////////////////////////////////////////////////////////////
   template<typename P>
   bool isDirectPromptTauDecayProduct(const P &p) {
-    const P *um = uniqueMother(p);
-    return um && absPdgId(*um)==15 && isDecayedLeptonHadron(*um) && isPrompt(*um);
+    const P *tau = findDecayedMother(p,15);
+    const P *dm = findDecayedMother(p);
+    return tau && tau==dm && isPrompt(*tau);
   }
   
   /////////////////////////////////////////////////////////////////////////////
@@ -343,8 +345,9 @@ namespace MCTruthHelper {
   /////////////////////////////////////////////////////////////////////////////  
   template<typename P>
   bool isDirectHardProcessTauDecayProduct(const P &p) {
-    const P *um = uniqueMother(p);
-    return um && absPdgId(*um)==15 && isDecayedLeptonHadron(*um) && fromHardProcess(*um);    
+    const P *tau = findDecayedMother(p,15);
+    const P *dm = findDecayedMother(p);
+    return tau && tau==dm && fromHardProcess(*tau);    
   }  
   
   template<typename P>
