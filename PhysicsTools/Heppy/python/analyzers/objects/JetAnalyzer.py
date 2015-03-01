@@ -165,7 +165,16 @@ class JetAnalyzer( Analyzer ):
                 lep.jet = lep
             else:
                 lep.jet = jet
+        ## Associate jets to taus 
+        taus = getattr(event,'selectedTaus',[])
+        jtaupairs = matchObjectCollection( taus, allJets, self.jetLepDR**2)
 
+        for jet in allJets:
+            jet.taus = [l for l in jtaupairs if jtaupairs[l] == jet ]
+        for tau in taus:
+            tau.jet = jtaupairs[tau]
+
+        #MC stuff
         if self.cfg_comp.isMC:
             event.deltaMetFromJetSmearing = [0, 0]
             for j in event.cleanJetsAll:
