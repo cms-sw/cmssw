@@ -148,6 +148,10 @@ namespace MCTruthHelper {
   template<typename P>
   const P *hardProcessMotherCopy(const P &p);  
   
+  //return previous copy of particle in chain (0 in case this is already the first copy)
+  template<typename P>
+  const P *previousCopy(const P &p);  
+  
   //return next copy of particle in chain (0 in case this is already the last copy)
   template<typename P>
   const P *nextCopy(const P &p);
@@ -175,12 +179,18 @@ namespace MCTruthHelper {
 
   //abs(pdgid)
   int absPdgId(const HepMC::GenParticle &p);
+
+  //number of mothers
+  unsigned int numberOfMothers(const reco::GenParticle &p);  
+  
+  //number of mothers
+  unsigned int numberOfMothers(const HepMC::GenParticle &p);
   
   //mother
-  const reco::GenParticle *mother(const reco::GenParticle &p);
+  const reco::GenParticle *mother(const reco::GenParticle &p, unsigned int imoth=0);
 
   //mother
-  const HepMC::GenParticle *mother(const HepMC::GenParticle &p);
+  const HepMC::GenParticle *mother(const HepMC::GenParticle &p, unsigned int imoth=0);
 
   //number of daughters
   unsigned int numberOfDaughters(const reco::GenParticle &p);  
@@ -409,8 +419,8 @@ namespace MCTruthHelper {
   template<typename P>
   const P *firstCopy(const P &p) {
     const P *pcopy = &p;
-    while (mother(*pcopy) && pdgId(*mother(*pcopy))==pdgId(p)) {
-      pcopy = mother(*pcopy);
+    while (previousCopy(*pcopy)) {
+      pcopy = previousCopy(*pcopy);
     }
     return pcopy;    
   }
@@ -419,22 +429,12 @@ namespace MCTruthHelper {
   template<typename P>
   const P *lastCopy(const P &p) {
     const P *pcopy = &p;
-    bool hasDaughterCopy = true;
-    while (hasDaughterCopy) {
-      hasDaughterCopy = false;
-      const unsigned int ndau = numberOfDaughters(*pcopy);
-      for (unsigned int idau = 0; idau<ndau; ++idau) {
-        const P *dau = daughter(*pcopy,idau);
-        if (pdgId(*dau)==pdgId(p)) {
-          pcopy = dau;
-          hasDaughterCopy = true;
-          break;
-        }
-      }
+    while (nextCopy(*pcopy)) {
+      pcopy = nextCopy(*pcopy);
     }
-    return pcopy;       
+    return pcopy;    
   }
-  
+    
   /////////////////////////////////////////////////////////////////////////////
   template<typename P>
   const P *lastCopyBeforeFSR(const P &p) {
@@ -503,12 +503,27 @@ namespace MCTruthHelper {
     
     //check if any other copies are hard process particles
     const P *pcopy = &p;
-    while (mother(*pcopy) && pdgId(*mother(*pcopy))==pdgId(p)) {
-      pcopy = mother(*pcopy);
+    while (previousCopy(*pcopy)) {
+      pcopy = previousCopy(*pcopy);
       if (isHardProcess(*pcopy)) return pcopy;
     }
     return 0;
   }
+  
+  /////////////////////////////////////////////////////////////////////////////
+  template<typename P>
+  const P *previousCopy(const P &p) {
+    
+    const unsigned int nmoth = numberOfMothers(p);
+    for (unsigned int imoth = 0; imoth<nmoth; ++imoth) {
+      const P *moth = mother(p,imoth);
+      if (pdgId(*moth)==pdgId(p)) {
+        return moth;
+      }
+    }
+    
+    return 0;     
+  }   
   
   /////////////////////////////////////////////////////////////////////////////
   template<typename P>
@@ -566,13 +581,23 @@ namespace MCTruthHelper {
   }
   
   /////////////////////////////////////////////////////////////////////////////
-  const reco::GenParticle *mother(const reco::GenParticle &p) {
-    return static_cast<const reco::GenParticle*>(p.mother());
+  unsigned int numberOfMothers(const reco::GenParticle &p) {
+    return p.numberOfMothers();
   }
   
   /////////////////////////////////////////////////////////////////////////////
-  const HepMC::GenParticle *mother(const HepMC::GenParticle &p) {
-    return p.production_vertex() && p.production_vertex()->particles_in_size() ? *p.production_vertex()->particles_in_const_begin() : 0;
+  unsigned int numberOfMothers(const HepMC::GenParticle &p) {
+    return p.production_vertex() ? p.production_vertex()->particles_in_size() : 0;
+  }
+  
+  /////////////////////////////////////////////////////////////////////////////
+  const reco::GenParticle *mother(const reco::GenParticle &p, unsigned int imoth) {
+    return static_cast<const reco::GenParticle*>(p.mother(imoth));
+  }
+  
+  /////////////////////////////////////////////////////////////////////////////
+  const HepMC::GenParticle *mother(const HepMC::GenParticle &p, unsigned int imoth) {
+    return p.production_vertex() && p.production_vertex()->particles_in_size() ? *(p.production_vertex()->particles_in_const_begin() + imoth) : 0;
   }
   
   /////////////////////////////////////////////////////////////////////////////
