@@ -51,9 +51,10 @@ SimTrackIdProducer::produce(edm::Event& e, const edm::EventSetup& es)
    
   reco::TrackCollection::const_iterator aTrack = trackCollection->begin();
   reco::TrackCollection::const_iterator lastTrack = trackCollection->end();
-
+  
   for ( ; aTrack!=lastTrack; ++aTrack)
   {
+    if((aTrack->quality(aTrack->qualityByName("highPurity")))&&(aTrack->chi2()<9)){
       const TrackingRecHit* hit = *aTrack->recHitsBegin();
       if (hit)
       {
@@ -63,6 +64,7 @@ SimTrackIdProducer::produce(edm::Event& e, const edm::EventSetup& es)
               SimTrackIds->push_back(fsimhit->simtrackId());
           }
       }
+    }
   }
   e.put(SimTrackIds);  
 }
