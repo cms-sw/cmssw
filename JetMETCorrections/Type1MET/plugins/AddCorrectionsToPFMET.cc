@@ -2,7 +2,7 @@
 
 //____________________________________________________________________________||
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -17,7 +17,7 @@
 #include <vector>
 
 //____________________________________________________________________________||
-class AddCorrectionsToPFMET : public edm::EDProducer
+class AddCorrectionsToPFMET : public edm::stream::EDProducer<>
 {
 
 public:
