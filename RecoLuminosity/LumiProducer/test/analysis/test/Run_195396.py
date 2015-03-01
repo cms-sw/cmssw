@@ -50,7 +50,7 @@ process.zerobiasfilter = cms.EDFilter("HLTHighLevel",
 
 # the main Analyzer
 process.lumi = cms.EDAnalyzer(
-    "LumiProducer/test/analysis",
+    "PCCNTupler",
     verbose                      = cms.untracked.int32(0),
     #rootFileName                 = cms.untracked.string(rootFileName),
     #type                         = cms.untracked.string(getDataset(process.source.fileNames[0])),
