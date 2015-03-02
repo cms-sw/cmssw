@@ -31,6 +31,10 @@ class StreamID;
 class InputFile;
 class InputChunk;
 
+namespace Json{
+  class Value;
+}
+
 namespace evf{
 
   class FastMonitoringService;
@@ -63,6 +67,7 @@ namespace evf{
       std::string getOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getMergedDatFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getMergedDatChecksumFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getOpenInitFilePath(std::string const& stream) const;
       std::string getInitFilePath(std::string const& stream) const;
       std::string getOpenProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
@@ -72,6 +77,7 @@ namespace evf{
       std::string getMergedRootHistogramFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getEoLSFilePathOnBU(const unsigned int ls) const;
       std::string getEoLSFilePathOnFU(const unsigned int ls) const;
+      std::string getBoLSFilePathOnFU(const unsigned int ls) const;
       std::string getEoRFilePath() const;
       std::string getEoRFilePathOnFU() const;
       std::string getRunOpenDirPath() const {return run_dir_ +"/open";}
@@ -104,6 +110,8 @@ namespace evf{
         fileDeleteLockPtr_=fileDeleteLock;
         filesToDeletePtr_ = filesToDelete;
       }
+      void checkTransferSystemPSet();
+      std::string getStreamDestinations(std::string const& stream) const;
 
 
     private:
@@ -125,6 +133,9 @@ namespace evf{
       bool directorBu_;
       unsigned int run_;
       bool outputAdler32Recheck_;
+      bool requireTSPSet_;
+      std::string selectedTransferMode_;
+      std::string hltSourceDirectory_;
 
       std::string hostname_;
       std::string run_string_;
@@ -179,6 +190,8 @@ namespace evf{
       bool readEolsDefinition_ = true;
       unsigned int eolsNFilesIndex_ = 1;
       std::string stopFilePath_;
+
+      std::shared_ptr<Json::Value> transferSystemJson_;
   };
 }
 
