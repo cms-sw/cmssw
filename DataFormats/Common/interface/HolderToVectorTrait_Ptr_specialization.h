@@ -23,7 +23,8 @@
 //
 #include <memory>
 
-#include "DataFormats/Common/interface/Holder.h"
+#include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "DataFormats/Common/interface/VectorHolder.h"
 
 namespace edm {
