@@ -18,7 +18,7 @@ upgradeKeys=['2017',
              'Extended2023Muon',
              'Extended2023HGCalV6Muon',
              'Extended2023SHCalNoTaperNoExtPix',
-             'Extended2023Pixel',            
+             'Extended2023Pixel',
              'Extended2023SHCalNoTaper',
              'Extended2023SHCalNoTaper4Eta',
              'Extended2023HGCal',
@@ -26,9 +26,11 @@ upgradeKeys=['2017',
              'BE5DPixel10DLHCC',
              'Extended2023HGCalV4',
              'Extended2023HGCalMuonPU',
-             'Extended2023SHCalNoTaperPU',	     
-             '2019WithGEMAgingPU'
-	     ]
+             'Extended2023SHCalNoTaperPU',
+             '2019WithGEMAgingPU',
+             'Extended2023HGCalMuonPandora',
+             'Extended2023HGCalMuonPandoraPU'
+         ]
 
 
 upgradeGeoms={ '2017' : 'Extended2017',
@@ -55,7 +57,8 @@ upgradeGeoms={ '2017' : 'Extended2017',
                'Extended2023SHCalNoTaper4Eta' : 'Extended2023SHCalNoTaper4Eta,Extended2023SHCalNoTaper4EtaReco',
                'Extended2023HGCal' : 'Extended2023HGCal,Extended2023HGCalReco',
                'Extended2023HGCalMuon4Eta' : 'Extended2023HGCalMuon4Eta,Extended2023HGCalMuon4EtaReco',
-               'Extended2023HGCalV4' : 'Extended2023HGCalV4Muon,Extended2023HGCalV4MuonReco'
+               'Extended2023HGCalV4' : 'Extended2023HGCalV4Muon,Extended2023HGCalV4MuonReco',
+               'Extended2023HGCalMuonPandora' : 'Extended2023HGCalMuon,Extended2023HGCalMuonReco'
                }
 upgradeGTs={ '2017' : 'auto:upgrade2017',
              '2019' : 'auto:upgrade2019',
@@ -81,7 +84,8 @@ upgradeGTs={ '2017' : 'auto:upgrade2017',
              'Extended2023SHCalNoTaper4Eta' : 'auto:upgradePLS3',
              'Extended2023HGCal' : 'auto:upgradePLS3',
              'Extended2023HGCalMuon4Eta' : 'auto:upgradePLS3',
-             'Extended2023HGCalV4' : 'auto:upgradePLS3'
+             'Extended2023HGCalV4' : 'auto:upgradePLS3',
+             'Extended2023HGCalMuonPandora' : 'PH2_1K_FB_V6::All' #EB aged at 1000fb-1
              }
 upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
                  '2019' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019',
@@ -107,7 +111,8 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
                  'Extended2023SHCalNoTaper4Eta' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023SHCal',
                  'Extended2023HGCal' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCal',
                  'Extended2023HGCalMuon4Eta' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon',
-                 'Extended2023HGCalV4' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon'
+                 'Extended2023HGCalV4' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon',
+                 'Extended2023HGCalMuonPandora' : 'RecoParticleFlow/PandoraTranslator/customizeHGCalPandora_cff.cust_2023HGCalPandoraMuon'
                  }
 
 upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
@@ -137,9 +142,9 @@ upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
                   'SingleMuPt1000Extended_cfi',
                   'TenMuE_0_200_cfi',
                   'SinglePiE50HCAL_cfi',
-		  'QCDForPF_14TeV_cfi',
-		  'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff',
-		  'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff'		  ]
+                  'QCDForPF_14TeV_cfi',
+                  'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff',
+                  'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff'          ]
 
 
 
@@ -174,7 +179,7 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'BE5DPixel10DLHCC':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalV6Muon':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCalNoTaperNoExtPix':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023Pixel':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],          
+                   'Extended2023Pixel':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCalNoTaper':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCalNoTaper4Eta':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCal':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
@@ -182,7 +187,9 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalV4' : ['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalMuonPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL'],
                    'Extended2023SHCalNoTaperPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
-                   '2019WithGEMAgingPU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+                   '2019WithGEMAgingPU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
+                   'Extended2023HGCalMuonPandora':['GenSimHLBeamSpotFull','DigiFull','RecoFullHGCAL'],
+                   'Extended2023HGCalMuonPandoraPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL']
                    }
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
@@ -249,9 +256,9 @@ howMuches={'FourMuPt_1_200_cfi':Kby(10,100),
            'MinBias_TuneZ2star_14TeV_pythia6_cff':Kby(9,100),
            'WM_14TeV_cfi':Kby(9,100),
            'ZMM_14TeV_cfi':Kby(18,100),
-	   'QCDForPF_14TeV_cfi':Kby(9,50),
-	   'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff':Kby(9,100),
-	   'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff':Kby(9,100)
+            'QCDForPF_14TeV_cfi':Kby(9,50),
+            'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff':Kby(9,100),
+            'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff':Kby(9,100)
            }
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_cfi': 'FourMuPt1_200',
@@ -316,9 +323,9 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_cfi': 'FourMuPt1_200',
                             'MinBias_TuneZ2star_14TeV_pythia6_cff' : 'MinBias_TuneZ2star_14TeV',
                             'WM_14TeV_cfi' : 'WM_14TeV',
                             'ZMM_14TeV_cfi' : 'ZMM_14TeV',
-			    'QCDForPF_14TeV_cfi' : 'QCDForPF_14TeV',
-			    'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff' : 'DYToLL_M_50_TuneZ2star_14TeV',
-			    'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff' : 'DYtoTauTau_M_50_TuneD6T_14TeV'
+                            'QCDForPF_14TeV_cfi' : 'QCDForPF_14TeV',
+                            'DYToLL_M_50_TuneZ2star_14TeV_pythia6_tauola_cff' : 'DYToLL_M_50_TuneZ2star_14TeV',
+                            'DYtoTauTau_M_50_TuneD6T_14TeV_pythia6_tauola_cff' : 'DYtoTauTau_M_50_TuneD6T_14TeV'
                             }
 
 
