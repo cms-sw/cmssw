@@ -32,6 +32,7 @@ class GeneratorAnalyzer( Analyzer ):
             event.genHiggsBosons = []
             event.genVBosons = []
             event.gennus     = []  # prompt neutrinos
+            event.gennusFromTop = []  # Neutrinos from t->W decay
             event.genleps    = []  # leptons from direct decays
             event.gentauleps = []  # leptons from prompt taus
             event.gentaus    = []  # hadronically-decaying taus (if allGenTaus is False) or all taus (if allGenTaus is True)
@@ -176,6 +177,7 @@ class GeneratorAnalyzer( Analyzer ):
             event.genHiggsBosons = []
             event.genVBosons     = []
             event.gennus         = []
+            event.gennusFromTop  = []
             event.genleps        = []
             event.gentauleps     = []
             event.gentaus        = []
@@ -193,6 +195,19 @@ class GeneratorAnalyzer( Analyzer ):
                     event.genVBosons.append(p)
                 elif id in {12,14,16}:
                     event.gennus.append(p)
+
+                    momids = [(m, abs(m.pdgId())) for m in realGenMothers(p)]
+
+                    #have a look at the lepton mothers
+                    for mom, momid in momids:
+                        #lepton from W
+                        if momid == 24:
+                            wmomids = [abs(m.pdgId()) for m in realGenMothers(mom)]
+                            #W from t
+                            if 6 in wmomids:
+                                #save mu,e from t->W->mu/e
+                                event.gennusFromTop.append(p)
+
                 elif id in {11,13}:
                     #taus to separate vector
                     if abs(p.motherId) == 15:
