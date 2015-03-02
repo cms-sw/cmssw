@@ -9,21 +9,9 @@
 //
 
 
-// system include files
-#include <memory>
-
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-//#include "FWCore/Framework/interface/EDProducer.h"
+#include "RecoMuon/MuonIdentification/plugins/MuonIdProducer.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/MuonCocktails.h"
 #include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
@@ -31,15 +19,8 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
-#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-
-#include <boost/regex.hpp>
-#include "RecoMuon/MuonIdentification/plugins/MuonIdProducer.h"
-
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-
-#include <algorithm>
 
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -47,7 +28,6 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 #include "RecoMuon/MuonIdentification/interface/MuonMesh.h"
-
 
 #include "RecoMuon/MuonIdentification/interface/MuonKinkFinder.h"
 
