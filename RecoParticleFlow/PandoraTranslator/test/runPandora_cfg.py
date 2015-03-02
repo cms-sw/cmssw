@@ -42,7 +42,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2) )
 #process.EveService = cms.Service("EveService")
 
 
-from particleFileLists import Pho100
+#from particleFileLists import Pho100
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
@@ -65,7 +65,8 @@ process.source = cms.Source("PoolSource",
 #        Pho100 # all photon files, 100 GeV
         #'file:/tmp/lgray/step3.root'
         #'file:simple_jets.root'
-        'file:/tmp/lgray/6EC19337-A7AE-E411-999E-0025905A613C.root'
+        #'file:/tmp/lgray/6EC19337-A7AE-E411-999E-0025905A613C.root'
+        '/store/cmst3/group/hgcal/CMSSW/Single130-FixE_CMSSW_6_2_0_SLHC23_patch2/Events_130_20_1.root'
     )
 )
 
@@ -78,7 +79,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("RecoParticleFlow/PFClusterProducer/particleFlowRecHitHGCEE_cfi")
 
-process.load('HGCal/PandoraTranslator/HGCALTrackCollection_cfi')
+process.load('RecoParticleFlow/PandoraTranslator/HGCalTrackCollection_cfi')
 
 process.ak4PFJetsPandora = process.ak4PFJets.clone(src = cms.InputTag('pandorapfanew'))
 
@@ -87,9 +88,9 @@ process.ak4PFJetsPandora = process.ak4PFJets.clone(src = cms.InputTag('pandorapf
 # cd ${CMSSW_BASE}/src
 # git clone https://github.com/sethzenz/HGCanalysis.git --branch hacked-interactions-filter UserCode/HGCanalysis
 # cd Usercode ; scram b -j 9
-process.load('HGCal.PandoraTranslator.runPandora_cfi')
+process.load('RecoParticleFlow.PandoraTranslator.runPandora_cfi')
 
-process.load("UserCode/HGCanalysis/hgcTrackerInteractionsFilter_cfi")
+#process.load("UserCode/HGCanalysis/hgcTrackerInteractionsFilter_cfi")
 
 process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),

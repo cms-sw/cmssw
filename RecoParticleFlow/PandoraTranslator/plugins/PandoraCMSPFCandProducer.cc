@@ -4,6 +4,7 @@
 #include "LCContent.h"
 #include "LCContentFast.h"
 #include "RecoParticleFlow/PandoraTranslator/interface/CMSTemplateAlgorithm.h"
+#include "RecoParticleFlow/PandoraTranslator/interface/CMSGlobalHadronCompensationPlugin.h"
 //#include "PandoraMonitoringApi.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -87,6 +88,8 @@ namespace cms_content {
     LC_ENERGY_CORRECTION_LIST(PANDORA_REGISTER_ENERGY_CORRECTION);
     LC_PARTICLE_ID_LIST(PANDORA_REGISTER_PARTICLE_ID);
 
+    PANDORA_REGISTER_ENERGY_CORRECTION("CMSGlobalHadronCompensation",          pandora::HADRONIC,     cms_content::GlobalHadronCompensation);
+
     PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetPseudoLayerPlugin(pandora, new cms_content::CMSPseudoLayerPlugin));
     PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetShowerProfilePlugin(pandora, new lc_content::LCShowerProfilePlugin));
 
@@ -94,7 +97,7 @@ namespace cms_content {
   }
 }
 
-pandora::Pandora * PandoraCMSPFCandProducer::m_pPandora = NULL;
+//pandora::Pandora * PandoraCMSPFCandProducer::m_pPandora = NULL;
 //
 // constructors and destructor
 //
@@ -113,9 +116,6 @@ PandoraCMSPFCandProducer::PandoraCMSPFCandProducer(const edm::ParameterSet& iCon
   //    produces<reco::PFCandidateElectronExtraCollection>(electronExtraOutputCol_);
   //    produces<reco::PFCandidatePhotonExtraCollection>(photonExtraOutputCol_);
   
-  //now do what ever initialization is needed
-  m_pPandora = new pandora::Pandora();
-  
   inputTagHGCrechit_ = iConfig.getParameter<InputTag>("HGCrechitCollection");
   inputTagGeneralTracks_ = iConfig.getParameter<InputTag>("generaltracks");
   inputTagtPRecoTrackAsssociation_ = iConfig.getParameter<InputTag>("tPRecoTrackAsssociation");
@@ -133,19 +133,6 @@ PandoraCMSPFCandProducer::PandoraCMSPFCandProducer(const edm::ParameterSet& iCon
   stm = new steerManager(m_energyWeightingFilename.fullPath().c_str());
   
   speedoflight = (CLHEP::c_light/CLHEP::cm)/CLHEP::ns;
-  
-// NS // SHOWER PROFILE CALCULATOR
-  
-  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContent::RegisterAlgorithms(*m_pPandora));
-
-  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContentFast::RegisterAlgorithms(*m_pPandora));
-
-  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, cms_content::RegisterBasicPlugins(*m_pPandora));
-
-  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetBFieldPlugin(*m_pPandora, new CMSBFieldPlugin()));    
-  
-  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::RegisterAlgorithmFactory(*m_pPandora, "Template", new CMSTemplateAlgorithm::Factory));
-
 }
 
 PandoraCMSPFCandProducer::~PandoraCMSPFCandProducer()
@@ -1841,14 +1828,40 @@ PandoraCMSPFCandProducer::beginLuminosityBlock(edm::LuminosityBlock const& iLumi
   //get the magnetic field
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
   
-  //prepare geom at the beginning of each lumi block
-  prepareGeometry() ;
+  // reset the pandora instance
+  m_pPandora.reset( new pandora::Pandora() );
+
+  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContent::RegisterAlgorithms(*m_pPandora));
+
+  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContentFast::RegisterAlgorithms(*m_pPandora));
+
+  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, cms_content::RegisterBasicPlugins(*m_pPandora));
+
+  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetBFieldPlugin(*m_pPandora, new CMSBFieldPlugin()));
+
+  PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::RegisterAlgorithmFactory(*m_pPandora, "Template", new CMSTemplateAlgorithm::Factory));
+
+  // reset all the calibration info since it depends on the geometry
+  m_calibEE  = CalibHGC(ForwardSubdetector::HGCEE,"EE",debugPrint);
+  m_calibHEF = CalibHGC(ForwardSubdetector::HGCHEF,"HEF",debugPrint);
+  m_calibHEB = CalibHGC(ForwardSubdetector::HGCHEB,"HEB",debugPrint);
+  // read in calibration parameters
+  m_calibEE.m_energyCorrMethod = m_calibHEF.m_energyCorrMethod = m_calibHEB.m_energyCorrMethod = m_energyCorrMethod;
+  m_calibEE.m_stm = m_calibHEF.m_stm = m_calibHEB.m_stm = stm;
+  initPandoraCalibrParameters();
+  readCalibrParameterFile();
+  if (m_energyCorrMethod == "WEIGHTING")
+    readEnergyWeight();
+  calibInitialized = false;
   
-  //rebuild pandora 
+  // prepare the geometry
+  prepareGeometry();
+
+  //rebuild pandora
   if( pandora::STATUS_CODE_SUCCESS != PandoraApi::ReadSettings(*m_pPandora, m_pandoraSettingsXmlFile.fullPath()) ) {
     throw cms::Exception("InvalidXMLConfig")
       << "Unable to parse pandora configuration file";
-  }
+  }    
   //PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::ReadSettings(*m_pPandora, m_pandoraSettingsXmlFile.fullPath()));
 }
 
