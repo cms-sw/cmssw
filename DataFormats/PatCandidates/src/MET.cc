@@ -43,7 +43,10 @@ PATObject<reco::MET>(iOther),
 genMET_(iOther.genMET_),
 caloMET_(iOther.caloMET_),
 pfMET_(iOther.pfMET_),
-uncorInfo_(nullptr)
+uncorInfo_(nullptr),
+uncertaintiesRaw_(iOther.uncertaintiesRaw_),
+uncertaintiesType1_(iOther.uncertaintiesType1_),
+uncertaintiesType1p2_(iOther.uncertaintiesType1p2_)
 {
    auto tmp = iOther.uncorInfo_.load(std::memory_order_acquire);
    if(tmp != nullptr) {
@@ -63,6 +66,9 @@ MET& MET::operator=(MET const& iOther) {
    genMET_ = iOther.genMET_;
    caloMET_ =iOther.caloMET_;
    pfMET_ =iOther.pfMET_;
+   uncertaintiesRaw_ =iOther.uncertaintiesRaw_;
+   uncertaintiesType1_ =iOther.uncertaintiesType1_;
+   uncertaintiesType1p2_ =iOther.uncertaintiesType1p2_;
    auto tmp = iOther.uncorInfo_.load(std::memory_order_acquire);
    if(tmp != nullptr) {
       //Only thread-safe to read iOther.nCorrections_ if iOther.uncorInfo_ != nullptr
