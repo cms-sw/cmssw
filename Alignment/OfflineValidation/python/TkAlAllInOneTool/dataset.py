@@ -321,8 +321,20 @@ class Dataset:
         except KeyError:
             error = None
         if error or self.__findInJson(jsondict,"status") != 'ok' or "data" not in jsondict:
-            msg = ("The DAS query returned a error.  Here is the output\n" + str(jsondict) +
-                   "\nIt's possible that this was a server error.  If so, it may work if you try again later")
+            jsonstr = str(jsondict)
+            if len(jsonstr) > 10000:
+                jsonfile = "das_query_output_%i.txt"
+                i = 0
+                while os.path.lexists(jsonfile % i):
+                    i += 1
+                jsonfile = jsonfile % i
+                theFile = open( jsonfile, "w" )
+                theFile.write( jsonstr )
+                theFile.close()
+                msg = "The DAS query returned an error.  The output is very long, and has been stored in:\n" + jsonfile
+            else:
+                msg = "The DAS query returned a error.  Here is the output\n" + jsonstr
+            msg += "\nIt's possible that this was a server error.  If so, it may work if you try again later"
             raise AllInOneError(msg)
         return self.__findInJson(jsondict,"data")
 
