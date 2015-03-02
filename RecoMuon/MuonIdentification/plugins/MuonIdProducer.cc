@@ -763,15 +763,9 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 {
    // perform track - detector association
    const reco::Track* track = 0;
-   if ( ! aMuon.track().isNull() )
-     track = aMuon.track().get();
-   else
-     {
-	if ( ! aMuon.standAloneMuon().isNull() )
-	  track = aMuon.standAloneMuon().get();
-	else
-	  throw cms::Exception("FatalError") << "Failed to fill muon id information for a muon with undefined references to tracks";
-     }
+   if      ( aMuon.track().isNonnull() ) track = aMuon.track().get();
+   else if ( aMuon.standAloneMuon().isNonnull() ) track = aMuon.standAloneMuon().get();
+   else throw cms::Exception("FatalError") << "Failed to fill muon id information for a muon with undefined references to tracks";
 
    TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *track, parameters_, direction);
 
@@ -792,18 +786,16 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
       if (! info.crossedHcalIds.empty() ) muonEnergy.hcal_id = info.crossedHcalIds.front();
       // find maximal energy depositions and their time
       DetId emMaxId      = info.findMaxDeposition(TrackDetMatchInfo::EcalRecHits,2); // max energy deposit in 5x5 shape
-      for(std::vector<const EcalRecHit*>::const_iterator hit=info.ecalRecHits.begin();
-	  hit!=info.ecalRecHits.end(); ++hit) {
-	 if ((*hit)->id() != emMaxId) continue;
-	 muonEnergy.emMax   = (*hit)->energy();
-	 muonEnergy.ecal_time = (*hit)->time();
+      for ( const auto& hit : info.ecalRecHits ) {
+        if (hit->id() != emMaxId) continue;
+        muonEnergy.emMax   = hit->energy();
+        muonEnergy.ecal_time = hit->time();
       }
       DetId hadMaxId     = info.findMaxDeposition(TrackDetMatchInfo::HcalRecHits,1); // max energy deposit in 3x3 shape
-      for(std::vector<const HBHERecHit*>::const_iterator hit=info.hcalRecHits.begin();
-	  hit!=info.hcalRecHits.end(); ++hit) {
-	 if ((*hit)->id() != hadMaxId) continue;
-	 muonEnergy.hadMax   = (*hit)->energy();
-	 muonEnergy.hcal_time = (*hit)->time();
+      for ( const auto& hit : info.hcalRecHits ) {
+        if (hit->id() != hadMaxId) continue;
+        muonEnergy.hadMax   = hit->energy();
+        muonEnergy.hcal_time = hit->time();
       }
       aMuon.setCalEnergy( muonEnergy );
    }
@@ -815,123 +807,124 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    // fill muon match info
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
    unsigned int nubmerOfMatchesAccordingToTrackAssociator = 0;
-   for( std::vector<TAMuonChamberMatch>::const_iterator chamber=info.chambers.begin();
-	chamber!=info.chambers.end(); chamber++ )
+   for ( const auto& chamber : info.chambers )
+   {
+     if (chamber.id.subdetId() == 3 && rpcRecHits.isValid()  ) continue; // Skip RPC chambers, they are taken care of below)
+     reco::MuonChamberMatch matchedChamber;
+
+     const auto& lErr = chamber.tState.localError();
+     const auto& lPos = chamber.tState.localPosition();
+     const auto& lDir = chamber.tState.localDirection();
+
+     const auto& localError = lErr.positionError();
+     matchedChamber.x = lPos.x();
+     matchedChamber.y = lPos.y();
+     matchedChamber.xErr = sqrt( localError.xx() );
+     matchedChamber.yErr = sqrt( localError.yy() );
+
+     matchedChamber.dXdZ = lDir.z()!=0?lDir.x()/lDir.z():9999;
+     matchedChamber.dYdZ = lDir.z()!=0?lDir.y()/lDir.z():9999;
+     // DANGEROUS - compiler cannot guaranty parameters ordering
+     AlgebraicSymMatrix55 trajectoryCovMatrix = lErr.matrix();
+     matchedChamber.dXdZErr = trajectoryCovMatrix(1,1)>0?sqrt(trajectoryCovMatrix(1,1)):0;
+     matchedChamber.dYdZErr = trajectoryCovMatrix(2,2)>0?sqrt(trajectoryCovMatrix(2,2)):0;
+
+     matchedChamber.edgeX = chamber.localDistanceX;
+     matchedChamber.edgeY = chamber.localDistanceY;
+
+     matchedChamber.id = chamber.id;
+     if ( ! chamber.segments.empty() ) ++nubmerOfMatchesAccordingToTrackAssociator;
+
+     // fill segments
+     for ( const auto& segment : chamber.segments )
      {
-       if  (chamber->id.subdetId() == 3 && rpcRecHits.isValid()  ) continue; // Skip RPC chambers, they are taken care of below)
-	reco::MuonChamberMatch matchedChamber;
+       reco::MuonSegmentMatch matchedSegment;
+       matchedSegment.x = segment.segmentLocalPosition.x();
+       matchedSegment.y = segment.segmentLocalPosition.y();
+       matchedSegment.dXdZ = segment.segmentLocalDirection.z()?segment.segmentLocalDirection.x()/segment.segmentLocalDirection.z():0;
+       matchedSegment.dYdZ = segment.segmentLocalDirection.z()?segment.segmentLocalDirection.y()/segment.segmentLocalDirection.z():0;
+       matchedSegment.xErr = segment.segmentLocalErrorXX>0?sqrt(segment.segmentLocalErrorXX):0;
+       matchedSegment.yErr = segment.segmentLocalErrorYY>0?sqrt(segment.segmentLocalErrorYY):0;
+       matchedSegment.dXdZErr = segment.segmentLocalErrorDxDz>0?sqrt(segment.segmentLocalErrorDxDz):0;
+       matchedSegment.dYdZErr = segment.segmentLocalErrorDyDz>0?sqrt(segment.segmentLocalErrorDyDz):0;
+       matchedSegment.t0 = segment.t0;
+       matchedSegment.mask = 0;
+       matchedSegment.dtSegmentRef  = segment.dtSegmentRef;
+       matchedSegment.cscSegmentRef = segment.cscSegmentRef;
+       matchedSegment.hasZed_ = segment.hasZed;
+       matchedSegment.hasPhi_ = segment.hasPhi;
+       // test segment
+       bool matchedX = false;
+       bool matchedY = false;
+       LogTrace("MuonIdentification") << " matching local x, segment x: " << matchedSegment.x <<
+         ", chamber x: " << matchedChamber.x << ", max: " << maxAbsDx_;
+       LogTrace("MuonIdentification") << " matching local y, segment y: " << matchedSegment.y <<
+         ", chamber y: " << matchedChamber.y << ", max: " << maxAbsDy_;
+       if (matchedSegment.xErr>0 && matchedChamber.xErr>0 )
+         LogTrace("MuonIdentification") << " xpull: " <<
+           fabs(matchedSegment.x - matchedChamber.x)/sqrt(pow(matchedSegment.xErr,2) + pow(matchedChamber.xErr,2));
+       if (matchedSegment.yErr>0 && matchedChamber.yErr>0 )
+         LogTrace("MuonIdentification") << " ypull: " <<
+           fabs(matchedSegment.y - matchedChamber.y)/sqrt(pow(matchedSegment.yErr,2) + pow(matchedChamber.yErr,2));
 
-	LocalError localError = chamber->tState.localError().positionError();
-	matchedChamber.x = chamber->tState.localPosition().x();
-	matchedChamber.y = chamber->tState.localPosition().y();
-	matchedChamber.xErr = sqrt( localError.xx() );
-	matchedChamber.yErr = sqrt( localError.yy() );
-
-	matchedChamber.dXdZ = chamber->tState.localDirection().z()!=0?chamber->tState.localDirection().x()/chamber->tState.localDirection().z():9999;
-	matchedChamber.dYdZ = chamber->tState.localDirection().z()!=0?chamber->tState.localDirection().y()/chamber->tState.localDirection().z():9999;
-	// DANGEROUS - compiler cannot guaranty parameters ordering
-	AlgebraicSymMatrix55 trajectoryCovMatrix = chamber->tState.localError().matrix();
-	matchedChamber.dXdZErr = trajectoryCovMatrix(1,1)>0?sqrt(trajectoryCovMatrix(1,1)):0;
-	matchedChamber.dYdZErr = trajectoryCovMatrix(2,2)>0?sqrt(trajectoryCovMatrix(2,2)):0;
-
-	matchedChamber.edgeX = chamber->localDistanceX;
-	matchedChamber.edgeY = chamber->localDistanceY;
-
-	matchedChamber.id = chamber->id;
-	if ( ! chamber->segments.empty() ) ++nubmerOfMatchesAccordingToTrackAssociator;
-
-	// fill segments
-	for( std::vector<TAMuonSegmentMatch>::const_iterator segment = chamber->segments.begin();
-     segment != chamber->segments.end(); segment++ )
-	  {
-	     reco::MuonSegmentMatch matchedSegment;
-	     matchedSegment.x = segment->segmentLocalPosition.x();
-	     matchedSegment.y = segment->segmentLocalPosition.y();
-	     matchedSegment.dXdZ = segment->segmentLocalDirection.z()?segment->segmentLocalDirection.x()/segment->segmentLocalDirection.z():0;
-	     matchedSegment.dYdZ = segment->segmentLocalDirection.z()?segment->segmentLocalDirection.y()/segment->segmentLocalDirection.z():0;
-	     matchedSegment.xErr = segment->segmentLocalErrorXX>0?sqrt(segment->segmentLocalErrorXX):0;
-	     matchedSegment.yErr = segment->segmentLocalErrorYY>0?sqrt(segment->segmentLocalErrorYY):0;
-	     matchedSegment.dXdZErr = segment->segmentLocalErrorDxDz>0?sqrt(segment->segmentLocalErrorDxDz):0;
-	     matchedSegment.dYdZErr = segment->segmentLocalErrorDyDz>0?sqrt(segment->segmentLocalErrorDyDz):0;
-	     matchedSegment.t0 = segment->t0;
-	     matchedSegment.mask = 0;
-             matchedSegment.dtSegmentRef  = segment->dtSegmentRef;
-             matchedSegment.cscSegmentRef = segment->cscSegmentRef;
-        matchedSegment.hasZed_ = segment->hasZed;
-        matchedSegment.hasPhi_ = segment->hasPhi;
-	     // test segment
-	     bool matchedX = false;
-	     bool matchedY = false;
-	     LogTrace("MuonIdentification") << " matching local x, segment x: " << matchedSegment.x <<
-	       ", chamber x: " << matchedChamber.x << ", max: " << maxAbsDx_;
-	     LogTrace("MuonIdentification") << " matching local y, segment y: " << matchedSegment.y <<
-	       ", chamber y: " << matchedChamber.y << ", max: " << maxAbsDy_;
-	     if (matchedSegment.xErr>0 && matchedChamber.xErr>0 )
-	       LogTrace("MuonIdentification") << " xpull: " <<
-	       fabs(matchedSegment.x - matchedChamber.x)/sqrt(pow(matchedSegment.xErr,2) + pow(matchedChamber.xErr,2));
-	     if (matchedSegment.yErr>0 && matchedChamber.yErr>0 )
-	       LogTrace("MuonIdentification") << " ypull: " <<
-	       fabs(matchedSegment.y - matchedChamber.y)/sqrt(pow(matchedSegment.yErr,2) + pow(matchedChamber.yErr,2));
-
-	     if (fabs(matchedSegment.x - matchedChamber.x) < maxAbsDx_) matchedX = true;
-	     if (fabs(matchedSegment.y - matchedChamber.y) < maxAbsDy_) matchedY = true;
-	     if (matchedSegment.xErr>0 && matchedChamber.xErr>0 &&
-		 fabs(matchedSegment.x - matchedChamber.x)/sqrt(pow(matchedSegment.xErr,2) + pow(matchedChamber.xErr,2)) < maxAbsPullX_) matchedX = true;
-	     if (matchedSegment.yErr>0 && matchedChamber.yErr>0 &&
-		 fabs(matchedSegment.y - matchedChamber.y)/sqrt(pow(matchedSegment.yErr,2) + pow(matchedChamber.yErr,2)) < maxAbsPullY_) matchedY = true;
-	     if (matchedX && matchedY) matchedChamber.segmentMatches.push_back(matchedSegment);
-	  }
-	muonChamberMatches.push_back(matchedChamber);
+       if (fabs(matchedSegment.x - matchedChamber.x) < maxAbsDx_) matchedX = true;
+       if (fabs(matchedSegment.y - matchedChamber.y) < maxAbsDy_) matchedY = true;
+       if (matchedSegment.xErr>0 && matchedChamber.xErr>0 &&
+           fabs(matchedSegment.x - matchedChamber.x)/sqrt(pow(matchedSegment.xErr,2) + pow(matchedChamber.xErr,2)) < maxAbsPullX_) matchedX = true;
+       if (matchedSegment.yErr>0 && matchedChamber.yErr>0 &&
+           fabs(matchedSegment.y - matchedChamber.y)/sqrt(pow(matchedSegment.yErr,2) + pow(matchedChamber.yErr,2)) < maxAbsPullY_) matchedY = true;
+       if (matchedX && matchedY) matchedChamber.segmentMatches.push_back(matchedSegment);
      }
+     muonChamberMatches.push_back(matchedChamber);
+   }
 
-  // Fill RPC info
-  if ( rpcRecHits.isValid() )
-  {
-
-   for( std::vector<TAMuonChamberMatch>::const_iterator chamber=info.chambers.begin();
-	chamber!=info.chambers.end(); chamber++ )
+   // Fill RPC info
+   if ( rpcRecHits.isValid() )
+   {
+     for ( const auto& chamber : info.chambers )
      {
+       if ( chamber.id.subdetId() != 3 ) continue; // Consider RPC chambers only
+       const auto& lErr = chamber.tState.localError();
+       const auto& lPos = chamber.tState.localPosition();
+       const auto& lDir = chamber.tState.localDirection();
 
-      if ( chamber->id.subdetId() != 3 ) continue; // Consider RPC chambers only
+       reco::MuonChamberMatch matchedChamber;
 
-      reco::MuonChamberMatch matchedChamber;
+       LocalError localError = lErr.positionError();
+       matchedChamber.x = lPos.x();
+       matchedChamber.y = lPos.y();
+       matchedChamber.xErr = sqrt( localError.xx() );
+       matchedChamber.yErr = sqrt( localError.yy() );
 
-      LocalError localError = chamber->tState.localError().positionError();
-      matchedChamber.x = chamber->tState.localPosition().x();
-      matchedChamber.y = chamber->tState.localPosition().y();
-      matchedChamber.xErr = sqrt( localError.xx() );
-      matchedChamber.yErr = sqrt( localError.yy() );
+       matchedChamber.dXdZ = lDir.z()!=0?lDir.x()/lDir.z():9999;
+       matchedChamber.dYdZ = lDir.z()!=0?lDir.y()/lDir.z():9999;
+       // DANGEROUS - compiler cannot guaranty parameters ordering
+       AlgebraicSymMatrix55 trajectoryCovMatrix = lErr.matrix();
+       matchedChamber.dXdZErr = trajectoryCovMatrix(1,1)>0?sqrt(trajectoryCovMatrix(1,1)):0;
+       matchedChamber.dYdZErr = trajectoryCovMatrix(2,2)>0?sqrt(trajectoryCovMatrix(2,2)):0;
 
-      matchedChamber.dXdZ = chamber->tState.localDirection().z()!=0?chamber->tState.localDirection().x()/chamber->tState.localDirection().z():9999;
-      matchedChamber.dYdZ = chamber->tState.localDirection().z()!=0?chamber->tState.localDirection().y()/chamber->tState.localDirection().z():9999;
-      // DANGEROUS - compiler cannot guaranty parameters ordering
-      AlgebraicSymMatrix55 trajectoryCovMatrix = chamber->tState.localError().matrix();
-      matchedChamber.dXdZErr = trajectoryCovMatrix(1,1)>0?sqrt(trajectoryCovMatrix(1,1)):0;
-      matchedChamber.dYdZErr = trajectoryCovMatrix(2,2)>0?sqrt(trajectoryCovMatrix(2,2)):0;
+       matchedChamber.edgeX = chamber.localDistanceX;
+       matchedChamber.edgeY = chamber.localDistanceY;
 
-      matchedChamber.edgeX = chamber->localDistanceX;
-      matchedChamber.edgeY = chamber->localDistanceY;
+       matchedChamber.id = chamber.id;
 
-      matchedChamber.id = chamber->id;
+       for ( const auto& rpcRecHit : *rpcRecHits )
+       {
+         reco::MuonRPCHitMatch rpcHitMatch;
 
-      for ( RPCRecHitCollection::const_iterator rpcRecHit = rpcRecHits->begin();
-            rpcRecHit != rpcRecHits->end(); ++rpcRecHit )
-      {
-        reco::MuonRPCHitMatch rpcHitMatch;
+         if ( rpcRecHit.rawId() != chamber.id.rawId() ) continue;
 
-        if ( rpcRecHit->rawId() != chamber->id.rawId() ) continue;
+         rpcHitMatch.x = rpcRecHit.localPosition().x();
+         rpcHitMatch.mask = 0;
+         rpcHitMatch.bx = rpcRecHit.BunchX();
 
-        rpcHitMatch.x = rpcRecHit->localPosition().x();
-        rpcHitMatch.mask = 0;
-        rpcHitMatch.bx = rpcRecHit->BunchX();
+         const double absDx = fabs(rpcRecHit.localPosition().x()-chamber.tState.localPosition().x());
+         if( absDx <= 20 or absDx/sqrt(localError.xx()) <= 4 ) matchedChamber.rpcMatches.push_back(rpcHitMatch);
+       }
 
-        const double AbsDx = fabs(rpcRecHit->localPosition().x()-chamber->tState.localPosition().x());
-        if( AbsDx <= 20 or AbsDx/sqrt(localError.xx()) <= 4 ) matchedChamber.rpcMatches.push_back(rpcHitMatch);
-      }
-
-      muonChamberMatches.push_back(matchedChamber);
-    }
-  }
+       muonChamberMatches.push_back(matchedChamber);
+     }
+   }
 
    aMuon.setMatches(muonChamberMatches);
 
