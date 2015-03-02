@@ -123,7 +123,8 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
      << "Debugging mode with truth matching is turned on!!! Make sure you understand what you are doing!\n"
      << "========================================================================\n";
    if (fillGlobalTrackQuality_){
-     globalTrackQualityInputTag_ = iConfig.getParameter<edm::InputTag>("globalTrackQualityInputTag");
+     const auto& glbQualTag = iConfig.getParameter<edm::InputTag>("globalTrackQualityInputTag");
+     glbQualToken_ = consumes<edm::ValueMap<reco::MuonQuality> >(glbQualTag);
    }
 
    if (fillTrackerKink_) {
@@ -136,7 +137,6 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 
    edm::InputTag rpcHitTag("rpcRecHits");
    rpcHitToken_ = consumes<RPCRecHitCollection>(rpcHitTag);
-   glbQualToken_ = consumes<edm::ValueMap<reco::MuonQuality> >(globalTrackQualityInputTag_);
    
 
    //Consumes... UGH
@@ -250,6 +250,7 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    iEvent.getByToken(rpcHitToken_, rpcHitHandle_);
+   if (fillGlobalTrackQuality_) iEvent.getByToken(glbQualToken_, glbQualHandle_);
 
 }
 
@@ -1210,11 +1211,8 @@ double MuonIdProducer::phiOfMuonIneteractionRegion( const reco::Muon& muon ) con
 
 void MuonIdProducer::fillGlbQuality(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::Muon& aMuon)
 {
-  edm::Handle<edm::ValueMap<reco::MuonQuality> > glbQualH;
-  iEvent.getByToken(glbQualToken_, glbQualH);
-
-  if(aMuon.isGlobalMuon() && glbQualH.isValid() && !glbQualH.failedToGet()) {
-    aMuon.setCombinedQuality((*glbQualH)[aMuon.combinedMuon()]);
+  if(aMuon.isGlobalMuon() && glbQualHandle_.isValid() && !glbQualHandle_.failedToGet()) {
+    aMuon.setCombinedQuality((*glbQualHandle_)[aMuon.combinedMuon()]);
   }
 
   LogDebug("MuonIdentification") << "tkChiVal " << aMuon.combinedQuality().trkRelChi2;

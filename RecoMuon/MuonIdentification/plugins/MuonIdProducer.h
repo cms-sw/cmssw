@@ -200,6 +200,7 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    edm::EDGetTokenT<edm::ValueMap<reco::MuonQuality> > glbQualToken_;
 
    edm::Handle<RPCRecHitCollection> rpcHitHandle_;
+   edm::Handle<edm::ValueMap<reco::MuonQuality> > glbQualHandle_;
    
    MuonCaloCompatibility muonCaloCompatibility_;
    reco::isodeposit::IsoDepositExtractor* muIsoExtractorCalo_;
