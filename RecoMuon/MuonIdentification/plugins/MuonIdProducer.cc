@@ -248,6 +248,9 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       else throw cms::Exception("FatalError") << "Unknown input collection type: #" << ICTypes::toStr(inputType);
    }
+
+   iEvent.getByToken(rpcHitToken_, rpcHitHandle_);
+
 }
 
 reco::Muon MuonIdProducer::makeMuon(edm::Event& iEvent, const edm::EventSetup& iSetup,
@@ -801,15 +804,12 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    }
    if ( ! fillMatching_ && ! aMuon.isTrackerMuon() && ! aMuon.isRPCMuon() ) return;
 
-  edm::Handle<RPCRecHitCollection> rpcRecHits;
-  iEvent.getByToken(rpcHitToken_, rpcRecHits);
-
    // fill muon match info
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
    unsigned int nubmerOfMatchesAccordingToTrackAssociator = 0;
    for ( const auto& chamber : info.chambers )
    {
-     if (chamber.id.subdetId() == 3 && rpcRecHits.isValid()  ) continue; // Skip RPC chambers, they are taken care of below)
+     if (chamber.id.subdetId() == 3 && rpcHitHandle_.isValid()  ) continue; // Skip RPC chambers, they are taken care of below)
      reco::MuonChamberMatch matchedChamber;
 
      const auto& lErr = chamber.tState.localError();
@@ -879,7 +879,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    }
 
    // Fill RPC info
-   if ( rpcRecHits.isValid() )
+   if ( rpcHitHandle_.isValid() )
    {
      for ( const auto& chamber : info.chambers )
      {
@@ -908,7 +908,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 
        matchedChamber.id = chamber.id;
 
-       for ( const auto& rpcRecHit : *rpcRecHits )
+       for ( const auto& rpcRecHit : *rpcHitHandle_ )
        {
          reco::MuonRPCHitMatch rpcHitMatch;
 
