@@ -14,7 +14,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include <DataFormats/Math/interface/deltaR.h>
+#include "RecoEgamma/EgammaIsolationAlgos/interface/HcalPFClusterIsolation.h"
 
 template<typename T1>
 HLTHcalPFClusterIsolationProducer<T1>::HLTHcalPFClusterIsolationProducer(const edm::ParameterSet& config) :
@@ -93,103 +93,31 @@ void HLTHcalPFClusterIsolationProducer<T1>::produce(edm::StreamID sid, edm::Even
   rho = rho*rhoScale_;
 
   edm::Handle<T1Collection> recoCandHandle;
+
+  std::vector<edm::Handle<reco::PFClusterCollection>> clusterHandles;  
   edm::Handle<reco::PFClusterCollection> clusterHcalHandle;
   edm::Handle<reco::PFClusterCollection> clusterHfemHandle;
   edm::Handle<reco::PFClusterCollection> clusterHfhadHandle;
 
   iEvent.getByToken(recoCandidateProducer_,recoCandHandle);
   iEvent.getByToken(pfClusterProducerHCAL_, clusterHcalHandle);
-  const reco::PFClusterCollection* forIsolationHcal = clusterHcalHandle.product();
+  //const reco::PFClusterCollection* forIsolationHcal = clusterHcalHandle.product();
+  clusterHandles.push_back(clusterHcalHandle);
 
   if (useHF_) {
     iEvent.getByToken(pfClusterProducerHFEM_, clusterHfemHandle);
+    clusterHandles.push_back(clusterHfemHandle);
     iEvent.getByToken(pfClusterProducerHFHAD_, clusterHfhadHandle);
+    clusterHandles.push_back(clusterHfhadHandle);
   }
 
   T1IsolationMap recoCandMap;
-  
-  float dRVeto = -1.;
-  float etaStrip = -1;
+  HcalPFClusterIsolation<T1> isoAlgo(drMax_, drVetoBarrel_, drVetoEndcap_, etaStripBarrel_, etaStripEndcap_, energyBarrel_, energyEndcap_);
   
   for (unsigned int iReco = 0; iReco < recoCandHandle->size(); iReco++) {
     T1Ref candRef(recoCandHandle, iReco);
-    
-    if (fabs(candRef->eta()) < 1.479) {
-      dRVeto = drVetoBarrel_;
-      etaStrip = etaStripBarrel_;
-    } else {
-      dRVeto = drVetoEndcap_;
-      etaStrip = etaStripEndcap_;
-    }
-    
-    float sum = 0;
-    
-    // Loop over the 3 types of PFClusters
-
-    for(unsigned i=0; i<forIsolationHcal->size(); i++) {
-      const reco::PFCluster& pfclu = (*forIsolationHcal)[i];
-      
-      if (fabs(candRef->eta()) < 1.479) {
-	if (fabs(pfclu.pt()) < energyBarrel_)
-	  continue;
-      } else {
-	if (fabs(pfclu.energy()) < energyEndcap_)
-	  continue;
-      }
-
-      float dEta = fabs(candRef->eta() - pfclu.eta());
-      if(dEta < etaStrip) continue;
-      
-      float dR = deltaR(candRef->eta(), candRef->phi(), pfclu.eta(), pfclu.phi());
-      if(dR > drMax_ || dR < dRVeto) continue;
-      
-      sum += pfclu.pt();
-    }
-
-    if (useHF_) {
-      const reco::PFClusterCollection* forIsolationHfem = clusterHfemHandle.product();
-      const reco::PFClusterCollection* forIsolationHfhad = clusterHfhadHandle.product();
-      
-      for(unsigned i=0; i<forIsolationHfem->size(); i++) {
-	const reco::PFCluster& pfclu = (*forIsolationHfem)[i];
-	
-	if (fabs(candRef->eta()) < 1.479) {
-	  if (fabs(pfclu.pt()) < energyBarrel_)
-	    continue;
-	} else {
-	  if (fabs(pfclu.energy()) < energyEndcap_)
-	    continue;
-	}
-	
-	float dEta = fabs(candRef->eta() - pfclu.eta());
-	if(dEta < etaStrip) continue;
-	
-	float dR = deltaR(candRef->eta(), candRef->phi(), pfclu.eta(), pfclu.phi());
-	if(dR > drMax_ || dR < dRVeto) continue;
-	
-	sum += pfclu.pt();
-      }
-      
-      for(unsigned i=0; i<forIsolationHfhad->size(); i++) {
-	const reco::PFCluster& pfclu = (*forIsolationHfhad)[i];
-	
-	if (fabs(candRef->eta()) < 1.479) {
-	  if (fabs(pfclu.pt()) < energyBarrel_)
-	    continue;
-	} else {
-	  if (fabs(pfclu.energy()) < energyEndcap_)
-	    continue;
-	}
-	
-	float dEta = fabs(candRef->eta() - pfclu.eta());
-	if(dEta < etaStrip) continue;
-	
-	float dR = deltaR(candRef->eta(), candRef->phi(), pfclu.eta(), pfclu.phi());
-	if(dR > drMax_ || dR < dRVeto) continue;
-	
-	sum += pfclu.pt();
-      }
-    }
+        
+    float sum = isoAlgo.getSum(candRef, clusterHandles);
  
     if (doRhoCorrection_) {
       if (fabs(candRef->eta()) < 1.479) 
