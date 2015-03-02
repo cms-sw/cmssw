@@ -375,34 +375,34 @@ unsigned int MuonIdProducer::chamberId( const DetId& id )
 
 int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track)
 {
-   int numberOfCommonDetIds = 0;
    if ( ! muon.isMatchesValid() ||
-	track.extra().isNull() ||
-	track.extra()->recHitsSize()==0 ) return numberOfCommonDetIds;
+          track.extra().isNull() ||
+          track.extra()->recHitsSize()==0 ) return 0;
+
+   int numberOfCommonDetIds = 0;
    const std::vector<reco::MuonChamberMatch>& matches( muon.matches() );
-   for ( std::vector<reco::MuonChamberMatch>::const_iterator match = matches.begin();
-	 match != matches.end(); ++match )
+   for ( const auto& match : matches )
+   {
+     if ( match.segmentMatches.empty() ) continue;
+
+     bool foundCommonDetId = false;
+     for ( auto hit = track.extra()->recHitsBegin();
+           hit != track.extra()->recHitsEnd(); ++hit )
      {
-	if ( match->segmentMatches.empty() ) continue;
-	bool foundCommonDetId = false;
+       // LogTrace("MuonIdentification") << "hit DetId: " << std::hex << hit->get()->geographicalId().rawId() <<
+       //  "\t hit chamber DetId: " << getChamberId(hit->get()->geographicalId()) <<
+       //  "\t segment DetId: " << match->id.rawId() << std::dec;
 
-	for ( auto hit = track.extra()->recHitsBegin();
-	      hit != track.extra()->recHitsEnd(); ++hit )
-	  {
-	     // LogTrace("MuonIdentification") << "hit DetId: " << std::hex << hit->get()->geographicalId().rawId() <<
-	     //  "\t hit chamber DetId: " << getChamberId(hit->get()->geographicalId()) <<
-	     //  "\t segment DetId: " << match->id.rawId() << std::dec;
-
-	     if ( chamberId((*hit)->geographicalId()) == match->id.rawId() ) {
-		foundCommonDetId = true;
-		break;
-	     }
-	  }
-	if ( foundCommonDetId ) {
-	   numberOfCommonDetIds++;
-	   break;
-	}
+       if ( chamberId((*hit)->geographicalId()) == match.id.rawId() ) {
+         foundCommonDetId = true;
+         break;
+       }
      }
+     if ( foundCommonDetId ) {
+       ++numberOfCommonDetIds;
+       break;
+     }
+   }
    return numberOfCommonDetIds;
 }
 
@@ -416,19 +416,17 @@ void MuonIdProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 }
 
 bool validateGlobalMuonPair( const reco::MuonTrackLinks& goodMuon,
-			     const reco::MuonTrackLinks& badMuon )
+                             const reco::MuonTrackLinks& badMuon )
 {
-  if ( std::min(goodMuon.globalTrack()->hitPattern().numberOfValidMuonHits(),
-		 badMuon.globalTrack()->hitPattern().numberOfValidMuonHits()) > 10 ){
-    if ( goodMuon.globalTrack()->normalizedChi2() >
-	  badMuon.globalTrack()->normalizedChi2() )
-      return false;
-    else
-      return true;
+  const int nHitsGood = goodMuon.globalTrack()->hitPattern().numberOfValidMuonHits();
+  const int nHitsBad  = badMuon.globalTrack()->hitPattern().numberOfValidMuonHits();
+  if ( std::min(nHitsGood, nHitsBad) > 10 ) {
+    const double chi2Good = goodMuon.globalTrack()->normalizedChi2();
+	  const double chi2Bad  = badMuon.globalTrack()->normalizedChi2();
+    return ( chi2Good <= chi2Bad );
   }
-  if ( goodMuon.globalTrack()->hitPattern().numberOfValidMuonHits() <
-       badMuon.globalTrack()->hitPattern().numberOfValidMuonHits() ) return false;
-  return true;
+
+  return (nHitsGood >= nHitsBad);
 }
 
 void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -635,7 +633,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    LogTrace("MuonIdentification") << "Dress up muons if it's necessary";
 
-   int nMuons=outputMuons->size();
+   const int nMuons=outputMuons->size();
 
    std::vector<reco::MuonTimeExtra> dtTimeColl(nMuons);
    std::vector<reco::MuonTimeExtra> cscTimeColl(nMuons);
@@ -950,149 +948,148 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
    // muonIndex1
    for( unsigned int muonIndex1 = 0; muonIndex1 < pOutputMuons->size(); ++muonIndex1 )
    {
-      // chamberIter1
-      for( std::vector<reco::MuonChamberMatch>::iterator chamberIter1 = pOutputMuons->at(muonIndex1).matches().begin();
-            chamberIter1 != pOutputMuons->at(muonIndex1).matches().end(); ++chamberIter1 )
-      {
-         if(chamberIter1->segmentMatches.empty()) continue;
-         chamberPairs.clear();
+     auto& muon1 = pOutputMuons->at(muonIndex1);
+     // chamberIter1
+     for ( auto& chamber1 : muon1.matches() )
+     {
+       if(chamber1.segmentMatches.empty()) continue;
+       chamberPairs.clear();
 
-         // segmentIter1
-         for( std::vector<reco::MuonSegmentMatch>::iterator segmentIter1 = chamberIter1->segmentMatches.begin();
-               segmentIter1 != chamberIter1->segmentMatches.end(); ++segmentIter1 )
+       // segmentIter1
+       for ( auto& segment1 : chamber1.segmentMatches )
+       {
+         chamberPairs.push_back(std::make_pair(&chamber1, &segment1));
+         if(!segment1.isMask()) // has not yet been arbitrated
          {
-            chamberPairs.push_back(std::make_pair(&(*chamberIter1), &(*segmentIter1)));
-            if(!segmentIter1->isMask()) // has not yet been arbitrated
-            {
-               arbitrationPairs.clear();
-               arbitrationPairs.push_back(std::make_pair(&(*chamberIter1), &(*segmentIter1)));
+           arbitrationPairs.clear();
+           arbitrationPairs.push_back(std::make_pair(&chamber1, &segment1));
 
-
-
-               // find identical segments with which to arbitrate
+           // find identical segments with which to arbitrate
+           // tracker muons only
+           if (muon1.isTrackerMuon()) {
+             // muonIndex2
+             for( unsigned int muonIndex2 = muonIndex1+1; muonIndex2 < pOutputMuons->size(); ++muonIndex2 )
+             {
+               auto& muon2 = pOutputMuons->at(muonIndex2);
                // tracker muons only
-               if (pOutputMuons->at(muonIndex1).isTrackerMuon()) {
-                  // muonIndex2
-                  for( unsigned int muonIndex2 = muonIndex1+1; muonIndex2 < pOutputMuons->size(); ++muonIndex2 )
-                  {
-                     // tracker muons only
-                     if (! pOutputMuons->at(muonIndex2).isTrackerMuon()) continue;
-                     // chamberIter2
-                     for( std::vector<reco::MuonChamberMatch>::iterator chamberIter2 = pOutputMuons->at(muonIndex2).matches().begin();
-                           chamberIter2 != pOutputMuons->at(muonIndex2).matches().end(); ++chamberIter2 )
-                     {
-                        // segmentIter2
-                        for( std::vector<reco::MuonSegmentMatch>::iterator segmentIter2 = chamberIter2->segmentMatches.begin();
-                              segmentIter2 != chamberIter2->segmentMatches.end(); ++segmentIter2 )
-                        {
-                           if(segmentIter2->isMask()) continue; // has already been arbitrated
-                           if(fabs(segmentIter2->x       - segmentIter1->x      ) < 1E-3 &&
-                                 fabs(segmentIter2->y       - segmentIter1->y      ) < 1E-3 &&
-                                 fabs(segmentIter2->dXdZ    - segmentIter1->dXdZ   ) < 1E-3 &&
-                                 fabs(segmentIter2->dYdZ    - segmentIter1->dYdZ   ) < 1E-3 &&
-                                 fabs(segmentIter2->xErr    - segmentIter1->xErr   ) < 1E-3 &&
-                                 fabs(segmentIter2->yErr    - segmentIter1->yErr   ) < 1E-3 &&
-                                 fabs(segmentIter2->dXdZErr - segmentIter1->dXdZErr) < 1E-3 &&
-                                 fabs(segmentIter2->dYdZErr - segmentIter1->dYdZErr) < 1E-3)
-                              arbitrationPairs.push_back(std::make_pair(&(*chamberIter2), &(*segmentIter2)));
-                        } // segmentIter2
-                     } // chamberIter2
-                  } // muonIndex2
-               }
+               if ( !muon2.isTrackerMuon() ) continue;
+               // chamberIter2
+               for ( auto& chamber2 : muon2.matches() )
+               {
+                 // segmentIter2
+                 for ( auto& segment2 : chamber2.segmentMatches )
+                 {
+                   if(segment2.isMask()) continue; // has already been arbitrated
+                   if(fabs(segment2.x       - segment1.x      ) < 1E-3 &&
+                      fabs(segment2.y       - segment1.y      ) < 1E-3 &&
+                      fabs(segment2.dXdZ    - segment1.dXdZ   ) < 1E-3 &&
+                      fabs(segment2.dYdZ    - segment1.dYdZ   ) < 1E-3 &&
+                      fabs(segment2.xErr    - segment1.xErr   ) < 1E-3 &&
+                      fabs(segment2.yErr    - segment1.yErr   ) < 1E-3 &&
+                      fabs(segment2.dXdZErr - segment1.dXdZErr) < 1E-3 &&
+                      fabs(segment2.dYdZErr - segment1.dYdZErr) < 1E-3)
+                   {
+                     arbitrationPairs.push_back(std::make_pair(&chamber2, &segment2));
+                   }
+                 } // segmentIter2
+               } // chamberIter2
+             } // muonIndex2
+           }
 
-               // arbitration segment sort
-               if(arbitrationPairs.empty()) continue; // this should never happen
-               if(arbitrationPairs.size()==1) {
-                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDRSlope);
-                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDXSlope);
-                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDR);
-                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDX);
-                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::Arbitrated);
-               } else {
-                  sort(arbitrationPairs.begin(), arbitrationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BelongsToTrackByDRSlope));
-                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDRSlope);
-                  sort(arbitrationPairs.begin(), arbitrationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BelongsToTrackByDXSlope));
-                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDXSlope);
-                  sort(arbitrationPairs.begin(), arbitrationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BelongsToTrackByDR));
-                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDR);
-                  sort(arbitrationPairs.begin(), arbitrationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BelongsToTrackByDX));
-                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDX);
-                  for( unsigned int it = 0; it < arbitrationPairs.size(); ++it )
-                     arbitrationPairs.at(it).second->setMask(reco::MuonSegmentMatch::Arbitrated);
-               }
-            }
-
-	    // setup me1a cleaning for later
-	    if( chamberIter1->id.subdetId() == MuonSubdetId::CSC && arbClean_ ) {
-	      CSCDetId cscid(chamberIter1->id);
-	      if(cscid.ring() == 4)
-		for( std::vector<reco::MuonSegmentMatch>::iterator segmentIter2 = chamberIter1->segmentMatches.begin();
-		     segmentIter2 != chamberIter1->segmentMatches.end(); ++segmentIter2 ) {
-		  if( segmentIter1->cscSegmentRef.isNonnull() && segmentIter2->cscSegmentRef.isNonnull() )
-		    if( meshAlgo_->isDuplicateOf(segmentIter1->cscSegmentRef,segmentIter2->cscSegmentRef) &&
-			(segmentIter2->mask & 0x1e0000) &&
-			(segmentIter1->mask & 0x1e0000) )
-		      segmentIter2->setMask(reco::MuonSegmentMatch::BelongsToTrackByME1aClean);
-		  //if the track has lost the segment already through normal arbitration no need to do it again.
-		}
-	    }// mark all ME1/a duplicates that this track owns
-
-         } // segmentIter1
-
-         // chamber segment sort
-         if(chamberPairs.empty()) continue; // this should never happen
-         if(chamberPairs.size()==1) {
-            chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDRSlope);
-            chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDXSlope);
-            chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDR);
-            chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDX);
-         } else {
-            sort(chamberPairs.begin(), chamberPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInChamberByDRSlope));
-            chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDRSlope);
-            sort(chamberPairs.begin(), chamberPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInChamberByDXSlope));
-            chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDXSlope);
-            sort(chamberPairs.begin(), chamberPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInChamberByDR));
-            chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDR);
-            sort(chamberPairs.begin(), chamberPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInChamberByDX));
-            chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDX);
+           // arbitration segment sort
+           if(arbitrationPairs.empty()) continue; // this should never happen
+           if(arbitrationPairs.size()==1) {
+             arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDRSlope);
+             arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDXSlope);
+             arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDR);
+             arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDX);
+             arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::Arbitrated);
+           } else {
+             sort(arbitrationPairs.begin(), arbitrationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BelongsToTrackByDRSlope));
+             arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDRSlope);
+             sort(arbitrationPairs.begin(), arbitrationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BelongsToTrackByDXSlope));
+             arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDXSlope);
+             sort(arbitrationPairs.begin(), arbitrationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BelongsToTrackByDR));
+             arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDR);
+             sort(arbitrationPairs.begin(), arbitrationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BelongsToTrackByDX));
+             arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDX);
+             for ( auto& ap : arbitrationPairs ) {
+               ap.second->setMask(reco::MuonSegmentMatch::Arbitrated);
+             }
+           }
          }
-      } // chamberIter1
 
-      // station segment sort
-      for( int stationIndex = 1; stationIndex < 5; ++stationIndex )
-         for( int detectorIndex = 1; detectorIndex < 4; ++detectorIndex )
+         // setup me1a cleaning for later
+         if( chamber1.id.subdetId() == MuonSubdetId::CSC && arbClean_ &&
+             CSCDetId(chamber1.id).ring() == 4) {
+           for ( auto& segment2 : chamber1.segmentMatches ) {
+             if( segment1.cscSegmentRef.isNull() || segment2.cscSegmentRef.isNull() ) continue;
+             if( meshAlgo_->isDuplicateOf(segment1.cscSegmentRef,segment2.cscSegmentRef) &&
+                 (segment2.mask & 0x1e0000) &&
+                 (segment1.mask & 0x1e0000) ) {
+               segment2.setMask(reco::MuonSegmentMatch::BelongsToTrackByME1aClean);
+               //if the track has lost the segment already through normal arbitration no need to do it again.
+             }
+           }
+         }// mark all ME1/a duplicates that this track owns
+
+       } // segmentIter1
+
+       // chamber segment sort
+       if(chamberPairs.empty()) continue; // this should never happen
+       if(chamberPairs.size()==1) {
+         chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDRSlope);
+         chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDXSlope);
+         chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDR);
+         chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDX);
+       } else {
+         sort(chamberPairs.begin(), chamberPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInChamberByDRSlope));
+         chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDRSlope);
+         sort(chamberPairs.begin(), chamberPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInChamberByDXSlope));
+         chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDXSlope);
+         sort(chamberPairs.begin(), chamberPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInChamberByDR));
+         chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDR);
+         sort(chamberPairs.begin(), chamberPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInChamberByDX));
+         chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDX);
+       }
+     } // chamberIter1
+
+     // station segment sort
+     for( int stationIndex = 1; stationIndex < 5; ++stationIndex ) 
+     {
+       for( int detectorIndex = 1; detectorIndex < 4; ++detectorIndex )
+       {
+         stationPairs.clear();
+
+         // chamberIter
+         for ( auto& chamber : muon1.matches() )
          {
-            stationPairs.clear();
+           if(!(chamber.station()==stationIndex && chamber.detector()==detectorIndex)) continue;
+           if(chamber.segmentMatches.empty()) continue;
 
-            // chamberIter
-            for( std::vector<reco::MuonChamberMatch>::iterator chamberIter = pOutputMuons->at(muonIndex1).matches().begin();
-                  chamberIter != pOutputMuons->at(muonIndex1).matches().end(); ++chamberIter )
-            {
-               if(!(chamberIter->station()==stationIndex && chamberIter->detector()==detectorIndex)) continue;
-               if(chamberIter->segmentMatches.empty()) continue;
+           for ( auto& segment : chamber.segmentMatches ) {
+             stationPairs.push_back(std::make_pair(&chamber, &segment));
+           }
+         } // chamberIter
 
-               for( std::vector<reco::MuonSegmentMatch>::iterator segmentIter = chamberIter->segmentMatches.begin();
-                     segmentIter != chamberIter->segmentMatches.end(); ++segmentIter )
-                  stationPairs.push_back(std::make_pair(&(*chamberIter), &(*segmentIter)));
-            } // chamberIter
-
-            if(stationPairs.empty()) continue; // this may very well happen
-            if(stationPairs.size()==1) {
-               stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDRSlope);
-               stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDXSlope);
-               stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDR);
-               stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDX);
-            } else {
-               sort(stationPairs.begin(), stationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInStationByDRSlope));
-               stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDRSlope);
-               sort(stationPairs.begin(), stationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInStationByDXSlope));
-               stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDXSlope);
-               sort(stationPairs.begin(), stationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInStationByDR));
-               stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDR);
-               sort(stationPairs.begin(), stationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInStationByDX));
-               stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDX);
-            }
+         if(stationPairs.empty()) continue; // this may very well happen
+         if(stationPairs.size()==1) {
+           stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDRSlope);
+           stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDXSlope);
+           stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDR);
+           stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDX);
+         } else {
+           sort(stationPairs.begin(), stationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInStationByDRSlope));
+           stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDRSlope);
+           sort(stationPairs.begin(), stationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInStationByDXSlope));
+           stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDXSlope);
+           sort(stationPairs.begin(), stationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInStationByDR));
+           stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDR);
+           sort(stationPairs.begin(), stationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInStationByDX));
+           stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDX);
          }
+       }
+     }
 
    } // muonIndex1
 
@@ -1107,17 +1104,12 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup
 				       reco::IsoDeposit& trackDep, reco::IsoDeposit& ecalDep, reco::IsoDeposit& hcalDep, reco::IsoDeposit& hoDep,
 				       reco::IsoDeposit& jetDep)
 {
-   reco::MuonIsolation isoR03, isoR05;
    const reco::Track* track = 0;
-   if ( ! aMuon.track().isNull() )
-     track = aMuon.track().get();
-   else
-     {
-	if ( ! aMuon.standAloneMuon().isNull() )
-	  track = aMuon.standAloneMuon().get();
-	else
-	  throw cms::Exception("FatalError") << "Failed to compute muon isolation information for a muon with undefined references to tracks";
-     }
+   if ( aMuon.track().isNonnull() ) track = aMuon.track().get();
+   else if ( aMuon.standAloneMuon().isNonnull() ) track = aMuon.standAloneMuon().get();
+   else throw cms::Exception("FatalError") << "Failed to compute muon isolation information for a muon with undefined references to tracks";
+
+   reco::MuonIsolation isoR03, isoR05;
 
    // get deposits
    reco::IsoDeposit depTrk = muIsoExtractorTrack_->deposit(iEvent, iSetup, *track );
