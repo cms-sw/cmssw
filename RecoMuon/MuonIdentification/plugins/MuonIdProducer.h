@@ -117,9 +117,41 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
      
    TrackDetectorAssociator trackAssociator_;
    TrackAssociatorParameters parameters_;
-   
+
+   struct ICTypes
+   {
+     enum ICTypeKey {
+       INNER_TRACKS, OUTER_TRACKS,
+       LINKS, MUONS,
+       TEV_FIRSTHIT, TEV_PICKY, TEV_DYT,
+       NONE
+     };
+
+     static ICTypeKey toKey(const std::string& s) {
+       if      ( s == "inner tracks" ) return INNER_TRACKS;
+       else if ( s == "outer tracks" ) return OUTER_TRACKS;
+       else if ( s == "links" ) return LINKS;
+       else if ( s == "muons" ) return MUONS;
+
+       throw cms::Exception("FatalError") << "Unknown input collection type: " << s;
+     }
+
+     static std::string toStr(const ICTypeKey k) {
+       switch ( k ) {
+         case INNER_TRACKS: return "inner tracks";
+         case OUTER_TRACKS: return "outer tracks";
+         case LINKS       : return "links"       ;
+         case MUONS       : return "muons"       ;
+         case TEV_FIRSTHIT: return "tev firsthit";
+         case TEV_PICKY   : return "tev picky"   ;
+         case TEV_DYT     : return "tev dyt"     ;
+         default: throw cms::Exception("FatalError") << "Unknown input collection type";
+       }
+       return "";
+     }
+   };
    std::vector<edm::InputTag> inputCollectionLabels_;
-   std::vector<std::string>   inputCollectionTypes_;
+   std::vector<ICTypes::ICTypeKey> inputCollectionTypes_;
 
    MuonTimingFiller* theTimingFiller_;
 
