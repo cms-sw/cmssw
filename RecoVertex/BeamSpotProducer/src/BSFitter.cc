@@ -570,10 +570,7 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	//returns 0 if OK
 	auto status = h1z->Fit(&fgaus,"QLM0","",h1z->GetMean() -2.*h1z->GetRMS(),h1z->GetMean() +2.*h1z->GetRMS());
 
-	//std::cout << "fitted "<< std::endl;
-
-	//std::cout << "got function" << std::endl;
-	if (status){	
+	if (status!=0 && status!=4000){	//4000 is the status if no new minimum is found by improve
 	  edm::LogError("NoBeamSpotFit")<<"gaussian fit failed. no BS d0 fit";		
 	  return reco::BeamSpot();
 	}
