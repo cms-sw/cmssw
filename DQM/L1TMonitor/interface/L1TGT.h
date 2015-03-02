@@ -9,7 +9,7 @@
  *
  * \author J. Berryhill, I. Mikulec
  * \author Vasile Mihai Ghete - HEPHY Vienna
- *
+ * \edited Jingyu Zhang
  *
  */
 
@@ -32,13 +32,18 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 //L1 trigger includes
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 
-//
 // class declaration
 //
 
@@ -170,6 +175,12 @@ private:
 
     MonitorElement* m_monOrbitNrDiffTcsFdlEvmLs;
     MonitorElement* m_monLsNrDiffTcsFdlEvmLs;
+    
+    MonitorElement* h_L1AlgoBX1;
+    MonitorElement* h_L1AlgoBX2;
+    MonitorElement* h_L1AlgoBX3;
+    MonitorElement* h_L1AlgoBX4;
+    MonitorElement* h_L1TechBX;
 
     //MonitorElement* m_monDiffEvmDaqFdl;
 
@@ -188,7 +199,16 @@ private:
 
     boost::uint64_t preGps_;
     boost::uint64_t preOrb_;
+     
+    int numberBxInEvent;
+    int minBxInEvent;
 
+    bool isInit;
+        
+    std::string algoBitToName[128];
+    std::string techBitToName[64];
+    std::map <std::string,bool> l1TriggerDecision,l1TechTriggerDecision;
+    std::map<std::string,bool>::iterator trig_iter;
 
     std::vector<std::pair<int,int> > m_pairLsNumberPfIndex;
     typedef std::vector<std::pair<int, int> >::const_iterator CItVecPair;

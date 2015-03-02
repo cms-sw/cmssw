@@ -65,6 +65,8 @@ void L1TGT::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) {
 
     m_nrEvRun = 0;
 
+    isInit = false;
+    
     m_dbe = edm::Service<DQMStore>().operator->();
 
     if (m_dbe == 0) {
@@ -122,7 +124,7 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
     // open EVM readout record if available
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
     iEvent.getByToken(gtEvmSource_, gtEvmReadoutRecord);
-
+    
     if (!gtEvmReadoutRecord.isValid()) {
         edm::LogInfo("L1TGT")
                 << "can't find L1GlobalTriggerEvmReadoutRecord";
@@ -297,18 +299,131 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
     iEvent.getByToken(gtSource_L1GT_, gtReadoutRecord);
 
+    edm::ESHandle<L1GtTriggerMenu> menuRcd;
+    evSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
+
+    const L1GtTriggerMenu* menu = menuRcd.product();
+    
     if (!gtReadoutRecord.isValid()) {
         edm::LogInfo("L1TGT")
                 << "can't find L1GlobalTriggerReadoutRecord";
         return;
     }
 
+    //--------fill AlgoBits/TechBits vs Bx Histogram-----------
+    
+    // algorithm trigger bits
+    if (!isInit){
+      isInit = true;
+      for (CItAlgo algo = menu->gtAlgorithmMap().begin(); algo!=menu->gtAlgorithmMap().end(); ++algo) {
+        int itrig = (algo->second).algoBitNumber();
+        //algoBitToName[itrig] = TString( (algo->second).algoName() );
+        //const char* trigName =  (algo->second).algoName().c_str();
+	if (itrig < 32) {
+          //h_L1AlgoBX1->setBinLabel(itrig+1,trigName);
+	  h_L1AlgoBX1->setBinLabel(itrig+1, std::to_string(itrig));
+	  h_L1AlgoBX1->setAxisTitle("Algorithm trigger bits", 1);
+	  h_L1AlgoBX1->setAxisTitle("BX (0=L1A)", 2);  
+	} else if (itrig < 64) {
+	  //h_L1AlgoBX2->setBinLabel(itrig+1-32,trigName);
+	  h_L1AlgoBX2->setBinLabel(itrig+1-32,std::to_string(itrig));
+	  h_L1AlgoBX2->setAxisTitle("Algorithm trigger bits", 1);
+	  h_L1AlgoBX2->setAxisTitle("BX (0=L1A)", 2);
+	} else if (itrig < 96) {
+	  //h_L1AlgoBX3->setBinLabel(itrig+1-64,trigName);
+	  h_L1AlgoBX3->setBinLabel(itrig+1-64,std::to_string(itrig));
+	  h_L1AlgoBX3->setAxisTitle("Algorithm trigger bits", 1);
+	  h_L1AlgoBX3->setAxisTitle("BX (0=L1A)", 2);
+	} else if (itrig < 128) {
+	  //h_L1AlgoBX4->setBinLabel(itrig+1-96,trigName);
+	  h_L1AlgoBX4->setBinLabel(itrig+1-96,std::to_string(itrig));
+	  h_L1AlgoBX4->setAxisTitle("Algorithm trigger bits", 1);
+	  h_L1AlgoBX4->setAxisTitle("BX (0=L1A)", 2);
+	}
+      }
+     
+    // technical trigger bits
+      for (CItAlgo techTrig = menu->gtTechnicalTriggerMap().begin(); techTrig != menu->gtTechnicalTriggerMap().end(); ++techTrig) {
+        int itrig = (techTrig->second).algoBitNumber();
+        //techBitToName[itrig] = TString( (techTrig->second).algoName() );
+        //const char* trigName =  (techTrig->second).algoName().c_str();
+        h_L1TechBX->setBinLabel(itrig+1,std::to_string(itrig));
+	h_L1TechBX->setAxisTitle("Technical trigger bits", 1);
+	h_L1TechBX->setAxisTitle("BX (0=L1A)", 2);
+      }
+    }
+    
+    if(gtReadoutRecord.isValid()) {
+      
+      unsigned int NmaxL1AlgoBit = gtReadoutRecord->decisionWord().size();
+      unsigned int NmaxL1TechBit = gtReadoutRecord->technicalTriggerWord().size();
+
+      const DecisionWord dWord = gtReadoutRecord->decisionWord();
+      const TechnicalTriggerWord technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
+
+      const std::vector<L1GtFdlWord> &m_gtFdlWord(gtReadoutRecord->gtFdlVector());
+      int numberBxInEvent=m_gtFdlWord.size();
+      int minBxInEvent = (numberBxInEvent + 1)/2 - numberBxInEvent;
+      
+      for (unsigned int iBit = 0; iBit < NmaxL1AlgoBit; ++iBit) {
+	bool accept = dWord[iBit];
+	
+        typedef std::map<std::string,bool>::value_type valType;
+        trig_iter=l1TriggerDecision.find(algoBitToName[iBit]);
+        if (trig_iter==l1TriggerDecision.end()){
+          l1TriggerDecision.insert(valType(algoBitToName[iBit],accept));
+        }else{
+          trig_iter->second=accept;
+        }
+
+	int ibx=0;
+        for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
+
+          const DecisionWord dWordBX = (*itBx).gtDecisionWord();  
+          bool accept = dWordBX[iBit];
+          if (accept) {
+	    if (iBit < 32)
+	      h_L1AlgoBX1->Fill(iBit, minBxInEvent+ibx);
+	    else if (iBit < 64)
+	      h_L1AlgoBX2->Fill(iBit, minBxInEvent+ibx);
+	    else if (iBit < 96)
+	      h_L1AlgoBX3->Fill(iBit, minBxInEvent+ibx);
+	    else if (iBit < 128)
+	      h_L1AlgoBX4->Fill(iBit, minBxInEvent+ibx);
+	  }
+          ibx++;			   
+       }
+     }
+    
+     for (unsigned int iBit = 0; iBit < NmaxL1TechBit; ++iBit) {
+       bool accept = technicalTriggerWordBeforeMask[iBit];
+
+       typedef std::map<std::string,bool>::value_type valType;
+       trig_iter=l1TechTriggerDecision.find(techBitToName[iBit]);
+       if (trig_iter==l1TechTriggerDecision.end())
+          l1TechTriggerDecision.insert(valType(techBitToName[iBit],accept));
+       else
+          trig_iter->second=accept;
+        
+
+       int ibx=0;
+       for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
+	 itBx != m_gtFdlWord.end(); ++itBx) {
+
+         const DecisionWord dWordBX = (*itBx).gtTechnicalTriggerWord();  
+         bool accept = dWordBX[iBit];
+         if (accept) h_L1TechBX->Fill(iBit,minBxInEvent+ibx);
+         ibx++;			   
+       }
+     }
+   }    
+            
     // initialize bx's to invalid value
     int gtfeBx = -1;
     int fdlBx[2] = { -1, -1 };
-    int psbBx[2][7] = { { -1, -1, -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1,
-            -1, -1 } };
+    int psbBx[2][7] = { { -1, -1, -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1, -1, -1 } };
     int gmtBx = -1;
+    //int lhcBx = -1;
 
     // get info from GTFE DAQ record
     const L1GtfeWord& gtfeWord = gtReadoutRecord->gtfeWord();
@@ -735,11 +850,16 @@ void L1TGT::bookHistograms() {
         m_monLsNrDiffTcsFdlEvmLs->setAxisTitle("Luminosity segment", 1);
         m_monLsNrDiffTcsFdlEvmLs->setAxisTitle("LS number difference (TCS - EVM_FDL)", 2);
 
-        m_dbe->setCurrentFolder(m_histFolder);
+        m_dbe->setCurrentFolder(m_histFolder + "/PlotTrigsBx");
+
+	//--------book AlgoBits/TechBits vs Bx Histogram-----------
+
+        h_L1AlgoBX1 = m_dbe->book2D("h_L1AlgoBX1", "L1 Algo Trigger BX (algo bit 0 to 31)", 32, -0.5, 31.5, 5, -2.5, 2.5);
+	h_L1AlgoBX2 = m_dbe->book2D("h_L1AlgoBX2", "L1 Algo Trigger BX (algo bit 32 to 63)", 32, 31.5, 63.5, 5, -2.5, 2.5);
+	h_L1AlgoBX3 = m_dbe->book2D("h_L1AlgoBX3", "L1 Algo Trigger BX (algo bit 64 to 95)", 32, 63.5, 95.5, 5, -2.5, 2.5);
+	h_L1AlgoBX4 = m_dbe->book2D("h_L1AlgoBX4", "L1 Algo Trigger BX (algo bit 96 to 127)", 32, 95.5, 127.5, 5, -2.5, 2.5);
+	h_L1TechBX = m_dbe->book2D("h_L1TechBX", "L1 Tech Trigger BX", 64, -0.5, 63.5, 5, -2.5, 2.5);
    }
-
-
-
 }
 
 
