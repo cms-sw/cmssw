@@ -13,6 +13,9 @@ float GammaSeries( float a, float x )
   if( x == 0. )
     return 0.;
 
+  if( a == 0. ) // this happens at the end, but save all the iterations
+    return 0.;
+
   // coefficient c_n of x^n is Gamma(a)/Gamma(a+1+n), which leads to the
   // recurrence relation c_n = c_(n-1) / (a+n-1) with c_0 = 1/a
   double term = 1/a;
