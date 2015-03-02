@@ -160,8 +160,6 @@ PandoraCMSPFCandProducer::~PandoraCMSPFCandProducer()
 // ------------ method called for each event  ------------
 void PandoraCMSPFCandProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  recHitMap.clear();
-  recTrackMap.clear();
 
   if(debugHisto) resetVariables();
 
@@ -185,6 +183,9 @@ void PandoraCMSPFCandProducer::produce(edm::Event& iEvent, const edm::EventSetup
   convertPandoraToCMSSW(tkRefCollection,HGCRecHitHandle,iEvent);
 
    PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=,PandoraApi::Reset(*m_pPandora));
+
+   recHitMap.clear();
+   recTrackMap.clear();
 }
 
 void PandoraCMSPFCandProducer::initPandoraCalibrParameters()
@@ -1674,6 +1675,9 @@ void PandoraCMSPFCandProducer::convertPandoraToCMSSW(const edm::Handle<reco::PFR
 // ------------ method called once each job just before starting event loop  ------------
 void PandoraCMSPFCandProducer::beginJob()
 {   
+  // setup our maps for processing
+  recHitMap.clear();
+  recTrackMap.clear();
 
   const char *pDisplay(::getenv("DISPLAY"));
   if (NULL == pDisplay) {
