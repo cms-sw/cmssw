@@ -35,9 +35,11 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+class L1MuDTChambPhContainer;
 class L1MuDTTFConfig;
 class L1MuDTSecProcMap;
 class L1MuDTSecProcId;
@@ -68,7 +70,7 @@ class L1MuDTTrackFinder {
     virtual ~L1MuDTTrackFinder();
 
     /// build the structure of the barrel MTTF
-    void setup();
+    void setup(edm::ConsumesCollector&& iC);
 
     /// run the barrel MTTF
     void run(const edm::Event& e, const edm::EventSetup& c);
@@ -120,6 +122,7 @@ class L1MuDTTrackFinder {
     std::vector<L1MuDTEtaProcessor*> m_epvec;        ///< Eta Processors
     std::vector<L1MuDTWedgeSorter*>  m_wsvec;        ///< Wedge Sorters
     L1MuDTMuonSorter*                m_ms;           ///< DT Muon Sorter
+    edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
 
     static L1MuDTTFConfig*           m_config;       ///< Track Finder configuration
 
