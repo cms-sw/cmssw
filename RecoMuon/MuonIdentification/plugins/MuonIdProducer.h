@@ -132,6 +132,9 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
        else if ( s == "outer tracks" ) return OUTER_TRACKS;
        else if ( s == "links" ) return LINKS;
        else if ( s == "muons" ) return MUONS;
+       else if ( s == "tev firstHit" ) return TEV_FIRSTHIT;
+       else if ( s == "tev picky"    ) return TEV_PICKY   ;
+       else if ( s == "tev dyt"      ) return TEV_DYT     ;
 
        throw cms::Exception("FatalError") << "Unknown input collection type: " << s;
      }
@@ -142,7 +145,7 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
          case OUTER_TRACKS: return "outer tracks";
          case LINKS       : return "links"       ;
          case MUONS       : return "muons"       ;
-         case TEV_FIRSTHIT: return "tev firsthit";
+         case TEV_FIRSTHIT: return "tev firstHit";
          case TEV_PICKY   : return "tev picky"   ;
          case TEV_DYT     : return "tev dyt"     ;
          default: throw cms::Exception("FatalError") << "Unknown input collection type";
