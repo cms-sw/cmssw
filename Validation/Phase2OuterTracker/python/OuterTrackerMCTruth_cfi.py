@@ -23,10 +23,10 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
     TH2SimVtx_XY = cms.PSet(
         Nbinsx = cms.int32(30),
         xmax = cms.double(0.01),                      
-        xmin = cms.double(-0.01),
+        xmin = cms.double(-0.006),
         Nbinsy = cms.int32(30),
         ymax = cms.double(0.01),                      
-        ymin = cms.double(-0.01)
+        ymin = cms.double(-0.006)
         ),
 
 # Sim Vertex RZ
@@ -35,7 +35,7 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
         xmax = cms.double(20.0),                      
         xmin = cms.double(-20.0),
         Nbinsy = cms.int32(30),
-        ymax = cms.double(0.01),                      
+        ymax = cms.double(0.006),                      
         ymin = cms.double(0.0)
         ),
 
@@ -155,9 +155,9 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
         Nbinsx = cms.int32(200),
         xmax = cms.double(0.8),                      
         xmin = cms.double(0.0),
-        Nbinsy = cms.int32(41),
-        ymax = cms.double(10.25),                      
-        ymin = cms.double(-10.25)
+        Nbinsy = cms.int32(29),
+        ymax = cms.double(7.25),                      
+        ymin = cms.double(-7.25)
         ),
 
 # Stub Width vs. TPart Pt
@@ -165,9 +165,9 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
         Nbinsx = cms.int32(100),
         xmax = cms.double(50.0),                      
         xmin = cms.double(0.0),
-        Nbinsy = cms.int32(41),
-        ymax = cms.double(10.25),                      
-        ymin = cms.double(-10.25)
+        Nbinsy = cms.int32(29),
+        ymax = cms.double(7.25),                      
+        ymin = cms.double(-7.25)
         ),
 
 )
