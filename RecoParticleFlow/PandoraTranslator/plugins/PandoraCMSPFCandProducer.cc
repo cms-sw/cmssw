@@ -183,6 +183,9 @@ void PandoraCMSPFCandProducer::produce(edm::Event& iEvent, const edm::EventSetup
   convertPandoraToCMSSW(tkRefCollection,HGCRecHitHandle,iEvent);
 
    PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=,PandoraApi::Reset(*m_pPandora));
+
+   recHitMap.clear();
+   recTrackMap.clear();
 }
 
 void PandoraCMSPFCandProducer::initPandoraCalibrParameters()
@@ -1541,7 +1544,7 @@ void PandoraCMSPFCandProducer::convertPandoraToCMSSW(const edm::Handle<reco::PFR
         const auto* firsthit = *(firstlayer.second->begin());
         auto iter = recHitMap.find(firsthit->GetParentCaloHitAddress());
         if( iter != recHitMap.end() ) {
-          temp.setLayer(pfrechits[iter->second].layer());
+          temp.setLayer(pfrechits.at(iter->second).layer());
         } else {
           throw cms::Exception("TrackUsedButNotFound")
             << "Hit used in PandoraPFA was not found in the original input hit list!";
@@ -1672,6 +1675,9 @@ void PandoraCMSPFCandProducer::convertPandoraToCMSSW(const edm::Handle<reco::PFR
 // ------------ method called once each job just before starting event loop  ------------
 void PandoraCMSPFCandProducer::beginJob()
 {   
+  // setup our maps for processing
+  recHitMap.clear();
+  recTrackMap.clear();
 
   const char *pDisplay(::getenv("DISPLAY"));
   if (NULL == pDisplay) {
