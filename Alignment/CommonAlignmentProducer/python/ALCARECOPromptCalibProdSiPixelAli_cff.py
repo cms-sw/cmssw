@@ -19,7 +19,7 @@ ALCARECOTkAlMinBiasFilterForSiPixelAli.TriggerResultsTag = cms.InputTag("Trigger
 # Ingredient: offlineBeamSpot
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import offlineBeamSpot
 
-# Ingredient: AlignmentTrackSelector 
+# Ingredient: AlignmentTrackSelector
 # track selection for alignment
 from Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi import AlignmentTrackSelector
 AlignmentTrackSelector.src = 'ALCARECOTkAlMinBias'  #'SiPixelAliTrackFitter' #'ALCARECOTkAlCosmicsCTF0T' #TkAlZMuMu' #MinBias' #'generalTracks' ## ALCARECOTkAlMuonIsolated # adjust to input file
@@ -36,15 +36,15 @@ AlignmentTrackSelector.maxMultiplicity = 1
 AlignmentTrackSelector.minHitsPerSubDet.inPIXEL = 2
 
 
-# Ingredient: SiPixelAliTrackRefitter0 
+# Ingredient: SiPixelAliTrackRefitter0
 # refitting
-from RecoTracker.TrackProducer.TrackRefitters_cff import TrackReFitter
+from RecoTracker.TrackProducer.TrackRefitters_cff import TrackRefitter
 # In the following use
 # TrackRefitter (normal tracks), TrackRefitterP5 (cosmics) or TrackRefitterBHM (beam halo)
 
 SiPixelAliTrackRefitter0 = TrackRefitter.clone(
-    src = 'AlignmentTrackSelector'#'ALCARECOTkAlMinBias'#'ALCARECOTkAlCosmicsCTF0T' #'ALCARECOTkAlMuonIsolated'
-    NavigationSchool = '' # to avoid filling hit pattern
+        src = 'AlignmentTrackSelector',   #'ALCARECOTkAlMinBias'#'ALCARECOTkAlCosmicsCTF0T' #'ALCARECOTkAlMuonIsolated'
+        NavigationSchool = '',            # to avoid filling hit pattern
                                               )
 
 # Alignment producer
@@ -175,7 +175,7 @@ process.AlignmentProducer.algoConfig.minNumHits = 8
 
 process.AlignmentProducer.saveToDB = False
 
-# Ingredient: SiPixelAliTrackerTrackHitFilter 
+# Ingredient: SiPixelAliTrackerTrackHitFilter
 import RecoTracker.FinalTrackSelectors.TrackerTrackHitFilter_cff as HitFilter
 # Reference config at /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/aliConfigTemplates/Cosmics38T_BL_default_cfg.py
 SiPixelAliTrackerTrackHitFilter = HitFilter.TrackerTrackHitFilter.clone(
@@ -193,7 +193,7 @@ SiPixelAliTrackerTrackHitFilter = HitFilter.TrackerTrackHitFilter.clone(
     usePixelQualityFlag = True
     )
 
-# Ingredient: SiPixelAliSiPixelAliTrackFitter 
+# Ingredient: SiPixelAliSiPixelAliTrackFitter
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff as fitWithMaterial
 SiPixelAliTrackFitter = fitWithMaterial.ctfWithMaterialTracks.clone(
         src = 'SiPixelAliTrackerTrackHitFilter',
