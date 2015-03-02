@@ -257,7 +257,7 @@ DQMFileSaver::saveForOnline(int run, const std::string &suffix, const std::strin
 
 
 boost::property_tree::ptree
-DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, evf::FastMonitoringService *fms)
+DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, const std::string transferDestinationStr, evf::FastMonitoringService *fms)
 {
   namespace bpt = boost::property_tree;
   namespace bfs = boost::filesystem;
@@ -285,7 +285,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, e
   std::string dataFileName = bfs::path(dataFilePathName).filename().string();
   // The availability test of the FastMonitoringService was done in the ctor.
   bpt::ptree data;
-  bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles, fileAdler32;
+  bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles, fileAdler32, transferDestination;
 
   processedEvents.put("", fms ? (fms->getEventsProcessedForLumi(lumi)) : -1); // Processed events
   acceptedEvents.put("", fms ? (fms->getEventsProcessedForLumi(lumi)) : -1); // Accepted events, same as processed for our purposes
@@ -296,6 +296,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, e
   fileSize.put("", dataFileStat.st_size); // Size in bytes of the data file
   inputFiles.put("", ""); // We do not care about input files!
   fileAdler32.put("", -1); // placeholder to match output json definition
+  transferDestination.put("", transferDestinationStr); // SM Transfer destination field
 
   data.push_back(std::make_pair("", processedEvents));
   data.push_back(std::make_pair("", acceptedEvents));
@@ -305,6 +306,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, e
   data.push_back(std::make_pair("", fileSize));
   data.push_back(std::make_pair("", inputFiles));
   data.push_back(std::make_pair("", fileAdler32));
+  data.push_back(std::make_pair("", transferDestination));
 
   pt.add_child("data", data);
 
@@ -395,7 +397,7 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
   rename(openHistoFilePathName.c_str(), histoFilePathName.c_str());
 
   // Write the json file in the open directory.
-  bpt::ptree pt = fillJson(run, lumi, histoFilePathName, fms_);
+  bpt::ptree pt = fillJson(run, lumi, histoFilePathName, transferDestination_, fms_);
   write_json(openJsonFilePathName, pt);
   rename(openJsonFilePathName.c_str(), jsonFilePathName.c_str());
 }
@@ -629,6 +631,11 @@ DQMFileSaver::beginJob()
   
   // Determine if we are running multithreading asking to the DQMStore. Not to be moved in the ctor
   enableMultiThread_ = dbe_->enableMultiThread_;
+
+  if ((convention_ == FilterUnit) && (!fakeFilterUnitMode_))
+  {
+    transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(stream_label_);
+  } 
 }
 
 std::shared_ptr<saverDetails::NoCache>
