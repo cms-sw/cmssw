@@ -10,6 +10,7 @@
   <use   name="DataFormats/MuonReco"/>
   <use   name="DataFormats/JetReco"/>
   <use   name="DataFormats/METReco"/>
+  <use   name="DataFormats/PatCandidates"/>
   <use   name="DataFormats/HcalRecHit"/>
   <use   name="SimDataFormats/TrackingAnalysis"/>
   <use   name="TrackingTools/PatternTools"/>
