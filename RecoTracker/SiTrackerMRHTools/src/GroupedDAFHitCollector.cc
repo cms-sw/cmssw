@@ -86,7 +86,7 @@ vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& 
  	}
 
 	//for the first layer
-	buildMultiRecHits(sortedgroupedMeas, result);
+	buildMultiRecHits(sortedgroupedMeas, result, theMTE);
 		
 
 	//for other layers
@@ -104,7 +104,7 @@ vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& 
 	    currentLayerMeas = theLM.groupedMeasurements(*lay, current, *forwardPropagator, *(getEstimator()));
 	  }
 
-	  buildMultiRecHits(currentLayerMeas, result);
+	  buildMultiRecHits(currentLayerMeas, result, theMTE);
 	  current = (*imol).second.front().updatedState();
 	  //if (current.isValid()) current.rescaleError(10);
 	}
@@ -135,7 +135,7 @@ vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& 
 	
 }
 
-void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasurementGroup>& measgroup, vector<TrajectoryMeasurement>& result) const {
+void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasurementGroup>& measgroup, vector<TrajectoryMeasurement>& result, const MeasurementTrackerEvent*& theMTE) const {
 
   unsigned int initial_size = result.size();
 
@@ -175,6 +175,10 @@ void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasuremen
     for (vector<TrajectoryMeasurement>::const_iterator imeas = igroup->measurements().begin(); 
 	 imeas != igroup->measurements().end(); imeas++){
 
+      //should be fixed!!	
+      //DetId id = imeas->recHit()->geographicalId();
+      //MeasurementDetWithData measDet = theMTE->idToDet(id);
+
       //collect the non missing hits to build the MultiRecHits
       //we use the recHits method; anyway only simple hits, not MultiHits should be present 
       if (imeas->recHit()->getType() != TrackingRecHit::missing) {
@@ -204,8 +208,8 @@ void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasuremen
 				       << " surface position " << getMeasurementTracker()->geomTracker()->idToDet((*iter)->geographicalId())->position()  
 				       << " hit local position " << (*iter)->localPosition();
     }
-
-    result.push_back(TrajectoryMeasurement(state,theUpdator->buildMultiRecHit(hits, state)));
+    //should be fixed!!
+    //result.push_back(TrajectoryMeasurement(state,theUpdator->buildMultiRecHit(hits, state, *MeasurementDetWithData())));
   }
 	//can this happen? it means that the measgroup was not empty but no valid measurement was found inside
 	//in this case we add an invalid measuremnt for this layer 

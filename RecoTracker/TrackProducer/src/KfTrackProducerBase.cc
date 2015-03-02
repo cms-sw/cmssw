@@ -26,7 +26,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 				   std::auto_ptr<reco::TrackCollection>& selTracks,
 				   std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
 				   std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
-				   AlgoProductCollection& algoResults, TransientTrackingRecHitBuilder const * hitBuilder)
+				   AlgoProductCollection& algoResults, TransientTrackingRecHitBuilder const * hitBuilder, int BeforeOrAfter)
 {
 
   TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
@@ -159,11 +159,20 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
   selTracks->shrink_to_fit();
   selTrackExtras->shrink_to_fit();
   selHits->shrink_to_fit(); 
-  rTracks_ = evt.put( selTracks );
-  evt.put( selTrackExtras );
-  evt.put( selHits );
+  if(BeforeOrAfter == 1){
+    rTracks_ = evt.put( selTracks, "beforeDAF" );
+    evt.put( selTrackExtras , "beforeDAF");
+  } else if (BeforeOrAfter == 2){
+    rTracks_ = evt.put( selTracks, "afterDAF" );
+    evt.put( selTrackExtras, "afterDAF" );
+  } else {
+    rTracks_ = evt.put( selTracks );
+    evt.put( selTrackExtras );
+    evt.put( selHits );
+  }
 
-  if(trajectoryInEvent_) {
+
+  if(trajectoryInEvent_ && BeforeOrAfter == 0) {
     selTrajectories->shrink_to_fit();
     edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(selTrajectories);
 
