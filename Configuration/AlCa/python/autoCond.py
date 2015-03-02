@@ -1,12 +1,12 @@
 autoCond = { 
     # GlobalTag for MC production with perfectly aligned and calibrated detector                                                                                                                              
-    'mc'                :   'DESRUN1_71_V0::All',
+    'mc'                :   'MC_71_V8::All',
     # GlobalTag for MC production with realistic alignment and calibrations
-    'startup'           :   'MCRUN1_71_V0::All',
+    'startup'           :   'START71_V8::All',
     # GlobalTag for MC production of Heavy Ions events with realistic alignment and calibrations
-    'starthi'           :   'MCHI1_71_V0::All',
+    'starthi'           :   'STARTHI71_V15::All',
     # GlobalTag for MC production of p-Pb events with realistic alignment and calibrations
-    'startpa'           :   'MCPA1_71_V0::All',
+    'startpa'           :   'STARTHI71_V16::All',
     # GlobalTag for data reprocessing: this should always be the GR_R tag
     'com10'             :   'GR_R_71_V7::All',
     # GlobalTag for running HLT on recent data: this should be the GR_P (prompt reco) global tag until a compatible GR_H tag is available, 
@@ -21,13 +21,13 @@ autoCond = {
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
-    'run1_design'       :   'DESRUN1_71_V0::All',
+    'run1_design'       :   'MC_71_V8::All',
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
-    'run1_mc'           :   'MCRUN1_71_V0::All',
+    'run1_mc'           :   'START71_V8::All',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'        :   'MCHI1_71_V0::All',
+    'run1_mc_hi'        :   'STARTHI71_V15::All',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pPb'       :   'MCPA1_71_V0::All',
+    'run1_mc_pPb'       :   'STARTHI71_V16::All',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
     'run2_design'       :   'DESRUN2_71_V0::All',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
