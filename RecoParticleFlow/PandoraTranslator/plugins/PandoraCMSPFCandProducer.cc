@@ -160,6 +160,8 @@ PandoraCMSPFCandProducer::~PandoraCMSPFCandProducer()
 // ------------ method called for each event  ------------
 void PandoraCMSPFCandProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  recHitMap.clear();
+  recTrackMap.clear();
 
   if(debugHisto) resetVariables();
 
@@ -1541,7 +1543,7 @@ void PandoraCMSPFCandProducer::convertPandoraToCMSSW(const edm::Handle<reco::PFR
         const auto* firsthit = *(firstlayer.second->begin());
         auto iter = recHitMap.find(firsthit->GetParentCaloHitAddress());
         if( iter != recHitMap.end() ) {
-          temp.setLayer(pfrechits[iter->second].layer());
+          temp.setLayer(pfrechits.at(iter->second).layer());
         } else {
           throw cms::Exception("TrackUsedButNotFound")
             << "Hit used in PandoraPFA was not found in the original input hit list!";
