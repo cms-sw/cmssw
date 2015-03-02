@@ -96,9 +96,7 @@ namespace edm {
     ProductID id() const;
     size_t key() const;
 
-#ifndef __GCCXML__
     template <class REF> REF castTo() const;
-#endif
 
     bool isNull() const;
     bool isNonnull() const;
