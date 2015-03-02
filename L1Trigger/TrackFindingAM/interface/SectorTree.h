@@ -124,6 +124,14 @@ class SectorTree{
   vector<Sector*> getActivePatternsPerSector(int active_threshold);
 
   /**
+     \brief Get the active patterns in each sector
+     \param max_nb_missing_hit The maximum number of non active layers to activate the pattern
+     \param active_threshold The minimum number of hit super strips to activate the pattern
+     \return A vector containing pointers on copies of the sectors, each sectors containing its active patterns
+  **/
+  vector<Sector*> getActivePatternsPerSectorUsingMissingHit(int max_nb_missing_hit, int active_threshold);
+
+  /**
      \brief Retrieve the superstrip size used for the patterns inside the SectorTree
      \return -1 if not specified, the superStrip size otherwise.
   **/

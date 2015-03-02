@@ -20,6 +20,8 @@ class PatternFinder{
  private:
   int superStripSize;
   int active_threshold;
+  int max_nb_missing_hit;
+  bool useMissingHits;
   SectorTree* sectors;
   string eventsFilename;
   string outputFileName;
@@ -108,5 +110,10 @@ class PatternFinder{
      \param stop The search will end at this event number
    **/
   void displayEventsSuperstrips(int start, int& stop);
+
+  /**
+     \brief Use the maximum missing hit threshold instead of the active_threshold
+   **/
+  void useMissingHitThreshold(int max_nb_missing_hit);
 };
 #endif

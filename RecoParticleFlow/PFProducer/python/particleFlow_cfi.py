@@ -181,7 +181,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     calibHF_a_EMonly  = cms.vdouble(0.96945,0.96701,0.76309,0.82268,0.87583,0.89718,0.98674,1.4681,1.4580,1.4580),
     calibHF_b_HADonly = cms.vdouble(1.27541,0.85361,0.86333,0.89091,0.94348,0.94348,0.94370,1.0034,1.0444,1.0444),
     calibHF_a_EMHAD   = cms.vdouble(1.42215,1.00496,0.68961,0.81656,0.98504,0.98504,1.00802,1.0593,1.4576,1.4576),
-    calibHF_b_EMHAD   = cms.vdouble(1.27541,0.85361,0.86333,0.89091,0.94348,0.94348,0.94370,1.0034,1.0444,1.0444)
+    calibHF_b_EMHAD   = cms.vdouble(1.27541,0.85361,0.86333,0.89091,0.94348,0.94348,0.94370,1.0034,1.0444,1.0444),
  
 #    toRead = cms.untracked.vstring("PFfa_BARREL",
 #                                   "PFfa_ENDCAP",
@@ -194,6 +194,9 @@ particleFlowTmp = cms.EDProducer("PFProducer",
 #                                   "PFfbEta_BARREL",
 #                                   "PFfbEta_ENDCAP") # same strings as fType
 
+    # HGCal neutral hadron resolution
+    HGCalResolutionConst = cms.double(0.15),
+    HGCalResolutionStoch = cms.double(0.92)
 )
 
 

@@ -5,7 +5,8 @@ TTPatternsFromStub = cms.EDProducer("TrackFindingAMProducer",
    TTInputStubs       = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
    TTPatternName      = cms.string("AML1Patterns"),
    inputBankFile      = cms.string('/afs/cern.ch/work/s/sviret/testarea/PatternBanks/BE_5D/Eta7_Phi8/ss32_cov40/612_SLHC6_MUBANK_lowmidhig_sec37_ss32_cov40.pbk'),
-   threshold          = cms.int32(5)
+   threshold          = cms.int32(5),
+   nbMissingHits      = cms.int32(-1)
 )
 
 # Hough-based trackfit default sequence

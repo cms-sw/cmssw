@@ -75,10 +75,17 @@ class PatternTree{
 #endif
   /**
      \brief Returns a vector of copies of the active patterns
-     \brief active_threshold The minimum number of hit super strips to activate the pattern
+     \param active_threshold The minimum number of hit super strips to activate the pattern
      \return A vector containing copies of active patterns
   **/
   void getActivePatterns(int active_threshold, vector<GradedPattern*>& active_patterns);
+  /**
+     \brief Returns a vector of copies of the active patterns
+     \brief max_nb_missing_hit The maximum number of non active layers to activate the pattern
+     \param active_threshold The minimum number of hit super strips to activate the pattern
+     \return A vector containing copies of active patterns
+  **/
+  void getActivePatternsUsingMissingHit(int max_nb_missing_hit, int active_threshold, vector<GradedPattern*>& active_patterns);
   /**
      \brief Replace all LD patterns with adapatative patterns. All FD patterns are removed.
      \param r The number of DC bits used between FD and LD

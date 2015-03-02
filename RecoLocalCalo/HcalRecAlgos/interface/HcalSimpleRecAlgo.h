@@ -73,7 +73,20 @@ public:
 		       double iTS4Min, double iTS4Max, double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 		       double iNoise,double iTMin,double iTMax,
 		       double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold, int iFitTimes); 
-  
+
+  /** @brief Returns a map of how many times each error code occurred in the fit.
+   *
+   * returnValue.first is the error code, returnValue.second is the number of times it occurred.
+   * This count is not reset with each call of "apply", only with "resetFitErrorFrequency".
+   */
+  const std::map<int,int> fitErrorCodeFrequency() const
+  {
+    if( psFitOOTpuCorr_.get() ) return psFitOOTpuCorr_->fitErrorCodeFrequency();
+    else return std::map<int,int>(); // Need to return something, just return empty map
+  }
+  /** @brief Resets the count of how many times each fit error occurred. */
+  void resetFitErrorFrequency() { if( psFitOOTpuCorr_.get() ) psFitOOTpuCorr_->resetFitErrorFrequency(); }
+
 private:
   bool correctForTimeslew_;
   bool correctForPulse_;

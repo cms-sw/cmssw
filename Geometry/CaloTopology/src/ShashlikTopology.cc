@@ -77,7 +77,7 @@ bool ShashlikTopology::valid(const DetId& id) const {
 }
 
 bool ShashlikTopology::validXY(int ix, int iy) const {
-  std::pair<int,int> ismm = sdcons_.getSMM(ix,iy);
+  std::pair<int,int> ismm = sdcons_.getSMM(ix,iy, true);
   bool flag = (ismm.first >= 1 && ismm.first <= smodules_ && ismm.second >= 1&&
 	       ismm.second <= modules_);
   return flag;

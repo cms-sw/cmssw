@@ -95,6 +95,14 @@ public:
     void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps);
     void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps);
 
+    /** @brief Returns a map of how many times each error code occurred in the fit.
+     *
+     * returnValue.first is the error code, returnValue.second is the number of times it occurred.
+     * This count is not reset with each call of "apply", only with "resetFitErrorFrequency".
+     */
+    const std::map<int,int>& fitErrorCodeFrequency() const { return fitErrorCodes_; }
+    /** @brief Resets the count of how many times each fit error occurred. */
+    void resetFitErrorFrequency() { fitErrorCodes_.clear(); }
 private:
     int pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, 
 		      const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<double> &fitParsVec) const;
@@ -130,6 +138,10 @@ private:
     double pedSig_;
     double noise_;    
     HcalTimeSlew::BiasSetting slewFlavor_;    
+    const double overlapLimit = 10.0; // nano seconds
+
+    /// Keeps track of how many times each error code is produced when trying fits.
+    mutable std::map<int,int> fitErrorCodes_;
 };
 
 #endif // PulseShapeFitOOTPileupCorrection_h

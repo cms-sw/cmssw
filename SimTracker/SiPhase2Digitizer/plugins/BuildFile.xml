@@ -1,4 +1,9 @@
-<use   name="SimTracker/SiPhase2Digitizer"/>
-<library   file="*.cc" name="SimTrackerSiPhase2DigitizerPlugins">
+<use name="SimTracker/SiPhase2Digitizer"/>
+<use name="CalibTracker/SiPixelESProducers"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<library   file="Phase2TrackerDigitizer.cc PSPDigitizerAlgorithm.cc Phase2TrackerDigitizerAlgorithm.cc PixelDigitizerAlgorithm.cc PSSDigitizerAlgorithm.cc SSDigitizerAlgorithm.cc" name="SimTrackerSiPhase2DigitizerPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="SiPhase2Clusterizer.cc ../src/ClusterizerAlgorithm.cc ../src/PixelClusterHitArray.cc" name="SimTrackerSiPhase2ClusterizerPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

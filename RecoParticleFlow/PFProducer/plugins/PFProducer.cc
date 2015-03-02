@@ -222,6 +222,11 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 
   int algoType 
     = iConfig.getParameter<unsigned>("algoType");
+
+  double HGCalResolutionConst
+    = iConfig.getParameter<double>("HGCalResolutionConst");
+  double HGCalResolutionStoch
+    = iConfig.getParameter<double>("HGCalResolutionStoch");
   
   switch(algoType) {
   case 0:
@@ -235,6 +240,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 			  nSigmaHCAL,
 			  calibration,
 			  thepfEnergyCalibrationHF);
+
+  pfAlgo_->setHGCalParameters(HGCalResolutionConst, HGCalResolutionStoch);
 
   //PFElectrons: call the method setpfeleparameters
   pfAlgo_->setPFEleParameters(mvaEleCut,

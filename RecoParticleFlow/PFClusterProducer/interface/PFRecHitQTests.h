@@ -266,6 +266,7 @@ class PFRecHitQTestHCALTimeVsDepth : public PFRecHitQTestBase {
 	minTimes_.push_back(psets[i].getParameter<double>("minTime"));
 	maxTimes_.push_back(psets[i].getParameter<double>("maxTime"));
 	thresholds_.push_back(psets[i].getParameter<double>("threshold"));
+	endcap_.push_back(psets[i].getParameter<bool>("endcap"));
       }
     }
 
@@ -298,11 +299,12 @@ class PFRecHitQTestHCALTimeVsDepth : public PFRecHitQTestBase {
     std::vector<double> minTimes_;
     std::vector<double> maxTimes_;
     std::vector<double> thresholds_;
+    std::vector<bool> endcap_;
 
     bool test(unsigned DETID,double energy,double time,bool& clean) {
       HcalDetId detid(DETID);
       for (unsigned int i=0;i<depths_.size();++i) {
-	if (detid.depth() == depths_[i]) {
+	if (detid.depth() == depths_[i] && detid.subdet()==(endcap_[i]?2:1)) {
 	  if ((time <minTimes_[i] || time >maxTimes_[i] ) &&  energy>thresholds_[i])
 	    {
 	      clean=true;

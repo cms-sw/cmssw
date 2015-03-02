@@ -18,7 +18,7 @@ public:
   ECALClusterImporter(const edm::ParameterSet& conf,
 		      edm::ConsumesCollector& sumes) :
     BlockElementImporterBase(conf,sumes),
-    _src(sumes.consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("source"))){}
+    _src(sumes.consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("source"))) {}
      
   void importToBlock( const edm::Event& ,
 		      ElementList& ) const override;
@@ -45,8 +45,9 @@ importToBlock( const edm::Event& e,
 				 return o->type() == reco::PFBlockElement::SC;
 			       });   
   ecals.reserve(clusters->size());
-  for( auto clus = bclus; clus != eclus; ++clus  ) {    
+  for( auto clus = bclus; clus != eclus; ++clus  ) {  
     reco::PFClusterRef tempref(clusters, std::distance(bclus,clus));
+    
     reco::PFBlockElementCluster* newelem = 
       new reco::PFBlockElementCluster(tempref,the_type);
     for( auto scelem = elems.begin(); scelem != sc_end; ++scelem ) {
@@ -72,6 +73,100 @@ DEFINE_EDM_PLUGIN(BlockElementImporterFactory,
 		  ECALClusterImporter<reco::PFBlockElement::ECAL>, 
 		  "ECALClusterImporter");
 
+#include "RecoEcal/EgammaClusterAlgos/interface/HGCALShowerBasedEmIdentification.h" 
+class HGCECALClusterImporter : public BlockElementImporterBase {
+public:
+  HGCECALClusterImporter(const edm::ParameterSet& conf,
+		      edm::ConsumesCollector& sumes) :
+    BlockElementImporterBase(conf,sumes),
+    _src(sumes.consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("source"))),
+    _emPreID( new HGCALShowerBasedEmIdentification(true) ){}
+     
+  void importToBlock( const edm::Event& ,
+		      ElementList& ) const override;
+
+private:
+  edm::EDGetTokenT<reco::PFClusterCollection> _src;
+  std::unique_ptr<HGCALShowerBasedEmIdentification> _emPreID;
+  //std::unique_ptr<> _emCalibration;
+};
+
+void HGCECALClusterImporter::
+importToBlock( const edm::Event& e, 
+	       BlockElementImporterBase::ElementList& elems ) const {
+  BlockElementImporterBase::ElementList ecals;
+  edm::Handle<reco::PFClusterCollection> clusters;
+  edm::Handle<edm::ValueMap<reco::CaloClusterPtr> > assoc;
+  e.getByToken(_src,clusters);
+  auto bclus = clusters->cbegin();
+  auto eclus = clusters->cend();
+  // get all the SCs in the element list
+  auto sc_end = std::partition(elems.begin(),elems.end(),
+			       [](const ElementList::value_type& o){
+				 return o->type() == reco::PFBlockElement::SC;
+			       });   
+  ecals.reserve(clusters->size());
+  for( auto clus = bclus; clus != eclus; ++clus  ) {    
+    reco::PFClusterRef tempref(clusters, std::distance(bclus,clus));    
+    reco::PFBlockElement::Type the_type = reco::PFBlockElement::NONE;
+    switch( tempref->layer() ) {
+    case PFLayer::HGC_ECAL:
+      the_type = reco::PFBlockElement::HGC_ECAL;
+      break;
+    case PFLayer::HGC_HCALF:
+      the_type = reco::PFBlockElement::HGC_HCALF;
+      break;
+    case PFLayer::HGC_HCALB:
+      the_type = reco::PFBlockElement::HGC_HCALB;
+      break;
+    default:
+      throw cms::Exception("BadInput") 
+	<< "HGC importer expected HGC clusters!";
+    }
+    
+    //prep the EM ID for the cluster
+    _emPreID->reset();
+    _emPreID->setShowerPosition(tempref->position());
+    _emPreID->setShowerDirection(tempref->axis());
+    
+    // need to get EM-calibrated version of the cluster
+
+    // ID charged hadrons by those that pass 
+    // shower start cut but fail width and length
+    /*
+    if( _emPreID->cutStartPosition(*tempref) && 
+	!( _emPreID->cutSigmaetaeta(*tempref) && 
+	   _emPreID->cutLengthCompatibility(*tempref) )  && 
+	the_type == reco::PFBlockElement::HGC_ECAL ) { 
+    */
+    if( !_emPreID->isEm(*tempref) && 
+	the_type == reco::PFBlockElement::HGC_ECAL) {
+      the_type = reco::PFBlockElement::HGC_HCALF;
+    }
+    
+    //std::cout << " importing cluster of type: " << the_type << " pt = " << tempref->pt() << " pos = " << tempref->position() << std::endl;
+
+    reco::PFBlockElementCluster* newelem = 
+      new reco::PFBlockElementCluster(tempref,the_type);
+    for( auto scelem = elems.begin(); scelem != sc_end; ++scelem ) {
+      const reco::PFBlockElementSuperCluster* elem_as_sc =
+	static_cast<const reco::PFBlockElementSuperCluster*>(scelem->get());
+      const reco::SuperClusterRef& this_sc = elem_as_sc->superClusterRef();
+      const bool in_sc = ClusterClusterMapping::overlap(*tempref,
+							*this_sc);
+      if( in_sc ) {	
+	newelem->setSuperClusterRef(this_sc);
+	break;
+      }
+    }
+    ecals.emplace_back(newelem);
+  }
+  elems.reserve(elems.size()+ecals.size());
+  for( auto& ecal : ecals ) {
+    elems.emplace_back(ecal.release());
+  }
+}
+
 DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
-		  ECALClusterImporter<reco::PFBlockElement::HGC_ECAL>, 
+		  HGCECALClusterImporter, 
 		  "HGCECALClusterImporter");

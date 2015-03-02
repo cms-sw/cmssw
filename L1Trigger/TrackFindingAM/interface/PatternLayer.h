@@ -35,15 +35,11 @@ class PatternLayer{
      \brief Number of maximum DC bits
   **/
   static const int DC_BITS=3;
-   /**
-     \brief Map between GRAY code and decimal values
-   **/
-  static map<string, int> GRAY_POSITIONS;
 
   /**
      \brief Cache between DC bits values and positions
   **/
-  static map<string, vector<string> > positions_cache;
+  static map<string, vector<short> > positions_cache;
   
   /**
      \brief Constructor
@@ -123,9 +119,14 @@ class PatternLayer{
   **/
   virtual short getStrip()=0;
   /**
+     \brief Returns the Super strip encoded value (may be different from the position if using gray code)
+     \return The encoded value of the super strip
+  **/
+  virtual short getStripCode()=0;
+  /**
      \brief Get the list of positions from the DC bits
   **/
-  vector<string> getPositionsFromDC();
+  vector<short> getPositionsFromDC();
 
   /**
      \brief Get the number of DC bits used
@@ -133,13 +134,17 @@ class PatternLayer{
   **/
   int getDCBitsNumber();
 
+  /**
+     \brief Check if the PatternLayer is a fake one (used on layers not crossed by the track)
+     \return True if the PatternLayer is a placeholder
+  **/
+  virtual bool isFake()=0;
+
  private:
   /**
      Get the list of positions from the DC bits
   **/
-  void getPositionsFromDC(vector<char> dc, vector<string>& positions);
-  static map<string, int> CreateMap();
-
+  void getPositionsFromDC(vector<char> dc, vector<short>& positions);
 
  protected:
   /**

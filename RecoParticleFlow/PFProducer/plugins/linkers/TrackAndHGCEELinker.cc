@@ -62,6 +62,11 @@ testLink( const reco::PFBlockElement* elem1,
   const reco::PFTrajectoryPoint& tkAtHGCEE =
     trackref->extrapolatedPoint( HGCEntrance );
   const reco::PFCluster::REPPoint& tkreppos = tkAtHGCEE.positionREP();
+  
+  if( tkelem->trackRef() == clusterref->track() ) {
+    dist = 1e-3;
+    return dist;
+  }
 
   // Check if the linking has been done using the KDTree algo
   // Glowinski & Gouzevitch

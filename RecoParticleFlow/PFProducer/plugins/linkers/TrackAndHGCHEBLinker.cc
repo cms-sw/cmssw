@@ -45,7 +45,7 @@ double TrackAndHGCHEBLinker::
 testLink( const reco::PFBlockElement* elem1,
 	  const reco::PFBlockElement* elem2 ) const {  
   constexpr reco::PFTrajectoryPoint::LayerType HGCEntrance =
-    reco::PFTrajectoryPoint::HGC_HCALBEntrance;
+    reco::PFTrajectoryPoint::HGC_ECALEntrance;
   const reco::PFBlockElementCluster *hgchebelem(NULL);
   const reco::PFBlockElementTrack   *tkelem(NULL);
   double dist(-1.0);
@@ -62,6 +62,11 @@ testLink( const reco::PFBlockElement* elem1,
   const reco::PFTrajectoryPoint& tkAtHGCHEB =
     trackref->extrapolatedPoint( HGCEntrance );
    const reco::PFCluster::REPPoint& tkreppos = tkAtHGCHEB.positionREP();
+
+   if( tkelem->trackRef() == clusterref->track() ) {
+    dist = 1e-3;
+    return dist;
+   }
 
   // Check if the linking has been done using the KDTree algo
   // Glowinski & Gouzevitch

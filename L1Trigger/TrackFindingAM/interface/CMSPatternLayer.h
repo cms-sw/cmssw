@@ -8,6 +8,7 @@
 
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/serialization/map.hpp>
 
 #ifdef IPNL_USE_CUDA
 #include "gpu_struct.h"
@@ -25,7 +26,8 @@ using namespace std;
      - number of strips per segment
      - convertion from root file module ID to program module ID
      - convertion from root file ladder ID to program ladder ID
-   Please keep in mind tha the value 15 for the ladder is used for the fake stubs.
+   Please keep in mind that the value 15 for the ladder is used for the fake stubs.
+   The superstrip position value is stored in Gray code, this allows to manage more interesting situations with the DC bits.
 **/
 
 class CMSPatternLayer : public PatternLayer{
@@ -40,6 +42,9 @@ class CMSPatternLayer : public PatternLayer{
   static const short STRIP_MASK = 0x3F;
   static const short SEG_MASK = 0x1;
 
+  short binaryToGray(short num);
+  short grayToBinary(short gray);
+
   friend class boost::serialization::access;
   
   template<class Archive> void save(Archive & ar, const unsigned int version) const//const boost::serialization::version_type& version) const 
@@ -50,6 +55,18 @@ class CMSPatternLayer : public PatternLayer{
   template<class Archive> void load(Archive & ar, const unsigned int version)
     {
       ar >> boost::serialization::base_object<PatternLayer>(*this);
+      if(version<1){
+	//Convert the strip value to gray code
+	char current_val = getStripCode();
+	bool even = (current_val%2)==0;
+	bits &= ~(STRIP_MASK<<STRIP_START_BIT);
+	bits |= (binaryToGray(current_val)&STRIP_MASK)<<STRIP_START_BIT;
+	if(!even){
+	  // Update the DC bits (change the first DC bits only if the strip is even)
+	  if(dc_bits[0]<2)
+	    dc_bits[0]=1-dc_bits[0];
+	}
+      }
     }
   
   BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -95,6 +112,11 @@ class CMSPatternLayer : public PatternLayer{
      \return The position of the super strip in the segment
   **/
   short getStrip();
+  /**
+     \brief Returns the Super strip encoded value
+     \return The gray encoded value of the position of the super strip in the segment
+  **/
+  short getStripCode();
   /**
      \brief Returns the position of the segment in the module
      \return The segment's position in the module (0 or 1)
@@ -157,6 +179,12 @@ class CMSPatternLayer : public PatternLayer{
   **/
   static int getNbModules(int layerID, int ladderID);  
 
+ /**
+     \brief Check if the PatternLayer is a fake one (used on layers not crossed by the track)
+     \return True if the PatternLayer is a placeholder
+  **/  
+  bool isFake();
+
   /**
      \brief Returns a map containing the valid ETA range for each layer
      \return For each layerID, gives the minimum and maximum ETA values
@@ -164,5 +192,5 @@ class CMSPatternLayer : public PatternLayer{
   static map<int, pair<float,float> > getLayerDefInEta();
 
 };
-
+BOOST_CLASS_VERSION(CMSPatternLayer, 1)
 #endif

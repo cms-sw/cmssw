@@ -52,6 +52,69 @@ using namespace boost;
 
 typedef std::list< reco::PFBlockRef >::iterator IBR;
 
+namespace {
+  // check if this the track is close to another
+  // cluster with better energy residual  
+  bool check_hgcal_link(const reco::PFBlock& block,
+			const reco::PFBlock::LinkData& linkData,
+			const unsigned iHGC,
+			const unsigned iTrack,
+			const bool debug) {
+    constexpr double dmax = std::numeric_limits<double>::max();
+    typedef std::multimap<double, unsigned> linkmap;
+    typedef linkmap::iterator ilink;
+    
+    bool result = true;
+
+    const reco::PFBlockElementCluster* const hgcElem = 
+      static_cast<const reco::PFBlockElementCluster*>(&(block.elements()[iHGC]));
+    const reco::PFBlockElementTrack* const tkElem = 
+      static_cast<const reco::PFBlockElementTrack*>(&(block.elements()[iTrack]));
+
+    const double eClus = hgcElem->clusterRef()->energy();
+    const double pTrack = tkElem->trackRef()->p();
+    const double inputResidual = ( eClus - pTrack)/pTrack;
+
+    linkmap otherTracks;
+    block.associatedElements( iHGC, linkData,
+                              otherTracks ,
+                              reco::PFBlockElement::TRACK,
+			      reco::PFBlock::LINKTEST_ALL );
+    // let's see first if there's another track with better energy
+    // residual 
+    double bestResidual(dmax);
+    const reco::PFBlockElementTrack* bestOtherTrack = nullptr;
+    for( ilink itrk = otherTracks.begin(); itrk != otherTracks.end(); ++itrk ) {
+      if( itrk->second == iTrack ) continue;
+      const reco::PFBlockElementTrack* thisTrack = 
+	static_cast<const reco::PFBlockElementTrack*>(&(block.elements()[itrk->second]));
+      const double pThisTrack = thisTrack->trackRef()->p();
+      const double residual = ( eClus - pThisTrack ) / pThisTrack;
+      if( std::abs(residual) < std::abs(bestResidual) ) {
+	bestResidual = residual;
+	bestOtherTrack = thisTrack;
+      }
+    }
+
+    if( bestResidual != dmax ) {
+      if( debug )
+	std::cout << "Found best residual from closer track: " << bestResidual << ' ' << *bestOtherTrack << std::endl;
+
+      if( debug ) {
+	if( std::abs(inputResidual) < std::abs(bestResidual) ) {
+	  std::cout << "input residual " << inputResidual << " better than " << bestResidual << " !" << std::endl;
+	} else {
+	  std::cout << "input residual " << inputResidual << " worse than " << bestResidual << " !" << std::endl;
+	}      
+      }
+      // if a closer track has a better residual then we do not link this track
+      if( std::abs(inputResidual) > std::abs(bestResidual) ) result = false;
+
+    }
+
+    return result;
+  }
+}
 
 
 PFAlgo::PFAlgo()
@@ -83,6 +146,13 @@ PFAlgo::setParameters(double nSigmaECAL,
   calibration_ = calibration;
   thepfEnergyCalibrationHF_ = thepfEnergyCalibrationHF;
 
+}
+
+void 
+PFAlgo::setHGCalParameters(double HGCalResolutionConst, 
+			   double HGCalResolutionStoch) {
+  HGCalResolutionConst_ = HGCalResolutionConst;
+  HGCalResolutionStoch_ = HGCalResolutionStoch;
 }
 
 
@@ -919,7 +989,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	double deficit = trackMomentum; 
 	double resol = neutralHadronEnergyResolution(trackMomentum,
-						     elements[iTrack].trackRef()->eta());
+						     elements[iTrack].trackRef()->eta(),
+						     PFBlockElement::NONE); // logically we might not have a connected cluster here
 	resol *= trackMomentum;
 
 	if ( !ecalElems.empty() ) { 
@@ -927,7 +998,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  reco::PFClusterRef clusterRef = elements[thisEcal].clusterRef();
 	  deficit -= clusterRef->energy();
 	  resol = neutralHadronEnergyResolution(trackMomentum,
-						clusterRef->positionREP().Eta());
+						clusterRef->positionREP().Eta(),
+						elements[thisEcal].type());
 	  resol *= trackMomentum;
 	}
 
@@ -1072,7 +1144,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	if ( !thatIsAMuon && trackRef->ptError() > ptError_) { 
 	  double deficit = trackMomentum + trackRef->p() - clusterRef->energy();
 	  double resol = nSigmaTRACK_*neutralHadronEnergyResolution(trackMomentum+trackRef->p(),
-								    clusterRef->positionREP().Eta());
+								    clusterRef->positionREP().Eta(),
+								    the_ecal_type);
 	  resol *= (trackMomentum+trackRef->p());
 	  if ( deficit > nSigmaTRACK_*resol ) { 
  	    rejectFake = true;
@@ -1142,7 +1215,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				  sortedTracks,
 			 	  reco::PFBlockElement::TRACK,
 				  reco::PFBlock::LINKTEST_ALL );
-	bool skip = true;
+	bool skip = true;		  
 	for (unsigned ic=0; ic<kTrack.size();++ic) {
 	  if ( sortedTracks.begin()->second == kTrack[ic] ) { 
 	    skip = false;
@@ -1180,7 +1253,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	
 	// Get the energy calibrated (for photons)
 	bool crackCorrection = false;
-	double ecalEnergy = calibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,crackCorrection);
+	// LG -- for HGC
+	const bool isHGCCluster = ( clusterRef->layer() == PFLayer::HGC_ECAL  || 
+				    clusterRef->layer() == PFLayer::HGC_HCALF || 
+				    clusterRef->layer() == PFLayer::HGC_HCALB    );
+	double ecalEnergy = ( isHGCCluster ? clusterRef->energy() : calibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,crackCorrection) );	
 	if ( debug_ )
 	  std::cout << "Corrected ECAL(+PS) energy = " << ecalEnergy << std::endl;
 
@@ -1191,9 +1268,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	double previousSlopeEcal = slopeEcal;
 	calibEcal = std::max(totalEcal,0.);
 	calibHcal = 0.;
-	calibration_->energyEmHad(trackMomentum,calibEcal,calibHcal,
-				  clusterRef->positionREP().Eta(),
-				  clusterRef->positionREP().Phi());
+	if( !isHGCCluster ) {
+	  calibration_->energyEmHad(trackMomentum,calibEcal,calibHcal,
+				    clusterRef->positionREP().Eta(),
+				    clusterRef->positionREP().Phi());
+	}
 	if ( totalEcal > 0.) slopeEcal = calibEcal/totalEcal;
 
 	if ( debug_ )
@@ -1291,7 +1370,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	*/
 	
 	// Add a photon is the energy excess is large enough
-	double resol = neutralHadronEnergyResolution(trackMomentum,pivotalRef->positionREP().Eta());
+	double resol = neutralHadronEnergyResolution(trackMomentum,pivotalRef->positionREP().Eta(),the_ecal_type);
 	resol *= trackMomentum;
 	if ( neutralEnergy > std::max(0.5,nSigmaECAL_*resol) ) {
 	  neutralEnergy /= slopeEcal;
@@ -1345,6 +1424,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
     // In case several HCAL elements are linked to this track, 
     // unlinking all of them except the closest. 
+    // for HGCAL you also need to consider the best energy residual
+    // since clusters can be dense about the track
+    // -- this could be mitigated to some extent using more elaborate 
+    //    initial linking strategies
     for(IE ie = hcalElems.begin(); ie != hcalElems.end(); ++ie ) {
       
       unsigned index = ie->second;
@@ -1359,6 +1442,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       assert( type == PFBlockElement::HCAL || 
 	      type == PFBlockElement::HGC_HCALF || type == PFBlockElement::HGC_HCALB );
       
+      bool satifiesHGCAL_linking = true;
+      if( type == PFBlockElement::HGC_HCALF || 
+	  type == PFBlockElement::HGC_HCALB    ) {
+	satifiesHGCAL_linking = check_hgcal_link(block,linkData,index,iTrack,debug_);
+      }
+
       // all hcal clusters except the closest 
       // will be unlinked from the track
       if( !hcalFound && type == PFBlockElement::HCAL ) { // closest hcal
@@ -1367,12 +1456,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
         hcalFound = true;        
         // active[index] = false;
         // hcalUsed.push_back( index );
-      } else if(!hgHcalFound[0] && type == PFBlockElement::HGC_HCALF ) { // HEF
+      } else if(!hgHcalFound[0] && type == PFBlockElement::HGC_HCALF && satifiesHGCAL_linking) { // HEF
 	if(debug_) 
-          cout<<"\t\tclosest HGCHEF cluster, doing nothing"<<endl;        
-        hgHcalFound[0] = true;
-      } else if(!hgHcalFound[1] && type == PFBlockElement::HGC_HCALB ) { // HEB 
-	if(debug_) 
+          cout<<"\t\tclosest HGCHEF cluster, doing nothing"<<endl;     
+	hgHcalFound[0] = true;	
+      } else if(!hgHcalFound[1] && type == PFBlockElement::HGC_HCALB && satifiesHGCAL_linking) { // HEB 
+	if(debug_ ) 
           cout<<"\t\tclosest HGCHEB cluster, doing nothing"<<endl;        
         hgHcalFound[1] = true;
       } else { // other associated hcal
@@ -1381,7 +1470,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
           cout<<"\t\tsecondary hcal cluster. unlinking"<<endl;
         block.setLink( iTrack, index, -1., linkData,
                        PFBlock::LINKTEST_RECHIT );
-      }
+      }      
+
     } //loop hcal elements   
   } // end of loop 1 on elements iEle of any type
 
@@ -1679,7 +1769,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  }
 	}	
 	
-	if( TheOtherHGC != -1 ) {
+	if( TheOtherHGC != -1 && active[TheOtherHGC] ) {
 	  PFClusterRef otherhgcclusterref = elements[TheOtherHGC].clusterRef();
 	  if(debug_) 
 	    cout<<"PFAlgo : found other HGC cluster associated to this track: "
@@ -1920,7 +2010,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	      
 	    // Calibrate the ECAL energy for photons
 	    bool crackCorrection = false;
-	    float ecalEnergyCalibrated = calibration_->energyEm(*eclusterref,ps1Ene,ps2Ene,crackCorrection);
+	    const bool isHGCCluster = ( eclusterref->layer() == PFLayer::HGC_ECAL  || 
+					eclusterref->layer() == PFLayer::HGC_HCALF || 
+					eclusterref->layer() == PFLayer::HGC_HCALB    );
+	    float ecalEnergyCalibrated = eclusterref->energy();
+	    if( !isHGCCluster ) { 
+	      ecalEnergyCalibrated = calibration_->energyEm(*eclusterref,ps1Ene,ps2Ene,crackCorrection);
+	    }
 	    math::XYZVector photonDirection(eclusterref->position().X(),
 					    eclusterref->position().Y(),
 					    eclusterref->position().Z());
@@ -2015,7 +2111,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     hadronDirection = hadronAtECAL.Unit();
 
     // Determine the expected calo resolution from the total charged momentum
-    double Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());    
+    double Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta(), the_hcal_type);    
     Caloresolution *= totalChargedMomentum;
     // Account for muons
     Caloresolution = std::sqrt(Caloresolution*Caloresolution + muonHCALError + muonECALError);
@@ -2043,9 +2139,14 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       calibHcal = std::max(0.,totalHcal);
       hadronAtECAL = calibHcal * hadronDirection;
       // Calibrate ECAL and HCAL energy under the hadron hypothesis.
-      calibration_->energyEmHad(totalChargedMomentum,calibEcal,calibHcal,
-				hclusterref->positionREP().Eta(),
-				hclusterref->positionREP().Phi());
+      const bool isHGCCluster = ( hclusterref->layer() == PFLayer::HGC_ECAL  || 
+				  hclusterref->layer() == PFLayer::HGC_HCALF || 
+				  hclusterref->layer() == PFLayer::HGC_HCALB    );
+      if( !isHGCCluster ) {
+	calibration_->energyEmHad(totalChargedMomentum,calibEcal,calibHcal,
+				  hclusterref->positionREP().Eta(),
+				  hclusterref->positionREP().Phi());
+      }
       caloEnergy = calibEcal+calibHcal;
       if ( totalEcal > 0.) slopeEcal = calibEcal/totalEcal;
 
@@ -2196,7 +2297,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  //if ( totalChargedMomentum < caloEnergy ) break;	
 	}
 	// New calo resolution.
-	Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());    
+	Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta(), the_hcal_type);    
 	Caloresolution *= totalChargedMomentum;
 	Caloresolution = std::sqrt(Caloresolution*Caloresolution + muonHCALError + muonECALError);
       }
@@ -2278,7 +2379,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     }
 
     // New determination of the calo and track resolution avec track deletion/rescaling.
-    Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());    
+    Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta(), the_hcal_type);    
     Caloresolution *= totalChargedMomentum;
     Caloresolution = std::sqrt(Caloresolution*Caloresolution + muonHCALError + muonECALError);
 
@@ -2326,7 +2427,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     }
 
     // New determination of the calo and track resolution avec track deletion/rescaling.
-    Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());    
+    Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta(), the_hcal_type);    
     Caloresolution *= totalChargedMomentum;
     Caloresolution = std::sqrt(Caloresolution*Caloresolution + muonHCALError + muonECALError);
 
@@ -2880,7 +2981,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       vector<double> ps2Ene(1,static_cast<double>(0.));
       associatePSClusters(iEcal, reco::PFBlockElement::PS2, block, elements, linkData, active, ps2Ene);
       bool crackCorrection = false;
-      double ecalEnergy = calibration_->energyEm(*eclusterRef,ps1Ene,ps2Ene,crackCorrection);
+      const bool isHGCCluster = ( eclusterRef->layer() == PFLayer::HGC_ECAL  || 
+				  eclusterRef->layer() == PFLayer::HGC_HCALF || 
+				  eclusterRef->layer() == PFLayer::HGC_HCALB    );
+      double ecalEnergy = eclusterRef->energy();
+      if( !isHGCCluster ) {
+	ecalEnergy = calibration_->energyEm(*eclusterRef,ps1Ene,ps2Ene,crackCorrection);
+      }
       
       //std::cout << "EcalEnergy, ps1, ps2 = " << ecalEnergy 
       //          << ", " << ps1Ene[0] << ", " << ps2Ene[0] << std::endl;
@@ -3006,9 +3113,14 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       //caloEnergy = totalHcal/0.7;
       calibEcal = totalEcal;
     } else { 
-      calibration_->energyEmHad(-1.,calibEcal,calibHcal,
-				hclusterRef->positionREP().Eta(),
-				hclusterRef->positionREP().Phi());      
+      const bool isHGCCluster = ( hclusterRef->layer() == PFLayer::HGC_ECAL  || 
+				  hclusterRef->layer() == PFLayer::HGC_HCALF || 
+				  hclusterRef->layer() == PFLayer::HGC_HCALB    );
+      if( !isHGCCluster ) {
+	calibration_->energyEmHad(-1.,calibEcal,calibHcal,
+				  hclusterRef->positionREP().Eta(),
+				  hclusterRef->positionREP().Phi());      
+      }
       //caloEnergy = calibEcal+calibHcal;
     }
 
@@ -3294,7 +3406,16 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
 //GMA need the followign two for HO also
 
 double 
-PFAlgo::neutralHadronEnergyResolution(double clusterEnergyHCAL, double eta) const {
+PFAlgo::neutralHadronEnergyResolution(double clusterEnergyHCAL, double eta, PFBlockElement::Type the_cluster_type) const {
+
+  // Use configurable HGCal resolution
+  if (the_cluster_type == PFBlockElement::HGC_HCALF ||
+      the_cluster_type == PFBlockElement::HGC_HCALB ||
+      the_cluster_type == PFBlockElement::HGC_ECAL || 
+      (the_cluster_type == PFBlockElement::NONE && fabs(eta) > 1.48) ) { 
+    if (debug_) cout << "\t\t\tUsing configured HGCal resolution const=" << HGCalResolutionConst_ << " stoch=" << HGCalResolutionStoch_ << endl;
+    return sqrt( HGCalResolutionStoch_*HGCalResolutionStoch_/clusterEnergyHCAL + HGCalResolutionConst_*HGCalResolutionConst_ );
+  }
 
   // Add a protection
 

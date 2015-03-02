@@ -12,6 +12,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -79,7 +82,17 @@ namespace reco {
     PFLayer::Layer  layer() const;
     
     /// cluster energy
-    double        energy() const {return energy_;}
+    double        energy()   const {return energy_;}
+    // had or em energies
+    double        emEnergy()  const {return emEnergy_;}    
+    double        hadEnergy() const {return hadEnergy_;}
+    // set them
+    void          setEmEnergy(double em)   { emEnergy_ = em; }
+    void          setHadEnergy(double had) { hadEnergy_ = had; }
+
+    //track associated to cluster (HGC)
+    void setTrack(const reco::TrackRef& tk) { track_ = tk; }
+    const reco::TrackRef& track() const { return track_; }
 
     /// cluster time
     double        time() const {return time_;}
@@ -183,6 +196,12 @@ namespace reco {
     REPPoint            posrep_;
     math::XYZVector     axis_;
     REPAxis             axisrep_;
+
+    //Lindsey: add em/had energies
+    double emEnergy_,hadEnergy_;
+    
+    //Lindsey: add track reference when doing HGC clustering
+    reco::TrackRef track_;
 
     ///Michalis :Add timing information
     double time_;

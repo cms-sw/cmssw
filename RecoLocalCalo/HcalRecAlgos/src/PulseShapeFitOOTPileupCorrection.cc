@@ -177,6 +177,10 @@ PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPul
                                                                        ts4Min_(0), ts4Max_(0), pulseJitter_(0), timeMean_(0), timeSig_(0), pedMean_(0), pedSig_(0),
                                                                        noise_(0) {
    hybridfitter = new PSFitter::HybridMinimizer(PSFitter::HybridMinimizer::kMigrad);
+   // Suppress all output to stdout and assume that the calling code makes
+   // use of the fitErrorCodeFrequency method to report errors.
+   hybridfitter->SuppressMessages();
+
    iniTimesArr = { {-100,-75,-50,-25,0,25,50,75,100,125} };
 }
 
@@ -319,8 +323,9 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    bool  fitStatus   = false;
 
    int BX[3] = {4,5,3};
-   if(ts4Chi2_ != 0) fit(1,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
-// Based on the pulse shape ( 2. likely gives the same performance )
+   // Remove single-pulse option for Upgrade... pretty sure most cases eventually go to 3 pulse fit.
+   // if(ts4Chi2_ != 0) fit(1,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
+   // Based on the pulse shape ( 2. likely gives the same performance )
    if(tmpy[2] > 3.*tmpy[3]) BX[2] = 2;
    if(chi2 > ts4Chi2_ && !unConstrainedFit_)   { //fails chi2 cut goes straight to 3 Pulse fit
      fit(3,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
@@ -334,9 +339,11 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
      fit(3,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,BX);
    }
    */
+   
    //Fix back the timeslew
    if(applyTimeSlew_) timevalfit+=HcalTimeSlew::delay(std::max(1.0,chargeArr[4]),slewFlavor_);
-   int outfitStatus = (fitStatus ? 1: 0 );
+   int outfitStatus = (fitStatus ? 1: 0 ); 
+   
    fitParsVec.clear();
    fitParsVec.push_back(chargevalfit);
    fitParsVec.push_back(timevalfit);
@@ -390,6 +397,7 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
      if( fitTimes_ != 2 || tries !=1 ){
         hybridfitter->SetMinimizerType(PSFitter::HybridMinimizer::kMigrad);
         fitStatus = hybridfitter->Minimize();
+        ++fitErrorCodes_[hybridfitter->Status()];
      }
      double chi2valfit = hybridfitter->MinValue();
      const double *newresults = hybridfitter->X();
@@ -405,6 +413,7 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
        if(tries==0){
 	 hybridfitter->SetMinimizerType(PSFitter::HybridMinimizer::kScan);
 	 fitStatus = hybridfitter->Minimize();
+	 ++fitErrorCodes_[hybridfitter->Status()];
        } else if(tries==1){
 	 hybridfitter->SetStrategy(1);
        } else if(tries==2){
@@ -419,6 +428,61 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
    timevalfit   = results[0];
    chargevalfit = results[1];
    pedvalfit    = results[n-1];
+   
+   
+   if(n == 7){
+   float timeval2fit   = results[2];
+   float chargeval2fit = results[3];
+   float timeval3fit   = results[4];
+   float chargeval3fit = results[5];
+   
+   float deltaT12 = fabs(timeval2fit - timevalfit);
+   float deltaT13 = fabs(timeval3fit - timevalfit);
+   float deltaT23 = fabs(timeval2fit - timeval3fit);
+   
+   // Pick the time closest to zero
+   // Check to see if this pulse overlaps (delta t < 1 ns) with the other pulses
+   // if so do the weighted average for the time and the total energy for energy
+
+     if((std::abs(timevalfit)<std::abs(timeval2fit)) && (std::abs(timevalfit)<std::abs(timeval3fit))){
+        if(deltaT12 < overlapLimit){
+          timevalfit = (timeval2fit*chargeval2fit + timevalfit*chargevalfit)/(chargeval2fit+chargevalfit);
+          chargevalfit = chargeval2fit+chargevalfit;     
+        } 
+        if(deltaT13 < overlapLimit) {
+          timevalfit = (timevalfit*chargevalfit + timeval3fit*chargeval3fit)/(chargevalfit+chargeval3fit);
+          chargevalfit = chargevalfit+chargeval3fit;
+        } 
+     } else if((std::abs(timeval2fit)<std::abs(timevalfit)) && (std::abs(timeval2fit)<std::abs(timeval3fit))){
+
+        if(deltaT23 < overlapLimit) {
+          timevalfit = (timeval2fit*chargeval2fit + timeval3fit*chargeval3fit)/(chargeval2fit+chargeval3fit);
+          chargevalfit = chargeval2fit+chargeval3fit;
+        } 
+        if(deltaT12 < overlapLimit){
+          timevalfit = (timeval2fit*chargeval2fit + timevalfit*chargevalfit)/(chargeval2fit+chargevalfit);
+          chargevalfit = chargeval2fit+chargevalfit;     
+        } else if(deltaT23 >= overlapLimit) {
+          timevalfit = timeval2fit;
+          chargevalfit = chargeval2fit;
+        }
+     } else if((std::abs(timeval3fit)<std::abs(timevalfit)) && (std::abs(timeval3fit)<std::abs(timeval2fit))){
+       if(deltaT23 < overlapLimit){
+          timevalfit = (timeval2fit*chargeval2fit + timeval3fit*chargeval3fit)/(chargeval2fit+chargeval3fit);
+          chargevalfit = chargeval2fit+chargeval3fit;     
+        }
+        if(deltaT13 < overlapLimit) {
+          timevalfit = (timevalfit*chargevalfit + timeval3fit*chargeval3fit)/(chargevalfit+chargeval3fit);
+          chargevalfit = chargevalfit+chargeval3fit;
+        } else if(deltaT23 >= overlapLimit){
+          timevalfit = timeval3fit;
+          chargevalfit = chargeval3fit;
+        }
+      }
+   }
+
+   
+   
    if(!(unConstrainedFit_ && iFit == 2)) return;
    //Add the option of the old method 2
    float timeval2fit   = results[2];

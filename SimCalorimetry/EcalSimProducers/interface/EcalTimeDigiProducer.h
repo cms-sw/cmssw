@@ -40,7 +40,7 @@ class EcalTimeDigiProducer : public DigiAccumulatorMixMod {
    private:
 
       typedef edm::Handle<std::vector<PCaloHit> > HitsHandle;
-      void accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle const& eeHandle,  int bunchCrossing);
+      void accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle const& eeHandle, HitsHandle const& ekHandle,  int bunchCrossing);
 
       void checkGeometry(const edm::EventSetup& eventSetup) ;
 
@@ -48,15 +48,18 @@ class EcalTimeDigiProducer : public DigiAccumulatorMixMod {
 
       const std::string m_EBdigiCollection ;
       const std::string m_EEdigiCollection ;
+      const std::string m_EKdigiCollection ;
       const std::string m_hitsProducerTag  ;
 
    private:
       int m_timeLayerEB;
       int m_timeLayerEE;
+      int m_timeLayerEK;
       const CaloGeometry*   m_Geometry ;
 
       EcalTimeMapDigitizer* m_BarrelDigitizer;
       EcalTimeMapDigitizer* m_EndcapDigitizer;
+      EcalTimeMapDigitizer* m_ShashlikDigitizer;
 };
 
 #endif 
