@@ -17,7 +17,7 @@
 <use   name="RecoLocalCalo/EcalRecAlgos"/>
 <use   name="RecoLocalCalo/EcalRecProducers"/>
 <use   name="Utilities/StorageFactory"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>
