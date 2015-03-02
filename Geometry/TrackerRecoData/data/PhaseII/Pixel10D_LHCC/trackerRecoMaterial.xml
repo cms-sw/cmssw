@@ -186,7 +186,7 @@
       <Parameter name="TrackerXi" value="0.0003217"/>
     </SpecPar>
 
-<!--<SpecPar name="TrackerRecMaterialTOBPixelBarrelLayer1" eval="true">
+<SpecPar name="TrackerRecMaterialTOBPixelBarrelLayer1" eval="true">
 <PartSelector path="//PixelBarrel/Layer1/Rod1/BModule1Layer1/BModule1Layer1INNERwafer/BModule1Layer1INNERactive"/>
 <PartSelector path="//PixelBarrel/Layer1/Rod1/BModule1Layer1/BModule1Layer1OUTERwafer/BModule1Layer1OUTERactive"/>
 <PartSelector path="//PixelBarrel/Layer1/Rod1/BModule2Layer1/BModule2Layer1INNERwafer/BModule2Layer1INNERactive"/>
@@ -253,7 +253,7 @@
 <PartSelector path="//PixelBarrel/Layer1/Rod1/BModule32Layer1/BModule32Layer1OUTERwafer/BModule32Layer1OUTERactive"/>
 <Parameter name="TrackerRadLength" value="0.0362205"/>
 <Parameter name="TrackerXi" value="0.000072"/>
-</SpecPar>-->
+</SpecPar>
 
 <SpecPar name="TrackerRecMaterialTOBPixelBarrelLayer2" eval="true">
 <PartSelector path="//PixelBarrel/Layer2/Rod2/BModule1Layer2/BModule1Layer2INNERwafer/BModule1Layer2INNERactive"/>
@@ -375,7 +375,7 @@
 <Parameter name="TrackerXi" value="0.000070"/>
 </SpecPar>
 
-<SpecPar name="TrackerRecMaterialTOBPixelBarrelLayer4" eval="true">
+<!--<SpecPar name="TrackerRecMaterialTOBPixelBarrelLayer4" eval="true">
 <PartSelector path="//PixelBarrel/Layer4/Rod4/BModule1Layer4/BModule1Layer4INNERwafer/BModule1Layer4INNERactive"/>
 <PartSelector path="//PixelBarrel/Layer4/Rod4/BModule1Layer4/BModule1Layer4OUTERwafer/BModule1Layer4OUTERactive"/>
 <PartSelector path="//PixelBarrel/Layer4/Rod4/BModule2Layer4/BModule2Layer4INNERwafer/BModule2Layer4INNERactive"/>
@@ -402,7 +402,7 @@
 <PartSelector path="//PixelBarrel/Layer4/Rod4/BModule12Layer4/BModule12Layer4OUTERwafer/BModule12Layer4OUTERactive"/>
 <Parameter name="TrackerRadLength" value="0.0177537"/>
 <Parameter name="TrackerXi" value="0.000036"/>
-</SpecPar>
+</SpecPar>-->
 
 <SpecPar name="TrackerRecMaterialTOBPixelBarrelLayer5" eval="true">
 <PartSelector path="//PixelBarrel/Layer5/Rod5/BModule1Layer5/BModule1Layer5INNERwafer/BModule1Layer5INNERactive"/>
