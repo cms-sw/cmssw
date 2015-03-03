@@ -614,7 +614,7 @@ step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
                            '--relval':'27000,3000'},
                            step1Defaults])
-step1FastPUNewMixing =merge([{'-s':'GEN,SIM,RECO',
+step1FastPUNewMixing =merge([{'-s':'GEN,SIM',
                            '--eventcontent':'FASTPU',
                            '--datatier':'GEN-SIM-RECO'},
                            step1FastUpg2015Defaults])
