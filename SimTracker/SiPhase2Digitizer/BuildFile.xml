@@ -12,7 +12,7 @@
 <use   name="SimGeneral/NoiseGenerators"/>
 <use   name="SimTracker/Common"/>
 <use   name="DataFormats/SiPixelDetId"/>
-<use   name="DataFormats/SiPixelCluster"/>
+<use   name="DataFormats/Phase2TrackerCluster"/>
 <use   name="CalibTracker/SiPixelESProducers"/>
 <use   name="gsl"/>
 <use   name="clhep"/>
