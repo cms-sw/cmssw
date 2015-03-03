@@ -103,7 +103,9 @@ namespace cms_content {
 //
 PandoraCMSPFCandProducer::PandoraCMSPFCandProducer(const edm::ParameterSet& iConfig) : 
   debugPrint(iConfig.getParameter<bool>("debugPrint")), debugHisto(iConfig.getParameter<bool>("debugHisto")), useRecoTrackAsssociation(iConfig.getParameter<bool>("useRecoTrackAsssociation")),
-  m_calibEE(ForwardSubdetector::HGCEE,"EE",debugPrint), m_calibHEF(ForwardSubdetector::HGCHEF,"HEF",debugPrint), m_calibHEB(ForwardSubdetector::HGCHEB,"HEB",debugPrint), calibInitialized(false)
+  m_calibEE(ForwardSubdetector::HGCEE,"EE",debugPrint), m_calibHEF(ForwardSubdetector::HGCHEF,"HEF",debugPrint), m_calibHEB(ForwardSubdetector::HGCHEB,"HEB",debugPrint), calibInitialized(false),
+  _deltaPtOverPtForPfo(iConfig.getParameter<double>("MaxDeltaPtOverPtForPfo")),
+  _deltaPtOverPtForClusterlessPfo(iConfig.getParameter<double>("MaxDeltaPtOverPtForClusterlessPfo"))
 {  
   produces<reco::PFClusterCollection>();
   produces<reco::PFBlockCollection>();
@@ -832,6 +834,9 @@ void PandoraCMSPFCandProducer::prepareTrack(edm::Event& iEvent){ // function to 
       canFormPfo = true;
       canFormClusterlessPfo = true;
     }
+    const float deltaPtRel = track->ptError()/track->pt();
+    canFormClusterlessPfo *= (deltaPtRel < _deltaPtOverPtForClusterlessPfo); //tighter requirements for tracks with no cluster
+
     trackParameters.m_canFormPfo = canFormPfo;
     trackParameters.m_canFormClusterlessPfo = canFormClusterlessPfo;
 
@@ -839,7 +844,9 @@ void PandoraCMSPFCandProducer::prepareTrack(edm::Event& iEvent){ // function to 
     trackParameters.m_pParentAddress =  (void *) pftrack;
     recTrackMap.emplace((void*)pftrack,i); //associate parent address with collection index    
  
-    PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::Track::Create(*m_pPandora, trackParameters));    
+    if( deltaPtRel < _deltaPtOverPtForPfo ) {
+      PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::Track::Create(*m_pPandora, trackParameters));    
+    }
   }
 
 }
