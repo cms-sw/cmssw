@@ -45,9 +45,9 @@ if [ $? -ne 0 ]; then
 fi
 
 #run second time
-cmsDriver.py step2_MC1_4 -s RAW2DIGI,L1Reco,RECO,VALIDATION,${DQMSEQUENCE} -n ${numev} --filein file:SingleMuPt10_cfi_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root --eventcontent RECOSIM,DQM --datatier RECOSIM,DQMIO --conditions auto:mc --mc --customise DQMServices/Components/test/customRecoSim.py --no_exec  --python_filename=test_${tnum}_${step}_0evt_2.py --fileout=secondPass.root
+cmsDriver.py step2_MC1_4 -s RAW2DIGI,L1Reco,RECO,VALIDATION,${DQMSEQUENCE} -n ${numev} --filein file:SingleMuPt10_cfi_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root --eventcontent RECOSIM,DQM --datatier RECOSIM,DQMIO --conditions auto:mc --mc --customise DQMServices/Components/test/customRecoSim.py --no_exec  --python_filename=test_${tnum}_${step}_2ndPass_2.py --fileout=secondPass.root
 
-cmsRun -e test_${tnum}_${step}_0evt_2.py >& p3.4.0evt.log
+cmsRun -e test_${tnum}_${step}_2ndPass_2.py >& p3.4.2ndPass.log
 if [ $? -ne 0 ]; then
   return 1
 fi
@@ -55,7 +55,7 @@ fi
 #test merging
 cp ../../merge.py ./
 
-cmsRun -e merge.py inFiles="file:step2_MC1_4_RAW2DIGI_L1Reco_RECO_VALIDATION_DQM_inDQM.root","file:secondPassZeroEvt_inDQM.root" >&  p3.merge.log
+cmsRun -e merge.py inFiles="file:step2_MC1_4_RAW2DIGI_L1Reco_RECO_VALIDATION_DQM_inDQM.root","file:secondPass_inDQM.root" >&  p3.merge.log
 if [ $? -ne 0 ]; then
   return 1
 fi
