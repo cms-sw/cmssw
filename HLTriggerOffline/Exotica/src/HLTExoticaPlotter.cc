@@ -12,6 +12,7 @@
 
 #include "TPRegexp.h"
 
+#include "HLTriggerOffline/Exotica/src/EVTColContainer.cc"
 
 #include<set>
 #include<cctype>
@@ -25,7 +26,8 @@ HLTExoticaPlotter::HLTExoticaPlotter(const edm::ParameterSet & pset,
     _nObjects(objectsType.size()),
     _parametersEta(pset.getParameter<std::vector<double> >("parametersEta")),
     _parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
-    _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn"))
+    _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
+    _parametersDxy(pset.getParameter<std::vector<double> >("parametersDxy"))
 {
     LogDebug("ExoticaValidation") << "In HLTExoticaPlotter::constructor()";
 }
@@ -67,6 +69,13 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker & iBooker,
                 bookHist(iBooker, source, objTypeStr, "MaxPt2");
                 bookHist(iBooker, source, objTypeStr, "Eta");
                 bookHist(iBooker, source, objTypeStr, "Phi");
+ 
+                // If the target is electron or muon,
+                // we will add Dxy plots.
+                if ( *it == EVTColContainer::ELEC ||
+                     *it == EVTColContainer::MUON    ) { 
+                  bookHist(iBooker, source, objTypeStr, "Dxy");
+                }
               }
             } else { // reco
               if ( TString(objTypeStr).Contains("MET") ||
@@ -78,6 +87,13 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker & iBooker,
                 bookHist(iBooker, source, objTypeStr, "MaxPt2");
                 bookHist(iBooker, source, objTypeStr, "Eta");
                 bookHist(iBooker, source, objTypeStr, "Phi");
+
+                // If the target is electron or muon,
+                // we will add Dxy plots.
+                if ( *it == EVTColContainer::ELEC ||
+                     *it == EVTColContainer::MUON    ) { 
+                  bookHist(iBooker, source, objTypeStr, "Dxy");
+                }
               }
             }	    
 
@@ -88,7 +104,8 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker & iBooker,
 void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
                                 const std::string & source,
                                 const std::vector<reco::LeafCandidate> & matches,
-				std::map<int,double> theSumEt)
+				std::map<int,double> theSumEt,
+                                std::vector<float> & dxys)
 {
     LogDebug("ExoticaValidation") << "In HLTExoticaPlotter::analyze()";
     if (!isPassTrigger) {
@@ -127,6 +144,8 @@ void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
 	    this->fillHist(isPassTrigger, source, objTypeStr, "SumEt", theSumEt[objType]);
 	  }
 	}
+
+        if ( dxys.size() ) this->fillHist(isPassTrigger, source, objTypeStr, "Dxy", dxys[j] );
 
         if (countobjects[objType] == 0) {
 	  if ( !( TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ) || source!="gen" ) {
@@ -175,7 +194,13 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker & iBooker,
         h = new TH1F(name.c_str(), title.c_str(), nBins, edges);
         delete[] edges;
     }
-
+    else if (variable.find("Dxy") != std::string::npos) {
+      std::string title = "Dxy " + sourceUpper + " " + objType;
+      int    nBins = _parametersDxy[0];
+      double min   = _parametersDxy[1];
+      double max   = _parametersDxy[2];
+      h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
+    }
     else if (variable.find("MaxPt") != std::string::npos) {
         std::string desc = (variable == "MaxPt1") ? "Leading" : "Next-to-Leading";
         std::string title = "pT of " + desc + " " + sourceUpper + " " + objType + " "
