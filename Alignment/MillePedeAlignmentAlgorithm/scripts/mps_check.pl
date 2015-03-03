@@ -255,9 +255,8 @@ for ($i=0; $i<@JOBID; ++$i) {
         while ($line = <INFILE>) {
 		  # Checks for the output code. 0 is OK, 1 is WARN, anything else is FAIL
 		  if ($line =~ m/([-+]?\d+)/) {
-			  if ($1 == 1) { ; }
-			  elsif ($1 == 2) { $pedeLogWrn = 1; $pedeLogWrnStr .= $line;}
-			  else { $pedeLogErr = 1; $pedeLogErrStr .= $line;}
+			  if ($1 == 1) { $pedeLogWrn = 1; $pedeLogWrnStr .= $line;}
+			  elsif ($1 != 0) { $pedeLogErr = 1; $pedeLogErrStr .= $line;}
 		  }
 		}
         close INFILE;
@@ -367,6 +366,7 @@ for ($i=0; $i<@JOBID; ++$i) {
 	print "@JOBDIR[$i] @JOBID[$i] Warnings in running Pede:\n";
 	print $pedeLogWrnStr;
 	$remark = "pede warnings";
+	$okStatus = "WARN";
     }
     if ($endofjob ne 1) {
 	print "@JOBDIR[$i] @JOBID[$i] Job not ended\n";
