@@ -148,10 +148,13 @@ bool SoftPFMuonTagInfoProducer::isTightMuon(const reco::Muon* muon) {
 
 bool SoftPFMuonTagInfoProducer::isMuonClean(edm::Event& iEvent,const reco::PFCandidate* PFcandidate){
 	const reco::Muon* muon=PFcandidate->muonRef().get();
- 	if(muonId>=0 && !isLooseMuon(muon)) return false;
-      	if(muonId>=1 && !isSoftMuon (muon)) return false;
-      	if(muonId>=2 && !isTightMuon(muon)) return false;
-	return true;
+	if( muon != nullptr && PFcandidate->muonRef().isNonnull() ) {
+	  if(muonId>=0 && !isLooseMuon(muon)) return false;
+	  if(muonId>=1 && !isSoftMuon (muon)) return false;
+	  if(muonId>=2 && !isTightMuon(muon)) return false;
+	  return true;
+	}
+	return false;
 }
 
 
