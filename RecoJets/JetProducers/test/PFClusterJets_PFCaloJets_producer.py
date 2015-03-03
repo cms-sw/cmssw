@@ -74,7 +74,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 )
 
 
-process.load( "RecoParticleFlow.PFProducer.hltParticleFlowForJets_cfi" )
+process.load( "RecoJets.JetProducers.hltParticleFlowForJets_cfi" )
 process.load( "RecoJets.JetProducers.ak4PFCaloJets_cfi" )
 
 process.load( "RecoJets.JetProducers.PFClustersForJets_cff" )
