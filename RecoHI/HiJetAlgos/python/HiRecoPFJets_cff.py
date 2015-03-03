@@ -13,7 +13,7 @@ PFTowers = cms.EDProducer("ParticleTowerProducer",
 ## background for HF/Voronoi-style subtraction
 voronoiBackgroundPF = cms.EDProducer('VoronoiBackgroundProducer',
                                      src = cms.InputTag('particleFlowTmp'),
-                                     tableLabel = cms.string("UETableCompatibilityFormat_PF_v00_mc"),
+                                     tableLabel = cms.string("UETable_PF"),
                                      doEqualize = cms.bool(True),
                                      equalizeThreshold0 = cms.double(5.0),
                                      equalizeThreshold1 = cms.double(35.0),
