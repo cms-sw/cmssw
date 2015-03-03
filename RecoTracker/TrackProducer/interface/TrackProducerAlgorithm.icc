@@ -33,6 +33,13 @@
 
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+
 template <class T> void
 TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
 					    const MagneticField * theMF,
@@ -58,6 +65,27 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
   
       DetId  detId(state.detId());
+			       LogTrace("TrackProducer") << " TrackProducerAlgorithm:  rawId " << detId.rawId();	
+ if(detId.det() == DetId::Tracker) {
+       
+       	  LogTrace("TrackFitters") << "TrackProducerAlgorithm: UNKNOWN TRACKER HIT TYPE ";
+       }
+			if(detId.det() == DetId::Muon) {
+
+			  if(detId.subdetId() == MuonSubdetId::DT)
+			       LogTrace("TrackProducer") << " TrackProducerAlgorithm:  DT " << DTWireId(detId);
+			  else if (detId.subdetId() == MuonSubdetId::CSC )
+			       LogTrace("TrackProducer") << " TrackProducerAlgorithm:  CSC " << CSCDetId(detId);
+			  else if (detId.subdetId() == MuonSubdetId::RPC )
+			  	  LogTrace("TrackProducer") << " TrackProducerAlgorithm:  RPC " << RPCDetId(detId);
+		       	  else if (detId.subdetId() == MuonSubdetId::GEM )
+			    LogTrace("TrackProducer") << " TrackProducerAlgorithm:  GEM " << GEMDetId(detId);
+			  else if (detId.subdetId() == MuonSubdetId::ME0) {	
+			      LogDebug("TrackProducer") << "ME0 in TrackProducerAlgorithm.icc: " <<ME0DetId(detId);
+			    }
+			    else
+			    	  LogTrace("TrackProducer") << " UNKNOWN MUON HIT TYPE ";
+                           }
       TrajectoryStateOnSurface theTSOS = trajectoryStateTransform::transientState( state,
 								     &(theG->idToDet(detId)->surface()), 
 								     theMF);
@@ -115,6 +143,11 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 			//check whether hit and nexthit are on glued module
 			DetId hitId = hit->geographicalId();
 
+			if(hitId.det() == DetId::Muon) {
+			  if (hitId.subdetId() == MuonSubdetId::ME0) {	
+			      LogDebug("TrackProducer") << "ME0 in TRackProducerAlgorithm.icc: " <<ME0DetId(hitId);
+			    }
+                           }				       
 			if(hitId.det() == DetId::Tracker) {
 			  if (hitId.subdetId() == StripSubdetector::TIB || 
 			      hitId.subdetId() == StripSubdetector::TOB ||

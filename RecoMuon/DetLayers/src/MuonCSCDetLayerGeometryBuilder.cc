@@ -89,6 +89,8 @@ MuRingForwardDoubleLayer* MuonCSCDetLayerGeometryBuilder::buildLayer(int endcap,
                           << ", phi=" << geomDet->position().phi()
                           << ", z= " << geomDet->position().z() 
                           << " isFront? " << isInFront;
+	LogTrace(metname) << "Got Geometry with id: "
+			  <<geomDet;
       }
     }
 

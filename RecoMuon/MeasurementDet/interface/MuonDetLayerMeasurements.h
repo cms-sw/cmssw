@@ -6,6 +6,7 @@
  *
  *  \author C. Liu, R. Bellan, N. Amapane
  *  \modified by C. Calabria to include GEMs
+ *  \modified by D. Nash to include ME0s
  *
  */
 
@@ -20,6 +21,8 @@
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+//#include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <vector>
@@ -42,10 +45,12 @@ class MuonDetLayerMeasurements {
 			   edm::InputTag csclabel,
 			   edm::InputTag rpclabel,
 			   edm::InputTag gemlabel,
+			   edm::InputTag me0label,
 			   bool enableDT = true,
 			   bool enableCSC = true,
 			   bool enableRPC = true,
-			   bool enableGEM = true);
+			   bool enableGEM = true,
+			   bool enableME0 = true);
   
   virtual ~MuonDetLayerMeasurements();
   
@@ -124,28 +129,34 @@ class MuonDetLayerMeasurements {
   edm::InputTag theCSCRecHitLabel;
   edm::InputTag theRPCRecHitLabel;
   edm::InputTag theGEMRecHitLabel;
+  edm::InputTag theME0RecHitLabel;
 
   bool enableDTMeasurement;
   bool enableCSCMeasurement;
   bool enableRPCMeasurement;
   bool enableGEMMeasurement;
+  bool enableME0Measurement;
   
   // caches that should get filled once per event
   edm::Handle<DTRecSegment4DCollection> theDTRecHits;
   edm::Handle<CSCSegmentCollection>     theCSCRecHits;
   edm::Handle<RPCRecHitCollection>      theRPCRecHits;
   edm::Handle<GEMRecHitCollection>      theGEMRecHits;
+  //edm::Handle<ME0RecHitCollection>      theME0RecHits;
+  edm::Handle<ME0SegmentCollection>      theME0RecHits;
 
   void checkDTRecHits();
   void checkCSCRecHits();
   void checkRPCRecHits();
   void checkGEMRecHits();
+  void checkME0RecHits();
 
   // keeps track of which event the cache holds
   edm::EventID theDTEventID;
   edm::EventID theCSCEventID;
   edm::EventID theRPCEventID;
   edm::EventID theGEMEventID;
+  edm::EventID theME0EventID;
 
   const edm::Event* theEvent;   
 
@@ -154,6 +165,7 @@ class MuonDetLayerMeasurements {
   std::string theRPCCheckName;
   std::string theCSCCheckName;
   std::string theGEMCheckName;
+  std::string theME0CheckName;
 };
 #endif
 

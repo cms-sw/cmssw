@@ -2,6 +2,7 @@
  *
  *  \author N. Amapane - CERN
  *  \modified by R. Radogna & C. Calabria
+ *  \modified by D. Nash
  */
 
 #include <RecoMuon/DetLayers/plugins/MuonDetLayerGeometryESProducer.h>
@@ -11,10 +12,12 @@
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/GEMGeometry/interface/GEMGeometry.h>
+#include <Geometry/GEMGeometry/interface/ME0Geometry.h>
 
 #include <RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.h>
 #include <RecoMuon/DetLayers/src/MuonRPCDetLayerGeometryBuilder.h>
 #include <RecoMuon/DetLayers/src/MuonGEMDetLayerGeometryBuilder.h>
+#include <RecoMuon/DetLayers/src/MuonME0DetLayerGeometryBuilder.h>
 #include <RecoMuon/DetLayers/src/MuonDTDetLayerGeometryBuilder.h>
 
 #include <FWCore/Framework/interface/EventSetup.h>
@@ -41,6 +44,7 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonDetLayerGeometryESProducer";
   MuonDetLayerGeometry* muonDetLayerGeometry = new MuonDetLayerGeometry();
   
+  //LogInfo(metname) << "On produce"; 
   // Build DT layers  
   try {
     edm::ESHandle<DTGeometry> dt;
@@ -75,6 +79,19 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
   } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
     // No GEM geo available: trap the exception.
     LogInfo(metname) << "No GEM geometry is available.";
+  }
+
+  // Build ME0 layers
+  try {
+    edm::ESHandle<ME0Geometry> me0;
+    record.getRecord<MuonGeometryRecord>().get(me0);
+    if (me0.isValid()) {
+      //LogInfo(metname) << "Geometry = "<<*me0;
+      muonDetLayerGeometry->addME0Layers(MuonME0DetLayerGeometryBuilder::buildEndcapLayers(*me0));
+    }
+  } catch (edm::eventsetup::NoProxyException<ME0Geometry>& e) {
+    // No ME0 geo available: trap the exception.
+    LogInfo(metname) << "No ME0 geometry is available.";
   }
   
   // Build RPC layers

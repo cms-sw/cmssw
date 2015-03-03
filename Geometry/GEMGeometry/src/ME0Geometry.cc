@@ -1,6 +1,7 @@
 /** Implementation of the Model for ME0 Geometry
  *
  *  \author M. Maggi - INFN Bari
+ *  \edited by D. Nash
  */
 
 #include <Geometry/GEMGeometry/interface/ME0Geometry.h>
@@ -37,6 +38,8 @@ const ME0Geometry::DetIdContainer& ME0Geometry::detIds() const{
 }
 
 
+
+
 const GeomDetUnit* ME0Geometry::idToDetUnit(DetId id) const{
   return dynamic_cast<const GeomDetUnit*>(idToDet(id));
 }
@@ -47,16 +50,17 @@ const GeomDet* ME0Geometry::idToDet(DetId id) const{
     i->second : 0 ;
 }
 
-/*
+
 const std::vector<ME0Chamber*>& ME0Geometry::chambers() const {
   return allChambers;
 }
-*/
+
 
 
 const std::vector<ME0EtaPartition*>& ME0Geometry::etaPartitions() const{
   return allEtaPartitions;
 }
+
 
 const ME0EtaPartition* ME0Geometry::etaPartition(ME0DetId id) const{
   return dynamic_cast<const ME0EtaPartition*>(idToDetUnit(id));
@@ -74,5 +78,16 @@ ME0Geometry::add(ME0EtaPartition* etaPartition){
   theEtaPartitionTypes.push_back(_t);
   theMap.insert(std::pair<DetId,GeomDetUnit*>
 		(etaPartition->geographicalId(),etaPartition));
+}
+
+
+
+void
+ME0Geometry::add(ME0Chamber* chamber){
+  allChambers.push_back(chamber);
+  theDets.push_back(chamber);
+  theDetIds.push_back(chamber->geographicalId());
+  theMap.insert(std::pair<DetId,GeomDet*>
+		(chamber->geographicalId(),chamber));
 }
 
