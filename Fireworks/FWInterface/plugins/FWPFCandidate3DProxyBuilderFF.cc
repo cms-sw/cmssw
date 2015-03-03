@@ -56,6 +56,11 @@ public:
    void debugGeo();
 
    virtual void setItem(const FWEventItem* iItem);
+protected:
+
+   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                  FWViewType::EType viewType, const FWViewContext* vc);
+
 private:
    TRandom3 myRandom;
 
@@ -94,12 +99,20 @@ FWPFCandidate3DProxyBuilderFF::setItem(const FWEventItem* iItem)
 
 
 
+void
+FWPFCandidate3DProxyBuilderFF::localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                     FWViewType::EType viewType, const FWViewContext* vc)
+{
+   increaseComponentTransparency(iId.index(), iCompound, "Trap", 90);
+}
+
 
 //______________________________________________________________________________
 void 
 FWPFCandidate3DProxyBuilderFF::build( const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
-
+  const FWDisplayProperties &dp = item()->defaultDisplayProperties();
+ 
   const reco::PFCandidate::ElementsInBlocks& elems = iData.elementsInBlocks();
   
   for( unsigned i = 0 ; i < elems.size(); ++i ) {
@@ -136,10 +149,15 @@ FWPFCandidate3DProxyBuilderFF::build( const reco::PFCandidate& iData, unsigned i
 	}
 	const std::vector<std::pair<DetId, float> >& clusterDetIds = 
 	  elem.clusterRef()->hitsAndFractions();	
-	TEveBoxSet* boxset = new TEveBoxSet();
-	boxset->Reset(TEveBoxSet::kBT_FreeBox, true, clusterDetIds.size()*2);
+	TEveBoxSet* boxset = new TEveBoxSet(  );
+	boxset->Reset(TEveBoxSet::kBT_FreeBox, true, clusterDetIds.size()  );
 	boxset->UseSingleColor();
-        boxset->SetMainColor(kRed);
+
+	
+	TEveBoxSet* boxsetTop = new TEveBoxSet("Trap");
+	boxsetTop->Reset(TEveBoxSet::kBT_FreeBox, true, clusterDetIds.size()  );
+	boxsetTop->UseSingleColor();
+
         std::vector<float> pnts;
         pnts.resize(24);
 	for( std::vector<std::pair<DetId, float> >::const_iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
@@ -191,7 +209,7 @@ FWPFCandidate3DProxyBuilderFF::build( const reco::PFCandidate& iData, unsigned i
                     c++;
                  }
 
-                 boxset->AddBox( &pnts[0]);
+                 boxsetTop->AddBox( &pnts[0]);
               }
               catch (std::exception &e) {
                  //std::cout << "AMT get trapezoid corners invalid ID " << e.what() << std::endl;
@@ -204,6 +222,8 @@ FWPFCandidate3DProxyBuilderFF::build( const reco::PFCandidate& iData, unsigned i
 	  }
 	boxset->RefitPlex();
 	setupAddElement(boxset,&oItemHolder, true);
+	setupAddElement(boxsetTop,&oItemHolder, true);
+        boxsetTop->SetMainTransparency(TMath::Min(100, 90 + dp.transparency() / 5));
       }
       break;
     default:
