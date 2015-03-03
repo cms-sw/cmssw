@@ -33,6 +33,7 @@
 //      |mu = 0      CSC = 2            4*(stat-1)+(ring-1)               hit type = 0-3
 //      |mu = 0      RPC = 3            4*(stat-1)+2*layer+region         hit type = 0-3
 //      |mu = 0      GEM = 4                                              hit type = 0-3
+//      |mu = 0      ME0 = 5                                              hit type = 0-3
 //
 //      hit type, see DataFormats/TrackingRecHit/interface/TrackingRecHit.h
 //      valid    = valid hit                                     = 0
@@ -228,6 +229,7 @@ namespace reco {
     static bool muonCSCHitFilter(uint32_t pattern);     // muon CSC
     static bool muonRPCHitFilter(uint32_t pattern);     // muon RPC
     static bool muonGEMHitFilter(uint32_t pattern);     // muon GEM
+    static bool muonME0HitFilter(uint32_t pattern);     // muon ME0
 
     static uint32_t getLayer(uint32_t pattern); // sub-sub-structure
     static uint32_t getSubSubStructure(uint32_t pattern); // sub-sub-structure
@@ -246,6 +248,10 @@ namespace reco {
     static uint32_t getGEMRoll(uint32_t pattern);
     /// GEM layer: 1,2. Only valid for muon GEM patterns, of course.
     static uint32_t getGEMLayer(uint32_t pattern);
+    /// ME0 roll: (1 for now, etaPartitioning not implemented). Only valid for muon ME0 patterns, of course.
+    //static uint32_t getME0Roll(uint32_t pattern);
+    /// ME0 layer: 1-6. Only valid for muon ME0 patterns, of course.
+    static uint32_t getME0Layer(uint32_t pattern);
 
     static uint32_t getHitType(uint32_t pattern);   // hit type
     static bool validHitFilter(uint32_t pattern);   // hit type 0 = valid
@@ -274,6 +280,7 @@ namespace reco {
     int numberOfValidMuonCSCHits() const;     // not-null, valid, muon CSC
     int numberOfValidMuonRPCHits() const;     // not-null, valid, muon RPC
     int numberOfValidMuonGEMHits() const;     // not-null, valid, muon GEM
+    int numberOfValidMuonME0Hits() const;     // not-null, valid, muon ME0
     int numberOfLostHits() const;             // not-null, not valid
     int numberOfLostTrackerHits() const;      // not-null, not valid, tracker
     int numberOfLostMuonHits() const;         // not-null, not valid, muon
@@ -289,12 +296,14 @@ namespace reco {
     int numberOfLostMuonCSCHits() const;      // not-null, not valid, muon CSC
     int numberOfLostMuonRPCHits() const;      // not-null, not valid, muon RPC
     int numberOfLostMuonGEMHits() const;      // not-null, not valid, muon GEM
+    int numberOfLostMuonME0Hits() const;      // not-null, not valid, muon ME0
     int numberOfBadHits() const;              // not-null, bad (only used in Muon Ch.)
     int numberOfBadMuonHits() const;          // not-null, bad, muon
     int numberOfBadMuonDTHits() const;        // not-null, bad, muon DT
     int numberOfBadMuonCSCHits() const;       // not-null, bad, muon CSC
     int numberOfBadMuonRPCHits() const;       // not-null, bad, muon RPC
     int numberOfBadMuonGEMHits() const;       // not-null, bad, muon GEM
+    int numberOfBadMuonME0Hits() const;       // not-null, bad, muon ME0
     int numberOfInactiveHits() const;         // not-null, inactive
     int numberOfInactiveTrackerHits() const;  // not-null, inactive, tracker
 
@@ -369,6 +378,9 @@ namespace reco {
     int gemStationsWithValidHits() const ;
     int gemStationsWithBadHits() const ;
     int gemStationsWithAnyHits() const ;
+    int me0StationsWithValidHits() const ;
+    int me0StationsWithBadHits() const ;
+    int me0StationsWithAnyHits() const ;
 
     ///  hitType=-1(all), 0=valid, 3=bad; 0 = no stations at all
     int innermostMuonStationWithHits(int hitType) const ;
@@ -513,6 +525,13 @@ namespace reco {
     if (substructure == (uint32_t) MuonSubdetId::GEM) return true; 
     return false;
   }
+
+  inline bool HitPattern::muonME0HitFilter(uint32_t pattern) { 
+    if  unlikely(!muonHitFilter(pattern)) return false;
+    uint32_t substructure = getSubStructure(pattern);
+    if (substructure == (uint32_t) MuonSubdetId::ME0) return true; 
+    return false;
+  }
   
   
   inline bool HitPattern::trackerHitFilter(uint32_t pattern) {
@@ -586,6 +605,19 @@ namespace reco {
   
   inline uint32_t HitPattern::getGEMLayer(uint32_t pattern) {
     return (getSubSubStructure(pattern) & 1) + 1;
+  }
+
+////////////////////////////// 
+
+////////////////////////////// ME0
+
+  // inline uint32_t HitPattern::getME0Roll(uint32_t pattern) {
+  //   uint32_t sss = getSubSubStructure(pattern), stat = sss >> 1;
+  //   return stat + 1;
+  // }
+  
+  inline uint32_t HitPattern::getME0Layer(uint32_t pattern) {
+    return (getSubSubStructure(pattern) & 1) ;
   }
 
 ////////////////////////////// 
@@ -676,6 +708,10 @@ inline int HitPattern::numberOfValidMuonGEMHits() const {
   return countTypedHits(validHitFilter, muonGEMHitFilter);
 }
 
+inline int HitPattern::numberOfValidMuonME0Hits() const {
+  return countTypedHits(validHitFilter, muonME0HitFilter);
+}
+
 // lost
 inline int HitPattern::numberOfLostHits() const {
   return countHits(type_1_HitFilter);
@@ -737,6 +773,10 @@ inline int HitPattern::numberOfLostMuonGEMHits() const {
   return countTypedHits(type_1_HitFilter, muonGEMHitFilter);
 }
 
+inline int HitPattern::numberOfLostMuonME0Hits() const {
+  return countTypedHits(type_1_HitFilter, muonME0HitFilter);
+}
+
 
 // bad
 inline int HitPattern::numberOfBadHits() const {
@@ -761,6 +801,10 @@ inline int HitPattern::numberOfBadMuonRPCHits() const {
 
 inline int HitPattern::numberOfBadMuonGEMHits() const {
   return countTypedHits(type_2_HitFilter, muonGEMHitFilter);
+}
+
+inline int HitPattern::numberOfBadMuonME0Hits() const {
+  return countTypedHits(type_2_HitFilter, muonME0HitFilter);
 }
 
 
@@ -895,6 +939,9 @@ inline int HitPattern::numberOfInactiveTrackerHits() const {
   inline int HitPattern::gemStationsWithValidHits()  const { return muonStations(4, 0); }
   inline int HitPattern::gemStationsWithBadHits()    const { return muonStations(4, 3); }
   inline int HitPattern::gemStationsWithAnyHits()    const { return muonStations(4,-1); }
+  inline int HitPattern::me0StationsWithValidHits()  const { return muonStations(5, 0); }
+  inline int HitPattern::me0StationsWithBadHits()    const { return muonStations(5, 3); }
+  inline int HitPattern::me0StationsWithAnyHits()    const { return muonStations(5,-1); }
   
   inline int HitPattern::innermostMuonStationWithValidHits() const { return innermostMuonStationWithHits(0);  }
   inline int HitPattern::innermostMuonStationWithBadHits()   const { return innermostMuonStationWithHits(3);  }

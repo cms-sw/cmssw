@@ -10,6 +10,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 using namespace reco;
 
 
@@ -64,6 +65,14 @@ uint32_t HitPattern::encode(const TrackingRecHit & hit, unsigned int i){
       GEMDetId gemid(id.rawId());
       layer = ((gemid.roll()-1)<<1) + abs(gemid.layer()-1);
     }
+    else if (subdet == (uint32_t) MuonSubdetId::ME0) {
+      ME0DetId me0id(id.rawId());
+      //layer = ((me0id.roll()-1)<<1) + abs(me0id.layer()-1);
+      //layer = ((me0id.roll()-1)<<1) + abs(me0id.layer());
+      //Only layer information that is meaningful is in the roll/etapartition
+      layer = (me0id.roll());
+    }
+
   }
   pattern += (layer&LayerMask)<<LayerOffset;
 
@@ -140,6 +149,10 @@ void HitPattern::appendHit(const TrackingRecHit & hit){
     }
 
     else if (subdet == (uint32_t) MuonSubdetId::GEM) {
+      hits.push_back(&hit);
+    }
+
+    else if (subdet == (uint32_t) MuonSubdetId::ME0) {
       hits.push_back(&hit);
     }
   }
@@ -589,6 +602,8 @@ void HitPattern::printHitPattern (int position, std::ostream &stream) const
             stream << "\trpc " << (getRPCregion(pattern) ? "endcaps" : "barrel") << ", layer " << getRPCLayer(pattern); 
          } else if (muonGEMHitFilter(pattern)) {
             stream << "\tgem " << (getGEMLayer(pattern) ? "layer1" : "layer2") << ", roll " << getGEMRoll(pattern);
+         } else if (muonME0HitFilter(pattern)) {
+	   stream << "\tme0 " << getME0Layer(pattern);
          } else {
             stream << "(UNKNOWN Muon SubStructure!) \tsubsubstructure " << getSubStructure(pattern);
          }
