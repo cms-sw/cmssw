@@ -240,6 +240,33 @@ for ($i=0; $i<@JOBID; ++$i) {
       } else {
         print "mps_check.pl cannot find $eazeLog to test\n";
       }
+
+	  # check millepede.end -- added F. Meier 03.03.2015
+	  $eazeLog = "jobData/@JOBDIR[$i]/millepede.end";
+      $logZipped = "no";
+      if (-r $eazeLog.".gz") {
+        system "gunzip ".$eazeLog.".gz";
+        $logZipped = "true";
+      }
+      if (-r $eazeLog) {
+      # open the input file
+        open INFILE,"$eazeLog";
+      # scan records in input file
+        while ($line = <INFILE>) {
+		  # Checks for the output code. 0 is OK, 1 is WARN, anything else is FAIL
+		  if ($line =~ m/([-+]?\d+)/) {
+			  if ($1 == 1) { ; }
+			  elsif ($1 == 2) { $pedeLogWrn = 1; $pedeLogWrnStr .= $line;}
+			  else { $pedeLogErr = 1; $pedeLogErrStr .= $line;}
+		  }
+		}
+        close INFILE;
+        if ($logZipped eq "true") {
+		  system "gzip $eazeLog";
+        }
+      } else {
+        print "mps_check.pl cannot find $eazeLog to test\n";
+      }
     }
 
     $farmhost = " ";
