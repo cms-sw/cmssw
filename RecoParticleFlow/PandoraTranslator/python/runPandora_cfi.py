@@ -22,5 +22,7 @@ pandorapfanew = cms.EDProducer('PandoraCMSPFCandProducer',
     overburdenDepthFile = cms.FileInPath('RecoParticleFlow/PFClusterProducer/data/HGCMaterialOverburden.root'),
     useOverburdenCorrection = cms.bool(False), #disabled until the overburden values make sense
     pf_electron_output_col=cms.string('electrons'),
-    outputFile = cms.string('pandoraoutput.root')
+    outputFile = cms.string('pandoraoutput.root'),
+    MaxDeltaPtOverPtForPfo = cms.double(100),
+    MaxDeltaPtOverPtForClusterlessPfo = cms.double(50),
 )

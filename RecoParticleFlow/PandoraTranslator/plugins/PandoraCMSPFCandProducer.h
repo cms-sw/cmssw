@@ -393,4 +393,7 @@ private:
   short _debugLevel;
   double speedoflight;
 
+  double _deltaPtOverPtForPfo;
+  double _deltaPtOverPtForClusterlessPfo;
+
 };
