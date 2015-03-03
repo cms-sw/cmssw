@@ -1,5 +1,33 @@
 #include "../interface/RetinaTrackFitter.h"
 
+//
+// Use the unnamed namespace for things only used in this file
+//
+namespace
+{
+	/** @brief A guard object that will delete all of the objects in a container when
+	 * it goes out of scope.
+	 *
+	 * This should have the same lifetime as the vector who's elements it will delete.
+	 * The template parameter should be the container type, not the contained object.
+	 *
+	 * This is so that a vector of 'new'ed pointers can have each element deleted when
+	 * a function returns, without having to worry about where it returns.
+	 * It would have been much easier to use an edm::OwnVector but the vector is passed
+	 * around and it would mean changing the class interface. This seemed to be the least
+	 * invasive way to achieve the required result.
+	 */
+	template<class T>
+	class DeleteContainerElementsGuard
+	{
+	public:
+		DeleteContainerElementsGuard( T& container ) : container_(container) {}
+		~DeleteContainerElementsGuard() { for( auto pElement : container_ ) delete pElement; }
+	protected:
+		T& container_;
+	};
+}
+
 const double RetinaTrackFitter::rot_angle[8] = {  0.39269908169872414,   //  pi/8
 						  -0.39269908169872414,   // -pi/8
 						  -1.17809724509617242,   // -3/8 pi
@@ -64,6 +92,12 @@ void RetinaTrackFitter::fit(vector<Hit*> hits_){
   // --- Fill the stubs vector:
   vector <Hit_t*> hits;
   vector <Hit_t*> hits_RZ;
+
+  // Use this object to automatically delete the objects stored in "hits".
+  // This way means it doesn't matter where the function returns. Could
+  // also have used an edm::OwnVector for "hits" but that would have
+  // required changing the class interface because it's passed around.
+  ::DeleteContainerElementsGuard< std::vector<Hit_t*> > deleteHitsGuard( hits );
 
   for(unsigned int ihit=0; ihit<hits_.size(); ihit++){
   
@@ -506,9 +540,9 @@ void RetinaTrackFitter::fit(vector<Hit*> hits_){
   } // imax loop
 
 
-  // --- Clean-up pointers:
-  for(vector<Hit_t*>::iterator it=hits.begin(); it!=hits.end(); ++it)
-    delete *it;
+  // No need to clean up the pointers in "hits"; as soon as "deleteHitsGuard"
+  // goes out of scope it will do it. Note that it will go out of scope before
+  // "hits" because it was declared after it.
 
   
 }
