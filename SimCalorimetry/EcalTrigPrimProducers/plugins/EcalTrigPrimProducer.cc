@@ -65,17 +65,12 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
   tcpFormat_(iConfig.getParameter<bool>("TcpOutput")),
   debug_(iConfig.getParameter<bool>("Debug")),
   famos_(iConfig.getParameter<bool>("Famos")),
-  label_(iConfig.getParameter<std::string>("Label")),
-  instanceNameEB_(iConfig.getParameter<std::string>("InstanceEB")),
-  instanceNameEE_(iConfig.getParameter<std::string>("InstanceEE")),
+  tokenEB_(consumes <EBDigiCollection>(edm::InputTag(iConfig.getParameter<std::string>("Label"), iConfig.getParameter<std::string>("InstanceEB")))),
+  tokenEE_(consumes <EEDigiCollection>(edm::InputTag(iConfig.getParameter<std::string>("Label"), iConfig.getParameter<std::string>("InstanceEE")))),
   binOfMaximum_(iConfig.getParameter<int>("binOfMaximum")),
   fillBinOfMaximumFromHistory_(-1==binOfMaximum_)
 {  
   //register your products
-  edm::InputTag ebtag(label_, instanceNameEB_);
-  edm::InputTag eetag(label_, instanceNameEE_);
-  consumes <EBDigiCollection>(ebtag);
-  consumes <EEDigiCollection>(eetag);
   produces <EcalTrigPrimDigiCollection >();
   if (tcpFormat_) produces <EcalTrigPrimDigiCollection >("formatTCP");
 }
@@ -221,18 +216,24 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
   bool endcap=true;
   if (barrelOnly_) endcap=false;
 
-  if (!e.getByLabel(label_,instanceNameEB_,ebDigis)) {
+  if (!e.getByToken(tokenEB_,ebDigis)) {
     barrel=false;
-    edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes with producer "<<label_<<" and label "<<instanceNameEB_<<"!!!";
+    edm::EDConsumerBase::Labels labels;
+    labelsForToken(tokenEB_, labels);
+    edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes with producer "<<labels.module<<" and label "<<labels.productInstance<<"!!!";
   }
   if (!barrelOnly_) {
-    if (!e.getByLabel(label_,instanceNameEE_,eeDigis)) {
+    if (!e.getByToken(tokenEE_,eeDigis)) {
       endcap=false;
-      edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes with producer "<<label_<<" and label "<<instanceNameEE_<<"!!!";
+      edm::EDConsumerBase::Labels labels;
+      labelsForToken(tokenEE_, labels);
+      edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes with producer "<<labels.module<<" and label "<<labels.productInstance<<"!!!";
     }
   }
   if (!barrel && !endcap) {
-    throw cms::Exception(" ProductNotFound") <<"No EBDataFrames(EEDataFrames) with producer "<<label_<<" and label "<<instanceNameEB_<<" found in input!!\n";
+    edm::EDConsumerBase::Labels labels;
+    labelsForToken(tokenEB_, labels);
+    throw cms::Exception(" ProductNotFound") <<"No EBDataFrames(EEDataFrames) with producer "<<labels.module<<" and label "<<labels.productInstance<<" found in input!!\n";
   }
 
   if (!barrelOnly_)   LogDebug("EcalTPG") <<" =================> Treating event  "<<e.id()<<", Number of EBDataFrames "<<ebDigis.product()->size()<<", Number of EEDataFrames "<<eeDigis.product()->size() ;
