@@ -38,14 +38,14 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
                                                 "Validation/Vertices")),
       vecPileupSummaryInfoToken_(consumes<std::vector<PileupSummaryInfo> >(
           edm::InputTag(std::string("addPileupInfo")))),
-      recoTrackCollectionToken_(consumes<reco::TrackCollection>(edm::InputTag(
-          iConfig.getUntrackedParameter<std::string>("recoTrackProducer")))),
-      edmView_recoTrack_Token_(consumes<edm::View<reco::Track> >(edm::InputTag(
-          iConfig.getUntrackedParameter<std::string>("recoTrackProducer")))),
+      recoTrackCollectionToken_(consumes<reco::TrackCollection>(
+          iConfig.getUntrackedParameter<edm::InputTag>("recoTrackProducer"))),
+      edmView_recoTrack_Token_(consumes<edm::View<reco::Track> >(
+          iConfig.getUntrackedParameter<edm::InputTag>("recoTrackProducer"))),
       trackingParticleCollectionToken_(consumes<TrackingParticleCollection>(
-          edm::InputTag(std::string("mix"), std::string("MergedTrackTruth")))),
+          iConfig.getUntrackedParameter<edm::InputTag>("trackingParticleCollection"))),
       trackingVertexCollectionToken_(consumes<TrackingVertexCollection>(
-          edm::InputTag(std::string("mix"), std::string("MergedTrackTruth")))) {
+          iConfig.getUntrackedParameter<edm::InputTag>("trackingVertexCollection"))) {
   reco_vertex_collections_ = iConfig.getParameter<std::vector<edm::InputTag> >(
       "vertexRecoCollections");
   for (auto const& l : reco_vertex_collections_) {
