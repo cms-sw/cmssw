@@ -29,6 +29,8 @@ bTagCommonBlock = cms.PSet(
     softLeptonInfo = cms.InputTag("softPFElectronsTagInfos"),
     # Section for the jet flavour identification
     jetMCSrc = cms.InputTag("mcJetFlavour"),
+    caloJetMCSrc = cms.InputTag(""), #To define only if you use the old flavour tool
+    useOldFlavourTool = cms.bool(False), #Recommended only for CaloJets, if True then define caloJetMCSrc and ignore jetMCSrc
     # eta and pt ranges
     ptRanges = cms.vdouble(50.0, 80.0, 120.0),
     etaRanges = cms.vdouble(0.0, 1.4, 2.4),
