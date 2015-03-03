@@ -339,7 +339,7 @@ baseDataSetRelease=[
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1',              # 2 for fastsim id test
 #    'CMSSW_7_1_0_pre5-START71_V1-v2',                       # 3 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
-    'CMSSW_7_4_0_pre6-MCRUN2_74_V1-v1',                     # 3 - 13 TeV samples with GEN-SIM from 740_p6; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
+    'CMSSW_7_4_0_pre7-MCRUN2_74_V7-v1',                     # 3 - 13 TeV samples with GEN-SIM from 740_pre7; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',            # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_7_4_0_pre6-PU25ns_MCRUN2_74_V1-v1',              # 6 - premix
     'CMSSW_7_4_0_pre6-PU50ns_MCRUN2_74_V0-v1'               # 7 - premix
@@ -772,11 +772,11 @@ PUFS={'--pileup':'GEN_2012_Summer_50ns_PoissonOOTPU'}
 PUFSAVE10={'--pileup':'GEN_AVE_10_BX_25ns'}  # temporary: one or a few releases as back-up
 PUFSAVE20={'--pileup':'GEN_AVE_20_BX_25ns'}  # temporary: one or a few releases as back-up
 PUFSAVE35={'--pileup':'GEN_AVE_35_BX_25ns'}
-# PUFSAVE10_DIGIRECOMIX_ITO={'--pileup':'AVE_10_BX_25ns',"--pileup_input":FS_PU_INPUT_13TEV,"--customise":"FastSimulation/Configuration/Customs.disableOOTPU,SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1"}
-# temporary: one or a few releases as back-up; needs the placeholder 
-#PUFSAVE35_DIGIRECOMIX_ITO={'--pileup':'AVE_35_BX_25ns',"--pileup_input":FS_PU_INPUT_13TEV,"--customise":"FastSimulation/Configuration/Customs.disableOOTPU,SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1"}
-# temporary: one or a few releases as back-up; needs the placeholder 
-# PUFS25={'--pileup':'AVE_35_BX_25ns',"--pileup_input":FS_PU_INPUT_13TEV} # needs the placeholder
+PUFSAVE10_DIGIRECOMIX_ITO={'--pileup':'AVE_10_BX_25ns','--pileup_input':'das:/RelValMinBiasFS_13_ForMixing/CMSSW_7_4_0_pre7-MCRUN2_74_V7_FastSim-v1/GEN-SIM-RECO','--customise':'FastSimulation/Configuration/Customs.disableOOTPU,SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'}
+
+PUFSAVE35_DIGIRECOMIX_ITO={'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBiasFS_13_ForMixing/CMSSW_7_4_0_pre7-MCRUN2_74_V7_FastSim-v1/GEN-SIM-RECO','--customise':'FastSimulation/Configuration/Customs.disableOOTPU,SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'}
+
+PUFS25={'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBiasFS_13_ForMixing/CMSSW_7_4_0_pre7-MCRUN2_74_V7_FastSim-v1/GEN-SIM-RECO'}
 
 #
 steps['TTbarFSPU']=merge([PUFS,Kby(100,500),steps['TTbarFS']] )
@@ -784,10 +784,10 @@ steps['TTbarFSPU']=merge([PUFS,Kby(100,500),steps['TTbarFS']] )
 steps['FS_TTbar_13_PUAVE10']=merge([PUFSAVE10,Kby(100,500),steps['TTbarFS_13']] ) # temporary: one or a few releases as back-up
 steps['FS_TTbar_13_PUAVE20']=merge([PUFSAVE20,Kby(100,500),steps['TTbarFS_13']] ) # temporary: one or a few releases as back-up
 steps['FS_TTbar_13_PUAVE35']=merge([PUFSAVE35,Kby(100,500),steps['TTbarFS_13']] )
-# steps['FS_TTbar_13_PU25']=merge([PUFS25,Kby(100,500),steps['TTbarFS_13']] ) # needs the placeholder
-# steps['FS_NuGun_UP15_PU25']=merge([PUFS25,Kby(100,500),steps['NuGunFS_UP15']] ) # needs the placeholder
-#steps['FS_TTbar_13_PUAVE10_DIGIRECOMIX_ITO']=merge([PUFSAVE10_DIGIRECOMIX_ITO,Kby(100,500),steps['TTbarFS_13']] ) # needs the placeholder
-#steps['FS_TTbar_13_PUAVE35_DIGIRECOMIX_ITO']=merge([PUFSAVE35_DIGIRECOMIX_ITO,Kby(100,500),steps['TTbarFS_13']] ) # needs the placeholder
+steps['FS_TTbar_13_PU25']=merge([PUFS25,Kby(100,500),steps['TTbarFS_13']] ) 
+steps['FS_NuGun_UP15_PU25']=merge([PUFS25,Kby(100,500),steps['NuGunFS_UP15']] ) 
+steps['FS_TTbar_13_PUAVE10_DIGIRECOMIX_ITO']=merge([PUFSAVE10_DIGIRECOMIX_ITO,Kby(100,500),steps['TTbarFS_13']] ) 
+steps['FS_TTbar_13_PUAVE35_DIGIRECOMIX_ITO']=merge([PUFSAVE35_DIGIRECOMIX_ITO,Kby(100,500),steps['TTbarFS_13']] ) 
 
 # step2 
 step2Defaults = { '-s'            : 'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco',
