@@ -7,7 +7,7 @@
  */
 
 #include <DataFormats/CSCDigi/interface/CSCCLCTDigi.h>
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iomanip>
 #include <iostream>
 
@@ -120,7 +120,8 @@ void CSCCLCTDigi::print() const {
     char stripType = (getStripType() == 0) ? 'D' : 'H';
     char bend      = (getBend()      == 0) ? 'L' : 'R';
 
-    std::cout << " CSC CLCT #"    << std::setw(1) << getTrknmb()
+    edm::LogVerbatim("CSCDigi")
+              << " CSC CLCT #"    << std::setw(1) << getTrknmb()
 	      << ": Valid = "     << std::setw(1) << isValid()
 	      << " Key Strip = "  << std::setw(3) << getKeyStrip()
 	      << " Strip = "      << std::setw(2) << getStrip()
@@ -130,10 +131,10 @@ void CSCCLCTDigi::print() const {
 	      << " Strip type = " << std::setw(1) << stripType
 	      << " CFEB ID = "    << std::setw(1) << getCFEB()
 	      << " BX = "         << std::setw(1) << getBX() 
-              << " Full BX= "     << std::setw(1) << getFullBX() << std::endl;
+              << " Full BX= "     << std::setw(1) << getFullBX();
   }
   else {
-    std::cout << "Not a valid Cathode LCT." << std::endl;
+    edm::LogVerbatim("CSCDigi") << "Not a valid Cathode LCT.";
   }
 }
 

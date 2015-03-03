@@ -7,7 +7,7 @@
  */
 
 #include <DataFormats/CSCDigi/interface/CSCALCTDigi.h>
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iomanip>
 #include <iostream>
 
@@ -83,17 +83,18 @@ bool CSCALCTDigi::operator != (const CSCALCTDigi& rhs) const {
 /// Debug
 void CSCALCTDigi::print() const {
   if (isValid()) {
-    std::cout << "CSC ALCT #"         << setw(1) << getTrknmb()
+    edm::LogVerbatim("CSCDigi") 
+              << "CSC ALCT #"         << setw(1) << getTrknmb()
 	      << ": Valid = "         << setw(1) << isValid()
 	      << " Quality = "        << setw(2) << getQuality()
 	      << " Accel. = "         << setw(1) << getAccelerator()
 	      << " PatternB = "       << setw(1) << getCollisionB()
 	      << " Key wire group = " << setw(3) << getKeyWG()
 	      << " BX = "             << setw(2) << getBX()
-              << " Full BX= "         << std::setw(1) << getFullBX() << std::endl;
+	      << " Full BX= "         << std::setw(1) << getFullBX();
   }
   else {
-    std::cout << "Not a valid Anode LCT." << std::endl;
+    edm::LogVerbatim("CSCDigi") << "Not a valid Anode LCT.";
   }
 }
 

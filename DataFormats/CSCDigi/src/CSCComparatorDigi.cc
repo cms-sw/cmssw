@@ -4,6 +4,7 @@
  * \author M.Schmitt, Northwestern
  */
 #include <DataFormats/CSCDigi/interface/CSCComparatorDigi.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <algorithm>
 #include <iterator>
@@ -92,14 +93,13 @@ void CSCComparatorDigi::setComparator(int comparator) {
 
 void
 CSCComparatorDigi::print() const {
-  std::cout << "CSCComparatorDigi strip: " << getStrip() 
-       << " comparator: " << getComparator() 
-	    << " first time bin: "<< getTimeBin()
-       << " time bins on: ";
+  std::ostringstream ost;
+  ost << "CSCComparatorDigi | strip " << getStrip()
+      << " | comparator " << getComparator() 
+      << " | first time bin "  << getTimeBin() << " | time bins on ";
   std::vector<int> tbins=getTimeBinsOn();
-  std::copy( tbins.begin(), tbins.end(), 
-     std::ostream_iterator<int>( std::cout, " "));
-  std::cout << std::endl; 
+  for(unsigned int i=0; i<tbins.size();i++) {ost << tbins[i] << " ";}
+  edm::LogVerbatim("CSCDigi") << ost.str();
 }
 
 //@@ Doesn't print all time bins

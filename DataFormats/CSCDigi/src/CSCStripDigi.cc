@@ -4,6 +4,7 @@
  * \author M.Schmitt, Northwestern
  */
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <cstdint>
 
@@ -35,22 +36,16 @@ void CSCStripDigi::setADCCounts(const std::vector<int>&vADCCounts) {
 // Debug
 void
 CSCStripDigi::print() const {
-  std::cout << "CSC Strip: " << getStrip() << "  ADC Counts: ";
-  for (int i=0; i<(int)getADCCounts().size(); i++) {std::cout << getADCCounts()[i] << " ";}
-  std::cout << "\n";
-  std::cout << "            " << "  ADCOverflow: ";
-  for (int i=0; i<(int)getADCOverflow().size(); i++) {std::cout << getADCOverflow()[i] << " ";}
-  std::cout << "\n";
-  std::cout << "            " << "  OverflappedSample: ";
-  for (int i=0; i<(int)getOverlappedSample().size(); i++) {
-  //if(getOverlappedSample()[i]!=1)
-  std::cout << getOverlappedSample()[i] << " ";}
-  std::cout << "\n";
-  std::cout << "            " << "  L1APhases: ";
-  for(int i=0; i<(int)getL1APhase().size(); i++){
-     std::cout << getL1APhase()[i] << " ";
-  }
-  std::cout << "\n";
+  std::ostringstream ost;
+  ost << "CSCStripDigi | strip " << getStrip() << " | ADCCounts ";
+  for (int i=0; i<(int)getADCCounts().size(); i++) {ost << getADCCounts()[i] << " ";}
+  ost << " | Overflow ";
+  for (int i=0; i<(int)getADCOverflow().size(); i++) {ost << getADCOverflow()[i] << " ";}
+  ost << " | Overlapped ";
+  for (int i=0; i<(int)getOverlappedSample().size(); i++) {ost << getOverlappedSample()[i] << " ";}
+  ost << " | L1APhase ";
+  for(int i=0; i<(int)getL1APhase().size(); i++){ost << getL1APhase()[i] << " ";}
+  edm::LogVerbatim("CSCDigi") << ost.str();
 }
 
 std::ostream & operator<<(std::ostream & o, const CSCStripDigi& digi) {
