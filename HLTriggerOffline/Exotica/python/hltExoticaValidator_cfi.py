@@ -100,7 +100,7 @@ hltExoticaValidator = cms.EDAnalyzer(
     # Syntax in the strings: valid syntax of the StringCutObjectSelector class
 
     # --- Muons
-    Mu_genCut     = cms.string("pt > 10 && abs(eta) < 2.4 && abs(pdgId) == 13 && status == 1"),
+    Mu_genCut     = cms.string("pt > 10 && abs(eta) < 2.4 && abs(pdgId) == 13 && isPromptFinalState"),
     Mu_recCut     = cms.string("pt > 10 && abs(eta) < 2.4 && isPFMuon && (isTrackerMuon || isGlobalMuon)"), # Loose Muon
     
     # --- MuonTracks
@@ -110,7 +110,7 @@ hltExoticaValidator = cms.EDAnalyzer(
     refittedStandAloneMuons_recCut  = cms.string("pt > 10 && abs(eta) < 2.4"), 
 
     # --- Electrons
-    Ele_genCut      = cms.string("pt > 10 && (abs(eta)<1.444 || abs(eta)>1.566) && abs(eta)<2.5 && abs(pdgId) == 11 && status==1 "),
+    Ele_genCut      = cms.string("pt > 10 && (abs(eta)<1.444 || abs(eta)>1.566) && abs(eta)<2.5 && abs(pdgId) == 11 && isPromptFinalState"),
     Ele_recCut      = cms.string(
         "pt > 10 && (abs(eta)<1.444 || abs(eta)>1.566) && abs(eta)< 2.5 "+
         " && hadronicOverEm < 0.05 "+ #&& eSuperClusterOverP > 0.5 && eSuperClusterOverP < 1.5 "+
@@ -122,13 +122,13 @@ hltExoticaValidator = cms.EDAnalyzer(
     #" && "), # Loose-like electron
 
     # --- Photons
-    Photon_genCut     = cms.string("pt > 20 && abs(eta) < 2.4 && abs(pdgId) == 22 && status == 1"),
+    Photon_genCut     = cms.string("pt > 20 && abs(eta) < 2.4 && abs(pdgId) == 22 && isPromptFinalState"),
     Photon_recCut     = cms.string("pt > 20 && abs(eta) < 2.4"), # STILL MISSING THIS INFO
     Photon_genCut_leading  = cms.string("pt > 150 "),
     Photon_recCut_leading  = cms.string("pt > 150 "),
    
     # --- Taus: 
-    PFTau_genCut      = cms.string("pt > 20 && abs(eta) < 2.4 && abs(pdgId) == 15 && status == 3"),
+    PFTau_genCut      = cms.string("pt > 20 && abs(eta) < 2.4 && abs(pdgId) == 15 && isPromptDecayed"),
     PFTau_recCut      = cms.string("pt > 20 && abs(eta) < 2.4"),  # STILL MISSING THIS INFO
    
     # --- Jets: 
