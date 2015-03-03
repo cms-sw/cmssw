@@ -69,6 +69,7 @@ class TrackFindingAMProducer : public edm::EDProducer
   std::string                  nBKName;
   int                          nThresh;
   int                          nMissingHits;
+  int                          nDebug;
   SectorTree                   m_st;
   PatternFinder                *m_pf;
   const StackedTrackerGeometry *theStackedTracker;
@@ -96,6 +97,7 @@ TrackFindingAMProducer::TrackFindingAMProducer( const edm::ParameterSet& iConfig
   nBKName            = iConfig.getParameter< std::string >("inputBankFile");
   nThresh            = iConfig.getParameter< int >("threshold");
   nMissingHits       = iConfig.getParameter< int >("nbMissingHits");
+  nDebug             = iConfig.getParameter< int >("debugMode");
 
   std::cout << "Loading pattern bank file : " << std::endl;
   std::cout << nBKName << std::endl;
@@ -255,6 +257,8 @@ void TrackFindingAMProducer::produce( edm::Event& iEvent, const edm::EventSetup&
   /// PAssing the superstrips into the AM chip
 
   std::vector< Sector* > patternsSectors = m_pf->find(m_hits); // AM PR is done here....
+  if(nDebug==1)
+    m_pf->displaySuperstrips(m_hits); // display the supertrips of the event
 
   /// STEP 3
   /// Collect the info and store the track seed stuff

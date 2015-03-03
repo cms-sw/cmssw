@@ -22,9 +22,15 @@ vector<SuperStrip*> CMSPatternLayer::getSuperStrip(int l, const vector<int>& lad
 
   if(isFake()){ // this is a fake superstrip! We link it to the dump superstrip
     vector<short> positions = getPositionsFromDC();
-    for(unsigned int i=0;i<positions.size();i++){
+    if(positions.size()==0){
       SuperStrip* patternStrip = d.getDump();
       v.push_back(patternStrip);
+    }
+    else{
+      for(unsigned int i=0;i<positions.size();i++){
+	SuperStrip* patternStrip = d.getDump();
+	v.push_back(patternStrip);
+      }
     }
     return v;
   }
@@ -41,10 +47,16 @@ vector<SuperStrip*> CMSPatternLayer::getSuperStrip(int l, const vector<int>& lad
 	  Segment* patternSegment = patternModule->getSegment(getSegment());
 	  if(patternSegment!=NULL){
 	    int base_index = getStripCode()<<nb_dc;
-	    vector<short> positions=getPositionsFromDC();
-	    for(unsigned int i=0;i<positions.size();i++){
-	      int index = base_index | positions[i];
-	      SuperStrip* patternStrip = patternSegment->getSuperStripFromIndex(grayToBinary(index));
+	    if(nb_dc>0){
+	      vector<short> positions=getPositionsFromDC();
+	      for(unsigned int i=0;i<positions.size();i++){
+		int index = base_index | positions[i];
+		SuperStrip* patternStrip = patternSegment->getSuperStripFromIndex(grayToBinary(index));
+		v.push_back(patternStrip);
+	      }
+	    }
+	    else{
+	      SuperStrip* patternStrip = patternSegment->getSuperStripFromIndex(grayToBinary(base_index));
 	      v.push_back(patternStrip);
 	    }
 	    return v;
@@ -154,6 +166,30 @@ string CMSPatternLayer::toString(){
   return oss.str();
 }
 
+string CMSPatternLayer::toStringSuperstripBinary(){
+  short seg = getSegment();
+  short sstrip = getStripCode();
+  int initialValue = getIntValue();
+  int moduleLadder = (initialValue>>PHI_START_BIT);//remove the superstrip and segment informations
+  int newValue = 0;
+  newValue |= (moduleLadder&0x1FF)<<PHI_START_BIT |
+    (seg&SEG_MASK)<<(PHI_START_BIT-1) |
+    (sstrip&STRIP_MASK)<<SEG_START_BIT;
+  ostringstream oss;
+  oss<<newValue;
+  if(dc_bits[0]!=3){
+    oss<<" (";
+    for(int i=0;i<DC_BITS;i++){
+      if(dc_bits[i]==2)
+	oss<<"X";
+      else if(dc_bits[i]!=3)
+	oss<<(int)dc_bits[i];
+    }
+    oss<<")";
+  }
+  return oss.str();
+}
+
 string CMSPatternLayer::toStringBinary(){
   ostringstream oss;
   oss<<getIntValue();
@@ -167,6 +203,233 @@ string CMSPatternLayer::toStringBinary(){
     }
     oss<<")";
   }
+  return oss.str();
+}
+
+string CMSPatternLayer::toAM05Format(){
+
+  /**
+     The input superstrip is 16 bits long
+     The stored superstrip in the AM05 is 18 bits long (room for DC bits)
+     At least 2 DC bits will be used to fit in the 18 bits : 16 bits are becoming 14 bits + 2DC bits -> 18 bits
+  **/
+  int nb_dc_bits = 0;
+  int used_dc_bits = getDCBitsNumber();
+  if(used_dc_bits<3)
+    nb_dc_bits=2;
+  else
+    nb_dc_bits=used_dc_bits;
+
+  //Default organization of bits (0 to 2 DC bits used)
+  short AM05_MOD_START_BIT = 13;
+  short AM05_PHI_START_BIT = 9;
+  short AM05_SEG_START_BIT = 8;
+  short AM05_STRIP_START_BIT = 4;
+  short AM05_STRIP_DC0_BIT = 2;
+  short AM05_STRIP_DC1_BIT = 0;
+  short AM05_STRIP_DC2_BIT = 0;
+
+  short AM05_MOD_MASK = 0x1F;
+  short AM05_PHI_MASK = 0xF;
+  short AM05_SEG_MASK = 0x1;
+  short AM05_STRIP_MASK = 0xF;//4 bits + 2 DC bits
+  short AM05_STRIP_DC0_MASK = 0x3;
+  short AM05_STRIP_DC1_MASK = 0x3;
+  short AM05_STRIP_DC2_MASK = 0;
+
+  short z = getModule();
+  short ladder = getPhi();
+  short seg = getSegment();
+  short sstrip = getStripCode();
+
+  int am_format=0;//18 bits value for the AM05 chip  
+
+  if(used_dc_bits==0){
+
+    /*
+      we need to encode the 2 last bits of the sstrip as DC bits
+      First we retrieve the values and remove them from the sstrip position      
+    */
+    short dcbit0_val = (sstrip>>1)&0x1;
+    short dcbit1_val = sstrip&0x1;
+    sstrip = sstrip>>2;
+
+    // Now we encode the values as DC bit values
+    if(dcbit0_val==0)
+      dcbit0_val=1;//01
+    else
+      dcbit0_val=2;//10
+
+    if(dcbit1_val==0)
+      dcbit1_val=1;//01
+    else
+      dcbit1_val=2;//10
+
+    // in case this is a fake superstrip, it must not be activable : we use the 11 value of the DC bits
+    if(isFake()){
+      dcbit0_val=3;//11
+      dcbit1_val=3;//11
+    }
+
+    //5 bits for Z + 4 bits for ladder + 1 bit for seg + 4 bits for sstrip + 2 bits for sstrips DC bit 0 + 2 bits for sstrips DC bit 1 = 18 bits
+    am_format |= (z&AM05_MOD_MASK)<<AM05_MOD_START_BIT |
+      (ladder&AM05_PHI_MASK)<<AM05_PHI_START_BIT |
+      (seg&AM05_SEG_MASK)<<AM05_SEG_START_BIT |
+      (sstrip&AM05_STRIP_MASK)<<AM05_STRIP_START_BIT |
+      (dcbit0_val&AM05_STRIP_DC0_MASK)<<AM05_STRIP_DC0_BIT |
+      (dcbit1_val&AM05_STRIP_DC1_MASK)<<AM05_STRIP_DC1_BIT;
+  }
+  else if(used_dc_bits==1){
+
+    /*
+      we need to encode the last bit of the sstrip as a DC bit
+      First we retrieve the value and remove it from the sstrip position      
+    */
+    short dcbit0_val = sstrip&0x1;
+    short dcbit1_val = dc_bits[0];
+    sstrip = sstrip>>1;
+
+    // Now we encode the values as DC bit values
+    if(dcbit0_val==0)
+      dcbit0_val=1;//01
+    else
+      dcbit0_val=2;//10
+
+    switch(dcbit1_val){
+    case 2 : dcbit1_val=0;//00:X
+      break;
+    case 0 : dcbit1_val=1;//01
+      break;
+    case 1 : dcbit1_val=2;//10
+      break;
+    }
+    
+    // in case this is a fake superstrip, it must not be activable : we use the 11 value of the DC bits
+    if(isFake()){
+      dcbit0_val=3;//11
+      dcbit1_val=3;//11
+    }
+
+    //5 bits for Z + 4 bits for ladder + 1 bit for seg + 4 bits for sstrip + 2 bits for sstrips DC bit 0 + 2 bits for sstrips DC bit 1 = 18 bits
+    am_format |= (z&AM05_MOD_MASK)<<AM05_MOD_START_BIT |
+      (ladder&AM05_PHI_MASK)<<AM05_PHI_START_BIT |
+      (seg&AM05_SEG_MASK)<<AM05_SEG_START_BIT |
+      (sstrip&AM05_STRIP_MASK)<<AM05_STRIP_START_BIT |
+      (dcbit0_val&AM05_STRIP_DC0_MASK)<<AM05_STRIP_DC0_BIT |
+      (dcbit1_val&AM05_STRIP_DC1_MASK)<<AM05_STRIP_DC1_BIT;
+  }
+  else if(used_dc_bits==2){
+
+    short dcbit0_val = dc_bits[0];
+    short dcbit1_val = dc_bits[1];
+
+    // we encode the values as DC bit values
+    switch(dcbit0_val){
+    case 2 : dcbit0_val=0;//00:X
+      break;
+    case 0 : dcbit0_val=1;//01
+      break;
+    case 1 : dcbit0_val=2;//10
+      break;
+    }
+
+    switch(dcbit1_val){
+    case 2 : dcbit1_val=0;//00:X
+      break;
+    case 0 : dcbit1_val=1;//01
+      break;
+    case 1 : dcbit1_val=2;//10
+      break;
+    }
+
+    // in case this is a fake superstrip, it must not be activable : we use the 11 value of the DC bits
+    if(isFake()){
+      dcbit0_val=3;//11
+      dcbit1_val=3;//11
+    }    
+
+    //5 bits for Z + 4 bits for ladder + 1 bit for seg + 4 bits for sstrip + 2 bits for sstrips DC bit 0 + 2 bits for sstrips DC bit 1 = 18 bits
+    am_format |= (z&AM05_MOD_MASK)<<AM05_MOD_START_BIT |
+      (ladder&AM05_PHI_MASK)<<AM05_PHI_START_BIT |
+      (seg&AM05_SEG_MASK)<<AM05_SEG_START_BIT |
+      (sstrip&AM05_STRIP_MASK)<<AM05_STRIP_START_BIT |
+      (dcbit0_val&AM05_STRIP_DC0_MASK)<<AM05_STRIP_DC0_BIT |
+      (dcbit1_val&AM05_STRIP_DC1_MASK)<<AM05_STRIP_DC1_BIT;
+  }
+  else if(used_dc_bits==3){
+
+    AM05_MOD_START_BIT = 14;
+    AM05_PHI_START_BIT = 10;
+    AM05_SEG_START_BIT = 9;
+    AM05_STRIP_START_BIT = 6;
+    AM05_STRIP_DC0_BIT = 4;
+    AM05_STRIP_DC1_BIT = 2;
+    AM05_STRIP_DC2_BIT = 0;
+    
+    AM05_MOD_MASK = 0xF;
+    AM05_PHI_MASK = 0xF;
+    AM05_SEG_MASK = 0x1;
+    AM05_STRIP_MASK = 0x7;//3 bits + 3 DC bits
+    AM05_STRIP_DC0_MASK = 0x3;
+    AM05_STRIP_DC1_MASK = 0x3;
+    AM05_STRIP_DC2_MASK = 0x3;
+
+    short dcbit0_val = dc_bits[0];
+    short dcbit1_val = dc_bits[1];
+    short dcbit2_val = dc_bits[2];
+
+    // we encode the values as DC bit values
+    switch(dcbit0_val){
+    case 2 : dcbit0_val=0;//00:X
+      break;
+    case 0 : dcbit0_val=1;//01
+      break;
+    case 1 : dcbit0_val=2;//10
+      break;
+    }
+
+    switch(dcbit1_val){
+    case 2 : dcbit1_val=0;//00:X
+      break;
+    case 0 : dcbit1_val=1;//01
+      break;
+    case 1 : dcbit1_val=2;//10
+      break;
+    }
+
+    switch(dcbit2_val){
+    case 2 : dcbit2_val=0;//00:X
+      break;
+    case 0 : dcbit2_val=1;//01
+      break;
+    case 1 : dcbit2_val=2;//10
+      break;
+    }
+    
+    //we are using 4 bits for the Z value so it must be below 16 (should be ok with official trigger towers)
+    if(z>15){
+      cout<<"The module value is too high ("<<z<<">15) : pattern can not be stored in an AM05 chip"<<endl;
+      exit(-1);
+    }
+
+    // in case this is a fake superstrip, it must not be activable : we use the 11 value of the DC bits
+    if(isFake()){
+      dcbit0_val=3;//11
+      dcbit1_val=3;//11
+      dcbit2_val=3;//11
+    }
+
+    //4 bits for Z + 4 bits for ladder + 1 bit for seg + 3 bits for sstrip + 2 bits for sstrips DC bit 0 + 2 bits for sstrips DC bit 1 + 2 bits for sstrips DC bit 2 = 18 bits
+    am_format |= (z&AM05_MOD_MASK)<<AM05_MOD_START_BIT |
+      (ladder&AM05_PHI_MASK)<<AM05_PHI_START_BIT |
+      (seg&AM05_SEG_MASK)<<AM05_SEG_START_BIT |
+      (sstrip&AM05_STRIP_MASK)<<AM05_STRIP_START_BIT |
+      (dcbit0_val&AM05_STRIP_DC0_MASK)<<AM05_STRIP_DC0_BIT |
+      (dcbit1_val&AM05_STRIP_DC1_MASK)<<AM05_STRIP_DC1_BIT |
+      (dcbit2_val&AM05_STRIP_DC2_MASK)<<AM05_STRIP_DC2_BIT;
+  }
+  ostringstream oss;
+  oss<<am_format<<" "<<nb_dc_bits;
   return oss.str();
 }
 

@@ -110,7 +110,11 @@ class PatternFinder{
      \param stop The search will end at this event number
    **/
   void displayEventsSuperstrips(int start, int& stop);
-
+  /**
+    \brief Display the given hits as superstrips if they are part of the sector. Each line will contain the layer ID followed by the 16 bits of the superstrip as an integer.
+    \param hits The list of hits in the event
+  **/
+  void displaySuperstrips(const vector<Hit*> &hits);
   /**
      \brief Use the maximum missing hit threshold instead of the active_threshold
    **/
