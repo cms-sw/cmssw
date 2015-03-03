@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from Validation.RecoVertex.PrimaryVertexAnalyzer4PUSlimmed_cfi import *
 
 hltMultiPVanalysis = vertexAnalysis.clone()
-hltMultiPVanalysis.use_TP_associator     = cms.untracked.bool(False)
 hltMultiPVanalysis.verbose               = cms.untracked.bool(False)
 hltMultiPVanalysis.sigma_z_match         = cms.untracked.double(3.0)
 hltMultiPVanalysis.root_folder           = cms.untracked.string("HLT/Vertexing/ValidationWRTsim")

@@ -27,8 +27,6 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
     : verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
       use_only_charged_tracks_(iConfig.getUntrackedParameter<bool>(
           "use_only_charged_tracks", true)),
-      use_TP_associator_(
-          iConfig.getUntrackedParameter<bool>("use_TP_associator", false)),
       sigma_z_match_(
           iConfig.getUntrackedParameter<double>("sigma_z_match", 3.0)),
       abs_z_match_(
@@ -45,16 +43,17 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
       trackingParticleCollectionToken_(consumes<TrackingParticleCollection>(
           iConfig.getUntrackedParameter<edm::InputTag>("trackingParticleCollection"))),
       trackingVertexCollectionToken_(consumes<TrackingVertexCollection>(
-          iConfig.getUntrackedParameter<edm::InputTag>("trackingVertexCollection"))) {
+          iConfig.getUntrackedParameter<edm::InputTag>("trackingVertexCollection"))),
+      simToRecoAssociationToken_(consumes<reco::SimToRecoCollection>(
+          iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap"))),
+      recoToSimAssociationToken_(consumes<reco::RecoToSimCollection>(
+          iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap"))) {
   reco_vertex_collections_ = iConfig.getParameter<std::vector<edm::InputTag> >(
       "vertexRecoCollections");
   for (auto const& l : reco_vertex_collections_) {
     reco_vertex_collection_tokens_.push_back(
         edm::EDGetTokenT<reco::VertexCollection>(
             consumes<reco::VertexCollection>(l)));
-  }
-  if(use_TP_associator_) {
-    recoTrackToTrackingParticleAssociatorToken_ = consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("quickTrackAssociatorByHits"));
   }
 }
 
@@ -806,9 +805,9 @@ PrimaryVertexAnalyzer4PUSlimmed::getSimPVs(
       double match_quality = -1;
       if (use_only_charged_tracks_ && (**iTP).charge() == 0)
           continue;
-      if (s2r_.find(*iTP) != s2r_.end()) {
-        matched_best_reco_track = s2r_[*iTP][0].first.get();
-        match_quality = s2r_[*iTP][0].second;
+      if (s2r_->find(*iTP) != s2r_->end()) {
+        matched_best_reco_track = (*s2r_)[*iTP][0].first.get();
+        match_quality = (*s2r_)[*iTP][0].second;
       }
       if (verbose_) {
         std::cout << "  Daughter momentum:      " << momentum;
@@ -1106,30 +1105,24 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
   iEvent.getByToken(edmView_recoTrack_Token_, trackCollectionH);
 
   edm::Handle<TrackingParticleCollection> TPCollectionH;
+  iEvent.getByToken(trackingParticleCollectionToken_, TPCollectionH);
+
   edm::Handle<TrackingVertexCollection> TVCollectionH;
-  bool gotTP =
-      iEvent.getByToken(trackingParticleCollectionToken_, TPCollectionH);
-  bool gotTV = iEvent.getByToken(trackingVertexCollectionToken_, TVCollectionH);
+  iEvent.getByToken(trackingVertexCollectionToken_, TVCollectionH);
 
   // TODO(rovere) the idea is to put in case a track-selector in front
   // of this module and then use its label to get the selected tracks
   // out of the event instead of making an hard-coded selection in the
   // code.
 
-  if (gotTP) {
-    // TODO(rovere) fetch an already existing collection from the
-    // event instead of making another association on the fly???
-    if (use_TP_associator_) {
-      edm::Handle<reco::TrackToTrackingParticleAssociator> theHitsAssociator;
-      iEvent.getByToken(recoTrackToTrackingParticleAssociatorToken_,
-                        theHitsAssociator);
-      associatorByHits_ = theHitsAssociator.product();
-      r2s_ = associatorByHits_->associateRecoToSim(
-          trackCollectionH, TPCollectionH);
-      s2r_ = associatorByHits_->associateSimToReco(
-          trackCollectionH, TPCollectionH);
-    }
-  }
+  edm::Handle<reco::SimToRecoCollection> simToRecoH;
+  iEvent.getByToken(simToRecoAssociationToken_, simToRecoH);
+
+  edm::Handle<reco::RecoToSimCollection> recoToSimH;
+  iEvent.getByToken(recoToSimAssociationToken_, recoToSimH);
+
+  s2r_ = simToRecoH.product();
+  r2s_ = recoToSimH.product();
 
   std::vector<simPrimaryVertex> simpv;  // a list of simulated primary
                                         // MC vertices
@@ -1163,14 +1156,13 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
           << std::endl;
       continue;
     }
-    if (gotTV) {
-      resetSimPVAssociation(simpv);
-      matchSim2RecoVertices(simpv, *recVtxs.product());
-      recopv = getRecoPVs(recVtxs);
-      computePairDistance(recopv,
-                          mes_[label]["RecoAllAssoc2Gen_PairDistanceZ"]);
-      matchReco2SimVertices(recopv, *TVCollectionH.product(), simpv);
-    }
+
+    resetSimPVAssociation(simpv);
+    matchSim2RecoVertices(simpv, *recVtxs.product());
+    recopv = getRecoPVs(recVtxs);
+    computePairDistance(recopv,
+                        mes_[label]["RecoAllAssoc2Gen_PairDistanceZ"]);
+    matchReco2SimVertices(recopv, *TVCollectionH.product(), simpv);
 
     int num_total_gen_vertices_assoc2reco = 0;
     int num_total_reco_vertices_assoc2gen = 0;

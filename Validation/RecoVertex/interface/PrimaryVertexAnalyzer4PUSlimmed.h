@@ -167,8 +167,8 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   std::string root_folder_;
 
   std::map<std::string, std::map<std::string, MonitorElement*> > mes_;
-  reco::RecoToSimCollection r2s_;
-  reco::SimToRecoCollection s2r_;
+  const reco::RecoToSimCollection *r2s_;
+  const reco::SimToRecoCollection *s2r_;
 
   // TODO(rovere) possibly reuse an object from the event and do not
   // re-run the associator(s)
@@ -181,7 +181,8 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   edm::EDGetTokenT< edm::View<reco::Track> > edmView_recoTrack_Token_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
   edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollectionToken_;
-  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> recoTrackToTrackingParticleAssociatorToken_;
+  edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
+  edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimAssociationToken_;
 };
 
 #endif  // VALIDATION_RECOVERTEX_INTERFACE_PRIMARYVERTEXANALYZER4PUSLIMMED_H_
