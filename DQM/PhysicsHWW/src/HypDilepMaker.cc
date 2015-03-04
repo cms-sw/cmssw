@@ -81,11 +81,11 @@ void HypDilepMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Event
       if(mus_index_2 < mus_index_1)  continue;  //avoid double counting
 
       //don't look at standalone muons
-      if(mus_type.at(mus_index_1) == 8) continue;
-      if(mus_type.at(mus_index_2) == 8) continue;
+      if(mus_type[mus_index_1] == 8) continue;
+      if(mus_type[mus_index_2] == 8) continue;
       
-      float mu_pt1 = mus_p4.at(mus_index_1).Pt();
-      float mu_pt2 = mus_p4.at(mus_index_2).Pt();
+      float mu_pt1 = mus_p4[mus_index_1].Pt();
+      float mu_pt2 = mus_p4[mus_index_2].Pt();
       
       //if either fail the loose cut, go to the next muon
       if(mu_pt1 < looseptcut || mu_pt2 < looseptcut) continue;
@@ -120,31 +120,31 @@ void HypDilepMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Event
 	
         // we don't want jets that overlap with electrons
         bool overlapsWithLepton = false;
-        if(!testJetForLeptons(jets_p4.at(i), mus_p4.at(loose_index))) 
+        if(!testJetForLeptons(jets_p4[i], mus_p4[loose_index])) 
           overlapsWithLepton = true;
-        if(!testJetForLeptons(jets_p4.at(i), mus_p4.at(tight_index))) 
+        if(!testJetForLeptons(jets_p4[i], mus_p4[tight_index])) 
           overlapsWithLepton = true;
 
-        double jet_eta = jets_p4.at(i).eta();
-        double jet_pt  = jets_p4.at(i).Pt();
+        double jet_eta = jets_p4[i].eta();
+        double jet_pt  = jets_p4[i].Pt();
         
         if( fabs(jet_eta) < hypJetMaxEtaCut && jet_pt  > hypJetMinPtCut && !overlapsWithLepton) { //hyp jetas
           temp_jets_idx.push_back(i);
-          temp_jets_p4                     .push_back(jets_p4.at(i));
+          temp_jets_p4                     .push_back(jets_p4[i]);
         }
       }
 
       hww.hyp_jets_p4()       .push_back(temp_jets_p4                          );
       hww.hyp_type()          .push_back(0                                     );
-      hww.hyp_p4()            .push_back(mus_p4.at(tight_index)+mus_p4.at(loose_index));
-      hww.hyp_lt_charge()     .push_back(mus_charge.at(tight_index)  );
+      hww.hyp_p4()            .push_back(mus_p4[tight_index]+mus_p4[loose_index]);
+      hww.hyp_lt_charge()     .push_back(mus_charge[tight_index]  );
       hww.hyp_lt_index()      .push_back(tight_index                         );
-      hww.hyp_lt_id()         .push_back(-13*(mus_charge.at(tight_index)));
-      hww.hyp_lt_p4()         .push_back(mus_p4           .at(tight_index)  );
-      hww.hyp_ll_charge()     .push_back(mus_charge.at(loose_index)  );
+      hww.hyp_lt_id()         .push_back(-13*(mus_charge[tight_index]));
+      hww.hyp_lt_p4()         .push_back(mus_p4           [tight_index]  );
+      hww.hyp_ll_charge()     .push_back(mus_charge[loose_index]  );
       hww.hyp_ll_index()      .push_back(loose_index                         );
-      hww.hyp_ll_id()         .push_back(-13*(mus_charge.at(loose_index)));
-      hww.hyp_ll_p4()         .push_back(mus_p4           .at(loose_index)  );
+      hww.hyp_ll_id()         .push_back(-13*(mus_charge[loose_index]));
+      hww.hyp_ll_p4()         .push_back(mus_p4           [loose_index]  );
     }
   }  
 
@@ -158,8 +158,8 @@ void HypDilepMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Event
       if(els_index_1 == els_index_2) continue;
       if(els_index_2 < els_index_1)  continue;  //avoid double counting
       
-      float el_pt1 = els_p4.at(els_index_1).Pt();
-      float el_pt2 = els_p4.at(els_index_2).Pt();
+      float el_pt1 = els_p4[els_index_1].Pt();
+      float el_pt2 = els_p4[els_index_2].Pt();
       
       //if either fail the loose cut, go to the next muon
       if(el_pt1 < looseptcut || el_pt2 < looseptcut) continue;
@@ -194,31 +194,31 @@ void HypDilepMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Event
 	
         // we don't want jets that overlap with electrons
         bool overlapsWithLepton = false;
-        if(!testJetForLeptons(jets_p4.at(i), els_p4.at(loose_index))) 
+        if(!testJetForLeptons(jets_p4[i], els_p4[loose_index])) 
           overlapsWithLepton = true;
-        if(!testJetForLeptons(jets_p4.at(i), els_p4.at(tight_index))) 
+        if(!testJetForLeptons(jets_p4[i], els_p4[tight_index])) 
           overlapsWithLepton = true;
 
-        double jet_eta = jets_p4.at(i).eta();
-        double jet_pt  = jets_p4.at(i).Pt();
+        double jet_eta = jets_p4[i].eta();
+        double jet_pt  = jets_p4[i].Pt();
         
         if( fabs(jet_eta) < hypJetMaxEtaCut && jet_pt  > hypJetMinPtCut && !overlapsWithLepton) { //hyp jetas
           temp_jets_idx.push_back(i);
-          temp_jets_p4                     .push_back(jets_p4.at(i));
+          temp_jets_p4                     .push_back(jets_p4[i]);
         }
       }
 
       hww.hyp_jets_p4()       .push_back(temp_jets_p4                          );
       hww.hyp_type()          .push_back(3);
-      hww.hyp_p4()            .push_back(els_p4.at(tight_index)+els_p4.at(loose_index));
-      hww.hyp_lt_charge()     .push_back(els_charge       .at(tight_index)  );
+      hww.hyp_p4()            .push_back(els_p4[tight_index]+els_p4[loose_index]);
+      hww.hyp_lt_charge()     .push_back(els_charge       [tight_index]  );
       hww.hyp_lt_index()      .push_back(tight_index                         );
-      hww.hyp_lt_id()         .push_back(-11*(els_charge   .at(tight_index)));
-      hww.hyp_lt_p4()         .push_back(els_p4           .at(tight_index)  );
-      hww.hyp_ll_charge()     .push_back(els_charge       .at(loose_index)  );
+      hww.hyp_lt_id()         .push_back(-11*(els_charge   [tight_index]));
+      hww.hyp_lt_p4()         .push_back(els_p4           [tight_index]  );
+      hww.hyp_ll_charge()     .push_back(els_charge       [loose_index]  );
       hww.hyp_ll_index()      .push_back(loose_index                         );
-      hww.hyp_ll_id()         .push_back(-11*(els_charge   .at(loose_index)));
-      hww.hyp_ll_p4()         .push_back(els_p4           .at(loose_index)  );
+      hww.hyp_ll_id()         .push_back(-11*(els_charge   [loose_index]));
+      hww.hyp_ll_p4()         .push_back(els_p4           [loose_index]  );
     }
   }  
   
@@ -230,10 +230,10 @@ void HypDilepMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Event
   for(unsigned int els_index = 0; els_index < nels; els_index++) {
     for(unsigned int mus_index = 0; mus_index < nmus; mus_index++) {
 
-      if(mus_type.at(mus_index) == 8) continue;
+      if(mus_type[mus_index] == 8) continue;
 
-      float el_pt = els_p4.at(els_index).Pt();
-      float mu_pt = mus_p4.at(mus_index).Pt();
+      float el_pt = els_p4[els_index].Pt();
+      float mu_pt = mus_p4[mus_index].Pt();
 
       //if either fail the loose cut, go to the next muon
       if(el_pt < looseptcut || mu_pt < looseptcut) continue;
@@ -250,45 +250,45 @@ void HypDilepMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Event
 	
         // we don't want jets that overlap with electrons
         bool overlapsWithLepton = false;
-        if(!testJetForLeptons(jets_p4.at(i), els_p4.at(els_index))) 
+        if(!testJetForLeptons(jets_p4[i], els_p4[els_index])) 
           overlapsWithLepton = true;
-        if(!testJetForLeptons(jets_p4.at(i), mus_p4.at(mus_index))) 
+        if(!testJetForLeptons(jets_p4[i], mus_p4[mus_index])) 
           overlapsWithLepton = true;
 
-        double jet_eta = jets_p4.at(i).eta();
-        double jet_pt  = jets_p4.at(i).Pt();
+        double jet_eta = jets_p4[i].eta();
+        double jet_pt  = jets_p4[i].Pt();
         
         if( fabs(jet_eta) < hypJetMaxEtaCut && jet_pt  > hypJetMinPtCut && !overlapsWithLepton) { //hyp jetas
           temp_jets_idx.push_back(i);
-          temp_jets_p4                     .push_back(jets_p4.at(i));
+          temp_jets_p4                     .push_back(jets_p4[i]);
         }
       }
 
       hww.hyp_jets_p4()       .push_back(temp_jets_p4                          );
-      hww.hyp_p4()            .push_back(mus_p4.at(mus_index)+els_p4.at(els_index)                 );
+      hww.hyp_p4()            .push_back(mus_p4[mus_index]+els_p4[els_index]                 );
 	
       if(el_pt < tightptcut && mu_pt > tightptcut) {
         hww.hyp_type()            .push_back(1);
-        hww.hyp_lt_charge()       .push_back(mus_charge.at(mus_index)  );
+        hww.hyp_lt_charge()       .push_back(mus_charge[mus_index]  );
         hww.hyp_lt_index()        .push_back(mus_index                         );
-        hww.hyp_lt_id()           .push_back(-13*(mus_charge.at(mus_index)));
-        hww.hyp_lt_p4()           .push_back(mus_p4           .at(mus_index)  );
-        hww.hyp_ll_charge()       .push_back(els_charge       .at(els_index)  );
+        hww.hyp_lt_id()           .push_back(-13*(mus_charge[mus_index]));
+        hww.hyp_lt_p4()           .push_back(mus_p4           [mus_index]  );
+        hww.hyp_ll_charge()       .push_back(els_charge       [els_index]  );
         hww.hyp_ll_index()        .push_back(els_index                         );
-        hww.hyp_ll_id()           .push_back(-11*(els_charge   .at(els_index)));
-        hww.hyp_ll_p4()           .push_back(els_p4           .at(els_index)  );
+        hww.hyp_ll_id()           .push_back(-11*(els_charge   [els_index]));
+        hww.hyp_ll_p4()           .push_back(els_p4           [els_index]  );
 	
 	  
       } else {
         hww.hyp_type()            .push_back(2);
-        hww.hyp_lt_charge()       .push_back(els_charge       .at(els_index)  );
+        hww.hyp_lt_charge()       .push_back(els_charge       [els_index]  );
         hww.hyp_lt_index()        .push_back(els_index                         );
-        hww.hyp_lt_id()           .push_back(-11*(els_charge   .at(els_index)));
-        hww.hyp_lt_p4()           .push_back(els_p4           .at(els_index)  );
-        hww.hyp_ll_charge()       .push_back(mus_charge.at(mus_index)  );
+        hww.hyp_lt_id()           .push_back(-11*(els_charge   [els_index]));
+        hww.hyp_lt_p4()           .push_back(els_p4           [els_index]  );
+        hww.hyp_ll_charge()       .push_back(mus_charge[mus_index]  );
         hww.hyp_ll_index()        .push_back(mus_index                         );
-        hww.hyp_ll_id()           .push_back(-13*(mus_charge.at(mus_index)));
-        hww.hyp_ll_p4()           .push_back(mus_p4           .at(mus_index)  );
+        hww.hyp_ll_id()           .push_back(-13*(mus_charge[mus_index]));
+        hww.hyp_ll_p4()           .push_back(mus_p4           [mus_index]  );
 	
       }
     }
