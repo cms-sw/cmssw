@@ -102,14 +102,14 @@ Corrector parseFFTJetCorrector(const edm::ParameterSet& ps,
 
     // "adjuster" is a PSet
     const edm::ParameterSet& adjuster = ps.getParameter<edm::ParameterSet>("adjuster");
-    boost::shared_ptr<AbsFFTJetAdjuster<MyJet,Adjustable> > adj = 
+    boost::shared_ptr<const AbsFFTJetAdjuster<MyJet,Adjustable> > adj = 
         parseFFTJetAdjuster<MyJet,Adjustable>(adjuster, verbose);
 
     // "scalers" is a VPSet
     const std::vector<edm::ParameterSet>& scalers = 
         ps.getParameter<std::vector<edm::ParameterSet> >("scalers");
     const unsigned nScalers = scalers.size();
-    std::vector<boost::shared_ptr<AbsFFTJetScaleCalculator<MyJet,Adjustable> > > sVec;
+    std::vector<boost::shared_ptr<const AbsFFTJetScaleCalculator<MyJet,Adjustable> > > sVec;
     sVec.reserve(nScalers);
     for (unsigned i=0; i<nScalers; ++i)
     {
