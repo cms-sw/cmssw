@@ -9,3 +9,4 @@ vertexValidation = cms.Sequence(quickTrackAssociatorByHits
                                 * trackingParticleRecoTrackAsssociation
                                 * v0Validator
                                 * vertexAnalysisSequence)
+

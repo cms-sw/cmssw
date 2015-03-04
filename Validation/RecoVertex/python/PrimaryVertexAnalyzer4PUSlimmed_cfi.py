@@ -15,7 +15,7 @@ selectedOfflinePrimaryVerticesWithBS.src = cms.InputTag('offlinePrimaryVerticesW
 vertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer4PUSlimmed",
                                 simG4 = cms.InputTag("g4SimHits"),
                                 use_only_charged_tracks = cms.untracked.bool(True),
-                                use_TP_associator = cms.untracked.bool(False),
+                                use_TP_associator = cms.untracked.bool(True),
                                 verbose = cms.untracked.bool(False),
                                 sigma_z_match = cms.untracked.double(3.0),
                                 abs_z_match = cms.untracked.double(0.1),
@@ -35,3 +35,4 @@ vertexAnalysisSequence = cms.Sequence(cms.ignore(selectedOfflinePrimaryVertices)
 #                                      * cms.ignore(selectedPixelVertices)
                                       * vertexAnalysis
 )
+
