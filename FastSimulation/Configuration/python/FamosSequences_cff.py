@@ -324,7 +324,6 @@ famosEcalDrivenElectronSequence = cms.Sequence(
 simulationSequence.insert(0,genParticles)
 
 reconstructionWithFamos = cms.Sequence(
-    trackExtrapolator+
     caloTowersSequence+
     particleFlowCluster+
     ecalClusters+

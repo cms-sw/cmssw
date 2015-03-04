@@ -212,12 +212,24 @@ namespace edm
       else {
 	SiPixelWorker_ = new DataMixingSiPixelWorker(ps, consumesCollector());
       }
+<<<<<<< HEAD
 
     } 
     else{
       //Tracks:
       edm::ConsumesCollector iC(consumesCollector());
       GeneralTrackWorker_ = DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(ps.getParameterSet("tracker"), *this, iC).release();
+=======
+
+    } 
+    else{
+      //Tracks:
+
+      GeneralTrackCollectionDM_  = ps.getParameter<std::string>("GeneralTrackDigiCollectionDM");
+      produces< reco::TrackCollection >(GeneralTrackCollectionDM_);
+      GeneralTrackWorker_ = new DataMixingGeneralTrackWorker(ps, consumesCollector());
+
+>>>>>>> restructure fastsim cfg ala fullsim, first premix trail
     }
 
     // Pileup Information: if doing pre-mixing, we have to save the pileup information from the Secondary stream
@@ -273,6 +285,7 @@ namespace edm
 
   void DataMixingModule::initializeEvent(const edm::Event &e, const edm::EventSetup& ES) { 
 
+<<<<<<< HEAD
     if( addMCDigiNoise_ ) {
       if(MergeTrackerDigis_){
 	SiStripMCDigiWorker_->initializeEvent( e, ES );
@@ -285,6 +298,17 @@ namespace edm
     }
     if( addMCDigiNoise_ && MergeHcalDigisProd_) {
       HcalDigiWorkerProd_->initializeEvent( e, ES );
+=======
+    if(MergeTrackerDigis_){
+      if( addMCDigiNoise_ ) {
+	SiStripMCDigiWorker_->initializeEvent( e, ES );
+	SiPixelMCDigiWorker_->initializeEvent( e, ES );
+	EcalDigiWorkerProd_->initializeEvent( e, ES );
+      }
+      if( addMCDigiNoise_ && MergeHcalDigisProd_) {
+	HcalDigiWorkerProd_->initializeEvent( e, ES );
+      }
+>>>>>>> restructure fastsim cfg ala fullsim, first premix trail
     }
   }
   
@@ -367,8 +391,12 @@ namespace edm
       if(addMCDigiNoise_ ) SiPixelMCDigiWorker_->addSiPixelSignals(e);
       else SiPixelWorker_->addSiPixelSignals(e);
     }else{
+<<<<<<< HEAD
       //GeneralTrackWorker_->addGeneralTrackSignal(e);
       GeneralTrackWorker_->accumulate(e,ES);
+=======
+      GeneralTrackWorker_->addGeneralTrackSignals(e);
+>>>>>>> restructure fastsim cfg ala fullsim, first premix trail
     }
     AddedPileup_ = false;
 
@@ -434,8 +462,12 @@ namespace edm
       if(addMCDigiNoise_ ) SiPixelMCDigiWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
       else SiPixelWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
     }else{
+<<<<<<< HEAD
       PileUpEventPrincipal pep(ep,&moduleCallingContext,bcr);
       GeneralTrackWorker_->accumulate(pep, ES,ep.streamID());
+=======
+      GeneralTrackWorker_->addGeneralTrackPileups(bcr, &ep, eventNr, &moduleCallingContext);
+>>>>>>> restructure fastsim cfg ala fullsim, first premix trail
     }
     
     
@@ -537,7 +569,11 @@ namespace edm
       if(addMCDigiNoise_ ) SiPixelMCDigiWorker_->putSiPixel(e, ES, ps, bunchSpacing); 
       else SiPixelWorker_->putSiPixel(e);
     }else{
+<<<<<<< HEAD
       GeneralTrackWorker_->finalizeEvent(e,ES);
+=======
+       GeneralTrackWorker_->putGeneralTrack(e);
+>>>>>>> restructure fastsim cfg ala fullsim, first premix trail
     }
 
 
