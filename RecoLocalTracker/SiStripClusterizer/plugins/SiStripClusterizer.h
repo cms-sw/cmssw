@@ -22,6 +22,13 @@ private:
   template<class T> bool findInput(const edm::EDGetTokenT<T>&, edm::Handle<T>&, const edm::Event&);
   const std::vector<edm::InputTag> inputTags;
   std::auto_ptr<StripClusterizerAlgorithm> algorithm;
+
+  //  Functions to be overridden for studies.  May alter or replace a cluster
+  //  before it is inserted into the event.
+  virtual void refiner_iniEvent(edm::Event&, const edm::EventSetup&) {};
+  virtual void refineCluster(const edm::Handle< edm::DetSetVector<SiStripDigi> >& input,
+			     std::auto_ptr< edmNew::DetSetVector<SiStripCluster> >& output) {};
+
   typedef edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> > token_t;
   typedef std::vector<token_t> token_v;
   token_v inputTokens;

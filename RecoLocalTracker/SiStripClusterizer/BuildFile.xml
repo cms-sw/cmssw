@@ -9,6 +9,7 @@
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
 <use   name="EventFilter/SiStripRawToDigi"/>
+<use   name="SimTracker/TrackerHitAssociation"/>
 <export>
   <lib name="1"/>
 </export>
