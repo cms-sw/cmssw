@@ -201,6 +201,18 @@ class MonitorEnsemble {
   edm::EDConsumerBase tmpConsumerBase;
 
   std::string directory_;
+
+  StringCutObjectSelector<reco::PFCandidate, true> *muonSelect;
+  StringCutObjectSelector<reco::PFCandidate, true> *muonIso;
+  
+  StringCutObjectSelector<reco::CaloJet> *jetSelectCalo;
+  StringCutObjectSelector<reco::PFJet> *jetSelectPF;
+  StringCutObjectSelector<reco::Jet> *jetSelectJet;
+  
+  StringCutObjectSelector<reco::PFCandidate, true> *elecSelect;
+  StringCutObjectSelector<reco::PFCandidate, true> *elecIso;
+
+
 };
 
 inline void MonitorEnsemble::triggerBinLabels(
