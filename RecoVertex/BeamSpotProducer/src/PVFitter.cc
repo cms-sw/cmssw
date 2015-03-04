@@ -203,7 +203,6 @@ void PVFitter::setTree(TTree* tree){
 bool PVFitter::runBXFitter() {
 
   using namespace ROOT::Minuit2;
-
   edm::LogInfo("PVFitter") << " Number of bunch crossings: " << bxMap_.size() << std::endl;
 
   bool fit_ok = true;
