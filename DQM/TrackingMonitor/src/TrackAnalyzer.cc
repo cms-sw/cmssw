@@ -38,6 +38,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
     , doLumiAnalysis_                  ( conf_.getParameter<bool>("doLumiAnalysis") )
     , doTestPlots_                     ( conf_.getParameter<bool>("doTestPlots") )
     , doHIPlots_                       ( conf_.getParameter<bool>("doHIPlots")  )
+    , qualityString_                   ( conf_.getParameter<std::string>("qualityString"))
 {
   initHistos();
   TopFolder_ = conf_.getParameter<std::string>("FolderName"); 
@@ -111,7 +112,11 @@ void TrackAnalyzer::initHistos()
   ////////////////////////////////////////////////////////////                                                                                                                                             
   LongDCASig = NULL;
   TransDCASig = NULL;
-
+  dNdPhi_HighPurity = NULL;
+  dNdEta_HighPurity = NULL;
+  dNdPt_HighPurity = NULL;
+  NhitVsEta_HighPurity = NULL;
+  NhitVsPhi_HighPurity = NULL;
 
 
 }
@@ -308,6 +313,28 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
           histname = "TransDCASig_";
           TransDCASig = ibooker.book1D(histname+CategoryName,histname+CategoryName,TransDCABins,TransDCAMin,TransDCAMax);
           TransDCASig->setAxisTitle("dxy/#sigma_{dxy}",1);
+
+	  histname = "dNdPhi_HighPurity_";
+	  dNdPhi_HighPurity = ibooker.book1D(histname+CategoryName,histname+CategoryName,PhiBin,PhiMin,PhiMax);
+	  dNdPhi_HighPurity->setAxisTitle("#phi",1);
+
+	  histname = "dNdEta_HighPurity_";
+          dNdEta_HighPurity = ibooker.book1D(histname+CategoryName,histname+CategoryName,EtaBin,EtaMin,EtaMax);
+          dNdEta_HighPurity->setAxisTitle("#eta",1);
+
+          histname = "dNdPt_HighPurity_";
+          dNdPt_HighPurity = ibooker.book1D(histname+CategoryName,histname+CategoryName,150,0,0.3);
+          dNdPt_HighPurity->setAxisTitle("#sigma_{p_{T}}/p_{T}",1);
+
+	  histname = "NhitVsEta_HighPurity_";
+	  NhitVsEta_HighPurity = ibooker.bookProfile(histname+CategoryName,histname+CategoryName,EtaBin,EtaMin,EtaMax,-0.5,39.5,"");
+	  NhitVsEta_HighPurity->setAxisTitle("Track #eta",1);
+	  NhitVsEta_HighPurity->setAxisTitle("Number of Valid RecHits in each Track",2);
+
+          histname = "NhitVsPhi_HighPurity_";
+          NhitVsPhi_HighPurity = ibooker.bookProfile(histname+CategoryName,histname+CategoryName,PhiBin,PhiMin,PhiMax,-0.5,39.5,"");
+          NhitVsPhi_HighPurity->setAxisTitle("Track #phi",1);
+          NhitVsPhi_HighPurity->setAxisTitle("Number of Valid RecHits in each Track",2);
         }
 
 
@@ -699,6 +726,14 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
            if(xyerr2 > 0) transDCAsig = track.dxy(pv.position())/xyerr2;	   
 	   LongDCASig->Fill(longDCAsig);
 	   TransDCASig->Fill(transDCAsig);
+	   if(track.quality(reco::TrackBase::qualityByName(qualityString_)) ==1)
+	     {
+	       dNdEta_HighPurity->Fill(track.eta());
+	       dNdPhi_HighPurity->Fill(track.phi());
+	       dNdPt_HighPurity->Fill(track.ptError()/track.pt());
+	       NhitVsEta_HighPurity->Fill(track.eta(),track.numberOfValidHits());
+	       NhitVsPhi_HighPurity->Fill(track.phi(),track.numberOfValidHits());
+	     }//end of high quality tracks requirement
         }
 
 
