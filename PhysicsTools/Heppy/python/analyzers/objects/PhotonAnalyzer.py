@@ -105,7 +105,7 @@ class PhotonAnalyzer( Analyzer ):
         event.genPhotons = [ x for x in event.genParticles if x.status() == 1 and abs(x.pdgId()) == 22 ]
         event.genPhotonsWithMom = [ x for x in event.genPhotons if x.numberOfMothers()>0 ]
         event.genPhotonsWithoutMom = [ x for x in event.genPhotons if x.numberOfMothers()==0 ]
-        event.genPhotonsMatched = [ x for x in event.genPhotonsWithMom if abs(x.mother(0).pdgId())<23 ]
+        event.genPhotonsMatched = [ x for x in event.genPhotonsWithMom if abs(x.mother(0).pdgId())<23 or x.mother(0).pdgId()==2212 ]
         match = matchObjectCollection3(event.allphotons, event.genPhotonsMatched, deltaRMax = 0.1)
         matchNoMom = matchObjectCollection3(event.allphotons, event.genPhotonsWithoutMom, deltaRMax = 0.1)
         packedGenParts = [ p for p in self.mchandles['packedGen'].product() if abs(p.eta()) < 3.1 ]
