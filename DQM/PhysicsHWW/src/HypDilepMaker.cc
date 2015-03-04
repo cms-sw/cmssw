@@ -48,27 +48,27 @@ void HypDilepMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Event
   double hypJetMinPtCut = 30.0;
 
   // muon charge
-  vector<int> mus_charge = hww.mus_charge(); 
+  const vector<int> &mus_charge = hww.mus_charge(); 
 
   //muon p4
-  vector<LorentzVector> mus_p4 = hww.mus_p4();
+  const vector<LorentzVector> &mus_p4 = hww.mus_p4();
 
   //muon type
-  vector<int> mus_type =  hww.mus_type();
+  const vector<int> &mus_type =  hww.mus_type();
 
   //-----------------------------------------------------------
   // electron variables
   //-----------------------------------------------------------
-  vector<int> els_charge =hww.els_charge();
+  const vector<int> &els_charge =hww.els_charge();
 
   // electron p4
-  vector<LorentzVector> els_p4 = hww.els_p4();
+  const vector<LorentzVector> &els_p4 = hww.els_p4();
 
   unsigned int nmus = mus_p4.size();
   unsigned int nels = els_p4.size();
 
 
-  vector<LorentzVector> jets_p4 = hww.pfjets_p4();
+  const vector<LorentzVector> &jets_p4 = hww.pfjets_p4();
 
   //------------------------------------------------------------
   // loop over the muons
