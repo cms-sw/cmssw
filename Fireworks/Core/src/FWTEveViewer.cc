@@ -82,7 +82,10 @@ FWTEveViewer::~FWTEveViewer()
 
 void FWTEveViewer::spawn_image_thread()
 {
+   std::unique_lock<std::mutex> lko(m_moo);
+   
    m_thr = new std::thread([=]() {
+         { std::unique_lock<std::mutex> lk(m_moo); m_cnd.notify_one(); }
          while (true)
          {
             {
@@ -106,6 +109,8 @@ void FWTEveViewer::spawn_image_thread()
             m_prom.set_value(0);
          }
       });
+
+   m_cnd.wait(lko);
 }
 
 //------------------------------------------------------------------------------
@@ -168,6 +173,8 @@ FWTEveViewer::CaptureAndSaveImage(const TString& file, int height)
 
    glPixelStorei(GL_PACK_ALIGNMENT, 1);
    glReadPixels(0, 0, ww, hh, GL_RGB, GL_UNSIGNED_BYTE, &m_imgBuffer[0]);
+
+   if (m_thr == 0) spawn_image_thread();
 
    {
       std::unique_lock<std::mutex> lk(m_moo);
