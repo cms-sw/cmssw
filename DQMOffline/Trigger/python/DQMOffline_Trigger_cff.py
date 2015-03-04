@@ -50,6 +50,8 @@ from DQMOffline.Trigger.JetMETHLTOfflineAnalyzer_cff import *
 
 from DQMOffline.Trigger.FSQHLTOfflineSource_cfi import *
 
+from DQMOffline.Trigger.HILowLumiHLTOfflineSource_cfi import *
+
 # TnP
 #from DQMOffline.Trigger.TnPEfficiency_cff import *
 # Inclusive VBF
@@ -62,7 +64,7 @@ from DQMOffline.Trigger.TrackingMonitoring_cff import *
 from DQMOffline.Trigger.SiStrip_OfflineMonitoring_cff import *
 
 # photon jet
-from DQMOffline.Trigger.HigPhotonJetHLTOfflineSource_cfi import * 
+from DQMOffline.Trigger.HigPhotonJetHLTOfflineSource_cfi import *
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
@@ -79,6 +81,7 @@ offlineHLTSource = cms.Sequence(
     #jetMETHLTOfflineSource *
     jetMETHLTOfflineAnalyzer *
     fsqHLTOfflineSourceSequence *
+    HILowLumiHLTOfflineSourceSequence *
     #TnPEfficiency *
     hltInclusiveVBFSource *
     trackingMonitorHLT *
@@ -89,4 +92,3 @@ offlineHLTSource = cms.Sequence(
 
 #triggerOfflineDQMSource =  cms.Sequence(onlineHLTSource*offlineHLTSource)
 triggerOfflineDQMSource =  cms.Sequence(offlineHLTSource)
- 
