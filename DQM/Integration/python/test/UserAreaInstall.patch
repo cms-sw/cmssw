@@ -1,0 +1,59 @@
+diff --git a/DQM/Integration/python/test/environment_cfi.py b/DQM/Integration/python/test/environment_cfi.py
+index 1de213d..86d7bda 100644
+--- a/DQM/Integration/python/test/environment_cfi.py
++++ b/DQM/Integration/python/test/environment_cfi.py
+@@ -6,8 +6,8 @@ from DQMServices.Core.DQMStore_cfi import *
+ DQM = cms.Service("DQM",                                                                                                                                                                           
+                   debug = cms.untracked.bool(False),
+                   publishFrequency = cms.untracked.double(5.0),
+-                  collectorPort = cms.untracked.int32(9090),
+-                  collectorHost = cms.untracked.string('dqm-prod-local.cms'),
++                  collectorPort = cms.untracked.int32(9190),
++                  collectorHost = cms.untracked.string('dqm-c2d07-29.cms'),
+                   filter = cms.untracked.string('')
+                   )
+ 
+@@ -18,7 +18,7 @@ from DQMServices.Components.DQMEnvironment_cfi import *
+ dqmSaver.convention = 'Online'
+ dqmSaver.referenceHandling = 'all'
+ dqmSaver.dirName = '.'
+-dqmSaver.producer = 'DQM'
++dqmSaver.producer = 'Playback'
+ dqmSaver.saveByLumiSection = 10
+ dqmSaver.saveByRun = 1
+ dqmSaver.saveAtJobEnd = False
+diff --git a/DQM/Integration/python/test/inputsource_cfi.py b/DQM/Integration/python/test/inputsource_cfi.py
+index 1ece7b3..32d1fe2 100644
+--- a/DQM/Integration/python/test/inputsource_cfi.py
++++ b/DQM/Integration/python/test/inputsource_cfi.py
+@@ -7,13 +7,13 @@ from dqmPythonTypes import *
+ options = VarParsing.VarParsing('analysis')
+ 
+ options.register('runNumber',
+-                 111,
++                 SetRunNumByHand,
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.int,
+                  "Run number.")
+ 
+ options.register('runInputDir',
+-                 '/tmp',
++                 '/fff/BU0/output',
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "Directory where the DQM files will appear.")
+@@ -56,11 +56,11 @@ source = cms.Source("DQMStreamerReader",
+     runInputDir = cms.untracked.string(options.runInputDir),
+     SelectEvents = cms.untracked.vstring('*'),
+     streamLabel = cms.untracked.string('streamDQM'),
+-    minEventsPerLumi = cms.untracked.int32(1),
++    minEventsPerLumi = cms.untracked.int32(-1),
+     delayMillis = cms.untracked.uint32(500),
+-    nextLumiTimeoutMillis = cms.untracked.int32(30000),
++    nextLumiTimeoutMillis = cms.untracked.int32(3000),
+     skipFirstLumis = cms.untracked.bool(options.skipFirstLumis),
+     deleteDatFiles = cms.untracked.bool(False),
+-    endOfRunKills  = cms.untracked.bool(True),
++    endOfRunKills  = cms.untracked.bool(False),
+ )
+ 
