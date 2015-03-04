@@ -1,0 +1,15 @@
+diff --git a/DQM/Integration/python/test/environment_cfi.py b/DQM/Integration/python/test/environment_cfi.py
+index ee5461f..1de213d 100644
+--- a/DQM/Integration/python/test/environment_cfi.py
++++ b/DQM/Integration/python/test/environment_cfi.py
+@@ -6,8 +6,8 @@ from DQMServices.Core.DQMStore_cfi import *
+ DQM = cms.Service("DQM",                                                                                                                                                                           
+                   debug = cms.untracked.bool(False),
+                   publishFrequency = cms.untracked.double(5.0),
+-                  collectorPort = cms.untracked.int32(9190),
+-                  collectorHost = cms.untracked.string('dqm-c2d07-29.cms'),
++                  collectorPort = cms.untracked.int32(9090),
++                  collectorHost = cms.untracked.string('dqm-prod-local.cms'),
+                   filter = cms.untracked.string('')
+                   )
+ 
