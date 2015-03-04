@@ -83,7 +83,7 @@ private:
     static bool filter() { return false;}   /// always fast as no estimator available here! 
     size_t size() const { return target_.size();}
 
-    static const MeasurementEstimator  & estimator() { static MeasurementEstimator * dummy=0; return *dummy;}
+    static const MeasurementEstimator  & estimator() { static const MeasurementEstimator * dummy=0; return *dummy;}
 
   private: 
     const GeomDet              * geomDet_;

@@ -45,7 +45,7 @@ using namespace reco;
 
        private:
 	 /// MVA discriminator
-	 GBRForest* forest_;
+	 const GBRForest* forest_;
 
 	 /// MVA input variables
 	 float tmva_ddsz_;
@@ -104,7 +104,7 @@ using namespace reco;
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "TFile.h"
 
-DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : merger_(iPara)
+DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : forest_(nullptr), gbrVals_(nullptr), merger_(iPara)
 {
   forestLabel_ = "MVADuplicate";
   useForestFromDB_ = true;
@@ -134,7 +134,6 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : mer
   produces<std::vector<TrackCandidate> >("candidates");
   produces<CandidateToDuplicate>("candidateMap");
 
-  forest_ = 0;
   gbrVals_ = new float[9];
   dbFileName_ = "";
   if(iPara.exists("GBRForestLabel"))forestLabel_ = iPara.getParameter<std::string>("GBRForestLabel");
@@ -177,10 +176,10 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
     if(useForestFromDB_){
       edm::ESHandle<GBRForest> forestHandle;
       iSetup.get<GBRWrapperRcd>().get(forestLabel_,forestHandle);
-      forest_ = (GBRForest*)forestHandle.product();
+      forest_ = forestHandle.product();
     }else{
       TFile gbrfile(dbFileName_.c_str());
-      forest_ = (GBRForest*)gbrfile.Get(forestLabel_.c_str());
+      forest_ = dynamic_cast<const GBRForest*>(gbrfile.Get(forestLabel_.c_str()));
     }
   }
 
