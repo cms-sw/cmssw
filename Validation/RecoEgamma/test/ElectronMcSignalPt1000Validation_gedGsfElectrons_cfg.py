@@ -45,11 +45,10 @@ outputCommands = cms.untracked.vstring('drop *',"keep *_MEtoEDMConverter_*_*"),
 fileName = cms.untracked.string(os.environ['TEST_HISTOS_FILE'].replace(".root", "_a.root"))
 )
 
-process.electronMcSignalValidator.InputFolderName = cms.string("EgammaV/ElectronMcSignalValidator")
-process.electronMcSignalValidator.OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidator")
+process.electronMcSignalValidatorPt1000.InputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorPt1000")
+process.electronMcSignalValidatorPt1000.OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorPt1000")
 
-#process.p = cms.Path(process.electronIsoFromDeps * process.electronMcSignalValidator * process.MEtoEDMConverter * process.dqmStoreStats)
-process.p = cms.Path(process.electronMcSignalValidator * process.MEtoEDMConverter * process.dqmStoreStats)
+process.p = cms.Path(process.electronMcSignalValidatorPt1000 * process.MEtoEDMConverter * process.dqmStoreStats)
 
 process.outpath = cms.EndPath(
 process.EDM,
