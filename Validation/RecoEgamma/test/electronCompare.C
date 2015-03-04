@@ -110,12 +110,14 @@ int electronCompare()
 
 //-----
 // AC
-  std::cout << "red_file : C : " << CMP_RED_FILE << std::endl;
-  std::cout << "blue_file : C : " << CMP_BLUE_FILE << std::endl;
+//  std::cout << "red_file : C : " << CMP_RED_FILE << std::endl;
+//  std::cout << "blue_file : C : " << CMP_BLUE_FILE << std::endl;
+  CMP_SAMPLE = "ValFullPt1000Startup_UP15_gedGsfE";
   std::cout << "red_release : C : " << CMP_RED_RELEASE << std::endl;
   std::cout << "blue_release : C : " << CMP_BLUE_RELEASE << std::endl;
-  std::cout << "CMP_RED_NAME : " << CMP_RED_NAME << std::endl;
-  std::cout << "CMP_BLUE_NAME : " << CMP_BLUE_NAME << std::endl;
+  std::cout << " -- CMP_RED_NAME : " << CMP_RED_NAME << std::endl;
+  std::cout << " -- CMP_BLUE_NAME : " << CMP_BLUE_NAME << std::endl;
+  std::cout << "SAMPLE : " << CMP_SAMPLE << std::endl;
 //-----
   
 // style:
@@ -283,8 +285,7 @@ int electronCompare()
 
   // canvas_name std::string => TString
   TString canvas_name, histo_name, histo_full_path, gif_name, gif_path ;
-  TString Pt1000_path_extension ; Pt1000_path_extension = "ElectronMcSignalValidator/" ; // needed for comparison between new >= 740pre8 and old < 740pre8 for Pt1000
-  TString histo_full_path_Pt1000 ;
+  TString toto ; toto = "ElectronMcSignalValidator/" ; // needed for comparison between new >= 740pre8 and old < 740pre8 for Pt1000
   TString short_histo_name ;
   TString first_short_histo_name, first_histo_name ;
   TString dl_short_histo_name, dl_histo_name ;
@@ -430,14 +431,9 @@ int electronCompare()
        { histo_full_path = histo_name ; /*std::cout << "file_ref_dir.IsNull()" << std::endl ;*/ }
       else
        { histo_full_path = file_ref_dir ; histo_full_path += histo_path.c_str() ; /*std::cout << "file_ref_dir.NotNull()" << std::endl ;*/ }
-   // WARNING
-   // the line below have to be unmasked if the reference release is prior to 740pre8 and for Pt1000
-   // before 740pre8 : DQMData/Run 1/EgammaV/Run summary/ ElectronMcSignalValidator/ histo name (same as Pt35, Pt10, ....)
-   // after 740pre8  : DQMData/Run 1/EgammaV/Run summary/ ElectronMcSignalValidatorPt1000/ histo name
-      histo_full_path_Pt1000 = file_ref_dir ; histo_full_path_Pt1000 += Pt1000_path_extension; histo_full_path_Pt1000 += histo_name ; // for Pt1000 
-   // END WARNING
+      histo_full_path = file_ref_dir ; histo_full_path += toto; histo_full_path += histo_name ; // for Pt1000 to be removed !!!!!
 //      std::cout << "histo_full_path ref : " << histo_full_path << std::endl ;
-
+      //histo_ref2 = (TH1 *)file_ref->Get(histo_full_path) ;
       histo_ref = (TH1 *)file_ref->Get(histo_full_path) ;
       if (histo_ref!=0)
        {
@@ -445,20 +441,10 @@ int electronCompare()
         // have the same names as the ones loaded from the new file
         histo_ref->SetName(TString(histo_ref->GetName())+"_ref") ;
 //        std::cout << "histo_ref Name : " << histo_ref->GetName() << " - histo_new Name : " << histo_name << std::endl ; // A.C. to be removed
-      }
-      else // no histo
-      {
-            histo_ref = (TH1 *)file_ref->Get(histo_full_path_Pt1000) ;
-            if (histo_ref!=0)
-            {
-                // renaming those histograms avoid very strange bugs because they
-                // have the same names as the ones loaded from the new file
-                histo_ref->SetName(TString(histo_ref->GetName())+"_ref") ;
-            }
-            else 
-            {
-                web_page<<"No <b>"<<histo_path<<"</b> for "<<CMP_BLUE_NAME<<".<br>" ;
-            }
+  }
+      else
+       {
+        web_page<<"No <b>"<<histo_path<<"</b> for "<<CMP_BLUE_NAME<<".<br>" ;
        }
      }
 
