@@ -5,14 +5,6 @@ process = cms.Process("TrackerParametersTest")
 process.load('Configuration.Geometry.GeometryExtended_cff')
 process.load('Configuration.Geometry.GeometryExtendedReco_cff')
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-process.PoolDBESSourceGeometry = cms.ESSource("PoolDBESSource",
-                               process.CondDBSetup,
-                               timetype = cms.string('runnumber'),
-                               toGet = cms.VPSet(cms.PSet(record = cms.string('PTrackerParametersRcd'),tag = cms.string('TK_Parameters_Test02'))
-                                                 ),
-                                              connect = cms.string('sqlite_file:./myfile.db'))
-
 process.trackerGeometry.applyAlignment = cms.bool(False)
 
 process.source = cms.Source("EmptySource")
