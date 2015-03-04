@@ -119,9 +119,9 @@ namespace edm {
 
       // Tracks
       std::string GeneralTrackCollectionDM_;
-      // FastSimulation or not?
+      // merge tracker digis or tracks?
 
-      bool DoFastSim_;
+      bool MergeTrackerDigis_;
 
       // Submodules to handle the individual detectors
 
