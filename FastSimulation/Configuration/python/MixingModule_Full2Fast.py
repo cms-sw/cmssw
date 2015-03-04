@@ -79,9 +79,6 @@ def prepareGenMixing(process):
     # prepare digitizers and mixObjects for Gen-mixing
     process = prepareDigiRecoMixing(process)
 
-    # for reasons of simplicity track mixing is not switched off,
-    # although it has no effect in case of Gen-mixing
-
     # OOT PU not supported for Gen-mixing: disable it
     process.mix.maxBunch = cms.int32(0)
     process.mix.minBunch = cms.int32(0)
@@ -137,35 +134,32 @@ def prepareGenMixing(process):
 def prepareDigiRecoMixing(process):
 
     # switch to FastSim digitizers
-    if hasattr(process,"theDigitizersValid"):
-        del process.theDigitizersValid
-    from FastSimulation.Configuration.digitizers_cfi import theDigitizersValid
-    process.mix.digitizers = theDigitizersValid
+    import FastSimulation.Configuration.digitizers_cfi
+    process.mix.digitizers = FastSimulation.Configuration.digitizers_cfi.digitizersFull2Fast(process.mix.digitizers)
 
     # switch to FastSim mixObjects
-    if hasattr(process,"theMixObjects"):
-        del process.theMixObjects
-    from FastSimulation.Configuration.mixObjects_cfi import theMixObjects
-    process.mix.mixObjects = theMixObjects
+    import FastSimulation.Configuration.mixObjects_cfi
+    process.mix.mixObjects = FastSimulation.Configuration.mixObjects_cfi.theMixObjects
 
-    # get rid of FullSim specific EDAliases for collections from MixingModule
-    del process.simCastorDigis
-    del process.simSiPixelDigis
-    del process.simSiStripDigis
+    # fastsim does not simulate castor
+    # fastsim does not digitize pixel and strip hits
+    for element in ["simCastorDigis","simSiPixelDigis","simSiStripDigis"]:
+        if hasattr(process,element):
+            delattr(process,element)
     
     # import the FastSim specific EDAliases for collections from MixingModule
-    from FastSimulation.Configuration.digitizers_cfi import generalTracks
-    process.generalTracks = generalTracks
+    process.generalTracks = FastSimulation.Configuration.digitizers_cfi.generalTracks
 
     # get rid of some FullSim specific psets that work confusing when dumping FastSim cfgs 
     # (this is optional)
+    del process.theDigitizers
+    del process.theDigitizersValid    
     del process.trackingParticles
     del process.stripDigitizer
     del process.SiStripSimBlock
     del process.castorDigitizer
     del process.pixelDigitizer
     del process.ecalDigitizer
-    
     
     # get rid of FullSim specific services that work confusing when dumping FastSim cfgs
     # (this is optional)
