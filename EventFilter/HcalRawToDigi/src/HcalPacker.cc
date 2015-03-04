@@ -37,16 +37,18 @@ static unsigned char processTrig(const HcalTrigPrimDigiCollection* pt, const Hca
   if (pt==0) { return 0; }
   int size=0;
   HcalTrigPrimDigiCollection::const_iterator i=pt->find(tid);
+  bool any_nonzero=false;
   if (i!=pt->end()) {
     int presamples=i->presamples();
     size=i->size();
 
     for (int j=0; j<size; j++) {
        buffer[j]=(*i)[j].raw();
+       if ((buffer[j]&0x1FF)!=0) any_nonzero=true;
        if (j==presamples) { buffer[j]|=0x0200; }
     }
   }
-  return size;
+  return (any_nonzero)?(size):(0);
 }
 
 int HcalPacker::findSamples(const DetId& did, const Collections& inputs,
@@ -94,7 +96,7 @@ void HcalPacker::pack(int fedid, int dccnumber,
   for (int spigot=0; spigot<15; spigot++) {
     spigots[spigot].allocate(HTRFormatVersion);
     HcalElectronicsId exampleEId;
-    int npresent=0;
+    int npresent=0, npresenttp=0;
     int presamples=-1, samples=-1;
     bool haveUnsuppressed=false;
     for (int fiber=1; fiber<=8; fiber++) {
@@ -135,7 +137,7 @@ void HcalPacker::pack(int fedid, int dccnumber,
 	  }
 	  for (int ii=0; ii<samples; ii++) {
 	    database[ii]=(database[ii]&0x7FF)|chanid;
-      }
+	  }
 	  preclen[linear]=(unsigned char)(samples);
 	  npresent++;
 	}	
@@ -166,6 +168,7 @@ void HcalPacker::pack(int fedid, int dccnumber,
 	  triglen[linear]=processTrig(inputs.tpCont,tid,trigbase);
       if (triglen[linear]) {
         npresent++;
+	npresenttp++;
       }
 	  
 	  for (unsigned char q=0; q<triglen[linear]; q++) {
