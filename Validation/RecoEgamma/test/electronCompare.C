@@ -108,8 +108,12 @@ int electronCompare()
 // AC
 //  std::cout << "red_file : C : " << CMP_RED_FILE << std::endl;
 //  std::cout << "blue_file : C : " << CMP_BLUE_FILE << std::endl;
+  CMP_SAMPLE = "ValFullPt1000Startup_UP15_gedGsfE";
   std::cout << "red_release : C : " << CMP_RED_RELEASE << std::endl;
   std::cout << "blue_release : C : " << CMP_BLUE_RELEASE << std::endl;
+  std::cout << " -- CMP_RED_NAME : " << CMP_RED_NAME << std::endl;
+  std::cout << " -- CMP_BLUE_NAME : " << CMP_BLUE_NAME << std::endl;
+  std::cout << "SAMPLE : " << CMP_SAMPLE << std::endl;
 //-----
   
 // style:
@@ -276,6 +280,7 @@ int electronCompare()
 
   // canvas_name std::string => TString
   TString canvas_name, histo_name, histo_full_path, gif_name, gif_path ;
+  TString toto ; toto = "ElectronMcSignalValidator/" ; // needed for comparison between new >= 740pre8 and old < 740pre8 for Pt1000
   TString short_histo_name ;
   TString first_short_histo_name, first_histo_name ;
   TString dl_short_histo_name, dl_histo_name ;
@@ -415,17 +420,14 @@ int electronCompare()
     // search histo_ref
     if ( file_ref != 0 )
      {
-//      std::cout << "\n histo_full_path : " << histo_full_path << std::endl ;
-//      std::cout << "file_ref_dir : " << file_ref_dir << std::endl ;
       if (file_ref_dir.IsNull())
        { histo_full_path = histo_name ; /*std::cout << "file_ref_dir.IsNull()" << std::endl ;*/ }
       else
        { histo_full_path = file_ref_dir ; histo_full_path += histo_path.c_str() ; /*std::cout << "file_ref_dir.NotNull()" << std::endl ;*/ }
-      //std::cout << "histo_full_path : " << histo_full_path << std::endl ;
+      histo_full_path = file_ref_dir ; histo_full_path += toto; histo_full_path += histo_name ; // for Pt1000 to be removed !!!!!
+//      std::cout << "histo_full_path ref : " << histo_full_path << std::endl ;
       //histo_ref2 = (TH1 *)file_ref->Get(histo_full_path) ;
       histo_ref = (TH1 *)file_ref->Get(histo_full_path) ;
-//      std::cout << "histo_ref Name : " << histo_ref->GetName() << std::endl ; // A.C. to be removed
-//      std::cout<<histo_ref->GetName()<<" has "<<histo_ref->GetName()->GetEffectiveEntries()<<" entries"
       if (histo_ref!=0)
        {
         // renaming those histograms avoid very strange bugs because they
@@ -436,7 +438,6 @@ int electronCompare()
       else
        {
         web_page<<"No <b>"<<histo_path<<"</b> for "<<CMP_BLUE_NAME<<".<br>" ;
-//        std::cout<<"No "<<histo_path<<" for "<<CMP_BLUE_NAME<<std::endl ;
        }
      }
 
@@ -444,6 +445,8 @@ int electronCompare()
     histo_full_path = file_new_dir ; histo_full_path += histo_path.c_str() ;
     histo_new = (TH1 *)file_new->Get(histo_full_path) ;
 //    std::cout << "histo_new Name : " << histo_new->GetName() << std::endl ; // A.C. to be removed
+//    std::cout << "histo_full_path new : " << histo_full_path << std::endl ;
+//    std::cout << "histo_path.cstr new : " << histo_path.c_str() << std::endl ;
 
     // special treatments
     if ((scaled==1)&&(histo_new!=0)&&(histo_ref!=0)&&(histo_ref->GetEntries()!=0))
