@@ -23,6 +23,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+namespace edm {
+  class HepMCProduct;
+}
 
 class PythiaFilterZJetWithOutBg : public edm::EDFilter {
    public:
@@ -33,7 +36,7 @@ class PythiaFilterZJetWithOutBg : public edm::EDFilter {
 
    private:
       
-       std::string label_;
+       edm::EDGetTokenT<edm::HepMCProduct> token_;
        double etaMuMax;
        double ptMuMin;
        double ptZMin;

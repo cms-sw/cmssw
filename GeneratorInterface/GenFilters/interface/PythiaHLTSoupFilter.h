@@ -35,6 +35,9 @@
 //
 // class decleration
 //
+namespace edm {
+  class HepMCProduct;
+}
 
 class PythiaHLTSoupFilter : public edm::EDFilter {
    public:
@@ -46,7 +49,7 @@ class PythiaHLTSoupFilter : public edm::EDFilter {
    private:
       // ----------member data ---------------------------
       
-       std::string label_;
+       edm::EDGetTokenT<edm::HepMCProduct> token_;
        
        double minptelectron;
        double minptmuon;

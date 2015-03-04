@@ -23,8 +23,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+namespace edm {
+  class HepMCProduct;
+}
 
-//class PythiaFilterGammaJetIsoPi0 : public edm::EDFilter {
 class PythiaFilterGammaJetIsoPi0 : public edm::EDFilter {
    public:
       explicit PythiaFilterGammaJetIsoPi0(const edm::ParameterSet&);
@@ -34,7 +36,7 @@ class PythiaFilterGammaJetIsoPi0 : public edm::EDFilter {
 
    private:
       
-       std::string label_;
+       edm::EDGetTokenT<edm::HepMCProduct> token_;
        double etaMin;
        double PtMin;
        double etaMax;
