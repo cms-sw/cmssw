@@ -79,6 +79,7 @@ namespace pat {
     /// function, which should be non accessible to any other user
     friend class PATJetProducer;
     friend class PATJetSlimmer;
+    friend class PATJetUpdater;
 
     public:
 
