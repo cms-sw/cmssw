@@ -2,7 +2,7 @@
 <use   name="DataFormats/GeometryVector"/>
 <use   name="clhep"/>
 <use   name="geant4core"/>
-<use   name="rootrflx"/>
+
 <use   name="expat"/>
 <export>
   <lib   name="1"/>
