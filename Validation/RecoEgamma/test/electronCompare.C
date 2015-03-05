@@ -285,7 +285,8 @@ int electronCompare()
 
   // canvas_name std::string => TString
   TString canvas_name, histo_name, histo_full_path, gif_name, gif_path ;
-  TString toto ; toto = "ElectronMcSignalValidator/" ; // needed for comparison between new >= 740pre8 and old < 740pre8 for Pt1000
+  TString Pt1000_path_extension ; Pt1000_path_extension = "ElectronMcSignalValidator/" ; // needed for comparison between new >= 740pre8 and old < 740pre8 for Pt1000
+  TString histo_full_path_Pt1000 ;
   TString short_histo_name ;
   TString first_short_histo_name, first_histo_name ;
   TString dl_short_histo_name, dl_histo_name ;
@@ -435,7 +436,7 @@ int electronCompare()
    // the line below have to be unmasked if the reference release is prior to 740pre8 and for Pt1000
    // before 740pre8 : DQMData/Run 1/EgammaV/Run summary/ ElectronMcSignalValidator/ histo name (same as Pt35, Pt10, ....)
    // after 740pre8  : DQMData/Run 1/EgammaV/Run summary/ ElectronMcSignalValidatorPt1000/ histo name
-      histo_full_path = file_ref_dir ; histo_full_path += toto; histo_full_path += histo_name ; // for Pt1000 
+      histo_full_path_Pt1000 = file_ref_dir ; histo_full_path_Pt1000 += Pt1000_path_extension; histo_full_path_Pt1000 += histo_name ; // for Pt1000 
    // END WARNING
 //      std::cout << "histo_full_path ref : " << histo_full_path << std::endl ;
 
@@ -446,10 +447,20 @@ int electronCompare()
         // have the same names as the ones loaded from the new file
         histo_ref->SetName(TString(histo_ref->GetName())+"_ref") ;
 //        std::cout << "histo_ref Name : " << histo_ref->GetName() << " - histo_new Name : " << histo_name << std::endl ; // A.C. to be removed
-  }
-      else
-       {
-        web_page<<"No <b>"<<histo_path<<"</b> for "<<CMP_BLUE_NAME<<".<br>" ;
+      }
+      else // no histo
+      {
+            histo_ref = (TH1 *)file_ref->Get(histo_full_path_Pt1000) ;
+            if (histo_ref!=0)
+            {
+                // renaming those histograms avoid very strange bugs because they
+                // have the same names as the ones loaded from the new file
+                histo_ref->SetName(TString(histo_ref->GetName())+"_ref") ;
+            }
+            else 
+            {
+                web_page<<"No <b>"<<histo_path<<"</b> for "<<CMP_BLUE_NAME<<".<br>" ;
+            }
        }
      }
 
