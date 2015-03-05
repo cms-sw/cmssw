@@ -108,7 +108,6 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::Eve
     edm::Handle<FEDRawDataCollection> rawDataHandle;
     iEvent.getByToken(inputSourceToken_, rawDataHandle);
     if(!rawDataHandle.isValid()){
-      std::cout << "inputsource is empty" << std::endl;
       edm::LogInfo("SiPixelRawDataErrorSource") << "inputsource is empty";
     }
     else{
