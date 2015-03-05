@@ -103,52 +103,62 @@ namespace reco {
       const double clusDphi = std::abs(TVector2::Phi_mpi_pi(seedPhi - 
 							    ClusPhi));
 
-      double yoffset, scale, xoffset, width, saturation, cutoff, maxdphi;
-
-      switch( etaBin ) {
-      case 0: // EB
-	yoffset = yoffsetEB;
-	scale   = scaleEB;
-	xoffset = xoffsetEB;
-	width   = 1.0/widthEB;
-	saturation = 0.14;
-	cutoff     = 0.60;
-	break;
-      case 1: // 1.479 -> 1.75
-	yoffset = yoffsetEE_0;
-	scale   = scaleEE_0;
-	xoffset = xoffsetEE_0;
-	width   = 1.0/widthEE_0;
-	saturation = 0.14;
-	cutoff     = 0.55;
-	break;
-      case 2: // 1.75 -> 2.0
-	yoffset = yoffsetEE_1;
-	scale   = scaleEE_1;
-	xoffset = xoffsetEE_1;
-	width   = 1.0/widthEE_1;
-	saturation = 0.12;
-	cutoff     = 0.45;
-	break;
-      case 3: // 2.0 and up
-	yoffset = yoffsetEE_2;
-	scale   = scaleEE_2;
-	xoffset = xoffsetEE_2;
-	width   = 1.0/widthEE_2;
-	saturation = 0.12;
-	cutoff     = 0.30;
-	break;
-      default:
-	throw cms::Exception("InValidEtaBin")
-	  << "Calculated invalid eta bin = " << etaBin 
-	  << " in \"inDynamicDPhiWindow\"" << std::endl;
-      }
+	double yoffset, scale, xoffset, width, saturation, cutoff, maxdphi;
+	
+	switch( etaBin ) {
+	case 0: // EB
+	  yoffset = yoffsetEB;
+	  scale   = scaleEB;
+	  xoffset = xoffsetEB;
+	  width   = 1.0/widthEB;
+	  saturation = 0.14;
+	  cutoff     = 0.60;
+	  break;
+	case 1: // 1.479 -> 1.75
+	  yoffset = yoffsetEE_0;
+	  scale   = scaleEE_0;
+	  xoffset = xoffsetEE_0;
+	  width   = 1.0/widthEE_0;
+	  saturation = 0.14;
+	  //	cutoff     = 0.55;
+	  cutoff     = 0.3;
+	  break;
+	case 2: // 1.75 -> 2.0
+	  yoffset = yoffsetEE_1;
+	  scale   = scaleEE_1;
+	  xoffset = xoffsetEE_1;
+	  width   = 1.0/widthEE_1;
+	  saturation = 0.12;
+	  //	cutoff     = 0.45;
+	  cutoff     = 0.3;
+	  break;
+	case 3: // 2.0 and up
+	  yoffset = yoffsetEE_2;
+	  scale   = scaleEE_2;
+	  xoffset = xoffsetEE_2;
+	  width   = 1.0/widthEE_2;
+	  saturation = 0.12;
+	  cutoff     = 0.30;
+	  break;
+	default:
+	  throw cms::Exception("InValidEtaBin")
+	    << "Calculated invalid eta bin = " << etaBin 
+	    << " in \"inDynamicDPhiWindow\"" << std::endl;
+	}
       
-      maxdphi = yoffset+scale/(1+std::exp((logClustEt-xoffset)*width));
-      maxdphi = std::min(maxdphi,cutoff);
-      maxdphi = std::max(maxdphi,saturation);
-      
-      return clusDphi < maxdphi;
+	maxdphi = yoffset+scale/(1+std::exp((logClustEt-xoffset)*width));
+	maxdphi = std::min(maxdphi,cutoff);
+	maxdphi = std::max(maxdphi,saturation);
+	double etThresh=2;
+	bool isAccepted=false;
+	isAccepted = clusDphi < maxdphi;
+	if(clusDphi>0.15 && etaBin != 0 && isAccepted){      
+	  
+	  double clustEt=ClustE/std::cosh(ClusEta);
+	  isAccepted &=clustEt>etThresh  ;
+	  
+	}
+	return isAccepted;
     }
   }
   
