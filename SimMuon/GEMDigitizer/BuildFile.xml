@@ -23,7 +23,7 @@
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="RelationalAccess"/>
 <use   name="root"/>
-<use   name="rootrflx"/>
+
 <use   name="SimDataFormats/CrossingFrame"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="Utilities/General"/>
