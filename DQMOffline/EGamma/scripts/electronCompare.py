@@ -72,6 +72,7 @@ if __name__ == "__main__":
   parser.add_option("-b", "--blue-name", dest="blue", action="store", default="",
     help="short name of the blue histograms")  
   (options, args) = parser.parse_args()
+#  print "options : ",options
   
   if len(args)<2:
     print "[electronStore.py] I NEED AT LEAST TWO ARGUMENTS."
@@ -135,6 +136,10 @@ if __name__ == "__main__":
          
   (red_hd, red_release) = os.path.split(red_head)
   (blue_hd, blue_release) = os.path.split(blue_head)
+
+  (sample_hd, sample, sample_tail) = options.red.split('.')
+  print "options.red : ",options.red.split('.')
+  print "sample : ", sample
          
   #============================================
   # final commands
@@ -154,6 +159,7 @@ if __name__ == "__main__":
   os.environ['CMP_CONFIG'] = options.config
   os.environ['CMP_RED_RELEASE'] = red_release
   os.environ['CMP_BLUE_RELEASE'] = blue_release
+  os.environ['CMP_SAMPLE'] = sample
   
   mysystem('root -b -l -q electronCompare.C')
   
