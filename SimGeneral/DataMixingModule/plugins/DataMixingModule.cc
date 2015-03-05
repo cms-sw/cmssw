@@ -274,17 +274,18 @@ namespace edm
 
   void DataMixingModule::initializeEvent(const edm::Event &e, const edm::EventSetup& ES) { 
 
-    if(MergeTrackerDigis_){
-      if( addMCDigiNoise_ ) {
+    if( addMCDigiNoise_ ) {
+      if(MergeTrackerDigis_){
 	SiStripMCDigiWorker_->initializeEvent( e, ES );
 	SiPixelMCDigiWorker_->initializeEvent( e, ES );
-	EcalDigiWorkerProd_->initializeEvent( e, ES );
       }
-      if( addMCDigiNoise_ && MergeHcalDigisProd_) {
-	HcalDigiWorkerProd_->initializeEvent( e, ES );
-      }
+      EcalDigiWorkerProd_->initializeEvent( e, ES );
+    }
+    if( addMCDigiNoise_ && MergeHcalDigisProd_) {
+      HcalDigiWorkerProd_->initializeEvent( e, ES );
     }
   }
+  
 
   void DataMixingModule::beginRun(edm::Run const& run, const edm::EventSetup& ES) { 
     BMixingModule::beginRun( run, ES);

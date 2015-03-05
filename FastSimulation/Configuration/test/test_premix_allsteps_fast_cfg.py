@@ -27,14 +27,14 @@ process.load('FastSimulation.Configuration.DataMixerPreMix_cff') #!!
 process.load('FastSimulation.Configuration.SimL1EmulatorDM_cff') #!!
 process.load('FastSimulation.Configuration.DigiToRawDM_cff') #!!
 process.load('HLTrigger.Configuration.HLT_GRun_cff')
-process.load('Configuration.StandardSequences.RawToDigi_cff')
+process.load('FastSimulation.Configuration.RawToDigi_cff')
 process.load("FastSimulation.Configuration.Reconstruction_NoTk_cff") #!!
-#process.load('Configuration.StandardSequences.L1Reco_cff')
+process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1)
 )
 
 # Input source
