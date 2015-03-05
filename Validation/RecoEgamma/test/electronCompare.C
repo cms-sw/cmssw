@@ -433,10 +433,12 @@ int electronCompare()
        { histo_full_path = file_ref_dir ; histo_full_path += histo_path.c_str() ; /*std::cout << "file_ref_dir.NotNull()" << std::endl ;*/ }
    // WARNING
    // the line below have to be unmasked if the reference release is prior to 740pre8 and for Pt1000
+   // before 740pre8 : DQMData/Run 1/EgammaV/Run summary/ ElectronMcSignalValidator/ histo name (same as Pt35, Pt10, ....)
+   // after 740pre8  : DQMData/Run 1/EgammaV/Run summary/ ElectronMcSignalValidatorPt1000/ histo name
       histo_full_path = file_ref_dir ; histo_full_path += toto; histo_full_path += histo_name ; // for Pt1000 
    // END WARNING
 //      std::cout << "histo_full_path ref : " << histo_full_path << std::endl ;
-      //histo_ref2 = (TH1 *)file_ref->Get(histo_full_path) ;
+
       histo_ref = (TH1 *)file_ref->Get(histo_full_path) ;
       if (histo_ref!=0)
        {
