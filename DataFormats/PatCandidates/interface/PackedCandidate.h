@@ -198,9 +198,20 @@ namespace pat {
     /// set vertex                                                                        
     virtual void setVertex( const Point & vertex ) { maybeUnpackBoth(); vertex_ = vertex; packVtx(); }
 
+    ///This refers to the association to PV=ipv. >=PVLoose corresponds to JME definition, >=PVTight to isolation definition
     enum PVAssoc { NoPV=0, PVLoose=1, PVTight=2, PVUsedInFit=3 } ;
-    const PVAssoc fromPV() const { return PVAssoc((qualityFlags_ & fromPVMask)>>fromPVShift); }
+    const PVAssoc fromPV(size_t ipv=0) const { 
+        if(pvAssignmentQuality()==UsedInFit and pvRef_.key()==ipv) return PVUsedInFit;
+        if(pvRef_.key()==ipv or abs(pdgId())==13 or abs(pdgId())==11 ) return PVTight;
+        if(pvAssignmentQuality() < UsedInFit) return PVLoose;
+        return NoPV;
+    }
     void setFromPV( PVAssoc fromPV )   {  qualityFlags_ = (qualityFlags_ & ~fromPVMask) | ((fromPV << fromPVShift) & fromPVMask);  }
+
+    /// The following contains information about how the association to the PV, given in vertexRef, is obtained.
+    ///
+    enum PVAssignmentQuality { NotReconstructedPrimary=0,SecondaryClosestDeltaZ=1,PrimaryOrDaughterOfPrimary=2,UsedInFit=3};
+    const PVAssignmentQuality pvAssignmentQuality() const { return PVAssignmentQuality((qualityFlags_ & fromPVMask)>>fromPVShift); }
 
     /// set reference to the primary vertex                                                                        
     void setVertexRef( const reco::VertexRef & vertexRef ) { maybeUnpackBoth(); pvRef_ = vertexRef; packVtx(); }
@@ -208,8 +219,10 @@ namespace pat {
 
     /// dxy with respect to the PV ref
     virtual float dxy() const { maybeUnpackBoth(); return dxy_; }
+    /// dz with respect to the PV[0]
+    virtual float dz()  const { maybeUnpackBoth(); return dz_+pvRef_->position().z()-reco::VertexRef(pvRef_.id(),0)->position().z(); }
     /// dz with respect to the PV ref
-    virtual float dz()  const { maybeUnpackBoth(); return dz_; }
+    virtual float dzAssociatedPV()  const { maybeUnpackBoth(); return dz_; }
     /// dxy with respect to another point
     virtual float dxy(const Point &p) const ;
     /// dz  with respect to another point
