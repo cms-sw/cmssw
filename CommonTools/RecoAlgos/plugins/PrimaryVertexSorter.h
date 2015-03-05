@@ -201,7 +201,7 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(Event& iEvent,  const Eve
 
 
   if(produceOriginalMapping_){
-    auto_ptr< CandToVertex>  pfCandToOriginalVertexOutput( new CandToVertex );
+    auto_ptr< CandToVertex>  pfCandToOriginalVertexOutput( new CandToVertex(vertices) );
     auto_ptr< CandToVertexQuality>  pfCandToOriginalVertexQualityOutput( new CandToVertexQuality() );
     CandToVertex::Filler cand2VertexFiller(*pfCandToOriginalVertexOutput);
     CandToVertexQuality::Filler cand2VertexQualityFiller(*pfCandToOriginalVertexQualityOutput);
