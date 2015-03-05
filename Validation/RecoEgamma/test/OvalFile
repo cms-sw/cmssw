@@ -1,12 +1,12 @@
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="7_4_0_pre2_dev_newhistos">
-<var name="TEST_REF" value="7_4_0_pre1_std">
+<var name="TEST_NEW" value="7_4_0_pre8_dev1">
+<var name="TEST_REF" value="7_4_0_pre7_std">
 
-<var name="TAG_STARTUP" value="MCRUN2_73_V7">
+<var name="TAG_STARTUP" value="MCRUN2_74_V7">
 <var name="DATA_VERSION" value="v1">
 
 TAG for the REFERENCE DATA, USED ONLY FOR INFORMATION ON WEB PAGE
-<var name="DD_COND_REF" value="MCRUN2_73_V5-v1">
+<var name="DD_COND_REF" value="MCRUN2_74_V7-v1">
 
 <var name="DD_RELEASE" value="${CMSSW_VERSION}">
 
@@ -114,6 +114,7 @@ FullSim
     <!--var name="DD_COND" value="STARTUP"-->
     <environment name="ValFullPt10Startup_UP15">
     
+      <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
       <var name="DD_SAMPLE" value="RelValSingleElectronPt10_UP15">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
@@ -132,6 +133,7 @@ FullSim
 
     <environment name="ValFullPt35Startup_UP15">
   
+      <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
       <var name="DD_SAMPLE" value="RelValSingleElectronPt35_UP15">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
@@ -150,6 +152,7 @@ FullSim
 
     <environment name="ValFullPt1000Startup_UP15">
     
+      <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
       <var name="DD_SAMPLE" value="RelValSingleElectronPt1000_UP15">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
@@ -168,6 +171,7 @@ FullSim
 
     <environment name="ValFullTTbarStartup_13">
   
+      <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
       <var name="DD_SAMPLE" value="RelValTTbar_13">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
@@ -186,6 +190,7 @@ FullSim
 
     <environment name="ValFullZEEStartup_13">
     
+      <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
       <var name="DD_SAMPLE" value="RelValZEE_13">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
@@ -227,6 +232,7 @@ FullSim
 
     <environment name="ValFullPt10Startup_UP15_gedGsfE">
     
+      <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
       <var name="DD_SAMPLE" value="RelValSingleElectronPt10_UP15">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
@@ -245,6 +251,7 @@ FullSim
 
     <environment name="ValFullPt35Startup_UP15_gedGsfE">
   
+      <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
       <var name="DD_SAMPLE" value="RelValSingleElectronPt35_UP15">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
@@ -263,6 +270,10 @@ FullSim
     
     <environment name="ValFullPt1000Startup_UP15_gedGsfE">
     
+      <var name="VAL_ANALYZER" value="ElectronMcSignalValidatorPt1000">
+      <var name="VAL_POST_ANALYZER" value="ElectronMcSignalPostValidatorPt1000">
+      <var name="VAL_CONFIGURATION_gedGsfE" value="ElectronMcSignalValidationPt1000_gedGsfElectrons_cfg">
+      <var name="VAL_POST_CONFIGURATION" value="ElectronMcSignalPostValidationPt1000_cfg">
       <var name="DD_SAMPLE" value="RelValSingleElectronPt1000_UP15">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
@@ -281,6 +292,7 @@ FullSim
 
     <environment name="ValFullTTbarStartup_13_gedGsfE">
   
+      <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
       <var name="DD_SAMPLE" value="RelValTTbar_13">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
@@ -299,6 +311,7 @@ FullSim
   
     <environment name="ValFullZEEStartup_13_gedGsfE">
     
+      <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
       <var name="DD_SAMPLE" value="RelValZEE_13">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
@@ -528,6 +541,7 @@ FullSim
 
     <environment name="ValgedvsgedFullPt10Startup_UP15_gedGsfE">
     
+      <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
       <var name="DD_SAMPLE" value="RelValSingleElectronPt10_UP15">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
@@ -541,6 +555,7 @@ FullSim
 
     <environment name="ValgedvsgedFullPt35Startup_UP15_gedGsfE">
   
+      <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
       <var name="DD_SAMPLE" value="RelValSingleElectronPt35_UP15">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
@@ -554,6 +569,11 @@ FullSim
     
     <environment name="ValgedvsgedFullPt1000Startup_UP15_gedGsfE">
     
+      <var name="VAL_HISTOS" value="ElectronMcSignalHistosPt1000.txt">
+      <var name="VAL_ANALYZER" value="ElectronMcSignalValidatorPt1000">
+      <var name="VAL_POST_ANALYZER" value="ElectronMcSignalPostValidatorPt1000">
+      <var name="VAL_CONFIGURATION_gedGsfE" value="ElectronMcSignalValidationPt1000_gedGsfElectrons_cfg">
+      <var name="VAL_POST_CONFIGURATION" value="ElectronMcSignalPostValidationPt1000_cfg">
       <var name="DD_SAMPLE" value="RelValSingleElectronPt1000_UP15">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
@@ -567,6 +587,7 @@ FullSim
 
     <environment name="ValgedvsgedFullTTbarStartup_13_gedGsfE">
   
+      <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
       <var name="DD_SAMPLE" value="RelValTTbar_13">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
@@ -580,6 +601,7 @@ FullSim
   
     <environment name="ValgedvsgedFullZEEStartup_13_gedGsfE">
     
+      <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
       <var name="DD_SAMPLE" value="RelValZEE_13">
       <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
       <var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}/${DD_TIER}/${DD_COND}">
