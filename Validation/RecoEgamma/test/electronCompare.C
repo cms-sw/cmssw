@@ -107,7 +107,6 @@ int electronCompare()
   TString CMP_CONFIG       = gSystem->Getenv( "CMP_CONFIG"       ) ;
   TString CMP_RED_RELEASE  = gSystem->Getenv( "CMP_RED_RELEASE"  ) ;
   TString CMP_BLUE_RELEASE = gSystem->Getenv( "CMP_BLUE_RELEASE" ) ;
-  TString CMP_SAMPLE       = gSystem->Getenv( "CMP_SAMPLE"       ) ;
 
 //-----
 // AC
@@ -117,7 +116,6 @@ int electronCompare()
   std::cout << "blue_release : C : " << CMP_BLUE_RELEASE << std::endl;
   std::cout << "CMP_RED_NAME : " << CMP_RED_NAME << std::endl;
   std::cout << "CMP_BLUE_NAME : " << CMP_BLUE_NAME << std::endl;
-  std::cout << "SAMPLE : " << CMP_SAMPLE << std::endl;
 //-----
   
 // style:
