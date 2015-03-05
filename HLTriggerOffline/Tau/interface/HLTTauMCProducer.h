@@ -52,8 +52,6 @@ public:
   std::vector<int> m_PDG_;
   double etaMax;
 
-  unsigned int nBos_, nTau_, nTauH_, nTauE_, nTauM_, nTauO_; //MB
-
 };
 
 #endif
