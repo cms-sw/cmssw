@@ -5,7 +5,7 @@
 <use   name="CondFormats/Serialization"/>
 <use   name="boost_serialization"/>
 <use   name="rootmath"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>

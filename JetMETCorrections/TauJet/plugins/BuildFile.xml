@@ -5,7 +5,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="JetMETCorrections/Objects"/>
-<use   name="rootrflx"/>
+
 <use   name="RecoTauTag/RecoTau"/>
 <library   file="TauJetCorrectorExample.cc" name="TauJetCorrectorExample">
   <flags   EDM_PLUGIN="1"/>

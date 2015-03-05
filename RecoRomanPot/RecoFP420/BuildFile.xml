@@ -15,7 +15,7 @@
 <use   name="hepmc"/>
 <use   name="gsl"/>
 <use   name="rootmath"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>
