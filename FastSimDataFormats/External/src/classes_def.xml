@@ -8,6 +8,7 @@
  <class name="edm::Wrapper<std::vector<FastL1BitInfo> >"/>
 
  <class name="FastTrackerCluster" ClassVersion="10">
+  <version ClassVersion="11" checksum="325524572"/>
   <version ClassVersion="10" checksum="2829380995"/>
  </class>
  <class name="std::vector<FastTrackerCluster*>"/>
