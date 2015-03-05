@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 namespace pat {
     class PATVertexSlimmer : public edm::EDProducer {
@@ -19,13 +20,18 @@ namespace pat {
             virtual void produce(edm::Event&, const edm::EventSetup&);
         private:
             edm::EDGetTokenT<std::vector<reco::Vertex> > src_;
+            edm::EDGetTokenT<edm::ValueMap<float> > score_;
+            bool rekeyScores_;
     };
 }
 
 pat::PATVertexSlimmer::PATVertexSlimmer(const edm::ParameterSet& iConfig) :
-    src_(consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("src")))
+    src_(consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("src"))),
+    score_(mayConsume<edm::ValueMap<float>>(iConfig.existsAs<edm::InputTag>("score")?iConfig.getParameter<edm::InputTag>("score"):edm::InputTag())),
+    rekeyScores_(iConfig.existsAs<edm::InputTag>("score"))
 {
   produces<std::vector<reco::Vertex> >();
+  if(rekeyScores_) produces<edm::ValueMap<float> >();
 }
 
 pat::PATVertexSlimmer::~PATVertexSlimmer() {}
@@ -41,7 +47,21 @@ void pat::PATVertexSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& i
         outPtr->push_back(reco::Vertex(v.position(), v.error(), v.chi2(), v.ndof(), 0));
     }
 
-    iEvent.put(outPtr);
+    auto oh = iEvent.put(outPtr);
+    if(rekeyScores_) {
+      edm::Handle<edm::ValueMap<float> > scores;
+      iEvent.getByToken(score_, scores);
+      std::auto_ptr<edm::ValueMap<float> >  vertexScoreOutput( new edm::ValueMap<float> );
+      edm::ValueMap<float>::const_iterator idIt=scores->begin();
+      for(;idIt!=scores->end();idIt++) {
+          if(idIt.id() ==  vertices.id()) break;
+      }
+      // std::find_if(scores->begin(), scores->end(), [vertices] (const edm::ValueMap<float>::const_iterator& s) { return s.id() == vertices.id(); } );
+      edm::ValueMap<float>::Filler vertexScoreFiller(*vertexScoreOutput);
+      vertexScoreFiller.insert(oh,idIt.begin(),idIt.end());
+      vertexScoreFiller.fill();
+      iEvent.put( vertexScoreOutput );
+    }
 }
 
 using pat::PATVertexSlimmer;
