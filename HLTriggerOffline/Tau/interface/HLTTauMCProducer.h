@@ -37,7 +37,7 @@ public:
   
  private:
 
-  bool getGenDecayProducts(const reco::GenParticleRef&, reco::GenParticleRefVector&,
+  void getGenDecayProducts(const reco::GenParticleRef&, reco::GenParticleRefVector&,
 			   int status=1, int pdgId=0);
 
   enum tauDecayModes {kElectron, kMuon, 
@@ -51,6 +51,8 @@ public:
   double ptMinMCMuon_;
   std::vector<int> m_PDG_;
   double etaMax;
+
+  unsigned int nBos_, nTau_, nTauH_, nTauE_, nTauM_, nTauO_; //MB
 
 };
 

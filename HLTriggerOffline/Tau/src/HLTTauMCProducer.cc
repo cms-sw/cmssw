@@ -56,7 +56,6 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     bool pdg_ok = false;
     for(size_t pi =0;pi<m_PDG_.size();++pi)
       {
-	//MB if(abs((*p).pdgId())== m_PDG_[pi] && abs((*p).status()) == 3 ){
 	if(abs((*p).pdgId())== m_PDG_[pi] && ( (*p).isHardProcess() || (*p).status() == 3 ) ){
    	  pdg_ok = true;
 	  //cout<<" Bsoson particles: "<< (*p).pdgId()<< " " <<(*p).status() << " "<< pdg_ok<<endl;
@@ -86,7 +85,8 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
       GenParticleRef genRef(genParticles, index);
       //check if it is the last tau in decay/radiation chain
       GenParticleRefVector daugTaus;
-      if( !getGenDecayProducts(genRef, daugTaus, 0, 15) )
+      getGenDecayProducts(genRef, daugTaus, 0, 15);      
+      if( daugTaus.size()==0 )
 	allTaus.push_back(genRef);
     }
   } 
@@ -250,10 +250,9 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
 // Helper Function
 
-bool HLTTauMCProducer::getGenDecayProducts(const GenParticleRef& mother, GenParticleRefVector& products,
+void HLTTauMCProducer::getGenDecayProducts(const GenParticleRef& mother, GenParticleRefVector& products,
 					   int status, int pdgId ) {
-  bool found = false;
-  
+
   const GenParticleRefVector& daughterRefs = mother->daughterRefVector();
   
   for(GenParticleRefVector::const_iterator d = daughterRefs.begin(); d != daughterRefs.end(); ++d) {
@@ -262,11 +261,9 @@ bool HLTTauMCProducer::getGenDecayProducts(const GenParticleRef& mother, GenPart
 	(pdgId==0 || std::abs((*d)->pdgId()) == pdgId) ) {
       
       products.push_back(*d);
-      found = true;
     }
     else 
-      found = getGenDecayProducts(*d, products, status, pdgId);
+      getGenDecayProducts(*d, products, status, pdgId);
   }
   
-  return found;
 } 
