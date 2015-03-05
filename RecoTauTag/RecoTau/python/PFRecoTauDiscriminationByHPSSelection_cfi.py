@@ -75,7 +75,9 @@ hpsSelectionDiscriminator = cms.EDProducer(
         decayMode_2Prong1Pi0,
         decayMode_3Prong0Pi0
     ),
-    requireTauChargedHadronsToBeChargedPFCands = cms.bool(False)
+    requireTauChargedHadronsToBeChargedPFCands = cms.bool(False),
+    # CV: require at least one pixel hit for the sum of all tracks
+    minPixelHits = cms.int32(1)
 )
 
 
