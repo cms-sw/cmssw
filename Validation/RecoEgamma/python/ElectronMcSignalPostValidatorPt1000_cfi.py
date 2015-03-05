@@ -13,7 +13,7 @@ electronMcSignalPostValidatorPt1000 = cms.EDAnalyzer("ElectronMcSignalPostValida
   OutputFile = cms.string(""),
   InputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorPt1000"),
   OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorPt1000"),
-    a 
+  
   histosCfg = cms.PSet(electronMcSignalHistosCfg)
 )
 
