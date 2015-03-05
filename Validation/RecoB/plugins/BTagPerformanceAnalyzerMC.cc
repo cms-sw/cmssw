@@ -259,9 +259,9 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
       const GenParticleRefVector &lep = iter->second.getLeptons();
       reco::JetFlavour::Leptons lepCount;
       for (unsigned int i=0; i<lep.size(); i++){
-	if(abs(lep.at(0)->pdgId())==11) lepCount.electron++;
-	else if(abs(lep.at(0)->pdgId())==13) lepCount.muon++;
-	else if(abs(lep.at(0)->pdgId())==15) lepCount.tau++;
+	if(abs(lep[i]->pdgId())==11) lepCount.electron++;
+	else if(abs(lep[i]->pdgId())==13) lepCount.muon++;
+	else if(abs(lep[i]->pdgId())==15) lepCount.tau++;
       }
       leptons.insert(std::make_pair(iter->first, lepCount));
     }
