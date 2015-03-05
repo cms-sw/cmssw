@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
 
+#include <vector>
+
 namespace edm
 {
     class ParameterSet;
@@ -11,10 +13,14 @@ namespace edm
     class EventSetup;
 }
 
+class TrackingRecHitAlgorithm;
+
 
 class TrackingRecHitProducer:
     public edm::stream::EDProducer<>
 {
+    private:
+        std::vector<TrackingRecHitAlgorithm*> _recHitAlgorithms;
     public:
         TrackingRecHitProducer(const edm::ParameterSet& config);
 

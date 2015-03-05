@@ -29,6 +29,14 @@ process.source = cms.Source ("PoolSource",
 )
 
 process.recHitProducer=cms.EDProducer("TrackingRecHitProducer",
+    plugins=cms.PSet(
+        defaultPlugin = cms.PSet(
+            type=cms.string("TrackingRecHitNoSmearingPlugin")
+        ),
+        badPlugin = cms.PSet(
+            type=cms.string("TrackingRecHitBadSmearingPlugin")
+        )
+    )
 )
 
 process.tracking_step=cms.Path(
