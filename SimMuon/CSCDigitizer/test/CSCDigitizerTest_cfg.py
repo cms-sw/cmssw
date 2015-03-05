@@ -1,96 +1,69 @@
-
-# Test of CSCDigitizer
-# Updated for 700pre3 - Tim Cox - 12.09.2013
+# Based on cmsDriver.py created file - but needed a LOT of editing - Tim Cox, Feb/Mar 2015
+# 05.03.2015 - runs in 73X-75x (at least) - dumps CSCDigitizer info & can activate dump of all CSC digis
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("CSCDigitizerTest")
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+process = cms.Process('DIGI')
 
-process.load("Configuration.StandardSequences.GeometryPilot2_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+# import of standard configurations
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.Digi_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-
-## process.GlobalTag.globaltag = "MC_38Y_V9::All"
-## Non-standard, non-MC, tag because 700pre3 is under development
-process.GlobalTag.globaltag = "PRE_62_V8::All"
-
-process.load("Validation.MuonCSCDigis.cscDigiValidation_cfi")
-
-process.load("SimMuon.CSCDigitizer.muonCSCDigis_cfi")
-process.load("CalibMuon.CSCCalibration.CSCChannelMapper_cfi")
-process.load("CalibMuon.CSCCalibration.CSCIndexer_cfi")
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32( 100 )
+)
 
 process.source = cms.Source("PoolSource",
+    dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
     fileNames = cms.untracked.vstring(
-      '/store/relval/CMSSW_7_0_0_pre3/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/5E813E19-8414-E311-A5CB-0025905964B4.root'
-)
-)
-
-# attempt minimal mixing module w/o pu
-
-from SimGeneral.MixingModule.aliases_cfi import * 
-from SimGeneral.MixingModule.mixObjects_cfi import * 
-from SimGeneral.MixingModule.trackingTruthProducer_cfi import *
-
-
-process.mix = cms.EDProducer("MixingModule",
-    digitizers = cms.PSet(
-      mergedtruth = cms.PSet(
-            trackingParticles
-      )
+    '/store/relval/CMSSW_7_3_0/RelValSingleMuPt100_UP15/GEN-SIM-DIGI-RAW-HLTDEBUG/MCRUN2_73_V7-v1/00000/0864952B-5781-E411-99D5-0025905964CC.root'
     ),
-    LabelPlayback = cms.string(' '),
-    maxBunch = cms.int32(3),
-    minBunch = cms.int32(-5), ## in terms of 25 ns
-
-    bunchspace = cms.int32(25),
-    mixProdStep1 = cms.bool(False),
-    mixProdStep2 = cms.bool(False),
-
-    playback = cms.untracked.bool(False),
-    useCurrentProcessOnly = cms.bool(False),
-    mixObjects = cms.PSet(
-        mixTracks = cms.PSet(
-            mixSimTracks
-        ),
-        mixVertices = cms.PSet(
-            mixSimVertices
-        ),
-        mixSH = cms.PSet(
-            mixSimHits
-        ),
-        mixHepMC = cms.PSet(
-            mixHepMCProducts
-        )
-    )
+    secondaryFileNames = cms.untracked.vstring()
 )
 
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService", 
-     simMuonCSCDigis = cms.PSet(
-        initialSeed = cms.untracked.uint32(1234567),
-        engineName = cms.untracked.string('TRandom3')
-    ),
-     mix = cms.PSet(
-        initialSeed = cms.untracked.uint32(1234567),
-        engineName = cms.untracked.string('TRandom3')
-   )
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+
+
+# Activate debug printout for CSCDigitizer (must ALSO activate LogVerbatim for "CSCDigitizer")
+process.simMuonCSCDigis.dumpGasCollisions = cms.untracked.bool(True)
+
+# MessageLogger
+
+process.load('FWCore.MessageService.MessageLogger_cfi')
+
+# Activate LogVerbatim output in CSCDigitizer
+process.MessageLogger.categories.append("CSCDigitizer")
+
+# Activate LogVerbatim output in CSC Digis and CSCDigiDump
+##process.MessageLogger.categories.append("CSCDigi")
+
+process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cout = cms.untracked.PSet(
+    threshold = cms.untracked.string("INFO"),
+    default   = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
+    FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+    CSCDigitizer = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+##    CSCDigi      = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
 )
 
-process.DQMStore = cms.Service("DQMStore")
+## To dump strip, wire and comparator digis in each event, activate CSCDigiDump...
+##process.load("SimMuon.CSCDigitizer.cscDigiDump_cfi")
+# ... BUT must activate LogVerbatim for "CSCDigi" above too
+# CSCDigiDump - cscDigiDump for real; cscSimDigiDump for sim (both in above cfi)
+##process.digi = cms.Path(process.pdigi*process.cscSimDigiDump)
+process.digi = cms.Path(process.pdigi)
+process.endjob = cms.EndPath(process.endOfProcess)
+process.schedule = cms.Schedule(process.digi,process.endjob)
 
-process.load("SimMuon.CSCDigitizer.cscDigiDump_cfi")
 
-#process.o1 = cms.OutputModule("PoolOutputModule",
-#    fileName = cms.untracked.string('cscdigis.root')
-#)
-
-process.p1 = cms.Path(process.mix*process.simMuonCSCDigis*process.cscSimDigiDump)
-#process.ep = cms.EndPath(process.o1)
-#
 
