@@ -137,10 +137,6 @@ if __name__ == "__main__":
   (red_hd, red_release) = os.path.split(red_head)
   (blue_hd, blue_release) = os.path.split(blue_head)
 
-  (sample_hd, sample, sample_tail) = options.red.split('.')
-  print "options.red : ",options.red.split('.')
-  print "sample : ", sample
-         
   #============================================
   # final commands
   #============================================
@@ -159,7 +155,6 @@ if __name__ == "__main__":
   os.environ['CMP_CONFIG'] = options.config
   os.environ['CMP_RED_RELEASE'] = red_release
   os.environ['CMP_BLUE_RELEASE'] = blue_release
-  os.environ['CMP_SAMPLE'] = sample
   
   mysystem('root -b -l -q electronCompare.C')
   
