@@ -44,6 +44,21 @@ options.register('dmOffset',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Demux offset (frames)")
+options.register('gtFramesPerEvent',
+                 6,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "GT frames per event")
+options.register('gtLatency',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "GT latency (frames)")
+options.register('gtOffset',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "GT offset (frames)")
 options.register('dump',
                  False,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -64,6 +79,11 @@ options.register('doDemux',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Read demux data")
+options.register('doGT',
+                 True,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Read GT data")
 options.register('nMP',
                  11,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -141,6 +161,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 # buffer dump to RAW
 process.load('EventFilter.L1TRawToDigi.stage2MP7BufferRaw_cff')
 
+
 # skip events
 dmOffset = options.dmOffset + (options.skipEvents * options.dmFramesPerEvent)
 
@@ -153,33 +174,58 @@ for i in range (0,options.nMP):
 
 boardOffset = options.skipEvents % options.nMP
 
+gtOffset = options.gtOffset + (options.skipEvents * options.gtFramesPerEvent)
+
+
 # print some debug info
-print "nMP           = ", options.nMP
+print "Job config :"
 print "maxEvents     = ", options.maxEvents
 print "skipEvents    = ", options.skipEvents
-print "dmOffset      = ", dmOffset
-print "mpBoardOffset = ", boardOffset
-print "mpOffset      = ", mpOffsets
 print " "
 
-#mpLatencies = cms.untracked.vint32( 0,0,0,0,0,0,0,0,0,0,0 )
-#for i in range (0,11):
-#    mpLatencies.[i](options.mpLatency)
+# MP config
+if (options.doMP):
+    print "MP config :"
+    print "nBoards       = ", options.nMP
+    print "mpBoardOffset = ", boardOffset
+    print "mpOffset      = ", mpOffsets
+    print " "
 
 process.stage2MPRaw.nFramesPerEvent    = cms.untracked.int32(options.mpFramesPerEvent)
 process.stage2MPRaw.nFramesOffset    = cms.untracked.vuint32(mpOffsets)
 process.stage2MPRaw.boardOffset    = cms.untracked.int32(boardOffset)
 #process.stage2MPRaw.nFramesLatency   = cms.untracked.vuint32(mpLatencies)
-process.stage2MPRaw.rxFile = cms.untracked.string("mp_rx_summary.txt")
-process.stage2MPRaw.txFile = cms.untracked.string("mp_tx_summary.txt")
+process.stage2MPRaw.rxFile = cms.untracked.string("merge/rx_summary.txt")
+process.stage2MPRaw.txFile = cms.untracked.string("merge/tx_summary.txt")
+
+# Demux config
+if (options.doDemux):
+    print "Demux config :"
+    print "dmOffset      = ", dmOffset
+    print "dmLatency     = ", options.dmLatency
+    print " "
 
 process.stage2DemuxRaw.nFramesPerEvent    = cms.untracked.int32(options.dmFramesPerEvent)
 process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(dmOffset)
 process.stage2DemuxRaw.nFramesLatency   = cms.untracked.vuint32(options.dmLatency)
-process.stage2DemuxRaw.rxFile = cms.untracked.string("demux_rx_summary.txt")
-process.stage2DemuxRaw.txFile = cms.untracked.string("demux_tx_summary.txt")
+process.stage2DemuxRaw.rxFile = cms.untracked.string("good/demux/rx_summary.txt")
+process.stage2DemuxRaw.txFile = cms.untracked.string("good/demux/tx_summary.txt")
 
-process.rawDataCollector.verbose = cms.untracked.int32(2)
+# GT config
+if (options.doGT):
+    print "GT config :"
+    print "gtOffset      = ", gtOffset
+    print "gtOffset      = ", options.gtLatency
+
+process.stage2GTRaw.nFramesPerEvent    = cms.untracked.int32(options.gtFramesPerEvent)
+process.stage2GTRaw.nFramesOffset    = cms.untracked.vuint32(gtOffset)
+process.stage2GTRaw.nFramesLatency   = cms.untracked.vuint32(options.gtLatency)
+process.stage2GTRaw.rxFile = cms.untracked.string("uGT/rx_summary.txt")
+process.stage2GTRaw.txFile = cms.untracked.string("uGT/tx_summary.txt")
+
+
+process.rawDataCollector.verbose = cms.untracked.int32(0)
+
 
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer( 
@@ -203,6 +249,7 @@ process.l1tStage2CaloAnalyzer.mpTauToken = cms.InputTag("None")
 process.path = cms.Path(
     process.stage2MPRaw
     +process.stage2DemuxRaw
+    +process.stage2GTRaw
     +process.rawDataCollector
     +process.dumpRaw
     +process.caloStage2Digis
@@ -214,6 +261,9 @@ if (not options.doMP):
 
 if (not options.doDemux):
     process.path.remove(process.stage2DemuxRaw)
+
+if (not options.doGT):
+    process.path.remove(process.stage2GTRaw)
 
 process.out = cms.EndPath(
     process.output
