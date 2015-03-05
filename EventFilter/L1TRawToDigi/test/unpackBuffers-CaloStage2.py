@@ -224,14 +224,14 @@ process.stage2GTRaw.rxFile = cms.untracked.string("uGT/rx_summary.txt")
 process.stage2GTRaw.txFile = cms.untracked.string("uGT/tx_summary.txt")
 
 
-process.rawDataCollector.verbose = cms.untracked.int32(0)
+process.rawDataCollector.verbose = cms.untracked.int32(2)
 
 
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer( 
     "DumpFEDRawDataProduct",
     label = cms.untracked.string("rawDataCollector"),
-    feds = cms.untracked.vint32 ( 1360, 1366 ),
+    feds = cms.untracked.vint32 ( 1360, 1366, 1404 ),
     dumpPayload = cms.untracked.bool ( False )
 )
 
@@ -239,6 +239,10 @@ process.dumpRaw = cms.EDAnalyzer(
 process.load('EventFilter.L1TRawToDigi.caloStage2Digis_cfi')
 process.caloStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 
+process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
+process.gtStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
+
+# object analyser
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("caloStage2Digis")
 process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
@@ -253,6 +257,7 @@ process.path = cms.Path(
     +process.rawDataCollector
     +process.dumpRaw
     +process.caloStage2Digis
+    +process.gtStage2Digis
     +process.l1tStage2CaloAnalyzer
 )
 
