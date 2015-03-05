@@ -17,14 +17,14 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 SiStripCalibLorentzAngle::SiStripCalibLorentzAngle(edm::ParameterSet const& conf) : ConditionDBWriter<SiStripLorentzAngle>(conf) , tTopo(nullptr), conf_(conf) {}
 
 void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  c.get<IdealGeometryRecord>().get(tTopoHandle);
+  c.get<TrackerTopologyRcd>().get(tTopoHandle);
   tTopo = tTopoHandle.product();
 
   c.get<TrackerDigiGeometryRecord>().get(estracker);
