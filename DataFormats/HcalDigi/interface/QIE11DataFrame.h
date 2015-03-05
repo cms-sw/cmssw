@@ -24,7 +24,7 @@ public:
     int adc() const { return frame_[i_]&0xFF; }
     int tdc() const { return (frame_[i_]>>8)&0x3F; }
     bool soi() const { return frame_[i_]&0x4000; }
-    int capid() const { return ((((frame_[0]>>8)&0x3)+i_)%3); }
+    int capid() const { return ((((frame_[0]>>8)&0x3)+i_)%4); }
   private:
     const edm::DataFrame& frame_;
     edm::DataFrame::size_type i_;
