@@ -107,16 +107,16 @@ int electronCompare()
   TString CMP_CONFIG       = gSystem->Getenv( "CMP_CONFIG"       ) ;
   TString CMP_RED_RELEASE  = gSystem->Getenv( "CMP_RED_RELEASE"  ) ;
   TString CMP_BLUE_RELEASE = gSystem->Getenv( "CMP_BLUE_RELEASE" ) ;
+  TString CMP_SAMPLE       = gSystem->Getenv( "CMP_SAMPLE"       ) ;
 
 //-----
 // AC
 //  std::cout << "red_file : C : " << CMP_RED_FILE << std::endl;
 //  std::cout << "blue_file : C : " << CMP_BLUE_FILE << std::endl;
-  CMP_SAMPLE = "ValFullPt1000Startup_UP15_gedGsfE";
   std::cout << "red_release : C : " << CMP_RED_RELEASE << std::endl;
   std::cout << "blue_release : C : " << CMP_BLUE_RELEASE << std::endl;
-  std::cout << " -- CMP_RED_NAME : " << CMP_RED_NAME << std::endl;
-  std::cout << " -- CMP_BLUE_NAME : " << CMP_BLUE_NAME << std::endl;
+  std::cout << "CMP_RED_NAME : " << CMP_RED_NAME << std::endl;
+  std::cout << "CMP_BLUE_NAME : " << CMP_BLUE_NAME << std::endl;
   std::cout << "SAMPLE : " << CMP_SAMPLE << std::endl;
 //-----
   
@@ -431,7 +431,10 @@ int electronCompare()
        { histo_full_path = histo_name ; /*std::cout << "file_ref_dir.IsNull()" << std::endl ;*/ }
       else
        { histo_full_path = file_ref_dir ; histo_full_path += histo_path.c_str() ; /*std::cout << "file_ref_dir.NotNull()" << std::endl ;*/ }
-      histo_full_path = file_ref_dir ; histo_full_path += toto; histo_full_path += histo_name ; // for Pt1000 to be removed !!!!!
+   // WARNING
+   // the line below have to be unmasked if the reference release is prior to 740pre8 and for Pt1000
+      histo_full_path = file_ref_dir ; histo_full_path += toto; histo_full_path += histo_name ; // for Pt1000 
+   // END WARNING
 //      std::cout << "histo_full_path ref : " << histo_full_path << std::endl ;
       //histo_ref2 = (TH1 *)file_ref->Get(histo_full_path) ;
       histo_ref = (TH1 *)file_ref->Get(histo_full_path) ;
