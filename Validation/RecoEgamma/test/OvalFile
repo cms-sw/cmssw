@@ -6,7 +6,7 @@
 <var name="DATA_VERSION" value="v1">
 
 TAG for the REFERENCE DATA, USED ONLY FOR INFORMATION ON WEB PAGE
-<var name="DD_COND_REF" value="MCRUN2_74_V7-v1">
+<var name="DD_COND_REF" value="MCRUN2_74_V1-v1">
 
 <var name="DD_RELEASE" value="${CMSSW_VERSION}">
 
@@ -161,7 +161,7 @@ FullSim
       <target name="wget" cmd="electronWget.py castor">
       
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ElectronMcSignalPt1000Validation_cfg.py">
+      <target name="analyze" cmd="cmsRun ElectronMcSignalValidationPt1000_cfg.py">
       <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
       
       <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
