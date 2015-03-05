@@ -17,7 +17,7 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
   size_t index=0;
   typedef reco::VertexCollection::const_iterator IV;
   typedef reco::Vertex::trackRef_iterator IT;
-  float bestweight=0.5;
+  float bestweight=0;
   for( auto const & vtx : vertices) {
       float w = vtx.trackWeight(track);
       if (w > bestweight){
