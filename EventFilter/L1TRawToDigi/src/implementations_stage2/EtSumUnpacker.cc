@@ -46,37 +46,9 @@ namespace stage2 {
      // Loop over multiple BX and fill EtSums collection
      for (int bx=firstBX; bx<lastBX; bx++){
 
-       //  MET
-
-       uint32_t raw_data = block.payload()[i++];
-
-       l1t::EtSum met = l1t::EtSum();
-    
-       met.setHwPt(raw_data & 0xFFF);
-       met.setHwPhi((raw_data >> 12) & 0xFF);
-       met.setType(l1t::EtSum::kMissingEt);       
-
-       LogDebug("L1T") << "MET: phi " << met.hwPhi() << " pT " << met.hwPt() << " bx " << bx;
-
-       res_->push_back(bx,met);
-
-       // MHT
-
-       raw_data = block.payload()[i++];
-
-       l1t::EtSum mht = l1t::EtSum();
-    
-       mht.setHwPt(raw_data & 0xFFF);
-       mht.setHwPhi((raw_data >> 12) & 0xFF);
-       mht.setType(l1t::EtSum::kMissingHt);       
-
-       LogDebug("L1T") << "MHT: phi " << mht.hwPhi() << " pT " << mht.hwPt() << " bx " << bx;
-
-       res_->push_back(bx,mht);       
-
        // ET
 
-       raw_data = block.payload()[i++];
+       uint32_t raw_data = block.payload()[i++];
 
        l1t::EtSum et = l1t::EtSum();
     
@@ -86,6 +58,22 @@ namespace stage2 {
        LogDebug("L1T") << "ET: pT " << et.hwPt() << " bx " << bx;
 
        res_->push_back(bx,et);
+
+
+       //  MET
+
+       raw_data = block.payload()[i++];
+
+       l1t::EtSum met = l1t::EtSum();
+    
+       met.setHwPt(raw_data & 0xFFF);
+       met.setHwPhi((raw_data >> 20) & 0xFFF);//12) & 0xFF);
+       met.setType(l1t::EtSum::kMissingEt);       
+
+       LogDebug("L1T") << "MET: phi " << met.hwPhi() << " pT " << met.hwPt() << " bx " << bx;
+
+       res_->push_back(bx,met);
+
 
        // HT
 
@@ -99,6 +87,21 @@ namespace stage2 {
        LogDebug("L1T") << "HT: pT " << ht.hwPt();
 
        res_->push_back(bx,ht);
+
+
+       // MHT
+
+       raw_data = block.payload()[i++];
+
+       l1t::EtSum mht = l1t::EtSum();
+    
+       mht.setHwPt(raw_data & 0xFFF);
+       mht.setHwPhi((raw_data >> 20) & 0xFFF);//12) & 0xFF);
+       mht.setType(l1t::EtSum::kMissingHt);       
+
+       LogDebug("L1T") << "MHT: phi " << mht.hwPhi() << " pT " << mht.hwPt() << " bx " << bx;
+
+       res_->push_back(bx,mht);
 
      }
 
