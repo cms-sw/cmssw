@@ -5,7 +5,11 @@
 <use   name="DataFormats/PatCandidates"/>
 <use   name="CondFormats/PhysicsToolsObjects"/>
 <use   name="Geometry/CaloGeometry"/>
+<use   name="PhysicsTools/SelectorUtils"/>
 <library   name="RecoEgammaPhotonIdentificationPlugins" file="*.cc">
   <use   name="RecoEgamma/PhotonIdentification"/>
   <flags   EDM_PLUGIN="1"/>
+</library>
+<library name="RecoEgammaPhotonIdentificationPlugins_cuts" file="cuts/*.cc">
+   <flags   EDM_PLUGIN="1"/>
 </library>
