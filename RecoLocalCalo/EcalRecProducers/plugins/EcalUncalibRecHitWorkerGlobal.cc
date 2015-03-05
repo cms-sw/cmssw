@@ -14,6 +14,9 @@
 #include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&ps,edm::ConsumesCollector& c) :
   EcalUncalibRecHitWorkerBaseClass(ps,c)
 {
@@ -97,18 +100,6 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
         EBchi2Parameters_ = ps.getParameter<std::vector<double> >("EBchi2Parameters");
         EEchi2Parameters_ = ps.getParameter<std::vector<double> >("EEchi2Parameters");
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 void
 EcalUncalibRecHitWorkerGlobal::set(const edm::EventSetup& es)
@@ -519,6 +510,48 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
         return true;
 }
 
+edm::ParameterSetDescription
+EcalUncalibRecHitWorkerGlobal::getAlgoDescription() {
+
+  edm::ParameterSetDescription psd;
+  psd.addNode(edm::ParameterDescription<std::vector<double>>("eePulseShape", {5.2e-05,-5.26e-05,6.66e-05,0.1168,0.7575,1.0,0.8876,0.6732,0.4741,0.3194}, true) and
+	       edm::ParameterDescription<std::vector<double>>("EBtimeFitParameters", {-2.015452,3.130702,-12.3473,41.88921,-82.83944,91.01147,-50.35761,11.05621}, true) and
+	       edm::ParameterDescription<double>("outOfTimeThresholdGain61pEB", 5, true) and
+	       edm::ParameterDescription<double>("amplitudeThresholdEE", 10, true) and
+	       edm::ParameterDescription<double>("EBtimeConstantTerm", 0.6, true) and
+	       edm::ParameterDescription<double>("outOfTimeThresholdGain61pEE", 1000, true) and
+	       edm::ParameterDescription<double>("ebSpikeThreshold", 1.042, true) and
+	       edm::ParameterDescription<double>("EBtimeNconst", 28.5, true) and
+	       edm::ParameterDescription<bool>("kPoorRecoFlagEB", true, true) and
+	       edm::ParameterDescription<std::vector<double>>("ebPulseShape", {5.2e-05,-5.26e-05,6.66e-05,0.1168,0.7575,1.0,0.8876,0.6732,0.4741,0.3194}, true) and
+	       edm::ParameterDescription<double>("EBtimeFitLimits_Lower", 0.2, true) and
+	       edm::ParameterDescription<bool>("kPoorRecoFlagEE", false, true) and
+	       edm::ParameterDescription<double>("chi2ThreshEB_", 36.0, true) and
+	       edm::ParameterDescription<std::vector<double>>("EEtimeFitParameters", {-2.390548,3.553628,-17.62341,67.67538,-133.213,140.7432,-75.41106,16.20277}, true) and
+	       edm::ParameterDescription<double>("outOfTimeThresholdGain61mEE", 1000, true) and
+	       edm::ParameterDescription<std::vector<double>>("EEchi2Parameters", {2.122,0.022,2.122,0.022}, true) and
+	       edm::ParameterDescription<double>("outOfTimeThresholdGain12mEE", 1000, true) and
+	       edm::ParameterDescription<double>("outOfTimeThresholdGain12mEB", 5, true) and
+	       edm::ParameterDescription<double>("EEtimeFitLimits_Upper", 1.4, true) and
+	       edm::ParameterDescription<double>("EEtimeFitLimits_Lower", 0.2, true) and
+	       edm::ParameterDescription<std::vector<double>>("EEamplitudeFitParameters", {1.89,1.4}, true) and
+	       edm::ParameterDescription<std::vector<double>>("EBamplitudeFitParameters", {1.138,1.652}, true) and
+	       edm::ParameterDescription<double>("amplitudeThresholdEB", 10, true) and
+	       edm::ParameterDescription<double>("outOfTimeThresholdGain12pEE", 1000, true) and
+	       edm::ParameterDescription<double>("outOfTimeThresholdGain12pEB", 5, true) and
+	       edm::ParameterDescription<double>("EEtimeNconst", 31.8, true) and
+	       edm::ParameterDescription<double>("outOfTimeThresholdGain61mEB", 5, true) and
+	       edm::ParameterDescription<std::vector<double>>("EBchi2Parameters", {2.122,0.022,2.122,0.022}, true) and
+	       edm::ParameterDescription<double>("EEtimeConstantTerm", 1.0, true) and
+	       edm::ParameterDescription<double>("chi2ThreshEE_", 95.0, true) and
+	       edm::ParameterDescription<double>("EBtimeFitLimits_Upper", 1.4, true));
+
+  return psd;
+}
+
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
 DEFINE_EDM_PLUGIN( EcalUncalibRecHitWorkerFactory, EcalUncalibRecHitWorkerGlobal, "EcalUncalibRecHitWorkerGlobal" );
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitFillDescriptionWorkerFactory.h"
+DEFINE_EDM_PLUGIN( EcalUncalibRecHitFillDescriptionWorkerFactory, EcalUncalibRecHitWorkerGlobal, "EcalUncalibRecHitWorkerGlobal");

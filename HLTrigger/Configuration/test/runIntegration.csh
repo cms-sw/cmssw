@@ -10,7 +10,7 @@ echo Start $0 $1 $2
 if ( $2 == "" ) then
   set tables = ( GRun 50nsGRun )
 else if ( $2 == ALL ) then
-  set tables = ( FULL Fake GRun HIon PIon 50nsGRun )
+  set tables = ( Fake GRun HIon PIon 50nsGRun )
 else if ( $2 == DEV ) then
   set tables = ( GRun HIon PIon 50nsGRun )
 else if ( $2 == FULL ) then
