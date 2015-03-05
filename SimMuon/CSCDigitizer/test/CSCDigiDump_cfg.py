@@ -1,5 +1,5 @@
 # Based on cmsDriver.py created file - but needed a LOT of editing - Tim Cox, Feb/Mar 2015
-# 05.03.2015 - runs in 73X-75x (at least) - dumps CSCDigitizer info & can activate dump of all CSC digis
+# 05.03.2015 - runs in 73x-75x (at least) - dumps all CSC digis, but not CSCDigitizer debugging info
 
 import FWCore.ParameterSet.Config as cms
 
@@ -33,35 +33,30 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
-
-# Activate debug printout for CSCDigitizer (must ALSO activate LogVerbatim for "CSCDigitizer")
-process.simMuonCSCDigis.dumpGasCollisions = cms.untracked.bool(True)
-
 # MessageLogger
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # Activate LogVerbatim output in CSCDigitizer
-process.MessageLogger.categories.append("CSCDigitizer")
+##process.MessageLogger.categories.append("CSCDigitizer")
 
 # Activate LogVerbatim output in CSC Digis and CSCDigiDump
-##process.MessageLogger.categories.append("CSCDigi")
+process.MessageLogger.categories.append("CSCDigi")
 
 process.MessageLogger.destinations = cms.untracked.vstring("cout")
 process.MessageLogger.cout = cms.untracked.PSet(
     threshold = cms.untracked.string("INFO"),
     default   = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-    CSCDigitizer = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
-##    CSCDigi      = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+##    CSCDigitizer = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+    CSCDigi      = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
 )
 
-## To dump strip, wire and comparator digis in each event, activate CSCDigiDump...
-##process.load("SimMuon.CSCDigitizer.cscDigiDump_cfi")
-# ... BUT must activate LogVerbatim for "CSCDigi" above too
+## To dump CSC digis need to include CSCDigiDump, AND activate LogVerbatim for "CSCDigi" above
+process.load("SimMuon.CSCDigitizer.cscDigiDump_cfi")
 # CSCDigiDump - cscDigiDump for real; cscSimDigiDump for sim (both in above cfi)
-##process.digi = cms.Path(process.pdigi*process.cscSimDigiDump)
-process.digi = cms.Path(process.pdigi)
+##process.digi = cms.Path(process.pdigi)
+process.digi = cms.Path(process.pdigi*process.cscSimDigiDump)
 process.endjob = cms.EndPath(process.endOfProcess)
 process.schedule = cms.Schedule(process.digi,process.endjob)
 
