@@ -12,7 +12,7 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
@@ -70,7 +70,7 @@
 #include "CommonTools/RecoAlgos/interface/HBHENoiseFilter.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"  
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"  
 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
