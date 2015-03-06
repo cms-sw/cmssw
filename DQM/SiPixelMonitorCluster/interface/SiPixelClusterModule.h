@@ -36,7 +36,6 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 class SiPixelClusterModule {        
 
  public:
@@ -73,8 +72,6 @@ class SiPixelClusterModule {
 	    bool isUpgrade=false);
   
  private:
-
-  const TrackerTopology *pTT;
 
   uint32_t id_;
   int ncols_;
