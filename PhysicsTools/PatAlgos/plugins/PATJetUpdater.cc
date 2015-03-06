@@ -25,12 +25,17 @@
 using namespace pat;
 
 
-PATJetUpdater::PATJetUpdater(const edm::ParameterSet& iConfig)
+PATJetUpdater::PATJetUpdater(const edm::ParameterSet& iConfig) :
+  useUserData_(iConfig.exists("userData"))
 {
   // initialize configurables
   jetsToken_ = consumes<edm::View<Jet> >(iConfig.getParameter<edm::InputTag>( "jetSource" ));
   addJetCorrFactors_ = iConfig.getParameter<bool>( "addJetCorrFactors" );
   jetCorrFactorsTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "jetCorrFactorsSource" ), [this](edm::InputTag const & tag){return mayConsume<edm::ValueMap<JetCorrFactors> >(tag);});
+  // Check to see if the user wants to add user data
+  if ( useUserData_ ) {
+    userDataHelper_ = PATUserDataHelper<Jet>(iConfig.getParameter<edm::ParameterSet>("userData"), consumesCollector());
+  }
   // produces vector of jets
   produces<std::vector<Jet> >();
 }
@@ -66,7 +71,9 @@ void PATJetUpdater::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     // construct the Jet from the ref -> save ref to original object
     unsigned int idx = itJet - jets->begin();
     edm::RefToBase<Jet> jetRef = jets->refAt(idx);
+    edm::Ptr<reco::Candidate> jetPtr = jets->ptrAt(idx);
     Jet ajet(*itJet);
+    ajet.setOriginalObject(jetPtr);
 
     if (addJetCorrFactors_) {
       unsigned int setindex = ajet.availableJECSets().size();
@@ -96,6 +103,10 @@ void PATJetUpdater::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
       }
     }
 
+    if ( useUserData_ ) {
+      userDataHelper_.add( ajet, iEvent, iSetup );
+    }
+
     patJets->push_back(ajet);
   }
 
@@ -120,6 +131,11 @@ void PATJetUpdater::fillDescriptions(edm::ConfigurationDescriptions & descriptio
   iDesc.add<bool>("addJetCorrFactors", true);
   std::vector<edm::InputTag> emptyVInputTags;
   iDesc.add<std::vector<edm::InputTag> >("jetCorrFactorsSource", emptyVInputTags);
+
+  // Check to see if the user wants to add user data
+  edm::ParameterSetDescription userDataPSet;
+  PATUserDataHelper<Jet>::fillDescription(userDataPSet);
+  iDesc.addOptional("userData", userDataPSet);
 
   descriptions.add("PATJetUpdater", iDesc);
 }
