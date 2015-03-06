@@ -203,7 +203,7 @@ namespace pat {
     const PVAssoc fromPV(size_t ipv=0) const { 
         if(pvAssignmentQuality()==UsedInFit and pvRef_.key()==ipv) return PVUsedInFit;
         if(pvRef_.key()==ipv or abs(pdgId())==13 or abs(pdgId())==11 ) return PVTight;
-        if(pvAssignmentQuality() < UsedInFit) return PVLoose;
+        if(pvAssignmentQuality() < UsedInFit or pvRef_->ndof() < 4.0 ) return PVLoose;
         return NoPV;
     }
     void setFromPV( PVAssoc fromPV )   {  qualityFlags_ = (qualityFlags_ & ~fromPVMask) | ((fromPV << fromPVShift) & fromPVMask);  }
