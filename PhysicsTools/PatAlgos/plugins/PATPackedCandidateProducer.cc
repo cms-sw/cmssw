@@ -114,9 +114,8 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
     edm::Handle<reco::PFCandidateFwdPtrVector> candsFromPVTight;
     iEvent.getByToken( CandsFromPVTight_, candsFromPVTight );
 
-    bool hasPuppiWeights = false;
     edm::Handle< edm::ValueMap<float> > puppiWeight;
-    if (iEvent.getByToken( PuppiWeight_, puppiWeight )) hasPuppiWeights = true;
+    iEvent.getByToken( PuppiWeight_, puppiWeight );
     
     std::vector<pat::PackedCandidate::PVAssoc> fromPV(cands->size(), pat::PackedCandidate::NoPV);
     for (const reco::PFCandidateFwdPtr &ptr : *candsFromPVLoose) {
@@ -230,7 +229,7 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
           outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(pat::PackedCandidate::UsedInFitTight));
         }
 	
-	if (hasPuppiWeights){
+	if (puppiWeight.isValid()){
 	  reco::PFCandidateRef pkref( cands, ic );
 	  outPtrP->back().setPuppiWeight( (*puppiWeight)[pkref]);
 	}
