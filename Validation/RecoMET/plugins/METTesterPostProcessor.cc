@@ -69,6 +69,33 @@ METTesterPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
     MonitorElement* mMETDifference_GenMETTrue_MET100to150_Reco=iget_.get(rundir_reco+"/"+"METResolution_GenMETTrue_MET100to150");
     MonitorElement* mMETDifference_GenMETTrue_MET300to400_Reco=iget_.get(rundir_reco+"/"+"METResolution_GenMETTrue_MET300to400");
 
+    map_string_vec.push_back("MET");
+    map_string_vec.push_back("METPhi");
+    map_string_vec.push_back("SumET");
+    map_string_vec.push_back("METDifference_GenMETTrue");
+    map_string_vec.push_back("METDeltaPhi_GenMETTrue");
+    map_string_vec.push_back("photonEtFraction");
+    map_string_vec.push_back("neutralHadronEtFraction");
+    map_string_vec.push_back("chargedHadronEtFraction");
+    map_string_vec.push_back("HFHadronEtFraction");
+    map_string_vec.push_back("HFEMEtFraction");
+    map_string_vec.push_back("METResolution_GenMETTrue_MET20to40");
+    map_string_vec.push_back("METResolution_GenMETTrue_MET100to150");
+    map_string_vec.push_back("METResolution_GenMETTrue_MET300to400");
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"MET" ,mMET_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"METPhi" ,mMETPhi_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"SumET" ,mSumET_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"METDifference_GenMETTrue"  ,mMETDifference_GenMETTrue_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"METDeltaPhi_GenMETTrue" ,mMETDeltaPhi_GenMETTrue_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"photonEtFraction" ,mPFPhotonEtFraction_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"chargedHadronEtFraction" ,mPFChargedHadronEtFraction_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"neutralHadronEtFraction" ,mPFNeutralHadronEtFraction_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"HFHadronEtFraction" ,mPFHFHadronEtFraction_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"HFEMEtFraction" ,mPFHFEMEtFraction_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"METResolution_GenMETTrue_MET20to40" ,mMETDifference_GenMETTrue_MET20to40_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"METResolution_GenMETTrue_MET100to150" ,mMETDifference_GenMETTrue_MET100to150_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"METResolution_GenMETTrue_MET300to400" ,mMETDifference_GenMETTrue_MET300to400_Reco));
+
     MonitorElement* mMET_MiniAOD=iget_.get(rundir_miniaod+"/"+"MET");
     MonitorElement* mMETPhi_MiniAOD=iget_.get(rundir_miniaod+"/"+"METPhi");
     MonitorElement* mSumET_MiniAOD=iget_.get(rundir_miniaod+"/"+"SumET");
@@ -82,6 +109,20 @@ METTesterPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
     MonitorElement* mMETDifference_GenMETTrue_MET20to40_MiniAOD=iget_.get(rundir_miniaod+"/"+"METResolution_GenMETTrue_MET20to40");
     MonitorElement* mMETDifference_GenMETTrue_MET100to150_MiniAOD=iget_.get(rundir_miniaod+"/"+"METResolution_GenMETTrue_MET100to150");
     MonitorElement* mMETDifference_GenMETTrue_MET300to400_MiniAOD=iget_.get(rundir_miniaod+"/"+"METResolution_GenMETTrue_MET300to400");
+
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_miniaod+"/"+"MET" ,mMET_MiniAOD));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_miniaod+"/"+"METPhi" ,mMETPhi_MiniAOD));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_miniaod+"/"+"SumET" ,mSumET_MiniAOD));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_miniaod+"/"+"METDifference_GenMETTrue"  ,mMETDifference_GenMETTrue_MiniAOD));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_miniaod+"/"+"METDeltaPhi_GenMETTrue" ,mMETDeltaPhi_GenMETTrue_MiniAOD));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_miniaod+"/"+"photonEtFraction" ,mPFPhotonEtFraction_MiniAOD));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_miniaod+"/"+"chargedHadronEtFraction" ,mPFChargedHadronEtFraction_MiniAOD));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_miniaod+"/"+"neutralHadronEtFraction" ,mPFNeutralHadronEtFraction_MiniAOD));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_miniaod+"/"+"HFHadronEtFraction" ,mPFHFHadronEtFraction_MiniAOD));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_miniaod+"/"+"HFEMEtFraction" ,mPFHFEMEtFraction_MiniAOD));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_miniaod+"/"+"METResolution_GenMETTrue_MET20to40" ,mMETDifference_GenMETTrue_MET20to40_MiniAOD));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_miniaod+"/"+"METResolution_GenMETTrue_MET100to150" ,mMETDifference_GenMETTrue_MET100to150_MiniAOD));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_miniaod+"/"+"METResolution_GenMETTrue_MET300to400" ,mMETDifference_GenMETTrue_MET300to400_MiniAOD));
 
     ibook_.setCurrentFolder(RunDir+"MiniAOD_over_RECO");
     mMET_MiniAOD_over_Reco=ibook_.book1D("MET_MiniAOD_over_RECO",(TH1F*)mMET_Reco->getRootObject());
@@ -97,95 +138,34 @@ METTesterPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
     mMETDifference_GenMETTrue_MET20to40_MiniAOD_over_Reco=ibook_.book1D("METResolution_GenMETTrue_MET20to40_MiniAOD_over_RECO",(TH1F*)mMETDifference_GenMETTrue_MET20to40_Reco->getRootObject());
     mMETDifference_GenMETTrue_MET100to150_MiniAOD_over_Reco=ibook_.book1D("METResolution_GenMETTrue_MET100to150_MiniAOD_over_RECO",(TH1F*)mMETDifference_GenMETTrue_MET100to150_Reco->getRootObject());
     mMETDifference_GenMETTrue_MET300to400_MiniAOD_over_Reco=ibook_.book1D("METResolution_GenMETTrue_MET300to400_MiniAOD_over_RECO",(TH1F*)mMETDifference_GenMETTrue_MET300to400_Reco->getRootObject());
-    for(int i=0;i<=(mMET_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMET_Reco->getBinContent(i)!=0){
-	mMET_MiniAOD_over_Reco->setBinContent(i,mMET_MiniAOD->getBinContent(i)/mMET_Reco->getBinContent(i));
-      }else if(mMET_MiniAOD->getBinContent(i)!=0){
-	mMET_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mMETPhi_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMETPhi_Reco->getBinContent(i)!=0){
-	mMETPhi_MiniAOD_over_Reco->setBinContent(i,mMETPhi_MiniAOD->getBinContent(i)/mMETPhi_Reco->getBinContent(i));
-      }else if(mMETPhi_MiniAOD->getBinContent(i)!=0){
-	mMETPhi_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mSumET_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mSumET_Reco->getBinContent(i)!=0){
-	mSumET_MiniAOD_over_Reco->setBinContent(i,mSumET_MiniAOD->getBinContent(i)/mSumET_Reco->getBinContent(i));
-      }else if(mSumET_MiniAOD->getBinContent(i)!=0){
-	mSumET_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mMETDifference_GenMETTrue_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMETDifference_GenMETTrue_Reco->getBinContent(i)!=0){
-	mMETDifference_GenMETTrue_MiniAOD_over_Reco->setBinContent(i,mMETDifference_GenMETTrue_MiniAOD->getBinContent(i)/mMETDifference_GenMETTrue_Reco->getBinContent(i));
-      }else if(mMETDifference_GenMETTrue_MiniAOD->getBinContent(i)!=0){
-	mMETDifference_GenMETTrue_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mMETDeltaPhi_GenMETTrue_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMETDeltaPhi_GenMETTrue_Reco->getBinContent(i)!=0){
-	mMETDeltaPhi_GenMETTrue_MiniAOD_over_Reco->setBinContent(i,mMETDeltaPhi_GenMETTrue_MiniAOD->getBinContent(i)/mMETDeltaPhi_GenMETTrue_Reco->getBinContent(i));
-      }else if(mMETDeltaPhi_GenMETTrue_MiniAOD->getBinContent(i)!=0){
-	mMETDeltaPhi_GenMETTrue_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mPFPhotonEtFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mPFPhotonEtFraction_Reco->getBinContent(i)!=0){
-	mPFPhotonEtFraction_MiniAOD_over_Reco->setBinContent(i,mPFPhotonEtFraction_MiniAOD->getBinContent(i)/mPFPhotonEtFraction_Reco->getBinContent(i));
-      }else if(mPFPhotonEtFraction_MiniAOD->getBinContent(i)!=0){
-	mPFPhotonEtFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mPFNeutralHadronEtFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mPFNeutralHadronEtFraction_Reco->getBinContent(i)!=0){
-	mPFNeutralHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,mPFNeutralHadronEtFraction_MiniAOD->getBinContent(i)/mPFNeutralHadronEtFraction_Reco->getBinContent(i));
-      }else if(mPFNeutralHadronEtFraction_MiniAOD->getBinContent(i)!=0){
-	mPFNeutralHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mPFChargedHadronEtFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mPFChargedHadronEtFraction_Reco->getBinContent(i)!=0){
-	mPFChargedHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,mPFChargedHadronEtFraction_MiniAOD->getBinContent(i)/mPFChargedHadronEtFraction_Reco->getBinContent(i));
-      }else if(mPFChargedHadronEtFraction_MiniAOD->getBinContent(i)!=0){
-	mPFChargedHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mPFHFHadronEtFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mPFHFHadronEtFraction_Reco->getBinContent(i)!=0){
-	mPFHFHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,mPFHFHadronEtFraction_MiniAOD->getBinContent(i)/mPFHFHadronEtFraction_Reco->getBinContent(i));
-      }else if(mPFHFHadronEtFraction_MiniAOD->getBinContent(i)!=0){
-	mPFHFHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mPFHFEMEtFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mPFHFEMEtFraction_Reco->getBinContent(i)!=0){
-	mPFHFEMEtFraction_MiniAOD_over_Reco->setBinContent(i,mPFHFEMEtFraction_MiniAOD->getBinContent(i)/mPFHFEMEtFraction_Reco->getBinContent(i));
-      }else if(mPFHFEMEtFraction_MiniAOD->getBinContent(i)!=0){
-	mPFHFEMEtFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mMETDifference_GenMETTrue_MET20to40_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMETDifference_GenMETTrue_MET20to40_Reco->getBinContent(i)!=0){
-	mMETDifference_GenMETTrue_MET20to40_MiniAOD_over_Reco->setBinContent(i,mMETDifference_GenMETTrue_MET20to40_MiniAOD->getBinContent(i)/mMETDifference_GenMETTrue_MET20to40_Reco->getBinContent(i));
-      }else if(mMETDifference_GenMETTrue_MET20to40_MiniAOD->getBinContent(i)!=0){
-	mMETDifference_GenMETTrue_MET20to40_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mMETDifference_GenMETTrue_MET100to150_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMETDifference_GenMETTrue_MET100to150_Reco->getBinContent(i)!=0){
-	mMETDifference_GenMETTrue_MET100to150_MiniAOD_over_Reco->setBinContent(i,mMETDifference_GenMETTrue_MET100to150_MiniAOD->getBinContent(i)/mMETDifference_GenMETTrue_MET100to150_Reco->getBinContent(i));
-      }else if(mMETDifference_GenMETTrue_MET100to150_MiniAOD->getBinContent(i)!=0){
-	mMETDifference_GenMETTrue_MET100to150_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mMETDifference_GenMETTrue_MET300to400_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMETDifference_GenMETTrue_MET300to400_Reco->getBinContent(i)!=0){
-	mMETDifference_GenMETTrue_MET300to400_MiniAOD_over_Reco->setBinContent(i,mMETDifference_GenMETTrue_MET300to400_MiniAOD->getBinContent(i)/mMETDifference_GenMETTrue_MET300to400_Reco->getBinContent(i));
-      }else if(mMETDifference_GenMETTrue_MET300to400_MiniAOD->getBinContent(i)!=0){
-	mMETDifference_GenMETTrue_MET300to400_MiniAOD_over_Reco->setBinContent(i,-0.5);
+
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(RunDir+"MiniAOD_over_RECO"+"/"+"MET" ,mMET_MiniAOD_over_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(RunDir+"MiniAOD_over_RECO"+"/"+"METPhi" ,mMETPhi_MiniAOD_over_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(RunDir+"MiniAOD_over_RECO"+"/"+"SumET" ,mSumET_MiniAOD_over_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(RunDir+"MiniAOD_over_RECO"+"/"+"METDifference_GenMETTrue"  ,mMETDifference_GenMETTrue_MiniAOD_over_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(RunDir+"MiniAOD_over_RECO"+"/"+"METDeltaPhi_GenMETTrue" ,mMETDeltaPhi_GenMETTrue_MiniAOD_over_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(RunDir+"MiniAOD_over_RECO"+"/"+"photonEtFraction" ,mPFPhotonEtFraction_MiniAOD_over_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(RunDir+"MiniAOD_over_RECO"+"/"+"chargedHadronEtFraction" ,mPFChargedHadronEtFraction_MiniAOD_over_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(RunDir+"MiniAOD_over_RECO"+"/"+"neutralHadronEtFraction" ,mPFNeutralHadronEtFraction_MiniAOD_over_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(RunDir+"MiniAOD_over_RECO"+"/"+"HFHadronEtFraction" ,mPFHFHadronEtFraction_MiniAOD_over_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(RunDir+"MiniAOD_over_RECO"+"/"+"HFEMEtFraction" ,mPFHFEMEtFraction_MiniAOD_over_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(RunDir+"MiniAOD_over_RECO"+"/"+"METResolution_GenMETTrue_MET20to40" ,mMETDifference_GenMETTrue_MET20to40_MiniAOD_over_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(RunDir+"MiniAOD_over_RECO"+"/"+"METResolution_GenMETTrue_MET100to150" ,mMETDifference_GenMETTrue_MET100to150_MiniAOD_over_Reco));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(RunDir+"MiniAOD_over_RECO"+"/"+"METResolution_GenMETTrue_MET300to400" ,mMETDifference_GenMETTrue_MET300to400_MiniAOD_over_Reco));
+
+    for(unsigned int j=0;j<map_string_vec.size();j++){
+      MonitorElement* monReco=map_of_MEs[rundir_reco+"/"+map_string_vec[j]];if(monReco && monReco->getRootObject()){
+	MonitorElement* monMiniAOD=map_of_MEs[rundir_miniaod+"/"+map_string_vec[j]];if(monMiniAOD && monMiniAOD->getRootObject()){
+	  MonitorElement* monMiniAOD_over_RECO=map_of_MEs[RunDir+"MiniAOD_over_RECO"+"/"+map_string_vec[j]];if(monMiniAOD_over_RECO && monMiniAOD_over_RECO->getRootObject()){
+	    for(int i=0;i<=(monMiniAOD_over_RECO->getNbinsX()+1);i++){
+	      if(monReco->getBinContent(i)!=0){
+		monMiniAOD_over_RECO->setBinContent(i,monMiniAOD->getBinContent(i)/monReco->getBinContent(i));
+	      }else if (monMiniAOD->getBinContent(i)!=0){
+		monMiniAOD_over_RECO->setBinContent(i,-0.5);
+	      }
+	    }
+	  }
+	}
       }
     }
   }

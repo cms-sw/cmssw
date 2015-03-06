@@ -37,6 +37,10 @@ class METTesterPostProcessor : public DQMEDHarvester {
       edm::InputTag inputMETLabelMiniAOD_;
 
       std::vector<std::string> met_dirs;
+      std::vector<std::string> map_string_vec;
+      std::map< std::string, MonitorElement*> map_of_MEs;
+
+
       void FillMETRes(std::string metdir,DQMStore::IGetter &);
       MonitorElement* mMETDifference_GenMETTrue_MET0to20;
       MonitorElement* mMETDifference_GenMETTrue_MET20to40;
