@@ -31,9 +31,15 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 // for L1Tracks:
 #include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
+
+// Matching Algorithm
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/L1TkElectronStubMatchAlgo.h"
+
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <string>
 #include "TMath.h"
@@ -48,13 +54,13 @@ using namespace l1extra ;
 class L1TkElectronStubsProducer : public edm::EDProducer {
    public:
 
-   typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
+   typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;                  
    typedef std::vector< L1TkTrackType >  L1TkTrackCollectionType;
 
-      explicit L1TkElectronStubsProducer(const edm::ParameterSet&);
-      ~L1TkElectronStubsProducer();
+   explicit L1TkElectronStubsProducer(const edm::ParameterSet&);
+  ~L1TkElectronStubsProducer();
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
       virtual void beginJob() ;
@@ -66,26 +72,54 @@ class L1TkElectronStubsProducer : public edm::EDProducer {
       //virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
       //virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
+      float isolation(const edm::Handle<L1TkTrackCollectionType> & trkHandle, GlobalPoint ep, std::vector<double> & zvals);
+
       // ----------member data ---------------------------
 	edm::InputTag L1EGammaInputTag;
 	edm::InputTag L1TrackInputTag;
+	edm::InputTag L1StubInputTag;
+	edm::InputTag BeamSpotInputTag;
+        const edm::ParameterSet conf;
 	std::string label;
 
+	float ETmin; 	// min ET in GeV of L1EG objects
+
+	float DRmin;
+	float DRmax;
+	float PTMINTRA;
+	bool PrimaryVtxConstrain;	// use the primary vertex (default = false)
+	float DeltaZ;      	// | z_track - z_ref_track | < DeltaZ in cm. 
+				// Used only when PrimaryVtxConstrain = True.
+	float IsoCut;
+	bool RelativeIsolation;
 } ;
 
 
 //
 // constructors and destructor
 //
-L1TkElectronStubsProducer::L1TkElectronStubsProducer(const edm::ParameterSet& iConfig)
-{
+L1TkElectronStubsProducer::L1TkElectronStubsProducer(const edm::ParameterSet& iConfig) :
+  conf(iConfig)  {
 
-   L1EGammaInputTag = iConfig.getParameter<edm::InputTag>("L1EGammaInputTag") ;
-   L1TrackInputTag = iConfig.getParameter<edm::InputTag>("L1TrackInputTag");
-   label = iConfig.getParameter<std::string>("label");
-   
-
-   produces<L1TkElectronParticleCollection>(label);
+  L1EGammaInputTag = iConfig.getParameter<edm::InputTag>("L1EGammaInputTag") ;
+  L1TrackInputTag = iConfig.getParameter<edm::InputTag>("L1TrackInputTag");
+  L1StubInputTag = iConfig.getParameter<edm::InputTag>("L1StubInputTag");
+  BeamSpotInputTag = iConfig.getParameter<edm::InputTag>("BeamSpotInputTag");
+  label = iConfig.getParameter<std::string>("label");
+  
+  ETmin = (float)iConfig.getParameter<double>("ETmin");
+  
+  // parameters for the calculation of the isolation :
+  PTMINTRA = (float)iConfig.getParameter<double>("PTMINTRA");
+  DRmin = (float)iConfig.getParameter<double>("DRmin");
+  DRmax = (float)iConfig.getParameter<double>("DRmax");
+  DeltaZ = (float)iConfig.getParameter<double>("DeltaZ");
+  
+  // cut applied on the isolation (if this number is <= 0, no cut is applied)
+  IsoCut = (float)iConfig.getParameter<double>("IsoCut");
+  RelativeIsolation = iConfig.getParameter<bool>("RelativeIsolation");
+  
+  produces<L1TkElectronParticleCollection>(label);
 }
 
 L1TkElectronStubsProducer::~L1TkElectronStubsProducer() {
@@ -106,6 +140,8 @@ L1TkElectronStubsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
  edm::Handle<L1TkTrackCollectionType> L1TkTrackHandle;
  iEvent.getByLabel(L1TrackInputTag, L1TkTrackHandle);
  L1TkTrackCollectionType::const_iterator trackIter;
+
+ 
  if( !EGammaHandle.isValid() )
         {
           LogError("L1TkElectronStubsProducer")
@@ -117,35 +153,58 @@ L1TkElectronStubsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
  int ieg = 0;
  for (egIter = EGammaHandle->begin();  egIter != EGammaHandle->end(); ++egIter) {
-
-    edm::Ref< L1EmParticleCollection > EGammaRef( EGammaHandle, ieg );
+   
+   edm::Ref< L1EmParticleCollection > EGammaRef( EGammaHandle, ieg );
     ieg ++;
 
     int ibx = egIter -> bx();
     if (ibx != 0) continue;
 
-        float trkisol = -999;       // dummy
-        const math::XYZTLorentzVector P4 = egIter -> p4() ;
+    float e_ele   = egIter->energy();
+    float eta_ele = egIter->eta();
+    float et_ele = 0;
+    if (cosh(eta_ele) > 0.0) et_ele = e_ele/cosh(eta_ele);
+    else et_ele = -1.0;
+    if (ETmin > 0.0 && et_ele <= ETmin) continue;
 
-           edm::Ptr< L1TkTrackType > L1TrackPtrNull;     //  null pointer
-           L1TkElectronParticle trkEm( P4,
-                                 EGammaRef,
-                                 L1TrackPtrNull,  
-                                 trkisol );
+    std::vector<double> compatibleZpoints;
+    unsigned int matchedStubs = L1TkElectronStubMatchAlgo::doMatch(egIter, conf, iSetup, iEvent, compatibleZpoints);
+   
 
-           	// then one can set the "z" of the electron, as determined by the 
-           	// algorithm, via :
-	   float z = -999; 	// dummy
-           trkEm.setTrkzVtx( z );
+    if (matchedStubs > 0) {
 
-	   result -> push_back( trkEm );
+      const math::XYZTLorentzVector P4 = egIter -> p4() ;
+      GlobalPoint epos = L1TkElectronStubMatchAlgo::calorimeterPosition(egIter->phi(), egIter->eta(), egIter->energy()); 
+      float trkisol = isolation(L1TkTrackHandle, epos, compatibleZpoints);
+      //      std::cout <<  " Event # " <<  iEvent.id().event() << " EGamma Et " << et_ele  << " Selected Tracklets " << matchedStubs << " Isolation " << trkisol/et_ele << std::endl;
+      if (RelativeIsolation && et_ele > 0.0) {   // relative isolation
+	trkisol = trkisol  / et_ele;
+      }
+      edm::Ptr< L1TkTrackType > L1TrackPtrNull; // null pointer
 
+      L1TkElectronParticle trkEm( P4,
+				  EGammaRef,
+				  L1TrackPtrNull,
+				  trkisol );
 
- }  // end loop over EGamma objects
-
- iEvent.put( result, label );
+      if (IsoCut <= 0) {
+	// write the L1TkEm particle to the collection, 
+	// irrespective of its relative isolation
+	result -> push_back( trkEm );
+      }	else {
+	// the object is written to the collection only
+	// if it passes the isolation cut
+	if (trkisol <= IsoCut) result -> push_back( trkEm );
+      }
+     
+    }
+   
+  } // end loop over EGamma objects
+  
+  iEvent.put( result, label );
 
 }
+
 
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -199,6 +258,36 @@ L1TkElectronStubsProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
+}
+// method to calculate isolation
+float 
+  L1TkElectronStubsProducer::isolation(const edm::Handle<L1TkTrackCollectionType> & trkHandle, GlobalPoint ep, std::vector<double> & zvals) {
+  L1TkTrackCollectionType::const_iterator trackIter;
+  
+  float er = ep.perp();
+  float ez = ep.z();
+  float minIso = 999.9;
+  
+  for (std::vector<double>::iterator iz = zvals.begin(); iz != zvals.end(); iz++) {
+    float zcorr = ez - (*iz);
+    float theta = 0.0;
+    if (zcorr >= 0) theta = atan(er/fabs(zcorr));
+    else theta = 3.14 - atan(er/fabs(zcorr));
+    float etacorr = -1.0 * TMath::Log(TMath::Tan(theta/2.0));
+    
+    float sumPt = 0.0;
+    for (trackIter = trkHandle->begin(); trackIter != trkHandle->end(); ++trackIter) {
+      float dZ = fabs(trackIter->getPOCA().z() - (*iz));       
+      float dPhi = reco::deltaPhi(trackIter->getMomentum().phi(), ep.phi());
+      float dEta = (trackIter->getMomentum().eta() - etacorr);
+      float dR =  sqrt(dPhi*dPhi + dEta*dEta);
+      if (dR > DRmin && dR < DRmax && dZ < DeltaZ && trackIter->getMomentum().perp() > PTMINTRA) {
+	sumPt += trackIter->getMomentum().perp();
+      }
+    }
+    if (sumPt < minIso) minIso = sumPt;
+  }
+  return minIso;
 }
 
 //define this as a plug-in
