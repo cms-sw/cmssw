@@ -435,7 +435,7 @@ HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt ){
           }
         }
 	for(unsigned int i=0;i<m_PDGs.size();i++){
-	  if(idHep==m_PDGs[i]){
+	  if(abs(idHep)==m_PDGs[i]){
 	    isDefaultEvtGen=true;
 	    break;
 	  }
@@ -548,7 +548,7 @@ void EvtGenInterface::update_particles(HepMC::GenParticle* partHep,HepMC::GenEve
 	  }
 	  // re-run is daughter is on EvtGen decay list (pythia8 does not return the event to EvtGen)
 	  for(unsigned int i=0;i<m_PDGs.size();i++){
-	    if(idHep==m_PDGs[i]){
+	    if(abs(idHep)==m_PDGs[i]){
 	      isDefaultEvtGen=true;
 	      break;
 	    }
