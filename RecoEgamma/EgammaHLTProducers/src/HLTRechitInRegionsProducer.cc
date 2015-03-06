@@ -159,8 +159,10 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 	    
 	    std::vector<EcalEtaPhiRegion>::const_iterator region;
 	    for (region=regions.begin(); region!=regions.end(); region++) {
-	      if (region->inRegion(position))
+	      if (region->inRegion(position)) {
 		uhits->push_back(*it);
+		break;
+	      }
 	    }
 	  }
 	}
@@ -202,8 +204,10 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 	    
 	    std::vector<EcalEtaPhiRegion>::const_iterator region;
 	    for (region=regions.begin(); region!=regions.end(); region++) {
-	      if (region->inRegion(position))
+	      if (region->inRegion(position)) {
 		hits->push_back(*it);
+		break;
+	      }
 	    }
 	  }
 	}
