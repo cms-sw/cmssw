@@ -30,13 +30,17 @@
 //#define CRAZYSORT 
 
 namespace pat {
-    static int qualityMap[8]  = {1,0,1,1,2,2,2,3};
+    ///conversion map from quality flags used in PV association and miniAOD one
+    static int qualityMap[8]  = {1,0,1,1,4,4,5,6};
+
     class PATPackedCandidateProducer : public edm::EDProducer {
         public:
             explicit PATPackedCandidateProducer(const edm::ParameterSet&);
             ~PATPackedCandidateProducer();
 
             virtual void produce(edm::Event&, const edm::EventSetup&);
+
+            //sorting of cands to maximize the zlib compression
             bool candsOrdering(pat::PackedCandidate i,pat::PackedCandidate j) {
                 if (std::abs(i.charge()) == std::abs(j.charge())) {
                     if(i.charge()!=0){
@@ -50,8 +54,8 @@ namespace pat {
                 }
                 return std::abs(i.charge()) > std::abs(j.charge());
             }
-           template <typename T>
-           std::vector<size_t> sort_indexes(const std::vector<T> &v ) {
+            template <typename T>
+            std::vector<size_t> sort_indexes(const std::vector<T> &v ) {
               std::vector<size_t> idx(v.size());
               for (size_t i = 0; i != idx.size(); ++i) idx[i] = i;
               std::sort(idx.begin(), idx.end(),[&v,this](size_t i1, size_t i2) { return candsOrdering(v[i1],v[i2]);});
@@ -168,8 +172,10 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
 
 
           outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PV));
-          outPtrP->back().setFromPV(pat::PackedCandidate::PVAssoc(qualityMap[quality]));
-
+          outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(qualityMap[quality]));
+          if(cand.trackRef().isNonnull() && PVOrig->trackWeight(cand.trackRef()) > 0.5 && quality == 7) {
+                  outPtrP->back().setAssociationQuality(pat::PackedCandidate::UsedInFitTight);
+          }
           // properties of the best track 
           outPtrP->back().setLostInnerHits( lostHits );
           if(outPtrP->back().pt() > minPtForTrackProperties_) {
@@ -190,7 +196,7 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
           }
 
           outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.phi(), cand.pdgId(), PV));
-          outPtrP->back().setFromPV(pat::PackedCandidate::PVAssoc(3));
+          outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(pat::PackedCandidate::UsedInFitTight));
         }
                 
 
