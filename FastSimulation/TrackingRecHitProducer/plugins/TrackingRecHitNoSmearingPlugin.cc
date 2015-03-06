@@ -12,8 +12,7 @@ class TrackingRecHitNoSmearingPlugin:
             const std::string& name,
             const edm::ParameterSet& config,
             edm::ConsumesCollector& consumesCollector
-        ):
-            TrackingRecHitAlgorithm(name,config,consumesCollector)
+        )
         {
             std::cout<<"created plugin with name: "<<name<<std::endl;
         }

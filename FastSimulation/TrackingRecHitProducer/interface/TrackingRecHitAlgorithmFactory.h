@@ -1,5 +1,5 @@
-#ifndef FastSimulation_Tracking_RecHitAlgorithmFactory_H
-#define FastSimulation_Tracking_RecHitAlgorithmFactory_H
+#ifndef FastSimulation_TrackingRecHitProducer_TrackingRecHitAlgorithmFactory_H
+#define FastSimulation_TrackingRecHitProducer_TrackingRecHitAlgorithmFactory_H
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 

@@ -21,7 +21,7 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 
 process.source = cms.Source ("PoolSource",
@@ -42,7 +42,7 @@ process.recHitProducer=cms.EDProducer("TrackingRecHitProducer",
 process.tracking_step=cms.Path(
     process.siTrackerGaussianSmearingRecHits
     *process.recHitProducer
-    *process.iterTracking
+    #*process.iterTracking
 )
 
 process.output = cms.OutputModule("PoolOutputModule",

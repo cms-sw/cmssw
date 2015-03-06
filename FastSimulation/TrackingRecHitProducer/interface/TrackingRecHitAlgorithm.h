@@ -1,28 +1,31 @@
-#ifndef FastSimulation_Tracking_RecHitAlgorithm_H
-#define FastSimulation_Tracking_RecHitAlgorithm_H
+#ifndef FastSimulation_TrackingRecHitProducer_TrackingRecHitAlgorithm_H
+#define FastSimulation_TrackingRecHitProducer_TrackingRecHitAlgorithm_H
 
-#include <string>
+#include <vector>
 
 namespace edm
 {
-    class ParameterSet;
-    class ConsumesCollector;
+    class Event;
+    class EventSetup;
 }
+
+class PSimHit;
+class SiTrackerGSRecHit2D;
+class DetId;
+
 
 class TrackingRecHitAlgorithm
 {
     public:
-        TrackingRecHitAlgorithm(
-            const std::string&,
-            const edm::ParameterSet&,
-            edm::ConsumesCollector&
-        )
-        {
-        }
+        TrackingRecHitAlgorithm();
 
-        virtual ~TrackingRecHitAlgorithm()
-        {
-        }
+        virtual void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup);
+
+        virtual std::vector<SiTrackerGSRecHit2D> processDetId(const DetId& detId, const std::vector<const PSimHit*>& simHits) const;
+
+        virtual void endEvent(edm::Event& event, edm::EventSetup& eventSetup);
+
+        virtual ~TrackingRecHitAlgorithm();
 
 };
 
