@@ -21,7 +21,7 @@
 <use   name="geant4core"/>
 <use   name="hepmc"/>
 <use   name="root"/>
-<use   name="rootrflx"/>
+
 <use   name="rootmath"/>
 <export>
   <lib   name="1"/>

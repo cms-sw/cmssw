@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -25,7 +25,7 @@ namespace edm {
 // class declaration
 //
 
-class HLTRHemisphere : public edm::EDFilter {
+class HLTRHemisphere : public edm::stream::EDFilter<> {
 
    public:
 

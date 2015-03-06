@@ -133,8 +133,8 @@ namespace reco {
   // import only TaggingVariableName type into reco namespace
   using btau::TaggingVariableName;
 
-  extern const char* TaggingVariableDescription[];
-  extern const char* TaggingVariableTokens[];
+  extern const char* const TaggingVariableDescription[];
+  extern const char* const TaggingVariableTokens[];
 
   TaggingVariableName getTaggingVariableName ( const std::string & name );
 

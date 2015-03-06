@@ -41,6 +41,14 @@
    <class name="edm::SortedCollection<ZDCRecHit,edm::StrictWeakOrdering<ZDCRecHit> >"/>
    <class name="edm::SortedCollection<CastorRecHit,edm::StrictWeakOrdering<CastorRecHit> >"/>
    <class name="edm::SortedCollection<HcalCalibRecHit,edm::StrictWeakOrdering<HcalCalibRecHit> >" splitLevel="0"/>
+
+   <class name="edm::StrictWeakOrdering<HBHERecHit>"/>
+   <class name="edm::StrictWeakOrdering<HORecHit>"/>
+   <class name="edm::StrictWeakOrdering<HFRecHit>"/>
+   <class name="edm::StrictWeakOrdering<ZDCRecHit>"/>
+   <class name="edm::StrictWeakOrdering<CastorRecHit>"/>
+   <class name="edm::StrictWeakOrdering<HcalCalibRecHit>" splitLevel="0"/>
+
    <class name="edm::Wrapper<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> > >" />
    <class name="edm::Wrapper<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> > >" />
    <class name="edm::Wrapper<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> > >" />

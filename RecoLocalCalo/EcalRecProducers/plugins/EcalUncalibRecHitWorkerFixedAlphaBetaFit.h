@@ -17,17 +17,20 @@ namespace edm {
         class Event;
         class EventSetup;
         class ParameterSet;
+        class ParameterSetDescription;
 }
 
 class EcalUncalibRecHitWorkerFixedAlphaBetaFit : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
-                EcalUncalibRecHitWorkerFixedAlphaBetaFit(const edm::ParameterSet& ps, edm::ConsumesCollector& );
+                EcalUncalibRecHitWorkerFixedAlphaBetaFit(const edm::ParameterSet& ps, edm::ConsumesCollector& ); 
+		EcalUncalibRecHitWorkerFixedAlphaBetaFit() {};
                 virtual ~EcalUncalibRecHitWorkerFixedAlphaBetaFit() {};
 
                 void set(const edm::EventSetup& es);
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
-
+		
+		edm::ParameterSetDescription getAlgoDescription();
         private:
 
                 double AmplThrEB_;

@@ -34,6 +34,7 @@ class PrimaryVertexSorter : public edm::stream::EDProducer<> {
 
   typedef edm::Association<reco::VertexCollection> CandToVertex;
   typedef edm::ValueMap<int> CandToVertexQuality;
+  typedef edm::ValueMap<float> VertexScore;
 
   typedef ParticlesCollection PFCollection;
 
@@ -98,11 +99,13 @@ PrimaryVertexSorter<ParticlesCollection>::PrimaryVertexSorter(const edm::Paramet
   if(produceOriginalMapping_){
       produces< CandToVertex> ("original");
       produces< CandToVertexQuality> ("original");
+      produces< VertexScore> ("original");
   }
   if(produceSortedVertices_){
       produces< reco::VertexCollection> ();
       produces< CandToVertex> ();
       produces< CandToVertexQuality> ();
+      produces< VertexScore> ();
   }
 
   if(producePFPileUp_){
@@ -144,12 +147,14 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(Event& iEvent,  const Eve
   iEvent.getByToken( tokenCandidates_, particlesHandle);
 
   ParticlesCollection particles = *particlesHandle.product();
-   std::vector<int> pfToPVVector;
+  std::vector<int> pfToPVVector;
   std::vector<PrimaryVertexAssignment::Quality> pfToPVQualityVector;
   //reverse mapping
   std::vector< std::vector<int> > pvToPFVector(vertices->size());
   std::vector< std::vector<const reco::Candidate *> > pvToCandVector(vertices->size());
   std::vector< std::vector<PrimaryVertexAssignment::Quality> > pvToPFQualityVector(vertices->size());
+  std::vector<float> vertexScoreOriginal(vertices->size());
+  std::vector<float> vertexScore(vertices->size());
 
     for(auto const & pf : particles) {
     std::pair<int,PrimaryVertexAssignment::Quality> vtxWithQuality=assignmentAlgo_.chargedHadronVertex(*vertices,pf,*jets,*builder);
@@ -175,7 +180,9 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(Event& iEvent,  const Eve
   //Use multimap for sorting of indices
   std::multimap<float,int> scores;
   for(unsigned int i=0;i<vertices->size();i++){
-     scores.insert(std::pair<float,int>(-sortingAlgo_.score((*vertices)[i],pvToCandVector[i],useMET_),i));    
+     float s=sortingAlgo_.score((*vertices)[i],pvToCandVector[i],useMET_);
+     vertexScoreOriginal[i]=s;
+     scores.insert(std::pair<float,int>(-s,i));    
   }
 
   //create indices
@@ -184,6 +191,7 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(Event& iEvent,  const Eve
   for(auto const &  idx :  scores)
   {
 //    std::cout << newIdx << " score: " << idx.first << " oldidx: " << idx.second << " "<< producePFPileUp_ << std::endl;
+    vertexScore[newIdx]=-idx.first;
     oldToNew[idx.second]=newIdx;
     newToOld[newIdx]=idx.second;
     newIdx++;
@@ -193,10 +201,11 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(Event& iEvent,  const Eve
 
 
   if(produceOriginalMapping_){
-    auto_ptr< CandToVertex>  pfCandToOriginalVertexOutput( new CandToVertex );
+    auto_ptr< CandToVertex>  pfCandToOriginalVertexOutput( new CandToVertex(vertices) );
     auto_ptr< CandToVertexQuality>  pfCandToOriginalVertexQualityOutput( new CandToVertexQuality() );
     CandToVertex::Filler cand2VertexFiller(*pfCandToOriginalVertexOutput);
     CandToVertexQuality::Filler cand2VertexQualityFiller(*pfCandToOriginalVertexQualityOutput);
+
     cand2VertexFiller.insert(particlesHandle,pfToPVVector.begin(),pfToPVVector.end());
     cand2VertexQualityFiller.insert(particlesHandle,pfToPVQualityVector.begin(),pfToPVQualityVector.end());
 
@@ -204,6 +213,13 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(Event& iEvent,  const Eve
     cand2VertexQualityFiller.fill();
     iEvent.put( pfCandToOriginalVertexOutput ,"original");
     iEvent.put( pfCandToOriginalVertexQualityOutput ,"original");
+
+    auto_ptr< VertexScore>  vertexScoreOriginalOutput( new VertexScore );
+    VertexScore::Filler vertexScoreOriginalFiller(*vertexScoreOriginalOutput);
+    vertexScoreOriginalFiller.insert(vertices,vertexScoreOriginal.begin(),vertexScoreOriginal.end());
+    vertexScoreOriginalFiller.fill();
+    iEvent.put( vertexScoreOriginalOutput ,"original");
+ 
   }
 
   if(produceSortedVertices_){
@@ -231,6 +247,14 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(Event& iEvent,  const Eve
     cand2VertexQualityFiller.fill();
     iEvent.put( pfCandToVertexOutput );
     iEvent.put( pfCandToVertexQualityOutput );
+
+    auto_ptr< VertexScore>  vertexScoreOutput( new VertexScore );
+    VertexScore::Filler vertexScoreFiller(*vertexScoreOutput);
+    vertexScoreFiller.insert(oh,vertexScore.begin(),vertexScore.end());
+    vertexScoreFiller.fill();
+    iEvent.put( vertexScoreOutput);
+
+
   }
 
 
@@ -268,7 +292,6 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(Event& iEvent,  const Eve
   
 
 } 
-
 
 
 #endif

@@ -155,6 +155,47 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
 
 
 
+
+
+
+<ioread sourceClass = "reco::PFTau" version="[1-]" 
+ targetClass="reco::PFTau" 
+source = "" 
+target="signalPiZeroCandidates_">
+<![CDATA[
+signalPiZeroCandidates_.clear();
+]]>
+</ioread>
+              
+<ioread sourceClass = "reco::PFTau" version="[1-]" 
+ targetClass="reco::PFTau" 
+source = "" 
+target="isolationPiZeroCandidates_">
+<![CDATA[
+isolationPiZeroCandidates_.clear();
+]]>
+</ioread>
+
+
+<ioread sourceClass = "reco::PFTau" version="[1-]"
+ targetClass="reco::PFTau" 
+source = "" 
+target="signalTauChargedHadronCandidates_">
+<![CDATA[signalTauChargedHadronCandidates_.clear();
+]]>                                    
+</ioread>
+                                      
+<ioread sourceClass = "reco::PFTau" version="[1-]"
+ targetClass="reco::PFTau" 
+source = "" 
+target="isolationTauChargedHadronCandidates_">                                          
+<![CDATA[
+isolationTauChargedHadronCandidates_.clear();                                              
+]]>                                                
+</ioread>
+
+
+
 <!-- <ioread sourceClass="reco::PFTau" version="[-11]" -->
 <!-- source="reco::PFCandidateRefVector selectedIsolationPFCands_;" -->
 <!--  targetClass="reco::PFTau" -->
