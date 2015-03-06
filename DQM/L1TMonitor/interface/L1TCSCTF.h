@@ -44,7 +44,7 @@
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
 #include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
- 
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -84,12 +84,12 @@ class L1TCSCTF : public edm::EDAnalyzer {
   MonitorElement* csctferrors;
   MonitorElement* csctfoccupancies;
   MonitorElement* csctfoccupancies_H;
-  
+
   //MonitorElement* haloDelEta112;
   //MonitorElement* haloDelEta12;
   //MonitorElement* haloDelEta113;
   //MonitorElement* haloDelEta13;
-  
+
   MonitorElement* csctfChamberOccupancies;
   MonitorElement* csctfTrackPhi; //all tracks but halo
   MonitorElement* csctfTrackEta; //all tracks but halo
@@ -104,7 +104,7 @@ class L1TCSCTF : public edm::EDAnalyzer {
 
   // NEW: CSC EVENT LCT PLOTS, Renjie Wang
   MonitorElement* csctflcts;
-  
+
   // PLOTS SPECIFICALLY FOR ME1/1
   MonitorElement* me11_lctStrip;
   MonitorElement* me11_lctWire;
@@ -112,11 +112,51 @@ class L1TCSCTF : public edm::EDAnalyzer {
   MonitorElement* me11_lctPackedPhi;
   MonitorElement* me11_lctGblPhi;
   MonitorElement* me11_lctGblEta;
- 
+
   // PLOTS SPECIFICALLY FOR ME4/2
   MonitorElement* me42_lctGblPhi;
-  MonitorElement* me42_lctGblEta;  
+  MonitorElement* me42_lctGblEta;
 
+  // WG AND STRIP PLOTS FOR ALL CHAMBERS
+  MonitorElement* csc_strip_MEplus11;
+  MonitorElement* csc_strip_MEplus12;
+  MonitorElement* csc_strip_MEplus13;
+  MonitorElement* csc_strip_MEplus21;
+  MonitorElement* csc_strip_MEplus22;
+  MonitorElement* csc_strip_MEplus31;
+  MonitorElement* csc_strip_MEplus32;
+  MonitorElement* csc_strip_MEplus41;
+  MonitorElement* csc_strip_MEplus42;
+
+  MonitorElement* csc_strip_MEminus11;
+  MonitorElement* csc_strip_MEminus12;
+  MonitorElement* csc_strip_MEminus13;
+  MonitorElement* csc_strip_MEminus21;
+  MonitorElement* csc_strip_MEminus22;
+  MonitorElement* csc_strip_MEminus31;
+  MonitorElement* csc_strip_MEminus32;
+  MonitorElement* csc_strip_MEminus41;
+  MonitorElement* csc_strip_MEminus42;
+
+  MonitorElement* csc_wire_MEplus11;
+  MonitorElement* csc_wire_MEplus12;
+  MonitorElement* csc_wire_MEplus13;
+  MonitorElement* csc_wire_MEplus21;
+  MonitorElement* csc_wire_MEplus22;
+  MonitorElement* csc_wire_MEplus31;
+  MonitorElement* csc_wire_MEplus32;
+  MonitorElement* csc_wire_MEplus41;
+  MonitorElement* csc_wire_MEplus42;
+
+  MonitorElement* csc_wire_MEminus11;
+  MonitorElement* csc_wire_MEminus12;
+  MonitorElement* csc_wire_MEminus13;
+  MonitorElement* csc_wire_MEminus21;
+  MonitorElement* csc_wire_MEminus22;
+  MonitorElement* csc_wire_MEminus31;
+  MonitorElement* csc_wire_MEminus32;
+  MonitorElement* csc_wire_MEminus41;
+  MonitorElement* csc_wire_MEminus42;
 
 
   // 1-> 6 plus endcap
