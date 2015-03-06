@@ -20,7 +20,7 @@
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenEvent.h"
@@ -88,7 +88,7 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 
    //Retrieve tracker topology from geometry
    edm::ESHandle<TrackerTopology> tTopoHand;
-   es.get<IdealGeometryRecord>().get(tTopoHand);
+   es.get<TrackerTopologyRcd>().get(tTopoHand);
    const TrackerTopology *tTopo=tTopoHand.product();
 
       
