@@ -199,7 +199,6 @@ process.p = cms.Path(process.hcalDigis
                      *process.hcalMonitorTasksOnlineSequence 
                      *process.hcalClient
                      *process.zdcMonitor
-                     *process.zdcClient
                      *process.dqmEnv
                      *process.dqmSaver)
 
