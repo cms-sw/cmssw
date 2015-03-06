@@ -19,12 +19,13 @@ namespace gen {
      virtual void SetPhotosDecayRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine){};
      virtual void init(){};
      virtual const std::vector<int>& operatesOnParticles(){return m_PDGs;}
+     virtual const std::vector<std::string>& specialSettings() { return fSpecialSettings; }
      virtual HepMC::GenEvent* decay( HepMC::GenEvent* evt){return evt;}
      virtual void setRandomEngine(CLHEP::HepRandomEngine* v)=0;
 
    protected: 
      std::vector<int> m_PDGs;
-
+     std::vector<std::string> fSpecialSettings;
 
    };
 }
