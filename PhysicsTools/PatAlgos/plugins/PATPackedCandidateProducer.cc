@@ -44,6 +44,8 @@ namespace pat {
             edm::EDGetTokenT<reco::VertexCollection>         PVs_;
             edm::EDGetTokenT<reco::VertexCollection>         PVOrigs_;
             edm::EDGetTokenT<reco::TrackCollection>          TKOrigs_;
+            edm::EDGetTokenT< edm::ValueMap<float> >         PuppiWeight_;
+
             double minPtForTrackProperties_;
             // for debugging
             float calcDxy(float dx, float dy, float phi) {
@@ -62,6 +64,7 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   PVs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("inputVertices"))),
   PVOrigs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("originalVertices"))),
   TKOrigs_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("originalTracks"))),
+  PuppiWeight_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("PuppiWeight"))),
   minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties"))
 {
   produces< std::vector<pat::PackedCandidate> > ();
@@ -91,6 +94,10 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
     edm::Handle<reco::PFCandidateFwdPtrVector> candsFromPVTight;
     iEvent.getByToken( CandsFromPVTight_, candsFromPVTight );
 
+    bool hasPuppiWeights = false;
+    edm::Handle< edm::ValueMap<float> > puppiWeight;
+    if (iEvent.getByToken( PuppiWeight_, puppiWeight )) hasPuppiWeights = true;
+    
     std::vector<pat::PackedCandidate::PVAssoc> fromPV(cands->size(), pat::PackedCandidate::NoPV);
     for (const reco::PFCandidateFwdPtr &ptr : *candsFromPVLoose) {
         if (ptr.ptr().id() == cands.id()) {
@@ -227,7 +234,12 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
             outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.phi(), cand.pdgId(), PV));
             outPtrP->back().setFromPV( fromPV[ic] );
         }
-
+	
+	if (hasPuppiWeights){
+	  reco::PFCandidateRef pkref( cands, ic );
+	  outPtrP->back().setPuppiWeight( (*puppiWeight)[pkref]);
+	}
+	
         mapping[ic] = ic; // trivial at the moment!
         if (cand.trackRef().isNonnull() && cand.trackRef().id() == TKOrigs.id()) {
             mappingTk[cand.trackRef().key()] = ic;

@@ -194,8 +194,8 @@
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
 
-  <class name="pat::PackedCandidate" ClassVersion="16">
-   <version ClassVersion="17" checksum="1633877368"/>
+  <class name="pat::PackedCandidate" ClassVersion="17">
+    <version ClassVersion="17" checksum="1257500115"/>
     <version ClassVersion="16" checksum="3261782486"/>
     <version ClassVersion="15" checksum="2118306102"/>
     <version ClassVersion="14" checksum="1075333340"/>
