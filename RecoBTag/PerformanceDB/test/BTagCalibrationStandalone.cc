@@ -5,7 +5,7 @@
 #include <sstream>
 
 
-std::string makeLowerCase(std::string data) {
+static std::string & makeLowerCase(std::string & data) {
   std::transform(data.begin(), data.end(), data.begin(), ::tolower);
   return data;
 }
