@@ -118,6 +118,40 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
     MonitorElement* mNeutralHadronEtFraction_nVtx_profile_Reco=iget_.get(rundirMET_reco+"/"+"PfNeutralHadronEtFraction_profile");
     MonitorElement* mPhotonEtFraction_nVtx_profile_Reco=iget_.get(rundirMET_reco+"/"+"PfPhotonEtFraction_profile");
 
+    map_MET_string_vec.push_back("MET");
+    map_MET_string_vec.push_back("MEy");
+    map_MET_string_vec.push_back("SumET");
+    map_MET_string_vec.push_back("METPhi");
+    map_MET_string_vec.push_back("MET_logx");
+    map_MET_string_vec.push_back("SumET_logx");
+    map_MET_string_vec.push_back("PfChargedHadronEtFraction");
+    map_MET_string_vec.push_back("PfNeutralHadronEtFraction");
+    map_MET_string_vec.push_back("PfPhotonEtFraction");
+    map_MET_string_vec.push_back("PfHFHadronEtFraction");
+    map_MET_string_vec.push_back("PfHFEMEtFraction");
+    map_MET_string_vec.push_back("MET_profile");
+    map_MET_string_vec.push_back("SumET_profile");
+    map_MET_string_vec.push_back("PfChargedHadronEtFraction_profile");
+    map_MET_string_vec.push_back("PfNeutralHadronEtFraction_profile");
+    map_MET_string_vec.push_back("PfPhotonEtFraction_profile");
+
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_reco+"/"+"MET" ,mMET_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_reco+"/"+"MEy" ,mMEy_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_reco+"/"+"SumET" ,mSumET_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_reco+"/"+"METPhi" ,mMETPhi_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_reco+"/"+"MET_logx" ,mMET_logx_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_reco+"/"+"SumET_logx" ,mSumET_logx_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_reco+"/"+"PfChargedHadronEtFraction" ,mChargedHadronEtFraction_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_reco+"/"+"PfNeutralHadronEtFraction" ,mNeutralHadronEtFraction_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_reco+"/"+"PfPhotonEtFraction" ,mPhotonEtFraction_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_reco+"/"+"PfHFHadronEtFraction" ,mHFHadronEtFraction_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_reco+"/"+"PfHFEMEtFraction" ,mHFEMEtFraction_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_reco+"/"+"MET_profile" ,mMET_nVtx_profile_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_reco+"/"+"SumET_profile" ,mSumET_nVtx_profile_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_reco+"/"+"PfChargedHadronEtFraction_profile" ,mChargedHadronEtFraction_nVtx_profile_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_reco+"/"+"PfNeutralHadronEtFraction_profile" ,mNeutralHadronEtFraction_nVtx_profile_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_reco+"/"+"PfPhotonEtFraction_profile" ,mPhotonEtFraction_nVtx_profile_Reco));
+    
     MonitorElement* mMET_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"MET");
     MonitorElement* mMEy_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"MEy");
     MonitorElement* mSumET_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"SumET");
@@ -135,6 +169,23 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
     MonitorElement* mNeutralHadronEtFraction_nVtx_profile_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"PfNeutralHadronEtFraction_profile");
     MonitorElement* mPhotonEtFraction_nVtx_profile_MiniAOD=iget_.get(rundirMET_miniaod+"/"+"PfPhotonEtFraction_profile");
 
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_miniaod+"/"+"MET" ,mMET_MiniAOD));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_miniaod+"/"+"MEy" ,mMEy_MiniAOD));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_miniaod+"/"+"SumET" ,mSumET_MiniAOD));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_miniaod+"/"+"METPhi" ,mMETPhi_MiniAOD));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_miniaod+"/"+"MET_logx" ,mMET_logx_MiniAOD));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_miniaod+"/"+"SumET_logx" ,mSumET_logx_MiniAOD));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_miniaod+"/"+"PfChargedHadronEtFraction" ,mChargedHadronEtFraction_MiniAOD));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_miniaod+"/"+"PfNeutralHadronEtFraction" ,mNeutralHadronEtFraction_MiniAOD));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_miniaod+"/"+"PfPhotonEtFraction" ,mPhotonEtFraction_MiniAOD));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_miniaod+"/"+"PfHFHadronEtFraction" ,mHFHadronEtFraction_MiniAOD));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_miniaod+"/"+"PfHFEMEtFraction" ,mHFEMEtFraction_MiniAOD));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_miniaod+"/"+"MET_profile" ,mMET_nVtx_profile_MiniAOD));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_miniaod+"/"+"SumET_profile" ,mSumET_nVtx_profile_MiniAOD));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_miniaod+"/"+"PfChargedHadronEtFraction_profile" ,mChargedHadronEtFraction_nVtx_profile_MiniAOD));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_miniaod+"/"+"PfNeutralHadronEtFraction_profile" ,mNeutralHadronEtFraction_nVtx_profile_MiniAOD));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(rundirMET_miniaod+"/"+"PfPhotonEtFraction_profile" ,mPhotonEtFraction_nVtx_profile_MiniAOD));
+
     ibook_.setCurrentFolder(RunDirMET+"MiniAOD_over_RECO");
     mMET_MiniAOD_over_Reco=ibook_.book1D("MET_MiniAOD_over_RECO",(TH1F*)mMET_Reco->getRootObject());
     mMEy_MiniAOD_over_Reco=ibook_.book1D("MEy_MiniAOD_over_RECO",(TH1F*)mMEy_Reco->getRootObject());
@@ -149,126 +200,44 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
     mHFEMEtFraction_MiniAOD_over_Reco=ibook_.book1D("PfHFEMEtFraction_MiniAOD_over_RECO",(TH1F*)mHFEMEtFraction_Reco->getRootObject());
     //use same parameters defining X-Axis of the profiles
     mMET_nVtx_profile_MiniAOD_over_Reco=ibook_.book1D("MET_profile_MiniAOD_over_RECO","MET_vs_nVtx",nbinsPV_, nPVMin_, nPVMax_);
-    mSumET_nVtx_profile_MiniAOD_over_Reco=ibook_.book1D("SumET_profile_MiniAOD_over_RECO","SumME_vs_nVtx",nbinsPV_, nPVMin_, nPVMax_);
+    mSumET_nVtx_profile_MiniAOD_over_Reco=ibook_.book1D("SumET_profile_MiniAOD_over_RECO","SumET_vs_nVtx",nbinsPV_, nPVMin_, nPVMax_);
     mChargedHadronEtFraction_nVtx_profile_MiniAOD_over_Reco=ibook_.book1D("PfChargedHadronEtFraction_profile_MiniAOD_over_RECO","PfChargedHadronEtFraction_vs_nVtx",nbinsPV_, nPVMin_, nPVMax_);
     mNeutralHadronEtFraction_nVtx_profile_MiniAOD_over_Reco=ibook_.book1D("PfNeutralHadronEtFraction_profile_MiniAOD_over_RECO","PfNeutralHadronEtFraction_vs_nVtx",nbinsPV_, nPVMin_, nPVMax_);
     mPhotonEtFraction_nVtx_profile_MiniAOD_over_Reco=ibook_.book1D("PfPhotonEtFraction_profile_MiniAOD_over_RECO","PfPhotonEtFraction_vs_nVtx",nbinsPV_, nPVMin_, nPVMax_);
 
-    for(int i=0;i<=(mMET_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMET_Reco->getBinContent(i)!=0){
-	mMET_MiniAOD_over_Reco->setBinContent(i,mMET_MiniAOD->getBinContent(i)/mMET_Reco->getBinContent(i));
-      }else if(mMET_MiniAOD->getBinContent(i)!=0){
-	mMET_MiniAOD_over_Reco->setBinContent(i,-0.5);
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirMET+"MiniAOD_over_RECO"+"/"+"MET" ,mMET_MiniAOD_over_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirMET+"MiniAOD_over_RECO"+"/"+"MEy" ,mMEy_MiniAOD_over_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirMET+"MiniAOD_over_RECO"+"/"+"SumET" ,mSumET_MiniAOD_over_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirMET+"MiniAOD_over_RECO"+"/"+"METPhi" ,mMETPhi_MiniAOD_over_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirMET+"MiniAOD_over_RECO"+"/"+"MET_logx" ,mMET_logx_MiniAOD_over_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirMET+"MiniAOD_over_RECO"+"/"+"SumET_logx" ,mSumET_logx_MiniAOD_over_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirMET+"MiniAOD_over_RECO"+"/"+"PfChargedHadronEtFraction" ,mChargedHadronEtFraction_MiniAOD_over_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirMET+"MiniAOD_over_RECO"+"/"+"PfNeutralHadronEtFraction" ,mNeutralHadronEtFraction_MiniAOD_over_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirMET+"MiniAOD_over_RECO"+"/"+"PfPhotonEtFraction" ,mPhotonEtFraction_MiniAOD_over_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirMET+"MiniAOD_over_RECO"+"/"+"PfHFHadronEtFraction" ,mHFHadronEtFraction_MiniAOD_over_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirMET+"MiniAOD_over_RECO"+"/"+"PfHFEMEtFraction" ,mHFEMEtFraction_MiniAOD_over_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirMET+"MiniAOD_over_RECO"+"/"+"MET_profile" ,mMET_nVtx_profile_MiniAOD_over_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirMET+"MiniAOD_over_RECO"+"/"+"SumET_profile" ,mSumET_nVtx_profile_MiniAOD_over_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirMET+"MiniAOD_over_RECO"+"/"+"PfChargedHadronEtFraction_profile" ,mChargedHadronEtFraction_nVtx_profile_MiniAOD_over_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirMET+"MiniAOD_over_RECO"+"/"+"PfNeutralHadronEtFraction_profile" ,mNeutralHadronEtFraction_nVtx_profile_MiniAOD_over_Reco));
+    map_of_MET_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirMET+"MiniAOD_over_RECO"+"/"+"PfPhotonEtFraction_profile" ,mPhotonEtFraction_nVtx_profile_MiniAOD_over_Reco));
+    
+    for(unsigned int j=0;j<map_MET_string_vec.size();j++){
+      MonitorElement* monMETReco=map_of_MET_MEs[rundirMET_reco+"/"+map_MET_string_vec[j]];if(monMETReco && monMETReco->getRootObject()){
+	MonitorElement* monMETMiniAOD=map_of_MET_MEs[rundirMET_miniaod+"/"+map_MET_string_vec[j]];if(monMETMiniAOD && monMETMiniAOD->getRootObject()){
+	  MonitorElement* monMETMiniAOD_over_RECO=map_of_MET_MEs[RunDirMET+"MiniAOD_over_RECO"+"/"+map_MET_string_vec[j]];if(monMETMiniAOD_over_RECO && monMETMiniAOD_over_RECO->getRootObject()){
+	    for(int i=0;i<=(monMETMiniAOD_over_RECO->getNbinsX()+1);i++){
+	      if(monMETReco->getBinContent(i)!=0){
+		monMETMiniAOD_over_RECO->setBinContent(i,monMETMiniAOD->getBinContent(i)/monMETReco->getBinContent(i));
+	      }else if (monMETMiniAOD->getBinContent(i)!=0){
+		monMETMiniAOD_over_RECO->setBinContent(i,-0.5);
+	      }
+	    }
+	  }
+	}
       }
     }
-    for(int i=0;i<=(mMEy_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMEy_Reco->getBinContent(i)!=0){
-	mMEy_MiniAOD_over_Reco->setBinContent(i,mMEy_MiniAOD->getBinContent(i)/mMEy_Reco->getBinContent(i));
-      }else if(mMEy_MiniAOD->getBinContent(i)!=0){
-	mMEy_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mSumET_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mSumET_Reco->getBinContent(i)!=0){
-	mSumET_MiniAOD_over_Reco->setBinContent(i,mSumET_MiniAOD->getBinContent(i)/mSumET_Reco->getBinContent(i));
-      }else if(mSumET_MiniAOD->getBinContent(i)!=0){
-	mSumET_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mMETPhi_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMETPhi_Reco->getBinContent(i)!=0){
-	mMETPhi_MiniAOD_over_Reco->setBinContent(i,mMETPhi_MiniAOD->getBinContent(i)/mMETPhi_Reco->getBinContent(i));
-      }else if(mMETPhi_MiniAOD->getBinContent(i)!=0){
-	mMETPhi_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mMET_logx_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMET_logx_Reco->getBinContent(i)!=0){
-	mMET_logx_MiniAOD_over_Reco->setBinContent(i,mMET_logx_MiniAOD->getBinContent(i)/mMET_logx_Reco->getBinContent(i));
-      }else if(mMET_logx_MiniAOD->getBinContent(i)!=0){
-	mMET_logx_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mSumET_logx_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mSumET_logx_Reco->getBinContent(i)!=0){
-	mSumET_logx_MiniAOD_over_Reco->setBinContent(i,mSumET_logx_MiniAOD->getBinContent(i)/mSumET_logx_Reco->getBinContent(i));
-      }else if(mSumET_logx_MiniAOD->getBinContent(i)!=0){
-	mSumET_logx_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mChargedHadronEtFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mChargedHadronEtFraction_Reco->getBinContent(i)!=0){
-	mChargedHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,mChargedHadronEtFraction_MiniAOD->getBinContent(i)/mChargedHadronEtFraction_Reco->getBinContent(i));
-      }else if(mChargedHadronEtFraction_MiniAOD->getBinContent(i)!=0){
-	mChargedHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    } 
-    for(int i=0;i<=(mNeutralHadronEtFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mNeutralHadronEtFraction_Reco->getBinContent(i)!=0){
-	mNeutralHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,mNeutralHadronEtFraction_MiniAOD->getBinContent(i)/mNeutralHadronEtFraction_Reco->getBinContent(i));
-      }else if(mNeutralHadronEtFraction_MiniAOD->getBinContent(i)!=0){
-	mNeutralHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mPhotonEtFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mPhotonEtFraction_Reco->getBinContent(i)!=0){
-	mPhotonEtFraction_MiniAOD_over_Reco->setBinContent(i,mPhotonEtFraction_MiniAOD->getBinContent(i)/mPhotonEtFraction_Reco->getBinContent(i));
-      }else if(mPhotonEtFraction_MiniAOD->getBinContent(i)!=0){
-	mPhotonEtFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mHFHadronEtFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mHFHadronEtFraction_Reco->getBinContent(i)!=0){
-	mHFHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,mHFHadronEtFraction_MiniAOD->getBinContent(i)/mHFHadronEtFraction_Reco->getBinContent(i));
-      }else if(mHFHadronEtFraction_MiniAOD->getBinContent(i)!=0){
-	mHFHadronEtFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mHFEMEtFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mHFEMEtFraction_Reco->getBinContent(i)!=0){
-	mHFEMEtFraction_MiniAOD_over_Reco->setBinContent(i,mHFEMEtFraction_MiniAOD->getBinContent(i)/mHFEMEtFraction_Reco->getBinContent(i));
-      }else if(mHFEMEtFraction_MiniAOD->getBinContent(i)!=0){
-	mHFEMEtFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mMET_nVtx_profile_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMET_nVtx_profile_Reco->getBinContent(i)!=0){
-	mMET_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,mMET_nVtx_profile_MiniAOD->getBinContent(i)/mMET_nVtx_profile_Reco->getBinContent(i));
-      }else if(mMET_nVtx_profile_MiniAOD->getBinContent(i)!=0){
-	mMET_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mSumET_nVtx_profile_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mSumET_nVtx_profile_Reco->getBinContent(i)!=0){
-	mSumET_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,mSumET_nVtx_profile_MiniAOD->getBinContent(i)/mSumET_nVtx_profile_Reco->getBinContent(i));
-      }else if(mSumET_nVtx_profile_MiniAOD->getBinContent(i)!=0){
-	mSumET_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mChargedHadronEtFraction_nVtx_profile_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mChargedHadronEtFraction_nVtx_profile_Reco->getBinContent(i)!=0){
-	mChargedHadronEtFraction_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,mChargedHadronEtFraction_nVtx_profile_MiniAOD->getBinContent(i)/mChargedHadronEtFraction_nVtx_profile_Reco->getBinContent(i));
-      }else if(mChargedHadronEtFraction_nVtx_profile_MiniAOD->getBinContent(i)!=0){
-	mChargedHadronEtFraction_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mNeutralHadronEtFraction_nVtx_profile_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mNeutralHadronEtFraction_nVtx_profile_Reco->getBinContent(i)!=0){
-	mNeutralHadronEtFraction_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,mNeutralHadronEtFraction_nVtx_profile_MiniAOD->getBinContent(i)/mNeutralHadronEtFraction_nVtx_profile_Reco->getBinContent(i));
-      }else if(mNeutralHadronEtFraction_nVtx_profile_MiniAOD->getBinContent(i)!=0){
-	mNeutralHadronEtFraction_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mPhotonEtFraction_nVtx_profile_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mPhotonEtFraction_nVtx_profile_Reco->getBinContent(i)!=0){
-	mPhotonEtFraction_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,mPhotonEtFraction_nVtx_profile_MiniAOD->getBinContent(i)/mPhotonEtFraction_nVtx_profile_Reco->getBinContent(i));
-      }else if(mPhotonEtFraction_nVtx_profile_MiniAOD->getBinContent(i)!=0){
-	mPhotonEtFraction_nVtx_profile_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-  }
-
-
+  }//check for RECO and MiniAOD directories
 
   //put RECO vs MiniAODDir first ->second Jets
   std::vector<std::string> subDirVecJet;
@@ -322,6 +291,73 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
     MonitorElement* mNeutralMultiplicity_Reco=iget_.get(rundirJet_reco+"/DiJet/"+"NeutralMultiplicity");
     MonitorElement* mMuonMultiplicity_Reco=iget_.get(rundirJet_reco+"/DiJet/"+"MuonMultiplicity");
     MonitorElement* mNeutralFraction_Reco=iget_.get(rundirJet_reco+"/DiJet/"+"NeutralConstituentsFraction");    
+
+    map_Jet_string_vec.push_back("Pt");
+    map_Jet_string_vec.push_back("Phi");
+    map_Jet_string_vec.push_back("Eta");
+    map_Jet_string_vec.push_back("NJets");
+    map_Jet_string_vec.push_back("Pt_uncor");
+    map_Jet_string_vec.push_back("Phi_uncor");
+    map_Jet_string_vec.push_back("Eta_uncor");
+    map_Jet_string_vec.push_back("JetEnergyCorr");
+    map_Jet_string_vec.push_back("JetEnergyCorrVSEta");
+    map_Jet_string_vec.push_back("DPhi");
+    map_Jet_string_vec.push_back("JetIDPassFractionVSeta");
+    map_Jet_string_vec.push_back("Pt_Barrel");
+    map_Jet_string_vec.push_back("Pt_EndCap");
+    map_Jet_string_vec.push_back("Pt_Forward");
+    map_Jet_string_vec.push_back("MVAPUJIDDiscriminant_lowPt_Barrel");
+    map_Jet_string_vec.push_back("MVAPUJIDDiscriminant_lowPt_EndCap");
+    map_Jet_string_vec.push_back("MVAPUJIDDiscriminant_lowPt_Forward");
+    map_Jet_string_vec.push_back("MVAPUJIDDiscriminant_mediumPt_EndCap");
+    map_Jet_string_vec.push_back("MVAPUJIDDiscriminant_highPt_Barrel");
+    map_Jet_string_vec.push_back("CHFracVSpT_Barrel");
+    map_Jet_string_vec.push_back("NHFracVSpT_EndCap");
+    map_Jet_string_vec.push_back("PhFracVSpT_Barrel");
+    map_Jet_string_vec.push_back("HFHFracVSpT_Forward");
+    map_Jet_string_vec.push_back("HFEFracVSpT_Forward");
+    //for DiJet plots fill it with the dijet string, do same for MINIAOD vs RECO folder
+    map_Jet_string_vec.push_back("DiJet/CHFrac");
+    map_Jet_string_vec.push_back("DiJet/NHFrac");
+    map_Jet_string_vec.push_back("DiJet/PhFrac");
+    map_Jet_string_vec.push_back("DiJet/ChargedMultiplicity");
+    map_Jet_string_vec.push_back("DiJet/NeutralMultiplicity");
+    map_Jet_string_vec.push_back("DiJet/MuonMultiplicity");
+    map_Jet_string_vec.push_back("DiJet/NeutralConstituentsFraction");
+
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"Pt" ,mPt_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"Eta" ,mEta_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"Phi" ,mPhi_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"NJets" ,mNjets_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"Pt_uncor" ,mPt_uncor_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"Phi_uncor" ,mPhi_uncor_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"Eta_uncor" ,mEta_uncor_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"JetEnergyCorr" ,mJetEnergyCorr_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"JetEnergyCorrVSEta" ,mJetEnergyCorrVSeta_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"DPhi" ,mDPhi_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"JetIDPassFractionVSeta" ,mLooseJIDPassFractionVSeta_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"Pt_Barrel" ,mPt_Barrel_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"Pt_EndCap" ,mPt_EndCap_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"Pt_Forward" ,mPt_Forward_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"MVAPUJIDDiscriminant_lowPt_Barrel" ,mMVAPUJIDDiscriminant_lowPt_Barrel_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"MVAPUJIDDiscriminant_lowPt_EndCap" ,mMVAPUJIDDiscriminant_lowPt_EndCap_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"MVAPUJIDDiscriminant_lowPt_Forward" ,mMVAPUJIDDiscriminant_lowPt_Forward_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"MVAPUJIDDiscriminant_mediumPt_EndCap" ,mMVAPUJIDDiscriminant_mediumPt_EndCap_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"MVAPUJIDDiscriminant_highPt_Barrel" ,mMVAPUJIDDiscriminant_highPt_Barrel_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"CHFracVSpT_Barrel" ,mCHFracVSpT_Barrel_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"NHFracVSpT_EndCap" ,mNHFracVSpT_EndCap_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"PhFracVSpT_Barrel" ,mPhFracVSpT_Barrel_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"HFHFracVSpT_Forward" ,mHFHFracVSpT_Forward_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/"+"HFEFracVSpT_Forward" ,mHFEFracVSpT_Forward_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/DiJet/"+"CHFrac" ,mCHFrac_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/DiJet/"+"NHFrac" ,mNHFrac_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/DiJet/"+"PhFrac" ,mPhFrac_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/DiJet/"+"ChargedMultiplicity" ,mChargedMultiplicity_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/DiJet/"+"NeutralMultiplicity" ,mNeutralMultiplicity_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/DiJet/"+"MuonMultiplicity" ,mMuonMultiplicity_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_reco+"/DiJet/"+"NeutralConstituentsFraction" ,mNeutralFraction_Reco));
+
+
     MonitorElement* mPt_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"Pt");
     MonitorElement* mEta_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"Eta");
     MonitorElement* mPhi_MiniAOD=iget_.get(rundirJet_miniaod+"/"+"Phi");
@@ -352,7 +388,40 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
     MonitorElement* mChargedMultiplicity_MiniAOD=iget_.get(rundirJet_miniaod+"/DiJet/"+"ChargedMultiplicity");
     MonitorElement* mNeutralMultiplicity_MiniAOD=iget_.get(rundirJet_miniaod+"/DiJet/"+"NeutralMultiplicity");
     MonitorElement* mMuonMultiplicity_MiniAOD=iget_.get(rundirJet_miniaod+"/DiJet/"+"MuonMultiplicity");
-    MonitorElement* mNeutralFraction_MiniAOD=iget_.get(rundirJet_miniaod+"/DiJet/"+"NeutralConstituentsFraction");    
+    MonitorElement* mNeutralFraction_MiniAOD=iget_.get(rundirJet_miniaod+"/DiJet/"+"NeutralConstituentsFraction");  
+
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"Pt" ,mPt_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"Eta" ,mEta_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"Phi" ,mPhi_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"NJets" ,mNjets_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"Pt_uncor" ,mPt_uncor_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"Phi_uncor" ,mPhi_uncor_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"Eta_uncor" ,mEta_uncor_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"JetEnergyCorr" ,mJetEnergyCorr_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"JetEnergyCorrVSEta" ,mJetEnergyCorrVSeta_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"DPhi" ,mDPhi_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"JetIDPassFractionVSeta" ,mLooseJIDPassFractionVSeta_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"Pt_Barrel" ,mPt_Barrel_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"Pt_EndCap" ,mPt_EndCap_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"Pt_Forward" ,mPt_Forward_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"MVAPUJIDDiscriminant_lowPt_Barrel" ,mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"MVAPUJIDDiscriminant_lowPt_EndCap" ,mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"MVAPUJIDDiscriminant_lowPt_Forward" ,mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"MVAPUJIDDiscriminant_mediumPt_EndCap" ,mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"MVAPUJIDDiscriminant_highPt_Barrel" ,mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"CHFracVSpT_Barrel" ,mCHFracVSpT_Barrel_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"NHFracVSpT_EndCap" ,mNHFracVSpT_EndCap_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"PhFracVSpT_Barrel" ,mPhFracVSpT_Barrel_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"HFHFracVSpT_Forward" ,mHFHFracVSpT_Forward_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/"+"HFEFracVSpT_Forward" ,mHFEFracVSpT_Forward_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/DiJet/"+"CHFrac" ,mCHFrac_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/DiJet/"+"NHFrac" ,mNHFrac_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/DiJet/"+"PhFrac" ,mPhFrac_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/DiJet/"+"ChargedMultiplicity" ,mChargedMultiplicity_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/DiJet/"+"NeutralMultiplicity" ,mNeutralMultiplicity_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/DiJet/"+"MuonMultiplicity" ,mMuonMultiplicity_MiniAOD));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(rundirJet_miniaod+"/DiJet/"+"NeutralConstituentsFraction" ,mNeutralFraction_MiniAOD));
+  
     ibook_.setCurrentFolder(RunDirJet+"MiniAOD_over_RECO");
     mPt_MiniAOD_over_Reco=ibook_.book1D("Pt_MiniAOD_over_RECO",(TH1F*)mPt_Reco->getRootObject());
     mEta_MiniAOD_over_Reco=ibook_.book1D("Eta_MiniAOD_over_RECO",(TH1F*)mEta_Reco->getRootObject());
@@ -378,6 +447,7 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
     mPhFracVSpT_Barrel_MiniAOD_over_Reco=ibook_.book1D("PhFracVSpT_Barrel_MiniAOD_over_RECO","PhFracVSpT_Barrel", ptBin_, ptMin_,ptMax_);
     mHFHFracVSpT_Forward_MiniAOD_over_Reco=ibook_.book1D("HFHFracVSpT_Forward_MiniAOD_over_RECO","HFHFracVSpT_Forward", ptBin_, ptMin_,ptMax_);
     mHFEFracVSpT_Forward_MiniAOD_over_Reco=ibook_.book1D("HFEFracVSpT_Forward_MiniAOD_over_RECO","HFEFracVSpT_Forward", ptBin_, ptMin_,ptMax_);
+    ibook_.setCurrentFolder(RunDirJet+"MiniAOD_over_RECO"+"/"+"DiJet");
     mCHFrac_MiniAOD_over_Reco=ibook_.book1D("CHFrac_MiniAOD_over_RECO",(TH1F*)mCHFrac_Reco->getRootObject());
     mNHFrac_MiniAOD_over_Reco=ibook_.book1D("NHFrac_MiniAOD_over_RECO",(TH1F*)mNHFrac_Reco->getRootObject());
     mPhFrac_MiniAOD_over_Reco=ibook_.book1D("PhFrac_MiniAOD_over_RECO",(TH1F*)mPhFrac_Reco->getRootObject());
@@ -385,224 +455,55 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
     mNeutralMultiplicity_MiniAOD_over_Reco=ibook_.book1D("NeutralMultiplicity_MiniAOD_over_RECO",(TH1F*)mNeutralMultiplicity_Reco->getRootObject());
     mMuonMultiplicity_MiniAOD_over_Reco=ibook_.book1D("MuonMultiplicity_MiniAOD_over_RECO",(TH1F*)mMuonMultiplicity_Reco->getRootObject());
     mNeutralFraction_MiniAOD_over_Reco=ibook_.book1D("NeutralConstituentsFraction_MiniAOD_over_RECO",(TH1F*)mNeutralFraction_Reco->getRootObject());
-    for(int i=0;i<=(mPt_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mPt_Reco->getBinContent(i)!=0){
-	mPt_MiniAOD_over_Reco->setBinContent(i,mPt_MiniAOD->getBinContent(i)/mPt_Reco->getBinContent(i));
-      }else if(mPt_MiniAOD->getBinContent(i)!=0){
-	mPt_MiniAOD_over_Reco->setBinContent(i,-0.5);
+
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"Pt" ,mPt_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"Eta" ,mEta_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"Phi" ,mPhi_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"NJets" ,mNjets_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"Pt_uncor" ,mPt_uncor_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"Phi_uncor" ,mPhi_uncor_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"Eta_uncor" ,mEta_uncor_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"JetEnergyCorr" ,mJetEnergyCorr_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"JetEnergyCorrVSEta" ,mJetEnergyCorrVSeta_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"DPhi" ,mDPhi_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"JetIDPassFractionVSeta" ,mLooseJIDPassFractionVSeta_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"Pt_Barrel" ,mPt_Barrel_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"Pt_EndCap" ,mPt_EndCap_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"Pt_Forward" ,mPt_Forward_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"MVAPUJIDDiscriminant_lowPt_Barrel" ,mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"MVAPUJIDDiscriminant_lowPt_EndCap" ,mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"MVAPUJIDDiscriminant_lowPt_Forward" ,mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"MVAPUJIDDiscriminant_mediumPt_EndCap" ,mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"MVAPUJIDDiscriminant_highPt_Barrel" ,mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"CHFracVSpT_Barrel" ,mCHFracVSpT_Barrel_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"NHFracVSpT_EndCap" ,mNHFracVSpT_EndCap_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"PhFracVSpT_Barrel" ,mPhFracVSpT_Barrel_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"HFHFracVSpT_Forward" ,mHFHFracVSpT_Forward_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/"+"HFEFracVSpT_Forward" ,mHFEFracVSpT_Forward_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/DiJet/"+"CHFrac" ,mCHFrac_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/DiJet/"+"NHFrac" ,mNHFrac_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/DiJet/"+"PhFrac" ,mPhFrac_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/DiJet/"+"ChargedMultiplicity" ,mChargedMultiplicity_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/DiJet/"+"NeutralMultiplicity" ,mNeutralMultiplicity_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/DiJet/"+"MuonMultiplicity" ,mMuonMultiplicity_MiniAOD_over_Reco));
+    map_of_Jet_MEs.insert(std::pair<std::string,MonitorElement*>(RunDirJet+"MiniAOD_over_RECO"+"/DiJet/"+"NeutralConstituentsFraction" ,mNeutralFraction_MiniAOD_over_Reco));
+
+    for(unsigned int j=0;j<map_Jet_string_vec.size();j++){
+      MonitorElement* monJetReco=map_of_Jet_MEs[rundirJet_reco+"/"+map_Jet_string_vec[j]];if(monJetReco && monJetReco->getRootObject()){
+	MonitorElement* monJetMiniAOD=map_of_Jet_MEs[rundirJet_miniaod+"/"+map_Jet_string_vec[j]];if(monJetMiniAOD && monJetMiniAOD->getRootObject()){
+	  MonitorElement* monJetMiniAOD_over_RECO=map_of_Jet_MEs[RunDirJet+"MiniAOD_over_RECO"+"/"+map_Jet_string_vec[j]];if(monJetMiniAOD_over_RECO && monJetMiniAOD_over_RECO->getRootObject()){
+	    for(int i=0;i<=(monJetMiniAOD_over_RECO->getNbinsX()+1);i++){
+	      if(monJetReco->getBinContent(i)!=0){
+		monJetMiniAOD_over_RECO->setBinContent(i,monJetMiniAOD->getBinContent(i)/monJetReco->getBinContent(i));
+	      }else if (monJetMiniAOD->getBinContent(i)!=0){
+		monJetMiniAOD_over_RECO->setBinContent(i,-0.5);
+	      }
+	    }
+	  }
+	}
       }
     }
-    for(int i=0;i<=(mEta_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mEta_Reco->getBinContent(i)!=0){
-	mEta_MiniAOD_over_Reco->setBinContent(i,mEta_MiniAOD->getBinContent(i)/mEta_Reco->getBinContent(i));
-      }else if(mEta_MiniAOD->getBinContent(i)!=0){
-	mEta_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mPhi_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mPhi_Reco->getBinContent(i)!=0){
-	mPhi_MiniAOD_over_Reco->setBinContent(i,mPhi_MiniAOD->getBinContent(i)/mPhi_Reco->getBinContent(i));
-      }else if(mPhi_MiniAOD->getBinContent(i)!=0){
-	mPhi_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mNjets_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mNjets_Reco->getBinContent(i)!=0){
-	mNjets_MiniAOD_over_Reco->setBinContent(i,mNjets_MiniAOD->getBinContent(i)/mNjets_Reco->getBinContent(i));
-      }else if(mNjets_MiniAOD->getBinContent(i)!=0){
-	mNjets_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mPt_uncor_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mPt_uncor_Reco->getBinContent(i)!=0){
-	mPt_uncor_MiniAOD_over_Reco->setBinContent(i,mPt_uncor_MiniAOD->getBinContent(i)/mPt_uncor_Reco->getBinContent(i));
-      }else if(mPt_uncor_MiniAOD->getBinContent(i)!=0){
-	mPt_uncor_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mEta_uncor_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mEta_uncor_Reco->getBinContent(i)!=0){
-	mEta_uncor_MiniAOD_over_Reco->setBinContent(i,mEta_uncor_MiniAOD->getBinContent(i)/mEta_uncor_Reco->getBinContent(i));
-      }else if(mEta_uncor_MiniAOD->getBinContent(i)!=0){
-	mEta_uncor_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mPhi_uncor_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mPhi_uncor_Reco->getBinContent(i)!=0){
-	mPhi_uncor_MiniAOD_over_Reco->setBinContent(i,mPhi_uncor_MiniAOD->getBinContent(i)/mPhi_uncor_Reco->getBinContent(i));
-      }else if(mPhi_uncor_MiniAOD->getBinContent(i)!=0){
-	mPhi_uncor_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mJetEnergyCorr_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mJetEnergyCorr_Reco->getBinContent(i)!=0){
-	mJetEnergyCorr_MiniAOD_over_Reco->setBinContent(i,mJetEnergyCorr_MiniAOD->getBinContent(i)/mJetEnergyCorr_Reco->getBinContent(i));
-      }else if(mJetEnergyCorr_MiniAOD->getBinContent(i)!=0){
-	mJetEnergyCorr_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mJetEnergyCorrVSeta_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mJetEnergyCorrVSeta_Reco->getBinContent(i)!=0){
-	mJetEnergyCorrVSeta_MiniAOD_over_Reco->setBinContent(i,mJetEnergyCorrVSeta_MiniAOD->getBinContent(i)/mJetEnergyCorrVSeta_Reco->getBinContent(i));
-      }else if(mJetEnergyCorrVSeta_MiniAOD->getBinContent(i)!=0){
-	mJetEnergyCorrVSeta_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mDPhi_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mDPhi_Reco->getBinContent(i)!=0){
-	mDPhi_MiniAOD_over_Reco->setBinContent(i,mDPhi_MiniAOD->getBinContent(i)/mDPhi_Reco->getBinContent(i));
-      }else if(mDPhi_MiniAOD->getBinContent(i)!=0){
-	mDPhi_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mLooseJIDPassFractionVSeta_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mLooseJIDPassFractionVSeta_Reco->getBinContent(i)!=0){
-	mLooseJIDPassFractionVSeta_MiniAOD_over_Reco->setBinContent(i,mLooseJIDPassFractionVSeta_MiniAOD->getBinContent(i)/mLooseJIDPassFractionVSeta_Reco->getBinContent(i));
-      }else if(mLooseJIDPassFractionVSeta_MiniAOD_over_Reco->getBinContent(i)!=0){
-	mLooseJIDPassFractionVSeta_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mPt_Barrel_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mPt_Barrel_Reco->getBinContent(i)!=0){
-	mPt_Barrel_MiniAOD_over_Reco->setBinContent(i,mPt_Barrel_MiniAOD->getBinContent(i)/mPt_Barrel_Reco->getBinContent(i));
-      }else if(mPt_Barrel_MiniAOD->getBinContent(i)!=0){
-	mPt_Barrel_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mPt_EndCap_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mPt_EndCap_Reco->getBinContent(i)!=0){
-	mPt_EndCap_MiniAOD_over_Reco->setBinContent(i,mPt_EndCap_MiniAOD->getBinContent(i)/mPt_EndCap_Reco->getBinContent(i));
-      }else if(mPt_EndCap_MiniAOD->getBinContent(i)!=0){
-	mPt_EndCap_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mPt_Forward_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mPt_Forward_Reco->getBinContent(i)!=0){
-	mPt_Forward_MiniAOD_over_Reco->setBinContent(i,mPt_Forward_MiniAOD->getBinContent(i)/mPt_Forward_Reco->getBinContent(i));
-      }else if(mPt_Forward_MiniAOD->getBinContent(i)!=0){
-	mPt_Forward_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMVAPUJIDDiscriminant_lowPt_Barrel_Reco->getBinContent(i)!=0){
-	mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD_over_Reco->setBinContent(i,mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD->getBinContent(i)/mMVAPUJIDDiscriminant_lowPt_Barrel_Reco->getBinContent(i));
-      }else if(mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD->getBinContent(i)!=0){
-	mMVAPUJIDDiscriminant_lowPt_Barrel_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMVAPUJIDDiscriminant_lowPt_EndCap_Reco->getBinContent(i)!=0){
-	mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD_over_Reco->setBinContent(i,mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD->getBinContent(i)/mMVAPUJIDDiscriminant_lowPt_EndCap_Reco->getBinContent(i));
-      }else if(mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD->getBinContent(i)!=0){
-	mMVAPUJIDDiscriminant_lowPt_EndCap_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMVAPUJIDDiscriminant_lowPt_Forward_Reco->getBinContent(i)!=0){
-	mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD_over_Reco->setBinContent(i,mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD->getBinContent(i)/mMVAPUJIDDiscriminant_lowPt_Forward_Reco->getBinContent(i));
-      }else if(mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD->getBinContent(i)!=0){
-	mMVAPUJIDDiscriminant_lowPt_Forward_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMVAPUJIDDiscriminant_mediumPt_EndCap_Reco->getBinContent(i)!=0){
-	mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_Reco->setBinContent(i,mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD->getBinContent(i)/mMVAPUJIDDiscriminant_mediumPt_EndCap_Reco->getBinContent(i));
-      }else if(mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD->getBinContent(i)!=0){
-	mMVAPUJIDDiscriminant_mediumPt_EndCap_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMVAPUJIDDiscriminant_highPt_Barrel_Reco->getBinContent(i)!=0){
-	mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD_over_Reco->setBinContent(i,mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD->getBinContent(i)/mMVAPUJIDDiscriminant_highPt_Barrel_Reco->getBinContent(i));
-      }else if(mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD->getBinContent(i)!=0){
-	mMVAPUJIDDiscriminant_highPt_Barrel_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mCHFracVSpT_Barrel_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mCHFracVSpT_Barrel_Reco->getBinContent(i)!=0){
-	mCHFracVSpT_Barrel_MiniAOD_over_Reco->setBinContent(i,mCHFracVSpT_Barrel_MiniAOD->getBinContent(i)/mCHFracVSpT_Barrel_Reco->getBinContent(i));
-      }else if(mCHFracVSpT_Barrel_MiniAOD->getBinContent(i)!=0){
-	mCHFracVSpT_Barrel_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mNHFracVSpT_EndCap_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mNHFracVSpT_EndCap_Reco->getBinContent(i)!=0){
-	mNHFracVSpT_EndCap_MiniAOD_over_Reco->setBinContent(i,mNHFracVSpT_EndCap_MiniAOD->getBinContent(i)/mNHFracVSpT_EndCap_Reco->getBinContent(i));
-      }else if(mNHFracVSpT_EndCap_MiniAOD->getBinContent(i)!=0){
-	mNHFracVSpT_EndCap_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mPhFracVSpT_Barrel_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mPhFracVSpT_Barrel_Reco->getBinContent(i)!=0){
-	mPhFracVSpT_Barrel_MiniAOD_over_Reco->setBinContent(i,mPhFracVSpT_Barrel_MiniAOD->getBinContent(i)/mPhFracVSpT_Barrel_Reco->getBinContent(i));
-      }else if(mPhFracVSpT_Barrel_MiniAOD->getBinContent(i)!=0){
-	mPhFracVSpT_Barrel_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    } 
-    for(int i=0;i<=(mHFHFracVSpT_Forward_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mHFHFracVSpT_Forward_Reco->getBinContent(i)!=0){
-	mHFHFracVSpT_Forward_MiniAOD_over_Reco->setBinContent(i,mHFHFracVSpT_Forward_MiniAOD->getBinContent(i)/mHFHFracVSpT_Forward_Reco->getBinContent(i));
-      }else if(mHFHFracVSpT_Forward_MiniAOD->getBinContent(i)!=0){
-	mHFHFracVSpT_Forward_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mHFEFracVSpT_Forward_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mHFEFracVSpT_Forward_Reco->getBinContent(i)!=0){
-	mHFEFracVSpT_Forward_MiniAOD_over_Reco->setBinContent(i,mHFEFracVSpT_Forward_MiniAOD->getBinContent(i)/mHFEFracVSpT_Forward_Reco->getBinContent(i));
-      }else if(mHFEFracVSpT_Forward_MiniAOD->getBinContent(i)!=0){
-	mHFEFracVSpT_Forward_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mCHFrac_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mCHFrac_Reco->getBinContent(i)!=0){
-	mCHFrac_MiniAOD_over_Reco->setBinContent(i,mCHFrac_MiniAOD->getBinContent(i)/mCHFrac_Reco->getBinContent(i));
-      }else if(mCHFrac_MiniAOD->getBinContent(i)!=0){
-	mCHFrac_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mNHFrac_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mNHFrac_Reco->getBinContent(i)!=0){
-	mNHFrac_MiniAOD_over_Reco->setBinContent(i,mNHFrac_MiniAOD->getBinContent(i)/mNHFrac_Reco->getBinContent(i));
-      }else if(mNHFrac_MiniAOD->getBinContent(i)!=0){
-	mNHFrac_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mPhFrac_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mPhFrac_Reco->getBinContent(i)!=0){
-	mPhFrac_MiniAOD_over_Reco->setBinContent(i,mPhFrac_MiniAOD->getBinContent(i)/mPhFrac_Reco->getBinContent(i));
-      }else if(mPhFrac_MiniAOD->getBinContent(i)!=0){
-	mPhFrac_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mChargedMultiplicity_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mChargedMultiplicity_Reco->getBinContent(i)!=0){
-	mChargedMultiplicity_MiniAOD_over_Reco->setBinContent(i,mChargedMultiplicity_MiniAOD->getBinContent(i)/mChargedMultiplicity_Reco->getBinContent(i));
-      }else if(mChargedMultiplicity_MiniAOD->getBinContent(i)!=0){
-	mChargedMultiplicity_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mNeutralMultiplicity_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mNeutralMultiplicity_Reco->getBinContent(i)!=0){
-	mNeutralMultiplicity_MiniAOD_over_Reco->setBinContent(i,mNeutralMultiplicity_MiniAOD->getBinContent(i)/mNeutralMultiplicity_Reco->getBinContent(i));
-      }else if(mNeutralMultiplicity_MiniAOD->getBinContent(i)!=0){
-	mNeutralMultiplicity_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mMuonMultiplicity_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mMuonMultiplicity_Reco->getBinContent(i)!=0){
-	mMuonMultiplicity_MiniAOD_over_Reco->setBinContent(i,mMuonMultiplicity_MiniAOD->getBinContent(i)/mMuonMultiplicity_Reco->getBinContent(i));
-      }else if(mMuonMultiplicity_MiniAOD->getBinContent(i)!=0){
-	mMuonMultiplicity_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-    for(int i=0;i<=(mNeutralFraction_MiniAOD_over_Reco->getNbinsX()+1);i++){
-      if(mNeutralFraction_Reco->getBinContent(i)!=0){
-	mNeutralFraction_MiniAOD_over_Reco->setBinContent(i,mNeutralFraction_MiniAOD->getBinContent(i)/mNeutralFraction_Reco->getBinContent(i));
-      }else if(mNeutralFraction_MiniAOD->getBinContent(i)!=0){
-	mNeutralFraction_MiniAOD_over_Reco->setBinContent(i,-0.5);
-      }
-    }
-  }
+  }//check for RECO and MiniAOD directories
 
   if (verbose_) std::cout << ">>> EndRun (DataCertificationJetMET) <<<" << std::endl;
 

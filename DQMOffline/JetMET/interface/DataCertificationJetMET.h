@@ -83,6 +83,11 @@ class DataCertificationJetMET : public DQMEDHarvester {
    bool jetTests[5][2];  //one for each type of jet certification/test type
    bool metTests[5][2];  //one for each type of met certification/test type
 
+   std::vector<std::string> map_Jet_string_vec;
+   std::vector<std::string> map_MET_string_vec;
+   std::map< std::string, MonitorElement*> map_of_Jet_MEs;
+   std::map< std::string, MonitorElement*> map_of_MET_MEs;
+
    //MET: RECO vs MiniAOD histos
    MonitorElement* mMET_MiniAOD_over_Reco;
    MonitorElement* mMEy_MiniAOD_over_Reco;

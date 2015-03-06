@@ -28,7 +28,7 @@ dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
                               folderName     = cms.untracked.string("JetMET/EventInfo"),  
                               METTypeRECO    = cms.InputTag("pfMetT1"),
                               METTypeMiniAOD = cms.InputTag("slimmedMETs"),
-                              JetTypeRECO    = cms.InputTag("ak4PFJets"),
+                              JetTypeRECO    = cms.InputTag("ak4PFJetsCHS"),
                               JetTypeMiniAOD = cms.InputTag("slimmedJets"),
                               #if changed here, change METAnalyzer module in same manner and jetDQMconfig
                               etaBin      = cms.int32(100),
