@@ -19,7 +19,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -39,7 +39,7 @@ namespace edm {
 //
 
 template<typename T>
-class HLTJetCollectionsForElePlusJets: public edm::EDProducer {
+class HLTJetCollectionsForElePlusJets: public edm::stream::EDProducer<> {
   public:
     explicit HLTJetCollectionsForElePlusJets(const edm::ParameterSet&);
     ~HLTJetCollectionsForElePlusJets();
