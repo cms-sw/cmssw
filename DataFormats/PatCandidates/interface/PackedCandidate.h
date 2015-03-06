@@ -221,7 +221,7 @@ namespace pat {
     /// dxy with respect to the PV ref
     virtual float dxy() const { maybeUnpackBoth(); return dxy_; }
     /// dz with respect to the PV[ipv]
-    virtual float dz(size_t ipv=0)  const { maybeUnpackBoth(); return dz_+pvRef_->position().z()-reco::VertexRef(pvRef_.id(),ipv)->position().z(); }
+    virtual float dz(size_t ipv=0)  const { maybeUnpackBoth(); return dz_+pvRef_->position().z()-(*pvRef_.product())[ipv].position().z(); }
     /// dz with respect to the PV ref
     virtual float dzAssociatedPV()  const { maybeUnpackBoth(); return dz_; }
     /// dxy with respect to another point
