@@ -371,12 +371,84 @@ def getPTAveVPSet():
 
     return ret
 
+# note: thresholds should be a list with integer only values
+def getSinglePFJet(thresholds, flavour=None, etaMin=-1, srcType="genJets" ):
+    if srcType == "genJets":
+        inputCol = cms.InputTag("ak4GenJets")
+        handlerType = "FromRecoCandidate"
+        label = srcType
+    elif srcType == "ak4PFJetsCHS":
+        inputCol = cms.InputTag("ak4PFJetsCHS")
+        handlerType = "RecoPFJetWithJEC"
+        label = srcType
+    else:
+        raise Exception("Whooops!")
+
+    if etaMin == None:
+        etaMin = -1
+
+    ret=cms.VPSet()
+    for t in thresholds:
+        partialPathName = "HLT_PFJet"+ str(t)+"_"
+        if flavour != None:
+            partialPathName += flavour+"_"
+        partialPathName += "v"
+
+        marginLow = max(t-t/2, 15)
+        ptBinLow  = max(t-marginLow,0)
+        marginHigh =  min(max(t/3, 15), 50)
+        ptBinHigh = t+marginHigh
+        ptBins = min(100, ptBinHigh-ptBinLow)
+        fromJets =  cms.PSet(
+            triggerSelection = cms.string(partialPathName+"*"),
+            handlerType = cms.string(handlerType),
+            PFJetCorLabel        = cms.InputTag("ak4PFL1FastL2L3Corrector"),
+            inputCol = inputCol,
+            #    inputCol = cms.InputTag("ak4PFJetsCHS"),
+            partialPathName = cms.string(partialPathName),
+            partialFilterName  = cms.string("hltSinglePFJet"),
+            dqmhistolabel  = cms.string(label),
+            mainDQMDirname = cms.untracked.string(fsqdirname),
+            singleObjectsPreselection = cms.string("abs(eta) < 5.5 && abs(eta) > " + str(etaMin) ),
+            singleObjectDrawables =  cms.VPSet(
+                #cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)),
+            ),
+            combinedObjectSelection =  cms.string("1==1"),
+            combinedObjectSortCriteria = cms.string("at(0).pt"),
+            combinedObjectDimension = cms.int32(1),
+            combinedObjectDrawables =  cms.VPSet(
+                    cms.PSet (name = cms.string("pt"), expression = cms.string("at(0).pt"), 
+                              bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)),
+                    cms.PSet (name = cms.string("eta"), expression = cms.string("at(0).eta"), 
+                              bins = cms.int32(52), min = cms.double(-5.2), max = cms.double(5.2)),
+                    cms.PSet (name = cms.string("pt_nominator"), expression = cms.string("at(0).pt"),
+                             bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)  )
+            )
+        )
+        ret.append(fromJets)
+        fromJetsDenom  = fromJets.clone()
+        fromJetsDenom.triggerSelection = cms.string("HLT_ZeroBias_v*")
+        fromJetsDenom.singleObjectDrawables =  cms.VPSet()
+        fromJetsDenom.combinedObjectDrawables =  cms.VPSet(
+            cms.PSet (name = cms.string("pt_denominator"), expression = cms.string("at(0).pt"),
+                      bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)  )
+        )
+        ret.append(fromJetsDenom)
+    return ret
 
 def getFSQAll():
     ret = cms.VPSet()
-    ret.extend(getHighMultVPSet())
-    ret.extend(getPTAveVPSet())
-    ret.extend(getZeroBias_SinglePixelTrackVPSet())
+    #ret.extend(getHighMultVPSet())
+    #ret.extend(getPTAveVPSet())
+    #ret.extend(getZeroBias_SinglePixelTrackVPSet())
+
+
+    ret.extend(getSinglePFJet([15,25,40], flavour=None, etaMin=None, srcType="genJets"))
+    ret.extend(getSinglePFJet([15,25,40], flavour="FwdEta2", etaMin=2, srcType="genJets"))
+    ret.extend(getSinglePFJet([15,25,40], flavour="FwdEta3", etaMin=3, srcType="genJets"))
+    ret.extend(getSinglePFJet([15,25,40], flavour=None, etaMin=None, srcType="ak4PFJetsCHS"))
+    ret.extend(getSinglePFJet([15,25,40], flavour="FwdEta2", etaMin=2, srcType="ak4PFJetsCHS"))
+    ret.extend(getSinglePFJet([15,25,40], flavour="FwdEta3", etaMin=3, srcType="ak4PFJetsCHS"))
     return ret
 
 def getFSQHI():
@@ -387,8 +459,8 @@ def getFSQHI():
 
 fsqdirname = "HLT/FSQ/"
 
-processName = "HLT"
-#processName = "TEST"
+#processName = "HLT"
+processName = "TEST"
 
 fsqHLTOfflineSource = cms.EDAnalyzer("FSQDiJetAve",
     triggerConfiguration =  cms.PSet(
