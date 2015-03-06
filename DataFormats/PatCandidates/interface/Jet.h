@@ -96,6 +96,13 @@ namespace pat {
       /// required reimplementation of the Candidate's clone method
       virtual Jet * clone() const { return new Jet(*this); }
 
+    private:
+      /// setter for reference
+      void setOriginalObject(const edm::RefToBase<reco::Candidate> & ref);
+      /// setter for reference
+      void setOriginalObject(const edm::Ptr<reco::Candidate> & ref);
+
+    public:
       /// ---- methods for MC matching ----
 
       /// return the matched generated parton

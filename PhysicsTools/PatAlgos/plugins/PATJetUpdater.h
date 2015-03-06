@@ -26,6 +26,9 @@
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
+#include "DataFormats/PatCandidates/interface/UserData.h"
+#include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
+
 namespace pat {
 
   class PATJetUpdater : public edm::EDProducer {
@@ -47,6 +50,9 @@ namespace pat {
       std::vector<edm::EDGetTokenT<edm::ValueMap<JetCorrFactors> > > jetCorrFactorsTokens_;
 
       GreaterByPt<Jet> pTComparator_;
+
+      bool useUserData_;
+      pat::PATUserDataHelper<pat::Jet>      userDataHelper_;
 
   };
 

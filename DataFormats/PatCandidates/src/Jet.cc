@@ -93,6 +93,16 @@ void Jet::tryImportSpecific(const reco::Jet& source)
 Jet::~Jet() {
 }
 
+void Jet::setOriginalObject(const edm::RefToBase<reco::Candidate> & ref) {
+    refToOrig_ = edm::Ptr<reco::Candidate>(ref.id(), ref.get(), ref.key()); // correct way to convert RefToBase=>Ptr, if ref is guaranteed to be available
+                                               // which happens to be true, otherwise the line before this throws ex. already
+}
+
+void Jet::setOriginalObject(const edm::Ptr<reco::Candidate> & ref) {
+    refToOrig_ = ref;
+}
+
+
 /// ============= CaloJet methods ============
 
 CaloTowerPtr Jet::getCaloConstituent (unsigned fIndex) const {
