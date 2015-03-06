@@ -72,7 +72,7 @@ namespace reco {
 
     bool inDynamicDPhiWindow(const float seedEta, const float seedPhi,
 			     const float ClustE, const float ClusEta,
-			     const float ClusPhi) {
+			     const float ClusPhi, const bool puEtHardCut) {
       // from Rishi's fits 06 June 2013 in log base 10
       constexpr double yoffsetEB = 7.151e-02;
       constexpr double scaleEB   = 5.656e-01;
@@ -149,12 +149,16 @@ namespace reco {
 	maxdphi = yoffset+scale/(1+std::exp((logClustEt-xoffset)*width));
 	maxdphi = std::min(maxdphi,cutoff);
 	maxdphi = std::max(maxdphi,saturation);
-	double etThresh=2;
 	bool isAccepted=false;
 	isAccepted = clusDphi < maxdphi;
-	if(clusDphi>0.15 && etaBin != 0 && isAccepted){      
-	  
-	  double clustEt=ClustE/std::cosh(ClusEta);
+	//PU rejection with Et hard cut after minDPhi
+	double minDPhi=0.15;
+	if(clusDphi>minDPhi && etaBin != 0 && isAccepted && puEtHardCut){      
+
+	  double etMaxThresh=1.5;
+	  double etMinThresh=0.5;
+	  double clustEt = ClustE/std::cosh(ClusEta);
+	  double etThresh= std::min(etMinThresh+(etMaxThresh-etMinThresh)*(clusDphi-minDPhi)/(cutoff-minDPhi),etMaxThresh);
 	  isAccepted &=clustEt>etThresh  ;
 	  
 	}

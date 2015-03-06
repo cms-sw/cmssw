@@ -81,6 +81,7 @@ class PFECALSuperClusterAlgo {
   void setUseETForSeeding(bool useET) { threshIsET_ = useET; } 
 
   void setUseDynamicDPhi(bool useit) { _useDynamicDPhi = useit; } 
+  void setUsePUEtHardCut(bool useit) { _usePUEtHardCut = useit; } 
 
   void setUseRegression(bool useRegression) { useRegression_ = useRegression; }
   
@@ -182,6 +183,7 @@ class PFECALSuperClusterAlgo {
   double satelliteThreshold_, fractionForMajority_;
 
   bool _useDynamicDPhi;
+  bool _usePUEtHardCut;
 
   bool applyCrackCorrections_;
   bool threshIsET_;
