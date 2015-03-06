@@ -35,13 +35,15 @@
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripRawWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiPixelWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiPixelMCDigiWorker.h"
-#include "SimGeneral/DataMixingModule/plugins/DataMixingGeneralTrackWorker.h"
+//#include "SimGeneral/DataMixingModule/plugins/DataMixingGeneralTrackWorker.h"
+#include "FastSimulation/Tracking/plugins/RecoTrackAccumulator.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingPileupCopy.h"
 
 #include <map>
 #include <vector>
 #include <string>
 
+class DigiAccumulatorMixMod;
 
 namespace edm {
 
@@ -180,7 +182,8 @@ namespace edm {
 
       // Tracks
 
-      DataMixingGeneralTrackWorker *GeneralTrackWorker_;
+      //DataMixingGeneralTrackWorker *GeneralTrackWorker_;
+      DigiAccumulatorMixMod * GeneralTrackWorker_;
 
       virtual void getSubdetectorNames();  
 

@@ -25,7 +25,10 @@
 //
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoNew.h"
 #include "DataMixingModule.h"
+#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
 
 using namespace std;
 
@@ -43,6 +46,9 @@ namespace edm
     ZDCPileInputTag_(ps.getParameter<edm::InputTag>("ZDCPileInputTag")),
 							    label_(ps.getParameter<std::string>("Label"))
   {  
+
+    cout << "DataMixingModule " << " constructing..." << std::endl;
+
     // prepare for data access in DataMixingEcalDigiWorkerProd
     tok_eb_ = consumes<EBDigitizerTraits::DigiCollection>(EBPileInputTag_);
     tok_ee_ = consumes<EEDigitizerTraits::DigiCollection>(EEPileInputTag_);
@@ -214,11 +220,8 @@ namespace edm
     } 
     else{
       //Tracks:
-
-      GeneralTrackCollectionDM_  = ps.getParameter<std::string>("GeneralTrackDigiCollectionDM");
-      produces< reco::TrackCollection >(GeneralTrackCollectionDM_);
-      GeneralTrackWorker_ = new DataMixingGeneralTrackWorker(ps, consumesCollector());
-
+      edm::ConsumesCollector iC(consumesCollector());
+      GeneralTrackWorker_ = DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(ps.getParameterSet("tracker"), *this, iC).release();
     }
 
     // Pileup Information: if doing pre-mixing, we have to save the pileup information from the Secondary stream
@@ -232,6 +235,8 @@ namespace edm
 
       PUWorker_ = new DataMixingPileupCopy(ps, consumesCollector());
     }
+
+    cout << "DataMixingModule " << "...constructing done" <<std::endl;
 
   }
 
@@ -274,16 +279,23 @@ namespace edm
 
   void DataMixingModule::initializeEvent(const edm::Event &e, const edm::EventSetup& ES) { 
 
+    cout << "MixingModule " << " inialize event ..." << std::endl;
+
     if( addMCDigiNoise_ ) {
       if(MergeTrackerDigis_){
 	SiStripMCDigiWorker_->initializeEvent( e, ES );
 	SiPixelMCDigiWorker_->initializeEvent( e, ES );
+      }
+      else{
+	GeneralTrackWorker_->initializeEvent(e,ES);
       }
       EcalDigiWorkerProd_->initializeEvent( e, ES );
     }
     if( addMCDigiNoise_ && MergeHcalDigisProd_) {
       HcalDigiWorkerProd_->initializeEvent( e, ES );
     }
+
+    cout << "MixingModule " << "... inialize done" << std::endl;
   }
   
 
@@ -332,7 +344,8 @@ namespace edm
   void DataMixingModule::addSignals(const edm::Event &e, const edm::EventSetup& ES) { 
     // fill in maps of hits
 
-    LogDebug("DataMixingModule")<<"===============> adding MC signals for "<<e.id();
+    //LogDebug("DataMixingModule")<<"===============> adding MC signals for "<<e.id();
+    cout << "DataMixingModule" <<"  ===============> adding MC signals for "<<e.id() << std::endl;
 
     // Ecal
     if(MergeEMDigis_) { 
@@ -365,7 +378,8 @@ namespace edm
       if(addMCDigiNoise_ ) SiPixelMCDigiWorker_->addSiPixelSignals(e);
       else SiPixelWorker_->addSiPixelSignals(e);
     }else{
-      GeneralTrackWorker_->addGeneralTrackSignals(e);
+      //GeneralTrackWorker_->addGeneralTrackSignal(e);
+      GeneralTrackWorker_->accumulate(e,ES);
     }
     AddedPileup_ = false;
 
@@ -381,8 +395,8 @@ namespace edm
     ModuleCallingContext moduleCallingContext(&moduleDescription());
     ModuleContextSentry moduleContextSentry(&moduleCallingContext, parentContext);
 
-    LogDebug("DataMixingModule") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
-
+    //LogDebug("DataMixingModule") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
+    std::cout << "DataMixingModule" <<"  ===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr << std::endl;
 
     // Note:  setupPileUpEvent may modify the run and lumi numbers of the EventPrincipal to match that of the primary event.
     setupPileUpEvent(ES);
@@ -432,7 +446,12 @@ namespace edm
       if(addMCDigiNoise_ ) SiPixelMCDigiWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
       else SiPixelWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
     }else{
-      GeneralTrackWorker_->addGeneralTrackPileups(bcr, &ep, eventNr, &moduleCallingContext);
+      std::cout << "DataMixingModule  " << "mixing tracks" << std::endl;
+      std::cout << "make pileup event principal" << std::endl;
+      PileUpEventPrincipal pep(ep,&moduleCallingContext,bcr);
+      std::cout << "do the actual mixing" << std::endl;
+      GeneralTrackWorker_->accumulate(pep, ES,ep.streamID());
+      std::cout << "DataMixingModule  " << "... done mixing tracks" << std::endl;
     }
     
     
@@ -468,14 +487,23 @@ namespace edm
           NumPU_Events = 1;
         }  
 
+	std::cout << "init bx" << std::endl;
+	if(!MergeTrackerDigis_)
+	  GeneralTrackWorker_->initializeBunchCrossing(e, ES, bunchCrossing);
+
         source->readPileUp(
                 e.id(),
                 recordEventID,
                 std::bind(&DataMixingModule::pileWorker, std::ref(*this),
-                            _1, bunchCrossing, _2, std::cref(ES), mcc),
+			  _1, bunchCrossing, _2, std::cref(ES), mcc),
 		NumPU_Events,
                 e.streamID()
-                );
+			   );
+
+	std::cout << "finish bx" << std::endl;
+	if(!MergeTrackerDigis_)
+	  GeneralTrackWorker_->finalizeBunchCrossing(e, ES, bunchCrossing);
+	
       }
     }
 
@@ -527,7 +555,7 @@ namespace edm
       if(addMCDigiNoise_ ) SiPixelMCDigiWorker_->putSiPixel(e, ES, ps, bunchSpacing); 
       else SiPixelWorker_->putSiPixel(e);
     }else{
-       GeneralTrackWorker_->putGeneralTrack(e);
+      GeneralTrackWorker_->finalizeEvent(e,ES);
     }
 
 

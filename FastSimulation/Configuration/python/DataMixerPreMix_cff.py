@@ -1,10 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.DataMixerPreMix_cff import *
+
+# from signal: mix tracks not strip or pixels
+# does this take care of pileup as well?
 mixData.TrackerMergeType = "tracks"
-mixData.GeneralTrackDigiCollectionDM = cms.string("generalTracks")
-mixData.GeneralTrackLabelSig = cms.InputTag("generalTracksBeforePreMixing")
-mixData.GeneralTrackPileInputTag = cms.InputTag("generalTracksBeforeMixing")
+import FastSimulation.Tracking.recoTrackAccumulator_cfi
+mixData.tracker = FastSimulation.Tracking.recoTrackAccumulator_cfi.recoTrackAccumulator
 mixData.hitProducer = cms.InputTag("famosSimHits")
 
 # get rid of sistrip and sipixel raw2digi modules run inside DataMixingModule

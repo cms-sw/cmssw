@@ -24,7 +24,9 @@ RecoTrackAccumulator::~RecoTrackAccumulator() {
 }
   
 void RecoTrackAccumulator::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {
-    
+
+  std::cout << "RTA: init event..." << std::endl;    
+
   NewTrackList_ = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection());
   NewHitList_ = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
   NewTrackExtraList_ = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection());
@@ -33,6 +35,7 @@ void RecoTrackAccumulator::initializeEvent(edm::Event const& e, edm::EventSetup 
   rTrackExtras=const_cast<edm::Event&>( e ).getRefBeforePut<reco::TrackExtraCollection>(GeneralTrackExtraOutput_);
   rHits=const_cast<edm::Event&>( e ).getRefBeforePut<TrackingRecHitCollection>(HitOutput_);
 
+  std::cout << "RTA: ... done init event" << std::endl;    
 }
   
 void RecoTrackAccumulator::accumulate(edm::Event const& e, edm::EventSetup const& iSetup) {
@@ -59,11 +62,12 @@ template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::Ev
   edm::Handle<reco::TrackCollection> tracks;
   edm::Handle<TrackingRecHitCollection> hits;
   edm::Handle<reco::TrackExtraCollection> trackExtras;
+  std::cout << "RTA: get my stuff..." << std::endl;    
   if(!(e.getByLabel(Input_, tracks) and e.getByLabel(Input_, hits) and e.getByLabel(Input_, trackExtras))){
     edm::LogError ("Failed to find track, hit or trackExtra collections");
     exit(1);
   }
-  // check validaity here
+  std::cout << "RTA: got my stuff..." << std::endl;    
 
   for (auto const& track : *tracks) {
     NewTrackList_->push_back(track);
