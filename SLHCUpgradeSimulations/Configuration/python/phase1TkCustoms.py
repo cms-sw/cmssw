@@ -238,6 +238,13 @@ def customise_Reco(process,pileup):
     process.reconstruction_fromRECO.remove(tobTecStepTrackCandidates)
     process.reconstruction_fromRECO.remove(tobTecStepTracks)
 
+    process.reconstruction_fromRECO.remove(process.convClusters)
+    process.reconstruction_fromRECO.remove(process.convLayerPairs)
+    process.reconstruction_fromRECO.remove(process.convStepSelector)
+    process.reconstruction_fromRECO.remove(process.convTrackCandidates)
+    process.reconstruction_fromRECO.remove(process.convStepTracks)
+    process.reconstruction_fromRECO.remove(process.photonConvTrajSeedFromSingleLeg)
+
     # Needed to make the loading of recoFromSimDigis_cff below to work
     process.InitialStepPreSplitting.remove(siPixelClusters)
 

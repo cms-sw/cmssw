@@ -74,6 +74,19 @@
    <class name="edm::SortedCollection<HcalTTPDigi,edm::StrictWeakOrdering<HcalTTPDigi> >"/>
    <class name="edm::SortedCollection<HcalUpgradeDataFrame,edm::StrictWeakOrdering<HcalUpgradeDataFrame> >"/>
 
+   <class name="edm::StrictWeakOrdering<HBHEDataFrame>"/>
+   <class name="edm::StrictWeakOrdering<HODataFrame>"/>
+   <class name="edm::StrictWeakOrdering<HFDataFrame>"/>
+   <class name="edm::StrictWeakOrdering<HcalCalibDataFrame>"/>
+   <class name="edm::StrictWeakOrdering<HcalTriggerPrimitiveDigi>"/>
+   <class name="edm::StrictWeakOrdering<HOTriggerPrimitiveDigi>"/>
+   <class name="edm::StrictWeakOrdering<HcalHistogramDigi>"/>
+   <class name="edm::StrictWeakOrdering<ZDCDataFrame>"/>
+   <class name="edm::StrictWeakOrdering<CastorDataFrame>"/>
+   <class name="edm::StrictWeakOrdering<CastorTriggerPrimitiveDigi>"/>
+   <class name="edm::StrictWeakOrdering<HcalTTPDigi>"/>
+   <class name="edm::StrictWeakOrdering<HcalUpgradeDataFrame>"/>
+
    <class name="edm::Wrapper<edm::SortedCollection<HBHEDataFrame,edm::StrictWeakOrdering<HBHEDataFrame> > >" splitLevel="0" />
    <class name="edm::Wrapper<edm::SortedCollection<HODataFrame,edm::StrictWeakOrdering<HODataFrame> > >" splitLevel="0" />
    <class name="edm::Wrapper<edm::SortedCollection<HFDataFrame,edm::StrictWeakOrdering<HFDataFrame> > >" splitLevel="0" />

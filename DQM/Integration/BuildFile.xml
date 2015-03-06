@@ -5,7 +5,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="RelationalAccess"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>

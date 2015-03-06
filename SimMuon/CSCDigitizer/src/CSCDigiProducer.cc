@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <string>
 
@@ -71,13 +72,15 @@ CSCDigiProducer::~CSCDigiProducer()
 }
 
 
-void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
+void CSCDigiProducer::produce(edm::Event& ev, const edm::EventSetup& eventSetup) {
 
+  edm::LogVerbatim("CSCDigitizer") << "[CSCDigiProducer::produce] starting event " << 
+      ev.id().event() << " of run " << ev.id().run();
   edm::Service<edm::RandomNumberGenerator> rng;
-  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(ev.streamID());
 
   edm::Handle<CrossingFrame<PSimHit> > cf;
-  e.getByToken(cf_token, cf);
+  ev.getByToken(cf_token, cf);
 
   std::auto_ptr<MixCollection<PSimHit> > 
     hits( new MixCollection<PSimHit>(cf.product()) );
@@ -121,10 +124,10 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
 
   // store them in the event
-  e.put(pWireDigis, "MuonCSCWireDigi");
-  e.put(pStripDigis, "MuonCSCStripDigi");
-  e.put(pComparatorDigis, "MuonCSCComparatorDigi");
-  e.put(pWireDigiSimLinks, "MuonCSCWireDigiSimLinks");
-  e.put(pStripDigiSimLinks, "MuonCSCStripDigiSimLinks");
+  ev.put(pWireDigis, "MuonCSCWireDigi");
+  ev.put(pStripDigis, "MuonCSCStripDigi");
+  ev.put(pComparatorDigis, "MuonCSCComparatorDigi");
+  ev.put(pWireDigiSimLinks, "MuonCSCWireDigiSimLinks");
+  ev.put(pStripDigiSimLinks, "MuonCSCStripDigiSimLinks");
 }
 
