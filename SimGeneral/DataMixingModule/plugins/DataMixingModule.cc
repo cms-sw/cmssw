@@ -232,6 +232,8 @@ namespace edm
       PUWorker_ = new DataMixingPileupCopy(ps, consumesCollector());
     }
 
+    cout << "DataMixingModule " << "...constructing done" <<std::endl;
+
   }
 
   void DataMixingModule::getSubdetectorNames() {
@@ -273,6 +275,8 @@ namespace edm
 
   void DataMixingModule::initializeEvent(const edm::Event &e, const edm::EventSetup& ES) { 
 
+    cout << "MixingModule " << " inialize event ..." << std::endl;
+
     if( addMCDigiNoise_ ) {
       if(MergeTrackerDigis_){
 	SiStripMCDigiWorker_->initializeEvent( e, ES );
@@ -286,6 +290,8 @@ namespace edm
     if( addMCDigiNoise_ && MergeHcalDigisProd_) {
       HcalDigiWorkerProd_->initializeEvent( e, ES );
     }
+
+    cout << "MixingModule " << "... inialize done" << std::endl;
   }
   
 
@@ -334,7 +340,8 @@ namespace edm
   void DataMixingModule::addSignals(const edm::Event &e, const edm::EventSetup& ES) { 
     // fill in maps of hits
 
-    LogDebug("DataMixingModule")<<"===============> adding MC signals for "<<e.id();
+    //LogDebug("DataMixingModule")<<"===============> adding MC signals for "<<e.id();
+    cout << "DataMixingModule" <<"  ===============> adding MC signals for "<<e.id() << std::endl;
 
     // Ecal
     if(MergeEMDigis_) { 
