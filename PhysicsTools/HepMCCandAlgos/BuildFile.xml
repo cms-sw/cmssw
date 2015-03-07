@@ -2,6 +2,7 @@
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/HepMCCandidate"/>
+<use   name="hepmc"/>
 <export>
   <lib   name="1"/>
 </export>

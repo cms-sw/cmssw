@@ -6,6 +6,7 @@
  <class name="std::basic_string<char>"/>
  <class name="std::bidirectional_iterator_tag"/>
  <class name="std::bitset<7>"/>
+ <class name="std::bitset<15>"/>
  <class name="std::deque<int>"/>
  <class name="std::forward_iterator_tag"/>
  <class name="std::input_iterator_tag"/>
