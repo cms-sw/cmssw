@@ -132,43 +132,7 @@ def miniAOD_customizeCommon(process):
                                makeType1p2corrPFMEt=True,
                                outputModule=None)
 
-    # Adding puppi jets
-    process.load('CommonTools.PileupAlgos.Puppi_cff')
-    process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
-    #process.puppi.candName = cms.InputTag('packedPFCandidates')
-    #process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
 
-    addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
-                    jetCorrections = ('AK4PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''),
-                    algo= 'AK', rParam = 0.4)
-
-    process.patJetGenJetMatchPuppi.matched =  'slimmedGenJets'
-    process.selectedPatJetsPuppi.cut = cms.string("pt > 20")
-
-    process.load('PhysicsTools.PatAlgos.slimming.slimmedJets_cfi')
-    process.slimmedJetsPuppi = process.slimmedJets.clone()
-    process.slimmedJetsPuppi.src = cms.InputTag("selectedPatJetsPuppi")
-    ## process.slimmedJetsPuppi.packedPFCandidates = cms.InputTag("puppi")
-    process.slimmedJetsPuppi.dropDaughters = cms.string("1")
-
-    ## puppi met
-    process.load('RecoMET.METProducers.PFMET_cfi')
-    process.pfMetPuppi = process.pfMet.clone()
-    process.pfMetPuppi.src = cms.InputTag("puppi")
-    process.pfMetPuppi.alias = cms.string('pfMetPuppi')
-
-    from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
-    addMETCollection(process, labelName='patMETPuppi', metSource='pfMetPuppi')
-
-    process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
-    process.slimmedMETsPuppi = process.slimmedMETs.clone()
-    process.slimmedMETsPuppi.src = cms.InputTag("patMETPuppi")
-    process.slimmedMETsPuppi.rawUncertainties   = cms.InputTag("patPFMet%s")
-    process.slimmedMETsPuppi.type1Uncertainties = cms.InputTag("patPFMetT1%s")
-    process.slimmedMETsPuppi.type1p2Uncertainties = cms.InputTag("patPFMetT1T2%s")
-
-
-    
     #keep this after all addJetCollections otherwise it will attempt computing them also for stuf with no taginfos
     #Some useful BTAG vars
     process.patJets.userData.userFunctions = cms.vstring(
@@ -210,6 +174,70 @@ def miniAOD_customizeCommon(process):
     for idmod in electron_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
+    # Adding puppi jets
+    process.load('CommonTools.PileupAlgos.Puppi_cff')
+    process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
+    #process.puppi.candName = cms.InputTag('packedPFCandidates')
+    #process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
+
+    from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
+    process.ak4PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
+        j2tParametersVX,
+        jets = cms.InputTag("ak4PFJetsPuppi")
+    )
+    process.patJetPuppiCharge = cms.EDProducer("JetChargeProducer",
+        src = cms.InputTag("ak4PFJetsPuppiTracksAssociatorAtVertex"),
+        var = cms.string('Pt'),
+        exp = cms.double(1.0)
+    )
+
+    addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
+                    jetCorrections = ('AK4PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''),
+                    algo= 'AK', rParam = 0.4,
+                    btagDiscriminators = [
+                    'combinedSecondaryVertexBJetTags'
+                    , 'pfJetBProbabilityBJetTags'
+                    , 'pfJetProbabilityBJetTags'
+                    , 'pfTrackCountingHighPurBJetTags'
+                    , 'pfTrackCountingHighEffBJetTags'
+                    , 'pfSimpleSecondaryVertexHighEffBJetTags'
+                    , 'pfSimpleSecondaryVertexHighPurBJetTags'
+                    , 'pfCombinedInclusiveSecondaryVertexV2BJetTags'
+                    , 'pfCombinedMVABJetTags'
+                    ]
+                    )
+
+    process.patJetGenJetMatchPuppi.matched =  'slimmedGenJets'
+
+    process.patJetsPuppi.userData = process.patJets.userData
+    process.patJetsPuppi.userData.userFloats.src = cms.VInputTag("")
+    process.patJetsPuppi.jetChargeSource = cms.InputTag("patJetPuppiCharge")
+    process.patJetsPuppi.tagInfoSources = cms.VInputTag(cms.InputTag("pfSecondaryVertexTagInfosPuppi"))
+    process.patJetsPuppi.addTagInfos = cms.bool(True)
+
+    process.selectedPatJetsPuppi.cut = cms.string("pt > 20")
+
+    process.load('PhysicsTools.PatAlgos.slimming.slimmedJets_cfi')
+    process.slimmedJetsPuppi = process.slimmedJets.clone()
+    process.slimmedJetsPuppi.src = cms.InputTag("selectedPatJetsPuppi")
+    ## process.slimmedJetsPuppi.packedPFCandidates = cms.InputTag("puppi")
+    process.slimmedJetsPuppi.dropDaughters = cms.string("1")
+
+    ## puppi met
+    process.load('RecoMET.METProducers.PFMET_cfi')
+    process.pfMetPuppi = process.pfMet.clone()
+    process.pfMetPuppi.src = cms.InputTag("puppi")
+    process.pfMetPuppi.alias = cms.string('pfMetPuppi')
+
+    from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
+    addMETCollection(process, labelName='patMETPuppi', metSource='pfMetPuppi')
+
+    process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
+    process.slimmedMETsPuppi = process.slimmedMETs.clone()
+    process.slimmedMETsPuppi.src = cms.InputTag("patMETPuppi")
+    process.slimmedMETsPuppi.rawUncertainties   = cms.InputTag("patPFMet%s")
+    process.slimmedMETsPuppi.type1Uncertainties = cms.InputTag("patPFMetT1%s")
+    process.slimmedMETsPuppi.type1p2Uncertainties = cms.InputTag("patPFMetT1T2%s")
 
 
 def miniAOD_customizeMC(process):
