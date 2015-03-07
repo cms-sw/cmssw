@@ -11,8 +11,8 @@ namespace logintpack
                 float l =log(fabs(x));
                 float centered = (l-lmin)/(lmax-lmin)*base;
                 int8_t  r=ceil(centered);
-                if(centered >= base-1) return r=base-1;
-                if(centered < 0) return r=0;
+                if(centered >= base-1) r=base-1;
+                if(centered < 0) r=0;
                 if(x<0) r=-r;
                 return r;
         }
@@ -23,8 +23,8 @@ namespace logintpack
 		float l =log(fabs(x));
 		float centered = (l-lmin)/(lmax-lmin)*base;
 		int8_t  r=centered;
-		if(centered >= base-1) return r=base-1;
-		if(centered < 0) return r=0;
+		if(centered >= base-1) r=base-1;
+		if(centered < 0) r=0;
 		if(x<0) r=-r;
 		return r;
 	}
