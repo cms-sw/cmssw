@@ -193,20 +193,9 @@ def miniAOD_customizeCommon(process):
 
     addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
                     jetCorrections = ('AK4PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''),
-                    algo= 'AK', rParam = 0.4,
-                    btagDiscriminators = [
-                    'combinedSecondaryVertexBJetTags'
-                    , 'pfJetBProbabilityBJetTags'
-                    , 'pfJetProbabilityBJetTags'
-                    , 'pfTrackCountingHighPurBJetTags'
-                    , 'pfTrackCountingHighEffBJetTags'
-                    , 'pfSimpleSecondaryVertexHighEffBJetTags'
-                    , 'pfSimpleSecondaryVertexHighPurBJetTags'
-                    , 'pfCombinedInclusiveSecondaryVertexV2BJetTags'
-                    , 'pfCombinedMVABJetTags'
-                    ]
+                    algo= 'AK', rParam = 0.4, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
                     )
-
+    
     process.patJetGenJetMatchPuppi.matched =  'slimmedGenJets'
 
     process.patJetsPuppi.userData = process.patJets.userData
