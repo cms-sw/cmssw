@@ -23,6 +23,7 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 //
 //
+#include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoNew.h"
 #include "DataMixingModule.h"
 
 
@@ -272,7 +273,7 @@ namespace edm
     if(MergePileup_) {
       produces< std::vector<PileupSummaryInfo> >();
       produces< int >("bunchSpacing");
-      produces<CrossingFramePlaybackInfoExtended>();
+      produces<CrossingFramePlaybackInfoNew>();
 
       PUWorker_ = new DataMixingPileupCopy(ps, consumesCollector());
     }
@@ -485,7 +486,7 @@ namespace edm
   {
     using namespace std::placeholders;
 
-    std::vector<edm::EventID> recordEventID;
+    std::vector<edm::SecondaryEventIDAndFileInfo> recordEventID;
     std::vector<int> PileupList;
     PileupList.clear();
     TrueNumInteractions_.clear();
