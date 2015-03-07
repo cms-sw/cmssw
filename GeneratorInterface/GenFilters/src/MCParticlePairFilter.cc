@@ -11,7 +11,7 @@ using namespace std;
 
 
 MCParticlePairFilter::MCParticlePairFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
 particleCharge(iConfig.getUntrackedParameter("ParticleCharge",0)),
 minInvMass(iConfig.getUntrackedParameter("MinInvMass", 0.)),
 maxInvMass(iConfig.getUntrackedParameter("MaxInvMass", 14000.)),
@@ -103,7 +103,7 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
    using namespace edm;
    bool accepted = false;
    Handle<HepMCProduct> evt;
-   iEvent.getByLabel(label_, evt);
+   iEvent.getByToken(token_, evt);
    const double pi = 3.14159;
 
    vector<HepMC::GenParticle*> typeApassed;

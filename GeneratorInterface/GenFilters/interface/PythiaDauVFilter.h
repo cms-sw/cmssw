@@ -35,6 +35,9 @@
 //
 // class decleration
 //
+namespace edm {
+  class HepMCProduct;
+}
 
 class PythiaDauVFilter : public edm::EDFilter {
  public:
@@ -45,7 +48,7 @@ class PythiaDauVFilter : public edm::EDFilter {
   virtual bool filter(edm::Event&, const edm::EventSetup&);
  private:
   int fVerbose;  
-  std::string label_;
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
   std::vector<int> dauIDs;
   int particleID;
   int motherID;

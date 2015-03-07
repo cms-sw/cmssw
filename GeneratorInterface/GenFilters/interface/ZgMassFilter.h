@@ -35,6 +35,9 @@
 //
 // class decleration
 //
+namespace edm {
+  class HepMCProduct;
+}
 
 class ZgMassFilter : public edm::EDFilter {
    public:
@@ -49,7 +52,7 @@ class ZgMassFilter : public edm::EDFilter {
 
       // ----------member data ---------------------------
       
-       std::string label_;
+       edm::EDGetTokenT<edm::HepMCProduct> token_;
        double minDileptonMass;
        double minZgMass;       
 };

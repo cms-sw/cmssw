@@ -14,7 +14,7 @@
 //
 
 PythiaFilterTTBar::PythiaFilterTTBar(const edm::ParameterSet& iConfig) : 
-  label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+  token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
   decayType_(iConfig.getUntrackedParameter("decayType",1)),
   leptonFlavour_(iConfig.getUntrackedParameter("leptonFlavour",0))	     
 {
@@ -42,7 +42,7 @@ PythiaFilterTTBar::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool accept=false;
 
   edm::Handle<edm::HepMCProduct> evt;
-  iEvent.getByLabel(label_, evt);
+  iEvent.getByToken(token_, evt);
 
   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
 

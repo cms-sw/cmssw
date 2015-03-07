@@ -32,7 +32,7 @@ struct ParticlePtGreater{
 //}
 
 PythiaFilterEMJetHeep::PythiaFilterEMJetHeep(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source"))),
+token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("source")))),
 //
 minEventPt(iConfig.getUntrackedParameter<double>("MinEventPt",40.)),
 etaMax(iConfig.getUntrackedParameter<double>("MaxEta", 2.8)),
@@ -128,7 +128,7 @@ bool PythiaFilterEMJetHeep::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
   accepted = false;
   edm::Handle<edm::HepMCProduct> evt;
-  iEvent.getByLabel(label_, evt);
+  iEvent.getByToken(token_, evt);
 
   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
 
