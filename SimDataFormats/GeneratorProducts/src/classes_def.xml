@@ -22,6 +22,7 @@
   <version ClassVersion="11" checksum="376377869"/>
   <version ClassVersion="12" checksum="2537869863"/>
   <version ClassVersion="13" checksum="1293886956"/>
+  <version ClassVersion="14" checksum="481001444"/>
  </class>
 	<class name="HepMC::FourVector" ClassVersion="10">
   <version ClassVersion="10" checksum="3279825169"/>

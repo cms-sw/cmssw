@@ -505,7 +505,7 @@
   <Branch>CSCDetIdCSCWireDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCWireDigi_HLT.</Branch>
   <Branch>CSCDetIdintMuonDigiCollection_simCscTriggerPrimitiveDigis__HLT.</Branch>
   <Branch>CaloTowersSorted_hltTowerMakerForAll__HLT.</Branch>
-  <Branch>CrossingFramePlaybackInfoExtended_mix__HLT.</Branch>
+  <Branch>CrossingFramePlaybackInfoNew_mix__HLT.</Branch>
   <Branch>DTChamberIdDTLocalTriggerMuonDigiCollection_hltMuonDTDigis__HLT.</Branch>
   <Branch>DTChamberIdDTRecSegment4DsOwnedRangeMap_hltDt4DSegments__HLT.</Branch>
   <Branch>DTLayerIdDTDigiMuonDigiCollection_hltMuonDTDigis__HLT.</Branch>
@@ -1431,7 +1431,7 @@
 <Branch Name="CSCDetIdCSCComparatorDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCComparatorDigi_HLT." ReadCount="3" />
 <Branch Name="CSCDetIdCSCStripDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCStripDigi_HLT." ReadCount="3" />
 <Branch Name="CSCDetIdCSCWireDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCWireDigi_HLT." ReadCount="3" />
-<Branch Name="CrossingFramePlaybackInfoExtended_mix__HLT." ReadCount="3" />
+<Branch Name="CrossingFramePlaybackInfoNew_mix__HLT." ReadCount="3" />
 <Branch Name="DTLayerIdDTDigiMuonDigiCollection_simMuonDTDigis__HLT." ReadCount="3" />
 <Branch Name="DTLayerIdDTDigiSimLinkMuonDigiCollection_simMuonDTDigis__HLT." ReadCount="3" />
 <Branch Name="EBDigiCollection_simEcalDigis_ebDigis_HLT." ReadCount="3" />

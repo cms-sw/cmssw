@@ -51,11 +51,11 @@ namespace edm {
     virtual void skip(int offset);
     virtual bool goToEvent_(EventID const& eventID);
     virtual void rewind_();
-    virtual void readOneRandom(EventPrincipal& cache, CLHEP::HepRandomEngine*) override;
-    virtual bool readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID, CLHEP::HepRandomEngine*) override;
-    virtual bool readOneSequential(EventPrincipal& cache);
-    virtual bool readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID);
-    virtual void readOneSpecified(EventPrincipal& cache, EventID const& id);
+    virtual void readOneRandom(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*) override;
+    virtual bool readOneRandomWithID(EventPrincipal& cache, size_t& fileNameHash, LuminosityBlockID const& lumiID, CLHEP::HepRandomEngine*) override;
+    virtual bool readOneSequential(EventPrincipal& cache, size_t& fileNameHash);
+    virtual bool readOneSequentialWithID(EventPrincipal& cache, size_t& fileNameHash, LuminosityBlockID const& lumiID);
+    virtual void readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, SecondaryEventIDAndFileInfo const& id);
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     virtual void preForkReleaseResources();
     virtual bool randomAccess_() const;
