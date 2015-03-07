@@ -17,6 +17,7 @@
 
   <!-- PAT Objects, and embedded data  -->
   <class name="pat::Electron"  ClassVersion="27">
+   <version ClassVersion="28" checksum="2518240031"/>
    <version ClassVersion="27" checksum="3863179876"/>
    <field name="superClusterRelinked_" transient="true"/>
    <version ClassVersion="26" checksum="2045819644"/>
@@ -39,6 +40,7 @@
   </ioread>
 
   <class name="pat::Muon"  ClassVersion="15">
+   <version ClassVersion="16" checksum="2674665735"/>
    <version ClassVersion="15" checksum="1248517999"/>
    <version ClassVersion="14" checksum="132269943"/>
    <version ClassVersion="13" checksum="2943499125"/>
@@ -133,6 +135,7 @@
   </ioread>
 
   <class name="pat::Jet"  ClassVersion="14">
+   <version ClassVersion="15" checksum="1826981639"/>
    <version ClassVersion="14" checksum="1304049301"/>
    <version ClassVersion="13" checksum="130552029"/>
    <field name="caloTowersTemp_" transient="true"/>
@@ -172,6 +175,7 @@
    <version ClassVersion="10" checksum="417284221"/>
   </class>
   <class name="pat::PFParticle"  ClassVersion="12">
+   <version ClassVersion="13" checksum="223824921"/>
    <version ClassVersion="12" checksum="4118931093"/>
    <version ClassVersion="11" checksum="2923110109"/>
    <version ClassVersion="10" checksum="2240381542"/>
@@ -191,6 +195,7 @@
   </class>
 
   <class name="pat::PackedCandidate" ClassVersion="16">
+   <version ClassVersion="17" checksum="1633877368"/>
     <version ClassVersion="16" checksum="3261782486"/>
     <version ClassVersion="15" checksum="2118306102"/>
     <version ClassVersion="14" checksum="1075333340"/>
@@ -229,11 +234,20 @@
     ]]>
   </ioread>
 
- <class name="pat::PackedGenParticle">
+  <class name="pat::PackedGenParticle" ClassVersion="11">
+    <version ClassVersion="11" checksum="25552245"/>
+    <version ClassVersion="10" checksum="389883266"/>
     <field name="p4_" transient="true" />
     <field name="p4c_" transient="true" />
     <field name="unpacked_" transient="true" />
   </class>
+  <ioread sourceClass="pat::PackedGenParticle" source="int16_t packedEta_;int16_t packedPt_;int16_t packedM_;" version="[-10]" checksum="[389883266]" targetClass="pat::PackedGenParticle"
+  	 target="packedY_" embed="false" include="DataFormats/PatCandidates/interface/ioread_packedgen.h" >
+	<![CDATA[
+	packedY_ = convertPackedEtaToPackedY(onfile.packedPt_,onfile.packedEta_,onfile.packedM_);
+	]]>
+   </ioread>
+
   <ioread sourceClass="pat::PackedGenParticle"  version="[1-]" targetClass="pat::PackedGenParticle" source="" target="unpacked_">
     <![CDATA[unpacked_ = false;
     ]]>

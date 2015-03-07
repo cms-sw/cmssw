@@ -5,6 +5,7 @@
   <class name="std::vector<reco::GsfComponent5D>"/>
 
   <class name="reco::GsfTangent" ClassVersion="10">
+   <version ClassVersion="11" checksum="1153524498"/>
    <version ClassVersion="10" checksum="3902664602"/>
      <field name="position_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
      <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
@@ -24,6 +25,7 @@
   <class name="edm::RefVector<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra> >"/>
 
   <class name="reco::GsfTrack" ClassVersion="13">
+   <version ClassVersion="14" checksum="3085391575"/>
    <version ClassVersion="13" checksum="1287963871"/>
    <version ClassVersion="12" checksum="1456169080"/>
    <version ClassVersion="11" checksum="1456169080"/>

@@ -4,5 +4,5 @@ packedGenParticles = cms.EDProducer("PATPackedGenParticleProducer",
     map = cms.InputTag("genParticles"),
     inputOriginal = cms.InputTag("genParticles"),
     inputVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
-    maxEta = cms.double(6)
+    maxRapidity = cms.double(6)
 )

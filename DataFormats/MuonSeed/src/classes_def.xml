@@ -1,5 +1,6 @@
 <lcgdict>
       <class name="L2MuonTrajectorySeed"  ClassVersion="10">
+       <version ClassVersion="11" checksum="541533207"/>
        <version ClassVersion="10" checksum="2502730614"/>
       </class>
       <class name="edm::RefToBase<L2MuonTrajectorySeed>"/>
@@ -24,6 +25,7 @@
       <class name="edm::helpers::KeyVal<edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >,edm::RefVector<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > >"/>
 
       <class name="L3MuonTrajectorySeed"  ClassVersion="10">
+       <version ClassVersion="11" checksum="981061883"/>
        <version ClassVersion="10" checksum="2200485484"/>
       </class>
       <class name="edm::RefToBase<L3MuonTrajectorySeed>"/>
