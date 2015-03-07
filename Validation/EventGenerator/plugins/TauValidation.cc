@@ -76,13 +76,13 @@ void TauValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::
     LifeTime =  dqm.book1dHisto("LifeTime","#tau LifeTime ", 500 ,0,10000E-15);     LifeTime->setAxisTitle("#tau_{#tau} (s)");
     
     TauSpinEffectsW_X   = dqm.book1dHisto("TauSpinEffectsWX","X for pion", 50 ,0,1);     TauSpinEffectsW_X->setAxisTitle("X");
-    TauSpinEffectsHpm_X = dqm.book1dHisto("TauSpinEffectsHpmX","X for pion", 50 ,0,1); TauSpinEffectsHpm_X->setAxisTitle("X");
+    TauSpinEffectsHpm_X = dqm.book1dHisto("TauSpinEffectsHpmX","X for pion", 50 ,0,1);   TauSpinEffectsHpm_X->setAxisTitle("X");
     
     TauSpinEffectsW_eX   = dqm.book1dHisto("TauSpinEffectsWeX","X for e", 50 ,0,1);     TauSpinEffectsW_eX->setAxisTitle("X");
-    TauSpinEffectsHpm_eX = dqm.book1dHisto("TauSpinEffectsHpmeX","X for e", 50 ,0,1); TauSpinEffectsHpm_eX->setAxisTitle("X");
+    TauSpinEffectsHpm_eX = dqm.book1dHisto("TauSpinEffectsHpmeX","X for e", 50 ,0,1);   TauSpinEffectsHpm_eX->setAxisTitle("X");
 
     TauSpinEffectsW_muX   = dqm.book1dHisto("TauSpinEffectsWmuX","X for mu", 50 ,0,1);     TauSpinEffectsW_muX->setAxisTitle("X");
-    TauSpinEffectsHpm_muX = dqm.book1dHisto("TauSpinEffectsHpmmuX","X for mue", 50 ,0,1); TauSpinEffectsHpm_muX->setAxisTitle("X");
+    TauSpinEffectsHpm_muX = dqm.book1dHisto("TauSpinEffectsHpmmuX","X for mue", 50 ,0,1);  TauSpinEffectsHpm_muX->setAxisTitle("X");
 
     TauSpinEffectsW_UpsilonRho   = dqm.book1dHisto("TauSpinEffectsWUpsilonRho","#Upsilon for #rho", 50 ,-1,1);     TauSpinEffectsW_UpsilonRho->setAxisTitle("#Upsilon");
     TauSpinEffectsHpm_UpsilonRho = dqm.book1dHisto("TauSpinEffectsHpmUpsilonRho","#Upsilon for #rho", 50 ,-1,1);   TauSpinEffectsHpm_UpsilonRho->setAxisTitle("#Upsilon");
