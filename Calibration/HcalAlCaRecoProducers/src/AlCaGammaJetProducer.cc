@@ -1,458 +1,381 @@
-#include "Calibration/HcalAlCaRecoProducers/interface/AlCaGammaJetProducer.h"
+// system include files
+#include <memory>
+#include <string>
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
+#include "DataFormats/HcalRecHit/interface/HFRecHit.h"
+#include "DataFormats/HcalRecHit/interface/HORecHit.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-using namespace edm;
-using namespace std;
-using namespace reco;
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include<iostream>
 
-//namespace cms
-//{
+//
+// class declaration
+//
 
-AlCaGammaJetProducer::AlCaGammaJetProducer(const edm::ParameterSet& iConfig)
-{
+class AlCaGammaJetProducer : public edm::EDProducer {
+
+public:
+  explicit AlCaGammaJetProducer(const edm::ParameterSet&);
+  ~AlCaGammaJetProducer();
+  virtual void beginJob() ;
+  virtual void produce(edm::Event &, const edm::EventSetup&);
+  virtual void endJob();
+
+private:
+  bool select (reco::PhotonCollection, reco::PFJetCollection);                                             
+
+  // ----------member data ---------------------------
+  
+  edm::InputTag   labelPhoton_, labelPFJet_, labelHBHE_, labelHF_, labelHO_, labelTrigger_, labelPFCandidate_, labelVertex_, labelPFMET_, labelGsfEle_, labelRho_, labelConv_, labelBeamSpot_, labelLoosePhot_, labelTightPhot_;
+  double          minPtJet_, minPtPhoton_;
+  int             nAll_, nSelect_;
+  
+  edm::EDGetTokenT<reco::PhotonCollection>                                                tok_Photon_; 
+  edm::EDGetTokenT<reco::PFJetCollection>                                                 tok_PFJet_;
+  edm::EDGetTokenT<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>> tok_HBHE_;
+  edm::EDGetTokenT<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>>     tok_HF_;
+  edm::EDGetTokenT<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>>     tok_HO_;
+  edm::EDGetTokenT<edm::TriggerResults>                                                   tok_TrigRes_;
+  edm::EDGetTokenT<reco::PFCandidateCollection>                                           tok_PFCand_;
+  edm::EDGetTokenT<reco::VertexCollection>                                                tok_Vertex_;
+  edm::EDGetTokenT<reco::PFMETCollection>                                                 tok_PFMET_;
+  edm::EDGetTokenT<reco::GsfElectronCollection>                                           tok_GsfElec_;
+  edm::EDGetTokenT<double>                                                                tok_Rho_;
+  edm::EDGetTokenT<reco::ConversionCollection>                                            tok_Conv_;
+  edm::EDGetTokenT<reco::BeamSpot>                                                        tok_BS_;
+  edm::EDGetTokenT<edm::ValueMap<Bool_t> >                                                tok_loosePhoton_;
+  edm::EDGetTokenT<edm::ValueMap<Bool_t> >                                                tok_tightPhoton_;
+};
+
+AlCaGammaJetProducer::AlCaGammaJetProducer(const edm::ParameterSet& iConfig) : nAll_(0), nSelect_(0) {
    // Take input 
-   
-   tok_hbhe_= consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
-   tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
-   tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"));
+  labelPhoton_     = iConfig.getParameter<edm::InputTag>("PhoInput");
+  labelPFJet_      = iConfig.getParameter<edm::InputTag>("PFjetInput");
+  labelHBHE_       = iConfig.getParameter<edm::InputTag>("HBHEInput");
+  labelHF_         = iConfig.getParameter<edm::InputTag>("HFInput");
+  labelHO_         = iConfig.getParameter<edm::InputTag>("HOInput");
+  labelTrigger_    = iConfig.getParameter<edm::InputTag>("TriggerResults");
+  labelPFCandidate_= iConfig.getParameter<edm::InputTag>("particleFlowInput");
+  labelVertex_     = iConfig.getParameter<edm::InputTag>("VertexInput");
+  labelPFMET_      = iConfig.getParameter<edm::InputTag>("METInput");
+  labelGsfEle_     = iConfig.getParameter<edm::InputTag>("gsfeleInput");
+  labelRho_        = iConfig.getParameter<edm::InputTag>("rhoInput");
+  labelConv_       = iConfig.getParameter<edm::InputTag>("ConversionsInput");
+  labelBeamSpot_   = iConfig.getParameter<edm::InputTag>("BeamSpotInput");
+  labelLoosePhot_  = iConfig.getParameter<edm::InputTag>("PhoLoose");
+  labelTightPhot_  = iConfig.getParameter<edm::InputTag>("PhoTight");
+  minPtJet_        = iConfig.getParameter<double>("MinPtJet");
+  minPtPhoton_     = iConfig.getParameter<double>("MinPtPhoton");
 
-   mInputCalo = iConfig.getParameter<std::vector<edm::InputTag> >("srcCalo");
-   ecalLabels_=iConfig.getParameter<std::vector<edm::InputTag> >("ecalInputs");
+  tok_Photon_ = consumes<reco::PhotonCollection>(labelPhoton_);
+  tok_PFJet_  = consumes<reco::PFJetCollection>(labelPFJet_);
+  tok_HBHE_   = consumes<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>>(labelHBHE_);
+  tok_HF_     = consumes<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>>(labelHF_);
+  tok_HO_     = consumes<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>>(labelHO_);
+  tok_TrigRes_= consumes<edm::TriggerResults>(labelTrigger_);
+  tok_PFCand_ = consumes<reco::PFCandidateCollection>(labelPFCandidate_);
+  tok_Vertex_ = consumes<reco::VertexCollection>(labelVertex_);
+  tok_PFMET_  = consumes<reco::PFMETCollection>(labelPFMET_);
+  tok_loosePhoton_ = consumes<edm::ValueMap<Bool_t> >(labelLoosePhot_);
+  tok_tightPhoton_ = consumes<edm::ValueMap<Bool_t> >(labelTightPhot_);
+  tok_GsfElec_ = consumes<reco::GsfElectronCollection>(labelGsfEle_);
+  tok_Rho_ = consumes<double>(labelRho_);
+  tok_Conv_        = consumes<reco::ConversionCollection>(labelConv_);
+  tok_BS_          = consumes<reco::BeamSpot>(labelBeamSpot_);
 
-   unsigned nLabels = mInputCalo.size();
-   for ( unsigned i=0; i != nLabels; i++ ) 
-      toks_calo_.push_back( consumes<reco::CaloJetCollection>( mInputCalo[i] ) );
-
-   nLabels = ecalLabels_.size();
-   for ( unsigned i=0; i != nLabels; i++ )
-      toks_ecal_.push_back( consumes<EcalRecHitCollection>( ecalLabels_[i] ) );
-
-
-   tok_inputTrack_ =  consumes<reco::TrackCollection>(iConfig.getUntrackedParameter<std::string>("inputTrackLabel","generalTracks"));
-   correctedIslandBarrelSuperClusterCollection_ = iConfig.getParameter<std::string>("correctedIslandBarrelSuperClusterCollection");
-   correctedIslandBarrelSuperClusterProducer_   = iConfig.getParameter<std::string>("correctedIslandBarrelSuperClusterProducer");
-    tok_EBSC_ = consumes<reco::SuperClusterCollection>(
-    	edm::InputTag(correctedIslandBarrelSuperClusterProducer_,
-	correctedIslandBarrelSuperClusterCollection_)); 
-
-   correctedIslandEndcapSuperClusterCollection_ = iConfig.getParameter<std::string>("correctedIslandEndcapSuperClusterCollection");
-   correctedIslandEndcapSuperClusterProducer_   = iConfig.getParameter<std::string>("correctedIslandEndcapSuperClusterProducer");  
-   tok_EESC_ = consumes<reco::SuperClusterCollection>(
-	edm::InputTag(correctedIslandEndcapSuperClusterProducer_,
-	correctedIslandEndcapSuperClusterCollection_));
-
-   allowMissingInputs_=iConfig.getUntrackedParameter<bool>("AllowMissingInputs",true);
-   
-    
-   //register your products
-   produces<reco::TrackCollection>("GammaJetTracksCollection");
-   produces<EcalRecHitCollection>("GammaJetEcalRecHitCollection");
-   produces<HBHERecHitCollection>("GammaJetHBHERecHitCollection");
-   produces<HORecHitCollection>("GammaJetHORecHitCollection");
-   produces<HFRecHitCollection>("GammaJetHFRecHitCollection");
-   produces<CaloJetCollection>("GammaJetJetBackToBackCollection");
-   produces<reco::SuperClusterCollection>("GammaJetGammaBackToBackCollection");
-
-    
-   
-}
-void AlCaGammaJetProducer::beginJob()
-{
-}
-
-AlCaGammaJetProducer::~AlCaGammaJetProducer()
-{
+  // register your products
+  produces<reco::PhotonCollection>(labelPhoton_.encode());
+  produces<reco::PFJetCollection>(labelPFJet_.encode());
+  produces<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>>(labelHBHE_.encode());
+  produces<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>>(labelHF_.encode());
+  produces<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>>(labelHO_.encode());
+  produces<edm::TriggerResults>(labelTrigger_.encode());
+  produces<std::vector<Bool_t>>(labelLoosePhot_.encode());
+  produces<std::vector<Bool_t>>(labelTightPhot_.encode());
+  produces<double>(labelRho_.encode());
+  produces<reco::PFCandidateCollection>(labelPFCandidate_.encode());
+  produces<reco::VertexCollection>(labelVertex_.encode());
+  produces<reco::PFMETCollection>(labelPFMET_.encode());
+  produces<reco::GsfElectronCollection>(labelGsfEle_.encode());
+  produces<reco::ConversionCollection>(labelConv_.encode());
+  produces<reco::BeamSpot>(labelBeamSpot_.encode());
  
-
 }
 
+AlCaGammaJetProducer::~AlCaGammaJetProducer() { }
 
+void AlCaGammaJetProducer::beginJob() { }
+
+void AlCaGammaJetProducer::endJob() {
+  edm::LogInfo("AlcaGammaJet") << "Accepts " << nSelect_ << " events from a total of " << nAll_ << " events";
+}
+
+bool AlCaGammaJetProducer::select (reco::PhotonCollection ph, reco::PFJetCollection jt) {
+ 
+  if (jt.size()<1) return false;
+  if (ph.size()<1) return false;
+  if (((jt.at(0)).pt())<minPtJet_)    return false;
+  if (((ph.at(0)).pt())<minPtPhoton_) return false;
+  return true;
+}
 // ------------ method called to produce the data  ------------
-void
-AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   using namespace std;
+void AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  nAll_++;
 
-   edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<CaloGeometryRecord>().get(pG);
-   geo = pG.product();
+  // Access the collections from iEvent
+  edm::Handle<reco::PhotonCollection> phoHandle;
+  iEvent.getByToken(tok_Photon_,phoHandle);
+  if (!phoHandle.isValid()) {
+    edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get the product " << labelPhoton_;
+    return ;
+  }
+  const reco::PhotonCollection photon = *(phoHandle.product());
 
-// Produced collections 
-  
-  std::auto_ptr<reco::SuperClusterCollection> result (new reco::SuperClusterCollection); //Corrected jets
-  std::auto_ptr<CaloJetCollection> resultjet (new CaloJetCollection); //Corrected jets
-  std::auto_ptr<EcalRecHitCollection> miniEcalRecHitCollection(new EcalRecHitCollection);
-  std::auto_ptr<HBHERecHitCollection> miniHBHERecHitCollection(new HBHERecHitCollection);
-  std::auto_ptr<HORecHitCollection> miniHORecHitCollection(new HORecHitCollection);
-  std::auto_ptr<HFRecHitCollection> miniHFRecHitCollection(new HFRecHitCollection);
-  std::auto_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection);
-   
-   
-// Get  Corrected supercluster collection
-  int nclusb = 0;
-  int ncluse = 0;
-  reco::SuperClusterCollection::const_iterator maxclusbarrel;
-  reco::SuperClusterCollection::const_iterator maxclusendcap;
+  edm::Handle<reco::PFJetCollection> pfjet;
+  iEvent.getByToken(tok_PFJet_,pfjet);
+  if (!pfjet.isValid()) {
+    edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelPFJet_;
+    return ;
+  }
+  const reco::PFJetCollection pfjets = *(pfjet.product());
 
-  double vetmax = -100.;
-  Handle<reco::SuperClusterCollection> pCorrectedIslandBarrelSuperClusters;
-  iEvent.getByToken(tok_EBSC_,
-		    pCorrectedIslandBarrelSuperClusters);  
-  if (!pCorrectedIslandBarrelSuperClusters.isValid()) {
-    // can't find it!
-    if (!allowMissingInputs_) {
-      *pCorrectedIslandBarrelSuperClusters;  // will throw the proper exception
-    }
-  } else {
-    const reco::SuperClusterCollection* correctedIslandBarrelSuperClusters = pCorrectedIslandBarrelSuperClusters.product();
+  edm::Handle<reco::PFCandidateCollection> pfc;
+  iEvent.getByToken(tok_PFCand_,pfc);
+  if (!pfc.isValid()) {
+    edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelPFCandidate_;
+    return ;
+  }
+  const reco::PFCandidateCollection pfcand = *(pfc.product());
+
+  edm::Handle<reco::VertexCollection> vt;
+  iEvent.getByToken(tok_Vertex_,vt);
+  if (!vt.isValid()) {
+    edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelVertex_;
+    return ;
+  }
+  const reco::VertexCollection vtx = *(vt.product());
+
+  edm::Handle<reco::PFMETCollection> pfmt;
+  iEvent.getByToken(tok_PFMET_,pfmt);
+  if (!pfmt.isValid()) {
+    edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelPFMET_;
+    return ;
+  }
+  const reco::PFMETCollection pfmet = *(pfmt.product());
+
+  edm::Handle<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> > > hbhe;
+  iEvent.getByToken(tok_HBHE_,hbhe);
+  if (!hbhe.isValid()) {
+    edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelHBHE_;
+    return ;
+  }
+  const edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> > Hithbhe = *(hbhe.product());
+
+  edm::Handle<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> > > ho;
+  iEvent.getByToken(tok_HO_,ho);
+  if(!ho.isValid()) {
+    edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelHO_;
+    return ;
+  }
+  const edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> > Hitho = *(ho.product());
     
-    // loop over the super clusters and find the highest
-    maxclusbarrel = correctedIslandBarrelSuperClusters->begin();
-    for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandBarrelSuperClusters->begin();
-	aClus != correctedIslandBarrelSuperClusters->end(); aClus++) {
-      double vet = aClus->energy()/cosh(aClus->eta());
-          cout<<" Barrel supercluster " << vet <<" energy "<<aClus->energy()<<" eta "<<aClus->eta()<<endl;
-      if(vet>20.) {
-	if(vet > vetmax)
-	  {
-	    vetmax = vet;
-	    maxclusbarrel = aClus;
-	    nclusb = 1;
-	  }
+  edm::Handle<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> > > hf;
+  iEvent.getByToken(tok_HF_,hf);
+  if(!hf.isValid()) {
+    edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelHF_;
+    return ;
+  }
+  const edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> > Hithf = *(hf.product());
+
+  edm::Handle<edm::TriggerResults> trig;
+  iEvent.getByToken(tok_TrigRes_,trig);
+  if (!trig.isValid()) {
+    edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelTrigger_;
+    return ;
+  }
+  const edm::TriggerResults trigres = *(trig.product());
+
+  edm::Handle<double> rh;
+  iEvent.getByToken(tok_Rho_,rh);
+  if (!rh.isValid()) {
+    edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelRho_;
+    return ;
+  }
+  const double rho_val = *(rh.product());
+
+  edm::Handle<reco::GsfElectronCollection> gsf;
+  iEvent.getByToken(tok_GsfElec_,gsf);
+  if (!gsf.isValid()){
+    edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelGsfEle_;
+    return ;
+  }
+  const reco::GsfElectronCollection gsfele = *(gsf.product());
+
+  edm::Handle<reco::ConversionCollection> con;
+  iEvent.getByToken(tok_Conv_,con);
+  if (!con.isValid()){
+    edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelConv_;
+    return ;
+  }
+  const reco::ConversionCollection conv = *(con.product());
+
+  edm::Handle<reco::BeamSpot> bs;
+  iEvent.getByToken(tok_BS_,bs);
+  if (!bs.isValid()){
+    edm::LogWarning("AlCaGammaJet") << "AlCaGammaJetProducer: Error! can't get product " << labelBeamSpot_;
+    return ;
+  }
+  const reco::BeamSpot beam = *(bs.product());
+
+  // declare variables
+  // copy from standard place, if the event is useful
+  std::auto_ptr<reco::PFJetCollection>  miniPFjetCollection(new reco::PFJetCollection);
+  std::auto_ptr<reco::PhotonCollection> miniPhotonCollection(new reco::PhotonCollection);
+  std::auto_ptr<reco::PFCandidateCollection> miniPFCandCollection(new reco::PFCandidateCollection);
+  std::auto_ptr<reco::VertexCollection> miniVtxCollection(new reco::VertexCollection);
+  std::auto_ptr<reco::PFMETCollection> miniPFMETCollection(new reco::PFMETCollection);
+  std::auto_ptr<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>>  miniHBHECollection(new edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>);
+  std::auto_ptr<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>>  miniHOCollection(new edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>);
+  std::auto_ptr<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>>  miniHFCollection(new edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>);
+  std::auto_ptr<reco::GsfElectronCollection> miniGSFeleCollection(new reco::GsfElectronCollection);
+  std::auto_ptr<reco::ConversionCollection> miniConversionCollection(new reco::ConversionCollection);
+
+  std::auto_ptr<reco::BeamSpot> miniBeamSpotCollection(new reco::BeamSpot(beam.position(),beam.sigmaZ(),
+									    beam.dxdz(),beam.dydz(),beam.BeamWidthX(),
+									    beam.covariance(),beam.type()));
+    
+  std::auto_ptr<edm::TriggerResults> miniTriggerCollection(new edm::TriggerResults);
+
+  std::auto_ptr<double> miniRhoCollection(new double);
+  std::auto_ptr<std::vector<Bool_t> > miniLoosePhoton(new std::vector<Bool_t>());
+  std::auto_ptr<std::vector<Bool_t> > miniTightPhoton(new std::vector<Bool_t>());
+
+
+  // See if this event is useful
+  bool accept = select(photon, pfjets);
+  if (accept) {
+    nSelect_++;
+
+    //Copy from standard place
+    for(reco::PFJetCollection::const_iterator pfjetItr=pfjets.begin();
+        pfjetItr!=pfjets.end(); pfjetItr++) {
+      miniPFjetCollection->push_back(*pfjetItr);
+    }
+
+    for(reco::PhotonCollection::const_iterator phoItr=photon.begin();
+        phoItr!=photon.end(); phoItr++) {
+      miniPhotonCollection->push_back(*phoItr);
+    }
+
+    for(reco::PFCandidateCollection::const_iterator pfcItr=pfcand.begin();
+        pfcItr!=pfcand.end(); pfcItr++) {
+      miniPFCandCollection->push_back(*pfcItr);
+    }
+
+    for(reco::VertexCollection::const_iterator vtxItr=vtx.begin();
+        vtxItr!=vtx.end(); vtxItr++) {
+      miniVtxCollection->push_back(*vtxItr);
+    }
+
+    for(reco::PFMETCollection::const_iterator pfmetItr=pfmet.begin();
+        pfmetItr!=pfmet.end(); pfmetItr++) {
+      miniPFMETCollection->push_back(*pfmetItr);
+    }
+
+    for(edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >::const_iterator hbheItr=Hithbhe.begin(); 
+	hbheItr!=Hithbhe.end(); hbheItr++) {
+      miniHBHECollection->push_back(*hbheItr);
+    }
+
+    for(edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >::const_iterator hoItr=Hitho.begin();
+        hoItr!=Hitho.end(); hoItr++) {
+      miniHOCollection->push_back(*hoItr);
+    }
+
+    for(edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >::const_iterator hfItr=Hithf.begin();
+        hfItr!=Hithf.end(); hfItr++) {
+      miniHFCollection->push_back(*hfItr);
+    }
+
+    for(reco::GsfElectronCollection::const_iterator gsfItr=gsfele.begin();
+        gsfItr!=gsfele.end(); gsfItr++) {
+      miniGSFeleCollection->push_back(*gsfItr);
+    }
+
+    for(reco::ConversionCollection::const_iterator convItr=conv.begin();
+        convItr!=conv.end(); convItr++) {
+      miniConversionCollection->push_back(*convItr);
+    }
+
+    *miniTriggerCollection = trigres;
+    *miniRhoCollection = rho_val;
+
+    edm::Handle<edm::ValueMap<Bool_t> > loosePhotonQual;
+    iEvent.getByToken(tok_loosePhoton_, loosePhotonQual);
+    edm::Handle<edm::ValueMap<Bool_t> > tightPhotonQual;
+    iEvent.getByToken(tok_tightPhoton_, tightPhotonQual);
+    if (loosePhotonQual.isValid() && tightPhotonQual.isValid()) {
+      miniLoosePhoton->reserve(miniPhotonCollection->size());
+      miniTightPhoton->reserve(miniPhotonCollection->size());
+      for (int iPho=0; iPho<int(miniPhotonCollection->size()); ++iPho) {
+	edm::Ref<reco::PhotonCollection> photonRef(phoHandle,iPho);
+	if (!photonRef) {
+	  std::cout << "failed ref" << std::endl;
+	  miniLoosePhoton->push_back(-1);
+	  miniTightPhoton->push_back(-1);
+	}
+	else {
+	  miniLoosePhoton->push_back((*loosePhotonQual)[photonRef]);
+	  miniTightPhoton->push_back((*tightPhotonQual)[photonRef]);
+	}
       }
     }
-    
   }
 
-  Handle<reco::SuperClusterCollection> pCorrectedIslandEndcapSuperClusters;
-  iEvent.getByToken(tok_EESC_,
-		    pCorrectedIslandEndcapSuperClusters);  
-  if (!pCorrectedIslandEndcapSuperClusters.isValid()) {
-    // can't find it!
-    if (!allowMissingInputs_) {
-      *pCorrectedIslandEndcapSuperClusters;  // will throw the proper exception
-    }
-  } else {
-    const reco::SuperClusterCollection* correctedIslandEndcapSuperClusters = pCorrectedIslandEndcapSuperClusters.product();
-    
-    // loop over the super clusters and find the highest
-    maxclusendcap = correctedIslandEndcapSuperClusters->end();
-    double vetmaxe = vetmax;
-    for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandEndcapSuperClusters->begin();
-	aClus != correctedIslandEndcapSuperClusters->end(); aClus++) {
-      double vet = aClus->energy()/cosh(aClus->eta());
-      //   cout<<" Endcap supercluster " << vet <<" energy "<<aClus->energy()<<" eta "<<aClus->eta()<<endl;
-      if(vet>20.) {
-	if(vet > vetmaxe)
-	  {
-	    vetmaxe = vet;
-	    maxclusendcap = aClus;
-	    ncluse = 1;
-	  }
-      }
-    }
-  }
-   
-  cout<<" Number of gammas "<<nclusb<<" "<<ncluse<<endl;  
-  
-  if( nclusb == 0 && ncluse == 0 ) {
-   
-  iEvent.put( outputTColl, "GammaJetTracksCollection");
-  iEvent.put( miniEcalRecHitCollection, "GammaJetEcalRecHitCollection");
-  iEvent.put( miniHBHERecHitCollection, "GammaJetHBHERecHitCollection");
-  iEvent.put( miniHORecHitCollection, "GammaJetHORecHitCollection");
-  iEvent.put( miniHFRecHitCollection, "GammaJetHFRecHitCollection");
-  iEvent.put( result, "GammaJetGammaBackToBackCollection");
-  iEvent.put( resultjet, "GammaJetJetBackToBackCollection");
-  
+  //Put them in the event
+  iEvent.put( miniPhotonCollection,      labelPhoton_.encode());
+  iEvent.put( miniPFjetCollection,       labelPFJet_.encode());
+  iEvent.put( miniHBHECollection,        labelHBHE_.encode());
+  iEvent.put( miniHFCollection,          labelHF_.encode());
+  iEvent.put( miniHOCollection,          labelHO_.encode());
+  iEvent.put( miniTriggerCollection,     labelTrigger_.encode());
+  iEvent.put( miniPFCandCollection,      labelPFCandidate_.encode());
+  iEvent.put( miniVtxCollection,         labelVertex_.encode());
+  iEvent.put( miniPFMETCollection,       labelPFMET_.encode());
+  iEvent.put( miniGSFeleCollection,      labelGsfEle_.encode());
+  iEvent.put( miniRhoCollection,         labelRho_.encode());
+  iEvent.put( miniConversionCollection,  labelConv_.encode());
+  iEvent.put( miniBeamSpotCollection,    labelBeamSpot_.encode());
+  iEvent.put( miniLoosePhoton,           labelLoosePhot_.encode());
+  iEvent.put( miniTightPhoton,           labelTightPhot_.encode());
+
   return;
-  }
 
-  double phigamma = -100.;
-  double etagamma = -100.;
-  if(ncluse == 1)
-  {
-    result->push_back(*maxclusendcap);
-    phigamma = (*maxclusendcap).phi();
-    etagamma = (*maxclusendcap).eta();
-    
-  } else
-  {
-    result->push_back(*maxclusbarrel);
-    phigamma = (*maxclusbarrel).phi();
-    etagamma = (*maxclusbarrel).eta();
-  }
-  
-//  cout<<" Size of egamma clusters "<<result->size()<<endl;
-   
-//  
-// Jet Collection
-// Find jet in the angle ~ +- 170 degrees
-//
-    
-    double phijet =  -100.;
-    double etajet = -100.;
-    double phijet0 =  -100.;
-    double etajet0 = -100.;
-    
-    std::vector<edm::EDGetTokenT<reco::CaloJetCollection> >::const_iterator ic;
-    for (ic=toks_calo_.begin(); ic!=toks_calo_.end(); ic++) {
-
-      edm::Handle<reco::CaloJetCollection> jets;
-      iEvent.getByToken(*ic, jets);
-      if (!jets.isValid()) {
-	// can't find it!
-	if (!allowMissingInputs_) {
-	  *jets;  // will throw the proper exception
-	}
-      } else {
-       reco::CaloJetCollection::const_iterator jet = jets->begin ();
-
- //      cout<<" Size of jets "<<jets->size()<<endl;
-
-       if( jets->size() == 0 ) continue;
-
-         int iejet = 0;   
-         int numjet = 0;
- 
-         for (; jet != jets->end (); jet++)
-         {
-           phijet0 = (*jet).phi();
-           etajet0 = (*jet).eta();
-
-// Only 3 jets are kept
-           numjet++;
-           if(numjet > 3) break;
-
-           cout<<" phi,eta "<< phigamma<<" "<< etagamma<<" "<<phijet0<<" "<<etajet0<<endl;
-
-// Find jet back to gamma
- 	   
-	   double dphi = fabs(phigamma-phijet0); 
-	   if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-           double deta = fabs(etagamma-etajet0);
-           double dr = sqrt(dphi*dphi+deta*deta);
-           if(dr < 0.5 ) continue;
-           resultjet->push_back ((*jet));
-
-	   dphi = dphi*180./(4.*atan(1.));
-	   if( fabs(dphi-180) < 30. )
-	   {
-   //           cout<<" Jet is found "<<endl;
-              iejet = 1;
-              phijet = (*jet).phi();
-              etajet = (*jet).eta();
-	   } // dphi
-         } //jet collection
-         if(iejet == 0) resultjet->clear(); 
-      }
-    } // Jet collection
-     
-     if( resultjet->size() == 0 ) {
-
-      iEvent.put( outputTColl, "GammaJetTracksCollection");
-      iEvent.put( miniEcalRecHitCollection, "GammaJetEcalRecHitCollection");
-      iEvent.put( miniHBHERecHitCollection, "GammaJetHBHERecHitCollection");
-      iEvent.put( miniHORecHitCollection, "GammaJetHORecHitCollection");
-      iEvent.put( miniHFRecHitCollection, "GammaJetHFRecHitCollection");
-      iEvent.put( result, "GammaJetGammaBackToBackCollection");
-      iEvent.put( resultjet, "GammaJetJetBackToBackCollection");
-
-     return;
-     }
-    // cout<<" Accepted event "<<resultjet->size()<<" PHI gamma "<<phigamma<<std::endl;
-//
-// Add Ecal, Hcal RecHits around Egamma caluster
-//
-
-// Load EcalRecHits
-
-    
-    std::vector<edm::EDGetTokenT<EcalRecHitCollection> >::const_iterator i;
-    for (i=toks_ecal_.begin(); i!=toks_ecal_.end(); i++) {
-      edm::Handle<EcalRecHitCollection> ec;
-      iEvent.getByToken(*i,ec);
-      if (!ec.isValid()) {
-	// can't find it!
-	if (!allowMissingInputs_) { 
-	  cout<<" No ECAL input "<<endl;
-	  *ec;  // will throw the proper exception
-	}
-      } else {
-	for(EcalRecHitCollection::const_iterator recHit = (*ec).begin();
-	    recHit != (*ec).end(); ++recHit)
-	  {
-// EcalBarrel = 1, EcalEndcap = 2
-	    GlobalPoint pos = geo->getPosition(recHit->detid());
-	    double phihit = pos.phi();
-	    double etahit = pos.eta();
-	    
-	    double dphi = fabs(phigamma - phihit); 
-	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	    double deta = fabs(etagamma - etahit); 
-	    double dr = sqrt(dphi*dphi + deta*deta);
-	    if(dr<1.)  miniEcalRecHitCollection->push_back(*recHit);
-	    
-	    dphi = fabs(phijet - phihit); 
-	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	    deta = fabs(etajet - etahit); 
-	    dr = sqrt(dphi*dphi + deta*deta);
-	    if(dr<1.4)  miniEcalRecHitCollection->push_back(*recHit);
-	    
-	  }
-      }
-    }
-
-//   cout<<" Ecal is done "<<endl; 
-
-      edm::Handle<HBHERecHitCollection> hbhe;
-      iEvent.getByToken(tok_hbhe_,hbhe);
-      if (!hbhe.isValid()) {
-	// can't find it!
-	if (!allowMissingInputs_) {
-	  *hbhe;  // will throw the proper exception
-	}
-      } else {
-	const HBHERecHitCollection Hithbhe = *(hbhe.product());
-	for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)
-	  {
-	    GlobalPoint pos = geo->getPosition(hbheItr->detid());
-	    double phihit = pos.phi();
-	    double etahit = pos.eta();
-	    
-	    double dphi = fabs(phigamma - phihit); 
-	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	    double deta = fabs(etagamma - etahit); 
-	    double dr = sqrt(dphi*dphi + deta*deta);
-	    
-	    
-	    if(dr<1.)  miniHBHERecHitCollection->push_back(*hbheItr);
-	    dphi = fabs(phijet - phihit); 
-	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	    deta = fabs(etajet - etahit); 
-	    dr = sqrt(dphi*dphi + deta*deta);
-	    if(dr<1.4)  miniHBHERecHitCollection->push_back(*hbheItr);
-	  }
-      }
-
-//   cout<<" HBHE is done "<<endl; 
-	
-      edm::Handle<HORecHitCollection> ho;
-      iEvent.getByToken(tok_ho_,ho);
-      if (!ho.isValid()) {
-	// can't find it!
-	if (!allowMissingInputs_) {
-	  *ho;  // will throw the proper exception
-	}
-      } else {
-	const HORecHitCollection Hitho = *(ho.product());
-	for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
-	  {
-	    GlobalPoint pos = geo->getPosition(hoItr->detid());
-	    double phihit = pos.phi();
-	    double etahit = pos.eta();
-	    
-	    double dphi = fabs(phigamma - phihit); 
-	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	    double deta = fabs(etagamma - etahit); 
-	    double dr = sqrt(dphi*dphi + deta*deta);
-	    
-	    if(dr<1.)  miniHORecHitCollection->push_back(*hoItr);
-	    dphi = fabs(phijet - phihit); 
-	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	    deta = fabs(etajet - etahit); 
-	    dr = sqrt(dphi*dphi + deta*deta);
-	    if(dr<1.4)  miniHORecHitCollection->push_back(*hoItr);
-	    
-	  }
-      }
-
- //  cout<<" HO is done "<<endl; 
-   
-      edm::Handle<HFRecHitCollection> hf;
-      iEvent.getByToken(tok_hf_,hf);
-      if (!hf.isValid()) {
-	// can't find it!
-	if (!allowMissingInputs_) {
-	  *hf;  // will throw the proper exception
-	}
-      } else {
-	const HFRecHitCollection Hithf = *(hf.product());
-	//  cout<<" Size of HF collection "<<Hithf.size()<<endl;
-	for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end(); hfItr++)
-	  {
-	    GlobalPoint pos = geo->getPosition(hfItr->detid());
-	    
-	    double phihit = pos.phi();
-	    double etahit = pos.eta();
-	    
-	    double dphi = fabs(phigamma - phihit); 
-	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	    double deta = fabs(etagamma - etahit); 
-	    double dr = sqrt(dphi*dphi + deta*deta);
-	    
-	    if(dr<1.)  miniHFRecHitCollection->push_back(*hfItr);
-	    dphi = fabs(phijet - phihit); 
-	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	    deta = fabs(etajet - etahit); 
-	    dr = sqrt(dphi*dphi + deta*deta);
-	    
-	    if( dr < 1.4 )  miniHFRecHitCollection->push_back(*hfItr);
-	  }
-      }
-
- //  cout<<" Size of mini HF collection "<<miniHFRecHitCollection->size()<<endl;
-     
-
-// Track Collection   
-      edm::Handle<reco::TrackCollection> trackCollection;
-      iEvent.getByToken(tok_inputTrack_,trackCollection);
-      if (!trackCollection.isValid()) {
-	// can't find it!
-	if (!allowMissingInputs_) {
-	  *trackCollection;  // will throw the proper exception
-	}
-      } else {
-	const reco::TrackCollection tC = *(trackCollection.product());
-  
-	//Create empty output collections
-
-
-	for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++)
-	  {
-	    
-	    double deta = track->momentum().eta() - etagamma; 
-	    
-	    double dphi = fabs(track->momentum().phi() - phigamma);
-	    
-	    if (dphi > atan(1.)*4.) dphi = 8.*atan(1.) - dphi;
-	    double ddir1 = sqrt(deta*deta+dphi*dphi);
-	    
-	    
-	    
-	    deta = track->momentum().eta() - etajet;
-	    dphi = fabs(track->momentum().phi() - phijet);
-	    if (dphi > atan(1.)*4.) dphi = 8.*atan(1.) - dphi;
-	    double ddir2 = sqrt(deta*deta+dphi*dphi);
-	    
-	    if( ddir1 < 1.4  || ddir2 < 1.4)      
-	      {
-		outputTColl->push_back(*track);
-	      } 
-	  }
-      }
-   
-  //Put selected information in the event
-  
-  iEvent.put( outputTColl, "GammaJetTracksCollection");
-  iEvent.put( miniEcalRecHitCollection, "GammaJetEcalRecHitCollection");
-  iEvent.put( miniHBHERecHitCollection, "GammaJetHBHERecHitCollection");
-  iEvent.put( miniHORecHitCollection, "GammaJetHORecHitCollection");
-  iEvent.put( miniHFRecHitCollection, "GammaJetHFRecHitCollection");
-  iEvent.put( result, "GammaJetGammaBackToBackCollection");
-  iEvent.put( resultjet, "GammaJetJetBackToBackCollection");
 }
-//}
+
+DEFINE_FWK_MODULE(AlCaGammaJetProducer); 
