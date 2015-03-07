@@ -35,7 +35,7 @@ SUSY_HLT_HT_MuEle_FASTSIM = cms.EDAnalyzer("SUSY_HLT_MuEle_Hadronic",
 
 
 SUSY_HLT_HT_MuEle_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Mu8_Ele8_CaloId_TrkIdVL_Mass8_PFHTT300"),
+    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Mu8_Ele8_CaloIdL_TrkIdVL_Mass8_PFHT300"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
@@ -47,7 +47,7 @@ SUSY_HLT_HT_MuEle_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
 
 
 SUSY_HLT_HT_MuEle_FASTSIM_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Mu8_Ele8_CaloId_TrkIdVL_Mass8_PFHTT300"),
+    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Mu8_Ele8_CaloIdL_TrkIdVL_Mass8_PFHT300"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
@@ -56,7 +56,3 @@ SUSY_HLT_HT_MuEle_FASTSIM_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
        "EleTurnOn_eff 'Turn-on vs Ele pT; pT (GeV); #epsilon' EleTurnOn_num EleTurnOn_den",
     )
 )
-
-
-
-
