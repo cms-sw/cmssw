@@ -32,7 +32,9 @@ namespace cms {
             clusterizer_  = new Phase2TrackerClusterizerAlgorithm(maxClusterSize_, maxNumberClusters_);
         }
 
-    Phase2TrackerClusterizer::~Phase2TrackerClusterizer() { }
+    Phase2TrackerClusterizer::~Phase2TrackerClusterizer() {
+        delete clusterizer_;
+    }
 
     /*
      * Clusterize the events
