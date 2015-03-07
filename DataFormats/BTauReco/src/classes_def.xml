@@ -33,6 +33,7 @@
   <class name="edm::Wrapper<reco::JTATagInfoCollection>"/>
 
   <class name="reco::btag::TrackData" ClassVersion="11">
+   <version ClassVersion="12" checksum="889773348"/>
    <version ClassVersion="11" checksum="427805128"/>
    <version ClassVersion="10" checksum="3899080432"/>
   </class>

@@ -45,6 +45,7 @@
   <class name="reco::ConvBremSeed" ClassVersion="11">
    <version ClassVersion="10" checksum="2980747190"/>
    <version ClassVersion="11" checksum="637662266"/>
+   <version ClassVersion="12" checksum="2604169839"/>
   </class>
   <class name="std::vector<reco::ConvBremSeed>"/>
   <class name="edm::Ref<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed> >"/>
