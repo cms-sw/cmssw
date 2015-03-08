@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "HLTriggerOffline/SUSYBSM/interface/SUSY_HLT_MuEle_Hadronic.h"
 
@@ -138,7 +139,7 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const& e, edm::EventSetup const
         const trigger::Keys& keys = triggerSummary->filterKeys( filterIndexEle );
         for( size_t j = 0; j < keys.size(); ++j ){
             trigger::TriggerObject foundObject = triggerObjects[keys[j]];
-            if(fabs(foundObject.id()) == 11){ //It's an electron
+            if(fabs(foundObject.id()) == trigger::TriggerElectron){ //It's an electron
                 	
 				bool same= false;
 				for(unsigned int x=0;x<ptElectron.size();x++){
@@ -155,7 +156,7 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const& e, edm::EventSetup const
                 	phiElectron.push_back(foundObject.phi());
 				}
             }
-			if(fabs(foundObject.id()) == 13){ //It's a muon
+			if(fabs(foundObject.id()) == trigger::TriggerMuon){ //It's a muon
                 	
 				bool same= false;
 				for(unsigned int x=0;x<ptMuon.size();x++){
