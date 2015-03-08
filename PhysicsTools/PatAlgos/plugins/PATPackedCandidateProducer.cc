@@ -48,7 +48,7 @@ namespace pat {
                         if(i.pt() <= minPtForTrackProperties_ and j.pt() > minPtForTrackProperties_ ) return false;
                   }
                    if(i.vertexRef() == j.vertexRef()) 
-                      return i.phi() > j.phi();
+                      return i.eta() > j.eta();
                    else 
                       return i.vertexRef().key() < j.vertexRef().key();
                 }
