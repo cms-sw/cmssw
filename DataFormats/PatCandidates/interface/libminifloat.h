@@ -35,6 +35,16 @@ class MiniFloatConverter {
                 return basetable[(conv.i32>>23)&0x1ff]+((conv.i32&0x007fffff)>>shifttable[(conv.i32>>23)&0x1ff]);
             }
         }
+        template<int bits>
+        inline static float reduceMantissaToNbits(const float &f)
+        {
+            static_assert(bits <= 23,"max mantissa size is 23 bits");
+            constexpr uint32_t mask = (0xFFFFFFFF >> (23-bits)) << (23-bits);
+            union { float flt; uint32_t i32; } conv;
+            conv.flt=f;
+            conv.i32&=mask;
+            return conv.flt;
+        }
     private:
         CMS_THREAD_SAFE static uint32_t mantissatable[2048];
         CMS_THREAD_SAFE static uint32_t exponenttable[64];
