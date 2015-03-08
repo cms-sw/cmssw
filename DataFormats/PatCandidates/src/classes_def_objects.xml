@@ -18,7 +18,7 @@
   <!-- PAT Objects, and embedded data  -->
   <class name="pat::Electron"  ClassVersion="28">
    <version ClassVersion="28" checksum="2518240031"/>
-   <version ClassVersion="27" checksum="2628480167"/>
+   <version ClassVersion="27" checksum="3863179876"/>
    <field name="superClusterRelinked_" transient="true"/>
    <version ClassVersion="26" checksum="2045819644"/>
    <version ClassVersion="25" checksum="1488101799"/>
@@ -43,7 +43,7 @@
 
   <class name="pat::Muon"  ClassVersion="16">
    <version ClassVersion="16" checksum="2674665735"/>
-   <version ClassVersion="15" checksum="2088272079"/>
+   <version ClassVersion="15" checksum="1248517999"/>
    <version ClassVersion="14" checksum="132269943"/>
    <version ClassVersion="13" checksum="2943499125"/>
    <version ClassVersion="12" checksum="462627330"/>
@@ -142,7 +142,7 @@
 
   <class name="pat::Jet"  ClassVersion="15">
    <version ClassVersion="15" checksum="1826981639"/>
-   <version ClassVersion="14" checksum="766989023"/>
+   <version ClassVersion="14" checksum="1304049301"/>
    <version ClassVersion="13" checksum="130552029"/>
    <field name="caloTowersTemp_" transient="true"/>
    <field name="pfCandidatesTemp_" transient="true"/>
@@ -182,7 +182,7 @@
   </class>
   <class name="pat::PFParticle"  ClassVersion="13">
    <version ClassVersion="13" checksum="223824921"/>
-   <version ClassVersion="12" checksum="2881263841"/>
+   <version ClassVersion="12" checksum="4118931093"/>
    <version ClassVersion="11" checksum="2923110109"/>
    <version ClassVersion="10" checksum="2240381542"/>
   </class>
@@ -240,7 +240,8 @@
     ]]>
   </ioread>
 
-  <class name="pat::PackedGenParticle" ClassVersion="11">
+  <class name="pat::PackedGenParticle" ClassVersion="12">
+    <version ClassVersion="12" checksum="2626711017"/>
     <version ClassVersion="11" checksum="25552245"/>
     <version ClassVersion="10" checksum="389883266"/>
     <field name="p4_" transient="true" />
