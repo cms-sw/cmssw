@@ -366,16 +366,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
               std::pair<bool,Measurement1D> ip3dpv = IPTools::absoluteImpactParameter3D(tt, primaryVertex);
               ip3d = ip3dpv.second.value(); // for mva variable
-
-	      if ( !usePV_ ) {
-		double corr_d0 = track->dxy( beamPoint );
-		anElectron.setDB( corr_d0, -1.0 );
-	      } else {
-                 std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);
-                double d0_corr = result.second.value();
-                double d0_err = result.second.error();
-		anElectron.setDB( d0_corr, d0_err );
-	      }
 	    }
 	  }
 
@@ -593,15 +583,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
           std::pair<bool,Measurement1D> ip3dpv = IPTools::absoluteImpactParameter3D(tt, primaryVertex);
           ip3d = ip3dpv.second.value(); // for mva variable
 
-	  if ( !usePV_ ) {
-	    double corr_d0 = track->dxy( beamPoint );
-	    anElectron.setDB( corr_d0, -1.0 );
-	  } else {
-            std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);
-            double d0_corr = result.second.value();
-            double d0_err = result.second.error();
-	    anElectron.setDB( d0_corr, d0_err );
-	  }
 	}
       }
 
