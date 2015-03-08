@@ -64,6 +64,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserDat
   useParticleFlow_ = iConfig.getParameter<bool>( "useParticleFlow" );
   embedPFCandidate_ = iConfig.getParameter<bool>( "embedPFCandidate" );
   pfMuonToken_ = mayConsume<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>( "pfMuonSource" ));
+  embedPfEcalEnergy_ = iConfig.getParameter<bool>( "embedPfEcalEnergy" );
   // embedding of tracks from TeV refit
   embedPickyMuon_ = iConfig.getParameter<bool>( "embedPickyMuon" );
   embedTpfmsMuon_ = iConfig.getParameter<bool>( "embedTpfmsMuon" );
@@ -189,9 +190,9 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   // this will be the new object collection
   std::vector<Muon> * patMuons = new std::vector<Muon>();
 
+  edm::Handle< reco::PFCandidateCollection >  pfMuons;
   if( useParticleFlow_ ){
     // get the PFCandidates of type muons
-    edm::Handle< reco::PFCandidateCollection >  pfMuons;
     iEvent.getByToken(pfMuonToken_, pfMuons);
 
     unsigned index=0;
@@ -256,6 +257,11 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       aMuon.setPFCandidateRef( pfRef  );
       if( embedPFCandidate_ ) aMuon.embedPFCandidate();
       fillMuon( aMuon, muonBaseRef, pfBaseRef, genMatches, deposits, isolationValues );
+
+      if (embedPfEcalEnergy_) {
+        aMuon.setPfEcalEnergy(pfmu.ecalEnergy());
+      }
+
       patMuons->push_back(aMuon);
     }
   }
@@ -276,6 +282,12 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       iEvent.getByToken(tcMETMuonCorrsToken_, tcMETMuonCorrs);
       //tcMETmuCorValueMap  = *tcMETmuCorValueMap_h;
     }
+
+    if (embedPfEcalEnergy_) {
+        // get the PFCandidates of type muons
+        iEvent.getByToken(pfMuonToken_, pfMuons);
+    }
+
     for (edm::View<reco::Muon>::const_iterator itMuon = muons->begin(); itMuon != muons->end(); ++itMuon) {
       // construct the Muon from the ref -> save ref to original object
       unsigned int idx = itMuon - muons->begin();
@@ -351,6 +363,18 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       // embed MET muon corrections
       if( embedCaloMETMuonCorrs_ ) aMuon.embedCaloMETMuonCorrs((*caloMETMuonCorrs)[muonRef]);
       if( embedTcMETMuonCorrs_ ) aMuon.embedTcMETMuonCorrs((*tcMETMuonCorrs  )[muonRef]);
+
+      if (embedPfEcalEnergy_) {
+          aMuon.setPfEcalEnergy(-99.0);
+          for (const reco::PFCandidate &pfmu : *pfMuons) {
+              if (pfmu.muonRef().isNonnull()) {
+                  if (pfmu.muonRef().id() != muonRef.id()) throw cms::Exception("Configuration") << "Muon reference within PF candidates does not point to the muon collection." << std::endl;
+                  if (pfmu.muonRef().key() == muonRef.key()) {
+                      aMuon.setPfEcalEnergy(pfmu.ecalEnergy());
+                  }
+              } 
+          }
+      }
 
       patMuons->push_back(aMuon);
     }
@@ -473,6 +497,7 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   iDesc.add<edm::InputTag>("pfMuonSource", edm::InputTag("pfMuons"))->setComment("particle flow input collection");
   iDesc.add<bool>("useParticleFlow", false)->setComment("whether to use particle flow or not");
   iDesc.add<bool>("embedPFCandidate", false)->setComment("embed external particle flow object");
+  iDesc.add<bool>("embedPfEcalEnergy", true)->setComment("add ecal energy as reconstructed by PF");
 
   // MC matching configurables
   iDesc.add<bool>("addGenMatch", true)->setComment("add MC matching");

@@ -89,7 +89,10 @@ patMuons = cms.EDProducer("PATMuonProducer",
     embedHighLevelSelection = cms.bool(True),
     usePV                   = cms.bool(True),
     beamLineSrc             = cms.InputTag("offlineBeamSpot"),
-    pvSrc                   = cms.InputTag("offlinePrimaryVertices")
+    pvSrc                   = cms.InputTag("offlinePrimaryVertices"),
+
+    # ecal PF energy
+    embedPfEcalEnergy = cms.bool(True),
 )
 
 

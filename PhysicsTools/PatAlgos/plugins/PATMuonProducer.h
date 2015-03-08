@@ -143,6 +143,8 @@ namespace pat {
     bool addEfficiencies_;
     /// add user data to the muon (this will be data members of th muon even w/o embedding)
     bool useUserData_;
+    /// add ecal PF energy
+    bool embedPfEcalEnergy_;
 
     /// --- tools ---
     /// comparator for pt ordering

@@ -239,6 +239,9 @@ namespace pat {
 
       friend class PATMuonSlimmer;
 
+      float pfEcalEnergy() const { return pfEcalEnergy_; }
+      void setPfEcalEnergy(float pfEcalEnergy) { pfEcalEnergy_ = pfEcalEnergy; }
+
     protected:
 
       // ---- for content embedding ----
@@ -300,6 +303,7 @@ namespace pat {
 
       unsigned int  numberOfValidHits_;/// globalTrack->numberOfValidHits()
 
+      float pfEcalEnergy_;
   };
 
 

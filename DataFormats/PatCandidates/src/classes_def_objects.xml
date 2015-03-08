@@ -38,7 +38,8 @@
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
 
-  <class name="pat::Muon"  ClassVersion="15">
+  <class name="pat::Muon"  ClassVersion="16">
+   <version ClassVersion="16" checksum="2516431991"/>
    <version ClassVersion="15" checksum="1248517999"/>
    <version ClassVersion="14" checksum="132269943"/>
    <version ClassVersion="13" checksum="2943499125"/>
