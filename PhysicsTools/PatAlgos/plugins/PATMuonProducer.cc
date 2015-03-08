@@ -154,7 +154,6 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
   // prepare the high level selection: needs beamline
   // OR primary vertex, depending on user selection
-  reco::TrackBase::Point beamPoint(0,0,0);
   reco::Vertex primaryVertex;
   reco::BeamSpot beamSpot;
   bool beamSpotIsValid = false;
@@ -175,7 +174,6 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       edm::LogError("DataNotAvailable")
 	<< "No beam spot available from EventSetup, not adding high level selection \n";
     }
-    beamPoint = reco::TrackBase::Point ( beamSpot.x0(), beamSpot.y0(), beamSpot.z0() );
     if( pvHandle.isValid() && !pvHandle->empty() ) {
       primaryVertex = pvHandle->at(0);
       primaryVertexIsValid = true;
@@ -233,19 +231,9 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 			  beamSpot,
 			  beamSpotIsValid );
 
-	  // Correct to PV, or beam spot
-	  if ( !usePV_ ) {
-	    double corr_d0 = -1.0 * chosenTrack->dxy( beamPoint );
-	    aMuon.setDB( corr_d0, -1.0 );
-	  } else {
-	    std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);
-	    double d0_corr = result.second.value();
-	    double d0_err = result.second.error();
-	    aMuon.setDB( d0_corr, d0_err );
-	  }
 	}
 
-	if ( globalTrack.isNonnull() && globalTrack.isAvailable() ) {
+	if ( globalTrack.isNonnull() && globalTrack.isAvailable() && !embedCombinedMuon_) {
 	  double norm_chi2 = globalTrack->chi2() / globalTrack->ndof();
 	  aMuon.setNormChi2( norm_chi2 );
 	}
@@ -342,16 +330,6 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 			  beamSpot,
 			  beamSpotIsValid );
 
-	  // Correct to PV, or beam spot
-	  if ( !usePV_ ) {
-	    double corr_d0 = -1.0 * chosenTrack->dxy( beamPoint );
-	    aMuon.setDB( corr_d0, -1.0 );
-	  } else {
-	    std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);
-	    double d0_corr = result.second.value();
-	    double d0_err = result.second.error();
-	    aMuon.setDB( d0_corr, d0_err );
-	  }
 	}
 
 	if ( globalTrack.isNonnull() && globalTrack.isAvailable() ) {
@@ -558,8 +536,6 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
                  )->setComment("input with high level selection");
   iDesc.addNode( edm::ParameterDescription<edm::InputTag>("pvSrc", edm::InputTag(), true)
                  )->setComment("input with high level selection");
-  iDesc.addNode( edm::ParameterDescription<bool>("usePV", bool(), true)
-                 )->setComment("input with high level selection, use primary vertex (true) or beam line (false)");
 
   //descriptions.add("PATMuonProducer", iDesc);
 }
