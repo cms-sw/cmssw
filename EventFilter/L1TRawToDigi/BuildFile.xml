@@ -1,0 +1,9 @@
+<use name="FWCore/Framework"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/L1Trigger"/>
+<use name="DataFormats/L1TCalorimeter"/>
+<use name="L1Trigger/L1TCalorimeter"/>
+<export>
+  <lib name="1"/>
+</export>
+<flags ADD_SUBDIR="1"/>

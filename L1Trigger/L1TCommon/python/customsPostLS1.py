@@ -21,7 +21,7 @@ def customiseSimL1EmulatorForPostLS1(process):
         process.rctUpgradeFormatDigis.regionTag = cms.InputTag("simRctDigis")
         process.rctUpgradeFormatDigis.emTag = cms.InputTag("simRctDigis")
         #print "New L1 simulation step is:", process.L1simulation_step
-        process.simGtDigis.GmtInputTag = 'gtDigis'
+        process.simGtDigis.GmtInputTag = 'simGmtDigis'
         process.simGtDigis.GctInputTag = 'caloStage1LegacyFormatDigis'
         process.simGtDigis.TechnicalTriggersInputTags = cms.VInputTag( )
         process.gctDigiToRaw.gctInputLabel = 'caloStage1LegacyFormatDigis'

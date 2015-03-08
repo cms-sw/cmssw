@@ -44,7 +44,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
   //Region Correction will return uncorrected subregions if
   //regionPUSType is set to None in the config
-  RegionCorrection(regions, EMCands, subRegions, regionPUSParams, regionPUSType);
+  RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
 
   // ----- need to cluster jets in order to compute jet isolation ----
   std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();

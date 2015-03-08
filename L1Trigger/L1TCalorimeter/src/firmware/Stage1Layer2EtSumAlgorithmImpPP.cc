@@ -28,7 +28,7 @@ l1t::Stage1Layer2EtSumAlgorithmImpPP::~Stage1Layer2EtSumAlgorithmImpPP() {
 }
 
 double l1t::Stage1Layer2EtSumAlgorithmImpPP::regionPhysicalEt(const l1t::CaloRegion& cand) const {
- 
+
   return jetLsb*cand.hwPt();
 }
 
@@ -61,7 +61,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
 
   std::string regionPUSType = params_->regionPUSType();
   std::vector<double> regionPUSParams = params_->regionPUSParams();
-  RegionCorrection(regions, EMCands, subRegions, regionPUSParams, regionPUSType);
+  RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
 
   for(std::vector<CaloRegion>::const_iterator region = subRegions->begin(); region != subRegions->end(); region++) {
     if (region->hwEta() < etSumEtaMinEt || region->hwEta() > etSumEtaMaxEt) {

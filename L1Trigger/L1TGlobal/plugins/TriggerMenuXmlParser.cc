@@ -1538,9 +1538,9 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
     std::string str_chargeCorrelation = l1t2string( condMu.requestedChargeCorr() );
 
     unsigned int chargeCorrelation = 0;
-    if( str_chargeCorrelation=="ig" )      chargeCorrelation = 0;
-    else if( str_chargeCorrelation=="ls" ) chargeCorrelation = 1;
-    else if( str_chargeCorrelation=="os" ) chargeCorrelation = 2;
+    if( str_chargeCorrelation=="ig" )      chargeCorrelation = 1;
+    else if( str_chargeCorrelation=="ls" ) chargeCorrelation = 2;
+    else if( str_chargeCorrelation=="os" ) chargeCorrelation = 4;
 
     //getXMLHexTextValue("1", dst);
     corrParameter.chargeCorrelation = chargeCorrelation;//tmpValues[0];
@@ -1583,7 +1583,15 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 
       getXMLHexTextValue("f0", dst);
       objParameter[cnt].qualityRange = dst;//tmpValues[i];
- 
+
+      std::string str_charge = l1t2string( objPar->requestedCharge() );
+      int charge = 0;
+      if( str_charge=="ig" )       charge = 0;
+      else if( str_charge=="pos" ) charge = 1;
+      else if( str_charge=="neg" ) charge = -1;
+
+      objParameter[cnt].charge = charge;
+
 
       int cntEta=0;
       unsigned int etaWindowLower=-1, etaWindowUpper=-1, etaWindowVetoLower=-1, etaWindowVetoUpper=-1;

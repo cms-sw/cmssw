@@ -53,7 +53,7 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
   //Region Correction will return uncorrected subregions if
   //regionPUSType is set to None in the config
-  RegionCorrection(regions, EMCands, subRegions, regionPUSParams, regionPUSType);
+  RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
 
 
 
@@ -88,20 +88,20 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     int highestNeighborTauVeto=999;
 
     // if (regionEt>0) std::cout << "CCLA Prod: TauVeto: " << region->hwQual() << "\tET: " << regionEt << "\tETA: " << regionEta  << "\tPhi: " << regionPhi  << std::endl;
-	  
+
     //Find neighbor with highest Et
     for(CaloRegionBxCollection::const_iterator neighbor = subRegions->begin();
 	neighbor != subRegions->end(); neighbor++) {
-      
+
       int neighborPhi = neighbor->hwPhi();
       int neighborEta = neighbor->hwEta();
       int deltaPhi = regionPhi - neighborPhi;
       if (std::abs(deltaPhi) == L1CaloRegionDetId::N_PHI-1)
 	deltaPhi = -deltaPhi/std::abs(deltaPhi); //18 regions in phi
-      
+
       deltaPhi = std::abs(deltaPhi);
       int deltaEta = std::abs(regionEta - neighborEta);
-      
+
       if (deltaPhi + deltaEta > 0 && deltaPhi + deltaEta < 2) {  //nondiagonal neighbors
 	if (neighbor->hwPt() > highestNeighborEt) {
 	  highestNeighborEt = neighbor->hwPt();
@@ -117,11 +117,11 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     string NESW = findNESW(regionEta, regionPhi, highestNeighborEta, highestNeighborPhi);
 
     //std::cout << "tau et, neighbor et " << tauEt << " " << highestNeighborEt << std::endl;
-    if((tauEt > highestNeighborEt && (NESW=="isEast" || NESW=="isNorth")) 
+    if((tauEt > highestNeighborEt && (NESW=="isEast" || NESW=="isNorth"))
        || (tauEt >= highestNeighborEt && (NESW=="isSouth" || NESW=="isWest"))) {
 
       if (highestNeighborEt >= tauNeighbourThreshold) tauEt += highestNeighborEt;
-      
+
       int regionTauVeto = region->hwQual() & 0x1;  // tauVeto should be the first bit of quality integer
       //std::cout<< "regiontauveto, neighbor " << regionTauVeto << " " << highestNeighborTauVeto << std::endl;
 
@@ -132,9 +132,9 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 	      || (std::abs(jetIsolation - 999.) < 0.1) ) isoFlag=1;
 	}
 	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
-	
+
 	l1t::Tau theTau(*&tauLorentz, tauEt, region->hwEta(), region->hwPhi(), quality, isoFlag);
-	
+
 	preGtTaus->push_back(theTau);
     }
   }
@@ -183,9 +183,9 @@ string l1t::Stage1Layer2TauAlgorithmImpPP::findNESW(int ieta, int iphi, int neta
   int deltaPhi = iphi - nphi;
   if (std::abs(deltaPhi) == L1CaloRegionDetId::N_PHI-1)
     deltaPhi = -deltaPhi/std::abs(deltaPhi); //18 regions in phi
-  
+
   int deltaEta = ieta - neta;
-  
+
   if ((std::abs(deltaPhi) +  std::abs(deltaEta)) < 2) {
     if (deltaEta==-1) {
       return "isEast";
@@ -196,7 +196,7 @@ string l1t::Stage1Layer2TauAlgorithmImpPP::findNESW(int ieta, int iphi, int neta
       }
       if (deltaPhi==1) {
 	return "isSouth";
-      }     
+      }
     }
     else {
       return "isWest";

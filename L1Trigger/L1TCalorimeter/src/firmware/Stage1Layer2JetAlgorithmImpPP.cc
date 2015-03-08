@@ -39,7 +39,7 @@ void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegi
 
   //Region Correction will return uncorrected subregions
   //if regionPUSType is set to None in the config
-  RegionCorrection(regions, EMCands, subRegions, regionPUSParams, regionPUSType);
+  RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
 
 
   slidingWindowJetFinder(jetSeedThreshold, subRegions, uncalibjets);
