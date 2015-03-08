@@ -7,10 +7,10 @@ SUSY_HLT_HT_DoubleEle = cms.EDAnalyzer("SUSY_HLT_DoubleEle_Hadronic",
   caloJetCollection = cms.InputTag("ak4CaloJets"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
-  TriggerPath = cms.string('HLT_DoubleEle8_CaloIdL_TrkIdVL_Mass8_PFHT300_v1'),
+  TriggerPath = cms.string('HLT_DoubleEle8_CaloIdL_TrkIdVL_Mass8_PFHT300_v'),
   TriggerPathAuxiliaryForElectron = cms.string('HLT_PFHT900_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v'),
-  TriggerFilter = cms.InputTag('hltDoubleEle8Mass8Filter','', 'HLT'), #the last filter in the path
+  TriggerFilter = cms.InputTag('hltDoubleEle8Mass8Filter','','HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
@@ -24,10 +24,10 @@ SUSY_HLT_HT_DoubleEle_FASTSIM = cms.EDAnalyzer("SUSY_HLT_DoubleEle_Hadronic",
   caloJetCollection = cms.InputTag("ak4CaloJets"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
-  TriggerPath = cms.string('HLT_DoubleEle8_CaloIdL_TrkIdVL_Mass8_PFHT300_v1'),
+  TriggerPath = cms.string('HLT_DoubleEle8_CaloIdL_TrkIdVL_Mass8_PFHT300_v'),
   TriggerPathAuxiliaryForElectron = cms.string('HLT_PFHT900_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v'),
-  TriggerFilter = cms.InputTag('hltDoubleEle8Mass8Filter','', 'HLT'), #the last filter in the path
+  TriggerFilter = cms.InputTag('hltDoubleEle8Mass8Filter','','HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
