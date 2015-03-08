@@ -202,15 +202,15 @@ class MonitorEnsemble {
 
   std::string directory_;
 
-  StringCutObjectSelector<reco::PFCandidate, true> *muonSelect;
-  StringCutObjectSelector<reco::PFCandidate, true> *muonIso;
+  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > muonSelect;
+  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > muonIso;
   
-  StringCutObjectSelector<reco::CaloJet> *jetSelectCalo;
-  StringCutObjectSelector<reco::PFJet> *jetSelectPF;
-  StringCutObjectSelector<reco::Jet> *jetSelectJet;
+  std::unique_ptr<StringCutObjectSelector<reco::CaloJet> > jetSelectCalo;
+  std::unique_ptr<StringCutObjectSelector<reco::PFJet> > jetSelectPF;
+  std::unique_ptr<StringCutObjectSelector<reco::Jet> > jetSelectJet;
   
-  StringCutObjectSelector<reco::PFCandidate, true> *elecSelect;
-  StringCutObjectSelector<reco::PFCandidate, true> *elecIso;
+  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > elecSelect;
+  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > elecIso;
 
 
 };

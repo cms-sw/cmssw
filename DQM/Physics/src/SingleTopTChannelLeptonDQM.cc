@@ -205,15 +205,15 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
   directory_ = cfg.getParameter<std::string>("directory");
 
 
-  muonSelect=new StringCutObjectSelector<reco::PFCandidate, true>(muonSelect_); 
-  muonIso=new StringCutObjectSelector<reco::PFCandidate, true>(muonIso_); 
+  muonSelect.reset(new StringCutObjectSelector<reco::PFCandidate, true>(muonSelect_)); 
+  muonIso.reset(new StringCutObjectSelector<reco::PFCandidate, true>(muonIso_)); 
   
-  jetSelectCalo=0;
-  jetSelectPF=0;
-  jetSelectJet=0;
+  //jetSelectCalo=0;
+  //jetSelectPF=0;
+  //jetSelectJet=0;
   
-  elecSelect=new StringCutObjectSelector<reco::PFCandidate, true>(elecSelect_); 
-  elecIso=new StringCutObjectSelector<reco::PFCandidate, true>(elecIso_); 
+  elecSelect.reset(new StringCutObjectSelector<reco::PFCandidate, true>(elecSelect_)); 
+  elecIso.reset(new StringCutObjectSelector<reco::PFCandidate, true>(elecIso_)); 
 
 }
 
@@ -695,7 +695,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
       reco::CaloJet sel = dynamic_cast<const reco::CaloJet&>(*jet);
       sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
       if ( jetSelectCalo==0)
-	jetSelectCalo=new StringCutObjectSelector<reco::CaloJet>(jetSelect_);
+	jetSelectCalo.reset(new StringCutObjectSelector<reco::CaloJet>(jetSelect_));
       if (!((*jetSelectCalo)(sel))) {
         continue;
       }
@@ -703,13 +703,13 @@ void MonitorEnsemble::fill(const edm::Event& event,
       reco::PFJet sel = dynamic_cast<const reco::PFJet&>(*jet);
       sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
       if ( jetSelectPF==0)
-	jetSelectPF=new StringCutObjectSelector<reco::PFJet>(jetSelect_);
+	jetSelectPF.reset(new StringCutObjectSelector<reco::PFJet>(jetSelect_));
       if (!((*jetSelectPF)(sel))) continue;
     } else {
       reco::Jet sel = *jet;
       sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
       if ( jetSelectJet==0)
-	jetSelectJet=new StringCutObjectSelector<reco::Jet>(jetSelect_);
+	jetSelectJet.reset(new StringCutObjectSelector<reco::Jet>(jetSelect_));
 
       if (!((*jetSelectJet)(sel))) continue;
     }
