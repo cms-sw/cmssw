@@ -24,6 +24,7 @@ class METAnalyzer( Analyzer ):
         super(METAnalyzer, self).declareHandles()
         self.handles['met'] = AutoHandle( 'slimmedMETs', 'std::vector<pat::MET>' )
         self.handles['nopumet'] = AutoHandle( 'slimmedMETs', 'std::vector<pat::MET>' )
+        self.handles['cmgCand'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
         self.handles['cmgCand1'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
         self.handles['cmgCand2'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
         self.handles['cmgCand3'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
@@ -44,18 +45,35 @@ class METAnalyzer( Analyzer ):
         event.tkMet = 0  
 
         charged = []
+        chargedchs = []
+        chargedPVLoose = []
+        chargedPVTight = []
+
         pfcands = self.handles['cmgCand'].product()
 
         for i in xrange(pfcands.size()):
 
 ## ===> require the Track Candidate charge and with a  minimum dz 
             
-            if (pfcands.at(i).charge()!=0 and (abs(pfcands.at(i).dz())<=self.cfg_ana.dzMax )):
-                
-                charged.append(pfcands.at(i))
-                
+            if (pfcands.at(i).charge()!=0):
+
+                if abs(pfcands.at(i).dz())<=self.cfg_ana.dzMax:
+                    charged.append(pfcands.at(i))
+
+                if pfcands.at(i).fromPV()>0:
+                    chargedchs.append(pfcands.at(i))
+
+                if pfcands.at(i).fromPV()>1:
+                    chargedPVLoose.append(pfcands.at(i))
+
+                if pfcands.at(i).fromPV()>2:
+                    chargedPVTight.append(pfcands.at(i))
+
         import ROOT
-        event.tkMet = ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in charged])) , -1.*(sum([x.py() for x in charged])), 0, 0 )
+        event.tkMet = ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in charged])) , -1.*(sum([x.py() for x in charged])), 0, math.hypot((sum([x.px() for x in charged])),(sum([x.py() for x in charged]))) )
+        event.tkMetchs = ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedchs])) , -1.*(sum([x.py() for x in chargedchs])), 0, math.hypot((sum([x.px() for x in chargedchs])),(sum([x.py() for x in chargedchs]))) )
+        event.tkMetPVLoose = ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedPVLoose])) , -1.*(sum([x.py() for x in chargedPVLoose])), 0, math.hypot((sum([x.px() for x in chargedPVLoose])),(sum([x.py() for x in chargedPVLoose]))) )
+        event.tkMetPVTight = ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedPVTight])) , -1.*(sum([x.py() for x in chargedPVTight])), 0, math.hypot((sum([x.px() for x in chargedPVTight])),(sum([x.py() for x in chargedPVTight]))) )
 ##        print 'tkmet',event.tkMet.pt(),'tkmetphi',event.tkMet.phi()
 
 
