@@ -47,15 +47,28 @@
    <version ClassVersion="11" checksum="489577659"/>
    <version ClassVersion="10" checksum="2367573922"/>
   </class>
-  <ioread sourceClass="pat::Muon"  targetClass="pat::Muon" version="[-15]" source="ip_,eip_,cachedIP_" target="std::vector<double> ip_; std::vector<double> eip_; std::vector<bool> cachedIP_;">
+  <ioread sourceClass="pat::Muon"  targetClass="pat::Muon" version="[-15]" target="ip_" source="std::vector<double> ip_" embed="false">
     <![CDATA[
-        ip_[0] = onfile.ip_[1]; eip_[0] = onfile.eip_[1];
-        ip_[1] = onfile.ip_[2]; eip_[1] = onfile.eip_[2];
-        ip_[2] = onfile.ip_[3]; eip_[2] = onfile.eip_[3];
-        ip_[3] = onfile.ip_[4]; eip_[3] = onfile.eip_[4];
+        ip_[0] = onfile.ip_[1];
+        ip_[1] = onfile.ip_[2];
+        ip_[2] = onfile.ip_[3];
+        ip_[3] = onfile.ip_[4];
+    ]]>
+  </ioread>
+  <ioread sourceClass="pat::Muon"  targetClass="pat::Muon" version="[-15]" target="eip_" source="std::vector<double> eip_" embed="false">
+    <![CDATA[
+        eip_[0] = onfile.eip_[1];
+        eip_[1] = onfile.eip_[2];
+        eip_[2] = onfile.eip_[3];
+        eip_[3] = onfile.eip_[4];
+    ]]>
+  </ioread>
+  <ioread sourceClass="pat::Muon"  targetClass="pat::Muon" version="[-15]" target="cachedIP_" source="std::vector<bool> cachedIP_" embed="false">
+    <![CDATA[
         cachedIP_ = onfile.cachedIP_[1] + 2*onfile.cachedIP_[2] + 4*onfile.cachedIP_[3] + 8*onfile.cachedIP_[4];
     ]]>
   </ioread>
+
   <class name="pat::Tau"  ClassVersion="17">
    <version ClassVersion="17" checksum="2561486007"/>
    <version ClassVersion="16" checksum="2793593983"/>
