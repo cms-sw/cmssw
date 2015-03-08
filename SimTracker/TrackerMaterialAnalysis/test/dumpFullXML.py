@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import argparse
 import os, sys
 from shutil import copy2
 import xml.etree.ElementTree as ET
@@ -32,7 +33,7 @@ def produceXMLFromParameterFile():
     user is currently using, i.e. from
     $CMSSW_RELEASE_BASE/src/Geometry/TrackerRecoData/data/trackerRecoMaterial.xml.
 
-    A new file, named trackerRecoMaterialUpdated.xml, is saved in the
+    A new file, named trackerRecoMaterial.xml, is saved in the
     current directory.
     """
 
@@ -57,18 +58,19 @@ def produceXMLFromParameterFile():
                     parameter.set('name', child.attrib['name'])
                     parameter.set('value', child.attrib['value'])
                     print current_detector, parameter.attrib['name'], parameter.attrib['value']
-    tree.write('trackerRecoMaterialUpdated.xml', encoding='UTF-8', xml_declaration=True)
+    tree.write('trackerRecoMaterial.xml', encoding='UTF-8', xml_declaration=True)
 
 def compareNewXMLWithOld():
     """
-    Comutes the difference between the old values, stored in the
+    Computes the difference between the old values, stored in the
     central repository for the current release, i.e. from
     $CMSSW_RELEASE_BASE/src/Geometry/TrackerRecoData/data/trackerRecoMaterial.xml,
     and the new values that we assume are present in the same file
     under the locally installed release, i.e. under
     $CMSSW_BASE/src/Geometry/TrackerRecoData/data/trackerRecoMaterial.xml. No
-    check is performed to guarantee that the files are already there:
-    a missing file will result in an exception.
+    check is performed to guarantee that the files are already
+    there. If the file is not there, it is searched in the current
+    folder. A missing file will result in an exception.
 
     The output of this function is a formatted structured as:
     ComponentsName KindOfParameter OldValue NewValue Difference
@@ -80,6 +82,10 @@ def compareNewXMLWithOld():
     tracker_reco_material = './trackerRecoMaterialFromRelease.xml'
     tracker_reco_material_updated = os.path.join(os.environ['CMSSW_BASE'],
                                                  'src/Geometry/TrackerRecoData/data/trackerRecoMaterial.xml')
+    if not os.path.exists(tracker_reco_material_updated):
+        tracker_reco_material_updated = './trackerRecoMaterial.xml'
+        if not os.path.exists(tracker_reco_material_updated):
+            raise os.error('Missing trackerRecoMaterial.xml file.')
     ET.register_namespace('', "http://www.cern.ch/cms/DDL")
     tree = ET.parse(tracker_reco_material)
     root = tree.getroot()
@@ -107,7 +113,17 @@ def compareNewXMLWithOld():
     
     
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Easily manipulate and inspect XML files related to Tracking Material.')
+    parser.add_argument('-p', '--produce', action='store_true',
+                        default=True,
+                        help='Produce a trackerRecoMaterial.xml starting from the paramters.xml file produced by the trackingMaterialProducer.')
+    parser.add_argument('-c', '--compare', action='store_true',
+                        default=False,
+                        help='Compares a local trackerRecoMaterial.xml against the one bundled with the release.')
+    args = parser.parse_args()
     checkEnvironment()
     getTrackerRecoMaterialCopy('trackerRecoMaterialFromRelease.xml')
-#    produceXMLFromParameterFile()
-    compareNewXMLWithOld()
+    if args.produce:
+        produceXMLFromParameterFile()
+    if args.compare:
+        compareNewXMLWithOld()
