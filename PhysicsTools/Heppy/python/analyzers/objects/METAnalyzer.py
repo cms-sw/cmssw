@@ -25,14 +25,6 @@ class METAnalyzer( Analyzer ):
         self.handles['met'] = AutoHandle( 'slimmedMETs', 'std::vector<pat::MET>' )
         self.handles['nopumet'] = AutoHandle( 'slimmedMETs', 'std::vector<pat::MET>' )
         self.handles['cmgCand'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
-        self.handles['cmgCand1'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
-        self.handles['cmgCand2'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
-        self.handles['cmgCand3'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
-        self.handles['cmgCand4'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
-        self.handles['cmgCand5'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
-        self.handles['cmgCand6'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
-        self.handles['cmgCand7'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
-        self.handles['cmgCand8'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
         self.handles['vertices'] =  AutoHandle( "offlineSlimmedPrimaryVertices", 'std::vector<reco::Vertex>', fallbackLabel="offlinePrimaryVertices" )
 
     def beginLoop(self, setup):
