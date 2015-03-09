@@ -215,8 +215,8 @@ cmsswVersion = os.environ['CMSSW_VERSION']
 
 # from CMSSW_7_5_0_pre0: Simplified TrackerTopologyEP config (PR #7589/#7802)
 if cmsswVersion >= "CMSSW_7_5":
-    if 'trackerTopologyConstants' in %(dict)s:
-        %(process)strackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
+    if 'trackerTopology' in %(dict)s:
+        %(process)strackerTopology = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
 
 # from CMSSW_7_5_0_pre0: Removal of upgradeGeometry from TrackerDigiGeometryESModule (PR #7794)
 if cmsswVersion >= "CMSSW_7_5":
@@ -1056,6 +1056,8 @@ if 'GlobalTag' in %%(dict)s:
       self.options['esmodules'].append( "-hltESPGlobalTrackingGeometryESProducer" )
       self.options['esmodules'].append( "-hltESPMuonDetLayerGeometryESProducer" )
       self.options['esmodules'].append( "-hltESPTrackerRecoGeometryESProducer" )
+      self.options['esmodules'].append( "-trackerTopology" )
+
       if not self.config.fastsim:
         self.options['esmodules'].append( "-CaloTowerGeometryFromDBEP" )
         self.options['esmodules'].append( "-CastorGeometryFromDBEP" )
