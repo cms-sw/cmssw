@@ -125,7 +125,6 @@ namespace edm {
 
     const_reference front() const;
     const_reference back() const;
-    void pop_back();
 
     // No erase, because erase is required to return an *iterator*,
     // not a *const_iterator*.
@@ -318,13 +317,6 @@ namespace edm {
   typename View<T>::const_reference
   View<T>::back() const {
     return *items_.back();
-  }
-
-  template<typename T>
-  inline
-  void
-  View<T>::pop_back() {
-    items_.pop_back();
   }
 
   // The following is for testing only.
