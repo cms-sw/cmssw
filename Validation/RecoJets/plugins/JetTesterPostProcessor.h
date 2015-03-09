@@ -37,10 +37,6 @@ class JetTesterPostProcessor : public DQMEDHarvester {
       edm::InputTag inputJetLabelMiniAOD_;
 
       std::vector<std::string> jet_dirs;
-      std::vector<std::string> map_string_vec;
-      std::map< std::string, MonitorElement*> map_of_MEs;
-
-
       MonitorElement* mPt_MiniAOD_over_Reco;
       MonitorElement* mPhi_MiniAOD_over_Reco;
       MonitorElement* mEta_MiniAOD_over_Reco;
