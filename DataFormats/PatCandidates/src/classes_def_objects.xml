@@ -235,6 +235,7 @@
   </ioread>
 
   <class name="pat::PackedGenParticle" ClassVersion="11">
+    <version ClassVersion="12" checksum="2626711017"/>
     <version ClassVersion="11" checksum="25552245"/>
     <version ClassVersion="10" checksum="389883266"/>
     <field name="p4_" transient="true" />
