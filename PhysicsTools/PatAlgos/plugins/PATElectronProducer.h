@@ -100,7 +100,6 @@ namespace pat {
       /// embed high level selection variables?
       bool          embedHighLevelSelection_;
       edm::EDGetTokenT<reco::BeamSpot> beamLineToken_;
-      bool          usePV_;
       edm::EDGetTokenT<std::vector<reco::Vertex> > pvToken_;
 
       typedef edm::RefToBase<reco::GsfElectron> ElectronBaseRef;

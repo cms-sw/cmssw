@@ -129,8 +129,6 @@ namespace pat {
     bool embedHighLevelSelection_;
     /// input source of the primary vertex/beamspot
     edm::EDGetTokenT<reco::BeamSpot> beamLineToken_;
-    /// use the primary vertex or the beamspot
-    bool usePV_;
     /// input source of the primary vertex
     edm::EDGetTokenT<std::vector<reco::Vertex> > pvToken_;
     /// input source for isoDeposits

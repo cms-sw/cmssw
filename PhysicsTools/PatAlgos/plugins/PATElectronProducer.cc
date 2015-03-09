@@ -162,7 +162,6 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   embedHighLevelSelection_ = iConfig.getParameter<bool>("embedHighLevelSelection");
   beamLineToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"));
   if ( embedHighLevelSelection_ ) {
-    usePV_ = iConfig.getParameter<bool>("usePV");
     pvToken_ = consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("pvSrc"));
   }
   // produces vector of muons
@@ -266,29 +265,12 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     // This is needed by the IPTools methods from the tracking group
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
 
-    if ( ! usePV_ ) {
-
-      if ( beamSpotHandle.isValid() ){
-        beamSpot = *beamSpotHandle;
-        beamSpotIsValid = true;
-      } else{
-        edm::LogError("DataNotAvailable")
-          << "No beam spot available from EventSetup, not adding high level selection \n";
-      }
-
-      double x0 = beamSpot.x0();
-      double y0 = beamSpot.y0();
-      double z0 = beamSpot.z0();
-
-      beamPoint = reco::TrackBase::Point ( x0, y0, z0 );
+    if ( pvHandle.isValid() && !pvHandle->empty() ) {
+        primaryVertex = pvHandle->at(0);
+        primaryVertexIsValid = true;
     } else {
-      if ( pvHandle.isValid() && !pvHandle->empty() ) {
-	primaryVertex = pvHandle->at(0);
-	primaryVertexIsValid = true;
-      } else {
-	edm::LogError("DataNotAvailable")
-	  << "No primary vertex available from EventSetup, not adding high level selection \n";
-      }
+        edm::LogError("DataNotAvailable")
+            << "No primary vertex available from EventSetup, not adding high level selection \n";
     }
   }
 
@@ -977,8 +959,6 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
                  )->setComment("input with high level selection");
   iDesc.addNode( edm::ParameterDescription<edm::InputTag>("pvSrc", edm::InputTag(), true)
                  )->setComment("input with high level selection");
-  iDesc.addNode( edm::ParameterDescription<bool>("usePV", bool(), true)
-                 )->setComment("input with high level selection, use primary vertex (true) or beam line (false)");
 
   descriptions.add("PATElectronProducer", iDesc);
 

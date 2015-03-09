@@ -87,7 +87,6 @@ patMuons = cms.EDProducer("PATMuonProducer",
 
     # high level selections
     embedHighLevelSelection = cms.bool(True),
-    usePV                   = cms.bool(True),
     beamLineSrc             = cms.InputTag("offlineBeamSpot"),
     pvSrc                   = cms.InputTag("offlinePrimaryVertices"),
 

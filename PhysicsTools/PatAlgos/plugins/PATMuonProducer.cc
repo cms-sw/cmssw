@@ -99,11 +99,9 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserDat
     userDataHelper_ = PATUserDataHelper<Muon>(iConfig.getParameter<edm::ParameterSet>("userData"), consumesCollector());
   }
   // embed high level selection variables
-  usePV_ = true;
   embedHighLevelSelection_ = iConfig.getParameter<bool>("embedHighLevelSelection");
   if ( embedHighLevelSelection_ ) {
     beamLineToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"));
-    usePV_ = iConfig.getParameter<bool>("usePV");
     pvToken_ = consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("pvSrc"));
   }
   // produces vector of muons
