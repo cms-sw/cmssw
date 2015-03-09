@@ -672,7 +672,7 @@ bool SeedMergerPixelLayer::isValidName( const std::string& name ) {
   }
 
   else if( std::string::npos != name.find( "FPix" ) ) {
-    if( layer > 0 && layer < 4 ) {
+    if( layer > 0 && layer < 10 ) {
       if( std::string::npos != name.find( "pos", 6 ) || std::string::npos != name.find( "neg", 6 ) ) return true;
     }
 
