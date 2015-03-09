@@ -206,7 +206,7 @@ electronGsfTracks.TrajectoryInEvent = True
 from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
 from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
 
-trackerDrivenElectronSeedsTmp = trackerDrivenElectronSeeds
+trackerDrivenElectronSeedsTmp = trackerDrivenElectronSeeds.clone()
 trackerDrivenElectronSeedsTmp.TkColList = cms.VInputTag(cms.InputTag("generalTracksBeforeMixing"))
 trackerDrivenElectronSeeds = cms.EDProducer(
     "ElectronSeedTrackRefFix",
@@ -217,9 +217,6 @@ trackerDrivenElectronSeeds = cms.EDProducer(
     seedCollection = cms.InputTag("trackerDrivenElectronSeedsTmp",trackerDrivenElectronSeedsTmp.PreGsfLabel.value()),
     idCollection = cms.InputTag("trackerDrivenElectronSeedsTmp",trackerDrivenElectronSeedsTmp.PreIdLabel.value())
     )
-print trackerDrivenElectronSeeds.seedCollection
-print trackerDrivenElectronSeeds.idCollection
-
     
 # PF related electron sequences defined in FastSimulation.ParticleFlow.ParticleFlowFastSim_cff
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
