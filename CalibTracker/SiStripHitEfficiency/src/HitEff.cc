@@ -175,13 +175,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 
   // get the SiStripQuality records
   edm::ESHandle<SiStripQuality> SiStripQuality_;
-//LQ commenting the try/catch that causes problem in 74X calibTree production
-//  try {
-//    es.get<SiStripQualityRcd>().get("forCluster",SiStripQuality_);
-//  }
-//  catch (...) {
-    es.get<SiStripQualityRcd>().get(SiStripQuality_);
-//  }
+  es.get<SiStripQualityRcd>().get(SiStripQuality_);
   
   edm::ESHandle<MagneticField> magFieldHandle;
   es.get<IdealMagneticFieldRecord>().get(magFieldHandle);
