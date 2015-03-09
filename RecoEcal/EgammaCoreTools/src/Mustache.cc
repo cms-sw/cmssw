@@ -72,7 +72,7 @@ namespace reco {
 
     bool inDynamicDPhiWindow(const float seedEta, const float seedPhi,
 			     const float ClustE, const float ClusEta,
-			     const float ClusPhi) {
+			     const float ClusPhi, const bool puEtHardCut) {
       // from Rishi's fits 06 June 2013 in log base 10
       constexpr double yoffsetEB = 7.151e-02;
       constexpr double scaleEB   = 5.656e-01;
@@ -103,52 +103,66 @@ namespace reco {
       const double clusDphi = std::abs(TVector2::Phi_mpi_pi(seedPhi - 
 							    ClusPhi));
 
-      double yoffset, scale, xoffset, width, saturation, cutoff, maxdphi;
+	double yoffset, scale, xoffset, width, saturation, cutoff, maxdphi;
+	
+	switch( etaBin ) {
+	case 0: // EB
+	  yoffset = yoffsetEB;
+	  scale   = scaleEB;
+	  xoffset = xoffsetEB;
+	  width   = 1.0/widthEB;
+	  saturation = 0.14;
+	  cutoff     = 0.60;
+	  break;
+	case 1: // 1.479 -> 1.75
+	  yoffset = yoffsetEE_0;
+	  scale   = scaleEE_0;
+	  xoffset = xoffsetEE_0;
+	  width   = 1.0/widthEE_0;
+	  saturation = 0.14;
+	  //	cutoff     = 0.55;
+	  cutoff     = 0.3;
+	  break;
+	case 2: // 1.75 -> 2.0
+	  yoffset = yoffsetEE_1;
+	  scale   = scaleEE_1;
+	  xoffset = xoffsetEE_1;
+	  width   = 1.0/widthEE_1;
+	  saturation = 0.12;
+	  //	cutoff     = 0.45;
+	  cutoff     = 0.3;
+	  break;
+	case 3: // 2.0 and up
+	  yoffset = yoffsetEE_2;
+	  scale   = scaleEE_2;
+	  xoffset = xoffsetEE_2;
+	  width   = 1.0/widthEE_2;
+	  saturation = 0.12;
+	  cutoff     = 0.30;
+	  break;
+	default:
+	  throw cms::Exception("InValidEtaBin")
+	    << "Calculated invalid eta bin = " << etaBin 
+	    << " in \"inDynamicDPhiWindow\"" << std::endl;
+	}
+      
+	maxdphi = yoffset+scale/(1+std::exp((logClustEt-xoffset)*width));
+	maxdphi = std::min(maxdphi,cutoff);
+	maxdphi = std::max(maxdphi,saturation);
+	bool isAccepted=false;
+	isAccepted = clusDphi < maxdphi;
+	//PU rejection with Et hard cut after minDPhi
+	double minDPhi=0.15;
+	if(clusDphi>minDPhi && etaBin != 0 && isAccepted && puEtHardCut){      
 
-      switch( etaBin ) {
-      case 0: // EB
-	yoffset = yoffsetEB;
-	scale   = scaleEB;
-	xoffset = xoffsetEB;
-	width   = 1.0/widthEB;
-	saturation = 0.14;
-	cutoff     = 0.60;
-	break;
-      case 1: // 1.479 -> 1.75
-	yoffset = yoffsetEE_0;
-	scale   = scaleEE_0;
-	xoffset = xoffsetEE_0;
-	width   = 1.0/widthEE_0;
-	saturation = 0.14;
-	cutoff     = 0.55;
-	break;
-      case 2: // 1.75 -> 2.0
-	yoffset = yoffsetEE_1;
-	scale   = scaleEE_1;
-	xoffset = xoffsetEE_1;
-	width   = 1.0/widthEE_1;
-	saturation = 0.12;
-	cutoff     = 0.45;
-	break;
-      case 3: // 2.0 and up
-	yoffset = yoffsetEE_2;
-	scale   = scaleEE_2;
-	xoffset = xoffsetEE_2;
-	width   = 1.0/widthEE_2;
-	saturation = 0.12;
-	cutoff     = 0.30;
-	break;
-      default:
-	throw cms::Exception("InValidEtaBin")
-	  << "Calculated invalid eta bin = " << etaBin 
-	  << " in \"inDynamicDPhiWindow\"" << std::endl;
-      }
-      
-      maxdphi = yoffset+scale/(1+std::exp((logClustEt-xoffset)*width));
-      maxdphi = std::min(maxdphi,cutoff);
-      maxdphi = std::max(maxdphi,saturation);
-      
-      return clusDphi < maxdphi;
+	  double etMaxThresh=1.5;
+	  double etMinThresh=0.5;
+	  double clustEt = ClustE/std::cosh(ClusEta);
+	  double etThresh= std::min(etMinThresh+(etMaxThresh-etMinThresh)*(clusDphi-minDPhi)/(cutoff-minDPhi),etMaxThresh);
+	  isAccepted &=clustEt>etThresh  ;
+	  
+	}
+	return isAccepted;
     }
   }
   
