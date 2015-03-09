@@ -190,11 +190,11 @@ from RecoTracker.IterativeTracking.MixedTripletStep_cff import mixedTripletStepS
 pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='pixelLessStepTracks',
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter5_13TeV_v0'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'pixelLessStepLoose',
             chi2n_par = 9999,
+            GBRForestLabel = cms.string('MVASelectorIter5_13TeV_v0'),
             useMVA = cms.bool(True),
             minMVA = cms.double(0.4),
             #chi2n_par = 0.4,
@@ -210,6 +210,7 @@ pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'pixelLessStepTight',
             preFilterName = 'pixelLessStepLoose',
+            GBRForestLabel = cms.string('MVASelectorIter5_13TeV_v0'),
             chi2n_par = 0.3,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 4,
@@ -224,6 +225,7 @@ pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
             name = 'pixelLessStep',
             preFilterName = 'pixelLessStepLoose',
             chi2n_par = cms.double(9999),
+            GBRForestLabel = cms.string('MVASelectorIter5_13TeV_v0'),
             useMVA = cms.bool(True),
             minMVA = cms.double(0.4),
             qualityBit = cms.string('highPurity'),

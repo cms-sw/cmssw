@@ -121,11 +121,11 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='detachedTripletStepTracks',
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter3_13TeV_v0'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'detachedTripletStepVtxLoose',
             chi2n_par = 9999,
+            GBRForestLabel = cms.string('MVASelectorIter3_13TeV_v0'),
             useMVA = cms.bool(True),
             minMVA = cms.double(-0.5),
             #res_par = ( 0.003, 0.001 ),
@@ -138,6 +138,7 @@ detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'detachedTripletStepTrkLoose',
             chi2n_par = 9999,
+            GBRForestLabel = cms.string('MVASelectorIter3_13TeV_v0'),
             useMVA = cms.bool(True),
             minMVA = cms.double(-0.5),
             #res_par = ( 0.003, 0.001 ),
@@ -177,6 +178,7 @@ detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
             name = 'detachedTripletStepVtx',
             preFilterName = 'detachedTripletStepVtxLoose',
             chi2n_par = cms.double(9999),
+            GBRForestLabel = cms.string('MVASelectorIter3_13TeV_v0'),
             useMVA = cms.bool(True),
             minMVA = cms.double(0.5),
             qualityBit = cms.string('highPurity'),
@@ -195,6 +197,7 @@ detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
             name = 'detachedTripletStepTrk',
             preFilterName = 'detachedTripletStepTrkLoose',
             chi2n_par = cms.double(9999),
+            GBRForestLabel = cms.string('MVASelectorIter3_13TeV_v0'),
             useMVA = cms.bool(True),
             minMVA = cms.double(0.5),
             qualityBit = cms.string('highPurity'),

@@ -207,10 +207,10 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='mixedTripletStepTracks',
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter4_13TeV_v0'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'mixedTripletStepVtxLoose',
+            GBRForestLabel = cms.string('MVASelectorIter4_13TeV_v0'),
             useMVA = cms.bool(True),
             minMVA = cms.double(-0.5),
             chi2n_par = 9999,
@@ -226,6 +226,7 @@ mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'mixedTripletStepTrkLoose',
+            GBRForestLabel = cms.string('MVASelectorIter4_13TeV_v0'),
             useMVA = cms.bool(True),
             minMVA = cms.double(-0.5),
             chi2n_par = 9999,
@@ -242,6 +243,7 @@ mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'mixedTripletStepVtxTight',
             preFilterName = 'mixedTripletStepVtxLoose',
+            GBRForestLabel = cms.string('MVASelectorIter4_13TeV_v0'),
             chi2n_par = 0.6,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
@@ -255,6 +257,7 @@ mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'mixedTripletStepTrkTight',
             preFilterName = 'mixedTripletStepTrkLoose',
+            GBRForestLabel = cms.string('MVASelectorIter4_13TeV_v0'),
             chi2n_par = 0.4,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 5,
@@ -268,6 +271,7 @@ mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'mixedTripletStepVtx',
             preFilterName = 'mixedTripletStepVtxLoose',
+            GBRForestLabel = cms.string('MVASelectorIter4_13TeV_v0'),
             chi2n_par = 9999,
             useMVA = cms.bool(True),
             minMVA = cms.double(0.5),
@@ -289,6 +293,7 @@ mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
             name = 'mixedTripletStepTrk',
             preFilterName = 'mixedTripletStepTrkLoose',
             chi2n_par = 9999,
+            GBRForestLabel = cms.string('MVASelectorIter4_13TeV_v0'),
             useMVA = cms.bool(True),
             minMVA = cms.double(0.5),
             qualityBit = cms.string('highPurity'),
