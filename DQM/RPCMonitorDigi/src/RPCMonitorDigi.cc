@@ -178,7 +178,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
     }
 
     if( NumberOfMuon_)  NumberOfMuon_->Fill(numMuons);
-    if( NumberOfRecHitMuon_)  NumberOfRecHitMuon_->Fill( numRPCRecHit);
+    if( NumberOfRecHitMuon_ && numMuons>0)  NumberOfRecHitMuon_->Fill( numRPCRecHit);
     
   }else{
     edm::LogError ("rpcmonitordigi") <<"[RPCMonitorDigi]: Muons - Product not valid for event" << counter;
@@ -211,10 +211,10 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
   }
 
  
-  if( useMuonDigis_ && muonRPCEvents_ != 0 )  muonRPCEvents_->Fill(1);
-  if( noiseRPCEvents_ != 0)  noiseRPCEvents_->Fill(1);
+  if( useMuonDigis_ && muonRPCEvents_ != 0 && rechitMuon.size()>0 ) { muonRPCEvents_->Fill(1);}
+  if( noiseRPCEvents_ != 0 && rechitNoise.size()>0) { noiseRPCEvents_->Fill(1);}
 
-  if(useMuonDigis_ ) this->performSourceOperation(rechitMuon, muonFolder_);
+  if(useMuonDigis_ ) {this->performSourceOperation(rechitMuon, muonFolder_);}
   this->performSourceOperation(rechitNoise, noiseFolder_);
 }
 
@@ -223,7 +223,7 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
 
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Performing DQM source operations for "; 
   
-  if(recHitMap.size()==0) return;
+  if(recHitMap.size()==0) {return;}
 
   std::map<std::string, std::map<std::string, MonitorElement*> >  meRollCollection ;
   std::map<std::string, MonitorElement*>   meWheelDisk ;
