@@ -109,10 +109,10 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 lowPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='lowPtTripletStepTracks',
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter1_13TeV_v0'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'lowPtTripletStepLoose',
+            GBRForestLabel = cms.string('MVASelectorIter1_13TeV_v0'),
             useMVA = cms.bool(True),
             minMVA = cms.double(-0.6),
             chi2n_par = cms.double(9999),
@@ -120,10 +120,12 @@ lowPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'lowPtTripletStepTight',
             preFilterName = 'lowPtTripletStepLoose',
+            GBRForestLabel = cms.string('MVASelectorIter1_13TeV_v0'),
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'lowPtTripletStep',
             preFilterName = 'lowPtTripletStepLoose',
+            GBRForestLabel = cms.string('MVASelectorIter1_13TeV_v0'),
             useMVA = cms.bool(True),
             minMVA = cms.double(0.4),
             qualityBit = cms.string('highPurity'),
