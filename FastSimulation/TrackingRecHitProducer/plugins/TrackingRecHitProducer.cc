@@ -1,16 +1,6 @@
 #include "TrackingRecHitProducer.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-
-//#include "Reflex.h"
-
-#include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitAlgorithm.h"
-#include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitAlgorithmFactory.h"
-
+#include <map>
 
 TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config)
 {
@@ -32,10 +22,30 @@ TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config)
             edm::LogWarning("TrackingRecHitAlgorithm plugin not found: ") << "plugin name = "<<pluginName<<"\nconfiguration=\n"<<pluginConfig.dump();
         }
     }
+
+    edm::InputTag simHitTag = config.getParameter<edm::InputTag>("simHits");
+    _simHitToken = consumes<std::vector<PSimHit>>(simHitTag);
 }
 
 void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
+    edm::Handle<std::vector<PSimHit>> simHits;
+    event.getByToken(_simHitToken,simHits);
+    std::map<unsigned int,std::vector<const PSimHit*>> hitsPerDetId;
+    for (unsigned int ihit = 0; ihit < simHits->size(); ++ihit)
+    {
+        const PSimHit* simHit = &(*simHits)[ihit];
+        //DetId detId(simHit->detUnitId ());
+        hitsPerDetId[simHit->detUnitId ()].push_back(simHit);
+    }
+    for (std::map<unsigned int,std::vector<const PSimHit*>>::const_iterator it = hitsPerDetId.cbegin(); it != hitsPerDetId.cend(); ++it)
+    {
+        DetId detId(it->first);
+        for (unsigned int ialgo = 0; ialgo <_recHitAlgorithms.size(); ++ialgo)
+        {
+            _recHitAlgorithms[ialgo]->processDetId(detId, it->second);
+        }
+    }
 }
 
 TrackingRecHitProducer::~TrackingRecHitProducer()

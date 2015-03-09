@@ -29,7 +29,10 @@ process.source = cms.Source ("PoolSource",
 )
 
 process.recHitProducer=cms.EDProducer("TrackingRecHitProducer",
+    simHits = cms.InputTag("famosSimHits","TrackerHits"),
+
     plugins=cms.PSet(
+
         defaultPlugin = cms.PSet(
             type=cms.string("TrackingRecHitNoSmearingPlugin")
         ),
