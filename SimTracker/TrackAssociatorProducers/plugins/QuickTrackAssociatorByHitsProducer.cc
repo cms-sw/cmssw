@@ -178,8 +178,9 @@ QuickTrackAssociatorByHitsProducer::produce(edm::StreamID, edm::Event& iEvent, c
      trackAssoc = std::make_shared<TrackerHitAssociator>(iEvent, hitAssociatorParameters_);
    }
 
-   std::unique_ptr<reco::TrackToTrackingParticleAssociatorBaseImpl> impl( 
-                         new QuickTrackAssociatorByHitsImpl(std::move(trackAssoc),
+   std::unique_ptr<reco::TrackToTrackingParticleAssociatorBaseImpl> impl(
+                         new QuickTrackAssociatorByHitsImpl(iEvent.productGetter(),
+                                                            std::move(trackAssoc),
                                                             std::move(clusterAssoc),
                                                             absoluteNumberOfHits_,
                                                             qualitySimToReco_,

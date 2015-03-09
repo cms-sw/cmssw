@@ -60,7 +60,7 @@ private:
 
     virtual void do_fillView(ProductID const& id,
                              std::vector<void const*>& pointers,
-                             helper_vector_ptr& helpers) const GCC11_OVERRIDE;
+                             FillViewHelperVector& helpers) const GCC11_OVERRIDE;
     virtual void do_setPtr(std::type_info const& iToType,
                            unsigned long iIndex,
                            void const*& oPtr) const GCC11_OVERRIDE;
@@ -151,5 +151,7 @@ private:
   }
 #endif
 }
+
 #include "DataFormats/Common/interface/WrapperView.icc"
+
 #endif

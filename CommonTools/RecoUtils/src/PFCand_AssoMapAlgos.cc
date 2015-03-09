@@ -50,7 +50,7 @@ std::auto_ptr<PFCandToVertexAssMap>
 PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup)
 {
 
-  	auto_ptr<PFCandToVertexAssMap> pfcand2vertex(new PFCandToVertexAssMap());
+        auto_ptr<PFCandToVertexAssMap> pfcand2vertex(new PFCandToVertexAssMap(vtxcollH, pfCandH));
 
 	int num_vertices = vtxcollH->size();
 	if ( num_vertices < input_MaxNumAssociations_) input_MaxNumAssociations_ = num_vertices;
@@ -116,7 +116,7 @@ std::auto_ptr<VertexToPFCandAssMap>
 PFCand_AssoMapAlgos::CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup)
 {
 
-  	auto_ptr<VertexToPFCandAssMap> vertex2pfcand(new VertexToPFCandAssMap());
+  	auto_ptr<VertexToPFCandAssMap> vertex2pfcand(new VertexToPFCandAssMap(pfCandH, vtxcollH));
 
 	int num_vertices = vtxcollH->size();
 	if ( num_vertices < input_MaxNumAssociations_) input_MaxNumAssociations_ = num_vertices;

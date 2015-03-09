@@ -18,7 +18,8 @@
 namespace edm {
   template<typename Tag>
   class AssociationMap {
-    /// insert key type
+    /// This is the second part of the value part of
+    /// the items stored in the transient map
     typedef typename Tag::val_type internal_val_type;
   public:
     /// self type
@@ -29,15 +30,15 @@ namespace edm {
     typedef typename Tag::key_type key_type;
     /// insert data type
     typedef typename Tag::data_type data_type;
-    /// reference set type
+    /// RefProd or RefToBaseProd of 1 or 2 collections
     typedef typename Tag::ref_type ref_type;
     /// map type
     typedef typename Tag::map_type map_type;
     /// size type
     typedef typename map_type::size_type size_type;
-    /// value type
+    /// type returned by dereferenced iterator, also can be inserted
     typedef helpers::KeyVal<key_type, internal_val_type> value_type;
-    /// result type
+    /// type return by operator[]
     typedef typename value_type::value_type result_type;
     /// transient map type
     typedef typename std::map<index_type, value_type> internal_transient_map_type;
@@ -58,7 +59,7 @@ namespace edm {
       const_iterator operator--(int) { const_iterator ci = *this; --i; return ci; }
       bool operator==(const const_iterator& ci) const { return i == ci.i; }
       bool operator!=(const const_iterator& ci) const { return i != ci.i; }
-      const value_type & operator *() const { return (*map_)[ i->first ]; }
+      const value_type & operator *() const { return map_->get( i->first ); }
       const value_type * operator->() const { return &operator *(); }
     private:
       const self * map_;
@@ -67,9 +68,21 @@ namespace edm {
 
     /// default constructor
     AssociationMap() { }
-    /// default constructor
+
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    explicit
+    AssociationMap(EDProductGetter const* getter) :
+      ref_(getter) { }
+#endif
+
     explicit
     AssociationMap(const ref_type & ref) : ref_(ref) { }
+
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    template<typename... Args>
+    AssociationMap(Args... args) : ref_(std::forward<Args>(args)...) {}
+#endif
+
     /// clear map
     void clear() { map_.clear(); transientMap_.clear(); }
     /// map size
@@ -101,8 +114,15 @@ namespace edm {
     /// find element with specified reference key
     const result_type & operator[](const key_type & k) const {
       helpers::checkRef(ref_.key, k);
-      return operator[](k.key()).val;
+      return get(k.key()).val;
     }
+
+    template<typename K>
+    const result_type& operator[](const K& k) const {
+      helpers::checkRef(ref_.key,k);
+      return get(k.key()).val;
+    }
+      
     /// number of associations to a key
     size_type numberOfAssociations(const key_type & k) const {
       if (ref_.key.id() != k.id()) return 0;
@@ -110,6 +130,15 @@ namespace edm {
       if (f == map_.end()) return 0;
       return Tag::size(f->second);
     }
+
+    template<typename K>
+    size_type numberOfAssociations(const K & k) const {
+      if (ref_.key.id() != k.id()) return 0;
+      typename map_type::const_iterator f = map_.find(k.key());
+      if (f == map_.end()) return 0;
+      return Tag::size(f->second);
+    }
+
     /// return ref-prod structure
     const ref_type & refProd() const { return ref_; }
 
@@ -160,7 +189,7 @@ namespace edm {
       return const_iterator(this, f);
     }
     /// return value_typeelement with key i
-    const value_type & operator[](size_type i) const {
+    const value_type & get(size_type i) const {
       typename internal_transient_map_type::const_iterator tf = transientMap_.find(i);
       if (tf == transientMap_.end()) {
 	typename map_type::const_iterator f = map_.find(i);
@@ -192,5 +221,4 @@ namespace edm {
   }
 
 }
-
 #endif

@@ -1,5 +1,6 @@
 #include "Validation/RecoB/plugins/BTagPerformanceAnalyzerMC.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 #include "DQMOffline/RecoB/interface/TagInfoPlotterFactory.h"
 
 using namespace reco;
@@ -302,7 +303,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
       }
 
       JetWithFlavour jetWithFlavour;
-      if (!getJetWithFlavour(tagI->first, flavours, jetWithFlavour, iSetup, genJetsMatched))
+      if (!getJetWithFlavour(iEvent, tagI->first, flavours, jetWithFlavour, iSetup, genJetsMatched))
         continue;
       if (!jetSelector(jetWithFlavour.first, std::abs(jetWithFlavour.second.getFlavour()), infoHandle, jec))
         continue;
@@ -348,7 +349,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
       }
 
       JetWithFlavour jetWithFlavour;
-      if (!getJetWithFlavour(tagI->first, flavours, jetWithFlavour, iSetup, genJetsMatched))
+      if (!getJetWithFlavour(iEvent, tagI->first, flavours, jetWithFlavour, iSetup, genJetsMatched))
         continue;
       if (!jetSelector(jetWithFlavour.first, std::abs(jetWithFlavour.second.getFlavour()), infoHandle, jec))
         continue;
@@ -440,7 +441,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
       }
 
       JetWithFlavour jetWithFlavour;
-      if (!getJetWithFlavour(jetRef, flavours, jetWithFlavour, iSetup, genJetsMatched))
+      if (!getJetWithFlavour(iEvent, jetRef, flavours, jetWithFlavour, iSetup, genJetsMatched))
         continue;
       if (!jetSelector(jetWithFlavour.first, std::abs(jetWithFlavour.second.getFlavour()), infoHandle, jec))
         continue;
@@ -464,7 +465,8 @@ bool BTagPerformanceAnalyzerMC::getJetWithGenJet(edm::RefToBase<Jet> jetRef, edm
   return false;
 }
 
-bool  BTagPerformanceAnalyzerMC::getJetWithFlavour(edm::RefToBase<Jet> jetRef, const FlavourMap& flavours,
+bool  BTagPerformanceAnalyzerMC::getJetWithFlavour(const edm::Event& iEvent, 
+                                                   edm::RefToBase<Jet> jetRef, const FlavourMap& flavours,
 						   JetWithFlavour & jetWithFlavour, const edm::EventSetup & es, 
 						   edm::Handle<edm::Association<reco::GenJetCollection> > genJetsMatched)
 {
@@ -480,7 +482,7 @@ bool  BTagPerformanceAnalyzerMC::getJetWithFlavour(edm::RefToBase<Jet> jetRef, c
       for(FlavourMap::const_iterator iter = flavours.begin();
           iter != flavours.end(); ++iter)
         refJets.push_back(iter->first);
-      const edm::RefToBaseProd<Jet> recJetsProd(jetRef);
+      const edm::RefToBaseProd<Jet> recJetsProd(edm::makeRefToBaseProdFrom(jetRef, iEvent));
       edm::RefToBaseVector<Jet> recJets;
       for(unsigned int i = 0; i < recJetsProd->size(); i++)
         recJets.push_back(edm::RefToBase<Jet>(recJetsProd, i));

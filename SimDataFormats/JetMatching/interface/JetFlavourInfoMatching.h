@@ -18,7 +18,7 @@ public:
   { }
 
   JetFlavourInfoMatchingCollection(const reco::CaloJetRefProd & ref) :
-    JetFlavourInfoMatchingCollectionBase(ref)
+    JetFlavourInfoMatchingCollectionBase(edm::RefToBaseProd<reco::Jet>(ref))
   { }
 
   JetFlavourInfoMatchingCollection(const JetFlavourInfoMatchingCollectionBase &v) :

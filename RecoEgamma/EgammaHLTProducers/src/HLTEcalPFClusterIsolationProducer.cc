@@ -130,7 +130,7 @@ void HLTEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const ed
   iEvent.getByToken(recoCandidateProducer_,recoCandHandle);
   iEvent.getByToken(pfClusterProducer_, clusterHandle);
 
-  T1IsolationMap recoCandMap;
+  T1IsolationMap recoCandMap(recoCandHandle);
   
   drVeto2_ = -1.;
   float etaStrip = -1;
