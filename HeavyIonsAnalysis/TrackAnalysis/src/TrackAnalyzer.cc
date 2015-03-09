@@ -301,8 +301,9 @@ private:
   std::string qualityString_;
 
   double simTrackPtMin_;
-  bool fiducialCut_;
+  bool fiducialCut_; 
   edm::InputTag trackSrc_;
+  edm::InputTag particleSrc_;
   edm::InputTag tpFakeSrc_;
   edm::InputTag tpEffSrc_;
   edm::InputTag pfCandSrc_;
@@ -369,6 +370,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
   simTrackPtMin_             = iConfig.getUntrackedParameter<double>  ("simTrackPtMin",0.4);
   fiducialCut_ = (iConfig.getUntrackedParameter<bool>("fiducialCut",false));
   trackSrc_ = iConfig.getParameter<edm::InputTag>("trackSrc");
+  particleSrc_ = iConfig.getParameter<edm::InputTag>("particleSrc");
   //   tpFakeSrc_ =  iConfig.getUntrackedParameter<edm::InputTag>("tpFakeSrc",edm::InputTag("cutsTPForFak"));
   //   tpEffSrc_ =  iConfig.getUntrackedParameter<edm::InputTag>("tpEffSrc",edm::InputTag("cutsTPForEff"));
   tpFakeSrc_ =  iConfig.getUntrackedParameter<edm::InputTag>("tpFakeSrc",edm::InputTag("mix","MergedTrackTruth"));
@@ -709,7 +711,7 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
         // }
 
         //now match the tracking particle to the gen-level particle
-        vector<int> tempBarcode = matchTpToGen(iEvent, tparticle);
+        vector<int> tempBarcode = matchTpToGen(iEvent, tparticle, particleSrc_);
         for(unsigned int ibarcode=0; ibarcode<tempBarcode.size(); ibarcode++){
             pev_.matchedGenID[pev_.nTrk][ibarcode] = tempBarcode.at(ibarcode);
         }

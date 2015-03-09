@@ -2,7 +2,7 @@
 #define TrkAnalyzerUtils_h_
 
 #include <vector>
-
+ 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -35,7 +35,7 @@ const TrackingParticle* doRecoToTpMatch(reco::RecoToSimCollection recSimColl, co
 
 //-------------------------------------------------------------------------------------------------
 
-vector<int> matchTpToGen(const edm::Event& iEvent, const TrackingParticle* tparticle, std::string genCollection="hiGenParticles"){
+vector<int> matchTpToGen(const edm::Event& iEvent, const TrackingParticle* tparticle, edm::InputTag genCollection){
 
     vector<int> retArr;
     if(!tparticle){ retArr.push_back(-999); return retArr; }
@@ -50,7 +50,7 @@ vector<int> matchTpToGen(const edm::Event& iEvent, const TrackingParticle* tpart
     for(unsigned int ii=0; ii<tempStore.size(); ii++){ tripwire[ii]=0; } //reset tripwires
 
     edm::Handle<reco::GenParticleCollection> parts;
-    iEvent.getByLabel((edm::InputTag)genCollection,parts);
+    iEvent.getByLabel(genCollection,parts);
     for(unsigned int igenCand=0; igenCand<tempStore.size(); igenCand++){
         for(UInt_t igenP = 0; igenP < parts->size(); ++igenP){
             const reco::GenParticle& p = (*parts)[igenP];
