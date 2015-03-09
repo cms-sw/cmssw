@@ -32,6 +32,7 @@
   <version ClassVersion="10" checksum="959162848"/>
  </class>
  <class name="edm::EventAuxiliary" ClassVersion="10">
+  <version ClassVersion="11" checksum="3721392547"/>
   <version ClassVersion="10" checksum="580036702"/>
  </class>
  <class name="edm::History" ClassVersion="10">
@@ -79,6 +80,7 @@
  </class>
  <class name="std::vector<edm::StoredProductProvenance>"/>
  <class name="edm::BranchDescription" ClassVersion="12">
+  <version ClassVersion="13" checksum="1036656842"/>
   <version ClassVersion="12" checksum="1833963582"/>
   <version ClassVersion="11" checksum="1571703000"/>
   <field name="transient_" transient="true"/>

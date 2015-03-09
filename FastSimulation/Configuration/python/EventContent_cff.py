@@ -261,6 +261,7 @@ FASTPUEventContent = cms.PSet(
                                            'keep *_MuonSimHits_*_*',
                                            'drop *_generalTracksBeforeMixing_MVAVals_*',
                                            'drop *_famosSimHits_VertexTypes_*',    
-                                           'keep *_generalTracksBeforeMixing_*_*'
+                                           'keep *_generalTracksBeforeMixing_*_*',
+                                           'keep edmHepMCProduct_generator_*_*',
                                            )
     )

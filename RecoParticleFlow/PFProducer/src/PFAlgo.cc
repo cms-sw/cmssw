@@ -2194,7 +2194,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     //double Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());
     //Caloresolution *= totalChargedMomentum;
     // that of the charged particles linked to the cluster!
-    double TotalError = sqrt(sumpError2 + Caloresolution*Caloresolution);
 
     /* */
     ////////////////////// TRACKER MUCH LARGER THAN CALO /////////////////////////
@@ -2478,7 +2477,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     }
 
     // The total uncertainty of the difference Calo-Track
-    TotalError = sqrt(sumpError2 + Caloresolution*Caloresolution);
+    double TotalError = sqrt(sumpError2 + Caloresolution*Caloresolution);
 
     if ( debug_ ) {
       cout<<"\tCompare Calo Energy to total charged momentum "<<endl;

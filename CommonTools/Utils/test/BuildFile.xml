@@ -9,3 +9,7 @@
   <use   name="CommonTools/Utils"/>
   <use   name="cppunit"/>
 </bin>
+<bin name="testCommonToolsUtilThreaded" file="testCutParserThreaded.cc">
+  <use   name="DataFormats/TrackReco"/>
+  <use   name="CommonTools/Utils"/>
+</bin>

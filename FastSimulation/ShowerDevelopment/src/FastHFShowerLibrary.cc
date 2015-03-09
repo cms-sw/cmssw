@@ -3,7 +3,7 @@
 // Description: Shower library for Very forward hadron calorimeter
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "FastSimulation/ShowerDevelopment/interface/fastHFShowerLibrary.h"
+#include "FastSimulation/ShowerDevelopment/interface/FastHFShowerLibrary.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
@@ -25,7 +25,7 @@
 
 //#define DebugLog
 
-fastHFShowerLibrary::fastHFShowerLibrary(edm::ParameterSet const & p) : fibre(0),
+FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const & p) : fibre(0),
                                                                       hf(0),
 							  	emBranch(0),
 								hadBranch(0),
@@ -120,7 +120,7 @@ fastHFShowerLibrary::fastHFShowerLibrary(edm::ParameterSet const & p) : fibre(0)
                                   << backProb ;
 }
 
-fastHFShowerLibrary::~fastHFShowerLibrary() {
+FastHFShowerLibrary::~FastHFShowerLibrary() {
   if (hf)               hf->Close();
   if (fibre)            delete fibre;
   if (photo)            delete photo;
@@ -128,7 +128,7 @@ fastHFShowerLibrary::~fastHFShowerLibrary() {
   if (numberingScheme)  delete numberingScheme; 
 }
 
-void const fastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetup) {
+void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetup) {
 
   edm::LogInfo("FastCalorimetry") << "initHFShowerLibrary::initialization"; 
 
@@ -179,13 +179,13 @@ void const fastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
   }
 
   initRun();  
-  fibre = new fastHFFibre(name, *cpv, cFibre);
+  fibre = new FastHFFibre(name, *cpv, cFibre);
   photo = new HFShowerPhotonCollection;
   numberingFromDDD = new HcalNumberingFromDDD(name, *cpv);
   numberingScheme  = new HcalNumberingScheme();
 }
 
-void fastHFShowerLibrary::initRun() {
+void FastHFShowerLibrary::initRun() {
 
   geantinoPDG = 0; gammaPDG = 22;
   emPDG   = 11; epPDG    = -11; nuePDG   = 12; anuePDG   = -12;
@@ -204,7 +204,7 @@ void fastHFShowerLibrary::initRun() {
 #endif
 }
 
-void fastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
+void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
 
 #ifdef DebugLog
   edm::LogInfo("FastCalorimetry") << "HFShowerLibrary: recoHFShowerLibrary ";
@@ -230,7 +230,7 @@ void fastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
   bool ok;
   double weight = 1.0;                     // rad. damage 
   int parCode   = myTrack.type();
-  std::vector<fastHFShowerLibrary::Hit> hits =
+  std::vector<FastHFShowerLibrary::Hit> hits =
               getHits(vertex, direction, parCode, eGen, ok, weight, false);
 
   for (unsigned int i=0; i<hits.size(); ++i) {
@@ -259,7 +259,7 @@ void fastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
 
 }
 
-bool fastHFShowerLibrary::isItinFidVolume (G4ThreeVector& hitPoint) {
+bool FastHFShowerLibrary::isItinFidVolume (G4ThreeVector& hitPoint) {
   bool flag = true;
   if (applyFidCut) {
     int npmt = HFFibreFiducial:: PMTNumber(hitPoint);
@@ -276,11 +276,11 @@ bool fastHFShowerLibrary::isItinFidVolume (G4ThreeVector& hitPoint) {
   return flag;
 }
 
-std::vector<fastHFShowerLibrary::Hit> fastHFShowerLibrary::getHits(const G4ThreeVector & hitPoint,
+std::vector<FastHFShowerLibrary::Hit> FastHFShowerLibrary::getHits(const G4ThreeVector & hitPoint,
                                   const G4ThreeVector & momDir, int parCode, double pin, 
                                   bool & ok, double weight, bool onlyLong) {
 
-  std::vector<fastHFShowerLibrary::Hit> hit;
+  std::vector<FastHFShowerLibrary::Hit> hit;
   ok = false;
   if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
       parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
@@ -327,7 +327,7 @@ std::vector<fastHFShowerLibrary::Hit> fastHFShowerLibrary::getHits(const G4Three
   }
     
   int nHit = 0;
-  fastHFShowerLibrary::Hit oneHit;
+  FastHFShowerLibrary::Hit oneHit;
   for (int i = 0; i < npe; i++) {
     double zv = std::abs(pe[i].z()); // abs local z  
 
@@ -458,13 +458,13 @@ std::vector<fastHFShowerLibrary::Hit> fastHFShowerLibrary::getHits(const G4Three
 
 }
 
-bool fastHFShowerLibrary::rInside(double r) {
+bool FastHFShowerLibrary::rInside(double r) {
 
   if (r >= rMin && r <= rMax) return true;
   else                        return false;
 }
 
-void fastHFShowerLibrary::getRecord(int type, int record) {
+void FastHFShowerLibrary::getRecord(int type, int record) {
 
   int nrc     = record-1;
   photon.clear();
@@ -497,7 +497,7 @@ void fastHFShowerLibrary::getRecord(int type, int record) {
 #endif
 }
 
-void fastHFShowerLibrary::loadEventInfo(TBranch* branch) {
+void FastHFShowerLibrary::loadEventInfo(TBranch* branch) {
 
   if (branch) {
     std::vector<HFShowerLibraryEventInfo> eventInfoCollection;
@@ -526,7 +526,7 @@ void fastHFShowerLibrary::loadEventInfo(TBranch* branch) {
     pmom[i] *= GeV;
 }
 
-void fastHFShowerLibrary::interpolate(int type, double pin) {
+void FastHFShowerLibrary::interpolate(int type, double pin) {
 
 #ifdef DebugLog
   LogDebug("FastCalorimetry") << "HFShowerLibrary:: Interpolate for Energy " <<pin/GeV
@@ -618,7 +618,7 @@ void fastHFShowerLibrary::interpolate(int type, double pin) {
 
 }
 
-void fastHFShowerLibrary::extrapolate(int type, double pin) {
+void FastHFShowerLibrary::extrapolate(int type, double pin) {
 
   int nrec   = int(pin/pmom[nMomBin-1]);
   double w   = (pin - pmom[nMomBin-1]*nrec)/pmom[nMomBin-1];
@@ -693,7 +693,7 @@ void fastHFShowerLibrary::extrapolate(int type, double pin) {
 #endif
 }
 
-void fastHFShowerLibrary::storePhoton(int j) {
+void FastHFShowerLibrary::storePhoton(int j) {
 
   if (newForm) pe.push_back(photo->at(j));
   else         pe.push_back(photon[j]);
@@ -705,7 +705,7 @@ void fastHFShowerLibrary::storePhoton(int j) {
   npe++;
 }
 
-std::vector<double> fastHFShowerLibrary::getDDDArray(const std::string & str, 
+std::vector<double> FastHFShowerLibrary::getDDDArray(const std::string & str, 
 						 const DDsvalues_type & sv, 
 						 int & nmin) {
 

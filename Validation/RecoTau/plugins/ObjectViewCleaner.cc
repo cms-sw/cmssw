@@ -40,6 +40,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <memory>
 #include <vector>
@@ -161,10 +162,9 @@ void ObjectViewCleaner<T>::endJob()
   stringstream ss;
   ss<<"nObjectsTot="<<nObjectsTot_<<" nObjectsClean="<<nObjectsClean_
     <<" fObjectsClean="<<100.*(nObjectsClean_/(double)nObjectsTot_)<<"%\n";
-  cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++"
-      <<"\n"<<moduleLabel_<<"(ObjectViewCleaner) SUMMARY:\n"<<ss.str()
-      <<"++++++++++++++++++++++++++++++++++++++++++++++++++"
-      <<endl;
+  edm::LogInfo("ObjectViewCleaner")<<"++++++++++++++++++++++++++++++++++++++++++++++++++"
+	      <<"\n"<<moduleLabel_<<"(ObjectViewCleaner) SUMMARY:\n"<<ss.str()
+	      <<"++++++++++++++++++++++++++++++++++++++++++++++++++";
 }
 
 

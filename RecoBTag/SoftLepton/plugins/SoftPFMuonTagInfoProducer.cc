@@ -36,7 +36,7 @@
 SoftPFMuonTagInfoProducer::SoftPFMuonTagInfoProducer(const edm::ParameterSet& conf) {
   jetToken    = consumes<edm::View<reco::Jet> >(conf.getParameter<edm::InputTag>("jets"));
   muonToken   = consumes<edm::View<reco::Muon> >(conf.getParameter<edm::InputTag>("muons"));
-  vertexToken = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("vertex"));
+  vertexToken = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("primaryVertex"));
   pTcut       = conf.getParameter<double>("muonPt");
   SIPcut      = conf.getParameter<double>("muonSIP");
   IPcut       = conf.getParameter<double>("filterIp");

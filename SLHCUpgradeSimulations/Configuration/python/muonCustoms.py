@@ -102,9 +102,9 @@ def csc_PathVsModule_SanityCheck(process):
         ('digi2raw_step', 'cscpacker'),
         ('digi2raw_step', 'csctfpacker'),
         ('reconstruction', 'csc2DRecHits'),
-        ('dqmoffline_step', 'muonAnalyzer'),
+        ('dqmoffline_step', 'muonAnalyzer')
         #('dqmHarvesting', ''),
-        ('validation_step', 'relvalMuonBits')
+#        ('validation_step', 'relvalMuonBits')
     ]
     # verify:
     for path_name, module_name in paths_modules:

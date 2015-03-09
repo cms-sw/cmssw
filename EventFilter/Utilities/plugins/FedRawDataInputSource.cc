@@ -245,6 +245,17 @@ bool FedRawDataInputSource::checkNextEvent()
   }
 }
 
+void FedRawDataInputSource::createBoLSFile(const uint32_t lumiSection, bool checkIfExists)
+{
+  //used for backpressure mechanisms and monitoring
+  const std::string fuBoLS = daqDirector_->getBoLSFilePathOnFU(lumiSection);
+  struct stat buf;
+  if (checkIfExists==false || stat(fuBoLS.c_str(), &buf) != 0) {
+    int bol_fd = open(fuBoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+    close(bol_fd);
+  }
+}
+
 void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
 {
   if (!luminosityBlockAuxiliary()
@@ -259,9 +270,11 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
         daqDirector_->lockFULocal2();
         int eol_fd = open(fuEoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
         close(eol_fd);
+        createBoLSFile(lumiSection,false);
         daqDirector_->unlockFULocal2();
       }
     }
+    else createBoLSFile(lumiSection,true);//needed for initial lumisection
 
     currentLumiSection_ = lumiSection;
 
@@ -867,8 +880,15 @@ void FedRawDataInputSource::readSupervisor()
 	stop=true;
 	break;
       }
-      else
-	status = daqDirector_->updateFuLock(ls,nextFile,fileSize);
+      
+      status = daqDirector_->updateFuLock(ls,nextFile,fileSize);
+
+      //check again for any remaining index/EoLS files after EoR file is seen
+      if ( status == evf::EvFDaqDirector::runEnded) {
+        usleep(100000);
+        //now all files should have appeared in ramdisk, check again if any raw files were left behind
+        status = daqDirector_->updateFuLock(ls,nextFile,fileSize);
+      }
 
       if ( status == evf::EvFDaqDirector::runEnded) {
 	fileQueue_.push(new InputFile(evf::EvFDaqDirector::runEnded));

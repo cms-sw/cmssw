@@ -37,7 +37,7 @@
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"  
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "FastSimulation/ShowerDevelopment/interface/fastHFShowerLibrary.h"
+#include "FastSimulation/ShowerDevelopment/interface/FastHFShowerLibrary.h"
 #include <iostream>
 #include <memory>
 #include <vector>

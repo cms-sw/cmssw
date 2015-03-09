@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -27,7 +27,7 @@
  * HLTJetCollectionsFilter plugin.
  */
 template <typename JetType>
-class HLTJetsCleanedFromLeadingLeptons: public edm::EDProducer
+class HLTJetsCleanedFromLeadingLeptons: public edm::stream::EDProducer<>
 {
 public:
     typedef std::vector<JetType> JetCollection;

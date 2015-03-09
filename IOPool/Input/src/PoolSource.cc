@@ -287,33 +287,33 @@ namespace edm {
   }
 
   void
-  PoolSource::readOneRandom(EventPrincipal& cache, CLHEP::HepRandomEngine* engine) {
+  PoolSource::readOneRandom(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine* engine) {
     assert(!secondaryFileSequence_);
-    primaryFileSequence_->readOneRandom(cache, engine);
+    primaryFileSequence_->readOneRandom(cache, fileNameHash, engine);
   }
 
   bool
-  PoolSource::readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID, CLHEP::HepRandomEngine* engine) {
+  PoolSource::readOneRandomWithID(EventPrincipal& cache, size_t& fileNameHash, LuminosityBlockID const& lumiID, CLHEP::HepRandomEngine* engine) {
     assert(!secondaryFileSequence_);
-    return primaryFileSequence_->readOneRandomWithID(cache, lumiID, engine);
+    return primaryFileSequence_->readOneRandomWithID(cache, fileNameHash, lumiID, engine);
   }
 
   bool
-  PoolSource::readOneSequential(EventPrincipal& cache) {
+  PoolSource::readOneSequential(EventPrincipal& cache, size_t& fileNameHash) {
     assert(!secondaryFileSequence_);
-    return primaryFileSequence_->readOneSequential(cache);
+    return primaryFileSequence_->readOneSequential(cache, fileNameHash);
   }
 
   bool
-  PoolSource::readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID) {
+  PoolSource::readOneSequentialWithID(EventPrincipal& cache, size_t& fileNameHash, LuminosityBlockID const& lumiID) {
     assert(!secondaryFileSequence_);
-    return primaryFileSequence_->readOneSequentialWithID(cache, lumiID);
+    return primaryFileSequence_->readOneSequentialWithID(cache, fileNameHash, lumiID);
   }
 
   void
-  PoolSource::readOneSpecified(EventPrincipal& cache, EventID const& id) {
+  PoolSource::readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, SecondaryEventIDAndFileInfo const& id) {
     assert(!secondaryFileSequence_);
-    primaryFileSequence_->readOneSpecified(cache, id);
+    primaryFileSequence_->readOneSpecified(cache, fileNameHash, id);
   }
 
   void

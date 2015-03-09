@@ -60,7 +60,7 @@ ParticleBasedIsoProducer::~ParticleBasedIsoProducer() {
 
 void ParticleBasedIsoProducer::beginRun(const edm::Run & run, const edm::EventSetup& c) {
 
-    thePFBlockBasedIsolation_ = new PfBlockBasedIsolation();
+    thePFBlockBasedIsolation_ = new PFBlockBasedIsolation();
     edm::ParameterSet pfBlockBasedIsolationSetUp = conf_.getParameter<edm::ParameterSet>("pfBlockBasedIsolationSetUp"); 
     thePFBlockBasedIsolation_ ->setup(pfBlockBasedIsolationSetUp);
 

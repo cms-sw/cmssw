@@ -39,7 +39,7 @@ class SiStripPartition {
   
   ~SiStripPartition();
 
-  static std::string defaultPartitionName_;
+  static const std::string defaultPartitionName_;
 
   typedef std::pair<uint32_t,uint32_t> Versions; 
 

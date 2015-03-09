@@ -8,7 +8,7 @@ using namespace std;
 
 namespace reco {
 
-const char* TaggingVariableDescription[] = {
+const char* const TaggingVariableDescription[] = {
   /* [jetEnergy]                                = */ "jet energy",
   /* [jetPt]                                    = */ "jet transverse momentum",
   /* [trackJetPt]                               = */ "track-based jet transverse momentum",
@@ -108,7 +108,7 @@ const char* TaggingVariableDescription[] = {
   /* [lastTaggingVariable]                      = */ ""
 };
 
-const char* TaggingVariableTokens[] = {
+const char* const TaggingVariableTokens[] = {
   /* [jetEnergy]                                = */ "jetEnergy",
   /* [jetPt]                                    = */ "jetPt",
   /* [trackJetPt]                               = */ "trackJetPt",
