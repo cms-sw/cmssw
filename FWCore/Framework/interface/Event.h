@@ -219,15 +219,16 @@ namespace edm {
 
     typedef std::vector<std::pair<std::unique_ptr<WrapperBase>, BranchDescription const*> > ProductPtrVec;
 
+    EDProductGetter const&
+    productGetter() const;
+
   private:
+
     EventPrincipal const&
     eventPrincipal() const;
 
     EventPrincipal&
     eventPrincipal();
-
-    EDProductGetter const&
-    productGetter() const;
 
     ProductID
     makeProductID(BranchDescription const& desc) const;

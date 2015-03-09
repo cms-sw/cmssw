@@ -40,6 +40,7 @@ namespace edm {
     RefToBaseProd(const RefToBaseProd<T>&);
     template<typename C>
     explicit RefToBaseProd(const RefProd<C>&);
+    RefToBaseProd(ProductID const&, EDProductGetter const*);
 
     /// Destructor
     ~RefToBaseProd() { delete viewPtr();}
@@ -66,7 +67,7 @@ namespace edm {
     bool isNull() const {return !isNonnull(); }
 
     /// Checks for non-null
-    bool isNonnull() const {return id().isValid(); }
+    bool isNonnull() const { return product_.isNonnull(); }
 
     /// Checks for null
     bool operator!() const {return isNull(); }
@@ -110,20 +111,6 @@ namespace edm {
 #include "DataFormats/Common/interface/RefTraits.h"
 
 namespace edm {
-
-  namespace refhelper {
-    template<typename C,
-             typename T = typename refhelper::ValueTrait<C>::value,
-             typename F = typename refhelper::FindTrait<C, T>::value>
-    struct RefToBaseProdTrait {
-      typedef RefVector<C, T, F> ref_vector_type;
-    };
-
-    template<typename C, typename T, typename F, typename T1, typename F1>
-    struct RefToBaseProdTrait<RefVector<C, T, F>, T1, F1> {
-      typedef RefVector<C, T, F> ref_vector_type;
-    };
-  }
 
   template<typename T>
   inline
@@ -215,6 +202,7 @@ namespace edm {
 #include "DataFormats/Common/interface/FillView.h"
 
 namespace edm {
+#ifndef __GCCXML__
   template<typename T>
   template<typename C>
   inline
@@ -222,11 +210,10 @@ namespace edm {
     product_(ref.refCore()) {
     std::vector<void const*> pointers;
     FillViewHelperVector helpers;
-#ifndef __GCCXML__
-    detail::reallyFillView(* ref.product(), ref.id(), pointers, helpers);
-#endif
+    fillView(* ref.product(), ref.id(), pointers, helpers);
     product_.setProductPtr(new View<T>(pointers, helpers, ref.refCore().productGetter()));
   }
+#endif
 
   template<typename T>
   template<typename C>
@@ -235,7 +222,7 @@ namespace edm {
     product_(handle.id(), handle.product(), 0, false) {
     std::vector<void const*> pointers;
     FillViewHelperVector helpers;
-    detail::reallyFillView(* handle, handle.id(), pointers, helpers);
+    fillView(* handle, handle.id(), pointers, helpers);
     product_.setProductPtr(new View<T>(pointers, helpers,0));
   }
 
@@ -246,9 +233,14 @@ namespace edm {
     product_(handle.id(), handle.product(), 0, false) {
     std::vector<void const*> pointers;
     FillViewHelperVector helpers;
-    detail::reallyFillView(* handle, handle.id(), pointers, helpers);
+    fillView(* handle, handle.id(), pointers, helpers);
     product_.setProductPtr(new View<T>(pointers, helpers,0));
   }
+
+  template<typename T>
+  inline
+  RefToBaseProd<T>::RefToBaseProd(ProductID const& id, EDProductGetter const* getter) :
+    product_(id, nullptr, getter, false) { }
 }
 
 #endif

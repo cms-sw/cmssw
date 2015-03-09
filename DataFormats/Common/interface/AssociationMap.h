@@ -18,7 +18,8 @@
 namespace edm {
   template<typename Tag>
   class AssociationMap {
-    /// insert key type
+    /// This is the second part of the value part of
+    /// the items stored in the transient map
     typedef typename Tag::val_type internal_val_type;
   public:
     /// self type
@@ -29,15 +30,15 @@ namespace edm {
     typedef typename Tag::key_type key_type;
     /// insert data type
     typedef typename Tag::data_type data_type;
-    /// reference set type
+    /// RefProd or RefToBaseProd of 1 or 2 collections
     typedef typename Tag::ref_type ref_type;
     /// map type
     typedef typename Tag::map_type map_type;
     /// size type
     typedef typename map_type::size_type size_type;
-    /// value type
+    /// type returned by dereferenced iterator, also can be inserted
     typedef helpers::KeyVal<key_type, internal_val_type> value_type;
-    /// result type
+    /// type return by operator[]
     typedef typename value_type::value_type result_type;
     /// transient map type
     typedef typename std::map<index_type, value_type> internal_transient_map_type;
@@ -67,12 +68,19 @@ namespace edm {
 
     /// default constructor
     AssociationMap() { }
-    /// default constructor
+
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    explicit
+    AssociationMap(EDProductGetter const* getter) :
+      ref_(getter) { }
+#endif
+
     explicit
     AssociationMap(const ref_type & ref) : ref_(ref) { }
+
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     template<typename... Args>
-      AssociationMap(Args... args) : ref_(std::forward<Args>(args)...) {}
+    AssociationMap(Args... args) : ref_(std::forward<Args>(args)...) {}
 #endif
 
     /// clear map
@@ -110,7 +118,7 @@ namespace edm {
     }
 
     template<typename K>
-      const result_type& operator[](const K& k) const {
+    const result_type& operator[](const K& k) const {
       helpers::checkRef(ref_.key,k);
       return get(k.key()).val;
     }
@@ -213,5 +221,4 @@ namespace edm {
   }
 
 }
-
 #endif
