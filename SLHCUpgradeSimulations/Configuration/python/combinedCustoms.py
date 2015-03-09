@@ -29,6 +29,7 @@ from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_noPixelDataloss as cNoPixDataloss
 from SLHCUpgradeSimulations.Configuration.customise_ecalTime import cust_ecalTime
 from SLHCUpgradeSimulations.Configuration.customise_shashlikTime import cust_shashlikTime
+from SLHCUpgradeSimulations.Configuration.customise_PFlow import customise_phase1ElectronHOverE, customise_shashlikElectronHOverE
 import SLHCUpgradeSimulations.Configuration.aging as aging
 import SLHCUpgradeSimulations.Configuration.jetCustoms as jetCustoms
 
@@ -104,6 +105,7 @@ def cust_2019(process):
     process=customise_HcalPhase1(process)
     process=jetCustoms.customise_jets(process)
 #    process=fixRPCConditions(process)
+    process=customise_phase1ElectronHOverE(process)
     return process
 
 def cust_2019WithGem(process):
@@ -123,6 +125,7 @@ def cust_2023(process):
 
 def cust_2023SHCal(process):
     process=cust_2023Muon(process)
+    process=customise_shashlikElectronHOverE(process)
     if hasattr(process,'L1simulation_step'):
         process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
     if hasattr(process,'digitisation_step'):
@@ -253,6 +256,7 @@ def cust_2023SHCal(process):
 
 def cust_2023SHCalNoExtPix(process):
     process=cust_2023MuonNoExtPix(process)
+    process=customise_shashlikElectronHOverE(process)
     if hasattr(process,'L1simulation_step'):
         process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
     if hasattr(process,'digitisation_step'):
