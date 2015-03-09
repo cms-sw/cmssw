@@ -6,6 +6,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+//#include "Reflex.h"
+
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitAlgorithm.h"
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitAlgorithmFactory.h"
 
