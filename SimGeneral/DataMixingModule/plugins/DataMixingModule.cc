@@ -172,18 +172,16 @@ namespace edm
 
     MuonWorker_ = new DataMixingMuonWorker(ps, consumesCollector());
 
-    // Si-Strips
-
-    useSiStripRawDigi_ = ps.exists("SiStripRawDigiSource")?
-      ps.getParameter<std::string>("SiStripRawDigiSource")=="PILEUP" ||
-      ps.getParameter<std::string>("SiStripRawDigiSource")=="SIGNAL" : false;
-
-    SiStripDigiCollectionDM_  = ps.getParameter<std::string>("SiStripDigiCollectionDM");
-
-
 
     if(MergeTrackerDigis_) {
 
+      // Si-Strips
+
+      useSiStripRawDigi_ = ps.exists("SiStripRawDigiSource")?
+	ps.getParameter<std::string>("SiStripRawDigiSource")=="PILEUP" ||
+	ps.getParameter<std::string>("SiStripRawDigiSource")=="SIGNAL" : false;
+      
+      SiStripDigiCollectionDM_  = ps.getParameter<std::string>("SiStripDigiCollectionDM");
 
       if(useSiStripRawDigi_) {
 	
