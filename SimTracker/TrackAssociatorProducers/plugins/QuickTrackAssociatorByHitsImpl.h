@@ -8,6 +8,10 @@
 // Forward declarations
 class TrackerHitAssociator;
 
+namespace edm {
+  class EDProductGetter;
+}
+
 /** @brief TrackToTrackingParticleAssociator that associates by hits a bit quicker than the normal TrackAssociatorByHitsImpl class.
  *
  * NOTE - Doesn't implement the TrackCandidate association methods (from TrackAssociatorBase) so will always
@@ -64,7 +68,8 @@ public:
   typedef std::vector<std::pair<OmniClusterRef, TrackingParticleRef> > ClusterTPAssociationList;
   enum SimToRecoDenomType {denomnone,denomsim,denomreco};
 
-  QuickTrackAssociatorByHitsImpl(std::shared_ptr<const TrackerHitAssociator> hitAssoc,
+  QuickTrackAssociatorByHitsImpl(edm::EDProductGetter const& productGetter,
+                                 std::shared_ptr<const TrackerHitAssociator> hitAssoc,
                                  std::shared_ptr<const ClusterTPAssociationList> clusterToTPMap,
                                  bool absoluteNumberOfHits,
                                  double qualitySimToReco,
@@ -183,7 +188,8 @@ public:
    * useClusterTPAssociation_ is no longer changed to false.
    */
   //void prepareEitherHitAssociatorOrClusterToTPMap( const edm::Event* pEvent, std::unique_ptr<ClusterTPAssociationList>& pClusterToTPMap, std::unique_ptr<TrackerHitAssociator>& pHitAssociator ) const;
-  
+
+  edm::EDProductGetter const* productGetter_;
   std::shared_ptr<const TrackerHitAssociator> hitAssociator_;
   std::shared_ptr<const ClusterTPAssociationList> clusterToTPMap_;
   
