@@ -25,7 +25,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 
 class MuonReSeeder : public edm::stream::EDProducer<> {
@@ -79,7 +79,7 @@ MuonReSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopo;
-    iSetup.get<IdealGeometryRecord>().get(tTopo);
+    iSetup.get<TrackerTopologyRcd>().get(tTopo);
 
     auto_ptr<vector<TrajectorySeed> > out(new vector<TrajectorySeed>());
     unsigned int nsrc = src->size();
