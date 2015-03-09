@@ -1,3 +1,5 @@
+.gitignore
 __init__.*
 *.pyc
 *.log
+test_*/*
