@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 l1tRawToDigi = cms.EDProducer(
     "l1t::L1TRawToDigi",
     Unpackers = cms.vstring([
+        "l1t::RCTUnpackerFactory",
         "l1t::CaloTowerUnpackerFactory",
         "l1t::EGammaUnpackerFactory",
         "l1t::EtSumUnpackerFactory",
