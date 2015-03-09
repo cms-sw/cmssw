@@ -125,11 +125,13 @@ def miniAOD_customizeCommon(process):
     process.patJetsAK4PFForMetUnc.getJetMCFlavour = False
     runType1PFMEtUncertainties(process,
                                addToPatDefaultSequence=False,
+                               jetCollectionUnskimmed="patJetsAK4PFForMetUnc",
                                jetCollection="selectedPatJetsAK4PFForMetUnc",
                                electronCollection="selectedPatElectrons",
                                muonCollection="selectedPatMuons",
                                tauCollection="selectedPatTaus",
                                makeType1p2corrPFMEt=True,
+                               doSmearJets=False,
                                outputModule=None)
 
 

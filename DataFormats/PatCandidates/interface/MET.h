@@ -84,10 +84,15 @@ namespace pat {
 	uncorrTAU,    //! uncorrect for TAU only
 	uncorrMAXN
       };
+      //MM : the cor/uncor functions are deprecated and return -1 now!! use shifted corrected instead
       float corEx(UncorrectionType ix = uncorrALL) const;
+      //MM : the cor/uncor functions are deprecated and return -1 now!! use shifted corrected instead
       float corEy(UncorrectionType ix = uncorrALL) const;
+      //MM : the cor/uncor functions are deprecated and return -1 now!! use shifted corrected instead
       float corSumEt(UncorrectionType ix = uncorrALL) const;
+      //MM : the cor/uncor functions are deprecated and return -1 now!! use shifted corrected instead
       float uncorrectedPt(UncorrectionType ix = uncorrALL) const;
+      //MM : the cor/uncor functions are deprecated and return -1 now!! use shifted corrected instead
       float uncorrectedPhi(UncorrectionType ix = uncorrALL) const;
 
       // ---- methods to know what the pat::MET was constructed from ----

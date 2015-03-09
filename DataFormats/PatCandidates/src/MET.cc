@@ -90,24 +90,34 @@ void MET::setGenMET(const reco::GenMET & gm) {
 unsigned int MET::nCorrections() const { checkUncor_(); return nCorrections_; }
 
 float MET::corEx(UncorrectionType ix) const {
-  if (ix == uncorrNONE) return 0;
-  checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].corEx;
+  //MM : deprecated, return -1, use shifted functions instead
+  // if (ix == uncorrNONE) return 0;
+  // checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].corEx;
+  return -1;
 }
 float MET::corEy(UncorrectionType ix) const {
-  if (ix == uncorrNONE) return 0;
-  checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].corEy;
+  //MM : deprecated, return -1, use shifted functions instead
+  // if (ix == uncorrNONE) return 0;
+  // checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].corEy;
+  return -1;
 }
 float MET::corSumEt(UncorrectionType ix) const {
-  if (ix == uncorrNONE) return 0;
-  checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].corSumEt;
+  //MM : deprecated, return -1, use shifted functions instead
+  // if (ix == uncorrNONE) return 0;
+  // checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].corSumEt;
+  return -1;
 }
 float MET::uncorrectedPt(UncorrectionType ix) const {
-  if (ix == uncorrNONE) return pt();
-  checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].pt;
+  //MM : deprecated, return -1, use shifted functions instead
+  // if (ix == uncorrNONE) return pt();
+  // checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].pt;
+  return -1;
 }
 float MET::uncorrectedPhi(UncorrectionType ix) const {
-  if (ix == uncorrNONE) return phi();
-  checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].phi;
+  //MM : deprecated, return -1, use shifted functions instead
+  // if (ix == uncorrNONE) return phi();
+  // checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].phi;
+  return -1;
 }
 
 
