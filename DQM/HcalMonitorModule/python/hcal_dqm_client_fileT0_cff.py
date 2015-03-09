@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.HcalMonitorClient.HcalMonitorClient_cfi import *
-from DQM.HcalMonitorClient.ZDCMonitorClient_cfi  import *
 hcalOfflineDQMClient = cms.Sequence(hcalClient
                                     )
 
