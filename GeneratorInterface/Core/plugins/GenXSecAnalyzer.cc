@@ -1,6 +1,5 @@
 #include "GeneratorInterface/Core/interface/GenXSecAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "TMath.h"
 #include <iostream>
 #include <iomanip>
@@ -29,6 +28,7 @@ GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet& iConfig):
   genFilterInfoToken_ = consumes<GenFilterInfo,edm::InLumi>(edm::InputTag("genFilterEfficiencyProducer",""));
   hepMCFilterInfoToken_ = consumes<GenFilterInfo,edm::InLumi>(edm::InputTag("generator",""));
   genLumiInfoToken_ = consumes<GenLumiInfoProduct,edm::InLumi>(edm::InputTag("generator",""));
+  lheRunInfoToken_ = consumes<LHERunInfoProduct,edm::InRun>(edm::InputTag("externalLHEProducer",""));
 }
 
 GenXSecAnalyzer::~GenXSecAnalyzer()
@@ -212,7 +212,7 @@ GenXSecAnalyzer::endRun(edm::Run const& iRun, edm::EventSetup const&)
   //xsection before matching
   edm::Handle<LHERunInfoProduct> run;
 
-  if(iRun.getByLabel("externalLHEProducer", run ))
+  if(iRun.getByToken(lheRunInfoToken_, run ))
     {
       const lhef::HEPRUP thisHeprup_ = run->heprup();
 

@@ -16,6 +16,8 @@
 #include <memory>
 #include <stdexcept>
 #include "TROOT.h"
+#include "TSystem.h"
+#include "TStopwatch.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWConfigurationManager.h"
@@ -23,6 +25,9 @@
 #include "Fireworks/Core/interface/FWConfigurable.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/src/SimpleSAXParser.h"
+#include "Fireworks/Core/interface/FWJobMetadataManager.h"
+#include "Fireworks/Core/interface/fwLog.h"
+
 
 //
 // constants, enums and typedefs
@@ -35,7 +40,7 @@
 //
 // constructors and destructor
 //
-FWConfigurationManager::FWConfigurationManager()
+FWConfigurationManager::FWConfigurationManager():m_ignore(false)
 {
 }
 
@@ -366,6 +371,67 @@ FWConfigurationManager::readFromFile(const std::string& iName) const
    FWXMLConfigParser parser(g);
    parser.parse();
    setFrom(*parser.config());
+}
+
+void
+FWConfigurationManager::guessAndReadFromFile( FWJobMetadataManager* dataMng) const
+{
+    struct CMatch {
+        std::string file;
+        int cnt;
+        const FWConfiguration* cfg;
+
+        CMatch(std::string f):file(f), cnt(0), cfg(0) {}
+        bool operator < (const CMatch& x) const { return cnt < x.cnt; }
+    };
+
+    std::vector<CMatch> clist;
+    clist.push_back(CMatch("reco.fwc"));
+    clist.push_back(CMatch("miniaod.fwc"));
+    clist.push_back(CMatch("aod.fwc"));
+    std::vector<FWJobMetadataManager::Data> & sdata = dataMng->usableData();
+
+    for (std::vector<CMatch>::iterator c = clist.begin(); c != clist.end(); ++c ) {
+        std::string iName = gSystem->Which(TROOT::GetMacroPath(), c->file.c_str(), kReadPermission);
+        std::ifstream f(iName.c_str());
+        if (f.peek() != (int) '<') {
+            fwLog(fwlog::kWarning) << "FWConfigurationManager::guessAndReadFromFile can't open "<<  iName << std::endl ;        
+            continue;
+        }
+   
+        // Read again, this time actually parse.
+        std::ifstream g(iName.c_str());
+        FWXMLConfigParser* parser = new FWXMLConfigParser(g);
+        parser->parse();
+
+        c->cfg = parser->config();
+        const FWConfiguration::KeyValues* keyValues = 0;
+        for(FWConfiguration::KeyValues::const_iterator it = c->cfg->keyValues()->begin(),
+                itEnd = c->cfg->keyValues()->end();  it != itEnd; ++it) {
+            if (it->first == "EventItems" )  {
+                keyValues = it->second.keyValues();
+                break;
+            }
+        }
+  
+        for (FWConfiguration::KeyValues::const_iterator it = keyValues->begin(); it != keyValues->end(); ++it)
+        {
+            const FWConfiguration& conf = it->second;
+            const FWConfiguration::KeyValues* keyValues =  conf.keyValues();
+            const std::string& type = (*keyValues)[0].second.value();
+            for(std::vector<FWJobMetadataManager::Data>::iterator di = sdata.begin(); di != sdata.end(); ++di)
+            {
+                if (di->type_ == type) {
+                    c->cnt++;
+                    break;
+                }
+            } 
+        }
+        // printf("%s file %d matches\n", iName.c_str(), c->cnt);
+    }
+    std::sort(clist.begin(), clist.end());
+    fwLog(fwlog::kInfo) << "Loading configuration file "  << clist.back().file << std::endl;
+    setFrom(*(clist.back().cfg));
 }
 
 //

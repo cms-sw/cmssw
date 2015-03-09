@@ -115,7 +115,7 @@ bool ZtoEEEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
       if (eiso > maxIso_) continue;
       
       TLorentzVector lv;
-      lv.SetPxPyPzE(ele.pt(), ele.eta(), ele.phi(), ele.energy());
+      lv.SetPtEtaPhiE(ele.pt(), ele.eta(), ele.phi(), ele.energy());
       list.push_back(lv);
       chrgeList.push_back(ele.charge());
     }

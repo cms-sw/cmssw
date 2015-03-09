@@ -42,12 +42,14 @@ namespace evf
     void start(){}
     void stop(){}
 
+    uint32 get_adler32_ini() const { return preamble_adler32_;}
     uint32 get_adler32() const { return stream_writer_events_->adler32();}
 
   private:
 
     boost::shared_ptr<StreamerOutputFile> stream_writer_preamble_;
     boost::shared_ptr<StreamerOutputFile> stream_writer_events_;
+    uint32 preamble_adler32_=1;
 
   };
 }

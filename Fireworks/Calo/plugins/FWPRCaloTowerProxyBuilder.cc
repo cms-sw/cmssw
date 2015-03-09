@@ -7,7 +7,7 @@
 class FWPRCaloTowerProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
-   FWPRCaloTowerProxyBuilder( void ) {}  
+   FWPRCaloTowerProxyBuilder( void ) {} 
    virtual ~FWPRCaloTowerProxyBuilder( void ) {}
 
    REGISTER_PROXYBUILDER_METHODS();

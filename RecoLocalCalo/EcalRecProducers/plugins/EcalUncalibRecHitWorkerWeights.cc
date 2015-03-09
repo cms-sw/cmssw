@@ -9,6 +9,9 @@
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 EcalUncalibRecHitWorkerWeights::EcalUncalibRecHitWorkerWeights(const edm::ParameterSet&ps, edm::ConsumesCollector& c) :
   EcalUncalibRecHitWorkerBaseClass(ps,c)
 {
@@ -96,6 +99,15 @@ EcalUncalibRecHitWorkerWeights::run( const edm::Event & evt,
         return true;
 }
 
+edm::ParameterSetDescription
+EcalUncalibRecHitWorkerWeights::getAlgoDescription() {
+
+  edm::ParameterSetDescription psd;
+  return psd;
+}
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
 DEFINE_EDM_PLUGIN( EcalUncalibRecHitWorkerFactory, EcalUncalibRecHitWorkerWeights, "EcalUncalibRecHitWorkerWeights" );
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitFillDescriptionWorkerFactory.h"
+DEFINE_EDM_PLUGIN( EcalUncalibRecHitFillDescriptionWorkerFactory, EcalUncalibRecHitWorkerWeights, "EcalUncalibRecHitWorkerWeights");

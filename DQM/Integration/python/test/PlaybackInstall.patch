@@ -1,42 +1,15 @@
-Index: environment_cfi.py
-===================================================================
-RCS file: /cvs_server/repositories/CMSSW/CMSSW/DQM/Integration/python/test/environment_cfi.py,v
-retrieving revision 1.23
-diff -u -p -r1.23 environment_cfi.py
---- environment_cfi.py	26 Mar 2012 16:44:05 -0000	1.23
-+++ environment_cfi.py	16 Apr 2012 08:57:22 -0000
-@@ -2,15 +2,15 @@ import FWCore.ParameterSet.Config as cms
+diff --git a/DQM/Integration/python/test/environment_cfi.py b/DQM/Integration/python/test/environment_cfi.py
+index 86d7bda..f2e3ab2 100644
+--- a/DQM/Integration/python/test/environment_cfi.py
++++ b/DQM/Integration/python/test/environment_cfi.py
+@@ -6,8 +6,8 @@ from DQMServices.Core.DQMStore_cfi import *
+ DQM = cms.Service("DQM",                                                                                                                                                                           
+                   debug = cms.untracked.bool(False),
+                   publishFrequency = cms.untracked.double(5.0),
+-                  collectorPort = cms.untracked.int32(9190),
+-                  collectorHost = cms.untracked.string('dqm-c2d07-29.cms'),
++                  collectorPort = cms.untracked.int32(9090),
++                  collectorHost = cms.untracked.string('dqm-c2d07-11.cms'),
+                   filter = cms.untracked.string('')
+                   )
  
- from DQMServices.Core.DQM_cfg import *
- 
--DQM.collectorHost = 'dqm-prod-local.cms'
-+DQM.collectorHost = 'dqm-integration.cms'
- DQM.collectorPort = 9090
- 
- from DQMServices.Components.DQMEnvironment_cfi import *
- 
- dqmSaver.convention = 'Online'
- dqmSaver.referenceHandling = 'all'
--dqmSaver.dirName = '/home/dqmprolocal/output'
--dqmSaver.producer = 'DQM'
-+dqmSaver.dirName = '/home/dqmdevlocal/output'
-+dqmSaver.producer = 'Playback'
- dqmSaver.saveByTime = 1
- dqmSaver.saveByLumiSection = -1
- dqmSaver.saveByMinute = 8
-Index: inputsource_cfi.py
-===================================================================
-RCS file: /cvs_server/repositories/CMSSW/CMSSW/DQM/Integration/python/test/inputsource_cfi.py,v
-retrieving revision 1.33
-diff -u -p -r1.33 inputsource_cfi.py
---- inputsource_cfi.py	26 Mar 2012 16:44:05 -0000	1.33
-+++ inputsource_cfi.py	16 Apr 2012 08:57:22 -0000
-@@ -20,7 +20,7 @@ source = cms.Source("EventStreamHttpRead
-     consumerName = cms.untracked.string('DQM Source'),
-     SelectHLTOutput = cms.untracked.string('hltOutputA'),
-     max_queue_depth = cms.int32(5),
--    maxEventRequestRate = cms.untracked.double(100.0),
-+    maxEventRequestRate = cms.untracked.double(10.0),
-     SelectEvents = cms.untracked.PSet(
-         SelectEvents = cms.vstring('*')
-     ),

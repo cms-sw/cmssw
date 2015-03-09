@@ -13,6 +13,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "PhysicsTools/HepMCCandAlgos/interface/MCTruthHelper.h"
 
 #include <vector>
 #include <string>
@@ -264,7 +265,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	cands[d].setCollisionId(0);
      }
   }
-
+  
   evt.put( candsPtr );
   if(saveBarCodes_) evt.put( barCodeVector );
   //  if(doSubEvent_) evt.put(subsPtr); // For SubEventMap
@@ -288,6 +289,7 @@ bool GenParticleProducer::convertParticle(reco::GenParticle& cand, const HepMC::
    } else {
       cand.setVertex( Candidate::Point( 0, 0, 0 ) );
    }
+   MCTruthHelper::fillGenStatusFlags(*part, cand.statusFlags());
    return true;
 }
 

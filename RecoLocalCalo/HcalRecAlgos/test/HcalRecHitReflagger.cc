@@ -29,7 +29,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
 
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"

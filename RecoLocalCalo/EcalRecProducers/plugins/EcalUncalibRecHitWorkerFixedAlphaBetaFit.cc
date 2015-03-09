@@ -24,6 +24,9 @@
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include <iostream>
 #include <cmath>
 #include <fstream>
@@ -36,7 +39,7 @@ EcalUncalibRecHitWorkerFixedAlphaBetaFit::EcalUncalibRecHitWorkerFixedAlphaBetaF
         alphaEE_= ps.getParameter<double>("alphaEE");
         betaEE_= ps.getParameter<double>("betaEE");
 
-        alphabetaFilename_= ps.getUntrackedParameter<std::string>("AlphaBetaFilename","NOFILE");
+        alphabetaFilename_= ps.getUntrackedParameter<std::string>("AlphaBetaFilename");
         useAlphaBetaArray_=setAlphaBeta(); // set crystalwise values of alpha and beta
         if ( !useAlphaBetaArray_ ) {
                 edm::LogInfo("EcalUncalibRecHitError") << " No alfa-beta file found. Using the deafult values.";
@@ -186,6 +189,25 @@ EcalUncalibRecHitWorkerFixedAlphaBetaFit::run(const edm::Event& evt,
         return true;
 }
 
+edm::ParameterSetDescription
+EcalUncalibRecHitWorkerFixedAlphaBetaFit::getAlgoDescription() {
+
+  edm::ParameterSetDescription psd;
+  
+  psd.addNode(edm::ParameterDescription<double>("alphaEB", 1.138, true) and
+	       edm::ParameterDescription<double>("alphaEE", 1.89, true) and 
+	       edm::ParameterDescription<std::string>("AlphaBetaFilename", "NOFILE", false) and
+	       edm::ParameterDescription<double>("betaEB", 1.655, true) and
+	       edm::ParameterDescription<double>("MinAmplEndcap", 14.0, true) and
+	       edm::ParameterDescription<double>("MinAmplBarrel", 8.0, true) and
+	       edm::ParameterDescription<double>("betaEE", 1.4, true) and
+	       edm::ParameterDescription<bool>("UseDynamicPedestal", true, true) );
+
+  return psd;
+}
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
 DEFINE_EDM_PLUGIN( EcalUncalibRecHitWorkerFactory, EcalUncalibRecHitWorkerFixedAlphaBetaFit, "EcalUncalibRecHitWorkerFixedAlphaBetaFit" );
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitFillDescriptionWorkerFactory.h"
+DEFINE_EDM_PLUGIN( EcalUncalibRecHitFillDescriptionWorkerFactory, EcalUncalibRecHitWorkerFixedAlphaBetaFit, "EcalUncalibRecHitWorkerFixedAlphaBetaFit");

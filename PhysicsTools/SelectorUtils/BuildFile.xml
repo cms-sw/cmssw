@@ -13,7 +13,7 @@
 <use name="FWCore/FWLite"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
-<use name="rootrflx"/>
+
 <use name="rootcore"/>
 <use name="root"/>
 <use name="openssl"/>

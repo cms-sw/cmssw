@@ -6,7 +6,7 @@
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds

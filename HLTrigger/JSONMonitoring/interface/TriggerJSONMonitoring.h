@@ -61,11 +61,15 @@ namespace hltJson {
     HistoJ<unsigned int> *L1TechAccept; // # of events accepted by L1 Technical Triggers[i] //DS 
     
     std::string stL1Jsd;                 //Definition file name for JSON with L1 rates            //DS
+    std::string streamL1Destination;
+    std::string streamHLTDestination;
   };
   //End lumi struct
   //Struct for storing variable written once per run
   struct runVars{
     mutable std::atomic<bool> wroteFiles;
+    mutable std::string streamL1Destination;
+    mutable std::string streamHLTDestination;
   };
 }//End hltJson namespace   
 
@@ -87,6 +91,10 @@ class TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<hltJ
 
   static std::shared_ptr<hltJson::runVars> globalBeginRun(edm::Run const&, edm::EventSetup const&, void const*){
     std::shared_ptr<hltJson::runVars> rv(new hltJson::runVars);
+    if (edm::Service<evf::EvFDaqDirector>().isAvailable()) {
+      rv->streamHLTDestination = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations("streamHLTRates");
+      rv->streamL1Destination = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations("streamL1Rates");
+    }
     rv->wroteFiles = false;
     return rv;
   }

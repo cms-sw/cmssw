@@ -15,7 +15,7 @@ using namespace HepMC;
 
 
 PythiaFilterGammaGamma::PythiaFilterGammaGamma(const edm::ParameterSet& iConfig) :
-  label(iConfig.getUntrackedParameter<std::string>("moduleLabel",std::string("generator"))),
+  token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
   maxEvents(iConfig.getUntrackedParameter<int>("maxEvents", 100000)),
   ptSeedThr(iConfig.getUntrackedParameter<double>("PtSeedThr")),
   etaSeedThr(iConfig.getUntrackedParameter<double>("EtaSeedThr")),
@@ -66,7 +66,7 @@ bool PythiaFilterGammaGamma::filter(edm::Event& iEvent, const edm::EventSetup& i
   bool accepted = false;
 
   Handle<HepMCProduct> evt;
-  iEvent.getByLabel(label, evt);
+  iEvent.getByToken(token_, evt);
   myGenEvent = evt->GetEvent();
 
   std::vector<const GenParticle*> seeds, egamma, stable; 

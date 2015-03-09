@@ -90,4 +90,7 @@ pfCTagging = cms.Sequence(
     pfCombinedSecondaryVertexSoftLeptonCtagLJetTags
 )
 
-btagging = legacyBTagging + pfBTagging #* pfCTagging
+btagging = cms.Sequence(
+    legacyBTagging +
+    pfBTagging #* pfCTagging
+)

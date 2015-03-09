@@ -59,6 +59,7 @@ private:
   virtual void rewind_() override;
 
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
+  void createBoLSFile(const uint32_t lumiSection,bool checkIfExists);
   evf::EvFDaqDirector::FileStatus nextEvent();
   evf::EvFDaqDirector::FileStatus getNextEvent();
   edm::Timestamp fillFEDRawDataCollection(FEDRawDataCollection&);

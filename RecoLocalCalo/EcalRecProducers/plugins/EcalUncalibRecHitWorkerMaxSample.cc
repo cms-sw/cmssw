@@ -1,3 +1,4 @@
+
 /** \class EcalMaxSampleUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes 
  *
@@ -15,6 +16,10 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+#include <FWCore/ParameterSet/interface/EmptyGroupDescription.h>
 
 #include <cmath>
 #include <iomanip>
@@ -48,6 +53,16 @@ EcalUncalibRecHitWorkerMaxSample::run( const edm::Event & evt,
         return true;
 }
 
+edm::ParameterSetDescription
+EcalUncalibRecHitWorkerMaxSample::getAlgoDescription() {
+
+  edm::ParameterSetDescription psd;
+  return psd;//.addNode(std::auto_ptr<edm::ParameterDescriptionNode>(new edm::EmptyGroupDescription()));
+}
+
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
 DEFINE_EDM_PLUGIN( EcalUncalibRecHitWorkerFactory, EcalUncalibRecHitWorkerMaxSample, "EcalUncalibRecHitWorkerMaxSample" );
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitFillDescriptionWorkerFactory.h"
+DEFINE_EDM_PLUGIN( EcalUncalibRecHitFillDescriptionWorkerFactory, EcalUncalibRecHitWorkerMaxSample, "EcalUncalibRecHitWorkerMaxSample");

@@ -198,7 +198,7 @@ void SiStripQuality::add(const RunInfo *runInfo)
     // This must not happen
     if( !check.empty() ) {
       // throw cms::Exception("LogicError")
-      edm::LogWarning("SiStripQuality") 
+      edm::LogInfo("SiStripQuality") 
         << "The cabling should always include the active feds in runInfo and possibly have some more"
         << "there are instead " << check.size() << " feds only active in runInfo";
       // The "false" means that we are only printing the output, but not setting the strips as bad.

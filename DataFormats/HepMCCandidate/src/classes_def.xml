@@ -1,6 +1,7 @@
 <lcgdict>
   <class name="reco::CompositeRefCandidateT<reco::GenParticleRefVector>" />
-  <class name="reco::GenParticle"  ClassVersion="12">
+  <class name="reco::GenParticle"  ClassVersion="13">
+   <version ClassVersion="13" checksum="1588260052"/>
    <version ClassVersion="12" checksum="3369685722"/>
    <version ClassVersion="11" checksum="446025970"/>
    <version ClassVersion="10" checksum="2736964676"/>
@@ -21,11 +22,15 @@
   <class name="edm::reftobase::RefHolder<reco::GenParticleRef>" />
   <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::GenParticleRefVector>" />
   <class name="edm::reftobase::RefVectorHolder<reco::GenParticleRefVector>" />
+  <class name="reco::GenStatusFlags"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3329737103"/>
+  </class>    
   <class name="reco::PdfInfo"  ClassVersion="10">
    <version ClassVersion="10" checksum="1002280074"/>
   </class>
   <class name="edm::Wrapper<reco::PdfInfo>" />
   <class name="reco::FlavorHistory"  ClassVersion="11">
+   <version ClassVersion="12" checksum="699034420"/>
    <version ClassVersion="11" checksum="425358630"/>
    <version ClassVersion="10" checksum="425358630"/>
   </class>
@@ -34,6 +39,7 @@
   <class name="edm::ValueMap<reco::FlavorHistory >" />
   <class name="edm::Wrapper<edm::ValueMap<reco::FlavorHistory > >" />
   <class name="reco::FlavorHistoryEvent"  ClassVersion="10">
+   <version ClassVersion="11" checksum="1284576356"/>
    <version ClassVersion="10" checksum="3632760022"/>
   </class>
   <class name="std::vector<reco::FlavorHistoryEvent>" />

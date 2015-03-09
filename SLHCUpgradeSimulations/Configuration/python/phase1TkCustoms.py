@@ -139,6 +139,7 @@ def customise_condOverRides(process):
 #    process.trackerTopologyConstants.pxf_bladeStartBit = cms.uint32(12)
 #    process.trackerTopologyConstants.pxf_panelStartBit = cms.uint32(10)
 #    process.trackerTopologyConstants.pxf_moduleMask = cms.uint32(255)
+    process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_cff')
     return process
 
 def add_detailed_pixel_dqm(process):
@@ -236,6 +237,13 @@ def customise_Reco(process,pileup):
     process.reconstruction_fromRECO.remove(tobTecStepSelector)
     process.reconstruction_fromRECO.remove(tobTecStepTrackCandidates)
     process.reconstruction_fromRECO.remove(tobTecStepTracks)
+
+    process.reconstruction_fromRECO.remove(process.convClusters)
+    process.reconstruction_fromRECO.remove(process.convLayerPairs)
+    process.reconstruction_fromRECO.remove(process.convStepSelector)
+    process.reconstruction_fromRECO.remove(process.convTrackCandidates)
+    process.reconstruction_fromRECO.remove(process.convStepTracks)
+    process.reconstruction_fromRECO.remove(process.photonConvTrajSeedFromSingleLeg)
 
     # Needed to make the loading of recoFromSimDigis_cff below to work
     process.InitialStepPreSplitting.remove(siPixelClusters)

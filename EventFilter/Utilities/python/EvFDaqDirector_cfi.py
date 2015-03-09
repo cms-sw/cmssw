@@ -4,6 +4,8 @@ EvFDaqDirector = cms.Service( "EvFDaqDirector",
     buBaseDir = cms.untracked.string(""),
     baseDir = cms.untracked.string(""),
     runNumber = cms.untracked.uint32(0),
-    outputAdler32Recheck=cms.untracked.bool(False)
+    outputAdler32Recheck=cms.untracked.bool(False),
+    requireTransfersPSet=cms.untracked.bool(False),
+    selectedTransferMode=cms.untracked.string("")
     )
 

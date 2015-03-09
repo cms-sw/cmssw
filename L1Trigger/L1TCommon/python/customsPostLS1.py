@@ -43,41 +43,6 @@ def customiseSimL1EmulatorForStage1(process):
         process.L1RawToDigiSeq = cms.Sequence(process.gctDigis+process.caloStage1Digis+process.caloStage1LegacyFormatDigis)
         process.RawToDigi.replace(process.gctDigis, process.L1RawToDigiSeq)
 
-    if hasattr(process, 'HLTL1UnpackerSequence'):
-
-        # extend sequence to add Layer 1 unpacking and conversion back to legacy format
-        process.hltCaloStage1Digis = process.caloStage1Digis.clone()
-        process.hltCaloStage1LegacyFormatDigis = process.caloStage1LegacyFormatDigis.clone()
-        process.hltCaloStage1LegacyFormatDigis.InputCollection = cms.InputTag("hltCaloStage1Digis")
-        process.hltCaloStage1LegacyFormatDigis.InputRlxTauCollection = cms.InputTag("hltCaloStage1Digis:rlxTaus")
-        process.hltCaloStage1LegacyFormatDigis.InputIsoTauCollection = cms.InputTag("hltCaloStage1Digis:isoTaus")
-        process.hltCaloStage1LegacyFormatDigis.InputHFSumsCollection = cms.InputTag("hltCaloStage1Digis:HFRingSums")
-        process.hltCaloStage1LegacyFormatDigis.InputHFCountsCollection = cms.InputTag("hltCaloStage1Digis:HFBitCounts")
-        #process.hltL1RawToDigiSeq = cms.Sequence(process.hltGctDigis+process.hltCaloStage1 + process.hltCaloStage1LegacyFormatDigis)
-        process.hltL1RawToDigiSeq = cms.Sequence(process.hltCaloStage1Digis + process.hltCaloStage1LegacyFormatDigis)
-        process.HLTL1UnpackerSequence.replace(process.hltGctDigis, process.hltL1RawToDigiSeq)
-
-    alist=['hltL1GtObjectMap']
-    for a in alist:
-        if hasattr(process,a):
-            getattr(process, a).GctInputTag = cms.InputTag("hltCaloStage1LegacyFormatDigis")
-
-    alist=['hltL1extraParticles']
-    for a in alist:
-        if hasattr(process,a):
-            getattr(process, a).etTotalSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
-            getattr(process, a).nonIsolatedEmSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","nonIsoEm")
-            getattr(process, a).etMissSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
-            getattr(process, a).htMissSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
-            getattr(process, a).forwardJetSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","forJets")
-            getattr(process, a).centralJetSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","cenJets")
-            getattr(process, a).tauJetSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","tauJets")
-            getattr(process, a).isoTauJetSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","isoTauJets")
-            getattr(process, a).isolatedEmSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","isoEm")
-            getattr(process, a).etHadSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
-            getattr(process, a).hfRingEtSumsSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
-            getattr(process, a).hfRingBitCountsSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
-
     blist=['l1extraParticles','recoL1extraParticles','dqmL1ExtraParticles']
     for b in blist:
         if hasattr(process,b):
@@ -132,6 +97,5 @@ def customiseSimL1EmulatorForPostLS1_HI(process):
     # set the Stage 1 heavy ions-specific parameters
     process.simCaloStage1Digis.FirmwareVersion = cms.uint32(1)
     # move to the heavy ions draft L1 menu once the HLT has been updated accordingly
-    #process = L1Menu_CollisionsHeavyIons2015_v0(process)
-    process = L1Menu_Collisions2015_25ns_v2(process)
+    process = L1Menu_CollisionsHeavyIons2015_v0(process)
     return process

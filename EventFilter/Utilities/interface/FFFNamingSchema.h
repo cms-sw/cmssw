@@ -23,6 +23,13 @@ namespace fffnaming {
     return ss.str();
   }
 
+  inline std::string bolsFileName(const unsigned int run, const unsigned int ls) {
+    std::stringstream ss;
+    runLumiPrefixFill(ss,run,ls);
+    ss << "_BoLS.jsn";
+    return ss.str();
+  }
+
   inline std::string eorFileName(const unsigned int run) {
     std::stringstream ss;
     ss << "run" << std::setfill('0') << std::setw(6) << run << "_ls0000" << "_EoR.jsn";

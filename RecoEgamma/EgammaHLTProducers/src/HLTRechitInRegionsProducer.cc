@@ -44,9 +44,9 @@
 template<typename T1>
 HLTRechitInRegionsProducer<T1>::HLTRechitInRegionsProducer(const edm::ParameterSet& ps):
   useUncalib_      (ps.getParameter<bool>("useUncalib")),
-  l1TagIsolated_   (ps.getParameter< edm::InputTag > ("l1TagIsolated")),
-  l1TagNonIsolated_(ps.getParameter< edm::InputTag > ("l1TagNonIsolated")),
   doIsolated_      (ps.getParameter<bool>("doIsolated")),
+  l1TokenIsolated_ (doIsolated_ ? consumes<T1Collection>(ps.getParameter<edm::InputTag>("l1TagIsolated")) : edm::EDGetTokenT<T1Collection>()),
+  l1TokenNonIsolated_(consumes<T1Collection>(ps.getParameter<edm::InputTag>("l1TagNonIsolated"))),
   l1LowerThr_      (ps.getParameter<double> ("l1LowerThr")),
   l1UpperThr_      (ps.getParameter<double> ("l1UpperThr")),
   l1LowerThrIgnoreIsolation_(ps.getParameter<double> ("l1LowerThrIgnoreIsolation")),
@@ -108,12 +108,13 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
     
   //Get the L1 EM Particle Collection
   edm::Handle< T1Collection > emIsolColl ;
-  if(doIsolated_) 
-    evt.getByLabel(l1TagIsolated_, emIsolColl);
+  if(doIsolated_) {
+    evt.getByToken(l1TokenIsolated_, emIsolColl);
+  }
 
   //Get the L1 EM Particle Collection
   edm::Handle< T1Collection > emNonIsolColl ;
-  evt.getByLabel(l1TagNonIsolated_, emNonIsolColl);
+  evt.getByToken(l1TokenNonIsolated_, emNonIsolColl);
   
   // Get the CaloGeometry
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
@@ -159,8 +160,10 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 	    
 	    std::vector<EcalEtaPhiRegion>::const_iterator region;
 	    for (region=regions.begin(); region!=regions.end(); region++) {
-	      if (region->inRegion(position))
+	      if (region->inRegion(position)) {
 		uhits->push_back(*it);
+		break;
+	      }
 	    }
 	  }
 	}
@@ -202,8 +205,10 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 	    
 	    std::vector<EcalEtaPhiRegion>::const_iterator region;
 	    for (region=regions.begin(); region!=regions.end(); region++) {
-	      if (region->inRegion(position))
+	      if (region->inRegion(position)) {
 		hits->push_back(*it);
+		break;
+	      }
 	    }
 	  }
 	}

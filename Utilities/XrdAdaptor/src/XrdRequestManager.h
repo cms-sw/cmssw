@@ -231,6 +231,10 @@ private:
          * Future-based version of the handler
          * If called while a file-open is in progress, we will not start a new file-open.
          * Instead, the callback will be fired for the ongoing open.
+         *
+         * NOTE NOTE: This function is not thread-safe due to a lock-ordering issue.
+         * The caller must ensure it is not called from multiple threads at once
+         * for this object.
          */
         std::shared_future<std::shared_ptr<Source> > open();
 
