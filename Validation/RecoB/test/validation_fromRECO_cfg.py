@@ -39,7 +39,7 @@ print "Global Tag : ", tag
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMServices.Core.DQM_cfg")
-
+process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
 #keep the logging output to a nice level
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100

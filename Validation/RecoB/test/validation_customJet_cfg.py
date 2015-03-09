@@ -37,31 +37,50 @@ process = cms.Process("validation")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 
-process.load("DQMOffline.RecoB.bTagSequences_cff")
 process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
+process.load("CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi")
+process.load("RecoJets.JetAssociationProducers.ak4JTA_cff")
+process.load("RecoBTag.Configuration.RecoBTag_cff")
+process.load("PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi")
+process.load("PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi")
+process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")
 process.load("PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi")
-process.jetSequences = cms.Sequence(process.goodOfflinePrimaryVertices * process.btagSequence)
+
+newjetID=cms.InputTag(whichJets)
+process.ak4JetFlavourInfos.jets               = newjetID
+process.AK4byRef.jets                         = newjetID
 if not "ak4PFJetsCHS" in whichJets:
-    newjetID=cms.InputTag(whichJets)
-    process.myak4JetTracksAssociatorAtVertex.jets = newjetID
+    process.ak4JetTracksAssociatorAtVertexPF.jets = newjetID
     process.pfImpactParameterTagInfos.jets        = newjetID
     process.softPFMuonsTagInfos.jets              = newjetID
     process.softPFElectronsTagInfos.jets          = newjetID
-    process.ak4JetFlavourInfos.jets               = newjetID
-    process.AK4byRef.jets                         = newjetID
     process.patJetGenJetMatch.src                 = newjetID
 
+process.btagging = cms.Sequence(process.legacyBTagging + process.pfBTagging)
+process.btagSequence = cms.Sequence(
+    process.ak4JetTracksAssociatorAtVertexPF *
+    process.btagging
+    )
+process.jetSequences = cms.Sequence(process.goodOfflinePrimaryVertices * process.btagSequence)
+
 ###
-print "inputTag : ", process.myak4JetTracksAssociatorAtVertex.jets
+print "inputTag : ", process.ak4JetTracksAssociatorAtVertexPF.jets
 ###
 
 if runOnMC:
+    process.flavourSeq = cms.Sequence(
+        process.selectedHadronsAndPartons *
+        process.ak4JetFlavourInfos
+        )
     process.load("Validation.RecoB.bTagAnalysis_cfi")
     process.bTagValidation.jetMCSrc = 'ak4JetFlavourInfos'
     if "Calo" in whichJets:
         process.bTagValidation.caloJetMCSrc = 'AK4byValAlgo'
         process.bTagValidation.useOldFlavourTool = True
-        process.flavourSeq = cms.Sequence(process.oldFlavourSeq)
+        process.flavourSeq = cms.Sequence(
+            process.myPartons *
+            process.AK4Flavour
+            )
     process.bTagValidation.applyPtHatWeight = False
     process.bTagValidation.doJetID = True
     process.bTagValidation.doJEC = applyJEC
@@ -91,7 +110,10 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring()
 )
 
-if useTrigger : process.bTagHLT.HLTPaths = [triggerPath]
+from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+if useTrigger: 
+    process.bTagHLT  = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_PFJet40_v*"])
+    process.bTagHLT.HLTPaths = [triggerPath]
 
 if runOnMC:
     process.dqmSeq = cms.Sequence(process.ak4GenJetsForPUid * process.patJetGenJetMatch * process.flavourSeq * process.bTagValidation * process.bTagHarvestMC * process.dqmSaver)
@@ -111,6 +133,7 @@ process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd =cms.untracked.bool(True) 
 process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 process.PoolSource.fileNames = [
+
 ]
 
 #keep the logging output to a nice level
