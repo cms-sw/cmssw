@@ -193,8 +193,6 @@ namespace edm {
   RefVector<C,T,F>::fillView(ProductID const&,
                              std::vector<void const*>& pointers,
                              FillViewHelperVector& helpers) const {
-    typedef Ref<C,T,F>                     ref_type;
-    typedef reftobase::RefHolder<ref_type> holder_type;
 
     pointers.reserve(this->size());
     helpers.reserve(this->size());
