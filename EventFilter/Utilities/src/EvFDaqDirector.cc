@@ -509,9 +509,10 @@ namespace evf {
 
 	// try to bump
 	bool bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize, stopFileLS);
+        unsigned int lastLs = ls;
 	ls = readLs;
 	// there is a new file to grab or lumisection ended
-	if (bumpedOk) {
+	if (bumpedOk || lastLs < readLs) {
 	  // write new data
 	  check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
 	  if (check == 0) {
@@ -526,9 +527,11 @@ namespace evf {
 	      fprintf(fu_rw_lock_stream, "%u %u", readLs,
 		      readIndex + 1);
 	    }
-            fflush(fu_rw_lock_stream);
-            fsync(fu_readwritelock_fd_);
-	    fileStatus = newFile;
+	    fflush(fu_rw_lock_stream);
+	    fsync(fu_readwritelock_fd_);
+
+            if (bumpedOk)
+	      fileStatus = newFile;
 
 	    if (testModeNoBuilderUnit_)
 	      edm::LogInfo("EvFDaqDirector") << "Written to file -: " << readLs << ":"
@@ -727,6 +730,10 @@ namespace evf {
 
 	  return true;
 	}
+        else {
+          //change of policy: we need to cycle through each LS
+          return false;
+        }
         BUEoLSFile = getEoLSFilePathOnBU(ls);
         eolFound = (stat(BUEoLSFile.c_str(), &buf) == 0);
       }

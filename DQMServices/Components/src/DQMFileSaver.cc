@@ -275,19 +275,26 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, c
   std::ostringstream oss_pid;
   oss_pid << pid;
 
+  int nProcessed = fms ? (fms->getEventsProcessedForLumi(lumi)) : -1;
+
   // Stat the data file: if not there, throw
   struct stat dataFileStat;
-  if (stat(dataFilePathName.c_str(), &dataFileStat) != 0)
-    throw cms::Exception("fillJson")
-          << "Internal error, cannot get data file: "
-          << dataFilePathName;
+  if (nProcessed!=0)
+    if (stat(dataFilePathName.c_str(), &dataFileStat) != 0)
+      throw cms::Exception("fillJson")
+            << "Internal error, cannot get data file: "
+            << dataFilePathName;
+  else {
+    dataFilePathName = "";
+    dataFileStat.st_size=0;
+  }
   // Extract only the data file name from the full path
   std::string dataFileName = bfs::path(dataFilePathName).filename().string();
   // The availability test of the FastMonitoringService was done in the ctor.
   bpt::ptree data;
   bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles, fileAdler32, transferDestination;
 
-  processedEvents.put("", fms ? (fms->getEventsProcessedForLumi(lumi)) : -1); // Processed events
+  processedEvents.put("", nProcessed); // Processed events
   acceptedEvents.put("", fms ? (fms->getEventsProcessedForLumi(lumi)) : -1); // Accepted events, same as processed for our purposes
 
   errorEvents.put("", 0); // Error events
@@ -361,14 +368,15 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
       histoFilePathName = edm::Service<evf::EvFDaqDirector>()->getProtocolBufferHistogramFilePath(lumi, stream_label_);
     }
   }
-
-  if (fileFormat == ROOT)
+  if (fms_ ? (fms_->getEventsProcessedForLumi(ilumi) > 0) : !fms_)
   {
-    // Save the file with the full directory tree,
-    // modifying it according to @a rewrite,
-    // but not looking for MEs inside the DQMStore, as in the online case,
-    // nor filling new MEs, as in the offline case.
-    dbe_->save(openHistoFilePathName,
+    if (fileFormat == ROOT)
+    {
+      // Save the file with the full directory tree,
+      // modifying it according to @a rewrite,
+      // but not looking for MEs inside the DQMStore, as in the online case,
+      // nor filling new MEs, as in the offline case.
+      dbe_->save(openHistoFilePathName,
                "",
                "^(Reference/)?([^/]+)",
                rewrite,
@@ -378,23 +386,26 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
                saveReferenceQMin_,
                fileUpdate_ ? "UPDATE" : "RECREATE",
                true);
-  }
-  else if (fileFormat == PB)
-  {
-    // Save the file in the open directory.
-    dbe_->savePB(openHistoFilePathName,
+    }
+    else if (fileFormat == PB)
+    {
+      // Save the file in the open directory.
+      dbe_->savePB(openHistoFilePathName,
                  filterName_,
     	           enableMultiThread_ ? run : 0,
                  lumi,
                  true);
-  }
-  else
-    throw cms::Exception("DQMFileSaver")
+    }
+    else
+      throw cms::Exception("DQMFileSaver")
           << "Internal error, can save files"
           << " only in ROOT or ProtocolBuffer format.";
 
-  // Now move the the data and json files into the output directory.
-  rename(openHistoFilePathName.c_str(), histoFilePathName.c_str());
+    // Now move the the data and json files into the output directory.
+    rename(openHistoFilePathName.c_str(), histoFilePathName.c_str());
+  }
+  //no file output for empty lumisections
+  else histoFilePathName = "";
 
   // Write the json file in the open directory.
   bpt::ptree pt = fillJson(run, lumi, histoFilePathName, transferDestination_, fms_);
@@ -708,7 +719,7 @@ DQMFileSaver::globalEndLuminosityBlock(const edm::LuminosityBlock & iLS, const e
     // by testing the pointer to FastMonitoringService: if not null, i.e. in real FU mode,
     // we check that the events are not 0; otherwise, we skip the test, so we store at every lumi transition. 
     // TODO(diguida): allow fake FU mode to skip file creation at empty lumi sections.
-    if (convention_ == FilterUnit && (fms_ ? (fms_->getEventsProcessedForLumi(ilumi) > 0) : !fms_))
+    if (convention_ == FilterUnit)
     {
       char rewrite[128];
       sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun, ilumi, ilumi);
