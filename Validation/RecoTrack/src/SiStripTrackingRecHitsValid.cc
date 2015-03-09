@@ -8,6 +8,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
@@ -471,7 +472,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   edm::ESHandle < TrackerGeometry > pDD;
@@ -1274,7 +1275,7 @@ void SiStripTrackingRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const ed
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
   
   // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
