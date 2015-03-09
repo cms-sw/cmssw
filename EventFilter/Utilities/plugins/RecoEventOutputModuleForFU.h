@@ -317,12 +317,14 @@ namespace evf {
     filesize_=filesize;
 
     // output jsn file
-    if(processed_.value()!=0){
-	jsonMonitor_->snap(ls.luminosityBlock());
-	const std::string outputJsonNameStream =
-	  edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(ls.luminosityBlock(),stream_label_);
-	jsonMonitor_->outputFullJSON(outputJsonNameStream,ls.luminosityBlock());
+    if(processed_.value()==0)  {
+      filelist_ = "";
+      fileAdler32_.value()=-1;
     }
+    jsonMonitor_->snap(ls.luminosityBlock());
+    const std::string outputJsonNameStream =
+      edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(ls.luminosityBlock(),stream_label_);
+    jsonMonitor_->outputFullJSON(outputJsonNameStream,ls.luminosityBlock());
 
     // reset monitoring params
     accepted_.value() = 0;
