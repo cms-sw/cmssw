@@ -267,7 +267,6 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
         #fix the default jets for the type1 computation to those used to compute the uncertainties
         #in order to be consistent with what is done in the correction and uncertainty step
         #particularly true for miniAODs
-        print "MMM input tag::: ",isValidInputTag(jetCollectionUnskimmed),"  ",jetCollectionUnskimmed
         if isValidInputTag(jetCollectionUnskimmed):
             getattr(process,"patPFJetMETtype1p2Corr").src = jetCollectionUnskimmed
             getattr(process,"patPFJetMETtype2Corr").src = jetCollectionUnskimmed
