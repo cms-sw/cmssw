@@ -22,11 +22,13 @@
 
 // Geometry
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/Records/interface/ShashlikGeometryRecord.h"
 #include "Geometry/Records/interface/ShashlikNumberingRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/ShashlikTopology.h"
@@ -133,23 +135,21 @@ void Multi5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Eve
   // get the geometry and topology from the event setup:
   edm::ESHandle<CaloGeometry> geoHandle;
   es.get<CaloGeometryRecord>().get(geoHandle);
+  edm::ESHandle<CaloTopology> tHandle;
+  es.get<CaloTopologyRecord>().get(tHandle);
 
   const CaloSubdetectorGeometry *geometry_p;
-  CaloSubdetectorTopology *topology_p;
+  const CaloSubdetectorTopology *topology_p;
 
   if (detector == reco::CaloID::DET_ECAL_BARREL) {
     geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-    topology_p = new EcalBarrelTopology(geoHandle);
+    topology_p = tHandle->getSubdetectorTopology(DetId::Ecal, EcalBarrel);
   } else if (endcapHitCollection_ == "EcalRecHitsEK") {
-    edm::ESHandle<CaloSubdetectorGeometry> shgeo;
-    es.get<ShashlikGeometryRecord>().get(shgeo);
-    geometry_p = shgeo.product();
-    edm::ESHandle<ShashlikTopology> topo;
-    es.get<ShashlikNumberingRecord>().get(topo);
-    topology_p = (CaloSubdetectorTopology *)(topo.product());
+    geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalShashlik);
+    topology_p = tHandle->getSubdetectorTopology(DetId::Ecal, EcalShashlik);
   } else {
     geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-    topology_p = new EcalEndcapTopology(geoHandle); 
+    topology_p = tHandle->getSubdetectorTopology(DetId::Ecal, EcalEndcap);
   }
 
   const CaloSubdetectorGeometry *geometryES_p;
@@ -168,5 +168,5 @@ void Multi5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Eve
   else
     bccHandle = evt.put(clusters_p, endcapClusterCollection_);
 
-  delete topology_p;
+  //  delete topology_p;
 }

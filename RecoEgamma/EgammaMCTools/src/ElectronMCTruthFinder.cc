@@ -38,17 +38,15 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
   SimVertex primVtx;   
   
   fill(theSimTracks,  theSimVertices);
-  
+
   int iPV=-1;   
   //int partType1=0;
   //int partType2=0;
   std::vector<SimTrack>::const_iterator iFirstSimTk = theSimTracks.begin();
   if (  !(*iFirstSimTk).noVertex() ) {
     iPV =  (*iFirstSimTk).vertIndex();
-    
     int vtxId =   (*iFirstSimTk).vertIndex();
     primVtx = theSimVertices[vtxId];
-    
     //partType1 = (*iFirstSimTk).type();
     
     
@@ -82,10 +80,8 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
   int npv=0;
   for (std::vector<SimTrack>::const_iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
     if (  (*iSimTk).noVertex() ) continue;
-    
     //int vertexId = (*iSimTk).vertIndex();
     //SimVertex vertex = theSimVertices[vertexId];
-    
     //std::cout << " Particle type " <<  (*iSimTk).type() << " Sim Track ID " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  " vertex position " << vertex.position() << " vertex ID " << vertexId  << std::endl;  
     if ( (*iSimTk).vertIndex() == iPV ) {
       npv++;
@@ -129,8 +125,6 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
   for (std::vector<SimTrack>::iterator iEleTk = electronTracks.begin(); iEleTk != electronTracks.end(); ++iEleTk){
     //std::cout << " Looping on the primary electron pt  " << std::sqrt((*iEleTk).momentum().perp2()) << " electron track ID " << (*iEleTk).trackId() << std::endl;
     
-    
-    
     SimTrack trLast =(*iEleTk); 
     unsigned int eleId = (*iEleTk).trackId();
     float remainingEnergy =trLast.momentum().e();
@@ -147,14 +141,12 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
     pBrem.clear();
     xBrem.clear();     
 
-   
     for (std::vector<SimTrack>::const_iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
 	
       if (  (*iSimTk).noVertex() )                    continue;
       if ( (*iSimTk).vertIndex() == iPV )             continue;
 
       //std::cout << " (*iEleTk)->trackId() " << (*iEleTk).trackId() << " (*iEleTk)->vertIndex() "<< (*iEleTk).vertIndex()  << " (*iSimTk).vertIndex() "  <<  (*iSimTk).vertIndex() << " (*iSimTk).type() " <<   (*iSimTk).type() << " (*iSimTk).trackId() " << (*iSimTk).trackId() << std::endl;
-      
       int vertexId1 = (*iSimTk).vertIndex();
       SimVertex vertex1 = theSimVertices[vertexId1];
       int vertexId2 = trLast.vertIndex();
@@ -175,42 +167,40 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
 	float eLoss = remainingEnergy - ( (*iSimTk).momentum() + trLast.momentum()).e();
 	//std::cout << " eLoss " << eLoss << std::endl;              
 
-
 	if ( vertex1.parentIndex()  ) {
-	  
 	  unsigned  motherGeantId = vertex1.parentIndex(); 
 	  std::map<unsigned, unsigned >::iterator association = geantToIndex_.find( motherGeantId );
+
 	  if(association != geantToIndex_.end() )
 	    motherId = association->second;
-	  
-	  //int motherType = motherId == -1 ? 0 : theSimTracks[motherId].type();
-	  //std::cout << " Parent to this vertex   motherId " << motherId << " mother type " <<  motherType << " Sim track ID " <<  theSimTracks[motherId].trackId() << std::endl; 
-	  if ( theSimTracks[motherId].trackId() == eleId ) {
+	  //	  int motherType = motherId == -1 ? 0 : theSimTracks[motherId].type();
+	  //	  std::cout << " Parent to this vertex   motherId " << motherId << " mother type " <<  motherType << " Sim track ID " <<  theSimTracks[motherId].trackId() << std::endl; 
+	 
+	  if(motherId!=-1){//francesco. adding this otherwise it crashes!
+	    if ( theSimTracks[motherId].trackId() == eleId ) {
+	      //std::cout << "  ***** Found the Initial Mother Electron ****   theSimTracks[motherId].trackId() " <<  theSimTracks[motherId].trackId() << " eleId " <<  eleId << std::endl;
+	      eleId= (*iSimTk).trackId();
+	      remainingEnergy =   (*iSimTk).momentum().e();
+	      motherMomentum = (*iSimTk).momentum();
+	      
+
+	      pBrem.push_back( CLHEP::HepLorentzVector(trLast.momentum().px(),trLast.momentum().py(),
+						       trLast.momentum().pz(),trLast.momentum().e()) );
+	      bremPos.push_back( CLHEP::HepLorentzVector(vertex1.position().x(),vertex1.position().y(),
+							 vertex1.position().z(),vertex1.position().t()) );
+	      xBrem.push_back(eLoss);
+
+	    }
 	    
-	    //std::cout << "  ***** Found the Initial Mother Electron ****   theSimTracks[motherId].trackId() " <<  theSimTracks[motherId].trackId() << " eleId " <<  eleId << std::endl;
-	    eleId= (*iSimTk).trackId();
-	    remainingEnergy =   (*iSimTk).momentum().e();
-	    motherMomentum = (*iSimTk).momentum();
+
 	    
 	    
-	    pBrem.push_back( CLHEP::HepLorentzVector(trLast.momentum().px(),trLast.momentum().py(),
-	                                      trLast.momentum().pz(),trLast.momentum().e()) );
-	    bremPos.push_back( CLHEP::HepLorentzVector(vertex1.position().x(),vertex1.position().y(),
-	                                        vertex1.position().z(),vertex1.position().t()) );
-	    xBrem.push_back(eLoss);
-	    
+	  } else {
+	    //	    std::cout << " This vertex has no parent tracks " <<  std::endl;
 	  }
-	  
-	  
-	  
-	  
-	} else {
-	  //std::cout << " This vertex has no parent tracks " <<  std::endl;
 	}
-	
       }
       trLast=(*iSimTk);
-      
     } // End loop over all SimTracks 
     //std::cout << " Going to build the ElectronMCTruth: pBrem size " << pBrem.size() << std::endl;
     /// here fill the electron
