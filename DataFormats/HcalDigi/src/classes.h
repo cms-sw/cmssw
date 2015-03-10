@@ -40,6 +40,8 @@ namespace DataFormats_HcalDigi {
     CastorTrigPrimDigiCollection theCastorTP_;
     HOTrigPrimDigiCollection theHOTP_;
     HcalTTPDigiCollection theTTP_;
+    QIE10DigiCollection theqie10_;
+    QIE11DigiCollection theqie11_;
       
     edm::Wrapper<edm::SortedCollection<HBHEDataFrame> > anotherHBHE_;
     edm::Wrapper<edm::SortedCollection<HODataFrame> > anotherHO_;
@@ -66,6 +68,8 @@ namespace DataFormats_HcalDigi {
     edm::Wrapper<HcalTTPDigiCollection> theTTPw_;
     edm::Wrapper<HBHEUpgradeDigiCollection> theUHBHEw_;
     edm::Wrapper<HFUpgradeDigiCollection> theUHFw_;
+    edm::Wrapper<QIE10DigiCollection> theQIE10w_;
+    edm::Wrapper<QIE11DigiCollection> theQIE11w_;
   };
 }
 
