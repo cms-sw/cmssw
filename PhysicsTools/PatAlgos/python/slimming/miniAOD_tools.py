@@ -67,51 +67,12 @@ def miniAOD_customizeCommon(process):
     process.selectedPatTaus.cut = cms.string("pt > 18. && tauID('decayModeFinding')> 0.5")
     process.selectedPatPhotons.cut = cms.string("")
 
-    # add CMS top tagger
-    from RecoJets.JetProducers.caTopTaggers_cff import caTopTagInfos
-    process.caTopTagInfos = caTopTagInfos.clone()
-    process.caTopTagInfosPAT = cms.EDProducer("RecoJetDeltaRTagInfoValueMapProducer",
-                                    src = cms.InputTag("ak8PFJetsCHS"),
-                                    matched = cms.InputTag("cmsTopTagPFJetsCHS"),
-                                    matchedTagInfos = cms.InputTag("caTopTagInfos"),
-                                    distMax = cms.double(0.8)
-                        )
-
-    #add AK8
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
-    addJetCollection(process, labelName = 'AK8',
-                     jetSource = cms.InputTag('ak8PFJetsCHS'),
-                     algo= 'AK', rParam = 0.8,
-                     jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-                     btagInfos = ['caTopTagInfosPAT']
-                     )
-    process.patJetsAK8.userData.userFloats.src = [] # start with empty list of user floats
-    process.selectedPatJetsAK8.cut = cms.string("pt > 100")
-    process.patJetGenJetMatchAK8.matched =  'slimmedGenJets'
-    ## AK8 groomed masses
-    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSSoftDrop, ak8PFJetsCHSFiltered, ak8PFJetsCHSTrimmed 
-    process.ak8PFJetsCHSPruned   = ak8PFJetsCHSPruned.clone()
-    process.ak8PFJetsCHSSoftDrop = ak8PFJetsCHSSoftDrop.clone()
-    process.ak8PFJetsCHSTrimmed  = ak8PFJetsCHSTrimmed.clone()
-    process.ak8PFJetsCHSFiltered = ak8PFJetsCHSFiltered.clone()
-    process.load("RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi")
-    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedMass','ak8PFJetsCHSSoftDropMass','ak8PFJetsCHSTrimmedMass','ak8PFJetsCHSFilteredMass']
 
-    # Add AK8 top tagging variables
-    process.patJetsAK8.tagInfoSources = cms.VInputTag(cms.InputTag("caTopTagInfosPAT"))
-    process.patJetsAK8.addTagInfos = cms.bool(True)
+    from PhysicsTools.PatAlgos.slimming.applySubstructure_cfi import applySubstructure
+    applySubstructure( process )
 
-
-
-    # add Njetiness
-    process.load('RecoJets.JetProducers.nJettinessAdder_cfi')
-    process.NjettinessAK8 = process.Njettiness.clone()
-    process.NjettinessAK8.src = cms.InputTag("ak8PFJetsCHS")
-    process.NjettinessAK8.cone = cms.double(0.8)
-    process.patJetsAK8.userData.userFloats.src += ['NjettinessAK8:tau1','NjettinessAK8:tau2','NjettinessAK8:tau3']
-
-
-
+        
     #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
     switchOnTriggerStandAlone( process, outputModule = '' )
@@ -187,6 +148,7 @@ def miniAOD_customizeMC(process):
     process.patJetPartonMatch.matched = "prunedGenParticles"
     process.patJetPartonMatch.mcStatus = [ 3, 23 ]
     process.patJetGenJetMatch.matched = "slimmedGenJets"
+    process.patJetGenJetMatchAK8.matched =  "slimmedGenJetsAK8"
     process.patMuons.embedGenMatch = False
     process.patElectrons.embedGenMatch = False
     process.patPhotons.embedGenMatch = False
