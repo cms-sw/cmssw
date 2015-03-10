@@ -67,33 +67,10 @@ namespace pat {
       /// set the associated GenMET
       void setGenMET(const reco::GenMET & gm);
 
-      // ---- methods for MET corrections ----
-      //! uses internal info from mEtCorr
-      //! except for full uncorrection, how do you know which is which?
-      //! you don't, 
-      //! present ordering: 
-      //! 1: jet escale Type1 correction
-      //! 2: muon Type1 (?) correction
-      //! 3: tau Type1 (?) correction
-      unsigned int nCorrections() const;
-      enum UncorrectionType {
-	uncorrNONE = -1, //! do nothing
-	uncorrALL = 0, //! uncorrect to bare bones
-	uncorrJES,     //! uncorrect for JES only
-	uncorrMUON,    //! uncorrect for MUON only
-	uncorrTAU,    //! uncorrect for TAU only
-	uncorrMAXN
-      };
-      //MM : the cor/uncor functions are deprecated and return -1 now!! use shifted corrected instead
-      float corEx(UncorrectionType ix = uncorrALL) const;
-      //MM : the cor/uncor functions are deprecated and return -1 now!! use shifted corrected instead
-      float corEy(UncorrectionType ix = uncorrALL) const;
-      //MM : the cor/uncor functions are deprecated and return -1 now!! use shifted corrected instead
-      float corSumEt(UncorrectionType ix = uncorrALL) const;
-      //MM : the cor/uncor functions are deprecated and return -1 now!! use shifted corrected instead
-      float uncorrectedPt(UncorrectionType ix = uncorrALL) const;
-      //MM : the cor/uncor functions are deprecated and return -1 now!! use shifted corrected instead
-      float uncorrectedPhi(UncorrectionType ix = uncorrALL) const;
+      // ---- methods for uncorrected MET ----
+      float uncorrectedPt() const;
+      float uncorrectedPhi() const;
+      float uncorrectedSumEt() const;
 
       // ---- methods to know what the pat::MET was constructed from ----
       /// True if this pat::MET was made from a reco::CaloMET
@@ -161,15 +138,6 @@ namespace pat {
       }
 
       // ---- members for MET corrections ----
-      struct UncorInfo {
-	UncorInfo(): corEx(0), corEy(0), corSumEt(0), pt(0), phi(0) {}
-	float corEx;
-	float corEy;
-	float corSumEt;
-	float pt;
-	float phi;
-      };
-
       enum METUncertainty {
         JetEnUp=0, JetEnDown=1, JetResUp=2, JetResDown=3,
         MuonEnUp=4, MuonEnDown=5, ElectronEnUp=6, ElectronEnDown=7, TauEnUp=8,TauEnDown=9,
@@ -217,20 +185,9 @@ namespace pat {
       // ---- holder for pfMET specific info ---
       std::vector<SpecificPFMETData> pfMET_;
 
-      // uncorrection transients
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-      mutable std::atomic<std::vector<UncorInfo>*> uncorInfo_;
-#else
-      mutable std::vector<UncorInfo>* uncorInfo_;
-#endif
-      mutable unsigned int nCorrections_; //thread-safe protected by uncorInfo_
-      
     protected:
 
       // ---- non-public correction utilities ----
-      void checkUncor_() const;
-      void setPtPhi_(UncorInfo& uci) const;
-
       std::vector<PackedMETUncertainty> uncertaintiesRaw_, uncertaintiesType1_, uncertaintiesType1p2_;
 
   };

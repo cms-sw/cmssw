@@ -8,12 +8,12 @@ using namespace pat;
 
 
 /// default constructor
-MET::MET(): uncorInfo_(nullptr) {
+MET::MET() {
 }
 
 
 /// constructor from reco::MET
-MET::MET(const reco::MET & aMET) : PATObject<reco::MET>(aMET), uncorInfo_(nullptr) {
+MET::MET(const reco::MET & aMET) : PATObject<reco::MET>(aMET) {
     const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(&aMET);
     if (calo != 0) caloMET_.push_back(calo->getSpecific());
     const reco::PFMET * pf = dynamic_cast<const reco::PFMET *>(&aMET);
@@ -22,7 +22,7 @@ MET::MET(const reco::MET & aMET) : PATObject<reco::MET>(aMET), uncorInfo_(nullpt
 
 
 /// constructor from ref to reco::MET
-MET::MET(const edm::RefToBase<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef), uncorInfo_(nullptr) {
+MET::MET(const edm::RefToBase<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef) {
     const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(aMETRef.get());
     if (calo != 0) caloMET_.push_back(calo->getSpecific());
     const reco::PFMET * pf = dynamic_cast<const reco::PFMET *>(aMETRef.get());
@@ -30,7 +30,7 @@ MET::MET(const edm::RefToBase<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETR
 }
 
 /// constructor from ref to reco::MET
-MET::MET(const edm::Ptr<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef), uncorInfo_(nullptr) {
+MET::MET(const edm::Ptr<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef) {
     const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(aMETRef.get());
     if (calo != 0) caloMET_.push_back(calo->getSpecific());
     const reco::PFMET * pf = dynamic_cast<const reco::PFMET *>(aMETRef.get());
@@ -43,19 +43,15 @@ PATObject<reco::MET>(iOther),
 genMET_(iOther.genMET_),
 caloMET_(iOther.caloMET_),
 pfMET_(iOther.pfMET_),
-uncorInfo_(nullptr)
-{
-   auto tmp = iOther.uncorInfo_.load(std::memory_order_acquire);
-   if(tmp != nullptr) {
-      //Only thread-safe to read iOther.nCorrections_ if iOther.uncorInfo_ != nullptr
-      nCorrections_ = iOther.nCorrections_;
-      uncorInfo_.store( new std::vector<UncorInfo>{*tmp},std::memory_order_release);
-   }
+uncertaintiesRaw_(iOther.uncertaintiesRaw_),
+uncertaintiesType1_(iOther.uncertaintiesType1_),
+uncertaintiesType1p2_(iOther.uncertaintiesType1p2_) {
+
 }
 
 /// destructor
 MET::~MET() {
-   delete uncorInfo_.load(std::memory_order_acquire);
+
 }
 
 MET& MET::operator=(MET const& iOther) {
@@ -63,15 +59,10 @@ MET& MET::operator=(MET const& iOther) {
    genMET_ = iOther.genMET_;
    caloMET_ =iOther.caloMET_;
    pfMET_ =iOther.pfMET_;
-   auto tmp = iOther.uncorInfo_.load(std::memory_order_acquire);
-   if(tmp != nullptr) {
-      //Only thread-safe to read iOther.nCorrections_ if iOther.uncorInfo_ != nullptr
-      nCorrections_ = iOther.nCorrections_;
-      delete uncorInfo_.exchange( new std::vector<UncorInfo>{*tmp},std::memory_order_acq_rel);
-   } else {
-      nCorrections_ = 0;
-      delete uncorInfo_.exchange(nullptr, std::memory_order_acq_rel);
-   }
+   uncertaintiesRaw_ = iOther.uncertaintiesRaw_;
+   uncertaintiesType1_ = iOther.uncertaintiesType1_;
+   uncertaintiesType1p2_ = iOther.uncertaintiesType1p2_;
+ 
    return *this;
 }
 
@@ -87,112 +78,18 @@ void MET::setGenMET(const reco::GenMET & gm) {
 }
 
 //! return uncorrrection related stuff
-unsigned int MET::nCorrections() const { checkUncor_(); return nCorrections_; }
+//unsigned int MET::nCorrections() const { checkUncor_(); return nCorrections_; }
 
-float MET::corEx(UncorrectionType ix) const {
-  //MM : deprecated, return -1, use shifted functions instead
-  // if (ix == uncorrNONE) return 0;
-  // checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].corEx;
-  return -1;
+float MET::uncorrectedPt() const {
+  return shiftedPt(MET::METUncertainty::NoShift, MET::METUncertaintyLevel::Raw);
 }
-float MET::corEy(UncorrectionType ix) const {
-  //MM : deprecated, return -1, use shifted functions instead
-  // if (ix == uncorrNONE) return 0;
-  // checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].corEy;
-  return -1;
+float MET::uncorrectedPhi() const {
+   return shiftedPt(MET::METUncertainty::NoShift, MET::METUncertaintyLevel::Raw);
 }
-float MET::corSumEt(UncorrectionType ix) const {
-  //MM : deprecated, return -1, use shifted functions instead
-  // if (ix == uncorrNONE) return 0;
-  // checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].corSumEt;
-  return -1;
-}
-float MET::uncorrectedPt(UncorrectionType ix) const {
-  //MM : deprecated, return -1, use shifted functions instead
-  // if (ix == uncorrNONE) return pt();
-  // checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].pt;
-  return -1;
-}
-float MET::uncorrectedPhi(UncorrectionType ix) const {
-  //MM : deprecated, return -1, use shifted functions instead
-  // if (ix == uncorrNONE) return phi();
-  // checkUncor_(); return (*uncorInfo_.load(std::memory_order_acquire))[ix].phi;
-  return -1;
+float MET::uncorrectedSumEt() const {
+  return shiftedSumEt(MET::METUncertainty::NoShift, MET::METUncertaintyLevel::Raw);
 }
 
-
-//! check and set transients
-void MET::checkUncor_() const {
-  if (uncorInfo_.load(std::memory_order_acquire)!=nullptr ) return;
-
-  const std::vector<CorrMETData>& corrs(mEtCorr());
-  const auto nCorrectionsTmp = corrs.size();
-  
-  std::unique_ptr<std::vector<UncorInfo>> uncorInfoTmpPtr{ new std::vector<UncorInfo>{uncorrMAXN} };
-  auto& uncorInfoTmp = *uncorInfoTmpPtr;
-
-  UncorrectionType ix;
-
-  //! ugly
-  //! ALL
-  ix = uncorrALL;
-  uncorInfoTmp[ix] = UncorInfo();
-  for (unsigned int iC=0; iC < nCorrectionsTmp; ++iC){
-    uncorInfoTmp[ix].corEx +=    corrs[iC].mex;
-    uncorInfoTmp[ix].corEy +=    corrs[iC].mey;
-    uncorInfoTmp[ix].corSumEt += corrs[iC].sumet;
-  }
-  setPtPhi_(uncorInfoTmp[ix]);
-
-  //! JES
-  ix = uncorrJES;
-  uncorInfoTmp[ix] = UncorInfo();
-  if (nCorrectionsTmp >=1 ){
-    unsigned int iC = 0;
-    uncorInfoTmp[ix].corEx +=    corrs[iC].mex;
-    uncorInfoTmp[ix].corEy +=    corrs[iC].mey;
-    uncorInfoTmp[ix].corSumEt += corrs[iC].sumet;
-  }
-  setPtPhi_(uncorInfoTmp[ix]);
-
-  //! MUON
-  ix = uncorrMUON;
-  uncorInfoTmp[ix] = UncorInfo();
-  if (nCorrectionsTmp >=2 ){
-    unsigned int iC = 1;
-    uncorInfoTmp[ix].corEx +=    corrs[iC].mex;
-    uncorInfoTmp[ix].corEy +=    corrs[iC].mey;
-    uncorInfoTmp[ix].corSumEt += corrs[iC].sumet;
-  }
-  setPtPhi_(uncorInfoTmp[ix]);
-
-  //! TAU
-  ix = uncorrTAU;
-  uncorInfoTmp[ix] = UncorInfo();
-  if (nCorrectionsTmp >=3 ){
-    unsigned int iC = 2;
-    uncorInfoTmp[ix].corEx +=    corrs[iC].mex;
-    uncorInfoTmp[ix].corEy +=    corrs[iC].mey;
-    uncorInfoTmp[ix].corSumEt += corrs[iC].sumet;
-  }
-  setPtPhi_(uncorInfoTmp[ix]);
-
-  //The compare_exchange_strong guarantees that the new value of nCorrections_ will be seen by other
-  // threads
-  nCorrections_ = nCorrectionsTmp;
-  
-  std::vector<UncorInfo>* expected=nullptr;
-  if(uncorInfo_.compare_exchange_strong(expected,uncorInfoTmpPtr.get(),std::memory_order_acq_rel)) {
-     uncorInfoTmpPtr.release();
-  }
-}
-
-void MET::setPtPhi_(UncorInfo& uci) const {
-  float lpx = px() - uci.corEx;
-  float lpy = py() - uci.corEy;
-  uci.pt = sqrt(lpx*lpx + lpy*lpy);
-  uci.phi = atan2(lpy, lpx);
-}
 
 MET::Vector2 MET::shiftedP2(MET::METUncertainty shift, MET::METUncertaintyLevel level)  const {
     const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : (level == Type1p2 ? uncertaintiesType1p2_ : uncertaintiesRaw_));

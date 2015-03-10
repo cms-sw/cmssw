@@ -149,8 +149,6 @@
    <version ClassVersion="12" checksum="1474251442"/>
    <version ClassVersion="11" checksum="1829185007"/>
    <version ClassVersion="10" checksum="1136648776"/>
-    <field name="uncorInfo_" transient="true"/>
-    <field name="nCorrections_" transient="true"/>
   </class>
   <class name="pat::MET::PackedMETUncertainty" ClassVersion="10">
     <version ClassVersion="10" checksum="1984780659"/>
