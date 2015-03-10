@@ -30,7 +30,7 @@ namespace edm {
     typedef typename Tag::key_type key_type;
     /// insert data type
     typedef typename Tag::data_type data_type;
-    /// RefProd or RefToBaseProd of 1 or 2 collections
+    /// Holds the RefProd or RefToBaseProd of 1 or 2 collections
     typedef typename Tag::ref_type ref_type;
     /// map type
     typedef typename Tag::map_type map_type;

@@ -1,3 +1,7 @@
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/AssociationMapHelpers.h"
+#include "DataFormats/Common/interface/OneToOne.h"
+#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/Ptr.h"
@@ -73,5 +77,10 @@ namespace DataFormats_Common {
     edm::Wrapper<edm::ConditionsInLumiBlock> dum11;
     edm::Wrapper<edm::ConditionsInRunBlock> dum21;
     edm::Wrapper<edm::ConditionsInEventBlock> dum31;
+
+    edm::RefProd<std::vector<int> > rpvi;
+    edm::helpers::KeyVal<edm::RefProd<std::vector<int> >,edm::RefProd<std::vector<int> > > keyval1;
+    edm::AssociationMap<edm::OneToOne<std::vector<int>,std::vector<int>,unsigned int> > assoc1;
+    edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<int>,std::vector<int>,unsigned int> > > wrassoc1;
   };
 }
