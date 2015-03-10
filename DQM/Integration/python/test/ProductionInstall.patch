@@ -1,5 +1,5 @@
 diff --git a/DQM/Integration/python/test/environment_cfi.py b/DQM/Integration/python/test/environment_cfi.py
-index 86d7bda..f2e3ab2 100644
+index 86d7bda..1de213d 100644
 --- a/DQM/Integration/python/test/environment_cfi.py
 +++ b/DQM/Integration/python/test/environment_cfi.py
 @@ -6,8 +6,8 @@ from DQMServices.Core.DQMStore_cfi import *
@@ -9,7 +9,16 @@ index 86d7bda..f2e3ab2 100644
 -                  collectorPort = cms.untracked.int32(9190),
 -                  collectorHost = cms.untracked.string('dqm-c2d07-29.cms'),
 +                  collectorPort = cms.untracked.int32(9090),
-+                  collectorHost = cms.untracked.string('dqm-c2d07-11.cms'),
++                  collectorHost = cms.untracked.string('dqm-prod-local.cms'),
                    filter = cms.untracked.string('')
                    )
  
+@@ -18,7 +18,7 @@ from DQMServices.Components.DQMEnvironment_cfi import *
+ dqmSaver.convention = 'Online'
+ dqmSaver.referenceHandling = 'all'
+ dqmSaver.dirName = '.'
+-dqmSaver.producer = 'Playback'
++dqmSaver.producer = 'DQM'
+ dqmSaver.saveByLumiSection = 10
+ dqmSaver.saveByRun = 1
+ dqmSaver.saveAtJobEnd = False
