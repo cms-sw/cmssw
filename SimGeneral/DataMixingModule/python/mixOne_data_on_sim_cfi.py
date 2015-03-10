@@ -32,7 +32,6 @@ mixData = cms.EDProducer("DataMixingModule",
     #
     mixProdStep1 = cms.bool(False),
     mixProdStep2 = cms.bool(False),
-    IsThisFastSim = cms.string('NO'),  # kludge for fast simulation flag...
     # Use digis? 
     TrackerMergeType = cms.string("Digis"),
     EcalMergeType = cms.string('Digis'),  # set to "Digis" to merge digis

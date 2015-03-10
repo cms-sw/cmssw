@@ -7,6 +7,7 @@ from Configuration.StandardSequences.DataMixerPreMix_cff import *
 mixData.TrackerMergeType = "tracks"
 import FastSimulation.Tracking.recoTrackAccumulator_cfi
 mixData.tracker = FastSimulation.Tracking.recoTrackAccumulator_cfi.recoTrackAccumulator
+mixData.tracker.InputPileUp = cms.InputTag("mix","generalTracks")
 mixData.hitProducer = cms.InputTag("famosSimHits")
 
 # get rid of sistrip and sipixel raw2digi modules run inside DataMixingModule

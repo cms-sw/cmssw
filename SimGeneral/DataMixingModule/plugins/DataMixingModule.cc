@@ -47,8 +47,6 @@ namespace edm
 							    label_(ps.getParameter<std::string>("Label"))
   {  
 
-    cout << "DataMixingModule " << " constructing..." << std::endl;
-
     // prepare for data access in DataMixingEcalDigiWorkerProd
     tok_eb_ = consumes<EBDigitizerTraits::DigiCollection>(EBPileInputTag_);
     tok_ee_ = consumes<EEDigitizerTraits::DigiCollection>(EEPileInputTag_);
@@ -174,18 +172,16 @@ namespace edm
 
     MuonWorker_ = new DataMixingMuonWorker(ps, consumesCollector());
 
-    // Si-Strips
-
-    useSiStripRawDigi_ = ps.exists("SiStripRawDigiSource")?
-      ps.getParameter<std::string>("SiStripRawDigiSource")=="PILEUP" ||
-      ps.getParameter<std::string>("SiStripRawDigiSource")=="SIGNAL" : false;
-
-    SiStripDigiCollectionDM_  = ps.getParameter<std::string>("SiStripDigiCollectionDM");
-
-
 
     if(MergeTrackerDigis_) {
 
+      // Si-Strips
+
+      useSiStripRawDigi_ = ps.exists("SiStripRawDigiSource")?
+	ps.getParameter<std::string>("SiStripRawDigiSource")=="PILEUP" ||
+	ps.getParameter<std::string>("SiStripRawDigiSource")=="SIGNAL" : false;
+      
+      SiStripDigiCollectionDM_  = ps.getParameter<std::string>("SiStripDigiCollectionDM");
 
       if(useSiStripRawDigi_) {
 	
@@ -236,8 +232,6 @@ namespace edm
       PUWorker_ = new DataMixingPileupCopy(ps, consumesCollector());
     }
 
-    cout << "DataMixingModule " << "...constructing done" <<std::endl;
-
   }
 
   void DataMixingModule::getSubdetectorNames() {
@@ -279,8 +273,6 @@ namespace edm
 
   void DataMixingModule::initializeEvent(const edm::Event &e, const edm::EventSetup& ES) { 
 
-    cout << "MixingModule " << " inialize event ..." << std::endl;
-
     if( addMCDigiNoise_ ) {
       if(MergeTrackerDigis_){
 	SiStripMCDigiWorker_->initializeEvent( e, ES );
@@ -294,8 +286,6 @@ namespace edm
     if( addMCDigiNoise_ && MergeHcalDigisProd_) {
       HcalDigiWorkerProd_->initializeEvent( e, ES );
     }
-
-    cout << "MixingModule " << "... inialize done" << std::endl;
   }
   
 
@@ -344,8 +334,7 @@ namespace edm
   void DataMixingModule::addSignals(const edm::Event &e, const edm::EventSetup& ES) { 
     // fill in maps of hits
 
-    //LogDebug("DataMixingModule")<<"===============> adding MC signals for "<<e.id();
-    cout << "DataMixingModule" <<"  ===============> adding MC signals for "<<e.id() << std::endl;
+    LogDebug("DataMixingModule")<<"===============> adding MC signals for "<<e.id();
 
     // Ecal
     if(MergeEMDigis_) { 
@@ -395,8 +384,7 @@ namespace edm
     ModuleCallingContext moduleCallingContext(&moduleDescription());
     ModuleContextSentry moduleContextSentry(&moduleCallingContext, parentContext);
 
-    //LogDebug("DataMixingModule") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
-    std::cout << "DataMixingModule" <<"  ===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr << std::endl;
+    LogDebug("DataMixingModule") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
 
     // Note:  setupPileUpEvent may modify the run and lumi numbers of the EventPrincipal to match that of the primary event.
     setupPileUpEvent(ES);
@@ -446,12 +434,8 @@ namespace edm
       if(addMCDigiNoise_ ) SiPixelMCDigiWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
       else SiPixelWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
     }else{
-      std::cout << "DataMixingModule  " << "mixing tracks" << std::endl;
-      std::cout << "make pileup event principal" << std::endl;
       PileUpEventPrincipal pep(ep,&moduleCallingContext,bcr);
-      std::cout << "do the actual mixing" << std::endl;
       GeneralTrackWorker_->accumulate(pep, ES,ep.streamID());
-      std::cout << "DataMixingModule  " << "... done mixing tracks" << std::endl;
     }
     
     
@@ -487,7 +471,6 @@ namespace edm
           NumPU_Events = 1;
         }  
 
-	std::cout << "init bx" << std::endl;
 	if(!MergeTrackerDigis_)
 	  GeneralTrackWorker_->initializeBunchCrossing(e, ES, bunchCrossing);
 
@@ -500,7 +483,6 @@ namespace edm
                 e.streamID()
 			   );
 
-	std::cout << "finish bx" << std::endl;
 	if(!MergeTrackerDigis_)
 	  GeneralTrackWorker_->finalizeBunchCrossing(e, ES, bunchCrossing);
 	
