@@ -34,6 +34,7 @@
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWRepresentationInfo.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/FWJobMetadataManager.h"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Common/interface/EventBase.h"
@@ -49,13 +50,13 @@ std::string viewNameFrom(const std::string& iFull)
 //
 // constructors and destructor
 //
-FWDetailViewManager::FWDetailViewManager(FWColorManager* colMng):
-   m_colorManager(colMng)
+FWDetailViewManager::FWDetailViewManager(fireworks::Context* iCtx):
+   m_context(iCtx)
 {  
    // force white background for all embedded canvases
    gROOT->SetStyle("Plain");
 
-   m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWDetailViewManager::colorsChanged,this));
+   m_context->colorManager()->colorsHaveChanged_.connect(boost::bind(&FWDetailViewManager::colorsChanged,this));
    gEve->GetWindowManager()->Connect( "WindowDeleted(TEveWindow*)", "FWDetailViewManager", this, "eveWindowDestroyed(TEveWindow*)");   
 }
 
@@ -97,7 +98,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
    TEveWindowSlot* ws  = (TEveWindowSlot*)(eveFrame->GetEveWindow());
    detailView->init(ws);
    detailView->build(id);
-   detailView->setBackgroundColor(m_colorManager->background());
+   detailView->setBackgroundColor(m_context->colorManager()->background());
 
    TGMainFrame* mf = (TGMainFrame*)(eveFrame->GetParent());
    mf->SetWindowName(Form("%s Detail View [%d]", id.item()->name().c_str(), id.index())); 
@@ -138,9 +139,6 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
    unsigned int closestMatch= 0xFFFFFFFF;
 
 
-   const edm::EventBase* eventBase = FWGUIManager::getGUIManager()->getCurrentEvent();
-   const fwlite::Event* event = dynamic_cast<const fwlite::Event*>(eventBase);
-
    for(std::set<std::string>::iterator it = detailViews.begin(), itEnd=detailViews.end();
        it!=itEnd;
        ++it) {
@@ -150,27 +148,21 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
       //see if we match via inheritance
       FWSimpleRepresentationChecker checker(type,"",0,false);
       FWRepresentationInfo info = checker.infoFor(iType);
+      bool pass = false;
       if(closestMatch > info.proximity()) {
+         pass = true;
          std::string::size_type firstD = it->find_first_of('&')+1;
          if(firstD != std::string::npos) {
           std::stringstream ss(it->substr(firstD));
-          // printf("DETAIL View req [%s] \n", ss.str().c_str());
-          if (!event) break;
-          for ( auto bit = event->getBranchDescriptions().begin(); bit !=  event->getBranchDescriptions().end(); ++bit)
-              {
-                  if (bit->moduleLabel() == ss.str()) {
-                      printf("UREKA !!!!!\n");
-                      returnValue.push_back(*it);
-                      break;
-                  }
-              }
+          std::string ml = ss.str();
+          // printf("DETAIL View [%s] req [%s] \n", *it, ss.str().c_str());
 
-
-         }
-         else {
-             returnValue.push_back(*it);
+          if (!m_context->metadataManager()->hasModuleLabel(ml)) {
+             pass = false;
+          }
          }
       }
+      if (pass) returnValue.push_back(*it);
    }
    m_typeToViewers[iType]=returnValue;
    return returnValue;
@@ -180,7 +172,7 @@ void
 FWDetailViewManager::colorsChanged()
 {
    for (vViews_i i = m_views.begin(); i !=  m_views.end(); ++i)
-      (*i).m_detailView->setBackgroundColor(m_colorManager->background());
+      (*i).m_detailView->setBackgroundColor(m_context->colorManager()->background());
 }
 
 
