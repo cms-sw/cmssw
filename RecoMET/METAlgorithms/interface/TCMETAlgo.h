@@ -150,7 +150,7 @@ private:
   double  eVetoMinElectronPt_;
   double  hOverECut_;
   std::vector<int> trkQuality_;
-  std::vector<int> trkAlgos_;
+  std::vector<reco::TrackBase::TrackAlgorithm> trkAlgos_;
 
   bool isCosmics_;
   bool correctShowerTracks_;

@@ -984,9 +984,9 @@ class AdHocNTupler : public NTupler {
    Handle<reco::TrackCollection> trks;
    iEvent.getByLabel("generalTracks",trks);
   
-   int pxlmin = 4; // iteration 0 (InitialStep)
-   int pxlmax = 6; // iteration 2 (PixelPairStep)
-   int itertobtec = 10; // iteration 6 (TobTecStep)
+   int pxlmin = reco::TrackBase::initialStep; // iteration 0 (InitialStep)
+   int pxlmax = reco::TrackBase::pixelPairStep; // iteration 2 (PixelPairStep)
+   int itertobtec = reco::TrackBase::tobTecStep; // iteration 6 (TobTecStep)
 
    int phiIterPixelTrks[phibins][2] = { {0} };
    int phiIterTobTecTrks[phibins][2] = { {0} };

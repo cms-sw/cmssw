@@ -1,4 +1,5 @@
 #include "DQM/PhysicsHWW/interface/MITConversionUtilities.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "TMath.h"
 
 namespace HWWFunctions {
@@ -20,10 +21,10 @@ namespace HWWFunctions {
       bool conversionMatchFound = false;
       for(unsigned int itk = 0; itk < hww.convs_tkidx().at(iconv).size(); itk++) {
 
-        if(hww.convs_tkalgo().at(iconv)[itk] == 29 && hww.convs_tkidx().at(iconv)[itk] == hww.els_gsftrkidx().at(elidx))
+        if(hww.convs_tkalgo().at(iconv)[itk] == reco::TrackBase::gsf && hww.convs_tkidx().at(iconv)[itk] == hww.els_gsftrkidx().at(elidx))
     conversionMatchFound = true;
         if(matchCTF) {
-    if(hww.convs_tkalgo().at(iconv)[itk] > 3 && hww.convs_tkalgo().at(iconv)[itk] < 14 && hww.convs_tkalgo().at(iconv)[itk] != 12 && hww.convs_tkidx().at(iconv)[itk] == hww.els_trkidx().at(elidx))
+          if(hww.convs_tkalgo().at(iconv)[itk] > reco::TrackBase::cosmics && hww.convs_tkalgo().at(iconv)[itk] < reco::TrackBase::muonSeededStepOutIn && hww.convs_tkalgo().at(iconv)[itk] != reco::TrackBase::conversionStep && hww.convs_tkidx().at(iconv)[itk] == hww.els_trkidx().at(elidx))
       conversionMatchFound = true;
         }
       

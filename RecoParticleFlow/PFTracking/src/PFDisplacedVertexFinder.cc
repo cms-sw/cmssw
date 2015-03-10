@@ -285,8 +285,8 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     TransientTrack tmpTk( *((*ie).get()), magField_, globTkGeomHandle_);
     transTracksRaw.push_back( tmpTk );
     transTracksRefRaw.push_back( *ie );
-    if ( (*ie)->algo()-4 > 3 ) nStep45++;
-    if ( (*ie)->algo()-4 < 0 ||(*ie)->algo()-4 > 5 ) nNotIterative++;
+    if ( (*ie)->algo() > reco::TrackBase::detachedTripletStep ) nStep45++;
+    if ( (*ie)->algo() < reco::TrackBase::initialStep ||(*ie)->algo() > reco::TrackBase::pixelLessStep ) nNotIterative++;
   }
 
   if (rho > 25 && nStep45 + nNotIterative < 1){

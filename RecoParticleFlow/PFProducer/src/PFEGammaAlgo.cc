@@ -1412,7 +1412,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	   const reco::PFBlockElementTrack * kfEle = 
 	     docast(const reco::PFBlockElementTrack*,kftrack.first);
 	   const reco::TrackRef trackref = kfEle->trackRef();
-	   const unsigned Algo = trackref->algo();
+	   const reco::TrackBase::TrackAlgorithm Algo = trackref->algo();
 	   const int nexhits = 
 	     trackref->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
 	   bool fromprimaryvertex = false;
@@ -1424,7 +1424,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	     }
 	   }// loop over tracks in primary vertex
 	    // if associated to good non-GSF matched track remove this cluster
-	   if( Algo < 9 && nexhits == 0 && fromprimaryvertex ) {
+	   if( Algo < reco::TrackBase::pixelLessStep && nexhits == 0 && fromprimaryvertex ) {
 	     closestECAL.second = false;
 	   } else { // otherwise associate the cluster and KF track
 	     _recoveredlinks.push_back( ElementMap::value_type(closestECAL.first,kftrack.first) );

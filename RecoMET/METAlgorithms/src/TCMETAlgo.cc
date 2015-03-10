@@ -120,7 +120,7 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, edm::ConsumesCollect
   maxchi2_tight_          = iConfig.getParameter<double>("chi2_tight_max" );
   minhits_tight_          = iConfig.getParameter<double>("nhits_tight_min");
   maxPtErr_tight_         = iConfig.getParameter<double>("ptErr_tight_max");
-  maxTrackAlgo_           = iConfig.getParameter<int>   ("maxTrackAlgo");
+  maxTrackAlgo_           = reco::TrackBase::algoByName(iConfig.getParameter<std::string>("maxTrackAlgo"));
 
   isCosmics_ = iConfig.getParameter<bool>  ("isCosmics");
   minpt_     = iConfig.getParameter<double>("pt_min"   );
@@ -132,7 +132,11 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, edm::ConsumesCollect
   hOverECut_ = iConfig.getParameter<double>("hOverECut");
 
   trkQuality_ = iConfig.getParameter<std::vector<int> >("track_quality");
-  trkAlgos_   = iConfig.getParameter<std::vector<int> >("track_algos"  );
+  std::vector<std::string> algos = iConfig.getParameter<std::vector<std::string> >("track_algos");
+  std::transform(algos.begin(), algos.end(), std::back_inserter(trkAlgos_), [](const std::string& a) {
+      return reco::TrackBase::algoByName(a);
+    });
+
 
   showerRF_          = getResponseFunction_shower();
   response_function_ = 0;

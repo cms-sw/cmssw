@@ -92,7 +92,7 @@ private:
   double  d0cutb_;
   bool    usePvtxd0_;
   std::vector<int> trkQuality_;
-  std::vector<int> trkAlgos_;
+  std::vector<reco::TrackBase::TrackAlgorithm> trkAlgos_;
 
   int     muonMinValidStaHits_;
   double  muonpt_;
