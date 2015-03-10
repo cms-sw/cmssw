@@ -15,9 +15,9 @@ namespace {
     typedef typename AlgebraicROOTObject<5,D>::Matrix Mat5D;
     typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
     typedef typename AlgebraicROOTObject<D>::Vector VecD;
-    using ROOT::Math::SMatrixIdentity;
+    using ROOT::Math::SMatrixNoInit;
     
-    VecD r, rMeas; SMatDD R(SMatrixIdentity{}), RMeas(SMatrixIdentity{});
+    VecD r, rMeas; SMatDD R(SMatrixNoInit{}), RMeas(SMatrixNoInit{});
     ProjectMatrix<double,5,D> dummyProjFunc;
     auto && v = tsos.localParameters().vector();
     auto && m = tsos.localError().matrix();

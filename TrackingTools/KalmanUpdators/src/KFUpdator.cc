@@ -17,7 +17,7 @@ TrajectoryStateOnSurface lupdate(const TrajectoryStateOnSurface& tsos,
   typedef typename AlgebraicROOTObject<5,D>::Matrix Mat5D;
   typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
   typedef typename AlgebraicROOTObject<D>::Vector VecD;
-  using ROOT::Math::SMatrixIdentity;
+  using ROOT::Math::SMatrixNoInit;
   double pzSign = tsos.localParameters().pzSign();
 
   auto && x = tsos.localParameters().vector();
@@ -28,7 +28,7 @@ TrajectoryStateOnSurface lupdate(const TrajectoryStateOnSurface& tsos,
  
   // Measurement matrix
   VecD r, rMeas; 
-  SMatDD V(SMatrixIdentity{}), VMeas(SMatrixIdentity{});
+  SMatDD V(SMatrixNoInit{}), VMeas(SMatrixNoInit{});
 
   KfComponentsHolder holder; 
   holder.template setup<D>(&r, &V, &pf, &rMeas, &VMeas, x, C);
