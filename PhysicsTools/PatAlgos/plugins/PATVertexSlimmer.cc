@@ -9,6 +9,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/PatCandidates/interface/libminifloat.h"
 
 namespace pat {
     class PATVertexSlimmer : public edm::EDProducer {
@@ -36,9 +38,17 @@ void pat::PATVertexSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& i
     std::auto_ptr<std::vector<reco::Vertex> > outPtr(new std::vector<reco::Vertex>());
 
     outPtr->reserve(vertices->size());
-    for (unsigned int i = 0, n = vertices->size(); i < n; ++i) { 
+    for (unsigned int i = 0, n = vertices->size(); i < n; ++i) {
         const reco::Vertex &v = (*vertices)[i];
-        outPtr->push_back(reco::Vertex(v.position(), v.error(), v.chi2(), v.ndof(), 0));
+        auto co = v.covariance();
+        if(i>0) {
+          for(size_t j=0;j<3;j++){
+            for(size_t k=j;k<3;k++){
+              co(j,k) = MiniFloatConverter::reduceMantissaToNbits<10>( co(j,k) );
+            }
+          }
+        }
+        outPtr->push_back(reco::Vertex(v.position(), co, v.chi2(), v.ndof(), 0));
     }
 
     iEvent.put(outPtr);
