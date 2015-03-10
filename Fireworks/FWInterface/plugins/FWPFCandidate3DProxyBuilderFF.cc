@@ -10,7 +10,7 @@
 //         Created:  Fri May 28 15:58:19 CEST 2010
 // Edited:           sharris, Wed 9 Feb 2011, 17:34
 //
-
+#include <set>
 #include "Fireworks/FWInterface/interface/FWFFLooper.h"
 // System include files
 #include "TEveTrack.h"
@@ -176,19 +176,22 @@ FWPFCandidate3DProxyBuilderFF::build( const reco::PFCandidate& iData, unsigned i
 
         std::vector<float> pnts;
         pnts.resize(24);
+        std::set< const CaloCellGeometry*> trapSet;
 	for( std::vector<std::pair<DetId, float> >::const_iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
 	     it != itEnd; ++it )
         {
            DetId dId = (*it).first ;
            int layerCnt =0;
            for( const auto& hgcGeom : m_handles ){
-              
+              // skip if disabled in collection controller
               if (!layerEnable[layerCnt++]) continue;
+
+
               // cell corners
               static const float maxd = 10000.0f;
               try {
                  int c = 0;
-                 const HGCalGeometry::CornersVec cor = hgcGeom->getCorners( dId ) ;
+                 const HGCalGeometry::CornersVec cor = hgcGeom->getCorners( dId );
                  for( const auto& corner : cor ) {
                     pnts[c*3] = corner.x();
                     pnts[c*3+1] = corner.y();
@@ -212,23 +215,22 @@ FWPFCandidate3DProxyBuilderFF::build( const reco::PFCandidate& iData, unsigned i
               // trapezoid corners
               try {
                  const CaloCellGeometry* cell = hgcGeom->getGeometry( dId);
-                 CaloCellGeometry::CornersVec dd = cell->getCorners(); 
-                 int c = 0;
-                 for( std::vector<GlobalPoint>::const_iterator i = dd.begin(); i != dd.end(); ++i )
-                 {  
-                    if (TMath::Abs(i->x()) > maxd || TMath::Abs(i->y()) > maxd  || TMath::Abs(i->z()) > maxd  )
-                      throw std::runtime_error("Error in vertices " );
+                 if (trapSet.find(cell) == trapSet.end()) {
+                    trapSet.insert(cell);
+                    CaloCellGeometry::CornersVec dd = cell->getCorners(); 
+                    int c = 0;
+                    for( std::vector<GlobalPoint>::const_iterator i = dd.begin(); i != dd.end(); ++i )
+                    {  
+                       if (TMath::Abs(i->x()) > maxd || TMath::Abs(i->y()) > maxd  || TMath::Abs(i->z()) > maxd  )
+                          throw std::runtime_error("Error in vertices " );
               
-                    pnts[c*3] = i->x();
-                    pnts[c*3+1] = i->y();
-                    pnts[c*3+2] = i->z();
-
-                  
-
-                    c++;
+                       pnts[c*3] = i->x();
+                       pnts[c*3+1] = i->y();
+                       pnts[c*3+2] = i->z();
+                       c++;
+                    }
+                    boxsetTop->AddBox( &pnts[0]);
                  }
-
-                 boxsetTop->AddBox( &pnts[0]);
               }
               catch (std::exception &e) {
                  //std::cout << "AMT get trapezoid corners invalid ID " << e.what() << std::endl;
