@@ -20,6 +20,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 
 // User include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
@@ -88,6 +89,11 @@ FWPFCandidate3DProxyBuilderFF::setItem(const FWEventItem* iItem)
    FWFFLooper::m_setup->get<IdealGeometryRecord>().get("HGCalHESiliconSensitive", m_handles.back());
    m_handles.push_back(edm::ESHandle<HGCalGeometry>());
    FWFFLooper::m_setup->get<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive", m_handles.back());
+
+   iItem->getConfig()->assertParam("HGCalEESensitive", true);
+   iItem->getConfig()->assertParam("HGCalHESiliconSensitive", true);
+   iItem->getConfig()->assertParam("HGCalHEScintillatorSensitive", true);
+
    }
    catch (std::exception& e) {
       std::cout << "FWPFCandidate3DProxyBuilderFF" <<  e.what() << std::endl;
@@ -111,6 +117,16 @@ FWPFCandidate3DProxyBuilderFF::localModelChanges(const FWModelId& iId, TEveEleme
 void 
 FWPFCandidate3DProxyBuilderFF::build( const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
+
+   bool layerEnable [] = {false, false, false};
+
+   if ( item()->getConfig()->value<bool>("HGCalEESensitive"))
+      layerEnable[0] = true;
+   if ( item()->getConfig()->value<bool>("HGCalHESiliconSensitive"))
+      layerEnable[1] = true;
+   if ( item()->getConfig()->value<bool>("HGCalHEScintillatorSensitive"))
+      layerEnable[2] = true;
+
   const FWDisplayProperties &dp = item()->defaultDisplayProperties();
  
   const reco::PFCandidate::ElementsInBlocks& elems = iData.elementsInBlocks();
@@ -164,7 +180,10 @@ FWPFCandidate3DProxyBuilderFF::build( const reco::PFCandidate& iData, unsigned i
 	     it != itEnd; ++it )
         {
            DetId dId = (*it).first ;
+           int layerCnt =0;
            for( const auto& hgcGeom : m_handles ){
+              
+              if (!layerEnable[layerCnt++]) continue;
               // cell corners
               static const float maxd = 10000.0f;
               try {
