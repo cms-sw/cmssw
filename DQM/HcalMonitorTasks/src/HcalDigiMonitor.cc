@@ -582,6 +582,7 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
       dccHeader->getSpigotData(spigot, htr, fed.size()); 
       
       int NTS = htr.getNDD(); //number time slices, in precision channels
+      if (NTS==0) continue; // no DAQ data in this HTR (fully zero-suppressed)
       int dccid=dccHeader->getSourceId();
       
       if(dccid==720 && (spigot==12 || spigot==13)) continue; // calibration HTR
