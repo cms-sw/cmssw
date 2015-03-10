@@ -62,7 +62,7 @@ class HLTHcalPFClusterIsolationProducer : public edm::global::EDProducer<> {
   const float rhoScale_;
   const float effectiveAreaBarrel_;
   const float effectiveAreaEndcap_;
-   
+  const bool useEt_;
 };
 
 #endif

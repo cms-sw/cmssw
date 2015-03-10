@@ -3,6 +3,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include <DataFormats/Math/interface/deltaR.h>
 
@@ -13,14 +14,16 @@ HcalPFClusterIsolation<T1>::HcalPFClusterIsolation(double drMax,
 						   double etaStripBarrel,
 						   double etaStripEndcap,
 						   double energyBarrel,
-						   double energyEndcap):
+						   double energyEndcap,
+						   bool useEt):
   drMax_(drMax),
   drVetoBarrel_(drVetoBarrel),
   drVetoEndcap_(drVetoEndcap),
   etaStripBarrel_(etaStripBarrel),
   etaStripEndcap_(etaStripEndcap),
   energyBarrel_(energyBarrel),
-  energyEndcap_(energyEndcap)
+  energyEndcap_(energyEndcap),
+  useEt_(useEt)
 {}
 
 template<typename T1>
@@ -63,7 +66,10 @@ double HcalPFClusterIsolation<T1>::getSum(const T1Ref candRef, std::vector<edm::
       if(dR > drMax_ || dR < dRVeto) 
 	continue;
       
-      etSum += pfclu->pt();
+      if (useEt_)
+	etSum += pfclu->pt();
+      else
+	etSum += pfclu->energy();
     }
   }
   
@@ -72,3 +78,5 @@ double HcalPFClusterIsolation<T1>::getSum(const T1Ref candRef, std::vector<edm::
 
 template class HcalPFClusterIsolation<reco::RecoEcalCandidate>;
 template class HcalPFClusterIsolation<reco::RecoChargedCandidate>;
+template class HcalPFClusterIsolation<reco::Photon>;
+template class HcalPFClusterIsolation<reco::GsfElectron>;

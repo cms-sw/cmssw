@@ -9,7 +9,9 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EcalPFClusterIsolation.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include <DataFormats/Math/interface/deltaR.h>
 
@@ -37,8 +39,6 @@ EcalPFClusterIsolation<T1>::~EcalPFClusterIsolation()
 template<typename T1>
 double EcalPFClusterIsolation<T1>::getSum(const T1Ref candRef, edm::Handle<reco::PFClusterCollection> clusterHandle) {
   
-  double etSum = 0.;
-  
   drVeto2_ = -1.;
   float etaStrip = -1;
  
@@ -50,7 +50,7 @@ double EcalPFClusterIsolation<T1>::getSum(const T1Ref candRef, edm::Handle<reco:
     etaStrip = etaStripEndcap_;
   }
    
-  float sum = 0;
+  float etSum = 0;
   for (size_t i=0; i<clusterHandle->size(); i++) {
     reco::PFClusterRef pfclu(clusterHandle, i);
 
@@ -64,57 +64,35 @@ double EcalPFClusterIsolation<T1>::getSum(const T1Ref candRef, edm::Handle<reco:
     
     float dEta = fabs(candRef->eta() - pfclu->eta());
     if(dEta < etaStrip) continue;
-    if (not computedRVeto(candRef, pfclu))
-      continue;
-    
-    sum += pfclu->pt();
+    if (not computedRVeto(candRef, pfclu)) continue;
+
+    etSum += pfclu->pt();
   }
 
   return etSum;
 }
 
-template<>
-bool EcalPFClusterIsolation<reco::RecoEcalCandidate>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
- 
-  float dR2 = deltaR2(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
-  if(dR2 > (drMax_*drMax_))
-    return false;
- 
-  if (candRef->superCluster().isNonnull()) {
-    // Exclude clusters that are part of the candidate
-
-    for (reco::CaloCluster_iterator it = candRef->superCluster()->clustersBegin(); it != candRef->superCluster()->clustersEnd(); ++it) {
-      if ((*it)->seed() == pfclu->seed()) {
-     return false;
-      }
-    }
-  }
-
-  return true;
-}
-
-template<>
-bool EcalPFClusterIsolation<reco::GsfElectron>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
- 
-  float dR2 = deltaR2(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
-  if(dR2 > (drMax_*drMax_))
-    return false;
- 
-  if (candRef->superCluster().isNonnull()) {
-    // Exclude clusters that are part of the candidate
-
-    for (reco::CaloCluster_iterator it = candRef->superCluster()->clustersBegin(); it != candRef->superCluster()->clustersEnd(); ++it) {
-      if ((*it)->seed() == pfclu->seed()) {
-     return false;
-      }
-    }
-  }
-
-  return true;
-}
-
 template<typename T1>
 bool EcalPFClusterIsolation<T1>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
+
+  float dR2 = deltaR2(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
+  if(dR2 > (drMax_*drMax_))
+    return false;
+
+  if (candRef->superCluster().isNonnull()) {
+    // Exclude clusters that are part of the candidate
+    for (reco::CaloCluster_iterator it = candRef->superCluster()->clustersBegin(); it != candRef->superCluster()->clustersEnd(); ++it) {
+      if ((*it)->seed() == pfclu->seed()) {
+	return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+template<>
+bool EcalPFClusterIsolation<reco::RecoChargedCandidate>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
 
   float dR2 = deltaR2(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
   if(dR2 > (drMax_*drMax_) || dR2 < drVeto2_)
@@ -125,3 +103,5 @@ bool EcalPFClusterIsolation<T1>::computedRVeto(T1Ref candRef, reco::PFClusterRef
 
 template class EcalPFClusterIsolation<reco::RecoEcalCandidate>;
 template class EcalPFClusterIsolation<reco::RecoChargedCandidate>;
+template class EcalPFClusterIsolation<reco::Photon>;
+template class EcalPFClusterIsolation<reco::GsfElectron>;

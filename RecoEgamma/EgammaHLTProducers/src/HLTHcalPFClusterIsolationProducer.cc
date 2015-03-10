@@ -34,7 +34,8 @@ HLTHcalPFClusterIsolationProducer<T1>::HLTHcalPFClusterIsolationProducer(const e
   rhoMax_                 ( config.getParameter<double>("rhoMax")),
   rhoScale_               ( config.getParameter<double>("rhoScale")), 
   effectiveAreaBarrel_    ( config.getParameter<double>("effectiveAreaBarrel")),
-  effectiveAreaEndcap_    ( config.getParameter<double>("effectiveAreaEndcap")) {
+  effectiveAreaEndcap_    ( config.getParameter<double>("effectiveAreaEndcap")),
+  useEt_                  ( config.getParameter<bool>("useEt")) {
   
   std::string recoCandidateProducerName = "recoCandidateProducer";
   if ((typeid(HLTHcalPFClusterIsolationProducer<T1>) == typeid(HLTHcalPFClusterIsolationProducer<reco::RecoEcalCandidate>))) recoCandidateProducerName = "recoEcalCandidateProducer";
@@ -74,6 +75,7 @@ void HLTHcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationD
   desc.add<double>("etaStripEndcap", 0.0);
   desc.add<double>("energyBarrel", 0.0);
   desc.add<double>("energyEndcap", 0.0);
+  desc.add<bool>("useEt", true);
   descriptions.add(std::string("hlt")+std::string(typeid(HLTHcalPFClusterIsolationProducer<T1>).name()), desc);
 }
 
@@ -112,7 +114,7 @@ void HLTHcalPFClusterIsolationProducer<T1>::produce(edm::StreamID sid, edm::Even
   }
 
   T1IsolationMap recoCandMap;
-  HcalPFClusterIsolation<T1> isoAlgo(drMax_, drVetoBarrel_, drVetoEndcap_, etaStripBarrel_, etaStripEndcap_, energyBarrel_, energyEndcap_);
+  HcalPFClusterIsolation<T1> isoAlgo(drMax_, drVetoBarrel_, drVetoEndcap_, etaStripBarrel_, etaStripEndcap_, energyBarrel_, energyEndcap_, useEt_);
   
   for (unsigned int iReco = 0; iReco < recoCandHandle->size(); iReco++) {
     T1Ref candRef(recoCandHandle, iReco);

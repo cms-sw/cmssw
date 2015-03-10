@@ -26,7 +26,8 @@ class HcalPFClusterIsolation {
 			 double etaStripBarrel,
 			 double etaStripEndcap,
 			 double energyBarrel,
-			 double energyEndcap);
+			 double energyEndcap,
+			 bool useEt);
   
   ~HcalPFClusterIsolation();
   double getSum(const T1Ref candRef, std::vector<edm::Handle<reco::PFClusterCollection>> clusterHandles);  
@@ -39,6 +40,7 @@ class HcalPFClusterIsolation {
   const double etaStripEndcap_;
   const double energyBarrel_;
   const double energyEndcap_;
+  const bool useEt_;
 
 };
 
