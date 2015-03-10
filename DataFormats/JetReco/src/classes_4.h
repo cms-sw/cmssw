@@ -67,6 +67,7 @@ namespace DataFormats_JetReco {
 
     edm::Ptr<reco::CaloJet> ptrcj;
     edm::PtrVector<reco::CaloJet> ptrvcj;
+    edm::reftobase::RefHolder<edm::Ptr<reco::CaloJet> > refHolderPtrCaloJet;
 
     edm::Ptr<reco::JPTJet> ptrjptj;
     edm::PtrVector<reco::JPTJet> ptrvjptj;
