@@ -27,6 +27,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "FWCore/Utilities/interface/transform.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 //
 // class decleration
 //
@@ -49,4 +50,6 @@ class JetSubstructurePacker : public edm::stream::EDProducer<> {
       std::vector<std::string>                     algoLabels_;
       std::vector<edm::InputTag>                   algoTags_;
       std::vector< edm::EDGetTokenT< edm::View<pat::Jet> > >   algoTokens_;
+      bool fixDaughters_;
+      edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
 };

@@ -82,6 +82,7 @@ def applySubstructure( process ) :
         packedPFCandidates = cms.InputTag("packedPFCandidates"),
         dropJetVars = cms.string("1"),
         dropDaughters = cms.string("0"),
+        rekeyDaughters = cms.string("1"),
         dropTrackRefs = cms.string("1"),
         dropSpecific = cms.string("1"),
         dropTagInfos = cms.string("1"),
@@ -130,6 +131,7 @@ def applySubstructure( process ) :
         packedPFCandidates = cms.InputTag("packedPFCandidates"),
         dropJetVars = cms.string("1"),
         dropDaughters = cms.string("0"),
+        rekeyDaughters = cms.string("1"),
         dropTrackRefs = cms.string("1"),
         dropSpecific = cms.string("1"),
         dropTagInfos = cms.string("1"),
@@ -152,7 +154,11 @@ def applySubstructure( process ) :
             algoLabels = cms.vstring(
                 'CMSTopTag',
                 'SoftDrop',
-                )
+                ),
+            fixDaughters = cms.bool(True),
+            packedPFCandidates = cms.InputTag("packedPFCandidates"),
     )
 
+    # switch off daughter re-keying since it's done in the JetSubstructurePacker (and can't be done afterwards)
+    process.slimmedJetsAK8.rekeyDaughters = "0"
 

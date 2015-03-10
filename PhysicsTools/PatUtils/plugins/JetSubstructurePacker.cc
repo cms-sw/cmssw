@@ -1,13 +1,16 @@
 #include "PhysicsTools/PatUtils/interface/JetSubstructurePacker.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 
 JetSubstructurePacker::JetSubstructurePacker(const edm::ParameterSet& iConfig) :
   distMax_( iConfig.getParameter<double>("distMax") ),
   jetToken_(consumes<edm::View<pat::Jet> >( iConfig.getParameter<edm::InputTag>("jetSrc") )),
   algoLabels_( iConfig.getParameter< std::vector<std::string> > ("algoLabels") ),
-  algoTags_ (iConfig.getParameter<std::vector<edm::InputTag> > ( "algoTags" ))
+  algoTags_ (iConfig.getParameter<std::vector<edm::InputTag> > ( "algoTags" )),
+  fixDaughters_(iConfig.getParameter<bool>("fixDaughters"))
 {
   algoTokens_ =edm::vector_transform(algoTags_, [this](edm::InputTag const & tag){return consumes< edm::View<pat::Jet> >(tag);});
+  if (fixDaughters_) pf2pc_ = consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
   //register products
   produces<std::vector<pat::Jet> > ();
 }
@@ -27,6 +30,9 @@ JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
  
   edm::Handle< edm::View<pat::Jet> > jetHandle;
   std::vector< edm::Handle< edm::View<pat::Jet> > > algoHandles;
+
+  edm::Handle<edm::Association<pat::PackedCandidateCollection> > pf2pc;
+  if (fixDaughters_) iEvent.getByToken(pf2pc_,pf2pc);
 
   iEvent.getByToken( jetToken_, jetHandle );
   algoHandles.resize( algoTags_.size() );
@@ -59,6 +65,38 @@ JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
 
       outputs->back().addSubjets( nextSubjets, algoLabels_[index] );
       ++index; 
+    }
+
+    // fix daughters
+    if (fixDaughters_) {
+        std::vector<reco::CandidatePtr> daughtersInSubjets;
+        std::vector<reco::CandidatePtr> daughtersNew;
+        //std::cout << "Jet with pt " << outputs->back().pt() << ", " << outputs->back().numberOfDaughters() << " daughters, " << outputs->back().subjets().size() << ", subjets" << std::endl;
+        for ( const edm::Ptr<pat::Jet> & subjet : outputs->back().subjets()) {
+            const std::vector<reco::CandidatePtr> & sjdaus = subjet->daughterPtrVector();
+            daughtersInSubjets.insert(daughtersInSubjets.end(), sjdaus.begin(), sjdaus.end());
+            daughtersNew.push_back( edm::Ptr<reco::Candidate>(subjet) );
+            //std::cout << "     found  " << subjet->numberOfDaughters() << " daughters in a subjet" << std::endl;
+        }
+        //if (!daughtersInSubjets.empty()) std::cout << "     subjet daughters are from collection " << daughtersInSubjets.front().id() << std::endl;
+        //std::cout << "     in total,  " << daughtersInSubjets.size() << " daughters from subjets" << std::endl;
+        for (edm::Ptr<reco::Candidate> dau : outputs->back().daughterPtrVector()) {
+            //if (!pf2pc->contains(dau.id())) {
+            //    std::cout << "     daughter from collection " << dau.id() << " not in the value map!" << std::endl;
+            //    std::cout << "     map expects collection " << pf2pc->ids().front().first << std::endl;
+            //    continue;
+            //}
+            reco::CandidatePtr rekeyed = edm::refToPtr((*pf2pc)[dau]);
+            if (std::find(daughtersInSubjets.begin(), daughtersInSubjets.end(), rekeyed) == daughtersInSubjets.end()) {
+                daughtersNew.push_back( rekeyed );
+            }
+        }
+        //std::cout << "     in total,  " << daughtersNew.size() << " daughters including subjets" << std::endl;
+        //if (daughtersNew.size() + daughtersInSubjets.size() - outputs->back().subjets().size() == outputs->back().numberOfDaughters()) {
+        //    std::cout << "     it all adds up to the original number of daughters" << std::endl;
+        //}
+        outputs->back().clearDaughters();
+        for (const auto & dau : daughtersNew) outputs->back().addDaughter(dau);
     }
   }
 
