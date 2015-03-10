@@ -7,7 +7,8 @@
 import FWCore.ParameterSet.Config as cms
 
 recoTrackAccumulator = cms.PSet(
-    Input = cms.InputTag("generalTracksBeforeMixing"),
+    InputSignal = cms.InputTag("generalTracksBeforeMixing"),
+    InputPileUp = cms.InputTag("generalTracksBeforeMixing"),
 
     GeneralTrackOutput = cms.string("generalTracks"),
     GeneralTrackExtraOutput = cms.string("generalTracks"),
