@@ -1,0 +1,71 @@
+<bin   file="ShiftTimeFromFile.cpp">
+  <use   name="root"/>
+  <use   name="rootcore"/>
+</bin>
+<bin   file="EcalTimingLaserAmpChecker.cpp">
+  <use   name="root"/>
+  <use   name="rootcore"/>
+  <use   name="rootinteractive"/>
+</bin>
+<bin   file="CreateEcalTimingCalibsEB.cpp">
+  <use   name="root"/>
+  <use   name="rootcore"/>
+  <use   name="DataFormats/EcalDetId"/>
+  <use   name="xerces-c"/>
+  <use   name="CondTools/Ecal"/>
+  <use   name="CalibCalorimetry/EcalTiming"/>
+</bin>
+<bin   file="CreateEcalTimingCalibsEE.cpp">
+  <use   name="root"/>
+  <use   name="rootcore"/>
+  <use   name="DataFormats/EcalDetId"/>
+  <use   name="xerces-c"/>
+  <use   name="CondTools/Ecal"/>
+  <use   name="CalibCalorimetry/EcalTiming"/>
+</bin>
+<bin   file="CompareEcalOfflineCalibs.cpp">
+  <use   name="root"/>
+  <use   name="rootcore"/>
+  <use   name="rootgraphics"/>
+  <use   name="DataFormats/EcalDetId"/>
+</bin>
+<bin   file="EcalTimingTTreePlotter.cpp">
+  <use   name="root"/>
+  <use   name="rootcore"/>
+  <use   name="rootinteractive"/>
+  <use   name="rootgraphics"/>
+  <use   name="DataFormats/EcalDetId"/>
+</bin>
+<bin   file="EcalTimingTTreePlotterNEW.cpp">
+  <use   name="root"/>
+  <use   name="rootcore"/>
+  <use   name="rootinteractive"/>
+  <use   name="rootgraphics"/>
+  <use   name="DataFormats/EcalDetId"/>
+</bin>
+<bin   file="ShiftEcalOfflineTimingCalibsXML.cpp">
+  <use   name="xerces-c"/>
+  <use   name="CondTools/Ecal"/>
+  <use   name="DataFormats/EcalDetId"/>
+</bin>
+<bin   file="CombineEcalOfflineTimingCalibsXML.cpp">
+  <use   name="xerces-c"/>
+  <use   name="CondTools/Ecal"/>
+  <use   name="DataFormats/EcalDetId"/>
+</bin>
+<bin   file="ShiftEcalOfflineTimingCalibsByConstant.cpp">
+  <use   name="xerces-c"/>
+  <use   name="CondTools/Ecal"/>
+  <use   name="DataFormats/EcalDetId"/>
+</bin>
+<bin   file="MakeEcalTimingTreePlots.cpp">
+  <use   name="root"/>
+  <use   name="DataFormats/EcalDetId"/>
+  <use   name="CalibCalorimetry/EcalTiming"/>
+  <use   name="rootcore"/>
+  <use   name="rootinteractive"/>
+  <use   name="rootgraphics"/>
+</bin>
+<bin   file="CompareEcalFETimingDQM.cpp">
+  <use   name="rootgraphics"/>
+</bin>

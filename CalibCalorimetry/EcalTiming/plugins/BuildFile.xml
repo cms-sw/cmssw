@@ -1,0 +1,25 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="CalibCalorimetry/EcalTiming"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="CondTools/Ecal"/>
+<use   name="DataFormats/EcalDigi"/>
+<use   name="DataFormats/EcalRecHit"/>
+<use   name="DataFormats/EcalDetId"/>
+<use   name="DataFormats/L1GlobalMuonTrigger"/>
+<use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="DQM/EcalCommon"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="Geometry/EcalMapping"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="TrackingTools/TrackAssociator"/>
+<use   name="CalibCalorimetry/EcalLaserCorrection"/>
+<use   name="clhep"/>
+<use   name="root"/>
+<use   name="xerces-c"/>
+<lib   name="Minuit"/>
+<library   file="*.cc" name="CalibCalorimetryEcalTimingPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

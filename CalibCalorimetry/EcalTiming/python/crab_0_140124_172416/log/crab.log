@@ -1,0 +1,813 @@
+2014-01-24 17:24:16,521 [DEBUG] 	/uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -create -submit
+
+2014-01-24 17:24:16,521 [INFO] 	Version 2.10.2 running on Fri Jan 24 17:24:16 2014 CST (23:24:16 UTC)
+
+crab. Working options:
+	scheduler           condor
+	job type            CMSSW
+	server              OFF
+	working directory   /uscms_data/d3/tnorbert/EcalTimingCalibration/2013-14TCalib/CMSSW_5_3_8_patch3/src/CalibCalorimetry/EcalTiming/python/crab_0_140124_172416/
+
+2014-01-24 17:24:16,522 [DEBUG] 	Downloading file [http://cmsdoc.cern.ch/cms/LCG/crab/config/] to [/uscms/home/tnorbert/.cms_crab/allowed_releases.conf].
+2014-01-24 17:24:16,522 [DEBUG] 	Service initialised ({'endpoint': 'http://cmsdoc.cern.ch/cms/LCG/crab/config/', 'maxcachereuse': 24.0, 'cachepath': '/uscms/home/tnorbert/.cms_crab', 'basepath': '/cms/LCG/crab/config/', 'method': None, 'timeout': 20, 'requests': {'endpoint': 'http://cmsdoc.cern.ch/cms/LCG/crab/config/', 'timeout': 20, 'cachepath': '/uscms/home/tnorbert/.cms_crab', 'cacheduration': 0.5, 'host': 'cmsdoc.cern.ch', 'accept_type': 'text/html', 'content_type': 'application/x-www-form-urlencoded', 'logger': <logging.Logger instance at 0xa9fdea8>, 'type': 'txt/csv', 'conn': <httplib.HTTPConnection instance at 0xaa03170>}, 'logger': <logging.Logger instance at 0xa9fdea8>, 'cacheduration': 0.5, 'type': 'txt/csv', 'inputdata': {}}):
+	 host: cmsdoc.cern.ch, basepath: /cms/LCG/crab/config/ (text/html)
+	 cache: /uscms/home/tnorbert/.cms_crab (duration 0.5 hours, max reuse 24.0 hours)
+2014-01-24 17:24:16,659 [DEBUG] 	Service initialised ({'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'content_type': 'application/json', 'maxcachereuse': 24.0, 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'basepath': '/sitedb/data/prod/', 'method': None, 'accept_type': 'application/json', 'timeout': 30, 'requests': {'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'host': 'cmsweb.cern.ch', 'accept_type': 'application/json', 'content_type': 'application/json', 'logger': <logging.Logger instance at 0xa9fdea8>, 'conn': <httplib.HTTPSConnection instance at 0xa979320>}, 'logger': <logging.Logger instance at 0xa9fdea8>, 'cacheduration': 0.5, 'inputdata': {}}):
+	 host: cmsweb.cern.ch, basepath: /sitedb/data/prod/ (application/json)
+	 cache: /uscms/home/tnorbert/.cms_sitedbcache (duration 0.5 hours, max reuse 24.0 hours)
+2014-01-24 17:24:16,659 [DEBUG] 	Service initialised ({'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'content_type': 'application/json', 'maxcachereuse': 24.0, 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'basepath': '/sitedb/data/prod/', 'method': None, 'accept_type': 'application/json', 'timeout': 30, 'requests': {'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'host': 'cmsweb.cern.ch', 'accept_type': 'application/json', 'content_type': 'application/json', 'logger': <logging.Logger instance at 0xa9fdea8>, 'conn': <httplib.HTTPSConnection instance at 0xa979368>}, 'logger': <logging.Logger instance at 0xa9fdea8>, 'cacheduration': 0.5, 'inputdata': {}}):
+	 host: cmsweb.cern.ch, basepath: /sitedb/data/prod/ (application/json)
+	 cache: /uscms/home/tnorbert/.cms_sitedbcache (duration 0.5 hours, max reuse 24.0 hours)
+2014-01-24 17:24:16,659 [DEBUG] 	Input whitelist: 
+2014-01-24 17:24:16,659 [DEBUG] 	Input blacklist: 
+2014-01-24 17:24:16,659 [DEBUG] 	Converted whitelist: 
+2014-01-24 17:24:16,660 [DEBUG] 	Converted blacklist: 
+2014-01-24 17:24:16,660 [INFO] 	Your domain name is fnal.gov: only local dataset will be considered
+2014-01-24 17:24:16,661 [INFO] 	Problem setting myproxy server endpoint: using myproxy.cern.ch
+2014-01-24 17:24:16,661 [DEBUG] 	global name 'Downloader' is not defined
+2014-01-24 17:24:17,956 [DEBUG] 	Service initialised ({'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'content_type': 'application/json', 'maxcachereuse': 24.0, 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'basepath': '/sitedb/data/prod/', 'method': None, 'accept_type': 'application/json', 'timeout': 30, 'requests': {'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'cacheduration': 24, 'host': 'cmsweb.cern.ch', 'accept_type': 'application/json', 'content_type': 'application/json', 'logger': <logging.Logger instance at 0xa9fdea8>, 'conn': <httplib.HTTPSConnection instance at 0xa979440>}, 'logger': <logging.Logger instance at 0xa9fdea8>, 'cacheduration': 24, 'inputdata': {}}):
+	 host: cmsweb.cern.ch, basepath: /sitedb/data/prod/ (application/json)
+	 cache: /uscms/home/tnorbert/.cms_sitedbcache (duration 24 hours, max reuse 24.0 hours)
+2014-01-24 17:24:19,222 [DEBUG] 	Linux cmslpc24.fnal.gov 2.6.18-371.1.2.el5 #1 SMP Tue Oct 22 11:40:34 CDT 2013 x86_64 x86_64 x86_64 GNU/Linux
+ 
+Used properties:
+Linux cmslpc24.fnal.gov 2.6.18-371.1.2.el5 #1 SMP Tue Oct 22 11:40:34 CDT 2013 x86_64 x86_64 x86_64 GNU/Linux
+ 
+Used properties:
+   CMSSW.datasetpath : /SinglePhoton/Run2012D-EXODisplacedPhoton-19Dec2012-v1/RECO
+   CMSSW.i#pset : Mydpanalysis_unclean.py
+   CMSSW.lumis_per_job : 35
+   CMSSW.number_of_jobs : 500
+   CMSSW.output_file : EcalTiming_Single_Pho_Run2012D.root
+   CMSSW.pset : Cleaned_ecalTimeEleMakeTree_cfg.py
+   CMSSW.total_number_of_events : -1
+   CRAB.create : 
+   CRAB.jobtype : cmssw
+   CRAB.scheduler : condor
+   CRAB.submit : 
+   CRAB.use_server : 0
+   GRID.se_white_list : fnal.gov
+   USER.copy_data : 0
+   USER.email : norbert@physics.umn.edu
+   USER.publish_data : 0
+   USER.return_data : 1
+   USER.storage_element : T2_US_Wisconsin
+   USER.user_remote_dir : TutGridSchool4TEN
+End of used properties.
+
+2014-01-24 17:24:19,312 [DEBUG] 	CMSSW::__init__
+2014-01-24 17:24:19,313 [DEBUG] 	Scram::Scram() version is 2
+2014-01-24 17:24:19,313 [DEBUG] 	Scram::Scram() arch is slc5_amd64_gcc462
+2014-01-24 17:24:19,314 [DEBUG] 	Downloading file [https://cmstags.cern.ch/tc/] to [/uscms/home/tnorbert/.cms_crab/ReleasesXML].
+2014-01-24 17:24:19,314 [DEBUG] 	Service initialised ({'endpoint': 'https://cmstags.cern.ch/tc/', 'maxcachereuse': 24.0, 'cachepath': '/uscms/home/tnorbert/.cms_crab', 'basepath': '/tc/', 'method': None, 'timeout': 20, 'requests': {'endpoint': 'https://cmstags.cern.ch/tc/', 'timeout': 20, 'cachepath': '/uscms/home/tnorbert/.cms_crab', 'cacheduration': 0.5, 'host': 'cmstags.cern.ch', 'accept_type': 'text/html', 'content_type': 'application/x-www-form-urlencoded', 'logger': <logging.Logger instance at 0xa9fdea8>, 'type': 'txt/csv', 'conn': <httplib.HTTPSConnection instance at 0xad96a70>}, 'logger': <logging.Logger instance at 0xa9fdea8>, 'cacheduration': 0.5, 'type': 'txt/csv', 'inputdata': {}}):
+	 host: cmstags.cern.ch, basepath: /tc/ (text/html)
+	 cache: /uscms/home/tnorbert/.cms_crab (duration 0.5 hours, max reuse 24.0 hours)
+2014-01-24 17:24:19,347 [DEBUG] 	Service initialised ({'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'content_type': 'application/json', 'maxcachereuse': 24.0, 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'basepath': '/sitedb/data/prod/', 'method': None, 'accept_type': 'application/json', 'timeout': 30, 'requests': {'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'host': 'cmsweb.cern.ch', 'accept_type': 'application/json', 'content_type': 'application/json', 'logger': <logging.Logger instance at 0xa9fdea8>, 'conn': <httplib.HTTPSConnection instance at 0xad969e0>}, 'logger': <logging.Logger instance at 0xa9fdea8>, 'cacheduration': 0.5, 'inputdata': {}}):
+	 host: cmsweb.cern.ch, basepath: /sitedb/data/prod/ (application/json)
+	 cache: /uscms/home/tnorbert/.cms_sitedbcache (duration 0.5 hours, max reuse 24.0 hours)
+2014-01-24 17:24:19,347 [DEBUG] 	Service initialised ({'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'content_type': 'application/json', 'maxcachereuse': 24.0, 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'basepath': '/sitedb/data/prod/', 'method': None, 'accept_type': 'application/json', 'timeout': 30, 'requests': {'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'host': 'cmsweb.cern.ch', 'accept_type': 'application/json', 'content_type': 'application/json', 'logger': <logging.Logger instance at 0xa9fdea8>, 'conn': <httplib.HTTPSConnection instance at 0xad96a28>}, 'logger': <logging.Logger instance at 0xa9fdea8>, 'cacheduration': 0.5, 'inputdata': {}}):
+	 host: cmsweb.cern.ch, basepath: /sitedb/data/prod/ (application/json)
+	 cache: /uscms/home/tnorbert/.cms_sitedbcache (duration 0.5 hours, max reuse 24.0 hours)
+2014-01-24 17:24:19,347 [DEBUG] 	Input whitelist: 
+2014-01-24 17:24:19,347 [DEBUG] 	Input blacklist: 
+2014-01-24 17:24:19,347 [DEBUG] 	Converted whitelist: 
+2014-01-24 17:24:19,348 [DEBUG] 	Converted blacklist: 
+2014-01-24 17:24:19,374 [INFO] 	Contacting Data Discovery Services ...
+2014-01-24 17:24:19,375 [INFO] 	Accessing DBS at: http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet
+2014-01-24 17:24:19,375 [INFO] 	Will do Data Discovery using  DBS2
+2014-01-24 17:24:19,448 [DEBUG] 	Set of input parameters used for DBS query: ['retrive_block', 'retrive_run', 'retrive_lumi']
+2014-01-24 17:25:35,050 [INFO] 	DBS2 lookup took 75.60 sec
+2014-01-24 17:25:35,292 [INFO] 	Datatype is data
+2014-01-24 17:25:35,581 [DEBUG] 	DLS interface: DLS_TYPE_PHEDEX Server https://cmsweb.cern.ch/phedex/datasvc/xml/prod/
+2014-01-24 17:25:36,989 [INFO] 	Requested dataset: /SinglePhoton/Run2012D-EXODisplacedPhoton-19Dec2012-v1/RECO has 11385947 events in 12 blocks.
+
+2014-01-24 17:25:36,989 [DEBUG] 	Job splitting method: LumiBased
+2014-01-24 17:25:36,990 [DEBUG] 	Service initialised ({'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'content_type': 'application/json', 'maxcachereuse': 24.0, 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'basepath': '/sitedb/data/prod/', 'method': None, 'accept_type': 'application/json', 'timeout': 30, 'requests': {'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'host': 'cmsweb.cern.ch', 'accept_type': 'application/json', 'content_type': 'application/json', 'logger': <logging.Logger instance at 0xa9fdea8>, 'conn': <httplib.HTTPSConnection instance at 0xabcc5f0>}, 'logger': <logging.Logger instance at 0xa9fdea8>, 'cacheduration': 0.5, 'inputdata': {}}):
+	 host: cmsweb.cern.ch, basepath: /sitedb/data/prod/ (application/json)
+	 cache: /uscms/home/tnorbert/.cms_sitedbcache (duration 0.5 hours, max reuse 24.0 hours)
+2014-01-24 17:25:36,990 [DEBUG] 	Service initialised ({'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'content_type': 'application/json', 'maxcachereuse': 24.0, 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'basepath': '/sitedb/data/prod/', 'method': None, 'accept_type': 'application/json', 'timeout': 30, 'requests': {'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'host': 'cmsweb.cern.ch', 'accept_type': 'application/json', 'content_type': 'application/json', 'logger': <logging.Logger instance at 0xa9fdea8>, 'conn': <httplib.HTTPSConnection instance at 0x158f95a8>}, 'logger': <logging.Logger instance at 0xa9fdea8>, 'cacheduration': 0.5, 'inputdata': {}}):
+	 host: cmsweb.cern.ch, basepath: /sitedb/data/prod/ (application/json)
+	 cache: /uscms/home/tnorbert/.cms_sitedbcache (duration 0.5 hours, max reuse 24.0 hours)
+2014-01-24 17:25:36,990 [DEBUG] 	Input whitelist: fnal.gov
+2014-01-24 17:25:36,991 [DEBUG] 	Input blacklist: 
+2014-01-24 17:25:37,055 [DEBUG] 	Converted whitelist: fnal.gov
+2014-01-24 17:25:37,055 [DEBUG] 	Converted blacklist: 
+2014-01-24 17:25:37,055 [INFO] 	SE white list applied to data location: ['fnal.gov']
+2014-01-24 17:25:37,056 [DEBUG] 	List of blocks and used locations (SE):
+2014-01-24 17:25:37,056 [DEBUG] 	/SinglePhoton/Run2012D-EXODisplacedPhoton-19Dec2012-v1/RECO#b3e0f318-66b5-11e2-9467-003048f02c8a : []
+2014-01-24 17:25:37,056 [DEBUG] 	/SinglePhoton/Run2012D-EXODisplacedPhoton-19Dec2012-v1/RECO#4bb38642-65b2-11e2-9467-003048f02c8a : []
+2014-01-24 17:25:37,057 [DEBUG] 	/SinglePhoton/Run2012D-EXODisplacedPhoton-19Dec2012-v1/RECO#a48f1050-6793-11e2-9467-003048f02c8a : []
+2014-01-24 17:25:37,057 [DEBUG] 	/SinglePhoton/Run2012D-EXODisplacedPhoton-19Dec2012-v1/RECO#fad6c248-6fcf-11e2-8e4a-003048f02c8a : []
+2014-01-24 17:25:37,057 [DEBUG] 	/SinglePhoton/Run2012D-EXODisplacedPhoton-19Dec2012-v1/RECO#62caa252-65cb-11e2-9467-003048f02c8a : []
+2014-01-24 17:25:37,057 [DEBUG] 	/SinglePhoton/Run2012D-EXODisplacedPhoton-19Dec2012-v1/RECO#f6014b42-6630-11e2-9467-003048f02c8a : []
+2014-01-24 17:25:37,057 [DEBUG] 	/SinglePhoton/Run2012D-EXODisplacedPhoton-19Dec2012-v1/RECO#d56ae48c-6604-11e2-9467-003048f02c8a : []
+2014-01-24 17:25:37,057 [DEBUG] 	/SinglePhoton/Run2012D-EXODisplacedPhoton-19Dec2012-v1/RECO#7a7d8f9a-66b1-11e2-9467-003048f02c8a : []
+2014-01-24 17:25:37,058 [DEBUG] 	/SinglePhoton/Run2012D-EXODisplacedPhoton-19Dec2012-v1/RECO#bde630ec-658b-11e2-9467-003048f02c8a : []
+2014-01-24 17:25:37,058 [DEBUG] 	/SinglePhoton/Run2012D-EXODisplacedPhoton-19Dec2012-v1/RECO#5b6a4622-660f-11e2-9467-003048f02c8a : []
+2014-01-24 17:25:37,058 [DEBUG] 	/SinglePhoton/Run2012D-EXODisplacedPhoton-19Dec2012-v1/RECO#f51139d2-6585-11e2-9467-003048f02c8a : []
+2014-01-24 17:25:37,058 [DEBUG] 	/SinglePhoton/Run2012D-EXODisplacedPhoton-19Dec2012-v1/RECO#2feb940e-65e9-11e2-9467-003048f02c8a : []
+2014-01-24 17:25:37,058 [DEBUG] 	Splitting by Lumi
+2014-01-24 17:25:39,873 [DEBUG] 	Job 1 will run on 1 files and 158 lumis 
+2014-01-24 17:25:39,873 [DEBUG] 	Job 2 will run on 1 files and 127 lumis 
+2014-01-24 17:25:39,874 [DEBUG] 	Job 3 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,874 [DEBUG] 	Job 4 will run on 2 files and 81 lumis 
+2014-01-24 17:25:39,875 [DEBUG] 	Job 5 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,875 [DEBUG] 	Job 6 will run on 1 files and 38 lumis 
+2014-01-24 17:25:39,876 [DEBUG] 	Job 7 will run on 1 files and 44 lumis 
+2014-01-24 17:25:39,876 [DEBUG] 	Job 8 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,877 [DEBUG] 	Job 9 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,877 [DEBUG] 	Job 10 will run on 5 files and 58 lumis 
+2014-01-24 17:25:39,877 [DEBUG] 	Job 11 will run on 2 files and 43 lumis 
+2014-01-24 17:25:39,878 [DEBUG] 	Job 12 will run on 2 files and 48 lumis 
+2014-01-24 17:25:39,878 [DEBUG] 	Job 13 will run on 3 files and 64 lumis 
+2014-01-24 17:25:39,879 [DEBUG] 	Job 14 will run on 2 files and 48 lumis 
+2014-01-24 17:25:39,879 [DEBUG] 	Job 15 will run on 2 files and 72 lumis 
+2014-01-24 17:25:39,880 [DEBUG] 	Job 16 will run on 2 files and 35 lumis 
+2014-01-24 17:25:39,880 [DEBUG] 	Job 17 will run on 3 files and 54 lumis 
+2014-01-24 17:25:39,880 [DEBUG] 	Job 18 will run on 2 files and 40 lumis 
+2014-01-24 17:25:39,881 [DEBUG] 	Job 19 will run on 2 files and 43 lumis 
+2014-01-24 17:25:39,881 [DEBUG] 	Job 20 will run on 1 files and 42 lumis 
+2014-01-24 17:25:39,882 [DEBUG] 	Job 21 will run on 2 files and 60 lumis 
+2014-01-24 17:25:39,882 [DEBUG] 	Job 22 will run on 2 files and 58 lumis 
+2014-01-24 17:25:39,883 [DEBUG] 	Job 23 will run on 1 files and 50 lumis 
+2014-01-24 17:25:39,883 [DEBUG] 	Job 24 will run on 5 files and 88 lumis 
+2014-01-24 17:25:39,884 [DEBUG] 	Job 25 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,884 [DEBUG] 	Job 26 will run on 1 files and 47 lumis 
+2014-01-24 17:25:39,884 [DEBUG] 	Job 27 will run on 2 files and 64 lumis 
+2014-01-24 17:25:39,885 [DEBUG] 	Job 28 will run on 2 files and 77 lumis 
+2014-01-24 17:25:39,885 [DEBUG] 	Job 29 will run on 1 files and 43 lumis 
+2014-01-24 17:25:39,886 [DEBUG] 	Job 30 will run on 1 files and 35 lumis 
+2014-01-24 17:25:39,886 [DEBUG] 	Job 31 will run on 2 files and 56 lumis 
+2014-01-24 17:25:39,887 [DEBUG] 	Job 32 will run on 2 files and 55 lumis 
+2014-01-24 17:25:39,887 [DEBUG] 	Job 33 will run on 2 files and 56 lumis 
+2014-01-24 17:25:39,888 [DEBUG] 	Job 34 will run on 2 files and 66 lumis 
+2014-01-24 17:25:39,888 [DEBUG] 	Job 35 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,889 [DEBUG] 	Job 36 will run on 2 files and 56 lumis 
+2014-01-24 17:25:39,889 [DEBUG] 	Job 37 will run on 2 files and 80 lumis 
+2014-01-24 17:25:39,890 [DEBUG] 	Job 38 will run on 1 files and 59 lumis 
+2014-01-24 17:25:39,890 [DEBUG] 	Job 39 will run on 2 files and 71 lumis 
+2014-01-24 17:25:39,891 [DEBUG] 	Job 40 will run on 2 files and 69 lumis 
+2014-01-24 17:25:39,891 [DEBUG] 	Job 41 will run on 2 files and 76 lumis 
+2014-01-24 17:25:39,892 [DEBUG] 	Job 42 will run on 1 files and 104 lumis 
+2014-01-24 17:25:39,892 [DEBUG] 	Job 43 will run on 2 files and 100 lumis 
+2014-01-24 17:25:39,893 [DEBUG] 	Job 44 will run on 1 files and 35 lumis 
+2014-01-24 17:25:39,893 [DEBUG] 	Job 45 will run on 1 files and 142 lumis 
+2014-01-24 17:25:39,894 [DEBUG] 	Job 46 will run on 5 files and 55 lumis 
+2014-01-24 17:25:39,895 [DEBUG] 	Job 47 will run on 3 files and 227 lumis 
+2014-01-24 17:25:39,896 [DEBUG] 	Job 48 will run on 1 files and 83 lumis 
+2014-01-24 17:25:39,896 [DEBUG] 	Job 49 will run on 1 files and 49 lumis 
+2014-01-24 17:25:39,897 [DEBUG] 	Job 50 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,897 [DEBUG] 	Job 51 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,897 [DEBUG] 	Job 52 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,898 [DEBUG] 	Job 53 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,898 [DEBUG] 	Job 54 will run on 3 files and 40 lumis 
+2014-01-24 17:25:39,899 [DEBUG] 	Job 55 will run on 3 files and 61 lumis 
+2014-01-24 17:25:39,899 [DEBUG] 	Job 56 will run on 2 files and 47 lumis 
+2014-01-24 17:25:39,899 [DEBUG] 	Job 57 will run on 2 files and 40 lumis 
+2014-01-24 17:25:39,900 [DEBUG] 	Job 58 will run on 2 files and 53 lumis 
+2014-01-24 17:25:39,900 [DEBUG] 	Job 59 will run on 2 files and 66 lumis 
+2014-01-24 17:25:39,901 [DEBUG] 	Job 60 will run on 1 files and 36 lumis 
+2014-01-24 17:25:39,901 [DEBUG] 	Job 61 will run on 2 files and 56 lumis 
+2014-01-24 17:25:39,902 [DEBUG] 	Job 62 will run on 2 files and 61 lumis 
+2014-01-24 17:25:39,902 [DEBUG] 	Job 63 will run on 1 files and 37 lumis 
+2014-01-24 17:25:39,903 [DEBUG] 	Job 64 will run on 2 files and 56 lumis 
+2014-01-24 17:25:39,903 [DEBUG] 	Job 65 will run on 2 files and 43 lumis 
+2014-01-24 17:25:39,903 [DEBUG] 	Job 66 will run on 2 files and 59 lumis 
+2014-01-24 17:25:39,904 [DEBUG] 	Job 67 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,904 [DEBUG] 	Job 68 will run on 2 files and 53 lumis 
+2014-01-24 17:25:39,905 [DEBUG] 	Job 69 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,905 [DEBUG] 	Job 70 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,905 [DEBUG] 	Job 71 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,906 [DEBUG] 	Job 72 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,906 [DEBUG] 	Job 73 will run on 1 files and 39 lumis 
+2014-01-24 17:25:39,907 [DEBUG] 	Job 74 will run on 2 files and 55 lumis 
+2014-01-24 17:25:39,907 [DEBUG] 	Job 75 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,907 [DEBUG] 	Job 76 will run on 1 files and 39 lumis 
+2014-01-24 17:25:39,908 [DEBUG] 	Job 77 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,908 [DEBUG] 	Job 78 will run on 2 files and 69 lumis 
+2014-01-24 17:25:39,909 [DEBUG] 	Job 79 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,909 [DEBUG] 	Job 80 will run on 2 files and 59 lumis 
+2014-01-24 17:25:39,910 [DEBUG] 	Job 81 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,910 [DEBUG] 	Job 82 will run on 2 files and 75 lumis 
+2014-01-24 17:25:39,911 [DEBUG] 	Job 83 will run on 2 files and 67 lumis 
+2014-01-24 17:25:39,911 [DEBUG] 	Job 84 will run on 2 files and 72 lumis 
+2014-01-24 17:25:39,912 [DEBUG] 	Job 85 will run on 1 files and 39 lumis 
+2014-01-24 17:25:39,912 [DEBUG] 	Job 86 will run on 1 files and 36 lumis 
+2014-01-24 17:25:39,912 [DEBUG] 	Job 87 will run on 2 files and 63 lumis 
+2014-01-24 17:25:39,913 [DEBUG] 	Job 88 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,913 [DEBUG] 	Job 89 will run on 1 files and 37 lumis 
+2014-01-24 17:25:39,914 [DEBUG] 	Job 90 will run on 1 files and 43 lumis 
+2014-01-24 17:25:39,914 [DEBUG] 	Job 91 will run on 1 files and 76 lumis 
+2014-01-24 17:25:39,914 [DEBUG] 	Job 92 will run on 1 files and 44 lumis 
+2014-01-24 17:25:39,915 [DEBUG] 	Job 93 will run on 2 files and 74 lumis 
+2014-01-24 17:25:39,915 [DEBUG] 	Job 94 will run on 1 files and 54 lumis 
+2014-01-24 17:25:39,916 [DEBUG] 	Job 95 will run on 1 files and 51 lumis 
+2014-01-24 17:25:39,916 [DEBUG] 	Job 96 will run on 1 files and 38 lumis 
+2014-01-24 17:25:39,917 [DEBUG] 	Job 97 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,917 [DEBUG] 	Job 98 will run on 2 files and 82 lumis 
+2014-01-24 17:25:39,918 [DEBUG] 	Job 99 will run on 1 files and 42 lumis 
+2014-01-24 17:25:39,918 [DEBUG] 	Job 100 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,919 [DEBUG] 	Job 101 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,919 [DEBUG] 	Job 102 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,920 [DEBUG] 	Job 103 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,920 [DEBUG] 	Job 104 will run on 1 files and 43 lumis 
+2014-01-24 17:25:39,921 [DEBUG] 	Job 105 will run on 2 files and 202 lumis 
+2014-01-24 17:25:39,921 [DEBUG] 	Job 106 will run on 1 files and 55 lumis 
+2014-01-24 17:25:39,922 [DEBUG] 	Job 107 will run on 2 files and 72 lumis 
+2014-01-24 17:25:39,922 [DEBUG] 	Job 108 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,923 [DEBUG] 	Job 109 will run on 4 files and 40 lumis 
+2014-01-24 17:25:39,923 [DEBUG] 	Job 110 will run on 1 files and 43 lumis 
+2014-01-24 17:25:39,923 [DEBUG] 	Job 111 will run on 2 files and 37 lumis 
+2014-01-24 17:25:39,924 [DEBUG] 	Job 112 will run on 2 files and 40 lumis 
+2014-01-24 17:25:39,924 [DEBUG] 	Job 113 will run on 2 files and 45 lumis 
+2014-01-24 17:25:39,925 [DEBUG] 	Job 114 will run on 1 files and 46 lumis 
+2014-01-24 17:25:39,925 [DEBUG] 	Job 115 will run on 2 files and 48 lumis 
+2014-01-24 17:25:39,925 [DEBUG] 	Job 116 will run on 2 files and 63 lumis 
+2014-01-24 17:25:39,926 [DEBUG] 	Job 117 will run on 2 files and 48 lumis 
+2014-01-24 17:25:39,926 [DEBUG] 	Job 118 will run on 2 files and 40 lumis 
+2014-01-24 17:25:39,927 [DEBUG] 	Job 119 will run on 2 files and 66 lumis 
+2014-01-24 17:25:39,927 [DEBUG] 	Job 120 will run on 2 files and 81 lumis 
+2014-01-24 17:25:39,928 [DEBUG] 	Job 121 will run on 2 files and 57 lumis 
+2014-01-24 17:25:39,928 [DEBUG] 	Job 122 will run on 2 files and 51 lumis 
+2014-01-24 17:25:39,929 [DEBUG] 	Job 123 will run on 2 files and 65 lumis 
+2014-01-24 17:25:39,929 [DEBUG] 	Job 124 will run on 2 files and 64 lumis 
+2014-01-24 17:25:39,930 [DEBUG] 	Job 125 will run on 2 files and 88 lumis 
+2014-01-24 17:25:39,930 [DEBUG] 	Job 126 will run on 1 files and 42 lumis 
+2014-01-24 17:25:39,931 [DEBUG] 	Job 127 will run on 2 files and 56 lumis 
+2014-01-24 17:25:39,931 [DEBUG] 	Job 128 will run on 2 files and 59 lumis 
+2014-01-24 17:25:39,932 [DEBUG] 	Job 129 will run on 2 files and 64 lumis 
+2014-01-24 17:25:39,932 [DEBUG] 	Job 130 will run on 2 files and 58 lumis 
+2014-01-24 17:25:39,933 [DEBUG] 	Job 131 will run on 2 files and 77 lumis 
+2014-01-24 17:25:39,934 [DEBUG] 	Job 132 will run on 1 files and 295 lumis 
+2014-01-24 17:25:39,934 [DEBUG] 	Job 133 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,935 [DEBUG] 	Job 134 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,935 [DEBUG] 	Job 135 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,935 [DEBUG] 	Job 136 will run on 1 files and 49 lumis 
+2014-01-24 17:25:39,936 [DEBUG] 	Job 137 will run on 1 files and 100 lumis 
+2014-01-24 17:25:39,936 [DEBUG] 	Job 138 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,937 [DEBUG] 	Job 139 will run on 2 files and 64 lumis 
+2014-01-24 17:25:39,937 [DEBUG] 	Job 140 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,938 [DEBUG] 	Job 141 will run on 2 files and 77 lumis 
+2014-01-24 17:25:39,938 [DEBUG] 	Job 142 will run on 2 files and 82 lumis 
+2014-01-24 17:25:39,939 [DEBUG] 	Job 143 will run on 2 files and 69 lumis 
+2014-01-24 17:25:39,939 [DEBUG] 	Job 144 will run on 1 files and 62 lumis 
+2014-01-24 17:25:39,940 [DEBUG] 	Job 145 will run on 1 files and 187 lumis 
+2014-01-24 17:25:39,941 [DEBUG] 	Job 146 will run on 1 files and 50 lumis 
+2014-01-24 17:25:39,941 [DEBUG] 	Job 147 will run on 2 files and 80 lumis 
+2014-01-24 17:25:39,942 [DEBUG] 	Job 148 will run on 2 files and 212 lumis 
+2014-01-24 17:25:39,943 [DEBUG] 	Job 149 will run on 1 files and 76 lumis 
+2014-01-24 17:25:39,943 [DEBUG] 	Job 150 will run on 1 files and 46 lumis 
+2014-01-24 17:25:39,944 [DEBUG] 	Job 151 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,948 [DEBUG] 	Job 152 will run on 1 files and 1100 lumis 
+2014-01-24 17:25:39,949 [DEBUG] 	Job 153 will run on 2 files and 49 lumis 
+2014-01-24 17:25:39,949 [DEBUG] 	Job 154 will run on 1 files and 55 lumis 
+2014-01-24 17:25:39,949 [DEBUG] 	Job 155 will run on 2 files and 58 lumis 
+2014-01-24 17:25:39,950 [DEBUG] 	Job 156 will run on 1 files and 37 lumis 
+2014-01-24 17:25:39,950 [DEBUG] 	Job 157 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,951 [DEBUG] 	Job 158 will run on 2 files and 73 lumis 
+2014-01-24 17:25:39,951 [DEBUG] 	Job 159 will run on 2 files and 68 lumis 
+2014-01-24 17:25:39,952 [DEBUG] 	Job 160 will run on 2 files and 95 lumis 
+2014-01-24 17:25:39,952 [DEBUG] 	Job 161 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,953 [DEBUG] 	Job 162 will run on 2 files and 67 lumis 
+2014-01-24 17:25:39,953 [DEBUG] 	Job 163 will run on 2 files and 63 lumis 
+2014-01-24 17:25:39,954 [DEBUG] 	Job 164 will run on 1 files and 39 lumis 
+2014-01-24 17:25:39,954 [DEBUG] 	Job 165 will run on 1 files and 55 lumis 
+2014-01-24 17:25:39,955 [DEBUG] 	Job 166 will run on 1 files and 44 lumis 
+2014-01-24 17:25:39,955 [DEBUG] 	Job 167 will run on 2 files and 40 lumis 
+2014-01-24 17:25:39,955 [DEBUG] 	Job 168 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,956 [DEBUG] 	Job 169 will run on 1 files and 56 lumis 
+2014-01-24 17:25:39,956 [DEBUG] 	Job 170 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,957 [DEBUG] 	Job 171 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,957 [DEBUG] 	Job 172 will run on 1 files and 53 lumis 
+2014-01-24 17:25:39,958 [DEBUG] 	Job 173 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,958 [DEBUG] 	Job 174 will run on 1 files and 39 lumis 
+2014-01-24 17:25:39,959 [DEBUG] 	Job 175 will run on 2 files and 73 lumis 
+2014-01-24 17:25:39,959 [DEBUG] 	Job 176 will run on 1 files and 68 lumis 
+2014-01-24 17:25:39,959 [DEBUG] 	Job 177 will run on 1 files and 36 lumis 
+2014-01-24 17:25:39,960 [DEBUG] 	Job 178 will run on 2 files and 67 lumis 
+2014-01-24 17:25:39,960 [DEBUG] 	Job 179 will run on 1 files and 36 lumis 
+2014-01-24 17:25:39,961 [DEBUG] 	Job 180 will run on 2 files and 62 lumis 
+2014-01-24 17:25:39,961 [DEBUG] 	Job 181 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,962 [DEBUG] 	Job 182 will run on 1 files and 48 lumis 
+2014-01-24 17:25:39,962 [DEBUG] 	Job 183 will run on 2 files and 80 lumis 
+2014-01-24 17:25:39,963 [DEBUG] 	Job 184 will run on 1 files and 39 lumis 
+2014-01-24 17:25:39,963 [DEBUG] 	Job 185 will run on 2 files and 66 lumis 
+2014-01-24 17:25:39,963 [DEBUG] 	Job 186 will run on 5 files and 38 lumis 
+2014-01-24 17:25:39,964 [DEBUG] 	Job 187 will run on 2 files and 40 lumis 
+2014-01-24 17:25:39,964 [DEBUG] 	Job 188 will run on 2 files and 55 lumis 
+2014-01-24 17:25:39,965 [DEBUG] 	Job 189 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,965 [DEBUG] 	Job 190 will run on 2 files and 88 lumis 
+2014-01-24 17:25:39,966 [DEBUG] 	Job 191 will run on 1 files and 54 lumis 
+2014-01-24 17:25:39,966 [DEBUG] 	Job 192 will run on 1 files and 67 lumis 
+2014-01-24 17:25:39,967 [DEBUG] 	Job 193 will run on 5 files and 38 lumis 
+2014-01-24 17:25:39,967 [DEBUG] 	Job 194 will run on 1 files and 37 lumis 
+2014-01-24 17:25:39,967 [DEBUG] 	Job 195 will run on 1 files and 45 lumis 
+2014-01-24 17:25:39,968 [DEBUG] 	Job 196 will run on 2 files and 40 lumis 
+2014-01-24 17:25:39,968 [DEBUG] 	Job 197 will run on 2 files and 48 lumis 
+2014-01-24 17:25:39,969 [DEBUG] 	Job 198 will run on 2 files and 58 lumis 
+2014-01-24 17:25:39,969 [DEBUG] 	Job 199 will run on 2 files and 51 lumis 
+2014-01-24 17:25:39,970 [DEBUG] 	Job 200 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,970 [DEBUG] 	Job 201 will run on 2 files and 59 lumis 
+2014-01-24 17:25:39,970 [DEBUG] 	Job 202 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,971 [DEBUG] 	Job 203 will run on 2 files and 47 lumis 
+2014-01-24 17:25:39,971 [DEBUG] 	Job 204 will run on 2 files and 42 lumis 
+2014-01-24 17:25:39,972 [DEBUG] 	Job 205 will run on 2 files and 64 lumis 
+2014-01-24 17:25:39,972 [DEBUG] 	Job 206 will run on 2 files and 48 lumis 
+2014-01-24 17:25:39,973 [DEBUG] 	Job 207 will run on 2 files and 57 lumis 
+2014-01-24 17:25:39,973 [DEBUG] 	Job 208 will run on 2 files and 53 lumis 
+2014-01-24 17:25:39,973 [DEBUG] 	Job 209 will run on 2 files and 50 lumis 
+2014-01-24 17:25:39,974 [DEBUG] 	Job 210 will run on 1 files and 49 lumis 
+2014-01-24 17:25:39,974 [DEBUG] 	Job 211 will run on 2 files and 57 lumis 
+2014-01-24 17:25:39,975 [DEBUG] 	Job 212 will run on 2 files and 56 lumis 
+2014-01-24 17:25:39,975 [DEBUG] 	Job 213 will run on 2 files and 52 lumis 
+2014-01-24 17:25:39,975 [DEBUG] 	Job 214 will run on 2 files and 57 lumis 
+2014-01-24 17:25:39,976 [DEBUG] 	Job 215 will run on 2 files and 70 lumis 
+2014-01-24 17:25:39,976 [DEBUG] 	Job 216 will run on 1 files and 67 lumis 
+2014-01-24 17:25:39,976 [DEBUG] 	Job 217 will run on 2 files and 66 lumis 
+2014-01-24 17:25:39,977 [DEBUG] 	Job 218 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,977 [DEBUG] 	Job 219 will run on 2 files and 64 lumis 
+2014-01-24 17:25:39,977 [DEBUG] 	Job 220 will run on 1 files and 35 lumis 
+2014-01-24 17:25:39,977 [DEBUG] 	Job 221 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,977 [DEBUG] 	Job 222 will run on 1 files and 36 lumis 
+2014-01-24 17:25:39,978 [DEBUG] 	Job 223 will run on 2 files and 45 lumis 
+2014-01-24 17:25:39,978 [DEBUG] 	Job 224 will run on 4 files and 53 lumis 
+2014-01-24 17:25:39,978 [DEBUG] 	Job 225 will run on 2 files and 50 lumis 
+2014-01-24 17:25:39,978 [DEBUG] 	Job 226 will run on 1 files and 53 lumis 
+2014-01-24 17:25:39,979 [DEBUG] 	Job 227 will run on 2 files and 94 lumis 
+2014-01-24 17:25:39,979 [DEBUG] 	Job 228 will run on 1 files and 40 lumis 
+2014-01-24 17:25:39,979 [DEBUG] 	Job 229 will run on 1 files and 46 lumis 
+2014-01-24 17:25:39,979 [DEBUG] 	Job 230 will run on 1 files and 44 lumis 
+2014-01-24 17:25:39,980 [DEBUG] 	Job 231 will run on 4 files and 78 lumis 
+2014-01-24 17:25:39,980 [DEBUG] 	Job 232 will run on 2 files and 50 lumis 
+2014-01-24 17:25:39,980 [DEBUG] 	Job 233 will run on 2 files and 46 lumis 
+2014-01-24 17:25:39,980 [DEBUG] 	Job 234 will run on 2 files and 46 lumis 
+2014-01-24 17:25:39,981 [DEBUG] 	Job 235 will run on 2 files and 49 lumis 
+2014-01-24 17:25:39,981 [DEBUG] 	Job 236 will run on 2 files and 43 lumis 
+2014-01-24 17:25:39,981 [DEBUG] 	Job 237 will run on 2 files and 45 lumis 
+2014-01-24 17:25:39,981 [DEBUG] 	Job 238 will run on 2 files and 58 lumis 
+2014-01-24 17:25:39,982 [DEBUG] 	Job 239 will run on 1 files and 41 lumis 
+2014-01-24 17:25:39,982 [DEBUG] 	Job 240 will run on 2 files and 49 lumis 
+2014-01-24 17:25:39,982 [DEBUG] 	Job 241 will run on 2 files and 56 lumis 
+2014-01-24 17:25:39,982 [DEBUG] 	Job 242 will run on 2 files and 46 lumis 
+2014-01-24 17:25:39,983 [DEBUG] 	Job 243 will run on 2 files and 58 lumis 
+2014-01-24 17:25:39,983 [DEBUG] 	Job 244 will run on 2 files and 70 lumis 
+2014-01-24 17:25:39,983 [DEBUG] 	Job 245 will run on 2 files and 48 lumis 
+2014-01-24 17:25:39,983 [DEBUG] 	Job 246 will run on 2 files and 55 lumis 
+2014-01-24 17:25:39,984 [DEBUG] 	Job 247 will run on 2 files and 56 lumis 
+2014-01-24 17:25:39,984 [DEBUG] 	Job 248 will run on 2 files and 56 lumis 
+2014-01-24 17:25:39,984 [DEBUG] 	Job 249 will run on 2 files and 37 lumis 
+2014-01-24 17:25:39,984 [DEBUG] 	Job 250 will run on 2 files and 66 lumis 
+2014-01-24 17:25:39,985 [DEBUG] 	Job 251 will run on 2 files and 84 lumis 
+2014-01-24 17:25:39,985 [DEBUG] 	Job 252 will run on 2 files and 56 lumis 
+2014-01-24 17:25:39,985 [DEBUG] 	Job 253 will run on 2 files and 56 lumis 
+2014-01-24 17:25:39,986 [DEBUG] 	Job 254 will run on 2 files and 55 lumis 
+2014-01-24 17:25:39,986 [DEBUG] 	Job 255 will run on 2 files and 65 lumis 
+2014-01-24 17:25:39,986 [DEBUG] 	Job 256 will run on 2 files and 46 lumis 
+2014-01-24 17:25:39,986 [DEBUG] 	Job 257 will run on 2 files and 44 lumis 
+2014-01-24 17:25:39,987 [DEBUG] 	Job 258 will run on 2 files and 71 lumis 
+2014-01-24 17:25:39,987 [DEBUG] 	Job 259 will run on 1 files and 83 lumis 
+2014-01-24 17:25:39,987 [DEBUG] 	Job 260 will run on 2 files and 64 lumis 
+2014-01-24 17:25:39,987 [DEBUG] 	Job 261 will run on 2 files and 50 lumis 
+2014-01-24 17:25:39,988 [DEBUG] 	Job 262 will run on 2 files and 67 lumis 
+2014-01-24 17:25:39,988 [DEBUG] 	Job 263 will run on 3 files and 60 lumis 
+2014-01-24 17:25:39,988 [DEBUG] 	Job 264 will run on 4 files and 59 lumis 
+2014-01-24 17:25:39,989 [DEBUG] 	Job 265 will run on 1 files and 43 lumis 
+2014-01-24 17:25:39,989 [DEBUG] 	Job 266 will run on 1 files and 52 lumis 
+2014-01-24 17:25:39,989 [DEBUG] 	Job 267 will run on 1 files and 43 lumis 
+2014-01-24 17:25:39,989 [DEBUG] 	Job 268 will run on 2 files and 43 lumis 
+2014-01-24 17:25:39,990 [DEBUG] 	Job 269 will run on 2 files and 50 lumis 
+2014-01-24 17:25:39,990 [DEBUG] 	Job 270 will run on 2 files and 49 lumis 
+2014-01-24 17:25:39,990 [DEBUG] 	Job 271 will run on 2 files and 66 lumis 
+2014-01-24 17:25:39,990 [DEBUG] 	Job 272 will run on 2 files and 65 lumis 
+2014-01-24 17:25:39,991 [DEBUG] 	Job 273 will run on 2 files and 80 lumis 
+2014-01-24 17:25:39,991 [DEBUG] 	Job 274 will run on 2 files and 42 lumis 
+2014-01-24 17:25:39,991 [DEBUG] 	Job 275 will run on 1 files and 37 lumis 
+2014-01-24 17:25:39,991 [DEBUG] 	Job 276 will run on 2 files and 61 lumis 
+2014-01-24 17:25:39,992 [DEBUG] 	Job 277 will run on 2 files and 63 lumis 
+2014-01-24 17:25:39,992 [DEBUG] 	Job 278 will run on 2 files and 63 lumis 
+2014-01-24 17:25:39,993 [DEBUG] 	Job 279 will run on 1 files and 265 lumis 
+2014-01-24 17:25:39,993 [DEBUG] 	Job 280 will run on 2 files and 56 lumis 
+2014-01-24 17:25:39,993 [DEBUG] 	Job 281 will run on 1 files and 9 lumis 
+2014-01-24 17:25:39,993 [INFO] 	Requested number of lumis reached.
+2014-01-24 17:25:39,993 [INFO] 	281 jobs created to run on 17500 lumis
+2014-01-24 17:25:40,042 [DEBUG] 	PsetManipulator::__init__: PSet file = Cleaned_ecalTimeEleMakeTree_cfg.py
+2014-01-24 17:25:43,087 [DEBUG] 	(test) edmOutputDict = {}
+2014-01-24 17:25:43,087 [DEBUG] 	(test) filter_dict for multi =  {}
+2014-01-24 17:25:43,087 [DEBUG] 	(test) var_filter for multi =  {}
+2014-01-24 17:25:43,096 [DEBUG] 	Exe /uscmst1/prod/sw/cms/slc5_amd64_gcc462/cms/cmssw/CMSSW_5_3_8/bin/slc5_amd64_gcc462/cmsRun to be tarred
+2014-01-24 17:25:43,146 [DEBUG] 	lib /uscms_data/d3/tnorbert/EcalTimingCalibration/2013-14TCalib/CMSSW_5_3_8_patch3/lib to be tarred
+2014-01-24 17:25:44,329 [DEBUG] 	data ECALTime/EcalTimePi0/data to be tarred
+2014-01-24 17:25:44,916 [DEBUG] 	Creator: JobType CMSSW created
+2014-01-24 17:25:44,916 [DEBUG] 	Creator: total # of jobs = 281
+2014-01-24 17:25:44,916 [DEBUG] 	Creator constructor finished
+2014-01-24 17:25:47,388 [DEBUG] 	parseRange_ None
+2014-01-24 17:25:47,546 [DEBUG] 	Scram::Scram() version is 2
+2014-01-24 17:25:47,547 [DEBUG] 	Scram::Scram() arch is slc5_amd64_gcc462
+2014-01-24 17:25:47,547 [DEBUG] 	Creator::run() called
+2014-01-24 17:25:47,548 [DEBUG] 	Scram::Scram() version is 2
+2014-01-24 17:25:47,548 [DEBUG] 	Scram::Scram() arch is slc5_amd64_gcc462
+2014-01-24 17:25:52,509 [INFO] 	Creating 281 jobs, please wait...
+2014-01-24 17:25:52,510 [DEBUG] 	Creation Time: 4.96274614334
+2014-01-24 17:25:52,510 [INFO] 	Total of 281 jobs created.
+
+2014-01-24 17:25:52,510 [DEBUG] 	Submitter::run() called
+2014-01-24 17:25:52,661 [DEBUG] 	Service initialised ({'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'content_type': 'application/json', 'maxcachereuse': 24.0, 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'basepath': '/sitedb/data/prod/', 'method': None, 'accept_type': 'application/json', 'timeout': 30, 'requests': {'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'host': 'cmsweb.cern.ch', 'accept_type': 'application/json', 'content_type': 'application/json', 'logger': <logging.Logger instance at 0xa9fdea8>, 'conn': <httplib.HTTPSConnection instance at 0x159ca050>}, 'logger': <logging.Logger instance at 0xa9fdea8>, 'cacheduration': 0.5, 'inputdata': {}}):
+	 host: cmsweb.cern.ch, basepath: /sitedb/data/prod/ (application/json)
+	 cache: /uscms/home/tnorbert/.cms_sitedbcache (duration 0.5 hours, max reuse 24.0 hours)
+2014-01-24 17:25:52,661 [DEBUG] 	Service initialised ({'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'content_type': 'application/json', 'maxcachereuse': 24.0, 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'basepath': '/sitedb/data/prod/', 'method': None, 'accept_type': 'application/json', 'timeout': 30, 'requests': {'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'host': 'cmsweb.cern.ch', 'accept_type': 'application/json', 'content_type': 'application/json', 'logger': <logging.Logger instance at 0xa9fdea8>, 'conn': <httplib.HTTPSConnection instance at 0x159cae60>}, 'logger': <logging.Logger instance at 0xa9fdea8>, 'cacheduration': 0.5, 'inputdata': {}}):
+	 host: cmsweb.cern.ch, basepath: /sitedb/data/prod/ (application/json)
+	 cache: /uscms/home/tnorbert/.cms_sitedbcache (duration 0.5 hours, max reuse 24.0 hours)
+2014-01-24 17:25:52,662 [DEBUG] 	Input whitelist: fnal.gov
+2014-01-24 17:25:52,662 [DEBUG] 	Input blacklist: 
+2014-01-24 17:25:52,726 [DEBUG] 	Converted whitelist: fnal.gov
+2014-01-24 17:25:52,726 [DEBUG] 	Converted blacklist: 
+2014-01-24 17:25:52,727 [DEBUG] 	nsjobs -1
+2014-01-24 17:25:52,727 [DEBUG] 	Total jobs 281
+2014-01-24 17:25:52,887 [INFO] 	Jobs:  1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,
+	skipped because no sites are hosting this data
+
+2014-01-24 17:25:52,887 [INFO] 	Submission performed using the Requirements: 
+	SE White List: fnal.gov
+	(Hint: By whitelisting you force the job to run at this particular site(s).
+	Please check if:
+		 -- the dataset is available at this site
+		 -- the CMSSW version is available at this site
+		 -- grid submission to CERN & FNAL CAFs is not allowed)
+	Please also look at the Site Status Page for CMS sites,
+	  to check if the sites hosting your data are ok
+	  http://dashb-ssb.cern.ch/dashboard/request.py/siteviewhome
+
+2014-01-24 17:25:52,888 [DEBUG] 	nj_list []
+2014-01-24 17:25:53,938 [DEBUG] 	GRIDNAME: /CN=Tambe Norbert 
+2014-01-24 17:25:53,972 [DEBUG] 	Service initialised ({'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'content_type': 'application/json', 'maxcachereuse': 24.0, 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'basepath': '/sitedb/data/prod/', 'method': None, 'accept_type': 'application/json', 'timeout': 30, 'requests': {'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'cacheduration': 24, 'host': 'cmsweb.cern.ch', 'accept_type': 'application/json', 'content_type': 'application/json', 'logger': <logging.Logger instance at 0xa9fdea8>, 'conn': <httplib.HTTPSConnection instance at 0x16345e60>}, 'logger': <logging.Logger instance at 0xa9fdea8>, 'cacheduration': 24, 'inputdata': {}}):
+	 host: cmsweb.cern.ch, basepath: /sitedb/data/prod/ (application/json)
+	 cache: /uscms/home/tnorbert/.cms_sitedbcache (duration 24 hours, max reuse 24.0 hours)
+2014-01-24 17:25:54,668 [DEBUG] 	Service initialised ({'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'content_type': 'application/json', 'maxcachereuse': 24.0, 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'basepath': '/sitedb/data/prod/', 'method': None, 'accept_type': 'application/json', 'timeout': 30, 'requests': {'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'cacheduration': 24, 'host': 'cmsweb.cern.ch', 'accept_type': 'application/json', 'content_type': 'application/json', 'logger': <logging.Logger instance at 0xa9fdea8>, 'conn': <httplib.HTTPSConnection instance at 0x16345e60>}, 'logger': <logging.Logger instance at 0xa9fdea8>, 'cacheduration': 24, 'inputdata': {}}):
+	 host: cmsweb.cern.ch, basepath: /sitedb/data/prod/ (application/json)
+	 cache: /uscms/home/tnorbert/.cms_sitedbcache (duration 24 hours, max reuse 24.0 hours)
+2014-01-24 17:25:55,358 [DEBUG] 	Submission DashBoard Pre-Submission report: {'ApplicationVersion': 'CMSSW_5_3_8_patch3', 'taskId': 'tambe_crab_0_140124_172416_sv0t49', 'resubmitter': 'user', 'tool': 'crab', 'vo': 'cms', 'tool_ui': 'cmslpc24.fnal.gov', 'JSToolVersion': '2.10.2', 'user': 'tambe', 'scheduler': 'condor', 'taskType': 'analysis', 'CMSUser': 'tambe', 'jobId': 'TaskMeta', 'datasetFull': '/SinglePhoton/Run2012D-EXODisplacedPhoton-19Dec2012-v1/RECO', 'exe': 'cmsRun', 'GridName': '/CN=Tambe Norbert', 'SubmissionType': 'direct'}
+2014-01-24 17:25:55,358 [INFO] 	Checking available resources...
+2014-01-24 17:25:55,563 [INFO] 	The whole task doesn't found compatible site 
+2014-01-24 17:25:55,563 [DEBUG] 	Submission Time: 3.05280399323
+2014-01-24 17:25:55,564 [INFO] 	Total of 0 jobs submitted.
+2014-01-24 17:25:55,564 [INFO] 	Submission performed using the Requirements: 
+	SE White List: fnal.gov
+	(Hint: By whitelisting you force the job to run at this particular site(s).
+	Please check if:
+		 -- the dataset is available at this site
+		 -- the CMSSW version is available at this site
+		 -- grid submission to CERN & FNAL CAFs is not allowed)
+	Please also look at the Site Status Page for CMS sites,
+	  to check if the sites hosting your data are ok
+	  http://dashb-ssb.cern.ch/dashboard/request.py/siteviewhome
+
+2014-01-24 17:46:17,684 [DEBUG] 	/uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+
+2014-01-24 17:46:17,685 [INFO] 	Version 2.10.2 running on Fri Jan 24 17:46:17 2014 CST (23:46:17 UTC)
+
+crab. Working options:
+	scheduler           condor
+	job type            CMSSW
+	server              OFF
+	working directory   /uscms_data/d3/tnorbert/EcalTimingCalibration/2013-14TCalib/CMSSW_5_3_8_patch3/src/CalibCalorimetry/EcalTiming/python/crab_0_140124_172416/
+
+2014-01-24 17:46:17,685 [DEBUG] 	Downloading file [http://cmsdoc.cern.ch/cms/LCG/crab/config/] to [/uscms/home/tnorbert/.cms_crab/allowed_releases.conf].
+2014-01-24 17:46:17,686 [DEBUG] 	Service initialised ({'endpoint': 'http://cmsdoc.cern.ch/cms/LCG/crab/config/', 'maxcachereuse': 24.0, 'cachepath': '/uscms/home/tnorbert/.cms_crab', 'basepath': '/cms/LCG/crab/config/', 'method': None, 'timeout': 20, 'requests': {'endpoint': 'http://cmsdoc.cern.ch/cms/LCG/crab/config/', 'timeout': 20, 'cachepath': '/uscms/home/tnorbert/.cms_crab', 'cacheduration': 0.5, 'host': 'cmsdoc.cern.ch', 'accept_type': 'text/html', 'content_type': 'application/x-www-form-urlencoded', 'logger': <logging.Logger instance at 0xd526e60>, 'type': 'txt/csv', 'conn': <httplib.HTTPConnection instance at 0xd52b128>}, 'logger': <logging.Logger instance at 0xd526e60>, 'cacheduration': 0.5, 'type': 'txt/csv', 'inputdata': {}}):
+	 host: cmsdoc.cern.ch, basepath: /cms/LCG/crab/config/ (text/html)
+	 cache: /uscms/home/tnorbert/.cms_crab (duration 0.5 hours, max reuse 24.0 hours)
+2014-01-24 17:46:17,819 [DEBUG] 	Service initialised ({'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'content_type': 'application/json', 'maxcachereuse': 24.0, 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'basepath': '/sitedb/data/prod/', 'method': None, 'accept_type': 'application/json', 'timeout': 30, 'requests': {'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'host': 'cmsweb.cern.ch', 'accept_type': 'application/json', 'content_type': 'application/json', 'logger': <logging.Logger instance at 0xd526e60>, 'conn': <httplib.HTTPSConnection instance at 0xd56a2d8>}, 'logger': <logging.Logger instance at 0xd526e60>, 'cacheduration': 0.5, 'inputdata': {}}):
+	 host: cmsweb.cern.ch, basepath: /sitedb/data/prod/ (application/json)
+	 cache: /uscms/home/tnorbert/.cms_sitedbcache (duration 0.5 hours, max reuse 24.0 hours)
+2014-01-24 17:46:17,819 [DEBUG] 	Service initialised ({'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'content_type': 'application/json', 'maxcachereuse': 24.0, 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'basepath': '/sitedb/data/prod/', 'method': None, 'accept_type': 'application/json', 'timeout': 30, 'requests': {'endpoint': 'https://cmsweb.cern.ch/sitedb/data/prod/', 'cachepath': '/uscms/home/tnorbert/.cms_sitedbcache', 'host': 'cmsweb.cern.ch', 'accept_type': 'application/json', 'content_type': 'application/json', 'logger': <logging.Logger instance at 0xd526e60>, 'conn': <httplib.HTTPSConnection instance at 0xd56a320>}, 'logger': <logging.Logger instance at 0xd526e60>, 'cacheduration': 0.5, 'inputdata': {}}):
+	 host: cmsweb.cern.ch, basepath: /sitedb/data/prod/ (application/json)
+	 cache: /uscms/home/tnorbert/.cms_sitedbcache (duration 0.5 hours, max reuse 24.0 hours)
+2014-01-24 17:46:17,819 [DEBUG] 	Input whitelist: 
+2014-01-24 17:46:17,820 [DEBUG] 	Input blacklist: 
+2014-01-24 17:46:17,820 [DEBUG] 	Converted whitelist: 
+2014-01-24 17:46:17,820 [DEBUG] 	Converted blacklist: 
+2014-01-24 17:46:17,821 [INFO] 	Your domain name is fnal.gov: only local dataset will be considered
+2014-01-24 17:46:17,821 [INFO] 	Problem setting myproxy server endpoint: using myproxy.cern.ch
+2014-01-24 17:46:17,821 [DEBUG] 	global name 'Downloader' is not defined
+2014-01-24 17:46:18,896 [DEBUG] 	Status::run() called
+2014-01-24 17:46:18,896 [INFO] 	Checking the status of all jobs: please wait
+2014-01-24 17:46:19,846 [INFO] 	
+ID    END STATUS            ACTION       ExeExitCode JobExitCode E_HOST
+----- --- ----------------- ------------  ---------- ----------- ---------
+1     N   Created           Created                              
+2     N   Created           Created                              
+3     N   Created           Created                              
+4     N   Created           Created                              
+5     N   Created           Created                              
+6     N   Created           Created                              
+7     N   Created           Created                              
+8     N   Created           Created                              
+9     N   Created           Created                              
+10    N   Created           Created                              
+--------------------------------------------------------------------------------
+11    N   Created           Created                              
+12    N   Created           Created                              
+13    N   Created           Created                              
+14    N   Created           Created                              
+15    N   Created           Created                              
+16    N   Created           Created                              
+17    N   Created           Created                              
+18    N   Created           Created                              
+19    N   Created           Created                              
+20    N   Created           Created                              
+--------------------------------------------------------------------------------
+21    N   Created           Created                              
+22    N   Created           Created                              
+23    N   Created           Created                              
+24    N   Created           Created                              
+25    N   Created           Created                              
+26    N   Created           Created                              
+27    N   Created           Created                              
+28    N   Created           Created                              
+29    N   Created           Created                              
+30    N   Created           Created                              
+--------------------------------------------------------------------------------
+31    N   Created           Created                              
+32    N   Created           Created                              
+33    N   Created           Created                              
+34    N   Created           Created                              
+35    N   Created           Created                              
+36    N   Created           Created                              
+37    N   Created           Created                              
+38    N   Created           Created                              
+39    N   Created           Created                              
+40    N   Created           Created                              
+--------------------------------------------------------------------------------
+41    N   Created           Created                              
+42    N   Created           Created                              
+43    N   Created           Created                              
+44    N   Created           Created                              
+45    N   Created           Created                              
+46    N   Created           Created                              
+47    N   Created           Created                              
+48    N   Created           Created                              
+49    N   Created           Created                              
+50    N   Created           Created                              
+--------------------------------------------------------------------------------
+51    N   Created           Created                              
+52    N   Created           Created                              
+53    N   Created           Created                              
+54    N   Created           Created                              
+55    N   Created           Created                              
+56    N   Created           Created                              
+57    N   Created           Created                              
+58    N   Created           Created                              
+59    N   Created           Created                              
+60    N   Created           Created                              
+--------------------------------------------------------------------------------
+61    N   Created           Created                              
+62    N   Created           Created                              
+63    N   Created           Created                              
+64    N   Created           Created                              
+65    N   Created           Created                              
+66    N   Created           Created                              
+67    N   Created           Created                              
+68    N   Created           Created                              
+69    N   Created           Created                              
+70    N   Created           Created                              
+--------------------------------------------------------------------------------
+71    N   Created           Created                              
+72    N   Created           Created                              
+73    N   Created           Created                              
+74    N   Created           Created                              
+75    N   Created           Created                              
+76    N   Created           Created                              
+77    N   Created           Created                              
+78    N   Created           Created                              
+79    N   Created           Created                              
+80    N   Created           Created                              
+--------------------------------------------------------------------------------
+81    N   Created           Created                              
+82    N   Created           Created                              
+83    N   Created           Created                              
+84    N   Created           Created                              
+85    N   Created           Created                              
+86    N   Created           Created                              
+87    N   Created           Created                              
+88    N   Created           Created                              
+89    N   Created           Created                              
+90    N   Created           Created                              
+--------------------------------------------------------------------------------
+91    N   Created           Created                              
+92    N   Created           Created                              
+93    N   Created           Created                              
+94    N   Created           Created                              
+95    N   Created           Created                              
+96    N   Created           Created                              
+97    N   Created           Created                              
+98    N   Created           Created                              
+99    N   Created           Created                              
+100   N   Created           Created                              
+--------------------------------------------------------------------------------
+101   N   Created           Created                              
+102   N   Created           Created                              
+103   N   Created           Created                              
+104   N   Created           Created                              
+105   N   Created           Created                              
+106   N   Created           Created                              
+107   N   Created           Created                              
+108   N   Created           Created                              
+109   N   Created           Created                              
+110   N   Created           Created                              
+--------------------------------------------------------------------------------
+111   N   Created           Created                              
+112   N   Created           Created                              
+113   N   Created           Created                              
+114   N   Created           Created                              
+115   N   Created           Created                              
+116   N   Created           Created                              
+117   N   Created           Created                              
+118   N   Created           Created                              
+119   N   Created           Created                              
+120   N   Created           Created                              
+--------------------------------------------------------------------------------
+121   N   Created           Created                              
+122   N   Created           Created                              
+123   N   Created           Created                              
+124   N   Created           Created                              
+125   N   Created           Created                              
+126   N   Created           Created                              
+127   N   Created           Created                              
+128   N   Created           Created                              
+129   N   Created           Created                              
+130   N   Created           Created                              
+--------------------------------------------------------------------------------
+131   N   Created           Created                              
+132   N   Created           Created                              
+133   N   Created           Created                              
+134   N   Created           Created                              
+135   N   Created           Created                              
+136   N   Created           Created                              
+137   N   Created           Created                              
+138   N   Created           Created                              
+139   N   Created           Created                              
+140   N   Created           Created                              
+--------------------------------------------------------------------------------
+141   N   Created           Created                              
+142   N   Created           Created                              
+143   N   Created           Created                              
+144   N   Created           Created                              
+145   N   Created           Created                              
+146   N   Created           Created                              
+147   N   Created           Created                              
+148   N   Created           Created                              
+149   N   Created           Created                              
+150   N   Created           Created                              
+--------------------------------------------------------------------------------
+151   N   Created           Created                              
+152   N   Created           Created                              
+153   N   Created           Created                              
+154   N   Created           Created                              
+155   N   Created           Created                              
+156   N   Created           Created                              
+157   N   Created           Created                              
+158   N   Created           Created                              
+159   N   Created           Created                              
+160   N   Created           Created                              
+--------------------------------------------------------------------------------
+161   N   Created           Created                              
+162   N   Created           Created                              
+163   N   Created           Created                              
+164   N   Created           Created                              
+165   N   Created           Created                              
+166   N   Created           Created                              
+167   N   Created           Created                              
+168   N   Created           Created                              
+169   N   Created           Created                              
+170   N   Created           Created                              
+--------------------------------------------------------------------------------
+171   N   Created           Created                              
+172   N   Created           Created                              
+173   N   Created           Created                              
+174   N   Created           Created                              
+175   N   Created           Created                              
+176   N   Created           Created                              
+177   N   Created           Created                              
+178   N   Created           Created                              
+179   N   Created           Created                              
+180   N   Created           Created                              
+--------------------------------------------------------------------------------
+181   N   Created           Created                              
+182   N   Created           Created                              
+183   N   Created           Created                              
+184   N   Created           Created                              
+185   N   Created           Created                              
+186   N   Created           Created                              
+187   N   Created           Created                              
+188   N   Created           Created                              
+189   N   Created           Created                              
+190   N   Created           Created                              
+--------------------------------------------------------------------------------
+191   N   Created           Created                              
+192   N   Created           Created                              
+193   N   Created           Created                              
+194   N   Created           Created                              
+195   N   Created           Created                              
+196   N   Created           Created                              
+197   N   Created           Created                              
+198   N   Created           Created                              
+199   N   Created           Created                              
+200   N   Created           Created                              
+--------------------------------------------------------------------------------
+201   N   Created           Created                              
+202   N   Created           Created                              
+203   N   Created           Created                              
+204   N   Created           Created                              
+205   N   Created           Created                              
+206   N   Created           Created                              
+207   N   Created           Created                              
+208   N   Created           Created                              
+209   N   Created           Created                              
+210   N   Created           Created                              
+--------------------------------------------------------------------------------
+211   N   Created           Created                              
+212   N   Created           Created                              
+213   N   Created           Created                              
+214   N   Created           Created                              
+215   N   Created           Created                              
+216   N   Created           Created                              
+217   N   Created           Created                              
+218   N   Created           Created                              
+219   N   Created           Created                              
+220   N   Created           Created                              
+--------------------------------------------------------------------------------
+221   N   Created           Created                              
+222   N   Created           Created                              
+223   N   Created           Created                              
+224   N   Created           Created                              
+225   N   Created           Created                              
+226   N   Created           Created                              
+227   N   Created           Created                              
+228   N   Created           Created                              
+229   N   Created           Created                              
+230   N   Created           Created                              
+--------------------------------------------------------------------------------
+231   N   Created           Created                              
+232   N   Created           Created                              
+233   N   Created           Created                              
+234   N   Created           Created                              
+235   N   Created           Created                              
+236   N   Created           Created                              
+237   N   Created           Created                              
+238   N   Created           Created                              
+239   N   Created           Created                              
+240   N   Created           Created                              
+--------------------------------------------------------------------------------
+241   N   Created           Created                              
+242   N   Created           Created                              
+243   N   Created           Created                              
+244   N   Created           Created                              
+245   N   Created           Created                              
+246   N   Created           Created                              
+247   N   Created           Created                              
+248   N   Created           Created                              
+249   N   Created           Created                              
+250   N   Created           Created                              
+--------------------------------------------------------------------------------
+251   N   Created           Created                              
+252   N   Created           Created                              
+253   N   Created           Created                              
+254   N   Created           Created                              
+255   N   Created           Created                              
+256   N   Created           Created                              
+257   N   Created           Created                              
+258   N   Created           Created                              
+259   N   Created           Created                              
+260   N   Created           Created                              
+--------------------------------------------------------------------------------
+261   N   Created           Created                              
+262   N   Created           Created                              
+263   N   Created           Created                              
+264   N   Created           Created                              
+265   N   Created           Created                              
+266   N   Created           Created                              
+267   N   Created           Created                              
+268   N   Created           Created                              
+269   N   Created           Created                              
+270   N   Created           Created                              
+--------------------------------------------------------------------------------
+271   N   Created           Created                              
+272   N   Created           Created                              
+273   N   Created           Created                              
+274   N   Created           Created                              
+275   N   Created           Created                              
+276   N   Created           Created                              
+277   N   Created           Created                              
+278   N   Created           Created                              
+279   N   Created           Created                              
+280   N   Created           Created                              
+--------------------------------------------------------------------------------
+281   N   Created           Created                              
+
+2014-01-24 17:46:20,345 [INFO] 	 281 Total Jobs 
+ >>>>>>>>> 281 Jobs Created 
+
+2014-01-24 17:46:20,492 [INFO] 	You can also follow the status of this task on :
+	CMS Dashboard: http://dashb-cms-job-task.cern.ch/taskmon.html#task=tambe_crab_0_140124_172416_sv0t49
+	Your task name is: tambe_crab_0_140124_172416_sv0t49 
+
+2014-01-24 17:46:20,493 [DEBUG] 	Status Time: 1.59669518471

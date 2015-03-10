@@ -1,0 +1,15 @@
+/afs/cern.ch/user/j/jared/public/4giovanni/XmlFiles/July28/EcalTimeCalibConstants-160431-161019.xml
+/afs/cern.ch/user/j/jared/public/4giovanni/XmlFiles/July28/EcalTimeCalibConstants-161020-162764.xml
+/afs/cern.ch/user/j/jared/public/4giovanni/XmlFiles/July28/EcalTimeCalibConstants-162765-163078.xml
+/afs/cern.ch/user/j/jared/public/4giovanni/XmlFiles/July28/EcalTimeCalibConstants-163079-163331.xml
+/afs/cern.ch/user/j/jared/public/4giovanni/XmlFiles/July28/EcalTimeCalibConstants-163332-163869.xml
+/afs/cern.ch/user/j/jared/public/4giovanni/XmlFiles/July28/EcalTimeCalibConstants-163870-165632.xml
+/afs/cern.ch/user/j/jared/public/4giovanni/XmlFiles/July28/EcalTimeCalibConstants-165633-165633.xml
+/afs/cern.ch/user/j/jared/public/4giovanni/XmlFiles/July28/EcalTimeCalibConstants-165634-167550.xml
+/afs/cern.ch/user/j/jared/public/4giovanni/XmlFiles/July28/EcalTimeCalibConstants-167551-167754.xml
+/afs/cern.ch/user/j/jared/public/4giovanni/XmlFiles/July28/EcalTimeCalibConstants-167755-169810.xml
+/afs/cern.ch/user/j/jared/public/4giovanni/XmlFiles/July28/EcalTimeCalibConstants-169811-170721.xml
+/afs/cern.ch/user/j/jared/public/4giovanni/XmlFiles/July28/EcalTimeCalibConstants-170722-170759.xml
+/afs/cern.ch/user/j/jared/public/4giovanni/XmlFiles/July28/EcalTimeCalibConstants-170760-170901.xml
+/afs/cern.ch/user/j/jared/public/4giovanni/XmlFiles/July28/EcalTimeCalibConstants-170902-888888.xml
+

@@ -1,0 +1,30 @@
+140123_095450: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -create -submit
+140123_095635: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140123_100713: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140123_101005: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140123_102837: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140123_103600: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140123_112229: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140123_113301: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140123_115617: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140123_121745: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140123_122920: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140123_134747: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140123_195715: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140124_115054: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140124_115154: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140124_115601: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -kill all
+140124_120124: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -kill all
+140124_121808: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -create -submit
+140124_122247: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140124_122631: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140124_135920: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140124_140001: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -kill all
+140124_153852: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -create -submit
+140124_153907: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -create -submit
+140124_154102: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
+140124_154112: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -submit
+140124_154124: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -submit
+140124_172005: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -create -submit
+140124_172416: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -create -submit
+140124_174617: /uscmst1/prod/grid/CRAB_2_10_2_patch1/python/crab.py -status
