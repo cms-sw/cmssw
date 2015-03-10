@@ -30,6 +30,7 @@
 
 class SiStripDetCabling;
 class SiStripDetInfoFileReader;
+class TrackerTopology;
 
 class SiStripQuality GCC11_FINAL : public SiStripBadStrip {
 
@@ -141,7 +142,7 @@ class SiStripQuality GCC11_FINAL : public SiStripBadStrip {
   void turnOffFeds(const std::vector<int> & fedsList, const bool turnOffStrips, const bool printDebug);
 
   /// Prints debug output for a given detId
-  void printDetInfo(const uint32_t &detId, const uint32_t &apvPairNumber, std::stringstream &ss);
+  void printDetInfo(const TrackerTopology* const tTopo, const uint32_t &detId, const uint32_t &apvPairNumber, std::stringstream &ss);
   /// Prints debug output for the active feds comparing the list in RunInfo and FedCabling
   void printActiveFedsInfo( const std::vector<uint16_t> & activeFedsFromCabling,
                             const std::vector<int> & activeFedsFromRunInfo,

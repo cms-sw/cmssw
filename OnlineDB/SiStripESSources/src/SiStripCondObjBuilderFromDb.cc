@@ -13,6 +13,7 @@
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
@@ -41,7 +42,8 @@ SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb(const edm::ParameterSet
   m_useanalysis(static_cast<bool>(pset.getUntrackedParameter<bool>("UseAnalysis",false))),
   m_usefed(static_cast<bool>(pset.getUntrackedParameter<bool>("UseFED",false))),
   m_usefec(static_cast<bool>(pset.getUntrackedParameter<bool>("UseFEC",false))),
-  m_debug(static_cast<bool>(pset.getUntrackedParameter<bool>("DebugMode",false)))
+  m_debug(static_cast<bool>(pset.getUntrackedParameter<bool>("DebugMode",false))),
+  tTopo(buildTrackerTopology())
 {
   LogTrace(mlESSources_) 
     << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
@@ -50,7 +52,7 @@ SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb(const edm::ParameterSet
 
 // -----------------------------------------------------------------------------
 /** */
-SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb() 
+SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb(): tTopo(buildTrackerTopology())
 {
   LogTrace(mlESSources_) 
     << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
@@ -63,6 +65,7 @@ SiStripCondObjBuilderFromDb::~SiStripCondObjBuilderFromDb() {
   LogTrace(mlESSources_)
     << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
     << " Destructing object...";
+  delete tTopo;
 }
 
 // -----------------------------------------------------------------------------
@@ -74,8 +77,82 @@ void SiStripCondObjBuilderFromDb::checkUpdate() {
     buildCondObj();
   }  
 }
+// -----------------------------------------------------------------------------
+TrackerTopology * SiStripCondObjBuilderFromDb::buildTrackerTopology() {
+  TrackerTopology::PixelBarrelValues pxbVals_;
+  TrackerTopology::PixelEndcapValues pxfVals_;
+  TrackerTopology::TECValues tecVals_;
+  TrackerTopology::TIBValues tibVals_;
+  TrackerTopology::TIDValues tidVals_;
+  TrackerTopology::TOBValues tobVals_;
 
+  pxbVals_.layerStartBit_        =   16;
+  pxbVals_.ladderStartBit_       =   8;
+  pxbVals_.moduleStartBit_       =   2;
+  pxbVals_.layerMask_            =   0xF;
+  pxbVals_.ladderMask_           =   0xFF;
+  pxbVals_.moduleMask_           =   0x3F;
+  pxfVals_.sideStartBit_         =   23;
+  pxfVals_.diskStartBit_         =   16;
+  pxfVals_.bladeStartBit_        =   10;
+  pxfVals_.panelStartBit_        =   8;
+  pxfVals_.moduleStartBit_       =   2;
+  pxfVals_.sideMask_             =   0x3;
+  pxfVals_.diskMask_             =   0xF;
+  pxfVals_.bladeMask_            =   0x3F;
+  pxfVals_.panelMask_            =   0x3;
+  pxfVals_.moduleMask_           =   0x3F;
+  tecVals_.sideStartBit_         =   18;
+  tecVals_.wheelStartBit_        =   14;
+  tecVals_.petal_fw_bwStartBit_  =   12;
+  tecVals_.petalStartBit_        =   8;
+  tecVals_.ringStartBit_         =   5;
+  tecVals_.moduleStartBit_       =   2;
+  tecVals_.sterStartBit_         =   0;
+  tecVals_.sideMask_             =   0x3;
+  tecVals_.wheelMask_            =   0xF;
+  tecVals_.petal_fw_bwMask_      =   0x3;
+  tecVals_.petalMask_            =   0xF;
+  tecVals_.ringMask_             =   0x7;
+  tecVals_.moduleMask_           =   0x7;
+  tecVals_.sterMask_             =   0x3;
+  tibVals_.layerStartBit_        =   14;
+  tibVals_.str_fw_bwStartBit_    =   12;
+  tibVals_.str_int_extStartBit_  =   10;
+  tibVals_.strStartBit_          =   4;
+  tibVals_.moduleStartBit_       =   2;
+  tibVals_.sterStartBit_         =   0;
+  tibVals_.layerMask_            =   0x7;
+  tibVals_.str_fw_bwMask_        =   0x3;
+  tibVals_.str_int_extMask_      =   0x3;
+  tibVals_.strMask_              =   0x3F;
+  tibVals_.moduleMask_           =   0x3;
+  tibVals_.sterMask_             =   0x3;
+  tidVals_.sideStartBit_         =   13;
+  tidVals_.wheelStartBit_        =   11;
+  tidVals_.ringStartBit_         =   9;
+  tidVals_.module_fw_bwStartBit_ =   7;
+  tidVals_.moduleStartBit_       =   2;
+  tidVals_.sterStartBit_         =   0;
+  tidVals_.sideMask_             =   0x3;
+  tidVals_.wheelMask_            =   0x3;
+  tidVals_.ringMask_             =   0x3;
+  tidVals_.module_fw_bwMask_     =   0x3;
+  tidVals_.moduleMask_           =   0x1F;
+  tidVals_.sterMask_             =   0x3;
+  tobVals_.layerStartBit_        =   14;
+  tobVals_.rod_fw_bwStartBit_    =   12;
+  tobVals_.rodStartBit_          =   5;
+  tobVals_.moduleStartBit_       =   2;
+  tobVals_.sterStartBit_         =   0;
+  tobVals_.layerMask_            =   0x7;
+  tobVals_.rod_fw_bwMask_        =   0x3;
+  tobVals_.rodMask_              =   0x7F;
+  tobVals_.moduleMask_           =   0x7;
+  tobVals_.sterMask_             =   0x3;
 
+  return new TrackerTopology(pxbVals_, pxfVals_, tecVals_, tibVals_, tidVals_, tobVals_);
+}
 // -----------------------------------------------------------------------------
 /** */
 bool SiStripCondObjBuilderFromDb::checkForCompatibility(std::stringstream& input,std::stringstream& output,std::string& label){
@@ -130,7 +207,7 @@ void SiStripCondObjBuilderFromDb::buildCondObj() {
       fed_cabling_=new SiStripFedCabling;
 
       SiStripFedCablingBuilderFromDb::getFedCabling( fec_cabling, *fed_cabling_ );
-      SiStripDetCabling det_cabling( *fed_cabling_ );
+      SiStripDetCabling det_cabling( *fed_cabling_, tTopo );
       buildStripRelatedObjects( &*db_, det_cabling );
      
      
