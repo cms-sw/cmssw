@@ -112,7 +112,8 @@
    <version ClassVersion="10" checksum="2692173055"/>
   </class>
   <class name="std::vector<pat::tau::TauCaloSpecific>" />
-  <class name="pat::tau::TauPFEssential" ClassVersion="10">
+  <class name="pat::tau::TauPFEssential" ClassVersion="11">
+    <version ClassVersion="11" checksum="1193752112" />
     <version ClassVersion="10" checksum="1628501942" />
   </class>
   <class name="std::vector<pat::tau::TauPFEssential>" />

@@ -19,29 +19,35 @@
 namespace pat { namespace tau {
 
 struct TauPFEssential {
+  // define a float-precision version of the typedefs in reco::PFTauTransverseImpactParameter class
+  typedef math::PtEtaPhiMLorentzVectorF LorentzVector;
+  typedef math::XYZPointF Point;
+  typedef math::XYZVectorF Vector;
+  typedef math::ErrorF<3>::type CovMatrix;
+
 // dummy constructor for ROOT I/O
   TauPFEssential() {}
 // constructor from PFTau
   TauPFEssential(const reco::PFTau& tau);
 // datamembers 
-  reco::Candidate::LorentzVector p4Jet_;
-  reco::Candidate::LorentzVector p4CorrJet_;
+  LorentzVector p4Jet_;
+  LorentzVector p4CorrJet_;
   
   int decayMode_;
   
-  reco::PFTauTransverseImpactParameter::Point dxy_PCA_;
-  double dxy_;
-  double dxy_error_;
-  double dxy_Sig_;
+  Point dxy_PCA_;
+  float dxy_;
+  float dxy_error_;
+  float dxy_Sig_;
   reco::VertexRef pv_;
-  reco::PFTauTransverseImpactParameter::Point pvPos_;
-  reco::PFTauTransverseImpactParameter::CovMatrix pvCov_;
+  Point pvPos_;
+  CovMatrix pvCov_;
   bool hasSV_;
-  reco::PFTauTransverseImpactParameter::Vector flightLength_;
-  double flightLengthSig_;
+  Vector flightLength_;
+  float flightLengthSig_;
   reco::VertexRef sv_;
-  reco::PFTauTransverseImpactParameter::Point svPos_;
-  reco::PFTauTransverseImpactParameter::CovMatrix svCov_;
+  Point svPos_;
+  CovMatrix svCov_;
 };
 
 } }
