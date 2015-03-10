@@ -176,10 +176,11 @@ def miniAOD_customizeCommon(process):
 
     # Adding puppi jets
     process.load('CommonTools.PileupAlgos.Puppi_cff')
+    process.patCandidates += process.puppi
     process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
     #process.puppi.candName = cms.InputTag('packedPFCandidates')
     #process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
-
+    
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     process.ak4PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
         j2tParametersVX,
@@ -196,21 +197,29 @@ def miniAOD_customizeCommon(process):
                     algo= 'AK', rParam = 0.4, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
                     )
     
-    process.patJetGenJetMatchPuppi.matched =  'slimmedGenJets'
-
-    process.patJetsPuppi.userData = process.patJets.userData
-    process.patJetsPuppi.userData.userFloats.src = cms.VInputTag("")
+    process.patJetGenJetMatchPuppi.matched = 'slimmedGenJets'
+    
+    process.patJetsPuppi.userData.userFloats.src = cms.VInputTag(cms.InputTag(""))
     process.patJetsPuppi.jetChargeSource = cms.InputTag("patJetPuppiCharge")
     process.patJetsPuppi.tagInfoSources = cms.VInputTag(cms.InputTag("pfSecondaryVertexTagInfosPuppi"))
     process.patJetsPuppi.addTagInfos = cms.bool(True)
 
     process.selectedPatJetsPuppi.cut = cms.string("pt > 20")
 
+    #process.packedPFPuppiCandidates = process.packedPFCandidates.clone()
+    #process.packedPFPuppiCandidates.inputCollection = cms.InputTag("puppi")
+    #process.puppiPtrs = cms.EDProducer("PFCandidateFwdPtrProducer",src = cms.InputTag('puppi'))
+
+
+    process.packedPFCandidates.PuppiSrc = cms.InputTag("puppi")
+    
     process.load('PhysicsTools.PatAlgos.slimming.slimmedJets_cfi')
     process.slimmedJetsPuppi = process.slimmedJets.clone()
-    process.slimmedJetsPuppi.src = cms.InputTag("selectedPatJetsPuppi")
-    ## process.slimmedJetsPuppi.packedPFCandidates = cms.InputTag("puppi")
-    process.slimmedJetsPuppi.dropDaughters = cms.string("1")
+    process.slimmedJetsPuppi.src = cms.InputTag("selectedPatJetsPuppi")    
+    process.slimmedJetsPuppi.packedPFCandidates = cms.InputTag("packedPFCandidates")
+    #process.slimmedJetsPuppi.dropDaughters = cms.string("1")
+    #process.slimmedJets.dropDaughters = cms.string("1")
+    process.slimmedJetsAK8.dropDaughters = cms.string("1")
 
     ## puppi met
     process.load('RecoMET.METProducers.PFMET_cfi')
