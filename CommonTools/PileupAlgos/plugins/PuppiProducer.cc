@@ -181,8 +181,13 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   iEvent.put(lPupOut,"PuppiWeights");
   iEvent.put(p4PupOut,"PuppiP4s");
-  iEvent.put(fPuppiCandidates);
-  
+ // iEvent.put(fPuppiCandidates);
+   edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put( fPuppiCandidates );
+
+   for(unsigned int ic=0, nc = oh->size(); ic < nc; ++ic) {
+	reco::CandidatePtr pkref( oh, ic );
+	values[ic] = pkref;
+   }
   std::auto_ptr<edm::ValueMap<reco::CandidatePtr> > pfMap_p(new edm::ValueMap<reco::CandidatePtr>());
   edm::ValueMap<reco::CandidatePtr>::Filler filler(*pfMap_p);
   filler.insert(hPFProduct, values.begin(), values.end());
