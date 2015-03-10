@@ -146,9 +146,8 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 
    size_t totalSize = 0;
    const GenEvent * mc = 0;
-   std::vector<Handle<HepMCProduct> > heps;
    MixCollection<HepMCProduct>* cfhepmcprod = 0;
-   size_t npiles = vectorSrcTokens_.size();
+   size_t npiles = 1;
 
    if(useCF_){
       Handle<CrossingFrame<HepMCProduct> > cf;
@@ -161,14 +160,6 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	 totalSize += cfhepmcprod->getObject(icf).GetEvent()->particles_size();
       }
       LogDebug("GenParticleProducer")<<"totalSize : "<<totalSize<<endl;
-
-   }else if (doSubEvent_){
-      for(size_t i = 0; i < npiles; ++i){
-	 Handle<HepMCProduct> handle;
-	 heps.push_back(handle);
-	 evt.getByToken( vectorSrcTokens_[i], heps[i] );
-	 totalSize += heps[i]->GetEvent()->particles_size();
-      }
    }else{
       Handle<HepMCProduct> mcp;
       evt.getByToken( srcToken_, mcp );
@@ -183,11 +174,9 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
    const size_t size = totalSize;
   vector<const HepMC::GenParticle *> particles( size );
   auto_ptr<GenParticleCollection> candsPtr( new GenParticleCollection( size ) );
-  //  auto_ptr<SubEventMap> subsPtr( new SubEventMap() );
   auto_ptr<vector<int> > barCodeVector( new vector<int>( size ) );
   ref_ = evt.getRefBeforePut<GenParticleCollection>();
   GenParticleCollection & cands = * candsPtr;
-  //  SubEventMap & subs = *subsPtr;
   size_t offset = 0;
   size_t suboffset = 0;
 
@@ -197,7 +186,6 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	LogDebug("GenParticleProducer")<<"mixed object ipile : "<<ipile<<endl;
 	barcodes_.clear();
 	if(useCF_) mc = cfhepmcprod->getObject(ipile).GetEvent();
-	else mc = heps[ipile]->GetEvent();
 
 	//Look whether heavy ion/signal event
 	bool isHI = false;
@@ -268,7 +256,6 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
   
   evt.put( candsPtr );
   if(saveBarCodes_) evt.put( barCodeVector );
-  //  if(doSubEvent_) evt.put(subsPtr); // For SubEventMap
   if(cfhepmcprod) delete cfhepmcprod;
 
 }
