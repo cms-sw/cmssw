@@ -17,7 +17,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 

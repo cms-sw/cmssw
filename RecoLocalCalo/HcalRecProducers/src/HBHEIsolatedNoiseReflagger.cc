@@ -13,7 +13,7 @@ Original Author: John Paul Chou (Brown University)
 #include "DataFormats/JetReco/interface/TrackExtrapolation.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 

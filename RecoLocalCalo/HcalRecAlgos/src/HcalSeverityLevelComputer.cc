@@ -1,6 +1,6 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

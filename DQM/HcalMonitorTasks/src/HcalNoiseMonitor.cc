@@ -18,7 +18,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
 
