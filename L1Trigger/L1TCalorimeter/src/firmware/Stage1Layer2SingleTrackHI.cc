@@ -47,7 +47,7 @@ void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> 
   for(std::vector<l1t::CaloRegion>::const_iterator region = sr->begin(); region != sr->end(); region++)
   {
     int regionET = region->hwPt();
-    if((region->hwEta() < 4) || (region->hwEta() > 17)) continue;
+    if((region->hwEta() < 5) || (region->hwEta() > 16)) continue;
     if (regionET > regionETMax)
     {
       regionETMax = regionET;
