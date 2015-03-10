@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <boost/bind.hpp>
 #include <algorithm>
+#include <sstream>
 
 #include "TClass.h"
 #include "TROOT.h"
@@ -29,11 +30,14 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWDetailViewFactory.h"
+#include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWRepresentationInfo.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
-
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "FWCore/Common/interface/EventBase.h"
+#include "DataFormats/FWLite/interface/Event.h"
 static
 std::string viewNameFrom(const std::string& iFull)
 {
@@ -132,21 +136,40 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
                   std::inserter(detailViews,detailViews.begin()),
                   boost::bind(&edmplugin::PluginInfo::name_,_1));
    unsigned int closestMatch= 0xFFFFFFFF;
+
+
+   const edm::EventBase* eventBase = FWGUIManager::getGUIManager()->getCurrentEvent();
+   const fwlite::Event* event = dynamic_cast<const fwlite::Event*>(eventBase);
+
    for(std::set<std::string>::iterator it = detailViews.begin(), itEnd=detailViews.end();
        it!=itEnd;
        ++it) {
       std::string::size_type first = it->find_first_of('@');
       std::string type = it->substr(0,first);
 
-      if(type == iType) {
-         returnValue.push_back(viewNameFrom(*it));
-      }
       //see if we match via inheritance
       FWSimpleRepresentationChecker checker(type,"",0,false);
       FWRepresentationInfo info = checker.infoFor(iType);
       if(closestMatch > info.proximity()) {
-         //closestMatch = info.proximity();
-         returnValue.push_back(*it);
+         std::string::size_type firstD = it->find_first_of('&')+1;
+         if(firstD != std::string::npos) {
+          std::stringstream ss(it->substr(firstD));
+          // printf("DETAIL View req [%s] \n", ss.str().c_str());
+          if (!event) break;
+          for ( auto bit = event->getBranchDescriptions().begin(); bit !=  event->getBranchDescriptions().end(); ++bit)
+              {
+                  if (bit->moduleLabel() == ss.str()) {
+                      printf("UREKA !!!!!\n");
+                      returnValue.push_back(*it);
+                      break;
+                  }
+              }
+
+
+         }
+         else {
+             returnValue.push_back(*it);
+         }
       }
    }
    m_typeToViewers[iType]=returnValue;
