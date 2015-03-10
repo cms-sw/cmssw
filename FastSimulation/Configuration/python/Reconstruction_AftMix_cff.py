@@ -62,6 +62,10 @@ allConversions.src = 'gsfGeneralConversionTrackMerger'
 
 earlyDisplacedMuons.inputCollectionLabels[0] = "generalTracks"
 
+# no muon id veto, because it relies on track finding
+removeSeqEntriesEveryWhere(muoncosmichighlevelreco,locals())
+muons.FillCosmicsIdMap = False
+
 # seems not to be used and causes troubles with FastSim
 egammaHighLevelRecoPrePF.remove(uncleanedOnlyElectronSequence)
 
