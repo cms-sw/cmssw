@@ -289,9 +289,12 @@ void ElectronSeedGenerator::seedsFromThisCluster
 {
   float clusterEnergy = seedCluster->energy() ;
   GlobalPoint clusterPos
-    ( seedCluster->position().x(),
-      seedCluster->position().y(),
-      seedCluster->position().z() ) ;
+    ( seedCluster->seed()->position().x(),
+      seedCluster->seed()->position().y(),
+      seedCluster->seed()->position().z() ) ;
+  //  ( seedCluster->position().x(),
+  //    seedCluster->position().y(),
+  //    seedCluster->position().z() ) ;
   reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
 
   //LogDebug("") << "[ElectronSeedGenerator::seedsFromThisCluster] new supercluster with energy: " << clusterEnergy ;
