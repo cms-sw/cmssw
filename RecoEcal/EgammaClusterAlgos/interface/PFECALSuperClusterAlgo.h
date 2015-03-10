@@ -55,8 +55,8 @@ class PFECALSuperClusterAlgo {
   public:
     CalibratedPFCluster(const edm::Ptr<reco::PFCluster>& p) : cluptr(p) {}
     
-    double energy() const { return cluptr->correctedEnergy(); }
-    double energy_nocalib() const { return cluptr->energy(); }
+    double energy() const { return ( cluptr->layer() == PFLayer::HGC_ECAL ? cluptr->emEnergy() : cluptr->correctedEnergy() ); }
+    double energy_nocalib() const { return ( cluptr->layer() == PFLayer::HGC_ECAL ? cluptr->emEnergy() : cluptr->energy() ); }
     double eta() const { return cluptr->positionREP().eta(); }
     double phi() const { return cluptr->positionREP().phi(); }
     
