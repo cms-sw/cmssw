@@ -1,4 +1,4 @@
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagTool.h"
 #include <string.h>
 #include <cstdio>
 
