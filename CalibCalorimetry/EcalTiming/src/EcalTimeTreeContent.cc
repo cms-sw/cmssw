@@ -1,3 +1,7 @@
+
+// Author: Tambe E. Norbert
+//         Univ Of Minnesota
+
 #include "CalibCalorimetry/EcalTiming/interface/EcalTimeTreeContent.h"
 
 bool EcalTimeTreeContent::trgVariables = false;

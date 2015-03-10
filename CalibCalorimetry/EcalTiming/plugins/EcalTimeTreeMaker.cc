@@ -14,6 +14,8 @@ Implementation:
 // Authors:                              Seth Cooper, Giovanni Franzoni (UMN)
 //         Created:  Mo Jul 14 5:46:22 CEST 2008
 // $Id: EcalTimeTreeMaker.cc,v 1.14 2011/11/22 17:07:35 franzoni Exp $
+// Second Author: Tambe E. Norbert
+//                Univ Of Minnesota
 //
 //
 

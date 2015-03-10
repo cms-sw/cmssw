@@ -7,6 +7,8 @@
 */
 // 
 // Original Author:  J. Haupt  
+// Second Author: Tambe E. Norbert
+//                Univ Of Minnesota
 //
 // 
 #include "CalibCalorimetry/EcalTiming/interface/EcalTimingAnalysis.h"

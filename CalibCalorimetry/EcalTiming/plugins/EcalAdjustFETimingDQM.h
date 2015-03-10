@@ -14,6 +14,8 @@
 // Original Author:  Seth Cooper,27 1-024,+41227672342,
 //         Created:  Mon Sep 26 17:38:06 CEST 2011
 // $Id: EcalAdjustFETimingDQM.h,v 1.4 2011/11/14 22:22:23 franzoni Exp $
+// Second Author: Tambe E. Norbert
+//                Univ Of Minnesota
 //
 //
 

@@ -11,6 +11,8 @@
 // Original Author:  Seth COOPER
 //         Created:  Wed Sep 30 16:29:33 CEST 2009
 // $Id: EcalCreateTTAvgTimes.h,v 1.1 2010/01/08 21:34:04 scooper Exp $
+// Second Author: Tambe E. Norbert
+//                Univ Of Minnesota
 //
 //
 

@@ -18,6 +18,8 @@ Implementation:
 // Authors:                              Seth Cooper, Giovanni Franzoni (UMN)
 //         Created:  Mo Jul 14 5:46:22 CEST 2008
 // $Id: EcalTimeTreeMaker.h,v 1.5 2011/09/10 11:03:44 franzoni Exp $
+// Second Author: Tambe E. Norbert
+//                Univ Of Minnesota
 //
 //
 
