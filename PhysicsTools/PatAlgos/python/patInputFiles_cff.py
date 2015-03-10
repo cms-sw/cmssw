@@ -90,5 +90,4 @@ filesSingleMuRECO = cms.untracked.vstring(
                         #, useDAS        = True
                         #)
         '/store/relval/CMSSW_7_4_0_pre8/SingleMu/RECO/GR_R_74_V8A_RelVal_mu2012D-v1/00000/001F3051-89BD-E411-9DAA-0025905822B6.root'
-
     )
