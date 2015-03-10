@@ -76,6 +76,10 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
         _parametersPhi = anpset.getParameter<std::vector<double> >("parametersPhi");
         _pset.insert(true, "parametersPhi", anpset.retrieve("parametersPhi"));
     }
+    if (anpset.exists("parametersDxy")) {
+        _parametersDxy = anpset.getParameter<std::vector<double> >("parametersDxy");
+        _pset.insert(true, "parametersDxy", anpset.retrieve("parametersDxy"));
+    }
 
     // Get names of objects that we may want to get from the event.
     // Notice that genParticles are dealt with separately.
@@ -208,6 +212,7 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
             } else {
               bookHist(iBooker, source, objStr, "MaxPt1");
               bookHist(iBooker, source, objStr, "MaxPt2");
+              bookHist(iBooker, source, objStr, "MaxPt3");
               bookHist(iBooker, source, objStr, "Eta");
               bookHist(iBooker, source, objStr, "Phi");
 
@@ -226,6 +231,7 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
             } else {
               bookHist(iBooker, source, objStr, "MaxPt1");
               bookHist(iBooker, source, objStr, "MaxPt2");
+              bookHist(iBooker, source, objStr, "MaxPt3");
               bookHist(iBooker, source, objStr, "Eta");
               bookHist(iBooker, source, objStr, "Phi");
 
@@ -488,8 +494,9 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
       }
     
       int counttotal = 0;
-      //int totalobjectssize2 = 2 * countobjects->size();
-      int totalobjectssize2 = 2 * countobjects.size();
+
+      // 3 : pt1, pt2, pt3
+      int totalobjectssize3 = 3 * countobjects.size();
 
 
       bool isPassedLeadingCut = true;
@@ -524,9 +531,14 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	  ++(countobjects[objType]);
 	  ++counttotal;
 	} 
+	else if (countobjects[objType] == 2) {
+	  this->fillHist("gen", objTypeStr, "MaxPt3", pt);
+	  ++(countobjects[objType]);
+	  ++counttotal;
+	} 
 	else {
-	  // Already the minimum two objects has been filled, get out...
-	  if (counttotal == totalobjectssize2) {
+	  // Already the minimum three objects has been filled, get out...
+	  if (counttotal == totalobjectssize3) {
 	    size_t max_size = matchesGen.size();
 	    for ( size_t jj = j; jj < max_size; jj++ ) {
 	      matchesGen.erase(matchesGen.end());
@@ -591,8 +603,9 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	}
     
 	int counttotal = 0;
-	//int totalobjectssize2 = 2 * countobjects->size();
-	int totalobjectssize2 = 2 * countobjects.size();
+
+        // 3 : pt1, pt2, pt3
+	int totalobjectssize3 = 3 * countobjects.size();
     
 	/// Debugging.
 	//std::cout << "Our RECO vector has matchesReco.size() = " << matchesReco.size() << std::endl;
@@ -631,9 +644,16 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	      ++(countobjects[objType]);
 	      ++counttotal;
 	    } 
+	    else if (countobjects[objType] == 2) {
+	      if( ! ( TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ) ) {
+		this->fillHist("rec", objTypeStr, "MaxPt3", pt);
+	      } 
+	      ++(countobjects[objType]);
+	      ++counttotal;
+	    } 
 	    else {
-	      // Already the minimum two objects has been filled, get out...
-	      if (counttotal == totalobjectssize2) {
+	      // Already the minimum three objects has been filled, get out...
+	      if (counttotal == totalobjectssize3) {
 		size_t max_size = matchesReco.size();
 		for ( size_t jj = j; jj < max_size; jj++ ) {
 		  matchesReco.erase(matchesReco.end());
