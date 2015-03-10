@@ -56,3 +56,9 @@ def customise_shashlikElectronHOverE( process ) :
         process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEEndcaps = 0.5 
         process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEOuterEndcaps = 1.0
     return process
+
+def customise_HGCalElectronHOverE( process ) :
+    if hasattr( process, "ecalDrivenElectronSeeds" ) :
+        process.ecalDrivenElectronSeeds.SeedConfiguration.hOverEMethodBarrel = 0 # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = clusters (max is 4) 
+        process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEBarrel = 0.15 
+    return process
