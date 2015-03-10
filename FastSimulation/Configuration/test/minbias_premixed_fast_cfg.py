@@ -20,7 +20,7 @@ process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedNominalCollision2015_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('FastSimulation.Configuration.SimIdeal_cff') #!!
-process.load("FastSimulation/Configuration/Reconstruction_Tk_cff") #!!
+process.load("FastSimulation/Configuration/Reconstruction_BefMix_cff") #!!
 process.load('FastSimulation.Configuration.Digi_PreMix_cff') #!!
 process.load('SimGeneral.MixingModule.digi_noNoise_cfi')
 process.load('FastSimulation.Configuration.SimL1Emulator_cff') #!!

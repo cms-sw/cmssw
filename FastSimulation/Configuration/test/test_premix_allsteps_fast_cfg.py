@@ -20,16 +20,16 @@ process.load('Configuration.StandardSequences.Generator_cff') #!!
 process.load('IOMC.EventVertexGenerators.VtxSmearedNominalCollision2015_cfi') #!!
 process.load('GeneratorInterface.Core.genFilterSummary_cff') #!!
 process.load('FastSimulation.Configuration.SimIdeal_cff') #!!
-process.load("FastSimulation.Configuration.Reconstruction_Tk_cff") #!!
+process.load("FastSimulation.Configuration.Reconstruction_BefMix_cff") #!!
 process.load('FastSimulation.Configuration.DigiDMPreMix_cff') #!!
 process.load('FastSimulation.Configuration.digi_MixPreMix_cfi') #!!
 process.load('FastSimulation.Configuration.DataMixerPreMix_cff') #!!
 process.load('FastSimulation.Configuration.SimL1EmulatorDM_cff') #!!
 process.load('FastSimulation.Configuration.DigiToRawDM_cff') #!!
-process.load('HLTrigger.Configuration.HLT_GRun_cff')
+#process.load('HLTrigger.Configuration.HLT_GRun_cff') #!!
 process.load('FastSimulation.Configuration.RawToDigi_cff')
-process.load("FastSimulation.Configuration.Reconstruction_NoTk_cff") #!!
-process.load('Configuration.StandardSequences.L1Reco_cff')
+process.load("FastSimulation.Configuration.Reconstruction_AftMix_cff") #!!
+# process.load('Configuration.StandardSequences.L1Reco_cff') #!!
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 

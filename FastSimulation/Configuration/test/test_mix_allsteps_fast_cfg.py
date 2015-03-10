@@ -10,16 +10,12 @@ process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('FastSimulation.Configuration.Geometries_MC_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 
-process.load("FastSimulation/Configuration/Reconstruction_Tk_cff")
+process.load("FastSimulation/Configuration/Reconstruction_BefMix_cff")
 process.load('FastSimulation.Configuration.Digi_cff')
 process.load('FastSimulation.Configuration.SimL1Emulator_cff')
 process.load('FastSimulation.Configuration.DigiToRaw_cff')
 process.load('FastSimulation.Configuration.RawToDigi_cff')
-process.load("FastSimulation/Configuration/Reconstruction_NoTk_cff")
-
-#process.load("FastSimulation/Configuration/Reconstruction_Tk_cff")
-#process.load("FastSimulation/Configuration/RawToDigi_cff")
-#process.load("FastSimulation/Configuration/Reconstruction_NoTk_cff")
+process.load("FastSimulation/Configuration/Reconstruction_AftMix_cff")
 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
