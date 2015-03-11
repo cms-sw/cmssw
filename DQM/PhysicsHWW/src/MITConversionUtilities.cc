@@ -24,8 +24,21 @@ namespace HWWFunctions {
         if(hww.convs_tkalgo().at(iconv)[itk] == reco::TrackBase::gsf && hww.convs_tkidx().at(iconv)[itk] == hww.els_gsftrkidx().at(elidx))
     conversionMatchFound = true;
         if(matchCTF) {
-          if(hww.convs_tkalgo().at(iconv)[itk] > reco::TrackBase::cosmics && hww.convs_tkalgo().at(iconv)[itk] < reco::TrackBase::muonSeededStepOutIn && hww.convs_tkalgo().at(iconv)[itk] != reco::TrackBase::conversionStep && hww.convs_tkidx().at(iconv)[itk] == hww.els_trkidx().at(elidx))
-      conversionMatchFound = true;
+          switch(hww.convs_tkalgo().at(iconv)[itk]) {
+          case reco::TrackBase::initialStep:
+          case reco::TrackBase::lowPtTripletStep:
+          case reco::TrackBase::pixelPairStep:
+          case reco::TrackBase::detachedTripletStep:
+          case reco::TrackBase::mixedTripletStep:
+          case reco::TrackBase::pixelLessStep:
+          case reco::TrackBase::tobTecStep:
+          case reco::TrackBase::jetCoreRegionalStep:
+            if(hww.convs_tkidx().at(iconv)[itk] == hww.els_trkidx().at(elidx))
+              conversionMatchFound = true;
+            break;
+          default:
+            break;
+          }
         }
       
         if(conversionMatchFound)

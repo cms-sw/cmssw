@@ -285,8 +285,28 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     TransientTrack tmpTk( *((*ie).get()), magField_, globTkGeomHandle_);
     transTracksRaw.push_back( tmpTk );
     transTracksRefRaw.push_back( *ie );
-    if ( (*ie)->algo() > reco::TrackBase::detachedTripletStep ) nStep45++;
-    if ( (*ie)->algo() < reco::TrackBase::initialStep ||(*ie)->algo() > reco::TrackBase::pixelLessStep ) nNotIterative++;
+    switch((*ie)->algo()) {
+    case reco::TrackBase::undefAlgorithm:
+    case reco::TrackBase::ctf:
+    case reco::TrackBase::rs:
+    case reco::TrackBase::cosmics:
+      nNotIterative++;
+      break;
+    case reco::TrackBase::initialStep:
+    case reco::TrackBase::lowPtTripletStep:
+    case reco::TrackBase::pixelPairStep:
+    case reco::TrackBase::detachedTripletStep:
+      break;
+    case reco::TrackBase::mixedTripletStep:
+    case reco::TrackBase::pixelLessStep:
+      nStep45++;
+      break;
+    default:
+      nNotIterative++;
+      nStep45++; // why this should be increased for these cases?
+      break;
+    };
+
   }
 
   if (rho > 25 && nStep45 + nNotIterative < 1){

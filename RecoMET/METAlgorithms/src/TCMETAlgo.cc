@@ -120,7 +120,10 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, edm::ConsumesCollect
   maxchi2_tight_          = iConfig.getParameter<double>("chi2_tight_max" );
   minhits_tight_          = iConfig.getParameter<double>("nhits_tight_min");
   maxPtErr_tight_         = iConfig.getParameter<double>("ptErr_tight_max");
-  maxTrackAlgo_           = reco::TrackBase::algoByName(iConfig.getParameter<std::string>("maxTrackAlgo"));
+  std::vector<std::string> trackAlgoNames = iConfig.getParameter<std::vector<std::string>>("trackAlgos");
+  std::transform(trackAlgoNames.begin(), trackAlgoNames.end(), std::back_inserter(trackAlgos_), [](const std::string& name) {
+      return reco::TrackBase::algoByName(name);
+    });
 
   isCosmics_ = iConfig.getParameter<bool>  ("isCosmics");
   minpt_     = iConfig.getParameter<double>("pt_min"   );
@@ -634,7 +637,7 @@ bool TCMETAlgo::isGoodTrack(const reco::TrackRef track)
     d0 = -1 * track->dxy( bspot );
     }
      
-  if( track->algo() < maxTrackAlgo_ )
+  if(std::find(trackAlgos_.begin(), trackAlgos_.end(), track->algo()) != trackAlgos_.end())
     {
       //1st 4 tracking iterations (pT-dependent d0 cut + nlayers cut)
        

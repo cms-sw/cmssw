@@ -63,7 +63,10 @@ MuonTCMETValueMapProducer::MuonTCMETValueMapProducer(const edm::ParameterSet& iC
   maxpt_eta25_            = iConfig.getParameter<double>   ("maxpt_eta25");
 
   // get configuration parameters
-  maxTrackAlgo_    = reco::TrackBase::algoByName(iConfig.getParameter<std::string>("trackAlgo_max"));
+  std::vector<std::string> algos = iConfig.getParameter<std::vector<std::string> >("trackAlgos");
+  std::transform(algos.begin(), algos.end(), std::back_inserter(trkAlgos_), [](const std::string& a) {
+      return reco::TrackBase::algoByName(a);
+    });
   maxd0cut_        = iConfig.getParameter<double>("d0_max"       );
   minpt_           = iConfig.getParameter<double>("pt_min"       );
   maxpt_           = iConfig.getParameter<double>("pt_max"       );
@@ -73,7 +76,7 @@ MuonTCMETValueMapProducer::MuonTCMETValueMapProducer(const edm::ParameterSet& iC
   maxPtErr_        = iConfig.getParameter<double>("ptErr_max"    );
 
   trkQuality_      = iConfig.getParameter<std::vector<int> >("track_quality");
-  std::vector<std::string> algos = iConfig.getParameter<std::vector<std::string> >("track_algos");
+  algos = iConfig.getParameter<std::vector<std::string> >("track_algos");
   std::transform(algos.begin(), algos.end(), std::back_inserter(trkAlgos_), [](const std::string& a) {
       return reco::TrackBase::algoByName(a);
     });
@@ -315,7 +318,7 @@ bool MuonTCMETValueMapProducer::isGoodTrack( const reco::Muon* muon )
       d0 = -1 * siTrack->dxy( bspot );
     }
 
-  if( siTrack->algo() < maxTrackAlgo_ )
+  if(std::find(trackAlgos_.begin(), trackAlgos_.end(), siTrack->algo()) != trackAlgos_.end())
     {
       //1st 4 tracking iterations (pT-dependent d0 cut)
        

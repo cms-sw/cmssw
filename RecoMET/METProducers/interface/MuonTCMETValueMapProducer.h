@@ -77,7 +77,7 @@ private:
   double  vertexMaxDZ_;
   double  maxpt_eta25_;
   double  maxpt_eta20_;
-  int     maxTrackAlgo_;
+  std::vector<reco::TrackBase::TrackAlgorithm> trackAlgos_;
   double  minpt_;
   double  maxpt_;
   double  maxeta_;

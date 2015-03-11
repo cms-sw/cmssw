@@ -42,7 +42,7 @@ disttcMet = cms.EDProducer("TCMETProducer",
     chi2_tight_max = cms.double(3.0),
     nhits_tight_min = cms.double(11),
     ptErr_tight_max = cms.double(0.1),
-    maxTrackAlgo = cms.string("mixedTripletStep")
+    trackAlgos = cms.vstring("undefAlgorithm", "ctf", "rs", "cosmics", "initialStep", "lowPtTripletStep", "pixelPairStep", "detachedTripletStep"),
 )
 
 
