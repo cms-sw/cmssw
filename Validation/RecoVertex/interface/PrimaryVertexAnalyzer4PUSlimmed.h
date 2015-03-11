@@ -152,7 +152,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
 
   void fillPurityHistograms(const std::string&,
                             const std::vector<recoPrimaryVertex>&,
-                            int);
+                            int, bool);
 
   std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> getSimPVs(
       const edm::Handle<TrackingVertexCollection>);
