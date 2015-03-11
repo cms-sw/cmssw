@@ -105,7 +105,7 @@ private:
   // this code via the header ListGroupsMaterialDifference.h, which is
   // included below. The first value of the pair represent the
   // relative difference ((new - old)/old * 100, in %) of radiation
-  // length, while the second referes to the interation lenght
+  // length, while the second referes to the energy loss (in GeV/cm)
   // changes.
   std::map<std::string, std::pair<float, float> > m_diff;
 };
@@ -260,7 +260,7 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
       new TProfile2D( "OverallDifferencesRadLen", "OverallDifferencesRadLen",
                       600., -300., 300, 120., 0., 120.));
   std::unique_ptr<TProfile2D> intlen(
-      new TProfile2D( "OverallDifferencesIntLen", "OverallDifferencesIntLen",
+      new TProfile2D( "OverallDifferencesEnergyLoss", "OverallDifferencesEnergyLoss",
                       600., -300., 300, 120., 0., 120.));
 
   for (auto g : m_groups) {
@@ -303,7 +303,7 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
   intlen->SetMinimum(-100);
   intlen->SetMaximum(100);
   intlen->Draw("COLZ");
-  canvas->SaveAs("IntLenChanges.png");
+  canvas->SaveAs("EnergyLossChanges.png");
 
   for (auto g : nukem_text)
     delete g;
