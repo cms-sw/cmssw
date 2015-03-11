@@ -1,4 +1,4 @@
-#include <DQM/CastorMonitor/interface/CastorMonitorModule.h>
+#include "DQM/CastorMonitor/interface/CastorMonitorModule.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -19,7 +19,8 @@
 
 //==================================================================//
 //======================= Constructor ==============================//
-CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
+CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps):
+  fVerbosity{ps.getUntrackedParameter<int>("debug", 0)}
 {
   if(fVerbosity>0) std::cout<<"CastorMonitorModule Constructor(start)"<<std::endl;
 
@@ -28,7 +29,6 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
   inputTokenDigi_ 	= consumes<CastorDigiCollection>(ps.getParameter<edm::InputTag>("digiLabel"));
   inputTokenRecHitCASTOR_  = consumes<CastorRecHitCollection>(ps.getParameter<edm::InputTag>("CastorRecHitLabel"));
   NBunchesOrbit		= ps.getUntrackedParameter<int>("nBunchesOrbit",3563);
-  fVerbosity		= ps.getUntrackedParameter<int>("debug", 0);
   showTiming_ 		= ps.getUntrackedParameter<bool>("showTiming",false);
 //inputTokenCastorTowers_  = consumes<CastorTowerCollection>(ps.getParameter<edm::InputTag>("CastorTowerLabel")); 
 //dump2database_   	= ps.getUntrackedParameter<bool>("dump2database",false);
