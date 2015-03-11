@@ -36,8 +36,7 @@ MuonAlignmentSummary::~MuonAlignmentSummary() {
 }
 
 
-void MuonAlignmentSummary::bookHistograms(DQMStore::IBooker & ibooker,
-        edm::Run const &, edm::EventSetup const & ){
+void MuonAlignmentSummary::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
 
     metname = "MuonAlignmentSummary";
 
@@ -150,9 +149,6 @@ void MuonAlignmentSummary::bookHistograms(DQMStore::IBooker & ibooker,
         hLocalThetaRmsCSC->Reset();
 
     }
-}
-
-void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iSetup) {
 
     LogTrace(metname)<<"[MuonAlignmentSummary] Saving the histos";
 
@@ -186,7 +182,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
 
                             Int_t nstation=station - 1;
                             Int_t nwheel=wheel+2;
-                            MonitorElement * localX = dbe->get(histo);
+                            MonitorElement * localX = igetter.get(histo);
                             if (localX) {
 
                                 Double_t Mean = localX->getMean();
@@ -205,7 +201,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
                             }
 
                             histo = path+nameOfHistoLocalPhi;
-                            MonitorElement * localPhi = dbe->get(histo);
+                            MonitorElement * localPhi = igetter.get(histo);
                             if (localPhi) {
 
                                 Double_t Mean = localPhi->getMean();
@@ -226,7 +222,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
                             if (station != 4) {
 
                                 histo=path+nameOfHistoLocalY;
-                                MonitorElement * localY = dbe->get(histo);
+                                MonitorElement * localY = igetter.get(histo);
                                 if (localY) {
 
                                     Double_t Mean = localY->getMean();
@@ -243,7 +239,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
                                         hLocalYRmsDT->Fill(Error);}
                                 }
                                 histo = path+nameOfHistoLocalTheta;
-                                MonitorElement * localTheta = dbe->get(histo);
+                                MonitorElement * localTheta = igetter.get(histo);
                                 if (localTheta) {
                                     Double_t Mean = localTheta->getMean();
                                     Double_t Error = localTheta->getMeanError();
@@ -293,7 +289,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
                             if (station > 0) ybin = ybin + 10;
                             else ybin = 11 - ybin;
                             std::string histo = path + nameOfHistoLocalX;
-                            MonitorElement * localX = dbe->get(histo);
+                            MonitorElement * localX = igetter.get(histo);
                             if (localX) {
 
                                 Double_t Mean=localX->getMean();
@@ -311,7 +307,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
                             }
                             histo = path +	nameOfHistoLocalPhi;
 
-                            MonitorElement * localPhi = dbe->get(histo);
+                            MonitorElement * localPhi = igetter.get(histo);
                             if (localPhi) {
 
                                 Double_t Mean=localPhi->getMean();
@@ -328,7 +324,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
                                     hLocalPhiRmsCSC->Fill(Error);}
                             }
                             histo = path +	nameOfHistoLocalTheta;
-                            MonitorElement * localTheta = dbe->get(histo);
+                            MonitorElement * localTheta = igetter.get(histo);
                             if (localTheta) {
 
                                 Double_t Mean = localTheta->getMean();
@@ -347,7 +343,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
                             }
                             histo = path +	nameOfHistoLocalY;
 
-                            MonitorElement * localY = dbe->get(histo);
+                            MonitorElement * localY = igetter.get(histo);
                             if (localY) {
 
                                 Double_t Mean=localY->getMean();

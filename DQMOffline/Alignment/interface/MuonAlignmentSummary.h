@@ -22,7 +22,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 namespace edm {
     class ParameterSet;
@@ -32,29 +32,20 @@ namespace edm {
 
 class TH1F;
 
-class MuonAlignmentSummary : public DQMEDAnalyzer {
+class MuonAlignmentSummary : public DQMEDHarvester {
 public:
 
     /// Constructor
     MuonAlignmentSummary(const edm::ParameterSet&);
-  
+
     /// Destructor
     virtual ~MuonAlignmentSummary();
 
     //Book histograms
-    void bookHistograms(DQMStore::IBooker &,
-        edm::Run const &, edm::EventSetup const &) override;
-
-    /// Get the analysis
-    void analyze(const edm::Event& event, const edm::EventSetup& iSetup){}
-
-    /// Save the histos
-    void endRun(edm::Run const& run, edm::EventSetup const& iSetup);
+    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
 private:
     // ----------member data ---------------------------
-  
-    DQMStore* dbe;
 
     MonitorElement *hLocalPositionDT;
     MonitorElement *hLocalPositionRmsDT;
@@ -91,7 +82,7 @@ private:
 
     // mean and rms histos ranges
     double meanPositionRange,rmsPositionRange,meanAngleRange,rmsAngleRange;
-    
+
     // flags to decide on subdetector and summary histograms
     bool doDT, doCSC;
 
@@ -100,4 +91,4 @@ private:
     std::stringstream topFolder;
 
 };
-#endif  
+#endif
