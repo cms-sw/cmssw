@@ -240,7 +240,6 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
   setup.get<IdealGeometryRecord>().get( hDdd );
 
   for (auto n : m_group_names) {
-    std::cout << n << std::endl;
     m_groups.push_back( new MaterialAccountingGroup(n, *hDdd) );
   };
 
@@ -265,7 +264,6 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
                       600., -300., 300, 120., 0., 120.));
 
   for (auto g : m_groups) {
-    std::cout << g->name() << std::endl;
     m_plots.push_back(
         new TH2F( g->name().c_str(), g->name().c_str(),
                   6000., -300., 300, 1200., 0., 120.)); // 10x10 points per cm2
@@ -275,7 +273,6 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
     current.SetMarkerSize(0.8);
     for (auto element : g->elements()) {
       current.Fill(element.z(), element.perp());
-      std::cout << m_diff[g->name()].first << " " << m_diff[g->name()].second << std::endl;
       radlen->Fill(element.z(), element.perp(), m_diff[g->name()].first);
       intlen->Fill(element.z(), element.perp(), m_diff[g->name()].second);
     }
