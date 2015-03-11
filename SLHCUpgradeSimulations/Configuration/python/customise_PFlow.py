@@ -55,6 +55,10 @@ def customise_shashlikElectronHOverE( process ) :
         process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEBarrel = 0.15 
         process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEEndcaps = 0.5 
         process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEOuterEndcaps = 1.0
+    if hasattr(process,'ecalDrivenGsfElectrons'):
+        process.ecalDrivenGsfElectrons.hOverEMethodEndcap = cms.int32(3)
+    if hasattr(process,'gsfElectrons'):
+        process.gsfElectrons.hOverEMethodEndcap = cms.int32(3)
     return process
 
 def customise_HGCalElectronHOverE( process ) :
