@@ -74,7 +74,7 @@ def produceXMLFromParameterFile():
                     print current_detector, parameter.attrib['name'], parameter.attrib['value']
     tree.write('trackerRecoMaterial.xml', encoding='UTF-8', xml_declaration=True)
 
-def compareNewXMLWithOld():
+def compareNewXMLWithOld(format_for_twiki):
     """
     Computes the difference between the old values, stored in the
     central repository for the current release, i.e. from
@@ -111,30 +111,48 @@ def compareNewXMLWithOld():
                                'src/SimTracker/TrackerMaterialAnalysis/plugins/ListGroupsMaterialDifference.h'), 'w')
     header.write(HEADER)
     differences = {}
+    ordered_keys = []
     for spec_par in root.iter('%sSpecPar' % TAG_PREFIX):
         current_detector = spec_par.attrib['name']
+        ordered_keys.append(current_detector)
         for parameter in spec_par.iter('%sParameter' % TAG_PREFIX):
             updated_current_detector_node = root_updated.find(".//%sSpecPar[@name='%s']" % (TAG_PREFIX,current_detector))
             if updated_current_detector_node:
                 for child in updated_current_detector_node:
                     name = child.get('name', None)
                     if name and name == parameter.attrib['name']:
-                        print "%s %s %s %s %f%%" % (current_detector,
-                                                    parameter.attrib['name'],
-                                                    parameter.attrib['value'],
-                                                    child.attrib['value'],
-                                                    (float(child.attrib['value'])-float(parameter.attrib['value']))
-                                                    /float(parameter.attrib['value'])*100.
-                                                    )
-                        differences.setdefault(current_detector, {}).setdefault(name, ((float(child.attrib['value'])-float(parameter.attrib['value']))
-                                                                                       /float(parameter.attrib['value'])*100.))
+                        differences.setdefault(current_detector, {}).setdefault(name, [float(parameter.attrib['value']),
+                                                                                       float(child.attrib['value']),
+                                                                                       ((float(child.attrib['value'])-float(parameter.attrib['value']))
+                                                                                       /float(parameter.attrib['value'])*100.)]
+                                                                                )
             else:
                 print 'Element not found: %s' % current_detector
     for group in differences.keys():
         header.write('  m_diff["%s"] = std::make_pair<float, float>(%f, %f);\n' % (group,
-                                                                                   differences[group]['TrackerRadLength'],
-                                                                                   differences[group]['TrackerXi']))
+                                                                                   differences[group]['TrackerRadLength'][2],
+                                                                                   differences[group]['TrackerXi'][2]))
 #    pprint.pprint(differences)
+    for i in xrange(len(ordered_keys)):
+        key = ordered_keys[i]
+        if format_for_twiki:
+            print "| %s | %f | %f | %f%% | %f | %f | %f%% |" % (key,
+                                                                differences[key]['TrackerRadLength'][0],
+                                                                differences[key]['TrackerRadLength'][1],
+                                                                differences[key]['TrackerRadLength'][2],
+                                                                differences[key]['TrackerXi'][0],
+                                                                differences[key]['TrackerXi'][1],
+                                                                differences[key]['TrackerXi'][2]
+                                                                )
+        else:
+            print "%s %f %f %f%% %f %f %f%%" % (key,
+                                                differences[key]['TrackerRadLength'][0],
+                                                differences[key]['TrackerRadLength'][1],
+                                                differences[key]['TrackerRadLength'][2],
+                                                differences[key]['TrackerXi'][0],
+                                                differences[key]['TrackerXi'][1],
+                                                differences[key]['TrackerXi'][2]
+                                                )
     header.write(TRAILER)
     header.close
     
@@ -142,15 +160,20 @@ def compareNewXMLWithOld():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Easily manipulate and inspect XML files related to Tracking Material.')
     parser.add_argument('-p', '--produce', action='store_true',
-                        default=True,
+                        default=False,
                         help='Produce a trackerRecoMaterial.xml starting from the paramters.xml file produced by the trackingMaterialProducer.')
     parser.add_argument('-c', '--compare', action='store_true',
                         default=False,
                         help='Compares a local trackerRecoMaterial.xml against the one bundled with the release.')
+    parser.add_argument('-w', '--twiki', action='store_true',
+                        default=False,
+                        help="""Compares a local trackerRecoMaterial.xml against the one bundled
+                                with the release and produces and output that is Twiki compatible
+                                to be put into a table.""")
     args = parser.parse_args()
     checkEnvironment()
     getTrackerRecoMaterialCopy('trackerRecoMaterialFromRelease.xml')
     if args.produce:
         produceXMLFromParameterFile()
-    if args.compare:
-        compareNewXMLWithOld()
+    if args.compare or args.twiki:
+        compareNewXMLWithOld(args.twiki)
