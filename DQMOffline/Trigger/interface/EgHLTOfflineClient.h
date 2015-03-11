@@ -39,14 +39,14 @@ class EgHLTOfflineClient : public DQMEDHarvester {
  private:
   // DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
   std::string dirName_;
-  
+
   std::vector<std::string> eleHLTFilterNames_;//names of the filters monitored using electrons to make plots for
   std::vector<std::string> eleHLTFilterNames2Leg_;
   std::vector<std::string> eleTightLooseTrigNames_;
   std::vector<std::string> phoHLTFilterNames_;//names of the filters monitored using photons to make plots for
   std::vector<std::string> phoHLTFilterNames2Leg_;
   std::vector<std::string> phoTightLooseTrigNames_;
-  
+
 
   std::vector<std::string> eleN1EffVars_;
   std::vector<std::string> eleSingleEffVars_;
@@ -60,10 +60,10 @@ class EgHLTOfflineClient : public DQMEDHarvester {
   std::vector<std::string> phoTrigTPEffVsVars_;
   std::vector<std::string> eleLooseTightTrigEffVsVars_;
   std::vector<std::string> phoLooseTightTrigEffVsVars_;
-				
-  std::vector<std::string> eleHLTvOfflineVars_;  
+
+  std::vector<std::string> eleHLTvOfflineVars_;
   std::vector<std::string> phoHLTvOfflineVars_;
-		
+
   bool runClientEndLumiBlock_;
   bool runClientEndRun_;
   bool runClientEndJob_;
@@ -71,7 +71,7 @@ class EgHLTOfflineClient : public DQMEDHarvester {
   bool filterInactiveTriggers_;
   bool isSetup_;
   std::string hltTag_;
-  
+
 
   //disabling copying/assignment (in theory this is copyable but lets not just in case)
   EgHLTOfflineClient(const EgHLTOfflineClient& rhs){}
@@ -80,15 +80,14 @@ class EgHLTOfflineClient : public DQMEDHarvester {
  public:
   explicit EgHLTOfflineClient(const edm::ParameterSet& );
   virtual ~EgHLTOfflineClient();
-  
-  
+
+
   // virtual void beginJob();
   // virtual void analyze(const edm::Event&, const edm::EventSetup&); //dummy
   // virtual void endJob();
-  // virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
   // virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
-  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) ;
-  
+
   // virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& context){}
   // DQM Client Diagnostic
   // virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);

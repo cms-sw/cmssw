@@ -64,7 +64,7 @@ void EgHLTOfflineClient::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGette
   if (runClientEndJob_) runClient_(ibooker_, igetter_);
 }
 
-void EgHLTOfflineClient::dqmBeginRun(const edm::Run& run, const edm::EventSetup& c)
+void EgHLTOfflineClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
   if (!isSetup_) {
     if (filterInactiveTriggers_) {

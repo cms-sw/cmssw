@@ -41,7 +41,7 @@ void
 PhotonDataCertification::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
 
   using namespace RooFit;
-  if (verbose_) std::cout << ">>> EndRun (PhotonDataCertification) <<<" << std::endl;
+  if (verbose_) std::cout << ">>> endJob (PhotonDataCertification) <<<" << std::endl;
 
   //booking histograms according to naming conventions
   ibooker.setCurrentFolder("Egamma/EventInfo/");
