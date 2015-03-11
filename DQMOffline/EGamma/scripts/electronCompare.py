@@ -72,6 +72,7 @@ if __name__ == "__main__":
   parser.add_option("-b", "--blue-name", dest="blue", action="store", default="",
     help="short name of the blue histograms")  
   (options, args) = parser.parse_args()
+#  print "options : ",options
   
   if len(args)<2:
     print "[electronStore.py] I NEED AT LEAST TWO ARGUMENTS."
@@ -135,7 +136,7 @@ if __name__ == "__main__":
          
   (red_hd, red_release) = os.path.split(red_head)
   (blue_hd, blue_release) = os.path.split(blue_head)
-         
+
   #============================================
   # final commands
   #============================================

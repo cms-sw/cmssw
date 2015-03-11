@@ -398,8 +398,8 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
 
 //    // suppress the endcaps
     h1_matchingObject_Eta->Fill( moIter->eta() );
-//    h1_matchingObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
-//    h1_matchingObject_Phi->Fill( moIter->phi() );
+    h1_matchingObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
+    h1_matchingObject_Phi->Fill( moIter->phi() );
 
     bool okGsfFound = false ;
     double gsfOkRatio = 999999999. ;
