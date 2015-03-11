@@ -91,18 +91,15 @@ namespace pat {
       Jet(const edm::RefToBase<reco::Jet> & aJetRef);
       /// constructor from ref to reco::Jet
       Jet(const edm::Ptr<reco::Jet> & aJetRef);
+      /// constructure from ref to pat::Jet
+      Jet(const edm::RefToBase<pat::Jet> & aJetRef);
+      /// constructure from ref to pat::Jet
+      Jet(const edm::Ptr<pat::Jet> & aJetRef);
       /// destructor
       virtual ~Jet();
       /// required reimplementation of the Candidate's clone method
       virtual Jet * clone() const { return new Jet(*this); }
 
-    private:
-      /// setter for reference
-      void setOriginalObject(const edm::RefToBase<reco::Candidate> & ref);
-      /// setter for reference
-      void setOriginalObject(const edm::Ptr<reco::Candidate> & ref);
-
-    public:
       /// ---- methods for MC matching ----
 
       /// return the matched generated parton

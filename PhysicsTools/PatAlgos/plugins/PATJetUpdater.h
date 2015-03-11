@@ -9,10 +9,10 @@
   \brief    Produces pat::Jet's
 
    The PATJetUpdater produces analysis-level pat::Jet's starting from
-   a collection of objects of JetType.
+   a collection of pat::Jet's and updates information.
 
   \author   Andreas Hinzmann
-  \version  $Id: PATJetUpdater.h,v 1.26 2010/08/09 18:13:54 srappocc Exp $
+  \version  $Id: PATJetUpdater.h,v 1.00 2014/03/11 18:13:54 srappocc Exp $
 */
 
 
