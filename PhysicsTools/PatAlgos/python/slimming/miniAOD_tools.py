@@ -137,7 +137,7 @@ def miniAOD_customizeCommon(process):
     from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
     addMETCollection(process,
                      labelName = "patCaloMet",
-                     metSource = "caloMet"
+                     metSource = "caloMetM"
                      )
   
 
