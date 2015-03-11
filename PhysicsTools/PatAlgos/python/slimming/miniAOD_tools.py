@@ -206,20 +206,10 @@ def miniAOD_customizeCommon(process):
 
     process.selectedPatJetsPuppi.cut = cms.string("pt > 20")
 
-    #process.packedPFPuppiCandidates = process.packedPFCandidates.clone()
-    #process.packedPFPuppiCandidates.inputCollection = cms.InputTag("puppi")
-    #process.puppiPtrs = cms.EDProducer("PFCandidateFwdPtrProducer",src = cms.InputTag('puppi'))
-
-
-    process.packedPFCandidates.PuppiSrc = cms.InputTag("puppi")
-    
     process.load('PhysicsTools.PatAlgos.slimming.slimmedJets_cfi')
     process.slimmedJetsPuppi = process.slimmedJets.clone()
     process.slimmedJetsPuppi.src = cms.InputTag("selectedPatJetsPuppi")    
     process.slimmedJetsPuppi.packedPFCandidates = cms.InputTag("packedPFCandidates")
-    #process.slimmedJetsPuppi.dropDaughters = cms.string("1")
-    #process.slimmedJets.dropDaughters = cms.string("1")
-    process.slimmedJetsAK8.dropDaughters = cms.string("1")
 
     ## puppi met
     process.load('RecoMET.METProducers.PFMET_cfi')
