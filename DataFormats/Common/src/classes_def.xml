@@ -181,4 +181,27 @@
  </class>
  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<int>,std::vector<int>,unsigned int> > >"/>
 
+ <class name="edm::helpers::Key<edm::RefProd<std::vector<int> > >"/>
+ <class name="edm::AssociationMap<edm::OneToValue<std::vector<int>,double,unsigned int> >">
+    <field name="transientMap_" transient="true" />
+ </class>
+ <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<int>,double,unsigned int> > >"/>
+
+ <class name="edm::AssociationMap<edm::OneToMany<std::vector<int>,std::vector<int>,unsigned int> >">
+    <field name="transientMap_" transient="true" />
+ </class>
+ <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<int>,std::vector<int>,unsigned int> > >"/>
+
+ <class name="edm::AssociationMap<edm::OneToManyWithQuality<std::vector<int>,std::vector<int>,double,unsigned int> >">
+    <field name="transientMap_" transient="true" />
+ </class>
+ <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQuality<std::vector<int>,std::vector<int>,double,unsigned int> > >"/>
+
+ <class name="edm::RefToBaseProd<int>"/>
+ <class name="edm::helpers::KeyVal<edm::RefToBaseProd<int>, edm::RefToBaseProd<int> >"/>
+ <class name="edm::AssociationMap<edm::OneToOne<edm::View<int>, edm::View<int>, unsigned int> >">
+    <field name="transientMap_" transient="true" />
+ </class>
+ <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<edm::View<int>, edm::View<int>, unsigned int> > >"/>
+
 </lcgdict>
