@@ -45,7 +45,6 @@ std::string viewNameFrom(const std::string& iFull)
    std::string::size_type first = iFull.find_first_of('@');
    std::string::size_type second = iFull.find_first_of('@',first+1);
    return iFull.substr(first+1,second-first-1);
-   
 }
 //
 // constructors and destructor
@@ -69,6 +68,7 @@ FWDetailViewManager::~FWDetailViewManager()
 void
 FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& iViewName)
 {
+
    TEveWindowSlot* slot = TEveWindow::CreateWindowMainFrame();
    TEveCompositeFrameInMainFrame* eveFrame = (TEveCompositeFrameInMainFrame*)slot->GetEveFrame();
 
@@ -122,6 +122,7 @@ FWDetailViewManager::detailViewsFor(const FWModelId& iId) const
 std::vector<std::string>
 FWDetailViewManager::findViewersFor(const std::string& iType) const
 {
+
    std::vector<std::string> returnValue;
 
    std::map<std::string,std::vector<std::string> >::const_iterator itFind = m_typeToViewers.find(iType);
@@ -154,15 +155,25 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
          std::string::size_type firstD = it->find_first_of('&')+1;
          if(firstD != std::string::npos) {
           std::stringstream ss(it->substr(firstD));
-          std::string ml = ss.str();
-          // printf("DETAIL View [%s] req [%s] \n", *it, ss.str().c_str());
-
-          if (!m_context->metadataManager()->hasModuleLabel(ml)) {
-             pass = false;
+          std::string ml;
+          while(std::getline(ss, ml, '&')) {
+             if (!m_context->metadataManager()->hasModuleLabel(ml)) {
+                fwLog(fwlog::kDebug) << "DetailView "<< *it << " requires module label " <<  ml << std::endl;
+                pass = false;
+                break;
+             }
           }
          }
+         if (pass)  { 
+            returnValue.push_back(*it);
+         }
+         else {
+            std::string::size_type first = (*it).find_first_of('@');
+            std::string vn = *it;
+            vn.insert(++first, "!");
+            returnValue.push_back(vn);
+         }
       }
-      if (pass) returnValue.push_back(*it);
    }
    m_typeToViewers[iType]=returnValue;
    return returnValue;
