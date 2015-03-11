@@ -20,7 +20,7 @@ stage1Raw = cms.EDProducer(
     fwVersion        = cms.untracked.int32(255),
     lenSlinkHeader   = cms.untracked.int32(8),  # length in 8 bit words !
     lenSlinkTrailer  = cms.untracked.int32(8),
-    mux = cms.untracked.bool(True),
+    #mux = cms.untracked.bool(True),
 
     # these parameters specify the amount of data from each link to be
     # recorded in the FEDRawData object
@@ -52,11 +52,11 @@ stage1Raw = cms.EDProducer(
                                                     0,0,0,0, # quad 6
                                                     0,0,0,0, # quad 7
                                                     0,0,0,0, # quad 8
-                                                    0,0,0,0, # quad 9
-                                                    0,0,0,0, # quad 10
-                                                    0,0,0,0, # quad 11
-                                                    0,0,0,0, # quad 12
-                                                    6,6,0,0) # quad 13
+                                                    0,0,2,2, # quad 9
+                                                    2,2,2,2, # quad 10
+                                                    2,2,2,2, # quad 11
+                                                    2,2,2,2, # quad 12
+                                                    2,2,0,0) # quad 13
             ),
         cms.untracked.PSet(  # EG board setup
             rxBlockLength    = cms.untracked.vint32(6,6,6,6, # quad 0
