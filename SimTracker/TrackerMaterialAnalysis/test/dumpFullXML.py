@@ -2,12 +2,26 @@
 
 import argparse
 import os, sys
+import pprint
 from shutil import copy2
 import xml.etree.ElementTree as ET
 
 TAG_PREFIX='{http://www.cern.ch/cms/DDL}'
 CMSSW_NOT_SET=1
 TRACKER_MATERIAL_FILE_MISSING=2
+
+HEADER = """
+#ifndef SIMTRACKER_TRACKERMATERIALANALYSIS_LISTGROUPS_MATERIALDIFFERENCE_H
+#define SIMTRACKER_TRACKERMATERIALANALYSIS_LISTGROUPS_MATERIALDIFFERENCE_H
+
+void ListGroups::fillMaterialDifferences() {
+"""
+
+TRAILER = """
+}
+
+#endif //  SIMTRACKER_TRACKERMATERIALANALYSIS_LISTGROUPS_MATERIALDIFFERENCE_H
+"""
 
 def checkEnvironment():
     if not 'CMSSW_RELEASE_BASE' in os.environ.keys():
@@ -93,6 +107,10 @@ def compareNewXMLWithOld():
     root_updated = tree_updated.getroot()
     sections = root.getchildren()
 
+    header = open(os.path.join(os.environ['CMSSW_BASE'],
+                               'src/SimTracker/TrackerMaterialAnalysis/plugins/ListGroupsMaterialDifference.h'), 'w')
+    header.write(HEADER)
+    differences = {}
     for spec_par in root.iter('%sSpecPar' % TAG_PREFIX):
         current_detector = spec_par.attrib['name']
         for parameter in spec_par.iter('%sParameter' % TAG_PREFIX):
@@ -108,8 +126,17 @@ def compareNewXMLWithOld():
                                                     (float(child.attrib['value'])-float(parameter.attrib['value']))
                                                     /float(parameter.attrib['value'])*100.
                                                     )
+                        differences.setdefault(current_detector, {}).setdefault(name, ((float(child.attrib['value'])-float(parameter.attrib['value']))
+                                                                                       /float(parameter.attrib['value'])*100.))
             else:
                 print 'Element not found: %s' % current_detector
+    for group in differences.keys():
+        header.write('  m_diff["%s"] = std::make_pair<float, float>(%f, %f);\n' % (group,
+                                                                                   differences[group]['TrackerRadLength'],
+                                                                                   differences[group]['TrackerXi']))
+#    pprint.pprint(differences)
+    header.write(TRAILER)
+    header.close
     
     
 if __name__ == '__main__':
