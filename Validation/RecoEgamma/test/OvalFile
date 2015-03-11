@@ -6,7 +6,7 @@
 <var name="DATA_VERSION" value="v1">
 
 TAG for the REFERENCE DATA, USED ONLY FOR INFORMATION ON WEB PAGE
-<var name="DD_COND_REF" value="MCRUN2_74_V1-v1">
+<var name="DD_COND_REF" value="MCRUN2_74_V7-v1">
 
 <var name="DD_RELEASE" value="${CMSSW_VERSION}">
 
