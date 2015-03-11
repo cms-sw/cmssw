@@ -56,7 +56,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHW::processEvent(const std::vector<l1t::
     int eg_et = egCand->hwPt();
     int eg_eta = egCand->hwEta();
     int eg_phi = egCand->hwPhi();
-    int index = ((1-egCand->hwIso())*4 + egCand->hwQual()) ;
+    int index = (egCand->hwIso()*4 + egCand->hwQual()) ;
 
     //std::cout << "JetRankMax: " << params_->jetScale().rankScaleMax()<< " EmRankMax: " << params_->emScale().rankScaleMax()<< std::endl;
     //std::cout << "JetLinMax: " << params_->jetScale().linScaleMax()<< " EmLinMax: " << params_->emScale().linScaleMax()<< std::endl;
