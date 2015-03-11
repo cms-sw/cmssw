@@ -91,8 +91,8 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   PVAssoQuality_(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("vertexAssociator"))),
   PVOrigs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("originalVertices"))),
   TKOrigs_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("originalTracks"))),
-  PuppiWeight_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("PuppiWeight"))),
-  PuppiCandsMap_(consumes<edm::ValueMap<reco::CandidatePtr> >(iConfig.getParameter<edm::InputTag>("PuppiSrcMap"))),
+  PuppiWeight_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("PuppiSrc"))),
+  PuppiCandsMap_(consumes<edm::ValueMap<reco::CandidatePtr> >(iConfig.getParameter<edm::InputTag>("PuppiSrc"))),
   PuppiCands_(consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiSrc"))),
   minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties"))
 {
@@ -111,11 +111,6 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
     iEvent.getByToken( Cands_, cands );
     std::vector<reco::Candidate>::const_iterator cand;
 
-    edm::Handle<reco::PFCandidateFwdPtrVector> candsFromPVLoose;
-    iEvent.getByToken( CandsFromPVLoose_, candsFromPVLoose );
-    edm::Handle<reco::PFCandidateFwdPtrVector> candsFromPVTight;
-    iEvent.getByToken( CandsFromPVTight_, candsFromPVTight );
-
     edm::Handle< edm::ValueMap<float> > puppiWeight;
     iEvent.getByToken( PuppiWeight_, puppiWeight );
     edm::Handle<edm::ValueMap<reco::CandidatePtr> > puppiCandsMap;
@@ -123,26 +118,6 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
     edm::Handle<std::vector< reco::PFCandidate > > puppiCands;
     iEvent.getByToken( PuppiCands_, puppiCands );
     std::vector<int> mappingPuppi(puppiCands->size());
-
-    std::vector<pat::PackedCandidate::PVAssoc> fromPV(cands->size(), pat::PackedCandidate::NoPV);
-    for (const reco::PFCandidateFwdPtr &ptr : *candsFromPVLoose) {
-        if (ptr.ptr().id() == cands.id()) {
-            fromPV[ptr.ptr().key()]   = pat::PackedCandidate::PVLoose;
-        } else if (ptr.backPtr().id() == cands.id()) {
-            fromPV[ptr.backPtr().key()] = pat::PackedCandidate::PVLoose;
-        } else {
-            throw cms::Exception("Configuration", "The elements from 'inputCollectionFromPVLoose' don't point to 'inputCollection'\n");
-        }
-    }
-    for (const reco::PFCandidateFwdPtr &ptr : *candsFromPVTight) {
-        if (ptr.ptr().id() == cands.id()) {
-            fromPV[ptr.ptr().key()]   = pat::PackedCandidate::PVTight;
-        } else if (ptr.backPtr().id() == cands.id()) {
-            fromPV[ptr.backPtr().key()] = pat::PackedCandidate::PVTight;
-        } else {
-            throw cms::Exception("Configuration", "The elements from 'inputCollectionFromPVTight' don't point to 'inputCollection'\n");
-        }
-    }
 
     edm::Handle<reco::VertexCollection> PVOrigs;
     iEvent.getByToken( PVOrigs_, PVOrigs );

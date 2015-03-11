@@ -176,7 +176,6 @@ def miniAOD_customizeCommon(process):
 
     # Adding puppi jets
     process.load('CommonTools.PileupAlgos.Puppi_cff')
-    process.patCandidates += process.puppi
     process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
     #process.puppi.candName = cms.InputTag('packedPFCandidates')
     #process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
