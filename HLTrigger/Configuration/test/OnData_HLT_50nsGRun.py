@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/50nsGRun/V21 (CMSSW_7_4_0_pre7_HLT1)
+# /dev/CMSSW_7_4_0/50nsGRun/V25 (CMSSW_7_4_0_pre7_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT50nsGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V21')
+  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V25')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -151,6 +151,59 @@ process.HLTPSetCkf3HitTrajectoryFilter = cms.PSet(
   nSigmaMinPt = cms.double( 5.0 ),
   chargeSignificance = cms.double( -1.0 )
 )
+process.HLTPSetPvClusterComparer = cms.PSet( 
+  track_pt_min = cms.double( 2.5 ),
+  track_pt_max = cms.double( 10.0 ),
+  track_chi2_max = cms.double( 9999999.0 ),
+  track_prob_min = cms.double( -1.0 )
+)
+process.HLTIter0PSetTrajectoryFilterIT = cms.PSet( 
+  minPt = cms.double( 0.3 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  minimumNumberOfHits = cms.int32( 3 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  chargeSignificance = cms.double( -1.0 )
+)
+process.HLTPSetPvClusterComparerForBTag = cms.PSet( 
+  track_pt_min = cms.double( 0.1 ),
+  track_pt_max = cms.double( 20.0 ),
+  track_chi2_max = cms.double( 20.0 ),
+  track_prob_min = cms.double( -1.0 )
+)
+process.HLTSeedFromConsecutiveHitsTripletOnlyCreator = cms.PSet( 
+  ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
+  propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
+)
+process.HLTSeedFromConsecutiveHitsCreator = cms.PSet( 
+  ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+  propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  SeedMomentumForBOFF = cms.double( 5.0 ),
+  OriginTransverseErrorMultiplier = cms.double( 1.0 ),
+  MinOneOverPtError = cms.double( 1.0 ),
+  SimpleMagneticField = cms.string( "ParabolicMf" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+)
+process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT = cms.PSet( 
+  minPt = cms.double( 0.3 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxConsecLostHits = cms.int32( 3 ),
+  minimumNumberOfHits = cms.int32( 5 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  chargeSignificance = cms.double( -1.0 )
+)
+process.HLTPSetPvClusterComparerForIT = cms.PSet( 
+  track_pt_min = cms.double( 1.0 ),
+  track_pt_max = cms.double( 20.0 ),
+  track_chi2_max = cms.double( 20.0 ),
+  track_prob_min = cms.double( -1.0 )
+)
 process.HLTIter4PSetTrajectoryBuilderIT = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
   trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter4PSetTrajectoryFilterIT" ) ),
@@ -288,12 +341,6 @@ process.HLTPSetMuonCkfTrajectoryBuilder = cms.PSet(
   intermediateCleaning = cms.bool( False ),
   lostHitPenalty = cms.double( 30.0 )
 )
-process.HLTPSetPvClusterComparer = cms.PSet( 
-  track_pt_min = cms.double( 2.5 ),
-  track_pt_max = cms.double( 10.0 ),
-  track_chi2_max = cms.double( 9999999.0 ),
-  track_prob_min = cms.double( -1.0 )
-)
 process.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
   trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter0PSetTrajectoryFilterIT" ) ),
@@ -306,36 +353,6 @@ process.HLTIter0PSetTrajectoryBuilderIT = cms.PSet(
   alwaysUseInvalidHits = cms.bool( False ),
   intermediateCleaning = cms.bool( True ),
   lostHitPenalty = cms.double( 30.0 )
-)
-process.HLTIter0PSetTrajectoryFilterIT = cms.PSet( 
-  minPt = cms.double( 0.3 ),
-  minHitsMinPt = cms.int32( 3 ),
-  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-  maxLostHits = cms.int32( 1 ),
-  maxNumberOfHits = cms.int32( 100 ),
-  maxConsecLostHits = cms.int32( 1 ),
-  minimumNumberOfHits = cms.int32( 3 ),
-  nSigmaMinPt = cms.double( 5.0 ),
-  chargeSignificance = cms.double( -1.0 )
-)
-process.HLTPSetPvClusterComparerForBTag = cms.PSet( 
-  track_pt_min = cms.double( 0.1 ),
-  track_pt_max = cms.double( 20.0 ),
-  track_chi2_max = cms.double( 20.0 ),
-  track_prob_min = cms.double( -1.0 )
-)
-process.HLTSeedFromConsecutiveHitsTripletOnlyCreator = cms.PSet( 
-  ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
-  propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
-)
-process.HLTSeedFromConsecutiveHitsCreator = cms.PSet( 
-  ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
-  propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
-  SeedMomentumForBOFF = cms.double( 5.0 ),
-  OriginTransverseErrorMultiplier = cms.double( 1.0 ),
-  MinOneOverPtError = cms.double( 1.0 ),
-  SimpleMagneticField = cms.string( "ParabolicMf" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
 )
 process.HLTIter0HighPtTkMuPSetTrajectoryBuilderIT = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
@@ -363,23 +380,6 @@ process.HLTIter2HighPtTkMuPSetTrajectoryBuilderIT = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   lostHitPenalty = cms.double( 30.0 ),
   MeasurementTrackerName = cms.string( "hltIter2HighPtTkMuESPMeasurementTracker" )
-)
-process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT = cms.PSet( 
-  minPt = cms.double( 0.3 ),
-  minHitsMinPt = cms.int32( 3 ),
-  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-  maxLostHits = cms.int32( 1 ),
-  maxNumberOfHits = cms.int32( 100 ),
-  maxConsecLostHits = cms.int32( 3 ),
-  minimumNumberOfHits = cms.int32( 5 ),
-  nSigmaMinPt = cms.double( 5.0 ),
-  chargeSignificance = cms.double( -1.0 )
-)
-process.HLTPSetPvClusterComparerForIT = cms.PSet( 
-  track_pt_min = cms.double( 1.0 ),
-  track_pt_max = cms.double( 20.0 ),
-  track_chi2_max = cms.double( 20.0 ),
-  track_prob_min = cms.double( -1.0 )
 )
 process.streams = cms.PSet( 
   A = cms.vstring( 'InitialPD',
@@ -2126,7 +2126,7 @@ process.siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngleD
   )
 )
 process.sistripconn = cms.ESProducer( "SiStripConnectivity" )
-process.trackerTopologyConstants = cms.ESProducer( "TrackerTopologyEP",
+process.trackerTopology = cms.ESProducer( "TrackerTopologyEP",
   pxb_layerMask = cms.uint32( 15 ),
   tib_str_int_extStartBit = cms.uint32( 10 ),
   tib_layerMask = cms.uint32( 7 ),
@@ -34812,11 +34812,11 @@ process.hltEle23Ele12CaloIdLTrackIdLIsoVLDetaLeg1Filter = cms.EDFilter( "HLTEgam
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.015 ),
+    thrRegularEE = cms.double( 99999.0 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.01 ),
+    thrRegularEB = cms.double( 99999.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 1 ),
@@ -34830,11 +34830,11 @@ process.hltEle23Ele12CaloIdLTrackIdLIsoVLDetaLeg2Filter = cms.EDFilter( "HLTEgam
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.015 ),
+    thrRegularEE = cms.double( 99999.0 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.01 ),
+    thrRegularEB = cms.double( 99999.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 2 ),
@@ -34848,11 +34848,11 @@ process.hltEle23Ele12CaloIdLTrackIdLIsoVLDphiLeg1Filter = cms.EDFilter( "HLTEgam
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.1 ),
+    thrRegularEE = cms.double( 99999.0 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.07 ),
+    thrRegularEB = cms.double( 99999.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 1 ),
@@ -34866,11 +34866,11 @@ process.hltEle23Ele12CaloIdLTrackIdLIsoVLDphiLeg2Filter = cms.EDFilter( "HLTEgam
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.1 ),
+    thrRegularEE = cms.double( 99999.0 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.07 ),
+    thrRegularEB = cms.double( 99999.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 2 ),
@@ -35217,11 +35217,11 @@ process.hltEle17Ele12CaloIdLTrackIdLIsoVLDetaLeg1Filter = cms.EDFilter( "HLTEgam
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.015 ),
+    thrRegularEE = cms.double( 99999.0 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.01 ),
+    thrRegularEB = cms.double( 99999.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 1 ),
@@ -35235,11 +35235,11 @@ process.hltEle17Ele12CaloIdLTrackIdLIsoVLDetaLeg2Filter = cms.EDFilter( "HLTEgam
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.015 ),
+    thrRegularEE = cms.double( 99999.0 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.01 ),
+    thrRegularEB = cms.double( 99999.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 2 ),
@@ -35253,11 +35253,11 @@ process.hltEle17Ele12CaloIdLTrackIdLIsoVLDphiLeg1Filter = cms.EDFilter( "HLTEgam
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.1 ),
+    thrRegularEE = cms.double( 99999.0 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.07 ),
+    thrRegularEB = cms.double( 99999.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 1 ),
@@ -35271,11 +35271,11 @@ process.hltEle17Ele12CaloIdLTrackIdLIsoVLDphiLeg2Filter = cms.EDFilter( "HLTEgam
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.1 ),
+    thrRegularEE = cms.double( 99999.0 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.07 ),
+    thrRegularEB = cms.double( 99999.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 2 ),
@@ -35640,11 +35640,11 @@ process.hltEle16Ele12Ele8CaloIdLTrackIdLDetaLeg1Filter = cms.EDFilter( "HLTEgamm
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.015 ),
+    thrRegularEE = cms.double( 99999.0 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.01 ),
+    thrRegularEB = cms.double( 99999.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 1 ),
@@ -35658,11 +35658,11 @@ process.hltEle16Ele12Ele8CaloIdLTrackIdLDetaLeg2Filter = cms.EDFilter( "HLTEgamm
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.015 ),
+    thrRegularEE = cms.double( 99999.0 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.01 ),
+    thrRegularEB = cms.double( 99999.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 2 ),
@@ -35676,11 +35676,11 @@ process.hltEle16Ele12Ele8CaloIdLTrackIdLDetaLeg3Filter = cms.EDFilter( "HLTEgamm
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.015 ),
+    thrRegularEE = cms.double( 99999.0 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.01 ),
+    thrRegularEB = cms.double( 99999.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 3 ),
@@ -35694,11 +35694,11 @@ process.hltEle16Ele12Ele8CaloIdLTrackIdLDphiLeg1Filter = cms.EDFilter( "HLTEgamm
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( True ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.1 ),
+    thrRegularEE = cms.double( 99999.0 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.07 ),
+    thrRegularEB = cms.double( 99999.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 1 ),
@@ -35712,11 +35712,11 @@ process.hltEle16Ele12Ele8CaloIdLTrackIdLDphiLeg2Filter = cms.EDFilter( "HLTEgamm
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( True ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.1 ),
+    thrRegularEE = cms.double( 99999.0 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.07 ),
+    thrRegularEB = cms.double( 99999.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 2 ),
@@ -35730,11 +35730,11 @@ process.hltEle16Ele12Ele8CaloIdLTrackIdLDphiLeg3Filter = cms.EDFilter( "HLTEgamm
     L1NonIsoCand = cms.InputTag( "" ),
     saveTags = cms.bool( True ),
     thrOverE2EB = cms.double( -1.0 ),
-    thrRegularEE = cms.double( 0.1 ),
+    thrRegularEE = cms.double( 99999.0 ),
     thrOverEEE = cms.double( -1.0 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
     thrOverEEB = cms.double( -1.0 ),
-    thrRegularEB = cms.double( 0.07 ),
+    thrRegularEB = cms.double( 99999.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( True ),
     ncandcut = cms.int32( 3 ),
@@ -43125,9 +43125,9 @@ process.hltMu8Ele8EG8HEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( -1.0 ),
-    thrOverEEE = cms.double( 0.075 ),
+    thrOverEEE = cms.double( 0.1 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
-    thrOverEEB = cms.double( 0.1 ),
+    thrOverEEB = cms.double( 0.12 ),
     thrRegularEB = cms.double( -1.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
@@ -43236,11 +43236,11 @@ process.hltElectronOneOEMinusOneOPFilterRegional = cms.EDFilter( "HLTElectronOne
     doIsolated = cms.bool( True ),
     saveTags = cms.bool( True ),
     electronNonIsolatedProducer = cms.InputTag( "hltMu8Ele8HLTPixelMatchElectronProducers" ),
-    barrelcut = cms.double( 0.03 ),
+    barrelcut = cms.double( 0.05 ),
     electronIsolatedProducer = cms.InputTag( "hltMu8Ele8HLTPixelMatchElectronProducers" ),
     ncandcut = cms.int32( 1 ),
     candTag = cms.InputTag( "hltMu8Ele8CaloIdLPixelMatchFilter" ),
-    endcapcut = cms.double( 0.03 )
+    endcapcut = cms.double( 0.05 )
 )
 process.hltMu8Ele8CaloIdLTrkIdVLDEtaFilter = cms.EDFilter( "HLTElectronGenericFilter",
     doIsolated = cms.bool( True ),
@@ -43327,9 +43327,9 @@ process.hltEG8HEFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     saveTags = cms.bool( False ),
     thrOverE2EB = cms.double( -1.0 ),
     thrRegularEE = cms.double( -1.0 ),
-    thrOverEEE = cms.double( 0.075 ),
+    thrOverEEE = cms.double( 0.1 ),
     L1IsoCand = cms.InputTag( "hltEgammaCandidates" ),
-    thrOverEEB = cms.double( 0.1 ),
+    thrOverEEB = cms.double( 0.12 ),
     thrRegularEB = cms.double( -1.0 ),
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
@@ -43438,11 +43438,11 @@ process.hltDoubleEle8OneOEMinusOneOPFilterRegional = cms.EDFilter( "HLTElectronO
     doIsolated = cms.bool( True ),
     saveTags = cms.bool( True ),
     electronNonIsolatedProducer = cms.InputTag( "hltDoubleEle8HLTPixelMatchElectronProducer" ),
-    barrelcut = cms.double( 0.03 ),
+    barrelcut = cms.double( 0.05 ),
     electronIsolatedProducer = cms.InputTag( "hltDoubleEle8HLTPixelMatchElectronProducer" ),
     ncandcut = cms.int32( 2 ),
     candTag = cms.InputTag( "hltEle8CaloIdLPixelMatchFilter" ),
-    endcapcut = cms.double( 0.03 )
+    endcapcut = cms.double( 0.05 )
 )
 process.hltDoubleEle8CaloIdLTrkIdVLDEtaFilter = cms.EDFilter( "HLTElectronGenericFilter",
     doIsolated = cms.bool( True ),
@@ -45990,21 +45990,17 @@ process.source = cms.Source( "PoolSource",
     )
 )
 
-
+#
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
+# Explicit deletions (via confdb.py):
+# None for now
+# Other release-dependent customisation:
 
-# from CMSSW_7_5_0_pre0: Simplified TrackerTopologyEP config (PR #7589/#7802)
-if cmsswVersion >= "CMSSW_7_5":
-    if 'trackerTopologyConstants' in process.__dict__:
-        process.trackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
-
-# from CMSSW_7_5_0_pre0: Removal of upgradeGeometry from TrackerDigiGeometryESModule (PR #7794)
-if cmsswVersion >= "CMSSW_7_5":
-    if 'TrackerDigiGeometryESModule' in process.__dict__:
-        del process.TrackerDigiGeometryESModule.trackerGeometryConstants.upgradeGeometry
-
+from HLTrigger.Configuration.CustomConfigs import customizeHLTforCMSSW
+process = customizeHLTforCMSSW(process)
+#
 
 # load 2015 Run-2 L1 Menu for 50ns
 # move to the 50ns v0 L1 menu once the 50ns HLT has been updated accordingly

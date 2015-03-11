@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/PIon/V8 (CMSSW_7_4_0_pre7_HLT1)
+# /dev/CMSSW_7_4_0/PIon/V10 (CMSSW_7_4_0_pre7_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V8')
+  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V10')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -1810,7 +1810,7 @@ process.siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngleD
   )
 )
 process.sistripconn = cms.ESProducer( "SiStripConnectivity" )
-process.trackerTopologyConstants = cms.ESProducer( "TrackerTopologyEP",
+process.trackerTopology = cms.ESProducer( "TrackerTopologyEP",
   pxb_layerMask = cms.uint32( 15 ),
   tib_str_int_extStartBit = cms.uint32( 10 ),
   tib_layerMask = cms.uint32( 7 ),
@@ -8562,21 +8562,17 @@ process.source = cms.Source( "PoolSource",
 from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
 process = customizeHLTforMC(process)
 
-
+#
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
+# Explicit deletions (via confdb.py):
+# None for now
+# Other release-dependent customisation:
 
-# from CMSSW_7_5_0_pre0: Simplified TrackerTopologyEP config (PR #7589/#7802)
-if cmsswVersion >= "CMSSW_7_5":
-    if 'trackerTopologyConstants' in process.__dict__:
-        process.trackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
-
-# from CMSSW_7_5_0_pre0: Removal of upgradeGeometry from TrackerDigiGeometryESModule (PR #7794)
-if cmsswVersion >= "CMSSW_7_5":
-    if 'TrackerDigiGeometryESModule' in process.__dict__:
-        del process.TrackerDigiGeometryESModule.trackerGeometryConstants.upgradeGeometry
-
+from HLTrigger.Configuration.CustomConfigs import customizeHLTforCMSSW
+process = customizeHLTforCMSSW(process)
+#
 
 # load 2015 Run-2 L1 Menu for 25ns (default for GRun, PIon)
 from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1menu
