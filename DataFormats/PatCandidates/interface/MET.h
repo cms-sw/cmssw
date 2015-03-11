@@ -144,7 +144,7 @@ namespace pat {
         UnclusteredEnUp=10,UnclusteredEnDown=11, NoShift=12, METUncertaintySize=13
       };
       enum METUncertaintyLevel {
-        Raw=0, Type1=1, Type1p2=2
+        Raw=0, Type1=1, Type1p2=2, Calo=3
       };
       struct Vector2 { 
         double px, py; 
@@ -161,6 +161,15 @@ namespace pat {
       double shiftedSumEt(METUncertainty shift, METUncertaintyLevel level=Type1) const ;
 
       void setShift(double px, double py, double sumEt, METUncertainty shift, METUncertaintyLevel level=Type1) ;
+
+      // specific method to fill and retrieve the caloMET quickly from miniAODs, 
+      //should be used by JetMET experts only for the beginning
+      //of the runII, will be discarded later once we are sure
+      //everything is fine
+      Vector2 caloMETP2() const;
+      double caloMETPt() const;
+      double caloMETPhi() const;
+      double caloMETSumEt() const;
 
       /// this below should be private but Reflex doesn't like it
       class PackedMETUncertainty {
@@ -189,6 +198,8 @@ namespace pat {
 
       // ---- non-public correction utilities ----
       std::vector<PackedMETUncertainty> uncertaintiesRaw_, uncertaintiesType1_, uncertaintiesType1p2_;
+
+      PackedMETUncertainty caloPackedMet_;
 
   };
 

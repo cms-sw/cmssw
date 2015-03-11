@@ -134,6 +134,12 @@ def miniAOD_customizeCommon(process):
                                doSmearJets=False,
                                outputModule=None)
 
+    from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
+    addMETCollection(process,
+                     labelName = "patCaloMet",
+                     metSource = "caloMet"
+                     )
+  
 
     #keep this after all addJetCollections otherwise it will attempt computing them also for stuf with no taginfos
     #Some useful BTAG vars

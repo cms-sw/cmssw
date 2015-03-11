@@ -45,8 +45,8 @@ caloMET_(iOther.caloMET_),
 pfMET_(iOther.pfMET_),
 uncertaintiesRaw_(iOther.uncertaintiesRaw_),
 uncertaintiesType1_(iOther.uncertaintiesType1_),
-uncertaintiesType1p2_(iOther.uncertaintiesType1p2_) {
-
+uncertaintiesType1p2_(iOther.uncertaintiesType1p2_),
+caloPackedMet_(iOther.caloPackedMet_) {
 }
 
 /// destructor
@@ -62,7 +62,8 @@ MET& MET::operator=(MET const& iOther) {
    uncertaintiesRaw_ = iOther.uncertaintiesRaw_;
    uncertaintiesType1_ = iOther.uncertaintiesType1_;
    uncertaintiesType1p2_ = iOther.uncertaintiesType1p2_;
- 
+   caloPackedMet_ = iOther.caloPackedMet_;
+
    return *this;
 }
 
@@ -114,7 +115,28 @@ double MET::shiftedSumEt(MET::METUncertainty shift, MET::METUncertaintyLevel lev
     return sumEt() + v[shift].dsumEt();
 }
 void MET::setShift(double px, double py, double sumEt, MET::METUncertainty shift, MET::METUncertaintyLevel level) {
+  if(level != Calo ) {
     std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : (level == Type1p2 ? uncertaintiesType1p2_ : uncertaintiesRaw_));
     if (v.empty()) v.resize(METUncertaintySize);
     v[shift].set(px - this->px(), py - this->py(), sumEt - this->sumEt());
+  } else {
+    caloPackedMet_.set(px, py, sumEt);
+  }
+}
+
+MET::Vector2 MET::caloMETP2() const {
+  Vector2 ret{ caloPackedMet_.dpx(), caloPackedMet_.dpy() };
+  return ret;
+}
+
+double MET::caloMETPt() const {
+  return caloMETP2().pt();
+}
+
+double MET::caloMETPhi() const {
+  return caloMETP2().phi();
+}
+
+double MET::caloMETSumEt() const {
+  return caloPackedMet_.dsumEt();
 }
