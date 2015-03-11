@@ -89,7 +89,7 @@ process.jpt = cms.EDAnalyzer("JPTJetPlotsExample",
 #############   Gen Jets   ###########################
 if isMC:
     process.gen = cms.EDAnalyzer("GenJetPlotsExample",
-        JetAlgorithm  = cms.string('ak4GenJets'),
+        JetAlgorithm  = cms.string('ak4GenJetsNoNu'),
         HistoFileName = cms.string('GenJetPlotsExample.root'),
         NJets         = cms.int32(NJetsToKeep)
     )

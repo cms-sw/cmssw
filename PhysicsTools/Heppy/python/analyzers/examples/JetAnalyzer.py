@@ -53,7 +53,7 @@ class JetAnalyzer( Analyzer ):
             # and ("BB" in self.cfg_comp.name):
             self.mchandles['genParticles'] = AutoHandle( 'packedGenParticles',
                                                          'std::vector<pat::PackedGenParticle>' )
-            self.mchandles['genJets'] = AutoHandle('slimmedGenJets',
+            self.mchandles['genJets'] = AutoHandle('slimmedGenJetsNoNu',
                                                    'std::vector<reco::GenJet>')
 
     def beginLoop(self, setup):

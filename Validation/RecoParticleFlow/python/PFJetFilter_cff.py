@@ -5,7 +5,7 @@ from RecoJets.Configuration.GenJetParticles_cff import *
 from RecoJets.Configuration.RecoGenJets_cff import *
 
 # should do a cloning
-pfGenParticlesForJets = genParticlesForJets.clone()
+pfGenParticlesForJets = genParticlesForJetsiNoNu.clone()
 pfGenParticlesForJets.ignoreParticleIDs.append(14)
 pfGenParticlesForJets.ignoreParticleIDs.append(12)
 pfGenParticlesForJets.ignoreParticleIDs.append(16)
@@ -17,14 +17,14 @@ pfGenParticlesForJets.ignoreParticleIDs.append(5)
 pfGenParticlesForJets.ignoreParticleIDs.append(21)
 pfGenParticlesForJets.excludeResonances = False
 
-pfAk4GenJets = ak4GenJets.clone()
-pfAk4GenJets.src = 'pfGenParticlesForJets'
+pfAk4GenJetsNoNu = ak4GenJets.clone()
+pfAk4GenJetsNoNu.src = 'pfGenParticlesForJets'
 
-pfJetFilter.InputTruthLabel = 'pfAk4GenJets'
+pfJetFilter.InputTruthLabel = 'pfAk4GenJetsNoNu'
 #pfJetFilter.verbose = True
 
 pfFilter =cms.Sequence(
     pfGenParticlesForJets*
-    pfAk4GenJets*
+    pfAk4GenJetsNoNu*
     pfJetFilter
 )

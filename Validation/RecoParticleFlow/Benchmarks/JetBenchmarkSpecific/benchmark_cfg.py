@@ -55,29 +55,29 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.ak4PFJets.inputEtMin = 0.0
 
 # should do a cloning
-process.genParticlesForJets.ignoreParticleIDs.append(14)
-process.genParticlesForJets.ignoreParticleIDs.append(12)
-process.genParticlesForJets.ignoreParticleIDs.append(16)
+process.genParticlesForJetsNoNu.ignoreParticleIDs.append(14)
+process.genParticlesForJetsNoNu.ignoreParticleIDs.append(12)
+process.genParticlesForJetsNoNu.ignoreParticleIDs.append(16)
 # The following 7 lines is to cure a bug in Generators/Pythi6Interface
 # for the pythia jet gun
-process.genParticlesForJets.ignoreParticleIDs.append(1)
-process.genParticlesForJets.ignoreParticleIDs.append(2)
-process.genParticlesForJets.ignoreParticleIDs.append(3)
-process.genParticlesForJets.ignoreParticleIDs.append(4)
-process.genParticlesForJets.ignoreParticleIDs.append(5)
-process.genParticlesForJets.ignoreParticleIDs.append(6)
-process.genParticlesForJets.ignoreParticleIDs.append(21)
-process.genParticlesForJets.excludeResonances = False
+process.genParticlesForJetsNoNu.ignoreParticleIDs.append(1)
+process.genParticlesForJetsNoNu.ignoreParticleIDs.append(2)
+process.genParticlesForJetsNoNu.ignoreParticleIDs.append(3)
+process.genParticlesForJetsNoNu.ignoreParticleIDs.append(4)
+process.genParticlesForJetsNoNu.ignoreParticleIDs.append(5)
+process.genParticlesForJetsNoNu.ignoreParticleIDs.append(6)
+process.genParticlesForJetsNoNu.ignoreParticleIDs.append(21)
+process.genParticlesForJetsNoNu.excludeResonances = False
 
 
 process.pfJetBenchmark.OutputFile = cms.untracked.string('JetBenchmark_Fast_3110pre3.root')
 process.pfJetBenchmark.deltaRMax = 0.1
 process.pfJetBenchmark.OnlyTwoJets = cms.bool(True)
-process.pfJetBenchmark.InputTruthLabel = cms.InputTag('ak4GenJets')
+process.pfJetBenchmark.InputTruthLabel = cms.InputTag('ak4GenJetsNoNu')
 
 process.p =cms.Path(
     process.genJetParticles+
-    process.ak4GenJets+
+    process.ak4GenJetsNoNu+
     #process.iterativeCone5GenJets+
     #process.ak4PFJets+
     process.pfJetBenchmark

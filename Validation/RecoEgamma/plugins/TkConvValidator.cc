@@ -148,7 +148,7 @@ TkConvValidator::TkConvValidator( const edm::ParameterSet& pset )
         edm::InputTag("tpSelecForFakeRate"));
     hepMC_Token_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
     genjets_Token_ = consumes<reco::GenJetCollection>(
-        edm::InputTag("ak4GenJets"));
+        edm::InputTag("ak4GenJetsNoNu"));
 
     trackAssociator_Token_ = consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByHitsForConversionValidation"));
   }

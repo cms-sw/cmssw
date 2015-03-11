@@ -10,7 +10,7 @@ class SimpleJetAnalyzer(Analyzer):
         super(SimpleJetAnalyzer, self).declareHandles()
         self.handles['jets'] = AutoHandle( 'slimmedJets',
                                            'std::vector<pat::Jet>' )
-        self.mchandles['genjets'] = AutoHandle( 'slimmedGenJets',
+        self.mchandles['genjets'] = AutoHandle( 'slimmedGenJetsNoNu',
                                                 'std::vector<reco::GenJet>')
         
     def process(self, event):

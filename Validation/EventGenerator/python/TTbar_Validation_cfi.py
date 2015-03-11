@@ -18,7 +18,7 @@ analyzeTopKinematics = cms.EDAnalyzer('TTbar_Kinematics',
 
 ## analyze genjets
 analyzeGenJets = cms.EDAnalyzer("TTbar_GenJetAnalyzer",
-                                jets = cms.InputTag('ak4GenJets' ),
+                                jets = cms.InputTag('ak4GenJetsNoNu' ),
                                 genEventInfoProductTag = cms.InputTag("generator")
                                 )
 

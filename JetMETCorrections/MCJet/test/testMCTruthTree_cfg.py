@@ -14,13 +14,13 @@ process.load("JetMETCorrections.MCJet.RelValQCD_cfi")
 #############    CaloJets ############################
 process.caloMctruthTree = cms.EDAnalyzer("CaloMCTruthTreeProducer",
     jets               = cms.string('ak4CaloJets'),
-    genjets            = cms.string('ak4GenJets'),
+    genjets            = cms.string('ak4GenJetsNoNu'),
     histogramFile      = cms.string('ak4CaloMctruthTree.root')
 )
 #############    PFJets   ############################
 process.pfMctruthTree = cms.EDAnalyzer("PFMCTruthTreeProducer",
     jets               = cms.string('ak4PFJets'),
-    genjets            = cms.string('ak4GenJets'),
+    genjets            = cms.string('ak4GenJetsNoNu'),
     histogramFile      = cms.string('ak4PFMctruthTree.root')
 )
 #############   Path       ###########################

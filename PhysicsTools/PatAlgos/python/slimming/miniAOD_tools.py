@@ -87,7 +87,7 @@ def miniAOD_customizeCommon(process):
                      )
     process.patJetsAK8.userData.userFloats.src = [] # start with empty list of user floats
     process.selectedPatJetsAK8.cut = cms.string("pt > 100")
-    process.patJetGenJetMatchAK8.matched =  'slimmedGenJets'
+    process.patJetGenJetMatchAK8.matched =  'slimmedGenJetsNoNu'
     ## AK8 groomed masses
     from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSSoftDrop, ak8PFJetsCHSFiltered, ak8PFJetsCHSTrimmed 
     process.ak8PFJetsCHSPruned   = ak8PFJetsCHSPruned.clone()
@@ -186,7 +186,7 @@ def miniAOD_customizeMC(process):
     process.tauGenJets.GenParticles = "prunedGenParticles"
     process.patJetPartonMatch.matched = "prunedGenParticles"
     process.patJetPartonMatch.mcStatus = [ 3, 23 ]
-    process.patJetGenJetMatch.matched = "slimmedGenJets"
+    process.patJetGenJetMatch.matched = "slimmedGenJetsNoNu"
     process.patMuons.embedGenMatch = False
     process.patElectrons.embedGenMatch = False
     process.patPhotons.embedGenMatch = False
