@@ -46,8 +46,8 @@ mixedTripletStepSeedsB = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traj
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
 mixedTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
 mixedTripletStepSeeds.seedCollections = cms.VInputTag(
-    cms.InputTag("mixedTripletStepSeedsA"),
-    cms.InputTag("mixedTripletStepSeedsB"),
+    cms.InputTag('mixedTripletStepSeedsA'),
+    cms.InputTag('mixedTripletStepSeedsB'),
     )
 
 # track candidates
@@ -75,7 +75,9 @@ mixedTripletStepSelector = RecoTracker.IterativeTracking.MixedTripletStep_cff.mi
 mixedTripletStep = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStep.clone()
 
 # Final sequence 
-MixedTripletStep =  cms.Sequence(mixedTripletStepSeeds
+MixedTripletStep =  cms.Sequence(mixedTripletStepSeedsA
+                                 +mixedTripletStepSeedsB
+                                 +mixedTripletStepSeeds
                                  +mixedTripletStepTrackCandidates
                                  +mixedTripletStepTracks
                                  +mixedTripletStepSelector
