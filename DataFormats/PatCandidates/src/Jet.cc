@@ -47,6 +47,20 @@ Jet::Jet(const edm::RefToBase<reco::Jet> & aJetRef) :
   tryImportSpecific(*aJetRef);
 }
 
+/// constructure from ref to pat::Jet
+Jet::Jet(const edm::RefToBase<pat::Jet> & aJetRef) :
+  Jet(*aJetRef)
+{
+  refToOrig_ = edm::Ptr<reco::Candidate>(aJetRef.id(), aJetRef.get(), aJetRef.key());
+}
+
+/// constructure from ref to pat::Jet
+Jet::Jet(const edm::Ptr<pat::Jet> & aJetRef) :
+  Jet(*aJetRef)
+{
+  refToOrig_ = aJetRef;
+}
+
 std::ostream& 
 reco::operator<<(std::ostream& out, const pat::Jet& obj) 
 {
@@ -92,16 +106,6 @@ void Jet::tryImportSpecific(const reco::Jet& source)
 /// destructor
 Jet::~Jet() {
 }
-
-void Jet::setOriginalObject(const edm::RefToBase<reco::Candidate> & ref) {
-    refToOrig_ = edm::Ptr<reco::Candidate>(ref.id(), ref.get(), ref.key()); // correct way to convert RefToBase=>Ptr, if ref is guaranteed to be available
-                                               // which happens to be true, otherwise the line before this throws ex. already
-}
-
-void Jet::setOriginalObject(const edm::Ptr<reco::Candidate> & ref) {
-    refToOrig_ = ref;
-}
-
 
 /// ============= CaloJet methods ============
 

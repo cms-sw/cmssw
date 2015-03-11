@@ -71,9 +71,8 @@ void PATJetUpdater::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     // construct the Jet from the ref -> save ref to original object
     unsigned int idx = itJet - jets->begin();
     edm::RefToBase<Jet> jetRef = jets->refAt(idx);
-    edm::Ptr<reco::Candidate> jetPtr = jets->ptrAt(idx);
-    Jet ajet(*itJet);
-    ajet.setOriginalObject(jetPtr);
+    edm::Ptr<Jet> jetPtr = jets->ptrAt(idx);
+    Jet ajet(jetPtr);
 
     if (addJetCorrFactors_) {
       unsigned int setindex = ajet.availableJECSets().size();
