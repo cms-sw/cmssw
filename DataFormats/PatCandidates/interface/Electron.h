@@ -175,13 +175,17 @@ namespace pat {
       reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
 
       // ---- embed various impact parameters with errors ----
-      typedef enum IPTYPE { None = 0, PV2D = 1, PV3D = 2, BS2D = 3, BS3D = 4 } IpType;
+      typedef enum IPTYPE { PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, IpTypeSize = 4 } IpType;
       /// Impact parameter wrt primary vertex or beamspot
-      double dB(IpType type = None) const;
+      double dB(IpType type) const;
       /// Uncertainty on the corresponding impact parameter
-      double edB(IpType type = None) const;
+      double edB(IpType type) const;
+      /// the version without arguments returns PD2D, but with an absolute value (for backwards compatibility)
+      double dB() const { return std::abs(dB(PV2D)); }
+      /// the version without arguments returns PD2D, but with an absolute value (for backwards compatibility)
+      double edB() const { return std::abs(edB(PV2D)); }
       /// Set impact parameter of a certain type and its uncertainty
-      void setDB(double dB, double edB, IpType type = None);
+      void setDB(double dB, double edB, IpType type);
 
       // ---- Momentum estimate specific methods ----
       const LorentzVector & ecalDrivenMomentum() const {return ecalDrivenMomentum_;}
@@ -311,14 +315,6 @@ namespace pat {
       /// ECAL-driven momentum
       LorentzVector ecalDrivenMomentum_;
 
-      // V+Jets group selection variables.
-      /// True if impact parameter has been cached
-      bool    cachedDB_;
-      /// Impact parameter at the primary vertex
-      double  dB_;
-      /// Impact paramater uncertainty at the primary vertex
-      double  edB_;
-
       /// additional missing mva variables : 14/04/2012
       float sigmaIetaIphi_, full5x5_sigmaIetaIphi_;
       double ip3d_;
@@ -345,11 +341,11 @@ namespace pat {
 
       // ---- cached impact parameters ----
       /// True if the IP (former dB) has been cached
-      std::vector<bool>    cachedIP_;
+      uint8_t    cachedIP_;
       /// Impact parameter at the primary vertex,
-      std::vector<double>  ip_;
+      float  ip_[IpTypeSize];    
       /// Impact parameter uncertainty as recommended by the tracking group
-      std::vector<double>  eip_;
+      float  eip_[IpTypeSize];      
 
       // ---- link to PackedPFCandidates
       edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;
