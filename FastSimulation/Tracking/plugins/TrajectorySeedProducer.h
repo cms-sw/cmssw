@@ -55,7 +55,7 @@ class TrajectorySeedProducer:
         std::vector<std::vector<TrackingLayer>> seedingLayers;
 
         double originRadius;
-        double originpTMin;
+        double ptMin;
         double originHalfLength;
         double nSigmaZ;
         

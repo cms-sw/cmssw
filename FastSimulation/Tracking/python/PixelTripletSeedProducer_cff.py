@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 pixelTripletSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
 

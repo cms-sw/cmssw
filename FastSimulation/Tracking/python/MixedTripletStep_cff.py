@@ -5,7 +5,7 @@ import RecoTracker.IterativeTracking.MixedTripletStep_cff
 
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
-mixedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
+mixedTripletStepSeedsA = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
         skipSimTrackIds = [
             cms.InputTag("initialStepSimTrackIds"),
@@ -17,13 +17,38 @@ mixedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traje
         maxZ0 = 30
         ),
     minLayersCrossed = 3,
-    originpTMin =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.ptMin,
+    ptMin =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.ptMin,
     originRadius = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.originRadius,
     originHalfLength = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.originHalfLength,
-    layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersA.layerList.value()+RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersB.layerList.value()
+    layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersA.layerList.value()
 )
-# Fullsim has different cuts for A and B, here in FastSIm only A cuts are implemented 
-# need to do something about this ??
+
+###
+import FastSimulation.Tracking.TrajectorySeedProducer_cfi
+mixedTripletStepSeedsB = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
+    simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
+        skipSimTrackIds = [
+            cms.InputTag("initialStepSimTrackIds"),
+            cms.InputTag("detachedTripletStepSimTrackIds"),
+            cms.InputTag("lowPtTripletStepSimTrackIds"),
+            cms.InputTag("pixelPairStepSimTrackIds")],
+        pTMin = 0.15,
+        maxD0 = 10.0,
+        maxZ0 = 30
+        ),
+    minLayersCrossed = 3,
+    ptMin =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.ptMin,
+    originRadius = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.originRadius,
+    originHalfLength = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.originHalfLength,
+    layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersB.layerList.value()
+)
+
+import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
+mixedTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
+mixedTripletStepSeeds.seedCollections = cms.VInputTag(
+    cms.InputTag("mixedTripletStepSeedsA"),
+    cms.InputTag("mixedTripletStepSeedsB"),
+    )
 
 # track candidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi

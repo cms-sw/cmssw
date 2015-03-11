@@ -115,7 +115,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
 
     originRadius = conf.getParameter<double>("originRadius");
     originHalfLength = conf.getParameter<double>("originHalfLength");
-    originpTMin = conf.getParameter<double>("originpTMin");
+    ptMin = conf.getParameter<double>("ptMin");
     nSigmaZ = conf.getParameter<double>("nSigmaZ");
 
     //make sure that only one cut is configured
@@ -125,7 +125,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     }
 
     //make sure that performance cuts are not interfering with selection on reconstruction
-    if ((originpTMin>0 && simTrack_pTMin>0) && (originpTMin<simTrack_pTMin))
+    if ((ptMin>0 && simTrack_pTMin>0) && (ptMin<simTrack_pTMin))
     {
         throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack pT is tighter than cut on pT estimate from seed.");
     }
@@ -569,7 +569,7 @@ TrajectorySeedProducer::compatibleWithBeamSpot(
 
     // Check if the constraints are satisfied
     // 1. pT at cylinder with radius originRadius
-    if ((originpTMin>0) && ( myPart.Pt() < originpTMin ))
+    if ((ptMin>0) && ( myPart.Pt() < ptMin ))
     {
         return false;
     }
