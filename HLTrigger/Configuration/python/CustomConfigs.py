@@ -131,7 +131,7 @@ def customizeHLTforCMSSW(process):
     import imp
     customFile = imp.find_module('HLTrigger/Configuration/customizeHLTforCMSSW')[1]
 #   import pkgutil
-#   customFile = pkgutil.get_loader('HLTrigger/Configuration/CustomConfigs').filename
+#   customFile = pkgutil.get_loader('HLTrigger/Configuration/customizeHLTforCMSSW').filename
 
 #   execfile(customFile, globals, locals.__dict__)
     execfile(customFile, globals)
