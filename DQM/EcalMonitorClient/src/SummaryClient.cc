@@ -62,9 +62,9 @@ namespace ecaldqm
 
     for(unsigned iDCC(0); iDCC < nDCC; ++iDCC){
       int dccid(iDCC + 1);
-      meReportSummaryContents.fill(dccid, 1.);
+      meReportSummaryContents.fill(dccid, -1.);
     }
-    meReportSummary.fill(1.);
+    meReportSummary.fill(-1.);
 
     MESet const& sIntegrityByLumi(sources_.at("IntegrityByLumi"));
     MESet const& sDesyncByLumi(sources_.at("DesyncByLumi"));
