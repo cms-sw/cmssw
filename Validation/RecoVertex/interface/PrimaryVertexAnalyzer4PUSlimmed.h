@@ -137,6 +137,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   void matchReco2SimVertices(std::vector<recoPrimaryVertex>&,
                              const TrackingVertexCollection &,
                              const std::vector<simPrimaryVertex>&);
+  bool matchRecoTrack2SimSignal(const reco::TrackBaseRef&);
   void fillGenericGenVertexHistograms(const simPrimaryVertex &v);
   // void fillGenericRecoVertexHistograms(const std::string &,
   //                                      const simPrimaryVertex &v);
@@ -148,6 +149,10 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   void fillResolutionAndPullHistograms(const std::string &,
                                        int,
                                        recoPrimaryVertex &v);
+
+  void fillPurityHistograms(const std::string&,
+                            const std::vector<recoPrimaryVertex>&,
+                            int);
 
   std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> getSimPVs(
       const edm::Handle<TrackingVertexCollection>);

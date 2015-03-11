@@ -19,6 +19,8 @@
 // DQM
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include <numeric>
+
 //
 // constructors and destructor
 //
@@ -527,6 +529,26 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     book1d("RecoAllAssoc2GenMatchedMerged_PullX", 250,-25,25);
     book1d("RecoAllAssoc2GenMatchedMerged_PullY", 250,-25,25);
     book1d("RecoAllAssoc2GenMatchedMerged_PullZ", 250,-25,25);
+
+
+    // Purity histograms
+    // Reco PV (vtx0) matched to hard-scatter gen vertex
+    book1d("RecoPVAssoc2GenPVMatched_Purity", 50, 0, 1);
+    book1d("RecoPVAssoc2GenPVMatched_Missing", 50, 0, 1);
+    book2d("RecoPVAssoc2GenPVMatched_Purity_vs_Index", 100,0,100, 50,0,1);
+
+    // RECO PV (vtx0) not matched to hard-scatter gen vertex
+    book1d("RecoPVAssoc2GenPVNotMatched_Purity", 50, 0, 1);
+    book1d("RecoPVAssoc2GenPVNotMatched_Missing", 50, 0, 1);
+    book2d("RecoPVAssoc2GenPVNotMatched_Purity_vs_Index", 100,0,100, 50,0,1);
+
+    // Vertex sum(pt2)
+    // The frist two are orthogonal (i.e. their sum includes all reco vertices)
+    book1d("RecoAssoc2GenPVMatched_Pt2", 100, 0, 5000);
+    book1d("RecoAssoc2GenPVNotMatched_Pt2", 100, 0, 5000);
+
+    book1d("RecoAssoc2GenPVMatchedNotHighest_Pt2", 100, 0, 5000);
+    book1d("RecoAssoc2GenPVNotMatched_GenPVTracksRemoved_Pt2", 100, 0, 5000);
   }
 }
 
@@ -716,6 +738,70 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillResolutionAndPullHistograms(
   mes_[label][prefix+"_PullZ"]->Fill(zres/v.recVtx->zError());
 }
 
+bool PrimaryVertexAnalyzer4PUSlimmed::matchRecoTrack2SimSignal(const reco::TrackBaseRef& recoTrack) {
+  auto found = r2s_->find(recoTrack);
+
+  // reco track not matched to any TP
+  if(found == r2s_->end())
+    return false;
+
+  // reco track matched to some TP from signal vertex
+  for(const auto& tp: found->val) {
+    if(tp.first->eventId().bunchCrossing() == 0 && tp.first->eventId().event() == 0)
+      return true;
+  }
+
+  // reco track not matched to any TP from signal vertex
+  return false;
+}
+
+void PrimaryVertexAnalyzer4PUSlimmed::fillPurityHistograms(
+    const std::string& label,
+    const std::vector<recoPrimaryVertex>& recopvs,
+    int genpv_position_in_reco_collection) {
+  if(recopvs.empty()) return;
+
+  std::vector<double> vtx_sumpt_sigmatched;
+  std::vector<double> vtx_purity;
+
+  vtx_sumpt_sigmatched.reserve(recopvs.size());
+  vtx_purity.reserve(recopvs.size());
+
+  for(const auto& v: recopvs) {
+    double sumpt_all = 0;
+    double sumpt_sigmatched = 0;
+    const reco::Vertex *vertex = v.recVtx;
+    for(auto iTrack = vertex->tracks_begin(); iTrack != vertex->tracks_end(); ++iTrack) {
+      double pt = (*iTrack)->pt();
+      sumpt_all += pt;
+      if(matchRecoTrack2SimSignal(*iTrack)) {
+        sumpt_sigmatched += pt;
+      }
+    }
+    const double purity = sumpt_sigmatched / sumpt_all;
+
+    vtx_sumpt_sigmatched.push_back(sumpt_sigmatched);
+    vtx_purity.push_back(purity);
+  }
+
+  const double purity = vtx_purity[0];
+
+  const double vtxAll_sumpt_sigmatched = std::accumulate(vtx_sumpt_sigmatched.begin(), vtx_sumpt_sigmatched.end(), 0.0);
+  const double vtxNot0_sumpt_sigmatched = vtxAll_sumpt_sigmatched - vtx_sumpt_sigmatched[0];
+  const double missing = vtxNot0_sumpt_sigmatched / vtxAll_sumpt_sigmatched;
+
+  std::string prefix = "RecoPVAssoc2GenPVNotMatched_";
+  if(genpv_position_in_reco_collection == 0)
+    prefix = "RecoPVAssoc2GenPVMatched_";
+
+  mes_[label][prefix+"Purity"]->Fill(purity);
+  mes_[label][prefix+"Missing"]->Fill(missing);
+  auto hpurity = mes_[label][prefix+"Purity_vs_Index"];
+  for(size_t i=0; i<vtx_purity.size(); ++i) {
+    hpurity->Fill(i, vtx_purity[i]);
+  }
+}
+
 /* Extract information form TrackingParticles/TrackingVertex and fill
  * the helper class simPrimaryVertex with proper generation-level
  * information */
@@ -903,14 +989,14 @@ PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
     recoPrimaryVertex sv(v->position().x(), v->position().y(),
                          v->position().z());
     sv.recVtx = &(*v);
-    // this is a new vertex, add it to the list of sim-vertices
+    // this is a new vertex, add it to the list of reco-vertices
     recopv.push_back(sv);
     PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex* vp = &recopv.back();
 
     // Loop over daughter track(s)
     for (auto iTrack = v->tracks_begin(); iTrack != v->tracks_end(); ++iTrack) {
       auto momentum = (*(*iTrack)).innerMomentum();
-      // TODO(rovere) better handle the pixelVerticies, whose tracks
+      // TODO(rovere) better handle the pixelVertices, whose tracks
       // do not have the innerMomentum defined. This is a temporary
       // hack to overcome this problem.
       if (momentum.mag2() == 0)
@@ -1169,6 +1255,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
     int num_total_gen_vertices_multiassoc2reco = 0;
     int num_total_reco_vertices_multiassoc2gen = 0;
     int num_total_reco_vertices_duplicate = 0;
+    int genpv_position_in_reco_collection = -1;
     for (auto const& v : simpv) {
       float mistag = 1.;
       // TODO(rovere) put selectors here in front of fill* methods.
@@ -1225,6 +1312,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
                 ->Fill(pv_position_in_reco_collection);
             mes_[label]["TruePVLocationIndexCumulative"]
                 ->Fill(pv_position_in_reco_collection > 0 ? 1 : 0);
+
             if (signal_is_highest_pt) {
               mes_[label]["TruePVLocationIndexSignalIsHighest"]
                 ->Fill(pv_position_in_reco_collection);
@@ -1232,6 +1320,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
               mes_[label]["TruePVLocationIndexSignalIsNotHighest"]
                 ->Fill(pv_position_in_reco_collection);
             }
+
+            genpv_position_in_reco_collection = pv_position_in_reco_collection;
             break;
           }
         }
@@ -1284,6 +1374,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
     mes_[label]["RecoVtx_vs_GenVtx"]->Fill(simpv.size(), recopv.size());
     mes_[label]["MatchedRecoVtx_vs_GenVtx"]
         ->Fill(simpv.size(), num_total_reco_vertices_assoc2gen);
+
+    fillPurityHistograms(label, recopv, genpv_position_in_reco_collection);
   }
 }  // end of analyze
 
