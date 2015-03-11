@@ -39,8 +39,8 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
     = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexName"));
  
 
-  produces<edm::ValueMap<float> > ("PuppiWeights");
-  produces<edm::ValueMap<LorentzVector> > ("PuppiP4s");
+  produces<edm::ValueMap<float> > ();
+  produces<edm::ValueMap<LorentzVector> > ();
   produces< edm::ValueMap<reco::CandidatePtr> >(); 
 
   produces<PFOutputCollection>();
@@ -179,8 +179,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   p4PupFiller.insert(hPFProduct,puppiP4s.begin(), puppiP4s.end() );
   p4PupFiller.fill();
   
-  iEvent.put(lPupOut,"PuppiWeights");
-  iEvent.put(p4PupOut,"PuppiP4s");
+  iEvent.put(lPupOut);
+  iEvent.put(p4PupOut);
   edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put( fPuppiCandidates );
   for(unsigned int ic=0, nc = oh->size(); ic < nc; ++ic) {
       reco::CandidatePtr pkref( oh, ic );
