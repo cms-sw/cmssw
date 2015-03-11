@@ -61,7 +61,7 @@ class TrajectorySeedProducer:
         
         bool testBeamspotCompatibility;
         const reco::BeamSpot* beamSpot;
-        bool testPrimaryVertexCompatibilty;
+        bool testPrimaryVertexCompatibility;
         const reco::VertexCollection* primaryVertices;
         // tokens
         edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;

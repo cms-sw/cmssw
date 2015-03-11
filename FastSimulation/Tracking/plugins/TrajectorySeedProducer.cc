@@ -46,7 +46,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     trackerTopology(nullptr),
     testBeamspotCompatibility(false),
     beamSpot(nullptr),
-    testPrimaryVertexCompatibilty(false),
+    testPrimaryVertexCompatibility(false),
     primaryVertices(nullptr)
 {  
     // The name of the TrajectorySeed Collection
@@ -61,6 +61,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     simTrack_maxZ0 = simTrackSelectionConfig.getParameter<double>("maxZ0");
     //simtracks to skip (were processed in previous iterations)
     std::vector<edm::InputTag> skipSimTrackTags = simTrackSelectionConfig.getParameter<std::vector<edm::InputTag> >("skipSimTrackIds");
+    
     for ( unsigned int k=0; k<skipSimTrackTags.size(); ++k)
     {
         skipSimTrackIdTokens.push_back(consumes<std::vector<unsigned int> >(skipSimTrackTags[k]));
@@ -79,12 +80,12 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     edm::InputTag primaryVertexTag = conf.getParameter<edm::InputTag>("primaryVertex");
     if (primaryVertexTag.label()!="")
     {
-        testPrimaryVertexCompatibilty=true;
+        testPrimaryVertexCompatibility=true;
         recoVertexToken=consumes<reco::VertexCollection>(primaryVertexTag);
     }
 
     //make sure that only one test is performed
-    if (testBeamspotCompatibility && testPrimaryVertexCompatibilty)
+    if (testBeamspotCompatibility && testPrimaryVertexCompatibility)
     {
         throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Either 'beamSpot' or 'primaryVertex' compatiblity should be configured; not both");
     }
@@ -119,21 +120,21 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     nSigmaZ = conf.getParameter<double>("nSigmaZ");
 
     //make sure that only one cut is configured
-    if (originHalfLength>0 && nSigmaZ>0)
+    if (originHalfLength>=0 && nSigmaZ>=0)
     {
         throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Either 'originHalfLength' or 'nSigmaZ' selection should be configured; not both. Deactivate one (or both) by setting it to <0.");
     }
 
     //make sure that performance cuts are not interfering with selection on reconstruction
-    if ((ptMin>0 && simTrack_pTMin>0) && (ptMin<simTrack_pTMin))
+    if ((ptMin>=0 && simTrack_pTMin>=0) && (ptMin<simTrack_pTMin))
     {
         throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack pT is tighter than cut on pT estimate from seed.");
     }
-    if ((originHalfLength>0 && simTrack_maxZ0>0) && (originHalfLength>simTrack_maxZ0))
+    if ((originHalfLength>=0 && simTrack_maxZ0>=0) && (originHalfLength>simTrack_maxZ0))
     {
         throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack dz is tighter than cut on dz estimate from seed.");
     }
-    if ((originRadius>0 && simTrack_maxD0>0) && (originRadius>simTrack_maxD0))
+    if ((originRadius>=0 && simTrack_maxD0>=0) && (originRadius>simTrack_maxD0))
     {
         throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack dxy is tighter than cut on dxy estimate from seed.");
     }
@@ -159,7 +160,8 @@ TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es)
     magneticFieldMap = &(*magneticFieldMapHandle);
     trackerTopology = &(*trackerTopologyHandle);
 
-    thePropagator = std::move(std::shared_ptr<PropagatorWithMaterial>(new PropagatorWithMaterial(alongMomentum,0.105,magneticField)));
+    thePropagator = std::make_shared<PropagatorWithMaterial>(alongMomentum,0.105,magneticField);
+    
 }
 
 bool
@@ -170,6 +172,10 @@ TrajectorySeedProducer::passSimTrackQualityCuts(const SimTrack& theSimTrack, con
     {
         return false;
     }
+    if(((simTrack_maxD0<0) && (simTrack_maxZ0<0)) || (!testPrimaryVertexCompatibility && !testBeamspotCompatibility))
+      {
+	return true;
+      }
   
     //require impact parameter of the simtrack
     BaseParticlePropagator theParticle = BaseParticlePropagator(
@@ -197,17 +203,14 @@ TrajectorySeedProducer::passSimTrackQualityCuts(const SimTrack& theSimTrack, con
     {
         origins.push_back(&beamSpot->position());
     }
-    if (testPrimaryVertexCompatibilty)
+    if (testPrimaryVertexCompatibility)
     {
         for (unsigned int iv = 0; iv < primaryVertices->size(); ++iv)
         {
             origins.push_back(&(*primaryVertices)[iv].position());
         }
     }
-    if (origins.size()==0 || ((simTrack_maxD0<0) && (simTrack_maxZ0<0)))
-    {
-        return true;
-    }
+
     //only one possible origin is required to succeed
     for (unsigned int i = 0; i < origins.size(); ++i)
     {
@@ -227,22 +230,24 @@ TrajectorySeedProducer::passSimTrackQualityCuts(const SimTrack& theSimTrack, con
 bool
 TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, const TrajectorySeedHitCandidate& hit2) const
 {
-    bool compatibility = true;
 
     const GlobalPoint& globalHitPos1 = hit1.globalPosition();
     const GlobalPoint& globalHitPos2 = hit2.globalPosition();
     bool forward = hit1.isForward(); // true if hit is in endcap, false = barrel
     double error = std::sqrt(hit1.largerError()+hit2.largerError());
-
     if (testBeamspotCompatibility)
-    {
-        compatibility = compatibility && compatibleWithBeamSpot(globalHitPos1,globalHitPos2,error,forward);
-    }
-    if (testPrimaryVertexCompatibilty)
-    {
-        compatibility = compatibility && compatibleWithPrimaryVertex(globalHitPos1,globalHitPos2,error,forward);
-    }
-    return compatibility;
+      {
+	return compatibleWithBeamSpot(globalHitPos1,globalHitPos2,error,forward);
+      }
+    else if(testPrimaryVertexCompatibility)
+      {
+	return compatibleWithPrimaryVertex(globalHitPos1,globalHitPos2,error,forward);
+      }
+    else
+      {
+	return true;
+      }
+ 
 }
 
 const SeedingNode<TrackingLayer>* TrajectorySeedProducer::insertHit(
@@ -357,38 +362,34 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     // the tracks to be skipped
     std::unordered_set<unsigned int> skipSimTrackIds;
     for ( unsigned int i=0; i<skipSimTrackIdTokens.size(); ++i )
-    {
+      {
         edm::Handle<std::vector<unsigned int> > skipSimTrackIds_temp;
-        e.getByToken(skipSimTrackIdTokens[i],skipSimTrackIds_temp);
-        for ( unsigned int j=0; j<skipSimTrackIds_temp->size(); ++j )
-        {
-            skipSimTrackIds.insert((*skipSimTrackIds_temp)[j]);
-        }
-    }
-
+	
+	skipSimTrackIds.insert(skipSimTrackIds_temp->begin(),skipSimTrackIds_temp->end());
+      }
     // Beam spot
     if (testBeamspotCompatibility)
-    {
+      {
         edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
         e.getByToken(beamSpotToken,recoBeamSpotHandle);
         beamSpot = recoBeamSpotHandle.product();
-    }
-
+      }
+    
     // Primary vertices
-    if (testPrimaryVertexCompatibilty)
+    if (testPrimaryVertexCompatibility)
     {
-        edm::Handle<reco::VertexCollection> theRecVtx;
+      edm::Handle<reco::VertexCollection> theRecVtx;
         e.getByToken(recoVertexToken,theRecVtx);
         primaryVertices = theRecVtx.product();
     }
-
+    
     // SimTracks and SimVertices
     edm::Handle<edm::SimTrackContainer> theSimTracks;
     e.getByToken(simTrackToken,theSimTracks);
-
+    
     edm::Handle<edm::SimVertexContainer> theSimVtx;
     e.getByToken(simVertexToken,theSimVtx);
-  
+    
     // edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
     edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
     e.getByToken(recHitToken, theGSRecHits);
@@ -541,14 +542,12 @@ TrajectorySeedProducer::compatibleWithBeamSpot(
     XYZTLorentzVector thePos1(gpos1.x(),gpos1.y(),gpos1.z(),0.);
     XYZTLorentzVector thePos2(gpos2.x(),gpos2.y(),gpos2.z(),0.);
 
-    // Create new particles that pass through the second hit with pT = ptMin
-    // and charge = +/-1
-    // The momentum direction is by default joining the two hits
-    XYZTLorentzVector theMom2 = (thePos2-thePos1);
-
-    // The corresponding RawParticle, with an (irrelevant) electric charge
-    // (The charge is determined in the next step)
-    ParticlePropagator myPart(theMom2,thePos2,1.,magneticFieldMap);
+    // create a particle with following properties
+    //  - charge = +1
+    //  - vertex at second rechit
+    //  - momentum direction: from first to second rechit
+    //  - magnitude of momentum: nonsense (distance between 1st and 2nd rechit)  
+    ParticlePropagator myPart(thePos2 - thePos1,thePos2,1.,magneticFieldMap);
 
     /*
     propagateToBeamCylinder does the following
@@ -557,6 +556,7 @@ TrajectorySeedProducer::compatibleWithBeamSpot(
        - if such tracks exists, pick the one with maximum pt
        - track vertex z coordinate is z coordinate of closest approach of
     track to (x,y) = (0,0)
+       - the particle gets the charge that allows the highest pt
     */
     if (originRadius>0)
     {
@@ -573,8 +573,8 @@ TrajectorySeedProducer::compatibleWithBeamSpot(
     {
         return false;
     }
-
-    // 2. Z compatible with beam spot size
+    // 2. Z compatible with beam spot size 
+    // in constuctur only one of originHalfLength,nSigmaZ is allowed to be >= 0
     double zConstraint = std::max(originHalfLength,beamSpot->sigmaZ()*nSigmaZ);
     if ((zConstraint>0) && ( fabs(myPart.Z()-beamSpot->position().Z()) > zConstraint ))
     {
@@ -582,7 +582,7 @@ TrajectorySeedProducer::compatibleWithBeamSpot(
     }
     return true;
 }
-
+//this fucntion is currently poorly understood and needs clearer comments in the future
 bool
 TrajectorySeedProducer::compatibleWithPrimaryVertex(
         const GlobalPoint& gpos1, 
