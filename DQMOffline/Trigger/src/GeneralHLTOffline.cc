@@ -83,6 +83,7 @@ class GeneralHLTOffline : public DQMEDAnalyzer {
   std::string hlt_menu_;
   std::vector< std::vector<std::string> > PDsVectorPathsVector;
   std::vector<std::string> AddedDatasets;
+  std::map< std::string, std::vector<std::string> > PathModules;
   edm::EDGetTokenT <edm::TriggerResults>   triggerResultsToken;
   edm::EDGetTokenT <trigger::TriggerEventWithRefs> triggerSummaryTokenRAW;
   edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryTokenAOD;
@@ -230,6 +231,7 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
 
   PDsVectorPathsVector.clear();
   AddedDatasets.clear();
+  PathModules.clear();
 }
 
 
@@ -428,6 +430,7 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
     std::string prefix("hltPre");
 
     std::vector<std::string> good_module_names;
+    good_module_names.clear();
     for( int iMod=0; iMod<NumModules; iMod++ ){
       std::string moduleType = hlt_config_.moduleType(moduleLabels[iMod]);
       std::string moduleEDMType = hlt_config_.moduleEDMType(moduleLabels[iMod]);
@@ -443,6 +446,7 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
       if( moduleLabels[iMod].compare(0, prefix.length(), prefix) == 0 ) continue;
       good_module_names.push_back(moduleLabels[iMod]);
     }
+    PathModules[pathNameVer] = good_module_names;
 
     int NumGoodModules = int( good_module_names.size() );
 
@@ -510,9 +514,6 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
     if( hasRawTriggerEvent && triggerEventRAW.isValid() ) triggerEventSize = triggerEventRAW->size();
     else if( triggerEventAOD.isValid() ) triggerEventSize = triggerEventAOD->sizeFilters();
 
-    const std::vector<std::string>& moduleLabels = hlt_config_.moduleLabels(path);
-    int NumModules = int( moduleLabels.size() );
-
     std::string pathName_dataset = "cpfilt_" + label + "_" + pathNameNoVer;
 
     TH1F * hist_cpfilt_mini = NULL;
@@ -522,22 +523,11 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
       hist_cpfilt_mini = ME_cpfilt_mini->getTH1F();
     }
 
-    std::string prefix("hltPre");
+
+    std::vector<std::string> moduleLabels = PathModules[path];
+    int NumModules = int( moduleLabels.size() );
 
     for( int iMod=0; iMod<NumModules; iMod++ ){
-      std::string moduleType = hlt_config_.moduleType(moduleLabels[iMod]);
-      std::string moduleEDMType = hlt_config_.moduleEDMType(moduleLabels[iMod]);
-      if( !(moduleEDMType == "EDFilter") ) continue;
-      if( moduleType.find("Selector")!= std::string::npos ) continue;
-      if( moduleType == "HLTTriggerTypeFilter" || 
-	  moduleType == "HLTBool" ||
-	  moduleType == "PrimaryVertexObjectFilter" ||
-	  moduleType == "JetVertexChecker" ||
-	  moduleType == "HLTRHemisphere" ||
-	  moduleType == "DetectorStateFilter" ) continue;
-
-      if( moduleLabels[iMod].compare(0, prefix.length(), prefix) == 0 ) continue;
-
       edm::InputTag moduleWhoseResultsWeWant(moduleLabels[iMod],
 					     "",
 					     hltTag);
