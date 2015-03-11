@@ -129,8 +129,6 @@ namespace pat {
     bool embedHighLevelSelection_;
     /// input source of the primary vertex/beamspot
     edm::EDGetTokenT<reco::BeamSpot> beamLineToken_;
-    /// use the primary vertex or the beamspot
-    bool usePV_;
     /// input source of the primary vertex
     edm::EDGetTokenT<std::vector<reco::Vertex> > pvToken_;
     /// input source for isoDeposits
@@ -143,6 +141,8 @@ namespace pat {
     bool addEfficiencies_;
     /// add user data to the muon (this will be data members of th muon even w/o embedding)
     bool useUserData_;
+    /// add ecal PF energy
+    bool embedPfEcalEnergy_;
 
     /// --- tools ---
     /// comparator for pt ordering

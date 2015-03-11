@@ -16,7 +16,8 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="27">
+  <class name="pat::Electron"  ClassVersion="29">
+   <version ClassVersion="29" checksum="1784986402"/>
    <version ClassVersion="28" checksum="2518240031"/>
    <version ClassVersion="27" checksum="3863179876"/>
    <field name="superClusterRelinked_" transient="true"/>
@@ -38,8 +39,18 @@
   <ioread sourceClass="pat::Electron" targetClass="pat::Electron" version="[1-]" source="" target="superClusterRelinked_">
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
+  <ioread sourceClass="pat::Electron"  targetClass="pat::Electron" version="[-28]" target="ip_" source="std::vector<double> ip_" embed="false">
+    <![CDATA[ ip_[0] = onfile.ip_[1]; ip_[1] = onfile.ip_[2]; ip_[2] = onfile.ip_[3]; ip_[3] = onfile.ip_[4]; ]]>
+  </ioread>
+  <ioread sourceClass="pat::Electron"  targetClass="pat::Electron" version="[-28]" target="eip_" source="std::vector<double> eip_" embed="false">
+    <![CDATA[ eip_[0] = onfile.eip_[1]; eip_[1] = onfile.eip_[2]; eip_[2] = onfile.eip_[3]; eip_[3] = onfile.eip_[4]; ]]>
+  </ioread>
+  <ioread sourceClass="pat::Electron"  targetClass="pat::Electron" version="[-28]" target="cachedIP_" source="std::vector<bool> cachedIP_" embed="false">
+    <![CDATA[ cachedIP_ = onfile.cachedIP_[1] + 2*onfile.cachedIP_[2] + 4*onfile.cachedIP_[3] + 8*onfile.cachedIP_[4]; ]]>
+  </ioread>
 
-  <class name="pat::Muon"  ClassVersion="15">
+  <class name="pat::Muon"  ClassVersion="17">
+   <version ClassVersion="17" checksum="1509153359"/>
    <version ClassVersion="16" checksum="2674665735"/>
    <version ClassVersion="15" checksum="1248517999"/>
    <version ClassVersion="14" checksum="132269943"/>
@@ -48,6 +59,16 @@
    <version ClassVersion="11" checksum="489577659"/>
    <version ClassVersion="10" checksum="2367573922"/>
   </class>
+  <ioread sourceClass="pat::Muon"  targetClass="pat::Muon" version="[-16]" target="ip_" source="std::vector<double> ip_" embed="false">
+    <![CDATA[ ip_[0] = onfile.ip_[1]; ip_[1] = onfile.ip_[2]; ip_[2] = onfile.ip_[3]; ip_[3] = onfile.ip_[4]; ]]>
+  </ioread>
+  <ioread sourceClass="pat::Muon"  targetClass="pat::Muon" version="[-16]" target="eip_" source="std::vector<double> eip_" embed="false">
+    <![CDATA[ eip_[0] = onfile.eip_[1]; eip_[1] = onfile.eip_[2]; eip_[2] = onfile.eip_[3]; eip_[3] = onfile.eip_[4]; ]]>
+  </ioread>
+  <ioread sourceClass="pat::Muon"  targetClass="pat::Muon" version="[-16]" target="cachedIP_" source="std::vector<bool> cachedIP_" embed="false">
+    <![CDATA[ cachedIP_ = onfile.cachedIP_[1] + 2*onfile.cachedIP_[2] + 4*onfile.cachedIP_[3] + 8*onfile.cachedIP_[4]; ]]>
+  </ioread>
+
   <class name="pat::Tau"  ClassVersion="17">
    <version ClassVersion="17" checksum="2561486007"/>
    <version ClassVersion="16" checksum="2793593983"/>
