@@ -11,14 +11,14 @@
 l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::Stage2Layer2JetSumAlgorithmFirmwareImp1(CaloParams* params) :
   params_(params)
 {
-  etSumEtThresholdHwEt_ = 30;//floor(params_->etSumEtThreshold(1)/params_->jetLsb());
-  etSumEtThresholdHwMet_ = 30;//floor(params_->etSumEtThreshold(3)/params_->jetLsb());
+  etSumEtThresholdHwEt_ = floor(params_->etSumEtThreshold(0)/params_->jetLsb());
+  etSumEtThresholdHwMet_ = floor(params_->etSumEtThreshold(2)/params_->jetLsb());
 
-  etSumEtaMinEt_ = params_->etSumEtaMin(1);
-  etSumEtaMaxEt_ = params_->etSumEtaMax(1);
+  etSumEtaMinEt_ = params_->etSumEtaMin(0);
+  etSumEtaMaxEt_ = params_->etSumEtaMax(0);
  
-  etSumEtaMinMet_ = params_->etSumEtaMin(3);
-  etSumEtaMaxMet_ = params_->etSumEtaMax(3);
+  etSumEtaMinMet_ = params_->etSumEtaMin(2);
+  etSumEtaMaxMet_ = params_->etSumEtaMax(2);
 }
 
 
@@ -28,60 +28,66 @@ l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::~Stage2Layer2JetSumAlgorithmFirmwa
 }
 
 
-void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::Jet> & jets,
-							      std::vector<l1t::EtSum> & etsums) 
+void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::Jet> & alljets, std::vector<l1t::EtSum> & htsums) 
 {
-   int32_t ht_poseta(0), hx_poseta(0), hy_poseta(0); 
-   int32_t ht_negeta(0), hx_negeta(0), hy_negeta(0);
 
-   for(std::vector<l1t::Jet>::const_iterator lIt = jets.begin() ; lIt != jets.end() ; ++lIt )
-     {
+  int etaMax=40, etaMin=1, phiMax=72, phiMin=1;
+  
+  // etaSide=1 is positive eta, etaSide=-1 is negative eta
+  for (int etaSide=1; etaSide>=-1; etaSide-=2) {
 
-       // Positive eta
-       if (lIt->hwEta()>0) { 
-	 if (lIt->hwPt()>etSumEtThresholdHwMet_ && lIt->hwEta() >= etSumEtaMinMet_ && lIt->hwEta() <= etSumEtaMaxMet_){
-	   hy_poseta += (int32_t) ( lIt->hwPt() * std::trunc ( 511. * cos ( 6.28318530717958647693 * (72 - ( lIt->hwPhi() - 1 )) / 72.0 ) )) >> 9;
-	   hx_poseta += (int32_t) ( lIt->hwPt() * std::trunc ( 511. * sin ( 6.28318530717958647693 * ( lIt->hwPhi() - 1 ) / 72.0 ) )) >> 9;
-	 }
-	 if (lIt->hwPt()>etSumEtThresholdHwEt_ && lIt->hwEta() >= etSumEtaMinEt_ && lIt->hwEta() <= etSumEtaMaxEt_){
-	   ht_poseta += lIt->hwPt();
-	 }
-       } 
-       
-       // Negative eta
-       else {              
-	 if (lIt->hwPt()>etSumEtThresholdHwMet_ && lIt->hwEta() >= etSumEtaMinMet_ && lIt->hwEta() <= etSumEtaMaxMet_){
-	   hy_negeta += (int32_t) ( lIt->hwPt() * std::trunc ( 511. * cos ( 6.28318530717958647693 * (72 - ( lIt->hwPhi() - 1 )) / 72.0 ) )) >> 9;
-	   hx_negeta += (int32_t) ( lIt->hwPt() * std::trunc ( 511. * sin ( 6.28318530717958647693 * ( lIt->hwPhi() - 1 ) / 72.0 ) )) >> 9;
-	 }
-	 if (lIt->hwPt()>etSumEtThresholdHwEt_ && lIt->hwEta() >= etSumEtaMinEt_ && lIt->hwEta() <= etSumEtaMaxEt_){
-	   ht_negeta += lIt->hwPt();
-	 }
-       }
+    int32_t hx(0), hy(0), ht(0);
+    
+    std::vector<int> rings;
+    for (int i=etaMin; i<=etaMax; i++) rings.push_back(i*etaSide);
 
-     }
+    // loop over rings    
+    for (unsigned etaIt=0; etaIt<rings.size(); etaIt++) {
 
-   hx_poseta >>=5;
-   hy_poseta >>=5;
-   ht_poseta >>=5;
-   hx_negeta >>=5;
-   hy_negeta >>=5;
-   ht_negeta >>=5;
-   
-   math::XYZTLorentzVector p4;
-   
-   l1t::EtSum htSumhtPosEta( p4 , l1t::EtSum::EtSumType::kTotalHt ,ht_poseta,0,0,0);
-   l1t::EtSum htSumhtNegEta( p4 , l1t::EtSum::EtSumType::kTotalHt ,ht_negeta,0,0,0);
-   l1t::EtSum htSumMissingHtxPosEta( p4 , l1t::EtSum::EtSumType::kTotalHtx ,hx_poseta,0,0,0);
-   l1t::EtSum htSumMissingHtxNegEta( p4 , l1t::EtSum::EtSumType::kTotalHtx ,hx_negeta,0,0,0);
-   l1t::EtSum htSumMissingHtyPosEta( p4 , l1t::EtSum::EtSumType::kTotalHty ,hy_poseta,0,0,0);
-   l1t::EtSum htSumMissingHtyNegEta( p4 , l1t::EtSum::EtSumType::kTotalHty ,hy_negeta,0,0,0);
+      int ieta = rings.at(etaIt);
 
-   etsums.push_back(htSumhtPosEta);
-   etsums.push_back(htSumhtNegEta);
-   etsums.push_back(htSumMissingHtxPosEta);
-   etsums.push_back(htSumMissingHtxNegEta);
-   etsums.push_back(htSumMissingHtyPosEta);
-   etsums.push_back(htSumMissingHtyNegEta);
+      int32_t ringHx(0), ringHy(0), ringHt(0); 
+
+      // loop over phi
+      for (int iphi=phiMin; iphi<=phiMax; iphi++) {
+	
+        // find the jet at this (eta,phi)
+	l1t::Jet thisJet;
+	bool foundJet = false;
+	for (unsigned jetIt=0; jetIt<alljets.size(); jetIt++) {
+	  if (alljets.at(jetIt).hwEta()==ieta && alljets.at(jetIt).hwPhi()==iphi) {
+	    thisJet = alljets.at(jetIt);
+	    foundJet = true;
+	  }
+	}
+	if (!foundJet) continue;
+	
+	if (thisJet.hwPt()>etSumEtThresholdHwMet_ && thisJet.hwEta()>=etSumEtaMinMet_ && thisJet.hwEta()<=etSumEtaMaxMet_) {
+	  ringHx += (int32_t) ( (thisJet.hwPt()>>5) * std::trunc ( 511. * cos ( 6.28318530717958647693 * (72 - ( iphi - 1 )) / 72.0 ) )) >> 9;
+	  ringHy += (int32_t) ( (thisJet.hwPt()>>5) * std::trunc ( 511. * sin ( 6.28318530717958647693 * ( iphi - 1 ) / 72.0 ) )) >> 9;
+	}
+	
+	if (thisJet.hwPt()>etSumEtThresholdHwEt_ && thisJet.hwEta()>=etSumEtaMinEt_ && thisJet.hwEta()<=etSumEtaMaxEt_) {
+	  ringHt += thisJet.hwPt();
+	}
+      }
+
+      hx += (ringHx );//>> 5);
+      hy += (ringHy );//>> 5);
+      ht += (ringHt >> 5);
+      
+    }
+    
+    math::XYZTLorentzVector p4;
+    
+    l1t::EtSum htSumHt(p4,l1t::EtSum::EtSumType::kTotalHt,ht,0,0,0);
+    l1t::EtSum htSumHx(p4,l1t::EtSum::EtSumType::kTotalHtx,hx,0,0,0);
+    l1t::EtSum htSumHy(p4,l1t::EtSum::EtSumType::kTotalHty,hy,0,0,0);
+    
+    htsums.push_back(htSumHt);
+    htsums.push_back(htSumHx);
+    htsums.push_back(htSumHy);
+    
+  }
 }
 
