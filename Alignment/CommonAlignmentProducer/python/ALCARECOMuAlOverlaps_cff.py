@@ -23,7 +23,7 @@ ALCARECOMuAlOverlapsDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.c
 ALCARECOMuAlOverlaps = cms.EDFilter("AlignmentCSCOverlapSelectorModule",
     filter = cms.bool(True),
     src = cms.InputTag("ALCARECOMuAlOverlapsMuonSelector","StandAlone"),
-    minHitsPerChamber = cms.uint32(4),
+    minHitsPerChamber = cms.uint32(1),
     station = cms.int32(0) ## all stations: the algorithm can handle multiple stations now
 )
 
