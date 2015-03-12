@@ -28,19 +28,7 @@ inline bool operator > ( l1t::Jet& a, l1t::Jet& b )
 // jet mask, needs to be configurable at some point
 // just a square for now
 // for 1 do greater than, for 2 do greater than equal to
-/*
-int mask_[9][9] = {
-  { 1,1,1,1,1,1,1,1,1 },
-  { 1,1,1,1,1,1,1,1,2 },
-  { 1,1,1,1,1,1,1,2,2 },
-  { 1,1,1,1,1,1,2,2,2 },
-  { 1,1,1,1,0,2,2,2,2 },
-  { 1,1,1,2,2,2,2,2,2 },
-  { 1,1,2,2,2,2,2,2,2 },
-  { 1,2,2,2,2,2,2,2,2 },
-  { 2,2,2,2,2,2,2,2,2 }
-};
-*/
+
 int mask_[9][9] = {
   { 1,2,2,2,2,2,2,2,2 },
   { 1,1,2,2,2,2,2,2,2 },
@@ -139,16 +127,15 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	      // wrap over eta=0
 	      if (ieta > 0 && ietaTest <=0) ietaTest -= 1;
 	      if (ieta < 0 && ietaTest >=0) ietaTest += 1;
-	    if(ieta==-5 && iphi==7) std::cout<<"(e,p) "<<ietaTest<<","<<iphiTest<<" mask "<<mask_[8-(dphi+4)][deta+4]<<std::endl;  
+	   
 	      // check jet mask and sum tower et
 	      const CaloTower& towTest = CaloTools::getTower(towers, ietaTest, iphiTest);
 	      towEt = towTest.hwPt();
- if(ieta==-5 && iphi==7) std::cout<<"towEt "<<towEt<<std::endl;
 	      
               if      (mask_[8-(dphi+4)][deta+4] == 0) continue;
 	      else if (mask_[8-(dphi+4)][deta+4] == 1) vetoCandidate = (seedEt < towEt);
 	      else if (mask_[8-(dphi+4)][deta+4] == 2) vetoCandidate = (seedEt <= towEt);
- if(ieta==-5 && iphi==7) std::cout<<"vetoCandidate "<<vetoCandidate<<std::endl;
+	      
 	      if (vetoCandidate) break;
 	      else iEt += towEt;
 	   
