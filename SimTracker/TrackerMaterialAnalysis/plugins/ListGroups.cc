@@ -102,14 +102,17 @@ private:
   std::vector<unsigned int> m_color;
   std::vector<int> m_gradient;
 
-  // The following map is automatically filled by the script
-  // dumpFullXML, when run with -c,--compare flag, and is injected in
+  // The following maps are automatically filled by the script
+  // dumpFullXML, when run with -c,--compare flag, and are injected in
   // this code via the header ListGroupsMaterialDifference.h, which is
-  // included below. The first value of the pair represent the
-  // relative difference ((new - old)/old * 100, in %) of radiation
-  // length, while the second referes to the energy loss (in GeV/cm)
-  // changes.
+  // included below. The first value of the pair in m_diff represents
+  // the relative difference ((new - old)/old * 100, in %) of
+  // radiation length, while the second referes to the energy loss (in
+  // GeV/cm) changes. The values in m_values are ordered in the very
+  // same way, ie. they contain the new values for radiation length
+  // and energy loss, respectively.
   std::map<std::string, std::pair<float, float> > m_diff;
+  std::map<std::string, std::pair<float, float> > m_values;
 };
 
 ListGroups::ListGroups(const edm::ParameterSet & iPSet) {
@@ -244,7 +247,6 @@ ListGroups::overlayEtaReferences() {
   float text_size = 0.033;
 
   for (float eta = 0.; eta <= 3.8; eta += 0.2) {
-    std::cout << "CAZZO " << eta << std::endl;
     float theta = 2. * atan (exp(-eta));
     if (eta >= 1.8) {
       lines.push_back(
@@ -317,9 +319,15 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
   leg->SetTextSize(0.008);
   leg->SetNColumns(3);
   std::unique_ptr<TProfile2D> radlen(
+      new TProfile2D( "OverallRadLen", "OverallRadLen",
+                      600., -300., 300, 120., 0., 120.));
+  std::unique_ptr<TProfile2D> eneloss(
+      new TProfile2D( "OverallEnergyLoss", "OverallEnergyLoss",
+                      600., -300., 300, 120., 0., 120.));
+  std::unique_ptr<TProfile2D> radlen_diff(
       new TProfile2D( "OverallDifferencesRadLen", "OverallDifferencesRadLen",
                       600., -300., 300, 120., 0., 120.));
-  std::unique_ptr<TProfile2D> intlen(
+  std::unique_ptr<TProfile2D> eneloss_diff(
       new TProfile2D( "OverallDifferencesEnergyLoss", "OverallDifferencesEnergyLoss",
                       600., -300., 300, 120., 0., 120.));
 
@@ -333,8 +341,10 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
     current.SetMarkerSize(0.8);
     for (auto element : g->elements()) {
       current.Fill(element.z(), element.perp());
-      radlen->Fill(element.z(), element.perp(), m_diff[g->name()].first);
-      intlen->Fill(element.z(), element.perp(), m_diff[g->name()].second);
+      radlen->Fill(element.z(), element.perp(), m_values[g->name()].first);
+      eneloss->Fill(element.z(), element.perp(), m_values[g->name()].second);
+      radlen_diff->Fill(element.z(), element.perp(), m_diff[g->name()].first);
+      eneloss_diff->Fill(element.z(), element.perp(), m_diff[g->name()].second);
     }
 
     if (color_index == 1)
@@ -351,13 +361,37 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
   }
   leg->Draw();
   canvas->SaveAs("Grouping.png");
+
+  std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > > lines = overlayEtaReferences();
+
+  canvas->Clear();
+  radlen->SetMinimum(0);
+  radlen->SetMaximum(0.25);
+  radlen->Draw("COLZ");
+  for (auto line : lines) {
+    line.first->SetLineWidth(5);
+    line.first->Draw();
+    line.second->Draw();
+  }
+  canvas->SaveAs("RadLenValues.png");
+
+  canvas->Clear();
+  eneloss->SetMinimum(0.00001);
+  eneloss->SetMaximum(0.0005);
+  eneloss->Draw("COLZ");
+  for (auto line : lines) {
+    line.first->SetLineWidth(5);
+    line.first->Draw();
+    line.second->Draw();
+  }
+  canvas->SaveAs("EnergyLossValues.png");
+
   canvas->Clear();
   gStyle->SetPalette( m_gradient.size(), & m_gradient.front() );
   gStyle->SetNumberContours( m_gradient.size() );
-  radlen->SetMinimum(-100);
-  radlen->SetMaximum(100);
-  radlen->Draw("COLZ");
-  std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > > lines = overlayEtaReferences();
+  radlen_diff->SetMinimum(-100);
+  radlen_diff->SetMaximum(100);
+  radlen_diff->Draw("COLZ");
   for (auto line : lines) {
     line.first->SetLineWidth(5);
     line.first->Draw();
@@ -366,9 +400,9 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
   canvas->SaveAs("RadLenChanges.png");
 
   canvas->Clear();
-  intlen->SetMinimum(-100);
-  intlen->SetMaximum(100);
-  intlen->Draw("COLZ");
+  eneloss_diff->SetMinimum(-100);
+  eneloss_diff->SetMaximum(100);
+  eneloss_diff->Draw("COLZ");
   for (auto line : lines) {
     line.first->SetLineWidth(5);
     line.first->Draw();

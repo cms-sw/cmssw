@@ -111,6 +111,7 @@ def compareNewXMLWithOld(format_for_twiki):
                                'src/SimTracker/TrackerMaterialAnalysis/plugins/ListGroupsMaterialDifference.h'), 'w')
     header.write(HEADER)
     differences = {}
+    values = {}
     ordered_keys = []
     for spec_par in root.iter('%sSpecPar' % TAG_PREFIX):
         current_detector = spec_par.attrib['name']
@@ -132,6 +133,10 @@ def compareNewXMLWithOld(format_for_twiki):
         header.write('  m_diff["%s"] = std::make_pair<float, float>(%f, %f);\n' % (group,
                                                                                    differences[group]['TrackerRadLength'][2],
                                                                                    differences[group]['TrackerXi'][2]))
+    for group in differences.keys():
+        header.write('  m_values["%s"] = std::make_pair<float, float>(%f, %f);\n' % (group,
+                                                                                     differences[group]['TrackerRadLength'][1],
+                                                                                     differences[group]['TrackerXi'][1]))
 #    pprint.pprint(differences)
     for i in xrange(len(ordered_keys)):
         key = ordered_keys[i]
