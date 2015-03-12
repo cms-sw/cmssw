@@ -12,4 +12,4 @@ workflows = Matrix()
 # 50 ns at 8 TeV
 #needs a new GT to work
 #workflows[10025] = ['', ['TTbar','DIGI','RECOUNSCH','HARVEST','ALCATT']]
-workflows[11325] = ['', ['TTbar_13','DIGIUP15','RECOUP15UNSCH','HARVESTUP15','ALCATT']]
+workflows[11325] = ['TTbar_13_unsch', ['TTbar_13','DIGIUP15','RECOUP15UNSCH','HARVESTUP15','ALCATT']]
