@@ -23,7 +23,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                                             cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('EERECO_Geometry_Test01')),
                                                             cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('EPRECO_Geometry_Test01')),
                                                             cms.PSet(record = cms.string('PHcalRcd'),         tag = cms.string('HCALRECO_Geometry_Test01')),
-                                                            cms.PSet(record = cms.string('PHcalParametersRcd'), tag = cms.string('HCAL_Parameters_Test01')),
+                                                            cms.PSet(record = cms.string('PHcalParametersRcd'), tag = cms.string('HCALParameters_Geometry_Test01')),
                                                             cms.PSet(record = cms.string('PCaloTowerRcd'),    tag = cms.string('CTRECO_Geometry_Test01')),
                                                             cms.PSet(record = cms.string('PZdcRcd'),          tag = cms.string('ZDCRECO_Geometry_Test01')),
                                                             cms.PSet(record = cms.string('PCastorRcd'),       tag = cms.string('CASTORRECO_Geometry_Test01'))

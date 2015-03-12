@@ -15,7 +15,7 @@ HcalParametersFromDD::build( const DDCompactView* cvp,
   php.phitable = DDVectorGetter::get( "phitable" );  
   php.etaRange = DDVectorGetter::get( "etaRange" );
   php.gparHF = DDVectorGetter::get( "gparHF" );
-  php.noff = DDVectorGetter::get( "noff" );
+  php.noff = dbl_to_int( DDVectorGetter::get( "noff" ));
   php.Layer0Wt = DDVectorGetter::get( "Layer0Wt" );  
   php.HBGains = DDVectorGetter::get( "HBGains" );
   php.HEGains = DDVectorGetter::get( "HEGains" );
