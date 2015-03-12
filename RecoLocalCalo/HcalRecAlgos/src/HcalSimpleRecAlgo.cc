@@ -317,7 +317,7 @@ namespace HcalSimpleRecAlgoImpl {
 		     const HcalTimeSlew::BiasSetting slewFlavor,
                      const int runnum, const bool useLeak,
                      const AbsOOTPileupCorrection* pileupCorrection,
-                     const BunchXParameter* bxInfo, const unsigned lenInfo, const int puCorrMethod, const PulseShapeFitOOTPileupCorrection * psFitOOTpuCorr)// const on end
+                     const BunchXParameter* bxInfo, const unsigned lenInfo, const int puCorrMethod, const PulseShapeFitOOTPileupCorrection * psFitOOTpuCorr, HLTv2 * hltOOTpuCorr, PedestalSub * hltPedSub /* whatever don't know what to do with the pointer...*/)// const on end
   {
     double fc_ampl =0, ampl =0, uncorr_ampl =0, maxA = -1.e300;
     int nRead = 0, maxI = -1;
@@ -359,14 +359,56 @@ namespace HcalSimpleRecAlgoImpl {
        CaloSamples cs;
        coder.adc2fC(digi,cs);
        std::vector<int> capidvec;
-       for(int ip=0; ip<cs.size(); ip++){
-          const int capid = digi[ip].capid();
-          capidvec.push_back(capid);
-       }
-       psFitOOTpuCorr->apply(cs, capidvec, calibs, correctedOutput);
-       if( correctedOutput.back() == 0 && correctedOutput.size() >1 ){
+      for(int ip=0; ip<cs.size(); ip++){
+        const int capid = digi[ip].capid();
+        capidvec.push_back(capid);
+      }
+      //if(cs[4]-calibs.pedestal(capidvec[4])+cs[5]-calibs.pedestal(capidvec[4]) > 5){
+        psFitOOTpuCorr->apply(cs, capidvec, calibs, correctedOutput);
+        if( correctedOutput.back() == 0 && correctedOutput.size() >1 ){
           time = correctedOutput[1]; ampl = correctedOutput[0];
-       }
+        }
+     // } else {time = -999; ampl = 0;}
+    }
+    
+    // S. Brandt - Feb 19th : Adding Section for HLT
+    // Turn on HLT here with puCorrMethod = 3
+    if ( puCorrMethod == 3){
+      //std::cout << "Doing HLT" << std::endl;
+      //std::cout << "PU Corection is ... " << puCorrMethod << std::endl;
+      //std::cout << "Doing HLT..." << std::endl;
+      std::vector<double> hltCorrOutput;
+      int iNegStrategy = 0;
+      // whatever 
+      //std::cout << "neg strat = " << iNegStrategy << std::endl;
+      
+      hltPedSub->Init(((PedestalSub::Method)1), 0, 2.7, 0.0);
+      
+      if(puCorrMethod == 3) {
+        iNegStrategy = 2;
+        //std::cout << "Greg's Negative Corrections..." << std::endl;
+      } /*else if(puCorrMethod == 4) {
+        iNegStrategy = 1;
+        //std::cout << "No Corrections..." << std::endl;
+      }// no corr*/
+       //std::cout << iNegStrategy << std::endl; 
+      hltOOTpuCorr->Init((HcalTimeSlew::ParaSource)2, HcalTimeSlew::Medium, (HLTv2::NegStrategy)iNegStrategy, *hltPedSub);
+      
+      CaloSamples cs;
+      coder.adc2fC(digi,cs);
+      std::vector<int> capidvec;
+      for(int ip=0; ip<cs.size(); ip++){
+        const int capid = digi[ip].capid();
+        capidvec.push_back(capid);
+      }
+     // if(cs[4]-calibs.pedestal(capidvec[4])+cs[5]-calibs.pedestal(capidvec[4]) > 5){
+        hltOOTpuCorr->apply(cs, capidvec, calibs, hltCorrOutput);
+        if( hltCorrOutput.size() > 0 ){
+          //time = hltCorrOutput[1]; ampl = hltCorrOutput[0];
+          time = hltCorrOutput.at(1); ampl = hltCorrOutput.at(0);
+        //  std::cout << time << " " << ampl << std::endl;
+        }
+      //} else {time = -999; ampl = 0;}
     }
 
     // Temporary hack to apply energy-dependent corrections to some HB- cells
@@ -400,7 +442,7 @@ HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, int first, 
 							       HcalTimeSlew::Medium,
                                                                runnum_, setLeakCorrection_,
                                                                hbhePileupCorr_.get(),
-                                                               bunchCrossingInfo_, lenBunchCrossingInfo_, puCorrMethod_, psFitOOTpuCorr_.get());
+                                                               bunchCrossingInfo_, lenBunchCrossingInfo_, puCorrMethod_, psFitOOTpuCorr_.get(),/*hlt*/hltOOTpuCorr_.get(),pedSubFxn_.get());
 }
 
 
@@ -410,7 +452,7 @@ HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int 
 							   pulseCorr_->get(digi.id(), toadd, phaseNS_),
 							   HcalTimeSlew::Slow,
                                                            runnum_, false, hoPileupCorr_.get(),
-                                                           bunchCrossingInfo_, lenBunchCrossingInfo_, puCorrMethod_, psFitOOTpuCorr_.get());
+                                                           bunchCrossingInfo_, lenBunchCrossingInfo_, puCorrMethod_, psFitOOTpuCorr_.get(),/*hlt*/hltOOTpuCorr_.get(),pedSubFxn_.get());
 }
 
 
@@ -420,7 +462,7 @@ HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, i
 									 pulseCorr_->get(digi.id(), toadd, phaseNS_),
 									 HcalTimeSlew::Fast,
                                                                          runnum_, false, 0,
-                                                                         bunchCrossingInfo_, lenBunchCrossingInfo_, puCorrMethod_, psFitOOTpuCorr_.get());
+                                                                         bunchCrossingInfo_, lenBunchCrossingInfo_, puCorrMethod_, psFitOOTpuCorr_.get(),/*hlt*/hltOOTpuCorr_.get(),pedSubFxn_.get());
 }
 
 
@@ -430,7 +472,7 @@ HBHERecHit HcalSimpleRecAlgo::reconstructHBHEUpgrade(const HcalUpgradeDataFrame&
                                                                                    pulseCorr_->get(digi.id(), toadd, phaseNS_),
                                                                                    HcalTimeSlew::Medium, 0, false,
                                                                                    hbhePileupCorr_.get(),
-                                                                                   bunchCrossingInfo_, lenBunchCrossingInfo_, puCorrMethod_, psFitOOTpuCorr_.get());
+                                                                                   bunchCrossingInfo_, lenBunchCrossingInfo_, puCorrMethod_, psFitOOTpuCorr_.get(),/*hlt*/hltOOTpuCorr_.get(),pedSubFxn_.get());
   HcalTDCReco tdcReco;
   tdcReco.reconstruct(digi, result);
   return result;
