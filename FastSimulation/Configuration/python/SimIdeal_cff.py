@@ -1,9 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from FastSimulation.Configuration.CommonInputs_cff import *
+from FastSimulation.ParticlePropagator.MagneticFieldMapESProducer_cfi import *
+
+# need for any other modules from commoninputs?
 
 # Famos SimHits producer
 from FastSimulation.EventProducer.FamosSimHits_cff import *
+print famosSimHits.ApplyAlignment
 
 # Gaussian Smearing RecHit producer
 from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import *
