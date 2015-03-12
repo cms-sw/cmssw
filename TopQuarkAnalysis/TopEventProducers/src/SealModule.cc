@@ -42,3 +42,6 @@ DEFINE_FWK_MODULE(TtGenEvtFilter);
 DEFINE_FWK_MODULE(TtFullHadEvtFilter);
 DEFINE_FWK_MODULE(TtFullLepEvtFilter);
 DEFINE_FWK_MODULE(TtSemiLepEvtFilter);
+
+#include "TopQuarkAnalysis/TopEventProducers/interface/PseudoTopProducer.h"
+DEFINE_FWK_MODULE(PseudoTopProducer);
