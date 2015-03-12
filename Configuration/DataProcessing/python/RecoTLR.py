@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_Reco
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_Reco,customise_RawToDigi
 
 #gone with the fact that there is no difference between production and development sequence
 #def customiseCommon(process):
@@ -44,6 +44,7 @@ def customiseDataRun2Common(process):
 
     #all the non-CSC stuff is here
     process=customise_Reco(process)    
+    process=customise_RawToDigi(process)    
     return process
 
 ##############################################################################
