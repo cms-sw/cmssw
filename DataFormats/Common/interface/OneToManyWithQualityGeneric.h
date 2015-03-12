@@ -11,7 +11,7 @@
 #include <map>
 #include <vector>
 #include <algorithm>
-
+#include <iostream>
 #include "DataFormats/Common/interface/MapRefViewTrait.h"
 
 namespace edm {
@@ -82,6 +82,11 @@ namespace edm {
       val_type v;
       for(typename map_assoc::const_iterator idx = iv.begin(), idxEnd = iv.end(); idx != idxEnd; ++idx)
 	v.push_back(std::make_pair(ValRef(ref.val, idx->first), idx->second));
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+      for(auto const& i : v) {
+        std::cout << "Contents " << i.second << std::endl;
+      }
+#endif
       return v;
     }
     /// size of data_type

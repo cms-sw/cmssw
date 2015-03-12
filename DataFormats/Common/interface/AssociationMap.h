@@ -6,8 +6,30 @@
  *
  * \author Luca Lista, INFN
  *
+ * In general, this class is intuitive, but two special cases
+ * deserves some extra discussion. These are somewhat unusual
+ * corner cases, but sometimes actually have arisen.
  *
+ * First, one can initialize the AssociationMap by passing in
+ * a Handle to a collection as an argument to the constructor.
+ * Usually it is a good way to initialize it. But this will
+ * fail in the case where a collection template parameter to
+ * Tag (either CKey or CVal) is a View and the underlying collection
+ * read into the View is a RefVector, PtrVector, or vector(Ptr).
+ * AssociationMap will behave improperly if the constructor is passed
+ * a Handle<View<C> >. In this case, one should initialize with
+ * a EDProductGetter const* or construct a RefToBaseProd whose
+ * ProductID is associated with the underlying container, not
+ * the RefVector, PtrVector, or vector<Ptr>.
+ *
+ * AssociationMap is designed to support cases where all the Key
+ * Ref's point into one container and all the Val Ref's point into
+ * one other container. For example, if one read a vector<Ptr> into
+ * a View and the Ptr's pointed into different containers
+ * and you tried to use these as elements of CVal, then
+ * AssociationMap will not work.
  */
+
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/OneToValue.h"

@@ -108,6 +108,15 @@ namespace edmtest {
     assoc5->insert(edm::Ref<std::vector<int> >(inputCollection1, 2),
                    edm::Ref<std::vector<int> >(inputCollection2, 6));
     event.put(assoc5);
+
+    std::auto_ptr<AssocOneToManyWithQuality> assoc6(new AssocOneToManyWithQuality(&event.productGetter()));
+    assoc6->insert(edm::Ref<std::vector<int> >(inputCollection1, 0),
+                   AssocOneToManyWithQuality::data_type(edm::Ref<std::vector<int> >(inputCollection2, 1), 31.0));
+    assoc6->insert(edm::Ref<std::vector<int> >(inputCollection1, 2),
+                   AssocOneToManyWithQuality::data_type(edm::Ref<std::vector<int> >(inputCollection2, 4), 32.0));
+    assoc6->insert(edm::Ref<std::vector<int> >(inputCollection1, 2),
+                   AssocOneToManyWithQuality::data_type(edm::Ref<std::vector<int> >(inputCollection2, 7), 33.0));
+    event.put(assoc6);
   }
 }
 using edmtest::AssociationMapProducer;

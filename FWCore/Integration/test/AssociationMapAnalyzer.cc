@@ -43,6 +43,7 @@ namespace edmtest {
     edm::EDGetTokenT<AssocOneToValue> associationMapToken3_;
     edm::EDGetTokenT<AssocOneToValue> associationMapToken4_;
     edm::EDGetTokenT<AssocOneToMany> associationMapToken5_;
+    edm::EDGetTokenT<AssocOneToManyWithQuality> associationMapToken6_;
   };
 
 
@@ -54,6 +55,7 @@ namespace edmtest {
     associationMapToken3_ = consumes<AssocOneToValue>(pset.getParameter<edm::InputTag>("associationMapTag3"));
     associationMapToken4_ = consumes<AssocOneToValue>(pset.getParameter<edm::InputTag>("associationMapTag4"));
     associationMapToken5_ = consumes<AssocOneToMany>(pset.getParameter<edm::InputTag>("associationMapTag5"));
+    associationMapToken6_ = consumes<AssocOneToManyWithQuality>(pset.getParameter<edm::InputTag>("associationMapTag6"));
   }
 
   void 
@@ -168,6 +170,36 @@ namespace edmtest {
     ++iter5;
     if(*iter5->val.at(1) != 27 || iter5->key != edm::Ref<std::vector<int> >(inputCollection1, 2)) {
       throw cms::Exception("TestFailure") << "unexpected result after using AssociationMap 12";
+    }
+
+    // One to Many With Quality
+
+    edm::Handle<AssocOneToManyWithQuality> hAssociationMap6;
+    event.getByToken(associationMapToken6_, hAssociationMap6);
+    AssocOneToManyWithQuality const& associationMap6 = *hAssociationMap6;
+    std::cout << "WDD " << *associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 0)].at(0).first
+              << " " << *associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 2)].at(0).first
+              << " " <<  associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 0)].at(0).second
+              << " " << associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 2)].at(0).second
+              << " " <<  associationMap6.numberOfAssociations(edm::Ref<std::vector<int> >(inputCollection1, 0))
+              << " " <<  associationMap6.numberOfAssociations(edm::Ref<std::vector<int> >(inputCollection1, 2))
+              << std::endl;
+    if(*associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 0)].at(0).first != 22 ||
+       *associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 2)].at(1).first != 28 ||
+       *associationMap6[edm::Ptr<int>(inputCollection1, 0)].at(0).first != 22 ||
+       *associationMap6[edm::Ptr<int>(inputCollection1, 2)].at(1).first != 28 ||
+       associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 0)].at(0).second != 31.0 ||
+       associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 2)].at(1).second != 33.0 ||
+       associationMap6[edm::Ptr<int>(inputCollection1, 0)].at(0).second != 31.0 ||
+       associationMap6[edm::Ptr<int>(inputCollection1, 2)].at(1).second != 33.0) {
+      throw cms::Exception("TestFailure") << "unexpected result after using AssociationMap 13";
+    }
+    AssocOneToManyWithQuality::const_iterator iter6 = associationMap6.begin();
+    ++iter6;
+    if(*iter6->val.at(1).first != 28 ||
+       iter6->val.at(1).second != 34.0 ||
+       iter6->key != edm::Ref<std::vector<int> >(inputCollection1, 2)) {
+      throw cms::Exception("TestFailure") << "unexpected result after using AssociationMap 14";
     }
 
   }
