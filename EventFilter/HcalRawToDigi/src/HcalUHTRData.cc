@@ -14,9 +14,16 @@ HcalUHTRData::const_iterator& HcalUHTRData::const_iterator::operator++() {
     if (m_microstep==0) { m_ptr++; m_microstep++; }
     else { m_microstep--; }
   } 
-  else if (m_stepclass==2) m_ptr+=2;
+  else if (m_stepclass==2) {
+    if (isHeader()) { m_ptr++; }
+    else { m_ptr+=2; }
+  }
 
-  if (isHeader()) determineMode();
+  if (isHeader()) {
+    determineMode();
+    m_header_ptr = m_ptr;
+    m_0th_data_ptr = m_header_ptr + 1;
+  }
   return *this;
 }
 
@@ -25,7 +32,7 @@ void HcalUHTRData::const_iterator::determineMode() {
   m_flavor=flavor();
   m_stepclass=0;
   if (m_flavor==5) { m_stepclass=1; m_microstep=0; }
-  else if ((m_flavor&0x6)==0x2) { m_stepclass=2; }
+  else if (m_flavor == 2) { m_stepclass=2; }
 }
 
 uint8_t HcalUHTRData::const_iterator::adc() const {
@@ -33,23 +40,39 @@ uint8_t HcalUHTRData::const_iterator::adc() const {
   else return (*m_ptr)&0xFF;
 }
 
-uint8_t HcalUHTRData::const_iterator::re_tdc() const {
+uint8_t HcalUHTRData::const_iterator::le_tdc() const {
   if (m_flavor==0x5) return 0x80;
-  else if ((m_flavor&0x6)==0x2) return (m_ptr[1]&0x3F);
+  else if (m_flavor == 2) return (m_ptr[1]&0x3F);
   else return (((*m_ptr)&0x3F00)>>8);
 }
 
 bool HcalUHTRData::const_iterator::soi() const {
   if (m_flavor==0x5) return false;
-  else if ((m_flavor&0x6)==0x2) return (m_ptr[0]&0x2000);
+  else if (m_flavor == 2) return (m_ptr[0]&0x2000);
   else return (((*m_ptr)&0x4000));
 }
 
-uint8_t HcalUHTRData::const_iterator::fe_tdc() const {
-  if (m_flavor==0x5 || (m_flavor&0x6)==0x0) return 0x80;
-  else return ((m_ptr[1]>>6)&0xF);
+uint8_t HcalUHTRData::const_iterator::te_tdc() const {
+  if (m_flavor==2) return(m_ptr[1]>>6)&0x1F;
+  else return 0x80;
 }
 
+uint8_t HcalUHTRData::const_iterator::capid() const {
+  if (m_flavor==2) return(m_ptr[1]>>12)&0x3;
+  else if (m_flavor == 1 || m_flavor == 0) {
+    // For flavor 0,1 we only get the first capid in the header, and so we need
+    // to count the number of data rows and figure out which cap we want,
+    // knowing that they go 0->1->2->3->0
+    return 0;
+  }
+  else { return 0; }
+}
+
+bool HcalUHTRData::const_iterator::ok() const {
+  if (m_flavor == 2) { return (m_ptr[0]>>12)&0x1; }
+  else if (m_flavor == 4) { return (m_ptr[0]>>13)&0x1; }
+  else { return false; }
+}
 
 HcalUHTRData::const_iterator HcalUHTRData::begin() const {
   return HcalUHTRData::const_iterator(m_raw16+HEADER_LENGTH_16BIT,m_raw16+(m_rawLength64-1)*sizeof(uint64_t)/sizeof(uint16_t));
