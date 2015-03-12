@@ -39,12 +39,6 @@ tobTecStepTracks = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTracks
     Propagator = 'PropagatorWithMaterial'
 )
 
-# simtrack id producer
-#tobTecStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
-#                                       trackCollection = cms.InputTag("tobTecStepTracks"),
-#                                       HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
-#)
-
 # final selection
 tobTecStepSelector = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSelector.clone()
 tobTecStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
@@ -54,5 +48,4 @@ TobTecStep = cms.Sequence(tobTecStepSeeds
                           +tobTecStepTrackCandidates
                           +tobTecStepTracks
                           +tobTecStepSelector                          
- #                         +tobTecStepSimTrackIds
                       )

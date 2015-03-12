@@ -34,7 +34,10 @@ SimTrackIdProducer::SimTrackIdProducer(const edm::ParameterSet& conf)
 
   // Input Tag
   edm::InputTag trackCollectionTag = conf.getParameter<edm::InputTag>("trackCollection"); 
-
+  std::string trackQuality = conf.getParameter<std::string>("TrackQuality");
+  max_Chi2 = conf.getParameter<double>("maxChi2");
+    
+    
   // consumes
   trackToken = consumes<reco::TrackCollection>(trackCollectionTag); 
 }
@@ -54,7 +57,7 @@ SimTrackIdProducer::produce(edm::Event& e, const edm::EventSetup& es)
   
   for ( ; aTrack!=lastTrack; ++aTrack)
   {
-    if((aTrack->quality(aTrack->qualityByName("highPurity")))&&(aTrack->chi2()<9)){
+    if((aTrack->quality(aTrack->qualityByName(trackQuality)))&&(aTrack->chi2()<max_Chi2)){
       const TrackingRecHit* hit = *aTrack->recHitsBegin();
       if (hit)
       {

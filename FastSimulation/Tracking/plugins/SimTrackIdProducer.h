@@ -31,7 +31,8 @@ private:
 
       // consumes 
       edm::EDGetTokenT<reco::TrackCollection>  trackToken;
-
+      std::string trackQuality;
+      double max_Chi2;
 };
 
 #endif

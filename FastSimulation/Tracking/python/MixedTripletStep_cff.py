@@ -68,6 +68,16 @@ mixedTripletStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
 mixedTripletStepSelector = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSelector.clone()
 mixedTripletStep = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStep.clone()
 
+# simtrack id producer                                                                                                                                                         
+import FastSimulation.Tracking.SimTrackIdProducer_cfi
+mixedTripletStepSimTrackIds=FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
+    trackCollection = cms.InputTag("mixedTripletStepTracks"),
+    TrackQuality = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClusters.TrackQuality,
+    maxChi2 = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClusters.maxChi2,
+    HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
+)
+
+
 # Final sequence 
 MixedTripletStep =  cms.Sequence(mixedTripletStepSeedsA
                                  +mixedTripletStepSeedsB

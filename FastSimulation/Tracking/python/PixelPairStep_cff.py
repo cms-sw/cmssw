@@ -35,16 +35,18 @@ pixelPairStepTracks = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairS
     TTRHBuilder = 'WithoutRefit',
     Propagator = 'PropagatorWithMaterial'
 )
-
-# simtrack id producer
-pixelPairStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
-                                          trackCollection = cms.InputTag("pixelPairStepTracks"),
-                                          HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
-                                          )
-
 # final Selection
 pixelPairStepSelector = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSelector.clone()
 pixelPairStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
+
+# simtrack id producer                                                                                                                                                         
+import FastSimulation.Tracking.SimTrackIdProducer_cfi
+pixelPairStepSimTrackIds=FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
+    trackCollection = cms.InputTag("pixelPairStepTracks"),
+    TrackQuality = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.TrackQuality,
+    maxChi2 = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.maxChi2,
+    HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
+)
 
 # Final sequence 
 PixelPairStep = cms.Sequence(pixelPairStepSeeds

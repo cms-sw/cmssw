@@ -39,17 +39,20 @@ pixelLessStepTracks = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessS
     Fitter = 'KFFittingSmootherFourth',
     Propagator = 'PropagatorWithMaterial'
 )
-
-# simtrack id producer
-pixelLessStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
-                                          trackCollection = cms.InputTag("pixelLessStepTracks"),
-                                          HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
-)
-
 # final selection
 pixelLessStepSelector = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSelector.clone()
 pixelLessStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 pixelLessStep = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStep.clone()
+
+# simtrack id producer                                                                                                                                                         
+import FastSimulation.Tracking.SimTrackIdProducer_cfi
+pixelLessStepSimTrackIds=FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
+    trackCollection = cms.InputTag("pixelLessStepTracks"),
+    TrackQuality = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClusters.TrackQuality,
+    maxChi2 = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClusters.maxChi2,
+    HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
+)
+
 
 # Final sequence 
 PixelLessStep = cms.Sequence(pixelLessStepSeeds
