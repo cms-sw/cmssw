@@ -29,28 +29,28 @@ process.patJetsUpdated.userData.userFloats.src += ['oldJetMass']
 process.p = cms.Path( process.oldJetMass + process.makePatJetsUpdated )
 
 # An example where the jet correction is undone
-process.patJetCorrFactorsUpdated2 = process.patJetCorrFactorsUpdated.clone(
+process.patJetCorrFactorsUndoJEC = process.patJetCorrFactorsUpdated.clone(
   src = cms.InputTag("patJetsUpdated"),
   levels = [] )
-process.patJetsUpdated2 = process.patJetsUpdated.clone(
+process.patJetsUndoJEC = process.patJetsUpdated.clone(
   jetSource = cms.InputTag("patJetsUpdated"),
-  jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsUpdated2"))
+  jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsUndoJEC"))
   )
-process.patJetsUpdated2.userData.userFloats.src = []
-process.p += cms.Sequence( process.patJetCorrFactorsUpdated2 + process. patJetsUpdated2 )
+process.patJetsUndoJEC.userData.userFloats.src = []
+process.p += cms.Sequence( process.patJetCorrFactorsUndoJEC + process. patJetsUndoJEC )
 
 # An example where the jet correction are reapplied
-process.patJetCorrFactorsUpdated3 = process.patJetCorrFactorsUpdated.clone(
-  src = cms.InputTag("patJetsUpdated2"),
+process.patJetCorrFactorsReapplyJEC = process.patJetCorrFactorsUpdated.clone(
+  src = cms.InputTag("patJetsUndoJEC"),
   levels = ['L1FastJet', 
         'L2Relative', 
         'L3Absolute'] )
-process.patJetsUpdated3 = process.patJetsUpdated.clone(
-  jetSource = cms.InputTag("patJetsUpdated2"),
-  jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsUpdated3"))
+process.patJetsReapplyJEC = process.patJetsUpdated.clone(
+  jetSource = cms.InputTag("patJetsUndoJEC"),
+  jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
   )
-process.patJetsUpdated3.userData.userFloats.src = []
-process.p += cms.Sequence( process.patJetCorrFactorsUpdated3 + process. patJetsUpdated3 )
+process.patJetsReapplyJEC.userData.userFloats.src = []
+process.p += cms.Sequence( process.patJetCorrFactorsReapplyJEC + process. patJetsReapplyJEC )
 
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("patTupleUpdated.root"),
