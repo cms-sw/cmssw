@@ -177,7 +177,7 @@ namespace edm {
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
     template< typename K>
-    inline typename CVal::const_reference 
+    inline typename CVal::const_reference
     AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[](edm::Ptr<K> const& k) const {
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     static_assert(std::is_base_of<K,key_type>::value, "edm::Ptr's key type is not a base class of AssociationVector's item type");
@@ -188,7 +188,7 @@ namespace edm {
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
     template< typename K>
-    typename CVal::const_reference 
+    typename CVal::const_reference
     AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[](edm::RefToBase<K> const& k) const {
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     static_assert(std::is_base_of<K,key_type>::value,"edm::RefToBase's key type is not a base class of AssociationVector's item type");

@@ -11,6 +11,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -43,12 +44,18 @@ namespace edmtest {
 
     edm::EDGetTokenT<std::vector<int> > inputToken1_;
     edm::EDGetTokenT<std::vector<int> > inputToken2_;
+
+    edm::EDGetTokenT<edm::View<int> > inputToken1V_;
+    edm::EDGetTokenT<edm::View<int> > inputToken2V_;
   };
 
   AssociationMapProducer::AssociationMapProducer(edm::ParameterSet const& pset) {
 
     inputToken1_ = consumes<std::vector<int> >(pset.getParameter<edm::InputTag>("inputTag1"));
     inputToken2_ = consumes<std::vector<int> >(pset.getParameter<edm::InputTag>("inputTag2"));
+
+    inputToken1V_ = consumes<edm::View<int> >(pset.getParameter<edm::InputTag>("inputTag1"));
+    inputToken2V_ = consumes<edm::View<int> >(pset.getParameter<edm::InputTag>("inputTag2"));
 
     produces<AssocOneToOne>();
     produces<AssocOneToOne>("twoArg");
@@ -57,6 +64,7 @@ namespace edmtest {
     produces<AssocOneToMany>();
     produces<AssocOneToManyWithQuality>();
     produces<AssocOneToOneView>();
+    produces<AssocOneToOneView>("twoArg");
   }
 
   AssociationMapProducer::~AssociationMapProducer() { }
@@ -117,6 +125,26 @@ namespace edmtest {
     assoc6->insert(edm::Ref<std::vector<int> >(inputCollection1, 2),
                    AssocOneToManyWithQuality::data_type(edm::Ref<std::vector<int> >(inputCollection2, 7), 33.0));
     event.put(assoc6);
+
+    edm::Handle<edm::View<int> > inputView1;
+    event.getByToken(inputToken1V_, inputView1);
+
+    edm::Handle<edm::View<int> > inputView2;
+    event.getByToken(inputToken2V_, inputView2);
+
+    std::auto_ptr<AssocOneToOneView> assoc7(new AssocOneToOneView(&event.productGetter()));
+    assoc7->insert(inputView1->refAt(0), inputView2->refAt(3));
+    assoc7->insert(inputView1->refAt(2), inputView2->refAt(4));
+    event.put(assoc7);
+
+    std::auto_ptr<AssocOneToOneView> assoc8(new AssocOneToOneView(
+      edm::makeRefToBaseProdFrom(inputView1->refAt(0), event),
+      edm::makeRefToBaseProdFrom(inputView2->refAt(0), event)
+    ));
+
+    assoc8->insert(inputView1->refAt(0), inputView2->refAt(5));
+    assoc8->insert(inputView1->refAt(2), inputView2->refAt(6));
+    event.put(assoc8, "twoArg");
   }
 }
 using edmtest::AssociationMapProducer;

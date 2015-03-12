@@ -109,6 +109,7 @@
   <library   file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningThingProducer.cc,ThinningTestAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc,AssociationMapProducer.cc,AssociationMapAnalyzer.cc" name="SomeTestModules">
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/Framework"/>
+    <use   name="DataFormats/TestObjects"/>
   </library>
   <library   file="ProducerWithPSetDesc.cc" name="TestProducerWithPSetDesc">
     <flags   EDM_PLUGIN="1"/>

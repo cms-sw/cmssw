@@ -10,7 +10,12 @@
  */
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include <utility>
+
 namespace edm {
+
+  class EDProductGetter;
+
   namespace helpers {
     template<typename K, typename V>
     struct KeyVal {

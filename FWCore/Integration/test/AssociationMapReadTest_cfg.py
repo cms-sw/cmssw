@@ -23,7 +23,9 @@ process.test = cms.EDAnalyzer("AssociationMapAnalyzer",
     associationMapTag3 = cms.InputTag("associationMapProducer"),
     associationMapTag4 = cms.InputTag("associationMapProducer", "handleArg"),
     associationMapTag5 = cms.InputTag("associationMapProducer"),
-    associationMapTag6 = cms.InputTag("associationMapProducer")
+    associationMapTag6 = cms.InputTag("associationMapProducer"),
+    associationMapTag7 = cms.InputTag("associationMapProducer"),
+    associationMapTag8 = cms.InputTag("associationMapProducer", "twoArg")
 )
 
 process.p = cms.Path(process.test)

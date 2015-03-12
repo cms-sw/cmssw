@@ -12,7 +12,6 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include <iostream>
 #include <vector>
 
 namespace edm {
@@ -38,24 +37,33 @@ namespace edmtest {
     
     edm::EDGetTokenT<std::vector<int> > inputToken1_;
     edm::EDGetTokenT<std::vector<int> > inputToken2_;
+    edm::EDGetTokenT<edm::View<int> > inputToken1V_;
+    edm::EDGetTokenT<edm::View<int> > inputToken2V_;
+
     edm::EDGetTokenT<AssocOneToOne> associationMapToken1_;
     edm::EDGetTokenT<AssocOneToOne> associationMapToken2_;
     edm::EDGetTokenT<AssocOneToValue> associationMapToken3_;
     edm::EDGetTokenT<AssocOneToValue> associationMapToken4_;
     edm::EDGetTokenT<AssocOneToMany> associationMapToken5_;
     edm::EDGetTokenT<AssocOneToManyWithQuality> associationMapToken6_;
+    edm::EDGetTokenT<AssocOneToOneView> associationMapToken7_;
+    edm::EDGetTokenT<AssocOneToOneView> associationMapToken8_;
   };
 
 
   AssociationMapAnalyzer::AssociationMapAnalyzer(edm::ParameterSet const& pset) {
     inputToken1_ = consumes<std::vector<int> >(pset.getParameter<edm::InputTag>("inputTag1"));
     inputToken2_ = consumes<std::vector<int> >(pset.getParameter<edm::InputTag>("inputTag2"));
+    inputToken1V_ = consumes<edm::View<int> >(pset.getParameter<edm::InputTag>("inputTag1"));
+    inputToken2V_ = consumes<edm::View<int> >(pset.getParameter<edm::InputTag>("inputTag2"));
     associationMapToken1_ = consumes<AssocOneToOne>(pset.getParameter<edm::InputTag>("associationMapTag1"));
     associationMapToken2_ = consumes<AssocOneToOne>(pset.getParameter<edm::InputTag>("associationMapTag2"));
     associationMapToken3_ = consumes<AssocOneToValue>(pset.getParameter<edm::InputTag>("associationMapTag3"));
     associationMapToken4_ = consumes<AssocOneToValue>(pset.getParameter<edm::InputTag>("associationMapTag4"));
     associationMapToken5_ = consumes<AssocOneToMany>(pset.getParameter<edm::InputTag>("associationMapTag5"));
     associationMapToken6_ = consumes<AssocOneToManyWithQuality>(pset.getParameter<edm::InputTag>("associationMapTag6"));
+    associationMapToken7_ = consumes<AssocOneToOneView>(pset.getParameter<edm::InputTag>("associationMapTag7"));
+    associationMapToken8_ = consumes<AssocOneToOneView>(pset.getParameter<edm::InputTag>("associationMapTag8"));
   }
 
   void 
@@ -177,31 +185,61 @@ namespace edmtest {
     edm::Handle<AssocOneToManyWithQuality> hAssociationMap6;
     event.getByToken(associationMapToken6_, hAssociationMap6);
     AssocOneToManyWithQuality const& associationMap6 = *hAssociationMap6;
-    std::cout << "WDD " << *associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 0)].at(0).first
-              << " " << *associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 2)].at(0).first
-              << " " <<  associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 0)].at(0).second
-              << " " << associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 2)].at(0).second
-              << " " <<  associationMap6.numberOfAssociations(edm::Ref<std::vector<int> >(inputCollection1, 0))
-              << " " <<  associationMap6.numberOfAssociations(edm::Ref<std::vector<int> >(inputCollection1, 2))
-              << std::endl;
     if(*associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 0)].at(0).first != 22 ||
-       *associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 2)].at(1).first != 28 ||
+       *associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 2)].at(1).first != 25 ||
        *associationMap6[edm::Ptr<int>(inputCollection1, 0)].at(0).first != 22 ||
-       *associationMap6[edm::Ptr<int>(inputCollection1, 2)].at(1).first != 28 ||
+       *associationMap6[edm::Ptr<int>(inputCollection1, 2)].at(1).first != 25 ||
        associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 0)].at(0).second != 31.0 ||
-       associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 2)].at(1).second != 33.0 ||
+       associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 2)].at(1).second != 32.0 ||
        associationMap6[edm::Ptr<int>(inputCollection1, 0)].at(0).second != 31.0 ||
-       associationMap6[edm::Ptr<int>(inputCollection1, 2)].at(1).second != 33.0) {
+       associationMap6[edm::Ptr<int>(inputCollection1, 2)].at(1).second != 32.0) {
       throw cms::Exception("TestFailure") << "unexpected result after using AssociationMap 13";
     }
     AssocOneToManyWithQuality::const_iterator iter6 = associationMap6.begin();
     ++iter6;
-    if(*iter6->val.at(1).first != 28 ||
-       iter6->val.at(1).second != 34.0 ||
+    if(*iter6->val.at(1).first != 25 ||
+       iter6->val.at(1).second != 32.0 ||
        iter6->key != edm::Ref<std::vector<int> >(inputCollection1, 2)) {
       throw cms::Exception("TestFailure") << "unexpected result after using AssociationMap 14";
     }
 
+    // One to One View
+
+    edm::Handle<edm::View<int> > inputView1;
+    event.getByToken(inputToken1V_, inputView1);
+
+    edm::Handle<edm::View<int> > inputView2;
+    event.getByToken(inputToken2V_, inputView2);
+
+    edm::Handle<AssocOneToOneView> hAssociationMap7;
+    event.getByToken(associationMapToken7_, hAssociationMap7);
+    AssocOneToOneView const& associationMap7 = *hAssociationMap7;
+    if(*associationMap7[inputView1->refAt(0)] != 24 ||
+       *associationMap7[inputView1->refAt(2)] != 25) {
+      throw cms::Exception("TestFailure") << "unexpected result after using AssociationMap 15";
+    }
+    AssocOneToOneView::const_iterator iter7 = associationMap7.begin();
+    ++iter7;
+    if(*iter7->val != 25 ||
+       iter7->key != inputView1->refAt(2)) {
+      throw cms::Exception("TestFailure") << "unexpected result after using AssociationMap 16";
+    }
+
+    // One to One View built with 2 arguments constructor
+
+    edm::Handle<AssocOneToOneView> hAssociationMap8;
+    event.getByToken(associationMapToken8_, hAssociationMap8);
+    AssocOneToOneView const& associationMap8 = *hAssociationMap8;
+    if(*associationMap8[inputView1->refAt(0)] != 26 ||
+       *associationMap8[inputView1->refAt(2)] != 27) {
+      throw cms::Exception("TestFailure") << "unexpected result after using AssociationMap 17";
+    }
+    AssocOneToOneView::const_iterator iter8 = associationMap8.begin();
+    ++iter8;
+    if(*iter8->val != 27 ||
+       iter8->key != inputView1->refAt(2)) {
+      throw cms::Exception("TestFailure") << "unexpected result after using AssociationMap 18";
+    }
   }
 }
 using edmtest::AssociationMapAnalyzer;

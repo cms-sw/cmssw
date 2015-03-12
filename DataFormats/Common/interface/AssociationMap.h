@@ -37,7 +37,12 @@
 #include "DataFormats/Common/interface/OneToMany.h"
 #include "DataFormats/Common/interface/OneToManyWithQuality.h"
 
+#include <utility>
+
 namespace edm {
+
+  class EDProductGetter;
+
   template<typename Tag>
   class AssociationMap {
     /// This is the second part of the value part of
@@ -144,7 +149,7 @@ namespace edm {
       helpers::checkRef(ref_.key,k);
       return get(k.key()).val;
     }
-      
+
     /// number of associations to a key
     size_type numberOfAssociations(const key_type & k) const {
       if (ref_.key.id() != k.id()) return 0;
