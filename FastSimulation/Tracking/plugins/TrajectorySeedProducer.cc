@@ -161,7 +161,6 @@ TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es)
     trackerTopology = &(*trackerTopologyHandle);
 
     thePropagator = std::make_shared<PropagatorWithMaterial>(alongMomentum,0.105,magneticField);
-    
 }
 
 bool
@@ -364,7 +363,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     for ( unsigned int i=0; i<skipSimTrackIdTokens.size(); ++i )
       {
         edm::Handle<std::vector<unsigned int> > skipSimTrackIds_temp;
-	
+	e.getByToken(skipSimTrackIdTokens[i],skipSimTrackIds_temp);	
 	skipSimTrackIds.insert(skipSimTrackIds_temp->begin(),skipSimTrackIds_temp->end());
       }
     // Beam spot
