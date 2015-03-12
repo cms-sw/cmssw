@@ -25,11 +25,11 @@ class PHcalParameters
   std::vector<double> phitable;  
   std::vector<double> etaRange;
   std::vector<double> gparHF;
-  std::vector<int> noff;
   std::vector<double> Layer0Wt;  
   std::vector<double> HBGains;
   std::vector<double> HEGains;
   std::vector<double> HFGains;
+  std::vector<int> noff;
   std::vector<int> etaMin;
   std::vector<int> etaMax;
   std::vector<int> HBShift;
