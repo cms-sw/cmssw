@@ -47,6 +47,10 @@ public:
   std::vector<Hit>    getHits(G4Step * aStep, bool &ok, double weight, 
 			      bool onlyLong=false);
 
+  void                fillHits(G4ThreeVector & p, G4ThreeVector & v,
+                               std::vector<HFShowerLibrary::Hit> & hit,
+                               int parCode, double parEnergy, bool & ok, 
+                               double weight, double time, bool onlyLong=false);
 protected:
 
   bool                rInside(double r);
