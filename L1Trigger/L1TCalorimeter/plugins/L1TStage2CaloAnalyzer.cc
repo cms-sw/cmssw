@@ -483,7 +483,7 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   }
 
-  if (doText_) edm::LogInfo("L1T") << text.str();
+  if (doText_) edm::LogInfo("L1TCaloEvents") << text.str();
 
 }
 

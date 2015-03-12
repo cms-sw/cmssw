@@ -370,7 +370,11 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
 
   }
 
-  if (!packetisedData_) {
+  if (packetisedData_) {
+    rxIndex_.at(iBoard)++;
+    txIndex_.at(iBoard)++;    
+  }
+  else {
     rxIndex_.at(iBoard) += nFramesPerEvent_;
     txIndex_.at(iBoard) += nFramesPerEvent_;
   }

@@ -27,8 +27,8 @@ namespace stage2 {
 
      auto res1_ = static_cast<CaloCollections*>(coll)->getMPJets();
      auto res2_ = static_cast<CaloCollections*>(coll)->getMPEtSums();
-     res1_->setBXRange(0,1);
-     res2_->setBXRange(0,1);
+     res1_->setBXRange(0,0);
+     res2_->setBXRange(0,0);
 
      // Initialise frame indices for each data type
      int unsigned fet = 0;

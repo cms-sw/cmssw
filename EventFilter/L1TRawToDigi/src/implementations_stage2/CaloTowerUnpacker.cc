@@ -29,9 +29,9 @@ namespace stage2 {
      int firstBX = -(std::ceil((double)nBX/2.)-1);
      int lastBX;
      if (nBX % 2 == 0) {
-       lastBX = std::ceil((double)nBX/2.)+1;
-     } else {
        lastBX = std::ceil((double)nBX/2.);
+     } else {
+       lastBX = std::ceil((double)nBX/2.)-1;
      }
 
      auto res_ = static_cast<CaloCollections*>(coll)->getTowers();
