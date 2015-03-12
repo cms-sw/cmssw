@@ -129,7 +129,7 @@ void pat::PATLostTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 			outPtrC->push_back(pat::PackedCandidate(p4,tr.vertex(),tr.phi(),211*tr.charge(),PV));
 			outPtrC->back().setTrackProperties((*tracks)[i]);
 		        if(PVOrig.trackWeight(edm::Ref<reco::TrackCollection>(tracks,i)) > 0.5) {
-		                outPtrC->back().setFromPV(pat::PackedCandidate::PVUsedInFit);
+		                outPtrC->back().setAssociationQuality(pat::PackedCandidate::UsedInFitTight);
 			}
 
 			mapping[i]=j;

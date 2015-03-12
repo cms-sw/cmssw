@@ -30,6 +30,9 @@
 //#define CRAZYSORT 
 
 namespace pat {
+    ///conversion map from quality flags used in PV association and miniAOD one
+    static int qualityMap[8]  = {1,0,1,1,4,4,5,6};
+
     class PATPackedCandidateProducer : public edm::EDProducer {
         public:
             explicit PATPackedCandidateProducer(const edm::ParameterSet&);
@@ -37,11 +40,33 @@ namespace pat {
 
             virtual void produce(edm::Event&, const edm::EventSetup&);
 
+            //sorting of cands to maximize the zlib compression
+            bool candsOrdering(pat::PackedCandidate i,pat::PackedCandidate j) {
+                if (std::abs(i.charge()) == std::abs(j.charge())) {
+                    if(i.charge()!=0){
+                        if(i.pt() > minPtForTrackProperties_ and j.pt() <= minPtForTrackProperties_ ) return true;
+                        if(i.pt() <= minPtForTrackProperties_ and j.pt() > minPtForTrackProperties_ ) return false;
+                  }
+                   if(i.vertexRef() == j.vertexRef()) 
+                      return i.eta() > j.eta();
+                   else 
+                      return i.vertexRef().key() < j.vertexRef().key();
+                }
+                return std::abs(i.charge()) > std::abs(j.charge());
+            }
+            template <typename T>
+            std::vector<size_t> sort_indexes(const std::vector<T> &v ) {
+              std::vector<size_t> idx(v.size());
+              for (size_t i = 0; i != idx.size(); ++i) idx[i] = i;
+              std::sort(idx.begin(), idx.end(),[&v,this](size_t i1, size_t i2) { return candsOrdering(v[i1],v[i2]);});
+              return idx;
+           }
+
         private:
             edm::EDGetTokenT<reco::PFCandidateCollection>    Cands_;
-            edm::EDGetTokenT<reco::PFCandidateFwdPtrVector>  CandsFromPVLoose_;
-            edm::EDGetTokenT<reco::PFCandidateFwdPtrVector>  CandsFromPVTight_;
             edm::EDGetTokenT<reco::VertexCollection>         PVs_;
+            edm::EDGetTokenT<edm::Association<reco::VertexCollection> > PVAsso_;
+            edm::EDGetTokenT<edm::ValueMap<int> >            PVAssoQuality_;
             edm::EDGetTokenT<reco::VertexCollection>         PVOrigs_;
             edm::EDGetTokenT<reco::TrackCollection>          TKOrigs_;
             double minPtForTrackProperties_;
@@ -57,9 +82,9 @@ namespace pat {
 
 pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::ParameterSet& iConfig) :
   Cands_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("inputCollection"))),
-  CandsFromPVLoose_(consumes<reco::PFCandidateFwdPtrVector>(iConfig.getParameter<edm::InputTag>("inputCollectionFromPVLoose"))),
-  CandsFromPVTight_(consumes<reco::PFCandidateFwdPtrVector>(iConfig.getParameter<edm::InputTag>("inputCollectionFromPVTight"))),
   PVs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("inputVertices"))),
+  PVAsso_(consumes<edm::Association<reco::VertexCollection> >(iConfig.getParameter<edm::InputTag>("vertexAssociator"))),
+  PVAssoQuality_(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("vertexAssociator"))),
   PVOrigs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("originalVertices"))),
   TKOrigs_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("originalTracks"))),
   minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties"))
@@ -71,113 +96,40 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
 
 pat::PATPackedCandidateProducer::~PATPackedCandidateProducer() {}
 
+
+
 void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-#ifdef CRAZYSORT 
-    edm::Handle<edm::View<pat::Jet> >      jets;
-    iEvent.getByLabel("selectedPatJets", jets);
-#endif
-
-/*    edm::ESHandle<MagneticField> magneticField;
-    iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-    AnalyticalImpactPointExtrapolator extrapolator(&*magneticField);
-*/
     edm::Handle<reco::PFCandidateCollection> cands;
     iEvent.getByToken( Cands_, cands );
     std::vector<reco::Candidate>::const_iterator cand;
 
-    edm::Handle<reco::PFCandidateFwdPtrVector> candsFromPVLoose;
-    iEvent.getByToken( CandsFromPVLoose_, candsFromPVLoose );
-    edm::Handle<reco::PFCandidateFwdPtrVector> candsFromPVTight;
-    iEvent.getByToken( CandsFromPVTight_, candsFromPVTight );
-
-    std::vector<pat::PackedCandidate::PVAssoc> fromPV(cands->size(), pat::PackedCandidate::NoPV);
-    for (const reco::PFCandidateFwdPtr &ptr : *candsFromPVLoose) {
-        if (ptr.ptr().id() == cands.id()) {
-            fromPV[ptr.ptr().key()]   = pat::PackedCandidate::PVLoose;
-        } else if (ptr.backPtr().id() == cands.id()) {
-            fromPV[ptr.backPtr().key()] = pat::PackedCandidate::PVLoose;
-        } else {
-            throw cms::Exception("Configuration", "The elements from 'inputCollectionFromPVLoose' don't point to 'inputCollection'\n");
-        }
-    }
-    for (const reco::PFCandidateFwdPtr &ptr : *candsFromPVTight) {
-        if (ptr.ptr().id() == cands.id()) {
-            fromPV[ptr.ptr().key()]   = pat::PackedCandidate::PVTight;
-        } else if (ptr.backPtr().id() == cands.id()) {
-            fromPV[ptr.backPtr().key()] = pat::PackedCandidate::PVTight;
-        } else {
-            throw cms::Exception("Configuration", "The elements from 'inputCollectionFromPVTight' don't point to 'inputCollection'\n");
-        }
-    }
-
     edm::Handle<reco::VertexCollection> PVOrigs;
     iEvent.getByToken( PVOrigs_, PVOrigs );
-    const reco::Vertex & PVOrig = (*PVOrigs)[0];
+
+    edm::Handle<edm::Association<reco::VertexCollection> > assoHandle;
+    iEvent.getByToken(PVAsso_,assoHandle);
+    edm::Handle<edm::ValueMap<int> > assoQualityHandle;
+    iEvent.getByToken(PVAssoQuality_,assoQualityHandle);
+    const edm::Association<reco::VertexCollection> &  associatedPV=*(assoHandle.product());
+    const edm::ValueMap<int>  &  associationQuality=*(assoQualityHandle.product());
+           
+ 
     edm::Handle<reco::VertexCollection> PVs;
     iEvent.getByToken( PVs_, PVs );
     reco::VertexRef PV(PVs.id());
     math::XYZPoint  PVpos;
-    if (!PVs->empty()) {
-        PV = reco::VertexRef(PVs, 0);
-        PVpos = PV->position();
-    }
+
 
     edm::Handle<reco::TrackCollection> TKOrigs;
     iEvent.getByToken( TKOrigs_, TKOrigs );
-
     std::auto_ptr< std::vector<pat::PackedCandidate> > outPtrP( new std::vector<pat::PackedCandidate> );
     std::vector<int> mapping(cands->size());
+    std::vector<int> mappingReverse(cands->size());
     std::vector<int> mappingTk(TKOrigs->size(), -1);
-#ifdef CRAZYSORT
-    std::vector<int> jetOrder;
-    std::vector<int> jetOrderReverse;
-    for(unsigned int i=0;i<cands->size();i++) jetOrderReverse.push_back(-1);
-    for (edm::View<pat::Jet>::const_iterator it = jets->begin(), ed = jets->end(); it != ed; ++it) {
-      const  pat::Jet & jet = *it;
-      const  reco::CompositePtrCandidate::daughters & dau=jet.daughterPtrVector();
-      for(unsigned int  i=0;i<dau.size();i++)
-	{
-           if((*cands)[dau[i].key()].trackRef().isNonnull() && (*cands)[dau[i].key()].pt() > minPtForTrackProperties_){
-	   jetOrder.push_back(dau[i].key());
-	   jetOrderReverse[jetOrder.back()]=jetOrder.size()-1;
-	   }
-	}
-      for(unsigned int  i=0;i<dau.size();i++)
-        {
-           if(!((*cands)[dau[i].key()].trackRef().isNonnull() && (*cands)[dau[i].key()].pt() > minPtForTrackProperties_)){
-           jetOrder.push_back(dau[i].key());
-           jetOrderReverse[jetOrder.back()]=jetOrder.size()-1;
-           }
-        }
-
-    }
-   for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
-	if(jetOrderReverse[ic]==-1 && (*cands)[ic].trackRef().isNonnull() && (*cands)[ic].pt() > minPtForTrackProperties_)
-        {
-           jetOrder.push_back(ic);
-           jetOrderReverse[jetOrder.back()]=jetOrder.size()-1;
-        }
-
-   }
-  //all what's left
-   for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
-        if(jetOrderReverse[ic]==-1)
-        {
-           jetOrder.push_back(ic);
-           jetOrderReverse[jetOrder.back()]=jetOrder.size()-1;
-        }
-
-   }
-#endif //CRAZYSORT
-
 
     for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
-#ifdef CRAZYSORT
-        const reco::PFCandidate &cand=(*cands)[jetOrder[ic]];
-#else
         const reco::PFCandidate &cand=(*cands)[ic];
-#endif
         float phiAtVtx = cand.phi();
         const reco::Track *ctrack = 0;
         if ((abs(cand.pdgId()) == 11 || cand.pdgId() == 22) && cand.gsfTrackRef().isNonnull()) {
@@ -186,70 +138,93 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
             ctrack = &*cand.trackRef();
         }
         if (ctrack) {
-            math::XYZPoint vtx = cand.vertex();
-            pat::PackedCandidate::LostInnerHits lostHits = pat::PackedCandidate::noLostInnerHits;
+          float dist=1e99;
+          int pvi=-1;
+          for(size_t ii=0;ii<PVs->size();ii++){
+            float dz=std::abs(ctrack->dz( ((*PVs)[ii]).position()));
+            if(dz<dist) {pvi=ii;dist=dz; }
+          }
+          PV = reco::VertexRef(PVs, pvi);
+          PVpos = PV->position();
+          math::XYZPoint vtx = cand.vertex();
+          pat::PackedCandidate::LostInnerHits lostHits = pat::PackedCandidate::noLostInnerHits;
+          const reco::VertexRef & PVOrig = associatedPV[reco::CandidatePtr(cands,ic)];
+          PV = reco::VertexRef(PVs, PVOrig.key()); // WARNING: assume the PV slimmer is keeping same order
+          int quality=associationQuality[reco::CandidatePtr(cands,ic)];
+//          if ((size_t)pvi!=PVOrig.key()) std::cout << "not closest in Z" << pvi << " " << PVOrig.key() << " " << cand.pt() << " " << quality << std::endl;
+          //          TrajectoryStateOnSurface tsos = extrapolator.extrapolate(trajectoryStateTransform::initialFreeState(*ctrack,&*magneticField), RecoVertex::convertPos(PV->position()));
+          //   vtx = tsos.globalPosition();
+          //          phiAtVtx = tsos.globalDirection().phi();
+          vtx = ctrack->referencePoint();
+          phiAtVtx = ctrack->phi();
+          int nlost = ctrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+          if (nlost == 0) { 
+            if (ctrack->hitPattern().hasValidHitInFirstPixelBarrel()) {
+              lostHits = pat::PackedCandidate::validHitInFirstPixelBarrelLayer;
+            }
+          } else {
+            lostHits = ( nlost == 1 ? pat::PackedCandidate::oneLostInnerHit : pat::PackedCandidate::moreLostInnerHits);
+          }
 
-//          TrajectoryStateOnSurface tsos = extrapolator.extrapolate(trajectoryStateTransform::initialFreeState(*ctrack,&*magneticField), RecoVertex::convertPos(PV->position()));
-//   vtx = tsos.globalPosition();
-//          phiAtVtx = tsos.globalDirection().phi();
-            vtx = ctrack->referencePoint();
-            phiAtVtx = ctrack->phi();
-            int nlost = ctrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
-            if (nlost == 0) { 
-                if (ctrack->hitPattern().hasValidHitInFirstPixelBarrel()) {
-                    lostHits = pat::PackedCandidate::validHitInFirstPixelBarrelLayer;
-                }
-            } else {
-                lostHits = ( nlost == 1 ? pat::PackedCandidate::oneLostInnerHit : pat::PackedCandidate::moreLostInnerHits);
-            }
 
-	    
-            outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PV));
-          
-            // properties of the best track 
-            outPtrP->back().setLostInnerHits( lostHits );
-	    if(outPtrP->back().pt() > minPtForTrackProperties_) {
-                outPtrP->back().setTrackProperties(*ctrack);
-                //outPtrP->back().setTrackProperties(*ctrack,tsos.curvilinearError());
-            }
+          outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PV));
+          outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(qualityMap[quality]));
+          if(cand.trackRef().isNonnull() && PVOrig->trackWeight(cand.trackRef()) > 0.5 && quality == 7) {
+                  outPtrP->back().setAssociationQuality(pat::PackedCandidate::UsedInFitTight);
+          }
+          // properties of the best track 
+          outPtrP->back().setLostInnerHits( lostHits );
+          if(outPtrP->back().pt() > minPtForTrackProperties_) {
+            outPtrP->back().setTrackProperties(*ctrack);
+            //outPtrP->back().setTrackProperties(*ctrack,tsos.curvilinearError());
+          }
 
-            // these things are always for the CKF track
-	    if(cand.trackRef().isNonnull() && PVOrig.trackWeight(cand.trackRef()) > 0.5) {
-                outPtrP->back().setFromPV(pat::PackedCandidate::PVUsedInFit);
-	    } else {
-                outPtrP->back().setFromPV( fromPV[ic] );
-            }
-            outPtrP->back().setTrackHighPurity( cand.trackRef().isNonnull() && cand.trackRef()->quality(reco::Track::highPurity) );
-            if (cand.muonRef().isNonnull()) {
-                outPtrP->back().setMuonID(cand.muonRef()->isStandAloneMuon(), cand.muonRef()->isGlobalMuon());
-            }
+          // these things are always for the CKF track
+          outPtrP->back().setTrackHighPurity( cand.trackRef().isNonnull() && cand.trackRef()->quality(reco::Track::highPurity) );
+          if (cand.muonRef().isNonnull()) {
+            outPtrP->back().setMuonID(cand.muonRef()->isStandAloneMuon(), cand.muonRef()->isGlobalMuon());
+          }
         } else {
-            outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.phi(), cand.pdgId(), PV));
-            outPtrP->back().setFromPV( fromPV[ic] );
-        }
 
-        mapping[ic] = ic; // trivial at the moment!
+          if (!PVs->empty()) {
+            PV = reco::VertexRef(PVs, 0);
+            PVpos = PV->position();
+          }
+
+          outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.phi(), cand.pdgId(), PV));
+          outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(pat::PackedCandidate::UsedInFitTight));
+        }
+                
+
+        mapping[ic] = ic;
         if (cand.trackRef().isNonnull() && cand.trackRef().id() == TKOrigs.id()) {
-            mappingTk[cand.trackRef().key()] = ic;
+          mappingTk[cand.trackRef().key()] = ic;
         }
 
     }
 
+    std::auto_ptr< std::vector<pat::PackedCandidate> > outPtrPSorted( new std::vector<pat::PackedCandidate> );
+    std::vector<size_t> order=sort_indexes(*outPtrP);
+    for(size_t i=0,nc=cands->size();i<nc;i++) {
+        outPtrPSorted->push_back((*outPtrP)[order[i]]);
+        mappingReverse[order[i]]=i;
+    }
 
-    edm::OrphanHandle<pat::PackedCandidateCollection> oh = iEvent.put( outPtrP );
+    // Fix track association for sorted candidates
+    for(size_t i=0,ntk=mappingTk.size();i<ntk;i++){
+        mappingTk[i]=order[mappingTk[i]];
+    }
+
+    
+    edm::OrphanHandle<pat::PackedCandidateCollection> oh = iEvent.put( outPtrPSorted );
 
     // now build the two maps
     std::auto_ptr<edm::Association<pat::PackedCandidateCollection> > pf2pc(new edm::Association<pat::PackedCandidateCollection>(oh   ));
     std::auto_ptr<edm::Association<reco::PFCandidateCollection   > > pc2pf(new edm::Association<reco::PFCandidateCollection   >(cands));
     edm::Association<pat::PackedCandidateCollection>::Filler pf2pcFiller(*pf2pc);
     edm::Association<reco::PFCandidateCollection   >::Filler pc2pfFiller(*pc2pf);
-#ifdef CRAZYSORT
-    pf2pcFiller.insert(cands, jetOrderReverse.begin(), jetOrderReverse.end());
-    pc2pfFiller.insert(oh   , jetOrder.begin(), jetOrder.end());
-#else
-    pf2pcFiller.insert(cands, mapping.begin(), mapping.end());
-    pc2pfFiller.insert(oh   , mapping.begin(), mapping.end());
-#endif
+    pf2pcFiller.insert(cands, mappingReverse.begin(), mappingReverse.end());
+    pc2pfFiller.insert(oh   , order.begin(), order.end());
     // include also the mapping track -> packed PFCand
     pf2pcFiller.insert(TKOrigs, mappingTk.begin(), mappingTk.end());
 
