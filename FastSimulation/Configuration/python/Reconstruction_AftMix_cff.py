@@ -29,6 +29,16 @@ del offlineBeamSpot
 
 
 ##########################################
+# Calo rechits
+##########################################
+
+# not commisoned and not relevant in FastSim (?):
+reducedEcalRecHitsSequence.remove(seldigis)
+ecalRecHitSequence.remove(ecalCompactTrigPrim)
+ecalRecHitSequence.remove(ecalTPSkim)
+
+
+##########################################
 # remove most of the tracking , since it is run before mixing
 ##########################################
 
@@ -60,57 +70,53 @@ for name in namesObjsToDel:
 # we need a replacment for the firstStepPrimaryVertices
 # that includes tracker information of signal and pile up
 # after mixing there is no such thing as initialStepTracks,
-# so we simple reconstruct the firstStepPrimaryVertices from all tracks
+# so we replace the input collection for firstStepPrimaryVertices with generalTracks
 _firstStepPrimaryVertices = firstStepPrimaryVertices.clone(
     TrackLabel = "generalTracks"
 )
 
 # insert the few tracking modules to be run after mixing back in the globalreco sequence
-globalreco.insert(0,ak4CaloJetsForTrk)
-globalreco.insert(0,firstStepPrimaryVertices)
-globalreco.insert(0,caloTowerForTrk)
-globalreco.insert(0,trackExtrapolator)
+globalreco.insert(0,[trackExtrapolator,caloTowerForTrk,firstStepPrimaryVertices,ak4CaloJetsForTrk)
 
 ##########################################
 # FastSim changes to electron reconstruction
 ##########################################
-# ecal-driven seeds are emulated in FastSim
+
+# replace the standard ecal-driven seeds with the FastSim emulated ones
 from FastSimulation.Tracking.globalCombinedSeeds_cfi import newCombinedSeeds
 
 # tracker driven electron seeds depend on the generalTracks trajectory collection
-# However, in FastSim jobs, trajectories are only available for signal tracks
+# However, in FastSim jobs, trajectories are only available for the 'before mixing' track collections
 # Therefore we let the seeds depend on the 'before mixing' generalTracks collection
 trackerDrivenElectronSeeds.TkColList = [cms.InputTag('generalTracksBeforeMixing')]
 # TODO: add the fixes to the TrackRefs in the tracker-driven seeds
+# TODO: investigate whether the dependence on trajectories can be avoided
 
-# the conversion producer depends on trajectories
-# same reasoning as for tracker driven electron seeds
-generalConversionTrackProducer.TrackProducer = 'generalTracksBeforeMixing'
-
-# why was that?
-egammaGlobalReco.replace(conversionTrackSequence,conversionTrackSequenceNoEcalSeeded)
-allConversions.src = 'gsfGeneralConversionTrackMerger'
-
-# FastSim emulates track finding for electrons
+# replace the ECAL driven electron track candidates with the FastSim emulated ones
 from FastSimulation.EgammaElectronAlgos.electronGSGsfTrackCandidates_cff import electronGSGsfTrackCandidates
 electronGsfTracking.replace(electronCkfTrackCandidates,electronGSGsfTrackCandidates)
-del electronCkfTrackCandidates
 electronGsfTracks.src = "electronGSGsfTrackCandidates"
+# TODO fix the name 'electronGSGsfTrackCandidates' ->  'electronGsfTrackCandidates'
 
 # FastSim has no template fit on tracker hits
 electronGsfTracks.TTRHBuilder = "WithoutRefit"
 
-# seems not to be used and causes crashes in FastSim
+# the conversion producer depends on trajectories
+# so we feed it with the 'before mixing' track colletion
+generalConversionTrackProducer.TrackProducer = 'generalTracksBeforeMixing'
+
+# not sure why we do this
+egammaGlobalReco.replace(conversionTrackSequence,conversionTrackSequenceNoEcalSeeded)
+allConversions.src = 'gsfGeneralConversionTrackMerger'
+# TODO: revisit converions in FastSim
+
+# not commisoned and not relevant in FastSim (?):
 egammaHighLevelRecoPrePF.remove(uncleanedOnlyElectronSequence)
 
-# having this in FastSim requires significant work
-# all related tracking needs to be emulated
+# not commisoned and not relevant in FastSim (?):
 egammareco.remove(conversionSequence)
 egammaHighLevelRecoPrePF.remove(conversionSequence)
 
-# wasn't there before and is not used (?)
-
-ecalRecHitSequence.remove(ecalTPSkim)
 
 ##########################################
 # FastSim changes to muon reconstruction
@@ -169,20 +175,11 @@ metrecoPlusHCALNoise.remove(hcalnoise)
 ##########################################
 
 # throws random neutral hadrons in the detector to fix jet response
-# we should get rid of this asap, but the source of the issue is not pointed down
+# we should get rid of this asap, but the source of the issue is not known
 particleFlowTmpTmp = particleFlowTmp
 from FastSimulation.ParticleFlow.FSparticleFlow_cfi import FSparticleFlow as particleFlowTmp
 particleFlowTmp.pfCandidates = cms.InputTag("particleFlowTmpTmp")
 particleFlowReco.insert(particleFlowReco.index(particleFlowTmpTmp)+1,particleFlowTmp)
-
-
-##########################################
-# Calo rechits
-##########################################
-
-# not commisoned and not relevant in FastSim (?):
-reducedEcalRecHitsSequence.remove(seldigis)
-ecalRecHitSequence.remove(ecalCompactTrigPrim)
 
 
 ###########################################
@@ -194,6 +191,7 @@ del ckftracks_plus_pixelless
 del ckftracks_woBH
 del reconstruction_fromRECO
 del ckftracks_wodEdX
+
 
 ###########################################
 # deleting some services that are not used
@@ -207,6 +205,7 @@ del BeamHaloPropagatorOpposite
 del BeamHaloSHPropagatorAlong
 del BeamHaloSHPropagatorAny
 del BeamHaloSHPropagatorOpposite
+
 
 ############################################
 # the final reconstruction sequence
