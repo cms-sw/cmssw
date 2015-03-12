@@ -388,7 +388,7 @@ def getPTAveVPSet(thresholds = [30, 60, 80, 100, 160, 220, 300], flavour="HFJEC"
     return ret
 
 # note: thresholds should be a list with integer only values
-def getSinglePFJet(thresholds, flavour=None, etaMin=-1, srcType="genJets" ):
+def getSinglePFJet(thresholds, flavour=None, etaMin=-1, srcType="genJets", partialPathName = "HLT_PFJet", disableEff = False):
     if srcType == "genJets":
         inputCol = cms.InputTag("ak4GenJets")
         handlerType = "FromRecoCandidate"
@@ -409,7 +409,7 @@ def getSinglePFJet(thresholds, flavour=None, etaMin=-1, srcType="genJets" ):
 
     ret=cms.VPSet()
     for t in thresholds:
-        partialPathName = "HLT_PFJet"+ str(t)+"_"
+        partialPathName += str(t)+"_"
         if flavour != None:
             partialPathName += flavour+"_"
         partialPathName += "v"
@@ -443,15 +443,21 @@ def getSinglePFJet(thresholds, flavour=None, etaMin=-1, srcType="genJets" ):
                              bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)  )
             )
         )
+        if disableEff:
+            for p in fromJets.combinedObjectDrawables:
+                if p.name == cms.string("pt_nominator"):
+                    fromJets.combinedObjectDrawables.remove(p)
+                    break
+        else:
+            fromJetsDenom  = fromJets.clone()
+            fromJetsDenom.triggerSelection = cms.string("HLT_ZeroBias_v*")
+            fromJetsDenom.singleObjectDrawables =  cms.VPSet()
+            fromJetsDenom.combinedObjectDrawables =  cms.VPSet(
+                cms.PSet (name = cms.string("pt_denominator"), expression = cms.string("at(0).pt"),
+                          bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)  )
+            )
+            ret.append(fromJetsDenom)
         ret.append(fromJets)
-        fromJetsDenom  = fromJets.clone()
-        fromJetsDenom.triggerSelection = cms.string("HLT_ZeroBias_v*")
-        fromJetsDenom.singleObjectDrawables =  cms.VPSet()
-        fromJetsDenom.combinedObjectDrawables =  cms.VPSet(
-            cms.PSet (name = cms.string("pt_denominator"), expression = cms.string("at(0).pt"),
-                      bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)  )
-        )
-        ret.append(fromJetsDenom)
     return ret
 
 # note: thresholds should be a list with integer only values
@@ -570,6 +576,8 @@ def getFSQAll():
         ret.extend(getDoublePFJet([15], flavour=None, etaMin=None, srcType=t))
         ret.extend(getDoublePFJet([15], flavour="FBEta2", etaMin=2, srcType=t))
         ret.extend(getDoublePFJet([15], flavour="FBEta3", etaMin=3, srcType=t))
+
+        ret.extend(getSinglePFJet([15], partialPathName="HLT_L1Tech62_CASTORJet_SinglePFJet", srcType=t,  disableEff=True))
 
 
     return ret
