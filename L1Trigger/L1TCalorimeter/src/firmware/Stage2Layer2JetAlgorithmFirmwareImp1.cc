@@ -1,4 +1,4 @@
-// heyhey
+// 
 /// \class l1t::Stage2Layer2JetAlgorithmFirmwareImp1
 ///
 /// \author: Adam Elwood and Matthew Citron
