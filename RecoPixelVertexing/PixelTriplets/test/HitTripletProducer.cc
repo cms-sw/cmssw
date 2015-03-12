@@ -94,6 +94,8 @@ void HitTripletProducer::analyze(
   hNum->Fill(triplets.size());
   edm::LogInfo("HitTripletProducer") << "size of triplets: "<<triplets.size();
 
+  theGenerator->clear();
+
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
