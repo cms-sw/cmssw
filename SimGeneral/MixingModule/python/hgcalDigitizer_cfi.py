@@ -64,7 +64,7 @@ hgchebackDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer")
                                                    shaperN       = cms.double(1.),
                                                    shaperTau     = cms.double(0.),
                                                    caliceSpecific = cms.PSet( nPEperMIP = cms.double(11.0),
-                                                                              #1156 pixels => saturation ~300MIP
+                                                                              #1156 pixels => saturation ~600MIP
                                                                               nTotalPE  = cms.double(11560),
                                                                               xTalk     = cms.double(0.25),
                                                                               sdPixels  = cms.double(3.0) )
