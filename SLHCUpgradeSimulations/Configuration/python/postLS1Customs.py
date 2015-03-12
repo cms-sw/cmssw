@@ -339,6 +339,7 @@ def customise_L1Emulator(process):
 
 
 def customise_RawToDigi(process):
+    process.RawToDigi.remove(process.gtEvmDigis)
     return process
 
 
