@@ -154,6 +154,11 @@ namespace pat {
       float hcalIso()  const { return dr04HcalTowerSumEt(); }
       /// Overload of pat::Lepton::caloIso(); returns the sum of ecalIso() and hcalIso
       float caloIso()  const { return ecalIso()+hcalIso(); }
+      /// get and set PFCluster Isolation                                                                                                                                      
+      float ecalPFClusterIso() const { return ecalPFClusIso_; };
+      float hcalPFClusterIso() const { return hcalPFClusIso_; };
+      void setEcalPFClusterIso(float ecalPFClus) { ecalPFClusIso_ = ecalPFClus; };
+      void setHcalPFClusterIso(float hcalPFClus) { hcalPFClusIso_ = hcalPFClus; };
 
       // ---- PF specific methods ----
       bool isPF() const{ return isPF_; }
@@ -335,7 +340,10 @@ namespace pat {
       double ecalTrackRegressionScale_;
       double ecalTrackRegressionSmear_;
       
-      
+      /// PFCluster Isolation (a la HLT)
+      float ecalPFClusIso_;
+      float hcalPFClusIso_;
+
       /// conversion veto
       bool passConversionVeto_;
 

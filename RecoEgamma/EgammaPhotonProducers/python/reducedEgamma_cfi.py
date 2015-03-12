@@ -40,6 +40,22 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
     "eidRobustTight",
     "eidTight",
   ),
+  photonPFClusterIsoSources = cms.VInputTag(
+        cms.InputTag("photonEcalPFClusterIsolationProducer"),
+        cms.InputTag("photonHcalPFClusterIsolationProducer"),
+  ),
+  photonPFClusterIsoOutput = cms.vstring(
+        "phoEcalPFClusIso",
+        "phoHcalPFClusIso",
+  ),
+  gsfElectronPFClusterIsoSources = cms.VInputTag(
+        cms.InputTag("electronEcalPFClusterIsolationProducer"),
+        cms.InputTag("electronHcalPFClusterIsolationProducer"),
+  ),
+  gsfElectronPFClusterIsoOutput = cms.vstring(
+        "eleEcalPFClusIso",
+        "eleHcalPFClusIso",
+  ),
 )
 
 

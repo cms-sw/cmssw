@@ -18,11 +18,11 @@ process.out = cms.OutputModule("PoolOutputModule",
                                fileName = cms.untracked.string('file:eleIso.root')
 )
 
-process.out.outputCommands.append('drop *')
-process.out.outputCommands.append('keep *_gsfElectrons_*_*')
+process.out.outputCommands.append('keep *')
+#process.out.outputCommands.append('keep *_gsfElectrons_*_*')
 #process.out.outputCommands.append('keep *_photons_*_*')
-process.out.outputCommands.append('keep *_*_*_eleIso')
-process.out.outputCommands.append('keep EcalRecHitsSorted_*_*_*')
+#process.out.outputCommands.append('keep *_*_*_eleIso')
+#process.out.outputCommands.append('keep EcalRecHitsSorted_*_*_*')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(200)

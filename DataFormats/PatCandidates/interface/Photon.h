@@ -139,6 +139,11 @@ namespace pat {
       /// Returns the isolation calculated with only the pile-up charged hadron
       /// PFCandidates
       float puChargedHadronIso() const { return userIsolation(pat::PfPUChargedHadronIso); }        
+      /// get and set PFCluster Isolation                                                                                                                                     
+      float ecalPFClusterIso() const { return ecalPFClusIso_; };
+      float hcalPFClusterIso() const { return hcalPFClusIso_; };
+      void setEcalPFClusterIso(float ecalPFClus) { ecalPFClusIso_ = ecalPFClus; };
+      void setHcalPFClusterIso(float hcalPFClus) { hcalPFClusIso_ = hcalPFClus; };
 
       /// Returns a user defined isolation value
       float userIso(uint8_t index=0)  const { return userIsolation(IsolationKeys(UserBaseIso + index)); }
@@ -382,6 +387,9 @@ namespace pat {
       float cryPhi_;
       float iEta_;
       float iPhi_;
+
+      float ecalPFClusIso_;
+      float hcalPFClusIso_;
 
       // ---- link to PackedPFCandidates
       edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;

@@ -62,6 +62,9 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   if (addEfficiencies_) {
     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"), consumesCollector());
   }
+  // PFCluster Isolation maps
+  ecalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ecalPFClusterIsoMap"));
+  hcalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("hcalPFClusterIsoMap"));
   // photon ID configurables
   addPhotonID_ = iConfig.getParameter<bool>( "addPhotonID" );
   if (addPhotonID_) {
@@ -146,6 +149,12 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
   iEvent.getByToken(beamLineToken_, beamSpotHandle);
 
   EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);  
+
+  // Get PFCluster Isolation
+  edm::Handle<edm::ValueMap<float> > ecalPFClusterIsoMapH;
+  iEvent.getByToken(ecalPFClusterIsoT_, ecalPFClusterIsoMapH);
+  edm::Handle<edm::ValueMap<float> > hcalPFClusterIsoMapH;
+  iEvent.getByToken(hcalPFClusterIsoT_, hcalPFClusterIsoMapH);
 
   // prepare the MC matching
   std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > >genMatches(genMatchTokens_.size());
@@ -348,6 +357,8 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     aPhoton.setIEta( ecalRegData.seedCrysIEtaOrIX() );
     aPhoton.setIPhi( ecalRegData.seedCrysIPhiOrIY() );
 
+    aPhoton.setEcalPFClusterIso((*ecalPFClusterIsoMapH)[photonRef]);
+    aPhoton.setHcalPFClusterIso((*hcalPFClusterIsoMapH)[photonRef]);
 
     // add the Photon to the vector of Photons
     PATPhotons->push_back(aPhoton);
@@ -375,6 +386,9 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
 
   iDesc.add<edm::InputTag>("reducedBarrelRecHitCollection", edm::InputTag("reducedEcalRecHitsEB"));
   iDesc.add<edm::InputTag>("reducedEndcapRecHitCollection", edm::InputTag("reducedEcalRecHitsEE"));  
+  
+  iDesc.add<edm::InputTag>("ecalPFClusterIsoMap", edm::InputTag("photonEcalPFClusterIsolationProducer"));
+  iDesc.add<edm::InputTag>("hcalPFClusterIsoMap", edm::InputTag("photonHcalPFClusterIsolationProducer"));
   
   iDesc.add<bool>("embedSuperCluster", true)->setComment("embed external super cluster");
   iDesc.add<bool>("embedSeedCluster", true)->setComment("embed external seed cluster");

@@ -24,6 +24,7 @@
 #include <DataFormats/Math/interface/deltaR.h>
 
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EcalPFClusterIsolation.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template<typename T1>
 HLTEcalPFClusterIsolationProducer<T1>::HLTEcalPFClusterIsolationProducer(const edm::ParameterSet& config):
@@ -76,7 +77,7 @@ void HLTEcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationD
   desc.add<double>("etaStripEndcap", 0.0);
   desc.add<double>("energyBarrel", 0.0);
   desc.add<double>("energyEndcap", 0.0);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTEcalPFClusterIsolationProducer<T1>).name()), desc);
+  descriptions.add(defaultModuleLabel<HLTEcalPFClusterIsolationProducer<T1>>(), desc);
 }
 
 template<typename T1>

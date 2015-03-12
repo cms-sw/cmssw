@@ -15,6 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoEgamma/EgammaIsolationAlgos/interface/HcalPFClusterIsolation.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template<typename T1>
 HLTHcalPFClusterIsolationProducer<T1>::HLTHcalPFClusterIsolationProducer(const edm::ParameterSet& config) :
@@ -76,7 +77,7 @@ void HLTHcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationD
   desc.add<double>("energyBarrel", 0.0);
   desc.add<double>("energyEndcap", 0.0);
   desc.add<bool>("useEt", true);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTHcalPFClusterIsolationProducer<T1>).name()), desc);
+  descriptions.add(defaultModuleLabel<HLTHcalPFClusterIsolationProducer<T1>>(), desc);
 }
 
 template<typename T1>
