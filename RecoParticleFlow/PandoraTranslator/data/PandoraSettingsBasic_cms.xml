@@ -352,8 +352,8 @@
     </algorithm>
 
     <algorithm type = "MainFragmentRemovalFast"/>
-    <algorithm type = "NeutralFragmentRemoval"/>
-    <algorithm type = "PhotonFragmentRemoval"/>
+    <algorithm type = "NeutralFragmentRemovalFast"/>
+    <algorithm type = "PhotonFragmentRemovalFast"/>
 
     <!-- Create particle flow objects -->
     <algorithm type = "ForceSplitTrackAssociations"/>
