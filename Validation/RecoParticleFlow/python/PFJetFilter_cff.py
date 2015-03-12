@@ -5,7 +5,7 @@ from RecoJets.Configuration.GenJetParticles_cff import *
 from RecoJets.Configuration.RecoGenJets_cff import *
 
 # should do a cloning
-pfGenParticlesForJets = genParticlesForJetsiNoNu.clone()
+pfGenParticlesForJets = genParticlesForJetsNoNu.clone()
 pfGenParticlesForJets.ignoreParticleIDs.append(14)
 pfGenParticlesForJets.ignoreParticleIDs.append(12)
 pfGenParticlesForJets.ignoreParticleIDs.append(16)
