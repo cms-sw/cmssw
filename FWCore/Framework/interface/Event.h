@@ -51,6 +51,7 @@ namespace edm {
   class TriggerResults;
   class TriggerNames;
   class EDConsumerBase;
+  class EDProductGetter;
   class ProducerBase;
   namespace stream {
     template< typename T> class ProducingModuleAdaptorBase;
@@ -220,7 +221,11 @@ namespace edm {
 
     typedef std::vector<std::pair<std::unique_ptr<WrapperBase>, BranchDescription const*> > ProductPtrVec;
 
+    EDProductGetter const&
+    productGetter() const;
+
   private:
+
     EventPrincipal const&
     eventPrincipal() const;
 
@@ -542,14 +547,12 @@ namespace edm {
   void
   Event::fillView_(BasicHandle& bh, Handle<View<ELEMENT> >& result) const {
     std::vector<void const*> pointersToElements;
-    // the following is a shared pointer.
-    // It is not initialized here
-    helper_vector_ptr helpers;
+    FillViewHelperVector helpers;
     // the following must initialize the
-    //  shared pointer and fill the helper vector
+    //  fill the helper vector
     bh.wrapper()->fillView(bh.id(), pointersToElements, helpers);
 
-    auto newview = std::make_shared<View<ELEMENT> >(pointersToElements, helpers);
+    auto newview = std::make_shared<View<ELEMENT> >(pointersToElements, helpers, &(productGetter()));
 
     addToGotBranchIDs(*bh.provenance());
     gotViews_.push_back(newview);

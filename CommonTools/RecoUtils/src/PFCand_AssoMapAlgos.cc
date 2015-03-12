@@ -50,7 +50,7 @@ std::auto_ptr<PFCandToVertexAssMap>
 PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup)
 {
 
-  	auto_ptr<PFCandToVertexAssMap> pfcand2vertex(new PFCandToVertexAssMap());
+        auto_ptr<PFCandToVertexAssMap> pfcand2vertex(new PFCandToVertexAssMap(vtxcollH, pfCandH));
 
 	int num_vertices = vtxcollH->size();
 	if ( num_vertices < input_MaxNumAssociations_) input_MaxNumAssociations_ = num_vertices;
@@ -116,7 +116,7 @@ std::auto_ptr<VertexToPFCandAssMap>
 PFCand_AssoMapAlgos::CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup)
 {
 
-  	auto_ptr<VertexToPFCandAssMap> vertex2pfcand(new VertexToPFCandAssMap());
+  	auto_ptr<VertexToPFCandAssMap> vertex2pfcand(new VertexToPFCandAssMap(pfCandH, vtxcollH));
 
 	int num_vertices = vtxcollH->size();
 	if ( num_vertices < input_MaxNumAssociations_) input_MaxNumAssociations_ = num_vertices;
@@ -178,10 +178,11 @@ PFCand_AssoMapAlgos::CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollec
 /*************************************************************************************/
 
 std::auto_ptr<PFCandToVertexAssMap>
-PFCand_AssoMapAlgos::SortPFCandAssociationMap(PFCandToVertexAssMap* pfcvertexassInput)
+PFCand_AssoMapAlgos::SortPFCandAssociationMap(PFCandToVertexAssMap* pfcvertexassInput,
+                                              edm::EDProductGetter const* getter)
 {
 	//create a new PFCandVertexAssMap for the Output which will be sorted
-     	auto_ptr<PFCandToVertexAssMap> pfcvertexassOutput(new PFCandToVertexAssMap() );
+	auto_ptr<PFCandToVertexAssMap> pfcvertexassOutput(new PFCandToVertexAssMap(getter) );
 
 	//Create and fill a vector of pairs of vertex and the summed (pT)**2 of the pfcandidates associated to the vertex
 	VertexPtsumVector vertexptsumvector;

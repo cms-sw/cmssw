@@ -6,6 +6,7 @@
  *
  */
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+#include "DataFormats/Common/interface/FillViewHelperVector.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include <memory>
 #include <vector>
@@ -59,9 +60,8 @@ namespace edm {
 
     void push_back( const RefToBase<T> & );
 
-    void fillView(std::vector<void const*>& pointers) const;
+    void fillView(std::vector<void const*>& pointers, FillViewHelperVector& helpers) const;
     std::auto_ptr<reftobase::RefVectorHolderBase> vectorHolder() const;
-    const void * product() const;
  
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
@@ -233,21 +233,25 @@ namespace edm {
 
   template <typename T>
   void
-  RefToBaseVector<T>::fillView(std::vector<void const*>& pointers) const
+  RefToBaseVector<T>::fillView(std::vector<void const*>& pointers, FillViewHelperVector& helpers) const
   {
     pointers.reserve(this->size());
+    helpers.reserve(this->size());
     for (const_iterator i=begin(), e=end(); i!=e; ++i) {
       RefToBase<T> ref = * i;
       member_type const * address = ref.isNull() ? 0 : & * ref;
       pointers.push_back(address);
+      helpers.push_back(FillViewHelperVector::value_type(ref.id(),ref.key()));
     }
   }
 
   // NOTE: the following implementation has unusual signature!
   template <typename T>
   inline void fillView(RefToBaseVector<T> const& obj,
-		       std::vector<void const*>& pointers) {
-    obj.fillView(pointers);
+                       ProductID const&,
+                       std::vector<void const*>& pointers,
+                       FillViewHelperVector& helpers) {
+    obj.fillView(pointers,helpers);
   }
 
   template <typename T>
@@ -268,12 +272,6 @@ namespace edm {
   std::auto_ptr<reftobase::RefVectorHolderBase> RefToBaseVector<T>::vectorHolder() const {
     return holder_ ? holder_->vectorHolder() : std::auto_ptr<reftobase::RefVectorHolderBase>();
   }
-
-  template <typename T>
-  const void * RefToBaseVector<T>::product() const {
-    return holder_ ? holder_->product() : 0;
-  }
-
 }
 
 #include "DataFormats/Common/interface/RefVector.h"

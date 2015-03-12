@@ -106,7 +106,7 @@ void HLTHcalPFClusterIsolationProducer<T1>::produce(edm::StreamID sid, edm::Even
     iEvent.getByToken(pfClusterProducerHFHAD_, clusterHfhadHandle);
   }
 
-  T1IsolationMap recoCandMap;
+  T1IsolationMap recoCandMap(recoCandHandle);
   
   float dRVeto = -1.;
   float etaStrip = -1;

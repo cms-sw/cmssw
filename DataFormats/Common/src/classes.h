@@ -1,3 +1,11 @@
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/AssociationMapHelpers.h"
+#include "DataFormats/Common/interface/OneToValue.h"
+#include "DataFormats/Common/interface/OneToOne.h"
+#include "DataFormats/Common/interface/OneToMany.h"
+#include "DataFormats/Common/interface/OneToManyWithQuality.h"
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefToBaseProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/Ptr.h"
@@ -43,6 +51,7 @@ namespace DataFormats_Common {
     edm::Wrapper<edm::RefVector<std::vector<int> > > dummyx20;
     edm::Wrapper<edm::RefToBaseVector<int> > dummyx21;
     edm::Wrapper<edm::PtrVector<int> > dummyx21_3;
+    edm::Wrapper<std::vector<edm::Ptr<int> > > dummy_vPtrInt;
     edm::Ptr<int> dummyx21_4;
     edm::reftobase::RefVectorHolderBase * dummyx21_0;
     edm::reftobase::IndirectVectorHolder<int> dummyx21_1;
@@ -72,5 +81,25 @@ namespace DataFormats_Common {
     edm::Wrapper<edm::ConditionsInLumiBlock> dum11;
     edm::Wrapper<edm::ConditionsInRunBlock> dum21;
     edm::Wrapper<edm::ConditionsInEventBlock> dum31;
+
+    edm::RefProd<std::vector<int> > rpvi;
+    edm::helpers::KeyVal<edm::RefProd<std::vector<int> >,edm::RefProd<std::vector<int> > > keyval1;
+    edm::AssociationMap<edm::OneToOne<std::vector<int>,std::vector<int>,unsigned int> > assoc1;
+    edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<int>,std::vector<int>,unsigned int> > > wrassoc1;
+
+    edm::helpers::Key<edm::RefProd<std::vector<int> > > keyval2;
+    edm::AssociationMap<edm::OneToValue<std::vector<int>,double,unsigned int> > assoc2;
+    edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<int>,double,unsigned int> > > wrassoc2;
+
+    edm::AssociationMap<edm::OneToMany<std::vector<int>,std::vector<int>,unsigned int> > assoc3;
+    edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<int>,std::vector<int>,unsigned int> > > wrassoc3;
+
+    edm::AssociationMap<edm::OneToManyWithQuality<std::vector<int>,std::vector<int>,double,unsigned int> > assoc4;
+    edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQuality<std::vector<int>,std::vector<int>,double,unsigned int> > > wrassoc4;
+
+    edm::RefToBaseProd<int> rtbpi;
+    edm::helpers::KeyVal<edm::RefToBaseProd<int>,edm::RefToBaseProd<int> > keyval5;
+    edm::AssociationMap<edm::OneToOne<edm::View<int>,edm::View<int>,unsigned int> > assoc5;
+    edm::Wrapper<edm::AssociationMap<edm::OneToOne<edm::View<int>,edm::View<int>,unsigned int> > > wrassoc5;
   };
 }

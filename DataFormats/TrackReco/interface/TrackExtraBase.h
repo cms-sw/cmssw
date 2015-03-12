@@ -51,8 +51,13 @@ public:
     }
 
     /// get a ref to i-th recHit
-    TrackingRecHitRef recHitRef(unsigned int i) const {                                                               
-        return TrackingRecHitRef(m_hitCollection,m_firstHit+i);
+    TrackingRecHitRef recHitRef(unsigned int i) const {
+      if(m_hitCollection.productPtr()) {
+        TrackingRecHitRef::finder_type finder;
+        TrackingRecHitRef::value_type const* item = finder(*(static_cast<TrackingRecHitRef::product_type const*>(m_hitCollection.productPtr())), m_firstHit+i);
+        return TrackingRecHitRef(m_hitCollection.id(), item, m_firstHit+i);
+      }
+      return TrackingRecHitRef(m_hitCollection,m_firstHit+i);
     }
 
     /// get i-th recHit
