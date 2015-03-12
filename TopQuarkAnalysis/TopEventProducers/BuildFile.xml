@@ -8,4 +8,6 @@
 <use   name="TopQuarkAnalysis/TopHitFit"/>
 <use   name="TopQuarkAnalysis/TopJetCombination"/>
 <use   name="TopQuarkAnalysis/TopEventSelection"/>
+<use   name="RecoJets/JetProducers" />
+<use   name="fastjet" />
 <flags   EDM_PLUGIN="1"/>

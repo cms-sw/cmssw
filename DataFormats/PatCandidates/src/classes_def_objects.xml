@@ -140,9 +140,45 @@
    <version ClassVersion="10" checksum="2692173055"/>
   </class>
   <class name="std::vector<pat::tau::TauCaloSpecific>" />
-  <class name="pat::tau::TauPFEssential" ClassVersion="10">
+  <class name="pat::tau::TauPFEssential" ClassVersion="11">
+    <version ClassVersion="11" checksum="1193752112" />
     <version ClassVersion="10" checksum="1628501942" />
   </class>
+  <ioread sourceClass="pat::tau::TauPFEssential" targetClass="pat::tau::TauPFEssential" version="[-10]" source="ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > p4Jet_" target="p4Jet_">
+          <![CDATA[ p4Jet_ = ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float> >(onfile.p4Jet_); ]]>
+  </ioread>
+  <ioread sourceClass="pat::tau::TauPFEssential" targetClass="pat::tau::TauPFEssential" version="[-10]" source="ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > p4CorrJet_" target="p4CorrJet_">
+          <![CDATA[ p4CorrJet_ = ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float> >(onfile.p4CorrJet_); ]]>
+  </ioread>
+  <ioread sourceClass="pat::tau::TauPFEssential" targetClass="pat::tau::TauPFEssential" version="[-10]" source="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> dxy_PCA_" target="dxy_PCA_">
+          <![CDATA[ dxy_PCA_ = ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<float>,ROOT::Math::DefaultCoordinateSystemTag>(onfile.dxy_PCA_); ]]>
+  </ioread>
+  <ioread sourceClass="pat::tau::TauPFEssential" targetClass="pat::tau::TauPFEssential" version="[-10]" source="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> pvPos_" target="pvPos_">
+          <![CDATA[ pvPos_ = ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<float>,ROOT::Math::DefaultCoordinateSystemTag>(onfile.pvPos_); ]]>
+  </ioread>
+  <ioread sourceClass="pat::tau::TauPFEssential" targetClass="pat::tau::TauPFEssential" version="[-10]" source="ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> > pvCov_" target="pvCov_">
+    <![CDATA[
+       // matrices must be copied by hand
+       for (unsigned int i = 0; i < 3; ++i) { for (unsigned int j = 0; j < 3; ++j) {
+            pvCov_(i,j) = onfile.pvCov_(i,j);
+       }}
+    ]]>
+  </ioread>
+  <ioread sourceClass="pat::tau::TauPFEssential" targetClass="pat::tau::TauPFEssential" version="[-10]" source="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> flightLength_" target="flightLength_">
+          <![CDATA[ flightLength_ = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float>,ROOT::Math::DefaultCoordinateSystemTag>(onfile.flightLength_); ]]>
+  </ioread>
+  <ioread sourceClass="pat::tau::TauPFEssential" targetClass="pat::tau::TauPFEssential" version="[-10]" source="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> svPos_" target="svPos_">
+          <![CDATA[ svPos_ = ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<float>,ROOT::Math::DefaultCoordinateSystemTag>(onfile.svPos_); ]]>
+  </ioread>
+  <ioread sourceClass="pat::tau::TauPFEssential" targetClass="pat::tau::TauPFEssential" version="[-10]" source="ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> > svCov_" target="svCov_">
+    <![CDATA[
+       // matrices must be copied by hand
+       for (unsigned int i = 0; i < 3; ++i) { for (unsigned int j = 0; j < 3; ++j) {
+            svCov_(i,j) = onfile.svCov_(i,j);
+       }}
+    ]]>
+  </ioread>
+
   <class name="std::vector<pat::tau::TauPFEssential>" />
   <class name="pat::Photon"  ClassVersion="17">
    <version ClassVersion="17" checksum="2394457997"/>
