@@ -47,4 +47,9 @@ process.TFileService = cms.Service("TFileService",
         fileName = cms.string('Validation_Tree.root')  
 )
 
-process.p = cms.Path(process.SiStripCalibValidation)
+process.DQMStore = cms.Service("DQMStore")
+process.load("DQMServices.Components.DQMFileSaver_cfi")
+process.dqmSaver.convention = 'Offline'
+process.dqmSaver.workflow = '/Express/PCLTest/ALCAPROMPT'
+
+process.p = cms.Path(process.SiStripCalibValidation * process.dqmSaver)
