@@ -181,23 +181,25 @@ void matchGenHFHadrons::analyze(const edm::Event& event, const edm::EventSetup& 
     for(size_t hadronId = 0; hadronId < genBHadFlavour->size(); ++hadronId) {
         const int flavour = genBHadFlavour->at(hadronId);
         const int flavourAbs = std::abs(flavour);
-        const bool afterTop = genBHadFromTopWeakDecay->at(hadronId) == 1 ? true : false;
+	// 0 - not from top decay; 1 - from top decay; 2 - not identified;
+        const bool afterTopDecay = genBHadFromTopWeakDecay->at(hadronId) > 0 ? true : false;
         nBHadrons_++;
         if(flavourAbs==25) nBHadronsHiggs_++;
         if(flavourAbs==6) nBHadronsTop_++;
         if(flavourAbs!=6) {
-            if(afterTop) nBHadronsPseudoadditional_++;
+            if(afterTopDecay) nBHadronsPseudoadditional_++;
             else nBHadronsAdditional_++;
         }
     }
     // Counting number of different c hadrons
     for(size_t hadronId = 0; hadronId < genCHadJetIndex->size(); ++hadronId) {
-        const bool afterTop = genCHadFromTopWeakDecay->at(hadronId) == 1 ? true : false;
+	// 0 - not from top decay; 1 - from top decay; 2 - not identified;
+        const bool afterTopDecay = genCHadFromTopWeakDecay->at(hadronId) > 0 ? true : false;
         nCHadrons_++;
         // Skipping c hadrons that are coming from b hadrons
         if(genCHadBHadronId->at(hadronId) >= 0) continue;
         
-        if(afterTop) nCHadronsPseudoadditional_++;
+        if(afterTopDecay) nCHadronsPseudoadditional_++;
         else nCHadronsAdditional_++;
     }
     
@@ -220,7 +222,7 @@ void matchGenHFHadrons::analyze(const edm::Event& event, const edm::EventSetup& 
         // Flavour of the hadron's origin
         const int flavour = genBHadFlavour->at(hadronId);
         // Whether hadron radiated before top quark decay
-        const bool fromTopDecay = genBHadFromTopWeakDecay->at(hadronId);
+        const bool afterTopDecay = genBHadFromTopWeakDecay->at(hadronId) > 0 ? true : false;
         // Index of a jet associated to the hadron
         const int jetIndex = genBHadJetIndex->at(hadronId);
         // Skipping hadrons which have no associated jet
@@ -242,12 +244,12 @@ void matchGenHFHadrons::analyze(const edm::Event& event, const edm::EventSetup& 
         // Skipping if jet is from top quark decay
         if(std::abs(flavour) == 6) continue;
         // Jet before top quark decay
-        if(!fromTopDecay) {
+        if(!afterTopDecay) {
             if(bJetBeforeTopIds.count(jetIndex) < 1) bJetBeforeTopIds[jetIndex] = 1;
             else bJetBeforeTopIds[jetIndex]++;
         }
         // Jet after top quark decay but not directly from top
-        else if(fromTopDecay) {
+        else if(afterTopDecay) {
             if(bJetAfterTopIds.count(jetIndex) < 1) bJetAfterTopIds[jetIndex] = 1;
             else bJetAfterTopIds[jetIndex]++;
         }
@@ -259,20 +261,20 @@ void matchGenHFHadrons::analyze(const edm::Event& event, const edm::EventSetup& 
         if(genCHadBHadronId->at(hadronId) >= 0) continue;
         // Index of a jet associated to the hadron
         const int jetIndex = genCHadJetIndex->at(hadronId);
-        // Whether hadron radiated before top quark decay
-        const bool fromTopDecay = genCHadFromTopWeakDecay->at(hadronId);
+        // Whether hadron radiated after top quark decay
+        const bool afterTopDecay = genCHadFromTopWeakDecay->at(hadronId) > 0 ? true : false;
         // Skipping hadrons which have no associated jet
         if(jetIndex < 0) continue;
         // Skipping if jet is not in acceptance
         if(genJets->at(jetIndex).pt() < genJetPtMin_) continue;
         if(std::fabs(genJets->at(jetIndex).eta()) > genJetAbsEtaMax_) continue;
         // Jet before top quark decay
-        if(!fromTopDecay) {
+        if(!afterTopDecay) {
             if(cJetBeforeTopIds.count(jetIndex) < 1) cJetBeforeTopIds[jetIndex] = 1;
             else cJetBeforeTopIds[jetIndex]++;
         }
         // Jet after top quark decay but not directly from top
-        else if(fromTopDecay) {
+        else if(afterTopDecay) {
             if(cJetAfterTopIds.count(jetIndex) < 1) cJetAfterTopIds[jetIndex] = 1;
             else cJetAfterTopIds[jetIndex]++;
         }
@@ -291,13 +293,15 @@ void matchGenHFHadrons::analyze(const edm::Event& event, const edm::EventSetup& 
     for(std::map<int, int>::iterator it = bJetAfterTopIds.begin(); it != bJetAfterTopIds.end(); ++it) {
         const int jetId = it->first;
         // Skipping the jet if it contains a b hadron directly from top quark decay
-        if(bJetAfterTopIds.count(jetId) > 0) continue;
+        if(bJetFromTopIds.count(jetId) > 0) continue;
         pseudoadditionalBJetIds.push_back(jetId);
     }
     // Finding additional c jets
     std::vector<int> additionalCJetIds;
     for(std::map<int, int>::iterator it = cJetBeforeTopIds.begin(); it != cJetBeforeTopIds.end(); ++it) {
         const int jetId = it->first;
+        // Skipping the jet if it contains a b hadron directly from top quark decay
+        if(bJetFromTopIds.count(jetId) > 0) continue;
         additionalCJetIds.push_back(jetId);
     }
     // Finding pseudo-additional c jets (after top decay)
@@ -305,7 +309,7 @@ void matchGenHFHadrons::analyze(const edm::Event& event, const edm::EventSetup& 
     for(std::map<int, int>::iterator it = cJetAfterTopIds.begin(); it != cJetAfterTopIds.end(); ++it) {
         const int jetId = it->first;
         // Skipping the jet if it contains a b hadron directly from top quark decay
-        if(cJetAfterTopIds.count(jetId) > 0) continue;
+        if(bJetFromTopIds.count(jetId) > 0) continue;
         pseudoadditionalCJetIds.push_back(jetId);
     }
     
@@ -329,7 +333,7 @@ void matchGenHFHadrons::analyze(const edm::Event& event, const edm::EventSetup& 
         // tt + 2 additional b jets one of which from >=2 overlapping additional b hadrons
         else if(std::min(nHadronsInJet1, nHadronsInJet2) == 1 && std::max(nHadronsInJet1, nHadronsInJet2) > 1) additionalJetEventId_ = 54;
         // tt + 2 additional b jets each from >=2 additional b hadrons
-        else if(std::max(nHadronsInJet1, nHadronsInJet2) == 1) additionalJetEventId_ = 55;
+        else if(std::min(nHadronsInJet1, nHadronsInJet2) > 1) additionalJetEventId_ = 55;
     }
     // tt + no additional b jets
     else if(additionalBJetIds.size() == 0) {
@@ -352,7 +356,7 @@ void matchGenHFHadrons::analyze(const edm::Event& event, const edm::EventSetup& 
             // tt + 2 additional c jets one of which from >=2 overlapping additional c hadrons
             else if(std::min(nHadronsInJet1, nHadronsInJet2) == 1 && std::max(nHadronsInJet1, nHadronsInJet2) > 1) additionalJetEventId_ = 44;
             // tt + 2 additional c jets each from >=2 additional c hadrons
-            else if(std::max(nHadronsInJet1, nHadronsInJet2) == 1) additionalJetEventId_ = 45;
+            else if(std::min(nHadronsInJet1, nHadronsInJet2) > 1) additionalJetEventId_ = 45;
         }
         // tt + no additional c jets
         else if(additionalCJetIds.size() == 0) {
