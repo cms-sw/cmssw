@@ -31,9 +31,9 @@ automatic = True;
 #go to parent directory = test directory
 os.chdir("..");
 #identify last run of the previous calibration
-if(firstRun<=0):
-	out = commands.getstatusoutput("ls /afs/cern.ch/cms/tracker/sistrvalidation/WWW/CalibrationValidation/ParticleGain/ | grep Run_ | tail -n 1");
-	firstRun = int(out[1].split('_')[3])+1
+#if(firstRun<=0):
+#	out = commands.getstatusoutput("ls /afs/cern.ch/cms/tracker/sistrvalidation/WWW/CalibrationValidation/ParticleGain/ | grep Run_ | tail -n 1");
+#	firstRun = int(out[1].split('_')[3])+1
 
 #Get List of CalibFiles:
 print("Get the list of calibTree from castor (cmsLs" + path + ")")
