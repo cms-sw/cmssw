@@ -32,6 +32,7 @@
 #include <TText.h>
 #include <TLegend.h>
 #include <TLegendEntry.h>
+#include <TLine.h>
 
 #include "MaterialAccountingGroup.h"
 #include "TrackingMaterialPlotter.h"
@@ -92,6 +93,7 @@ private:
   void fillColor();
   void fillMaterialDifferences();
   void fillGradient();
+  std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > > overlayEtaReferences();
   void produceAndSaveSummaryPlot(const edm::EventSetup &);
   bool m_saveSummaryPlot;
   std::vector<TH2F *> m_plots;
@@ -232,6 +234,64 @@ void ListGroups::fillColor(void)
   m_color.push_back(kCyan + 3);     // TOBLayer5_Z80
 }
 
+std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > >
+ListGroups::overlayEtaReferences() {
+  std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > > lines;
+
+  lines.reserve(40);
+  std::pair<float, float> deltaZ(293, 298);
+  std::pair<float, float> deltaR(115, 118);
+  float text_size = 0.033;
+
+  for (float eta = 0.; eta <= 3.8; eta += 0.2) {
+    std::cout << "CAZZO " << eta << std::endl;
+    float theta = 2. * atan (exp(-eta));
+    if (eta >= 1.8) {
+      lines.push_back(
+          std::make_pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > (
+              std::make_shared<TLine>(
+                  deltaZ.first, deltaZ.first * tan(theta), deltaZ.second, deltaZ.second * tan(theta)),
+              std::make_shared<TText>(
+                  deltaZ.first, deltaZ.first * tan(theta), str(boost::format("%2.1f") % eta).c_str())));
+      lines.back().second->SetTextFont(42);
+      lines.back().second->SetTextSize(text_size);
+      lines.back().second->SetTextAlign(33);
+      lines.push_back(
+          std::make_pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > (
+              std::make_shared<TLine>(
+                  -deltaZ.first, deltaZ.first * tan(theta), -deltaZ.second, deltaZ.second * tan(theta)),
+              std::make_shared<TText>(
+                  -deltaZ.first, deltaZ.first * tan(theta), str(boost::format("-%2.1f") % eta).c_str())));
+      lines.back().second->SetTextFont(42);
+      lines.back().second->SetTextSize(text_size);
+      lines.back().second->SetTextAlign(13);
+    } else {
+      lines.push_back(
+          std::make_pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > (
+              std::make_shared<TLine>(
+                  deltaR.first / tan(theta), deltaR.first, deltaR.second / tan(theta), deltaR.second),
+              std::make_shared<TText>(
+                  deltaR.first / tan(theta), deltaR.first, str(boost::format("%2.1f") % eta).c_str())));
+      lines.back().second->SetTextFont(42);
+      lines.back().second->SetTextSize(text_size);
+      lines.back().second->SetTextAlign(23);
+      if (eta != 0) {
+        lines.push_back(
+            std::make_pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > (
+                std::make_shared<TLine>(
+                    - deltaR.first / tan(theta), deltaR.first, - deltaR.second / tan(theta), deltaR.second),
+                std::make_shared<TText>(
+                    - deltaR.first / tan(theta), deltaR.first, str(boost::format("-%2.1f") % eta).c_str())));
+        lines.back().second->SetTextFont(42);
+        lines.back().second->SetTextSize(text_size);
+        lines.back().second->SetTextAlign(23);
+      }
+    }
+  }
+  return lines;
+}
+
+
 void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
   const double scale = 10.;
   std::vector<TText *> nukem_text;
@@ -297,12 +357,23 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
   radlen->SetMinimum(-100);
   radlen->SetMaximum(100);
   radlen->Draw("COLZ");
+  std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > > lines = overlayEtaReferences();
+  for (auto line : lines) {
+    line.first->SetLineWidth(5);
+    line.first->Draw();
+    line.second->Draw();
+  }
   canvas->SaveAs("RadLenChanges.png");
 
   canvas->Clear();
   intlen->SetMinimum(-100);
   intlen->SetMaximum(100);
   intlen->Draw("COLZ");
+  for (auto line : lines) {
+    line.first->SetLineWidth(5);
+    line.first->Draw();
+    line.second->Draw();
+  }
   canvas->SaveAs("EnergyLossChanges.png");
 
   for (auto g : nukem_text)
