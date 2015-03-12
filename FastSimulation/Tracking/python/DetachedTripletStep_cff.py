@@ -25,8 +25,6 @@ detachedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProdu
     MinNumberOfCrossedLayers = 3
     )
 
-
-
 # tracks 
 detachedTripletStepTracks = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTracks.clone(
     Fitter = 'KFFittingSmootherSecond',
@@ -35,15 +33,20 @@ detachedTripletStepTracks = RecoTracker.IterativeTracking.DetachedTripletStep_cf
 
 )
 
-# simtrack id producer
-detachedTripletStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
-                                  trackCollection = cms.InputTag("detachedTripletStepTracks"),
-                                  HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
-                                  )
-
 #final selection
 detachedTripletStepSelector = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSelector.clone()
 detachedTripletStep = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStep.clone() 
+
+# simtrack id producer
+import FastSimulation.Tracking.SimTrackIdProducer_cfi
+detachedTripletStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
+    #trajectries = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.trajectories,
+    trackCollection = cms.InputTag("detachedTripletStepTracks"),
+    #overrideTrakQuals = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.overrideTrkQuals,
+    TrackQuality = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.TrackQuality,
+    maxChi2 = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.maxChi2,
+    HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
+)
 
 # Final sequence 
 DetachedTripletStep = cms.Sequence(detachedTripletStepSeeds

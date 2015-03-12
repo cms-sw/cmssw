@@ -35,16 +35,17 @@ lowPtTripletStepTracks = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowP
     Propagator = 'PropagatorWithMaterial'
 )
 
-# vertices ?
-
-# simtrack id producer
-lowPtTripletStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
-                                             trackCollection = cms.InputTag("lowPtTripletStepTracks"),
-                                             HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
-                                         )
-
 # final selection
 lowPtTripletStepSelector = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSelector.clone()
+
+# simtrack id producer                                                                
+import FastSimulation.Tracking.SimTrackIdProducer_cfi
+lowPtTripletStepSimTrackIds=FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
+    trackCollection = cms.InputTag("lowPtTripletStepTracks"),
+    TrackQuality = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepClusters.TrackQuality,
+    maxChi2 = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepClusters.maxChi2,
+    HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
+)
 
 # Final swquence 
 LowPtTripletStep = cms.Sequence(lowPtTripletStepSeeds
