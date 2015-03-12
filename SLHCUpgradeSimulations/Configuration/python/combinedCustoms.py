@@ -178,7 +178,9 @@ def cust_2023SHCal(process):
         process.particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterEBEKMerger')
         process.pfClusteringECAL += process.particleFlowClusterECAL
         #process.particleFlowCluster += process.pfClusteringEK
-        
+
+        process.particleFlowSuperClusterECALMustache.usePUEtHardCut = cms.bool(True) 
+
         #clone photons to mustache photons so we can compare back to old reco
         process.mustachePhotonCore = process.photonCore.clone(scHybridBarrelProducer = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),scIslandEndcapProducer = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower"))
         process.mustachePhotons = process.photons.clone(photonCoreProducer = cms.InputTag('mustachePhotonCore'), endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEK"))        
