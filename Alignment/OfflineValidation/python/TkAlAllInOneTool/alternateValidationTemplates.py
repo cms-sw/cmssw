@@ -420,10 +420,11 @@ process.AliMomConstraint1.fixedMomentumError = 0.005
 #now we give the TrackCandidate coming out of the TrackerTrackHitFilter to the track producer
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff
 process.HitFilteredTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone(
-    src = 'TrackerTrackHitFilter'
+    src = 'TrackerTrackHitFilter',
+    NavigationSchool = "",
 ###    ,
 ###    TrajectoryInEvent = True,
-###    TTRHBuilder = "WithAngleAndTemplate"    
+    TTRHBuilder = "WithAngleAndTemplate"    
 )
 
  ##
@@ -441,14 +442,11 @@ process.TrackRefitter1 = process.TrackRefitterP5.clone(
    TrajectoryInEvent = True,
    TTRHBuilder = "WithAngleAndTemplate",
    NavigationSchool = "",
-   constraint = 'momentum', ### SPECIFIC FOR CRUZET
-   srcConstr='AliMomConstraint1' ### SPECIFIC FOR CRUZET$works only with tag V02-10-02 TrackingTools/PatternTools / or CMSSW >=31X
 )
 
 process.TrackRefitter2 = process.TrackRefitter1.clone(
     src = 'AlignmentTrackSelector',
     srcConstr='AliMomConstraint1',
-    constraint = 'momentum' ### SPECIFIC FOR CRUZET
 )
 
 
@@ -594,14 +592,11 @@ src = '.oO[TrackCollection]Oo.', #'AliMomConstraint1',
 TrajectoryInEvent = True,
 TTRHBuilder = "WithAngleAndTemplate",
 NavigationSchool = "",
-constraint = 'momentum', ### SPECIFIC FOR CRUZET
-srcConstr='AliMomConstraint1' ### SPECIFIC FOR CRUZET$works only with tag V02-10-02 TrackingTools/PatternTools / or CMSSW >=31X
 )
 
 process.TrackRefitter2 = process.TrackRefitter1.clone(
 src = 'AlignmentTrackSelector',
 srcConstr='AliMomConstraint1',
-constraint = 'momentum' ### SPECIFIC FOR CRUZET
 )
 
 
