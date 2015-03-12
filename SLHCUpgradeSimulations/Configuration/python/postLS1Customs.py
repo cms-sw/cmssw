@@ -339,6 +339,7 @@ def customise_L1Emulator(process):
 
 
 def customise_RawToDigi(process):
+    process.RawToDigi.remove(process.gtEvmDigis)
     return process
 
 
@@ -353,19 +354,20 @@ def customise_HLT(process):
 
 def customise_Reco(process):
     #lowering HO threshold with SiPM
-    for prod in process.particleFlowRecHitHO.producers:
-        prod.qualityTests = cms.VPSet(
-            cms.PSet(
-                name = cms.string("PFRecHitQTestThreshold"),
-                threshold = cms.double(0.05) # new threshold for SiPM HO
-            ),
-            cms.PSet(
-                name = cms.string("PFRecHitQTestHCALChannel"),
-                maxSeverities      = cms.vint32(11),
-                cleaningThresholds = cms.vdouble(0.0),
-                flags              = cms.vstring('Standard')
-            )
-        )
+    if hasattr(process,'particleFlowRecHitHO'):
+        for prod in process.particleFlowRecHitHO.producers:
+            prod.qualityTests = cms.VPSet(
+                cms.PSet(
+                    name = cms.string("PFRecHitQTestThreshold"),
+                    threshold = cms.double(0.05) # new threshold for SiPM HO
+                    ),
+                cms.PSet(
+                    name = cms.string("PFRecHitQTestHCALChannel"),
+                    maxSeverities      = cms.vint32(11),
+                    cleaningThresholds = cms.vdouble(0.0),
+                    flags              = cms.vstring('Standard')
+                    )
+                )
 
     return process
 
