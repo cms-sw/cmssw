@@ -90,14 +90,19 @@ def cust_2023HGCalPandora_common(process):
                 process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
                 process.ecalDrivenElectronSeeds.SeedConfiguration.endcapHCALClusters = cms.InputTag('particleFlowClusterHGCHEF')
                 process.ecalDrivenElectronSeeds.SeedConfiguration.hOverEMethodEndcap = cms.int32(3)
-                process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEEndcaps = cms.double(0.2) 
+                process.ecalDrivenElectronSeeds.SeedConfiguration.hOverEConeSizeEndcap = cms.double(0.087)
+                process.ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEEndcaps = cms.double(0.1) 
                 process.ecalDrivenElectronSeeds.SeedConfiguration.z2MinB = cms.double(-0.15)
                 process.ecalDrivenElectronSeeds.SeedConfiguration.z2MaxB = cms.double(0.15)
                 if hasattr(process,'ecalDrivenGsfElectrons'):
                     process.ecalDrivenGsfElectrons.hOverEMethodEndcap = cms.int32(3)
+                    process.ecalDrivenGsfElectrons.hOverEConeSizeEndcap = cms.double(0.087)
+                    process.ecalDrivenGsfElectrons.maxDeltaEtaEndcaps = cms.double(0.015)
                     process.ecalDrivenGsfElectrons.hcalEndcapClusters = cms.InputTag('particleFlowClusterHGCHEF')
                     if hasattr(process,'gsfElectrons'):
                         process.gsfElectrons.hOverEMethodEndcap = cms.int32(3)
+                        process.gsfElectrons.hOverEConeSizeEndcap = cms.double(0.087)
+                        process.gsfElectrons.maxDeltaEtaEndcaps = cms.double(0.015)
                         process.gsfElectrons.hcalEndcapClusters = cms.InputTag('particleFlowClusterHGCHEF')  
         # load pandora customization (note we have removed HGC clusters entirely from standard ParticleFlow
         # doing this)                
