@@ -12,7 +12,6 @@
 <use   name="FWCore/Version"/>
 <use   name="Utilities/StorageFactory"/>
 <use   name="boost"/>
-<use   name="rootcintex"/>
 <use   name="rootcore"/>
 <use   name="zlib"/>
 <export>

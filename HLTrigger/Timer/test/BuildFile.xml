@@ -3,7 +3,6 @@
   <use   name="DataFormats/HLTReco"/>
   <use   name="FWCore/FWLite"/>
   <use   name="FWCore/Framework"/>
-  <use   name="rootcintex"/>
   <use   name="root"/>
 </bin>
 
