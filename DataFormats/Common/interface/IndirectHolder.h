@@ -48,7 +48,6 @@ namespace edm {
 					  std::string& msg) const;
       virtual std::auto_ptr<RefHolderBase> holder() const;
       virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const;
-      virtual std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() const;
       virtual EDProductGetter const* productGetter() const;
 
       /// Checks if product collection is in memory or available
@@ -181,11 +180,6 @@ namespace edm {
       std::auto_ptr<RefVectorHolderBase> p = helper_->makeVectorHolder();
       std::shared_ptr<RefVectorHolderBase> sp( p.release() );
       return std::auto_ptr<BaseVectorHolder<T> >( new IndirectVectorHolder<T>( sp ) );
-    }
-
-    template <typename T>
-    std::auto_ptr<RefVectorHolderBase> IndirectHolder<T>::makeVectorBaseHolder() const {
-      return helper_->makeVectorHolder();
     }
   }
 }

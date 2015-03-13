@@ -30,29 +30,26 @@
 namespace edm {
   template <typename T> class PtrVector;
   namespace reftobase {
-    
+
     template <typename T, typename U>
     struct PtrHolderToVector {
       static  std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() {
         return std::auto_ptr<BaseVectorHolder<T> >(new VectorHolder<T, edm::PtrVector<U> >);
       }
-      static  std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
-        return std::auto_ptr<RefVectorHolderBase>(new RefVectorHolder<edm::PtrVector<U> >);
-      }
     };
-    
+
     template<typename T, typename U>
     struct HolderToVectorTrait<T, Ptr<U> > {
       typedef PtrHolderToVector<T, U > type;
     };
-    
+
     template <typename T>
     struct PtrRefHolderToRefVector {
       static std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
         return std::auto_ptr<RefVectorHolderBase>(new RefVectorHolder<edm::PtrVector<T> >);
       }
     };
-    
+
     template<typename T>
     struct RefHolderToRefVectorTrait<Ptr<T> > {
       typedef PtrRefHolderToRefVector<T> type;

@@ -58,7 +58,6 @@ namespace edm {
       virtual std::auto_ptr<RefHolderBase> holder() const = 0;
 
       virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const = 0;
-      virtual std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() const = 0;
 
       virtual EDProductGetter const* productGetter() const = 0;
 

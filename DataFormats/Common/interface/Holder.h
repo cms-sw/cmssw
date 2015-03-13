@@ -36,7 +36,6 @@ namespace edm {
 	return std::auto_ptr<RefHolderBase>( new RefHolder<REF>( ref_ ) );
       }
       virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const;
-      virtual std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() const;
       virtual EDProductGetter const* productGetter() const;
 
       /// Checks if product collection is in memory or available
@@ -176,13 +175,6 @@ namespace edm {
       typedef typename HolderToVectorTrait<T, REF>::type helper;
       return helper::makeVectorHolder();
     }
-
-    template <typename T, typename REF>
-    std::auto_ptr<RefVectorHolderBase> Holder<T,REF>::makeVectorBaseHolder() const {
-      typedef typename HolderToVectorTrait<T, REF>::type helper;
-      return helper::makeVectorBaseHolder();
-    }
-
   }
 }
 

@@ -19,14 +19,6 @@ namespace edm {
 	  "be thrown if a RefToBase was built from a RefProd<C>.");
         return std::auto_ptr<BaseVectorHolder<T> >();
       }
-      static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
-	Exception::throwThis(errors::InvalidReference,
-	  "InvalidHolderToVector: trying to use RefToBase built with "
-	  "an internal type. RefToBase should be built passing an "
-	  "object of type edm::Ref<C>. This exception should never "
-	  "be thrown if a RefToBase was built from a RefProd<C>.");
-        return std::auto_ptr<RefVectorHolderBase>();
-      }
     };
 
     template<typename T, typename REF>
@@ -38,13 +30,6 @@ namespace edm {
     template <typename REF>
     struct InvalidRefHolderToRefVector {
       static std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
-	Exception::throwThis(errors::InvalidReference,
-	  "InvalidRefHolderToRefVector: trying to use RefToBaseVector built with "
-	  "an internal type. RefToBase should be built passing an "
-	  "object of type edm::RefVector<C>");
-        return std::auto_ptr<RefVectorHolderBase>();
-      }
-      static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
 	Exception::throwThis(errors::InvalidReference,
 	  "InvalidRefHolderToRefVector: trying to use RefToBaseVector built with "
 	  "an internal type. RefToBase should be built passing an "
