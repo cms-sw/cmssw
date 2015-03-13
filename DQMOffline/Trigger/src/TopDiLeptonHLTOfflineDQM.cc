@@ -135,11 +135,11 @@ namespace HLTOfflineDQMTopDiLepton {
       unsigned int nDiElec=diElecPaths_.size();
 
       // invariant mass of opposite charge lepton pair (only filled for same flavor)
-      hists_["invMass_"     ] = store_.book1D("InvMass"     , "M(lep1, lep2)"           ,       80,   0.,     320.); //OK
+      hists_["invMass_"     ] = store_.book1D("InvMass"     , "M(lep1, lep2)"           ,       80,   0.,     320.); 
       // invariant mass of same charge lepton pair (only filled for same flavor)
-      hists_["invMassWC_"   ] = store_.book1D("InvMassWC"   , "M_{WC}(L1, L2)"          ,       80,   0.,     320.); //OK
+      hists_["invMassWC_"   ] = store_.book1D("InvMassWC"   , "M_{WC}(L1, L2)"          ,       80,   0.,     320.); 
       // decay channel [1]: muon/muon, [2]:elec/elec, [3]:elec/muon 
-      hists_["decayChannel_"] = store_.book1D("DecayChannel", "Decay Channel"           ,        3,    0,        3); //OK
+      hists_["decayChannel_"] = store_.book1D("DecayChannel", "Decay Channel"           ,        3,    0,        3); 
       // // trigger efficiency estimates for the electron muon channel
       // hists_["elecMuEff_"   ] = store_.book1D("ElecMuEff"   , "Eff(e/#mu paths)"        ,  nElecMu,   0.,  nElecMu);
       // monitored trigger occupancy for the electron muon channel
@@ -153,7 +153,7 @@ namespace HLTOfflineDQMTopDiLepton {
       // monitored trigger occupancy for the di electron channel
       hists_["diElecMon_"   ] = store_.book1D("DiElecMon"   , "Mon(e/e paths)"          ,  nDiElec,   0.,  nDiElec);
       // multiplicity of jets with pt>30 (corrected to L2+L3)
-      hists_["jetMult_"     ] = store_.book1D("JetMult"     , "N_{30}(jet)"             ,       21, -0.5,      20.5); //OK
+      hists_["jetMult_"     ] = store_.book1D("JetMult"     , "N_{30}(jet)"             ,       20, 0.,      20.); 
 
       // set bin labels for trigger monitoring
       triggerBinLabels(std::string("elecMu"), elecMuPaths_);
