@@ -1,6 +1,7 @@
 <lcgdict>
 <selection>
   <class pattern="ROOT::Math::PtEtaPhiE4D<*>" />
+  <class pattern="ROOT::Math::PtEtaPhiM4D<float>" />
   <class pattern="ROOT::Math::PxPyPzE4D<*>" />
   <class pattern="ROOT::Math::Cartesian3D<*>" />
   <class pattern="ROOT::Math::CylindricalEta3D<*>" />
