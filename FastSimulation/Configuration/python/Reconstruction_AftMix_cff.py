@@ -76,8 +76,13 @@ _firstStepPrimaryVertices = firstStepPrimaryVertices.clone(
 )
 
 # insert the few tracking modules to be run after mixing back in the globalreco sequence
-globalreco.insert(0,[trackExtrapolator,caloTowerForTrk,firstStepPrimaryVertices,ak4CaloJetsForTrk)
+#for _entry in reversed([trackExtrapolator,caloTowerForTrk,firstStepPrimaryVertices,ak4CaloJetsForTrk])
+globalreco.insert(0,trackExtrapolator+caloTowerForTrk+firstStepPrimaryVertices+ak4CaloJetsForTrk)
 
+# FastSim doesn't use Runge Kute for propagation
+# the following propagators are not used in FastSim, but just to be sure...
+KFFitterForRefitOutsideIn.Propagator = 'SmartPropagatorAny'
+KFSmootherForRefitOutsideIn.Propagator = 'SmartPropagator'
 ##########################################
 # FastSim changes to electron reconstruction
 ##########################################
@@ -121,6 +126,13 @@ egammaHighLevelRecoPrePF.remove(conversionSequence)
 ##########################################
 # FastSim changes to muon reconstruction
 ##########################################
+# FastSim has only the original muon digis (no DIG2RAW,RAW2DIGI)
+# => adapt the digi labels
+dt1DRecHits.dtDigiLabel = cms.InputTag("simMuonDTDigis")
+dt1DCosmicRecHits.dtDigiLabel =  cms.InputTag("simMuonDTDigis") # consider removing this module, since FastSim doesn't do the cosmic muon reconstruction
+rpcRecHits.rpcDigiLabel = cms.InputTag("simMuonRPCDigis")
+csc2DRecHits.wireDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
+csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
 
 # not commisoned and not relevant in FastSim (?):
 globalreco.remove(muoncosmicreco)
