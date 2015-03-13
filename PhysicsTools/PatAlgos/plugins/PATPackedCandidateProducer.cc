@@ -225,14 +225,17 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
 
     std::auto_ptr< std::vector<pat::PackedCandidate> > outPtrPSorted( new std::vector<pat::PackedCandidate> );
     std::vector<size_t> order=sort_indexes(*outPtrP);
+    std::vector<size_t> reverseOrder(order.size());
     for(size_t i=0,nc=cands->size();i<nc;i++) {
         outPtrPSorted->push_back((*outPtrP)[order[i]]);
+        reverseOrder[order[i]] = i;
         mappingReverse[order[i]]=i;
+        mappingPuppi[order[i]]=i;
     }
 
     // Fix track association for sorted candidates
     for(size_t i=0,ntk=mappingTk.size();i<ntk;i++){
-        mappingTk[i]=order[mappingTk[i]];
+        mappingTk[i]=reverseOrder[mappingTk[i]]; 
     }
 
     
