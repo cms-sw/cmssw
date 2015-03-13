@@ -230,7 +230,6 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
         outPtrPSorted->push_back((*outPtrP)[order[i]]);
         reverseOrder[order[i]] = i;
         mappingReverse[order[i]]=i;
-        mappingPuppi[order[i]]=i;
     }
 
     // Fix track association for sorted candidates
@@ -238,7 +237,10 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
         mappingTk[i]=reverseOrder[mappingTk[i]]; 
     }
 
-    
+    for(size_t i=0,ntk=mappingPuppi.size();i<ntk;i++){
+        mappingPuppi[i]=reverseOrder[mappingPuppi[i]];
+    }
+
     edm::OrphanHandle<pat::PackedCandidateCollection> oh = iEvent.put( outPtrPSorted );
 
     // now build the two maps
