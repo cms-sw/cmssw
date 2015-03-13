@@ -12,7 +12,7 @@
 #include "G4Track.hh"
 #include "G4Run.hh"
 #include "G4Event.hh"
-
+#include "G4SystemOfUnits.hh"
 
 RHStopTracer::RHStopTracer(edm::ParameterSet const & p) {
   edm::ParameterSet parameters = p.getParameter<edm::ParameterSet>("RHStopTracer");
@@ -49,9 +49,11 @@ void RHStopTracer::update (const BeginOfTrack * fTrack) {
   const G4Track* track = (*fTrack)();
   if ((track->GetMomentum().mag()> mTraceEnergy) || matched (track->GetDefinition()->GetParticleName())) {
     if (mDebug)
-    std::cout << "RHStopTracer::update-> new track: ID/Name/mass/Parent: " 
+    std::cout << "RHStopTracer::update-> new track: ID/Name/pdgId/mass/charge/Parent: " 
 	      << track->GetTrackID() << '/' << track->GetDefinition()->GetParticleName() << '/' 
-	      << track->GetDefinition()->GetPDGMass() << '/' << track->GetParentID()
+	      << track->GetDefinition()->GetPDGEncoding() << '/'
+	      << track->GetDefinition()->GetPDGMass()/GeV <<" GeV/" << track->GetDefinition()->GetPDGCharge() << '/'
+	      << track->GetParentID()
 	      << std::endl
 	      << " position X/Y/Z: " << track->GetPosition().x() << '/' 
 	      << track->GetPosition().y() << '/' <<  track->GetPosition().z()
@@ -70,9 +72,11 @@ void RHStopTracer::update (const EndOfTrack * fTrack) {
   const G4Track* track = (*fTrack)();
   if ((track->GetMomentum().mag()> mTraceEnergy) || matched (track->GetDefinition()->GetParticleName())) {
     if (mDebug)
-    std::cout << "RHStopTracer::update-> stop track: ID/Name/mass/Parent: " 
+    std::cout << "RHStopTracer::update-> stop track: ID/Name/pdgId/mass/charge/Parent: " 
 	      << track->GetTrackID() << '/' << track->GetDefinition()->GetParticleName() << '/' 
-	      << track->GetDefinition()->GetPDGMass() << '/' << track->GetParentID()
+	      << track->GetDefinition()->GetPDGEncoding() << '/'
+	      << track->GetDefinition()->GetPDGMass()/GeV <<" GeV/" << track->GetDefinition()->GetPDGCharge() << '/'
+	      << track->GetParentID()
 	      << std::endl
 	      << " position X/Y/Z: " << track->GetPosition().x() << '/' 
 	      << track->GetPosition().y() << '/' <<  track->GetPosition().z()
