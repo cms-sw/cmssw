@@ -27,7 +27,7 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 
-#include "RecoHI/HiJetAlgos/interface/VoronoiAlgorithm.h"
+#include "VoronoiAlgorithm.h"
 
 using namespace std;
 //
