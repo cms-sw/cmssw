@@ -12,9 +12,12 @@ ALCARECOMuAlOverlapsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clo
 # "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC"
 # "DT0","DTp","DTm","CSCp","CSCm","CASTOR","TIBTID","TOB","TECp","TECm"
 # "BPIX","FPIX","ESp","ESm"
+
+
 import DPGAnalysis.Skims.skim_detstatus_cfi
 ALCARECOMuAlOverlapsDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clone(
     DetectorType = cms.vstring('CSCp','CSCm'),
+    AndOr = cms.bool(False),
     ApplyFilter  = cms.bool(True),
     AndOr        = cms.bool(False),
     DebugOn      = cms.untracked.bool(False)
@@ -30,6 +33,8 @@ ALCARECOMuAlOverlaps = cms.EDFilter("AlignmentCSCOverlapSelectorModule",
 import Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi
 ALCARECOMuAlOverlapsMuonSelector = Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi.AlignmentMuonSelector.clone(
     ptMin = 3.
+    etaMin = -2.6,
+    etaMax = 2.6,
     )
 
 seqALCARECOMuAlOverlaps = cms.Sequence(ALCARECOMuAlOverlapsHLT+ALCARECOMuAlOverlapsDCSFilter+ALCARECOMuAlOverlapsMuonSelector*ALCARECOMuAlOverlaps)
