@@ -25,7 +25,8 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     #hOverEMethod = cms.int32(0),  # 0 = cone #1 = single tower #2 = towersBehindCluster (max is 4)
     hOverEMethodBarrel = cms.int32(0),  # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = clusters (max is 4)
     hOverEMethodEndcap = cms.int32(1),  # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = clusters (max is 4)
-    hOverEConeSize = cms.double(0.15),
+    hOverEConeSizeBarrel = cms.double(0.15),
+    hOverEConeSizeEndcap = cms.double(0.15),
     #maxHOverE = cms.double(0.1),
     maxHOverEBarrel = cms.double(0.15),
     maxHOverEEndcaps = cms.double(0.1), 

@@ -76,7 +76,7 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   if (applyHOverECut_)
    {
     ElectronHcalHelper::Configuration hcalCfgBarrel ;
-    hcalCfgBarrel.hOverEConeSize = conf_.getParameter<double>("hOverEConeSize") ;
+    hcalCfgBarrel.hOverEConeSize = conf_.getParameter<double>("hOverEConeSizeBarrel") ;
     //hcalCfg.hOverEMethod = conf_.getParameter<int>("hOverEMethod") ;
     hcalCfgBarrel.hOverEMethod = conf_.getParameter<int>("hOverEMethodBarrel") ;
     if (hcalCfgBarrel.hOverEConeSize>0)
@@ -93,7 +93,7 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
     hcalHelperBarrel_ = new ElectronHcalHelper(hcalCfgBarrel) ;
 
     ElectronHcalHelper::Configuration hcalCfgEndcap ;
-    hcalCfgEndcap.hOverEConeSize = conf_.getParameter<double>("hOverEConeSize") ;
+    hcalCfgEndcap.hOverEConeSize = conf_.getParameter<double>("hOverEConeSizeEndcap") ;
     //hcalCfg.hOverEMethod = conf_.getParameter<int>("hOverEMethod") ;
     hcalCfgEndcap.hOverEMethod = conf_.getParameter<int>("hOverEMethodEndcap") ;
     if (hcalCfgEndcap.hOverEConeSize>0)
