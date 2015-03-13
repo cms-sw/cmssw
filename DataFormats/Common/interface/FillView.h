@@ -9,16 +9,17 @@ Standard Library containers.
 
 ----------------------------------------------------------------------*/
 
-#include <string>
 #include <vector>
 #include <list>
 #include <deque>
 #include <set>
 #include "DataFormats/Common/interface/GetProduct.h"
 #include "DataFormats/Common/interface/FillViewHelperVector.h"
-#include "DataFormats/Common/interface/EDProductfwd.h"
 
 namespace edm {
+
+  class ProductID;
+
   namespace detail {
 #ifndef __GCCXML__
 
