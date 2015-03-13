@@ -47,7 +47,7 @@
 //
 // constructors and destructor
 //
-TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps, const GlobalTags * gt) : 
+TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps, const GlobalInputTags * gt) : 
   pn_(ps.getParameter<std::string>("processName")),
   filterTagsEvent_(pn_!="*"),
   filterTagsStream_(pn_!="*"),
@@ -544,20 +544,20 @@ void TriggerSummaryProducerAOD::endStream() {
   return;
 }
 
-void TriggerSummaryProducerAOD::globalEndJob(const GlobalTags * globalTags) {
+void TriggerSummaryProducerAOD::globalEndJob(const GlobalInputTags * globalInputTags) {
 
   using namespace std;
   using namespace edm;
   using namespace trigger;
 
   LogVerbatim("TriggerSummaryProducerAOD") << endl;
-  LogVerbatim("TriggerSummaryProducerAOD") << "TriggerSummaryProducerAOD::endJob - accumulated tags:" << endl;
+  LogVerbatim("TriggerSummaryProducerAOD") << "TriggerSummaryProducerAOD::globalEndJob - accumulated tags:" << endl;
 
   InputTagSet filterTags(false);
   InputTagSet collectionTags(false);
 
-  filterTags.insert(globalTags->filterTagsGlobal_.begin(),globalTags->filterTagsGlobal_.end());
-  collectionTags.insert(globalTags->collectionTagsGlobal_.begin(),globalTags->collectionTagsGlobal_.end());
+  filterTags.insert(globalInputTags->filterTagsGlobal_.begin(),globalInputTags->filterTagsGlobal_.end());
+  collectionTags.insert(globalInputTags->collectionTagsGlobal_.begin(),globalInputTags->collectionTagsGlobal_.end());
 
   const unsigned int nc(collectionTags.size());
   const unsigned int nf(filterTags.size());

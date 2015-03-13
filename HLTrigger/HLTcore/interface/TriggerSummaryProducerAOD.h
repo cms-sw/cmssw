@@ -68,29 +68,29 @@ namespace edm {
 struct InputTagHash {
   std::size_t operator()(const edm::InputTag& inputTag) const {
     std::hash<std::string> Hash;
-    return Hash(inputTag.encode());
+    // bit-wise xor
+    return Hash(inputTag.label()) ^ Hash(inputTag.instance()) ^ Hash(inputTag.process());
   }
 };
-
-struct GlobalTags {
-  GlobalTags(): filterTagsGlobal_(),collectionTagsGlobal_(){ }
+struct GlobalInputTags {
+  GlobalInputTags(): filterTagsGlobal_(),collectionTagsGlobal_(){ }
   mutable tbb::concurrent_unordered_set<edm::InputTag,InputTagHash> filterTagsGlobal_;
   mutable tbb::concurrent_unordered_set<edm::InputTag,InputTagHash> collectionTagsGlobal_;
 };
  
-class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCache<GlobalTags>> {
+class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCache<GlobalInputTags>> {
   
  public:
-  explicit TriggerSummaryProducerAOD(const edm::ParameterSet&, const GlobalTags *);
+  explicit TriggerSummaryProducerAOD(const edm::ParameterSet&, const GlobalInputTags *);
   ~TriggerSummaryProducerAOD();
   static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endStream() override;
-  static  void globalEndJob(const GlobalTags *);
+  static  void globalEndJob(const GlobalInputTags *);
 
   // additional
-  static std::unique_ptr<GlobalTags> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::unique_ptr<GlobalTags> (new GlobalTags());
+  static std::unique_ptr<GlobalInputTags> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::unique_ptr<GlobalInputTags> (new GlobalInputTags());
   };
 
   template <typename C>
