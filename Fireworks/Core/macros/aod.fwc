@@ -120,7 +120,7 @@
      <string>15</string>
    </config>
    <config name="purpose" version="0">
-     <string>PFECal</string>
+     <string>CaloTowerPfCandEcal</string>
    </config>
    <config name="transparency" version="0">
      <string>0</string>
@@ -154,7 +154,7 @@
      <string>16</string>
    </config>
    <config name="purpose" version="0">
-     <string>PFHCal</string>
+     <string>CaloTowerPfCandHcal</string>
    </config>
    <config name="transparency" version="0">
      <string>0</string>
