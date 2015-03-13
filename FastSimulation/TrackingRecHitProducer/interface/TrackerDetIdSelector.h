@@ -45,10 +45,6 @@ class TrackerDetIdSelector
                 std::cout << "int: "<<i << std::endl;
             };
 
-            auto printChar = [] (const char& c, qi::unused_type, qi::unused_type)
-            {
-                std::cout << "char: "<<c << std::endl;
-            };
             auto printStr = [] (const std::string& str, qi::unused_type, qi::unused_type)
             {
                 std::cout << "string: "<<str << std::endl;
@@ -57,23 +53,26 @@ class TrackerDetIdSelector
             std::string::const_iterator begin = selectionStr.cbegin();
             std::string::const_iterator end = selectionStr.cend();
             qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
-                identifier = qi::lexeme[+(qi::char_[printChar])[qi::_val += qi::_1]];
-            qi::rule<std::string::const_iterator, ascii::space_type>
+                identifier = qi::lexeme[+qi::alpha[qi::_val += qi::_1]];
+            qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
                 op =
-                    qi::lit(">") |
+                    qi::lit(">")[qi::_val="gt"] |
                     qi::lit("<") |
                     qi::lit(">=") |
                     qi::lit("<=") |
                     qi::lit("==") |
                     qi::lit("&") |
-                    qi::lit("|"),
+                    qi::lit("|");
+            qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
+                expression =
+                    identifier[printStr] | qi::int_[printInt];
+            qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
+                selector =
+                    expression >> op[printStr] >> expression;
 
-                expression = identifier[printStr] | qi::int_[printInt],
-                selector = expression >> op >> expression;
 
 
-
-            bool success = qi::phrase_parse(begin,end, expression, ascii::space);
+            bool success = qi::phrase_parse(begin,end, selector, ascii::space);
             if (begin!=end)
             {
                 std::cout<<"not a complete match"<<std::endl;
