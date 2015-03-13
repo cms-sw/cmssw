@@ -40,21 +40,40 @@ class TrackerDetIdSelector
             namespace ascii = boost::spirit::ascii;
             namespace phoenix = boost::phoenix;
 
-            auto print = [] (const int& i, qi::unused_type, qi::unused_type)
+            auto printInt = [] (const int& i, qi::unused_type, qi::unused_type)
             {
-                std::cout << "int1: "<<i << std::endl;
+                std::cout << "int: "<<i << std::endl;
             };
-            auto print2 = [] (const int& i, qi::unused_type, qi::unused_type)
+
+            auto printChar = [] (const char& c, qi::unused_type, qi::unused_type)
             {
-                std::cout << "int2 "<< i << std::endl;
+                std::cout << "char: "<<c << std::endl;
+            };
+            auto printStr = [] (const std::string& str, qi::unused_type, qi::unused_type)
+            {
+                std::cout << "string: "<<str << std::endl;
             };
 
             std::string::const_iterator begin = selectionStr.cbegin();
             std::string::const_iterator end = selectionStr.cend();
             qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
-                grammar = qi::int_[print] >> *(',' >> qi::int_[print2]);
+                identifier = qi::lexeme[+(qi::char_[printChar])[qi::_val += qi::_1]];
+            qi::rule<std::string::const_iterator, ascii::space_type>
+                op =
+                    qi::lit(">") |
+                    qi::lit("<") |
+                    qi::lit(">=") |
+                    qi::lit("<=") |
+                    qi::lit("==") |
+                    qi::lit("&") |
+                    qi::lit("|"),
 
-            bool success = qi::phrase_parse(begin,end, grammar, ascii::space);
+                expression = identifier[printStr] | qi::int_[printInt],
+                selector = expression >> op >> expression;
+
+
+
+            bool success = qi::phrase_parse(begin,end, expression, ascii::space);
             if (begin!=end)
             {
                 std::cout<<"not a complete match"<<std::endl;
