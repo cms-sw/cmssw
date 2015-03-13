@@ -8,6 +8,7 @@ from PhysicsTools.PatAlgos.slimming.genParticles_cff import *
 from PhysicsTools.PatAlgos.slimming.selectedPatTrigger_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi   import *
+from PhysicsTools.PatAlgos.slimming.slimmedGenJetsNoNu_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedMuons_cfi     import *
 from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi   import *
@@ -62,7 +63,7 @@ MicroEventContentMC = cms.PSet(
     outputCommands = cms.untracked.vstring(MicroEventContent.outputCommands)
 )
 MicroEventContentMC.outputCommands += [
-        'keep *_slimmedGenJets_*_*',
+        'keep *_slimmedGenJetsNoNu_*_*',
         'keep patPackedGenParticles_packedGenParticles_*_*',
         'keep recoGenParticles_prunedGenParticles_*_*',
         'keep LHEEventProduct_*_*_*',

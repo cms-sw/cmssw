@@ -48,7 +48,7 @@ class JetAnalyzer( Analyzer ):
     def declareHandles(self):
         super(JetAnalyzer, self).declareHandles()
         self.handles['jets']   = AutoHandle( self.cfg_ana.jetCol, 'std::vector<pat::Jet>' )
-        self.handles['genJet'] = AutoHandle( 'slimmedGenJets', 'vector<reco::GenJet>' )
+        self.handles['genJet'] = AutoHandle( 'slimmedGenJetsNoNu', 'vector<reco::GenJet>' )
         self.shiftJER = self.cfg_ana.shiftJER if hasattr(self.cfg_ana, 'shiftJER') else 0
         self.handles['rho'] = AutoHandle( ('fixedGridRhoFastjetAll','',''), 'double' )
     
