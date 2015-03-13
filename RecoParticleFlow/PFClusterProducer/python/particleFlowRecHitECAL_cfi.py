@@ -25,7 +25,7 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
                   cleaningThreshold = cms.double(2.0),
                   timingCleaning = cms.bool(True),
                   topologicalCleaning = cms.bool(True),
-                  skipTTRecoveredHits = cms.bool(False)
+                  skipTTRecoveredHits = cms.bool(True)
                   )
              )
            ),
@@ -42,7 +42,7 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
                  cleaningThreshold = cms.double(2.0),
                  timingCleaning = cms.bool(True),
                  topologicalCleaning = cms.bool(True),
-                 skipTTRecoveredHits = cms.bool(False)
+                 skipTTRecoveredHits = cms.bool(True)
                  )
             )
           )
