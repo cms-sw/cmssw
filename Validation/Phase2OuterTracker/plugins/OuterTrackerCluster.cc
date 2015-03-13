@@ -51,10 +51,10 @@
 //
 OuterTrackerCluster::OuterTrackerCluster(const edm::ParameterSet& iConfig)
 : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig)
-
 {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
-  
+  tagTTClusters_ = conf_.getParameter< edm::InputTag >("TTClusters");
+  tagTTClusterMCTruth_ = conf_.getParameter< edm::InputTag >("TTClusterMCTruth");
 }
 
 
@@ -89,11 +89,11 @@ OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   theStackedGeometry = StackedGeometryHandle.product(); /// Note this is different from the "global" geometry
   
   /// Track Trigger
-  edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterHandle;	// same for stubs
-  iEvent.getByLabel( "TTClustersFromPixelDigis", "ClusterInclusive", PixelDigiTTClusterHandle );
+  edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterHandle;
+  iEvent.getByLabel( tagTTClusters_, PixelDigiTTClusterHandle );
   /// Track Trigger MC Truth
   edm::Handle< TTClusterAssociationMap< Ref_PixelDigi_ > > MCTruthTTClusterHandle;
-  iEvent.getByLabel( "TTClusterAssociatorFromPixelDigis", "ClusterInclusive", MCTruthTTClusterHandle );
+  iEvent.getByLabel( tagTTClusterMCTruth_, MCTruthTTClusterHandle );
   	
   /// Loop over the input Clusters
   typename edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::const_iterator inputIter;

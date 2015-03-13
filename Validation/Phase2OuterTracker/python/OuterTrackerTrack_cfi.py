@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 OuterTrackerTrack = cms.EDAnalyzer('OuterTrackerTrack',
     
     TopFolderName = cms.string('Phase2OuterTrackerV'),
+    TTTracks       = cms.InputTag("TTTracksFromPixelDigis", "Level1TTTracks"),
+    TTTrackMCTruth = cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"),
+    
     
 # Number of Stubs in Track
     TH1TTTrack_NStubs = cms.PSet(

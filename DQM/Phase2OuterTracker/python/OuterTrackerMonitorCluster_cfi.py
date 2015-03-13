@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 OuterTrackerMonitorCluster = cms.EDAnalyzer('OuterTrackerMonitorCluster',
     
     TopFolderName = cms.string('Phase2OuterTracker'),
+    TTClusters       = cms.InputTag("TTClustersFromPixelDigis", "ClusterInclusive"),
+
 
 # Number of clusters per layer
     TH1TTCluster_Stack = cms.PSet(

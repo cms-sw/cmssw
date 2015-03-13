@@ -80,6 +80,8 @@ public:
  private:
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
+  edm::InputTag tagTTTracks_;
+  edm::InputTag tagTTTrackMCTruth_;
 
   std::string topFolderName_;
   

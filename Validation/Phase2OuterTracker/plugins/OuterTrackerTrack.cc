@@ -57,6 +57,8 @@ OuterTrackerTrack::OuterTrackerTrack(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
+  tagTTTracks_ = conf_.getParameter< edm::InputTag >("TTTracks");
+  tagTTTrackMCTruth_ = conf_.getParameter< edm::InputTag >("TTTrackMCTruth");
 }
 
 
@@ -79,19 +81,15 @@ OuterTrackerTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 {
   /// Track Trigger
   edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > >            PixelDigiTTTrackHandle;
-  //iEvent.getByLabel( tagTTTracks, PixelDigiTTTrackHandle );		//initialise tags from cfg file in constructor
-  iEvent.getByLabel( "TTTracksFromPixelDigis", "Level1TTTracks",PixelDigiTTTrackHandle );
+  iEvent.getByLabel( tagTTTracks_, PixelDigiTTTrackHandle );
+  //iEvent.getByLabel( "TTTracksFromPixelDigis", "Level1TTTracks",PixelDigiTTTrackHandle );
   
   /// Track Trigger MC Truth
   edm::Handle< TTClusterAssociationMap< Ref_PixelDigi_ > > MCTruthTTClusterHandle;
   edm::Handle< TTStubAssociationMap< Ref_PixelDigi_ > >    MCTruthTTStubHandle;
   edm::Handle< TTTrackAssociationMap< Ref_PixelDigi_ > >   MCTruthTTTrackHandle;
-  //iEvent.getByLabel( tagTTClusterMCTruth, MCTruthTTClusterHandle );
-  iEvent.getByLabel( "TTClusterAssociatorFromPixelDigis", "ClusterInclusive", MCTruthTTClusterHandle );
-  //iEvent.getByLabel( tagTTStubMCTruth, MCTruthTTStubHandle );
-  iEvent.getByLabel( "TTStubAssociatorFromPixelDigis", "StubAccepted",        MCTruthTTStubHandle );
-  //iEvent.getByLabel( tagTTTrackMCTruth, MCTruthTTTrackHandle );
-  iEvent.getByLabel( "TTTrackAssociatorFromPixelDigis", "Level1TTTracks", MCTruthTTTrackHandle );
+  iEvent.getByLabel( tagTTTrackMCTruth_, MCTruthTTTrackHandle );
+  //iEvent.getByLabel( "TTTrackAssociatorFromPixelDigis", "Level1TTTracks", MCTruthTTTrackHandle );
 	
 	
   /// TrackingParticles

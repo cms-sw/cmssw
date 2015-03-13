@@ -52,6 +52,7 @@ OuterTrackerMonitorL1Track::OuterTrackerMonitorL1Track(const edm::ParameterSet& 
 : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig)
 {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
+  tagTTTracks_ = conf_.getParameter< edm::InputTag >("TTTracks");
 }
 
 OuterTrackerMonitorL1Track::~OuterTrackerMonitorL1Track()
@@ -71,7 +72,7 @@ void OuterTrackerMonitorL1Track::analyze(const edm::Event& iEvent, const edm::Ev
   
   /// Track Trigger Tracks
   edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > > PixelDigiTTTrackHandle;
-  iEvent.getByLabel( "TTTracksFromPixelDigis", "Level1TTTracks",PixelDigiTTTrackHandle );
+  iEvent.getByLabel( tagTTTracks_, PixelDigiTTTrackHandle );
    
 
  
