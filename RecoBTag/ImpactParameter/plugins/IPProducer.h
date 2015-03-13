@@ -53,9 +53,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class HistogramProbabilityEstimator;
-using namespace std;
-using namespace reco;
-using namespace edm;
 using boost::bind;
 
 namespace IPProducerHelpers {
@@ -68,20 +65,20 @@ namespace IPProducerHelpers {
 			      return it.tracks();
 		      }
 		      std::vector<reco::JTATagInfo>  makeBaseVector(const edm::Event& iEvent){
-			      edm::Handle<JetTracksAssociationCollection> jetTracksAssociation;
+			      edm::Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
 			      iEvent.getByToken(token_associator, jetTracksAssociation);
 			      std::vector<reco::JTATagInfo> bases;
 			      size_t i = 0;
-			      for(JetTracksAssociationCollection::const_iterator it =
+			      for(reco::JetTracksAssociationCollection::const_iterator it =
 					      jetTracksAssociation->begin();
 					      it != jetTracksAssociation->end(); it++, i++) {
-				      Ref<JetTracksAssociationCollection> jtaRef(jetTracksAssociation, i);
+				      edm::Ref<reco::JetTracksAssociationCollection> jtaRef(jetTracksAssociation, i);
 				      bases.push_back(reco::JTATagInfo(jtaRef));
 			      }
 			      return bases;
 		      }
 
-		      edm::EDGetTokenT<JetTracksAssociationCollection> token_associator;
+		      edm::EDGetTokenT<reco::JetTracksAssociationCollection> token_associator;
       };
       class FromJetAndCands{
               public:
@@ -238,7 +235,7 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
      checkEventSetup(iSetup);
  
    
-   Handle<reco::VertexCollection> primaryVertex;
+   edm::Handle<reco::VertexCollection> primaryVertex;
    iEvent.getByToken(token_primaryVertex, primaryVertex);
 
    edm::ESHandle<TransientTrackBuilder> builder;
@@ -246,30 +243,30 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
    // m_algo.setTransientTrackBuilder(builder.product());
 
    // output collections 
-   auto_ptr<Product> result(new Product);
+   std::auto_ptr<Product> result(new Product);
 
-   auto_ptr<reco::TrackCollection> ghostTracks;
-   TrackRefProd ghostTrackRefProd;
+   std::auto_ptr<reco::TrackCollection> ghostTracks;
+   reco::TrackRefProd ghostTrackRefProd;
    if (m_computeGhostTrack) {
      ghostTracks.reset(new reco::TrackCollection);
-     ghostTrackRefProd = iEvent.getRefBeforePut<TrackCollection>("ghostTracks");
+     ghostTrackRefProd = iEvent.getRefBeforePut<reco::TrackCollection>("ghostTracks");
    }
 
    // use first pv of the collection
-   Vertex dummy;
-   const Vertex *pv = &dummy;
-   edm::Ref<VertexCollection> pvRef;
+   reco::Vertex dummy;
+   const reco::Vertex *pv = &dummy;
+   edm::Ref<reco::VertexCollection> pvRef;
    if (primaryVertex->size() != 0) {
      pv = &*primaryVertex->begin();
      // we always use the first vertex (at the moment)
-     pvRef = edm::Ref<VertexCollection>(primaryVertex, 0);
+     pvRef = edm::Ref<reco::VertexCollection>(primaryVertex, 0);
    } else { // create a dummy PV
-     Vertex::Error e;
+     reco::Vertex::Error e;
      e(0, 0) = 0.0015 * 0.0015;
      e(1, 1) = 0.0015 * 0.0015;
      e(2, 2) = 15. * 15.;
-     Vertex::Point p(0, 0, 0);
-     dummy = Vertex(p, e, 0, 0, 0);
+     reco::Vertex::Point p(0, 0, 0);
+     dummy = reco::Vertex(p, e, 0, 0, 0);
    }
 
    std::vector<Base> baseTagInfos = m_helper.makeBaseVector(iEvent);
@@ -286,12 +283,12 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
      }
 
      Container selectedTracks;
-     vector<TransientTrack> transientTracks;
+     std::vector<reco::TransientTrack> transientTracks;
 
      for(typename Container::const_iterator itTrack = tracks.begin();
          itTrack != tracks.end(); ++itTrack) {
-       TransientTrack transientTrack = builder->build(*itTrack);
-       const Track & track = transientTrack.track(); //**itTrack;
+       reco::TransientTrack transientTrack = builder->build(*itTrack);
+       const reco::Track & track = transientTrack.track(); //**itTrack;
  /*    cout << " pt " <<  track.pt() <<
                " d0 " <<  fabs(track.d0()) <<
                " #hit " <<    track.hitPattern().numberOfValidHits()<<
@@ -313,13 +310,13 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
 //	std::cout <<"SIZE: " << transientTracks.size() << std::endl;
      GlobalVector direction(jetMomentum.x(), jetMomentum.y(), jetMomentum.z());
 
-     auto_ptr<GhostTrack> ghostTrack;
-     TrackRef ghostTrackRef;
+     std::auto_ptr<reco::GhostTrack> ghostTrack;
+     reco::TrackRef ghostTrackRef;
      if (m_computeGhostTrack) {
-       GhostTrackFitter fitter;
+       reco::GhostTrackFitter fitter;
        GlobalPoint origin = RecoVertex::convertPos(pv->position());
        GlobalError error = RecoVertex::convertError(pv->error());
-       ghostTrack.reset(new GhostTrack(fitter.fit(origin, error, direction,
+       ghostTrack.reset(new reco::GhostTrack(fitter.fit(origin, error, direction,
                                                   m_ghostTrackPriorDeltaR,
                                                   transientTracks)));
 
@@ -339,13 +336,13 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
 		}
 	}
 */
-       ghostTrackRef = TrackRef(ghostTrackRefProd, ghostTracks->size());
+       ghostTrackRef = reco::TrackRef(ghostTrackRefProd, ghostTracks->size());
        ghostTracks->push_back(*ghostTrack);
 
        if (m_directionWithGhostTrack) { 
-         const GhostTrackPrediction &pred = ghostTrack->prediction();
+         const reco::GhostTrackPrediction &pred = ghostTrack->prediction();
          double lambda = pred.lambda(origin);
-         dummy = Vertex(RecoVertex::convertPos(pred.position(lambda)),
+         dummy = reco::Vertex(RecoVertex::convertPos(pred.position(lambda)),
                         RecoVertex::convertError(pred.positionError(lambda)),
                         0, 0, 0);
          pv = &dummy;
@@ -353,12 +350,12 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
        }
      }
 
-     vector<float> prob2D, prob3D;
-     vector<reco::btag::TrackIPData> ipData;
+     std::vector<float> prob2D, prob3D;
+     std::vector<reco::btag::TrackIPData> ipData;
 
      for(unsigned int ind = 0; ind < transientTracks.size(); ind++) {
-       const TransientTrack &transientTrack = transientTracks[ind];
-       const Track & track = transientTrack.track();
+       const reco::TransientTrack &transientTrack = transientTracks[ind];
+       const reco::Track & track = transientTrack.track();
 
        reco::btag::TrackIPData trackIP;
        trackIP.ip3d = IPTools::signedImpactParameter3D(transientTrack, direction, *pv).second;
@@ -375,16 +372,16 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
        trackIP.distanceToJetAxis = IPTools::jetTrackDistance(transientTrack, direction, *pv).second;
 
        if (ghostTrack.get()) {
-         const std::vector<GhostTrackState> &states = ghostTrack->states();
-         std::vector<GhostTrackState>::const_iterator pos =
+         const std::vector<reco::GhostTrackState> &states = ghostTrack->states();
+         std::vector<reco::GhostTrackState>::const_iterator pos =
                 std::find_if(states.begin(), states.end(),
-                             bind(equal_to<TransientTrack>(),
-                                  bind(&GhostTrackState::track, _1),
+                             bind(std::equal_to<reco::TransientTrack>(),
+                                  bind(&reco::GhostTrackState::track, _1),
                                   transientTrack));
 
          if (pos != states.end() && pos->isValid()) {
            VertexDistance3D dist;
-           const GhostTrackPrediction &pred = ghostTrack->prediction();
+           const reco::GhostTrackPrediction &pred = ghostTrack->prediction();
            GlobalPoint p1 = pos->tsos().globalPosition();
            GlobalError e1 = pos->tsos().cartesianError().position();
            GlobalPoint p2 = pred.position(pos->lambda());
@@ -406,7 +403,7 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
 
        if (m_computeProbabilities) {
          //probability with 3D ip
-         pair<bool,double> probability = m_probabilityEstimator->probability(m_useTrackQuality, 0,ipData.back().ip3d.significance(),track,*(it->jet()),*pv);
+         std::pair<bool,double> probability = m_probabilityEstimator->probability(m_useTrackQuality, 0,ipData.back().ip3d.significance(),track,*(it->jet()),*pv);
          prob3D.push_back(probability.first ? probability.second : -1.);
 
          //probability with 2D ip
@@ -432,7 +429,7 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
-template <class Container, class Base, class Helper> void IPProducer<Container,Base,Helper>::checkEventSetup(const EventSetup & iSetup)
+template <class Container, class Base, class Helper> void IPProducer<Container,Base,Helper>::checkEventSetup(const edm::EventSetup & iSetup)
  {
   using namespace edm;
   using namespace edm::eventsetup;
@@ -445,9 +442,9 @@ template <class Container, class Base, class Helper> void IPProducer<Container,B
    if(cacheId2D!=m_calibrationCacheId2D || cacheId3D!=m_calibrationCacheId3D  )  //Calibration changed
    {
      //iSetup.get<BTagTrackProbabilityRcd>().get(calib);
-     ESHandle<TrackProbabilityCalibration> calib2DHandle;
+     edm::ESHandle<TrackProbabilityCalibration> calib2DHandle;
      iSetup.get<BTagTrackProbability2DRcd>().get(calib2DHandle);
-     ESHandle<TrackProbabilityCalibration> calib3DHandle;
+     edm::ESHandle<TrackProbabilityCalibration> calib3DHandle;
      iSetup.get<BTagTrackProbability3DRcd>().get(calib3DHandle);
 
      const TrackProbabilityCalibration *  ca2D= calib2DHandle.product();
