@@ -55,8 +55,8 @@ class PFECALSuperClusterAlgo {
   public:
     CalibratedPFCluster(const edm::Ptr<reco::PFCluster>& p) : cluptr(p) {}
     
-    double energy() const { return cluptr->correctedEnergy(); }
-    double energy_nocalib() const { return cluptr->energy(); }
+    double energy() const { return ( cluptr->layer() == PFLayer::HGC_ECAL ? cluptr->emEnergy() : cluptr->correctedEnergy() ); }
+    double energy_nocalib() const { return ( cluptr->layer() == PFLayer::HGC_ECAL ? cluptr->emEnergy() : cluptr->energy() ); }
     double eta() const { return cluptr->positionREP().eta(); }
     double phi() const { return cluptr->positionREP().phi(); }
     
@@ -81,6 +81,7 @@ class PFECALSuperClusterAlgo {
   void setUseETForSeeding(bool useET) { threshIsET_ = useET; } 
 
   void setUseDynamicDPhi(bool useit) { _useDynamicDPhi = useit; } 
+  void setUsePUEtHardCut(bool useit) { _usePUEtHardCut = useit; } 
 
   void setUseRegression(bool useRegression) { useRegression_ = useRegression; }
   
@@ -182,6 +183,7 @@ class PFECALSuperClusterAlgo {
   double satelliteThreshold_, fractionForMajority_;
 
   bool _useDynamicDPhi;
+  bool _usePUEtHardCut;
 
   bool applyCrackCorrections_;
   bool threshIsET_;

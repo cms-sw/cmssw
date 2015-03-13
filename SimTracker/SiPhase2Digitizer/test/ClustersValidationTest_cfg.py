@@ -10,12 +10,15 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023MuondevReco_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
-process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
-process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.RawToDigi_cff')
+process.load('Configuration.StandardSequences.L1Reco_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff')
+process.load('Configuration.StandardSequences.Validation_cff')
+process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi')
+process.load('Geometry.TrackerNumberingBuilder.trackerTopologyConstants_cfi')
 
 # Number of events (-1 = all)
 process.maxEvents = cms.untracked.PSet(
@@ -24,7 +27,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input file
 process.source = cms.Source('PoolSource',
-    fileNames = cms.untracked.vstring('file:reco.root')
+    fileNames = cms.untracked.vstring('file:step3.root')
 )
 
 # TAG
@@ -33,19 +36,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 # Output
 process.TFileService = cms.Service('TFileService',
-    fileName = cms.string('file:val_clu.root')
-)
-
-# Output
-process.FEVTDEBUGoutput = cms.OutputModule('PoolOutputModule',
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = process.FEVTDEBUGEventContent.outputCommands,
-    fileName = cms.untracked.string('file:val_clu.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('GEM-SIM-DIGI-CLU')
-    )
+    fileName = cms.string('file:cluster_validation.root')
 )
 
 # DEBUG
@@ -58,13 +49,14 @@ process.MessageLogger = cms.Service('MessageLogger',
 )
 
 # Analyzer
-process.analysis = cms.EDAnalyzer('SiPhase2ClustersValidation',
-    useRecHits = cms.bool(False)
+process.analysis = cms.EDAnalyzer('Phase2TrackerClusterizerValidation',
+    src = cms.InputTag("siPhase2Clusters"),
+    links = cms.InputTag("simSiPixelDigis")
 )
 
-process.analysis_step = cms.Path(cms.Sequence(process.analysis))
-
-process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
-
 # Processes to run
-process.schedule = cms.Schedule(process.analysis_step)
+process.p = cms.Path(process.analysis)
+
+from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10Ddev import customise_condOverRides
+process = customise_condOverRides(process)
+

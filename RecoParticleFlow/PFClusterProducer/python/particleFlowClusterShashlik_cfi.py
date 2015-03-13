@@ -12,8 +12,8 @@ _localMaxSeeds_EK = cms.PSet(
     algoName = cms.string("LocalMaximumSeedFinder"),
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("ECAL_ENDCAP"),
-              seedingThreshold = cms.double(0.3),
-              seedingThresholdPt = cms.double(0.075)
+              seedingThreshold = cms.double(0.),
+              seedingThresholdPt = cms.double(0.2)
               )
     ),
     nNeighbours = cms.int32(8)
@@ -24,8 +24,8 @@ _topoClusterizer_EK = cms.PSet(
     algoName = cms.string("Basic2DGenericTopoClusterizer"),
     thresholdsByDetector = cms.VPSet(   
     cms.PSet( detector = cms.string("ECAL_ENDCAP"),
-              gatheringThreshold = cms.double(0.08),
-              gatheringThresholdPt = cms.double(0.03)
+              gatheringThreshold = cms.double(0.),
+              gatheringThresholdPt = cms.double(0.1)
               )
     ),
     useCornerCells = cms.bool(True)

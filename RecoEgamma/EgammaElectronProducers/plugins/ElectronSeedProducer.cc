@@ -261,7 +261,7 @@ void ElectronSeedProducer::filterClusters
        if (applyHOverECut_)
         {
 	  if (detector==EcalBarrel) {
-	    if( hcalHelperEndcap_->getConfig().hOverEMethod != 3 ) {
+	    if( hcalHelperBarrel_->getConfig().hOverEMethod != 3 ) {
 	      had1 = hcalHelperBarrel_->hcalESumDepth1(scl);
 	      had2 = hcalHelperBarrel_->hcalESumDepth2(scl);
 	    } else {
@@ -274,7 +274,7 @@ void ElectronSeedProducer::filterClusters
 	    } else {
 	      had1 = hcalHelperEndcap_->HCALClustersBehindSC(scl);
 	    }
-	  } else if (detector==EcalEndcap || detector==HGCEE) {
+	  } else if (detector==HGCEE) {
 	    had1 = hcalHelperEndcap_->HCALClustersBehindSC(scl);
       }
          had = had1+had2 ;

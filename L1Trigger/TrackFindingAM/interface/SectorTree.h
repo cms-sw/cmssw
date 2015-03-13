@@ -12,6 +12,7 @@
 #include "PrincipalTrackFitter.h"
 #include "KarimakiTrackFitter.h"
 #include "HoughFitter.h"
+#include "RetinaTrackFitter.h"
 
 #ifdef IPNL_USE_CUDA
 #include "gpu_struct.h"

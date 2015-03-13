@@ -81,6 +81,7 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   bool seedThresholdIsET = iConfig.getParameter<bool>("seedThresholdIsET");
 
   bool useDynamicDPhi = iConfig.getParameter<bool>("useDynamicDPhiWindow");
+  bool usePUEtHardCut = iConfig.getParameter<bool>("usePUEtHardCut");
 
   double threshPFClusterSeedBarrel = iConfig.getParameter<double>("thresh_PFClusterSeedBarrel");
   double threshPFClusterBarrel = iConfig.getParameter<double>("thresh_PFClusterBarrel");
@@ -111,6 +112,7 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   superClusterAlgo_.setEnergyWeighting(_theenergyweight);
   superClusterAlgo_.setUseETForSeeding(seedThresholdIsET);
   superClusterAlgo_.setUseDynamicDPhi(useDynamicDPhi);
+  superClusterAlgo_.setUsePUEtHardCut(usePUEtHardCut);
 
   superClusterAlgo_.setThreshSuperClusterEt( iConfig.getParameter<double>("thresh_SCEt") );
   

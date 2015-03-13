@@ -10,6 +10,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/ClusterEtLess.h"
 
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
+#include "DataFormats/EcalDetId/interface/EKDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //temporary sorter, I'm sure this must exist already in CMSSW
@@ -31,6 +32,18 @@ struct EBDetIdSorter{
 
 struct EEDetIdSorter{
   bool operator()(const EEDetId& lhs,const EEDetId& rhs){
+    if(lhs.zside()<rhs.zside()) return true;
+    else if(lhs.zside()>rhs.zside()) return false;
+    else { //z is equal, onto ix
+      if(lhs.ix()<rhs.ix()) return true;
+      else if(lhs.ix()>rhs.ix()) return false;
+      else return lhs.iy()<rhs.iy();
+    }
+  }
+};
+
+struct EKDetIdSorter{
+  bool operator()(const EKDetId& lhs,const EKDetId& rhs){
     if(lhs.zside()<rhs.zside()) return true;
     else if(lhs.zside()>rhs.zside()) return false;
     else { //z is equal, onto ix
@@ -89,12 +102,11 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
         EcalRecHitCollection::const_iterator it;
         for(it = hits->begin(); it != hits->end(); it++)
         {
-            double energy = it->energy();
-            if (energy < threshold) continue; // need to check to see if this line is useful!
 
-            const CaloCellGeometry *thisCell = geometry_p->getGeometry(it->id());
-            GlobalPoint position = thisCell->getPosition();
-
+	  double energy = it->energy();
+	  if (energy < threshold) continue; // need to check to see if this line is useful!
+	  const CaloCellGeometry *thisCell = geometry_p->getGeometry(it->id());
+	  GlobalPoint position = thisCell->getPosition();
             // Require that RecHit is within clustering region in case
             // of regional reconstruction
             bool withinRegion = false;
@@ -119,7 +131,6 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
     sort(seeds.begin(), seeds.end(), EcalRecHitLess());
 
     LogTrace("EcalClusters") << "Total number of seeds found in event = " << seeds.size();
-
 
     mainSearch(hits, geometry_p, topology_p, geometryES_p);
     sort(clusters_v.rbegin(), clusters_v.rend(), ClusterEtLess());
@@ -440,11 +451,22 @@ bool Multi5x5ClusterAlgo::ProtoBasicCluster::addSeed()
   typedef std::vector<std::pair<DetId,float> >::iterator It;
   std::pair<It,It> hitPos;
  
-  if(seed_.id().subdetId()==EcalBarrel){
+  if(seed_.id().subdetId()==EcalBarrel)
+    {
     hitPos = std::equal_range(hits_.begin(),hits_.end(),seed_.id(),PairSortByFirst<DetId,float,EBDetIdSorter>());
-  }else{
-    hitPos = std::equal_range(hits_.begin(),hits_.end(),seed_.id(),PairSortByFirst<DetId,float,EEDetIdSorter>());
-  }
+    }
+  else if(seed_.id().subdetId()==EcalEndcap)
+    {
+      hitPos = std::equal_range(hits_.begin(),hits_.end(),seed_.id(),PairSortByFirst<DetId,float,EEDetIdSorter>());
+    }
+  else if(seed_.id().subdetId()==EcalShashlik)
+    {
+      hitPos = std::equal_range(hits_.begin(),hits_.end(),seed_.id(),PairSortByFirst<DetId,float,EKDetIdSorter>());
+    }
+  else
+    {
+      throw cms::Exception("UnknownID");
+    }
 
   if(hitPos.first==hitPos.second){//it doesnt already exist in the vec, add it
     hits_.insert(hitPos.first,std::pair<DetId,float>(seed_.id(),1.));

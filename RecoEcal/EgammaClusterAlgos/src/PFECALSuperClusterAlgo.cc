@@ -131,11 +131,12 @@ namespace {
     const CalibClusterPtr the_seed;    
     PFECALSuperClusterAlgo::clustering_type _type;
     bool dynamic_dphi;
+    bool puEtHardCut;
     double etawidthSuperCluster_ = .0 , phiwidthSuperCluster_ = .0;
     IsClustered(const CalibClusterPtr s, 
 		PFECALSuperClusterAlgo::clustering_type ct,
-		const bool dyn_dphi) : 
-      the_seed(s), _type(ct), dynamic_dphi(dyn_dphi) {}
+		const bool dyn_dphi, const bool puHardCut) : 
+      the_seed(s), _type(ct), dynamic_dphi(dyn_dphi), puEtHardCut(puHardCut) {}
     bool operator()(const CalibClusterPtr& x) { 
       const double dphi = 
 	std::abs(TVector2::Phi_mpi_pi(the_seed->phi() - x->phi()));        
@@ -145,7 +146,7 @@ namespace {
 						   the_seed->phi(),
 						   x->energy_nocalib(),
 						   x->eta(),
-						   x->phi()) ) );
+						   x->phi(),puEtHardCut) ) );
 
       switch( _type ) {
       case PFECALSuperClusterAlgo::kBOX:
@@ -303,7 +304,7 @@ buildAllSuperClusters(CalibClusterPtrVector& clusters,
 void PFECALSuperClusterAlgo::
 buildSuperCluster(CalibClusterPtr& seed,
 		  CalibClusterPtrVector& clusters) {
-  IsClustered IsClusteredWithSeed(seed,_clustype,_useDynamicDPhi);
+  IsClustered IsClusteredWithSeed(seed,_clustype,_useDynamicDPhi,_usePUEtHardCut);
   IsLinkedByRecHit MatchesSeedByRecHit(seed,satelliteThreshold_,
 				       fractionForMajority_,0.1,0.2);
   bool isEE = false;

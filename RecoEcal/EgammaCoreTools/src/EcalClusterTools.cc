@@ -1307,7 +1307,10 @@ float EcalClusterTools::getNormedIX(const DetId& id)
     if( id.subdetId()==EcalEndcap ) ix = EEDetId(id).ix();
     if( id.subdetId()==EcalShashlik ) ix = EKDetId(id).ix();
     if( ix != 0) {
-      int iXNorm  = ix - 50;
+      float iXNorm; 
+      //in shashlik ix and iy run from 1 to 210
+      if( id.subdetId()==EcalShashlik ) iXNorm  = ix - 105;
+      else iXNorm = ix - 50;
       if(iXNorm<=0) iXNorm--;
       return iXNorm;
     }
@@ -1323,7 +1326,10 @@ float EcalClusterTools::getNormedIY(const DetId& id)
     if( id.subdetId()==EcalEndcap ) iy = EEDetId(id).iy();
     if( id.subdetId()==EcalShashlik ) iy = EKDetId(id).iy();
     if( iy != 0 ) {
-      int iYNorm  = iy - 50;
+      float iYNorm;
+      //in shashlik ix and iy run from 1 to 210
+      if( id.subdetId()==EcalShashlik ) iYNorm  = iy - 105;
+      else iYNorm = iy - 50;
       if(iYNorm<=0) iYNorm--;
       return iYNorm;
     }
