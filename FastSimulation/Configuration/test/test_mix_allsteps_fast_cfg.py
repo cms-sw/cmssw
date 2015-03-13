@@ -16,10 +16,12 @@ process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load("FastSimulation/Configuration/SimIdeal_cff")
 process.load("FastSimulation/Configuration/Reconstruction_BefMix_cff")
 process.load('FastSimulation.Configuration.Digi_cff')
-process.load('FastSimulation.Configuration.SimL1Emulator_cff')
-process.load('FastSimulation.Configuration.DigiToRaw_cff')
-process.load('FastSimulation.Configuration.RawToDigi_cff')
+#process.load('FastSimulation.Configuration.SimL1Emulator_cff')
+#process.load('FastSimulation.Configuration.DigiToRaw_cff')
+#process.load('FastSimulation.Configuration.RawToDigi_cff')
 process.load("FastSimulation/Configuration/Reconstruction_AftMix_cff")
+process.load('CommonTools.ParticleFlow.EITopPAG_cff')
+process.load('HLTrigger.Configuration.HLT_GRun_Famos_cff')
 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
@@ -77,13 +79,17 @@ process.generation_step = cms.Path(process.pgen)
 process.simstep = cms.Path(process.psim)
 process.step0 = cms.Path(process.reconstruction_befmix)
 process.step = cms.Path(process.pdigi)
-process.step2 = cms.Path(process.SimL1Emulator)
-process.step3 = cms.Path(process.DigiToRaw )
-process.step4 = cms.Path(process.RawToDigi )
+#process.step2 = cms.Path(process.SimL1Emulator)
+#process.step3 = cms.Path(process.DigiToRaw )
+#process.step4 = cms.Path(process.RawToDigi )
 process.step5 = cms.Path(process.reconstruction )
+process.eventinterpretaion_step = cms.Path(process.EIsequence)
+process.HLTEndSequence = cms.Sequence( process.dummyModule )
+
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
-process.schedule = cms.Schedule(process.generation_step,process.simstep,process.step0,process.step,process.step2,process.step3,process.step4,process.step5,process.FEVTDEBUGoutput_step)
+#process.schedule = cms.Schedule(process.generation_step,process.simstep,process.step0,process.step,process.step2,process.step3,process.step4,process.step5,process.eventinterpretaion_step,process.HLTSchedule,process.FEVTDEBUGoutput_step)
+process.schedule = cms.Schedule(process.generation_step,process.simstep,process.step0,process.step,process.step5,process.FEVTDEBUGoutput_step)
 # Automatic addition of the customisation function from FastSimulation.Configuration.MixingModule_Full2Fast
 
 for path in process.paths:
@@ -99,5 +105,11 @@ from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 
 #call to customisation function customisePostLS1 imported from SLHCUpgradeSimulations.Configuration.postLS1Customs
 process = customisePostLS1(process)
+
+# Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforMC                                                                                                           
+from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
+
+#call to customisation function customizeHLTforMC imported from HLTrigger.Configuration.customizeHLTforMC                                                                                                   
+process = customizeHLTforMC(process)
 
 # End of customisation functions

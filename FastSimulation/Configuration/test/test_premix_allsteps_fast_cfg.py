@@ -24,10 +24,10 @@ process.load("FastSimulation.Configuration.Reconstruction_BefMix_cff") #!!
 process.load('FastSimulation.Configuration.DigiDMPreMix_cff') #!!
 process.load('FastSimulation.Configuration.digi_MixPreMix_cfi') #!!
 process.load('FastSimulation.Configuration.DataMixerPreMix_cff') #!!
-process.load('FastSimulation.Configuration.SimL1EmulatorDM_cff') #!!
-process.load('FastSimulation.Configuration.DigiToRawDM_cff') #!!
+#process.load('FastSimulation.Configuration.SimL1EmulatorDM_cff') #!!
+#process.load('FastSimulation.Configuration.DigiToRawDM_cff') #!!
 #process.load('HLTrigger.Configuration.HLT_GRun_cff') #!!
-process.load('FastSimulation.Configuration.RawToDigi_cff')
+#process.load('FastSimulation.Configuration.RawToDigi_cff')
 process.load("FastSimulation.Configuration.Reconstruction_AftMix_cff") #!!
 # process.load('Configuration.StandardSequences.L1Reco_cff') #!!
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -108,19 +108,20 @@ process.ProductionFilterSequence = cms.Sequence(process.generator)
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
-process.reconstruction_tk_step = cms.Path(process.fastTkReconstruction)
+process.reconstruction_tk_step = cms.Path(process.reconstruction_BefMix)
 process.digitisation_step = cms.Path(process.pdigi_valid)
 process.datamixing_step = cms.Path(process.pdatamix)
-process.L1simulation_step = cms.Path(process.SimL1Emulator)
-process.digi2raw_step = cms.Path(process.DigiToRaw)
-process.raw2digi_step = cms.Path(process.RawToDigi)
+#process.L1simulation_step = cms.Path(process.SimL1Emulator)
+#process.digi2raw_step = cms.Path(process.DigiToRaw)
+#process.raw2digi_step = cms.Path(process.RawToDigi)
 process.reconstruction_notk_step = cms.Path(process.reconstruction) #!!
 #process.L1Reco_step = cms.Path(process.L1Reco) #!!
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.simulation_step,process.reconstruction_tk_step,process.digitisation_step,process.datamixing_step,process.L1simulation_step,process.digi2raw_step,process.raw2digi_step,process.reconstruction_notk_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
+#process.schedule = cms.Schedule(process.generation_step,process.simulation_step,process.reconstruction_tk_step,process.digitisation_step,process.datamixing_step,process.L1simulation_step,process.digi2raw_step,process.raw2digi_step,process.reconstruction_notk_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
+process.schedule = cms.Schedule(process.generation_step,process.simulation_step,process.reconstruction_tk_step,process.digitisation_step,process.datamixing_step,process.reconstruction_notk_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
 # filter all path with the production filter sequence
 for path in process.paths:
 	getattr(process,path)._seq = process.ProductionFilterSequence * getattr(process,path)._seq 
