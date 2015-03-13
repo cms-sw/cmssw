@@ -17,7 +17,6 @@ ALCARECOMuAlOverlapsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clo
 import DPGAnalysis.Skims.skim_detstatus_cfi
 ALCARECOMuAlOverlapsDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clone(
     DetectorType = cms.vstring('CSCp','CSCm'),
-    AndOr = cms.bool(False),
     ApplyFilter  = cms.bool(True),
     AndOr        = cms.bool(False),
     DebugOn      = cms.untracked.bool(False)
