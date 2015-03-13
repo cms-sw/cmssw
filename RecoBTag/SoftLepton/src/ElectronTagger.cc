@@ -1,4 +1,5 @@
 #include <limits>
+#include <random>
 
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
@@ -12,7 +13,7 @@ float ElectronTagger::discriminator(const TagInfoHelper & tagInfo) const {
   float bestTag = - std::numeric_limits<float>::infinity();
   const reco::CandSoftLeptonTagInfo & info = tagInfo.get<reco::CandSoftLeptonTagInfo>();
 
-  std::default_random_engine random;
+  std::mt19937_64 random;
   std::uniform_real_distribution<float> dist(0.f,1.f);
 
   //MvaSofEleEstimator is not thread safe

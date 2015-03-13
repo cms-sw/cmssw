@@ -5,7 +5,6 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
 #include "RecoBTag/SoftLepton/interface/MvaSoftElectronEstimator.h"
-#include <random>
 #include <mutex>
 
 /** \class ElectronTagger
