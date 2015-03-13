@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -13,6 +14,8 @@
 
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitAlgorithm.h"
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitAlgorithmFactory.h"
+
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
@@ -30,7 +33,6 @@ namespace edm
 
 class TrackingRecHitAlgorithm;
 
-
 class TrackingRecHitProducer:
     public edm::stream::EDProducer<>
 {
@@ -38,6 +40,8 @@ class TrackingRecHitProducer:
         edm::EDGetTokenT<std::vector<PSimHit>> _simHitToken;
 
         std::vector<TrackingRecHitAlgorithm*> _recHitAlgorithms;
+
+        std::string _selection;
 
     public:
         TrackingRecHitProducer(const edm::ParameterSet& config);

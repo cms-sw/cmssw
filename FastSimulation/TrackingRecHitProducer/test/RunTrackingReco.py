@@ -21,7 +21,7 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1)
 )
 
 process.source = cms.Source ("PoolSource",
@@ -30,7 +30,7 @@ process.source = cms.Source ("PoolSource",
 
 process.recHitProducer=cms.EDProducer("TrackingRecHitProducer",
     simHits = cms.InputTag("famosSimHits","TrackerHits"),
-
+    select=cms.string("32434, 555,2541"),
     plugins=cms.PSet(
 
         defaultPlugin = cms.PSet(

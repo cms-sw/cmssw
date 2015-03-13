@@ -20,7 +20,12 @@ void TrackingRecHitAlgorithm::beginEvent(const edm::Event& event, const edm::Eve
 {
 }
 
-std::vector<SiTrackerGSRecHit2D> TrackingRecHitAlgorithm::processDetId(const DetId& detId, const std::vector<const PSimHit*>& simHits) const
+std::vector<SiTrackerGSRecHit2D> TrackingRecHitAlgorithm::processDetId(
+    const DetId& detId,
+    const TrackerTopology& trackerTopology,
+    const TrackerGeometry& trackerGeometry,
+    const std::vector<const PSimHit*>& simHits
+) const
 {
     return std::vector<SiTrackerGSRecHit2D>();
 }

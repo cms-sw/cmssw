@@ -1,5 +1,7 @@
 #include "TrackingRecHitProducer.h"
 
+#include "FastSimulation/TrackingRecHitProducer/interface/TrackerDetIdSelector.h"
+
 #include <map>
 
 TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config)
@@ -25,6 +27,8 @@ TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config)
 
     edm::InputTag simHitTag = config.getParameter<edm::InputTag>("simHits");
     _simHitToken = consumes<std::vector<PSimHit>>(simHitTag);
+
+    _selection = config.getParameter<std::string>("select");
 }
 
 void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
@@ -32,10 +36,26 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     edm::Handle<std::vector<PSimHit>> simHits;
     event.getByToken(_simHitToken,simHits);
     std::map<unsigned int,std::vector<const PSimHit*>> hitsPerDetId;
+
+    edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
+    edm::ESHandle<TrackerTopology> trackerTopologyHandle;
+    eventSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
+    eventSetup.get<IdealGeometryRecord>().get(trackerTopologyHandle);
+
+    const TrackerGeometry& trackerGeometry = *trackerGeometryHandle;
+    const TrackerTopology& trackerTopology = *trackerTopologyHandle;
+
     for (unsigned int ihit = 0; ihit < simHits->size(); ++ihit)
     {
         const PSimHit* simHit = &(*simHits)[ihit];
+
         //DetId detId(simHit->detUnitId ());
+        if (hitsPerDetId.find(simHit->detUnitId ())==hitsPerDetId.end())
+        {
+            TrackerDetIdSelector selector(simHit->detUnitId(),trackerTopology);
+            bool selected = selector.passSelection(_selection);
+            std::cout<<"selected="<<(selected ? "true" : "false")<<std::endl;
+        }
         hitsPerDetId[simHit->detUnitId ()].push_back(simHit);
     }
     for (std::map<unsigned int,std::vector<const PSimHit*>>::const_iterator it = hitsPerDetId.cbegin(); it != hitsPerDetId.cend(); ++it)
@@ -43,7 +63,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
         DetId detId(it->first);
         for (unsigned int ialgo = 0; ialgo <_recHitAlgorithms.size(); ++ialgo)
         {
-            _recHitAlgorithms[ialgo]->processDetId(detId, it->second);
+            _recHitAlgorithms[ialgo]->processDetId(detId, trackerTopology, trackerGeometry, it->second);
         }
     }
 }
