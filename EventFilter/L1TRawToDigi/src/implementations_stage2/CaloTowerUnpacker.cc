@@ -49,7 +49,7 @@ namespace stage2 {
      unsigned link_phi = (link % 2 == 0) ? link : (link -1);
 
      // Loop over multiple BX and fill towers collection
-     for (int bx=firstBX; bx<lastBX; bx++){
+     for (int bx=firstBX; bx<=lastBX; bx++){
 
        for (unsigned frame=1; frame<42 && frame<(block.header().getSize()+1); frame++){
 

@@ -44,7 +44,7 @@ namespace stage2 {
      int unsigned i = 0;
 
      // Loop over multiple BX and fill EtSums collection
-     for (int bx=firstBX; bx<lastBX; bx++){
+     for (int bx=firstBX; bx<=lastBX; bx++){
 
        // ET
 

@@ -43,7 +43,7 @@ namespace stage2 {
      int unsigned i = 0;
 
      // Loop over multiple BX and then number of jets filling jet collection
-     for (int bx=firstBX; bx<lastBX; bx++){
+     for (int bx=firstBX; bx<=lastBX; bx++){
        for (unsigned nJet=0; nJet < 6 && nJet < block.header().getSize(); nJet++){
          uint32_t raw_data = block.payload()[i++];
 

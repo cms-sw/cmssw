@@ -43,7 +43,7 @@ namespace stage2 {
      int unsigned i = 0;
 
      // Loop over multiple BX and then number of EG cands filling collection
-     for (int bx=firstBX; bx<lastBX; bx++){
+     for (int bx=firstBX; bx<=lastBX; bx++){
 
        for (unsigned nEG=0; nEG < 12 && nEG < block.header().getSize(); nEG++){
 
