@@ -6,7 +6,6 @@ from FastSimulation.ParticlePropagator.MagneticFieldMapESProducer_cfi import *
 
 # Famos SimHits producer
 from FastSimulation.EventProducer.FamosSimHits_cff import *
-print famosSimHits.ApplyAlignment
 
 # Gaussian Smearing RecHit producer
 from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import *

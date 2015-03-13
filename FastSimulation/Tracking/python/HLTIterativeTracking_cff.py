@@ -7,9 +7,16 @@ import FWCore.ParameterSet.Config as cms
 #from FastSimulation.Tracking.IterativeThirdTracking_cff import *
 #from FastSimulation.Tracking.IterativeFourthTracking_cff import *
 ####from FastSimulation.Tracking.IterativeFifthTracking_cff import *
-from FastSimulation.Tracking.HLTGeneralTracks_cfi import *
 #from TrackingTools.TrackFitters.TrackFitters_cff import *
 #from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
+
+
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
+HLTgeneralTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = [cms.InputTag("generalTracks")],
+    hasSelector= [0],
+    copyExtras = True
+    )
 
 hltIter4Merged = HLTgeneralTracks.clone()
 hltIter2Merged = HLTgeneralTracks.clone()

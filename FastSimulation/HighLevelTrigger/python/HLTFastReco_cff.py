@@ -13,7 +13,6 @@ from FastSimulation.HighLevelTrigger.HLTFastRecoForMuon_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForTau_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForB_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForL1FastJet_cff import *
-#from FastSimulation.HighLevelTrigger.HLTFastRecoForPF_cff import *   # IT IS NOT NEEDED ANY MORE IN 44X
 from FastSimulation.HighLevelTrigger.HLTFastRecoForXchannel_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForSpecial_cff import *
 
@@ -32,7 +31,11 @@ from L1Trigger.Configuration.SimL1Emulator_cff import simGctDigis,             \
     SimL1MuTriggerPrimitives, SimL1MuTrackFinders
 
 # The calorimeter emulator requires doDigis=true
-from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
+# from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import * # !!!
+import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
+simRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()
+simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'simEcalTriggerPrimitiveDigis' ) )
+simRctDigis.hcalDigis = cms.VInputTag( cms.InputTag( 'simHcalTriggerPrimitiveDigis' ) ) 
 
 # GT emulator
 simGtDigis.EmulateBxInEvent = 1
@@ -64,6 +67,7 @@ def _extendForStage1Trigger( theProcess ) :
     L1Emulator.replace( simGctDigis, theProcess.L1TCaloStage1 )
 
 # A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"
+from Configuration.StandardSequences.Eras import eras
 modifyFastSimulationHighLevelTriggerHLTFastRecoForRun2_ = eras.stage1L1Trigger.makeProcessModifier( _extendForStage1Trigger )
 
 # L1Extra - provides 4-vector representation of L1 trigger objects - not needed by HLT
@@ -95,6 +99,7 @@ gtDigis = cms.EDAlias(
             ))
     )
 
+
 # L1 report
 import L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi
 hltL1GtTrigReport = L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi.l1GtTrigReport.clone()
@@ -107,16 +112,9 @@ options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True) ## default is false
 )
 
-# basic tracking stuff
-from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import *
-from FastSimulation.Tracking.IterativeTracking_cff import *
 
 # The hltbegin sequence (with L1 emulator)
 HLTBeginSequence = cms.Sequence(
-    siTrackerGaussianSmearingRecHits+ # repetition if RECO is executed; needed by the next line
-    iterTracking                    + # repetition if RECO is executed; needed by the next line
-    trackExtrapolator               +
-    caloRecHits                     + # repetition if RECO is executed; needed to allow -s GEN,SIM,HLT without RECO
     L1Emulator                      +
     l1extraParticles                +
     cms.SequencePlaceholder("offlineBeamSpot")
