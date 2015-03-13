@@ -200,6 +200,14 @@ unsigned int L1RCTLookupTables::lookup(unsigned short hfInput,
   if(rctParameters_->jetMETHCalScaleFactors().size()==32){
      scalehf = (float) rctParameters_->jetMETHCalScaleFactors()[iAbsEta-1];
   } // The max eta for the various scale factors is 32, check to see if used.
+  else if(rctParameters_->jetMETHCalScaleFactors().size()==32*10){
+     int ht_bin = ((int) floor(et)/5);
+     // lowest bin (1) is 0-10GeV
+     if ( ht_bin < 1 ) ht_bin = 1;
+     // highest bin (9) is 45GeV and up
+     if ( ht_bin > 9 ) ht_bin = 9;
+     scalehf = (float) rctParameters_->jetMETHCalScaleFactors()[32*ht_bin+iAbsEta-1];
+  } // et-dependent scale factors (optional, of course, if set to 1)
 
   et=scalehf*et; // Allow for scaling the HF as well e.g. zero out if needed
 

@@ -16,7 +16,7 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
-
+#include "DataFormats/L1Trigger/interface/Jet.h"
 #include <vector>
 
 namespace l1t {

@@ -118,8 +118,10 @@ void MuonTemplate::print(std::ostream& myCout) const
         << std::hex << m_objectParameter[i].enableIso << std::endl;
         myCout << "    requestIso        = "
         << std::hex << m_objectParameter[i].requestIso << std::endl;
-        myCout << "    qualityRange      = "
-        << std::hex << m_objectParameter[i].qualityRange << std::endl;
+        myCout << "    qualityLUT        = "
+        << std::hex << m_objectParameter[i].qualityLUT << std::endl;
+        myCout << "    isolationLUT      = "
+        << std::hex << m_objectParameter[i].isolationLUT << std::endl;
         myCout << "    etaRange          = "
         << std::hex << m_objectParameter[i].etaRange << std::endl;
         myCout << "    phiHigh           = "

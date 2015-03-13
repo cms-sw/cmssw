@@ -25,7 +25,7 @@ namespace l1t {
   public:
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
-			      std::vector<l1t::CaloSpare> * spares) = 0;
+			      l1t::CaloSpare * spare) = 0;
 
     virtual ~Stage1Layer2HFBitCountAlgorithm(){};
   };

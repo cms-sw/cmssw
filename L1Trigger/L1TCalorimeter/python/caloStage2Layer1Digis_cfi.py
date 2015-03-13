@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 caloStage2Layer1Digis = cms.EDProducer(
-    "l1t::Stage2Layer1Producer",
+    "L1TStage2Layer1Producer",
     verbosity = cms.int32(2),
     bxFirst    = cms.int32(0),
     bxLast     = cms.int32(0),

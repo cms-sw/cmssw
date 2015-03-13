@@ -24,19 +24,20 @@ namespace l1t {
     Stage2Layer2JetAlgorithmFirmwareImp1(CaloParams* params);
     virtual ~Stage2Layer2JetAlgorithmFirmwareImp1();
     virtual void processEvent(const std::vector<CaloTower> & towers,
-			      std::vector<Jet> & jets);
+			      std::vector<Jet> & jets, std::vector<Jet> & alljets);
 
     void create(const std::vector<CaloTower> & towers,
-		std::vector<Jet> & jets, bool doDonutSubtraction);
-    
-    void filter(std::vector<Jet> & jets);
-    
-    void sort(std::vector<Jet> & jets);
+	                      std::vector<Jet> & jets, std::vector<Jet> & alljets, std::string PUSubMethod);
 
-    bool jetIsZero(l1t::Jet jet);
+    void calibrate(std::vector<Jet> & jets, int calibThreshold);
 
-    void pusRing(int jetEta, int jetPhi, int size, std::vector<int>& ring, 
-        const std::vector<l1t::CaloTower> & towers);
+    double calibFit(double*, double*);
+
+    int donutPUEstimate(int jetEta, int jetPhi, int size, 
+                        const std::vector<l1t::CaloTower> & towers);
+    
+    int chunkyDonutPUEstimate(int jetEta, int jetPhi, int pos, 
+                              const std::vector<l1t::CaloTower> & towers);
 
   private:
 

@@ -228,7 +228,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		maxBx          = cms.int32(2),
 		minBxVec       = cms.int32(0),
 		maxBxVec       = cms.int32(0),		
-		dumpGTRecord   = cms.bool(True),
+		dumpGTRecord   = cms.bool(False),
 		dumpVectors    = cms.bool(True),
 		tvFileName     = cms.string( ("TestVector_%03d.txt") % job )
 		 )

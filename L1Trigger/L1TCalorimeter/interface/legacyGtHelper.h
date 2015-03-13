@@ -18,9 +18,14 @@
 
 namespace l1t {
 
-void JetToGtScales(CaloParamsStage1 *params,
+void JetToGtEtaScales(CaloParamsStage1 *params,
+		      const std::vector<l1t::Jet> * input,
+		      std::vector<l1t::Jet> *output);
+
+void JetToGtPtScales(CaloParamsStage1 *params,
 		     const std::vector<l1t::Jet> * input,
 		     std::vector<l1t::Jet> *output);
+
 
 void EGammaToGtScales(CaloParamsStage1 *params,
 			const std::vector<l1t::EGamma> * input,

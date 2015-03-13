@@ -62,6 +62,7 @@ class L1ExtraParticlesProd : public edm::stream::EDProducer<> {
       edm::InputTag cenJetSource_ ;
       edm::InputTag forJetSource_ ;
       edm::InputTag tauJetSource_ ;
+      edm::InputTag isoTauJetSource_ ;
       edm::InputTag etTotSource_ ;
       edm::InputTag etHadSource_ ;
       edm::InputTag etMissSource_ ;

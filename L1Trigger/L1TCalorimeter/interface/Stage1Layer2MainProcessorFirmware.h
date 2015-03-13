@@ -37,8 +37,10 @@ namespace l1t {
 			      std::vector<EGamma> * egammas,
 			      std::vector<Tau> * taus,
 			      std::vector<Jet> * jets,
+			      std::vector<Jet> * preGtJets,
 			      std::vector<EtSum> * etsums,
-			      std::vector<CaloSpare> * calospares);
+			      CaloSpare * hfSums,
+			      CaloSpare * hfCounts);
   private:
 
     int m_fwv;

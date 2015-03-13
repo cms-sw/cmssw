@@ -212,3 +212,10 @@ REGISTER_L1_WRITER(L1GtPsbSetupRcd, L1GtPsbSetup);
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
 REGISTER_L1_WRITER(L1CaloGeometryRecord, L1CaloGeometry);
+
+// Upgrade Records:
+
+#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
+using namespace l1t;
+REGISTER_L1_WRITER(L1TCaloParamsRcd, CaloParams);

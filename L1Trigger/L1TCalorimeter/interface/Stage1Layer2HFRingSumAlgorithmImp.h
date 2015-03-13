@@ -32,12 +32,27 @@ namespace l1t {
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::Tau> * taus,
-			      std::vector<l1t::CaloSpare> * spares);
+			      l1t::CaloSpare * spare);
 
   private:
+    CaloParamsStage1* params_;
     std::vector<double> cosPhi;
     std::vector<double> sinPhi;
   };
+
+  class Stage1Layer2CentralityAlgorithm : public Stage1Layer2HFRingSumAlgorithm {
+  public:
+    Stage1Layer2CentralityAlgorithm(CaloParamsStage1* params);
+    virtual ~Stage1Layer2CentralityAlgorithm();
+    virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
+			      const std::vector<l1t::CaloEmCand> & EMCands,
+			      const std::vector<l1t::Tau> * taus,
+			      l1t::CaloSpare * spare);
+
+  private:
+    CaloParamsStage1 *params_;
+  };
+
 
   class Stage1Layer2DiTauAlgorithm : public Stage1Layer2HFRingSumAlgorithm {
   public:
@@ -46,8 +61,9 @@ namespace l1t {
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::Tau> * taus,
-			      std::vector<l1t::CaloSpare> * spares);
+			      l1t::CaloSpare * spare);
   private:
+    CaloParamsStage1* params_;
   };
 }
 
