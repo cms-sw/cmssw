@@ -14,4 +14,4 @@ curl -k --cert $5 --key $6 -X GET 'https://cmsweb.cern.ch/dqm/offline/data/brows
     echo ' dqmFileName = ['$dqmFileName']'
     curl -k --cert $5 --key $6 -X GET https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/$1/$2/000${nnn}xx/${dqmFileName} > /tmp/${dqmFileName}
 
-moduleOccupancyPlots /tmp/${dqmFileName} $4 4 $2 "_run_$3"
+moduleOccupancyPlots /tmp/${dqmFileName} $4 4 "$2_" "_run_$3"

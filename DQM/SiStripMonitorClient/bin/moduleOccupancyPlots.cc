@@ -43,7 +43,9 @@ int main(int argc, char *argv[]) {
   int detid;
   std::ifstream modulelist(modulelistname);
 
-  
+  std::stringstream outrootfilename;
+  outrootfilename << prefix << "SummaryFile" << postfix << ".root";
+  TFile* outrootfile = new TFile(outrootfilename.str().c_str(),"CREATE");
 
   while (modulelist >> detid) {
     std::cout << " ready to go with detid " << detid << " " << pnbits << std::endl;
@@ -56,6 +58,7 @@ int main(int argc, char *argv[]) {
       if(hist) { 
 	std:: cout << histoname.str() << " found!" << std::endl;
 	printPlot(hist,prefix,postfix);
+	hist->Write();
       } else {  
 	std:: cout << histoname.str() << " NOT found..." << std::endl;
       }
@@ -69,6 +72,7 @@ int main(int argc, char *argv[]) {
       if(hist) { 
 	std:: cout << histoname.str() << " found!" << std::endl;
 	printPlot(hist,prefix,postfix);
+	hist->Write();
       } else {  
 	std:: cout << histoname.str() << " NOT found..." << std::endl;
       }
@@ -82,11 +86,14 @@ int main(int argc, char *argv[]) {
       if(hist) { 
 	std:: cout << histoname.str() << " found!" << std::endl;
 	printPlot(hist,prefix,postfix);
+	hist->Write();
       } else {  
 	std:: cout << histoname.str() << " NOT found..." << std::endl;
       }
     }
   }
+
+  outrootfile->Close();
 
   return 0;
 
