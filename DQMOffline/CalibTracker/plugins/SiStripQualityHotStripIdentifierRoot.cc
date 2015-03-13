@@ -30,6 +30,7 @@ SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const
   filename(iConfig.getUntrackedParameter<std::string>("rootFilename","CondDB_TKCC_20X_v3_hlt_50822.root")),
   dirpath(iConfig.getUntrackedParameter<std::string>("rootDirPath","")),
   TotNumberOfEvents(0),
+  MeanNumberOfCluster(0),
   calibrationthreshold(iConfig.getUntrackedParameter<uint32_t>("CalibrationThreshold",10000))
 {
   reader = new SiStripDetInfoFileReader(fp_.fullPath());  
@@ -59,7 +60,7 @@ SiStripBadStrip* SiStripQualityHotStripIdentifierRoot::getNewObject(){
 
   bookHistos();
 
-  if (TotNumberOfEvents>=calibrationthreshold)
+  if (TotNumberOfEvents>=calibrationthreshold && MeanNumberOfCluster > 0.01)
     {
       edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] Total number of events is " << TotNumberOfEvents << ". Calibration is launched." <<std::endl;
 
@@ -141,7 +142,6 @@ SiStripBadStrip* SiStripQualityHotStripIdentifierRoot::getNewObject(){
 	  theIdentifier3->setMinNumEntries(parameters.getUntrackedParameter<uint32_t>("MinNumEntries",100));
 	  theIdentifier3->setMinNumEntriesPerStrip(parameters.getUntrackedParameter<uint32_t>("MinNumEntriesPerStrip",5));
 	  theIdentifier3->setNumberOfEvents(TotNumberOfEvents);
-	  theIdentifier3->setMinNumOfEvents();
 	  theIdentifier3->setOutputFileName(conf_.getUntrackedParameter<std::string>("OccupancyRootFile","Occupancy.root"),conf_.getUntrackedParameter<bool>("WriteOccupancyRootFile",false),conf_.getUntrackedParameter<std::string>("DQMHistoOutputFile","DQMHistos.root"),conf_.getUntrackedParameter<bool>("WriteDQMHistoOutputFile",false));
 	  theIdentifier3->setTrackerGeometry(_tracker);
 	  theIdentifier3->setLowOccupancyThreshold(parameters.getUntrackedParameter<double>("LowOccupancyThreshold",5));
@@ -149,6 +149,7 @@ SiStripBadStrip* SiStripQualityHotStripIdentifierRoot::getNewObject(){
 	  theIdentifier3->setAbsoluteLowThreshold(parameters.getUntrackedParameter<double>("AbsoluteLowThreshold",0));
 	  theIdentifier3->setNumberIterations(parameters.getUntrackedParameter<uint32_t>("NumberIterations",2));
 	  theIdentifier3->setAbsoluteOccupancyThreshold(parameters.getUntrackedParameter<double>("OccupancyThreshold",1.E-5));
+	  theIdentifier3->setMinNumOfEvents();
 
 	  SiStripQuality* qobj = new SiStripQuality();
 	  theIdentifier3->extractBadAPVSandStrips(qobj,ClusterPositionHistoMap,SiStripQuality_);//here I insert SiStripQuality as input and get qobj as output
@@ -239,6 +240,7 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
     if (!gotNentries && strstr(me_name.c_str(),"TotalNumberOfCluster__T")!=NULL && strstr(me_name.c_str(),"Profile")==NULL ){
 
       TotNumberOfEvents = ((TH1F*)(*iter)->getTH1F())->GetEntries();
+      MeanNumberOfCluster = ((TH1F*)(*iter)->getTH1F())->GetMean();
       edm::LogInfo("SiStripQualityHotStripIdentifierRoot")<< "Total Number of Events: " << TotNumberOfEvents << std::endl;
 
       gotNentries=true;
