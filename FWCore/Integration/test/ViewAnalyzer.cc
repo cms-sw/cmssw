@@ -41,6 +41,9 @@ namespace edmtest
     void testDSVProduct(edm::Event const& e,
                         std::string const& moduleLabel) const;
     
+    void testAVProduct(edm::Event const& e,
+                       std::string const& moduleLabel) const;
+
     void testProductWithBaseClass(edm::Event const& e,
                                   std::string const& moduleLabel) const;
     
@@ -120,11 +123,10 @@ namespace edmtest
 
     tester<SCSimpleProduct>::call(this, e, "simple");
     tester<OVSimpleProduct>::call(this, e, "ovsimple");
-
-    // This is commented out because it causes a missing dictionary failure
     tester<AVSimpleProduct>::call(this, e, "avsimple");
 
     testDSVProduct(e, "dsvsimple");
+    testAVProduct(e, "avsimple");
     testProductWithBaseClass(e, "ovsimple");
     testRefVector(e, "intvecrefvec");
     testRefToBaseVector(e, "intvecreftbvec");
@@ -153,7 +155,7 @@ namespace edmtest
     typedef P                               sequence_t;
     typedef V                               value_t;
     typedef View<value_t>                   view_t;
-    
+
     Handle<sequence_t> hproduct;
     e.getByLabel(moduleLabel, hproduct);
     assert(hproduct.isValid());
@@ -218,6 +220,44 @@ namespace edmtest
         assert(prod.detId() == view.detId());
         assert(prod.data == view.data);
 
+	++i_prod; ++i_view;
+    }
+  }
+
+  void
+  ViewAnalyzer::testAVProduct(Event const& e,
+                              std::string const& moduleLabel) const {
+    typedef edmtest::AVSimpleProduct sequence_t;
+    typedef sequence_t::value_type    value_t;
+    typedef View<value_t>             view_t;
+
+    Handle<sequence_t> hprod;
+    e.getByLabel(moduleLabel, hprod);
+    assert(hprod.isValid());
+
+    Handle<view_t> hview;
+    e.getByLabel(moduleLabel, hview);
+    assert(hview.isValid());
+
+    assert(hprod.id() == hview.id());
+    assert(*hprod.provenance() == *hview.provenance());
+
+    assert(hprod->size() == hview->size());
+
+    sequence_t::const_iterator i_prod = hprod->begin();
+    sequence_t::const_iterator e_prod = hprod->end();
+    view_t::const_iterator     i_view = hview->begin();
+    view_t::const_iterator     e_view = hview->end();
+
+    while (i_prod != e_prod && i_view != e_view) {
+	value_t const& prod = *i_prod;
+	value_t const& view = *i_view;
+        assert(prod == view);
+        assert((*hprod)[prod.first] == prod.second);
+        edm::Ptr<sequence_t::key_type> ptr(prod.first.id(), prod.first.key(), &e.productGetter());
+        assert((*hprod)[ptr] == prod.second);
+        edm::RefToBase<sequence_t::key_type> refToBase(prod.first);
+        assert((*hprod)[refToBase] == prod.second);
 	++i_prod; ++i_view;
     }
   }
