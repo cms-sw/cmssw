@@ -64,14 +64,15 @@ namespace edm {
     // any object containing this Ptr.  Also, in the future work will
     // be done to throw an exception if an attempt is made to put any object
     // containing this Ptr into an event(or run or lumi).
+
     template<typename C>
     Ptr(C const* iProduct, key_type iItemKey, bool /*setNow*/ = true):
-    core_(ProductID(), iProduct != 0 ? getItem_(iProduct,iItemKey) : 0, 0, true),
-    key_(iProduct != 0 ? iItemKey : key_traits<key_type>::value) {}
+      core_(ProductID(), iProduct != 0 ? getItem_(iProduct,iItemKey) : 0, 0, true),
+      key_(iProduct != 0 ? iItemKey : key_traits<key_type>::value) {}
 
-    Ptr(T const* item, T const*, key_type iItemKey, bool /*setNow*/ = true):
-    core_(ProductID(), item != 0 ? item : 0, 0, true),
-    key_(item != 0 ? iItemKey : key_traits<key_type>::value) {}
+    Ptr(key_type iItemKey, T const* item):
+      core_(ProductID(), item, nullptr, true),
+      key_(item != nullptr ? iItemKey : key_traits<key_type>::value) {}
 
     // Constructor from test handle.
     // An exception will be thrown if an attempt is made to persistify
@@ -100,8 +101,8 @@ namespace edm {
     }
 
     Ptr(ProductID const& productID, T const* item, key_type item_key, bool transient) :
-    core_(productID, item, 0, transient),
-    key_(item_key) {
+      core_(productID, item, nullptr, transient),
+      key_(item_key) {
     }
 
     /** Constructor that creates an invalid ("null") Ptr that is
