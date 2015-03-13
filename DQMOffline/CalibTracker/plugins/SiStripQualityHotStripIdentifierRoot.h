@@ -88,6 +88,7 @@ private:
   std::string filename, dirpath;
   unsigned short MinClusterWidth_, MaxClusterWidth_;
   double TotNumberOfEvents;
+  double MeanNumberOfCluster;
   uint32_t calibrationthreshold;
 
   SiStrip::QualityHistosMap ClusterPositionHistoMap;
