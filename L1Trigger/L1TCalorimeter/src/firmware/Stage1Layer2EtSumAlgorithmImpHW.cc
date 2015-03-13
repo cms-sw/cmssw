@@ -115,9 +115,6 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   if(sumHT >= 0xfff)
     HTTqual = 1;
 
-  // TODO: replace iPhiHT with delta phi of two leading jets
-  // as sourced from jet clustering firmware.
-  // In other words, MHT phi is _not_ MHT phi but dijet phi
 
   const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);
   l1t::EtSum etMiss(*&etLorentz,EtSum::EtSumType::kMissingEt,MET&0xfff,0,iPhiET,METqual);
