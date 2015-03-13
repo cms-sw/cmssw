@@ -7,14 +7,14 @@
 
 #include <string>
 #include <vector>
+#include <stdint.h>
 
 class LHEXMLStringProduct {
 public:
-  
+    
   // constructors, destructors
   LHEXMLStringProduct();
   LHEXMLStringProduct(const std::string& content);
-  LHEXMLStringProduct(const std::vector<std::string>& content);
   virtual ~LHEXMLStringProduct();
   
   // getters
@@ -22,12 +22,20 @@ public:
     return content_; 
   }
 
+  const std::vector<std::vector<uint8_t> >& getCompressed() const{
+    return compressedContent_; 
+  }
+  
+  void fillCompressedContent(std::istream &input, unsigned int initialSize = 4*1024*1024);
+  void writeCompressedContent(std::ostream &output, unsigned int i) const;
+  
   // merge method. It will be used when merging different jobs populating the same lumi section
   bool mergeProduct(LHEXMLStringProduct const &other);
   
   
 private:
   std::vector<std::string> content_;
+  std::vector<std::vector<uint8_t> > compressedContent_;
 
 };
 
