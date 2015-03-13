@@ -172,6 +172,8 @@ namespace {
 } // namespace
 
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<>  {
   
@@ -190,6 +192,70 @@ class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<>  {
 	assert(rawAlgos_.get());
       }
   
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+
+    desc.add<edm::InputTag>("ProductLabel",edm::InputTag("rawDataCollector"));
+    desc.add<bool>("DoAPVEmulatorCheck",false);
+    {
+      edm::ParameterSetDescription psd0;
+      psd0.add<double>("Fraction",0.2);
+      psd0.add<int>("slopeY",4);
+      psd0.add<int>("slopeX",3);
+      psd0.add<bool>("PedestalSubtractionFedMode",false);
+      psd0.add<double>("CutToAvoidSignal",2.0);
+      psd0.add<unsigned int>("minStripsToFit",4);
+      psd0.add<unsigned int>("consecThreshold",5);
+      psd0.add<unsigned int>("hitStripThreshold",40);
+      psd0.add<unsigned int>("Deviation",25);
+      psd0.add<std::string>("CommonModeNoiseSubtractionMode","IteratedMedian");
+      psd0.add<double>("filteredBaselineDerivativeSumSquare",30);
+      psd0.add<bool>("ApplyBaselineCleaner",true);
+      psd0.add<bool>("doAPVRestore",true);
+      psd0.add<bool>("TruncateInSuppressor",true);
+      psd0.add<double>("restoreThreshold",0.5);
+      psd0.add<std::string>("APVInspectMode","BaselineFollower");
+      psd0.add<bool>("ForceNoRestore",false);
+      psd0.add<bool>("useRealMeanCM",false);
+      psd0.add<bool>("ApplyBaselineRejection",true);
+      psd0.add<unsigned int>("DeltaCMThreshold",20);
+      psd0.add<unsigned int>("nSigmaNoiseDerTh",4);
+      psd0.add<unsigned int>("nSaturatedStrip",2);
+      psd0.add<unsigned int>("SiStripFedZeroSuppressionMode",4);
+      psd0.add<bool>("useCMMeanMap",false);
+      psd0.add<std::string>("APVRestoreMode","BaselineFollower");
+      psd0.add<unsigned int>("distortionThreshold",20);
+      psd0.add<double>("filteredBaselineMax",6);
+      psd0.add<int>("Iterations",3);
+      psd0.add<unsigned int>("CleaningSequence",1);
+      psd0.add<unsigned int>("nSmooth",9);
+      psd0.add<bool>("SelfSelectRestoreAlgo",false);
+      psd0.add<int>("MeanCM",0);
+      desc.add<edm::ParameterSetDescription>("Algorithms",psd0);
+    }
+    {
+      edm::ParameterSetDescription psd0;
+      psd0.add<double>("ChannelThreshold",2.0);
+      psd0.add<unsigned int>("MaxSequentialBad",1);
+      psd0.add<std::string>("Algorithm","ThreeThresholdAlgorithm");
+      psd0.add<unsigned int>("MaxSequentialHoles",0);
+      psd0.add<unsigned int>("MaxAdjacentBad",0);
+      psd0.add<std::string>("QualityLabel","");
+      psd0.add<double>("minGoodCharge",-2069);
+      psd0.add<double>("SeedThreshold",3.0);
+      psd0.add<bool>("RemoveApvShots",true);
+      psd0.add<double>("occupancyThreshold",0.05);
+      psd0.add<unsigned int>("widthThreshold",4);
+      psd0.add<bool>("doRefineCluster",false);
+      psd0.add<double>("ClusterThreshold",5.0);
+      desc.add<edm::ParameterSetDescription>("Clusterizer",psd0);
+    }
+    desc.add<bool>("onDemand",false);
+
+    descriptions.add("SiStripClustersFromRawFacility",desc);
+}
+
 
   void beginRun( const edm::Run&, const edm::EventSetup& es) {
     initialize(es);

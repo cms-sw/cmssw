@@ -1,5 +1,6 @@
 <use   name="RecoTracker/CkfPattern"/>
 <use   name="RecoTracker/MeasurementDet"/>
+<use   name="FWCore/ParameterSet"/>
 <library   file="*.cc" name="RecoTrackerCkfPatternPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

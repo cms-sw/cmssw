@@ -30,6 +30,10 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class DivisiveVertexFinder;
 
 class PixelVertexProducer : public edm::stream::EDProducer<> {
@@ -38,6 +42,9 @@ class PixelVertexProducer : public edm::stream::EDProducer<> {
   ~PixelVertexProducer();
 
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
  private:
   // ----------member data ---------------------------
   // Turn on debug printing if verbose_ > 0

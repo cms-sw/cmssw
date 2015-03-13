@@ -2,6 +2,9 @@
 // system include files
 #include <memory>
 // user include files
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -129,6 +132,31 @@ std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEve
   LogDebug("TrackProducer") << "end" << "\n";
 
   return ttks;
+}
+
+void
+TrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("src",edm::InputTag("ckfTrackCandidates"));
+  desc.add<edm::InputTag>("clusterRemovalInfo",edm::InputTag(""));
+  desc.add<edm::InputTag>("MeasurementTrackerEvent",edm::InputTag("MeasurementTrackerEvent"));
+  desc.add<edm::InputTag>("beamSpot",edm::InputTag("offlineBeamSpot"));
+  desc.add<std::string>("SimpleMagneticField","");
+  desc.add<bool>("useSimpleMF",false);
+  desc.add<std::string>("Fitter","KFFittingSmootherWithOutliersRejectionAndRK");
+  desc.add<std::string>("MeasurementTracker","");
+  desc.add<std::string>("AlgorithmName","undefAlgorithm");
+  desc.add<std::string>("NavigationSchool","SimpleNavigationSchool");
+  desc.add<std::string>("TTRHBuilder","WithAngleAndTemplate");
+  desc.add<std::string>("Propagator","RungeKuttaTrackerPropagator");
+  desc.addUntracked<std::string>("alias","ctfWithMaterialTracks");
+  desc.add<bool>("useHitsSplitting",false);
+  desc.add<bool>("TrajectoryInEvent",true);
+  desc.add<bool>("GeometricInnerState",false);
+
+  descriptions.add("TrackProducer",desc);
+  descriptions.setComment("");
 }
 
 

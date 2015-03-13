@@ -5,10 +5,14 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 class dso_hidden MaskedMeasurementTrackerEventProducer final : public edm::stream::EDProducer<> {
 public:
       explicit MaskedMeasurementTrackerEventProducer(const edm::ParameterSet &iConfig) ;
       ~MaskedMeasurementTrackerEventProducer() {}
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 private:
       void produce(edm::Event&, const edm::EventSetup&) override;
 
@@ -51,6 +55,19 @@ MaskedMeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::Ev
     // put into event
     iEvent.put(out);
 }
+
+void
+MaskedMeasurementTrackerEventProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("clustersToSkip",edm::InputTag(""))->setComment("");
+  desc.add<edm::InputTag>("src",edm::InputTag("MeasurementTrackerEvent"))->setComment("");
+  desc.add<bool>("OnDemand",false)->setComment("");
+
+  descriptions.add("MaskedMeasurementTrackerEvent",desc);
+  descriptions.setComment("");
+}
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(MaskedMeasurementTrackerEventProducer);

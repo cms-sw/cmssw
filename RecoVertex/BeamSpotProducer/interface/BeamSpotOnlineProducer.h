@@ -20,6 +20,9 @@ ________________________________________________________________**/
 #include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 class BeamSpotOnlineProducer: public edm::stream::EDProducer<> {
 
@@ -33,6 +36,7 @@ class BeamSpotOnlineProducer: public edm::stream::EDProducer<> {
 	
 	/// produce a beam spot class
 	virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+	static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   private:
 

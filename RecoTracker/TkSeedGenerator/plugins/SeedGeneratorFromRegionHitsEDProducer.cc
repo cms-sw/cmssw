@@ -4,6 +4,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
@@ -123,4 +126,61 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
     ev.put(quadruplets);
   else
     ev.put(triplets);
+}
+
+void
+SeedGeneratorFromRegionHitsEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  {
+    edm::ParameterSetDescription psd0;
+
+    psd0.add<std::string>("ComponentName","GlobalRegionProducerFromBeamSpot");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<edm::InputTag>("beamSpot",edm::InputTag("offlineBeamSpot"));
+      psd1.add<bool>("precise",true);
+      psd1.add<double>("ptMin",0.9);
+      psd1.add<double>("originRadius",0.2);
+      psd1.add<double>("originHalfLength",21.2);
+
+      psd0.add<edm::ParameterSetDescription>("RegionPSet",psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("RegionFactoryPSet",psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("ComponentName","none");
+    desc.add<edm::ParameterSetDescription>("SeedComparitorPSet",psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<edm::InputTag>("PixelClusterCollectionLabel",edm::InputTag("siPixelClusters"));
+    psd0.add<edm::InputTag>("ClusterCollectionLabel",edm::InputTag("siStripClusters"));
+    psd0.add<unsigned int>("MaxNumberOfPixelClusters",40000);
+    psd0.add<unsigned int>("MaxNumberOfCosmicClusters",400000);
+    psd0.add<std::string>("cut","strip < 400000 && pixel < 40000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + 0.1*strip)");
+    psd0.add<bool>("doClusterCheck",true);
+    desc.add<edm::ParameterSetDescription>("ClusterCheckPSet",psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<edm::InputTag>("SeedingLayers",edm::InputTag(""));
+    psd0.add<std::string>("ComponentName","");
+    psd0.add<unsigned int>("maxElement",1000000);
+    desc.add<edm::ParameterSetDescription>("OrderedHitsFactoryPSet",psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("ComponentName","SeedFromConsecutiveHitsCreator");
+    psd0.add<std::string>("SimpleMagneticField","ParabolicMf");
+    psd0.add<std::string>("propagator","PropagatorWithMaterial");
+    psd0.add<std::string>("TTRHBuilder","WithTrackAngle");
+    psd0.add<double>("SeedMomentumForBOFF",5.0);
+    psd0.add<double>("MinOneOverPtError",1.0);
+    psd0.add<double>("OriginTransverseErrorMultiplier",1.0);
+    desc.add<edm::ParameterSetDescription>("SeedCreatorPSet",psd0);
+  }
+
+  descriptions.add("seedGeneratorFromRegionHitsEDProducer",desc);
+  descriptions.setComment("");
 }

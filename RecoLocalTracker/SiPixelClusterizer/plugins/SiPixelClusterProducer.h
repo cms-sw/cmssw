@@ -49,6 +49,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
   class dso_hidden SiPixelClusterProducer final : public edm::stream::EDProducer<> {
   public:
     //--- Constructor, virtual destructor (just in case)
@@ -64,6 +68,8 @@
     void run(const edm::DetSetVector<PixelDigi>   & input,
 	     edm::ESHandle<TrackerGeometry>       & geom,
              edmNew::DetSetVector<SiPixelCluster> & output);
+
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   private:
     edm::ParameterSet conf_;

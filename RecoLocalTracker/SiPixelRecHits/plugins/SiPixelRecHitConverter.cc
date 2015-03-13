@@ -15,6 +15,9 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 // Data Formats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -157,4 +160,17 @@ namespace cms
     //  << std::endl;
 	
   }
+
+  void
+  SiPixelRecHitConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+
+    desc.add<edm::InputTag>("src",edm::InputTag("siPixelClusters"));
+    desc.add<std::string>("CPE","PixelCPEGeneric");
+    desc.addUntracked<int>("VerboseLevel",0);
+
+    descriptions.add("siPixelRecHits",desc);
+  }
+
+
 }  // end of namespace cms

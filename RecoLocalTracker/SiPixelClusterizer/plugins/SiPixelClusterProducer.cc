@@ -32,6 +32,8 @@
 // Framework
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // STL
 #include <vector>
@@ -198,6 +200,24 @@
     //				    << " SiPixelClusters in " << numberOfDetUnits << " DetUnits."; 
   }
 
+void
+SiPixelClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("src",edm::InputTag("siPixelDigis"));
+  desc.add<int>("ChannelThreshold",1000);
+  desc.add<int>("maxNumberOfClusters",-1);
+  desc.add<int>("VCaltoElectronGain",65);
+  desc.addUntracked<bool>("MissCalibrate",true);
+  desc.add<bool>("SplitClusters",false);
+  desc.add<int>("VCaltoElectronOffset",-414);
+  desc.add<std::string>("payloadType","Offline");
+  desc.add<int>("SeedThreshold",1000);
+  desc.add<double>("ClusterThreshold",4000.0);
+
+  descriptions.add("siPixelClusters",desc);
+  descriptions.setComment("");
+}
 
 
 

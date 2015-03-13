@@ -32,6 +32,8 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
     class dso_hidden MultiTrackSelector : public edm::stream::EDProducer<> {
         private:
         public:
@@ -40,6 +42,8 @@
             explicit MultiTrackSelector( const edm::ParameterSet & cfg ) ;
             /// destructor
             virtual ~MultiTrackSelector() ;
+	    //	    virtual void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+	    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
         protected:
             void beginStream(edm::StreamID) override final;
