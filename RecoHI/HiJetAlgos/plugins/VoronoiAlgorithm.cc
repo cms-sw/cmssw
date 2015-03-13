@@ -1,4 +1,4 @@
-#include "RecoHI/HiJetAlgos/interface/VoronoiAlgorithm.h"
+#include "VoronoiAlgorithm.h"
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
 extern "C" {
