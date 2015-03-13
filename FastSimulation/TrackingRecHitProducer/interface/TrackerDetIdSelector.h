@@ -56,23 +56,26 @@ class TrackerDetIdSelector
                 identifier = qi::lexeme[+qi::alpha[qi::_val += qi::_1]];
             qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
                 op =
-                    qi::lit(">")[qi::_val="gt"] |
-                    qi::lit("<") |
-                    qi::lit(">=") |
-                    qi::lit("<=") |
-                    qi::lit("==") |
-                    qi::lit("&") |
-                    qi::lit("|");
+                    qi::lit(">")[qi::_val="<"] |
+                    qi::lit("<")[qi::_val=">"] |
+                    qi::lit(">=")[qi::_val=">="] |
+                    qi::lit("<=")[qi::_val="<="] |
+                    qi::lit("==")[qi::_val="=="] |
+                    qi::lit("&")[qi::_val="&"] |
+                    qi::lit("|")[qi::_val="|"];
             qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
                 expression =
                     identifier[printStr] | qi::int_[printInt];
             qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
                 selector =
                     expression >> op[printStr] >> expression;
+            qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
+                combo =
+                    '(' >> combo >> ')' >> *(op >> '(' >> combo >> ')') |
+                    selector;
 
 
-
-            bool success = qi::phrase_parse(begin,end, selector, ascii::space);
+            bool success = qi::phrase_parse(begin,end, combo, ascii::space);
             if (begin!=end)
             {
                 std::cout<<"not a complete match"<<std::endl;
