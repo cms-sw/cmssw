@@ -48,13 +48,21 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     for (unsigned int ihit = 0; ihit < simHits->size(); ++ihit)
     {
         const PSimHit* simHit = &(*simHits)[ihit];
-
-        //DetId detId(simHit->detUnitId ());
         if (hitsPerDetId.find(simHit->detUnitId ())==hitsPerDetId.end())
         {
-            TrackerDetIdSelector selector(simHit->detUnitId(),trackerTopology);
+            const DetId detId(simHit->detUnitId());
+            TrackerDetIdSelector selector(detId,trackerTopology);
+
+            //std::cout<<&trackerTopology<<", "<<&detId<<": "<<trackerTopology.pxbLayer(detId)<<" | "<<trackerTopology.print(detId)<<std::endl;
+            std::cout<<trackerTopology.print(detId)<<std::endl;
             bool selected = selector.passSelection(_selection);
             std::cout<<"selected="<<(selected ? "true" : "false")<<std::endl;
+            std::cout<<std::endl;
+
+            if (hitsPerDetId.size()>10)
+            {
+                break;
+            }
         }
         hitsPerDetId[simHit->detUnitId ()].push_back(simHit);
     }

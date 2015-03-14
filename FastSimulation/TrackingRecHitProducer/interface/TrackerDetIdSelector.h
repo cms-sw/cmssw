@@ -12,12 +12,14 @@
 #include <boost/spirit/include/qi_rule.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/spirit/include/phoenix.hpp>
-
+#include <boost/phoenix/bind/bind_member_function.hpp>
 
 #include <iostream>
 #include <cstdlib>
 #include <typeinfo>
 #include <functional>
+#include <unordered_map>
+
 
 
 class TrackerDetIdSelector
@@ -25,6 +27,11 @@ class TrackerDetIdSelector
     private:
         const DetId& _detId;
         const TrackerTopology& _trackerTopology;
+
+        typedef std::function<int(const TrackerTopology& trackerTopology, const DetId&)> DetIdFunction;
+        //typedef int DetIdFunction;
+        typedef std::unordered_map<std::string, DetIdFunction> StringFunctionMap;
+        const static StringFunctionMap _functions;
 
     public:
         TrackerDetIdSelector(const DetId& detId, const TrackerTopology& trackerTopology):
@@ -34,6 +41,25 @@ class TrackerDetIdSelector
             namespace qi = boost::spirit::qi;
             namespace ascii = boost::spirit::ascii;
             namespace phoenix = boost::phoenix;
+        }
+
+        int getAttributeValue(std::string name) const
+        {
+            int value = 0;
+            StringFunctionMap::const_iterator it = _functions.find(name);
+            if (it != _functions.cend())
+            {
+                DetIdFunction fct = it->second;
+                value = fct(_trackerTopology,_detId);
+                //value =fct;
+                std::cout<<"attr = "<<name<<", value = "<<value <<std::endl;
+            }
+            else
+            {
+                std::cout<<"attr = "<<name<<" not found!"<<std::endl;
+            }
+
+            return value;
         }
 
 
@@ -51,12 +77,15 @@ class TrackerDetIdSelector
             std::string::const_iterator begin = selectionStr.cbegin();
             std::string::const_iterator end = selectionStr.cend();
 
+            qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
+                identifierFct =qi::lexeme[+qi::alpha[qi::_val+=qi::_1]];
+
             qi::rule<std::string::const_iterator, int(), ascii::space_type>
                 identifier =
                     '!' >> identifier[qi::_val=!qi::_1] |
                     (qi::true_[qi::_val=1] | qi::false_[qi::_val=0]) |
                     (qi::int_[qi::_val=qi::_1]) |
-                    (qi::lexeme[+qi::alpha])[qi::_val=0];
+                    identifierFct[qi::_val=phoenix::bind(&TrackerDetIdSelector::getAttributeValue,*this,qi::_1)];
 
             qi::rule<std::string::const_iterator, int(), ascii::space_type>
                 expression =
@@ -357,6 +386,10 @@ class TrackerDetIdSelector
         {
         }
     */
+
 };
+
+
+
 
 #endif
