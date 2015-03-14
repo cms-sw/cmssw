@@ -23,8 +23,6 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFitOOTPileupCorrection.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HLTv2.h"
 
-#include "RecoLocalCalo/HcalRecAlgos/interface/inverseGaussCDF.hh"
-#include "RecoLocalCalo/HcalRecAlgos/interface/sampleQuantile.hh"
 #include "RecoLocalCalo/HcalRecAlgos/interface/PedestalSub.h"
 
 /** \class HcalSimpleRecAlgo
