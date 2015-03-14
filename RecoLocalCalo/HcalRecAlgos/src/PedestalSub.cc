@@ -26,7 +26,7 @@ void PedestalSub::Init(Method method=AvgWithThresh, int runCond=0, float thresho
   else if ( (fMethod==AvgWithThresh||fMethod==AvgWithThreshNoPedSub)&&(fThreshold==0) ) {
     cout << "You are almost certainly doing something wrong. Check your PedestalSub::Calculate parameters, you're using 0.0 as your threshold!" << endl;
   }
-  else if (fMethod==Percentile) {
+ /* else if (fMethod==Percentile) {
     //need to fix these parameters;
     if (fCondition==0) {
       fNoisePara=0.92;
@@ -38,7 +38,7 @@ void PedestalSub::Init(Method method=AvgWithThresh, int runCond=0, float thresho
       fNoisePara=2.85;
     }
     fNoiseCorr=-inverseGaussCDF(fQuantile);
-  }
+  }*/
   
 }
 
@@ -91,7 +91,7 @@ double PedestalSub::GetCorrection(const std::vector<double> & inputCharge, const
     }
     baseline/=8;
   }
-  else if (fMethod==Percentile) {
+  /*else if (fMethod==Percentile) {
     std::vector<float> tempCharge;
     for (int i=0; i<10; i++) {
       if (i==4||i==5||i==6) continue;
@@ -99,7 +99,7 @@ double PedestalSub::GetCorrection(const std::vector<double> & inputCharge, const
     }
     baseline=sampleQuantile<7>(&tempCharge[0],fQuantile);
     baseline+=fNoisePara*fNoiseCorr;
-  }
+  }*/
   
   return baseline;
   
