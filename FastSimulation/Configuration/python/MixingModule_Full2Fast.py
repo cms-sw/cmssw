@@ -133,6 +133,9 @@ def prepareGenMixing(process):
 
 def prepareDigiRecoMixing(process):
 
+    # temporary, until DIGI:pdigi_valid step is implemented in cmsDriver for FastSim
+    process.mix.digitizers = process.theDigitizersValid
+
     # switch to FastSim digitizers
     import FastSimulation.Configuration.digitizers_cfi
     process.mix.digitizers = FastSimulation.Configuration.digitizers_cfi.digitizersFull2Fast(process.mix.digitizers)

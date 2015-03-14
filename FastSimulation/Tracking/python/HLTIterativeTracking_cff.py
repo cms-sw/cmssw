@@ -14,7 +14,9 @@ import FWCore.ParameterSet.Config as cms
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 HLTgeneralTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = [cms.InputTag("generalTracks")],
-    hasSelector= [0],
+    hasSelector= cms.vint32(0),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("")),
+    mvaValueTags = cms.VInputTag(cms.InputTag("generalTracks","MVAVals")),
     copyExtras = True
     )
 
