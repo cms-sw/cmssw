@@ -15,7 +15,6 @@
 <use   name="SimTracker/TrackerHitAssociation"/>
 <use   name="SimDataFormats/TrackerDigiSimLink"/>
 <use   name="clhep"/>
-<use   name="rootcintex"/>
 <use   name="rootgraphics"/>
 <library   file="FamosRecHitAnalysis.cc" name="FamosRecHitAnalysis">
   <use   name="FWCore/Framework"/>

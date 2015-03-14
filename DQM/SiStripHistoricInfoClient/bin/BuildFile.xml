@@ -2,7 +2,6 @@
 <use name="DQMServices/Diagnostic"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/FWLite"/>
-<use name="rootcintex"/>
 <use name="root"/>
 <use name="boost"/>
 <environment>

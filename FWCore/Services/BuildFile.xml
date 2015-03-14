@@ -10,7 +10,6 @@
 <use   name="FWCore/Concurrency"/>
 <use   name="FWCore/Framework"/>
 <use   name="boost"/>
-<use   name="rootcintex"/>
 <use   name="rootcore"/>
 <use   name="roothistmatrix"/>
 <use   name="xerces-c"/>

@@ -2,13 +2,17 @@
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 
 void QIE11DataFrame::setCapid0(int cap0) {
-  edm::DataFrame::operator[](0)&=0xFCFF;
-  edm::DataFrame::operator[](0)|=((cap0&0x3)<<8);  
+  edm::DataFrame::operator[](0)&=0xFCFF; // inversion of the capid0 mask
+  edm::DataFrame::operator[](0)|=((cap0&Sample::MASK_CAPID)<<Sample::OFFSET_CAPID);  
+}
+
+void QIE11DataFrame::setFlags(uint16_t v) {
+  edm::DataFrame::operator[](size()-1)=v;
 }
 
 void QIE11DataFrame::setSample(edm::DataFrame::size_type isample, int adc, int tdc, bool soi) {
   if (isample>=size()) return;
-  edm::DataFrame::operator[](isample+1)=(adc&0xFF)|(soi?(0x4000):(0))|((tdc&0x3F)<<8);
+  edm::DataFrame::operator[](isample+1)=(adc&Sample::MASK_ADC)|(soi?(Sample::MASK_SOI):(0))|((tdc&Sample::MASK_TDC)<<Sample::OFFSET_TDC);
 }
 
 std::ostream& operator<<(std::ostream& s, const QIE11DataFrame& digi) {
