@@ -25,7 +25,8 @@
 #include "zlib.h"
 #include <algorithm>
 #include <cstdlib>
-#include <list>
+#include <iostream>
+#include <vector>
 
 namespace edm {
 
