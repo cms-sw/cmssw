@@ -8,9 +8,6 @@
 #include "TF2.h"
 #include "TMath.h"
 
-#include "RecoLocalCalo/HcalRecAlgos/interface/inverseGaussCDF.hh"
-#include "RecoLocalCalo/HcalRecAlgos/interface/sampleQuantile.hh"
-
 class PedestalSub
 {
  public:
