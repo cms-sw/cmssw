@@ -1,6 +1,7 @@
 <lcgdict>
 <selection>
   <class pattern="ROOT::Math::PtEtaPhiE4D<*>" />
+  <class pattern="ROOT::Math::PtEtaPhiM4D<*>" />
   <class pattern="ROOT::Math::PxPyPzE4D<*>" />
   <class pattern="ROOT::Math::Cartesian3D<*>" />
   <class pattern="ROOT::Math::CylindricalEta3D<*>" />
@@ -24,6 +25,7 @@
 <exclusion>
   <!-- Excluded to avoid duplicate warnings because these dictionaries are defined in ROOT -->
   <class name= "ROOT::Math::PtEtaPhiE4D<double>"/>
+  <class name= "ROOT::Math::PtEtaPhiM4D<double>"/>
   <class name= "ROOT::Math::PxPyPzE4D<double>"/>
   <class name= "ROOT::Math::Cartesian3D<double>"/>
   <class name= "ROOT::Math::CylindricalEta3D<double>"/>
