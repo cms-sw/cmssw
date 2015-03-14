@@ -17,7 +17,6 @@
      <version ClassVersion="10" checksum="920043842"/>
     </class>
 	<class name="HepMC::WeightContainer" ClassVersion="14">
-  <version ClassVersion="14" checksum="481001444"/>
   <version ClassVersion="10" checksum="2163093401"/>
   <version ClassVersion="11" checksum="376377869"/>
   <version ClassVersion="12" checksum="2537869863"/>
