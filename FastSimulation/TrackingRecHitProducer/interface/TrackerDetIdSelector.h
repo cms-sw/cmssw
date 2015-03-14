@@ -16,6 +16,8 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <typeinfo>
+#include <functional>
 
 
 class TrackerDetIdSelector
@@ -23,6 +25,7 @@ class TrackerDetIdSelector
     private:
         const DetId& _detId;
         const TrackerTopology& _trackerTopology;
+
     public:
         TrackerDetIdSelector(const DetId& detId, const TrackerTopology& trackerTopology):
             _detId(detId),
@@ -40,45 +43,61 @@ class TrackerDetIdSelector
             namespace ascii = boost::spirit::ascii;
             namespace phoenix = boost::phoenix;
 
-            auto printInt = [] (const int& i, qi::unused_type, qi::unused_type)
+            auto printStr = [] (const int& t, qi::unused_type, qi::unused_type)
             {
-                std::cout << "int: "<<i << std::endl;
-            };
-
-            auto printStr = [] (const std::string& str, qi::unused_type, qi::unused_type)
-            {
-                std::cout << "string: "<<str << std::endl;
+                std::cout <<"str: "<<t << std::endl;
             };
 
             std::string::const_iterator begin = selectionStr.cbegin();
             std::string::const_iterator end = selectionStr.cend();
-            qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
-                identifier = qi::lexeme[+qi::alpha[qi::_val += qi::_1]];
-            qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
-                op =
-                    qi::lit(">")[qi::_val="<"] |
-                    qi::lit("<")[qi::_val=">"] |
-                    qi::lit(">=")[qi::_val=">="] |
-                    qi::lit("<=")[qi::_val="<="] |
-                    qi::lit("==")[qi::_val="=="] |
-                    qi::lit("&")[qi::_val="&"] |
-                    qi::lit("|")[qi::_val="|"];
-            qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
+
+            qi::rule<std::string::const_iterator, int(), ascii::space_type>
+                identifier =
+                    '!' >> identifier[qi::_val=!qi::_1] |
+                    (qi::true_[qi::_val=1] | qi::false_[qi::_val=0]) |
+                    (qi::int_[qi::_val=qi::_1]) |
+                    (qi::lexeme[+qi::alpha])[qi::_val=0];
+
+            qi::rule<std::string::const_iterator, int(), ascii::space_type>
                 expression =
-                    identifier[printStr] | qi::int_[printInt];
-            qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
-                selector =
-                    expression >> op[printStr] >> expression;
-            qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
+                    (identifier >> qi::lit(">") >> identifier)[qi::_val=qi::_1>qi::_2] |
+                    (identifier >> qi::lit(">=") >> identifier)[qi::_val=qi::_1>=qi::_2] |
+                    (identifier >> qi::lit("<") >> identifier)[qi::_val=qi::_1<=qi::_2] |
+                    (identifier >> qi::lit("<=") >> identifier)[qi::_val=qi::_1<=qi::_2] |
+                    (identifier >> qi::lit("==") >> identifier)[qi::_val=qi::_1==qi::_2] |
+                    (identifier >> qi::lit("!=") >> identifier)[qi::_val=qi::_1!=qi::_2] |
+                    (identifier >> qi::lit("&") >> identifier)[qi::_val=qi::_1 & qi::_2] |
+                    (identifier >> qi::lit("|") >> identifier)[qi::_val=qi::_1 | qi::_2];
+
+            qi::rule<std::string::const_iterator, int(), ascii::space_type>
                 combo =
-                    '(' >> combo >> ')' >> *(op >> '(' >> combo >> ')') |
-                    selector;
+                    ('(' >> combo >> ')' >> qi::lit(">") >> combo)[qi::_val=qi::_1>qi::_2] |
+                    ('(' >> combo >> ')' >> qi::lit(">=") >> combo)[qi::_val=qi::_1>=qi::_2] |
+                    ('(' >> combo >> ')' >> qi::lit("<") >> combo)[qi::_val=qi::_1<qi::_2] |
+                    ('(' >> combo >> ')' >> qi::lit("<=") >> combo)[qi::_val=qi::_1<=qi::_2] |
+                    ('(' >> combo >> ')' >> qi::lit("==") >> combo)[qi::_val=qi::_1==qi::_2] |
+                    ('(' >> combo >> ')' >> qi::lit("!=") >> combo)[qi::_val=qi::_1!=qi::_2] |
+                    ('(' >> combo >> ')' >> qi::lit("&") >> combo)[qi::_val=qi::_1&qi::_2] |
+                    ('(' >> combo >> ')' >> qi::lit("|") >> combo)[qi::_val=qi::_1|qi::_2] |
+                    (qi::lit("!") >> '(' >> combo[qi::_val=!qi::_1] >> ')') |
+                    ('(' >> combo[qi::_val=qi::_1] >> ')') |
+                    expression[qi::_val=qi::_1] |
+                    identifier[qi::_val=qi::_1];
 
-
-            bool success = qi::phrase_parse(begin,end, combo, ascii::space);
+            bool success = qi::phrase_parse(begin,end, combo[printStr], ascii::space);
             if (begin!=end)
             {
-                std::cout<<"not a complete match"<<std::endl;
+                std::cout<<"error while parsing:"<<std::endl;
+                for (auto it=selectionStr.cbegin(); it!=begin; ++it)
+                {
+                    std::cout << *it;
+                }
+                std::cout << "^^^";
+                for (auto it=begin; it!=selectionStr.cend(); ++it)
+                {
+                    std::cout << *it;
+                }
+                std::cout<<std::endl;
             }
 
             return success;

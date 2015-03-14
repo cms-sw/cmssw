@@ -30,7 +30,7 @@ process.source = cms.Source ("PoolSource",
 
 process.recHitProducer=cms.EDProducer("TrackingRecHitProducer",
     simHits = cms.InputTag("famosSimHits","TrackerHits"),
-    select=cms.string("(bpxLayer > 45) & (bpxSide==1)"),
+    select=cms.string("(pxbLayer<3) & (pxbSide!=1)"),
     plugins=cms.PSet(
 
         defaultPlugin = cms.PSet(
