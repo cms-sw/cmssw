@@ -204,6 +204,17 @@ electronGsfTracks.TrajectoryInEvent = True
 # PF related electron sequences defined in FastSimulation.ParticleFlow.ParticleFlowFastSim_cff
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 
+# we need a replacment for the firstStepPrimaryVertices
+# that includes tracker information of signal and pile up
+# after mixing there is no such thing as initialStepTracks,
+# so we replace the input collection for firstStepPrimaryVertices with generalTracks
+
+import RecoTracker.IterativeTracking.InitialStep_cff 
+firstStepPrimaryVertices = RecoTracker.IterativeTracking.InitialStep_cff.firstStepPrimaryVertices.clone(
+    TrackLabel = "generalTracks"
+)
+
+
 iterativeTrackingBeginning = cms.Sequence(
     iterativeInitialSeeds+
     iterativePixelPairSeeds+
@@ -257,6 +268,8 @@ famosBTaggingSequence = cms.Sequence(
     btagging
 )
 
+from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
+
 ## rechist from calo are needed by caloTowerForTrk
 # in fact localreco modules should run before globalreco ones...
 vertexreco.insert(0,caloRecHitsPreTrk)
@@ -280,22 +293,19 @@ digitizationSequence = cms.Sequence(
     *doAllDigi
     *addPileupInfo
     )
-trackDigiVertexSequence = cms.Sequence(
+trackDigiSequence = cms.Sequence(
     trackReco+
     #dump+ #TEMP
-    digitizationSequence+
-    vertexreco
+    digitizationSequence
     )
-trackVertexReco = cms.Sequence( # for backward compatibility
-    trackDigiVertexSequence
-    )
+
 caloTowersSequence = cms.Sequence(
     caloRecHits+
     caloTowersRec
     )
 famosSimulationSequence = cms.Sequence( 
     simulationSequence+
-    trackDigiVertexSequence
+    trackDigiSequence
     )        
 
 famosEcalDrivenElectronSequence = cms.Sequence(
@@ -306,6 +316,9 @@ famosEcalDrivenElectronSequence = cms.Sequence(
 simulationSequence.insert(0,genParticles)
 
 reconstructionWithFamos = cms.Sequence(
+    trackExtrapolator+
+    firstStepPrimaryVertices+
+    vertexreco + 
     caloTowersSequence+
     particleFlowCluster+
     ecalClusters+

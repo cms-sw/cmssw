@@ -71,7 +71,7 @@ for name in namesObjsToDel:
 # that includes tracker information of signal and pile up
 # after mixing there is no such thing as initialStepTracks,
 # so we replace the input collection for firstStepPrimaryVertices with generalTracks
-_firstStepPrimaryVertices = firstStepPrimaryVertices.clone(
+firstStepPrimaryVertices = firstStepPrimaryVertices.clone(
     TrackLabel = "generalTracks"
 )
 

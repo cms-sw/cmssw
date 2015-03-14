@@ -71,7 +71,10 @@ generalTracks = cms.EDAlias(
                               toProductInstance = cms.string('') ),
                      cms.PSet(type=cms.string('TrackingRecHitsOwned'),
                               fromProductInstance = cms.string('generalTracks'),
-                              toProductInstance = cms.string('') ) )
+                              toProductInstance = cms.string('') ),
+                     cms.PSet(type=cms.string('floatedmValueMap'),
+                              fromProductInstance = cms.string('generalTracksMVAVals'),
+                              toProductInstance = cms.string('MVAVals') ) )
     )
 
 
