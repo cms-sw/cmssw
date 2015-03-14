@@ -43,7 +43,7 @@ famosSimHits = cms.EDProducer("FamosProducer",
     RunNumber = cms.untracked.int32(1001),
     Verbosity = cms.untracked.int32(0),
     # If false, no misalignment can be applied in the tracker
-    ApplyAlignment = cms.bool(True),
+    ApplyAlignment = cms.bool(False),
     # If false, no SimHits are simulated in the tracker
     # (but the tracker material is still here)
     SimulateTracking = cms.bool(True),

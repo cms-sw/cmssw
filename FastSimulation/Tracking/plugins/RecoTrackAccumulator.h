@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
@@ -46,22 +45,25 @@ class RecoTrackAccumulator : public DigiAccumulatorMixMod
   virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
   
  private:
-  template<class T> void accumulateEvent(const T& e, edm::EventSetup const& c,const edm::InputTag & label);
+  template<class T> void accumulateEvent(const T& e, edm::EventSetup const& c,const edm::InputTag & label,const edm::InputTag & MVALabel);
 
-  std::auto_ptr<reco::TrackCollection> NewTrackList_;
-  std::auto_ptr<reco::TrackExtraCollection> NewTrackExtraList_;
-  std::auto_ptr<TrackingRecHitCollection> NewHitList_;
+  std::auto_ptr<reco::TrackCollection>  newTracks_;
+  std::auto_ptr<reco::TrackExtraCollection> newTrackExtras_;
+  std::auto_ptr<TrackingRecHitCollection> newHits_;
+  std::vector<float> newMVAVals_;
 
-  reco::TrackExtraRefProd rTrackExtras;
-  TrackingRecHitRefProd rHits;
+  reco::TrackRefProd rNewTracks;
+  reco::TrackExtraRefProd rNewTrackExtras;
+  TrackingRecHitRefProd rNewHits;
 
-  edm::InputTag InputSignal_;
-  edm::InputTag InputPileUp_;
+  edm::InputTag signalTracksTag;
+  edm::InputTag signalMVAValuesTag;
+  edm::InputTag pileUpTracksTag;
+  edm::InputTag pileUpMVAValuesTag;
 
-  std::string GeneralTrackOutput_;
-  std::string HitOutput_;
-  std::string GeneralTrackExtraOutput_;
-
+  std::string outputLabel;
+  std::string MVAOutputLabel;
+  
 };
 
 
