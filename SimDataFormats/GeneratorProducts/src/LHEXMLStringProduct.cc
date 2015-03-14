@@ -34,6 +34,8 @@ void LHEXMLStringProduct::fillCompressedContent(std::istream &input, unsigned in
   constexpr unsigned int bufsize = 4096;
   char inbuf[bufsize];
   
+  const unsigned int threshsize = 32*1024*1024;
+  
   //initialize lzma
   uint32_t preset = 9;
   lzma_stream strm = LZMA_STREAM_INIT;
@@ -69,7 +71,12 @@ void LHEXMLStringProduct::fillCompressedContent(std::istream &input, unsigned in
     //if output blob is full and compression is still going, allocate more memory
     if (strm.avail_out == 0 && ret==LZMA_OK) {
       unsigned int oldsize = output.size();
-      output.resize(2*oldsize);
+      if (oldsize<threshsize) {
+        output.resize(2*oldsize);
+      }
+      else {
+        output.resize(oldsize + threshsize);
+      }
       strm.next_out = &output[oldsize];
       strm.avail_out = output.size() - oldsize;
     }
