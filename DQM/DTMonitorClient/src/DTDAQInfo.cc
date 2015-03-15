@@ -58,13 +58,11 @@ DTDAQInfo::~DTDAQInfo() {}
 
   totalDAQFraction = ibooker.bookFloat("DAQSummary");  
   totalDAQFraction->Fill(-1);
-         cout << " totalDAQFraction done " << endl;
 
   // map
   daqMap = ibooker.book2D("DAQSummaryMap","DT Certification Summary Map",12,1,13,5,-2,3);
   daqMap->setAxisTitle("sector",1);
   daqMap->setAxisTitle("wheel",2);
-         cout << " map done " << endl;
 
   // Wheel "fractions" -> will be 0 or 1
 
@@ -181,11 +179,9 @@ DTDAQInfo::~DTDAQInfo() {}
 	  totalDAQFraction->Fill(totalDAQFraction->getFloatValue() + 1./60.);
 	  daqMap->Fill(sector,wheel);
 	}
-            cout << " daqMap->Fill , ros = " << ros<<endl;
       }
     }   
   } else {      
-        cout << " recordkey nehi "<<endl; 
     LogWarning("DQM|DTMonitorClient|DTDAQInfo") << "*** Warning: record key not found for RunInfoRcd" << endl;
     totalDAQFraction->Fill(-1);               
     for(int wheel = -2; wheel != 3; ++wheel) {

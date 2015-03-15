@@ -22,6 +22,7 @@ Implementation:
 #include <memory>
 #include <vector>
 #include <string>
+#include <fstream>
 #include <unistd.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -72,7 +73,6 @@ public:
 private:
 
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
   virtual void beginRunProduce(edm::Run& run, edm::EventSetup const& es) override;
   virtual void endRunProduce(edm::Run&, edm::EventSetup const&) override;
 
@@ -203,13 +203,6 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   return; 
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-ExternalLHEProducer::endJob() {
-
-  reader_.reset();
-}
-
 // ------------ method called when starting to processes a run  ------------
 void 
 ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& es)
@@ -240,15 +233,26 @@ ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& es)
   }
 
   executeScript();
-  std::auto_ptr<std::string> localContents = readOutput();
-  outputContents_ = *localContents;
-  std::auto_ptr<LHEXMLStringProduct> p(new LHEXMLStringProduct(*localContents));  
+  
+  //fill LHEXMLProduct (streaming read directly into compressed buffer to save memory)
+  std::auto_ptr<LHEXMLStringProduct> p(new LHEXMLStringProduct);  
+  std::ifstream instream(outputFile_);
+  if (!instream) {
+    throw cms::Exception("OutputOpenError") << "Unable to open script output file " << outputFile_ << ".";
+  }  
+  instream.seekg (0, instream.end);
+  int insize = instream.tellg();
+  instream.seekg (0, instream.beg);  
+  p->fillCompressedContent(instream, 0.25*insize);
+  instream.close();
   run.put(p, "LHEScriptOutput");
 
   // LHE C++ classes translation
+  // (read back uncompressed file from disk in streaming mode again to save memory)
 
+  std::vector<std::string> infiles(1, outputFile_);
   unsigned int skip = 0;
-  std::auto_ptr<lhef::LHEReader> thisRead( new lhef::LHEReader(outputContents_, skip ) );
+  std::auto_ptr<lhef::LHEReader> thisRead( new lhef::LHEReader(infiles, skip ) );
   reader_ = thisRead;
 
   nextEvent();
@@ -285,6 +289,12 @@ ExternalLHEProducer::endRunProduce(edm::Run& run, edm::EventSetup const& es)
     std::auto_ptr<LHERunInfoProduct> product(runInfoProducts.pop_front().release());
     run.put(product);
   }
+  
+  reader_.reset();  
+  
+  if (unlink(outputFile_.c_str())) {
+    throw cms::Exception("OutputDeleteError") << "Unable to delete original script output file " << outputFile_ << " (errno=" << errno << ", " << strerror(errno) << ").";
+  }  
 
 }
 

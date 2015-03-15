@@ -25,6 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 
 //
 // class declaration
@@ -57,6 +58,7 @@ private:
   edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;
   edm::EDGetTokenT<GenFilterInfo> hepMCFilterInfoToken_;
   edm::EDGetTokenT<GenLumiInfoProduct> genLumiInfoToken_;
+  edm::EDGetTokenT<LHERunInfoProduct> lheRunInfoToken_;
   
   // ----------member data --------------------------
 

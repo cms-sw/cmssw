@@ -36,7 +36,7 @@ namespace{
 
 
 PythiaFilterEMJet::PythiaFilterEMJet(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
 etaMin(iConfig.getUntrackedParameter<double>("MinEMEta", 0)),
 eTSumMin(iConfig.getUntrackedParameter<double>("ETSumMin", 50.)),
 pTMin(iConfig.getUntrackedParameter<double>("MinEMpT", 5.)),
@@ -83,7 +83,7 @@ bool PythiaFilterEMJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   bool accepted = false;
   Handle<edm::HepMCProduct> evt;
-  iEvent.getByLabel(label_, evt);
+  iEvent.getByToken(token_, evt);
 
   list<const HepMC::GenParticle *> EM_seeds;
   const HepMC::GenEvent * myGenEvent = evt->GetEvent();

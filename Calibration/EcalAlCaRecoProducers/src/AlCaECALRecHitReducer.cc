@@ -31,10 +31,10 @@
 AlCaECALRecHitReducer::AlCaECALRecHitReducer(const edm::ParameterSet& iConfig) 
 {
 
-  ebRecHitsLabel_ = iConfig.getParameter< edm::InputTag > ("ebRecHitsLabel");
-  eeRecHitsLabel_ = iConfig.getParameter< edm::InputTag > ("eeRecHitsLabel");
-  //  esRecHitsLabel_ = iConfig.getParameter< edm::InputTag > ("esRecHitsLabel");
-  electronLabel_ = iConfig.getParameter< edm::InputTag > ("electronLabel");
+  ebRecHitsToken_ = consumes<EBRecHitCollection>(iConfig.getParameter< edm::InputTag > ("ebRecHitsLabel"));
+  eeRecHitsToken_ = consumes<EERecHitCollection>(iConfig.getParameter< edm::InputTag > ("eeRecHitsLabel"));
+  //  esRecHitsToken_ = consumes<ESRecHitCollection>(iConfig.getParameter< edm::InputTag > ("esRecHitsLabel"));
+  electronToken_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter< edm::InputTag > ("electronLabel"));
 
   alcaBarrelHitsCollection_ = iConfig.getParameter<std::string>("alcaBarrelHitCollection");
   alcaEndcapHitsCollection_ = iConfig.getParameter<std::string>("alcaEndcapHitCollection");
@@ -83,10 +83,12 @@ AlCaECALRecHitReducer::produce (edm::Event& iEvent,
   
   // Get GSFElectrons
   Handle<reco::GsfElectronCollection> pElectrons;
-  iEvent.getByLabel(electronLabel_, pElectrons);
+  iEvent.getByToken(electronToken_, pElectrons);
   if (!pElectrons.isValid()) {
-    edm::LogError ("reading") << electronLabel_ << " not found" ; 
-    //      std::cerr << "[AlCaECALRecHitReducer]" << electronLabel_ << " not found" ; 
+    edm::EDConsumerBase::Labels labels;
+    labelsForToken(electronToken_, labels);
+    edm::LogError ("reading") << labels.module << " not found" ;
+    //      std::cerr << "[AlCaECALRecHitReducer]" << labels.module_ << " not found" ;
     return ;
   }
   
@@ -97,9 +99,11 @@ AlCaECALRecHitReducer::produce (edm::Event& iEvent,
   Handle<EBRecHitCollection> barrelRecHitsHandle;
   bool barrelIsFull = true ;
   
-  iEvent.getByLabel(ebRecHitsLabel_,barrelRecHitsHandle);
+  iEvent.getByToken(ebRecHitsToken_,barrelRecHitsHandle);
   if (!barrelRecHitsHandle.isValid()) {
-    edm::LogError ("reading") << ebRecHitsLabel_ << " not found" ; 
+    edm::EDConsumerBase::Labels labels;
+    labelsForToken(ebRecHitsToken_, labels);
+    edm::LogError ("reading") << labels.module <<  " not found" ;
     barrelIsFull = false ;
   }
   
@@ -111,9 +115,11 @@ AlCaECALRecHitReducer::produce (edm::Event& iEvent,
   Handle<EERecHitCollection> endcapRecHitsHandle;
   bool endcapIsFull = true ;
   
-  iEvent.getByLabel(eeRecHitsLabel_,endcapRecHitsHandle);
+  iEvent.getByToken(eeRecHitsToken_,endcapRecHitsHandle);
   if (!endcapRecHitsHandle.isValid()) {
-    edm::LogError ("reading") << eeRecHitsLabel_ << " not found" ; 
+    edm::EDConsumerBase::Labels labels;
+    labelsForToken(eeRecHitsToken_, labels);
+    edm::LogError ("reading") << labels.module << " not found" ;
     endcapIsFull = false ;
   }
   
@@ -126,9 +132,11 @@ AlCaECALRecHitReducer::produce (edm::Event& iEvent,
   //   Handle<ESRecHitCollection> preshowerRecHitsHandle;
   //   bool preshowerIsFull = true ;
   
-  //   iEvent.getByLabel(esRecHitsLabel_,preshowerRecHitsHandle);
+  //   iEvent.getByToken(esRecHitsToken_,preshowerRecHitsHandle);
   //   if (!preshowerRecHitsHandle.isValid()) {
-  //     edm::LogError ("reading") << esRecHitsLabel_ << " not found" ; 
+  //     edm::EDConsumerBase::Labels labels;
+  //     labelsForToken(esRecHitsToken_, labels);
+  //     edm::LogError ("reading") << labels.module << " not found" ;
   //     preshowerIsFull = false ;
   //   }
   

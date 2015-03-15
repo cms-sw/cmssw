@@ -83,6 +83,8 @@ class GeneralHLTOffline : public DQMEDAnalyzer {
   std::string hlt_menu_;
   std::vector< std::vector<std::string> > PDsVectorPathsVector;
   std::vector<std::string> AddedDatasets;
+  std::vector<std::string> DataSetNames;
+  std::map< std::string, std::vector<std::string> > PathModules;
   edm::EDGetTokenT <edm::TriggerResults>   triggerResultsToken;
   edm::EDGetTokenT <trigger::TriggerEventWithRefs> triggerSummaryTokenRAW;
   edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryTokenAOD;
@@ -230,15 +232,9 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
 
   PDsVectorPathsVector.clear();
   AddedDatasets.clear();
-}
+  DataSetNames.clear();
+  PathModules.clear();
 
-
-// ------------ method called to book histograms before starting event loop  ------------
-void GeneralHLTOffline::bookHistograms(DQMStore::IBooker & iBooker,
-				       edm::Run const & iRun,
-				       edm::EventSetup const & iSetup)
-{
-  iBooker.setCurrentFolder(plotDirectoryName) ;
 
   bool changed = true;
   if (!hlt_config_.init(iRun, iSetup, hltTag, changed)) {
@@ -257,13 +253,6 @@ void GeneralHLTOffline::bookHistograms(DQMStore::IBooker & iBooker,
     if (hlt_menu_[n] == '/' || hlt_menu_[n] == '.')
       hlt_menu_[n] = '_';
 
-  //////////// Book a simple ME
-
-  iBooker.setCurrentFolder("HLT/GeneralHLTOffline/");
-  iBooker.bookString("hltMenuName", hlt_menu_.c_str());
-  cppath_ = iBooker.book1D("cppath" + hlt_menu_,
-			   "Counts/Path",
-			   hlt_config_.size(), 0, hlt_config_.size());
 
   const std::vector<std::string> &nameStreams = hlt_config_.streamNames();
   std::vector<std::string>::const_iterator si = nameStreams.begin();
@@ -275,8 +264,12 @@ void GeneralHLTOffline::bookHistograms(DQMStore::IBooker & iBooker,
     }
   }
 
+
+
   if (streamA_found_) {
     const std::vector<std::string> &datasetNames =  hlt_config_.streamContent("A");
+    DataSetNames = datasetNames;
+
     if (debugPrint)
       std::cout << "Number of Stream A datasets "
                 << datasetNames.size() << std::endl;
@@ -371,11 +364,72 @@ void GeneralHLTOffline::bookHistograms(DQMStore::IBooker & iBooker,
 
       if (debugPrint)
         std::cout <<"Found PD: " << datasetNames[i] << std::endl;
-
-      setupHltMatrix(iBooker, datasetNames[i], i);
     }  // end of loop over dataset names
+
+
+
+    std::vector<std::string> triggerNames = hlt_config_.triggerNames();
+
+    for( unsigned int iPath=0; iPath<triggerNames.size(); iPath++ ){
+      std::string pathName = triggerNames[iPath];
+
+      const std::vector<std::string>& moduleLabels = hlt_config_.moduleLabels(pathName);
+      int NumModules = int( moduleLabels.size() );
+
+      if( !(pathName.find("HLT_") != std::string::npos) ) continue;
+      if( (pathName.find("HLT_Physics")!=std::string::npos) ||
+	  (pathName.find("HLT_Random")!=std::string::npos) ) continue;
+
+      std::string prefix("hltPre");
+
+      std::vector<std::string> good_module_names;
+      good_module_names.clear();
+      for( int iMod=0; iMod<NumModules; iMod++ ){
+	std::string moduleType = hlt_config_.moduleType(moduleLabels[iMod]);
+	std::string moduleEDMType = hlt_config_.moduleEDMType(moduleLabels[iMod]);
+	if( !(moduleEDMType == "EDFilter") ) continue;
+	if( moduleType.find("Selector")!= std::string::npos ) continue;
+	if( moduleType == "HLTTriggerTypeFilter" || 
+	    moduleType == "HLTBool" ||
+	    moduleType == "PrimaryVertexObjectFilter" ||
+	    moduleType == "JetVertexChecker" ||
+	    moduleType == "HLTRHemisphere" ||
+	    moduleType == "DetectorStateFilter" ) continue;
+
+	if( moduleLabels[iMod].compare(0, prefix.length(), prefix) == 0 ) continue;
+	good_module_names.push_back(moduleLabels[iMod]);
+      }
+      PathModules[pathName] = good_module_names;
+    } // loop over paths
+
   }  // if stream A found
-}  // end of beginRun
+
+
+}
+
+
+// ------------ method called to book histograms before starting event loop  ------------
+void GeneralHLTOffline::bookHistograms(DQMStore::IBooker & iBooker,
+				       edm::Run const & iRun,
+				       edm::EventSetup const & iSetup)
+{
+  iBooker.setCurrentFolder(plotDirectoryName) ;
+
+  //////////// Book a simple ME
+
+  iBooker.setCurrentFolder("HLT/GeneralHLTOffline/");
+  iBooker.bookString("hltMenuName", hlt_menu_.c_str());
+  cppath_ = iBooker.book1D("cppath" + hlt_menu_,
+			   "Counts/Path",
+			   hlt_config_.size(), 0, hlt_config_.size());
+
+  if (streamA_found_) {
+
+    for (unsigned int iPD = 0; iPD < DataSetNames.size(); iPD++)
+      setupHltMatrix(iBooker, DataSetNames[iPD], iPD);
+
+  }  // if stream A found
+}  // end of bookHistograms
 
 
 void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::string & label, int iPD) {
@@ -418,52 +472,28 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
     }
 
     std::string pathNameVer = PDsVectorPathsVector[iPD][iPath];
-    const std::vector<std::string>& moduleLabels = hlt_config_.moduleLabels(pathNameVer);
+
+    std::vector<std::string> moduleLabels = PathModules[pathNameVer];
     int NumModules = int( moduleLabels.size() );
 
-    if( !(pathNameVer.find("HLT_") != std::string::npos) ) continue;
-    if( (pathNameVer.find("HLT_Physics")!=std::string::npos) ||
-	(pathNameVer.find("HLT_Random")!=std::string::npos) ) continue;
-
-    std::string prefix("hltPre");
-
-    std::vector<std::string> good_module_names;
-    for( int iMod=0; iMod<NumModules; iMod++ ){
-      std::string moduleType = hlt_config_.moduleType(moduleLabels[iMod]);
-      std::string moduleEDMType = hlt_config_.moduleEDMType(moduleLabels[iMod]);
-      if( !(moduleEDMType == "EDFilter") ) continue;
-      if( moduleType.find("Selector")!= std::string::npos ) continue;
-      if( moduleType == "HLTTriggerTypeFilter" || 
-	  moduleType == "HLTBool" ||
-	  moduleType == "PrimaryVertexObjectFilter" ||
-	  moduleType == "JetVertexChecker" ||
-	  moduleType == "HLTRHemisphere" ||
-	  moduleType == "DetectorStateFilter" ) continue;
-
-      if( moduleLabels[iMod].compare(0, prefix.length(), prefix) == 0 ) continue;
-      good_module_names.push_back(moduleLabels[iMod]);
-    }
-
-    int NumGoodModules = int( good_module_names.size() );
-
-    if( NumGoodModules==0 ) continue;
+    if( NumModules==0 ) continue;
 
     std::string pathName_dataset = "cpfilt_" + label + "_" + pathName;
 
     cpfilt_mini_[pathName_dataset] = iBooker.book1D(pathName_dataset.c_str(),
 							  pathName.c_str(),
-							  NumGoodModules,
+							  NumModules,
 							  0,
-							  NumGoodModules);
+							  NumModules);
 
     if( cpfilt_mini_[pathName_dataset] )
       hist_cpfilt_mini_[pathName_dataset] = cpfilt_mini_[pathName_dataset]->getTH1F();
 
-    for( int iMod=0; iMod<NumGoodModules; iMod++ ){
+    for( int iMod=0; iMod<NumModules; iMod++ ){
       if( cpfilt_mini_[pathName_dataset] && hist_cpfilt_mini_[pathName_dataset] ){
 	TAxis * axis = hist_cpfilt_mini_[pathName_dataset]->GetXaxis();
 	if (axis)
-	  axis->SetBinLabel(iMod+1,good_module_names[iMod].c_str());
+	  axis->SetBinLabel(iMod+1,moduleLabels[iMod].c_str());
       }
     }
 
@@ -510,9 +540,6 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
     if( hasRawTriggerEvent && triggerEventRAW.isValid() ) triggerEventSize = triggerEventRAW->size();
     else if( triggerEventAOD.isValid() ) triggerEventSize = triggerEventAOD->sizeFilters();
 
-    const std::vector<std::string>& moduleLabels = hlt_config_.moduleLabels(path);
-    int NumModules = int( moduleLabels.size() );
-
     std::string pathName_dataset = "cpfilt_" + label + "_" + pathNameNoVer;
 
     TH1F * hist_cpfilt_mini = NULL;
@@ -522,22 +549,11 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
       hist_cpfilt_mini = ME_cpfilt_mini->getTH1F();
     }
 
-    std::string prefix("hltPre");
+
+    std::vector<std::string> moduleLabels = PathModules[path];
+    int NumModules = int( moduleLabels.size() );
 
     for( int iMod=0; iMod<NumModules; iMod++ ){
-      std::string moduleType = hlt_config_.moduleType(moduleLabels[iMod]);
-      std::string moduleEDMType = hlt_config_.moduleEDMType(moduleLabels[iMod]);
-      if( !(moduleEDMType == "EDFilter") ) continue;
-      if( moduleType.find("Selector")!= std::string::npos ) continue;
-      if( moduleType == "HLTTriggerTypeFilter" || 
-	  moduleType == "HLTBool" ||
-	  moduleType == "PrimaryVertexObjectFilter" ||
-	  moduleType == "JetVertexChecker" ||
-	  moduleType == "HLTRHemisphere" ||
-	  moduleType == "DetectorStateFilter" ) continue;
-
-      if( moduleLabels[iMod].compare(0, prefix.length(), prefix) == 0 ) continue;
-
       edm::InputTag moduleWhoseResultsWeWant(moduleLabels[iMod],
 					     "",
 					     hltTag);

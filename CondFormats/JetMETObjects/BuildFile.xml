@@ -5,7 +5,7 @@
 <use   name="boost_serialization"/>
 <use   name="root"/>
 <use   name="rootmath"/>
-<use   name="rootrflx"/>
+
 <use   name="clhep"/>
 <use   name="CondFormats/PhysicsToolsObjects"/>
 <export>

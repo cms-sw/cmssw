@@ -31,7 +31,7 @@ class PythiaFilterGammaGamma : public edm::EDFilter {
 
   const HepMC::GenEvent *myGenEvent;
 
-  std::string label;
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
   double minptcut;
   double maxptcut;
   double minetacut;

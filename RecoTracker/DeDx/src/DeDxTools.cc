@@ -164,23 +164,31 @@ int getCharge(const SiStripCluster* cluster, int& nSatStrip, const GeomDetUnit& 
 
    nSatStrip = 0;
    int charge = 0;
-   for(unsigned int i=0;i<Ampls.size();i++){
-      int calibratedCharge = Ampls[i];
 
-      if(calibGains.size()!=0){
-         auto & gains     = calibGains[detUnit.index()-m_off];
-         calibratedCharge = (int)(calibratedCharge / gains[(cluster->firstStrip()+i)/128] );
-         if(calibratedCharge>=1024){
-            calibratedCharge = 255;
-         }else if(calibratedCharge>=255){
-            calibratedCharge = 254;
-         } 
-      }
-
-      charge+=calibratedCharge;
-      if(calibratedCharge>=254)nSatStrip++;
+   if ( calibGains.empty() ) {
+     for(unsigned int i=0;i<Ampls.size();i++){
+       int calibratedCharge = Ampls[i];
+       charge+=calibratedCharge;
+       if(calibratedCharge>=254)nSatStrip++;
+     }
    }
-
+   else{
+     for(unsigned int i=0;i<Ampls.size();i++){
+       int calibratedCharge = Ampls[i];
+       
+       auto & gains     = calibGains[detUnit.index()-m_off];
+       calibratedCharge = (int)(calibratedCharge / gains[(cluster->firstStrip()+i)/128] );
+       if ( calibratedCharge>=255 ) {
+	 if ( calibratedCharge>=1025 )
+	   calibratedCharge=255;
+	 else
+	   calibratedCharge=254;
+       }
+       
+       charge+=calibratedCharge;
+       if(calibratedCharge>=254)nSatStrip++;
+     }
+   }
    return charge;
 }
 

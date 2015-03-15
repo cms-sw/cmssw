@@ -280,8 +280,8 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   mJetEnergyCorr= ibooker.book1D("JetEnergyCorr", "jet energy correction factor", 50, 0.0,3.0);
   mJetEnergyCorrVSEta= ibooker.bookProfile("JetEnergyCorrVSEta", "jet energy correction factor VS eta", etaBin_, etaMin_,etaMax_, 0.0,3.0);
   mJetEnergyCorrVSPt= ibooker.bookProfile("JetEnergyCorrVSPt", "jet energy correction factor VS pt", ptBin_, ptMin_,ptMax_, 0.0,3.0);
-   map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"JetEnergyCorr" ,mJetEnergyCorr));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"JetEnergyCorrVSEta" ,mJetEnergyCorrVSEta));
+  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"JetEnergyCorr" ,mJetEnergyCorr));
+  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"JetEnergyCorrVSEta" ,mJetEnergyCorrVSEta));
   map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"JetEnergyCorrVSPt" ,mJetEnergyCorrVSPt));
   
   mPt_uncor           = ibooker.book1D("Pt_uncor",           "pt for uncorrected jets",                 ptBin_,  ptThresholdUnc_,  ptMax_);
@@ -427,7 +427,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Phi_Forward",mPhi_Forward));
   
   // Leading Jet Parameters
-  mEtaFirst                = ibooker.book1D("EtaFirst", "EtaFirst", 100, -5, 5);
+  mEtaFirst                = ibooker.book1D("EtaFirst", "EtaFirst", 50, -5, 5);
   mPhiFirst                = ibooker.book1D("PhiFirst", "PhiFirst", 70, phiMin_, phiMax_);
   mPtFirst                 = ibooker.book1D("PtFirst", "PtFirst", ptBin_, ptMin_, ptMax_);
 
@@ -439,13 +439,13 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   if(isCaloJet_) {
 
     // CaloJet specific
-    mHadEnergyInHO          = ibooker.book1D("HadEnergyInHO", "HadEnergyInHO", 100, 0, 20);
-    mHadEnergyInHB          = ibooker.book1D("HadEnergy5InHB", "HadEnergyInHB", 100, 0, 100);
-    mHadEnergyInHF          = ibooker.book1D("HadEnergyInHF", "HadEnergyInHF", 100, 0, 100);
-    mHadEnergyInHE          = ibooker.book1D("HadEnergyInHE", "HadEnergyInHE", 100, 0, 200);
-    mEmEnergyInEB           = ibooker.book1D("EmEnergyInEB", "EmEnergyInEB", 100, 0, 100);
-    mEmEnergyInEE           = ibooker.book1D("EmEnergyInEE", "EmEnergyInEE", 100, 0, 100);
-    mEmEnergyInHF           = ibooker.book1D("EmEnergyInHF", "EmEnergyInHF", 120, -20, 200);
+    mHadEnergyInHO          = ibooker.book1D("HadEnergyInHO", "HadEnergyInHO", 50, 0, 20);
+    mHadEnergyInHB          = ibooker.book1D("HadEnergy5InHB", "HadEnergyInHB", 50, 0, 100);
+    mHadEnergyInHF          = ibooker.book1D("HadEnergyInHF", "HadEnergyInHF", 50, 0, 100);
+    mHadEnergyInHE          = ibooker.book1D("HadEnergyInHE", "HadEnergyInHE", 50, 0, 200);
+    mEmEnergyInEB           = ibooker.book1D("EmEnergyInEB", "EmEnergyInEB", 50, 0, 100);
+    mEmEnergyInEE           = ibooker.book1D("EmEnergyInEE", "EmEnergyInEE", 50, 0, 100);
+    mEmEnergyInHF           = ibooker.book1D("EmEnergyInHF", "EmEnergyInHF", 60, -20, 200);
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HadEnergyInHO"  ,mHadEnergyInHO));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HadEnergyInHB"  ,mHadEnergyInHB));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HadEnergyInHF"  ,mHadEnergyInHF));
@@ -456,7 +456,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     
     //JetID variables
     mresEMF                 = ibooker.book1D("resEMF", "resEMF", 50, 0., 1.);
-    mN90Hits                = ibooker.book1D("N90Hits", "N90Hits", 100, 0., 100);
+    mN90Hits                = ibooker.book1D("N90Hits", "N90Hits", 50, 0., 50);
     mfHPD                   = ibooker.book1D("fHPD", "fHPD", 50, 0., 1.);
     mfRBX                   = ibooker.book1D("fRBX", "fRBX", 50, 0., 1.);
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"resEMF" ,mresEMF));
@@ -464,25 +464,25 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"fHPD" ,mfHPD));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"fRBX" ,mfRBX));
 
-    mHFrac        = ibooker.book1D("HFrac",        "HFrac",                140,   -0.2,    1.2);
+    mHFrac        = ibooker.book1D("HFrac",        "HFrac",                70,   -0.2,    1.2);
     mEFrac        = ibooker.book1D("EFrac",        "EFrac",           52,   -0.02,    1.02);
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFrac" ,mHFrac));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"EFrac" ,mEFrac));
-    mHFrac_profile        = ibooker.bookProfile("HFrac_profile",        "HFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
+    mHFrac_profile        = ibooker.bookProfile("HFrac_profile",        "HFrac",             nbinsPV_, nPVlow_, nPVhigh_,     70,   -0.2,    1.2);
     mEFrac_profile        = ibooker.bookProfile("EFrac_profile",        "EFrac",             nbinsPV_, nPVlow_, nPVhigh_,     52,   -0.02,    1.02);
     mHFrac_profile       ->setAxisTitle("nvtx",1);
     mEFrac_profile       ->setAxisTitle("nvtx",1);
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFrac_profile",mHFrac_profile));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"EFrac_profile",mEFrac_profile));
-    mHFrac_Barrel            = ibooker.book1D("HFrac_Barrel", "HFrac Barrel", 100, 0, 1);
+    mHFrac_Barrel            = ibooker.book1D("HFrac_Barrel", "HFrac Barrel", 50, 0, 1);
     mEFrac_Barrel            = ibooker.book1D("EFrac_Barrel", "EFrac Barrel", 52, -0.02, 1.02);
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFrac_Barrel" ,mHFrac_Barrel));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"EFrac_Barrel" ,mEFrac_Barrel));
-    mHFrac_EndCap            = ibooker.book1D("HFrac_EndCap", "HFrac EndCap", 100, 0, 1);
+    mHFrac_EndCap            = ibooker.book1D("HFrac_EndCap", "HFrac EndCap", 50, 0, 1);
     mEFrac_EndCap            = ibooker.book1D("EFrac_EndCap", "EFrac EndCap", 52, -0.02, 1.02);
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFrac_EndCap" ,mHFrac_EndCap));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"EFrac_EndCap" ,mEFrac_EndCap));
-    mHFrac_Forward           = ibooker.book1D("HFrac_Forward", "HFrac Forward", 140, -0.2, 1.2);
+    mHFrac_Forward           = ibooker.book1D("HFrac_Forward", "HFrac Forward", 70, -0.2, 1.2);
     mEFrac_Forward           = ibooker.book1D("EFrac_Forward", "EFrac Forward", 52, -0.02, 1.02);
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFrac_Forward" ,mHFrac_Forward));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"EFrac_Forward" ,mEFrac_Forward));
@@ -498,11 +498,11 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 	mqgLikelihood_lowPt_Barrel= ibooker.book1D("qg_Likelihood_lowPt_Barrel","qg likelihood lowPt Barrel",50,-1.1,1.1);
 	mAxis2_lowPt_EndCap = ibooker.book1D("qg_Axis2_lowPt_EndCap","qg Axis2 #sigma_{2} lowPt EndCap",50,0.,0.20);
 	mpTD_lowPt_EndCap= ibooker.book1D("qg_pTD_lowPt_EndCap","qg fragmentation function p_{T}^{D} lowPt EndCap",50,0.15,1.05);
-	mMultiplicityQG_lowPt_EndCap= ibooker.book1D("qg_multiplicity_lowPt_EndCap","qg multiplicity lowPt EndCap",100,0,100);
+	mMultiplicityQG_lowPt_EndCap= ibooker.book1D("qg_multiplicity_lowPt_EndCap","qg multiplicity lowPt EndCap",50,0,100);
 	mqgLikelihood_lowPt_EndCap= ibooker.book1D("qg_Likelihood_lowPt_EndCap","qg likelihood lowPt EndCap",50,-1.1,1.1);
 	mAxis2_lowPt_Forward = ibooker.book1D("qg_Axis2_lowPt_Forward","qg Axis2 #sigma_{2} lowPt Forward",50,0.,0.20);
 	mpTD_lowPt_Forward= ibooker.book1D("qg_pTD_lowPt_Forward","qg fragmentation function p_{T}^{D} lowPt Forward",50,0.15,1.05);
-	mMultiplicityQG_lowPt_Forward= ibooker.book1D("qg_multiplicity_lowPt_Forward","qg multiplicity lowPt Forward",100,0,100);
+	mMultiplicityQG_lowPt_Forward= ibooker.book1D("qg_multiplicity_lowPt_Forward","qg multiplicity lowPt Forward",50,0,100);
 	mqgLikelihood_lowPt_Forward= ibooker.book1D("qg_Likelihood_lowPt_Forward","qg likelihood lowPt Forward",50,-1.1,1.1);
 	
 	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Axis2_lowPt_Barrel" ,mAxis2_lowPt_Barrel));
@@ -520,15 +520,15 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
 	mAxis2_mediumPt_Barrel = ibooker.book1D("qg_Axis2_mediumPt_Barrel","qg Axis2 #sigma_{2} mediumPt Barrel",50,0.,0.20);
 	mpTD_mediumPt_Barrel= ibooker.book1D("qg_pTD_mediumPt_Barrel","qg fragmentation function p_{T}^{D} mediumPt Barrel",50,0.15,1.05);
-	mMultiplicityQG_mediumPt_Barrel= ibooker.book1D("qg_multiplicity_mediumPt_Barrel","qg multiplicity mediumPt Barrel",100,0,100);
+	mMultiplicityQG_mediumPt_Barrel= ibooker.book1D("qg_multiplicity_mediumPt_Barrel","qg multiplicity mediumPt Barrel",50,0,100);
 	mqgLikelihood_mediumPt_Barrel= ibooker.book1D("qg_Likelihood_mediumPt_Barrel","qg likelihood mediumPt Barrel",50,-1.1,1.1);
 	mAxis2_mediumPt_EndCap = ibooker.book1D("qg_Axis2_mediumPt_EndCap","qg Axis2 #sigma_{2} mediumPt EndCap",50,0.,0.20);
 	mpTD_mediumPt_EndCap= ibooker.book1D("qg_pTD_mediumPt_EndCap","qg fragmentation function p_{T}^{D} mediumPt EndCap",50,0.15,1.05);
-	mMultiplicityQG_mediumPt_EndCap= ibooker.book1D("qg_multiplicity_mediumPt_EndCap","qg multiplicity mediumPt EndCap",100,0,100);
+	mMultiplicityQG_mediumPt_EndCap= ibooker.book1D("qg_multiplicity_mediumPt_EndCap","qg multiplicity mediumPt EndCap",50,0,100);
 	mqgLikelihood_mediumPt_EndCap= ibooker.book1D("qg_Likelihood_mediumPt_EndCap","qg likelihood mediumPt EndCap",50,-1.1,1.1);
 	mAxis2_mediumPt_Forward = ibooker.book1D("qg_Axis2_mediumPt_Forward","qg Axis2 #sigma_{2} mediumPt Forward",50,0.,0.20);
 	mpTD_mediumPt_Forward= ibooker.book1D("qg_pTD_mediumPt_Forward","qg fragmentation function p_{T}^{D} mediumPt Forward",50,0.15,1.05);
-	mMultiplicityQG_mediumPt_Forward= ibooker.book1D("qg_multiplicity_mediumPt_Forward","qg multiplicity mediumPt Forward",100,0,100);
+	mMultiplicityQG_mediumPt_Forward= ibooker.book1D("qg_multiplicity_mediumPt_Forward","qg multiplicity mediumPt Forward",50,0,100);
 	mqgLikelihood_mediumPt_Forward= ibooker.book1D("qg_Likelihood_mediumPt_Forward","qg likelihood mediumPt Forward",50,-1.1,1.1);
 	
 	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Axis2_mediumPt_Barrel" ,mAxis2_mediumPt_Barrel));
@@ -546,15 +546,15 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
 	mAxis2_highPt_Barrel = ibooker.book1D("qg_Axis2_highPt_Barrel","qg Axis2 #sigma_{2} highPt Barrel",50,0.,0.20);
 	mpTD_highPt_Barrel= ibooker.book1D("qg_pTD_highPt_Barrel","qg fragmentation function p_{T}^{D} highPt Barrel",50,0.15,1.05);
-	mMultiplicityQG_highPt_Barrel= ibooker.book1D("qg_multiplicity_highPt_Barrel","qg multiplicity highPt Barrel",100,0,100);
+	mMultiplicityQG_highPt_Barrel= ibooker.book1D("qg_multiplicity_highPt_Barrel","qg multiplicity highPt Barrel",50,0,100);
 	mqgLikelihood_highPt_Barrel= ibooker.book1D("qg_Likelihood_highPt_Barrel","qg likelihood highPt Barrel",50,-1.1,1.1);
 	mAxis2_highPt_EndCap = ibooker.book1D("qg_Axis2_highPt_EndCap","qg Axis2 #sigma_{2} highPt EndCap",50,0.,0.20);
 	mpTD_highPt_EndCap= ibooker.book1D("qg_pTD_highPt_EndCap","qg fragmentation function p_{T}^{D} highPt EndCap",50,0.15,1.05);
-	mMultiplicityQG_highPt_EndCap= ibooker.book1D("qg_multiplicity_highPt_EndCap","qg multiplicity highPt EndCap",100,0,100);
+	mMultiplicityQG_highPt_EndCap= ibooker.book1D("qg_multiplicity_highPt_EndCap","qg multiplicity highPt EndCap",50,0,100);
 	mqgLikelihood_highPt_EndCap= ibooker.book1D("qg_Likelihood_highPt_EndCap","qg likelihood highPt EndCap",50,-1.1,1.1);
 	mAxis2_highPt_Forward = ibooker.book1D("qg_Axis2_highPt_Forward","qg Axis2 #sigma_{2} highPt Forward",50,0.,0.20);
 	mpTD_highPt_Forward= ibooker.book1D("qg_pTD_highPt_Forward","qg fragmentation function p_{T}^{D} highPt Forward",50,0.15,1.05);
-	mMultiplicityQG_highPt_Forward= ibooker.book1D("qg_multiplicity_highPt_Forward","qg multiplicity highPt Forward",100,0,100);
+	mMultiplicityQG_highPt_Forward= ibooker.book1D("qg_multiplicity_highPt_Forward","qg multiplicity highPt Forward",50,0,100);
 	mqgLikelihood_highPt_Forward= ibooker.book1D("qg_Likelihood_highPt_Forward","qg likelihood highPt Forward",50,-1.1,1.1);
 	
 	map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"qg_Axis2_highPt_Barrel" ,mAxis2_highPt_Barrel));
@@ -612,15 +612,15 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     mMediumCutPUJIDPassFractionVSpt  = ibooker.bookProfile("MediumCutPUIDPassFractionVSpt","MediumCutPUIDPassFractionVSpt",ptBin_, ptMin_, ptMax_,0.,1.2);
     mTightCutPUJIDPassFractionVSeta  = ibooker.bookProfile("TightCutPUIDPassFractionVSeta","TightCutPUIDPassFractionVSeta",etaBin_, etaMin_, etaMax_,0.,1.2);
     mTightCutPUJIDPassFractionVSpt   = ibooker.bookProfile("TightCutPUIDPassFractionVSpt","TightCutPUIDPassFractionVSpt",ptBin_, ptMin_, ptMax_,0.,1.2);
-    mCutPUJIDDiscriminant_lowPt_Barrel   = ibooker.book1D("CutPUJIDDiscriminant_lowPt_Barrel","CutPUJIDDiscriminant_lowPt_Barrel",100, -1.00, 1.00);
-    mCutPUJIDDiscriminant_lowPt_EndCap   = ibooker.book1D("CutPUJIDDiscriminant_lowPt_EndCap","CutPUJIDDiscriminant_lowPt_EndCap",100, -1.00, 1.00);
-    mCutPUJIDDiscriminant_lowPt_Forward   = ibooker.book1D("CutPUJIDDiscriminant_lowPt_Forward","CutPUJIDDiscriminant_lowPt_Forward",100, -1.00, 1.00);
-    mCutPUJIDDiscriminant_mediumPt_Barrel   = ibooker.book1D("CutPUJIDDiscriminant_mediumPt_Barrel","CutPUJIDDiscriminant_mediumPt_Barrel",100, -1.00, 1.00);
-    mCutPUJIDDiscriminant_mediumPt_EndCap   = ibooker.book1D("CutPUJIDDiscriminant_mediumPt_EndCap","CutPUJIDDiscriminant_mediumPt_EndCap",100, -1.00, 1.00);
-    mCutPUJIDDiscriminant_mediumPt_Forward   = ibooker.book1D("CutPUJIDDiscriminant_mediumPt_Forward","CutPUJIDDiscriminant_mediumPt_Forward",100, -1.00, 1.00);
-    mCutPUJIDDiscriminant_highPt_Barrel   = ibooker.book1D("CutPUJIDDiscriminant_highPt_Barrel","CutPUJIDDiscriminant_highPt_Barrel",100, -1.00, 1.00);
-    mCutPUJIDDiscriminant_highPt_EndCap   = ibooker.book1D("CutPUJIDDiscriminant_highPt_EndCap","CutPUJIDDiscriminant_highPt_EndCap",100, -1.00, 1.00);
-    mCutPUJIDDiscriminant_highPt_Forward   = ibooker.book1D("CutPUJIDDiscriminant_highPt_Forward","CutPUJIDDiscriminant_highPt_Forward",100, -1.00, 1.00);
+    mCutPUJIDDiscriminant_lowPt_Barrel   = ibooker.book1D("CutPUJIDDiscriminant_lowPt_Barrel","CutPUJIDDiscriminant_lowPt_Barrel",50, -1.00, 1.00);
+    mCutPUJIDDiscriminant_lowPt_EndCap   = ibooker.book1D("CutPUJIDDiscriminant_lowPt_EndCap","CutPUJIDDiscriminant_lowPt_EndCap",50, -1.00, 1.00);
+    mCutPUJIDDiscriminant_lowPt_Forward   = ibooker.book1D("CutPUJIDDiscriminant_lowPt_Forward","CutPUJIDDiscriminant_lowPt_Forward",50, -1.00, 1.00);
+    mCutPUJIDDiscriminant_mediumPt_Barrel   = ibooker.book1D("CutPUJIDDiscriminant_mediumPt_Barrel","CutPUJIDDiscriminant_mediumPt_Barrel",50, -1.00, 1.00);
+    mCutPUJIDDiscriminant_mediumPt_EndCap   = ibooker.book1D("CutPUJIDDiscriminant_mediumPt_EndCap","CutPUJIDDiscriminant_mediumPt_EndCap",50, -1.00, 1.00);
+    mCutPUJIDDiscriminant_mediumPt_Forward   = ibooker.book1D("CutPUJIDDiscriminant_mediumPt_Forward","CutPUJIDDiscriminant_mediumPt_Forward",50, -1.00, 1.00);
+    mCutPUJIDDiscriminant_highPt_Barrel   = ibooker.book1D("CutPUJIDDiscriminant_highPt_Barrel","CutPUJIDDiscriminant_highPt_Barrel",50, -1.00, 1.00);
+    mCutPUJIDDiscriminant_highPt_EndCap   = ibooker.book1D("CutPUJIDDiscriminant_highPt_EndCap","CutPUJIDDiscriminant_highPt_EndCap",50, -1.00, 1.00);
+    mCutPUJIDDiscriminant_highPt_Forward   = ibooker.book1D("CutPUJIDDiscriminant_highPt_Forward","CutPUJIDDiscriminant_highPt_Forward",50, -1.00, 1.00);
 
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"LooseCutPUIDPassFractionVSeta",mLooseCutPUJIDPassFractionVSeta));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"LooseCutPUIDPassFractionVSpt",mLooseCutPUJIDPassFractionVSpt));
@@ -736,15 +736,15 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   }
   //
   if(isMiniAODJet_ || isPFJet_){
-    mMVAPUJIDDiscriminant_lowPt_Barrel   = ibooker.book1D("MVAPUJIDDiscriminant_lowPt_Barrel","MVAPUJIDDiscriminant_lowPt_Barrel",100, -1.00, 1.00);
-    mMVAPUJIDDiscriminant_lowPt_EndCap   = ibooker.book1D("MVAPUJIDDiscriminant_lowPt_EndCap","MVAPUJIDDiscriminant_lowPt_EndCap",100, -1.00, 1.00);
-    mMVAPUJIDDiscriminant_lowPt_Forward   = ibooker.book1D("MVAPUJIDDiscriminant_lowPt_Forward","MVAPUJIDDiscriminant_lowPt_Forward",100, -1.00, 1.00);
-    mMVAPUJIDDiscriminant_mediumPt_Barrel   = ibooker.book1D("MVAPUJIDDiscriminant_mediumPt_Barrel","MVAPUJIDDiscriminant_mediumPt_Barrel",100, -1.00, 1.00);
-    mMVAPUJIDDiscriminant_mediumPt_EndCap   = ibooker.book1D("MVAPUJIDDiscriminant_mediumPt_EndCap","MVAPUJIDDiscriminant_mediumPt_EndCap",100, -1.00, 1.00);
-    mMVAPUJIDDiscriminant_mediumPt_Forward   = ibooker.book1D("MVAPUJIDDiscriminant_mediumPt_Forward","MVAPUJIDDiscriminant_mediumPt_Forward",100, -1.00, 1.00);
-    mMVAPUJIDDiscriminant_highPt_Barrel   = ibooker.book1D("MVAPUJIDDiscriminant_highPt_Barrel","MVAPUJIDDiscriminant_highPt_Barrel",100, -1.00, 1.00);
-    mMVAPUJIDDiscriminant_highPt_EndCap   = ibooker.book1D("MVAPUJIDDiscriminant_highPt_EndCap","MVAPUJIDDiscriminant_highPt_EndCap",100, -1.00, 1.00);
-    mMVAPUJIDDiscriminant_highPt_Forward   = ibooker.book1D("MVAPUJIDDiscriminant_highPt_Forward","MVAPUJIDDiscriminant_highPt_Forward",100, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_lowPt_Barrel   = ibooker.book1D("MVAPUJIDDiscriminant_lowPt_Barrel","MVAPUJIDDiscriminant_lowPt_Barrel",50, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_lowPt_EndCap   = ibooker.book1D("MVAPUJIDDiscriminant_lowPt_EndCap","MVAPUJIDDiscriminant_lowPt_EndCap",50, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_lowPt_Forward   = ibooker.book1D("MVAPUJIDDiscriminant_lowPt_Forward","MVAPUJIDDiscriminant_lowPt_Forward",50, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_mediumPt_Barrel   = ibooker.book1D("MVAPUJIDDiscriminant_mediumPt_Barrel","MVAPUJIDDiscriminant_mediumPt_Barrel",50, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_mediumPt_EndCap   = ibooker.book1D("MVAPUJIDDiscriminant_mediumPt_EndCap","MVAPUJIDDiscriminant_mediumPt_EndCap",50, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_mediumPt_Forward   = ibooker.book1D("MVAPUJIDDiscriminant_mediumPt_Forward","MVAPUJIDDiscriminant_mediumPt_Forward",50, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_highPt_Barrel   = ibooker.book1D("MVAPUJIDDiscriminant_highPt_Barrel","MVAPUJIDDiscriminant_highPt_Barrel",50, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_highPt_EndCap   = ibooker.book1D("MVAPUJIDDiscriminant_highPt_EndCap","MVAPUJIDDiscriminant_highPt_EndCap",50, -1.00, 1.00);
+    mMVAPUJIDDiscriminant_highPt_Forward   = ibooker.book1D("MVAPUJIDDiscriminant_highPt_Forward","MVAPUJIDDiscriminant_highPt_Forward",50, -1.00, 1.00);
 
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_lowPt_Barrel",mMVAPUJIDDiscriminant_lowPt_Barrel));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_lowPt_EndCap",mMVAPUJIDDiscriminant_lowPt_EndCap));
@@ -1018,12 +1018,12 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
     //forward monitoring
     //energy fraction
-    mHFEFrac_lowPt_Forward    = ibooker.book1D("HFEFrac_lowPt_Forward", "HFEFrac_lowPt_Forward", 140, -0.2, 1.2);
-    mHFHFrac_lowPt_Forward    = ibooker.book1D("HFHFrac_lowPt_Forward", "HFHFrac_lowPt_Forward", 140, -0.2, 1.2);
-    mHFEFrac_mediumPt_Forward = ibooker.book1D("HFEFrac_mediumPt_Forward", "HFEFrac_mediumPt_Forward", 140, -0.2, 1.2);
-    mHFHFrac_mediumPt_Forward = ibooker.book1D("HFHFrac_mediumPt_Forward", "HFHFrac_mediumPt_Forward", 140, -0.2, 1.2);
-    mHFEFrac_highPt_Forward   = ibooker.book1D("HFEFrac_highPt_Forward", "HFEFrac_highPt_Forward", 140, -0.2, 1.2);
-    mHFHFrac_highPt_Forward   = ibooker.book1D("HFHFrac_highPt_Forward", "HFHFrac_highPt_Forward", 140, -0.2, 1.2);
+    mHFEFrac_lowPt_Forward    = ibooker.book1D("HFEFrac_lowPt_Forward", "HFEFrac_lowPt_Forward", 70, -0.2, 1.2);
+    mHFHFrac_lowPt_Forward    = ibooker.book1D("HFHFrac_lowPt_Forward", "HFHFrac_lowPt_Forward", 70, -0.2, 1.2);
+    mHFEFrac_mediumPt_Forward = ibooker.book1D("HFEFrac_mediumPt_Forward", "HFEFrac_mediumPt_Forward", 70, -0.2, 1.2);
+    mHFHFrac_mediumPt_Forward = ibooker.book1D("HFHFrac_mediumPt_Forward", "HFHFrac_mediumPt_Forward", 70, -0.2, 1.2);
+    mHFEFrac_highPt_Forward   = ibooker.book1D("HFEFrac_highPt_Forward", "HFEFrac_highPt_Forward", 70, -0.2, 1.2);
+    mHFHFrac_highPt_Forward   = ibooker.book1D("HFHFrac_highPt_Forward", "HFHFrac_highPt_Forward", 70, -0.2, 1.2);
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFHFrac_lowPt_Forward"    ,mHFHFrac_lowPt_Forward));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFEFrac_lowPt_Forward"    ,mHFEFrac_lowPt_Forward));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFHFrac_mediumPt_Forward" ,mHFHFrac_mediumPt_Forward));
@@ -1053,14 +1053,14 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NeutMultiplicity_mediumPt_Forward" ,mNeutMultiplicity_mediumPt_Forward));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NeutMultiplicity_highPt_Forward" ,mNeutMultiplicity_highPt_Forward));
     
-    mChargedHadronEnergy = ibooker.book1D("ChargedHadronEnergy", "charged HAD energy",    100, 0, 100);
-    mNeutralHadronEnergy = ibooker.book1D("NeutralHadronEnergy", "neutral HAD energy",    100, 0, 100);
-    mChargedEmEnergy     = ibooker.book1D("ChargedEmEnergy",    "charged EM energy ",    100, 0, 100);
-    mChargedMuEnergy     = ibooker.book1D("ChargedMuEnergy",     "charged Mu energy",     100, 0, 100);
-    mNeutralEmEnergy     = ibooker.book1D("NeutralEmEnergy",     "neutral EM energy",     100, 0, 100);
-    mChargedMultiplicity = ibooker.book1D("ChargedMultiplicity", "charged multiplicity ", 100, 0, 100);
-    mNeutralMultiplicity = ibooker.book1D("NeutralMultiplicity", "neutral multiplicity",  100, 0, 100);
-    mMuonMultiplicity    = ibooker.book1D("MuonMultiplicity",    "muon multiplicity",     100, 0, 100);
+    mChargedHadronEnergy = ibooker.book1D("ChargedHadronEnergy", "charged HAD energy",    50, 0, 100);
+    mNeutralHadronEnergy = ibooker.book1D("NeutralHadronEnergy", "neutral HAD energy",    50, 0, 100);
+    mChargedEmEnergy     = ibooker.book1D("ChargedEmEnergy",    "charged EM energy ",    50, 0, 100);
+    mChargedMuEnergy     = ibooker.book1D("ChargedMuEnergy",     "charged Mu energy",     50, 0, 100);
+    mNeutralEmEnergy     = ibooker.book1D("NeutralEmEnergy",     "neutral EM energy",     50, 0, 100);
+    mChargedMultiplicity = ibooker.book1D("ChargedMultiplicity", "charged multiplicity ", 50, 0, 100);
+    mNeutralMultiplicity = ibooker.book1D("NeutralMultiplicity", "neutral multiplicity",  50, 0, 100);
+    mMuonMultiplicity    = ibooker.book1D("MuonMultiplicity",    "muon multiplicity",     50, 0, 100);
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"ChargedHadronEnergy" ,mChargedHadronEnergy));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NeutralHadronEnergy" ,mNeutralHadronEnergy));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"ChargedEmEnergy"     ,mChargedEmEnergy));
@@ -1072,14 +1072,14 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
     // Book NPV profiles
     //----------------------------------------------------------------------------
-    mChargedHadronEnergy_profile = ibooker.bookProfile("ChargedHadronEnergy_profile", "charged HAD energy",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mNeutralHadronEnergy_profile = ibooker.bookProfile("NeutralHadronEnergy_profile", "neutral HAD energy",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mChargedEmEnergy_profile     = ibooker.bookProfile("ChargedEmEnergy_profile",     "charged EM energy",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mChargedMuEnergy_profile     = ibooker.bookProfile("ChargedMuEnergy_profile",     "charged Mu energy",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mNeutralEmEnergy_profile     = ibooker.bookProfile("NeutralEmEnergy_profile",     "neutral EM energy",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mChargedMultiplicity_profile = ibooker.bookProfile("ChargedMultiplicity_profile", "charged multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mNeutralMultiplicity_profile = ibooker.bookProfile("NeutralMultiplicity_profile", "neutral multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mMuonMultiplicity_profile    = ibooker.bookProfile("MuonMultiplicity_profile",    "muon multiplicity",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    mChargedHadronEnergy_profile = ibooker.bookProfile("ChargedHadronEnergy_profile", "charged HAD energy",   nbinsPV_, nPVlow_, nPVhigh_, 50, 0, 100);
+    mNeutralHadronEnergy_profile = ibooker.bookProfile("NeutralHadronEnergy_profile", "neutral HAD energy",   nbinsPV_, nPVlow_, nPVhigh_, 50, 0, 100);
+    mChargedEmEnergy_profile     = ibooker.bookProfile("ChargedEmEnergy_profile",     "charged EM energy",    nbinsPV_, nPVlow_, nPVhigh_, 50, 0, 100);
+    mChargedMuEnergy_profile     = ibooker.bookProfile("ChargedMuEnergy_profile",     "charged Mu energy",    nbinsPV_, nPVlow_, nPVhigh_, 50, 0, 100);
+    mNeutralEmEnergy_profile     = ibooker.bookProfile("NeutralEmEnergy_profile",     "neutral EM energy",    nbinsPV_, nPVlow_, nPVhigh_, 50, 0, 100);
+    mChargedMultiplicity_profile = ibooker.bookProfile("ChargedMultiplicity_profile", "charged multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 50, 0, 100);
+    mNeutralMultiplicity_profile = ibooker.bookProfile("NeutralMultiplicity_profile", "neutral multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 50, 0, 100);
+    mMuonMultiplicity_profile    = ibooker.bookProfile("MuonMultiplicity_profile",    "muon multiplicity",    nbinsPV_, nPVlow_, nPVhigh_, 50, 0, 100);
     
     // Set NPV profiles x-axis title
     //----------------------------------------------------------------------------
@@ -1204,7 +1204,7 @@ void JetAnalyzer::bookMESetSelection(std::string DirName, DQMStore::IBooker & ib
     // CaloJet specific
     //JetID variables
     mresEMF                 = ibooker.book1D("resEMF", "resEMF", 50, 0., 1.);
-    mN90Hits                = ibooker.book1D("N90Hits", "N90Hits", 100, 0., 100);
+    mN90Hits                = ibooker.book1D("N90Hits", "N90Hits", 50, 0., 100);
     mfHPD                   = ibooker.book1D("fHPD", "fHPD", 50, 0., 1.);
     mfRBX                   = ibooker.book1D("fRBX", "fRBX", 50, 0., 1.);
 
@@ -1230,9 +1230,9 @@ void JetAnalyzer::bookMESetSelection(std::string DirName, DQMStore::IBooker & ib
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFEMFrac",mHFEMFrac));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFHFrac" ,mHFHFrac));
 
-    mChargedMultiplicity = ibooker.book1D("ChargedMultiplicity", "charged multiplicity ", 100, 0, 100);
-    mNeutralMultiplicity = ibooker.book1D("NeutralMultiplicity", "neutral multiplicity",  100, 0, 100);
-    mMuonMultiplicity    = ibooker.book1D("MuonMultiplicity",    "muon multiplicity",     100, 0, 100);
+    mChargedMultiplicity = ibooker.book1D("ChargedMultiplicity", "charged multiplicity ", 50, 0, 100);
+    mNeutralMultiplicity = ibooker.book1D("NeutralMultiplicity", "neutral multiplicity",  50, 0, 100);
+    mMuonMultiplicity    = ibooker.book1D("MuonMultiplicity",    "muon multiplicity",     50, 0, 100);
    
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"ChargedMultiplicity" ,mChargedMultiplicity));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NeutralMultiplicity" ,mNeutralMultiplicity));
@@ -1240,14 +1240,14 @@ void JetAnalyzer::bookMESetSelection(std::string DirName, DQMStore::IBooker & ib
     
     // Book NPV profiles
     //----------------------------------------------------------------------------
-    mCHFrac_profile = ibooker.bookProfile("CHFrac_profile", "charged HAD fraction profile",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    mNHFrac_profile = ibooker.bookProfile("NHFrac_profile", "neutral HAD fraction profile",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    mPhFrac_profile    = ibooker.bookProfile("PhFrac_profile",     "Photon Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    mHFEMFrac_profile  = ibooker.bookProfile("HFEMFrac_profile","HF electomagnetic fraction Profile", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    mHFHFrac_profile   = ibooker.bookProfile("HFHFrac_profile", "HF hadronic fraction profile", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    mChargedMultiplicity_profile = ibooker.bookProfile("ChargedMultiplicity_profile", "charged multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mNeutralMultiplicity_profile = ibooker.bookProfile("NeutralMultiplicity_profile", "neutral multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mMuonMultiplicity_profile    = ibooker.bookProfile("MuonMultiplicity_profile",    "muon multiplicity",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    mCHFrac_profile = ibooker.bookProfile("CHFrac_profile", "charged HAD fraction profile",   nbinsPV_, nPVlow_, nPVhigh_, 50, 0, 1);
+    mNHFrac_profile = ibooker.bookProfile("NHFrac_profile", "neutral HAD fraction profile",   nbinsPV_, nPVlow_, nPVhigh_, 50, 0, 1);
+    mPhFrac_profile    = ibooker.bookProfile("PhFrac_profile",     "Photon Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 50, 0, 1);
+    mHFEMFrac_profile  = ibooker.bookProfile("HFEMFrac_profile","HF electomagnetic fraction Profile", nbinsPV_, nPVlow_, nPVhigh_, 50, 0, 1);
+    mHFHFrac_profile   = ibooker.bookProfile("HFHFrac_profile", "HF hadronic fraction profile", nbinsPV_, nPVlow_, nPVhigh_, 50, 0, 1);
+    mChargedMultiplicity_profile = ibooker.bookProfile("ChargedMultiplicity_profile", "charged multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 50, 0, 100);
+    mNeutralMultiplicity_profile = ibooker.bookProfile("NeutralMultiplicity_profile", "neutral multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 50, 0, 100);
+    mMuonMultiplicity_profile    = ibooker.bookProfile("MuonMultiplicity_profile",    "muon multiplicity",    nbinsPV_, nPVlow_, nPVhigh_, 50, 0, 100);
     
     // met NPV profiles x-axis title
     //----------------------------------------------------------------------------
@@ -1916,7 +1916,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mMVAPUJIDDiscriminant_lowPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_lowPt_Forward"]; if(mMVAPUJIDDiscriminant_lowPt_Forward && mMVAPUJIDDiscriminant_lowPt_Forward->getRootObject()) mMVAPUJIDDiscriminant_lowPt_Forward->Fill(puidmva); 
 	    mCutPUJIDDiscriminant_lowPt_Forward=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant_lowPt_Forward"]; if(mCutPUJIDDiscriminant_lowPt_Forward && mCutPUJIDDiscriminant_lowPt_Forward->getRootObject()) mCutPUJIDDiscriminant_lowPt_Forward->Fill(puidcut); 
 	    mHFEFrac_lowPt_Forward = map_of_MEs[DirName+"/"+"HFEFrac_lowPt_Forward"]; if(mHFEFrac_lowPt_Forward && mHFEFrac_lowPt_Forward->getRootObject()) mHFEFrac_lowPt_Forward->Fill((*pfJets)[ijet].HFEMEnergyFraction());
-	    mHFEFrac_lowPt_Forward = map_of_MEs[DirName+"/"+"HFEFrac_lowPt_Forward"]; if(mHFHFrac_lowPt_Forward && mHFHFrac_lowPt_Forward->getRootObject()) mHFHFrac_lowPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
+	    mHFHFrac_lowPt_Forward = map_of_MEs[DirName+"/"+"HFHFrac_lowPt_Forward"]; if(mHFHFrac_lowPt_Forward && mHFHFrac_lowPt_Forward->getRootObject()) mHFHFrac_lowPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
 	    mHFEEn_lowPt_Forward = map_of_MEs[DirName+"/"+"HFEEn_lowPt_Forward"];     if(mHFEEn_lowPt_Forward && mHFEEn_lowPt_Forward->getRootObject())     mHFEEn_lowPt_Forward->Fill((*pfJets)[ijet].HFEMEnergy());
 	    mHFHEn_lowPt_Forward = map_of_MEs[DirName+"/"+"HFHEn_lowPt_Forward"];    if(mHFHEn_lowPt_Forward && mHFHEn_lowPt_Forward->getRootObject())     mHFHEn_lowPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergy());
 	    mNeutMultiplicity_lowPt_Forward = map_of_MEs[DirName+"/"+"NeutMultiplicity_lowPt_Forward"]; if(mNeutMultiplicity_lowPt_Forward && mNeutMultiplicity_lowPt_Forward->getRootObject())  mNeutMultiplicity_lowPt_Forward->Fill((*pfJets)[ijet].neutralMultiplicity());
@@ -1930,7 +1930,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mMVAPUJIDDiscriminant_mediumPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_Forward"]; if(mMVAPUJIDDiscriminant_mediumPt_Forward && mMVAPUJIDDiscriminant_mediumPt_Forward->getRootObject()) mMVAPUJIDDiscriminant_mediumPt_Forward->Fill(puidmva); 
 	    mCutPUJIDDiscriminant_mediumPt_Forward=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant_mediumPt_Forward"]; if(mCutPUJIDDiscriminant_mediumPt_Forward && mCutPUJIDDiscriminant_mediumPt_Forward->getRootObject()) mCutPUJIDDiscriminant_mediumPt_Forward->Fill(puidcut); 
 	    mHFEFrac_mediumPt_Forward = map_of_MEs[DirName+"/"+"HFEFrac_mediumPt_Forward"]; if(mHFEFrac_mediumPt_Forward && mHFEFrac_mediumPt_Forward->getRootObject()) mHFEFrac_mediumPt_Forward->Fill((*pfJets)[ijet].HFEMEnergyFraction());
-	    mHFEFrac_mediumPt_Forward = map_of_MEs[DirName+"/"+"HFEFrac_mediumPt_Forward"]; if(mHFHFrac_mediumPt_Forward && mHFHFrac_mediumPt_Forward->getRootObject()) mHFHFrac_mediumPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
+	    mHFHFrac_mediumPt_Forward = map_of_MEs[DirName+"/"+"HFHFrac_mediumPt_Forward"]; if(mHFHFrac_mediumPt_Forward && mHFHFrac_mediumPt_Forward->getRootObject()) mHFHFrac_mediumPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
 	    mHFEEn_mediumPt_Forward = map_of_MEs[DirName+"/"+"HFEEn_mediumPt_Forward"];     if(mHFEEn_mediumPt_Forward && mHFEEn_mediumPt_Forward->getRootObject())     mHFEEn_mediumPt_Forward->Fill((*pfJets)[ijet].HFEMEnergy());
 	    mHFHEn_mediumPt_Forward = map_of_MEs[DirName+"/"+"HFHEn_mediumPt_Forward"];    if(mHFHEn_mediumPt_Forward && mHFHEn_mediumPt_Forward->getRootObject())     mHFHEn_mediumPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergy());
 	    mNeutMultiplicity_mediumPt_Forward = map_of_MEs[DirName+"/"+"NeutMultiplicity_mediumPt_Forward"]; if(mNeutMultiplicity_mediumPt_Forward && mNeutMultiplicity_mediumPt_Forward->getRootObject())  mNeutMultiplicity_mediumPt_Forward->Fill((*pfJets)[ijet].neutralMultiplicity());
@@ -1944,7 +1944,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mMVAPUJIDDiscriminant_highPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_highPt_Forward"]; if(mMVAPUJIDDiscriminant_highPt_Forward && mMVAPUJIDDiscriminant_highPt_Forward->getRootObject()) mMVAPUJIDDiscriminant_highPt_Forward->Fill(puidmva); 
 	    mCutPUJIDDiscriminant_highPt_Forward=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant_highPt_Forward"]; if(mCutPUJIDDiscriminant_highPt_Forward && mCutPUJIDDiscriminant_highPt_Forward->getRootObject()) mCutPUJIDDiscriminant_highPt_Forward->Fill(puidcut); 
 	    mHFEFrac_highPt_Forward = map_of_MEs[DirName+"/"+"HFEFrac_highPt_Forward"]; if(mHFEFrac_highPt_Forward && mHFEFrac_highPt_Forward->getRootObject()) mHFEFrac_highPt_Forward->Fill((*pfJets)[ijet].HFEMEnergyFraction());
-	    mHFEFrac_highPt_Forward = map_of_MEs[DirName+"/"+"HFEFrac_highPt_Forward"]; if(mHFHFrac_highPt_Forward && mHFHFrac_highPt_Forward->getRootObject()) mHFHFrac_highPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
+	    mHFHFrac_highPt_Forward = map_of_MEs[DirName+"/"+"HFHFrac_highPt_Forward"]; if(mHFHFrac_highPt_Forward && mHFHFrac_highPt_Forward->getRootObject()) mHFHFrac_highPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
 	    mHFEEn_highPt_Forward = map_of_MEs[DirName+"/"+"HFEEn_highPt_Forward"];     if(mHFEEn_highPt_Forward && mHFEEn_highPt_Forward->getRootObject())     mHFEEn_highPt_Forward->Fill((*pfJets)[ijet].HFEMEnergy());
 	    mHFHEn_highPt_Forward = map_of_MEs[DirName+"/"+"HFHEn_highPt_Forward"];    if(mHFHEn_highPt_Forward && mHFHEn_highPt_Forward->getRootObject())     mHFHEn_highPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergy());
 	    mNeutMultiplicity_highPt_Forward = map_of_MEs[DirName+"/"+"NeutMultiplicity_highPt_Forward"]; if(mNeutMultiplicity_highPt_Forward && mNeutMultiplicity_highPt_Forward->getRootObject())  mNeutMultiplicity_highPt_Forward->Fill((*pfJets)[ijet].neutralMultiplicity());

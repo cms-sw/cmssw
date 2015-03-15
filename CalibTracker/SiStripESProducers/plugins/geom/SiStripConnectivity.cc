@@ -27,8 +27,11 @@ std::auto_ptr<SiStripFecCabling> SiStripConnectivity::produceFecCabling( const S
 std::auto_ptr<SiStripDetCabling> SiStripConnectivity::produceDetCabling( const SiStripDetCablingRcd& iRecord ){
   edm::ESHandle<SiStripFedCabling> pDD;
   iRecord.getRecord<SiStripFedCablingRcd>().get(pDD );
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iRecord.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
   //here build an object of type SiStripDetCabling using  **ONLY** the information from class SiStripFedCabling, 
-  SiStripDetCabling * DetConnections = new SiStripDetCabling( *(pDD.product()));
+  SiStripDetCabling * DetConnections = new SiStripDetCabling( *(pDD.product()),tTopo);
   return std::auto_ptr<SiStripDetCabling>( DetConnections );
 }
 

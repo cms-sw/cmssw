@@ -881,17 +881,14 @@ namespace evf {
     std::string streamRequestName;
     if (transferSystemJson_->isMember(stream.c_str()))
       streamRequestName = stream;
-    else { 
-      if (transferSystemJson_->isMember("default"))
-        streamRequestName = "default";
+    else {
+      std::stringstream msg;
+      msg << "Transfer system mode definitions missing for -: " << stream;
+      if (requireTSPSet_)
+        throw cms::Exception("EvFDaqDirector") << msg.str();
       else {
-        std::stringstream msg;
-        msg << "Transfer system mode definitions missing for -: " << stream;
-        if (requireTSPSet_)
-          throw cms::Exception("EvFDaqDirector") << msg.str();
-        else 
-          edm::LogWarning("EvFDaqDirector") << msg.str() << " (permissive mode)";
-          return std::string();
+        edm::LogWarning("EvFDaqDirector") << msg.str() << " (permissive mode)";
+        return std::string();
       }
     }
     //return empty if strict check parameter is not on

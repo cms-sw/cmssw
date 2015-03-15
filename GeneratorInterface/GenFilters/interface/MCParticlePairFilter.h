@@ -35,6 +35,9 @@
 //
 // class decleration
 //
+namespace edm {
+  class HepMCProduct;
+}
 
 class MCParticlePairFilter : public edm::EDFilter {
    public:
@@ -49,7 +52,7 @@ class MCParticlePairFilter : public edm::EDFilter {
 
       // ----------member data ---------------------------
       
-       std::string label_;
+       edm::EDGetTokenT<edm::HepMCProduct> token_;
        std::vector<int> particleID1;
        std::vector<int> particleID2;
        std::vector<double> ptMin;

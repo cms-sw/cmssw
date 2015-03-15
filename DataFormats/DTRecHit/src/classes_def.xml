@@ -1,6 +1,7 @@
 <lcgdict>
 <selection>
   <class name="DTRecHit1D" ClassVersion="11">
+   <version ClassVersion="12" checksum="1472176344"/>
    <version ClassVersion="11" checksum="3736924859"/>
    <version ClassVersion="10" checksum="4049488222"/>
   </class>
@@ -43,6 +44,7 @@
    <version ClassVersion="10" checksum="725455680"/>
   </class>
   <class name="DTRecSegment4D" ClassVersion="11">
+   <version ClassVersion="12" checksum="2768723140"/>
    <version ClassVersion="11" checksum="3765797874"/>
    <version ClassVersion="10" checksum="2324947244"/>
   </class>
