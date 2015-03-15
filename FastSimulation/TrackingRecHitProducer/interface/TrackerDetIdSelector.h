@@ -20,6 +20,139 @@
 #include <functional>
 #include <unordered_map>
 
+struct BinaryOP;
+struct UnaryOP;
+struct Nil {};
+
+struct ExpressionAST
+{
+    typedef
+        boost::variant<
+          Nil,
+          int,
+          std::string,
+          boost::recursive_wrapper<ExpressionAST>,
+          boost::recursive_wrapper<BinaryOP>,
+          boost::recursive_wrapper<UnaryOP>
+        >
+    Type;
+
+    ExpressionAST():
+        expr(Nil())
+    {
+    }
+
+    template <typename Expr>
+    ExpressionAST(Expr const& expr):
+        expr(expr)
+    {
+    }
+
+    ExpressionAST& operator!();
+
+    Type expr;
+};
+
+ExpressionAST operator>(ExpressionAST const& lhs, ExpressionAST const& rhs);
+ExpressionAST operator>=(ExpressionAST const& lhs, ExpressionAST const& rhs);
+ExpressionAST operator==(ExpressionAST const& lhs, ExpressionAST const& rhs);
+ExpressionAST operator<=(ExpressionAST const& lhs, ExpressionAST const& rhs);
+ExpressionAST operator<(ExpressionAST const& lhs, ExpressionAST const& rhs);
+ExpressionAST operator!=(ExpressionAST const& lhs, ExpressionAST const& rhs);
+ExpressionAST operator&(ExpressionAST const& lhs, ExpressionAST const& rhs);
+ExpressionAST operator|(ExpressionAST const& lhs, ExpressionAST const& rhs);
+
+struct BinaryOP
+{
+    enum class OP
+    {
+        GREATER, GREATER_EQUAL, EQUAL, LESS_EQUAL, LESS, NOT_EQUAL, AND, OR
+    } op;
+    ExpressionAST left;
+    ExpressionAST right;
+
+    BinaryOP(OP op, ExpressionAST const& left, ExpressionAST const& right):
+        op(op),
+        left(left),
+        right(right)
+    {
+    }
+};
+
+struct UnaryOP
+{
+     enum class OP
+     {
+         NEG
+     } op;
+     ExpressionAST subject;
+     UnaryOP(OP op, ExpressionAST const& subject):
+         op(op),
+         subject(subject)
+     {
+     }
+
+};
+
+struct WalkAST
+{
+    typedef void result_type;
+
+    void operator()(boost::spirit::qi::info::nil) const {}
+    void operator()(int n) const { std::cout << n; }
+    void operator()(std::string str) const { std::cout << str; }
+    void operator()(ExpressionAST const& ast) const
+    {
+        boost::apply_visitor(*this, ast.expr);
+    }
+
+    void operator()(BinaryOP const& expr) const
+    {
+        std::cout << "(";
+        boost::apply_visitor(*this, expr.left.expr);
+        switch(expr.op)
+        {
+            case BinaryOP::OP::GREATER:
+                std::cout<<" > ";
+                break;
+            case BinaryOP::OP::GREATER_EQUAL:
+                std::cout<<" >= ";
+                break;
+            case BinaryOP::OP::EQUAL:
+                std::cout<<" == ";
+                break;
+            case BinaryOP::OP::LESS_EQUAL:
+                std::cout<<" <= ";
+                break;
+            case BinaryOP::OP::LESS:
+                std::cout<<" < ";
+                break;
+            case BinaryOP::OP::NOT_EQUAL:
+                std::cout<<" != ";
+                break;
+            case BinaryOP::OP::AND:
+                std::cout<<" & ";
+                break;
+            case BinaryOP::OP::OR:
+                std::cout<<" | ";
+                break;
+        }
+        boost::apply_visitor(*this, expr.right.expr);
+        std::cout << ')';
+    }
+
+    void operator()(UnaryOP const& expr) const
+    {
+        switch (expr.op)
+        {
+            case UnaryOP::OP::NEG:
+                std::cout<<" !(";
+                break;
+        }
+        boost::apply_visitor(*this, expr.subject.expr);
+        std::cout << ')';
+    }
+};
 
 
 class TrackerDetIdSelector
@@ -32,6 +165,12 @@ class TrackerDetIdSelector
         //typedef int DetIdFunction;
         typedef std::unordered_map<std::string, DetIdFunction> StringFunctionMap;
         const static StringFunctionMap _functions;
+
+
+
+
+
+
 
     public:
         TrackerDetIdSelector(const DetId& detId, const TrackerTopology& trackerTopology):
@@ -69,51 +208,54 @@ class TrackerDetIdSelector
             namespace ascii = boost::spirit::ascii;
             namespace phoenix = boost::phoenix;
 
-            auto printStr = [] (const int& t, qi::unused_type, qi::unused_type)
+            auto printAST = [] (const ExpressionAST& ast, qi::unused_type, qi::unused_type)
+            {
+                WalkAST walker;
+                walker(ast);
+                std::cout<<std::endl;
+            };
+            /*
+            auto printInt = [] (const int& t, qi::unused_type, qi::unused_type)
+            {
+                std::cout <<"int: "<<t << std::endl;
+            };
+
+            auto printStr = [] (const std::string& t, qi::unused_type, qi::unused_type)
             {
                 std::cout <<"str: "<<t << std::endl;
             };
-
+*/
             std::string::const_iterator begin = selectionStr.cbegin();
             std::string::const_iterator end = selectionStr.cend();
 
             qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
-                identifierFct =qi::lexeme[+qi::alpha[qi::_val+=qi::_1]];
+                identifierFctRule =qi::lexeme[+qi::alpha[qi::_val+=qi::_1]];
 
-            qi::rule<std::string::const_iterator, int(), ascii::space_type>
-                identifier =
-                    '!' >> identifier[qi::_val=!qi::_1] |
+            qi::rule<std::string::const_iterator, ExpressionAST(), ascii::space_type>
+                identifierRule =
+                    '!' >> identifierRule[qi::_val=!qi::_1] |
                     (qi::true_[qi::_val=1] | qi::false_[qi::_val=0]) |
                     (qi::int_[qi::_val=qi::_1]) |
-                    identifierFct[qi::_val=phoenix::bind(&TrackerDetIdSelector::getAttributeValue,*this,qi::_1)];
+                    identifierFctRule[qi::_val=qi::_1];
+                    //identifierFct[qi::_val=phoenix::bind(&TrackerDetIdSelector::getAttributeValue,*this,qi::_1)];
 
-            qi::rule<std::string::const_iterator, int(), ascii::space_type>
-                expression =
-                    (identifier >> qi::lit(">") >> identifier)[qi::_val=qi::_1>qi::_2] |
-                    (identifier >> qi::lit(">=") >> identifier)[qi::_val=qi::_1>=qi::_2] |
-                    (identifier >> qi::lit("<") >> identifier)[qi::_val=qi::_1<=qi::_2] |
-                    (identifier >> qi::lit("<=") >> identifier)[qi::_val=qi::_1<=qi::_2] |
-                    (identifier >> qi::lit("==") >> identifier)[qi::_val=qi::_1==qi::_2] |
-                    (identifier >> qi::lit("!=") >> identifier)[qi::_val=qi::_1!=qi::_2] |
-                    (identifier >> qi::lit("&") >> identifier)[qi::_val=qi::_1 & qi::_2] |
-                    (identifier >> qi::lit("|") >> identifier)[qi::_val=qi::_1 | qi::_2];
+            qi::rule<std::string::const_iterator, ExpressionAST(), ascii::space_type>
+                expressionRule =
+                    (identifierRule >> qi::lit(">") >> identifierRule)[qi::_val=qi::_1>qi::_2] |
+                    (identifierRule >> qi::lit(">=") >> identifierRule)[qi::_val=qi::_1>=qi::_2] |
+                    (identifierRule >> qi::lit("<") >> identifierRule)[qi::_val=qi::_1<qi::_2] |
+                    (identifierRule >> qi::lit("<=") >> identifierRule)[qi::_val=qi::_1<=qi::_2] |
+                    (identifierRule >> qi::lit("==") >> identifierRule)[qi::_val=qi::_1==qi::_2] |
+                    (identifierRule >> qi::lit("!=") >> identifierRule)[qi::_val=qi::_1!=qi::_2];
 
-            qi::rule<std::string::const_iterator, int(), ascii::space_type>
-                combo =
-                    ('(' >> combo >> ')' >> qi::lit(">") >> combo)[qi::_val=qi::_1>qi::_2] |
-                    ('(' >> combo >> ')' >> qi::lit(">=") >> combo)[qi::_val=qi::_1>=qi::_2] |
-                    ('(' >> combo >> ')' >> qi::lit("<") >> combo)[qi::_val=qi::_1<qi::_2] |
-                    ('(' >> combo >> ')' >> qi::lit("<=") >> combo)[qi::_val=qi::_1<=qi::_2] |
-                    ('(' >> combo >> ')' >> qi::lit("==") >> combo)[qi::_val=qi::_1==qi::_2] |
-                    ('(' >> combo >> ')' >> qi::lit("!=") >> combo)[qi::_val=qi::_1!=qi::_2] |
-                    ('(' >> combo >> ')' >> qi::lit("&") >> combo)[qi::_val=qi::_1&qi::_2] |
-                    ('(' >> combo >> ')' >> qi::lit("|") >> combo)[qi::_val=qi::_1|qi::_2] |
-                    (qi::lit("!") >> '(' >> combo[qi::_val=!qi::_1] >> ')') |
-                    ('(' >> combo[qi::_val=qi::_1] >> ')') |
-                    expression[qi::_val=qi::_1] |
-                    identifier[qi::_val=qi::_1];
+            qi::rule<std::string::const_iterator, ExpressionAST(), ascii::space_type,  qi::locals<ExpressionAST>>
+                comboRule =
+                    ('(' >> comboRule[qi::_a=qi::_1] >> ')' >>
+                        *(qi::lit("&") >> '(' >> comboRule[qi::_a=qi::_a & qi::_1] >> ')' |
+                          qi::lit("|") >> '(' >> comboRule[qi::_a=qi::_a | qi::_1] >> ')'))[qi::_val=qi::_a] |
+                    expressionRule[qi::_val=qi::_1];
 
-            bool success = qi::phrase_parse(begin,end, combo[printStr], ascii::space);
+            bool success = qi::phrase_parse(begin,end, comboRule[printAST], ascii::space);
             if (begin!=end)
             {
                 std::cout<<"error while parsing:"<<std::endl;

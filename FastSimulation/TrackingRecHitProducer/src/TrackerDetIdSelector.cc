@@ -14,3 +14,59 @@ const TrackerDetIdSelector::StringFunctionMap TrackerDetIdSelector::_functions =
     {"pxbModule",[](const TrackerTopology& trackerTopology, const DetId& detId) -> int {return trackerTopology.pxbModule(detId);}}
 
 };
+
+
+ExpressionAST operator>(ExpressionAST const& lhs, ExpressionAST const& rhs)
+{
+    ExpressionAST ast = BinaryOP(BinaryOP::OP::GREATER, lhs, rhs);
+    return ast;
+}
+
+ExpressionAST operator>=(ExpressionAST const& lhs, ExpressionAST const& rhs)
+{
+    ExpressionAST ast = BinaryOP(BinaryOP::OP::GREATER_EQUAL, lhs, rhs);
+    return ast;
+}
+
+ExpressionAST operator==(ExpressionAST const& lhs, ExpressionAST const& rhs)
+{
+    ExpressionAST ast =  BinaryOP(BinaryOP::OP::EQUAL, lhs, rhs);
+    return ast;
+}
+
+ExpressionAST operator<=(ExpressionAST const& lhs, ExpressionAST const& rhs)
+{
+    ExpressionAST ast = BinaryOP(BinaryOP::OP::LESS_EQUAL, lhs, rhs);
+    return ast;
+}
+
+ExpressionAST operator<(ExpressionAST const& lhs, ExpressionAST const& rhs)
+{
+    ExpressionAST ast = BinaryOP(::BinaryOP::OP::LESS, lhs, rhs);
+    return ast;
+}
+
+ExpressionAST operator!=(ExpressionAST const& lhs, ExpressionAST const& rhs)
+{
+    ExpressionAST ast = BinaryOP(BinaryOP::OP::NOT_EQUAL, lhs, rhs);
+    return ast;
+}
+
+ExpressionAST operator&(ExpressionAST const& lhs, ExpressionAST const& rhs)
+{
+    ExpressionAST ast = BinaryOP(::BinaryOP::OP::AND, lhs, rhs);
+    return ast;
+}
+
+ExpressionAST operator|(ExpressionAST const& lhs, ExpressionAST const& rhs)
+{
+    ExpressionAST ast = BinaryOP(BinaryOP::OP::OR, lhs, rhs);
+    return ast;
+}
+
+
+ExpressionAST& ExpressionAST::operator!()
+{
+    expr = UnaryOP(UnaryOP::OP::NEG, expr);
+    return *this;
+}
