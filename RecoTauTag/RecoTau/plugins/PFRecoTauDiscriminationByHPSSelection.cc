@@ -54,6 +54,8 @@ class PFRecoTauDiscriminationByHPSSelection : public PFTauDiscriminationProducer
 
   bool requireTauChargedHadronsToBeChargedPFCands_;
   
+  int minPixelHits_;
+
   int verbosity_;
 };
 
@@ -103,6 +105,7 @@ PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(con
           ));
   }
   requireTauChargedHadronsToBeChargedPFCands_ = pset.getParameter<bool>("requireTauChargedHadronsToBeChargedPFCands");
+  minPixelHits_ = pset.getParameter<int>("minPixelHits");
   verbosity_ = pset.exists("verbosity") ?
     pset.getParameter<int>("verbosity") : 0;
 }
@@ -282,6 +285,26 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
 	}
 	return 0.0;
       }
+    }
+  }
+  
+  if ( minPixelHits_ > 0 ) {
+    int numPixelHits = 0;
+    const std::vector<reco::PFCandidatePtr>& chargedHadrCands = tau->signalPFChargedHadrCands();
+    for ( std::vector<reco::PFCandidatePtr>::const_iterator chargedHadrCand = chargedHadrCands.begin();
+	  chargedHadrCand != chargedHadrCands.end(); ++chargedHadrCand ) {
+      const reco::Track* track = 0;
+      if ( (*chargedHadrCand)->trackRef().isNonnull() ) track = (*chargedHadrCand)->trackRef().get();
+      else if ( (*chargedHadrCand)->gsfTrackRef().isNonnull() ) track = (*chargedHadrCand)->gsfTrackRef().get();
+      if ( track ) {
+	numPixelHits += track->hitPattern().numberOfValidPixelHits();
+      }
+    }
+    if ( !(numPixelHits >= minPixelHits_) ) {
+      if ( verbosity_ ) {
+	edm::LogPrint("PFTauByHPSSelect") << " fails cut on sum of pixel hits." ;
+      }
+      return 0.0;
     }
   }
 
