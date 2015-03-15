@@ -76,7 +76,7 @@ class SiStripFolderOrganizer
       void getRingFolderName(std::stringstream& ss, uint32_t rawdetid, const TrackerTopology* tTopo) { getLayerFolderName(ss,rawdetid,tTopo,true); }
       // SubDetector Folder
       void getSubDetFolder(const uint32_t& detid, const TrackerTopology* tTopo, std::string& folder_name);
-      std::pair<std::string, std::string> getSubDetFolderAndTag(const uint32_t& detid, const TrackerTopology* tTopo);
+      std::pair<const std::string, const char *> getSubDetFolderAndTag(const uint32_t& detid, const TrackerTopology* tTopo);
    private:
       SiStripFolderOrganizer(const SiStripFolderOrganizer&); // stop default
       const SiStripFolderOrganizer& operator=(const SiStripFolderOrganizer&); // stop default
