@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 SUSY_HLT_HT200_alphaT0p57 = cms.EDAnalyzer("SUSY_HLT_alphaT",
-  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'','HLT'),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
-  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_PFHT200_DiPFJet90_PFAlphaT0p57_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_v'),
-  TriggerPreFilter = cms.InputTag('hltHT150CaloAlphaT0p54', '', 'HLT'),
-  TriggerFilter = cms.InputTag('hltHT200PFAlphaT0p57', '', 'HLT'),
+  TriggerPreFilter = cms.InputTag('hltHT150CaloAlphaT0p54','','HLT'),
+  TriggerFilter = cms.InputTag('hltPFHT200PFAlphaT0p57','','HLT'),
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0),
   pfAlphaTThrTurnon = cms.untracked.double(0.59),
@@ -19,15 +19,15 @@ SUSY_HLT_HT200_alphaT0p57 = cms.EDAnalyzer("SUSY_HLT_alphaT",
 )
 
 SUSY_HLT_HT250_alphaT0p55 = cms.EDAnalyzer("SUSY_HLT_alphaT",
-  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'','HLT'),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
-  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_PFHT250_DiPFJet90_PFAlphaT0p55_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_v'),
-  TriggerPreFilter = cms.InputTag('hltHT200CaloAlphaT0p535', '', 'HLT'),
-  TriggerFilter = cms.InputTag('hltHT250PFAlphaT0p55', '', 'HLT'),
+  TriggerPreFilter = cms.InputTag('hltHT200CaloAlphaT0p535','','HLT'),
+  TriggerFilter = cms.InputTag('hltPFHT250PFAlphaT0p55','','HLT'),
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0),
   pfAlphaTThrTurnon = cms.untracked.double(0.57),
@@ -37,15 +37,15 @@ SUSY_HLT_HT250_alphaT0p55 = cms.EDAnalyzer("SUSY_HLT_alphaT",
 )
 
 SUSY_HLT_HT300_alphaT0p53 = cms.EDAnalyzer("SUSY_HLT_alphaT",
-  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'','HLT'),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
-  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_PFHT300_DiPFJet90_PFAlphaT0p53_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_v'),
-  TriggerPreFilter = cms.InputTag('hltHT250CaloAlphaT0p525', '', 'HLT'), 
-  TriggerFilter = cms.InputTag('hltHT300PFAlphaT0p53', '', 'HLT'),
+  TriggerPreFilter = cms.InputTag('hltHT250CaloAlphaT0p525','','HLT'), 
+  TriggerFilter = cms.InputTag('hltPFHT300PFAlphaT0p53','','HLT'),
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0),
   pfAlphaTThrTurnon = cms.untracked.double(0.55),
@@ -55,15 +55,15 @@ SUSY_HLT_HT300_alphaT0p53 = cms.EDAnalyzer("SUSY_HLT_alphaT",
 )
 
 SUSY_HLT_HT350_alphaT0p52 = cms.EDAnalyzer("SUSY_HLT_alphaT",
-  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
-  pfJetCollection = cms.InputTag("ak4PFJetsCHS"),#ak4PFJetsCHS
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'','HLT'),
+  pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
-  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_PFHT350_DiPFJet90_PFAlphaT0p52_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_v'),
-  TriggerPreFilter = cms.InputTag('hltHT300CaloAlphaT0p52', '', 'HLT'),
-  TriggerFilter = cms.InputTag('hltHT350PFAlphaT0p52', '', 'HLT'),
+  TriggerPreFilter = cms.InputTag('hltHT300CaloAlphaT0p52','','HLT'),
+  TriggerFilter = cms.InputTag('hltPFHT350PFAlphaT0p52','','HLT'),
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0),
   pfAlphaTThrTurnon = cms.untracked.double(0.54),
@@ -73,15 +73,15 @@ SUSY_HLT_HT350_alphaT0p52 = cms.EDAnalyzer("SUSY_HLT_alphaT",
 )
 
 SUSY_HLT_HT400_alphaT0p51 = cms.EDAnalyzer("SUSY_HLT_alphaT",
-  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'','HLT'), 
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
-  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_PFHT400_DiPFJet90_PFAlphaT0p51_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_v'),
-  TriggerPreFilter = cms.InputTag('hltHT375CaloAlphaT0p51', '', 'HLT'),
-  TriggerFilter = cms.InputTag('hltHT400PFAlphaT0p51', '', 'HLT'),
+  TriggerPreFilter = cms.InputTag('hltHT375CaloAlphaT0p51','','HLT'),
+  TriggerFilter = cms.InputTag('hltPFHT400PFAlphaT0p51','','HLT'),
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0),
   pfAlphaTThrTurnon = cms.untracked.double(0.53),
