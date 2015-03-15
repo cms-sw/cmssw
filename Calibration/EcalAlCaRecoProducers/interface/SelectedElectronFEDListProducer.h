@@ -142,11 +142,15 @@ class SelectedElectronFEDListProducer : public edm::EDProducer {
    explicit SelectedElectronFEDListProducer( const edm::ParameterSet &);
    virtual ~SelectedElectronFEDListProducer();
 
+   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
+
  protected:
 
   virtual void beginJob() ;
   virtual void endJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
+
 
  private:
 
