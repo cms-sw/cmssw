@@ -33,7 +33,10 @@ pythiaEtab = cms.vstring(
 'MDME(1039,1)=0  ! ',
 'MDME(1040,1)=0  ! ',
 'MDME(1041,1)=0  ! ',
-'MDME(1042,1)=0  ! '),
+'MDME(1042,1)=0  ! '
+'PMAS(C10551,1)=20.0',
+'PMAS(C10551,2)=0.0',
+),
 # This is a vector of ParameterSet names to be read, in this order
 parameterSets = cms.vstring(
 'pythiaUESettings',
