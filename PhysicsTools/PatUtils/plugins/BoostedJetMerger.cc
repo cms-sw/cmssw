@@ -7,6 +7,7 @@ BoostedJetMerger::BoostedJetMerger(const edm::ParameterSet& iConfig) :
 {
   //register products
   produces<std::vector<pat::Jet> > ();
+  produces<std::vector<pat::Jet> > ("SubJets");
 }
 
 
@@ -21,6 +22,9 @@ BoostedJetMerger::produce(edm::Event& iEvent, const edm::EventSetup&)
 {  
 
   std::auto_ptr< std::vector<pat::Jet> > outputs( new std::vector<pat::Jet> );
+  std::auto_ptr< std::vector<pat::Jet> > outputSubjets( new std::vector<pat::Jet> );
+
+  edm::RefProd< std::vector<pat::Jet> > h_subJetsOut = iEvent.getRefBeforePut< std::vector<pat::Jet> >( "SubJets" );
  
   edm::Handle< edm::View<pat::Jet> > jetHandle;
   edm::Handle< edm::View<pat::Jet> > subjetHandle;
@@ -40,8 +44,12 @@ BoostedJetMerger::produce(edm::Event& iEvent, const edm::EventSetup&)
 							    subjetHandle->end(),
 							    FindCorrectedSubjet(subjet) );
       if ( ifound != subjetHandle->end() ) {
-	nextSubjets.push_back( subjetHandle->ptrAt( ifound - subjetHandle->begin() ) );
 
+	outputSubjets->push_back( *ifound );
+
+	edm::Ref<std::vector<pat::Jet> > subjetRef ( h_subJetsOut, outputSubjets->size() - 1);
+	edm::Ptr< pat::Jet > subjetPtr ( h_subJetsOut.id(), subjetRef.key(), h_subJetsOut.productGetter() );
+	nextSubjets.push_back( subjetPtr );
       }
     }
     outputs->back().clearDaughters();
@@ -53,7 +61,9 @@ BoostedJetMerger::produce(edm::Event& iEvent, const edm::EventSetup&)
     
   }
 
+  
   iEvent.put(outputs);
+  iEvent.put(outputSubjets, "SubJets");
 
 }
 
