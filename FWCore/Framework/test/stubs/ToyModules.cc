@@ -339,7 +339,6 @@ namespace edmtest {
     typedef PROD                     product_type;
     //FIXME
     typedef typename product_type::FastFiller detset;
-    typedef typename detset::value_type       value_type;
     typedef typename detset::id_type       id_type;
 
     std::unique_ptr<product_type> p(new product_type());
