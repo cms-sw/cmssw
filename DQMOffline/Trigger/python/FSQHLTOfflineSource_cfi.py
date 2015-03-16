@@ -416,7 +416,7 @@ def getSinglePFJet(thresholds, flavour=None, etaMin=-1, srcType="genJets", parti
 
         marginLow = max(t-t/2, 15)
         ptBinLow  = max(t-marginLow,0)
-        marginHigh =  min(max(t/3, 15), 50)
+        marginHigh =  min(max(t/2, 20), 50)
         ptBinHigh = t+marginHigh
         ptBins = min(100, ptBinHigh-ptBinLow)
         fromJets =  cms.PSet(
