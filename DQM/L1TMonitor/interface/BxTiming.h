@@ -27,6 +27,7 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 
 class BxTiming : public edm::EDAnalyzer {
 
@@ -108,7 +109,7 @@ class BxTiming : public edm::EDAnalyzer {
 
   MonitorElement* hBxOccyGtTrigType[nttype_]; // gt bx occupancy per trigger type
   MonitorElement**hBxOccyTrigBit[NSYS];       // subsystem bx occupancy per selected trigger bit 
-
+  
 };
 
 #endif
