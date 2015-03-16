@@ -25,14 +25,14 @@ electronMcSignalHistosCfg = cms.PSet(
   EfficiencyFlag = cms.bool(True), StatOverflowFlag = cms.bool(False)
 )
 
-electronMcSignalValidatorPt1000 = cms.EDAnalyzer("ElectronMcSignalValidator",
+electronMcSignalValidator = cms.EDAnalyzer("ElectronMcSignalValidator",
 
   Verbosity = cms.untracked.int32(0),
   FinalStep = cms.string("AtJobEnd"),
   InputFile = cms.string(""),
   OutputFile = cms.string(""),
-  InputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorPt1000"),
-  OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorPt1000"),
+  InputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
+  OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
     
   mcTruthCollection = cms.InputTag("genParticles"),
   electronCollection = cms.InputTag("gedGsfElectrons"),
