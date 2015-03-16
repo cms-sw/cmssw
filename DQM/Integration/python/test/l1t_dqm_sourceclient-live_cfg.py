@@ -125,7 +125,7 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 # remove module(s) or system sequence from l1tMonitorPath
 #        quality test disabled also
 #
-process.l1tMonitorOnline.remove(process.bxTiming)
+#process.l1tMonitorOnline.remove(process.bxTiming)
 process.l1tMonitorOnline.remove(process.l1tBPTX)
 
 #process.l1tMonitorOnline.remove(process.l1tLtc)
