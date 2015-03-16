@@ -1214,7 +1214,7 @@ for k in upgradeKeys:
     if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
 
  
-     upgradeStepDict['RecoFullFast'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
+    upgradeStepDict['RecoFullFast'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO,DQMIO',
                                       '-n':'10',
