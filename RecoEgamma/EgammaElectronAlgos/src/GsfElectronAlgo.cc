@@ -1649,10 +1649,10 @@ void GsfElectronAlgo::setPixelMatchInfomation(reco::GsfElectron* ele){
     else{
       sd1     = elseed->subDet1() ;
       sd2     = elseed->subDet2() ;
-      dPhi1 = elseed->dPhi1() ;
-      dPhi2 = elseed->dPhi2() ;
-      dRz1  = elseed->dRz1 () ;
-      dRz2  = elseed->dRz2 () ;
+      dPhi1 = (ele->charge()>0) ? elseed->dPhi1Pos() : elseed->dPhi1() ;
+      dPhi2 = (ele->charge()>0) ? elseed->dPhi2Pos() : elseed->dPhi2() ;
+      dRz1  = (ele->charge()>0) ? elseed->dRz1Pos () : elseed->dRz1 () ;
+      dRz2  = (ele->charge()>0) ? elseed->dRz2Pos () : elseed->dRz2 () ;
     }
   }
   ele->setPixelMatchSubdetectors(sd1,sd2) ;
