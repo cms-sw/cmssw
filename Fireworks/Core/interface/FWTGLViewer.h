@@ -59,6 +59,8 @@ private:
 
    // ---------- member data --------------------------------
 
+   TGLFBO *m_fbo;
+   int     m_fbo_w, m_fbo_h;
 };
 
 
