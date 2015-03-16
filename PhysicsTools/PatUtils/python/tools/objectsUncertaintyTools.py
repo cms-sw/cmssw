@@ -175,9 +175,9 @@ def addShiftedJetCollections(process, jetCollection, lastJetCollection,
     # Creating two sets for shifted jets corrections, depending of the use needed :
     #
 
-    variations=["Up","Down"]
+    variations = { "Up":1., "Down":-1.  }
 
-    for var in variations:
+    for var in variations.keys():
         # in case of "raw" (uncorrected) MET,
         # add residual jet energy corrections in quadrature to jet energy uncertainties:
         # cf. https://twiki.cern.ch/twiki/bin/view/CMS/MissingETUncertaintyPrescription
@@ -190,7 +190,7 @@ def addShiftedJetCollections(process, jetCollection, lastJetCollection,
                                          addResidualJES = cms.bool(True),
                                          jetCorrLabelUpToL3 = cms.InputTag(jetCorrLabelUpToL3.value()),
                                          jetCorrLabelUpToL3Res = cms.InputTag(jetCorrLabelUpToL3Res.value()),
-                                         shiftBy = cms.double(+1.*varyByNsigmas)
+                                         shiftBy = cms.double(variations[var]*varyByNsigmas)
                                          )
 
         jetCollectionEnShiftForRawMEt = \
