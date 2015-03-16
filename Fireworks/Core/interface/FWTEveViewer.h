@@ -21,7 +21,9 @@
 // system include files
 
 #include <thread>
-
+#include <future>
+#include <mutex>
+#include <condition_variable>
 
 // user include files
 
@@ -52,16 +54,28 @@ public:
 
    FWTGLViewer* SpawnFWTGLViewer();
 
-   std::thread  CaptureAndSaveImage(const TString& file, int height=-1);
+   std::future<int> CaptureAndSaveImage(const TString& file, int height=-1);
 
 private:
    FWTEveViewer(const FWTEveViewer&); // stop default
 
    const FWTEveViewer& operator=(const FWTEveViewer&); // stop default
 
+   void spawn_image_thread();
+
    // ---------- member data --------------------------------
 
    FWTGLViewer *m_fwGlViewer;
+
+   std::vector<unsigned char> m_imgBuffer;
+
+   TString                 m_name;
+   int                     m_ww, m_hh;
+   bool                    m_thr_exit = false;
+   std::thread            *m_thr = 0;
+   std::promise<int>       m_prom;
+   std::mutex              m_moo;
+   std::condition_variable m_cnd;
 };
 
 

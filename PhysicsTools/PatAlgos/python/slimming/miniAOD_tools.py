@@ -67,51 +67,12 @@ def miniAOD_customizeCommon(process):
     process.selectedPatTaus.cut = cms.string("pt > 18. && tauID('decayModeFinding')> 0.5")
     process.selectedPatPhotons.cut = cms.string("")
 
-    # add CMS top tagger
-    from RecoJets.JetProducers.caTopTaggers_cff import caTopTagInfos
-    process.caTopTagInfos = caTopTagInfos.clone()
-    process.caTopTagInfosPAT = cms.EDProducer("RecoJetDeltaRTagInfoValueMapProducer",
-                                    src = cms.InputTag("ak8PFJetsCHS"),
-                                    matched = cms.InputTag("cmsTopTagPFJetsCHS"),
-                                    matchedTagInfos = cms.InputTag("caTopTagInfos"),
-                                    distMax = cms.double(0.8)
-                        )
-
-    #add AK8
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
-    addJetCollection(process, labelName = 'AK8',
-                     jetSource = cms.InputTag('ak8PFJetsCHS'),
-                     algo= 'AK', rParam = 0.8,
-                     jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-                     btagInfos = ['caTopTagInfosPAT']
-                     )
-    process.patJetsAK8.userData.userFloats.src = [] # start with empty list of user floats
-    process.selectedPatJetsAK8.cut = cms.string("pt > 100")
-    process.patJetGenJetMatchAK8.matched =  'slimmedGenJets'
-    ## AK8 groomed masses
-    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSSoftDrop, ak8PFJetsCHSFiltered, ak8PFJetsCHSTrimmed 
-    process.ak8PFJetsCHSPruned   = ak8PFJetsCHSPruned.clone()
-    process.ak8PFJetsCHSSoftDrop = ak8PFJetsCHSSoftDrop.clone()
-    process.ak8PFJetsCHSTrimmed  = ak8PFJetsCHSTrimmed.clone()
-    process.ak8PFJetsCHSFiltered = ak8PFJetsCHSFiltered.clone()
-    process.load("RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi")
-    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedMass','ak8PFJetsCHSSoftDropMass','ak8PFJetsCHSTrimmedMass','ak8PFJetsCHSFilteredMass']
 
-    # Add AK8 top tagging variables
-    process.patJetsAK8.tagInfoSources = cms.VInputTag(cms.InputTag("caTopTagInfosPAT"))
-    process.patJetsAK8.addTagInfos = cms.bool(True)
+    from PhysicsTools.PatAlgos.slimming.applySubstructure_cfi import applySubstructure
+    applySubstructure( process )
 
-
-
-    # add Njetiness
-    process.load('RecoJets.JetProducers.nJettinessAdder_cfi')
-    process.NjettinessAK8 = process.Njettiness.clone()
-    process.NjettinessAK8.src = cms.InputTag("ak8PFJetsCHS")
-    process.NjettinessAK8.cone = cms.double(0.8)
-    process.patJetsAK8.userData.userFloats.src += ['NjettinessAK8:tau1','NjettinessAK8:tau2','NjettinessAK8:tau3']
-
-
-
+        
     #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
     switchOnTriggerStandAlone( process, outputModule = '' )
@@ -125,13 +86,21 @@ def miniAOD_customizeCommon(process):
     process.patJetsAK4PFForMetUnc.getJetMCFlavour = False
     runType1PFMEtUncertainties(process,
                                addToPatDefaultSequence=False,
+                               jetCollectionUnskimmed="patJetsAK4PFForMetUnc",
                                jetCollection="selectedPatJetsAK4PFForMetUnc",
                                electronCollection="selectedPatElectrons",
                                muonCollection="selectedPatMuons",
                                tauCollection="selectedPatTaus",
                                makeType1p2corrPFMEt=True,
+                               doSmearJets=False,
                                outputModule=None)
 
+    from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
+    addMETCollection(process,
+                     labelName = "patCaloMet",
+                     metSource = "caloMetM"
+                     )
+  
 
     #keep this after all addJetCollections otherwise it will attempt computing them also for stuf with no taginfos
     #Some useful BTAG vars
@@ -174,6 +143,57 @@ def miniAOD_customizeCommon(process):
     for idmod in electron_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
+    # Adding puppi jets
+    process.load('CommonTools.PileupAlgos.Puppi_cff')
+    process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
+    #process.puppi.candName = cms.InputTag('packedPFCandidates')
+    #process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
+    
+    from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
+    process.ak4PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
+        j2tParametersVX,
+        jets = cms.InputTag("ak4PFJetsPuppi")
+    )
+    process.patJetPuppiCharge = cms.EDProducer("JetChargeProducer",
+        src = cms.InputTag("ak4PFJetsPuppiTracksAssociatorAtVertex"),
+        var = cms.string('Pt'),
+        exp = cms.double(1.0)
+    )
+
+    addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
+                    jetCorrections = ('AK4PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''),
+                    algo= 'AK', rParam = 0.4, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
+                    )
+    
+    process.patJetGenJetMatchPuppi.matched = 'slimmedGenJets'
+    
+    process.patJetsPuppi.userData.userFloats.src = cms.VInputTag(cms.InputTag(""))
+    process.patJetsPuppi.jetChargeSource = cms.InputTag("patJetPuppiCharge")
+    process.patJetsPuppi.tagInfoSources = cms.VInputTag(cms.InputTag("pfSecondaryVertexTagInfosPuppi"))
+    process.patJetsPuppi.addTagInfos = cms.bool(True)
+
+    process.selectedPatJetsPuppi.cut = cms.string("pt > 20")
+
+    process.load('PhysicsTools.PatAlgos.slimming.slimmedJets_cfi')
+    process.slimmedJetsPuppi = process.slimmedJets.clone()
+    process.slimmedJetsPuppi.src = cms.InputTag("selectedPatJetsPuppi")    
+    process.slimmedJetsPuppi.packedPFCandidates = cms.InputTag("packedPFCandidates")
+
+    ## puppi met
+    process.load('RecoMET.METProducers.PFMET_cfi')
+    process.pfMetPuppi = process.pfMet.clone()
+    process.pfMetPuppi.src = cms.InputTag("puppi")
+    process.pfMetPuppi.alias = cms.string('pfMetPuppi')
+
+    from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
+    addMETCollection(process, labelName='patMETPuppi', metSource='pfMetPuppi')
+
+    process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
+    process.slimmedMETsPuppi = process.slimmedMETs.clone()
+    process.slimmedMETsPuppi.src = cms.InputTag("patMETPuppi")
+    process.slimmedMETsPuppi.rawUncertainties   = cms.InputTag("patPFMet%s")
+    process.slimmedMETsPuppi.type1Uncertainties = cms.InputTag("patPFMetT1%s")
+    process.slimmedMETsPuppi.type1p2Uncertainties = cms.InputTag("patPFMetT1T2%s")
 
 
 def miniAOD_customizeMC(process):
@@ -187,6 +207,7 @@ def miniAOD_customizeMC(process):
     process.patJetPartonMatch.matched = "prunedGenParticles"
     process.patJetPartonMatch.mcStatus = [ 3, 23 ]
     process.patJetGenJetMatch.matched = "slimmedGenJets"
+    process.patJetGenJetMatchAK8.matched =  "slimmedGenJetsAK8"
     process.patMuons.embedGenMatch = False
     process.patElectrons.embedGenMatch = False
     process.patPhotons.embedGenMatch = False

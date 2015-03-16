@@ -37,11 +37,14 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                           "Input PFCandidate collection", Type=cms.InputTag)
         self.addParameter(self._defaultParameters, 'doApplyUnclEnergyCalibration', False,
                           "Flag to enable/disable usage of 'unclustered energy' calibration", Type=bool)
+        self.addParameter(self._defaultParameters, 'jetCollectionUnskimmed', None,
+                          "Unskimmed jets for type1 and type2 computations", Type=cms.InputTag, acceptNoneValue=True)
         self._parameters = copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
     def _addCorrPFMEt(self, process, metUncertaintySequence,
-                      shiftedParticleCollections, pfCandCollection, doApplyUnclEnergyCalibration,
+                      shiftedParticleCollections, pfCandCollection,jetCollectionUnskimmed,
+                      doApplyUnclEnergyCalibration,
                       collectionsToKeep,
                       doSmearJets,
                       makeType1corrPFMEt,
@@ -58,7 +61,7 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
         if not hasattr(process, 'producePatPFMETCorrectionsUnc'):
             process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
 
-
+       
         #
         #protections against inconsistent met correction scheme :
         #
@@ -261,6 +264,13 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
         collectionsToKeep.extend( singleParticleShiftedMETs );
 
 
+        #fix the default jets for the type1 computation to those used to compute the uncertainties
+        #in order to be consistent with what is done in the correction and uncertainty step
+        #particularly true for miniAODs
+        if isValidInputTag(jetCollectionUnskimmed):
+            getattr(process,"patPFJetMETtype1p2Corr").src = jetCollectionUnskimmed
+            getattr(process,"patPFJetMETtype2Corr").src = jetCollectionUnskimmed
+
 
 
     def _prepareShiftedUnclusteredEnergy(self, process, metUncertaintySequence, varyByNsigmas, postfix):
@@ -362,6 +372,7 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                  muonCollection               = None,
                  tauCollection                = None,
                  jetCollection                = None,
+                 jetCollectionUnskimmed       = None,
                  dRjetCleaning                = None,
                  jetCorrLabel                 = None,
                  doSmearJets                  = None,
@@ -390,6 +401,7 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
             muonCollection = muonCollection,
             tauCollection = tauCollection,
             jetCollection = jetCollection,
+           # jetCollectionUnskimmed = jetCollectionUnskimmed,
             jetCorrLabel = jetCorrLabel,
             doSmearJets = doSmearJets,
             jetSmearFileName = jetSmearFileName,
@@ -422,6 +434,8 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
         pfCandCollection = self._initializeInputTag(pfCandCollection, 'pfCandCollection')
         if doApplyUnclEnergyCalibration is None:
             doApplyUnclEnergyCalibration = self._defaultParameters['doApplyUnclEnergyCalibration'].value
+       
+        jetCollectionUnskimmed  = self._initializeInputTag(jetCollectionUnskimmed, 'jetCollectionUnskimmed')
 
         self.setParameter('dRjetCleaning', dRjetCleaning)
         self.setParameter('makeType1corrPFMEt', makeType1corrPFMEt)
@@ -431,6 +445,12 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
         self.setParameter('sysShiftCorrParameter', sysShiftCorrParameter)
         self.setParameter('pfCandCollection', pfCandCollection)
         self.setParameter('doApplyUnclEnergyCalibration', doApplyUnclEnergyCalibration)
+        self.setParameter('jetCollectionUnskimmed', jetCollectionUnskimmed)
+
+        #specific postfix for miniAODs
+        #temporary fix for 74X on the handling of JER uncertainties
+        if doSmearJets:
+            postfix="Smeared"
 
         self.apply(process)
 
@@ -440,6 +460,7 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
         muonCollection = self._parameters['muonCollection'].value
         tauCollection = self._parameters['tauCollection'].value
         jetCollection = self._parameters['jetCollection'].value
+        jetCollectionUnskimmed = self._parameters['jetCollectionUnskimmed'].value
         jetCorrLabel = self._parameters['jetCorrLabel'].value
         dRjetCleaning =  self._parameters['dRjetCleaning'].value
         doSmearJets = self._parameters['doSmearJets'].value
@@ -519,7 +540,8 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
         #--------------------------------------------------------------------------------------------
 
         self._addCorrPFMEt(process, metUncertaintySequence,
-                           shiftedParticleCollections, pfCandCollection, doApplyUnclEnergyCalibration,
+                           shiftedParticleCollections, pfCandCollection, jetCollectionUnskimmed,
+                           doApplyUnclEnergyCalibration,
                            collectionsToKeep,
                            doSmearJets,
                            makeType1corrPFMEt,

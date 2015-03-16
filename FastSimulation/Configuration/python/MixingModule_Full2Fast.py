@@ -125,7 +125,9 @@ def prepareGenMixing(process):
 
     # Use generalTracks where DIGI-RECO mixing requires preMixTracks
     process.generalConversionTrackProducer.TrackProducer = cms.string('generalTracks')
-    process.trackerDrivenElectronSeeds.TkColList = cms.VInputTag(cms.InputTag("generalTracks"))
+    # it's not nice but gen-mixing will be depricated anyhow
+    process.trackerDrivenElectronSeedsTmp.TkColList = cms.VInputTag(cms.InputTag("generalTracks"))
+    process.trackerDrivenElectronSeeds.oldTrackCollection = cms.InputTag('generalTracks')
 
     # PileUp info must be read from PileUpProducer, rather than from MixingModule
     process.addPileupInfo.PileupMixingLabel = cms.InputTag("famosPileUp")

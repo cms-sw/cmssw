@@ -69,6 +69,10 @@ namespace pat {
             edm::EDGetTokenT<edm::ValueMap<int> >            PVAssoQuality_;
             edm::EDGetTokenT<reco::VertexCollection>         PVOrigs_;
             edm::EDGetTokenT<reco::TrackCollection>          TKOrigs_;
+            edm::EDGetTokenT< edm::ValueMap<float> >         PuppiWeight_;
+            edm::EDGetTokenT<edm::ValueMap<reco::CandidatePtr> >    PuppiCandsMap_;
+            edm::EDGetTokenT<std::vector< reco::PFCandidate >  >    PuppiCands_;
+
             double minPtForTrackProperties_;
             // for debugging
             float calcDxy(float dx, float dy, float phi) {
@@ -87,6 +91,9 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   PVAssoQuality_(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("vertexAssociator"))),
   PVOrigs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("originalVertices"))),
   TKOrigs_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("originalTracks"))),
+  PuppiWeight_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("PuppiSrc"))),
+  PuppiCandsMap_(consumes<edm::ValueMap<reco::CandidatePtr> >(iConfig.getParameter<edm::InputTag>("PuppiSrc"))),
+  PuppiCands_(consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiSrc"))),
   minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties"))
 {
   produces< std::vector<pat::PackedCandidate> > ();
@@ -103,6 +110,14 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
     edm::Handle<reco::PFCandidateCollection> cands;
     iEvent.getByToken( Cands_, cands );
     std::vector<reco::Candidate>::const_iterator cand;
+
+    edm::Handle< edm::ValueMap<float> > puppiWeight;
+    iEvent.getByToken( PuppiWeight_, puppiWeight );
+    edm::Handle<edm::ValueMap<reco::CandidatePtr> > puppiCandsMap;
+    iEvent.getByToken( PuppiCandsMap_, puppiCandsMap );
+    edm::Handle<std::vector< reco::PFCandidate > > puppiCands;
+    iEvent.getByToken( PuppiCands_, puppiCands );
+    std::vector<int> mappingPuppi(puppiCands->size());
 
     edm::Handle<reco::VertexCollection> PVOrigs;
     iEvent.getByToken( PVOrigs_, PVOrigs );
@@ -194,28 +209,38 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
           outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.phi(), cand.pdgId(), PV));
           outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(pat::PackedCandidate::UsedInFitTight));
         }
-                
-
-        mapping[ic] = ic;
+	
+	if (puppiWeight.isValid()){
+	  reco::PFCandidateRef pkref( cands, ic );
+	  outPtrP->back().setPuppiWeight( (*puppiWeight)[pkref]);
+	  mappingPuppi[((*puppiCandsMap)[pkref]).key()]=ic;
+	}
+	
+        mapping[ic] = ic; // trivial at the moment!
         if (cand.trackRef().isNonnull() && cand.trackRef().id() == TKOrigs.id()) {
-          mappingTk[cand.trackRef().key()] = ic;
+	  mappingTk[cand.trackRef().key()] = ic;	    
         }
 
     }
 
     std::auto_ptr< std::vector<pat::PackedCandidate> > outPtrPSorted( new std::vector<pat::PackedCandidate> );
     std::vector<size_t> order=sort_indexes(*outPtrP);
+    std::vector<size_t> reverseOrder(order.size());
     for(size_t i=0,nc=cands->size();i<nc;i++) {
         outPtrPSorted->push_back((*outPtrP)[order[i]]);
+        reverseOrder[order[i]] = i;
         mappingReverse[order[i]]=i;
     }
 
     // Fix track association for sorted candidates
     for(size_t i=0,ntk=mappingTk.size();i<ntk;i++){
-        mappingTk[i]=order[mappingTk[i]];
+        mappingTk[i]=reverseOrder[mappingTk[i]]; 
     }
 
-    
+    for(size_t i=0,ntk=mappingPuppi.size();i<ntk;i++){
+        mappingPuppi[i]=reverseOrder[mappingPuppi[i]];
+    }
+
     edm::OrphanHandle<pat::PackedCandidateCollection> oh = iEvent.put( outPtrPSorted );
 
     // now build the two maps
@@ -227,6 +252,7 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
     pc2pfFiller.insert(oh   , order.begin(), order.end());
     // include also the mapping track -> packed PFCand
     pf2pcFiller.insert(TKOrigs, mappingTk.begin(), mappingTk.end());
+    pf2pcFiller.insert(puppiCands, mappingPuppi.begin(), mappingPuppi.end());
 
     pf2pcFiller.fill();
     pc2pfFiller.fill();

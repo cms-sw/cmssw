@@ -684,7 +684,7 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
       createLayerMEs(ibooker,label);
     }
     // book sub-detector plots 
-    std::pair<std::string,std::string> sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
+    auto sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
     // std::cout << "sdet_pair " << sdet_pair.first << " " << sdet_pair.second << std::endl;
     if (SubDetMEsMap.find(det_layer_pair.first) == SubDetMEsMap.end()){
       ibooker.setCurrentFolder(sdet_pair.first);

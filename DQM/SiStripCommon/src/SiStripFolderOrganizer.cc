@@ -29,6 +29,8 @@
 #define MECHANICAL_FOLDER_NAME "MechanicalView"
 #define SEP "/"
 
+#include <cstring>
+
 SiStripFolderOrganizer::SiStripFolderOrganizer()
 {
   TopFolderName="SiStrip";
@@ -452,46 +454,50 @@ void SiStripFolderOrganizer::getLayerFolderName(std::stringstream& ss, uint32_t 
 //
 // -- Get Subdetector Folder name and the Tag
 //
-std::pair<std::string, std::string> SiStripFolderOrganizer::getSubDetFolderAndTag(const uint32_t& detid, const TrackerTopology* tTopo) {
-  std::pair<std::string, std::string> result;
-  result.first = TopFolderName + SEP MECHANICAL_FOLDER_NAME SEP;
-  std::string subdet_folder;
+std::pair<const std::string, const char *> SiStripFolderOrganizer::getSubDetFolderAndTag(const uint32_t& detid, const TrackerTopology* tTopo) {
+
+  const char *subdet_folder = "";
+  const char *tag = "";
   switch(StripSubdetector::SubDetector(StripSubdetector(detid).subdetId()))
     {
     case StripSubdetector::TIB:
       subdet_folder = "TIB";
-      result.second = subdet_folder;
+      tag = subdet_folder;
       break;
     case StripSubdetector::TOB:
       subdet_folder = "TOB";
-      result.second = subdet_folder;
+      tag = subdet_folder;
       break;
     case StripSubdetector::TID:
       if (tTopo->tidSide(detid) == 2) {
         subdet_folder = "TID/PLUS";
-	result.second = "TID__PLUS";
+        tag = "TID__PLUS";
       } else if (tTopo->tidSide(detid) == 1) {
         subdet_folder = "TID/MINUS";
-	result.second = "TID__MINUS";
+        tag = "TID__MINUS";
       }
       break;
     case StripSubdetector::TEC:
       if (tTopo->tecSide(detid) == 2) {
         subdet_folder = "TEC/PLUS";
-	result.second = "TEC__PLUS";
+        tag = "TEC__PLUS";
       } else if (tTopo->tecSide(detid) == 1) {
         subdet_folder = "TEC/MINUS";
-	result.second = "TEC__MINUS";
+        tag = "TEC__MINUS";
       }
       break;
     default:
       {
-	edm::LogWarning("SiStripCommon") << "WARNING!!! this detid does not belong to tracker" << std::endl;
+        edm::LogWarning("SiStripCommon") << "WARNING!!! this detid does not belong to tracker" << std::endl;
         subdet_folder = "";
       }
     }
-  result.first += subdet_folder;
-  return result; 
+
+  std::string folder;
+  folder.reserve(TopFolderName.size() + strlen(SEP MECHANICAL_FOLDER_NAME SEP) + strlen(subdet_folder) + 1);
+  folder = TopFolderName + SEP MECHANICAL_FOLDER_NAME SEP + subdet_folder;
+
+  return std::pair<const std::string, const char *>(folder, tag);
 }
 
 
