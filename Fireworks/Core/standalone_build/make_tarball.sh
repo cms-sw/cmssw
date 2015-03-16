@@ -181,12 +181,12 @@ getDataFiles()
    name=`perl -e '($ver, $a, $b, $c) = split('_', $ENV{CMSSW_VERSION}); print  "data", $a, $b, ".root"  '`
    $dwnCmd data.root  http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/$name
 
-   mc_name=`perl -e '($ver, $a, $b, $c) = split('_', $ENV{CMSSW_VERSION}); print  "mc", $a, $b, ".root"  '`
-   $dwnCmd mc.root http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/$mc_name
+ #  mc_name=`perl -e '($ver, $a, $b, $c) = split('_', $ENV{CMSSW_VERSION}); print  "mc", $a, $b, ".root"  '`
+ #  $dwnCmd mc.root http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/$mc_name
 
    #geometry files
    cp $CMSSW_RELEASE_BASE/external/$SCRAM_ARCH/data/Fireworks/Geometry/data/cmsSimGeom-* ${tard}
-   cp $CMSSW_RELEASE_BASE/external/$SCRAM_ARCH/data/Fireworks/Geometry/data/cmsGeom* ${tard}
+   cp $CMSSW_RELEASE_BASE/external/$SCRAM_ARCH/data/Fireworks/Geometry/data/cmsGeom10 ${tard}
 }
 
 #----------------------------------------------------------------
