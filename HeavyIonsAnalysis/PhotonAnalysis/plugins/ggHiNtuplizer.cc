@@ -72,6 +72,16 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps)
    tree_->Branch("eleEn",                 &eleEn_);
    tree_->Branch("eleD0",                 &eleD0_);
    tree_->Branch("eleDz",                 &eleDz_);
+   tree_->Branch("eleD0Err",              &eleD0Err_);
+   tree_->Branch("eleDzErr",              &eleDzErr_);
+   tree_->Branch("eleTrkPt",              &eleTrkPt_);
+   tree_->Branch("eleTrkEta",             &eleTrkEta_);
+   tree_->Branch("eleTrkPhi",             &eleTrkPhi_);
+   tree_->Branch("eleTrkCharge",          &eleTrkCharge_);
+   tree_->Branch("eleTrkChi2",            &eleTrkChi2_);
+   tree_->Branch("eleTrkNdof",            &eleTrkNdof_);
+   tree_->Branch("eleTrkNormalizedChi2",  &eleTrkNormalizedChi2_);
+
    tree_->Branch("elePt",                 &elePt_);
    tree_->Branch("eleEta",                &eleEta_);
    tree_->Branch("elePhi",                &elePhi_);
@@ -208,6 +218,15 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
    eleEn_                .clear();
    eleD0_                .clear();
    eleDz_                .clear();
+   eleD0Err_             .clear();
+   eleDzErr_             .clear();
+   eleTrkPt_             .clear();
+   eleTrkEta_            .clear();
+   eleTrkPhi_            .clear();
+   eleTrkCharge_         .clear();
+   eleTrkChi2_           .clear();
+   eleTrkNdof_           .clear();
+   eleTrkNormalizedChi2_ .clear();
    elePt_                .clear();
    eleEta_               .clear();
    elePhi_               .clear();
@@ -513,32 +532,41 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
 
    // loop over electrons
    for (edm::View<reco::GsfElectron>::const_iterator ele = gsfElectronsHandle->begin(); ele != gsfElectronsHandle->end(); ++ele) {
-      eleCharge_          .push_back(ele->charge());
-      eleChargeConsistent_.push_back((int)ele->isGsfCtfScPixChargeConsistent());
-      eleEn_              .push_back(ele->energy());
-      eleD0_              .push_back(ele->gsfTrack()->dxy(pv));
-      eleDz_              .push_back(ele->gsfTrack()->dz(pv));
-      elePt_              .push_back(ele->pt());
-      eleEta_             .push_back(ele->eta());
-      elePhi_             .push_back(ele->phi());
-      eleSCEn_            .push_back(ele->superCluster()->energy());
-      eleESEn_            .push_back(ele->superCluster()->preshowerEnergy());
-      eleSCEta_           .push_back(ele->superCluster()->eta());
-      eleSCPhi_           .push_back(ele->superCluster()->phi());
-      eleSCRawEn_         .push_back(ele->superCluster()->rawEnergy());
-      eleSCEtaWidth_      .push_back(ele->superCluster()->etaWidth());
-      eleSCPhiWidth_      .push_back(ele->superCluster()->phiWidth());
-      eleHoverE_          .push_back(ele->hcalOverEcalBc());
-      eleEoverP_          .push_back(ele->eSuperClusterOverP());
-      eleEoverPInv_       .push_back(fabs(1./ele->ecalEnergy()-1./ele->trackMomentumAtVtx().R()));
-      eleBrem_            .push_back(ele->fbrem());
-      eledEtaAtVtx_       .push_back(ele->deltaEtaSuperClusterTrackAtVtx());
-      eledPhiAtVtx_       .push_back(ele->deltaPhiSuperClusterTrackAtVtx());
-      eleSigmaIEtaIEta_   .push_back(ele->sigmaIetaIeta());
-      eleSigmaIPhiIPhi_   .push_back(ele->sigmaIphiIphi());
-//    eleConvVeto_        .push_back((int)ele->passConversionVeto()); // TODO: not available in reco::
-      eleMissHits_        .push_back(ele->gsfTrack()->numberOfLostHits());
-      eleESEffSigmaRR_    .push_back(lazyTool.eseffsirir(*(ele->superCluster())));
+      eleCharge_           .push_back(ele->charge());
+      eleChargeConsistent_ .push_back((int)ele->isGsfCtfScPixChargeConsistent());
+      eleEn_               .push_back(ele->energy());
+      eleD0_               .push_back(ele->gsfTrack()->dxy(pv));
+      eleDz_               .push_back(ele->gsfTrack()->dz(pv));
+      eleD0Err_            .push_back(ele->gsfTrack()->dxyError());
+      eleDzErr_            .push_back(ele->gsfTrack()->dzError());
+      eleTrkPt_            .push_back(ele->gsfTrack()->pt());
+      eleTrkEta_           .push_back(ele->gsfTrack()->eta());
+      eleTrkPhi_           .push_back(ele->gsfTrack()->phi());
+      eleTrkCharge_        .push_back(ele->gsfTrack()->charge());
+      eleTrkChi2_          .push_back(ele->gsfTrack()->chi2());
+      eleTrkNdof_          .push_back(ele->gsfTrack()->ndof());
+      eleTrkNormalizedChi2_.push_back(ele->gsfTrack()->normalizedChi2());
+      elePt_               .push_back(ele->pt());
+      eleEta_              .push_back(ele->eta());
+      elePhi_              .push_back(ele->phi());
+      eleSCEn_             .push_back(ele->superCluster()->energy());
+      eleESEn_             .push_back(ele->superCluster()->preshowerEnergy());
+      eleSCEta_            .push_back(ele->superCluster()->eta());
+      eleSCPhi_            .push_back(ele->superCluster()->phi());
+      eleSCRawEn_          .push_back(ele->superCluster()->rawEnergy());
+      eleSCEtaWidth_       .push_back(ele->superCluster()->etaWidth());
+      eleSCPhiWidth_       .push_back(ele->superCluster()->phiWidth());
+      eleHoverE_           .push_back(ele->hcalOverEcalBc());
+      eleEoverP_           .push_back(ele->eSuperClusterOverP());
+      eleEoverPInv_        .push_back(fabs(1./ele->ecalEnergy()-1./ele->trackMomentumAtVtx().R()));
+      eleBrem_             .push_back(ele->fbrem());
+      eledEtaAtVtx_        .push_back(ele->deltaEtaSuperClusterTrackAtVtx());
+      eledPhiAtVtx_        .push_back(ele->deltaPhiSuperClusterTrackAtVtx());
+      eleSigmaIEtaIEta_    .push_back(ele->sigmaIetaIeta());
+      eleSigmaIPhiIPhi_    .push_back(ele->sigmaIphiIphi());
+//    eleConvVeto_         .push_back((int)ele->passConversionVeto()); // TODO: not available in reco::
+      eleMissHits_         .push_back(ele->gsfTrack()->numberOfLostHits());
+      eleESEffSigmaRR_     .push_back(lazyTool.eseffsirir(*(ele->superCluster())));
 
       // full 5x5
       vector<float> vCovEle = lazyTool_noZS.localCovariances(*(ele->superCluster()->seed()));
@@ -546,14 +574,14 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
 
       // isolation
       reco::GsfElectron::PflowIsolationVariables pfIso = ele->pfIsolationVariables();
-      elePFChIso_         .push_back(pfIso.sumChargedHadronPt);
-      elePFPhoIso_        .push_back(pfIso.sumPhotonEt);
-      elePFNeuIso_        .push_back(pfIso.sumNeutralHadronEt);
-      elePFPUIso_         .push_back(pfIso.sumPUPt);
+      elePFChIso_          .push_back(pfIso.sumChargedHadronPt);
+      elePFPhoIso_         .push_back(pfIso.sumPhotonEt);
+      elePFNeuIso_         .push_back(pfIso.sumNeutralHadronEt);
+      elePFPUIso_          .push_back(pfIso.sumPUPt);
 
       // seed
-      eleBC1E_            .push_back(ele->superCluster()->seed()->energy());
-      eleBC1Eta_          .push_back(ele->superCluster()->seed()->eta());
+      eleBC1E_             .push_back(ele->superCluster()->seed()->energy());
+      eleBC1Eta_           .push_back(ele->superCluster()->seed()->eta());
 
       // parameters of the very first PFCluster
       reco::CaloCluster_iterator bc = ele->superCluster()->clustersBegin();
