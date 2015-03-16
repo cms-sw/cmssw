@@ -35,7 +35,7 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
   std::vector<l1t::Jet> *calibratedRankedJets = new std::vector<l1t::Jet>();
   std::vector<l1t::Jet> *sortedJets = new std::vector<l1t::Jet>();
 
-  //simpleHWSubtraction(regions, subRegions);
+  double towerLsb = params_->towerLsbSum();
   int jetSeedThreshold = floor( params_->jetSeedThreshold()/towerLsb + 0.5);
 
   std::string regionPUSType = "PUM0"; //params_->regionPUSType();
