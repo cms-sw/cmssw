@@ -23,6 +23,6 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="BlobStreamingService.cc TBufferBlobStreamingService.cc" name="CondCoreDBCommonTBufferBlobStreamingService">
-  
+
   <flags   EDM_PLUGIN="1"/>
 </library>

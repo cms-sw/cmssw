@@ -30,7 +30,6 @@ int main (int argc, char** argv)
 
   std::string connectionString("frontier://FrontierProd/CMS_COND_31X_RUN_INFO");
   std::cout <<"# Connecting with db in "<<connectionString<<std::endl;
-
   try{
     //*************
     ConnectionPool connPool;
