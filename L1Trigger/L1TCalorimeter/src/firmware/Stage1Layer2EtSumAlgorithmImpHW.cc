@@ -98,6 +98,8 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   int sumHT, MHT, iPhiHT;
   std::tie(sumHT, MHT, iPhiHT) = doSumAndMET(regionHtVect, ETSumType::kHadronicSum);
 
+  //MHT is replaced with MHT/HT
+  uint16_t MHToHT=MHToverHT(MHT,sumHT);
   //iPhiHt is replaced by the dPhi between two most energetic jets
   iPhiHT = DiJetPhi(jets);
 
@@ -118,7 +120,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
 
   const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);
   l1t::EtSum etMiss(*&etLorentz,EtSum::EtSumType::kMissingEt,MET&0xfff,0,iPhiET,METqual);
-  l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHT&0x7f,0,iPhiHT,MHTqual);
+  l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHToHT&0x7f,0,iPhiHT,MHTqual);
   l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET&0xfff,0,0,ETTqual);
   l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT&0xfff,0,0,HTTqual);
 
@@ -279,4 +281,22 @@ int l1t::Stage1Layer2EtSumAlgorithmImpHW::DiJetPhi(const std::vector<l1t::Jet> *
 
   if ( difference > 9 ) difference= L1CaloRegionDetId::N_PHI - difference ; // make Physical dphi always positive
   return difference;
+}
+
+uint16_t l1t::Stage1Layer2EtSumAlgorithmImpHW::MHToverHT(uint16_t num,uint16_t den)  const {
+
+  uint16_t result;
+  uint32_t numerator(num),denominator(den);
+
+  if(numerator == denominator)
+    result = 0x7f;
+  else
+    {
+      numerator = numerator << 7;
+      result = numerator/denominator;
+      result = result & 0x7f;
+    }
+  // cout << "Result: " << result << endl;
+
+  return result;
 }
