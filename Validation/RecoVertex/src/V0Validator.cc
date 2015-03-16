@@ -26,8 +26,8 @@ typedef edm::RefVector<edm::HepMCProduct, HepMC::GenVertex > GenVertexRefVector;
 typedef edm::RefVector<edm::HepMCProduct, HepMC::GenParticle > GenParticleRefVector;
 
 V0Validator::V0Validator(const edm::ParameterSet& iConfig)
-  : theDQMRootFileName(iConfig.getParameter<std::string>("DQMRootFileName"))
-  , dirName(iConfig.getParameter<std::string>("dirName"))
+  : theDQMRootFileName(iConfig.getUntrackedParameter<std::string>("DQMRootFileName"))
+  , dirName(iConfig.getUntrackedParameter<std::string>("dirName"))
   , recoRecoToSimCollectionToken_( consumes<reco::RecoToSimCollection>( edm::InputTag( std::string( "trackingParticleRecoTrackAsssociation" ) ) ) )
   , recoSimToRecoCollectionToken_( consumes<reco::SimToRecoCollection>( edm::InputTag( std::string( "trackingParticleRecoTrackAsssociation" ) ) ) )
   , trackingParticleCollection_Eff_Token_( consumes<TrackingParticleCollection>( edm::InputTag( std::string( "mix" )
@@ -44,8 +44,8 @@ V0Validator::V0Validator(const edm::ParameterSet& iConfig)
   , edmSimTrackContainerToken_( consumes<edm::SimTrackContainer>( edm::InputTag( std::string( "g4SimHits" ) ) ) )
   , edmSimVertexContainerToken_( consumes<edm::SimVertexContainer>( edm::InputTag( std::string( "g4SimHits" ) ) ) )
   , vec_recoVertex_Token_( consumes< std::vector<reco::Vertex> >( edm::InputTag( std::string( "offlinePrimaryVertices" ) ) ) )
-  , recoVertexCompositeCandidateCollection_k0s_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getParameter<edm::InputTag>( "kShortCollection" ) ) )
-  , recoVertexCompositeCandidateCollection_lambda_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getParameter<edm::InputTag>( "lambdaCollection" ) ) )
+  , recoVertexCompositeCandidateCollection_k0s_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getUntrackedParameter<edm::InputTag>( "kShortCollection" ) ) )
+  , recoVertexCompositeCandidateCollection_lambda_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getUntrackedParameter<edm::InputTag>( "lambdaCollection" ) ) )
   , recoTrackToTrackingParticleAssociator_Token_( consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByHits")) )
 {
 
