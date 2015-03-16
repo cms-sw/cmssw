@@ -38,7 +38,7 @@ firstStepPrimaryVertices = RecoTracker.IterativeTracking.InitialStep_cff.firstSt
 # final selection
 initialStepSelector = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSelector.clone()
 initialStep = RecoTracker.IterativeTracking.InitialStep_cff.initialStep.clone()
-
+"""
 import FastSimulation.Tracking.SimTrackIdProducer_cfi
 initialStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
                                     TrackQuality = cms.string('highPurity'),
@@ -48,7 +48,7 @@ initialStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrack
                                     HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
                                     
                                     )
-
+"""
 # Final sequence
 InitialStep = cms.Sequence(initialStepSeeds
                            +initialStepTrackCandidates
@@ -56,6 +56,6 @@ InitialStep = cms.Sequence(initialStepSeeds
                            +firstStepPrimaryVertices
                            +initialStepSelector
                            +initialStep
-                           +initialStepSimTrackIds
+   #                        +initialStepSimTrackIds
                            )
 
