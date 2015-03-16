@@ -683,6 +683,8 @@ void PandoraCMSPFCandProducer::prepareTrack(edm::Event& iEvent){ // function to 
     const reco::PFRecTrack * pftrack = &(*tkRefCollection)[i];
     const reco::TrackRef track = pftrack->trackRef();
     
+    //std::cout << "got track with algo == " << track->algo() << std::endl;
+
     //For the d0 = -dxy
     trackParameters.m_d0 = track->d0() * 10. ; //in mm
     //For the z0
@@ -1084,7 +1086,7 @@ void PandoraCMSPFCandProducer::ProcessRecHits(const reco::PFRecHit* rh, unsigned
     caloHitParameters.m_nCellRadiationLengths = calib.nCellRadiationLengths[layer];
     caloHitParameters.m_nCellInteractionLengths = calib.nCellInteractionLengths[layer];
     caloHitParameters.m_isDigital = false;
-    caloHitParameters.m_isInOuterSamplingLayer = false;
+    caloHitParameters.m_isInOuterSamplingLayer = ( calib.m_id==ForwardSubdetector::HGCHEB && layer == nHGChebLayers ) ;
     caloHitParameters.m_pParentAddress = (void *) rh;
     recHitMap.emplace((void*)rh,index); //associate parent address with collection index
     
