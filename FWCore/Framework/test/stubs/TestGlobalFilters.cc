@@ -526,7 +526,7 @@ struct UnsafeCache {
     }
 
 
-    void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const {
+    void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const override {
       ++m_count;
       gblp = true;
     }

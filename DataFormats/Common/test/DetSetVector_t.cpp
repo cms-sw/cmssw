@@ -19,6 +19,11 @@ using namespace edm;
 //------------------------------------------------------
 // This is a sample VALUE class, almost the simplest possible.
 //------------------------------------------------------
+namespace {
+  bool is_null(const void* iPtr) {
+    return iPtr == nullptr ;
+  }
+}
 
 struct Empty { };
 
@@ -176,7 +181,7 @@ namespace {
     virtual void
     getThinnedProducts(ProductID const& pid,
                        std::vector<WrapperBase const*>& wrappers,
-                       std::vector<unsigned int>& keys) const { }
+                       std::vector<unsigned int>& keys) const override { }
 
     virtual unsigned int
     transitionIndex_() const override {return 0U;}
@@ -344,7 +349,7 @@ void work() {
     try {
       coll_type::reference r = c[edm::det_id_type(100)];
       assert("Failed to throw required exception" == 0);
-      assert(&r == 0); // to silence warning of unused r
+      assert(is_null(&r)); // to silence warning of unused r
     }
     catch (edm::Exception const& x) {
       // Test we have the right exception category
@@ -361,7 +366,7 @@ void work() {
       coll_type::const_reference r
         = static_cast<coll_type const&>(c)[edm::det_id_type(100)];
       assert("Failed to throw required exception" == 0);
-      assert(&r == 0); // to silence warning of unused r
+      assert(is_null(&r)); // to silence warning of unused r
     }
     catch (edm::Exception const& x) {
       // Test we have the right exception category
