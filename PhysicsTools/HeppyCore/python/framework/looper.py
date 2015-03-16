@@ -104,7 +104,9 @@ class Looper(object):
                 totevents = min(len(self.events),int(nEvents)) if (nEvents and int(nEvents) not in [-1,0]) else len(self.events)
                 self.nEvents = int(ceil(totevents/float(fineSplitFactor)))
                 self.firstEvent = firstEvent + fineSplitIndex * self.nEvents
-                #print "For component %s will process %d events starting from the %d one" % (self.cfg_comp.name, self.nEvents, self.firstEvent)
+                if self.firstEvent + self.nEvents >= totevents:
+                    self.nEvents = totevents - self.firstEvent 
+                #print "For component %s will process %d events starting from the %d one, ending at %d excluded" % (self.cfg_comp.name, self.nEvents, self.firstEvent, self.nEvents + self.firstEvent)
         # self.event is set in self.process
         self.event = None
         services = dict()
