@@ -1,6 +1,7 @@
 <export></export>
 <library   name="RecoBTagPerformanceDBplugins" file="*.cc">
   <use   name="CondFormats/PhysicsToolsObjects"/>
+  <use   name="CondFormats/BTauObjects"/>
   <use   name="RecoBTag/Records"/>
   <use   name="RecoBTag/PerformanceDB"/>
   <use   name="CondFormats/DataRecord"/>
