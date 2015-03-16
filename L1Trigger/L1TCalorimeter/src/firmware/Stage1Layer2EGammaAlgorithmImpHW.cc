@@ -103,7 +103,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHW::processEvent(const std::vector<l1t::
   //   std::cout << itEGamma->hwPt() << " " << itEGamma->hwEta() << " " << itEGamma->hwPhi() << std::endl;
   // }
 
-  const bool verbose = true;
+  const bool verbose = false;
   if(verbose)
   {
     int cEGammas = 0;

@@ -52,7 +52,7 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
   JetToGtEtaScales(params_, preGtEtaJets, debugJets);
   //JetToGtPtScales(params_, preGtJets, jets);
 
-  const bool verbose = true;
+  const bool verbose = false;
   const bool hex = false;
   if(verbose)
   {
