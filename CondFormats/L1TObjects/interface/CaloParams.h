@@ -82,6 +82,12 @@ namespace l1t {
       // turn encoding on/off
       bool doEncoding_;
 
+      TowerParams() : lsbH_(0), lsbE_(0), lsbSum_(0),
+		      nBitsH_(0), nBitsE_(0), nBitsSum_(0), nBitsRatio_(0),
+		      maskH_(0), maskE_(0), maskSum_(0), maskRatio_(0), 
+		      doEncoding_(false)
+      { /* no-op */}
+
       COND_SERIALIZABLE;
     };
 
@@ -121,6 +127,11 @@ namespace l1t {
 
       // veto region is seed tower +/- <=egIsoVetoNrTowersPhi
       unsigned isoVetoNrTowersPhi_;
+
+      EgParams() : lsb_(0), seedThreshold_(0), neighbourThreshold_(0), hcalThreshold_(0), maxHcalEt_(0), maxPtHOverE_(0), 
+		   minPtJetIsolation_(0), maxPtJetIsolation_(0), minPtHOverEIsolation_(0), maxPtHOverEIsolation_(0), 
+		   isoAreaNrTowersEta_(0), isoAreaNrTowersPhi_(0), isoVetoNrTowersPhi_(0)
+      { /* no-op */ }
 
       COND_SERIALIZABLE;
     };
@@ -162,6 +173,12 @@ namespace l1t {
       // veto region is seed tower +/- <=tauIsoVetoNrTowersPhi
       unsigned isoVetoNrTowersPhi_;
 
+      TauParams() : lsb_(0), seedThreshold_(0), neighbourThreshold_(0), maxPtTauVeto_(0), 
+		    minPtJetIsolationB_(0), maxJetIsolationB_(0), maxJetIsolationA_(0),
+		    isoEtaMin_(0), isoEtaMax_(0), 
+		    isoAreaNrTowersEta_(0), isoAreaNrTowersPhi_(0), isoVetoNrTowersPhi_(0)
+      { /* no-op */ }
+
       COND_SERIALIZABLE;
     };
 
@@ -175,6 +192,8 @@ namespace l1t {
 
       // Et threshold on neighbouring towers/regions
       double neighbourThreshold_;
+
+      JetParams() : lsb_(0), seedThreshold_(0), neighbourThreshold_(0) { /* no-op */ }
 
       COND_SERIALIZABLE;
     };
@@ -367,7 +386,6 @@ namespace l1t {
     // print parameters to stream:
     void print(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream& o, const CaloParams & p) { p.print(o); return o; }
-
 
   private:
     unsigned version_;

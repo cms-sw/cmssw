@@ -8,6 +8,7 @@
 
 
 #include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 /// Constructors
@@ -29,10 +30,8 @@ CSCRPCDigi::CSCRPCDigi (){
 
 /// Debug
 void CSCRPCDigi::print() const {
-  std::cout << "RPC = " << getRpc()
-	    << "  Pad = " << getPad()
-	    << "  Tbin = " << getTbin() 
-	    << "  BXN = " << getBXN() << std::endl;
+  edm::LogVerbatim("CSCDigi") << "CSCRPCDigi | rpc " << getRpc() << " | pad " << getPad()
+	    << " | tbin " << getTbin() << " | bxn  " << getBXN();
 }
 
 std::ostream & operator<<(std::ostream & o, const CSCRPCDigi& digi) {

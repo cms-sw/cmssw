@@ -190,8 +190,8 @@ else:
 if len( inputFiles ) == 0:
   if runOnMiniAOD:
     if runOnMC:
-      from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarPileUpMINIAODSIM
-      inputFiles = filesRelValProdTTbarPileUpMINIAODSIM
+      from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpMINIAODSIM
+      inputFiles = filesRelValTTbarPileUpMINIAODSIM
     else:
       from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValSingleMuMINIAOD
       inputFiles = filesRelValSingleMuMINIAOD

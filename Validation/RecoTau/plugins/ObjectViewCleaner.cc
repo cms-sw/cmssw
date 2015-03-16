@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/View.h"
@@ -40,11 +41,11 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <memory>
 #include <vector>
 #include <sstream>
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
@@ -63,8 +64,8 @@ public:
 
 private:  
   // member data
-  edm::InputTag              srcCands_;
-  std::vector<edm::InputTag> srcObjects_;
+  edm::EDGetTokenT<edm::View<T> >                             srcCands_;
+  std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > srcObjects_;
   double                     deltaRMin_;
   
   std::string  moduleLabel_;
@@ -86,8 +87,8 @@ using namespace std;
 //______________________________________________________________________________
 template<typename T>
 ObjectViewCleaner<T>::ObjectViewCleaner(const edm::ParameterSet& iConfig)
-  : srcCands_    (iConfig.getParameter<edm::InputTag>         ("srcObject"))
-  , srcObjects_ (iConfig.getParameter<vector<edm::InputTag> >("srcObjectsToRemove"))
+  : srcCands_   (consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>         ("srcObject")))
+  , srcObjects_ ()
   , deltaRMin_  (iConfig.getParameter<double>                ("deltaRMin"))
   , moduleLabel_(iConfig.getParameter<string>                ("@module_label"))
   , objKeepCut_(iConfig.existsAs<std::string>("srcObjectSelection") ? iConfig.getParameter<std::string>("srcObjectSelection") : "", true)
@@ -96,6 +97,11 @@ ObjectViewCleaner<T>::ObjectViewCleaner(const edm::ParameterSet& iConfig)
   , nObjectsClean_(0)
 {
   produces<edm::RefToBaseVector<T> >();
+  std::vector<edm::InputTag> srcTags = iConfig.getParameter<vector<edm::InputTag> >("srcObjectsToRemove");
+  srcObjects_.reserve(srcTags.size());
+  for (auto const& tag : srcTags) {
+    srcObjects_.emplace_back(consumes<edm::View<reco::Candidate> >(tag));
+  }
 }
 
 
@@ -120,14 +126,14 @@ void ObjectViewCleaner<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSe
     cleanObjects(new edm::RefToBaseVector<T >());
 
   edm::Handle<edm::View<T> > candidates;
-  iEvent.getByLabel(srcCands_,candidates);
+  iEvent.getByToken(srcCands_,candidates);
   
   bool* isClean = new bool[candidates->size()];
   for (unsigned int iObject=0;iObject<candidates->size();iObject++) isClean[iObject] = true;
   
-  for (unsigned int iSrc=0;iSrc<srcObjects_.size();iSrc++) {
+  for (auto const& object : srcObjects_) {
     edm::Handle<edm::View<reco::Candidate> > objects;
-    iEvent.getByLabel(srcObjects_[iSrc],objects);
+    iEvent.getByToken(object,objects);
     
     for (unsigned int iObject=0;iObject<candidates->size();iObject++) {
       const T& candidate = candidates->at(iObject);
@@ -161,10 +167,9 @@ void ObjectViewCleaner<T>::endJob()
   stringstream ss;
   ss<<"nObjectsTot="<<nObjectsTot_<<" nObjectsClean="<<nObjectsClean_
     <<" fObjectsClean="<<100.*(nObjectsClean_/(double)nObjectsTot_)<<"%\n";
-  cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++"
-      <<"\n"<<moduleLabel_<<"(ObjectViewCleaner) SUMMARY:\n"<<ss.str()
-      <<"++++++++++++++++++++++++++++++++++++++++++++++++++"
-      <<endl;
+  edm::LogInfo("ObjectViewCleaner")<<"++++++++++++++++++++++++++++++++++++++++++++++++++"
+	      <<"\n"<<moduleLabel_<<"(ObjectViewCleaner) SUMMARY:\n"<<ss.str()
+	      <<"++++++++++++++++++++++++++++++++++++++++++++++++++";
 }
 
 

@@ -26,12 +26,10 @@ Muon::Muon() :
     embeddedPFCandidate_(false),
     pfCandidateRef_(),
     cachedNormChi2_(false),
-    cachedDB_(false),
-    cachedNumberOfValidHits_(0),
     normChi2_(0.0),
-    dB_(0.0),
-    edB_(0.0),
-    numberOfValidHits_(0)
+    cachedNumberOfValidHits_(false),
+    numberOfValidHits_(0),
+    pfEcalEnergy_(0)
 {
   initImpactParameters();
 }
@@ -52,12 +50,10 @@ Muon::Muon(const reco::Muon & aMuon) :
     embeddedPFCandidate_(false),
     pfCandidateRef_(),
     cachedNormChi2_(false),
-    cachedDB_(false),
-    cachedNumberOfValidHits_(0),
     normChi2_(0.0),
-    dB_(0.0),
-    edB_(0.0),
-    numberOfValidHits_(0)
+    cachedNumberOfValidHits_(false),
+    numberOfValidHits_(0),
+    pfEcalEnergy_(0)
 {
   initImpactParameters();
 }
@@ -78,12 +74,10 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     embeddedPFCandidate_(false),
     pfCandidateRef_(),
     cachedNormChi2_(false),
-    cachedDB_(false),
-    cachedNumberOfValidHits_(0),
     normChi2_(0.0),
-    dB_(0.0),
-    edB_(0.0),
-    numberOfValidHits_(0)
+    cachedNumberOfValidHits_(0),
+    numberOfValidHits_(0),
+    pfEcalEnergy_(0)
 {
   initImpactParameters();
 }
@@ -104,12 +98,10 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     embeddedPFCandidate_(false),
     pfCandidateRef_(),
     cachedNormChi2_(false),
-    cachedDB_(false),
-    cachedNumberOfValidHits_(0),
     normChi2_(0.0),
-    dB_(0.0),
-    edB_(0.0),
-    numberOfValidHits_(0)
+    cachedNumberOfValidHits_(0),
+    numberOfValidHits_(0),
+    pfEcalEnergy_(0)
 {
   initImpactParameters();
 }
@@ -137,11 +129,9 @@ reco::operator<<(std::ostream& out, const pat::Muon& obj)
 
 // initialize impact parameter container vars
 void Muon::initImpactParameters() {
-  for (int i_ = 0; i_<5; ++i_){
-    ip_.push_back(0.0);
-    eip_.push_back(0.0);
-    cachedIP_.push_back(false);
-  }
+  std::fill(ip_, ip_+IpTypeSize, 0.0f);
+  std::fill(eip_, eip_+IpTypeSize, 0.0f);
+  cachedIP_ = 0;
 }
 
 
@@ -405,22 +395,9 @@ unsigned int Muon::numberOfValidHits() const {
 
 // embed various impact parameters with errors
 // IpType defines the type of the impact parameter
-// None is default and reverts to old behavior controlled by 
-// patMuons.usePV = True/False
 double Muon::dB(IpType type_) const {
-  
-  // preserve old functionality exactly
-  if (type_ == None){
-    if ( cachedDB_ ) {
-      return dB_;
-    }
-    else {
-      return std::numeric_limits<double>::max();
-    }
-  }
-  
   // more IP types (new)
-  else if ( cachedIP_[type_] ) {
+  if ( cachedIP_ & (1 << int(type_))) {
     return ip_[type_];
   } else {
     return std::numeric_limits<double>::max();
@@ -430,22 +407,9 @@ double Muon::dB(IpType type_) const {
 
 // embed various impact parameters with errors
 // IpType defines the type of the impact parameter
-// None is default and reverts to old behavior controlled by 
-// patMuons.usePV = True/False
 double Muon::edB(IpType type_) const {
-
-  // preserve old functionality exactly
-  if (type_ == None){
-    if ( cachedDB_ ) {
-      return edB_;
-    }
-    else {
-      return std::numeric_limits<double>::max();
-    }
-  }
-
   // more IP types (new)
-  else if ( cachedIP_[type_] ) {
+  if ( cachedIP_ & (1 << int(type_))) {
     return eip_[type_];
   } else {
     return std::numeric_limits<double>::max();

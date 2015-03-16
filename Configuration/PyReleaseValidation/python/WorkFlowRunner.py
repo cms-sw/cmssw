@@ -38,6 +38,7 @@ def esReportWorkflow(**kwds):
   inError = False
   if exists(logFile):
     lines = file(logFile).read()
+    payload["message"] = lines
     for l in lines.split("\n"):
       if l.startswith("----- Begin Fatal Exception"):
         inException = True
@@ -68,7 +69,7 @@ def esReportWorkflow(**kwds):
       
   payload["hostname"] = gethostname()
   url = "https://%s/ib-matrix.%s/runTheMatrix-data/%s" % (es_hostname,
-                                                          d.strftime("%Y.%m"),
+                                                          d.strftime("%Y-%W-1"),
                                                           sha1_id)
   request = urllib2.Request(url)
   if es_auth:

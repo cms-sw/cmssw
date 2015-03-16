@@ -260,24 +260,24 @@ const pat::tau::TauCaloSpecific & Tau::caloSpecific() const {
   return caloSpecific_[0]; 
 }
 
-const reco::Candidate::LorentzVector& Tau::p4Jet() const
+reco::Candidate::LorentzVector Tau::p4Jet() const
 {
   if ( isCaloTau() ) return caloSpecific().p4Jet_;
-  if ( isPFTau()   ) return pfEssential().p4Jet_;
+  if ( isPFTau()   ) return reco::Candidate::LorentzVector(pfEssential().p4Jet_);
   throw cms::Exception("Type Error") << "Requesting a CaloTau/PFTau-specific information from a pat::Tau which wasn't made from either a CaloTau or a PFTau.\n";
 }
 
-double Tau::dxy_Sig() const
+float Tau::dxy_Sig() const
 {
   if ( pfEssential().dxy_error_ != 0 ) return (pfEssential().dxy_/pfEssential().dxy_error_);
   else return 0.;
 }
 
-reco::PFTauTransverseImpactParameter::CovMatrix Tau::flightLengthCov() const
+pat::tau::TauPFEssential::CovMatrix Tau::flightLengthCov() const
 {
-  reco::PFTauTransverseImpactParameter::CovMatrix cov;
-  const reco::PFTauTransverseImpactParameter::CovMatrix& sv = secondaryVertexCov();
-  const reco::PFTauTransverseImpactParameter::CovMatrix& pv = primaryVertexCov();
+  pat::tau::TauPFEssential::CovMatrix cov;
+  const pat::tau::TauPFEssential::CovMatrix& sv = secondaryVertexCov();
+  const pat::tau::TauPFEssential::CovMatrix& pv = primaryVertexCov();
   for ( int i = 0; i < dimension; ++i ) {
     for ( int j = 0; j < dimension; ++j ) {
       cov(i,j) = sv(i,j) + pv(i,j);

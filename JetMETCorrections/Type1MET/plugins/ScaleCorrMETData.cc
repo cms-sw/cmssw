@@ -2,7 +2,7 @@
 
 //____________________________________________________________________________||
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,7 +14,7 @@
 #include <iostream>
 
 //____________________________________________________________________________||
-class ScaleCorrMETData : public edm::EDProducer
+class ScaleCorrMETData : public edm::stream::EDProducer<>
 {
 public:
   explicit ScaleCorrMETData(const edm::ParameterSet&);

@@ -126,19 +126,19 @@ namespace pat {
 
       /// PARTICLE FLOW ISOLATION
       /// Returns the isolation calculated with all the PFCandidates
-      float particleIso() const { return userIsolation(pat::PfAllParticleIso); }
+      float patParticleIso() const { return userIsolation(pat::PfAllParticleIso); }
       /// Returns the isolation calculated with only the charged hadron
       /// PFCandidates
-      float chargedHadronIso() const { return userIsolation(pat::PfChargedHadronIso); }
+      float patChargedHadronIso() const { return userIsolation(pat::PfChargedHadronIso); }
       /// Returns the isolation calculated with only the neutral hadron
       /// PFCandidates
-      float neutralHadronIso() const { return userIsolation(pat::PfNeutralHadronIso); }        
+      float patNeutralHadronIso() const { return userIsolation(pat::PfNeutralHadronIso); }        
       /// Returns the isolation calculated with only the gamma
       /// PFCandidates
-      float photonIso() const { return userIsolation(pat::PfGammaIso); }
+      float patPhotonIso() const { return userIsolation(pat::PfGammaIso); }
       /// Returns the isolation calculated with only the pile-up charged hadron
       /// PFCandidates
-      float puChargedHadronIso() const { return userIsolation(pat::PfPUChargedHadronIso); }        
+      float patPuChargedHadronIso() const { return userIsolation(pat::PfPUChargedHadronIso); }        
 
       /// Returns a user defined isolation value
       float userIso(uint8_t index=0)  const { return userIsolation(IsolationKeys(UserBaseIso + index)); }

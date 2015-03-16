@@ -28,15 +28,15 @@ namespace pat {
 
     /// default constructor  
   PackedCandidate()
-    : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0), dphi_(0), pdgId_(0), qualityFlags_(0), unpacked_(false), unpackedVtx_(true), unpackedTrk_(false), dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0),normalizedChi2_(0) { }
+    : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0), dphi_(0), pdgId_(0), qualityFlags_(0), unpacked_(false), unpackedVtx_(true), unpackedTrk_(false), dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),dptdpt_(0),detadeta_(0),dphidphi_(0),packedHits_(0),normalizedChi2_(0) { }
   explicit PackedCandidate( const reco::Candidate & c, const reco::VertexRef &pv)
-    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(c.vertex()), dphi_(0), pdgId_(c.pdgId()), qualityFlags_(0), pvRef_(pv), unpacked_(true) , unpackedVtx_(true), unpackedTrk_(false), dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
+    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(c.vertex()), dphi_(0), pdgId_(c.pdgId()), qualityFlags_(0), pvRef_(pv), unpacked_(true) , unpackedVtx_(true), unpackedTrk_(false), dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),dptdpt_(0),detadeta_(0),dphidphi_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
 
   explicit PackedCandidate( const PolarLorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv)
-    : p4_(p4), p4c_(p4_), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true), unpackedTrk_(false),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
+    : p4_(p4), p4c_(p4_), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true), unpackedTrk_(false),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),dptdpt_(0),detadeta_(0),dphidphi_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
 
   explicit PackedCandidate( const LorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv)
-    : p4_(p4.Pt(), p4.Eta(), p4.Phi(), p4.M()), p4c_(p4), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true), unpackedTrk_(false),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
+    : p4_(p4.Pt(), p4.Eta(), p4.Phi(), p4.M()), p4c_(p4), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true), unpackedTrk_(false),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),dptdpt_(0),detadeta_(0),dphidphi_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
  
  
     
@@ -198,9 +198,21 @@ namespace pat {
     /// set vertex                                                                        
     virtual void setVertex( const Point & vertex ) { maybeUnpackBoth(); vertex_ = vertex; packVtx(); }
 
+    ///This refers to the association to PV=ipv. >=PVLoose corresponds to JME definition, >=PVTight to isolation definition
     enum PVAssoc { NoPV=0, PVLoose=1, PVTight=2, PVUsedInFit=3 } ;
-    const PVAssoc fromPV() const { return PVAssoc((qualityFlags_ & fromPVMask)>>fromPVShift); }
-    void setFromPV( PVAssoc fromPV )   {  qualityFlags_ = (qualityFlags_ & ~fromPVMask) | ((fromPV << fromPVShift) & fromPVMask);  }
+    const PVAssoc fromPV(size_t ipv=0) const { 
+        if(pvAssociationQuality()==UsedInFitTight and pvRef_.key()==ipv) return PVUsedInFit;
+        if(pvRef_.key()==ipv or abs(pdgId())==13 or abs(pdgId())==11 ) return PVTight;
+        if(pvAssociationQuality() == CompatibilityBTag and std::abs(dzAssociatedPV()) >  std::abs(dz(ipv))) return PVTight; // it is not closest, but at least prevents the B assignment stealing
+        if(pvAssociationQuality() < UsedInFitLoose or pvRef_->ndof() < 4.0 ) return PVLoose;
+        return NoPV;
+    }
+
+    /// The following contains information about how the association to the PV, given in vertexRef, is obtained.
+    ///
+    enum PVAssociationQuality { NotReconstructedPrimary=0,OtherDeltaZ=1,CompatibilityBTag=4,CompatibilityDz=5,UsedInFitLoose=6,UsedInFitTight=7};
+    const PVAssociationQuality pvAssociationQuality() const { return PVAssociationQuality((qualityFlags_ & assignmentQualityMask)>>assignmentQualityShift); }
+    void setAssociationQuality( PVAssociationQuality q )   {  qualityFlags_ = (qualityFlags_ & ~assignmentQualityMask) | ((q << assignmentQualityShift) & assignmentQualityMask);  }
 
     /// set reference to the primary vertex                                                                        
     void setVertexRef( const reco::VertexRef & vertexRef ) { maybeUnpackBoth(); pvRef_ = vertexRef; packVtx(); }
@@ -208,8 +220,10 @@ namespace pat {
 
     /// dxy with respect to the PV ref
     virtual float dxy() const { maybeUnpackBoth(); return dxy_; }
+    /// dz with respect to the PV[ipv]
+    virtual float dz(size_t ipv=0)  const { maybeUnpackBoth(); return dz_+pvRef_->position().z()-(*pvRef_.product())[ipv].position().z(); }
     /// dz with respect to the PV ref
-    virtual float dz()  const { maybeUnpackBoth(); return dz_; }
+    virtual float dzAssociatedPV()  const { maybeUnpackBoth(); return dz_; }
     /// dxy with respect to another point
     virtual float dxy(const Point &p) const ;
     /// dz  with respect to another point
@@ -380,10 +394,10 @@ namespace pat {
     friend class ShallowClonePtrCandidate;
 
     enum qualityFlagsShiftsAndMasks {
-        fromPVMask = 0x3, fromPVShift = 0,
-        trackHighPurityMask  = 0x4, trackHighPurityShift=2,
-        lostInnerHitsMask = 0x18, lostInnerHitsShift=3,
-        muonFlagsMask = 0x0300, muonFlagsShift=8
+        assignmentQualityMask = 0x7, assignmentQualityShift = 0,
+        trackHighPurityMask  = 0x8, trackHighPurityShift=3,
+        lostInnerHitsMask = 0x30, lostInnerHitsShift=4,
+        muonFlagsMask = 0x0600, muonFlagsShift=9
     };
   };
 

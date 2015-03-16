@@ -14,47 +14,61 @@
 void TrackingMaterialPlotter::fill_color(void)
 {
   m_color.push_back(kBlack);          // unassigned
-  m_color.push_back(kBlue);           // PixelBarrel
-  m_color.push_back(kBlue  + 100);    //
-  m_color.push_back(kBlue);           //
+  m_color.push_back(kAzure);          // PixelBarrel
+  m_color.push_back(kAzure + 1) ;     //
+  m_color.push_back(kAzure + 1) ;     //
+  m_color.push_back(kAzure + 3) ;     //
+  m_color.push_back(kAzure + 3) ;     //
   m_color.push_back(kGreen);          // TIB
-  m_color.push_back(kGreen + 100);    //
-  m_color.push_back(kGreen);          //
-  m_color.push_back(kGreen + 100);    //
+  m_color.push_back(kGreen);      //
+  m_color.push_back(kGreen + 2);      //
+  m_color.push_back(kGreen + 2);      //
+  m_color.push_back(kGreen - 3);      //
+  m_color.push_back(kGreen - 3);      //
+  m_color.push_back(kGreen - 1);      //
+  m_color.push_back(kGreen - 1);      //
   m_color.push_back(kRed);            // TOB
-  m_color.push_back(kRed   + 100);    //
-  m_color.push_back(kRed);            //
-  m_color.push_back(kRed   + 100);    //
-  m_color.push_back(kRed);            //
-  m_color.push_back(kRed   + 100);    //
-  m_color.push_back(kBlue);           // PixelEndcap Z-
-  m_color.push_back(kBlue  + 100);    //
-  m_color.push_back(kGreen);          // TID Z-
-  m_color.push_back(kGreen + 100);    //
-  m_color.push_back(kGreen);          //
-  m_color.push_back(kRed);            // TEC Z-
-  m_color.push_back(kRed   + 100);    //
-  m_color.push_back(kRed);            //
-  m_color.push_back(kRed   + 100);    //
-  m_color.push_back(kRed);            //
-  m_color.push_back(kRed   + 100);    //
-  m_color.push_back(kRed);            //
-  m_color.push_back(kRed   + 100);    //
-  m_color.push_back(kRed);            //
-  m_color.push_back(kBlue);           // PixelEndcap Z+
-  m_color.push_back(kBlue  + 100);    //
-  m_color.push_back(kGreen);          // TID Z+
-  m_color.push_back(kGreen + 100);    //
-  m_color.push_back(kGreen);          //
-  m_color.push_back(kRed);            // TEC Z+
-  m_color.push_back(kRed   + 100);    //
-  m_color.push_back(kRed);            //
-  m_color.push_back(kRed   + 100);    //
-  m_color.push_back(kRed);            //
-  m_color.push_back(kRed   + 100);    //
-  m_color.push_back(kRed);            //
-  m_color.push_back(kRed   + 100);    //
-  m_color.push_back(kRed);            //
+  m_color.push_back(kRed);      //
+  m_color.push_back(kRed);      //
+  m_color.push_back(kRed + 3);      //
+  m_color.push_back(kRed + 3);      //
+  m_color.push_back(kRed + 3);      //
+  m_color.push_back(kRed - 3);      //
+  m_color.push_back(kRed - 3);      //
+  m_color.push_back(kRed - 3);    //
+  m_color.push_back(kOrange + 9);     //
+  m_color.push_back(kOrange + 9);     //
+  m_color.push_back(kOrange + 9);     //
+  m_color.push_back(kOrange + 7);     //
+  m_color.push_back(kOrange + 7);     //
+  m_color.push_back(kOrange + 7);     //
+  m_color.push_back(kOrange + 5);     //
+  m_color.push_back(kOrange + 5);     //
+  m_color.push_back(kOrange + 5);     //
+  m_color.push_back(kOrange + 8);         // PixelEndcap Z-
+  m_color.push_back(kOrange + 10);         //
+  m_color.push_back(kOrange - 3);         //
+  m_color.push_back(kOrange - 1);     // PixelEndcap Z+
+  m_color.push_back(kOrange - 8);     //
+  m_color.push_back(kYellow);         // TID Z-
+  m_color.push_back(kYellow);         //
+  m_color.push_back(kYellow + 2);     //
+  m_color.push_back(kYellow + 2);     //
+  m_color.push_back(kYellow + 2);     //
+  m_color.push_back(kYellow + 3);     //
+  m_color.push_back(kMagenta);            //
+  m_color.push_back(kMagenta);            //
+  m_color.push_back(kMagenta);            //
+  m_color.push_back(kMagenta);            //
+  m_color.push_back(kMagenta);            //
+  m_color.push_back(kMagenta + 1);        //
+  m_color.push_back(kMagenta + 2);        //
+  m_color.push_back(kMagenta + 3);        //
+  m_color.push_back(kMagenta + 4);        //
+  m_color.push_back(kMagenta + 5);        //
+  m_color.push_back(kMagenta + 6);        //
+  m_color.push_back(kMagenta + 7);        //
+  m_color.push_back(kMagenta + 8);        //
 }
 
 
@@ -97,7 +111,7 @@ TrackingMaterialPlotter::TrackingMaterialPlotter( float maxZ, float maxR, float 
 
   std::vector<double> max;
   max.push_back( 0.02 );
-  max.push_back( 0.04 );
+  max.push_back( 0.00004 );
   m_tracker = XHistogram( 2, rzBinsZ, rzBinsR, std::make_pair(rzMinZ, rzMaxZ), std::make_pair(rzMinR, rzMaxR), m_color.size(), max);
 
   TColor::InitializeColors();
@@ -139,6 +153,7 @@ void TrackingMaterialPlotter::draw( void )
   canvas->GetFrame()->SetFillColor(kWhite);
   radlen->Draw("colz");
   radlen->Draw("same axis y+");
+  radlen->SaveAs("radlen.root");
   canvas->SaveAs("radlen.png");
   delete canvas;
 
@@ -150,6 +165,7 @@ void TrackingMaterialPlotter::draw( void )
   gStyle->SetNumberContours( m_gradient.size() );
   dedx->Draw("colz");
   dedx->Draw("same axis y+");
+  dedx->SaveAs("dedx.root");
   canvas->SaveAs("dedx.png");
   delete canvas;
 
@@ -163,6 +179,7 @@ void TrackingMaterialPlotter::draw( void )
   colormap->SetMaximum( m_color.size() );
   colormap->Draw("col");
   colormap->Draw("same axis y+");
+  colormap->SaveAs("layers.root");
   canvas->SaveAs("layers.png");
   delete canvas;
 }

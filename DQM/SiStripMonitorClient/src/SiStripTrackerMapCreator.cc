@@ -70,8 +70,12 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
 
   if(!fedcabling) return;
 
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   if (trackerMap_) delete trackerMap_;
-  trackerMap_ = new TrackerMap(tkmapPset, fedcabling);
+  trackerMap_ = new TrackerMap(tkmapPset, fedcabling,tTopo);
   std::string tmap_title = " Tracker Map from  " + map_type;
   trackerMap_->setTitle(tmap_title);
  
@@ -138,8 +142,12 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
 
   if(!fedcabling) return;
 
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   if (trackerMap_) delete trackerMap_;
-  trackerMap_ = new TrackerMap(tkmapPset,fedcabling);
+  trackerMap_ = new TrackerMap(tkmapPset,fedcabling,tTopo);
 
   meanToMaxFactor_ = tkmapPset.getUntrackedParameter<double>("meanToMaxFact",2.5);
   useSSQuality_ = tkmapPset.getUntrackedParameter<bool>("useSSQuality",false);

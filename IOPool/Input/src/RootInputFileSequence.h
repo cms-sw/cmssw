@@ -20,6 +20,7 @@ RootInputFileSequence: This is an InputSource
 #include <memory>
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace CLHEP {
@@ -61,14 +62,15 @@ namespace edm {
     bool containedInCurrentFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const;
     bool skipEvents(int offset);
     bool goToEvent(EventID const& eventID);
-    bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool currentFileFirst = true);
+    bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, size_t fileNameHash = 0U, bool currentFileFirst = true);
     bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
+    bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, size_t fileNameHash);
     void rewind_();
-    void readOneRandom(EventPrincipal& cache, CLHEP::HepRandomEngine*);
-    bool readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id, CLHEP::HepRandomEngine*);
-    bool readOneSequential(EventPrincipal& cache);
-    bool readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& id);
-    void readOneSpecified(EventPrincipal& cache, EventID const& id);
+    void readOneRandom(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*);
+    bool readOneRandomWithID(EventPrincipal& cache, size_t& fileNameHash, LuminosityBlockID const& id, CLHEP::HepRandomEngine*);
+    bool readOneSequential(EventPrincipal& cache, size_t& fileNameHash);
+    bool readOneSequentialWithID(EventPrincipal& cache, size_t& fileNameHash, LuminosityBlockID const& id);
+    void readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, SecondaryEventIDAndFileInfo const& id);
 
     void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     std::shared_ptr<ProductRegistry const> fileProductRegistry() const;
@@ -97,6 +99,8 @@ namespace edm {
     InputFileCatalog const& catalog_;
     bool firstFile_;
     std::string lfn_;
+    size_t lfnHash_;
+    std::unique_ptr<std::unordered_multimap<size_t, size_t> > findFileForSpecifiedID_;
     std::vector<FileCatalogItem>::const_iterator fileIterBegin_;
     std::vector<FileCatalogItem>::const_iterator fileIterEnd_;
     std::vector<FileCatalogItem>::const_iterator fileIter_;

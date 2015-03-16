@@ -32,6 +32,7 @@ process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetE
 
 process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder")
 process.TrackerGeometryExtraWriter = cms.EDAnalyzer("PGeometricDetExtraBuilder")
+process.TrackerParametersWriter = cms.EDAnalyzer("PTrackerParametersDBBuilder")
 
 process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder")
 
@@ -49,6 +50,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_TagXX_Extended2015_mc')),
                                                             cms.PSet(record = cms.string('IdealGeometryRecord'),tag = cms.string('TKRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PGeometricDetExtraRcd'),tag = cms.string('TKExtra_Geometry_TagXX')),
+                                                            cms.PSet(record = cms.string('PTrackerParametersRcd'),tag = cms.string('TKParameters_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PEcalBarrelRcd'),   tag = cms.string('EBRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('EERECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('EPRECO_Geometry_TagXX')),
@@ -67,4 +69,4 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.p1 = cms.Path(process.XMLGeometryWriter+process.TrackerGeometryWriter+process.TrackerGeometryExtraWriter+process.CaloGeometryWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter)
+process.p1 = cms.Path(process.XMLGeometryWriter+process.TrackerGeometryWriter+process.TrackerGeometryExtraWriter+process.TrackerParametersWriter+process.CaloGeometryWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter)

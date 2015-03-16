@@ -9,6 +9,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
@@ -97,8 +98,10 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e, ed
   // determine the expected size of the FRDEvent IN BYTES !!!!!
   int headerSize = frdVersion_<3 ? (4+1024)*sizeof(uint32) : 7*sizeof(uint32);
   int expectedSize = headerSize;
+  int nFeds = frdVersion_<3? 1024 : FEDNumbering::lastFEDId()+1;
 
-  for (int idx = 0; idx < 1024; ++idx) {
+
+  for (int idx = 0; idx < nFeds; ++idx) {
     FEDRawData singleFED = fedBuffers->FEDData(idx);
     expectedSize += singleFED.size();
   }
@@ -128,7 +131,7 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e, ed
     *bufPtr++ = 0;
   }
   uint32 *payloadPtr=bufPtr;
-  for (int idx = 0; idx < 1024; ++idx) {
+  for (int idx = 0; idx < nFeds; ++idx) {
     FEDRawData singleFED = fedBuffers->FEDData(idx);
     if (singleFED.size() > 0) {
       memcpy(bufPtr, singleFED.data(), singleFED.size());

@@ -91,7 +91,7 @@ bool ZtoMMEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
       if (absiso/mu.pt() > maxIso_) continue;
 
       TLorentzVector lv;
-      lv.SetPxPyPzE(mu.pt(), mu.eta(), mu.phi(), mu.energy());
+      lv.SetPtEtaPhiE(mu.pt(), mu.eta(), mu.phi(), mu.energy());
       list.push_back(lv); 
     }
   }

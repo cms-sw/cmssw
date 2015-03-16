@@ -78,7 +78,8 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
     stripConditions = cms.string('Database'),
     GeometryType = cms.string('idealForDigi'),                            
     digitizeBadChambers = cms.bool(False),
-    layersNeeded = cms.uint32(3)
+    layersNeeded = cms.uint32(3),
+    dumpGasCollisions = cms.untracked.bool(False)
 )
 
 ##

@@ -16,9 +16,6 @@ from FastSimulation.EventProducer.FamosSimHits_cff import *
 # Gaussian Smearing RecHit producer
 from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import *
 
-# Rec Hit Tranlator to the Full map with DeTId'
-from FastSimulation.TrackingRecHitProducer.TrackingRecHitTranslator_cfi import *
-
 # CTF and Iterative tracking (contains pixelTracks and pixelVertices)
 
 # 1) Common algorithms and configuration taken from full reconstruction
@@ -203,7 +200,21 @@ electronGsfTracks.src = 'electronGSGsfTrackCandidates'
 electronGsfTracks.TTRHBuilder = 'WithoutRefit'
 electronGsfTracks.TrajectoryInEvent = True
 
+from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
+from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
 
+trackerDrivenElectronSeedsTmp = trackerDrivenElectronSeeds.clone()
+trackerDrivenElectronSeedsTmp.TkColList = cms.VInputTag(cms.InputTag("generalTracksBeforeMixing"))
+trackerDrivenElectronSeeds = cms.EDProducer(
+    "ElectronSeedTrackRefFix",
+    PreGsfLabel = trackerDrivenElectronSeedsTmp.PreGsfLabel,
+    PreIdLabel = trackerDrivenElectronSeedsTmp.PreIdLabel,
+    oldTrackCollection = trackerDrivenElectronSeedsTmp.TkColList[0],
+    newTrackCollection = cms.InputTag("generalTracks"),
+    seedCollection = cms.InputTag("trackerDrivenElectronSeedsTmp",trackerDrivenElectronSeedsTmp.PreGsfLabel.value()),
+    idCollection = cms.InputTag("trackerDrivenElectronSeedsTmp",trackerDrivenElectronSeedsTmp.PreIdLabel.value())
+    )
+    
 # PF related electron sequences defined in FastSimulation.ParticleFlow.ParticleFlowFastSim_cff
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 
@@ -219,6 +230,7 @@ famosGsfTrackSequence = cms.Sequence(
     newCombinedSeeds+
     particleFlowCluster+
     ecalDrivenElectronSeeds+
+    trackerDrivenElectronSeedsTmp+
     trackerDrivenElectronSeeds+
     electronMergedSeeds+
     electronGSGsfTrackCandidates+

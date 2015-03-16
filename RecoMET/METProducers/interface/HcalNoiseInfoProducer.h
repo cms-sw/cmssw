@@ -20,7 +20,7 @@
 // user include files
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -42,7 +42,7 @@ namespace reco {
   // class declaration
   //
   
-  class HcalNoiseInfoProducer : public edm::EDProducer {
+  class HcalNoiseInfoProducer : public edm::stream::EDProducer<> {
   public:
     explicit HcalNoiseInfoProducer(const edm::ParameterSet&);
     ~HcalNoiseInfoProducer();

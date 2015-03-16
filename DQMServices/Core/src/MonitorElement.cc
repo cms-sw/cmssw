@@ -1036,11 +1036,7 @@ MonitorElement::softReset(void)
     TH1F *r = static_cast<TH1F *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TH1F((std::string(orig->GetName()) + "_ref").c_str(),
-                               orig->GetTitle(),
-                               orig->GetNbinsX(),
-                               orig->GetXaxis()->GetXmin(),
-                               orig->GetXaxis()->GetXmax());
+      refvalue_ = r = (TH1F*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1054,11 +1050,7 @@ MonitorElement::softReset(void)
     TH1S *r = static_cast<TH1S *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TH1S((std::string(orig->GetName()) + "_ref").c_str(),
-                               orig->GetTitle(),
-                               orig->GetNbinsX(),
-                               orig->GetXaxis()->GetXmin(),
-                               orig->GetXaxis()->GetXmax());
+      refvalue_ = r = (TH1S*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1072,11 +1064,7 @@ MonitorElement::softReset(void)
     TH1D *r = static_cast<TH1D *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TH1D((std::string(orig->GetName()) + "_ref").c_str(),
-                               orig->GetTitle(),
-                               orig->GetNbinsX(),
-                               orig->GetXaxis()->GetXmin(),
-                               orig->GetXaxis()->GetXmax());
+      refvalue_ = r = (TH1D*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1090,14 +1078,7 @@ MonitorElement::softReset(void)
     TH2F *r = static_cast<TH2F *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TH2F((std::string(orig->GetName()) + "_ref").c_str(),
-                               orig->GetTitle(),
-                               orig->GetNbinsX(),
-                               orig->GetXaxis()->GetXmin(),
-                               orig->GetXaxis()->GetXmax(),
-                               orig->GetNbinsY(),
-                               orig->GetYaxis()->GetXmin(),
-                               orig->GetYaxis()->GetXmax());
+      refvalue_ = r = (TH2F*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1111,14 +1092,7 @@ MonitorElement::softReset(void)
     TH2S *r = static_cast<TH2S *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TH2S((std::string(orig->GetName()) + "_ref").c_str(),
-                               orig->GetTitle(),
-                               orig->GetNbinsX(),
-                               orig->GetXaxis()->GetXmin(),
-                               orig->GetXaxis()->GetXmax(),
-                               orig->GetNbinsY(),
-                               orig->GetYaxis()->GetXmin(),
-                               orig->GetYaxis()->GetXmax());
+      refvalue_ = r = (TH2S*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1132,14 +1106,7 @@ MonitorElement::softReset(void)
     TH2D *r = static_cast<TH2D *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TH2D((std::string(orig->GetName()) + "_ref").c_str(),
-                               orig->GetTitle(),
-                               orig->GetNbinsX(),
-                               orig->GetXaxis()->GetXmin(),
-                               orig->GetXaxis()->GetXmax(),
-                               orig->GetNbinsY(),
-                               orig->GetYaxis()->GetXmin(),
-                               orig->GetYaxis()->GetXmax());
+      refvalue_ = r = (TH2D*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1153,17 +1120,7 @@ MonitorElement::softReset(void)
     TH3F *r = static_cast<TH3F *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TH3F((std::string(orig->GetName()) + "_ref").c_str(),
-                               orig->GetTitle(),
-                               orig->GetNbinsX(),
-                               orig->GetXaxis()->GetXmin(),
-                               orig->GetXaxis()->GetXmax(),
-                               orig->GetNbinsY(),
-                               orig->GetYaxis()->GetXmin(),
-                               orig->GetYaxis()->GetXmax(),
-                               orig->GetNbinsZ(),
-                               orig->GetZaxis()->GetXmin(),
-                               orig->GetZaxis()->GetXmax());
+      refvalue_ = r = (TH3F*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1177,14 +1134,7 @@ MonitorElement::softReset(void)
     TProfile *r = static_cast<TProfile *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TProfile((std::string(orig->GetName()) + "_ref").c_str(),
-                                   orig->GetTitle(),
-                                   orig->GetNbinsX(),
-                                   orig->GetXaxis()->GetXmin(),
-                                   orig->GetXaxis()->GetXmax(),
-                                   orig->GetYaxis()->GetXmin(),
-                                   orig->GetYaxis()->GetXmax(),
-                                   orig->GetErrorOption());
+      refvalue_ = r = (TProfile*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }
@@ -1198,17 +1148,7 @@ MonitorElement::softReset(void)
     TProfile2D *r = static_cast<TProfile2D *>(refvalue_);
     if (! r)
     {
-      refvalue_ = r = new TProfile2D((std::string(orig->GetName()) + "_ref").c_str(),
-                                     orig->GetTitle(),
-                                     orig->GetNbinsX(),
-                                     orig->GetXaxis()->GetXmin(),
-                                     orig->GetXaxis()->GetXmax(),
-                                     orig->GetNbinsY(),
-                                     orig->GetYaxis()->GetXmin(),
-                                     orig->GetYaxis()->GetXmax(),
-                                     orig->GetZaxis()->GetXmin(),
-                                     orig->GetZaxis()->GetXmax(),
-                                     orig->GetErrorOption());
+      refvalue_ = r = (TProfile2D*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
       r->SetDirectory(0);
       r->Reset();
     }

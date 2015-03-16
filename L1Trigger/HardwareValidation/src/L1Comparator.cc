@@ -48,52 +48,7 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
   assert(DTP==4); assert(DTF==5); assert(CTP== 6); assert(CTF== 7);
   assert(RPC==8); assert(LTC==9); assert(GMT==10); assert(GLT==11);
 
-  if(verbose())
-    std::cout << "[L1Comparator] debug print collection labels\n";
 
-  m_DEsource[RCT][0] = iConfig.getParameter<edm::InputTag>("RCTsourceData");
-  m_DEsource[RCT][1] = iConfig.getParameter<edm::InputTag>("RCTsourceEmul");
-
-  m_DEsource[GCT][0] = iConfig.getParameter<edm::InputTag>("GCTsourceData");
-  m_DEsource[GCT][1] = iConfig.getParameter<edm::InputTag>("GCTsourceEmul");
-
-  m_DEsource[DTP][0] = iConfig.getParameter<edm::InputTag>("DTPsourceData");
-  m_DEsource[DTP][1] = iConfig.getParameter<edm::InputTag>("DTPsourceEmul");
-
-  m_DEsource[DTF][0] = iConfig.getParameter<edm::InputTag>("DTFsourceData");
-  m_DEsource[DTF][1] = iConfig.getParameter<edm::InputTag>("DTFsourceEmul");
-
-  m_DEsource[RPC][0] = iConfig.getParameter<edm::InputTag>("RPCsourceData");
-  m_DEsource[RPC][1] = iConfig.getParameter<edm::InputTag>("RPCsourceEmul");
-
-  m_DEsource[GMT][0] = iConfig.getParameter<edm::InputTag>("GMTsourceData");
-  m_DEsource[GMT][1] = iConfig.getParameter<edm::InputTag>("GMTsourceEmul");
-
-  for(int sys=0; sys<DEnsys; sys++) {
-    std::string data_label = SystLabel[sys] + "sourceData";
-    std::string emul_label = SystLabel[sys] + "sourceEmul";
-    //m_DEsource[sys][0] = iConfig.getParameter<edm::InputTag>(data_label);
-    //m_DEsource[sys][1] = iConfig.getParameter<edm::InputTag>(emul_label);
-    //if(sys==CTF) {
-    //  std::string data_label(""); data_label+="CTTsourceData";
-    //  std::string emul_label(""); emul_label+="CTTsourceEmul";
-    //  m_DEsource[sys][2] = iConfig.getParameter<edm::InputTag>(data_label);
-    //  m_DEsource[sys][3] = iConfig.getParameter<edm::InputTag>(emul_label);
-    //}
-    if(m_doSys[sys] && verbose()) {
-      std::cout << " sys:"   << sys << " label:" << SystLabel[sys]  
-		<< "\n\tdt:" << data_label << " : " <<m_DEsource[sys][0]
-		<< "\n\tem:" << emul_label << " : " <<m_DEsource[sys][1]
-		<< std::endl;
-      if(sys==CTF) {
-	std::cout << "\tdt:"     << data_label << " : " <<m_DEsource[sys][2]
-     		  << "\n\tem:" << emul_label << " : " <<m_DEsource[sys][3]
-		  << std::endl;
-      }
-    }
-  }
-
-  
   /// dump level:  -1(all),0(none),1(disagree),2(loc.disagree),3(loc.agree)
   m_dumpMode = iConfig.getUntrackedParameter<int>("DumpMode",0);  
   m_dumpFileName = iConfig.getUntrackedParameter<std::string>("DumpFile","");
@@ -118,6 +73,92 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
   m_dedigis.clear();
   /// create d|e record product
   produces<L1DataEmulRecord>().setBranchAlias("L1DataEmulRecord");  
+
+  // -- RCT [regional calorimeter trigger]
+  if(m_doSys[RCT]) {
+    edm::InputTag tag0 = iConfig.getParameter<edm::InputTag>("RCTsourceData");
+    edm::InputTag tag1 = iConfig.getParameter<edm::InputTag>("RCTsourceEmul");
+
+    tokenCaloEm_[0] = consumes<L1CaloEmCollection>(tag0);
+    tokenCaloEm_[1] = consumes<L1CaloEmCollection>(tag1);
+    tokenCaloRegion_[0] = consumes<L1CaloRegionCollection>(tag0);
+    tokenCaloRegion_[1] = consumes<L1CaloRegionCollection>(tag1);
+  }
+
+  // -- GCT [global calorimeter trigger]
+  if(m_doSys[GCT]) {
+    edm::InputTag tags[2];
+    tags[0] = iConfig.getParameter<edm::InputTag>("GCTsourceData");
+    tags[1] = iConfig.getParameter<edm::InputTag>("GCTsourceEmul");
+
+    for (int i = 0; i < 2 ; ++i) { 
+      edm::InputTag const& tag = tags[i];
+      std::string const label = tag.label();
+      tokenGctEmCand_isoEm_[i] = consumes<L1GctEmCandCollection>(edm::InputTag(label, "isoEm"));
+      tokenGctEmCand_nonIsoEm_[i] = consumes<L1GctEmCandCollection>(edm::InputTag(label, "nonIsoEm"));
+      tokenGctJetCand_cenJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "cenJets"));
+      tokenGctJetCand_forJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "forJets"));
+      tokenGctJetCand_tauJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "tauJets"));
+      tokenGctEtTotal_[i] = consumes<L1GctEtTotalCollection>(tag);
+      tokenGctEtHad_[i] = consumes<L1GctEtHadCollection>(tag);
+      tokenGctEtMiss_[i] = consumes<L1GctEtMissCollection>(tag);
+      tokenGctHFRingEtSums_[i] = consumes<L1GctHFRingEtSumsCollection>(tag);
+      tokenGctHFBitCounts_[i] = consumes<L1GctHFBitCountsCollection>(tag);
+      tokenGctHtMiss_[i] = consumes<L1GctHtMissCollection>(tag);
+      tokenGctJetCounts_[i] = consumes<L1GctJetCountsCollection>(tag);
+    }
+  }
+
+  // -- DTP [drift tube trigger primitive]
+  if(m_doSys[DTP]) {
+    edm::InputTag tag0 = iConfig.getParameter<edm::InputTag>("DTPsourceData");
+    edm::InputTag tag1 = iConfig.getParameter<edm::InputTag>("DTPsourceEmul");
+
+    tokenMuDTChambPh_[0] = consumes<L1MuDTChambPhContainer>(tag0);
+    tokenMuDTChambPh_[1] = consumes<L1MuDTChambPhContainer>(tag1);
+    tokenMuDTChambTh_[0] = consumes<L1MuDTChambThContainer>(tag0);
+    tokenMuDTChambTh_[1] = consumes<L1MuDTChambThContainer>(tag1);
+  }
+
+  // -- DTF [drift tube track finder]
+  if(m_doSys[DTF]) {
+    edm::InputTag tag0 = iConfig.getParameter<edm::InputTag>("DTFsourceData");
+    edm::InputTag tag1 = iConfig.getParameter<edm::InputTag>("DTFsourceEmul");
+
+    tokenMuDTTrack_[0] = consumes<L1MuDTTrackContainer>(edm::InputTag(tag0.label(),"DATA"));
+    tokenMuDTTrack_[1] = consumes<L1MuDTTrackContainer>(edm::InputTag(tag1.label(),"DTTF"));
+  }
+
+  // -- RPC [resistive plate chambers regional trigger]
+  if(m_doSys[RPC]) {
+    edm::InputTag tag0 = iConfig.getParameter<edm::InputTag>("RPCsourceData");
+    edm::InputTag tag1 = iConfig.getParameter<edm::InputTag>("RPCsourceEmul");
+
+    tokenMuRegionalCandRPCb_[0] = consumes<L1MuRegionalCandCollection>(edm::InputTag(tag0.label(),"RPCb"));
+    tokenMuRegionalCandRPCb_[1] = consumes<L1MuRegionalCandCollection>(edm::InputTag(tag1.label(),"RPCb"));
+    tokenMuRegionalCandRPCf_[0] = consumes<L1MuRegionalCandCollection>(edm::InputTag(tag0.label(),"RPCf"));
+    tokenMuRegionalCandRPCf_[1] = consumes<L1MuRegionalCandCollection>(edm::InputTag(tag1.label(),"RPCf"));
+  }
+
+  // -- LTC [local trigger controller]
+  if(m_doSys[LTC]) {
+    // FIXME
+    // There should be a real input tag here, but there was none in the original code.
+    edm::InputTag dummyTag;
+    tokenLTCDigi_[0] = consumes<LTCDigiCollection>(dummyTag);
+    tokenLTCDigi_[1] = consumes<LTCDigiCollection>(dummyTag);
+  }
+
+  // -- GMT [global muon trigger]
+  if(m_doSys[GMT]) {
+    edm::InputTag tag0 = iConfig.getParameter<edm::InputTag>("GMTsourceData");
+    edm::InputTag tag1 = iConfig.getParameter<edm::InputTag>("GMTsourceEmul");
+
+    tokenMuGMTCand_[0] = consumes<L1MuGMTCandCollection>(tag0);
+    tokenMuGMTCand_[1] = consumes<L1MuGMTCandCollection>(tag1);
+    tokenMuReadoutCand_[0] = consumes<L1MuGMTReadoutCollection>(tag0);
+    tokenMuReadoutCand_[1] = consumes<L1MuGMTReadoutCollection>(tag1);
+  }
 
   if(verbose())
     std::cout << "\nL1Comparator constructor...done.\n" << std::flush;
@@ -220,10 +261,10 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1CaloRegionCollection> rct_rgn_data;
   edm::Handle<L1CaloRegionCollection> rct_rgn_emul;
   if(m_doSys[RCT]) {
-    iEvent.getByLabel(m_DEsource[RCT][0], rct_em_data);
-    iEvent.getByLabel(m_DEsource[RCT][1], rct_em_emul);
-    iEvent.getByLabel(m_DEsource[RCT][0], rct_rgn_data);
-    iEvent.getByLabel(m_DEsource[RCT][1], rct_rgn_emul);
+    iEvent.getByToken(tokenCaloEm_[0], rct_em_data);
+    iEvent.getByToken(tokenCaloEm_[1], rct_em_emul);
+    iEvent.getByToken(tokenCaloRegion_[0], rct_rgn_data);
+    iEvent.getByToken(tokenCaloRegion_[1], rct_rgn_emul);
   }
 
   // -- GCT [global calorimeter trigger]
@@ -250,35 +291,34 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1GctHFRingEtSumsCollection>gct_hfring_emul;
   edm::Handle<L1GctHFBitCountsCollection> gct_hfbcnt_data;
   edm::Handle<L1GctHFBitCountsCollection> gct_hfbcnt_emul;
-  edm::Handle<L1GctJetCountsCollection>	  gct_jetcnt_data;  
+  edm::Handle<L1GctJetCountsCollection>	  gct_jetcnt_data;
   edm::Handle<L1GctJetCountsCollection>	  gct_jetcnt_emul;
 
   if(m_doSys[GCT]) {
-   iEvent.getByLabel(m_DEsource[GCT][0].label(),"isoEm",   gct_isolaem_data);
-   iEvent.getByLabel(m_DEsource[GCT][1].label(),"isoEm",   gct_isolaem_emul);
-   iEvent.getByLabel(m_DEsource[GCT][0].label(),"nonIsoEm",gct_noisoem_data);
-   iEvent.getByLabel(m_DEsource[GCT][1].label(),"nonIsoEm",gct_noisoem_emul);
-   iEvent.getByLabel(m_DEsource[GCT][0].label(),"cenJets", gct_cenjets_data);
-   iEvent.getByLabel(m_DEsource[GCT][1].label(),"cenJets", gct_cenjets_emul);
-   iEvent.getByLabel(m_DEsource[GCT][0].label(),"forJets", gct_forjets_data);
-   iEvent.getByLabel(m_DEsource[GCT][1].label(),"forJets", gct_forjets_emul);
-   iEvent.getByLabel(m_DEsource[GCT][0].label(),"tauJets", gct_taujets_data);
-   iEvent.getByLabel(m_DEsource[GCT][1].label(),"tauJets", gct_taujets_emul);
-
-   iEvent.getByLabel(m_DEsource[GCT][0],gct_ht_data);	  
-   iEvent.getByLabel(m_DEsource[GCT][1],gct_ht_emul);	 
-   iEvent.getByLabel(m_DEsource[GCT][0],gct_etmiss_data);  
-   iEvent.getByLabel(m_DEsource[GCT][1],gct_etmiss_emul);
-   iEvent.getByLabel(m_DEsource[GCT][0],gct_ettota_data);	  
-   iEvent.getByLabel(m_DEsource[GCT][1],gct_ettota_emul); 
-   iEvent.getByLabel(m_DEsource[GCT][0],gct_htmiss_data);  
-   iEvent.getByLabel(m_DEsource[GCT][1],gct_htmiss_emul);
-   iEvent.getByLabel(m_DEsource[GCT][0],gct_hfring_data);
-   iEvent.getByLabel(m_DEsource[GCT][1],gct_hfring_emul);
-   iEvent.getByLabel(m_DEsource[GCT][0],gct_hfbcnt_data);
-   iEvent.getByLabel(m_DEsource[GCT][1],gct_hfbcnt_emul);
-   iEvent.getByLabel(m_DEsource[GCT][0],gct_jetcnt_data);  
-   iEvent.getByLabel(m_DEsource[GCT][1],gct_jetcnt_emul);
+   iEvent.getByToken(tokenGctEmCand_isoEm_[0],gct_isolaem_data);
+   iEvent.getByToken(tokenGctEmCand_isoEm_[1],gct_isolaem_emul);
+   iEvent.getByToken(tokenGctEmCand_nonIsoEm_[0],gct_noisoem_data);
+   iEvent.getByToken(tokenGctEmCand_nonIsoEm_[1],gct_noisoem_emul);
+   iEvent.getByToken(tokenGctJetCand_cenJets_[0],gct_cenjets_data);
+   iEvent.getByToken(tokenGctJetCand_cenJets_[1],gct_cenjets_emul);
+   iEvent.getByToken(tokenGctJetCand_forJets_[0],gct_forjets_data);
+   iEvent.getByToken(tokenGctJetCand_forJets_[1],gct_forjets_emul);
+   iEvent.getByToken(tokenGctJetCand_tauJets_[0],gct_taujets_data);
+   iEvent.getByToken(tokenGctJetCand_tauJets_[1],gct_taujets_emul);
+   iEvent.getByToken(tokenGctEtHad_[0],gct_ht_data);
+   iEvent.getByToken(tokenGctEtHad_[1],gct_ht_emul);
+   iEvent.getByToken(tokenGctEtMiss_[0],gct_etmiss_data);
+   iEvent.getByToken(tokenGctEtMiss_[1],gct_etmiss_emul);
+   iEvent.getByToken(tokenGctEtTotal_[0],gct_ettota_data);
+   iEvent.getByToken(tokenGctEtTotal_[1],gct_ettota_emul);
+   iEvent.getByToken(tokenGctHtMiss_[0],gct_htmiss_data);
+   iEvent.getByToken(tokenGctHtMiss_[1],gct_htmiss_emul);
+   iEvent.getByToken(tokenGctHFRingEtSums_[0],gct_hfring_data);
+   iEvent.getByToken(tokenGctHFRingEtSums_[1],gct_hfring_emul);
+   iEvent.getByToken(tokenGctHFBitCounts_[0],gct_hfbcnt_data);
+   iEvent.getByToken(tokenGctHFBitCounts_[1],gct_hfbcnt_emul);
+   iEvent.getByToken(tokenGctJetCounts_[0],gct_jetcnt_data);
+   iEvent.getByToken(tokenGctJetCounts_[1],gct_jetcnt_emul);
   }
 
   // -- DTP [drift tube trigger primitive]
@@ -287,10 +327,10 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1MuDTChambThContainer> dtp_th_data_;
   edm::Handle<L1MuDTChambThContainer> dtp_th_emul_;
   if(m_doSys[DTP]) {
-    iEvent.getByLabel(m_DEsource[DTP][0],dtp_ph_data_);
-    iEvent.getByLabel(m_DEsource[DTP][1],dtp_ph_emul_);
-    iEvent.getByLabel(m_DEsource[DTP][0],dtp_th_data_);
-    iEvent.getByLabel(m_DEsource[DTP][1],dtp_th_emul_);
+    iEvent.getByToken(tokenMuDTChambPh_[0],dtp_ph_data_);
+    iEvent.getByToken(tokenMuDTChambPh_[1],dtp_ph_emul_);
+    iEvent.getByToken(tokenMuDTChambTh_[0],dtp_th_data_);
+    iEvent.getByToken(tokenMuDTChambTh_[1],dtp_th_emul_);
   }
   L1MuDTChambPhDigiCollection const* dtp_ph_data = 0; 
   L1MuDTChambPhDigiCollection const* dtp_ph_emul = 0; 
@@ -308,8 +348,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   L1MuRegionalCandCollection const* dtf_trk_data = 0;
   L1MuRegionalCandCollection const* dtf_trk_emul = 0;
   if(m_doSys[DTF]) {
-    iEvent.getByLabel(m_DEsource[DTF][0].label(),"DATA",dtf_trk_data_);
-    iEvent.getByLabel(m_DEsource[DTF][1].label(),"DTTF",dtf_trk_emul_);
+    iEvent.getByToken(tokenMuDTTrack_[0],dtf_trk_data_);
+    iEvent.getByToken(tokenMuDTTrack_[1],dtf_trk_emul_);
   } 
   //extract the regional cands
   typedef std::vector<L1MuDTTrackCand> L1MuDTTrackCandCollection;
@@ -337,18 +377,18 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1MuRegionalCandCollection> rpc_for_data;
   edm::Handle<L1MuRegionalCandCollection> rpc_for_emul;
   if(m_doSys[RPC]) {
-    iEvent.getByLabel(m_DEsource[RPC][0].label(),"RPCb",rpc_cen_data);
-    iEvent.getByLabel(m_DEsource[RPC][1].label(),"RPCb",rpc_cen_emul);
-    iEvent.getByLabel(m_DEsource[RPC][0].label(),"RPCf",rpc_for_data);
-    iEvent.getByLabel(m_DEsource[RPC][1].label(),"RPCf",rpc_for_emul);
-  } 
+    iEvent.getByToken(tokenMuRegionalCandRPCb_[0],rpc_cen_data);
+    iEvent.getByToken(tokenMuRegionalCandRPCb_[1],rpc_cen_emul);
+    iEvent.getByToken(tokenMuRegionalCandRPCf_[0],rpc_for_data);
+    iEvent.getByToken(tokenMuRegionalCandRPCf_[1],rpc_for_emul);
+  }
 
   // -- LTC [local trigger controller]
   edm::Handle<LTCDigiCollection> ltc_data;
   edm::Handle<LTCDigiCollection> ltc_emul;
   if(m_doSys[LTC]) {
-    iEvent.getByLabel(m_DEsource[LTC][0],ltc_data);
-    iEvent.getByLabel(m_DEsource[LTC][1],ltc_emul);
+    iEvent.getByToken(tokenLTCDigi_[0],ltc_data);
+    iEvent.getByToken(tokenLTCDigi_[1],ltc_emul);
   }
 
   // -- GMT [global muon trigger]
@@ -362,11 +402,11 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   L1MuGMTCandCollection const *gmt_can_data(new L1MuGMTCandCollection);
   L1MuGMTCandCollection const *gmt_can_emul(new L1MuGMTCandCollection);
   if(m_doSys[GMT]) {
-    iEvent.getByLabel(m_DEsource[GMT][0], gmt_data);
-    iEvent.getByLabel(m_DEsource[GMT][1], gmt_emul);
-    iEvent.getByLabel(m_DEsource[GMT][0], gmt_rdt_data_);
-    iEvent.getByLabel(m_DEsource[GMT][1], gmt_rdt_emul_);
-  }  
+    iEvent.getByToken(tokenMuGMTCand_[0], gmt_data);
+    iEvent.getByToken(tokenMuGMTCand_[1], gmt_emul);
+    iEvent.getByToken(tokenMuReadoutCand_[0], gmt_rdt_data_);
+    iEvent.getByToken(tokenMuReadoutCand_[1], gmt_rdt_emul_);
+  }
   L1MuGMTCandCollection      gmt_can_data_vec, gmt_can_emul_vec;
   L1MuRegionalCandCollection gmt_rdt_data_vec, gmt_rdt_emul_vec;
   gmt_can_data_vec.clear();  gmt_can_emul_vec.clear();

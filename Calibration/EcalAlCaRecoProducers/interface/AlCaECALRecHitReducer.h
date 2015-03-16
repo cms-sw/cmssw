@@ -30,8 +30,11 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 //PG #include "TH2.h"
 //PG #include "TFile.h"
@@ -75,10 +78,10 @@ class AlCaECALRecHitReducer : public edm::EDProducer {
       // ----------member data ---------------------------
 
   
-  edm::InputTag ebRecHitsLabel_;
-  edm::InputTag eeRecHitsLabel_;
-  edm::InputTag esRecHitsLabel_;
-  edm::InputTag electronLabel_;
+  edm::EDGetTokenT<EBRecHitCollection> ebRecHitsToken_;
+  edm::EDGetTokenT<EERecHitCollection> eeRecHitsToken_;
+  edm::EDGetTokenT<ESRecHitCollection> esRecHitsToken_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
   std::string alcaBarrelHitsCollection_;
   std::string alcaEndcapHitsCollection_;
   std::string alcaPreshowerHitsCollection_;

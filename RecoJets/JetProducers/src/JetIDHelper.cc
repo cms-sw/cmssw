@@ -10,7 +10,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 // JetIDHelper needs a much more detailed description that the one in HcalTopology, 
 // so to be consistent, all needed constants are hardwired in JetIDHelper.cc itself
 // #include "Geometry/CaloTopology/interface/HcalTopology.h"

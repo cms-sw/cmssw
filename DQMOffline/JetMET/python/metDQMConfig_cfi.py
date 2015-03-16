@@ -103,6 +103,7 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
 #    LowPtJetThreshold  = cms.double(15.),
 #    HighMETThreshold   = cms.double(110.),
 
+    #if changed here, change certification module input in same manner and injetDQMconfig
     pVBin       = cms.int32(100),
     pVMax       = cms.double(100.0),
     pVMin       = cms.double(0.0),

@@ -6,9 +6,6 @@ class Eras (object):
     can use to selectively configure depending on what scenario is active.
     """
     def __init__(self):
-        self.bunchspacing25ns = cms.Modifier()
-        self.bunchspacing50ns = cms.Modifier()
-
         # These eras should not be set directly by the user.
         self.run2_common = cms.Modifier()
         self.run2_25ns_specific = cms.Modifier()
@@ -25,8 +22,7 @@ class Eras (object):
         # warn the user if they specify an era that is discouraged from being
         # set directly. It also stops these eras being printed in the error
         # message of available values when an invalid era is specified.
-        self.internalUseEras = [self.bunchspacing25ns, self.bunchspacing50ns,
-                                self.run2_common, self.run2_25ns_specific,
+        self.internalUseEras = [self.run2_common, self.run2_25ns_specific,
                                 self.run2_50ns_specific, self.run2_HI_specific,
                                 self.stage1L1Trigger]
 

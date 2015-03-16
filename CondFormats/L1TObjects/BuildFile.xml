@@ -5,7 +5,7 @@
 <use   name="DataFormats/MuonDetId"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
-<use   name="rootrflx"/>
+
 <use   name="DataFormats/L1GlobalMuonTrigger"/>
 <use   name="DataFormats/L1GlobalCaloTrigger"/>
 <use   name="DataFormats/L1GlobalTrigger"/>

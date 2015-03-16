@@ -5,7 +5,7 @@
  */
 
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <stdint.h>
 
@@ -60,15 +60,14 @@ std::vector<int> CSCWireDigi::getTimeBinsOn() const {
   /// Debug
 
 void CSCWireDigi::print() const {
-  std::cout << " CSC Wire " << getWireGroup() << " | "
-            << " CSC Wire BX # " << getWireGroupBX() << " | " 
-            << " CSC BX + Wire " << std::hex << getBXandWireGroup() << " | " << std::dec
-            << " CSC Wire First Time Bin On " << getTimeBin()  
-            << std::endl;
-  std::cout << " CSC Time Bins On ";
+  std::ostringstream ost;
+  ost << "CSCWireDigi | wg " << getWireGroup() << " | "
+      << " BX # " << getWireGroupBX() << " | "
+      << " BX + Wire " << std::hex << getBXandWireGroup() << " | " << std::dec
+      << " First Time Bin On " << getTimeBin() << " | Time Bins On ";
   std::vector<int> tbins=getTimeBinsOn();
-  for(unsigned int i=0; i<tbins.size();i++) std::cout<<tbins[i]<<" ";
-  std::cout<<std::endl; 
+  for(unsigned int i=0; i<tbins.size();i++) {ost << tbins[i] << " ";}
+  edm::LogVerbatim("CSCDigi") << ost.str();
 }
 
 std::ostream & operator<<(std::ostream & o, const CSCWireDigi& digi) {

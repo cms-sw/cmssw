@@ -8,12 +8,12 @@ SUSY_HLT_Mu_HT_Control_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                      pfJetCollection = cms.InputTag('ak4PFJets'),
                                                      jetTagCollection = cms.InputTag(''),
 
-                                                     vertexCollection = cms.InputTag('goodOfflinePrimaryVertices'),
+                                                     vertexCollection = cms.InputTag('offlinePrimaryVertices'),
                                                      conversionCollection = cms.InputTag(''),
                                                      beamSpot = cms.InputTag(''),
 
                                                      leptonFilter = cms.InputTag('hltL3fL1sMu5L1f0L2f3QL3Filtered15Q','','HLT'),
-                                                     hltHt = cms.InputTag('hltPFHT','','HLT'),
+                                                     hltHt = cms.InputTag('hltPFHT300','','HLT'),
                                                      hltMet = cms.InputTag(''),
                                                      hltJets = cms.InputTag(''),
                                                      hltJetTags = cms.InputTag(''),
@@ -23,8 +23,8 @@ SUSY_HLT_Mu_HT_Control_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
 
                                                      hltProcess = cms.string('HLT'),
 
-                                                     triggerPath = cms.string('HLT_Mu15_PFHT300'),
-                                                     triggerPathAuxiliary = cms.string('HLT_IsoMu24_v'),
+                                                     triggerPath = cms.string('HLT_Mu15_PFHT300_v'),
+                                                     triggerPathAuxiliary = cms.string('HLT_IsoMu24_eta2p1_v'),
                                                      triggerPathLeptonAuxiliary = cms.string('HLT_PFHT350_PFMET120_NoiseCleaned_v'),
 
                                                      csvlCut = cms.untracked.double(0.244),

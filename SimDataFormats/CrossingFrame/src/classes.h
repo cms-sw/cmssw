@@ -1,6 +1,7 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/PCrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoExtended.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoNew.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -15,6 +16,7 @@ namespace SimDataFormats_CrossingFrame {
   struct dictionary {
  	CrossingFrame<PSimHit> dummy0;
 	
+	CrossingFramePlaybackInfoNew dummy1;
 	CrossingFramePlaybackInfoExtended dummy2;
  	CrossingFrame<PCaloHit> dummy3;
  	CrossingFrame<SimTrack> dummy4;
@@ -27,6 +29,7 @@ namespace SimDataFormats_CrossingFrame {
  	PCrossingFrame<SimVertex> dummy10;
  	PCrossingFrame<edm::HepMCProduct> dummy11;
 
+	edm::Wrapper<CrossingFramePlaybackInfoNew > dummy23;
 	edm::Wrapper<CrossingFramePlaybackInfoExtended > dummy24;
         edm::Wrapper<CrossingFrame<PSimHit> > dummy25;
         edm::Wrapper<CrossingFrame<PCaloHit> > dummy26;

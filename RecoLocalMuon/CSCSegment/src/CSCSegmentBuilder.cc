@@ -53,7 +53,7 @@ CSCSegmentBuilder::CSCSegmentBuilder(const edm::ParameterSet& ps) : geom_(0) {
     for (size_t j=0; j<chType.size(); ++j) {
         algoMap[chType[j]] = CSCSegmentBuilderPluginFactory::get()->
                 create(algoName, segAlgoPSet[algoToType[j]-1]);
-	LogDebug("CSCSegment|CSC")<< "using algorithm #" << algoToType[j] << " for chamber type " << chType[j];
+	edm::LogVerbatim("CSCSegment|CSC")<< "using algorithm #" << algoToType[j] << " for chamber type " << chType[j];
     }
 }
 

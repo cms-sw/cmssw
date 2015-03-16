@@ -82,7 +82,7 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 			const reco::GsfElectron* recoelectron=theGEDGsfElectronCollection->refAt(ie).get();
 			const pat::Electron* patelec=dynamic_cast<const pat::Electron*>(recoelectron);
 			if(patelec){
-				if(patelec->passConversionVeto()) continue;
+				if(!patelec->passConversionVeto()) continue;
 			}
 			else{
 				if(ConversionTools::hasMatchedConversion(*(recoelectron),hConversions,beamspot.position())) continue;
@@ -127,8 +127,9 @@ bool SoftPFElectronTagInfoProducer::isElecClean(edm::Event& iEvent,const reco::G
             && ((HitPattern::pixelBarrelHitFilter(hit) 
                         && HitPattern::getLayer(hit) < 3) 
                     || HitPattern::pixelEndcapHitFilter(hit))); 
-	if(hitCondition) return false;
-  return true;
+    if(hitCondition) return false;
+
+    return true;
 }
 
 float SoftPFElectronTagInfoProducer::boostedPPar(const math::XYZVector& vector, const math::XYZVector& axis) {

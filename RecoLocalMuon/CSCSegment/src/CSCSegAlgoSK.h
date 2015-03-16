@@ -20,17 +20,17 @@
  * Ported to C++ and improved: Rick.Wilkinson@cern.ch <BR>
  * Reimplemented in terms of layer index, and bug fix: Tim.Cox@cern.ch <BR>
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
+ * Factored out segment fitter Tim.Cox@cern.ch Feb-2015 <BR>
  *
- *  \author M. Sani
  */
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentAlgorithm.h>
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 
-//#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
-
 #include <deque>
 #include <vector>
+
+class CSCSegFit;
 
 class CSCSegAlgoSK : public CSCSegmentAlgorithm {
 
@@ -92,7 +92,7 @@ private:
      */
     void tryAddingHitsToSegment(const ChamberHitContainer& rechitsInChamber,
         const BoolContainer& used, const LayerIndex& layerIndex,
-        const ChamberHitContainerCIt i1, const ChamberHitContainerCIt i2);
+				const ChamberHitContainerCIt i1, const ChamberHitContainerCIt i2);
 
     /**
      * Return true if segment is 'good'.
@@ -108,22 +108,12 @@ private:
     /// Utility functions 	
     bool addHit(const CSCRecHit2D* hit, int layer);
     void updateParameters(void);
-    void fitSlopes(void);
-    void fillChiSquared(void);
-    /**
-     * Always enforce direction of segment to point from IP outwards
-     * (Incorrect for particles not coming from IP, of course.)
-     */
-    void fillLocalDirection(void);
     float phiAtZ(float z) const;
     bool hasHitOnLayer(int layer) const;
     bool replaceHit(const CSCRecHit2D* h, int layer);
     void compareProtoSegment(const CSCRecHit2D* h, int layer);
     void increaseProtoSegment(const CSCRecHit2D* h, int layer);
-    CLHEP::HepMatrix derivativeMatrix(void) const;
-    AlgebraicSymMatrix weightMatrix(void) const;
-    AlgebraicSymMatrix calculateError(void) const;
-    void flipErrors(AlgebraicSymMatrix&) const;
+    void dumpSegment( const CSCSegment& seg ) const;
 		
     // Member variables
     // ================
@@ -132,10 +122,6 @@ private:
     ChamberHitContainer proto_segment;
     const std::string myName; 
 		
-    double theChi2;
-    LocalPoint theOrigin;
-    LocalVector theDirection;
-    float uz, vz;
     float windowScale;
     float dRPhiMax ;
     float dPhiMax;
@@ -145,6 +131,8 @@ private:
     float wideSeg;
     int minLayersApart;
     bool debugInfo;
+
+    CSCSegFit* sfit_;
 };
 
 #endif

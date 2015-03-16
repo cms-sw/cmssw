@@ -291,7 +291,7 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
     
     //Create definition file for HLT Rates                 
     std::stringstream ssHltJsd;
-    ssHltJsd << "run" << nRun << "_ls0000";
+    ssHltJsd << "run" << std::setfill('0') << std::setw(6) << nRun << "_ls0000";
     ssHltJsd << "_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsd";
     stHltJsd_ = ssHltJsd.str();
 
@@ -299,7 +299,7 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
     
     //Create definition file for L1 Rates - //DS 
     std::stringstream ssL1Jsd;
-    ssL1Jsd << "run" << nRun << "_ls0000";
+    ssL1Jsd << "run" << std::setfill('0') << std::setw(6) << nRun << "_ls0000";
     ssL1Jsd << "_streamL1Rates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsd";
     stL1Jsd_ = ssL1Jsd.str();
 
@@ -326,7 +326,7 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
     std::string && result = writer.write(hltIni);
   
     std::stringstream ssHltIni;
-    ssHltIni << "run" << nRun << "_ls0000_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".ini";
+    ssHltIni << "run" << std::setfill('0') << std::setw(6) << nRun << "_ls0000_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".ini";
     
     std::ofstream outHltIni( monPath + ssHltIni.str() );
     outHltIni<<result;
@@ -357,7 +357,7 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
     result = writer.write(l1Ini);
   
     std::stringstream ssL1Ini;
-    ssL1Ini << "run" << nRun << "_ls0000_streamL1Rates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".ini";
+    ssL1Ini << "run" << std::setfill('0') << std::setw(6) << nRun << "_ls0000_streamL1Rates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".ini";
     
     std::ofstream outL1Ini( monPath + ssL1Ini.str() );
     outL1Ini<<result;
@@ -424,6 +424,8 @@ TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLu
       iSummary->L1Global    ->update(L1Global_.at(ui));
     }
     iSummary->stL1Jsd = stL1Jsd_;    //DS  
+    iSummary->streamHLTDestination = runCache()->streamHLTDestination;
+    iSummary->streamL1Destination = runCache()->streamL1Destination;
   }
 
   else{
@@ -493,7 +495,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     std::string && result = writer.write(hltJsnData);
 
     std::stringstream ssHltJsnData;
-    ssHltJsnData <<  "run" << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
+    ssHltJsnData <<  "run" << std::setfill('0') << std::setw(6) << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
     ssHltJsnData << "_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsndata";
 
     std::ofstream outHltJsnData( monPath + ssHltJsnData.str() );
@@ -512,7 +514,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     result = writer.write(l1JsnData);
 
     std::stringstream ssL1JsnData;
-    ssL1JsnData << "run" << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
+    ssL1JsnData << "run" << std::setfill('0') << std::setw(6) << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
     ssL1JsnData << "_streamL1Rates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsndata";
 
     std::ofstream outL1JsnData( monPath + "/" + ssL1JsnData.str() );
@@ -553,11 +555,12 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFilesize_.value());
     hltDaqJsn[DataPoint::DATA].append(hltJsnInputFiles_.value());
     hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFileAdler32_.value());
+    hltDaqJsn[DataPoint::DATA].append(iSummary->streamHLTDestination);
 
     result = writer.write(hltDaqJsn);
 
     std::stringstream ssHltDaqJsn;
-    ssHltDaqJsn <<  "run" << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
+    ssHltDaqJsn <<  "run" << std::setfill('0') << std::setw(6) << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
     ssHltDaqJsn << "_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
 
     std::ofstream outHltDaqJsn( monPath + ssHltDaqJsn.str() );
@@ -588,11 +591,12 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFilesize_.value());
     l1DaqJsn[DataPoint::DATA].append(l1JsnInputFiles_.value());
     l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFileAdler32_.value());
+    l1DaqJsn[DataPoint::DATA].append(iSummary->streamL1Destination);
 
     result = writer.write(l1DaqJsn);
 
     std::stringstream ssL1DaqJsn;
-    ssL1DaqJsn <<  "run" << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
+    ssL1DaqJsn <<  "run" << std::setfill('0') << std::setw(6) << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
     ssL1DaqJsn << "_streamL1Rates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
 
     std::ofstream outL1DaqJsn( monPath + ssL1DaqJsn.str() );

@@ -5,5 +5,5 @@ import FWCore.ParameterSet.Config as cms
 #
 # Ideal geometry, needed for simulation
 from Geometry.CMSCommonData.cmsExtendedGeometryPhaseIPixelXML_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerNumbering2017Geometry_cfi import *
+from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 

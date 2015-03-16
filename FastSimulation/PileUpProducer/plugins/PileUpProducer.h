@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupVertexContent.h"
 
 #include <vector>
 #include <string>

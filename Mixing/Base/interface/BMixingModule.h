@@ -60,14 +60,12 @@ namespace edm {
 
       virtual void createnewEDProduct();
       virtual void checkSignal(const edm::Event &e);
-      virtual void addSignals(const edm::Event &e,const edm::EventSetup& c) {;}
-      virtual void addPileups(const int bcr, EventPrincipal *ep, unsigned int eventId,unsigned int worker, const edm::EventSetup& c) {;}
+      virtual void addSignals(const edm::Event &e,const edm::EventSetup& c) {}
+      virtual void addPileups(const int bcr, EventPrincipal *ep, unsigned int eventId,unsigned int worker, const edm::EventSetup& c) {}
       virtual void setBcrOffset ();
       virtual void setSourceOffset (const unsigned int s);
-      virtual void put(edm::Event &e,const edm::EventSetup& c) {;}
+      virtual void put(edm::Event &e,const edm::EventSetup& c) {}
       virtual void doPileUp(edm::Event &e, const edm::EventSetup& c);
-      virtual void setEventStartInfo(const unsigned int s) {;} //to be set in CF
-      virtual void getEventStartInfo(edm::Event & e,const unsigned int source) {;} //to be set locally
 
   protected:
       void setupPileUpEvent(const edm::EventSetup& setup);

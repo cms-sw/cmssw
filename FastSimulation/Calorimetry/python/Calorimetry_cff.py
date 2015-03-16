@@ -260,6 +260,7 @@ FamosCalorimetryBlock = cms.PSet(
             ),
             HFShowerLibrary    = cms.PSet(
               useShowerLibrary = cms.untracked.bool(False),
+              useCorrectionSL  = cms.untracked.bool(True),
               FileName = cms.FileInPath('SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root'),
               ProbMax          = cms.double(1.0),
               BackProbability  = cms.double(0.2),

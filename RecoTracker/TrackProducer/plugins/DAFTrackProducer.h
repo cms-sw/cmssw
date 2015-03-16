@@ -8,12 +8,13 @@
 #ifndef DAFTrackProducer_h
 #define DAFTrackProducer_h
 
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "RecoTracker/TrackProducer/interface/KfTrackProducerBase.h"
 #include "RecoTracker/TrackProducer/interface/DAFTrackProducerAlgorithm.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajAnnealing.h"
 
-class DAFTrackProducer : public KfTrackProducerBase, public edm::EDProducer {
+class DAFTrackProducer : public KfTrackProducerBase, public edm::stream::EDProducer<> {
 public:
 
   typedef std::vector<Trajectory> TrajectoryCollection;
@@ -21,16 +22,16 @@ public:
   explicit DAFTrackProducer(const edm::ParameterSet& iConfig);
 
   // Implementation of produce method
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   DAFTrackProducerAlgorithm theAlgo;
-  void getFromEvt(edm::Event&, edm::Handle<TrajectoryCollection>&, reco::BeamSpot&);
+  void getFromEvt(edm::Event&, edm::Handle<TrajTrackAssociationCollection>&, reco::BeamSpot&);
   void putInEvtTrajAnn(edm::Event& theEvent, TrajAnnealingCollection & trajannResults,
                 std::auto_ptr<TrajAnnealingCollection>& selTrajAnn);
 
   bool TrajAnnSaving_;
-  edm::EDGetToken src_;
+  edm::EDGetToken srcTT_;
   
 };
 

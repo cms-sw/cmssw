@@ -43,7 +43,8 @@ public:
 
 private:
 	void buildMultiRecHits(const std::vector<TrajectoryMeasurementGroup>& measgroup, 
-			       std::vector<TrajectoryMeasurement>& result) const;
+			       std::vector<TrajectoryMeasurement>& result,
+			       const MeasurementTrackerEvent*& theMTE) const;
 	
 	const SiTrackerMultiRecHitUpdator* theUpdator;
 	const MeasurementEstimator* theEstimator;

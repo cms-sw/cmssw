@@ -60,10 +60,10 @@ namespace edm {
     virtual bool isPresent_() const {return true;}
 
 #ifndef __GCCXML__
-    virtual bool isMergeable_() const { return true; }
-    virtual bool mergeProduct_(WrapperBase const* /* newProduct */) { return true; }
-    virtual bool hasIsProductEqual_() const { return true; }
-    virtual bool isProductEqual_(WrapperBase const* /* newProduct */) const { return true; }
+    virtual bool isMergeable_() const = 0;
+    virtual bool mergeProduct_(WrapperBase const* newProduct ) = 0;
+    virtual bool hasIsProductEqual_() const = 0;
+    virtual bool isProductEqual_(WrapperBase const* newProduct) const = 0;
 #endif
 
     virtual void do_fillView(ProductID const& id,

@@ -206,6 +206,14 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset) {
 	}
   }
 
+// HF correction for SL
+//---------------------
+  maxEta   = pset.getParameter<int>("maxEta");
+  maxEne   = pset.getParameter<int>("maxEne");
+  energyHF = pset.getParameter<vec1>("energyHF");
+  corrHFg  = pset.getParameter<vec1>("corrHFg");
+  corrHFh  = pset.getParameter<vec1>("corrHFh");
+  corrHF   = vec1(maxEta,0);
 }
 
 double HCALResponse::getMIPfraction(double energy, double eta){
@@ -565,3 +573,33 @@ double HCALResponse::cballShootNoNegative(double mu, double sigma, double aL, do
 
 }
 
+void HCALResponse::correctHF(double ee, int type) {
+
+   int jmin = 0;
+   for (int i = 0; i < maxEne; i++) {
+     if(ee >= energyHF[i]) jmin = i;
+   }
+
+   double x1, x2, y1, y2;
+   for(int i=0; i<maxEta; ++i) {
+     if(ee < energyHF[0]) {
+       if(abs(type)==11 || abs(type)==22) corrHF[i] = corrHFg[i];
+       else corrHF[i] = corrHFh[i];
+     } else if(jmin >= maxEne-1) {
+       if(abs(type)==11 || abs(type)==22) corrHF[i] = corrHFg[maxEta*jmin+i];
+       else corrHF[i] = corrHFh[maxEta*jmin+i];
+     } else {    
+       x1 = energyHF[jmin];
+       x2 = energyHF[jmin+1];
+       if(abs(type)==11 || abs(type)==22) {
+         y1 = corrHFg[maxEta*jmin+i];
+         y2 = corrHFg[maxEta*(jmin+1)+i];
+       } else {
+         y1 = corrHFh[maxEta*jmin+i];
+         y2 = corrHFh[maxEta*(jmin+1)+i];
+       }  
+       corrHF[i] = y1 + (ee-x1)*((y2-y1)/(x2-x1));
+     } 
+   }
+
+}

@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/Fake/V2 (CMSSW_7_4_0_pre7)
+# /dev/CMSSW_7_4_0/Fake/V3 (CMSSW_7_4_0_pre7_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/Fake/V2')
+  tableName = cms.string('/dev/CMSSW_7_4_0/Fake/V3')
 )
 
 hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
@@ -62,8 +62,8 @@ cmsswVersion = os.environ['CMSSW_VERSION']
 
 # from CMSSW_7_5_0_pre0: Simplified TrackerTopologyEP config (PR #7589/#7802)
 if cmsswVersion >= "CMSSW_7_5":
-    if 'trackerTopologyConstants' in locals():
-        trackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
+    if 'trackerTopology' in locals():
+        trackerTopology = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
 
 # from CMSSW_7_5_0_pre0: Removal of upgradeGeometry from TrackerDigiGeometryESModule (PR #7794)
 if cmsswVersion >= "CMSSW_7_5":

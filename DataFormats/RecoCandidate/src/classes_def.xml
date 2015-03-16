@@ -32,6 +32,7 @@
   </class>
 
   <class name="reco::FitQuality"  ClassVersion="10">
+   <version ClassVersion="11" checksum="2062631270"/>
    <version ClassVersion="10" checksum="1584619238"/>
   </class>
   <class name="std::vector<reco::FitQuality>" />

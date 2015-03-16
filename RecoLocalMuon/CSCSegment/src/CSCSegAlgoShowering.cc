@@ -1,13 +1,12 @@
 /**
  * \file CSCSegAlgoShowering.cc
  *
- *  \author: D. Fortin - UC Riverside
- *  \modified: J. Babb - UC Riverside
- *          
- * See header file for description.
+ *  Last update: 17.02.2015
+ *
  */
 
 #include "RecoLocalMuon/CSCSegment/src/CSCSegAlgoShowering.h"
+#include "RecoLocalMuon/CSCSegment/src/CSCSegFit.h"
 
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include <Geometry/CSCGeometry/interface/CSCChamber.h>
@@ -25,7 +24,7 @@
 /* Constructor
  *
  */
-CSCSegAlgoShowering::CSCSegAlgoShowering(const edm::ParameterSet& ps) {
+CSCSegAlgoShowering::CSCSegAlgoShowering(const edm::ParameterSet& ps) : sfit_(0) {
 //  debug                  = ps.getUntrackedParameter<bool>("CSCSegmentDebug");
   dRPhiFineMax           = ps.getParameter<double>("dRPhiFineMax");
   dPhiFineMax            = ps.getParameter<double>("dPhiFineMax");
@@ -65,7 +64,7 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, const Cha
   }
 
   // Loop over hits to find center-of-mass position in each layer
-  for (ChamberHitContainer::const_iterator it = rechits.begin(); it != rechits.end(); it++ ) {
+  for (ChamberHitContainer::const_iterator it = rechits.begin(); it != rechits.end(); ++it ) {
     const CSCRecHit2D& hit = (**it);
     const CSCDetId id = hit.cscDetId();
     int l_id = id.layer();
@@ -73,7 +72,7 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, const Cha
     GlobalPoint gp         = layer->toGlobal(hit.localPosition());
     LocalPoint  lp         = theChamber->toLocal(gp);
 
-    n[l_id -1]++;
+    ++n[l_id -1];
     x[l_id -1] += lp.x();
     y[l_id -1] += lp.y();
     gz[l_id -1] += gp.z();
@@ -115,9 +114,9 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, const Cha
   // by projecting the vector
   std::vector<LocalPoint> layerPoints;
 
-  for (unsigned i = 1; i < 7; i++) {
+  for (size_t i = 0; i!=6; ++i) {
     // Get the layer z coordinates in global frame
-    const CSCLayer* layer = theChamber->layer(i);
+    const CSCLayer* layer = theChamber->layer(i+1);
     LocalPoint temp(0., 0., 0.);
     GlobalPoint gp = layer->toGlobal(temp);
     float layer_Z = gp.z();
@@ -138,7 +137,7 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, const Cha
 
   std::vector<float> r_closest;
   std::vector<int> id;
-  for (unsigned i = 0; i < 6; ++i ) {
+  for (size_t i = 0; i!=6; ++i ) {
     id.push_back(-1);
     r_closest.push_back(9999.);
   }
@@ -146,10 +145,11 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, const Cha
   int idx = 0;
 
   // Loop over all hits and find hit closest to com for that layer.
-  for (ChamberHitContainer::const_iterator it = rechits.begin(); it != rechits.end(); it++ ) {    
+  for (ChamberHitContainer::const_iterator it = rechits.begin(); it != rechits.end(); ++it ) {    
     const CSCRecHit2D& hit = (**it);
     int layId = hit.cscDetId().layer();
-    const CSCLayer* layer  = theChamber->layer(hit.cscDetId().layer());
+
+    const CSCLayer* layer  = theChamber->layer(layId);
     GlobalPoint gp         = layer->toGlobal(hit.localPosition());
     LocalPoint  lp         = theChamber->toLocal(gp);
 
@@ -157,12 +157,12 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, const Cha
     float d_y = lp.y() - layerPoints[layId-1].y();
 
     LocalPoint diff(d_x, d_y, 0.);
-    
+
     if ( fabs(diff.mag() ) < r_closest[layId-1] ) {
        r_closest[layId-1] =  fabs(diff.mag());
        id[layId-1] = idx;
     }
-    idx++;
+    ++idx;
   }
 
   // Now fill vector of rechits closest to center of mass:
@@ -170,13 +170,13 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, const Cha
   idx = 0;
 
   // Loop over all hits and find hit closest to com for that layer.
-  for (ChamberHitContainer::const_iterator it = rechits.begin(); it != rechits.end(); it++ ) {    
+  for (ChamberHitContainer::const_iterator it = rechits.begin(); it != rechits.end(); ++it ) {    
     const CSCRecHit2D& hit = (**it);
     int layId = hit.cscDetId().layer();
 
     if ( idx == id[layId-1] )protoSegment.push_back(*it);
 
-    idx++;    
+    ++idx;    
   }
 
   // Reorder hits in protosegment
@@ -191,42 +191,26 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, const Cha
     }    
   }
 
-
-  // Compute the segment properties
+  // Fit the protosegment
   updateParameters();
 
-  // Clean up protosegment if there is one very bad hit on segment
+  // If there is one very bad hit on segment, remove it and refit
   if (protoSegment.size() > 4) pruneFromResidual();
 
-  // Look for better hits near segment  
+  // If any hit on a layer is closer to segment than original, replace it and refit
   for (ChamberHitContainer::const_iterator it = rechits.begin(); it != rechits.end(); it++ ) {
-
     const CSCRecHit2D* h = *it;
     int layer = h->cscDetId().layer();
-
-    if ( isHitNearSegment( h ) ) compareProtoSegment(h, layer);
+    if ( isHitNearSegment( h ) ) compareProtoSegment( h, layer );
   }
 
-  // Prune worse hit if necessary
-  if ( protoSegment.size() > 5 ) pruneFromResidual();
+  // Check again for a bad hit, and remove and refit if necessary
+  if ( sfit_->nhits() > 5 ) pruneFromResidual( );
 
-  // Update the parameters
-  updateParameters();
+  // Does the fitted line point to the IP?
+  // If it doesn't, the algorithm has probably failed i.e. that's life!
 
-  // Local direction
-  double dz   = 1./sqrt(1. + protoSlope_u*protoSlope_u + protoSlope_v*protoSlope_v);
-  double dx   = dz*protoSlope_u;
-  double dy   = dz*protoSlope_v;
-  LocalVector localDir(dx,dy,dz);
-        
-  // localDir may need sign flip to ensure it points outward from IP  
-  double globalZpos    = ( theChamber->toGlobal( protoIntercept ) ).z();
-  double globalZdir    = ( theChamber->toGlobal( localDir ) ).z();
-  double directionSign = globalZpos * globalZdir;
-  LocalVector protoDirection = (directionSign * localDir).unit();
-
-  // Check to make sure the fitting didn't fuck things up
-  GlobalVector protoGlobalDir = theChamber->toGlobal( protoDirection );  
+  GlobalVector protoGlobalDir = theChamber->toGlobal( sfit_->localdir() );  
   double protoTheta = protoGlobalDir.theta();
   double protoPhi = protoGlobalDir.phi();
   double simTheta = gvCOM.theta();
@@ -236,22 +220,24 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, const Cha
   float dPhi   = fabs(protoPhi - simPhi);
   //  float dR = sqrt(dEta*dEta + dPhi*dPhi);
   
-  // Error matrix
-  AlgebraicSymMatrix protoErrors = calculateError();     
-  // but reorder components to match what's required by TrackingRecHit interface
-  // i.e. slopes first, then positions
-  flipErrors( protoErrors );
-  
-  //Flag the segment with chi12 of -1 of the segment isn't pointing toward origin      
+  // Flag the segment with chi2=-1 of the segment isn't pointing toward origin      
+  // i.e. flag that the algorithm has probably just failed (I presume we expect
+  // a segment to point to the IP if the algorithm is successful!)
+
+  double theFlag = -1.;
   if (dTheta > maxDTheta || dPhi > maxDPhi) {
-  CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, -1); 
-  return temp;
   }
   else {
-  CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, protoChi2);
-  return temp;
+    theFlag = sfit_->chi2(); // If it points to IP, just pass fit chi2 as usual
   }
 
+  // Create an actual CSCSegment - retrieve all info from the fit
+  CSCSegment temp(sfit_->hits(), sfit_->intercept(), 
+  		  sfit_->localdir(), sfit_->covarianceMatrix(), theFlag );
+  delete sfit_;
+  sfit_ = 0;
+
+  return temp;
 } 
 
 
@@ -261,7 +247,7 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, const Cha
  *
  * Compare rechit with expected position from proto_segment
  */
-bool CSCSegAlgoShowering::isHitNearSegment( const CSCRecHit2D* hit) const {
+bool CSCSegAlgoShowering::isHitNearSegment( const CSCRecHit2D* hit ) const {
 
   const CSCLayer* layer = theChamber->layer(hit->cscDetId().layer());
 
@@ -272,8 +258,8 @@ bool CSCSegAlgoShowering::isHitNearSegment( const CSCRecHit2D* hit) const {
   LocalPoint Hlp = theChamber->toLocal(Hgp);
   double z = Hlp.z();  
 
-  double LocalX = protoIntercept.x() + protoSlope_u * z;
-  double LocalY = protoIntercept.y() + protoSlope_v * z;
+  double LocalX = sfit_->xfit(z);
+  double LocalY = sfit_->yfit(z);
   LocalPoint Slp(LocalX, LocalY, z);
   GlobalPoint Sgp = theChamber->toGlobal(Slp); 
   double Sphi = Sgp.phi();
@@ -300,8 +286,8 @@ bool CSCSegAlgoShowering::isHitNearSegment( const CSCRecHit2D* hit) const {
  */
 bool CSCSegAlgoShowering::addHit(const CSCRecHit2D* aHit, int layer) {
   
-  // Return true if hit was added successfully and then parameters are updated.
-  // Return false if there is already a hit on the same layer, or insert failed.
+  // Return true if hit was added successfully
+  // Return false if there is already a hit on the same layer
   
   bool ok = true;
   
@@ -315,115 +301,6 @@ bool CSCSegAlgoShowering::addHit(const CSCRecHit2D* aHit, int layer) {
 }    
 
 
-/* Method updateParameters
- *      
- * Perform a simple Least Square Fit on proto segment to determine slope and intercept
- *
- */   
-void CSCSegAlgoShowering::updateParameters() {
-
-  // Compute slope from Least Square Fit    
-  CLHEP::HepMatrix M(4,4,0);
-  CLHEP::HepVector B(4,0);
-
-  ChamberHitContainer::const_iterator ih;
-  
-  for (ih = protoSegment.begin(); ih != protoSegment.end(); ++ih) {
-    
-    const CSCRecHit2D& hit = (**ih);
-    const CSCLayer* layer  = theChamber->layer(hit.cscDetId().layer());
-    GlobalPoint gp         = layer->toGlobal(hit.localPosition());
-    LocalPoint  lp         = theChamber->toLocal(gp); 
-    
-    double u = lp.x();
-    double v = lp.y();
-    double z = lp.z();
-    
-    // ptc: Covariance matrix of local errors 
-    CLHEP::HepMatrix IC(2,2);
-    IC(1,1) = hit.localPositionError().xx();
-    IC(1,2) = hit.localPositionError().xy();
-    IC(2,2) = hit.localPositionError().yy();
-    IC(2,1) = IC(1,2); // since Cov is symmetric
-    
-    // ptc: Invert covariance matrix (and trap if it fails!)
-    int ierr = 0;
-    IC.invert(ierr); // inverts in place
-    if (ierr != 0) {
-      LogDebug("CSC") << "CSCSegment::fitSlopes: failed to invert covariance matrix=\n" << IC << "\n";      
-    }
-    
-    M(1,1) += IC(1,1);
-    M(1,2) += IC(1,2);
-    M(1,3) += IC(1,1) * z;
-    M(1,4) += IC(1,2) * z;
-    B(1)   += u * IC(1,1) + v * IC(1,2);
-    
-    M(2,1) += IC(2,1);
-    M(2,2) += IC(2,2);
-    M(2,3) += IC(2,1) * z;
-    M(2,4) += IC(2,2) * z;
-    B(2)   += u * IC(2,1) + v * IC(2,2);
-    
-    M(3,1) += IC(1,1) * z;
-    M(3,2) += IC(1,2) * z;
-    M(3,3) += IC(1,1) * z * z;
-    M(3,4) += IC(1,2) * z * z;
-    B(3)   += ( u * IC(1,1) + v * IC(1,2) ) * z;
-    
-    M(4,1) += IC(2,1) * z;
-    M(4,2) += IC(2,2) * z;
-    M(4,3) += IC(2,1) * z * z;
-    M(4,4) += IC(2,2) * z * z;
-    B(4)   += ( u * IC(2,1) + v * IC(2,2) ) * z;
-  }
-  
-  CLHEP::HepVector p = solve(M, B);
-  
-  // Update member variables 
-  // Note that origin has local z = 0
-
-  protoIntercept = LocalPoint(p(1), p(2), 0.);
-  protoSlope_u = p(3);
-  protoSlope_v = p(4);
-
-  // Determine Chi^2 for the proto wire segment
-  
-  double chsq = 0.;
-  
-  for (ih = protoSegment.begin(); ih != protoSegment.end(); ++ih) {
-    
-    const CSCRecHit2D& hit = (**ih);
-    const CSCLayer* layer  = theChamber->layer(hit.cscDetId().layer());
-    GlobalPoint gp         = layer->toGlobal(hit.localPosition());
-    LocalPoint lp          = theChamber->toLocal(gp);
-    
-    double u = lp.x();
-    double v = lp.y();
-    double z = lp.z();
-    
-    double du = protoIntercept.x() + protoSlope_u * z - u;
-    double dv = protoIntercept.y() + protoSlope_v * z - v;
-    
-    CLHEP::HepMatrix IC(2,2);
-    IC(1,1) = hit.localPositionError().xx();
-    IC(1,2) = hit.localPositionError().xy();
-    IC(2,2) = hit.localPositionError().yy();
-    IC(2,1) = IC(1,2);
-    
-    // Invert covariance matrix
-    int ierr = 0;
-    IC.invert(ierr);
-    if (ierr != 0) {
-      LogDebug("CSC") << "CSCSegment::fillChiSquared: failed to invert covariance matrix=\n" << IC << "\n";      
-    }
-    chsq += du*du*IC(1,1) + 2.*du*dv*IC(1,2) + dv*dv*IC(2,2);
-  }
-  protoChi2 = chsq;
-}
-
-
-
 /* Method compareProtoSegment
  *      
  * For hit coming from the same layer of an existing hit within the proto segment
@@ -432,16 +309,7 @@ void CSCSegAlgoShowering::updateParameters() {
  */ 
 void CSCSegAlgoShowering::compareProtoSegment(const CSCRecHit2D* h, int layer) {
   
-  // Store old segment first
-  double old_protoChi2                  = protoChi2;
-  LocalPoint old_protoIntercept         = protoIntercept;
-  float old_protoSlope_u                = protoSlope_u;
-  float old_protoSlope_v                = protoSlope_v;
-  LocalVector old_protoDirection        = protoDirection;
-  ChamberHitContainer old_protoSegment  = protoSegment;
- 
-
-  // Try adding the hit to existing segment, and remove old one existing in same layer
+  // Try adding the hit to existing segment, and removing one from the  same layer
   ChamberHitContainer::iterator it;
   for ( it = protoSegment.begin(); it != protoSegment.end(); ) {
     if ( (*it)->cscDetId().layer() == layer ) {
@@ -451,123 +319,39 @@ void CSCSegAlgoShowering::compareProtoSegment(const CSCRecHit2D* h, int layer) {
     }
   }
   bool ok = addHit(h, layer);
-
-  if (ok) updateParameters();
-  
-  if ( (protoChi2 > old_protoChi2) || ( !ok ) ) {
-    protoChi2       = old_protoChi2;
-    protoIntercept  = old_protoIntercept;
-    protoSlope_u    = old_protoSlope_u;
-    protoSlope_v    = old_protoSlope_v;
-    protoDirection  = old_protoDirection;
-    protoSegment    = old_protoSegment;
+  if (ok) {
+    CSCSegFit* newfit = new CSCSegFit(theChamber, protoSegment);
+    newfit->fit();
+    if ( newfit->chi2() > sfit_->chi2() ) {
+      // new fit is worse: revert to old fit
+      delete newfit;
+    }
+    else {
+      // new fit is better
+      delete sfit_;
+      sfit_ = newfit;
+    }
   }
 }
 
-AlgebraicSymMatrix CSCSegAlgoShowering::weightMatrix() const {
 
-  std::vector<const CSCRecHit2D*>::const_iterator it;
-  int nhits = protoSegment.size();
-  AlgebraicSymMatrix matrix(2*nhits, 0);
-  int row = 0;
+// Look for a hit with a large deviation from fit
 
-  for (it = protoSegment.begin(); it != protoSegment.end(); ++it) {
+void CSCSegAlgoShowering::pruneFromResidual(void){
 
-    const CSCRecHit2D& hit = (**it);
-    ++row;
-    matrix(row, row)   = hit.localPositionError().xx();
-    matrix(row, row+1) = hit.localPositionError().xy();
-    ++row;
-    matrix(row, row-1) = hit.localPositionError().xy();
-    matrix(row, row)   = hit.localPositionError().yy();
-  }
-  int ierr;
-  matrix.invert(ierr);
-  return matrix;
-}
-
-
-CLHEP::HepMatrix CSCSegAlgoShowering::derivativeMatrix() const {
-
-  ChamberHitContainer::const_iterator it;
-  int nhits = protoSegment.size();
-  CLHEP::HepMatrix matrix(2*nhits, 4);
-  int row = 0;
-
-  for(it = protoSegment.begin(); it != protoSegment.end(); ++it) {
-
-    const CSCRecHit2D& hit = (**it);
-    const CSCLayer* layer = theChamber->layer(hit.cscDetId().layer());
-    GlobalPoint gp = layer->toGlobal(hit.localPosition());
-    LocalPoint lp = theChamber->toLocal(gp);
-    float z = lp.z();
-    ++row;
-    matrix(row, 1) = 1.;
-    matrix(row, 3) = z;
-    ++row;
-    matrix(row, 2) = 1.;
-    matrix(row, 4) = z;
-  }
-  return matrix;
-}
-
-/* calculateError
- *
- */
-AlgebraicSymMatrix CSCSegAlgoShowering::calculateError() const {
-
-  AlgebraicSymMatrix weights = weightMatrix();
-  AlgebraicMatrix A = derivativeMatrix();
-
-  // (AT W A)^-1
-  // from http://www.phys.ufl.edu/~avery/fitting.html, part I
-  int ierr;
-  AlgebraicSymMatrix result = weights.similarityT(A);
-  result.invert(ierr);
-
-  // blithely assuming the inverting never fails...
-  return result;
-}
-
-void CSCSegAlgoShowering::flipErrors( AlgebraicSymMatrix& a ) const {
-
-  // The CSCSegment needs the error matrix re-arranged
-
-  AlgebraicSymMatrix hold( a );
-
-  // errors on slopes into upper left
-  a(1,1) = hold(3,3);
-  a(1,2) = hold(3,4);
-  a(2,1) = hold(4,3);
-  a(2,2) = hold(4,4);
-
-  // errors on positions into lower right
-  a(3,3) = hold(1,1);
-  a(3,4) = hold(1,2);
-  a(4,3) = hold(2,1);
-  a(4,4) = hold(2,2);
-
-  // off-diagonal elements remain unchanged
-
-}
-
-// Try to clean up segments by quickly looking at residuals
-void CSCSegAlgoShowering::pruneFromResidual(){
+  //@@ THIS FUNCTION HAS 3 RETURNS PATHS!
 
   // Only prune if have at least 5 hits 
-  if ( protoSegment.size() < 5 ) return ;
-
+  if ( protoSegment.size() < 5 ) return;
 
   // Now Study residuals
       
   float maxResidual = 0.;
   float sumResidual = 0.;
   int nHits = 0;
-  int badIndex = -1;
-  int j = 0;
 
-
-  ChamberHitContainer::const_iterator ih;
+  ChamberHitContainer::iterator ih;
+  ChamberHitContainer::iterator ibad = protoSegment.end();
 
   for ( ih = protoSegment.begin(); ih != protoSegment.end(); ++ih ) {
     const CSCRecHit2D& hit = (**ih);
@@ -579,18 +363,17 @@ void CSCSegAlgoShowering::pruneFromResidual(){
     double v = lp.y();
     double z = lp.z();
 
-    double du = protoIntercept.x() + protoSlope_u * z - u;
-    double dv = protoIntercept.y() + protoSlope_v * z - v;
+    //    double du = segfit->xdev( u, z ); 
+    //    double dv = segfit->ydev( v, z );
 
-    float residual = sqrt(du*du + dv*dv);
+    float residual = sfit_->Rdev(u, v, z); // == sqrt(du*du + dv*dv)
 
     sumResidual += residual;
-    nHits++;
+    ++nHits;
     if ( residual > maxResidual ) {
       maxResidual = residual;
-      badIndex = j;
+      ibad = ih;
     }
-    j++;
   }
 
   float corrAvgResidual = (sumResidual - maxResidual)/(nHits -1);
@@ -598,27 +381,22 @@ void CSCSegAlgoShowering::pruneFromResidual(){
   // Keep all hits 
   if ( maxResidual/corrAvgResidual < maxRatioResidual ) return;
 
+  // Drop worst hit
+  if( ibad != protoSegment.end() ) protoSegment.erase(ibad);
 
-  // Drop worse hit and recompute segment properties + fill
-
-  ChamberHitContainer newProtoSegment;
-
-  j = 0;
-  for ( ih = protoSegment.begin(); ih != protoSegment.end(); ++ih ) {
-    if ( j != badIndex ) newProtoSegment.push_back(*ih);
-    j++;
-  }
-  
-  protoSegment.clear();
-
-  for ( ih = newProtoSegment.begin(); ih != newProtoSegment.end(); ++ih ) {
-    protoSegment.push_back(*ih);
-  }
-
-  // Update segment parameters
+  // Make a new fit
   updateParameters();
 
+  return;
 }
+
+void CSCSegAlgoShowering::updateParameters(void) {
+  // Create fit for the hits in the protosegment & run it
+  delete sfit_;
+  sfit_ = new CSCSegFit( theChamber, protoSegment );
+  sfit_->fit();
+}
+
 
 
 

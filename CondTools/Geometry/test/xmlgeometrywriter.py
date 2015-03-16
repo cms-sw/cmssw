@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("XMLGeometryWriter")
-# empty input service, fire 10 events
-#    include "FWCore/MessageLogger/data/MessageLogger.cfi"
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.load('CondCore.DBCommon.CondDBCommon_cfi')
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -30,4 +28,3 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.p1 = cms.Path(process.XMLGeometryWriter)
-

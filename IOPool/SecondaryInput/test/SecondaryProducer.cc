@@ -83,18 +83,19 @@ namespace edm {
   // Functions that get called by framework every event
   void SecondaryProducer::produce(Event& e, EventSetup const&) {
     using std::placeholders::_1;
+    size_t fileNameHash = 0U;
 
     if(sequential_) {
       if(lumiSpecified_) {
         // Just for simplicity, we use the luminosity block ID from the primary to read the secondary.
-        secInput_->loopSequentialWithID(*eventPrincipal_, LuminosityBlockID(e.id().run(), e.id().luminosityBlock()), 1, std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)));
+        secInput_->loopSequentialWithID(*eventPrincipal_, fileNameHash, LuminosityBlockID(e.id().run(), e.id().luminosityBlock()), 1, std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)));
       } else {
-        secInput_->loopSequential(*eventPrincipal_, 1, std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)));
+        secInput_->loopSequential(*eventPrincipal_, fileNameHash, 1, std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)));
       }
     } else if(specified_) {
       // Just for simplicity, we use the event ID from the primary to read the secondary.
-      std::vector<EventID> events(1, e.id());
-      secInput_->loopSpecified(*eventPrincipal_, events, std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)));
+      std::vector<SecondaryEventIDAndFileInfo> events(1, SecondaryEventIDAndFileInfo(e.id(), fileNameHash));
+      secInput_->loopSpecified(*eventPrincipal_, fileNameHash, events.begin(), events.end(), std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)));
     } else {
 
       edm::Service<edm::RandomNumberGenerator> rng;
@@ -108,11 +109,11 @@ namespace edm {
 
       if(lumiSpecified_) {
         // Just for simplicity, we use the luminosity block ID from the primary to read the secondary.
-        secInput_->loopRandomWithID(*eventPrincipal_, LuminosityBlockID(e.id().run(), e.id().luminosityBlock()), 1,
+        secInput_->loopRandomWithID(*eventPrincipal_, fileNameHash, LuminosityBlockID(e.id().run(), e.id().luminosityBlock()), 1,
                                     std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)),
                                     engine);
       } else {
-        secInput_->loopRandom(*eventPrincipal_, 1, std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)), engine);
+        secInput_->loopRandom(*eventPrincipal_, fileNameHash, 1, std::bind(&SecondaryProducer::processOneEvent, this, _1, std::ref(e)), engine);
       }
     }
   }

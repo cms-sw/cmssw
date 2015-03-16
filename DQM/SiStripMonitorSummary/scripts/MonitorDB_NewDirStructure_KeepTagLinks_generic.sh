@@ -609,66 +609,10 @@ EOF
 
 	    getOfflineDQMData.sh $DB $ACCOUNT $TAGSUBDIR $tag
 
-	    for i in {1..4}; do
-		for Plot in `ls *.png | grep TIBLayer$i`; do
-		    mv $Plot $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TIB/Layer$i/Trends;
-		done
-	    done
+	    afstokenchecker.sh "Moving Trend Plots Using the script moveTrendPlots..."
 
-	    for i in {1..6}; do
-		for Plot in `ls *.png | grep TOBLayer$i`; do
-		    mv $Plot $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TOB/Layer$i/Trends;
-		done
-	    done
+            moveTrendPlots.sh $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag
 
-	    for i in {1..3}; do
-		for Plot in `ls *.png | grep TID-Disk$i`; do
-		    mv $Plot $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TID/Side1/Disk$i/Trends;
-		done
-		for Plot in `ls *.png | grep TID+Disk$i`; do
-		    mv $Plot $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TID/Side2/Disk$i/Trends;
-		done
-	    done
-
-	    for i in {1..9}; do
-		for Plot in `ls *.png | grep TEC-Disk$i`; do
-		    mv $Plot $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TEC/Side1/Disk$i/Trends;
-		done
-		for Plot in `ls *.png | grep TEC+Disk$i`; do
-		    mv $Plot $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TEC/Side2/Disk$i/Trends;
-		done
-	    done
-	    
-	    for Plot in `ls *.png | grep TIB`; do
-		mv $Plot $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TIB/Trends;
-	    done
-
-	    for Plot in `ls *.png | grep TOB`; do
-		mv $Plot $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TOB/Trends;
-	    done
-
-	    for Plot in `ls *.png | grep TID-`; do
-		mv $Plot $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TID/Side1/Trends;
-	    done
-
-	    for Plot in `ls *.png | grep TID+`; do
-		mv $Plot $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TID/Side2/Trends;
-	    done
-
-	    for Plot in `ls *.png | grep TEC-`; do
-		mv $Plot $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TEC/Side1/Trends;
-	    done
-
-	    for Plot in `ls *.png | grep TEC+`; do
-		mv $Plot $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TEC/Side2/Trends;
-	    done
-
-	    for Plot in `ls *.png | grep Tracker`; do
-		mv $Plot $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/Trends;
-	    done
-
-	    mv TrackerSummary.root $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/rootfiles;
-	    rm -f TrackerPlots.root;
 
 	fi
 
