@@ -70,7 +70,7 @@ namespace edm {
       core_(ProductID(), iProduct != 0 ? getItem_(iProduct,iItemKey) : 0, 0, true),
       key_(iProduct != 0 ? iItemKey : key_traits<key_type>::value) {}
 
-    Ptr(key_type iItemKey, T const* item):
+    Ptr(T const* item, key_type iItemKey):
       core_(ProductID(), item, nullptr, true),
       key_(item != nullptr ? iItemKey : key_traits<key_type>::value) {}
 
@@ -189,15 +189,7 @@ namespace edm {
     CMS_CLASS_VERSION(10)
 
   private:
-    //Ptr(Ptr const&); // stop default
 
-    /** Constructor for extracting a transient Ptr from a PtrVector. */
-    Ptr(T const* item, key_type item_key) :
-    core_(ProductID(), item, 0, true),
-    key_(item_key) {
-    }
-
-    //Ptr const& operator=(Ptr const&); // stop default
     template<typename C>
     T const* getItem_(C const* product, key_type iKey);
 
