@@ -1162,7 +1162,7 @@ for k in upgradeKeys:
     upgradeStepDict['GenSimHLBeamSpotfixFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
-                                       '--beamspot' : 'HLLHC_fix',
+                                       '--beamspot' : 'HLLHC_Fix',
                                        '--magField' : '38T_PostLS1',
                                        '--datatier' : 'GEN-SIM',
                                        '--eventcontent': 'FEVTDEBUG',
