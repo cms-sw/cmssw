@@ -3,17 +3,25 @@ import FWCore.ParameterSet.Config as cms
 # import the full tracking equivalent of this file
 import RecoTracker.IterativeTracking.TobTecStep_cff
 
+# simtrack id producer                                                                                                                                                         
+import FastSimulation.Tracking.SimTrackIdProducer_cfi
+tobTecStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
+    trajectories = cms.InputTag("pixelLessStepTracks"),
+    TrackQuality = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClusters.TrackQuality,
+    maxChi2 = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClusters.maxChi2,
+)
+
 # trajectory seeds 
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 tobTecStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
         skipSimTrackIds = [
-            cms.InputTag("initialStepSimTrackIds"),
             cms.InputTag("detachedTripletStepSimTrackIds"),
             cms.InputTag("lowPtTripletStepSimTrackIds"),
             cms.InputTag("pixelPairStepSimTrackIds"),
             cms.InputTag("mixedTripletStepSimTrackIds"),
-            cms.InputTag("pixelLessStepSimTrackIds")],
+            cms.InputTag("pixelLessStepSimTrackIds"),
+            cms.InputTag("tobTecStepSimTrackIds")],
         pTMin = 0.3,
         maxD0 = 99.0,
         maxZ0 = 99
@@ -44,7 +52,8 @@ tobTecStepSelector = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSele
 tobTecStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # Final sequence 
-TobTecStep = cms.Sequence(tobTecStepSeeds
+TobTecStep = cms.Sequence(tobTecStepSimTrackIds
+                          +tobTecStepSeeds
                           +tobTecStepTrackCandidates
                           +tobTecStepTracks
                           +tobTecStepSelector                          

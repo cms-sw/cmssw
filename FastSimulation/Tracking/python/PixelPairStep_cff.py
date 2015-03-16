@@ -3,14 +3,21 @@ import FWCore.ParameterSet.Config as cms
 # import the full tracking equivalent of this file
 import RecoTracker.IterativeTracking.PixelPairStep_cff
 
+# simtrack id producer                                                                                                                                                         
+import FastSimulation.Tracking.SimTrackIdProducer_cfi
+pixelPairStepSimTrackIds=FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
+    trajectories = cms.InputTag("lowPtTripletStepTracks"),
+    TrackQuality = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.TrackQuality,
+    maxChi2 = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.maxChi2,
+)
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 pixelPairStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
         skipSimTrackIds = [
-            cms.InputTag("initialStepSimTrackIds"),
             cms.InputTag("detachedTripletStepSimTrackIds"),
-            cms.InputTag("lowPtTripletStepSimTrackIds")],
+            cms.InputTag("lowPtTripletStepSimTrackIds"),
+            cms.InputTag("pixelPairStepSimTrackIds")],
         pTMin = 0.3,
         maxD0 = 5.0,
         maxZ0 = 50
@@ -39,19 +46,10 @@ pixelPairStepTracks = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairS
 pixelPairStepSelector = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSelector.clone()
 pixelPairStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
-# simtrack id producer                                                                                                                                                         
-import FastSimulation.Tracking.SimTrackIdProducer_cfi
-pixelPairStepSimTrackIds=FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
-    trackCollection = cms.InputTag("pixelPairStepTracks"),
-    TrackQuality = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.TrackQuality,
-    maxChi2 = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.maxChi2,
-    HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
-)
-
 # Final sequence 
-PixelPairStep = cms.Sequence(pixelPairStepSeeds
+PixelPairStep = cms.Sequence(pixelPairStepSimTrackIds
+                             +pixelPairStepSeeds
                              +pixelPairStepTrackCandidates
                              +pixelPairStepTracks
-                             +pixelPairStepSelector                           
-                             +pixelPairStepSimTrackIds
+                             +pixelPairStepSelector                                                        
                          )
