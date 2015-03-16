@@ -361,6 +361,7 @@ namespace edm {
     //}
 
     int KeepTrackOfPileup = 0;
+    std::vector<edm::EventID> eventInfoList;
 
     for (int bunchIdx = minBunch_; bunchIdx <= maxBunch_; ++bunchIdx) {
       for (size_t setBcrIdx=0; setBcrIdx<workers_.size(); ++setBcrIdx) {
@@ -399,6 +400,10 @@ namespace edm {
                                                             _2, vertexOffset, std::ref(setup), e.streamID()), NumPU_Events, e.streamID()
             );
           playbackInfo_->setStartEventId(recordEventID, readSrcIdx, bunchIdx, KeepTrackOfPileup);
+	  const std::vector<edm::EventID>& playEventID =
+            playbackInfo_->getStartEventId(readSrcIdx, bunchIdx);
+	  for ( unsigned int pu=0; pu<playEventID.size(); pu++ ) { eventInfoList.push_back(playEventID[pu]); }
+
           KeepTrackOfPileup+=NumPU_Events;
         } else {
 	  const std::vector<edm::EventID>& playEventID =
@@ -412,6 +417,7 @@ namespace edm {
             std::bind(&MixingModule::pileAllWorkers, std::ref(*this), _1, mcc, bunchIdx,
                         _2, vertexOffset, std::ref(setup), e.streamID())
             );
+	  for ( unsigned int pu=0; pu<playEventID.size(); pu++ ) eventInfoList.push_back(playEventID[pu]);
         }
       }
       for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
@@ -444,6 +450,7 @@ namespace edm {
       (*accItr)->StorePileupInformation( bunchCrossingList,
 					 numInteractionList,
 					 TrueInteractionList,
+					 eventInfoList,
 					 bunchSpace_);
     }
 
@@ -451,6 +458,7 @@ namespace edm {
     PileupMixing_ = std::auto_ptr<PileupMixingContent>(new PileupMixingContent(bunchCrossingList,
                                                                                numInteractionList,
                                                                                TrueInteractionList,
+									       eventInfoList,
 									       bunchSpace_));
 
     e.put(PileupMixing_);

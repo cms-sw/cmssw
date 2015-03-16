@@ -6,6 +6,7 @@ from SimGeneral.MixingModule.pixelDigitizer_cfi import *
 from SimGeneral.MixingModule.stripDigitizer_cfi import *
 #from SimGeneral.MixingModule.ecalDigitizer_cfi import *
 #from SimGeneral.MixingModule.hcalDigitizer_cfi import *
+from SimGeneral.MixingModule.pileupVtxDigitizer_cfi import *
 from SimGeneral.MixingModule.castorDigitizer_cfi import *
 from SimGeneral.MixingModule.trackingTruthProducer_cfi import *
 
@@ -18,6 +19,9 @@ theDigitizersMixPreMix = cms.PSet(
   ),
   castor  = cms.PSet(
     castorDigitizer
+  ),
+  puVtx = cms.PSet(
+    pileupVtxDigitizer
   )
 )
 
@@ -30,6 +34,9 @@ theDigitizersMixPreMixValid = cms.PSet(
   ),
   castor  = cms.PSet(
     castorDigitizer
+  ),
+  puVtx = cms.PSet(
+    pileupVtxDigitizer
   ),
   mergedtruth = cms.PSet(
     trackingParticles
