@@ -67,6 +67,42 @@ l1t::rctDataBase::rctDataBase() {
   indexfromMP7toRCT[34]=26;
   indexfromMP7toRCT[35]=27;
   
+  indexfromoRSCtoMP7[0]=0;
+  indexfromoRSCtoMP7[1]=1;
+  indexfromoRSCtoMP7[2]=8;
+  indexfromoRSCtoMP7[3]=9;
+  indexfromoRSCtoMP7[4]=16;
+  indexfromoRSCtoMP7[5]=17;
+  indexfromoRSCtoMP7[6]=24;
+  indexfromoRSCtoMP7[7]=25;
+  indexfromoRSCtoMP7[8]=32;
+  indexfromoRSCtoMP7[9]=33;
+  indexfromoRSCtoMP7[10]=28;
+  indexfromoRSCtoMP7[11]=29;
+  indexfromoRSCtoMP7[12]=20;
+  indexfromoRSCtoMP7[13]=21;
+  indexfromoRSCtoMP7[14]=12;
+  indexfromoRSCtoMP7[15]=13;
+  indexfromoRSCtoMP7[16]=4;
+  indexfromoRSCtoMP7[17]=5;
+  indexfromoRSCtoMP7[18]=2;
+  indexfromoRSCtoMP7[19]=3;
+  indexfromoRSCtoMP7[20]=10;
+  indexfromoRSCtoMP7[21]=11;
+  indexfromoRSCtoMP7[22]=18;
+  indexfromoRSCtoMP7[23]=19;
+  indexfromoRSCtoMP7[24]=26;
+  indexfromoRSCtoMP7[25]=27;
+  indexfromoRSCtoMP7[26]=34;
+  indexfromoRSCtoMP7[27]=35;
+  indexfromoRSCtoMP7[28]=30;
+  indexfromoRSCtoMP7[29]=31;
+  indexfromoRSCtoMP7[30]=22;
+  indexfromoRSCtoMP7[31]=23;
+  indexfromoRSCtoMP7[32]=14;
+  indexfromoRSCtoMP7[33]=15;
+  indexfromoRSCtoMP7[34]=6;
+  indexfromoRSCtoMP7[35]=7;
   
   RCEt_start[0][0]=8;
   RCEt_start[0][1]=18;
@@ -112,22 +148,33 @@ l1t::rctDataBase::rctDataBase() {
   RCOf_start[5][1]=173;
   RCOf_start[6][0]=174;
   RCOf_start[6][1]=175;
+  
+  
+  //calo object index 0= ,order in the cable=  0  ,bits= 8,72 
+  //calo object index 1= ,order in the cable=  1  ,bits= 16,73
+  //calo object index 2= ,order in the cable=  4  ,bits= 40,76
+  //calo object index 3= ,order in the cable=  5  ,bits= 48,77
+  //calo object index 4= ,order in the cable=  2  ,bits= 24,74
+  //calo object index 5= ,order in the cable=  3  ,bits= 32,75
+  //calo object index 6= ,order in the cable=  6  ,bits= 56,78
+  //calo object index 7= ,order in the cable=  7  ,bits= 64,79
 
-  HFEt_start[0]=8;
-  HFEt_start[1]=16;
-  HFEt_start[2]=24;
-  HFEt_start[3]=32;
-  HFEt_start[4]=40;
-  HFEt_start[5]=48;
+
+  HFEt_start[0]=8; 
+  HFEt_start[1]=16; 
+  HFEt_start[2]=40;
+  HFEt_start[3]=48;
+  HFEt_start[4]=24;
+  HFEt_start[5]=32;
   HFEt_start[6]=56;
   HFEt_start[7]=64;
 
   HFFg_start[0]=72;
-  HFFg_start[1]=73;
-  HFFg_start[2]=74;
-  HFFg_start[3]=75;
-  HFFg_start[4]=76;
-  HFFg_start[5]=77;
+  HFFg_start[1]=73; 
+  HFFg_start[2]=76;
+  HFFg_start[3]=77;
+  HFFg_start[4]=74;
+  HFFg_start[5]=75;
   HFFg_start[6]=78;
   HFFg_start[7]=79;
 
