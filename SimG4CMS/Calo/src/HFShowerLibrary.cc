@@ -41,7 +41,7 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   std::string branchPre    = m_HS.getUntrackedParameter<std::string>("BranchPre","HFShowerPhotons_hfshowerlib_");
   std::string branchPost   = m_HS.getUntrackedParameter<std::string>("BranchPost","_R.obj");
   verbose                  = m_HS.getUntrackedParameter<bool>("Verbosity",false);
-//  applyFidCut              = m_HS.getParameter<bool>("ApplyFiducialCut");
+  applyFidCut              = m_HS.getUntrackedParameter<bool>("ApplyFiducialCut",true);
 
   if (pTreeName.find(".") == 0) pTreeName.erase(0,2);
   const char* nTree = pTreeName.c_str();
@@ -199,7 +199,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 //							   double weight,
 							   bool onlyLong) {
 
-  bool applyFidCut = true;
+  //  bool applyFidCut = true;
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
   G4Track *     track    = aStep->GetTrack();
