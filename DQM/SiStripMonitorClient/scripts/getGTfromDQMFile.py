@@ -33,6 +33,10 @@ while key:
         globalTag = obj.GetName()[len("<"+globalTagVar+">s="):-len("</"+globalTagVar+">")]
         break
     key = keys.After(key)
-
 if len(globalTag) > 1:
-    print globalTag
+    if globalTag.find('::') >= 0: 
+        print globalTag[0:globalTag.find('::')]
+    else:
+        print globalTag
+
+

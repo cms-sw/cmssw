@@ -3,9 +3,14 @@
 
 void QIE10DataFrame::setSample(edm::DataFrame::size_type isample, int adc, int le_tdc, int fe_tdc, int capid, bool soi, bool ok) {
   if (isample>=size()) return;
-  edm::DataFrame::operator[](isample*2+1)=(adc&0xFF)|(soi?(0x2000):(0))|(ok?(0x1000):(0));
-  edm::DataFrame::operator[](isample*2+2)=(le_tdc&0x3F)|((fe_tdc&0x1F)<<6)|((capid&0x3)<<12)|0x4000;
+  edm::DataFrame::operator[](isample*WORDS_PER_SAMPLE+HEADER_WORDS)=(adc&Sample::MASK_ADC)|(soi?(Sample::MASK_SOI):(0))|(ok?(Sample::MASK_OK):(0));
+  edm::DataFrame::operator[](isample*WORDS_PER_SAMPLE+HEADER_WORDS+1)=(le_tdc&Sample::MASK_LE_TDC)|((fe_tdc&Sample::MASK_TE_TDC)<<Sample::OFFSET_TE_TDC)|((capid&Sample::MASK_CAPID)<<Sample::OFFSET_CAPID)|0x4000; // 0x4000 marks this as second word of a pair
 }
+
+void QIE10DataFrame::setFlags(uint16_t v) {
+  edm::DataFrame::operator[](size()-1)=v;
+}
+
 
 std::ostream& operator<<(std::ostream& s, const QIE10DataFrame& digi) {
   if (digi.detid().det()==DetId::Hcal) {

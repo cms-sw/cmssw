@@ -207,22 +207,28 @@ class HLTProcess(object):
   # add release-specific customizations
   def releaseSpecificCustomize(self):
     # version specific customizations
-    self.data += """
 
+    self.data += """
+#
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
-
-# from CMSSW_7_5_0_pre0: Simplified TrackerTopologyEP config (PR #7589/#7802)
-if cmsswVersion >= "CMSSW_7_5":
-    if 'trackerTopologyConstants' in %(dict)s:
-        %(process)strackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
-
-# from CMSSW_7_5_0_pre0: Removal of upgradeGeometry from TrackerDigiGeometryESModule (PR #7794)
-if cmsswVersion >= "CMSSW_7_5":
-    if 'TrackerDigiGeometryESModule' in %(dict)s:
-        del %(process)sTrackerDigiGeometryESModule.trackerGeometryConstants.upgradeGeometry
-
+# Explicit deletions (via confdb.py):
+# None for now
+# Other release-dependent customisation:
+"""
+    if self.config.fragment:
+      self.data += """
+import imp
+customFile = imp.find_module('HLTrigger/Configuration/customizeHLTforCMSSW')[1]
+execfile(customFile)
+#
+"""
+    else:
+      self.data += """
+from HLTrigger.Configuration.CustomConfigs import customizeHLTforCMSSW
+process = customizeHLTforCMSSW(process)
+#
 """
 
   # customize the configuration according to the options
@@ -1056,6 +1062,8 @@ if 'GlobalTag' in %%(dict)s:
       self.options['esmodules'].append( "-hltESPGlobalTrackingGeometryESProducer" )
       self.options['esmodules'].append( "-hltESPMuonDetLayerGeometryESProducer" )
       self.options['esmodules'].append( "-hltESPTrackerRecoGeometryESProducer" )
+      self.options['esmodules'].append( "-trackerTopology" )
+
       if not self.config.fastsim:
         self.options['esmodules'].append( "-CaloTowerGeometryFromDBEP" )
         self.options['esmodules'].append( "-CastorGeometryFromDBEP" )
