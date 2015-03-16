@@ -7,8 +7,6 @@
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "FWCore/Framework/interface/LuminosityBlock.h"
-//#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -39,7 +37,7 @@ RPCEventSummary::RPCEventSummary(const edm::ParameterSet& ps ){
 
   offlineDQM_ = ps.getUntrackedParameter<bool> ("OfflineDQM",true); 
 
-
+  isIn_ = true;
 }
 
 RPCEventSummary::~RPCEventSummary(){
@@ -65,23 +63,24 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStor
     
     if(0 != setup.find( recordKey ) ) {
       defaultValue = -1;
+      isIn_= false ;
       //get fed summary information
       edm::ESHandle<RunInfo> sumFED;
       setup.get<RunInfoRcd>().get(sumFED);    
       std::vector<int> FedsInIds= sumFED->m_fed_in;   
       unsigned int f = 0;
-      bool flag = false;
-      while(!flag && f < FedsInIds.size()) {
+      
+      while(!isIn_ && f < FedsInIds.size()) {
 	int fedID=FedsInIds[f];
 	//make sure fed id is in allowed range  
 	if(fedID>=FEDRange_.first && fedID<=FEDRange_.second) {
 	  defaultValue = 1;
-	  flag = true;
+	  isIn_ = true;
 	} 
-      f++;
-      }   
+	f++;
+      }
+   
     }   
-    
     
     MonitorElement* me;
     ibooker.setCurrentFolder(eventInfoPath_);
@@ -166,7 +165,7 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStor
   }
 
 
-  if(!offlineDQM_  && lumiCounter_%prescaleFactor_ == 0 ){
+  if(isIn_ && !offlineDQM_  && lumiCounter_%prescaleFactor_ == 0 ){
     this->clientOperation(igetter);
   }
 
@@ -178,8 +177,9 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStor
 
 void RPCEventSummary::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){ 
   
-  this->clientOperation(igetter);
+  if(isIn_ ){this->clientOperation(igetter);}
 }
+
 
 void RPCEventSummary::clientOperation( DQMStore::IGetter & igetter){
 
@@ -192,7 +192,7 @@ void RPCEventSummary::clientOperation( DQMStore::IGetter & igetter){
   }
   
 
-  if(rpcevents < minimumEvents_) return;
+  if(rpcevents < minimumEvents_) {return;}
   std::stringstream meName;
   MonitorElement * myMe;
    
@@ -220,19 +220,20 @@ void RPCEventSummary::clientOperation( DQMStore::IGetter & igetter){
 	 
 	   
 	 for(int r = 1;r<=myMe->getNbinsY(); r++){
-	   if((s!=4 && r > 17 ) || ((s ==9 ||s ==10)  && r >15 ) )  continue;
+	   if((s!=4 && r > 17 ) || ((s ==9 ||s ==10)  && r >15 ) )  {continue;}
 	   rollInSector++;
 	   
 	   
-	   if(myMe->getBinContent(s,r) == PARTIALLY_DEAD) sectorFactor+=0.8;
-	   else if(myMe->getBinContent(s,r) == DEAD )sectorFactor+=0;
-	   else sectorFactor+=1;	
+	   if(myMe->getBinContent(s,r) == PARTIALLY_DEAD) {sectorFactor+=0.8;}
+	   else if(myMe->getBinContent(s,r) == DEAD ){sectorFactor+=0;}
+	   else {sectorFactor+=1;}	
 	   
 	 }
-	 if(rollInSector!=0)
+	 if(rollInSector!=0){
 	   sectorFactor = sectorFactor/rollInSector;
+	 }
 	 
-	 if(reportMe)	reportMe->setBinContent(w+8, s, sectorFactor);
+	 if(reportMe){ reportMe->setBinContent(w+8, s, sectorFactor);}
 	 wheelFactor += sectorFactor;
 	 
 	 }//end loop on sectors
@@ -242,7 +243,7 @@ void RPCEventSummary::clientOperation( DQMStore::IGetter & igetter){
 	 meName.str("");
 	 meName<<eventInfoPath_ + "/reportSummaryContents/RPC_Wheel"<<w; 
 	 globalMe=igetter.get(meName.str());
-	 if(globalMe) globalMe->Fill(wheelFactor);
+	 if(globalMe) {globalMe->Fill(wheelFactor);}
 	 
 	 barrelFactor += wheelFactor;
        }//
@@ -289,8 +290,8 @@ void RPCEventSummary::clientOperation( DQMStore::IGetter & igetter){
 	   for (int sec = 0 ; sec<6; sec++){
 	     diskFactor += sectorFactor[sec];	
 	     if(reportMe)	{
-	       if (d<0) reportMe->setBinContent(d+5, sec+1 , sectorFactor[sec]);
-	       else  reportMe->setBinContent(d+11, sec+1 , sectorFactor[sec]);
+	       if (d<0) {reportMe->setBinContent(d+5, sec+1 , sectorFactor[sec]);}
+	       else  {reportMe->setBinContent(d+11, sec+1 , sectorFactor[sec]);}
 	     } 	 
 	   }
 	   
@@ -315,7 +316,7 @@ void RPCEventSummary::clientOperation( DQMStore::IGetter & igetter){
      if(doEndcapCertification_){ rpcFactor =  ( barrelFactor + endcapFactor)/2; }
      
      globalMe = igetter.get(eventInfoPath_ +"/reportSummary"); 
-     if(globalMe) globalMe->Fill(rpcFactor);
+     if(globalMe) {globalMe->Fill(rpcFactor);}
      
      
 }
