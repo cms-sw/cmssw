@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "HLTriggerOffline/SUSYBSM/interface/SUSY_HLT_MuEle_Hadronic.h"
 
@@ -138,39 +139,39 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const& e, edm::EventSetup const
         const trigger::Keys& keys = triggerSummary->filterKeys( filterIndexEle );
         for( size_t j = 0; j < keys.size(); ++j ){
             trigger::TriggerObject foundObject = triggerObjects[keys[j]];
-            if(fabs(foundObject.id()) == 11){ //It's an electron
+            if(foundObject.id()==trigger::TriggerElectron){ //It's an electron
                 	
-				bool same= false;
-				for(unsigned int x=0;x<ptElectron.size();x++){
-					if(fabs(ptElectron[x] - foundObject.pt()) < 0.01 || fabs(etaElectron[x] - foundObject.eta()) < 0.001 || fabs(phiElectron[x] - foundObject.phi()) < 0.001)
-						same = true;
-				}
-				
-				if(!same){	
-					h_triggerElePt->Fill(foundObject.pt());
+		bool same= false;
+		for(unsigned int x=0;x<ptElectron.size();x++){
+			if(fabs(ptElectron[x] - foundObject.pt()) < 0.01 || fabs(etaElectron[x] - foundObject.eta()) < 0.001 || fabs(phiElectron[x] - foundObject.phi()) < 0.001)
+				same = true;
+		}
+		
+		if(!same){	
+			h_triggerElePt->Fill(foundObject.pt());
                 	h_triggerEleEta->Fill(foundObject.eta());
                 	h_triggerElePhi->Fill(foundObject.phi());
                 	ptElectron.push_back(foundObject.pt());
                 	etaElectron.push_back(foundObject.eta());
                 	phiElectron.push_back(foundObject.phi());
-				}
+			}
             }
-			if(fabs(foundObject.id()) == 13){ //It's a muon
+	    if(foundObject.id()==trigger::TriggerMuon){ //It's a muon
                 	
-				bool same= false;
-				for(unsigned int x=0;x<ptMuon.size();x++){
-					if(fabs(ptMuon[x] - foundObject.pt()) < 0.01)
-						same = true;
-				}
-				
-				if(!same){
-					h_triggerMuPt->Fill(foundObject.pt());
+		bool same= false;
+		for(unsigned int x=0;x<ptMuon.size();x++){
+			if(fabs(ptMuon[x] - foundObject.pt()) < 0.01)
+				same = true;
+		}
+		
+		if(!same){
+			h_triggerMuPt->Fill(foundObject.pt());
                 	h_triggerMuEta->Fill(foundObject.eta());
                 	h_triggerMuPhi->Fill(foundObject.phi());
                 	ptMuon.push_back(foundObject.pt());
                 	etaMuon.push_back(foundObject.eta());
                 	phiMuon.push_back(foundObject.phi());
-				}
+			}
             }
 
         }

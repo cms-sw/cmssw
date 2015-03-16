@@ -52,6 +52,7 @@ pixelPairStepSeeds.SeedComparitorPSet = cms.PSet(
     )
 pixelPairStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 pixelPairStepSeeds.OrderedHitsFactoryPSet.maxElement =  cms.uint32(0)
+pixelPairStepSeeds.SeedCreatorPSet.SimpleMagneticField = ''
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -105,7 +106,7 @@ pixelPairStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
     AlgorithmName = cms.string('pixelPairStep'),
     src = 'pixelPairStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother'),
-    TTRHBuilder=cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
+    TTRHBuilder=cms.string('WithTrackAngle')
     )
 
 # Final selection

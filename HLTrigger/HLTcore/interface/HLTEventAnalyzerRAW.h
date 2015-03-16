@@ -12,7 +12,7 @@
  */
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -24,7 +24,7 @@ namespace edm {
 //
 // class declaration
 //
-class HLTEventAnalyzerRAW : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+class HLTEventAnalyzerRAW : public edm::stream::EDAnalyzer< > {
   
  public:
   explicit HLTEventAnalyzerRAW(const edm::ParameterSet&);

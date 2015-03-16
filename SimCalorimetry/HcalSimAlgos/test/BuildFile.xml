@@ -1,5 +1,4 @@
 <environment>
-  <use name="rootcintex"/>
   <use name="SimCalorimetry/HcalSimAlgos"/>
   <use name="SimDataFormats/CrossingFrame"/>
   <bin file="HcalDigitizerTest.cpp"/>
