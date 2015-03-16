@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HIon/V6 (CMSSW_7_4_0_pre7_HLT1)
+# /dev/CMSSW_7_4_0/HIon/V13 (CMSSW_7_4_0_pre7_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V6')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V13')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -215,7 +215,7 @@ process.HLTPSetTrajectoryBuilderForElectrons = cms.PSet(
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   propagatorOpposite = cms.string( "hltESPBwdElectronPropagator" ),
   MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
   alwaysUseInvalidHits = cms.bool( True ),
@@ -243,7 +243,7 @@ process.HLTPSetMuTrackJpsiEffTrajectoryBuilder = cms.PSet(
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
   MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
   alwaysUseInvalidHits = cms.bool( False ),
@@ -678,6 +678,16 @@ process.ParabolicParametrizedMagneticFieldProducer = cms.ESProducer( "Parametriz
   version = cms.string( "Parabolic" ),
   parameters = cms.PSet(  BValue = cms.string( "" ) ),
   label = cms.untracked.string( "ParabolicMf" )
+)
+process.hltESPChi2MeasurementEstimator9 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  MaxChi2 = cms.double( 9.0 ),
+  nSigma = cms.double( 3.0 ),
+  ComponentName = cms.string( "hltESPChi2MeasurementEstimator9" )
+)
+process.hltESPChi2MeasurementEstimator16 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  MaxChi2 = cms.double( 16.0 ),
+  nSigma = cms.double( 3.0 ),
+  ComponentName = cms.string( "hltESPChi2MeasurementEstimator16" )
 )
 process.hltESPChi2MeasurementEstimator30 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
   MaxChi2 = cms.double( 30.0 ),
@@ -1808,7 +1818,7 @@ process.siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngleD
   )
 )
 process.sistripconn = cms.ESProducer( "SiStripConnectivity" )
-process.trackerTopologyConstants = cms.ESProducer( "TrackerTopologyEP",
+process.trackerTopology = cms.ESProducer( "TrackerTopologyEP",
   pxb_layerMask = cms.uint32( 15 ),
   tib_str_int_extStartBit = cms.uint32( 10 ),
   tib_layerMask = cms.uint32( 7 ),
@@ -3957,21 +3967,17 @@ process.source = cms.Source( "PoolSource",
     )
 )
 
-
+#
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
+# Explicit deletions (via confdb.py):
+# None for now
+# Other release-dependent customisation:
 
-# from CMSSW_7_5_0_pre0: Simplified TrackerTopologyEP config (PR #7589/#7802)
-if cmsswVersion >= "CMSSW_7_5":
-    if 'trackerTopologyConstants' in process.__dict__:
-        process.trackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
-
-# from CMSSW_7_5_0_pre0: Removal of upgradeGeometry from TrackerDigiGeometryESModule (PR #7794)
-if cmsswVersion >= "CMSSW_7_5":
-    if 'TrackerDigiGeometryESModule' in process.__dict__:
-        del process.TrackerDigiGeometryESModule.trackerGeometryConstants.upgradeGeometry
-
+from HLTrigger.Configuration.CustomConfigs import customizeHLTforCMSSW
+process = customizeHLTforCMSSW(process)
+#
 
 # load 2015 Run-2 L1 Menu for HIon
 from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0 as loadL1Menu

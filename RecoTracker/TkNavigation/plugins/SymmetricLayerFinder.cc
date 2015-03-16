@@ -11,25 +11,6 @@
 
 using namespace std;
 
-class ForwardLayerMirrorImage : 
-  public unary_function< const ForwardDetLayer*, bool> {
-public:
-
-  ForwardLayerMirrorImage( const ForwardDetLayer* layer) : theLayer(layer) {}
-
-  bool operator()( const ForwardDetLayer* a) {
-    float zdiff = a->position().z() + theLayer->position().z();
-    float rdiff = a->specificSurface().innerRadius() - 
-      theLayer->specificSurface().innerRadius();
-
-    // equality based on z position and inner radius
-    if ( fabs( zdiff) < 1. && fabs( rdiff) < 1.) return true; // units are cm
-    else return false;
-  }
-
-private:
-  const ForwardDetLayer* theLayer;
-};
 
 SymmetricLayerFinder::SymmetricLayerFinder( const FDLC& flc)
 {
@@ -58,8 +39,19 @@ SymmetricLayerFinder::SymmetricLayerFinder( const FDLC& flc)
 const ForwardDetLayer* SymmetricLayerFinder::mirrorPartner( const ForwardDetLayer* layer,
 						      const FDLC& rightLayers)
 {
+
+  auto mirrorImage = [=]( const ForwardDetLayer* a) ->bool {
+    auto zdiff = a->position().z() + layer->position().z();
+    auto rdiff = a->specificSurface().innerRadius() -
+      layer->specificSurface().innerRadius();
+
+    // equality based on z position and inner radius
+    return std::abs(zdiff) < 2.f && std::abs(rdiff) < 1.f; // units are cm
+  };
+
+
   ConstFDLI result =
-    find_if( rightLayers.begin(), rightLayers.end(), ForwardLayerMirrorImage(layer));
+    find_if( rightLayers.begin(), rightLayers.end(), mirrorImage);
   if ( result == rightLayers.end()) return 0;
   else return *result;
 }

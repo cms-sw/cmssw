@@ -1131,7 +1131,7 @@ void MuScleFitUtils::minimizeLikelihood()
 {
   // Output file with fit parameters resulting from minimization
   // -----------------------------------------------------------
-  ofstream FitParametersFile;
+  std::ofstream FitParametersFile;
   FitParametersFile.open ("FitParameters.txt", std::ios::app);
   FitParametersFile << "Fitting with resolution, scale, bgr function # "
 		    << ResolFitType << " " << ScaleFitType << " " << BgrFitType

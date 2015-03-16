@@ -62,7 +62,7 @@ private:
   template<typename T>
   MuTag muTag(const T & mu) const;
   void Deposits(const pat::IsoDeposit* isodep, double dR_max,  TH1F* hist);
-  void histo(const TH1F* hist, const char* cx, const char* cy) const;
+  void histo(TH1F* hist, const char* cx, const char* cy) const;
 };
 
 template<typename T>
@@ -114,7 +114,7 @@ void ZMuMuIsolationAnalyzer::Deposits(const pat::IsoDeposit* isodep,double dR_ma
   }
 }
 
-void ZMuMuIsolationAnalyzer::histo(const TH1F* hist, const char* cx, const char*cy) const{
+void ZMuMuIsolationAnalyzer::histo(TH1F* hist, const char* cx, const char*cy) const{
   hist->GetXaxis()->SetTitle(cx);
   hist->GetYaxis()->SetTitle(cy);
   hist->GetXaxis()->SetTitleOffset(1);

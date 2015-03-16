@@ -27,6 +27,7 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 
 #define nfed_ FEDNumbering::MAXFEDID+1
 

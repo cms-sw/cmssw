@@ -23,7 +23,7 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
                   cms.PSet(
                   name = cms.string("PFRecHitQTestECAL"),
                   cleaningThreshold = cms.double(2.0),
-                  timingCleaning = cms.bool(False),
+                  timingCleaning = cms.bool(True),
                   topologicalCleaning = cms.bool(True),
                   skipTTRecoveredHits = cms.bool(True)
                   )
@@ -40,7 +40,7 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
                  cms.PSet(
                  name = cms.string("PFRecHitQTestECAL"),
                  cleaningThreshold = cms.double(2.0),
-                 timingCleaning = cms.bool(False),
+                 timingCleaning = cms.bool(True),
                  topologicalCleaning = cms.bool(True),
                  skipTTRecoveredHits = cms.bool(True)
                  )

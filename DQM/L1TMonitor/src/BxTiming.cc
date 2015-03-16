@@ -279,7 +279,7 @@ BxTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // triggerType
   // trigger types: physics (1), calibration (2), random (3), traced physics (5),  test (6) 
-  int ttype = FEDHeader(rawdata->FEDData(812).data()).triggerType();
+  int ttype = static_cast<double> (iEvent.eventAuxiliary().experimentType());
 
   // loop over feds
   for (int i = 0; i<FEDNumbering::MAXFEDID+1; i++){
