@@ -29,7 +29,7 @@ ALCARECOMuAlCalIsolatedMu = Alignment.CommonAlignmentProducer.AlignmentMuonSelec
 # DT calibration needs as many muons with DIGIs as possible, which in cosmic ray runs means standAloneMuons
 #    nHitMinGB = 1, # muon collections now merge globalMuons, standAlone, and trackerMuons: this stream has always assumed globalMuons
     ptMin=cms.double(0.),
-    pMin=cms.double(25.)
+    pMin=cms.double(25.),
     etaMin = -2.6,
     etaMax = 2.6,
     )
