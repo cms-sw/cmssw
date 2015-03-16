@@ -115,3 +115,26 @@ def L1REPACK(process):
     process=L1T(process)
 
     return process
+
+
+def customizeHLTforCMSSW(process):
+#   Apply cff-based customisations to a process
+#   Can't use process.load(customFile) as it only loads additional objects into the process 
+#   One can not remove any module this way, but modify it!
+
+    class Module(object):
+        pass
+    locals = Module()
+
+    globals = process.__dict__
+
+    import imp
+    customFile = imp.find_module('HLTrigger/Configuration/customizeHLTforCMSSW')[1]
+#   import pkgutil
+#   customFile = pkgutil.get_loader('HLTrigger/Configuration/customizeHLTforCMSSW').filename
+
+#   execfile(customFile, globals, locals.__dict__)
+    execfile(customFile, globals)
+    process.extend(locals)
+ 
+    return process
