@@ -2,6 +2,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "Validation/EventGenerator/interface/PdtPdgMini.h"
+#include "Validation/EventGenerator/interface/DQMHelper.h"
 
 TTbar_GenLepAnalyzer::TTbar_GenLepAnalyzer(const edm::ParameterSet& iConfig):
   leps_(iConfig.getParameter<edm::InputTag>("leptons"))
@@ -65,20 +66,20 @@ TTbar_GenLepAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 
 void TTbar_GenLepAnalyzer::bookHistograms(DQMStore::IBooker &i, edm::Run const &r, edm::EventSetup const &e){
-  i.setCurrentFolder("Generator/TTbar");
-  hists_["lepN"     ] = i.book1D("TTbar_lepN"     , "N"  ,   10, -.5,  9.5 );
+  DQMHelper dqm(&i); i.setCurrentFolder("Generator/TTbar");
+  hists_["lepN"     ] = dqm.book1dHisto("TTbar_lepN"+leps_.label()     , "N"  ,   10, -.5,  9.5 );
 
-  hists_["lepPtAll" ] = i.book1D("TTbar_lepPtAll_"+leps_.label() , "pt" , 1000,  0., 1000.);
-  hists_["lepPt1"   ] = i.book1D("TTbar_lepPt1_"+leps_.label()   , "pt" , 1000,  0., 1000.);
-  hists_["lepPt2"   ] = i.book1D("TTbar_lepPt2_"+leps_.label()   , "pt" , 1000,  0., 1000.);
-  hists_["lepPt3"   ] = i.book1D("TTbar_lepPt3_"+leps_.label()   , "pt" , 1000,  0., 1000.);
-  hists_["lepPt4"   ] = i.book1D("TTbar_lepPt4_"+leps_.label()   , "pt" , 1000,  0., 1000.);
+  hists_["lepPtAll" ] = dqm.book1dHisto("TTbar_lepPtAll_"+leps_.label() , "pt" , 1000,  0., 1000.);
+  hists_["lepPt1"   ] = dqm.book1dHisto("TTbar_lepPt1_"+leps_.label()   , "pt" , 1000,  0., 1000.);
+  hists_["lepPt2"   ] = dqm.book1dHisto("TTbar_lepPt2_"+leps_.label()   , "pt" , 1000,  0., 1000.);
+  hists_["lepPt3"   ] = dqm.book1dHisto("TTbar_lepPt3_"+leps_.label()   , "pt" , 1000,  0., 1000.);
+  hists_["lepPt4"   ] = dqm.book1dHisto("TTbar_lepPt4_"+leps_.label()   , "pt" , 1000,  0., 1000.);
 
-  hists_["lepEtaAll"] = i.book1D("TTbar_lepEtaAll"+leps_.label(), "eta",  100, -5.,    5.);
-  hists_["lepEta1"  ] = i.book1D("TTbar_lepEta1"+leps_.label()  , "eta",  100, -5.,    5.);
-  hists_["lepEta2"  ] = i.book1D("TTbar_lepEta2"+leps_.label()  , "eta",  100, -5.,    5.);
-  hists_["lepEta3"  ] = i.book1D("TTbar_lepEta3"+leps_.label()  , "eta",  100, -5.,    5.);
-  hists_["lepEta4"  ] = i.book1D("TTbar_lepEta4"+leps_.label()  , "eta",  100, -5.,    5.);
+  hists_["lepEtaAll"] = dqm.book1dHisto("TTbar_lepEtaAll"+leps_.label(), "eta",  100, -5.,    5.);
+  hists_["lepEta1"  ] = dqm.book1dHisto("TTbar_lepEta1"+leps_.label()  , "eta",  100, -5.,    5.);
+  hists_["lepEta2"  ] = dqm.book1dHisto("TTbar_lepEta2"+leps_.label()  , "eta",  100, -5.,    5.);
+  hists_["lepEta3"  ] = dqm.book1dHisto("TTbar_lepEta3"+leps_.label()  , "eta",  100, -5.,    5.);
+  hists_["lepEta4"  ] = dqm.book1dHisto("TTbar_lepEta4"+leps_.label()  , "eta",  100, -5.,    5.);
 }
 
 
