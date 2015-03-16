@@ -44,6 +44,8 @@ public:
   explicit HLTRechitsToDigis(const edm::ParameterSet&);
   ~HLTRechitsToDigis();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  enum ecalRegion {invalidRegion=0, barrel, endcap };  
+  HLTRechitsToDigis::ecalRegion stringToRegion(std::string region);
 
 private:
   virtual void produce( edm::Event&, edm::EventSetup const&) override;
@@ -60,7 +62,7 @@ private:
   
   // string for the produced digi collection
   std::string digisOut_;
-  uint32_t regionID_;
+  ecalRegion region_;
 };
 //
 
@@ -70,7 +72,7 @@ private:
 HLTRechitsToDigis::HLTRechitsToDigis(const edm::ParameterSet& iConfig)
 {
   //region to do rechit digi matching
-  regionID_ = iConfig.getParameter<uint32_t> ("regionID_1EB_2EE");
+  region_ = stringToRegion(iConfig.getParameter<std::string> ("region"));
 
   // digis to match to hit collections
   digisIn_ = iConfig.getParameter<edm::InputTag> ("digisIn");
@@ -80,17 +82,19 @@ HLTRechitsToDigis::HLTRechitsToDigis(const edm::ParameterSet& iConfig)
   recHits_ = iConfig.getParameter<edm::InputTag> ("recHits");
 
   // region specific tokens
-  switch(regionID_) {
-  case 1: // ECAL EB = 1
+  switch(region_) {
+  case barrel:
     digisEBInToken_ = consumes<EBDigiCollection>(digisIn_);
     produces<EBDigiCollection>(digisOut_);  
     break;
-  case 2: // ECAL EE = 2   
+  case endcap:
     digisEEInToken_ = consumes<EEDigiCollection>(digisIn_);
     produces<EEDigiCollection>(digisOut_);  
+    break;    
+  case invalidRegion:  
     break;
   }
-  
+
   recHitsToken_ = consumes<EcalRecHitCollection>(recHits_);
 }
 
@@ -103,6 +107,13 @@ HLTRechitsToDigis::~HLTRechitsToDigis()
 //
 // member functions
 //
+HLTRechitsToDigis::ecalRegion
+HLTRechitsToDigis::stringToRegion(std::string region) {  
+  if (region == "barrel")     return barrel;
+  else if (region == "endcap")     return endcap;
+  else return invalidRegion;
+}
+
 
 // ------------ method called to produce the data  ------------
 void 
@@ -121,8 +132,8 @@ HLTRechitsToDigis::produce(edm::Event& iEvent, edm::EventSetup const& setup)  {
   iEvent.getByToken(recHitsToken_, recHitsHandle);   
   
   // match the digis based on the region
-  switch(regionID_) {
-  case 1: { // ECAL EB = 1
+  switch(region_) {
+  case barrel: { 
     iEvent.getByToken(digisEBInToken_, digisEBHandle);
     const EBDigiCollection* digisEB = digisEBHandle.product();   
     
@@ -134,10 +145,10 @@ HLTRechitsToDigis::produce(edm::Event& iEvent, edm::EventSetup const& setup)  {
     }
     
     iEvent.put( outputEBDigiCollection, digisOut_);     
-    break;   
+    break;      
   }
     
-  case 2: {  // ECAL EE = 2
+  case endcap: {
     iEvent.getByToken(digisEEInToken_, digisEEHandle);
     const EEDigiCollection* digisEE = digisEEHandle.product();   
     
@@ -149,6 +160,9 @@ HLTRechitsToDigis::produce(edm::Event& iEvent, edm::EventSetup const& setup)  {
     }
     
     iEvent.put(outputEEDigiCollection, digisOut_);     
+    break;
+  }
+  case invalidRegion: {
     break;
   }
   } 
@@ -193,10 +207,14 @@ HLTRechitsToDigis::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
 
-  desc.add<uint32_t>("regionID_1EB_2EE", 1);
-  desc.add<edm::InputTag>("digisIn",edm::InputTag("ecalDigis","ebDigis"));
-  desc.add<std::string>("digisOut","pi0EBDigis");
-  desc.add<edm::InputTag>("recHits",edm::InputTag("hltAlCaPi0EBUncalibrator","pi0EcalRecHitsEB"));  
+  desc.add<std::string>("region", "barrel")
+    ->setComment("Region of rechits to save Digis for. Allowed values: barrel or endcap.");
+  desc.add<edm::InputTag>("digisIn",edm::InputTag("ecalDigis","ebDigis"))
+    ->setComment("The collection of either barrel or endcap digis which correspond to the rechit collection");
+  desc.add<std::string>("digisOut","pi0EBDigis")
+    ->setComment("Name for the collection of Digis saved by the module");
+  desc.add<edm::InputTag>("recHits",edm::InputTag("hltAlCaPi0EBUncalibrator","pi0EcalRecHitsEB"))
+    ->setComment("Collection of rechits to match Digis to");  
   descriptions.add("hltFindMatchingECALDigisToRechits", desc);
 }
 
