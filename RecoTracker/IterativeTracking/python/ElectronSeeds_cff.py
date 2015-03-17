@@ -84,7 +84,7 @@ stripPairElectronSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
                             'TEC1_pos+TEC2_pos','TEC2_pos+TEC3_pos','TEC3_pos+TEC4_pos','TEC3_pos+TEC5_pos',
                             'TEC1_neg+TEC2_neg','TEC2_neg+TEC3_neg','TEC3_neg+TEC4_neg','TEC3_neg+TEC5_neg'),
     TIB = cms.PSet(
-    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(-2069.),
+    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     skipClusters = cms.InputTag('tripletElectronClusterMask')
     ),
@@ -92,7 +92,7 @@ stripPairElectronSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     skipClusters = cms.InputTag('tripletElectronClusterMask'),
     useRingSlector = cms.bool(True),
-    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(-2069.),
+    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
     minRing = cms.int32(1),
     maxRing = cms.int32(2)
     ),
@@ -100,7 +100,7 @@ stripPairElectronSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     skipClusters = cms.InputTag('tripletElectronClusterMask'),
     useRingSlector = cms.bool(True),
-    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(-2069.),
+    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
     minRing = cms.int32(1),
     maxRing = cms.int32(2)
     )
