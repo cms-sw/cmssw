@@ -80,6 +80,8 @@ RecoJetsRECO = cms.PSet(
 RecoGenJetsRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_ak4GenJets_*_*',
                                            'keep *_ak8GenJets_*_*',
+                                           'keep *_ak4GenJetsNoNu_*_*',
+                                           'keep *_ak8GenJetsNoNu_*_*',
                                            'keep *_genParticle_*_*')
     )
 #AOD content
@@ -113,6 +115,8 @@ RecoJetsAOD = cms.PSet(
 RecoGenJetsAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_ak4GenJets_*_*',
                                            'keep *_ak8GenJets_*_*',
+                                           'keep *_ak4GenJetsNoNu_*_*',
+                                           'keep *_ak8GenJetsNoNu_*_*',
                                            'keep *_genParticle_*_*'
                                            )
     )
