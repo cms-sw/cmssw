@@ -69,7 +69,7 @@ detachedTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEst
     ComponentName = cms.string('detachedTripletStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(9.0),
-    minGoodStripCharge = cms.double(2069),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
 )
 
 # TRACK BUILDING
