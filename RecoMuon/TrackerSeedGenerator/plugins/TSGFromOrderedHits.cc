@@ -21,8 +21,19 @@ TSGFromOrderedHits::TSGFromOrderedHits(const edm::ParameterSet &pset,edm::Consum
 
   edm::ParameterSet creatorPSet;
   creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
+  creatorPSet.addParameter<double>("SeedMomentumForBOFF",5.0);
+
+  std::cout << "[TSGFromOrderedHits::TSGFromOrderedHits] theConfig: " << theConfig << std::endl;
+
+  edm::ParameterSet seedCreatorPSet = theConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+  std::cout << "[TSGFromOrderedHits::TSGFromOrderedHits] seedCreatorPSet: " << seedCreatorPSet << std::endl;
+  std::string seedCreatorType = seedCreatorPSet.getParameter<std::string>("ComponentName");
+  std::cout << " ==> seedCreatorType: " << seedCreatorType << std::endl;
+
   theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, 0, 
-						 SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+						 //						 SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+						 //						 SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", seedCreatorPSet)
+						 SeedCreatorFactory::get()->create(seedCreatorType, seedCreatorPSet)
 						 );
 
 }

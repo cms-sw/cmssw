@@ -47,9 +47,13 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf,
   useZvertex_   = regionPSet.getParameter<bool>("useZInVertex");
   vertexSrc_    = tokens.token_vtx;
 
+  std::cout << "[SeedFilter::SeedFilter] conf: " << conf << std::endl;
+  
+
   // setup orderedhits setup (in order to tell seed generator to use pairs/triplets, which layers)
   edm::ParameterSet hitsfactoryPSet = conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
+  std::cout << "[SeedFilter::SeedFilter] hitsfactoryPSet: " << hitsfactoryPSet << std::endl;
 
   // HIT FACTORY MODE (JRV)
   // -1 = look for existing hit collections for both pixels and strips
@@ -72,8 +76,15 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf,
   edm::ParameterSet creatorPSet;
   creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
 
+  //  edm::ParameterSet seedCreatorPSet = hitsfactoryPSet.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+  edm::ParameterSet seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+  std::cout << "[SeedFilter::SeedFilter] seedCreatorPSet: " << seedCreatorPSet << std::endl;
+  std::string seedCreatorType = seedCreatorPSet.getParameter<std::string>("ComponentName");
+  std::cout << " ==> seedCreatorType: " << seedCreatorType << std::endl;
+
   combinatorialSeedGenerator = new SeedGeneratorFromRegionHits(hitsGenerator,0,
-                                    SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+							       //                                    SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+                                    SeedCreatorFactory::get()->create(seedCreatorType, seedCreatorPSet)
 				                  	       );
   beamSpotTag_ = tokens.token_bs; ;
   if(hitsfactoryMode_ != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
