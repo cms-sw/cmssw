@@ -4,8 +4,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
-#define BOOST_RESULT_OF_USE_DECLTYPE
-#define BOOST_SPIRIT_USE_PHOENIX_V3
 
 #include <boost/config/warning_disable.hpp>
 #include <boost/spirit/include/qi.hpp>
