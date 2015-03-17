@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 MonitorHcalIsoTrackAlCaReco = cms.EDAnalyzer("DQMHcalIsoTrackAlCaReco",
-                                             folderName=cms.string("AlCaReco/HcalIsoTrack"),
-                                             saveToFile=cms.bool(False),
-                                             outputRootFileName=cms.string("HcalIsoTrackAlCaRecoMon.root"),
+                                             FolderName=cms.string("AlCaReco/HcalIsoTrack"),
                                              TriggerLabel=cms.InputTag('hltTriggerSummaryAOD'),
                                              L1FilterLabel=cms.string('hltL1sJet68'),
                                              HltFilterLabels=cms.vstring('hltIsolPixelTrackL3FilterHB','hltIsolPixelTrackL3FilterHE','hltIsolPixelTrackL2FilterHB','hltIsolPixelTrackL2FilterHE','hltEcalIsolPixelTrackL2FilterHB','hltEcalIsolPixelTrackL2FilterHE'),
