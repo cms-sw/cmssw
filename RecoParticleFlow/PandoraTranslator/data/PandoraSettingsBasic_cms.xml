@@ -7,7 +7,48 @@
     <ShouldCollapseMCParticlesToPfoTarget>true</ShouldCollapseMCParticlesToPfoTarget>
 
     <!-- PLUGIN SETTINGS -->
-    <HadronicEnergyCorrectionPlugins>CleanClusters ScaleHotHadrons</HadronicEnergyCorrectionPlugins>
+    <HadronicEnergyCorrectionPlugins>CleanClusters CMSGlobalHadronCompensation ScaleHotHadrons</HadronicEnergyCorrectionPlugins>
+
+    <CMSGlobalHadronCompensation>
+      <MipEnergyThreshold>10.0</MipEnergyThreshold>
+      <IntegMIP_emEn_EE>0.423</IntegMIP_emEn_EE>
+      <!-- e_em_BH function:  [0]*x -->
+      <e_em_BH> 4.14730994206</e_em_BH>
+      <!-- e_em_EE function:  [0]*x  -->
+      <e_em_EE> 4.41625022557 </e_em_EE>
+      <!-- e_em_FH function:  [0]*x  -->
+      <e_em_FH> 5.6226096912 </e_em_FH>
+
+      <!-- BY MEDIAN -->
+      <!-- pioe_BH function:  ([0]*(((1-exp(-([1]*x)))/(1+exp(-([2]*x))))*exp(-([3]*x))))+[4]  -->
+      <!--      <pioe_BH> 0.715561124085  0.201541211354  0.00679202388913  0.00163121938632  0.54252374821 </pioe_BH> -->
+      <!-- pioe_FH function:  ([0]*(((1-exp(-([1]*x)))/(1+exp(-([2]*x))))*exp(-([3]*x))))+[4]  -->
+      <!--      <pioe_FH> 0.430841020284  0.252699052283  0.0380850086469  0.0  0.50349718687 </pioe_FH> -->
+      <!-- pioe_EE function:  ([0]*(((1-exp(-([1]*x)))/(1+exp(-([2]*x))))*exp(-([3]*x))))+[4]  -->
+      <!--      <pioe_EE> 0.615988413399  9.99248772533  2.22098017005  0.0  0.380425357427 </pioe_EE> -->
+      <!-- pioe_bananaParam_1 function:  [0]+([1]*(1-exp(-([2]*x))))  -->
+      <!--      <pioe_bananaParam_1> 0.165517562394  -0.489815099048  0.0388102416692 </pioe_bananaParam_1> -->
+      <!-- pioe_bananaParam_0 function:  [0]+([1]*(1-exp(-([2]*x))))  -->
+      <!--      <pioe_bananaParam_0> 0.977178682989  0.0252398439787  0.26978497941 </pioe_bananaParam_0> -->
+      <!-- pioe_bananaParam_2 function:  [0]+([1]*(1-exp(-([2]*x))))  -->
+      <!--      <pioe_bananaParam_2> -0.145929892662  0.447931176619  0.0490124900322 </pioe_bananaParam_2> -->
+
+      <!-- BY MODE -->
+      <!-- pioe_HEB function:  ([0]*(((1-exp(-([1]*x)))/(1+exp(-([2]*x))))*exp(-([3]*x))))+[4]  -->
+      <pioe_HEB> 0.842152103125  0.123113884222  0.00499766525242  0.00155314804086  0.500339972452 </pioe_HEB>
+      <!-- pioe_HEF function:  ([0]*(((1-exp(-([1]*x)))/(1+exp(-([2]*x))))*exp(-([3]*x))))+[4]  -->
+      <pioe_HEF> 0.415875311091  0.1651386381  0.0351926420879  0.0  0.51838818602 </pioe_HEF>
+      <!-- pioe_EE function:  ([0]*(((1-exp(-([1]*x)))/(1+exp(-([2]*x))))*exp(-([3]*x))))+[4]  -->
+      <pioe_EE> 0.58304638498  9.08251124371  2.21320527452  0.0  0.413017771562 </pioe_EE>
+      <!-- pioe_bananaParam_1 function:  [0]+([1]*(1-exp(-([2]*x))))  -->
+      <pioe_bananaParam_1> 0.192256003375  -0.515170751706  0.0384348463059 </pioe_bananaParam_1>
+      <!-- pioe_bananaParam_0 function:  [0]+([1]*(1-exp(-([2]*x))))  -->
+      <pioe_bananaParam_0> 0.975281059636  0.0266241561011  0.282004059773 </pioe_bananaParam_0>
+      <!-- pioe_bananaParam_2 function:  [0]+([1]*(1-exp(-([2]*x))))  -->
+      <pioe_bananaParam_2> -0.109883036753  0.409838061737  0.0465469104675 </pioe_bananaParam_2>
+
+    </CMSGlobalHadronCompensation>
+
     <EmShowerPlugin>
       LCEmShowerId
       <RmsCutEnergy>70.0</RmsCutEnergy>
