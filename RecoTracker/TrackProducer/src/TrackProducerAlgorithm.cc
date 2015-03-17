@@ -30,6 +30,9 @@
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 
+// #define VI_DEBUG
+
+
 namespace {
 #ifdef STAT_TSB
   struct StatCount {
