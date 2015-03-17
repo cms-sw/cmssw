@@ -1,6 +1,7 @@
 #ifndef Utils_h
 #define Utils_h
 
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -28,6 +29,17 @@ std::pair<typename Association::data_type::first_type, double> match (Reference 
     return std::pair<typename Association::data_type::first_type, double> (value, q);
 }
 
-unsigned short mapG4toCMSProcType(unsigned int i);
+//! Class that maps the native Geant4 process types to the legacy CMS process types
+class G4toCMSLegacyProcTypeMap {
+  public:
+    typedef std::map<unsigned int,unsigned int> MapType;
+
+    G4toCMSLegacyProcTypeMap();
+
+    const unsigned int processId(unsigned int g4ProcessId) const;
+
+  private:
+    MapType m_map;
+};
 
 #endif
