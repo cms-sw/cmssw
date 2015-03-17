@@ -1,6 +1,6 @@
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackerDetIdSelector.h"
 
-const TrackerDetIdSelector::StringFunctionMap TrackerDetIdSelector::_functions = {
+const TrackerDetIdSelector::StringFunctionMap TrackerDetIdSelector::functionTable = {
 
     {"subdetId",[](const TrackerTopology& trackerTopology, const DetId& detId) -> int {return detId.subdetId();}},
     {"BPX",[](const TrackerTopology& trackerTopology, const DetId& detId) -> int {return PixelSubdetector::PixelBarrel;}},
@@ -54,7 +54,7 @@ ExpressionAST operator!=(ExpressionAST const& lhs, ExpressionAST const& rhs)
 
 ExpressionAST operator&(ExpressionAST const& lhs, ExpressionAST const& rhs)
 {
-    ExpressionAST ast = BinaryOP(::BinaryOP::OP::AND, lhs, rhs);
+    ExpressionAST ast = BinaryOP(BinaryOP::OP::AND, lhs, rhs);
     return ast;
 }
 

@@ -26,6 +26,7 @@ struct Nil {};
 
 struct ExpressionAST
 {
+
     typedef
         boost::variant<
           Nil,
@@ -47,6 +48,8 @@ struct ExpressionAST
         expr(expr)
     {
     }
+
+    int evaluate(const DetId& detId, const TrackerTopology& trackerTopology) const;
 
     ExpressionAST& operator!();
 
@@ -77,6 +80,30 @@ struct BinaryOP
         right(right)
     {
     }
+
+    int evaluate(const DetId& detId, const TrackerTopology& trackerTopology) const
+    {
+        switch(op)
+        {
+            case OP::GREATER:
+                return left.evaluate(detId,trackerTopology) > right.evaluate(detId,trackerTopology);
+            case OP::GREATER_EQUAL:
+                return left.evaluate(detId,trackerTopology) >= right.evaluate(detId,trackerTopology);
+            case OP::EQUAL:
+                return left.evaluate(detId,trackerTopology) == right.evaluate(detId,trackerTopology);
+            case OP::LESS_EQUAL:
+                return left.evaluate(detId,trackerTopology) <= right.evaluate(detId,trackerTopology);
+            case OP::LESS:
+                return left.evaluate(detId,trackerTopology) < right.evaluate(detId,trackerTopology);
+            case OP::NOT_EQUAL:
+                return left.evaluate(detId,trackerTopology) != right.evaluate(detId,trackerTopology);
+            case OP::AND:
+                return left.evaluate(detId,trackerTopology) && right.evaluate(detId,trackerTopology);
+            case OP::OR:
+                return left.evaluate(detId,trackerTopology) || right.evaluate(detId,trackerTopology);
+        }
+        return 0;
+    }
 };
 
 struct UnaryOP
@@ -90,6 +117,16 @@ struct UnaryOP
          op(op),
          subject(subject)
      {
+     }
+
+     int evaluate(const DetId& detId, const TrackerTopology& trackerTopology) const
+     {
+        switch (op)
+        {
+            case OP::NEG:
+                return !subject.evaluate(detId,trackerTopology);
+        }
+        return 0;
      }
 
 };
@@ -161,18 +198,13 @@ class TrackerDetIdSelector
         const DetId& _detId;
         const TrackerTopology& _trackerTopology;
 
-        typedef std::function<int(const TrackerTopology& trackerTopology, const DetId&)> DetIdFunction;
-        //typedef int DetIdFunction;
-        typedef std::unordered_map<std::string, DetIdFunction> StringFunctionMap;
-        const static StringFunctionMap _functions;
-
-
-
-
-
 
 
     public:
+        typedef std::function<int(const TrackerTopology& trackerTopology, const DetId&)> DetIdFunction;
+        typedef std::unordered_map<std::string, DetIdFunction> StringFunctionMap;
+        const static StringFunctionMap functionTable;
+    
         TrackerDetIdSelector(const DetId& detId, const TrackerTopology& trackerTopology):
             _detId(detId),
             _trackerTopology(trackerTopology)
@@ -182,49 +214,12 @@ class TrackerDetIdSelector
             namespace phoenix = boost::phoenix;
         }
 
-        int getAttributeValue(std::string name) const
-        {
-            int value = 0;
-            StringFunctionMap::const_iterator it = _functions.find(name);
-            if (it != _functions.cend())
-            {
-                DetIdFunction fct = it->second;
-                value = fct(_trackerTopology,_detId);
-                //value =fct;
-                std::cout<<"attr = "<<name<<", value = "<<value <<std::endl;
-            }
-            else
-            {
-                std::cout<<"attr = "<<name<<" not found!"<<std::endl;
-            }
-
-            return value;
-        }
-
-
         bool passSelection(std::string selectionStr) const
         {
             namespace qi = boost::spirit::qi;
             namespace ascii = boost::spirit::ascii;
             namespace phoenix = boost::phoenix;
 
-            auto printAST = [] (const ExpressionAST& ast, qi::unused_type, qi::unused_type)
-            {
-                WalkAST walker;
-                walker(ast);
-                std::cout<<std::endl;
-            };
-            /*
-            auto printInt = [] (const int& t, qi::unused_type, qi::unused_type)
-            {
-                std::cout <<"int: "<<t << std::endl;
-            };
-
-            auto printStr = [] (const std::string& t, qi::unused_type, qi::unused_type)
-            {
-                std::cout <<"str: "<<t << std::endl;
-            };
-*/
             std::string::const_iterator begin = selectionStr.cbegin();
             std::string::const_iterator end = selectionStr.cend();
 
@@ -237,7 +232,6 @@ class TrackerDetIdSelector
                     (qi::true_[qi::_val=1] | qi::false_[qi::_val=0]) |
                     (qi::int_[qi::_val=qi::_1]) |
                     identifierFctRule[qi::_val=qi::_1];
-                    //identifierFct[qi::_val=phoenix::bind(&TrackerDetIdSelector::getAttributeValue,*this,qi::_1)];
 
             qi::rule<std::string::const_iterator, ExpressionAST(), ascii::space_type>
                 expressionRule =
@@ -254,9 +248,12 @@ class TrackerDetIdSelector
                         *(qi::lit("&") >> '(' >> comboRule[qi::_a=qi::_a & qi::_1] >> ')' |
                           qi::lit("|") >> '(' >> comboRule[qi::_a=qi::_a | qi::_1] >> ')'))[qi::_val=qi::_a] |
                     expressionRule[qi::_val=qi::_1];
+                    
+                    
+            ExpressionAST exprAST;
 
-            bool success = qi::phrase_parse(begin,end, comboRule[printAST], ascii::space);
-            if (begin!=end)
+            bool success = qi::phrase_parse(begin,end, comboRule, ascii::space, exprAST);
+            if (!success || begin!=end)
             {
                 std::cout<<"error while parsing:"<<std::endl;
                 for (auto it=selectionStr.cbegin(); it!=begin; ++it)
@@ -270,8 +267,10 @@ class TrackerDetIdSelector
                 }
                 std::cout<<std::endl;
             }
-
-            return success;
+            WalkAST walker;
+            walker(exprAST);
+            std::cout<<std::endl;
+            return exprAST.evaluate(_detId,_trackerTopology);
         }
 
 
@@ -532,6 +531,59 @@ class TrackerDetIdSelector
 };
 
 
+class Accessor:
+    public boost::static_visitor<int>
+{
+    private:
+        const DetId& _detId;
+        const TrackerTopology& _trackerTopology;
+    public:
+        Accessor(const DetId& detId, const TrackerTopology& trackerTopology):
+            _detId(detId),
+            _trackerTopology(trackerTopology)
+        {
+        }
 
+        int operator()(Nil i) const
+        {
+            throw "should not happen";
+        }
+        int operator()(const int& i) const
+        {
+            return i;
+        }
+        int operator()(const std::string& s) const
+        {
+            TrackerDetIdSelector::StringFunctionMap::const_iterator it = TrackerDetIdSelector::functionTable.find(s);
+            int value = 0;
+            if (it != TrackerDetIdSelector::functionTable.cend())
+            {
+                value = (it->second)(_trackerTopology,_detId);
+                std::cout<<"attr="<<s<<", value="<<value<<std::endl;
+            }
+            else
+            {
+                std::cout<<"attr="<<s<<" unknown"<<std::endl;
+            }
+            return value;
+        }
+        int operator()(const ExpressionAST& ast) const
+        {
+            return ast.evaluate(_detId,_trackerTopology);
+        }
+        int operator()(const BinaryOP& binaryOP) const
+        {
+            return binaryOP.evaluate(_detId,_trackerTopology);
+        }
+        int operator()(const UnaryOP& unaryOP) const
+        {
+            return unaryOP.evaluate(_detId,_trackerTopology);
+        }
+};
+
+int ExpressionAST::evaluate(const DetId& detId, const TrackerTopology& trackerTopology) const
+{
+    return boost::apply_visitor(Accessor(detId,trackerTopology),this->expr);
+}
 
 #endif
