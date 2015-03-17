@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_4_0/PIon/V6 (CMSSW_7_4_0_pre7_HLT1)
+# /dev/CMSSW_7_4_0/PIon/V16 (CMSSW_7_4_0_pre7_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V6')
+  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V16')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -214,7 +214,7 @@ HLTPSetTrajectoryBuilderForElectrons = cms.PSet(
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   propagatorOpposite = cms.string( "hltESPBwdElectronPropagator" ),
   MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
   alwaysUseInvalidHits = cms.bool( True ),
@@ -242,7 +242,7 @@ HLTPSetMuTrackJpsiEffTrajectoryBuilder = cms.PSet(
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
   MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
   alwaysUseInvalidHits = cms.bool( False ),
@@ -380,6 +380,9 @@ HLTPSetPvClusterComparerForIT = cms.PSet(
   track_chi2_max = cms.double( 20.0 ),
   track_prob_min = cms.double( -1.0 )
 )
+HLTSiStripClusterChargeCutNone = cms.PSet(  value = cms.double( -1.0 ) )
+HLTSiStripClusterChargeCutLoose = cms.PSet(  value = cms.double( 1724.0 ) )
+HLTSiStripClusterChargeCutTight = cms.PSet(  value = cms.double( 2069.0 ) )
 streams = cms.PSet(  A = cms.vstring( 'InitialPD',
   'Templates' ) )
 datasets = cms.PSet( 
@@ -627,17 +630,27 @@ ParabolicParametrizedMagneticFieldProducer = cms.ESProducer( "ParametrizedMagnet
   parameters = cms.PSet(  BValue = cms.string( "" ) ),
   label = cms.untracked.string( "ParabolicMf" )
 )
+hltESPChi2MeasurementEstimator9 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  MaxChi2 = cms.double( 9.0 ),
+  nSigma = cms.double( 3.0 ),
+  ComponentName = cms.string( "hltESPChi2MeasurementEstimator9" )
+)
+hltESPChi2MeasurementEstimator16 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  MaxChi2 = cms.double( 16.0 ),
+  nSigma = cms.double( 3.0 ),
+  ComponentName = cms.string( "hltESPChi2MeasurementEstimator16" )
+)
 hltESPChi2MeasurementEstimator30 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
   MaxChi2 = cms.double( 30.0 ),
   nSigma = cms.double( 3.0 ),
   ComponentName = cms.string( "hltESPChi2MeasurementEstimator30" )
 )
 hltESPChi2ChargeMeasurementEstimator30 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  minGoodStripCharge = cms.double( 1724.0 ),
+  MaxChi2 = cms.double( 30.0 ),
   ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   pTChargeCutThreshold = cms.double( -1.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxChi2 = cms.double( 30.0 )
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  nSigma = cms.double( 3.0 )
 )
 AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
@@ -660,21 +673,22 @@ CastorDbProducer = cms.ESProducer( "CastorDbProducer",
 )
 ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilterESProducer",
   ComponentName = cms.string( "ClusterShapeHitFilter" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
   PixelShapeFile = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par" )
 )
 hltESPChi2ChargeMeasurementEstimator9 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  minGoodStripCharge = cms.double( 1724.0 ),
+  MaxChi2 = cms.double( 9.0 ),
   ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator9" ),
   pTChargeCutThreshold = cms.double( 15.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxChi2 = cms.double( 9.0 )
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  nSigma = cms.double( 3.0 )
 )
 hltESPChi2ChargeMeasurementEstimator16 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  minGoodStripCharge = cms.double( 1724.0 ),
+  MaxChi2 = cms.double( 16.0 ),
   ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator16" ),
   pTChargeCutThreshold = cms.double( -1.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxChi2 = cms.double( 16.0 )
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  nSigma = cms.double( 3.0 )
 )
 MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   SimpleMagneticField = cms.string( "" ),
@@ -1440,73 +1454,6 @@ siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngleDepESProd
     label = cms.untracked.string( "peak" )
   )
 )
-trackerTopologyConstants = cms.ESProducer( "TrackerTopologyEP",
-  pxb_layerMask = cms.uint32( 15 ),
-  tib_str_int_extStartBit = cms.uint32( 10 ),
-  tib_layerMask = cms.uint32( 7 ),
-  tib_str_fw_bwStartBit = cms.uint32( 12 ),
-  pxf_bladeMask = cms.uint32( 63 ),
-  pxb_moduleStartBit = cms.uint32( 2 ),
-  pxb_ladderStartBit = cms.uint32( 8 ),
-  pxb_layerStartBit = cms.uint32( 16 ),
-  tec_wheelStartBit = cms.uint32( 14 ),
-  tib_str_fw_bwMask = cms.uint32( 3 ),
-  tec_ringStartBit = cms.uint32( 5 ),
-  tib_moduleStartBit = cms.uint32( 2 ),
-  tib_sterMask = cms.uint32( 3 ),
-  tid_sideStartBit = cms.uint32( 13 ),
-  tid_wheelStartBit = cms.uint32( 11 ),
-  tid_ringMask = cms.uint32( 3 ),
-  tid_sterMask = cms.uint32( 3 ),
-  tec_petal_fw_bwStartBit = cms.uint32( 12 ),
-  tec_ringMask = cms.uint32( 7 ),
-  tib_strMask = cms.uint32( 63 ),
-  tec_sterMask = cms.uint32( 3 ),
-  tec_sideStartBit = cms.uint32( 18 ),
-  pxb_moduleMask = cms.uint32( 63 ),
-  pxf_panelStartBit = cms.uint32( 8 ),
-  tid_sideMask = cms.uint32( 3 ),
-  tob_moduleMask = cms.uint32( 7 ),
-  tid_ringStartBit = cms.uint32( 9 ),
-  pxf_sideMask = cms.uint32( 3 ),
-  appendToDataLabel = cms.string( "" ),
-  pxf_diskStartBit = cms.uint32( 16 ),
-  tib_str_int_extMask = cms.uint32( 3 ),
-  tec_moduleMask = cms.uint32( 7 ),
-  tob_sterMask = cms.uint32( 3 ),
-  tob_rod_fw_bwMask = cms.uint32( 3 ),
-  tob_layerStartBit = cms.uint32( 14 ),
-  tec_petal_fw_bwMask = cms.uint32( 3 ),
-  tib_layerStartBit = cms.uint32( 14 ),
-  tec_sterStartBit = cms.uint32( 0 ),
-  tid_moduleMask = cms.uint32( 31 ),
-  tib_sterStartBit = cms.uint32( 0 ),
-  tid_sterStartBit = cms.uint32( 0 ),
-  pxf_moduleStartBit = cms.uint32( 2 ),
-  pxf_diskMask = cms.uint32( 15 ),
-  pxf_sideStartBit = cms.uint32( 23 ),
-  tid_module_fw_bwStartBit = cms.uint32( 7 ),
-  tob_layerMask = cms.uint32( 7 ),
-  tid_module_fw_bwMask = cms.uint32( 3 ),
-  tob_rod_fw_bwStartBit = cms.uint32( 12 ),
-  tec_petalMask = cms.uint32( 15 ),
-  pxb_ladderMask = cms.uint32( 255 ),
-  tec_moduleStartBit = cms.uint32( 2 ),
-  tec_sideMask = cms.uint32( 3 ),
-  tob_rodMask = cms.uint32( 127 ),
-  tib_strStartBit = cms.uint32( 4 ),
-  tec_wheelMask = cms.uint32( 15 ),
-  tob_rodStartBit = cms.uint32( 5 ),
-  pxf_panelMask = cms.uint32( 3 ),
-  tib_moduleMask = cms.uint32( 3 ),
-  pxf_bladeStartBit = cms.uint32( 10 ),
-  tid_wheelMask = cms.uint32( 3 ),
-  tob_sterStartBit = cms.uint32( 0 ),
-  tid_moduleStartBit = cms.uint32( 2 ),
-  tec_petalStartBit = cms.uint32( 8 ),
-  tob_moduleStartBit = cms.uint32( 2 ),
-  pxf_moduleMask = cms.uint32( 63 )
-)
 
 hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
     toGet = cms.VPSet( 
@@ -1643,25 +1590,6 @@ hltEcalUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
     algo = cms.string( "EcalUncalibRecHitWorkerMultiFit" ),
     algoPSet = cms.PSet( 
       outOfTimeThresholdGain61pEB = cms.double( 5.0 ),
-      eePulseShape = cms.vdouble( 5.2E-5, -5.26E-5, 6.66E-5, 0.1168, 0.7575, 1.0, 0.8876, 0.6732, 0.4741, 0.3194 ),
-      EcalPulseShapeParameters = cms.PSet( 
-        EcalPreMixStage2 = cms.bool( False ),
-        EECorrNoiseMatrixG01 = cms.vdouble( 1.0, 0.72698, 0.62048, 0.55691, 0.51848, 0.49147, 0.47813, 0.47007, 0.46621, 0.46265 ),
-        EcalPreMixStage1 = cms.bool( False ),
-        EECorrNoiseMatrixG06 = cms.vdouble( 1.0, 0.71217, 0.47464, 0.34056, 0.26282, 0.20287, 0.17734, 0.16256, 0.15618, 0.14443 ),
-        EBCorrNoiseMatrixG01 = cms.vdouble( 1.0, 0.73354, 0.64442, 0.58851, 0.55425, 0.53082, 0.51916, 0.51097, 0.50732, 0.50409 ),
-        EBCorrNoiseMatrixG06 = cms.vdouble( 1.0, 0.70946, 0.58021, 0.49846, 0.45006, 0.41366, 0.39699, 0.38478, 0.37847, 0.37055 ),
-        EBdigiCollection = cms.string( "" ),
-        EEPulseShapeCovariance = cms.vdouble( 3.941E-5, 3.333E-5, 0.0, -1.449E-5, -1.661E-5, -1.424E-5, -1.183E-5, -6.842E-6, -4.915E-6, -3.411E-6, 0.0, 0.0, 3.333E-5, 2.862E-5, 0.0, -1.244E-5, -1.431E-5, -1.233E-5, -1.032E-5, -5.883E-6, -4.154E-6, -2.902E-6, -2.128E-6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.449E-5, -1.244E-5, 0.0, 5.84E-6, 6.649E-6, 5.72E-6, 4.812E-6, 2.708E-6, 1.869E-6, 1.33E-6, 9.186E-7, 6.446E-7, -1.661E-5, -1.431E-5, 0.0, 6.649E-6, 7.966E-6, 6.898E-6, 5.794E-6, 3.157E-6, 2.184E-6, 1.567E-6, 1.084E-6, 7.575E-7, -1.424E-5, -1.233E-5, 0.0, 5.72E-6, 6.898E-6, 6.341E-6, 5.347E-6, 2.859E-6, 1.991E-6, 1.431E-6, 9.839E-7, 6.886E-7, -1.183E-5, -1.032E-5, 0.0, 4.812E-6, 5.794E-6, 5.347E-6, 4.854E-6, 2.628E-6, 1.809E-6, 1.289E-6, 9.02E-7, 6.146E-7, -6.842E-6, -5.883E-6, 0.0, 2.708E-6, 3.157E-6, 2.859E-6, 2.628E-6, 1.863E-6, 1.296E-6, 8.882E-7, 6.108E-7, 4.283E-7, -4.915E-6, -4.154E-6, 0.0, 1.869E-6, 2.184E-6, 1.991E-6, 1.809E-6, 1.296E-6, 1.217E-6, 8.669E-7, 5.751E-7, 3.882E-7, -3.411E-6, -2.902E-6, 0.0, 1.33E-6, 1.567E-6, 1.431E-6, 1.289E-6, 8.882E-7, 8.669E-7, 9.522E-7, 6.717E-7, 4.293E-7, 0.0, -2.128E-6, 0.0, 9.186E-7, 1.084E-6, 9.839E-7, 9.02E-7, 6.108E-7, 5.751E-7, 6.717E-7, 7.911E-7, 5.493E-7, 0.0, 0.0, 0.0, 6.446E-7, 7.575E-7, 6.886E-7, 6.146E-7, 4.283E-7, 3.882E-7, 4.293E-7, 5.493E-7, 7.027E-7 ),
-        EECorrNoiseMatrixG12 = cms.vdouble( 1.0, 0.71373, 0.44825, 0.30152, 0.21609, 0.14786, 0.11772, 0.10165, 0.09465, 0.08098 ),
-        ESdigiCollection = cms.string( "" ),
-        EEPulseShapeTemplate = cms.vdouble( 0.116442, 0.756246, 1.0, 0.897182, 0.686831, 0.491506, 0.344111, 0.245731, 0.174115, 0.123361, 0.0874288, 0.061957 ),
-        EBCorrNoiseMatrixG12 = cms.vdouble( 1.0, 0.71073, 0.55721, 0.46089, 0.40449, 0.35931, 0.33924, 0.32439, 0.31581, 0.30481 ),
-        EEdigiCollection = cms.string( "" ),
-        EBPulseShapeTemplate = cms.vdouble( 0.0113979, 0.758151, 1.0, 0.887744, 0.673548, 0.474332, 0.319561, 0.215144, 0.147464, 0.101087, 0.0693181, 0.0475044 ),
-        EBPulseShapeCovariance = cms.vdouble( 3.001E-6, 1.233E-5, 0.0, -4.416E-6, -4.571E-6, -3.614E-6, -2.636E-6, -1.286E-6, -8.41E-7, -5.296E-7, 0.0, 0.0, 1.233E-5, 6.154E-5, 0.0, -2.2E-5, -2.309E-5, -1.838E-5, -1.373E-5, -7.334E-6, -5.088E-6, -3.745E-6, -2.428E-6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -4.416E-6, -2.2E-5, 0.0, 8.319E-6, 8.545E-6, 6.792E-6, 5.059E-6, 2.678E-6, 1.816E-6, 1.223E-6, 8.245E-7, 5.589E-7, -4.571E-6, -2.309E-5, 0.0, 8.545E-6, 9.182E-6, 7.219E-6, 5.388E-6, 2.853E-6, 1.944E-6, 1.324E-6, 9.083E-7, 6.335E-7, -3.614E-6, -1.838E-5, 0.0, 6.792E-6, 7.219E-6, 6.016E-6, 4.437E-6, 2.385E-6, 1.636E-6, 1.118E-6, 7.754E-7, 5.556E-7, -2.636E-6, -1.373E-5, 0.0, 5.059E-6, 5.388E-6, 4.437E-6, 3.602E-6, 1.917E-6, 1.322E-6, 9.079E-7, 6.529E-7, 4.752E-7, -1.286E-6, -7.334E-6, 0.0, 2.678E-6, 2.853E-6, 2.385E-6, 1.917E-6, 1.375E-6, 9.1E-7, 6.455E-7, 4.693E-7, 3.657E-7, -8.41E-7, -5.088E-6, 0.0, 1.816E-6, 1.944E-6, 1.636E-6, 1.322E-6, 9.1E-7, 9.115E-7, 6.062E-7, 4.436E-7, 3.422E-7, -5.296E-7, -3.745E-6, 0.0, 1.223E-6, 1.324E-6, 1.118E-6, 9.079E-7, 6.455E-7, 6.062E-7, 7.217E-7, 4.862E-7, 3.768E-7, 0.0, -2.428E-6, 0.0, 8.245E-7, 9.083E-7, 7.754E-7, 6.529E-7, 4.693E-7, 4.436E-7, 4.862E-7, 6.509E-7, 4.418E-7, 0.0, 0.0, 0.0, 5.589E-7, 6.335E-7, 5.556E-7, 4.752E-7, 3.657E-7, 3.422E-7, 3.768E-7, 4.418E-7, 6.142E-7 ),
-        UseLCcorrection = cms.untracked.bool( True )
-      ),
       EBtimeFitParameters = cms.vdouble( -2.015452, 3.130702, -12.3473, 41.88921, -82.83944, 91.01147, -50.35761, 11.05621 ),
       activeBXs = cms.vint32( -5, -4, -3, -2, -1, 0, 1, 2, 3, 4 ),
       amplitudeThresholdEE = cms.double( 10.0 ),
@@ -1672,7 +1600,6 @@ hltEcalUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
       EBtimeNconst = cms.double( 28.5 ),
       ampErrorCalculation = cms.bool( False ),
       kPoorRecoFlagEB = cms.bool( True ),
-      ebPulseShape = cms.vdouble( 5.2E-5, -5.26E-5, 6.66E-5, 0.1168, 0.7575, 1.0, 0.8876, 0.6732, 0.4741, 0.3194 ),
       EBtimeFitLimits_Lower = cms.double( 0.2 ),
       kPoorRecoFlagEE = cms.bool( False ),
       chi2ThreshEB_ = cms.double( 65.0 ),
@@ -1686,7 +1613,7 @@ hltEcalUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
       prefitMaxChiSqEE = cms.double( 10.0 ),
       EBamplitudeFitParameters = cms.vdouble( 1.138, 1.652 ),
       EBtimeFitLimits_Upper = cms.double( 1.4 ),
-      timealgo = cms.string( "RatioMethod" ),
+      timealgo = cms.string( "None" ),
       amplitudeThresholdEB = cms.double( 10.0 ),
       outOfTimeThresholdGain12pEE = cms.double( 1000.0 ),
       outOfTimeThresholdGain12pEB = cms.double( 5.0 ),
@@ -2893,7 +2820,8 @@ hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripClusterizerFromRaw",
       SeedThreshold = cms.double( 3.0 ),
       ClusterThreshold = cms.double( 5.0 ),
       setDetId = cms.bool( True ),
-      RemoveApvShots = cms.bool( True )
+      RemoveApvShots = cms.bool( True ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     onDemand = cms.bool( True )
 )
@@ -2933,7 +2861,8 @@ hltMixedLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
       useRingSlector = cms.bool( True ),
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
       minRing = cms.int32( 1 ),
-      maxRing = cms.int32( 1 )
+      maxRing = cms.int32( 1 ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     MTID = cms.PSet(  ),
     FPix = cms.PSet( 
@@ -8009,21 +7938,18 @@ HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_CaloJet260_v1, HLT_Ele27_eta2p1_WP75_Gsf_v1, HLT_Mu50_v1, HLT_PFJet260_v1, HLT_Photon20_CaloIdVL_IsoL_v1, HLT_Physics_v1, HLTriggerFinalPath, HLTAnalyzerEndpath ))
 
 
-
+#
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
+# Explicit deletions (via confdb.py):
+# None for now
+# Other release-dependent customisation:
 
-# from CMSSW_7_5_0_pre0: Simplified TrackerTopologyEP config (PR #7589/#7802)
-if cmsswVersion >= "CMSSW_7_5":
-    if 'trackerTopologyConstants' in locals():
-        trackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
-
-# from CMSSW_7_5_0_pre0: Removal of upgradeGeometry from TrackerDigiGeometryESModule (PR #7794)
-if cmsswVersion >= "CMSSW_7_5":
-    if 'TrackerDigiGeometryESModule' in locals():
-        del TrackerDigiGeometryESModule.trackerGeometryConstants.upgradeGeometry
-
+import imp
+customFile = imp.find_module('HLTrigger/Configuration/customizeHLTforCMSSW')[1]
+execfile(customFile)
+#
 
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in locals() and 'HLTriggerFirstPath' in locals() :

@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_4_0/HIon/V6 (CMSSW_7_4_0_pre7_HLT1)
+# /dev/CMSSW_7_4_0/HIon/V16 (CMSSW_7_4_0_pre7_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V6')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V16')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -214,7 +214,7 @@ HLTPSetTrajectoryBuilderForElectrons = cms.PSet(
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   propagatorOpposite = cms.string( "hltESPBwdElectronPropagator" ),
   MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
   alwaysUseInvalidHits = cms.bool( True ),
@@ -242,7 +242,7 @@ HLTPSetMuTrackJpsiEffTrajectoryBuilder = cms.PSet(
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
   MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
   alwaysUseInvalidHits = cms.bool( False ),
@@ -380,6 +380,9 @@ HLTPSetPvClusterComparerForIT = cms.PSet(
   track_chi2_max = cms.double( 20.0 ),
   track_prob_min = cms.double( -1.0 )
 )
+HLTSiStripClusterChargeCutNone = cms.PSet(  value = cms.double( -1.0 ) )
+HLTSiStripClusterChargeCutLoose = cms.PSet(  value = cms.double( 1724.0 ) )
+HLTSiStripClusterChargeCutTight = cms.PSet(  value = cms.double( 2069.0 ) )
 streams = cms.PSet(  A = cms.vstring( 'InitialPD',
   'InitialPDForHI' ) )
 datasets = cms.PSet( 
@@ -635,17 +638,27 @@ ParabolicParametrizedMagneticFieldProducer = cms.ESProducer( "ParametrizedMagnet
   parameters = cms.PSet(  BValue = cms.string( "" ) ),
   label = cms.untracked.string( "ParabolicMf" )
 )
+hltESPChi2MeasurementEstimator9 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  MaxChi2 = cms.double( 9.0 ),
+  nSigma = cms.double( 3.0 ),
+  ComponentName = cms.string( "hltESPChi2MeasurementEstimator9" )
+)
+hltESPChi2MeasurementEstimator16 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  MaxChi2 = cms.double( 16.0 ),
+  nSigma = cms.double( 3.0 ),
+  ComponentName = cms.string( "hltESPChi2MeasurementEstimator16" )
+)
 hltESPChi2MeasurementEstimator30 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
   MaxChi2 = cms.double( 30.0 ),
   nSigma = cms.double( 3.0 ),
   ComponentName = cms.string( "hltESPChi2MeasurementEstimator30" )
 )
 hltESPChi2ChargeMeasurementEstimator30 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  minGoodStripCharge = cms.double( 1724.0 ),
+  MaxChi2 = cms.double( 30.0 ),
   ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   pTChargeCutThreshold = cms.double( -1.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxChi2 = cms.double( 30.0 )
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  nSigma = cms.double( 3.0 )
 )
 AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
@@ -668,21 +681,22 @@ CastorDbProducer = cms.ESProducer( "CastorDbProducer",
 )
 ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilterESProducer",
   ComponentName = cms.string( "ClusterShapeHitFilter" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
   PixelShapeFile = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par" )
 )
 hltESPChi2ChargeMeasurementEstimator9 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  minGoodStripCharge = cms.double( 1724.0 ),
+  MaxChi2 = cms.double( 9.0 ),
   ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator9" ),
   pTChargeCutThreshold = cms.double( 15.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxChi2 = cms.double( 9.0 )
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  nSigma = cms.double( 3.0 )
 )
 hltESPChi2ChargeMeasurementEstimator16 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  minGoodStripCharge = cms.double( 1724.0 ),
+  MaxChi2 = cms.double( 16.0 ),
   ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator16" ),
   pTChargeCutThreshold = cms.double( -1.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxChi2 = cms.double( 16.0 )
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  nSigma = cms.double( 3.0 )
 )
 MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   SimpleMagneticField = cms.string( "" ),
@@ -1447,73 +1461,6 @@ siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngleDepESProd
     record = cms.string( "SiStripLorentzAngleRcd" ),
     label = cms.untracked.string( "peak" )
   )
-)
-trackerTopologyConstants = cms.ESProducer( "TrackerTopologyEP",
-  pxb_layerMask = cms.uint32( 15 ),
-  tib_str_int_extStartBit = cms.uint32( 10 ),
-  tib_layerMask = cms.uint32( 7 ),
-  tib_str_fw_bwStartBit = cms.uint32( 12 ),
-  pxf_bladeMask = cms.uint32( 63 ),
-  pxb_moduleStartBit = cms.uint32( 2 ),
-  pxb_ladderStartBit = cms.uint32( 8 ),
-  pxb_layerStartBit = cms.uint32( 16 ),
-  tec_wheelStartBit = cms.uint32( 14 ),
-  tib_str_fw_bwMask = cms.uint32( 3 ),
-  tec_ringStartBit = cms.uint32( 5 ),
-  tib_moduleStartBit = cms.uint32( 2 ),
-  tib_sterMask = cms.uint32( 3 ),
-  tid_sideStartBit = cms.uint32( 13 ),
-  tid_wheelStartBit = cms.uint32( 11 ),
-  tid_ringMask = cms.uint32( 3 ),
-  tid_sterMask = cms.uint32( 3 ),
-  tec_petal_fw_bwStartBit = cms.uint32( 12 ),
-  tec_ringMask = cms.uint32( 7 ),
-  tib_strMask = cms.uint32( 63 ),
-  tec_sterMask = cms.uint32( 3 ),
-  tec_sideStartBit = cms.uint32( 18 ),
-  pxb_moduleMask = cms.uint32( 63 ),
-  pxf_panelStartBit = cms.uint32( 8 ),
-  tid_sideMask = cms.uint32( 3 ),
-  tob_moduleMask = cms.uint32( 7 ),
-  tid_ringStartBit = cms.uint32( 9 ),
-  pxf_sideMask = cms.uint32( 3 ),
-  appendToDataLabel = cms.string( "" ),
-  pxf_diskStartBit = cms.uint32( 16 ),
-  tib_str_int_extMask = cms.uint32( 3 ),
-  tec_moduleMask = cms.uint32( 7 ),
-  tob_sterMask = cms.uint32( 3 ),
-  tob_rod_fw_bwMask = cms.uint32( 3 ),
-  tob_layerStartBit = cms.uint32( 14 ),
-  tec_petal_fw_bwMask = cms.uint32( 3 ),
-  tib_layerStartBit = cms.uint32( 14 ),
-  tec_sterStartBit = cms.uint32( 0 ),
-  tid_moduleMask = cms.uint32( 31 ),
-  tib_sterStartBit = cms.uint32( 0 ),
-  tid_sterStartBit = cms.uint32( 0 ),
-  pxf_moduleStartBit = cms.uint32( 2 ),
-  pxf_diskMask = cms.uint32( 15 ),
-  pxf_sideStartBit = cms.uint32( 23 ),
-  tid_module_fw_bwStartBit = cms.uint32( 7 ),
-  tob_layerMask = cms.uint32( 7 ),
-  tid_module_fw_bwMask = cms.uint32( 3 ),
-  tob_rod_fw_bwStartBit = cms.uint32( 12 ),
-  tec_petalMask = cms.uint32( 15 ),
-  pxb_ladderMask = cms.uint32( 255 ),
-  tec_moduleStartBit = cms.uint32( 2 ),
-  tec_sideMask = cms.uint32( 3 ),
-  tob_rodMask = cms.uint32( 127 ),
-  tib_strStartBit = cms.uint32( 4 ),
-  tec_wheelMask = cms.uint32( 15 ),
-  tob_rodStartBit = cms.uint32( 5 ),
-  pxf_panelMask = cms.uint32( 3 ),
-  tib_moduleMask = cms.uint32( 3 ),
-  pxf_bladeStartBit = cms.uint32( 10 ),
-  tid_wheelMask = cms.uint32( 3 ),
-  tob_sterStartBit = cms.uint32( 0 ),
-  tid_moduleStartBit = cms.uint32( 2 ),
-  tec_petalStartBit = cms.uint32( 8 ),
-  tob_moduleStartBit = cms.uint32( 2 ),
-  pxf_moduleMask = cms.uint32( 63 )
 )
 
 hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
@@ -2392,7 +2339,8 @@ hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripClusterizerFromRaw",
       SeedThreshold = cms.double( 3.0 ),
       ClusterThreshold = cms.double( 5.0 ),
       setDetId = cms.bool( True ),
-      RemoveApvShots = cms.bool( True )
+      RemoveApvShots = cms.bool( True ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     onDemand = cms.bool( True )
 )
@@ -3410,21 +3358,18 @@ HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Physics_v1, HLT_HIL1DoubleMu0_HighQ_v1, HLT_HIL2Mu3_v1, HLT_HIL2Mu7_v1, HLT_HIL2Mu15_v1, HLT_HIL2Mu3_NHitQ_v1, HLT_HIL2DoubleMu0_v1, HLT_HIL2DoubleMu0_NHitQ_v1, HLT_HIL2DoubleMu3_v1, HLT_HIL3Mu3_v1, HLT_HIL3DoubleMuOpen_v1, HLT_HIL3DoubleMuOpen_SS_v1, HLT_HIL3DoubleMuOpen_OS_v1, HLT_HIL3DoubleMuOpen_OS_NoCowboy_v1, HLTriggerFinalPath, HLTAnalyzerEndpath ))
 
 
-
+#
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
+# Explicit deletions (via confdb.py):
+# None for now
+# Other release-dependent customisation:
 
-# from CMSSW_7_5_0_pre0: Simplified TrackerTopologyEP config (PR #7589/#7802)
-if cmsswVersion >= "CMSSW_7_5":
-    if 'trackerTopologyConstants' in locals():
-        trackerTopologyConstants = cms.ESProducer("TrackerTopologyEP", appendToDataLabel = cms.string( "" ) )
-
-# from CMSSW_7_5_0_pre0: Removal of upgradeGeometry from TrackerDigiGeometryESModule (PR #7794)
-if cmsswVersion >= "CMSSW_7_5":
-    if 'TrackerDigiGeometryESModule' in locals():
-        del TrackerDigiGeometryESModule.trackerGeometryConstants.upgradeGeometry
-
+import imp
+customFile = imp.find_module('HLTrigger/Configuration/customizeHLTforCMSSW')[1]
+execfile(customFile)
+#
 
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in locals() and 'HLTriggerFirstPath' in locals() :
