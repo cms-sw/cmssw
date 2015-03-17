@@ -140,3 +140,19 @@ double MET::caloMETPhi() const {
 double MET::caloMETSumEt() const {
   return caloPackedMet_.dsumEt();
 }
+
+#include "DataFormats/PatCandidates/interface/libminifloat.h"
+
+void MET::PackedMETUncertainty::pack() {
+  packedDpx_  =  MiniFloatConverter::float32to16(dpx_);
+  packedDpy_  =  MiniFloatConverter::float32to16(dpy_);
+  packedDSumEt_  =  MiniFloatConverter::float32to16(dsumEt_);
+}
+void  MET::PackedMETUncertainty::unpack() const {
+  unpacked_=true;
+  dpx_=MiniFloatConverter::float16to32(packedDpx_);
+  dpy_=MiniFloatConverter::float16to32(packedDpy_);
+  dsumEt_=MiniFloatConverter::float16to32(packedDSumEt_);
+
+}
+

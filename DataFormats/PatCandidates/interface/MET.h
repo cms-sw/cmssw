@@ -4,6 +4,7 @@
 #ifndef DataFormats_PatCandidates_MET_h
 #define DataFormats_PatCandidates_MET_h
 
+
 /**
   \class    pat::MET MET.h "DataFormats/PatCandidates/interface/MET.h"
   \brief    Analysis-level MET class
@@ -176,14 +177,19 @@ namespace pat {
         // defined as C++ class so that I can change the packing without having to touch the code elsewhere
         // the compiler should anyway inline everything whenever possible
         public:
-            PackedMETUncertainty() : dpx_(0), dpy_(0), dsumEt_(0) {}
-            PackedMETUncertainty(float dpx, float dpy, float dsumEt) : dpx_(dpx), dpy_(dpy), dsumEt_(dsumEt) {}
-            double dpx() const { return dpx_; }
-            double dpy() const { return dpy_; }
-            double dsumEt() const { return dsumEt_; }
-            void set(float dpx, float dpy, float dsumEt) { dpx_ = dpx; dpy_ = dpy; dsumEt_ = dsumEt; }
+            PackedMETUncertainty() : dpx_(0), dpy_(0), dsumEt_(0) {pack(); unpack();}
+            PackedMETUncertainty(float dpx, float dpy, float dsumEt) : dpx_(dpx), dpy_(dpy), dsumEt_(dsumEt) {pack();unpack();}
+            double dpx() const { if(!unpacked_) unpack(); return dpx_; }
+            double dpy() const { if(!unpacked_) unpack(); return dpy_; }
+            double dsumEt() const { if(!unpacked_) unpack(); return dsumEt_; }
+            void set(float dpx, float dpy, float dsumEt) { dpx_ = dpx; dpy_ = dpy; dsumEt_ = dsumEt; pack(); unpack();}
+            void  unpack() const ;
+            void  pack();
+
         protected:
-            float dpx_, dpy_, dsumEt_;
+            mutable float dpx_, dpy_, dsumEt_;
+            mutable bool unpacked_;
+            uint16_t packedDpx_,packedDpy_,packedDSumEt_;
       };
     private:
 
