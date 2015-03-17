@@ -66,7 +66,9 @@ void SiPixelSCurveCalibrationAnalysis::makeThresholdSummary(void){
 	  //        const sipixelobjects::PixelFEDLink * link = theFed->link(cabling.link);
 	  //        const sipixelobjects::PixelROC *theRoc = link->roc(cabling.roc);
 	  sipixelobjects::LocalPixel locpixel(loc);
-	  sipixelobjects::CablingPathToDetUnit path = {realfedID, cabling.link, cabling.roc};  
+	  sipixelobjects::CablingPathToDetUnit path = {static_cast<unsigned int>(realfedID),
+                                                       static_cast<unsigned int>(cabling.link),
+                                                       static_cast<unsigned int>(cabling.roc)};
 	  const sipixelobjects::PixelROC *theRoc = theCablingMap_->findItem(path);
 	  // END of FIX
 	  int newrow= locpixel.rocRow();

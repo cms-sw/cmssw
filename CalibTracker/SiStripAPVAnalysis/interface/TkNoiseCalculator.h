@@ -9,6 +9,7 @@
  */
 class TkNoiseCalculator {
  public:
+  virtual ~TkNoiseCalculator() {}
   /** Return status flag indicating if noise values are usable */
   TkStateMachine* status() {return &theStatus;}
   

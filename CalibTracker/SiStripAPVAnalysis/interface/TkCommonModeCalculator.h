@@ -9,6 +9,7 @@
 class TkCommonModeCalculator{
   
  public:  
+  virtual ~TkCommonModeCalculator() {}
   /** Return CM-subtracted data in APV */
   virtual ApvAnalysis::PedestalType doIt(ApvAnalysis::PedestalType) = 0 ;  
   virtual void setCM(TkCommonMode*) = 0;
