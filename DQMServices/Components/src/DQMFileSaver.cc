@@ -279,15 +279,10 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, c
 
   // Stat the data file: if not there, throw
   struct stat dataFileStat;
-  if (nProcessed!=0)
-    if (stat(dataFilePathName.c_str(), &dataFileStat) != 0)
-      throw cms::Exception("fillJson")
-            << "Internal error, cannot get data file: "
-            << dataFilePathName;
-  else {
-    dataFilePathName = "";
-    dataFileStat.st_size=0;
-  }
+  if (stat(dataFilePathName.c_str(), &dataFileStat) != 0)
+    throw cms::Exception("fillJson")
+          << "Internal error, cannot get data file: "
+          << dataFilePathName;
   // Extract only the data file name from the full path
   std::string dataFileName = bfs::path(dataFilePathName).filename().string();
   // The availability test of the FastMonitoringService was done in the ctor.
@@ -368,44 +363,40 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
       histoFilePathName = edm::Service<evf::EvFDaqDirector>()->getProtocolBufferHistogramFilePath(lumi, stream_label_);
     }
   }
-  if (fms_ ? (fms_->getEventsProcessedForLumi(ilumi) > 0) : !fms_)
-  {
-    if (fileFormat == ROOT)
-    {
-      // Save the file with the full directory tree,
-      // modifying it according to @a rewrite,
-      // but not looking for MEs inside the DQMStore, as in the online case,
-      // nor filling new MEs, as in the offline case.
-      dbe_->save(openHistoFilePathName,
-               "",
-               "^(Reference/)?([^/]+)",
-               rewrite,
-	             enableMultiThread_ ? run : 0,
-               lumi,
-               (DQMStore::SaveReferenceTag) saveReference_,
-               saveReferenceQMin_,
-               fileUpdate_ ? "UPDATE" : "RECREATE",
-               true);
-    }
-    else if (fileFormat == PB)
-    {
-      // Save the file in the open directory.
-      dbe_->savePB(openHistoFilePathName,
-                 filterName_,
-    	           enableMultiThread_ ? run : 0,
-                 lumi,
-                 true);
-    }
-    else
-      throw cms::Exception("DQMFileSaver")
-          << "Internal error, can save files"
-          << " only in ROOT or ProtocolBuffer format.";
 
-    // Now move the the data and json files into the output directory.
-    rename(openHistoFilePathName.c_str(), histoFilePathName.c_str());
+  if (fileFormat == ROOT)
+  {
+    // Save the file with the full directory tree,
+    // modifying it according to @a rewrite,
+    // but not looking for MEs inside the DQMStore, as in the online case,
+    // nor filling new MEs, as in the offline case.
+    dbe_->save(openHistoFilePathName,
+             "",
+             "^(Reference/)?([^/]+)",
+             rewrite,
+             enableMultiThread_ ? run : 0,
+             lumi,
+             (DQMStore::SaveReferenceTag) saveReference_,
+             saveReferenceQMin_,
+             fileUpdate_ ? "UPDATE" : "RECREATE",
+             true);
   }
-  //no file output for empty lumisections
-  else histoFilePathName = "";
+  else if (fileFormat == PB)
+  {
+    // Save the file in the open directory.
+    dbe_->savePB(openHistoFilePathName,
+        filterName_,
+        enableMultiThread_ ? run : 0,
+        lumi,
+        true);
+  }
+  else
+    throw cms::Exception("DQMFileSaver")
+      << "Internal error, can save files"
+      << " only in ROOT or ProtocolBuffer format.";
+
+  // Now move the the data and json files into the output directory.
+  rename(openHistoFilePathName.c_str(), histoFilePathName.c_str());
 
   // Write the json file in the open directory.
   bpt::ptree pt = fillJson(run, lumi, histoFilePathName, transferDestination_, fms_);
