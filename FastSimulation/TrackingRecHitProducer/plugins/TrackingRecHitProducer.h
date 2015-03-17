@@ -14,8 +14,10 @@
 
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitAlgorithm.h"
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitAlgorithmFactory.h"
+#include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitPipe.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
@@ -42,9 +44,16 @@ class TrackingRecHitProducer:
         std::vector<TrackingRecHitAlgorithm*> _recHitAlgorithms;
 
         std::string _selection;
+        
+        const TrackerGeometry* _trackerGeometry;
+        const TrackerTopology* _trackerTopology;
+        
+        std::map<unsigned int, TrackingRecHitPipe> _detIdPipes; 
 
     public:
         TrackingRecHitProducer(const edm::ParameterSet& config);
+        
+        virtual void beginJob(const edm::EventSetup& eventSetup);
 
         virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup);
 

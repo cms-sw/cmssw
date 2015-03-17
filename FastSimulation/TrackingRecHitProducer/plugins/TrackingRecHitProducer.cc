@@ -2,9 +2,12 @@
 
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackerDetIdSelector.h"
 
+
 #include <map>
 
-TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config)
+TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config):
+    _trackerGeometry(nullptr),
+    _trackerTopology(nullptr)
 {
     edm::ConsumesCollector consumeCollector = consumesCollector();
     const edm::ParameterSet& pluginConfigs = config.getParameter<edm::ParameterSet>("plugins");
@@ -31,20 +34,26 @@ TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config)
     _selection = config.getParameter<std::string>("select");
 }
 
-void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
+void TrackingRecHitProducer::beginJob(const edm::EventSetup& eventSetup)
 {
-    edm::Handle<std::vector<PSimHit>> simHits;
-    event.getByToken(_simHitToken,simHits);
-    std::map<unsigned int,std::vector<const PSimHit*>> hitsPerDetId;
-
     edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
     edm::ESHandle<TrackerTopology> trackerTopologyHandle;
     eventSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
     eventSetup.get<IdealGeometryRecord>().get(trackerTopologyHandle);
+    _trackerGeometry = trackerGeometryHandle.product();
+    _trackerTopology = trackerTopologyHandle.product();
+    
+    //_detIdPipes
+}
 
-    const TrackerGeometry& trackerGeometry = *trackerGeometryHandle;
-    const TrackerTopology& trackerTopology = *trackerTopologyHandle;
-
+void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
+{
+    /*
+    edm::Handle<std::vector<PSimHit>> simHits;
+    event.getByToken(_simHitToken,simHits);
+    std::map<unsigned int,std::vector<const PSimHit*>> hitsPerDetId;
+    */
+    /*
     for (unsigned int ihit = 0; ihit < simHits->size(); ++ihit)
     {
         const PSimHit* simHit = &(*simHits)[ihit];
@@ -74,6 +83,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
             _recHitAlgorithms[ialgo]->processDetId(detId, trackerTopology, trackerGeometry, it->second);
         }
     }
+    */
 }
 
 TrackingRecHitProducer::~TrackingRecHitProducer()

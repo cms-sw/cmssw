@@ -1,7 +1,10 @@
 #ifndef FastSimulation_TrackingRecHitProducer_TrackingRecHitAlgorithm_H
 #define FastSimulation_TrackingRecHitProducer_TrackingRecHitAlgorithm_H
 
+#include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitProduct.h"
+
 #include <vector>
+#include <memory>
 
 namespace edm
 {
@@ -15,7 +18,6 @@ class DetId;
 class TrackerTopology;
 class TrackerGeometry;
 
-
 class TrackingRecHitAlgorithm
 {
     public:
@@ -23,12 +25,7 @@ class TrackingRecHitAlgorithm
 
         virtual void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup);
 
-        virtual std::vector<SiTrackerGSRecHit2D> processDetId(
-            const DetId& detId,
-            const TrackerTopology& trackerTopology,
-            const TrackerGeometry& trackerGeometry,
-            const std::vector<const PSimHit*>& simHits
-        ) const;
+        virtual TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const;
 
         virtual void endEvent(edm::Event& event, edm::EventSetup& eventSetup);
 

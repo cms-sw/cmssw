@@ -10,6 +10,8 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
+#include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitProduct.h"
+
 
 
 TrackingRecHitAlgorithm::TrackingRecHitAlgorithm()
@@ -20,15 +22,11 @@ void TrackingRecHitAlgorithm::beginEvent(const edm::Event& event, const edm::Eve
 {
 }
 
-std::vector<SiTrackerGSRecHit2D> TrackingRecHitAlgorithm::processDetId(
-    const DetId& detId,
-    const TrackerTopology& trackerTopology,
-    const TrackerGeometry& trackerGeometry,
-    const std::vector<const PSimHit*>& simHits
-) const
+std::shared_ptr<TrackingRecHitProduct> TrackingRecHitAlgorithm::process(std::shared_ptr<TrackingRecHitProduct> product) const
 {
-    return std::vector<SiTrackerGSRecHit2D>();
+    return product;
 }
+
 
 void TrackingRecHitAlgorithm::endEvent(edm::Event& event, edm::EventSetup& eventSetup)
 {
