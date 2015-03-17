@@ -474,27 +474,6 @@
     <config name="Line width" version="0">
       <string>2</string>
     </config>
-    <config name="Show Muon Barrel" version="0">
-      <string>1</string>
-    </config>
-    <config name="Show Muon Endcap" version="0">
-      <string>1</string>
-    </config>
-    <config name="Show Pixel Barrel" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Pixel Endcap" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Tracker Barrel" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Tracker Endcap" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Wire Frame" version="0">
-      <string>0</string>
-    </config>
     <config name="Detector Transparency" version="0">
       <string>98</string>
     </config>
