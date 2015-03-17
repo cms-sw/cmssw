@@ -71,13 +71,18 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHW::processEvent(const std::vector<l1t::
     // Combined Barrel/Endcap LUT uses upper bit to indicate Barrel / Endcap:
     enum {MAX_LUT_ADDRESS = 0x7fff};
     enum {LUT_BARREL_OFFSET = 0x0, LUT_ENDCAP_OFFSET = 0x8000};
+    enum {LUT_RCT_OFFSET = 0x10000};
+
+    unsigned int rct_offset=0;
+    if (egCand->hwIso()) rct_offset=LUT_RCT_OFFSET;
 
     if (eg_et >0){
       if (lutAddress > MAX_LUT_ADDRESS) lutAddress = MAX_LUT_ADDRESS;
+
       if (isinBarrel){
-    	isoFlag= params_->egIsolationLUT()->data(LUT_BARREL_OFFSET + lutAddress);
+        isoFlag= params_->egIsolationLUT()->data(LUT_BARREL_OFFSET + rct_offset + lutAddress);
       } else{
-    	isoFlag= params_->egIsolationLUT()->data(LUT_ENDCAP_OFFSET + lutAddress);
+        isoFlag= params_->egIsolationLUT()->data(LUT_ENDCAP_OFFSET + rct_offset + lutAddress);
       }
     }
 
