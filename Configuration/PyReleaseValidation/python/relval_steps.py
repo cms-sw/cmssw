@@ -1159,6 +1159,17 @@ for k in upgradeKeys:
                                        }
     if cust!=None : upgradeStepDict['GenSimHLBeamSpotFull'][k]['--customise']=cust
     
+    upgradeStepDict['GenSimHLBeamSpotfixFull'][k]= {'-s' : 'GEN,SIM',
+                                       '-n' : 10,
+                                       '--conditions' : gt,
+                                       '--beamspot' : 'HLLHC_Fix',
+                                       '--magField' : '38T_PostLS1',
+                                       '--datatier' : 'GEN-SIM',
+                                       '--eventcontent': 'FEVTDEBUG',
+                                       '--geometry' : geom
+                                       }
+    if cust!=None : upgradeStepDict['GenSimHLBeamSpotfixFull'][k]['--customise']=cust
+    
     upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-DIGI-RAW',
@@ -1202,6 +1213,19 @@ for k in upgradeKeys:
                                       }
     if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
 
+ 
+    upgradeStepDict['RecoFullFast'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
+                                      '--conditions':gt,
+                                      '--datatier':'GEN-SIM-RECO,DQMIO',
+                                      '-n':'10',
+                                      '--eventcontent':'RECOSIM,DQM',
+                                      '--magField' : '38T_PostLS1',
+                                      '--geometry' : geom,
+				      '--customise_commands=process.ecalDetailedTimeRecHit.correctForVertexZPosition=False':''
+                                      }
+    if cust!=None : upgradeStepDict['RecoFullFast'][k]['--customise']=cust
+
+ 
     if k2 in PUDataSets:
         upgradeStepDict['RecoFullPU'][k]=merge([PUDataSets[k2],{'-s':'RAW2DIGI,L1Reco,RECO,DQM'},upgradeStepDict['RecoFull'][k]])
 
