@@ -31,12 +31,12 @@ namespace edmtest {
         element.oneNullOneNot.push_back(edm::Ref<ThingCollection>(null, 0));
         element.oneNullOneNot.push_back(edm::Ref<ThingCollection>(parent, 0));
         assert(element.oneNullOneNot.size() == 2); // we'll check this in our tests
-        element.ptr = edm::Ptr<Thing>(i, &parent->at(i));
+        element.ptr = edm::Ptr<Thing>(&parent->at(i), i);
         assert (element.ptr == edm::refToPtr(element.ref));
         element.ptrVec.push_back(element.ptr);
-        element.ptrVec.push_back(edm::Ptr<Thing>(19-i, &parent->at(19-i)));
-        element.ptrOneNullOneNot.push_back(edm::Ptr<Thing>(0ul,nullptr));
-        element.ptrOneNullOneNot.push_back(edm::Ptr<Thing>(0ul, &parent->at(0)));
+        element.ptrVec.push_back(edm::Ptr<Thing>(&parent->at(19-i), 19-i));
+        element.ptrOneNullOneNot.push_back(edm::Ptr<Thing>(nullptr, 0ul));
+        element.ptrOneNullOneNot.push_back(edm::Ptr<Thing>(&parent->at(0), 0ul));
         assert(element.ptrOneNullOneNot.size() == 2); // we'll check this in our tests
         edm::RefProd<ThingCollection> refProd = edm::RefProd<ThingCollection>(parentHandle);
         edm::Ref<ThingCollection> ref = edm::Ref<ThingCollection>(refProd, i);
