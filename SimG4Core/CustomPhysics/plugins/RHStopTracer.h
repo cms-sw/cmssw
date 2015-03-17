@@ -40,7 +40,6 @@ class RHStopTracer :  public SimProducer,
     double mass;
     double charge;
   };
-  bool mDebug;
   bool mStopRegular;
   double mTraceEnergy;
   boost::regex mTraceParticleNameRegex;
