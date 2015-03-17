@@ -19,8 +19,7 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-//#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-//#include "DataFormats/Common/interface/RefToPtr.h"
+
 #include <DataFormats/Math/interface/deltaR.h>
 
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EcalPFClusterIsolation.h"

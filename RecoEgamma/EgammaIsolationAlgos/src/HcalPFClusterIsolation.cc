@@ -31,7 +31,7 @@ HcalPFClusterIsolation<T1>::~HcalPFClusterIsolation()
 {}
 
 template<typename T1>
-double HcalPFClusterIsolation<T1>::getSum(const T1Ref candRef, std::vector<edm::Handle<reco::PFClusterCollection>> clusterHandles) { 
+double HcalPFClusterIsolation<T1>::getSum(const T1Ref candRef, const std::vector<edm::Handle<reco::PFClusterCollection>>& clusterHandles) { 
   
   double etSum = 0.;
 

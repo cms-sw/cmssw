@@ -30,7 +30,7 @@ class HcalPFClusterIsolation {
 			 bool useEt);
   
   ~HcalPFClusterIsolation();
-  double getSum(const T1Ref candRef, std::vector<edm::Handle<reco::PFClusterCollection>> clusterHandles);  
+  double getSum(const T1Ref candRef, const std::vector<edm::Handle<reco::PFClusterCollection>>& clusterHandles);  
 
  private:
   const double drMax_;
