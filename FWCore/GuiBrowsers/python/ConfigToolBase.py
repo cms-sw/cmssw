@@ -168,11 +168,11 @@ class ConfigToolBase(object) :
         elif (isinstance(value,dict)) and (isinstance(self._parameters[name].allowedValues,list)):
             for key in value.keys():
                 if (key not in self._parameters[name].allowedValues):
-                    raise ValueError("The input key value "+'"'+str(key)+'"'+" for parameter "+'"'+name+'"'+" is not supported. Supported ones are: "+str(self._parameters[name].allowedValues))
+                    raise ValueError("The input key value "+'"'+str(key)+'"'+" for parameter "+'"'+name+'"'+" is not supported. Supported ones are: "+str(self._parameters[name].allowedValues)[1:-1])
         elif (isinstance(value,list)) and (isinstance(self._parameters[name].allowedValues,list )):
-            for i in value:
-                if (i not in self._parameters[name].allowedValues) :
-                    self.parAccepted=False
+            for val in value:
+                if (val not in self._parameters[name].allowedValues) :
+                    raise ValueError("The input value "+'"'+str(val)+'"'+" for parameter "+'"'+name+'"'+" is not supported. Supported ones are: "+str(self._parameters[name].allowedValues)[1:-1])
         elif (not isinstance(value,list))and (isinstance(self._parameters[name].allowedValues,list)) :
             if (value not in self._parameters[name].allowedValues and value == None) and (not self._parameters[name].acceptNoneValue) :
                 self.parAccepted=False
