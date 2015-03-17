@@ -198,7 +198,7 @@ recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
                            ca8PFJetsCHSPruned+
                            ca8PFJetsCHSPrunedLinks+
                            cmsTopTagPFJetsCHS+
-                           hepTopTagPFJetsCHS+
+                           #hepTopTagPFJetsCHS+
                            ca15PFJetsCHSMassDropFiltered+
                            ca15PFJetsCHSFiltered
     )
