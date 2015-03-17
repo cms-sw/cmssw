@@ -73,7 +73,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
     double log_pixel_prob_cut = theLogPixelProbabilityCut;  // ggiurgiu@fnal.gov
 
 
-    unsigned int outlierId = 0;
+    unsigned int outlierId = 0xffffffff;
     const GeomDet* outlierDet = 0;
 
     unsigned int low_pixel_prob_Id = 0; // ggiurgiu@fnal.gov
@@ -215,9 +215,6 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 	      LogTrace("TrackFitters") << "Rejecting outlier hit  with estimate " << cut << " at position "
 				       << j << " with rawId=" << myHits[j]->geographicalId().rawId();
 	      LogTrace("TrackFitters") << "The fit will be repeated without the outlier";
-              if (outlierDet==nullptr) {
-                std::cout << "outlierDet==nullptr! " << typeid(*myHits[j]).name() << outlierId << std::endl;
-              }
 	      myHits[j] = std::make_shared<InvalidTrackingRecHit>(*outlierDet, TrackingRecHit::missing);
 	    }
 	  else if ( has_low_pixel_prob && low_pixel_prob_Id == myHits[j]->geographicalId().rawId() ){
