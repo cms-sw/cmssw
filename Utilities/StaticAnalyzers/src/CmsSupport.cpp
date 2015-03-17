@@ -189,7 +189,8 @@ bool support::isKnownThrUnsafeFunc(const std::string &fname ) {
           "TMultiGraph::Fit(const char *,", 
           "TTable::Fit(const char *,", 
           "TTree::Fit(const char *,", 
-          "TTreePlayer::Fit(const char *,"
+          "TTreePlayer::Fit(const char *,",
+          "CLHEP::HepMatrix::determinant("
      };
      for (auto& name: names)
           if ( fname.substr(0,name.length()) == name ) return true;     

@@ -268,6 +268,8 @@ bool pat::PackedCandidate::longLived() const {return false;}
 
 bool pat::PackedCandidate::massConstraint() const {return false;}
 
+// puppiweight
+void pat::PackedCandidate::setPuppiWeight(float p) { packedPuppiweight_ = pack8logClosed((p-0.5)*2,-2,0,64);}
 
-
+float pat::PackedCandidate::puppiWeight() const { return unpack8logClosed(packedPuppiweight_,-2,0,64)/2. + 0.5;}
 
