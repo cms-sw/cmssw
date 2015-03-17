@@ -9,24 +9,23 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
 #include "RecoBTag/SoftLepton/interface/MvaSoftMuonEstimator.h"
-
-#include "TRandom3.h"
+#include <mutex>
+#include <memory>
 
 class MuonTagger : public JetTagComputer {
 
   public:
   
     MuonTagger(const edm::ParameterSet&);
-    ~MuonTagger();
     
-    virtual float discriminator(const TagInfoHelper& tagInfo) const;
+    virtual float discriminator(const TagInfoHelper& tagInfo) const override;
     
   private:
     
     btag::LeptonSelector m_selector;
-    TRandom3* random;
     edm::FileInPath WeightFile;
-    MvaSoftMuonEstimator* mvaID;
+    mutable std::mutex m_mutex;
+    [[cms::thread_guard("m_mutex")]] std::unique_ptr<MvaSoftMuonEstimator> mvaID;
 };
 
 #endif
