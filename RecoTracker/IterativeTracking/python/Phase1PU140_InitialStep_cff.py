@@ -74,7 +74,7 @@ initialStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.cl
     src = 'initialStepTrackCandidates',
     AlgorithmName = cms.string('initialStep'),
     Fitter = cms.string('FlexibleKFFittingSmoother'),
-    TTRHBuilder=cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
+    TTRHBuilder=cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
 
 # Final selection

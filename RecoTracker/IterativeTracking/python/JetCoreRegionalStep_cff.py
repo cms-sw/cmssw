@@ -28,7 +28,7 @@ jetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
                             'BPix3+TIB1','BPix3+TIB2'),
     TIB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(-2069)
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
     ),
     BPix = cms.PSet(
         useErrorsFromParam = cms.bool(True),
