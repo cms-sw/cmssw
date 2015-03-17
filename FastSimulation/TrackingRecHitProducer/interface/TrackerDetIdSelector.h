@@ -3,6 +3,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 
 #include <boost/config/warning_disable.hpp>
@@ -11,6 +12,7 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/phoenix/bind/bind_member_function.hpp>
+#include <boost/spirit/include/qi_grammar.hpp>
 
 #include <iostream>
 #include <cstdlib>
@@ -189,6 +191,70 @@ struct WalkAST
     }
 };
 
+template <typename ITERATOR>
+struct TrackerDetIdSelectorGrammar:
+    boost::spirit::qi::grammar<
+        ITERATOR,
+        ExpressionAST(),
+        boost::spirit::ascii::space_type,
+        boost::spirit::qi::locals<ExpressionAST>
+    >
+{
+    boost::spirit::qi::rule<
+        ITERATOR,
+        std::string(),
+        boost::spirit::ascii::space_type
+    > identifierFctRule;
+
+    boost::spirit::qi::rule<
+                ITERATOR,
+                ExpressionAST(),
+                boost::spirit::ascii::space_type
+    > identifierRule, expressionRule;
+
+    boost::spirit::qi::rule<
+        ITERATOR,
+        ExpressionAST(),
+        boost::spirit::ascii::space_type,
+        boost::spirit::qi::locals<ExpressionAST>
+    >  comboRule;
+
+
+    TrackerDetIdSelectorGrammar():
+        TrackerDetIdSelectorGrammar::base_type(comboRule)
+    {
+
+        namespace qi = boost::spirit::qi;
+        namespace ascii = boost::spirit::ascii;
+        namespace phoenix = boost::phoenix;
+
+        identifierFctRule =
+            qi::lexeme[+qi::alpha[qi::_val+=qi::_1]];
+
+        identifierRule =
+            '!' >> identifierRule[qi::_val=!qi::_1] |
+            (qi::true_[qi::_val=1] | qi::false_[qi::_val=0]) |
+            (qi::int_[qi::_val=qi::_1]) |
+            identifierFctRule[qi::_val=qi::_1];
+
+        expressionRule =
+            (identifierRule >> qi::lit(">") >> identifierRule)[qi::_val=qi::_1>qi::_2] |
+            (identifierRule >> qi::lit(">=") >> identifierRule)[qi::_val=qi::_1>=qi::_2] |
+            (identifierRule >> qi::lit("<") >> identifierRule)[qi::_val=qi::_1<qi::_2] |
+            (identifierRule >> qi::lit("<=") >> identifierRule)[qi::_val=qi::_1<=qi::_2] |
+            (identifierRule >> qi::lit("==") >> identifierRule)[qi::_val=qi::_1==qi::_2] |
+            (identifierRule >> qi::lit("!=") >> identifierRule)[qi::_val=qi::_1!=qi::_2];
+
+        comboRule =
+            ('(' >> comboRule[qi::_a=qi::_1] >> ')' >>
+                *(qi::lit("&") >> '(' >> comboRule[qi::_a=qi::_a & qi::_1] >> ')' |
+                  qi::lit("|") >> '(' >> comboRule[qi::_a=qi::_a | qi::_1] >> ')'))[qi::_val=qi::_a] |
+            expressionRule[qi::_val=qi::_1];
+
+    }
+
+};
+
 
 class TrackerDetIdSelector
 {
@@ -196,336 +262,46 @@ class TrackerDetIdSelector
         const DetId& _detId;
         const TrackerTopology& _trackerTopology;
 
-
-
     public:
         typedef std::function<int(const TrackerTopology& trackerTopology, const DetId&)> DetIdFunction;
         typedef std::unordered_map<std::string, DetIdFunction> StringFunctionMap;
         const static StringFunctionMap functionTable;
+
+
     
         TrackerDetIdSelector(const DetId& detId, const TrackerTopology& trackerTopology):
             _detId(detId),
             _trackerTopology(trackerTopology)
         {
-            namespace qi = boost::spirit::qi;
-            namespace ascii = boost::spirit::ascii;
-            namespace phoenix = boost::phoenix;
+
+
         }
 
         bool passSelection(std::string selectionStr) const
         {
-            namespace qi = boost::spirit::qi;
-            namespace ascii = boost::spirit::ascii;
-            namespace phoenix = boost::phoenix;
-
             std::string::const_iterator begin = selectionStr.cbegin();
             std::string::const_iterator end = selectionStr.cend();
 
-            qi::rule<std::string::const_iterator, std::string(), ascii::space_type>
-                identifierFctRule =qi::lexeme[+qi::alpha[qi::_val+=qi::_1]];
 
-            qi::rule<std::string::const_iterator, ExpressionAST(), ascii::space_type>
-                identifierRule =
-                    '!' >> identifierRule[qi::_val=!qi::_1] |
-                    (qi::true_[qi::_val=1] | qi::false_[qi::_val=0]) |
-                    (qi::int_[qi::_val=qi::_1]) |
-                    identifierFctRule[qi::_val=qi::_1];
-
-            qi::rule<std::string::const_iterator, ExpressionAST(), ascii::space_type>
-                expressionRule =
-                    (identifierRule >> qi::lit(">") >> identifierRule)[qi::_val=qi::_1>qi::_2] |
-                    (identifierRule >> qi::lit(">=") >> identifierRule)[qi::_val=qi::_1>=qi::_2] |
-                    (identifierRule >> qi::lit("<") >> identifierRule)[qi::_val=qi::_1<qi::_2] |
-                    (identifierRule >> qi::lit("<=") >> identifierRule)[qi::_val=qi::_1<=qi::_2] |
-                    (identifierRule >> qi::lit("==") >> identifierRule)[qi::_val=qi::_1==qi::_2] |
-                    (identifierRule >> qi::lit("!=") >> identifierRule)[qi::_val=qi::_1!=qi::_2];
-
-            qi::rule<std::string::const_iterator, ExpressionAST(), ascii::space_type,  qi::locals<ExpressionAST>>
-                comboRule =
-                    ('(' >> comboRule[qi::_a=qi::_1] >> ')' >>
-                        *(qi::lit("&") >> '(' >> comboRule[qi::_a=qi::_a & qi::_1] >> ')' |
-                          qi::lit("|") >> '(' >> comboRule[qi::_a=qi::_a | qi::_1] >> ')'))[qi::_val=qi::_a] |
-                    expressionRule[qi::_val=qi::_1];
-                    
-                    
+            TrackerDetIdSelectorGrammar<std::string::const_iterator> grammar;
             ExpressionAST exprAST;
 
-            bool success = qi::phrase_parse(begin,end, comboRule, ascii::space, exprAST);
-            if (!success || begin!=end)
+            bool success = boost::spirit::qi::phrase_parse(begin,end, grammar, boost::spirit::ascii::space, exprAST);
+            if (begin!=end)
             {
-                std::cout<<"error while parsing:"<<std::endl;
-                for (auto it=selectionStr.cbegin(); it!=begin; ++it)
-                {
-                    std::cout << *it;
-                }
-                std::cout << "^^^";
-                for (auto it=begin; it!=selectionStr.cend(); ++it)
-                {
-                    std::cout << *it;
-                }
-                std::cout<<std::endl;
+                throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector",
+                    "parsing selection '"+selectionStr+"' failed at "+std::string(selectionStr.cbegin(), begin)+"^^^"+std::string(begin, end));
+            }
+            if (!success)
+            {
+                throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector","parsing selection '"+selectionStr+"' failed.");
             }
             WalkAST walker;
             walker(exprAST);
             std::cout<<std::endl;
             return exprAST.evaluate(_detId,_trackerTopology);
+
         }
-
-
-
-
-        unsigned int pxbLayer(const DetId &id) const
-        {
-            return 1;
-        }
-        /*
-        unsigned int tobLayer(const DetId &id) const
-        {
-        }
-
-        unsigned int tibLayer(const DetId &id) const
-        {
-        }
-
-        unsigned int pxbLadder(const DetId &id) const
-        {
-        }
-
-        unsigned int pxbModule(const DetId &id) const
-        {
-        }
-
-        unsigned int pxfModule(const DetId &id) const
-        {
-        }
-
-        unsigned int tobModule(const DetId &id) const
-        {
-        }
-
-        unsigned int tecModule(const DetId &id) const
-        {
-        }
-
-        unsigned int tibModule(const DetId &id) const
-        {
-        }
-
-        unsigned int tidModule(const DetId &id) const
-        {
-        }
-
-        unsigned int tobSide(const DetId &id) const
-        {
-        }
-
-        unsigned int tecSide(const DetId &id) const
-        {
-        }
-
-        unsigned int tibSide(const DetId &id) const
-        {
-        }
-
-        unsigned int tidSide(const DetId &id) const
-        {
-        }
-
-        unsigned int pxfSide(const DetId &id) const
-        {
-        }
-
-        unsigned int tobRod(const DetId &id) const
-        {
-        }
-
-        unsigned int tecWheel(const DetId &id) const
-        {
-        }
-
-        unsigned int tidWheel(const DetId &id) const
-        {
-        }
-
-        unsigned int tecOrder(const DetId &id) const
-        {
-        }
-
-        unsigned int tibOrder(const DetId &id) const
-        {
-        }
-
-        unsigned int tidOrder(const DetId &id) const
-        {
-        }
-
-        unsigned int tecRing(const DetId &id) const
-        {
-        }
-
-        unsigned int tidRing(const DetId &id) const
-        {
-        }
-
-        unsigned int tecPetalNumber(const DetId &id) const
-        {
-        }
-
-
-        bool tobIsDoubleSide(const DetId &id) const
-        {
-        }
-
-        bool tecIsDoubleSide(const DetId &id) const
-        {
-        }
-
-        bool tibIsDoubleSide(const DetId &id) const
-        {
-        }
-
-        bool tidIsDoubleSide(const DetId &id) const
-        {
-        }
-
-        bool tobIsZPlusSide(const DetId &id) const
-        {
-        }
-
-        bool tobIsZMinusSide(const DetId &id) const
-        {
-        }
-
-        bool tibIsZPlusSide(const DetId &id) const
-        {
-        }
-
-        bool tibIsZMinusSide(const DetId &id) const
-        {
-        }
-
-        bool tidIsZPlusSide(const DetId &id) const
-        {
-        }
-
-        bool tidIsZMinusSide(const DetId &id) const
-        {
-        }
-
-        bool tecIsZPlusSide(const DetId &id) const
-        {
-        }
-
-        bool tecIsZMinusSide(const DetId &id) const
-        {
-        }
-
-        bool tobIsStereo(const DetId &id) const
-        {
-        }
-
-        bool tecIsStereo(const DetId &id) const
-        {
-        }
-
-        bool tibIsStereo(const DetId &id) const
-        {
-        }
-
-        bool tidIsStereo(const DetId &id) const
-        {
-        }
-
-        uint32_t tobStereo(const DetId &id) const
-        {
-        }
-
-        uint32_t tibStereo(const DetId &id) const
-        {
-        }
-
-        uint32_t tidStereo(const DetId &id) const
-        {
-        }
-
-        uint32_t tecStereo(const DetId &id) const
-        {
-        }
-
-        uint32_t tibGlued(const DetId &id) const
-        {
-        }
-
-        uint32_t tecGlued(const DetId &id) const
-        {
-        }
-
-        uint32_t tobGlued(const DetId &id) const
-        {
-        }
-
-        uint32_t tidGlued(const DetId &id) const
-        {
-        }
-
-        bool tobIsRPhi(const DetId &id) const
-        {
-        }
-
-        bool tecIsRPhi(const DetId &id) const
-        {
-        }
-
-        bool tibIsRPhi(const DetId &id) const
-        {
-        }
-
-        bool tidIsRPhi(const DetId &id) const
-        {
-        }
-
-        bool tecIsBackPetal(const DetId &id) const
-        {
-        }
-
-        bool tecIsFrontPetal(const DetId &id) const
-        {
-        }
-
-        unsigned int tibString(const DetId &id) const
-        {
-        }
-
-
-        bool tibIsInternalString(const DetId &id) const
-        {
-        }
-
-        bool tibIsExternalString(const DetId &id) const
-        {
-        }
-
-        bool tidIsBackRing(const DetId &id) const
-        {
-        }
-
-        bool tidIsFrontRing(const DetId &id) const
-        {
-        }
-
-        unsigned int pxfDisk(const DetId &id) const
-        {
-        }
-
-        unsigned int pxfBlade(const DetId &id) const
-        {
-        }
-
-        unsigned int pxfPanel(const DetId &id) const
-        {
-        }
-    */
-
 };
 
 

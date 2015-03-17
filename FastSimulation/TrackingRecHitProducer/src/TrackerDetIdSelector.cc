@@ -1,18 +1,26 @@
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackerDetIdSelector.h"
 
+#define DETIDFCT(NAME) \
+    NAME ,[](const TrackerTopology& trackerTopology, const DetId& detId) -> int
+
 const TrackerDetIdSelector::StringFunctionMap TrackerDetIdSelector::functionTable = {
 
-    {"subdetId",[](const TrackerTopology& trackerTopology, const DetId& detId) -> int {return detId.subdetId();}},
-    {"BPX",[](const TrackerTopology& trackerTopology, const DetId& detId) -> int {return PixelSubdetector::PixelBarrel;}},
-    {"FPX",[](const TrackerTopology& trackerTopology, const DetId& detId) -> int {return PixelSubdetector::PixelEndcap;}},
-    {"TIB",[](const TrackerTopology& trackerTopology, const DetId& detId) -> int {return StripSubdetector::TIB;}},
-    {"TID",[](const TrackerTopology& trackerTopology, const DetId& detId) -> int {return StripSubdetector::TID;}},
-    {"TOB",[](const TrackerTopology& trackerTopology, const DetId& detId) -> int {return StripSubdetector::TOB;}},
-    {"TEC",[](const TrackerTopology& trackerTopology, const DetId& detId) -> int {return StripSubdetector::TEC;}},
-    {"pxbLayer",[](const TrackerTopology& trackerTopology, const DetId& detId) -> int {return trackerTopology.pxbLayer(detId);}},
-    {"pxbLadder",[](const TrackerTopology& trackerTopology, const DetId& detId) -> int {return trackerTopology.pxbLadder(detId);}},
-    {"pxbModule",[](const TrackerTopology& trackerTopology, const DetId& detId) -> int {return trackerTopology.pxbModule(detId);}}
+    {DETIDFCT("subdetId"){return detId.subdetId();}},
 
+    {DETIDFCT("BPX"){return PixelSubdetector::PixelBarrel;}},
+    {DETIDFCT("FPX"){return PixelSubdetector::PixelEndcap;}},
+    {DETIDFCT("TIB"){return StripSubdetector::TIB;}},
+    {DETIDFCT("TID"){return StripSubdetector::TID;}},
+    {DETIDFCT("TOB"){return StripSubdetector::TOB;}},
+    {DETIDFCT("TEC"){return StripSubdetector::TEC;}},
+
+    {DETIDFCT("layer"){return trackerTopology.layer(detId);}},
+    {DETIDFCT("module"){return trackerTopology.module(detId);}},
+    {DETIDFCT("side"){return trackerTopology.side(detId);}},
+
+    {DETIDFCT("pxbLayer"){return trackerTopology.pxbLayer(detId);}},
+    {DETIDFCT("pxbLadder"){return trackerTopology.pxbLadder(detId);}},
+    {DETIDFCT("pxbModule"){return trackerTopology.pxbModule(detId);}}
 };
 
 
