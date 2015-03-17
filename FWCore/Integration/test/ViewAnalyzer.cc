@@ -33,29 +33,29 @@ namespace edmtest
     virtual void analyze(edm::StreamID,
                          edm::Event const& e,
                          edm::EventSetup const& /* unused */ ) const override;
-    
+
     template <typename P, typename V>
     void testProduct(edm::Event const& e,
                      std::string const& moduleLabel) const;
-    
+
     void testDSVProduct(edm::Event const& e,
                         std::string const& moduleLabel) const;
-    
+
     void testAVProduct(edm::Event const& e,
                        std::string const& moduleLabel) const;
 
     void testProductWithBaseClass(edm::Event const& e,
                                   std::string const& moduleLabel) const;
-    
+
     void testRefVector(edm::Event const& e,
                        std::string const& moduleLabel) const;
-    
+
     void testRefToBaseVector(edm::Event const& e,
                              std::string const& moduleLabel) const;
-    
+
     void testPtrVector(edm::Event const& e,
                        std::string const& moduleLabel) const;
-    
+
     void testStdVectorPtr(edm::Event const& e,
                           std::string const& moduleLabel) const;
   };
@@ -178,6 +178,14 @@ namespace edmtest
 	value_t const& product_item = *i_product;
 	value_t const& view_item = *i_view;
         assert(product_item == view_item);
+
+        edm::Ref<sequence_t> ref3(hproduct, slot);
+        assert(*ref3 == product_item);
+
+        edm::RefProd<sequence_t> refProd4(hproduct);
+        edm::Ref<sequence_t> ref4(refProd4, slot);
+        assert(*ref4 == product_item);
+
 	++i_product; ++i_view; ++slot;
     }
 
@@ -358,6 +366,9 @@ namespace edmtest
         int item_other2 = *ref2;
         assert(item_other2 == product_item);
 
+        edm::Ref<sequence_t> ref3(hproduct, slot);
+        assert(*ref3 == product_item);
+
 	++i_product; ++i_view; ++slot;
     }
   }
@@ -436,38 +447,43 @@ namespace edmtest
 	++i_product; ++i_view; ++slot;
     }
   }
-  
+
   void
   ViewAnalyzer::testStdVectorPtr(Event const& e,
                                  std::string const& moduleLabel) const {
     typedef std::vector<edm::Ptr<int>>            sequence_t;
     typedef int                       value_t;
     typedef View<value_t>             view_t;
-    
+
     Handle<sequence_t> hproduct;
     e.getByLabel(moduleLabel, hproduct);
     assert(hproduct.isValid());
-    
+
     Handle<view_t> hview;
-    
+
     InputTag tag(moduleLabel);
     e.getByLabel(tag, hview);
     assert(hview.isValid());
-    
+
     assert(hproduct.id() == hview.id());
     assert(*hproduct.provenance() == *hview.provenance());
-    
+
     assert(hproduct->size() == hview->size());
-    
+
     sequence_t::const_iterator i_product = hproduct->begin();
     sequence_t::const_iterator e_product = hproduct->end();
     view_t::const_iterator     i_view = hview->begin();
     view_t::const_iterator     e_view = hview->end();
+    unsigned int slot = 0;
     while (i_product != e_product && i_view != e_view) {
       value_t const& product_item = **i_product;
       value_t const& view_item = *i_view;
       assert(product_item == view_item);
-      ++i_product; ++i_view;
+
+      edm::Ref<sequence_t> ref3(hproduct, slot);
+      assert(**ref3 == product_item);
+
+      ++i_product; ++i_view; ++slot;
     }
   }
 

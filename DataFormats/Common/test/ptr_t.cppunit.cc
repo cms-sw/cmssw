@@ -78,12 +78,6 @@ void testPtr::constructTest() {
    CPPUNIT_ASSERT(!nulled.isNonnull());
    CPPUNIT_ASSERT(!nulled.isAvailable());
 
-   Ptr<Dummy> nulledP;
-   CPPUNIT_ASSERT(!nulledP);
-   CPPUNIT_ASSERT(nulledP.isNull());
-   CPPUNIT_ASSERT(!nulledP.isNonnull());
-   CPPUNIT_ASSERT(!nulled.isAvailable());
-
    ProductID const pid(1, 1);
 
    {
@@ -98,12 +92,32 @@ void testPtr::constructTest() {
      
      CPPUNIT_ASSERT(dummyPtr.isAvailable());
      CPPUNIT_ASSERT(dummyPtr.id() == pid);
-     //CPPUNIT_ASSERT(dummyPtrProd.id() == pid);
      CPPUNIT_ASSERT(dummyPtr.key() == key);
      CPPUNIT_ASSERT(dummyPtr.get() == &dummyContainer[key]);
      CPPUNIT_ASSERT(&(*dummyPtr) == &dummyContainer[key]);
      CPPUNIT_ASSERT((dummyPtr.operator->()) == &dummyContainer[key]);
      CPPUNIT_ASSERT(dummyPtr->address() == dummyContainer[key].address());
+
+     Ptr<Dummy> anotherPtr(dummyPtr.id(), dummyPtr.get(), dummyPtr.key(), dummyPtr.isTransient());
+     CPPUNIT_ASSERT(dummyPtr.get() == anotherPtr.get() &&
+                    dummyPtr.key() == anotherPtr.key() &&
+                    dummyPtr.isTransient() == anotherPtr.isTransient() &&
+                    dummyPtr.id() == anotherPtr.id());
+
+     Ptr<Dummy> ptrTrans(&dummyContainer, key);
+     Ptr<Dummy> ptrTrans2(&dummyContainer[key], key);
+
+     CPPUNIT_ASSERT(ptrTrans.get() == &dummyContainer[key] &&
+                    ptrTrans2.get() == &dummyContainer[key] &&
+                    ptrTrans.id() == ProductID() &&
+                    ptrTrans.id() == ptrTrans2.id() &&
+                    ptrTrans.isTransient() &&
+                    ptrTrans2.isTransient() &&
+                    ptrTrans.key() == key &&
+                    ptrTrans2.key() == key);
+
+     Ptr<Dummy> ptrTrans3(nullptr, key);
+     CPPUNIT_ASSERT(ptrTrans3.isNull());
    }
 
    {
@@ -118,7 +132,6 @@ void testPtr::constructTest() {
      
      CPPUNIT_ASSERT(dummyPtr.isAvailable());
      CPPUNIT_ASSERT(dummyPtr.id() == pid);
-     //CPPUNIT_ASSERT(dummyPtrProd.id() == pid);
      CPPUNIT_ASSERT(dummyPtr.key() == key);
      DummySet::const_iterator it = dummyContainer.begin();
      std::advance(it, key);
@@ -140,7 +153,6 @@ void testPtr::constructTest() {
      
      CPPUNIT_ASSERT(dummyPtr.isAvailable());
      CPPUNIT_ASSERT(dummyPtr.id() == pid);
-     //CPPUNIT_ASSERT(dummyPtrProd.id() == pid);
      CPPUNIT_ASSERT(dummyPtr.key() == key);
      DummyList::const_iterator it = dummyContainer.begin();
      std::advance(it, key);
@@ -185,7 +197,6 @@ void testPtr::constructTest() {
      
      CPPUNIT_ASSERT(dummyPtr.isAvailable());
      CPPUNIT_ASSERT(dummyPtr.id() == pid);
-     //CPPUNIT_ASSERT(dummyPtrProd.id() == pid);
      CPPUNIT_ASSERT(dummyPtr.key() == key);
      CPPUNIT_ASSERT(dummyPtr.get() == &dummyContainer[key]);
      CPPUNIT_ASSERT(&(*dummyPtr) == &dummyContainer[key]);
