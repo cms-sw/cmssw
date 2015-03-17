@@ -125,13 +125,21 @@ def miniAOD_customizeCommon(process):
     process.patJetsAK4PFForMetUnc.getJetMCFlavour = False
     runType1PFMEtUncertainties(process,
                                addToPatDefaultSequence=False,
+                               jetCollectionUnskimmed="patJetsAK4PFForMetUnc",
                                jetCollection="selectedPatJetsAK4PFForMetUnc",
                                electronCollection="selectedPatElectrons",
                                muonCollection="selectedPatMuons",
                                tauCollection="selectedPatTaus",
                                makeType1p2corrPFMEt=True,
+                               doSmearJets=False,
                                outputModule=None)
 
+    from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
+    addMETCollection(process,
+                     labelName = "patCaloMet",
+                     metSource = "caloMetM"
+                     )
+  
 
     #keep this after all addJetCollections otherwise it will attempt computing them also for stuf with no taginfos
     #Some useful BTAG vars
