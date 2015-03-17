@@ -17,6 +17,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
 
 
 namespace {
@@ -49,7 +50,7 @@ namespace {
 
   ClusterChargeMasker::ClusterChargeMasker(const edm::ParameterSet& iConfig) :
     mergeOld_(iConfig.exists("oldClusterRemovalInfo")),
-    minGoodStripCharge_(iConfig.getParameter<double>("minGoodStripCharge"))
+    minGoodStripCharge_(clusterChargeCut(iConfig))
   {
     produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
     produces<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > >();
@@ -112,7 +113,8 @@ namespace {
     std::auto_ptr<StripMaskContainer> removedStripClusterMask(
          new StripMaskContainer(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedStrips));
       LogDebug("ClusterChargeMasker")<<"total strip to skip: "<<std::count(collectedStrips.begin(),collectedStrips.end(),true);
-      // std::cout << "ClusterChargeMasker " <<"total strip to skip: "<<std::count(collectedStrips_.begin(),collectedStrips_.end(),true) <<std::endl;
+      // std::cout << "ClusterChargeMasker " <<"total strip to skip: "<<std::count(collectedStrips.begin(),collectedStrips.end(),true) 
+      //          << " for CCC " << minGoodStripCharge_ <<std::endl;
        iEvent.put( removedStripClusterMask );
 
       std::auto_ptr<PixelMaskContainer> removedPixelClusterMask(

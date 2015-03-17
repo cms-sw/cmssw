@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/Fake/V3 (CMSSW_7_4_0_pre7_HLT1)
+# /dev/CMSSW_7_4_0/Fake/V4 (CMSSW_7_4_0_pre7_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/Fake/V3')
+  tableName = cms.string('/dev/CMSSW_7_4_0/Fake/V4')
 )
 
 hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
