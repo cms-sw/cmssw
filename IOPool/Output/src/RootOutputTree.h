@@ -21,7 +21,6 @@ class TFile;
 class TBranch;
 
 namespace edm {
-  class WrapperInterfaceBase;
   class RootOutputTree {
   public:
     RootOutputTree(std::shared_ptr<TFile> filePtr,
