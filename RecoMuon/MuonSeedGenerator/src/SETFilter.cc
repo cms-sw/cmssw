@@ -20,6 +20,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "DataFormats/Math/interface/Matrix.h"
+
 #include <vector>
 
 #include <iostream>
@@ -646,27 +648,27 @@ std::pair <double,double> SETFilter::findParabolaMinimum(std::vector <double> &q
   double paramAtMin = -99.;
   std::vector <double> quadratic_param(3);
 
-  CLHEP::HepMatrix denominator(3,3);
-  CLHEP::HepMatrix enumerator_1(3,3);
-  CLHEP::HepMatrix enumerator_2(3,3);
-  CLHEP::HepMatrix enumerator_3(3,3);
+  math::Matrix<3,3>::type denominator;
+  math::Matrix<3,3>::type enumerator_1;
+  math::Matrix<3,3>::type enumerator_2;
+  math::Matrix<3,3>::type enumerator_3;
 
-  for(int iCol=1;iCol<4;++iCol){
-    denominator(1,iCol) = 1;
-    denominator(2,iCol) = quadratic_var.at(iCol-1);
-    denominator(3,iCol) = pow(quadratic_var.at(iCol-1),2);
+  for(int iCol=0;iCol<3;++iCol){
+    denominator(0,iCol) = 1;
+    denominator(1,iCol) = quadratic_var.at(iCol);
+    denominator(2,iCol) = pow(quadratic_var.at(iCol),2);
 
-    enumerator_1(1,iCol) = quadratic_chi2.at(iCol-1);
+    enumerator_1(0,iCol) = quadratic_chi2.at(iCol);
+    enumerator_1(1,iCol) = denominator(1,iCol);
     enumerator_1(2,iCol) = denominator(2,iCol);
-    enumerator_1(3,iCol) = denominator(3,iCol);
 
-    enumerator_2(1,iCol) = denominator(1,iCol);
-    enumerator_2(2,iCol) = quadratic_chi2.at(iCol-1);
-    enumerator_2(3,iCol) = denominator(3,iCol);
+    enumerator_2(0,iCol) = denominator(0,iCol);
+    enumerator_2(1,iCol) = quadratic_chi2.at(iCol);
+    enumerator_2(2,iCol) = denominator(2,iCol);
 
+    enumerator_3(0,iCol) = denominator(0,iCol);
     enumerator_3(1,iCol) = denominator(1,iCol);
-    enumerator_3(2,iCol) = denominator(2,iCol);
-    enumerator_3(3,iCol) = quadratic_chi2.at(iCol-1);
+    enumerator_3(2,iCol) = quadratic_chi2.at(iCol);
   }
   const double mult = 5.;// "save" accuracy"; result is independent on "mult"
   denominator *=mult;
@@ -674,15 +676,18 @@ std::pair <double,double> SETFilter::findParabolaMinimum(std::vector <double> &q
   enumerator_2*=mult;
   enumerator_3*=mult;
 
-  std::vector <CLHEP::HepMatrix> enumerator;
+  std::vector <math::Matrix<3,3>::type> enumerator;
   enumerator.push_back(enumerator_1);
   enumerator.push_back(enumerator_2);
   enumerator.push_back(enumerator_3);
 
-  double determinant = denominator.determinant();
+  double determinant=0;
+  denominator.Det2(determinant);
   if(fabs(determinant)>0.00000000001){
     for(int iPar=0;iPar<3;++iPar){
-      quadratic_param.at(iPar) = enumerator.at(iPar).determinant()/determinant;
+      double d = 0.;
+      enumerator.at(iPar).Det2(d);
+      quadratic_param.at(iPar) = d/determinant;
     }
   }
   else{
