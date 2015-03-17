@@ -9,15 +9,21 @@
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
-#include "DataFormats/Common/interface/RefCore.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Common/interface/ConstPtrCache.h"
 #include "DataFormats/Common/interface/FillView.h"
+#include "DataFormats/Common/interface/FillViewHelperVector.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/RefCore.h"
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
+#include <utility>
+#include <vector>
 
 namespace edm {
-  template<typename T> class View;
-  template<typename C> class Handle;
 
   template<typename T>
   class RefToBaseProd {
@@ -27,11 +33,6 @@ namespace edm {
     /// Default constructor needed for reading from persistent store. Not for direct use.
     RefToBaseProd() : product_(){}
 
-    /// General purpose constructor from handle-like object.
-    // The templating is artificial.
-    // HandleC must have the following methods:
-    //   id(),      returning a ProductID,
-   //   product(), returning a C*.
     template<typename C>
     explicit RefToBaseProd(Handle<C> const& handle);
     explicit RefToBaseProd(Handle<View<T> > const& handle);
@@ -100,17 +101,6 @@ namespace edm {
     // so that 'productPtr' can hold our View
     mutable RefCore product_;
   };
-}
-
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefCoreGet.h"
-#include "DataFormats/Common/interface/RefVectorHolder.h"
-#include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/RefTraits.h"
-
-namespace edm {
 
   template<typename T>
   inline

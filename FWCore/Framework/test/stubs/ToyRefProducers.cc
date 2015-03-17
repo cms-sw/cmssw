@@ -158,18 +158,18 @@ namespace edmtest {
   // this producer. The input collection is read as an edm::View<int>
   class IntVecStdVectorPtrProducer : public edm::global::EDProducer<> {
     typedef std::vector<edm::Ptr<int>> product_type;
-    
+
   public:
     explicit IntVecStdVectorPtrProducer(edm::ParameterSet const& p) :
     target_(consumes<edm::View<int>>(p.getParameter<edm::InputTag>("target"))) {
       produces<product_type>();
     }
     virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
-    
+
   private:
     const edm::EDGetTokenT<edm::View<int>> target_;
   };
-  
+
   void
   IntVecStdVectorPtrProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const  {
     // EventSetup is not used.
@@ -177,13 +177,13 @@ namespace edmtest {
     edm::Handle<edm::View<int> > input;
     e.getByToken(target_, input);
     assert(input.isValid());
-    
+
     std::unique_ptr<product_type> prod(new product_type());
-    
+
     typedef product_type::value_type ref;
     for(size_t i = 0, sz = input->size(); i != sz; ++i)
       prod->emplace_back(input, i);
-    
+
     e.put(std::move(prod));
   }
 

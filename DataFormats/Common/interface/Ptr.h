@@ -22,12 +22,14 @@
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Common/interface/FillViewHelperVector.h"
 #include "DataFormats/Common/interface/GetProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/TestHandle.h"
 #include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 // system include files
 #include "boost/type_traits/is_base_of.hpp"

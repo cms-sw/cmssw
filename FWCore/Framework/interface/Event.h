@@ -22,6 +22,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/FillViewHelperVector.h"
 #include "DataFormats/Common/interface/FunctorHandleExceptionFactory.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"

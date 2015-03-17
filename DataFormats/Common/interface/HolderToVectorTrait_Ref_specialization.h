@@ -23,9 +23,9 @@
 //
 #include <memory>
 
-#include "DataFormats/Common/interface/Holder.h"
 #include "DataFormats/Common/interface/VectorHolder.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefVectorHolder.h"
 
 namespace edm {
   namespace reftobase {

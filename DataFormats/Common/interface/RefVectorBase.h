@@ -52,7 +52,9 @@ namespace edm {
     /// Accessor for product ID and product getter
     RefCore const& refCore() const {return product_;}
 
-    void const* cachedMemberPointer(size_type idx) const { return memberPointers().empty() ? nullptr : memberPointers()[idx]; } 
+    void const* cachedMemberPointer(size_type idx) const {
+      return memberPointers().empty() ? nullptr : memberPointers()[idx];
+    }
 
     /// Accessor for vector of keys and pointers
     keys_type const& keys() const {return keys_;}

@@ -34,7 +34,7 @@ namespace edmtest {
     virtual void analyze(edm::StreamID,
                          edm::Event const& event,
                          edm::EventSetup const&) const override;
-    
+
     edm::EDGetTokenT<std::vector<int> > inputToken1_;
     edm::EDGetTokenT<std::vector<int> > inputToken2_;
     edm::EDGetTokenT<edm::View<int> > inputToken1V_;
@@ -66,7 +66,7 @@ namespace edmtest {
     associationMapToken8_ = consumes<AssocOneToOneView>(pset.getParameter<edm::InputTag>("associationMapTag8"));
   }
 
-  void 
+  void
   AssociationMapAnalyzer::analyze(edm::StreamID,
                                   edm::Event const& event,
                                   edm::EventSetup const&) const {

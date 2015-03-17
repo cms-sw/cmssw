@@ -32,6 +32,7 @@
 
 // forward declarations
 namespace edm {
+  class ProductID;
   template <typename T> class PtrVector;
 
   template <typename T>

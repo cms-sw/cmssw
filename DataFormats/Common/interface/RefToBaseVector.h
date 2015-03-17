@@ -8,7 +8,9 @@
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/FillViewHelperVector.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include <algorithm>
 #include <memory>
+#include <utility>
 #include <vector>
 #include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 

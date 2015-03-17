@@ -104,7 +104,6 @@ Ref: A template for a interproduct reference to a member of a product_.
     ----------------------------------------------------------------------*/ 
 
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
-#include "DataFormats/Common/interface/ConstPtrCache.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -120,6 +119,8 @@ Ref: A template for a interproduct reference to a member of a product_.
 #include "boost/type_traits.hpp"
 #include "boost/mpl/has_xxx.hpp"
 #include "boost/utility/enable_if.hpp"
+
+#include <vector>
 
 BOOST_MPL_HAS_XXX_TRAIT_DEF(key_compare)
 
@@ -160,11 +161,11 @@ namespace edm {
   public:
     /// for export
     typedef C product_type;
-    typedef T value_type; 
+    typedef T value_type;
     typedef T const element_type; //used for generic programming
     typedef F finder_type;
     typedef typename boost::binary_traits<F>::second_argument_type argument_type;
-    typedef typename boost::remove_cv<typename boost::remove_reference<argument_type>::type>::type key_type;   
+    typedef typename boost::remove_cv<typename boost::remove_reference<argument_type>::type>::type key_type;
     /// C is the type of the collection
     /// T is the type of a member the collection
 
@@ -316,7 +317,8 @@ namespace edm {
     typedef std::vector<E> product_type;
     typedef typename refhelper::ValueTrait<std::vector<E> >::value value_type; 
     typedef value_type const element_type; //used for generic programming
-    typedef typename refhelper::FindTrait<std::vector<E>, typename refhelper::ValueTrait<std::vector<E> >::value>::value finder_type;
+    typedef typename refhelper::FindTrait<std::vector<E>,
+                                          typename refhelper::ValueTrait<std::vector<E> >::value>::value finder_type;
     typedef typename boost::binary_traits<F>::second_argument_type argument_type;
     typedef unsigned int key_type;   
     /// C is the type of the collection
@@ -467,7 +469,9 @@ namespace edm {
   Ref<REF_FOR_VECTOR_ARGS>::Ref(Handle<std::vector<E> > const& handle, key_type itemKey, bool) :
     product_(handle.id(), nullptr, nullptr, false, itemKey){
     if(itemKey == key_traits<key_type>::value) return;
-    refitem::findRefItem<product_type, value_type, finder_type, key_type>(product_.toRefCore(), handle.product(), itemKey);
+    refitem::findRefItem<product_type, value_type, finder_type, key_type>(product_.toRefCore(),
+                                                                          handle.product(),
+                                                                          itemKey);
   }
 
   /// General purpose constructor from orphan handle.
@@ -485,7 +489,9 @@ namespace edm {
   Ref<REF_FOR_VECTOR_ARGS>::Ref(OrphanHandle<std::vector<E> > const& handle, key_type itemKey, bool) :
     product_(handle.id(), nullptr, nullptr, false, itemKey){
     if(itemKey == key_traits<key_type>::value) return;
-    refitem::findRefItem<product_type, value_type, finder_type, key_type>(product_.toRefCore(), handle.product(), itemKey);
+    refitem::findRefItem<product_type, value_type, finder_type, key_type>(product_.toRefCore(),
+                                                                          handle.product(),
+                                                                          itemKey);
   }
   
   /// Constructor for refs to object that is not in an event.
@@ -528,16 +534,22 @@ namespace edm {
   Ref<REF_FOR_VECTOR_ARGS>::Ref(TestHandle<std::vector<E> > const& handle, key_type itemKey, bool) :
     product_(handle.id(), nullptr, nullptr, true, itemKey){
     if(itemKey == key_traits<key_type>::value) return;
-    refitem::findRefItem<product_type, value_type, finder_type, key_type>(product_.toRefCore(), handle.product(), itemKey);
+    refitem::findRefItem<product_type, value_type, finder_type, key_type>(product_.toRefCore(),
+                                                                          handle.product(),
+                                                                          itemKey);
   }
 
   /// Constructor from RefProd<C> and key
   template <typename C, typename T, typename F>
   inline
   Ref<C, T, F>::Ref(RefProd<C> const& refProd, key_type itemKey) :
-    product_(refProd.id(), nullptr, refProd.refCore().productGetter(), refProd.refCore().isTransient()), index_(itemKey) {
+    product_(refProd.id(), nullptr, refProd.refCore().productGetter(), refProd.refCore().isTransient()),
+    index_(itemKey) {
+
     if(refProd.refCore().productPtr() != nullptr && itemKey != key_traits<key_type>::value) {
-      refitem::findRefItem<C, T, F, key_type>(product_, static_cast<product_type const*>(refProd.refCore().productPtr()), itemKey);
+      refitem::findRefItem<C, T, F, key_type>(product_,
+                                              static_cast<product_type const*>(refProd.refCore().productPtr()),
+                                              itemKey);
     }
   }
 
@@ -545,8 +557,12 @@ namespace edm {
   inline
   Ref<REF_FOR_VECTOR_ARGS>::Ref(RefProd<std::vector<E> > const& refProd, key_type itemKey) :
     product_(refProd.id(), nullptr, refProd.refCore().productGetter(), refProd.refCore().isTransient(), itemKey) {
+
     if(refProd.refCore().productPtr() != nullptr && itemKey != key_traits<key_type>::value) {
-      refitem::findRefItem<product_type, value_type, finder_type, key_type>(product_.toRefCore(), static_cast<product_type const*>(refProd.refCore().productPtr()), itemKey);
+      refitem::findRefItem<product_type, value_type, finder_type, key_type>(
+          product_.toRefCore(),
+          static_cast<product_type const*>(refProd.refCore().productPtr()),
+          itemKey);
     }
   }
 

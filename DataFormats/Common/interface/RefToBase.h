@@ -260,8 +260,8 @@ namespace edm {
 
     template<typename T, typename U>
     typename std::enable_if<!std::is_class<T>::value>::type
-      checkTypeCompatibility() { static_assert(std::is_same<T, U>::value,
-                                 "RefToBase::castTo error non-class element types are not the same"); }
+    checkTypeCompatibility() { static_assert(std::is_same<T, U>::value,
+                               "RefToBase::castTo error non-class element types are not the same"); }
 
     // Convert the pointer types, use dynamic_cast if they are classes
     template<typename T, typename OUT>

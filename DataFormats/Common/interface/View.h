@@ -172,7 +172,7 @@ namespace edm {
     assert(numElements == helpers.size());
 
     items_.reserve(numElements);
-    vPtrs_.reserve(pointers.size());
+    vPtrs_.reserve(numElements);
     for(std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i) {
       void const* p = pointers[i];
       auto const& h = helpers[i];

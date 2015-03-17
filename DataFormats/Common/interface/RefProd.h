@@ -36,15 +36,20 @@ Ref: A template for an interproduct reference to a product.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
-#include "DataFormats/Common/interface/EDProductfwd.h"
-#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/TestHandle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 
+// Not really needed but things depend on it being here ...
+#include "DataFormats/Common/interface/Ref.h"
+
+#include <utility>
+
 namespace edm {
+
+  class EDProductGetter;
 
   template<typename C>
   class RefProd {
@@ -161,12 +166,9 @@ namespace edm {
   };
 }
 
-#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefCoreGet.h"
 
 namespace edm {
-  template<typename C, typename T, typename F>
-  class RefVector;
 
   /// Dereference operator
   template<typename C>
