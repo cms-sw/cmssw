@@ -25,10 +25,11 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 
+#include "TH1F.h"
 #include "TFile.h"
 #include "TTree.h"
 
-#define debugLog
+//#define debugLog
 
 // class declaration
 class RecAnalyzerMinbias : public edm::EDAnalyzer {
@@ -45,19 +46,22 @@ private:
 		   const HcalRespCorrs*, int);
     
   // ----------member data ---------------------------
+  char name[700], hf_name[700], title[700], hf_title[700];
   std::string fOutputFileName ;
   bool        theRecalib, ignoreL1;
   TFile*      hOutputFile ;
   TTree*      myTree;
+  std::vector<TH1D *>       histo;
+  std::vector<unsigned int> hcalID;
 
   // Root tree members
   double rnnum, rnnumber;
   int    mysubd, depth, iphi, ieta, cells, trigbit;
   float  mom0_MB, mom1_MB, mom2_MB, mom3_MB, mom4_MB;
   struct myInfo{
-    double theMB0, theMB1, theMB2, theMB4, runcheck;
+    double theMB0, theMB1, theMB2, theMB3, theMB4, runcheck;
     void MyInfo() {
-      theMB0 = theMB1 = theMB2 = theMB4 = runcheck = 0;
+      theMB0 = theMB1 = theMB2 = theMB3 = theMB4 = runcheck = 0;
     }
   };
   std::map<std::pair<int,HcalDetId>,myInfo> myMap;
@@ -73,17 +77,47 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) {
   fOutputFileName = iConfig.getUntrackedParameter<std::string>("HistOutFile");
   theRecalib      = iConfig.getParameter<bool>("Recalib");
   ignoreL1        = iConfig.getUntrackedParameter<bool>("IgnoreL1", false);
-    
+  std::vector<int> ieta =  iConfig.getUntrackedParameter<std::vector<int>>("HcalIeta");
+  std::vector<int> iphi =  iConfig.getUntrackedParameter<std::vector<int>>("HcalIphi");
+  std::vector<int> depth=  iConfig.getUntrackedParameter<std::vector<int>>("HcalDepth");
+
   // get token names of modules, producing object collections
   tok_hbherecoMB_   = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputMB"));
   tok_hfrecoMB_     = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputMB"));
-
   tok_hltL1GtMap_   = consumes<L1GlobalTriggerObjectMapRecord>(edm::InputTag("hltL1GtObjectMap"));
+
+#ifdef DebugLog
+  std::cout << "Output File: " << fOutputFileName << " Flags (ReCalib): "
+	    << theRecalib << " (IgnoreL1): " << ignoreL1 << " with "
+	    << ieta.size() << " detId for full histogram" << std::endl;
+#endif
+  for (unsigned int k=0; k<ieta.size(); ++k) {
+    HcalSubdetector subd = ((std::abs(ieta[k]) > 29) ? HcalForward : 
+			    (std::abs(ieta[k]) > 16) ? HcalEndcap :
+			    ((std::abs(ieta[k]) == 16) && (depth[k] == 3)) ? HcalEndcap :
+			    (depth[k] == 4) ? HcalOuter : HcalBarrel);
+    unsigned int id = (HcalDetId(subd,ieta[k],iphi[k],depth[k])).rawId();
+    hcalID.push_back(id);
+#ifdef DebugLog
+    std::cout << "DetId[" << k << "] " << HcalDetId(id) << std::endl;
+#endif
+  }
 }
   
 RecAnalyzerMinbias::~RecAnalyzerMinbias() {}
   
 void RecAnalyzerMinbias::beginJob() {
+  std::string hc[5] = {"Empty", "HB", "HE", "HO", "HF"};
+  for (unsigned int i=0; i<hcalID.size(); i++) {
+    HcalDetId id = HcalDetId(hcalID[i]);
+    int subdet   = id.subdetId();
+    sprintf (name, "%s%d_%d_%d", hc[subdet].c_str(), id.ieta(), id.iphi(), id.depth());
+    sprintf (title, "Energy Distribution for %s ieta %d iphi %d depth %d", hc[subdet].c_str(), id.ieta(), id.iphi(), id.depth());
+    double xmin = (subdet == 4) ? -10 : -1;
+    double xmax = (subdet == 4) ? 90 : 9;
+    TH1D*  hh   = new TH1D(name, title, 50, xmin, xmax);
+    histo.push_back(hh);
+  };
 
   hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;
   myTree = new TTree("RecJet","RecJet Tree");
@@ -95,6 +129,7 @@ void RecAnalyzerMinbias::beginJob() {
   myTree->Branch("mom0_MB",  &mom0_MB,  "mom0_MB/F");
   myTree->Branch("mom1_MB",  &mom1_MB,  "mom1_MB/F");
   myTree->Branch("mom2_MB",  &mom2_MB,  "mom2_MB/F");
+  myTree->Branch("mom3_MB",  &mom2_MB,  "mom3_MB/F");
   myTree->Branch("mom4_MB",  &mom4_MB,  "mom4_MB/F");
   myTree->Branch("trigbit",  &trigbit,  "trigbit/I");
   myTree->Branch("rnnumber", &rnnumber, "rnnumber/D");
@@ -116,6 +151,7 @@ void RecAnalyzerMinbias::endJob() {
       mom0_MB  = info.theMB0;
       mom1_MB  = info.theMB1;
       mom2_MB  = info.theMB2;
+      mom3_MB  = info.theMB3;
       mom4_MB  = info.theMB4;
       rnnumber = info.runcheck;
       trigbit  = itr->first.first;
@@ -126,7 +162,8 @@ void RecAnalyzerMinbias::endJob() {
 #ifdef debugLog  
       std::cout << " Result=  " << trigbit << " " << mysubd << " " << ieta 
 		<< " " << iphi << " mom0  " << mom0_MB << " mom1 " << mom1_MB 
-		<< " mom2 " << mom2_MB << " mom4 " << mom4_MB << std::endl;
+		<< " mom2 " << mom2_MB << " mom3 " << mom3_MB << " mom4 " 
+		<< mom4_MB << std::endl;
 #endif
       myTree->Fill();
       cells++;
@@ -135,8 +172,13 @@ void RecAnalyzerMinbias::endJob() {
 #ifdef debugLog  
   std::cout << "cells" << " " << cells << std::endl;
 #endif
+  
+
   hOutputFile->Write();   
   hOutputFile->cd();
+  for(unsigned int i = 0; i<histo.size(); i++){
+    histo[i]->Write();
+  }
   myTree->Write();
   hOutputFile->Close() ;
 }
@@ -229,7 +271,13 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
     double energyhit = aHit.energy();
     DetId id         = (*hbheItr).detid(); 
     HcalDetId hid    = HcalDetId(id);
-	      
+
+    for (unsigned int i = 0; i < hcalID.size(); i++) {
+      if (hcalID[i] == id.rawId()) {
+	histo[i]->Fill(energyhit);
+	break;
+      }
+    }
     std::map<std::pair<int,HcalDetId>,myInfo>::iterator itr1 = myMap.find(std::pair<int,HcalDetId>(algoBit,hid));
     if (itr1 == myMap.end()) {
       myInfo info;
@@ -239,6 +287,7 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
     itr1->second.theMB0++;
     itr1->second.theMB1 += energyhit;
     itr1->second.theMB2 += (energyhit*energyhit);
+    itr1->second.theMB3 += (energyhit*energyhit*energyhit);
     itr1->second.theMB4 += (energyhit*energyhit*energyhit*energyhit);
     itr1->second.runcheck = rnnum;
   } // HBHE_MB
@@ -255,11 +304,16 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
     double energyhit = aHit.energy();
     DetId id         = (*hfItr).detid(); 
     HcalDetId hid    = HcalDetId(id);
+    for (unsigned int i = 0; i < hcalID.size(); i++) {
+      if (hcalID[i] == id.rawId()) {
+	histo[i]->Fill(energyhit);
+	break;
+      }
+    }
     //
     // Remove PMT hits
     //	 
     if (fabs(energyhit) > 40.) continue;
-	      
     std::map<std::pair<int,HcalDetId>,myInfo>::iterator itr1 = myMap.find(std::pair<int,HcalDetId>(algoBit,hid));
     if (itr1 == myMap.end()) {
       myInfo info;
@@ -269,6 +323,7 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
     itr1->second.theMB0++;
     itr1->second.theMB1 += energyhit;
     itr1->second.theMB2 += (energyhit*energyhit);
+    itr1->second.theMB3 += (energyhit*energyhit*energyhit);
     itr1->second.theMB4 += (energyhit*energyhit*energyhit*energyhit);
     itr1->second.runcheck = rnnum;
   }
