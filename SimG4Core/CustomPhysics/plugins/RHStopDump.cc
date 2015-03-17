@@ -18,6 +18,15 @@ RHStopDump::RHStopDump(edm::ParameterSet const & parameters)
    fEvent.getByLabel (mProducer, "StoppedParticlesY", ys);
    edm::Handle<std::vector<float> > zs;
    fEvent.getByLabel (mProducer, "StoppedParticlesZ", zs);
+   edm::Handle<std::vector<float> > ts;
+   fEvent.getByLabel (mProducer, "StoppedParticlesTime", ts);
+   edm::Handle<std::vector<int> > ids;
+   fEvent.getByLabel (mProducer, "StoppedParticlesPdgId", ids);
+   edm::Handle<std::vector<float> > masses;
+   fEvent.getByLabel (mProducer, "StoppedParticlesMass", masses);
+   edm::Handle<std::vector<float> > charges;
+   fEvent.getByLabel (mProducer, "StoppedParticlesCharge", charges);
+
    if (names->size() != xs->size() || xs->size() != ys->size() || ys->size() != zs->size()) {
      edm::LogError ("RHStopDump") << "mismatch array sizes name/x/y/z:"
 				  << names->size() << '/' << xs->size() << '/' << ys->size() << '/' << zs->size()
@@ -25,7 +34,8 @@ RHStopDump::RHStopDump(edm::ParameterSet const & parameters)
    }
    else {
      for (size_t i = 0; i < names->size(); ++i) {
-       mStream << (*names)[i] << ' ' << (*xs)[i] << ' ' << (*ys)[i] << ' ' << (*zs)[i] << std::endl;
+       mStream << (*names)[i] << ' ' << (*xs)[i] << ' ' << (*ys)[i] << ' ' << (*zs)[i] << ' ' << (*ts)[i] << std::endl;
+       mStream << (*ids)[i] << ' ' << (*masses)[i] << ' ' << (*charges)[i] << std::endl;
      }
    }
  }
