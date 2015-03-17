@@ -837,28 +837,44 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
               float phiG = fmod( theStub.phiValue()+15.0*M_PI/180+(sector)*60.0*M_PI/180, 2.*M_PI );
 
 
-              // BX plots
-              // minus side
-              if (endcap == 1 && station == 0 && ring == 1) { csctflcts -> Fill(bx, 8.5); }
-              if (endcap == 1 && station == 0 && ring == 2) { csctflcts -> Fill(bx, 7.5); }
-              if (endcap == 1 && station == 0 && ring == 3) { csctflcts -> Fill(bx, 6.5); }
-              if (endcap == 1 && station == 1 && ring == 1) { csctflcts -> Fill(bx, 5.5); }
-              if (endcap == 1 && station == 1 && ring == 2) { csctflcts -> Fill(bx, 4.5); }
-              if (endcap == 1 && station == 2 && ring == 1) { csctflcts -> Fill(bx, 3.5); }
-              if (endcap == 1 && station == 2 && ring == 2) { csctflcts -> Fill(bx, 2.5); }
-              if (endcap == 1 && station == 3 && ring == 1) { csctflcts -> Fill(bx, 1.5); }
-              if (endcap == 1 && station == 3 && ring == 2) { csctflcts -> Fill(bx, 0.5); }
+	      //BX plots
+	      // endcap==1: minus side; endcap==0: plus side
+	      // station=0,1,2,3; ring=1,2,3;
+              if(endcap==1) {
+                    if(station==0) {
+                        if(ring==1)             csctflcts -> Fill(bx, 8.5);
+                        else if(ring==2)        csctflcts -> Fill(bx, 7.5);
+                        else                    csctflcts -> Fill(bx, 6.5);
+                    } else if(station==1) {
+                        if(ring==1)             csctflcts -> Fill(bx, 5.5);
+                        else                    csctflcts -> Fill(bx, 4.5);
+                    } else if(station==2) {
+                        if(ring==1)             csctflcts -> Fill(bx, 3.5);
+                        else if                 csctflcts -> Fill(bx, 2.5);
+                    } else if(station==3) {
+                        if(ring==1)             csctflcts -> Fill(bx, 1.5);
+                        else                    csctflcts -> Fill(bx, 0.5);
+                    }
 
-              // plus side
-              if (endcap == 0 && station == 0 && ring == 1) { csctflcts -> Fill(bx, 9.5); }
-              if (endcap == 0 && station == 0 && ring == 2) { csctflcts -> Fill(bx, 10.5); }
-              if (endcap == 0 && station == 0 && ring == 3) { csctflcts -> Fill(bx, 11.5); }
-              if (endcap == 0 && station == 1 && ring == 1) { csctflcts -> Fill(bx, 12.5); }
-              if (endcap == 0 && station == 1 && ring == 2) { csctflcts -> Fill(bx, 13.5); }
-              if (endcap == 0 && station == 2 && ring == 1) { csctflcts -> Fill(bx, 14.5); }
-              if (endcap == 0 && station == 2 && ring == 2) { csctflcts -> Fill(bx, 15.5); }
-              if (endcap == 0 && station == 3 && ring == 1) { csctflcts -> Fill(bx, 16.5); }
-              if (endcap == 0 && station == 3 && ring == 2) { csctflcts -> Fill(bx, 17.5); }
+              } else {
+                    if(station==0) {
+                        if(ring==1)             csctflcts -> Fill(bx, 9.5);
+                        else if(ring==2)        csctflcts -> Fill(bx, 10.5);
+                        else                    csctflcts -> Fill(bx, 11.5);
+                    } else if(station==1) {
+                        if(ring==1)             csctflcts -> Fill(bx, 12.5);
+                        else                    csctflcts -> Fill(bx, 13.5);
+                    } else if(station==2) {
+                        if(ring==1)             csctflcts -> Fill(bx, 14.5);
+                        else if                 csctflcts -> Fill(bx, 15.5);
+                    } else if(station==3) {
+                        if(ring==1)             csctflcts -> Fill(bx, 16.5);
+                        else                    csctflcts -> Fill(bx, 17.5);
+                    }
+              }
+
+
+
 
 
                // only for ME1/1
