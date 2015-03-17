@@ -5,6 +5,7 @@
 #include "FWCore/Utilities/interface/transform.h"
 #include "boost/foreach.hpp"
 
+
 SiStripClusterizer::
 SiStripClusterizer(const edm::ParameterSet& conf) 
   : inputTags( conf.getParameter<std::vector<edm::InputTag> >("DigiProducersList") ),
