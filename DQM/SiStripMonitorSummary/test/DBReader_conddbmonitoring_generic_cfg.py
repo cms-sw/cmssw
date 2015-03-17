@@ -182,7 +182,7 @@ process.load('Configuration.Geometry.GeometryExtended_cff')
 process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
 
 process.poolDBESSource = cms.ESSource("PoolDBESSource",
-   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+#   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
    DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(1),  # it used to be 2
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
