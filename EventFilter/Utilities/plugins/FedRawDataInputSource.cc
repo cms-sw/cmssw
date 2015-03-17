@@ -202,7 +202,7 @@ bool FedRawDataInputSource::checkNextEvent()
             daqDirector_->lockFULocal2();
             int eol_fd = open(fuEoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
             close(eol_fd);
-            daqDirector_->lockFULocal2();
+            daqDirector_->unlockFULocal2();
           }
         }
       }
