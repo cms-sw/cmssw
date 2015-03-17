@@ -432,7 +432,7 @@ ecalHcal={
 steps['SingleElectronE120EHCAL']=merge([{'cfg':'SingleElectronE120EHCAL_cfi'},ecalHcal,Kby(25,250),step1Defaults])
 steps['SinglePiE50HCAL']=merge([{'cfg':'SinglePiE50HCAL_cfi'},ecalHcal,Kby(25,250),step1Defaults])
 
-steps['MinBiasHS']=gen('MinBias_8TeV_pythia8_TuneCUETP8M1_cfi',Kby(25,300))
+steps['MinBiasHS']=gen('MinBias_8TeV_pythia8_TuneCUETP8M1_cff',Kby(25,300))
 steps['InclusiveppMuX']=gen('InclusiveppMuX_8TeV_TuneCUETP8M1_cfi',Mby(11,45000))
 steps['SingleElectronFlatPt5To100']=gen('SingleElectronFlatPt5To100_cfi',Kby(25,250))
 steps['SinglePiPt1']=gen('SinglePiPt1_cfi',Kby(25,250))
@@ -1355,12 +1355,18 @@ steps['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQualit
 steps['RECOHISt4']=steps['RECOHI']
 
 steps['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','--mc':''},step4Defaults])
-steps['HARVGEN']={'-s':'HARVESTING:genHarvesting',
-                  '--harvesting':'AtJobEnd',
-                  '--conditions':'auto:run1_mc',
-                  '--mc':'',
-                  '--filein':'file:step1.root'
+
+steps['HARVESTGEN']={'-s':'HARVESTING:genHarvesting',
+                     '--harvesting':'AtJobEnd',
+                     '--conditions':'auto:run2_mc_FULL',
+                     '--mc':'',
+                     '--customise' :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                     '--filetype':'DQM',
+                     '--filein':'file:step1_inDQM.root'
                   }
+
+
+steps['HARVESTGEN2']=merge([{'--filein':'file:step2_inDQM.root'},steps['HARVESTGEN']])
 
 #data
 steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
