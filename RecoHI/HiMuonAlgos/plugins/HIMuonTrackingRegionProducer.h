@@ -46,7 +46,6 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
 
     // initialize the region builder
     theService->update(es);
-//    theRegionBuilder->init(theService);
     theRegionBuilder->setEvent(ev);
 
     // get stand-alone muon collection
