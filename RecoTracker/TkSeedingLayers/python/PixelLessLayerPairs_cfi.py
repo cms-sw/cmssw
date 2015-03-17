@@ -33,7 +33,7 @@ PixelLessLayerPairs.layerList = cms.vstring('TIB1+TIB2',
 PixelLessLayerPairs.TIB = cms.PSet(
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     TTRHBuilder = cms.string('WithTrackAngle')
-    ,minGoodCharge = cms.double(-2069.)
+    ,clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 PixelLessLayerPairs.TID = cms.PSet(
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
@@ -41,7 +41,7 @@ PixelLessLayerPairs.TID = cms.PSet(
     TTRHBuilder = cms.string('WithTrackAngle'),
     minRing = cms.int32(1),
     maxRing = cms.int32(2)
-    ,minGoodCharge = cms.double(-2069.)
+    ,clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 PixelLessLayerPairs.TEC = cms.PSet(
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
@@ -49,7 +49,7 @@ PixelLessLayerPairs.TEC = cms.PSet(
     TTRHBuilder = cms.string('WithTrackAngle'),
     minRing = cms.int32(1),
     maxRing = cms.int32(2)
-    ,minGoodCharge = cms.double(-2069.)
+    ,clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 
 
