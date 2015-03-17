@@ -49,8 +49,10 @@ FastTSGFromL2Muon::beginRun(edm::Run const& run, edm::EventSetup const& es)
   edm::ParameterSet regionBuilderPSet = 
     theConfig.getParameter<edm::ParameterSet>("MuonTrackingRegionBuilder");
   edm::ConsumesCollector iC  = consumesCollector();
-  theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet,theService,iC);
-  
+//  theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet,theService,iC);
+  theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet,iC);
+ 
+ 
   /*
   if(useTFileService_) {
     edm::Service<TFileService> fs;
