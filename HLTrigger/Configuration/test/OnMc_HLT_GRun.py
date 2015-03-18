@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/GRun/V22 (CMSSW_7_4_0_pre7_HLT4)
+# /dev/CMSSW_7_4_0/GRun/V23 (CMSSW_7_4_0_pre7_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V22')
+  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V23')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -7679,7 +7679,8 @@ process.hltEgammaElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       PhiMax2B = cms.double( 0.004 ),
       PhiMax2F = cms.double( 0.004 ),
       DeltaPhi2B = cms.double( 0.004 ),
-      DeltaPhi2F = cms.double( 0.004 )
+      DeltaPhi2F = cms.double( 0.004 ),
+      SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsCreator" ) )
     ),
     barrelSuperClusters = cms.InputTag( 'hltParticleFlowSuperClusterECALL1Seeded','hltParticleFlowSuperClusterECALBarrel' )
 )
@@ -8926,7 +8927,8 @@ process.hltEgammaElectronPixelSeedsUnseeded = cms.EDProducer( "ElectronSeedProdu
       PhiMax2B = cms.double( 0.004 ),
       PhiMax2F = cms.double( 0.004 ),
       DeltaPhi2B = cms.double( 0.004 ),
-      DeltaPhi2F = cms.double( 0.004 )
+      DeltaPhi2F = cms.double( 0.004 ),
+      SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsCreator" ) )
     ),
     barrelSuperClusters = cms.InputTag( 'hltParticleFlowSuperClusterECALUnseeded','hltParticleFlowSuperClusterECALBarrel' )
 )
