@@ -177,13 +177,13 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 	  break;      
 	}
       
-        assert(hit->geographicalId()!=0U);
+        assert( (hit->geographicalId()!=0U) | (!hit->canImproveWithTrack()) );
        	assert(hit->surface()!=nullptr);
         assert( (!(hit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
         assert( (!(hit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>(hit.get())));
         auto preciseHit = theHitCloner->makeShared(hit,combTsos);
         assert(preciseHit->isValid());
-       	assert(preciseHit->geographicalId()!=0U);
+       	assert( (preciseHit->geographicalId()!=0U) | (!preciseHit->canImproveWithTrack()) );
        	assert(preciseHit->surface()!=nullptr);
 
       if unlikely(!preciseHit->isValid()){
