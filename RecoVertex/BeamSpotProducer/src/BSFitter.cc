@@ -500,7 +500,9 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 		// average transverse beam width
 		double sigmabeam2 = 0.006 * 0.006;
 		if (finputBeamWidth > 0 ) sigmabeam2 = finputBeamWidth * finputBeamWidth;
-        else { edm::LogWarning("BSFitter") << "using in fit beam width = " << sqrt(sigmabeam2) << std::endl; }
+        else { 
+	      //edm::LogWarning("BSFitter") << "using in fit beam width = " << sqrt(sigmabeam2) << std::endl; 
+	     }
         
 		//double sigma2 = sigmabeam2 +  (iparam->sigd0())* (iparam->sigd0()) / iparam->weight2;
 		// this should be 2*sigmabeam2?
@@ -568,13 +570,14 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	//Use our own copy for thread safety
 	TF1 fgaus("fgaus","gaus");
 	//returns 0 if OK
-	auto status = h1z->Fit(&fgaus,"QLM0","",h1z->GetMean() -2.*h1z->GetRMS(),h1z->GetMean() +2.*h1z->GetRMS());
+	//auto status = h1z->Fit(&fgaus,"QLM0","",h1z->GetMean() -2.*h1z->GetRMS(),h1z->GetMean() +2.*h1z->GetRMS());
+	auto status = h1z->Fit(&fgaus,"QL0","",h1z->GetMean() -2.*h1z->GetRMS(),h1z->GetMean() +2.*h1z->GetRMS());
 
 	//std::cout << "fitted "<< std::endl;
 
 	//std::cout << "got function" << std::endl;
 	if (status){	
-	  edm::LogError("NoBeamSpotFit")<<"gaussian fit failed. no BS d0 fit";		
+	  //edm::LogError("NoBeamSpotFit")<<"gaussian fit failed. no BS d0 fit";		
 	  return reco::BeamSpot();
 	}
 	double fpar[2] = {fgaus.GetParameter(1), fgaus.GetParameter(2) };
