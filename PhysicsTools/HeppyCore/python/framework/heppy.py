@@ -11,8 +11,16 @@ import copy
 from multiprocessing import Pool
 from pprint import pprint
 
+# import root in batch mode if "-i" is not among the options
+if "-i" not in sys.argv:
+    oldv = sys.argv[:]
+    sys.argv = [ "-b-"]
+    import ROOT
+    ROOT.gROOT.SetBatch(True)
+    sys.argv = oldv
+
+
 from PhysicsTools.HeppyCore.framework.looper import Looper
-from PhysicsTools.HeppyCore.framework.anapath import analyzer_path
 
 # global, to be used interactively when only one component is processed.
 loop = None
@@ -21,21 +29,33 @@ def callBack( result ):
     pass
     print 'production done:', str(result)
 
-def runLoopAsync(comp, outDir, config, options):
-    loop = runLoop( comp, outDir, config, options)
-    return loop.name
+def runLoopAsync(comp, outDir, configName, options):
+    try:
+        loop = runLoop( comp, outDir, copy.copy(sys.modules[configName].config), options)
+        return loop.name
+    except Exception:
+        import traceback
+        print "ERROR processing component %s" % comp.name
+        print comp
+        print "STACK TRACE: "
+        print traceback.format_exc()
+        raise
 
 def runLoop( comp, outDir, config, options):
     fullName = '/'.join( [outDir, comp.name ] )
     # import pdb; pdb.set_trace()
-    loop = Looper( fullName, comp, config.sequence, config.events_class,
+    config.components = [comp]
+    loop = Looper( fullName,
+                   config,
                    options.nevents, 0,
-                   nPrint = options.nprint)
-    print loop
+                   nPrint = options.nprint,
+                   timeReport = options.timeReport,
+                   quiet = options.quiet)
+    # print loop
     if options.iEvent is None:
         loop.loop()
         loop.write()
-        print loop
+        # print loop
     else:
         # loop.InitOutput()
         iEvent = int(options.iEvent)
@@ -77,7 +97,16 @@ def split(comps):
     # import pdb; pdb.set_trace()
     splitComps = []
     for comp in comps:
-        if hasattr( comp, 'splitFactor') and comp.splitFactor>1:
+        if hasattr( comp, 'fineSplitFactor') and comp.fineSplitFactor>1:
+            subchunks = range(comp.fineSplitFactor)
+            for ichunk, chunk in enumerate([(f,i) for f in comp.files for i in subchunks]):
+                newComp = copy.deepcopy(comp)
+                newComp.files = [chunk[0]]
+                newComp.fineSplit = ( chunk[1], comp.fineSplitFactor )
+                newComp.name = '{name}_Chunk{index}'.format(name=newComp.name,
+                                                       index=ichunk)
+                splitComps.append( newComp )
+        elif hasattr( comp, 'splitFactor') and comp.splitFactor>1:
             chunkSize = len(comp.files) / comp.splitFactor
             if len(comp.files) % comp.splitFactor:
                 chunkSize += 1
@@ -93,6 +122,11 @@ def split(comps):
     return splitComps
 
 
+_heppyGlobalOptions = {}
+
+def getHeppyOption(name,default=None):
+    global _heppyGlobalOptions
+    return _heppyGlobalOptions[name] if name in _heppyGlobalOptions else default
 
 def main( options, args ):
 
@@ -112,27 +146,42 @@ def main( options, args ):
         print 'ERROR: second argument must be an existing file (your input cfg).'
         sys.exit(3)
 
-    file = open( cfgFileName, 'r' )
-    cfg = imp.load_source( 'cfg', cfgFileName, file)
+    if options.verbose:
+        import logging
+        logging.basicConfig(level=logging.INFO)
 
-    sys.path = analyzer_path + sys.path
+    # Propagate global options to _heppyGlobalOptions within this module
+    # I have to import it explicitly, 'global' does not work since the
+    # module is not set when executing the main
+    from PhysicsTools.HeppyCore.framework.heppy import _heppyGlobalOptions
+    for opt in options.extraOptions:
+        if "=" in opt:
+            (key,val) = opt.split("=",1)
+            _heppyGlobalOptions[key] = val
+        else:
+            _heppyGlobalOptions[opt] = True
+
+    file = open( cfgFileName, 'r' )
+    cfg = imp.load_source( 'PhysicsTools.HeppyCore.__cfg_to_run__', cfgFileName, file)
 
     selComps = [comp for comp in cfg.config.components if len(comp.files)>0]
     selComps = split(selComps)
-    for comp in selComps:
-        print comp
-    if len(selComps)>14:
-        raise ValueError('too many threads: {tnum}'.format(tnum=len(selComps)))
+    # for comp in selComps:
+    #    print comp
+    if len(selComps)>10:
+        print "WARNING: too many threads {tnum}, will just use a maximum of 10.".format(tnum=len(selComps))
     if not createOutputDir(outDir, selComps, options.force):
         print 'exiting'
         sys.exit(0)
     if len(selComps)>1:
         shutil.copy( cfgFileName, outDir )
-        pool = Pool(processes=len(selComps))
+        pool = Pool(processes=min(len(selComps),10))
+        ## workaround for a scoping problem in ipython+multiprocessing
+        import PhysicsTools.HeppyCore.framework.heppy as ML 
         for comp in selComps:
             print 'submitting', comp.name
-            pool.apply_async( runLoopAsync, [comp, outDir, cfg.config, options],
-                              callback=callBack)
+            pool.apply_async( ML.runLoopAsync, [comp, outDir, 'PhysicsTools.HeppyCore.__cfg_to_run__', options],
+                              callback=ML.callBack)
         pool.close()
         pool.join()
     else:
@@ -155,13 +204,14 @@ if __name__ == '__main__':
 
     parser.add_option("-N", "--nevents",
                       dest="nevents",
+                      type="int",
                       help="number of events to process",
                       default=None)
     parser.add_option("-p", "--nprint",
                       dest="nprint",
                       help="number of events to print at the beginning",
                       default=5)
-    parser.add_option("-i", "--iEvent",
+    parser.add_option("-e", "--iEvent", 
                       dest="iEvent",
                       help="jump to a given event. ignored in multiprocessing.",
                       default=None)
@@ -170,7 +220,35 @@ if __name__ == '__main__':
                       action='store_true',
                       help="don't ask questions in case output directory already exists.",
                       default=False)
+    parser.add_option("-i", "--interactive", 
+                      dest="interactive",
+                      action='store_true',
+                      help="stay in the command line prompt instead of exiting",
+                      default=False)
+    parser.add_option("-t", "--timereport", 
+                      dest="timeReport",
+                      action='store_true',
+                      help="Make a report of the time used by each analyzer",
+                      default=False)
+    parser.add_option("-v", "--verbose",
+                      dest="verbose",
+                      action='store_true',
+                      help="increase the verbosity of the output (from 'warning' to 'info' level)",
+                      default=False)
+    parser.add_option("-q", "--quiet",
+                      dest="quiet",
+                      action='store_true',
+                      help="do not print log messages to screen.",
+                      default=False)
+    parser.add_option("-o", "--option",
+                      dest="extraOptions",
+                      type="string",
+                      action="append",
+                      default=[],
+                      help="Save one extra option (either a flag, or a key=value pair) that can be then accessed from the job config file")
 
     (options,args) = parser.parse_args()
 
     main(options, args)
+    if not options.interactive:
+        exit() # trigger exit also from ipython

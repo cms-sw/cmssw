@@ -2,7 +2,9 @@ import os
 import re
 
 def cmsswRelease():
-    return os.environ['CMSSW_BASE'].split('/')[-1]
+    #return os.environ['CMSSW_BASE'].split('/')[-1]
+    #this also works when the CMSSW directory is renamed
+    return os.environ['CMSSW_VERSION']
 
 def cmsswIs44X():
     return cmsswRelease().find('CMSSW_4_4_') != -1
@@ -25,20 +27,26 @@ def releaseNumber(release = None):
         medium = int(m.group(2))
         return big, medium
     rerel = re.compile('^CMSSW_(\d+)_(\d+)_(\d+)(_\S+)*$')
-    prel = re.compile('_patch(\d+)')
     m = rerel.match(release)
     if m is None:
         raise ValueError('malformed release string '+release)
     big = int(m.group(1))
     medium = int(m.group(2))
     small = int(m.group(3))
-    if m.group(4):
+    if m.group(4): # that's either a patch or prerelease
+        prel = re.compile('_pre(\d+)')
+        patch = re.compile('_patch(\d+)')
         pm = prel.match(m.group(4))
-        if pm: 
-            patch = int(pm.group(1))
-            return big, medium, small, patch
-        else:
-            raise ValueError('patch string malformed '+m.group(4))
+        if pm: # prerelease
+            pre = int(pm.group(1))
+            return big, medium, small, pre
+        else: # patch
+            pm2 = patch.match(m.group(4))
+            if pm2:
+                pat = int(pm2.group(1))
+                return big, medium, small, pat
+            else:
+                raise ValueError('patch or prerelease string malformed '+m.group(4))
     else:
         return big, medium, small
 
@@ -62,12 +70,16 @@ if __name__ == '__main__':
             self.assertEqual(out, (10,2,1,4))
             out = releaseNumber('CMSSW_7_3_X_2014-10-30-0200')
             self.assertEqual(out, (7,3))
+            out = releaseNumber('CMSSW_7_3_0_pre2')
+            self.assertEqual(out, (7,3,0,2))
             self.assertRaises(ValueError, releaseNumber, 'foobar')
             self.assertRaises(ValueError, releaseNumber, 'CMSSW_1_2_3_xat3')
             self.assertRaises(ValueError, releaseNumber, 'CMSSW_1_2_a')
         def test_isNewerThan(self): 
             self.assertTrue( isNewerThan('CMSSW_5_3_1','CMSSW_7_1_0') )
             self.assertTrue( isNewerThan('CMSSW_5_3_1','CMSSW_5_3_1_patch1') )
+            self.assertTrue( isNewerThan('CMSSW_5_3_1','CMSSW_5_3_1_pre1') )
+            self.assertTrue( isNewerThan('CMSSW_5_3_1_pre1','CMSSW_5_3_1_pre2') )
 
             
 
