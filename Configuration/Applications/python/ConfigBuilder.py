@@ -1531,10 +1531,15 @@ class ConfigBuilder(object):
 		else:
 			self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
         else:
+                schedule = self.process.schedule
+                self.process.schedule = cms.Schedule()
                 if self._options.fast:
                     self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
                 else:
                     self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
+                self.process.HLTSchedule = self.process.schedule
+                if schedule:
+                    self.process.schedule = schedule
 
         if self._options.isMC:
 		self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC")

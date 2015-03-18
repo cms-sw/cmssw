@@ -57,10 +57,10 @@ def L1THLT(process):
 #   modifications when running L1T+HLT
 
     if not ('HLTAnalyzerEndpath' in process.__dict__) :
-        from HLTrigger.Configuration.HLT_FULL_cff import hltL1GtTrigReport,hltTrigReport
-        process.hltL1GtTrigReport = hltL1GtTrigReport
-        process.hltTrigReport = hltTrigReport
-        process.HLTAnalyzerEndpath = cms.EndPath(process.hltL1GtTrigReport +  process.hltTrigReport)
+        from HLTrigger.Configuration.HLT_FULL_cff import fragment
+        process.hltL1GtTrigReport = fragment.hltL1GtTrigReport
+        process.hltTrigReport = fragment.hltTrigReport
+        process.HLTAnalyzerEndpath = cms.EndPath(process.hltL1GtTrigReport + process.hltTrigReport)
         process.schedule.append(process.HLTAnalyzerEndpath)
 
     process=Base(process)
@@ -114,27 +114,4 @@ def L1REPACK(process):
 
     process=L1T(process)
 
-    return process
-
-
-def customizeHLTforCMSSW(process):
-#   Apply cff-based customisations to a process
-#   Can't use process.load(customFile) as it only loads additional objects into the process 
-#   One can not remove any module this way, but modify it!
-
-    class Module(object):
-        pass
-    locals = Module()
-
-    globals = process.__dict__
-
-    import imp
-    customFile = imp.find_module('HLTrigger/Configuration/customizeHLTforCMSSW')[1]
-#   import pkgutil
-#   customFile = pkgutil.get_loader('HLTrigger/Configuration/customizeHLTforCMSSW').filename
-
-#   execfile(customFile, globals, locals.__dict__)
-    execfile(customFile, globals)
-    process.extend(locals)
- 
     return process
