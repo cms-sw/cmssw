@@ -27,6 +27,8 @@ def propagateMEtUncertainties(process, particleCollection, particleType,
     
     # propagate effects of up/down shifts to MET
     moduleMETshiftUp = metProducer.clone(
+        #hardcoded disabling of type2 correction not needed here
+        applyType2Corrections = cms.bool(False),
         src = cms.InputTag(metProducer.label()),
         srcType1Corrections = cms.VInputTag(
             cms.InputTag(moduleMETcorrShiftUpName)
@@ -39,6 +41,7 @@ def propagateMEtUncertainties(process, particleCollection, particleType,
         else:
             raise StandardError("Tried to remove postfix %s from label %s, but it wasn't there" % (postfix, metProducerLabel))
     moduleMETshiftUpName = "%s%s%sUp" % (metProducerLabel, particleType, shiftType)
+    print "==========> ",metProducerLabel,"  ", moduleMETshiftUpName
     moduleMETshiftUpName += postfix
     setattr(process, moduleMETshiftUpName, moduleMETshiftUp)
     sequence += moduleMETshiftUp
