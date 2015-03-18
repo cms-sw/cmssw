@@ -73,13 +73,16 @@ private:
     OffTrack,
     OnTrack
   };
+
+  struct Det2MEs;
+
   //booking
   void book(DQMStore::IBooker &, const TrackerTopology* tTopo);
-  void bookModMEs(DQMStore::IBooker &, const uint32_t& );
-  void bookLayerMEs(DQMStore::IBooker &, const uint32_t&, std::string&);
-  void bookRing(DQMStore::IBooker &, const uint32_t&, std::string&);
+  void bookModMEs(DQMStore::IBooker &, const uint32_t );
+  void bookLayerMEs(DQMStore::IBooker &, const uint32_t, std::string&);
+  void bookRing(DQMStore::IBooker &, const uint32_t, std::string&);
   MonitorElement* handleBookMEs(DQMStore::IBooker &, std::string&, std::string&, std::string&, std::string&);
-  void bookRingMEs(DQMStore::IBooker &, const uint32_t&, std::string&);
+  void bookRingMEs(DQMStore::IBooker &, const uint32_t, std::string&);
   void bookSubDetMEs(DQMStore::IBooker &, std::string& name);
   MonitorElement * bookME1D(DQMStore::IBooker & , const char*, const char*);
   MonitorElement * bookME2D(DQMStore::IBooker & , const char*, const char*);
@@ -99,19 +102,21 @@ private:
 		const SiStripRecHit2D*          hit2D,
 		const SiStripRecHit1D*          hit1D,
 		LocalVector localMomentum);
-  bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid, const TrackerTopology* tTopo, enum ClusterFlags flags, LocalVector LV);	
+  bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t detid, enum ClusterFlags flags, LocalVector LV, const Det2MEs& MEs);	
   template <class T> void RecHitInfo(const T* tkrecHit, LocalVector LV, const edm::EventSetup&);
 
   // fill monitorables 
-  void fillModMEs(SiStripClusterInfo* cluster,std::string name, float cos, uint32_t detid, const LocalVector LV);
-  void fillMEs(SiStripClusterInfo*,uint32_t detid, const TrackerTopology* tTopo, float,enum ClusterFlags,  const LocalVector LV);
+  void fillModMEs(SiStripClusterInfo* cluster,std::string name, float cos, const uint32_t detid, const LocalVector LV);
+  void fillMEs(SiStripClusterInfo*,const uint32_t detid, float,enum ClusterFlags,  const LocalVector LV, const Det2MEs& MEs);
+
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
 
+  Det2MEs findMEs(const TrackerTopology* tTopo, const uint32_t detid);
+
   // ----------member data ---------------------------
-  
 private:
   edm::ParameterSet conf_;
   std::string histname; 
@@ -182,6 +187,12 @@ private:
   std::map<std::string, LayerMEs>     LayerMEsMap;
   std::map<std::string, RingMEs>      RingMEsMap;
   std::map<std::string, SubDetMEs>    SubDetMEsMap;  
+
+  struct Det2MEs {
+      struct LayerMEs *iLayer;
+      struct RingMEs *iRing;
+      struct SubDetMEs *iSubdet;
+  };
   
   edm::ESHandle<TrackerGeometry> tkgeom_;
   edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
