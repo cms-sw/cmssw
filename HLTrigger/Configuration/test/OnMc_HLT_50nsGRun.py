@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/50nsGRun/V44 (CMSSW_7_4_0_pre7_HLT4)
+# /dev/CMSSW_7_4_0/50nsGRun/V46 (CMSSW_7_4_0_pre7_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT50nsGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V44')
+  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V46')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -227,11 +227,11 @@ process.HLTSeedFromProtoTracks = cms.PSet(
   ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
   propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
   SeedMomentumForBOFF = cms.double( 5.0 ),
-  OriginTransverseErrorMultiplie = cms.double( 1.0 ),
   MinOneOverPtError = cms.double( 1.0 ),
   magneticField = cms.string( "ParabolicMf" ),
   TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-  forceKinematicWithRegionDirect = cms.bool( False )
+  OriginTransverseErrorMultiplier = cms.double( 1.0 ),
+  forceKinematicWithRegionDirection = cms.bool( False )
 )
 process.HLTIter4PSetTrajectoryBuilderIT = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
