@@ -123,6 +123,9 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   useTmva_= iConfig.getUntrackedParameter<bool>("UseTMVA",false);
 
   Min_dr_ = iConfig.getParameter<double>("Min_dr");
+
+  trackerRecHitBuilderName_ = iConfig.getParameter<std::string>("TTRHBuilder");
+
 }
 
 
@@ -153,17 +156,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       iSetup.get<TrajectoryFitter::Record>().get(smootherName_, aSmoother);
       smoother_.reset(aSmoother->clone());
       fitter_ = aFitter->clone();
-     /// FIXME FIXME CLONE
       edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-      try {
-        std::string theTrackerRecHitBuilderName("WithAngleAndTemplate");  // FIXME FIXME
-        iSetup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
-        theTrackerRecHitBuilder.product();
-      } catch(...) {
-        std::string theTrackerRecHitBuilderName("hltESPTTRHBWithTrackAngle");  // FIXME FIXME
-        iSetup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
-        theTrackerRecHitBuilder.product();
-      }
+      iSetup.get<TransientRecHitRecord>().get(trackerRecHitBuilderName_,theTrackerRecHitBuilder);
       hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
       fitter_->setHitCloner(&hitCloner);
       smoother_->setHitCloner(&hitCloner);
