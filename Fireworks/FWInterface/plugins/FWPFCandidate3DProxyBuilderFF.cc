@@ -11,7 +11,7 @@
 // Edited:           sharris, Wed 9 Feb 2011, 17:34
 //
 #include <set>
-#include "Fireworks/FWInterface/interface/FWFFLooper.h"
+#include "Fireworks/FWInterface/interface/ContextFF.h"
 // System include files
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
@@ -70,9 +70,6 @@ private:
 
    // --------------------- Member Functions --------------------------
    void build( const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
-   // edm::ESHandle<HGCalGeometry> geomH;
-
-  std::vector<edm::ESHandle<HGCalGeometry> >        m_handles;
 };
 
 //______________________________________________________________________________
@@ -82,23 +79,10 @@ void
 FWPFCandidate3DProxyBuilderFF::setItem(const FWEventItem* iItem)
 {
    FWProxyBuilderBase::setItem(iItem);
-   try {
-   m_handles.push_back(edm::ESHandle<HGCalGeometry>());
-   FWFFLooper::m_setup->get<IdealGeometryRecord>().get("HGCalEESensitive", m_handles.back());
-   m_handles.push_back(edm::ESHandle<HGCalGeometry>());
-   FWFFLooper::m_setup->get<IdealGeometryRecord>().get("HGCalHESiliconSensitive", m_handles.back());
-   m_handles.push_back(edm::ESHandle<HGCalGeometry>());
-   FWFFLooper::m_setup->get<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive", m_handles.back());
-
+ 
    iItem->getConfig()->assertParam("HGCalEESensitive", true);
    iItem->getConfig()->assertParam("HGCalHESiliconSensitive", true);
    iItem->getConfig()->assertParam("HGCalHEScintillatorSensitive", true);
-
-   }
-   catch (std::exception& e) {
-      std::cout << "FWPFCandidate3DProxyBuilderFF" <<  e.what() << std::endl;
-
-   }
 }
 //______________________________________________________________________________
 
@@ -117,6 +101,21 @@ FWPFCandidate3DProxyBuilderFF::localModelChanges(const FWModelId& iId, TEveEleme
 void 
 FWPFCandidate3DProxyBuilderFF::build( const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
+   const fireworks::ContextFF* ctx = dynamic_cast<const fireworks::ContextFF*>(&item()->context()); 
+   std::vector<edm::ESHandle<HGCalGeometry> >  geoHandles;
+   try {
+      const edm::EventSetup* setup = ctx->getEventSetup();
+      assert(setup);
+      geoHandles.push_back(edm::ESHandle<HGCalGeometry>());
+      setup->get<IdealGeometryRecord>().get("HGCalEESensitive", geoHandles.back());
+      geoHandles.push_back(edm::ESHandle<HGCalGeometry>());
+      setup->get<IdealGeometryRecord>().get("HGCalHESiliconSensitive", geoHandles.back());
+      geoHandles.push_back(edm::ESHandle<HGCalGeometry>());
+      setup->get<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive", geoHandles.back());
+   }
+   catch (std::exception& e) {
+      std::cout << "FWPFCandidate3DProxyBuilderFF" <<  e.what() << std::endl;
+   }
 
    bool layerEnable [] = {false, false, false};
 
@@ -182,7 +181,7 @@ FWPFCandidate3DProxyBuilderFF::build( const reco::PFCandidate& iData, unsigned i
         {
            DetId dId = (*it).first ;
            int layerCnt =0;
-           for( const auto& hgcGeom : m_handles ){
+           for( const auto& hgcGeom : geoHandles ){
               // skip if disabled in collection controller
               if (!layerEnable[layerCnt++]) continue;
 
