@@ -27,8 +27,8 @@ class OfflineConverter:
 
     def __init__(self, database = 'hltdev', url = None, verbose = False):
         self.verbose = verbose
-        self.baseDir = '/afs/cern.ch/user/c/confdb/www/lib'
-        self.baseUrl = 'http://confdb.web.cern.ch/confdb/lib'
+        self.baseDir = '/afs/cern.ch/user/c/confdb/www/test/lib'
+        self.baseUrl = 'http://confdb.web.cern.ch/confdb/test/lib'
         self.jars = ( 'ojdbc6.jar', 'cmssw-evf-confdb-converter.jar' )
         self.workDir = ''
 
