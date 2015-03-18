@@ -850,7 +850,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
                         else                    csctflcts -> Fill(bx, 4.5);
                     } else if(station==2) {
                         if(ring==1)             csctflcts -> Fill(bx, 3.5);
-                        else if                 csctflcts -> Fill(bx, 2.5);
+                        else                    csctflcts -> Fill(bx, 2.5);
                     } else if(station==3) {
                         if(ring==1)             csctflcts -> Fill(bx, 1.5);
                         else                    csctflcts -> Fill(bx, 0.5);
@@ -866,7 +866,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
                         else                    csctflcts -> Fill(bx, 13.5);
                     } else if(station==2) {
                         if(ring==1)             csctflcts -> Fill(bx, 14.5);
-                        else if                 csctflcts -> Fill(bx, 15.5);
+                        else                    csctflcts -> Fill(bx, 15.5);
                     } else if(station==3) {
                         if(ring==1)             csctflcts -> Fill(bx, 16.5);
                         else                    csctflcts -> Fill(bx, 17.5);
