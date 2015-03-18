@@ -894,7 +894,7 @@ step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
                          '--relval':'250000,20000',
                          '--eventcontent':'RAWSIM,DQM',
                          '--datatier':'GEN,DQMIO',
-                         '--conditions':'auto:run2_mc_FULL'
+                         '--conditions':'auto:run2_mc'
                          },
                         step1Defaults])
 
@@ -904,7 +904,7 @@ step1LHEDefaults=merge([{'-s':'LHE',
                          '--relval':'200000,5000',
                          '--eventcontent':'LHE',
                          '--datatier':'GEN',
-                         '--conditions':'auto:run2_mc_FULL'
+                         '--conditions':'auto:run2_mc'
                          },
                         step1Defaults])
 
@@ -1358,7 +1358,7 @@ steps['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','--mc':''},step4Defaults])
 
 steps['HARVESTGEN']={'-s':'HARVESTING:genHarvesting',
                      '--harvesting':'AtJobEnd',
-                     '--conditions':'auto:run2_mc_FULL',
+                     '--conditions':'auto:run2_mc',
                      '--mc':'',
                      '--customise' :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                      '--filetype':'DQM',
