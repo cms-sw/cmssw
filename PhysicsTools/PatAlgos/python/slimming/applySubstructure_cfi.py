@@ -12,14 +12,17 @@ def applySubstructure( process ) :
                                     matched = cms.InputTag("cmsTopTagPFJetsCHS"),
                                     matchedTagInfos = cms.InputTag("caTopTagInfos"),
                                     distMax = cms.double(0.8)
-    )    
-    
+    )
+
+    from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import patJets as patJetsDefault
+
     #add AK8
     addJetCollection(process, labelName = 'AK8',
                      jetSource = cms.InputTag('ak8PFJetsCHS'),
                      algo= 'AK', rParam = 0.8,
                      jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
                      btagInfos = ['caTopTagInfosPAT'],
+                     btagDiscriminators = [x.getModuleLabel() for x in patJetsDefault.discriminatorSources],
                      genJetCollection = cms.InputTag('slimmedGenJetsAK8')
                      )
     process.patJetsAK8.userData.userFloats.src = [] # start with empty list of user floats
@@ -67,7 +70,7 @@ def applySubstructure( process ) :
         jetSource = cms.InputTag('ak8PFJetsCHSSoftDrop','SubJets'),
         algo = 'ak',  # needed for subjet flavor clustering
         rParam = 0.8, # needed for subjet flavor clustering
-        btagDiscriminators = ['pfCombinedSecondaryVertexBJetTags', 'pfCombinedInclusiveSecondaryVertexV2BJetTags'],
+        btagDiscriminators = ['pfCombinedSecondaryVertexV2BJetTags', 'pfCombinedInclusiveSecondaryVertexV2BJetTags'],
         jetCorrections = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'None'),
         explicitJTA = True,  # needed for subjet b tagging
         svClustering = True, # needed for subjet b tagging
@@ -100,7 +103,7 @@ def applySubstructure( process ) :
         labelName = 'CMSTopTagCHS',
         jetSource = cms.InputTag('cmsTopTagPFJetsCHS'),
         jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-        btagDiscriminators = ['pfCombinedSecondaryVertexBJetTags', 'pfCombinedInclusiveSecondaryVertexV2BJetTags'],
+        btagDiscriminators = ['None'],
         genJetCollection = cms.InputTag('slimmedGenJetsAK8'), 
         getJetMCFlavour = False #
         )
@@ -116,7 +119,7 @@ def applySubstructure( process ) :
         jetSource = cms.InputTag('cmsTopTagPFJetsCHS','caTopSubJets'),
         algo = 'AK',  # needed for subjet flavor clustering
         rParam = 0.8, # needed for subjet flavor clustering        
-        btagDiscriminators = ['pfCombinedSecondaryVertexBJetTags', 'pfCombinedInclusiveSecondaryVertexV2BJetTags'],
+        btagDiscriminators = ['pfCombinedSecondaryVertexV2BJetTags', 'pfCombinedInclusiveSecondaryVertexV2BJetTags'],
         jetCorrections = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'None'),
         genJetCollection = cms.InputTag('slimmedGenJets'), # Using ak4GenJets for matching which is not entirely appropriate
         explicitJTA = True,  # needed for subjet b tagging
