@@ -336,6 +336,27 @@ if [ -e ${runfile} ]; then
 fi
 ###exit
 
+### find out if openloops is used
+if [ -e ${runfile} ]; then
+  iopenloops=`check_occurence ${runfile} "OpenLoops"`
+  if [ ${iopenloops} -gt 0 ]; then
+    echo " <I> using OpenLoops as loop generator"
+    iopenloopsprefix=`check_occurence ${runfile} "OL_PREFIX"`
+    if [ ${iopenloopsprefix} -gt 0 ]; then
+      echo " <I> OL_PREFIX prefix specified in RunCard."
+    else
+      echo " <I> NO OL_PREFIX specified in RunCard."
+      ol_prefix=$(scram tool info openloops | grep OPENLOOPS_BASE)
+      ol_prefix=$(echo $ol_prefix | sed -e "s/OPENLOOPS_BASE/OL_PREFIX/g")
+      echo " <I> Will use ${ol_prefix}"
+      sed -i -e"/ME_SIGNAL_GENERATOR/a \ \ $ol_prefix" ${runfile}
+    fi
+  fi
+fi
+###exit
+
+
+
 ### reject mixed occurences of Sherpa's "Enhance" options
 #runfile="Run.dat"
 if [ -e ${runfile} ]; then
