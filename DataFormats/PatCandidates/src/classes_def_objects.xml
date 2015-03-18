@@ -200,8 +200,9 @@
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
 
-  <class name="pat::Jet"  ClassVersion="15">
-   <version ClassVersion="15" checksum="1826981639"/>
+  <class name="pat::Jet"  ClassVersion="16">
+   <version ClassVersion="16" checksum="4069285947"/>
+   <version ClassVersion="15" checksum="727883729"/>
    <version ClassVersion="14" checksum="1304049301"/>
    <version ClassVersion="13" checksum="130552029"/>
    <field name="caloTowersTemp_" transient="true"/>
@@ -270,8 +271,9 @@
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
 
-  <class name="pat::PackedCandidate" ClassVersion="17">
-   <version ClassVersion="17" checksum="1633877368"/>
+  <class name="pat::PackedCandidate" ClassVersion="18">
+    <version ClassVersion="18" checksum="4275117305"/>
+    <version ClassVersion="17" checksum="1257500115"/>
     <version ClassVersion="16" checksum="3261782486"/>
     <version ClassVersion="15" checksum="2118306102"/>
     <version ClassVersion="14" checksum="1075333340"/>
