@@ -55,7 +55,8 @@ void pat::PATMETSlimmer::maybeReadShifts(const edm::ParameterSet &basePSet, cons
         throw cms::Exception("Unsupported", "Reading PSets not supported, for now just use input tag");
     } else if (basePSet.existsAs<edm::InputTag>(name) ) {
         const edm::InputTag & baseTag = basePSet.getParameter<edm::InputTag>(name);
-	if( level!=pat::MET::Calo ) {
+        const std::string &encoded = baseTag.encode();
+	if( encoded.find("%s") != std::string::npos ) {
 	  shifts_.push_back(OneMETShift(pat::MET::NoShift,   level, baseTag, consumesCollector()));
 	  shifts_.push_back(OneMETShift(pat::MET::JetEnUp,   level, baseTag, consumesCollector()));
 	  shifts_.push_back(OneMETShift(pat::MET::JetEnDown, level, baseTag, consumesCollector()));
