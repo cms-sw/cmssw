@@ -34,6 +34,7 @@ ________________________________________________________________**/
 #include "Minuit2/FCNBase.h"
 #include "Minuit2/FunctionMinimum.h"
 #include "Minuit2/MnMigrad.h"
+#include "Minuit2/MnPrint.h" // Defines operator<< for cout << ierr  (Dario)
 #include "TF1.h"
 
 #include <iostream>    // Dario
