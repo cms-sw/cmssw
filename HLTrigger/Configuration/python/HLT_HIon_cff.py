@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_4_0/HIon/V17 (CMSSW_7_4_0_pre7_HLT3)
+# /dev/CMSSW_7_4_0/HIon/V20 (CMSSW_7_4_0_pre7_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V17')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V20')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -335,13 +335,13 @@ HLTSeedFromConsecutiveHitsTripletOnlyCreator = cms.PSet(
 )
 HLTSeedFromConsecutiveHitsCreator = cms.PSet( 
   ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
-  propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  propagator = cms.string( "PropagatorWithMaterial" ),
   SeedMomentumForBOFF = cms.double( 5.0 ),
   OriginTransverseErrorMultiplier = cms.double( 1.0 ),
   MinOneOverPtError = cms.double( 1.0 ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  magneticField = cms.string( "ParabolicMf" ),
-  forceKinematicWithRegionDirection = cms.bool( False )
+  forceKinematicWithRegionDirection = cms.bool( False ),
+  magneticField = cms.string( "" )
 )
 HLTIter0HighPtTkMuPSetTrajectoryBuilderIT = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
@@ -390,6 +390,25 @@ HLTPSetPvClusterComparerForIT = cms.PSet(
 HLTSiStripClusterChargeCutNone = cms.PSet(  value = cms.double( -1.0 ) )
 HLTSiStripClusterChargeCutLoose = cms.PSet(  value = cms.double( 1724.0 ) )
 HLTSiStripClusterChargeCutTight = cms.PSet(  value = cms.double( 2069.0 ) )
+HLTSeedFromConsecutiveHitsCreatorIT = cms.PSet( 
+  ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+  propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  SeedMomentumForBOFF = cms.double( 5.0 ),
+  OriginTransverseErrorMultiplier = cms.double( 1.0 ),
+  MinOneOverPtError = cms.double( 1.0 ),
+  magneticField = cms.string( "ParabolicMf" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+)
+HLTSeedFromProtoTracks = cms.PSet( 
+  ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+  propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  SeedMomentumForBOFF = cms.double( 5.0 ),
+  OriginTransverseErrorMultiplie = cms.double( 1.0 ),
+  MinOneOverPtError = cms.double( 1.0 ),
+  magneticField = cms.string( "ParabolicMf" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+  forceKinematicWithRegionDirect = cms.bool( False )
+)
 streams = cms.PSet(  A = cms.vstring( 'InitialPD',
   'InitialPDForHI' ) )
 datasets = cms.PSet( 

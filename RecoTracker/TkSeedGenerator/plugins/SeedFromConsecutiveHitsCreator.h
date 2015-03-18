@@ -31,17 +31,6 @@ public:
       , forceKinematicWithRegionDirection_(cfg.getParameter<bool>("forceKinematicWithRegionDirection"))
       {}
 
-  SeedFromConsecutiveHitsCreator(
-      const std::string & propagator = "PropagatorWithMaterial", double seedMomentumForBOFF = -5.0,
-      double aOriginTransverseErrorMultiplier = 1.0, double aMinOneOverPtError = 1.0, const std::string & bname="WithTrackAngle")
-      : thePropagatorLabel(propagator)
-      , theBOFFMomentum(seedMomentumForBOFF)
-      , theOriginTransverseErrorMultiplier(aOriginTransverseErrorMultiplier)
-      , theMinOneOverPtError(aMinOneOverPtError)
-      , TTRHBuilder(bname)
-      , forceKinematicWithRegionDirection_(false)
-  { }
-
   //dtor
   virtual ~SeedFromConsecutiveHitsCreator();
 
