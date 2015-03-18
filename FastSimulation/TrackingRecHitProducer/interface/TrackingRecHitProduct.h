@@ -21,9 +21,15 @@ class TrackingRecHitProduct
         std::vector<SiTrackerGSMatchedRecHit2D> _matchedRecHits;
         
     public:
-        TrackingRecHitProduct(const DetId& detId):
-            _detId(detId)
+        TrackingRecHitProduct(const DetId& detId, std::vector<const PSimHit*> simHits):
+            _detId(detId),
+            _simHits(simHits)
         {
+        }
+        
+        inline const DetId& getDetId() const
+        {
+            return _detId;
         }
         
         virtual std::vector<const PSimHit*>& getSimHits()

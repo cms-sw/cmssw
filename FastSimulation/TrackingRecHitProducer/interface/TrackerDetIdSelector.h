@@ -296,9 +296,11 @@ class TrackerDetIdSelector
             {
                 throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector","parsing selection '"+selectionStr+"' failed.");
             }
+            /*
             WalkAST walker;
             walker(exprAST);
             std::cout<<std::endl;
+            */
             return exprAST.evaluate(_detId,_trackerTopology);
 
         }
@@ -333,11 +335,12 @@ class Accessor:
             if (it != TrackerDetIdSelector::functionTable.cend())
             {
                 value = (it->second)(_trackerTopology,_detId);
-                std::cout<<"attr="<<s<<", value="<<value<<std::endl;
+                //std::cout<<"attr="<<s<<", value="<<value<<std::endl;
             }
             else
             {
-                std::cout<<"attr="<<s<<" unknown"<<std::endl;
+                //std::cout<<"attr="<<s<<" unknown"<<std::endl;
+                throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector","error while parsing DetId selection: identifier '"+s+"' not known");
             }
             return value;
         }

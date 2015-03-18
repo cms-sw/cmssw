@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -16,7 +17,7 @@
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitAlgorithmFactory.h"
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitPipe.h"
 
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -42,18 +43,16 @@ class TrackingRecHitProducer:
         edm::EDGetTokenT<std::vector<PSimHit>> _simHitToken;
 
         std::vector<TrackingRecHitAlgorithm*> _recHitAlgorithms;
-
-        std::string _selection;
         
         const TrackerGeometry* _trackerGeometry;
         const TrackerTopology* _trackerTopology;
         
-        std::map<unsigned int, TrackingRecHitPipe> _detIdPipes; 
+        std::map<unsigned int, TrackingRecHitPipe> _detIdPipes;
 
     public:
         TrackingRecHitProducer(const edm::ParameterSet& config);
         
-        virtual void beginJob(const edm::EventSetup& eventSetup);
+        virtual void beginRun(edm::Run const&, const edm::EventSetup& eventSetup);
 
         virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup);
 

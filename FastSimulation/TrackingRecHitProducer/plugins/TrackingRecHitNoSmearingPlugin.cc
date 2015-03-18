@@ -20,13 +20,16 @@ class TrackingRecHitNoSmearingPlugin:
             const std::string& name,
             const edm::ParameterSet& config,
             edm::ConsumesCollector& consumesCollector
-        )
+        ):
+            TrackingRecHitAlgorithm(name,config,consumesCollector)
         {
             std::cout<<"created plugin with name: "<<name<<std::endl;
         }
 
-        virtual std::shared_ptr<TrackingRecHitProduct> process(std::shared_ptr<TrackingRecHitProduct> product) const
+        virtual TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const
         {
+            std::cout<<getTrackerTopology()->print(product->getDetId())<<std::endl;
+            
             return product;
         }
 

@@ -1,5 +1,8 @@
 #include "TrackingRecHitProducer.h"
 
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackerDetIdSelector.h"
 
 
@@ -31,10 +34,9 @@ TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config):
     edm::InputTag simHitTag = config.getParameter<edm::InputTag>("simHits");
     _simHitToken = consumes<std::vector<PSimHit>>(simHitTag);
 
-    _selection = config.getParameter<std::string>("select");
 }
 
-void TrackingRecHitProducer::beginJob(const edm::EventSetup& eventSetup)
+void TrackingRecHitProducer::beginRun(edm::Run const&, const edm::EventSetup& eventSetup)
 {
     edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
     edm::ESHandle<TrackerTopology> trackerTopologyHandle;
@@ -43,47 +45,60 @@ void TrackingRecHitProducer::beginJob(const edm::EventSetup& eventSetup)
     _trackerGeometry = trackerGeometryHandle.product();
     _trackerTopology = trackerTopologyHandle.product();
     
-    //_detIdPipes
+    for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
+    {
+        algo->setupTrackerTopology(_trackerTopology);
+    }
+    
+    
+    //build pipes for all detIds
+    const std::vector<DetId>& detIds = _trackerGeometry->detIds();
+    
+    for (const DetId& detId: detIds)
+    {
+        TrackerDetIdSelector selector(detId,*_trackerTopology);
+       
+        TrackingRecHitPipe pipe;
+        for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
+        {
+            if (selector.passSelection(algo->getSelectionString()))
+            {
+                pipe.addAlgorithm(algo);
+            }
+        }
+         _detIdPipes[detId.rawId()]=pipe;
+    }
 }
 
 void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
-    /*
+    //build DetId -> PSimHit map
     edm::Handle<std::vector<PSimHit>> simHits;
     event.getByToken(_simHitToken,simHits);
     std::map<unsigned int,std::vector<const PSimHit*>> hitsPerDetId;
-    */
-    /*
     for (unsigned int ihit = 0; ihit < simHits->size(); ++ihit)
     {
         const PSimHit* simHit = &(*simHits)[ihit];
-        if (hitsPerDetId.find(simHit->detUnitId ())==hitsPerDetId.end())
-        {
-            const DetId detId(simHit->detUnitId());
-            TrackerDetIdSelector selector(detId,trackerTopology);
-
-            //std::cout<<&trackerTopology<<", "<<&detId<<": "<<trackerTopology.pxbLayer(detId)<<" | "<<trackerTopology.print(detId)<<std::endl;
-            std::cout<<trackerTopology.print(detId)<<std::endl;
-            bool selected = selector.passSelection(_selection);
-            std::cout<<"selected="<<(selected ? "true" : "false")<<std::endl;
-            std::cout<<std::endl;
-
-            if (hitsPerDetId.size()>10)
-            {
-                break;
-            }
-        }
-        hitsPerDetId[simHit->detUnitId ()].push_back(simHit);
+        hitsPerDetId[simHit->detUnitId()].push_back(simHit);
     }
-    for (std::map<unsigned int,std::vector<const PSimHit*>>::const_iterator it = hitsPerDetId.cbegin(); it != hitsPerDetId.cend(); ++it)
+    
+    //run pipes
+    for (std::map<unsigned int,std::vector<const PSimHit*>>::const_iterator simHitsIt = hitsPerDetId.cbegin(); simHitsIt != hitsPerDetId.cend(); ++simHitsIt)
     {
-        DetId detId(it->first);
-        for (unsigned int ialgo = 0; ialgo <_recHitAlgorithms.size(); ++ialgo)
+    
+        TrackingRecHitProductPtr product = std::make_shared<TrackingRecHitProduct>(simHitsIt->first,simHitsIt->second);
+        std::map<unsigned int, TrackingRecHitPipe>::const_iterator pipeIt = _detIdPipes.find(simHitsIt->first);
+        if (pipeIt!=_detIdPipes.cend())
         {
-            _recHitAlgorithms[ialgo]->processDetId(detId, trackerTopology, trackerGeometry, it->second);
+            const TrackingRecHitPipe& pipe = pipeIt->second;
+            pipe.produce(product);
+        }
+        else
+        {
+            //there should be at least an empty pipe for each DetId
+            throw cms::Exception("FastSimulation/TrackingRecHitProducer","A PSimHit carries a DetId which does not belong to the TrackerGeometry: "+_trackerTopology->print(simHitsIt->first));
         }
     }
-    */
 }
 
 TrackingRecHitProducer::~TrackingRecHitProducer()

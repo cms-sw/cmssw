@@ -18,7 +18,7 @@ class TrackingRecHitPipe
         
         void produce(TrackingRecHitProductPtr product) const
         {
-            for (unsigned int ialgo = 0; ialgo < _algorithms.size(); ++ialgo)
+            for (unsigned int ialgo = 0; product && (ialgo < _algorithms.size()); ++ialgo)
             {
                 product = _algorithms[ialgo]->process(product);
             }

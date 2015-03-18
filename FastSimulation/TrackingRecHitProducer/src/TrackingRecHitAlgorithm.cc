@@ -3,6 +3,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
@@ -14,8 +15,14 @@
 
 
 
-TrackingRecHitAlgorithm::TrackingRecHitAlgorithm()
+TrackingRecHitAlgorithm::TrackingRecHitAlgorithm(
+    const std::string& name,
+    const edm::ParameterSet& config,
+    edm::ConsumesCollector& consumesCollector
+):
+    _trackerTopology(nullptr)
 {
+    _selectionString=config.getParameter<std::string>("select");
 }
 
 void TrackingRecHitAlgorithm::beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup)
