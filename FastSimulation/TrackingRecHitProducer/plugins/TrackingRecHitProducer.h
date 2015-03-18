@@ -24,6 +24,9 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h"
 
+#include "DataFormats/Common/interface/DetSetNew.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include <vector>
@@ -36,10 +39,6 @@ namespace edm
 }
 
 class TrackingRecHitAlgorithm;
-
-//TODO: this needs to go to DataFormats/TrackerRecHit2D
-typedef edm::RangeMap<DetId, edm::OwnVector<SiTrackerGSRecHit2D>> TrackerGSRecHitCollection;
-typedef edm::RangeMap<DetId, edm::OwnVector<SiTrackerGSMatchedRecHit2D>> TrackerGSMatchedRecHitCollection;
 
 
 class TrackingRecHitProducer:

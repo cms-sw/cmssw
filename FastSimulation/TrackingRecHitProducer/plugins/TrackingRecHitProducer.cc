@@ -13,43 +13,18 @@
 
 
 
-
+/*
 void insertRecHits(
-    std::auto_ptr<TrackerGSRecHitCollection> targetCollection,
+    std::vector<edm::DetSet<SiTrackerGSRecHit2D>>& targetCollection,
     TrackingRecHitProductPtr product
 )
 {
     if (product)
     {
-        std::vector<SiTrackerGSRecHit2D>& producedRecHits = product->getRecHits();
-        edm::OwnVector<SiTrackerGSRecHit2D> ownedRecHits;
-        //TODO: this is not very performant; fix!
-        for (unsigned int irecHit=0; irecHit<producedRecHits.size(); ++irecHit)
-        {
-            ownedRecHits.push_back(producedRecHits[irecHit]);
-        }
-        targetCollection->put(product->getDetId(),ownedRecHits.begin(),ownedRecHits.end());
     }
 }
 
-void insertMatchedRecHits(
-    std::auto_ptr<TrackerGSMatchedRecHitCollection> targetCollection,
-    TrackingRecHitProductPtr product
-)
-{
-    if (product)
-    {
-        std::vector<SiTrackerGSMatchedRecHit2D>& producedRecHits = product->getMatchedRecHits();
-        edm::OwnVector<SiTrackerGSMatchedRecHit2D> ownedRecHits;
-        //TODO: this is not very performant; fix!
-        for (unsigned int irecHit=0; irecHit<producedRecHits.size(); ++irecHit)
-        {
-            ownedRecHits.push_back(producedRecHits[irecHit]);
-        }
-        targetCollection->put(product->getDetId(),ownedRecHits.begin(),ownedRecHits.end());
-    }
-}
-
+*/
 
 TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config):
     _trackerGeometry(nullptr),
@@ -77,8 +52,8 @@ TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config):
     edm::InputTag simHitTag = config.getParameter<edm::InputTag>("simHits");
     _simHitToken = consumes<std::vector<PSimHit>>(simHitTag);
 
-    produces<TrackerGSRecHitCollection>("TrackerGSRecHits");
-    produces<TrackerGSMatchedRecHitCollection>("TrackerGSMatchedRecHits");
+    //produces<TrackerGSRecHitCollection>("TrackerGSRecHits");
+    //produces<TrackerGSMatchedRecHitCollection>("TrackerGSMatchedRecHits");
 
 }
 
@@ -127,9 +102,10 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
         const PSimHit* simHit = &(*simHits)[ihit];
         hitsPerDetId[simHit->detUnitId()].push_back(simHit);
     }
-    
-    std::auto_ptr<TrackerGSRecHitCollection> recHits(new TrackerGSRecHitCollection());
-    std::auto_ptr<TrackerGSMatchedRecHitCollection> matchedRecHits(new TrackerGSMatchedRecHitCollection());
+
+    //std::vector<edm::DetSet<SiTrackerGSRecHit2D> > recHits;
+    //std::auto_ptr<TrackerGSRecHitCollection> recHits(new TrackerGSRecHitCollection());
+    //std::auto_ptr<TrackerGSMatchedRecHitCollection> matchedRecHits(new TrackerGSMatchedRecHitCollection());
     //run pipes
     for (std::map<unsigned int,std::vector<const PSimHit*>>::iterator simHitsIt = hitsPerDetId.begin(); simHitsIt != hitsPerDetId.end(); ++simHitsIt)
     {
@@ -144,8 +120,8 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
 
             product = pipe.produce(product);
 
-            insertRecHits(recHits,product);
-            insertMatchedRecHits(matchedRecHits,product);
+            //insertRecHits(recHits,product);
+            //insertMatchedRecHits(matchedRecHits,product);
 
         }
         else
@@ -155,8 +131,11 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
         }
     }
 
-    event.put(recHits,"TrackerGSRecHits");
-    event.put(matchedRecHits,"TrackerGSMatchedRecHits");
+    //std::auto_ptr<TrackerGSRecHitCollection> recHitOutputCollection(new TrackerGSRecHitCollection(recHits));
+
+
+    //event.put(recHitOutputCollection,"TrackerGSRecHits");
+    //event.put(matchedRecHits,"TrackerGSMatchedRecHits");
 }
 
 TrackingRecHitProducer::~TrackingRecHitProducer()
