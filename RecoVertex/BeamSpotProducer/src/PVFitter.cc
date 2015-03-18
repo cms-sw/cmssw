@@ -450,6 +450,9 @@ bool PVFitter::runFitter() {
 
       //minuitx.PrintResults(0,0);
 
+      results = ierr.UserParameters().Params() ;					       \
+      errors  = ierr.UserParameters().Errors() ;					       \
+
       fwidthX = results[3];
       fwidthY = results[5];
       fwidthZ = results[8];
