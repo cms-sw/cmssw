@@ -146,6 +146,10 @@ def applySubstructure( process ) :
             jetSrc = cms.InputTag("selectedPatJetsAK8"),
             distMax = cms.double(0.8),
             algoTags = cms.VInputTag(
+                # NOTE: For the correct storage of the AK8 jet daughters, the first subjet collection listed here must be
+                #       derived from AK8 jets, i.e., subjets must contain either all or a subset of AK8 constituents.
+                #       The CMSTopTag subjets are derived from CA8 jets later matched to AK8 jets and could in principle
+                #       contain extra constituents not clustered inside AK8 jets.
                 cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked"),
                 cms.InputTag("slimmedJetsCMSTopTagCHSPacked")
             ),
