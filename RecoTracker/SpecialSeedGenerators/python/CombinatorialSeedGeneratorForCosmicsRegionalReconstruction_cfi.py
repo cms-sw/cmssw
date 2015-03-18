@@ -1,13 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
+
 layerInfo = cms.PSet(
     TOB = cms.PSet(
       TTRHBuilder = cms.string('WithTrackAngle'),
+      clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
       ),
     TEC = cms.PSet(
       minRing = cms.int32(6),
       useRingSlector = cms.bool(False),
       TTRHBuilder = cms.string('WithTrackAngle'),
+      clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
       maxRing = cms.int32(7)
       )
 )

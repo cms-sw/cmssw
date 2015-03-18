@@ -66,8 +66,8 @@ namespace edm {
     const_iterator end() const noexcept { return begin()+size_; }
     const_iterator cend() const noexcept { return cbegin()+size_; }
 
-    constexpr bool empty() noexcept { return size_ == 0; }
-    constexpr size_type size() noexcept { return size_; }
+    constexpr bool empty() const noexcept { return size_ == 0; }
+    constexpr size_type size() const noexcept { return size_; }
     static constexpr size_type capacity() noexcept { return N; }
 
     void clear() {
