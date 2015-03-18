@@ -3,6 +3,9 @@
 #define DETIDFCT(NAME) \
     NAME ,[](const TrackerTopology& trackerTopology, const DetId& detId) -> int
 
+#define TOPOFCT(NAME) \
+    #NAME ,[](const TrackerTopology& trackerTopology, const DetId& detId) -> int {return trackerTopology.NAME(detId);}
+
 const TrackerDetIdSelector::StringFunctionMap TrackerDetIdSelector::functionTable = {
 
     {DETIDFCT("subdetId"){return detId.subdetId();}},
@@ -14,13 +17,82 @@ const TrackerDetIdSelector::StringFunctionMap TrackerDetIdSelector::functionTabl
     {DETIDFCT("TOB"){return StripSubdetector::TOB;}},
     {DETIDFCT("TEC"){return StripSubdetector::TEC;}},
 
-    {DETIDFCT("layer"){return trackerTopology.layer(detId);}},
-    {DETIDFCT("module"){return trackerTopology.module(detId);}},
-    {DETIDFCT("side"){return trackerTopology.side(detId);}},
+    {DETIDFCT("BARREL"){return 0;}},
+    {DETIDFCT("ZMINUS"){return 1;}},
+    {DETIDFCT("ZPLUS"){return 2;}},
 
-    {DETIDFCT("pxbLayer"){return trackerTopology.pxbLayer(detId);}},
-    {DETIDFCT("pxbLadder"){return trackerTopology.pxbLadder(detId);}},
-    {DETIDFCT("pxbModule"){return trackerTopology.pxbModule(detId);}}
+    {TOPOFCT(layer)},
+    {TOPOFCT(module)},
+    {TOPOFCT(side)},
+
+    {TOPOFCT(pxbLadder)},
+    {TOPOFCT(pxbLayer)},
+    {TOPOFCT(pxbModule)},
+
+    {TOPOFCT(pxfBlade)},
+    {TOPOFCT(pxfDisk)},
+    {TOPOFCT(pxfModule)},
+    {TOPOFCT(pxfPanel)},
+    {TOPOFCT(pxfSide)},
+
+    {TOPOFCT(tibGlued)},
+    {TOPOFCT(tibIsDoubleSide)},
+    {TOPOFCT(tibIsExternalString)},
+    {TOPOFCT(tibIsInternalString)},
+    {TOPOFCT(tibIsRPhi)},
+    {TOPOFCT(tibIsStereo)},
+    {TOPOFCT(tibIsZMinusSide)},
+    {TOPOFCT(tibIsZPlusSide)},
+    {TOPOFCT(tibLayer)},
+    {TOPOFCT(tibModule)},
+    {TOPOFCT(tibOrder)},
+    {TOPOFCT(tibSide)},
+    {TOPOFCT(tibStereo)},
+    {TOPOFCT(tibString)},
+
+    {TOPOFCT(tidGlued)},
+    {TOPOFCT(tidIsBackRing)},
+    {TOPOFCT(tidIsDoubleSide)},
+    {TOPOFCT(tidIsFrontRing)},
+    {TOPOFCT(tidIsRPhi)},
+    {TOPOFCT(tidIsStereo)},
+    {TOPOFCT(tidIsZMinusSide)},
+    {TOPOFCT(tidIsZPlusSide)},
+    {TOPOFCT(tidModule)},
+    {TOPOFCT(tidOrder)},
+    {TOPOFCT(tidRing)},
+    {TOPOFCT(tidSide)},
+    {TOPOFCT(tidStereo)},
+    {TOPOFCT(tidWheel)},
+
+    {TOPOFCT(tobGlued)},
+    {TOPOFCT(tobIsDoubleSide)},
+    {TOPOFCT(tobIsRPhi)},
+    {TOPOFCT(tobIsStereo)},
+    {TOPOFCT(tobIsZMinusSide)},
+    {TOPOFCT(tobIsZPlusSide)},
+    {TOPOFCT(tobLayer)},
+    {TOPOFCT(tobModule)},
+    {TOPOFCT(tobRod)},
+    {TOPOFCT(tobSide)},
+    {TOPOFCT(tobStereo)},
+
+    {TOPOFCT(tecGlued)},
+    {TOPOFCT(tecIsBackPetal)},
+    {TOPOFCT(tecIsDoubleSide)},
+    {TOPOFCT(tecIsFrontPetal)},
+    {TOPOFCT(tecIsRPhi)},
+    {TOPOFCT(tecIsStereo)},
+    {TOPOFCT(tecIsZMinusSide)},
+    {TOPOFCT(tecIsZPlusSide)},
+    {TOPOFCT(tecModule)},
+    {TOPOFCT(tecOrder)},
+    {TOPOFCT(tecPetalNumber)},
+    {TOPOFCT(tecRing)},
+    {TOPOFCT(tecSide)},
+    {TOPOFCT(tecStereo)},
+    {TOPOFCT(tecWheel)}
+
 };
 
 

@@ -340,7 +340,12 @@ class Accessor:
             else
             {
                 //std::cout<<"attr="<<s<<" unknown"<<std::endl;
-                throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector","error while parsing DetId selection: identifier '"+s+"' not known");
+                std::string msg = "error while parsing DetId selection: named identifier '"+s+"' not known. Possible values are: ";
+                for (const TrackerDetIdSelector::StringFunctionMap::value_type& pair: TrackerDetIdSelector::functionTable)
+                {
+                    msg+=pair.first+",";
+                }
+                throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector",msg);
             }
             return value;
         }
