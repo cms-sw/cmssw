@@ -170,7 +170,7 @@ float heppy::IsolationComputer::isoSumNeutralsWeighted(const reco::Candidate &ca
         if (w == -1.f) {
             double sumc = 0, sump = 0.0;
             for (IT icharged = charged_begin; icharged < charged_end; ++icharged) {
-                float hisdr2 = std::max(reco::deltaR2(**icharged, **ineutral), 0.01f);
+                float hisdr2 = std::max<float>(reco::deltaR2(**icharged, **ineutral), 0.01f);
                 if (hisdr2 > weightCone2) continue;
                 if (std::find(vetos_.begin(), vetos_.end(), *icharged) != vetos_.end()) {
                     continue;
@@ -178,7 +178,7 @@ float heppy::IsolationComputer::isoSumNeutralsWeighted(const reco::Candidate &ca
                 sumc += std::log( (*icharged)->pt() / std::sqrt(hisdr2) );
             }
             for (IT ipileup = pileup_begin; ipileup < pileup_end; ++ipileup) {
-                float hisdr2 = std::max(reco::deltaR2(**ipileup, **ineutral), 0.01f);
+                float hisdr2 = std::max<float>(reco::deltaR2(**ipileup, **ineutral), 0.01f);
                 if (hisdr2 > weightCone2) continue;
                 if (std::find(vetos_.begin(), vetos_.end(), *ipileup) != vetos_.end()) {
                     continue;
