@@ -47,7 +47,7 @@ ca8GenJetsNoMuNoNu = ca8GenJets.clone( src = cms.InputTag("genParticlesForJetsNo
 recoGenJets  = cms.Sequence(ak4GenJets+
                             ak8GenJets+
                             ak4GenJetsNoNu+
-                            ak8GenJetsNoNu+
+                            ak8GenJetsNoNu
 			    )
 
 recoAllGenJets=cms.Sequence(kt4GenJets+kt6GenJets+
