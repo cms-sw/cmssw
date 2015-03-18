@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/PIon/V21 (CMSSW_7_4_0_pre7_HLT4)
+# /dev/CMSSW_7_4_0/PIon/V22 (CMSSW_7_4_0_pre7_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V21')
+  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V22')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -398,7 +398,8 @@ process.HLTSeedFromConsecutiveHitsCreatorIT = cms.PSet(
   OriginTransverseErrorMultiplier = cms.double( 1.0 ),
   MinOneOverPtError = cms.double( 1.0 ),
   magneticField = cms.string( "ParabolicMf" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  forceKinematicWithRegionDirection = cms.bool( False )
 )
 process.HLTSeedFromProtoTracks = cms.PSet( 
   ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
