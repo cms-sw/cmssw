@@ -28,7 +28,7 @@ hcalCalibPedestal = EventFilter.HcalRawToDigi.HcalCalibTypeFilter_cfi.hcalCalibT
 #  InputLabel = cms.string('rawDataCollector'), 
   InputLabel = cms.string('hltHcalCalibrationRaw::HLT'),
 #  InputLabel = cms.InputTag("hltEcalCalibrationRaw","","HLT"),
-  CalibTypes    = cms.vint32( 1,2,3,4,5 ),
+  CalibTypes    = cms.vint32( 1 ),
   FilterSummary = cms.untracked.bool( False )
 )
 
