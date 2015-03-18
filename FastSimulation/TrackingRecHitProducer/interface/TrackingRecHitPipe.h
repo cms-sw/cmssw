@@ -16,12 +16,13 @@ class TrackingRecHitPipe
         {
         }
         
-        void produce(TrackingRecHitProductPtr product) const
+        TrackingRecHitProductPtr produce(TrackingRecHitProductPtr product) const
         {
             for (unsigned int ialgo = 0; product && (ialgo < _algorithms.size()); ++ialgo)
             {
                 product = _algorithms[ialgo]->process(product);
             }
+            return product;
         }
         
         inline void addAlgorithm(TrackingRecHitAlgorithm* algorithm)

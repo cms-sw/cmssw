@@ -22,6 +22,7 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -36,6 +37,11 @@ namespace edm
 
 class TrackingRecHitAlgorithm;
 
+//TODO: this needs to go to DataFormats/TrackerRecHit2D
+typedef edm::RangeMap<DetId, edm::OwnVector<SiTrackerGSRecHit2D>> TrackerGSRecHitCollection;
+typedef edm::RangeMap<DetId, edm::OwnVector<SiTrackerGSMatchedRecHit2D>> TrackerGSMatchedRecHitCollection;
+
+
 class TrackingRecHitProducer:
     public edm::stream::EDProducer<>
 {
@@ -48,6 +54,8 @@ class TrackingRecHitProducer:
         const TrackerTopology* _trackerTopology;
         
         std::map<unsigned int, TrackingRecHitPipe> _detIdPipes;
+
+
 
     public:
         TrackingRecHitProducer(const edm::ParameterSet& config);

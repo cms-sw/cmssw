@@ -62,8 +62,8 @@ ExpressionAST operator==(ExpressionAST const& lhs, ExpressionAST const& rhs);
 ExpressionAST operator<=(ExpressionAST const& lhs, ExpressionAST const& rhs);
 ExpressionAST operator<(ExpressionAST const& lhs, ExpressionAST const& rhs);
 ExpressionAST operator!=(ExpressionAST const& lhs, ExpressionAST const& rhs);
-ExpressionAST operator&(ExpressionAST const& lhs, ExpressionAST const& rhs);
-ExpressionAST operator|(ExpressionAST const& lhs, ExpressionAST const& rhs);
+ExpressionAST operator&&(ExpressionAST const& lhs, ExpressionAST const& rhs);
+ExpressionAST operator||(ExpressionAST const& lhs, ExpressionAST const& rhs);
 
 struct BinaryOP
 {
@@ -168,10 +168,10 @@ struct WalkAST
                 std::cout<<" != ";
                 break;
             case BinaryOP::OP::AND:
-                std::cout<<" & ";
+                std::cout<<" && ";
                 break;
             case BinaryOP::OP::OR:
-                std::cout<<" | ";
+                std::cout<<" || ";
                 break;
         }
         boost::apply_visitor(*this, expr.right.expr);
@@ -228,29 +228,32 @@ struct TrackerDetIdSelectorGrammar:
         namespace ascii = boost::spirit::ascii;
         namespace phoenix = boost::phoenix;
 
+        //TODO: add ! operator to rules
+
         identifierFctRule =
             qi::lexeme[+qi::alpha[qi::_val+=qi::_1]];
 
         identifierRule =
-            '!' >> identifierRule[qi::_val=!qi::_1] |
             (qi::true_[qi::_val=1] | qi::false_[qi::_val=0]) |
             (qi::int_[qi::_val=qi::_1]) |
             identifierFctRule[qi::_val=qi::_1];
 
+        comboRule =
+            (expressionRule[qi::_a=qi::_1] >>
+             *(
+                 (qi::lit("&&") >> expressionRule[qi::_a=qi::_a && qi::_1]) |
+                 (qi::lit("||") >> expressionRule[qi::_a=qi::_a || qi::_1])
+             ))[qi::_val=qi::_a];
+
         expressionRule =
+            qi::lit("(") >> comboRule[qi::_val=qi::_1] >> qi::lit(")") |
             (identifierRule >> qi::lit(">") >> identifierRule)[qi::_val=qi::_1>qi::_2] |
             (identifierRule >> qi::lit(">=") >> identifierRule)[qi::_val=qi::_1>=qi::_2] |
             (identifierRule >> qi::lit("<") >> identifierRule)[qi::_val=qi::_1<qi::_2] |
             (identifierRule >> qi::lit("<=") >> identifierRule)[qi::_val=qi::_1<=qi::_2] |
             (identifierRule >> qi::lit("==") >> identifierRule)[qi::_val=qi::_1==qi::_2] |
-            (identifierRule >> qi::lit("!=") >> identifierRule)[qi::_val=qi::_1!=qi::_2];
-
-        comboRule =
-            ('(' >> comboRule[qi::_a=qi::_1] >> ')' >>
-                *(qi::lit("&") >> '(' >> comboRule[qi::_a=qi::_a & qi::_1] >> ')' |
-                  qi::lit("|") >> '(' >> comboRule[qi::_a=qi::_a | qi::_1] >> ')'))[qi::_val=qi::_a] |
-            expressionRule[qi::_val=qi::_1];
-
+            (identifierRule >> qi::lit("!=") >> identifierRule)[qi::_val=qi::_1!=qi::_2] |
+            identifierRule[qi::_val=qi::_1];
     }
 
 };
@@ -322,7 +325,7 @@ class Accessor:
 
         int operator()(Nil i) const
         {
-            throw "should not happen";
+            throw cms::Exception("FastSimulation/TrackingRecHitProducer/TrackerDetIdSelector","while evaluating a DetId selection a symbol was not set");
         }
         int operator()(const int& i) const
         {

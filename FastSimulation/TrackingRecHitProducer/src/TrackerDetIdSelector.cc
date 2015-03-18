@@ -132,13 +132,13 @@ ExpressionAST operator!=(ExpressionAST const& lhs, ExpressionAST const& rhs)
     return ast;
 }
 
-ExpressionAST operator&(ExpressionAST const& lhs, ExpressionAST const& rhs)
+ExpressionAST operator&&(ExpressionAST const& lhs, ExpressionAST const& rhs)
 {
     ExpressionAST ast = BinaryOP(BinaryOP::OP::AND, lhs, rhs);
     return ast;
 }
 
-ExpressionAST operator|(ExpressionAST const& lhs, ExpressionAST const& rhs)
+ExpressionAST operator||(ExpressionAST const& lhs, ExpressionAST const& rhs)
 {
     ExpressionAST ast = BinaryOP(BinaryOP::OP::OR, lhs, rhs);
     return ast;

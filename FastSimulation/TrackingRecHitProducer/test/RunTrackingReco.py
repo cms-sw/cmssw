@@ -34,7 +34,9 @@ process.recHitProducer=cms.EDProducer("TrackingRecHitProducer",
     plugins=cms.PSet(
         defaultPlugin = cms.PSet(
             type=cms.string("TrackingRecHitNoSmearingPlugin"),
-            select=cms.string("((side>=2) & (subdetId==FPX)) | ((BPX==subdetId) & (layer <2))"),
+            #select=cms.string("true || (tecGlued && (subdetId==!FPX)) || ((BPX==subdetId) && (layer!=2) && (pxbModule>5))"),
+            select=cms.string("tibGlued || tidGlued || tobGlued || tecGlued"),
+
         )
     )
 )
