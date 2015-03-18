@@ -224,9 +224,8 @@
     <field name="unpacked_" transient="true" />
 
   </class>
-  <ioread sourceClass="pat::PackedMETUncertainty"  version="[1-]" targetClass="pat::PackedMETUncertainty" source="" target="unpacked_">
-        <![CDATA[unpacked_ = false;
-            ]]>
+  <ioread sourceClass="pat::MET::PackedMETUncertainty"  version="[1-]" targetClass="pat::MET::PackedMETUncertainty" source="" target="unpacked_">
+        <![CDATA[unpacked_ = false; ]]>
   </ioread>
 
   <class name="std::vector<pat::MET::PackedMETUncertainty>" />
