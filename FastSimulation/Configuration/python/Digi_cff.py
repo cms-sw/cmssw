@@ -16,7 +16,8 @@ for _entry in [cms.InputTag("SiStripDigiToRaw"), cms.InputTag("castorRawData"),c
 # extend it with some raw2digi
 from Configuration.StandardSequences.RawToDigi_cff import ecalPreshowerDigis,ecalDigis,hcalDigis
 
-digiToRawToDigi = cms.Sequence(ecalPacker+esDigiToRaw+hcalRawData+rawDataCollector+ecalPreshowerDigis+ecalDigis+hcalDigis)
-pdigi.replace(calDigi,calDigi+digiToRawToDigi)
+calDigiToRawToDigi = cms.Sequence(ecalPacker+esDigiToRaw+hcalRawData+rawDataCollector+ecalPreshowerDigis+ecalDigis+hcalDigis)
+doAllDigi.replace(calDigi,calDigi+calDigiToRawToDigi)
+
 
 # TODO: understand whether this digi2raw+raw2digi is useful
