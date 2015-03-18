@@ -151,12 +151,12 @@ def applySubstructure( process ) :
             jetSrc = cms.InputTag("selectedPatJetsAK8"),
             distMax = cms.double(0.8),
             algoTags = cms.VInputTag(
-                cms.InputTag("slimmedJetsCMSTopTagCHSPacked"),
                 cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked"),
+                cms.InputTag("slimmedJetsCMSTopTagCHSPacked")
             ),
             algoLabels = cms.vstring(
-                'CMSTopTag',
                 'SoftDrop',
+                'CMSTopTag'
                 ),
             fixDaughters = cms.bool(True),
             packedPFCandidates = cms.InputTag("packedPFCandidates"),
