@@ -16,9 +16,6 @@
 #ifndef TauDecay_h
 #define TauDecay_h
 
-//
-// class declaration
-//
 class TauDecay {
  public:
   // TAUOLA list of decay modes avalible presently available in Tauola are (JAK):  
@@ -100,19 +97,9 @@ class TauDecay {
   bool isTauParticleCounter(int pdgid);
   bool isTauResonanceCounter(int pdgid);
   void ClassifyDecayMode(unsigned int &JAK_ID,unsigned int &TauBitMask);
-  unsigned int nProng(unsigned int &TauBitMask){
-    if(OneProng&TauBitMask)   return 1;
-    if(ThreeProng&TauBitMask) return 3;
-    if(FiveProng&TauBitMask)  return 5;
-    return 7;
-  }
-  unsigned int nPi0(unsigned int &TauBitMask){
-    if(OnePi0&TauBitMask)   return 1;
-    if(TwoPi0&TauBitMask)   return 2;
-    if(ThreePi0&TauBitMask) return 3;
-    return 0;
-  }
-
+  unsigned int nProng(unsigned int &TauBitMask);
+  unsigned int nPi0(unsigned int &TauBitMask);
+  bool hasResonance(unsigned int &TauBitMask, int pdgid);
   
  private:
   // Functions
