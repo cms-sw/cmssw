@@ -41,7 +41,6 @@ def propagateMEtUncertainties(process, particleCollection, particleType,
         else:
             raise StandardError("Tried to remove postfix %s from label %s, but it wasn't there" % (postfix, metProducerLabel))
     moduleMETshiftUpName = "%s%s%sUp" % (metProducerLabel, particleType, shiftType)
-    print "==========> ",metProducerLabel,"  ", moduleMETshiftUpName
     moduleMETshiftUpName += postfix
     setattr(process, moduleMETshiftUpName, moduleMETshiftUp)
     sequence += moduleMETshiftUp
