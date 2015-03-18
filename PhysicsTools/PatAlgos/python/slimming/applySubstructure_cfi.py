@@ -21,7 +21,6 @@ def applySubstructure( process ) :
                      jetSource = cms.InputTag('ak8PFJetsCHS'),
                      algo= 'AK', rParam = 0.8,
                      jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-                     btagInfos = ['caTopTagInfosPAT'],
                      btagDiscriminators = [x.getModuleLabel() for x in patJetsDefault.discriminatorSources],
                      genJetCollection = cms.InputTag('slimmedGenJetsAK8')
                      )
@@ -106,10 +105,6 @@ def applySubstructure( process ) :
         btagDiscriminators = ['None'],
         genJetCollection = cms.InputTag('slimmedGenJetsAK8'), 
         getJetMCFlavour = False #
-        )
-    process.patJetsCMSTopTagCHS.addTagInfos = True
-    process.patJetsCMSTopTagCHS.tagInfoSources = cms.VInputTag(
-        cms.InputTag('caTopTagInfosPAT')
         )
     process.selectedPatJetsCMSTopTagCHS.cut = cms.string("pt > 200")
 
