@@ -404,10 +404,10 @@ bool PVFitter::runFitter() {
       //
       // first iteration without correlations
       //
-      upar.Fix(4);
-      upar.Fix(6);
-      upar.Fix(7);
-      upar.Fix(9);
+      migrad.Fix(4);
+      migrad.Fix(6);
+      migrad.Fix(7);
+      migrad.Fix(9);
       FunctionMinimum ierr = migrad();
       if ( !ierr.IsValid() ) {
           edm::LogWarning("PVFitter") << "3D beam spot fit failed in 1st iteration" << std::endl;
@@ -417,14 +417,17 @@ bool PVFitter::runFitter() {
       // refit with harder selection on vertices
       //
 
-      std::cout << "] Dario: " << std::endl ;
+      vector<double> results ;
+      vector<double> errors  ;
+      results = ierr.UserParameters().Params() ;					       \
+      errors  = ierr.UserParameters().Errors() ;					       \
       
-      fcn->setLimits(upar.Value(0)-sigmaCut_*upar.Value(3),
-                     upar.Value(0)+sigmaCut_*upar.Value(3),
-                     upar.Value(1)-sigmaCut_*upar.Value(5),
-                     upar.Value(1)+sigmaCut_*upar.Value(5),
-                     upar.Value(2)-sigmaCut_*upar.Value(8),
-                     upar.Value(2)+sigmaCut_*upar.Value(8));
+      fcn->setLimits(results[0]-sigmaCut_*results[3],
+                     results[0]+sigmaCut_*results[3],
+                     results[1]-sigmaCut_*results[5],
+                     results[1]+sigmaCut_*results[5],
+                     results[2]-sigmaCut_*results[8],
+                     results[2]+sigmaCut_*results[8]);
       ierr = migrad();
       if ( !ierr.IsValid() ) {
           edm::LogWarning("PVFitter") << "3D beam spot fit failed in 2nd iteration" << std::endl;
@@ -433,9 +436,9 @@ bool PVFitter::runFitter() {
       //
       // refit with correlations
       //
-      upar.Release(4);
-      upar.Release(6);
-      upar.Release(7);
+      migrad.Release(4);
+      migrad.Release(6);
+      migrad.Release(7);
       ierr = migrad();
       if ( !ierr.IsValid() ) {
           edm::LogWarning("PVFitter") << "3D beam spot fit failed in 3rd iteration" << std::endl;
@@ -447,12 +450,12 @@ bool PVFitter::runFitter() {
 
       //minuitx.PrintResults(0,0);
 
-      fwidthX = upar.Value(3);
-      fwidthY = upar.Value(5);
-      fwidthZ = upar.Value(8);
-      fwidthXerr = upar.Error(3);
-      fwidthYerr = upar.Error(5);
-      fwidthZerr = upar.Error(8);
+      fwidthX = results[3];
+      fwidthY = results[5];
+      fwidthZ = results[8];
+      fwidthXerr = errors[3];
+      fwidthYerr = errors[5];
+      fwidthZerr = errors[8];
 
       // check errors on widths and sigmaZ for nan
       if ( edm::isNotFinite(fwidthXerr) || edm::isNotFinite(fwidthYerr) || edm::isNotFinite(fwidthZerr) ) {
@@ -462,22 +465,22 @@ bool PVFitter::runFitter() {
 
       reco::BeamSpot::CovarianceMatrix matrix;
       // need to get the full cov matrix
-      matrix(0,0) = pow( upar.Error(0), 2);
-      matrix(1,1) = pow( upar.Error(1), 2);
-      matrix(2,2) = pow( upar.Error(2), 2);
+      matrix(0,0) = pow( errors[0], 2);
+      matrix(1,1) = pow( errors[1], 2);
+      matrix(2,2) = pow( errors[2], 2);
       matrix(3,3) = fwidthZerr * fwidthZerr;
       matrix(6,6) = fwidthXerr * fwidthXerr;
 
-      fbeamspot = reco::BeamSpot( reco::BeamSpot::Point(upar.Value(0),
-                                                        upar.Value(1),
-                                                        upar.Value(2) ),
+      fbeamspot = reco::BeamSpot( reco::BeamSpot::Point(results[0],
+                                                        results[1],
+                                                        results[2] ),
                                   fwidthZ,
-                                  upar.Value(6), upar.Value(7),
+                                  results[6], results[7],
                                   fwidthX,
                                   matrix );
       fbeamspot.setBeamWidthX( fwidthX );
       fbeamspot.setBeamWidthY( fwidthY );
-      fbeamspot.setType(reco::BeamSpot::Tracker);
+      fbeamspot.setType(reco::BeamSpot::Tracker); 
     }
 
     return true; //FIXME: Need to add quality test for the fit results!
