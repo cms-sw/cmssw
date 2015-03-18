@@ -85,7 +85,7 @@ float MET::uncorrectedPt() const {
   return shiftedPt(MET::METUncertainty::NoShift, MET::METUncertaintyLevel::Raw);
 }
 float MET::uncorrectedPhi() const {
-   return shiftedPt(MET::METUncertainty::NoShift, MET::METUncertaintyLevel::Raw);
+   return shiftedPhi(MET::METUncertainty::NoShift, MET::METUncertaintyLevel::Raw);
 }
 float MET::uncorrectedSumEt() const {
   return shiftedSumEt(MET::METUncertainty::NoShift, MET::METUncertaintyLevel::Raw);
