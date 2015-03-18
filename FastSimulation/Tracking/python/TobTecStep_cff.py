@@ -12,8 +12,30 @@ tobTecStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackI
 )
 
 # trajectory seeds 
+#triplet seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
-tobTecStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
+tobTecStepSeedsTripl = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
+    simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
+        skipSimTrackIds = [
+            cms.InputTag("detachedTripletStepSimTrackIds"),
+            cms.InputTag("lowPtTripletStepSimTrackIds"),
+            cms.InputTag("pixelPairStepSimTrackIds"),
+            cms.InputTag("mixedTripletStepSimTrackIds"),
+            cms.InputTag("pixelLessStepSimTrackIds"),
+            cms.InputTag("tobTecStepSimTrackIds")],
+        pTMin = 0.3,
+        maxD0 = 99.0,
+        maxZ0 = 99
+    ),
+    minLayersCrossed = 4,
+    ptMin = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.ptMin,
+    originHalfLength = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.originHalfLength,
+    originRadius = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.originRadius,
+    layerList = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersTripl.layerList.value()
+)
+#pair seeds
+import FastSimulation.Tracking.TrajectorySeedProducer_cfi
+tobTecStepSeedsPair = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
         skipSimTrackIds = [
             cms.InputTag("detachedTripletStepSimTrackIds"),
@@ -32,6 +54,8 @@ tobTecStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectoryS
     originRadius = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.originRadius,
     layerList = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersPair.layerList.value()
 )
+#
+tobTecStepSeeds = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeeds.clone()
 
 # track candidate
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
@@ -53,6 +77,8 @@ tobTecStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # Final sequence 
 TobTecStep = cms.Sequence(tobTecStepSimTrackIds
+                          +tobTecStepSeedsTripl
+                          +tobTecStepSeedsPair
                           +tobTecStepSeeds
                           +tobTecStepTrackCandidates
                           +tobTecStepTracks
