@@ -1,4 +1,8 @@
-#include "Validation/MuonGEMHits/interface/GEMHitsValidation.h"
+#include "Validation/MuonGEMDigis/interface/GEMStripDigiValidation.h"
+#include "Validation/MuonGEMDigis/interface/GEMPadDigiValidation.h"
+#include "Validation/MuonGEMDigis/interface/GEMCoPadDigiValidation.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE (GEMHitsValidation) ;
+DEFINE_FWK_MODULE (GEMStripDigiValidation) ;
+DEFINE_FWK_MODULE (GEMPadDigiValidation) ;
+DEFINE_FWK_MODULE (GEMCoPadDigiValidation) ;

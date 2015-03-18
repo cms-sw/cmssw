@@ -1,22 +1,31 @@
 #include "Validation/MuonGEMDigis/interface/GEMStripDigiValidation.h"
 #include <iomanip>
-GEMStripDigiValidation::GEMStripDigiValidation(DQMStore* dbe,
-                                               edm::EDGetToken& stripToken, const edm::ParameterSet& pbInfo)
-:  GEMBaseValidation(dbe, stripToken, pbInfo)
-{}
+GEMStripDigiValidation::GEMStripDigiValidation(const edm::ParameterSet& cfg): GEMBaseValidation(cfg)
+{
+  InputTagToken_ = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("stripLabel"));
+}
+
+void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
+  if ( GEMGeometry_ == nullptr ) {
+    try {
+      edm::ESHandle<GEMGeometry> hGeom;
+      iSetup.get<MuonGeometryRecord>().get(hGeom);
+      GEMGeometry_ = &*hGeom;
+    }
+    catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+      edm::LogError("MuonGEMStripDigis") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
+      return;
+    }
+  }
 
 
-void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) { 
-  theGEMGeometry = geom;  
-
-
-  int nregions = theGEMGeometry->regions().size();
-  int nstations = theGEMGeometry->regions()[0]->stations().size(); 
-  int nstripsGE11  = theGEMGeometry->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->nstrips();
+  int nregions = GEMGeometry_->regions().size();
+  int nstations = GEMGeometry_->regions()[0]->stations().size(); 
+  int nstripsGE11  = GEMGeometry_->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->nstrips();
   int nstripsGE21 = 0;
   
   if ( nstations > 1 ) {
-    nstripsGE21  = theGEMGeometry->regions()[0]->stations()[1]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->nstrips();
+    nstripsGE21  = GEMGeometry_->regions()[0]->stations()[1]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->nstrips();
   }
   else LogDebug("GEMStripDIGIValidation")<<"Info : Only 1 station is existed.\n";
 
@@ -30,11 +39,11 @@ void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) {
         else nstrips = nstripsGE21;
         std::string name_prefix = std::string("_r")+regionLabel[region_num]+"_st"+stationLabel[station_num] + "_l"+layerLabel[layer_num];
         std::string label_prefix = "region"+regionLabel[region_num]+" station "+stationLabel[station_num] +" layer "+layerLabel[layer_num];
-        theStrip_phistrip[region_num][station_num][layer_num] = dbe_->book2D( ("strip_dg_phistrip"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; phi [rad];strip number").c_str(), 280, -TMath::Pi(), TMath::Pi(), nstrips/2,0,nstrips);
-        theStrip[region_num][station_num][layer_num] = dbe_->book1D( ("strip_dg"+name_prefix).c_str(), ("Digi occupancy per stip number: "+label_prefix+";strip number; entries").c_str(), nstrips,0.5,nstrips+0.5);
-        theStrip_bx[region_num][station_num][layer_num] = dbe_->book1D( ("strip_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
-        theStrip_zr[region_num][station_num][layer_num] = BookHistZR("strip_dg","Strip Digi",region_num,station_num,layer_num);
-        theStrip_xy[region_num][station_num][layer_num] = BookHistXY("strip_dg","Strip Digi",region_num,station_num,layer_num);
+        theStrip_phistrip[region_num][station_num][layer_num] = ibooker.book2D( ("strip_dg_phistrip"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; phi [rad];strip number").c_str(), 280, -TMath::Pi(), TMath::Pi(), nstrips/2,0,nstrips);
+        theStrip[region_num][station_num][layer_num] = ibooker.book1D( ("strip_dg"+name_prefix).c_str(), ("Digi occupancy per stip number: "+label_prefix+";strip number; entries").c_str(), nstrips,0.5,nstrips+0.5);
+        theStrip_bx[region_num][station_num][layer_num] = ibooker.book1D( ("strip_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
+        theStrip_zr[region_num][station_num][layer_num] = BookHistZR(ibooker,"strip_dg","Strip Digi",region_num,station_num,layer_num);
+        theStrip_xy[region_num][station_num][layer_num] = BookHistXY(ibooker,"strip_dg","Strip Digi",region_num,station_num,layer_num);
       }
     }
   }
@@ -48,7 +57,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
                                      const edm::EventSetup&)
 {
   edm::Handle<GEMDigiCollection> gem_digis;
-  e.getByToken( this->inputToken_, gem_digis);
+  e.getByToken( this->InputTagToken_, gem_digis);
   if (!gem_digis.isValid()) {
     edm::LogError("GEMStripDigiValidation") << "Cannot get strips by Token stripToken.\n";
     return ;
@@ -56,13 +65,13 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
   for (GEMDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
     GEMDetId id = (*cItr).first;
 
-    const GeomDet* gdet = theGEMGeometry->idToDet(id);
+    const GeomDet* gdet = GEMGeometry_->idToDet(id);
     if ( gdet == nullptr) { 
       std::cout<<"Getting DetId failed. Discard this gem strip hit.Maybe it comes from unmatched geometry."<<std::endl;
       continue; 
     }
     const BoundPlane & surface = gdet->surface();
-    const GEMEtaPartition * roll = theGEMGeometry->etaPartition(id);
+    const GEMEtaPartition * roll = GEMGeometry_->etaPartition(id);
 
     Short_t region = (Short_t) id.region();
     Short_t layer = (Short_t) id.layer();

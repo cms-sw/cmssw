@@ -42,22 +42,22 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "Validation/MuonGEMHits/plugins/MuonGEMHitsHarvestor.h"
+#include "Validation/MuonGEMDigis/plugins/MuonGEMDigisHarvestor.h"
 
 using namespace std;
-MuonGEMHitsHarvestor::MuonGEMHitsHarvestor(const edm::ParameterSet& ps)
+MuonGEMDigisHarvestor::MuonGEMDigisHarvestor(const edm::ParameterSet& ps)
 {
-	dbe_path_ = std::string("MuonGEMHitsV/GEMHitsTask/");
+	dbe_path_ = std::string("MuonGEMDigisV/GEMHitsTask/");
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 }
 
 
-MuonGEMHitsHarvestor::~MuonGEMHitsHarvestor()
+MuonGEMDigisHarvestor::~MuonGEMDigisHarvestor()
 {
 }
 
 void 
-MuonGEMHitsHarvestor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter &ig )
+MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter &ig )
 {
   ig.setCurrentFolder(dbe_path_.c_str());
   /*
@@ -111,4 +111,4 @@ MuonGEMHitsHarvestor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter &
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(MuonGEMHitsHarvestor);
+DEFINE_FWK_MODULE(MuonGEMDigisHarvestor);

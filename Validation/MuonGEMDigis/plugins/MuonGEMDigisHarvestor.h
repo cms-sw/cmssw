@@ -1,5 +1,5 @@
-#ifndef MuonGEMHitsHarvestor_H
-#define MuonGEMHitsHarvestor_H
+#ifndef MuonGEMDigisHarvestor_H
+#define MuonGEMDigisHarvestor_H
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -11,16 +11,17 @@
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
-#include "Validation/MuonGEMHits/interface/GEMHitsValidation.h"
-//#include "Validation/MuonGEMHits/interface/AbstractHarvester.h"
+#include "Validation/MuonGEMDigis/interface/GEMStripDigiValidation.h"
+#include "Validation/MuonGEMDigis/interface/GEMPadDigiValidation.h"
+#include "Validation/MuonGEMDigis/interface/GEMCoPadDigiValidation.h"
 
-class MuonGEMHitsHarvestor : public DQMEDHarvester
+class MuonGEMDigisHarvestor : public DQMEDHarvester
 {
 public:
   /// constructor
-  explicit MuonGEMHitsHarvestor(const edm::ParameterSet&);
+  explicit MuonGEMDigisHarvestor(const edm::ParameterSet&);
   /// destructor
-  virtual ~MuonGEMHitsHarvestor();
+  virtual ~MuonGEMDigisHarvestor();
 
   virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
 

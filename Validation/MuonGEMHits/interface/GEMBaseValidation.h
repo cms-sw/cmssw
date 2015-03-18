@@ -8,6 +8,7 @@
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -30,7 +31,7 @@ protected:
   std::vector< std::string > layerLabel;
   std::vector< std::string > stationLabel;
 
-  edm::EDGetToken inputToken_;
+  edm::EDGetToken InputTagToken_;
   const GEMGeometry* GEMGeometry_;
   edm::ParameterSet plotRange_;
   std::vector<double> nBinZR_;

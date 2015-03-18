@@ -38,3 +38,6 @@ gemDigiValidation = cms.EDAnalyzer('MuonGEMDigis',
             #EtaRangeForPhi = cms.untracked.vdouble( 1.5, 2.6, 1.5, 2.6, 1.5, 2.6),
   ),
 )
+
+gemStripValidation = cms.EDAnalyzer('')
+
