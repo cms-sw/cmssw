@@ -25,7 +25,7 @@ caloStage1Params.egPUSParams  = cms.vdouble()
 
 ## EG Isolation LUT
 ## caloStage1Params.egIsoLUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_stage1.txt")
-caloStage1Params.egIsoLUTFile      = cms.FileInPath("L1Trigger/L1TCalorimeter/python/egIsoLUT_stage1_isolEB0.30_isolEE0.50_combined.txt")
+caloStage1Params.egIsoLUTFile      = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_stage1_isolEB0.30_isolEE0.50_combined.txt")
 #caloStage1Params.egIsoLUTFileBarrel   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_stage1_isol0.30.txt")
 #caloStage1Params.egIsoLUTFileEndcaps  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_stage1_isol0.50.txt")
 
