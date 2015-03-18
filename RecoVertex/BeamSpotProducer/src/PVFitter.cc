@@ -417,7 +417,7 @@ bool PVFitter::runFitter() {
       // refit with harder selection on vertices
       //
 
-      cout << "] Dario: " << ierr << endl ;
+      std::cout << "] Dario: " << std::endl ;
       
       fcn->setLimits(upar.Value(0)-sigmaCut_*upar.Value(3),
                      upar.Value(0)+sigmaCut_*upar.Value(3),
