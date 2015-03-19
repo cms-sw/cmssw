@@ -92,7 +92,7 @@ void TrackingRecHitProducer::beginRun(edm::Run const&, const edm::EventSetup& ev
     
     for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
     {
-        algo->setupTrackerTopology(_trackerTopology);
+        algo->setupTopologyAndGeometry(_trackerTopology,_trackerGeometry);
     }
     
     
@@ -154,9 +154,6 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
             throw cms::Exception("FastSimulation/TrackingRecHitProducer","A PSimHit carries a DetId which does not belong to the TrackerGeometry: "+_trackerTopology->print(simHitsIt->first));
         }
     }
-
-
-
 
     event.put(recHitOutputCollection,"TrackerGSRecHits");
     event.put(matchedRecHitOutputCollection,"TrackerGSMatchedRecHits");
