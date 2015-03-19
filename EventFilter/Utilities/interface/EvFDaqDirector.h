@@ -111,6 +111,7 @@ namespace evf{
       void lockFULocal2();
       void unlockFULocal2();
       void createRunOpendirMaybe();
+      void createProcessingNotificationMaybe() const;
       int readLastLSEntry(std::string const& file);
       void setDeleteTracking( std::mutex* fileDeleteLock,std::list<std::pair<int,InputFile*>> *filesToDelete) {
         fileDeleteLockPtr_=fileDeleteLock;
