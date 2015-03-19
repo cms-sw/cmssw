@@ -41,7 +41,6 @@ namespace edm {
       typedef COLLECTION                            product_type;
       typedef typename GetProduct<product_type>::element_type     element_type;
       typedef typename product_type::const_iterator iter;
-      typedef typename product_type::size_type      size_type;
 
       if(iToType == typeid(element_type)) {
         iter it = coll.begin();

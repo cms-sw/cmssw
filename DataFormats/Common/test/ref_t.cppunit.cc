@@ -169,7 +169,7 @@ namespace {
       virtual void
       getThinnedProducts(ProductID const& pid,
                          std::vector<WrapperBase const*>& wrappers,
-                         std::vector<unsigned int>& keys) const { }
+                         std::vector<unsigned int>& keys) const override { }
 
       virtual unsigned int transitionIndex_() const override {
         return 0U;

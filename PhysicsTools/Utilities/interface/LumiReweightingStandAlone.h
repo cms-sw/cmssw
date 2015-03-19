@@ -294,7 +294,7 @@ namespace reweight {
 	Data_distr_ = new TH1F("Data_distr","Data dist",NBins,-0.5, float(NBins)-0.5);
 
 	weights_ = new TH1F("luminumer","luminumer",NBins,-0.5, float(NBins)-0.5);
-	TH1* den = new TH1F("lumidenom","lumidenom",NBins,-0.5, float(NBins)-0.5);
+	TH1F* den = new TH1F("lumidenom","lumidenom",NBins,-0.5, float(NBins)-0.5);
 
 	for(int ibin = 1; ibin<NBins+1; ++ibin ) {
 	  weights_->SetBinContent(ibin, Lumi_distr[ibin-1]);

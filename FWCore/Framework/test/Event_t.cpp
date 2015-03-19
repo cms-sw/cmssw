@@ -521,7 +521,6 @@ void testEvent::getByLabel() {
   typedef edmtest::IntProduct product_t;
   typedef std::unique_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
-  typedef std::vector<handle_t> handle_vec;
 
   ap_t one(new product_t(1));
   ap_t two(new product_t(2));
@@ -607,7 +606,6 @@ void testEvent::getByToken() {
   typedef edmtest::IntProduct product_t;
   typedef std::unique_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
-  typedef std::vector<handle_t> handle_vec;
   
   ap_t one(new product_t(1));
   ap_t two(new product_t(2));
@@ -733,7 +731,6 @@ void testEvent::deleteProduct() {
   
   typedef edmtest::IntProduct product_t;
   typedef std::unique_ptr<product_t> ap_t;
-  typedef Handle<product_t> handle_t;
   
   ap_t one(new product_t(1));
   addProduct(std::move(one),   "int1_tag", "int1");
