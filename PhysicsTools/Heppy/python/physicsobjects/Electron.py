@@ -147,23 +147,17 @@ class Electron( Lepton ):
         elif R == 0.4: return self.physObj.photonIso()
         raise RuntimeError, "Electron photonIso missing for R=%s" % R
 
-    def chargedAllIso(self,R=0.4):
+    def chargedAllIsoR(self,R=0.4):
         if   R == 0.3: return self.physObj.pfIsolationVariables().sumChargedParticlePt 
         raise RuntimeError, "Electron chargedAllIso missing for R=%s" % R
+
+    def chargedAllIso(self):
+        raise RuntimeError, "Electron chargedAllIso missing"
 
     def puChargedHadronIsoR(self,R=0.4):
         if   R == 0.3: return self.physObj.pfIsolationVariables().sumPUPt 
         elif R == 0.4: return self.physObj.puChargedHadronIso()
         raise RuntimeError, "Electron chargedHadronIso missing for R=%s" % R
-
-
-
-
-    def chargedAllIso(self):
-        '''This function is used in the isolation, see Lepton class.
-        Here, we replace the all charged isolation by the all charged isolation with cone veto'''
-        return self.chargedAllIsoWithConeVeto()
-
 
     def dxy(self, vertex=None):
         '''Returns dxy.

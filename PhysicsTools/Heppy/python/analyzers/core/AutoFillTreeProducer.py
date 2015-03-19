@@ -82,7 +82,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         tree = self.tree
         self.declareCoreVariables(tree, isMC)
 
-        if not hasattr(self.cfg_ana,"ignoreAnalyzerBookings") or not self.cfg_ana.ignoreAnalyzerBooking :
+        if not hasattr(self.cfg_ana,"ignoreAnalyzerBookings") or not self.cfg_ana.ignoreAnalyzerBookings :
             #import variables declared by the analyzers
             if hasattr(setup,"globalVariables"):
                 self.globalVariables+=setup.globalVariables
@@ -137,6 +137,9 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
                     tr.vfill('pdfWeight_%s' % pdf, event.pdfWeights[pdf])
 
     def process(self, event):
+	if hasattr(self.cfg_ana,"filter") :	
+		if not self.cfg_ana.filter(event) :
+			return True #do not stop processing, just filter myself
         self.readCollections( event.input)
         self.fillTree(event)
          
@@ -167,4 +170,33 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
                 c.fillBranchesVector(self.tree, getattr(event, cn), isMC)
 
         self.tree.tree.Fill()      
+    
+    def getPythonWrapper(self):
+        """
+        This function produces a string that contains a Python wrapper for the event.
+        The wrapper is automatically generated based on the collections and allows the full
+        event contents to be accessed from subsequent Analyzers using e.g.
+        
+        leps = event.selLeptons #is of type selLeptons
+        pt0 = leps[0].pt
+
+        One just needs to add the EventAnalyzer to the sequence.
+        """
+
+        isMC = self.cfg_comp.isMC 
+
+        classes = ""
+        anclass = ""
+        anclass += "from PhysicsTools.HeppyCore.framework.analyzer import Analyzer\n"
+        anclass += "class EventAnalyzer(Analyzer):\n"
+        anclass += "    def __init__(self, cfg_ana, cfg_comp, looperName):\n"
+        anclass += "        super(EventAnalyzer, self).__init__(cfg_ana, cfg_comp, looperName)\n"
+
+        anclass += "    def process(self, event):\n"
+
+        for cname, coll in self.collections.items():
+            classes += coll.get_py_wrapper_class(isMC)
+            anclass += "        event.{0} = {0}.make_array(event)\n".format(coll.name)
+        
+        return classes + "\n" + anclass
 

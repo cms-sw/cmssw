@@ -1,6 +1,8 @@
 import os
 import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.HeppyCore.framework.chain import Chain as Events
+import logging
+logging.basicConfig(level=logging.INFO)
 
 # input component 
 # several input components can be declared,
@@ -56,4 +58,4 @@ config = cfg.Config( components = selectedComponents,
                      services = services, 
                      events_class = Events )
 
-print config 
+# print config 
