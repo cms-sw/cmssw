@@ -1,6 +1,7 @@
 <lcgdict>
   
   <class name="reco::PFTau" ClassVersion="17">
+   <version ClassVersion="18" checksum="1318776182"/>
    <version ClassVersion="17" checksum="1523260402"/>
     <version ClassVersion="16" checksum="2695990650"/>
     <version ClassVersion="15" checksum="4105994460"/>
@@ -155,6 +156,47 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
 
 
 
+
+
+
+<ioread sourceClass = "reco::PFTau" version="[1-]" 
+ targetClass="reco::PFTau" 
+source = "" 
+target="signalPiZeroCandidates_">
+<![CDATA[
+signalPiZeroCandidates_.clear();
+]]>
+</ioread>
+              
+<ioread sourceClass = "reco::PFTau" version="[1-]" 
+ targetClass="reco::PFTau" 
+source = "" 
+target="isolationPiZeroCandidates_">
+<![CDATA[
+isolationPiZeroCandidates_.clear();
+]]>
+</ioread>
+
+
+<ioread sourceClass = "reco::PFTau" version="[1-]"
+ targetClass="reco::PFTau" 
+source = "" 
+target="signalTauChargedHadronCandidates_">
+<![CDATA[signalTauChargedHadronCandidates_.clear();
+]]>                                    
+</ioread>
+                                      
+<ioread sourceClass = "reco::PFTau" version="[1-]"
+ targetClass="reco::PFTau" 
+source = "" 
+target="isolationTauChargedHadronCandidates_">                                          
+<![CDATA[
+isolationTauChargedHadronCandidates_.clear();                                              
+]]>                                                
+</ioread>
+
+
+
 <!-- <ioread sourceClass="reco::PFTau" version="[-11]" -->
 <!-- source="reco::PFCandidateRefVector selectedIsolationPFCands_;" -->
 <!--  targetClass="reco::PFTau" -->
@@ -207,6 +249,7 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
 
 
   <class name="reco::PFTauDecayMode" ClassVersion="12">
+   <version ClassVersion="13" checksum="3507751092"/>
    <version ClassVersion="12" checksum="2043565930"/>
    <version ClassVersion="11" checksum="3414615810"/>
    <version ClassVersion="10" checksum="2108215737"/>
@@ -223,6 +266,7 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTau> > >"/>
 
   <class name="reco::RecoTauPiZero" ClassVersion="12">
+   <version ClassVersion="13" checksum="3687187514"/>
    <version ClassVersion="12" checksum="453348937"/>
    <version ClassVersion="11" checksum="2458276705"/>
    <version ClassVersion="10" checksum="465425628"/>
@@ -236,6 +280,7 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
   <class name="edm::reftobase::Holder<reco::CompositePtrCandidate, edm::Ref<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> > >" />
 
   <class name="reco::PFRecoTauChargedHadron" ClassVersion="13">
+   <version ClassVersion="14" checksum="3665832588"/>
    <version ClassVersion="13" checksum="591384956"/>
    <version ClassVersion="12" checksum="2480143236" />
    <version ClassVersion="11" checksum="858406271" />

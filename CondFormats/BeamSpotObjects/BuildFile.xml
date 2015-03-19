@@ -2,7 +2,7 @@
 <use   name="CondFormats/Common"/>
 <use   name="CondFormats/Serialization"/>
 <use   name="FWCore/Utilities"/>
-<use   name="rootrflx"/>
+
 <use   name="CLHEP"/>
 <export>
   <lib   name="1"/>

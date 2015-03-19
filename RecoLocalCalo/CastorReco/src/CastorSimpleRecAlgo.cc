@@ -1,7 +1,7 @@
 #include "RecoLocalCalo/CastorReco/interface/CastorSimpleRecAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/CastorCalib/interface/CastorTimeSlew.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include <algorithm> // for "max"
 #include <math.h>
 
@@ -165,7 +165,7 @@ void CastorSimpleRecAlgo::recoverADCSaturation(CastorRecHit& rechit,  const Cast
 									   maxADCvalue,satCorrConst,
 									   firstSample_,samplesToAdd_))
     // use empty flag bit for recording saturation correction
-    // see also CMSSW/RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h
+    // see also CMSSW/DataFormats/METReco/interface/HcalCaloFlagLabels.h
     rechit.setFlagField(1,HcalCaloFlagLabels::UserDefinedBit0);
 } 
 

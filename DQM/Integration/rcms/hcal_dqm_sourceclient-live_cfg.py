@@ -94,7 +94,6 @@ if playbackHCAL==True:
     process.hcalBeamMonitor.lumiqualitydir="/nfshome0/hcaldqm/DQM_OUTPUT/lumi_playback/"
     
 process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
-process.load("DQM.HcalMonitorClient.ZDCMonitorClient_cfi")
 
 #-----------------------------
 #  Configure Hcal DQM
@@ -199,7 +198,6 @@ process.p = cms.Path(process.hcalDigis
                      *process.hcalMonitorTasksOnlineSequence 
                      *process.hcalClient
                      *process.zdcMonitor
-                     *process.zdcClient
                      *process.dqmEnv
                      *process.dqmSaver)
 

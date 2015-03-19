@@ -70,13 +70,8 @@ namespace cond {
       std::unique_ptr<IGTSchema> gtSchemaHandle( new OraGTSchema( oraSession ) );  		       
       if( !iovSchemaHandle->exists() && !gtSchemaHandle->exists() ){
 	iovSchemaHandle.reset( new IOVSchema( coralSession->nominalSchema() ) );
-	if( iovSchemaHandle->exists() ){
-	  ret = COND_DB;
-	}
+        ret = COND_DB;
       } else {
-	//	edm::LogWarning("CondDB") << "You are using conditions from the old database via: " 
-	//			  << connectionString 
-	//			  << std::endl;
 	ret = ORA_DB;
       }
       oraSession.transaction().commit();

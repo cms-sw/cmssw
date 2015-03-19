@@ -34,6 +34,7 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
+#include "FWCore/Utilities/interface/ProductLabels.h"
 
 
 // forward declarations
@@ -71,11 +72,7 @@ namespace edm {
     void updateLookup(BranchType iBranchType,
                       ProductHolderIndexHelper const&);
     
-    struct Labels {
-      const char*  module;
-      const char*  productInstance;
-      const char*  process;
-    };
+    typedef ProductLabels Labels;
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;
     
     void modulesDependentUpon(const std::string& iProcessName,

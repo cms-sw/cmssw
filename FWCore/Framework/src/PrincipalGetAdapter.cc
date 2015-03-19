@@ -96,6 +96,11 @@ namespace edm {
     << "The index of the token was "<<token.index()<<".\n";
   }
   
+  void
+  PrincipalGetAdapter::labelsForToken(EDGetToken const& iToken, ProductLabels& oLabels) const {
+    consumer_->labelsForToken(iToken,oLabels);
+  }
+
   BasicHandle
   PrincipalGetAdapter::makeFailToGetException(KindOfType kindOfType,
                                               TypeID const& productType,

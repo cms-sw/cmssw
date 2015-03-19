@@ -118,7 +118,6 @@ if playbackHCAL==True:
 process.hcalBeamMonitor.hotrate=0.40
 
 process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
-process.load("DQM.HcalMonitorClient.ZDCMonitorClient_cfi")
 #process.load("DQM.HcalMonitorTasks.HcalZDCMonitor_cfi")
 
 #-----------------------------

@@ -63,11 +63,11 @@ namespace IPProducerHelpers {
 	      public:
 		      FromJTA(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) : token_associator(iC.consumes<reco::JetTracksAssociationCollection>(iConfig.getParameter<edm::InputTag>("jetTracks"))) 
 			{}
-		      reco::TrackRefVector tracks(edm::Event&,const reco::JTATagInfo & it)
+		      reco::TrackRefVector tracks(const reco::JTATagInfo & it)
 		      {
 			      return it.tracks();
 		      }
-		      std::vector<reco::JTATagInfo>  makeBaseVector(edm::Event& iEvent){
+		      std::vector<reco::JTATagInfo>  makeBaseVector(const edm::Event& iEvent){
 			      edm::Handle<JetTracksAssociationCollection> jetTracksAssociation;
 			      iEvent.getByToken(token_associator, jetTracksAssociation);
 			      std::vector<reco::JTATagInfo> bases;
@@ -85,15 +85,15 @@ namespace IPProducerHelpers {
       };
       class FromJetAndCands{
               public:
-		      FromJetAndCands(const edm::ParameterSet& iConfig,  edm::ConsumesCollector && iC): token_jets(iC.consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),          
+		      FromJetAndCands(const edm::ParameterSet& iConfig,  edm::ConsumesCollector && iC, const std::string & jets = "jets"): token_jets(iC.consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>(jets))),
 		      token_cands(iC.consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("candidates"))), maxDeltaR(iConfig.getParameter<double>("maxDeltaR")),
 		      explicitJTA(iConfig.existsAs<bool>("explicitJTA") ? iConfig.getParameter<bool>("explicitJTA") : false) {}
 
-                      std::vector<reco::CandidatePtr> tracks(edm::Event&,const reco::JetTagInfo & it)
+                      const std::vector<reco::CandidatePtr> & tracks(const reco::JetTagInfo & it)
                       {
-                              return   m_map[it.jet().key()];
+                              return m_map[it.jet().key()];
                       }
-                      std::vector<reco::JetTagInfo>  makeBaseVector(edm::Event& iEvent){
+                      std::vector<reco::JetTagInfo>  makeBaseVector(const edm::Event& iEvent){
                               edm::Handle<edm::View<reco::Jet> > jets;
                               iEvent.getByToken(token_jets, jets);
                               std::vector<reco::JetTagInfo> bases;
@@ -119,7 +119,7 @@ namespace IPProducerHelpers {
 				      else
 				      {
 					  for(size_t j=0;j<cands->size();++j) {
-						  if( (*cands)[j].bestTrack()!=0 && Geom::deltaR2((*cands)[j].p4(),(*jets)[i].p4()) < maxDeltaR2 && (*cands)[j].charge() !=0 ){
+						  if( (*cands)[j].bestTrack()!=0 && (*cands)[j].charge() !=0 && Geom::deltaR2((*cands)[j],(*jets)[i]) < maxDeltaR2  ){
 							  m_map[i].push_back(cands->ptrAt(j));
 						  }
 					  }
@@ -274,7 +274,7 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
 
    std::vector<Base> baseTagInfos = m_helper.makeBaseVector(iEvent);
    for(typename std::vector<Base>::const_iterator it = baseTagInfos.begin();  it != baseTagInfos.end(); it++) {
-     Container tracks = m_helper.tracks(iEvent,*it);
+     Container tracks = m_helper.tracks(*it);
      math::XYZVector jetMomentum = it->jet()->momentum();
 
      if (m_directionWithTracks) {

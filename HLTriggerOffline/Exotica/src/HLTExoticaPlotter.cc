@@ -67,6 +67,7 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker & iBooker,
               } else {
                 bookHist(iBooker, source, objTypeStr, "MaxPt1");
                 bookHist(iBooker, source, objTypeStr, "MaxPt2");
+                bookHist(iBooker, source, objTypeStr, "MaxPt3");
                 bookHist(iBooker, source, objTypeStr, "Eta");
                 bookHist(iBooker, source, objTypeStr, "Phi");
  
@@ -85,6 +86,7 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker & iBooker,
               } else {
                 bookHist(iBooker, source, objTypeStr, "MaxPt1");
                 bookHist(iBooker, source, objTypeStr, "MaxPt2");
+                bookHist(iBooker, source, objTypeStr, "MaxPt3");
                 bookHist(iBooker, source, objTypeStr, "Eta");
                 bookHist(iBooker, source, objTypeStr, "Phi");
 
@@ -120,7 +122,9 @@ void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
     }
 
     int counttotal = 0;
-    const int totalobjectssize2 = 2 * countobjects.size();
+
+    // 3 : pt1, pt2, pt3
+    const int totalobjectssize3 = 3 * countobjects.size();
     // Fill the histos if pass the trigger (just the two with higher pt)
     for (size_t j = 0; j < matches.size(); ++j) {
         // Is this object owned by this trigger? If not we are not interested...
@@ -145,7 +149,8 @@ void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
 	  }
 	}
 
-        if ( dxys.size() ) this->fillHist(isPassTrigger, source, objTypeStr, "Dxy", dxys[j] );
+        if ( dxys.size() && (objType == EVTColContainer::ELEC || objType == EVTColContainer::MUON ) ) 
+           this->fillHist(isPassTrigger, source, objTypeStr, "Dxy", dxys[j] );
 
         if (countobjects[objType] == 0) {
 	  if ( !( TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ) || source!="gen" ) {
@@ -163,8 +168,16 @@ void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
 	  ++(countobjects[objType]);
 	  ++counttotal;
         } 
+	else if (countobjects[objType] == 2) {
+	  if( !( TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ) ) {
+            this->fillHist(isPassTrigger, source, objTypeStr, "MaxPt3", pt);
+	  }
+	  // Filled the third highest pt ...
+	  ++(countobjects[objType]);
+	  ++counttotal;
+        } 
 	else {
-	  if (counttotal == totalobjectssize2) {
+	  if (counttotal == totalobjectssize3) {
 	    break;
 	  }
         }
@@ -202,7 +215,8 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker & iBooker,
       h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
     }
     else if (variable.find("MaxPt") != std::string::npos) {
-        std::string desc = (variable == "MaxPt1") ? "Leading" : "Next-to-Leading";
+        std::string desc = (variable == "MaxPt1") ? "Leading" : 
+                           (variable == "MaxPt2") ? "Next-to-Leading" : "Next-to-next-to-Leading";
         std::string title = "pT of " + desc + " " + sourceUpper + " " + objType + " "
                             "where event pass the " + _hltPath;
         const size_t nBins = _parametersTurnOn.size() - 1;

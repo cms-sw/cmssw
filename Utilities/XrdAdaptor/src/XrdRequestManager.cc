@@ -694,7 +694,6 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
                << "', flags=0x" << std::hex << m_flags
                << ", permissions=0" << std::oct << m_perms << std::dec
                << ", old source=" << source_ptr->PrettyID()
-               << ", current server=" << m_open_handler->current_source()
                << ") => timeout when waiting for file open";
             ex.addContext("In XrdAdaptor::RequestManager::requestFailure()");
             addConnections(ex);
@@ -937,6 +936,9 @@ XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDSt
   {
     return;
   }
+  //if we need to delete the File object we must do it outside
+  // of the lock to avoid a potential deadlock
+  std::unique_ptr<XrdCl::File> releaseFile;
   {
     std::lock_guard<std::recursive_mutex> sentry(m_mutex);
 
@@ -954,7 +956,7 @@ XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDSt
     }
     else
     {
-        m_file.reset();
+        releaseFile = std::move(m_file);
         edm::Exception ex(edm::errors::FileOpenError);
         ex << "XrdCl::File::Open(name='" << manager->m_name
            << "', flags=0x" << std::hex << manager->m_flags
@@ -988,7 +990,6 @@ XrdAdaptor::RequestManager::OpenHandler::current_source()
 std::shared_future<std::shared_ptr<Source> >
 XrdAdaptor::RequestManager::OpenHandler::open()
 {
-    std::lock_guard<std::recursive_mutex> sentry(m_mutex);
     auto manager_ptr = m_manager.lock();
     if (!manager_ptr)
     {
@@ -1011,10 +1012,20 @@ XrdAdaptor::RequestManager::OpenHandler::open()
       throw ex;
     }
 
+      // NOTE NOTE: we look at this variable *without* the lock.  This means the method
+      // is not thread-safe; the caller is responsible to verify it is not called from
+      // multiple threads simultaneously.
+      //
+      // This is done because ::open may be called from a Xrootd callback; if we
+      // tried to hold m_mutex here, this object's callback may also be active, hold m_mutex,
+      // and make a call into xrootd (when it invokes m_file.reset()).  Hence, our callback
+      // holds our mutex and attempts to grab an Xrootd mutex; RequestManager::requestFailure holds
+      // an Xrootd mutex and tries to hold m_mutex.  This is a classic deadlock.
     if (m_file.get())
     {
         return m_shared_future;
     }
+    std::lock_guard<std::recursive_mutex> sentry(m_mutex);
     std::promise<std::shared_ptr<Source> > new_promise;
     m_promise.swap(new_promise);
     m_shared_future = m_promise.get_future().share();

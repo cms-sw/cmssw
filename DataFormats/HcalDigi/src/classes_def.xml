@@ -73,6 +73,21 @@
    <class name="edm::SortedCollection<CastorTriggerPrimitiveDigi,edm::StrictWeakOrdering<CastorTriggerPrimitiveDigi> >"/>
    <class name="edm::SortedCollection<HcalTTPDigi,edm::StrictWeakOrdering<HcalTTPDigi> >"/>
    <class name="edm::SortedCollection<HcalUpgradeDataFrame,edm::StrictWeakOrdering<HcalUpgradeDataFrame> >"/>
+   <class name="HcalDataFrameContainer<QIE10DataFrame>"/>
+   <class name="HcalDataFrameContainer<QIE11DataFrame>"/>
+
+   <class name="edm::StrictWeakOrdering<HBHEDataFrame>"/>
+   <class name="edm::StrictWeakOrdering<HODataFrame>"/>
+   <class name="edm::StrictWeakOrdering<HFDataFrame>"/>
+   <class name="edm::StrictWeakOrdering<HcalCalibDataFrame>"/>
+   <class name="edm::StrictWeakOrdering<HcalTriggerPrimitiveDigi>"/>
+   <class name="edm::StrictWeakOrdering<HOTriggerPrimitiveDigi>"/>
+   <class name="edm::StrictWeakOrdering<HcalHistogramDigi>"/>
+   <class name="edm::StrictWeakOrdering<ZDCDataFrame>"/>
+   <class name="edm::StrictWeakOrdering<CastorDataFrame>"/>
+   <class name="edm::StrictWeakOrdering<CastorTriggerPrimitiveDigi>"/>
+   <class name="edm::StrictWeakOrdering<HcalTTPDigi>"/>
+   <class name="edm::StrictWeakOrdering<HcalUpgradeDataFrame>"/>
 
    <class name="edm::Wrapper<edm::SortedCollection<HBHEDataFrame,edm::StrictWeakOrdering<HBHEDataFrame> > >" splitLevel="0" />
    <class name="edm::Wrapper<edm::SortedCollection<HODataFrame,edm::StrictWeakOrdering<HODataFrame> > >" splitLevel="0" />
@@ -86,6 +101,8 @@
    <class name="edm::Wrapper<edm::SortedCollection<CastorTriggerPrimitiveDigi,edm::StrictWeakOrdering<CastorTriggerPrimitiveDigi> > >" splitLevel="0" />
    <class name="edm::Wrapper<edm::SortedCollection<HcalTTPDigi,edm::StrictWeakOrdering<HcalTTPDigi> > >" splitLevel="0" />
    <class name="edm::Wrapper<edm::SortedCollection<HcalUpgradeDataFrame,edm::StrictWeakOrdering<HcalUpgradeDataFrame> > >" splitLevel="0" />
+   <class name="edm::Wrapper<HcalDataFrameContainer<QIE10DataFrame> >" splitLevel="0"/>
+   <class name="edm::Wrapper<HcalDataFrameContainer<QIE11DataFrame> >" splitLevel="0"/>
    <class name="edm::Wrapper<HcalUnpackerReport>"/>
    <class name="HcalLaserDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="2447500554"/>

@@ -1,4 +1,3 @@
-
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
@@ -63,6 +62,8 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
     if (elecExtras.existsAs<std::string>("isolation")) {
       elecIso_ = elecExtras.getParameter<std::string>("isolation");
     }
+
+
     // electronId is optional; in case it's not found the
     // InputTag will remain empty
     if (elecExtras.existsAs<edm::ParameterSet>("electronId")) {
@@ -103,6 +104,7 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
     }
   }
 
+
   // jetExtras are optional; they may be omitted or
   // empty
   if (cfg.existsAs<edm::ParameterSet>("jetExtras")) {
@@ -130,6 +132,7 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
       jetSelect_ = jetExtras.getParameter<std::string>("select");
       jetSelect_ = vcfg[2].getParameter<std::string>("select");
     }
+
     // jetBDiscriminators are optional; in case they are
     // not found the InputTag will remain empty; they
     // consist of pairs of edm::JetFlavorAssociation's &
@@ -200,6 +203,18 @@ MonitorEnsemble::MonitorEnsemble(const char* label,
   }
   // and don't forget to do the histogram booking
   directory_ = cfg.getParameter<std::string>("directory");
+
+
+  muonSelect.reset(new StringCutObjectSelector<reco::PFCandidate, true>(muonSelect_)); 
+  muonIso.reset(new StringCutObjectSelector<reco::PFCandidate, true>(muonIso_)); 
+  
+  //jetSelectCalo=0;
+  //jetSelectPF=0;
+  //jetSelectJet=0;
+  
+  elecSelect.reset(new StringCutObjectSelector<reco::PFCandidate, true>(elecSelect_)); 
+  elecIso.reset(new StringCutObjectSelector<reco::PFCandidate, true>(elecIso_)); 
+
 }
 
 void MonitorEnsemble::book(DQMStore::IBooker & ibooker) {
@@ -449,8 +464,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
   edm::Handle<edm::View<reco::GsfElectron>> elecs_gsf;
   edm::Handle<edm::View<reco::PFCandidate>> elecs;
   edm::View<reco::PFCandidate>::const_iterator elec_it;
-  StringCutObjectSelector<reco::PFCandidate, true> elecSelect(elecSelect_);
-  StringCutObjectSelector<reco::PFCandidate, true> elecIso(elecIso_);
+
   reco::GsfElectronRef elec;
 
   if (!event.getByToken(elecs_, elecs)) return;
@@ -479,7 +493,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
     // restrict to electrons with good electronId
     if (electronId_.isUninitialized() ? true : ((double)(*electronId)[elec] >=
                                                 eidCutValue_)) {
-      if ((elecSelect)(*elec_it)) {
+      if ((*elecSelect)(*elec_it)) {
         double isolationRel =
             (elec->dr03TkSumPt() + elec->dr03EcalRecHitSumEt() +
              elec->dr03HcalTowerSumEt()) /
@@ -516,7 +530,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
         // in addition to the multiplicity counter buffer the iso
         // electron candidates for later overlap check with jets
         ++eMult;
-        if ((elecIso)(*elec_it)) {
+        if ((*elecIso)(*elec_it)) {
           if (eMultIso == 0) e = *elec;
           isoElecs.push_back(&(*elec));
           ++eMultIso;
@@ -542,8 +556,6 @@ void MonitorEnsemble::fill(const edm::Event& event,
 
   edm::Handle<edm::View<reco::PFCandidate>> muons;
   edm::View<reco::PFCandidate>::const_iterator muonit;
-  StringCutObjectSelector<reco::PFCandidate, true> muonSelect(muonSelect_);
-  StringCutObjectSelector<reco::PFCandidate, true> muonIso(muonIso_);
   reco::MuonRef muon;
   reco::Muon mu;
 
@@ -564,7 +576,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
       fill("muonDelXY_", muon->globalTrack()->vx(), muon->globalTrack()->vy());
 
       // apply selection
-      if (muonSelect(*muonit)) {
+      if ((*muonSelect)(*muonit)) {
 
         double isolationRel =
             (muon->isolationR03().sumPt + muon->isolationR03().emEt +
@@ -595,7 +607,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
         }
         ++mMult;
 
-        if (muonIso(*muonit)) {
+        if ((*muonIso)(*muonit)) {
           if (mMultIso == 0) mu = *muon;
           ++mMultIso;
         }
@@ -682,20 +694,24 @@ void MonitorEnsemble::fill(const edm::Event& event,
     if (dynamic_cast<const reco::CaloJet*>(&*jet)) {
       reco::CaloJet sel = dynamic_cast<const reco::CaloJet&>(*jet);
       sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
-      StringCutObjectSelector<reco::CaloJet> jetSelect(jetSelect_);
-      if (!jetSelect(sel)) {
+      if ( jetSelectCalo==0)
+	jetSelectCalo.reset(new StringCutObjectSelector<reco::CaloJet>(jetSelect_));
+      if (!((*jetSelectCalo)(sel))) {
         continue;
       }
     } else if (dynamic_cast<const reco::PFJet*>(&*jet)) {
       reco::PFJet sel = dynamic_cast<const reco::PFJet&>(*jet);
       sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
-      StringCutObjectSelector<reco::PFJet> jetSelect(jetSelect_);
-      if (!jetSelect(sel)) continue;
+      if ( jetSelectPF==0)
+	jetSelectPF.reset(new StringCutObjectSelector<reco::PFJet>(jetSelect_));
+      if (!((*jetSelectPF)(sel))) continue;
     } else {
       reco::Jet sel = *jet;
       sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
-      StringCutObjectSelector<reco::Jet> jetSelect(jetSelect_);
-      if (!jetSelect(sel)) continue;
+      if ( jetSelectJet==0)
+	jetSelectJet.reset(new StringCutObjectSelector<reco::Jet>(jetSelect_));
+
+      if (!((*jetSelectJet)(sel))) continue;
     }
     // check for overlaps -- comment this to be synchronous with the selection
     // bool overlap=false;

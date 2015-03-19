@@ -3,7 +3,7 @@
 <use   name="CondFormats/Serialization"/>
 <use   name="CondFormats/PhysicsToolsObjects"/>
 <use   name="boost_serialization"/>
-<use   name="rootrflx"/>
+
 <use   name="roottmva"/>
 <export>
   <lib   name="1"/>
