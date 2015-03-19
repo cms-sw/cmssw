@@ -390,6 +390,7 @@ class LeptonAnalyzer( Analyzer ):
             gen = match[lep]
             lep.mcMatchId  = (gen.sourceId if gen != None else  0)
             lep.mcMatchTau = (gen in event.gentauleps if gen else -99)
+            lep.mcLep=gen
 
     def isFromB(self,particle,bid=5, done={}):
         for i in xrange( particle.numberOfMothers() ): 

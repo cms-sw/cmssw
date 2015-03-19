@@ -111,6 +111,7 @@ class PhotonAnalyzer( Analyzer ):
         packedGenParts = [ p for p in self.mchandles['packedGen'].product() if abs(p.eta()) < 3.1 ]
         for gamma in event.allphotons:
           gen = match[gamma]
+          gamma.mcGamma = gen
           if gen and gen.pt()>=0.5*gamma.pt() and gen.pt()<=2.*gamma.pt():
             gamma.mcMatchId = 22
             sumPt = 0.;
