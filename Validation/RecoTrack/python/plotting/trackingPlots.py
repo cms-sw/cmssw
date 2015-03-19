@@ -282,30 +282,30 @@ tpPlotter = Plotter([
 
 _tracks_map = {
     '': { # all tracks
-        'ootb':  'general_AssociatorByHitsRecoDenom',
-        'iter0': 'cutsRecoZero_AssociatorByHitsRecoDenom',
-        'iter1': 'cutsRecoFirst_AssociatorByHitsRecoDenom',
-        'iter2': 'cutsRecoSecond_AssociatorByHitsRecoDenom',
-        'iter3': 'cutsRecoThird_AssociatorByHitsRecoDenom',
-        'iter4': 'cutsRecoFourth_AssociatorByHitsRecoDenom',
-        'iter5': 'cutsRecoFifth_AssociatorByHitsRecoDenom',
-        'iter6': 'cutsRecoSixth_AssociatorByHitsRecoDenom',
-        'iter7': 'cutsRecoSeventh_AssociatorByHitsRecoDenom',
-        'iter9': 'cutsRecoNinth_AssociatorByHitsRecoDenom',
-        'iter10':'cutsRecoTenth_AssociatorByHitsRecoDenom'
+        'ootb':  'general_trackAssociatorByHitsRecoDenom',
+        'iter0': 'cutsRecoZero_trackAssociatorByHitsRecoDenom',
+        'iter1': 'cutsRecoFirst_trackAssociatorByHitsRecoDenom',
+        'iter2': 'cutsRecoSecond_trackAssociatorByHitsRecoDenom',
+        'iter3': 'cutsRecoThird_trackAssociatorByHitsRecoDenom',
+        'iter4': 'cutsRecoFourth_trackAssociatorByHitsRecoDenom',
+        'iter5': 'cutsRecoFifth_trackAssociatorByHitsRecoDenom',
+        'iter6': 'cutsRecoSixth_trackAssociatorByHitsRecoDenom',
+        'iter7': 'cutsRecoSeventh_trackAssociatorByHitsRecoDenom',
+        'iter9': 'cutsRecoNinth_trackAssociatorByHitsRecoDenom',
+        'iter10':'cutsRecoTenth_trackAssociatorByHitsRecoDenom'
     },
     "highPurity": {
-        'ootb':   'cutsRecoHp_AssociatorByHitsRecoDenom',
-        'iter0':  'cutsRecoZeroHp_AssociatorByHitsRecoDenom',
-        'iter1':  'cutsRecoFirstHp_AssociatorByHitsRecoDenom',
-        'iter2':  'cutsRecoSecondHp_AssociatorByHitsRecoDenom',
-        'iter3':  'cutsRecoThirdHp_AssociatorByHitsRecoDenom',
-        'iter4':  'cutsRecoFourthHp_AssociatorByHitsRecoDenom',
-        'iter5':  'cutsRecoFifthHp_AssociatorByHitsRecoDenom',
-        'iter6':  'cutsRecoSixthHp_AssociatorByHitsRecoDenom',
-        'iter7':  'cutsRecoSeventhHp_AssociatorByHitsRecoDenom',
-        'iter9':  'cutsRecoNinthHp_AssociatorByHitsRecoDenom',
-        'iter10': 'cutsRecoTenthHp_AssociatorByHitsRecoDenom'
+        'ootb':   'cutsRecoHp_trackAssociatorByHitsRecoDenom',
+        'iter0':  'cutsRecoZeroHp_trackAssociatorByHitsRecoDenom',
+        'iter1':  'cutsRecoFirstHp_trackAssociatorByHitsRecoDenom',
+        'iter2':  'cutsRecoSecondHp_trackAssociatorByHitsRecoDenom',
+        'iter3':  'cutsRecoThirdHp_trackAssociatorByHitsRecoDenom',
+        'iter4':  'cutsRecoFourthHp_trackAssociatorByHitsRecoDenom',
+        'iter5':  'cutsRecoFifthHp_trackAssociatorByHitsRecoDenom',
+        'iter6':  'cutsRecoSixthHp_trackAssociatorByHitsRecoDenom',
+        'iter7':  'cutsRecoSeventhHp_trackAssociatorByHitsRecoDenom',
+        'iter9':  'cutsRecoNinthHp_trackAssociatorByHitsRecoDenom',
+        'iter10': 'cutsRecoTenthHp_trackAssociatorByHitsRecoDenom'
     }
 }
 
