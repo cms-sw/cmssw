@@ -183,6 +183,10 @@ class JetAnalyzer( Analyzer ):
                     event.deltaMetFromJetSmearing[1] += j.deltaMetFromJetSmearing[1]
             event.cleanGenJets = cleanNearestJetOnly(event.genJets, leptons, self.jetLepDR)
             
+            if self.cfg_ana.cleanGenJetsFromPhoton:
+                event.cleanGenJets = cleanNearestJetOnly(event.cleanGenJets, photons, self.jetLepDR)
+
+            
             #event.nGenJets25 = 0
             #event.nGenJets25Cen = 0
             #event.nGenJets25Fwd = 0
@@ -372,6 +376,7 @@ setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     cleanJetsFromFirstPhoton = False,
     cleanJetsFromTaus = False,
     cleanJetsFromIsoTracks = False,
-    jecPath = ""
+    jecPath = "",
+    cleanGenJetsFromPhoton = False
     )
 )
