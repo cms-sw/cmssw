@@ -27,8 +27,8 @@ class OfflineConverter:
 
     def __init__(self, database = 'hltdev', url = None, verbose = False):
         self.verbose = verbose
-        self.baseDir = '/afs/cern.ch/user/c/confdb/www/lib'
-        self.baseUrl = 'http://confdb.web.cern.ch/confdb/lib'
+        self.baseDir = '/afs/cern.ch/user/c/confdb/www/test/lib'
+        self.baseUrl = 'http://confdb.web.cern.ch/confdb/test/lib'
         self.jars = ( 'ojdbc6.jar', 'cmssw-evf-confdb-converter.jar' )
         self.workDir = ''
 
@@ -61,7 +61,17 @@ class OfflineConverter:
                 atexit.register(shutil.rmtree, self.workDir)
             # download the .jar files
             for jar in self.jars:
-                urllib.urlretrieve(self.baseUrl + '/' + jar, self.workDir + '/' + jar)
+                # check if the file is already present
+                if os.path.exists(self.workDir + '/' + jar):
+                    continue
+                # download to a temporay name and use an atomic rename (in case an other istance is downloading the same file
+                handle, temp = tempfile.mkstemp(dir = self.workDir, prefix = jar + '.')
+                os.close(handle)
+                urllib.urlretrieve(self.baseUrl + '/' + jar, temp)
+                if not os.path.exists(self.workDir + '/' + jar):
+                    os.rename(temp, self.workDir + '/' + jar)
+                else:
+                    os.unlink(temp)
 
         # setup the java command line and CLASSPATH
         if self.verbose:

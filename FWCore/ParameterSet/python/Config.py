@@ -533,11 +533,17 @@ class Process(object):
                 if not item.hasLabel_() :
                     item.setLabel(name)
             elif isinstance(item,Schedule):
-                self.__setattr__(name,item)
+                if name == "schedule" and self.__schedule is not None:
+                    self.__schedule.extend(item)
+                else:
+                    self.__setattr__(name,item)
             elif isinstance(item,_Unlabelable):
                 self.add_(item)
             elif isinstance(item,ProcessModifier):
                 item.apply(self)
+            elif isinstance(item,Process):
+                fragment = ProcessWrapper(item)
+                self.extend(fragment)
 
         #now create a sequence which uses the newly made items
         for name in seqs.iterkeys():
@@ -553,7 +559,6 @@ class Process(object):
                 #now put in proper bucket
                 newSeq._place(name,self)
         self.__dict__['_Process__InExtendCall'] = False
-
     def _dumpConfigNamedList(self,items,typeName,options):
         returnValue = ''
         for name,item in items:
@@ -969,6 +974,16 @@ class Process(object):
                   found = True
                   self.__setattr__(esname+"_prefer",  ESPrefer(d[esname].type_()) )
             return found
+
+
+class ProcessWrapper(object):
+    def __init__(self, process):
+        self.__process = process
+    def __dir__(self):
+        return [ x for x in dir(self.__process) if isinstance(getattr(self.__process, x), _ConfigureComponent) ]
+    def __getattr__(self, name):
+        return getattr(self.__process, name)
+
 
 class FilteredStream(dict):
     """a dictionary with fixed keys"""
