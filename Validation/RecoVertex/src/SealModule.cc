@@ -1,6 +1,5 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "Validation/RecoVertex/interface/PrimaryVertexAnalyzer.h"
 #include "Validation/RecoVertex/interface/PrimaryVertexAnalyzer4PU.h"
 #include "Validation/RecoVertex/interface/PrimaryVertexAnalyzer4PUSlimmed.h"
 #include "Validation/RecoVertex/interface/TrackParameterAnalyzer.h"
@@ -8,7 +7,6 @@
 
 //DEFINE_SEAL_MODULE();
 
-DEFINE_FWK_MODULE(PrimaryVertexAnalyzer);
 DEFINE_FWK_MODULE(PrimaryVertexAnalyzer4PU);
 DEFINE_FWK_MODULE(PrimaryVertexAnalyzer4PUSlimmed);
 DEFINE_FWK_MODULE(TrackParameterAnalyzer);
