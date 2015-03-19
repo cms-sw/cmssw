@@ -21,14 +21,6 @@ from SimCalorimetry.HcalZeroSuppressionProducers.hcalDigisRealistic_cfi import *
 from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import * 
 from SimCalorimetry.HcalTrigPrimProducers.hcalTTPDigis_cfi import *
 
-# RCT (Regional Calorimeter Trigger) emulator import for both 
-import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
-simRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()  
-simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'simEcalTriggerPrimitiveDigis' ) )
-simRctDigis.hcalDigis = cms.VInputTag( cms.InputTag( 'simHcalTriggerPrimitiveDigis' ) ) 
-simRctDigis.useEcal = cms.bool(True)
-simRctDigis.useHcal = cms.bool(True)
-
 #ECAL reconstruction
 from RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
@@ -76,8 +68,7 @@ from RecoLocalCalo.HcalRecProducers.HBHEIsolatedNoiseReflagger_cfi import *
 dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 DigiSequence = cms.Sequence((simHcalTriggerPrimitiveDigis * simHcalDigis*simHcalTTPDigis) + (simEcalTriggerPrimitiveDigis*simEcalDigis*simEcalPreshowerDigis ) # Digi
-                            *simRctDigis*        # L1Simulation
-                           ecalPacker *esDigiToRaw *hcalRawData *rawDataCollector  *ecalPreshowerDigis *ecalDigis *hcalDigis #* printContent
+                            *ecalPacker *esDigiToRaw *hcalRawData *rawDataCollector  *ecalPreshowerDigis *ecalDigis *hcalDigis #* printContent
                             )
 
 # Reconstruction
