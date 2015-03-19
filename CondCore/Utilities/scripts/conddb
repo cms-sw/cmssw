@@ -596,6 +596,18 @@ def _since_filter(time_type):
     return lambda since: since
 
 
+def listGTs_(args):
+    connection = connect(args)
+    session = connection.session()
+
+    output_table(args,
+        session.query(conddb.GlobalTag.name, conddb.GlobalTag.description, conddb.GlobalTag.release, conddb.GlobalTag.insertion_time).\
+            order_by(conddb.GlobalTag.insertion_time, conddb.GlobalTag.name).\
+            all(),
+        ['GT_name', 'Description', 'Release', 'Insertion_time'],
+    )
+
+
 def list_(args):
     connection = connect(args)
     session = connection.session()
@@ -1295,6 +1307,9 @@ def main():
     parser_list.add_argument('--snapshot', '-T', default=None, help="Snapshot time. If provided, the output will represent the state of the IOVs inserted into database up to the given time. The format of the string must be one of the following: '2013-01-20', '2013-01-20 10:11:12' or '2013-01-20 10:11:12.123123'.")
     parser_list.add_argument('--limit', '-L', type=int, default=100, help='Limit on the number of IOVs returned. The returned results are the latest N IOVs. Only applies when listing tags.')
     parser_list.set_defaults(func=list_)
+
+    parser_listGTs = parser_subparsers.add_parser('listGTs', description='Lists the GTs available in the DB.')
+    parser_listGTs.set_defaults(func=listGTs_)
 
     parser_diff = parser_subparsers.add_parser('diff', description='Compares the contents of two objects. For tags, their IOVs are compared to determine which ranges have different payloads. For global tags, their tag names are compared. Both objects must be of the same type. If there is more than one valid pair (ambiguity), all diffs are listed.')
     parser_diff.add_argument('first', help="Name of the first object (i.e. source, old). This can be a tag's name or a global tag's name. It must exactly match -- if needed, use the search command first to look for it.")
