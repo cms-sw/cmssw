@@ -70,15 +70,18 @@ namespace cms
   reco::METCovMatrix PFMETProducer::getMETCovMatrix(const edm::Event& event, const edm::View<reco::Candidate>& candInput) const {
 
 	// leptons
-	std::vector<reco::Candidate::LorentzVector> leptons;
+	std::vector< edm::Handle<reco::CandidateView> > leptons;
 	for ( std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator srcLeptons_i = lepTokens_.begin();
 	      srcLeptons_i != lepTokens_.end(); ++srcLeptons_i ) {
 	  edm::Handle<reco::CandidateView> leptons_i;
 	  event.getByToken(*srcLeptons_i, leptons_i);
+     leptons.push_back( leptons_i );
+     /*
 	  for ( reco::CandidateView::const_iterator lepton = leptons_i->begin();
 		lepton != leptons_i->end(); ++lepton ) {
-	    leptons.push_back(lepton->p4());
+	    leptons.push_back(*lepton);
 	  }
+     */
 	}
 
 	// jets
