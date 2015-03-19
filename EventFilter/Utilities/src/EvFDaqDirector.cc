@@ -954,4 +954,10 @@ namespace evf {
     return ret;
   }
 
+  void EvFDaqDirector::createProcessingNotificationMaybe() const {
+    std::string proc_flag = run_dir_ + "/processing";
+    int proc_flag_fd = open(proc_flag.c_str(), O_RDWR | O_CREAT, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);
+    close(proc_flag_fd);
+  }
+
 }
