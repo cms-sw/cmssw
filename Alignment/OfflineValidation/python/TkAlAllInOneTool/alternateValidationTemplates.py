@@ -442,6 +442,8 @@ process.TrackRefitter1 = process.TrackRefitterP5.clone(
    TrajectoryInEvent = True,
    TTRHBuilder = "WithAngleAndTemplate",
    NavigationSchool = "",
+   constraint = 'momentum', ### SPECIFIC FOR CRUZET
+   srcConstr='AliMomConstraint1' ### SPECIFIC FOR CRUZET
 )
 
 process.TrackRefitter2 = process.TrackRefitter1.clone(
@@ -592,11 +594,14 @@ src = '.oO[TrackCollection]Oo.', #'AliMomConstraint1',
 TrajectoryInEvent = True,
 TTRHBuilder = "WithAngleAndTemplate",
 NavigationSchool = "",
+constraint = 'momentum', ### SPECIFIC FOR CRUZET
+srcConstr='AliMomConstraint1' ### SPECIFIC FOR CRUZET
 )
 
 process.TrackRefitter2 = process.TrackRefitter1.clone(
 src = 'AlignmentTrackSelector',
 srcConstr='AliMomConstraint1',
+constraint = 'momentum', ### SPECIFIC FOR CRUZET
 )
 
 
