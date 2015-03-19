@@ -19,5 +19,32 @@ from Configuration.StandardSequences.RawToDigi_cff import ecalPreshowerDigis,eca
 calDigiToRawToDigi = cms.Sequence(ecalPacker+esDigiToRaw+hcalRawData+rawDataCollector+ecalPreshowerDigis+ecalDigis+hcalDigis)
 doAllDigi.replace(calDigi,calDigi+calDigiToRawToDigi)
 
+# aliases for muons, to emulate digi2raw raw2digi
+muonDTDigis = cms.EDAlias(
+    mix = cms.VPSet(
+        cms.PSet(type = cms.string("DTLayerIdDTDigiMuonDigiCollection"))
+        )
+    )
+muonRPCDigis = cms.EDAlias(
+    mix = cms.VPSet(
+        cms.PSet(type = cms.string("RPCDetIdRPCDigiMuonDigiCollection"))
+        )
+    )
+
+muonCSCDigis = cms.EDAlias(
+    mix = cms.VPSet(
+        cms.PSet(
+            type = cms.string("CSCDetIdCSCWireDigiMuonDigiCollection"),
+            fromProductInstance = cms.string("MuonCSCWireDigisDM"),
+            ),
+        cms.PSet(
+            type = cms.string("CSCDetIdCSCStripDigiMuonDigiCollection"),
+            fromProductInstance = cms.string("MuonCSCStripDigisDM"),
+            )
+        )
+    )
+
+from FastSimulation.Tracking.GeneralTracksAlias_cfi import generalTracksAliasInfo
+generalTracks = cms.EDAlias(**{generalTracksAliasInfo.key.value():generalTracksAliasInfo.value})
 
 # TODO: understand whether this digi2raw+raw2digi is useful
