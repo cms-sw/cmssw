@@ -189,16 +189,6 @@ def prepareDigiRecoMixing(process):
         if hasattr(process,element):
             delattr(process,element)
     
-    # import the FastSim specific EDAliases for collections from MixingModule
-    import FastSimulation.Tracking.GeneralTracksAlias_cfi
-    process.generalTracks = FastSimulation.Tracking.GeneralTracksAlias_cfi.generalTracks
-    
-    # change the subject of the alias in case of pre-mixing
-    if hasattr(process,"mixData"):
-        process.generalTracks = cms.EDAlias(
-            mixData = process.generalTracks.mix
-            )
-
     # get rid of some FullSim specific psets that work confusing when dumping FastSim cfgs 
     # (this is optional)
     del process.theDigitizers
