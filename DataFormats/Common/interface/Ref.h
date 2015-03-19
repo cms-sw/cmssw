@@ -169,6 +169,8 @@ namespace edm {
     /// C is the type of the collection
     /// T is the type of a member the collection
 
+    static key_type invalidKey() { return key_traits<key_type>::value; }
+
     /// Default constructor needed for reading from persistent store. Not for direct use.
     Ref() : product_(), index_(key_traits<key_type>::value) {}
 
@@ -324,6 +326,8 @@ namespace edm {
     /// C is the type of the collection
     /// T is the type of a member the collection
     
+    static key_type invalidKey() { return key_traits<key_type>::value; }
+
     /// Default constructor needed for reading from persistent store. Not for direct use.
     Ref() : product_() {}
     
