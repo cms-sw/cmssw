@@ -219,7 +219,7 @@ class Looper(object):
         self.iEvent = iEv
         for i,analyzer in enumerate(self.analyzers):
             if not analyzer.beginLoopCalled:
-                analyzer.beginLoop()
+                analyzer.beginLoop(self.setup)
             start = timeit.default_timer()
             ret = analyzer.process( self.event )
             if self.timeReport:
