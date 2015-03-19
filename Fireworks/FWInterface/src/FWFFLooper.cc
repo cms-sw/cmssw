@@ -4,8 +4,8 @@
 #include "Fireworks/FWInterface/src/FWFFMetadataManager.h"
 #include "Fireworks/FWInterface/src/FWFFMetadataUpdateRequest.h"
 #include "Fireworks/FWInterface/src/FWPathsPopup.h"
+#include "Fireworks/FWInterface/interface/ContextFF.h"
 #include "Fireworks/Core/interface/FWConfigurationManager.h"
-#include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
@@ -45,7 +45,6 @@
 #include "TEveTrackPropagator.h"
 #include "TEveBrowser.h"
 #include "TGeoManager.h"
-
 
 namespace
 {
@@ -124,7 +123,7 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
    : CmsShowMainBase(),
      m_navigator(new FWFFNavigator(*this)), 
      m_metadataManager(new FWFFMetadataManager()),
-     m_context(new fireworks::Context(changeManager(),
+     m_context(new fireworks::ContextFF(changeManager(),
                                       selectionManager(),
                                       eiManager(),
                                       colorManager(),
@@ -252,7 +251,7 @@ FWFFLooper::checkPosition()
    {
       guiManager()->disableNext();
       // force enable play events action in --port mode
-      if (!guiManager()->playEventsAction()->isEnabled())
+       if (!guiManager()->playEventsAction()->isEnabled())
          guiManager()->playEventsAction()->enable();
    }
 }
@@ -299,6 +298,7 @@ FWFFLooper::stopPlaying()
 void
 FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
+   //   gEve->GetBrowser()->MapWindow();
    // Check DisplayGeomRecord changes.
    try {
       m_geomWatcher.check(iSetup);
@@ -386,6 +386,7 @@ FWFFLooper::duringLoop(const edm::Event &event,
       m_geomWatcher.check(es);
    } catch (...) {}
    
+   m_context->setEventSetup(&es);
 
    m_isLastEvent = controller.forwardState() == edm::ProcessingController::kAtLastEvent;
    m_isFirstEvent = controller.reverseState() == edm::ProcessingController::kAtFirstEvent;
