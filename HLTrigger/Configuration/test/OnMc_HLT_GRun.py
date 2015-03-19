@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/GRun/V13 (CMSSW_7_4_0_pre7_HLT1)
+# /dev/CMSSW_7_4_0/GRun/V16 (CMSSW_7_4_0_pre7_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V13')
+  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V16')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -381,6 +381,9 @@ process.HLTPSetPvClusterComparerForIT = cms.PSet(
   track_chi2_max = cms.double( 20.0 ),
   track_prob_min = cms.double( -1.0 )
 )
+process.HLTSiStripClusterChargeCutNone = cms.PSet(  value = cms.double( -1.0 ) )
+process.HLTSiStripClusterChargeCutLoose = cms.PSet(  value = cms.double( 1724.0 ) )
+process.HLTSiStripClusterChargeCutTight = cms.PSet(  value = cms.double( 2069.0 ) )
 process.streams = cms.PSet( 
   A = cms.vstring( 'InitialPD',
     'Templates' ),
@@ -1000,11 +1003,11 @@ process.hltESPChi2MeasurementEstimator30 = cms.ESProducer( "Chi2MeasurementEstim
   ComponentName = cms.string( "hltESPChi2MeasurementEstimator30" )
 )
 process.hltESPChi2ChargeMeasurementEstimator30 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  minGoodStripCharge = cms.double( 1724.0 ),
+  MaxChi2 = cms.double( 30.0 ),
   ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   pTChargeCutThreshold = cms.double( -1.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxChi2 = cms.double( 30.0 )
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  nSigma = cms.double( 3.0 )
 )
 process.AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
@@ -1066,6 +1069,7 @@ process.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
 )
 process.ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilterESProducer",
   ComponentName = cms.string( "ClusterShapeHitFilter" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
   PixelShapeFile = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par" )
 )
 process.DTGeometryESModule = cms.ESProducer( "DTGeometryESModule",
@@ -1086,18 +1090,18 @@ process.EcalPreshowerGeometryFromDBEP = cms.ESProducer( "EcalPreshowerGeometryFr
   applyAlignment = cms.bool( True )
 )
 process.hltESPChi2ChargeMeasurementEstimator9 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  minGoodStripCharge = cms.double( 1724.0 ),
+  MaxChi2 = cms.double( 9.0 ),
   ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator9" ),
   pTChargeCutThreshold = cms.double( 15.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxChi2 = cms.double( 9.0 )
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  nSigma = cms.double( 3.0 )
 )
 process.hltESPChi2ChargeMeasurementEstimator16 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  minGoodStripCharge = cms.double( 1724.0 ),
+  MaxChi2 = cms.double( 16.0 ),
   ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator16" ),
   pTChargeCutThreshold = cms.double( -1.0 ),
-  nSigma = cms.double( 3.0 ),
-  MaxChi2 = cms.double( 16.0 )
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  nSigma = cms.double( 3.0 )
 )
 process.HcalGeometryFromDBEP = cms.ESProducer( "HcalGeometryFromDBEP",
   applyAlignment = cms.bool( False ),
@@ -3788,7 +3792,8 @@ process.hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripClusterizerFro
       SeedThreshold = cms.double( 3.0 ),
       ClusterThreshold = cms.double( 5.0 ),
       setDetId = cms.bool( True ),
-      RemoveApvShots = cms.bool( True )
+      RemoveApvShots = cms.bool( True ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     onDemand = cms.bool( True )
 )
@@ -4406,7 +4411,8 @@ process.hltMixedLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
       useRingSlector = cms.bool( True ),
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
       minRing = cms.int32( 1 ),
-      maxRing = cms.int32( 1 )
+      maxRing = cms.int32( 1 ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     MTID = cms.PSet(  ),
     FPix = cms.PSet( 
@@ -40487,14 +40493,16 @@ process.hltDisplacedhltIter4PixelLessLayerTriplets = cms.EDProducer( "SeedingLay
       skipClusters = cms.InputTag( "hltDisplacedhltIter4ClustersRefRemoval" ),
       useRingSlector = cms.bool( True ),
       minRing = cms.int32( 1 ),
-      maxRing = cms.int32( 2 )
+      maxRing = cms.int32( 2 ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     MTID = cms.PSet( 
       skipClusters = cms.InputTag( "hltDisplacedhltIter4ClustersRefRemoval" ),
       useRingSlector = cms.bool( True ),
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
       minRing = cms.int32( 3 ),
-      maxRing = cms.int32( 3 )
+      maxRing = cms.int32( 3 ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     FPix = cms.PSet(  ),
     MTEC = cms.PSet( 
@@ -40502,24 +40510,28 @@ process.hltDisplacedhltIter4PixelLessLayerTriplets = cms.EDProducer( "SeedingLay
       skipClusters = cms.InputTag( "hltDisplacedhltIter4ClustersRefRemoval" ),
       useRingSlector = cms.bool( True ),
       minRing = cms.int32( 3 ),
-      maxRing = cms.int32( 3 )
+      maxRing = cms.int32( 3 ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     MTIB = cms.PSet( 
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-      skipClusters = cms.InputTag( "hltDisplacedhltIter4ClustersRefRemoval" )
+      skipClusters = cms.InputTag( "hltDisplacedhltIter4ClustersRefRemoval" ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     TID = cms.PSet( 
       useRingSlector = cms.bool( True ),
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
       minRing = cms.int32( 1 ),
       maxRing = cms.int32( 2 ),
-      skipClusters = cms.InputTag( "hltDisplacedhltIter4ClustersRefRemoval" )
+      skipClusters = cms.InputTag( "hltDisplacedhltIter4ClustersRefRemoval" ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     ),
     TOB = cms.PSet(  ),
     BPix = cms.PSet(  ),
     TIB = cms.PSet( 
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-      skipClusters = cms.InputTag( "hltDisplacedhltIter4ClustersRefRemoval" )
+      skipClusters = cms.InputTag( "hltDisplacedhltIter4ClustersRefRemoval" ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
     )
 )
 process.hltDisplacedhltIter4PFlowPixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",

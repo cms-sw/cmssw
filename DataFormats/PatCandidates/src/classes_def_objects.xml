@@ -50,6 +50,7 @@
     <![CDATA[ cachedIP_ = onfile.cachedIP_[1] + 2*onfile.cachedIP_[2] + 4*onfile.cachedIP_[3] + 8*onfile.cachedIP_[4]; ]]>
   </ioread>
 
+
   <class name="pat::Muon"  ClassVersion="17">
    <version ClassVersion="18" checksum="1163602263"/>
    <version ClassVersion="17" checksum="1509153359"/>
@@ -193,8 +194,9 @@
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
 
-  <class name="pat::Jet"  ClassVersion="14">
-   <version ClassVersion="15" checksum="1826981639"/>
+  <class name="pat::Jet"  ClassVersion="15">
+   <version ClassVersion="16" checksum="4069285947"/>
+   <version ClassVersion="15" checksum="727883729"/>
    <version ClassVersion="14" checksum="1304049301"/>
    <version ClassVersion="13" checksum="130552029"/>
    <field name="caloTowersTemp_" transient="true"/>
@@ -206,17 +208,27 @@
   <ioread sourceClass = "pat::Jet" version="[1-11]" targetClass="pat::Jet" source="int partonFlavour_" target="jetFlavourInfo_">
     <![CDATA[jetFlavourInfo_ = reco::JetFlavourInfo(0,onfile.partonFlavour_);]]>
   </ioread>
-  <class name="pat::MET"  ClassVersion="13">
+  <class name="pat::MET"  ClassVersion="14">
+   <version ClassVersion="14" checksum="1795935545"/>
    <version ClassVersion="13" checksum="2368359386"/>
    <version ClassVersion="12" checksum="1474251442"/>
    <version ClassVersion="11" checksum="1829185007"/>
    <version ClassVersion="10" checksum="1136648776"/>
-    <field name="uncorInfo_" transient="true"/>
-    <field name="nCorrections_" transient="true"/>
   </class>
-  <class name="pat::MET::PackedMETUncertainty" ClassVersion="10">
+  <class name="pat::MET::PackedMETUncertainty" ClassVersion="11">
+    <version ClassVersion="11" checksum="3523936012"/>
     <version ClassVersion="10" checksum="1984780659"/>
+    <field name="dpx_" transient="true" />
+    <field name="dpy_" transient="true" />
+    <field name="dsumEt_" transient="true" />
+    <field name="unpacked_" transient="true" />
+
   </class>
+  <ioread sourceClass="pat::PackedMETUncertainty"  version="[1-]" targetClass="pat::PackedMETUncertainty" source="" target="unpacked_">
+        <![CDATA[unpacked_ = false;
+            ]]>
+  </ioread>
+
   <class name="std::vector<pat::MET::PackedMETUncertainty>" />
   <class name="pat::MHT"  ClassVersion="12">
    <version ClassVersion="12" checksum="965016657"/>
@@ -253,8 +265,8 @@
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
 
-  <class name="pat::PackedCandidate" ClassVersion="18">
-    <version ClassVersion="18" checksum="1257500115"/>
+  <class name="pat::PackedCandidate" ClassVersion="17">
+    <version ClassVersion="18" checksum="4275117305"/>
     <version ClassVersion="17" checksum="1257500115"/>
     <version ClassVersion="16" checksum="3261782486"/>
     <version ClassVersion="15" checksum="2118306102"/>
@@ -465,6 +477,12 @@
   <class name="edm::RefProd<std::vector<pat::PackedGenParticle> >" />
   <class name="edm::Association<std::vector<pat::PackedGenParticle> >" />
   <class name="edm::Wrapper<edm::Association<std::vector<pat::PackedGenParticle> > >"/>
+
+  <!--- vectors of Ptrs -->
+  <class name="std::vector<edm::Ptr<pat::Jet> >" />
+  <class name="std::vector< std::vector<edm::Ptr<pat::Jet> > >" />
+  <class name="edm::Wrapper< std::vector<edm::Ptr<pat::Jet> > >" />
+  <class name="edm::Wrapper< std::vector< std::vector<edm::Ptr<pat::Jet> > > >" />
 
   </selection>
  <exclusion>

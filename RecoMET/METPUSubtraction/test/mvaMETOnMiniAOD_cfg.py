@@ -58,6 +58,7 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
 
 process.load("RecoJets.JetProducers.ak4PFJets_cfi")
 process.ak4PFJets.src = cms.InputTag("packedPFCandidates")
+process.ak4PFJets.doAreaFastjet = cms.bool(True)
 
 from JetMETCorrections.Configuration.DefaultJEC_cff import ak4PFJetsL1FastL2L3
 

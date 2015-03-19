@@ -5,7 +5,6 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
-<use   name="FWCore/RootAutoLibraryLoader"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Sources"/>
 <use   name="FWCore/Utilities"/>

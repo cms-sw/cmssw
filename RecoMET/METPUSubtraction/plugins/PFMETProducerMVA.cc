@@ -325,10 +325,10 @@ double PFMETProducerMVA::chargedEnFrac(const reco::Candidate *iCand,
     const pat::Tau *lPatPFTau = nullptr; 
     lPatPFTau = dynamic_cast<const pat::Tau*>(iCand);
     if(lPatPFTau != nullptr) { 
-      for (UInt_t i0 = 0; i0 < lPatPFTau->signalPFCands().size(); i0++) { 
-	lPtTot += (lPatPFTau->signalPFCands())[i0]->pt(); 
-	if((lPatPFTau->signalPFCands())[i0]->charge() == 0) continue;
-	lPtCharged += (lPatPFTau->signalPFCands())[i0]->pt(); 
+      for (UInt_t i0 = 0; i0 < lPatPFTau->signalCands().size(); i0++) { 
+	lPtTot += (lPatPFTau->signalCands())[i0]->pt(); 
+	if((lPatPFTau->signalCands())[i0]->charge() == 0) continue;
+	lPtCharged += (lPatPFTau->signalCands())[i0]->pt(); 
       }
     }
   }

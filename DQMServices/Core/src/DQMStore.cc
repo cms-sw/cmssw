@@ -599,7 +599,7 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
   // concurrency problems because the print_trace method is always called behind
   // a lock (see bookTransaction).
   if (!stream_)
-    stream_ = new ofstream("histogramBookingBT.log");
+    stream_ = new std::ofstream("histogramBookingBT.log");
   
   void *array[10];
   size_t size;
