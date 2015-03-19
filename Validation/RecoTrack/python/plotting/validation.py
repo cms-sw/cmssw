@@ -38,16 +38,28 @@ _globalTags = {
     "CMSSW_7_3_0": {"default": "MCRUN2_73_V7", "fullsim_50ns": "MCRUN2_73_V6"},
     "CMSSW_7_3_0_71XGENSIM": {"default": "MCRUN2_73_V7_71XGENSIM"},
     "CMSSW_7_3_0_71XGENSIM_FIXGT": {"default": "MCRUN2_73_V9_71XGENSIM_FIXGT"},
-    "CMSSW_7_3_1_patch1": {"default": "MCRUN2_73_V9"}, # MCRUN2_73_V7 for FastSim
+    "CMSSW_7_3_1_patch1": {"default": "MCRUN2_73_V9", "fastsim": "MCRUN2_73_V7"},
+    "CMSSW_7_3_1_patch1_GenSim_7113": {"default": "MCRUN2_73_V9_GenSim_7113"},
+    "CMSSW_7_3_3": {"default": "MCRUN2_73_V11", "fullsim_50ns": "MCRUN2_73_V10", "fastsim": "MCRUN2_73_V13"},
     "CMSSW_7_4_0_pre1": {"default": "MCRUN2_73_V5", "fullsim_50ns": "MCRUN2_73_V4"},
     "CMSSW_7_4_0_pre2": {"default": "MCRUN2_73_V7", "fullsim_50ns": "MCRUN2_73_V6"},
     "CMSSW_7_4_0_pre2_73XGENSIM": {"default": "MCRUN2_73_V7_73XGENSIM_Pythia6", "fullsim_50ns": "MCRUN2_73_V6_73XGENSIM_Pythia6"},
     "CMSSW_7_4_0_pre5": {"default": "MCRUN2_73_V7", "fullsim_50ns": "MCRUN2_73_V6"},
     "CMSSW_7_4_0_pre5_BS": {"default": "MCRUN2_73_V9_postLS1beamspot", "fullsim_50ns": "MCRUN2_73_V8_postLS1beamspot"},
     "CMSSW_7_4_0_pre6": {"default": "MCRUN2_74_V1", "fullsim_50ns": "MCRUN2_74_V0"},
+    "CMSSW_7_4_0_pre6_pmx": {"default": "MCRUN2_74_V1", "fullsim_50ns": "MCRUN2_74_V0"},
+    "CMSSW_7_4_0_pre8": {"default": "MCRUN2_74_V7", "fullsim_25ns": "MCRUN2_74_V5_AsympMinGT", "fullsim_50ns": "MCRUN2_74_V4_StartupMinGT"},
+    "CMSSW_7_4_0_pre8_25ns_asymptotic": {"default": "MCRUN2_74_V7"},
+    "CMSSW_7_4_0_pre8_50ns_startup":    {"default": "MCRUN2_74_V6"},
+    "CMSSW_7_4_0_pre8_50ns_asympref":   {"default": "MCRUN2_74_V5A_AsympMinGT"}, # for reference of 50ns asymptotic
+    "CMSSW_7_4_0_pre8_50ns_asymptotic": {"default": "MCRUN2_74_V7A_AsympGT"},
+    "CMSSW_7_4_0_pre8_ROOT6": {"default": "MCRUN2_74_V7"},
+    "CMSSW_7_4_0_pre8_pmx": {"default": "MCRUN2_74_V7", "fullsim_50ns": "MCRUN2_74_V6"},
+    "CMSSW_7_4_0_pre8_pmx_v2": {"default": "MCRUN2_74_V7_gs_pre7", "fullsim_50ns": "MCRUN2_74_V6_gs_pre7"},
 }
 
-_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_Premix", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM", "_73XGENSIM", "_BS"]
+_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_pmx_v2", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113",
+                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
         if pf in release:
@@ -77,6 +89,8 @@ def _getGlobalTag(sample, release):
             return gtmap.get("fullsim_50ns", gtmap["default"])
         if sample.pileupType() == "25ns":
             return gtmap.get("fullsim_25ns", gtmap["default"])
+    if sample.fastsim():
+        return gtmap.get("fastsim", gtmap["default"])
     return gtmap["default"]
 
 # Mapping from release series to RelVal download URLs

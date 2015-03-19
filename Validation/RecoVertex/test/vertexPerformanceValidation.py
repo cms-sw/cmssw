@@ -10,10 +10,10 @@ import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 #plotting.missingOk = True
 
 ### Reference release
-RefRelease='CMSSW_7_4_0_pre5_BS'
+RefRelease='CMSSW_7_4_0_pre6'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_7_4_0_pre6'
+NewRelease='CMSSW_7_4_0_pre8'
 
 ### This is the list of IDEAL-conditions relvals 
 startupsamples= [
