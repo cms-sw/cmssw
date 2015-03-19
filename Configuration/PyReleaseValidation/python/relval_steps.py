@@ -1007,12 +1007,10 @@ steps['RECOUP15UNSCH']=merge([step3Up2015DefaultsUnsch])
 steps['RECOPRMXUP15_PU25']=merge([
         {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM'},
         {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'}, # temporary replacement for premix; to be brought back to customisePostLS1
-        {'--geometry'  : 'Extended2015'},
         step3Up2015Defaults])
 steps['RECOPRMXUP15_PU50']=merge([
         {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM'},
         {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},
-        {'--geometry'  : 'Extended2015'},
         step3Up2015Defaults50ns])
 
 recoPremixUp15prod = merge([
