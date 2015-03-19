@@ -37,7 +37,9 @@
 // constructors and destructor
 //
 FWTGLViewer::FWTGLViewer(const TGWindow *parent) :
-   TGLEmbeddedViewer(parent, 0, 0, 0)
+   TGLEmbeddedViewer(parent, 0, 0, 0),
+   m_fbo(0),
+   m_fbo_w(-1), m_fbo_h(-1)
 {
 }
 
@@ -48,6 +50,7 @@ FWTGLViewer::FWTGLViewer(const TGWindow *parent) :
 
 FWTGLViewer::~FWTGLViewer()
 {
+   delete m_fbo;
 }
 
 //
@@ -172,15 +175,25 @@ TGLFBO* FWTGLViewer::GenerateFbo(Int_t w, Int_t h, Float_t pixel_object_scale)
 
    MakeCurrent();
 
-   TGLFBO *fbo = new TGLFBO();
-   try
+   if (m_fbo == 0)
    {
-      fbo->Init(w, h, fGLWidget->GetPixelFormat()->GetSamples());
+      m_fbo = new TGLFBO();
    }
-   catch (std::runtime_error& exc)
+   if (m_fbo_w != w || m_fbo_h != h)
    {
-      ::Error(eh, "%s",exc.what());
-      return 0;
+      try
+      {
+         m_fbo->Init(w, h, fGLWidget->GetPixelFormat()->GetSamples());
+      }
+      catch (std::runtime_error& exc)
+      {
+         m_fbo_w = m_fbo_h = -1;
+
+         ::Error(eh, "%s",exc.what());
+         return 0;
+      }
+
+      m_fbo_w = w; m_fbo_h = h;
    }
 
    TGLRect old_vp(fViewport);
@@ -193,7 +206,7 @@ TGLFBO* FWTGLViewer::GenerateFbo(Int_t w, Int_t h, Float_t pixel_object_scale)
       fRnrCtx->SetRenderScale(old_scale * pixel_object_scale);
    }
 
-   fbo->Bind();
+   m_fbo->Bind();
 
    fLOD = TGLRnrCtx::kLODHigh;
    fRnrCtx->SetGrabImage(kTRUE);
@@ -202,7 +215,7 @@ TGLFBO* FWTGLViewer::GenerateFbo(Int_t w, Int_t h, Float_t pixel_object_scale)
 
    fRnrCtx->SetGrabImage(kFALSE);
 
-   fbo->Unbind();
+   m_fbo->Unbind();
 
    if (pixel_object_scale != 0)
    {
@@ -211,7 +224,7 @@ TGLFBO* FWTGLViewer::GenerateFbo(Int_t w, Int_t h, Float_t pixel_object_scale)
 
    SetViewport(old_vp);
 
-   return fbo;
+   return m_fbo;
 }
 
 //

@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <sstream>
 #include <thread>
+#include <future>
 
 #include "TGButton.h"
 #include "TGLabel.h"
@@ -916,7 +917,8 @@ FWGUIManager::exportAllViews(const std::string& format, int height)
       }
    }
 
-   std::vector<std::thread> workers;
+   std::vector<std::future<int>> futures;
+   
    const edm::EventBase *event = getCurrentEvent();
    for (name_map_i i = vls.begin(); i != vls.end(); ++i)
    {
@@ -937,7 +939,7 @@ FWGUIManager::exportAllViews(const std::string& format, int height)
          if (GLEW_EXT_framebuffer_object)
          {
             // Multi-threaded save
-            workers.push_back((*j)->CaptureAndSaveImage(file, height));
+            futures.push_back((*j)->CaptureAndSaveImage(file, height));
          }
          else
          {
@@ -950,9 +952,9 @@ FWGUIManager::exportAllViews(const std::string& format, int height)
       }
    }
 
-   for (auto &w : workers)
+   for (auto &f : futures)
    {
-      w.join();
+      f.get();
    }
 }
 

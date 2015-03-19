@@ -57,10 +57,10 @@ void testfullChain::getfromDataproxyproviderTest()
       EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(time));
       ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
-      CPPUNIT_ASSERT(0 != &(*pDummy));
+      CPPUNIT_ASSERT(0 != pDummy.product());
       
       eventSetup.getData(pDummy);
    
-      CPPUNIT_ASSERT(0 != &(*pDummy));
+      CPPUNIT_ASSERT(0 != pDummy.product());
    }
 }

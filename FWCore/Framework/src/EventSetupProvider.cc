@@ -96,7 +96,7 @@ EventSetupProvider::insert(const EventSetupRecordKey& iKey, std::auto_ptr<EventS
 void 
 EventSetupProvider::add(boost::shared_ptr<DataProxyProvider> iProvider)
 {
-   assert(&(*iProvider) != 0);
+   assert(iProvider.get() != 0);
    dataProviders_->push_back(iProvider);
 }
 
@@ -114,7 +114,7 @@ EventSetupProvider::replaceExisting(boost::shared_ptr<DataProxyProvider> dataPro
 void 
 EventSetupProvider::add(boost::shared_ptr<EventSetupRecordIntervalFinder> iFinder)
 {
-   assert(&(*iFinder) != 0);
+   assert(iFinder.get() != 0);
    finders_->push_back(iFinder);
 }
 
