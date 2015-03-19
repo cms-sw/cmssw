@@ -24,7 +24,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
-#include <cassert>
+
 using namespace edm;
 using namespace reco;
 
@@ -135,7 +135,7 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
         if(refHit->isValid()) hits.push_back((Hit)&(*refHit));
       }
       sort(hits.begin(), hits.end(), HitLessByRadius());
-      assert(hits.size()<4);
+
       if (hits.size() > 1) {
         double mom_perp = sqrt(proto.momentum().x()*proto.momentum().x()+proto.momentum().y()*proto.momentum().y());
 	GlobalTrackingRegion region(mom_perp, vtx, 0.2, 0.2);
