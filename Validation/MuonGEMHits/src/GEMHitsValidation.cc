@@ -9,17 +9,10 @@ GEMHitsValidation::GEMHitsValidation(const edm::ParameterSet& cfg):  GEMBaseVali
 }
 
 void GEMHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
-  if ( GEMGeometry_ == nullptr ) {
-    try {
-      edm::ESHandle<GEMGeometry> hGeom;
-      iSetup.get<MuonGeometryRecord>().get(hGeom);
-      GEMGeometry_ = &*hGeom;
-    }
-    catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
-      edm::LogError("MuonGEMHits") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
-      return;
-    }
-  }
+   edm::ESHandle<GEMGeometry> hGeom;
+   iSetup.get<MuonGeometryRecord>().get(hGeom);
+   const GEMGeometry* GEMGeometry_ =( &*hGeom);
+  
   LogDebug("MuonGEMHitsValidation")<<"Info : Loading Geometry information\n";
   ibooker.setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
 
@@ -98,9 +91,11 @@ GEMHitsValidation::~GEMHitsValidation() {
 
 
 void GEMHitsValidation::analyze(const edm::Event& e,
-                                     const edm::EventSetup&)
+                                     const edm::EventSetup& iSetup)
 {
-
+ edm::ESHandle<GEMGeometry> hGeom;
+ iSetup.get<MuonGeometryRecord>().get(hGeom);
+ const GEMGeometry* GEMGeometry_ =( &*hGeom);
   edm::Handle<edm::PSimHitContainer> GEMHits;
   e.getByToken(InputTagToken_, GEMHits);
   if (!GEMHits.isValid()) {

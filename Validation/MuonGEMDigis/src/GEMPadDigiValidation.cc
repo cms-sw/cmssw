@@ -2,22 +2,19 @@
 
 GEMPadDigiValidation::GEMPadDigiValidation(const edm::ParameterSet& cfg): GEMBaseValidation(cfg)
 {
-  InputTagToken_ = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("stripLabel"));
+  InputTagToken_ = consumes<GEMPadDigiCollection>(cfg.getParameter<edm::InputTag>("PadLabel"));
 }
 void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
-  if ( GEMGeometry_ == nullptr ) {
-    try {
-      edm::ESHandle<GEMGeometry> hGeom;
-      iSetup.get<MuonGeometryRecord>().get(hGeom);
-      GEMGeometry_ = &*hGeom;
-    }
-    catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
-      edm::LogError("MuonGEMHits") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
-      return;
-    }
+  const GEMGeometry* GEMGeometry_ ;
+  try {
+    edm::ESHandle<GEMGeometry> hGeom;
+    iSetup.get<MuonGeometryRecord>().get(hGeom);
+    GEMGeometry_ = &*hGeom;
   }
-  
-
+  catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+    edm::LogError("GEMPadDigiValidation") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
+    return;
+  }
   int npadsGE11 = GEMGeometry_->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
   int npadsGE21 = 0;
   int nPads = 0;
@@ -55,8 +52,18 @@ GEMPadDigiValidation::~GEMPadDigiValidation() {
 
 
 void GEMPadDigiValidation::analyze(const edm::Event& e,
-                                     const edm::EventSetup&)
+                                     const edm::EventSetup& iSetup)
 {
+  const GEMGeometry* GEMGeometry_ ;
+  try {
+    edm::ESHandle<GEMGeometry> hGeom;
+    iSetup.get<MuonGeometryRecord>().get(hGeom);
+    GEMGeometry_ = &*hGeom;
+  }
+  catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+    edm::LogError("MuonGEMStripDigis") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
+    return;
+  }
   edm::Handle<GEMPadDigiCollection> gem_digis;
   e.getByToken(InputTagToken_, gem_digis);
   if (!gem_digis.isValid()) {

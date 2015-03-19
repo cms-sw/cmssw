@@ -2,19 +2,18 @@
 
 GEMCoPadDigiValidation::GEMCoPadDigiValidation(const edm::ParameterSet& cfg): GEMBaseValidation(cfg)
 {
-  InputTagToken_ = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("stripLabel"));
+  InputTagToken_ = consumes<GEMCoPadDigiCollection>(cfg.getParameter<edm::InputTag>("CopadLabel"));
 }
 void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
-  if ( GEMGeometry_ == nullptr ) {
-    try {
-      edm::ESHandle<GEMGeometry> hGeom;
-      iSetup.get<MuonGeometryRecord>().get(hGeom);
-      GEMGeometry_ = &*hGeom;
-    }
-    catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
-      edm::LogError("MuonGEMStripDigis") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
-      return;
-    }
+  const GEMGeometry* GEMGeometry_ ;
+  try {
+    edm::ESHandle<GEMGeometry> hGeom;
+    iSetup.get<MuonGeometryRecord>().get(hGeom);
+    GEMGeometry_ = &*hGeom;
+  }
+  catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+    edm::LogError("GEMCoPadDigiValidation") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
+    return;
   }
 
   const double PI = TMath::Pi();
@@ -54,8 +53,18 @@ GEMCoPadDigiValidation::~GEMCoPadDigiValidation() {
 
 
 void GEMCoPadDigiValidation::analyze(const edm::Event& e,
-                                     const edm::EventSetup&)
+                                     const edm::EventSetup& iSetup)
 {
+  const GEMGeometry* GEMGeometry_;
+  try {
+    edm::ESHandle<GEMGeometry> hGeom;
+    iSetup.get<MuonGeometryRecord>().get(hGeom);
+    GEMGeometry_ = &*hGeom;
+  }
+  catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+    edm::LogError("MuonGEMStripDigis") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
+    return;
+  }
   edm::Handle<GEMCoPadDigiCollection> gem_digis;
   e.getByToken(InputTagToken_, gem_digis);
   if (!gem_digis.isValid()) {

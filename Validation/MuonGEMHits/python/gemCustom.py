@@ -17,10 +17,13 @@ def customise_digitization(process):
 
 def customise_Validation(process):
   process.load('Validation.MuonGEMHits.MuonGEMHits_cfi')
+  process.load('Validation.MuonGEMDigis.MuonGEMDigis_cfi')
   process.genvalid_all += process.gemHitsValidation
+  process.genvalid_all += process.gemDigiValidation
   return process
 
 def customise_harvesting(process):
   #process.load('Validation.Configuration.gemPostValidation_cff')
   #process.genHarvesting += process.gemPostValidation
   return process
+

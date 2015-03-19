@@ -21,22 +21,19 @@ class GEMBaseValidation : public DQMEDAnalyzer
 public:
   explicit GEMBaseValidation( const edm::ParameterSet& ps );
   virtual ~GEMBaseValidation();
-  void setGeometry(const GEMGeometry* geom) { GEMGeometry_ = geom; }
   virtual void analyze(const edm::Event& e, const edm::EventSetup&) = 0 ;
   MonitorElement* BookHistZR( DQMStore::IBooker &, const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num =0 ); 
   MonitorElement* BookHistXY( DQMStore::IBooker &, const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num =0 ); 
 protected:
-
   std::vector< std::string > regionLabel;
   std::vector< std::string > layerLabel;
   std::vector< std::string > stationLabel;
-
-  edm::EDGetToken InputTagToken_;
-  const GEMGeometry* GEMGeometry_;
-  edm::ParameterSet plotRange_;
   std::vector<double> nBinZR_;
   std::vector<double> RangeZR_;
+  edm::EDGetToken InputTagToken_;
   int nBinXY_;
+
+private :
 };
 
 #endif

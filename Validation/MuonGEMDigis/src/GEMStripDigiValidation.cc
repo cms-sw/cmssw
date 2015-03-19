@@ -2,32 +2,41 @@
 #include <iomanip>
 GEMStripDigiValidation::GEMStripDigiValidation(const edm::ParameterSet& cfg): GEMBaseValidation(cfg)
 {
-  InputTagToken_ = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("stripLabel"));
+  InputTagToken_ = consumes<GEMDigiCollection>(cfg.getParameter<edm::InputTag>("stripLabel"));
 }
 
 void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
-  if ( GEMGeometry_ == nullptr ) {
-    try {
-      edm::ESHandle<GEMGeometry> hGeom;
-      iSetup.get<MuonGeometryRecord>().get(hGeom);
-      GEMGeometry_ = &*hGeom;
-    }
-    catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
-      edm::LogError("MuonGEMStripDigis") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
-      return;
-    }
+  const GEMGeometry* GEMGeometry_ ;
+  
+  try {
+    edm::ESHandle<GEMGeometry> hGeom;
+    iSetup.get<MuonGeometryRecord>().get(hGeom);
+    GEMGeometry_ = &*hGeom;
+  }
+  catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+    edm::LogError("MuonGEMStripDigis") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
+    return;
   }
 
+  LogDebug("GEMStripDIGIValidation")<<"Geometry is acquired from MuonGeometryRecord\n";
+  ibooker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask");
+  LogDebug("GEMStripDIGIValidation")<<"ibooker set current folder\n";
 
   int nregions = GEMGeometry_->regions().size();
+  LogDebug("GEMStripDIGIValidation")<<"nregions set.\n";
   int nstations = GEMGeometry_->regions()[0]->stations().size(); 
-  int nstripsGE11  = GEMGeometry_->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->nstrips();
-  int nstripsGE21 = 0;
-  
+  LogDebug("GEMStripDIGIValidation")<<"nstations set.\n";
+  int nstripsGE11  = 384;
+//GEMGeometry_->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->nstrips();
+  int nstripsGE21 = 768;
+ 
+  /* 
   if ( nstations > 1 ) {
     nstripsGE21  = GEMGeometry_->regions()[0]->stations()[1]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->nstrips();
   }
   else LogDebug("GEMStripDIGIValidation")<<"Info : Only 1 station is existed.\n";
+  */
+  LogDebug("GEMStripDIGIValidation")<<"Successfully binning set.\n";
 
 
   int nstrips = 0;
@@ -47,6 +56,7 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
       }
     }
   }
+  LogDebug("GEMStripDIGIValidation")<<"Booking End.\n";
 }
 
 
@@ -54,8 +64,19 @@ GEMStripDigiValidation::~GEMStripDigiValidation() {
 }
 
 void GEMStripDigiValidation::analyze(const edm::Event& e,
-                                     const edm::EventSetup&)
+                                     const edm::EventSetup& iSetup)
 {
+  const GEMGeometry* GEMGeometry_ ;
+  try {
+    edm::ESHandle<GEMGeometry> hGeom;
+    iSetup.get<MuonGeometryRecord>().get(hGeom);
+    GEMGeometry_ = &*hGeom;
+  }
+  catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+    edm::LogError("MuonGEMStripDigis") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
+    return;
+  }
+
   edm::Handle<GEMDigiCollection> gem_digis;
   e.getByToken( this->InputTagToken_, gem_digis);
   if (!gem_digis.isValid()) {
