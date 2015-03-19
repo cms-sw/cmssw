@@ -106,8 +106,8 @@ testfiles=miniAodFiles()
 
 sample = cfg.Component(
 #specify the file you want to run on
-    files = ["/scratch/arizzi/Hbb/CMSSW_7_2_2_patch2/src/VHbbAnalysis/Heppy/test/ZLL-8A345C56-6665-E411-9C25-1CC1DE04DF20.root"],
-#    files = testfiles,
+    # files = ["/scratch/arizzi/Hbb/CMSSW_7_2_2_patch2/src/VHbbAnalysis/Heppy/test/ZLL-8A345C56-6665-E411-9C25-1CC1DE04DF20.root"],
+    files = testfiles,
     name="SingleSample", isMC=False,isEmbed=False
     )
 
