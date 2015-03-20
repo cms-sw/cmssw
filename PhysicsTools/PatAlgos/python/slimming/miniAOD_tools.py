@@ -146,6 +146,7 @@ def miniAOD_customizeCommon(process):
     # Adding puppi jets
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
+    process.ak4PFJetsPuppi.doAreaFastjet = True # even for standard ak4PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
     #process.puppi.candName = cms.InputTag('packedPFCandidates')
     #process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
     
@@ -161,7 +162,7 @@ def miniAOD_customizeCommon(process):
     )
 
     addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
-                    jetCorrections = ('AK4PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''),
+                    jetCorrections = ('AK4PFchs', ['L2Relative', 'L3Absolute'], ''),
                     algo= 'AK', rParam = 0.4, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
                     )
     

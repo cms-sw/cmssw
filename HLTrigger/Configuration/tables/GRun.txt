@@ -212,9 +212,8 @@ HLT_Ele33_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189
 HLT_MET75_IsoTrk50_v*						# JIRA: CMSHLT-130
 HLT_MET90_IsoTrk50_v*						# JIRA: CMSHLT-130
 
-HLT_Ele35_eta2p1_WP85_Gsf_v*					# JIRA: CMSHLT-131
-HLT_Ele40_eta2p1_WP85_Gsf_v*					# JIRA: CMSHLT-131
-HLT_Ele25_eta2p1_WP85_Gsf_PFMET80_boostedW_v*			# JIRA: CMSHLT-131
+HLT_Ele40_eta2p1_WP85_Gsf_v*					# JIRA: CMSHLT-1311, mod. CMSHLT-294
+HLT_Ele25_WP85_Gsf_PFMET80_boostedW_v*				# JIRA: CMSHLT-1311, mod. CMSHLT-294
 
 HLT_DiPFJetAve30_HFJEC_v*					# JIRA: CMSHLT-133
 HLT_DiPFJetAve60_HFJEC_v*					# JIRA: CMSHLT-133
@@ -331,7 +330,7 @@ HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight_v*			  # JIRA: CMSHLT-277
 HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight_v*			  # JIRA: CMSHLT-277
 HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight_v*	  # JIRA: CMSHLT-277
 HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight_v*  # JIRA: CMSHLT-277
-HLT_CaloMET200_NoiseCleaned_v*
+HLT_CaloMET200_NoiseCleaned_v*						  # JIRA: CMSHLT-277
 
 HLT_Ele27_eta2p1_WP85_Gsf_HT200_v* 				# JIRA: CMSHLT-161
 HLT_Ele27_WP85_Gsf_v*						# JIRA: CMSHLT-197 (only for 7e33)
@@ -389,7 +388,7 @@ HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_v*			# JIRA: CMSHLT-226 (only for 7e33)
 #HLT_PixelTracks_Multiplicity160_v* 				# JIRA: CMSHLT-150 (for low PU 50ns runs)
 
 #HLT_Ele22_WP75_Gsf_v*						# JIRA: CMSHLT-269 (for 50ns runs)
-HLT_Ele23_WP75_Gsf_v*						# JIRA: CMSHLT-269
+#HLT_Ele23_WP75_Gsf_v*						# JIRA: CMSHLT-269 (for 50ns runs)
 
 #HLT_PFJet15_v*							# JIRA: CMSHLT-260 (for low PU 50ns runs)
 #HLT_PFJet20_v*							# JIRA: CMSHLT-260 (for low PU 50ns runs)
@@ -414,6 +413,9 @@ AlCa_RPCMuonNoTriggers_v*					# JIRA: CMSHLT-231
 AlCa_RPCMuonNoHits_v*						# JIRA: CMSHLT-23
 AlCa_RPCMuonNormalisation_v*					# JIRA: CMSHLT-23
 
+AlCa_LumiPixels_Random_v*					# JIRA: CMSHLT-239
+AlCa_LumiPixels_ZeroBias_v*					# JIRA: CMSHLT-239
+
 HLT_Random_v*							# JIRA: CMSHLT-244
 
 HLT_Physics_v*							# skim
@@ -427,6 +429,7 @@ DQMOutput						# online DQMFileSaver
 EcalCalibrationOutput
 RPCMONOutput
 ALCAPHISYMOutput
+ALCALUMIPIXELSOutput
 #ExpressForCosmicsOutput				# only in 'GRun' and 'cosmics', not in 'online'
 #ExpressOutput
 #HLTDQMOutput

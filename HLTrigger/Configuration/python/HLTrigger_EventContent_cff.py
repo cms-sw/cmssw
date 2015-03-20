@@ -40,7 +40,6 @@ HLTriggerAOD  = cms.PSet(
 HLTDebugRAW   = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
-        'keep *_HLTEcalPhiSymFilter_*_*',
         'keep *_hltAK4CaloJetsCorrectedIDPassed_*_*',
         'keep *_hltAK4CaloJetsIDPassed_*_*',
         'keep *_hltAK4CaloJets_*_*',
@@ -111,6 +110,7 @@ HLTDebugRAW   = cms.PSet(
         'keep *_hltEcalDigis_EcalIntegrityGainSwitchErrors_*',
         'keep *_hltEcalDigis_EcalIntegrityTTIdErrors_*',
         'keep *_hltEcalDigis_EcalTriggerPrimitives_*',
+        'keep *_hltEcalPhiSymFilter_*_*',
         'keep *_hltEcalRecHitAll_*_*',
         'keep *_hltEle20CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilterL1SingleEG18orL1SingleEG20_*_*',
         'keep *_hltEle20CaloIdVTTrkIdTDphiFilter_*_*',
@@ -337,7 +337,6 @@ HLTDebugRAW   = cms.PSet(
 HLTDebugFEVT  = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
-        'keep *_HLTEcalPhiSymFilter_*_*',
         'keep *_hltAK4CaloJetsCorrectedIDPassed_*_*',
         'keep *_hltAK4CaloJetsIDPassed_*_*',
         'keep *_hltAK4CaloJets_*_*',
@@ -408,6 +407,7 @@ HLTDebugFEVT  = cms.PSet(
         'keep *_hltEcalDigis_EcalIntegrityGainSwitchErrors_*',
         'keep *_hltEcalDigis_EcalIntegrityTTIdErrors_*',
         'keep *_hltEcalDigis_EcalTriggerPrimitives_*',
+        'keep *_hltEcalPhiSymFilter_*_*',
         'keep *_hltEcalRecHitAll_*_*',
         'keep *_hltEle20CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilterL1SingleEG18orL1SingleEG20_*_*',
         'keep *_hltEle20CaloIdVTTrkIdTDphiFilter_*_*',
