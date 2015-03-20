@@ -1176,9 +1176,25 @@ steps['HARVESTHI']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                     '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_HI',
                     '--filetype':'DQM',
                     '--scenario':'HeavyIons'}
-
 steps['HARVESTUP15']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
                    '--conditions':'auto:run2_mc', 
+                   '--magField'    : '38T_PostLS1',
+                   '--mc':'',
+                   '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                   '--filetype':'DQM',
+                   }
+
+
+steps['HARVESTUP15_PU25']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
+                   '--conditions':'auto:run2_mc', 
+                   '--magField'    : '38T_PostLS1',
+                   '--mc':'',
+                   '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                   '--filetype':'DQM',
+                   }
+
+steps['HARVESTUP15_PU50']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
+                   '--conditions':'auto:run2_mc_50ns', 
                    '--magField'    : '38T_PostLS1',
                    '--mc':'',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
