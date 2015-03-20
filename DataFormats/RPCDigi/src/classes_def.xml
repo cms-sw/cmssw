@@ -4,6 +4,7 @@
 </class>
 <class name="std::vector<RPCDigi>"/>
 <class name="std::map<RPCDetId,std::vector<RPCDigi> >"/>
+<class name="std::pair<RPCDetId,std::vector<RPCDigi> >"/>
 <class name="MuonDigiCollection<RPCDetId,RPCDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<RPCDetId,RPCDigi>>" splitLevel="0"/> 
 

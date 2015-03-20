@@ -3,7 +3,6 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 
@@ -118,9 +117,6 @@ int main() {
   }
 
   std::cout << "vNames.size = " << vNames.size() << "\n";
-
-
-  edm::RootAutoLibraryLoader::enable();
 
   edm::CPUTimer timer;
 

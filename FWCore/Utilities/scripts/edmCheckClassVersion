@@ -123,6 +123,10 @@ def checkClass(name,version,versionsToChecksums):
     c = ROOT.TClass.GetClass(name)
     if not c:
         raise RuntimeError("failed to load dictionary for class '"+name+"'")
+    temp = "checkTheClass.f(" + '"' + name + '"' + ");"
+    retval = ROOT.gROOT.ProcessLine(temp)
+    if retval == 0 :
+        raise RuntimeError("TClass::GetCheckSum: Failed to load dictionary for base class. See previous Error message")
     classChecksum = c.GetCheckSum()
     classVersion = c.GetClassVersion()
 
@@ -168,13 +172,13 @@ if options.library is None:
     if options.checkdict :
         print "Dictionary checks require a specific library"
 else:
-    if 0 != ROOT.gSystem.Load("libCintex"):
-        raise RuntimeError("failed to load libCintex")
-    ROOT.Cintex.Enable()
     if 0 != ROOT.gSystem.Load(options.library):
         raise RuntimeError("failed to load library '"+options.library+"'")
 
 missingDict = 0
+
+ROOT.gROOT.ProcessLine("class checkclass {public: int f(char const* name) {TClass* cl = TClass::GetClass(name); bool b = false; cl->GetCheckSum(b); return (int)b;} };")
+ROOT.gROOT.ProcessLine("checkclass checkTheClass;")
 
 p = XmlParser(options.xmlfile)
 foundErrors = dict()

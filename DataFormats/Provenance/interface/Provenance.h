@@ -19,7 +19,6 @@ existence.
 #include <memory>
 
 #include <iosfwd>
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 /*
   Provenance
 

@@ -38,7 +38,7 @@ using namespace edmplugin;
 #ifdef __APPLE__
 #define PER_PROCESS_DSO 20
 #else
-#define PER_PROCESS_DSO 200
+#define PER_PROCESS_DSO 2000
 #endif
 
 namespace std {

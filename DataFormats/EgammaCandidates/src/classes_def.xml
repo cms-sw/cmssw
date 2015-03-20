@@ -54,7 +54,7 @@
   <class name="reco::Photon::PflowIDVariables"  ClassVersion="-1">
    <version ClassVersion="-1" checksum="2819734289"/>
   </class>
-  <class name="reco::Photon::EnergyCorrections"  ClassVersion="15">
+  <class name="reco::Photon::EnergyCorrections"  ClassVersion="16">
    <version ClassVersion="16" checksum="1544393913"/>
    <version ClassVersion="15" checksum="2042715570"/>
   </class>
@@ -166,7 +166,7 @@
   <class name="reco::GsfElectron::ConversionRejection" ClassVersion="10">
    <version ClassVersion="10" checksum="190549577"/>
   </class>
-  <class name="reco::GsfElectron::Corrections" ClassVersion="11">
+  <class name="reco::GsfElectron::Corrections" ClassVersion="12">
    <version ClassVersion="12" checksum="796270676"/>
    <version ClassVersion="11" checksum="4279379731"/>
   </class>
@@ -219,7 +219,7 @@
   <class name="reco::GsfElectron::PixelMatchVariables" ClassVersion="2">
     <version ClassVersion="2" checksum="3522539867"/>
   </class>
-  <class name="reco::GsfElectron" ClassVersion="18">
+  <class name="reco::GsfElectron" ClassVersion="19">
    <version ClassVersion="19" checksum="1682285704"/>
    <version ClassVersion="18" checksum="2072747263"/>
    <version ClassVersion="17" checksum="1861965703"/>

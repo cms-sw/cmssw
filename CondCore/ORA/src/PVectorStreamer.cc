@@ -3,7 +3,7 @@
 #include "ArrayCommonImpl.h"
 #include "IArrayHandler.h"
 
-ora::PVectorWriter::PVectorWriter( const Reflex::Type& objectType,
+ora::PVectorWriter::PVectorWriter( const edm::TypeWithDict& objectType,
                                    MappingElement& mapping,
                                    ContainerSchema& contSchema ):
   m_writer( objectType, mapping, contSchema ){
@@ -28,7 +28,7 @@ void ora::PVectorWriter::write( int oid,
   m_writer.write( oid, inputData );
 }
 
-ora::PVectorUpdater::PVectorUpdater(const Reflex::Type& objectType,
+ora::PVectorUpdater::PVectorUpdater(const edm::TypeWithDict& objectType,
                                     MappingElement& mapping,
                                     ContainerSchema& contSchema ):
   m_buffer(0),
@@ -70,7 +70,7 @@ void ora::PVectorUpdater::update( int oid,
   *persistentSize = arraySize;
 }
 
-ora::PVectorReader::PVectorReader(const Reflex::Type& objectType,
+ora::PVectorReader::PVectorReader(const edm::TypeWithDict& objectType,
                                   MappingElement& mapping,
                                   ContainerSchema& contSchema ):
   m_reader( objectType, mapping, contSchema ){
@@ -101,7 +101,7 @@ void ora::PVectorReader::clear(){
   m_reader.clear();
 }
 
-ora::PVectorStreamer::PVectorStreamer( const Reflex::Type& objectType,
+ora::PVectorStreamer::PVectorStreamer( const edm::TypeWithDict& objectType,
                                        MappingElement& mapping,
                                        ContainerSchema& contSchema ):
   m_objectType( objectType ),
