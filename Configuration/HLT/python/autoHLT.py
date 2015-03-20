@@ -2,9 +2,9 @@
 #   cmsDiver.py hlt -s HLT:@relval
 
 autoHLT = {
-  'frozen50ns' : 'GRun50ns',
+  'frozen50ns' : '50nsGRun',
   'frozen25ns' : 'GRun',
-  'relval50ns' : 'GRun50ns',
+  'relval50ns' : '50nsGRun',
   'relval25ns' : 'GRun',
   'fake'       : 'Fake',
   'test'       : 'GRun',
