@@ -325,59 +325,101 @@ tpToGlbCosmicTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
     label_tr = cms.InputTag('globalCosmicMuons')
 )
 
-tpToTkCosmicMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
-tpToStaCosmicMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
-tpToGlbCosmicMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+# 2-legs cosmics reco: simhits can be twice the reconstructed ones in any single leg
+# (Quality cut have to be set at 0.25, purity cuts can stay at 0.75)
+# T.B.D. upper and lower leg should be analyzed separately 
+tpToTkCosmicSelMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToStaCosmicSelMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToGlbCosmicSelMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+# 1-leg cosmics reco
+tpToTkCosmic1LegSelMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToStaCosmic1LegSelMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToGlbCosmic1LegSelMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 
-tpToTkCosmicMuonAssociation.tpTag = 'mix:MergedTrackTruth'
-tpToTkCosmicMuonAssociation.tracksTag = 'ctfWithMaterialTracksP5LHCNavigation'
-tpToTkCosmicMuonAssociation.UseTracker = True
-tpToTkCosmicMuonAssociation.UseMuon = False
+tpToTkCosmicSelMuonAssociation.tpTag = 'mix:MergedTrackTruth'
+tpToTkCosmicSelMuonAssociation.tracksTag = 'ctfWithMaterialTracksP5LHCNavigation'
+tpToTkCosmicSelMuonAssociation.UseTracker = True
+tpToTkCosmicSelMuonAssociation.UseMuon = False
+tpToTkCosmicSelMuonAssociation.EfficiencyCut_track = cms.double(0.25)
+tpToTkCosmicSelMuonAssociation.PurityCut_track = cms.double(0.75)
 
-tpToStaCosmicMuonAssociation.tpTag = 'mix:MergedTrackTruth'
-tpToStaCosmicMuonAssociation.tracksTag = 'cosmicMuons'
-tpToStaCosmicMuonAssociation.UseTracker = False
-tpToStaCosmicMuonAssociation.UseMuon = True
+tpToStaCosmicSelMuonAssociation.tpTag = 'mix:MergedTrackTruth'
+tpToStaCosmicSelMuonAssociation.tracksTag = 'cosmicMuons'
+tpToStaCosmicSelMuonAssociation.UseTracker = False
+tpToStaCosmicSelMuonAssociation.UseMuon = True
+tpToStaCosmicSelMuonAssociation.includeZeroHitMuons = False
+tpToStaCosmicSelMuonAssociation.EfficiencyCut_muon = cms.double(0.25)
+tpToStaCosmicSelMuonAssociation.PurityCut_muon = cms.double(0.75)
 
-tpToGlbCosmicMuonAssociation.tpTag = 'mix:MergedTrackTruth'
-tpToGlbCosmicMuonAssociation.tracksTag = 'globalCosmicMuons'
-tpToGlbCosmicMuonAssociation.UseTracker = True
-tpToGlbCosmicMuonAssociation.UseMuon = True
+tpToGlbCosmicSelMuonAssociation.tpTag = 'mix:MergedTrackTruth'
+tpToGlbCosmicSelMuonAssociation.tracksTag = 'globalCosmicMuons'
+tpToGlbCosmicSelMuonAssociation.UseTracker = True
+tpToGlbCosmicSelMuonAssociation.UseMuon = True
+tpToGlbCosmicSelMuonAssociation.EfficiencyCut_track = cms.double(0.25)
+tpToGlbCosmicSelMuonAssociation.PurityCut_track = cms.double(0.75)
+tpToGlbCosmicSelMuonAssociation.EfficiencyCut_muon = cms.double(0.25)
+tpToGlbCosmicSelMuonAssociation.PurityCut_muon = cms.double(0.75)
+tpToGlbCosmicSelMuonAssociation.acceptOneStubMatchings = False
+tpToGlbCosmicSelMuonAssociation.includeZeroHitMuons = False
 
+tpToTkCosmic1LegSelMuonAssociation.tpTag = 'mix:MergedTrackTruth'
+tpToTkCosmic1LegSelMuonAssociation.tracksTag = 'ctfWithMaterialTracksP5'
+tpToTkCosmic1LegSelMuonAssociation.UseTracker = True
+tpToTkCosmic1LegSelMuonAssociation.UseMuon = False
+tpToTkCosmic1LegSelMuonAssociation.EfficiencyCut_track = cms.double(0.5)
+tpToTkCosmic1LegSelMuonAssociation.PurityCut_track = cms.double(0.75)
+
+tpToStaCosmic1LegSelMuonAssociation.tpTag = 'mix:MergedTrackTruth'
+tpToStaCosmic1LegSelMuonAssociation.tracksTag = 'cosmicMuons1Leg'
+tpToStaCosmic1LegSelMuonAssociation.UseTracker = False
+tpToStaCosmic1LegSelMuonAssociation.UseMuon = True
+tpToStaCosmic1LegSelMuonAssociation.includeZeroHitMuons = False
+tpToStaCosmic1LegSelMuonAssociation.EfficiencyCut_muon = cms.double(0.5)
+tpToStaCosmic1LegSelMuonAssociation.PurityCut_muon = cms.double(0.75)
+
+tpToGlbCosmic1LegSelMuonAssociation.tpTag = 'mix:MergedTrackTruth'
+tpToGlbCosmic1LegSelMuonAssociation.tracksTag = 'globalCosmicMuons1Leg'
+tpToGlbCosmic1LegSelMuonAssociation.UseTracker = True
+tpToGlbCosmic1LegSelMuonAssociation.UseMuon = True
+tpToGlbCosmic1LegSelMuonAssociation.EfficiencyCut_track = cms.double(0.5)
+tpToGlbCosmic1LegSelMuonAssociation.PurityCut_track = cms.double(0.75)
+tpToGlbCosmic1LegSelMuonAssociation.EfficiencyCut_muon = cms.double(0.5)
+tpToGlbCosmic1LegSelMuonAssociation.PurityCut_muon = cms.double(0.75)
+tpToGlbCosmic1LegSelMuonAssociation.acceptOneStubMatchings = False
+tpToGlbCosmic1LegSelMuonAssociation.includeZeroHitMuons = False
 
 #
 # The full-sim association sequences
 #
 
 muonAssociation_seq = cms.Sequence(
-    extractedMuonTracks_seq
-    +seedsOfSTAmuons_seq
-    +probeTracks_seq+trackAssociatorByHits+(tpToTkMuonAssociation+tpToTkmuTrackAssociation)
-    +(tpToStaSeedAssociation+tpToStaMuonAssociation+tpToStaUpdMuonAssociation+tpToGlbMuonAssociation)
-#   +(tpToStaTrackAssociation+tpToStaUpdTrackAssociation+tpToGlbTrackAssociation)
+    probeTracks_seq+tpToTkMuonAssociation
+    +trackAssociatorByHits+tpToTkmuTrackAssociation
+    +seedsOfSTAmuons_seq+tpToStaSeedAssociation+tpToStaMuonAssociation+tpToStaUpdMuonAssociation
+    +extractedMuonTracks_seq+tpToGlbMuonAssociation
 )
+
 muonAssociationTEV_seq = cms.Sequence(
-    (tpToTevFirstMuonAssociation+tpToTevPickyMuonAssociation+tpToTevDytMuonAssociation)
-#    +(tpToTevFirstTrackAssociation+tpToTevPickyTrackAssociation)
+    tpToTevFirstMuonAssociation+tpToTevPickyMuonAssociation+tpToTevDytMuonAssociation
 )
-muonAssociationDisplaced_seq = cms.Sequence(seedsOfDisplacedSTAmuons_seq
- +(tpToDisplacedStaSeedAssociation+tpToDisplacedStaMuonAssociation)
- +(tpToDisplacedTrkMuonAssociation+tpToDisplacedGlbMuonAssociation)
+
+muonAssociationDisplaced_seq = cms.Sequence(
+    seedsOfDisplacedSTAmuons_seq+tpToDisplacedStaSeedAssociation+tpToDisplacedStaMuonAssociation
+    +tpToDisplacedTrkMuonAssociation+tpToDisplacedGlbMuonAssociation
 )
-muonAssociationRefit_seq = cms.Sequence(
-    (tpToStaRefitMuonAssociation+tpToStaRefitUpdMuonAssociation)
-)
-muonAssociationSET_seq = cms.Sequence(
-    (tpToStaSETMuonAssociation+tpToStaSETUpdMuonAssociation+tpToGlbSETMuonAssociation)
-#    +(tpToStaSETTrackAssociation+tpToStaSETUpdTrackAssociation+tpToGlbSETTrackAssociation)
-)
+
+muonAssociationRefit_seq = cms.Sequence(tpToStaRefitMuonAssociation+tpToStaRefitUpdMuonAssociation)
+
+muonAssociationSET_seq = cms.Sequence(tpToStaSETMuonAssociation+tpToStaSETUpdMuonAssociation+tpToGlbSETMuonAssociation)
+
 muonAssociationCosmic_seq = cms.Sequence(
-    (tpToTkCosmicMuonAssociation+tpToStaCosmicMuonAssociation+tpToGlbCosmicMuonAssociation)
-#    +(tpToTkCosmicTrackAssociation+tpToStaCosmicTrackAssociation+tpToGlbCosmicTrackAssociation)
+    tpToTkCosmicSelMuonAssociation+ tpToTkCosmic1LegSelMuonAssociation
+    +tpToStaCosmicSelMuonAssociation+tpToStaCosmic1LegSelMuonAssociation
+    +tpToGlbCosmicSelMuonAssociation+tpToGlbCosmic1LegSelMuonAssociation
 )
+
 muonAssociationHLT_seq = cms.Sequence(
-    (tpToL2MuonAssociation+tpToL2UpdMuonAssociation+tpToL3MuonAssociation+tpToL3TkMuonAssociation)
-#    +(tpToL2TrackAssociation+tpToL2UpdTrackAssociation+tpToL3TrackAssociation+tpToL3TkTrackTrackAssociation)
+    tpToL2MuonAssociation+tpToL2UpdMuonAssociation+tpToL3TkMuonAssociation+tpToL3MuonAssociation
 )
 
 
