@@ -147,7 +147,7 @@ namespace edm {
 
     // Handle classes
     TClass* theClass = TClass::GetClass(name.c_str());
-    if (theClass != nullptr && theClass->GetTypeInfo() != nullptr) {
+    if (theClass != nullptr) {
       return TypeWithDict(theClass, property);
     }
 
@@ -317,9 +317,7 @@ namespace edm {
     arrayDimensions_(nullptr),
     property_(property) {
     if(ti_ == nullptr) {
-      ti_ = &typeid(TypeWithDict::invalidType);
-      class_ = nullptr;
-      property_ = 0L;
+      ti_ = &typeid(TypeWithDict::dummyType);
     }
   }
 
@@ -696,6 +694,10 @@ namespace edm {
         value_ptr<std::vector<size_t> > emptyVec;
         newType.arrayDimensions_ = emptyVec;
       } else {
+        std::vector<size_t>& dims = *newType.arrayDimensions_;
+        for(size_t i = 0; i != size; ++i) {
+          dims[i] = dims[i+1];
+        }
         newType.arrayDimensions_->resize(size - 1);
       }
       return newType;
