@@ -7,7 +7,6 @@
 <use   name="boost_serialization"/>
 <use   name="roothistmatrix"/>
 
-<use   name="root"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -14,6 +14,9 @@
   <field name="m_scope" persistency="loose_on_reading" />
  </class>
 
+ <typedef name="ora::QueryableVector<cond::IOVElement>::store_base_type" />
+ <typedef name="ora::PVector<cond::IOVElement>::value_type" />
+ <enum name="cond::IOVSequence::ScopeType" />
 
  <class name="cond::IOVProvenance"/>
  <class name="cond::IOVDescription"/>
