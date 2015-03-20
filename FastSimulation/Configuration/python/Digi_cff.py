@@ -9,17 +9,29 @@ simMuonRPCDigis.InputCollection = 'MuonSimHitsMuonRPCHits'
 calDigi.remove(castorDigiSequence)
 
 # extend it with some digi2raw
-from Configuration.StandardSequences.DigiToRaw_cff import ecalPacker,esDigiToRaw,hcalRawData,rawDataCollector
-for _entry in [cms.InputTag("SiStripDigiToRaw"), cms.InputTag("castorRawData"),cms.InputTag("siPixelRawData")]:
-    rawDataCollector.RawCollectionList.remove(_entry)
+#from Configuration.StandardSequences.DigiToRaw_cff import ecalPacker,esDigiToRaw,hcalRawData,rawDataCollector
+#for _entry in [cms.InputTag("SiStripDigiToRaw"), cms.InputTag("castorRawData"),cms.InputTag("siPixelRawData")]:
+#    rawDataCollector.RawCollectionList.remove(_entry)
 
 # extend it with some raw2digi
-from Configuration.StandardSequences.RawToDigi_cff import ecalPreshowerDigis,ecalDigis,hcalDigis
+#from Configuration.StandardSequences.RawToDigi_cff import ecalPreshowerDigis,ecalDigis,hcalDigis
 
-calDigiToRawToDigi = cms.Sequence(ecalPacker+esDigiToRaw+hcalRawData+rawDataCollector+ecalPreshowerDigis+ecalDigis+hcalDigis)
-doAllDigi.replace(calDigi,calDigi+calDigiToRawToDigi)
+#calDigiToRawToDigi = cms.Sequence(ecalPacker+esDigiToRaw+hcalRawData+rawDataCollector+ecalPreshowerDigis+ecalDigis+hcalDigis)
+#doAllDigi.replace(calDigi,calDigi+calDigiToRawToDigi)
 
 # aliases for muons, to emulate digi2raw raw2digi
+
+#ecalPreshowerDigis  = cms.EDAlias(
+#    
+#    )
+
+#hcalDigis  = cms.EDAlias(
+#
+#    )
+
+#ecalDigis = cms.EDalias(
+
+"""
 muonDTDigis = cms.EDAlias(
     mix = cms.VPSet(
         cms.PSet(type = cms.string("DTLayerIdDTDigiMuonDigiCollection"))
@@ -43,6 +55,7 @@ muonCSCDigis = cms.EDAlias(
             )
         )
     )
+"""
 
 from FastSimulation.Tracking.GeneralTracksAlias_cfi import generalTracksAliasInfo
 generalTracks = cms.EDAlias(**{generalTracksAliasInfo.key.value():generalTracksAliasInfo.value})
