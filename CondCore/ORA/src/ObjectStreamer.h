@@ -4,7 +4,7 @@
 #include "IRelationalStreamer.h"
 #include "RelationalStreamerFactory.h"
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace ora {
 
@@ -14,15 +14,15 @@ namespace ora {
 
   class ObjectStreamerBase {
     public:
-    ObjectStreamerBase( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    ObjectStreamerBase( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
     virtual ~ObjectStreamerBase();
-    virtual void processDataMember( DataElement& dataElement, IRelationalData& relationalData, Reflex::Type& dataMemberType, MappingElement& dataMemberMapping, RelationalBuffer* operationBuffer ) = 0;
-    void buildBaseDataMembers( DataElement& dataElement, IRelationalData& relationalData, const Reflex::Type& objType, RelationalBuffer* operationBuffer );
+    virtual void processDataMember( DataElement& dataElement, IRelationalData& relationalData, edm::TypeWithDict& dataMemberType, MappingElement& dataMemberMapping, RelationalBuffer* operationBuffer ) = 0;
+    void buildBaseDataMembers( DataElement& dataElement, IRelationalData& relationalData, const edm::TypeWithDict& objType, RelationalBuffer* operationBuffer );
     bool buildDataMembers( DataElement& dataElement, IRelationalData& relationalData, RelationalBuffer* operationBuffer );
     protected:
     RelationalStreamerFactory m_streamerFactory;
     private:
-    Reflex::Type m_objectType;
+    edm::TypeWithDict m_objectType;
     MappingElement& m_mapping;
   };
   
@@ -30,7 +30,7 @@ namespace ora {
 
     public:
 
-      ObjectWriter( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+      ObjectWriter( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
       virtual ~ObjectWriter();
       
@@ -43,7 +43,7 @@ namespace ora {
 
     public:
 
-      void processDataMember( DataElement& dataElement, IRelationalData& relationalData, Reflex::Type& dataMemberType, MappingElement& dataMemberMapping, RelationalBuffer* operationBuffer );
+      void processDataMember( DataElement& dataElement, IRelationalData& relationalData, edm::TypeWithDict& dataMemberType, MappingElement& dataMemberMapping, RelationalBuffer* operationBuffer );
 
     private:
 
@@ -54,7 +54,7 @@ namespace ora {
 
     public:
 
-      ObjectUpdater( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+      ObjectUpdater( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
       virtual ~ObjectUpdater();
       
@@ -68,7 +68,7 @@ namespace ora {
 
     public:
 
-      void processDataMember( DataElement& dataElement, IRelationalData& relationalData, Reflex::Type& dataMemberType, MappingElement& dataMemberMapping, RelationalBuffer* operationBuffer );
+      void processDataMember( DataElement& dataElement, IRelationalData& relationalData, edm::TypeWithDict& dataMemberType, MappingElement& dataMemberMapping, RelationalBuffer* operationBuffer );
 
     private:
       
@@ -79,7 +79,7 @@ namespace ora {
 
       public:
 
-      ObjectReader( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+      ObjectReader( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
       virtual ~ObjectReader();
       
@@ -96,7 +96,7 @@ namespace ora {
 
     public:
 
-      void processDataMember( DataElement& dataElement, IRelationalData& relationalData, Reflex::Type& dataMemberType, MappingElement& dataMemberMapping, RelationalBuffer* operationBuffer );
+      void processDataMember( DataElement& dataElement, IRelationalData& relationalData, edm::TypeWithDict& dataMemberType, MappingElement& dataMemberMapping, RelationalBuffer* operationBuffer );
 
     private:
       
@@ -106,7 +106,7 @@ namespace ora {
   class ObjectStreamer : public IRelationalStreamer 
   {
     public:
-    ObjectStreamer( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    ObjectStreamer( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     ~ObjectStreamer();
 
@@ -117,7 +117,7 @@ namespace ora {
     IRelationalReader* newReader();
     
     private:
-    Reflex::Type m_objectType;
+    edm::TypeWithDict m_objectType;
     MappingElement& m_mapping;
     ContainerSchema& m_schema;
   }; 

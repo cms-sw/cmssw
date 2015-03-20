@@ -1,6 +1,8 @@
 #ifndef IOPool_TFileAdaptor_TFileAdaptor_h
 #define IOPool_TFileAdaptor_TFileAdaptor_h
 
+#include "boost/shared_ptr.hpp"
+
 #include <map>
 #include <string>
 #include <vector>
@@ -54,4 +56,25 @@ namespace edm {
     }
   }
 }
+
+/*
+ * wrapper to bind TFileAdaptor to root, python etc
+ * loading IOPoolTFileAdaptor library and instantiating
+ * TFileAdaptorUI will make root to use StorageAdaptor for I/O instead
+ * of its own plugins
+ */
+
+class TFileAdaptorUI {
+public:
+
+  TFileAdaptorUI();
+  ~TFileAdaptorUI();
+
+  // print current Storage statistics on cout
+  void stats() const;
+
+private:
+  boost::shared_ptr<TFileAdaptor> me;
+};
+
 #endif

@@ -3,7 +3,7 @@
 
 #include "IRelationalStreamer.h"
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace ora {
 
@@ -15,7 +15,7 @@ namespace ora {
   class BlobWriterBase  {
 
     public:
-    BlobWriterBase( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    BlobWriterBase( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
       virtual ~BlobWriterBase();
 
@@ -24,7 +24,7 @@ namespace ora {
       void bindData( const void* data );
 
     private:
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       MappingElement& m_mapping;
       int m_columnIndex;
       ContainerSchema& m_schema;
@@ -40,7 +40,7 @@ namespace ora {
   class BlobWriter : public BlobWriterBase, public IRelationalWriter {
     
     public:
-    BlobWriter( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    BlobWriter( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     virtual ~BlobWriter();
 
@@ -56,7 +56,7 @@ namespace ora {
   class BlobUpdater : public BlobWriterBase, public IRelationalUpdater {
     
     public:
-    BlobUpdater( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    BlobUpdater( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     virtual ~BlobUpdater();
 
@@ -71,7 +71,7 @@ namespace ora {
   class BlobReader : public IRelationalReader {
     
     public:
-    BlobReader( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    BlobReader( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     virtual ~BlobReader();
 
@@ -86,7 +86,7 @@ namespace ora {
     void clear();
 
     private:
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       MappingElement& m_mapping;
       int m_columnIndex;
       ContainerSchema& m_schema;
@@ -101,7 +101,7 @@ namespace ora {
   class BlobStreamer : public IRelationalStreamer 
   {
     public:
-    BlobStreamer( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    BlobStreamer( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     ~BlobStreamer();
 
@@ -112,7 +112,7 @@ namespace ora {
     IRelationalReader* newReader();
 
     private:
-    Reflex::Type m_objectType;
+    edm::TypeWithDict m_objectType;
     MappingElement& m_mapping;
     ContainerSchema& m_schema;
   }; 
