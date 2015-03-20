@@ -596,6 +596,18 @@ def _since_filter(time_type):
     return lambda since: since
 
 
+def listGTs_(args):
+    connection = connect(args)
+    session = connection.session()
+
+    output_table(args,
+        session.query(conddb.GlobalTag.name, conddb.GlobalTag.description, conddb.GlobalTag.release, conddb.GlobalTag.insertion_time).\
+            order_by(conddb.GlobalTag.insertion_time, conddb.GlobalTag.name).\
+            all(),
+        ['GT_name', 'Description', 'Release', 'Insertion_time'],
+    )
+
+
 def list_(args):
     connection = connect(args)
     session = connection.session()
@@ -1276,6 +1288,7 @@ def main():
     parser.add_argument('--nocolors', action='store_true', help='Disable colors. TODO: This is automatically done when the output is not connected to a terminal (e.g. a file).')
     parser.add_argument('--editor', '-e', default=None, help='Editor to use. Default: the content of the EDITOR environment variable.')
     parser.add_argument('--force', action='store_true', help='Force edit in official databases. Only meant for experts.')
+    parser.add_argument('--noLimit', action='store_true', help='Ignore the limit setting for the subcommand. This may generate a _lot_ of output and put some load on the DB, so please use with care.')
     parser_subparsers = parser.add_subparsers(title='Available subcommands')
 
     parser_help = parser_subparsers.add_parser('help', description='General help (manual page).')
@@ -1293,8 +1306,11 @@ def main():
     parser_list.add_argument('name', nargs='+', help="Name of the object. This can be a tag's name or a global tag's name. It must exactly match -- if needed, use the search command first to look for it.")
     parser_list.add_argument('--long', '-l', action='store_true', help='Long output. Lists the properties (e.g. description) of the objects as well (not only their content).')
     parser_list.add_argument('--snapshot', '-T', default=None, help="Snapshot time. If provided, the output will represent the state of the IOVs inserted into database up to the given time. The format of the string must be one of the following: '2013-01-20', '2013-01-20 10:11:12' or '2013-01-20 10:11:12.123123'.")
-    parser_list.add_argument('--limit', '-L', type=int, default=100, help='Limit on the number of IOVs returned. The returned results are the latest N IOVs. Only applies when listing tags.')
+    parser_list.add_argument('--limit', '-L', type=int, default=500, help='Limit on the number of IOVs returned. The returned results are the latest N IOVs. Only applies when listing tags.')
     parser_list.set_defaults(func=list_)
+
+    parser_listGTs = parser_subparsers.add_parser('listGTs', description='Lists the GTs available in the DB.')
+    parser_listGTs.set_defaults(func=listGTs_)
 
     parser_diff = parser_subparsers.add_parser('diff', description='Compares the contents of two objects. For tags, their IOVs are compared to determine which ranges have different payloads. For global tags, their tag names are compared. Both objects must be of the same type. If there is more than one valid pair (ambiguity), all diffs are listed.')
     parser_diff.add_argument('first', help="Name of the first object (i.e. source, old). This can be a tag's name or a global tag's name. It must exactly match -- if needed, use the search command first to look for it.")
@@ -1310,7 +1326,7 @@ def main():
     parser_search = parser_subparsers.add_parser('search', description='Searches various types of objects matching a case-insensitive string: tags (by name, object type and description), payloads (by SHA1 hash), global tags (by name, release and description) and records (by name, label and object type). The returned list is limited, by default, to 10 per type of object.')
     parser_search.add_argument('string', help='Search string. Case-insensitive.')
     parser_search.add_argument('--regexp', '-r', action='store_true', help='Regexp mode. The search string is a regular expression.')
-    parser_search.add_argument('--limit', '-L', type=int, default=10, help='Limit on the number of results per type of object. The returned results are the latest N inserted into the database.')
+    parser_search.add_argument('--limit', '-L', type=int, default=100, help='Limit on the number of results per type of object. The returned results are the latest N inserted into the database.')
     parser_search.set_defaults(func=search)
 
     parser_copy = parser_subparsers.add_parser('copy', description='Copies objects between databases. For tags, their dependent payloads are copied automatically if they do not exist in the destination database yet (or skipped if they already do). For global tags, their dependent tags are copied automatically if they do not exist in the destination database yet. However, if they exist, a warning is printed (TODO: do not print the warning if they do not differ).')
@@ -1348,6 +1364,11 @@ def main():
     )
 
     colors = Colors(args)
+
+    if args.noLimit:
+       args.limit = None
+       logging.info("noLimit specified, setting limit to %s" % str(args.limit))
+
 
     if args.verbose >= 1:
         # Include the traceback
