@@ -172,6 +172,10 @@ hltHiggsPostTTHbbej = hltHiggsPostProcessor.clone()
 hltHiggsPostTTHbbej.subDirs = ['HLT/Higgs/TTHbbej']
 hltHiggsPostTTHbbej.efficiencyProfile = efficiency_strings_TTHbbej
 
+hltHiggsPostAHttH = hltHiggsPostProcessor.clone()
+hltHiggsPostAHttH.subDirs = ['HLT/Higgs/AHttH']
+hltHiggsPostAHttH.efficiencyProfile = efficiency_strings
+
 #Specific plots for VBFHbb_2btag  
 #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
 NminOneCutNames = ("EffdEtaqq", "Effmqq", "EffdPhibb", "EffCSV1", "EffCSV2", "EffCSV3",  "EffmaxCSV", "", "", "TurnOn1", "TurnOn2", "TurnOn3", "TurnOn4")
@@ -290,6 +294,7 @@ hltHiggsPostProcessors = cms.Sequence(
         hltHiggsPostHtaunu+
         hltHiggsPostH2tau+
         hltHiggsPostTTHbbej+
+        hltHiggsPostAHttH+
         hltHiggsPostVBFHbb_0btag+
         hltHiggsPostVBFHbb_1btag+
         hltHiggsPostVBFHbb_2btag+
