@@ -23,7 +23,7 @@
   <class name="l1t::EGammaBxCollection"/>
   <class name="edm::Wrapper<l1t::EGammaBxCollection>"/>
 
-  <class name="l1t::EtSum" ClassVersion="12">
+  <class name="l1t::EtSum" ClassVersion="13">
    <version ClassVersion="13" checksum="914893879"/>
    <version ClassVersion="12" checksum="2853072620"/>
    <version ClassVersion="11" checksum="2043464580"/>
@@ -48,7 +48,7 @@
   <class name="l1t::MuonBxCollection"/>
   <class name="edm::Wrapper<l1t::MuonBxCollection>"/>
 
-  <class name="l1t::CaloSpare" ClassVersion="12">
+  <class name="l1t::CaloSpare" ClassVersion="13">
    <version ClassVersion="13" checksum="50826133"/>
    <version ClassVersion="12" checksum="3118488206"/>
    <version ClassVersion="11" checksum="2308880166"/>
@@ -57,13 +57,13 @@
   <class name="l1t::CaloSpareBxCollection"/>
   <class name="edm::Wrapper<l1t::CaloSpareBxCollection>"/>
 
-  <class name="l1extra::L1EmParticle" ClassVersion="12">
+  <class name="l1extra::L1EmParticle" ClassVersion="13">
    <version ClassVersion="13" checksum="3236372598"/>
    <version ClassVersion="12" checksum="3931086678"/>
    <version ClassVersion="11" checksum="711885342"/>
    <version ClassVersion="10" checksum="2019457791"/>
   </class>
-  <class name="l1extra::L1JetParticle" ClassVersion="12">
+  <class name="l1extra::L1JetParticle" ClassVersion="13">
    <version ClassVersion="13" checksum="2428218521"/>
    <version ClassVersion="12" checksum="4036782287"/>
    <version ClassVersion="11" checksum="979511831"/>
@@ -74,13 +74,13 @@
    <version ClassVersion="11" checksum="3788189108"/>
    <version ClassVersion="10" checksum="404862417"/>
   </class>
-  <class name="l1extra::L1EtMissParticle" ClassVersion="12">
+  <class name="l1extra::L1EtMissParticle" ClassVersion="13">
    <version ClassVersion="13" checksum="2570765761"/>
    <version ClassVersion="12" checksum="3702781837"/>
    <version ClassVersion="11" checksum="2391271061"/>
    <version ClassVersion="10" checksum="256436604"/>
   </class>
-  <class name="l1extra::L1ParticleMap" ClassVersion="10">
+  <class name="l1extra::L1ParticleMap" ClassVersion="11">
    <version ClassVersion="11" checksum="3029280877"/>
    <field name="indexCombosState_" transient="true"/>
    <version ClassVersion="10" checksum="72905536"/>

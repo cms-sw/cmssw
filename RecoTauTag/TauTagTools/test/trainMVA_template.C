@@ -9,12 +9,10 @@ void trainMVA()
              << "Example: if one of the inputs is 'NumberIsolationObjects' and this is always 0, " << endl
              << "(for whatever reason), this error will occur." << endl;
 
-	gSystem->Load("libCintex");
 	gSystem->Load("libPhysicsToolsMVAComputer");
 	gSystem->Load("libPhysicsToolsMVATrainer");
         gSystem->Load("pluginPhysicsToolsMVATrainerProcTMVA");
         gSystem->Load("pluginPhysicsToolsMVAComputerProcTMVA");
-	Cintex::Enable();
 
         using namespace PhysicsTools;
 

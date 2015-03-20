@@ -3,7 +3,9 @@
 
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "TEnum.h"
+#include "TEnumConstant.h"
+#include <cassert>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -21,10 +23,16 @@
    \date 04 Mar 2011
 */
 
-template <class MyType> 
-int StringToEnumValue(const std::string & enumMemberName){
-  edm::TypeWithDict dataType(typeid(MyType), kIsEnum);
-  return dataType.stringToEnumValue(enumMemberName);
+template <typename MyEnum>
+int StringToEnumValue(std::string const& enumConstName){
+   TEnum* en = TEnum::GetEnum(typeid(MyEnum));
+   if (en != nullptr){
+      if (TEnumConstant const* enc = en->GetConstant(enumConstName.c_str())){
+         return enc->GetValue();
+      }
+   }
+   assert(0);
+   return -1;
 }
 
 

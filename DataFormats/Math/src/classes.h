@@ -1,7 +1,6 @@
 #define G__DICTIONARY
-
-
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 #ifdef CMS_NOCXX11
 #define SMATRIX_USE_COMPUTATION
 #else
@@ -224,9 +223,6 @@ namespace DataFormats_Math {
     ROOT::Math::MatRepStd<double, 3 ,10> smdw;
     ROOT::Math::MatRepStd<double, 10 , 10> smdcw;
     ROOT::Math::MatRepStd<double, 2 , 3> smdcw1;
-
-    //Used by MET Significance matrix
-    ROOT::Math::SMatrix<double,2> smat;
 
     //Used by TauReco
     std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>,float> calotti_ppf;
