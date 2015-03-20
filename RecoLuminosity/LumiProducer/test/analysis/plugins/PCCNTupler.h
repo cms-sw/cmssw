@@ -5,8 +5,8 @@
  * ----------------------------------------------------------------------
  * PCCNTupler
  * ---------
- * Summary: The pixel clusters are summed in each 
- *          A lot has been copied from 
+ * Summary: The pixel clusters are summed per pixel module per lumi
+ *          lumi section.
  *
  * ----------------------------------------------------------------------
  * Author:  Chris Palmer
