@@ -87,8 +87,8 @@ class HLTProcess(object):
 
     self.labels = {}
     if self.config.fragment:
-      self.labels['process'] = ''
-      self.labels['dict']    = 'locals()'
+      self.labels['process'] = 'fragment.'
+      self.labels['dict']    = 'fragment.__dict__'
     else:
       self.labels['process'] = 'process.'
       self.labels['dict']    = 'process.__dict__'
@@ -116,8 +116,6 @@ class HLTProcess(object):
     else:
       args = ['--configName', self.config.menu.name ]
     args.append('--noedsources')
-    if self.config.fragment:
-      args.append('--cff')
     for key, vals in self.options.iteritems():
       if vals:
         args.extend(('--'+key, ','.join(vals)))
@@ -201,34 +199,20 @@ class HLTProcess(object):
 
   # dump the final configuration
   def dump(self):
-    return self.data % self.labels
+    self.data = self.data % self.labels
+    if self.config.fragment:
+      self.data = re.sub( r'\bprocess\b', 'fragment', self.data )
+      self.data = re.sub( r'\bProcess\b', 'ProcessFragment', self.data )
+    return self.data
 
 
   # add release-specific customizations
   def releaseSpecificCustomize(self):
-    # version specific customizations
-
+    # release-specific customizations now live in HLTrigger.Configuration.customizeHLTforCMSSW.customize()
     self.data += """
-#
-# CMSSW version specific customizations
-import os
-cmsswVersion = os.environ['CMSSW_VERSION']
-# Explicit deletions (via confdb.py):
-# None for now
-# Other release-dependent customisation:
-"""
-    if self.config.fragment:
-      self.data += """
-import imp
-customFile = imp.find_module('HLTrigger/Configuration/customizeHLTforCMSSW')[1]
-execfile(customFile)
-#
-"""
-    else:
-      self.data += """
-from HLTrigger.Configuration.CustomConfigs import customizeHLTforCMSSW
-process = customizeHLTforCMSSW(process)
-#
+# add release-specific customizations
+from HLTrigger.Configuration.customizeHLTforCMSSW import customise
+process = customise(process)
 """
 
   # customize the configuration according to the options
@@ -284,7 +268,6 @@ process = customizeHLTforCMSSW(process)
     self.releaseSpecificCustomize()
 
     if self.config.fragment:
-
       self.data += """
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
@@ -420,14 +403,14 @@ process = customizeHLTforMC(process)
 
   def fixForFastSim(self):
     if self.config.fastsim:
-      # adapt the hle configuration (fragment) to run under fastsim
-      self.data = re.sub( r'import FWCore.ParameterSet.Config as cms', r'\g<0>\nfrom FastSimulation.HighLevelTrigger.HLTSetup_cff import *', self.data)
+      # adapt the the configuration fragment to run under fastsim
+      self.data = re.compile( r'process = cms\.Process.*$', re.MULTILINE ).sub( r'\g<0>\n\nprocess.load( "FastSimulation.HighLevelTrigger.HLTSetup_cff" )', self.data)
 
       # remove the definition of streams and datasets
-      self.data = re.compile( r'^streams.*\n(.*\n)*?^\)\s*\n',  re.MULTILINE ).sub( '', self.data )
-      self.data = re.compile( r'^datasets.*\n(.*\n)*?^\)\s*\n', re.MULTILINE ).sub( '', self.data )
+      self.data = re.compile( r'^process\.streams.*\n(.*\n)*?^\)\s*\n',  re.MULTILINE ).sub( '', self.data )
+      self.data = re.compile( r'^process\.datasets.*\n(.*\n)*?^\)\s*\n', re.MULTILINE ).sub( '', self.data )
 
-      # fix the definition of module
+      # fix the definition of some modules
       # FIXME: this should be updated to take into accout the --l1-emulator option
       self._fix_parameter(                               type = 'InputTag', value = 'hltL1extraParticles',  replace = 'l1extraParticles')
       self._fix_parameter(name = 'GMTReadoutCollection', type = 'InputTag', value = 'hltGtDigis',           replace = 'simGmtDigis')
@@ -448,11 +431,11 @@ process = customizeHLTforMC(process)
       self._fix_parameter(                               type = 'InputTag', value = 'hltSiStripClusters', replace = 'MeasurementTrackerEvent')
 
       # fix the definition of sequences and paths
-      self.data = re.sub( r'hltMuonCSCDigis', r'cms.SequencePlaceholder( "simMuonCSCDigis" )',  self.data )
-      self.data = re.sub( r'hltMuonDTDigis',  r'cms.SequencePlaceholder( "simMuonDTDigis" )',   self.data )
-      self.data = re.sub( r'hltMuonRPCDigis', r'cms.SequencePlaceholder( "simMuonRPCDigis" )',  self.data )
-      self.data = re.sub( r'HLTEndSequence',  r'cms.SequencePlaceholder( "HLTEndSequence" )',   self.data )
-      self.data = re.sub( r'hltGtDigis',      r'HLTBeginSequence',                              self.data )
+      self.data = re.sub( r'process.hltMuonCSCDigis', r'cms.SequencePlaceholder( "simMuonCSCDigis" )',  self.data )
+      self.data = re.sub( r'process.hltMuonDTDigis',  r'cms.SequencePlaceholder( "simMuonDTDigis" )',   self.data )
+      self.data = re.sub( r'process.hltMuonRPCDigis', r'cms.SequencePlaceholder( "simMuonRPCDigis" )',  self.data )
+      self.data = re.sub( r'process.HLTEndSequence',  r'cms.SequencePlaceholder( "HLTEndSequence" )',   self.data )
+      self.data = re.sub( r'hltGtDigis',              r'HLTBeginSequence',                              self.data )
 
 
   def fixPrescales(self):
