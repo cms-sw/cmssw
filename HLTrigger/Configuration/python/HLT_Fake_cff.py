@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_4_0/Fake/V4 (CMSSW_7_4_0_pre7_HLT3)
+# /dev/CMSSW_7_4_0/Fake/V5 (CMSSW_7_4_0_pre7_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/Fake/V4')
+  tableName = cms.string('/dev/CMSSW_7_4_0/Fake/V5')
 )
 
 streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )

@@ -23,35 +23,13 @@ public:
 
   SeedFromConsecutiveHitsCreator( const edm::ParameterSet & cfg)
       : thePropagatorLabel                (cfg.getParameter<std::string>("propagator"))
-      , theBOFFMomentum                   (cfg.existsAs<double>("SeedMomentumForBOFF") ? cfg.getParameter<double>("SeedMomentumForBOFF") : 5.0)
-      , theOriginTransverseErrorMultiplier(cfg.existsAs<double>("OriginTransverseErrorMultiplier") ? cfg.getParameter<double>("OriginTransverseErrorMultiplier") : 1.0)
-      , theMinOneOverPtError              (cfg.existsAs<double>("MinOneOverPtError") ? cfg.getParameter<double>("MinOneOverPtError") : 1.0)
-      , TTRHBuilder                       (cfg.existsAs<std::string>("TTRHBuilder") ? cfg.getParameter<std::string>("TTRHBuilder") : std::string("WithTrackAngle"))
-  // 2014/02/11 mia:
-  // we should get rid of the boolean parameter useSimpleMF,
-  // and use only a string magneticField [instead of SimpleMagneticField]
-  // or better an edm::ESInputTag (at the moment HLT does not handle ESInputTag)
-      , useSimpleMF_(false)
-      , mfName_("")
-      , forceKinematicWithRegionDirection_(cfg.existsAs<bool>("forceKinematicWithRegionDirection") ? cfg.getParameter<bool>("forceKinematicWithRegionDirection") : false)
-    {
-      if (cfg.exists("SimpleMagneticField")) {
-	useSimpleMF_ = true;
-	mfName_ = cfg.getParameter<std::string>("SimpleMagneticField");
-      }
-    }
-
-  SeedFromConsecutiveHitsCreator(
-      const std::string & propagator = "PropagatorWithMaterial", double seedMomentumForBOFF = -5.0,
-      double aOriginTransverseErrorMultiplier = 1.0, double aMinOneOverPtError = 1.0, const std::string & bname="WithTrackAngle")
-      : thePropagatorLabel(propagator)
-      , theBOFFMomentum(seedMomentumForBOFF)
-      , theOriginTransverseErrorMultiplier(aOriginTransverseErrorMultiplier)
-      , theMinOneOverPtError(aMinOneOverPtError)
-      , TTRHBuilder(bname)
-      , useSimpleMF_(false)
-      , forceKinematicWithRegionDirection_(false)
-  { }
+      , theBOFFMomentum                   (cfg.getParameter<double>("SeedMomentumForBOFF"))
+      , theOriginTransverseErrorMultiplier(cfg.getParameter<double>("OriginTransverseErrorMultiplier"))
+      , theMinOneOverPtError              (cfg.getParameter<double>("MinOneOverPtError"))
+      , TTRHBuilder                       (cfg.getParameter<std::string>("TTRHBuilder"))
+      , mfName_(cfg.getParameter<std::string>("magneticField"))
+      , forceKinematicWithRegionDirection_(cfg.getParameter<bool>("forceKinematicWithRegionDirection"))
+      {}
 
   //dtor
   virtual ~SeedFromConsecutiveHitsCreator();
@@ -103,7 +81,6 @@ protected:
   float nomField;
   bool isBOFF = false;
   std::string TTRHBuilder;
-  bool useSimpleMF_;
   std::string mfName_;
   bool forceKinematicWithRegionDirection_;
 
