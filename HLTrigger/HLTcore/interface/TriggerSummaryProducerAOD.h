@@ -12,7 +12,7 @@
  */
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -49,6 +49,9 @@
 #include <string>
 #include <vector>
 
+#include <functional>
+#include "tbb/concurrent_unordered_set.h"
+
 namespace edm {
   class EventSetup;
 }
@@ -61,16 +64,34 @@ namespace edm {
 // class declaration
 //
 
-class TriggerSummaryProducerAOD : public edm::EDProducer {
+/// GlobalCache
+struct InputTagHash {
+  std::size_t operator()(const edm::InputTag& inputTag) const {
+    std::hash<std::string> Hash;
+    // bit-wise xor
+    return Hash(inputTag.label()) ^ Hash(inputTag.instance()) ^ Hash(inputTag.process());
+  }
+};
+struct GlobalInputTags {
+  GlobalInputTags(): filterTagsGlobal_(),collectionTagsGlobal_(){ }
+  mutable tbb::concurrent_unordered_set<edm::InputTag,InputTagHash> filterTagsGlobal_;
+  mutable tbb::concurrent_unordered_set<edm::InputTag,InputTagHash> collectionTagsGlobal_;
+};
+ 
+class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCache<GlobalInputTags>> {
   
  public:
-  explicit TriggerSummaryProducerAOD(const edm::ParameterSet&);
+  explicit TriggerSummaryProducerAOD(const edm::ParameterSet&, const GlobalInputTags *);
   ~TriggerSummaryProducerAOD();
   static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endStream() override;
+  static  void globalEndJob(const GlobalInputTags *);
 
   // additional
+  static std::unique_ptr<GlobalInputTags> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::unique_ptr<GlobalInputTags> (new GlobalInputTags());
+  };
 
   template <typename C>
   void fillTriggerObjectCollections(const edm::Event&, edm::GetterOfProducts<C>& );
@@ -118,11 +139,11 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
 
   /// list of L3 filter tags
   InputTagSet filterTagsEvent_;
-  InputTagSet filterTagsGlobal_;
+  InputTagSet filterTagsStream_;
 
   /// list of L3 collection tags
   InputTagSet collectionTagsEvent_;
-  InputTagSet collectionTagsGlobal_;
+  InputTagSet collectionTagsStream_;
 
   /// trigger object collection
   trigger::TriggerObjectCollection toc_;
