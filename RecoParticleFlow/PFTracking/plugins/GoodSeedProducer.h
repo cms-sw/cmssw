@@ -136,6 +136,7 @@ class GoodSeedProducer final : public edm::stream::EDProducer<> {
       std::string fitterName_;
       std::string smootherName_;
       std::string propagatorName_;
+      std::string trackerRecHitBuilderName_;
 
       std::unique_ptr<PFResolutionMap> resMapEtaECAL_;
       std::unique_ptr<PFResolutionMap> resMapPhiECAL_;
