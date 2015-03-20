@@ -18,12 +18,16 @@
 #include "EgammaAnalysis/ElectronTools/interface/SimpleElectron.h"
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEPcombinator.h"
 //#include "EgammaAnalysis/ElectronTools/interface/ElectronEnergyCalibrator.h"
+
+#include "PhysicsTools/Heppy/interface/PdfWeightProducerTool.h"
+
 #include <vector>
 namespace {
   struct heppy_dictionary {
     heppy::BTagSF  bTagSF_; 
     heppy::RochCor rc_;
     heppy::RochCor2012 rc2012_;
+    heppy::PdfWeightProducerTool  pdfw_; 
     heppy::FSRWeightAlgo walgo_;
     heppy::TriggerBitChecker checker;
     heppy::CMGMuonCleanerBySegmentsAlgo cmgMuonCleanerBySegmentsAlgo;
