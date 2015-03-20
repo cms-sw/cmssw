@@ -105,6 +105,7 @@ private :
   void setNiceStyle();
   void setCanvasStyle( TCanvas& canv );
   void setLegendStyle( TLegend& leg );
+  void scaleXaxis(TH1* hist, Int_t scale);
   TObject* findObjectFromCanvas(TCanvas* canv, const char* className, Int_t n=1);
 
   TString outputFile;

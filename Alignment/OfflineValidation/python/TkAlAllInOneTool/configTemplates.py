@@ -173,6 +173,10 @@ cd .oO[CMSSW_BASE]Oo./src
 export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scramv1 ru -sh`
 
+#create results-directory and copy used configuration there
+rfmkdir -p .oO[datadir]Oo.
+rfcp .oO[logdir]Oo./usedConfiguration.ini .oO[datadir]Oo.
+
 if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
 then
     mkdir -p .oO[workdir]Oo.
@@ -200,11 +204,6 @@ done
 .oO[RunExtendedOfflineValidation]Oo.
 .oO[RunTrackSplitPlot]Oo.
 
-for file in $(ls -d --color=never *_result.root)
-do
-    cmsStage -f ${file} /store/caf/user/$USER/.oO[eosdir]Oo.
-done
-
 # clean-up
 # ls -l *.root
 rm -f *.root
@@ -219,10 +218,22 @@ find . -name "*.stdout" -exec gzip -f {} \;
 ######################################################################
 ######################################################################
 compareAlignmentsExecution="""
-#merge for .oO[validationId]Oo.
-cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/compareAlignments.cc .
-root -q -b 'compareAlignments.cc++(\".oO[compareStrings]Oo.\")'
-mv result.root .oO[validationId]Oo._result.root
+#merge for .oO[validationId]Oo. if it does not exist or is not up-to-date
+echo -e "\n\nComparing validations"
+cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/compareFileAges.C .
+root -x -q -b -l "compareFileAges.C(\\\"root://eoscms.cern.ch//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./.oO[validationId]Oo._result.root\\\", \\\".oO[compareStringsPlain]Oo.\\\")"
+comparisonNeeded=${?}
+
+if [[ ${comparisonNeeded} -eq 1 ]]
+then
+    cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/compareAlignments.cc .
+    root -x -q -b -l 'compareAlignments.cc++(\".oO[compareStrings]Oo.\")'
+    mv result.root .oO[validationId]Oo._result.root
+    cmsStage -f .oO[validationId]Oo._result.root /store/caf/user/$USER/.oO[eosdir]Oo.
+else
+    echo ".oO[validationId]Oo._result.root is up-to-date, no need to compare again."
+    cmsStage -f /store/caf/user/$USER/.oO[eosdir]Oo./.oO[validationId]Oo._result.root .
+fi
 """
 
 
@@ -230,6 +241,7 @@ mv result.root .oO[validationId]Oo._result.root
 ######################################################################
 extendedValidationExecution="""
 #run extended offline validation scripts
+echo -e "\n\nRunning extended offline validation"
 if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
 then
     rfmkdir -p .oO[workdir]Oo./ExtendedOfflineValidation_Images
@@ -239,17 +251,19 @@ fi
 
 rfcp .oO[extendeValScriptPath]Oo. .
 rfcp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C .
-root -x -b -q TkAlExtendedOfflineValidation.C
+root -x -b -q -l TkAlExtendedOfflineValidation.C
 rfmkdir -p .oO[datadir]Oo./ExtendedOfflineValidation_Images
 
 if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
 then
     image_files=$(ls --color=never | find .oO[workdir]Oo./ExtendedOfflineValidation_Images/ -name \*ps -o -name \*root)
-    echo ${image_files}
+    echo -e "\n\nProduced plot files:"
+    #echo ${image_files}
     ls .oO[workdir]Oo./ExtendedOfflineValidation_Images
 else
     image_files=$(ls --color=never | find ExtendedOfflineValidation_Images/ -name \*ps -o -name \*root)
-    echo ${image_files}
+    echo -e "\n\nProduced plot files:"
+    #echo ${image_files}
     ls ExtendedOfflineValidation_Images
 fi
 
