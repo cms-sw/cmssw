@@ -46,7 +46,6 @@ class HLTProcess(object):
     "HLT_HcalUTCA_v*",
 
     # TODO: paths not supported by FastSim, but for which a recovery should be attempted
-
     "HLT_DoubleMu33NoFiltersNoVtx_v*",
     "HLT_DoubleMu38NoFiltersNoVtx_v*",
     "HLT_Mu38NoFiltersNoVtx_Photon38_CaloIdL_v*",
@@ -64,8 +63,9 @@ class HLTProcess(object):
     "HLT_HT550_DisplacedDijet40_Inclusive_v*",
     "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*",
     "HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_v*",
-    "HLT_VBF_DisplacedJet40_TightID_Hadronic_v*"
-
+    "HLT_VBF_DisplacedJet40_TightID_Hadronic_v*",
+    "HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v*",
+    "HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v*",
   )
 
   def __init__(self, configuration):
