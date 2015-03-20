@@ -286,10 +286,7 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
         if self.config.type in ('50nsGRun',) :
           self.data += """
 # load 2015 Run-2 L1 Menu for 50ns
-# move to the 50ns v0 L1 menu once the 50ns HLT has been updated accordingly
-# from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v0 as loadL1Menu
-# until then use the 25ns L1 menu
-from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1Menu
+from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v1 as loadL1Menu
 process = loadL1Menu(process)
 """
         elif self.config.type in ('HIon',) :
