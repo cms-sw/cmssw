@@ -202,7 +202,6 @@ private:
   edm::EDGetTokenT<reco::RecoToSimCollection> recoRecoToSimCollectionToken_;
   edm::EDGetTokenT<reco::SimToRecoCollection> recoSimToRecoCollectionToken_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollection_Eff_Token_;
-  edm::EDGetTokenT< edm::View<reco::Track> > edmView_recoTrack_Token_;
   edm::EDGetTokenT< std::vector<reco::Vertex> > vec_recoVertex_Token_;
   edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> recoVertexCompositeCandidateCollection_k0s_Token_, recoVertexCompositeCandidateCollection_lambda_Token_;
 };

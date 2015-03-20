@@ -31,7 +31,6 @@ V0Validator::V0Validator(const edm::ParameterSet& iConfig)
   , recoRecoToSimCollectionToken_( consumes<reco::RecoToSimCollection>( iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap") ) )
   , recoSimToRecoCollectionToken_( consumes<reco::SimToRecoCollection>( iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap") ) )
   , trackingParticleCollection_Eff_Token_( consumes<TrackingParticleCollection>( iConfig.getUntrackedParameter<edm::InputTag>("trackingParticleCollectionEff") ) )
-  , edmView_recoTrack_Token_( consumes< edm::View<reco::Track> >( iConfig.getUntrackedParameter<edm::InputTag>("trackCollection") ) )
   , vec_recoVertex_Token_( consumes< std::vector<reco::Vertex> >( iConfig.getUntrackedParameter<edm::InputTag>("vertexCollection") ) )
   , recoVertexCompositeCandidateCollection_k0s_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getUntrackedParameter<edm::InputTag>( "kShortCollection" ) ) )
   , recoVertexCompositeCandidateCollection_lambda_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getUntrackedParameter<edm::InputTag>( "lambdaCollection" ) ) )
@@ -283,11 +282,6 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle<TrackingParticleCollection>  TPCollectionEff ;
   iEvent.getByToken( trackingParticleCollection_Eff_Token_, TPCollectionEff );
   const TrackingParticleCollection& tPCeff = *( TPCollectionEff.product() );
-
-  // Get tracks
-  Handle< View<reco::Track> > trackCollectionH;
-  iEvent.getByToken( edmView_recoTrack_Token_, trackCollectionH );
-  const View<reco::Track>& tC = *( trackCollectionH.product() );
 
   // Select the primary vertex, create a new reco::Vertex to hold it
   edm::Handle< std::vector<reco::Vertex> > primaryVtxCollectionH;
