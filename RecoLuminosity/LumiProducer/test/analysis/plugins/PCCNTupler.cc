@@ -1,16 +1,6 @@
 // ----------------------------------------------------------------------
 // PCCNTupler
 // ---------
-// Summary: The full pixel information, including tracks and cross references
-//          A lot has been copied from 
-//            DPGAnalysis/SiPixelTools/plugins/PixelNtuplizer_RealData.cc
-//            DQM/SiPixelMonitorTrack/src/SiPixelTrackResidualSource.cc
-//
-// ----------------------------------------------------------------------
-// Send all questions, wishes and complaints to the 
-//
-// Author:  Urs Langenegger (PSI)
-// ----------------------------------------------------------------------
 
 #include <memory>
 #include <string>
