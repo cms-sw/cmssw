@@ -147,7 +147,7 @@ namespace edm {
 
     // Handle classes
     TClass* theClass = TClass::GetClass(name.c_str());
-    if (theClass != nullptr) {
+    if (theClass != nullptr && theClass->GetTypeInfo() != nullptr) {
       return TypeWithDict(theClass, property);
     }
 
@@ -210,11 +210,17 @@ namespace edm {
     }
 
     // For a reason not understood, TClass::GetClass sometimes cannot find std::vector<T>::value_type
-    // when T is a nested class.
+    // or std::map<X,T>::value_type when T is a nested class.
+    // This workaround bypasses the problem. The problem really should be debugged.
     if(stripNamespace(name) == "value_type") {
       size_t begin = name.find('<');
       size_t end = name.rfind('>');
       if(begin != std::string::npos && end != std::string::npos && end > ++begin) {
+        size_t amap = name.find("map");
+        if(amap != std::string::npos && amap < begin) {
+           ++end;
+           return TypeWithDict::byName(std::string("std::pair<const ") + name.substr(begin, end - begin), property);
+        }
         return TypeWithDict::byName(name.substr(begin, end - begin), property);
       }
     }
@@ -317,7 +323,9 @@ namespace edm {
     arrayDimensions_(nullptr),
     property_(property) {
     if(ti_ == nullptr) {
-      ti_ = &typeid(TypeWithDict::dummyType);
+      ti_ = &typeid(TypeWithDict::invalidType);
+      class_ = nullptr;
+      property_ = 0L;
     }
   }
 
