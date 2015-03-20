@@ -126,7 +126,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   explicit PrimaryVertexAnalyzer4PUSlimmed(const edm::ParameterSet&);
   ~PrimaryVertexAnalyzer4PUSlimmed();
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void bookHistograms(DQMStore::IBooker &i,
                               edm::Run const&,
                               edm::EventSetup const&) override;
