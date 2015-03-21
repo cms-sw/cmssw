@@ -80,8 +80,7 @@ from L1Trigger.Configuration.customise_overwriteL1Menu import *
 
 def customiseSimL1EmulatorForPostLS1_50ns(process):
     # move to the 50ns v0 L1 menu once the HLT has been updated accordingly
-    #process = L1Menu_Collisions2015_50ns_v0(process)
-    process = L1Menu_Collisions2015_25ns_v2(process)
+    process = L1Menu_Collisions2015_50ns_v1(process)
     return process
 
 def customiseSimL1EmulatorForPostLS1_25ns(process):

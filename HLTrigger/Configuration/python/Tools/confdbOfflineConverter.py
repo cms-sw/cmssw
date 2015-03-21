@@ -61,7 +61,17 @@ class OfflineConverter:
                 atexit.register(shutil.rmtree, self.workDir)
             # download the .jar files
             for jar in self.jars:
-                urllib.urlretrieve(self.baseUrl + '/' + jar, self.workDir + '/' + jar)
+                # check if the file is already present
+                if os.path.exists(self.workDir + '/' + jar):
+                    continue
+                # download to a temporay name and use an atomic rename (in case an other istance is downloading the same file
+                handle, temp = tempfile.mkstemp(dir = self.workDir, prefix = jar + '.')
+                os.close(handle)
+                urllib.urlretrieve(self.baseUrl + '/' + jar, temp)
+                if not os.path.exists(self.workDir + '/' + jar):
+                    os.rename(temp, self.workDir + '/' + jar)
+                else:
+                    os.unlink(temp)
 
         # setup the java command line and CLASSPATH
         if self.verbose:
