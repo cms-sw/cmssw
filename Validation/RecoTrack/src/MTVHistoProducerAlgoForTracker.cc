@@ -638,7 +638,6 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
 								   double dR){
 
   //Fill track algo histogram
-  //  if (track.algo()>=4 && track.algo()<=14) fillPlotNoFlow(h_algo[count],track.algo()-4);
   fillPlotNoFlow(h_algo[count],track.algo());
   int sharedHits = sharedFraction *  track.numberOfValidHits();
 

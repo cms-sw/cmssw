@@ -150,8 +150,8 @@ void ElectronConversionRejectionValidator::bookHistograms(DQMStore::IBooker & ib
   h_convLog10TrailTrackpt_ = ibooker.book1D("convLog10TrailTrackpt", "# of Electrons",
       ptBin, -2.0, 3.0);
 
-  h_convLeadTrackAlgo_ = ibooker.book1D("convLeadTrackAlgo", "# of Electrons", 31, -0.5, 30.5);
-  h_convTrailTrackAlgo_ = ibooker.book1D("convLeadTrackAlgo", "# of Electrons", 31, -0.5, 30.5);
+  h_convLeadTrackAlgo_ = ibooker.book1D("convLeadTrackAlgo", "# of Electrons", reco::TrackBase::algoSize, -0.5, reco::TrackBase::algoSize-0.5);
+  h_convTrailTrackAlgo_ = ibooker.book1D("convLeadTrackAlgo", "# of Electrons", reco::TrackBase::algoSize, -0.5, reco::TrackBase::algoSize-0.5);
 }
 
 void ElectronConversionRejectionValidator::analyze( const edm::Event& e, const edm::EventSetup& esup ) {

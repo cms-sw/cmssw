@@ -269,7 +269,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      
 	      int nexhits = refKf->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
 	      
-	      unsigned int Algo = 0;
+	      reco::TrackBase::TrackAlgorithm Algo = reco::TrackBase::undefAlgorithm;
 	      if (refKf.isNonnull()) 
 		Algo = refKf->algo(); 
 	      
@@ -281,7 +281,16 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 		}
 	      }
 	      
-	      if(Algo < 9 && nexhits == 0 && trackIsFromPrimaryVertex) {
+	      if((Algo == reco::TrackBase::undefAlgorithm ||
+	          Algo == reco::TrackBase::ctf ||
+	          Algo == reco::TrackBase::rs ||
+	          Algo == reco::TrackBase::cosmics ||
+	          Algo == reco::TrackBase::initialStep ||
+	          Algo == reco::TrackBase::lowPtTripletStep ||
+	          Algo == reco::TrackBase::pixelPairStep ||
+	          Algo == reco::TrackBase::detachedTripletStep ||
+	          Algo == reco::TrackBase::mixedTripletStep)
+	         && nexhits == 0 && trackIsFromPrimaryVertex) {
 		localactive[ecalKf_index] = false;
 	      } else {
 		fifthStepKfTrack_.push_back(make_pair(ecalKf_index,trackIs[iEle]));
