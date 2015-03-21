@@ -69,7 +69,7 @@ def miniAOD_customizeCommon(process):
 
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 
-    from PhysicsTools.PatAlgos.slimming.applySubstructure_cfi import applySubstructure
+    from PhysicsTools.PatAlgos.slimming.applySubstructure_cff import applySubstructure
     applySubstructure( process )
 
         
