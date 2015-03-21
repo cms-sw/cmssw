@@ -710,7 +710,7 @@ DQMFileSaver::globalEndLuminosityBlock(const edm::LuminosityBlock & iLS, const e
     // by testing the pointer to FastMonitoringService: if not null, i.e. in real FU mode,
     // we check that the events are not 0; otherwise, we skip the test, so we store at every lumi transition. 
     // TODO(diguida): allow fake FU mode to skip file creation at empty lumi sections.
-    if (convention_ == FilterUnit)
+    if (convention_ == FilterUnit && (fms_ ? !fms_->getAbortFlagForLumi(ilumi) : !fms_))
     {
       char rewrite[128];
       sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun, ilumi, ilumi);
