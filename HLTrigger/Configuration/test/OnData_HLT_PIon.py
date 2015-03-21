@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/PIon/V24 (CMSSW_7_4_0_pre7_HLT4)
+# /dev/CMSSW_7_4_0/PIon/V26 (CMSSW_7_4_0_pre7_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V24')
+  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V26')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -389,8 +389,8 @@ process.HLTPSetPvClusterComparerForIT = cms.PSet(
   track_prob_min = cms.double( -1.0 )
 )
 process.HLTSiStripClusterChargeCutNone = cms.PSet(  value = cms.double( -1.0 ) )
-process.HLTSiStripClusterChargeCutLoose = cms.PSet(  value = cms.double( 1724.0 ) )
-process.HLTSiStripClusterChargeCutTight = cms.PSet(  value = cms.double( 2069.0 ) )
+process.HLTSiStripClusterChargeCutLoose = cms.PSet(  value = cms.double( 1620.0 ) )
+process.HLTSiStripClusterChargeCutTight = cms.PSet(  value = cms.double( 1945.0 ) )
 process.HLTSeedFromConsecutiveHitsCreatorIT = cms.PSet( 
   ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
   propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
@@ -8538,6 +8538,8 @@ process.DQMOutput = cms.EndPath( process.dqmOutput )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
 
 
+process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_CaloJet260_v1, process.HLT_Ele27_eta2p1_WP75_Gsf_v1, process.HLT_Mu50_v1, process.HLT_PFJet260_v1, process.HLT_Photon20_CaloIdVL_IsoL_v1, process.HLT_Physics_v1, process.HLTriggerFinalPath, process.AOutput, process.DQMOutput, process.HLTAnalyzerEndpath ))
+
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
@@ -8548,17 +8550,9 @@ process.source = cms.Source( "PoolSource",
     )
 )
 
-#
-# CMSSW version specific customizations
-import os
-cmsswVersion = os.environ['CMSSW_VERSION']
-# Explicit deletions (via confdb.py):
-# None for now
-# Other release-dependent customisation:
-
-from HLTrigger.Configuration.CustomConfigs import customizeHLTforCMSSW
-process = customizeHLTforCMSSW(process)
-#
+# add release-specific customizations
+from HLTrigger.Configuration.customizeHLTforCMSSW import customise
+process = customise(process)
 
 # load 2015 Run-2 L1 Menu for 25ns (default for GRun, PIon)
 from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1menu
