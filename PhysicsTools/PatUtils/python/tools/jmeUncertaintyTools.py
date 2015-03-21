@@ -89,6 +89,8 @@ class JetMEtUncertaintyTools(ConfigToolBase):
             finalCut = cms.string('')
         )
         numOverlapCollections = 0
+        radius = 0.5
+        if "ak4" in jetCollection.moduleLabel.lower(): radius=0.4
         for collection in [
             [ 'electrons', electronCollection ],
             [ 'photons',   photonCollection   ],
@@ -99,7 +101,7 @@ class JetMEtUncertaintyTools(ConfigToolBase):
                     src                 = collection[1],
                     algorithm           = cms.string("byDeltaR"),
                     preselection        = cms.string(""),
-                    deltaR              = cms.double(0.5),
+                    deltaR              = cms.double(radius),
                     checkRecoComponents = cms.bool(False),
                     pairCut             = cms.string(""),
                     requireNoOverlaps   = cms.bool(True),
