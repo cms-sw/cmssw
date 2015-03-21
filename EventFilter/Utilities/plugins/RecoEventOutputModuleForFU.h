@@ -245,8 +245,13 @@ namespace evf {
     long filesize=0;
     fileAdler32_.value() = c_->get_adler32();
     c_->closeOutputFile();
-    processed_.value() = fms_->getEventsProcessedForLumi(ls.luminosityBlock());
+    bool abortFlag = false;
+    processed_.value() = fms_->getEventsProcessedForLumi(ls.luminosityBlock(),&abortFlag);
 
+    if (abortFlag) {
+        edm::LogInfo("RecoEventOutputModuleForFU") << "output suppressed";
+        return;
+    }
 
     if(processed_.value()!=0){
 
