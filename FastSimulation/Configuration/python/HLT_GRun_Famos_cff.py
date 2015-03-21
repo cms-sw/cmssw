@@ -17,7 +17,6 @@ hltEcalPreshowerRecHit = cms.EDAlias(
         )
     )
 
-
 hltEcalRecHit = cms.EDAlias(
     ecalRecHit = cms.VPSet(
         cms.PSet(
@@ -55,3 +54,20 @@ hltHfreco = cms.EDAlias(
     )
 
 hltEcalRegionalPi0RecHit = cms.EDAlias(ecalRecHit = hltEcalRecHit.ecalRecHit)
+
+
+hltEcalRecHit.killDeadChannels = False
+hltEcalRecHit.recoverEBFE = False
+hltEcalRecHit.recoverEEFE = False
+
+
+# remove digi producers from the HLT sequences                                                                                                                                                   
+_toremove = [hltEcalPreshowerDigis,hltEcalDigis,hltEcalDetIdToBeRecovered ]
+for _key,_value in locals().items():
+    if isinstance(_value,cms.Sequence):
+        for _entry in _toremove:
+            _value.remove(_entry)
+
+import FastSimulation.Configuration.DigiAndMixAliasInfo_cff as _aliasInfo
+hltEcalPreshowerDigis = _aliasInfo.infoToAlias(_aliasInfo.ecalPreShowerDigisAliasInfo)
+hltEcalDigis = _aliasInfo.infoToAlias(_aliasInfo.ecalDigisAliasInfo)

@@ -5,28 +5,27 @@ import FWCore.ParameterSet.Config as cms
 #   - loading FastSimulation.Configuration.DataMixerPreMix_cff.py causes generalTracksAliasInfo.key.value() to return "dataMix"
 # such that the HLT reads the tracks from the right MixingModule
 
-from FastSimulation.Tracking.GeneralTracksAlias_cfi import generalTracksAliasInfo
-_aliasparameters = {generalTracksAliasInfo.key.value():generalTracksAliasInfo.value}
+import FastSimulation.Configuration.DigiAndMixAliasInfo_cff as _aliasInfo
 
-hltIter4Merged = cms.EDAlias(**_aliasparameters)
-hltIter2Merged = cms.EDAlias(**_aliasparameters)
-hltIter4Tau3MuMerged = cms.EDAlias(**_aliasparameters)
-hltIter4MergedReg = cms.EDAlias(**_aliasparameters)
-hltIter2MergedForElectrons = cms.EDAlias(**_aliasparameters)
-hltIter2MergedForPhotons = cms.EDAlias(**_aliasparameters)
-hltIter2L3MuonMerged = cms.EDAlias(**_aliasparameters)
-hltIter2L3MuonMergedReg = cms.EDAlias(**_aliasparameters)
-hltIter2MergedForBTag = cms.EDAlias(**_aliasparameters)
-hltIter2MergedForTau = cms.EDAlias(**_aliasparameters)
-hltIter4MergedForTau = cms.EDAlias(**_aliasparameters)
-hltIter2GlbTrkMuonMerged = cms.EDAlias(**_aliasparameters)
-hltIter2HighPtTkMuMerged  = cms.EDAlias(**_aliasparameters)
-hltIter2HighPtTkMuIsoMerged  = cms.EDAlias(**_aliasparameters)
-hltIter2DisplacedJpsiMerged     = cms.EDAlias(**_aliasparameters)
-hltIter2DisplacedPsiPrimeMerged = cms.EDAlias(**_aliasparameters)
-hltIter2DisplacedNRMuMuMerged   = cms.EDAlias(**_aliasparameters)
-hltIter0PFlowTrackSelectionHighPurityForBTag = cms.EDAlias(**_aliasparameters)
-hltIter4MergedWithIter012DisplacedJets = cms.EDAlias(**_aliasparameters)
+hltIter4Merged = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter2Merged = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter4Tau3MuMerged = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter4MergedReg = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter2MergedForElectrons = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter2MergedForPhotons = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter2L3MuonMerged = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter2L3MuonMergedReg = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter2MergedForBTag = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter2MergedForTau = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter4MergedForTau = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter2GlbTrkMuonMerged = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter2HighPtTkMuMerged  = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter2HighPtTkMuIsoMerged  = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter2DisplacedJpsiMerged     = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter2DisplacedPsiPrimeMerged = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter2DisplacedNRMuMuMerged   = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter0PFlowTrackSelectionHighPurityForBTag = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+hltIter4MergedWithIter012DisplacedJets = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
 
 HLTIterativeTrackingIter04 = cms.Sequence()
 HLTIterativeTrackingIter02 = cms.Sequence()
