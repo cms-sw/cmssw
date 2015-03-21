@@ -535,18 +535,22 @@ TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLu
 void
 TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup, const LuminosityBlockContext* iContext, hltJson::lumiVars* iSummary)
 {
+<<<<<<< HEAD
 
   unsigned int iLs  = iLumi.luminosityBlock();
   unsigned int iRun = iLumi.run();
 
-  bool writeFiles=true;
+  bool abortFlag=false;
+  bool writeDataFiles=true;
   if (edm::Service<evf::MicroStateService>().isAvailable()) {
     evf::FastMonitoringService * fms = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
-    if (fms)
-      writeFiles = fms->getEventsProcessedForLumi(iLs)>0;
+    if (fms) {
+      writeDataFiles = fms->getEventsProcessedForLumi(iLs)>0;
+      abortFlag = fms_->getAbortFlagForLumi(iLumi.luminosityBlock());
+    }
   }
 
-  if (iSummary->processed->value().at(0)!=0 && writeFiles) {
+  if (!abortFlag) {
     Json::StyledWriter writer;
 
     char hostname[33];
