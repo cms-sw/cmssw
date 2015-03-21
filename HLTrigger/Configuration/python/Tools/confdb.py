@@ -46,7 +46,6 @@ class HLTProcess(object):
     "HLT_HcalUTCA_v*",
 
     # TODO: paths not supported by FastSim, but for which a recovery should be attempted
-
     "HLT_DoubleMu33NoFiltersNoVtx_v*",
     "HLT_DoubleMu38NoFiltersNoVtx_v*",
     "HLT_Mu38NoFiltersNoVtx_Photon38_CaloIdL_v*",
@@ -64,8 +63,9 @@ class HLTProcess(object):
     "HLT_HT550_DisplacedDijet40_Inclusive_v*",
     "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*",
     "HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_v*",
-    "HLT_VBF_DisplacedJet40_TightID_Hadronic_v*"
-
+    "HLT_VBF_DisplacedJet40_TightID_Hadronic_v*",
+    "HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v*",
+    "HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v*",
   )
 
   def __init__(self, configuration):
@@ -303,10 +303,7 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
         if self.config.type in ('50nsGRun',) :
           self.data += """
 # load 2015 Run-2 L1 Menu for 50ns
-# move to the 50ns v0 L1 menu once the 50ns HLT has been updated accordingly
-# from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v0 as loadL1Menu
-# until then use the 25ns L1 menu
-from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1Menu
+from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v1 as loadL1Menu
 process = loadL1Menu(process)
 """
         elif self.config.type in ('HIon',) :

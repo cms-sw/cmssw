@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_4_0/HIon/V24 (CMSSW_7_4_0_pre7_HLT4)
+# /dev/CMSSW_7_4_0/HIon/V26 (CMSSW_7_4_0_pre7_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V24')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V26')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -388,8 +388,8 @@ HLTPSetPvClusterComparerForIT = cms.PSet(
   track_prob_min = cms.double( -1.0 )
 )
 HLTSiStripClusterChargeCutNone = cms.PSet(  value = cms.double( -1.0 ) )
-HLTSiStripClusterChargeCutLoose = cms.PSet(  value = cms.double( 1724.0 ) )
-HLTSiStripClusterChargeCutTight = cms.PSet(  value = cms.double( 2069.0 ) )
+HLTSiStripClusterChargeCutLoose = cms.PSet(  value = cms.double( 1620.0 ) )
+HLTSiStripClusterChargeCutTight = cms.PSet(  value = cms.double( 1945.0 ) )
 HLTSeedFromConsecutiveHitsCreatorIT = cms.PSet( 
   ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
   propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
@@ -2915,7 +2915,8 @@ hltHIL3TrajSeedIOHit = cms.EDProducer( "TSGFromL2Muon",
             ),
             SeedingLayers = cms.InputTag( "hltPixelLayerTriplets" )
           ),
-          TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+          TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+          SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsCreator" ) )
         ),
         PSetNames = cms.vstring( 'firstTSG',
           'secondTSG' ),
@@ -2935,7 +2936,8 @@ hltHIL3TrajSeedIOHit = cms.EDProducer( "TSGFromL2Muon",
             TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
           ),
           etaSeparation = cms.double( 2.0 ),
-          ComponentName = cms.string( "DualByEtaTSG" )
+          ComponentName = cms.string( "DualByEtaTSG" ),
+          SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsCreator" ) )
         ),
         secondTSG = cms.PSet( 
           ComponentName = cms.string( "TSGFromOrderedHits" ),
@@ -2945,7 +2947,8 @@ hltHIL3TrajSeedIOHit = cms.EDProducer( "TSGFromL2Muon",
             useOnDemandTracker = cms.untracked.int32( 0 ),
             SeedingLayers = cms.InputTag( "hltPixelLayerPairs" )
           ),
-          TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+          TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+          SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsCreator" ) )
         )
       ),
       skipTSG = cms.PSet(  ),
