@@ -37,6 +37,11 @@ reducedEcalRecHitsSequence.remove(seldigis)
 ecalRecHitSequence.remove(ecalCompactTrigPrim)
 ecalRecHitSequence.remove(ecalTPSkim)
 
+# no flags for bad channels in FastSim
+ecalRecHit.killDeadChannels = False
+ecalRecHit.recoverEBFE = False
+ecalRecHit.recoverEEFE = False
+ecalUncalibRecHitSequence.remove(ecalDetIdToBeRecovered)
 
 ##########################################
 # remove most of the tracking , since it is run before mixing

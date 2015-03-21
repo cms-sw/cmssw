@@ -12,50 +12,13 @@ mixData.tracker.pileUpMVAValues = cms.InputTag("mix","generalTracksMVAVals")
 mixData.hitsProducer = "famosSimHits"
 
 # give digi collections the names expected by RECO and HLT
-ecalPreshowerDigis = cms.EDAlias(
-    DMEcalPreshowerDigis = cms.VPSet(
-        cms.PSet(type = cms.string("ESDigiCollection"))
-        )
-    )
+import FastSimulation.Configuration.DigiAndMixAliasInfo_cff as _aliasInfo
+_aliasInfo.convertAliasInfoForDataMixer()
+generalTracks = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
+ecalPreshowerDigis = _aliasInfo.infoToAlias(_aliasInfo.ecalPreShowerDigisAliasInfo)
+ecalDigis = _aliasInfo.infoToAlias(_aliasInfo.ecalDigisAliasInfo)
+hcalDigis = _aliasInfo.infoToAlias(_aliasInfo.hcalDigisAliasInfo)
+muonDTDigis = _aliasInfo.infoToAlias(_aliasInfo.muonDTDigisAliasInfo)
+muonCSCDigis = _aliasInfo.infoToAlias(_aliasInfo.muonCSCDigisAliasInfo)
+muonRPCDigis = _aliasInfo.infoToAlias(_aliasInfo.muonRPCDigisAliasInfo)
 
-ecalDigis = cms.EDAlias(
-    DMEcalDigis = cms.VPSet(
-        cms.PSet(type = cms.string("EBDigiCollection")),
-        cms.PSet(type = cms.string("EEDigiCollection"))
-        )
-    )
-
-hcalDigis = cms.EDAlias(
-    DMHcalDigis = cms.VPSet(
-        cms.PSet(type = cms.string("HBHEDataFramesSorted")),
-        cms.PSet(type = cms.string("HFDataFramesSorted")),
-        cms.PSet(type = cms.string("HODataFramesSorted"))
-        )
-    )
-
-muonDTDigis = cms.EDAlias(
-    mixData = cms.VPSet(
-        cms.PSet(type = cms.string("DTLayerIdDTDigiMuonDigiCollection"))
-        )
-    )
-muonRPCDigis = cms.EDAlias(
-    mixData = cms.VPSet(
-        cms.PSet(type = cms.string("RPCDetIdRPCDigiMuonDigiCollection"))
-        )
-    )
-
-muonCSCDigis = cms.EDAlias(
-    mixData = cms.VPSet(
-        cms.PSet(
-            type = cms.string("CSCDetIdCSCWireDigiMuonDigiCollection"),
-            fromProductInstance = cms.string("MuonCSCWireDigisDM"),
-            ),
-        cms.PSet(
-            type = cms.string("CSCDetIdCSCStripDigiMuonDigiCollection"),
-            fromProductInstance = cms.string("MuonCSCStripDigisDM"),
-            )
-        )
-    )
-from FastSimulation.Tracking.GeneralTracksAlias_cfi import generalTracksAliasInfo
-generalTracksAliasInfo.key = "mixData"
-generalTracks = cms.EDAlias(**{generalTracksAliasInfo.key.value():generalTracksAliasInfo.value})
