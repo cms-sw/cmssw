@@ -22,9 +22,9 @@ foreach gtag ( Data Mc )
     cat >> $newfile <<EOF
 #
 if not ('HLTAnalyzerEndpath' in process.__dict__) :
-    from HLTrigger.Configuration.HLT_FULL_cff import hltL1GtTrigReport,hltTrigReport
-    process.hltL1GtTrigReport = hltL1GtTrigReport
-    process.hltTrigReport = hltTrigReport
+    from HLTrigger.Configuration.HLT_FULL_cff import fragment as _fragment
+    process.hltL1GtTrigReport = _fragment.hltL1GtTrigReport
+    process.hltTrigReport = _fragment.hltTrigReport
     process.hltTrigReport.HLTriggerResults = cms.InputTag( 'TriggerResults','',process.name_() )
     process.HLTAnalyzerEndpath = cms.EndPath(process.hltL1GtTrigReport + process.hltTrigReport)
 #
