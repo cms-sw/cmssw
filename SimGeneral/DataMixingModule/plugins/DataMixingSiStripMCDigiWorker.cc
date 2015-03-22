@@ -419,7 +419,7 @@ namespace edm
     } // end of big loop over all detector IDs
 
     // put the collection of digis in the event   
-    //LogInfo("DataMixingSiStripMCDigiWorker") << "total # Merged strips: " << vSiStripDigi.size() ;
+    LogInfo("DataMixingSiStripMCDigiWorker") << "total # Merged strips: " << vSiStripDigi.size() ;
 
     // make new digi collection
     

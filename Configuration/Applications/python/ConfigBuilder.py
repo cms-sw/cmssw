@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-1
+
 __version__ = "$Revision: 1.19 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 
@@ -1082,10 +1082,12 @@ class ConfigBuilder(object):
 
         # if fastsim switch event content
 	if self._options.fast:
-                self.EVTCONTDefaultCFF = "FastSimulation.Configuration.EventContent_cff"
-                self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
 		self.SIMDefaultCFF = 'FastSimulation.Configuration.SimIdeal_cff'
 		self.SIMDefaultSeq = 'psim'
+		self.RECODefaultCFF= 'FastSimulation.Configuration.Reconstruction_AftMix_cff'
+		self.RECODefaultSeq= 'reconstruction'
+                self.EVTCONTDefaultCFF = "FastSimulation.Configuration.EventContent_cff"
+                self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
 		self.RECOBEFMIXDefaultCFF = 'FastSimulation.Configuration.Reconstruction_BefMix_cff'
 		self.RECOBEFMIXDefaultSeq = 'reconstruction_befmix'
 		self.DIGIDefaultCFF = 'FastSimulation.Configuration.Digi_cff'
@@ -1101,8 +1103,6 @@ class ConfigBuilder(object):
 		self.L1RecoDefaultCFF='FastSimulation.Configuration.L1Reco_cff'
 		self.DIGI2RAWDefaultCFF = 'FastSimulation.Configuration.DigiToRaw_cff'
 		self.DIGI2RAWDefaultSeq = 'DigiToRaw'
-		self.RECODefaultCFF= 'FastSimulation.Configuration.Reconstruction_AftMix_cff'
-		self.RECODefaultSeq= 'reconstruction'
 		self.EVTCONTDefaultCFF = "FastSimulation.Configuration.EventContent_cff"
 		self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
 
@@ -1447,7 +1447,6 @@ class ConfigBuilder(object):
 
     def prepare_DIGIPREMIX_S2(self, sequence = None):
         """ Enrich the schedule with the digitisation step"""
-	print self.DIGIDefaultCFF
 	self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
 
 	self.loadAndRemember("SimGeneral/MixingModule/digi_MixPreMix_cfi")
