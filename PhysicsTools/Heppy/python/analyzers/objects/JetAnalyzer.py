@@ -29,10 +29,14 @@ def cleanJetsAndLeptons(jets,leptons,deltaR,arbitration):
         for i,j in enumerate(jets):
             d2i = deltaR2(l.eta(),l.phi(), j.eta(),j.phi())
             if d2i < dr2:
-                if arbitration(j,l) == j:
+                choice = arbitration(j,l)
+                if choice == j:
                    # if the two match, and we prefer the jet, then drop the lepton and be done
                    goodlep[il] = False
                    break 
+                elif choice == (j,l) or choice == (l,j):
+                   # asked to keep both, so we don't consider this match
+                   continue
             if d2i < d2m:
                 ibest, d2m = i, d2i
         # this lepton has been killed by a jet, then we clean the jet that best matches it
