@@ -605,7 +605,7 @@ step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI,L1,L1Reco,RECO,EI,HLT:@
                            '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
                            '--relval':'27000,3000'},
                           step1Defaults])
-step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI,L1,L1Reco,RECO,EI,HLT:@frozen25ns',
+step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI,L1,L1Reco,RECO,EI,HLT:@frozen25ns,VALIDATION',
                            '--fast':'',
                            '--conditions'  :'auto:run2_mc',
                            '--beamspot'    : 'NominalCollision2015',
