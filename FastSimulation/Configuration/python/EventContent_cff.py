@@ -260,9 +260,10 @@ FEVTDEBUGHLTEventContent.outputCommands.extend(FastSimParticleFlowFEVT.outputCom
 ##################
 # get rid of some edaliases in the output
 ##################
-for _entry in [FEVTDEBUGHLTEventContent,HLTDEBUGEventContent,HLTDebugFEVT,HLTDebugRAW,RAWDEBUGHLTEventContent,RAWRECODEBUGHLTEventContent,RAWRECOSIMHLTEventContent,RAWSIMHLTEventContent]:
+for _entry in [FEVTDEBUGEventContent,FEVTSIMEventContent,GENRAWEventContent,FEVTDEBUGHLTEventContent,HLTDEBUGEventContent,HLTDebugFEVT,HLTDebugRAW,RAWDEBUGHLTEventContent,RAWRECODEBUGHLTEventContent,RAWRECOSIMHLTEventContent,RAWSIMHLTEventContent,]:
     _entry.outputCommands.append('drop *_hltIter*_*_*')
-    _entry.outputCommands.append('drop *_gtDigis_*_*')
+    _entry.outputCommands.append('drop *_sim*Digis_*_*')
+    _entry.outputCommands.append('drop *_hlt*Digis_*_*')
 
 FASTPUEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
