@@ -53,7 +53,7 @@ tripletElectronSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.g
 tripletElectronSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag('tripletElectronSeedLayers')
 tripletElectronSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 tripletElectronSeeds.OrderedHitsFactoryPSet.maxElement = cms.uint32(0)
-tripletElectronSeeds.SeedCreatorPSet.SimpleMagneticField = ''
+tripletElectronSeeds.SeedCreatorPSet.magneticField = ''
 
 from RecoLocalTracker.SubCollectionProducers.SeedClusterRemover_cfi import seedClusterRemover
 tripletElectronClusterMask = seedClusterRemover.clone(

@@ -51,7 +51,7 @@ import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cf
 lowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
 lowPtTripletStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 lowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
-lowPtTripletStepSeeds.SeedCreatorPSet.SimpleMagneticField = ''
+lowPtTripletStepSeeds.SeedCreatorPSet.magneticField = ''
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
