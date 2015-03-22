@@ -36,7 +36,10 @@ class SegmentTrackAnalyzer : public DQMEDAnalyzer {
   SegmentTrackAnalyzer(const edm::ParameterSet&);
   
   /// Destructor
-  virtual ~SegmentTrackAnalyzer() {};
+  virtual ~SegmentTrackAnalyzer() {
+    delete theService;
+    delete theSegmentsAssociator;
+  };
   
   void analyze(const edm::Event&, const edm::EventSetup&);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
