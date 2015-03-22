@@ -94,11 +94,6 @@ parser.add_option("--fast",
                   action="store_true",
                   default=False)
 
-parser.add_option("--fastnew",
-                  help="Specify that the configuration is for FASTSIM new cfg",
-                  action="store_true",
-                  default=False)
-
 parser.add_option("--runsAndWeightsForMC",
                   help="Assign run numbers to MC source according to relatieve weights. [(run1,weight1),...,(runN,weightN)])",
                   default=None,
