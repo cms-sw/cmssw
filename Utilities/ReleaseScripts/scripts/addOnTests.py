@@ -86,10 +86,13 @@ class StandardTester(object):
         if os.environ.has_key('CMSSW_RELEASE_BASE') and (os.environ['CMSSW_RELEASE_BASE'] != ""): self.relPath = os.environ['CMSSW_RELEASE_BASE'] + '/src/'
 
         lines = { 'read312RV' : ['cmsRun '+self.file2Path('Utilities/ReleaseScripts/scripts/read312RV_cfg.py')], 
-                  'fastsim1'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/IntegrationTestFake_cfg.py')],
-                  'fastsim2'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/IntegrationTest_cfg.py')],
+                  # the following unit tests need to be updated to the new FastSim structure 
+                  # Since all functionalities of the fastsim addon tests are inside runTheMatrix fastsim wfs,
+                  # the tests are temporarily commented out
+                  #'fastsim1'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/IntegrationTestFake_cfg.py')],
+                  #'fastsim2'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/IntegrationTest_cfg.py')],
                   #'fastsim3'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/ExampleWithHLT_1E31_cfg.py')],
-                  'fastsim4'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/IntegrationTestWithHLT_cfg.py')],
+                  #'fastsim4'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/IntegrationTestWithHLT_cfg.py')],
                   'pat1'      : ['cmsRun '+self.file2Path('PhysicsTools/PatAlgos/test/IntegrationTest_cfg.py')],
                 }
 

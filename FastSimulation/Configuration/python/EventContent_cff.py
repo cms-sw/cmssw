@@ -255,13 +255,28 @@ FEVTDEBUGHLTEventContent.outputCommands.extend(FastSimParticleFlowFEVT.outputCom
 # To be used only to create the MinBias sample for "new mixing" (--eventcontent=FASTPU)
 #
 #####################################################################
+
+
+##################
+# get rid of some edaliases in the output
+##################
+for _entry in [FEVTDEBUGEventContent,FEVTSIMEventContent,GENRAWEventContent,FEVTDEBUGHLTEventContent,HLTDEBUGEventContent,HLTDebugFEVT,HLTDebugRAW,RAWDEBUGHLTEventContent,RAWRECODEBUGHLTEventContent,RAWRECOSIMHLTEventContent,RAWSIMHLTEventContent,]:
+    _entry.outputCommands.append('drop *_hltIter*_*_*')
+    _entry.outputCommands.append('drop *_sim*Digis_*_*')
+    _entry.outputCommands.append('drop *_hlt*Digis_*_*')
+
 FASTPUEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
                                            'keep *_famosSimHits_*_*',
                                            'keep *_MuonSimHits_*_*',
-                                           'drop *_generalTracksBeforeMixing_MVAVals_*',
                                            'drop *_famosSimHits_VertexTypes_*',    
                                            'keep *_generalTracksBeforeMixing_*_*',
                                            'keep edmHepMCProduct_generator_*_*',
                                            )
+    )
+
+
+PREMIXEventContent.outputCommands.extend(
+    ['keep *_mix_generalTracks_*',
+     'keep *_mix_generalTracksMVAVals_*']
     )
