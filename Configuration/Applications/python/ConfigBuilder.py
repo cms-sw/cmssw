@@ -1110,8 +1110,9 @@ class ConfigBuilder(object):
 
 		self.DIGIDefaultSeq = 'pdigi'
 		self.L1EMDefaultCFF='FastSimulation.Configuration.SimL1Emulator_cff'
+		self.L1RecoDefaultCFF='FastSimulation.Configuration.L1Reco_cff'
 		self.DIGI2RAWDefaultCFF = 'FastSimulation.Configuration.DigiToRaw_cff'
-		self.DIGIDefaultSeq = 'DigiToRaw'
+		self.DIGI2RAWDefaultSeq = 'DigiToRaw'
 		self.RECODefaultCFF= 'FastSimulation.Configuration.Reconstruction_AftMix_cff'
 		self.RECODefaultSeq= 'reconstruction'
 		self.EVTCONTDefaultCFF = "FastSimulation.Configuration.EventContent_cff"

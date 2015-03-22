@@ -81,14 +81,22 @@ muonCSCDigisAliasInfo = cms.VPSet(
         value = cms.VPSet(
             cms.PSet(
                 type = cms.string("CSCDetIdCSCWireDigiMuonDigiCollection"),
-                fromProductInstance = cms.string("MuonCSCWireDigis")),
+                fromProductInstance = cms.string("MuonCSCWireDigi")),
             cms.PSet(
                 type = cms.string("CSCDetIdCSCStripDigiMuonDigiCollection"),
-                fromProductInstance = cms.string("MuonCSCStripDigis")))
+                fromProductInstance = cms.string("MuonCSCStripDigi")))
+        )
+    )
+
+gtDigisAliasInfo = cms.VPSet (
+    cms.PSet(
+        key = cms.string("simGtDigis"),
+        value = cms.VPSet(cms.PSet(type = cms.string("L1GlobalTriggerReadoutRecord")))
         )
     )
 
 def convertAliasInfoForDataMixer():
+    print "# WARNING: converting digi and mix aliases for DataMixer"
     # tracker
     generalTracksAliasInfo[0].key = "mixData"
 
