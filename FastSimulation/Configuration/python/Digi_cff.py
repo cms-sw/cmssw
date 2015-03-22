@@ -10,7 +10,6 @@ calDigi.remove(castorDigiSequence)
 
 # give digi collections the names expected by RECO and HLT
 import FastSimulation.Configuration.DigiAndMixAliasInfo_cff as _aliasInfo
-_aliasInfo.convertAliasInfoForDataMixer()
 generalTracks = _aliasInfo.infoToAlias(_aliasInfo.generalTracksAliasInfo)
 ecalPreshowerDigis = _aliasInfo.infoToAlias(_aliasInfo.ecalPreShowerDigisAliasInfo)
 ecalDigis = _aliasInfo.infoToAlias(_aliasInfo.ecalDigisAliasInfo)

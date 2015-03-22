@@ -98,9 +98,16 @@ from FastSimulation.Tracking.globalCombinedSeeds_cfi import newCombinedSeeds
 # tracker driven electron seeds depend on the generalTracks trajectory collection
 # However, in FastSim jobs, trajectories are only available for the 'before mixing' track collections
 # Therefore we let the seeds depend on the 'before mixing' generalTracks collection
-trackerDrivenElectronSeeds.TkColList = [cms.InputTag('generalTracksBeforeMixing')]
-# TODO: add the fixes to the TrackRefs in the tracker-driven seeds
 # TODO: investigate whether the dependence on trajectories can be avoided
+_index = electronSeeds.index(trackerDrivenElectronSeeds)
+electronSeeds.remove(trackerDrivenElectronSeeds)
+trackerDrivenElectronSeedsTmp = trackerDrivenElectronSeeds.clone(
+    TkColList = cms.VInputTag(cms.InputTag("generalTracksBeforeMixing")))
+from FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi import fixedTrackerDrivenElectronSeeds as trackerDrivenElectronSeeds
+trackerDrivenElectronSeeds.seedCollection.setModuleLabel("trackerDrivenElectronSeedsTmp") 
+trackerDrivenElectronSeeds.idCollection.setModuleLabel("trackerDrivenElectronSeedsTmp")
+electronSeeds.insert(_index,trackerDrivenElectronSeeds)
+electronSeeds.insert(_index,trackerDrivenElectronSeedsTmp)
 
 # replace the ECAL driven electron track candidates with the FastSim emulated ones
 from FastSimulation.EgammaElectronAlgos.electronGSGsfTrackCandidates_cff import electronGSGsfTrackCandidates
@@ -220,6 +227,8 @@ del BeamHaloSHPropagatorOpposite
 ############################################
 # the final reconstruction sequence
 ############################################
-reconstruction = cms.Sequence(localreco*newCombinedSeeds*globalreco*highlevelreco*logErrorHarvester)
+# this is the standard reconstruction sequence, 
+# except for the logErrorHarvester which is traditinally not run in FastSim
+reconstruction = cms.Sequence(localreco*newCombinedSeeds*globalreco*highlevelreco)
 
 #print particleFlow.PFCandidate
