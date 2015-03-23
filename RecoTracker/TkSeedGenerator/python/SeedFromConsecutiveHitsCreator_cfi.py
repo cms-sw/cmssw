@@ -1,5 +1,5 @@
-Bimport FWCore.ParameterSet.Config as cms
-0;95;c
+import FWCore.ParameterSet.Config as cms
+
 SeedFromConsecutiveHitsCreator = cms.PSet(
   ComponentName = cms.string('SeedFromConsecutiveHitsCreator'),
 #  propagator = cms.string('PropagatorWithMaterial'),
