@@ -1,19 +1,19 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "FWCore/Utilities/interface/Exception.h"
+
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
+#include "FWCore/Utilities/interface/FunctionWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
+
+#include "TDictAttributeMap.h"
 
 #include <cassert>
 #include <ostream>
 #include <sstream>
-#include <cstdlib>
 
-/*----------------------------------------------------------------------
-
-
-----------------------------------------------------------------------*/
+class TClass;
 
 namespace edm {
   BranchDescription::Transients::Transients() :
@@ -162,52 +162,55 @@ namespace edm {
 
     try {
       setWrappedName(wrappedClassName(fullClassName()));
-      
       // unwrapped type.
       setUnwrappedType(TypeWithDict::byName(fullClassName()));
       if(!bool(unwrappedType())) {
-	setSplitLevel(invalidSplitLevel);
-	setBasketSize(invalidBasketSize);
-	setTransient(false);
-	return;
-      }
-
-
-      setWrappedType(TypeWithDict::byName(wrappedName()));
-      if(!bool(wrappedType())) {
-	setSplitLevel(invalidSplitLevel);
-	setBasketSize(invalidBasketSize);
-	return;
+        setSplitLevel(invalidSplitLevel);
+        setBasketSize(invalidBasketSize);
+        setTransient(false);
+        return;
       }
     } catch( edm::Exception& caughtException) {
       caughtException.addContext(std::string{"While initializing meta data for branch: "}+branchName());
       throw;
     }
-    Reflex::PropertyList wp = Reflex::Type::ByTypeInfo(wrappedType().typeInfo()).Properties();
-    setTransient((wp.HasProperty("persistent") ? wp.PropertyAsString("persistent") == std::string("false") : false));
-    if(transient()) {
-      setSplitLevel(invalidSplitLevel);
-      setBasketSize(invalidBasketSize);
+
+    edm::TypeWithDict wrType(TypeWithDict::byName(wrappedName()));
+    try {
+      setWrappedType(wrType);
+      if(!bool(wrappedType())) {
+        setSplitLevel(invalidSplitLevel);
+        setBasketSize(invalidBasketSize);
+        return;
+      }
+    } catch( edm::Exception& caughtException) {
+      caughtException.addContext(std::string{"While initializing meta data for branch: "}+branchName());
+      throw;
+    }
+
+    setTransient(false);
+    setSplitLevel(invalidSplitLevel);
+    setBasketSize(invalidBasketSize);
+    TDictAttributeMap* wp = wrappedType().getClass()->GetAttributeMap();
+    if (wp && wp->HasKey("persistent") && !strcmp(wp->GetPropertyAsString("persistent"), "false")) {
+      // Set transient if persistent == "false".
+      setTransient(true);
       return;
     }
-    if(wp.HasProperty("splitLevel")) {
-      setSplitLevel(strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0));
-      if(splitLevel() < 0) {
+    if (wp && wp->HasKey("splitLevel")) {
+      setSplitLevel(strtol(wp->GetPropertyAsString("splitLevel"), 0, 0));
+      if (splitLevel() < 0) {
         throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
-        splitLevel() << " is specified for class " << wrappedName() << ".'\n";
+          splitLevel() << " is specified for class " << wrappedName() << ".'\n";
       }
       setSplitLevel(splitLevel() + 1); //Compensate for wrapper
-    } else {
-      setSplitLevel(invalidSplitLevel);
     }
-    if(wp.HasProperty("basketSize")) {
-      setBasketSize(strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0));
-      if(basketSize() <= 0) {
+    if (wp && wp->HasKey("basketSize")) {
+      setBasketSize(strtol(wp->GetPropertyAsString("basketSize"), 0, 0));
+      if (basketSize() <= 0) {
         throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
-        basketSize() << " is specified for class " << wrappedName() << "'.\n";
+          basketSize() << " is specified for class " << wrappedName() << "'.\n";
       }
-    } else {
-      setBasketSize(invalidBasketSize);
     }
   }
 
@@ -336,4 +339,4 @@ namespace edm {
     }
     return differences.str();
   }
-}
+} // namespace edm

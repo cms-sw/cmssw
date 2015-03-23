@@ -183,7 +183,7 @@ Record::get(const edm::TypeID& iType,
    std::pair<TBranch*,void*>& branch = m_branches[std::make_pair(iType,iLabel)];
    if(0==branch.first){
       branch.second=0;
-      if(!edm::TypeWithDict(iType.typeInfo()).hasDictionary()){
+      if(!edm::hasDictionary(iType.typeInfo())){
          returnValue = new cms::Exception("UnknownType");
          (*returnValue)<<"The type "
          <<iType.typeInfo().name()<<" was requested from Record "<<name()

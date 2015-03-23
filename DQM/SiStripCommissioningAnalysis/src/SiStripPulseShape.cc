@@ -19,7 +19,7 @@ double fdeconv(double *x, double *par)
 double fpeak_convoluted(double *x, double *par)
     {
      TF1 f("peak_convoluted",fpeak,0,200,4);
-     return f.Integral(x[0]-par[4]/2.,x[0]+par[4]/2.,par,1.)/(par[4]);
+     return f.IntegralError(x[0]-par[4]/2.,x[0]+par[4]/2.,par,0,1.)/(par[4]);
     } 
 
 double fdeconv_convoluted(double *x, double *par)

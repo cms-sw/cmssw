@@ -4,17 +4,16 @@
 #include "CArrayHandler.h"
 #include "PVectorHandler.h"
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 ora::IArrayHandler*
-ora::ArrayHandlerFactory::newArrayHandler( const Reflex::Type& arrayType )
+ora::ArrayHandlerFactory::newArrayHandler( const edm::TypeWithDict& arrayType )
 {
-  if(arrayType.IsArray()){
+  if(arrayType.isArray()){
     return new CArrayHandler( arrayType );
   } else {  
-    Reflex::TypeTemplate templ = arrayType.TemplateFamily();
-    if ( templ ) {
-      std::string contName = templ.Name(Reflex::SCOPED|Reflex::FINAL); 
+    if ( arrayType.isTemplateInstance() ) {
+      std::string contName = arrayType.templateName(); 
       if(  contName == "std::vector"              ||
            contName == "std::list"                ||
            contName == "std::set"                 ||
@@ -36,7 +35,7 @@ ora::ArrayHandlerFactory::newArrayHandler( const Reflex::Type& arrayType )
       
     }
   }
-  throwException( "No Array Handler available for class \""+arrayType.Name(Reflex::SCOPED)+"\"",
+  throwException( "No Array Handler available for class \""+arrayType.templateName()+"\"",
                   "ArrayHandlerFactory::newArrayHandler");
   return 0;
 }

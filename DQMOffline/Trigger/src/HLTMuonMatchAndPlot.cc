@@ -48,9 +48,10 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
   targetD0Cut_(targetParams_.getUntrackedParameter<double>("d0Cut",0.)),
   probeMuonSelector_(probeParams_.getUntrackedParameter<string>("recoCuts", "")),
   probeZ0Cut_(probeParams_.getUntrackedParameter<double>("z0Cut",0.)),
-  probeD0Cut_(probeParams_.getUntrackedParameter<double>("d0Cut",0.))
+  probeD0Cut_(probeParams_.getUntrackedParameter<double>("d0Cut",0.)),
+  triggerSelector_(targetParams_.getUntrackedParameter<string>("hltCuts","")),
+  hasTriggerCuts_(targetParams_.exists("hltCuts"))
 {
-
   // Create std::map<string, T> from ParameterSets. 
   fillMapFromPSet(binParams_, pset, "binParams");
   fillMapFromPSet(plotCuts_, pset, "plotCuts");
@@ -204,12 +205,13 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
       return;
   }
 
+
   // Select objects based on the configuration.
   MuonCollection targetMuons = selectedMuons(* allMuons, * beamSpot, hasTargetRecoCuts, targetMuonSelector_, targetD0Cut_, targetZ0Cut_);
   MuonCollection probeMuons = selectedMuons(* allMuons, * beamSpot, hasProbeRecoCuts, probeMuonSelector_, probeD0Cut_, probeZ0Cut_);
   TriggerObjectCollection allTriggerObjects = triggerSummary->getObjects();
   TriggerObjectCollection hltMuons = 
-    selectedTriggerObjects(allTriggerObjects, * triggerSummary, targetParams_);
+    selectedTriggerObjects(allTriggerObjects, * triggerSummary, hasTriggerCuts_,triggerSelector_);
 
   // Fill plots for HLT muons.
   for (size_t i = 0; i < hltMuons.size(); i++) {
@@ -475,15 +477,10 @@ TriggerObjectCollection
 HLTMuonMatchAndPlot::selectedTriggerObjects(
   const TriggerObjectCollection & triggerObjects,
   const TriggerEvent & triggerSummary,
-  const ParameterSet & pset) 
+  bool hasTriggerCuts,
+  const StringCutObjectSelector<TriggerObject> triggerSelector)
 {
-
-  // If pset is empty, return an empty collection.
-  if (!pset.exists("hltCuts"))
-    return TriggerObjectCollection();
-
-  StringCutObjectSelector<TriggerObject> selector
-    (pset.getUntrackedParameter<string>("hltCuts"));
+  if ( !hasTriggerCuts) return TriggerObjectCollection();
 
   InputTag filterTag(moduleLabels_[moduleLabels_.size() - 1], "", 
                      hltProcessName_);
@@ -495,7 +492,7 @@ HLTMuonMatchAndPlot::selectedTriggerObjects(
     const Keys &keys = triggerSummary.filterKeys(filterIndex);
     for (size_t j = 0; j < keys.size(); j++ ){
       TriggerObject foundObject = triggerObjects[keys[j]];
-      if (selector(foundObject))
+      if (triggerSelector(foundObject))
         selectedObjects.push_back(foundObject);
     }
   }

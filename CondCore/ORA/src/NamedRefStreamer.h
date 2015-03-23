@@ -7,7 +7,7 @@
 #include <memory>
 #include <boost/shared_ptr.hpp>
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 
 namespace ora {
@@ -21,7 +21,7 @@ namespace ora {
 
     public:
 
-    explicit NamedReferenceStreamerBase( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& schema );
+    explicit NamedReferenceStreamerBase( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& schema );
 
     virtual ~NamedReferenceStreamerBase();
 
@@ -33,7 +33,7 @@ namespace ora {
 
     private:
 
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       MappingElement& m_mapping;
       int m_columnIndex;
       ContainerSchema& m_schema;
@@ -48,7 +48,7 @@ namespace ora {
 
     public:
 
-      NamedRefWriter( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+      NamedRefWriter( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
       virtual ~NamedRefWriter();
       
@@ -65,7 +65,7 @@ namespace ora {
 
     public:
 
-      NamedRefUpdater( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+      NamedRefUpdater( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
       virtual ~NamedRefUpdater();
       
@@ -83,7 +83,7 @@ namespace ora {
 
       public:
 
-      NamedRefReader( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+      NamedRefReader( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
       virtual ~NamedRefReader();
       
@@ -103,7 +103,7 @@ namespace ora {
   class NamedRefStreamer : public IRelationalStreamer 
   {
     public:
-    NamedRefStreamer( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    NamedRefStreamer( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     ~NamedRefStreamer();
 
@@ -114,7 +114,7 @@ namespace ora {
     IRelationalReader* newReader();
     
     private:
-    Reflex::Type m_objectType;
+    edm::TypeWithDict m_objectType;
     MappingElement& m_mapping;
     ContainerSchema& m_schema;
   }; 
