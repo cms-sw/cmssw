@@ -503,6 +503,15 @@ def cust_2023SHCalTime(process):
     process=cust_2023SHCal(process)
     process=cust_shashlikTime(process)
     process=cust_ecalTime(process)    
+    if hasattr(process,'RECOSIMEventContent'):
+        process.RECOSIMEventContent.outputCommands.append('keep *_cfWriter_g4SimHits_*')
+    if hasattr(process,'FEVTDEBUTeventContent'):
+     	process.FEVTDEBUGoutput.outputCommands.append('keep *_cfWriter_g4SimHits_*')
+    if hasattr(process,'digitisation_step'):
+    	process.mix.mixObjects.mixVertices.makeCrossingFrame=cms.untracked.bool(True)
+	process.mix.mixObjects.mixTracks.makeCrossingFrame=cms.untracked.bool(True)
+    if hasattr(process,'reconstruction_step'):
+	process.ecalDetailedTimeRecHit.correctForVertexZPosition=False
     return process
 
 def cust_2023Pixel(process):
