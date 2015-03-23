@@ -56,8 +56,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 )
 
 process.prod = cms.EDAnalyzer("SiStripApvGainFromFileBuilder",
-    outputMaps    = cms.untracked.bool(True),
-    outputSummary = cms.untracked.bool(True),
+    outputMaps    = cms.untracked.bool(False),
+    outputSummary = cms.untracked.bool(False),
 )
 
 process.p = cms.Path(process.prod)
