@@ -92,7 +92,7 @@ pathALCARECOHcalCalPedestal = cms.Path(seqALCARECOHcalCalPedestal*ALCARECOHcalCa
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
 ALCARECOStreamHcalCalPedestal = cms.FilteredStream(
-        responsible = 'Grigory Safronov',
+        responsible = 'Olga Kodolova',
         name = 'ALCARECOHcalCalPedestal',
         paths  = (pathALCARECOHcalCalPedestal),
         content = OutALCARECOHcalCalPedestal.outputCommands,
