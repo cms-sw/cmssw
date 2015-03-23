@@ -464,7 +464,7 @@
    </config>
   </config>
   <config name="views" version="1">
-   <config name="iSpy" version="9">
+   <config name="3D RecHit" version="9">
     <config name="Overlay Event Info" version="0">
       <string>2</string>
     </config>
