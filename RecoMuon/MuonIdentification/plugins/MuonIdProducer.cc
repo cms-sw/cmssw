@@ -342,19 +342,24 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
 
 bool MuonIdProducer::isGoodTrack( const reco::Track& track )
 {
-   // Pt and absolute momentum requirement
-   if (track.pt() < minPt_ || (track.p() < minP_ && track.p() < minPCaloMuon_)){
-      LogTrace("MuonIdentification") << "Skipped low momentum track (Pt,P): " << track.pt() <<
-	", " << track.p() << " GeV";
-      return false;
-   }
+  // Pt and absolute momentum requirement
+  const double p = track.p();
+  const double pt = track.pt();
+  if (pt < minPt_ || (p < minP_ && p < minPCaloMuon_)){
+    LogTrace("MuonIdentification") << "Skipped low momentum track (Pt,P): " << pt
+                                   << ", " << track.p() << " GeV";
+    return false;
+  }
 
-   // Eta requirement
-   if ( fabs(track.eta()) > maxAbsEta_ ){
-      LogTrace("MuonIdentification") << "Skipped track with large pseudo rapidity (Eta: " << track.eta() << " )";
-      return false;
-   }
-   return true;
+  // Eta requirement
+  const double eta = track.eta();
+  const double absEta = std::abs(eta);
+  if ( absEta > maxAbsEta_ ){
+    LogTrace("MuonIdentification") << "Skipped track with large pseudo rapidity (Eta: " << track.eta() << " )";
+    return false;
+  }
+
+  return true;
 }
 
 unsigned int MuonIdProducer::chamberId( const DetId& id )
@@ -744,19 +749,19 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 bool MuonIdProducer::isGoodTrackerMuon( const reco::Muon& muon )
 {
   if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
-   if ( addExtraSoftMuons_ &&
-	muon.pt()<5 && fabs(muon.eta())<1.5 &&
-	muon.numberOfMatches( reco::Muon::NoArbitration ) >= 1 ) return true;
-   return ( muon.numberOfMatches( reco::Muon::NoArbitration ) >= minNumberOfMatches_ );
+  if ( addExtraSoftMuons_ &&
+       muon.pt()<5 && std::abs(muon.eta())<1.5 &&
+       muon.numberOfMatches( reco::Muon::NoArbitration ) >= 1 ) return true;
+  return ( muon.numberOfMatches( reco::Muon::NoArbitration ) >= minNumberOfMatches_ );
 }
 
 bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
 {
   if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
-   if ( addExtraSoftMuons_ &&
-	muon.pt()<5 && fabs(muon.eta())<1.5 &&
-	muon.numberOfMatchedRPCLayers( reco::Muon::RPCHitAndTrackArbitration ) > 1 ) return true;
-   return ( muon.numberOfMatchedRPCLayers( reco::Muon::RPCHitAndTrackArbitration ) > minNumberOfMatches_ );
+  if ( addExtraSoftMuons_ &&
+	     muon.pt()<5 && std::abs(muon.eta())<1.5 &&
+       muon.numberOfMatchedRPCLayers( reco::Muon::RPCHitAndTrackArbitration ) > 1 ) return true;
+  return ( muon.numberOfMatchedRPCLayers( reco::Muon::RPCHitAndTrackArbitration ) > minNumberOfMatches_ );
 }
 
 void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetup,
@@ -859,19 +864,19 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
          ", chamber x: " << matchedChamber.x << ", max: " << maxAbsDx_;
        LogTrace("MuonIdentification") << " matching local y, segment y: " << matchedSegment.y <<
          ", chamber y: " << matchedChamber.y << ", max: " << maxAbsDy_;
+       const double matchedSegChDx = std::abs(matchedSegment.x - matchedChamber.x);
+       const double matchedSegChDy = std::abs(matchedSegment.y - matchedChamber.y);
+       const double matchedSegChPullX = matchedSegChDx/std::hypot(matchedSegment.xErr, matchedChamber.xErr);
+       const double matchedSegChPullY = matchedSegChDy/std::hypot(matchedSegment.yErr, matchedChamber.yErr);
        if (matchedSegment.xErr>0 && matchedChamber.xErr>0 )
-         LogTrace("MuonIdentification") << " xpull: " <<
-           fabs(matchedSegment.x - matchedChamber.x)/sqrt(pow(matchedSegment.xErr,2) + pow(matchedChamber.xErr,2));
+         LogTrace("MuonIdentification") << " xpull: " << matchedSegChPullX;
        if (matchedSegment.yErr>0 && matchedChamber.yErr>0 )
-         LogTrace("MuonIdentification") << " ypull: " <<
-           fabs(matchedSegment.y - matchedChamber.y)/sqrt(pow(matchedSegment.yErr,2) + pow(matchedChamber.yErr,2));
+         LogTrace("MuonIdentification") << " ypull: " << matchedSegChPullY;
 
-       if (fabs(matchedSegment.x - matchedChamber.x) < maxAbsDx_) matchedX = true;
-       if (fabs(matchedSegment.y - matchedChamber.y) < maxAbsDy_) matchedY = true;
-       if (matchedSegment.xErr>0 && matchedChamber.xErr>0 &&
-           fabs(matchedSegment.x - matchedChamber.x)/sqrt(pow(matchedSegment.xErr,2) + pow(matchedChamber.xErr,2)) < maxAbsPullX_) matchedX = true;
-       if (matchedSegment.yErr>0 && matchedChamber.yErr>0 &&
-           fabs(matchedSegment.y - matchedChamber.y)/sqrt(pow(matchedSegment.yErr,2) + pow(matchedChamber.yErr,2)) < maxAbsPullY_) matchedY = true;
+       if (matchedSegChDx < maxAbsDx_) matchedX = true;
+       if (matchedSegChDy < maxAbsDy_) matchedY = true;
+       if (matchedSegment.xErr>0 && matchedChamber.xErr>0 && matchedSegChPullX < maxAbsPullX_) matchedX = true;
+       if (matchedSegment.yErr>0 && matchedChamber.yErr>0 && matchedSegChPullY < maxAbsPullY_) matchedY = true;
        if (matchedX && matchedY) matchedChamber.segmentMatches.push_back(matchedSegment);
      }
      muonChamberMatches.push_back(matchedChamber);
@@ -1171,34 +1176,34 @@ reco::Muon MuonIdProducer::makeMuon( const reco::Track& track )
 
 double MuonIdProducer::sectorPhi( const DetId& id )
 {
-   double phi = 0;
-   if( id.subdetId() ==  MuonSubdetId::DT ) {    // DT
-      DTChamberId muonId(id.rawId());
-      if ( muonId.sector() <= 12 )
-	phi = (muonId.sector()-1)/6.*M_PI;
-      if ( muonId.sector() == 13 ) phi = 3/6.*M_PI;
-      if ( muonId.sector() == 14 ) phi = 9/6.*M_PI;
-   }
-   if( id.subdetId() == MuonSubdetId::CSC ) {    // CSC
-      CSCDetId muonId(id.rawId());
-      phi = M_PI/4+(muonId.triggerSector()-1)/3.*M_PI;
-   }
-   if ( phi > M_PI ) phi -= 2*M_PI;
-   return phi;
+  double phi = 0;
+  if( id.subdetId() ==  MuonSubdetId::DT ) {    // DT
+    DTChamberId muonId(id.rawId());
+    if ( muonId.sector() <= 12 )
+      phi = (muonId.sector()-1)/6.*M_PI;
+    if ( muonId.sector() == 13 ) phi = 3/6.*M_PI;
+    if ( muonId.sector() == 14 ) phi = 9/6.*M_PI;
+  }
+  if( id.subdetId() == MuonSubdetId::CSC ) {    // CSC
+    CSCDetId muonId(id.rawId());
+    phi = M_PI/4+(muonId.triggerSector()-1)/3.*M_PI;
+  }
+  if ( phi > M_PI ) phi -= 2*M_PI;
+  return phi;
 }
 
 double MuonIdProducer::phiOfMuonIneteractionRegion( const reco::Muon& muon ) const
 {
-   if ( muon.isStandAloneMuon() ) return muon.standAloneMuon()->innerPosition().phi();
-   // the rest is tracker muon only
-   if ( muon.matches().empty() ){
-      if ( muon.innerTrack().isAvailable() &&
-	   muon.innerTrack()->extra().isAvailable() )
-	return muon.innerTrack()->outerPosition().phi();
-      else
-	return muon.phi(); // makes little sense, but what else can I use
-   }
-   return sectorPhi(muon.matches().at(0).id);
+  if ( muon.isStandAloneMuon() ) return muon.standAloneMuon()->innerPosition().phi();
+  // the rest is tracker muon only
+  if ( muon.matches().empty() ) {
+    if ( muon.innerTrack().isAvailable() &&
+         muon.innerTrack()->extra().isAvailable() )
+      return muon.innerTrack()->outerPosition().phi();
+    else
+      return muon.phi(); // makes little sense, but what else can I use
+  }
+  return sectorPhi(muon.matches().at(0).id);
 }
 
 void MuonIdProducer::fillGlbQuality(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::Muon& aMuon)
