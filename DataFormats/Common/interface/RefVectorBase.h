@@ -124,7 +124,7 @@ namespace edm {
 #endif
 
     //Needed for ROOT storage
-    CMS_CLASS_VERSION(11)
+    CMS_CLASS_VERSION(12)
 
   private:
 
