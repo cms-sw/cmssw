@@ -60,3 +60,5 @@ DEFINE_FWK_MODULE(SiStripSummaryReader);
 #include "CondTools/SiStrip/plugins/SiStripSummaryBuilder.h"
 DEFINE_FWK_MODULE(SiStripSummaryBuilder);
 
+#include "CondTools/SiStrip/plugins/SiStripApvGainFromFileBuilder.h"
+DEFINE_FWK_MODULE(SiStripApvGainFromFileBuilder);
