@@ -88,7 +88,7 @@ class StandardTester(object):
         lines = { 'read312RV' : ['cmsRun '+self.file2Path('Utilities/ReleaseScripts/scripts/read312RV_cfg.py')], 
                   'fastsim1'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/IntegrationTestFake_cfg.py')],
                   'fastsim2'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/IntegrationTest_cfg.py')],
-                  'fastsim3'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/ExampleWithHLT_1E31_cfg.py')],
+                  #'fastsim3'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/ExampleWithHLT_1E31_cfg.py')],
                   'fastsim4'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/IntegrationTestWithHLT_cfg.py')],
                   'pat1'      : ['cmsRun '+self.file2Path('PhysicsTools/PatAlgos/test/IntegrationTest_cfg.py')],
                 }
