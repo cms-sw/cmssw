@@ -16,54 +16,60 @@
 
 class HcalZDCMonitor: public HcalBaseMonitor
 {
- public:
-  HcalZDCMonitor();
-  ~HcalZDCMonitor();
-  void setup(const edm::ParameterSet& ps, DQMStore::IBooker& ib);
-  void processEvent(const ZDCDigiCollection& digi,
-                    const ZDCRecHitCollection& rechit);
-  void reset();
-  void endLuminosityBlock(void);
- private:
-  double getTime(const std::vector<double>& fData, unsigned int ts_min, unsigned int ts_max, double& fSum);
-  //int getTSMax(std::vector<double> fData);
-  //bool isGood(std::vector<double> fData, double fCut, double fPercentage);
+public:
+	HcalZDCMonitor();
+	~HcalZDCMonitor();
+	void setup(const edm::ParameterSet& ps, DQMStore::IBooker& ib);
+	void processEvent(const ZDCDigiCollection& digi,
+			const ZDCRecHitCollection& rechit);
+	void reset();
+	void endLuminosityBlock(void);
+private:
+	double getTime(const std::vector<double>& fData, unsigned int ts_min, unsigned int ts_max, double& fSum);
+	//int getTSMax(std::vector<double> fData);
+	//bool isGood(std::vector<double> fData, double fCut, double fPercentage);
 
-  bool checkZDC_;
-  int NumBadZDC;
-  MonitorElement* ProblemsVsLB_ZDC;
+	bool checkZDC_;
+	int NumBadZDC;
+	MonitorElement* ProblemsVsLB_ZDC;
 
-  const HcalQIEShape* shape_;
-  const HcalQIECoder* channelCoder_;
-  HcalCalibrations calibs_;
-  int ievt_;
-  //int zdc_checkNevents_;
-  MonitorElement* meEVT_;
-  MonitorElement* h_2D_saturation;
-  MonitorElement* h_2D_charge;
-  MonitorElement* h_2D_TSMean;
-  MonitorElement* h_2D_RecHitEnergy;
-  MonitorElement* h_2D_RecHitTime;
-  MonitorElement* h_ZDCP_EM_Pulse[5];
-  MonitorElement* h_ZDCM_EM_Pulse[5];
-  MonitorElement* h_ZDCP_EM_Charge[5];
-  MonitorElement* h_ZDCM_EM_Charge[5];
-  MonitorElement* h_ZDCP_EM_TSMean[5];
-  MonitorElement* h_ZDCM_EM_TSMean[5];
-  MonitorElement* h_ZDCP_HAD_Pulse[4];
-  MonitorElement* h_ZDCM_HAD_Pulse[4];
-  MonitorElement* h_ZDCP_HAD_Charge[4];
-  MonitorElement* h_ZDCM_HAD_Charge[4];
-  MonitorElement* h_ZDCP_HAD_TSMean[4];
-  MonitorElement* h_ZDCM_HAD_TSMean[4];
-  MonitorElement* h_ZDCP_EM_RecHitEnergy[5];
-  MonitorElement* h_ZDCM_EM_RecHitEnergy[5];
-  MonitorElement* h_ZDCP_EM_RecHitTiming[5];
-  MonitorElement* h_ZDCM_EM_RecHitTiming[5];
-  MonitorElement* h_ZDCP_HAD_RecHitEnergy[4];
-  MonitorElement* h_ZDCM_HAD_RecHitEnergy[4];
-  MonitorElement* h_ZDCP_HAD_RecHitTiming[4];
-  MonitorElement* h_ZDCM_HAD_RecHitTiming[4];
+	int NLumiBlocks_;
+
+	const HcalQIEShape* shape_;
+	const HcalQIECoder* channelCoder_;
+	HcalCalibrations calibs_;
+	int ievt_;
+	//int zdc_checkNevents_;
+	MonitorElement* meEVT_;
+	MonitorElement* h_2D_saturation;
+	MonitorElement* h_2D_charge;
+	MonitorElement* h_2D_TSMean;
+	MonitorElement* h_2D_RecHitEnergy;
+	MonitorElement* h_2D_RecHitTime;
+	MonitorElement* h_ZDCP_EM_Pulse[5];
+	MonitorElement* h_ZDCM_EM_Pulse[5];
+	MonitorElement* h_ZDCP_EM_Charge[5];
+	MonitorElement* h_ZDCM_EM_Charge[5];
+	MonitorElement* h_ZDCP_EM_TSMean[5];
+	MonitorElement* h_ZDCM_EM_TSMean[5];
+	MonitorElement* h_ZDCP_HAD_Pulse[4];
+	MonitorElement* h_ZDCM_HAD_Pulse[4];
+	MonitorElement* h_ZDCP_HAD_Charge[4];
+	MonitorElement* h_ZDCM_HAD_Charge[4];
+	MonitorElement* h_ZDCP_HAD_TSMean[4];
+	MonitorElement* h_ZDCM_HAD_TSMean[4];
+	MonitorElement* h_ZDCP_EM_RecHitEnergy[5];
+	MonitorElement* h_ZDCM_EM_RecHitEnergy[5];
+	MonitorElement* h_ZDCP_EM_RecHitTiming[5];
+	MonitorElement* h_ZDCM_EM_RecHitTiming[5];
+	MonitorElement* h_ZDCP_HAD_RecHitEnergy[4];
+	MonitorElement* h_ZDCM_HAD_RecHitEnergy[4];
+	MonitorElement* h_ZDCP_HAD_RecHitTiming[4];
+	MonitorElement* h_ZDCM_HAD_RecHitTiming[4];
+
+	MonitorElement* PZDC_QualityIndexVsLB_;
+	MonitorElement* NZDC_QualityIndexVsLB_;
+	MonitorElement* EventsVsLS;
 };
 
 #endif
