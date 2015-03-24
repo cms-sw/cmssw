@@ -162,9 +162,14 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC, edm::Event& event,
   if(reportGhosts_) {
     LogTrace(metname) << " Creating map between chosen seed and ghost seeds." << std::endl;
 
-    edm::Handle<L2MuonTrajectorySeedCollection> seedsHandle;
-    event.get(seeds.id(), seedsHandle);
-    auto_ptr<L2SeedAssoc> seedToSeedsMap(new L2SeedAssoc(seedsHandle, seedsHandle));
+    auto_ptr<L2SeedAssoc> seedToSeedsMap(new L2SeedAssoc);
+    if(!seeds->empty()) {
+      edm::Ptr<TrajectorySeed> ptr = seeds->ptrAt(0);
+      edm::Handle<L2MuonTrajectorySeedCollection> seedsHandle;
+      event.get(ptr.id(), seedsHandle);
+      seedToSeedsMap.reset(new L2SeedAssoc(seedsHandle, seedsHandle));
+    }
+
     int seedcnt(0);
 
     for(map<int, vector<int> >::iterator itmap=seedmap.begin(); itmap!=seedmap.end(); ++itmap, ++seedcnt) {

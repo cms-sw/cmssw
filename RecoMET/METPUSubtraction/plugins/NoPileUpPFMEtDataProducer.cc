@@ -77,7 +77,7 @@ namespace
     std::vector<reco::PFCandidatePtr> pfConsts = pfJet.getPFConstituents();
     for ( std::vector<reco::PFCandidatePtr>::const_iterator pfJetConstituent = pfConsts.begin(); pfJetConstituent != pfConsts.end(); ++pfJetConstituent ) {
       std::vector<int> idxs;
-      if ( pfJetConstituent->id() == viewProductID ) {
+      if (!pfCandidateCollection.empty() && pfJetConstituent->id() == viewProductID) {
 	idxs.push_back(pfJetConstituent->key());
       } else {
 	bool isMatched_fast = false;
