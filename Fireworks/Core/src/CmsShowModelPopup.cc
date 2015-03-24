@@ -194,7 +194,7 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
          TGTextButton *button;
          for(size_t index = m_openDetailedViewButtons.size(); index < viewChoices.size(); ++index)
          { 
-            // printf("add new button %s \n ",  viewChoices[index].c_str());
+            printf("add new button %s \n ",  viewChoices[index].c_str());
             button = new TGTextButton(this, "dummy", index);
             AddFrame(button, new TGLayoutHints(kLHintsExpandX, 4, 4, 4, 4));
             TGCompositeFrame* cf = (TGCompositeFrame*)button->GetParent();
@@ -218,7 +218,15 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
       //set the names
       for (size_t i = 0, e = viewChoices.size(); i != e; ++i)
       {
-         m_openDetailedViewButtons[i]->SetText(("Open " + viewChoices[i] + " Detail View ...").c_str());
+         if ( viewChoices[i][0] == '!') {
+            m_openDetailedViewButtons[i]->SetEnabled(false);
+            m_openDetailedViewButtons[i]->SetText(("Open " + viewChoices[i].substr(1) + " Detail View ...").c_str());
+
+         }
+         else {
+            m_openDetailedViewButtons[i]->SetText(("Open " + viewChoices[i] + " Detail View ...").c_str());
+            m_openDetailedViewButtons[i]->SetEnabled(true);
+         }
       }
    }
    
