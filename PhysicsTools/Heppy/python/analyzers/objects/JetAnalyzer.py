@@ -63,6 +63,7 @@ class JetAnalyzer( Analyzer ):
         self.jetLepDR = getattr(self.cfg_ana, 'jetLepDR', 0.4)
         self.jetLepArbitration = getattr(self.cfg_ana, 'jetLepArbitration', lambda jet,lepton: lepton) 
         self.lepPtMin = getattr(self.cfg_ana, 'minLepPt', -1)
+        self.lepSelCut = getattr(self.cfg_ana, 'lepSelCut', lambda lep : True)
         self.jetGammaDR =  getattr(self.cfg_ana, 'jetGammaDR', 0.4)
         if(self.cfg_ana.doQG):
             self.qglcalc = QGLikelihoodCalculator("/afs/cern.ch/user/t/tomc/public/qgTagger/QGLikelihoodDBFiles/QGL_v1a/pdfQG_AK4chs_antib_13TeV_v1.root")
@@ -125,7 +126,7 @@ class JetAnalyzer( Analyzer ):
         ## Clean Jets from leptons
         leptons = []
         if hasattr(event, 'selectedLeptons'):
-            leptons = [ l for l in event.selectedLeptons if l.pt() > self.lepPtMin ]
+            leptons = [ l for l in event.selectedLeptons if l.pt() > self.lepPtMin and self.lepSelCut(l) ]
         if self.cfg_ana.cleanJetsFromTaus and hasattr(event, 'selectedTaus'):
             leptons = leptons[:] + event.selectedTaus
         if self.cfg_ana.cleanJetsFromIsoTracks and hasattr(event, 'selectedIsoCleanTrack'):
@@ -366,6 +367,7 @@ setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     jetLepDR = 0.4,
     jetLepArbitration = (lambda jet,lepton : lepton), # you can decide which to keep in case of overlaps; e.g. if the jet is b-tagged you might want to keep the jet
     minLepPt = 10,
+    lepSelCut = lambda lep : True,
     relaxJetId = False,  
     doPuId = False, # Not commissioned in 7.0.X
     doQG = False, 
