@@ -30,10 +30,13 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     maxRapidityTP = cms.double(2.4),
     tipTP = cms.double(3.5),
     lipTP = cms.double(30.0),
-    # collision like tracks
+    # collision-like tracks
     parametersDefiner = cms.string('LhcParametersDefinerForTP'),
     # cosmics tracks
     # parametersDefiner = cms.string('CosmicParametersDefinerForTP'), 
+    #
+    # map linking SimHits to TrackingParticles, needed for cosmics validation`
+    simHitTpMapTag = cms.InputTag("simHitTPAssocProducer"), 
     #
     # if *not* uses associators, the TP-RecoTrack maps has to be specified 
     UseAssociators = cms.bool(False),

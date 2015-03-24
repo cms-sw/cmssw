@@ -52,4 +52,5 @@ class JetSubstructurePacker : public edm::stream::EDProducer<> {
       std::vector< edm::EDGetTokenT< edm::View<pat::Jet> > >   algoTokens_;
       bool fixDaughters_;
       edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
+      edm::EDGetTokenT<edm::Association<reco::PFCandidateCollection   >> pc2pf_;
 };

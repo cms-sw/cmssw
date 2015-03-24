@@ -344,12 +344,14 @@ namespace edm {
                  basketSize,
                  splitLevel);
       assert(branch != nullptr);
+/*
       if(pProd != nullptr) {
         // Delete the product that ROOT has allocated.
         WrapperBase const* edp = static_cast<WrapperBase const *>(pProd);
         delete edp;
         pProd = nullptr;
       }
+*/
       if(produced) {
         producedBranches_.push_back(branch);
       } else {

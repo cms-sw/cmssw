@@ -2,6 +2,8 @@
 
 <!-- base class -->
 <class name="EcalChannelStatusCode"/>
+<enum name="EcalChannelStatusCode::Code"/>
+<enum name="EcalChannelStatusCode::Bits"/>
 <!-- templates for EcalCondObjectContainer having the class as template parameter -->
 <class name="std::vector<EcalChannelStatusCode>"/>
 <class name="EcalContainer<EEDetId,EcalChannelStatusCode>"/>

@@ -94,6 +94,10 @@ class TrackAnalyzer
 
 	//For HI Plots
 	bool doHIPlots_;
+
+        // IP significance plots
+        bool doSIPPlots_;
+
 	std::string qualityString_;
 	
         struct TkParameterMEs {
@@ -267,7 +271,14 @@ class TrackAnalyzer
 	MonitorElement* dNdPt_HighPurity;
 	MonitorElement* NhitVsEta_HighPurity;
 	MonitorElement* NhitVsPhi_HighPurity;
-	
+
+	// IP significance plots
+	MonitorElement *sipDxyToBS;
+	MonitorElement *sipDzToBS;
+	MonitorElement *sip3dToPV;
+	MonitorElement *sip2dToPV;
+	MonitorElement *sipDxyToPV;
+	MonitorElement *sipDzToPV;
 	
 	struct TkRecHitsPerSubDetMEs {
 	  MonitorElement* NumberOfRecHitsPerTrack;

@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HIon/V16 (CMSSW_7_4_0_pre7_HLT3)
+# /dev/CMSSW_7_4_0/HIon/V26 (CMSSW_7_4_0_pre7_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V16')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V26')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -326,16 +326,23 @@ process.HLTPSetPvClusterComparerForBTag = cms.PSet(
 )
 process.HLTSeedFromConsecutiveHitsTripletOnlyCreator = cms.PSet( 
   ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
-  propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
-)
-process.HLTSeedFromConsecutiveHitsCreator = cms.PSet( 
-  ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
   propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
   SeedMomentumForBOFF = cms.double( 5.0 ),
   OriginTransverseErrorMultiplier = cms.double( 1.0 ),
   MinOneOverPtError = cms.double( 1.0 ),
-  SimpleMagneticField = cms.string( "ParabolicMf" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+  magneticField = cms.string( "ParabolicMf" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  forceKinematicWithRegionDirection = cms.bool( False )
+)
+process.HLTSeedFromConsecutiveHitsCreator = cms.PSet( 
+  ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+  propagator = cms.string( "PropagatorWithMaterial" ),
+  SeedMomentumForBOFF = cms.double( 5.0 ),
+  OriginTransverseErrorMultiplier = cms.double( 1.0 ),
+  MinOneOverPtError = cms.double( 1.0 ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  forceKinematicWithRegionDirection = cms.bool( False ),
+  magneticField = cms.string( "" )
 )
 process.HLTIter0HighPtTkMuPSetTrajectoryBuilderIT = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
@@ -382,8 +389,28 @@ process.HLTPSetPvClusterComparerForIT = cms.PSet(
   track_prob_min = cms.double( -1.0 )
 )
 process.HLTSiStripClusterChargeCutNone = cms.PSet(  value = cms.double( -1.0 ) )
-process.HLTSiStripClusterChargeCutLoose = cms.PSet(  value = cms.double( 1724.0 ) )
-process.HLTSiStripClusterChargeCutTight = cms.PSet(  value = cms.double( 2069.0 ) )
+process.HLTSiStripClusterChargeCutLoose = cms.PSet(  value = cms.double( 1620.0 ) )
+process.HLTSiStripClusterChargeCutTight = cms.PSet(  value = cms.double( 1945.0 ) )
+process.HLTSeedFromConsecutiveHitsCreatorIT = cms.PSet( 
+  ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+  propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  SeedMomentumForBOFF = cms.double( 5.0 ),
+  OriginTransverseErrorMultiplier = cms.double( 1.0 ),
+  MinOneOverPtError = cms.double( 1.0 ),
+  magneticField = cms.string( "ParabolicMf" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  forceKinematicWithRegionDirection = cms.bool( False )
+)
+process.HLTSeedFromProtoTracks = cms.PSet( 
+  ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+  propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  SeedMomentumForBOFF = cms.double( 5.0 ),
+  MinOneOverPtError = cms.double( 1.0 ),
+  magneticField = cms.string( "ParabolicMf" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+  OriginTransverseErrorMultiplier = cms.double( 1.0 ),
+  forceKinematicWithRegionDirection = cms.bool( False )
+)
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD',
   'InitialPDForHI' ) )
 process.datasets = cms.PSet( 
@@ -3157,7 +3184,8 @@ process.hltHIL3MuonsOIState = cms.EDProducer( "L3MuonProducer",
         BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 )
       ),
       VertexConstraint = cms.bool( False ),
-      DoSmoothing = cms.bool( True )
+      DoSmoothing = cms.bool( True ),
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
     ),
     MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
 )
@@ -3419,7 +3447,8 @@ process.hltHIL3MuonsOIHit = cms.EDProducer( "L3MuonProducer",
         BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 )
       ),
       VertexConstraint = cms.bool( False ),
-      DoSmoothing = cms.bool( True )
+      DoSmoothing = cms.bool( True ),
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
     ),
     MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
 )
@@ -3449,7 +3478,8 @@ process.hltHIL3TrajSeedIOHit = cms.EDProducer( "TSGFromL2Muon",
             ),
             SeedingLayers = cms.InputTag( "hltPixelLayerTriplets" )
           ),
-          TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+          TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+          SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsCreator" ) )
         ),
         PSetNames = cms.vstring( 'firstTSG',
           'secondTSG' ),
@@ -3469,7 +3499,8 @@ process.hltHIL3TrajSeedIOHit = cms.EDProducer( "TSGFromL2Muon",
             TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
           ),
           etaSeparation = cms.double( 2.0 ),
-          ComponentName = cms.string( "DualByEtaTSG" )
+          ComponentName = cms.string( "DualByEtaTSG" ),
+          SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsCreator" ) )
         ),
         secondTSG = cms.PSet( 
           ComponentName = cms.string( "TSGFromOrderedHits" ),
@@ -3479,7 +3510,8 @@ process.hltHIL3TrajSeedIOHit = cms.EDProducer( "TSGFromL2Muon",
             useOnDemandTracker = cms.untracked.int32( 0 ),
             SeedingLayers = cms.InputTag( "hltPixelLayerPairs" )
           ),
-          TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
+          TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+          SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsCreator" ) )
         )
       ),
       skipTSG = cms.PSet(  ),
@@ -3672,7 +3704,8 @@ process.hltHIAllL3MuonsIOHit = cms.EDProducer( "L3MuonProducer",
         BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 )
       ),
       VertexConstraint = cms.bool( False ),
-      DoSmoothing = cms.bool( True )
+      DoSmoothing = cms.bool( True ),
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
     ),
     MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
 )
@@ -3962,6 +3995,8 @@ process.DQMOutput = cms.EndPath( process.dqmOutput )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
 
 
+process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Physics_v1, process.HLT_HIL1DoubleMu0_HighQ_v1, process.HLT_HIL2Mu3_v1, process.HLT_HIL2Mu7_v1, process.HLT_HIL2Mu15_v1, process.HLT_HIL2Mu3_NHitQ_v1, process.HLT_HIL2DoubleMu0_v1, process.HLT_HIL2DoubleMu0_NHitQ_v1, process.HLT_HIL2DoubleMu3_v1, process.HLT_HIL3Mu3_v1, process.HLT_HIL3DoubleMuOpen_v1, process.HLT_HIL3DoubleMuOpen_SS_v1, process.HLT_HIL3DoubleMuOpen_OS_v1, process.HLT_HIL3DoubleMuOpen_OS_NoCowboy_v1, process.HLTriggerFinalPath, process.AOutput, process.DQMOutput, process.HLTAnalyzerEndpath ))
+
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
@@ -3972,17 +4007,9 @@ process.source = cms.Source( "PoolSource",
     )
 )
 
-#
-# CMSSW version specific customizations
-import os
-cmsswVersion = os.environ['CMSSW_VERSION']
-# Explicit deletions (via confdb.py):
-# None for now
-# Other release-dependent customisation:
-
-from HLTrigger.Configuration.CustomConfigs import customizeHLTforCMSSW
-process = customizeHLTforCMSSW(process)
-#
+# add release-specific customizations
+from HLTrigger.Configuration.customizeHLTforCMSSW import customise
+process = customise(process)
 
 # load 2015 Run-2 L1 Menu for HIon
 from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0 as loadL1Menu

@@ -24,6 +24,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
+
 using namespace edm;
 using namespace reco;
 
@@ -42,6 +43,18 @@ void SeedGeneratorFromProtoTracksEDProducer::fillDescriptions(edm::Configuration
   desc.add<bool>("useEventsWithNoVertex", true);
   desc.add<std::string>("TTRHBuilder", "TTRHBuilderWithoutAngle4PixelTriplets");
   desc.add<bool>("usePV", false);
+
+  edm::ParameterSetDescription psd0;
+  psd0.add<std::string>("ComponentName",std::string("SeedFromConsecutiveHitsCreator"));
+  psd0.add<std::string>("propagator",std::string("PropagatorWithMaterial"));
+  psd0.add<double>("SeedMomentumForBOFF",5.0);
+  psd0.add<double>("OriginTransverseErrorMultiplier",1.0);
+  psd0.add<double>("MinOneOverPtError",1.0);
+  psd0.add<std::string>("magneticField",std::string(""));
+  psd0.add<std::string>("TTRHBuilder",std::string("WithTrackAngle"));
+  psd0.add<bool>("forceKinematicWithRegionDirection",false);
+  desc.add<edm::ParameterSetDescription>("SeedCreatorPSet",psd0);
+  
   descriptions.add("SeedGeneratorFromProtoTracksEDProducer", desc);
 }
 
@@ -122,10 +135,13 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
         if(refHit->isValid()) hits.push_back((Hit)&(*refHit));
       }
       sort(hits.begin(), hits.end(), HitLessByRadius());
+
       if (hits.size() > 1) {
         double mom_perp = sqrt(proto.momentum().x()*proto.momentum().x()+proto.momentum().y()*proto.momentum().y());
 	GlobalTrackingRegion region(mom_perp, vtx, 0.2, 0.2);
-	SeedFromConsecutiveHitsCreator seedCreator;
+
+	edm::ParameterSet seedCreatorPSet = theConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+	SeedFromConsecutiveHitsCreator seedCreator(seedCreatorPSet);
 	seedCreator.init(region, es, 0);
 	seedCreator.makeSeed(*result, SeedingHitSet(hits[0], hits[1], hits.size() >2 ? hits[2] : SeedingHitSet::nullPtr() ));
       }

@@ -17,6 +17,8 @@ simMuonGEMDigis = cms.EDProducer("GEMDigiProducer",
     bxwidth = cms.int32(25),
     minBunch = cms.int32(-5), ## in terms of 25 ns
     maxBunch = cms.int32(3),
+    # added by A.Sharma
+    mixLabel = cms.string('mix'),
     inputCollection = cms.string('g4SimHitsMuonGEMHits'),
     digiModelString = cms.string('Simple'),
     digitizeOnlyMuons = cms.bool(True),

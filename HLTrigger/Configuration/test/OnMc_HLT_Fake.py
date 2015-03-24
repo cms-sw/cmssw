@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/Fake/V4 (CMSSW_7_4_0_pre7_HLT3)
+# /dev/CMSSW_7_4_0/Fake/V5 (CMSSW_7_4_0_pre7_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/Fake/V4')
+  tableName = cms.string('/dev/CMSSW_7_4_0/Fake/V5')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -347,6 +347,8 @@ process.DQMOutput = cms.EndPath( process.dqmOutput )
 
 
 
+process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Physics_v1, process.HLT_Random_v1, process.HLT_ZeroBias_v1, process.HLTriggerFinalPath, process.AOutput, process.DQMOutput ))
+
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
@@ -361,17 +363,9 @@ process.source = cms.Source( "PoolSource",
 from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
 process = customizeHLTforMC(process)
 
-#
-# CMSSW version specific customizations
-import os
-cmsswVersion = os.environ['CMSSW_VERSION']
-# Explicit deletions (via confdb.py):
-# None for now
-# Other release-dependent customisation:
-
-from HLTrigger.Configuration.CustomConfigs import customizeHLTforCMSSW
-process = customizeHLTforCMSSW(process)
-#
+# add release-specific customizations
+from HLTrigger.Configuration.customizeHLTforCMSSW import customise
+process = customise(process)
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:

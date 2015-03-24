@@ -93,6 +93,8 @@ MuonTrackLoader::MuonTrackLoader(ParameterSet &parameterSet, edm::ConsumesCollec
   theSmoothingStep = parameterSet.getParameter<bool>("DoSmoothing");
   if(theSmoothingStep)
     theSmootherName = parameterSet.getParameter<string>("Smoother");  
+
+  theTrackerRecHitBuilderName = parameterSet.getParameter<std::string>("TTRHBuilder");
   
   // update at vertex
   theUpdatingAtVtx = parameterSet.getParameter<bool>("VertexConstraint");
@@ -200,14 +202,8 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     theService->eventSetup().get<TrajectoryFitter::Record>().get(theSmootherName,aSmoother);
     theSmoother.reset(aSmoother->clone());
     edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-    try { 
-      std::string theTrackerRecHitBuilderName("WithAngleAndTemplate");  // to be moved to cfg in another PR
-      theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
-      theTrackerRecHitBuilder.product();
-    } catch(...) {
-      std::string theTrackerRecHitBuilderName("hltESPTTRHBWithTrackAngle");  // FIXME FIXME
-      theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
-    }
+    theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
+    theTrackerRecHitBuilder.product();
     hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
     theSmoother->setHitCloner(&hitCloner);
   }  

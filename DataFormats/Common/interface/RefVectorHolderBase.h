@@ -3,8 +3,6 @@
 
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
-#include "DataFormats/Common/interface/FillViewHelperVector.h"
 
 #include <memory>
 

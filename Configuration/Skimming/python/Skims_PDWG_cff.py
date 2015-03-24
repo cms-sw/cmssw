@@ -142,8 +142,9 @@ SKIMStreamEXOHPTE = cms.FilteredStream(
 
 #####################
 # For the Data on Data Mixing in TSG
-from HLTrigger.Configuration.HLT_FULL_cff import hltGtDigis
-hltGtDigisPath=cms.Path(hltGtDigis)
+from HLTrigger.Configuration.HLT_FULL_cff import fragment as _fragment
+hltGtDigis = _fragment.hltGtDigis.clone()
+hltGtDigisPath = cms.Path(hltGtDigis)
 
 # The events to be used as PileUp
 from Configuration.Skimming.PDWG_HLTZEROBIASPU_SD_cff import *

@@ -12,7 +12,6 @@
 #include <memory>
 #include <utility>
 #include <vector>
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
   template<typename T> class RefToBase;

@@ -9,7 +9,6 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
-#include "Cintex/Cintex.h"
 
 
 class testExpressionEvaluator : public CppUnit::TestFixture {
@@ -18,7 +17,7 @@ class testExpressionEvaluator : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  testExpressionEvaluator() {ROOT::Cintex::Cintex::Enable();} // for crappy pats
+  testExpressionEvaluator() {} // for crappy pats
   ~testExpressionEvaluator(){}
   void checkAll(); 
 

@@ -1057,7 +1057,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	RefToBase<reco::Track> tfrb1 = aConv.tracks().front();
 	RefToBase<reco::Track> tfrb2 = aConv.tracks().back();
 
-        if ( ecalalgotracks_ && ( !(tfrb1->algo()==15 || tfrb1->algo()==16) || !(tfrb2->algo()==15 || tfrb2->algo()==16)  )  ) continue;
+        if ( ecalalgotracks_ && ( !(tfrb1->algo()==reco::TrackBase::outInEcalSeededConv || tfrb1->algo()==reco::TrackBase::inOutEcalSeededConv) || !(tfrb2->algo()==reco::TrackBase::outInEcalSeededConv || tfrb2->algo()==reco::TrackBase::inOutEcalSeededConv)  )  ) continue;
 
 
 	//reco::TrackRef tk1 = aConv.tracks().front();
@@ -1186,7 +1186,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     tc1.push_back(tk1);
     tc2.push_back(tk2);
 
-   if ( ecalalgotracks_ && ( !(tk1->algo()==15 || tk1->algo()==16) || !(tk2->algo()==15 || tk2->algo()==16)  )  ) continue;
+   if ( ecalalgotracks_ && ( !(tk1->algo()==reco::TrackBase::outInEcalSeededConv || tk1->algo()==reco::TrackBase::inOutEcalSeededConv) || !(tk2->algo()==reco::TrackBase::outInEcalSeededConv || tk2->algo()==reco::TrackBase::inOutEcalSeededConv)  )  ) continue;
 
 
     //std::cout << " RECO to SIM conversion track pt " << tk1->pt() << " " << tk2->pt() << endl;

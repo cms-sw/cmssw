@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 patPhotons = cms.EDProducer("PATPhotonProducer",
     # input collection
     photonSource = cms.InputTag("gedPhotons"),
-             
+    electronSource = cms.InputTag("gedGsfElectrons"),             
     beamLineSrc = cms.InputTag("offlineBeamSpot"),
 
     reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),

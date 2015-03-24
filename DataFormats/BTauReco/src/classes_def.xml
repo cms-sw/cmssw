@@ -32,7 +32,7 @@
   <class name="reco::JTATagInfoRefVector"/>
   <class name="edm::Wrapper<reco::JTATagInfoCollection>"/>
 
-  <class name="reco::btag::TrackData" ClassVersion="11">
+  <class name="reco::btag::TrackData" ClassVersion="12">
    <version ClassVersion="12" checksum="889773348"/>
    <version ClassVersion="11" checksum="427805128"/>
    <version ClassVersion="10" checksum="3899080432"/>
@@ -152,19 +152,15 @@
 
   <!-- Dictionary for the association in SVTagInfoProxy-->
   <class name="edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::Vertex> > > >" persistent="false"/>
-  <!-- persistent="false" qualifier for non-wrappers is deprecated. Will be removed when no longer needed.-->
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::Vertex> > >" persistent="false"/>
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::Vertex> > >"/>
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::SecondaryVertexTagInfo>, std::vector<reco::Vertex>, unsigned int > > >" persistent="false"/>
-  <!-- persistent="false" qualifier for non-wrappers is deprecated. Will be removed when no longer needed.-->
-  <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::SecondaryVertexTagInfo>, std::vector<reco::Vertex>, unsigned int > >" persistent="false">
+  <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::SecondaryVertexTagInfo>, std::vector<reco::Vertex>, unsigned int > >">
     <field name="transientMap_" transient="true" />
   </class>
   <class name="edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CandSecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::VertexCompositePtrCandidate> > > >" persistent="false"/>
-  <!-- persistent="false" qualifier for non-wrappers is deprecated. Will be removed when no longer needed.-->
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CandSecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::VertexCompositePtrCandidate> > >" persistent="false"/>
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CandSecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::VertexCompositePtrCandidate> > >"/>
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::CandSecondaryVertexTagInfo>, std::vector<reco::VertexCompositePtrCandidate>, unsigned int > > >" persistent="false"/>
-  <!-- persistent="false" qualifier for non-wrappers is deprecated. Will be removed when no longer needed.-->
-  <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::CandSecondaryVertexTagInfo>, std::vector<reco::VertexCompositePtrCandidate>, unsigned int > >" persistent="false">
+  <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::CandSecondaryVertexTagInfo>, std::vector<reco::VertexCompositePtrCandidate>, unsigned int > >">
     <field name="transientMap_" transient="true" />
   </class>
 

@@ -16,7 +16,8 @@
 #include "CondCore/Utilities/interface/CondDBTools.h"
 #include <iostream>
 
-#include "Cintex/Cintex.h"
+// for the xml dump
+#include "TFile.h"
 #include <sstream>
 
 namespace cond {
@@ -34,8 +35,8 @@ cond::ValidateUtilities::ValidateUtilities():Utilities("conddb_validate2"){
   addConnectOption("sourceConnect","s","source connection string(required)");
   addConnectOption("destConnect","d","destionation connection string(required)");
   addAuthenticationOptions();
-  addOption<std::string>("tag","t","validate only the tag (optional)");
-  ROOT::Cintex::Cintex::Enable();
+  addOption<std::string>("tag","t","migrate only the tag (optional)");
+  addOption<std::string>("dir","d","tmp folder to dump the temporary files for the comparison (optional)");
 }
 
 cond::ValidateUtilities::~ValidateUtilities(){

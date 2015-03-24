@@ -34,8 +34,8 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
 {
   // initialize the configurables
   photonToken_ = consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("photonSource"));
-  electronToken_ = consumes<reco::GsfElectronCollection>(edm::InputTag("gedGsfElectrons"));
-  hConversionsToken_ = consumes<reco::ConversionCollection>(edm::InputTag("allConversions"));
+  electronToken_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronSource"));
+hConversionsToken_ = consumes<reco::ConversionCollection>(iConfig.getParameter<edm::InputTag>("conversionSource"));
   beamLineToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"));
   embedSuperCluster_ = iConfig.getParameter<bool>("embedSuperCluster");
   embedSeedCluster_ = iConfig.getParameter<bool>( "embedSeedCluster" );
@@ -372,6 +372,7 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   // input source
   iDesc.add<edm::InputTag>("photonSource", edm::InputTag("no default"))->setComment("input collection");
   iDesc.add<edm::InputTag>("electronSource", edm::InputTag("no default"))->setComment("input collection");
+  iDesc.add<edm::InputTag>("conversionSource", edm::InputTag("allConversions"))->setComment("input collection");
 
   iDesc.add<edm::InputTag>("reducedBarrelRecHitCollection", edm::InputTag("reducedEcalRecHitsEB"));
   iDesc.add<edm::InputTag>("reducedEndcapRecHitCollection", edm::InputTag("reducedEcalRecHitsEE"));  

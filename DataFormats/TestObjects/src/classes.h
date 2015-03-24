@@ -28,6 +28,9 @@
 #include "DataFormats/Common/interface/RefToBaseProd.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+
 namespace DataFormats_TestObjects {
 struct dictionary {
   edm::Wrapper<edmtest::DummyProduct> dummyw12;
@@ -107,5 +110,8 @@ struct dictionary {
   edm::helpers::KeyVal<edm::RefToBaseProd<int>,edm::RefToBaseProd<int> > keyval5;
   edm::AssociationMap<edm::OneToOne<edm::View<int>,edm::View<int>,unsigned int> > assoc5;
   edm::Wrapper<edm::AssociationMap<edm::OneToOne<edm::View<int>,edm::View<int>,unsigned int> > > wrassoc5;
+
+  edm::Wrapper<edm::EventID> wrapperEventID;
+  edm::Wrapper<edm::ProductID> wrapperProductID;
 };
 }

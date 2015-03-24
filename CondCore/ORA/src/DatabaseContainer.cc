@@ -40,12 +40,12 @@ namespace ora {
 	  RelationalBuffer operationBuffer( m_contSchema.storageSchema() );
 	  InsertOperation* topLevelInsert = &operationBuffer.newInsert( topLevelMapping.tableName() );
 	  topLevelInsert->addId(  topLevelMapping.columnNames()[ 0 ] );
-	  const Reflex::Type& type = m_contSchema.type();
-	  MappingElement::iterator iMap = topLevelMapping.find( type.Name(Reflex::SCOPED) );
+	  const edm::TypeWithDict& type = m_contSchema.type();
+	  MappingElement::iterator iMap = topLevelMapping.find( type.cppName() );
 	  // the first inner mapping is the relevant...
 	  if( iMap == topLevelMapping.end()){
 	    throwException("Could not find a mapping element for class \""+
-			   type.Name(Reflex::SCOPED)+"\"",
+			   type.cppName()+"\"",
 			   "WriteBuffer::flush");
 	  }
 	  MappingElement& mapping = iMap->second;
@@ -105,12 +105,12 @@ namespace ora {
 	  UpdateOperation* topLevelUpdate = &operationBuffer.newUpdate( topLevelMapping.tableName(), true );
 	  topLevelUpdate->addId(  topLevelMapping.columnNames()[ 0 ] );
 	  topLevelUpdate->addWhereId(  topLevelMapping.columnNames()[ 0 ] );
-	  const Reflex::Type& type = m_contSchema.type();
-	  MappingElement::iterator iMap = topLevelMapping.find( type.Name(Reflex::SCOPED) );
+	  const edm::TypeWithDict& type = m_contSchema.type();
+	  MappingElement::iterator iMap = topLevelMapping.find( type.cppName() );
 	  // the first inner mapping is the relevant...
 	  if( iMap == topLevelMapping.end()){
 	    throwException("Could not find a mapping element for class \""+
-			   type.Name(Reflex::SCOPED)+"\"",
+			   type.cppName()+"\"",
 			   "UpdateBuffer::flush");
 	  }
 	  MappingElement& mapping = iMap->second;
@@ -151,11 +151,11 @@ namespace ora {
 
         MappingElement& topLevelMapping = contSchema.mapping().topElement();
         m_topLevelQuery.addWhereId(  topLevelMapping.columnNames()[ 0 ] );
-        MappingElement::iterator iMap = topLevelMapping.find( m_type.Name(Reflex::SCOPED) );
+        MappingElement::iterator iMap = topLevelMapping.find( m_type.cppName() );
         // the first inner mapping is the good one ...
         if( iMap == topLevelMapping.end()){
           throwException("Could not find a mapping element for class \""+
-                         m_type.Name(Reflex::SCOPED)+"\"",
+                         m_type.cppName()+"\"",
                          "ReadBuffer::ReadBuffer");
         }
         MappingElement& mapping = iMap->second;
@@ -185,13 +185,13 @@ namespace ora {
         return destination;
       }
 
-      const Reflex::Type& type(){
+      const edm::TypeWithDict& type(){
         return m_type;
       }
       
     private:
       DataElement m_topLevelElement;
-      const Reflex::Type& m_type;
+      const edm::TypeWithDict& m_type;
       std::auto_ptr<IRelationalReader> m_reader;
       SelectOperation m_topLevelQuery;
   };
@@ -280,10 +280,10 @@ void* ora::IteratorBuffer::getItem(){
   return ret;
 }
 
-void* ora::IteratorBuffer::getItemAsType( const Reflex::Type& asType ){
+void* ora::IteratorBuffer::getItemAsType( const edm::TypeWithDict& asType ){
   if( !ClassUtils::isType( type(), asType ) ){
-    throwException("Provided output object type \""+asType.Name(Reflex::SCOPED)+"\" does not match with the container type \""+
-                   type().Name(Reflex::SCOPED)+"\"","IteratorBuffer::getItemAsType");
+    throwException("Provided output object type \""+asType.cppName()+"\" does not match with the container type \""+type().cppName(), 
+		   "ora::IteratorBuffer::getItemsAsType" );
   } 
   return getItem();
 }
@@ -292,7 +292,7 @@ int ora::IteratorBuffer::itemId(){
   return m_itemId;
 }
 
-const Reflex::Type& ora::IteratorBuffer::type(){
+const edm::TypeWithDict& ora::IteratorBuffer::type(){
   return m_readBuffer.type();
 }
       
@@ -315,7 +315,7 @@ ora::DatabaseContainer::DatabaseContainer( int contId,
 
 ora::DatabaseContainer::DatabaseContainer( int contId,
                                            const std::string& containerName,
-                                           const Reflex::Type& containerType,
+                                           const edm::TypeWithDict& containerType,
                                            DatabaseSession& session ):
   m_dbSchema( session.schema() ),
   m_schema( new ContainerSchema(contId, containerName, containerType, session) ),
@@ -345,7 +345,7 @@ const std::string& ora::DatabaseContainer::className(){
   return m_schema->className();
 }
 
-const Reflex::Type& ora::DatabaseContainer::type(){
+const edm::TypeWithDict& ora::DatabaseContainer::type(){
   return m_schema->type();
 }
 
@@ -396,7 +396,7 @@ void ora::DatabaseContainer::drop(){
   m_containerUpdateTable.remove( m_schema->containerId() );
 }
 
-void ora::DatabaseContainer::extendSchema( const Reflex::Type& dependentType ){
+void ora::DatabaseContainer::extendSchema( const edm::TypeWithDict& dependentType ){
   m_schema->extendIfRequired( dependentType );
 }
 
@@ -414,27 +414,27 @@ void* ora::DatabaseContainer::fetchItem(int itemId){
 }
 
 void* ora::DatabaseContainer::fetchItemAsType(int itemId,
-                                              const Reflex::Type& asType){
+                                              const edm::TypeWithDict& asType){
   if(!m_readBuffer.get()){
     m_readBuffer.reset( new ReadBuffer( *m_schema ) );
   }
   if( !ClassUtils::isType( type(), asType ) ){
-    throwException("Provided output object type \""+asType.Name(Reflex::SCOPED)+"\" does not match with the container type \""+
-                   type().Name(Reflex::SCOPED)+"\"","DatabaseContainer::fetchItemAsType");
+    throwException("Provided output object type \""+asType.cppName()+"\" does not match with the container type \""+type().cppName(), 
+		   "ora::DatabaseContainer::fetchItemAsType" );
   } 
   return m_readBuffer->read( itemId );
 }
 
 int ora::DatabaseContainer::insertItem( const void* data,
-                                        const Reflex::Type& dataType ){
+                                        const edm::TypeWithDict& dataType ){
   if(!m_writeBuffer.get()){
     m_writeBuffer.reset( new WriteBuffer( *m_schema ) );
   }
-  Reflex::Type inputResType = ClassUtils::resolvedType( dataType );
-  Reflex::Type contType = ClassUtils::resolvedType(m_schema->type());
-  if( inputResType.Name()!= contType.Name() && !inputResType.HasBase( contType ) ){
-    throwException( "Provided input object type=\""+inputResType.Name()+
-                    "\" does not match with the container type=\""+contType.Name()+"\"",
+  edm::TypeWithDict inputResType = ClassUtils::resolvedType( dataType );
+  edm::TypeWithDict contType = ClassUtils::resolvedType(m_schema->type());
+  if( inputResType.name()!= contType.name() && !inputResType.hasBase( contType ) ){
+    throwException( "Provided input object type=\""+inputResType.name()+
+                    "\" does not match with the container type=\""+contType.name()+"\"",
                     "DatabaseContainer::insertItem" );
   }
 
@@ -445,15 +445,15 @@ int ora::DatabaseContainer::insertItem( const void* data,
 
 void ora::DatabaseContainer::updateItem( int itemId,
                                          const void* data,
-                                         const Reflex::Type& dataType ){
+                                         const edm::TypeWithDict& dataType ){
   if(!m_updateBuffer.get()){
     m_updateBuffer.reset( new UpdateBuffer( *m_schema ) );
   }
-  Reflex::Type inputResType = ClassUtils::resolvedType( dataType );
-  Reflex::Type contType = ClassUtils::resolvedType(m_schema->type());
-  if( inputResType.Name()!= contType.Name() && !inputResType.HasBase( contType ) ){
-    throwException( "Provided input object type=\""+inputResType.Name()+"\" does not match with the container type=\""+
-                    contType.Name()+"\".",
+  edm::TypeWithDict inputResType = ClassUtils::resolvedType( dataType );
+  edm::TypeWithDict contType = ClassUtils::resolvedType(m_schema->type());
+  if( inputResType.name()!= contType.name() && !inputResType.hasBase( contType ) ){
+    throwException( "Provided input object type=\""+inputResType.name()+"\" does not match with the container type=\""+
+                    contType.name()+"\".",
                     "DatabaseContainer::updateItem" );
   }
 

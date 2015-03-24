@@ -90,6 +90,7 @@ class MuonTrackLoader {
 
     bool theSmoothingStep;
     std::string theSmootherName;
+    std::string theTrackerRecHitBuilderName;
     std::unique_ptr<TrajectorySmoother> theSmoother;
     TkClonerImpl hitCloner;
 

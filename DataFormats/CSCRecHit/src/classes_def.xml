@@ -11,7 +11,10 @@
   <class name="std::vector<CSCRecHit2D*>"/>
   <class name="std::map<CSCDetId,std::pair<unsigned int,unsigned int> >"/>
   <class name="std::map<CSCDetId,std::pair<unsigned long,unsigned long> >"/>
+  <class name="std::pair<CSCDetId,std::pair<unsigned int,unsigned int> >"/>  <!-- Root6 -->
+  <class name="std::pair<CSCDetId,std::pair<unsigned long,unsigned long> >"/><!-- Root6 -->
   <class name="edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >"/>
+  <class name="edm::ClonePolicy<CSCRecHit2D>"/> <!-- Root6 -->
   <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> >"/>
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> > >"/>
 
@@ -23,6 +26,7 @@
   </class>
   <class name="edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >"/>
   <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >"/>
+  <class name="edm::ClonePolicy<CSCSegment>"/> <!-- Root6 -->
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> > >"/>
   <class name="CSCSegmentRef"/>
 </selection>

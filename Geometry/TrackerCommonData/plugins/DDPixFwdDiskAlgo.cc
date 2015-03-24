@@ -10,7 +10,7 @@
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "SLHCUpgradeSimulations/Geometry/interface/DDPixFwdDiskAlgo.h"
+#include "Geometry/TrackerCommonData/plugins/DDPixFwdDiskAlgo.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
