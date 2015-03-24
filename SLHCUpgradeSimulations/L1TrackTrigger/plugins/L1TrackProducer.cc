@@ -354,11 +354,11 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       unsigned int iZ = stubDetId.iZ();
 
 
-      if (stub->getTriggerBend()<0.0) stubPt=-stubPt;
-
       GlobalPoint stubPosition = theStackedGeometry->findGlobalPosition(stub);
 
-
+      if (stub->getTriggerBend()<0.0) stubPt=-stubPt;
+      if (iStack==999999 && stubPosition.z()>0) stubPt=-stubPt;
+	
       std::vector<bool> innerStack;
       std::vector<int> irphi;
       std::vector<int> iz;
