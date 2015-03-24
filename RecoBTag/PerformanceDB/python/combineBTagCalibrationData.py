@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 import sys
 import itertools
@@ -21,10 +23,17 @@ def main():
 
     all_csv_data = dict()
     header = None
+    tagger = None
     for fname in sys.argv[1:-1]:
         with open(fname) as f:
             all_csv_data[fname] = f.readlines()
         header = all_csv_data[fname].pop(0)
+        tggr = header.split('/')[0]
+        if tagger and tggr != tagger:
+            print 'Found different taggers: %s vs. %s Exit.' % (tagger, tggr)
+            exit(-1)
+        else:
+            tagger = tggr
 
     print '\n' + '='*80
     print 'Checking consistency of individual input files...'
