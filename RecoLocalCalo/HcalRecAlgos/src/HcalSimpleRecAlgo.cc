@@ -317,7 +317,7 @@ namespace HcalSimpleRecAlgoImpl {
 		     const HcalTimeSlew::BiasSetting slewFlavor,
                      const int runnum, const bool useLeak,
                      const AbsOOTPileupCorrection* pileupCorrection,
-                     const BunchXParameter* bxInfo, const unsigned lenInfo, const int puCorrMethod, const PulseShapeFitOOTPileupCorrection * psFitOOTpuCorr, HLTv2 * hltOOTpuCorr, PedestalSub * hltPedSub /* whatever don't know what to do with the pointer...*/)// const on end
+                     const BunchXParameter* bxInfo, const unsigned lenInfo, const int puCorrMethod, const PulseShapeFitOOTPileupCorrection * psFitOOTpuCorr, HcalDeterministicFit * hltOOTpuCorr, PedestalSub * hltPedSub /* whatever don't know what to do with the pointer...*/)// const on end
   {
     double fc_ampl =0, ampl =0, uncorr_ampl =0, maxA = -1.e300;
     int nRead = 0, maxI = -1;
@@ -374,25 +374,9 @@ namespace HcalSimpleRecAlgoImpl {
     // S. Brandt - Feb 19th : Adding Section for HLT
     // Turn on HLT here with puCorrMethod = 3
     if ( puCorrMethod == 3){
-      //std::cout << "Doing HLT" << std::endl;
-      //std::cout << "PU Corection is ... " << puCorrMethod << std::endl;
-      //std::cout << "Doing HLT..." << std::endl;
       std::vector<double> hltCorrOutput;
-      int iNegStrategy = 0;
-      // whatever 
-      //std::cout << "neg strat = " << iNegStrategy << std::endl;
-      
-      hltPedSub->Init(((PedestalSub::Method)1), 0, 2.7, 0.0);
-      
-      if(puCorrMethod == 3) {
-        iNegStrategy = 2;
-        //std::cout << "Greg's Negative Corrections..." << std::endl;
-      } /*else if(puCorrMethod == 4) {
-        iNegStrategy = 1;
-        //std::cout << "No Corrections..." << std::endl;
-      }// no corr*/
-       //std::cout << iNegStrategy << std::endl; 
-      hltOOTpuCorr->Init((HcalTimeSlew::ParaSource)2, HcalTimeSlew::Medium, (HLTv2::NegStrategy)iNegStrategy, *hltPedSub);
+      hltPedSub->init(((PedestalSub::Method)1), 0, 2.7, 0.0);
+      hltOOTpuCorr->init((HcalTimeSlew::ParaSource)2, HcalTimeSlew::Medium, (HcalDeterministicFit::NegStrategy)2, *hltPedSub);
       
       CaloSamples cs;
       coder.adc2fC(digi,cs);
@@ -403,10 +387,8 @@ namespace HcalSimpleRecAlgoImpl {
       }
      // if(cs[4]-calibs.pedestal(capidvec[4])+cs[5]-calibs.pedestal(capidvec[4]) > 5){
         hltOOTpuCorr->apply(cs, capidvec, calibs, hltCorrOutput);
-        if( hltCorrOutput.size() > 0 ){
-          //time = hltCorrOutput[1]; ampl = hltCorrOutput[0];
-          time = hltCorrOutput.at(1); ampl = hltCorrOutput.at(0);
-        //  std::cout << time << " " << ampl << std::endl;
+        if( hltCorrOutput.size() > 1 ){
+          time = hltCorrOutput[1]; ampl = hltCorrOutput[0];
         }
       //} else {time = -999; ampl = 0;}
     }

@@ -21,7 +21,7 @@
 #include "CondFormats/HcalObjects/interface/AbsOOTPileupCorrection.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFitOOTPileupCorrection.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HLTv2.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalDeterministicFit.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/PedestalSub.h"
 
@@ -79,7 +79,10 @@ public:
   HORecHit reconstruct(const HODataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 
-  void setpuCorrMethod(int method){ puCorrMethod_ = method; if( puCorrMethod_ ==2 ) psFitOOTpuCorr_ = std::auto_ptr<PulseShapeFitOOTPileupCorrection>(new PulseShapeFitOOTPileupCorrection()); if( puCorrMethod_ ==3 /*|| puCorrMethod_ == 4*/) hltOOTpuCorr_ = std::auto_ptr<HLTv2>(new HLTv2());}
+  void setpuCorrMethod(int method){ 
+    puCorrMethod_ = method; if( puCorrMethod_ == 2 ) psFitOOTpuCorr_ = std::auto_ptr<PulseShapeFitOOTPileupCorrection>(new PulseShapeFitOOTPileupCorrection());
+    if( puCorrMethod_ == 3) hltOOTpuCorr_ = std::auto_ptr<HcalDeterministicFit>(new HcalDeterministicFit());
+  }
   void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,
 		       double iTS4Min, double iTS4Max, double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 		       double iNoise,double iTMin,double iTMax,
@@ -108,7 +111,7 @@ private:
   std::auto_ptr<PulseShapeFitOOTPileupCorrection> psFitOOTpuCorr_;
   
   // S.Brandt Feb19 : Add a pointer to the HLT algo
-  std::auto_ptr<HLTv2> hltOOTpuCorr_;
+  std::auto_ptr<HcalDeterministicFit> hltOOTpuCorr_;
 };
 
 #endif

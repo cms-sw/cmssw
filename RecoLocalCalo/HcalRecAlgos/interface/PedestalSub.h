@@ -1,5 +1,5 @@
-#ifndef PedestalSub_h
-#define PedestalSub_h 1
+#ifndef RecoLocalCalo_HcalRecAlgos_PedestalSub_h
+#define RecoLocalCalo_HcalRecAlgos_PedestalSub_h 1
 
 #include <typeinfo>
 #include <vector>
@@ -12,19 +12,20 @@ class PedestalSub
   PedestalSub();
   ~PedestalSub();
   
-  void Init(Method method, int runCond, float threshold, float quantile);
+  void init(Method method, int runCond, float threshold, float quantile);
   
-  void Calculate(const std::vector<double> & inputCharge, const std::vector<double> & inputPedestal, std::vector<double> & corrCharge) const;
-  double GetCorrection(const std::vector<double> & inputCharge, const std::vector<double> & inputPedestal) const;
+  void calculate(const std::vector<double> & inputCharge, const std::vector<double> & inputPedestal, std::vector<double> & corrCharge) const;
+  
+  double getCorrection(const std::vector<double> & inputCharge, const std::vector<double> & inputPedestal) const;
 
+  
+ private:
   Method fMethod;
   float fThreshold;
   float fQuantile;
-  float fNoiseCorr;
+ // float fNoiseCorr; // only needed for quantile method
   float fCondition;
-  float fNoisePara;
-
- private:
+ // float fNoisePara; // only needed for quantile method
   
 };
 
