@@ -24,11 +24,11 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
@@ -769,6 +769,14 @@ bool CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc)
       getDigis(compdc, detid_me1a);
     }
 
+    // If this is ME1/1, fetch digis in corresponding ME1/B (ring=1) as well.
+    // needed only for the "smart" A/B case; and, actually, only for data
+    if (theStation == 1 && theRing == 4 && !disableME1a && smartME1aME1b 
+	&& digiV[i_layer].empty()) {
+      CSCDetId detid_me1b(theEndcap, theStation, 1, theChamber, i_layer+1);
+      getDigis(compdc, detid_me1b);
+    }
+
     if (!digiV[i_layer].empty()) {
       noDigis = false;
       if (infoV > 1) {
@@ -787,17 +795,36 @@ bool CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc)
 
 void CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc,
 				      const CSCDetId& id) {
+  bool me1bProc = theStation == 1 && theRing == 1;
+  bool me1aProc = theStation == 1 && theRing == 4;
+  bool me1b = (id.station() == 1) && (id.ring() == 1);
   bool me1a = (id.station() == 1) && (id.ring() == 4);
   const CSCComparatorDigiCollection::Range rcompd = compdc->get(id);
   for (CSCComparatorDigiCollection::const_iterator digiIt = rcompd.first;
        digiIt != rcompd.second; ++digiIt) {
-    if (me1a && digiIt->getStrip() <= 16 && !disableME1a && !smartME1aME1b) {
+    unsigned int origStrip = digiIt->getStrip();
+    if (me1a && origStrip <= 16 && !disableME1a && !smartME1aME1b) {
       // Move ME1/A comparators from CFEB=0 to CFEB=4 if this has not
       // been done already.
-      CSCComparatorDigi digi_corr(digiIt->getStrip()+64,
+      CSCComparatorDigi digi_corr(origStrip+64,
 				  digiIt->getComparator(),
 				  digiIt->getTimeBinWord());
       digiV[id.layer()-1].push_back(digi_corr);
+    }
+    else if (smartME1aME1b){
+      //stay within bounds; in data all comps are in ME11B DetId
+
+      if (me1aProc && me1b && origStrip > 64){//this is data
+	//shift back to start from 1
+	CSCComparatorDigi digi_corr(origStrip-64,
+				    digiIt->getComparator(),
+				    digiIt->getTimeBinWord());
+	digiV[id.layer()-1].push_back(digi_corr);
+      } else if ((me1bProc && me1b && origStrip <= 64)
+		 || ((me1aProc && me1a))//this is MC for ME11a
+		 ){
+	digiV[id.layer()-1].push_back(*digiIt);
+      }
     }
     else {
       digiV[id.layer()-1].push_back(*digiIt);
