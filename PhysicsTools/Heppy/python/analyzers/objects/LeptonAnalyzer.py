@@ -236,6 +236,11 @@ class LeptonAnalyzer( Analyzer ):
         for mu in allmuons:
             mu.associatedVertex = event.goodVertices[0] if len(event.goodVertices)>0 else event.vertices[0]
 
+        # Set tight id if specified
+        if hasattr(self.cfg_ana, "mu_tightId"):
+            for mu in allmuons:
+               mu.tightIdResult = mu.muonID(self.cfg_ana.mu_tightId)
+ 
         # Compute relIso in 0.3 and 0.4 cones
         for mu in allmuons:
             if self.cfg_ana.mu_isoCorr=="rhoArea" :
@@ -330,7 +335,10 @@ class LeptonAnalyzer( Analyzer ):
             elif self.cfg_ana.ele_tightId=="Cuts_2012" :
                  ele.tightIdResult = -1 + 1*ele.electronID("POG_Cuts_ID_2012_Veto_full5x5") + 1*ele.electronID("POG_Cuts_ID_2012_Loose_full5x5") + 1*ele.electronID("POG_Cuts_ID_2012_Medium_full5x5") + 1*ele.electronID("POG_Cuts_ID_2012_Tight_full5x5")
             else :
-                 raise RuntimeError, "Unsupported ele_tightId name '" + str(self.cfg_ana.ele_tightId) +  "'! For now only 'MVA' and 'Cuts_2012' are supported."
+                 try:
+                     ele.tightIdResult = ele.electronID(self.cfg_ana.ele_tightId)
+                 except RuntimeError:
+                     raise RuntimeError, "Unsupported ele_tightId name '" + str(self.cfg_ana.ele_tightId) +  "'! For now only 'MVA' and 'Cuts_2012' are supported, in addition to what provided in Electron.py."
 
         
         return allelectrons 
@@ -481,6 +489,7 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     # muon isolation correction method (can be "rhoArea" or "deltaBeta")
     mu_isoCorr = "rhoArea" ,
     mu_effectiveAreas = "Phys14_25ns_v1", #(can be 'Data2012' or 'Phys14_25ns_v1')
+    mu_tightId = "POG_ID_Tight" ,
     # electron isolation correction method (can be "rhoArea" or "deltaBeta")
     ele_isoCorr = "rhoArea" ,
     el_effectiveAreas = "Phys14_25ns_v1" , #(can be 'Data2012' or 'Phys14_25ns_v1')

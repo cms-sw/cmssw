@@ -7,8 +7,8 @@ class Muon( Lepton ):
         return self.physObj.isLooseMuon()
 
     def tightId( self ):
-        '''Tight ID as recommended by mu POG.'''
-        return self.muonID("POG_ID_Tight")
+        '''Tight ID as recommended by mu POG (unless redefined in the lepton analyzer).'''
+        return getattr(self,"tightIdResult",self.muonID("POG_ID_Tight"))
 
     def muonID(self, name, vertex=None):
         if name == "" or name is None: 
@@ -31,6 +31,8 @@ class Muon( Lepton ):
                 if not self.looseId(): return False
                 goodGlb = self.physObj.isGlobalMuon() and self.physObj.globalTrack().normalizedChi2() < 3 and self.physObj.combinedQuality().chi2LocalPosition < 12 and self.physObj.combinedQuality().trkKink < 20;
                 return self.physObj.innerTrack().validFraction() >= 0.8 and self.physObj.segmentCompatibility() >= (0.303 if goodGlb else 0.451)
+            if name == "POG_Global_OR_TMArbitrated":
+                return self.physObj.isGlobalMuon() or (self.physObj.isTrackerMuon() and self.physObj.numberOfMatchedStations() > 0)
         return self.physObj.muonID(name)
             
     def mvaId(self):
