@@ -26,6 +26,7 @@
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "CommonTools/Utils/interface/associationMapFilterValues.h"
 #include<type_traits>
 
 
@@ -281,9 +282,26 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	event.getByToken(associatormapStRs[ww], simtorecoCollectionH);
 	simRecCollP = simtorecoCollectionH.product();
 
+        // We need to filter the associations of the current track
+        // collection only from SimToReco collection, otherwise the
+        // SimToReco histograms get false entries
+        simRecCollL = associationMapFilterValues(*simRecCollP, *trackCollection);
+        simRecCollP = &simRecCollL;
+
 	Handle<reco::RecoToSimCollection > recotosimCollectionH;
 	event.getByToken(associatormapRtSs[ww],recotosimCollectionH);
 	recSimCollP = recotosimCollectionH.product();
+
+        // In general, we should filter also the RecoToSim collection.
+        // But, that would require changing the input type of TPs to
+        // View<TrackingParticle>, and either replace current
+        // associator interfaces with (View<Track>, View<TP>) or
+        // adding the View,View interface (same goes for
+        // RefToBaseVector,RefToBaseVector). Since there is currently
+        // no compelling-enough use-case, we do not filter the
+        // RecoToSim collection here. If an association using a subset
+        // of the Sim collection is needed, user has to produce such
+        // an association explicitly.
       }
 
       reco::RecoToSimCollection const & recSimColl = *recSimCollP;
