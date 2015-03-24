@@ -37,13 +37,14 @@ int main()
   assert (e3.size() == 1);
 
   // check csv output (ordering arbitrary)
+  string tggr = "testTagger";
   string csv2_1("0, comb, up, 0, 1, 2, 3, 4, 5, 6, \"2*x\" \n");
   string csv2_2("0, comb, down, 0, 1, 2, 3, 4, 5, 6, \"2*x\" \n");
   stringstream csv2Stream1;
   stringstream csv2Stream2;
-  csv2Stream1 << BTagEntry::makeCSVHeader() << csv2_1 << csv2_2;
-  csv2Stream2 << BTagEntry::makeCSVHeader() << csv2_2 << csv2_1;
-  BTagCalibration b2("csvivf");
+  csv2Stream1 << tggr << ";" << BTagEntry::makeCSVHeader() << csv2_1 << csv2_2;
+  csv2Stream2 << tggr << ";" << BTagEntry::makeCSVHeader() << csv2_2 << csv2_1;
+  BTagCalibration b2(tggr);
   b2.readCSV(csv2Stream1);
 
   stringstream csv3Stream;

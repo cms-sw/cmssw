@@ -39,7 +39,7 @@ namespace edm {
   template <typename T>
   void
   SetCustomStreamer() {
-    TClass *cl = TClass::GetClass(TypeID(typeid(T)).className().c_str());
+    TClass *cl = TClass::GetClass(typeid(T));
     if (cl->GetStreamer() == 0) {
       cl->AdoptStreamer(new CustomStreamer<T>());
     }
@@ -48,7 +48,7 @@ namespace edm {
   template <typename T>
   void
   SetCustomStreamer(T const&) {
-    TClass *cl = TClass::GetClass(TypeID(typeid(T)).className().c_str());
+    TClass *cl = TClass::GetClass(typeid(T));
     if (cl->GetStreamer() == 0) {
       cl->AdoptStreamer(new CustomStreamer<T>());
     }
