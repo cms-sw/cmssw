@@ -133,6 +133,7 @@ protected:
 
 #endif  // BTagCalibration_H
 
+
 #ifndef BTagCalibrationReader_H
 #define BTagCalibrationReader_H
 

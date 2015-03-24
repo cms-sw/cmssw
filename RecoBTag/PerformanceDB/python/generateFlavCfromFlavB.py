@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 import sys
 import itertools
@@ -59,14 +61,15 @@ def main():
     print '\nChecking input file consistency...'
     loaders = dataLoader.get_data(sys.argv[1])
     checks = checker.run_check_data(loaders, True, True, False)
-    for res, data in itertools.izip(checks, loaders):
+    for data in loaders:
         typ = data.meas_type
-        if not 0 in data.flavs:
-            print 'FLAV_B not found in input file for %s. Exit.' % typ
-            exit(-1)
         if 1 in data.flavs:
             print 'FLAV_C already present in input file for %s. Exit.' % typ
             exit(-1)
+    if not any(0 in data.flavs for data in loaders):
+        print 'FLAV_B not found in input file. Exit.'
+        exit(-1)
+
 
     print '\nGenerating new csv content...'
     new_csv_data = list(itertools.chain.from_iterable(
