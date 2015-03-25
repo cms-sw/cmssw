@@ -77,6 +77,8 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     if(regionEt < tauSeedThreshold) continue;
 
     int regionEta = region->hwEta();
+    if(regionEta < 4 || regionEta > 17)
+      continue; // Taus cannot come from HF
     int regionPhi = region->hwPhi();
 
     //int associatedSecondRegionEt =
@@ -100,6 +102,9 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
       int neighborPhi = neighbor->hwPhi();
       int neighborEta = neighbor->hwEta();
+      if(neighborEta < 4 || neighborEta > 17)
+	continue; // Taus cannot come from HF
+
       int deltaPhi = regionPhi - neighborPhi;
       if (std::abs(deltaPhi) == L1CaloRegionDetId::N_PHI-1)
 	deltaPhi = -deltaPhi/std::abs(deltaPhi); //18 regions in phi
