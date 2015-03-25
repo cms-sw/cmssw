@@ -9,12 +9,9 @@ ALCARECOTkAlMinBiasFilterForSiPixelAli.HLTPaths = ['pathALCARECOTkAlMinBias']
 ALCARECOTkAlMinBiasFilterForSiPixelAli.throw = True ## dont throw on unknown path names
 ALCARECOTkAlMinBiasFilterForSiPixelAli.TriggerResultsTag = cms.InputTag("TriggerResults","","RECO")
 
-# So, should all our stuff come here???
-# I mean, all this thing does in the end is define a sequence...
-# ... while step2_ALCA_tobe.py defines an entire process.
-# The answer is YES
-
-# Start of what we imported
+# Adding geometry here, since this was also added to the process in the
+# original alignment_BASE.py that was the configuration template used for mille
+from Configuration.Geometry.GeometryIdeal_cff import *
 
 # Ingredient: offlineBeamSpot
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import offlineBeamSpot
@@ -38,7 +35,7 @@ AlignmentTrackSelector.minHitsPerSubDet.inPIXEL = 2
 
 # Ingredient: SiPixelAliTrackRefitter0
 # refitting
-from RecoTracker.TrackProducer.TrackRefitters_cff import TrackRefitter
+from RecoTracker.TrackProducer.TrackRefitters_cff import *
 # In the following use
 # TrackRefitter (normal tracks), TrackRefitterP5 (cosmics) or TrackRefitterBHM (beam halo)
 
@@ -47,21 +44,20 @@ SiPixelAliTrackRefitter0 = TrackRefitter.clone(
         NavigationSchool = '',            # to avoid filling hit pattern
                                               )
 
-# Alignment producer
-process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
-#process.AlignmentProducer.parameterTypes = cms.vstring('Selector,RigidBody')
-#process.AlignmentProducer.ParameterBuilder.parameterTypes = [
+# Alignment producer (which is a cms.Looper module and hence not added to the sequence)
+from Alignment.CommonAlignmentProducer.AlignmentProducer_cff import *
+#looper.parameterTypes = cms.vstring('Selector,RigidBody')
+#looper.ParameterBuilder.parameterTypes = [
 #    'SelectorRigid,RigidBody',
 #    'SelectorBowed,BowedSurface'
 #    ,'Selector2Bowed,TwoBowedSurfaces'
 #    ]
-process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
+looper.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(
         'TrackerTPBHalfBarrel,111111',
         'TrackerTPEHalfCylinder,111111',
 #        'TrackerTPBLayer,111111',
 #        'TrackerTPEHalfDisk,111111',
-
         'TrackerTIBHalfBarrel,ffffff', # or fff fff?
         'TrackerTOBHalfBarrel,ffffff', # dito...
         'TrackerTIDEndcap,ffffff',
@@ -69,13 +65,12 @@ process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
         )
     )
 
-process.AlignmentProducer.doMisalignmentScenario = False #True
+looper.doMisalignmentScenario = False #True
 
 # If the above is true, you might want to choose the scenario:
 #from Alignment.TrackerAlignment.Scenarios_cff import Tracker10pbScenario as Scenario # TrackerSurveyLASOnlyScenario
 
-
-process.AlignmentProducer.MisalignmentScenario = cms.PSet(
+looper.MisalignmentScenario = cms.PSet(
     setRotations = cms.bool(True),
     setTranslations = cms.bool(True),
     seed = cms.int32(1234567),
@@ -88,7 +83,6 @@ process.AlignmentProducer.MisalignmentScenario = cms.PSet(
         phiXlocal = cms.double(1.e-4),
         phiYlocal = cms.double(-2.e-4),
         phiZlocal = cms.double(5.e-4),
-        
         ),
     TPBHalfBarrel2 = cms.PSet(
         dXlocal = cms.double(-0.0020),
@@ -97,7 +91,6 @@ process.AlignmentProducer.MisalignmentScenario = cms.PSet(
         phiXlocal = cms.double(1.e-3),
         phiYlocal = cms.double(2.e-4),
         phiZlocal = cms.double(-2.e-4),
-
         ),
     TPEEndcap1 = cms.PSet(
         TPEHalfCylinder1 = cms.PSet(
@@ -107,7 +100,7 @@ process.AlignmentProducer.MisalignmentScenario = cms.PSet(
             phiXlocal = cms.double(-1.e-5),
             phiYlocal = cms.double(2.e-3),
             phiZlocal = cms.double(2.e-5),
-        ),
+            ),
         TPEHalfCylinder2 = cms.PSet(
             dXlocal = cms.double(0.0020),
             dYlocal = cms.double(0.0030),
@@ -115,8 +108,8 @@ process.AlignmentProducer.MisalignmentScenario = cms.PSet(
             phiXlocal = cms.double(1.e-4),
             phiYlocal = cms.double(-1.e-4),
             phiZlocal = cms.double(2.e-4),
+            ),
         ),
-    ),
     TPEEndcap2 = cms.PSet(
         TPEHalfCylinder1 = cms.PSet(
             dXlocal = cms.double(-0.0080),
@@ -125,7 +118,7 @@ process.AlignmentProducer.MisalignmentScenario = cms.PSet(
             phiXlocal = cms.double(1.e-3),
             phiYlocal = cms.double(-3.e-4),
             phiZlocal = cms.double(2.e-4),
-        ),
+            ),
         TPEHalfCylinder2 = cms.PSet(
             dXlocal = cms.double(0.0020),
             dYlocal = cms.double(0.0030),
@@ -133,36 +126,32 @@ process.AlignmentProducer.MisalignmentScenario = cms.PSet(
             phiXlocal = cms.double(-1.e-3),
             phiYlocal = cms.double(2.e-4),
             phiZlocal = cms.double(3.e-4),
-        ),
+            ),
+        )
     )
 
-
-    )
-process.AlignmentProducer.checkDbAlignmentValidity = False
-
-process.AlignmentProducer.applyDbAlignment = True
-
-
-process.AlignmentProducer.tjTkAssociationMapTag = 'SiPixelAliTrackFitter'
+looper.checkDbAlignmentValidity = False
+looper.applyDbAlignment = True
+looper.tjTkAssociationMapTag = 'SiPixelAliTrackFitter'
 
 # assign by reference (i.e. could change MillePedeAlignmentAlgorithm as well):
-process.AlignmentProducer.algoConfig = process.MillePedeAlignmentAlgorithm
+looper.algoConfig = MillePedeAlignmentAlgorithm
 
 #from Alignment.MillePedeAlignmentAlgorithm.PresigmaScenarios_cff import *
-#process.AlignmentProducer.algoConfig.pedeSteerer.Presigmas.extend(TrackerShortTermPresigmas.Presigmas)
-process.AlignmentProducer.algoConfig.mode = 'mille' #'mille' #'full' # 'pede' # 'full' # 'pedeSteerer'
-#process.AlignmentProducer.algoConfig.mergeBinaryFiles = ['milleBinaryISN.dat']
-#process.AlignmentProducer.algoConfig.mergeTreeFiles = ['treeFileISN_reg.root']
-process.AlignmentProducer.algoConfig.binaryFile = 'milleBinaryISN.dat'
-process.AlignmentProducer.algoConfig.treeFile = 'treeFileISN.root'
+#looper.algoConfig.pedeSteerer.Presigmas.extend(TrackerShortTermPresigmas.Presigmas)
+looper.algoConfig.mode = 'mille' #'mille' #'full' # 'pede' # 'full' # 'pedeSteerer'
+#looper.algoConfig.mergeBinaryFiles = ['milleBinaryISN.dat']
+#looper.algoConfig.mergeTreeFiles = ['treeFileISN_reg.root']
+looper.algoConfig.binaryFile = 'milleBinaryISN.dat' # BVB: Remove this after it's take care of for the reading
+looper.algoConfig.treeFile = 'treeFileISN.root' # BVB: Remove this
 
-process.AlignmentProducer.algoConfig.TrajectoryFactory = process.BrokenLinesTrajectoryFactory
-process.AlignmentProducer.algoConfig.TrajectoryFactory.MaterialEffects = 'BrokenLinesCoarse' #Coarse' #Fine' #'BreakPoints'
-#process.AlignmentProducer.algoConfig.pedeSteerer.pedeCommand = '/afs/cern.ch/user/f/flucke/cms/pede/trunk_v69/pede_8GB'
-process.AlignmentProducer.algoConfig.pedeSteerer.pedeCommand = '/afs/cern.ch/user/c/ckleinw/bin/rev125/pede'
+looper.algoConfig.TrajectoryFactory = BrokenLinesTrajectoryFactory
+looper.algoConfig.TrajectoryFactory.MaterialEffects = 'BrokenLinesCoarse' #Coarse' #Fine' #'BreakPoints'
+#looper.algoConfig.pedeSteerer.pedeCommand = '/afs/cern.ch/user/f/flucke/cms/pede/trunk_v69/pede_8GB'
+looper.algoConfig.pedeSteerer.pedeCommand = '/afs/cern.ch/user/c/ckleinw/bin/rev125/pede'
 #default is  sparseMINRES 6 0.8:                     <method>  n(iter)  Delta(F)
-process.AlignmentProducer.algoConfig.pedeSteerer.method = 'inversion  5  0.8'  ##DNOONAN can be set to inversion instead (faster)
-process.AlignmentProducer.algoConfig.pedeSteerer.options = cms.vstring(
+looper.algoConfig.pedeSteerer.method = 'inversion  5  0.8'  ##DNOONAN can be set to inversion instead (faster)
+looper.algoConfig.pedeSteerer.options = cms.vstring(
     #'regularisation 1.0 0.05', # non-stated pre-sigma 50 mrad or 500 mum
     'entries 500',
     'chisqcut  30.0  4.5', #,
@@ -171,9 +160,9 @@ process.AlignmentProducer.algoConfig.pedeSteerer.options = cms.vstring(
     #'outlierdownweighting 5','dwfractioncut 0.2'
     )
 
-process.AlignmentProducer.algoConfig.minNumHits = 8
+looper.algoConfig.minNumHits = 8
 
-process.AlignmentProducer.saveToDB = False
+looper.saveToDB = False
 
 # Ingredient: SiPixelAliTrackerTrackHitFilter
 import RecoTracker.FinalTrackSelectors.TrackerTrackHitFilter_cff as HitFilter
@@ -201,11 +190,20 @@ SiPixelAliTrackFitter = fitWithMaterial.ctfWithMaterialTracks.clone(
         NavigationSchool = ''
         )
 
-# End of what we imported
+# Ingredient: MillePedeFileConverter 
+from Alignment.CommonAlignmentProducer.MillePedeFileConverter_cfi import millePedeFileConverter
+# We configure the input file name of the millePedeFileConverter
+#         with the output file name of the alignmentProducer (=looper).
+# Like this we are sure that they are well connected.
+SiPixelAliMillePedeFileConverter = millePedeFileConverter.clone(
+        fileDir = looper.algoConfig.fileDir,
+        binaryFile = looper.algoConfig.binaryFile,
+        )
 
 seqALCARECOPromptCalibProdSiPixelAli = cms.Sequence(ALCARECOTkAlMinBiasFilterForSiPixelAli*
                                                     offlineBeamSpot*
                                                     AlignmentTrackSelector*
                                                     SiPixelAliTrackRefitter0*
                                                     SiPixelAliTrackerTrackHitFilter*
-                                                    SiPixelAliTrackFitter)
+                                                    SiPixelAliTrackFitter*
+                                                    SiPixelAliMillePedeFileConverter)
