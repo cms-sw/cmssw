@@ -57,4 +57,5 @@ workflows[25400.3]=['',['FS_TTbar_13_PUAVE35_DRMIX_ITO','HARVESTUP15FS','MINIAOD
 
 workflows[25401]=['',['FS_TTbar_13_PUAVE20','HARVESTUP15FS','MINIAODMCUP15FS']]
 workflows[25402]=['',['FS_TTbar_13_PU25','HARVESTUP15FS','MINIAODMCUP15FS']] #NEW MIX
-workflows[25407]=['',['FS_NuGun_UP15_PU25','HARVESTUP15FS','MINIAODMCUP15FS']] #NEW MIX                                                                         
+workflows[25407]=['',['FS_NuGun_UP15_PU25','HARVESTUP15FS','MINIAODMCUP15FS']] #NEW MIX
+
