@@ -4,8 +4,6 @@
 #include <typeinfo>
 #include <vector>
 
-// #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-//#include "HcalPulseShapes.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/PedestalSub.h"
 
@@ -14,15 +12,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 
-//#include <TMinuit.h>
-
-//#include <TH1.h>
-//#include "Minuit2/FCNBase.h"
-//#include "Minuit2/Minuit2Minimizer.h"
-// #include "Math/Functor.h"
-// #include "TF1.h"
-// #include "TF2.h"
-// #include "TMath.h"
 
 class HcalDeterministicFit {
  public:

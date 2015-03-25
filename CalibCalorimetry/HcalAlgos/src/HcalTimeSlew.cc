@@ -32,11 +32,6 @@ double HcalTimeSlew::delay(double fC, ParaSource source, BiasSetting bias) {
 
     return std::min(6.0,9.27638-2.05585*log(fC));
     
-  }
-  
-  std::cout << "rechit energy = " <<  std::endl;
-  std::cout << "What are you doing for the time slew parameterization?" << std::endl;
-  
+  }  
   return 0;
-  
 }
