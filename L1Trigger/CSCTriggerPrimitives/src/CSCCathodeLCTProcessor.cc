@@ -812,7 +812,7 @@ void CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc,
 				  digiIt->getTimeBinWord());
       digiV[id.layer()-1].push_back(digi_corr);
     }
-    else if (smartME1aME1b){
+    else if (smartME1aME1b && (me1bProc || me1aProc)){
       //stay within bounds; in data all comps are in ME11B DetId
 
       if (me1aProc && me1b && origStrip > 64){//this is data
