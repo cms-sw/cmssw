@@ -132,6 +132,4 @@
   <class name="edm::Wrapper<reco::BasicJetFwdPtrVector>"/>
   <class name="edm::reftobase::Holder<reco::Jet, reco::BasicJetRef>" />
   <class name="edm::reftobase::RefHolder<reco::BasicJetRef>" />
-  <class name="edm::Ptr<reco::Jet>" />
-  <class name="edm::reftobase::RefHolder<edm::Ptr<reco::Jet> >" />
 </lcgdict>

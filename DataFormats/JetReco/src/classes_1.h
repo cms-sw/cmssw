@@ -5,8 +5,7 @@
 #include "Rtypes.h" 
 
 #include "DataFormats/JetReco/interface/BasicJetCollection.h" 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h" 
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
@@ -119,9 +118,6 @@ namespace DataFormats_JetReco {
 
     edm::reftobase::Holder<reco::Jet, reco::BasicJetRef> hbj;
     edm::reftobase::RefHolder<reco::BasicJetRef> rhbj;
-
-    edm::Ptr<reco::Jet> ptrRecoJet;
-    edm::reftobase::RefHolder<edm::Ptr<reco::Jet> > refHolderPtrRecoJet;
   };
 }
 #endif
