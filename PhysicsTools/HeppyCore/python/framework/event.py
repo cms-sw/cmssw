@@ -37,6 +37,7 @@ class Event(object):
             if isinstance( value, collections.Iterable ) and \
                    not isinstance(value, (str,unicode)) and \
                    not isinstance(value, TChain) and \
+                   not hasattr(value, 'numberOfDaughters') and \
                    not recursive :
                 tmp = map(str, value)
 
