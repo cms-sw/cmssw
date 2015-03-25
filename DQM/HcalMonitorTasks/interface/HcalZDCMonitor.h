@@ -35,6 +35,8 @@ private:
 
 	int NLumiBlocks_;
 
+	std::vector<double> ChannelWeighting_; //Quality index(QI) see description below
+
 	const HcalQIEShape* shape_;
 	const HcalQIECoder* channelCoder_;
 	HcalCalibrations calibs_;
@@ -67,6 +69,24 @@ private:
 	MonitorElement* h_ZDCP_HAD_RecHitTiming[4];
 	MonitorElement* h_ZDCM_HAD_RecHitTiming[4];
 
+
+	MonitorElement* ZDC_Digi_Errors;
+	MonitorElement* ZDC_DigiErrorsVsLS;
+	MonitorElement* ZDC_DigiErrors_DVER;
+	MonitorElement* ZDC_DigiErrors_CAPID;
+
+	MonitorElement* ZDC_Hot_Channel_Errors;
+	MonitorElement* ZDC_HotChannelErrorsVsLS;
+
+	MonitorElement* ZDC_Cold_Channel_Errors;
+	MonitorElement* ZDC_ColdChannelErrorsVsLS;
+
+	MonitorElement* ZDC_Dead_Channel_Errors;
+	MonitorElement* ZDC_DeadChannelErrorsVsLS;
+
+	MonitorElement* ZDC_TotalChannelErrors;
+
+	// Quality index(QI) per LS...QI is a number between 0 and 1. Each ZDC channel is assigned a custom weighting factor, found in /python/HcalZDCMonitor_cfi.py. This weighting factor is representative of the "value" of that channel to data taking. For example, HAD1 is more valuable than HAD4, this is because HAD1 is closer to the IP and will absorb more of the energy of the neutron, so if it is broken, we care more about it being broken than if HAD4 is broken. If all channels are working properly in a given ZDC (ZDC+/-),the QI for that ZDC will be 1. If a channel is deemed malfunctional for a given LS, then the assigned weightfactor will be subtracted from 1.
 	MonitorElement* PZDC_QualityIndexVsLB_;
 	MonitorElement* NZDC_QualityIndexVsLB_;
 	MonitorElement* EventsVsLS;
