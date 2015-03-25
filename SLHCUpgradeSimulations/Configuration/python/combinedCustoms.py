@@ -565,6 +565,22 @@ def cust_2023TTI(process):
     process=customise_ev_l1tracker(process)
     return process
 
+def cust_2023TTILHCC(process):
+    process=customisePostLS1(process)
+    process=customiseTTI(process)
+    process=customiseBE5DPixel10DLHCC(process)
+    process=customise_HcalPhase0(process)
+    process=customise_ev_l1tracker(process)
+    return process
+
+def cust_2023TTILHCCCool(process):
+    process=customisePostLS1(process)
+    process=customiseTTI(process)
+    process=customiseBE5DPixel10DLHCCCooling(process)
+    process=customise_HcalPhase0(process)
+    process=customise_ev_l1tracker(process)
+    return process
+
 def cust_2023TTI_forHLT(process):
     process=customisePostLS1(process)
     process=customiseTTI(process)
