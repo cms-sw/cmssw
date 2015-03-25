@@ -190,20 +190,20 @@ SiPixelAliTrackFitter = fitWithMaterial.ctfWithMaterialTracks.clone(
         NavigationSchool = ''
         )
 
-# Ingredient: MillePedeFileConverter 
-from Alignment.CommonAlignmentProducer.MillePedeFileConverter_cfi import millePedeFileConverter
-# We configure the input file name of the millePedeFileConverter
-#         with the output file name of the alignmentProducer (=looper).
-# Like this we are sure that they are well connected.
-SiPixelAliMillePedeFileConverter = millePedeFileConverter.clone(
-        fileDir = looper.algoConfig.fileDir,
-        binaryFile = looper.algoConfig.binaryFile,
-        )
+### Ingredient: MillePedeFileConverter
+##from Alignment.CommonAlignmentProducer.MillePedeFileConverter_cfi import millePedeFileConverter
+### We configure the input file name of the millePedeFileConverter
+###         with the output file name of the alignmentProducer (=looper).
+### Like this we are sure that they are well connected.
+##SiPixelAliMillePedeFileConverter = millePedeFileConverter.clone(
+##        fileDir = looper.algoConfig.fileDir,
+##        binaryFile = looper.algoConfig.binaryFile,
+##        )
 
 seqALCARECOPromptCalibProdSiPixelAli = cms.Sequence(ALCARECOTkAlMinBiasFilterForSiPixelAli*
                                                     offlineBeamSpot*
                                                     AlignmentTrackSelector*
                                                     SiPixelAliTrackRefitter0*
                                                     SiPixelAliTrackerTrackHitFilter*
-                                                    SiPixelAliTrackFitter*
-                                                    SiPixelAliMillePedeFileConverter)
+                                                    SiPixelAliTrackFitter)
+                                                    ##SiPixelAliMillePedeFileConverter)
