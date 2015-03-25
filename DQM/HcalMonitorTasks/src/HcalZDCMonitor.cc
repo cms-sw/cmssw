@@ -42,7 +42,127 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 	NZDC_QualityIndexVsLB_ = ib.book1D("NZDC_QualityIndexVSLB","Quality Index for the ZDC- vs  LS; LS; Quality Index", NLumiBlocks_,0,NLumiBlocks_);
 	EventsVsLS             = ib.book1D("EventsVsLS", "Total Number of Events per LS; LS; # of Events", NLumiBlocks_,0,NLumiBlocks_);
 
+	// digi errors
+	ib.setCurrentFolder(baseFolder_ + "Errors/Digis");
+        ZDC_Digi_Errors = ib.book2D("ZDC_Digi_Errors", "Raw Number of Digi Errors Per ZDC Channel", 2, 0, 2, 9, 0, 9);
+        ZDC_Digi_Errors->setBinLabel(1,"ZDC+",1);
+        ZDC_Digi_Errors->setBinLabel(2,"ZDC-",1);
+	ZDC_Digi_Errors->setBinLabel(1,"EM1",2);
+        ZDC_Digi_Errors->setBinLabel(2,"EM2",2);
+        ZDC_Digi_Errors->setBinLabel(3,"EM3",2);
+        ZDC_Digi_Errors->setBinLabel(4,"EM4",2);
+        ZDC_Digi_Errors->setBinLabel(5,"EM5",2);
+        ZDC_Digi_Errors->setBinLabel(6,"HAD1",2);
+        ZDC_Digi_Errors->setBinLabel(7,"HAD2",2);
+        ZDC_Digi_Errors->setBinLabel(8,"HAD3",2);
+        ZDC_Digi_Errors->setBinLabel(9,"HAD4",2);
+        ZDC_Digi_Errors->getTH2F()->SetOption("coltext");
 
+
+	ZDC_DigiErrorsVsLS = ib.book1D("ZDC_DigiErrorsVsLS","Total Number of (Digi) Errors found in the ZDCs vs. Lumi Section;LS;# errors",NLumiBlocks_,0,NLumiBlocks_);
+
+	ib.setCurrentFolder(baseFolder_ + "Errors/Digis/DigiErrorCauses");
+	ZDC_DigiErrors_DVER = ib.book2D("ZDC_DigiErrors_DVER","Raw Number of Digi Errors Caused by Finding .dv()=0 or .er()=1",2,0,2,9,0,9);
+	ZDC_DigiErrors_DVER->setBinLabel(1,"ZDC+",1);
+        ZDC_DigiErrors_DVER->setBinLabel(2,"ZDC-",1);
+	ZDC_DigiErrors_DVER->setBinLabel(1,"EM1",2);
+        ZDC_DigiErrors_DVER->setBinLabel(2,"EM2",2);
+        ZDC_DigiErrors_DVER->setBinLabel(3,"EM3",2);
+        ZDC_DigiErrors_DVER->setBinLabel(4,"EM4",2);
+        ZDC_DigiErrors_DVER->setBinLabel(5,"EM5",2);
+        ZDC_DigiErrors_DVER->setBinLabel(6,"HAD1",2);
+        ZDC_DigiErrors_DVER->setBinLabel(7,"HAD2",2);
+        ZDC_DigiErrors_DVER->setBinLabel(8,"HAD3",2);
+        ZDC_DigiErrors_DVER->setBinLabel(9,"HAD4",2);
+        ZDC_DigiErrors_DVER->getTH2F()->SetOption("coltext");
+
+	ZDC_DigiErrors_CAPID = ib.book2D("ZDC_DigiErrors_CAPID","Raw Number of Digi Errors Caused by the Caps not Alternating",2,0,2,9,0,9);
+        ZDC_DigiErrors_CAPID->setBinLabel(1,"ZDC+",1);
+        ZDC_DigiErrors_CAPID->setBinLabel(2,"ZDC-",1);
+	ZDC_DigiErrors_CAPID->setBinLabel(1,"EM1",2);
+        ZDC_DigiErrors_CAPID->setBinLabel(2,"EM2",2);
+        ZDC_DigiErrors_CAPID->setBinLabel(3,"EM3",2);
+        ZDC_DigiErrors_CAPID->setBinLabel(4,"EM4",2);
+        ZDC_DigiErrors_CAPID->setBinLabel(5,"EM5",2);
+        ZDC_DigiErrors_CAPID->setBinLabel(6,"HAD1",2);
+        ZDC_DigiErrors_CAPID->setBinLabel(7,"HAD2",2);
+        ZDC_DigiErrors_CAPID->setBinLabel(8,"HAD3",2);
+        ZDC_DigiErrors_CAPID->setBinLabel(9,"HAD4",2);
+        ZDC_DigiErrors_CAPID->getTH2F()->SetOption("coltext");
+
+
+	// hot channels
+	ib.setCurrentFolder(baseFolder_ + "Errors/HotChannel");
+        ZDC_Hot_Channel_Errors = ib.book2D("ZDC_Hot_Channel_Errors", "Raw Number of Times Each Channel Appeared Hot", 2, 0, 2, 9, 0, 9);
+        ZDC_Hot_Channel_Errors->setBinLabel(1,"ZDC+",1);
+        ZDC_Hot_Channel_Errors->setBinLabel(2,"ZDC-",1);
+        ZDC_Hot_Channel_Errors->setBinLabel(1,"EM1",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(2,"EM2",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(3,"EM3",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(4,"EM4",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(5,"EM5",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(6,"HAD1",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(7,"HAD2",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(8,"HAD3",2);
+        ZDC_Hot_Channel_Errors->setBinLabel(9,"HAD4",2);    
+        ZDC_Hot_Channel_Errors->getTH2F()->SetOption("coltext");
+
+
+	ZDC_HotChannelErrorsVsLS = ib.book1D("ZDC_HotChannelErrorsVsLS","Total Number of Hot Channel Errors in the ZDCs vs. Lumi Section; LS; # Hot channels", NLumiBlocks_,0,NLumiBlocks_);
+
+	// dead channels
+	ib.setCurrentFolder(baseFolder_ + "Errors/DeadChannel");
+        ZDC_Dead_Channel_Errors = ib.book2D("ZDC_Dead_Channel_Errors", "Raw Number of Times Each Channel Appeared Dead", 2, 0, 2, 9, 0, 9);
+        ZDC_Dead_Channel_Errors->setBinLabel(1,"ZDC+",1);
+        ZDC_Dead_Channel_Errors->setBinLabel(2,"ZDC-",1);
+        ZDC_Dead_Channel_Errors->setBinLabel(1,"EM1",2);
+        ZDC_Dead_Channel_Errors->setBinLabel(2,"EM2",2);
+        ZDC_Dead_Channel_Errors->setBinLabel(3,"EM3",2);
+        ZDC_Dead_Channel_Errors->setBinLabel(4,"EM4",2);
+        ZDC_Dead_Channel_Errors->setBinLabel(5,"EM5",2);
+        ZDC_Dead_Channel_Errors->setBinLabel(6,"HAD1",2);
+        ZDC_Dead_Channel_Errors->setBinLabel(7,"HAD2",2);
+        ZDC_Dead_Channel_Errors->setBinLabel(8,"HAD3",2);
+        ZDC_Dead_Channel_Errors->setBinLabel(9,"HAD4",2);    
+        ZDC_Dead_Channel_Errors->getTH2F()->SetOption("coltext");
+        
+	ZDC_DeadChannelErrorsVsLS = ib.book1D("ZDC_DeadChannelErrorsVsLS","Total Number of Dead Channel Errors in the ZDC vs. Lumi Section; LS; # of Dead Chanels", NLumiBlocks_, 0, NLumiBlocks_);  
+
+	// cold channels
+	ib.setCurrentFolder(baseFolder_ + "Errors/ColdChannel");
+        ZDC_Cold_Channel_Errors = ib.book2D("ZDC_Cold_Channel_Errors", "Raw Number of Times Each Channel Appeared Cold", 2, 0, 2, 9, 0, 9);
+        ZDC_Cold_Channel_Errors->setBinLabel(1,"ZDC+",1);
+        ZDC_Cold_Channel_Errors->setBinLabel(2,"ZDC-",1);
+        ZDC_Cold_Channel_Errors->setBinLabel(1,"EM1",2);
+        ZDC_Cold_Channel_Errors->setBinLabel(2,"EM2",2);
+        ZDC_Cold_Channel_Errors->setBinLabel(3,"EM3",2);
+        ZDC_Cold_Channel_Errors->setBinLabel(4,"EM4",2);
+        ZDC_Cold_Channel_Errors->setBinLabel(5,"EM5",2);
+        ZDC_Cold_Channel_Errors->setBinLabel(6,"HAD1",2);
+        ZDC_Cold_Channel_Errors->setBinLabel(7,"HAD2",2);
+        ZDC_Cold_Channel_Errors->setBinLabel(8,"HAD3",2);
+        ZDC_Cold_Channel_Errors->setBinLabel(9,"HAD4",2);    
+        ZDC_Cold_Channel_Errors->getTH2F()->SetOption("coltext");
+        
+	ZDC_ColdChannelErrorsVsLS=ib.book1D("ZDC_ColdChannelErrorsVsLS","Total Number of Cold Channels in the ZDC vs. Lumi Section; LS; # of Cold Chanels", NLumiBlocks_, 0, NLumiBlocks_);  
+
+	// total errors
+	ib.setCurrentFolder(baseFolder_ + "Errors");
+        ZDC_TotalChannelErrors = ib.book2D("ZDC_TotalChannelErrors","Total Number of Errors(Digi Error, Hot Cell or Dead Cell) Per Channel in the ZDC" ,2,0,2,9,0,9);
+        ZDC_TotalChannelErrors->setBinLabel(1,"ZDC+",1);
+        ZDC_TotalChannelErrors->setBinLabel(2,"ZDC-",1);
+        ZDC_TotalChannelErrors->setBinLabel(1,"EM1",2);
+        ZDC_TotalChannelErrors->setBinLabel(2,"EM2",2);
+        ZDC_TotalChannelErrors->setBinLabel(3,"EM3",2);
+        ZDC_TotalChannelErrors->setBinLabel(4,"EM4",2);
+        ZDC_TotalChannelErrors->setBinLabel(5,"EM5",2);
+        ZDC_TotalChannelErrors->setBinLabel(6,"HAD1",2);
+        ZDC_TotalChannelErrors->setBinLabel(7,"HAD2",2);
+        ZDC_TotalChannelErrors->setBinLabel(8,"HAD3",2);
+        ZDC_TotalChannelErrors->setBinLabel(9,"HAD4",2);
+        ZDC_TotalChannelErrors->getTH2F()->SetOption("coltext");
+        
+	//
 	h_2D_charge = ib.book2D("2D_DigiCharge", "Digi Charge (fC)", 2, 0, 2, 9, 0, 9);
 	h_2D_charge->setBinLabel(1,"ZDC+",1);
 	h_2D_charge->setBinLabel(2,"ZDC-",1);
@@ -160,8 +280,8 @@ void HcalZDCMonitor::setup(const edm::ParameterSet & ps, DQMStore::IBooker & ib)
 		sprintf(title, "h_ZDCM_HADChan_%i_Pulse", i + 1);
 		sprintf(name, "ZDC Minus HAD Section Pulse for channel %i", i + 1);
 		h_ZDCM_HAD_Pulse[i] = ib.book1D(title, name, 10, -0.5, 9.5);
-		h_ZDCP_HAD_Pulse[i]->setAxisTitle("Time Slice id",1);
-		h_ZDCP_HAD_Pulse[i]->setAxisTitle("Pulse Height",2);
+		h_ZDCM_HAD_Pulse[i]->setAxisTitle("Time Slice id",1);
+		h_ZDCM_HAD_Pulse[i]->setAxisTitle("Pulse Height",2);
 		// integrated charge over 10 time samples 
 		sprintf(title, "h_ZDCP_HADChan_%i_Charge", i + 1);
 		sprintf(name, "ZDC Plus HAD Section Charge for channel %i", i + 1);
