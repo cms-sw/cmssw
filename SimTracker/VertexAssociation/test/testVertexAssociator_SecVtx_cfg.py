@@ -65,16 +65,13 @@ process.TFileService = cms.Service("TFileService",
 
 
 process.testanalyzer = cms.EDAnalyzer("testVertexAssociator",
-      process.vertexClassifier,                              
-      cms.PSet(
-
-              vertexCollection = cms.untracked.InputTag('svTagInfoProxy')
-         )
-         
-
+    process.vertexClassifier,
+    vertexCollection = cms.untracked.InputTag('svTagInfoProxy'),
+    associatorByChi2 = cms.untracked.InputTag('trackAssociatorByChi2'),
+    associatorByHits = cms.untracked.InputTag('trackAssociatorByHits'),
 )
 
-process.p = cms.Path( process.mix * process.trackingParticles * process.svTagInfoProxy * process.testanalyzer )
+process.p = cms.Path( process.mix * process.trackingParticles * process.svTagInfoProxy * process.trackAssociatorByChi2 * process.trackAssociatorByHits * process.testanalyzer )
 
 
 
