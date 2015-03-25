@@ -23,10 +23,12 @@ class RunExpressProcessing:
         self.writeFevt = False
         self.writeAlca = False
         self.writeDqm = False
+        self.writeDqmio = False
         self.noOutput = False
         self.globalTag = None
         self.inputLFN = None
         self.alcaRecos = None
+
 
     def __call__(self):
         if self.scenario == None:
@@ -66,6 +68,9 @@ class RunExpressProcessing:
         if self.writeDqm:
             dataTiers.append("DQM")
             print "Configuring to Write out Dqm..."
+        if self.writeDqmio:
+            dataTiers.append("DQMIO")
+            print "Configuring to Write out Dqmio..."
 
         try:
             kwds = {}
@@ -79,7 +84,6 @@ class RunExpressProcessing:
                 kwds['writeTiers'] = dataTiers
 
             # if none of the above use default output data tiers
-
 
             if not self.alcaRecos is None:
                 # if skims specified from command line than overwrite the defaults
@@ -112,7 +116,7 @@ class RunExpressProcessing:
 
 if __name__ == '__main__':
     valid = ["scenario=", "raw", "reco", "fevt", "alca", "dqm", "no-output",
-             "global-tag=", "lfn=", 'alcaRecos=']
+             "global-tag=", "lfn=", 'alcaRecos=', "dqmio"]
     usage = \
 """
 RunExpressProcessing.py <options>
@@ -124,6 +128,7 @@ Where options are:
  --fevt (to enable FEVT output)
  --alca (to enable ALCARECO output)
  --dqm (to enable DQM output)
+ --dqmio (to enable DQMIO output)
  --no-output (create config with no output, overrides other settings)
  --global-tag=GlobalTag
  --lfn=/store/input/lfn
@@ -156,6 +161,8 @@ python RunExpressProcessing.py --scenario cosmics --global-tag GLOBALTAG::ALL --
             expressinator.writeAlca = True
         if opt == "--dqm":
             expressinator.writeDqm = True
+        if opt == "--dqmio":
+            expressinator.writeDqmio = True
         if opt == "--no-output":
             expressinator.noOutput = True
         if opt == "--global-tag":
