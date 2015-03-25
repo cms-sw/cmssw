@@ -1,6 +1,12 @@
 #! /usr/bin/env python
+# This example shows how to have multiple Tree either in the same file on in different file.
+# In particular here we create a second tree producer containing only information and then, 
+# cloning it in two copies, we store it both in the same file as the main tree and in separate file
+
 import ROOT
 import PhysicsTools.HeppyCore.framework.config as cfg
+# avoid creating subdirs, in case subdirs are wanted the treeProducer should have different names (set name="blabla" in the config)
+cfg.Analyzer.nosubdir=True
 
 # The content of the output tree is defined here
 # the definitions of the NtupleObjects are located under PhysicsTools/Heppy/pythonanalyzers/objects/autophobj.py
@@ -39,6 +45,32 @@ treeProducer= cfg.Analyzer(
 
 	}
 	)
+
+#make a light weight dump containing only generator information
+treeProducer2= cfg.Analyzer(
+	treename="genonly",
+	ignoreAnalyzerBookings=True, #we do not want trigger bits here or any other central booking
+        class_object=AutoFillTreeProducer,
+        verbose=False,
+        vectorTree = True,
+        collections = {
+                #dump of gen objects
+                "gentopquarks"    : NTupleCollection("GenTop",     genParticleType, 2, help="Generated top quarks from hard scattering"),
+                "genbquarks"      : NTupleCollection("GenBQuark",  genParticleType, 2, help="Generated bottom quarks from top quark decays"),
+                "genwzquarks"     : NTupleCollection("GenQuark",   genParticleType, 6, help="Generated quarks from W/Z decays"),
+                "genleps"         : NTupleCollection("GenLep",     genParticleType, 6, help="Generated leptons from W/Z decays"),
+                "gentauleps"      : NTupleCollection("GenLepFromTau", genParticleType, 6, help="Generated leptons from decays of taus from W/Z/h decays"),
+
+        }
+        )
+
+#create a copy of tree producer with the difference that it stores it in a separate file
+from copy import deepcopy 
+treeProducer3 = deepcopy(treeProducer2)
+treeProducer3.filter = lambda ev : len(getattr(ev,"genbquarks",[])) > 0 # select only events with b-quarks
+treeProducer3.outservicename="genonlyfile"
+
+
 
 # Import standard analyzers and take their default config
 from PhysicsTools.Heppy.analyzers.objects.LeptonAnalyzer import LeptonAnalyzer
@@ -85,7 +117,7 @@ TrigAna= cfg.Analyzer(
 #replace some parameters
 LepAna.loose_muon_pt = 10
 
-sequence = [LHEAna,FlagsAna, GenAna, PUAna,TrigAna,VertexAna,LepAna,TauAna,PhoAna,JetAna,METAna,treeProducer]
+sequence = [LHEAna,FlagsAna, GenAna, PUAna,TrigAna,VertexAna,LepAna,TauAna,PhoAna,JetAna,METAna,treeProducer,treeProducer2,treeProducer3]
 
 #use tfile service to provide a single TFile to all modules where they
 #can write any root object. If the name is 'outputfile' or the one specified in treeProducer
@@ -98,17 +130,26 @@ output_service = cfg.Service(
       fname='tree.root',
       option='recreate'
     )
+output_service2= cfg.Service(
+      TFileService,
+      'genonlyfile',
+      name="genonlyfile",
+      fname='treegen.root',
+      option='recreate'
+    )
+
 
 # the following two lines are just for automatic testing
 # they are not needed for running on your own samples
 from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
 testfiles=miniAodFiles()
+print "Running on test file %s" % testfiles
 
-sample = cfg.Component(
+sample = cfg.MCComponent(
 #specify the file you want to run on
-    # files = ["/scratch/arizzi/Hbb/CMSSW_7_2_2_patch2/src/VHbbAnalysis/Heppy/test/ZLL-8A345C56-6665-E411-9C25-1CC1DE04DF20.root"],
+#    files = ["/scratch/arizzi/Hbb/CMSSW_7_2_2_patch2/src/VHbbAnalysis/Heppy/test/ZLL-8A345C56-6665-E411-9C25-1CC1DE04DF20.root"],
     files = testfiles,
-    name="SingleSample", isMC=False,isEmbed=False
+    name="SingleSample", isMC=True,isEmbed=False
     )
 
 # the following is declared in case this cfg is used in input to the heppy.py script
@@ -116,7 +157,7 @@ from PhysicsTools.HeppyCore.framework.eventsfwlite import Events
 selectedComponents = [sample]
 config = cfg.Config( components = selectedComponents,
                      sequence = sequence,
-                     services = [output_service],  
+                     services = [output_service,output_service2],  
                      events_class = Events)
 
 # and the following runs the process directly if running as with python filename.py  
