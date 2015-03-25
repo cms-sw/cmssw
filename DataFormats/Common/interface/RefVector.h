@@ -157,7 +157,7 @@ namespace edm {
                   FillViewHelperVector& helpers) const;
 
     //Needed for ROOT storage
-    CMS_CLASS_VERSION(12)
+    CMS_CLASS_VERSION(13)
 
   private:
 
