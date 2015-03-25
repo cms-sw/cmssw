@@ -14,7 +14,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimTracker/VertexAssociation/interface/VertexAssociatorByTracks.h"
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
