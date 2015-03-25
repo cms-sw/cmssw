@@ -325,7 +325,9 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     AHttH  = cms.PSet(
         hltPathsToCheck = cms.vstring(
             "HLT_PFHT450_SixJet40_PFBTagCSV_v",
-            "HLT_PFHT400_SixJet30_BTagCSV0p5_2PFBTagCSV_v"
+            "HLT_PFHT400_SixJet30_BTagCSV0p5_2PFBTagCSV_v",
+            "HLT_PFHT450_SixJet40_v",
+            "HLT_PFHT400_SixJet30_v",
             ),
         #recElecLabel   = cms.string("gedGsfElectrons"),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
