@@ -33,7 +33,7 @@ process.source.fileNames = cms.untracked.vstring(
 
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 
 
 process.load("DPGAnalysis.SiStripTools.tkAlTrackRefitSequence_cff")
@@ -51,6 +51,7 @@ process.load("DPGAnalysis.SiStripTools.overlapproblemtpanalyzer_cfi")
 
 
 process.p0 = cms.Path( process.seqTrackRefitting
+                      + process.trackAssociatorByHits
                       + process.overlapproblemtsosanalyzer + process.overlapproblemtsoshitfiltered + process.overlapproblemtsosats
                       + process.overlapproblemtsosall + process.overlapproblemtsoshitfilteredall + process.overlapproblemtsosatsall 
                       + process.overlapproblemtpanalyzer

@@ -5,8 +5,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TestEfficiency")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 #process.TrackAssociatorByHits.Quality_SimToReco = 0.3
 
 process.source = cms.Source("PoolSource",
@@ -27,4 +27,4 @@ process.testAnalyzer = cms.EDFilter("testLeptonAssociator",
     trackingTruth        = cms.InputTag("mergedtruth:MergedTrackTruth")
 )
 
-process.path = cms.Path(process.testAnalyzer)
+process.path = cms.Path(process.trackAssociatorByChi2+process.trackAssociatorByHits+process.testAnalyzer)
