@@ -4,19 +4,19 @@
 shopt -s nullglob
 date
 
-if [ $# -ne 2 ]; then
-    afstokenchecker.sh "You have to provide a <tag_search_string>, a <DB> !!!"
+if [ $# -ne 3 ]; then
+    afstokenchecker.sh "You have to provide a <tag_search_string>, a <DB> and a DB name for the connection string!!!"
     exit
 fi
 
-afstokenchecker.sh "Starting execution of MonitorDB_NewDirStructure_KeepTagLinks $1 $2 $3 $4"
+afstokenchecker.sh "Starting execution of MonitorDB_NewDirStructure_KeepTagLinks_generic_V2 $1 $2 $3"
 
 #Example: SEARCHSTRING=SiStrip
 SEARCHSTRING=$1
 #Example: DB=cms_orcoff_prod
 DB=$2
 ACCOUNT=CMS_CONDITIONS #to be checked if it is ok
-FRONTIER=FrontierProd #to be fixed for dev?
+FRONTIER=$3 #to be fixed for dev?
 DBTAGCOLLECTION=DBTagsIn_${DB}.txt
 GLOBALTAGCOLLECTION=GlobalTagsForDBTag.txt
 DBTAGDIR=DBTagCollection
@@ -563,7 +563,7 @@ EOF
 	if [ "$CREATETRENDS" = "True" ]; then
 	    afstokenchecker.sh "Creating the Trend Plots ..."
 
-	    getOfflineDQMData.sh $DB $ACCOUNT $TAGSUBDIR $tag
+	    getOfflineDQMData.sh $DB $ACCOUNT $TAGSUBDIR $tag $STORAGEPATH
 
 	    afstokenchecker.sh "Moving Trend Plots Using the script moveTrendPlots..."
 
