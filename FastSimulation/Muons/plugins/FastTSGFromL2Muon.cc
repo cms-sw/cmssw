@@ -9,7 +9,6 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
 
 #include "FastSimulation/Muons/plugins/FastTSGFromL2Muon.h"
@@ -24,7 +23,6 @@ FastTSGFromL2Muon::FastTSGFromL2Muon(const edm::ParameterSet& cfg) : theConfig(c
 
   edm::ParameterSet serviceParameters = 
     cfg.getParameter<edm::ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
 
   thePtCut = cfg.getParameter<double>("PtCut");
 
@@ -42,8 +40,6 @@ FastTSGFromL2Muon::~FastTSGFromL2Muon()
 void 
 FastTSGFromL2Muon::beginRun(edm::Run const& run, edm::EventSetup const& es)
 {
-  //update muon proxy service
-  theService->update(es);
   
   //region builder
   edm::ParameterSet regionBuilderPSet = 
@@ -74,9 +70,6 @@ FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 
   // Initialize the output product
   std::auto_ptr<L3MuonTrajectorySeedCollection> result(new L3MuonTrajectorySeedCollection());
-
-  //intialize service
-  theService->update(es);
   
   // Region builder
   theRegionBuilder->setEvent(ev);

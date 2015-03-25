@@ -27,6 +27,7 @@ public:
   virtual ~TSGFromL2Muon();
   virtual void beginRun(const edm::Run & run, const edm::EventSetup&es) override;
   virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   edm::ParameterSet theConfig;
