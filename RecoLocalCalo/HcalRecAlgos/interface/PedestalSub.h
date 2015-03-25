@@ -23,9 +23,7 @@ class PedestalSub
   Method fMethod;
   float fThreshold;
   float fQuantile;
- // float fNoiseCorr; // only needed for quantile method
   float fCondition;
- // float fNoisePara; // only needed for quantile method
   
 };
 

@@ -19,18 +19,12 @@ void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::
   fPedestalSubFxn_=pedSubFxn_;
 }
 void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, std::vector<double> & HLTOutput) const {
-//void HcalDeterministicFit::apply(const std::vector<double> & inputCharge, const std::vector<double> & inputPedestal, std::vector<double> & HLTOutput) const {
-
   std::vector<double> corrCharge;
   std::vector<double> inputCharge;
   std::vector<double> inputPedestal;
   const unsigned int cssize = cs.size();
-  // initialize arrays to be zero
- // double tstrig = 0; // in fC
- // double tsTOTen = 0; // in GeV
   double gainCorr = 0;
   for(unsigned int ip=0; ip<cssize; ++ip){
-  //  std::cout << "assigning vectors " << std::endl;
     if( ip >= (unsigned) 10 ) continue; // Too many samples than what we wanna fit (10 is enough...) -> skip them
     const int capid = capidvec[ip];
     double charge = cs[ip];
@@ -39,10 +33,8 @@ void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> 
     gainCorr = gain;
     inputCharge.push_back(charge);
     inputPedestal.push_back(ped);
-    //corrCharge.push_back(charge - ped); // Using Pedestal-subtracted values
   }                   
  
-  //std::cout << "at ped sub" << std::endl; 
   fPedestalSubFxn_.calculate(inputCharge, inputPedestal, corrCharge);
   
   float tsShift3=HcalTimeSlew::delay(inputCharge[3],HcalTimeSlew::MC,fTimeSlewBias); 
@@ -158,8 +150,7 @@ constexpr float HcalDeterministicFit::landauFrac[];
 // normalized to 1 on [0,10000]
 void HcalDeterministicFit::getLandauFrac(float tStart, float tEnd, float &sum) const{
 
-  if (abs(tStart-tEnd-25)<0.1) {
-    //cout << abs(tStart-tEnd) << "???" << endl; // print only for development purpose
+  if (std::abs(tStart-tEnd-25)<0.1) {
     sum=0;
     return;
   }
