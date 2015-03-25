@@ -58,6 +58,7 @@ lowPtQuadStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = Rec
 lowPtQuadStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 lowPtQuadStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
 lowPtQuadStepSeeds.SeedCreatorPSet.magneticField = ''
+lowPtQuadStepSeeds.SeedCreatorPSet.propagator = 'PropagatorWithMaterial'
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff

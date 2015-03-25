@@ -67,6 +67,7 @@ mixedTripletStepSeedsA.SeedComparitorPSet = cms.PSet(
 mixedTripletStepSeedsA.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 mixedTripletStepSeedsA.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
 mixedTripletStepSeedsA.SeedCreatorPSet.magneticField = ''
+mixedTripletStepSeedsA.SeedCreatorPSet.propagator = 'PropagatorWithMaterial'
 
 # SEEDING LAYERS
 mixedTripletStepSeedLayersB = cms.EDProducer("SeedingLayersEDProducer",
@@ -102,6 +103,7 @@ mixedTripletStepSeedsB.SeedComparitorPSet = cms.PSet(
 mixedTripletStepSeedsB.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 mixedTripletStepSeedsB.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
 mixedTripletStepSeedsB.SeedCreatorPSet.magneticField = ''
+mixedTripletStepSeedsB.SeedCreatorPSet.propagator = 'PropagatorWithMaterial'
 
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
 mixedTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()

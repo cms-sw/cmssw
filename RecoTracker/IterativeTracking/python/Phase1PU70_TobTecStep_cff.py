@@ -74,6 +74,7 @@ tobTecStepSeeds.SeedComparitorPSet = cms.PSet(
 tobTecStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 tobTecStepSeeds.OrderedHitsFactoryPSet.maxElement = cms.uint32(0)
 tobTecStepSeeds.SeedCreatorPSet.magneticField = ''
+tobTecStepSeeds.SeedCreatorPSet.propagator = 'PropagatorWithMaterial'
 
 # QUALITY CUTS DURING TRACK BUILDING (for inwardss and outwards track building steps)
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
