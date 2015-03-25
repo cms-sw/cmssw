@@ -6,7 +6,7 @@
 
 namespace l1t {
   namespace stage1 {
-    class EtSumUnpacker : public Unpacker {
+    class MissEtUnpacker : public Unpacker {
       public:
         virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
     };
@@ -18,7 +18,7 @@ namespace l1t {
 namespace l1t {
   namespace stage1 {
     bool
-      EtSumUnpacker::unpack(const Block& block, UnpackerCollections *coll)
+      MissEtUnpacker::unpack(const Block& block, UnpackerCollections *coll)
       {
 
         LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
@@ -44,7 +44,7 @@ namespace l1t {
 
         // Loop over multiple BX and then number of jets filling jet collection
         for (int bx=firstBX; bx<lastBX; bx++){
-
+        
           res_->resize(bx,4);
 
           uint32_t raw_data0 = block.payload()[i++];
@@ -56,28 +56,19 @@ namespace l1t {
           candbit[0] = raw_data0 & 0xFFFF;
           candbit[1] = raw_data1 & 0xFFFF;
 
-          int totet=candbit[0] & 0xFFF;
-          int overflowtotet=(candbit[0]>>12) & 0x1;
-          int totht=candbit[1] & 0xFFF;
-          int overflowtotht=(candbit[1]>>12) & 0x1;
+          int etmiss=candbit[0] & 0xFFF;
+          int overflowetmiss=(candbit[0]>>12) & 0x1;
+          int etmissphi=candbit[1] & 0x7F;
 
-          l1t::EtSum et = l1t::EtSum();
-          et.setHwPt(totet);
-          et.setType(l1t::EtSum::kTotalEt);      
-          int flagtotet=et.hwQual();
-          flagtotet|= overflowtotet;
-          et.setHwQual(flagtotet);       
-          LogDebug("L1T") << "ET: pT " << et.hwPt()<<"is overflow "<<overflowtotet<<std::endl;
-          res_->set(bx, 2,et);
-
-          l1t::EtSum ht = l1t::EtSum();
-          ht.setHwPt(totht);
-          ht.setType(l1t::EtSum::kTotalHt);       
-          int flagtotht=ht.hwQual();
-          flagtotht|= overflowtotht;
-          ht.setHwQual(flagtotht);       
-          LogDebug("L1T") << "HT: pT " << ht.hwPt()<<"is overflow "<<overflowtotht<<std::endl;
-          res_->set(bx, 3,ht);
+          l1t::EtSum met = l1t::EtSum();
+          met.setHwPt(etmiss);
+          met.setHwPhi(etmissphi);
+          met.setType(l1t::EtSum::kMissingEt);   
+          int flagetmiss=met.hwQual();
+          flagetmiss|= overflowetmiss;
+          met.setHwQual(flagetmiss);       
+          LogDebug("L1T") << "MET: pT " << met.hwPt()<<"is overflow "<<overflowetmiss<<std::endl;
+          res_->set(bx, 0,met);
 
         }
 
@@ -87,4 +78,4 @@ namespace l1t {
   }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage1::EtSumUnpacker);
+DEFINE_L1T_UNPACKER(l1t::stage1::MissEtUnpacker);
