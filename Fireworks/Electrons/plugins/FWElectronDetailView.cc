@@ -443,4 +443,4 @@ FWElectronDetailView::addSceneInfo(const reco::GsfElectron *i, TEveElementList* 
    }
 }
 
-REGISTER_FWDETAILVIEW(FWElectronDetailView,Electron);
+REGISTER_FWDETAILVIEW(FWElectronDetailView,Electron,ecalRecHit );

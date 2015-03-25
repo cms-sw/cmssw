@@ -160,7 +160,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
          action->activated.connect(boost::bind(&FWGUIManager::newViewSlot, this, FWViewType::idToName(i)));
       }
 
-      m_detailViewManager  = new FWDetailViewManager(m_context->colorManager());
+      m_detailViewManager  = new FWDetailViewManager(m_context);
       m_contextMenuHandler = new FWModelContextMenuHandler(m_context->selectionManager(), m_detailViewManager, m_context->colorManager(), this);
 
 
