@@ -90,15 +90,19 @@ bool Py8InterfaceBase::declareStableParticles( const std::vector<int>& pdgIds )
 
 }
 
-bool Py8InterfaceBase:: declareSpecialSettings( const std::vector<std::string>& settings )
-{
-
-   for ( unsigned int iss=0; iss<settings.size(); iss++ )
-   {
-      if ( settings[iss].find("QED-brem-off") == std::string::npos ) continue;
-      fMasterGen->readString( "TimeShower:QEDshowerByL=off" );
+bool Py8InterfaceBase:: declareSpecialSettings( const std::vector<std::string>& settings ){
+   for ( unsigned int iss=0; iss<settings.size(); iss++ ){
+     if ( settings[iss].find("QED-brem-off") != std::string::npos ){
+       fMasterGen->readString( "TimeShower:QEDshowerByL=off" );
+     }
+     else{
+       size_t fnd1 = settings[iss].find("Pythia8:");
+       if ( fnd1 != std::string::npos ){
+	 std::string value = settings[iss].substr (fnd1+8);
+	 fDecayer->readString(value);
+       }
+     }
    }
-
    return true;
 }
 
