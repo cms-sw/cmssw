@@ -211,7 +211,7 @@ class HLTProcess(object):
     # release-specific customizations now live in HLTrigger.Configuration.customizeHLTforCMSSW.customiseHLTforCMSSW(.,.)
     self.data += """
 # add release-specific customizations
-from HLTrigger.Configuration.customizeHLTforCMSSW import customise
+from HLTrigger.Configuration.customizeHLTforCMSSW import customiseHLTforCMSSW
 process = customiseHLTforCMSSW(process,menuType="%s",fastSim=%s)
 """ % (self.config.type,self.config.fastsim)
 
