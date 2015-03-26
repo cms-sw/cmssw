@@ -9,21 +9,22 @@ import ROOT
 def numberOfEvents(file):
 	rootfile = ROOT.TFile.Open(file,'read')
 	tree = ROOT.TTree()
-	rootfile.GetObject("commonCalibrationTree/tree",tree)
+	rootfile.GetObject("gainCalibrationTree/tree",tree)
         NEntries = tree.GetEntries()
         rootfile.Close()
         print file +' --> '+str(NEntries)
 	return NEntries	
 
 
-globaltag = "GR_P_V32" 
-path = "/store/group/tracker/strip/calibration/calibrationtree/GR12" #"/castor/cern.ch/user/m/mgalanti/calibrationtree/GR11"
-#path = "/castor/cern.ch/user/m/mgalanti/calibrationtree/GR12/"
-firstRun = 191919
+globaltag = "GR_E_V42" 
+path = "/store/group/dpg_tracker_strip/comm_tracker/Strip/Calibration/calibrationtree/CRUZET15" #no slash at the end
+#path = "/castor/cern.ch/user/m/mgalanti/calibrationtree/GR12"
+#path = "/castor/cern.ch/user/m/mgalanti/calibrationtree/GR11"
+firstRun = 237201
 #firstRun = 192701	#value of the first run with the new calibration --> this is needed to avoid mixing runs with different calibrations
-lastRun  = 197000
+lastRun  = 237201
 MC=""
-publish = True
+publish = False
 mail = "loic.quertenmont@gmail.com"
 automatic = True;
 
@@ -45,7 +46,7 @@ for info in calibTreeInfo:
         if(len(info)<1):continue;
 	subParts = info.split();        
 	size = int(subParts[1])/1048576;
-	if(size < 50): continue	#skip file<50MB
+#	if(size < 50): continue	#skip file<50MB
 	run = int(subParts[4].replace(path+'/',"").replace("calibTree_","").replace(".root","")) 
 	if(run<firstRun):continue
         if(lastRun>0 and run>lastRun):continue
@@ -54,8 +55,8 @@ for info in calibTreeInfo:
 	if(calibTreeList==""):firstRun=run;
 	calibTreeList += '  "root://eoscms//eos/cms'+subParts[4]+'", #' + str(size).rjust(6)+'MB  NEvents='+str(NEvents/1000).rjust(8)+'K\n'
 	NTotalEvents += NEvents;
-	if(NTotalEvents>2500000):
-		break;
+#	if(NTotalEvents>2500000):
+#		break;
 
 if(lastRun==0):lastRun = run
 
