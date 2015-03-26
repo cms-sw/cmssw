@@ -20,6 +20,7 @@
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "TClass.h"
+#include "TError.h"
 
 // user include files
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
