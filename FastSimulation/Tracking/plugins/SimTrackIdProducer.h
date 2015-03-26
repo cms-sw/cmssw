@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 
@@ -31,8 +31,12 @@ private:
 
       // consumes 
       edm::EDGetTokenT<reco::TrackCollection>  trackToken;
-      std::string trackQuality;
+      //std::string trackQuality;
       double max_Chi2;
+      std::vector< edm::EDGetTokenT<edm::ValueMap<int> > > overrideTrkQuals_;
+      bool filterTracks_ = false;
+      reco::TrackBase::TrackQuality trackQuality_;
+      //std::vector<reco::TrackRef> trackRef;
 };
 
 #endif

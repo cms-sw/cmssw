@@ -10,7 +10,7 @@ mixedTripletStepSimTrackIds=FastSimulation.Tracking.SimTrackIdProducer_cfi.simTr
     trajectories = cms.InputTag("pixelPairStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClusters.TrackQuality,
     maxChi2 = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClusters.maxChi2,
-    HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
+    overrideTrkQuals = cms.InputTag('pixelPairStepSelector','pixelPairStep')
 )
 
 # trajectory seeds
