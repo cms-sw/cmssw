@@ -52,7 +52,8 @@ pixelPairStepSeeds.SeedComparitorPSet = cms.PSet(
     )
 pixelPairStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 pixelPairStepSeeds.OrderedHitsFactoryPSet.maxElement =  cms.uint32(0)
-pixelPairStepSeeds.SeedCreatorPSet.SimpleMagneticField = ''
+pixelPairStepSeeds.SeedCreatorPSet.magneticField = ''
+pixelPairStepSeeds.SeedCreatorPSet.propagator = 'PropagatorWithMaterial'
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff

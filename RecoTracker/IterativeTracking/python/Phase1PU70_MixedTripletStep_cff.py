@@ -36,7 +36,7 @@ mixedTripletStepSeedLayersA = cms.EDProducer("SeedingLayersEDProducer",
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(-1.0),
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
         minRing = cms.int32(1),
         maxRing = cms.int32(2),
         skipClusters = cms.InputTag('mixedTripletStepClusters')
@@ -66,7 +66,8 @@ mixedTripletStepSeedsA.SeedComparitorPSet = cms.PSet(
     )
 mixedTripletStepSeedsA.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 mixedTripletStepSeedsA.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
-mixedTripletStepSeedsA.SeedCreatorPSet.SimpleMagneticField = ''
+mixedTripletStepSeedsA.SeedCreatorPSet.magneticField = ''
+mixedTripletStepSeedsA.SeedCreatorPSet.propagator = 'PropagatorWithMaterial'
 
 # SEEDING LAYERS
 mixedTripletStepSeedLayersB = cms.EDProducer("SeedingLayersEDProducer",
@@ -101,7 +102,8 @@ mixedTripletStepSeedsB.SeedComparitorPSet = cms.PSet(
     )
 mixedTripletStepSeedsB.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 mixedTripletStepSeedsB.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
-mixedTripletStepSeedsB.SeedCreatorPSet.SimpleMagneticField = ''
+mixedTripletStepSeedsB.SeedCreatorPSet.magneticField = ''
+mixedTripletStepSeedsB.SeedCreatorPSet.propagator = 'PropagatorWithMaterial'
 
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
 mixedTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
