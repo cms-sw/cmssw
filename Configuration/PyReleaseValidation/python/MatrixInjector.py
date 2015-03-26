@@ -101,7 +101,7 @@ class MatrixInjector(object):
             "dashboardActivity" : "relval",
             "Memory" : 2400,
             "SizePerEvent" : 1234,
-            "TimePerEvent" : 10
+            "TimePerEvent" : 1
             }
 
         self.defaultHarvest={
