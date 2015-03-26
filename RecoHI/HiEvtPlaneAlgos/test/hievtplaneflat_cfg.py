@@ -25,8 +25,9 @@ process.MessageLogger.cerr.FwkReport.reportEvery=1000
 process.source = cms.Source("PoolSource",
 #                            fileNames = readFiles, secondaryFileNames = secFiles,
     fileNames = cms.untracked.vstring(
-#       '/store/user/mnguyen/Hydjet_Quenched_MinBias_5020GeV/HydjetMB_740pre8_MCHI2_74_V3_53XBS_RECO_v5/fa4d7cedb51d6196cc0424fd90debe3f/step3_RAW2DIGI_L1Reco_RECO_100_1_FN3.root',
-#       '/store/user/mnguyen/Hydjet_Quenched_MinBias_5020GeV/HydjetMB_740pre8_MCHI2_74_V3_53XBS_RECO_v5/fa4d7cedb51d6196cc0424fd90debe3f/step3_RAW2DIGI_L1Reco_RECO_101_1_1dG.root',
+       'root://cmsxrootd.fnal.gov//store/user/mnguyen/Hydjet_Quenched_MinBias_5020GeV/HydjetMB_Reco_730_53XBS/a2111270e3580d5672bd373836ad7c8e/hiReco_DIGI_L1_DIGI2RAW_RAW2DIGI_L1Reco_RECO_100_1_gMP.root',
+       'root://cmsxrootd.fnal.gov//store/user/mnguyen/Hydjet_Quenched_MinBias_5020GeV/HydjetMB_Reco_730_53XBS/a2111270e3580d5672bd373836ad7c8e/hiReco_DIGI_L1_DIGI2RAW_RAW2DIGI_L1Reco_RECO_101_1_dNN.root',
+       'root://cmsxrootd.fnal.gov//store/user/mnguyen/Hydjet_Quenched_MinBias_5020GeV/HydjetMB_Reco_730_53XBS/a2111270e3580d5672bd373836ad7c8e/hiReco_DIGI_L1_DIGI2RAW_RAW2DIGI_L1Reco_RECO_102_1_wS1.root'
         ),
                             inputCommands=cms.untracked.vstring(
         'keep *',
@@ -71,11 +72,10 @@ process.centralityBin.nonDefaultGlauberModel = cms.string("HydjetDrum5")
 
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 process.hiEvtPlane.nonDefaultGlauberModel = cms.string("HydjetDrum5")
-process.hiEvtPlaneFlatCalib.nonDefaultGlauberModel = cms.string("HydjetDrum5")
+process.hiEvtPlaneFlat.nonDefaultGlauberModel = cms.string("HydjetDrum5")
 
 process.hiEvtPlane.loadDB_ = cms.untracked.bool(True)
-process.hiEvtPlaneFlatCalib.genFlatPsi_ = cms.untracked.bool(True)
-process.p = cms.Path(process.heavyIon*process.centralityBin*process.hiEvtPlane*process.hiEvtPlaneFlatCalib)
+process.p = cms.Path(process.heavyIon*process.centralityBin*process.hiEvtPlane*process.hiEvtPlaneFlat)
 
 
 
