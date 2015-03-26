@@ -4013,7 +4013,7 @@ process = customizeHLTforMC(process)
 
 # add release-specific customizations
 from HLTrigger.Configuration.customizeHLTforCMSSW import customise
-process = customise(process)
+process = customiseHLTforCMSSW(process,menuType="HIon",fastSim=False)
 
 # load 2015 Run-2 L1 Menu for HIon
 from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0 as loadL1Menu

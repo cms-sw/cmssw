@@ -47235,7 +47235,7 @@ process.source = cms.Source( "PoolSource",
 
 # add release-specific customizations
 from HLTrigger.Configuration.customizeHLTforCMSSW import customise
-process = customise(process)
+process = customiseHLTforCMSSW(process,menuType="50nsGRun",fastSim=False)
 
 # load 2015 Run-2 L1 Menu for 50ns
 from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v1 as loadL1Menu
