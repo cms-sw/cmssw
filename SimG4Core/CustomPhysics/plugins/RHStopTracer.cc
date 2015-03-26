@@ -25,6 +25,9 @@ RHStopTracer::RHStopTracer(edm::ParameterSet const & p) {
   produces< std::vector<float> >("StoppedParticlesY");
   produces< std::vector<float> >("StoppedParticlesZ");
   produces< std::vector<float> >("StoppedParticlesTime");
+  produces< std::vector<int> >("StoppedParticlesPdgId");
+  produces< std::vector<float> >("StoppedParticlesMass");
+  produces< std::vector<float> >("StoppedParticlesCharge");
   
   LogDebug("SimG4CoreCustomPhysics") << "RHStopTracer::RHStopTracer->" 
 				     << mTraceParticleNameRegex << '/' << mTraceEnergy;
@@ -78,7 +81,10 @@ void RHStopTracer::update (const EndOfTrack * fTrack) {
 					track->GetPosition().x(),
 					track->GetPosition().y(),
 					track->GetPosition().z(),
-					track->GetGlobalTime()));
+					track->GetGlobalTime(),
+					track->GetDefinition()->GetPDGEncoding(),
+					track->GetDefinition()->GetPDGMass()/GeV,
+					track->GetDefinition()->GetPDGCharge() ));
     }
   }
 }
@@ -95,6 +101,9 @@ bool RHStopTracer::matched (const std::string& fName) const {
    std::auto_ptr<std::vector<float> > ys (new std::vector<float>);
    std::auto_ptr<std::vector<float> > zs (new std::vector<float>);
    std::auto_ptr<std::vector<float> > ts (new std::vector<float>);
+   std::auto_ptr<std::vector<int> > ids (new std::vector<int>);
+   std::auto_ptr<std::vector<float> > masses (new std::vector<float>);
+   std::auto_ptr<std::vector<float> > charges (new std::vector<float>);
 
    std::vector <StopPoint>::const_iterator stopPoint = mStopPoints.begin ();
    for (;  stopPoint != mStopPoints.end(); ++stopPoint) {
@@ -103,11 +112,17 @@ bool RHStopTracer::matched (const std::string& fName) const {
      ys->push_back (stopPoint->y);
      zs->push_back (stopPoint->z);
      ts->push_back (stopPoint->t);
+     ids->push_back (stopPoint->id);
+     masses->push_back (stopPoint->mass);
+     charges->push_back (stopPoint->charge);
    }
    fEvent.put (names, "StoppedParticlesName");
    fEvent.put (xs, "StoppedParticlesX");
    fEvent.put (ys, "StoppedParticlesY");
    fEvent.put (zs, "StoppedParticlesZ");
    fEvent.put (ts, "StoppedParticlesTime");
+   fEvent.put (ids, "StoppedParticlesPdgId");
+   fEvent.put (masses, "StoppedParticlesMass");
+   fEvent.put (charges, "StoppedParticlesCharge");
    mStopPoints.clear ();
  }
