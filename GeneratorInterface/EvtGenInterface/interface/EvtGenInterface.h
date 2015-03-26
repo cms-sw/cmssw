@@ -48,7 +48,7 @@ namespace gen {
     
   private:
     void addToHepMC(HepMC::GenParticle* partHep,const EvtId &idEvt, HepMC::GenEvent* theEvent);
-    void update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p);
+    void update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p,bool allowMixing=true);
     void SetDefault_m_PDGs();
     
     EvtGen *m_EvtGen;                // EvtGen main  object

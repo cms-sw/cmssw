@@ -121,6 +121,10 @@ void ExternalDecayDriver::init( const edm::EventSetup& es )
      for ( std::vector<int>::const_iterator i=fEvtGenInterface->operatesOnParticles().begin();
 	   i!=fEvtGenInterface->operatesOnParticles().end(); i++ )
        fPDGs.push_back( *i );
+       for ( unsigned int iss=0; iss<fEvtGenInterface->specialSettings().size(); iss++ ){
+         fSpecialSettings.push_back( fEvtGenInterface->specialSettings()[iss] );
+       }
+
    }
    
    

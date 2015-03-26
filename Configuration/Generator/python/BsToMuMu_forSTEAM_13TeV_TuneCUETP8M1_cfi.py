@@ -14,27 +14,21 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
         EvtGen130 = cms.untracked.PSet(
             decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_2010.DEC'),
             particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
-          #  user_decay_file = cms.untracked.bool(True),
             user_decay_file = cms.vstring('GeneratorInterface/ExternalDecays/data/Bs_mumu.dec'),
             list_forced_decays = cms.vstring('MyB_s0','Myanti-B_s0'),
             operates_on_particles = cms.vint32()
             ),
         parameterSets = cms.vstring('EvtGen130')
         ),
-                         #EvtGen = cms.untracked.PSet(
-                         #operates_on_particles = cms.vint32( 0 ), # 0 (zero) means default list (hardcoded)
-                         #use_default_decay = cms.untracked.bool(False),
-                         #decay_table = cms.FileInPath('GeneratorInterface/ExternalDecays/data/DECAY_NOLONGLIFE.DEC'),
-                         #particle_property_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/evt.pdl'),
-                         #user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/Bs_mumu.dec'),
-                         #list_forced_decays = cms.vstring('MyB_s0','Myanti-B_s0'),
-                         #),
-                         #parameterSets = cms.vstring('EvtGen')
-                         #),
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,
-        processParameters = cms.vstring('HardQCD:all = on'),
+        processParameters = cms.vstring(            
+            'HardQCD:gg2bbbar = on ',
+            'HardQCD:qqbar2bbbar = on ',
+            'HardQCD:hardbbbar = on',
+            'PhaseSpace:pTHatMin = 20.',
+            ),
         parameterSets = cms.vstring('pythia8CommonSettings',
                                     'pythia8CUEP8M1Settings',
                                     'processParameters',
@@ -50,10 +44,7 @@ MuMuFilter = cms.EDFilter("MCParticlePairFilter",
                           MaxEta = cms.untracked.vdouble(2.5, 2.5),
                           MinEta = cms.untracked.vdouble(-2.5, -2.5),
                           ParticleCharge = cms.untracked.int32(-1),
-                          #MaxInvMass = cms.untracked.double(5.5),
-                          #MinInvMass = cms.untracked.double(5.0),
-                          ParticleID1 = cms.untracked.vint32(13),
-                          ParticleID2 = cms.untracked.vint32(13)
+                          ParticleID1 = cms.untracked.vint32(13,-13),
                           )
 
 # -- Require Muon from Bs

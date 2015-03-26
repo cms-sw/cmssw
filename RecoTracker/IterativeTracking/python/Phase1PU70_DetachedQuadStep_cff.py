@@ -68,7 +68,8 @@ detachedQuadStepSeeds.SeedComparitorPSet = cms.PSet(
     )
 detachedQuadStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 detachedQuadStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
-detachedQuadStepSeeds.SeedCreatorPSet.SimpleMagneticField = ''
+detachedQuadStepSeeds.SeedCreatorPSet.magneticField = ''
+detachedQuadStepSeeds.SeedCreatorPSet.propagator = 'PropagatorWithMaterial'
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff

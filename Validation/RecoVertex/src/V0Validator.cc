@@ -26,27 +26,14 @@ typedef edm::RefVector<edm::HepMCProduct, HepMC::GenVertex > GenVertexRefVector;
 typedef edm::RefVector<edm::HepMCProduct, HepMC::GenParticle > GenParticleRefVector;
 
 V0Validator::V0Validator(const edm::ParameterSet& iConfig)
-  : theDQMRootFileName(iConfig.getParameter<std::string>("DQMRootFileName"))
-  , dirName(iConfig.getParameter<std::string>("dirName"))
-  , recoRecoToSimCollectionToken_( consumes<reco::RecoToSimCollection>( edm::InputTag( std::string( "trackingParticleRecoTrackAsssociation" ) ) ) )
-  , recoSimToRecoCollectionToken_( consumes<reco::SimToRecoCollection>( edm::InputTag( std::string( "trackingParticleRecoTrackAsssociation" ) ) ) )
-  , trackingParticleCollection_Eff_Token_( consumes<TrackingParticleCollection>( edm::InputTag( std::string( "mix" )
-											      , std::string( "MergedTrackTruth" )
-												)
-										 )
-					   )
-  , trackingParticleCollectionToken_( consumes<TrackingParticleCollection>( edm::InputTag( std::string( "mix" )
-											 , std::string( "MergedTrackTruth" )
-											   )
-									    )
-				      )
-  , edmView_recoTrack_Token_( consumes< edm::View<reco::Track> >( edm::InputTag( std::string( "generalTracks" ) ) ) )
-  , edmSimTrackContainerToken_( consumes<edm::SimTrackContainer>( edm::InputTag( std::string( "g4SimHits" ) ) ) )
-  , edmSimVertexContainerToken_( consumes<edm::SimVertexContainer>( edm::InputTag( std::string( "g4SimHits" ) ) ) )
-  , vec_recoVertex_Token_( consumes< std::vector<reco::Vertex> >( edm::InputTag( std::string( "offlinePrimaryVertices" ) ) ) )
-  , recoVertexCompositeCandidateCollection_k0s_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getParameter<edm::InputTag>( "kShortCollection" ) ) )
-  , recoVertexCompositeCandidateCollection_lambda_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getParameter<edm::InputTag>( "lambdaCollection" ) ) )
-  , recoTrackToTrackingParticleAssociator_Token_( consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag("trackAssociatorByHits")) )
+  : theDQMRootFileName(iConfig.getUntrackedParameter<std::string>("DQMRootFileName"))
+  , dirName(iConfig.getUntrackedParameter<std::string>("dirName"))
+  , recoRecoToSimCollectionToken_( consumes<reco::RecoToSimCollection>( iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap") ) )
+  , recoSimToRecoCollectionToken_( consumes<reco::SimToRecoCollection>( iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap") ) )
+  , trackingParticleCollection_Eff_Token_( consumes<TrackingParticleCollection>( iConfig.getUntrackedParameter<edm::InputTag>("trackingParticleCollectionEff") ) )
+  , vec_recoVertex_Token_( consumes< std::vector<reco::Vertex> >( iConfig.getUntrackedParameter<edm::InputTag>("vertexCollection") ) )
+  , recoVertexCompositeCandidateCollection_k0s_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getUntrackedParameter<edm::InputTag>( "kShortCollection" ) ) )
+  , recoVertexCompositeCandidateCollection_lambda_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getUntrackedParameter<edm::InputTag>( "lambdaCollection" ) ) )
 {
 
   genLam = genK0s = realLamFoundEff = realK0sFoundEff = lamCandFound = k0sCandFound = noTPforK0sCand = noTPforLamCand = realK0sFound = realLamFound = 0;
@@ -294,35 +281,12 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   edm::Handle<TrackingParticleCollection>  TPCollectionEff ;
   iEvent.getByToken( trackingParticleCollection_Eff_Token_, TPCollectionEff );
-  const TrackingParticleCollection tPCeff = *( TPCollectionEff.product() );
-
-  edm::Handle<reco::TrackToTrackingParticleAssociator> associatorByHits;
-  iEvent.getByToken(recoTrackToTrackingParticleAssociator_Token_, associatorByHits);
-
-  // Get tracks
-  Handle< View<reco::Track> > trackCollectionH;
-  iEvent.getByToken( edmView_recoTrack_Token_, trackCollectionH );
-
-  Handle<SimTrackContainer> simTrackCollection;
-  iEvent.getByToken( edmSimTrackContainerToken_, simTrackCollection );
-  const SimTrackContainer simTC = *(simTrackCollection.product());
-
-  Handle<SimVertexContainer> simVertexCollection;
-  iEvent.getByToken( edmSimVertexContainerToken_, simVertexCollection );
-  const SimVertexContainer simVC = *(simVertexCollection.product());
-
-  //Get tracking particles
-  //  -->tracks
-  edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-  iEvent.getByToken( trackingParticleCollectionToken_, TPCollectionH );
-  const View<reco::Track>  tC = *( trackCollectionH.product() );
+  const TrackingParticleCollection& tPCeff = *( TPCollectionEff.product() );
 
   // Select the primary vertex, create a new reco::Vertex to hold it
   edm::Handle< std::vector<reco::Vertex> > primaryVtxCollectionH;
   iEvent.getByToken( vec_recoVertex_Token_, primaryVtxCollectionH );
-  const reco::VertexCollection primaryVertexCollection   = *(primaryVtxCollectionH.product());
 
-  reco::Vertex* thePrimary = 0;
   std::vector<reco::Vertex>::const_iterator iVtxPH = primaryVtxCollectionH->begin();
   for(std::vector<reco::Vertex>::const_iterator iVtx = primaryVtxCollectionH->begin();
       iVtx < primaryVtxCollectionH->end();
@@ -334,7 +298,6 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
     else iVtxPH = iVtx;
   }
-  thePrimary = new reco::Vertex(*iVtxPH);
 
   //get the V0s;   
   edm::Handle<reco::VertexCompositeCandidateCollection> k0sCollection;
@@ -891,8 +854,6 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }
   }
-
-  delete thePrimary;
 }
 
 //define this as a plug-in
