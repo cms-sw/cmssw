@@ -4012,7 +4012,7 @@ from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
 process = customizeHLTforMC(process)
 
 # add release-specific customizations
-from HLTrigger.Configuration.customizeHLTforCMSSW import customise
+from HLTrigger.Configuration.customizeHLTforCMSSW import customiseHLTforCMSSW
 process = customiseHLTforCMSSW(process,menuType="HIon",fastSim=False)
 
 # load 2015 Run-2 L1 Menu for HIon
