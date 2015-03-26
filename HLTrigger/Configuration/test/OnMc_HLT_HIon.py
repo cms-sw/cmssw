@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HIon/V26 (CMSSW_7_4_0_pre7_HLT4)
+# /dev/CMSSW_7_4_0/HIon/V29 (CMSSW_7_4_0_pre9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V26')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V29')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -4013,7 +4013,7 @@ process = customizeHLTforMC(process)
 
 # add release-specific customizations
 from HLTrigger.Configuration.customizeHLTforCMSSW import customise
-process = customise(process)
+process = customiseHLTforCMSSW(process,menuType="HIon",fastSim=False)
 
 # load 2015 Run-2 L1 Menu for HIon
 from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0 as loadL1Menu
