@@ -364,7 +364,7 @@ from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
 process = customizeHLTforMC(process)
 
 # add release-specific customizations
-from HLTrigger.Configuration.customizeHLTforCMSSW import customise
+from HLTrigger.Configuration.customizeHLTforCMSSW import customiseHLTforCMSSW
 process = customiseHLTforCMSSW(process,menuType="Fake",fastSim=False)
 
 # adapt HLT modules to the correct process name
