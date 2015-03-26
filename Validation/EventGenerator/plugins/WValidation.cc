@@ -12,7 +12,7 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
-
+#include "Validation/EventGenerator/interface/DQMHelper.h"
 using namespace edm;
 
 WValidation::WValidation(const edm::ParameterSet& iPSet): 
@@ -31,30 +31,30 @@ void WValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::Ev
     ///Setting the DQM top directories
     std::string folderName = "Generator/W";
     folderName+=_name;
-    i.setCurrentFolder(folderName.c_str());
+    DQMHelper dqm(&i); i.setCurrentFolder(folderName.c_str());
     
     // Number of analyzed events
-    nEvt = i.book1D("nEvt", "n analyzed Events", 1, 0., 1.);
+    nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.);
     
     //Kinematics
-    Wmass = i.book1D("Wmass","inv. Mass W", 70 ,0,140);
-    WmassPeak = i.book1D("WmassPeak","inv. Mass W", 80 ,80 ,100);
-    Wpt = i.book1D("Wpt","W pt",100,0,200);
-    WptLog = i.book1D("WptLog","log(W pt)",100,0.,5.);
-    Wrap = i.book1D("Wrap", "W y", 100, -5, 5);
-    Wdaughters = i.book1D("Wdaughters", "W daughters", 60, -30, 30);
+    Wmass = dqm.book1dHisto("Wmass","inv. Mass W", 70 ,0,140);
+    WmassPeak = dqm.book1dHisto("WmassPeak","inv. Mass W", 80 ,80 ,100);
+    Wpt = dqm.book1dHisto("Wpt","W pt",100,0,200);
+    WptLog = dqm.book1dHisto("WptLog","log(W pt)",100,0.,5.);
+    Wrap = dqm.book1dHisto("Wrap", "W y", 100, -5, 5);
+    Wdaughters = dqm.book1dHisto("Wdaughters", "W daughters", 60, -30, 30);
 
-    lepmet_mT = i.book1D("lepmet_mT","lepton-met transverse mass", 70 ,0,140);
-    lepmet_mTPeak = i.book1D("lepmet_mTPeak","lepton-met transverse mass", 80 ,80 ,100);
-    lepmet_pt = i.book1D("lepmet_pt","lepton-met",100,0,200);
-    lepmet_ptLog = i.book1D("lepmet_ptLog","log(lepton-met pt)",100,0.,5.);
+    lepmet_mT = dqm.book1dHisto("lepmet_mT","lepton-met transverse mass", 70 ,0,140);
+    lepmet_mTPeak = dqm.book1dHisto("lepmet_mTPeak","lepton-met transverse mass", 80 ,80 ,100);
+    lepmet_pt = dqm.book1dHisto("lepmet_pt","lepton-met",100,0,200);
+    lepmet_ptLog = dqm.book1dHisto("lepmet_ptLog","log(lepton-met pt)",100,0.,5.);
 
-    gamma_energy = i.book1D("gamma_energy", "photon energy in W rest frame", 200, 0., 100.);
-    cos_theta_gamma_lepton = i.book1D("cos_theta_gamma_lepton",      "cos_theta_gamma_lepton in W rest frame",      200, -1, 1);
+    gamma_energy = dqm.book1dHisto("gamma_energy", "photon energy in W rest frame", 200, 0., 100.);
+    cos_theta_gamma_lepton = dqm.book1dHisto("cos_theta_gamma_lepton",      "cos_theta_gamma_lepton in W rest frame",      200, -1, 1);
 
-    leppt = i.book1D("leadpt","lepton pt", 200, 0., 200.);    
-    met   = i.book1D("met","met", 200, 0., 200.);    
-    lepeta = i.book1D("leadeta","leading lepton eta", 100, -5., 5.);
+    leppt = dqm.book1dHisto("leadpt","lepton pt", 200, 0., 200.);    
+    met   = dqm.book1dHisto("met","met", 200, 0., 200.);    
+    lepeta = dqm.book1dHisto("leadeta","leading lepton eta", 100, -5., 5.);
 
   return;
 }
