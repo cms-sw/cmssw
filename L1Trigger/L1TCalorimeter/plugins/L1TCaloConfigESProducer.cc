@@ -69,7 +69,8 @@ L1TCaloConfigESProducer::L1TCaloConfigESProducer(const edm::ParameterSet& conf)
 
   std::string l1epoch = conf.getParameter<string>("l1Epoch");
   unsigned fwv = conf.getParameter<unsigned>("fwVersionLayer2");
-  CaloConfigHelper h(m_params, fwv, l1epoch);
+  unsigned fedid = conf.getParameter<unsigned>("fedIdLayer2");
+  CaloConfigHelper h(m_params, fwv, fedid, l1epoch);
 }
 
 

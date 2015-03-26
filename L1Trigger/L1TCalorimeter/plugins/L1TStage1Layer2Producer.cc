@@ -366,7 +366,7 @@ void L1TStage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
 
 
 
-    int ifwv=m_config.fwv();
+    int ifwv=m_config.fwv_layer2();
     //cout << "DEBUG:  ifwv is " << ifwv << "\n";
     //m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
     if (ifwv == 1){

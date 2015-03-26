@@ -10,5 +10,6 @@ caloConfigSource = cms.ESSource(
 caloConfig = cms.ESProducer(
     "L1TCaloConfigESProducer",
     l1Epoch         = cms.string("Stage1"),
-    fwVersionLayer2 = cms.uint32(2)
+    fwVersionLayer2 = cms.uint32(2),
+    fedIdLayer2 = cms.uint32(1352)
 )
