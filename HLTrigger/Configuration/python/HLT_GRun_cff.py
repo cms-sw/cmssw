@@ -45272,7 +45272,7 @@ fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT
 
 # add release-specific customizations
 from HLTrigger.Configuration.customizeHLTforCMSSW import customise
-fragment = customise(fragment)
+fragment = customiseHLTforCMSSW(fragment,menuType="GRun",fastSim=False)
 
 # dummyfy hltGetConditions in cff's
 if 'hltGetConditions' in fragment.__dict__ and 'HLTriggerFirstPath' in fragment.__dict__ :

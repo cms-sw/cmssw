@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/Fake/V5 (CMSSW_7_4_0_pre7_HLT4)
+# /dev/CMSSW_7_4_0/Fake/V6 (CMSSW_7_4_0_pre9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/Fake/V5')
+  tableName = cms.string('/dev/CMSSW_7_4_0/Fake/V6')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -365,7 +365,7 @@ process = customizeHLTforMC(process)
 
 # add release-specific customizations
 from HLTrigger.Configuration.customizeHLTforCMSSW import customise
-process = customise(process)
+process = customiseHLTforCMSSW(process,menuType="Fake",fastSim=False)
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
