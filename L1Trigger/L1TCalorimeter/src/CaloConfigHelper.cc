@@ -4,11 +4,16 @@
 
 namespace l1t {
   
-  CaloConfigHelper::CaloConfigHelper(CaloConfig & db, unsigned fwv, std::string epoch) : db_(db) {
-    db_.uconfig_.push_back(fwv);
-    db_.sconfig_.push_back(epoch);
+  CaloConfigHelper::CaloConfigHelper(CaloConfig & db, unsigned fwv_layer2, unsigned fedid_layer2, std::string epoch) : db_(&db) {
+    db.uconfig_.push_back(fwv_layer2);
+    db.uconfig_.push_back(fedid_layer2);
+    db.sconfig_.push_back(epoch);
   }
-  CaloConfigHelper::CaloConfigHelper(CaloConfig & db) : db_(db) {
+  CaloConfigHelper::CaloConfigHelper(const CaloConfig & db) : db_(&db) {
     
+  }
+  CaloConfigHelper::CaloConfigHelper() {
+    static CaloConfig db;
+    db_ = &db;
   }
 }

@@ -11,11 +11,15 @@ namespace l1t {
 
   class CaloConfigHelper {
   public:
-    CaloConfigHelper(CaloConfig & db, unsigned fwv, std::string epoch);
-    CaloConfigHelper(CaloConfig & db);
-    unsigned fwv(){ return db_.uconfig_[0]; }
+
+    CaloConfigHelper(CaloConfig & db, unsigned fwv_layer2, unsigned fedid_layer2, std::string epoch);
+    CaloConfigHelper(const CaloConfig & db);
+    CaloConfigHelper();
+    void UpdatePayload(const CaloConfig * db){ db_ = db; }
+    unsigned fwv_layer2(){ return db_->uconfig_[0]; }
+    unsigned fedid_layer2(){ return db_->uconfig_[1]; }
   private:
-    CaloConfig & db_;
+    const CaloConfig * db_; // We do not own this pointer...
   };
 }
 
