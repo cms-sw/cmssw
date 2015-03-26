@@ -409,10 +409,11 @@ def getSinglePFJet(thresholds, flavour=None, etaMin=-1, srcType="genJets", parti
 
     ret=cms.VPSet()
     for t in thresholds:
-        partialPathName += str(t)+"_"
+        partialPathNameLoc = partialPathName
+        partialPathNameLoc += str(t)+"_"
         if flavour != None:
-            partialPathName += flavour+"_"
-        partialPathName += "v"
+            partialPathNameLoc += flavour+"_"
+        partialPathNameLoc += "v"
 
         marginLow = max(t-t/2, 15)
         ptBinLow  = max(t-marginLow,0)
@@ -420,12 +421,12 @@ def getSinglePFJet(thresholds, flavour=None, etaMin=-1, srcType="genJets", parti
         ptBinHigh = t+marginHigh
         ptBins = min(100, ptBinHigh-ptBinLow)
         fromJets =  cms.PSet(
-            triggerSelection = cms.string(partialPathName+"*"),
+            triggerSelection = cms.string(partialPathNameLoc+"*"),
             handlerType = cms.string(handlerType),
             PFJetCorLabel        = cms.InputTag("ak4PFL1FastL2L3Corrector"),
             inputCol = inputCol,
             #    inputCol = cms.InputTag("ak4PFJetsCHS"),
-            partialPathName = cms.string(partialPathName),
+            partialPathName = cms.string(partialPathNameLoc),
             partialFilterName  = cms.string("hltSinglePFJet"),
             dqmhistolabel  = cms.string(label),
             mainDQMDirname = cms.untracked.string(fsqdirname),
@@ -568,14 +569,14 @@ def getFSQAll():
     #todo = ["genJets", "ak4PFJetsCHS", "hlt"]
     todo = ["ak4PFJetsCHS", "hlt"]
     for t in todo:
-        ret.extend(getSinglePFJet([20], flavour=None, etaMin=None, srcType=t))
-        ret.extend(getSinglePFJet([15, 25,40], flavour=None, etaMin=None, srcType=t))
-        ret.extend(getSinglePFJet([15, 25,40], flavour="FwdEta2", etaMin=2, srcType=t))
-        ret.extend(getSinglePFJet([15, 25,40], flavour="FwdEta3", etaMin=3, srcType=t))
+        ret.extend(getSinglePFJet([20], flavour="NoCaloMatched", etaMin=None, srcType=t))
+        ret.extend(getSinglePFJet([15, 25,40], flavour="NoCaloMatched", etaMin=None, srcType=t))
+        ret.extend(getSinglePFJet([15, 25,40], flavour="FwdEta2_NoCaloMatched", etaMin=2, srcType=t))
+        ret.extend(getSinglePFJet([15, 25,40], flavour="FwdEta3_NoCaloMatched", etaMin=3, srcType=t))
 
-        ret.extend(getDoublePFJet([15], flavour=None, etaMin=None, srcType=t))
-        ret.extend(getDoublePFJet([15], flavour="FBEta2", etaMin=2, srcType=t))
-        ret.extend(getDoublePFJet([15], flavour="FBEta3", etaMin=3, srcType=t))
+        ret.extend(getDoublePFJet([15], flavour="NoCaloMatched", etaMin=None, srcType=t))
+        ret.extend(getDoublePFJet([15], flavour="FBEta2_NoCaloMatched", etaMin=2, srcType=t))
+        ret.extend(getDoublePFJet([15], flavour="FBEta3_NoCaloMatched", etaMin=3, srcType=t))
 
         ret.extend(getSinglePFJet([15], partialPathName="HLT_L1Tech62_CASTORJet_SinglePFJet", srcType=t,  disableEff=True))
 
