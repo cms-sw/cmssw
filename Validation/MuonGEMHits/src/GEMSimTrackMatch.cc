@@ -9,9 +9,9 @@
 using namespace std;
 GEMSimTrackMatch::GEMSimTrackMatch(const edm::ParameterSet& ps) : GEMTrackMatch(ps)
 {
-  minPt_  = ps.getUntrackedParameter<double>("gemMinPt",5.0);
-  minEta_ = ps.getUntrackedParameter<double>("gemMinEta",1.55);
-  maxEta_ = ps.getUntrackedParameter<double>("gemMaxEta",2.45);
+  //minPt_  = ps.getUntrackedParameter<double>("gemMinPt",5.0);
+  //minEta_ = ps.getUntrackedParameter<double>("gemMinEta",1.55);
+  //maxEta_ = ps.getUntrackedParameter<double>("gemMaxEta",2.45);
   cfg_ = ps;
 }
 

@@ -7,7 +7,7 @@
 
 GEMTrackMatch::GEMTrackMatch(const edm::ParameterSet& ps)
 {
-  etaRangeForPhi = ps.getUntrackedParameter< std::vector<double> >("EtaRangeForPhi");
+  //etaRangeForPhi = ps.getUntrackedParameter< std::vector<double> >("EtaRangeForPhi");
   simTracksToken_ = consumes< edm::SimTrackContainer >(ps.getParameter<edm::InputTag>("simTrackCollection"));
   simVerticesToken_ = consumes< edm::SimVertexContainer >(ps.getParameter<edm::InputTag>("simVertexCollection"));
 }

@@ -11,14 +11,15 @@ def customise_digitization(process):
   from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only
   process = customize_digi_addGEM_muon_only(process)
   process.simMuonGEMDigis.mixLabel = cms.string("mix")
+  #process.simMuonRPCDigis.digiModel = cms.string('RPCSimParam')
   #process.simMuonME0Digis.mixLabel = cms.string("mix")
-  #process.digitisation_step.remove(process.simMuonRPCDigis)
+  process.digitisation_step.remove(process.simMuonRPCDigis)
   return process
 
 def customise_Validation(process):
   process.load('Validation.MuonGEMHits.MuonGEMHits_cfi')
   process.load('Validation.MuonGEMDigis.MuonGEMDigis_cfi')
-  process.genvalid_all += process.gemHitsValidation
+  process.genvalid_all += process.gemSimValid
   process.genvalid_all += process.gemDigiValidation
   return process
 

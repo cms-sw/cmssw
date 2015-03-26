@@ -11,3 +11,13 @@ gemHitsValidation = cms.EDAnalyzer('GEMHitsValidation',
     nBinGlobalXY = cms.untracked.int32(720), 
 )
 
+gemSimTrackValidation = cms.EDAnalyzer('GEMSimTrackMatch',
+    verboseSimHit = cms.untracked.int32(1),
+    simInputLabel = cms.InputTag('g4SimHits',"MuonGEMHits"),
+    simMuOnlyGEM = cms.bool(True),
+    discardEleHitsGEM = cms.bool(True),
+    simTrackCollection = cms.InputTag('g4SimHits'),
+    simVertexCollection = cms.InputTag('g4SimHits'),
+)
+
+gemSimValid = cms.Sequence( gemHitsValidation+gemSimTrackValidation)
