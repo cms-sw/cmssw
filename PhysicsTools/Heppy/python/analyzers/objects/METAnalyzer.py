@@ -110,13 +110,11 @@ class METAnalyzer( Analyzer ):
 
         #Shifted METs
         #Uncertainties defined in https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/DataFormats/PatCandidates/interface/MET.h#L168
-        #event.met_shifted = []
-        for i in range(14):
-            m = deepcopy(event.met)
+        for i in range(event.met.METUncertaintySize):
+            m = ROOT.pat.MET(event.met)
             px  = m.shiftedPx(i);
             py  = m.shiftedPy(i);
             m.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
-            #event.met_shifted += [m]
             setattr(event, "met_shifted_{0}".format(i), m)
         event.met_sig = event.met.significance()
         event.met_sumet = event.met.sumEt()
