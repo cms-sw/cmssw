@@ -35,7 +35,11 @@ EcalClusterLazyToolsBase::EcalClusterLazyToolsBase( const edm::Event &ev, const 
   getTopology( es );
   getEBRecHits( ev );
   getEERecHits( ev );
-  getESRecHits( ev );
+  // The ES retrieval is optional, we skip this step if
+  // the ES collection token is not initialized
+  if( !esRHToken_. isUninitialized() )
+    getESRecHits( ev );
+
   getIntercalibConstants( es );
   getADCToGeV ( es );
   getLaserDbService ( es );
